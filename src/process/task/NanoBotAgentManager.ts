@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { NanobotAgent, type NanobotAgentConfig } from '@process/agent/nanobot';
@@ -9,7 +11,9 @@ import { ipcBridge } from '@/common';
 import type { TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
+import type { TurnEndOutcome } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
+import { ConversationTurnCompletionService } from '@process/task/ConversationTurnCompletionService';
 import { addMessage, addOrUpdateMessage } from '@process/utils/message';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
 import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher';
@@ -48,6 +52,7 @@ class NanoBotAgentManager extends BaseAgentManager<NanoBotAgentManagerData> {
       workingDir: data.workspace || process.cwd(),
       onStreamEvent: (message) => this.handleStreamEvent(message),
       onSignalEvent: (message) => this.handleSignalEvent(message),
+      onTurnEnd: (outcome) => this.handleTurnEnd(outcome),
     };
 
     this.agent = new NanobotAgent(config);
@@ -106,7 +111,35 @@ class NanoBotAgentManager extends BaseAgentManager<NanoBotAgentManagerData> {
     channelEventBus.emitAgentMessage(this.conversation_id, msg);
   }
 
-  async sendMessage(data: { content: string; files?: string[]; msg_id?: string; hidden?: boolean; silent?: boolean }) {
+  /**
+   * #838: raise the OS completion notification and let autonomous workflows
+   * self-advance, which this backend never did.
+   *
+   * Only a clean end of turn qualifies. On error we emit nothing and leave the
+   * run to the existing 30-minute autonomous watchdog, which parks it.
+   * Notifying there would carry the default `state: 'ai_waiting_input'`, and
+   * WorkflowSessionService would read that as a step that finished - marking a
+   * FAILED step done and advancing the run.
+   */
+  private handleTurnEnd(outcome: TurnEndOutcome): void {
+    if (outcome !== 'ok') return;
+    void ConversationTurnCompletionService.getInstance().notifyPotentialCompletion(this.conversation_id, {
+      status: this.status ?? 'finished',
+      workspace: this.workspace,
+      backend: 'nanobot',
+      pendingConfirmations: this.getConfirmations().length,
+    });
+  }
+
+  async sendMessage(data: {
+    content: string;
+    files?: string[];
+    /** Absolute paths the local user attached. See IMessageText.content.files. */
+    attachedFiles?: string[];
+    msg_id?: string;
+    hidden?: boolean;
+    silent?: boolean;
+  }) {
     cronBusyGuard.setProcessing(this.conversation_id, true);
     try {
       await this.bootstrap;
@@ -119,7 +152,10 @@ class NanoBotAgentManager extends BaseAgentManager<NanoBotAgentManagerData> {
           type: 'text',
           position: 'right',
           conversation_id: this.conversation_id,
-          content: { content: data.content },
+          content: {
+            content: data.content,
+            ...(data.attachedFiles?.length && { files: data.attachedFiles }),
+          },
           createdAt: Date.now(),
           ...(data.hidden && { hidden: true }),
         };

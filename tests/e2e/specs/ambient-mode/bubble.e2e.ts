@@ -403,7 +403,16 @@ test.describe('Ambient Mode - M1 Bubble', () => {
   // PM [TEST-REVIEW-APPROVED] black-box correctness here means: read via the bridge (an existing public
   // Config bridge, not a backdoor debug IPC). `ambient.getBubblePosition` is a public getter that
   // Dev needs to expose in systemSettingsBridge (see the pet.* template).
-  test('AC-M1-5: position is persisted to ConfigStorage (ambient.bubblePosition)', async ({ page, electronApp }) => {
+  // Bridge calls go to `ambientMainPage`, NOT `page`. In ambientTest, `page` is
+  // the BUBBLE window, whose preload exposes only `ambientAPI` - never
+  // `electronAPI` - so invokeBridge there always throws "electronAPI bridge is
+  // unavailable". The first call below swallowed that in a `.catch(() => null)`
+  // and simply spun the poll to its timeout; the second threw outright. The
+  // ambient process's main window is the one carrying the bridge.
+  test('AC-M1-5: position is persisted to ConfigStorage (ambient.bubblePosition)', async ({
+    ambientMainPage,
+    electronApp,
+  }) => {
     // Move the bubble to the middle of the right half of the screen
     await electronApp.evaluate(({ BrowserWindow, screen }) => {
       const bubbleWin = BrowserWindow.getAllWindows().find(
@@ -426,7 +435,7 @@ test.describe('Ambient Mode - M1 Bubble', () => {
           const info = await getAmbientBubbleInfo(electronApp);
           if (!info) return null;
           const persisted = await invokeBridge<{ x: number; y: number; displayId: number } | null>(
-            page,
+            ambientMainPage,
             'ambient.getBubblePosition'
           ).catch(() => null);
           if (!persisted) return null;
@@ -445,7 +454,7 @@ test.describe('Ambient Mode - M1 Bubble', () => {
     // Exact consistency assertion
     const info = await getAmbientBubbleInfo(electronApp);
     const persisted = await invokeBridge<{ x: number; y: number; displayId: number }>(
-      page,
+      ambientMainPage,
       'ambient.getBubblePosition'
     );
     expect(Math.abs(info!.bounds.x - persisted.x)).toBeLessThanOrEqual(2);

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 // Force IPv4-first DNS in the main process (side-effect import). Keeps outbound
@@ -74,6 +76,7 @@ import './process/bridge/feedbackBridge';
 import { wasLaunchedAtLogin } from '@process/bridge/applicationBridge';
 import { applyFirstRunDefaults } from '@process/utils/firstRunDefaults';
 import { migrateCredentialsToSafeStorage_v1 } from '@process/utils/credentialMigration';
+import { reclaimVoiceOrphans_v1 } from '@process/utils/voiceOrphanReclaim';
 import { onCloseToTrayChanged, onLanguageChanged } from './process/bridge/systemSettingsBridge';
 import { setInitialLanguage } from '@process/services/i18n';
 import { workerTaskManager } from './process/task/workerTaskManagerSingleton';
@@ -1030,6 +1033,11 @@ const handleAppReady = async (): Promise<void> => {
       } catch (err) {
         console.error('[Wayland] credential migration threw:', err);
       }
+
+      // Delete the abandoned Kokoro / whisper.cpp model trees under
+      // <userData>/voice/. Roughly half a gigabyte with no reader left in the
+      // codebase. Silent + one-shot; never blocks launch.
+      await reclaimVoiceOrphans_v1();
 
       try {
         const savedCloseToTray = await ProcessConfig.get('system.closeToTray');

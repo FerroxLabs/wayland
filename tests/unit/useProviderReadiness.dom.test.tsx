@@ -15,7 +15,7 @@ vi.mock('@renderer/hooks/useModelRegistry', () => ({
   useModelRegistry: () => registryMock.value,
 }));
 
-import { useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
+import { activationPromptFor, useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
 
 function provider(over: Partial<IModelRegistryProviderView>): IModelRegistryProviderView {
   return {
@@ -141,6 +141,72 @@ describe('useProviderReadiness', () => {
       expect(result.current).toEqual({ ready: true, loading: false });
     } finally {
       clock.mockRestore();
+    }
+  });
+});
+
+describe('activationPromptFor', () => {
+  /**
+   * The exact live shape that produced the reported defect: a fully provisioned
+   * install (11 connected providers, real catalogs, no error on any row) whose
+   * credentials could not be unlocked, so the main process reported every row
+   * `dispatchEligible: false`. The old gate turned that into "Connect a model
+   * provider to start running tasks". It must never say that again.
+   */
+  const LIVE_PROVIDER_IDS = [
+    'ollama-local',
+    'anthropic',
+    'flux-router',
+    'openrouter',
+    'moonshot',
+    'deepseek',
+    'openai',
+    'google-gemini',
+    'groq',
+    'xai',
+    'chatgpt-subscription',
+  ] as const;
+
+  it('never claims "no provider" for a fully provisioned install whose creds will not unlock', () => {
+    setRegistry({
+      providers: LIVE_PROVIDER_IDS.map((providerId, index) =>
+        provider({
+          providerId: providerId as IModelRegistryProviderView['providerId'],
+          state: 'connected',
+          modelCount: 77,
+          callableModelCount: 72,
+          dispatchEligible: false,
+          observedAt: 1_700_000_000_000 + index,
+        })
+      ),
+    });
+    const { result } = renderHook(() => useProviderReadiness());
+    expect(result.current.reason).toBe('all-errored');
+    expect(activationPromptFor(result.current)).toBe('repair');
+  });
+
+  it('offers the connect prompt only when the registry genuinely holds no provider', () => {
+    setRegistry({ providers: [] });
+    const { result } = renderHook(() => useProviderReadiness());
+    expect(result.current.reason).toBe('no-provider');
+    expect(activationPromptFor(result.current)).toBe('connect');
+  });
+
+  it('offers no prompt at all while the registry list is still loading', () => {
+    expect(activationPromptFor({ ready: false, loading: true })).toBeNull();
+  });
+
+  it('offers no prompt while a provider is mid-probe', () => {
+    expect(activationPromptFor({ ready: false, loading: false, reason: 'checking' })).toBeNull();
+  });
+
+  it('offers no prompt when a provider is ready', () => {
+    expect(activationPromptFor({ ready: true, loading: false })).toBeNull();
+  });
+
+  it('offers the repair prompt, not the connect prompt, for every configured-but-unusable reason', () => {
+    for (const reason of ['all-errored', 'no-models', 'registry-error'] as const) {
+      expect(activationPromptFor({ ready: false, loading: false, reason })).toBe('repair');
     }
   });
 });

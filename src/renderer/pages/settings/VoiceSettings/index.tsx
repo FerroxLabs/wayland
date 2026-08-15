@@ -10,6 +10,7 @@ import { ConfigStorage } from '@/common/config/storage';
 import type { SpeechToTextConfig } from '@/common/types/speech';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
 import { DEFAULT_TTS_CONFIG, normalizeTextToSpeechConfig } from '@/common/types/ttsTypes';
+import { rendererPlatform } from '@/renderer/utils/platform';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 import {
   DEFAULT_SPEECH_TO_TEXT_CONFIG,
@@ -26,12 +27,19 @@ const VoiceSettings: React.FC = () => {
   const [ttsConfig, setTtsConfig] = useState<TextToSpeechConfig>(DEFAULT_TTS_CONFIG);
 
   useEffect(() => {
+    /**
+     * The platform decides which OS synthesizer is the DEFAULT. Omitting it -
+     * which the renderer did everywhere, because there is no `process` here -
+     * resolved every unopened profile to the macOS provider, so a Windows user
+     * landed on a synthesizer their machine does not have.
+     */
+    const platform = rendererPlatform();
     let cancelled = false;
     void Promise.all([ConfigStorage.get('tools.speechToText'), ConfigStorage.get('tools.textToSpeech')]).then(
       ([storedStt, storedTts]) => {
         if (cancelled) return;
         setSttConfig(normalizeSpeechToTextConfig(storedStt));
-        setTtsConfig(normalizeTextToSpeechConfig(storedTts ?? undefined));
+        setTtsConfig(normalizeTextToSpeechConfig(storedTts ?? undefined, platform));
       }
     );
 
@@ -41,7 +49,7 @@ const VoiceSettings: React.FC = () => {
     };
     const ttsHandler = (event: Event) => {
       const next = (event as CustomEvent<TextToSpeechConfig>).detail;
-      if (next) setTtsConfig(normalizeTextToSpeechConfig(next));
+      if (next) setTtsConfig(normalizeTextToSpeechConfig(next, platform));
     };
     window.addEventListener(SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT, sttHandler);
     window.addEventListener(TTS_CONFIG_CHANGED_EVENT, ttsHandler);

@@ -17,7 +17,7 @@
 import { test, expect } from '../fixtures';
 import { invokeBridge, navigateTo } from '../helpers';
 
-const LAUNCHER_ID = 'ext-marketing-agency';
+const LAUNCHER_ID = 'builtin-marketing-agency';
 
 test.describe('Team Launcher - backend selection', () => {
   test('switch leader backend via pill → launch persists the choice', async ({ page }) => {
@@ -97,11 +97,9 @@ test.describe('Team Launcher - backend selection', () => {
     // Backend persistence: team.get returns the leader with the agentType we
     // chose. Note: BackendPill renders `id` directly (e.g. "wayland-core"), so
     // pickedValue equals the backend id.
-    const state = await invokeBridge<{ agents: Array<{ role: string; agentType: string }> }>(
-      page,
-      'team.get',
-      { id: teamId }
-    );
+    const state = await invokeBridge<{ agents: Array<{ role: string; agentType: string }> }>(page, 'team.get', {
+      id: teamId,
+    });
     const leader = state.agents.find((a) => a.role === 'leader');
     expect(leader?.agentType).toBe(pickedValue);
 

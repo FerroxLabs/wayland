@@ -33,7 +33,7 @@ const ShellRecoveryFallback: React.FC<ShellRecoveryFallbackProps> = ({
 
   return (
     <aside
-      className='fixed right-20px top-56px z-200 w-[min(520px,calc(100vw-40px))] rd-16px border border-solid border-border bg-2 p-20px shadow-lg'
+      className='fixed right-20px top-56px z-200 w-[min(520px,calc(100vw-40px))] rd-16px border border-solid border-base bg-2 p-20px shadow-lg'
       data-testid='shell-recovery-fallback'
       data-persistence-state={persistenceState}
       aria-live='polite'

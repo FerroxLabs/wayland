@@ -21,6 +21,7 @@
  */
 
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { Message } from '@arco-design/web-react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -55,6 +56,11 @@ const mockConnect = vi.fn();
 const mockDisconnect = vi.fn();
 const mockGoogleLogin = vi.fn();
 const mockListChangedOn = vi.fn(() => vi.fn());
+// Manage-page catalog + the keyless-local-runtime surface (Ollama).
+const mockGetCatalog = vi.fn();
+const mockLocalRuntimeStatus = vi.fn();
+const mockStartLocalRuntime = vi.fn();
+const mockRefresh = vi.fn();
 // Headless write-only HTTP connect route (remote WebUI path).
 const mockConnectProviderHttp = vi.fn();
 
@@ -65,9 +71,11 @@ vi.mock('../../../src/common/adapter/ipcBridge', () => ({
     connect: { invoke: (...a: unknown[]) => mockConnect(...a) },
     disconnect: { invoke: (...a: unknown[]) => mockDisconnect(...a) },
     testConnection: { invoke: vi.fn() },
-    getCatalog: { invoke: vi.fn() },
+    getCatalog: { invoke: (...a: unknown[]) => mockGetCatalog(...a) },
+    localRuntimeStatus: { invoke: (...a: unknown[]) => mockLocalRuntimeStatus(...a) },
+    startLocalRuntime: { invoke: (...a: unknown[]) => mockStartLocalRuntime(...a) },
     toggleModel: { invoke: vi.fn() },
-    refresh: { invoke: vi.fn() },
+    refresh: { invoke: (...a: unknown[]) => mockRefresh(...a) },
     rekey: { invoke: vi.fn() },
     curatedForAgent: { invoke: vi.fn() },
     // Automatic-refresh surface (consumed by useModelRegistry's listChanged
@@ -103,6 +111,13 @@ vi.mock('../../../src/renderer/pages/settings/components/SettingsPageShell', () 
     React.createElement('div', { 'data-testid': 'settings-shell' }, children),
 }));
 
+// The Manage view is wrapped in SettingsPageWrapper, which calls useNavigate()
+// and therefore needs a Router. It is page chrome too - stub it the same way.
+vi.mock('../../../src/renderer/pages/settings/components/SettingsPageWrapper', () => ({
+  default: ({ children }: { children: React.ReactNode }) =>
+    React.createElement('div', { 'data-testid': 'settings-wrapper' }, children),
+}));
+
 // Deep-link hook - controllable per test so we can exercise the seed flow.
 const mockConsumePendingDeepLink = vi.fn();
 vi.mock('../../../src/renderer/hooks/system/useDeepLink', () => ({
@@ -136,12 +151,45 @@ const erroredProvider: IModelRegistryProviderView = {
   error: 'unauthorized',
 };
 
+/**
+ * A row the backend still stamps `connected` (nothing demoted it) whose stored
+ * ciphertext cannot be decrypted - the shape `list()` publishes for the live
+ * false-green defect.
+ */
+const undecryptableProvider: IModelRegistryProviderView = {
+  providerId: 'groq',
+  connectedVia: 'api-key',
+  state: 'connected',
+  modelCount: 31,
+  credsUndecryptable: true,
+};
+
+/**
+ * The keyless machine-local provider. It has NO API key (`creds.key` is `''`),
+ * so every credential-shaped affordance is category-wrong for it: an
+ * unreachable daemon means "it is not running here", not "your key failed".
+ */
+const ollamaOfflineProvider: IModelRegistryProviderView = {
+  providerId: 'ollama-local',
+  connectedVia: 'auto-local',
+  state: 'error',
+  modelCount: 4,
+  error: 'offline',
+};
+
 const detectedKey: IModelRegistryDetectedKey = {
   providerId: 'groq',
   source: 'env:GROQ_API_KEY',
 };
 
+// Arco toasts render into a portal that jsdom never paints, so assert on the
+// call itself - which message the page CHOSE to show is the behavior under test.
+let warnSpy: ReturnType<typeof vi.spyOn>;
+let successSpy: ReturnType<typeof vi.spyOn>;
+
 beforeEach(() => {
+  warnSpy = vi.spyOn(Message, 'warning').mockImplementation((() => ({ close: () => {} })) as never);
+  successSpy = vi.spyOn(Message, 'success').mockImplementation((() => ({ close: () => {} })) as never);
   mockListChangedOn.mockClear();
   mockList.mockReset().mockResolvedValue([]);
   mockDetectKeys.mockReset().mockResolvedValue([]);
@@ -151,6 +199,12 @@ beforeEach(() => {
   mockConnectProviderHttp.mockReset().mockResolvedValue({ ok: true });
   // Default: no pending deep-link. Tests opt in by overriding per case.
   mockConsumePendingDeepLink.mockReset().mockReturnValue(null);
+  // Same shape the un-stubbed `vi.fn()` produced before these were captured:
+  // resolves undefined, so the row's catalog probe degrades exactly as it did.
+  mockGetCatalog.mockReset().mockResolvedValue(undefined);
+  mockLocalRuntimeStatus.mockReset().mockResolvedValue(undefined);
+  mockStartLocalRuntime.mockReset().mockResolvedValue(undefined);
+  mockRefresh.mockReset().mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -181,6 +235,26 @@ describe('ModelsSettings page', () => {
     // refresh-state hook. Descendant useModelRegistry calls must not create
     // hidden standalone subscriptions while consuming the context value.
     expect(mockListChangedOn).toHaveBeenCalledTimes(2);
+  });
+
+  /**
+   * The page used to state two different model counts for Flux Router at the
+   * same time: a hardcoded "40+" in the hero banner and the registry's real
+   * count in the connected row directly below it. One provider, one screen, two
+   * numbers. Both figures must now come from the same field.
+   */
+  it('states one Flux Router model count, not two', async () => {
+    mockList.mockResolvedValue([
+      { providerId: 'flux-router', connectedVia: 'api-key', state: 'connected', modelCount: 77 },
+    ] satisfies IModelRegistryProviderView[]);
+
+    const { container } = renderPage();
+
+    const hero = await screen.findByTestId('flux-router-confirmation');
+    expect(hero.textContent).toContain('flux.activeConfirmation:count=77');
+    // Positive control: the row that carries the other number really rendered.
+    expect(screen.getByText(/row\.modelCount:count=77/)).toBeInTheDocument();
+    expect(container.textContent).not.toContain('40+');
   });
 
   it('shows the empty state when there are no providers and no detected keys', async () => {
@@ -215,6 +289,185 @@ describe('ModelsSettings page', () => {
     expect(screen.getByText('settings.modelsPage.row.fix')).toBeInTheDocument();
     // The green "Connected" status must NOT be present for an errored provider.
     expect(screen.queryByText('settings.modelsPage.row.connected')).not.toBeInTheDocument();
+  });
+
+  /**
+   * Live defect: groq / google-gemini / openrouter / openai all showed a green
+   * "Connected" badge while their stored credentials could not be decrypted at
+   * all. The row derived its badge from `state` + `modelCount`, and neither
+   * touches the credential - so an unusable provider read as healthy.
+   */
+  it('renders "Action needed" for a connected row whose stored credential cannot be decrypted', async () => {
+    mockList.mockResolvedValue([undecryptableProvider]);
+
+    renderPage();
+
+    expect(await screen.findByText('Groq')).toBeInTheDocument();
+    // Positive observable: the honest re-key reason, not a generic error.
+    expect(screen.getByRole('alert')).toHaveTextContent('row.actionNeeded');
+    expect(screen.getByRole('alert')).toHaveTextContent('row.errorUndecryptable');
+    // A Fix action that re-keys, not a Manage button for a dead provider.
+    expect(screen.getByText('settings.modelsPage.row.fix')).toBeInTheDocument();
+    expect(screen.queryByText('settings.modelsPage.row.manage')).not.toBeInTheDocument();
+    // The false green is gone - and the model count that dressed it up with it.
+    expect(screen.queryByText('settings.modelsPage.row.connected')).not.toBeInTheDocument();
+    expect(screen.queryByText(/row\.modelCount/)).not.toBeInTheDocument();
+  });
+
+  it('keeps the green badge for a connected row whose credential decrypts fine', async () => {
+    // Negative control for the case above: `credsUndecryptable` absent must not
+    // turn a healthy provider red.
+    mockList.mockResolvedValue([{ ...undecryptableProvider, credsUndecryptable: false }]);
+
+    renderPage();
+
+    expect(await screen.findByText('Groq')).toBeInTheDocument();
+    expect(screen.getByText('settings.modelsPage.row.connected')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  /**
+   * Live defect (verbatim): "It says connected when I click into it, but when I
+   * come back out it still says action needed."
+   *
+   * The list row and the Manage detail page each derived their own answer. The
+   * row read `state === 'error' || credsUndecryptable`; Manage read only
+   * `state === 'error'` - so the exact row the list painted red rendered a
+   * green "Connected" badge the moment the user clicked into it. Same provider,
+   * same snapshot, two answers.
+   */
+  it('shows Action needed on the Manage page for the same row the list painted red', async () => {
+    mockList.mockResolvedValue([undecryptableProvider]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.fix'));
+
+    // The detail header must agree with the row it was opened from.
+    expect(await screen.findByText('settings.modelsPage.manage.statusError')).toBeInTheDocument();
+    expect(screen.queryByText('settings.modelsPage.manage.statusConnected')).not.toBeInTheDocument();
+  });
+
+  /**
+   * The other half of "xAI will not properly refresh". `modelRegistry.refresh`
+   * resolves `ok: true` whenever the catalog was REBUILT - including when the
+   * rebuild fell back to the models.dev registry slice because the stored
+   * credential could not list a single model (proven against the handler: a
+   * dead xai key leaves the row `error/unrecognized` and still returns
+   * `{ ok: true }`). Announcing "Catalog up to date." off that is how this page
+   * said everything was fine while the row it came from stayed red.
+   */
+  it('does not announce success when the refreshed provider is still action-needed', async () => {
+    mockList.mockResolvedValue([erroredProvider]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+    // The catalog rebuild "succeeded" but nothing healed the row.
+    mockRefresh.mockResolvedValue({ ok: true });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.fix'));
+    fireEvent.click(await screen.findByText('settings.modelsPage.manage.refresh'));
+
+    await waitFor(() => expect(warnSpy).toHaveBeenCalledWith('settings.modelsPage.manage.refreshStillActionNeeded'));
+    expect(successSpy).not.toHaveBeenCalledWith('settings.modelsPage.manage.refreshDone');
+  });
+
+  it('announces success when the refresh actually cleared the error (negative control)', async () => {
+    // Same click path, but the reloaded snapshot comes back healthy.
+    mockList
+      .mockResolvedValueOnce([erroredProvider])
+      .mockResolvedValue([{ ...erroredProvider, state: 'connected', error: undefined, modelCount: 7 }]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+    mockRefresh.mockResolvedValue({ ok: true });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.fix'));
+    fireEvent.click(await screen.findByText('settings.modelsPage.manage.refresh'));
+
+    await waitFor(() => expect(successSpy).toHaveBeenCalledWith('settings.modelsPage.manage.refreshDone'));
+    expect(warnSpy).not.toHaveBeenCalledWith('settings.modelsPage.manage.refreshStillActionNeeded');
+  });
+
+  it('still shows Connected on the Manage page for a healthy row (negative control)', async () => {
+    // Proves the assertion above is not vacuous: the same click path on a row
+    // whose credential decrypts fine must still read Connected.
+    mockList.mockResolvedValue([{ ...undecryptableProvider, credsUndecryptable: false }]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.manage'));
+
+    expect(await screen.findByText('settings.modelsPage.manage.statusConnected')).toBeInTheDocument();
+    expect(screen.queryByText('settings.modelsPage.manage.statusError')).not.toBeInTheDocument();
+  });
+
+  /**
+   * Live defect (verbatim): "Ollama, for example, isn't running so it says
+   * 'can't reach provider.' That's fine but maybe Ollama should say 'local not
+   * running' ... and maybe offer 'If it's installed and detected, run it.'"
+   */
+  it('names the real situation and offers Start when Ollama is installed but down', async () => {
+    mockList.mockResolvedValue([ollamaOfflineProvider]);
+    mockLocalRuntimeStatus.mockResolvedValue({ supported: true, installed: true, running: false });
+    mockStartLocalRuntime.mockResolvedValue({ ok: true });
+
+    renderPage();
+
+    expect(await screen.findByText('Ollama (Local)')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent('settings.modelsPage.row.errorLocalNotRunning')
+    );
+    // The generic network-fault wording is gone.
+    expect(screen.getByRole('alert')).not.toHaveTextContent('row.errorOffline');
+    // A credential Fix is meaningless for a provider with no credential.
+    expect(screen.queryByText('settings.modelsPage.row.fix')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText(/row\.localStart:provider=Ollama/));
+    await waitFor(() => expect(mockStartLocalRuntime).toHaveBeenCalledWith({ providerId: 'ollama-local' }));
+  });
+
+  it('points at the download and offers no Start when Ollama is not installed', async () => {
+    // Never offer a button that cannot work.
+    mockList.mockResolvedValue([ollamaOfflineProvider]);
+    mockLocalRuntimeStatus.mockResolvedValue({ supported: true, installed: false, running: false });
+
+    renderPage();
+
+    expect(await screen.findByText('Ollama (Local)')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent('settings.modelsPage.row.errorLocalNotInstalled')
+    );
+    expect(screen.getByText(/row\.localGet:provider=Ollama/)).toBeInTheDocument();
+    expect(screen.queryByText(/row\.localStart:provider=Ollama/)).not.toBeInTheDocument();
+    expect(screen.queryByText('settings.modelsPage.row.fix')).not.toBeInTheDocument();
+  });
+
+  it('falls back to the generic reason until the local-runtime probe answers', async () => {
+    // The row must never assert something it has not verified.
+    mockList.mockResolvedValue([ollamaOfflineProvider]);
+    mockLocalRuntimeStatus.mockRejectedValue(new Error('probe failed'));
+
+    renderPage();
+
+    expect(await screen.findByText('Ollama (Local)')).toBeInTheDocument();
+    await waitFor(() => expect(mockLocalRuntimeStatus).toHaveBeenCalled());
+    expect(screen.getByRole('alert')).toHaveTextContent('settings.modelsPage.row.errorOffline');
+  });
+
+  it('disables Re-key on the Manage page for the keyless local provider', async () => {
+    // Re-keying a provider that has no key is meaningless.
+    mockList.mockResolvedValue([{ ...ollamaOfflineProvider, state: 'connected' as const, error: undefined }]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.manage'));
+
+    const rekey = await screen.findByText('settings.modelsPage.manage.rekey');
+    expect(rekey.closest('button')).toBeDisabled();
   });
 
   it('shows the inline connect error when a pasted key is rejected', async () => {

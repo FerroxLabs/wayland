@@ -44,12 +44,41 @@ export function selectCurrentExecutionMessages(
     const latestUserIndex = messages.findLastIndex(
       (message) => message.type === 'text' && message.position === 'right'
     );
-    if (latestUserIndex >= 0) {
-      const current = messages.slice(latestUserIndex + 1).filter(isExecutionMessage);
+    const withPolicy = (current: readonly TMessage[]): readonly TMessage[] => {
       const latestPolicy = messages.findLast(
         (message) => message.type === 'execution_evidence' && message.content.event.type === 'execution_policy'
       );
       return latestPolicy && !current.includes(latestPolicy) ? [latestPolicy, ...current] : current;
+    };
+
+    if (latestUserIndex >= 0) {
+      return withPolicy(messages.slice(latestUserIndex + 1).filter(isExecutionMessage));
+    }
+
+    // No user bubble to slice on - the conversations corrupted by the merge bug
+    // this packet fixes have none. The generic tail below splits on `activity`
+    // messages, which a plain tool-running WCore turn never produces, so it
+    // returned a single trailing message and rendered eleven steps as one.
+    //
+    // WCore stamps every message of a turn with that turn's id in `msg_id`, so
+    // the turn is recoverable without the user bubble. Take the last execution
+    // message's turn and keep only its own - returning everything would replay
+    // completed historical turns, which is precisely what this function exists
+    // to prevent (both cross-audit legs reproduced that).
+    const unbounded = messages.filter(isExecutionMessage);
+    if (!unbounded.some((message) => message.type === 'activity')) {
+      // `execution_evidence` carries a synthetic `execution-evidence:<key>`
+      // msg_id, not the turn's, so a receipt landing last would be picked as
+      // the turn and empty the panel. Choose the turn from turn-stamped
+      // messages only; evidence is re-attached by withPolicy.
+      const turnStamped = unbounded.filter((message) => message.type !== 'execution_evidence');
+      const latestTurn = turnStamped[turnStamped.length - 1]?.msg_id;
+      // Fail closed when nothing carries a turn id: with no boundary at all,
+      // showing the tail is wrong but bounded, whereas showing everything
+      // replays history.
+      return withPolicy(
+        latestTurn ? unbounded.filter((message) => message.msg_id === latestTurn) : turnStamped.slice(-1)
+      );
     }
   }
 

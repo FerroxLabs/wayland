@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/steipete/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * Pure parse/format helpers for the generic Webhook channel plugin.
  * Inbound: JSON body -> IUnifiedIncomingMessage.
  * Outbound: IUnifiedOutgoingMessage -> POST body POSTed to operator URL.
@@ -45,8 +41,8 @@ export type WebhookInboundPayload = {
 
 /**
  * Body POSTed to the operator's outbound URL by sendMessage.
- * Harvested concept from OpenClaw http.ts - keep the shape simple and
- * predictable so operators can parse without a schema.
+ * Kept deliberately simple and predictable so operators can parse it without a
+ * schema.
  */
 export type WebhookOutboundBody = {
   readonly chatId: string;
@@ -62,10 +58,7 @@ export type WebhookOutboundBody = {
  * @param payload   Parsed JSON body from the verified webhook POST.
  * @param pluginId  The plugin instance id, used as the platform identifier.
  */
-export function toUnifiedIncoming(
-  payload: WebhookInboundPayload,
-  pluginId: string
-): IUnifiedIncomingMessage | null {
+export function toUnifiedIncoming(payload: WebhookInboundPayload, pluginId: string): IUnifiedIncomingMessage | null {
   // Extract text - try common field names in priority order
   const text =
     typeof payload.text === 'string' && payload.text.length > 0
@@ -78,19 +71,14 @@ export function toUnifiedIncoming(
 
   if (text === null) return null;
 
-  const id =
-    typeof payload.id === 'string' && payload.id.length > 0 ? payload.id : `wh-${Date.now()}`;
+  const id = typeof payload.id === 'string' && payload.id.length > 0 ? payload.id : `wh-${Date.now()}`;
 
-  const chatId =
-    typeof payload.chatId === 'string' && payload.chatId.length > 0 ? payload.chatId : 'default';
+  const chatId = typeof payload.chatId === 'string' && payload.chatId.length > 0 ? payload.chatId : 'default';
 
-  const userId =
-    typeof payload.userId === 'string' && payload.userId.length > 0 ? payload.userId : chatId;
+  const userId = typeof payload.userId === 'string' && payload.userId.length > 0 ? payload.userId : chatId;
 
   const displayName =
-    typeof payload.displayName === 'string' && payload.displayName.length > 0
-      ? payload.displayName
-      : userId;
+    typeof payload.displayName === 'string' && payload.displayName.length > 0 ? payload.displayName : userId;
 
   const timestamp = normalizeTimestamp(payload.ts ?? payload.timestamp);
 
@@ -118,7 +106,6 @@ export function toUnifiedIncoming(
 /**
  * Build the JSON body POSTed to the operator's outbound URL.
  * Shape: { chatId, message, ts } - kept minimal and predictable.
- * Harvested concept from OpenClaw http.ts webhook action body builder.
  */
 export function toOutboundBody(chatId: string, message: IUnifiedOutgoingMessage): WebhookOutboundBody {
   const text = (message.text ?? '').trim();
@@ -141,19 +128,11 @@ export function toOutboundBody(chatId: string, message: IUnifiedOutgoingMessage)
  * in the `X-Webhook-Timestamp` header alongside `X-Webhook-Signature`.
  * Format mirrors GitHub / Meta: "sha256=<hex>". Returns null when secret is
  * empty (signing disabled).
- *
- * Harvested concept from OpenClaw http.ts timingSafeEquals + secret extraction.
  */
-export function signOutboundBody(
-  bodyJson: string,
-  secret: string,
-  timestampMs: number
-): string | null {
+export function signOutboundBody(bodyJson: string, secret: string, timestampMs: number): string | null {
   const trimmed = secret.trim();
   if (!trimmed) return null;
-  const hex = createHmac('sha256', trimmed)
-    .update(`${timestampMs}.${bodyJson}`, 'utf8')
-    .digest('hex');
+  const hex = createHmac('sha256', trimmed).update(`${timestampMs}.${bodyJson}`, 'utf8').digest('hex');
   return `sha256=${hex}`;
 }
 
@@ -172,9 +151,7 @@ function normalizeTimestamp(value: string | number | undefined): number {
   return Date.now();
 }
 
-function buildAttachmentLines(
-  attachments: WebhookInboundPayload['attachments']
-): string[] {
+function buildAttachmentLines(attachments: WebhookInboundPayload['attachments']): string[] {
   if (!Array.isArray(attachments) || attachments.length === 0) return [];
   return attachments
     .map((a) => {

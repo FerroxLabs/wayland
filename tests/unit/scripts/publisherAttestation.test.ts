@@ -12,6 +12,14 @@ const {
   verifyPublisherAttestation,
 } = require('../../../scripts/supply-chain/verifyPublisherAttestation');
 
+// Derived, never re-typed: the release-acceptance gate requires exactly ONE
+// active policy, so hard-coding a tag here breaks the day the engine is bumped.
+const ACTIVE = readPolicy().policies.find((entry: { status: string }) => entry.status === 'active') as {
+  releaseTag: string;
+  signerWorkflow: string;
+  sourceDigest: string;
+};
+
 const roots: string[] = [];
 afterEach(() => {
   for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true });
@@ -25,7 +33,7 @@ function artifact() {
   return {
     artifactPath,
     assetName: path.basename(artifactPath),
-    releaseTag: 'v0.12.25',
+    releaseTag: ACTIVE.releaseTag,
     expectedSha256: crypto.createHash('sha256').update('signed-release-archive').digest('hex'),
   };
 }
@@ -37,7 +45,7 @@ describe('Core publisher attestation authority', () => {
       ...options,
       execFileSyncImpl: (_command: string, args: string[]) => {
         expect(args).toContain('FerroxLabs/wayland-core/.github/workflows/release.yml');
-        expect(args).toContain('61b79c4f90f71fe2cf243affa7620b3c9b607f14');
+        expect(args).toContain(ACTIVE.sourceDigest);
         expect(args).toContain('--deny-self-hosted-runners');
         return JSON.stringify([{ verificationResult: { statement: {} } }]);
       },
@@ -70,7 +78,12 @@ describe('Core publisher attestation authority', () => {
   it('rejects an unknown signer and stale or unsupported policy', () => {
     const base = readPolicy();
     const unknownSigner = structuredClone(base);
-    unknownSigner.policies[0].signerWorkflow = 'attacker/repo/.github/workflows/release.yml';
+    // Mutate the ACTIVE policy - that is the one selectPolicy will pick.
+    // Indexing policies[0] silently stopped exercising anything once a
+    // superseded entry moved into that slot.
+    unknownSigner.policies.find(
+      (entry: { releaseTag: string }) => entry.releaseTag === ACTIVE.releaseTag
+    ).signerWorkflow = 'attacker/repo/.github/workflows/release.yml';
     expect(() =>
       verifyPublisherAttestation({
         ...artifact(),
@@ -83,9 +96,12 @@ describe('Core publisher attestation authority', () => {
     ).toThrow(/publisher authentication failed/i);
 
     const stale = structuredClone(base);
-    stale.policies[0].status = 'superseded';
-    expect(() => selectPolicy('v0.12.25', stale)).toThrow(/stale/);
-    expect(() => selectPolicy('v0.12.26', base)).toThrow(/No unique/);
+    for (const entry of stale.policies) entry.status = 'superseded';
+    expect(() => selectPolicy(ACTIVE.releaseTag, stale)).toThrow(/stale/);
+    // A tag with no policy at all. Deliberately not a plausible next release:
+    // this assertion previously named v0.12.26 and silently stopped testing
+    // "unknown tag" the day that release shipped a real policy.
+    expect(() => selectPolicy('v0.0.0-no-such-release', base)).toThrow(/No unique/);
   });
 
   it('rejects the wrong release artifact name', () => {

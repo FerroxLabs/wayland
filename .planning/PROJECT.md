@@ -163,6 +163,126 @@ Phase dependencies in `ROADMAP.md` describe product/evidence order, not permissi
 - **Queued Managed Workspace Lifecycle:** `WSLX-01` alone may later plan explicit human-reviewed quarantine, restore, keep-forever, and separately authorized permanent deletion, only after a complete trusted output/receipt ledger exists. Phase 1 remains preservation and review classification only.
 - **Queued Cloud/Pro and Distribution:** Community Cloud release readiness, Hosted Pro tenancy/isolation, commercial tier closure, and cross-surface release-derived distribution. Shared composition tests do not imply this surface is ready.
 
+## Current Milestone: WLD-K Core First
+
+**Goal:** Make Wayland Core the backend a non-technical user actually succeeds on, so the
+Master Class demonstrates Wayland architecture — Wayland Desktop driving Wayland Core —
+rather than Desktop driving Claude Code.
+
+**Target features:**
+
+- **K-1 (spine)** — move Desktop's launch-local MCP profile out of the per-chat _project_
+  config and into the global config root the engine is already pointed at. Core 0.12.26
+  strips authority-expanding sections from untrusted project config, so today every turn
+  dies at bootstrap on 0.12.26.
+- **K-1b** — send Core the written ask for a session-local `--mcp-server` / `--no-mcp-servers`
+  flag, the mechanism that retires K-1's config mutation entirely.
+- **K-2** — surface the engine's own stderr reason in the UI, secret-scrubbed, instead of
+  "wcore Desktop contract rejected ready".
+- **K-3** — fix the turn that never finishes: Core emits `stream_end` at 40s and the UI still
+  shows "running" six minutes later. Ships today, affects users today.
+- **K-4** — document the release-candidate integration decision (packaged builds can never
+  carry an RC, and that stays true).
+- **K-5a / K-5b** — agent installer. Detection of 18 agents already works; installation is
+  the gap. npm-installable subset first, then non-npm channels.
+- **K-6** — Flux fan-out: an installed agent immediately drives the Flux pinned catalog on
+  the one key the user already connected. This is the moat, not the installer.
+
+**Key context:**
+
+- **Scope decision (Sean, 2026-08-08):** all seven packets stay in WLD-K. I recommended
+  splitting K-5/K-6 into a follow-on milestone to protect the demo; overridden. The roadmap
+  therefore marks an explicit "Master Class is safe at this line" boundary after K-2 so the
+  demo-critical set can ship independently of the L-sized product work.
+- **K-1 is a ship blocker, not just demo safety.** Core 0.12.26 is in final CI ahead of
+  publish (Sean, 2026-08-08). The committed Desktop pin is `v0.12.25`, so a 0.12.26 release
+  does not break already-shipped Desktop — but the pin bump cannot happen until K-1 lands.
+- **K-1 mechanism decided:** ship option A (profile into global config, execution-proven on
+  rc.2 — 101 tools connected, turn completes) while K-1b pursues the architecturally correct
+  Core flag in parallel. Codex 5.6 Sol and Kimi K3 each ran two rounds and converged: ship-now
+  and correct-long-term genuinely differ here, and both named A for shipping.
+- **Rejected, with reasons, do not reopen:** `--trust-workspace` (trips Core's symlink
+  fail-closed rule and wrongly auto-trusts cloned repos); option C, an ephemeral config root
+  (the config root also holds `memory.db` and skills, so it kills memory continuity); option F,
+  Core's `only_for_assistant` scoping (it can only _restrict_ — an unmarked server is always
+  injected, so it cannot enforce an exact per-chat allow-list, and one missed marking is a
+  cross-chat tool leak).
+- **The user-owned-file risk applies only to `@native`.** For named profiles the config root
+  is already a Desktop-owned tree asserted symlink-free. Migrating existing `@native` users
+  onto a Desktop-owned profile is a real, rollback-capable migration project — explicitly
+  _not_ part of K-1.
+- Authoritative input: `.planning/MILESTONE-WLD-K-core-first.md` (verified state table).
+
+## Previous Milestone: WLD-I Licence Compliance
+
+**Goal:** Bring Wayland's third-party attribution into a defensible state under Apache-2.0
+Section 4(b)/4(c) and MIT, and make every attribution claim the app ships actually true.
+
+**Target features:**
+
+- AionUi Section 4(c) restoration — complete the inventory across all 445 same-path files, classify
+  derived vs Ferrox-original by measurement, restore the upstream copyright alongside the Ferrox
+  modification copyright on the derived set.
+- gemini-cli Section 4(c) — restore the Google LLC notice on the one derived-but-unattributed file
+  (`tools/web-fetch.ts`) and give `utils/geminiSchemaFilter.ts` an SPDX header.
+- OpenClaw completion — add the owed MIT notices to the tunnel trio and `channels/types.ts`, in the
+  `@license` form that survives bundling.
+- Shipped-claim truth pass — remove or correct the four false statements in
+  `notices/THIRD-PARTY-NOTICES.md`, plus the smaller claim errors.
+- Notices hygiene — reproduce the OfficeCLI NOTICE verbatim; rewrite the stale, shipped
+  `notices/README.md`.
+- Header-dialect normalization — collapse six OpenClaw header dialects to one.
+- Re-adjudicate `3f1c5ba10` — the acpx / Zed / Codex CLI / Claude Code provenance deletions, held to
+  the same per-file evidentiary standard the OpenClaw removals got.
+- npm dependency licence report — 144 bundled production dependencies currently ship with none.
+
+**Key context:**
+
+- The AionUi exposure is **pre-existing**, dating to root commit `2b3b60e11` (2026-07-06 squashed
+  6,245-file import). It was **not** introduced by the WLD-H branch, which all four cross-audit legs
+  confirmed makes no functional change.
+- **Decided (Sean, 2026-07-30):** inventory all 445 files before choosing a remedy; fold the WLD-H
+  branch into this milestone rather than merging it as a standalone compliance packet; obtain outside
+  legal review on the remedy decision, not on the fact-finding.
+- Provenance verdicts in this milestone are **measured, not read**. Literal-line overlap alone is
+  insufficient — it detects copy-paste but not a port. See `H-CROSSAUDIT.md` for the method, its
+  calibration controls, and the eight traps that each cost a wrong verdict.
+- Authoritative inputs: `.planning/phases/WLD-H-attribution/H-CROSSAUDIT.md` and `H-FINDINGS.md`.
+  The latter's "accept residual §4(c) risk" recommendation is **withdrawn as wrong**.
+
 ## Success Standard
 
 Completion means each requirement is proven by current source wiring, deterministic tests, real IPC/reducer replay where applicable, packaged platform evidence where required, and user-observable acceptance. A requirement is not complete because code exists, a test was skipped, or a source document describes the intended behavior.
+
+For WLD-I specifically, "proven" additionally means: every attribution claim in a shipped file is
+verified against the actual tree or the pinned upstream, not against a commit message or a prior
+finding; and every notice asserted to ship is confirmed present in a real packaged artifact, not
+inferred from `electron-builder.yml`.
+
+For WLD-K specifically, "proven" additionally means: every mechanism claim is established by
+**executing** it against a real engine, never by reading source; and any search returning zero is
+disbelieved until the same method is shown to find a **known positive**. Both wrong turns in the
+week before this milestone came from asserting behaviour that was never run, and one false finding
+during WLD-K planning itself was caught only by the positive-control rule. A packet's
+"verified facts" section may contain only what was actually executed.
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (the internal transition workflow, run automatically after phase verification):
+
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/ferrox-complete-milestone`):
+
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
+**Last updated:** 2026-07-30 — Milestone WLD-I (Licence Compliance) started.

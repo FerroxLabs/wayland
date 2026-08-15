@@ -286,6 +286,7 @@ describe('createConciergeDiagServer — MCP health (config JSON)', () => {
     // The exact read-only surface.
     expect(Object.keys(server).sort()).toEqual(
       [
+        'agentInstalls',
         'configPaths',
         'mcpHealth',
         'name',
@@ -293,6 +294,8 @@ describe('createConciergeDiagServer — MCP health (config JSON)', () => {
         'providers',
         'recentErrors',
         'scheduledTasks',
+        'tvControl',
+        'voice',
         'workspace',
       ].sort()
     );
@@ -717,5 +720,64 @@ describe('createConciergeDiagServer — config paths', () => {
     const result = server.configPaths();
     expect(result.available).toBe(true);
     expect(result.info.appConfigDir).toContain('/cfg');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Platform / architecture — the "why is Wayland slow on my new Mac" answer
+// ---------------------------------------------------------------------------
+
+describe('createConciergeDiagServer — platform architecture', () => {
+  it('flags an x64 build running under ARM64 translation in the overview', () => {
+    const server = createConciergeDiagServer({ appArch: 'x64', runningUnderARM64Translation: true });
+    const { platform } = server.overview();
+
+    expect(platform.available).toBe(true);
+    expect(platform.info.appArch).toBe('x64');
+    expect(platform.info.runningUnderARM64Translation).toBe(true);
+    expect(platform.info.whyProblem).toContain('translation');
+  });
+
+  it('reports no problem when the build runs natively', () => {
+    const server = createConciergeDiagServer({ appArch: 'arm64', runningUnderARM64Translation: false });
+    const { platform } = server.overview();
+
+    expect(platform.available).toBe(true);
+    expect(platform.info.appArch).toBe('arm64');
+    expect(platform.info.runningUnderARM64Translation).toBe(false);
+    expect(platform.info.whyProblem).toBeNull();
+  });
+
+  it('reads the injected env vars when no deps are passed', () => {
+    const prevArch = process.env.WAYLAND_APP_ARCH;
+    const prevTranslated = process.env.WAYLAND_ARM64_TRANSLATED;
+    process.env.WAYLAND_APP_ARCH = 'x64';
+    process.env.WAYLAND_ARM64_TRANSLATED = '1';
+    try {
+      const { platform } = createConciergeDiagServer({}).overview();
+      expect(platform.info.appArch).toBe('x64');
+      expect(platform.info.runningUnderARM64Translation).toBe(true);
+    } finally {
+      if (prevArch === undefined) delete process.env.WAYLAND_APP_ARCH;
+      else process.env.WAYLAND_APP_ARCH = prevArch;
+      if (prevTranslated === undefined) delete process.env.WAYLAND_ARM64_TRANSLATED;
+      else process.env.WAYLAND_ARM64_TRANSLATED = prevTranslated;
+    }
+  });
+
+  it('degrades to unavailable when the app runtime was never injected', () => {
+    const prevArch = process.env.WAYLAND_APP_ARCH;
+    const prevTranslated = process.env.WAYLAND_ARM64_TRANSLATED;
+    delete process.env.WAYLAND_APP_ARCH;
+    delete process.env.WAYLAND_ARM64_TRANSLATED;
+    try {
+      const { platform } = createConciergeDiagServer({}).overview();
+      expect(platform.available).toBe(false);
+      expect(platform.info.appArch).toBeNull();
+      expect(platform.info.whyProblem).toBeNull();
+    } finally {
+      if (prevArch !== undefined) process.env.WAYLAND_APP_ARCH = prevArch;
+      if (prevTranslated !== undefined) process.env.WAYLAND_ARM64_TRANSLATED = prevTranslated;
+    }
   });
 });

@@ -8,7 +8,7 @@
  * - TeamMcpServer.ts (spawn whitelist)
  */
 import { test, expect } from '../fixtures';
-import { TEAM_SUPPORTED_BACKENDS } from '../helpers';
+import { TEAM_SUPPORTED_BACKENDS, primeSiderCreateAffordance } from '../helpers';
 
 test.describe('Team Agent Whitelist', () => {
   test('UI only shows whitelisted agents in create modal dropdown', async ({ page }) => {
@@ -22,11 +22,12 @@ test.describe('Team Agent Whitelist', () => {
       await expect(page.locator('.arco-modal')).toBeHidden({ timeout: 5000 });
     }
 
-    await expect(page.locator('.h-20px.w-20px.rd-4px').first()).toBeVisible({ timeout: 10000 });
-
-    // Open Create Team modal
-    const createBtn = page.locator('.h-20px.w-20px.rd-4px').first();
-    await createBtn.click();
+    // The old `.h-20px.w-20px.rd-4px` icon button was replaced by
+    // `sider-team-create-inline`; that class now matches only the CRON section.
+    // The Teams section also needs >=1 team and an expanded accordion to render.
+    const primed = await primeSiderCreateAffordance(page);
+    test.skip(!primed, 'team.create seed failed (no usable leader backend)');
+    await page.getByTestId('sider-team-create-inline').click();
 
     // Open agent dropdown
     const agentSelect = page.locator('.arco-modal .arco-select').first();
@@ -63,8 +64,16 @@ test.describe('Team Agent Whitelist', () => {
       }
     }
 
-    // Close modal
-    await page.locator('.arco-modal .arco-modal-close-icon').click();
-    await expect(page.locator('.arco-modal')).toBeHidden({ timeout: 5000 });
+    // Close modal. Scope to the team-create modal specifically: Arco leaves
+    // closed modals mounted (unmountOnExit defaults off), so a bare
+    // `.arco-modal` can resolve to a hidden one that has no clickable close
+    // icon. The dropdown is also still open over it, so dismiss that first.
+    await page.keyboard.press('Escape'); // dismiss the open agent dropdown first
+    const createModal = page.locator('.team-create-modal');
+    // TeamCreateModal renders a CUSTOM header, so there is no
+    // `.arco-modal-close-icon` - the close control is the button sitting next
+    // to the title. It also sets unmountOnExit={false}, so scope to this modal.
+    await createModal.locator('h3').locator('xpath=following-sibling::button[1]').click();
+    await expect(createModal).toBeHidden({ timeout: 5000 });
   });
 });

@@ -4,8 +4,15 @@
  * Verifies that:
  *   1. A Wayland Core conversation can be created and receives a streamed
  *      response from the v0.9.4 binary (closes D1's unproven-wcore-protocol gap).
- *   2. When the agent spawns sub-agents, each produces a distinct
- *      SubAgentActivityCard in the message stream - one per unique parentCallId.
+ *   2. When the agent spawns sub-agents, each produces a distinct sub-agent
+ *      step in the message stream - one per unique parentCallId.
+ *
+ * RETARGETED: the surface is now the inline ActivityTimeline. The dedicated
+ * SubAgentActivityCard (data-testid="sub-agent-activity-card") was rendered
+ * only by the Observability panel, and both have been deleted; MessageList
+ * projects a `sub_agent` message through `subAgentToStep` into the timeline
+ * instead, where each spawned agent is one row marked
+ * data-step-kind="sub_agent". Same guarantee, surface that still exists.
  *
  * Gate: requires `wayland-core` binary on PATH or in the bundled location.
  * Skip cleanly when `WCORE_SKIP=1` is set (CI default without the binary).
@@ -20,13 +27,8 @@ import { goToGuid, selectAgent, sendMessageFromGuid, waitForAiReply } from '../h
 import { isCliOnPath } from '../helpers/mockAgentBinary';
 
 // wcore binary is bundled in the worktree at a known location.
-const BUNDLED_BINARY = path.resolve(
-  __dirname,
-  '../../../resources/bundled-wayland-core/darwin-arm64/wayland-core'
-);
-const WCORE_AVAILABLE =
-  !process.env.WCORE_SKIP &&
-  (isCliOnPath('wayland-core') || fs.existsSync(BUNDLED_BINARY));
+const BUNDLED_BINARY = path.resolve(__dirname, '../../../resources/bundled-wayland-core/darwin-arm64/wayland-core');
+const WCORE_AVAILABLE = !process.env.WCORE_SKIP && (isCliOnPath('wayland-core') || fs.existsSync(BUNDLED_BINARY));
 
 const SCREENSHOT_DIR = '/tmp/d2-verify';
 
@@ -61,17 +63,17 @@ test.describe('D2: WCore sub-agent activity cards (v0.9.4)', () => {
   });
 
   /**
-   * Part 2: Sub-agent activity cards.
+   * Part 2: Sub-agent activity steps.
    * Send a message that triggers 2 parallel Spawn tool calls. Assert that
-   * two distinct SubAgentActivityCards (data-testid="sub-agent-activity-card")
-   * appear in the message stream, one per sub-agent, each reaching done status.
+   * two distinct sub-agent timeline rows (data-step-kind="sub_agent") appear in
+   * the message stream, one per sub-agent, each reaching done status.
    *
    * Note: whether the model actually calls Spawn depends on the LLM response.
    * The prompt strongly requests it. If the model refuses, this test records
-   * the outcome and screenshots, but the sub-agent card rendering code is
+   * the outcome and screenshots, but the sub-agent rendering code is
    * exercised whenever wcore does emit sub_agent_event.
    */
-  test('sub-agent cards: two distinct cards render for 2 spawned sub-agents', async ({ page }) => {
+  test('sub-agent steps: two distinct rows render for 2 spawned sub-agents', async ({ page }) => {
     test.skip(!WCORE_AVAILABLE, 'requires wayland-core binary (WCORE_SKIP=1 to skip in CI)');
     test.skip(!process.env.ANTHROPIC_API_KEY, 'requires ANTHROPIC_API_KEY env var for live drive');
 
@@ -105,43 +107,43 @@ test.describe('D2: WCore sub-agent activity cards (v0.9.4)', () => {
     // Give the stream a moment to deliver sub_agent_event messages.
     await page.waitForTimeout(5_000);
 
-    // Count SubAgentActivityCards that appeared.
-    const cards = page.locator('[data-testid="sub-agent-activity-card"]');
+    // Count the inline sub-agent timeline rows that appeared.
+    const cards = page.locator('[data-step-kind="sub_agent"]');
     const cardCount = await cards.count();
 
     // Screenshot regardless of outcome - this is the evidence artifact.
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'sub-agent-cards.png') });
 
-    // Log the cards found and their status.
+    // Log the rows found and their status.
     for (let i = 0; i < cardCount; i++) {
-      const status = await cards.nth(i).getAttribute('data-sub-agent-status');
-      const name = await cards.nth(i).getAttribute('data-sub-agent-name');
-      console.log(`[D2] card[${i}]: name="${name}" status="${status}"`);
+      const status = await cards.nth(i).getAttribute('data-step-status');
+      const label = await cards.nth(i).innerText();
+      console.log(`[D2] step[${i}]: label="${label.replace(/\s+/g, ' ').trim()}" status="${status}"`);
     }
 
     console.log(
-      `[D2] sub-agent cards rendered: ${cardCount}. Screenshot: ${path.join(SCREENSHOT_DIR, 'sub-agent-cards.png')}`
+      `[D2] sub-agent steps rendered: ${cardCount}. Screenshot: ${path.join(SCREENSHOT_DIR, 'sub-agent-cards.png')}`
     );
 
-    // The assertion: if the model used Spawn, we need exactly 2 cards.
+    // The assertion: if the model used Spawn, we need exactly 2 rows.
     // If the model did not call Spawn (e.g. answered directly), this is a
     // partial pass - the rendering code exists but the LLM didn't trigger it.
     // We do NOT fail hard in that case; instead we report the gap.
     if (cardCount === 0) {
       console.warn(
-        '[D2] WARNING: No SubAgentActivityCards rendered. The model may not have called Spawn. ' +
+        '[D2] WARNING: No sub-agent timeline rows rendered. The model may not have called Spawn. ' +
           'This is an LLM cooperation gap, not a rendering bug. ' +
           'Verify manually by sending the spawn prompt to a wcore conversation.'
       );
       // Still assert we got a reply (proves wcore protocol works).
-      expect(cardCount, 'Expected 0 or more sub-agent cards - at least prove wcore responds').toBeGreaterThanOrEqual(0);
+      expect(cardCount, 'Expected 0 or more sub-agent steps - at least prove wcore responds').toBeGreaterThanOrEqual(0);
     } else {
-      expect(cardCount, 'Expected 2 distinct sub-agent cards (one per Spawn call)').toBe(2);
+      expect(cardCount, 'Expected 2 distinct sub-agent steps (one per Spawn call)').toBe(2);
 
-      // Each card should eventually reach a terminal status.
+      // Each row should eventually reach a terminal status.
       for (let i = 0; i < cardCount; i++) {
-        const status = await cards.nth(i).getAttribute('data-sub-agent-status');
-        expect(['done', 'failed', 'running'], `card[${i}] should have a valid status`).toContain(status);
+        const status = await cards.nth(i).getAttribute('data-step-status');
+        expect(['done', 'failed', 'running'], `step[${i}] should have a valid status`).toContain(status);
       }
     }
   });

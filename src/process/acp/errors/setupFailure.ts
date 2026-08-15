@@ -62,9 +62,9 @@ export function buildAcpSetupGuidance(backend: string, errorMsg: string): string
 // bunx (e.g. @agentclientprotocol/claude-agent-acp) can be left half-installed —
 // a dependency's package.json / entry point missing — so module resolution fails
 // at startup with a cryptic "Cannot find module 'zod/v4'" the user can't act on.
-// The desktop already auto-clears the corrupt bunx cache and retries
-// (ProcessAcpClient.clearBunxCacheIfNeeded); this only rewrites the TERMINAL
-// message shown after retries are exhausted into actionable guidance. Distinct
+// The desktop already clears the broken install and retries once
+// (SessionLifecycle.handleStartError); this only rewrites the TERMINAL
+// message shown after that recovery failed into actionable guidance. Distinct
 // from the missing-python-extra case above (a pip "No module named 'acp'"
 // signature), so that case is excluded to avoid a double-match.
 const ADAPTER_CORRUPTION_SIGNATURES = ['cannot find module', 'cannot find package', 'err_module_not_found'] as const;
@@ -84,8 +84,9 @@ export function buildAcpAdapterCorruptionGuidance(backend: string, errorMsg: str
   if (!looksLikeAdapterCorruption(errorMsg)) return null;
   const label = acpBackendLabel(backend);
   return (
-    `${label}'s adapter files look corrupted — a dependency didn't finish installing, so it ` +
-    `couldn't start. Wayland cleared the bad install and will reinstall it on the next attempt. ` +
-    `If this keeps happening, fully quit and reopen Wayland to force a clean reinstall.`
+    `The helper program ${label} needs did not finish installing, so ${label} could not start. ` +
+    `Wayland deleted the incomplete files and tried again, and the second attempt failed too. ` +
+    `Check that you are online and send your message again to retry. ` +
+    `If it still fails, quit Wayland and reopen it.`
   );
 }

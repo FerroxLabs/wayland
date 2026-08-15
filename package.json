@@ -1,6 +1,6 @@
 {
   "name": "Wayland",
-  "version": "0.11.18",
+  "version": "0.12.0",
   "description": "The local-first desktop AI agent that drives every AI CLI on your machine - Claude Code, Codex, Gemini and more, on your keys.",
   "keywords": [],
   "license": "AGPL-3.0-or-later",
@@ -23,8 +23,8 @@
     "build:skill-pack": "bunx tsx scripts/build-skill-pack.ts --out .skill-pack",
     "verify:skill-pack": "bunx tsx scripts/verify-skill-pack.ts --dir .skill-pack --src src/process/resources",
     "verify:release-acceptance": "node scripts/release-acceptance/verifyFinalAcceptance.js",
-    "prebuild": "node scripts/prepareConstitutionFs.js && bun run verify:modelsdev-snapshot && bun run build:skill-pack",
-    "prepackage": "node scripts/prepareConstitutionFs.js && bun run verify:modelsdev-snapshot && bun run build:skill-pack",
+    "prebuild": "node scripts/prepareConstitutionFs.js && node scripts/prepareVoiceModel.js && bun run verify:modelsdev-snapshot && bun run build:skill-pack",
+    "prepackage": "node scripts/prepareConstitutionFs.js && node scripts/prepareVoiceModel.js && bun run verify:modelsdev-snapshot && bun run build:skill-pack",
     "package": "electron-vite build",
     "make": "electron-vite build",
     "predist": "node scripts/prepareConstitutionFs.js && bun run verify:modelsdev-snapshot && bun run build:skill-pack",
@@ -95,7 +95,8 @@
     "server:resetpass:prod": "NODE_ENV=production bun dist-server/server.mjs --resetpass",
     "build:renderer:web": "bunx vite build --config vite.renderer.config.ts",
     "build:server": "node scripts/build-server.mjs",
-    "smoke:ijfw": "node scripts/ijfw-memory-smoke.mjs"
+    "smoke:ijfw": "node scripts/ijfw-memory-smoke.mjs",
+    "test:mcp:e2e": "WCORE_MCP_E2E=1 vitest run tests/integration/wcoreMcpEndToEnd.test.ts"
   },
   "dependencies": {
     "7zip-bin": "5.2.0",
@@ -285,6 +286,7 @@
     "jest-diff": "^30.0.4",
     "jsdom": "^28.1.0",
     "lint-staged": "^16.2.7",
+    "onnxruntime-web": "1.26.0-dev.20260416-b7804b056c",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
     "patch-package": "^8.0.0",

@@ -120,7 +120,24 @@ async function probeOllama(): Promise<DetectionResult['ollama']> {
   const names = models
     .map((m) => (m && typeof m === 'object' ? (m as { name?: unknown }).name : undefined))
     .filter((n): n is string => typeof n === 'string' && n.length > 0);
-  return { running: true, models: names };
+
+  // `/api/tags` already reports per-model capabilities, so knowing which models
+  // can take tools costs no extra request. Only recorded when the daemon
+  // actually reports it: an absent entry means "not asked", which must stay
+  // distinguishable from "asked, and tools was missing".
+  const capabilities: Record<string, string[]> = {};
+  for (const m of models) {
+    if (!m || typeof m !== 'object') continue;
+    const { name, capabilities: caps } = m as { name?: unknown; capabilities?: unknown };
+    if (typeof name !== 'string' || !name || !Array.isArray(caps)) continue;
+    capabilities[name] = caps.filter((c): c is string => typeof c === 'string');
+  }
+
+  return {
+    running: true,
+    models: names,
+    ...(Object.keys(capabilities).length > 0 ? { modelCapabilities: capabilities } : {}),
+  };
 }
 
 /**

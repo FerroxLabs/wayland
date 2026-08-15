@@ -28,6 +28,7 @@ import React from 'react';
 import { useInRouterContext, useLocation } from 'react-router-dom';
 import useSWR from 'swr';
 import VoiceConversationMode from '@/renderer/pages/conversation/voice/VoiceConversationMode';
+import { VoiceSessionProvider } from '@/renderer/pages/conversation/voice/VoiceSessionContext';
 import ProjectContextBadge from '../ProjectContext';
 import './chat-layout.css';
 
@@ -43,6 +44,14 @@ function parseWorkbenchRequest(state: unknown): WorkbenchNavigationRequest | und
 }
 
 /** Keeps ChatLayout usable in standalone/popout/test mounts without a Router. */
+/**
+ * Narrowest conversation column that still docks the workbench panel beside the
+ * messages instead of floating it over them. WorkbenchHost's default panel is
+ * 340px and its rail is 36px, so this leaves roughly 360px of conversation -
+ * about the point where message text stops being comfortable.
+ */
+const WORKBENCH_DOCK_MIN_WIDTH = 740;
+
 const RouterWorkbenchRequestBridge: React.FC<{
   onRequest: (request: WorkbenchNavigationRequest | undefined) => void;
 }> = ({ onRequest }) => {
@@ -154,7 +163,17 @@ const ChatLayout: React.FC<{
   const runtimeName = resolveRuntimeName(backend);
 
   const titleAreaMaxWidth = containerWidth ? Math.max(160, Math.min(640, containerWidth - 460)) : 480;
-  const workbenchOverlay = isMobile || isPopout || (containerWidth > 0 && containerWidth < 960);
+  // Overlay puts the workbench panel ON TOP of the conversation, so it must be a
+  // last resort for genuinely narrow layouts - not the common case. The old 960
+  // threshold made it the common case: a maximised window with the chat list open
+  // leaves a ~928px conversation column, which tripped the check and dropped the
+  // panel over the messages (the user's own report: a message bubble running
+  // underneath the Core panel).
+  //
+  // Dock whenever the conversation keeps a readable column beside the panel.
+  // WorkbenchHost defaults to a 340px panel plus a 36px rail, so anything above
+  // roughly 740px docks cleanly and only truly cramped layouts overlay.
+  const workbenchOverlay = isMobile || isPopout || (containerWidth > 0 && containerWidth < WORKBENCH_DOCK_MIN_WIDTH);
 
   const workbenchSections = React.useMemo<WorkbenchSectionRegistration[]>(
     () => [
@@ -251,13 +270,11 @@ const ChatLayout: React.FC<{
         </FlexFullContainer>
         <div className='flex items-center gap-12px shrink-0'>
           <ProjectContextBadge projectId={props.projectId} />
-          {conversationId && (
-            <VoiceConversationMode
-              conversationId={conversationId}
-              conversationTitle={props.title}
-              actorLabel={displayName || 'Wayland'}
-            />
-          )}
+          {/* No voice entry here any more. There were two, 17px apart, with
+              accessible names a screen reader could not tell apart ("Start
+              Voice conversation" in the header, "Start voice input" for
+              dictation in the composer). The composer's soundwave is the single
+              door now, and it is also the way out. */}
           {isPopout && isElectronDesktop() && (
             <button
               type='button'
@@ -296,7 +313,7 @@ const ChatLayout: React.FC<{
     </>
   );
 
-  return (
+  const layoutTree = (
     <ArcoLayout
       className='size-full'
       style={{
@@ -337,6 +354,27 @@ const ChatLayout: React.FC<{
         </div>
       </div>
     </ArcoLayout>
+  );
+
+  /*
+   * The voice session wraps the WHOLE layout, not the header.
+   *
+   * It used to live inside `headerBlock`, which three call sites skip via
+   * `hideHeader`. On those surfaces the component that listens for the composer's
+   * open event was never mounted, so the soundwave button dispatched into
+   * nothing - a dead control for real users. Wrapping the layout is what makes
+   * voice reachable from every conversation surface.
+   *
+   * The mount keeps the same `conversationId` gate the header block used: with
+   * no conversation there is nothing for a session to belong to.
+   */
+  if (!conversationId) return layoutTree;
+
+  return (
+    <VoiceSessionProvider conversationId={conversationId} actorLabel={displayName || 'Wayland'}>
+      <VoiceConversationMode conversationTitle={props.title} />
+      {layoutTree}
+    </VoiceSessionProvider>
   );
 };
 

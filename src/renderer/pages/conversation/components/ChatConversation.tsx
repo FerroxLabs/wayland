@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { History } from 'lucide-react';
@@ -207,17 +209,6 @@ const GeminiConversationPanel: React.FC<{
 
 type WCoreConversation = Extract<TChatConversation, { type: 'wcore' }>;
 
-// #252 reframe: header control that opens/closes the opt-in observability panel.
-// State is shared with the panel (WCoreChat) via the cross-instance settings
-// store, so toggling here keeps both in lockstep and survives reload.
-export const ObservabilityToggle: React.FC = () => {
-  // 0.11.3: observability UI temporarily disabled pending the rework (see
-  // app/.planning/handoffs/SESSION-HANDOFF-2026-06-24-OBSERVABILITY-REWORK-AND-JSON-STREAM.md).
-  // Hiding the toggle keeps the opt-in panel from ever opening; the inline
-  // StatusFooter "processing" cue remains the live indicator.
-  return null;
-};
-
 const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; sliderTitle: React.ReactNode }> = ({
   conversation,
   sliderTitle,
@@ -248,7 +239,6 @@ const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; slider
     headerLeft: <WCoreModelSelector selection={modelSelection} conversationId={conversation.id} />,
     headerExtra: (
       <div className='flex items-center gap-8px'>
-        <ObservabilityToggle />
         <ConversationSkillsIndicator conversation={conversation} />
         <CronJobManager
           conversationId={conversation.id}

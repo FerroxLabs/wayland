@@ -5,19 +5,18 @@
  */
 
 import React from 'react';
-import { Alert, Avatar, Button, Spin, Switch, Tooltip, Typography } from '@arco-design/web-react';
-import { CheckOne } from '@icon-park/react';
+import { Alert, Avatar, Spin, Switch, Tooltip, Typography } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { ipcBridge } from '@/common';
-import { getFluxCompat } from '@/common/types/acpTypes';
 import { useHiddenAgents } from '@renderer/hooks/assistant/useHiddenAgents';
 import { resolveAgentLogo } from '@renderer/utils/model/agentLogo';
 import { resolveExtensionAssetUrl } from '@renderer/utils/platform';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 import RemoteAgents from './RemoteAgents';
+import AvailableToInstall from './AvailableToInstall';
 import FluxRouterCard from './FluxRouterCard';
-import FluxSetupModal from './FluxSetupModal';
+import FluxCompatChip from './FluxCompatChip';
 import { resolveAgentScope } from './agentScopes';
 import styles from './AgentsSettings.module.css';
 
@@ -66,64 +65,6 @@ function agentLogo(agent: DetectedAgent): string | null {
     })
   );
 }
-
-/**
- * Small per-agent Flux status chip. Driven by the backend's `fluxCompat`
- * classification in the registry (single source of truth via `getFluxCompat`):
- *  - 'env'    -> "Flux ready" (positive tone)
- *  - 'setup'  -> "Flux setup" (neutral tone)
- *  - 'vendor' -> "Native only" (muted tone) with a tooltip explaining why.
- * Renders nothing when the backend has no Flux classification.
- */
-const FluxCompatChip: React.FC<{ backend: string }> = ({ backend }) => {
-  const { t } = useTranslation();
-  const [setupOpen, setSetupOpen] = React.useState(false);
-  const compat = getFluxCompat(backend);
-  if (!compat) return null;
-
-  if (compat === 'env') {
-    return (
-      <span className={`${styles.fluxChip} ${styles.fluxChipReady}`}>
-        <CheckOne theme='filled' size={11} />
-        {t('settings.agentsPage.fluxCompat.ready')}
-      </span>
-    );
-  }
-
-  if (compat === 'setup') {
-    // opencode and codex have live connectors (a one-time config write routes
-    // them through Flux). Render their chip as a clickable button that opens the
-    // setup modal for the matching backend; other `setup` backends stay
-    // informational.
-    if (backend === 'opencode' || backend === 'codex') {
-      return (
-        <>
-          <Button
-            type='text'
-            size='mini'
-            className={`${styles.fluxChip} ${styles.fluxChipSetup} ${styles.fluxChipButton}`}
-            onClick={() => setSetupOpen(true)}
-            data-testid='flux-setup-chip'
-          >
-            {t('settings.agentsPage.fluxCompat.setup')}
-          </Button>
-          <FluxSetupModal visible={setupOpen} onClose={() => setSetupOpen(false)} backend={backend} />
-        </>
-      );
-    }
-    return (
-      <span className={`${styles.fluxChip} ${styles.fluxChipSetup}`}>{t('settings.agentsPage.fluxCompat.setup')}</span>
-    );
-  }
-
-  return (
-    <Tooltip content={t('settings.agentsPage.fluxCompat.nativeOnlyTooltip')}>
-      <span className={`${styles.fluxChip} ${styles.fluxChipNative}`}>
-        {t('settings.agentsPage.fluxCompat.nativeOnly')}
-      </span>
-    </Tooltip>
-  );
-};
 
 /**
  * Per-agent "show in toolbar" toggle. Flipping it off removes the agent from
@@ -239,8 +180,10 @@ const AgentTile: React.FC<{ agent: DetectedAgent; shown: boolean; onToggle: (sho
  *  1. Your agents - Wayland Core as the hero card plus Claude Code / Codex,
  *     each stating in plain language what models it runs.
  *  2. More detected - a compact tile grid for every other detected CLI agent.
- *  3. Remote agents - paired remote connections (OpenClaw, Hermes).
- *  4. Flux Router - live connection status plus the route-through-Flux toggle.
+ *  3. Available to install - the catalogued agents the user does NOT have,
+ *     with an Install affordance (decision D3 places it below More detected).
+ *  4. Remote agents - paired remote connections (OpenClaw, Hermes).
+ *  5. Flux Router - live connection status plus the route-through-Flux toggle.
  */
 const AgentsSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -349,6 +292,9 @@ const AgentsSettings: React.FC = () => {
           </div>
         </>
       )}
+
+      {/* ---- Available to install (D3: below More detected) ---- */}
+      <AvailableToInstall />
 
       {/* ---- Remote agents (OpenClaw, Hermes) ---- */}
       <div className={styles.sectionLabel}>{t('settings.agentsPage.remoteAgents')}</div>

@@ -22,14 +22,14 @@ import {
 
 test.describe('ACP Agent', () => {
   test('agent settings page has management UI', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await expectUrlContains(page, 'agent');
     await expectBodyContainsAny(page, ['Agent', 'agent', '助手', '预设', 'Preset', 'Custom', 'Assistants']);
   });
 
   test('screenshot: agent settings', async ({ page }) => {
     test.skip(!process.env.E2E_SCREENSHOTS, 'screenshots disabled');
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await takeScreenshot(page, 'agent-settings');
   });
 
@@ -87,9 +87,9 @@ test.describe('ACP Agent', () => {
   });
 
   test('MCP tools page has server management UI', async ({ page }) => {
-    await goToSettings(page, 'capabilities');
-    await expectUrlContains(page, 'capabilities');
-    await expect(page.locator(settingsSiderItemById('capabilities')).first()).toBeVisible({ timeout: 8_000 });
+    await goToSettings(page, 'mcp-library');
+    await expectUrlContains(page, 'mcp-library');
+    await expect(page.locator(settingsSiderItemById('mcp-library')).first()).toBeVisible({ timeout: 8_000 });
     await expectBodyContainsAny(page, ['MCP', 'mcp', 'Server', 'server', '工具', '配置', '添加', 'Add']);
   });
 

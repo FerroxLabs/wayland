@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { X } from 'lucide-react';
@@ -125,7 +127,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ path, onRemove, readonly = fa
             style={{ display: imageUrl ? 'block' : 'none' }}
             preview={Boolean(imageUrl)}
           />
-          {!imageUrl && <div className='w-60px h-60px bg-bg-3'></div>}
+          {!imageUrl && <div className='w-60px h-60px bg-3'></div>}
         </div>
         {!readonly && (
           <div
@@ -142,7 +144,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ path, onRemove, readonly = fa
   return (
     <div className='relative inline-block mb-10px'>
       <div
-        className='h-60px flex items-center gap-12px px-12px rd-8px bg-bg-2 border border-solid'
+        className='h-60px flex items-center gap-12px px-12px rd-8px bg-2 border border-solid'
         style={{ borderColor: 'var(--border-base)', boxShadow: '0 0 0 1px rgba(0,0,0,0.02)' }}
       >
         <div className='w-40px h-40px rd-8px flex items-center justify-center flex-shrink-0'>

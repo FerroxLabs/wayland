@@ -185,6 +185,12 @@
       "settingUp": "Setting things up",
       "startInChat": "Start in chat"
     },
+    "layout": {
+      "headline": "레이아웃 선택",
+      "sub": "둘 다 동일한 채팅, 프로젝트, 설정을 보여 줍니다. 설정 > 내비게이션에서 언제든지 변경할 수 있습니다.",
+      "continue": "계속",
+      "applying": "적용 중"
+    },
     "allset": {
       "headline": "you're all set",
       "sub": "Everything is wired and ready. Let's go.",

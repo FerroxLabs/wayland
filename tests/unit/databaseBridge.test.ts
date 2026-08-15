@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -45,7 +47,7 @@ import type { TMessage } from '../../src/common/chat/chatLib';
 
 function makeRepo(overrides?: Partial<IConversationRepository>): IConversationRepository {
   return {
-    getConversation: vi.fn(),
+    getConversation: vi.fn(async () => undefined),
     createConversation: vi.fn(),
     updateConversation: vi.fn(),
     deleteConversation: vi.fn(),

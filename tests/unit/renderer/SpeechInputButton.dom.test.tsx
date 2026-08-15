@@ -18,16 +18,32 @@ const mockMessageWarning = vi.fn();
 let speechInputErrorCode: string | null = null;
 let speechInputErrorMessage: string | null = null;
 
+const mockConfigSet = vi.fn(async () => undefined);
+// 'pending' never resolves, standing in for the window before stored config
+// arrives - the only case where the button is still allowed to render nothing.
+let configResolution: 'resolved' | 'pending' | 'factory' = 'resolved';
+
 vi.mock('@/common/config/storage', () => ({
   ConfigStorage: {
-    get: vi.fn(async (key: string) => {
-      if (key === 'tools.speechToText') {
-        return {
-          enabled: speechToTextEnabled,
-        };
+    get: vi.fn((key: string) => {
+      if (configResolution === 'pending') {
+        return new Promise(() => {});
       }
-      return undefined;
+      // Nothing stored at all: a genuine factory profile.
+      if (configResolution === 'factory') {
+        return Promise.resolve(undefined);
+      }
+      if (key === 'tools.speechToText') {
+        // `origin: 'user'` because `speechToTextEnabled = false` here means "the
+        // user switched dictation off", and that is now the only shape that can
+        // mean it. A config with no origin reads as never-configured and is
+        // re-seeded onto the on-device floor - see the factory-profile test at
+        // the end of this file, which pins that separately.
+        return Promise.resolve({ enabled: speechToTextEnabled, origin: 'user' });
+      }
+      return Promise.resolve(undefined);
     }),
+    set: (...args: unknown[]) => mockConfigSet(...(args as [])),
   },
 }));
 
@@ -63,7 +79,68 @@ vi.mock('@arco-design/web-react', () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, {}, children),
 }));
 
-import SpeechInputButton, { getErrorMessageKey } from '@/renderer/components/chat/SpeechInputButton';
+import SpeechInputButton, { getErrorMessageKey, legTooltip } from '@/renderer/components/chat/SpeechInputButton';
+import type { VoiceFailureCause, VoiceLeg, VoiceLegStatus } from '@/common/voice/voiceReadiness';
+
+/**
+ * Hover copy is copy. Two branches of `legTooltip` used to interpolate the raw
+ * failure slug - "Dictation is not available on this system (no-local-adapter)."
+ * - which is a member of a TypeScript union printed at a user. This is the guard
+ * that keeps every branch a sentence.
+ */
+describe('legTooltip never puts a slug or a code on the screen', () => {
+  const statuses: ReadonlyArray<VoiceLegStatus> = [
+    'ready',
+    'warming',
+    'preparing',
+    'needsSetup',
+    'unsupported',
+    'failed',
+  ];
+  const causes: ReadonlyArray<VoiceFailureCause> = [
+    'ok',
+    'tts-disabled-by-user',
+    'no-local-adapter',
+    'tts-needs-consent',
+    'stt-disabled',
+    'stt-unavailable',
+    'stt-needs-consent',
+    'audio-blocked',
+    'local-engine-warming',
+    'no-model-connected',
+  ];
+
+  it('renders a sentence for every status and cause pairing', () => {
+    // Control: a non-empty product, so the loop is not vacuous.
+    expect(statuses.length * causes.length).toBeGreaterThan(50);
+
+    for (const status of statuses) {
+      for (const cause of causes) {
+        const leg: VoiceLeg = { direction: 'in', status, cause, provider: null, clickable: status === 'ready' };
+        const copy = legTooltip(leg);
+
+        // `ready` is the one branch that deliberately says nothing, because a
+        // working control needs no explanation.
+        if (status === 'ready') {
+          expect(copy).toBe('');
+          continue;
+        }
+
+        expect(copy.length).toBeGreaterThan(20);
+        expect(copy.toLowerCase()).not.toContain('unknown');
+        // Not the cause it was given, and not ANY cause: a tooltip that leaks a
+        // different leg's slug is the same defect.
+        for (const slug of causes) expect(copy).not.toContain(slug);
+        // The exact shape the two broken branches produced: a slug in
+        // parentheses at the end of an otherwise fine sentence. Hyphenated
+        // ENGLISH ("on-device") is not a slug, so this targets the bracket.
+        expect(copy).not.toMatch(/\([a-z]+(-[a-z]+)+\)/);
+        // No error code left over from a bridge failure.
+        expect(copy).not.toMatch(/\b[A-Z][A-Z0-9_]{4,}\b/);
+      }
+    }
+  });
+});
 
 describe('getErrorMessageKey', () => {
   it('maps premium-locked to the premiumLocked i18n key (not genericError)', () => {
@@ -86,6 +163,7 @@ describe('getErrorMessageKey', () => {
 describe('SpeechInputButton', () => {
   beforeEach(() => {
     speechToTextEnabled = false;
+    configResolution = 'resolved';
     speechInputAvailability = 'record';
     speechInputStatus = 'idle';
     speechInputRecordingDurationMs = 0;
@@ -99,12 +177,47 @@ describe('SpeechInputButton', () => {
     vi.unstubAllGlobals();
   });
 
-  it('stays hidden when speech-to-text is disabled', async () => {
+  /**
+   * Inverted deliberately. This used to assert the button stayed hidden while
+   * dictation was off, which is the shipped default - so most users saw two
+   * composer affordances where the design assumed three, and the one they could
+   * not see was the only route to turning dictation on. A feature reachable only
+   * by users who already enabled it is not discoverable.
+   */
+  it('renders and routes to settings when speech-to-text is disabled', async () => {
+    globalThis.location.hash = '';
+
     render(<SpeechInputButton onTranscript={vi.fn()} />);
 
-    await waitFor(() => {
-      expect(screen.queryByRole('button')).toBeNull();
+    const button = await screen.findByRole('button', {
+      name: 'conversation.chat.speech.setupLabel',
     });
+
+    fireEvent.click(button);
+    expect(globalThis.location.hash).toBe('#/settings/voice');
+  });
+
+  /**
+   * The click must never flip `enabled` itself. Turning dictation back on is a
+   * decision, and the button's job is to route to where the decision is made,
+   * not to make it on the user's behalf.
+   */
+  it('never enables speech-to-text as a side effect of the click', async () => {
+    render(<SpeechInputButton onTranscript={vi.fn()} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'conversation.chat.speech.setupLabel' }));
+
+    expect(mockConfigSet).not.toHaveBeenCalled();
+    expect(mockStartRecording).not.toHaveBeenCalled();
+  });
+
+  it('does not render at all until the stored config resolves', () => {
+    // A button whose meaning is not yet known must not flash into the composer.
+    configResolution = 'pending';
+
+    render(<SpeechInputButton onTranscript={vi.fn()} />);
+
+    expect(screen.queryByRole('button')).toBeNull();
   });
 
   it('renders a microphone button when speech-to-text is enabled', async () => {
@@ -122,9 +235,12 @@ describe('SpeechInputButton', () => {
   it('refreshes visibility when the speech-to-text config changes', async () => {
     render(<SpeechInputButton onTranscript={vi.fn()} />);
 
-    await waitFor(() => {
-      expect(screen.queryByRole('button')).toBeNull();
-    });
+    // Was `queryByRole('button')` is null. That went vacuous the moment the
+    // disabled state started rendering a button: `waitFor` succeeds on its first
+    // synchronous check, which lands BEFORE the stored config resolves, so it
+    // was asserting the not-yet-loaded state and would have passed no matter
+    // what the disabled state did. Assert the disabled affordance instead.
+    expect(await screen.findByRole('button', { name: 'conversation.chat.speech.setupLabel' })).toBeInTheDocument();
 
     speechToTextEnabled = true;
 
@@ -137,6 +253,24 @@ describe('SpeechInputButton', () => {
         name: 'conversation.chat.speech.recordTooltip',
       })
     ).toBeInTheDocument();
+  });
+
+  /**
+   * The factory profile, which is the case the whole lane is about. A stored
+   * config with no `origin` is indistinguishable from never having been
+   * configured, so it resolves to the bundled on-device engine and the mic is
+   * LIVE - not a setup prompt.
+   */
+  it('is immediately usable on a profile that has never been configured', async () => {
+    configResolution = 'factory';
+
+    render(<SpeechInputButton onTranscript={vi.fn()} />);
+
+    const button = await screen.findByRole('button', { name: 'conversation.chat.speech.recordTooltip' });
+    fireEvent.click(button);
+
+    expect(mockStartRecording).toHaveBeenCalled();
+    expect(mockConfigSet).not.toHaveBeenCalled();
   });
 
   it('shows the transcription detail when speech-to-text returns a concrete error', async () => {

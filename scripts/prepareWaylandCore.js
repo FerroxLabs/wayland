@@ -65,6 +65,20 @@ function pruneRuntimeDirectory(dirPath, allowedNames) {
 
 function copyFileSafe(sourcePath, targetPath) {
   ensureDirectory(path.dirname(targetPath));
+  // Unlink first so the copy lands on a fresh inode, which is the standard safe
+  // way to replace an executable.
+  //
+  // Prompted by an OBSERVED failure while staging the C-1..C-5 engine: copying
+  // the new binary over the existing one here produced a binary that was
+  // SIGKILLed on exec (rc=137, no output) despite a matching sha256, identical
+  // `codesign` output and identical xattrs; `rm` then `cp` at the same path ran
+  // clean. Both results were reproducible at the time.
+  //
+  // The mechanism is NOT established - a later attempt to reproduce it in a
+  // scratch directory, with and without a resident process holding the old
+  // binary, did not fail. So this is a cheap guard against a real observation,
+  // not a fix for a diagnosed cause. Do not repeat any mechanism story for it.
+  fs.rmSync(targetPath, { force: true });
   fs.copyFileSync(sourcePath, targetPath);
 }
 
@@ -210,18 +224,45 @@ function verifyArchiveChecksum(archivePath, expectedHex, assetName, tag) {
 // FerroxLabs/wayland-core; Desktop integrates against a specific tag rather
 // than tracking `latest` so version drift can't sneak in via a release made
 // while a CI build is mid-flight. Override with WCORE_VERSION=... when bumping.
-const DEFAULT_WCORE_VERSION = 'v0.12.25';
+//
+// ⚠️ This tag and `DESKTOP_CORE_V1_PIN` are ONE decision. The host compares the
+// contract descriptor for equality, so an engine that does not match the pin
+// kills every session on frame 1.
+//
+// 🔴 They do NOT agree on this branch, deliberately: the pin demands minor 14
+// (Core 0.13.0) and v0.12.26 advertises minor 12. 0.13.0 is not tagged - it
+// exists only as a local build we are verifying against through the override
+// directory, and it gets tagged only once that verification passes. So this
+// branch is NOT shippable, the tag below stays where it is until then, and
+// `desktopContractV1.test.ts` holds the tripwire that says so.
+const DEFAULT_WCORE_VERSION = 'v0.13.0';
 
 function getVersion() {
   return (process.env.WCORE_VERSION || DEFAULT_WCORE_VERSION).trim();
 }
 
+// A pre-release engine is for INTEGRATION ONLY. The opt-in is an explicit env
+// var that defaults off, so an ordinary `bun run package` can never bundle an RC
+// into a shipped build - it fails closed on the tag shape exactly as before.
+// Mirrors the --allow-prerelease flag in scripts/stage-wcore-bump.mjs; the two
+// validators must stay in step or staging succeeds and packaging then refuses.
 function normalizeExactReleaseTag(version) {
   const tag = version.startsWith('v') ? version : `v${version}`;
-  if (!/^v\d+\.\d+\.\d+$/.test(tag)) {
-    throw new Error(`Invalid wayland-core release tag "${version}"; expected an exact vMAJOR.MINOR.PATCH tag.`);
+  if (/^v\d+\.\d+\.\d+$/.test(tag)) return tag;
+
+  const isPrerelease = /^v\d+\.\d+\.\d+-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*$/.test(tag);
+  if (isPrerelease && process.env.WCORE_ALLOW_PRERELEASE === '1') {
+    console.warn(
+      `WARNING: bundling PRE-RELEASE wayland-core ${tag} (WCORE_ALLOW_PRERELEASE=1). ` +
+        'Integration testing only - do not ship this build.'
+    );
+    return tag;
   }
-  return tag;
+  throw new Error(
+    isPrerelease
+      ? `wayland-core tag "${version}" is a pre-release; set WCORE_ALLOW_PRERELEASE=1 to bundle it for INTEGRATION ONLY (never ship it).`
+      : `Invalid wayland-core release tag "${version}"; expected an exact vMAJOR.MINOR.PATCH tag.`
+  );
 }
 
 // ---------------------------------------------------------------------------

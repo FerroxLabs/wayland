@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -137,6 +139,70 @@ describe('useGuidSend', () => {
       expect(stored).toBeTruthy();
       const parsed = JSON.parse(stored!);
       expect(parsed.input).toBe('test message');
+    });
+
+    /**
+     * The new-chat voice button creates the conversation with nothing typed.
+     * Send is disabled on an empty composer so this used to be unreachable, and
+     * an empty seed makes the arriving composer dispatch a blank first turn.
+     */
+    it('seeds no first turn when there is nothing to send', async () => {
+      const deps = makeDeps({ input: '   ', files: [] });
+      const { result } = renderHook(() => useGuidSend(deps));
+
+      await act(async () => {
+        await result.current.handleSend();
+      });
+
+      // Positive check first: the conversation WAS created, so this is not
+      // passing because the send bailed out before it could seed anything.
+      expect(mockCreate).toHaveBeenCalledTimes(1);
+      expect(sessionStorage.getItem('acp_initial_message_new-conv')).toBeNull();
+    });
+
+    /**
+     * A create call with no name falls through to the agent factory's own
+     * default, which is the raw workspace path - so the chat shows up in Recents
+     * as `/Users/.../claude-temp-1786448694044`. The voice button creates with
+     * nothing typed, so the name has to come from somewhere: the localized
+     * default title, which auto-titling then replaces on the first turn.
+     */
+    it('names a chat created with nothing typed with the default title', async () => {
+      const deps = makeDeps({ input: '', files: [] });
+      const { result } = renderHook(() => useGuidSend(deps));
+
+      await act(async () => {
+        await result.current.handleSend();
+      });
+
+      expect(mockCreate).toHaveBeenCalledTimes(1);
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'conversation.welcome.newConversation' })
+      );
+    });
+
+    it('still names a chat with whatever was typed', async () => {
+      const deps = makeDeps({ input: 'draft a launch email' });
+      const { result } = renderHook(() => useGuidSend(deps));
+
+      await act(async () => {
+        await result.current.handleSend();
+      });
+
+      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ name: 'draft a launch email' }));
+    });
+
+    it('still seeds a turn made only of attachments', async () => {
+      const deps = makeDeps({ input: '', files: ['/tmp/photo.png'] });
+      const { result } = renderHook(() => useGuidSend(deps));
+
+      await act(async () => {
+        await result.current.handleSend();
+      });
+
+      const stored = sessionStorage.getItem('acp_initial_message_new-conv');
+      expect(stored).toBeTruthy();
+      expect(JSON.parse(stored!).files).toEqual(['/tmp/photo.png']);
     });
 
     it('navigates to conversation after creation', async () => {

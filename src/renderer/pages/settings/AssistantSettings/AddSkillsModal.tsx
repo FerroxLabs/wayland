@@ -84,7 +84,7 @@ const AddSkillsModal: React.FC<AddSkillsModalProps> = ({
                   >
                     {source.name}
                     <span
-                      className={`px-6px py-1px rd-[100px] text-10px flex items-center justify-center transition-colors ${isActive ? 'bg-white/20 text-white' : 'bg-fill-3 text-t-tertiary border border-border-1'}`}
+                      className={`px-6px py-1px rd-[100px] text-10px flex items-center justify-center transition-colors ${isActive ? 'bg-white/20 text-white' : 'bg-fill-3 text-t-tertiary border border-1'}`}
                     >
                       {source.skills.length}
                     </span>
@@ -104,7 +104,7 @@ const AddSkillsModal: React.FC<AddSkillsModalProps> = ({
             </button>
             <button
               type='button'
-              className='outline-none border border-dashed border-border-1 hover:border-primary-4 cursor-pointer w-28px h-28px text-t-tertiary hover:text-primary-6 hover:bg-primary-1 rd-full transition-all duration-300 flex items-center justify-center bg-transparent shrink-0'
+              className='outline-none border border-dashed border-1 hover:border-primary-4 cursor-pointer w-28px h-28px text-t-tertiary hover:text-primary-6 hover:bg-primary-1 rd-full transition-all duration-300 flex items-center justify-center bg-transparent shrink-0'
               onClick={() => setShowAddPathModal(true)}
               title={t('common.add', { defaultValue: 'Add Custom Path' })}
             >
@@ -136,9 +136,9 @@ const AddSkillsModal: React.FC<AddSkillsModalProps> = ({
                   return (
                     <div
                       key={skill.path}
-                      className='flex items-start gap-12px p-12px bg-base border border-transparent hover:border-border-2 rounded-8px transition-colors shadow-sm'
+                      className='flex items-start gap-12px p-12px bg-base border border-transparent hover:border-2 rounded-8px transition-colors shadow-sm'
                     >
-                      <div className='w-32px h-32px rounded-8px bg-fill-2 border border-border-1 flex items-center justify-center font-bold text-14px text-t-secondary uppercase shrink-0 mt-2px'>
+                      <div className='w-32px h-32px rounded-8px bg-fill-2 border border-1 flex items-center justify-center font-bold text-14px text-t-secondary uppercase shrink-0 mt-2px'>
                         {skill.name.charAt(0)}
                       </div>
                       <div className='flex-1 min-w-0'>

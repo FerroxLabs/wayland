@@ -96,17 +96,19 @@ test.describe.serial('Teams Library - empty state', () => {
     const pageRoot = page.locator('[data-testid="teams-library-page"]');
     await expect(pageRoot).toBeVisible({ timeout: 15_000 });
 
-    // totalTeams === 0 → empty state visible, neither section renders.
-    const emptyState = page.locator('[data-testid="teams-empty-state"]');
-    await expect(emptyState).toBeVisible({ timeout: 10_000 });
+    // `teams-empty-state` is keyed on hasAnyTeams, and the 60 team launchers now
+    // ship in the COMPILED builtin catalog (builtinCatalog.ts imports
+    // builtin-catalog/assistants.json statically) rather than as extensions - so
+    // pointing WAYLAND_EXTENSIONS_PATH at an empty dir no longer empties the
+    // library and that branch is unreachable in a normal build.
+    //
+    // The reachable sibling is `teams-no-results` (hasAnyTeams && totalTeams === 0),
+    // which still proves the load-bearing behaviour: with nothing to show, the
+    // sections and the BuildMyOwn card are all withheld.
+    await page.locator('[data-testid="teams-search-input"]').fill('zzz-no-such-team-zzz');
 
-    // Subtitle reports zero teams (i18n token includes the count).
-    await expect(page.locator('[data-testid="teams-total-count"]')).toContainText('0');
-
-    // No standing section, no teams section, no BuildMyOwn card - all three
-    // are conditional on either standing.length > 0 or totalTeams > 0.
+    await expect(page.locator('[data-testid="teams-no-results"]')).toBeVisible({ timeout: 10_000 });
     await expect(page.locator('[data-testid="teams-group-standing"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="teams-group-teams"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="team-card-build-my-own"]')).toHaveCount(0);
 
     await page.screenshot({ path: 'tests/e2e/results/teams-library-empty.png', fullPage: true });

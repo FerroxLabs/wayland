@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -247,7 +249,7 @@ export class CronService {
       if (existingJobs.length > 0) {
         const existingJob = existingJobs[0];
         throw new Error(
-          i18n.t('cron:error.alreadyExists', {
+          i18n.t('cron.error.alreadyExists', {
             name: existingJob.name,
             id: existingJob.id,
           })
@@ -266,7 +268,7 @@ export class CronService {
         params.executionMode
       )
     ) {
-      throw new Error(i18n.t('cron:error.highFreqNewConversation'));
+      throw new Error(i18n.t('cron.error.highFreqNewConversation'));
     }
 
     const now = Date.now();
@@ -351,7 +353,7 @@ export class CronService {
         effectiveMode
       )
     ) {
-      throw new Error(i18n.t('cron:error.highFreqNewConversation'));
+      throw new Error(i18n.t('cron.error.highFreqNewConversation'));
     }
 
     // Stop existing timer
@@ -671,7 +673,7 @@ export class CronService {
           // Past one-time job, mark as expired and disable
           job.state.nextRunAtMs = undefined;
           job.state.lastStatus = 'skipped';
-          job.state.lastError = i18n.t('cron:error.scheduledTimePassed');
+          job.state.lastError = i18n.t('cron.error.scheduledTimePassed');
           job.enabled = false;
           await this.repo.update(job.id, { enabled: false, state: job.state });
           this.emitter.emitJobUpdated(job);
@@ -744,7 +746,7 @@ export class CronService {
       console.warn(`[CronService] Job ${job.id} is still running; skipping overlapping run (#163).`);
       this.updateNextRunTime(job);
       await this.repo.update(job.id, {
-        state: { ...job.state, lastStatus: 'skipped', lastError: i18n.t('cron:error.overlapSkipped') },
+        state: { ...job.state, lastStatus: 'skipped', lastError: i18n.t('cron.error.overlapSkipped') },
       });
       const skippedJob = await this.repo.getById(job.id);
       if (skippedJob) {
@@ -777,7 +779,7 @@ export class CronService {
           state: {
             ...job.state,
             lastStatus: 'skipped',
-            lastError: i18n.t('cron:error.conversationBusy', {
+            lastError: i18n.t('cron.error.conversationBusy', {
               count: job.state.maxRetries || 3,
             }),
           },
@@ -958,6 +960,12 @@ export class CronService {
    * present for.
    */
   private async detectAndAnnounceMissedJobs(jobs: CronJob[]): Promise<void> {
+    // This runs from `init()`, which can win the race against the main-process
+    // i18n instance switching off the en-US bootstrap into the user's chosen
+    // language. Without this await a German user's missed-run notice is written
+    // to the database in English and stays that way. Same reason as the
+    // notification path below.
+    await i18nReady;
     const now = Date.now();
     for (const job of jobs) {
       const nextRunAt = job.state.nextRunAtMs;
@@ -966,7 +974,7 @@ export class CronService {
       console.log(`[CronService] Missed job "${job.name}" (was due at ${new Date(nextRunAt).toISOString()})`);
 
       job.state.lastStatus = 'missed';
-      job.state.lastError = i18n.t('cron:error.missedJob', {
+      job.state.lastError = i18n.t('cron.error.missedJob', {
         name: job.name,
         time: new Date(nextRunAt).toLocaleString(),
       });
@@ -986,7 +994,7 @@ export class CronService {
     const { conversationId } = job.metadata;
     const scheduledTime = new Date(scheduledAtMs).toLocaleString();
     const msgId = uuid();
-    const content = i18n.t('cron:error.missedJob', {
+    const content = i18n.t('cron.error.missedJob', {
       name: job.name,
       time: scheduledTime,
     });

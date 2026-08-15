@@ -127,7 +127,7 @@ test.describe('F-CONFIG-03 Adjust AI parameter options', () => {
 test.describe('F-CONFIG-06 AI response timeout settings', () => {
   test('timeout configuration option can be found on the settings page', async ({ page }) => {
     const { goToSettings } = await import('../../../../helpers');
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
 
     const pageContent = await page.textContent('body');
     const hasTimeout = /timeout|超时|响应时间/i.test(pageContent ?? '');

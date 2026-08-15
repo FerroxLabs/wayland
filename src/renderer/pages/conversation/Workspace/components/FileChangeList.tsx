@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ChevronDown, ChevronRight, Eye, Minus, Plus, Redo2, RefreshCw } from 'lucide-react';
@@ -382,7 +384,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
       </div>
       <div className='flex-1 overflow-y-auto p-8px flex flex-col gap-10px'>
         {groupedChanges.map((group) => (
-          <div key={group.key} className='border border-base rounded-10px overflow-hidden bg-bg-1'>
+          <div key={group.key} className='border border-base rounded-10px overflow-hidden bg-1'>
             <PanelHeader title={group.title} count={group.count} actions={group.headerAction} />
             {group.items.length === 0 ? (
               <div className='flex items-center justify-center py-16px text-12px text-t-quaternary'>

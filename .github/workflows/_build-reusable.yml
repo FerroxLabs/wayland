@@ -41,8 +41,6 @@ env:
   # MUST bundle the engine here. Native package smoke in build-matrix.yml also
   # bundles it; lightweight pr-checks.yml keeps WCORE_SKIP=1.
   WCORE_SKIP: '0'
-  # aionrs binary version to bundle (used by scripts/prepareAionrs.js)
-  AIONRS_VERSION: 'latest'
   # Pinned Bun runtime bundled into the packaged app. Must match
   # PINNED_BUN_VERSION in scripts/prepareBundledBun.js and the
   # corresponding entry in scripts/bundled-bun-shasums.json.

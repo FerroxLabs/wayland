@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { AlertTriangle, Bot, Gauge, Minus, Pencil, Plus } from 'lucide-react';
@@ -183,7 +185,10 @@ const RemoteAgentFormModal: React.FC<{
         const result = await ipcBridge.remoteAgent.handshake.invoke({ id: agentId });
 
         if (result.status === 'ok') {
-          toast.show({ variant: 'success', title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created') });
+          toast.show({
+            variant: 'success',
+            title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created'),
+          });
           onSaved();
           onClose();
         } else if (result.status === 'pending_approval') {
@@ -198,7 +203,10 @@ const RemoteAgentFormModal: React.FC<{
           onClose();
         }
       } else {
-        toast.show({ variant: 'success', title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created') });
+        toast.show({
+          variant: 'success',
+          title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created'),
+        });
         onSaved();
         onClose();
       }
@@ -394,13 +402,7 @@ const RemoteAgentFormModal: React.FC<{
             }
           </Form.Item>
 
-          <Button
-            long
-            type='outline'
-            icon={<Gauge size={14} />}
-            loading={testing}
-            onClick={handleTestConnection}
-          >
+          <Button long type='outline' icon={<Gauge size={14} />} loading={testing} onClick={handleTestConnection}>
             {t('settings.remoteAgent.testConnection')}
           </Button>
         </Form>

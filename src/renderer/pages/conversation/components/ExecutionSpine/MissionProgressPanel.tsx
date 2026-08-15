@@ -4,12 +4,43 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { selectCanonicalRunSnapshot } from '@/common/execution';
-import { Progress, Tag, Typography } from '@arco-design/web-react';
+import { deriveStep as humanizeStep } from '@/common/chat/activity/activityLabels';
+import type { ExecutionActivity, selectCanonicalRunSnapshot } from '@/common/execution';
+import { Progress, Tag } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import WorkbenchEmptyState from '../WorkbenchHost/WorkbenchEmptyState';
 
 type CanonicalRun = ReturnType<typeof selectCanonicalRunSnapshot>;
+
+/**
+ * Reuse the chat timeline's humanizer so a step reads the same in both places
+ * ("Running printf 'ok'", not "Bash") - which holds only because the humanizer
+ * builds from the invocation; a cross-audit caught the two diverging when it
+ * built from output instead. The canonical activity kinds are named
+ * for the execution model; only two differ from the chat node's vocabulary, and
+ * an unmapped kind falls through to the rule list on name + detail, which is
+ * the same treatment an ordinary tool gets.
+ */
+const CHAT_KIND: Partial<Record<ExecutionActivity['kind'], 'sub_agent' | 'cua'>> = {
+  'sub-agent': 'sub_agent',
+  computer: 'cua',
+};
+
+const deriveStep = (activity: ExecutionActivity): { label: string } =>
+  humanizeStep({
+    kind: CHAT_KIND[activity.kind] ?? (activity.kind === 'thinking' ? 'thinking' : 'tool'),
+    name: activity.name,
+    detail: activity.detail,
+    ...(activity.command ? { command: activity.command } : {}),
+  });
+
+const dotColor = (status: ExecutionActivity['status']): string => {
+  if (status === 'completed') return 'bg-success';
+  if (status === 'failed') return 'bg-danger';
+  if (status === 'running') return 'bg-primary';
+  return 'bg-fill-3';
+};
 
 const statusColor = (status: string): 'green' | 'red' | 'orange' | 'blue' | 'gray' => {
   if (status === 'completed' || status === 'authoritative') return 'green';
@@ -28,33 +59,89 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       data-testid='execution-mission-rail'
       data-run-id={run.identity.runId}
     >
-      <div className='flex items-center justify-between gap-8px mb-12px'>
-        <Typography.Title heading={6} className='!m-0'>
-          {t('conversation.execution.progress', { defaultValue: 'Progress' })}
-        </Typography.Title>
+      {/*
+       * NO title here. The workbench section header directly above this panel
+       * already says "Progress", so rendering it again put the same word twice,
+       * stacked, a few pixels apart - caught by looking at the running app, not
+       * by any test. The status tag stays: it is the one thing the header does
+       * not say, and it is the whole answer to "is this run still going".
+       */}
+      <div className='flex items-center justify-end mb-12px'>
         <Tag size='small' color={statusColor(run.lifecycle)}>
-          {run.lifecycle}
+          {t(`conversation.execution.lifecycle.${run.lifecycle}`, { defaultValue: run.lifecycle })}
         </Tag>
       </div>
       {run.progress.total > 0 && (
         <>
           <Progress percent={run.progress.percent} size='small' showText={false} />
           <div className='text-12px text-t-secondary mt-6px mb-12px'>{progressLabel}</div>
-          <ol className='m-0 pl-18px flex flex-col gap-8px'>
-            {run.plan.map((step) => (
-              <li
-                key={step.id}
-                className={step.status === 'completed' ? 'text-t-secondary line-through' : 'text-t-primary'}
-              >
-                {step.content}
+          {/*
+           * Numbered markers, not a bare `list-style: decimal`. The step text
+           * wraps to two and three lines constantly, and a browser marker sits
+           * on the FIRST line with the continuation running back underneath it,
+           * so a wrapped list stops reading as a list at all. A fixed-width
+           * numeral in its own column keeps the left edge of the text straight
+           * however far it wraps, which is the whole reason the numbers are
+           * there.
+           */}
+          <ol className='m-0 p-0 list-none flex flex-col gap-8px'>
+            {run.plan.map((step, index) => (
+              <li key={step.id} className='flex items-start gap-8px'>
+                <span
+                  className={`mt-1px shrink-0 w-18px h-18px rounded-full flex items-center justify-center text-11px tabular-nums ${
+                    step.status === 'completed' ? 'bg-fill-2 text-t-tertiary' : 'bg-fill-3 text-t-secondary'
+                  }`}
+                  aria-hidden='true'
+                >
+                  {index + 1}
+                </span>
+                <span className={step.status === 'completed' ? 'text-t-secondary line-through' : 'text-t-primary'}>
+                  {step.content}
+                </span>
               </li>
             ))}
           </ol>
         </>
       )}
 
+      {/*
+       * A panel that renders nothing reads as broken rather than as idle.
+       *
+       * This used Arco's `Empty`, which draws a stock illustration with its own
+       * spacing, its own type scale and a title stacked above a description -
+       * far too much furniture for a 340px lane, and a second visual language
+       * beside the one the rest of the workbench speaks. WorkbenchEmptyState is
+       * the shared one: a faded inline glyph over a single line that says what
+       * WILL appear here, so every lane's empty state matches every other.
+       */}
+      {run.progress.total === 0 && run.activities.length === 0 && (
+        <WorkbenchEmptyState
+          glyph='steps'
+          testId='execution-mission-empty'
+          caption={t('conversation.execution.emptyDescription', {
+            defaultValue: 'The plan and each step taken will appear here as this task runs.',
+          })}
+        />
+      )}
+
+      {run.activities.length > 0 && (
+        <div className={run.progress.total > 0 ? 'mt-16px pt-12px border-t border-1' : ''}>
+          <div className='font-600 mb-8px'>{t('conversation.execution.steps', { defaultValue: 'Steps taken' })}</div>
+          <ol className='m-0 p-0 list-none flex flex-col gap-6px' data-testid='execution-mission-steps'>
+            {run.activities.map((activity) => (
+              <li key={activity.id} className='flex items-start gap-8px text-12px'>
+                <span className={`mt-5px shrink-0 w-6px h-6px rounded-full ${dotColor(activity.status)}`} />
+                <span className={activity.status === 'failed' ? 'text-danger' : 'text-t-primary'}>
+                  {deriveStep(activity).label}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
       {run.planHistory.length > 1 && (
-        <div className='mt-16px pt-12px border-t border-border-1'>
+        <div className='mt-16px pt-12px border-t border-1'>
           <div className='font-600'>{t('conversation.execution.replans', { defaultValue: 'Plan changes' })}</div>
           <div className='text-12px text-t-secondary mt-4px'>
             {t('conversation.execution.replanCount', {
@@ -74,7 +161,7 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       )}
 
       {run.outcomes.length > 0 && (
-        <div className='mt-16px pt-12px border-t border-border-1'>
+        <div className='mt-16px pt-12px border-t border-1'>
           <div className='font-600'>{t('conversation.execution.outputs', { defaultValue: 'Outputs' })}</div>
           {run.outcomes.map((outcome) => (
             <div key={outcome.id} className='text-12px mt-6px'>
@@ -85,7 +172,7 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       )}
 
       {run.handoffs.length > 0 && (
-        <div className='mt-16px pt-12px border-t border-border-1'>
+        <div className='mt-16px pt-12px border-t border-1'>
           <div className='font-600'>{t('conversation.execution.handoffs', { defaultValue: 'Handoffs' })}</div>
           {run.handoffs.map((handoff) => {
             const continuity =
@@ -108,7 +195,7 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       )}
 
       {run.costLedger.status !== 'unavailable' && (
-        <div className='mt-16px pt-12px border-t border-border-1' data-testid='execution-cost-ledger'>
+        <div className='mt-16px pt-12px border-t border-1' data-testid='execution-cost-ledger'>
           <div className='flex items-center justify-between gap-8px'>
             <span className='font-600'>
               {t('conversation.execution.cost', { defaultValue: 'Receipt-backed cost' })}

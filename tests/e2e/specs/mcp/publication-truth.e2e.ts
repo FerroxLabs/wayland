@@ -36,9 +36,9 @@ const WITHHOLDING_COPY = [
 
 test.describe('MCP publication truth', () => {
   test('MCP capabilities page manages servers without claiming chat callability', async ({ page }) => {
-    await goToSettings(page, 'capabilities');
-    await expectUrlContains(page, 'capabilities');
-    await expect(page.locator(settingsSiderItemById('capabilities')).first()).toBeVisible({ timeout: 8_000 });
+    await goToSettings(page, 'mcp-library');
+    await expectUrlContains(page, 'mcp-library');
+    await expect(page.locator(settingsSiderItemById('mcp-library')).first()).toBeVisible({ timeout: 8_000 });
     await expectBodyContainsAny(page, ['MCP', 'mcp', 'Server', 'server', '工具', '配置', '添加', 'Add']);
     // The static capabilities surface is configuration authority, not a live
     // session, so it must not assert per-chat tool registration.

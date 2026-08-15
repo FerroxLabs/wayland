@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -86,7 +88,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ filePath, content, fileName
     );
   };
 
-  return <div className='flex-1 flex items-center justify-center bg-bg-1 p-24px overflow-auto'>{renderStatus()}</div>;
+  return <div className='flex-1 flex items-center justify-center bg-1 p-24px overflow-auto'>{renderStatus()}</div>;
 };
 
 export default ImagePreview;

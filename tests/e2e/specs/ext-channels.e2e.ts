@@ -4,14 +4,7 @@
  * Validates extension-contributed channel plugins on the channels settings page.
  */
 import { test, expect } from '../fixtures';
-import {
-  goToChannelsTab,
-  expectBodyContainsAny,
-  takeScreenshot,
-  waitForSettle,
-  ARCO_SWITCH,
-  waitForClassChange,
-} from '../helpers';
+import { goToChannelsTab, expectBodyContainsAny, takeScreenshot, waitForSettle } from '../helpers';
 
 test.describe('Extension: Channel Plugins', () => {
   test('channels page renders', async ({ page }) => {
@@ -37,61 +30,37 @@ test.describe('Extension: Channel Plugins', () => {
     expect(body!.length).toBeGreaterThan(50);
   });
 
-  test('channel toggle switches are present', async ({ page }) => {
+  // The channels index was lifted out of the WebUI settings tab into its own
+  // route (ChannelsIndex/index.tsx). It renders a card grid - there is no
+  // Switch anywhere in that tree; the enable control lives on the per-channel
+  // detail route. These three tests asserted the old toggle UI.
+  test('channel cards are present', async ({ page }) => {
     await goToChannelsTab(page);
 
-    const switches = page.locator(ARCO_SWITCH);
-    await expect(switches.first()).toBeVisible({ timeout: 5000 });
-    const count = await switches.count();
-    expect(count).toBeGreaterThanOrEqual(1);
+    const cards = page.locator('article[role="button"]');
+    await expect(cards.first()).toBeVisible({ timeout: 5000 });
+    expect(await cards.count()).toBeGreaterThanOrEqual(1);
   });
 
-  test('can toggle a channel switch on/off', async ({ page }) => {
+  test('clicking a channel card opens its setup page', async ({ page }) => {
     await goToChannelsTab(page);
 
-    const switches = page.locator(ARCO_SWITCH);
-    await expect(switches.first()).toBeVisible({ timeout: 5000 });
-
-    const count = await switches.count();
-    let toggled = false;
-    for (let i = 0; i < count; i++) {
-      const sw = switches.nth(i);
-      const cls = await sw.getAttribute('class');
-      if (cls?.includes('arco-switch-disabled')) continue;
-
-      const wasBefore = cls?.includes('arco-switch-checked');
-      await sw.click();
-      await waitForClassChange(sw);
-
-      const clsAfter = await sw.getAttribute('class');
-      const isAfter = clsAfter?.includes('arco-switch-checked');
-
-      toggled = true;
-
-      // Toggle back if state changed
-      if (wasBefore !== isAfter) {
-        await sw.click();
-        await waitForClassChange(sw, 1000);
-      }
-      break;
-    }
-    expect(toggled).toBeTruthy();
+    await page
+      .getByRole('button', { name: /Telegram/i })
+      .first()
+      .click();
+    await page.waitForFunction(() => window.location.hash.startsWith('#/settings/channels/telegram'), {
+      timeout: 10_000,
+    });
   });
 
-  test('coming-soon channels have disabled switches', async ({ page }) => {
+  test('index shows a connection-status pill per card', async ({ page }) => {
     await goToChannelsTab(page);
 
+    // No CHANNELS entry carries status 'soon', so every card renders the
+    // "Not connected" pill until the user sets one up.
     const body = await page.locator('body').textContent();
-    const comingSoon = ['Slack', 'Discord'];
-    const hasComingSoon = comingSoon.some((label) => body?.includes(label));
-
-    if (hasComingSoon) {
-      const disabledSwitches = page.locator('.arco-switch.arco-switch-disabled, .arco-switch[aria-disabled="true"]');
-      const disabledCount = await disabledSwitches.count();
-      const hasComingSoonBadge = body?.includes('Coming Soon') || body?.includes('即将上线');
-
-      expect(disabledCount > 0 || hasComingSoonBadge).toBeTruthy();
-    }
+    expect(body).toContain('Not connected');
   });
 
   test('screenshot: channels with extensions', async ({ page }) => {

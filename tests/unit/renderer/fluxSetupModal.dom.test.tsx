@@ -72,6 +72,9 @@ const mockRemoveOpencode = vi.fn();
 const mockCodexStatus = vi.fn();
 const mockSetupCodex = vi.fn();
 const mockRemoveCodex = vi.fn();
+const mockKimiStatus = vi.fn();
+const mockSetupKimi = vi.fn();
+const mockRemoveKimi = vi.fn();
 
 vi.mock('../../../src/common', () => ({
   ipcBridge: {
@@ -82,6 +85,9 @@ vi.mock('../../../src/common', () => ({
       codexStatus: { invoke: (...a: unknown[]) => mockCodexStatus(...a) },
       setupCodex: { invoke: (...a: unknown[]) => mockSetupCodex(...a) },
       removeCodex: { invoke: (...a: unknown[]) => mockRemoveCodex(...a) },
+      kimiStatus: { invoke: (...a: unknown[]) => mockKimiStatus(...a) },
+      setupKimi: { invoke: (...a: unknown[]) => mockSetupKimi(...a) },
+      removeKimi: { invoke: (...a: unknown[]) => mockRemoveKimi(...a) },
     },
   },
 }));
@@ -128,6 +134,27 @@ const CODEX_REMOVE_REPORT = {
   action: 'removed' as const,
   status: 'unconfigured' as const,
   changes: ['Removed the Flux model_provider from codex config'],
+};
+
+const KIMI_CONFIG_PATH = '/home/u/.kimi-code/config.toml';
+
+const KIMI_SETUP_REPORT = {
+  tool: 'kimi',
+  action: 'installed' as const,
+  status: 'routed' as const,
+  configPath: KIMI_CONFIG_PATH,
+  configExistedBefore: true,
+  backupPath: '/home/u/.kimi-code/config.toml.wayland-backup',
+  changes: ['Added providers."flux-router" pointing at https://api.fluxrouter.ai/v1'],
+  rollbackCommand: 'cp /home/u/.kimi-code/config.toml.wayland-backup /home/u/.kimi-code/config.toml',
+  baseURL: 'https://api.fluxrouter.ai/v1',
+};
+
+const KIMI_REMOVE_REPORT = {
+  ...KIMI_SETUP_REPORT,
+  action: 'removed' as const,
+  status: 'unconfigured' as const,
+  changes: ['Removed providers."flux-router" and its model aliases from kimi config'],
 };
 
 function render(ui: React.ReactElement) {
@@ -266,5 +293,74 @@ describe('FluxSetupModal (codex)', () => {
     await waitFor(() => expect(mockRemoveCodex).toHaveBeenCalledTimes(1));
     expect(mockRemoveOpencode).not.toHaveBeenCalled();
     await waitFor(() => expect(screen.getByText('Removed the Flux model_provider from codex config')).toBeTruthy());
+  });
+});
+
+describe('FluxSetupModal (kimi)', () => {
+  it('unconfigured: shows Set up, runs setupKimi, renders the report and flips to routed', async () => {
+    mockKimiStatus
+      .mockResolvedValueOnce({ status: 'unconfigured', configPath: KIMI_CONFIG_PATH, installed: true })
+      .mockResolvedValueOnce({ status: 'routed', configPath: KIMI_CONFIG_PATH, installed: true });
+    mockSetupKimi.mockResolvedValue({ ok: true, report: KIMI_SETUP_REPORT });
+
+    render(<FluxSetupModal visible onClose={() => undefined} backend='kimi' />);
+
+    // The copy names kimi (the same modal, parametrized by backend).
+    await waitFor(() => expect(screen.getByText('Set up kimi for Flux')).toBeTruthy());
+
+    const action = await screen.findByTestId('flux-setup-action');
+    await act(async () => {
+      action.click();
+    });
+
+    await waitFor(() => expect(mockSetupKimi).toHaveBeenCalledTimes(1));
+    // Neither sibling connector may be touched for a kimi modal.
+    expect(mockSetupOpencode).not.toHaveBeenCalled();
+    expect(mockSetupCodex).not.toHaveBeenCalled();
+
+    await waitFor(() => expect(screen.getByTestId('flux-setup-report')).toBeTruthy());
+    expect(screen.getByText('Added providers."flux-router" pointing at https://api.fluxrouter.ai/v1')).toBeTruthy();
+    expect(screen.getByTestId('flux-setup-backup').textContent).toContain('config.toml');
+    expect(screen.getByTestId('flux-setup-rollback').textContent).toContain('.kimi-code');
+
+    await waitFor(() => expect(screen.getByText('Remove Flux from kimi')).toBeTruthy());
+    expect(screen.getByTestId('flux-setup-routed')).toBeTruthy();
+  });
+
+  it('setup returning flux-not-connected shows the connect-first notice and no success report', async () => {
+    mockKimiStatus.mockResolvedValue({ status: 'unconfigured', configPath: KIMI_CONFIG_PATH, installed: true });
+    mockSetupKimi.mockResolvedValue({ ok: false, reason: 'flux-not-connected' });
+
+    render(<FluxSetupModal visible onClose={() => undefined} backend='kimi' />);
+
+    const action = await screen.findByTestId('flux-setup-action');
+    await act(async () => {
+      action.click();
+    });
+
+    await waitFor(() => expect(screen.getByTestId('flux-setup-not-connected')).toBeTruthy());
+    expect(screen.queryByTestId('flux-setup-report')).toBeNull();
+    expect(screen.queryByText('Remove Flux from kimi')).toBeNull();
+  });
+
+  it('routed: shows Remove and runs removeKimi', async () => {
+    mockKimiStatus
+      .mockResolvedValueOnce({ status: 'routed', configPath: KIMI_CONFIG_PATH, installed: true })
+      .mockResolvedValueOnce({ status: 'unconfigured', configPath: KIMI_CONFIG_PATH, installed: true });
+    mockRemoveKimi.mockResolvedValue(KIMI_REMOVE_REPORT);
+
+    render(<FluxSetupModal visible onClose={() => undefined} backend='kimi' />);
+
+    const remove = await screen.findByText('Remove Flux from kimi');
+    await act(async () => {
+      (remove.closest('button') as HTMLButtonElement).click();
+    });
+
+    await waitFor(() => expect(mockRemoveKimi).toHaveBeenCalledTimes(1));
+    expect(mockRemoveOpencode).not.toHaveBeenCalled();
+    expect(mockRemoveCodex).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(screen.getByText('Removed providers."flux-router" and its model aliases from kimi config')).toBeTruthy()
+    );
   });
 });

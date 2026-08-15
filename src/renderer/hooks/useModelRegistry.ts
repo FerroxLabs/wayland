@@ -12,6 +12,13 @@ import type {
 } from '@/common/adapter/ipcBridge';
 import type { CuratedModel, ProviderId } from '@process/providers/types';
 import type { CatalogProviderEntry } from '@process/providers/catalog/catalogProvider';
+import { reloadWithinTimeout } from '@renderer/utils/reloadWithinTimeout';
+
+/**
+ * Ceiling on the post-connect registry reload. Matches the Models page's own
+ * bound so both entry points behave identically.
+ */
+const RELOAD_AFTER_CONNECT_TIMEOUT_MS = 8_000;
 
 /**
  * Renderer wrapper around the full `ipcBridge.modelRegistry` IPC contract.
@@ -206,7 +213,16 @@ function useModelRegistryImpl(skipInitialReload = false, disabled = false): UseM
       const res = await modelRegistry.connect.invoke({ providerId, creds });
       // Only reload on success - a failed connect produces no state change
       // worth re-fetching, and the caller already has the failure detail.
-      if (res.ok) await reload();
+      //
+      // Bounded, because callers await this whole function to clear their
+      // "Connecting…" spinner. The key has already landed by this point, so a
+      // reload that stalls must not hold the button hostage - the user sees an
+      // endless spinner on a connect that actually SUCCEEDED. #524 fixed this
+      // for the headless/WS path only; the desktop IPC path had the same
+      // unbounded await, so the identical hang was still reachable here for
+      // every provider. The reload keeps running and commits to state on its
+      // own when it finishes.
+      if (res.ok) await reloadWithinTimeout(reload, RELOAD_AFTER_CONNECT_TIMEOUT_MS);
       return res;
     },
     [reload]

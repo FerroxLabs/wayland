@@ -107,6 +107,118 @@ describe('activityTree.addOrUpdateNode', () => {
   });
 });
 
+/**
+ * K-03 - a wcore turn could never reach a terminal lifecycle.
+ *
+ * `stream_end` became an IResponseMessage `finish`, which WCoreManager skips
+ * from transformMessage, so NOTHING durable ever said the turn ended. The only
+ * other completion signal - the activity card's `status` - is pinned 'running'
+ * by construction: `rollUpStatus` calls a zero-node card 'running', and the only
+ * node constructor wcore actually reaches in production (`tool_chunk`) mints
+ * nodes as 'running' that nothing ever terminalizes.
+ *
+ * Every card below is built ONLY through the real constructors
+ * (emptyActivityContent + addOrUpdateNode). No hand-written node/card status.
+ */
+describe('activityTree turn end (K-03)', () => {
+  it('leaves a fresh, empty card running - a turn that has just begun is NOT settled', () => {
+    // The no-regression proof for the zero-node roll-up: this is the exact shape
+    // a card has at turn start (created by the first observability frame), and a
+    // settled reading here would report a live turn as finished.
+    expect(base().status).toBe('running');
+    expect(
+      addOrUpdateNode(base(), { kind: 'cost', perTurn: [{ turn: 1, model: 'm', provider: 'p', costUsd: 0.1 }] }).status
+    ).toBe('running');
+  });
+
+  it('settles a zero-node card only once the turn actually ends', () => {
+    const withCost = addOrUpdateNode(base(), {
+      kind: 'cost',
+      perTurn: [{ turn: 1, model: 'm', provider: 'p', costUsd: 0.1 }],
+    });
+    const ended = addOrUpdateNode(withCost, { kind: 'turn_end', outcome: 'done', ts: 900 });
+    expect(ended.status).toBe('done');
+    expect(ended.ended).toBe('done');
+  });
+
+  it('terminalizes a tool_chunk-born node that nothing else ever completes', () => {
+    // Defect 2: `tool_chunk` synthesizes a running node and the ActivityEvent
+    // variant that could complete it ({kind:'tool',phase}) has NO production
+    // constructor in the wcore pipeline - it exists only in tests.
+    const live = addOrUpdateNode(base(), { kind: 'tool_chunk', callId: 'c1', name: 'Bash', chunk: 'out', ts: 10 });
+    expect(live.nodes[0].status).toBe('running');
+    expect(live.status).toBe('running');
+
+    const ended = addOrUpdateNode(live, { kind: 'turn_end', outcome: 'done', ts: 99 });
+    expect(ended.nodes[0]).toMatchObject({ id: 'c1', status: 'done', endTime: 99 });
+    expect(ended.status).toBe('done');
+  });
+
+  it('rolls a killed turn to failed and marks its unfinished nodes failed', () => {
+    const live = addOrUpdateNode(base(), { kind: 'tool_chunk', callId: 'c1', name: 'Bash', chunk: 'out', ts: 10 });
+    const ended = addOrUpdateNode(live, { kind: 'turn_end', outcome: 'failed', ts: 99 });
+    expect(ended.nodes[0].status).toBe('failed');
+    expect(ended.status).toBe('failed');
+  });
+
+  it('does not overwrite a node that already reported its own outcome', () => {
+    let c = addOrUpdateNode(base(), { kind: 'tool', callId: 'c1', name: 'A', phase: 'failed', ts: 1 });
+    c = addOrUpdateNode(c, { kind: 'turn_end', outcome: 'done', ts: 2 });
+    expect(c.nodes[0]).toMatchObject({ status: 'failed', endTime: 1 });
+    // A failed step still outranks a nominally clean turn end.
+    expect(c.status).toBe('failed');
+  });
+});
+
+describe('activityTree.mergeActivityContent turn end (K-03)', () => {
+  const delta = (evt: ActivityEvent): ActivityContent => addOrUpdateNode(emptyActivityContent('turn-1'), evt);
+
+  it('settles the ACCUMULATED card even though the turn-end delta carries no nodes', () => {
+    // This is the whole reason turn end is card-level state: the delta is built
+    // on an empty base, so a node-only merge would be a silent no-op.
+    let acc = mergeActivityContent(
+      base(),
+      delta({ kind: 'tool_chunk', callId: 'c1', name: 'Bash', chunk: 'x', ts: 1 })
+    );
+    expect(acc.status).toBe('running');
+
+    const endDelta = delta({ kind: 'turn_end', outcome: 'done', ts: 5 });
+    expect(endDelta.nodes).toHaveLength(0);
+
+    acc = mergeActivityContent(acc, endDelta);
+    expect(acc.nodes[0].status).toBe('done');
+    expect(acc.status).toBe('done');
+  });
+
+  it('stays settled when session_cost lands after the turn ended', () => {
+    // WCoreManager force-forwards `session_cost` AFTER the stream finishes,
+    // stamped with the last turn's msg_id. Without a sticky verdict that
+    // zero-node merge rolls the card straight back to 'running'.
+    let acc = mergeActivityContent(base(), delta({ kind: 'turn_end', outcome: 'done', ts: 5 }));
+    expect(acc.status).toBe('done');
+
+    acc = mergeActivityContent(
+      acc,
+      delta({ kind: 'cost', perTurn: [{ turn: 1, model: 'm', provider: 'p', costUsd: 1 }] })
+    );
+    expect(acc.status).toBe('done');
+    expect(acc.perTurnCost).toHaveLength(1);
+  });
+
+  it('does not settle a card whose turn has not ended', () => {
+    let acc = mergeActivityContent(
+      base(),
+      delta({ kind: 'tool_chunk', callId: 'c1', name: 'Bash', chunk: 'x', ts: 1 })
+    );
+    acc = mergeActivityContent(
+      acc,
+      delta({ kind: 'cost', perTurn: [{ turn: 1, model: 'm', provider: 'p', costUsd: 1 }] })
+    );
+    expect(acc.status).toBe('running');
+    expect(acc.ended).toBeUndefined();
+  });
+});
+
 describe('activityTree.mergeActivityContent', () => {
   const delta = (evt: ActivityEvent): ActivityContent => addOrUpdateNode(emptyActivityContent('turn-1'), evt);
 

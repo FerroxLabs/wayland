@@ -203,12 +203,17 @@ describe('Constitution hosted security journey', () => {
       { cookie, 'content-type': 'application/json' },
       { password: 'correct-password', scopes: ['constitution.write'], _csrf: csrfToken }
     );
-    expect(withoutAuth.status).toBe(403);
+    // 401 from the TOKEN middleware: no credentials were sent, and
+    // authenticating is exactly what would fix it (RFC 9110 §15.5.2).
+    expect(withoutAuth.status).toBe(401);
 
     const withoutCsrf = await request(port, 'POST', '/api/constitution/edit-grant', authenticatedHeaders(), {
       password: 'correct-password',
       scopes: ['constitution.write'],
     });
+    // 403 from tiny-csrf, which is a DIFFERENT middleware and keeps its own
+    // status. The two denials being distinguishable is the point: while both
+    // answered 403, this test could not tell which guard had actually fired.
     expect(withoutCsrf.status).toBe(403);
     expect(withoutCsrf.body.code).toBe('csrf_invalid');
   });

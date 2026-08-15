@@ -272,6 +272,8 @@
   "installed": "Instalado",
   "builtin": "Integrado",
   "channels": {
+    "mediaSendFailed": "Error al enviar {{name}}",
+    "mediaPathNotAllowed": "No se pudo enviar {{name}} porque el archivo está fuera de los directorios de envío permitidos",
     "label": "Canales",
     "telegram": {
       "help": "Chatea con tu asistente de IA de Wayland a través de Telegram. Crea un bot con @BotFather para empezar.",
@@ -1101,8 +1103,6 @@
   "channels.wecom.comingSoonTitle": "La compatibilidad con WeCom llega pronto",
   "channels.wecom.comingSoonBody": "La integración del bot de WeCom (WeChat empresarial) está en desarrollo. Los modos webhook y WebSocket con configuración de URL de callback estarán disponibles cuando se publique.",
   "channels.wecom.learnMore": "Más información",
-  "channels.mediaSendFailed": "Error al enviar {{name}}",
-  "channels.mediaPathNotAllowed": "No se pudo enviar {{name}} porque el archivo está fuera de los directorios de envío permitidos",
   "display": "Pantalla",
   "imageGeneration": "Generación de imágenes",
   "imageGenerationToggle": "Activar la herramienta de generación de imágenes",
@@ -1122,19 +1122,17 @@
   "speechToTextRequired": "Obligatorio",
   "speechToTextOptional": "Opcional",
   "speechToTextProviderWhisperLocal": "Whisper (local)",
-  "speechToTextWhisperModel": "Modelo de Whisper",
-  "speechToTextDownloadModel": "Descargar modelo",
   "speechToTextDownloading": "Descargando...",
   "speechToTextDownloadSuccess": "Modelo descargado correctamente",
-  "speechToTextDownloadError": "Error en la descarga",
-  "speechToTextCancelDownload": "Cancelar",
   "speechToTextProviderFluxVoice": "Flux Voice",
+  "speechToTextSeededProvider": "Actualmente se usa {{provider}}, porque está conectado y aquí no se eligió ningún motor.",
+  "speechToTextEffectiveProvider": "Actualmente se usa {{provider}}.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "Texto a voz",
   "textToSpeechDescription": "Lee en voz alta las respuestas de la IA usando un motor de voz local o del sistema.",
   "textToSpeechProvider": "Proveedor",
-  "textToSpeechProviderKokoroLocal": "Kokoro (local)",
+  "textToSpeechProviderPlaceholder": "Elige un proveedor de voz",
   "textToSpeechProviderSystemNative": "Nativo del sistema",
   "textToSpeechVoice": "Voz",
   "textToSpeechSpeed": "Velocidad",
@@ -1144,6 +1142,8 @@
   "textToSpeechDownloadSuccess": "Modelo descargado correctamente",
   "textToSpeechDownloadError": "Error en la descarga",
   "textToSpeechCancelDownload": "Cancelar",
+  "textToSpeechTestPhrase": "Hi, I'm Wayland. How are you?",
+  "textToSpeechTestConsentDeclined": "Nothing was spoken and nothing was sent. Choose System Voice to test a voice that stays on your machine.",
   "mcp": "Integración MCP",
   "imageGenerationModel": "Modelo de imagen",
   "imageGenerationGuide": "Guía de configuración del modelo de imagen",
@@ -1283,7 +1283,7 @@
   "bugReportModulePlugin": "Sistema de plugins",
   "bugReportModuleAgentTeam": "Colaboración en equipo",
   "bugReportModuleOther": "Otro",
-  "contactMe": "Contáctame",
+  "contactMe": "Contáctanos",
   "officialWebsite": "Sitio web oficial",
   "checkForUpdates": "Buscar actualizaciones",
   "includePrereleaseUpdates": "Incluir versiones preliminares/de desarrollo",
@@ -1791,6 +1791,7 @@
       "metricsTurns": "Últimos {{count}} turnos:",
       "histogram": "Premium {{flagship}} · Pequeño {{small}} · Local {{local}}",
       "activeConfirmation": "Flux Router conectado · {{count}} modelos · enrutados por solicitud",
+      "activeConfirmationNoCount": "Flux Router conectado · enrutado por solicitud",
       "errorUnauthorized": "Esa clave de {{provider}} fue rechazada. Comprueba la clave e inténtalo de nuevo.",
       "errorNoCredit": "Conectado, pero esa clave de {{provider}} no tiene crédito disponible. Añade facturación para enrutar modelos.",
       "errorOffline": "No se pudo acceder a {{provider}}. Parece que estás sin conexión. Comprueba tu conexión y reinténtalo.",
@@ -1816,6 +1817,13 @@
       "errorNoCredit": "sin crédito disponible",
       "errorOffline": "no se puede acceder al proveedor",
       "errorUnrecognized": "clave no reconocida",
+      "errorUndecryptable": "clave guardada ilegible, vuelve a introducirla",
+      "errorLocalNotRunning": "no se está ejecutando en este equipo",
+      "errorLocalNotInstalled": "no está instalado en este equipo",
+      "localStart": "Iniciar {{provider}}",
+      "localGet": "Obtener {{provider}}",
+      "localStarted": "{{provider}} está en ejecución.",
+      "localStartFailed": "No se pudo iniciar {{provider}}. Inícialo tú y vuelve a actualizar.",
       "errorNoModels": "no se devolvieron modelos",
       "errorUnknown": "problema de conexión",
       "toggleFailed": "Could not change that provider. Please try again.",
@@ -1885,6 +1893,8 @@
       "rekeyConfirm": "Actualizar clave",
       "rekeyDone": "Credenciales del proveedor actualizadas.",
       "rekeyCloudDisabled": "Las credenciales de nube se cambian desde el formulario de conexión de nube, no aquí.",
+      "refreshStillActionNeeded": "Catálogo actualizado, pero este proveedor sigue necesitando atención.",
+      "rekeyLocalDisabled": "{{provider}} se ejecuta en este equipo sin clave de API, así que no hay nada que volver a introducir.",
       "errorUnauthorized": "Esa clave de {{provider}} fue rechazada, sin autorización. Comprueba la clave e inténtalo de nuevo.",
       "errorNoCredit": "Esa clave de {{provider}} no tiene crédito disponible. Añade facturación para ejecutar modelos.",
       "errorOffline": "No se pudo acceder a {{provider}}, parece que estás sin conexión. Comprueba tu conexión y reinténtalo.",
@@ -2233,6 +2243,7 @@
     },
     "about": {
       "wcore": "El motor propio de Wayland. Aprovecha todos los proveedores de tu página de Modelos.",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "El agente de programación de Anthropic. Inicia sesión con su propia cuenta; no puede ejecutar GPT ni Gemini.",
       "codex": "El agente de programación de OpenAI. Inicia sesión con su propia cuenta; no puede ejecutar Claude ni Gemini."
     },
@@ -2270,6 +2281,48 @@
         "backupLabel": "Copia de seguridad en",
         "rollbackLabel": "Para deshacer, ejecuta"
       }
+    },
+    "install": {
+      "bandTitle": "Disponibles para instalar",
+      "action": "Instalar",
+      "retry": "Reintentar",
+      "cancel": "Cancelar",
+      "remove": "Quitar",
+      "installing": "Instalando {{version}}…",
+      "installed": "Instalado por Wayland",
+      "pinned": "Instala {{version}}",
+      "systemCopy": "Usa tu copia del sistema",
+      "unavailable": "No disponible en esta compilación",
+      "whyLink": "¿Por qué?",
+      "whyBody": "Esta compilación no incluye un entorno de ejecución para tu plataforma, y toda instalación necesita uno. Instala el agente tú mismo y Wayland lo detectará.",
+      "failed": {
+        "unknown-agent": "Wayland no tiene un paquete fijado para este agente.",
+        "bundled-bun-unavailable": "Esta compilación no incluye un entorno de ejecución para instalar.",
+        "install-failed": "La descarga falló. Comprueba tu conexión e inténtalo de nuevo.",
+        "already-installing": "Ya hay una instalación en curso. Espera a que termine.",
+        "timed-out": "La instalación tardó demasiado y se detuvo. Inténtalo de nuevo.",
+        "cancelled": "Instalación cancelada.",
+        "error": "La instalación se detuvo con un error inesperado.",
+        "remove-failed": "Wayland no pudo eliminar su copia. Inténtalo de nuevo.",
+        "receipt-missing": "No se eliminó nada. Wayland no tiene registro de esta instalación."
+      },
+      "removeConfirm": {
+        "title": "¿Quitar {{agent}}?",
+        "body": "Esto elimina la copia que Wayland instaló en su propia carpeta. Cualquier copia que hayas instalado tú no se toca.",
+        "confirm": "Quitar",
+        "cancel": "Conservar"
+      },
+      "consent": {
+        "title": "¿Instalar {{agent}}?",
+        "body": "Esto descarga un paquete de npm y coloca código ejecutable en tu ordenador.",
+        "packageLabel": "Paquete",
+        "versionLabel": "Versión",
+        "destinationLabel": "Destino",
+        "scriptsLabel": "Scripts de instalación",
+        "scriptsValue": "Bloqueados",
+        "confirm": "Instalar",
+        "cancel": "Cancelar"
+      }
     }
   },
   "wcoreConfig": {
@@ -2280,7 +2333,7 @@
     "railGroup": "Engine",
     "engineRunning": "engine running",
     "engineStopped": "engine stopped",
-    "stubNote": "Configured here soon — managed in the engine.",
+    "stubNote": "Configured here soon, managed in the engine.",
     "rail": {
       "overview": "Overview",
       "services": "Services & Keys",
@@ -2294,17 +2347,17 @@
     },
     "overview": {
       "title": "Overview",
-      "subtitle": "The engine behind every chat, workflow and agent. It is already running with smart defaults — this surface is where you tune what is under the hood.",
+      "subtitle": "The engine behind every chat, workflow and agent. It is already running with smart defaults, this surface is where you tune what is under the hood.",
       "inheritedTitle": "Allocated by Wayland Desktop",
-      "inheritedBody": "For this session, Desktop hands the engine your model (as an override) and injects Skills + Assistants/Constitution through its system prompt. Your Desktop MCP library is NOT passed through — only Wayland’s own operational MCPs are.",
+      "inheritedBody": "For this session, Desktop hands the engine your model (as an override) and injects Skills + Assistants/Constitution through its system prompt. Your Desktop MCP library is NOT passed through, only Wayland’s own operational MCPs are.",
       "readOnly": "read-only",
       "manageInDesktop": "Manage in Desktop Settings",
       "inheritModels": "Models (override)",
       "inheritMcp": "MCP Servers",
       "inheritSkills": "Skills",
       "inheritAssistants": "Assistants & Constitution",
-      "inheritManaged": "Managed in Desktop Settings — inherited",
-      "deeperHint": "Everything above ships working. Open Tools, Services & Keys, or Security on the left to go deeper — or leave it; the engine just runs.",
+      "inheritManaged": "Managed in Desktop Settings, inherited",
+      "deeperHint": "Everything above ships working. Open Tools, Services & Keys, or Security on the left to go deeper, or leave it; the engine just runs.",
       "scEngine": "Engine",
       "scEngineRunning": "Running",
       "scEngineStopped": "Stopped",
@@ -2315,7 +2368,7 @@
       "scProfileDefault": "Default",
       "inheritModelsDetail": "{{names}} + {{catalog}} catalog · {{allocated}}",
       "inheritModelsEmpty": "{{catalog}} provider catalog · {{allocated}}",
-      "inheritMcpDetail": "{{count}} servers — {{names}} — inherited",
+      "inheritMcpDetail": "{{count}} servers, {{names}}, inherited",
       "configuredLabel": "Configured in the engine",
       "smartDefaults": "smart defaults active",
       "chipToolsOn": "tools on",
@@ -2330,13 +2383,13 @@
       "skillsDetail": "Injected via system prompt · {{allocated}}",
       "assistantsDetail": "Injected via system prompt · {{allocated}}",
       "mcpDetail": "Wayland operational MCPs · your Desktop MCP library is separate",
-      "engineOwnedLine": "Tools, Memory, Security and Profiles are the engine’s own — written to ~/.wayland-core/config.toml and shared with the Wayland Core CLI."
+      "engineOwnedLine": "Tools, Memory, Security and Profiles are the engine’s own, written to ~/.wayland-core/config.toml and shared with the Wayland Core CLI."
     },
     "services": {
-      "subtitle": "The engine tool backends — web search, vision, voice, image. Wayland ships working out of the box; plug in a key to unlock higher limits.",
+      "subtitle": "The engine tool backends, web search, vision, voice, image. Wayland ships working out of the box; plug in a key to unlock higher limits.",
       "webSearchGroup": "Web Search",
-      "ddgTitle": "DuckDuckGo · active — free web search is on",
-      "ddgBody": "No key needed — Wayland searches the web right now. Add a key below only to go faster or run higher volume.",
+      "ddgTitle": "DuckDuckGo · active, free web search is on",
+      "ddgBody": "No key needed, Wayland searches the web right now. Add a key below only to go faster or run higher volume.",
       "connected": "Connected",
       "getFreeKey": "Get a free key",
       "keyPlaceholder": "Paste API key…",
@@ -2346,13 +2399,13 @@
       "remove": "Remove",
       "saveFailed": "Could not save the key.",
       "brave": {
-        "desc": "Independent search index — privacy-first, generous free tier."
+        "desc": "Independent search index, privacy-first, generous free tier."
       },
       "tavily": {
-        "desc": "Search built for agents — clean, ranked results for LLMs."
+        "desc": "Search built for agents, clean, ranked results for LLMs."
       },
       "exa": {
-        "desc": "Neural search — find pages by meaning, not just keywords."
+        "desc": "Neural search, find pages by meaning, not just keywords."
       },
       "firecrawl": {
         "desc": "Crawl and scrape any site into clean, LLM-ready content."
@@ -2459,7 +2512,7 @@
       "autoRunAria": "Ejecutar {{tool}} sin preguntar"
     },
     "memory": {
-      "subtitle": "The engine remembers across sessions — facts, preferences, and project context that persist and compound. On by default, stored locally.",
+      "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",
       "providerLocal": "Local (SQLite + BM25)",
       "providerHoncho": "Honcho",
       "providerMem0": "Mem0",
@@ -2512,14 +2565,14 @@
       "noLocalBypass": "Actualmente no hay ningún ajuste compatible de Wayland que permita al navegador acceder a localhost. Raw Engine Mode o la antigua clave block_private_urls no lo solucionan.",
       "subtitle": "Control how much the engine can do without asking, and exactly which secrets reach the sandbox. Safe defaults already in place.",
       "envInvalid": "Not a valid env var name.",
-      "envSensitive": "That looks like a secret — secret-bearing names can’t be passed to the sandbox.",
+      "envSensitive": "That looks like a secret, secret-bearing names can’t be passed to the sandbox.",
       "approvalAsk": "Ask every time",
       "approvalAuto": "Auto-edit",
       "approvalYolo": "YOLO",
       "approvalsMode": "Approvals Mode",
       "defaultPolicy": "Default approval policy",
       "defaultPolicyDesc": "How edits & commands are confirmed",
-      "approvalHint": "Auto-edit — file edits apply automatically; shell commands and network actions still ask. Recommended for most work.",
+      "approvalHint": "Auto-edit, file edits apply automatically; shell commands and network actions still ask. Recommended for most work.",
       "envAllowlist": "Env-passthrough Allowlist",
       "envPill": "which env vars reach bash",
       "envEmpty": "No env vars are passed to the sandbox yet. Add a non-secret name below.",
@@ -2527,13 +2580,13 @@
       "envRemove": "Remove {{name}}",
       "envPlaceholder": "e.g. GITHUB_TOKEN_NAME, PATH, NODE_ENV (no secrets)",
       "envAdd": "Add",
-      "envSecretsNote": "Only variable names are stored, never values — and secret-bearing names (API keys, tokens, passwords) are refused.",
+      "envSecretsNote": "Only variable names are stored, never values, and secret-bearing names (API keys, tokens, passwords) are refused.",
       "privateUrls": "Private URLs",
       "blockPrivate": "Block private & loopback fetches",
       "blockPrivateDesc": "Stop the engine reaching 10.x, 192.168.x, localhost, and metadata endpoints"
     },
     "profiles": {
-      "subtitle": "Directory-isolated configurations. Each profile carries its own model, tools, keys, skills and memory — switch context instantly without cross-contamination.",
+      "subtitle": "Directory-isolated configurations. Each profile carries its own model, tools, keys, skills and memory, switch context instantly without cross-contamination.",
       "activateFailed": "Failed.",
       "deleteFailed": "Failed.",
       "nameInvalid": "Names use letters, digits, - and _ only (max 64).",
@@ -2553,7 +2606,7 @@
       "skillsChip": "{{count}} habilidades"
     },
     "runtime": {
-      "subtitle": "Where the engine actually runs. Embedded locally by default — switch to a remote box or a hosted headless server when you need to.",
+      "subtitle": "Where the engine actually runs. Embedded locally by default, switch to a remote box or a hosted headless server when you need to.",
       "modeLocal": "Local",
       "modeRemote": "Remote",
       "modeHeadless": "Headless server",
@@ -2567,12 +2620,12 @@
       "agentsVal": "{{count}} agents",
       "powerUser": "Power User",
       "rawEngine": "Raw engine mode",
-      "rawEngineDesc": "Run the embedded engine on its own config — don’t override with Desktop’s model & skills.",
+      "rawEngineDesc": "Run the embedded engine on its own config, don’t override with Desktop’s model & skills.",
       "headlessTitle": "Headless server mode",
       "headlessBody": "Run Wayland Core as a long-lived server (one container per tenant) and reach it over LAN, Tailscale, or the hosted Pro tier."
     },
     "scopeWritesTo": "Writes to",
-    "scopeSharedCli": "— used by the Wayland Core CLI too."
+    "scopeSharedCli": ", used by the Wayland Core CLI too."
   },
   "slashCommands": {
     "title": "Slash Commands",
@@ -2625,6 +2678,7 @@
       "providerConnectivity": "Provider connectivity",
       "modelRegistry": "Model registry",
       "engineReachable": "Engine reachable",
+      "engineContractPin": "Engine version match",
       "engineRouting": "Engine default routing",
       "mcpServers": "MCP servers",
       "backends": "Detected backends",
@@ -2637,5 +2691,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "Aplazar actualizaciones si hay actividad",
-  "deferUpdateWhileBusyDesc": "Espera a que terminen los chats activos, las tareas programadas y los equipos antes de reiniciar para actualizar. La actualización se aplica al quedar inactivo o al salir."
+  "deferUpdateWhileBusyDesc": "Espera a que terminen los chats activos, las tareas programadas y los equipos antes de reiniciar para actualizar. La actualización se aplica al quedar inactivo o al salir.",
+  "textToSpeechProviderWindowsNative": "Voz de Windows",
+  "textToSpeechLocalVoiceLabel": "Voz integrada",
+  "textToSpeechNoLocalVoice": "Este sistema operativo no tiene voz integrada. Elige OpenAI Speech para escuchar las respuestas en voz alta.",
+  "speechToTextOnDeviceLabel": "En el dispositivo",
+  "speechToTextOnDeviceBody": "Se ejecuta en tu dispositivo con el modelo incluido en Wayland. Sin clave, sin descarga y ningún audio sale de esta máquina."
 }

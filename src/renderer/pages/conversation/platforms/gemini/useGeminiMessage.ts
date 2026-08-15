@@ -283,6 +283,14 @@ export const useGeminiMessage = (conversation_id: string, onError?: (message: IR
               );
               requestTraceRef.current = null;
             }
+          } else if (message.type === 'content_replace') {
+            // A correction to text this turn ALREADY streamed - main stripping
+            // the raw [CRON_PROPOSE] block now that the confirmation card
+            // carries it. It arrives after the turn ended, so it must not count
+            // as output: the arm below would restart the spinner on a finished
+            // chat. Render only.
+            addOrUpdateMessage(transformMessage(message));
+            break;
           } else {
             // Mark that current turn has content output (exclude error type)
             hasContentInTurnRef.current = true;

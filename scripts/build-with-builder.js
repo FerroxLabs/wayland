@@ -20,7 +20,11 @@ const prepareOfficeCli = require('./prepareOfficeCli');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
-const { isLocalVerificationDirBuild, findDistributableArtifacts } = require('./localVerificationGate');
+const {
+  isLocalVerificationDirBuild,
+  findDistributableArtifacts,
+  isUnpackedOutputDir,
+} = require('./localVerificationGate');
 const {
   VOICE_MODEL_FILES,
   resolvePackagedTarget,
@@ -994,6 +998,11 @@ try {
         if (entry.isFile()) {
           artifactNames.push(entry.name);
         } else if (entry.isDirectory()) {
+          // The unpacked app directory IS the sanctioned directory-only output, so
+          // its contents are not artifacts this build "produced". See
+          // isUnpackedOutputDir for why this is load-bearing on Windows only.
+          // Distributables land at the output ROOT and are still caught above.
+          if (isUnpackedOutputDir(entry.name)) continue;
           for (const child of fs.readdirSync(path.join(BUILDER_OUTPUT_DIR, entry.name), { withFileTypes: true })) {
             if (child.isFile()) artifactNames.push(child.name);
           }

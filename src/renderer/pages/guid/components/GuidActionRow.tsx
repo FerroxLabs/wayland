@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ArrowUp, Brain, FolderOpen, Shield } from 'lucide-react';
@@ -73,6 +75,8 @@ type GuidActionRowProps = {
    */
   noModelConfigured: boolean;
   speechInputNode?: React.ReactNode;
+  /** Voice-mode entry, rendered beside the mic on the Launch Pad. */
+  voiceModeNode?: React.ReactNode;
   onSend: () => void;
 };
 
@@ -106,6 +110,7 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
   isButtonDisabled,
   noModelConfigured,
   speechInputNode,
+  voiceModeNode,
   onSend,
 }) => {
   const { t } = useTranslation();
@@ -269,6 +274,7 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
       </div>
       <div className={styles.actionSubmit}>
         {speechInputNode}
+        {voiceModeNode}
         <Tooltip
           content={noModelConfigured ? t('conversation.noModelCta.sendTooltip') : undefined}
           disabled={!noModelConfigured}
@@ -283,6 +289,7 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
               loading={loading}
               disabled={isButtonDisabled}
               className='send-button-custom'
+              aria-label={t('conversation.chat.sendMessage')}
               style={{
                 backgroundColor: isButtonDisabled ? undefined : '#000000',
                 borderColor: isButtonDisabled ? undefined : '#000000',

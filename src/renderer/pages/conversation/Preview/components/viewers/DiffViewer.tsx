@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { PreviewMetadata } from '../../context/PreviewContext';
@@ -122,16 +124,16 @@ const DiffPreview: React.FC<DiffPreviewProps> = ({
   return (
     <div className='flex flex-col w-full h-full overflow-hidden'>
       {!hideToolbar && (
-        <div className='flex items-center justify-between h-40px px-12px bg-bg-2 flex-shrink-0'>
+        <div className='flex items-center justify-between h-40px px-12px bg-2 flex-shrink-0'>
           <div className='flex items-center gap-4px'>
             <div
-              className={`px-12px py-4px rd-4px cursor-pointer transition-colors text-12px ${viewMode === 'source' ? 'bg-primary text-white' : 'text-t-secondary hover:bg-bg-3'}`}
+              className={`px-12px py-4px rd-4px cursor-pointer transition-colors text-12px ${viewMode === 'source' ? 'bg-primary text-white' : 'text-t-secondary hover:bg-3'}`}
               onClick={() => handleViewModeChange('source')}
             >
               {t('preview.source')}
             </div>
             <div
-              className={`px-12px py-4px rd-4px cursor-pointer transition-colors text-12px ${viewMode === 'preview' ? 'bg-primary text-white' : 'text-t-secondary hover:bg-bg-3'}`}
+              className={`px-12px py-4px rd-4px cursor-pointer transition-colors text-12px ${viewMode === 'preview' ? 'bg-primary text-white' : 'text-t-secondary hover:bg-3'}`}
               onClick={() => handleViewModeChange('preview')}
             >
               {t('preview.preview')}
@@ -149,7 +151,7 @@ const DiffPreview: React.FC<DiffPreviewProps> = ({
               </Checkbox>
             )}
             <div
-              className='flex items-center gap-4px px-8px py-4px rd-4px cursor-pointer hover:bg-bg-3 transition-colors'
+              className='flex items-center gap-4px px-8px py-4px rd-4px cursor-pointer hover:bg-3 transition-colors'
               onClick={handleDownload}
               title={t('preview.downloadDiff')}
             >
@@ -191,7 +193,7 @@ const DiffPreview: React.FC<DiffPreviewProps> = ({
               '![&_.line-num1]:hidden ![&_.line-num2]:w-30px',
               '[&_td:first-child]:w-40px ![&_td:nth-child(2)>div]:pl-45px',
               '[&_div.d2h-file-wrapper]:rd-[0.3rem_0.3rem_0px_0px]',
-              '[&_div.d2h-file-header]:items-center [&_div.d2h-file-header]:bg-bg-3',
+              '[&_div.d2h-file-header]:items-center [&_div.d2h-file-header]:bg-3',
               {
                 'd2h-dark-color-scheme': currentTheme === 'dark',
               }

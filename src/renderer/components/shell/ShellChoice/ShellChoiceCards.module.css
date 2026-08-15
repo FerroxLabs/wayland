@@ -1,0 +1,84 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* Side-by-side Classic / Cockpit picker. Colours come from theme tokens so the
+   cards track light and dark without a second stylesheet. */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Below roughly a phone-width modal the two shots stop being comparable side by
+   side, so stack them rather than shrink both past legibility. */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.card:hover:not(:disabled) {
+  border-color: var(--color-border-3);
+  background: var(--color-bg-3);
+}
+
+.card:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.card:focus-visible {
+  outline: 2px solid rgb(var(--primary-6));
+  outline-offset: 2px;
+}
+
+.cardSelected,
+.cardSelected:hover:not(:disabled) {
+  border-color: rgb(var(--primary-6));
+  background: var(--color-bg-3);
+}
+
+.shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-2);
+  /* The capture is a full app window, so let the browser scale it down cleanly
+     rather than cropping — the nav rail is the part that matters and it stays
+     readable at card size. */
+  object-fit: contain;
+  user-select: none;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.blurb {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-text-3);
+}

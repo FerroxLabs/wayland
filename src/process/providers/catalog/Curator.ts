@@ -377,6 +377,21 @@ function curateOne(model: CatalogModel, rank: number, familyEligible: boolean): 
   if (model.providerId === 'sakana') {
     return { ...model, recommended: false, enabled: true };
   }
+  // Safety-classification models (Llama Guard, gpt-oss-safeguard, Qwen3Guard,
+  // nemotron-safety-guard, …) are real chat-capable models, so they stay
+  // `enabled` and fully selectable — someone screening content genuinely wants
+  // them. They must not be RECOMMENDED, though: `recommended` is what the
+  // new-chat default is drawn from, and a model tuned to emit policy verdicts
+  // is a poor first impression for a user who wants writing, code or analysis.
+  // On a clean profile this is not hypothetical - a safeguard model won the
+  // flagship slot and became the default.
+  //
+  // Distinct from the classifier filter in `legacyModelConfigBridge`: that one
+  // removes models you cannot converse with at all (sub-1K context, no tools).
+  // These you can converse with; they are simply the wrong default.
+  if (familyEligible && (rank === 0 || rank === 1) && isSafetyClassifier(model.id)) {
+    return { ...model, recommended: false, enabled: true };
+  }
   if (familyEligible && rank === 0 && !isKnownLegacy(model.id)) {
     return { ...model, recommended: true, enabled: true, role: 'flagship' };
   }
@@ -384,4 +399,21 @@ function curateOne(model: CatalogModel, rank: number, familyEligible: boolean): 
     return { ...model, recommended: true, enabled: true, role: 'previous' };
   }
   return { ...model, recommended: false, enabled: false };
+}
+
+/**
+ * Content-safety / guardrail model ids, which classify text against a policy
+ * rather than converse.
+ *
+ * The stem may be glued to a preceding token (`qwen3guard`, `gliguard`), so it
+ * is anchored only on the RIGHT - a separator, digit or end of id. Checked
+ * against all 5666 catalogue ids: this matches all 23 ids containing "guard"
+ * (`gpt-oss-safeguard-20b`, `llama-guard-4-12b`, `llama-prompt-guard-2-22m`,
+ * `qwen3guard-gen-8b`, `llama-3_1-nemotron-safety-guard-8b-v3`,
+ * `gliguard-LLMGuardrails-300M`) and nothing else - no false positives such as
+ * "vanguard" exist in the catalogue, and the right-hand anchor keeps a plain
+ * English word ending in "guard" from matching mid-token.
+ */
+function isSafetyClassifier(modelId: string): boolean {
+  return /(?:safeguard|guardrails?|guard)(?:[0-9._/-]|$)/i.test(modelId);
 }

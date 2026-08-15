@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { AcpBackend } from '@/common/types/acpTypes';
@@ -26,11 +28,7 @@ export function buildChannelConversationExtra(args: {
 } {
   const enabledSkills = getChannelEnabledSkills(args.platform);
 
-  if (
-    args.backend === 'gemini' ||
-    args.backend === 'codex' ||
-    args.backend === 'openclaw-gateway'
-  ) {
+  if (args.backend === 'gemini' || args.backend === 'codex' || args.backend === 'openclaw-gateway') {
     return enabledSkills ? { enabledSkills } : {};
   }
 

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { CheckCircle2, ChevronRight, Code, Download, RefreshCw } from 'lucide-react';
@@ -163,6 +165,19 @@ const AboutModalContent: React.FC = () => {
       url: 'https://getwayland.com',
       icon: <ChevronRight size={16} />,
     },
+    // AGPL "Appropriate Legal Notices" (§0) needs the licence to be *viewable*,
+    // and §13 needs the Corresponding Source to be *obtainable*. Both are links
+    // rather than inline text so the notice block below stays readable.
+    {
+      title: t('settings.viewLicense'),
+      url: 'https://github.com/FerroxLabs/wayland/blob/main/LICENSE',
+      icon: <ChevronRight size={16} />,
+    },
+    {
+      title: t('settings.sourceCode'),
+      url: 'https://github.com/FerroxLabs/wayland',
+      icon: <ChevronRight size={16} />,
+    },
   ];
 
   return (
@@ -281,6 +296,32 @@ const AboutModalContent: React.FC = () => {
                 <div className='text-t-secondary group-hover:text-t-primary transition-colors'>{item.icon}</div>
               </div>
             ))}
+          </div>
+
+          {/*
+            AGPL-3.0 "Appropriate Legal Notices" (§0): a prominently visible
+            feature showing the copyright notice, stating there is no warranty,
+            that the work may be conveyed under this licence, and how to view
+            it. The licence and source links sit in the list above.
+
+            Ferrox Labs is the original AGPL licensor here, so §5(d) does not
+            bind us - see .planning/phases/WLD-I-licence-compliance/
+            I-01-DETERMINATION.md, Q5. We show it anyway: an AGPL product whose
+            UI never says so makes the copyleft offer invisible, and a
+            downstream forker (who IS bound) would otherwise inherit an
+            interface with no notices to preserve.
+
+            The upstream attribution is the same one restored to the file
+            headers under Apache-2.0 §4(c).
+          */}
+          <Divider className='my-16px' />
+          <div className='px-16px pb-8px flex flex-col gap-6px'>
+            <Typography.Text className='text-12px text-t-tertiary'>
+              {t('settings.legalCopyright', { year: new Date().getFullYear() })}
+            </Typography.Text>
+            <Typography.Text className='text-12px text-t-tertiary'>{t('settings.legalUpstream')}</Typography.Text>
+            <Typography.Text className='text-12px text-t-tertiary'>{t('settings.legalLicense')}</Typography.Text>
+            <Typography.Text className='text-12px text-t-tertiary'>{t('settings.legalWarranty')}</Typography.Text>
           </div>
         </div>
       </div>

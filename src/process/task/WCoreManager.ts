@@ -76,6 +76,7 @@ import {
   createMcpSessionDigestKey,
   createMcpSessionExpectedServer,
 } from '@process/services/mcpServices/mcpSessionTruthGate';
+import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -102,6 +103,14 @@ const NEAR_BUDGET_RATIO = 0.95;
  * before any visible output renders).
  */
 const EMPTY_CONTENT_THRESHOLD_CHARS = 20;
+
+/**
+ * W-1b: minimum gap between bootstrap RETRIES (the first one is immediate).
+ * A failed `start()` is bounded by its own 30s ready timeout, so 60s keeps a
+ * pathological automatic caller - a scheduled task firing against a broken
+ * config - to well under one spawn per minute.
+ */
+const BOOTSTRAP_RETRY_COOLDOWN_MS = 60_000;
 
 const WCORE_PREFERENCE_AUTHORITY = {
   get: (key: string) => ProcessConfig.get(key as never) as Promise<unknown>,
@@ -136,6 +145,16 @@ export class WCoreApprovalStore extends BaseApprovalStore<WCoreApprovalKey> {
   }
 }
 
+/**
+ * The assistant persona for a wcore conversation, from whichever key holds it.
+ *
+ * Nullish coalescing, deliberately, not `||`: an assistant that carries an
+ * empty rules string has said something, and must not be silently overridden by
+ * a stale value on the other key.
+ */
+export const resolveWCorePresetRules = (data: { presetRules?: string; presetContext?: string }): string | undefined =>
+  data.presetRules ?? data.presetContext;
+
 type WCoreManagerData = {
   workspace: string;
   proxy?: string;
@@ -143,6 +162,21 @@ type WCoreManagerData = {
   conversation_id: string;
   yoloMode?: boolean;
   presetRules?: string;
+  /**
+   * The same rules under the key the ACP backends use.
+   *
+   * wcore reads `presetRules` and always has. But preset assistants created
+   * through `buildAgentConversationParams` before that was fixed wrote their
+   * rules to `presetContext`, and `ConversationServiceImpl` copies unconsumed
+   * `extra` keys onto the stored row - so the persona was persisted the whole
+   * time, on a key nothing here ever looked at. Every wcore preset conversation
+   * created from the "+" menu or as a team specialist is still carrying one.
+   *
+   * Reading it as a fallback is what makes those conversations recover. Without
+   * it, rewriting an assistant's persona reaches only chats created after the
+   * fix, and the ones already open stay wrong forever.
+   */
+  presetContext?: string;
   presetAssistantId?: string;
   /** Assistant-scoped always-on skill names (pinned/preset-enabled).  */
   enabledSkills?: string[];
@@ -262,6 +296,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   /** Captured failure from `start()`, so a failed bootstrap surfaces an honest
    * error+finish on the next `sendMessage` instead of silently hanging the turn. */
   private startError: unknown = null;
+  /** W-1b: bounds automatic callers; see `ensureBootstrap`. */
+  private bootstrapRetries = 0;
+  private lastBootstrapAttemptAt = 0;
   private currentMode: string = 'default';
   private _capabilities: WCoreCapabilities | null = null;
   private _configSentAt: number | null = null;
@@ -272,6 +309,18 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   // end-of-session `session_cost` event (which fires after currentMsgId is
   // cleared) can be stamped onto the correct turn's activity card.
   private _lastTurnMsgId: string | null = null;
+  /**
+   * Whether an `error` frame arrived during the current turn.
+   *
+   * Turn end alone cannot tell a successful turn from a failed one: the engine
+   * emits the same `finish` either way, so a turn that died on a provider 400
+   * settled with a green "completed" tag over a visible error message. Observed
+   * live - the run reported success while the transcript showed
+   * "Provider error: API error 400" - which is the same class of lie as the
+   * "running forever" bug the turn-end verdict was added to fix, only pointing
+   * the other way.
+   */
+  private _turnSawError = false;
 
   // #264 - an auto-mode `approval_required` the engine could not self-resolve is
   // escalated through the existing Confirming gate (see the approval_required
@@ -344,27 +393,88 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // Capture (don't swallow) a failed start: agentReady still resolves so the
     // sendMessage path is reached, where startError is surfaced as a real
     // error+finish instead of hanging the turn with no reply (S2).
-    this.agentReady = this.start().catch(async (error) => {
-      let surfacedError = error;
+    this.agentReady = this.start().catch((error) => this.captureBootstrapFailure(error));
+  }
 
-      // A bootstrap path that never published an engine identity owns no
-      // process tree, so its profile can be returned. If an identity remains,
-      // shutdown failed and both it and the lease are deliberately retained for
-      // an identity-bound retry through kill().
-      if (!this.agent) {
-        try {
-          await this.releaseProfileLaunchLease();
-        } catch (releaseError) {
-          surfacedError = new AggregateError(
-            [error, releaseError],
-            'Wayland Core bootstrap failed and its runtime profile lease could not be released'
-          );
-        }
+  private async captureBootstrapFailure(error: unknown): Promise<void> {
+    let surfacedError = error;
+
+    // A bootstrap path that never published an engine identity owns no
+    // process tree, so its profile can be returned. If an identity remains,
+    // shutdown failed and both it and the lease are deliberately retained for
+    // an identity-bound retry through kill().
+    if (!this.agent) {
+      try {
+        await this.releaseProfileLaunchLease();
+      } catch (releaseError) {
+        surfacedError = new AggregateError(
+          [error, releaseError],
+          'Wayland Core bootstrap failed and its runtime profile lease could not be released'
+        );
       }
+    }
 
-      this.startError = surfacedError;
-      mainError('[WCoreManager]', 'agent bootstrap (start) failed', surfacedError);
-    });
+    this.startError = surfacedError;
+    mainError('[WCoreManager]', 'agent bootstrap (start) failed', surfacedError);
+  }
+
+  /**
+   * W-1b: let a later turn retry a failed bootstrap.
+   *
+   * `startError` had exactly one writer and no reset, so the FIRST failure was
+   * cached for the life of the conversation: every later turn replayed the
+   * identical error without spawning anything. Observed live - the same message
+   * and the same PID reported 95 seconds apart, with no second
+   * `(start) failed` line between them, and the crash sentinel it named already
+   * gone from disk. The cache outlived the condition, and the only recovery was
+   * restarting the whole app.
+   *
+   * Deliberately synchronous check-and-assign. Writing this as
+   * `await this.agentReady; if (this.startError) {...}` would race: a second
+   * turn could observe `startError` already cleared by the first while `agent`
+   * is still null, and fall through to `emitStartFailure` with no reason.
+   *
+   * One lazy attempt per user-initiated turn, serialized by the shared promise.
+   * No timer, no backoff, no background retry: `start()` takes the project-config
+   * and profile leases, so unattended retries would contend with live sibling
+   * chats for exactly the resources whose contention causes this failure class.
+   */
+  private ensureBootstrap(): Promise<void> {
+    // Automatic callers are not bounded by "once per turn". A scheduled task
+    // drives sendMessage on every firing, and `emitStartFailure` returns
+    // normally rather than throwing, so cron records the run as SUCCESSFUL and
+    // clears its own retry state - nothing upstream backs off. Without this,
+    // a broken config turns every cron firing into a fresh engine spawn.
+    //
+    // The first retry is immediate, because that is the case a human hits: a
+    // stale crash sentinel, a contended lease, or a config they just fixed.
+    // Every retry after that is rate-limited, which bounds any automatic
+    // caller regardless of origin - more robust than sniffing for `cronMeta`,
+    // which would miss other automatic paths.
+    const now = Date.now();
+    const withinCooldown = this.bootstrapRetries > 0 && now - this.lastBootstrapAttemptAt < BOOTSTRAP_RETRY_COOLDOWN_MS;
+
+    const canRetry =
+      !withinCooldown &&
+      this.startError !== null &&
+      // An engine identity survived, so a process tree may still own this
+      // profile; respawning would put a second engine on it. kill() owns that
+      // path.
+      !this.agent &&
+      // A retained lease means the same thing. releaseProfileLaunchLease()
+      // nulls it on success, so null is exactly "safe to re-acquire".
+      !this.releaseProfileLease &&
+      // kill() sets disposed synchronously before awaiting agentReady, so no
+      // retry can begin after teardown has started.
+      !this.disposed;
+
+    if (canRetry) {
+      this.bootstrapRetries += 1;
+      this.lastBootstrapAttemptAt = now;
+      this.startError = null;
+      this.agentReady = this.start().catch((error) => this.captureBootstrapFailure(error));
+    }
+    return this.agentReady;
   }
 
   private async releaseProfileLaunchLease(): Promise<void> {
@@ -550,10 +660,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // no skills, no library) - in that case we keep the prior "no
     // presetRules" behaviour for fresh installs. (H1: WCoreManager advertise
     // the second channel.) Skipped entirely in raw-engine mode.
+    const presetRules = resolveWCorePresetRules(mergedData);
     const systemInstructions = rawEngineMode
       ? undefined
       : await buildSystemInstructionsWithSkillsIndex({
-          presetContext: mergedData.presetRules,
+          conversationId: this.conversation_id,
+          presetContext: presetRules,
           enabledSkills: mergedData.enabledSkills,
           excludeBuiltinSkills: mergedData.excludeBuiltinSkills,
           enableTeamGuide: mergedData.enableTeamGuide,
@@ -564,7 +676,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
             agentKey: 'wcore',
           }),
         });
-    const effectivePresetRules = rawEngineMode ? undefined : (systemInstructions ?? mergedData.presetRules);
+    const effectivePresetRules = rawEngineMode ? undefined : (systemInstructions ?? presetRules);
 
     const agent = new WCoreAgent({
       workspace: mergedData.workspace,
@@ -697,6 +809,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     content: string;
     msg_id: string;
     files?: string[];
+    /** Absolute paths the local user attached. See IMessageText.content.files. */
+    attachedFiles?: string[];
     cronMeta?: CronMessageMeta;
     hidden?: boolean;
   }) {
@@ -731,6 +845,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       createdAt: data.cronMeta ? Math.max(Date.now(), data.cronMeta.triggeredAt + 1) : Date.now(),
       content: {
         content: data.content,
+        ...(data.attachedFiles?.length && { files: data.attachedFiles }),
         ...(data.cronMeta && { cronMeta: data.cronMeta }),
       },
       ...(data.hidden && { hidden: true }),
@@ -744,8 +859,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     cronBusyGuard.setProcessing(this.conversation_id, true);
     this.status = 'pending';
     this._lastActivityAt = Date.now();
-    // Wait for agent bootstrap to complete before sending
-    await this.agentReady;
+    // Wait for agent bootstrap to complete before sending. W-1b: if a PREVIOUS
+    // turn's bootstrap failed, retry it once here rather than replaying that
+    // turn's cached error forever - the condition that caused it is usually
+    // gone by now (a stale crash sentinel, a transient lease, a config the user
+    // has since fixed).
+    await this.ensureBootstrap();
 
     // S2: if bootstrap failed, the turn would otherwise hang forever (this.agent
     // is null -> the send below is skipped, no reply/error/finish ever emitted).
@@ -1208,7 +1327,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     );
 
     this.status = 'finished';
-    void this.handleTurnEnd();
+    // K-03: the engine died mid-turn - the turn ended, and it ended badly.
+    void this.handleTurnEnd('failed');
 
     // #853: name the real exit reason (a kill signal, not "code null") and point
     // the user at the log holding the detail, redacted before it is surfaced.
@@ -1246,11 +1366,39 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // #853: `detail` already carries the errno/signal launch reason from the
     // agent-side reject. Append the discoverable logs path and redact the whole
     // user-facing string before surfacing.
+    const surfaced = redactCommandSecrets(`Agent failed to start: ${detail}${this.logLinkSuffix()}`);
+    // K-02: PERSIST before emitting. The stream emit alone is transient - it is
+    // delivered once, to whoever happens to be subscribed at that instant, and
+    // is never replayed. A bootstrap failure is precisely the case where nobody
+    // reliably is: the turn is sent from the new-chat surface, the renderer is
+    // still mounting the conversation view it just navigated to, and the engine
+    // can refuse in well under that. Live-verified on Core v0.12.26 - the main
+    // process logged the reason and emitted error+finish, and the chat showed
+    // the user nothing at all, indefinitely.
+    //
+    // Persisting makes the reason a fact about the conversation rather than an
+    // event someone had to be present for: it renders whenever the view loads,
+    // it survives a reload, and it shows up in a bug report. This mirrors how
+    // every engine-side error the user actually sees already reaches them.
+    addMessage(this.conversation_id, {
+      id: uuid(),
+      conversation_id: this.conversation_id,
+      type: 'tips',
+      position: 'center',
+      createdAt: Date.now(),
+      content: { content: surfaced, type: 'error' },
+    } as TMessage);
+
     const errorMessage: IResponseMessage = {
       type: 'error',
       conversation_id: this.conversation_id,
       msg_id: activeMsgId,
-      data: redactCommandSecrets(`Agent failed to start: ${detail}${this.logLinkSuffix()}`),
+      data: surfaced,
+      // Carry the bootstrap failure's own classification alongside the prose so
+      // the renderer can route it to a remedy card by code. Constitution
+      // authority failures are the case that needs it: the fix is a recovery
+      // flow the user cannot reach from an error bubble.
+      ...(error instanceof ConstitutionFsTransactionError ? { code: error.code } : {}),
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);
     this.emitToEventBuses(errorMessage);
@@ -1425,8 +1573,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       }
 
       // v0.9.4 - sub-agent activity events are system-level (empty msg_id) but
-      // MUST reach the renderer so SubAgentActivityCard can render one card per
-      // sub-agent. Forward before the msg_id guard drops them (mirrors the
+      // MUST reach the renderer so the inline activity timeline can render one
+      // step per sub-agent. Forward before the msg_id guard drops them (mirrors the
       // config_changed pass-through above). The renderer's transformMessage
       // reads `data.{parentCallId,agentName,inner}` + `conversation_id`.
       if (data.type === 'sub_agent_event') {
@@ -1612,6 +1760,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // Wayland Core has no subscription/OAuth fallback, so a dead key is fatal
       // for the turn and the provider must be marked unhealthy.
       if (data.type === 'error') {
+        // Recorded here, ABOVE the msg_id guard below, on purpose: a provider
+        // failure frequently arrives as a system-level frame with no msg_id, and
+        // that is precisely the case that was settling as "completed".
+        this._turnSawError = true;
         this.maybeInvalidateProviderKeyOnAuthError(typeof data.data === 'string' ? data.data : String(data.data ?? ''));
       }
 
@@ -1637,6 +1789,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.currentMsgId = data.msg_id ?? null;
         this._lastTurnMsgId = data.msg_id ?? this._lastTurnMsgId;
         this.currentMsgContent = '';
+        // A new turn starts clean: last turn's failure must not condemn this one.
+        this._turnSawError = false;
 
         // Reset thinking state on new turn
         if (this.thinkingMsgId) {
@@ -1719,6 +1873,18 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // the flag to the already-accumulated content rather than racing it.
         const truncMsgId = this.detectTruncation(processedData.data, this.currentMsgContent) ? this.currentMsgId : null;
 
+        // A turn can fail WITHOUT ever producing an `error` frame. When the
+        // provider stream dies - e.g. the model emits tool-call arguments that
+        // are not valid JSON - Core retries, gives up, and reports the outcome
+        // only as `stream_end` carrying `finish_reason: 'error'`, which reaches
+        // us as this `finish` frame. Observed live: a turn failed exactly this
+        // way and the rail would still have called it done.
+        const finishReason =
+          processedData.data && typeof processedData.data === 'object'
+            ? (processedData.data as Record<string, unknown>).finish_reason
+            : undefined;
+        if (finishReason === 'error') this._turnSawError = true;
+
         void this.handleTurnEnd();
 
         if (truncMsgId) {
@@ -1777,9 +1943,56 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     });
   }
 
-  private async handleTurnEnd(): Promise<void> {
+  /**
+   * K-03 - settle the turn's activity card.
+   *
+   * The engine's `stream_end` arrives as an IResponseMessage `finish`, which
+   * sits in `skipTransformTypes` and therefore produces NO TMessage: nothing
+   * durable ever recorded that the turn ended. The only other completion signal
+   * the execution rail has is the activity card's own `status`, and that is
+   * pinned 'running' by construction (`rollUpStatus` reports 'running' for a
+   * zero-node card, and the per-turn `session_cost` card has zero nodes) - so a
+   * wcore turn could never reach `lifecycle: 'completed'` and the rail's elapsed
+   * timer climbed indefinitely after the assistant had already answered.
+   *
+   * This forwards a synthetic `activity_turn_end` frame down the SAME path every
+   * other activity update takes: transformMessage builds a card delta, the
+   * compose merge folds it into the accumulated card (settling any node the
+   * stream never terminalized), and addOrUpdateMessage persists it so the
+   * verdict survives a reload. Emitted on the response stream too so a mounted
+   * renderer settles immediately rather than at the next hydration.
+   */
+  private settleTurnActivityCard(outcome: 'done' | 'failed'): void {
+    const turnId = this.currentMsgId || this._lastTurnMsgId;
+    if (!turnId) return;
+
+    const frame: IResponseMessage = {
+      type: 'activity_turn_end',
+      conversation_id: this.conversation_id,
+      msg_id: turnId,
+      data: { outcome },
+    };
+
+    const tMessage = transformMessage(frame);
+    if (tMessage) {
+      addOrUpdateMessage(this.conversation_id, tMessage, 'wcore');
+    }
+    // Response stream only - deliberately NOT emitToEventBuses. This is a UI/rail
+    // settlement signal, and the channel bus relays agent output to Discord /
+    // WhatsApp surfaces that have nothing to do with the activity card.
+    ipcBridge.conversation.responseStream.emit(frame);
+  }
+
+  private async handleTurnEnd(outcome: 'done' | 'failed' = 'done'): Promise<void> {
     cronBusyGuard.setProcessing(this.conversation_id, false);
     this.flushAllBufferedStreamTexts();
+    // An error seen anywhere in this turn outranks the default 'done'. The
+    // engine emits the same `finish` frame whether the turn succeeded or died,
+    // so without this the rail reports success over a visible error. A caller
+    // that already knows the turn failed (process exit) still wins outright.
+    const settled = outcome === 'failed' || this._turnSawError ? 'failed' : 'done';
+    this.settleTurnActivityCard(settled);
+    this._turnSawError = false;
 
     // Finalize thinking if still active
     if (this.thinkingMsgId) {

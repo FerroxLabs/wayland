@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -180,6 +182,32 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     const sessionSkillsExtra =
       stagedSessionSkills && stagedSessionSkills.length > 0 ? { sessionSkills: stagedSessionSkills } : {};
 
+    /**
+     * Seeds the first turn the conversation page auto-sends on arrival.
+     *
+     * Skipped when there is nothing to send. Send is disabled on an empty
+     * composer so that was unreachable, but the new-chat voice button creates a
+     * conversation with no typed draft - and an empty seed makes every backend
+     * dispatch a blank first turn.
+     */
+    const hasInitialMessage = Boolean(input.trim()) || files.length > 0;
+    const seedInitialMessage = (key: string, payload: { input: string; files?: string[] }) => {
+      if (!hasInitialMessage) return;
+      sessionStorage.setItem(key, JSON.stringify(payload));
+    };
+
+    /**
+     * The name every create path below carries.
+     *
+     * A create call with a falsy name falls through to the agent factory's own
+     * default, which is the raw workspace path - so the chat lands in Recents as
+     * `/Users/.../claude-temp-1786448694044`. The voice button creates with
+     * nothing typed, so the name has to come from here: the same localized
+     * default the in-chat "new tab" entry points use, which auto-titling then
+     * replaces once there is a first turn to summarize.
+     */
+    const conversationName = input.trim() ? input : t('conversation.welcome.newConversation');
+
     const agentInfo = selectedAgentInfo;
     const isPreset = isPresetAgent;
     const presetAssistantId = isPreset ? agentInfo?.customAgentId : undefined;
@@ -227,7 +255,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       try {
         const geminiConversationParams = buildAgentConversationParams({
           backend: 'gemini',
-          name: input,
+          name: conversationName,
           agentName: agentInfo?.name,
           presetAssistantId,
           workspace: finalWorkspace,
@@ -277,7 +305,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input: displayMessage,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`gemini_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`gemini_initial_message_${conversation.id}`, initialMessage);
 
         void navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {
@@ -292,7 +320,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       const openclawAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
       const openclawConversationParams = buildAgentConversationParams({
         backend: openclawAgentInfo?.backend || 'openclaw-gateway',
-        name: input,
+        name: conversationName,
         agentName: openclawAgentInfo?.name,
         presetAssistantId,
         workspace: finalWorkspace,
@@ -337,7 +365,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`openclaw_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`openclaw_initial_message_${conversation.id}`, initialMessage);
 
         await navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {
@@ -353,7 +381,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       const nanobotAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
       const nanobotConversationParams = buildAgentConversationParams({
         backend: nanobotAgentInfo?.backend || 'nanobot',
-        name: input,
+        name: conversationName,
         agentName: nanobotAgentInfo?.name,
         presetAssistantId,
         workspace: finalWorkspace,
@@ -389,7 +417,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`nanobot_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`nanobot_initial_message_${conversation.id}`, initialMessage);
 
         await navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {
@@ -409,7 +437,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       try {
         const conversation = await ipcBridge.conversation.create.invoke({
           type: 'wcore',
-          name: input,
+          name: conversationName,
           model: currentModel,
           extra: {
             defaultFiles: files,
@@ -442,7 +470,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`wcore_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`wcore_initial_message_${conversation.id}`, initialMessage);
 
         await navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {
@@ -476,7 +504,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       const agentBackend = acpBackend || selectedAgent;
       const agentConversationParams = buildAgentConversationParams({
         backend: agentBackend,
-        name: input,
+        name: conversationName,
         agentName: acpAgentInfo?.name,
         presetAssistantId,
         workspace: finalWorkspace,
@@ -544,7 +572,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`acp_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`acp_initial_message_${conversation.id}`, initialMessage);
 
         await navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {

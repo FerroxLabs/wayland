@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { CodexPermissionRequest } from '@/common/types/codex/types';
@@ -145,6 +147,34 @@ export type IMessageText = IMessage<
   'text',
   {
     content: string;
+    /**
+     * Treat `content` as the WHOLE bubble text, not another streaming delta.
+     *
+     * Every other text event appends, because that is what a stream is. But a
+     * turn that emitted a `[CRON_PROPOSE]` / `[CONCIERGE_PROPOSE]` block has
+     * already streamed that markup verbatim into the bubble by the time we know
+     * a card should render instead. The stored row is rewritten in place
+     * (persistStrippedTurnText), so the markup is gone on reload — but the live
+     * viewer keeps staring at it until then, which is exactly the audience that
+     * matters. This flag is how the cleaned text reaches an already-rendered
+     * bubble: composeMessage and composeMessageWithIndex swap the accumulated
+     * text instead of concatenating.
+     *
+     * Main-process only. It is never derived from model output — a reply can put
+     * arbitrary text in `content`, but it cannot add a field to the IPC event —
+     * and it is honoured only on the assistant ('content') path, so it can never
+     * be used to rewrite what the user said.
+     */
+    replaceContent?: boolean;
+    /**
+     * Attachments the LOCAL user composed with this message, as absolute paths.
+     * Set only on the locally-composed send path, so it is the one trustworthy
+     * signal for rendering attachment previews. The `[[AION_FILES]]` marker in
+     * `content` is display text and is attacker-reachable (a model reply, or an
+     * inbound third-party channel message, which persists as position 'right'),
+     * so it must never be parsed back into a file list.
+     */
+    files?: string[];
     cronMeta?: CronMessageMeta;
     teammateMessage?: boolean;
     senderName?: string;
@@ -525,6 +555,14 @@ export type IMessageActivity = IMessage<
     nodes: ActivityNode[];
     perTurnCost?: ActivityTurnCost[];
     status: 'running' | 'done' | 'failed';
+    /**
+     * K-03 - the engine's own turn-end verdict, set once `stream_end` (or a
+     * process exit that killed the turn) is observed. Sticky and durable: it is
+     * what makes `status` mean "the turn is over" rather than "no node happens
+     * to be running right now", and it survives the reload because it is part of
+     * the persisted card.
+     */
+    ended?: 'done' | 'failed';
   }
 >;
 
@@ -659,10 +697,56 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         },
       };
     }
+    case 'tips': {
+      // An out-of-band in-thread notice pushed by main (a Constitution key-ring
+      // reclaim, a missed scheduled run). Main persists the row AND emits this
+      // frame; without a case here the frame fell through to the "unsupported
+      // type" warning, so the notice was invisible until the next reload - which
+      // is exactly how it was found, rendering perfectly after a restart.
+      const data = message.data as { content: string; type: 'error' | 'success' | 'warning' };
+      return {
+        id: uuid(),
+        type: 'tips',
+        msg_id: message.msg_id,
+        position: 'center',
+        conversation_id: message.conversation_id,
+        content: { content: data.content, type: data.type },
+      };
+    }
+    /**
+     * Replace an assistant bubble's text wholesale, rather than extending it.
+     *
+     * Its own event type on purpose, not a flag on `content`. A `content` frame
+     * is the turn TALKING: the platform hooks treat one as proof the turn is
+     * alive and re-arm the running spinner if it lands after `finish` (see
+     * useWCoreMessage's isTurnOutput). This frame is emitted precisely AFTER the
+     * turn ends, to erase markup the turn already streamed, so announcing it as
+     * output would leave a finished chat showing "Working..." forever - the exact
+     * failure the activity_turn_end exclusion next to isTurnOutput exists to
+     * prevent.
+     *
+     * Assistant-side by construction (position is hardcoded 'left'), so this can
+     * never rewrite what the user said.
+     */
+    case 'content_replace': {
+      const data = message.data as { content?: string };
+      if (typeof data?.content !== 'string') return;
+      return {
+        id: uuid(),
+        type: 'text',
+        msg_id: message.msg_id,
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content: { content: data.content, replaceContent: true },
+      };
+    }
     case 'content':
     case 'user_content': {
       const data = message.data;
       const isRichData = typeof data === 'object' && data !== null && 'content' in data;
+      // Only main populates this, and only on the user's own turn - see the
+      // guard note below.
+      const userFiles = isRichData ? (data as { files?: string[] }).files : undefined;
       return {
         id: uuid(),
         type: 'text',
@@ -673,6 +757,16 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
           ? {
               content: (data as { content: string; cronMeta?: CronMessageMeta }).content,
               cronMeta: (data as { cronMeta?: CronMessageMeta }).cronMeta,
+              // Attachments the user actually picked, forwarded by main on the
+              // `user_content` event.
+              //
+              // Gated on the event type on purpose: this branch also builds
+              // assistant messages ('content' -> position 'left'), and the
+              // renderer draws `files` without checking position. Without this
+              // guard a model reply that emitted a `files` field would render
+              // previews of arbitrary paths - the exact spoof this packet
+              // closed. Only main populates this, and only for the user's turn.
+              ...(message.type === 'user_content' && userFiles?.length ? { files: userFiles } : {}),
               ...((data as { truncatedDueToBudget?: boolean }).truncatedDueToBudget && {
                 truncatedDueToBudget: true,
               }),
@@ -932,6 +1026,29 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         content,
       };
     }
+    // K-03 - synthesized by WCoreManager.handleTurnEnd (NOT an engine frame).
+    // The engine's `stream_end` becomes an IResponseMessage `finish`, which is
+    // in `skipTransformTypes` and so never produced a TMessage - leaving the
+    // turn's activity card pinned 'running' forever and the execution rail with
+    // no reachable terminal lifecycle. This delta carries the verdict to the
+    // card through the same merge path every other activity update uses.
+    case 'activity_turn_end': {
+      const d = message.data as { outcome?: 'done' | 'failed' } | null;
+      const turnId = message.msg_id ?? '';
+      const content = addOrUpdateNode(emptyActivityContent(turnId), {
+        kind: 'turn_end',
+        outcome: d?.outcome === 'failed' ? 'failed' : 'done',
+        ts: Date.now(),
+      });
+      return {
+        id: uuid(),
+        type: 'activity',
+        msg_id: activityMsgId(turnId),
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content,
+      };
+    }
     case 'provider_circuit_event': {
       const d = message.data as { primary: string; fallback?: string; state: string; error?: string };
       const turnId = message.msg_id ?? '';
@@ -998,6 +1115,22 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
 /**
  * @description Merge a message into the existing message list.
  */
+/**
+ * A turn id identifies the TURN, not the speaker. WCore persists the user's
+ * message under the same `msg_id` it then streams the assistant reply on, so a
+ * msg_id-only match let the reply be appended to the user's own bubble and flip
+ * its `position` to 'left' - destroying the question in stored history and,
+ * with it, the turn boundary every execution selector relies on.
+ *
+ * Strict equality, not a permissive "undefined matches anything". Every live
+ * backend routes its deltas through `transformMessage`, which stamps every
+ * `content` chunk 'left' and every `user_content` 'right' - verified across
+ * wcore, gemini, acp/codex, openclaw, nanobot and team during cross-audit. A
+ * wildcard would therefore protect nothing real while reopening the exact hole
+ * this closes; two messages that both omit a position still compare equal.
+ */
+const isSameSpeaker = (existing: TMessage, incoming: TMessage): boolean => existing.position === incoming.position;
+
 export const composeMessage = (
   message: TMessage | undefined,
   list: TMessage[] | undefined,
@@ -1200,16 +1333,35 @@ export const composeMessage = (
   if (message.type === 'text' && message.msg_id) {
     for (let i = list.length - 1; i >= 0; i--) {
       const msg = list[i];
-      if (msg.msg_id === message.msg_id && msg.type === 'text') {
+      if (msg.msg_id === message.msg_id && msg.type === 'text' && isSameSpeaker(msg, message)) {
         const merged = Object.assign({}, msg, message);
-        merged.content = { ...message.content, content: msg.content.content + message.content.content };
+        // `replaceContent` swaps the bubble instead of extending it - see the
+        // field's note on IMessageText. Everything else is a streaming delta.
+        // The flag itself is transport, not state: it is dropped here so it
+        // never reaches a stored row and cannot alter a later merge.
+        // A replacement carries only the corrected TEXT, so it must be layered
+        // over the bubble rather than substituted for it: a `content_replace`
+        // frame has no `cronMeta`/`files`/`truncatedDueToBudget`, and swapping
+        // the whole object would silently strip them. Both the other two paths
+        // that rewrite this text already spread the existing content first (the
+        // renderer's composeMessageWithIndex, and persistStrippedTurnText's DB
+        // write) - this one was the odd one out, so a bubble could lose fields
+        // live that the stored row kept.
+        const { replaceContent, ...incoming } = message.content;
+        merged.content = replaceContent
+          ? { ...msg.content, ...incoming }
+          : { ...incoming, content: msg.content.content + message.content.content };
         return updateMessage(i, merged);
       }
     }
     return pushMessage(message);
   }
 
-  if (last.msg_id !== message.msg_id || last.type !== message.type) {
+  // The same speaker guard as the text branch above. This tail path still
+  // handles text whose msg_id is absent on both sides (GeminiAgentManager
+  // persists the user row with an `id` and no `msg_id`), so without it the
+  // reply could overwrite the prompt through this door instead.
+  if (last.msg_id !== message.msg_id || last.type !== message.type || !isSameSpeaker(last, message)) {
     return pushMessage(message);
   }
   return updateMessage(list.length - 1, Object.assign({}, last, message));

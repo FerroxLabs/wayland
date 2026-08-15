@@ -14,6 +14,7 @@ const {
   writeJson,
 } = require('./acceptanceBundle');
 const matrix = require('./verifyHardeningMatrix');
+const prepareWaylandCore = require('../prepareWaylandCore');
 
 const CAPABILITIES = ['cowork-office', 'voice', 'mcp', 'sandbox', 'flux'];
 
@@ -235,7 +236,7 @@ function collectRawAcceptanceEvidence(sourceDirectory, outputDirectory) {
   for (const artifact of publisherIndex.value.artifacts) {
     exactKeys(artifact, ['assetName', 'releaseTag', 'expectedSha256', 'path'], 'M8I_PUBLISHER_INDEX_INVALID');
     if (
-      artifact.releaseTag !== 'v0.12.25' ||
+      artifact.releaseTag !== prepareWaylandCore.DEFAULT_WCORE_VERSION ||
       typeof artifact.assetName !== 'string' ||
       !/^[a-f0-9]{64}$/.test(String(artifact.expectedSha256)) ||
       artifact.path !== `publisher-artifacts/${artifact.assetName}` ||

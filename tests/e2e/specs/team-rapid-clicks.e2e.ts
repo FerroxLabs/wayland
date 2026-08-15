@@ -20,9 +20,9 @@
 
 import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
-import { invokeBridge, navigateTo } from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion } from '../helpers';
 
-const LAUNCHER_ID = 'ext-cold-outbound';
+const LAUNCHER_ID = 'builtin-cold-outbound';
 const NAME_PREFIX = 'E2E RapidClicks';
 
 type TeamRow = { id: string; name: string };
@@ -58,6 +58,10 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
       timeout: 15_000,
     });
 
+    // The library paginates at 48 cards over 60 teams and this launcher sorts
+    // into the hidden tail, so filter to it first - its card is not in the DOM
+    // on page one [V].
+    await page.locator('[data-testid="teams-search-input"]').fill('Cold Outbound');
     const card = page.locator(`[data-testid="team-card-${LAUNCHER_ID}"]`);
     await expect(card).toBeVisible({ timeout: 10_000 });
     await card.click();
@@ -126,10 +130,16 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
     }
 
     // Open delete modal via sidebar three-dot menu.
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
     const row = sidebarEntry.locator(
-      'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
+      // SiderItem's root is `h-26px ... group ...` now, not h-40px. Match the
+      // `group` CLASS TOKEN exactly - a bare contains() also matches
+      // `group-hover:text-1` on an inner div, which has no menu trigger.
+      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
     );
     await row.hover();
     const threeDot = row.locator('span.flex-center.cursor-pointer').last();
@@ -183,6 +193,9 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
     });
 
     const historyBefore = await page.evaluate(() => window.history.length);
+    // Same 48-card pagination window as above - this launcher is in the hidden
+    // tail, so filter to it before trying to click it.
+    await page.locator('[data-testid="teams-search-input"]').fill('Cold Outbound');
     const card = page.locator(`[data-testid="team-card-${LAUNCHER_ID}"]`);
     await expect(card).toBeVisible({ timeout: 10_000 });
 
@@ -241,9 +254,7 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
     // duplicate the roster if the guard is broken).
     await page.waitForTimeout(2_000);
 
-    const teammateCount = await page
-      .locator('[data-testid^="launcher-row-teammate-"]')
-      .count();
+    const teammateCount = await page.locator('[data-testid^="launcher-row-teammate-"]').count();
     // Suggest returns at most ~4 teammates per `targetSize: 5` (leader + 4).
     // If multiple invocations leaked through, the count would be >> 5.
     expect(teammateCount).toBeLessThanOrEqual(6);
@@ -313,6 +324,9 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
       errorThrown = true;
     });
 
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
 

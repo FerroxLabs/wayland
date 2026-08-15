@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -85,6 +87,14 @@ vi.mock('electron', () => ({
 vi.mock('child_process', () => ({
   exec: execMock,
   spawn: spawnMock,
+}));
+
+// openFile/showItemInFolder now route the path through confinePath (RT-R4-02).
+// Identity mock keeps these opener-behaviour tests focused on the opener; the
+// confinement contract itself is covered by
+// tests/unit/shellBridge.openFile.confinement.test.ts.
+vi.mock('../../src/process/bridge/pathConfinement', () => ({
+  confinePath: async (p: string) => p,
 }));
 
 vi.mock('fs', () => ({

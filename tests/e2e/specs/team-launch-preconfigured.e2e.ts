@@ -4,7 +4,7 @@
  * Flow per E2E-TEST-PLAN §B1:
  *   1. /teams → click marketing-agency card (Standing Company, present in
  *      every vendored bundle build - `assistants.json`).
- *   2. URL becomes /teams/ext-marketing-agency/launch.
+ *   2. URL becomes /teams/builtin-marketing-agency/launch.
  *   3. Launcher page shows pre-filled roster: leader (research) + 4 teammates
  *      (mira, beacon, copy, lens). Marketing-agency bundle lists 5 teammates;
  *      TeamLauncherPage promotes the first to leader, leaving 4 teammate rows.
@@ -20,7 +20,7 @@
 import { test, expect } from '../fixtures';
 import { invokeBridge, navigateTo } from '../helpers';
 
-const LAUNCHER_ID = 'ext-marketing-agency';
+const LAUNCHER_ID = 'builtin-marketing-agency';
 const EXPECTED_TEAMMATE_COUNT = 4; // 5 teammates in bundle; first becomes leader.
 
 test.describe('Team Launcher - pre-configured (marketing-agency)', () => {
@@ -46,7 +46,7 @@ test.describe('Team Launcher - pre-configured (marketing-agency)', () => {
     await expect(standingCard).toBeVisible({ timeout: 10_000 });
     await standingCard.click();
 
-    // URL becomes /teams/ext-marketing-agency/launch.
+    // URL becomes /teams/builtin-marketing-agency/launch.
     await page.waitForURL(new RegExp(`/teams/${LAUNCHER_ID}/launch`), { timeout: 10_000 });
     await expect(page.locator('[data-testid="team-launcher-page"]')).toBeVisible({ timeout: 15_000 });
 

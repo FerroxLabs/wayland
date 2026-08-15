@@ -5,9 +5,9 @@
  */
 
 /**
- * Regression gate: setupAssistantWorkspace must NEVER symlink bulk library entries.
+ * Regression gate: setupAssistantWorkspace must NEVER place bulk library entries.
  *
- * The invariant: number of symlinks ≤ builtin_count + pinned.length + enabledSkills.length
+ * The invariant: number of placements ≤ builtin_count + pinned.length + enabledSkills.length
  * regardless of how large the SkillLibrary is.
  */
 
@@ -17,10 +17,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const norm = (p: string) => p.replace(/\\/g, '/');
 
 // Use vi.hoisted() so tracking variables are initialized before vi.mock factories run
-const { mkdirCalls, symlinkCalls, statResults, lstatResults, existsSyncResults, readdirResults, resetAll } = vi.hoisted(
-  () => {
+const { mkdirCalls, placementCalls, statResults, lstatResults, existsSyncResults, readdirResults, resetAll } =
+  vi.hoisted(() => {
     const dirs: string[] = [];
-    const links: Array<{ source: string; target: string; type: string }> = [];
+    const links: Array<{ source: string; target: string }> = [];
     const stats: Record<string, boolean> = {};
     const lstats: Record<string, boolean> = {};
     const existsSync: Record<string, boolean> = {};
@@ -28,7 +28,7 @@ const { mkdirCalls, symlinkCalls, statResults, lstatResults, existsSyncResults, 
 
     return {
       mkdirCalls: dirs,
-      symlinkCalls: links,
+      placementCalls: links,
       statResults: stats,
       lstatResults: lstats,
       existsSyncResults: existsSync,
@@ -42,8 +42,7 @@ const { mkdirCalls, symlinkCalls, statResults, lstatResults, existsSyncResults, 
         for (const key of Object.keys(readdir)) delete readdir[key];
       },
     };
-  }
-);
+  });
 
 vi.mock('fs/promises', () => ({
   default: {
@@ -58,11 +57,18 @@ vi.mock('fs/promises', () => ({
       if (lstatResults[norm(p)]) return {};
       throw new Error(`ENOENT: ${p}`);
     }),
-    symlink: vi.fn(async (source: string, target: string, type: string) => {
-      symlinkCalls.push({ source: norm(source), target: norm(target), type });
-    }),
     readdir: vi.fn(async (p: string) => readdirResults[norm(p)] ?? []),
   },
+}));
+
+// Skills are COPIED into the workspace now, not symlinked - wayland-core's
+// SandboxedFs refuses a link resolving outside its root. The bound this gate
+// protects matters MORE under copying, because each placement costs real bytes.
+vi.mock('@process/utils/utils', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  copyDirectoryRecursively: vi.fn(async (source: string, target: string) => {
+    placementCalls.push({ source: norm(source), target: norm(target) });
+  }),
 }));
 
 vi.mock('fs', () => ({
@@ -94,8 +100,10 @@ function makeLibrary(n: number): Array<{ name: string; security: { verdict: stri
   }));
 }
 
-describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
-  let setupAssistantWorkspace: Awaited<ReturnType<typeof import('@process/utils/initAgent')>>['setupAssistantWorkspace'];
+describe('setupAssistantWorkspace - bounded skill-placement regression gate', () => {
+  let setupAssistantWorkspace: Awaited<
+    ReturnType<typeof import('@process/utils/initAgent')>
+  >['setupAssistantWorkspace'];
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -104,7 +112,7 @@ describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
     setupAssistantWorkspace = mod.setupAssistantWorkspace;
   });
 
-  it('symlink count is bounded to builtin + pinned + enabledSkills regardless of library size', async () => {
+  it('placement count is bounded to builtin + pinned + enabledSkills regardless of library size', async () => {
     // 1 builtin auto-skill
     const builtinNames = ['cron'];
     readdirResults['/mock/auto-skills'] = builtinNames;
@@ -132,11 +140,11 @@ describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
 
     // Expected: cron (builtin) + skill-a, skill-b (pinned) + skill-c (enabled) = 4
     const maxExpected = builtinNames.length + prefs.pinned.length + 1; // enabledSkills.length = 1
-    expect(symlinkCalls.length).toBe(maxExpected);
-    expect(symlinkCalls.length).toBeLessThanOrEqual(maxExpected);
+    expect(placementCalls.length).toBe(maxExpected);
+    expect(placementCalls.length).toBeLessThanOrEqual(maxExpected);
 
     // Library entries must NOT appear in symlink targets
-    const symlinkTargets = symlinkCalls.map((c) => c.target);
+    const symlinkTargets = placementCalls.map((c) => c.target);
     for (const entry of library) {
       const hasLibraryEntry = symlinkTargets.some((t) => t.includes(entry.name));
       expect(hasLibraryEntry).toBe(false);
@@ -158,10 +166,10 @@ describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
       _libraryEntries: library,
     });
 
-    expect(symlinkCalls).toHaveLength(0);
+    expect(placementCalls).toHaveLength(0);
   });
 
-  it('a blocked skill is NOT symlinked even when it appears in enabledSkills', async () => {
+  it('a blocked skill is NOT placed even when it appears in enabledSkills', async () => {
     readdirResults['/mock/auto-skills'] = [];
     statResults['/mock/user/skills/blocked-skill'] = true;
 
@@ -175,10 +183,10 @@ describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
     });
 
     // The skill exists on disk but verdict is blocked - must not be symlinked
-    expect(symlinkCalls).toHaveLength(0);
+    expect(placementCalls).toHaveLength(0);
   });
 
-  it('a disabled skill (skills.preferences.disabled) is NOT symlinked even when in enabledSkills', async () => {
+  it('a disabled skill (skills.preferences.disabled) is NOT placed even when in enabledSkills', async () => {
     readdirResults['/mock/auto-skills'] = [];
     statResults['/mock/user/skills/disabled-skill'] = true;
 
@@ -189,10 +197,10 @@ describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
       _libraryEntries: [],
     });
 
-    expect(symlinkCalls).toHaveLength(0);
+    expect(placementCalls).toHaveLength(0);
   });
 
-  it('a blocked builtin skill is NOT symlinked', async () => {
+  it('a blocked builtin skill is NOT placed', async () => {
     readdirResults['/mock/auto-skills'] = ['cron', 'evil-skill'];
     statResults['/mock/auto-skills/cron'] = true;
     statResults['/mock/auto-skills/evil-skill'] = true;
@@ -207,9 +215,9 @@ describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
     });
 
     // Only cron symlinked; evil-skill blocked
-    expect(symlinkCalls).toHaveLength(1);
-    expect(symlinkCalls[0].target).toContain('cron');
-    expect(symlinkCalls.some((c) => c.target.includes('evil-skill'))).toBe(false);
+    expect(placementCalls).toHaveLength(1);
+    expect(placementCalls[0].target).toContain('cron');
+    expect(placementCalls.some((c) => c.target.includes('evil-skill'))).toBe(false);
   });
 
   it('pinned skills that are also in enabledSkills are not duplicated', async () => {
@@ -224,8 +232,8 @@ describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
     });
 
     // skill-a in both pinned and enabledSkills - should only symlink once
-    expect(symlinkCalls).toHaveLength(1);
-    expect(symlinkCalls[0].target).toContain('skill-a');
+    expect(placementCalls).toHaveLength(1);
+    expect(placementCalls[0].target).toContain('skill-a');
   });
 
   it('with large library (≥50 entries), symlink count never exceeds builtin+pinned+enabled bound', async () => {
@@ -249,9 +257,9 @@ describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
     });
 
     const bound = builtinNames.length + prefs.pinned.length + enabledSkills.length;
-    expect(symlinkCalls.length).toBeLessThanOrEqual(bound);
+    expect(placementCalls.length).toBeLessThanOrEqual(bound);
     // Library entries absent
-    const targets = symlinkCalls.map((c) => c.target);
+    const targets = placementCalls.map((c) => c.target);
     for (const e of library) {
       expect(targets.some((t) => t.includes(e.name))).toBe(false);
     }

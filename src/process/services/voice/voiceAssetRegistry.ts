@@ -30,39 +30,37 @@ type RegistryEntry = {
   sha256?: string;
 };
 
-const REGISTRY: Record<string, RegistryEntry> = {
-  // Whisper.cpp GGML models - public huggingface mirror under ggerganov.
-  // SHA-256 left undefined; the manager will accept the file without an
-  // integrity gate and log a warning. Pin these once the team confirms the
-  // canonical hashes (e.g. `shasum -a 256 ggml-base.bin` after a clean fetch).
-  'whisper-ggml-base': {
-    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin',
-    destSubpath: 'whisper/ggml-base.bin',
-  },
-  'whisper-ggml-small': {
-    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
-    destSubpath: 'whisper/ggml-small.bin',
-  },
-  // Kokoro ONNX TTS model - github release artifact pinned to v1.0.
-  'kokoro-onnx-model': {
-    url: 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
-    destSubpath: 'kokoro/kokoro-v1.0.onnx',
-  },
-};
+/**
+ * Deliberately empty.
+ *
+ * It held three downloads and every one of them fed a runtime that does not
+ * exist. `whisper-ggml-base` / `whisper-ggml-small` fed a whisper.cpp CLI that
+ * upstream has never published for macOS and only ships as multi-file archives
+ * anywhere; `kokoro-onnx-model` fed a synthesizer whose `resolveBinary` returned
+ * null unconditionally. The one local engine that works - Whisper-tiny through
+ * transformers.js in the renderer worker - ships bundled and downloads nothing.
+ *
+ * A download registered here MUST have a consumer that can run what it fetches.
+ */
+const REGISTRY: Record<string, RegistryEntry> = {};
 
 /**
- * Enrich a renderer-supplied `VoiceAsset` descriptor by id. Fills in
- * `destPath` from the registry + userData voice subtree, and applies the
- * pinned `sha256` when the renderer left it blank. Renderer-supplied non-
- * empty fields win - letting callers override for tests / dev.
+ * Enrich a `VoiceAsset` descriptor by id. Fills in `destPath` from the registry
+ * + userData voice subtree and applies the pinned `sha256` when the caller left
+ * it blank.
+ *
+ * An UNKNOWN id resolves to an empty `destPath`, which is what makes the
+ * bridge's "no download is registered" guard bite. Echoing the caller's own
+ * `destPath` back would let a compromised renderer name any path on disk and
+ * have the main process write a downloaded file there.
  */
 export function resolveVoiceAsset(asset: VoiceAsset): VoiceAsset {
   const entry = REGISTRY[asset.id];
-  if (!entry) return asset;
+  if (!entry) return { ...asset, destPath: '' };
 
   const baseDir = path.join(getPlatformServices().paths.getDataDir(), 'voice');
   const resolvedDest = asset.destPath?.trim() ? asset.destPath : path.join(baseDir, entry.destSubpath);
-  const resolvedSha = asset.sha256?.trim() ? asset.sha256 : entry.sha256 ?? '';
+  const resolvedSha = asset.sha256?.trim() ? asset.sha256 : (entry.sha256 ?? '');
   const resolvedUrl = asset.url?.trim() ? asset.url : entry.url;
 
   return {

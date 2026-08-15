@@ -146,6 +146,8 @@ vi.mock('@/process/task/agentUtils', () => ({
 // ── Import under test ──────────────────────────────────────────────
 
 import { WCoreManager } from '@/process/task/WCoreManager';
+import { buildSystemInstructionsWithSkillsIndex } from '@/process/task/agentUtils';
+import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -214,6 +216,45 @@ describe('WCoreManager bootstrap failure surfaces error + finish (S2)', () => {
     expect((manager as unknown as { agent: unknown }).agent).not.toBeNull();
   });
 
+  // ── Constitution authority failures must stay routable ────────────
+  //
+  // A Constitution the app cannot unlock throws out of the system-prompt
+  // composition inside `start()` (composePrompt -> readConstitution), which is
+  // exactly where `buildSystemInstructionsWithSkillsIndex` sits. The prose is
+  // for the user; the code is what lets the renderer put the recovery flow in
+  // front of them instead of a dead-end bubble.
+
+  it('carries the Constitution authority code alongside the prose so the turn can be routed to recovery', async () => {
+    vi.mocked(buildSystemInstructionsWithSkillsIndex).mockRejectedValueOnce(
+      new ConstitutionFsTransactionError(
+        'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED',
+        'The Constitution revision authority on this machine could not be unlocked. Open Settings > Constitution to restore from a recovery archive.'
+      )
+    );
+    const manager = createManager('conv-sf-constitution');
+
+    await manager.sendMessage({ content: 'hello', msg_id: 'msg-sf-constitution' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    expect(errors[0].code).toBe('CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED');
+    expect(String(errors[0].data)).toContain('could not be unlocked');
+    // The raw crypto failure must never be what reaches the chat.
+    expect(String(errors[0].data)).not.toContain('safeStorage');
+  });
+
+  it('leaves the code off a bootstrap failure that carries no classification', async () => {
+    agentStart.mockRejectedValue(new Error('wcore binary not found'));
+    const manager = createManager('conv-sf-uncoded');
+
+    await manager.sendMessage({ content: 'hello', msg_id: 'msg-sf-uncoded' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    // An unclassified failure must not masquerade as a routable one.
+    expect(errors[0].code).toBeUndefined();
+  });
+
   // ── #853: real exec-failure reason + discoverable log link ─────────
 
   it('surfaces the real errno launch reason and appends the discoverable logs path', async () => {
@@ -245,5 +286,121 @@ describe('WCoreManager bootstrap failure surfaces error + finish (S2)', () => {
     const data = String(errors[0].data);
     // redactCommandSecrets must have masked the recognized secret shape.
     expect(data).not.toContain(token);
+  });
+
+  // ── K-02: DesktopProfileSpliceError (K-01) already-redacted regression lock ──
+  //
+  // This is a regression LOCK, not a RED case - it is expected to pass
+  // immediately with no production code changes, because the existing
+  // WCoreManager-level redactCommandSecrets already covers this shape
+  // (verified by execution against the REAL smol-toml error-context echo, see
+  // K-02-PLAN.md's "what I verified by execution" section). It pins that
+  // protection so it cannot silently regress later.
+  it('masks a leaked provider key embedded in a DesktopProfileSpliceError-shaped message (K-01 regression lock)', async () => {
+    const spliceMessage =
+      'Cannot safely update the reserved [profiles.__wayland_desktop_session] table in the global Wayland Core ' +
+      'config (Invalid TOML document: invalid literal string.\n' +
+      '3 | api_key = "sk-ant-SUPERSECRETVALUE1234567890"\n' +
+      '4 | broken = [1, 2,\n' +
+      '  |          ^\n' +
+      'expected value). Fix the file by hand before Desktop can launch against it.';
+    agentStart.mockRejectedValue(new Error(spliceMessage));
+    const manager = createManager('conv-sf-k02-splice-redact');
+
+    await manager.sendMessage({ content: 'hello', msg_id: 'msg-sf-k02-splice-redact' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    const data = String(errors[0].data);
+    expect(data).not.toContain('sk-ant-SUPERSECRETVALUE1234567890');
+    expect(data).toContain('Fix the file by hand');
+  });
+
+  // ── W-1b: a failed bootstrap must not be cached forever ──────────
+  //
+  // startError had one writer and no reset, so the FIRST failure was replayed
+  // by every later turn with no fresh spawn. Observed live: identical message,
+  // identical PID, 95 seconds apart, no second "(start) failed" line between
+  // them, and the crash sentinel it named already gone from disk. The only
+  // recovery was restarting the app.
+
+  it('retries the bootstrap on the next turn instead of replaying the cached error', async () => {
+    // Fail once, then succeed - exactly the transient case (stale sentinel,
+    // contended lease, a config the user has since fixed).
+    agentStart.mockRejectedValueOnce(new Error('crash sentinel found at .dirty-death.89279'));
+    agentStart.mockResolvedValue(undefined);
+
+    const manager = createManager('conv-sf-w1b-retry');
+
+    await manager.sendMessage({ content: 'first', msg_id: 'msg-w1b-1' });
+    const firstErrors = findEmissions('error');
+    expect(firstErrors).toHaveLength(1);
+    expect(String(firstErrors[0].data)).toContain('.dirty-death.89279');
+    expect((manager as unknown as { agent: unknown }).agent).toBeNull();
+
+    emitResponseStream.mockClear();
+
+    // The second turn must SPAWN AGAIN rather than replay the stale failure.
+    await manager.sendMessage({ content: 'second', msg_id: 'msg-w1b-2' });
+
+    expect(agentStart).toHaveBeenCalledTimes(2);
+    expect((manager as unknown as { agent: unknown }).agent).not.toBeNull();
+    const replayed = findEmissions('error').filter((e) => String(e.data).includes('.dirty-death.89279'));
+    expect(replayed).toHaveLength(0);
+  });
+
+  it('surfaces the NEW reason when the retry also fails, not the stale one', async () => {
+    agentStart.mockRejectedValueOnce(new Error('crash sentinel found at .dirty-death.111'));
+    agentStart.mockRejectedValueOnce(new Error('auth failed for provider'));
+
+    const manager = createManager('conv-sf-w1b-second-fail');
+
+    await manager.sendMessage({ content: 'first', msg_id: 'msg-w1b-3' });
+    emitResponseStream.mockClear();
+    await manager.sendMessage({ content: 'second', msg_id: 'msg-w1b-4' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    // A permanently-failing engine must keep telling the truth each turn.
+    expect(String(errors[0].data)).toContain('auth failed for provider');
+    expect(String(errors[0].data)).not.toContain('.dirty-death.111');
+    expect(agentStart).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not respawn on a turn whose bootstrap already succeeded', async () => {
+    agentStart.mockResolvedValue(undefined);
+    const manager = createManager('conv-sf-w1b-happy');
+
+    await manager.sendMessage({ content: 'one', msg_id: 'msg-w1b-5' });
+    await manager.sendMessage({ content: 'two', msg_id: 'msg-w1b-6' });
+
+    // Retry is gated on startError; a healthy conversation must spawn once.
+    expect(agentStart).toHaveBeenCalledTimes(1);
+  });
+
+  it('rate-limits retries after the first, so an automatic caller cannot spawn-storm', async () => {
+    // Cron drives sendMessage on every firing, and emitStartFailure returns
+    // normally rather than throwing - so cron records the run as SUCCESSFUL and
+    // never backs off. Without a cooldown, a broken config would turn every
+    // firing into a fresh engine spawn.
+    agentStart.mockRejectedValue(new Error('config is broken'));
+    const manager = createManager('conv-sf-w1b-storm');
+
+    await manager.sendMessage({ content: 'one', msg_id: 'msg-w1b-7' });
+    expect(agentStart).toHaveBeenCalledTimes(1);
+
+    // First retry is immediate: this is the case a human hits.
+    await manager.sendMessage({ content: 'two', msg_id: 'msg-w1b-8' });
+    expect(agentStart).toHaveBeenCalledTimes(2);
+
+    // Everything after that is bounded, however many turns arrive.
+    for (const [i, id] of ['msg-w1b-9', 'msg-w1b-10', 'msg-w1b-11'].entries()) {
+      await manager.sendMessage({ content: `burst-${i}`, msg_id: id });
+    }
+    expect(agentStart).toHaveBeenCalledTimes(2);
+
+    // The user still gets an honest failure on every one of those turns.
+    const errors = findEmissions('error').filter((e) => String(e.data).includes('config is broken'));
+    expect(errors.length).toBeGreaterThanOrEqual(4);
   });
 });

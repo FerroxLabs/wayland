@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 /**
@@ -21,6 +23,8 @@ import {
   CODEBUDDY_ACP_NPX_PACKAGE,
   CODEX_ACP_BRIDGE_VERSION,
   CODEX_ACP_NPX_PACKAGE,
+  isAcpLaunchSpec,
+  type AcpLaunchSpec,
 } from '@/common/types/acpTypes';
 import { resolveBridgePackage } from './bridgeVersionResolver';
 import {
@@ -57,8 +61,15 @@ function normalizeWindowsCommand(command: string): string {
  *
  * No shell is invoked, so embedded metacharacters in the path are inert: they
  * become literal characters in argv rather than being interpreted by cmd.exe.
+ *
+ * This parser cannot represent a QUOTED argument after the executable: the
+ * remainder is whitespace-split with its quotes still attached. An installed
+ * agent must therefore never be described by a command string - it carries an
+ * AcpLaunchSpec, which skips this function entirely.
+ *
+ * Exported for unit testing.
  */
-function parseWindowsCliPath(cliPath: string): { command: string; inlineArgs: string[] } {
+export function parseWindowsCliPath(cliPath: string): { command: string; inlineArgs: string[] } {
   const trimmed = cliPath.trim();
 
   // Leading quoted executable path (may contain spaces); remainder are args.
@@ -226,17 +237,23 @@ export function ensureMinNodeVersion(
  * @param acpArgs - Arguments to enable ACP mode (e.g., ['acp'] for goose, ['--acp'] for auggie, ['exec','--output-format','acp'] for droid)
  * @param customEnv - Custom environment variables
  * @param prebuiltEnv - Pre-built env to use directly (skips internal getEnhancedEnv)
+ * @param launch - Structured launch spec from an installed agent. When present it wins over
+ *   `cliPath` and is consumed verbatim: neither the npx-prefix branch, nor the Windows quote
+ *   parser, nor the POSIX whitespace split runs. This is the only shape that survives an
+ *   install path containing a space (see AcpLaunchSpec). Its optional `env` is merged over
+ *   the child env — that is what keeps a dev-build JS agent running as Node.
  */
 export function createGenericSpawnConfig(
   cliPath: string,
   workingDir: string,
   acpArgs?: string[],
   customEnv?: Record<string, string>,
-  prebuiltEnv?: Record<string, string>
+  prebuiltEnv?: Record<string, string>,
+  launch?: AcpLaunchSpec
 ) {
   const isWindows = process.platform === 'win32';
   // Use prebuilt env if provided (already cleaned by caller), otherwise build from shell env
-  const env = prebuiltEnv ?? getEnhancedEnv(customEnv);
+  let env = prebuiltEnv ?? getEnhancedEnv(customEnv);
 
   // Default to --experimental-acp only if acpArgs is strictly undefined.
   // This allows passing an empty array [] to bypass default flags.
@@ -245,7 +262,30 @@ export function createGenericSpawnConfig(
   let spawnCommand: string;
   let spawnArgs: string[];
 
-  if (cliPath.startsWith('npx ')) {
+  if (isAcpLaunchSpec(launch)) {
+    // Shape-checked, not merely truthy: `launch` originates in untyped persisted
+    // JSON, so a partial descriptor ({ command } with no args, or a string args)
+    // is reachable here and would spawn garbage. A malformed one falls through to
+    // the legacy cliPath parsing below instead.
+    //
+    // An installed agent carries its executable and its arguments already apart,
+    // so there is nothing to parse. Taking this branch FIRST is the whole point:
+    // it bypasses the npx-prefix test, the Windows quote parser, and the POSIX
+    // whitespace split, none of which can round-trip a path with a space in it.
+    // acpArgs are still appended, exactly as every other branch does.
+    spawnCommand = launch.command;
+    spawnArgs = [...launch.args, ...effectiveAcpArgs];
+    // The spec's own env, when it has one. This is what keeps a DEV-build install
+    // of a pure-JS agent (kimi, openclaw) running as Node: unpackaged,
+    // `resolveJsRuntime()` picks the Electron binary and ELECTRON_RUN_AS_NODE=1,
+    // and without the second half the child boots a full Electron WINDOW with no
+    // stdio JSON-RPC. Copied into a NEW object - `prebuiltEnv` belongs to the
+    // caller and is reused across spawns. Applied last so the runtime's own
+    // requirement wins over an inherited value of the same name.
+    if (launch.env && Object.keys(launch.env).length > 0) {
+      env = { ...env, ...launch.env };
+    }
+  } else if (cliPath.startsWith('npx ')) {
     // Route legacy npx package launchers through the bundled bun runtime.
     const parts = cliPath.split(' ').filter(Boolean);
     spawnCommand = resolveNpxPath(env);
@@ -455,7 +495,8 @@ export function spawnNpxBackend(
   // building a `chcp 65001 >nul && ...` cmd.exe string. npxCommand and spawnArgs are
   // passed as the executable + argv array, so no shell metacharacter interpretation
   // can occur. windowsHide keeps the console window from flashing.
-  const child = spawn(normalizeWindowsCommand(npxCommand), spawnArgs, {
+  const command = normalizeWindowsCommand(npxCommand);
+  const child = spawn(command, spawnArgs, {
     cwd: workingDir,
     stdio: ['pipe', 'pipe', 'pipe'],
     env: cleanEnv,
@@ -467,7 +508,15 @@ export function spawnNpxBackend(
   if (detached) {
     child.unref();
   }
-  console.log(`[ACP-PERF] ${backend}: process spawned ${Date.now() - spawnStart}ms (bundled bun)`);
+  // This label used to read "(bundled bun)" unconditionally. resolveNpxPath
+  // falls back to a bare `bun` resolved off PATH whenever no bundled runtime is
+  // present, which is every dev build - resources/bundled-bun is produced by
+  // scripts/build-with-builder.js, not by the electron-vite build that
+  // `bun run package` runs. So the line asserted the opposite of what ran, and
+  // this project has already been burned by a backend failing specifically
+  // under bundled bun. Name the binary that was actually spawned.
+  const runtime = path.isAbsolute(command) ? 'bundled bun' : 'system bun';
+  console.log(`[ACP-PERF] ${backend}: process spawned ${Date.now() - spawnStart}ms (${runtime}: ${command})`);
 
   return { child, isDetached: detached };
 }
@@ -596,7 +645,8 @@ export async function spawnGenericBackend(
   cliPath: string,
   workingDir: string,
   acpArgs?: string[],
-  customEnv?: Record<string, string>
+  customEnv?: Record<string, string>,
+  launch?: AcpLaunchSpec
 ): Promise<SpawnResult> {
   try {
     await fs.mkdir(workingDir, { recursive: true });
@@ -614,7 +664,14 @@ export async function spawnGenericBackend(
 
   const spawnStart = Date.now();
   const detached = process.platform !== 'win32';
-  const config = createGenericSpawnConfig(cliPath, workingDir, acpArgs, undefined, cleanEnv as Record<string, string>);
+  const config = createGenericSpawnConfig(
+    cliPath,
+    workingDir,
+    acpArgs,
+    undefined,
+    cleanEnv as Record<string, string>,
+    launch
+  );
   const child = spawn(config.command, config.args, {
     ...config.options,
     detached,

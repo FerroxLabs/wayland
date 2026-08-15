@@ -1,8 +1,8 @@
 {
   "contract": "wayland-whatsapp-bridge-source/1.0",
   "files": {
-    "README.md": { "size": 4539, "sha256": "90be6d3e40e64068ce4ebd5e42c6284b8ed7b0d5d555bd0f5a1b202010482aa3" },
-    "allowlist.js": { "size": 3463, "sha256": "5826dedb90dbf034e073626817f0dd35700394db790223e726431da73448f450" },
+    "README.md": { "size": 4944, "sha256": "f3243244be455606f0b5ee327f41ca7fccbe4106fc9457c1043207869dcaa554" },
+    "allowlist.js": { "size": 3525, "sha256": "c0d8a900fbb1409cfa3e333f62d66e657fddf14e323a88a5c37b8a1b4967c870" },
     "backends/baileys.js": {
       "size": 15582,
       "sha256": "d174babb3e4ce812b72460984349c1a3ab5841ecd77a509d0981fed1ba18870d"
@@ -19,7 +19,7 @@
       "size": 7425,
       "sha256": "58faa9fd2a7c577ebfd05687a325a7f0fec3a07f810eb23b2edf05eb84545f3d"
     },
-    "bridge.js": { "size": 5931, "sha256": "0e9c4d0b28674410f6e52386fb34839004cb0cfb7789b894f34ccda2bb0c7239" },
+    "bridge.js": { "size": 5994, "sha256": "86b4b01e83a5df65668ebd2c0403b514656b2a07346247b95368aff7ca6049e8" },
     "bun.lock": { "size": 62753, "sha256": "771b5b5751ef6ab116f01ddb8a6d616e521d6f53ebe780e54024ef59b3da44b4" },
     "package.json": { "size": 554, "sha256": "7a7de7bcad8333fd9a44bfd6fb83e63686992bac6616f5dd108fc2667a4dc56d" }
   }

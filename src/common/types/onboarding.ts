@@ -34,6 +34,19 @@ export type DetectionResult = {
   ollama: {
     running: boolean;
     models: string[];
+    /**
+     * Per-model capability list straight off `/api/tags`, keyed by model name -
+     * e.g. `{ 'qwen2.5:7b': ['completion', 'tools'] }`.
+     *
+     * A model whose list omits `tools` 400s on the first turn, because the
+     * engine always advertises tools. Carried ALONGSIDE `models` rather than
+     * widening it to objects: that array crosses IPC and is consumed in four
+     * places, and none of them want the extra shape.
+     *
+     * Absent when the daemon is too old to report it. That is meaningful and
+     * must stay distinguishable from "reported, and tools was missing".
+     */
+    modelCapabilities?: Record<string, string[]>;
   };
   /** Flux Desktop daemon state. */
   fluxDesktop: {

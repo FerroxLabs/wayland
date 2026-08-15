@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 /**
@@ -89,7 +91,11 @@ export async function generateWithFal(prompt: string, opts: FalOpts = {}): Promi
 
   const genJson = (await genResponse.json()) as { images?: Array<{ url: string }>; image?: { url: string } };
   const imageUrl =
-    genJson.images?.[0]?.url ?? genJson.image?.url ?? (() => { throw new Error('[FAL] No image URL in FLUX response'); })();
+    genJson.images?.[0]?.url ??
+    genJson.image?.url ??
+    (() => {
+      throw new Error('[FAL] No image URL in FLUX response');
+    })();
 
   if (!upscale) {
     return { imageUrl };
@@ -110,7 +116,9 @@ export async function generateWithFal(prompt: string, opts: FalOpts = {}): Promi
   const upscaledUrl =
     upscaleJson.image?.url ??
     upscaleJson.output?.image_url ??
-    (() => { throw new Error('[FAL] No image URL in upscaler response'); })();
+    (() => {
+      throw new Error('[FAL] No image URL in upscaler response');
+    })();
 
   return { imageUrl, upscaledUrl };
 }
@@ -457,7 +465,10 @@ function mapFluxImageError(status: number, body: FluxImageErrorBody | undefined)
     );
   }
   if (status === 502 || status === 503) {
-    return fluxImageError('The Flux image provider failed. No charge was made. Try again.', 'flux-image-provider-error');
+    return fluxImageError(
+      'The Flux image provider failed. No charge was made. Try again.',
+      'flux-image-provider-error'
+    );
   }
   return fluxImageError(
     `Flux image generation failed (${status})${apiMsg ? `: ${apiMsg}` : ''}.`,

@@ -1,0 +1,1 @@
+{"cursor":{"journal_digest":"sha256:goalcursor","journal_sequence":22},"goal_id":"goal-001","goal_version":1,"lifecycle":{"state":"running"},"session_id":"session-desktop-001","transition":"loop_owner_claimed","type":"goal_transition"}

@@ -204,6 +204,17 @@ describe('PromptExecutor - transient turn errors are retried (#774)', () => {
     'invalid_request_error',
     'content_policy_violation',
     'Error: Too Many Requests',
+    // Wayland Nano marks `model_auth` retryable:false in its own error table,
+    // but the frame reaches us as a bare -32603, which ACP_CODE_MAP calls
+    // retryable:true. That mismatch was reported as "hard auth failures get
+    // auto-retried". They do not - canRetryPrompt deliberately ignores
+    // `acpErr.retryable` and requires a TRANSIENT_DETAIL match, which none of
+    // these produce. Pinned here because the claim was plausible enough to
+    // investigate twice, and replaying a rejected credential costs real calls.
+    '{"kind":"model_auth"}',
+    'Authentication failed',
+    '401 Unauthorized',
+    'invalid api key',
     'something nobody has ever seen before', // unknown ⇒ fail closed
   ];
   for (const msg of FINAL) {

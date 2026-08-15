@@ -3,8 +3,13 @@ import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { IMessageAcpToolCall, TMessage } from '@/common/chat/chatLib';
 import { NavigationInterceptor } from '@/common/chat/navigation';
 import { isFluxModelId } from '@/common/config/flux';
-import type { AcpModelInfo, AcpResult, AcpSessionConfigOption } from '@/common/types/acpTypes';
-import { AcpErrorType, getCurrentWrapperVersion, parseInitializeResult } from '@/common/types/acpTypes';
+import type { AcpLaunchSpec, AcpModelInfo, AcpResult, AcpSessionConfigOption } from '@/common/types/acpTypes';
+import {
+  AcpErrorType,
+  getCurrentWrapperVersion,
+  isAcpLaunchSpec,
+  parseInitializeResult,
+} from '@/common/types/acpTypes';
 import { buildHistoryReplayContext } from '@process/acp/historyReplay';
 import { getFullAutoMode } from '@/common/types/agentModes';
 import { LegacyConnectorFactory } from '@process/acp/compat/LegacyConnectorFactory';
@@ -69,14 +74,25 @@ export const SESSION_START_TIMEOUT_MS = 180_000;
  * Refresh backend credentials by running the backend CLI login command.
  * Will be replaced by `authCommand + args` config when Agent Hub lands (PR #2349).
  */
-async function runBackendLogin(backend: string, cliCommand?: string): Promise<void> {
+async function runBackendLogin(backend: string, cliCommand?: string, launch?: AcpLaunchSpec): Promise<void> {
   const env = getEnhancedEnv();
   const loginArgs = BACKEND_LOGIN_ARGS[backend];
   if (!loginArgs) return;
 
-  const command = cliCommand ?? backend;
-  console.log(`[AcpAgentV2] Running ${command} ${loginArgs.join(' ')}`);
-  const child = spawn(command, loginArgs, {
+  // An installed agent supplies { command, args }. Use it verbatim and APPEND the
+  // login arg - substituting it would run the bare runtime (e.g. bun.exe /login)
+  // instead of the agent. Falling back to the string form here would hand the whole
+  // composite `"<bun>" "<entry>"` to CreateProcess as the executable name (spawn
+  // uses shell:false), which fails with ENOENT and is then only console.warn'd.
+  //
+  // Shape-checked, not merely truthy: `launch` originates in untyped persisted
+  // JSON, so a partial descriptor is reachable and would spawn `undefined` as the
+  // executable. A malformed one is treated as absent so the cliCommand still applies.
+  const spec = isAcpLaunchSpec(launch) ? launch : undefined;
+  const command = spec ? spec.command : (cliCommand ?? backend);
+  const args = spec ? [...spec.args, ...loginArgs] : loginArgs;
+  console.log(`[AcpAgentV2] Running ${command} ${args.join(' ')}`);
+  const child = spawn(command, args, {
     stdio: 'pipe',
     timeout: LOGIN_TIMEOUT_MS,
     env,
@@ -1082,7 +1098,7 @@ export class AcpAgentV2 {
 
     const backend = this.agentConfig.agentBackend;
     try {
-      await runBackendLogin(backend, this.agentConfig.command);
+      await runBackendLogin(backend, this.agentConfig.command, this.agentConfig.launch);
       // Reload credentials from env after login refreshes tokens
       const creds = await loadAuthCredentials(backend, this.agentConfig.env);
       this.session?.retryAuth(creds ?? undefined);

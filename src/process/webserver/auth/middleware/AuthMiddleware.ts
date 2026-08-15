@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { Request, Response, NextFunction } from 'express';
@@ -119,7 +121,14 @@ export class AuthMiddleware {
 
     // Preserve original error response shape and message ordering:
     // missing fields → "required", wrong type → "must be strings", too long → "Invalid input length".
-    if (body.username === undefined || body.username === null || body.username === '' || body.password === undefined || body.password === null || body.password === '') {
+    if (
+      body.username === undefined ||
+      body.username === null ||
+      body.username === '' ||
+      body.password === undefined ||
+      body.password === null ||
+      body.password === ''
+    ) {
       res.status(400).json({
         success: false,
         error: 'Username and password are required.',

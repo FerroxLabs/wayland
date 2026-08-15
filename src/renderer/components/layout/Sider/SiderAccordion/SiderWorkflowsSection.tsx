@@ -157,7 +157,7 @@ export const SiderWorkflowsSection: React.FC<SiderWorkflowsSectionProps> = ({ co
     return (
       <button
         type='button'
-        className='w-full h-26px flex items-center justify-center rd-7px bg-transparent border-none cursor-pointer hover:bg-fill-2 text-text-2 hover:text-text-1 relative'
+        className='w-full h-26px flex items-center justify-center rd-7px bg-transparent border-none cursor-pointer hover:bg-fill-2 text-2 hover:text-1 relative'
         onClick={() => navigate('/workflows')}
         aria-label={`Workflows (${count} in-flight)`}
         title={`Workflows · ${count} in-flight`}
@@ -186,14 +186,14 @@ export const SiderWorkflowsSection: React.FC<SiderWorkflowsSectionProps> = ({ co
     >
       {visibleInFlight.length > 0 && (
         <>
-          <div className='px-8px py-4px text-9px tracking-wide text-text-4 uppercase font-bold'>
+          <div className='px-8px py-4px text-9px tracking-wide text-4 uppercase font-bold'>
             {t('sider.accordion.inFlight')}
           </div>
           {visibleInFlight.map((row) => (
             <div
               key={row.sessionId}
               data-testid={`workflow-row-${row.sessionId}`}
-              className='group flex items-center gap-8px px-10px py-6px pl-28px cursor-pointer hover:bg-fill-2 text-text-2'
+              className='group flex items-center gap-8px px-10px py-6px pl-28px cursor-pointer hover:bg-fill-2 text-2'
               onClick={() => handleRowClick(row)}
               onContextMenu={(e) => {
                 e.preventDefault();
@@ -204,7 +204,7 @@ export const SiderWorkflowsSection: React.FC<SiderWorkflowsSectionProps> = ({ co
               <span className='w-6px h-6px rounded-full bg-success' />
               <span className='truncate flex-1'>{row.workflowName}</span>
               <span
-                className={`text-text-3 tabular-nums text-10px ${menuVisibleId === row.sessionId ? 'hidden' : 'group-hover:hidden'}`}
+                className={`text-3 tabular-nums text-10px ${menuVisibleId === row.sessionId ? 'hidden' : 'group-hover:hidden'}`}
               >
                 {row.currentStep} / {row.totalSteps}
               </span>
@@ -254,7 +254,7 @@ export const SiderWorkflowsSection: React.FC<SiderWorkflowsSectionProps> = ({ co
 
       <div
         data-testid='sider-workflows-see-all'
-        className='px-10px py-6px pl-28px text-10px text-text-3 italic cursor-pointer hover:text-orange'
+        className='px-10px py-6px pl-28px text-10px text-3 italic cursor-pointer hover:text-orange'
         onClick={() => navigate('/workflows')}
       >
         {overflow > 0 ? t('sider.accordion.showMore', { count: overflow }) : t('sider.accordion.seeAllWorkflows')}

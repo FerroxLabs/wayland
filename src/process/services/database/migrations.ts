@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { ISqliteDriver } from './drivers/ISqliteDriver';
@@ -1886,7 +1888,7 @@ const migration_v42: IMigration = {
  * `.wayland/` knowledge + a name. Conversations are linked via `extra.projectId`
  * (json_extract), NOT a dedicated column - mirroring the proven cronJobId /
  * presetAssistantId pattern - so this migration only needs to create the
- * project entity table. Deliberately omits Foundry's per-project execution
+ * project entity table. Deliberately omits the earlier per-project execution
  * lock (`active_conversation_id`) so multiple chats run concurrently.
  */
 const migration_v43: IMigration = {

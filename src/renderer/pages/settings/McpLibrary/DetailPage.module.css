@@ -215,7 +215,10 @@
 
 .btnWarn {
   background: var(--warning);
-  color: #1a1206;
+  /* --warning is a bright amber on dark and a burnt orange on light, so the ink
+     that sits on it has to flip with the mode. A fixed #1a1206 is 3.37:1 on the
+     light fill. */
+  color: var(--warning-on);
 }
 
 /* secondary lifecycle buttons (Reconnect / Remove) */

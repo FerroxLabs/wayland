@@ -1,0 +1,1 @@
+{"depends_on":["build"],"goal_id":"goal-001","goal_version":1,"idempotency_key":"idem-publish","request_id":"goal-task-001","session_id":"session-desktop-001","task_id":"publish","type":"goal_declare_task"}

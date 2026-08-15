@@ -1,22 +1,30 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // --- Mocks (vi.hoisted so factories can reference them) ---
 
-const { openFileProvider, showItemInFolderProvider, openExternalProvider, execFileMock, existsSyncMock } = vi.hoisted(
-  () => ({
-    openFileProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
-    showItemInFolderProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
-    openExternalProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
-    execFileMock: vi.fn(),
-    existsSyncMock: vi.fn(() => true),
-  })
-);
+const {
+  openFileProvider,
+  showItemInFolderProvider,
+  openExternalProvider,
+  execFileMock,
+  existsSyncMock,
+  confinePathMock,
+} = vi.hoisted(() => ({
+  openFileProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
+  showItemInFolderProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
+  openExternalProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
+  execFileMock: vi.fn(),
+  existsSyncMock: vi.fn(() => true),
+  confinePathMock: vi.fn(async (p: string) => p),
+}));
 
 vi.mock('@/common', () => ({
   ipcBridge: {
@@ -48,6 +56,13 @@ vi.mock('node:fs', () => ({
   existsSync: (...args: any[]) => existsSyncMock(...args),
 }));
 
+// openFile/showItemInFolder now route the path through confinePath (RT-R4-02).
+// Default to identity so the pre-existing opener assertions below still exercise
+// the opener; the confinement suite at the bottom drives the mock directly.
+vi.mock('../../src/process/bridge/pathConfinement', () => ({
+  confinePath: (...args: any[]) => confinePathMock(...args),
+}));
+
 // --- Tests ---
 
 let initShellBridgeStandalone: typeof import('../../src/process/bridge/shellBridgeStandalone').initShellBridgeStandalone;
@@ -62,6 +77,8 @@ async function loadStandaloneForPlatform(platform: NodeJS.Platform): Promise<voi
   openFileProvider.fn = undefined;
   showItemInFolderProvider.fn = undefined;
   openExternalProvider.fn = undefined;
+
+  confinePathMock.mockImplementation(async (p: string) => p);
 
   Object.defineProperty(process, 'platform', { value: platform, configurable: true });
 
@@ -182,6 +199,68 @@ describe('shellBridgeStandalone', () => {
         ok: false,
         error: 'open failed',
       });
+    });
+  });
+
+  describe('path confinement (RT-R4-02)', () => {
+    beforeEach(async () => {
+      await loadStandaloneForPlatform('darwin');
+      execFileMock.mockImplementation((_cmd: string, _args: string[], cb: (err: null) => void) => cb(null));
+      initShellBridgeStandalone();
+    });
+
+    it('openFile opens the confined path, not the raw input', async () => {
+      confinePathMock.mockResolvedValue('/Users/me/Documents/report.pdf');
+
+      const result = await openFileProvider.fn!('/Users/me/Documents/./report.pdf');
+
+      expect(result).toEqual({ ok: true });
+      expect(confinePathMock).toHaveBeenCalledWith('/Users/me/Documents/./report.pdf');
+      expect(execFileMock).toHaveBeenCalledWith('open', ['/Users/me/Documents/report.pdf'], expect.any(Function));
+    });
+
+    it('openFile fails closed when confinePath rejects', async () => {
+      confinePathMock.mockResolvedValue(null);
+
+      const result = await openFileProvider.fn!('/etc/passwd');
+
+      expect(result).toEqual({ ok: false, error: 'path not allowed' });
+      expect(execFileMock).not.toHaveBeenCalled();
+    });
+
+    it('openFile expands a leading ~ before confinement', async () => {
+      confinePathMock.mockResolvedValue(null);
+
+      await openFileProvider.fn!('~/Downloads/Wayland.dmg');
+
+      const arg = confinePathMock.mock.calls[0]?.[0] as string;
+      expect(arg.startsWith('~')).toBe(false);
+      expect(arg.endsWith('/Downloads/Wayland.dmg')).toBe(true);
+    });
+
+    it('rejects an empty path and a non-string before reaching confinePath', async () => {
+      expect(await openFileProvider.fn!('')).toEqual({ ok: false, error: 'empty path' });
+      expect(await showItemInFolderProvider.fn!(undefined)).toEqual({ ok: false, error: 'empty path' });
+      expect(confinePathMock).not.toHaveBeenCalled();
+      expect(execFileMock).not.toHaveBeenCalled();
+    });
+
+    it('showItemInFolder opens the parent of the CONFINED path', async () => {
+      confinePathMock.mockResolvedValue('/Users/me/Documents/report.pdf');
+
+      const result = await showItemInFolderProvider.fn!('/Users/me/Documents/./report.pdf');
+
+      expect(result).toEqual({ ok: true });
+      expect(execFileMock).toHaveBeenCalledWith('open', ['/Users/me/Documents'], expect.any(Function));
+    });
+
+    it('showItemInFolder fails closed when confinePath rejects', async () => {
+      confinePathMock.mockResolvedValue(null);
+
+      const result = await showItemInFolderProvider.fn!('/etc/passwd');
+
+      expect(result).toEqual({ ok: false, error: 'path not allowed' });
+      expect(execFileMock).not.toHaveBeenCalled();
     });
   });
 });

@@ -21,6 +21,11 @@ test.afterAll(async ({ page }) => {
 });
 
 test.describe('F-SESSION-03 Stop the current AI reply', () => {
+  // These cases wait on a real AI round trip, which the 60s global cap in
+  // playwright.config.ts cannot cover. test.setTimeout() inside beforeAll only
+  // raises the HOOK's budget, so it has to be configured at describe scope.
+  test.describe.configure({ timeout: 180_000 });
+
   let conversationId: string;
 
   test.beforeAll(async ({ page }) => {
@@ -34,7 +39,12 @@ test.describe('F-SESSION-03 Stop the current AI reply', () => {
   });
 
   test('Stop button is visible and clickable while AI is replying', async ({ page }) => {
-    const stopButton = page.locator('button[class*="stop"], [data-testid="stop-button"], [aria-label*="stop" i]');
+    // Must be the composer's own Stop control (sendbox.tsx:1353). The previous
+    // locator included `[aria-label*="stop" i]`, which matched the sider footer
+    // button labelled "Remote (stopped)" - clicking it navigated to
+    // #/settings/webui, where the only textarea is Arco's hidden autosize
+    // measurement node, so the follow-up assertion reported it as hidden [V].
+    const stopButton = page.locator('.sendbox-stop-button');
     await expect(stopButton.first()).toBeVisible({ timeout: 30_000 });
     await stopButton.first().click();
 

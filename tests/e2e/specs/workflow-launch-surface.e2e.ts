@@ -103,7 +103,13 @@ async function openWorkflowDetail(page: Page, slug: string): Promise<void> {
   await card.waitFor({ state: 'visible', timeout: 10_000 });
   await card.click();
   await page.locator(DETAIL_MODAL).first().waitFor({ state: 'visible', timeout: 5_000 });
-  await expect(page.locator(DETAIL_MODAL)).toContainText(LAUNCH_BUTTON_TEXT, { timeout: 5_000 });
+  // The footer is EITHER "Launch now" OR the resume prompt, never both
+  // (WorkflowDetailModal.tsx:613). When a resume candidate exists the prompt
+  // replaces the button on open, with no click involved - so demanding the
+  // button here fails on a modal that is behaving correctly.
+  await expect(
+    page.getByRole('button', { name: LAUNCH_BUTTON_TEXT }).or(page.locator(RESUME_PROMPT)).first()
+  ).toBeVisible({ timeout: 5_000 });
 }
 
 /**
@@ -116,7 +122,7 @@ async function openWorkflowDetail(page: Page, slug: string): Promise<void> {
  * Caller decides what to do with 'unavailable' / 'unknown'; the helper
  * keeps the network of locator races out of the test bodies.
  */
-async function attemptLaunch(page: Page): Promise<'mounted' | 'unavailable' | 'unknown'> {
+async function attemptLaunch(page: Page): Promise<'mounted' | 'unavailable' | 'unknown' | 'resume'> {
   const launchButton = page.getByRole('button', { name: LAUNCH_BUTTON_TEXT });
 
   // "Launch now" is gated on a configured model provider. In an env without
@@ -124,6 +130,14 @@ async function attemptLaunch(page: Page): Promise<'mounted' | 'unavailable' | 'u
   // Playwright's actionability wait (the button never becomes enabled), so the
   // old soft-skip guard never fired. Detect the disabled/no-model state up
   // front and report it as unavailable so the caller can soft-skip cleanly.
+  // The footer is EITHER "Launch now" OR the resume prompt, never both
+  // (WorkflowDetailModal.tsx:613). Once a session exists there is no launch
+  // button at all - clicking it would hang on Playwright's actionability wait
+  // until the test times out.
+  if ((await launchButton.count()) === 0) {
+    return (await page.locator(RESUME_PROMPT).count()) > 0 ? 'resume' : 'unavailable';
+  }
+
   const isDisabled = await launchButton.isDisabled().catch(() => false);
   const cls = (await launchButton.getAttribute('class').catch(() => '')) || '';
   if (isDisabled || cls.includes('arco-btn-disabled')) return 'unavailable';
@@ -147,8 +161,10 @@ async function attemptLaunch(page: Page): Promise<'mounted' | 'unavailable' | 'u
  * provider in the local env. CI sets up keys so the happy path will run
  * fully; locally we keep the spec compiled + ready without failing.
  */
-function skipIfUnmounted(testInfo: TestInfo, outcome: 'mounted' | 'unavailable' | 'unknown'): void {
-  if (outcome === 'mounted') return;
+function skipIfUnmounted(testInfo: TestInfo, outcome: 'mounted' | 'unavailable' | 'unknown' | 'resume'): void {
+  // 'resume' means a session already exists and the modal opened straight to
+  // the resume prompt - which is exactly the state the resume test wants.
+  if (outcome === 'mounted' || outcome === 'resume') return;
   testInfo.skip(
     true,
     `Workflow launch did not mount the surface (outcome=${outcome}). ` +
@@ -242,6 +258,10 @@ test.describe('Workflow Launch Surface - happy path (SPEC §15.3)', () => {
 });
 
 test.describe('Workflow Launch Surface - resume smoke (SPEC §5.7 / §10.2)', () => {
+  // Drives a real workflow launch and then re-opens it, which does not fit the
+  // 60s global cap in playwright.config.ts.
+  test.describe.configure({ timeout: 180_000 });
+
   test('re-launching the same workflow surfaces the resume prompt', async ({ page }, testInfo) => {
     // Phase 1: launch a workflow so the repository has an active session
     // for it. We deliberately do NOT end it - the resume prompt fires
@@ -260,7 +280,15 @@ test.describe('Workflow Launch Surface - resume smoke (SPEC §5.7 / §10.2)', ()
     // navigating away - otherwise the session row may not have committed
     // its `current_step` update and the resume prompt would render
     // without a meaningful step number.
-    await expect(page.locator(WORKFLOW_HEADER)).toBeVisible({ timeout: 10_000 });
+    //
+    // On the 'resume' outcome an earlier test already created the session and
+    // the modal opened straight to the prompt, so nothing was launched here and
+    // no surface mounts - Phase 1's precondition is already satisfied.
+    if (outcome === 'mounted') {
+      await expect(page.locator(WORKFLOW_HEADER)).toBeVisible({ timeout: 10_000 });
+    } else {
+      await page.keyboard.press('Escape'); // close the detail modal
+    }
 
     // Phase 2: navigate back to /workflows without ending the session.
     await navigateTo(page, WORKFLOWS_HASH);
@@ -270,7 +298,10 @@ test.describe('Workflow Launch Surface - resume smoke (SPEC §5.7 / §10.2)', ()
     // findActive should now return the session created in Phase 1, and
     // the modal should swap its footer for a WorkflowResumePrompt.
     await openWorkflowDetail(page, FEATURED_WORKFLOW_SLUG);
-    await page.getByRole('button', { name: LAUNCH_BUTTON_TEXT }).click();
+    // The prompt replaces the footer on open when a resume candidate exists, so
+    // there may be no button to click at all. Click it only if it is there.
+    const launchBtn = page.getByRole('button', { name: LAUNCH_BUTTON_TEXT });
+    if (await launchBtn.count()) await launchBtn.first().click();
 
     // Resume prompt appears inside the open modal. Its testid is on the
     // card root; the body includes a "Resume" CTA and a "Start fresh"

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '@/common/types/preview';
@@ -89,7 +91,7 @@ const PreviewHistoryDropdown: React.FC<PreviewHistoryDropdownProps> = ({
           historyVersions.map((snapshot) => (
             <div
               key={snapshot.id}
-              className='px-12px py-8px cursor-pointer hover:bg-bg-2 transition-colors'
+              className='px-12px py-8px cursor-pointer hover:bg-2 transition-colors'
               onClick={() => onSnapshotSelect(snapshot)}
             >
               <div className='text-12px text-t-primary'>{new Date(snapshot.createdAt).toLocaleString()}</div>

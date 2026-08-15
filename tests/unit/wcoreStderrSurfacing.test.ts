@@ -22,6 +22,16 @@ vi.mock('@process/agent/wcore/envBuilder', () => ({
   buildEngineSpawnEnv: () => ({}),
   buildSpawnConfig: () => ({ args: [], env: {}, projectConfig: undefined, resolvedMaxTokens: undefined }),
   planVaultPassphraseDelivery: () => ({ mode: 'env', env: {}, stdio: ['pipe', 'pipe', 'pipe'] }),
+  // K-02: startFailureReason.ts imports this from the same (mocked) module
+  // specifier, so it must be stubbed here too - otherwise the stripped-config
+  // classification silently never matches and the DIA-02 hedge cases below
+  // pass for the wrong reason (proven RED live before this line was added -
+  // both cases threw "No WCORE_DESKTOP_MCP_PROFILE export is defined").
+  WCORE_DESKTOP_MCP_PROFILE: '__wayland_desktop_session',
+  // Same trap: the spawn pushes `--assistant <this>`, so an unstubbed export
+  // puts `undefined` in argv and spawn throws before a single production
+  // listener is attached - which surfaces as 33 unrelated-looking failures.
+  WCORE_DESKTOP_HOST_ASSISTANT: 'wayland-desktop',
 }));
 // #710: vault provisioning is out of scope here - resolve "no unlock material"
 // so the spawn takes the legacy three-slot stdio path (and never touches the
@@ -55,6 +65,9 @@ vi.mock('@process/onboarding/codexAuthFile', () => ({ readCodexAuthFile: vi.fn()
 
 import { WCoreAgent } from '@process/agent/wcore';
 import type { WCoreAgentOptions } from '@process/agent/wcore';
+// K-02: imported from the (mocked) real module specifier so this can never
+// silently drift from the real reserved-profile constant.
+import { WCORE_DESKTOP_MCP_PROFILE } from '@process/agent/wcore/envBuilder';
 
 type FakeChild = EventEmitter & {
   stdout: PassThrough;
@@ -128,6 +141,45 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     vi.useRealTimers();
     vi.clearAllMocks();
     rmSync(testWorkspace, { recursive: true, force: true });
+  });
+
+  it('declares an assistant identity so Core 0.12.26 accepts runtime MCP declarations', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+    await flushUntilSpawned(child);
+    child.emit('exit', 0);
+    await result;
+
+    // Core 0.12.26 `scope_host_runtime_mcp` rejects every wire-added MCP server
+    // with "active assistant identity is required for a runtime MCP
+    // declaration" when this is absent. Live-verified: without it the session's
+    // tool pool is empty and no MCP tool can ever run.
+    const args = spawnMock.mock.calls[0][1] as string[];
+    const index = args.indexOf('--assistant');
+    expect(index).toBeGreaterThanOrEqual(0);
+    expect(args[index + 1]).toBe('wayland-desktop');
+  });
+
+  it('declares the assistant identity in raw engine mode too', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent({ ...baseOptions(), rawEngineMode: true });
+    const result = agent.start().catch((e: unknown) => e);
+    await flushUntilSpawned(child);
+    child.emit('exit', 0);
+    await result;
+
+    // Raw mode skips the MCP-narrowing profile but still emits runtime
+    // add_mcp_server after ready (team bridges, host connectors). Core 0.12.26
+    // refuses every one of those without an identity, so exempting raw mode
+    // broke exactly those declarations (cross-audit, Codex 5.6 Sol).
+    const args = spawnMock.mock.calls[0][1] as string[];
+    expect(args[args.indexOf('--assistant') + 1]).toBe('wayland-desktop');
+    expect(args).not.toContain('--profile');
   });
 
   it('includes the engine stderr tail in the exit rejection', async () => {
@@ -383,6 +435,52 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(killChildMock).toHaveBeenNthCalledWith(2, first, false);
     expect(restore).toHaveBeenCalledOnce();
     expect(spawnMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('redacts JWTs, labelled assignments and raw Authorization tokens (K-02/K-03 cross-audit)', async () => {
+    // Codex 5.6 Sol found the redactor missed these shapes entirely, so an
+    // engine echoing any of them before failing put a live credential into the
+    // conversation error bubble and the event buses.
+    const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dBjftJeZ4CVPmB92K27uhbUJU1p1r';
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write(`token ${jwt} rejected\n`);
+    child.stderr.write('config line: api_key = "TOTALLY-OPAQUE-VALUE-1234"\n');
+    child.stderr.write('Authorization: aGVsbG93b3JsZHRoaXNpc2Fsb25ndG9rZW4=\n');
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    expect(err.message).not.toContain(jwt);
+    expect(err.message).not.toContain('TOTALLY-OPAQUE-VALUE-1234');
+    expect(err.message).not.toContain('aGVsbG93b3JsZHRoaXNpc2Fsb25ndG9rZW4');
+    // The label stays so the diagnostic still reads sensibly.
+    expect(err.message).toContain('api_key');
+    expect(err.message).toContain('[redacted]');
+  });
+
+  it('does not redact ordinary diagnostic text that merely looks tokenish', async () => {
+    // The redactor must stay conservative: over-redaction destroys the very
+    // diagnostics K-02 exists to surface.
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write('failed loading /Users/someone/Library/Application Support/wayland-core/config.toml\n');
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('config.toml');
+    expect(err.message).not.toContain('[redacted]');
   });
 
   it('redacts high-confidence secret tokens from the surfaced stderr (#484 audit)', async () => {
@@ -855,5 +953,96 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(killChildMock).toHaveBeenNthCalledWith(1, child, false);
     expect(killChildMock).toHaveBeenNthCalledWith(2, child, false);
     expect(agent.isAlive).toBe(false);
+  });
+
+  // ── K-02: DIA-01/DIA-02 honest start-failure surfacing ─────────────
+
+  it('DIA-01: a contract-rejection with engine stderr present surfaces the engine reason, not the abstraction', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write('Error: something the engine explained\n');
+    await Promise.resolve();
+    // Not JSON-parseable -> triggers failDesktopContract via the Desktop v1
+    // consumer's malformed-JSON bail (desktopContractV1.ts fail('malformed_json', ...)).
+    child.stdout.write('not json at all\n');
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('something the engine explained');
+    expect(err.message).not.toContain('Desktop contract rejected ready');
+  });
+
+  it('DIA-01: a contract-rejection with no engine stderr keeps the original fallback wording (no regression)', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    // Nothing written to stderr this time.
+    child.stdout.write('not json at all\n');
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('wcore Desktop contract rejected ready');
+    expect(err.message).toContain('Core emitted malformed JSON');
+  });
+
+  it("DIA-02: an exit-path bail naming Desktop's own reserved profile is hedged as a stripped-config inference", async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write(`Error: Profile '${WCORE_DESKTOP_MCP_PROFILE}' not found in config\n`);
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('not found in config');
+    expect(err.message).toMatch(/likely|inferred|not confirmed/i);
+  });
+
+  it('DIA-02: an exit-path bail naming an ordinary profile stays unhedged', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write("Error: Profile 'some-other-profile' not found in config\n");
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('not found in config');
+    expect(err.message).not.toMatch(/likely|inferred|not confirmed/i);
+  });
+
+  it('DIA-01: secret redaction still holds through the new contract-rejection path', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write('auth failed with key sk-abcdef0123456789ABCDEF for provider openai\n');
+    await Promise.resolve();
+    child.stdout.write('not json at all\n');
+
+    const err = (await result) as Error;
+    // The human-readable reason survives; the token does not (describeContractRejection
+    // receives an already-redacted stderrDetail - this is not a second redaction site).
+    expect(err.message).toContain('auth failed');
+    expect(err.message).toContain('[redacted]');
+    expect(err.message).not.toContain('sk-abcdef0123456789ABCDEF');
   });
 });

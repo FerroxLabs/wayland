@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -69,13 +71,32 @@ type UsageModel = { modelId: string; useCount: number; lastUsedMs: number };
 type ModelChoice = { provider: IProvider; useModel: string; accountId?: string };
 
 /**
- * Registry-bridge tag stamped on the ChatGPT-subscription provider row
- * (`v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}`). Hardcoded rather than imported
- * because this renderer hook must not reach into @process.
+ * Registry-bridge tag prefix stamped on every mirrored `model.config` row
+ * (`v2:${registryProviderId}`). Hardcoded rather than imported because this
+ * renderer hook must not reach into @process.
  */
-const CHATGPT_SUBSCRIPTION_BRIDGE_TAG = 'v2:chatgpt-subscription';
+const V2_BRIDGE_PREFIX = 'v2:';
+const bridgeTagOf = (provider: IProvider): string | undefined => {
+  const tag = (provider as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
+  return typeof tag === 'string' ? tag : undefined;
+};
+
+/** The ChatGPT-subscription provider row (`v2:chatgpt-subscription`). */
+const CHATGPT_SUBSCRIPTION_BRIDGE_TAG = `${V2_BRIDGE_PREFIX}chatgpt-subscription`;
 const isChatGptSubscriptionProvider = (provider: IProvider): boolean =>
-  (provider as unknown as Record<string, unknown>).__waylandModelRegistryBridge === CHATGPT_SUBSCRIPTION_BRIDGE_TAG;
+  bridgeTagOf(provider) === CHATGPT_SUBSCRIPTION_BRIDGE_TAG;
+
+/**
+ * The auto-registered local Ollama daemon (`v2:ollama-local`). It is the one
+ * provider the app connects on the user's behalf without being asked, it lands
+ * first in `model.config`, and its models are small local builds that cannot
+ * drive an agent turn - so it must never win an AUTOMATIC default over a
+ * connected Flux Router. A model the user actually picked is unaffected: that
+ * arrives through usage telemetry, which ranks above this rule.
+ */
+const LOCAL_DAEMON_BRIDGE_TAG = `${V2_BRIDGE_PREFIX}ollama-local`;
+export const isLocalDaemonProvider = (provider: IProvider): boolean =>
+  bridgeTagOf(provider) === LOCAL_DAEMON_BRIDGE_TAG;
 
 /**
  * The provider that owns `modelId`. Prefer the ChatGPT-subscription provider
@@ -155,6 +176,14 @@ export const resolveFluxAuto = (modelList: IProvider[]): ModelChoice | null => {
  * `'openai'`) into `id`, NOT the legacy `IProvider.id` uuid. Match by uuid
  * first (legacy `gemini-with-google-auth` rows still use uuids), then by
  * `platform === id` with the model present in that provider's `model[]`.
+ *
+ * The platform match alone is not enough for a registry-native provider whose
+ * mirror row carries a generic `platform`. Flux Router is the case that bit:
+ * the pin stores `id: 'flux-router'` while the row is `{ id: 'b1c5cb99',
+ * platform: 'openai-compatible', __waylandModelRegistryBridge: 'v2:flux-router' }`,
+ * so both matches missed and the user's deliberate Flux pin was discarded on
+ * every boot. Resolve by bridge tag as well, mirroring the priority
+ * `resolveSelectedProvider` and `useWCoreModelSelection` already use.
  */
 const resolveSavedPin = (savedModel: unknown, modelList: IProvider[]): ModelChoice | null => {
   if (savedModel && typeof savedModel === 'object' && 'id' in savedModel) {
@@ -164,7 +193,11 @@ const resolveSavedPin = (savedModel: unknown, modelList: IProvider[]): ModelChoi
     const platformMatch = !exactMatch
       ? modelList.find((m) => m.platform === id && m.model?.includes(useModel))
       : undefined;
-    const resolved = exactMatch ?? platformMatch;
+    const bridgeMatch =
+      !exactMatch && !platformMatch
+        ? modelList.find((m) => bridgeTagOf(m) === `${V2_BRIDGE_PREFIX}${id}` && m.model?.includes(useModel))
+        : undefined;
+    const resolved = exactMatch ?? platformMatch ?? bridgeMatch;
     return resolved?.model?.includes(useModel) ? { provider: resolved, useModel, accountId } : null;
   }
   if (typeof savedModel === 'string') {
@@ -377,8 +410,42 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
         /* on failure leave flux-auto out of the default chain */
       }
       const fluxAuto = routeThroughFlux ? resolveFluxAuto(modelList) : null;
+
+      // Flux Router is connected when its Autopilot model is in the catalog -
+      // independent of the routing toggle, which only decides whether flux-auto
+      // is the RECOMMENDED default.
+      //
+      // While Flux is connected, the auto-registered local daemon must not win
+      // an automatic default. Two things make it win today:
+      //   - it is mirrored into `model.config` first, so it leads the generic
+      //     safe-default fallback; and
+      //   - this hook PERSISTS whatever it auto-resolves under `storageKey`,
+      //     the same key a deliberate pick writes. A cold start that resolved
+      //     before the cloud catalogs landed therefore stamps a local model
+      //     into the pin, and from then on it is indistinguishable on disk from
+      //     a choice the user made. That is how a 3.3 GB `gemma3:4b` became the
+      //     standing default in front of a connected Flux Router - and then
+      //     400'd, because a local model of that size rejects the tools payload
+      //     every agent turn carries.
+      //
+      // The trade: a pin naming the local daemon is treated as unverified while
+      // Flux is connected. A pick the user really made still wins - it is in the
+      // `guid.model_selected` telemetry that feeds `recentMatch` / `frequentMatch`
+      // above, which the picker writes ONLY on a real pick. A deliberate local
+      // pick older than the telemetry window is the case this moves to Flux.
+      const fluxConnected = resolveFluxAuto(modelList) !== null;
+      const savedTrusted =
+        fluxConnected && savedNonExperimental && isLocalDaemonProvider(savedNonExperimental.provider)
+          ? null
+          : savedNonExperimental;
+      const safeDefaultCandidates = fluxConnected ? modelList.filter((p) => !isLocalDaemonProvider(p)) : modelList;
       const chosen =
-        recentMatch ?? savedNonExperimental ?? frequentMatch ?? fluxAuto ?? resolveSafeDefault(modelList) ?? savedPin;
+        recentMatch ??
+        savedTrusted ??
+        frequentMatch ??
+        fluxAuto ??
+        resolveSafeDefault(safeDefaultCandidates) ??
+        savedPin;
       if (!chosen) return;
 
       const defaultModel: IProvider | undefined = chosen.provider;

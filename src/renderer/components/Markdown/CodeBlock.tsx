@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ChevronDown, ChevronUp, Copy } from 'lucide-react';
@@ -180,8 +182,10 @@ function CodeBlock(props: CodeBlockProps) {
             {'<' + language.toLocaleLowerCase() + '>'}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Copy size={18}
-              style={{ cursor: 'pointer' }} color='var(--text-secondary)'
+            <Copy
+              size={18}
+              style={{ cursor: 'pointer' }}
+              color='var(--text-secondary)'
               onClick={() => {
                 void copyText(formatCode(children))
                   .then(() => {
@@ -193,8 +197,10 @@ function CodeBlock(props: CodeBlockProps) {
               }}
             />
             {canCollapse && expanded && (
-              <ChevronUp size={20}
-                style={{ cursor: 'pointer' }} color='var(--text-secondary)'
+              <ChevronUp
+                size={20}
+                style={{ cursor: 'pointer' }}
+                color='var(--text-secondary)'
                 onMouseDown={(e: React.MouseEvent) => {
                   if (e.button === 0) {
                     e.preventDefault();

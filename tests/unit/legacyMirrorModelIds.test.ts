@@ -89,3 +89,151 @@ describe('selectMirrorModelIds (issue #13)', () => {
     expect(selectMirrorModelIds([], [])).toEqual([]);
   });
 });
+
+/**
+ * A text-in/text-out CLASSIFIER is not a chat model.
+ *
+ * Meta's Llama Prompt Guard 2 emits a two-token jailbreak verdict. It is
+ * `kind: 'text'`, so it passed the Curator and reached the chat picker, and on a
+ * clean profile it was auto-selected as the DEFAULT — the first message a new
+ * user sent came back as a provider 400 ("max_tokens must be <= 512").
+ */
+describe('selectMirrorModelIds — classifiers never reach the chat picker', () => {
+  const withMeta = (id: string, contextWindow: number | undefined, tags: CatalogModel['tags'] = []): CatalogModel => ({
+    ...model(id, id.split('/')[0], '2026-05-01'),
+    ...(contextWindow === undefined ? {} : { contextWindow }),
+    tags,
+  });
+
+  it('drops a prompt-guard classifier (tiny context, no tool calling)', () => {
+    const catalog = [...CATALOG, withMeta('meta-llama/llama-prompt-guard-2-22m', 512)];
+    expect(selectMirrorModelIds(catalog, [])).not.toContain('meta-llama/llama-prompt-guard-2-22m');
+  });
+
+  it('keeps a real chat model that merely has a small context', () => {
+    // phi-3-mini-4k-instruct: 4096 context but declares tool calling.
+    const catalog = [...CATALOG, withMeta('microsoft/phi-3-mini-4k-instruct', 4096, ['chat', 'tools'])];
+    expect(selectMirrorModelIds(catalog, [])).toContain('microsoft/phi-3-mini-4k-instruct');
+  });
+
+  it('keeps a small-context chat model with no tool calling', () => {
+    // MythoMax: 4000 context, no tools - still a genuine chat model.
+    const catalog = [...CATALOG, withMeta('gryphe/mythomax-l2-13b', 4000, ['chat'])];
+    expect(selectMirrorModelIds(catalog, [])).toContain('gryphe/mythomax-l2-13b');
+  });
+
+  it('FAILS OPEN when the context window is unknown', () => {
+    // An unenriched day-one release, or a user's local Ollama model: no
+    // metadata at all. It must stay selectable.
+    const catalog = [...CATALOG, withMeta('vendor/brand-new-model', undefined)];
+    expect(selectMirrorModelIds(catalog, [])).toContain('vendor/brand-new-model');
+  });
+
+  it('drops a tiny-context model that declares no tools even when named like chat', () => {
+    const catalog = [...CATALOG, withMeta('vendor/tiny-encoder', 448)];
+    expect(selectMirrorModelIds(catalog, [])).not.toContain('vendor/tiny-encoder');
+  });
+});
+
+/**
+ * Safety-classification models must stay selectable but must never be the
+ * DEFAULT. On a clean profile `openai/gpt-oss-safeguard-20b` won the flagship
+ * slot and became the new-chat default - it answers, but a model tuned to emit
+ * policy verdicts is the wrong first impression for writing, code or analysis.
+ *
+ * Distinct from the classifier filter above: those cannot converse at all
+ * (sub-1K context, no tools) and are removed. These can, so they are kept and
+ * merely un-recommended.
+ */
+describe('Curator - safety classifiers are selectable but never recommended', () => {
+  const guardCatalog: CatalogModel[] = [
+    model('openai/gpt-oss-safeguard-20b', 'gpt-oss-safeguard', '2026-05-01'),
+    model('meta-llama/llama-guard-4-12b', 'llama-guard', '2026-04-01'),
+    model('ovhcloud/qwen3guard-gen-8b', 'qwen3guard', '2026-04-15'),
+    model('vendor/chat-pro', 'vendor-chat', '2026-05-02'),
+  ];
+
+  const curated = new Curator().curate(guardCatalog);
+  const byId = new Map(curated.map((m) => [m.id, m]));
+
+  it.each(['openai/gpt-oss-safeguard-20b', 'meta-llama/llama-guard-4-12b', 'ovhcloud/qwen3guard-gen-8b'])(
+    '%s is enabled but not recommended',
+    (id) => {
+      const m = byId.get(id);
+      expect(m?.enabled, `${id} must stay selectable`).toBe(true);
+      expect(m?.recommended, `${id} must not be a default candidate`).toBe(false);
+    }
+  );
+
+  it('an ordinary chat model in the same catalog is still recommended', () => {
+    expect(byId.get('vendor/chat-pro')?.recommended).toBe(true);
+  });
+});
+
+/**
+ * The mirror list is ORDERED, and the cold-start default resolver takes a
+ * provider's first model whenever no marquee rule matches it (Groq's legacy
+ * platform is `openai-compatible`, and `openai/gpt-oss-*` matches none of the
+ * OpenAI marquee model patterns). So whatever leads this list becomes a brand
+ * new user's default model.
+ *
+ * These three rows are the real Groq catalog entries, copied verbatim from a
+ * live first-run profile's `model_registry_catalog`. On that profile the mirror
+ * led with the safety classifier and it was auto-selected as the default -
+ * confirmed in the running app, with `model.config` holding exactly
+ * `['openai/gpt-oss-safeguard-20b', 'openai/gpt-oss-120b']`.
+ */
+describe('selectMirrorModelIds - recommended models lead the list', () => {
+  const realGroqRows: CatalogModel[] = [
+    {
+      id: 'openai/gpt-oss-120b',
+      providerId: 'groq' as ProviderId,
+      displayName: 'GPT OSS 120B',
+      family: 'gpt-oss',
+      kind: 'text',
+      enriched: true,
+      tags: ['reasoning', 'tools'],
+      releaseDate: '2025-08-05',
+      contextWindow: 131072,
+    },
+    {
+      id: 'openai/gpt-oss-20b',
+      providerId: 'groq' as ProviderId,
+      displayName: 'GPT OSS 20B',
+      family: 'gpt-oss',
+      kind: 'text',
+      enriched: true,
+      tags: ['reasoning', 'tools'],
+      releaseDate: '2025-08-05',
+      contextWindow: 131072,
+    },
+    {
+      id: 'openai/gpt-oss-safeguard-20b',
+      providerId: 'groq' as ProviderId,
+      displayName: 'Safety GPT OSS 20B',
+      family: 'gpt-oss',
+      kind: 'text',
+      enriched: true,
+      tags: ['reasoning', 'tools'],
+      releaseDate: '2025-10-29',
+      contextWindow: 131072,
+    },
+  ] as unknown as CatalogModel[];
+
+  it('does not lead with a safety classifier the Curator de-recommended', () => {
+    const ids = selectMirrorModelIds(realGroqRows, []);
+    expect(ids[0]).toBe('openai/gpt-oss-120b');
+    // Still selectable - this reorders, it never removes.
+    expect(ids).toContain('openai/gpt-oss-safeguard-20b');
+  });
+
+  it('every recommended model precedes every un-recommended one', () => {
+    const curated = new Curator().curate(realGroqRows);
+    const recommended = new Set(curated.filter((m) => m.recommended).map((m) => m.id));
+    const ids = selectMirrorModelIds(realGroqRows, []);
+    const lastRecommended = ids.findLastIndex((id) => recommended.has(id));
+    const firstUnrecommended = ids.findIndex((id) => !recommended.has(id));
+    expect(recommended.size, 'fixture must contain a recommended model').toBeGreaterThan(0);
+    if (firstUnrecommended !== -1) expect(lastRecommended).toBeLessThan(firstUnrecommended);
+  });
+});

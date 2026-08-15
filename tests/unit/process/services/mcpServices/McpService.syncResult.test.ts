@@ -42,6 +42,11 @@ describe('McpService.syncMcpToAgents publication truth', () => {
       {
         agent: 'Unknown',
         success: false,
+        // Marks a non-target: detected, but no MCP adapter. `success` above
+        // must still be false -- with no actionable agent, nothing was
+        // published, so the operation genuinely failed. Kept as toEqual so a
+        // non-target cannot quietly acquire other fields.
+        unsupported: true,
         error: 'MCP publication is not supported for backend "unknown-backend"',
       },
     ]);

@@ -1,0 +1,17 @@
+{
+  "groupLabel": "Interface layout",
+  "classic": {
+    "title": "Classic",
+    "blurb": "Every destination listed down the side. Nothing moves, nothing is hidden."
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "blurb": "A shorter list that groups the same things under Library, Automations and Activity."
+  },
+  "prompt": {
+    "title": "Try the new Cockpit layout?",
+    "body": "Cockpit is a new layout over the same chats, projects and settings — nothing moves or is deleted. You can switch back any time in Settings > Navigation.",
+    "confirm": "Use this layout",
+    "later": "Not now"
+  }
+}

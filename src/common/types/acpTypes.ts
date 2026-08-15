@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 // These versions are FALLBACK floors only. At spawn time the connectors resolve
@@ -21,6 +23,15 @@ export const CLAUDE_ACP_NPX_PACKAGE = `@agentclientprotocol/claude-agent-acp@${C
 
 export const CODEBUDDY_ACP_BRIDGE_VERSION = '2.73.0';
 export const CODEBUDDY_ACP_NPX_PACKAGE = `@tencent-ai/codebuddy-code@${CODEBUDDY_ACP_BRIDGE_VERSION}`;
+
+/**
+ * Wayland Nano's own npm distribution. PINNED DELIBERATELY: npm's `latest`
+ * dist-tag still points at `0.1.0-alpha.0` while the release lives on `next`,
+ * so a bare `npx waylandnano` silently installs the OLDER alpha. A pin is also
+ * reproducible in a way a moving tag is not.
+ */
+export const WNANO_NPM_VERSION = '0.1.0-rc.0';
+export const WNANO_NPX_PACKAGE = `waylandnano@${WNANO_NPM_VERSION}`;
 
 /**
  * Current ACP wrapper version for a given backend, in the format `<backend>@<version>`,
@@ -51,12 +62,13 @@ export type AcpBackendAll =
   // | 'gemini' // Google Gemini - not an ACP agent, handled by AgentRegistry directly
   | 'qwen' // Qwen Code ACP
   | 'codex' // OpenAI Codex ACP (via codex-acp bridge)
+  | 'wnano' // Wayland Nano - first-party sandboxed Rust agent (native ACP over stdio)
   | 'grok' // xAI Grok Build CLI (native ACP via `grok agent stdio`)
   | 'codebuddy' // Tencent CodeBuddy Code CLI
   | 'droid' // Factory Droid CLI (ACP via `droid exec --output-format acp`)
   | 'goose' // Block's Goose CLI
   | 'auggie' // Augment Code CLI
-  | 'kimi' // Kimi CLI (Moonshot)
+  | 'kimi' // Kimi Code (Moonshot)
   | 'opencode' // OpenCode CLI
   | 'copilot' // GitHub Copilot CLI
   | 'qoder' // Qoder CLI
@@ -69,6 +81,92 @@ export type AcpBackendAll =
 
 // Superset type covering all execution engine backends (ACP + non-ACP).
 export type AgentBackend = AcpBackendAll | 'gemini' | 'remote' | 'wcore' | 'nanobot' | 'openclaw-gateway';
+
+/**
+ * Structured launch descriptor for an installed agent: the executable and its
+ * arguments stay separate, so no code path ever re-parses a command string.
+ *
+ * A single command STRING cannot survive a Windows install. electron-builder is
+ * `perMachine: true`, so the bundled runtime always sits under
+ * `C:\Program Files\Wayland`, and a user profile adds a second space
+ * (`C:\Users\John Smith\...`). Every string form we have is split on whitespace
+ * downstream - `createGenericSpawnConfig` unquotes only the FIRST quoted token
+ * and `.split(/\s+/)` shreds the rest with its quotes still attached, and
+ * `runBackendLogin` / `ensureBackendAuth` do not parse at all and hand the whole
+ * composite string to CreateProcess as the executable name. With `shell: false`
+ * those bytes are passed through verbatim, so the spawn fails (or worse, runs
+ * with a mangled argv). Carrying `{ command, args }` bypasses both parsers.
+ */
+export type AcpLaunchSpec = {
+  /** Absolute path to the executable. Never quoted, never concatenated. */
+  command: string;
+  /** Arguments passed to the executable verbatim, one argv slot each. */
+  args: string[];
+  /**
+   * Environment the COMMAND itself requires, merged over the child env at spawn.
+   * OPTIONAL, and absent for every spec that existed before it: a native binary
+   * needs nothing, and so do both packaged JS runtimes (bundled-bun and
+   * system-node return `env: {}`).
+   *
+   * It exists because `resolveJsRuntime()` answers with a command AND an env as
+   * one indivisible pair: UNPACKAGED the command is the Electron binary and the
+   * env is `ELECTRON_RUN_AS_NODE=1`. Drop the env half and a dev-build install of
+   * a pure-JS agent (kimi, openclaw) spawns an Electron WINDOW instead of Node.
+   * The need belongs to the resolved command, not to any particular call site,
+   * and the spec is persisted (install receipt, conversation `extra`), so the env
+   * has to travel WITH it — a spawn seam holding only `{command, args}` cannot
+   * tell an Electron-as-Node path from a native agent binary without guessing.
+   *
+   * Consumers merge it LAST, over the inherited/enhanced env.
+   */
+  env?: Record<string, string>;
+  /**
+   * Where this spec came from. Present ONLY on a spec produced by reading a
+   * Wayland install receipt (`resolveManagedAgentLaunch`), and stamped there
+   * rather than stored in the receipt so installs written before it exists are
+   * covered too.
+   *
+   * It exists because a launch spec displacing the npx bridge is a decision
+   * about WHOSE binary runs. `LegacyConnectorFactory` prefers a spec over the
+   * npx bridge for claude/codex/codebuddy; that is correct for an agent Wayland
+   * installed into its own prefix, and wrong for anything else, including a
+   * spec rehydrated from a persisted conversation whose install has since been
+   * removed. Absence is the safe default, so a spec of unknown provenance
+   * leaves the npx bridge in charge.
+   */
+  origin?: 'wayland-install';
+};
+
+/**
+ * Runtime shape check for a launch descriptor.
+ *
+ * The declared type guarantees nothing at the seams that consume this: a launch
+ * spec is rehydrated from the persisted conversation `extra`, which is untyped
+ * JSON (workerTaskManagerSingleton spreads `...c.extra` through an `any`). A
+ * bare truthiness test therefore accepts `{ command: 'x' }` with no args, or an
+ * `args` that is a string, and those reach spawn as `undefined`/garbage argv.
+ * Every consumer must gate on this instead of on truthiness, and fall back to
+ * the legacy cliPath string (or fail loudly) when it returns false.
+ *
+ * `env` is OPTIONAL and its absence is the normal case: a spec written before
+ * `env` existed, a native binary, or a packaged JS runtime all omit it and must
+ * validate EXACTLY as they did before. It is checked only when present, and then
+ * strictly — a non-string value would reach `spawn`'s env and be coerced or
+ * throw, which is precisely the class of garbage this guard exists to stop.
+ */
+export function isAcpLaunchSpec(value: unknown): value is AcpLaunchSpec {
+  if (typeof value !== 'object' || value === null) return false;
+  const spec = value as { command?: unknown; args?: unknown; env?: unknown };
+  if (typeof spec.command !== 'string' || spec.command.trim().length === 0) return false;
+  if (spec.env !== undefined && !isStringRecord(spec.env)) return false;
+  return Array.isArray(spec.args) && spec.args.every((arg) => typeof arg === 'string');
+}
+
+/** True for a plain object whose own enumerable values are all strings. */
+function isStringRecord(value: unknown): value is Record<string, string> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  return Object.values(value).every((entry) => typeof entry === 'string');
+}
 
 /**
  * Potential ACP CLI tools list.
@@ -282,10 +380,21 @@ export interface AcpBackendConfig {
 
   /**
    * Whether this backend can route through Flux.
-   * - 'env': routes through Flux via env injection (ready now).
-   * - 'setup': routes after the Flux setup assistant writes its config.
+   * - 'env': routes with NO user action. Named for the common mechanism (env
+   *   injection) but the distinction that matters is "already works, nothing to
+   *   click" — a backend routed by a Wayland-scoped config HOME belongs here
+   *   too, because the user does nothing either way (see hermes, whose home is
+   *   materialized per-spawn by AcpAgentManager).
+   * - 'setup': routes only AFTER the user runs the Flux setup assistant, which
+   *   writes the tool's own config. This is a claim that an action is available
+   *   and worth taking, so it must not be used for "would work if we built it".
    * - 'vendor': locked to its own service, not Flux-routable.
    * Unset means no Flux compatibility is claimed (no chip shown).
+   *
+   * Behaviourally 'env' and 'setup' are treated identically everywhere (model
+   * pickers, flux-auto defaulting) — they differ only in the chip. So the whole
+   * value of the split is telling the user the truth about whether there is
+   * something for them to do.
    */
   fluxCompat?: 'env' | 'setup' | 'vendor';
 
@@ -360,6 +469,30 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     // Responses surface via a [model_providers.flux] table in its TOML config.
     fluxCompat: 'setup',
   },
+  // Wayland Nano: first-party sandboxed Rust agent. Always listed in the agent
+  // registry (AgentRegistry.createWNanoAgent); spawns via cliCommand when the
+  // binary is on PATH. Speaks ACP natively over stdio via the `acp-host`
+  // subcommand (bare `wayland-nano` prints usage and exits 2 — live-proven B1).
+  wnano: {
+    id: 'wnano',
+    name: 'Wayland Nano',
+    cliCommand: 'wayland-nano',
+    authRequired: false, // Draws on the providers connected in Wayland; no own login
+    enabled: true,
+    // Released on npm as `waylandnano` (bin: `wayland-nano`). A locally built
+    // or installed binary on PATH still wins; this is the fallback for a
+    // machine that has never built Nano, and it is what makes the agent
+    // installable rather than merely detectable.
+    defaultCliPath: `npx ${WNANO_NPX_PACKAGE}`,
+    supportsStreaming: true, // Native ACP, streams session/update chunks
+    acpArgs: ['acp-host'], // ACP over stdio via subcommand, no bridge
+    // 'env', for the same reason as hermes: Desktop routes it per-spawn with no
+    // user action. AcpAgentManager hands nano the connected Flux key as a file
+    // and exports the provider-parity env alongside it. Left undefined, nano was
+    // the ONLY agent in the list with no chip at all — read as "not supported"
+    // for the one agent we ship ourselves.
+    fluxCompat: 'env',
+  },
   grok: {
     id: 'grok',
     name: 'Grok Build',
@@ -420,13 +553,22 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
   },
   kimi: {
     id: 'kimi',
-    name: 'Kimi CLI',
+    name: 'Kimi Code',
     cliCommand: 'kimi',
     authRequired: false,
-    enabled: true, // ✅ Kimi CLI (Moonshot), launched via `kimi acp`
+    enabled: true, // ✅ Kimi Code (Moonshot), launched via `kimi acp`
     supportsStreaming: false,
     acpArgs: ['acp'], // kimi uses the acp subcommand
-    skillsDirs: ['.kimi/skills'],
+    // Kimi Code discovers project skills in `.kimi-code/skills` - its own binary
+    // carries `PROJECT_BRAND_DIRS = [".kimi-code/skills"]`. The old `.kimi/skills`
+    // is the LEGACY tree that kimi-code's `migrate` subcommand copies OUT of, so
+    // symlinking there published every builtin skill where the agent never looks.
+    skillsDirs: ['.kimi-code/skills'],
+    // Needs the config-writing setup connector: Kimi Code takes a generic
+    // `type = "openai"` provider in its config.toml (verified against the real
+    // binary). Env injection (KIMI_BASE_URL / KIMI_API_KEY) registers nothing,
+    // so 'env' is not an option.
+    fluxCompat: 'setup',
   },
   opencode: {
     id: 'opencode',
@@ -514,7 +656,14 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     enabled: true, // ✅ Nous Research Hermes Agent, launched via `hermes acp`
     supportsStreaming: false,
     acpArgs: ['acp'], // hermes uses the acp subcommand
-    fluxCompat: 'setup',
+    // 'env', not 'setup': there is nothing for the user to set up. Routing is
+    // already built and proven (hermes v0.14.0) — AcpAgentManager materializes a
+    // Wayland-scoped HERMES_HOME per spawn with the Flux base_url and an inline
+    // api_key, and never touches the user's real ~/.hermes. Carrying 'setup'
+    // rendered an INERT chip reading "Flux setup" next to agents whose identical
+    // chip opens a real modal, so it advertised an action that does not exist
+    // for an agent that was already routing.
+    fluxCompat: 'env',
   },
   snow: {
     id: 'snow',
@@ -580,6 +729,13 @@ export function getSkillsDirsForBackend(agentTypeOrBackend: string | undefined):
 const NON_ACP_FLUX_COMPAT: Record<string, AcpBackendConfig['fluxCompat']> = {
   wcore: 'env',
   gemini: 'env',
+  // 'setup', not 'env': OpenClaw resolves its provider as
+  // `configuredProvider?.baseUrl ?? envDefault`, so a user who has ever set a
+  // base URL keeps their own and env injection is a silent no-op. It routes
+  // only after connectors/openclaw.ts registers the flux provider in their own
+  // openclaw.json - which is a real, consented, undoable action, so the chip
+  // that offers it is doing something.
+  'openclaw-gateway': 'setup',
 };
 
 /**
@@ -1247,3 +1403,14 @@ export type AcpIncomingMessage =
   | AcpPermissionRequestMessage
   | AcpFileReadMessage
   | AcpFileWriteMessage;
+
+/**
+ * How a turn ended. #838.
+ *
+ * Every backend signals the end of a turn with the same bare
+ * `{ type: 'finish', data: null }` message, whether the turn succeeded, errored,
+ * was aborted by the user, or never ran at all because the transport dropped.
+ * That makes the four indistinguishable to a manager reading the stream, so an
+ * agent that wants to report a *successful* turn has to say so out of band.
+ */
+export type TurnEndOutcome = 'ok' | 'aborted' | 'error';

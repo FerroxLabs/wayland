@@ -19,7 +19,7 @@ import styles from './MessageActivity.module.css';
  * activity card AND the sub-agent drill-down card. Each node click toggles its
  * accumulated `detail`; sub-agent nodes recurse into an indented `children`
  * subtree (depth-N). Expand state is local to this component (one open node per
- * level), matching the Foundry expand-on-click pattern.
+ * level), expand-on-click.
  */
 
 const nodeStatusBadge: Record<ActivityNode['status'], 'processing' | 'success' | 'error'> = {

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { X } from 'lucide-react';
@@ -138,18 +140,18 @@ const CodePreview: React.FC<CodePreviewProps> = ({
     <div className='flex flex-col w-full h-full overflow-hidden'>
       {/* Toolbar: Source/Preview toggle + Download button */}
       {!hideToolbar && (
-        <div className='flex items-center justify-between h-40px px-12px bg-bg-2 flex-shrink-0'>
+        <div className='flex items-center justify-between h-40px px-12px bg-2 flex-shrink-0'>
           <div className='flex items-center gap-4px'>
             {/* Source button */}
             <div
-              className={`px-12px py-4px rd-4px cursor-pointer transition-colors text-12px ${viewMode === 'source' ? 'bg-primary text-white' : 'text-t-secondary hover:bg-bg-3'}`}
+              className={`px-12px py-4px rd-4px cursor-pointer transition-colors text-12px ${viewMode === 'source' ? 'bg-primary text-white' : 'text-t-secondary hover:bg-3'}`}
               onClick={() => handleViewModeChange('source')}
             >
               {t('preview.source')}
             </div>
             {/* Preview button */}
             <div
-              className={`px-12px py-4px rd-4px cursor-pointer transition-colors text-12px ${viewMode === 'preview' ? 'bg-primary text-white' : 'text-t-secondary hover:bg-bg-3'}`}
+              className={`px-12px py-4px rd-4px cursor-pointer transition-colors text-12px ${viewMode === 'preview' ? 'bg-primary text-white' : 'text-t-secondary hover:bg-3'}`}
               onClick={() => handleViewModeChange('preview')}
             >
               {t('preview.preview')}
@@ -160,7 +162,7 @@ const CodePreview: React.FC<CodePreviewProps> = ({
           <div className='flex items-center gap-8px'>
             {/* Download button */}
             <div
-              className='flex items-center gap-4px px-8px py-4px rd-4px cursor-pointer hover:bg-bg-3 transition-colors'
+              className='flex items-center gap-4px px-8px py-4px rd-4px cursor-pointer hover:bg-3 transition-colors'
               onClick={handleDownload}
               title={t('preview.downloadCode', { language: (language || 'text').toUpperCase() })}
             >
@@ -186,13 +188,13 @@ const CodePreview: React.FC<CodePreviewProps> = ({
       {/* Content area */}
       <div ref={containerRef} className='flex-1 overflow-auto p-16px'>
         {isRenderedTruncated && (
-          <div className='mb-12px px-10px py-8px rd-6px bg-bg-2 text-12px text-t-secondary'>
+          <div className='mb-12px px-10px py-8px rd-6px bg-2 text-12px text-t-secondary'>
             {t('preview.largeTextTruncatedHint', { count: renderedContent.length })}
           </div>
         )}
         {viewMode === 'source' || isLargeContent ? (
           // Source mode or large text: render plain text to avoid highlighter blocking
-          <pre className='w-full m-0 p-12px bg-bg-2 rd-8px overflow-auto font-mono text-12px text-t-primary whitespace-pre-wrap break-words'>
+          <pre className='w-full m-0 p-12px bg-2 rd-8px overflow-auto font-mono text-12px text-t-primary whitespace-pre-wrap break-words'>
             {displayedContent}
           </pre>
         ) : (

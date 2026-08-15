@@ -30,6 +30,7 @@ import path from 'path';
 import { resolveLocaleKey } from '@/common/utils';
 import { hasGeminiOauthCreds } from './googleAuthCheck';
 import { buildTeamExport, serializeTeamExport, type RitualsResolver } from './importExport/exportTeam';
+import { BUILTIN_ID_PREFIX, getBuiltinCatalogAssistants } from '@process/utils/builtinCatalog';
 import type { RitualScheduler } from './ritualScheduler';
 import {
   buildCapabilityGrants,
@@ -41,6 +42,31 @@ import {
 import { TeamExportSchema, type TeamExport } from './importExport/TeamExportSchema';
 import { TeamImportError } from './importExport/errors';
 import { inspectConversationDeletionSchedules } from '@process/services/conversationDeletionSafety';
+
+/** Bare ids of the native built-in catalog, resolved once on first import. */
+let builtinCatalogBareIds: Set<string> | null = null;
+
+/**
+ * Map an exported bare specialist id onto the concrete record id that persona
+ * loading expects.
+ *
+ * The export format stores bare ids (`research`), but a roster entry has to
+ * carry the id the record is actually stored under - `builtin-<slug>` for the
+ * native catalog, `ext-<slug>` for extension contributions - because
+ * `loadPresetAssistantResources` keys its ASSISTANT_PRESETS lookup on the
+ * `builtin-` prefix. Hardcoding `ext-` gave every imported native specialist
+ * an id that resolves to nothing, so the team launched without its persona.
+ */
+function resolveImportedAgentId(bareId: string): string {
+  if (!builtinCatalogBareIds) {
+    builtinCatalogBareIds = new Set(
+      getBuiltinCatalogAssistants().map((a) =>
+        a.id.startsWith(BUILTIN_ID_PREFIX) ? a.id.slice(BUILTIN_ID_PREFIX.length) : a.id
+      )
+    );
+  }
+  return builtinCatalogBareIds.has(bareId) ? `${BUILTIN_ID_PREFIX}${bareId}` : `ext-${bareId}`;
+}
 
 export class TeamSessionService {
   private readonly sessions: Map<string, TeamSession> = new Map();
@@ -185,7 +211,7 @@ export class TeamSessionService {
     return this.createGoogleAuthGeminiModel('gemini-2.0-flash');
   }
 
-  private async resolveDefaultAionrsModel(): Promise<TProviderWithModel> {
+  private async resolveDefaultWCoreModel(): Promise<TProviderWithModel> {
     const configuredProviders = await ProcessConfig.get('model.config');
     const providers = Array.isArray(configuredProviders) ? configuredProviders.filter((p) => p.enabled !== false) : [];
 
@@ -298,7 +324,7 @@ export class TeamSessionService {
    * Default model for an ACP-backed team agent (codex, claude, qwen, grok, …) so
    * a new teammate of ANY backend is created already pointing at a real model
    * instead of an empty "Select Model" the agent can't start from. Mirrors
-   * `resolveDefaultAionrsModel`'s scan of the legacy `model.config` blob, but
+   * `resolveDefaultWCoreModel`'s scan of the legacy `model.config` blob, but
    * scoped to the provider(s) the backend actually runs
    * (`resolveBackendCandidateProviders`, the same canonical map the home picker's
    * `curatedForAgent` uses - codex -> chatgpt-subscription|openai, claude ->
@@ -387,7 +413,7 @@ export class TeamSessionService {
     }
 
     if (type === 'wcore') {
-      return this.resolveDefaultAionrsModel();
+      return this.resolveDefaultWCoreModel();
     }
 
     if (type === 'acp') {
@@ -1498,8 +1524,8 @@ export class TeamSessionService {
     const sandboxed = true;
 
     // Build the agents roster from the payload. Leader first, then teammates.
-    // The renderer-side launcher path also uses `ext-${id}` for customAgentId,
-    // and the backend resolver reads it back the same way.
+    // The export format carries bare ids; customAgentId must hold the concrete
+    // record id, exactly as the renderer launcher stores it (`spec.id`).
     const leaderAgent: TeamAgent = {
       slotId: '',
       conversationId: '',
@@ -1508,7 +1534,7 @@ export class TeamSessionService {
       agentName: parsed.name.slice(0, 100),
       conversationType: this.resolveConversationType(parsed.leader.recommendBackend || 'gemini'),
       status: 'pending',
-      customAgentId: `ext-${parsed.leader.id}`,
+      customAgentId: resolveImportedAgentId(parsed.leader.id),
     };
     const teammateAgents: TeamAgent[] = parsed.teammates.map((t) => ({
       slotId: '',
@@ -1518,7 +1544,7 @@ export class TeamSessionService {
       agentName: t.name,
       conversationType: this.resolveConversationType(t.recommendBackend || parsed.leader.recommendBackend || 'gemini'),
       status: 'pending',
-      customAgentId: `ext-${t.id}`,
+      customAgentId: resolveImportedAgentId(t.id),
     }));
 
     const team = await this.createTeam({

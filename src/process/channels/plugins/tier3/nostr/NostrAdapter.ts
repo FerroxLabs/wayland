@@ -3,7 +3,7 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/steipete/openclaw)
+ * Portions adapted from OpenClaw (https://github.com/openclaw/openclaw)
  * Copyright (c) 2025 Peter Steinberger
  * Licensed under the MIT License - see LICENSES/openclaw.txt
  *
@@ -111,10 +111,7 @@ export type NostrEventLike = {
  * Convert a decrypted Nostr kind:4 DM to IUnifiedIncomingMessage.
  * chatId is the sender's pubkey (hex) - the natural "conversation" id for DMs.
  */
-export function toUnifiedIncomingFromNostr(
-  event: NostrEventLike,
-  plaintext: string,
-): IUnifiedIncomingMessage {
+export function toUnifiedIncomingFromNostr(event: NostrEventLike, plaintext: string): IUnifiedIncomingMessage {
   const npub = hexToNpub(event.pubkey);
   return {
     id: randomUUID(),

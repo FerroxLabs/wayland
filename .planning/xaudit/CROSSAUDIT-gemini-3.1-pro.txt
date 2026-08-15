@@ -1,0 +1,37 @@
+VERDICT: NO-GO
+
+1. ROOT CAUSE
+SEVERITY: Critical
+Claim: The plan refuses to name a root cause, incorrectly dismissing H1 because `refreshServerStatuses` ignores `enabled: false` rows.
+Evidence: Context logs (`09:49:15.912 [WaylandMcpAgent] Installed MCP servers: tvcontrol`) and `handleToggleMcpServer` (lines 9-11).
+Correction: The root cause is determinable and H1 is correct. The competing writer is `useConnectedMcps`, not `refreshServerStatuses`. `syncMcpToAgents` takes 46 seconds to run serially. `WaylandMcpAgent` is second in the list and completes at 09:49:15. Wayland immediately detects its own agent's new configuration, connects to the server, and the `useEffect` at `useConnectedMcps` fires, calling `saveMcpServers` to update the status to `connected` and bumping `updatedAt`. 45 seconds later, `handleToggleMcpServer` executes its local commit, fails the `server.updatedAt !== targetServer.updatedAt` guard, throws, and triggers the rollback.
+
+2. DIAGNOSTIC SUFFICIENCY
+SEVERITY: Medium
+Claim: Phase A diagnostic is sufficient to discriminate the hypotheses.
+Evidence: `enqueueMcpConfigWrite` CAS loop.
+Correction: While logging the caller tag would successfully identify `useConnectedMcps` and confirm H1, the diagnostic misses the causal link. It treats background writers as random noise, missing that the competing write is a direct, deterministic consequence of the partial `syncMcpToAgents` execution itself.
+
+3. ROLLBACK ASSERTION
+SEVERITY: High
+Claim: "a failed local commit after a fully successful publication must not be reported as a rollback failure; the correct recovery is to keep it and re-commit, not to strip five agents."
+Evidence: The `catch` block in `handleToggleMcpServer` rolling back external agents.
+Correction: This assertion is fundamentally unsound and breaks the fail-closed invariant. The durable database row is the single source of truth. If the database fails to commit `enabled: true`, leaving the agents fully published creates a split-brain state where the UI shows the tool as disabled/errored, but it is actively running across 5 CLI agents. The rollback is mandatory to preserve consistency. Fix the row-level guard; do not abandon the rollback.
+
+4. MISSING SCOPE: CATALOG INSTALLATION
+SEVERITY: High
+Claim: W-1 fixes the bug for the whole app, allowing W-3 (catalog entry) to ship safely.
+Evidence: Catalog installation workflows.
+Correction: The plan assumes fixing `handleToggleMcpServer` fixes publication globally. Catalog installations typically route through a separate `addServer` path to create the initial row, not the toggle handler. If `addServer` shares the same 45-second publication-then-commit sequence and `updatedAt` guard, W-3 will ship broken on first-run. The plan completely misses auditing the catalog install path.
+
+5. ACCEPTANCE CRITERIA AND DATA LOSS
+SEVERITY: High
+Claim: "A slow syncMcpToAgents with a competing writer underneath it must still commit."
+Evidence: `handleToggleMcpServer` updater logic: `return updatedTargetServer;` where `updatedTargetServer` hardcodes `status: 'disconnected'`.
+Correction: If you "fix" H1 by simply bypassing the `updatedAt` guard or suppressing the throw, `handleToggleMcpServer` will forcefully write `updatedTargetServer`. This will overwrite the live `connected` status that `useConnectedMcps` just correctly applied, reverting the UI to `disconnected` and erasing the connection state. The fix must structurally *merge* changes, not just bypass the guard.
+
+6. FACTUAL ERRORS
+SEVERITY: Low
+Claim: H2 (global revision exhaustion) is plausible because "Agent-detection sweeps run every few seconds during publication, so sustained revision churn is plausible."
+Evidence: `enqueueMcpConfigWrite` (lines 3-10).
+Correction: H2 is mathematically implausible. The CAS loop executes its 16 retries (`MAX_MCP_CONFIG_CAS_ATTEMPTS`) continuously without artificial delays. 16 background sweeps running "every few seconds" cannot possibly collide 16 times within the milliseconds it takes for the CAS loop to exhaust.

@@ -13,7 +13,23 @@ import styles from './ActivationCard.module.css';
 /** Which activation path the user chose - used for telemetry / analytics. */
 export type ActivationPath = 'flux' | 'own-key' | 'claude-code';
 
+/** Which truth the card's headline states - see {@link ActivationCardProps.variant}. */
+export type ActivationVariant = 'connect' | 'repair';
+
+const HEADLINE_KEYS: Record<ActivationVariant, { title: string; subtitle: string }> = {
+  connect: { title: 'conversation.activation.title', subtitle: 'conversation.activation.subtitle' },
+  repair: { title: 'conversation.activation.unusableTitle', subtitle: 'conversation.activation.unusableSubtitle' },
+};
+
 export type ActivationCardProps = {
+  /**
+   * Which headline the card tells. `'connect'` (the default) is the only
+   * variant allowed to say a provider must be connected - it renders when no
+   * provider is configured at all. `'repair'` renders when providers ARE
+   * connected but none can currently take a task, so the copy points at the
+   * ones already there instead of claiming there are none.
+   */
+  variant?: ActivationVariant;
   /**
    * Wake the engine by connecting Flux Router (the free, card-free path with a
    * starter credit). The full PKCE/OAuth main-side flow is wired by the caller.
@@ -43,14 +59,17 @@ type PathConfig = {
 };
 
 /**
- * In-thread activation card offering three ranked paths to wake the engine when
- * no working inference provider is configured (see `useProviderReadiness`).
+ * In-thread activation card offering three ranked paths to wake the engine.
+ * Which headline it tells is decided by `activationPromptFor` - it claims "no
+ * provider" only when the registry actually holds none (see
+ * `useProviderReadiness`).
  *
  * Presentational only - every action is a callback prop; the card owns no IPC,
  * no registry state, and no navigation. The Flux row is the recommended primary
  * path (free key, +$1 starter credit, card-free).
  */
 const ActivationCard: React.FC<ActivationCardProps> = ({
+  variant = 'connect',
   onConnectFlux,
   onUseOwnKey,
   onUseClaudeCode,
@@ -97,14 +116,21 @@ const ActivationCard: React.FC<ActivationCardProps> = ({
   ];
 
   const titleId = 'activation-card-title';
+  const headline = HEADLINE_KEYS[variant];
 
   return (
-    <section className={`${styles.card} flex flex-col gap-12px rd-16px p-16px`} role='region' aria-labelledby={titleId}>
+    <section
+      className={`${styles.card} flex flex-col gap-12px rd-16px p-16px`}
+      role='region'
+      aria-labelledby={titleId}
+      data-testid='activation-card'
+      data-variant={variant}
+    >
       <div className='flex flex-col gap-4px'>
         <div id={titleId} className='text-14px text-t-primary font-600'>
-          {t('conversation.activation.title')}
+          {t(headline.title)}
         </div>
-        <div className='text-12px text-t-secondary'>{t('conversation.activation.subtitle')}</div>
+        <div className='text-12px text-t-secondary'>{t(headline.subtitle)}</div>
       </div>
 
       <ul className='flex flex-col gap-8px' role='list'>

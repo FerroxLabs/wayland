@@ -1,0 +1,17 @@
+{
+  "groupLabel": "Arayüz düzeni",
+  "classic": {
+    "title": "Classic",
+    "blurb": "Tüm bölümler yan tarafta listelenir. Hiçbir şey yer değiştirmez, hiçbir şey gizlenmez."
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "blurb": "Aynı bölümleri Library, Automations ve Activity altında toplayan daha kısa bir liste."
+  },
+  "prompt": {
+    "title": "Yeni Cockpit düzenini denemek ister misiniz?",
+    "body": "Cockpit, aynı sohbetler, projeler ve ayarlar için yeni bir düzendir; hiçbir şey taşınmaz veya silinmez. Ayarlar > Gezinme bölümünden istediğiniz zaman geri dönebilirsiniz.",
+    "confirm": "Bu düzeni kullan",
+    "later": "Şimdi değil"
+  }
+}

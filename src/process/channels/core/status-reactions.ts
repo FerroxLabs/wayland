@@ -1,13 +1,13 @@
-/*
- * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
- * Source: src/channels/status-reactions.ts
- * MIT License - Copyright (c) 2025 Peter Steinberger
- * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
- */
 /**
  * @license
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
+ * Source: src/channels/status-reactions.ts
+ * Copyright (c) 2025 Peter Steinberger
+ * Licensed under the MIT License - see LICENSES/openclaw.txt
+ * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
  */
 
 /**
@@ -97,23 +97,9 @@ export const DEFAULT_TIMING: Required<StatusReactionTiming> = {
   errorHoldMs: 2500,
 };
 
-export const CODING_TOOL_TOKENS: string[] = [
-  'exec',
-  'process',
-  'read',
-  'write',
-  'edit',
-  'session_status',
-  'bash',
-];
+export const CODING_TOOL_TOKENS: string[] = ['exec', 'process', 'read', 'write', 'edit', 'session_status', 'bash'];
 
-export const WEB_TOOL_TOKENS: string[] = [
-  'web_search',
-  'web-search',
-  'web_fetch',
-  'web-fetch',
-  'browser',
-];
+export const WEB_TOOL_TOKENS: string[] = ['web_search', 'web-search', 'web_fetch', 'web-fetch', 'browser'];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Functions
@@ -122,10 +108,7 @@ export const WEB_TOOL_TOKENS: string[] = [
 /**
  * Resolve the appropriate emoji for a tool invocation.
  */
-export function resolveToolEmoji(
-  toolName: string | undefined,
-  emojis: Required<StatusReactionEmojis>
-): string {
+export function resolveToolEmoji(toolName: string | undefined, emojis: Required<StatusReactionEmojis>): string {
   const normalized = normalizeOptionalLowercaseString(toolName) ?? '';
   if (!normalized) {
     return emojis.tool;
@@ -278,10 +261,7 @@ export function createStatusReactionController(params: {
   /**
    * Schedule an emoji change (debounced or immediate).
    */
-  function scheduleEmoji(
-    emoji: string,
-    options: { immediate?: boolean; skipStallReset?: boolean } = {}
-  ): void {
+  function scheduleEmoji(emoji: string, options: { immediate?: boolean; skipStallReset?: boolean } = {}): void {
     if (!enabled || finished) {
       return;
     }

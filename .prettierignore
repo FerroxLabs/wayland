@@ -1,1 +1,7 @@
 mobile/
+
+# Every file under here has its size and sha256 pinned in
+# scripts/whatsapp-bridge-source.json, which the packaged build verifies. Any
+# reformat - even repadding a markdown table in README.md - invalidates the pin
+# and fails every packaged build. oxfmt reads this file by default.
+src/process/channels/whatsapp-bridge/

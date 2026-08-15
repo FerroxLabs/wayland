@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -364,5 +366,91 @@ describe('createConversationParams', () => {
       'en'
     );
     expect(params.extra.backend).toBe('claude');
+  });
+
+  /**
+   * The two keys are not interchangeable, and wcore only ever reads one of them.
+   *
+   * `ConversationServiceImpl.injectProjectKnowledge` states the rule outright -
+   * "gemini + wcore read presetRules; acp reads presetContext" - and the read
+   * side agrees: `WCoreManager` passes `mergedData.presetRules` and nothing
+   * else, while `createWCoreAgent` persists a whitelist that has no
+   * `presetContext` key at all. So rules written to `presetContext` for a wcore
+   * assistant are dropped at creation and can never reach the engine.
+   *
+   * It fails silently and looks fine: `presetAssistantId` IS persisted, so the
+   * Constitution, the capabilities manifest and the assistant's NAME all still
+   * load. Only the persona goes missing - which is how Concierge could announce
+   * itself as Concierge and still answer like a bare coding agent.
+   */
+  it('gives a wcore preset assistant its rules under presetRules, the key wcore reads', async () => {
+    loadPresetAssistantResources.mockResolvedValue({
+      rules: 'concierge persona',
+      skills: '',
+      enabledSkills: ['concierge'],
+    });
+    configGet.mockResolvedValue([
+      {
+        id: 'p1',
+        platform: 'openai',
+        name: 'P1',
+        baseUrl: 'b1',
+        apiKey: 'k1',
+        model: ['m1'],
+        enabled: true,
+      },
+    ]);
+
+    const params = await buildPresetAssistantParams(
+      {
+        backend: 'wcore',
+        name: 'Concierge',
+        customAgentId: 'builtin-concierge',
+        isPreset: true,
+        presetAgentType: 'wcore',
+      },
+      '/tmp/workspace',
+      'en'
+    );
+
+    expect(params.type).toBe('wcore');
+    expect(params.extra.presetRules).toBe('concierge persona');
+  });
+
+  /**
+   * `buildCliAgentParams` calls `getDefaultWCoreModel()` for wcore; its sibling
+   * `buildPresetAssistantParams` used `{} as TProviderWithModel` - a cast that
+   * asserts a shape the value does not have. A preset assistant is exactly the
+   * case where the user picked the assistant and never picked a model, so the
+   * empty object is what the conversation is created with.
+   */
+  it('gives a wcore preset assistant a real model rather than an empty object', async () => {
+    loadPresetAssistantResources.mockResolvedValue({ rules: 'r', skills: '', enabledSkills: [] });
+    configGet.mockResolvedValue([
+      {
+        id: 'p1',
+        platform: 'openai',
+        name: 'P1',
+        baseUrl: 'b1',
+        apiKey: 'k1',
+        model: ['m1', 'm2'],
+        enabled: true,
+      },
+    ]);
+
+    const params = await buildPresetAssistantParams(
+      {
+        backend: 'wcore',
+        name: 'Concierge',
+        customAgentId: 'builtin-concierge',
+        isPreset: true,
+        presetAgentType: 'wcore',
+      },
+      '/tmp/workspace',
+      'en'
+    );
+
+    expect(params.model.useModel).toBe('m1');
+    expect(params.model.id).toBe('p1');
   });
 });

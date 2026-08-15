@@ -83,9 +83,33 @@ function findDistributableArtifacts(fileNames) {
   return fileNames.filter((name) => typeof name === 'string' && DISTRIBUTABLE_ARTIFACT.test(name));
 }
 
+// electron-builder writes the unpacked app to `<platform>-unpacked/` (win-unpacked,
+// linux-unpacked, mac-arm64-unpacked...). THAT directory is the sanctioned
+// directory-only output, so its contents are not "artifacts the build produced" and
+// must not be scanned for distributables.
+//
+// This is load-bearing on Windows and nowhere else. `--dir` there yields
+// `win-unpacked/Wayland.exe`, and a bare `.exe` one level down is indistinguishable
+// from an NSIS installer to a name-based scan — so the gate rejected EVERY Windows
+// verification build. On macOS the equivalent binary sits deeper inside `Wayland.app`
+// and was never scanned, which is why this only ever bit Windows.
+//
+// The invariant is preserved: real distributables are written at the output ROOT and
+// are still scanned. This narrows WHERE we look, never WHAT counts as distributable.
+const UNPACKED_OUTPUT_DIR = /^(?:win|linux|mac)(?:-[a-z0-9]+)*-unpacked$/i;
+
+/**
+ * @param {string} dirName a directory basename directly under the builder output dir
+ * @returns {boolean} true when it is electron-builder's unpacked-app directory
+ */
+function isUnpackedOutputDir(dirName) {
+  return typeof dirName === 'string' && UNPACKED_OUTPUT_DIR.test(dirName);
+}
+
 module.exports = {
   isLocalVerificationBuild,
   isLocalVerificationDirBuild,
   isCanonicalDirOnlyArgs,
   findDistributableArtifacts,
+  isUnpackedOutputDir,
 };

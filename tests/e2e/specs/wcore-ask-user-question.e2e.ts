@@ -47,6 +47,10 @@ const ASK_PROMPT =
 
 test.describe('#504 AskUserQuestion (in-app, real engine)', () => {
   test('renders the question choices in the approval prompt and returns the picked answer', async ({ page }) => {
+    // The choice wait below budgets 90s, but playwright.config.ts caps tests at
+    // 60s - so the test died red before it could ever reach its own soft-skip
+    // for "the model didn't call the tool". Give it room to make that decision.
+    test.setTimeout(180_000);
     ensureDir();
     await goToGuid(page);
     await selectAgent(page, 'wcore');

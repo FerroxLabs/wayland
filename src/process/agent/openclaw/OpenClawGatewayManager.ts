@@ -1,13 +1,16 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { spawn, type ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { killChild } from '@process/agent/acp/utils';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
+import { describeGatewayStartBlocker } from './openclawConfig';
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -55,6 +58,14 @@ interface GatewayManagerConfig {
   port?: number;
   /** Custom environment variables */
   customEnv?: Record<string, string>;
+  /**
+   * Why the gateway would refuse to start, or `null` to go ahead. Injected so
+   * this class stays a process spawner rather than silently reading the user's
+   * ~/.openclaw on every start — which would make its behaviour depend on
+   * whatever config happens to be on the machine running it, tests included.
+   * Defaults to the real reader.
+   */
+  startBlocker?: () => string | null;
 }
 
 interface GatewayManagerEvents {
@@ -81,6 +92,7 @@ export class OpenClawGatewayManager extends EventEmitter {
   private readonly cliPath: string;
   private readonly port: number;
   private readonly customEnv?: Record<string, string>;
+  private readonly startBlocker: () => string | null;
   private isStarting = false;
   private startPromise: Promise<number> | null = null;
 
@@ -91,6 +103,7 @@ export class OpenClawGatewayManager extends EventEmitter {
     this.cliPath = config.cliPath || 'openclaw';
     this.port = config.port || 18789;
     this.customEnv = config.customEnv;
+    this.startBlocker = config.startBlocker ?? describeGatewayStartBlocker;
   }
 
   private resolveCommandPath(cmd: string, envPath?: string): string | null {
@@ -216,6 +229,16 @@ export class OpenClawGatewayManager extends EventEmitter {
 
   private async doStart(): Promise<number> {
     return new Promise((resolve, reject) => {
+      // Upstream exits instead of listening when the CLI has never been
+      // onboarded. Answer that BEFORE spawning: the failure is fully
+      // predictable, and after the spawn all we can offer is a code-1 dump with
+      // upstream's advice buried in a truncated stderr tail.
+      const blocked = this.startBlocker();
+      if (blocked) {
+        reject(new Error(blocked));
+        return;
+      }
+
       const args = ['gateway', '--port', String(this.port)];
 
       // Use enhanced env with shell variables

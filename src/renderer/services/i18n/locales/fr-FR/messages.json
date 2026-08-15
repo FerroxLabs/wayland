@@ -1,5 +1,5 @@
 {
-  "truncation.budgetExhausted.body": "Cette réponse s'est arrêtée avant d'être terminée. Continuez pour reprendre exactement là où elle s'est arrêtée — le modèle conserve le travail déjà effectué.",
+  "truncation.budgetExhausted.body": "Cette réponse s'est arrêtée avant d'être terminée. Continuez pour reprendre exactement là où elle s'est arrêtée, le modèle conserve le travail déjà effectué.",
   "truncation.budgetExhausted.action": "Continuer",
   "fileChanges": "Modifications de fichiers",
   "fileChangesCount": "{{count}} modifications de fichiers",

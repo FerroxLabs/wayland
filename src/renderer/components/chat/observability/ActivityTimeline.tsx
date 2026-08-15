@@ -77,7 +77,7 @@ const StepRow: React.FC<{ step: ActivityStep }> = ({ step }) => {
   const duration = formatDuration(stepDurationSec(step));
 
   return (
-    <div className={styles.step} data-step-status={step.status}>
+    <div className={styles.step} data-step-status={step.status} data-step-kind={step.kind}>
       <div
         className={styles.stepHead}
         onClick={expandable ? toggle : undefined}
@@ -149,6 +149,29 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
 
   if (steps.length === 0) return null;
 
+  /**
+   * A group of one is not a group, and promoting its label into a summary header
+   * was only half the fix: the header and the row it wrapped then rendered the
+   * SAME text twice, stacked. Live-testing caught that; the unit test did not,
+   * because it asserted the label was PRESENT rather than how many times.
+   *
+   * StepRow already carries the glyph, the label and its own expander for detail,
+   * children and sources - so a lone step renders as itself, one level down, with
+   * no wrapper above it to duplicate.
+   */
+  if (steps.length === 1) {
+    return (
+      <div
+        className={styles.container}
+        data-testid='activity-timeline'
+        data-timeline-status={status}
+        data-sole-step='true'
+      >
+        <StepRow step={steps[0]} />
+      </div>
+    );
+  }
+
   const runningCount = steps.filter((s) => s.status === 'running').length;
   const toggle = (): void => setExpanded((v) => !v);
 
@@ -157,7 +180,19 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
   // Some sources (grouped tool_group items) carry no timing, so a span duration
   // isn't always available - drop the "· {{duration}}" suffix when it's empty.
   const dur = running ? '' : spanDuration(steps);
-  const doneSummary = dur
+
+  // "What I did" at-a-glance: name the real actions under the collapsed summary
+  // (only for genuinely multi-step turns; a single action is self-evident).
+  const doneLabels = steps.filter((s) => s.status !== 'running' && s.label).map((s) => s.label.replace(/[.…]+$/, ''));
+
+  // A group of one is not a group. Each WCore `tool_group` message becomes its
+  // own timeline, so a turn of ten single-tool groups rendered ten identical
+  // "Did 1 things" headers, each hiding exactly one row that said more than the
+  // header did - and "1 things" is not a sentence in any case. When there is a
+  // single finished step, promote its own label into the summary; the chevron
+  // still opens the detail underneath.
+  const soleLabel = doneCount(steps) === 1 && doneLabels.length === 1 ? doneLabels[0] : '';
+  const countSummary = dur
     ? t('conversation.observability.summaryDid', {
         defaultValue: 'Did {{count}} things · {{duration}}',
         count: doneCount(steps),
@@ -167,10 +202,15 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
         defaultValue: 'Did {{count}} things',
         count: doneCount(steps),
       });
-
-  // "What I did" at-a-glance: name the real actions under the collapsed summary
-  // (only for genuinely multi-step turns; a single action is self-evident).
-  const doneLabels = steps.filter((s) => s.status !== 'running' && s.label).map((s) => s.label.replace(/[.…]+$/, ''));
+  const doneSummary = soleLabel
+    ? dur
+      ? t('conversation.observability.summaryDidOne', {
+          defaultValue: '{{label}} · {{duration}}',
+          label: soleLabel,
+          duration: dur,
+        })
+      : soleLabel
+    : countSummary;
   const stepDetail =
     doneLabels.length >= 2
       ? doneLabels.length > 3

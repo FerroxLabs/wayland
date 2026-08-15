@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  *
  * Unified Agent Logo mapping utility
  *
@@ -9,6 +11,7 @@
  */
 
 import WaylandLogo from '@/renderer/assets/logos/brand/wayland.svg';
+import WaylandNanoLogo from '@/renderer/assets/logos/brand/wayland-nano.svg';
 import AuggieLogo from '@/renderer/assets/logos/brand/auggie.svg';
 import ClaudeLogo from '@/renderer/assets/logos/ai-major/claude.svg';
 import CursorLogo from '@/renderer/assets/logos/tools/coding/cursor.png';
@@ -37,6 +40,7 @@ import QwenLogo from '@/renderer/assets/logos/ai-china/qwen.svg';
  */
 const AGENT_LOGO_MAP = {
   wcore: WaylandLogo,
+  wnano: WaylandNanoLogo,
   claude: ClaudeLogo,
   gemini: GeminiLogo,
   qwen: QwenLogo,

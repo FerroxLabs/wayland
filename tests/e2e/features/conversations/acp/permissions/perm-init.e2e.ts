@@ -119,6 +119,11 @@ test.describe('F-PERM-04 View pending confirmation action list', () => {
 });
 
 test.describe('F-PERM-06 Mode and permission initialization on session creation', () => {
+  // These cases wait on a real AI round trip, which the 60s global cap in
+  // playwright.config.ts cannot cover. test.setTimeout() inside beforeAll only
+  // raises the HOOK's budget, so it has to be configured at describe scope.
+  test.describe.configure({ timeout: 180_000 });
+
   test('Mode is queryable with a concrete value after creating a new session', async ({ page }) => {
     await goToGuid(page);
     await selectAgent(page, 'claude');
@@ -135,7 +140,9 @@ test.describe('F-PERM-06 Mode and permission initialization on session creation'
     await takeScreenshot(page, 'perm-06-default-mode');
   });
 
-  test('New session takes effect immediately after selecting bypass-confirmation mode on the onboarding page', async ({ page }) => {
+  test('New session takes effect immediately after selecting bypass-confirmation mode on the onboarding page', async ({
+    page,
+  }) => {
     // Use the guid page flow: select agent → pick bypassPermissions mode → send message
     await goToGuid(page);
     await selectAgent(page, 'claude');

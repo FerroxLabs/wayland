@@ -15,7 +15,7 @@ import { ModelRegistryProvider, useModelRegistry, useRefreshState } from '@rende
 import { consumePendingDeepLink } from '@renderer/hooks/system/useDeepLink';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { connectProviderHttp } from '@renderer/services/ProviderKeyService';
-import { reloadWithinTimeout } from './reloadWithinTimeout';
+import { reloadWithinTimeout } from '@renderer/utils/reloadWithinTimeout';
 import BrowseModal from './BrowseModal';
 import ConnectPanel from './components/ConnectPanel';
 import ConnectedRow from './components/ConnectedRow';
@@ -307,7 +307,8 @@ const ModelsSettingsInner: React.FC = () => {
   // Whether `flux-router` is already a connected provider - drives the hero's
   // reinforcement-vs-recommendation state. Read straight from the registry list
   // the page already loads (no extra detection call).
-  const fluxConnected = useMemo(() => providers.some((p) => p.providerId === 'flux-router'), [providers]);
+  const fluxProvider = useMemo(() => providers.find((p) => p.providerId === 'flux-router'), [providers]);
+  const fluxConnected = fluxProvider !== undefined;
 
   // Pin Flux Router to the top of the connected list; the rest keep their
   // existing (registry insertion) order. Stable single-key sort.
@@ -425,7 +426,9 @@ const ModelsSettingsInner: React.FC = () => {
       breadcrumb={[{ label: t('settings.modelsPage.crumbAiModels') }, { label: t('settings.modelsPage.title') }]}
       actions={headerActions}
     >
-      <FluxRouterHero connected={fluxConnected} onConnectKey={connectFluxKey} />
+      {/* The hero's count and the connected row's count are the SAME field, so
+          the page can never state two different numbers for Flux Router. */}
+      <FluxRouterHero connected={fluxConnected} modelCount={fluxProvider?.modelCount} onConnectKey={connectFluxKey} />
 
       <ConnectPanel
         detectedKeys={visibleDetected}

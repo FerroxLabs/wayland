@@ -132,6 +132,20 @@
     }
   },
   {
+    "id": "weekday-morning-report",
+    "name": "Weekday morning report",
+    "description": "Weekday pre-open: scan the watchlist, render the morning brief, and report whether the run was complete, partial, or empty.",
+    "schedule": "0 7 * * 1-5",
+    "timezone": "local",
+    "workflow": "wayland-morning-report",
+    "inputs": {
+      "watchlist_path": "~/wayland/market/watchlist.csv",
+      "positions_path": "~/wayland/market/positions.csv",
+      "cache_dir": "~/wayland/cache/market-open-report/",
+      "output_dir": "~/wayland/outbox/market/"
+    }
+  },
+  {
     "id": "weekly-support-review",
     "name": "Weekly support review",
     "description": "Friday morning: pull weekly support metrics, SLA compliance check, pattern detection.",

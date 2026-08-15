@@ -16,9 +16,9 @@
 
 import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
-import { invokeBridge, navigateTo } from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion } from '../helpers';
 
-const LAUNCHER_ID = 'ext-cold-outbound';
+const LAUNCHER_ID = 'builtin-cold-outbound';
 const NAME_PREFIX = 'E2E InputEdge';
 
 type TeamRow = { id: string; name: string };
@@ -39,6 +39,11 @@ async function gotoColdOutboundLauncher(page: Page): Promise<void> {
   await expect(page.locator('[data-testid="teams-library-page"]')).toBeVisible({
     timeout: 15_000,
   });
+  // The library paginates at 48 cards over 60 teams, and this launcher sorts
+  // into the hidden tail - its card is simply not in the DOM on page one
+  // [V: probe counted 0 before search, 1 after]. Filter to it the way a user
+  // would rather than clicking a card that was never rendered.
+  await page.locator('[data-testid="teams-search-input"]').fill('Cold Outbound');
   await page.locator(`[data-testid="team-card-${LAUNCHER_ID}"]`).click();
   await page.waitForURL(new RegExp(`/teams/${LAUNCHER_ID}/launch`), { timeout: 10_000 });
   await expect(page.locator('[data-testid="launcher-row-leader"]')).toBeVisible({
@@ -74,9 +79,7 @@ test.describe('Team Blitz - input edge cases', () => {
       userId: 'system_default_user',
     });
     expect(after.length, 'empty-name click must NOT create a team').toBe(beforeCount);
-    expect(page.url(), 'empty-name click must NOT navigate away').toMatch(
-      new RegExp(`/teams/${LAUNCHER_ID}/launch$`)
-    );
+    expect(page.url(), 'empty-name click must NOT navigate away').toMatch(new RegExp(`/teams/${LAUNCHER_ID}/launch$`));
 
     // Whitespace-only - same.
     await nameInput.fill('   ');
@@ -132,9 +135,7 @@ test.describe('Team Blitz - input edge cases', () => {
     await invokeBridge(page, 'team.remove', { id: teamId }).catch(() => {});
   });
 
-  test('launcher name: HTML / script tags are rendered as literal text (no XSS)', async ({
-    page,
-  }) => {
+  test('launcher name: HTML / script tags are rendered as literal text (no XSS)', async ({ page }) => {
     test.setTimeout(90_000);
     await cleanupTeams(page);
     await gotoColdOutboundLauncher(page);
@@ -167,9 +168,7 @@ test.describe('Team Blitz - input edge cases', () => {
     await invokeBridge(page, 'team.remove', { id: teamId }).catch(() => {});
   });
 
-  test('launcher name: SQL injection - team created, list call still works', async ({
-    page,
-  }) => {
+  test('launcher name: SQL injection - team created, list call still works', async ({ page }) => {
     test.setTimeout(90_000);
     await cleanupTeams(page);
     await gotoColdOutboundLauncher(page);
@@ -192,9 +191,7 @@ test.describe('Team Blitz - input edge cases', () => {
     await invokeBridge(page, 'team.remove', { id: teamId }).catch(() => {});
   });
 
-  test('BuildMyOwn goal: empty disables Suggest, 1-char enables, 10000-char no crash', async ({
-    page,
-  }) => {
+  test('BuildMyOwn goal: empty disables Suggest, 1-char enables, 10000-char no crash', async ({ page }) => {
     test.setTimeout(120_000);
 
     await navigateTo(page, '#/teams');
@@ -237,9 +234,7 @@ test.describe('Team Blitz - input edge cases', () => {
     }).toPass({ timeout: 30_000 });
   });
 
-  test('delete modal: case-insensitive trim, newline tolerated, 10k-char paste no crash', async ({
-    page,
-  }) => {
+  test('delete modal: case-insensitive trim, newline tolerated, 10k-char paste no crash', async ({ page }) => {
     test.setTimeout(120_000);
     await cleanupTeams(page);
 
@@ -267,10 +262,16 @@ test.describe('Team Blitz - input edge cases', () => {
     }
 
     // Open delete modal.
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
     const row = sidebarEntry.locator(
-      'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
+      // SiderItem's root is `h-26px ... group ...` now, not h-40px. Match the
+      // `group` CLASS TOKEN exactly - a bare contains() also matches
+      // `group-hover:text-1` on an inner div, which has no menu trigger.
+      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
     );
     await row.hover();
     await row.locator('span.flex-center.cursor-pointer').last().click();
@@ -320,9 +321,7 @@ test.describe('Team Blitz - input edge cases', () => {
     expect(after).toBeNull();
   });
 
-  test('slot name input: empty falls back to default, duplicates are allowed', async ({
-    page,
-  }) => {
+  test('slot name input: empty falls back to default, duplicates are allowed', async ({ page }) => {
     test.setTimeout(120_000);
     await cleanupTeams(page);
     await gotoColdOutboundLauncher(page);

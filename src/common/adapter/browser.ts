@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { bridge, logger } from '@office-ai/platform';
@@ -180,7 +182,7 @@ if (win.electronAPI) {
           window.clearTimeout(reconnectTimer);
           reconnectTimer = null;
         }
-          // Skip redirect if already on login page to prevent infinite reload loop
+        // Skip redirect if already on login page to prevent infinite reload loop
         if (window.location.pathname === '/login' || window.location.hash.includes('/login')) {
           return;
         }

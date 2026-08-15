@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import path from 'node:path';
@@ -83,6 +85,31 @@ describe('OpenClawGatewayManager', () => {
     vi.useRealTimers();
   });
 
+  /**
+   * These cases exercise PROCESS SPAWNING, so they opt out of the onboarding
+   * pre-flight rather than depending on whatever ~/.openclaw the machine running
+   * the suite happens to have. The pre-flight itself is covered by
+   * openClawGatewayStartBlocker.test.ts, and its wiring by the case below.
+   */
+  const NOT_BLOCKED = (): string | null => null;
+
+  describe('refuses to spawn a gateway that would exit on startup', () => {
+    it('rejects with the blocker reason and never spawns', async () => {
+      // `openclaw gateway` exits instead of listening when the CLI was never
+      // onboarded. Spawning anyway turned a fixable setup step into a code-1
+      // dump, so the manager must not reach spawn() at all.
+      mockAccessSync.mockImplementation(() => undefined);
+
+      const manager = new OpenClawGatewayManager({
+        cliPath: 'openclaw',
+        startBlocker: () => 'OpenClaw is installed but not set up yet. Run `openclaw onboard --install-daemon`.',
+      });
+
+      await expect(manager.start()).rejects.toThrow('openclaw onboard --install-daemon');
+      expect(mockSpawn).not.toHaveBeenCalled();
+    });
+  });
+
   describe('start() with missing CLI binary', () => {
     it('should reject with a clear error when CLI is not found on PATH', async () => {
       // accessSync throws for every candidate → resolveCommandPath returns null
@@ -90,7 +117,7 @@ describe('OpenClawGatewayManager', () => {
         throw new Error('ENOENT');
       });
 
-      const manager = new OpenClawGatewayManager({ cliPath: 'openclaw' });
+      const manager = new OpenClawGatewayManager({ cliPath: 'openclaw', startBlocker: NOT_BLOCKED });
       const promise = manager.start();
 
       await expect(promise).rejects.toThrow('CLI not found: "openclaw"');
@@ -102,7 +129,7 @@ describe('OpenClawGatewayManager', () => {
         throw new Error('ENOENT');
       });
 
-      const manager = new OpenClawGatewayManager({ cliPath: '/opt/bin/openclaw' });
+      const manager = new OpenClawGatewayManager({ cliPath: '/opt/bin/openclaw', startBlocker: NOT_BLOCKED });
       const promise = manager.start();
 
       await expect(promise).rejects.toThrow('CLI not found: "/opt/bin/openclaw"');
@@ -126,7 +153,7 @@ describe('OpenClawGatewayManager', () => {
       const proc = createMockProcess();
       mockSpawn.mockReturnValue(proc);
 
-      const manager = new OpenClawGatewayManager({ cliPath: 'openclaw' });
+      const manager = new OpenClawGatewayManager({ cliPath: 'openclaw', startBlocker: NOT_BLOCKED });
       const promise = manager.start();
 
       // Emit ready signal

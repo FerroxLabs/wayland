@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -582,6 +584,60 @@ describe('composeMessage - activity merge (#252)', () => {
     expect(textCards).toHaveLength(1);
     expect((textCards[0] as IMessageText).content.content).toBe('Hello World');
     expect(list.filter((m) => m.type === 'activity')).toHaveLength(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The assistant's reply must never be merged into the user's own bubble.
+//
+// WCore persists the user turn with `msg_id === id === <turn id>` and then
+// streams the assistant reply under that SAME turn id. Matching text purely on
+// msg_id therefore found the user's prompt, appended the answer to it, and
+// (via Object.assign) flipped `position` from 'right' to 'left'. Measured in a
+// live profile DB: one row holding "Call the aion_list_models tool and paste
+// its raw output verbatim." + "I couldn't call `aion_list_models`: ..." as a
+// single left bubble, with the user's question gone from history entirely.
+// ---------------------------------------------------------------------------
+
+describe('composeMessage - user/assistant bubbles never merge', () => {
+  const turnText = (position: 'left' | 'right', content: string): IMessageText =>
+    ({
+      id: 'turn-1',
+      msg_id: 'turn-1',
+      type: 'text',
+      position,
+      conversation_id: 'c1',
+      content: { content },
+    }) as IMessageText;
+
+  it('keeps the user prompt intact when the reply shares its msg_id (fail-on-old)', () => {
+    const user = turnText('right', 'Call the tool and paste its output.');
+    const list = composeMessage(turnText('left', 'I could not call it.'), [user]);
+
+    expect(list).toHaveLength(2);
+    const prompt = list.find((m) => m.position === 'right') as IMessageText;
+    expect(prompt.content.content).toBe('Call the tool and paste its output.');
+    const reply = list.find((m) => m.position === 'left') as IMessageText;
+    expect(reply.content.content).toBe('I could not call it.');
+  });
+
+  it('still merges consecutive assistant deltas on the same turn', () => {
+    let list = composeMessage(turnText('right', 'Prompt.'), []);
+    list = composeMessage(turnText('left', 'Hello '), list);
+    list = composeMessage(turnText('left', 'World'), list);
+
+    const replies = list.filter((m) => m.position === 'left') as IMessageText[];
+    expect(replies).toHaveLength(1);
+    expect(replies[0].content.content).toBe('Hello World');
+  });
+
+  it('merges two positionless deltas with each other', () => {
+    const bare = (content: string) =>
+      ({ id: 'turn-1', msg_id: 'turn-1', type: 'text', conversation_id: 'c1', content: { content } }) as TMessage;
+    const list = composeMessage(bare('World'), [bare('Hello ')]);
+
+    expect(list).toHaveLength(1);
+    expect((list[0] as IMessageText).content.content).toBe('Hello World');
   });
 });
 

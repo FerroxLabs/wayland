@@ -165,12 +165,7 @@ const TeamCreateModal: React.FC<Props> = ({ visible, onClose, onCreated }) => {
           <Button onClick={handleClose} className='min-w-88px px-16px' style={{ borderRadius: 8 }}>
             {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
-          <Button
-            type='primary'
-            onClick={handleCreate}
-            loading={loading}
-            className='min-w-88px'
-          >
+          <Button type='primary' onClick={handleCreate} loading={loading} className='min-w-88px'>
             {t('team.create.confirm', { defaultValue: 'Create Team' })}
           </Button>
         </div>
@@ -197,7 +192,7 @@ const TeamCreateModal: React.FC<Props> = ({ visible, onClose, onCreated }) => {
                 })}
               </span>
               {allAgents.length === 0 ? (
-                <div className='flex items-center justify-center rounded-12px border border-dashed border-border-2 bg-fill-1 py-20px text-12px text-t-secondary'>
+                <div className='flex items-center justify-center rounded-12px border border-dashed border-2 bg-fill-1 py-20px text-12px text-t-secondary'>
                   {t('team.create.noSupportedAgents', { defaultValue: 'No supported agents installed' })}
                 </div>
               ) : (

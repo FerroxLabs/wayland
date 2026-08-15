@@ -34,6 +34,7 @@ import onboarding from './onboarding.json';
 import projects from './projects.json';
 import concierge from './concierge.json';
 import recovery from './recovery.json';
+import shellChoice from './shellChoice.json';
 
 export default {
   common,
@@ -67,4 +68,5 @@ export default {
   projects,
   concierge,
   recovery,
+  shellChoice,
 };

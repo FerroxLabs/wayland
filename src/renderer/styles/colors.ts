@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 /**
@@ -10,7 +12,11 @@
  *
  * Usage:
  * - CSS: use CSS variables directly: var(--color-bg-0)
- * - UnoCSS: use atomic classes: bg-bg-0, text-text, border-border
+ * - UnoCSS: use atomic classes: bg-1, text-1, border-1 - the prefix is NOT repeated.
+ *   uno.config.ts keys the palette on the bare token, so repeating the prefix matches
+ *   no colour and no rule: the generator emits nothing, the class is inert, and the
+ *   element silently loses its colour with no build, lint or runtime error.
+ *   Guarded by tests/unit/unoTokenHygiene.test.ts.
  * - TypeScript: use this file for type safety and constants
  */
 

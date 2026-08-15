@@ -688,7 +688,7 @@ describe('CronService', () => {
     });
 
     it('rejects an every-minute new_conversation job by default', async () => {
-      await expect(service.addJob(footgunParams())).rejects.toThrow('cron:error.highFreqNewConversation');
+      await expect(service.addJob(footgunParams())).rejects.toThrow('cron.error.highFreqNewConversation');
       expect(repo.insert).not.toHaveBeenCalled();
     });
 
@@ -719,7 +719,7 @@ describe('CronService', () => {
       vi.mocked(repo.getById).mockResolvedValue(job);
       await expect(
         service.updateJob('j-up', { schedule: { kind: 'cron', expr: '* * * * *', description: 'm' } })
-      ).rejects.toThrow('cron:error.highFreqNewConversation');
+      ).rejects.toThrow('cron.error.highFreqNewConversation');
     });
 
     it('updateJob allows raising frequency with the explicit override', async () => {

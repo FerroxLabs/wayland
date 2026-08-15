@@ -12,18 +12,16 @@ import ActivationCard from '@renderer/components/activation/ActivationCard';
 import AcpAuthFailureCard from '@renderer/components/activation/AcpAuthFailureCard';
 import CuaPermissionCard from '@renderer/components/activation/CuaPermissionCard';
 import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
-import { useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
+import { activationPromptFor, useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
 import { ModelRegistryProvider } from '@renderer/hooks/useModelRegistry';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
-import { MessageListProvider, useMessageList, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
+import { MessageListProvider, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
 import { getAcpAuthRemedy, type AcpAuthRemedy } from '@renderer/pages/conversation/platforms/acp/acpAuthFailure';
 import {
   routeThroughFluxAndReplay,
   type FluxFailoverTurn,
 } from '@renderer/pages/conversation/platforms/acp/acpFluxFailover';
 import { useFluxConnected } from '@renderer/hooks/useFluxConnected';
-import { useObservabilitySettings } from '@renderer/hooks/settings/useObservabilitySettings';
-import ObservabilityPanel from '@renderer/pages/conversation/Messages/components/ObservabilityPanel';
 import { FLUX_AUTO_MODEL, isFluxModelId } from '@/common/config/flux';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { emitter, useAddEventListener } from '@renderer/utils/emitter';
@@ -34,9 +32,9 @@ import LocalImageView from '@renderer/components/media/LocalImageView';
 import ConversationChatConfirm from '../../components/ConversationChatConfirm';
 import WCoreSendBox from './WCoreSendBox';
 import WCoreContextCeilingCard from './WCoreContextCeilingCard';
+import WCoreConstitutionLockedCard from './WCoreConstitutionLockedCard';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 import ExecutionSpine from '../../components/ExecutionSpine';
-import { useWorkbenchSection, type WorkbenchSectionRegistration } from '../../components/WorkbenchHost';
 
 const WCoreChat: React.FC<{
   conversation_id: string;
@@ -120,6 +118,20 @@ const WCoreChat: React.FC<{
     pendingCeilingTurnRef.current = null;
     setCeilingRemedy(null);
   }, [conversation_id]);
+  // Locked-Constitution remedy card: shown when a turn could not start because
+  // the Constitution revision authority on this machine cannot be unlocked. Its
+  // one action opens the Constitution recovery flow that already lives in
+  // Settings; the encrypted authority itself is never touched from here.
+  const [constitutionLocked, setConstitutionLocked] = useState<{ rawError?: string } | null>(null);
+  useAddEventListener(
+    'wcore.constitution.locked.card',
+    (p) => {
+      if (p.conversation_id !== conversation_id) return;
+      setConstitutionLocked({ rawError: p.rawError });
+    },
+    [conversation_id]
+  );
+  const goToConstitutionRecovery = useCallback(() => navigate('/settings/constitution'), [navigate]);
   // #466: Computer-Use permission onboarding. WCoreSendBox emits the engine's
   // `computer_use` capability; we prime the macOS permission card only while CUA
   // is available (the card itself stays null unless a grant is actually missing).
@@ -139,13 +151,17 @@ const WCoreChat: React.FC<{
     pendingTurnRef.current = null;
     setCeilingRemedy(null);
     pendingCeilingTurnRef.current = null;
+    setConstitutionLocked(null);
     setHasCuaCapability(false);
     setCuaCardDismissed(false);
   }, [conversation_id]);
-  // Wake-the-engine call to action: shown inline above the send box whenever no
-  // working inference provider is configured (WS-4). A held first message
-  // auto-fires once a provider connects.
-  const engineAsleep = !readiness.ready && !readiness.loading;
+  // Wake-the-engine call to action, shown inline above the send box. It keys on
+  // the readiness REASON, never on "the last thing failed": a turn that dies for
+  // an unrelated cause (engine spawn, a locked Constitution, the network) does
+  // not touch the registry, and telling a user with five connected providers to
+  // "connect a model provider" is simply false. Only `no-provider` earns that
+  // copy; configured-but-unusable gets the `repair` headline instead.
+  const activationPrompt = activationPromptFor(readiness);
   const handleConnectFlux = useCallback(() => {
     // Fire-and-forget: the one-click PKCE flow runs in main; on success the model
     // registry emits listChanged, readiness flips, the card unmounts, and the
@@ -188,26 +204,10 @@ const WCoreChat: React.FC<{
     updateLocalImage({ root: workspace });
   }, [workspace]);
 
-  // The activity tree keeps the existing settings and message-list stores, but
-  // delegates its right-side presentation to the one contextual WorkbenchHost.
-  const { settings: obs, update: updateObs } = useObservabilitySettings();
-  const messages = useMessageList();
-  const observabilitySection = useMemo<WorkbenchSectionRegistration>(
-    () => ({
-      id: 'observability',
-      label: 'Observability',
-      priority: 50,
-      available: true,
-      requestedOpen: obs.panelOpen,
-      activationKey: obs.panelOpen ? 'open' : 'closed',
-      onActivate: () => updateObs('panelOpen', true),
-      onDismiss: () => updateObs('panelOpen', false),
-      testId: 'workbench-observability',
-      content: <ObservabilityPanel messages={messages} onClose={() => updateObs('panelOpen', false)} />,
-    }),
-    [messages, obs.panelOpen, updateObs]
-  );
-  useWorkbenchSection(observabilitySection);
+  // Workbench sections are registered by ExecutionSpine, which every platform
+  // chat renders inside this same MessageListProvider. Registering one here
+  // would make it exclusive to wcore: Claude Code, Codex and Gemini would get
+  // no such surface at all.
   const conversationValue = useMemo<ConversationContextValue>(() => {
     return {
       conversationId: conversation_id,
@@ -233,9 +233,10 @@ const WCoreChat: React.FC<{
             <FlexFullContainer>
               <MessageList className='flex-1' emptySlot={emptySlot} isProcessing={isProcessing} />
             </FlexFullContainer>
-            {engineAsleep && (
+            {activationPrompt && (
               <div className='max-w-800px w-full mx-auto mb-8px'>
                 <ActivationCard
+                  variant={activationPrompt}
                   onConnectFlux={handleConnectFlux}
                   onUseOwnKey={goToModels}
                   onUseClaudeCode={goToModels}
@@ -261,6 +262,15 @@ const WCoreChat: React.FC<{
                   rawError={ceilingRemedy.rawError}
                   onRetry={onCeilingRetry}
                   onDismiss={() => setCeilingRemedy(null)}
+                />
+              </div>
+            )}
+            {constitutionLocked && (
+              <div className='max-w-800px w-full mx-auto mb-12px'>
+                <WCoreConstitutionLockedCard
+                  rawError={constitutionLocked.rawError}
+                  onOpenRecovery={goToConstitutionRecovery}
+                  onDismiss={() => setConstitutionLocked(null)}
                 />
               </div>
             )}

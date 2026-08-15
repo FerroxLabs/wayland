@@ -15,27 +15,79 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = 'd0aa0abc75afe056cc5434fcd652efa6d474ab0c' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '9b58c893' as const;
 
+/**
+ * Pinned to Core `116f2d21` ("fix(protocol): announce a call that runs without
+ * approval", 2026-08-12, on `lane/v0130-build`), the tree the 0.13.0 binary
+ * `sha256:c55205d4b36cd5fd843c767c897e8edb30a4dd193e74da0a8fdad0dcdb24b229`
+ * was built from. All four values below were read from that commit's manifest
+ * and then confirmed identical to a real `ready` frame off the binary.
+ *
+ * ⚠️ Identify an engine by sha256, NEVER by `--version`. The dev build that
+ * used to sit in `resources/bundled-wayland-core/` self-reports `0.12.26` and
+ * is not the release; reading its version string is what produced the wrong
+ * baseline in the first place.
+ *
+ * The observer compares these for EQUALITY - no range, no dual acceptance - so
+ * the pin, the corpus under `contracts/wayland-desktop-core/v1/` and the
+ * shipped engine all move in ONE commit or every session dies on frame 1.
+ *
+ * Three distinct contract sets are live, all three verified by execution:
+ *   published v0.12.26  minor 12 / gen-13 / schema `23fb3048…`
+ *   C-1..C-5 dev build  minor 13 / gen-14 / schema `4971f456…`
+ *   0.13.0              minor 14 / gen-14 / schema `306d83e1…`  <- pinned here
+ */
 export const DESKTOP_CORE_V1_PIN = {
   name: 'wayland-desktop-core',
   major: 1,
-  minor: 0,
-  generator: 'wcore-desktop-contract-gen/1',
-  fixtureDigest: 'sha256:2c611ffad0096289fc6a68e93921233821b9d75028b21b9a85c67b293eadac2b',
-  schemaDigest: 'sha256:37c51099256e62226306fa02f7a8637cc6a9a102df8e7c41c6e73253f7638271',
-  sourceInputsDigest: 'sha256:c3fb582801bbf7ab75a9fefe45e79e5cafb28013bc900a6515cfd7462650863e',
+  minor: 14,
+  generator: 'wcore-desktop-contract-gen/14',
+  fixtureDigest: 'sha256:9d5ef0ca25d3a1a3085ed39a64ec70b7e55c39b43e76ced17d08b7674b77b233',
+  schemaDigest: 'sha256:306d83e19fa01a83c1d17d6365c9159efeb94373b8328259cbf842d783e00152',
+  sourceInputsDigest: 'sha256:59b607a0fd8bcd94eeb7e708926f1f29259e54a47a46e3cbea70ff77f21ab8ae',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
     contract_negotiation: 'available',
     cua_events: 'shape_only',
+    durable_child_model_v1: 'available',
+    durable_goals_v1: 'available',
     effective_execution_policy_revisions: 'available',
     host_delegated_delivery: 'available',
+    operator_tool_effect_resolution_v1: 'available',
     plugin_events: 'shape_only',
+    runtime_diagnostics_v1: 'available',
+    runtime_mcp_lifecycle_v1: 'available',
+    semantic_failover_receipts: 'available',
+    session_persistence_v1: 'available',
+    session_persistence_v2: 'available',
+    turn_recovery_v1: 'available',
     workflow_lifecycle_v1: 'available',
   },
 } as const;
+
+/*
+ * The seven-event corpus-drift allowlist that used to live here is GONE, and
+ * deliberately so.
+ *
+ * It existed because Core's producer emitted 59 event types while the corpus
+ * generated from the same tree declared only 52 - and `workspace_policy` fires
+ * immediately after `ready` on every session, so that one frame failed every
+ * session closed. That was C-1, and it is fixed at
+ * {@link DESKTOP_CORE_V1_PRODUCER_COMMIT}: the manifest now declares all 59,
+ * verified by checking each of the seven names against `manifest.counts` and
+ * the events list rather than trusting the changelog.
+ *
+ * Those types are therefore no longer "unknown", so the allowlist branch was
+ * unreachable for them - dead code guarding a fixed bug. They now take the
+ * ordinary path: schema-validated, then dispatched, where `WCoreAgent`'s
+ * `default:` arm logs and drops the ones Desktop has no model for. Same
+ * outcome, one mechanism instead of two, and a real schema check on the way in.
+ *
+ * Its own instruction was "delete entries as Core adds them to the corpus".
+ * Core added all seven.
+ */
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 const validateEventSchema = ajv.compile(coreEventSchema as object);
@@ -58,12 +110,113 @@ export class DesktopCoreContractError extends Error {
 
 export type DesktopCoreConsumeResult =
   | { kind: 'event'; event: WCoreEvent; disposition: 'advanced'; contract: 'legacy' | 'v1' }
-  | { kind: 'drop'; reason: 'unknown_noncritical' | 'duplicate' | 'after_terminal' };
+  | {
+      kind: 'drop';
+      reason: 'unknown_noncritical' | 'duplicate' | 'after_terminal' | 'producer_declared_unmodelled';
+    };
 
 export type AnvilDesktopTrustStatus = 'active' | 'invalidated' | 'superseded' | 'historical';
 
 function fail(code: string, message: string): never {
   throw new DesktopCoreContractError(code, message);
+}
+
+/**
+ * K-03: closes the confirmed defect where a `stream_end`/`error` frame that
+ * Core has fully written to stdout, but whose trailing LF delimiter never
+ * arrives (the engine stays alive and simply goes idle right after writing
+ * it), was buffered in `inputRemainder` forever with zero observable trace -
+ * leaving the Desktop UI's running state stuck indefinitely. Recovery is
+ * triggered purely by having received enough bytes to form one complete,
+ * structurally valid JSON object - never by a timer, satisfying the "fix the
+ * cause, not a timeout" constraint.
+ *
+ * Every `WCoreEvent` variant is a JSON object, so this short-circuits unless
+ * `buf` starts with `{`. Otherwise it scans byte-by-byte tracking brace
+ * nesting depth and JSON string/escape state (an unescaped `"` toggles
+ * whether the scan is inside a string; a `\` while inside a string causes the
+ * next byte to be skipped from toggling/parsing, so an escaped quote or
+ * backslash inside a string value never mis-toggles nesting or string state).
+ * The moment depth returns to exactly zero after having gone positive, the
+ * byte offset immediately after that closing `}` is returned. This function
+ * does no JSON-grammar validation beyond brace/string balance -
+ * `consumeLine()`'s own `JSON.parse` plus schema/reducer checks remain the
+ * real validator; this only decides WHEN to attempt parsing, never WHAT is
+ * accepted.
+ */
+function findCompleteObjectEnd(buf: Buffer): number | null {
+  let start = 0;
+  while (start < buf.length && (buf[start] === 0x20 || buf[start] === 0x09 || buf[start] === 0x0d)) start += 1;
+  if (start >= buf.length || buf[start] !== 0x7b) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < buf.length; i += 1) {
+    const byte = buf[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (byte === 0x5c) {
+        escaped = true;
+      } else if (byte === 0x22) {
+        inString = false;
+      }
+      continue;
+    }
+    if (byte === 0x22) {
+      inString = true;
+    } else if (byte === 0x7b) {
+      depth += 1;
+    } else if (byte === 0x7d) {
+      depth -= 1;
+      if (depth === 0) return i + 1;
+    }
+  }
+  return null;
+}
+
+/**
+ * Rejects a command carrying a number JS cannot represent exactly.
+ *
+ * Core's schema bounds `additional_tokens` at `u64::MAX`
+ * (18446744073709551615) and the corpus ships
+ * `adversarial/commands/continue-with-budget-overflow-tokens.jsonl` one over.
+ * Both land on the SAME IEEE-754 double, so an Ajv `maximum` check on the
+ * parsed value cannot tell them apart.
+ *
+ * This runs inside `validateOutboundCommand`, which is the real production
+ * serialization boundary (`index.ts` writes
+ * `JSON.stringify(validateOutboundCommand(cmd))`). An earlier version scanned
+ * the raw line instead and was therefore dead in production, and skipped any
+ * literal containing `.` or an exponent - so `18446744073709551616e0` walked
+ * straight through. Cross-audit (Codex 5.6 Sol) caught both.
+ *
+ * The rule is magnitude, not lexical form: any finite number whose absolute
+ * value exceeds `Number.MAX_SAFE_INTEGER` has already lost precision by the
+ * time it is a JS value, so forwarding it would assert a validation that never
+ * really happened. Ordinary fractional values (`additional_cost_usd: 2.5`) are
+ * untouched.
+ */
+function assertNumbersAreRepresentable(value: unknown, path = 'command'): void {
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) {
+      fail('command_number_unrepresentable', `Desktop command ${path} is not a finite number`);
+    }
+    if (Math.abs(value) > Number.MAX_SAFE_INTEGER) {
+      fail('command_integer_unrepresentable', `Desktop command ${path} exceeds the exact JSON integer range`);
+    }
+    return;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((child, index) => assertNumbersAreRepresentable(child, `${path}[${index}]`));
+    return;
+  }
+  if (value && typeof value === 'object') {
+    for (const [key, child] of Object.entries(value as JsonObject)) {
+      assertNumbersAreRepresentable(child, `${path}.${key}`);
+    }
+  }
 }
 
 function asObject(value: unknown, field = 'top_level'): JsonObject {
@@ -216,6 +369,7 @@ class OrdinaryTurnToolReducer {
       'text_delta',
       'thinking',
       'tool_request',
+      'call_announced',
       'tool_running',
       'tool_chunk',
       'tool_result',
@@ -250,16 +404,40 @@ class OrdinaryTurnToolReducer {
       return 'advanced';
     }
 
-    if (!type.startsWith('tool_')) return 'advanced';
+    // A call reaches us announced one of two ways. `tool_request` is the gated
+    // path. `call_announced` (Core 0.13.0, minor 14) is the ungated one - force
+    // mode, an allow-listed tool, a command-scoped grant, a recovered approval,
+    // or a tool just granted `Always`. Before it existed those calls dispatched
+    // with nothing on the wire and we failed closed on the `tool_running` that
+    // followed, which is what killed Smart Trader's setup mid-turn.
+    //
+    // Core gave the frame no `tool_` prefix so hosts predating it drop it
+    // through their default arm. Dropping it is NOT sufficient here: the
+    // `tool_running` behind it would still find no matching request and fail
+    // closed on the exact path the frame exists to fix. It has to REGISTER.
+    const announcesCall = type === 'tool_request' || type === 'call_announced';
+    if (!announcesCall && !type.startsWith('tool_')) return 'advanced';
     const callId = stringField(event, 'call_id');
-    if (type === 'tool_request') {
+    if (announcesCall) {
       if (this.tools.has(callId)) fail('tool_conflict', `tool ${callId} was requested more than once`);
       this.tools.set(callId, { msgId, terminal: null });
       turn.tools.add(callId);
       return 'advanced';
     }
     const tool = this.tools.get(callId);
-    if (!tool || tool.msgId !== msgId) fail('tool_sequence', `tool event ${type} has no matching request`);
+    // Two different faults used to share one message, which made the failure
+    // undiagnosable from a log: a call_id nobody announced, and a call_id
+    // announced on a DIFFERENT turn. Core needs to know which one it emitted,
+    // and the call_id is the only handle on the offending frame.
+    if (!tool) {
+      fail('tool_sequence', `tool event ${type} has no matching request (call_id=${callId}, msg_id=${msgId})`);
+    }
+    if (tool.msgId !== msgId) {
+      fail(
+        'tool_sequence',
+        `tool event ${type} was requested on turn ${tool.msgId} but arrived on turn ${msgId} (call_id=${callId})`
+      );
+    }
     if (tool.terminal) {
       if (type === 'tool_result' || type === 'tool_cancelled') {
         const terminal = canonicalString(event);
@@ -686,6 +864,12 @@ export class DesktopCoreV1Consumer {
   private readonly workflow = new WorkflowReducer();
   private readonly anvil = new AnvilReducer();
   private inputRemainder = Buffer.alloc(0);
+  // K-03: set the moment an eager recovery (see consumeChunk) consumes a
+  // complete frame without its own delimiter; cleared as soon as that
+  // delimiter is observed (possibly in a later chunk) so a merely-delayed,
+  // not-lost `\n`/`\r\n` is silently absorbed instead of being misread as a
+  // new, zero-length line.
+  private awaitingOrphanDelimiter = false;
 
   consumeLine(line: string): DesktopCoreConsumeResult {
     if (this.mode === 'failed') fail('session_failed', 'Core contract session already failed closed');
@@ -745,11 +929,87 @@ export class DesktopCoreV1Consumer {
 
     try {
       while (cursor.length > 0) {
+        // K-03: an earlier eager recovery consumed a complete frame without
+        // its own delimiter. If the delimiter is now here (possibly having
+        // arrived in a later chunk than the frame it terminates), absorb it
+        // silently before resuming normal scanning - it is not a new,
+        // zero-length line.
+        if (this.awaitingOrphanDelimiter) {
+          if (cursor.length >= 2 && cursor[0] === 0x0d && cursor[1] === 0x0a) {
+            cursor = cursor.subarray(2);
+            this.awaitingOrphanDelimiter = false;
+          } else if (cursor.length >= 1 && cursor[0] === 0x0a) {
+            cursor = cursor.subarray(1);
+            this.awaitingOrphanDelimiter = false;
+          } else {
+            // Non-delimiter bytes are next, so the orphan delimiter is not
+            // merely late - it is never coming, and the engine has moved on to
+            // the following frame. Retire the flag NOW.
+            //
+            // Cross-audit (Kimi K3): leaving it set let it survive an
+            // intervening newline-terminated frame and then silently absorb the
+            // NEXT bare newline anywhere in the stream - a zero-length line this
+            // consumer is required to reject. That turned a fail-closed protocol
+            // validator lenient for the rest of the session after any single
+            // eager recovery. The flag may only ever consume the delimiter that
+            // immediately follows the frame it belongs to; an empty cursor still
+            // carries it into the next chunk, which is the genuine
+            // delayed-delimiter case it exists for.
+            this.awaitingOrphanDelimiter = false;
+          }
+          if (cursor.length === 0) break;
+        }
         const newline = cursor.indexOf(0x0a);
         if (newline < 0) {
           // A future LF would make a body at the cap exceed the cap.
           if (cursor.length >= DESKTOP_CORE_MAX_LINE_BYTES) {
             fail('oversized_line', `Core protocol line exceeds ${DESKTOP_CORE_MAX_LINE_BYTES} bytes`);
+          }
+          // K-03: the delimiter has not arrived, but the bytes already
+          // buffered may already form one complete, structurally valid JSON
+          // object (see findCompleteObjectEnd's contract). If so, recover it
+          // eagerly through the SAME consumeLine validation every normal
+          // line goes through - this changes WHEN parsing is attempted,
+          // never WHAT is accepted. Gated to sessions that have already
+          // negotiated (`legacy`/`v1`): the confirmed defect is a mid-
+          // conversation frame (stream_end/error) arriving long after
+          // negotiation, and restricting eager recovery to that window
+          // preserves the pre-existing, intentionally-pinned "requires a
+          // terminating newline" behavior for the FIRST (negotiation) frame
+          // - `finishInput()`'s unterminated_jsonl failure for a truncated
+          // opening handshake is itself correct, load-bearing behavior, not
+          // an instance of this defect.
+          // Cross-audit (Codex 5.6 Sol): eager recovery is valid ONLY when the
+          // complete object is ALL the buffered bytes. Recovering a complete
+          // object that has more bytes behind it would accept a stream that
+          // violates JSONL framing - two concatenated objects with no delimiter
+          // between them both became accepted events, where the pre-fix consumer
+          // kept one unterminated invalid frame and failed closed on
+          // `finishInput()`. That is a change to WHAT is accepted, not merely
+          // WHEN it is parsed, which is exactly what this recovery promised not
+          // to do.
+          //
+          // Requiring `eagerEnd === cursor.length` also preserves a frame with
+          // trailing JSON whitespace (`{...}   \n`): those spaces stay buffered
+          // with the object instead of being stranded and later parsed as their
+          // own malformed line, so the newline terminates the whole line exactly
+          // as before.
+          //
+          // The real defect is unaffected: a final `stream_end`/`error` body
+          // whose delimiter has not arrived IS all the buffered bytes.
+          const eagerCandidate = this.mode === 'unnegotiated' ? null : findCompleteObjectEnd(cursor);
+          const eagerEnd = eagerCandidate === cursor.length ? eagerCandidate : null;
+          if (eagerEnd !== null) {
+            let eagerLine: string;
+            try {
+              eagerLine = UTF8_FATAL_DECODER.decode(cursor.subarray(0, eagerEnd));
+            } catch {
+              fail('invalid_utf8', 'Core emitted invalid UTF-8');
+            }
+            results.push(this.consumeLine(eagerLine));
+            this.awaitingOrphanDelimiter = true;
+            cursor = cursor.subarray(eagerEnd);
+            continue;
           }
           // Copy the tail so a tiny partial frame cannot retain a large chunk.
           this.inputRemainder = Buffer.from(cursor);
@@ -824,6 +1084,10 @@ export class DesktopCoreV1Consumer {
 
   validateOutboundCommand(command: WCoreCommand | unknown): WCoreCommand {
     if (this.mode !== 'v1') return command as WCoreCommand;
+    // Before the schema: Ajv compares already-rounded doubles and cannot see a
+    // u64 overflow. This is the production boundary - `index.ts` serializes
+    // whatever this returns.
+    assertNumbersAreRepresentable(command);
     validateSchema(validateCommandSchema, command, 'Desktop command');
     return command as WCoreCommand;
   }

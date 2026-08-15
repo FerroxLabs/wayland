@@ -43,9 +43,6 @@ export type WorkbenchProjection = Readonly<{
   action?: ConsequentialActionPreview;
 }>;
 
-const matches = (value: string | undefined, expressions: readonly RegExp[]) =>
-  Boolean(value && expressions.some((expression) => expression.test(value)));
-
 const activityEvidence = (activity: ExecutionActivity): ProjectionEvidence => ({
   id: activity.id,
   label: activity.name,
@@ -64,17 +61,82 @@ const facet = (id: string, label: string, evidence: readonly ProjectionEvidence[
 
 const compact = <T>(items: readonly (T | null)[]): T[] => items.filter((item): item is T => item !== null);
 
-const activityText = (activity: ExecutionActivity) => `${activity.name} ${activity.detail ?? ''}`;
-const outcomeText = (outcome: ExecutionOutcome) => `${outcome.label} ${outcome.uri ?? ''}`;
+/**
+ * Facets are classified by STRUCTURED IDENTITY - `activity.kind`, the
+ * producer-declared `activity.toolKind`, and the name of the tool the activity
+ * invokes - never by a regex over free text.
+ *
+ * The free-text classifier this replaced matched `name + detail`, and `detail`
+ * carries the invocation: a ToolSearch call reading
+ * `{"query":"web search authoritative sources"}` matched /source/ and was filed
+ * under Knowledge > Sources, so the panel presented the model's own question as
+ * the answer it had found. The same read matched "Resources" inside a shell
+ * cwd banner, "-plan.md" inside a file path, "specialist" as a test run, and
+ * the literal word "Browser" inside a query as a live preview.
+ *
+ * A tool name is chosen by the tool registry; a tool's arguments and output are
+ * written by the model. Only the former is identity.
+ */
+type ToolRole = 'terminal' | 'edit';
 
-const SOURCE = [/source/i, /research/i, /web[ _-]?search/i, /browse/i, /reference/i];
-const CITATION = [/citation/i, /cite/i, /bibliograph/i, /footnote/i];
-const OUTLINE = [/outline/i, /plan/i, /structure/i];
-const CHANGE = [/edit/i, /patch/i, /change/i, /write file/i, /diff/i];
-const TERMINAL = [/terminal/i, /shell/i, /command/i, /execute/i, /bash/i, /powershell/i];
-const TEST = [/test/i, /spec/i, /vitest/i, /jest/i, /pytest/i, /cargo test/i];
-const PREVIEW = [/preview/i, /localhost/i, /browser/i, /render/i];
-const SCHEDULE = [/schedule/i, /cron/i, /recurr/i, /trigger/i];
+const TOOL_ROLES = new Map<string, ToolRole>([
+  ['bash', 'terminal'],
+  ['shell', 'terminal'],
+  ['powershell', 'terminal'],
+  ['cmd', 'terminal'],
+  ['terminal', 'terminal'],
+  ['exec', 'terminal'],
+  ['executecommand', 'terminal'],
+  ['runcommand', 'terminal'],
+  ['runshellcommand', 'terminal'],
+  ['shellcommand', 'terminal'],
+  ['edit', 'edit'],
+  ['editfile', 'edit'],
+  ['multiedit', 'edit'],
+  ['write', 'edit'],
+  ['writefile', 'edit'],
+  ['createfile', 'edit'],
+  ['applypatch', 'edit'],
+  ['patch', 'edit'],
+  ['strreplace', 'edit'],
+  ['strreplaceeditor', 'edit'],
+  ['notebookedit', 'edit'],
+  ['replace', 'edit'],
+]);
+
+/**
+ * The producer's own typed declaration, where there is one. ACP types every
+ * tool call `read | edit | execute`; a `read` deliberately maps to no role, so
+ * a read opens no lane.
+ */
+const KIND_ROLES = new Map<NonNullable<ExecutionActivity['toolKind']>, ToolRole>([
+  ['execute', 'terminal'],
+  ['edit', 'edit'],
+]);
+
+const toolIdentity = (name: string) =>
+  name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+
+/**
+ * The role this activity's STRUCTURED identity declares, or null when it
+ * declares none.
+ *
+ * `toolKind` is checked first and is authoritative on its own: the producer
+ * that sets it (ACP) puts agent-written prose in `name`, so falling through to
+ * the name map there would be the free-text classification this replaced. Only
+ * a producer that declares no kind (WCore, and Gemini through it) is classified
+ * by the registry tool it names.
+ */
+const toolRole = (activity: ExecutionActivity): ToolRole | null => {
+  if (activity.kind !== 'tool') return null;
+  if (activity.toolKind) return KIND_ROLES.get(activity.toolKind) ?? null;
+  return TOOL_ROLES.get(toolIdentity(activity.name)) ?? null;
+};
+
+const hasRole = (role: ToolRole) => (activity: ExecutionActivity) => toolRole(activity) === role;
 
 function formatLocator(locator: CitationLocator): string {
   switch (locator.kind) {
@@ -130,19 +192,28 @@ export function deriveWorkbenchProjections(snapshot: ExecutionSnapshot): readonl
   const outcomes = snapshot.outcomes;
   const projections: WorkbenchProjection[] = [];
 
-  const sources = [
-    ...activities.filter((item) => matches(activityText(item), SOURCE)).map(activityEvidence),
-    ...outcomes.filter((item) => matches(outcomeText(item), SOURCE)).map(outcomeEvidence),
-  ];
-  const citations = [
-    ...selectCitationLedger(snapshot).map((citation) => ({
-      id: citation.id,
-      label: citation.claim,
-      detail: `${citation.source.label ?? citation.source.sourceId} · ${formatLocator(citation.locator)}`,
-      uri: citation.source.uri,
-    })),
-    ...outcomes.filter((item) => matches(outcomeText(item), CITATION)).map(outcomeEvidence),
-  ];
+  const ledger = selectCitationLedger(snapshot);
+  /**
+   * A source is what a tool RETURNED and the run then cited - `CitationSource`
+   * is the only structurally source-shaped evidence in the snapshot. A search
+   * tool CALL is an action, so it is never a source; if the run cited nothing,
+   * this facet is empty and the Knowledge lane stays shut. An empty panel is
+   * correct where fabricated cards are not.
+   */
+  const sources = [...new Map(ledger.map((citation) => [citation.source.sourceId, citation.source])).values()].map(
+    (source) => ({
+      id: source.sourceId,
+      label: source.label ?? source.sourceId,
+      ...(source.contentDigest ? { detail: source.contentDigest } : {}),
+      ...(source.uri ? { uri: source.uri } : {}),
+    })
+  );
+  const citations = ledger.map((citation) => ({
+    id: citation.id,
+    label: citation.claim,
+    detail: `${citation.source.label ?? citation.source.sourceId} · ${formatLocator(citation.locator)}`,
+    uri: citation.source.uri,
+  }));
   const validation = snapshot.validation;
   const validationEvidence =
     validation.status !== 'unvalidated' || validation.declaredType
@@ -159,10 +230,9 @@ export function deriveWorkbenchProjections(snapshot: ExecutionSnapshot): readonl
           })),
         ]
       : [];
-  const outline = [
-    ...snapshot.plan.map((step) => ({ id: step.id, label: step.content, detail: step.status })),
-    ...activities.filter((item) => matches(activityText(item), OUTLINE)).map(activityEvidence),
-  ];
+  // The steered plan is the outline. A call that merely touches a file whose
+  // path contains "plan" is not.
+  const outline = snapshot.plan.map((step) => ({ id: step.id, label: step.content, detail: step.status }));
   const knowledgeOutput = outcomes
     .filter((item) => item.kind === 'report' || item.kind === 'message')
     .map(outcomeEvidence);
@@ -181,35 +251,36 @@ export function deriveWorkbenchProjections(snapshot: ExecutionSnapshot): readonl
   }
 
   const files = outcomes.filter((item) => item.kind === 'file').map(outcomeEvidence);
-  const changes = activities.filter((item) => matches(activityText(item), CHANGE)).map(activityEvidence);
-  const terminal = activities.filter((item) => matches(activityText(item), TERMINAL)).map(activityEvidence);
-  const tests = activities.filter((item) => matches(activityText(item), TEST)).map(activityEvidence);
-  const previews = [
-    ...activities.filter((item) => matches(activityText(item), PREVIEW)).map(activityEvidence),
-    ...outcomes.filter((item) => matches(outcomeText(item), PREVIEW)).map(outcomeEvidence),
-  ];
+  const changes = activities.filter(hasRole('edit')).map(activityEvidence);
+  const terminal = activities.filter(hasRole('terminal')).map(activityEvidence);
   const artifacts = outcomes.filter((item) => item.kind === 'artifact').map(outcomeEvidence);
+  // No Tests and no Preview facet. Nothing in the current event shape marks a
+  // run as a test run or a preview: a test is an ordinary terminal call whose
+  // only distinguishing evidence is model-authored argument text, and a preview
+  // is a browser session (its own lane, keyed on `kind === 'browser'`). Showing
+  // nothing beats classifying "specialist" as a test and the word "Browser"
+  // inside a query as a live preview.
   const developmentFacets = compact([
     facet('files', 'Files', files),
     facet('changes', 'Changes', changes),
     facet('terminal', 'Terminal', terminal),
-    facet('tests', 'Tests', tests),
-    facet('preview', 'Preview', previews),
     facet('artifacts', 'Artifacts', artifacts),
   ]);
   if (developmentFacets.length > 0) {
     projections.push({ id: 'development', label: 'Build', priority: 50, facets: developmentFacets });
   }
 
-  const schedule = activities.filter((item) => matches(activityText(item), SCHEDULE)).map(activityEvidence);
-  if (snapshot.scope.scheduled && schedule.length === 0) {
-    schedule.push({ id: snapshot.identity.runId, label: 'Scheduled run', detail: snapshot.scope.channel });
-  }
+  // Only the run's own declared scope can say a run is scheduled. The word
+  // "trigger" appearing in a tool argument cannot, and it used to conjure the
+  // entire Automation lane.
+  const scheduled = snapshot.scope.scheduled || snapshot.scope.surface === 'automation';
+  const schedule: ProjectionEvidence[] = snapshot.scope.scheduled
+    ? [{ id: snapshot.identity.runId, label: 'Scheduled run', detail: snapshot.scope.channel }]
+    : [];
   const approvals = activities.filter((item) => item.kind === 'approval').map(activityEvidence);
-  const runEvidence: ProjectionEvidence[] =
-    snapshot.scope.scheduled || snapshot.scope.surface === 'automation' || schedule.length > 0
-      ? [{ id: snapshot.identity.runId, label: snapshot.lifecycle, detail: snapshot.identity.correlationId }]
-      : [];
+  const runEvidence: ProjectionEvidence[] = scheduled
+    ? [{ id: snapshot.identity.runId, label: snapshot.lifecycle, detail: snapshot.identity.correlationId }]
+    : [];
   const logs = activities.filter((item) => item.kind === 'system' || item.status === 'failed').map(activityEvidence);
   const automationFacets = compact([
     facet('schedule', 'Schedule', schedule),
@@ -217,7 +288,7 @@ export function deriveWorkbenchProjections(snapshot: ExecutionSnapshot): readonl
     facet('approvals', 'Approvals', approvals),
     facet('logs', 'Logs', logs),
   ]);
-  if (snapshot.scope.scheduled || snapshot.scope.surface === 'automation' || schedule.length > 0) {
+  if (scheduled) {
     projections.push({ id: 'automation', label: 'Automation', priority: 65, facets: automationFacets });
   }
 
@@ -284,7 +355,7 @@ export function deriveWorkbenchProjections(snapshot: ExecutionSnapshot): readonl
   ) {
     projections.push({
       id: 'core',
-      label: 'Core',
+      label: 'Engine',
       priority: 40,
       facets: compact([
         facet('status', 'Status', [

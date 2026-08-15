@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { CheckCircle2, Clock, Download, FolderOpen, RefreshCw, XCircle } from 'lucide-react';
@@ -244,7 +246,7 @@ const UpdateModal: React.FC = () => {
     if (!hasIjfwUpdate && !hasIjfwPathIssue) return null;
 
     return (
-      <div className='mx-24px mt-12px px-14px py-12px rounded-8px bg-fill-1 border border-border-2'>
+      <div className='mx-24px mt-12px px-14px py-12px rounded-8px bg-fill-1 border border-2'>
         <div className='flex items-start justify-between gap-16px'>
           <div className='min-w-0'>
             <div className='text-13px font-600 text-t-primary'>
@@ -457,7 +459,7 @@ const UpdateModal: React.FC = () => {
         return (
           <div className='flex flex-col h-full'>
             {/* Version info header */}
-            <div className='flex items-center justify-between px-24px py-16px border-b border-border-2 bg-fill-1'>
+            <div className='flex items-center justify-between px-24px py-16px border-b border-2 bg-fill-1'>
               <div className='flex items-center gap-12px'>
                 <div className='w-40px h-40px bg-[rgb(var(--primary-6))]/12 rounded-10px flex items-center justify-center'>
                   <Download size={20} color='rgb(var(--primary-6))' />

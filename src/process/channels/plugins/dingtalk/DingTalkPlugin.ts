@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { DWClient, TOPIC_ROBOT, TOPIC_CARD, EventAck } from 'dingtalk-stream';
@@ -230,7 +232,9 @@ export class DingTalkPlugin extends BasePlugin {
       // surface 'disconnect' / 'error' / 'close' on its socket. We attach via
       // an any-cast so we never crash if the SDK changes; reconnect will then
       // rely on keepAlive only.
-      const emitter = this.client as unknown as { on?: (event: string, listener: (...args: unknown[]) => void) => void };
+      const emitter = this.client as unknown as {
+        on?: (event: string, listener: (...args: unknown[]) => void) => void;
+      };
       if (typeof emitter.on === 'function') {
         emitter.on('disconnect', () => this.handleStreamDisconnect('disconnect'));
         emitter.on('close', () => this.handleStreamDisconnect('close'));
@@ -264,14 +268,9 @@ export class DingTalkPlugin extends BasePlugin {
     if (!this.shouldReconnect) return;
     if (this.reconnectTimer) return; // already scheduled
     this.isConnected = false;
-    const delay = Math.min(
-      RECONNECT_MAX_DELAY_MS,
-      RECONNECT_BASE_DELAY_MS * 2 ** Math.min(this.reconnectAttempt, 6)
-    );
+    const delay = Math.min(RECONNECT_MAX_DELAY_MS, RECONNECT_BASE_DELAY_MS * 2 ** Math.min(this.reconnectAttempt, 6));
     this.reconnectAttempt += 1;
-    console.warn(
-      `[DingTalkPlugin] Stream ${reason}; reconnect attempt ${this.reconnectAttempt} in ${delay}ms`
-    );
+    console.warn(`[DingTalkPlugin] Stream ${reason}; reconnect attempt ${this.reconnectAttempt} in ${delay}ms`);
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       if (!this.shouldReconnect) return;
@@ -834,10 +833,7 @@ export class DingTalkPlugin extends BasePlugin {
     if (!this.webhookSecret) return webhook;
     const timestamp = Date.now().toString();
     const stringToSign = `${timestamp}\n${this.webhookSecret}`;
-    const signature = crypto
-      .createHmac('sha256', this.webhookSecret)
-      .update(stringToSign, 'utf8')
-      .digest('base64');
+    const signature = crypto.createHmac('sha256', this.webhookSecret).update(stringToSign, 'utf8').digest('base64');
     const sign = encodeURIComponent(signature);
     const sep = webhook.includes('?') ? '&' : '?';
     return `${webhook}${sep}timestamp=${timestamp}&sign=${sign}`;

@@ -39,9 +39,31 @@ export const SiderRecentChatsSection: React.FC<SiderRecentChatsSectionProps> = (
             if (!alive) return;
             if (Array.isArray(list)) {
               // Match WorkspaceGroupedHistory's visible-set filter: drop health-checks and scoped chats.
+              //
+              // `cronJobId` is part of that set and was missing here, so a chat that
+              // acquired a schedule kept its place in the count while dropping out of
+              // the list: groupingHelpers.ts:126-128 excludes cron conversations from
+              // `normalConversations`, and being unpinned they land in no section at
+              // all. Live on a clean profile that read as the badge "1" sitting
+              // directly above "No chat history".
+              //
+              // Counting down to what the list renders, rather than teaching the list
+              // to show cron chats. Whether a scheduled chat belongs in Recents is a
+              // product question; this is only about the two agreeing.
               const visible = list.filter((conv) => {
-                const extra = conv.extra as { isHealthCheck?: boolean; teamId?: string; projectId?: string } | undefined;
-                return extra?.isHealthCheck !== true && !extra?.teamId && !extra?.projectId;
+                const extra = conv.extra as
+                  | {
+                      isHealthCheck?: boolean;
+                      teamId?: string;
+                      projectId?: string;
+                      cronJobId?: string;
+                      pinned?: boolean;
+                    }
+                  | undefined;
+                if (extra?.isHealthCheck === true || extra?.teamId || extra?.projectId) return false;
+                // Pinned wins: the pinned section filters on `pinned` alone, so a
+                // pinned schedule still renders and must still count.
+                return Boolean(extra?.pinned) || !extra?.cronJobId;
               });
               setCount(visible.length);
             } else {

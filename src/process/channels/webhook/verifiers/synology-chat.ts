@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/steipete/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * Synology Chat webhook verifier.
  *
  * Synology Chat authenticates outgoing webhook deliveries with a static `token`

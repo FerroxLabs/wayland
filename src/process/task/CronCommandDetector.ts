@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 /**
@@ -100,7 +102,9 @@ export function detectCronCommands(content: string): CronCommand[] {
     const hasOpen = /\[CRON_PROPOSE\]/i.test(cleanContent);
     const hasClose = /\[\/CRON_PROPOSE\]/i.test(cleanContent);
     if (hasOpen && !hasClose) {
-      const fallback = cleanContent.match(/\[CRON_PROPOSE\]\s*\n?([\s\S]*?)(?=\[CRON_(?:CREATE|LIST|DELETE|UPDATE)|$)/i);
+      const fallback = cleanContent.match(
+        /\[CRON_PROPOSE\]\s*\n?([\s\S]*?)(?=\[CRON_(?:CREATE|LIST|DELETE|UPDATE)|$)/i
+      );
       if (fallback) {
         const parsed = parseCronCreateBody(fallback[1]);
         if (parsed) {

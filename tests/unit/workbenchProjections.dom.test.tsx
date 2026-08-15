@@ -25,6 +25,22 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 const identity = { runId: 'run-projection', turnId: 'turn-1', correlationId: 'corr-1' } as const;
 const digest = `sha256:${'a'.repeat(64)}`;
 
+/**
+ * Reveal a workbench lane by name.
+ *
+ * The panel is a stack of collapsible sections, not a tab row, so a section
+ * header TOGGLES. These tests used to click a tab to navigate to a lane; the
+ * same click on a lane that is already open now closes it and hides the facets
+ * underneath - which is correct behaviour and the wrong gesture for a test that
+ * only wants the lane on screen. Expand only when it is actually collapsed.
+ */
+const revealSection = async (name: string): Promise<HTMLElement> => {
+  const header = await screen.findByRole('button', { name });
+  if (header.getAttribute('aria-expanded') !== 'true') fireEvent.click(header);
+  await waitFor(() => expect(header).toHaveAttribute('aria-expanded', 'true'));
+  return header;
+};
+
 const snapshot = (
   overrides: Partial<{
     actor: ExecutionSnapshot['actor'];
@@ -117,10 +133,17 @@ describe('M6 relevant-only workbench projections', () => {
     );
 
     expect(await screen.findByTestId('projection-development')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Knowledge' }));
+    await revealSection('Knowledge');
     expect(await screen.findByTestId('projection-knowledge')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Citations' }));
+    // Retargeted: "Citation index" is a `report` OUTCOME, so its owner is the
+    // Output facet. It used to appear under Citations only because its label
+    // contains the substring "Citation" - the same free-text misfiling that put
+    // the model's own search queries under Sources. Citations is now fed solely
+    // by the typed citation ledger (covered in coworkJourney.test.ts and
+    // execution/workbenchAttribution.test.ts).
+    fireEvent.click(screen.getByRole('button', { name: 'Output' }));
     expect(screen.getByText('Citation index')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Citations' })).not.toBeInTheDocument();
     expect(document.querySelectorAll('[data-testid="workbench-host"]')).toHaveLength(1);
     expect(document.querySelectorAll('[data-testid="workbench-panel"]')).toHaveLength(1);
   });
@@ -154,7 +177,7 @@ describe('M6 relevant-only workbench projections', () => {
         })
       );
 
-      fireEvent.click(await screen.findByRole('button', { name: 'Core' }));
+      await revealSection('Engine');
       fireEvent.click(screen.getByRole('button', { name: 'Receipts' }));
       expect(await screen.findByTestId('receipt-trust-surface')).toHaveAttribute('data-trust-status', status);
     }
@@ -171,7 +194,7 @@ describe('M6 relevant-only workbench projections', () => {
       })
     );
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Core' }));
+    await revealSection('Engine');
     fireEvent.click(screen.getByRole('button', { name: 'Receipts' }));
     expect(await screen.findByTestId('receipt-trust-surface')).toHaveAttribute('data-trust-status', 'unvalidated');
     expect(screen.getByText('Trusted Core receipt unavailable.')).toBeInTheDocument();

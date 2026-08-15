@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { Express, Request, Response } from 'express';
@@ -578,7 +580,8 @@ export function registerAuthRoutes(app: Express): void {
     // for every request; fall back to empty string if it's somehow absent so
     // we never silently emit an unauthenticated nonce.
     const nonce = typeof res.locals.cspNonce === 'string' ? res.locals.cspNonce : '';
-    const acceptLanguage = typeof req.headers['accept-language'] === 'string' ? req.headers['accept-language'] : undefined;
+    const acceptLanguage =
+      typeof req.headers['accept-language'] === 'string' ? req.headers['accept-language'] : undefined;
     const locale = pickLocale(acceptLanguage);
     const strings = QR_LOGIN_STRINGS[locale];
     res.send(buildQrLoginPageHtml(strings, nonce));

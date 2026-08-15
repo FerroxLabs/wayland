@@ -8,6 +8,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -24,7 +25,10 @@ import { ConstitutionArchiveRestoreOperationAuthority } from '@process/services/
 import { ConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 import { ConstitutionKeyStore } from '@process/services/constitution/constitutionKeyStore';
 import { createConstitutionRequestFingerprint } from '@process/services/constitution/constitutionRequestFingerprint';
-import type { ConstitutionArchiveSecretBackend } from '@process/services/constitution/constitutionFsTransaction';
+import {
+  ConstitutionFsTransactionError,
+  type ConstitutionArchiveSecretBackend,
+} from '@process/services/constitution/constitutionFsTransaction';
 import { finalizeHistoricalConstitutionFixture } from '../../../../fixtures/constitution-fs/provenance/finalizeHistoricalConstitutionFixture';
 
 let cachedRealBinary: ReturnType<typeof verifyConstitutionFsBinary> | undefined;
@@ -357,6 +361,69 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
         secretBackend.encryptString('{"schemaVersion":1}')
       );
       expect(() => new ConstitutionKeyStore(corruptRoot, secretBackend)).toThrow('CONSTITUTION_FS_KEY_STATE_INVALID');
+    });
+
+    // Live defect: the user's -dev profile held a revision authority sealed by
+    // a different installation, so every read threw the raw
+    // "Error while decrypting the ciphertext provided to safeStorage" straight
+    // through composePrompt into the chat and killed every agent turn. The
+    // service must classify it instead, so the surface above it can route the
+    // user to the recovery flow that already exists.
+    // Contract change, stated deliberately: this used to assert the encrypted
+    // authority was still byte-identical AT ITS ORIGINAL PATH, because nothing
+    // reclaimed it. A key ring is regenerable and losing one must not kill every
+    // turn forever, so an unreadable ring is now renamed aside and replaced. The
+    // invariant the assertion protects - the user's encrypted bytes are never
+    // destroyed or overwritten - is unchanged and is now checked at the sidecar,
+    // where the original bytes live. This backend can never decrypt anything,
+    // including the replacement ring it just sealed, so the reclaim cannot
+    // rescue the read and the typed classification (and its recovery route)
+    // still has to be what the caller sees.
+    it('preserves an unlockable revision authority beside a fresh ring and still classifies an unrescuable read', () => {
+      const parent = mkdtempSync(path.join(os.tmpdir(), 'constitution-revision-foreign-identity-service-'));
+      const root = path.join(parent, '.wayland');
+      const revisionAuthorityPath = path.join(parent, 'user-data', 'constitution', 'revision-authority.enc');
+      const binary = realBinary();
+
+      // A cold read publishes the authority without creating the root, which is
+      // exactly the state a fresh profile is in when the first turn fires.
+      const owner = new ConstitutionFsService(root, binary, secretBackend, undefined, revisionAuthorityPath);
+      expect(owner.readConstitution().status).toBe('absent');
+      expect(existsSync(revisionAuthorityPath)).toBe(true);
+      const sealed = readFileSync(revisionAuthorityPath);
+
+      const foreignIdentityBackend: ConstitutionArchiveSecretBackend = {
+        encryptString: secretBackend.encryptString,
+        decryptString: () => {
+          throw new Error('Error while decrypting the ciphertext provided to safeStorage.decryptString.');
+        },
+      };
+      const foreign = new ConstitutionFsService(root, binary, foreignIdentityBackend, undefined, revisionAuthorityPath);
+
+      let thrown: unknown;
+      try {
+        foreign.readConstitution();
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBeInstanceOf(ConstitutionFsTransactionError);
+      expect((thrown as ConstitutionFsTransactionError).code).toBe(
+        'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED'
+      );
+      // What the user reads must be a remedy, not a crypto stack trace.
+      expect((thrown as Error).message).not.toContain('safeStorage');
+      expect((thrown as Error).message).toContain('Settings');
+      // The authority is the user's encrypted data. Failing to read it must
+      // never be a licence to delete, reset, or rewrite it. This backend seals
+      // fine and opens nothing, so the reclaim cannot prove a replacement is
+      // readable and rolls the whole thing back: the exact bytes are at the
+      // canonical path, and no half-reclaimed sidecar is left behind.
+      expect(readFileSync(revisionAuthorityPath)).toEqual(sealed);
+      const archived = readdirSync(path.dirname(revisionAuthorityPath)).filter((name) =>
+        name.startsWith(`${path.basename(revisionAuthorityPath)}.locked-`)
+      );
+      expect(archived).toHaveLength(0);
     });
 
     it('reconciles archive restore response loss before source reads or a second password challenge', async () => {

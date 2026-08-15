@@ -185,6 +185,12 @@
       "settingUp": "Setting things up",
       "startInChat": "Start in chat"
     },
+    "layout": {
+      "headline": "Bir düzen seçin",
+      "sub": "İkisi de aynı sohbetleri, projeleri ve ayarları gösterir. Ayarlar > Gezinme bölümünden istediğiniz zaman değiştirebilirsiniz.",
+      "continue": "Devam",
+      "applying": "Uygulanıyor"
+    },
     "allset": {
       "headline": "you're all set",
       "sub": "Everything is wired and ready. Let's go.",

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { Info, Plus } from 'lucide-react';
@@ -317,7 +319,7 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
             >
               <div
                 data-testid='feedback-report-upload-trigger'
-                className='box-border flex min-h-180px w-full flex-col items-center justify-center gap-10px rd-8px border border-dashed border-border-2 bg-fill-1 px-20px py-28px text-center'
+                className='box-border flex min-h-180px w-full flex-col items-center justify-center gap-10px rd-8px border border-dashed border-2 bg-fill-1 px-20px py-28px text-center'
               >
                 <Plus size={20} className='text-t-secondary' />
                 <div className='max-w-320px text-16px leading-22px font-500 text-t-secondary'>

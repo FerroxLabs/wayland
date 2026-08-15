@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -185,7 +187,9 @@ class PasteServiceClass {
               // like a system name and give it a unique, strip-proof base. See #19.
               const isGenericClipboardName = !file.name || /^image\.\w+$/i.test(file.name);
               let fileName =
-                file.name && !isSystemGenerated && !isGenericClipboardName ? file.name : `pasted_image_${timeStr}${fileExt}`;
+                file.name && !isSystemGenerated && !isGenericClipboardName
+                  ? file.name
+                  : `pasted_image_${timeStr}${fileExt}`;
               // Ensure unique filename within the same paste batch to prevent
               // collisions when multiple images are pasted simultaneously
               if (usedFileNames.has(fileName)) {

@@ -6,6 +6,7 @@ import { useAuth } from '@renderer/hooks/context/AuthContext';
 import { TEAM_MODE_ENABLED } from '@/common/config/constants';
 import { ToastProvider } from '@renderer/components/settings/shared/feedback/Toast';
 import OnboardingOverlay from '@renderer/components/onboarding/OnboardingOverlay';
+import ShellChoiceOverlay from '@renderer/components/shell/ShellChoice/ShellChoiceOverlay';
 const Conversation = React.lazy(() => import('@renderer/pages/conversation'));
 const Guid = React.lazy(() => import('@renderer/pages/guid'));
 const AssistantsLibraryPage = React.lazy(() => import('@renderer/pages/assistants/AssistantsLibraryPage'));
@@ -84,6 +85,10 @@ const ProtectedLayout: React.FC<{ layout: React.ReactElement }> = ({ layout }) =
     <>
       {React.cloneElement(layout)}
       <OnboardingOverlay />
+      {/* Existing installs only — new users get the same choice as a step inside
+          the onboarding flow above, and ShellChoiceOverlay gates itself on
+          `onboardingCompleted` so the two never both fire in one session. */}
+      <ShellChoiceOverlay />
     </>
   );
 };

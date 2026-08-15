@@ -250,6 +250,8 @@
   "installed": "已安装",
   "builtin": "内置",
   "channels": {
+    "mediaSendFailed": "发送 {{name}} 失败",
+    "mediaPathNotAllowed": "无法发送 {{name}}，因为该文件不在允许发送的目录中",
     "label": "渠道",
     "telegram": {
       "help": "通过 Telegram 与你的 Wayland AI 助手聊天。使用 @BotFather 创建一个机器人即可开始。",
@@ -897,9 +899,9 @@
   "webui.port": "端口",
   "webui.portDesc": "WebUI 服务监听端口",
   "webui.allowRemote": "允许远程访问",
-  "webui.allowRemoteDesc": "将 WebUI 暴露给本地网络中的所有设备。登录信息通过未加密的 HTTP 传输——请仅在受信任的网络中启用。",
+  "webui.allowRemoteDesc": "将 WebUI 暴露给本地网络中的所有设备。登录信息通过未加密的 HTTP 传输，请仅在受信任的网络中启用。",
   "webui.allowRemoteConfirmTitle": "将 WebUI 暴露给本地网络？",
-  "webui.allowRemoteConfirmBody": "此网络中的任何人都能访问 WebUI 并尝试登录。密码通过未加密的 HTTP 发送，可能在链路上被读取。在你关闭之前它将一直开启——包括重启之后。",
+  "webui.allowRemoteConfirmBody": "此网络中的任何人都能访问 WebUI 并尝试登录。密码通过未加密的 HTTP 发送，可能在链路上被读取。在你关闭之前它将一直开启，包括重启之后。",
   "webui.allowRemoteConfirmOk": "在本地网络中暴露",
   "webui.allowRemoteActive": "本地网络中的所有设备均可通过未加密的 HTTP 访问。",
   "webui.allowRemoteArmed": "已启用：WebUI 将在下次启动时暴露到本地网络。",
@@ -1078,8 +1080,6 @@
   "channels.extension.noConfig": "无需额外配置。",
   "channels.extension.selectPlaceholder": "请选择",
   "channels.extension.defaultDesc": "扩展渠道插件",
-  "channels.mediaSendFailed": "发送 {{name}} 失败",
-  "channels.mediaPathNotAllowed": "无法发送 {{name}}，因为该文件不在允许发送的目录中",
   "display": "显示",
   "imageGeneration": "图像生成",
   "imageGenerationToggle": "启用图像生成工具",
@@ -1099,19 +1099,17 @@
   "speechToTextRequired": "必填",
   "speechToTextOptional": "可选",
   "speechToTextProviderWhisperLocal": "Whisper（本地）",
-  "speechToTextWhisperModel": "Whisper 模型",
-  "speechToTextDownloadModel": "下载模型",
   "speechToTextDownloading": "下载中...",
   "speechToTextDownloadSuccess": "模型下载成功",
-  "speechToTextDownloadError": "下载失败",
-  "speechToTextCancelDownload": "取消",
   "speechToTextProviderFluxVoice": "Flux Voice",
+  "speechToTextSeededProvider": "当前使用 {{provider}}，因为它已连接且此处未选择引擎。",
+  "speechToTextEffectiveProvider": "当前使用 {{provider}}。",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "文字转语音",
   "textToSpeechDescription": "使用本地或系统语音引擎朗读 AI 回复。",
   "textToSpeechProvider": "提供商",
-  "textToSpeechProviderKokoroLocal": "Kokoro（本地）",
+  "textToSpeechProviderPlaceholder": "选择语音提供商",
   "textToSpeechProviderSystemNative": "系统原生",
   "textToSpeechVoice": "音色",
   "textToSpeechSpeed": "语速",
@@ -1121,6 +1119,8 @@
   "textToSpeechDownloadSuccess": "模型下载成功",
   "textToSpeechDownloadError": "下载失败",
   "textToSpeechCancelDownload": "取消",
+  "textToSpeechTestPhrase": "Hi, I'm Wayland. How are you?",
+  "textToSpeechTestConsentDeclined": "Nothing was spoken and nothing was sent. Choose System Voice to test a voice that stays on your machine.",
   "mcp": "MCP 集成",
   "imageGenerationModel": "图像模型",
   "imageGenerationGuide": "图像模型配置指南",
@@ -1260,7 +1260,7 @@
   "bugReportModulePlugin": "插件系统",
   "bugReportModuleAgentTeam": "团队协作",
   "bugReportModuleOther": "其他",
-  "contactMe": "联系我",
+  "contactMe": "联系我们",
   "officialWebsite": "官网",
   "checkForUpdates": "检查更新",
   "includePrereleaseUpdates": "包含预发布/dev 版本",
@@ -1757,6 +1757,7 @@
       "metricsTurns": "最近 {{count}} 轮：",
       "histogram": "旗舰 {{flagship}} · 小型 {{small}} · 本地 {{local}}",
       "activeConfirmation": "Flux Router 已连接 · {{count}} 个模型 · 按请求路由",
+      "activeConfirmationNoCount": "Flux Router 已连接 · 按请求路由",
       "errorUnauthorized": "该 {{provider}} 密钥被拒绝。请检查密钥后重试。",
       "errorNoCredit": "已连接，但该 {{provider}} 密钥没有可用额度。请添加账单以路由模型。",
       "errorOffline": "无法连接 {{provider}}。你似乎处于离线状态。请检查网络后重试。",
@@ -1782,6 +1783,13 @@
       "errorNoCredit": "无可用额度",
       "errorOffline": "无法连接提供商",
       "errorUnrecognized": "密钥无法识别",
+      "errorUndecryptable": "已保存的密钥无法读取，请重新输入",
+      "errorLocalNotRunning": "未在本机运行",
+      "errorLocalNotInstalled": "未安装在本机",
+      "localStart": "启动 {{provider}}",
+      "localGet": "获取 {{provider}}",
+      "localStarted": "{{provider}} 已在运行。",
+      "localStartFailed": "无法启动 {{provider}}。请手动启动后再刷新。",
       "errorNoModels": "未返回模型",
       "errorUnknown": "连接问题",
       "toggleFailed": "Could not change that provider. Please try again.",
@@ -1851,6 +1859,8 @@
       "rekeyConfirm": "更新密钥",
       "rekeyDone": "提供商凭据已更新。",
       "rekeyCloudDisabled": "云凭据需在云连接表单中重新设置，而非此处。",
+      "refreshStillActionNeeded": "目录已刷新，但该提供方仍需处理。",
+      "rekeyLocalDisabled": "{{provider}} 在本机运行且没有 API 密钥，因此无需重新输入密钥。",
       "errorUnauthorized": "{{provider}} 密钥被拒绝，未授权。请检查密钥后重试。",
       "errorNoCredit": "{{provider}} 密钥没有可用额度。请添加账单以运行模型。",
       "errorOffline": "无法连接 {{provider}}，你似乎处于离线状态。请检查网络后重试。",
@@ -2207,6 +2217,7 @@
     },
     "about": {
       "wcore": "Wayland 自研引擎。调用你「模型」页面上的每个提供商。",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Anthropic 的编程智能体。使用自己的账号登录，无法运行 GPT 或 Gemini。",
       "codex": "OpenAI 的编程智能体。使用自己的账号登录，无法运行 Claude 或 Gemini。"
     },
@@ -2244,6 +2255,48 @@
         "backupLabel": "备份至",
         "rollbackLabel": "若要撤销，请运行"
       }
+    },
+    "install": {
+      "bandTitle": "可安装",
+      "action": "安装",
+      "retry": "重试",
+      "cancel": "取消",
+      "remove": "移除",
+      "installing": "正在安装 {{version}}…",
+      "installed": "已由 Wayland 安装",
+      "pinned": "将安装 {{version}}",
+      "systemCopy": "使用你系统中的副本",
+      "unavailable": "此版本不支持",
+      "whyLink": "为什么？",
+      "whyBody": "此版本未为你的平台附带运行时，而所有安装都需要它。你可以自行安装该智能体，Wayland 会自动检测到。",
+      "failed": {
+        "unknown-agent": "Wayland 没有为该智能体固定的软件包。",
+        "bundled-bun-unavailable": "此版本未附带用于安装的运行时。",
+        "install-failed": "下载失败。请检查网络连接后重试。",
+        "already-installing": "已有安装正在进行。请等待其完成。",
+        "timed-out": "安装耗时过长已被停止。请重试。",
+        "cancelled": "安装已取消。",
+        "error": "安装因意外错误而中止。",
+        "remove-failed": "Wayland 无法移除自己的副本。请重试。",
+        "receipt-missing": "未移除任何内容。Wayland 没有此次安装的记录。"
+      },
+      "removeConfirm": {
+        "title": "移除 {{agent}}？",
+        "body": "这会删除 Wayland 安装到自身文件夹中的副本。你自己安装的任何副本都不会受影响。",
+        "confirm": "移除",
+        "cancel": "保留"
+      },
+      "consent": {
+        "title": "安装 {{agent}}？",
+        "body": "这会从 npm 下载软件包，并在你的电脑上放入可执行代码。",
+        "packageLabel": "软件包",
+        "versionLabel": "版本",
+        "destinationLabel": "安装位置",
+        "scriptsLabel": "安装脚本",
+        "scriptsValue": "已阻止",
+        "confirm": "安装",
+        "cancel": "取消"
+      }
     }
   },
   "commandPalette": {
@@ -2280,7 +2333,7 @@
     "railGroup": "Engine",
     "engineRunning": "engine running",
     "engineStopped": "engine stopped",
-    "stubNote": "Configured here soon — managed in the engine.",
+    "stubNote": "Configured here soon，managed in the engine.",
     "rail": {
       "overview": "Overview",
       "services": "Services & Keys",
@@ -2294,17 +2347,17 @@
     },
     "overview": {
       "title": "Overview",
-      "subtitle": "The engine behind every chat, workflow and agent. It is already running with smart defaults — this surface is where you tune what is under the hood.",
+      "subtitle": "The engine behind every chat, workflow and agent. It is already running with smart defaults，this surface is where you tune what is under the hood.",
       "inheritedTitle": "Allocated by Wayland Desktop",
-      "inheritedBody": "For this session, Desktop hands the engine your model (as an override) and injects Skills + Assistants/Constitution through its system prompt. Your Desktop MCP library is NOT passed through — only Wayland’s own operational MCPs are.",
+      "inheritedBody": "For this session, Desktop hands the engine your model (as an override) and injects Skills + Assistants/Constitution through its system prompt. Your Desktop MCP library is NOT passed through，only Wayland’s own operational MCPs are.",
       "readOnly": "read-only",
       "manageInDesktop": "Manage in Desktop Settings",
       "inheritModels": "Models (override)",
       "inheritMcp": "MCP Servers",
       "inheritSkills": "Skills",
       "inheritAssistants": "Assistants & Constitution",
-      "inheritManaged": "Managed in Desktop Settings — inherited",
-      "deeperHint": "Everything above ships working. Open Tools, Services & Keys, or Security on the left to go deeper — or leave it; the engine just runs.",
+      "inheritManaged": "Managed in Desktop Settings，inherited",
+      "deeperHint": "Everything above ships working. Open Tools, Services & Keys, or Security on the left to go deeper，or leave it; the engine just runs.",
       "scEngine": "Engine",
       "scEngineRunning": "Running",
       "scEngineStopped": "Stopped",
@@ -2315,7 +2368,7 @@
       "scProfileDefault": "Default",
       "inheritModelsDetail": "{{names}} + {{catalog}} catalog · {{allocated}}",
       "inheritModelsEmpty": "{{catalog}} provider catalog · {{allocated}}",
-      "inheritMcpDetail": "{{count}} servers — {{names}} — inherited",
+      "inheritMcpDetail": "{{count}} servers，{{names}}，inherited",
       "configuredLabel": "Configured in the engine",
       "smartDefaults": "smart defaults active",
       "chipToolsOn": "tools on",
@@ -2330,13 +2383,13 @@
       "skillsDetail": "Injected via system prompt · {{allocated}}",
       "assistantsDetail": "Injected via system prompt · {{allocated}}",
       "mcpDetail": "Wayland operational MCPs · your Desktop MCP library is separate",
-      "engineOwnedLine": "Tools, Memory, Security and Profiles are the engine’s own — written to ~/.wayland-core/config.toml and shared with the Wayland Core CLI."
+      "engineOwnedLine": "Tools, Memory, Security and Profiles are the engine’s own，written to ~/.wayland-core/config.toml and shared with the Wayland Core CLI."
     },
     "services": {
-      "subtitle": "The engine tool backends — web search, vision, voice, image. Wayland ships working out of the box; plug in a key to unlock higher limits.",
+      "subtitle": "The engine tool backends，web search, vision, voice, image. Wayland ships working out of the box; plug in a key to unlock higher limits.",
       "webSearchGroup": "Web Search",
-      "ddgTitle": "DuckDuckGo · active — free web search is on",
-      "ddgBody": "No key needed — Wayland searches the web right now. Add a key below only to go faster or run higher volume.",
+      "ddgTitle": "DuckDuckGo · active，free web search is on",
+      "ddgBody": "No key needed，Wayland searches the web right now. Add a key below only to go faster or run higher volume.",
       "connected": "Connected",
       "getFreeKey": "Get a free key",
       "keyPlaceholder": "Paste API key…",
@@ -2346,13 +2399,13 @@
       "remove": "Remove",
       "saveFailed": "Could not save the key.",
       "brave": {
-        "desc": "Independent search index — privacy-first, generous free tier."
+        "desc": "Independent search index，privacy-first, generous free tier."
       },
       "tavily": {
-        "desc": "Search built for agents — clean, ranked results for LLMs."
+        "desc": "Search built for agents，clean, ranked results for LLMs."
       },
       "exa": {
-        "desc": "Neural search — find pages by meaning, not just keywords."
+        "desc": "Neural search，find pages by meaning, not just keywords."
       },
       "firecrawl": {
         "desc": "Crawl and scrape any site into clean, LLM-ready content."
@@ -2459,7 +2512,7 @@
       "autoRunAria": "自动运行 {{tool}} 而不询问"
     },
     "memory": {
-      "subtitle": "The engine remembers across sessions — facts, preferences, and project context that persist and compound. On by default, stored locally.",
+      "subtitle": "The engine remembers across sessions，facts, preferences, and project context that persist and compound. On by default, stored locally.",
       "providerLocal": "Local (SQLite + BM25)",
       "providerHoncho": "Honcho",
       "providerMem0": "Mem0",
@@ -2512,14 +2565,14 @@
       "noLocalBypass": "目前没有受支持的 Wayland 设置可允许浏览器访问 localhost。更改 Raw Engine Mode 或旧的 block_private_urls 键无法解决此问题。",
       "subtitle": "Control how much the engine can do without asking, and exactly which secrets reach the sandbox. Safe defaults already in place.",
       "envInvalid": "Not a valid env var name.",
-      "envSensitive": "That looks like a secret — secret-bearing names can’t be passed to the sandbox.",
+      "envSensitive": "That looks like a secret，secret-bearing names can’t be passed to the sandbox.",
       "approvalAsk": "Ask every time",
       "approvalAuto": "Auto-edit",
       "approvalYolo": "YOLO",
       "approvalsMode": "Approvals Mode",
       "defaultPolicy": "Default approval policy",
       "defaultPolicyDesc": "How edits & commands are confirmed",
-      "approvalHint": "Auto-edit — file edits apply automatically; shell commands and network actions still ask. Recommended for most work.",
+      "approvalHint": "Auto-edit，file edits apply automatically; shell commands and network actions still ask. Recommended for most work.",
       "envAllowlist": "Env-passthrough Allowlist",
       "envPill": "which env vars reach bash",
       "envEmpty": "No env vars are passed to the sandbox yet. Add a non-secret name below.",
@@ -2527,13 +2580,13 @@
       "envRemove": "Remove {{name}}",
       "envPlaceholder": "e.g. GITHUB_TOKEN_NAME, PATH, NODE_ENV (no secrets)",
       "envAdd": "Add",
-      "envSecretsNote": "Only variable names are stored, never values — and secret-bearing names (API keys, tokens, passwords) are refused.",
+      "envSecretsNote": "Only variable names are stored, never values，and secret-bearing names (API keys, tokens, passwords) are refused.",
       "privateUrls": "Private URLs",
       "blockPrivate": "Block private & loopback fetches",
       "blockPrivateDesc": "Stop the engine reaching 10.x, 192.168.x, localhost, and metadata endpoints"
     },
     "profiles": {
-      "subtitle": "Directory-isolated configurations. Each profile carries its own model, tools, keys, skills and memory — switch context instantly without cross-contamination.",
+      "subtitle": "Directory-isolated configurations. Each profile carries its own model, tools, keys, skills and memory，switch context instantly without cross-contamination.",
       "activateFailed": "Failed.",
       "deleteFailed": "Failed.",
       "nameInvalid": "Names use letters, digits, - and _ only (max 64).",
@@ -2553,7 +2606,7 @@
       "skillsChip": "{{count}} 个技能"
     },
     "runtime": {
-      "subtitle": "Where the engine actually runs. Embedded locally by default — switch to a remote box or a hosted headless server when you need to.",
+      "subtitle": "Where the engine actually runs. Embedded locally by default，switch to a remote box or a hosted headless server when you need to.",
       "modeLocal": "Local",
       "modeRemote": "Remote",
       "modeHeadless": "Headless server",
@@ -2567,12 +2620,12 @@
       "agentsVal": "{{count}} agents",
       "powerUser": "Power User",
       "rawEngine": "Raw engine mode",
-      "rawEngineDesc": "Run the embedded engine on its own config — don’t override with Desktop’s model & skills.",
+      "rawEngineDesc": "Run the embedded engine on its own config，don’t override with Desktop’s model & skills.",
       "headlessTitle": "Headless server mode",
       "headlessBody": "Run Wayland Core as a long-lived server (one container per tenant) and reach it over LAN, Tailscale, or the hosted Pro tier."
     },
     "scopeWritesTo": "Writes to",
-    "scopeSharedCli": "— used by the Wayland Core CLI too."
+    "scopeSharedCli": "， used by the Wayland Core CLI too."
   },
   "slashCommands": {
     "title": "Slash Commands",
@@ -2625,6 +2678,7 @@
       "providerConnectivity": "Provider connectivity",
       "modelRegistry": "Model registry",
       "engineReachable": "Engine reachable",
+      "engineContractPin": "Engine version match",
       "engineRouting": "Engine default routing",
       "mcpServers": "MCP servers",
       "backends": "Detected backends",
@@ -2637,5 +2691,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "忙碌时延迟更新",
-  "deferUpdateWhileBusyDesc": "在重启以更新之前，等待进行中的对话、计划任务和团队完成。更新将在空闲时或退出时应用。"
+  "deferUpdateWhileBusyDesc": "在重启以更新之前，等待进行中的对话、计划任务和团队完成。更新将在空闲时或退出时应用。",
+  "textToSpeechProviderWindowsNative": "Windows 语音",
+  "textToSpeechLocalVoiceLabel": "内置语音",
+  "textToSpeechNoLocalVoice": "此操作系统没有内置语音。请选择 OpenAI Speech 来朗读回复。",
+  "speechToTextOnDeviceLabel": "本机运行",
+  "speechToTextOnDeviceBody": "使用 Wayland 自带的模型在本机运行。无需密钥，无需下载，音频不会离开这台设备。"
 }

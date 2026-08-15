@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { TMessage } from '@/common/chat/chatLib';
@@ -9,10 +11,10 @@ import { ipcBridge } from '@/common';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
 import { cronService } from '@process/services/cron/cronServiceSingleton';
-import { detectCronCommands, stripCronCommands, type CronCommand } from './CronCommandDetector';
+import { detectCronCommands, hasCronCommands, stripCronCommands, type CronCommand } from './CronCommandDetector';
 import { detectConciergeProposals, hasConciergeProposals, stripConciergeProposals } from './ConciergeProposeDetector';
 import type { ConciergeProposal } from '@/common/chat/conciergeConfig';
-import { addMessage } from '@process/utils/message';
+import { addMessage, flushConversationMessages } from '@process/utils/message';
 import { hasThinkTags, stripThinkTags } from './ThinkTagDetector';
 
 /**
@@ -200,13 +202,18 @@ export async function processCronInMessage(
       emitSystemResponse(sysMsg);
     }
 
-    // Concierge 2b leak fix: the manager already streamed + persisted the RAW
-    // turn text, so the [CONCIERGE_PROPOSE] block leaks verbatim into the chat
+    // Leak fix: the manager already streamed + persisted the RAW turn text, so a
+    // [CONCIERGE_PROPOSE] or [CRON_PROPOSE] block leaks verbatim into the chat
     // bubble (above the confirmation card). processAgentResponse built a stripped
     // displayMessage that was previously discarded; persist it over the raw row
     // so the saved + reloaded message shows only the friendly prose. The card
-    // still renders from the separate concierge_propose message created above.
-    if (hasConciergeProposals(extractTextFromMessage(message))) {
+    // still renders from the separate propose message created above.
+    //
+    // Cron was left out when this was first written for Concierge, so every
+    // scheduling turn showed the user the raw [CRON_PROPOSE] markup. Both block
+    // types take the same path now.
+    const turnText = extractTextFromMessage(message);
+    if (hasConciergeProposals(turnText) || hasCronCommands(turnText)) {
       await persistStrippedTurnText(conversationId, message, result.displayMessage);
     }
   } catch {
@@ -222,10 +229,17 @@ export async function processCronInMessage(
  * getMessageByMsgId + updateMessage replace path (the same primitive the streaming
  * buffer uses) to swap the stored content in place.
  *
- * Runs AFTER processAgentResponse (which persists + broadcasts the concierge card
- * via addMessage → a synchronous queue flush), so the raw turn text is already
- * fully written by the time we overwrite it; there are no further queued text
- * writes for this msg_id to re-dirty the row.
+ * Drains the conversation's write queue before reading, so the raw turn text is
+ * genuinely on disk and no queued delta lands afterwards to re-dirty the row.
+ * This used to rely on processAgentResponse having forced a synchronous flush
+ * via addMessage — but that only happens on the concierge 'propose' path, so
+ * every cron branch read a row that was still sitting in the debounce queue.
+ *
+ * The DB write alone is not enough. The renderer has ALREADY drawn the raw markup
+ * from the stream, and nothing re-reads the row until the conversation is
+ * reloaded — so for the person actually watching the turn land, the block stayed
+ * on screen. The `replaceContent` broadcast below swaps the live bubble too;
+ * without it this fix only works for people who scroll away and come back.
  *
  * Best-effort: a failed cleanup must never break the agent turn.
  */
@@ -241,16 +255,61 @@ async function persistStrippedTurnText(
   if (typeof cleaned !== 'string') return;
 
   try {
+    // Drain the write queue FIRST. Streaming deltas sit behind a 2000 ms
+    // debounce, and this function reads the row directly rather than through
+    // that queue, so it was racing them in both directions:
+    //
+    //   - The row may not be on disk yet. The docstring above assumed an
+    //     addMessage had already forced a synchronous flush, but that only
+    //     happens on the concierge 'propose' path - the [CRON_LIST] /
+    //     [CRON_CREATE] / [CRON_UPDATE] branches and a zero-proposal
+    //     [CONCIERGE_PROPOSE] enqueue nothing. With no row, the position guard
+    //     below correctly refuses, we return silently, and ~2s later the queue
+    //     writes the RAW text - so the markup this function exists to remove
+    //     stayed on screen and in the database permanently.
+    //
+    //   - Or the row holds only a PREFIX (an earlier debounce fired mid-turn).
+    //     We would replace it with the cleaned full text, then the queued tail
+    //     deltas would flush and APPEND to that, duplicating the tail prose and
+    //     resurrecting the closing marker.
+    //
+    // Draining first makes the docstring's assumption true instead of assumed.
+    await flushConversationMessages(conversationId);
+
     const { getDatabase } = await import('@process/services/database/export');
     const db = await getDatabase();
     const existing = db.getMessageByMsgId(conversationId, msgId, 'text');
     if (!existing.success || !existing.data) return;
     const row = existing.data;
+
+    // Only ever overwrite the ASSISTANT's row.
+    //
+    // A msg_id names the TURN, not a message: WCore stamps the same one on the
+    // user's right-side prompt AND the left-side reply. getMessageByMsgId filters
+    // on conversation + msg_id + type and takes the newest, with no `position`
+    // clause — so if the assistant row is not on disk at this instant, the only
+    // matching text row is the USER'S PROMPT, and we would replace what they
+    // typed with the model's answer. That is unrecoverable, and this repo has
+    // shipped exactly that bug once before (the wcore reply overwriting the user's
+    // message). Cheap guard, permanent damage if it is missing.
+    if (row.position !== 'left') return;
+
     const updated = {
       ...row,
       content: { ...(row.content as Record<string, unknown>), content: cleaned },
     } as TMessage;
-    db.updateMessage(row.id, updated);
+    const written = db.updateMessage(row.id, updated);
+
+    // Do not tell the renderer the text is clean if the row still holds the raw
+    // markup: the bubble would look fixed until reload, then leak again.
+    if (written && written.success === false) return;
+
+    ipcBridge.conversation.responseStream.emit({
+      type: 'content_replace',
+      conversation_id: conversationId,
+      msg_id: msgId,
+      data: { content: cleaned },
+    });
   } catch {
     // best-effort
   }

@@ -105,7 +105,8 @@ async function launchSandboxedApp(sandbox: Sandbox): Promise<CdpApp> {
     cdpPort: sandbox.cdpPort,
     readyTimeoutMs: RELAUNCH_TIMEOUT_MS,
     env: {
-      WAYLAND_EXTENSIONS_PATH: process.env.WAYLAND_EXTENSIONS_PATH || path.join(path.resolve(__dirname, '../..'), 'examples'),
+      WAYLAND_EXTENSIONS_PATH:
+        process.env.WAYLAND_EXTENSIONS_PATH || path.join(path.resolve(__dirname, '../..'), 'examples'),
       WAYLAND_EXTENSION_STATES_FILE: sandbox.extensionStatesFile,
     },
   });
@@ -268,8 +269,14 @@ test.describe('Settings persistence across app restart', () => {
     await runPersistenceCase(test.info(), 'agent.config', 'model.config', providers, (actual) => {
       expect(Array.isArray(actual), 'model.config is an array').toBe(true);
       const arr = actual as typeof providers;
-      expect(arr).toHaveLength(1);
-      expect(arr[0]).toMatchObject({ id: 'e2e-provider-1', platform: 'openai', enabled: true });
+      // Startup auto-registers a reachable local Ollama daemon as `ollama-local`
+      // (autoRegisterOllama), so model.config legitimately holds an extra row on
+      // a machine running one. Assert the seeded provider SURVIVED the restart
+      // rather than that it is the only entry - otherwise this passes or fails
+      // on whether Ollama happens to be running.
+      const seeded = arr.find((p) => p.id === 'e2e-provider-1');
+      expect(seeded, 'seeded provider survived restart').toBeDefined();
+      expect(seeded).toMatchObject({ id: 'e2e-provider-1', platform: 'openai', enabled: true });
     });
   });
 

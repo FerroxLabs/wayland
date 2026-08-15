@@ -12,7 +12,6 @@ import { Tag, Typography } from '@arco-design/web-react';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkbenchSection, type WorkbenchSectionRegistration } from '../WorkbenchHost';
-import ExecutionWorkbenchProjections from '../WorkbenchHost/projections';
 import MissionProgressPanel from './MissionProgressPanel';
 
 function latestTurnId(messages: readonly TMessage[], fallback: string): string {
@@ -103,38 +102,82 @@ const ExecutionSpine: React.FC<{
     }),
     [progressLabel, run, t, visible]
   );
-  useWorkbenchSection(missionSection);
+  // The workbench is Workspace ONLY.
+  //
+  // Progress and the Engine projections were both removed deliberately: the
+  // panel told the user "valid / queued" and a step count they could already
+  // read in the transcript, which is engine telemetry wearing a panel rather
+  // than something anyone can act on. Claude's own side panel dropped the same
+  // two things. Workspace stays because a file tree tied to the conversation is
+  // a thing people actually reach for.
+  //
+  // `missionSection` is still COMPUTED - the in-thread summary strip below uses
+  // the same run data - it is simply no longer published to the right rail.
+  void missionSection;
 
-  const projections = <ExecutionWorkbenchProjections snapshot={snapshot} />;
+  /**
+   * There is deliberately NO Observability section here.
+   *
+   * It rendered the same ActivityTimeline, from the same message stream, that
+   * the transcript already shows inline under the turn it belongs to - so the
+   * panel's whole job was to say a second time what the conversation had
+   * already said, one pane to the right and detached from the turn that
+   * produced it. "Observability" is also a developer's word in a product whose
+   * user is explicitly not one; neither Claude Code nor Codex offers such a
+   * surface, and Sean asked for it gone rather than merely gated.
+   *
+   * The inline timeline is NOT lost with it: MessageList renders
+   * ActivityTimeline directly for sub_agent, activity and tool_summary
+   * messages (MessageList.tsx:178, :182, :545), so the steps still appear
+   * under the turn that produced them.
+   *
+   * The panel this registration used to mount, and the components it alone
+   * rendered, have since been deleted along with it - there is nothing left to
+   * re-register. The per-backend projection it exercised (tool_group and
+   * acp_tool_call humanized through one `toolSummaryToSteps`) was never the
+   * panel's: it lives in common/chat/activity/projectMessages.ts and is covered
+   * directly by tests/unit/projectMessages.test.ts.
+   */
+
+  // The bar is a LIVE status line. `currentStep` is the first in-progress or
+  // pending step, so a finished run has none and the label fell through to its
+  // present-tense default: the bar read "Working through the current task"
+  // beside a `completed` badge, on every completed run, by construction - with
+  // that same badge repeated in the Progress panel a few pixels to its right.
+  // A finished run is the panel's story, so the bar stands down. A FAILED run
+  // keeps it: a failure the user has to notice is what an inline bar is for.
+  const settled = run.lifecycle === 'completed';
+  const lifecycleLabel = t(`conversation.execution.lifecycle.${run.lifecycle}`, { defaultValue: run.lifecycle });
+  const activityLabel =
+    currentStep?.content ??
+    (run.lifecycle === 'failed'
+      ? t('conversation.execution.failedActivity', { defaultValue: 'The run stopped before it finished' })
+      : t('conversation.execution.currentActivity', { defaultValue: 'Working through the current task' }));
 
   if (!visible) {
-    return (
-      <>
-        {projections}
-        {children}
-      </>
-    );
+    return <>{children}</>;
   }
 
   return (
     <>
-      {projections}
       <div className='flex flex-1 min-h-0' data-testid='execution-spine' data-run-id={run.identity.runId}>
         <section className='flex flex-col flex-1 min-w-0'>
-          <div
-            className='mx-20px mt-8px px-12px py-8px rounded-8px bg-fill-1 border border-border-1 flex items-center gap-10px'
-            data-testid='execution-thread-summary'
-            data-run-id={run.identity.runId}
-          >
-            <Tag size='small' color={statusColor(run.lifecycle)}>
-              {run.lifecycle}
-            </Tag>
-            <Typography.Text ellipsis className='min-w-0 text-t-secondary'>
-              {currentStep?.content ??
-                t('conversation.execution.currentActivity', { defaultValue: 'Working through the current task' })}
-            </Typography.Text>
-            {run.progress.total > 0 && <span className='ml-auto text-12px text-t-secondary'>{progressLabel}</span>}
-          </div>
+          {!settled && (
+            <div
+              className='mx-20px mt-8px px-12px py-8px rounded-8px bg-fill-1 border border-1 flex items-center gap-10px'
+              data-testid='execution-thread-summary'
+              data-run-id={run.identity.runId}
+              data-lifecycle={run.lifecycle}
+            >
+              <Tag size='small' color={statusColor(run.lifecycle)}>
+                {lifecycleLabel}
+              </Tag>
+              <Typography.Text ellipsis className='min-w-0 text-t-secondary'>
+                {activityLabel}
+              </Typography.Text>
+              {run.progress.total > 0 && <span className='ml-auto text-12px text-t-secondary'>{progressLabel}</span>}
+            </div>
+          )}
           <div className='flex flex-1 min-h-0'>{children}</div>
         </section>
       </div>

@@ -1,0 +1,286 @@
+# WLD-K handoff v3 — MCP filed, workbench redesigned, Progress + Observability fixed
+
+**Worktree** `~/dev/wayland-worktrees/packet-attribution`, branch `packet/attribution-audit`,
+head **`346f2c479`**, in sync with `ferrox`. Full suite **16,334 passed, 0 failed**, typecheck clean.
+**Nothing merged, nothing tagged, no PR.** Only `AGENTS.md` and the never-commit
+`constitutionFsAuthority.generated.ts` are dirty (both permanent).
+
+**Newest first: §3 is now the Progress/Observability fix, and it corrects the v3 diagnosis that was
+in this slot.** The panels were not starved by a turn-boundary heuristic; the assistant reply was
+overwriting the user's own message in the database. W-A and W-C are closed.
+
+**Read in this order**
+
+1. this file
+2. `phases/WLD-K-core-first/W-1-RESULT.md` — the MCP root cause, measured
+3. `HANDOFF-TO-CORE-2026-08-08-v0.12.26-host-findings.md` — C-1…C-5b (C-5b filed as core#265)
+4. `K-05-INSTALLER-PLAN.md` — the installer build plan, not yet executed
+
+---
+
+## 1. The headline: MCP is root-caused, filed, and still blocking
+
+**Core's `ToolSearch` is an ALL-tokens literal substring match** (`tool_search.rs:120-123`), not a
+semantic search. Every whitespace token of the query must be a literal substring of the tool's name
+or description. Proven back to back in one session on one tool:
+
+```
+ToolSearch("probe")                                   -> MATCH
+ToolSearch("wld_probe_secret tool schema parameters") -> no match
+```
+
+The failing query **contains the tool's exact name**. Longer queries match _less_, so a model that
+gets nothing and rephrases more fully diverges. Punctuation is part of the token, so
+`aion_list_models,` never matches. **Not model-specific** — 28/28 tool calls were `ToolSearch` on
+`claude-sonnet-5`; re-repro'd on `gpt-5.6-sol`. My first attribution to the Gemini
+`thought_signature` defect (C-4) was **wrong**; that is a separate real defect.
+
+**C-5b is the half that still blocks us, and it is Core's.** With the matcher mitigated host-side,
+searches now MATCH and the tool _still_ never becomes callable. The model said so itself, unprompted,
+via the shell: `printf 'Tool schema did not load into the callable tool registry.'` That is the
+hydration-blind snapshot — `registry.rs:206-216` is never rebuilt on hydration while the state lives
+in `engine.rs` `hydrated_tool_names`, with no write path between them.
+
+**Latest measured impact — this is the part to lead with:** a research turn spent
+**21 ToolSearch calls, 4 Bash, and ended `finish_reason: 'max_turns'`** without writing a word of
+output. C-5b does not merely add noise; it **consumes the entire turn budget**. "Continue" just
+resumes the loop.
+
+**Filed as `FerroxLabs/wayland-core#265`** (as FerroxLabs; no duplicate among their 15 open issues).
+**Sean says C-1…C-5 are being fixed and a private build is coming for us to integrate against.**
+
+### What IS proven
+
+An MCP tool executes **end to end on the engine** — discovery, invocation, tool-body execution
+(verified by a witness file the tool itself writes), and the output reaching the reply — on both a
+config-declared server and a runtime `add_mcp_server`, with `deferred` at its default, on Flux and
+Gemini models. Committed as a gated test: `bun run test:mcp:e2e`.
+**Not achieved in the packaged app.** That gap is C-5b.
+
+---
+
+## 2. The private Core build — DONE 2026-08-09 (`f94487a6b`, `3c9540145`, `5b2b8c627`)
+
+Binary `sha256:6d0ca72a…`, Core `fix/contract-corpus-host-parity` @ `d6f76c67`. **It self-reports
+`0.12.26`; identify it by sha, never by `--version`.** Steps 1–5 below are superseded by what
+actually happened; the full account is
+`.planning/REPLY-TO-CORE-2026-08-09-c1-c5-integration.md` and Core's answer to it.
+
+**Two things the old plan got wrong, so don't follow it verbatim next time:**
+
+- The blocker is **not** the publisher attestation gate — that only runs on
+  `verify:release-acceptance` and in release CI, never on a dev run. The real gate is
+  `stage-wcore-bump.mjs`, which needs a **published** release with all six platform checksums; a
+  hand-delivered binary cannot use it at all.
+- It is **not** a digit bump. The corpus moved 52 → 59 events (C-1), so all 173 corpus files were
+  ported from `d6f76c67`. And **there are three digest sets, not two** — the shipped engine's
+  (minor 12 / gen-13 / schema `23fb3048…`) is a third that Core's table did not list. Core has
+  since owned that and adopted absolute per-binary values as a standing rule.
+
+Done: corpus + pin moved to minor 13 / gen-14; the seven-event drift allowlist **deleted** (all
+seven now declared, checked name by name); `toolSearchGuidance.ts` **deleted** with its four tests
+and its use in the E2E — removed _before_ measuring so it could not flatter the result.
+
+Measured, same prompt, matched control: **ToolSearch 23 → 10**, both runs produced an answer. The
+multi-KB echo never fired on the old binary either (largest body 117 chars), so Core's bounded-echo
+fix is **not** credited and stays unverified on their books. Core has taken the residual call count
+as their defect (`tool_search.rs:410` returns a bare dead-end miss string that tells the model
+nothing, so rephrasing is rational).
+
+The bundle manifest is deliberately left describing the **released** engine: this artifact has no
+publisher attestation, none was invented, and the resulting sha mismatch is a tripwire that makes
+`verify-packaged-resources` refuse to package it.
+
+---
+
+## 3. Progress and Observability — FIXED (W-A closed, 2026-08-09)
+
+**The v3 diagnosis above was wrong, and the real cause is worse.** It read the symptom (`afterFilter:
+0`) as a turn-boundary heuristic problem. It was not. Corrected by execution:
+
+**The assistant reply was overwriting the user's own message.** WCore persists the user turn with
+`msg_id === id ===` the turn id, then streams the reply under that same id. `composeMessage`'s text
+branch matched on `msg_id` alone, found the user's bubble, appended the reply to the prompt, and
+`Object.assign` flipped `position` from `right` to `left`. Proven on a live profile DB — one row
+holding _"Call the aion_list_models tool and paste its raw output verbatim."_ glued to _"I couldn't
+call `aion_list_models`: ..."_ as a single left bubble. **The user's question is gone from stored
+history and cannot be recovered** — the concatenation has no separator.
+
+Every corrupted conversation is therefore missing its `text:right`, which is the boundary
+`selectCurrentExecutionMessages` slices on. Without it the WCore branch fell through to a generic
+tail split keyed on `activity` messages that a tool-running WCore turn never emits, so it returned
+**one** trailing `tool_group`.
+
+**Observability was a SEPARATE defect, not the same starvation.** It never called
+`selectCurrentExecutionMessages` at all. It filtered for `activity` + `sub_agent` — the Gemini/ACP
+shapes — while WCore reports tool work as `tool_group`. Empty by construction. Two panels, two
+causes; the v3 "one fix, two panels" claim was mine and it was wrong.
+
+**A third gap:** `MissionProgressPanel` rendered plan steps, plan history, outcomes, handoffs and
+cost — but never `run.activities`. A turn with tools and no plan had nothing to show even with data
+flowing.
+
+**Live proof, real engine, real corrupted conversation** (25 tool calls, no user bubble): the rail
+went from **1 step to 25**, labelled with the real queries — and it now makes C-5b visible in the
+product ("Looking for a web tool", "Looking for a Skill tool", ... fifteen times).
+
+Cross-audited by Codex 5.6 Sol + Kimi K3 + the internal reviewer. **All three found real defects in
+my work; the audit was worth more than the build.**
+
+- Both external legs reproduced the same one: the no-boundary fallback **replayed completed
+  historical turns**. Fixed by recovering the turn from `msg_id`, which WCore stamps on every message
+  of a turn (verified in the DB). Plus a secret reaching a label through `detail`, a needless
+  permissive wildcard, and a missing i18n key — `5d66c177a`.
+- The internal reviewer then found a **regression my own fix introduced**: `useMessageLstCache` keyed
+  its streaming map on `msg_id` alone, so once two text rows legitimately shared a turn id it kept
+  the assistant and substituted it for the **user** row on the content-length rule — deleting the
+  question a second time, by a different door. Also the adapter's `activity` branch still leaked raw
+  `detail`, the fallback had two more holes, and a completed turn wore a blue "running" badge
+  forever. All fixed — `346f2c479`.
+- **One of my own tests was vacuous** (it took the identical branch on old code) and one masking
+  assertion was too — the 40-char label cap truncated the secret I was matching on. Both replaced
+  with controls that fail without the fix.
+
+**Known-unfixed, deliberately (now W-G):** `buildMessageIndex` maps a `msg_id` to the LAST message
+carrying it, so after a `tool_group` rebuilds the renderer index a following assistant delta finds a
+non-text message and starts a new bubble. Pre-dates this packet, spans every backend.
+
+**Open judgement call for Sean:** a _boundary-only_ migration is available for the corrupted rows —
+they are identifiable as `type='text' AND position='left' AND id = msg_id`, and flipping them back to
+`right` would restore the turn boundary and let the `msg_id` fallback be deleted. The content stays
+unrecoverable either way. It has one known false positive (`emitTruncationFlag` legitimately writes
+`id === msg_id` with `position:'left'`) that the predicate would need to exclude. **Not run** — it
+rewrites the user's stored history, which is Sean's call, not mine.
+
+---
+
+## 4. What landed since the last handoff (17 commits)
+
+**MCP / Core**
+
+- `284f4f54b` W-1 root cause · `3227332a2` the guidance mitigation (28→2-5 searches, 19→0 no-match)
+- `442b91e4e` six cross-audit defects fixed in my own work (see §6)
+- `c967368e3` + `e26486ea2` **W-1b fixed**: a failed bootstrap was cached forever (same PID, 95s
+  apart, no second spawn); now retries once per turn, rate-limited so cron cannot spawn-storm
+- `381f6f6ee` **W-1a withdrawn — I was wrong.** The "turn may wedge" line is a FALSE ALARM: 4 of its
+  5 occurrences are followed within ~70ms by `[Bash success] Exit code: 0`
+- `5856e5d5a` the live E2E test · `8f53cedc2` + `f4cc197c4` C-5b written up and filed as core#265
+
+**UI**
+
+- `72954ae01` clicking a dormant section no longer vaporises the workbench (`activate()` now records
+  user intent that outranks the provider's `requestedOpen`)
+- `35340f42f` the panel had **no surface at all**: `bg-bg-2` / `border-border-1` are not real tokens
+  (they are `bg-2` / `border-3`), so it compiled to transparent, 0px border, no shadow — it was
+  literally rendering as the background
+- `a320bd94d` the redesign: one chrome row, tabs instead of a stacked list, 12px gutter, even 12px
+  inset, elevation ladder. Label repeats 3→1, close buttons 2→1. "Core" lane renamed **"Engine"**
+- `f61b73996` + `d61f38300` activity rows now say what a tool acted on, not just its name
+
+---
+
+## 5. Work list
+
+### W-A — Progress + Observability **[DONE 2026-08-09]**
+
+See §3. Five commits: `7d7ae8418` (the merge bug), `4b8ce32d3` (Steps taken), `adfe1f98f`
+(Observability + a masking defect in my own rail), `5d66c177a` + `346f2c479` (cross-audit fixes).
+Live-verified on a real engine turn and on a real corrupted conversation: **1 step → 25**, badge
+`queued` → `running` → `completed` as the run actually settles. 16,334 tests, 0 failed.
+
+### W-C — Carry the tool's subject through to the label **[DONE 2026-08-09]**
+
+`ExecutionActivity` gained a `command` field distinct from `detail`, populated from a tool*group's
+description and secret-masked. `deriveStep` now builds from the invocation first and falls back to
+`detail`, so a ReadFile reads "Reading config.ts" in **both** the chat and the rail. The engine still
+does not send the raw ToolSearch \_argument* — the query shown comes from Core's own echo — so if that
+arg is ever plumbed through, `activityLabels.ts` already reads an explicit `query` field.
+
+### W-B — Integrate the private C-1…C-5 Core build **[DONE 2026-08-09]**
+
+See §2. `f94487a6b` (integration) · `3c9540145` (reply to Core) · `5b2b8c627` (unlink-before-copy
+plus a correction to my own macOS claim). 16,328 tests, 0 failed.
+
+**Still open from the exchange, none blocking:**
+
+- **C-4 / the Gemini `position 2` 400 is untested by BOTH sides.** No request body has ever been
+  captured. Our runs were GPT-5.6 Sol. If anyone runs Gemini with reasoning and hits it, capture the
+  outbound body — specifically whether each `thought: true` part carries a `thoughtSignature` on
+  replay — because that is the only thing that closes it.
+- **Resumed sessions replay thoughts unsigned** (Core §6). We resume sessions AND run Gemini, so
+  this has a real victim. Core moved it up their list on the strength of that; it versions a journal
+  schema, so it is not quick. Nothing for us to build.
+- **Do not roll a journal back across binaries** — one written by the new engine cannot be read by
+  an older one (`deny_unknown_fields` on `ThinkingSignature`).
+- The macOS SIGKILL mechanism is **unproven** — see the correction in §6a of the reply. The guard
+  shipped anyway; do not repeat the cache story as fact.
+
+### W-G — The renderer message index is not speaker-aware **[S/M · found by cross-audit]**
+
+`buildMessageIndex` maps a `msg_id` to the LAST message carrying it. WCore stamps the turn id on the
+user text, the assistant text AND every `tool_group`, so once a tool_group rebuilds the index a
+following assistant delta finds a non-text message and opens a new bubble — fragmenting prose.
+Pre-dates this packet and spans every backend, so it was deliberately NOT bolted onto W-A.
+
+### W-D — The `bg-bg-*` sweep **[S/M]**
+
+15 other files use `bg-bg-2` and are presumably invisible the same way the workbench was. Deliberately
+not swept as a drive-by. Worth a measured pass: check computed style, do not trust the class name.
+
+### W-E — K-05 agent installer **[L · plan ready, never started]**
+
+`K-05-INSTALLER-PLAN.md`. Requirements INS-01…INS-06 exist; there is **zero install code** in `src/`
+(positive-controlled). Detection exists for claude, codex, kimi, auggie, goose, qwen, opencode,
+copilot, droid. **Not blocked on Core** — Core's `plugin install` is for its own plugins and
+`migrate` only imports existing config.
+Findings that change the shape, all established by execution: **auggie cannot satisfy INS-01 at all**
+(`authMethods: []`, OAuth-terminal-only); **qwen can**; the Windows spawn path breaks on the space in
+`C:\Program Files\Wayland` because only the first quoted token survives `parseWindowsCliPath`.
+
+### W-F — L-2…L-6 live verification **[M]**
+
+Still outstanding. **L-2 was NOT validly run** — it looked clean after a real SIGKILL but the
+positive control failed: polling every 250ms through a launch never observed the profile splice, and
+no `--profile` reached the spawn args. With no connectors selected there is nothing to write, so
+"clean afterwards" was vacuous. Select a connector first, confirm the splice appears, then kill.
+
+---
+
+## 6. Guardrails — the ones that bit
+
+- **NEVER `git add -A src`.** It sweeps `constitutionFsAuthority.generated.ts` (local trust-root
+  sha). It happened in `2e32d11f7`. **Stage by explicit path.**
+- `bun run start` does **not** run the prebuild hooks, so the app dies with
+  `ConstitutionFsBinaryError: Adjacent manifest disagrees with trusted embedded authority`.
+  Fix: `node scripts/prepareConstitutionFs.js` — which modifies that never-commit file. Leave it dirty.
+- No merge, no tag, no release, no PR without Sean. `build-and-release.yml` fires on **ANY** tag.
+- Never touch `~/dev/wayland/app`. gh writes must be **FerroxLabs**. No backticks in gh bodies.
+- **Sean's `~/Library/Application Support/wayland-core/config.toml` is `sha256:0bc1051d…` and must
+  stay that way.** It has `backend = "plaintext"`, which makes 0.12.26 refuse to start. Run the
+  engine under a scratch `WAYLAND_HOME` instead — never edit his file.
+- Never relax, skip or delete a test to make something pass. When a control is deliberately removed,
+  **retarget** its test to the new owner (done twice this session), do not delete coverage.
+
+## 7. Method rules that earned their place
+
+- **A zero proves nothing until the same method finds a known positive.** Caught here twice: the
+  L-2 splice (vacuous pass) and `init_history` never being logged at all.
+- **Verify the fix in the thing the user sees.** The ToolSearch label passed its unit tests and
+  rendered `Looking for a "[ { [... 197 similar lines" tool` live. Detail is output, not input.
+- **Measure the style, don't read the class name.** `bg-bg-2` looked correct in source and compiled
+  to nothing for months.
+- **Run the negative control both directions.** Every fix this session did.
+- rtk truncates and mangles: use `rtk proxy <cmd>` for counting, and the vitest JSON reporter
+  (`--reporter=json --outputFile=…`) to read failures reliably.
+
+## 8. Live-verify rig
+
+`WAYLAND_HOME=<scratch> WAYLAND_MULTI_INSTANCE=1 WAYLAND_DEV_PROFILE=L1-1226`
+`WAYLAND_DISABLE_AUTO_UPDATE=1 WAYLAND_CDP_PORT=9230 bun run start`, CDP on 127.0.0.1:9230.
+Helper scripts (`cdp.js`, `chat.js`, `drive.js`, `probe-mcp-server.js`) live in the session
+scratchpad and **are wiped by a compact** — the committed
+`tests/integration/helpers/probeMcpServer.cjs` is the durable copy of the probe server.
+Engine base URL is `https://api.fluxrouter.ai` **without** `/v1` — Core appends it, and `/v1/v1`
+returns a 404 that looks like a bad key. Burner key: `~/.config/wayland-smoke/flux-test-key`.
+Clicking a sidebar chat over CDP needs a **DOM `.click()` walking a few ancestors**; synthetic mouse
+events at coordinates do not open it.

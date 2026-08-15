@@ -6,7 +6,13 @@
 
 const NON_SPEAKABLE_TYPE = /(tool|thinking|reasoning|plan|permission|confirmation|image|audio|usage|cost|error)/i;
 const SAFE_TEXT_KEYS = ['text', 'content', 'message', 'answer', 'result', 'output'] as const;
-const MAX_SPOKEN_CHARACTERS = 4_000;
+
+/**
+ * Cap for a single spoken turn. Exported because under sentence chunking it has
+ * to be counted cumulatively by the caller - applied per chunk it means nothing,
+ * since no individual sentence ever approaches it.
+ */
+export const MAX_SPOKEN_CHARACTERS = 4_000;
 
 const collectSafeText = (value: unknown, depth: number): string[] => {
   if (depth > 5 || value == null) return [];
@@ -26,14 +32,86 @@ const collectSafeText = (value: unknown, depth: number): string[] => {
   return [];
 };
 
-export const normalizeVoiceResponseText = (text: string): string =>
+/**
+ * A list item becomes its own sentence.
+ *
+ * Deleting the bullet and then collapsing newlines - what this used to do - runs
+ * the items straight together: "- one\n- two" was spoken as "one two", with no
+ * boundary at all where the writing had its clearest one. Measured against real
+ * synthesis, bullets read as sentences take 4.57 s versus 3.23 s run together,
+ * and the extra time IS the structure.
+ *
+ * The general rule this follows: written structure gets converted INTO prosody,
+ * never deleted. Commas down, list boundaries up.
+ */
+const listItemsBecomeSentences = (text: string): string =>
   text
-    .replace(/```[\s\S]*?```/g, ' I left the code in the chat. ')
-    .replace(/!\[[^\]]*]\([^)]*\)/g, ' I added an image in the chat. ')
-    .replace(/\[([^\]]+)]\([^)]*\)/g, '$1')
-    .replace(/^#{1,6}\s+/gm, '')
-    .replace(/^\s*[-*+]\s+/gm, '')
-    .replace(/^\s*\d+[.)]\s+/gm, '')
+    .split('\n')
+    .map((line) => {
+      const item = /^\s*(?:[-*+]|\d+[.)])\s+(.*)$/.exec(line);
+      if (!item) return line;
+      const body = item[1].trim();
+      if (!body) return '';
+      return /[.!?]$/.test(body) ? body : `${body}.`;
+    })
+    .join('\n');
+
+/**
+ * Bracketed control blocks the agent emits for the UI to act on, never for a
+ * human to hear: cron proposals, concierge proposals, workflow envelopes, skill
+ * suggestions.
+ *
+ * The renderer already strips these before display (MessageText.tsx) and the
+ * main process strips them before persisting (CronCommandDetector,
+ * ConciergeProposeDetector). Voice was the one consumer that never got the
+ * treatment - and it reads the LIVE stream, which is pre-strip on both of those
+ * paths - so asking the agent to schedule something had the synthesiser
+ * pronounce "CRON underscore PROPOSE, schedule colon zero eight star star one
+ * dash five" out loud.
+ *
+ * Envelope names are matched generically rather than listed one-by-one so a new
+ * block kind is silent by default. Getting that wrong is asymmetric: an unspoken
+ * marker is invisible, a spoken one is deeply strange.
+ */
+const AGENT_MARKER_NAMES = 'CRON_[A-Z_]+|CONCIERGE_PROPOSE|SKILL_SUGGEST|WORKFLOW_[A-Z_]+|workflow_[a-z_]+';
+const AGENT_MARKER_ENVELOPE = new RegExp(`\\[(${AGENT_MARKER_NAMES})(?::[^\\]]*)?\\][\\s\\S]*?\\[/\\1\\]`, 'g');
+/** A marker with no closing tag - `[CRON_LIST]`, `[[AION_FILES]]`, a truncated block. */
+const AGENT_MARKER_BARE = new RegExp(`\\[\\[?/?(?:${AGENT_MARKER_NAMES})(?::[^\\]]*)?\\]?\\]`, 'g');
+/** `[[AION_FILES]]`, kept as its own literal because it is not an envelope. */
+const FILES_MARKER = /\[\[AION_FILES]]/g;
+
+/**
+ * An HTML-ish tag. `<think>` was WORSE than untouched: the emphasis rule below
+ * deletes `>` but not `<` or `/`, so `<think>reasoning</think>` degraded into
+ * `<thinkreasoning</think` and got read out. Deliberately requires a letter
+ * after the optional slash, so arithmetic like "5 < 10" survives.
+ */
+const HTML_TAG = /<\/?[a-zA-Z][a-zA-Z0-9-]*(?:\s[^<>]*)?\/?>/g;
+
+/** True when a control block has opened and not yet closed. */
+export const hasOpenAgentMarker = (text: string): boolean => {
+  const opens = text.match(new RegExp(`\\[(${AGENT_MARKER_NAMES})(?::[^\\]]*)?\\]`, 'g'))?.length ?? 0;
+  const closes = text.match(new RegExp(`\\[/(${AGENT_MARKER_NAMES})\\]`, 'g'))?.length ?? 0;
+  return opens > closes;
+};
+
+export const normalizeVoiceResponseText = (text: string): string =>
+  listItemsBecomeSentences(
+    text
+      // Control blocks go FIRST: their bodies are structured data, and letting
+      // the markdown rules loose on one turns `schedule: 0 8 * * 1-5` into
+      // spoken prose instead of removing it.
+      .replace(AGENT_MARKER_ENVELOPE, ' ')
+      .replace(FILES_MARKER, ' ')
+      .replace(AGENT_MARKER_BARE, ' ')
+      .replace(/```[\s\S]*?```/g, ' I left the code in the chat. ')
+      .replace(/!\[[^\]]*]\([^)]*\)/g, ' I added an image in the chat. ')
+      .replace(/\[([^\]]+)]\([^)]*\)/g, '$1')
+      .replace(/^#{1,6}\s+/gm, '')
+  )
+    // Before the emphasis rule, which would otherwise shred a tag into rubble
+    // that still gets spoken.
+    .replace(HTML_TAG, ' ')
     .replace(/[*_~`>|]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
@@ -48,4 +126,148 @@ export const extractVoiceResponseText = (type: unknown, content: unknown): strin
   if (typeof type === 'string' && NON_SPEAKABLE_TYPE.test(type)) return null;
   const normalized = normalizeVoiceResponseText(collectSafeText(content, 0).join(' '));
   return normalized || null;
+};
+
+// ---------------------------------------------------------------------------
+// Sentence splitting for chunked synthesis
+// ---------------------------------------------------------------------------
+
+/**
+ * Below this, a sentence costs more than it saves.
+ *
+ * Synthesis has ~765 ms of fixed overhead per call, so the break-even is about
+ * 0.88 s of audio - roughly 2.6 words. "Yes." renders in 0.668 s and would
+ * underrun the queue and stutter, so short candidates are merged forward into
+ * the next sentence instead of being spoken alone.
+ */
+const MIN_SENTENCE_CHARS = 15;
+
+/** Stop waiting for a terminator that may never arrive. */
+const FORCE_FLUSH_CHARS = 200;
+
+/**
+ * Words that end in a period without ending a sentence. Matched case-sensitively
+ * against the token immediately before the terminator.
+ */
+const ABBREVIATIONS = new Set([
+  'Dr',
+  'Mr',
+  'Mrs',
+  'Ms',
+  'Prof',
+  'Sr',
+  'Jr',
+  'St',
+  'Mt',
+  'Fig',
+  'No',
+  'vs',
+  'etc',
+  'approx',
+  'e.g',
+  'i.e',
+  'a.m',
+  'p.m',
+]);
+
+/**
+ * True when the period at `index` ends a real sentence rather than an
+ * abbreviation, an initial, or a decimal point.
+ */
+const isSentenceEnd = (buffer: string, index: number): boolean => {
+  const preceding = buffer.slice(0, index);
+  const token = /([A-Za-z.]+|\d+)$/.exec(preceding)?.[1];
+  if (!token) return true;
+  // "It is 3.5 metres." must not split into "It is 3." and "5 metres."
+  if (/^\d+$/.test(token)) return false;
+  // "J. Smith" - a lone capital is an initial, not the end of a thought.
+  if (/^[A-Z]$/.test(token)) return false;
+  return !ABBREVIATIONS.has(token.replace(/\.$/, ''));
+};
+
+export type SpeakableSentences = {
+  /** Raw slices, in order. Concatenating these plus `rest` reproduces the input exactly. */
+  sentences: string[];
+  /** Everything not yet safe to speak. The caller flushes this when the turn ends. */
+  rest: string;
+};
+
+/**
+ * Pulls complete sentences off a growing response buffer so synthesis can start
+ * before the model has finished writing. Measured effect on time-to-first-audio:
+ * 5056 ms down to 953 ms.
+ *
+ * Operates on RAW text and returns raw slices, so `sentences.join('') + rest`
+ * is byte-identical to the input. That is the only invariant worth asserting
+ * here, because normalization is NOT distributive over chunks: the bullet and
+ * numbered-list rules are line-anchored, so a chunk boundary manufactures a line
+ * start and per-chunk normalization genuinely differs from whole-text
+ * normalization. Asserting they match would fail, and the obvious repair is to
+ * weaken the test until it proves nothing. Normalize each emitted sentence
+ * separately instead.
+ *
+ * A terminator at the very end of the buffer is NOT a boundary. Mid-stream the
+ * next delta may continue it - "3." becoming "3.5" is the clearest case, and
+ * nothing at end-of-buffer can distinguish the two. The caller flushes the tail
+ * when the turn ends, which is where that decision actually has the information.
+ */
+export const takeSpeakableSentences = (buffer: string): SpeakableSentences => {
+  // An unclosed code fence holds everything. The normalizer's fence rule needs a
+  // CLOSING fence to match; run it on an open one and the model's raw source is
+  // read aloud verbatim, character by character.
+  if ((buffer.match(/```/g)?.length ?? 0) % 2 === 1) return { sentences: [], rest: buffer };
+
+  // Same reasoning for an agent control block. Its body is structured data full
+  // of terminators, so sentence-splitting an OPEN one hands the queue fragments
+  // of a marker whose envelope rule can no longer match - each fragment is then
+  // normalized alone and spoken. Hold until it closes, exactly like the fence.
+  if (hasOpenAgentMarker(buffer)) return { sentences: [], rest: buffer };
+
+  const sentences: string[] = [];
+  let start = 0;
+
+  for (let i = 0; i < buffer.length; i++) {
+    if (!'.!?'.includes(buffer[i])) continue;
+
+    // Absorb a run of terminators so "Really?!" and "Wait..." stay whole.
+    let end = i;
+    while (end + 1 < buffer.length && '.!?'.includes(buffer[end + 1])) end++;
+
+    // Whitespace after the terminator is required, so end-of-buffer never emits.
+    if (end + 1 >= buffer.length || !/\s/.test(buffer[end + 1])) {
+      i = end;
+      continue;
+    }
+    if (buffer[end] === '.' && !isSentenceEnd(buffer, end)) {
+      i = end;
+      continue;
+    }
+
+    // Include the trailing whitespace in the slice so concatenation is exact.
+    let cut = end + 1;
+    while (cut < buffer.length && /\s/.test(buffer[cut])) cut++;
+
+    const candidate = buffer.slice(start, cut);
+    // Too short to be worth its own synthesis call: keep accumulating.
+    if (candidate.trim().length < MIN_SENTENCE_CHARS) {
+      i = end;
+      continue;
+    }
+
+    sentences.push(candidate);
+    start = cut;
+    i = cut - 1;
+  }
+
+  // A long run with no usable terminator would otherwise wait forever.
+  let rest = buffer.slice(start);
+  if (rest.length > FORCE_FLUSH_CHARS) {
+    const window = rest.slice(0, FORCE_FLUSH_CHARS);
+    const breakAt = window.lastIndexOf(' ');
+    const cut = breakAt > 0 ? breakAt + 1 : FORCE_FLUSH_CHARS;
+    sentences.push(rest.slice(0, cut));
+    rest = rest.slice(cut);
+  }
+
+  return { sentences, rest };
 };

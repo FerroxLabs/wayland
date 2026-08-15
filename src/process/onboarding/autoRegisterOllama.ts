@@ -48,7 +48,12 @@ export type OllamaRegistryRepo = {
 };
 
 /** The Ollama probe result shape `detect.probeOllama` produces. */
-export type OllamaProbe = { running: boolean; models: string[] };
+export type OllamaProbe = {
+  running: boolean;
+  models: string[];
+  /** Per-model `/api/tags` capabilities, keyed by name. Absent on older daemons. */
+  modelCapabilities?: Record<string, string[]>;
+};
 
 /** Outcome of an auto-register pass - returned for tests + logging, never thrown. */
 export type AutoRegisterOutcome =
@@ -60,7 +65,7 @@ export type AutoRegisterOutcome =
  * Build a minimal `CatalogModel` for a model name reported by `/api/tags`. The
  * name is the id verbatim (e.g. `llama3:latest`); no enrichment is fabricated.
  */
-function toCatalogModel(name: string): CatalogModel {
+function toCatalogModel(name: string, toolCall?: boolean): CatalogModel {
   return {
     id: name,
     providerId: OLLAMA_LOCAL_ID,
@@ -68,8 +73,23 @@ function toCatalogModel(name: string): CatalogModel {
     family: name.split(':')[0] || name,
     kind: 'text',
     enriched: false,
-    tags: ['chat'],
+    tags: toolCall === true ? ['chat', 'tools'] : ['chat'],
+    ...(toolCall === undefined ? {} : { toolCall }),
   };
+}
+
+/**
+ * What the daemon said about this model's tool support: `true`, `false`, or
+ * `undefined` when it said nothing at all.
+ *
+ * The undefined case is load-bearing — see `CatalogModel.toolCall`. A daemon
+ * too old to report capabilities must leave every model selectable rather than
+ * silently emptying the user's model list.
+ */
+function toolCapability(probe: OllamaProbe, name: string): boolean | undefined {
+  const caps = probe.modelCapabilities?.[name];
+  if (!Array.isArray(caps)) return undefined;
+  return caps.includes('tools');
 }
 
 /** De-duplicate + drop empties from the probe model names, preserving order. */
@@ -104,7 +124,17 @@ export function autoRegisterOllamaInRepo(repo: OllamaRegistryRepo, probe: Ollama
       // picker with un-selectable rows. providerId is unambiguously local here,
       // so the filter needs no endpoint join.
       .filter((name) => !isUnsupportedLocalVisionModel(OLLAMA_LOCAL_ID, name))
-      .map(toCatalogModel);
+      // Same reasoning, one step further: a model the daemon says cannot take
+      // tools 400s on its FIRST turn, because the engine always advertises
+      // them. Offering it is offering a model that cannot answer.
+      //
+      // Fails CLOSED on evidence and OPEN on ignorance: only an explicit
+      // capability list WITHOUT `tools` hides a model. An older daemon that
+      // reports nothing leaves every model selectable, exactly as before -
+      // which is the documented behaviour of every other local-model guard
+      // here, because local models carry no metadata and must stay usable.
+      .filter((name) => toolCapability(probe, name) !== false)
+      .map((name) => toCatalogModel(name, toolCapability(probe, name)));
     const existing = repo.getRegistryProvider(OLLAMA_LOCAL_ID);
 
     if (existing) {

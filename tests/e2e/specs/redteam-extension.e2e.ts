@@ -25,6 +25,7 @@
 import { test, expect } from '../fixtures';
 import * as path from 'path';
 import * as fs from 'fs';
+import { toAssetUrl } from '@process/extensions/protocol/assetProtocol';
 
 const FIXTURE_REL = 'tests/e2e/fixtures/extensions/redteam.html';
 
@@ -49,17 +50,25 @@ test.describe('Red-team: extension iframe sandbox (commits f0923bdc9 + 9310d700b
       throw new Error(`redteam fixture not found at ${fixtureAbs} - did the file get checked in?`);
     }
 
-    // The fixture is under the project root, NOT one of the asset
-    // allowlist roots (extension dirs / hub resources). The wayland-asset
-    // protocol will (correctly) refuse to load it. So we use file:// via
-    // the renderer's Blob → URL trick: read the bytes here, ship to the
-    // renderer as a string, build a Blob URL inside the iframe. That keeps
-    // the iframe at a unique opaque origin (Blob URLs always are) AND keeps
-    // the sandbox behaviour identical to the wayland-asset:// case.
-    const html = fs.readFileSync(fixtureAbs, 'utf8');
+    // Load the fixture the way PRODUCTION loads extension HTML: through
+    // wayland-asset://.
+    //
+    // The comment that used to sit here claimed this fixture was NOT under an
+    // asset allowlist root. That was wrong. `fixtures.ts` sets
+    // `wrapperDir = tests/e2e/fixtures/extensions` and puts it on
+    // WAYLAND_EXTENSIONS_PATH; `getExtensionScanSources()` feeds exactly those
+    // dirs into `buildAssetAllowlist()`. The fixture lives inside that dir, so
+    // the protocol serves it.
+    //
+    // The old srcdoc approach could never work: a srcdoc frame inherits the
+    // embedder's CSP, and the renderer CSP has no 'unsafe-inline'
+    // (`buildRendererCsp`, src/index.ts), so the fixture's inline <script>
+    // probe was refused and the spec proved NOTHING in either direction while
+    // still failing loudly.
+    const assetUrl = toAssetUrl(fixtureAbs);
 
     // Inject the iframe into the renderer and wait for the probe to finish.
-    const results = await page.evaluate(async (fixtureHtml) => {
+    const results = await page.evaluate(async (frameSrc) => {
       return new Promise<unknown[]>((resolve) => {
         const messages: unknown[] = [];
         const handler = (evt: MessageEvent) => {
@@ -85,12 +94,7 @@ test.describe('Red-team: extension iframe sandbox (commits f0923bdc9 + 9310d700b
         iframe.style.left = '-9999px';
         iframe.style.width = '1px';
         iframe.style.height = '1px';
-        // Use srcdoc to avoid needing a real allowed asset path; the
-        // sandbox behaviour is identical (per HTML spec: srcdoc iframes
-        // inherit the embedding doc's origin only when allow-same-origin
-        // is present - without it the frame gets a unique opaque origin
-        // either way).
-        iframe.srcdoc = fixtureHtml;
+        iframe.src = frameSrc;
         document.body.appendChild(iframe);
 
         // Safety net: if the probe never reports `done`, time out so the
@@ -101,7 +105,7 @@ test.describe('Red-team: extension iframe sandbox (commits f0923bdc9 + 9310d700b
           resolve(messages);
         }, 5_000);
       });
-    }, html);
+    }, assetUrl);
 
     const messages = results as ProbeMessage[];
     const byProbe = new Map<string, ProbeMessage>();
@@ -126,24 +130,15 @@ test.describe('Red-team: extension iframe sandbox (commits f0923bdc9 + 9310d700b
     // whether they throw vs. silently return empty. Accept both.
     const cookieMsg = byProbe.get('document-cookie');
     expect(cookieMsg, 'document-cookie probe must have reported').toBeDefined();
-    expect(
-      cookieMsg!.status,
-      'sandboxed iframe must not be able to read parent cookies'
-    ).toBe('BLOCKED');
+    expect(cookieMsg!.status, 'sandboxed iframe must not be able to read parent cookies').toBe('BLOCKED');
 
     const domainMsg = byProbe.get('document-domain');
     expect(domainMsg, 'document-domain probe must have reported').toBeDefined();
-    expect(
-      domainMsg!.status,
-      'sandboxed iframe must not be able to coerce document.domain'
-    ).toBe('BLOCKED');
+    expect(domainMsg!.status, 'sandboxed iframe must not be able to coerce document.domain').toBe('BLOCKED');
 
     // ── Positive probe: postMessage must work (cross-origin allowed) ───
     const postMsg = byProbe.get('postmessage');
     expect(postMsg, 'postmessage probe must have reported').toBeDefined();
-    expect(
-      postMsg!.status,
-      'postMessage MUST remain functional for extension <-> host communication'
-    ).toBe('OK');
+    expect(postMsg!.status, 'postMessage MUST remain functional for extension <-> host communication').toBe('OK');
   });
 });

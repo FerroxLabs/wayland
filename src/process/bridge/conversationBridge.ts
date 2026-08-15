@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { GeminiAgent, GeminiApprovalStore } from '@process/agent/gemini';
@@ -744,6 +746,7 @@ export function initConversationBridge(
         (sendMessageConversation?.extra as { presetAssistantId?: string; customAgentId?: string } | undefined)
           ?.customAgentId;
       agentContent = await prepareFirstMessage(other.input, {
+        conversationId: conversation_id,
         enabledSkills: other.injectSkills,
         presetAssistantId,
         workflowSessionId,
@@ -766,6 +769,12 @@ export function initConversationBridge(
         ...other,
         content: other.input,
         files: workspaceFiles,
+        // What the user actually attached, for the stored user message so the
+        // renderer can show previews without parsing the display text. Kept
+        // separate from `files`: for Gemini that list is the workspace COPIES,
+        // which are deleted after the turn unless upload.saveToWorkspace is on,
+        // so persisting them would leave restored history pointing at nothing.
+        attachedFiles: (files ?? []).filter((f) => path.isAbsolute(f)),
         agentContent,
       });
 

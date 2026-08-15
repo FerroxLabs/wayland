@@ -185,6 +185,12 @@
       "settingUp": "Setting things up",
       "startInChat": "Start in chat"
     },
+    "layout": {
+      "headline": "選擇版面",
+      "sub": "兩者顯示相同的聊天、專案和設定。你可以隨時在「設定 > 導覽」中變更。",
+      "continue": "繼續",
+      "applying": "套用中"
+    },
     "allset": {
       "headline": "you're all set",
       "sub": "Everything is wired and ready. Let's go.",

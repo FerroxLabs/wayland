@@ -74,6 +74,31 @@ describe('ActivationCard', () => {
     expect(props.onPathSelected).toHaveBeenCalledWith('claude-code');
   });
 
+  it('defaults to the connect headline, the only copy allowed to claim no provider', () => {
+    setup();
+    const card = screen.getByTestId('activation-card');
+    expect(card).toHaveAttribute('data-variant', 'connect');
+    expect(card.textContent).toContain('conversation.activation.title');
+    expect(card.textContent).toContain('conversation.activation.subtitle');
+  });
+
+  it('never tells a provisioned user to connect a provider in the repair variant', () => {
+    setup({ variant: 'repair' });
+    const card = screen.getByTestId('activation-card');
+    expect(card).toHaveAttribute('data-variant', 'repair');
+    expect(card.textContent).toContain('conversation.activation.unusableTitle');
+    expect(card.textContent).toContain('conversation.activation.unusableSubtitle');
+    expect(card.textContent).not.toContain('conversation.activation.title');
+    expect(card.textContent).not.toContain('conversation.activation.subtitle');
+  });
+
+  it('keeps all three remedy paths in the repair variant', () => {
+    setup({ variant: 'repair' });
+    expect(screen.getByTestId('activation-path-flux')).toBeInTheDocument();
+    expect(screen.getByTestId('activation-path-own-key')).toBeInTheDocument();
+    expect(screen.getByTestId('activation-path-claude-code')).toBeInTheDocument();
+  });
+
   it('does not require onPathSelected (optional telemetry hook)', () => {
     const onConnectFlux = vi.fn();
     render(<ActivationCard onConnectFlux={onConnectFlux} onUseOwnKey={vi.fn()} onUseClaudeCode={vi.fn()} />);

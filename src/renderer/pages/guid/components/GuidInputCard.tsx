@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { FolderOpen, X } from 'lucide-react';
@@ -151,7 +153,9 @@ const GuidInputCard: React.FC<GuidInputCardProps> = ({
         >
           <div className='flex items-start min-w-0 flex-1 gap-8px'>
             <FolderOpen
-              className='mt-1px flex-shrink-0' size={16} color={iconColors.secondary}
+              className='mt-1px flex-shrink-0'
+              size={16}
+              color={iconColors.secondary}
               style={{ lineHeight: 0 }}
             />
             <Tooltip content={dir} position='top' disabled={isMobile}>

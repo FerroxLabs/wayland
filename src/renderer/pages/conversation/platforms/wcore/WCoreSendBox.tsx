@@ -30,7 +30,7 @@ import { createSetUploadFile, useSendBoxFiles } from '@/renderer/hooks/chat/useS
 import { useSlashCommands } from '@/renderer/hooks/chat/useSlashCommands';
 import { usePendingSendOnWake } from '@/renderer/hooks/chat/usePendingSendOnWake';
 import { useOpenFileSelector } from '@/renderer/hooks/file/useOpenFileSelector';
-import { useProviderReadiness } from '@/renderer/hooks/useProviderReadiness';
+import { activationPromptFor, useProviderReadiness } from '@/renderer/hooks/useProviderReadiness';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
 import {
   useAddOrUpdateMessage,
@@ -52,15 +52,16 @@ import { buildDisplayMessage, collectSelectedFiles } from '@/renderer/utils/file
 import { mergeWithCapabilities, type AgentModeOption } from '@/renderer/utils/model/agentModes';
 import { useModelContextLimit } from '@/renderer/hooks/agent/useModelContextLimit';
 import { Message, Tag } from '@arco-design/web-react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWCoreMessage } from './useWCoreMessage';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { classifyAcpAuthFailure } from '@/renderer/pages/conversation/platforms/acp/acpAuthFailure';
 import { isContextCeilingErrorMessage } from '@/renderer/utils/model/errorDetection';
+import { isConstitutionLockedError } from './constitutionLockedFailure';
 import { isFluxModelId } from '@/common/config/flux';
-import { useVoiceTurnSubmission } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
+import { useVoiceTurnSubmission, type VoiceTurnDeferral } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 const useWCoreSendBoxDraft = getSendBoxDraftHook('wcore', {
   _type: 'wcore',
@@ -131,16 +132,31 @@ const WCoreSendBox: React.FC<{
   // While asleep we still let the user compose + send: the message is held in
   // the main process and auto-fires once a provider wakes the engine (WS-4).
   const engineAsleep = !readiness.ready && !readiness.loading;
+  // Parking a send is only correct when there is genuinely nothing to send TO -
+  // the held body is replayed on the `ready` edge, which a merely-degraded
+  // registry may never produce, so a configured user's message would sit in
+  // main-process memory forever. For every other not-ready reason let the turn
+  // dispatch and fail loudly: runtime failure is the authoritative signal.
+  const providerAbsent = activationPromptFor(readiness) === 'connect';
 
   // When the engine surfaces a terminal turn error, route it to the matching
   // in-thread remedy card so the user gets a one-click fix instead of a raw
-  // dead-end. Two cases are handled: a provider auth failure (401 / invalid
-  // x-api-key — same card the ACP backends use; the main process separately
-  // flips that provider off "connected"), and a context-window-ceiling stop
-  // (#615), where the fix is to switch to a larger-context model and retry.
+  // dead-end. Three cases are handled: a Constitution that cannot be unlocked
+  // on this machine, where the fix is the Settings recovery flow; a provider
+  // auth failure (401 / invalid x-api-key — same card the ACP backends use; the
+  // main process separately flips that provider off "connected"), and a
+  // context-window-ceiling stop (#615), where the fix is to switch to a
+  // larger-context model and retry.
   const handleTurnError = useCallback(
     (message: IResponseMessage) => {
       const text = typeof message.data === 'string' ? message.data : String(message.data ?? '');
+      // Checked first, and on the structured code rather than the prose: the
+      // bootstrap failure it classifies carries an "invalid"/decrypt wording
+      // that the message-substring classifiers below would otherwise claim.
+      if (isConstitutionLockedError(message.code)) {
+        emitter.emit('wcore.constitution.locked.card', { conversation_id, rawError: text });
+        return;
+      }
       if (classifyAcpAuthFailure('wcore', text)) {
         emitter.emit('wcore.auth.failed.card', {
           conversation_id,
@@ -247,6 +263,7 @@ const WCoreSendBox: React.FC<{
             conversation_id,
             content: {
               content: displayMessage,
+              ...(files?.length && { files }),
             },
             createdAt: Date.now(),
           },
@@ -311,7 +328,7 @@ const WCoreSendBox: React.FC<{
   // wakes the engine (exactly-once, survives a remount into settings and back).
   const { holdIfAsleep } = usePendingSendOnWake({
     conversationId: conversation_id,
-    asleep: engineAsleep,
+    asleep: providerAbsent,
     ready: readiness.ready,
     execute: executeCommand,
   });
@@ -396,7 +413,27 @@ const WCoreSendBox: React.FC<{
     await executeCommand({ input: message, files: filesToSend });
   };
 
-  useVoiceTurnSubmission(conversation_id, onSendHandler);
+  /**
+   * V16: a spoken turn enters `onSendHandler` exactly like a typed one, and that
+   * handler collects the staged files and clears them. So attaching a photo and
+   * then speaking sends the photo with a sentence the user never meant to attach
+   * it to - and clears it from the composer either way. Hand the words to the
+   * draft instead and let them press Send.
+   */
+  const stagedFileCountRef = useLatestRef(collectSelectedFiles(uploadFile, atPath).length);
+  const draftContentRef = useLatestRef(content);
+  const voiceDeferral = useMemo<VoiceTurnDeferral>(
+    () => ({
+      stagedFileCount: () => stagedFileCountRef.current,
+      writeDraft: (text) => {
+        const existing = draftContentRef.current;
+        setContentRef.current(existing ? `${existing}\n${text}` : text);
+      },
+    }),
+    [draftContentRef, setContentRef, stagedFileCountRef]
+  );
+
+  useVoiceTurnSubmission(conversation_id, onSendHandler, voiceDeferral);
 
   // #252 rework: Retry on a message's action row re-sends that turn's prompt.
   // The active sendbox owns send, so it listens for the window event (scoped to

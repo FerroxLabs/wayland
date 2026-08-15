@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { Request, Response, NextFunction } from 'express';
@@ -66,7 +68,11 @@ interface ValidationStrategy {
  */
 class JsonValidationStrategy implements ValidationStrategy {
   handleUnauthorized(res: Response): void {
-    res.status(403).json({ success: false, error: 'Access denied. Please login first.' });
+    // 401, not 403. This fires for MISSING, invalid, expired and blacklisted
+    // credentials - every case where authenticating again is exactly what the
+    // caller should do. 403 means the opposite: we know who you are and it will
+    // not help. RFC 9110 §15.5.2.
+    res.status(401).json({ success: false, error: 'Access denied. Please login first.' });
   }
 }
 
@@ -75,7 +81,8 @@ class JsonValidationStrategy implements ValidationStrategy {
  */
 class HtmlValidationStrategy implements ValidationStrategy {
   handleUnauthorized(res: Response): void {
-    res.status(403).send('Access Denied');
+    // Same reasoning as the JSON strategy above.
+    res.status(401).send('Access Denied');
   }
 }
 

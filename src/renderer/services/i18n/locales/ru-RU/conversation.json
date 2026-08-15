@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "Модель для текущей сессии не выбрана, невозможно отправить сообщение",
     "sendMessageTo": "Отправить сообщение {{model}}",
+    "sendMessage": "Отправить сообщение",
+    "stopGenerating": "Остановить генерацию",
     "processing": "Обработка...",
     "quotaExceededTitle": "Лимит модели исчерпан",
     "quotaExceededBody": "Лимит текущей модели исчерпан. Переключиться на {{model}}?",
@@ -236,10 +238,54 @@
       "permissionDenied": "Доступ к микрофону отклонён",
       "recordingUnsupported": "Запись в реальном времени не поддерживается. Загрузите аудиофайл",
       "transcriptionFailed": "Не удалось транскрибировать аудио",
-      "authError": "Ключ Flux недействителен — переподключите Flux Router, чтобы использовать голосовой ввод",
-      "premiumLocked": "Для Flux Voice нужен платный тариф Flux — оформите подписку, чтобы использовать диктовку",
-      "rateLimited": "Слишком много запросов — повторите попытку чуть позже",
-      "genericError": "Ошибка голосового ввода. Попробуйте снова"
+      "authError": "Ключ Flux недействителен, переподключите Flux Router, чтобы использовать голосовой ввод",
+      "premiumLocked": "Для Flux Voice нужен платный тариф Flux, оформите подписку, чтобы использовать диктовку",
+      "rateLimited": "Слишком много запросов, повторите попытку чуть позже",
+      "genericError": "Ошибка голосового ввода. Попробуйте снова",
+      "setupLabel": "Настроить диктовку",
+      "setupTooltip": "Диктовка выключена, включите её в настройках голоса"
+    },
+    "voice": {
+      "statusConnecting": "Подключение…",
+      "statusListening": "Слушаю…",
+      "statusTapToTalk": "Нажмите на волну, чтобы говорить",
+      "statusHearing": "Я вас слышу",
+      "statusTranscribing": "Расшифровка…",
+      "statusThinking": "Wayland думает…",
+      "statusApproval": "Требуется ваше подтверждение в чате",
+      "statusSpeaking": "Wayland говорит…",
+      "statusStopping": "Остановка…",
+      "statusReconnecting": "Переподключение…",
+      "statusError": "Голос остановлен",
+      "noticeTitle": "Это не сработало",
+      "turnFailedTitle": "Ход завершился ошибкой",
+      "turnFailedNoCause": "Полный ход остался в чате вместе с точной ошибкой и способом восстановления.",
+      "turnFailedShowFull": "Показать сообщение полностью",
+      "noSpeakableTitle": "Нечего читать вслух",
+      "draftReadyTitle": "Ваши слова ждут в черновике",
+      "startLabel": "Поговорить с Wayland",
+      "startTitle": "Поговорите с Wayland, он отвечает вслух",
+      "endLabel": "Завершить голосовой разговор",
+      "endTitle": "Завершить голосовой разговор",
+      "stopSpeaking": "Остановить Wayland",
+      "mute": "Выключить микрофон",
+      "unmute": "Включить микрофон",
+      "greeting": {
+        "named": {
+          "howAreYou": "Привет, {{name}}, как дела? Чем могу помочь сегодня?",
+          "imListening": "Привет, {{name}}, я слушаю. Над чем работаем?",
+          "readyWhenYouAre": "Привет, {{name}}, я готов, когда ты будешь. О чём думаешь?",
+          "goodToHear": "Рад тебя слышать, {{name}}. Что я могу для тебя сделать?",
+          "whereToStart": "Привет, {{name}}, с чего начнём сегодня?"
+        },
+        "anonymous": {
+          "howAreYou": "Привет, как дела? Чем могу помочь сегодня?",
+          "imListening": "Привет, я слушаю. Над чем работаем?",
+          "readyWhenYouAre": "Я готов, когда ты будешь. О чём думаешь?",
+          "goodToHear": "Рад тебя слышать. Что я могу для тебя сделать?",
+          "whereToStart": "Привет, с чего начнём сегодня?"
+        }
+      }
     }
   },
   "sideQuestion": {
@@ -324,9 +370,11 @@
   "activation": {
     "title": "Разбудите своих агентов",
     "subtitle": "Подключите провайдера моделей, чтобы начать выполнять задачи. Выберите подходящий вам способ.",
+    "unusableTitle": "Ваши агенты не могут добраться до модели",
+    "unusableSubtitle": "Провайдеры подключены, но ни один не смог принять эту задачу. Проверьте их в настройках или добавьте ещё один способ подключения.",
     "flux": {
       "label": "Подключить Flux Router",
-      "sublabel": "Бесплатный ключ и стартовый кредит $1. Без карты — каждая задача направляется к наиболее подходящей профильной модели.",
+      "sublabel": "Бесплатный ключ и стартовый кредит $1. Без карты, каждая задача направляется к наиболее подходящей профильной модели.",
       "action": "Подключить"
     },
     "ownKey": {
@@ -336,7 +384,7 @@
     },
     "claudeCode": {
       "label": "Использовать Claude Code",
-      "sublabel": "Работает с вашим текущим входом в Claude Code — без дополнительных ключей.",
+      "sublabel": "Работает с вашим текущим входом в Claude Code, без дополнительных ключей.",
       "action": "Использовать"
     }
   },
@@ -384,6 +432,17 @@
       "label": "Retry the last message",
       "sublabel": "Re-run the message that hit the limit on the selected model.",
       "action": "Retry"
+    },
+    "details": "Show error details",
+    "dismiss": "Dismiss"
+  },
+  "constitutionLocked": {
+    "title": "Wayland couldn’t unlock your Constitution",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "recover": {
+      "label": "Restore from a recovery archive",
+      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
+      "action": "Open recovery"
     },
     "details": "Show error details",
     "dismiss": "Dismiss"

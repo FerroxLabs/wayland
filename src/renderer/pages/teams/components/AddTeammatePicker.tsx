@@ -92,7 +92,7 @@ const AddTeammatePicker: React.FC<AddTeammatePickerProps> = ({
       }}
       header={{
         render: () => (
-          <div className='flex items-center justify-between border-b border-border-1 bg-dialog-fill-0 px-20px py-16px'>
+          <div className='flex items-center justify-between border-b border-1 bg-dialog-fill-0 px-20px py-16px'>
             <h3 className='m-0 text-16px font-500 text-t-primary'>{title}</h3>
             <Button
               type='text'
@@ -126,11 +126,7 @@ const AddTeammatePicker: React.FC<AddTeammatePickerProps> = ({
           ) : (
             filtered.map((s) => {
               const name = s.nameI18n?.[localeKey] || s.nameI18n?.['en-US'] || s.name || s.id;
-              const desc =
-                s.descriptionI18n?.[localeKey] ||
-                s.descriptionI18n?.['en-US'] ||
-                s.description ||
-                '';
+              const desc = s.descriptionI18n?.[localeKey] || s.descriptionI18n?.['en-US'] || s.description || '';
               const handleKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
@@ -142,15 +138,13 @@ const AddTeammatePicker: React.FC<AddTeammatePickerProps> = ({
                   key={s.id}
                   role='button'
                   tabIndex={0}
-                  className='flex flex-col items-start gap-2px rounded-8px border border-transparent px-12px py-10px text-left hover:border-border-2 hover:bg-fill-1'
+                  className='flex flex-col items-start gap-2px rounded-8px border border-transparent px-12px py-10px text-left hover:border-2 hover:bg-fill-1'
                   onClick={() => handlePick(s.id)}
                   onKeyDown={handleKey}
                   data-testid={`teams-launcher-picker-option-${s.id}`}
                 >
                   <span className='text-13.5px font-500 text-t-primary'>{name}</span>
-                  {desc && (
-                    <span className='line-clamp-2 text-11.5px text-t-tertiary'>{desc}</span>
-                  )}
+                  {desc && <span className='line-clamp-2 text-11.5px text-t-tertiary'>{desc}</span>}
                 </div>
               );
             })

@@ -58,8 +58,7 @@ async function seedTeams(page: Page, count: number): Promise<string[]> {
   );
   return created
     .filter(
-      (r): r is { id: string } =>
-        Boolean(r) && !isBridgeError(r) && typeof (r as { id?: string }).id === 'string'
+      (r): r is { id: string } => Boolean(r) && !isBridgeError(r) && typeof (r as { id?: string }).id === 'string'
     )
     .map((r) => r.id);
 }
@@ -94,7 +93,9 @@ test.describe.serial('Team performance budgets', () => {
     const start = Date.now();
     await navigateTo(page, '#/teams');
     await expect(page.locator('[data-testid="teams-library-page"]')).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator('[data-testid="teams-action-bar"]')).toBeVisible({ timeout: 15_000 });
+    // `teams-action-bar` was deleted when the page moved onto PageShell; the
+    // actions now live in PageShell's `actions` slot as the two CTAs.
+    await expect(page.locator('[data-testid="teams-build-my-own-cta"]')).toBeVisible({ timeout: 15_000 });
     await expect(page.locator('[data-testid="teams-total-count"]')).toBeVisible({ timeout: 15_000 });
     const elapsedMs = Date.now() - start;
 

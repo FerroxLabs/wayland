@@ -6,15 +6,21 @@ const path = require('node:path');
 const { candidateIdentity, copyRegularFile, exactKeys, fail, sha256, writeJson } = require('./acceptanceBundle');
 const { CAPABILITIES } = require('./collectRawAcceptanceEvidence');
 const matrix = require('./verifyHardeningMatrix');
+const prepareWaylandCore = require('../prepareWaylandCore');
 
-const CORE_ASSET_BY_TARGET = Object.freeze({
-  'darwin-arm64': 'wayland-core-v0.12.25-aarch64-apple-darwin.tar.gz',
-  'darwin-x64': 'wayland-core-v0.12.25-x86_64-apple-darwin.tar.gz',
-  'win32-arm64': 'wayland-core-v0.12.25-aarch64-pc-windows-msvc.zip',
-  'win32-x64': 'wayland-core-v0.12.25-x86_64-pc-windows-msvc.zip',
-  'linux-arm64': 'wayland-core-v0.12.25-aarch64-unknown-linux-gnu.tar.gz',
-  'linux-x64': 'wayland-core-v0.12.25-x86_64-unknown-linux-gnu.tar.gz',
-});
+// Derived from the bundle authority rather than re-typed. A hard-coded engine
+// tag here drifts silently the moment DEFAULT_WCORE_VERSION moves, and the
+// mismatch only surfaces at release time.
+const CORE_ASSET_BY_TARGET = Object.freeze(
+  Object.fromEntries(
+    matrix.TARGETS.map((target) => {
+      const [platform, arch] = target.split('-');
+      const asset = prepareWaylandCore.getAssetName(platform, arch, prepareWaylandCore.DEFAULT_WCORE_VERSION);
+      if (!asset) fail('M8I_CANONICAL_ARTIFACT_INVALID', `unsupported-core-target:${target}`);
+      return [target, asset];
+    })
+  )
+);
 
 function parseArgs(argv) {
   const values = {};
@@ -208,7 +214,7 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
     const copied = copyAbsolute(archive, output, `publisher-artifacts/${assetName}`);
     publisherArtifacts.push({
       assetName,
-      releaseTag: 'v0.12.25',
+      releaseTag: prepareWaylandCore.DEFAULT_WCORE_VERSION,
       expectedSha256: copied.sha256.slice('sha256:'.length),
       path: `publisher-artifacts/${assetName}`,
     });

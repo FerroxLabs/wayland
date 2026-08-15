@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { TMessage } from '@/common/chat/chatLib';
@@ -58,6 +60,32 @@ class ConversationManageWithDB {
     }, 2000);
   }
 
+  /**
+   * Await every write already queued for this conversation.
+   *
+   * Streaming text deltas sit in `stack` behind a 2000 ms debounce, so anything
+   * that reads the row DIRECTLY from the database - rather than going through
+   * this queue - is racing them. `flush()` is fire-and-forget, early-returns
+   * while another flush is in flight, and re-enters itself when the stack
+   * refilled mid-flush, so a single call guarantees nothing. Loop until the
+   * queue is genuinely empty and nothing is in flight.
+   *
+   * Bounded: `flush()` splices the stack before doing any work and swallows its
+   * own errors, so the queue always drains. The one state that would NOT drain
+   * is `!initialized`, where flush returns without splicing - so bail there
+   * instead of spinning. Nothing is persisted yet in that window anyway.
+   */
+  async drain(): Promise<void> {
+    clearTimeout(this.timer);
+    while (this.initialized && (this.stack.length > 0 || this.flushing)) {
+      if (this.flushing) {
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        continue;
+      }
+      await this.flush();
+    }
+  }
+
   private async flush(): Promise<void> {
     if (!this.initialized || this.flushing || this.stack.length === 0) return;
     this.flushing = true;
@@ -98,6 +126,18 @@ class ConversationManageWithDB {
  */
 export const addMessage = (conversation_id: string, message: TMessage): void => {
   ConversationManageWithDB.get(conversation_id).sync('insert', message);
+};
+
+/**
+ * Await every queued write for a conversation before reading its rows directly.
+ *
+ * Required by anything that bypasses this queue to read-modify-write a message
+ * row: without it the row may not exist yet, or may hold only a prefix of the
+ * streamed text, and the queued remainder will land afterwards and clobber the
+ * write. See persistStrippedTurnText.
+ */
+export const flushConversationMessages = async (conversation_id: string): Promise<void> => {
+  await ConversationManageWithDB.get(conversation_id).drain();
 };
 
 /**

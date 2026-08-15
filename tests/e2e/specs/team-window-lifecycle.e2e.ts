@@ -56,10 +56,9 @@ async function launchIsolated(userDataDir: string, statesFile: string): Promise<
       ...process.env,
       WAYLAND_EXTENSIONS_PATH:
         process.env.WAYLAND_EXTENSIONS_PATH ||
-        [
-          path.join(projectRoot, 'examples'),
-          path.join(projectRoot, 'tests/e2e/fixtures/extensions'),
-        ].join(process.platform === 'win32' ? ';' : ':'),
+        [path.join(projectRoot, 'examples'), path.join(projectRoot, 'tests/e2e/fixtures/extensions')].join(
+          process.platform === 'win32' ? ';' : ':'
+        ),
       WAYLAND_EXTENSION_STATES_FILE: statesFile,
       WAYLAND_DISABLE_AUTO_UPDATE: '1',
       WAYLAND_DISABLE_DEVTOOLS: '1',
@@ -183,11 +182,7 @@ test.describe.serial('Team window lifecycle (adversarial)', () => {
       },
     });
 
-    const beforeRestart = await invokeBridgeOn<{ agents?: Array<{ role: string }> } | null>(
-      p1,
-      'team.get',
-      { id }
-    );
+    const beforeRestart = await invokeBridgeOn<{ agents?: Array<{ role: string }> } | null>(p1, 'team.get', { id });
     expect(beforeRestart?.agents?.length).toBe(2);
 
     // Restart.
@@ -211,8 +206,8 @@ test.describe.serial('Team window lifecycle (adversarial)', () => {
     const before = await invokeBridgeOn<TeamRow[]>(p1, 'team.list', { userId: 'system_default_user' });
 
     // Navigate to launcher and type a name, but never call team.create.
-    await p1.evaluate(() => window.location.assign('#/teams/ext-marketing-agency/launch'));
-    await p1.waitForURL(/\/teams\/ext-marketing-agency\/launch/, { timeout: 15_000 });
+    await p1.evaluate(() => window.location.assign('#/teams/builtin-marketing-agency/launch'));
+    await p1.waitForURL(/\/teams\/builtin-marketing-agency\/launch/, { timeout: 15_000 });
     await p1
       .locator('[data-testid="launcher-name-input"]')
       .fill(`E2E WindowLifecycle Abandoned ${Date.now()}`)

@@ -37,7 +37,7 @@ export const MODEL_REGISTRY_CAPABILITY_MAPPING = {
   requireDispatchEligibility: true,
   callableInventory: 'enabled-curated-count',
   observationIdentity: 'provider-and-inventory-mutation-time',
-  ordering: 'providerId-code-unit',
+  ordering: 'observedAt-then-providerId-code-unit',
   evidenceId: 'model-registry:{generation}:{providerId}',
   reducerContractVersion: CAPABILITY_PROJECTION_VERSION,
 } as const;
@@ -103,7 +103,7 @@ export function modelRegistryCapabilityMappingDigest(): `sha256:${string}` {
 
 export const MODEL_REGISTRY_CAPABILITY_CONTRACT: CapabilitySourceContractIdentity = {
   name: 'wayland-desktop-model-registry-configuration',
-  version: '1.4.0',
+  version: '1.5.0',
   digest: modelRegistryCapabilityMappingDigest(),
 };
 
@@ -176,8 +176,25 @@ export function projectModelRegistryReadiness(
     });
     return narrowReadinessProjection(invalid);
   }
-  const orderedProviders = [...providers].toSorted((left, right) =>
-    compareCapabilityIdentity(left.providerId, right.providerId)
+  // Sequence must agree with `observedAt`: the reducer rejects a stream whose
+  // time moves backwards as `conflicting_claims`, which invalidates the WHOLE
+  // projection (`providers: []`), and `useProviderReadiness` then reports
+  // `registry-error` - so a fully configured install is told its agents are
+  // asleep and shown "connect a model provider".
+  //
+  // Ordering by providerId alone did exactly that whenever connect order
+  // differed from identity order, which first-run auto-discovery makes routine:
+  // wiring `groq` (observedAt T) before `google-gemini` (T+413ms) put the later
+  // timestamp at sequence 0 and the earlier one at sequence 1. Reproduced live
+  // on a clean profile with four healthy providers, every one `connected` and
+  // `dispatchEligible`.
+  //
+  // These rows are concurrent facts, not a time series, so the identity sort
+  // was only ever a determinism device. Keep it as the tiebreak - a provider
+  // may carry no `observedAt` - and let time lead.
+  const orderedProviders = [...providers].toSorted(
+    (left, right) =>
+      (left.observedAt ?? 0) - (right.observedAt ?? 0) || compareCapabilityIdentity(left.providerId, right.providerId)
   );
   const endSequence = Math.max(0, orderedProviders.length - 1);
   const evidence: CapabilityEvidence[] = orderedProviders.map((provider, sequence) => {

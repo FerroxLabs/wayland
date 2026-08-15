@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { getPlatformServices } from '@/common/platform';
@@ -98,12 +100,63 @@ export interface DetectedMcpServer {
 /**
  * MCP sync result interface
  */
+/**
+ * Did a publish/remove across a set of agents actually succeed?
+ *
+ * ONE definition, used by both the sync and the remove paths. They previously
+ * carried separate copies of this rule, and a fix applied to only one of them
+ * left the rollback half still failing on every machine with an unsupported
+ * backend - so the two must never be written out separately again.
+ *
+ * A backend with no MCP implementation is a non-target: it can neither succeed
+ * nor fail, and is excluded.
+ *
+ * The two directions differ when NO AGENT WAS EVEN ATTEMPTED, so the caller
+ * must say which it is. PUBLISHING to an empty agent list is a failure - no
+ * agent carries the server, so nothing may claim it was published. REMOVING
+ * from an empty agent list is a success - there was nothing to remove, and
+ * treating it as failure aborts a delete that would otherwise complete (which
+ * this function briefly did, because the removal path previously used a bare
+ * `[].every()` and inherited `true` for free).
+ *
+ * That option covers ONLY the empty list. A set where agents were detected but
+ * every one of them is a non-target still fails, in BOTH directions - we could
+ * not act on anything, and the fail-closed posture there is deliberate.
+ */
+export function mcpAgentOperationSucceeded(
+  results: ReadonlyArray<{ success: boolean; unsupported?: boolean }>,
+  options: { emptyIsSuccess?: boolean } = {}
+): boolean {
+  // NOTE the ordering: `emptyIsSuccess` is about NOTHING BEING ATTEMPTED, so it
+  // is judged on the raw result set, before non-targets are excluded. An
+  // all-non-target set is NOT the same case - agents were detected and none
+  // could act - and it deliberately still fails, preserving the fail-closed
+  // posture asserted by McpService.removeResult / syncResult.
+  if (results.length === 0) return options.emptyIsSuccess === true;
+  const actionable = results.filter((result) => !result.unsupported);
+  if (actionable.length === 0) return false;
+  return actionable.every((result) => result.success);
+}
+
 export interface McpSyncResult {
   success: boolean;
   results: Array<{
     agent: string;
     success: boolean;
     error?: string;
+    /**
+     * The agent was detected on this machine but has no MCP implementation, so
+     * there was nothing to publish to or remove from.
+     *
+     * This is NOT a failure. It was previously reported as `success: false`
+     * with no way to tell it apart from a real one, and callers that throw on
+     * any unsuccessful result therefore threw on every operation: a typical
+     * install detects a dozen such backends (grok, goose, kimi, cursor, ...),
+     * so publication reported failure even when every agent that CAN carry an
+     * MCP server succeeded. Callers must exclude these before deciding an
+     * operation failed.
+     */
+    unsupported?: boolean;
   }>;
 }
 

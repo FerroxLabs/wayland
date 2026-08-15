@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -337,6 +339,21 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
             }
             requestTraceRef.current = null;
           }
+          break;
+        case 'tips':
+          // An out-of-band in-thread notice (a Constitution key-ring reclaim, a
+          // missed scheduled run). Main pushes it on the shared conversation
+          // stream from a seam every backend reaches, so it arrives here too. It
+          // is not model output and must not start this turn's running state.
+          addOrUpdateMessage(transformedMessage);
+          break;
+        case 'content_replace':
+          // A correction to text this turn ALREADY streamed - main stripping the
+          // raw [CRON_PROPOSE] block now that the confirmation card carries it.
+          // Deliberately not the default arm: this always arrives after the turn
+          // ended, so recovering the running state here would leave a finished
+          // chat spinning.
+          addOrUpdateMessage(transformedMessage);
           break;
         default:
           // Auto-recover running state only if turn hasn't finished

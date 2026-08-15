@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { AcpAdapter } from '@process/agent/acp/AcpAdapter';
@@ -16,6 +18,7 @@ import { uuid } from '@/common/utils';
 import type {
   AcpBackend,
   AcpInitializeResult,
+  AcpLaunchSpec,
   AcpModelInfo,
   AcpPermissionRequest,
   AcpPromptResponseUsage,
@@ -26,7 +29,7 @@ import type {
   AvailableCommandsUpdate,
   ToolCallUpdate,
 } from '@/common/types/acpTypes';
-import { AcpErrorType, createAcpError } from '@/common/types/acpTypes';
+import { AcpErrorType, createAcpError, isAcpLaunchSpec } from '@/common/types/acpTypes';
 import { isFluxModelId } from '@/common/config/flux';
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
@@ -72,6 +75,8 @@ export interface AcpAgentConfig {
   id: string;
   backend: AcpBackend;
   cliPath?: string;
+  /** Structured launch spec from an installed agent; supersedes cliPath when set. */
+  launch?: AcpLaunchSpec;
   workingDir: string;
   customArgs?: string[]; // Custom CLI arguments (for custom backend)
   customEnv?: Record<string, string>; // Custom environment variables (for custom backend)
@@ -79,6 +84,8 @@ export interface AcpAgentConfig {
     workspace?: string;
     backend: AcpBackend;
     cliPath?: string;
+    /** Structured launch spec from an installed agent; supersedes cliPath when set. */
+    launch?: AcpLaunchSpec;
     customWorkspace?: boolean;
     customArgs?: string[];
     customEnv?: Record<string, string>;
@@ -117,6 +124,8 @@ export class AcpAgent {
     workspace?: string;
     backend: AcpBackend;
     cliPath?: string;
+    /** Structured launch spec from an installed agent; supersedes cliPath when set. */
+    launch?: AcpLaunchSpec;
     customWorkspace?: boolean;
     customArgs?: string[];
     customEnv?: Record<string, string>;
@@ -194,6 +203,7 @@ export class AcpAgent {
       workspace: config.workingDir,
       backend: config.backend,
       cliPath: config.cliPath,
+      launch: config.launch,
       customWorkspace: false, // Default to system workspace
       customArgs: config.customArgs,
       customEnv: config.customEnv,
@@ -1783,8 +1793,15 @@ export class AcpAgent {
     try {
       this.emitStatusMessage('connecting');
 
-      // Invoke the login command using the configured CLI path
-      if (!this.extra.cliPath) {
+      // Invoke the login command using the installed agent's launch spec, or the
+      // legacy CLI path string.
+      // Shape-checked, not merely truthy: `extra` is rehydrated from untyped
+      // persisted JSON, so a partial descriptor is reachable and would spawn
+      // `undefined` as the executable. A malformed one is treated as absent so
+      // the legacy cliPath string still applies.
+      const launch = isAcpLaunchSpec(this.extra.launch) ? this.extra.launch : undefined;
+      const cliPath = this.extra.cliPath;
+      if (!launch && !cliPath) {
         throw new Error(`No CLI path configured for ${backend} backend`);
       }
 
@@ -1793,14 +1810,23 @@ export class AcpAgent {
       let command: string;
       let args: string[];
 
-      if (this.extra.cliPath.startsWith('npx ')) {
+      if (launch) {
+        // An installed agent is already { command, args }. Use it verbatim and APPEND
+        // loginArg - substituting it would run the bare runtime, not the agent. This
+        // branch must come first: the string form below assigns the whole cliPath as
+        // the executable name, so a composite `"<bun>" "<entry>"` would reach
+        // CreateProcess unparsed (spawn defaults to shell:false) and fail ENOENT,
+        // which the catch below only console.warn's - a silent auth failure.
+        command = launch.command;
+        args = [...launch.args, loginArg];
+      } else if (cliPath!.startsWith('npx ')) {
         // Route legacy npx launchers through bundled bun.
-        const parts = this.extra.cliPath.split(' ');
+        const parts = cliPath!.split(' ');
         command = resolveNpxPath(cleanEnv);
         args = ['x', '--bun', ...normalizeNpxArgsForBundledBun(parts.slice(1)), loginArg];
       } else {
         // For regular paths like '/usr/local/bin/qwen' or '/usr/local/bin/claude'
-        command = this.extra.cliPath;
+        command = cliPath!;
         args = [loginArg];
       }
 

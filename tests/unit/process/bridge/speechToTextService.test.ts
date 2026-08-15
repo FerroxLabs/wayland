@@ -33,6 +33,8 @@ import { SpeechToTextService, speechToTextRegistry } from '@process/bridge/servi
 import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
 import { readConnectedProviderKey } from '@process/connectors/providerKey';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
+import type { SpeechToTextProvider } from '@/common/types/speech';
+import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
 
 describe('SpeechToTextService', () => {
   beforeEach(() => {
@@ -305,6 +307,146 @@ describe('SpeechToTextService', () => {
     expect(url).toBe('https://api.openai.com/v1/audio/transcriptions');
     expect(request.headers.Authorization).toBe('Bearer shared-openai-key');
     expect(result.provider).toBe('openai');
+  });
+
+  /**
+   * The seeded-Flux user, who until now had no way to succeed.
+   *
+   * Settings displayed OpenAI, so the consent affordance offered the OpenAI
+   * disclosure. The user accepted it. Main had transparently seeded Flux Voice,
+   * asked about Flux Voice instead, and failed closed on every single
+   * transcription - a permanently broken feature whose only visible repair
+   * button did nothing.
+   */
+  it('still fails closed when the seeded user accepted the WRONG provider', async () => {
+    sttConfigMock.mockResolvedValue({ enabled: true, provider: 'openai' });
+    vi.mocked(readConnectedFluxKey).mockResolvedValue('flux-key');
+    hostedConsentMock.mockResolvedValue({ version: 1, acceptedProviders: ['openai'], updatedAt: 1 });
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      SpeechToTextService.transcribe({
+        audioBuffer: new Uint8Array([1, 2, 3]),
+        fileName: 'sample.webm',
+        mimeType: 'audio/webm',
+      })
+    ).rejects.toThrow('STT_HOSTED_CONSENT_REQUIRED');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('transcribes once the seeded user accepts the provider actually in use', async () => {
+    sttConfigMock.mockResolvedValue({ enabled: true, provider: 'openai' });
+    vi.mocked(readConnectedFluxKey).mockResolvedValue('flux-key');
+    hostedConsentMock.mockResolvedValue({ version: 1, acceptedProviders: ['flux-voice'], updatedAt: 1 });
+
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: 'hi' })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await SpeechToTextService.transcribe({
+      audioBuffer: new Uint8Array([1, 2, 3]),
+      fileName: 'sample.webm',
+      mimeType: 'audio/webm',
+    });
+
+    expect(result.provider).toBe('flux-voice');
+    const [url] = fetchMock.mock.calls[0] as [string];
+    expect(url).toBe('https://api.fluxrouter.ai/v1/audio/transcriptions');
+  });
+
+  /**
+   * Keeps the settings panel honest without a new IPC surface.
+   *
+   * The panel decides which disclosure to offer from `resolveEffectiveSttProvider`.
+   * That is a second statement of a rule main already implements, and a second
+   * statement of a rule is a rule that drifts. So rather than assert the shared
+   * helper against a hand-written expectation, this drives main end to end and
+   * compares the provider it ACTUALLY used against the helper's answer.
+   *
+   * It lives here, not under tests/unit/renderer/voice, because this is the only
+   * project where main's resolution can be executed rather than described - and
+   * an equality proven against a description would prove nothing.
+   */
+  describe('the settings panel resolves the same provider main does', () => {
+    const cases: Array<{
+      name: string;
+      stored: { provider: SpeechToTextProvider; openai?: { apiKey: string; model: string } };
+      openAIKey?: string;
+      fluxKey?: string;
+    }> = [
+      { name: 'factory default with Flux connected', stored: { provider: 'openai' }, fluxKey: 'flux-key' },
+      {
+        name: 'factory default with OpenAI connected',
+        stored: { provider: 'openai' },
+        openAIKey: 'shared-openai-key',
+      },
+      {
+        name: 'both connected - OpenAI wins',
+        stored: { provider: 'openai' },
+        openAIKey: 'shared-openai-key',
+        fluxKey: 'flux-key',
+      },
+      {
+        name: 'an explicit STT key beats every seed',
+        stored: { provider: 'openai', openai: { apiKey: 'explicit-key', model: 'whisper-1' } },
+        fluxKey: 'flux-key',
+      },
+      { name: 'an explicit Deepgram choice is never reinterpreted', stored: { provider: 'deepgram' }, fluxKey: 'f' },
+    ];
+
+    it.each(cases)('agrees for $name', async ({ stored, openAIKey, fluxKey }) => {
+      sttConfigMock.mockResolvedValue({
+        enabled: true,
+        ...stored,
+        deepgram: { apiKey: 'dg-key', model: 'nova-2' },
+      });
+      vi.mocked(readConnectedProviderKey).mockResolvedValue(openAIKey);
+      vi.mocked(readConnectedFluxKey).mockResolvedValue(fluxKey);
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => new Response(JSON.stringify({ text: 'hi', results: { channels: [] } })))
+      );
+
+      const actual = await SpeechToTextService.transcribe({
+        audioBuffer: new Uint8Array([1, 2, 3]),
+        fileName: 'sample.webm',
+        mimeType: 'audio/webm',
+      });
+
+      expect(
+        resolveEffectiveSttProvider({
+          stored,
+          hasConnectedOpenAIKey: Boolean(openAIKey),
+          hasConnectedFluxKey: Boolean(fluxKey),
+        })
+      ).toBe(actual.provider);
+    });
+
+    /**
+     * With nothing connected there is no successful call to read a provider off,
+     * so the agreement is proven through the error code instead: OpenAI with no
+     * key throws STT_OPENAI_NOT_CONFIGURED, and a Flux resolution would have
+     * thrown STT_FLUX_NOT_CONFIGURED. The two are distinguishable, which is what
+     * makes this an assertion rather than a shrug.
+     */
+    it('agrees for nothing connected at all, via the error it fails with', async () => {
+      const stored = { provider: 'openai' as SpeechToTextProvider };
+      sttConfigMock.mockResolvedValue({ enabled: true, ...stored });
+      vi.mocked(readConnectedProviderKey).mockResolvedValue(undefined);
+      vi.mocked(readConnectedFluxKey).mockResolvedValue(undefined);
+
+      await expect(
+        SpeechToTextService.transcribe({
+          audioBuffer: new Uint8Array([1, 2, 3]),
+          fileName: 'sample.webm',
+          mimeType: 'audio/webm',
+        })
+      ).rejects.toThrow('STT_OPENAI_NOT_CONFIGURED');
+
+      expect(resolveEffectiveSttProvider({ stored, hasConnectedOpenAIKey: false, hasConnectedFluxKey: false })).toBe(
+        'openai'
+      );
+    });
   });
 
   it('prefers an explicit STT OpenAI key over the shared provider key', async () => {

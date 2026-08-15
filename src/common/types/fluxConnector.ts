@@ -15,7 +15,14 @@ export type ConnectorStatus = 'routed' | 'drifted' | 'unconfigured' | 'absent';
 /** Human-readable outcome of a connector action, surfaced to the user. */
 export type FluxConnectorReport = {
   tool: string;
-  action: 'installed' | 'already-routed' | 'updated' | 'removed' | 'noop';
+  /**
+   * `failed` exists so a remove that throws still RESOLVES. A rejected provider
+   * never settles the renderer's promise at all, so the modal's `finally` never
+   * ran and the button span forever with no error shown - a spinner is a worse
+   * failure report than a message. The reason travels in `changes`, which the
+   * modal already renders; nothing branches on `action` in the UI.
+   */
+  action: 'installed' | 'already-routed' | 'updated' | 'removed' | 'noop' | 'failed';
   status: ConnectorStatus;
   configPath: string;
   configExistedBefore: boolean;
@@ -40,6 +47,19 @@ export type OpencodeStatusResult = {
   installed: boolean;
 };
 
+/** Result of a setup-openclaw request over the bridge. */
+export type OpenClawSetupResult =
+  | { ok: true; report: FluxConnectorReport }
+  | { ok: false; reason: 'flux-not-connected' | 'error'; message?: string };
+
+/** Result of an openclaw-status request over the bridge. */
+export type OpenClawStatusResult = {
+  status: ConnectorStatus;
+  configPath: string;
+  /** openclaw binary detected on PATH OR a config file present. */
+  installed: boolean;
+};
+
 /** Result of a setup-codex request over the bridge. */
 export type CodexSetupResult =
   | { ok: true; report: FluxConnectorReport }
@@ -50,5 +70,18 @@ export type CodexStatusResult = {
   status: ConnectorStatus;
   configPath: string;
   /** codex binary detected on PATH OR a config file present. */
+  installed: boolean;
+};
+
+/** Result of a setup-kimi request over the bridge. */
+export type KimiSetupResult =
+  | { ok: true; report: FluxConnectorReport }
+  | { ok: false; reason: 'flux-not-connected' | 'error'; message?: string };
+
+/** Result of a kimi-status request over the bridge. */
+export type KimiStatusResult = {
+  status: ConnectorStatus;
+  configPath: string;
+  /** kimi binary detected on PATH OR a config file present. */
   installed: boolean;
 };

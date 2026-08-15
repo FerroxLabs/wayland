@@ -16,6 +16,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import type { ConstitutionArchiveSecretBackend } from './constitutionFsTransaction';
+import { isConstitutionSecretUnlockTimeout } from './constitutionSecretUnlockBudget';
 import { syncPublicationTargetSync } from '@process/utils/durabilitySync';
 
 type RevisionKey = {
@@ -47,6 +48,48 @@ export type ConstitutionRevisionAuthorityDependencies = Readonly<{
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const MAX_AUTHORITY_BYTES = 64 * 1024;
+
+/**
+ * The authority file exists and is structurally safe, but this installation's
+ * OS secret cannot open it — the ciphertext was sealed under a different app
+ * identity (safeStorage keys by identity, so a worktree dev build and the
+ * installed app are different identities), or it was tampered with.
+ *
+ * This is the same classification `constitutionArchiveRestoreAuthority` and
+ * `constitutionClassicRecoveryAuthority` apply to a failed `decryptString`
+ * (both raise their own `INTEGRITY_FAILURE`). Those two carry a typed error
+ * class; this module has always signalled through exact `Error.message` codes
+ * (`CONSTITUTION_FS_REVISION_AUTHORITY_*`) that its caller matches on, so the
+ * classification is expressed in that existing shape rather than a second one.
+ *
+ * It is deliberately distinct from `_INVALID` (which means the plaintext did
+ * not parse/validate): only this one is recoverable by the user, via restoring
+ * a Constitution archive.
+ */
+export const CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED = 'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED';
+
+/** True when `error` is the decrypt-failure classification raised by this module. */
+export function isConstitutionRevisionAuthorityUnauthenticated(error: unknown): boolean {
+  return error instanceof Error && error.message === CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED;
+}
+
+/**
+ * The OS secret store already spent the whole unlock budget on this exact
+ * ciphertext and gave nothing back, so it is not being attempted again.
+ *
+ * Kept separate from `_UNAUTHENTICATED` because the two mean opposite things
+ * about the bytes. `_UNAUTHENTICATED` is evidence the ring belongs to another
+ * installation, which is what justifies regenerating it. This one is evidence
+ * about the STORE, not the ring: the ring may be perfectly good and simply
+ * unreachable right now. Regenerating on it would destroy a healthy ring and
+ * tell the user something untrue about why.
+ */
+export const CONSTITUTION_REVISION_AUTHORITY_UNLOCK_TIMEOUT = 'CONSTITUTION_FS_REVISION_AUTHORITY_UNLOCK_TIMEOUT';
+
+/** True when `error` is the budget-exhausted classification raised by this module. */
+export function isConstitutionRevisionAuthorityUnlockTimeout(error: unknown): boolean {
+  return error instanceof Error && error.message === CONSTITUTION_REVISION_AUTHORITY_UNLOCK_TIMEOUT;
+}
 
 function exactKeys(value: object, expected: readonly string[]): boolean {
   const actual = Object.keys(value).toSorted();
@@ -189,7 +232,26 @@ function readAuthorityFile(authorityPath: string, backend: ConstitutionArchiveSe
   if (!stat.isFile() || stat.isSymbolicLink() || stat.size > MAX_AUTHORITY_BYTES) {
     throw new Error('CONSTITUTION_FS_REVISION_AUTHORITY_INVALID');
   }
-  return parseAuthority(backend.decryptString(readFileSync(authorityPath, 'utf8')));
+  const ciphertext = readFileSync(authorityPath, 'utf8');
+  let plaintext: string;
+  try {
+    plaintext = backend.decryptString(ciphertext);
+  } catch (error) {
+    // The store refusing to answer inside its budget is not evidence about who
+    // sealed these bytes, so it must not be laundered into the classification
+    // that authorizes regenerating them.
+    if (isConstitutionSecretUnlockTimeout(error)) {
+      throw new Error(CONSTITUTION_REVISION_AUTHORITY_UNLOCK_TIMEOUT, { cause: error });
+    }
+    // Never let the raw crypto failure escape. It is thrown on every read of a
+    // foreign-identity authority, and unclassified it travels the whole
+    // readAuthorityFile -> load -> readConstitution -> composePrompt ->
+    // WCoreManager.start chain to land in the user's chat as a bare
+    // "Error while decrypting the ciphertext provided to safeStorage" with no
+    // remedy attached.
+    throw new Error(CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED, { cause: error });
+  }
+  return parseAuthority(plaintext);
 }
 
 function writeTemporary(authorityPath: string, encrypted: string): string {

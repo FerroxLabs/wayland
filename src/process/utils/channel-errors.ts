@@ -1,13 +1,13 @@
-/*
- * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
- * Source: src/infra/errors.ts (channel-relevant subset only)
- * MIT License - Copyright (c) 2025 Peter Steinberger
- * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
- */
 /**
  * @license
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
+ * Source: src/infra/errors.ts (channel-relevant subset only)
+ * Copyright (c) 2025 Peter Steinberger
+ * Licensed under the MIT License - see LICENSES/openclaw.txt
+ * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
  */
 
 /**
@@ -163,11 +163,7 @@ export class HttpStatusError extends Error {
   readonly status: number;
   readonly retryAfterSeconds: number | undefined;
 
-  constructor(
-    status: number,
-    message: string,
-    options?: { retryAfterSeconds?: number; cause?: unknown },
-  ) {
+  constructor(status: number, message: string, options?: { retryAfterSeconds?: number; cause?: unknown }) {
     super(message, { cause: options?.cause });
     this.name = 'HttpStatusError';
     this.status = status;
@@ -235,8 +231,7 @@ export function retryAfterFromError(err: unknown, now = Date.now()): number | un
     const headers = (err as { headers?: unknown }).headers;
     if (headers && typeof headers === 'object') {
       const raw =
-        (headers as Record<string, unknown>)['retry-after'] ??
-        (headers as Record<string, unknown>)['Retry-After'];
+        (headers as Record<string, unknown>)['retry-after'] ?? (headers as Record<string, unknown>)['Retry-After'];
       if (typeof raw === 'string' || typeof raw === 'number') {
         return parseRetryAfter(String(raw), now);
       }

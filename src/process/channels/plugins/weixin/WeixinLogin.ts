@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import https from 'https';
@@ -154,10 +156,7 @@ async function pollQRStatus(qrcode: string, callbacks: LoginCallbacks, signal: A
         return {
           accountId: result.ilink_bot_id,
           botToken: result.bot_token,
-          baseUrl:
-            result.baseurl && isAllowedBaseUrl(result.baseurl)
-              ? result.baseurl
-              : DEFAULT_BASE_URL,
+          baseUrl: result.baseurl && isAllowedBaseUrl(result.baseurl) ? result.baseurl : DEFAULT_BASE_URL,
           ...(result.ilink_user_id ? { ilinkUserId: result.ilink_user_id } : {}),
         };
     }

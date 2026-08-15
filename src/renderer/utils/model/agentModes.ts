@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import {
@@ -35,6 +37,8 @@ export interface AgentModeOption {
  * - OpenCode: plan/build modes via ACP session/set_mode (no autopilot support)
  * - Gemini: supports default/autoEdit/autopilot (auto-approve at manager layer, not via ACP)
  * - Codex: default modes stay sandboxed; a dedicated unsafe full-auto mode disables the sandbox
+ * - Wayland Nano: ACP session/set_mode with model selection via session/set_model.
+ *   The agent advertises exactly one mode today (default) - see nano-protocol acp.rs.
  * - Goose: mode set at startup only, not during session
  * - Cursor: agent/plan/ask modes via ACP session/set_mode (verified via `agent acp` session/new response)
  *
@@ -70,6 +74,9 @@ export const AGENT_MODES: Record<string, AgentModeOption[]> = {
     { value: 'auto_edit', label: 'Auto-Accept Edits' },
     { value: 'yolo', label: 'Autopilot' },
   ],
+  // Wayland Nano advertises exactly one mode over ACP (session/new
+  // availableModes: default only); model selection goes through set_model.
+  wnano: [{ value: 'default', label: 'Default' }],
   codex: [
     { value: 'default', label: 'Plan' },
     { value: CODEX_MODE_AUTO_EDIT, label: 'Auto Edit' },

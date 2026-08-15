@@ -250,6 +250,8 @@
   "installed": "Yüklü",
   "builtin": "Yerleşik",
   "channels": {
+    "mediaSendFailed": "{{name}} gönderilemedi",
+    "mediaPathNotAllowed": "{{name}} dosyasi izin verilen gonderim dizinlerinin disinda oldugu icin gonderilemedi",
     "label": "Kanallar",
     "telegram": {
       "help": "Wayland AI asistanınızla Telegram üzerinden sohbet edin. Başlamak için @BotFather ile bir bot oluşturun.",
@@ -897,9 +899,9 @@
   "webui.port": "Port",
   "webui.portDesc": "Web Arayüzü servis dinleme portu",
   "webui.allowRemote": "Uzaktan Erişime İzin Ver",
-  "webui.allowRemoteDesc": "WebUI'yi yerel ağınızdaki tüm cihazlara açar. Giriş bilgileri şifrelenmemiş HTTP üzerinden iletilir — yalnızca güvendiğiniz ağlarda etkinleştirin.",
+  "webui.allowRemoteDesc": "WebUI'yi yerel ağınızdaki tüm cihazlara açar. Giriş bilgileri şifrelenmemiş HTTP üzerinden iletilir, yalnızca güvendiğiniz ağlarda etkinleştirin.",
   "webui.allowRemoteConfirmTitle": "WebUI yerel ağınıza açılsın mı?",
-  "webui.allowRemoteConfirmBody": "Bu ağdaki herkes WebUI'ye erişebilir ve giriş yapmayı deneyebilir. Parolanız şifrelenmemiş HTTP üzerinden gönderildiği için ağ üzerinde okunabilir. Siz kapatana kadar açık kalır — yeniden başlatmadan sonra da.",
+  "webui.allowRemoteConfirmBody": "Bu ağdaki herkes WebUI'ye erişebilir ve giriş yapmayı deneyebilir. Parolanız şifrelenmemiş HTTP üzerinden gönderildiği için ağ üzerinde okunabilir. Siz kapatana kadar açık kalır, yeniden başlatmadan sonra da.",
   "webui.allowRemoteConfirmOk": "Ağa aç",
   "webui.allowRemoteActive": "Yerel ağınızdaki tüm cihazlardan şifrelenmemiş HTTP üzerinden erişilebilir.",
   "webui.allowRemoteArmed": "Etkin: WebUI bir sonraki başlatmada yerel ağınıza açılacak.",
@@ -1078,8 +1080,6 @@
   "channels.extension.noConfig": "Ek yapılandırma gerekmiyor.",
   "channels.extension.selectPlaceholder": "Lütfen seçin",
   "channels.extension.defaultDesc": "Kanal uzantısı eklentisi",
-  "channels.mediaSendFailed": "{{name}} gönderilemedi",
-  "channels.mediaPathNotAllowed": "{{name}} dosyasi izin verilen gonderim dizinlerinin disinda oldugu icin gonderilemedi",
   "display": "Görünüm",
   "imageGeneration": "Görüntü Oluşturma",
   "imageGenerationToggle": "Görüntü oluşturma aracını etkinleştir",
@@ -1099,19 +1099,17 @@
   "speechToTextRequired": "Zorunlu",
   "speechToTextOptional": "İsteğe bağlı",
   "speechToTextProviderWhisperLocal": "Whisper (Yerel)",
-  "speechToTextWhisperModel": "Whisper Modeli",
-  "speechToTextDownloadModel": "Modeli İndir",
   "speechToTextDownloading": "İndiriliyor...",
   "speechToTextDownloadSuccess": "Model başarıyla indirildi",
-  "speechToTextDownloadError": "İndirme başarısız",
-  "speechToTextCancelDownload": "İptal",
   "speechToTextProviderFluxVoice": "Flux Voice",
+  "speechToTextSeededProvider": "Şu anda {{provider}} kullanılıyor, çünkü bağlı ve burada bir motor seçilmedi.",
+  "speechToTextEffectiveProvider": "Şu anda {{provider}} kullanılıyor.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "Metinden Sese",
   "textToSpeechDescription": "AI yanıtlarını yerel veya sistem ses motoruyla sesli okuyun.",
   "textToSpeechProvider": "Sağlayıcı",
-  "textToSpeechProviderKokoroLocal": "Kokoro (Yerel)",
+  "textToSpeechProviderPlaceholder": "Bir ses sağlayıcısı seçin",
   "textToSpeechProviderSystemNative": "Sistem Varsayılanı",
   "textToSpeechVoice": "Ses",
   "textToSpeechSpeed": "Hız",
@@ -1121,6 +1119,8 @@
   "textToSpeechDownloadSuccess": "Model başarıyla indirildi",
   "textToSpeechDownloadError": "İndirme başarısız",
   "textToSpeechCancelDownload": "İptal",
+  "textToSpeechTestPhrase": "Hi, I'm Wayland. How are you?",
+  "textToSpeechTestConsentDeclined": "Nothing was spoken and nothing was sent. Choose System Voice to test a voice that stays on your machine.",
   "mcp": "MCP Entegrasyonu",
   "imageGenerationModel": "Görüntü Modeli",
   "imageGenerationGuide": "Görüntü Modeli Kurulum Rehberi",
@@ -1260,7 +1260,7 @@
   "bugReportModulePlugin": "Eklenti Sistemi",
   "bugReportModuleAgentTeam": "Takım İş Birliği",
   "bugReportModuleOther": "Diğer",
-  "contactMe": "Bana Ulaşın",
+  "contactMe": "Bize Ulaşın",
   "officialWebsite": "Resmi Web Sitesi",
   "checkForUpdates": "Güncellemeleri kontrol et",
   "includePrereleaseUpdates": "Ön sürüm/geliştirici sürümlerini dahil et",
@@ -1756,6 +1756,7 @@
       "metricsTurns": "Son {{count}} tur:",
       "histogram": "Amiral gemisi {{flagship}} · Küçük {{small}} · Yerel {{local}}",
       "activeConfirmation": "Flux Router bağlı · {{count}} model · istek başına yönlendirme",
+      "activeConfirmationNoCount": "Flux Router bağlı · istek başına yönlendirme",
       "errorUnauthorized": "Bu {{provider}} anahtarı reddedildi. Anahtarı kontrol edip tekrar deneyin.",
       "errorNoCredit": "Bağlandı, ancak bu {{provider}} anahtarında kullanılabilir kredi yok. Modelleri yönlendirmek için fatura bilgisi ekleyin.",
       "errorOffline": "{{provider}} hizmetine ulaşılamadı. Çevrimdışı görünüyorsunuz. Bağlantınızı kontrol edip tekrar deneyin.",
@@ -1781,6 +1782,13 @@
       "errorNoCredit": "kullanılabilir kredi yok",
       "errorOffline": "sağlayıcıya ulaşılamıyor",
       "errorUnrecognized": "anahtar tanınmadı",
+      "errorUndecryptable": "kayıtlı anahtar okunamıyor, yeniden girin",
+      "errorLocalNotRunning": "bu makinede çalışmıyor",
+      "errorLocalNotInstalled": "bu makinede kurulu değil",
+      "localStart": "{{provider}} başlat",
+      "localGet": "{{provider}} edin",
+      "localStarted": "{{provider}} çalışıyor.",
+      "localStartFailed": "{{provider}} başlatılamadı. Kendiniz başlatıp yenileyin.",
       "errorNoModels": "model döndürülmedi",
       "errorUnknown": "bağlantı sorunu",
       "toggleFailed": "Could not change that provider. Please try again.",
@@ -1850,6 +1858,8 @@
       "rekeyConfirm": "Anahtarı güncelle",
       "rekeyDone": "Sağlayıcı kimlik bilgileri güncellendi.",
       "rekeyCloudDisabled": "Bulut kimlik bilgileri buradan değil, bulut bağlantı formundan yeniden ayarlanır.",
+      "refreshStillActionNeeded": "Katalog yenilendi, ancak bu sağlayıcı hâlâ ilgi bekliyor.",
+      "rekeyLocalDisabled": "{{provider}} bu makinede API anahtarı olmadan çalışır, bu yüzden değiştirilecek bir şey yok.",
       "errorUnauthorized": "Bu {{provider}} anahtarı reddedildi, yetkisiz. Anahtarı kontrol edip tekrar deneyin.",
       "errorNoCredit": "Bu {{provider}} anahtarının kullanılabilir kredisi yok. Model çalıştırmak için faturalandırma ekleyin.",
       "errorOffline": "{{provider}} sağlayıcısına ulaşılamadı, çevrimdışı görünüyorsunuz. Bağlantınızı kontrol edip tekrar deneyin.",
@@ -2206,6 +2216,7 @@
     },
     "about": {
       "wcore": "Waylandın kendi motoru. Modeller sayfanızdaki her sağlayıcıyı kullanır.",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Anthropicin kodlama ajanı. Kendi hesabıyla oturum açar, GPT veya Gemini çalıştıramaz.",
       "codex": "OpenAInin kodlama ajanı. Kendi hesabıyla oturum açar, Claude veya Gemini çalıştıramaz."
     },
@@ -2243,6 +2254,48 @@
         "backupLabel": "Yedeklenen konum",
         "rollbackLabel": "Geri almak için çalıştırın"
       }
+    },
+    "install": {
+      "bandTitle": "Kurulabilir olanlar",
+      "action": "Kur",
+      "retry": "Yeniden dene",
+      "cancel": "İptal",
+      "remove": "Kaldır",
+      "installing": "{{version}} kuruluyor…",
+      "installed": "Wayland tarafından kuruldu",
+      "pinned": "{{version}} kurulur",
+      "systemCopy": "Sistemdeki kendi kopyanı kullanır",
+      "unavailable": "Bu yapıda kullanılamıyor",
+      "whyLink": "Neden?",
+      "whyBody": "Bu yapıda platformun için paketlenmiş bir çalışma zamanı yok ve her kurulum buna ihtiyaç duyar. Ajanı kendin kurarsan Wayland onu algılar.",
+      "failed": {
+        "unknown-agent": "Wayland'in bu ajan için sabitlenmiş bir paketi yok.",
+        "bundled-bun-unavailable": "Bu yapıda kurulum için paketlenmiş bir çalışma zamanı yok.",
+        "install-failed": "İndirme başarısız oldu. Bağlantını kontrol edip yeniden dene.",
+        "already-installing": "Zaten bir kurulum çalışıyor. Bitmesini bekleyin.",
+        "timed-out": "Kurulum çok uzun sürdü ve durduruldu. Tekrar deneyin.",
+        "cancelled": "Kurulum iptal edildi.",
+        "error": "Kurulum beklenmeyen bir hatayla durdu.",
+        "remove-failed": "Wayland kendi kopyasını kaldıramadı. Yeniden deneyin.",
+        "receipt-missing": "Hiçbir şey kaldırılmadı. Wayland bu kuruluma dair bir kayıt tutmuyor."
+      },
+      "removeConfirm": {
+        "title": "{{agent}} kaldırılsın mı?",
+        "body": "Bu, Wayland’in kendi klasörüne kurduğu kopyayı siler. Kendi kurduğunuz kopyaya dokunulmaz.",
+        "confirm": "Kaldır",
+        "cancel": "Tut"
+      },
+      "consent": {
+        "title": "{{agent}} kurulsun mu?",
+        "body": "Bu işlem npm'den bir paket indirir ve bilgisayarına çalıştırılabilir kod yerleştirir.",
+        "packageLabel": "Paket",
+        "versionLabel": "Sürüm",
+        "destinationLabel": "Hedef",
+        "scriptsLabel": "Kurulum betikleri",
+        "scriptsValue": "Engellendi",
+        "confirm": "Kur",
+        "cancel": "İptal"
+      }
     }
   },
   "commandPalette": {
@@ -2279,7 +2332,7 @@
     "railGroup": "Engine",
     "engineRunning": "engine running",
     "engineStopped": "engine stopped",
-    "stubNote": "Configured here soon — managed in the engine.",
+    "stubNote": "Configured here soon, managed in the engine.",
     "rail": {
       "overview": "Overview",
       "services": "Services & Keys",
@@ -2293,17 +2346,17 @@
     },
     "overview": {
       "title": "Overview",
-      "subtitle": "The engine behind every chat, workflow and agent. It is already running with smart defaults — this surface is where you tune what is under the hood.",
+      "subtitle": "The engine behind every chat, workflow and agent. It is already running with smart defaults, this surface is where you tune what is under the hood.",
       "inheritedTitle": "Allocated by Wayland Desktop",
-      "inheritedBody": "For this session, Desktop hands the engine your model (as an override) and injects Skills + Assistants/Constitution through its system prompt. Your Desktop MCP library is NOT passed through — only Wayland’s own operational MCPs are.",
+      "inheritedBody": "For this session, Desktop hands the engine your model (as an override) and injects Skills + Assistants/Constitution through its system prompt. Your Desktop MCP library is NOT passed through, only Wayland’s own operational MCPs are.",
       "readOnly": "read-only",
       "manageInDesktop": "Manage in Desktop Settings",
       "inheritModels": "Models (override)",
       "inheritMcp": "MCP Servers",
       "inheritSkills": "Skills",
       "inheritAssistants": "Assistants & Constitution",
-      "inheritManaged": "Managed in Desktop Settings — inherited",
-      "deeperHint": "Everything above ships working. Open Tools, Services & Keys, or Security on the left to go deeper — or leave it; the engine just runs.",
+      "inheritManaged": "Managed in Desktop Settings, inherited",
+      "deeperHint": "Everything above ships working. Open Tools, Services & Keys, or Security on the left to go deeper, or leave it; the engine just runs.",
       "scEngine": "Engine",
       "scEngineRunning": "Running",
       "scEngineStopped": "Stopped",
@@ -2314,7 +2367,7 @@
       "scProfileDefault": "Default",
       "inheritModelsDetail": "{{names}} + {{catalog}} catalog · {{allocated}}",
       "inheritModelsEmpty": "{{catalog}} provider catalog · {{allocated}}",
-      "inheritMcpDetail": "{{count}} servers — {{names}} — inherited",
+      "inheritMcpDetail": "{{count}} servers, {{names}}, inherited",
       "configuredLabel": "Configured in the engine",
       "smartDefaults": "smart defaults active",
       "chipToolsOn": "tools on",
@@ -2329,13 +2382,13 @@
       "skillsDetail": "Injected via system prompt · {{allocated}}",
       "assistantsDetail": "Injected via system prompt · {{allocated}}",
       "mcpDetail": "Wayland operational MCPs · your Desktop MCP library is separate",
-      "engineOwnedLine": "Tools, Memory, Security and Profiles are the engine’s own — written to ~/.wayland-core/config.toml and shared with the Wayland Core CLI."
+      "engineOwnedLine": "Tools, Memory, Security and Profiles are the engine’s own, written to ~/.wayland-core/config.toml and shared with the Wayland Core CLI."
     },
     "services": {
-      "subtitle": "The engine tool backends — web search, vision, voice, image. Wayland ships working out of the box; plug in a key to unlock higher limits.",
+      "subtitle": "The engine tool backends, web search, vision, voice, image. Wayland ships working out of the box; plug in a key to unlock higher limits.",
       "webSearchGroup": "Web Search",
-      "ddgTitle": "DuckDuckGo · active — free web search is on",
-      "ddgBody": "No key needed — Wayland searches the web right now. Add a key below only to go faster or run higher volume.",
+      "ddgTitle": "DuckDuckGo · active, free web search is on",
+      "ddgBody": "No key needed, Wayland searches the web right now. Add a key below only to go faster or run higher volume.",
       "connected": "Connected",
       "getFreeKey": "Get a free key",
       "keyPlaceholder": "Paste API key…",
@@ -2345,13 +2398,13 @@
       "remove": "Remove",
       "saveFailed": "Could not save the key.",
       "brave": {
-        "desc": "Independent search index — privacy-first, generous free tier."
+        "desc": "Independent search index, privacy-first, generous free tier."
       },
       "tavily": {
-        "desc": "Search built for agents — clean, ranked results for LLMs."
+        "desc": "Search built for agents, clean, ranked results for LLMs."
       },
       "exa": {
-        "desc": "Neural search — find pages by meaning, not just keywords."
+        "desc": "Neural search, find pages by meaning, not just keywords."
       },
       "firecrawl": {
         "desc": "Crawl and scrape any site into clean, LLM-ready content."
@@ -2458,7 +2511,7 @@
       "autoRunAria": "{{tool}} sormadan otomatik çalıştır"
     },
     "memory": {
-      "subtitle": "The engine remembers across sessions — facts, preferences, and project context that persist and compound. On by default, stored locally.",
+      "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",
       "providerLocal": "Local (SQLite + BM25)",
       "providerHoncho": "Honcho",
       "providerMem0": "Mem0",
@@ -2511,14 +2564,14 @@
       "noLocalBypass": "Şu anda localhost Tarayıcı erişimine izin veren destekli bir Wayland ayarı yoktur. Raw Engine Mode veya eski block_private_urls anahtarı bunu düzeltmez.",
       "subtitle": "Control how much the engine can do without asking, and exactly which secrets reach the sandbox. Safe defaults already in place.",
       "envInvalid": "Not a valid env var name.",
-      "envSensitive": "That looks like a secret — secret-bearing names can’t be passed to the sandbox.",
+      "envSensitive": "That looks like a secret, secret-bearing names can’t be passed to the sandbox.",
       "approvalAsk": "Ask every time",
       "approvalAuto": "Auto-edit",
       "approvalYolo": "YOLO",
       "approvalsMode": "Approvals Mode",
       "defaultPolicy": "Default approval policy",
       "defaultPolicyDesc": "How edits & commands are confirmed",
-      "approvalHint": "Auto-edit — file edits apply automatically; shell commands and network actions still ask. Recommended for most work.",
+      "approvalHint": "Auto-edit, file edits apply automatically; shell commands and network actions still ask. Recommended for most work.",
       "envAllowlist": "Env-passthrough Allowlist",
       "envPill": "which env vars reach bash",
       "envEmpty": "No env vars are passed to the sandbox yet. Add a non-secret name below.",
@@ -2526,13 +2579,13 @@
       "envRemove": "Remove {{name}}",
       "envPlaceholder": "e.g. GITHUB_TOKEN_NAME, PATH, NODE_ENV (no secrets)",
       "envAdd": "Add",
-      "envSecretsNote": "Only variable names are stored, never values — and secret-bearing names (API keys, tokens, passwords) are refused.",
+      "envSecretsNote": "Only variable names are stored, never values, and secret-bearing names (API keys, tokens, passwords) are refused.",
       "privateUrls": "Private URLs",
       "blockPrivate": "Block private & loopback fetches",
       "blockPrivateDesc": "Stop the engine reaching 10.x, 192.168.x, localhost, and metadata endpoints"
     },
     "profiles": {
-      "subtitle": "Directory-isolated configurations. Each profile carries its own model, tools, keys, skills and memory — switch context instantly without cross-contamination.",
+      "subtitle": "Directory-isolated configurations. Each profile carries its own model, tools, keys, skills and memory, switch context instantly without cross-contamination.",
       "activateFailed": "Failed.",
       "deleteFailed": "Failed.",
       "nameInvalid": "Names use letters, digits, - and _ only (max 64).",
@@ -2552,7 +2605,7 @@
       "skillsChip": "{{count}} beceri"
     },
     "runtime": {
-      "subtitle": "Where the engine actually runs. Embedded locally by default — switch to a remote box or a hosted headless server when you need to.",
+      "subtitle": "Where the engine actually runs. Embedded locally by default, switch to a remote box or a hosted headless server when you need to.",
       "modeLocal": "Local",
       "modeRemote": "Remote",
       "modeHeadless": "Headless server",
@@ -2566,12 +2619,12 @@
       "agentsVal": "{{count}} agents",
       "powerUser": "Power User",
       "rawEngine": "Raw engine mode",
-      "rawEngineDesc": "Run the embedded engine on its own config — don’t override with Desktop’s model & skills.",
+      "rawEngineDesc": "Run the embedded engine on its own config, don’t override with Desktop’s model & skills.",
       "headlessTitle": "Headless server mode",
       "headlessBody": "Run Wayland Core as a long-lived server (one container per tenant) and reach it over LAN, Tailscale, or the hosted Pro tier."
     },
     "scopeWritesTo": "Writes to",
-    "scopeSharedCli": "— used by the Wayland Core CLI too."
+    "scopeSharedCli": ", used by the Wayland Core CLI too."
   },
   "slashCommands": {
     "title": "Slash Commands",
@@ -2624,6 +2677,7 @@
       "providerConnectivity": "Provider connectivity",
       "modelRegistry": "Model registry",
       "engineReachable": "Engine reachable",
+      "engineContractPin": "Engine version match",
       "engineRouting": "Engine default routing",
       "mcpServers": "MCP servers",
       "backends": "Detected backends",
@@ -2636,5 +2690,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "Meşgulken güncellemeleri ertele",
-  "deferUpdateWhileBusyDesc": "Güncelleme için yeniden başlatmadan önce etkin sohbetlerin, zamanlanmış görevlerin ve ekiplerin bitmesini bekleyin. Güncelleme boştayken veya çıkışta uygulanır."
+  "deferUpdateWhileBusyDesc": "Güncelleme için yeniden başlatmadan önce etkin sohbetlerin, zamanlanmış görevlerin ve ekiplerin bitmesini bekleyin. Güncelleme boştayken veya çıkışta uygulanır.",
+  "textToSpeechProviderWindowsNative": "Windows Sesi",
+  "textToSpeechLocalVoiceLabel": "Yerleşik ses",
+  "textToSpeechNoLocalVoice": "Bu işletim sisteminde yerleşik ses yok. Yanıtları sesli duymak için OpenAI Speech seçin.",
+  "speechToTextOnDeviceLabel": "Cihazda",
+  "speechToTextOnDeviceBody": "Wayland ile gelen modelle cihazınızda çalışır. Anahtar yok, indirme yok, ses bu makineden çıkmaz."
 }

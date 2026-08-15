@@ -33,13 +33,13 @@ import { mergeFileSelectionItems } from '@/renderer/utils/file/fileSelection';
 import { buildDisplayMessage, collectSelectedFiles } from '@/renderer/utils/file/messageFiles';
 import { useModelContextLimit } from '@/renderer/hooks/agent/useModelContextLimit';
 import { Message, Tag } from '@arco-design/web-react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGeminiInitialMessage } from './useGeminiInitialMessage';
 import { useGeminiMessage } from './useGeminiMessage';
 import type { GeminiModelSelection } from './useGeminiModelSelection';
 import { useGeminiQuotaFallback } from './useGeminiQuotaFallback';
-import { useVoiceTurnSubmission } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
+import { useVoiceTurnSubmission, type VoiceTurnDeferral } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 const useGeminiSendBoxDraft = getSendBoxDraftHook('gemini', {
   _type: 'gemini',
@@ -255,6 +255,7 @@ const GeminiSendBox: React.FC<{
             conversation_id,
             content: {
               content: displayMessage,
+              ...(files?.length && { files }),
             },
             createdAt: Date.now(),
           },
@@ -356,7 +357,27 @@ const GeminiSendBox: React.FC<{
     await executeCommand({ input: message, files: filesToSend });
   };
 
-  useVoiceTurnSubmission(conversation_id, onSendHandler);
+  /**
+   * V16: a spoken turn enters `onSendHandler` exactly like a typed one, and that
+   * handler collects the staged files and clears them. So attaching a photo and
+   * then speaking sends the photo with a sentence the user never meant to attach
+   * it to - and clears it from the composer either way. Hand the words to the
+   * draft instead and let them press Send.
+   */
+  const stagedFileCountRef = useLatestRef(collectSelectedFiles(uploadFile, atPath).length);
+  const draftContentRef = useLatestRef(content);
+  const voiceDeferral = useMemo<VoiceTurnDeferral>(
+    () => ({
+      stagedFileCount: () => stagedFileCountRef.current,
+      writeDraft: (text) => {
+        const existing = draftContentRef.current;
+        setContentRef.current(existing ? `${existing}\n${text}` : text);
+      },
+    }),
+    [draftContentRef, setContentRef, stagedFileCountRef]
+  );
+
+  useVoiceTurnSubmission(conversation_id, onSendHandler, voiceDeferral);
 
   const handleEditQueuedCommand = useCallback(
     (item: ConversationCommandQueueItem) => {

@@ -1,0 +1,17 @@
+{
+  "groupLabel": "Diseño de la interfaz",
+  "classic": {
+    "title": "Classic",
+    "blurb": "Todos los destinos en una lista lateral. Nada se mueve, nada queda oculto."
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "blurb": "Una lista más corta que agrupa lo mismo en Library, Automations y Activity."
+  },
+  "prompt": {
+    "title": "¿Probar el nuevo diseño Cockpit?",
+    "body": "Cockpit es un nuevo diseño sobre los mismos chats, proyectos y ajustes: no se mueve ni se elimina nada. Puedes volver cuando quieras en Ajustes > Navegación.",
+    "confirm": "Usar este diseño",
+    "later": "Ahora no"
+  }
+}

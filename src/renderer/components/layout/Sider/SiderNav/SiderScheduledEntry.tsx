@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { Clock } from 'lucide-react';
@@ -40,11 +42,7 @@ const SiderScheduledEntry: React.FC<SiderScheduledEntryProps> = ({
           onClick={onClick}
           data-testid='sider-scheduled-entry'
         >
-          <Clock
-            size={16}
-            className='block leading-none shrink-0'
-            style={{ lineHeight: 0 }}
-          />
+          <Clock size={16} className='block leading-none shrink-0' style={{ lineHeight: 0 }} />
         </div>
       </Tooltip>
     );
@@ -62,11 +60,7 @@ const SiderScheduledEntry: React.FC<SiderScheduledEntryProps> = ({
         data-testid='sider-scheduled-entry'
       >
         <span className='w-20px h-20px flex items-center justify-center shrink-0'>
-          <Clock
-            size={16}
-            className='block leading-none'
-            style={{ lineHeight: 0 }}
-          />
+          <Clock size={16} className='block leading-none' style={{ lineHeight: 0 }} />
         </span>
         <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px'>{label}</span>
       </div>

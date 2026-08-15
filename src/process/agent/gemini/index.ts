@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 // Re-export GeminiApprovalStore for use in other modules
@@ -12,6 +14,7 @@ import { WAYLAND_FILES_MARKER } from '@/common/config/constants';
 import { NavigationInterceptor } from '@/common/chat/navigation';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { uuid } from '@/common/utils';
+import { resolveOpenAiCompatibleApiKey } from '@/common/utils/keylessLocalCredential';
 import { getProviderAuthType } from '@/common/utils/platformAuthType';
 import { isNewApiPlatform } from '@/common/utils/platformConstants';
 import { normalizeNewApiBaseUrl } from '@/common/api/ClientFactory';
@@ -232,8 +235,17 @@ export class GeminiAgent {
       return;
     }
     if (this.authType === AuthType.USE_OPENAI) {
-      fallbackValue('OPENAI_BASE_URL', getBaseUrl());
-      fallbackValue('OPENAI_API_KEY', getCurrentApiKey());
+      // Ollama / LM Studio / llama.cpp are OpenAI-compatible but take NO key, so
+      // they land here carrying nothing and the fork Gemini core throws
+      // `OpenAI API key is required` before it opens a socket - naming a vendor
+      // the user never chose, about a server sitting on loopback that would have
+      // answered an unauthenticated request perfectly happily. `modelBridge`
+      // already unlocks keyless this way when it probes and lists local models,
+      // which is why Ollama looked connected in Settings and then died on the
+      // first turn. Fails closed: a non-local base URL still gets nothing.
+      const baseUrl = getBaseUrl();
+      fallbackValue('OPENAI_BASE_URL', baseUrl);
+      fallbackValue('OPENAI_API_KEY', resolveOpenAiCompatibleApiKey(getCurrentApiKey(), baseUrl));
       return;
     }
     if (this.authType === AuthType.USE_ANTHROPIC) {

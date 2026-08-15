@@ -1,5 +1,5 @@
 {
-  "truncation.budgetExhausted.body": "這則回應在完成前就提前結束了。點擊「繼續」從中斷處接著進行——模型會保留它已經完成的工作。",
+  "truncation.budgetExhausted.body": "這則回應在完成前就提前結束了。點擊「繼續」從中斷處接著進行，模型會保留它已經完成的工作。",
   "truncation.budgetExhausted.action": "繼續",
   "fileChanges": "檔案變更",
   "fileChangesCount": "{{count}} 個檔案變更",

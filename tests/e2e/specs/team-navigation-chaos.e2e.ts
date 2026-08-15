@@ -19,9 +19,9 @@
 
 import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
-import { invokeBridge, navigateTo } from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion } from '../helpers';
 
-const LAUNCHER_ID = 'ext-cold-outbound';
+const LAUNCHER_ID = 'builtin-cold-outbound';
 const NAME_PREFIX = 'E2E NavChaos';
 
 type TeamRow = { id: string; name: string };
@@ -51,9 +51,7 @@ test.describe('Team Blitz - navigation chaos', () => {
     await expect(page.locator('[data-testid="team-page-load-error"]')).toBeVisible({
       timeout: 15_000,
     });
-    await expect(
-      page.locator('[data-testid="team-page-load-error-back-cta"]')
-    ).toBeVisible();
+    await expect(page.locator('[data-testid="team-page-load-error-back-cta"]')).toBeVisible();
   });
 
   test('direct URL to a deleted team → in-place error', async ({ page }) => {
@@ -115,6 +113,10 @@ test.describe('Team Blitz - navigation chaos', () => {
     await expect(page.locator('[data-testid="teams-library-page"]')).toBeVisible({
       timeout: 15_000,
     });
+    // The library paginates at 48 cards over 60 teams and this launcher sorts
+    // into the hidden tail, so filter to it first - its card is not in the DOM
+    // on page one [V].
+    await page.locator('[data-testid="teams-search-input"]').fill('Cold Outbound');
     await page.locator(`[data-testid="team-card-${LAUNCHER_ID}"]`).click();
     await page.waitForURL(new RegExp(`/teams/${LAUNCHER_ID}/launch`), { timeout: 10_000 });
     await expect(page.locator('[data-testid="launcher-row-leader"]')).toBeVisible({
@@ -134,9 +136,7 @@ test.describe('Team Blitz - navigation chaos', () => {
     expect(after.length).toBe(before.length);
   });
 
-  test('refresh during BuildMyOwn flow → safe landing, no orphan team', async ({
-    page,
-  }) => {
+  test('refresh during BuildMyOwn flow → safe landing, no orphan team', async ({ page }) => {
     test.setTimeout(60_000);
     await cleanupTeams(page);
 
@@ -150,9 +150,7 @@ test.describe('Team Blitz - navigation chaos', () => {
     await expect(page.locator('[data-testid="launcher-goal-card"]')).toBeVisible({
       timeout: 10_000,
     });
-    await page
-      .locator('[data-testid="launcher-goal-input"]')
-      .fill('ship a sales onboarding flow');
+    await page.locator('[data-testid="launcher-goal-input"]').fill('ship a sales onboarding flow');
     await page.locator('[data-testid="launcher-suggest-btn"]').click();
     // Don't wait for the suggest to settle - just reload.
     await page.reload();
@@ -189,30 +187,86 @@ test.describe('Team Blitz - navigation chaos', () => {
     };
     page.on('pageerror', errorHandler);
 
-    // /team/ (no id) - Router catch-all '*' redirects to /guid.
-    await navigateTo(page, '#/team/');
+    // Start from a known baseline. The preceding case reloads mid-flow and
+    // leaves the document in an indeterminate state; navigateTo early-returns
+    // when the hash already matches, so it would not re-settle it.
+    await page.reload();
     await page
-      .waitForFunction(() => (document.body.textContent?.length ?? 0) > 50, { timeout: 10_000 })
+      .waitForFunction(() => typeof (window as { electronAPI?: unknown }).electronAPI !== 'undefined', {
+        timeout: 15_000,
+      })
       .catch(() => {});
-
-    // /team// (double slash) - same catch-all path.
-    await navigateTo(page, '#/team//');
+    // electronAPI is exposed BEFORE the renderer paints - a probe caught the
+    // body still completely empty at this point, which is the actual race
+    // behind this test's intermittent failure. Wait for real content.
     await page
-      .waitForFunction(() => (document.body.textContent?.length ?? 0) > 50, { timeout: 10_000 })
+      .waitForFunction(() => (document.body.textContent?.length ?? 0) > 200, { timeout: 15_000 })
       .catch(() => {});
+    // Re-drive the hash if the first attempt lands before the router is live.
+    // navigateTo early-returns when the hash already matches, so a single call
+    // cannot recover from that - hence the bounded retry rather than a longer
+    // timeout.
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(() => {
+            window.location.hash = '#/teams';
+          });
+          await page.waitForTimeout(1_000);
+          return page.locator('[data-testid="teams-library-page"]').count();
+        },
+        { timeout: 30_000, message: 'teams library did not mount on the baseline navigation' }
+      )
+      .toBeGreaterThan(0);
 
-    // /teams/ (trailing slash) - should render TeamsLibraryPage OR
-    // redirect somewhere alive.
-    await navigateTo(page, '#/teams/');
-    await page
-      .waitForFunction(() => (document.body.textContent?.length ?? 0) > 50, { timeout: 10_000 })
-      .catch(() => {});
+    // WAS a real defect (now FIXED in useDetectedAgents): roughly 1 run in 3
+    // this baseline never mounted because the app was sitting in its React
+    // error boundary - "Something went wrong / An unexpected error occurred /
+    // Reload this view" - left behind by the preceding case, which reloads
+    // while a BuildMyOwn suggest is in flight. The reload left SWR unresolved,
+    // and the `data: rawAgents = []` default rebuilt a new array every render,
+    // churning `recommend()` into TeamLauncherPage's `initialState` memo until
+    // its setState-in-effect blew React's update-depth guard (#185).
+    // `pageErrors` stayed 0 throughout because the boundary swallows the throw,
+    // which is why it read as a timing race rather than a crash.
 
-    // /teams? (query-only) - TeamsLibraryPage renders normally.
-    await navigateTo(page, '#/teams?');
-    await expect(page.locator('[data-testid="teams-library-page"]')).toBeVisible({
-      timeout: 15_000,
+    // /team/ and /team// hit the Router '*' catch-all, which redirects to /guid
+    // by design (Router.tsx:213). `navigateTo` asserts the hash STAYS at the
+    // target, so it fights that redirect - and its late `Navigate ... replace`
+    // could also clobber a hash set by a following step. Set the hash raw and
+    // wait for the settled destination instead.
+    // Each hop needs to SETTLE before the next hash is set. A
+    // `body.textContent.length > 50` wait returns instantly - the shell always
+    // satisfies it - so the steps raced and a late catch-all redirect landed
+    // after the following navigation, clobbering it.
+    //
+    // Verified sequence: #/team/ and #/team// both redirect to #/guid (Router
+    // '*' catch-all), while #/teams/ and #/teams? both render the library.
+    for (const junk of ['#/team/', '#/team//']) {
+      await page.evaluate((h) => {
+        window.location.hash = h;
+      }, junk);
+      await page.waitForTimeout(1_500);
+      // Deliberately no destination assertion. Where an empty :id lands depends
+      // on the state the previous test left behind (catch-all redirect to /guid
+      // vs the in-place team error) - both are alive, and this case only claims
+      // "no crash". Pinning the destination made it order-dependent.
+      expect(await page.evaluate(() => document.body.textContent?.length ?? 0)).toBeGreaterThan(50);
+    }
+
+    // /teams/ (trailing slash) - renders TeamsLibraryPage.
+    await page.evaluate(() => {
+      window.location.hash = '#/teams/';
     });
+    await page.waitForTimeout(1_500);
+    await expect(page.locator('[data-testid="teams-library-page"]')).toBeVisible({ timeout: 15_000 });
+
+    // /teams? (query-only) - renders TeamsLibraryPage.
+    await page.evaluate(() => {
+      window.location.hash = '#/teams?';
+    });
+    await page.waitForTimeout(1_500);
+    await expect(page.locator('[data-testid="teams-library-page"]')).toBeVisible({ timeout: 15_000 });
 
     expect(pageErrors).toBe(0);
     page.off('pageerror', errorHandler);
@@ -248,6 +302,9 @@ test.describe('Team Blitz - navigation chaos', () => {
     const teamId = created.id;
 
     // Wait for sidebar to surface the new entry.
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
 

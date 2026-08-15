@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Message, Spin, Switch, Tooltip } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
-import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
+import type { IModelRegistryLocalRuntimeStatus, IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
+import { modelRegistry } from '@/common/adapter/ipcBridge';
 import type { ConnectError, CuratedModel } from '@process/providers/types';
+import { openExternalUrl } from '@renderer/utils/platform';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
 import ProviderLogo from '@renderer/components/model/ProviderLogo';
 import { providerMeta } from '../providerCatalog';
+import { isKeylessLocalProvider, isProviderActionNeeded } from '../providerStatus';
 import { defaultOnIds, enabledCount, mergeCatalogRows } from './bulkToggle';
 import styles from '../ModelsSettings.module.css';
 
@@ -32,6 +35,9 @@ const ERROR_KEY: Record<ConnectError, string> = {
   'auth-required': 'errorUnknown',
   unknown: 'errorUnknown',
 };
+
+/** Where a user gets Ollama when it is not installed on this machine. */
+const OLLAMA_DOWNLOAD_URL = 'https://ollama.com/download';
 
 /**
  * Map a backend `connectedVia` enum value to its i18n key suffix. The backend
@@ -60,8 +66,13 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
   const { getCatalog, toggleModel, registryVersion } = useModelRegistry();
   const meta = providerMeta(provider.providerId);
 
-  const isError = provider.state === 'error';
-  const isTesting = provider.state === 'testing';
+  // A row whose stored credential cannot be decrypted is action-needed even
+  // though its `state` still reads `connected` - nothing has demoted it yet, and
+  // rendering the green badge would promise a provider that fails every call.
+  // Derived by the shared predicate so the Manage page cannot disagree with it.
+  const credsUnreadable = provider.credsUndecryptable === true;
+  const isError = isProviderActionNeeded(provider);
+  const isTesting = provider.state === 'testing' && !credsUnreadable;
   const noModels = !isError && !isTesting && provider.modelCount === 0;
 
   // Provider-level on/off toggle (#54). The row keeps a lightweight copy of the
@@ -77,6 +88,48 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
   const pendingOn = useRef<boolean | null>(null);
 
   const canToggle = !isError && !isTesting;
+
+  // ── Keyless machine-local provider (Ollama) ───────────────────────────────
+  // It has no API key, so "key not recognized" / a re-key Fix are both
+  // category-wrong for it. Ask the main process what is actually true - is it
+  // installed here, is it up - and offer only the action that can work.
+  const isLocalRuntime = isKeylessLocalProvider(provider);
+  const [localRuntime, setLocalRuntime] = useState<IModelRegistryLocalRuntimeStatus | null>(null);
+  const [startingRuntime, setStartingRuntime] = useState(false);
+
+  useEffect(() => {
+    if (!isLocalRuntime || !isError) {
+      setLocalRuntime(null);
+      return;
+    }
+    let alive = true;
+    void (async () => {
+      try {
+        const status = await modelRegistry.localRuntimeStatus.invoke({ providerId: provider.providerId });
+        if (alive) setLocalRuntime(status ?? null);
+      } catch {
+        // Best-effort: without it the row falls back to the generic reason
+        // rather than claiming something it could not verify.
+        if (alive) setLocalRuntime(null);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [isLocalRuntime, isError, provider.providerId, registryVersion]);
+
+  const handleStartRuntime = useCallback(async () => {
+    setStartingRuntime(true);
+    try {
+      const res = await modelRegistry.startLocalRuntime.invoke({ providerId: provider.providerId });
+      if (res?.ok) Message.success(t('settings.modelsPage.row.localStarted', { provider: meta.displayName }));
+      else Message.error(t('settings.modelsPage.row.localStartFailed', { provider: meta.displayName }));
+    } catch {
+      Message.error(t('settings.modelsPage.row.localStartFailed', { provider: meta.displayName }));
+    } finally {
+      setStartingRuntime(false);
+    }
+  }, [provider.providerId, meta.displayName, t]);
 
   useEffect(() => {
     if (!canToggle) {
@@ -150,6 +203,25 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
     .filter(Boolean)
     .join(' ');
 
+  // The reason line. A keyless local runtime names its REAL situation - "not
+  // running on this machine" / "not installed on this machine" - instead of the
+  // generic "can't reach provider", which reads like a network fault. Falls back
+  // to the generic reason until the status probe answers, so the row never
+  // asserts something it has not verified.
+  const errorReasonKey = credsUnreadable
+    ? 'settings.modelsPage.row.errorUndecryptable'
+    : isLocalRuntime && localRuntime?.supported && !localRuntime.running
+      ? localRuntime.installed
+        ? 'settings.modelsPage.row.errorLocalNotRunning'
+        : 'settings.modelsPage.row.errorLocalNotInstalled'
+      : `settings.modelsPage.row.${ERROR_KEY[provider.error ?? 'unknown']}`;
+
+  // The recovery action. Re-keying a provider with no key is meaningless, so a
+  // keyless local runtime gets Start (when it is installed) or a pointer to the
+  // download (when it is not) - never the credential Fix.
+  const canStartLocal = isLocalRuntime && localRuntime?.supported === true && localRuntime.installed;
+  const canInstallLocal = isLocalRuntime && localRuntime?.supported === true && !localRuntime.installed;
+
   return (
     <div className={rowClass} data-provider={provider.providerId} data-state={provider.state}>
       {meta.id === 'flux-router' ? (
@@ -175,9 +247,7 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
       {isError && (
         <div className={`${styles.status} ${styles.statusError}`} role='alert'>
           <span className={styles.statusDot} />
-          {t('settings.modelsPage.row.actionNeeded', {
-            reason: t(`settings.modelsPage.row.${ERROR_KEY[provider.error ?? 'unknown']}`),
-          })}
+          {t('settings.modelsPage.row.actionNeeded', { reason: t(errorReasonKey) })}
         </div>
       )}
 
@@ -199,7 +269,15 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
         </>
       )}
 
-      {isError ? (
+      {isError && canStartLocal ? (
+        <Button size='small' status='danger' loading={startingRuntime} onClick={() => void handleStartRuntime()}>
+          {t('settings.modelsPage.row.localStart', { provider: meta.displayName })}
+        </Button>
+      ) : isError && canInstallLocal ? (
+        <Button size='small' onClick={() => void openExternalUrl(OLLAMA_DOWNLOAD_URL).catch(() => {})}>
+          {t('settings.modelsPage.row.localGet', { provider: meta.displayName })}
+        </Button>
+      ) : isError ? (
         <Button size='small' status='danger' onClick={() => onFix(provider)}>
           {t('settings.modelsPage.row.fix')}
         </Button>

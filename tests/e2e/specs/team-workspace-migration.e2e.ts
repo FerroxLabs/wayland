@@ -14,7 +14,7 @@
  *   7. Cleanup: delete team + temp directory
  */
 import { test, expect } from '../fixtures';
-import { invokeBridge, TEAM_SUPPORTED_BACKENDS } from '../helpers';
+import { invokeBridge, TEAM_SUPPORTED_BACKENDS, primeSiderCreateAffordance } from '../helpers';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -79,12 +79,12 @@ test.describe('Team Workspace Migration', () => {
 
     // ── Step 1: Create team via sidebar UI ──────────────────────────────
 
-    const teamSection = page.locator('text=Teams').or(page.locator('text=团队'));
-    await expect(teamSection.first()).toBeVisible({ timeout: 15_000 });
-
-    const createBtn = page.locator('.h-20px.w-20px.rd-4px').first();
-    await expect(createBtn).toBeVisible({ timeout: 10_000 });
-    await createBtn.click();
+    // The old `.h-20px.w-20px.rd-4px` icon button was replaced by
+    // `sider-team-create-inline`; that class now matches only the CRON section.
+    // The Teams section also needs >=1 team and an expanded accordion to render.
+    const primed = await primeSiderCreateAffordance(page);
+    test.skip(!primed, 'team.create seed failed (no usable leader backend)');
+    await page.getByTestId('sider-team-create-inline').click();
 
     const modal = page.locator('.team-create-modal');
     await expect(modal).toBeVisible({ timeout: 10_000 });

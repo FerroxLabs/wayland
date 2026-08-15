@@ -1,5 +1,4 @@
-/* #252 - activity-tree card. Adapted from Foundry ForgeRenderers.module.css to
-   Wayland orange/dark tokens (NOT Foundry teal). */
+/* #252 - activity-tree card, themed to Wayland orange/dark tokens. */
 
 @keyframes activityFadeIn {
   from {

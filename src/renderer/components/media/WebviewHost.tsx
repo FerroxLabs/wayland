@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ChevronLeft, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
@@ -576,7 +578,7 @@ const WebviewHost: React.FC<WebviewHostProps> = ({
       )}
       {/* Navigation bar (optional) */}
       {showNavBar && (
-        <div className='aion-url-viewer-toolbar flex items-center gap-6px h-40px px-10px bg-bg-2 border-b border-border-1 flex-shrink-0'>
+        <div className='aion-url-viewer-toolbar flex items-center gap-6px h-40px px-10px bg-2 border-b border-1 flex-shrink-0'>
           <button onClick={handleGoBack} disabled={!canGoBack} className='toolbar-btn icon-btn' title='Back'>
             <ChevronLeft size={16} />
           </button>
@@ -584,11 +586,7 @@ const WebviewHost: React.FC<WebviewHostProps> = ({
             <ChevronRight size={16} />
           </button>
           <button onClick={handleRefresh} className='toolbar-btn icon-btn' title='Refresh'>
-            {isLoading ? (
-              <Loader2 size={16} className='animate-spin' />
-            ) : (
-              <RefreshCw size={16} />
-            )}
+            {isLoading ? <Loader2 size={16} className='animate-spin' /> : <RefreshCw size={16} />}
           </button>
           {isStarOffice && (
             <div className='flex items-center gap-6px ml-2px'>

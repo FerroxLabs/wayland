@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { OpenClawAgent, type OpenClawAgentConfig } from '@process/agent/openclaw';
@@ -11,7 +13,8 @@ import type { IConfirmation, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { uuid } from '@/common/utils';
-import type { AgentBackend } from '@/common/types/acpTypes';
+import type { AgentBackend, TurnEndOutcome } from '@/common/types/acpTypes';
+import { ConversationTurnCompletionService } from '@process/task/ConversationTurnCompletionService';
 import { trustedWorkspaceAutoApprovesAcpKind } from '@/common/security/workspaceTrust';
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { getDatabase } from '@process/services/database';
@@ -82,6 +85,7 @@ class OpenClawAgentManager extends BaseAgentManager<OpenClawAgentManagerData> {
       onSignalEvent: (message) => this.handleSignalEvent(message),
       onSessionKeyUpdate: (sessionKey) => this.handleSessionKeyUpdate(sessionKey),
       onUsage: (usage) => this.handleUsage(usage),
+      onTurnEnd: (outcome) => this.handleTurnEnd(outcome),
     };
 
     this.agent = new OpenClawAgent(config);
@@ -201,6 +205,26 @@ class OpenClawAgentManager extends BaseAgentManager<OpenClawAgentManagerData> {
   }
 
   /**
+   * #838: raise the OS completion notification and let autonomous workflows
+   * self-advance, which this backend never did.
+   *
+   * Only a clean end of turn qualifies. On error, abort or disconnect we emit
+   * nothing and leave the run to the existing 30-minute autonomous watchdog,
+   * which parks it. Notifying there would carry the default
+   * `state: 'ai_waiting_input'`, and WorkflowSessionService would read that as
+   * a step that finished - marking a FAILED step done and advancing the run.
+   */
+  private handleTurnEnd(outcome: TurnEndOutcome): void {
+    if (outcome !== 'ok') return;
+    void ConversationTurnCompletionService.getInstance().notifyPotentialCompletion(this.conversation_id, {
+      status: this.status ?? 'finished',
+      workspace: this.workspace,
+      backend: 'openclaw-gateway',
+      pendingConfirmations: this.getConfirmations().length,
+    });
+  }
+
+  /**
    * Record per-turn token usage when the gateway concretely reports it on
    * chat:final. The OpenClaw gateway surfaces no model id to this manager, so
    * the split cannot be priced - we record tokens only with cost_source
@@ -248,6 +272,8 @@ class OpenClawAgentManager extends BaseAgentManager<OpenClawAgentManagerData> {
     content: string;
     agentContent?: string;
     files?: string[];
+    /** Absolute paths the local user attached. See IMessageText.content.files. */
+    attachedFiles?: string[];
     msg_id?: string;
     hidden?: boolean;
     silent?: boolean;
@@ -266,7 +292,10 @@ class OpenClawAgentManager extends BaseAgentManager<OpenClawAgentManagerData> {
           type: 'text',
           position: 'right',
           conversation_id: this.conversation_id,
-          content: { content: data.content },
+          content: {
+            content: data.content,
+            ...(data.attachedFiles?.length && { files: data.attachedFiles }),
+          },
           createdAt: Date.now(),
           ...(data.hidden && { hidden: true }),
         };

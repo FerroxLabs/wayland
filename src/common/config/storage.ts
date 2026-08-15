@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { AcpBackend, AcpBackendAll, AcpBackendConfig } from '@/common/types/acpTypes';
@@ -204,6 +206,15 @@ export interface IConfigStorageRefer {
   'ui.zoomFactor'?: number;
   /** Presentation-only shell selection. Missing or unknown values resolve to Classic. */
   'ui.shell'?: import('@/common/shellExperience').ShellExperience;
+  /**
+   * Whether the user has been OFFERED the Classic/Cockpit choice.
+   *
+   * `ui.shell` cannot answer this on its own: it resolves to Classic both for a
+   * user who chose Classic and for one who was never asked, so without this flag
+   * we would either nag someone who already declined or never get to ask at all.
+   * Set when the chooser is answered or dismissed, never on the shell write.
+   */
+  'ui.shellChoicePrompted'?: boolean;
   /** Auto-enable WebUI in desktop mode */
   'webui.desktop.enabled'?: boolean;
   /** Allow remote access in desktop mode */
@@ -337,6 +348,10 @@ export interface IConfigStorageRefer {
   // the legacy base64 `b64:` / `plain:` / `enc:` formats into `enc:v1:`
   // Electron-safeStorage ciphertext. See process/utils/credentialMigration.
   'system.credentialsCryptoMigrated_v1'?: boolean;
+  // One-shot flag for the voice orphan reclaim. Set once the two abandoned
+  // model trees under <userData>/voice/ have been removed. See
+  // process/utils/voiceOrphanReclaim.
+  'system.voiceOrphansReclaimed_v1'?: boolean;
   // Persisted webhook connection-token records. Hydrated by ChannelManager
   // on startup so URLs survive app restarts. Shape mirrors
   // ConnectionTokenRecord in src/process/channels/webhook/types.ts -

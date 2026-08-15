@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { agentRegistry } from '@process/agent/AgentRegistry';
@@ -59,6 +61,7 @@ import { initWorkspaceTrustBridge } from './workspaceTrustBridge';
 import { initSystemSettingsBridge } from './systemSettingsBridge';
 import { initTerminalBridge } from '@process/terminal/terminalBridge';
 import { initFluxConnectorBridge } from './fluxConnectorBridge';
+import { initAgentInstallerBridge } from './agentInstallerBridge';
 import { initAmbientBridge } from './ambientBridge';
 import { initWindowControlsBridge } from './windowControlsBridge';
 import { initNotificationBridge } from './notificationBridge';
@@ -152,6 +155,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initSystemSettingsBridge();
   initTerminalBridge();
   initFluxConnectorBridge();
+  initAgentInstallerBridge();
   initIjfwBridge();
   initIjfwDropBridge();
   initMemoryArchiveBridge();
@@ -291,6 +295,7 @@ export {
   initStarOfficeBridge,
   initSystemSettingsBridge,
   initFluxConnectorBridge,
+  initAgentInstallerBridge,
   initAmbientBridge,
   initTaskBridge,
   initUpdateBridge,

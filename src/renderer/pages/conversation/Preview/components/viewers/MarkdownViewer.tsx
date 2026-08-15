@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { X } from 'lucide-react';
@@ -346,7 +348,7 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
     <div className='flex flex-col w-full h-full overflow-hidden'>
       {/* Toolbar: Tabs toggle + Download button */}
       {!hideToolbar && (
-        <div className='flex items-center justify-between h-40px px-12px bg-bg-2 flex-shrink-0 border-b border-border-1 overflow-x-auto'>
+        <div className='flex items-center justify-between h-40px px-12px bg-2 flex-shrink-0 border-b border-1 overflow-x-auto'>
           <div className='flex items-center justify-between gap-12px w-full' style={{ minWidth: 'max-content' }}>
             {/* Left: Source/Preview Tabs */}
             <div className='flex items-center h-full gap-2px'>
@@ -354,7 +356,7 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
               <div
                 className={`
                   flex items-center h-full px-16px cursor-pointer transition-all text-14px font-medium
-                  ${viewMode === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-t-secondary hover:text-t-primary hover:bg-bg-3'}
+                  ${viewMode === 'preview' ? 'text-primary border-b-2 border-primary' : 'text-t-secondary hover:text-t-primary hover:bg-3'}
                 `}
                 onClick={() => handleViewModeChange('preview')}
               >
@@ -364,7 +366,7 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
               <div
                 className={`
                   flex items-center h-full px-16px cursor-pointer transition-all text-14px font-medium
-                  ${viewMode === 'source' ? 'text-primary border-b-2 border-primary' : 'text-t-secondary hover:text-t-primary hover:bg-bg-3'}
+                  ${viewMode === 'source' ? 'text-primary border-b-2 border-primary' : 'text-t-secondary hover:text-t-primary hover:bg-3'}
                 `}
                 onClick={() => handleViewModeChange('source')}
               >
@@ -376,7 +378,7 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
             <div className='flex items-center gap-8px flex-shrink-0'>
               {/* Download button */}
               <div
-                className='flex items-center gap-4px px-8px py-4px rd-4px cursor-pointer hover:bg-bg-3 transition-colors'
+                className='flex items-center gap-4px px-8px py-4px rd-4px cursor-pointer hover:bg-3 transition-colors'
                 onClick={handleDownload}
                 title={t('preview.downloadMarkdown')}
               >
@@ -462,7 +464,9 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
                           displayMode: true,
                           throwOnError: false,
                         });
-                        return <div className='katex-display' dangerouslySetInnerHTML={{ __html: sanitizeMath(html) }} />;
+                        return (
+                          <div className='katex-display' dangerouslySetInnerHTML={{ __html: sanitizeMath(html) }} />
+                        );
                       } catch {
                         // Fall through to render as code block if KaTeX fails
                       }

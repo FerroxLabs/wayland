@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -38,8 +40,7 @@ const createAudioFileName = (mimeType: string) => {
 };
 
 const ensureAudioSize = (blob: Blob, provider?: string) => {
-  const limitBytes =
-    provider === 'flux-voice' ? FLUX_VOICE_MAX_AUDIO_FILE_SIZE_BYTES : MAX_AUDIO_FILE_SIZE_BYTES;
+  const limitBytes = provider === 'flux-voice' ? FLUX_VOICE_MAX_AUDIO_FILE_SIZE_BYTES : MAX_AUDIO_FILE_SIZE_BYTES;
   if (blob.size > limitBytes) {
     throw new Error('STT_FILE_TOO_LARGE');
   }
@@ -75,18 +76,44 @@ export async function transcribeAudioBlob(blob: Blob, languageHint?: string): Pr
   ensureAudioSize(blob, provider);
 
   if (!provider || provider === 'whisper-local') {
-    const text = await transcribeLocally(blob);
-    return { text, provider: 'whisper-local', model: 'whisper-tiny', language: languageHint };
+    try {
+      const text = await transcribeLocally(blob);
+      return { text, provider: 'whisper-local', model: 'whisper-tiny', language: languageHint };
+    } catch (error) {
+      /**
+       * The local engine's real failure is a knowable one - a missing bundled
+       * model file, a WASM runtime that would not load - and it arrives here as
+       * an ordinary message with no `STT_` prefix. The caller's error map has no
+       * branch for that shape, so every one of them collapsed into the single
+       * word "unknown", which is what the user was shown after speaking:
+       * "Microphone or transcription failed (unknown). Nothing was sent."
+       *
+       * Re-throwing it under a code with the original message attached keeps the
+       * cause all the way to the surface. Nothing about a missing model file is
+       * unknown.
+       */
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(`STT_LOCAL_ENGINE_FAILED:${detail}`);
+    }
   }
 
   if (isElectronDesktop()) {
     const audioBuffer = new Uint8Array(await blob.arrayBuffer());
-    return ipcBridge.speechToText.transcribe.invoke({
+    const outcome = await ipcBridge.speechToText.transcribe.invoke({
       audioBuffer: Array.from(audioBuffer),
       fileName,
       languageHint,
       mimeType,
     });
+    // The bridge reports failure as data, not as a rejection, so turn it back
+    // into the thrown STT_* error every caller already maps.
+    // `=== false`, not `!ok`: this project compiles without strictNullChecks,
+    // so truthiness does not narrow a discriminated union. Same shape as every
+    // voiceSynth.speak call site.
+    if (outcome.ok === false) {
+      throw new Error(outcome.detail ? `${outcome.errorCode}:${outcome.detail}` : outcome.errorCode);
+    }
+    return outcome.result;
   }
 
   const formData = new FormData();

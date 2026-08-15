@@ -89,6 +89,7 @@ import { KeyDiscovery } from '../detection/KeyDiscovery';
 import { ModelsDevClient } from '../enrichment/ModelsDevClient';
 import type { ModelsDevRegistry } from '../enrichment/modelsDevSchema';
 import { ProviderRepository } from '../storage/ProviderRepository';
+import { getOllamaRuntimeStatus, startOllamaDaemon } from '../local/ollamaRuntime';
 import { runLegacyModelConfigMigration } from '../migration/legacyModelConfigMigration';
 import { runOrphanProviderDedup } from '../migration/orphanProviderDedup';
 import { mirrorConnectOrRekey, mirrorDisconnect } from '../legacyModelConfigBridge';
@@ -379,18 +380,25 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    * degraded empty catalog (`models:0` with `sourceErrors>0`) apart from a
    * provider that genuinely exposes zero models. Never throws: the whole body
    * is wrapped so callers can branch on the result instead of guessing.
+   *
+   * `proven` is the stricter signal `clearErrorOnProof` needs: `true` ONLY when
+   * a LIVE, credential-authenticated listing produced this catalog. `ok:true`
+   * alone is far weaker - it is also returned when the catalog was synthesized
+   * from models.dev (no credential exercised at all) or when a failed live fetch
+   * fell back to the previous catalog. Clearing a provider's error state off
+   * `ok` would mint false greens for exactly those cases.
    */
   async function buildAndPersistCatalog(
     providerId: ProviderId,
     creds: { key: string } | { fields: Record<string, string> } | { useGoogleAuth: true },
     prefetchedRegistry?: ModelsDevRegistry
-  ): Promise<{ ok: boolean; models: number; sourceErrors: number }> {
+  ): Promise<{ ok: boolean; models: number; sourceErrors: number; proven: boolean }> {
     try {
       // FK precondition: catalog rows reference the provider row. Guard it
       // explicitly so a missing row is a clear failure, not a swallowed
       // SQLITE_CONSTRAINT_FOREIGNKEY with no diagnostic.
       if (!repo.getRegistryProvider(providerId)) {
-        return { ok: false, models: 0, sourceErrors: 0 };
+        return { ok: false, models: 0, sourceErrors: 0, proven: false };
       }
 
       // The ChatGPT subscription can't be listed via `api.openai.com/v1/models`
@@ -419,19 +427,22 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // with the static fallback. Only replace when the live list is real.
         const live = await fetchLiveChatGptSubscriptionCatalog(accessToken);
         if (live && live.length > 0) {
+          // The Codex backend answered this account's model list for this
+          // bearer - that IS the subscription's liveness proof (it is the only
+          // one available; the token is rejected by `api.openai.com`).
           repo.replaceRegistryCatalog(providerId, live);
-          return { ok: true, models: live.length, sourceErrors: 0 };
+          return { ok: true, models: live.length, sourceErrors: 0, proven: true };
         }
         // Live fetch failed. Preserve an existing catalog instead of resetting it
         // to the 3-model snapshot; only seed the static list when there is nothing
         // yet (so the picker is never empty on a first, offline connect).
         const existing = repo.getRegistryCatalog(providerId);
         if (existing.length > 0) {
-          return { ok: true, models: existing.length, sourceErrors: 1 };
+          return { ok: true, models: existing.length, sourceErrors: 1, proven: false };
         }
         const fallback = buildChatGptSubscriptionCatalog();
         repo.replaceRegistryCatalog(providerId, fallback);
-        return { ok: true, models: fallback.length, sourceErrors: 1 };
+        return { ok: true, models: fallback.length, sourceErrors: 1, proven: false };
       }
 
       // `refreshAllOnce` fetches the models.dev registry once for the whole
@@ -486,9 +497,52 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
       const finalModels = providerId === FLUX_PROVIDER_ID ? injectFluxVirtualModels(models) : models;
       repo.replaceRegistryCatalog(providerId, finalModels);
-      return { ok: true, models: finalModels.length, sourceErrors };
+      // Proof is the LIVE listing (`liveModels`), never `finalModels`: the
+      // models.dev fallback above can fill an empty live result, and a
+      // registry-synthesized catalog exercises no credential at all.
+      return { ok: true, models: finalModels.length, sourceErrors, proven: usedLiveApiSource && liveModels.length > 0 };
     } catch {
-      return { ok: false, models: 0, sourceErrors: 0 };
+      return { ok: false, models: 0, sourceErrors: 0, proven: false };
+    }
+  }
+
+  /**
+   * Clear a STALE `error` state once a refresh has proven the provider works.
+   *
+   * Without this, `state='error'` is a one-way door: `refresh` / `refreshAllOnce`
+   * rebuild the catalog but never touch `state`, and the only paths that can
+   * clear it are a manual `connect` / `rekey` / `testConnection`. A provider
+   * stamped `error` by a transient condition (the classic one: a boot where
+   * `safeStorage` could not decrypt its creds) therefore stays red forever -
+   * even while every scheduled refresh is successfully listing its models with
+   * that same credential. `_runPostUpgradeCatalogRefresh` exists to auto-heal
+   * exactly those rows and routes them through `refresh`, so without this the
+   * recovery sweep is inert by construction.
+   *
+   * Only ever `error -> connected`, and only on proof. A `connected` row is
+   * never touched, so this can neither mint a false green nor turn a working
+   * provider red.
+   */
+  function clearErrorOnProof(providerId: ProviderId): void {
+    if (repo.getRegistryProvider(providerId)?.state === 'error') {
+      repo.updateRegistryProviderState(providerId, 'connected');
+    }
+  }
+
+  /**
+   * Correct an ALREADY-ERRORED keyless local provider's reason to `offline`.
+   *
+   * `ollama-local` is keyless (`creds.key` is `''`) and loopback-only, so every
+   * credential-shaped reason - `unrecognized` renders as "key not recognized" -
+   * is category-wrong for it: there is no key to recognize. When the daemon does
+   * not answer `/api/tags`, the honest reason is that we cannot reach it.
+   *
+   * Scoped to rows ALREADY in `error`: a transient daemon blip must never flip a
+   * `connected` row red on a background refresh tick.
+   */
+  function restampKeylessErrorAsOffline(providerId: ProviderId): void {
+    if (repo.getRegistryProvider(providerId)?.state === 'error') {
+      repo.updateRegistryProviderState(providerId, 'error', 'offline');
     }
   }
 
@@ -557,6 +611,26 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Settle a row whose unreadable ciphertext was just overwritten by
+   * `tryRecoverFromDiscoveredKey`.
+   *
+   * That helper flips `state` to `connected` OPTIMISTICALLY - it only knows a
+   * key with the right shape exists in the environment, never that the provider
+   * accepts it. Re-keying to a stale env value and leaving the row green would
+   * swap one false green for another, so the recovery is not final until a LIVE
+   * credential-authenticated listing proves it (`buildAndPersistCatalog`'s
+   * `proven`, the same gate `clearErrorOnProof` rides).
+   *
+   * Returns `true` when the recovery held; otherwise stamps the honest
+   * `error/unrecognized` so the row turns red with a Fix action that re-keys.
+   */
+  function settleDiscoveredKeyRecovery(providerId: ProviderId, proven: boolean): boolean {
+    if (proven) return true;
+    repo.updateRegistryProviderState(providerId, 'error', 'unrecognized');
+    return false;
   }
 
   /** Apply the user's per-model overrides on top of the curated view. */
@@ -865,6 +939,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         };
         if (observedAt !== null && Number.isSafeInteger(observedAt) && observedAt >= 0) view.observedAt = observedAt;
         if (p.error) view.error = p.error;
+        // Publish "connected row, unreadable credential" as its own fact. The
+        // row's `state` still says `connected` (nothing has demoted it yet), so
+        // without this the Settings row renders a green badge for a provider
+        // whose every call will fail. Structural, not a per-code-path patch.
+        if (stored.status === 'undecryptable') view.credsUndecryptable = true;
         return view;
       });
     },
@@ -933,10 +1012,12 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // try to silently re-import from an env key the OS still has so the
         // post-upgrade refresh sweep doesn't blast every connected provider
         // into `error/unrecognized` on a stale-keychain boot.
+        let recoveredThisRefresh = false;
         if (stored.status === 'undecryptable') {
           const recovered = await tryRecoverFromDiscoveredKey(providerId);
           if (recovered) {
             stored = repo.getRegistryProviderCreds(providerId);
+            recoveredThisRefresh = true;
           } else {
             repo.updateRegistryProviderState(providerId, 'error', 'unrecognized');
             return { ok: false };
@@ -961,11 +1042,19 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           isLoopbackBaseUrl(typeof storedBaseUrl === 'string' ? storedBaseUrl : '')
         ) {
           const outcome = await refreshOllamaLocal();
+          if (outcome === 'ok') clearErrorOnProof(providerId);
+          else if (outcome === 'unreachable') restampKeylessErrorAsOffline(providerId);
           return { ok: outcome === 'ok' };
         }
 
         const creds = toTestCreds(stored.creds);
         const built = await buildAndPersistCatalog(providerId, creds);
+        // A row re-keyed from discovery in this call must PROVE the new key
+        // before it keeps the green state that recovery handed it.
+        if (recoveredThisRefresh && !settleDiscoveredKeyRecovery(providerId, built.ok && built.proven)) {
+          return { ok: false };
+        }
+        if (built.ok && built.proven) clearErrorOnProof(providerId);
         return { ok: built.ok };
       } catch {
         return { ok: false };
@@ -990,7 +1079,26 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         if (i > 0) await new Promise<void>((resolve) => setImmediate(resolve));
 
         try {
-          const stored = repo.getRegistryProviderCreds(providerId);
+          let stored = repo.getRegistryProviderCreds(providerId);
+          // `undecryptable` - the row LOOKS connected but its ciphertext cannot
+          // be read (a safeStorage key rotation is the classic cause; running
+          // under a second app identity is another). Left alone this is the
+          // worst possible outcome: the sweep counted the provider as `failed`
+          // but never touched `state`, so Settings kept rendering a green
+          // "Connected" row for a credential that cannot be used at all.
+          //
+          // Recovery first, red only if recovery fails - the same order
+          // `refresh` / `testConnection` already use.
+          let recoveredThisSweep = false;
+          if (stored.status === 'undecryptable') {
+            if (!(await tryRecoverFromDiscoveredKey(providerId))) {
+              repo.updateRegistryProviderState(providerId, 'error', 'unrecognized');
+              failed.push(providerId);
+              continue;
+            }
+            stored = repo.getRegistryProviderCreds(providerId);
+            recoveredThisSweep = true;
+          }
           if (stored.status !== 'ok') {
             failed.push(providerId);
             continue;
@@ -1014,9 +1122,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
             const ollamaBefore = new Set(repo.getRegistryCatalog(providerId).map((m) => m.id));
             const outcome = await refreshOllamaLocal();
             if (outcome !== 'ok') {
+              if (outcome === 'unreachable') restampKeylessErrorAsOffline(providerId);
               failed.push(providerId);
               continue;
             }
+            clearErrorOnProof(providerId);
             if (deps.mirror) await deps.mirror(providerId).catch(() => {});
             for (const model of repo.getRegistryCatalog(providerId)) {
               if (!ollamaBefore.has(model.id)) {
@@ -1041,10 +1151,17 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           const before = new Set(repo.getRegistryCatalog(providerId).map((m) => m.id));
           const creds = toTestCreds(stored.creds);
           const built = await buildAndPersistCatalog(providerId, creds, registry);
+          // A row re-keyed from discovery this sweep must PROVE the new key
+          // before it keeps the green state that recovery handed it.
+          if (recoveredThisSweep && !settleDiscoveredKeyRecovery(providerId, built.ok && built.proven)) {
+            failed.push(providerId);
+            continue;
+          }
           if (!built.ok) {
             failed.push(providerId);
             continue;
           }
+          if (built.proven) clearErrorOnProof(providerId);
           // Await the legacy `model.config` mirror so the toast / picker
           // invalidation never precedes the mirror write.
           if (deps.mirror) await deps.mirror(providerId).catch(() => {});
@@ -1818,7 +1935,24 @@ async function probeOllamaDaemon(): Promise<OllamaProbe> {
     const models = raw
       .map((m) => (m && typeof m === 'object' ? (m as { name?: unknown }).name : undefined))
       .filter((n): n is string => typeof n === 'string' && n.length > 0);
-    return { running: true, models };
+
+    // Mirrors probeOllama in onboarding/detect.ts, which this function is a
+    // deliberate duplicate of (kept separate to avoid an import cycle). If one
+    // learns to read capabilities and the other does not, a model filtered out
+    // on first run reappears on the next registry refresh.
+    const capabilities: Record<string, string[]> = {};
+    for (const m of raw) {
+      if (!m || typeof m !== 'object') continue;
+      const { name, capabilities: caps } = m as { name?: unknown; capabilities?: unknown };
+      if (typeof name !== 'string' || !name || !Array.isArray(caps)) continue;
+      capabilities[name] = caps.filter((c): c is string => typeof c === 'string');
+    }
+
+    return {
+      running: true,
+      models,
+      ...(Object.keys(capabilities).length > 0 ? { modelCapabilities: capabilities } : {}),
+    };
   } catch {
     return { running: false, models: [] };
   } finally {
@@ -1993,6 +2127,27 @@ export async function initModelRegistryIpc(): Promise<void> {
   ipcBridge.modelRegistry.refreshAll.provider((payload) => _scheduler!.refreshAll(payload?.reason ?? 'manual'));
   ipcBridge.modelRegistry.getRefreshState.provider(() => Promise.resolve(_scheduler!.getState()));
   ipcBridge.modelRegistry.getAutoRefresh.provider(() => getAutoRefresh());
+  // ── Keyless machine-local runtime (ollama-local) ────────────────────────────
+  // `ollama-local` has no API key, so an unreachable daemon is not a credential
+  // failure and re-keying it is meaningless. These two answer the questions the
+  // renderer cannot: is it installed here, and is it up - so Settings can offer
+  // "start it" ONLY when starting it can actually work.
+  ipcBridge.modelRegistry.localRuntimeStatus.provider(async ({ providerId }) => {
+    if (providerId !== OLLAMA_LOCAL_ID) return { supported: false, installed: false, running: false };
+    const status = await getOllamaRuntimeStatus();
+    return { supported: true, ...status };
+  });
+  ipcBridge.modelRegistry.startLocalRuntime.provider(async ({ providerId }) => {
+    if (providerId !== OLLAMA_LOCAL_ID) return { ok: false as const, reason: 'unsupported' as const };
+    const started = await startOllamaDaemon();
+    if (!started.ok) return started;
+    // The daemon is up - re-probe through the normal refresh path so the row
+    // heals to `connected` with a live catalog, and tell every open surface.
+    await h.refresh({ providerId }).catch(() => ({ ok: false }));
+    emitModelRegistryChanged();
+    return { ok: true as const };
+  });
+
   ipcBridge.modelRegistry.setAutoRefresh.provider(async ({ value }) => {
     await setAutoRefresh(value);
     // Apply immediately: arming starts the poll + launch-if-stale; disabling
@@ -2187,7 +2342,8 @@ export async function setAutoRefresh(value: boolean): Promise<void> {
  * `CATALOG_DATA_VERSION`.
  */
 export async function _runPostUpgradeCatalogRefresh(
-  repo: Pick<ProviderRepository, 'listRegistryProviders'>,
+  repo: Pick<ProviderRepository, 'listRegistryProviders'> &
+    Partial<Pick<ProviderRepository, 'getRegistryProviderCreds'>>,
   handlers: Pick<ModelRegistryHandlers, 'refresh'>,
   cursor: {
     get: () => Promise<number | undefined>;
@@ -2197,7 +2353,7 @@ export async function _runPostUpgradeCatalogRefresh(
   const persisted = (await cursor.get().catch((): number | undefined => undefined)) ?? 0;
   const allProviders = repo.listRegistryProviders();
 
-  // Two reasons to sweep on this boot:
+  // Three reasons to sweep on this boot:
   //  1. Cursor below CATALOG_DATA_VERSION - one-time post-upgrade rebuild.
   //  2. Any provider sits in `error/unrecognized` - typically the runtime
   //     safeStorage key rotated since last boot (dev-mode), leaving every
@@ -2205,11 +2361,26 @@ export async function _runPostUpgradeCatalogRefresh(
   //     running refresh now lets `tryRecoverFromDiscoveredKey` silently
   //     re-import from an env key the OS still exposes, so the user doesn't
   //     have to click Fix on every connected provider.
+  //  3. Any provider whose stored ciphertext cannot be DECRYPTED while its row
+  //     still reads `connected`. That row is the one Settings paints red, and
+  //     without this bucket nothing ever retries it: it is not in `error`, so
+  //     (2) never sees it, and once the cursor is current (1) is empty too. The
+  //     recovery `refresh` already knows how to run was simply never called.
   const needsUpgrade = persisted < CATALOG_DATA_VERSION;
   const staleErrored = allProviders.filter((p) => p.state === 'error' && p.error === 'unrecognized');
-  if (!needsUpgrade && staleErrored.length === 0) return;
+  const staleErroredIds = new Set(staleErrored.map((p) => p.providerId));
+  const undecryptable = allProviders.filter((p) => {
+    if (staleErroredIds.has(p.providerId)) return false;
+    try {
+      return repo.getRegistryProviderCreds?.(p.providerId).status === 'undecryptable';
+    } catch {
+      // A repo that cannot answer is not evidence of an unreadable credential.
+      return false;
+    }
+  });
+  if (!needsUpgrade && staleErrored.length === 0 && undecryptable.length === 0) return;
 
-  const providers = needsUpgrade ? allProviders : staleErrored;
+  const providers = needsUpgrade ? allProviders : [...staleErrored, ...undecryptable];
   for (const provider of providers) {
     try {
       await handlers.refresh({ providerId: provider.providerId });

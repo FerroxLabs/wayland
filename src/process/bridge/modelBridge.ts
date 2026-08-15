@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { IProvider } from '@/common/config/storage';
@@ -19,6 +21,7 @@ import {
   guessProtocolFromKey,
   getProtocolDisplayName,
 } from '@/common/utils/protocolDetector';
+import { LOCAL_KEYLESS_PLACEHOLDER } from '@/common/utils/keylessLocalCredential';
 import { isGoogleApisHost, isLocalBaseUrl } from '@/common/utils/urlValidation';
 import type OpenAIType from 'openai';
 import { isNewApiPlatform } from '@/common/utils/platformConstants';
@@ -70,16 +73,6 @@ export function loadAwsBedrock(): Promise<BedrockModule> {
  * .blackboard/audits/hard-coded-values.md).
  */
 const PROBE_MAX_TOKENS = 1;
-
-/**
- * Placeholder credential for keyless LOCAL backends (Ollama / LM Studio /
- * llama.cpp), which accept no API key. The OpenAI SDK constructor rejects an
- * empty string, so a harmless non-secret token is injected ONLY when the
- * resolved base URL host is local ({@link isLocalBaseUrl}). It is never
- * persisted as a real credential and never sent to a non-local host - cloud
- * providers still hard-require a real key.
- */
-const LOCAL_KEYLESS_PLACEHOLDER = 'ollama';
 
 /**
  * Common path patterns for OpenAI-compatible APIs
@@ -553,7 +546,10 @@ export function initModelBridge(): void {
         return { success: true, data: { mode: modelList } };
       } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : String(e);
-        console.warn('Failed to fetch DashScope coding-plan models via /v1/models, falling back to static list:', errorMessage);
+        console.warn(
+          'Failed to fetch DashScope coding-plan models via /v1/models, falling back to static list:',
+          errorMessage
+        );
         return { success: true, data: { mode: fallbackCodingPlanModels } };
       }
     }
@@ -952,8 +948,7 @@ export function initModelBridge(): void {
 
     // A LOCAL keyless backend needs no key; inject a placeholder so protocol
     // detection can probe it. A cloud endpoint with no key still errors.
-    const apiKeys =
-      parsedApiKeys.length === 0 && isLocalBaseUrl(baseUrl) ? [LOCAL_KEYLESS_PLACEHOLDER] : parsedApiKeys;
+    const apiKeys = parsedApiKeys.length === 0 && isLocalBaseUrl(baseUrl) ? [LOCAL_KEYLESS_PLACEHOLDER] : parsedApiKeys;
 
     if (apiKeys.length === 0) {
       return {

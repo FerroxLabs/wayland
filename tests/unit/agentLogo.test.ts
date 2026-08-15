@@ -10,6 +10,7 @@ vi.mock('@/renderer/assets/logos/tools/coding/codebuddy.svg', () => ({ default: 
 vi.mock('@/renderer/assets/logos/brand/droid.svg', () => ({ default: 'droid.svg' }));
 vi.mock('@/renderer/assets/logos/tools/goose.svg', () => ({ default: 'goose.svg' }));
 vi.mock('@/renderer/assets/logos/brand/auggie.svg', () => ({ default: 'auggie.svg' }));
+vi.mock('@/renderer/assets/logos/brand/wayland-nano.svg', () => ({ default: 'wayland-nano.svg' }));
 vi.mock('@/renderer/assets/logos/ai-china/kimi.svg', () => ({ default: 'kimi.svg' }));
 vi.mock('@/renderer/assets/logos/tools/coding/opencode-light.svg', () => ({ default: 'opencode-light.svg' }));
 vi.mock('@/renderer/assets/logos/tools/coding/opencode-dark.svg', () => ({ default: 'opencode-dark.svg' }));
@@ -35,7 +36,7 @@ describe('agentLogo', () => {
 
     it('leaves colored brand logos untouched (no filter), even on dark', () => {
       setTheme('dark');
-      for (const b of ['claude', 'gemini', 'codebuddy', 'hermes', 'vibe', 'droid', 'opencode']) {
+      for (const b of ['claude', 'gemini', 'codebuddy', 'hermes', 'vibe', 'droid', 'opencode', 'wnano']) {
         expect(agentLogoDarkFilter(b)).toBeUndefined();
       }
     });
@@ -84,6 +85,11 @@ describe('agentLogo', () => {
       expect(getAgentLogo('auggie')).toBe('auggie.svg');
       expect(getAgentLogo('goose')).toBe('goose.svg');
       expect(getAgentLogo('copilot')).toBe('github.svg');
+    });
+
+    it('should return the orange-on-black brand logo for wnano', () => {
+      expect(getAgentLogo('wnano')).toBe('wayland-nano.svg');
+      expect(getAgentLogo('WNano')).toBe('wayland-nano.svg');
     });
   });
 

@@ -27,7 +27,18 @@ const {
   verifyWhatsAppDarwinSignIgnoreInventory: (root: string, arch: string) => boolean;
   verifyWhatsAppNativeTarget: (root: string, platform: string, arch: string) => boolean;
 };
-const TEST_WCORE_RELEASE = 'v0.12.25';
+// Derived from the live policy, never re-typed: verify-packaged-resources reads
+// the real DEFAULT_WCORE_VERSION and the real attestation policy, so a
+// hard-coded tag here fails the day the engine is bumped and proves nothing in
+// between.
+const TEST_WCORE_ACTIVE_POLICY = (
+  require('../../scripts/supply-chain/verifyPublisherAttestation') as {
+    readPolicy: () => { policies: Array<{ status: string; id: string; releaseTag: string; sourceDigest: string }> };
+  }
+)
+  .readPolicy()
+  .policies.find((entry) => entry.status === 'active')!;
+const TEST_WCORE_RELEASE = TEST_WCORE_ACTIVE_POLICY.releaseTag;
 const TEST_WCORE_ARCHIVE_SHA = 'a'.repeat(64);
 const TEST_WCORE_BYTES = Buffer.from('deterministic-test-wayland-core');
 const TEST_WCORE_BINARY_SHA = crypto.createHash('sha256').update(TEST_WCORE_BYTES).digest('hex');
@@ -269,11 +280,11 @@ function addPackagedApp(
       },
       publisherAttestation: {
         contract: 'wayland-publisher-attestations/1.0',
-        policyId: 'wayland-core-v0.12.25-release',
+        policyId: TEST_WCORE_ACTIVE_POLICY.id,
         repository: 'FerroxLabs/wayland-core',
         signerWorkflow: 'FerroxLabs/wayland-core/.github/workflows/release.yml',
         sourceRef: 'refs/heads/main',
-        sourceDigest: '61b79c4f90f71fe2cf243affa7620b3c9b607f14',
+        sourceDigest: TEST_WCORE_ACTIVE_POLICY.sourceDigest,
         predicateType: 'https://slsa.dev/provenance/v1',
         runner: 'github-hosted',
         asset: wcoreAsset,
@@ -771,6 +782,37 @@ describe('packaged resource release gate', () => {
     fs.mkdirSync(modelDir, { recursive: true });
     fs.writeFileSync(path.join(modelDir, '.DS_Store'), 'placeholder');
     expect(() => verify(out)).toThrow();
+  });
+
+  /**
+   * The shipped-without-a-voice-floor case, which is what a build that never
+   * ran `prepareVoiceModel.js` actually produces: `resources/voice-models` is
+   * gitignored, so on a fresh clone the directory does not exist at all and
+   * electron-builder drops the `extraResources` entry silently and exits 0.
+   *
+   * The existing coverage above only pinned "present but empty". An ABSENT
+   * directory takes a different path through `isNonEmpty` - `fs.statSync`
+   * throws ENOENT and the blanket catch turns it into `false` - so it was
+   * possible to keep the placeholder case green while the real one regressed.
+   * On-device voice is the floor the whole "works with no keys" story rests on;
+   * shipping without it must be a hard stop, not a warning.
+   */
+  it('refuses to ship when the bundled voice model directory is absent entirely', () => {
+    const out = createPackagedResources(true);
+    fs.rmSync(path.join(packagedResourcesPath(out), 'voice-models'), { recursive: true, force: true });
+    expect(fs.existsSync(path.join(packagedResourcesPath(out), 'voice-models'))).toBe(false);
+    expect(() => verify(out)).toThrow(/CRITICAL/);
+  });
+
+  /** KNOWN POSITIVE: the same fixture, untouched, must pass. */
+  // Requires the whole sweep to PASS, so it is host-limited for the reason
+  // documented at `itAcceptedSweep`: NTFS cannot carry the POSIX executable bit
+  // this darwin fixture pins. The four sibling accepted-sweep cases already use
+  // it; this one was left on plain `it` and was the only reason the
+  // windows-2022 3/4 shard stayed red.
+  itAcceptedSweep('KNOWN POSITIVE: the complete fixture with the voice model present verifies', () => {
+    const out = createPackagedResources(true);
+    expect(() => verify(out)).not.toThrow();
   });
 
   it('blocks a package that contains a valid runtime for the wrong target only', () => {

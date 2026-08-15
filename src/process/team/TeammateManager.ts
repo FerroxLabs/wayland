@@ -443,6 +443,7 @@ export class TeammateManager extends EventEmitter {
           renamedAgents: this.renamedAgents,
           teamWorkspace: this.teamWorkspace,
           isSandboxed: this.isSandboxed,
+          conversationId: agent.conversationId,
         });
 
         message =

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { getSkillsDir, getBuiltinSkillsCopyDir, loadSkillsContent, ProcessConfig } from '@process/utils/initStorage';
@@ -464,6 +466,12 @@ export async function mergeLoadedSkillsExtra(conversationId: string, skills: Ski
  * First message processing configuration
  */
 export interface FirstMessageConfig {
+  /**
+   * Conversation this prompt is being built for. Passed down to the
+   * Constitution composer so a key ring regenerated during this turn is
+   * reported in THIS chat rather than in whichever chat sends next.
+   */
+  conversationId?: string;
   /** Preset context/rules */
   presetContext?: string;
   /** Enabled skills list */
@@ -577,7 +585,11 @@ export async function buildSystemInstructions(config: FirstMessageConfig): Promi
   // turns so Anthropic/OpenAI prompt caches hit). composePrompt returns ''
   // when no Constitution file exists, so this is a no-op for fresh installs
   // and we preserve the previous "return undefined" behaviour.
-  const composed = composePrompt({ assistantId: config.presetAssistantId, basePrompt }).text;
+  const composed = composePrompt({
+    assistantId: config.presetAssistantId,
+    basePrompt,
+    conversationId: config.conversationId,
+  }).text;
   return composed.length === 0 ? undefined : composed;
 }
 
@@ -642,7 +654,10 @@ export async function prepareFirstMessageWithSkillsIndex(
     const skillsDir = getSkillsDir();
     const builtinSkillsCopyDir = getBuiltinSkillsCopyDir();
     const builtinSkillsDir = builtinSkillsCopyDir + '/_builtin';
-    // Pass hasLib so the index text includes the wayland_search_skills discovery note
+    // Pass hasLib so the index text includes the wayland_search_skills discovery
+    // note. `[LOAD_SKILL:]` is NOT advertised here: ACP agents read SKILL.md
+    // directly from the `[Skills Location]` paths below, and no handler
+    // intercepts the marker on this path.
     const indexText = buildSkillsIndexText(skillsIndex, hasLib);
 
     // Tell Agent where skills files are located for on-demand reading
@@ -705,7 +720,11 @@ If you find yourself about to escalate scheduling outside of Wayland or use a no
   // Prepend Wayland Constitution + optional specialist overlay above the
   // existing rules content. Composer returns '' when no Constitution exists,
   // preserving the previous "skip rules block entirely" behaviour.
-  const systemInstructions = composePrompt({ assistantId: config.presetAssistantId, basePrompt }).text;
+  const systemInstructions = composePrompt({
+    assistantId: config.presetAssistantId,
+    basePrompt,
+    conversationId: config.conversationId,
+  }).text;
   if (systemInstructions.length === 0) {
     return { content, loadedSkills };
   }
@@ -725,6 +744,36 @@ If you find yourself about to escalate scheduling outside of Wayland or use a no
  * @param config - First message configuration
  * @returns System instructions string or undefined
  */
+/** The builtin scheduling skill, in `resources/skills/_builtin/cron/`. */
+const CRON_SKILL_NAME = 'cron';
+
+/**
+ * Path-free scheduling invariant for backends that cannot read a SKILL.md by
+ * path (Wayland Core, Gemini). Deliberately short - a resident rule, not the
+ * whole skill - and it inlines the exact block the renderer parses so the
+ * capability cannot depend on a retrieval step that may never fire.
+ */
+const SCHEDULING_DIRECTIVE = `[Scheduling (CRITICAL)]
+When the user asks to schedule any recurring or one-time task ("every day at 9am", "run this Monday
+at 5pm", "remind me daily"), you MUST respond by emitting this block directly, not inside a code
+fence:
+
+[CRON_PROPOSE]
+name: Short task name
+schedule: Cron expression (5-field, e.g. 0 9 * * *)
+schedule_description: Human-readable schedule, e.g. Every day at 9:00
+message: The prompt to run when it fires
+[/CRON_PROPOSE]
+
+The closing [/CRON_PROPOSE] tag is required. The user then sees an inline card with Yes / Edit /
+Cancel; the task is NOT created until they accept, so do not claim it is scheduled - emitting the
+block ends your turn.
+
+Do NOT use any other scheduling capability: no cron daemon, no systemd timer, no cloud routine, no
+external scheduler, and no general-purpose "cron" skill from the skills library. Only the block
+above creates a task the user can see and manage inside Wayland; anything else produces a schedule
+that is invisible to them.`;
+
 export async function buildSystemInstructionsWithSkillsIndex(config: FirstMessageConfig): Promise<string | undefined> {
   const instructions: string[] = [];
 
@@ -739,14 +788,41 @@ export async function buildSystemInstructionsWithSkillsIndex(config: FirstMessag
 
   const hasLib = await libraryIsNonEmpty();
 
+  let cronAvailable = false;
   if (skillManager.hasAnySkills() || hasLib) {
     const excludeSet = new Set(config.excludeBuiltinSkills ?? []);
     const skillsIndex = skillManager.getSkillsIndex().filter((s) => !excludeSet.has(s.name));
+    cronAvailable = skillsIndex.some((s) => s.name === CRON_SKILL_NAME);
     // Pass hasLib so the index text includes the wayland_search_skills discovery note
-    const indexText = buildSkillsIndexText(skillsIndex, hasLib);
+    // Only Gemini wires `detectSkillLoadRequest`, so only Gemini may advertise
+    // the `[LOAD_SKILL:]` contract. On Wayland Core the marker is unanswered.
+    const indexText = buildSkillsIndexText(skillsIndex, hasLib, config.backend === 'gemini');
     if (indexText.length > 0) {
       instructions.push(indexText);
     }
+  }
+
+  // Scheduling is a structural contract, so it is stated here rather than left
+  // to retrieval. The sibling ACP builder points the model at the cron skill's
+  // SKILL.md on disk, which is useless on this path: these backends get no
+  // `[Skills Location]` block, the builtin `cron` skill lives in a different
+  // store from the searchable library (so the per-turn retriever and
+  // `wayland_search_skills` cannot reach it), and the library's only cron entry
+  // is `cron-scheduler` - generic crontab/systemd advice, i.e. exactly the
+  // behaviour this directive exists to forbid.
+  //
+  // The block format is inlined verbatim rather than referenced, because a
+  // marker contract that depends on retrieval fails silently when retrieval
+  // misses. Keep it in step with `_builtin/cron/SKILL.md` and the parser in
+  // `CronCommandDetector`.
+  //
+  // Gated on the cron skill actually being in the always-on set. If the user
+  // excluded it there is no scheduling path to direct the model towards, and an
+  // unconditional push would also mean this builder never returns undefined -
+  // the signal WCoreManager uses to keep the "no presetRules" behaviour on a
+  // fresh install.
+  if (cronAvailable) {
+    instructions.push(SCHEDULING_DIRECTIVE);
   }
 
   // Inject Team Guide prompt when agent has team guide capability
@@ -780,6 +856,10 @@ export async function buildSystemInstructionsWithSkillsIndex(config: FirstMessag
   // Prepend Wayland Constitution + optional specialist overlay (stable
   // turn-to-turn for prompt-cache reuse). Returns '' when no Constitution
   // is configured, preserving the previous "return undefined" behaviour.
-  const composed = composePrompt({ assistantId: config.presetAssistantId, basePrompt }).text;
+  const composed = composePrompt({
+    assistantId: config.presetAssistantId,
+    basePrompt,
+    conversationId: config.conversationId,
+  }).text;
   return composed.length === 0 ? undefined : composed;
 }

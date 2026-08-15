@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { Context } from 'grammy';
@@ -246,11 +248,7 @@ export class TelegramPlugin extends BasePlugin {
       try {
         return await this.bot!.api.sendMessage(chatId, text, options);
       } catch (error) {
-        if (
-          error instanceof GrammyError &&
-          error.error_code === 429 &&
-          attempt < maxRetries
-        ) {
+        if (error instanceof GrammyError && error.error_code === 429 && attempt < maxRetries) {
           const retryAfter = this.extractRetryAfter(error);
           const waitMs = Math.max(1, retryAfter) * 1000;
           console.warn(
@@ -368,9 +366,7 @@ export class TelegramPlugin extends BasePlugin {
         console.error('[TelegramPlugin] Bot token unauthorized (401). Stopping bot.');
         this.setError('Telegram bot token unauthorized (revoked or invalid)');
         // Fire and forget; stop() handles its own teardown
-        void this.stop().catch((stopErr) =>
-          console.error('[TelegramPlugin] Error stopping after 401:', stopErr)
-        );
+        void this.stop().catch((stopErr) => console.error('[TelegramPlugin] Error stopping after 401:', stopErr));
         return;
       }
 

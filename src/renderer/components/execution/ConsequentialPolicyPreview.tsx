@@ -22,7 +22,7 @@ export const ConsequentialPolicyPreview: React.FC<{
 
   return (
     <section
-      className='rounded-8px border border-border-1 bg-bg-2 p-12px'
+      className='rounded-8px border border-1 bg-2 p-12px'
       aria-label='Consequential action policy preview'
       data-testid='consequential-policy-preview'
       data-policy-status={decision.status}

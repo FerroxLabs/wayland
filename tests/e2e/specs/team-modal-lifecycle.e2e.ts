@@ -11,7 +11,7 @@
 
 import path from 'path';
 import { test, expect, type Page } from '../fixtures';
-import { invokeBridge, navigateTo } from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion } from '../helpers';
 
 const NAME_PREFIX = 'E2E ModalLifecycle';
 const FIXTURES_DIR = path.resolve(__dirname, '../fixtures/team-imports');
@@ -50,10 +50,16 @@ async function createTeam(page: Page, label: string): Promise<string | null> {
 }
 
 async function openDeleteModal(page: Page, teamName: string): Promise<void> {
+  // The Teams sider accordion is collapsed on a fresh profile and renders no
+  // children while closed, so team rows are absent from the DOM until expanded.
+  await expandTeamsAccordion(page);
   const sidebarEntry = page.locator(`text="${teamName}"`).first();
   await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
   const row = sidebarEntry.locator(
-    'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
+    // SiderItem's root is `h-26px ... group ...` now, not h-40px. Match the
+    // `group` CLASS TOKEN exactly - a bare contains() also matches
+    // `group-hover:text-1` on an inner div, which has no menu trigger.
+    'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
   );
   await row.hover();
   const threeDot = row.locator('span.flex-center.cursor-pointer').last();
@@ -185,7 +191,10 @@ test.describe('Team modal lifecycle (adversarial)', () => {
     await expect(page.locator('[data-testid="capability-review-modal"]')).toBeVisible({ timeout: 10_000 });
 
     // Click backdrop during 5s cool-off.
-    await page.locator('.arco-modal-mask').click({ position: { x: 5, y: 5 }, force: true }).catch(() => undefined);
+    await page
+      .locator('.arco-modal-mask')
+      .click({ position: { x: 5, y: 5 }, force: true })
+      .catch(() => undefined);
     await page.waitForTimeout(500);
 
     // Document the actual behavior. Whether the modal closes or stays open
@@ -201,7 +210,10 @@ test.describe('Team modal lifecycle (adversarial)', () => {
       .isVisible()
       .catch(() => false);
     if (modalStillOpen) {
-      await page.locator('[data-testid="capability-review-cancel"]').click().catch(() => undefined);
+      await page
+        .locator('[data-testid="capability-review-cancel"]')
+        .click()
+        .catch(() => undefined);
     }
   });
 

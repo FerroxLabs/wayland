@@ -43,6 +43,38 @@ export type ProviderReadiness = {
  * explicit dispatch-eligibility result. A transient `testing` provider is not
  * promoted until the actual dispatcher accepts that inventory.
  */
+/**
+ * Which in-thread activation prompt (if any) the current readiness justifies.
+ *
+ * - `'connect'` - nothing is configured at all. This is the ONLY state that may
+ *   claim "connect a model provider": it is the only one where that is true.
+ * - `'repair'`  - providers ARE configured but none can currently take a task
+ *   (every one blocked, no callable inventory, or the registry read failed).
+ *   The remedies are the same three paths, but the copy must not tell a
+ *   fully-provisioned user they have no provider.
+ * - `null`      - ready, still loading, or a transient `checking` probe. A turn
+ *   that fails for an unrelated reason (engine spawn, Constitution, network)
+ *   leaves readiness untouched and must never surface an activation prompt -
+ *   the failure's own remedy card owns that turn.
+ */
+export type ActivationPrompt = 'connect' | 'repair';
+
+export function activationPromptFor(readiness: ProviderReadiness): ActivationPrompt | null {
+  if (readiness.loading) return null;
+  switch (readiness.reason) {
+    case 'no-provider':
+      return 'connect';
+    case 'all-errored':
+    case 'no-models':
+    case 'registry-error':
+      return 'repair';
+    default:
+      // `ready`, or `checking` - a provider is mid-probe, which is transient and
+      // not something to interrupt the thread over.
+      return null;
+  }
+}
+
 export function useProviderReadiness(): ProviderReadiness {
   const { providers, loading, error } = useModelRegistry();
 

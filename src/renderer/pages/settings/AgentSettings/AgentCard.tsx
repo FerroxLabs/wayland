@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { Bot, PencilLine, Settings, Trash2 } from 'lucide-react';
@@ -142,13 +144,7 @@ const AgentCard: React.FC<AgentCardProps> = (props) => {
       <div className='flex items-center gap-8px'>
         <Switch size='small' checked={agent.enabled !== false} onChange={onToggle} />
         <Button size='small' type='text' icon={<PencilLine size={14} />} onClick={onEdit} />
-        <Button
-          size='small'
-          type='text'
-          status='danger'
-          icon={<Trash2 size={14} />}
-          onClick={onDelete}
-        />
+        <Button size='small' type='text' status='danger' icon={<Trash2 size={14} />} onClick={onDelete} />
       </div>
     </div>
   );

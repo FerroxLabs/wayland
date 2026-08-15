@@ -38,8 +38,12 @@ const server = (overrides: Partial<IMcpServer> = {}): IMcpServer => ({
 describe('McpConnectorArchiveStore and lifecycle', () => {
   let root: string;
   let active: IMcpServer[];
-  let removeResult: { success: boolean; results: Array<{ agent: string; success: boolean; error?: string }> };
-  let syncResult: { success: boolean; results: Array<{ agent: string; success: boolean; error?: string }> };
+  type LifecycleResult = {
+    success: boolean;
+    results: Array<{ agent: string; success: boolean; error?: string; unsupported?: boolean }>;
+  };
+  let removeResult: LifecycleResult;
+  let syncResult: LifecycleResult;
   let removeFromAgents: ReturnType<typeof vi.fn>;
   let syncToAgents: ReturnType<typeof vi.fn>;
   let deps: McpConnectorLifecycleDependencies;
@@ -65,6 +69,54 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
 
   afterEach(async () => {
     await fs.rm(root, { recursive: true, force: true });
+  });
+
+  /**
+   * Delete/archive is a THIRD copy of "did this operation succeed" -- after the
+   * publish and rollback paths. The non-target exclusion was applied to the
+   * other two first, and this one kept throwing on any machine with a detected
+   * backend that has no MCP implementation (grok, goose, kimi, cursor, ...),
+   * so deleting a connector failed and its compensation failed with it.
+   *
+   * These exercise the lifecycle service directly. The renderer-level suites
+   * mock at the IPC boundary and cannot reach this code at all.
+   */
+  it('archives successfully when the only unsuccessful agents are non-targets', async () => {
+    removeResult = {
+      success: false, // McpService reports the aggregate; the lifecycle must judge the results itself
+      results: [
+        { agent: 'wcore:Wayland Core', success: true },
+        { agent: 'grok:Grok Build', success: false, unsupported: true, error: 'not supported for backend "grok"' },
+        { agent: 'goose:Goose', success: false, unsupported: true, error: 'not supported for backend "goose"' },
+      ],
+    };
+
+    const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
+    const archived = await lifecycle.archiveConfiguredServer('mcp_customer', [
+      { backend: 'wcore', name: 'Wayland Core' },
+    ]);
+
+    expect(archived.serverId).toBe('mcp_customer');
+    expect(active, 'the connector must actually be gone').toEqual([]);
+  });
+
+  it('still refuses to archive when a real agent fails alongside non-targets', async () => {
+    // Negative control: excluding non-targets must not swallow a genuine
+    // removal failure, which would delete the row while leaving the server
+    // live in that agent's CLI config.
+    removeResult = {
+      success: false,
+      results: [
+        { agent: 'wcore:Wayland Core', success: false, error: 'config locked' },
+        { agent: 'grok:Grok Build', success: false, unsupported: true, error: 'not supported for backend "grok"' },
+      ],
+    };
+
+    const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
+    await expect(
+      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'wcore', name: 'Wayland Core' }])
+    ).rejects.toThrow('config locked');
+    expect(active, 'a failed removal must leave the connector in place').toHaveLength(1);
   });
 
   it('archives the complete definition before removal and restores it disabled without losing secrets or setup', async () => {

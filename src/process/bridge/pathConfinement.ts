@@ -9,6 +9,7 @@ import { realpathSync } from 'fs';
 import path from 'path';
 import os from 'os';
 import { getConfigPath, getDataPath, getTempPath } from '@process/utils';
+import { getPlatformServices } from '@/common/platform';
 import { getDatabase } from '@process/services/database';
 
 /**
@@ -21,9 +22,10 @@ import { getDatabase } from '@process/services/database';
  * against the set of directories the app legitimately operates inside.
  *
  * Roots:
- *  - Static app roots: the config dir, the agent work dir, the OS temp dir, and
- *    the user's Desktop/Downloads/Documents (legitimate upload/export/preview
- *    targets). These are seeded once.
+ *  - Static app roots: the config dir, the agent work dir, the OS temp dir, the
+ *    user's Desktop/Downloads/Documents (legitimate upload/export/preview
+ *    targets), and the app's own log dir plus the OS downloads dir (both are
+ *    written by the app and then opened on a user click). These are seeded once.
  *  - Registered roots: workspace/project directories that legitimately enter
  *    the main process (e.g. via `createUploadFile`) call
  *    `registerAuthorizedRoot`. Conversation workspaces can live anywhere the
@@ -116,10 +118,19 @@ export function registerAuthorizedRoot(dir: string): void {
   addRoot(dir);
 }
 
-/** Seed the static app roots once. Idempotent. */
+/**
+ * Seed the static app roots once. Idempotent.
+ *
+ * The "seeded" flag is only latched once the platform-services block below
+ * succeeds. Latching it up-front would mean that if platform services are not
+ * yet registered on the very first `confinePath` call, the log and downloads
+ * roots are never registered for the rest of the process lifetime - producing
+ * exactly the silent "open log directory does nothing" breakage those roots
+ * were added to prevent. Re-running the cheap `addRoot` calls on a later miss
+ * is idempotent and costs nothing.
+ */
 function ensureStaticRoots(): void {
   if (staticRootsSeeded) return;
-  staticRootsSeeded = true;
 
   // Config dir (getSystemDir().cacheDir) and agent work dir
   // (getSystemDir().workDir) are the symlink-safe equivalents of these getters.
@@ -139,6 +150,26 @@ function ensureStaticRoots(): void {
     addRoot(path.join(home, 'Desktop'));
     addRoot(path.join(home, 'Downloads'));
     addRoot(path.join(home, 'Documents'));
+  }
+
+  // Two directories the app itself writes to and then asks the OS to open, both
+  // of which can sit outside every root above:
+  //  - the log dir: on macOS `~/Library/Logs/<app>`, not under userData. The
+  //    Settings "open log directory" button targets it.
+  //  - the OS/XDG downloads dir: the updater writes its installer there and the
+  //    update modal's "Open" button targets it. It follows the user's OS setting,
+  //    which need not be the hardcoded `~/Downloads` above.
+  // Registering them authorizes locations the app already opens by design; it
+  // relaxes none of the form/traversal/symlink/sensitive-location guards.
+  try {
+    const paths = getPlatformServices().paths;
+    addRoot(paths.getLogsDir());
+    addRoot(paths.getSystemPath('downloads'));
+    // Only now is the root set complete enough to stop re-seeding.
+    staticRootsSeeded = true;
+  } catch {
+    // Platform services may not be registered yet in some standalone init
+    // orders; the roots above still apply and we retry on the next call.
   }
 }
 
@@ -271,10 +302,7 @@ async function realpathExistingPrefix(resolved: string): Promise<string> {
  *   to operate on, or `null` when the path must be rejected (out of every
  *   authorized root, a traversal/UNC/device/ADS form, or a sensitive location).
  */
-export async function confinePath(
-  rawPath: unknown,
-  opts?: { allowOutsideRoots?: boolean }
-): Promise<string | null> {
+export async function confinePath(rawPath: unknown, opts?: { allowOutsideRoots?: boolean }): Promise<string | null> {
   if (typeof rawPath !== 'string') return null;
 
   const raw = rawPath.trim();

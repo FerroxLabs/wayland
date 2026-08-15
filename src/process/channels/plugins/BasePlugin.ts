@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type {
@@ -349,10 +351,10 @@ export abstract class BasePlugin {
   async handleWebhookPayload(
     _payload: object,
     _headers: Record<string, string | string[] | undefined>,
-    _pluginInstanceId: string,
+    _pluginInstanceId: string
   ): Promise<void> {
     throw new Error(
-      `[${this.type}Plugin] handleWebhookPayload not implemented - plugin does not accept webhook deliveries`,
+      `[${this.type}Plugin] handleWebhookPayload not implemented - plugin does not accept webhook deliveries`
     );
   }
 

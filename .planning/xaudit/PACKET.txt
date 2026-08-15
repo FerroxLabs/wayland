@@ -1,0 +1,553 @@
+You are auditing an ENGINEERING PLAN, not a diff. The plan is for Wayland Desktop, an
+Electron/TypeScript app. Below the plan you have the actual source it makes claims about,
+plus the complete list of writers to the MCP config.
+
+CONTEXT YOU NEED:
+- Wayland publishes an MCP server declaration to five CLI agents (WCore, Wayland, Gemini,
+  Codex, Claude Code). This takes 20-45 seconds because the agents are serialized.
+- Observed bug: on Reconnect of a DISABLED stdio connector, all five agents publish
+  SUCCESSFULLY, then ~46s later the local commit fails and a rollback strips it from every
+  agent. The row lands in a state the UI shows as unrecoverable ("publication rollback
+  incomplete"), which survives an app restart.
+- handleToggleMcpServer PUBLISHES FIRST, THEN commits locally. So during the publication
+  window the connector is still enabled:false in durable storage.
+
+AUDIT THESE QUESTIONS, in priority order:
+
+1. ROOT CAUSE. The plan refuses to name one and gives two hypotheses (H1 row-level
+   updatedAt guard; H2 global-revision retry exhaustion). Is that refusal correct, or is
+   the cause actually determinable from the source provided? If determinable, NAME IT and
+   cite the lines. If neither hypothesis fits, say what does. Specifically check: with the
+   connector enabled:false throughout, which of the 16 saveMcpServers call sites could
+   bump that row's updatedAt during the window? Is there a third mechanism (React state
+   staleness, the useEffect at useConnectedMcps, effect re-entrancy, the write queue
+   swallowing errors via .catch(() => undefined), publishMcpConfig ordering) that fits
+   better than either hypothesis?
+
+2. Is the Phase A diagnostic (log caller + attempt + before/after updatedAt on every config
+   write, reproduce, read) SUFFICIENT to discriminate H1 from H2 and to catch a third
+   cause? What would it miss?
+
+3. The plan asserts: "a failed local commit after a fully successful publication must not
+   be reported as a rollback failure; the correct recovery is to keep it and re-commit,
+   not to strip five agents." Is that sound, or does it break an invariant the current
+   fail-closed design is deliberately protecting? Argue the other side.
+
+4. SEQUENCING. W-1 (fix the CAS) before W-3 (ship a catalog entry), W-2 (land two already
+   built Claude Code agent fixes) in parallel. Right order? Any hidden dependency?
+
+5. What is MISSING from the plan entirely? Consider: does the catalog install path actually
+   go through handleToggleMcpServer, or a different code path that W-1's fix would not
+   cover? Is the acceptance criteria falsifiable? Anything about the divergence state
+   itself (retainMcpPublicationReconciliation) that the plan ignores?
+
+6. Any factual error in the plan's claims about the source.
+
+OUTPUT FORMAT:
+VERDICT: GO | FIX-FIRST | NO-GO
+Then numbered findings. Each: SEVERITY (critical/high/medium/low), the claim, the evidence
+(cite file:line from the packet), and the concrete correction. Be adversarial. If the plan
+is wrong, say so plainly. No praise, no summary of what the plan says.
+===== ARTIFACT UNDER AUDIT: THE PLAN =====
+# Plan — TVControl full integration in Wayland Desktop (2026-08-04)
+
+**Repo split:** TVControl is DONE (2.2.1 published, tagged `v2.2.1`, verified by clean
+install from the public registry: 101 tools over stdio). Every packet below is in
+**Wayland Desktop**, worktree `~/dev/wayland-worktrees/packet-attribution`.
+
+**Standing constraints:** no push / merge / tag without Sean. Never commit
+`src/process/services/constitution/constitutionFsAuthority.generated.ts`. `AGENTS.md` and
+`CLAUDE.md` are dirty from IJFW tooling — not ours, keep them out of every commit.
+76 commits currently local, nothing pushed.
+
+---
+
+## W-1 — Publication compare-and-set failure  🔴 BLOCKER
+
+Everything else is cosmetic next to this. It is **not** TVControl-specific: it makes
+enabling or reconnecting **any** connector unreliable, and a failure leaves the row in a
+state the UI presents as unrecoverable.
+
+### Observed behaviour (reproduced, logs in `/tmp/wl-run4.log`)
+
+Reconnect on a disabled stdio connector:
+
+```
+09:49:15.863 [WCoreMcpAgent]   Added MCP server: tvcontrol
+09:49:15.912 [WaylandMcpAgent] Installed MCP servers: tvcontrol
+09:49:16.852 [GeminiMcpAgent]  Added MCP server: tvcontrol
+09:49:34.264 [CodexMcpAgent]   Added MCP server: tvcontrol
+09:49:36.311 [ClaudeMcpAgent]  Added MCP server: tvcontrol     <- all five succeed
+09:50:22.078 ...               Removed MCP server: tvcontrol   <- rollback, 46s later
+```
+
+Publication succeeds everywhere, then the local commit fails and the rollback strips it
+back out. Durable result: `status: error`, `lastError: "publication rollback incomplete —
+reconnect this connector"`. Survives an app restart.
+
+### ⚠️ Root cause is NOT established — do not skip to a fix
+
+An earlier session attributed this to `refreshServerStatuses` racing the publication.
+**That attribution is unproven and probably wrong**: its target filter
+(`useMcpConnection.ts:459-466`) requires `s.enabled === true`, and the connector stays
+`enabled: false` in durable storage for the whole publication window, because
+`handleToggleMcpServer` publishes *before* it commits. It was never a candidate.
+
+Two hypotheses remain. They need different fixes, so identify which one first.
+
+**H1 — row-level guard.** `useMcpServerCRUD.ts:377-385`:
+
+```js
+await saveMcpServers((prevServers) => {
+  committed = false;
+  return prevServers.map((server) => {
+    if (server.id !== serverId || server.updatedAt !== targetServer.updatedAt) return server;
+    committed = true;
+    return updatedTargetServer;
+  });
+});
+if (!committed) throw new Error('MCP declaration changed while publication was in progress');
+```
+
+`targetServer.updatedAt` is read at t0 and compared at t0+45s. Any writer that bumps that
+row's `updatedAt` in between makes `committed` false. Full writer list is 16 call sites —
+`rg 'saveMcpServers\(' src/renderer`.
+
+**H2 — global revision exhaustion.** `enqueueMcpConfigWrite`
+(`useMcpServers.ts:35-61`) CASes on a **whole-config** `revision`, so a write to *any*
+server invalidates a write to *every* server. It retries `MAX_MCP_CONFIG_CAS_ATTEMPTS = 16`
+then throws `MCP config changed too frequently to commit safely` — which lands in the same
+catch and produces the same rollback. Agent-detection sweeps run every few seconds during
+publication, so sustained revision churn is plausible.
+
+H1 and H2 are distinguishable by the thrown message alone.
+
+### Phase A — diagnose (do this first, it is cheap)
+
+1. Log every `enqueueMcpConfigWrite` entry: caller tag, attempt number, whether the CAS
+   applied, and the target row's `updatedAt` before and after.
+2. Reproduce: clean dev profile, add an stdio connector, click Reconnect, capture the log.
+   Reproduction recipe is in `.planning/HANDOFF-2026-08-04-tvcontrol.md`.
+3. **Deliverable: the named writer and the exact thrown message.** No fix lands before this.
+
+Reproduction is reliable — it fired on every reconnect attempt across three runs, because
+five serialized CLI agents take 20-45s to publish.
+
+### Phase B — fix, per finding
+
+- **If H1:** stop comparing a 45-second-old `updatedAt`. Re-read the row inside the updater
+  and accept the commit when the declaration is materially unchanged, or move the row guard
+  onto an identity that publication owns rather than one every writer bumps.
+- **If H2:** the retry budget is not the fix — raise it and it still fails under load.
+  Either scope the CAS to the row rather than the whole config, or serialize
+  user-initiated publication against background writers.
+
+Whichever it is, a **failed local commit after a fully successful publication must not be
+reported as a rollback failure.** Publication succeeded; the correct recovery is to keep
+it and re-commit, not to strip five agents and mark the row unrecoverable.
+
+### Acceptance
+
+- Enabling a connector whose publication takes >30s commits and does not roll back.
+- Regression test in `tests/unit/useMcpServerCRUD.dom.test.tsx` (71 assertions already
+  there): a slow `syncMcpToAgents` with a competing writer underneath it must still commit.
+  **The test must fail against current `main`** — prove it before fixing.
+- After a genuine publication failure, the row returns to a state the user can retry from.
+
+---
+
+## W-2 — Land the two Claude Code agent fixes  (already built)
+
+Committed locally as `e3303e5cc`, needs a PR. Independent of W-1, can run in parallel.
+
+Both reproduced against the real CLI, both fixed in
+`src/process/services/mcpServices/agents/ClaudeMcpAgent.ts`:
+
+- `claude mcp add-json` is not an upsert — exits 1 with `MCP server X already exists in
+  user config`. Only the **stdio** path uses `add-json`; the HTTP/SSE path uses `claude mcp
+  add`, which overwrites. So re-publishing any stdio connector to Claude Code always failed
+  while the same operation on a remote connector always succeeded. Now removes user-scope
+  then re-adds.
+- `claude mcp remove` on an absent server exits 1 with `No MCP server named "X" in <scope>
+  scope`. The absence check looked for `not found` / `does not exist` **and read
+  `error.message`, which `safeExecFile` fixes to `Command failed with exit code 1`** — so no
+  wording could ever have matched and rollback always "failed". Now classifies on
+  `execErrorDetail`, which carries stderr. `CodexMcpAgent` already did both.
+
+Tests in `tests/unit/claudeMcpAgent.test.ts` assert against the CLI's verbatim stderr for
+all three removal scopes, plus a negative control (permission denied, timeout) so neither
+predicate can degrade into `() => true`. 7 pass; typecheck clean; 65 MCP unit tests and
+71 CRUD DOM tests pass.
+
+Verified live: a connector stuck in the divergent state recovers on reconnect, logging
+`[ClaudeMcpAgent] Replaced existing MCP server: tvcontrol`.
+
+---
+
+## W-3 — TVControl as a first-class catalog connector
+
+Do **after** W-1. Installing from the catalog runs the same publication path, so shipping
+this first just gives people a broken first-run.
+
+Four files, no new machinery:
+
+- `src/renderer/mcp-catalog/entries/com.ferroxlabs-tvcontrol.json` — copy the shape of
+  `entries/ai.perplexity-perplexity-mcp.json`: `registryType: "npm"`,
+  `identifier: "@ferroxlabs/tvcontrol"`, `version: "latest"`, `runtimeHint: "npx"`,
+  `transport: { type: "stdio" }`, no `environmentVariables` (TVControl needs none).
+  `x-wayland`: `license: "MIT"`, `auth.method: "local-credentials"`,
+  `platforms: ["macos","windows"]`, categories/tags for trading.
+- a row in `src/renderer/mcp-catalog/catalog.json` (107 entries today).
+- `src/renderer/mcp-catalog/icons/com.ferroxlabs-tvcontrol.svg`.
+- `src/renderer/mcp-catalog/guides/com.ferroxlabs-tvcontrol.md` — **this carries the
+  precondition**: TradingView Desktop must be running with a remote debugging port.
+  `scripts/launch_tv_debug_mac.sh` / `launch_tv_debug.bat` in the TVControl package do it,
+  and the Windows script already handles the MSIX/Store install via `Get-AppxPackage`.
+
+Verified plumbing: `entryToServerData.ts:121` maps that entry to `command: 'npx'`, and
+`resolveMcpStdioSpawn` (`mcpStdioSpawn.ts:38-42`) rewrites `npx` to Wayland's bundled Bun —
+so it installs and runs on a machine with no system node. The catalog is glob-imported by
+`useMcpLibrary.ts:21-33`; no separate build step, `bun run package` picks it up.
+
+**Do NOT bundle it as a builtin** and do not build detection-gating. An earlier
+recommendation said detection-gate it; that reasoning was about shipping it as an
+always-on builtin, where most users would get a dead tool. A catalog entry is opt-in — the
+user clicks Install — so the concern is moot. The catalog schema has no precondition
+concept (`x-wayland` supports only `platforms` and `minWaylandVersion`), adding one is a
+feature in its own right, and `chrome-devtools`, `playwright` and `apple-mcp` all ship with
+host preconditions handled by their setup guide. Be consistent with them.
+
+**Do not flip `TV_MCP_ADVANCED`.** `ui_evaluate` executes arbitrary page JavaScript and is
+unregistered by default. The catalog entry must not set it.
+
+---
+
+## Sequencing
+
+```
+W-1 Phase A (diagnose)  ─┐
+                         ├─> W-1 Phase B (fix) ──> W-3 (catalog entry)
+W-2 (PR the agent fixes) ─┘   [independent, parallel]
+```
+
+---
+
+## Optional TVControl follow-ups (separate repo, not blocking)
+
+1. **The "offline" suite is not offline.** `tests/state.test.js` connects to a live
+   TradingView whenever one is listening on 9222 — it ran for 11 minutes against Sean's
+   real chart before being killed. An ordinary `npm test` can mutate a live chart. Same
+   shape as the bug just fixed: the tests did not know what they were talking to.
+2. **Two moderate advisories remain** in the SDK's HTTP stack (`hono`,
+   `@hono/node-server`, `body-parser`). Below the CI threshold and unreachable — TVControl
+   only runs stdio. Clearing them means SDK 1.30.0, which deserves its own PR with
+   `tests/mcp_stdio.test.js` as the gate, not a drive-by bump. That test is the only thing
+   standing between an SDK bump and another silent total outage.
+
+===== SOURCE: useMcpServerCRUD.ts handleToggleMcpServer (the failing CAS) =====
+  // Enable/disable MCP server
+  const handleToggleMcpServer = useCallback(
+    async (serverId: string, enabled: boolean, expectedRevision?: number) => {
+      const currentServers = await readMcpServers();
+      const targetServer = currentServers.find((server) => server.id === serverId);
+      if (!targetServer) return false;
+      if (expectedRevision !== undefined && targetServer.updatedAt !== expectedRevision) return false;
+      const updatedTargetServer: IMcpServer = {
+        ...targetServer,
+        enabled,
+        updatedAt: nextMcpRevision(targetServer.updatedAt),
+        ...(enabled && targetServer.lastError?.includes(MCP_PUBLICATION_DIVERGENCE_MARKER)
+          ? { status: 'disconnected', lastError: undefined }
+          : {}),
+      };
+      let externalMutationAttempted = false;
+
+      try {
+        if (enabled) {
+          // Publish before committing the local enabled state. A failed or
+          // partial publication can therefore never leave a false-green row.
+          externalMutationAttempted = true;
+          await syncMcpToAgents(updatedTargetServer, true);
+        } else {
+          externalMutationAttempted = true;
+          await removeMcpFromAgents(targetServer.name, undefined, targetServer.transport.type);
+        }
+
+        let committed = false;
+        await saveMcpServers((prevServers) => {
+          committed = false;
+          return prevServers.map((server) => {
+            if (server.id !== serverId || server.updatedAt !== targetServer.updatedAt) return server;
+            committed = true;
+            return updatedTargetServer;
+          });
+        });
+        if (!committed) throw new Error('MCP declaration changed while publication was in progress');
+
+        if (enabled) {
+          setTimeout(() => void checkSingleServerInstallStatus(targetServer.name), 100);
+        } else {
+          setAgentInstallStatus((prev) => {
+            const updated = { ...prev };
+            delete updated[targetServer.name];
+            void ConfigStorage.set('mcp.agentInstallStatus', updated).catch(() => {
+              // Install-status cache is non-authoritative UI evidence.
+            });
+            return updated;
+          });
+        }
+        // The exact declaration revision published to the adapters is the
+        // reconnect receipt. Callers must probe this object rather than infer a
+        // revision from a later storage read that may already be superseded.
+        return updatedTargetServer;
+      } catch (error) {
+        if (externalMutationAttempted) {
+          try {
+            if (enabled) {
+              await removeMcpFromAgents(updatedTargetServer.name, undefined, updatedTargetServer.transport.type);
+            } else {
+              await syncMcpToAgents(targetServer, true);
+            }
+          } catch (rollbackError) {
+            const rollbackErrors: unknown[] = [rollbackError];
+            try {
+              // The adapter operation may have survived its failed
+              // compensation. Retain a durable, current-row reconciliation
+              // handle without overwriting a concurrent declaration edit. If
+              // the row was concurrently deleted, recreate only disabled error
+              // truth so the unresolved external publication cannot disappear.
+              await saveMcpServers((prevServers) =>
+                retainMcpPublicationReconciliation(prevServers, serverId, updatedTargetServer)
+              );
+            } catch (persistenceError) {
+              rollbackErrors.push(persistenceError);
+            }
+            Message.error(enabled ? t('settings.mcpSyncError') : t('settings.mcpRemoveError'));
+            const failure = new Error('MCP toggle failed and publication rollback was incomplete', { cause: error });
+            Object.assign(failure, { rollbackErrors });
+            throw failure;
+          }
+        }
+        Message.error(enabled ? t('settings.mcpSyncError') : t('settings.mcpRemoveError'));
+        return false;
+      }
+    },
+
+===== SOURCE: useMcpServers.ts write queue + global revision CAS =====
+// renderer-wide durable mutation queue so those hook instances cannot race and
+// overwrite each other's config snapshots.
+let mcpConfigWriteQueue: Promise<void> = Promise.resolve();
+const mcpConfigListeners = new Set<McpConfigListener>();
+const MAX_MCP_CONFIG_CAS_ATTEMPTS = 16;
+
+function publishMcpConfig(servers: IMcpServer[]): void {
+  for (const listener of mcpConfigListeners) listener(servers);
+}
+
+async function readMcpConfig(): Promise<{ revision: string; servers: IMcpServer[] }> {
+  const response = await mcpService.getMcpConfigSnapshot.invoke();
+  if (!response.success || !response.data) throw new Error(response.msg || 'Failed to read MCP config');
+  return response.data;
+}
+
+function enqueueMcpConfigRead(): Promise<IMcpServer[]> {
+  const operation = mcpConfigWriteQueue.then(async () => (await readMcpConfig()).servers);
+  mcpConfigWriteQueue = operation.then(
+    (): void => undefined,
+    (): void => undefined
+  );
+  return operation;
+}
+
+function enqueueMcpConfigWrite(serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])): Promise<void> {
+  const operation = mcpConfigWriteQueue.then(async () => {
+    for (let attempt = 0; attempt < MAX_MCP_CONFIG_CAS_ATTEMPTS; attempt += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- every retry must observe the previous CAS result
+      const persisted = await readMcpConfig();
+      const next =
+        typeof serversOrUpdater === 'function'
+          ? serversOrUpdater(persisted.servers)
+          : structuredClone(serversOrUpdater);
+      // oxlint-disable-next-line no-await-in-loop -- CAS retries are intentionally serialized
+      const response = await mcpService.compareAndSetMcpConfig.invoke({
+        expectedRevision: persisted.revision,
+        nextServers: next,
+      });
+      if (!response.success || !response.data) throw new Error(response.msg || 'Failed to write MCP config');
+      if (!response.data.applied) continue;
+
+      // Publish only the main-process-confirmed snapshot after persistence.
+      // A rejected or conflicted write cannot manufacture renderer state.
+      publishMcpConfig(response.data.snapshot.servers);
+      return;
+    }
+    throw new Error('MCP config changed too frequently to commit safely');
+  });
+  mcpConfigWriteQueue = operation.catch((): void => undefined);
+  return operation;
+}
+
+
+===== SOURCE: useMcpConnection.ts refreshServerStatuses target filter + writeback =====
+  const refreshServerStatuses = useCallback(
+    async (servers: IMcpServer[], options?: { force?: boolean }) => {
+      const force = options?.force ?? false;
+      const STALE_MS = 5 * 60 * 1000;
+      const now = Date.now();
+      const targets = servers.filter(
+        (s) =>
+          s.enabled === true &&
+          !(s.status === 'error' && hasPublicationDivergence(s)) &&
+          (force || s.status !== 'connected' || typeof s.lastConnected !== 'number' || now - s.lastConnected > STALE_MS)
+      );
+      if (targets.length === 0) {
+        return;
+      }
+
+      setTestingServers((prev) => {
+        const next = { ...prev };
+        for (const s of targets) next[s.id] = true;
+        return next;
+      });
+
+      const updates = await Promise.all(
+        targets.map(async (server): Promise<{ id: string; expectedUpdatedAt: number; patch: Partial<IMcpServer> }> => {
+          try {
+            const response = await mcpService.testMcpConnection.invoke(server);
+            if (response.success && response.data) {
+              const result = response.data;
+              const truth = readCorrelatedMcpPrepublicationTruth(server, result);
+              if (truth.state === 'authentication-required') {
+                return {
+                  id: server.id,
+                  expectedUpdatedAt: server.updatedAt,
+      );
+
+      try {
+        await saveMcpServers((prevServers) =>
+          prevServers.map((s) => {
+            const update = updates.find((u) => u.id === s.id);
+            return update && update.expectedUpdatedAt === s.updatedAt
+              ? { ...s, ...update.patch, updatedAt: nextMcpRevision(s.updatedAt) }
+              : s;
+          })
+        );
+      } finally {
+        setTestingServers((prev) => {
+          const next = { ...prev };
+          for (const s of targets) next[s.id] = false;
+
+===== SOURCE: useMcpConnection.ts divergence marker + early return =====
+const hasPublicationDivergence = (server: Pick<IMcpServer, 'lastError'>): boolean =>
+  typeof server.lastError === 'string' && server.lastError.includes(MCP_PUBLICATION_DIVERGENCE_MARKER);
+
+export function retainMcpPublicationReconciliation(
+  servers: IMcpServer[],
+  serverId: string,
+  fallback: IMcpServer
+): IMcpServer[] {
+  const exactIndex = servers.findIndex((candidate) => candidate.id === serverId);
+  const canonicalIndex = servers.findIndex(
+    (candidate) => mcpServerCollisionKey(candidate.name) === mcpServerCollisionKey(fallback.name)
+  );
+  const reconciliationIndex = exactIndex >= 0 ? exactIndex : canonicalIndex;
+  const current = reconciliationIndex >= 0 ? servers[reconciliationIndex] : undefined;
+  const reconciliationServer: IMcpServer = {
+    ...(current ?? fallback),
+    enabled: current?.enabled ?? false,
+    status: 'error',
+    lastError: MCP_PUBLICATION_DIVERGENCE_ERROR,
+    updatedAt: nextMcpRevision((current ?? fallback).updatedAt),
+  };
+
+  if (reconciliationIndex < 0) return [...servers, reconciliationServer];
+  const next = [...servers];
+  next[reconciliationIndex] = reconciliationServer;
+  return next;
+}
+
+const publicationDivergenceError = (probeError: string): string => {
+  const suffix = `; ${MCP_PUBLICATION_DIVERGENCE_MARKER} — reconnect this connector`;
+  return `${truncateErrorMessage(probeError, MCP_ERROR_MAX_LENGTH - suffix.length)}${suffix}`;
+};
+
+/**
+ * MCP standalone-probe management hook.
+ * A successful probe proves server reachability and tool discovery only. It
+ * never proves that an active chat session received or can invoke those tools.
+ */
+export const useMcpConnection = (
+  mcpServers: IMcpServer[],
+  saveMcpServers: (serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])) => Promise<void>,
+  message: ReturnType<typeof import('@arco-design/web-react').Message.useMessage>[0],
+  onAuthRequired?: (server: IMcpServer) => void, // Added: callback fired when authentication is required
+  removeMcpFromAgents?: (serverName: string, successMessage?: string, transportType?: string) => Promise<unknown>,
+  syncMcpToAgents?: (server: IMcpServer, skipRecheck?: boolean) => Promise<unknown>,
+  readMcpServers?: () => Promise<IMcpServer[]>
+) => {
+  const { t } = useTranslation();
+  const [testingServers, setTestingServers] = useState<Record<string, boolean>>({});
+
+  // Connection test function
+  const handleTestMcpConnection = useCallback(
+    async (server: IMcpServer) => {
+      // A probe cannot reconcile a partially-mutated external publication. The
+      // explicit reconnect path must first republish the declaration and pass
+      // the exact committed revision back here.
+      if (hasPublicationDivergence(server)) return;
+
+      setTestingServers((prev) => ({ ...prev, [server.id]: true }));
+
+
+===== SOURCE: reconnect wiring =====
+  // Disable = disable + tear the config out of every agent (no live socket to
+  // close; agents reconnect lazily). Reconnect = enable + re-probe. Remove =
+  // delete from config + agents.
+  const disconnect = useCallback((serverId: string): void => void crud.handleToggleMcpServer(serverId, false), [crud]);
+  const reconnect = useCallback(
+    async (server: IMcpServer) => {
+      // Reconnect is an explicit reconciliation action, even when local truth
+      // remained enabled after an incomplete rollback. Republish first, then
+      // probe only the exact revision returned by that publication commit.
+      const publishedServer = await crud.handleToggleMcpServer(server.id, true);
+      if (!publishedServer) return;
+      await conn.handleTestMcpConnection(publishedServer);
+    },
+    [crud, conn]
+  );
+  const remove = useCallback((serverId: string): void => void crud.handleDeleteMcpServer(serverId), [crud]);
+
+  // On mount + whenever the configured set changes: refresh standalone probe
+  // status/tool inventory. This is not active-chat readiness.
+  // (non-destructive), refresh per-agent install status, and recompute leftovers.
+  useEffect(() => {
+    if (mcpServers.length === 0) {
+      void computeStale();
+      return;
+    }
+    void conn.refreshServerStatuses(mcpServers);
+    void checkAgentInstallStatus(mcpServers);
+    void computeStale();
+    // refreshServerStatuses/checkAgentInstallStatus are stable callbacks; keyed on
+    // the configured set so a newly added/removed server re-resolves.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mcpServers]);
+
+
+===== ALL WRITERS OF THE MCP CONFIG =====
+src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx:859:      await saveMcpServers((current) => {
+src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx:927:        await saveMcpServers((current) => {
+src/renderer/hooks/mcp/useMcpServerCRUD.ts:74:        await saveMcpServers((prevServers) => {
+src/renderer/hooks/mcp/useMcpServerCRUD.ts:174:        await saveMcpServers((prevServers) => {
+src/renderer/hooks/mcp/useMcpServerCRUD.ts:275:        await saveMcpServers((prevServers) => {
+src/renderer/hooks/mcp/useMcpServerCRUD.ts:377:        await saveMcpServers((prevServers) => {
+src/renderer/hooks/mcp/useMcpServerCRUD.ts:419:              await saveMcpServers((prevServers) =>
+src/renderer/hooks/mcp/useMcpConnection.ts:165:          await saveMcpServers((prevServers) => {
+src/renderer/hooks/mcp/useMcpConnection.ts:206:          await saveMcpServers((prevServers) => {
+src/renderer/hooks/mcp/useMcpConnection.ts:287:          await saveMcpServers((prevServers) =>
+src/renderer/hooks/mcp/useMcpConnection.ts:303:            await saveMcpServers((prevServers) => retainMcpPublicationReconciliation(prevServers, server.id, fallback));
+src/renderer/hooks/mcp/useMcpConnection.ts:521:        await saveMcpServers((prevServers) =>
+src/renderer/pages/settings/McpLibrary/DetailPage.tsx:318:      await saveMcpServers((prev) => {
+src/renderer/pages/settings/McpLibrary/DetailPage.tsx:619:    void saveMcpServers((prev) =>
+src/renderer/pages/settings/ImageGenSettings/index.tsx:114:      await saveMcpServers((current) => {
+src/renderer/pages/settings/ImageGenSettings/index.tsx:162:        await saveMcpServers((current) => {

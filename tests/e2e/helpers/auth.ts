@@ -59,12 +59,7 @@ interface WebuiGetStatusResponse {
  * caller will provide credentials another way (or skip).
  */
 export async function startWebUI(page: Page): Promise<WebUIInstance> {
-  const startResp = await invokeBridge<WebuiStartResponse>(
-    page,
-    'webui.start',
-    { allowRemote: false },
-    20_000
-  );
+  const startResp = await invokeBridge<WebuiStartResponse>(page, 'webui.start', { allowRemote: false }, 20_000);
 
   if (!startResp.success || !startResp.data) {
     throw new Error(`webui.start failed: ${startResp.msg ?? 'unknown error'}`);
@@ -117,22 +112,25 @@ export async function mainFetch(
     body?: string;
   } = {}
 ): Promise<FetchResult> {
-  return electronApp.evaluate(async (_app, args) => {
-    const res = await fetch(args.url, {
-      method: args.method ?? 'GET',
-      headers: args.headers ?? {},
-      body: args.body,
-    });
-    const headers: Record<string, string> = {};
-    res.headers.forEach((value, key) => {
-      // Preserve set-cookie verbatim (it may be present as a comma-joined list
-      // in some Node versions - that's fine for our use).
-      const existing = headers[key];
-      headers[key] = existing ? `${existing}, ${value}` : value;
-    });
-    const body = await res.text();
-    return { status: res.status, body, headers };
-  }, { url, method: init.method, headers: init.headers, body: init.body });
+  return electronApp.evaluate(
+    async (_app, args) => {
+      const res = await fetch(args.url, {
+        method: args.method ?? 'GET',
+        headers: args.headers ?? {},
+        body: args.body,
+      });
+      const headers: Record<string, string> = {};
+      res.headers.forEach((value, key) => {
+        // Preserve set-cookie verbatim (it may be present as a comma-joined list
+        // in some Node versions - that's fine for our use).
+        const existing = headers[key];
+        headers[key] = existing ? `${existing}, ${value}` : value;
+      });
+      const body = await res.text();
+      return { status: res.status, body, headers };
+    },
+    { url, method: init.method, headers: init.headers, body: init.body }
+  );
 }
 
 /**
@@ -148,10 +146,7 @@ export async function mainFetch(
  * endpoint is the safest bet because it returns a small JSON payload (won't
  * fight with HTML parsing) and doesn't require an auth cookie itself.
  */
-export async function fetchCsrfTicket(
-  electronApp: ElectronApplication,
-  baseUrl: string
-): Promise<CsrfTicket> {
+export async function fetchCsrfTicket(electronApp: ElectronApplication, baseUrl: string): Promise<CsrfTicket> {
   const res = await mainFetch(electronApp, `${baseUrl}/api/auth/status`);
   const headerToken = res.headers['x-csrf-token'];
   if (!headerToken) {
@@ -161,15 +156,19 @@ export async function fetchCsrfTicket(
   if (!setCookie) {
     throw new Error('Set-Cookie missing from /api/auth/status response - cookieParser not wired?');
   }
-  // Extract the _csrf= chunk verbatim including any signed=s%3A... payload.
-  // The cookie header is `name=value; Path=/; HttpOnly` etc.
-  const csrfMatch = setCookie.match(/_csrf=([^;]+)/);
+  // The COOKIE is named `csrfToken`; `_csrf` is only the BODY field name.
+  // tiny-csrf sets `res.cookie("csrfToken", ...)` (index.js:33) and reads
+  // `req.body?._csrf` (index.js:46). This helper matched the body field name
+  // against the Set-Cookie header, so it never found a cookie and threw before
+  // any request was made - failing 15 auth specs on the setup step.
+  // Extracted verbatim, including the signed `s%3A...` payload.
+  const csrfMatch = setCookie.match(/csrfToken=([^;]+)/);
   if (!csrfMatch) {
-    throw new Error(`Set-Cookie did not contain _csrf=: ${setCookie}`);
+    throw new Error(`Set-Cookie did not contain csrfToken=: ${setCookie}`);
   }
   return {
     token: headerToken,
-    cookie: `_csrf=${csrfMatch[1]}`,
+    cookie: `csrfToken=${csrfMatch[1]}`,
   };
 }
 

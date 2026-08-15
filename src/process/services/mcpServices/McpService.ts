@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { execSync } from 'child_process';
@@ -16,6 +18,7 @@ import { CodexMcpAgent } from './agents/CodexMcpAgent';
 import { OpencodeMcpAgent } from './agents/OpencodeMcpAgent';
 import { WCoreMcpAgent } from './agents/WCoreMcpAgent';
 import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncResult, McpSource } from './McpProtocol';
+import { mcpAgentOperationSucceeded } from './McpProtocol';
 import { validateMcpServer, sanitizeMcpServerName } from './validateMcpServer';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 import { mcpServerCollisionKey } from '@/common/mcp';
@@ -341,6 +344,7 @@ export class McpService {
             return {
               agent: agent.name,
               success: false,
+              unsupported: true,
               error: `MCP publication is not supported for backend "${agent.backend}"`,
             };
           }
@@ -362,9 +366,7 @@ export class McpService {
 
       const results = await Promise.all(promises);
 
-      const allSuccess = results.length > 0 && results.every((r) => r.success);
-
-      return { success: allSuccess, results };
+      return { success: mcpAgentOperationSucceeded(results), results };
     });
   }
 
@@ -455,6 +457,7 @@ export class McpService {
             return {
               agent: `${agent.backend}:${agent.name}`,
               success: false,
+              unsupported: true,
               error: `MCP removal is not supported for backend "${agent.backend}"`,
             };
           }
@@ -481,7 +484,16 @@ export class McpService {
       // hardcoded `success: true` hid it, so the renderer reported "deleted"
       // while the server stayed in that agent's CLI config (Claude/Codex/wcore
       // drift). Reflect overall success from the per-agent results.
-      return { success: results.every((r) => r.success), results };
+      //
+      // Shares mcpAgentOperationSucceeded with the sync path. This path was
+      // missed when the non-target exclusion was first applied, and because the
+      // renderer throws on `!removeResponse.success` BEFORE it looks at the
+      // per-result list, filtering only the list left rollback still failing.
+      //
+      // `emptyIsSuccess` because removing from no agents at all removed
+      // everything there was to remove. The sync path deliberately does NOT
+      // pass it: publishing to nothing published nothing.
+      return { success: mcpAgentOperationSucceeded(results, { emptyIsSuccess: true }), results };
     });
   }
 }

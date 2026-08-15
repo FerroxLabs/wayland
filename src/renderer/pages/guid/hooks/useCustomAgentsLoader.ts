@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -65,8 +67,7 @@ export const useCustomAgentsLoader = ({
           avatar: typeof ext.avatar === 'string' ? ext.avatar : undefined,
           isPreset: true,
           enabled: ext.enabled !== false,
-          presetAgentType:
-            overrides[id] ?? (typeof ext.presetAgentType === 'string' ? ext.presetAgentType : undefined),
+          presetAgentType: overrides[id] ?? (typeof ext.presetAgentType === 'string' ? ext.presetAgentType : undefined),
           context: typeof ext.context === 'string' ? ext.context : undefined,
           contextI18n: ext.contextI18n as Record<string, string> | undefined,
           enabledSkills: Array.isArray(ext.enabledSkills) ? (ext.enabledSkills as string[]) : undefined,

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -37,6 +39,16 @@ describe('AGENT_MODES.claude', () => {
     for (const mode of withDesc) {
       expect(mode.description).toBeTruthy();
     }
+  });
+});
+
+describe('AGENT_MODES.wnano', () => {
+  it('advertises exactly the default mode (matches what the Rust agent sends over ACP)', () => {
+    expect(AGENT_MODES.wnano).toEqual([{ value: 'default', label: 'Default' }]);
+  });
+
+  it('supports mode switching', () => {
+    expect(supportsModeSwitch('wnano')).toBe(true);
   });
 });
 

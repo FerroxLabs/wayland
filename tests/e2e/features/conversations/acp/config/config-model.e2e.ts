@@ -38,6 +38,11 @@ test.afterAll(async ({ page }) => {
 });
 
 test.describe('F-CONFIG-01 Switch AI Model', () => {
+  // Waits on a real AI round trip. The 60s global cap in playwright.config.ts
+  // cannot cover one - this only surfaced once waitForAiReply stopped
+  // accepting the shadow-root stylesheet as a reply.
+  test.describe.configure({ timeout: 180_000 });
+
   let conversationId: string;
 
   test.beforeAll(async ({ page }) => {
@@ -139,6 +144,11 @@ test.describe('F-CONFIG-01 Switch AI Model', () => {
 });
 
 test.describe('F-CONFIG-04 View Model Info', () => {
+  // Waits on a real AI round trip. The 60s global cap in playwright.config.ts
+  // cannot cover one - this only surfaced once waitForAiReply stopped
+  // accepting the shadow-root stylesheet as a reply.
+  test.describe.configure({ timeout: 180_000 });
+
   let conversationId: string;
 
   test.beforeAll(async ({ page }) => {
@@ -175,6 +185,11 @@ test.describe('F-CONFIG-04 View Model Info', () => {
 });
 
 test.describe('F-CONFIG-10 Backend Capability Info Cache', () => {
+  // These cases wait on a real AI round trip, which the 60s global cap in
+  // playwright.config.ts cannot cover. test.setTimeout() inside beforeAll only
+  // raises the HOOK's budget, so it has to be configured at describe scope.
+  test.describe.configure({ timeout: 180_000 });
+
   test('backend capability info is available after the first connection', async ({ page }) => {
     await goToGuid(page);
     await selectAgent(page, 'claude');

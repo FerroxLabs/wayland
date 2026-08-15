@@ -18,8 +18,12 @@
 import { test, expect } from '../fixtures';
 import { invokeBridge } from '../helpers';
 
+// Mirrors src/process/channels/types.ts:249. There is no `pluginId` field -
+// the platform discriminator is `type` (BuiltinPluginType), and `id` is the
+// instance id. Asserting pluginId threw on undefined.toLowerCase().
 interface IChannelPluginStatus {
-  pluginId: string;
+  id: string;
+  type: string;
   status: string;
   enabled: boolean;
 }
@@ -44,7 +48,7 @@ test.describe('Channels protocol surface', () => {
     }
 
     expect(Array.isArray(resp.data), 'data is an array').toBe(true);
-    const ids = new Set(resp.data.map((p) => p.pluginId.toLowerCase()));
+    const ids = new Set(resp.data.map((p) => p.type.toLowerCase()));
     // Each plugin loaded from src/process/channels/plugins/<id>/ should show up
     // in the registry. We tolerate the four target IDs being either present
     // (registered + ready) or absent (disabled + lazy-registered) - but we
@@ -55,7 +59,7 @@ test.describe('Channels protocol surface', () => {
     // envelope itself being malformed, which we caught above.
     expect(targetSeen.length, 'at least 0 of the 4 target plugins resolved').toBeGreaterThanOrEqual(0);
     for (const entry of resp.data) {
-      expect(typeof entry.pluginId, 'pluginId is string').toBe('string');
+      expect(typeof entry.type, 'type is string').toBe('string');
       expect(typeof entry.status, 'status is string').toBe('string');
     }
   });
@@ -80,7 +84,11 @@ test.describe('Channels protocol surface', () => {
         });
         return { reached: true, status: res.status, error: null as string | null };
       } catch (err) {
-        return { reached: false, status: null as number | null, error: err instanceof Error ? err.message : String(err) };
+        return {
+          reached: false,
+          status: null as number | null,
+          error: err instanceof Error ? err.message : String(err),
+        };
       }
     });
 
@@ -97,20 +105,8 @@ test.describe('Channels protocol surface', () => {
   });
 
   // ── Real-platform webhook flows: credentials required ─────────────────────
-  test.skip(
-    'weixin OA: full encrypt+decrypt webhook round-trip requires a real WeChat AppID - see src/process/channels/plugins/weixin/',
-    () => {}
-  );
-  test.skip(
-    'dingtalk: signed callback verification requires a real DingTalk corp + signing key - see src/process/channels/plugins/dingtalk/',
-    () => {}
-  );
-  test.skip(
-    'lark: event-subscription handshake requires a real Lark app verification token - see src/process/channels/plugins/lark/',
-    () => {}
-  );
-  test.skip(
-    'wecom: WecomCrypto AES round-trip requires a real WeCom corp + EncodingAESKey - see src/process/channels/plugins/wecom/WecomCrypto.ts',
-    () => {}
-  );
+  test.skip('weixin OA: full encrypt+decrypt webhook round-trip requires a real WeChat AppID - see src/process/channels/plugins/weixin/', () => {});
+  test.skip('dingtalk: signed callback verification requires a real DingTalk corp + signing key - see src/process/channels/plugins/dingtalk/', () => {});
+  test.skip('lark: event-subscription handshake requires a real Lark app verification token - see src/process/channels/plugins/lark/', () => {});
+  test.skip('wecom: WecomCrypto AES round-trip requires a real WeCom corp + EncodingAESKey - see src/process/channels/plugins/wecom/WecomCrypto.ts', () => {});
 });

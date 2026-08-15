@@ -12,8 +12,8 @@
  * "Searching the web...") and a semantic glyph kind for the timeline icon.
  *
  * This is the perceived-value layer: a legible "Reading config.ts" reads as
- * real work; a raw "tool: fs_read {path:...}" reads as machine noise. Ported
- * from Foundry's deriveActivityLabel. Pure - no React, no IO, unit-tested.
+ * real work; a raw "tool: fs_read {path:...}" reads as machine noise. Pure - no
+ * React, no IO, unit-tested.
  */
 
 import type { ActivityNode } from '../chatLib';
@@ -71,6 +71,30 @@ export const formatCommandLabel = (command: string): string => {
   return `Running ${capped}`;
 };
 
+/** Keeps a fallback subject to one legible line; full text stays in the detail. */
+const SUBJECT_CAP = 56;
+
+/**
+ * Guards a label against serialized payloads. Tool `detail` often holds the
+ * tool's OUTPUT, so a careless extraction can splice a JSON blob into the
+ * timeline. A real subject is one short line of prose - no structure, no
+ * newlines, and not the logger's own "[... N similar lines]" collapse marker.
+ */
+const isQueryLike = (text: string): boolean =>
+  text.length > 0 && text.length <= 60 && !/[\n\r{}[\]]/.test(text) && !/similar lines/i.test(text);
+
+/**
+ * True when the subject only restates the tool name, so appending it would give
+ * "ToolSearch: ToolSearch". Compares on letters alone, since the two sides
+ * differ in case, spacing and separators ("web_search" vs "Web search").
+ */
+const isEchoOfName = (subject: string, cleanName: string): boolean => {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const a = norm(subject);
+  const b = norm(cleanName);
+  return a === b || (a.length > 0 && b.length > 0 && (a.startsWith(b) || b.startsWith(a)));
+};
+
 type LabelRule = {
   /** matches against the lowercased "name + ' ' + detail" haystack. */
   test: RegExp;
@@ -83,6 +107,28 @@ type LabelRule = {
 // Write, Bash, Grep...), Gemini (google_search, url_context), Codex
 // (exec_command, web_search) and ACP titles all funnel through here.
 const RULES: LabelRule[] = [
+  {
+    // ToolSearch looks up a DEFERRED tool by keyword. It ran 23 times in one
+    // observed turn and every row read only "ToolSearch", so the timeline said
+    // nothing about what the agent was actually hunting for. Name the subject:
+    // that is the same principle as #520's raw-command labels.
+    // Must precede the web-search rule, whose `search[_-]?web` alternative does
+    // not match but whose intent overlaps.
+    test: /^tool[_-]?search\b|\btoolsearch\b/,
+    glyph: 'search',
+    build: (h) => {
+      // The node's detail carries the tool-search RESULT, not the query the
+      // model typed - the query never reaches the renderer. Measured live, a
+      // naive extraction produced `Looking for a "[ { [... 197 similar lines`,
+      // which is worse than no subject at all. So only two things count as a
+      // query: an explicit `query` argument if one is ever plumbed through, and
+      // the term Core echoes back in its own no-match message.
+      const explicit = /"?query"?\s*[:=]\s*"([^"\n]{1,60})"/i.exec(h)?.[1];
+      const echoed = /no deferred tools matching\s+"?([^"\n]{1,60})"?/i.exec(h)?.[1];
+      const q = (explicit ?? echoed ?? '').replace(/\s+/g, ' ').trim();
+      return q && isQueryLike(q) ? `Looking for a "${q}" tool` : 'Looking for a tool';
+    },
+  },
   {
     test: /web[_-]?search|google[_-]?search|search[_-]?web|brave[_-]?search|^web\b/,
     glyph: 'web',
@@ -156,6 +202,14 @@ export const deriveStep = (
   const hay = `${node.name || ''} ${node.detail || ''}`;
   const lower = hay.toLowerCase();
   const command = node.command?.trim();
+  // Rules MATCH on name + detail; they BUILD from a haystack that puts the
+  // invocation FIRST, because extraction takes the earliest hit. `detail` is
+  // the tool's output, so a ReadFile whose command is "Read config.ts" but
+  // whose detail is the file's contents degraded to "Reading a file" - and the
+  // same tool then read differently in the chat and in the Progress rail.
+  // `command` is the invocation and arrives already secret-masked; `detail`
+  // stays as the fallback for nodes that carry no command.
+  const buildHay = command ? `${node.name || ''} ${command} ${node.detail || ''}` : hay;
   for (const rule of RULES) {
     if (rule.test.test(lower)) {
       // #520: for a shell/command tool, show the ACTUAL command instead of the
@@ -163,10 +217,21 @@ export const deriveStep = (
       // fix. Non-command glyphs (file/web/search) keep their richer humanized
       // labels, which already name the file/host/query.
       if (rule.glyph === 'command' && command) return { label: formatCommandLabel(command), glyph: 'command' };
-      return { label: rule.build(hay), glyph: rule.glyph };
+      return { label: rule.build(buildHay), glyph: rule.glyph };
     }
   }
-  // Fallback: cleaned tool name, title-ish, always non-empty.
+  // Fallback. A bare tool name answers "which tool" but never "on what", which
+  // is the question someone watching the timeline is actually asking - twenty
+  // identical rows tell you nothing. #520 solved this for shell tools only; the
+  // same visibility is owed to every other tool, so when the node carries a
+  // subject (the wcore mapper puts the tool's description in `command`) and it
+  // adds information beyond the name, show it.
   const clean = (node.name || 'tool').replace(/[_-]+/g, ' ').trim();
-  return { label: clean.charAt(0).toUpperCase() + clean.slice(1), glyph: 'tool' };
+  const titled = clean.charAt(0).toUpperCase() + clean.slice(1);
+  const subject = command?.replace(/\s+/g, ' ').trim();
+  if (subject && !isEchoOfName(subject, clean)) {
+    const capped = subject.length > SUBJECT_CAP ? `${subject.slice(0, SUBJECT_CAP - 1)}…` : subject;
+    return { label: `${titled}: ${capped}`, glyph: 'tool' };
+  }
+  return { label: titled, glyph: 'tool' };
 };

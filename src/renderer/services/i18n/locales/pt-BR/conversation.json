@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "Nenhum modelo selecionado para a sessão atual, não é possível enviar a mensagem",
     "sendMessageTo": "Enviar mensagem para {{model}}",
+    "sendMessage": "Enviar mensagem",
+    "stopGenerating": "Parar a geração",
     "processing": "Processando...",
     "quotaExceededTitle": "Cota do modelo atingida",
     "quotaExceededBody": "A cota do modelo atual se esgotou. Mudar para {{model}} para continuar?",
@@ -236,10 +238,54 @@
       "permissionDenied": "A permissão do microfone foi negada",
       "recordingUnsupported": "A gravação ao vivo não é compatível aqui. Em vez disso, envie um arquivo de áudio",
       "transcriptionFailed": "Falha na transcrição do áudio",
-      "authError": "A chave do Flux é inválida — reconecte o Flux Router para usar a entrada de voz",
-      "premiumLocked": "O Flux Voice precisa de um plano pago do Flux — faça upgrade para usar o ditado",
-      "rateLimited": "Muitas solicitações — tente novamente em instantes",
-      "genericError": "Falha na entrada de voz. Tente novamente"
+      "authError": "A chave do Flux é inválida, reconecte o Flux Router para usar a entrada de voz",
+      "premiumLocked": "O Flux Voice precisa de um plano pago do Flux, faça upgrade para usar o ditado",
+      "rateLimited": "Muitas solicitações, tente novamente em instantes",
+      "genericError": "Falha na entrada de voz. Tente novamente",
+      "setupLabel": "Configurar o ditado",
+      "setupTooltip": "O ditado está desativado, ative nas configurações de voz"
+    },
+    "voice": {
+      "statusConnecting": "Conectando…",
+      "statusListening": "Ouvindo…",
+      "statusTapToTalk": "Toque na onda para falar",
+      "statusHearing": "Estou te ouvindo",
+      "statusTranscribing": "Transcrevendo…",
+      "statusThinking": "Wayland está pensando…",
+      "statusApproval": "Precisa da sua aprovação no chat",
+      "statusSpeaking": "Wayland está falando…",
+      "statusStopping": "Parando…",
+      "statusReconnecting": "Reconectando…",
+      "statusError": "Voz interrompida",
+      "noticeTitle": "Isso não foi enviado",
+      "turnFailedTitle": "O turno falhou",
+      "turnFailedNoCause": "O turno completo está no chat, com o erro exato e como se recuperar.",
+      "turnFailedShowFull": "Mostrar a mensagem completa",
+      "noSpeakableTitle": "Nada para ler em voz alta",
+      "draftReadyTitle": "Suas palavras estão esperando no rascunho",
+      "startLabel": "Falar com o Wayland",
+      "startTitle": "Fale com o Wayland, ele responde em voz alta",
+      "endLabel": "Encerrar conversa por voz",
+      "endTitle": "Encerrar a conversa por voz",
+      "stopSpeaking": "Parar o Wayland",
+      "mute": "Silenciar o microfone",
+      "unmute": "Ativar o microfone",
+      "greeting": {
+        "named": {
+          "howAreYou": "Oi {{name}}, tudo bem? Com o que posso ajudar hoje?",
+          "imListening": "Oi {{name}}, estou ouvindo. No que estamos trabalhando?",
+          "readyWhenYouAre": "Oi {{name}}, quando você quiser. O que está pensando?",
+          "goodToHear": "Que bom te ouvir, {{name}}. O que posso fazer por você?",
+          "whereToStart": "Oi {{name}}, por onde começamos hoje?"
+        },
+        "anonymous": {
+          "howAreYou": "Oi, tudo bem? Com o que posso ajudar hoje?",
+          "imListening": "Oi, estou ouvindo. No que estamos trabalhando?",
+          "readyWhenYouAre": "Quando você quiser. O que está pensando?",
+          "goodToHear": "Que bom te ouvir. O que posso fazer por você?",
+          "whereToStart": "Oi, por onde começamos hoje?"
+        }
+      }
     }
   },
   "sideQuestion": {
@@ -324,9 +370,11 @@
   "activation": {
     "title": "Desperte seus agentes",
     "subtitle": "Conecte um provedor de modelos para começar a executar tarefas. Escolha o caminho ideal para você.",
+    "unusableTitle": "Seus agentes não conseguem alcançar um modelo",
+    "unusableSubtitle": "Seus provedores estão conectados, mas nenhum conseguiu aceitar esta tarefa. Verifique-os nas Configurações ou adicione outro caminho de acesso.",
     "flux": {
       "label": "Conectar o Flux Router",
-      "sublabel": "Chave gratuita com US$ 1 de crédito inicial. Sem cartão — encaminha cada tarefa para o modelo especialista mais adequado.",
+      "sublabel": "Chave gratuita com US$ 1 de crédito inicial. Sem cartão, encaminha cada tarefa para o modelo especialista mais adequado.",
       "action": "Conectar"
     },
     "ownKey": {
@@ -336,7 +384,7 @@
     },
     "claudeCode": {
       "label": "Usar o Claude Code",
-      "sublabel": "Execute com seu login atual do Claude Code — sem chaves extras para gerenciar.",
+      "sublabel": "Execute com seu login atual do Claude Code, sem chaves extras para gerenciar.",
       "action": "Usar"
     }
   },
@@ -384,6 +432,17 @@
       "label": "Retry the last message",
       "sublabel": "Re-run the message that hit the limit on the selected model.",
       "action": "Retry"
+    },
+    "details": "Show error details",
+    "dismiss": "Dismiss"
+  },
+  "constitutionLocked": {
+    "title": "Wayland couldn’t unlock your Constitution",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "recover": {
+      "label": "Restore from a recovery archive",
+      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
+      "action": "Open recovery"
     },
     "details": "Show error details",
     "dismiss": "Dismiss"

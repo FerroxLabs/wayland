@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 /**
@@ -22,13 +24,22 @@ const LEGACY_CONFIG_FILENAMES = ['clawdbot.json', 'moltbot.json', 'moldbot.json'
 
 interface OpenClawGatewayAuth {
   mode?: 'none' | 'token' | 'password';
-  token?: string;
-  password?: string;
+  // Upstream types these `SecretInput = string | SecretRef`: a config may hold a
+  // reference ({ source: 'env', ... }) instead of a plaintext secret. Typing them
+  // `string` here was a lie the compiler then enforced nowhere, so the readers
+  // below must narrow before returning. `unknown` makes that narrowing mandatory.
+  token?: unknown;
+  password?: unknown;
 }
 
 interface OpenClawGatewayConfig {
   port?: number;
   auth?: OpenClawGatewayAuth;
+  /**
+   * Upstream refuses to START the gateway unless this is `'local'` (or
+   * `--allow-unconfigured` is passed). See {@link describeGatewayStartBlocker}.
+   */
+  mode?: string;
 }
 
 interface OpenClawConfig {
@@ -130,6 +141,81 @@ export function readOpenClawConfig(): OpenClawConfig | null {
 }
 
 /**
+ * The config path to WRITE to: the one OpenClaw would actually read, or the
+ * canonical default when it has no config yet.
+ *
+ * Exported so the Flux connector resolves exactly what every other OpenClaw code
+ * path resolves. A second, simpler resolver looks harmless and is not: this one
+ * also honours `CLAWDBOT_STATE_DIR`, expands `~`, and finds the legacy
+ * `.clawdbot`/`.moltbot`/`.moldbot` directories and filenames. A migrated user
+ * whose real config is `~/.clawdbot/clawdbot.json` has no `~/.openclaw` — so a
+ * naive resolver would CREATE one, and because `resolveStateDir()` prefers
+ * `~/.openclaw` the moment it exists, every subsequent read would flip to that
+ * near-empty stub. Their gateway token, port and mode would vanish and the
+ * gateway would refuse to start, with our own backup pointing at nothing
+ * because "the config was created by setup".
+ */
+export function resolveOpenClawConfigPathForWrite(): string {
+  return findConfigPath() ?? path.join(resolveStateDir(), CONFIG_FILENAME);
+}
+
+/**
+ * Why `openclaw gateway` would refuse to start, or `null` if it would run.
+ *
+ * Upstream guards startup on `gateway.mode` and exits instead of listening. From
+ * its shipped `getGatewayStartGuardErrors` (verified by reading the published
+ * npm tarball, openclaw@2026.7.1-2, `dist/run-*.js`):
+ *
+ *   if (allowUnconfigured || mode === "local") return [];
+ *   if (!configExists) -> "Missing config. Run `openclaw setup` ..."
+ *   if (mode === undefined) -> "existing config is missing gateway.mode"
+ *   otherwise -> "set gateway.mode=local (current: <mode>)"
+ *
+ * We spawn `gateway --port <n>` with neither flag, so a user who installed the
+ * CLI but never onboarded hit all three arms. Detection only runs `which
+ * openclaw`, so the backend was offered and then died — and the manager reported
+ * it as a raw `Gateway exited with code N / Stdout: ... / Stderr: ...` dump, with
+ * upstream's own actionable sentence buried in the tail.
+ *
+ * Checked BEFORE spawning rather than by matching upstream's error text, because
+ * a message string is theirs to reword; `gateway.mode` is the contract.
+ *
+ * We deliberately do NOT pass `--allow-unconfigured` to make this go away. Two of
+ * the three arms mean the user's config is absent or clobbered, and upstream
+ * calls that "suspicious" — starting anyway would paper over a broken install and
+ * strand the user in a gateway with no configured mode. Onboarding is one command
+ * and the setup assistant already teaches it.
+ */
+export function describeGatewayStartBlocker(): string | null {
+  const configPath = findConfigPath();
+  if (!configPath) {
+    return 'OpenClaw is installed but not set up yet, so its gateway refuses to start. Run `openclaw onboard --install-daemon` in a terminal to configure it, then try again.';
+  }
+
+  // Distinguish "we read it and gateway.mode was absent" from "we never read it
+  // at all". readOpenClawConfig returns null for BOTH an unreadable file (EACCES,
+  // EISDIR, broken symlink) and unparseable JSON, and `?.gateway?.mode` collapses
+  // that into the same `undefined` as a config we parsed fine. Reporting all of
+  // them as "has no gateway.mode" states a fact about the file's CONTENTS that we
+  // never established, and sends someone whose real problem is a permission bit
+  // off to run an onboard command that will not fix it. The path already exists
+  // here (findConfigPath returned it), so a null now means read-or-parse failure.
+  const config = readOpenClawConfig();
+  if (config === null) {
+    return `Wayland could not read OpenClaw's config at ${configPath} — it is unreadable or not valid JSON, so its gateway refuses to start. Check that file, then run \`openclaw onboard --mode local\` in a terminal and try again.`;
+  }
+
+  const mode = config.gateway?.mode;
+  if (mode === 'local') return null;
+
+  if (mode === undefined) {
+    return `OpenClaw's config at ${configPath} has no gateway.mode, so its gateway refuses to start. Run \`openclaw onboard --mode local\` in a terminal to set it, then try again.`;
+  }
+
+  return `OpenClaw's gateway only starts in local mode, but ${configPath} sets gateway.mode to "${mode}". Run \`openclaw onboard --mode local\` in a terminal to switch it, then try again.`;
+}
+
+/**
  * Get gateway auth settings from config
  */
 export function getGatewayAuthFromConfig(): OpenClawGatewayAuth | null {
@@ -142,9 +228,17 @@ export function getGatewayAuthFromConfig(): OpenClawGatewayAuth | null {
  */
 export function getGatewayAuthToken(): string | null {
   const auth = getGatewayAuthFromConfig();
-  if (auth?.mode === 'token' && auth.token) {
-    return auth.token;
-  }
+  // A SecretRef is a legitimate config value we cannot resolve here; treat it as
+  // absent rather than shipping an object into a field the gateway validates as
+  // a string (that produces "invalid connect params" and an immediate close).
+  const token = typeof auth?.token === 'string' && auth.token ? auth.token : null;
+  if (!token) return null;
+  if (auth?.mode === 'token') return token;
+  // `mode` is optional upstream. With it unset, the one configured secret is the
+  // active one — requiring the discriminator meant a valid config that omitted it
+  // had its token silently ignored (#907). Stay silent when both are set: that
+  // config is ambiguous here, and it is what today already does.
+  if (!auth?.mode && !auth?.password) return token;
   return null;
 }
 
@@ -153,9 +247,12 @@ export function getGatewayAuthToken(): string | null {
  */
 export function getGatewayAuthPassword(): string | null {
   const auth = getGatewayAuthFromConfig();
-  if (auth?.mode === 'password' && auth.password) {
-    return auth.password;
-  }
+  const password = typeof auth?.password === 'string' && auth.password ? auth.password : null;
+  if (!password) return null;
+  if (auth?.mode === 'password') return password;
+  // Symmetric with the token reader, so the two cannot both claim the same
+  // mode-unset config.
+  if (!auth?.mode && !auth?.token) return password;
   return null;
 }
 

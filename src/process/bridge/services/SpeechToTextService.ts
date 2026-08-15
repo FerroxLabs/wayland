@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type {
@@ -14,7 +16,6 @@ import type {
 } from '@/common/types/speech';
 import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
 import { ProcessConfig } from '@process/utils/initStorage';
-import { WhisperLocal } from '@process/services/voice/WhisperLocal';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 import { readConnectedProviderKey } from '@process/connectors/providerKey';
 import { resolveFluxSttDefault } from '@process/utils/fluxSttDefault';
@@ -214,6 +215,32 @@ const resolveSpeechToTextConfig = async (): Promise<SpeechToTextConfig> => {
     }
   }
 
+  // Flux Voice: same rule as OpenAI above, and it was missing.
+  //
+  // The zero-config seed below only fires for a user who has NEVER chosen an
+  // engine. Choosing Flux Voice deliberately - the one action that signals the
+  // user wants it - skipped the seed and landed on `resolveProviderApiKey`,
+  // which reads `fluxVoice.apiKey` from the STT config and throws
+  // STT_FLUX_NOT_CONFIGURED when it is empty. It is always empty: the Flux
+  // credential lives in the shared provider registry, and nothing ever copied
+  // it here. So a user with Flux Router connected and working got the one
+  // provider that could not transcribe, precisely because they picked it.
+  if (stored.provider === 'flux-voice' && !resolveFluxVoiceConfig(stored)?.apiKey?.trim()) {
+    const fluxKey = await readConnectedFluxKey();
+    if (fluxKey) {
+      mainLog(STT_LOG_TAG, 'Flux Voice using the connected Flux Router credential');
+      return {
+        ...stored,
+        fluxVoice: {
+          ...stored.fluxVoice,
+          apiKey: fluxKey,
+          baseUrl: stored.fluxVoice?.baseUrl || FLUX_VOICE_BASE_URL,
+          model: stored.fluxVoice?.model || FLUX_VOICE_MODEL,
+        },
+      };
+    }
+  }
+
   // Zero-config default: if Flux is connected and the user hasn't configured
   // another STT engine, use Flux Voice transparently for this request.
   if (stored.provider !== 'flux-voice' && stored.provider !== 'deepgram' && stored.provider !== 'whisper-local') {
@@ -408,11 +435,24 @@ const transcribeWithDeepgram = async (
   };
 };
 
-const transcribeWithWhisperLocal = async (
-  config: SpeechToTextConfig,
-  request: SpeechToTextRequest
-): Promise<SpeechToTextResult> => {
-  return WhisperLocal.transcribe(request, config.whisperLocal ?? { model: DEFAULT_WHISPER_LOCAL_MODEL });
+/**
+ * `whisper-local` does not transcribe here and never did.
+ *
+ * The renderer's `transcribeAudioBlob` short-circuits this provider to the
+ * bundled Whisper-tiny model running in a Web Worker (transformers.js) and
+ * returns before it ever reaches IPC, so this adapter was unreachable. What it
+ * used to hold - a whisper.cpp subprocess - could not have run either: the
+ * binary it downloaded has never been published for macOS at any tag, and the
+ * URLs it pointed at return 404 on every platform.
+ *
+ * It stays registered rather than deleted so `resolve('whisper-local')` keeps
+ * naming the cause. An unregistered provider throws "no voice adapter
+ * registered", which tells a user nothing.
+ */
+const transcribeWithWhisperLocal = async (): Promise<SpeechToTextResult> => {
+  throw new Error(
+    'STT_WHISPER_LOCAL_UNAVAILABLE: local transcription runs in the app window, not the main process; this request should never have been sent'
+  );
 };
 
 /**

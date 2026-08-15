@@ -19,7 +19,7 @@ export type WCoreModelSelection = {
   getDisplayModelName: (modelName?: string) => string;
 };
 
-export type UseAionrsModelSelectionOptions = {
+export type UseWCoreModelSelectionOptions = {
   initialModel: TProviderWithModel | undefined;
   onSelectModel: (provider: IProvider, modelName: string) => Promise<boolean>;
 };
@@ -27,7 +27,7 @@ export type UseAionrsModelSelectionOptions = {
 export const useWCoreModelSelection = ({
   initialModel,
   onSelectModel,
-}: UseAionrsModelSelectionOptions): WCoreModelSelection => {
+}: UseWCoreModelSelectionOptions): WCoreModelSelection => {
   const [currentModel, setCurrentModel] = useState<TProviderWithModel | undefined>(initialModel);
 
   useEffect(() => {

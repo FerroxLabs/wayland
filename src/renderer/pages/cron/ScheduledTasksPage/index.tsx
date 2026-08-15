@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { Archive, Clock, Plus } from 'lucide-react';
@@ -157,11 +159,11 @@ const ScheduledTasksPage: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className='flex min-h-220px items-center justify-center rounded-16px border border-dashed border-border-2 bg-fill-1'>
+          <div className='flex min-h-220px items-center justify-center rounded-16px border border-dashed border-2 bg-fill-1'>
             <Spin />
           </div>
         ) : jobs.length === 0 ? (
-          <div className='flex min-h-220px items-center justify-center rounded-16px border border-dashed border-border-2 bg-fill-1'>
+          <div className='flex min-h-220px items-center justify-center rounded-16px border border-dashed border-2 bg-fill-1'>
             <Empty description={t('cron.noTasks')} />
           </div>
         ) : (

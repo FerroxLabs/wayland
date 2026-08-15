@@ -51,7 +51,9 @@ test.describe('F-RELIABILITY-01 Automatic connection timeout handling', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('sending a new message triggers reconnection verification (UI does not freeze + interaction continues)', async ({ page }) => {
+  test('sending a new message triggers reconnection verification (UI does not freeze + interaction continues)', async ({
+    page,
+  }) => {
     const textarea = page.locator('textarea').first();
     await textarea.waitFor({ state: 'visible', timeout: 10_000 });
     const isDisabled = await textarea.isDisabled();
@@ -74,6 +76,11 @@ test.describe('F-RELIABILITY-01 Automatic connection timeout handling', () => {
 });
 
 test.describe('F-RELIABILITY-02 Automatic AI reply timeout handling', () => {
+  // Waits on a real AI round trip. The 60s global cap in playwright.config.ts
+  // cannot cover one - this only surfaced once waitForAiReply stopped
+  // accepting the shadow-root stylesheet as a reply.
+  test.describe.configure({ timeout: 180_000 });
+
   let timeoutConvId: string;
 
   test.beforeAll(async ({ page }) => {
@@ -106,13 +113,25 @@ test.describe('F-RELIABILITY-02 Automatic AI reply timeout handling', () => {
     );
     createdIds.push(stopConvId);
 
-    const stopButton = page.locator('button[class*="stop"], [data-testid="stop-button"], [aria-label*="stop" i]');
+    const stopButton = page.locator('.sendbox-stop-button');
+    // isVisible({ timeout }) is a NO-OP in this Playwright version - the option
+    // is ignored and it samples immediately. The composer flips into the
+    // processing state on mount, so this used to click Stop ~0s into the turn
+    // and then assert partial text that could not exist yet.
     const stopVisible = await stopButton
       .first()
-      .isVisible({ timeout: 30_000 })
+      .waitFor({ state: 'visible', timeout: 30_000 })
+      .then(() => true)
       .catch(() => false);
 
     if (stopVisible) {
+      // Do not stop before the first token, or "partial output" is empty by
+      // construction.
+      await page
+        .locator(AI_MSG_SELECTOR)
+        .first()
+        .waitFor({ state: 'visible', timeout: 60_000 })
+        .catch(() => {});
       await stopButton.first().click();
       await page.waitForTimeout(2_000);
     } else {

@@ -12,7 +12,7 @@
  * lock. The project entity itself lives in the `projects` SQLite table
  * (migration_v43).
  *
- * Deliberately leaner than Foundry's IProject: dropped `defaultAgent` /
+ * Deliberately leaner than the earlier IProject: dropped `defaultAgent` /
  * `defaultModel` (the composer picks per-chat), `forgeInitialized`, and
  * `activeConversationId` (the per-project execution lock that serialized every
  * chat - the core friction we are removing).
@@ -43,4 +43,6 @@ export type ICreateProjectParams = {
 };
 
 /** Fields a user may edit on an existing project. */
-export type IUpdateProjectParams = Partial<Pick<IProject, 'name' | 'description' | 'workspace' | 'icon' | 'iconColor' | 'pinned' | 'pinnedAt'>>;
+export type IUpdateProjectParams = Partial<
+  Pick<IProject, 'name' | 'description' | 'workspace' | 'icon' | 'iconColor' | 'pinned' | 'pinnedAt'>
+>;

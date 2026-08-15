@@ -219,13 +219,13 @@ describe('TeamCreateModal', () => {
 
     const workspaceTrigger = screen.getByTestId('team-create-workspace-trigger');
     expect(workspaceTrigger.className).toContain('bg-fill-1');
-    expect(workspaceTrigger.className).toContain('border-border-2');
+    expect(workspaceTrigger.className).toContain('border-2');
     expect(workspaceTrigger.className).toContain('py-0');
 
     fireEvent.click(workspaceTrigger);
 
     const workspaceMenu = screen.getByTestId('team-create-workspace-menu');
-    expect(workspaceMenu.className).toContain('border-border-1');
+    expect(workspaceMenu.className).toContain('border-1');
     expect(workspaceMenu.className).toContain('shadow-[0_18px_48px_rgba(0,0,0,0.42)]');
     expect(workspaceMenu).toHaveStyle({ backgroundColor: 'var(--bg-2)', opacity: '1' });
 

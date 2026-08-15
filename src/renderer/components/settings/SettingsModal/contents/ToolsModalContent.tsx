@@ -1,28 +1,32 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
-import { CheckCircle2, RotateCcw } from 'lucide-react';
 import {
   ConfigStorage,
   type IConfigStorageRefer,
   type IMcpServer,
   BUILTIN_IMAGE_GEN_ID,
 } from '@/common/config/storage';
-import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
+import { FLUX_PROVIDER_ID } from '@/common/config/flux';
+import { type SpeechToTextConfig, type SpeechToTextProvider } from '@/common/types/speech';
+import { ON_DEVICE_STT_PROVIDER, resolveVoiceLeg } from '@/common/voice/voiceReadiness';
+import { VOICE_FAILURE_CODES, isVoiceFailureCode, type VoiceFailureCode } from '@/common/voice/voiceFailureCodes';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
-import { isTextToSpeechProvider } from '@/common/types/ttsTypes';
-import { modelRegistry, voiceAsset, voiceSynth } from '@/common/adapter/ipcBridge';
+import { isTextToSpeechProvider, resolveLocalTtsProvider, resolveRunnableTtsProvider } from '@/common/types/ttsTypes';
+import { rendererPlatform } from '@/renderer/utils/platform';
+import { modelRegistry, voiceSynth } from '@/common/adapter/ipcBridge';
 import {
   isImageModelName,
   imageModelDisplayLabel,
   isFluxProviderRow,
   FLUX_RECOMMENDED_IMAGE_ID,
 } from '@/common/config/imageModels';
-import type { VoiceAsset } from '@/common/types/voiceAsset';
-import { Divider, Form, Message, Button, Switch, Input, Slider, Progress } from '@arco-design/web-react';
+import { Divider, Form, Message, Button, Switch, Input, Slider } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useConfigModelListWithImage from '@/renderer/hooks/agent/useConfigModelListWithImage';
@@ -38,204 +42,27 @@ import { useHostedVoiceConsent, hostedVoiceConsentErrorGuidance } from '@/render
 
 const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
 export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
-export const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
-  enabled: false,
-  provider: 'openai',
-  openai: {
-    apiKey: '',
-    baseUrl: '',
-    language: '',
-    model: 'whisper-1',
-  },
-  fluxVoice: {
-    apiKey: '',
-    baseUrl: '',
-    language: '',
-    model: 'flux-voice',
-  },
-  deepgram: {
-    apiKey: '',
-    baseUrl: '',
-    detectLanguage: true,
-    language: '',
-    model: 'nova-2',
-    punctuate: true,
-    smartFormat: true,
-  },
-};
+// Re-exported so the many existing importers of this module keep working; the
+// definitions moved to `common` because the composer mic needs them too and
+// importing this modal into a leaf button pulled all of Arco in with it.
+import { DEFAULT_SPEECH_TO_TEXT_CONFIG, normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 
-export const normalizeSpeechToTextConfig = (config?: SpeechToTextConfig): SpeechToTextConfig => ({
-  ...DEFAULT_SPEECH_TO_TEXT_CONFIG,
-  ...config,
-  openai: {
-    ...DEFAULT_SPEECH_TO_TEXT_CONFIG.openai,
-    ...config?.openai,
-  },
-  fluxVoice: {
-    ...DEFAULT_SPEECH_TO_TEXT_CONFIG.fluxVoice,
-    ...config?.fluxVoice,
-  },
-  deepgram: {
-    ...DEFAULT_SPEECH_TO_TEXT_CONFIG.deepgram,
-    ...config?.deepgram,
-  },
-});
-
-// Whisper model asset descriptor - model + binary are both required for local STT.
-// destPath + sha256 are resolved server-side by voiceAssetRegistry.ts before
-// the download starts; the renderer just supplies the id + url.
-const WHISPER_MODEL_ASSETS: Record<string, VoiceAsset> = {
-  base: {
-    id: 'whisper-ggml-base',
-    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin',
-    destPath: '',
-    sha256: '',
-  },
-  small: {
-    id: 'whisper-ggml-small',
-    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
-    destPath: '',
-    sha256: '',
-  },
-};
-
-type DownloadState = 'idle' | 'downloading' | 'success' | 'error';
+export { DEFAULT_SPEECH_TO_TEXT_CONFIG, normalizeSpeechToTextConfig };
 
 /**
- * Shared download-with-progress controller for the local voice models (Whisper
- * + Kokoro). Owns the download lifecycle, the on-disk install probe, and the
- * live progress subscription so both controls render a real <Progress/> bar
- * instead of the old hardcoded 0%. Pass `undefined` when no asset is selected
- * (the hook stays inert until one is).
+ * One label per transcriber, keyed by the union so a new provider cannot ship
+ * unnamed. This replaced a two-way ternary that rendered everything which was
+ * not Flux Voice as "OpenAI Whisper", which silently mislabelled both Deepgram
+ * and the on-device engine.
  */
-const useVoiceAssetDownload = (asset: VoiceAsset | undefined) => {
-  const [downloadState, setDownloadState] = useState<DownloadState>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [installed, setInstalled] = useState<boolean | null>(null);
-  const [percent, setPercent] = useState(0);
-  const cancelledRef = useRef(false);
-  const assetId = asset?.id;
-
-  // Probe install state on mount + every asset switch and after each download
-  // so the UI flips to "Installed" when the file already exists on disk.
-  useEffect(() => {
-    if (!assetId) return;
-    let cancelled = false;
-    void voiceAsset.exists
-      .invoke({ id: assetId })
-      .then((r) => {
-        if (!cancelled) setInstalled(Boolean(r?.installed));
-      })
-      .catch(() => {
-        if (!cancelled) setInstalled(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [assetId, downloadState]);
-
-  // Subscribe to streamed progress and translate bytes into a percentage.
-  // When the server omits Content-Length totalBytes is null and we stay at 0
-  // (indeterminate) rather than dividing by nothing.
-  useEffect(() => {
-    if (!assetId) return;
-    const removeListener = voiceAsset.downloadProgress.on((evt) => {
-      if (!evt || evt.assetId !== assetId) return;
-      setPercent(evt.totalBytes ? Math.min(100, Math.round((evt.bytesDownloaded / evt.totalBytes) * 100)) : 0);
-    });
-    return () => {
-      removeListener();
-    };
-  }, [assetId]);
-
-  const handleDownload = useCallback(async () => {
-    if (!asset) return;
-    cancelledRef.current = false;
-    setPercent(0);
-    setDownloadState('downloading');
-    setErrorMsg('');
-    try {
-      await voiceAsset.download.invoke(asset);
-      if (!cancelledRef.current) setDownloadState('success');
-    } catch (err) {
-      if (!cancelledRef.current) {
-        setDownloadState('error');
-        setErrorMsg(err instanceof Error ? err.message : String(err));
-      }
-    }
-  }, [asset]);
-
-  const handleCancel = useCallback(async () => {
-    cancelledRef.current = true;
-    if (assetId) {
-      await voiceAsset.cancel.invoke({ assetId }).catch(() => {});
-    }
-    setDownloadState('idle');
-    setPercent(0);
-  }, [assetId]);
-
-  return { downloadState, errorMsg, installed, percent, handleDownload, handleCancel };
+const STT_PROVIDER_LABEL_KEY: Record<SpeechToTextProvider, string> = {
+  openai: 'settings.speechToTextProviderOpenAI',
+  deepgram: 'settings.speechToTextProviderDeepgram',
+  'flux-voice': 'settings.speechToTextProviderFluxVoice',
+  'whisper-local': 'settings.speechToTextProviderWhisperLocal',
 };
 
-const WhisperLocalDownloadControl: React.FC<{
-  model: string;
-  onModelChange: (model: string) => void;
-}> = ({ model, onModelChange }) => {
-  const { t } = useTranslation();
-  const { downloadState, errorMsg, installed, percent, handleDownload, handleCancel } = useVoiceAssetDownload(
-    WHISPER_MODEL_ASSETS[model]
-  );
-
-  return (
-    <>
-      <Form.Item label={t('settings.speechToTextWhisperModel')}>
-        <WaylandSelect value={model} onChange={onModelChange}>
-          <WaylandSelect.Option value='base'>base</WaylandSelect.Option>
-          <WaylandSelect.Option value='small'>small</WaylandSelect.Option>
-        </WaylandSelect>
-      </Form.Item>
-      <Form.Item label={t('settings.speechToTextDownloadModel')}>
-        <div className='flex flex-col gap-8px'>
-          {downloadState === 'downloading' ? (
-            <div className='flex items-center gap-8px'>
-              <Progress percent={percent} animation className='flex-1' />
-              <Button size='mini' onClick={handleCancel}>
-                {t('settings.speechToTextCancelDownload')}
-              </Button>
-            </div>
-          ) : installed ? (
-            <div className='flex items-center justify-between gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
-              <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
-                <CheckCircle2 size={14} />
-                {t('settings.speechToTextModelInstalled', { defaultValue: 'Installed' })}
-              </span>
-              <Button
-                type='text'
-                size='mini'
-                icon={<RotateCcw size={12} />}
-                onClick={handleDownload}
-                className='text-12px text-t-tertiary'
-              >
-                {t('settings.speechToTextRedownload', { defaultValue: 'Re-download' })}
-              </Button>
-            </div>
-          ) : (
-            <Button type='outline' onClick={handleDownload} size='small'>
-              {t('settings.speechToTextDownloadModel')}
-            </Button>
-          )}
-          {downloadState === 'error' && (
-            <span className='text-12px text-[var(--danger)]'>
-              {t('settings.speechToTextDownloadError')}: {errorMsg}
-            </span>
-          )}
-        </div>
-      </Form.Item>
-    </>
-  );
-};
-
-export const TTS_CONFIG_CHANGED_EVENT = 'wayland:tts-config-changed';
+export { TTS_CONFIG_CHANGED_EVENT } from '@/renderer/services/voice/voiceSettingsEvents';
 
 const OPENAI_TTS_VOICES = [
   'marin',
@@ -253,14 +80,186 @@ const OPENAI_TTS_VOICES = [
   'verse',
 ] as const;
 
+/**
+ * Test voice must always end in a sound or a sentence - never in nothing.
+ *
+ * The IPC transport cannot carry a rejection: its provider side has no
+ * `.catch`, so a main-process throw leaves `invoke()` pending forever. Both
+ * bridges this screen touches now return their failures as data, but a pending
+ * promise is still reachable if a provider is unregistered or main is wedged,
+ * and its symptom is precisely the one being fixed here - a button that
+ * produces no sound, no error and no toast. This converts that into a named
+ * failure the user can act on.
+ */
+export const TEST_VOICE_TIMEOUT_MS = 20_000;
+
+/**
+ * The sentence to put in front of the user for a `CODE: detail` failure.
+ *
+ * Prefers the detail, because that is the half written for a human. Falls back
+ * to the bare code only when there is nothing else - a code alone tells the
+ * user what broke but never what to do about it.
+ */
+/**
+ * The closed code union, DERIVED from the two bridge vocabularies.
+ *
+ * The "unknown" the owner saw is not a missing translation - a locale grep
+ * comes back clean - it is an unmapped RAW CODE flowing through
+ * `describeVoiceFailure` at runtime and out the other side untouched.
+ *
+ * This list used to be re-typed here by hand, and the `never` check below
+ * therefore graded it against itself: seven codes `voiceSynth.speak` emits were
+ * not unhandled, they were not members at all, so they reached the user as raw
+ * enum text. The definition now lives in `common` beside the two sources it is
+ * composed from, and is re-exported here for the existing importers.
+ */
+export { VOICE_FAILURE_CODES, type VoiceFailureCode };
+
+/**
+ * The sentence shown for a code with no detail attached.
+ *
+ * Exhaustive, with a compile-time `never` on the default branch. Adding a
+ * member to `VOICE_FAILURE_CODES` without a case here fails the typecheck.
+ */
+const voiceFailureSentence = (code: VoiceFailureCode): string => {
+  switch (code) {
+    case 'STT_DISABLED':
+      return 'Speech input is switched off. Turn it on in Voice settings.';
+    case 'STT_OPENAI_NOT_CONFIGURED':
+      return 'OpenAI transcription has no API key yet. Add one in Voice settings.';
+    case 'STT_DEEPGRAM_NOT_CONFIGURED':
+      return 'Deepgram transcription has no API key yet. Add one in Voice settings.';
+    case 'STT_FLUX_NOT_CONFIGURED':
+      return 'Flux Voice is not connected yet. Connect Flux Router in Models and Providers.';
+    case 'STT_FLUX_AUTH_ERROR':
+      return 'Flux Router rejected the credential. Reconnect it in Models and Providers.';
+    case 'STT_FLUX_PREMIUM_LOCKED':
+      return 'Flux Voice transcription is not included in this plan.';
+    case 'STT_HOSTED_CONSENT_REQUIRED':
+      return 'This transcriber sends audio off your device and needs your agreement first.';
+    case 'STT_FILE_TOO_LARGE':
+      return 'That recording is too large to transcribe. Record a shorter one.';
+    case 'STT_RATE_LIMITED':
+      return 'The transcription service is rate limiting this account. Wait a moment and try again.';
+    case 'STT_REQUEST_FAILED':
+      return 'The transcription request failed. Check the connection and try again.';
+    case 'STT_LOCAL_ENGINE_FAILED':
+      return 'The on-device transcription engine could not run.';
+    case 'TTS_SYSTEM_NATIVE_UNAVAILABLE':
+      return 'This operating system has no built-in voice. Choose a different speech provider.';
+    // Surfaced by composing the union from the bridge that emits it. The
+    // renderer's hand-copied list never carried this code, so a Windows user
+    // whose System.Speech run failed was told the version did not recognize it.
+    case 'TTS_WINDOWS_NATIVE_UNAVAILABLE':
+      return 'The built-in Windows voice could not run. Choose a different speech provider.';
+    case 'TTS_OPENAI_NOT_CONFIGURED':
+      return 'OpenAI Speech has no API key yet. Add one in Models and Providers.';
+    case 'TTS_OPENAI_CREDENTIAL_UNREADABLE':
+      return 'The stored OpenAI key could not be read on this machine. Enter it again in Models and Providers.';
+    case 'TTS_CREDENTIAL_STORE_UNAVAILABLE':
+      return 'The saved credentials could not be opened on this machine. Restart Wayland and try again.';
+    case 'TTS_OPENAI_AUTH_ERROR':
+      return 'OpenAI rejected the API key. Check it in Models and Providers.';
+    case 'TTS_OPENAI_RATE_LIMITED':
+      return 'OpenAI is rate limiting this account. Wait a moment and try again.';
+    case 'TTS_OPENAI_REQUEST_FAILED':
+      return 'The OpenAI speech request failed. Check the connection and try again.';
+    case 'TTS_SYNTHESIS_FAILED':
+      return 'Speech output failed for a reason it could not name. The complete answer is still in Chat.';
+    case 'TTS_HOSTED_CONSENT_REQUIRED':
+      return 'This voice sends the reply off your device and needs your agreement first.';
+    case 'TTS_EMPTY_AUDIO':
+      return 'Speech output returned no audio.';
+    case 'TTS_PLAYBACK_FAILED':
+      return 'The audio could not be played on this device.';
+    case 'TTS_AUDIO_CONTEXT_BLOCKED':
+      return 'This window is not allowed to play audio yet. Try the control again.';
+    case 'TTS_NO_RESPONSE':
+      return 'Speech output did not respond in time.';
+    case 'TTS_REQUEST_FAILED':
+      return 'The speech request failed. Check the connection and try again.';
+    default: {
+      const exhaustive: never = code;
+      return exhaustive;
+    }
+  }
+};
+
+/**
+ * The sentence to put in front of the user for a `CODE: detail` failure.
+ *
+ * Prefers the detail, because that is the half written for a human. Then the
+ * mapped sentence for the code. A code that is in NEITHER - the case that
+ * produced the literal word "unknown" - falls back to a named sentence that
+ * identifies the subsystem and never says "unknown".
+ */
+export const describeVoiceFailure = (raw: string): string => {
+  const separator = raw.indexOf(':');
+  const code = (separator === -1 ? raw : raw.slice(0, separator)).trim();
+  const detail = separator === -1 ? '' : raw.slice(separator + 1).trim();
+
+  if (detail) return detail;
+  if (isVoiceFailureCode(code)) return voiceFailureSentence(code);
+
+  return code
+    ? `The voice subsystem reported ${code}, which this version does not recognize. The complete answer is still in Chat.`
+    : 'The voice subsystem failed without saying why. The complete answer is still in Chat.';
+};
+
+export const withTestVoiceTimeout = <T,>(work: Promise<T>, timeoutMs = TEST_VOICE_TIMEOUT_MS): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('TTS_NO_RESPONSE')), timeoutMs);
+    work.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+
 export const TextToSpeechSettingsSection: React.FC<{
   config: TextToSpeechConfig;
   onChange: (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => void;
-}> = ({ config, onChange }) => {
+}> = ({ config, onChange: persist }) => {
   const { t } = useTranslation();
   const testAudioRef = useRef<HTMLAudioElement | null>(null);
   const testAudioUrlRef = useRef<string | null>(null);
   const { ensureConsent, needsConsent, consentModal } = useHostedVoiceConsent();
+  const platform = useMemo(() => rendererPlatform(), []);
+  // Which OS-bundled synthesizer this machine actually has, or null on Linux.
+  const localTtsProvider = useMemo(() => resolveLocalTtsProvider(platform), [platform]);
+  /**
+   * The provider this machine will actually run, which is not always the one in
+   * the config: a profile that stores a local provider belonging to another OS
+   * names a synthesizer that cannot exist here. `null` means there is no local
+   * synthesizer on this OS at all, and the picker must say that rather than
+   * show a provider name.
+   */
+  const runnableProvider = useMemo(
+    () => resolveRunnableTtsProvider(config.provider, platform),
+    [config.provider, platform]
+  );
+
+  /**
+   * Every write goes through here, so no control can persist a provider this
+   * platform cannot run. Without it, the leftover simply gets written back the
+   * first time the user touches the speed slider - or presses Test voice, which
+   * is how a single press used to make a Windows profile permanently macOS.
+   */
+  const onChange = useCallback(
+    (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => {
+      persist((current) => {
+        const next = updater(current);
+        const runnable = resolveRunnableTtsProvider(next.provider, platform);
+        return runnable && runnable !== next.provider ? { ...next, provider: runnable } : next;
+      });
+    },
+    [persist, platform]
+  );
 
   const handleProviderChange = useCallback(
     (value: string) => {
@@ -279,6 +278,27 @@ export const TextToSpeechSettingsSection: React.FC<{
     [onChange, ensureConsent]
   );
 
+  /**
+   * Turning auto-read ON is the one speech decision the user makes ahead of
+   * time, for replies that have not been written yet - so on a hosted provider
+   * the disclosure is due here, at the moment of the decision, and not from
+   * inside a streaming answer where a modal would be an ambush. Turning it OFF
+   * needs no disclosure.
+   */
+  const handleAutoReadChange = useCallback(
+    (checked: boolean) => {
+      if (!checked) {
+        onChange((current) => ({ ...current, autoReadResponses: false }));
+        return;
+      }
+      void ensureConsent(config.provider).then((accepted) => {
+        if (!accepted) return;
+        onChange((current) => ({ ...current, autoReadResponses: true }));
+      });
+    },
+    [config.provider, ensureConsent, onChange]
+  );
+
   const clearTestAudio = useCallback(() => {
     testAudioRef.current?.pause();
     testAudioRef.current = null;
@@ -292,12 +312,58 @@ export const TextToSpeechSettingsSection: React.FC<{
 
   const handleTestVoice = useCallback(async () => {
     clearTestAudio();
+    /**
+     * Nothing on this operating system can synthesize, so there is nothing to
+     * test and nothing worth writing to the profile. Say so in the same words
+     * the panel already uses, instead of sending a macOS provider to main and
+     * coming back with "say could not be run" on a machine that never had it.
+     */
+    if (!runnableProvider) {
+      Message.error(t('settings.textToSpeechNoLocalVoice'));
+      return;
+    }
+    /**
+     * The disclosure comes first, on the panel the user is already standing on.
+     *
+     * Going to main without it only earns `TTS_HOSTED_CONSENT_REQUIRED`, and the
+     * guidance that code maps to says "open Voice settings and accept the
+     * disclosure" - which is this screen, and there was no way to accept from
+     * here. The consent flow this section already owns is the way out; the error
+     * mapping below stays as the backstop for a main-side gate the renderer
+     * cannot see.
+     */
+    if (!(await withTestVoiceTimeout(ensureConsent(runnableProvider)).catch(() => false))) {
+      Message.error(t('settings.textToSpeechTestConsentDeclined'));
+      return;
+    }
     try {
-      await ConfigStorage.set('tools.textToSpeech', config);
-      const result = await voiceSynth.speak.invoke({
-        text: t('settings.textToSpeechTestPhrase', 'Voice check.'),
-      });
-      if (result.ok === false) throw new Error(result.errorCode);
+      // Every await between here and playback is inside the guard, not just the
+      // synthesis call. A live CDP run reproduced the reported "no sound, no
+      // error, no toast" on `system-native` - a provider with no credential and
+      // no runtime to fail on - with ZERO synthesizer activity in the main log,
+      // which means the handler died or hung BEFORE reaching the synthesizer.
+      // Persisting the config is the only other IPC round trip on that path, and
+      // the transport it uses cannot report a rejection either. Guarding only
+      // `speak` would have left exactly that hang silent.
+      const result = await withTestVoiceTimeout(
+        (async () => {
+          // A failure to persist must not cancel the test: the user pressed
+          // "Test voice", not "Save". It is reported, then the test proceeds
+          // with the config already in hand.
+          try {
+            // The runnable provider, never the stored one: writing back a
+            // synthesizer this OS does not have is how the one control that
+            // reaches the Windows floor used to destroy it on first press.
+            await ConfigStorage.set('tools.textToSpeech', { ...config, provider: runnableProvider });
+          } catch (persistError) {
+            console.error('[TextToSpeech] could not persist config before test:', persistError);
+          }
+          return voiceSynth.speak.invoke({ text: t('settings.textToSpeechTestPhrase') });
+        })()
+      );
+      if (result.ok === false) {
+        throw new Error(result.detail ? `${result.errorCode}: ${result.detail}` : result.errorCode);
+      }
       if (result.data.length === 0) throw new Error('TTS_EMPTY_AUDIO');
       const bytes = Uint8Array.from(result.data);
       const url = URL.createObjectURL(new Blob([bytes.buffer as ArrayBuffer], { type: result.mimeType }));
@@ -308,20 +374,23 @@ export const TextToSpeechSettingsSection: React.FC<{
       await audio.play();
     } catch (error) {
       clearTestAudio();
-      const code = error instanceof Error ? error.message : 'unavailable';
-      const guidance = hostedVoiceConsentErrorGuidance(code);
+      const raw = error instanceof Error ? error.message : 'unavailable';
+      const guidance = hostedVoiceConsentErrorGuidance(raw);
       if (guidance) {
         Message.error(t('settings.voiceHostedConsentRequired', { defaultValue: guidance }));
       } else {
         Message.error(
           t('settings.textToSpeechTestFailed', {
             defaultValue: 'Voice test failed: {{reason}}',
-            reason: code,
+            // Main composes a human sentence after the code ("OpenAI is
+            // connected but its saved credential cannot be decrypted…"). Show
+            // that when it exists; a bare code is a dead end for the user.
+            reason: describeVoiceFailure(raw),
           })
         );
       }
     }
-  }, [clearTestAudio, config, t]);
+  }, [clearTestAudio, config, ensureConsent, runnableProvider, t]);
 
   return (
     <div className='px-[12px] md:px-[32px] py-[24px] bg-[var(--color-bg-2)] rd-12px border-2 border-solid border-[var(--color-border-2)]'>
@@ -344,21 +413,36 @@ export const TextToSpeechSettingsSection: React.FC<{
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.textToSpeechProvider')}>
           <div className='flex items-center gap-8px'>
+            {/* The value is the RUNNABLE provider, never the raw stored one.
+                Arco renders a value with no matching Option as the bare string,
+                so a stored `system-native` on Windows or Linux printed the enum
+                token itself into the control - the internal name of a
+                synthesizer the machine does not have. `undefined` falls back to
+                the placeholder, which is a sentence. */}
             <WaylandSelect
-              value={config.provider}
+              value={runnableProvider ?? undefined}
+              placeholder={t('settings.textToSpeechProviderPlaceholder')}
               onChange={handleProviderChange}
               className='flex-1'
               data-testid='tts-provider-select'
             >
-              <WaylandSelect.Option value='system-native'>
-                {t('settings.textToSpeechProviderSystemNative')}
-              </WaylandSelect.Option>
+              {/* The OS-bundled synthesizer, offered only on the OS that has
+                  it. Listing the other one would be listing an option that
+                  throws on selection, and a disabled option nobody can ever
+                  enable is just an apology in a dropdown. */}
+              {localTtsProvider === 'system-native' && (
+                <WaylandSelect.Option value='system-native'>
+                  {t('settings.textToSpeechProviderSystemNative')}
+                </WaylandSelect.Option>
+              )}
+              {localTtsProvider === 'windows-native' && (
+                <WaylandSelect.Option value='windows-native'>
+                  {t('settings.textToSpeechProviderWindowsNative')}
+                </WaylandSelect.Option>
+              )}
               <WaylandSelect.Option value='openai'>OpenAI Speech</WaylandSelect.Option>
-              <WaylandSelect.Option value='kokoro-local' disabled>
-                {t('settings.textToSpeechProviderKokoroLocal')} · Runtime unavailable
-              </WaylandSelect.Option>
             </WaylandSelect>
-            <Button size='small' onClick={handleTestVoice} disabled={config.provider === 'kokoro-local'}>
+            <Button size='small' onClick={handleTestVoice}>
               {t('settings.textToSpeechTestVoice', 'Test voice')}
             </Button>
           </div>
@@ -429,17 +513,15 @@ export const TextToSpeechSettingsSection: React.FC<{
 
         <Form.Item label={t('settings.textToSpeechAutoRead')}>
           <Switch
+            data-testid='tts-auto-read-switch'
             checked={config.autoReadResponses}
-            onChange={(checked) => onChange((current) => ({ ...current, autoReadResponses: checked }))}
+            onChange={handleAutoReadChange}
           />
         </Form.Item>
 
-        {config.provider === 'kokoro-local' && (
-          <Form.Item label='Availability'>
-            <span className='text-12px text-[var(--warning)]'>
-              Kokoro is preserved as an experimental migration value, but Wayland will not claim it is ready until the
-              model, voice data, phonemizer, and executable runtime all pass a real synthesis check.
-            </span>
+        {localTtsProvider === null && (
+          <Form.Item label={t('settings.textToSpeechLocalVoiceLabel')}>
+            <span className='text-12px text-[var(--warning)]'>{t('settings.textToSpeechNoLocalVoice')}</span>
           </Form.Item>
         )}
       </Form>
@@ -450,15 +532,34 @@ export const TextToSpeechSettingsSection: React.FC<{
 export const SpeechToTextSettingsSection: React.FC<{
   config: SpeechToTextConfig;
   onChange: (updater: (current: SpeechToTextConfig) => SpeechToTextConfig) => void;
-}> = ({ config, onChange }) => {
+}> = ({ config, onChange: onChangeRaw }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  /**
+   * Every write from this panel stamps `origin:'user'`, at ONE place.
+   *
+   * Touching any control here is the only signal that exists that the user made
+   * a speech-in decision, and after this the ladder will stop re-seeding them.
+   * Stamping it per control would mean a new control silently ships without it -
+   * the divergence is designed out rather than maintained.
+   */
+  const onChange = useCallback(
+    (updater: (current: SpeechToTextConfig) => SpeechToTextConfig) => {
+      onChangeRaw((current) => ({ ...updater(current), origin: 'user' }));
+    },
+    [onChangeRaw]
+  );
   const { ensureConsent, needsConsent, consentModal } = useHostedVoiceConsent();
   // Whether OpenAI is connected in the shared provider registry (the same store
   // Models/Providers shows as "Connected"). When it is, OpenAI Whisper uses that
   // key automatically, so the panel confirms the key is present instead of
   // telling the user to go configure it.
   const [openAIConnected, setOpenAIConnected] = useState<boolean | null>(null);
+  // Flux connectivity comes from the same registry read. Main seeds Flux Voice
+  // as the zero-config transcriber when Flux is connected and no STT engine was
+  // ever chosen, so without this the panel cannot know which company is actually
+  // receiving the audio.
+  const [fluxConnected, setFluxConnected] = useState(false);
   useEffect(() => {
     let cancelled = false;
     void modelRegistry.list
@@ -466,6 +567,7 @@ export const SpeechToTextSettingsSection: React.FC<{
       .then((providers) => {
         if (cancelled) return;
         setOpenAIConnected(providers.some((p) => p.providerId === 'openai' && p.state === 'connected'));
+        setFluxConnected(providers.some((p) => p.providerId === FLUX_PROVIDER_ID && p.state === 'connected'));
       })
       .catch(() => {
         if (!cancelled) setOpenAIConnected(false);
@@ -474,6 +576,36 @@ export const SpeechToTextSettingsSection: React.FC<{
       cancelled = true;
     };
   }, []);
+
+  /**
+   * The transcriber that will actually receive the audio, from the SAME ladder
+   * that routes it.
+   *
+   * This used to ask `resolveEffectiveSttProvider`, which predates the
+   * on-device-first ladder and still ends in `return 'openai'` for an unset
+   * provider. The composer mic asks `resolveVoiceLeg('in', ...)`, which sends a
+   * default-origin profile to the bundled on-device engine no matter what is
+   * connected. Two resolvers, two answers, both on screen at once: the dropdown
+   * said "Whisper (Local)" while the line beneath it said "Currently using
+   * OpenAI Whisper" and "This provider processes audio and text off your
+   * device" - for a transcription that was measured making zero network
+   * requests.
+   *
+   * A wrong privacy claim in that direction is the worst kind. Consent is also
+   * per-recipient, so the same value decides which disclosure is offered;
+   * offering OpenAI's disclosure for on-device audio gates a transmission that
+   * never happens.
+   *
+   * Main additionally requires the connected provider's stored key to be
+   * non-empty, which the renderer cannot see; a provider marked connected with
+   * an empty key would make this optimistic. That errs toward offering consent
+   * for a provider that then goes unused, which is harmless - the reverse, no
+   * consent for the provider actually used, is the failure being fixed.
+   */
+  const effectiveProvider = (resolveVoiceLeg('in', {
+    sttConfig: config,
+    connectedCredentials: { openai: openAIConnected === true, flux: fluxConnected },
+  }).provider ?? ON_DEVICE_STT_PROVIDER) as SpeechToTextProvider;
   const handleOpenProvidersPage = useCallback(() => {
     try {
       navigate('/settings/models');
@@ -495,6 +627,14 @@ export const SpeechToTextSettingsSection: React.FC<{
     ),
     [t]
   );
+
+  /**
+   * What the panel DRAWS. An unset `provider` is the on-device floor, so it must
+   * render as whisper-local rather than falling through to whichever branch
+   * happens to be last - which was Deepgram, meaning a factory profile showed
+   * Deepgram's fields for an engine it was not using.
+   */
+  const displayProvider: SpeechToTextProvider = config.provider ?? 'whisper-local';
 
   const handleProviderChange = useCallback(
     (value: string) => {
@@ -559,14 +699,31 @@ export const SpeechToTextSettingsSection: React.FC<{
 
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.speechToTextProvider')}>
-          <WaylandSelect value={config.provider} onChange={handleProviderChange} data-testid='stt-provider-select'>
+          <WaylandSelect value={displayProvider} onChange={handleProviderChange} data-testid='stt-provider-select'>
             <WaylandSelect.Option value='openai'>{t('settings.speechToTextProviderOpenAI')}</WaylandSelect.Option>
             <WaylandSelect.Option value='deepgram'>{t('settings.speechToTextProviderDeepgram')}</WaylandSelect.Option>
+            <WaylandSelect.Option value='flux-voice'>
+              {t('settings.speechToTextProviderFluxVoice')}
+            </WaylandSelect.Option>
             <WaylandSelect.Option value='whisper-local'>
               {t('settings.speechToTextProviderWhisperLocal')}
             </WaylandSelect.Option>
           </WaylandSelect>
-          {needsConsent(config.provider) && (
+          {/* Always shown. "Which engine is actually running" is the question
+              the privacy claim below turns on, and leaving it unanswered is
+              what let the dropdown and the disclosure disagree in silence. */}
+          <div data-testid='stt-effective-provider' className='mt-6px text-12px text-t-secondary'>
+            {effectiveProvider === displayProvider
+              ? t('settings.speechToTextEffectiveProvider', {
+                  defaultValue: 'Currently using {{provider}}.',
+                  provider: t(STT_PROVIDER_LABEL_KEY[effectiveProvider]),
+                })
+              : t('settings.speechToTextSeededProvider', {
+                  defaultValue: 'Currently using {{provider}}, because it is connected and no engine was chosen here.',
+                  provider: t(STT_PROVIDER_LABEL_KEY[effectiveProvider]),
+                })}
+          </div>
+          {needsConsent(effectiveProvider) && (
             <div
               data-testid='stt-consent-pending'
               className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'
@@ -579,7 +736,7 @@ export const SpeechToTextSettingsSection: React.FC<{
                 size='mini'
                 className='!px-0 !h-auto'
                 data-testid='stt-consent-review'
-                onClick={() => void ensureConsent(config.provider)}
+                onClick={() => void ensureConsent(effectiveProvider)}
               >
                 {t('settings.voiceReviewHostedConsent', 'Review consent')}
               </Button>
@@ -591,7 +748,7 @@ export const SpeechToTextSettingsSection: React.FC<{
           <MicrophoneCheck />
         </Form.Item>
 
-        {config.provider === 'openai' ? (
+        {displayProvider === 'openai' ? (
           <>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextApiKey', 'required')}>
               {/* Three distinct states: connected (true) shows the "using your
@@ -644,16 +801,14 @@ export const SpeechToTextSettingsSection: React.FC<{
               <Input value={config.openai?.language} onChange={(value) => handleOpenAIChange('language', value)} />
             </Form.Item>
           </>
-        ) : config.provider === 'whisper-local' ? (
-          <WhisperLocalDownloadControl
-            model={config.whisperLocal?.model ?? 'base'}
-            onModelChange={(model) =>
-              onChange((current) => ({
-                ...current,
-                whisperLocal: { ...current.whisperLocal, model },
-              }))
-            }
-          />
+        ) : displayProvider === 'whisper-local' ? (
+          // There is nothing to download and nothing to key in: the model ships
+          // with the app. `displayProvider`, not `config.provider`, because an
+          // unset provider IS the on-device floor - reading the raw field would
+          // show a stranger's panel to every unconfigured profile.
+          <Form.Item label={t('settings.speechToTextOnDeviceLabel')}>
+            <span className='text-12px text-t-secondary'>{t('settings.speechToTextOnDeviceBody')}</span>
+          </Form.Item>
         ) : (
           <>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextApiKey', 'required')}>
@@ -984,7 +1139,7 @@ const ToolsModalContent: React.FC = () => {
       <WaylandScrollArea className='flex-1 min-h-0 pb-16px' disableOverflow={isPageMode}>
         <div className='space-y-16px'>
           {/* MCP tool configuration */}
-          <div className='px-[12px] md:px-[32px] py-[24px] bg-2 rd-12px md:rd-16px flex flex-col min-h-0 border border-border-2'>
+          <div className='px-[12px] md:px-[32px] py-[24px] bg-2 rd-12px md:rd-16px flex flex-col min-h-0 border border-2'>
             <div className='flex-1 min-h-0'>
               <WaylandScrollArea
                 className={classNames('h-full', isPageMode && 'overflow-visible')}

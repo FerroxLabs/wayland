@@ -1,13 +1,13 @@
-/*
- * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
- * Source: src/channels/typing-lifecycle.ts
- * MIT License - Copyright (c) 2025 Peter Steinberger
- * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
- */
 /**
  * @license
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
+ * Source: src/channels/typing-lifecycle.ts
+ * Copyright (c) 2025 Peter Steinberger
+ * Licensed under the MIT License - see LICENSES/openclaw.txt
+ * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
  */
 
 /**
@@ -28,10 +28,7 @@ export type TypingKeepaliveLoop = {
   isRunning: () => boolean;
 };
 
-export function createTypingKeepaliveLoop(params: {
-  intervalMs: number;
-  onTick: AsyncTick;
-}): TypingKeepaliveLoop {
+export function createTypingKeepaliveLoop(params: { intervalMs: number; onTick: AsyncTick }): TypingKeepaliveLoop {
   let timer: ReturnType<typeof setInterval> | undefined;
   let tickInFlight = false;
 

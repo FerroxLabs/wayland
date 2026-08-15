@@ -2,7 +2,7 @@
  * E2E (G1): Golden-path smoke - the 60-second "does the whole product work"
  * sanity check. Per E2E-TEST-PLAN §G1.
  *
- * Selected canonical team: `cold-outbound` (ext-cold-outbound). It is an
+ * Selected canonical team: `cold-outbound` (builtin-cold-outbound). It is an
  * ad-hoc launcher present in every vendored bundle build with a 3-teammate
  * roster (research + copy + sales - first promotes to leader, leaving 2
  * teammate rows). Cold Outbound has no rituals, which is fine - we only
@@ -23,9 +23,9 @@
  */
 
 import { test, expect } from '../fixtures';
-import { invokeBridge, navigateTo } from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion } from '../helpers';
 
-const LAUNCHER_ID = 'ext-cold-outbound';
+const LAUNCHER_ID = 'builtin-cold-outbound';
 
 test.describe('Golden path smoke - Cold Outbound', () => {
   test('library → launch → /team/<id> → right rail → back → delete', async ({ page }) => {
@@ -46,7 +46,10 @@ test.describe('Golden path smoke - Cold Outbound', () => {
     await page.waitForURL(/#\/teams(\?|$)/, { timeout: 10_000 });
     await expect(page.locator('[data-testid="teams-library-page"]')).toBeVisible({ timeout: 15_000 });
 
-    // (2) Click Cold Outbound card.
+    // (2) Find and click the Cold Outbound card. The library paginates at 48
+    // cards over 60 teams and this launcher sorts into the hidden tail, so it
+    // is not in the DOM on page one [V] - search the way a user would.
+    await page.locator('[data-testid="teams-search-input"]').fill('Cold Outbound');
     const card = page.locator(`[data-testid="team-card-${LAUNCHER_ID}"]`);
     await expect(card).toBeVisible({ timeout: 10_000 });
     await card.click();
@@ -91,11 +94,17 @@ test.describe('Golden path smoke - Cold Outbound', () => {
     await expect(page.locator('[data-testid="teams-total-count"]')).toBeVisible();
 
     // (7) Sidebar entry → typed delete.
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
 
     const row = sidebarEntry.locator(
-      'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
+      // SiderItem's root is `h-26px ... group ...` now, not h-40px. Match the
+      // `group` CLASS TOKEN exactly - a bare contains() also matches
+      // `group-hover:text-1` on an inner div, which has no menu trigger.
+      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
     );
     await row.hover();
     const threeDot = row.locator('span.flex-center.cursor-pointer').last();

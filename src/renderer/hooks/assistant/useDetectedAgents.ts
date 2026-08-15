@@ -17,8 +17,19 @@ export type AvailableBackend = {
  * Returns `availableBackends` (simplified shape for Select dropdowns)
  * and `refreshAgentDetection` to trigger a re-scan.
  */
+/**
+ * Stable empty fallback. An inline `= []` default builds a NEW array on every
+ * render while SWR is unresolved (and again on an error with no cached data),
+ * which churns the identity of everything memoized downstream - through
+ * `useAvailableBackends`'s `recommend()` into TeamLauncherPage's `initialState`
+ * memo, whose `setState`-in-effect then re-fired every render. React kills that
+ * feedback loop with "Maximum update depth exceeded" (#185), dropping the whole
+ * app into its root error boundary until a manual reload.
+ */
+const NO_AGENTS: AvailableAgent[] = [];
+
 export const useDetectedAgents = () => {
-  const { data: rawAgents = [] } = useSWR<AvailableAgent[]>(DETECTED_AGENTS_SWR_KEY, fetchDetectedAgents);
+  const { data: rawAgents = NO_AGENTS } = useSWR<AvailableAgent[]>(DETECTED_AGENTS_SWR_KEY, fetchDetectedAgents);
 
   const availableBackends = useMemo<AvailableBackend[]>(
     () =>

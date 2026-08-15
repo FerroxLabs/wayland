@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { Bot, ChevronDown, Plus, Search } from 'lucide-react';
@@ -199,8 +201,17 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
   return (
     <div className='w-full flex justify-center'>
       <div
-        className={`flex items-center ${isMobile ? 'justify-start' : 'justify-center'}`}
+        className={`flex items-center scrollbar-hide ${isMobile ? 'justify-start' : ''}`}
         style={{
+          // `safe center` centres the row while it fits, but degrades to
+          // flex-start the moment it overflows. Plain `center` splits the
+          // overflow across BOTH edges, and the leading pills then sit in the
+          // clipped region where they are painted but not hit-testable - so
+          // selecting any agent (which widens that pill by ~85px to reveal its
+          // label) pushed the row past its box and made the FIRST agents
+          // permanently unclickable. Measured: 22 pills = 715px unselected,
+          // 799px in a 766px box once one is selected.
+          justifyContent: isMobile ? undefined : 'safe center',
           marginBottom: 20,
           padding: '5px 8px',
           borderRadius: '9999px',
@@ -212,7 +223,13 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
           // Mobile: a single scrollable row (scroll-snap) instead of wrapping the
           // agent icons into a ragged two-row block. The icons stay one row and
           // scroll horizontally - the #1 mobile layout complaint.
-          overflowX: isMobile ? 'auto' : 'hidden',
+          // Desktop scrolls too: `safe center` keeps the start edge reachable,
+          // and this keeps the TAIL reachable when the row outgrows the box.
+          // Paired with `scrollbar-hide` above: base.css paints a visible 8px
+          // thumb by default (#523), which inside a 9999px-radius bar would
+          // show up clipped and add ~8px of height at the exact moment a pill
+          // is selected.
+          overflowX: 'auto',
           overflowY: 'hidden',
           scrollSnapType: isMobile ? 'x proximity' : undefined,
           WebkitOverflowScrolling: 'touch',

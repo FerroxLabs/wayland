@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -35,13 +37,19 @@ const {
   updatePasswordMock,
   createUserMock,
 } = vi.hoisted(() => {
+  // `boundPort` mirrors net.Server: listen() binds, and address() is the only
+  // thing that knows the resulting port (the request may have been 0, meaning
+  // "any free port"). A mock without address() is not a server.
+  let boundPort = 0;
   const server = {
     listen: vi.fn(),
     on: vi.fn(),
     close: vi.fn(),
+    address: vi.fn(() => ({ address: '127.0.0.1', family: 'IPv4', port: boundPort })),
   };
 
-  server.listen.mockImplementation((_port: number, _host: string, callback?: () => void) => {
+  server.listen.mockImplementation((port: number, _host: string, callback?: () => void) => {
+    boundPort = port;
     callback?.();
     return server;
   });

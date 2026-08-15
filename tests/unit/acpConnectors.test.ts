@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 /// <reference types="node" />
@@ -74,12 +76,13 @@ import {
   connectClaude,
   connectCodex,
   createGenericSpawnConfig,
+  parseWindowsCliPath,
   spawnGenericBackend,
   spawnNpxBackend,
 } from '../../src/process/agent/acp/acpConnectors';
 // Track the resolved Claude bridge package from the source of truth so this
 // test never goes stale when the pinned bridge version bumps.
-import { CLAUDE_ACP_NPX_PACKAGE } from '../../src/common/types/acpTypes';
+import { ACP_BACKENDS_ALL, CLAUDE_ACP_NPX_PACKAGE, WNANO_NPX_PACKAGE } from '../../src/common/types/acpTypes';
 
 const mockExecFile = vi.mocked(execFileCb);
 const mockExecFileSync = vi.mocked(execFileSync);
@@ -237,6 +240,180 @@ describe('createGenericSpawnConfig - Windows path handling', () => {
     expect(config.options).toMatchObject({ shell: false });
   });
 
+  // What a K-05-installed agent looks like on Windows. electron-builder.yml sets
+  // perMachine: true, so the bundled runtime ALWAYS lives under "C:\Program Files\
+  // Wayland" - the space is guaranteed, not an edge case - and the user profile
+  // adds a second one.
+  const INSTALLED_BUN = 'C:\\Program Files\\Wayland\\resources\\bundled-bun\\win32-x64\\bun.exe';
+  const INSTALLED_ENTRY = 'C:\\Users\\John Smith\\AppData\\Local\\Wayland\\agents\\qwen\\cli-entry.js';
+  // The command STRING an installer would otherwise have produced. Passed as
+  // cliPath below purely to prove the launch spec is consumed BEFORE any parser
+  // sees it: if the short-circuit is removed, this string is what gets shredded.
+  const COMPOSITE_CLI_PATH = `"${INSTALLED_BUN}" "${INSTALLED_ENTRY}"`;
+
+  it('consumes a structured launch spec verbatim on Windows, so a spaced install path survives', () => {
+    setWindowsPlatform();
+    const config = createGenericSpawnConfig(
+      COMPOSITE_CLI_PATH,
+      'C:\\cwd',
+      ['--acp'],
+      undefined,
+      { PATH: 'C:\\Windows' },
+      { command: INSTALLED_BUN, args: [INSTALLED_ENTRY] }
+    );
+
+    // The executable and the entry script stay in their own argv slots, unquoted
+    // and unsplit. cliPath is ignored entirely - parseWindowsCliPath never runs.
+    expect(config.command).toBe(INSTALLED_BUN);
+    expect(config.args).toEqual([INSTALLED_ENTRY, '--acp']);
+    expect(config.options).toMatchObject({ shell: false, windowsHide: true });
+  });
+
+  it('consumes a structured launch spec verbatim on POSIX too (seam precedes the whitespace split)', () => {
+    setLinuxPlatform();
+    const bun = '/Applications/Wayland.app/Contents/Resources/bundled-bun/darwin-arm64/bun';
+    const entry = '/Users/John Smith/Library/Application Support/Wayland/agents/qwen/cli-entry.js';
+    const config = createGenericSpawnConfig(
+      `"${bun}" "${entry}"`,
+      '/cwd',
+      ['--acp'],
+      undefined,
+      { PATH: '/usr/bin' },
+      {
+        command: bun,
+        args: [entry],
+      }
+    );
+
+    expect(config.command).toBe(bun);
+    expect(config.args).toEqual([entry, '--acp']);
+  });
+
+  // B4: `launch` reaches this function from the persisted conversation `extra`,
+  // which is untyped JSON at runtime (workerTaskManagerSingleton spreads
+  // `...c.extra` through an `any`), so the declared type guarantees nothing here.
+  // A shape the type forbids must not be consumed - fall through to the legacy
+  // cliPath parsing instead of spawning a partial descriptor.
+  it.each([
+    ['missing args', { command: 'C:\\evil.exe' }],
+    ['args not an array', { command: 'C:\\evil.exe', args: '--acp' }],
+    ['args holding non-strings', { command: 'C:\\evil.exe', args: [1, 2] }],
+    ['missing command', { args: ['--acp'] }],
+    ['empty command', { command: '   ', args: [] }],
+    ['not an object', 'C:\\evil.exe'],
+    ['null', null],
+  ])('ignores a malformed launch spec and falls through to cliPath (%s)', (_label, malformed) => {
+    setWindowsPlatform();
+    const config = createGenericSpawnConfig(
+      'C:\\bun\\bun.exe',
+      'C:\\cwd',
+      ['--acp'],
+      undefined,
+      { PATH: 'C:\\Windows' },
+      malformed as never
+    );
+
+    expect(config.command).toBe('C:\\bun\\bun.exe');
+    expect(config.args).toEqual(['--acp']);
+  });
+
+  // T-A: a launch spec may carry the env its COMMAND needs. Unpackaged,
+  // `resolveJsRuntime()` picks the Electron binary plus ELECTRON_RUN_AS_NODE=1;
+  // spawn the binary without the variable and the child boots a full Electron
+  // WINDOW with no stdio JSON-RPC, so the ACP handshake never completes. The env
+  // has to travel with the spec because this seam holds only { command, args }
+  // and cannot tell an Electron-as-Node path from a native agent binary.
+  it('merges the launch spec env into the spawn env', () => {
+    setLinuxPlatform();
+    const config = createGenericSpawnConfig(
+      '',
+      '/cwd',
+      ['--acp'],
+      undefined,
+      { PATH: '/usr/bin' },
+      {
+        command: '/Applications/Wayland.app/Contents/MacOS/Wayland',
+        args: ['/agents/kimi/main.mjs'],
+        env: { ELECTRON_RUN_AS_NODE: '1' },
+      }
+    );
+
+    expect(config.options.env).toEqual({ PATH: '/usr/bin', ELECTRON_RUN_AS_NODE: '1' });
+  });
+
+  it('does not mutate the caller-owned prebuilt env when merging', () => {
+    // prebuiltEnv is built once and reused across spawns; writing into it would
+    // leak ELECTRON_RUN_AS_NODE onto the NEXT agent, which may be a native binary.
+    setLinuxPlatform();
+    const prebuilt = { PATH: '/usr/bin' };
+    createGenericSpawnConfig('', '/cwd', ['--acp'], undefined, prebuilt, {
+      command: '/electron',
+      args: ['/entry.mjs'],
+      env: { ELECTRON_RUN_AS_NODE: '1' },
+    });
+
+    expect(prebuilt).toEqual({ PATH: '/usr/bin' });
+  });
+
+  it('leaves the env untouched for a spec with no env (native binary / packaged runtime)', () => {
+    setLinuxPlatform();
+    const config = createGenericSpawnConfig(
+      '',
+      '/cwd',
+      ['--acp'],
+      undefined,
+      { PATH: '/usr/bin' },
+      {
+        command: '/agents/codex/bin/codex',
+        args: [],
+      }
+    );
+
+    expect(config.options.env).toEqual({ PATH: '/usr/bin' });
+  });
+
+  it('does not apply an env from a MALFORMED spec that fell through to cliPath', () => {
+    // The shape check gates the whole branch: a rejected spec must contribute
+    // nothing at all, env included, or a doctored `extra` could inject env into
+    // a spawn it does not otherwise control.
+    setLinuxPlatform();
+    const config = createGenericSpawnConfig('/usr/local/bin/qwen', '/cwd', ['--acp'], undefined, { PATH: '/usr/bin' }, {
+      command: '/electron',
+      args: '--acp',
+      env: { ELECTRON_RUN_AS_NODE: '1' },
+    } as never);
+
+    expect(config.command).toBe('/usr/local/bin/qwen');
+    expect(config.options.env).toEqual({ PATH: '/usr/bin' });
+  });
+
+  it('parseWindowsCliPath shreds every command STRING an install path can produce', () => {
+    // NOT an invariant guard - nothing here observes production output. This is a
+    // characterization of the PARSER, pinning why a command string cannot describe
+    // an installed agent. The forms it does NOT split are recorded first so the
+    // known positives below are meaningful.
+    for (const survives of ['qwen', 'C:\\bun\\bun.exe', `"${INSTALLED_BUN}"`]) {
+      expect(parseWindowsCliPath(survives).inlineArgs).toEqual([]);
+    }
+
+    // Known positives - without them the zeros above would prove nothing.
+
+    // 1. A bare (unquoted) install path is enough on its own: the parser splits the
+    //    executable itself and loses everything after "Program". So a perMachine
+    //    install path is unusable as a cliPath string even with no second token.
+    expect(parseWindowsCliPath(INSTALLED_BUN)).toEqual({
+      command: 'C:\\Program',
+      inlineArgs: ['Files\\Wayland\\resources\\bundled-bun\\win32-x64\\bun.exe'],
+    });
+
+    // 2. The composite string this fix exists to prevent: the first quoted token
+    //    survives, the rest is whitespace-split with its quotes still attached.
+    expect(parseWindowsCliPath(COMPOSITE_CLI_PATH)).toEqual({
+      command: INSTALLED_BUN,
+      inlineArgs: ['"C:\\Users\\John', 'Smith\\AppData\\Local\\Wayland\\agents\\qwen\\cli-entry.js"'],
+    });
+  });
+
   it('splits npx package into command and args (no chcp prefix for npx path)', () => {
     const config = createGenericSpawnConfig('npx @pkg/cli', '/cwd', ['--acp'], undefined, { PATH: '/usr/bin' });
 
@@ -245,6 +422,28 @@ describe('createGenericSpawnConfig - Windows path handling', () => {
     expect(config.args).toContain('--bun');
     expect(config.args).toContain('@pkg/cli');
     expect(config.args).toContain('--acp');
+  });
+
+  it("carries Wayland Nano's pinned npm package and acp-host subcommand into argv", () => {
+    // The npm fallback is only worth anything if the PINNED version actually
+    // reaches the command line. Sourced from ACP_BACKENDS_ALL rather than a
+    // literal so a pin bump cannot leave this test asserting a stale version,
+    // and so a pin accidentally dropped from the backend table fails here.
+    const wnano = ACP_BACKENDS_ALL.wnano;
+    expect(wnano.defaultCliPath).toBe(`npx ${WNANO_NPX_PACKAGE}`);
+
+    const config = createGenericSpawnConfig(wnano.defaultCliPath!, '/cwd', wnano.acpArgs, undefined, {
+      PATH: '/usr/bin',
+    });
+
+    expect(config.command).toBe('/bundled/bun');
+    // `acp-host` is not optional decoration: bare `wayland-nano` prints usage and
+    // exits 2, so losing the subcommand yields a process that never speaks ACP.
+    expect(config.args).toEqual(expect.arrayContaining(['x', '--bun', WNANO_NPX_PACKAGE, 'acp-host']));
+    // The pin must be a concrete version, never a floating tag - npm's `latest`
+    // for this package still points at an OLDER alpha.
+    expect(WNANO_NPX_PACKAGE).toMatch(/@\d+\.\d+\.\d+/);
+    expect(config.options.shell).toBe(false);
   });
 });
 
@@ -448,6 +647,33 @@ describe('spawnGenericBackend - detached process group', () => {
     if (originalPlatform) {
       Object.defineProperty(process, 'platform', originalPlatform);
     }
+  });
+
+  /**
+   * The hop BETWEEN the two seams this packet already covers, and the reason it
+   * went unobserved: LegacyConnectorFactory's tests mock `spawnGenericBackend`
+   * and assert the call, while the tests above call `createGenericSpawnConfig`
+   * directly. Nobody ran the composition, so dropping the `launch` argument
+   * from the internal `createGenericSpawnConfig(...)` call left the whole suite
+   * green.
+   *
+   * `cliPath` is deliberately '' because that is what an installed agent
+   * actually arrives with - LegacyConnectorFactory passes `config.command ?? ''`
+   * and an installed descriptor has no `command`. So the regression is not a
+   * wrong path, it is `spawn('')` -> ENOENT: the silent class this packet
+   * exists to kill.
+   */
+  it('forwards the launch spec through to spawn, not just into the config builder', async () => {
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    const bun = 'C:\\Program Files\\Wayland\\resources\\bundled-bun\\win32-x64\\bun.exe';
+    const entry = 'C:\\Users\\John Smith\\AppData\\Local\\Wayland\\agents\\qwen\\cli-entry.js';
+
+    await spawnGenericBackend('qwen', '', 'C:\\cwd', ['--acp'], undefined, { command: bun, args: [entry] });
+
+    expect(mockSpawn).toHaveBeenCalledWith(bun, [entry, '--acp'], expect.objectContaining({ shell: false }));
+    // Both spaced paths survive as exactly one argv slot each.
+    expect(mockSpawn.mock.calls[0][0]).toBe(bun);
+    expect(mockSpawn.mock.calls[0][1]).toEqual([entry, '--acp']);
   });
 
   it('spawns detached on POSIX so generic ACP backends can be killed as a process group', async () => {

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 /**
@@ -49,6 +51,7 @@ import {
   addOrUpdateMessage,
   removeFromMessageCache,
   executePendingCallbacks,
+  flushConversationMessages,
   nextTickToLocalFinish,
 } from '../../src/process/utils/message';
 
@@ -106,6 +109,49 @@ describe('message queue (ConversationManageWithDB)', () => {
 
     // Now the flush should have run
     expect(mockDb.getConversationMessages).toHaveBeenCalled();
+  });
+
+  it('flushConversationMessages drains a pending accumulate without waiting out the debounce', async () => {
+    // Anything that reads a message row DIRECTLY from the database - rather than
+    // through this queue - races the 2000 ms debounce. persistStrippedTurnText
+    // does exactly that, and lost the race: with the row still queued it found
+    // nothing, returned silently, and the queue then wrote the RAW text, leaving
+    // the cron markup on screen and in the database permanently.
+    const initMsg = {
+      id: 'msg-init',
+      msg_id: 'msg-init',
+      type: 'text',
+      position: 'left',
+      conversation_id: 'conv-drain',
+    } as any;
+    addMessage('conv-drain', initMsg);
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(0);
+    mockDb.getConversationMessages.mockClear();
+
+    addOrUpdateMessage('conv-drain', {
+      id: 'msg-drain',
+      msg_id: 'msg-drain',
+      type: 'text',
+      position: 'left',
+      conversation_id: 'conv-drain',
+    } as any);
+
+    // Control: still queued. Without this the assertion below could pass on a
+    // queue that had already flushed for some unrelated reason.
+    expect(mockDb.getConversationMessages).not.toHaveBeenCalled();
+
+    // No timer advance - draining must not depend on the debounce elapsing,
+    // because the caller runs at turn end and cannot afford to wait 2s.
+    await flushConversationMessages('conv-drain');
+
+    expect(mockDb.getConversationMessages).toHaveBeenCalled();
+  });
+
+  it('flushConversationMessages is safe on a conversation with nothing queued', async () => {
+    // The drain loop must terminate on an empty queue, and on one whose
+    // constructor has not finished initialising, rather than spinning.
+    await expect(flushConversationMessages('conv-never-used')).resolves.toBeUndefined();
   });
 
   it('addOrUpdateMessage rejects undefined message', () => {

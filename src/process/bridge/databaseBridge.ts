@@ -1,22 +1,42 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
 import { ProcessChat } from '@process/utils/initStorage';
-import type { TChatConversation } from '@/common/config/storage';
+import type { ConversationSource, TChatConversation } from '@/common/config/storage';
+import type { TMessage } from '@/common/chat/chatLib';
 import { migrateConversationToDatabase } from './migrationUtils';
+import { UNKNOWN_CONVERSATION_SOURCE, upgradeLegacyMarkerAttachments } from './legacyMarkerAttachments';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 
 export function initDatabaseBridge(repo: IConversationRepository): void {
   // Get conversation messages from database
-  ipcBridge.database.getConversationMessages.provider(async (_params) => {
+  ipcBridge.database.getConversationMessages.provider(async (_params): Promise<TMessage[]> => {
     const { conversation_id, page = 0, pageSize = 10000 } = _params ?? {};
     try {
       const result = await repo.getMessages(conversation_id, page, pageSize);
-      return result.data;
+      // Renderer-facing read only: attachments stored before `content.files`
+      // existed are recovered from the legacy marker here, gated on the
+      // conversation source so an inbound channel message cannot be laundered
+      // into a trusted file list.
+      //
+      // A failed read or a missing conversation row is NOT the same as a row
+      // with no source: the former means we cannot tell whether this is a
+      // channel, so it must fail closed. Only a row that exists and is local
+      // (or predates the `source` column) may be upgraded.
+      let source: ConversationSource | null | undefined = UNKNOWN_CONVERSATION_SOURCE;
+      try {
+        const conversation = await repo.getConversation(conversation_id);
+        if (conversation) source = conversation.source;
+      } catch {
+        source = UNKNOWN_CONVERSATION_SOURCE;
+      }
+      return upgradeLegacyMarkerAttachments(result.data, source);
     } catch (error) {
       console.error('[DatabaseBridge] Error getting conversation messages:', error);
       return [];

@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "当前会话未选择模型，无法发送消息",
     "sendMessageTo": "发送消息到 {{model}}",
+    "sendMessage": "发送消息",
+    "stopGenerating": "停止生成",
     "processing": "正在处理中……",
     "quotaExceededTitle": "模型额度已用尽",
     "quotaExceededBody": "当前模型额度已用尽，是否切换到 {{model}}？",
@@ -236,10 +238,54 @@
       "permissionDenied": "麦克风权限被拒绝",
       "recordingUnsupported": "当前环境不支持直接录音，请改为上传音频文件",
       "transcriptionFailed": "音频转写失败",
-      "authError": "Flux 密钥无效 — 请重新连接 Flux Router 以使用语音输入",
-      "premiumLocked": "Flux Voice 需要付费的 Flux 套餐 — 请升级以使用语音听写",
-      "rateLimited": "请求过于频繁 — 请稍后再试",
-      "genericError": "语音输入失败，请重试"
+      "authError": "Flux 密钥无效，请重新连接 Flux Router 以使用语音输入",
+      "premiumLocked": "Flux Voice 需要付费的 Flux 套餐，请升级以使用语音听写",
+      "rateLimited": "请求过于频繁，请稍后再试",
+      "genericError": "语音输入失败，请重试",
+      "setupLabel": "设置语音输入",
+      "setupTooltip": "语音输入已关闭，请在语音设置中开启"
+    },
+    "voice": {
+      "statusConnecting": "正在连接…",
+      "statusListening": "正在聆听…",
+      "statusTapToTalk": "点按声波开始说话",
+      "statusHearing": "我能听到你",
+      "statusTranscribing": "正在转写…",
+      "statusThinking": "Wayland 正在思考…",
+      "statusApproval": "需要你在聊天中批准",
+      "statusSpeaking": "Wayland 正在说话…",
+      "statusStopping": "正在停止…",
+      "statusReconnecting": "正在重新连接…",
+      "statusError": "语音已停止",
+      "noticeTitle": "这一步没有完成",
+      "turnFailedTitle": "本轮失败",
+      "turnFailedNoCause": "完整的这一轮都在聊天里，包含确切错误和恢复方式。",
+      "turnFailedShowFull": "查看完整信息",
+      "noSpeakableTitle": "没有可朗读的内容",
+      "draftReadyTitle": "你说的话在草稿里等着",
+      "startLabel": "与 Wayland 对话",
+      "startTitle": "与 Wayland 对话，它会出声回答",
+      "endLabel": "结束语音对话",
+      "endTitle": "结束当前语音对话",
+      "stopSpeaking": "让 Wayland 停止",
+      "mute": "静音麦克风",
+      "unmute": "取消静音",
+      "greeting": {
+        "named": {
+          "howAreYou": "嗨 {{name}}，你好吗？今天有什么可以帮你的？",
+          "imListening": "嗨 {{name}}，我在听。我们要做什么？",
+          "readyWhenYouAre": "嗨 {{name}}，随时可以开始。你在想什么？",
+          "goodToHear": "很高兴听到你的声音，{{name}}。有什么我能做的吗？",
+          "whereToStart": "嗨 {{name}}，今天我们从哪里开始？"
+        },
+        "anonymous": {
+          "howAreYou": "你好，你好吗？今天有什么可以帮你的？",
+          "imListening": "你好，我在听。我们要做什么？",
+          "readyWhenYouAre": "随时可以开始。你在想什么？",
+          "goodToHear": "很高兴听到你的声音。有什么我能做的吗？",
+          "whereToStart": "你好，今天我们从哪里开始？"
+        }
+      }
     }
   },
   "sideQuestion": {
@@ -324,9 +370,11 @@
   "activation": {
     "title": "唤醒你的智能体",
     "subtitle": "连接一个模型提供商即可开始运行任务。选择最适合你的方式。",
+    "unusableTitle": "你的智能体连不上任何模型",
+    "unusableSubtitle": "提供商已连接，但没有一个能接下这个任务。请在设置中检查，或再添加一条接入方式。",
     "flux": {
       "label": "连接 Flux Router",
-      "sublabel": "免费密钥并赠送 1 美元启动额度。无需绑卡——将每个任务路由到最合适的专长模型。",
+      "sublabel": "免费密钥并赠送 1 美元启动额度。无需绑卡，将每个任务路由到最合适的专长模型。",
       "action": "连接"
     },
     "ownKey": {
@@ -336,7 +384,7 @@
     },
     "claudeCode": {
       "label": "使用 Claude Code",
-      "sublabel": "基于你现有的 Claude Code 登录运行——无需额外管理密钥。",
+      "sublabel": "基于你现有的 Claude Code 登录运行，无需额外管理密钥。",
       "action": "使用"
     }
   },
@@ -384,6 +432,17 @@
       "label": "Retry the last message",
       "sublabel": "Re-run the message that hit the limit on the selected model.",
       "action": "Retry"
+    },
+    "details": "Show error details",
+    "dismiss": "Dismiss"
+  },
+  "constitutionLocked": {
+    "title": "Wayland couldn’t unlock your Constitution",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app，so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "recover": {
+      "label": "Restore from a recovery archive",
+      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
+      "action": "Open recovery"
     },
     "details": "Show error details",
     "dismiss": "Dismiss"

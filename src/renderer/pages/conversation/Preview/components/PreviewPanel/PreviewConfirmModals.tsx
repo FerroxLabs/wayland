@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { Modal } from '@arco-design/web-react';
@@ -110,13 +112,13 @@ const PreviewConfirmModals: React.FC<PreviewConfirmModalsProps> = ({
         footer={
           <div className='flex justify-end gap-8px'>
             <button
-              className='px-16px py-6px cursor-pointer border-none hover:bg-bg-3 transition-colors text-14px text-t-primary'
+              className='px-16px py-6px cursor-pointer border-none hover:bg-3 transition-colors text-14px text-t-primary'
               onClick={onCancelCloseTab}
             >
               {t('common.cancel')}
             </button>
             <button
-              className='px-16px py-6px cursor-pointer border-none hover:bg-bg-3 transition-colors text-14px text-t-primary'
+              className='px-16px py-6px cursor-pointer border-none hover:bg-3 transition-colors text-14px text-t-primary'
               onClick={onCloseWithoutSave}
             >
               {t('preview.closeWithoutSave')}

@@ -84,6 +84,9 @@ describe('McpService.removeMcpFromAgents (S12)', () => {
       {
         agent: 'unknown-backend:Unknown',
         success: false,
+        // See the note in McpService.syncResult.test.ts -- non-target marker,
+        // and `success: false` above still holds because nothing was removed.
+        unsupported: true,
         error: 'MCP removal is not supported for backend "unknown-backend"',
       },
     ]);

@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/steipete/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * Generic inbound + outbound webhook channel plugin.
  *
  * Outbound: HTTP POST to operator-configured URL with optional HMAC-SHA256
@@ -28,12 +24,7 @@ import type {
   PluginType,
 } from '../../../types';
 import { BasePlugin } from '../../BasePlugin';
-import {
-  signOutboundBody,
-  toOutboundBody,
-  toUnifiedIncoming,
-  type WebhookInboundPayload,
-} from './WebhookAdapter';
+import { signOutboundBody, toOutboundBody, toUnifiedIncoming, type WebhookInboundPayload } from './WebhookAdapter';
 
 export class WebhookPlugin extends BasePlugin {
   readonly type: PluginType = 'webhook';
@@ -65,8 +56,7 @@ export class WebhookPlugin extends BasePlugin {
     }
 
     this.outboundUrl = outboundUrl;
-    this.outboundSecret =
-      typeof creds.outboundSecret === 'string' ? creds.outboundSecret.trim() : null;
+    this.outboundSecret = typeof creds.outboundSecret === 'string' ? creds.outboundSecret.trim() : null;
   }
 
   /**
@@ -165,9 +155,7 @@ export class WebhookPlugin extends BasePlugin {
    * Test connection by POSTing a { "type": "test" } ping to the outboundUrl.
    * Expects a 2xx response. JSON-encoded credentials per TRANSLATION-GUIDE §4.
    */
-  static async testConnection(
-    tokenJson: string
-  ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
+  static async testConnection(tokenJson: string): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     type Creds = {
       outboundUrl: string;
       outboundSecret?: string;

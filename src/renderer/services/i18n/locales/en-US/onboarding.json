@@ -185,6 +185,12 @@
       "settingUp": "Setting things up",
       "startInChat": "Start in chat"
     },
+    "layout": {
+      "headline": "Pick a layout",
+      "sub": "Both show the same chats, projects and settings. You can switch any time in Settings > Navigation.",
+      "continue": "Continue",
+      "applying": "Applying"
+    },
     "allset": {
       "headline": "you're all set",
       "sub": "Everything is wired and ready. Let's go.",

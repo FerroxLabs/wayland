@@ -33,7 +33,7 @@ const BASE_CLASS = classNames(
   '[&_.arco-select-view]:rounded-[4px]',
   '[&_.arco-select-view]:border',
   '[&_.arco-select-view]:border-solid',
-  '[&_.arco-select-view]:border-border-2',
+  '[&_.arco-select-view]:border-2',
   '[&_.arco-select-view]:shadow-none',
   '[&_.arco-select-view]:transition-colors',
   '[&_.arco-select-view:hover]:border-[var(--color-primary)]',
@@ -99,7 +99,9 @@ const mapSizeToNative = (size?: WaylandSelectSize): NativeSelectSize | undefined
   return size;
 };
 
-type WaylandSelectComponent = React.ForwardRefExoticComponent<WaylandSelectProps & React.RefAttributes<SelectHandle>> & {
+type WaylandSelectComponent = React.ForwardRefExoticComponent<
+  WaylandSelectProps & React.RefAttributes<SelectHandle>
+> & {
   Option: typeof Select.Option;
   OptGroup: typeof Select.OptGroup;
 };

@@ -1,0 +1,149 @@
+file,upstream,decision,shared_expression_lines,our_expression_lines,line_overlap,id_overlap,reason
+src/renderer/services/i18n/i18n-keys.d.ts,src/renderer/services/i18n/i18n-keys.d.ts,CREDIT,1486,4747,31.3,41.9,structure retained from upstream
+tests/unit/team-TeammateManager.test.ts,tests/unit/team-TeammateManager.test.ts,CREDIT,697,873,35.9,73.1,structure retained from upstream
+src/process/services/database/migrations.ts,src/process/services/database/migrations.ts,CREDIT,653,1051,34.2,57.3,structure retained from upstream
+tests/unit/process/acp/compat/AcpAgentV2.test.ts,tests/unit/process/acp/compat/AcpAgentV2.test.ts,CREDIT,459,587,38.1,57.8,structure retained from upstream
+tests/unit/renderer/conversation/CreateTaskDialog.dom.test.tsx,tests/unit/renderer/conversation/CreateTaskDialog.dom.test.tsx,CREDIT,450,540,47.5,91.1,structure retained from upstream
+tests/unit/shellEnv.test.ts,tests/unit/shellEnv.test.ts,CREDIT,432,574,32.4,62.3,structure retained from upstream
+tests/unit/useAutoScroll.dom.test.ts,tests/unit/useAutoScroll.dom.test.ts,CREDIT,360,449,23.6,69.4,structure retained from upstream
+tests/e2e/specs/assistant-settings-crud.e2e.ts,tests/e2e/specs/assistant-settings-crud.e2e.ts,CREDIT,246,254,46.3,100.0,structure retained from upstream
+src/process/team/TeammateManager.ts,src/process/team/TeammateManager.ts,CREDIT,240,390,48.1,65.1,structure retained from upstream
+tests/unit/cronService.test.ts,tests/unit/cronService.test.ts,CREDIT,229,361,44.3,67.4,structure retained from upstream
+tests/unit/channels/weixinPlugin.test.ts,tests/unit/channels/weixinPlugin.test.ts,CREDIT,221,262,41.4,74.3,structure retained from upstream
+src/process/channels/core/ChannelManager.ts,src/process/channels/core/ChannelManager.ts,CREDIT,218,398,48.6,66.2,structure retained from upstream
+tests/unit/teamModelUtils.test.ts,tests/unit/teamModelUtils.test.ts,CREDIT,218,250,46.3,89.7,structure retained from upstream
+src/common/adapter/ipcBridge.ts,src/common/adapter/ipcBridge.ts,CREDIT,210,1008,20.3,49.1,structure retained from upstream
+tests/unit/chatLib.test.ts,tests/unit/chatLib.test.ts,CREDIT,192,304,44.6,58.0,structure retained from upstream
+tests/unit/officeWatchBridge.test.ts,tests/unit/officeWatchBridge.test.ts,CREDIT,192,303,37.1,60.7,structure retained from upstream
+src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx,src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx,CREDIT,191,466,35.5,46.1,structure retained from upstream
+src/renderer/pages/conversation/components/ChatConversation.tsx,src/renderer/pages/conversation/components/ChatConversation.tsx,CREDIT,190,305,40.2,74.5,structure retained from upstream
+src/index.ts,src/index.ts,CREDIT,189,541,34.8,51.1,structure retained from upstream
+tests/unit/extensions/lifecycle.test.ts,tests/unit/extensions/lifecycle.test.ts,CREDIT,188,189,46.6,100.0,structure retained from upstream
+tests/unit/process/utils/configMigration.test.ts,tests/unit/process/utils/configMigration.test.ts,CREDIT,163,173,44.8,97.6,structure retained from upstream
+src/process/team/repository/SqliteTeamRepository.ts,src/process/team/repository/SqliteTeamRepository.ts,CREDIT,154,291,38.9,56.9,structure retained from upstream
+tests/unit/process/teamSessionService.test.ts,tests/unit/process/teamSessionService.test.ts,CREDIT,152,245,42.6,73.4,structure retained from upstream
+src/renderer/components/agent/AcpModelSelector.tsx,src/renderer/components/agent/AcpModelSelector.tsx,CREDIT,145,238,49.6,60.5,structure retained from upstream
+src/common/chat/imageGenCore.ts,src/common/chat/imageGenCore.ts,CREDIT,145,272,48.1,55.9,structure retained from upstream
+tests/unit/bridge/applicationBridge.startOnBoot.test.ts,tests/unit/bridge/applicationBridge.startOnBoot.test.ts,CREDIT,132,149,45.3,90.3,structure retained from upstream
+tests/unit/pptPreviewBridge.test.ts,tests/unit/pptPreviewBridge.test.ts,CREDIT,132,203,43.5,65.5,structure retained from upstream
+tests/unit/imageGenCore.test.ts,tests/unit/imageGenCore.test.ts,CREDIT,130,324,29.9,51.0,structure retained from upstream
+src/process/utils/initAgent.ts,src/process/utils/initAgent.ts,CREDIT,127,196,45.8,55.2,structure retained from upstream
+src/process/bridge/services/SpeechToTextService.ts,src/process/bridge/services/SpeechToTextService.ts,CREDIT,122,217,47.6,63.9,structure retained from upstream
+src/process/bridge/channelBridge.ts,src/process/bridge/channelBridge.ts,CREDIT,120,201,48.8,55.4,structure retained from upstream
+tests/unit/process/services/mcpProtocol.test.ts,tests/unit/process/services/mcpProtocol.test.ts,CREDIT,118,179,45.9,70.7,structure retained from upstream
+tests/unit/useWorkspaceEvents.dom.test.ts,tests/unit/useWorkspaceEvents.dom.test.ts,CREDIT,115,115,46.6,100.0,structure retained from upstream
+src/common/config/storage.ts,src/common/config/storage.ts,CREDIT,105,204,41.1,61.9,structure retained from upstream
+tests/unit/bridge/modelBridge.test.ts,tests/unit/bridge/modelBridge.test.ts,CREDIT,105,168,32.9,72.1,structure retained from upstream
+src/renderer/pages/conversation/Messages/useAutoScroll.ts,src/renderer/pages/conversation/Messages/useAutoScroll.ts,CREDIT,102,165,44.6,63.6,structure retained from upstream
+src/process/bridge/extensionsBridge.ts,src/process/bridge/extensionsBridge.ts,CREDIT,101,380,21.4,23.8,structure retained from upstream
+tests/unit/acpBuiltinMcp.test.ts,tests/unit/acpBuiltinMcp.test.ts,CREDIT,98,144,45.3,74.8,structure retained from upstream
+src/process/services/autoUpdaterService.ts,src/process/services/autoUpdaterService.ts,CREDIT,98,235,38.9,35.7,structure retained from upstream
+src/process/bridge/webuiBridge.ts,src/process/bridge/webuiBridge.ts,CREDIT,97,157,47.0,64.3,structure retained from upstream
+tests/unit/team-SqliteTeamRepository.test.ts,tests/unit/team-SqliteTeamRepository.test.ts,CREDIT,96,172,45.6,64.9,structure retained from upstream
+tests/e2e/specs/assistant-settings-permissions.e2e.ts,tests/e2e/specs/assistant-settings-permissions.e2e.ts,CREDIT,94,102,49.5,100.0,structure retained from upstream
+tests/unit/process/services/database/index.test.ts,tests/unit/process/services/database/index.test.ts,CREDIT,94,201,24.6,50.3,structure retained from upstream
+src/process/webserver/routes/authRoutes.ts,src/process/webserver/routes/authRoutes.ts,CREDIT,93,183,45.9,66.8,structure retained from upstream
+tests/unit/process/bridge/conversationBridge.sendMessage.test.ts,tests/unit/process/bridge/conversationBridge.sendMessage.test.ts,CREDIT,93,161,45.7,68.9,structure retained from upstream
+tests/unit/process/acp/session/PermissionResolver.test.ts,tests/unit/process/acp/session/PermissionResolver.test.ts,CREDIT,90,134,43.8,73.8,structure retained from upstream
+tests/unit/extensionConstants.test.ts,tests/unit/extensionConstants.test.ts,CREDIT,87,148,46.4,83.1,structure retained from upstream
+tests/unit/common/navigationHistoryContext.dom.test.tsx,tests/unit/common/navigationHistoryContext.dom.test.tsx,CREDIT,83,101,49.5,81.5,structure retained from upstream
+tests/unit/AcpModelSelector.dom.test.tsx,tests/unit/AcpModelSelector.dom.test.tsx,CREDIT,83,174,27.9,53.4,structure retained from upstream
+tests/unit/channels/telegramPlugin.test.ts,tests/unit/channels/telegramPlugin.test.ts,CREDIT,82,129,40.8,60.8,structure retained from upstream
+tests/e2e/fixtures.ts,tests/e2e/fixtures.ts,CREDIT,80,220,32.0,43.2,structure retained from upstream
+tests/unit/process/bridge/speechToTextService.test.ts,tests/unit/process/bridge/speechToTextService.test.ts,CREDIT,79,165,26.5,56.5,structure retained from upstream
+src/process/bridge/shellBridge.ts,src/process/bridge/shellBridge.ts,CREDIT,78,145,43.3,62.1,structure retained from upstream
+src/renderer/hooks/mcp/useMcpServerCRUD.ts,src/renderer/hooks/mcp/useMcpServerCRUD.ts,CREDIT,63,198,25.8,41.6,structure retained from upstream
+tests/unit/SpeechToTextService.test.ts,tests/unit/SpeechToTextService.test.ts,CREDIT,62,118,29.4,63.1,structure retained from upstream
+tests/unit/treeUtils.test.ts,tests/unit/treeUtils.test.ts,CREDIT,61,119,43.4,69.4,structure retained from upstream
+src/process/task/agentUtils.ts,src/process/task/agentUtils.ts,CREDIT,60,291,16.2,21.2,structure retained from upstream
+src/renderer/pages/guid/hooks/useGuidModelSelection.ts,src/renderer/pages/guid/hooks/useGuidModelSelection.ts,CREDIT,59,141,44.4,55.1,structure retained from upstream
+tests/unit/renderer/useAcpMessage.dom.test.tsx,tests/unit/renderer/useAcpMessage.dom.test.tsx,CREDIT,59,128,29.3,56.0,structure retained from upstream
+tests/integration/process/acp/session/AcpSession.prompt.test.ts,tests/integration/process/acp/session/AcpSession.prompt.test.ts,CREDIT,58,236,17.2,44.1,structure retained from upstream
+tests/unit/process/initStorage.jsonFileBuilder.test.ts,tests/unit/process/initStorage.jsonFileBuilder.test.ts,CREDIT,56,258,17.2,36.1,structure retained from upstream
+src/process/bridge/teamBridge.ts,src/process/bridge/teamBridge.ts,CREDIT,54,123,41.1,41.1,structure retained from upstream
+tests/unit/AuthServiceJwtSecret.test.ts,tests/unit/AuthServiceJwtSecret.test.ts,CREDIT,54,97,19.4,50.6,structure retained from upstream
+src/renderer/pages/conversation/components/ChatLayout/index.tsx,src/renderer/pages/conversation/components/ChatLayout/index.tsx,CREDIT,52,128,43.5,60.5,structure retained from upstream
+src/renderer/components/settings/SettingsModal/contents/AboutModalContent.tsx,src/renderer/components/settings/SettingsModal/contents/AboutModalContent.tsx,CREDIT,51,109,49.2,64.0,structure retained from upstream
+tests/unit/process/acp/session/MessageTranslator.test.ts,tests/unit/process/acp/session/MessageTranslator.test.ts,CREDIT,51,134,21.2,48.1,structure retained from upstream
+tests/unit/useMcpServerCRUD.dom.test.tsx,tests/unit/useMcpServerCRUD.dom.test.tsx,CREDIT,51,884,3.9,16.5,structure retained from upstream
+src/process/acp/session/PromptExecutor.ts,src/process/acp/session/PromptExecutor.ts,CREDIT,50,105,43.1,50.0,structure retained from upstream
+tests/unit/renderer/messageHooks.dom.test.tsx,tests/unit/renderer/messageHooks.dom.test.tsx,CREDIT,45,109,36.5,53.7,structure retained from upstream
+src/renderer/hooks/chat/useSendBoxDraft.ts,src/renderer/hooks/chat/useSendBoxDraft.ts,CREDIT,43,138,28.0,38.8,structure retained from upstream
+src/renderer/pages/guid/components/GuidModelSelector.tsx,src/renderer/pages/guid/components/GuidModelSelector.tsx,CREDIT,43,215,20.0,38.0,structure retained from upstream
+tests/e2e/features/conversations/acp/messaging/msg-file-reference.e2e.ts,tests/e2e/features/conversations/acp/messaging/msg-file-reference.e2e.ts,CREDIT,42,57,45.8,47.5,structure retained from upstream
+src/process/services/database/drivers/BunSqliteDriver.bun.test.ts,src/process/services/database/drivers/BunSqliteDriver.bun.test.ts,CREDIT,42,89,36.2,41.8,structure retained from upstream
+tests/e2e/specs/team-create.e2e.ts,tests/e2e/specs/team-create.e2e.ts,CREDIT,40,100,34.3,60.2,structure retained from upstream
+src/process/services/mcpServices/McpOAuthService.ts,src/process/services/mcpServices/McpOAuthService.ts,CREDIT,40,156,27.3,38.6,structure retained from upstream
+src/renderer/pages/guid/components/AgentPillBar.tsx,src/renderer/pages/guid/components/AgentPillBar.tsx,CREDIT,39,126,31.9,56.9,structure retained from upstream
+tests/e2e/specs/navigation.e2e.ts,tests/e2e/specs/navigation.e2e.ts,CREDIT,38,68,46.5,41.6,structure retained from upstream
+src/renderer/components/layout/Router.tsx,src/renderer/components/layout/Router.tsx,CREDIT,37,143,26.8,40.7,structure retained from upstream
+tests/unit/buildAgentConversationParams.test.ts,tests/unit/buildAgentConversationParams.test.ts,CREDIT,36,58,36.7,63.3,structure retained from upstream
+tests/unit/acpKillChild.test.ts,tests/unit/acpKillChild.test.ts,CREDIT,36,95,32.7,39.5,structure retained from upstream
+src/renderer/hooks/mcp/useMcpOAuth.ts,src/renderer/hooks/mcp/useMcpOAuth.ts,CREDIT,36,87,28.9,45.8,structure retained from upstream
+src/renderer/hooks/mcp/useMcpConnection.ts,src/renderer/hooks/mcp/useMcpConnection.ts,CREDIT,35,256,11.4,29.3,structure retained from upstream
+src/renderer/pages/settings/components/SettingsSider.tsx,src/renderer/pages/settings/components/SettingsSider.tsx,CREDIT,34,85,43.2,55.6,structure retained from upstream
+src/process/bridge/mcpBridge.ts,src/process/bridge/mcpBridge.ts,CREDIT,34,81,33.7,41.6,structure retained from upstream
+src/renderer/pages/TestShowcase.tsx,src/renderer/pages/TestShowcase.tsx,CREDIT,33,61,49.3,55.4,structure retained from upstream
+tests/unit/pptPreviewInstallGuard.test.ts,tests/unit/pptPreviewInstallGuard.test.ts,CREDIT,32,69,43.1,58.5,structure retained from upstream
+src/process/task/WorkerTaskManager.ts,src/process/task/WorkerTaskManager.ts,CREDIT,31,117,31.0,57.1,structure retained from upstream
+src/common/api/AnthropicRotatingClient.ts,src/common/api/AnthropicRotatingClient.ts,CREDIT,30,67,46.6,61.3,structure retained from upstream
+src/process/webserver/setup.ts,src/process/webserver/setup.ts,CREDIT,30,75,44.0,51.7,structure retained from upstream
+src/process/bridge/index.ts,src/process/bridge/index.ts,CREDIT,30,81,41.5,37.4,structure retained from upstream
+src/process/agent/acp/mcpSessionConfig.ts,src/process/agent/acp/mcpSessionConfig.ts,CREDIT,28,63,39.7,55.3,structure retained from upstream
+src/renderer/pages/cron/components/CronJobManager.tsx,src/renderer/pages/cron/components/CronJobManager.tsx,CREDIT,28,78,37.6,55.8,structure retained from upstream
+tests/unit/channels/telegramAdapter.test.ts,tests/unit/channels/telegramAdapter.test.ts,CREDIT,28,77,35.0,39.4,structure retained from upstream
+tests/unit/process/acp/session/McpConfig.test.ts,tests/unit/process/acp/session/McpConfig.test.ts,CREDIT,28,100,26.4,20.8,structure retained from upstream
+tests/unit/process/acp/runtime/IdleReclaimer.test.ts,tests/unit/process/acp/runtime/IdleReclaimer.test.ts,CREDIT,25,42,36.4,80.0,structure retained from upstream
+tests/unit/platform/ElectronPlatformServices.test.ts,tests/unit/platform/ElectronPlatformServices.test.ts,CREDIT,25,60,26.2,47.7,structure retained from upstream
+src/process/team/TaskManager.ts,src/process/team/TaskManager.ts,CREDIT,24,92,25.8,44.6,structure retained from upstream
+src/renderer/pages/settings/components/SettingsPageWrapper.tsx,src/renderer/pages/settings/components/SettingsPageWrapper.tsx,CREDIT,23,103,25.0,34.0,structure retained from upstream
+src/process/task/codexConfig.ts,src/process/task/codexConfig.ts,CREDIT,22,164,13.3,20.0,structure retained from upstream
+tests/unit/webserver/authServiceRefresh.test.ts,tests/unit/webserver/authServiceRefresh.test.ts,CREDIT,21,92,16.0,51.8,structure retained from upstream
+src/common/api/OpenAIRotatingClient.ts,src/common/api/OpenAIRotatingClient.ts,CREDIT,20,54,39.0,78.9,structure retained from upstream
+src/process/acp/session/McpConfig.ts,src/process/acp/session/McpConfig.ts,CREDIT,20,66,27.6,39.2,structure retained from upstream
+src/renderer/components/settings/ThemeSwitcher.tsx,src/renderer/components/settings/ThemeSwitcher.tsx,CREDIT,19,38,48.8,70.5,structure retained from upstream
+src/renderer/hooks/mcp/useMcpServers.ts,src/renderer/hooks/mcp/useMcpServers.ts,CREDIT,19,58,34.9,45.9,structure retained from upstream
+src/preload/main.ts,src/preload/main.ts,CREDIT,19,108,18.4,40.5,structure retained from upstream
+tests/unit/standaloneAdapter.test.ts,tests/unit/standaloneAdapter.test.ts,CREDIT,18,32,48.5,61.9,structure retained from upstream
+src/process/services/database/drivers/BetterSqlite3Driver.ts,src/process/services/database/drivers/BetterSqlite3Driver.ts,CREDIT,17,39,43.5,38.3,structure retained from upstream
+src/renderer/components/settings/SettingsModal/contents/DisplayModalContent.tsx,src/renderer/components/settings/SettingsModal/contents/DisplayModalContent.tsx,CREDIT,17,76,24.2,23.0,structure retained from upstream
+src/process/bridge/cronBridge.ts,src/process/bridge/cronBridge.ts,CREDIT,17,102,18.3,21.4,structure retained from upstream
+src/process/webserver/middleware/errorHandler.ts,src/process/webserver/middleware/errorHandler.ts,CREDIT,15,34,45.7,48.6,structure retained from upstream
+src/process/webserver/adapter.ts,src/process/webserver/adapter.ts,CREDIT,15,35,43.6,50.0,structure retained from upstream
+tests/unit/previewPanelMessageApi.test.ts,tests/unit/previewPanelMessageApi.test.ts,CREDIT,15,26,42.9,65.0,structure retained from upstream
+tests/unit/process/team/formatHelpers.test.ts,tests/unit/process/team/formatHelpers.test.ts,CREDIT,14,32,40.0,60.0,structure retained from upstream
+src/common/types/electron.ts,src/common/types/electron.ts,CREDIT,14,54,33.3,52.1,structure retained from upstream
+src/common/types/codex/types/toolTypes.ts,src/common/types/codex/types/toolTypes.ts,CREDIT,13,32,48.6,100.0,structure retained from upstream
+src/renderer/pages/conversation/hooks/useConversationAgents.ts,src/renderer/pages/conversation/hooks/useConversationAgents.ts,CREDIT,13,43,36.4,58.2,structure retained from upstream
+src/process/bridge/shellBridgeStandalone.ts,src/process/bridge/shellBridgeStandalone.ts,CREDIT,12,45,33.3,50.0,structure retained from upstream
+src/renderer/pages/conversation/platforms/acp/AcpChat.tsx,src/renderer/pages/conversation/platforms/acp/AcpChat.tsx,CREDIT,12,52,28.0,33.0,structure retained from upstream
+src/common/utils/urlValidation.ts,src/common/utils/urlValidation.ts,CREDIT,12,50,24.0,47.2,structure retained from upstream
+src/process/utils/appMenu.ts,src/process/utils/appMenu.ts,CREDIT,10,26,41.4,60.9,structure retained from upstream
+tests/unit/channels/wecomCrypto.test.ts,tests/unit/channels/wecomCrypto.test.ts,CREDIT,10,42,22.7,35.7,structure retained from upstream
+tests/e2e/specs/channels.e2e.ts,tests/e2e/specs/channels.e2e.ts,CREDIT,10,28,22.6,47.4,structure retained from upstream
+src/process/utils/initBridge.ts,src/process/utils/initBridge.ts,CREDIT,10,159,8.7,12.3,structure retained from upstream
+src/process/resources/builtinMcp/constants.ts,src/process/resources/builtinMcp/constants.ts,CREDIT,9,57,12.1,22.0,structure retained from upstream
+src/process/team/types.ts,src/process/team/types.ts,CREDIT,8,18,47.8,64.8,structure retained from upstream
+src/process/channels/utils/credentialCrypto.ts,src/process/channels/utils/credentialCrypto.ts,CREDIT,6,37,13.2,56.7,structure retained from upstream
+src/renderer/pages/settings/components/AddMcpServerModal.tsx,src/renderer/pages/settings/components/AddMcpServerModal.tsx,CREDIT,5,16,45.5,81.0,structure retained from upstream
+src/renderer/pages/settings/AssistantSettings/AssistantAvatar.tsx,src/renderer/pages/settings/AssistantSettings/AssistantAvatar.tsx,CREDIT,5,15,42.9,60.7,structure retained from upstream
+src/renderer/pages/team/index.tsx,src/renderer/pages/team/index.tsx,CREDIT,5,20,32.1,31.4,structure retained from upstream
+src/common/types/agentModes.ts,src/common/types/agentModes.ts,CREDIT,5,22,26.1,43.5,structure retained from upstream
+src/renderer/hooks/system/useTheme.ts,src/renderer/hooks/system/useTheme.ts,CREDIT,5,63,10.3,31.4,structure retained from upstream
+src/common/types/conversion.ts,src/common/types/conversion.ts,NO-CREDIT,4,22,40.0,100.0,de minimis - a lone type or signature
+src/renderer/components/settings/SettingsModal/contents/SystemModalContent/PreferenceRow.tsx,src/renderer/components/settings/SettingsModal/contents/SystemModalContent/PreferenceRow.tsx,NO-CREDIT,4,11,38.5,57.1,de minimis - a lone type or signature
+src/process/team/prompts/buildRolePrompt.ts,src/process/team/prompts/buildRolePrompt.ts,NO-CREDIT,4,18,31.8,34.0,de minimis - a lone type or signature
+src/renderer/hooks/agent/useConfigModelListWithImage.ts,src/renderer/hooks/agent/useConfigModelListWithImage.ts,NO-CREDIT,4,24,27.6,35.7,de minimis - a lone type or signature
+src/process/team/prompts/formatHelpers.ts,src/process/team/prompts/formatHelpers.ts,NO-CREDIT,4,30,16.1,35.3,de minimis - a lone type or signature
+src/renderer/hooks/chat/useInputFocusRing.ts,src/renderer/hooks/chat/useInputFocusRing.ts,NO-CREDIT,3,8,44.4,100.0,de minimis - a lone type or signature
+tests/unit/prepareBundledBun.test.ts,tests/unit/prepareBundledBun.test.ts,NO-CREDIT,3,41,17.0,40.0,de minimis - a lone type or signature
+src/renderer/pages/settings/AssistantSettings/types.ts,src/renderer/pages/settings/AssistantSettings/types.ts,NO-CREDIT,1,7,47.1,48.7,de minimis - a lone type or signature
+src/common/config/storageKeys.ts,src/common/config/storageKeys.ts,NO-CREDIT,1,7,25.0,46.7,de minimis - a lone type or signature
+src/process/task/agentTypes.ts,src/process/task/agentTypes.ts,NO-CREDIT,0,1,40.0,81.2,de minimis - a lone type or signature
+src/renderer/components/layout/Sider/SiderNav/index.ts,src/renderer/components/layout/Sider/SiderNav/index.ts,NO-CREDIT,0,0,25.0,25.0,de minimis - a lone type or signature
+src/process/channels/plugins/index.ts,src/process/channels/plugins/index.ts,NO-CREDIT,0,11,21.6,17.5,de minimis - a lone type or signature
+src/renderer/utils/file/fileTypes.ts,src/renderer/utils/file/fileTypes.ts,NO-CREDIT,0,4,20.0,100.0,de minimis - a lone type or signature
+src/process/services/database/export.ts,src/process/services/database/export.ts,NO-CREDIT,0,5,11.1,64.5,de minimis - a lone type or signature
+src/renderer/pages/settings/AgentSettings/index.tsx,src/renderer/pages/settings/AgentSettings/index.tsx,NO-CREDIT,0,123,0.7,2.2,de minimis - a lone type or signature
+tests/unit/team-permission-badge.dom.test.ts,tests/unit/team-permission-badge.dom.test.ts,NO-CREDIT,0,86,0.0,34.7,de minimis - a lone type or signature
+src/renderer/components/base/index.ts,src/renderer/components/base/index.ts,NO-CREDIT,0,0,0.0,29.4,de minimis - a lone type or signature

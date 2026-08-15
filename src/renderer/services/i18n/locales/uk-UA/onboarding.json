@@ -185,6 +185,12 @@
       "settingUp": "Setting things up",
       "startInChat": "Start in chat"
     },
+    "layout": {
+      "headline": "Виберіть макет",
+      "sub": "Обидва показують ті самі чати, проєкти й налаштування. Змінити можна будь-коли в розділі Налаштування > Навігація.",
+      "continue": "Продовжити",
+      "applying": "Застосування"
+    },
     "allset": {
       "headline": "you're all set",
       "sub": "Everything is wired and ready. Let's go.",

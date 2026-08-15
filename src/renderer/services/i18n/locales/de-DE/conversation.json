@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "Für die aktuelle Sitzung ist kein Modell ausgewählt, Nachricht kann nicht gesendet werden",
     "sendMessageTo": "Nachricht an {{model}} senden",
+    "sendMessage": "Nachricht senden",
+    "stopGenerating": "Generierung stoppen",
     "processing": "Wird verarbeitet...",
     "quotaExceededTitle": "Modellkontingent erreicht",
     "quotaExceededBody": "Das Kontingent des aktuellen Modells ist aufgebraucht. Zu {{model}} wechseln, um fortzufahren?",
@@ -239,7 +241,51 @@
       "authError": "Flux-Schlüssel ist ungültig – verbinde Flux Router erneut, um die Spracheingabe zu nutzen",
       "premiumLocked": "Flux Voice erfordert ein kostenpflichtiges Flux-Abo – führe ein Upgrade durch, um zu diktieren",
       "rateLimited": "Zu viele Anfragen – bitte versuche es in Kürze erneut",
-      "genericError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen"
+      "genericError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen",
+      "setupLabel": "Diktat einrichten",
+      "setupTooltip": "Diktat ist aus – in den Spracheinstellungen aktivieren"
+    },
+    "voice": {
+      "statusConnecting": "Verbinden…",
+      "statusListening": "Höre zu…",
+      "statusTapToTalk": "Zum Sprechen auf die Welle tippen",
+      "statusHearing": "Ich kann dich hören",
+      "statusTranscribing": "Transkribiere…",
+      "statusThinking": "Wayland denkt nach…",
+      "statusApproval": "Benötigt deine Freigabe im Chat",
+      "statusSpeaking": "Wayland spricht…",
+      "statusStopping": "Wird gestoppt…",
+      "statusReconnecting": "Neu verbinden…",
+      "statusError": "Sprachmodus gestoppt",
+      "noticeTitle": "Das hat nicht geklappt",
+      "turnFailedTitle": "Der Vorgang ist fehlgeschlagen",
+      "turnFailedNoCause": "Der vollständige Vorgang steht im Chat, samt genauem Fehler und Weg zurück.",
+      "turnFailedShowFull": "Vollständige Meldung anzeigen",
+      "noSpeakableTitle": "Nichts zum Vorlesen",
+      "draftReadyTitle": "Deine Worte warten im Entwurf",
+      "startLabel": "Mit Wayland sprechen",
+      "startTitle": "Mit Wayland sprechen – es antwortet laut",
+      "endLabel": "Sprachgespräch beenden",
+      "endTitle": "Das Sprachgespräch beenden",
+      "stopSpeaking": "Wayland stoppen",
+      "mute": "Mikrofon stummschalten",
+      "unmute": "Stummschaltung aufheben",
+      "greeting": {
+        "named": {
+          "howAreYou": "Hallo {{name}}, wie geht es dir? Womit kann ich dir heute helfen?",
+          "imListening": "Hallo {{name}}, ich höre zu. Woran arbeiten wir?",
+          "readyWhenYouAre": "Hallo {{name}}, ich bin bereit, wenn du es bist. Was beschäftigt dich?",
+          "goodToHear": "Schön, von dir zu hören, {{name}}. Was kann ich für dich tun?",
+          "whereToStart": "Hallo {{name}}, womit fangen wir heute an?"
+        },
+        "anonymous": {
+          "howAreYou": "Hallo, wie geht es dir? Womit kann ich dir heute helfen?",
+          "imListening": "Hallo, ich höre zu. Woran arbeiten wir?",
+          "readyWhenYouAre": "Ich bin bereit, wenn du es bist. Was beschäftigt dich?",
+          "goodToHear": "Schön, von dir zu hören. Was kann ich für dich tun?",
+          "whereToStart": "Hallo, womit fangen wir heute an?"
+        }
+      }
     }
   },
   "sideQuestion": {
@@ -324,6 +370,8 @@
   "activation": {
     "title": "Wecke deine Agenten",
     "subtitle": "Verbinde einen Modellanbieter, um Aufgaben auszuführen. Wähle den Weg, der zu dir passt.",
+    "unusableTitle": "Deine Agenten erreichen kein Modell",
+    "unusableSubtitle": "Deine Anbieter sind verbunden, aber keiner konnte diese Aufgabe übernehmen. Prüfe sie in den Einstellungen oder füge einen weiteren Zugang hinzu.",
     "flux": {
       "label": "Flux Router verbinden",
       "sublabel": "Kostenloser Schlüssel mit 1 $ Startguthaben. Ohne Karte – jede Aufgabe wird an das passendste Spezialmodell geleitet.",
@@ -384,6 +432,17 @@
       "label": "Retry the last message",
       "sublabel": "Re-run the message that hit the limit on the selected model.",
       "action": "Retry"
+    },
+    "details": "Show error details",
+    "dismiss": "Dismiss"
+  },
+  "constitutionLocked": {
+    "title": "Wayland couldn’t unlock your Constitution",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "recover": {
+      "label": "Restore from a recovery archive",
+      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
+      "action": "Open recovery"
     },
     "details": "Show error details",
     "dismiss": "Dismiss"

@@ -101,4 +101,71 @@ describe('useAutoTitle', () => {
       updates: { name: 'Continue' },
     });
   });
+
+  /**
+   * A conversation created with no name keeps the agent factory's own default,
+   * which is the raw workspace path. That is never a title a user chose, so it
+   * must count as auto-named - otherwise the chat is stuck showing
+   * `/Users/.../claude-temp-1786448694044` in Recents forever.
+   */
+  it('replaces a name that is the conversation own workspace path', async () => {
+    const workspace = '/Users/sean/.wayland-dev/claude-temp-1786448694044';
+    conversationGetMock.mockResolvedValue({
+      id: 'conv-1',
+      name: workspace,
+      extra: { workspace },
+    });
+    getConversationMessagesMock.mockResolvedValue([createUserMessage('Hey, are you working?')]);
+    conversationUpdateMock.mockResolvedValue(true);
+
+    const { result } = renderHook(() => useAutoTitle());
+
+    await result.current.syncTitleFromHistory('conv-1');
+
+    expect(conversationUpdateMock).toHaveBeenCalledWith({
+      id: 'conv-1',
+      updates: { name: 'Hey, are you working?' },
+    });
+    expect(updateTabNameMock).toHaveBeenCalledWith('conv-1', 'Hey, are you working?');
+  });
+
+  /**
+   * The voice button creates a chat before anything is said, so there is no
+   * first message to derive from. The path still must not be the title.
+   */
+  it('falls back to the default title when a path-named chat has no messages yet', async () => {
+    const workspace = '/Users/sean/.wayland-dev/wcore-temp-1786444628540';
+    conversationGetMock.mockResolvedValue({
+      id: 'conv-1',
+      name: workspace,
+      extra: { workspace },
+    });
+    getConversationMessagesMock.mockResolvedValue([]);
+    conversationUpdateMock.mockResolvedValue(true);
+
+    const { result } = renderHook(() => useAutoTitle());
+
+    await result.current.syncTitleFromHistory('conv-1');
+
+    expect(conversationUpdateMock).toHaveBeenCalledWith({
+      id: 'conv-1',
+      updates: { name: 'New Chat' },
+    });
+  });
+
+  it('never touches a title the user typed themselves', async () => {
+    const workspace = '/Users/sean/.wayland-dev/claude-temp-1786448694044';
+    conversationGetMock.mockResolvedValue({
+      id: 'conv-1',
+      name: 'Quarterly board deck',
+      extra: { workspace },
+    });
+    getConversationMessagesMock.mockResolvedValue([createUserMessage('Hey, are you working?')]);
+
+    const { result } = renderHook(() => useAutoTitle());
+
+    await result.current.syncTitleFromHistory('conv-1');
+
+    expect(conversationUpdateMock).not.toHaveBeenCalled();
+  });
 });

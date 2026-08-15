@@ -48,7 +48,18 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Keep the runtime deterministic + desktop.
-vi.mock('@/renderer/utils/platform', () => ({ isElectronDesktop: () => false }));
+// `isMacOS` is read by the voice session ChatLayout now mounts: only macOS has
+// a local speech synthesizer, so readiness differs by platform.
+// Partial, so a new export the tree reaches is not an undefined-export crash.
+// `rendererPlatform` is still pinned: left to the real implementation it reads
+// the jsdom user agent, which is not darwin, and the speaking leg would resolve
+// unsupported for reasons that have nothing to do with the rail.
+vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
+  isElectronDesktop: () => false,
+  isMacOS: () => true,
+  rendererPlatform: () => 'darwin',
+}));
 vi.mock('@/renderer/hooks/system/useIsPopoutMode', () => ({ useIsPopoutMode: () => false }));
 
 // Contexts ChatLayout consumes that throw without a provider.
@@ -63,7 +74,12 @@ vi.mock('@/renderer/pages/conversation/Preview', () => ({
 // Peripheral deps we do not exercise here.
 vi.mock('swr', () => ({ default: () => ({ data: undefined }) }));
 vi.mock('@/common', () => ({ ipcBridge: { conversation: { dockBack: { invoke: vi.fn() } } } }));
-vi.mock('@/common/config/storage', () => ({ ConfigStorage: { get: vi.fn() } }));
+// `get` resolves rather than returning undefined: the real API is always async,
+// and ChatLayout now mounts the voice session (which reads stored consent on
+// mount) around the whole layout instead of inside its header.
+vi.mock('@/common/config/storage', () => ({
+  ConfigStorage: { get: vi.fn(async () => undefined), set: vi.fn(async () => undefined) },
+}));
 
 // Header-only children (not rendered under hideHeader) - stub to avoid deep import chains.
 vi.mock('@/renderer/components/agent/AgentBadge', () => ({ default: () => null }));

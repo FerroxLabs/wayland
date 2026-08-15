@@ -250,6 +250,8 @@
   "installed": "설치됨",
   "builtin": "내장",
   "channels": {
+    "mediaSendFailed": "{{name}} 전송에 실패했습니다",
+    "mediaPathNotAllowed": "{{name}} 파일이 허용된 전송 디렉터리 밖에 있어 전송할 수 없습니다",
     "label": "채널",
     "telegram": {
       "help": "Telegram을 통해 Wayland AI 어시스턴트와 채팅하세요. @BotFather로 봇을 만들어 시작하세요.",
@@ -1078,8 +1080,6 @@
   "channels.extension.noConfig": "추가 설정이 필요하지 않습니다.",
   "channels.extension.selectPlaceholder": "선택하세요",
   "channels.extension.defaultDesc": "확장 채널 플러그인",
-  "channels.mediaSendFailed": "{{name}} 전송에 실패했습니다",
-  "channels.mediaPathNotAllowed": "{{name}} 파일이 허용된 전송 디렉터리 밖에 있어 전송할 수 없습니다",
   "display": "디스플레이",
   "imageGeneration": "이미지 생성",
   "imageGenerationToggle": "이미지 생성 도구 활성화",
@@ -1099,19 +1099,17 @@
   "speechToTextRequired": "필수",
   "speechToTextOptional": "선택",
   "speechToTextProviderWhisperLocal": "Whisper (로컬)",
-  "speechToTextWhisperModel": "Whisper 모델",
-  "speechToTextDownloadModel": "모델 다운로드",
   "speechToTextDownloading": "다운로드 중...",
   "speechToTextDownloadSuccess": "모델 다운로드 완료",
-  "speechToTextDownloadError": "다운로드 실패",
-  "speechToTextCancelDownload": "취소",
   "speechToTextProviderFluxVoice": "Flux Voice",
+  "speechToTextSeededProvider": "연결되어 있고 여기서 엔진을 선택하지 않았기 때문에 현재 {{provider}}을(를) 사용 중입니다.",
+  "speechToTextEffectiveProvider": "현재 {{provider}}을(를) 사용하고 있습니다.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "텍스트 음성 변환",
   "textToSpeechDescription": "로컬 또는 시스템 음성 엔진으로 AI 응답을 읽어드립니다.",
   "textToSpeechProvider": "공급자",
-  "textToSpeechProviderKokoroLocal": "Kokoro (로컬)",
+  "textToSpeechProviderPlaceholder": "음성 공급자 선택",
   "textToSpeechProviderSystemNative": "시스템 기본",
   "textToSpeechVoice": "목소리",
   "textToSpeechSpeed": "속도",
@@ -1121,6 +1119,8 @@
   "textToSpeechDownloadSuccess": "모델 다운로드 완료",
   "textToSpeechDownloadError": "다운로드 실패",
   "textToSpeechCancelDownload": "취소",
+  "textToSpeechTestPhrase": "Hi, I'm Wayland. How are you?",
+  "textToSpeechTestConsentDeclined": "Nothing was spoken and nothing was sent. Choose System Voice to test a voice that stays on your machine.",
   "mcp": "MCP 통합",
   "imageGenerationModel": "이미지 모델",
   "imageGenerationGuide": "이미지 모델 설정 가이드",
@@ -1758,6 +1758,7 @@
       "metricsTurns": "최근 {{count}}턴:",
       "histogram": "플래그십 {{flagship}} · 소형 {{small}} · 로컬 {{local}}",
       "activeConfirmation": "Flux Router 연결됨 · 모델 {{count}}개 · 요청별 라우팅",
+      "activeConfirmationNoCount": "Flux Router 연결됨 · 요청별 라우팅",
       "errorUnauthorized": "해당 {{provider}} 키가 거부되었습니다. 키를 확인하고 다시 시도하세요.",
       "errorNoCredit": "연결되었지만 해당 {{provider}} 키에 사용 가능한 크레딧이 없습니다. 모델을 라우팅하려면 결제를 추가하세요.",
       "errorOffline": "{{provider}}에 연결할 수 없습니다. 오프라인 상태인 것 같습니다. 연결을 확인하고 다시 시도하세요.",
@@ -1783,6 +1784,13 @@
       "errorNoCredit": "사용 가능한 크레딧 없음",
       "errorOffline": "제공자에 연결할 수 없음",
       "errorUnrecognized": "키가 인식되지 않음",
+      "errorUndecryptable": "저장된 키를 읽을 수 없습니다. 다시 입력하세요",
+      "errorLocalNotRunning": "이 컴퓨터에서 실행되고 있지 않음",
+      "errorLocalNotInstalled": "이 컴퓨터에 설치되어 있지 않음",
+      "localStart": "{{provider}} 시작",
+      "localGet": "{{provider}} 받기",
+      "localStarted": "{{provider}}이(가) 실행 중입니다.",
+      "localStartFailed": "{{provider}}을(를) 시작하지 못했습니다. 직접 실행한 뒤 새로 고치세요.",
       "errorNoModels": "모델이 반환되지 않음",
       "errorUnknown": "연결 문제",
       "toggleFailed": "Could not change that provider. Please try again.",
@@ -1852,6 +1860,8 @@
       "rekeyConfirm": "키 업데이트",
       "rekeyDone": "제공업체 자격 증명이 업데이트되었습니다.",
       "rekeyCloudDisabled": "클라우드 자격 증명은 여기가 아니라 클라우드 연결 양식에서 다시 설정합니다.",
+      "refreshStillActionNeeded": "카탈로그를 새로 고쳤지만 이 공급자는 여전히 조치가 필요합니다.",
+      "rekeyLocalDisabled": "{{provider}}은(는) API 키 없이 이 컴퓨터에서 실행되므로 다시 입력할 키가 없습니다.",
       "errorUnauthorized": "해당 {{provider}} 키가 거부되었습니다, 권한 없음. 키를 확인하고 다시 시도하세요.",
       "errorNoCredit": "해당 {{provider}} 키에 사용 가능한 크레딧이 없습니다. 모델을 실행하려면 결제를 추가하세요.",
       "errorOffline": "{{provider}}에 연결할 수 없습니다, 오프라인 상태인 것 같습니다. 연결을 확인하고 다시 시도하세요.",
@@ -2208,6 +2218,7 @@
     },
     "about": {
       "wcore": "Wayland 자체 엔진입니다. 「모델」 페이지의 모든 제공업체를 활용합니다.",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Anthropic의 코딩 에이전트입니다. 자체 계정으로 로그인합니다, GPT나 Gemini는 실행할 수 없습니다.",
       "codex": "OpenAI의 코딩 에이전트입니다. 자체 계정으로 로그인합니다, Claude나 Gemini는 실행할 수 없습니다."
     },
@@ -2245,6 +2256,48 @@
         "backupLabel": "백업 위치",
         "rollbackLabel": "되돌리려면 실행"
       }
+    },
+    "install": {
+      "bandTitle": "설치 가능",
+      "action": "설치",
+      "retry": "다시 시도",
+      "cancel": "취소",
+      "remove": "제거",
+      "installing": "{{version}} 설치 중…",
+      "installed": "Wayland가 설치함",
+      "pinned": "{{version}} 설치",
+      "systemCopy": "시스템에 있는 사본을 사용합니다",
+      "unavailable": "이 빌드에서는 사용할 수 없음",
+      "whyLink": "이유",
+      "whyBody": "이 빌드에는 사용 중인 플랫폼용 번들 런타임이 없으며, 모든 설치에는 런타임이 필요합니다. 에이전트를 직접 설치하면 Wayland가 감지합니다.",
+      "failed": {
+        "unknown-agent": "이 에이전트에 대해 고정된 패키지가 없습니다.",
+        "bundled-bun-unavailable": "이 빌드에는 설치에 사용할 번들 런타임이 없습니다.",
+        "install-failed": "다운로드에 실패했습니다. 연결을 확인하고 다시 시도하세요.",
+        "already-installing": "이미 설치가 진행 중입니다. 완료될 때까지 기다려 주세요.",
+        "timed-out": "설치 시간이 너무 오래 걸려 중단되었습니다. 다시 시도해 주세요.",
+        "cancelled": "설치를 취소했습니다.",
+        "error": "예기치 않은 오류로 설치가 중단되었습니다.",
+        "remove-failed": "Wayland가 자체 사본을 제거하지 못했습니다. 다시 시도하세요.",
+        "receipt-missing": "아무것도 제거되지 않았습니다. Wayland에 이 설치 기록이 없습니다."
+      },
+      "removeConfirm": {
+        "title": "{{agent}}을(를) 제거할까요?",
+        "body": "Wayland가 자체 폴더에 설치한 사본을 삭제합니다. 직접 설치한 사본은 그대로 유지됩니다.",
+        "confirm": "제거",
+        "cancel": "유지"
+      },
+      "consent": {
+        "title": "{{agent}}을(를) 설치할까요?",
+        "body": "npm에서 패키지를 내려받아 실행 가능한 코드를 컴퓨터에 저장합니다.",
+        "packageLabel": "패키지",
+        "versionLabel": "버전",
+        "destinationLabel": "설치 위치",
+        "scriptsLabel": "설치 스크립트",
+        "scriptsValue": "차단됨",
+        "confirm": "설치",
+        "cancel": "취소"
+      }
     }
   },
   "commandPalette": {
@@ -2281,7 +2334,7 @@
     "railGroup": "Engine",
     "engineRunning": "engine running",
     "engineStopped": "engine stopped",
-    "stubNote": "Configured here soon — managed in the engine.",
+    "stubNote": "Configured here soon, managed in the engine.",
     "rail": {
       "overview": "Overview",
       "services": "Services & Keys",
@@ -2295,17 +2348,17 @@
     },
     "overview": {
       "title": "Overview",
-      "subtitle": "The engine behind every chat, workflow and agent. It is already running with smart defaults — this surface is where you tune what is under the hood.",
+      "subtitle": "The engine behind every chat, workflow and agent. It is already running with smart defaults, this surface is where you tune what is under the hood.",
       "inheritedTitle": "Allocated by Wayland Desktop",
-      "inheritedBody": "For this session, Desktop hands the engine your model (as an override) and injects Skills + Assistants/Constitution through its system prompt. Your Desktop MCP library is NOT passed through — only Wayland’s own operational MCPs are.",
+      "inheritedBody": "For this session, Desktop hands the engine your model (as an override) and injects Skills + Assistants/Constitution through its system prompt. Your Desktop MCP library is NOT passed through, only Wayland’s own operational MCPs are.",
       "readOnly": "read-only",
       "manageInDesktop": "Manage in Desktop Settings",
       "inheritModels": "Models (override)",
       "inheritMcp": "MCP Servers",
       "inheritSkills": "Skills",
       "inheritAssistants": "Assistants & Constitution",
-      "inheritManaged": "Managed in Desktop Settings — inherited",
-      "deeperHint": "Everything above ships working. Open Tools, Services & Keys, or Security on the left to go deeper — or leave it; the engine just runs.",
+      "inheritManaged": "Managed in Desktop Settings, inherited",
+      "deeperHint": "Everything above ships working. Open Tools, Services & Keys, or Security on the left to go deeper, or leave it; the engine just runs.",
       "scEngine": "Engine",
       "scEngineRunning": "Running",
       "scEngineStopped": "Stopped",
@@ -2316,7 +2369,7 @@
       "scProfileDefault": "Default",
       "inheritModelsDetail": "{{names}} + {{catalog}} catalog · {{allocated}}",
       "inheritModelsEmpty": "{{catalog}} provider catalog · {{allocated}}",
-      "inheritMcpDetail": "{{count}} servers — {{names}} — inherited",
+      "inheritMcpDetail": "{{count}} servers, {{names}}, inherited",
       "configuredLabel": "Configured in the engine",
       "smartDefaults": "smart defaults active",
       "chipToolsOn": "tools on",
@@ -2331,13 +2384,13 @@
       "skillsDetail": "Injected via system prompt · {{allocated}}",
       "assistantsDetail": "Injected via system prompt · {{allocated}}",
       "mcpDetail": "Wayland operational MCPs · your Desktop MCP library is separate",
-      "engineOwnedLine": "Tools, Memory, Security and Profiles are the engine’s own — written to ~/.wayland-core/config.toml and shared with the Wayland Core CLI."
+      "engineOwnedLine": "Tools, Memory, Security and Profiles are the engine’s own, written to ~/.wayland-core/config.toml and shared with the Wayland Core CLI."
     },
     "services": {
-      "subtitle": "The engine tool backends — web search, vision, voice, image. Wayland ships working out of the box; plug in a key to unlock higher limits.",
+      "subtitle": "The engine tool backends, web search, vision, voice, image. Wayland ships working out of the box; plug in a key to unlock higher limits.",
       "webSearchGroup": "Web Search",
-      "ddgTitle": "DuckDuckGo · active — free web search is on",
-      "ddgBody": "No key needed — Wayland searches the web right now. Add a key below only to go faster or run higher volume.",
+      "ddgTitle": "DuckDuckGo · active, free web search is on",
+      "ddgBody": "No key needed, Wayland searches the web right now. Add a key below only to go faster or run higher volume.",
       "connected": "Connected",
       "getFreeKey": "Get a free key",
       "keyPlaceholder": "Paste API key…",
@@ -2347,13 +2400,13 @@
       "remove": "Remove",
       "saveFailed": "Could not save the key.",
       "brave": {
-        "desc": "Independent search index — privacy-first, generous free tier."
+        "desc": "Independent search index, privacy-first, generous free tier."
       },
       "tavily": {
-        "desc": "Search built for agents — clean, ranked results for LLMs."
+        "desc": "Search built for agents, clean, ranked results for LLMs."
       },
       "exa": {
-        "desc": "Neural search — find pages by meaning, not just keywords."
+        "desc": "Neural search, find pages by meaning, not just keywords."
       },
       "firecrawl": {
         "desc": "Crawl and scrape any site into clean, LLM-ready content."
@@ -2460,7 +2513,7 @@
       "autoRunAria": "{{tool}}을(를) 묻지 않고 자동 실행"
     },
     "memory": {
-      "subtitle": "The engine remembers across sessions — facts, preferences, and project context that persist and compound. On by default, stored locally.",
+      "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",
       "providerLocal": "Local (SQLite + BM25)",
       "providerHoncho": "Honcho",
       "providerMem0": "Mem0",
@@ -2513,14 +2566,14 @@
       "noLocalBypass": "현재 브라우저의 localhost 접근을 허용하는 지원 Wayland 설정은 없습니다. Raw Engine Mode를 변경하거나 이전 block_private_urls 키를 편집해도 해결되지 않습니다.",
       "subtitle": "Control how much the engine can do without asking, and exactly which secrets reach the sandbox. Safe defaults already in place.",
       "envInvalid": "Not a valid env var name.",
-      "envSensitive": "That looks like a secret — secret-bearing names can’t be passed to the sandbox.",
+      "envSensitive": "That looks like a secret, secret-bearing names can’t be passed to the sandbox.",
       "approvalAsk": "Ask every time",
       "approvalAuto": "Auto-edit",
       "approvalYolo": "YOLO",
       "approvalsMode": "Approvals Mode",
       "defaultPolicy": "Default approval policy",
       "defaultPolicyDesc": "How edits & commands are confirmed",
-      "approvalHint": "Auto-edit — file edits apply automatically; shell commands and network actions still ask. Recommended for most work.",
+      "approvalHint": "Auto-edit, file edits apply automatically; shell commands and network actions still ask. Recommended for most work.",
       "envAllowlist": "Env-passthrough Allowlist",
       "envPill": "which env vars reach bash",
       "envEmpty": "No env vars are passed to the sandbox yet. Add a non-secret name below.",
@@ -2528,13 +2581,13 @@
       "envRemove": "Remove {{name}}",
       "envPlaceholder": "e.g. GITHUB_TOKEN_NAME, PATH, NODE_ENV (no secrets)",
       "envAdd": "Add",
-      "envSecretsNote": "Only variable names are stored, never values — and secret-bearing names (API keys, tokens, passwords) are refused.",
+      "envSecretsNote": "Only variable names are stored, never values, and secret-bearing names (API keys, tokens, passwords) are refused.",
       "privateUrls": "Private URLs",
       "blockPrivate": "Block private & loopback fetches",
       "blockPrivateDesc": "Stop the engine reaching 10.x, 192.168.x, localhost, and metadata endpoints"
     },
     "profiles": {
-      "subtitle": "Directory-isolated configurations. Each profile carries its own model, tools, keys, skills and memory — switch context instantly without cross-contamination.",
+      "subtitle": "Directory-isolated configurations. Each profile carries its own model, tools, keys, skills and memory, switch context instantly without cross-contamination.",
       "activateFailed": "Failed.",
       "deleteFailed": "Failed.",
       "nameInvalid": "Names use letters, digits, - and _ only (max 64).",
@@ -2554,7 +2607,7 @@
       "skillsChip": "스킬 {{count}}개"
     },
     "runtime": {
-      "subtitle": "Where the engine actually runs. Embedded locally by default — switch to a remote box or a hosted headless server when you need to.",
+      "subtitle": "Where the engine actually runs. Embedded locally by default, switch to a remote box or a hosted headless server when you need to.",
       "modeLocal": "Local",
       "modeRemote": "Remote",
       "modeHeadless": "Headless server",
@@ -2568,12 +2621,12 @@
       "agentsVal": "{{count}} agents",
       "powerUser": "Power User",
       "rawEngine": "Raw engine mode",
-      "rawEngineDesc": "Run the embedded engine on its own config — don’t override with Desktop’s model & skills.",
+      "rawEngineDesc": "Run the embedded engine on its own config, don’t override with Desktop’s model & skills.",
       "headlessTitle": "Headless server mode",
       "headlessBody": "Run Wayland Core as a long-lived server (one container per tenant) and reach it over LAN, Tailscale, or the hosted Pro tier."
     },
     "scopeWritesTo": "Writes to",
-    "scopeSharedCli": "— used by the Wayland Core CLI too."
+    "scopeSharedCli": ", used by the Wayland Core CLI too."
   },
   "slashCommands": {
     "title": "Slash Commands",
@@ -2626,6 +2679,7 @@
       "providerConnectivity": "Provider connectivity",
       "modelRegistry": "Model registry",
       "engineReachable": "Engine reachable",
+      "engineContractPin": "Engine version match",
       "engineRouting": "Engine default routing",
       "mcpServers": "MCP servers",
       "backends": "Detected backends",
@@ -2638,5 +2692,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "작업 중 업데이트 연기",
-  "deferUpdateWhileBusyDesc": "활성 채팅, 예약 작업, 팀이 끝날 때까지 기다린 후 업데이트를 위해 다시 시작합니다. 업데이트는 유휴 상태이거나 종료할 때 적용됩니다."
+  "deferUpdateWhileBusyDesc": "활성 채팅, 예약 작업, 팀이 끝날 때까지 기다린 후 업데이트를 위해 다시 시작합니다. 업데이트는 유휴 상태이거나 종료할 때 적용됩니다.",
+  "textToSpeechProviderWindowsNative": "Windows 음성",
+  "textToSpeechLocalVoiceLabel": "기본 제공 음성",
+  "textToSpeechNoLocalVoice": "이 운영 체제에는 기본 제공 음성이 없습니다. 답변을 소리내어 들으려면 OpenAI Speech를 선택하세요.",
+  "speechToTextOnDeviceLabel": "기기에서 실행",
+  "speechToTextOnDeviceBody": "Wayland에 포함된 모델로 이 기기에서 실행됩니다. 키도 다운로드도 필요 없으며 오디오는 이 기기를 벗어나지 않습니다."
 }

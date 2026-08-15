@@ -8,6 +8,7 @@ import { FLUX_MODEL_IDS, FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
 import { providerMeta } from './providerCatalog';
+import { isKeylessLocalProvider, isProviderActionNeeded } from './providerStatus';
 import { allVisibleEnabled, mergeCatalogRows, rowsToFlip } from './components/bulkToggle';
 import XGrokButton from './components/XGrokButton';
 import ChatGptButton from './components/ChatGptButton';
@@ -79,7 +80,11 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   const { getCatalog, toggleModel, addCustomModel, removeCustomModel, refresh, rekey, disconnect } = useModelRegistry();
 
   const meta = providerMeta(provider.providerId);
-  const isError = provider.state === 'error';
+  // Read the SAME predicate the list row reads. This used to be
+  // `provider.state === 'error'` alone, which ignored `credsUndecryptable` -
+  // so a provider the list painted red rendered a green "Connected" badge the
+  // moment the user clicked into it, and stayed red when they came back out.
+  const isError = isProviderActionNeeded(provider);
 
   // The Manage page renders the FULL catalog (including image / audio /
   // embedding rows that the text-only curated view excludes) joined with
@@ -283,19 +288,44 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   const allEnabled = useMemo(() => allVisibleEnabled(filtered), [filtered]);
 
   // ---- Refresh -----------------------------------------------------------
+  // `refresh` resolves `ok: true` whenever the catalog was rebuilt - including
+  // when the rebuild fell back to the models.dev registry slice because the
+  // stored credential could not list a single model. Reporting "Catalog up to
+  // date." off that is how this page told the user everything was fine while
+  // the list row kept saying "Action needed". So the outcome is announced only
+  // AFTER the registry snapshot has reloaded, against the same predicate the
+  // row uses.
+  const [refreshNonce, setRefreshNonce] = useState(0);
+
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
+      // `useModelRegistry.refresh` awaits its own `reload()` on success, so the
+      // shared `providers` snapshot is already current when this resolves.
       const res = await refresh(provider.providerId);
       if (!res?.ok) throw new Error('refresh failed');
       await loadCatalog();
-      Message.success(t('settings.modelsPage.manage.refreshDone'));
+      setRefreshNonce((n) => n + 1);
     } catch {
       Message.error(t('settings.modelsPage.manage.refreshFailed'));
     } finally {
       setRefreshing(false);
     }
   }, [refresh, provider.providerId, loadCatalog, t]);
+
+  // Announce the refresh outcome from a re-render, where `provider` is the
+  // reloaded row rather than the one captured when the click started. Keyed on
+  // the nonce ALONE on purpose: depending on `provider` would re-fire the toast
+  // on every unrelated registry change.
+  useEffect(() => {
+    if (refreshNonce === 0) return;
+    if (isProviderActionNeeded(provider)) {
+      Message.warning(t('settings.modelsPage.manage.refreshStillActionNeeded'));
+    } else {
+      Message.success(t('settings.modelsPage.manage.refreshDone'));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshNonce]);
 
   // ---- Disconnect (with confirmation guard) ------------------------------
   const handleDisconnect = useCallback(() => {
@@ -350,6 +380,11 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   // TODO(2C): route cloud re-key to Packet 2C's `CloudCredentialForm` once it
   // exists, instead of disabling the button.
   const isCloudProvider = provider.connectedVia === 'cloud-credentials';
+
+  // A keyless machine-local runtime (Ollama) has no API key at all, so the
+  // Re-key dialog has nothing to replace - offering it invites the user to
+  // "fix" an unreachable daemon by pasting a credential that does not exist.
+  const isLocalRuntime = isKeylessLocalProvider(provider);
 
   // xAI (Grok) connects through the native "Sign in with X" OAuth, so its
   // reconnect path is that flow - not just the API-key Re-key dialog. Surface
@@ -465,7 +500,13 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
           >
             {t('settings.modelsPage.manage.refresh')}
           </Button>
-          {isCloudProvider ? (
+          {isLocalRuntime ? (
+            <Tooltip content={t('settings.modelsPage.manage.rekeyLocalDisabled', { provider: meta.displayName })}>
+              <Button size='small' disabled>
+                {t('settings.modelsPage.manage.rekey')}
+              </Button>
+            </Tooltip>
+          ) : isCloudProvider ? (
             <Tooltip content={t('settings.modelsPage.manage.rekeyCloudDisabled')}>
               <Button size='small' disabled>
                 {t('settings.modelsPage.manage.rekey')}

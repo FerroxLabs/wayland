@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ChevronDown, ChevronUp, Eye } from 'lucide-react';
@@ -153,7 +155,7 @@ const Diff2Html = ({
       <div className='relative w-full max-w-full overflow-x-auto' style={{ WebkitOverflowScrolling: 'touch' }}>
         <div
           className={classNames(
-            '![&_.line-num1]:hidden ![&_.line-num2]:w-30px [&_td:first-child]:w-40px ![&_td:nth-child(2)>div]:pl-45px min-w-0 max-w-full [&_div.d2f-file-wrapper]:rd-[0.3rem_0.3rem_0px_0px]  [&_div.d2h-file-header]:items-center [&_div.d2h-file-header]:bg-bg-3',
+            '![&_.line-num1]:hidden ![&_.line-num2]:w-30px [&_td:first-child]:w-40px ![&_td:nth-child(2)>div]:pl-45px min-w-0 max-w-full [&_div.d2f-file-wrapper]:rd-[0.3rem_0.3rem_0px_0px]  [&_div.d2h-file-header]:items-center [&_div.d2h-file-header]:bg-3',
             {
               '[&_.d2h-file-diff]:hidden [&_.d2h-files-diff]:hidden': collapse,
               'd2h-dark-color-scheme': theme === 'dark',
@@ -186,12 +188,16 @@ const Diff2Html = ({
 
               {/* Collapse button */}
               {collapse ? (
-                <ChevronDown size={14} color={iconColors.secondary}
+                <ChevronDown
+                  size={14}
+                  color={iconColors.secondary}
                   className='flex items-center'
                   onClick={() => setCollapse(false)}
                 />
               ) : (
-                <ChevronUp size={14} color={iconColors.secondary}
+                <ChevronUp
+                  size={14}
+                  color={iconColors.secondary}
                   className='flex items-center'
                   onClick={() => setCollapse(true)}
                 />

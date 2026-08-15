@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.ferroxlabs/tvcontrol",
+  "title": "TVControl",
+  "description": "Drive TradingView Desktop from chat: read the live chart, change symbol and timeframe, add indicators, pull OHLCV and Pine output, and take screenshots. Requires TradingView Desktop running with control enabled.",
+  "version": "2.2.2",
+  "websiteUrl": "https://github.com/FerroxLabs/tvcontrol",
+  "repository": {
+    "url": "https://github.com/FerroxLabs/tvcontrol",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@ferroxlabs/tvcontrol",
+      "version": "2.2.2",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["data", "research", "automation"],
+    "tags": ["tradingview", "charts", "trading", "pine-script", "markets"],
+    "maintainerType": "wayland",
+    "license": "MIT",
+    "verifiedAt": "2026-08-04",
+    "verifiedBy": "Wayland",
+    "popularityRank": 139,
+    "installRate": 0,
+    "iconUrl": "icons/com.ferroxlabs-tvcontrol.svg",
+    "brand": {
+      "logoBackground": "#131722",
+      "logoForeground": "#2962ff"
+    },
+    "auth": {
+      "method": "none"
+    },
+    "setupGuide": {
+      "path": "guides/com.ferroxlabs-tvcontrol.md",
+      "estimatedMinutes": 3,
+      "stepCount": 3
+    },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.9.0"
+  }
+}

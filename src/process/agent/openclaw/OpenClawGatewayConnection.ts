@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import WebSocket from 'ws';
@@ -18,7 +20,13 @@ import type {
   SessionsResetParams,
   SessionsResolveParams,
 } from './types';
-import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES, GATEWAY_CLOSE_CODE_HINTS, OPENCLAW_PROTOCOL_VERSION } from './types';
+import {
+  GATEWAY_CLIENT_IDS,
+  GATEWAY_CLIENT_MODES,
+  GATEWAY_CLOSE_CODE_HINTS,
+  OPENCLAW_MIN_PROTOCOL_VERSION,
+  OPENCLAW_PROTOCOL_VERSION,
+} from './types';
 import {
   buildDeviceAuthPayload,
   type DeviceIdentity,
@@ -82,7 +90,7 @@ export class OpenClawGatewayConnection {
     this.deviceIdentity = opts.deviceIdentity ?? loadOrCreateDeviceIdentity();
 
     this.opts = {
-      minProtocol: OPENCLAW_PROTOCOL_VERSION,
+      minProtocol: OPENCLAW_MIN_PROTOCOL_VERSION,
       maxProtocol: OPENCLAW_PROTOCOL_VERSION,
       clientName: GATEWAY_CLIENT_IDS.GATEWAY_CLIENT,
       clientVersion: '1.0.0',
@@ -286,7 +294,7 @@ export class OpenClawGatewayConnection {
     })();
 
     const params: ConnectParams = {
-      minProtocol: this.opts.minProtocol ?? OPENCLAW_PROTOCOL_VERSION,
+      minProtocol: this.opts.minProtocol ?? OPENCLAW_MIN_PROTOCOL_VERSION,
       maxProtocol: this.opts.maxProtocol ?? OPENCLAW_PROTOCOL_VERSION,
       client: {
         id: this.opts.clientName ?? GATEWAY_CLIENT_IDS.GATEWAY_CLIENT,

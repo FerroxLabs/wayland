@@ -21,7 +21,7 @@ import { AnvilPersistentMutationWatcher } from '@/process/agent/wcore/anvilMutat
 const root = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
 const manifest = JSON.parse(readFileSync(path.join(root, 'manifest.json'), 'utf8')) as {
   contract: { name: string; major: number; minor: number };
-  counts: { commands: number; events: number; fixtures: number };
+  counts: { child_types: number; commands: number; events: number; fixtures: number };
   generator: string;
   fixture_digest: string;
   schema_digest: string;
@@ -92,6 +92,7 @@ function seedOrdinary(consumer: DesktopCoreV1Consumer, event: Record<string, unk
       'text_delta',
       'thinking',
       'tool_request',
+      'call_announced',
       'tool_running',
       'tool_chunk',
       'tool_result',
@@ -104,7 +105,10 @@ function seedOrdinary(consumer: DesktopCoreV1Consumer, event: Record<string, unk
     return;
   }
   consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: msgId }));
-  if (typeof event.call_id !== 'string' || type === 'tool_request') return;
+  // `tool_request` and `call_announced` are the two frames that ANNOUNCE a
+  // call, so neither may be preceded by a synthetic announcement - seeding one
+  // would make the fixture collide with itself as a duplicate.
+  if (typeof event.call_id !== 'string' || type === 'tool_request' || type === 'call_announced') return;
   consumer.consumeLine(
     JSON.stringify({
       type: 'tool_request',
@@ -138,23 +142,43 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('d0aa0abc75afe056cc5434fcd652efa6d474ab0c');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 0 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('9b58c893');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 14 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
     expect(manifest.source_inputs_digest).toBe(DESKTOP_CORE_V1_PIN.sourceInputsDigest);
+    // The bundled engine and this pin must move together: Core's own host
+    // observer rejects a descriptor mismatch in either direction, so a pin that
+    // does not name the bundled release is a broken install, not a stale note.
+    //
+    // The tripwire this block used to carry is discharged: v0.13.0 is tagged
+    // and released, and the bundled tag now names it. Proven by execution, not
+    // by reading - the released binary was downloaded, attestation-verified and
+    // run, and Wayland Core completes turns on it. Before the tag moved, every
+    // turn died with `contract_minor_mismatch` (pin 14 vs the engine's 12).
+    //
+    // If the pin is ever NOT 14 this whole assertion is stale and the coupling
+    // must be re-derived from the released manifest, not patched.
+    expect(DESKTOP_CORE_V1_PIN.minor).toBe(14);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.12.25'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.0'"
     );
   });
 
   it('recomputes the producer fixture and schema digests from the vendored bytes', () => {
     const fixtureEntries = manifest.fixture_inventory.map((relative) => {
       let bytes = readFileSync(path.join(root, relative));
+      // Mirrors `fixtures_digest` in Core's `contract/generate.rs`: the six
+      // fixtures the generator stamps the descriptor onto are hashed with
+      // `contract.fixture_digest` zeroed, because the digest cannot contain
+      // itself. Keep this list identical to the producer's or the recompute
+      // silently stops proving anything.
       if (
-        relative === 'events/ready.json' ||
         [
+          'events/ready.json',
+          'compat/events/ready.journaled-without-replay.json',
+          'compat/events/ready.disabled-by-host.legacy.json',
           'adversarial/events/version-mismatch.jsonl',
           'adversarial/events/schema-mismatch.jsonl',
           'adversarial/events/fixture-mismatch.jsonl',
@@ -176,11 +200,77 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     expect(digestNamed(schemaEntries)).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
   });
 
-  it('contains exactly the advertised 11 commands, 39 events, and 110 fixtures', () => {
-    expect(manifest.counts).toEqual({ commands: 11, events: 39, fixtures: 110 });
-    expect(manifest.fixture_inventory).toHaveLength(110);
+  // 52 -> 59 events is C-1: the seven producer events the old corpus omitted
+  // are now declared, so the corpus finally describes the whole wire. 59 -> 60
+  // is 0.13.0's `call_announced`, the frame for a call that dispatches without
+  // passing an approval gate.
+  it('contains exactly the advertised 23 commands, 60 events, and 169 fixtures', () => {
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 23, events: 60, fixtures: 169 });
+    // The inventory and the declared count must agree - a corpus that ships a
+    // fixture it does not list, or lists one it does not ship, is the exact
+    // class of drift C-1 was.
+    expect(manifest.fixture_inventory).toHaveLength(manifest.counts.fixtures);
     for (const relative of manifest.fixture_inventory)
       expect(() => readFileSync(path.join(root, relative))).not.toThrow();
+  });
+});
+
+// Core 0.13.0 emits `tool_request` only for calls that pass an approval gate.
+// A call that skips the gate - force mode, an allow-listed tool, a
+// command-scoped grant, a recovered approval, or a tool just granted `Always` -
+// is announced by `call_announced` instead. Before that frame existed those
+// calls dispatched with nothing on the wire and the `tool_running` behind them
+// failed closed, exiting the engine mid-turn and blocking Smart Trader's setup.
+//
+// The frame carries no `tool_` prefix so older hosts drop it. Dropping is NOT
+// enough for us: the reducer has to REGISTER the call, or the `tool_running`
+// still finds no matching request and we reproduce the original crash exactly.
+describe('call_announced (Core 0.13.0 ungated call path)', () => {
+  const announced = json('events/call_announced.json');
+  const callId = announced.call_id as string;
+  const msgId = announced.msg_id as string;
+
+  function started(): DesktopCoreV1Consumer {
+    const consumer = negotiated();
+    consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: msgId }));
+    return consumer;
+  }
+
+  it('registers the call so the tool_running behind it is accepted', () => {
+    const consumer = started();
+    expect(consumer.consumeLine(text('events/call_announced.json'))).toMatchObject({ kind: 'event' });
+    expect(
+      consumer.consumeLine(JSON.stringify({ ...json('events/tool_running.json'), call_id: callId, msg_id: msgId }))
+    ).toMatchObject({ kind: 'event' });
+    expect(
+      consumer.consumeLine(JSON.stringify({ ...json('events/tool_result.json'), call_id: callId, msg_id: msgId }))
+    ).toMatchObject({ kind: 'event' });
+  });
+
+  it('still fails closed on a tool_running nobody announced', () => {
+    const consumer = started();
+    expectContractError(() =>
+      consumer.consumeLine(
+        JSON.stringify({ ...json('events/tool_running.json'), call_id: 'never-announced', msg_id: msgId })
+      )
+    );
+  });
+
+  it('still rejects a call announced twice', () => {
+    const consumer = started();
+    consumer.consumeLine(text('events/call_announced.json'));
+    expectContractError(() => consumer.consumeLine(text('events/call_announced.json')));
+  });
+
+  it('still rejects a call announced on one turn and run on another', () => {
+    const consumer = started();
+    consumer.consumeLine(text('events/call_announced.json'));
+    consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'msg-other' }));
+    expectContractError(() =>
+      consumer.consumeLine(
+        JSON.stringify({ ...json('events/tool_running.json'), call_id: callId, msg_id: 'msg-other' })
+      )
+    );
   });
 });
 
@@ -212,12 +302,99 @@ describe('actual Desktop consumer corpus replay', () => {
         });
         continue;
       }
+      // The two non-default `ready` postures carry the same descriptor stamp as
+      // `events/ready.json`, so each has to negotiate a session of its own.
+      // `journaled-without-replay` is the keyring-less production frame (named
+      // session, no crash replay) and `disabled-by-host.legacy` is the corpus's
+      // only `session_id: null`. Replaying either through an already-negotiated
+      // consumer would just re-prove the duplicate-ready guard.
+      if (name === 'ready.journaled-without-replay.json' || name === 'ready.disabled-by-host.legacy.json') {
+        expect(new DesktopCoreV1Consumer().consumeLine(text(relative))).toMatchObject({
+          kind: 'event',
+          contract: 'v1',
+        });
+        continue;
+      }
       const consumer = negotiated();
       const event = json(relative);
       seedOrdinary(consumer, event);
       if (name === 'anvil_receipt.legacy.json') expectContractError(() => consumer.consumeLine(JSON.stringify(event)));
       else expect(consumer.consumeLine(JSON.stringify(event))).toMatchObject({ kind: 'event' });
     }
+  });
+
+  // C-1 replaced the seven-event drift allowlist. Those types are DECLARED now,
+  // so this asserts the mechanism that replaced it rather than deleting the
+  // coverage: each of the seven is a first-class corpus event, which is what
+  // makes the allowlist dead code, and the unknown-event rule that guarded the
+  // rest of the wire is unchanged.
+  it('declares the seven formerly-undeclared producer events, and still fails closed on a truly unknown one', () => {
+    const formerlyUndeclared = [
+      'workspace_policy',
+      'capability_activation',
+      'compact_offload',
+      'mid_flight_monitor_decision',
+      'provider_attempt',
+      'provider_failure',
+      'provider_retry',
+    ];
+    const declared = new Set(manifest.events.map((event) => event.type));
+    for (const type of formerlyUndeclared) expect(declared.has(type)).toBe(true);
+
+    // Each one now replays as a real event off its own fixture, schema-checked -
+    // it is no longer waved through on a name. workspace_policy is the one that
+    // matters: it fires immediately after ready on EVERY session, and it is the
+    // frame that used to fail every session closed.
+    for (const type of formerlyUndeclared) {
+      const consumer = negotiated();
+      const fixture = json(`events/${type}.json`);
+      expect(consumer.consumeLine(JSON.stringify(fixture))).toMatchObject({ kind: 'event', contract: 'v1' });
+      // And the session keeps running afterwards.
+      expect(consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'm1' }))).toMatchObject({
+        kind: 'event',
+        contract: 'v1',
+      });
+    }
+
+    // The unknown-event rule is untouched: a type outside the corpus with no
+    // `critical` flag still fails the session closed rather than being guessed at.
+    expectContractError(
+      () => negotiated().consumeLine(JSON.stringify({ type: 'some_future_core_event' })),
+      'unknown_criticality'
+    );
+    expectContractError(
+      () => negotiated().consumeLine(JSON.stringify({ type: 'some_future_core_event', critical: true })),
+      'unknown_critical'
+    );
+    expect(negotiated().consumeLine(JSON.stringify({ type: 'some_future_core_event', critical: false }))).toEqual({
+      kind: 'drop',
+      reason: 'unknown_noncritical',
+    });
+  });
+
+  it('rejects an unrepresentable number on the production object path, not just the line path', () => {
+    const consumer = negotiated();
+    // The guard must live where production actually serializes. index.ts writes
+    // JSON.stringify(validateOutboundCommand(cmd)) - it never calls the line
+    // variant, so a line-only check was dead code (cross-audit, Codex 5.6 Sol).
+    expectContractError(
+      () => consumer.validateOutboundCommand(json('adversarial/commands/continue-with-budget-overflow-tokens.jsonl')),
+      'command_integer_unrepresentable'
+    );
+    // Decimal and exponent spellings of the same overflow must not slip past.
+    for (const additional_tokens of [18446744073709551616, 1.8446744073709552e19]) {
+      expectContractError(
+        () => consumer.validateOutboundCommand({ type: 'continue_with_budget', request_id: 'r1', additional_tokens }),
+        'command_integer_unrepresentable'
+      );
+    }
+    // And it must not reach past the vector it exists for.
+    expect(consumer.validateOutboundCommand(json('commands/continue_with_budget.json'))).toEqual(
+      json('commands/continue_with_budget.json')
+    );
+    expect(consumer.validateOutboundCommandLine('{"type":"ping","note":"18446744073709551616"}')).toMatchObject({
+      type: 'ping',
+    });
   });
 
   it('fails closed on malformed, version/digest mismatch, unknown-critical, and unknown-criticality vectors', () => {
@@ -267,6 +444,14 @@ describe('actual Desktop consumer corpus replay', () => {
     );
   });
 
+  // K-03: this title describes the general case, not the new eager-completion
+  // exception added below (`DesktopCoreV1Consumer.consumeChunk` recovers a
+  // complete-but-unterminated stream_end/error frame without waiting for its
+  // newline). The assertions here remain accurate post-fix: the split at byte
+  // 17 lands mid-object (the `ready` fixture's opening brace/properties are
+  // not yet a complete, balanced JSON object at that offset), so it is
+  // correctly still buffered either way. See the 'K-03: unterminated final
+  // line recovery' describe block below for the new exception's coverage.
   it('bounds raw JSONL frames, rejects invalid UTF-8, and requires a terminating newline', () => {
     const split = new DesktopCoreV1Consumer();
     const ready = Buffer.from(`${text('events/ready.json')}\n`);
@@ -477,5 +662,200 @@ describe('deferred consumer reducers', () => {
     reconnect.consumeLine(text('events/anvil_receipt.json'));
     reconnect.markDisconnected();
     expect(reconnect.anvilStatus('receipt-desktop-001')).toBe('historical');
+  });
+});
+
+// K-03: a complete `stream_end`/`error` frame whose bytes are fully received
+// but whose trailing `\n` delimiter has not yet arrived (or never arrives)
+// left the running UI state stuck indefinitely with zero observable trace -
+// the confirmed root cause of "turn shows running minutes after Core already
+// finished, with no further engine activity in the log." Cases 1-4 below are
+// RED against pre-fix code: cases 1-3 currently return `[]` for the
+// unterminated frame (nothing is recovered until a later delimiter or
+// `finishInput()` arrives), and case 4's second `consumeChunk` call (feeding
+// only the orphan `\n`) would currently throw `malformed_json`, since nothing
+// consumed the first object early and a lone `\n` is read as a zero-length
+// line. Cases 5-6 already pass unmodified today - call this out explicitly,
+// as K-01's PRF-03 did for its own already-correct behavior, so "already
+// green" is not mistaken for "test written wrong."
+describe('K-03: unterminated final line recovery', () => {
+  it('does NOT accept two concatenated objects with no delimiter between them', () => {
+    // Cross-audit (Codex 5.6 Sol). Eager recovery returned at the first balanced
+    // closing brace and then kept scanning, so a stream violating JSONL framing
+    // yielded two accepted events. The pre-fix consumer kept one unterminated
+    // invalid frame and failed closed on finishInput(). Recovery must change
+    // WHEN a frame is parsed, never WHAT is accepted.
+    const consumer = negotiated();
+    const twoObjects =
+      `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}` +
+      `${JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' })}`;
+
+    // Nothing is delivered: this is one malformed, unterminated frame.
+    expect(consumer.consumeChunk(Buffer.from(twoObjects))).toEqual([]);
+    expectContractError(() => consumer.finishInput(), 'unterminated_jsonl');
+  });
+
+  it('does NOT eagerly deliver a valid object that has trailing garbage behind it', () => {
+    const consumer = negotiated();
+    const withGarbage = `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })} not-json`;
+
+    expect(consumer.consumeChunk(Buffer.from(withGarbage))).toEqual([]);
+  });
+
+  it('preserves a frame with trailing JSON whitespace before its delayed newline', () => {
+    // Cross-audit (Codex 5.6 Sol). Eager extraction stopped exactly after `}`,
+    // stranding the spaces; the later newline then parsed them as their own
+    // line and threw malformed_json. Before the fix, JSON.parse accepted the
+    // same newline-terminated frame with trailing whitespace normally.
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n`;
+    expect(consumer.consumeChunk(Buffer.from(streamStart))).toHaveLength(1);
+
+    const bodyWithSpaces = `${JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' })}   `;
+    // Held, not stranded.
+    expect(consumer.consumeChunk(Buffer.from(bodyWithSpaces))).toEqual([]);
+
+    const results = consumer.consumeChunk(Buffer.from('\n'));
+    expect(results).toHaveLength(1);
+    expect(results[0]).toMatchObject({ kind: 'event', event: { type: 'stream_end', msg_id: 'm1' } });
+  });
+
+  it('does NOT let a stale orphan-delimiter flag absorb a later malformed empty line', () => {
+    // K-02/K-03 cross-audit (Kimi K3). `awaitingOrphanDelimiter` was cleared
+    // only by consuming a leading delimiter, so it survived a normal
+    // newline-terminated frame. Once ANY eager recovery had happened, the next
+    // bare newline anywhere in the stream was silently absorbed - a zero-length
+    // line this consumer is supposed to reject. That is protocol leniency in a
+    // security-load-bearing validator; it must stay fail-closed.
+    const consumer = negotiated();
+    const turnOne =
+      `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n` +
+      JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' });
+
+    // Eager recovery of the unterminated stream_end sets the flag.
+    expect(consumer.consumeChunk(Buffer.from(turnOne))).toHaveLength(2);
+
+    // The orphan delimiter never arrives; the engine moves straight on to the
+    // next turn, followed by a spurious empty line that must be rejected.
+    const nextFrame = `${JSON.stringify({ type: 'stream_start', msg_id: 'm2' })}\n\n`;
+
+    expectContractError(() => consumer.consumeChunk(Buffer.from(nextFrame)), 'malformed_json');
+  });
+
+  it('still absorbs a genuinely delayed delimiter that arrives in a later chunk', () => {
+    // The reconciliation this flag exists for must keep working: a merely LATE
+    // newline is not a new zero-length line and must not become malformed_json.
+    const consumer = negotiated();
+    const turnOne =
+      `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n` +
+      JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' });
+
+    expect(consumer.consumeChunk(Buffer.from(turnOne))).toHaveLength(2);
+    // The delimiter arrives alone, in its own chunk, exactly as the engine
+    // would have sent it had the write not been split.
+    expect(consumer.consumeChunk(Buffer.from('\n'))).toEqual([]);
+    expect(() => consumer.finishInput()).not.toThrow();
+  });
+
+  it('recovers a content-free stream_end the instant its bytes are complete, without its trailing newline', () => {
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n`;
+    const streamEndBody = JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' });
+
+    // ONE consumeChunk call carries the complete stream_start line AND the
+    // complete-but-unterminated stream_end body.
+    const results = consumer.consumeChunk(Buffer.from(streamStart + streamEndBody));
+
+    expect(results).toHaveLength(2);
+    expect(results[1]).toMatchObject({
+      kind: 'event',
+      event: { type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' },
+    });
+  });
+
+  it('recovers an unterminated error frame identically, covering the TRN-02 error path', () => {
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm2' })}\n`;
+    const errorBody = JSON.stringify({
+      type: 'error',
+      msg_id: 'm2',
+      error: { code: 'provider_error', message: 'provider stream failed', retryable: true },
+    });
+
+    const results = consumer.consumeChunk(Buffer.from(streamStart + errorBody));
+
+    expect(results).toHaveLength(2);
+    expect(results[1]).toMatchObject({
+      kind: 'event',
+      event: { type: 'error', msg_id: 'm2', error: { code: 'provider_error', retryable: true } },
+    });
+  });
+
+  it('recovers the literal "no assistant text, no tools" repro - the closest unit-level analog to TRN-03', () => {
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm3' })}\n`;
+    // No text_delta, no tool_request between stream_start and stream_end.
+    const streamEndBody = JSON.stringify({ type: 'stream_end', msg_id: 'm3', finish_reason: 'stop' });
+
+    const results = consumer.consumeChunk(Buffer.from(streamStart + streamEndBody));
+
+    expect(results).toHaveLength(2);
+    expect(results[0]).toMatchObject({ kind: 'event', event: { type: 'stream_start', msg_id: 'm3' } });
+    expect(results[1]).toMatchObject({
+      kind: 'event',
+      event: { type: 'stream_end', msg_id: 'm3', finish_reason: 'stop' },
+    });
+  });
+
+  it('anti-regression: a merely-delayed (not lost) delimiter is silently absorbed, not misread as malformed_json', () => {
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm4' })}\n`;
+    const streamEndBody = JSON.stringify({ type: 'stream_end', msg_id: 'm4', finish_reason: 'stop' });
+
+    const firstResults = consumer.consumeChunk(Buffer.from(streamStart + streamEndBody));
+    expect(firstResults).toHaveLength(2);
+    expect(firstResults[1]).toMatchObject({ kind: 'event', event: { type: 'stream_end', msg_id: 'm4' } });
+
+    // The delayed delimiter arrives alone in a later chunk - not a new,
+    // zero-length line; not a malformed_json error.
+    const orphanResults = consumer.consumeChunk(Buffer.from('\n'));
+    expect(orphanResults).toEqual([]);
+
+    // The consumer was not left in a poisoned state by the orphan `\n`: a
+    // fresh, complete, newline-terminated event for a NEW exchange still
+    // parses normally afterward.
+    const configChanged = `${JSON.stringify({ type: 'config_changed', capabilities: {} })}\n`;
+    const thirdResults = consumer.consumeChunk(Buffer.from(configChanged));
+    expect(thirdResults).toHaveLength(1);
+    expect(thirdResults[0]).toMatchObject({ kind: 'event', event: { type: 'config_changed' } });
+  });
+
+  it('anti-regression: genuinely incomplete data (mid-field, no closing brace) is buffered unaffected - already green today', () => {
+    const consumer = negotiated();
+    consumer.consumeChunk(Buffer.from(`${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n`));
+
+    // Cut mid-field (inside the "finish_reason" key name itself), no closing
+    // brace, no newline. The scanner's depth never returns to zero, so this
+    // must remain genuinely incomplete - zero behavior change from today.
+    const truncated = '{"type":"stream_end","msg_id":"m1","finish_rea';
+    expect(consumer.consumeChunk(Buffer.from(truncated))).toEqual([]);
+
+    // A second consumeChunk call supplies the rest of the body plus the
+    // newline - the SAME consumer parses it normally afterward, proving the
+    // truncated attempt neither threw nor flipped the consumer to 'failed'.
+    const completion = consumer.consumeChunk(Buffer.from('son":"stop"}\n'));
+    expect(completion).toHaveLength(1);
+    expect(completion[0]).toMatchObject({
+      kind: 'event',
+      event: { type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' },
+    });
+  });
+
+  it('anti-regression: a non-object leftover falls back untouched by the {-prefix short-circuit - already green today', () => {
+    const consumer = new DesktopCoreV1Consumer();
+    // A lone partial UTF-8 continuation-lead byte, no newline: not `{`-prefixed,
+    // so findCompleteObjectEnd short-circuits to null immediately and this
+    // falls through to exactly today's buffering behavior.
+    expect(consumer.consumeChunk(Buffer.from([0xc3]))).toEqual([]);
   });
 });

@@ -7,7 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import { checkProviderConnectivity, checkModelRegistrySanity } from '@process/doctor/checks/providerChecks';
 import type { ProviderRegistryReader, ConnectProbe } from '@process/doctor/checks/providerChecks';
-import { checkEngineReachable, checkEngineRouting } from '@process/doctor/checks/engineChecks';
+import { checkEngineReachable, checkEngineRouting, checkEngineContractPin } from '@process/doctor/checks/engineChecks';
 import { checkMcpServers } from '@process/doctor/checks/mcpChecks';
 import { checkBackends } from '@process/doctor/checks/backendChecks';
 import {
@@ -16,6 +16,7 @@ import {
   isTempWorkspacePath,
 } from '@process/doctor/checks/workspaceChecks';
 import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from '@process/doctor/checks/configChecks';
+import { checkAppArchitecture } from '@process/doctor/checks/platformChecks';
 import type { RegistryProvider, RegistryCredsResult } from '@process/providers/storage/ProviderRepository';
 import type { ProviderId } from '@process/providers/types';
 import type { IMcpServer } from '@/common/config/storage';
@@ -221,6 +222,69 @@ describe('checkEngineReachable', () => {
   });
 });
 
+describe('checkEngineContractPin', () => {
+  const PIN = 'sha256:4971f456655a6ee7c063a3417ebf82a27a8550420d3e6ed744bdd4be696956e9';
+
+  const OTHER = 'sha256:23fb3048000000000000000000000000000000000000000000000000deadbeef';
+
+  it('fails when the engine advertises a DIFFERENT contract digest', async () => {
+    const result = await checkEngineContractPin(
+      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => OTHER },
+      PIN
+    );
+    expect(result.status).toBe('fail');
+    expect(result.remediation).toContain('/x/wayland-core');
+  });
+
+  it('passes when the engine advertises the pinned digest', async () => {
+    const result = await checkEngineContractPin(
+      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => PIN },
+      PIN
+    );
+    expect(result.status).toBe('pass');
+  });
+
+  /**
+   * THE REGRESSION THIS CHECK SHIPPED WITH. The first version asked "is the
+   * pinned digest present?" and failed on absence — but a Core that advertises
+   * no contract is a SUPPORTED configuration, not a broken one:
+   * DesktopCoreV1Consumer.negotiate sets mode 'legacy' when ready.contract is
+   * undefined and carries on. Failing it told users of a working install to
+   * reinstall, and when the engine came from an accepted in-app update living
+   * in userData, reinstalling would not even have cleared it.
+   */
+  it('passes a legacy engine that advertises no contract at all', async () => {
+    const result = await checkEngineContractPin(
+      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => null },
+      PIN
+    );
+    expect(result.status).toBe('pass');
+  });
+
+  /** engine.reachable already fails on a missing binary; two fails, one cause. */
+  it('warns rather than failing when no binary resolved', async () => {
+    const result = await checkEngineContractPin(
+      { binaryPath: () => undefined, advertisedSchemaDigest: async () => null },
+      PIN
+    );
+    expect(result.status).toBe('warn');
+  });
+
+  it('warns when the binary cannot be read', async () => {
+    const result = await checkEngineContractPin(
+      {
+        binaryPath: () => '/x/wayland-core',
+        advertisedSchemaDigest: async () => {
+          throw new Error('EACCES: permission denied');
+        },
+      },
+      PIN
+    );
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('EACCES');
+  });
+});
+
 describe('checkEngineRouting', () => {
   it('warns when no providers are connected', async () => {
     const result = await checkEngineRouting({ providerCount: () => 0, totalModelCount: () => 0 });
@@ -277,6 +341,71 @@ describe('checkMcpServers', () => {
     });
     expect(result.status).toBe('warn');
     expect(result.detail).toContain('needs-login');
+  });
+
+  /**
+   * The failure this exists for: tvcontrol 2.2.1 answered the MCP handshake
+   * from its CLI router and published nothing, and a later zod-4 fault emptied
+   * its tool list while the connection stayed green. Counting servers alone
+   * reports both as healthy.
+   */
+  it('names a server that connects but publishes no tools', async () => {
+    const result = await checkMcpServers({
+      listServers: async () => [mcpServer({ name: 'tvcontrol' })],
+      testConnection: async () => ({ success: true, tools: [] }),
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('tvcontrol');
+    expect(result.detail).toContain('no tools');
+  });
+
+  /**
+   * Defensive only, and labelled as such on purpose.
+   *
+   * A real probe cannot reach this state: `bindMcpPrepublicationProbeTruth`
+   * runs `validateProbeTools` on every success and THROWS
+   * ("successful probe requires a tools array") when `tools` is not an array
+   * (mcpSessionTruthGate.ts:40-41, :108). So `success: true` with no `tools` is
+   * impossible downstream of McpService. This check takes an injected probe
+   * whose type still permits it, so the guard stays — but it is belt-and-braces
+   * against a shape production rejects, not a scenario a user can hit.
+   */
+  it('does not accuse a probe of publishing nothing when it reported no list at all', async () => {
+    const result = await checkMcpServers({
+      listServers: async () => [mcpServer({ name: 'quiet' })],
+      testConnection: async () => ({ success: true }),
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).not.toContain('no tools');
+  });
+
+  /**
+   * The regression the first version of this shipped with. 52 of 108 catalog
+   * entries are oauth2-byo and 44 are api-key, so a server needing a login
+   * alongside a broken one is the ordinary case. Early-returning on `toolless`
+   * dropped the login requirement and told the user to reinstall a server that
+   * only needed signing in.
+   */
+  it('reports a toolless server and an unauthenticated one together', async () => {
+    const result = await checkMcpServers({
+      listServers: async () => [mcpServer({ name: 'empty' }), mcpServer({ name: 'locked', id: 'b' })],
+      testConnection: async (server) =>
+        server.name === 'empty' ? { success: true, tools: [] } : { success: false, needsAuth: true },
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('empty');
+    expect(result.detail).toContain('locked');
+    expect(result.detail).toContain('no tools');
+    expect(result.detail).toContain('authentication');
+    expect(result.remediation).toContain('Log in');
+  });
+
+  it('reports how many tools the reachable servers publish', async () => {
+    const result = await checkMcpServers({
+      listServers: async () => [mcpServer({ name: 'a' }), mcpServer({ name: 'b', id: 'b' })],
+      testConnection: async () => ({ success: true, tools: [{ name: 't1' }, { name: 't2' }] }),
+    });
+    expect(result.detail).toContain('4 tool(s)');
   });
 
   it('does not promote a successful standalone probe to active-chat readiness', async () => {
@@ -490,5 +619,41 @@ describe('checkEngineConfigIntegrity', () => {
     const result = await checkEngineConfigIntegrity(async () => ({ status: 'corrupt', message: 'bad toml at line 3' }));
     expect(result.status).toBe('fail');
     expect(result.detail).toContain('bad toml');
+  });
+});
+
+describe('checkAppArchitecture', () => {
+  it('passes when the build matches the machine', async () => {
+    const result = await checkAppArchitecture({
+      platform: 'darwin',
+      arch: 'arm64',
+      runningUnderARM64Translation: false,
+    });
+    expect(result.status).toBe('pass');
+    expect(result.detail).toContain('arm64');
+    expect(result.remediation).toBeUndefined();
+  });
+
+  it('warns and names Rosetta when an x64 build runs translated on macOS', async () => {
+    const result = await checkAppArchitecture({
+      platform: 'darwin',
+      arch: 'x64',
+      runningUnderARM64Translation: true,
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('Rosetta');
+    expect(result.detail).toContain('x64');
+    expect(result.remediation).toContain('Apple Silicon');
+  });
+
+  it('warns without naming Rosetta when Windows runs the x64 build translated', async () => {
+    const result = await checkAppArchitecture({
+      platform: 'win32',
+      arch: 'x64',
+      runningUnderARM64Translation: true,
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).not.toContain('Rosetta');
+    expect(result.remediation).toContain('Arm64');
   });
 });

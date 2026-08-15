@@ -20,8 +20,8 @@
     "quickActionsTitle": "What can Wayland do?",
     "quickActionFeedback": "Got feedback or suggestions?",
     "quickActionStar": "Like us? Give us a star!",
-    "bugReportScreenshotCopied": "Screenshot copied — paste it into the issue with Cmd/Ctrl+V.",
-    "bugReportNoScreenshot": "Opening a pre-filled GitHub issue — attach a screenshot manually.",
+    "bugReportScreenshotCopied": "Screenshot copied. Paste it into the issue with Cmd/Ctrl+V.",
+    "bugReportNoScreenshot": "Opening a pre-filled GitHub issue. Attach a screenshot manually.",
     "bugReportChooser": "Opening the GitHub issue chooser (diagnostics unavailable)."
   },
   "history": {
@@ -222,7 +222,7 @@
       "missingCli": "The agent's command-line tool is not installed or not on PATH. Install it, then reopen this tab.",
       "atCapacity": "Too many terminals are open. Close one and try again.",
       "notFound": "This chat could not be found.",
-      "profileUnresolved": "The active profile's folder could not be opened, so the terminal was not started — it would have used the default profile's data instead."
+      "profileUnresolved": "The active profile's folder could not be opened, so the terminal was not started. It would have used the default profile's data instead."
     }
   },
   "minimap": {
@@ -235,6 +235,8 @@
   "chat": {
     "noModelSelected": "No model selected for current session, cannot send message",
     "sendMessageTo": "Send message to {{model}}",
+    "sendMessage": "Send message",
+    "stopGenerating": "Stop generating",
     "processing": "Processing...",
     "quotaExceededTitle": "Model quota reached",
     "quotaExceededBody": "The current model quota is exhausted. Switch to {{model}} to continue?",
@@ -265,10 +267,54 @@
       "permissionDenied": "Microphone permission was denied",
       "recordingUnsupported": "Live recording is not supported here. Please upload an audio file instead",
       "transcriptionFailed": "Audio transcription failed",
-      "authError": "Flux key is invalid — reconnect Flux Router to use voice input",
-      "premiumLocked": "Flux Voice needs a paid Flux plan — upgrade to use dictation",
-      "rateLimited": "Too many requests — try again shortly",
-      "genericError": "Voice input failed. Please try again"
+      "authError": "Flux key is invalid. Reconnect Flux Router to use voice input",
+      "premiumLocked": "Flux Voice needs a paid Flux plan. Upgrade to use dictation",
+      "rateLimited": "Too many requests. Try again shortly",
+      "genericError": "Voice input failed. Please try again",
+      "setupLabel": "Set up dictation",
+      "setupTooltip": "Dictation is off - open Voice settings to turn it on"
+    },
+    "voice": {
+      "statusConnecting": "Connecting…",
+      "statusListening": "Listening…",
+      "statusTapToTalk": "Tap the wave to talk",
+      "statusHearing": "I can hear you",
+      "statusTranscribing": "Transcribing…",
+      "statusThinking": "Wayland is thinking…",
+      "statusApproval": "Needs your approval in chat",
+      "statusSpeaking": "Wayland is speaking…",
+      "statusStopping": "Stopping…",
+      "statusReconnecting": "Reconnecting…",
+      "statusError": "Voice stopped",
+      "noticeTitle": "That did not go through",
+      "turnFailedTitle": "The turn failed",
+      "turnFailedNoCause": "Chat has the full turn, including the exact error and how to recover.",
+      "turnFailedShowFull": "Show the full message",
+      "noSpeakableTitle": "Nothing to read aloud",
+      "draftReadyTitle": "Your words are waiting in the draft",
+      "startLabel": "Talk with Wayland",
+      "startTitle": "Talk with Wayland, it answers out loud",
+      "endLabel": "End voice conversation",
+      "endTitle": "End the voice conversation",
+      "stopSpeaking": "Stop Wayland",
+      "mute": "Mute microphone",
+      "unmute": "Unmute microphone",
+      "greeting": {
+        "named": {
+          "howAreYou": "Hey {{name}}, how are you? What can I help you with today?",
+          "imListening": "Hi {{name}}, I'm listening. What are we working on?",
+          "readyWhenYouAre": "Hey {{name}}, ready when you are. What's on your mind?",
+          "goodToHear": "Good to hear from you, {{name}}. What can I do for you?",
+          "whereToStart": "Hi {{name}}, where should we start today?"
+        },
+        "anonymous": {
+          "howAreYou": "Hey there, how are you? What can I help you with today?",
+          "imListening": "Hi, I'm listening. What are we working on?",
+          "readyWhenYouAre": "Ready when you are. What's on your mind?",
+          "goodToHear": "Good to hear from you. What can I do for you?",
+          "whereToStart": "Hi there, where should we start today?"
+        }
+      }
     }
   },
   "sideQuestion": {
@@ -367,6 +413,7 @@
     "runningCount": "{{count}} running",
     "summaryDid": "Did {{count}} things · {{duration}}",
     "summaryDidShort": "Did {{count}} things",
+    "summaryDidOne": "{{label}} · {{duration}}",
     "summaryDidMore": "{{steps}} · +{{count}} more",
     "expandRow": "Toggle step detail",
     "sourcesCount": "{{count}} sources"
@@ -398,6 +445,8 @@
   "activation": {
     "title": "Wake your agents",
     "subtitle": "Connect a model provider to start running tasks. Pick the path that fits you.",
+    "unusableTitle": "Your agents can't reach a model",
+    "unusableSubtitle": "Your providers are connected, but none of them could take this task. Check them in Settings, or add another way in.",
     "flux": {
       "label": "Connect Flux Router",
       "sublabel": "Free key with a $1 starter credit, no card required. Routes every task to the best-fit specialist model.",
@@ -467,6 +516,17 @@
     "details": "Show error details",
     "dismiss": "Dismiss"
   },
+  "constitutionLocked": {
+    "title": "Wayland couldn’t unlock your Constitution",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "recover": {
+      "label": "Restore from a recovery archive",
+      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
+      "action": "Open recovery"
+    },
+    "details": "Show error details",
+    "dismiss": "Dismiss"
+  },
   "composerMenu": {
     "skills": "Skills",
     "connectors": "Connectors",
@@ -493,7 +553,7 @@
     "addConnector": "Add a connector",
     "manageConnectors": "Manage connectors",
     "toolNudgeOver": "{{count}} tools enabled · {{model}} caps at {{cap}}. Scope servers for this chat or switch models.",
-    "toolNudgeNear": "{{count}} of {{cap}} tools · {{model}}. Near the limit — scope servers or switch models before adding more.",
+    "toolNudgeNear": "{{count}} of {{cap}} tools · {{model}}. Near the limit, so scope servers or switch models before adding more.",
     "toolNudgeModelFallback": "this model"
   },
   "modelSelector": {
@@ -546,8 +606,19 @@
   "execution": {
     "progressCount": "{{completed}} of {{total}} complete",
     "currentActivity": "Working through the current task",
+    "failedActivity": "The run stopped before it finished",
+    "lifecycle": {
+      "queued": "queued",
+      "running": "running",
+      "waiting": "waiting",
+      "completed": "completed",
+      "failed": "failed"
+    },
     "missionRail": "Mission progress",
     "progress": "Progress",
+    "steps": "Steps taken",
+    "emptyTitle": "No steps yet",
+    "emptyDescription": "The plan and each step taken will appear here as this task runs.",
     "replans": "Plan changes",
     "replanCount": "{{count}} recorded revisions",
     "producerPlan": "Agent plan",

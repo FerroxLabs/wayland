@@ -107,7 +107,10 @@ test.describe('Extension WebUI Contributions', () => {
         };
       }, port);
 
-      expect(result.status).toBe(403);
+      // 401, not 403: TokenMiddleware answers 401 for MISSING or invalid
+      // credentials per RFC 9110 15.5.2. Extension API routes go through the
+      // same validateApiAccess stack, so they moved with it.
+      expect(result.status).toBe(401);
       expect(/access denied|login/i.test(result.body)).toBeTruthy();
     } finally {
       await stopWebuiIfStarted(page, startedByTest);
@@ -155,7 +158,7 @@ test.describe('Extension WebUI Contributions', () => {
           body: await response.text(),
         };
       }, port);
-      expect(enabledRouteResult.status).toBe(403);
+      expect(enabledRouteResult.status).toBe(401);
     } finally {
       await invokeBridge(page, 'extensions.enable', { name: 'ext-feishu' });
       await stopWebuiIfStarted(page, startedByTest);

@@ -69,6 +69,16 @@ export type ActivityEvent =
   | {
       kind: 'cost';
       perTurn: ActivityTurnCost[];
+    }
+  | {
+      /**
+       * K-03 - the engine reported the turn is over (wcore `stream_end`, or a
+       * process exit that killed the turn). Card-level, not a node: it settles
+       * every node the stream never gave a terminal frame for.
+       */
+      kind: 'turn_end';
+      outcome: 'done' | 'failed';
+      ts?: number;
     };
 
 /** Fresh, empty content for a turn. */
@@ -79,10 +89,33 @@ export const emptyActivityContent = (turnId: string): ActivityContent => ({
   status: 'running',
 });
 
-/** Roll the overall card status up from its nodes. */
-const rollUpStatus = (nodes: ActivityNode[]): ActivityContent['status'] => {
+/**
+ * K-03 - settle every node the stream left 'running'. `tool_chunk` synthesizes
+ * running nodes (addOrUpdateNode below) and NOTHING in the wcore pipeline ever
+ * gives them a terminal frame, so without this a finished turn keeps a spinning
+ * step forever and the card can never roll up.
+ */
+const terminalizeNodes = (nodes: ActivityNode[], outcome: 'done' | 'failed', ts?: number): ActivityNode[] =>
+  nodes.map((node) =>
+    node.status === 'running'
+      ? { ...node, status: outcome, ...(node.endTime == null && ts != null ? { endTime: ts } : {}) }
+      : node
+  );
+
+/**
+ * Roll the overall card status up from its nodes.
+ *
+ * `ended` is the engine's own turn-end verdict. It is the ONLY thing that can
+ * settle a card with no nodes: a zero-node card has no steps to report on, but
+ * before the turn ends it is also not evidence the turn is over, so the
+ * no-nodes default stays 'running' (a card is created at the first observability
+ * frame of a live turn - `session_cost` on a text-only turn, a `tool_chunk`
+ * before its node exists - and must read running until turn end says otherwise).
+ */
+const rollUpStatus = (nodes: ActivityNode[], ended?: 'done' | 'failed'): ActivityContent['status'] => {
   if (nodes.some((n) => n.status === 'running')) return 'running';
   if (nodes.some((n) => n.status === 'failed')) return 'failed';
+  if (ended) return ended;
   if (nodes.length === 0) return 'running';
   return 'done';
 };
@@ -100,6 +133,12 @@ export const addOrUpdateNode = (content: ActivityContent, evt: ActivityEvent): A
   // Cost rows are turn-level metadata, not a node.
   if (evt.kind === 'cost') {
     return { ...content, perTurnCost: evt.perTurn };
+  }
+
+  // Turn end is turn-level metadata too: it settles the whole card.
+  if (evt.kind === 'turn_end') {
+    const settled = terminalizeNodes(content.nodes, evt.outcome, evt.ts);
+    return { ...content, nodes: settled, ended: evt.outcome, status: rollUpStatus(settled, evt.outcome) };
   }
 
   const nodes = content.nodes.slice();
@@ -195,7 +234,17 @@ export const mergeActivityContent = (prev: ActivityContent, next: ActivityConten
   if (next.perTurnCost) {
     merged = { ...merged, perTurnCost: next.perTurnCost };
   }
-  return { ...merged, status: rollUpStatus(merged.nodes) };
+  // K-03 - the turn-end verdict is a property of the CARD, so it cannot ride the
+  // node fold above: the delta carrying it is built on an empty base and has no
+  // nodes at all. Apply it to the ACCUMULATED card here, and keep it sticky -
+  // `session_cost` lands AFTER the turn ends (WCoreManager force-forwards it with
+  // the last turn's msg_id) and would otherwise roll a settled card back to
+  // 'running' on the very next merge.
+  const ended = next.ended ?? merged.ended;
+  if (ended) {
+    merged = { ...merged, ended, nodes: terminalizeNodes(merged.nodes, ended) };
+  }
+  return { ...merged, status: rollUpStatus(merged.nodes, ended) };
 };
 
 /**

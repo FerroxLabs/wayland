@@ -29,6 +29,7 @@ import mcpLibrary from './mcpLibrary.json';
 import onboarding from './onboarding.json';
 import projects from './projects.json';
 import concierge from './concierge.json';
+import shellChoice from './shellChoice.json';
 
 export default {
   common,
@@ -61,4 +62,5 @@ export default {
   onboarding,
   projects,
   concierge,
+  shellChoice,
 };

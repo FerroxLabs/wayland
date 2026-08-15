@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "Модель для поточної сесії не вибрана, неможливо надіслати повідомлення",
     "sendMessageTo": "Надіслати повідомлення {{model}}",
+    "sendMessage": "Надіслати повідомлення",
+    "stopGenerating": "Зупинити генерацію",
     "processing": "Обробка...",
     "quotaExceededTitle": "Ліміт моделі вичерпано",
     "quotaExceededBody": "Ліміт поточної моделі вичерпано. Переключитися на {{model}}, щоб продовжити?",
@@ -235,11 +237,55 @@
       "permissionDenied": "Доступ до мікрофона відхилено",
       "recordingUnsupported": "Запис у реальному часі не підтримується. Будь ласка, завантажте аудіофайл",
       "transcriptionFailed": "Не вдалося транскрибувати аудіо",
-      "authError": "Ключ Flux недійсний — повторно під’єднайте Flux Router, щоб користуватися голосовим вводом",
-      "premiumLocked": "Flux Voice потребує платного тарифу Flux — оновіть його, щоб користуватися диктуванням",
-      "rateLimited": "Забагато запитів — спробуйте ще раз трохи згодом",
+      "authError": "Ключ Flux недійсний, повторно під’єднайте Flux Router, щоб користуватися голосовим вводом",
+      "premiumLocked": "Flux Voice потребує платного тарифу Flux, оновіть його, щоб користуватися диктуванням",
+      "rateLimited": "Забагато запитів, спробуйте ще раз трохи згодом",
       "genericError": "Помилка голосового введення. Спробуйте ще раз",
-      "emptyTranscript": "Мовлення не виявлено"
+      "emptyTranscript": "Мовлення не виявлено",
+      "setupLabel": "Налаштувати диктування",
+      "setupTooltip": "Диктування вимкнено, увімкніть його в налаштуваннях голосу"
+    },
+    "voice": {
+      "statusConnecting": "Підключення…",
+      "statusListening": "Слухаю…",
+      "statusTapToTalk": "Торкніться хвилі, щоб говорити",
+      "statusHearing": "Я вас чую",
+      "statusTranscribing": "Розшифровка…",
+      "statusThinking": "Wayland думає…",
+      "statusApproval": "Потрібне ваше підтвердження в чаті",
+      "statusSpeaking": "Wayland говорить…",
+      "statusStopping": "Зупинка…",
+      "statusReconnecting": "Перепідключення…",
+      "statusError": "Голос зупинено",
+      "noticeTitle": "Це не спрацювало",
+      "turnFailedTitle": "Хід завершився помилкою",
+      "turnFailedNoCause": "Повний хід залишився в чаті разом із точною помилкою та способом відновлення.",
+      "turnFailedShowFull": "Показати повідомлення повністю",
+      "noSpeakableTitle": "Немає чого читати вголос",
+      "draftReadyTitle": "Ваші слова чекають у чернетці",
+      "startLabel": "Поговорити з Wayland",
+      "startTitle": "Поговоріть з Wayland, він відповідає вголос",
+      "endLabel": "Завершити голосову розмову",
+      "endTitle": "Завершити голосову розмову",
+      "stopSpeaking": "Зупинити Wayland",
+      "mute": "Вимкнути мікрофон",
+      "unmute": "Увімкнути мікрофон",
+      "greeting": {
+        "named": {
+          "howAreYou": "Привіт, {{name}}, як справи? Чим можу допомогти сьогодні?",
+          "imListening": "Привіт, {{name}}, я слухаю. Над чим працюємо?",
+          "readyWhenYouAre": "Привіт, {{name}}, я готовий, коли ти будеш. Про що думаєш?",
+          "goodToHear": "Радий тебе чути, {{name}}. Що я можу для тебе зробити?",
+          "whereToStart": "Привіт, {{name}}, з чого почнемо сьогодні?"
+        },
+        "anonymous": {
+          "howAreYou": "Привіт, як справи? Чим можу допомогти сьогодні?",
+          "imListening": "Привіт, я слухаю. Над чим працюємо?",
+          "readyWhenYouAre": "Я готовий, коли ти будеш. Про що думаєш?",
+          "goodToHear": "Радий тебе чути. Що я можу для тебе зробити?",
+          "whereToStart": "Привіт, з чого почнемо сьогодні?"
+        }
+      }
     }
   },
   "sideQuestion": {
@@ -324,9 +370,11 @@
   "activation": {
     "title": "Розбудіть своїх агентів",
     "subtitle": "Підключіть постачальника моделей, щоб почати виконувати завдання. Оберіть зручний для вас спосіб.",
+    "unusableTitle": "Ваші агенти не можуть дістатися до моделі",
+    "unusableSubtitle": "Провайдери під’єднані, але жоден не зміг узяти це завдання. Перевірте їх у налаштуваннях або додайте ще один спосіб під’єднання.",
     "flux": {
       "label": "Підключити Flux Router",
-      "sublabel": "Безкоштовний ключ і стартовий кредит $1. Без картки — кожне завдання спрямовується до найдоречнішої профільної моделі.",
+      "sublabel": "Безкоштовний ключ і стартовий кредит $1. Без картки, кожне завдання спрямовується до найдоречнішої профільної моделі.",
       "action": "Підключити"
     },
     "ownKey": {
@@ -336,7 +384,7 @@
     },
     "claudeCode": {
       "label": "Використати Claude Code",
-      "sublabel": "Працює з вашим наявним входом у Claude Code — без додаткових ключів.",
+      "sublabel": "Працює з вашим наявним входом у Claude Code, без додаткових ключів.",
       "action": "Використати"
     }
   },
@@ -384,6 +432,17 @@
       "label": "Retry the last message",
       "sublabel": "Re-run the message that hit the limit on the selected model.",
       "action": "Retry"
+    },
+    "details": "Show error details",
+    "dismiss": "Dismiss"
+  },
+  "constitutionLocked": {
+    "title": "Wayland couldn’t unlock your Constitution",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "recover": {
+      "label": "Restore from a recovery archive",
+      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
+      "action": "Open recovery"
     },
     "details": "Show error details",
     "dismiss": "Dismiss"

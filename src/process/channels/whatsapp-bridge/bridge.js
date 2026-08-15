@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
- * Portions adapted from Hermes Agent:
- *   hermes-agent/scripts/whatsapp-bridge/bridge.js
- *   Copyright (c) 2025 Peter Steinberger / Hermes Agent contributors - MIT License
+ * Portions adapted from Hermes Agent <https://github.com/NousResearch/hermes-agent>
+ *   Source: scripts/whatsapp-bridge/bridge.js
+ *   Copyright (c) 2025 Nous Research
+ *   Licensed under the MIT License - see LICENSES/hermes-agent.txt
  *
  * Wayland modifications:
  * @license

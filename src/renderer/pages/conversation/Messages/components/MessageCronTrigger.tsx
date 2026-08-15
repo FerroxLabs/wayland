@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ChevronRight, Clock } from 'lucide-react';
@@ -23,7 +25,8 @@ const MessageCronTrigger: React.FC<{ message: IMessageCronTrigger }> = ({ messag
         style={{ borderColor: 'color-mix(in srgb, var(--color-border-2) 70%, transparent)' }}
       >
         <Clock
-          size={18} color={iconColors.secondary}
+          size={18}
+          color={iconColors.secondary}
           className='block leading-none shrink-0'
           style={{ lineHeight: 0 }}
         />
@@ -31,7 +34,8 @@ const MessageCronTrigger: React.FC<{ message: IMessageCronTrigger }> = ({ messag
           {t('cron.trigger.runScheduledTask', { name: cronJobName })}
         </span>
         <ChevronRight
-          size={16} color={iconColors.secondary}
+          size={16}
+          color={iconColors.secondary}
           className='block leading-none shrink-0'
           style={{ lineHeight: 0 }}
         />

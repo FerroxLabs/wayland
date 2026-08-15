@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "現在のセッションでモデルが選択されていないため、メッセージを送信できません",
     "sendMessageTo": "{{model}}にメッセージを送信",
+    "sendMessage": "メッセージを送信",
+    "stopGenerating": "生成を停止",
     "processing": "処理中……",
     "quotaExceededTitle": "モデルの上限に達しました",
     "quotaExceededBody": "現在のモデルの上限に達しました。{{model}}に切り替えて続行しますか？",
@@ -239,7 +241,51 @@
       "authError": "Flux キーが無効です。音声入力を使うには Flux Router を再接続してください",
       "premiumLocked": "Flux Voice には有料の Flux プランが必要です。音声入力を使うにはアップグレードしてください",
       "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください",
-      "genericError": "音声入力に失敗しました。もう一度お試しください"
+      "genericError": "音声入力に失敗しました。もう一度お試しください",
+      "setupLabel": "音声入力を設定",
+      "setupTooltip": "音声入力はオフです。音声設定でオンにしてください"
+    },
+    "voice": {
+      "statusConnecting": "接続中…",
+      "statusListening": "聞いています…",
+      "statusTapToTalk": "波形をタップして話す",
+      "statusHearing": "聞こえています",
+      "statusTranscribing": "文字起こし中…",
+      "statusThinking": "Wayland が考えています…",
+      "statusApproval": "チャットでの承認が必要です",
+      "statusSpeaking": "Wayland が話しています…",
+      "statusStopping": "停止中…",
+      "statusReconnecting": "再接続中…",
+      "statusError": "音声を停止しました",
+      "noticeTitle": "実行できませんでした",
+      "turnFailedTitle": "ターンが失敗しました",
+      "turnFailedNoCause": "チャットにターン全体が残っています。正確なエラーと復旧方法もそこにあります。",
+      "turnFailedShowFull": "メッセージ全文を表示",
+      "noSpeakableTitle": "読み上げる内容がありません",
+      "draftReadyTitle": "入力した言葉は下書きで待っています",
+      "startLabel": "Wayland と話す",
+      "startTitle": "Wayland と話す、音声で応答します",
+      "endLabel": "音声会話を終了",
+      "endTitle": "音声会話を終了します",
+      "stopSpeaking": "Wayland を停止",
+      "mute": "マイクをミュート",
+      "unmute": "マイクのミュートを解除",
+      "greeting": {
+        "named": {
+          "howAreYou": "こんにちは {{name}} さん、お元気ですか？今日は何をお手伝いしましょうか？",
+          "imListening": "こんにちは {{name}} さん、聞いています。何に取り組みましょうか？",
+          "readyWhenYouAre": "{{name}} さん、いつでもどうぞ。何をお考えですか？",
+          "goodToHear": "{{name}} さん、お声が聞けてうれしいです。何かお手伝いできることはありますか？",
+          "whereToStart": "こんにちは {{name}} さん、今日はどこから始めましょうか？"
+        },
+        "anonymous": {
+          "howAreYou": "こんにちは、お元気ですか？今日は何をお手伝いしましょうか？",
+          "imListening": "こんにちは、聞いています。何に取り組みましょうか？",
+          "readyWhenYouAre": "いつでもどうぞ。何をお考えですか？",
+          "goodToHear": "お声が聞けてうれしいです。何かお手伝いできることはありますか？",
+          "whereToStart": "こんにちは、今日はどこから始めましょうか？"
+        }
+      }
     }
   },
   "sideQuestion": {
@@ -324,9 +370,11 @@
   "activation": {
     "title": "エージェントを起動する",
     "subtitle": "モデルプロバイダーを接続してタスクの実行を開始しましょう。自分に合った方法を選んでください。",
+    "unusableTitle": "エージェントがモデルに到達できません",
+    "unusableSubtitle": "プロバイダーは接続済みですが、このタスクを受けられるものがありませんでした。設定で確認するか、別の接続方法を追加してください。",
     "flux": {
       "label": "Flux Router を接続",
-      "sublabel": "無料キーと 1 ドルのスタータークレジット付き。カード不要——各タスクを最適な専門モデルへルーティングします。",
+      "sublabel": "無料キーと 1 ドルのスタータークレジット付き。カード不要、各タスクを最適な専門モデルへルーティングします。",
       "action": "接続"
     },
     "ownKey": {
@@ -336,7 +384,7 @@
     },
     "claudeCode": {
       "label": "Claude Code を使う",
-      "sublabel": "既存の Claude Code ログインで実行——追加のキー管理は不要です。",
+      "sublabel": "既存の Claude Code ログインで実行、追加のキー管理は不要です。",
       "action": "使う"
     }
   },
@@ -384,6 +432,17 @@
       "label": "Retry the last message",
       "sublabel": "Re-run the message that hit the limit on the selected model.",
       "action": "Retry"
+    },
+    "details": "Show error details",
+    "dismiss": "Dismiss"
+  },
+  "constitutionLocked": {
+    "title": "Wayland couldn’t unlock your Constitution",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app、so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "recover": {
+      "label": "Restore from a recovery archive",
+      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
+      "action": "Open recovery"
     },
     "details": "Show error details",
     "dismiss": "Dismiss"

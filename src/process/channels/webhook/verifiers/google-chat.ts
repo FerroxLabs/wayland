@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/steipete/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * Google Chat webhook verifier.
  *
  * Google Chat POSTs a Bearer JWT signed by Google's service-account key for
@@ -32,8 +28,7 @@ import type { WebhookVerifier, WebhookVerificationResult } from '../types';
 
 const CHAT_ISSUER = 'chat@system.gserviceaccount.com';
 // Google's x509 certs for the Chat service account - converted to JWKS format via jose
-const CHAT_JWKS_URL =
-  'https://www.googleapis.com/service_accounts/v1/jwk/chat@system.gserviceaccount.com';
+const CHAT_JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/chat@system.gserviceaccount.com';
 
 // Lazily built; shared across all verifier calls in the same process lifetime.
 let remoteJwks: ReturnType<typeof createRemoteJWKSet> | null = null;
@@ -58,10 +53,7 @@ function extractBearer(headers: Record<string, string | string[] | undefined>): 
  * Exported for unit testing - verifies a Google Chat Bearer JWT.
  * `audience` is the expected `aud` claim (project number or app URL).
  */
-export async function verifyGoogleChatJwt(
-  token: string,
-  audience: string,
-): Promise<{ ok: boolean; reason?: string }> {
+export async function verifyGoogleChatJwt(token: string, audience: string): Promise<{ ok: boolean; reason?: string }> {
   if (!audience) {
     return { ok: false, reason: 'missing audience configuration' };
   }
@@ -89,10 +81,7 @@ export async function verifyGoogleChatJwt(
  * WebhookVerifier for google-chat. The `secret` field on the connection token
  * holds the expected JWT audience (Google Cloud project number or app URL).
  */
-export const googleChatVerifier: WebhookVerifier = async (
-  input,
-  secret,
-): Promise<WebhookVerificationResult> => {
+export const googleChatVerifier: WebhookVerifier = async (input, secret): Promise<WebhookVerificationResult> => {
   const bearer = extractBearer(input.headers);
   if (!bearer) {
     return { ok: false, reason: 'missing-bearer-token', status: 401 };
@@ -118,9 +107,7 @@ export const googleChatVerifier: WebhookVerifier = async (
 
   // Google Chat events don't have a stable top-level event ID, but the message
   // resource name ("spaces/X/messages/Y") is stable - use it for dedup if present.
-  const eventId =
-    (payload as { message?: { name?: string } }).message?.name ??
-    (payload as { name?: string }).name;
+  const eventId = (payload as { message?: { name?: string } }).message?.name ?? (payload as { name?: string }).name;
 
   return { ok: true, payload, eventId };
 };

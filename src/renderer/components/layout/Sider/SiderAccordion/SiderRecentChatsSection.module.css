@@ -1,5 +1,5 @@
 /* v0.6.2.1 Fix D2 - matches the SiderAccordionShell section-label vocabulary
-   (small-caps · tracking-wide · 10px · text-text-3) so Recent Chats reads as
+   (small-caps · tracking-wide · 10px · text-3) so Recent Chats reads as
    a section heading rather than a primary nav target. The chevron is absent
    here on purpose - this section is labelled-but-not-collapsible per SPEC. */
 .section {

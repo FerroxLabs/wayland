@@ -69,7 +69,25 @@ export type ExecutionActivity = Readonly<{
   kind: 'tool' | 'thinking' | 'sub-agent' | 'browser' | 'computer' | 'approval' | 'system';
   name: string;
   status: 'queued' | 'running' | 'waiting' | 'completed' | 'failed' | 'cancelled';
+  /** Streamed output or trailing text. NOT the invocation - it can be a large blob. */
   detail?: string;
+  /**
+   * What the step was ASKED to do (a shell command, a tool description). Kept
+   * apart from `detail` because a label built from output splices result text
+   * into the timeline; only this field is safe to render as "what it is doing".
+   */
+  command?: string;
+  /**
+   * The protocol's OWN declaration of what this call does, when the producer
+   * declares one. ACP types every tool call `read | edit | execute`
+   * (`ToolCallUpdate.update.kind`), while its `title` is a sentence the agent
+   * writes - so for ACP this is the only structured identity available, and
+   * `name` is free text. WCore names a registry tool instead and declares no
+   * kind, so it leaves this unset and is classified by `name`.
+   *
+   * Producer-declared, never inferred from arguments or output.
+   */
+  toolKind?: 'read' | 'edit' | 'execute';
   parentId?: string;
 }>;
 

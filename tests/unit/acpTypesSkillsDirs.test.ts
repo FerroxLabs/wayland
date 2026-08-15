@@ -11,7 +11,10 @@ describe('acpTypes - skillsDirs integration', () => {
         codex: ['.codex/skills'],
         codebuddy: ['.codebuddy/skills'],
         goose: ['.goose/skills'],
-        kimi: ['.kimi/skills'],
+        // Kimi Code's own binary carries `PROJECT_BRAND_DIRS =
+        // [".kimi-code/skills"]`; `.kimi/skills` is the legacy tree its
+        // `migrate` subcommand copies out of.
+        kimi: ['.kimi-code/skills'],
         droid: ['.factory/skills'],
         vibe: ['.vibe/skills'],
         cursor: ['.cursor/skills'],
@@ -118,5 +121,17 @@ describe('acpTypes - skillsDirs integration', () => {
       expect(getSkillsDirsForBackend('nonexistent')).toBeUndefined();
       expect(getSkillsDirsForBackend('custom')).toBeUndefined();
     });
+  });
+});
+
+describe('ACP_BACKENDS_ALL.wnano spawn contract (regression B1)', () => {
+  // Live-proven: acpArgs [] spawned a bare `wayland-nano`, which prints usage
+  // and exits 2 — the binary speaks ACP only via the `acp-host` subcommand.
+  it('spawns via the acp-host subcommand, not bare', () => {
+    expect(ACP_BACKENDS_ALL.wnano.acpArgs).toEqual(['acp-host']);
+    expect(ACP_BACKENDS_ALL.wnano.cliCommand).toBe('wayland-nano');
+    expect(ACP_BACKENDS_ALL.wnano.enabled).toBe(true);
+    expect(ACP_BACKENDS_ALL.wnano.supportsStreaming).toBe(true);
+    expect(ACP_BACKENDS_ALL.wnano.authRequired).toBe(false);
   });
 });

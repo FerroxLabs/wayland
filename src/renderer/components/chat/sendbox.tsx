@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -15,6 +17,7 @@ import { useSlashCommandController } from '@/renderer/hooks/chat/useSlashCommand
 import { useUserSlashCommands } from '@/renderer/hooks/chat/useUserSlashCommands';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
+import { useVoiceSessionSafe } from '@/renderer/pages/conversation/voice/VoiceSessionContext';
 import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { buildAtFileInsertion, getActiveAtFileQuery, getAllAtFileQueries } from '@/renderer/utils/chat/atFileQuery';
 import { getLastAssistantText } from '@/renderer/utils/chat/getLastAssistantText';
@@ -26,7 +29,7 @@ import { copyText } from '@/renderer/utils/ui/clipboard';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { blurActiveElement, shouldBlockMobileInputFocus } from '@/renderer/utils/ui/focus';
 import { Button, Input, Message, Tag } from '@arco-design/web-react';
-import { ArrowUp, Quote, X } from 'lucide-react';
+import { ArrowUp, Mic, MicOff, Quote, X } from 'lucide-react';
 import type { SlashCommandItem } from '@/common/chat/slash/types';
 import { theme } from '@office-ai/platform';
 import React, { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -204,6 +207,7 @@ const SendBox: React.FC<{
   const layout = useLayoutContext();
   const isMobile = layout?.isMobile ?? false;
   const conversationContext = useConversationContextSafe();
+  const voiceSession = useVoiceSessionSafe();
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [isSingleLine, setIsSingleLine] = useState(!defaultMultiLine);
@@ -1322,13 +1326,20 @@ const SendBox: React.FC<{
   // Calculate button disabled state
   const isButtonDisabled = disabled || isUploading || (!input.trim() && domSnippets.length === 0);
 
-  // Reusable send button component
+  /*
+   * These two are icon-only, so without an explicit name their accessible name
+   * is nothing at all - a screen reader announces "button". The test suite
+   * appeared to cover this, but the names it asserted were synthesized by the
+   * Arco mock from the className; the real controls never had them. Adding a
+   * fourth control to a row of unnamed icon buttons would have made that worse.
+   */
   const sendButton = (
     <Button
       shape='circle'
       type='primary'
       disabled={isButtonDisabled}
       className='send-button-custom'
+      aria-label={t('conversation.chat.sendMessage', { defaultValue: 'Send message' })}
       icon={<ArrowUp size={14} color='white' strokeWidth={3} />}
       onClick={() => {
         sendMessageHandler();
@@ -1341,6 +1352,7 @@ const SendBox: React.FC<{
       shape='circle'
       type='secondary'
       className='bg-animate sendbox-stop-button'
+      aria-label={t('conversation.chat.stopGenerating', { defaultValue: 'Stop generating' })}
       icon={<div className='mx-auto size-12px bg-6'></div>}
       onClick={stopHandler}
     ></Button>
@@ -1350,14 +1362,174 @@ const SendBox: React.FC<{
   // running/processing flag that decides whether the Stop button shows, so it
   // stays in lockstep across every platform that renders this shared SendBox.
   const isRunning = isLoading || loading;
-  const runningIndicator = isRunning ? (
+
+  /**
+   * What the composer says while a voice conversation is running.
+   *
+   * This is a live region, deliberately NOT the placeholder. A placeholder does
+   * not render over a non-empty value, and typing during a session has to keep
+   * working, so a placeholder-based status deletes itself on the first
+   * keystroke - and screen readers never announce a placeholder at all. In
+   * `listening` it would also have been the ONLY indication the microphone was
+   * open.
+   *
+   * The states split where the machine already distinguishes. `listening`
+   * before the user has committed to a turn means the mic is CLOSED, which is
+   * why the orb says "Tap to speak" there; saying "Listening" would be a lie
+   * the everyman acts on by talking into a closed microphone.
+   */
+  const voiceStatusText = (): string | null => {
+    if (!voiceSession?.isActive) return null;
+    // The opening greeting. The machine is in `listening` while it plays, so
+    // without this the composer would say "Tap the wave to talk" over the top
+    // of Wayland saying hello. The sentence came out of an i18n key, so it is
+    // already in the user's language.
+    if (voiceSession.greetingText) return voiceSession.greetingText;
+    switch (voiceSession.state) {
+      case 'connecting':
+        return t('conversation.chat.voice.statusConnecting', { defaultValue: 'Connecting…' });
+      case 'listening':
+        return voiceSession.continuousArmed
+          ? t('conversation.chat.voice.statusListening', { defaultValue: 'Listening…' })
+          : t('conversation.chat.voice.statusTapToTalk', { defaultValue: 'Tap the wave to talk' });
+      case 'user-speaking':
+        return t('conversation.chat.voice.statusHearing', { defaultValue: 'I can hear you' });
+      case 'transcribing':
+        return t('conversation.chat.voice.statusTranscribing', { defaultValue: 'Transcribing…' });
+      case 'thinking':
+      case 'acting':
+        return t('conversation.chat.voice.statusThinking', { defaultValue: 'Wayland is thinking…' });
+      case 'approval-needed':
+        return t('conversation.chat.voice.statusApproval', { defaultValue: 'Needs your approval in chat' });
+      case 'speaking':
+        return t('conversation.chat.voice.statusSpeaking', { defaultValue: 'Wayland is speaking…' });
+      case 'interrupted':
+        return t('conversation.chat.voice.statusStopping', { defaultValue: 'Stopping…' });
+      case 'reconnecting':
+        return t('conversation.chat.voice.statusReconnecting', { defaultValue: 'Reconnecting…' });
+      case 'error':
+        return (
+          voiceSession.error?.message ??
+          t('conversation.chat.voice.statusError', { defaultValue: 'Voice needs attention' })
+        );
+      default:
+        return null;
+    }
+  };
+
+  const voiceStatus = voiceStatusText();
+
+  /*
+   * Coarse ring state - the ONLY voice detail lifted into React for the glow.
+   * Everything else about the ring (colour, pulse, reduced-motion) lives in
+   * sendbox.css, because this component re-renders on every streamed token.
+   *
+   * Listening covers both halves of an open microphone: `listening` is armed
+   * and waiting, `user-speaking` is actively hearing someone. From the user's
+   * side both mean the same thing - the mic is live and what it hears will be
+   * sent - so they get one indicator.
+   */
+  const voiceRing: 'listening' | 'speaking' | null = !voiceSession?.isActive
+    ? null
+    : voiceSession.state === 'listening' || voiceSession.state === 'user-speaking'
+      ? 'listening'
+      : voiceSession.state === 'speaking'
+        ? 'speaking'
+        : null;
+
+  /*
+   * Exactly one status element, ever. Two live regions in one row saying
+   * different things ("Working..." beside "Wayland is speaking...") is worse
+   * than either alone, and a screen reader would announce both.
+   */
+  const runningIndicator = voiceStatus ? (
+    <span className='sendbox-running' role='status' aria-live='polite' data-testid='composer-voice-status'>
+      <span className='sendbox-running-dot' aria-hidden='true' />
+      {voiceStatus}
+      {voiceRing === 'listening' ? (
+        /*
+         * Reads the SESSION's level. The draft said to reuse
+         * SpeechInputButton's waveform strip, which cannot work: useSpeechInput
+         * is per-instance, so that strip is driven by the button's own recorder
+         * and sits flat at zero for the entire session.
+         *
+         * aria-hidden because the caption beside it already says the mic is
+         * open; announcing a moving number would be noise, not information.
+         */
+        <span
+          className='sendbox-voice-level'
+          data-testid='composer-voice-level'
+          aria-hidden='true'
+          style={{ ['--sendbox-voice-level' as string]: String(Math.min(1, Math.max(0, voiceSession?.level ?? 0))) }}
+        >
+          <span className='sendbox-voice-level__fill' />
+        </span>
+      ) : null}
+    </span>
+  ) : isRunning ? (
     <span className='sendbox-running' role='status' aria-live='polite'>
       <span className='sendbox-running-dot' aria-hidden='true' />
       {t('messages.working', { defaultValue: 'Working...' })}
     </span>
   ) : null;
 
+  /**
+   * Stopping a spoken answer is not stopping the model.
+   *
+   * `stopHandler` calls onStop() - the MODEL stop - then clears loading. During
+   * voice `speaking` the model has already finished; what is still running is
+   * playback, and `interrupt()` itself decides whether the backend needs
+   * stopping at all. Wiring this to stopHandler would ask the backend to cancel
+   * a turn it has already completed.
+   */
+  const voiceInterruptible =
+    voiceSession?.isActive && ['transcribing', 'thinking', 'acting', 'speaking'].includes(voiceSession.state);
+
+  const voiceStopButton = voiceInterruptible ? (
+    <Button
+      shape='circle'
+      type='secondary'
+      className='bg-animate sendbox-stop-button'
+      aria-label={t('conversation.chat.voice.stopSpeaking', { defaultValue: 'Stop Wayland' })}
+      icon={<div className='mx-auto size-12px bg-6'></div>}
+      onClick={() => void voiceSession?.interrupt()}
+    />
+  ) : null;
+
+  /**
+   * Mute, which the orb owned and which collapsing it would otherwise delete
+   * from reach entirely. The microphone reopens by itself after every answer
+   * and auto-sends what it hears, so "stop listening" has to be reachable
+   * without going back into the orb.
+   */
+  const voiceMuteButton =
+    voiceSession?.isActive && ['listening', 'user-speaking'].includes(voiceSession.state) ? (
+      <Button
+        type='text'
+        size='small'
+        shape='circle'
+        className='voice-mode-composer-mute'
+        aria-pressed={voiceSession.isMuted}
+        aria-label={
+          voiceSession.isMuted
+            ? t('conversation.chat.voice.unmute', { defaultValue: 'Unmute microphone' })
+            : t('conversation.chat.voice.mute', { defaultValue: 'Mute microphone' })
+        }
+        onClick={voiceSession.toggleMute}
+        icon={voiceSession.isMuted ? <MicOff size={18} aria-hidden='true' /> : <Mic size={18} aria-hidden='true' />}
+      />
+    ) : null;
+
   const renderActionButtons = () => {
+    /*
+     * Voice-stop takes the action slot ONLY when there is nothing to send.
+     * renderActionButtons deliberately keeps Send in that slot when the user
+     * has typed while a reply streams; a leading voice branch would override
+     * that and take away the visible send affordance mid-sentence. Enter would
+     * still work, which for a non-technical user reads as "it broke".
+     */
+    if (voiceStopButton && !hasDraftToSend) return voiceStopButton;
+
     if (allowSendWhileLoading && (isLoading || loading)) {
       // Keep a single action slot while processing: show stop when the draft is empty,
       // and only switch back to send once the user has prepared a queued message.
@@ -1416,11 +1588,56 @@ const SendBox: React.FC<{
     return segments;
   }, [allAtFileQueries, input]);
 
+  /**
+   * The right-hand control cluster, rendered identically by both layout
+   * branches.
+   *
+   * These were two byte-identical copies. That looked harmless and was not:
+   * NanobotSendBox passes neither defaultMultiLine nor lockMultiLine, so
+   * isSingleLine initialises true there and the single-line branch is live for
+   * real users. Editing one copy is not "a change no user ever sees" - it is a
+   * silent per-platform divergence where one product quietly misses whatever
+   * the other one gained.
+   */
+  const renderVoiceControls = () => (
+    <>
+      {runningIndicator}
+      {voiceMuteButton}
+      {/* When a draft exists the action slot keeps Send, so stop lives here. */}
+      {voiceStopButton && hasDraftToSend ? voiceStopButton : null}
+      {/*
+       * Neither control dies while a reply streams.
+       *
+       * They were both gated on `isLoading || loading`, which meant the voice
+       * button went dead the instant an answer started - so barge-in and
+       * stop-speaking were unreachable at exactly the moment they are for. That
+       * symptom reads as an audio bug and gets diagnosed as one.
+       *
+       * Dictation additionally goes dead while a voice SESSION is live, for a
+       * different reason: SpeechInputButton owns its own useSpeechInput and
+       * therefore its own getUserMedia, and the session owns a second. Tapping
+       * dictation mid-session opens a second recorder over the same audio - two
+       * hosted transcriptions of one utterance, one auto-sent and one dropped
+       * in the composer.
+       */}
+      <SpeechInputButton
+        disabled={disabled || isUploading || Boolean(voiceSession?.isActive)}
+        locale={speechLocale}
+        onTranscript={handleSpeechTranscript}
+      />
+      {conversationContext?.conversationId && (
+        <VoiceModeEntryButton conversationId={conversationContext.conversationId} disabled={disabled} />
+      )}
+      {sendButtonPrefix}
+      {renderActionButtons()}
+    </>
+  );
+
   return (
     <div className={className}>
       <div
         ref={containerRef}
-        className={`sendbox-panel relative p-16px border-3 b bg-dialog-fill-0 b-solid rd-20px flex flex-col ${isOverlayOpen ? 'overflow-visible' : 'overflow-hidden'} ${isFileDragging ? 'b-dashed sendbox-panel--dragging' : ''}`}
+        className={`sendbox-panel relative p-16px border-3 b bg-dialog-fill-0 b-solid rd-20px flex flex-col ${isOverlayOpen ? 'overflow-visible' : 'overflow-hidden'} ${isFileDragging ? 'b-dashed sendbox-panel--dragging' : ''} ${voiceRing ? `sendbox-panel--voice-${voiceRing}` : ''}`}
         style={{
           transition: 'box-shadow 0.25s ease, border-color 0.25s ease',
           ...(isFileDragging
@@ -1431,8 +1648,15 @@ const SendBox: React.FC<{
               }
             : {
                 borderWidth: '1px',
-                borderColor: isInputActive ? activeBorderColor : inactiveBorderColor,
-                boxShadow: isInputActive ? activeShadow : 'none',
+                // An inline box-shadow outranks a keyframe, so while a voice
+                // ring is up the class owns both properties outright. Setting
+                // these anyway would render the animation as a frozen frame.
+                ...(voiceRing
+                  ? {}
+                  : {
+                      borderColor: isInputActive ? activeBorderColor : inactiveBorderColor,
+                      boxShadow: isInputActive ? activeShadow : 'none',
+                    }),
               }),
         }}
         {...dragHandlers}
@@ -1647,44 +1871,12 @@ const SendBox: React.FC<{
               })}
             ></Input.TextArea>
           </div>
-          {isSingleLine && (
-            <div className='flex items-center gap-2'>
-              {runningIndicator}
-              <SpeechInputButton
-                disabled={disabled || isLoading || loading || isUploading}
-                locale={speechLocale}
-                onTranscript={handleSpeechTranscript}
-              />
-              {conversationContext?.conversationId && (
-                <VoiceModeEntryButton
-                  conversationId={conversationContext.conversationId}
-                  disabled={disabled || isLoading || loading || isUploading}
-                />
-              )}
-              {sendButtonPrefix}
-              {renderActionButtons()}
-            </div>
-          )}
+          {isSingleLine && <div className='flex items-center gap-2'>{renderVoiceControls()}</div>}
         </div>
         {!isSingleLine && (
           <div className='flex items-center justify-between gap-2 w-full'>
             <div className={isMobile ? 'sendbox-tools sendbox-tools-scroll-mobile' : 'sendbox-tools'}>{tools}</div>
-            <div className='flex items-center gap-2'>
-              {runningIndicator}
-              <SpeechInputButton
-                disabled={disabled || isLoading || loading || isUploading}
-                locale={speechLocale}
-                onTranscript={handleSpeechTranscript}
-              />
-              {conversationContext?.conversationId && (
-                <VoiceModeEntryButton
-                  conversationId={conversationContext.conversationId}
-                  disabled={disabled || isLoading || loading || isUploading}
-                />
-              )}
-              {sendButtonPrefix}
-              {renderActionButtons()}
-            </div>
+            <div className='flex items-center gap-2'>{renderVoiceControls()}</div>
           </div>
         )}
       </div>

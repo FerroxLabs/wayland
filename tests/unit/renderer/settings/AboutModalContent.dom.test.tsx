@@ -190,3 +190,38 @@ describe('AboutModalContent update auto-check (#731)', () => {
     expect(runCheckMock).toHaveBeenCalledTimes(2);
   });
 });
+
+/**
+ * AGPL-3.0 "Appropriate Legal Notices" (§0) — the About screen is the
+ * "convenient and prominently visible feature" that must carry the copyright
+ * notice, the no-warranty statement, the fact that the work may be conveyed
+ * under this licence, and how to view it. §13 adds the source-code offer.
+ *
+ * Ferrox Labs is the original AGPL licensor and so is not itself bound by
+ * §5(d) (see I-01-DETERMINATION.md, Q5). These are pinned anyway: a downstream
+ * forker IS bound, and would otherwise inherit a UI with no notices to
+ * preserve. The i18n mock above returns the raw key, so assertions are on keys.
+ */
+describe('AboutModalContent — Appropriate Legal Notices', () => {
+  beforeEach(() => {
+    __resetAboutCheckCacheForTest();
+    runCheckMock.mockResolvedValue(upToDate);
+  });
+  afterEach(cleanup);
+
+  it.each([
+    ['copyright notice', 'settings.legalCopyright'],
+    ['upstream Apache-2.0 attribution', 'settings.legalUpstream'],
+    ['licence under which it may be conveyed', 'settings.legalLicense'],
+    ['no-warranty statement', 'settings.legalWarranty'],
+  ])('shows the %s', async (_label, key) => {
+    render(<AboutModalContent />);
+    await waitFor(() => expect(screen.getByText(key)).toBeInTheDocument());
+  });
+
+  it('offers a way to view the licence and obtain the source', async () => {
+    render(<AboutModalContent />);
+    await waitFor(() => expect(screen.getByText('settings.viewLicense')).toBeInTheDocument());
+    expect(screen.getByText('settings.sourceCode')).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,479 @@
+{
+  "errors": [
+    {
+      "hint": "Check the provider's API key, then retry",
+      "kind": "model_auth",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Authentication failed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Retrying automatically; wait a moment",
+      "kind": "model_rate_limited",
+      "retryable": true,
+      "surface": "error_response",
+      "title": "Rate limited",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Start a new session or /compact",
+      "kind": "model_context_overflow",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Context too long",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Start a new session",
+      "kind": "compaction_failed",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Context compaction failed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Switch model or check plan",
+      "kind": "model_entitlement",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Model not entitled",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Transient; retry",
+      "kind": "model_server_5xx",
+      "retryable": true,
+      "surface": "error_response",
+      "title": "Provider server error (5xx)",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Check model and account",
+      "kind": "model_server_4xx",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Provider rejected the request (4xx)",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Check connectivity, then retry",
+      "kind": "model_transport",
+      "retryable": true,
+      "surface": "error_response",
+      "title": "Network error reaching provider",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Report; not retryable",
+      "kind": "model_protocol",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Malformed provider stream",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Loosen the schema or retry without it",
+      "kind": "model_output_schema",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Structured output rejected",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Clear the named setting, then retry",
+      "kind": "model_unsupported_param",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Parameter unsupported on this model",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Report this — a Flux-policy trip is a bug",
+      "kind": "egress_denied",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Blocked by egress policy",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Path is outside the allowed set; ask the user",
+      "kind": "fs_read_denied",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Denied by policy",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Path is outside the allowed set; ask the user",
+      "kind": "fs_write_denied",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Denied by policy",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Path is outside the allowed set; ask the user",
+      "kind": "fs_sensitive_denied",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Denied by policy",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "fs_io",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "File operation failed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Re-read the file",
+      "kind": "fs_edit",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Edit matched 0 or ambiguous ranges",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "shell_spawn",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Sandboxed launch failed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "sandbox_unavailable",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Sandbox unavailable — command not run (fail-closed)",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "sandbox_setup",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Sandbox setup failed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_server",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "MCP server reported an error",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_protocol",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "MCP server sent a malformed response",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_output_bounded",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "MCP server output exceeded the bound",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_transport",
+      "retryable": true,
+      "surface": "tool_card",
+      "title": "MCP server unreachable",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_timeout",
+      "retryable": true,
+      "surface": "tool_card",
+      "title": "MCP server timed out",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_resource_unsupported",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "This MCP server doesn't expose resources.",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_resource_denied",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "That resource URI wasn't advertised by the server; list resources first.",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_content_unsupported",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Binary resource content isn't supported yet.",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_elicitation_unsupported",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "This MCP server needs a question flow Nano doesn't support on this transport.",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_authorization_required",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Login required: nano auth login <server>.",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_credstore_unavailable",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Secure credential storage is unavailable; provision <VAR>_FILE (0600) or fix the keyring.",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "mcp_oauth_failed",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "OAuth login failed (<bounded reason>).",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "unknown_tool",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Unknown tool",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "missing_args",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Bad tool arguments",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "approval_denied",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Denied by user",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "pty_session_gone",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "That terminal session has exited",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "review_parse_failed",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "The review finished but its report couldn't be parsed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "The saved rules.toml denies this command; edit or remove the rule",
+      "kind": "shell_rule_denied",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Denied by a shell rule",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Fix or remove rules.toml (strict TOML, owner-only permissions)",
+      "kind": "rule_file_invalid",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Shell rules file is invalid or insecurely configured; running with no saved rules",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Start a new session or narrow the task",
+      "kind": "budget_exhausted",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Turn stopped: budget exhausted",
+      "wireCode": -32603
+    },
+    {
+      "hint": "/budget continue <tokens> grants more, or start a new session",
+      "kind": "budget_exceeded",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Session token budget exceeded",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Rephrase or narrow the task",
+      "kind": "no_progress",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Turn stopped: no observable progress",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Redirect the model with a new instruction",
+      "kind": "repeat_force_stop",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Turn stopped: repeated identical tool call",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "user_cancelled",
+      "retryable": false,
+      "surface": "stop_reason",
+      "title": "Cancelled",
+      "wireCode": 0
+    },
+    {
+      "hint": "Check disk and permissions; do not retry blindly",
+      "kind": "journal_unavailable",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Session storage unavailable",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "session_not_found",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Session not found",
+      "wireCode": -32602
+    },
+    {
+      "hint": "Pick a model from the advertised catalog",
+      "kind": "model_not_found",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Model not available",
+      "wireCode": -32602
+    },
+    {
+      "hint": "Wait for it or cancel it first",
+      "kind": "turn_in_progress",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "A turn is already running",
+      "wireCode": -32602
+    },
+    {
+      "hint": "Call session/new first",
+      "kind": "no_session",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "No session",
+      "wireCode": -32602
+    },
+    {
+      "hint": "",
+      "kind": "invalid_params",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Invalid request parameters",
+      "wireCode": -32602
+    },
+    {
+      "hint": "Check the session id; retry when no turn is running",
+      "kind": "session_fork_failed",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Session fork failed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Check goal status, then retry",
+      "kind": "goal_op_failed",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Goal operation failed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Switch to a vision-capable model (/model)",
+      "kind": "model_lacks_vision",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "This model can't process images",
+      "wireCode": -32602
+    },
+    {
+      "hint": "Corrupt or not really an image",
+      "kind": "image_invalid",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "The image couldn't be read",
+      "wireCode": -32602
+    },
+    {
+      "hint": "Convert to PNG or JPEG and retry",
+      "kind": "image_unsupported_format",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "That image format isn't supported",
+      "wireCode": -32602
+    },
+    {
+      "hint": "Limit: 50 MiB file / 768 KiB after compression",
+      "kind": "image_too_large",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "The image is too large",
+      "wireCode": -32602
+    },
+    {
+      "hint": "Limit: 16 images",
+      "kind": "image_too_many",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Too many images in one prompt",
+      "wireCode": -32602
+    },
+    {
+      "hint": "",
+      "kind": "attachment_missing",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "An earlier attachment couldn't be restored from the attachment store",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
+      "kind": "attachment_store_error",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "The attachment store is unavailable or insecurely configured",
+      "wireCode": -32603
+    }
+  ],
+  "generator": "cargo run -p nano-cli --bin gen_error_table",
+  "source": "crates/nano-session/src/error_codes.rs",
+  "version": 1
+}

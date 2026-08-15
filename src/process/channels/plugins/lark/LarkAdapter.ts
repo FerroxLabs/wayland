@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import * as lark from '@larksuiteoapi/node-sdk';
@@ -257,10 +259,7 @@ export function toUnifiedIncomingMessage(
  * Accepts an optional pre-resolved `displayName` (e.g., from contact.user.get)
  * to avoid the `User <last6>` placeholder when the caller already knows the real name.
  */
-export function toUnifiedUser(
-  sender: LarkMessageEvent['event']['sender'],
-  displayName?: string
-): IUnifiedUser | null {
+export function toUnifiedUser(sender: LarkMessageEvent['event']['sender'], displayName?: string): IUnifiedUser | null {
   if (!sender?.sender_id) return null;
 
   const userId = sender.sender_id.user_id || sender.sender_id.open_id || '';

@@ -14,7 +14,7 @@
  */
 
 import { test, expect } from '../fixtures';
-import { invokeBridge } from '../helpers';
+import { invokeBridge, expandTeamsAccordion } from '../helpers';
 
 const TEAM_NAME = `E2E Sidebar Routing ${Date.now()}`;
 
@@ -63,6 +63,9 @@ test.describe('Team Sidebar - routing + typed-delete', () => {
     // Match the sidebar row by name. SiderItem renders the team name inside
     // a span; we scope to the row container that holds it so the hover
     // surface lights up the three-dot menu.
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     const sidebarEntry = page.locator(`text="${TEAM_NAME}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
 
@@ -80,7 +83,10 @@ test.describe('Team Sidebar - routing + typed-delete', () => {
     // The row is the closest container of the name span that has the
     // `.group` class - match by walking up from the visible text.
     const row = sidebarEntry.locator(
-      'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
+      // SiderItem's root is `h-26px ... group ...` now, not h-40px. Match the
+      // `group` CLASS TOKEN exactly - a bare contains() also matches
+      // `group-hover:text-1` on an inner div, which has no menu trigger.
+      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
     );
     await expect(row).toBeVisible({ timeout: 5_000 });
     await row.hover();

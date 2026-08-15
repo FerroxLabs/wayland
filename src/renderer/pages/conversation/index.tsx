@@ -47,7 +47,16 @@ const ChatConversationIndex: React.FC = () => {
   }, [id, mutate]);
 
   useEffect(() => {
-    if (!data || data.name !== defaultConversationTitle) {
+    if (!data) {
+      return;
+    }
+    // Repair an unnamed chat on open: either the default title, or the raw
+    // workspace path a chat created with no name kept from the agent factory.
+    // The path check is exact equality against this conversation's own
+    // workspace, so a real title - even one that looks like a path - is safe.
+    const workspace = (data.extra as { workspace?: string } | undefined)?.workspace;
+    const isWorkspacePathNamed = !!workspace && data.name === workspace;
+    if (data.name !== defaultConversationTitle && !isWorkspacePathNamed) {
       return;
     }
 

@@ -79,11 +79,20 @@ describe('adapter corruption (bunx half-install) guidance', () => {
   });
 
   it('builds actionable, restart-oriented guidance instead of a raw stack', () => {
-    const g = buildAcpAdapterCorruptionGuidance('claude', CORRUPT_MSG);
-    expect(g).not.toBeNull();
-    expect(g).toContain('corrupted');
-    expect(g).toContain('reinstall');
-    expect(g).not.toContain('zod/v4'); // no raw module path leaks to the user
+    const g = buildAcpAdapterCorruptionGuidance('claude', CORRUPT_MSG) ?? '';
+    expect(g).not.toBe('');
+    // Names which agent, and what actually went wrong with it.
+    expect(g).toContain('Claude');
+    expect(g).toContain('did not finish installing');
+    // Offers the user a way forward rather than just reporting a failure.
+    expect(g).toContain('send your message again');
+    // None of the machine detail reaches the user.
+    expect(g).not.toContain('zod/v4');
+    expect(g).not.toContain('Cannot find module');
+    expect(g).not.toContain('bunx-');
+    // House style for user-visible copy.
+    expect(g).not.toContain('—');
+    expect(g.toLowerCase()).not.toContain('unknown');
   });
 
   it('returns null guidance for a non-corruption error', () => {

@@ -132,6 +132,23 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch the Constitution provenance producer commit
+        shell: bash
+        run: |
+          # Same reason as the unit-tests job: this job's "Prove Constitution
+          # filesystem authority" step runs constitutionFsService, which
+          # re-derives the 991c502 producer corpus from git. That commit is
+          # reachable from no remote ref, so it must be fetched by SHA.
+          SHA=$(node -p "require('./tests/fixtures/constitution-fs/base-991c502-committed/fixture-manifest.json').producerCommit")
+          echo "producer commit: $SHA"
+          for attempt in 1 2 3; do
+            if git fetch --depth=1 --no-tags origin "$SHA"; then exit 0; fi
+            echo "fetch attempt $attempt failed; retrying" >&2
+            sleep 5
+          done
+          echo "could not fetch producer commit $SHA" >&2
+          exit 1
+
       # Classified inline rather than via `needs: changed-files`, because a
       # failing dependency would SKIP this job, and a skipped required check
       # reads as a pass.
@@ -218,7 +235,14 @@ jobs:
     # runners are just slow; tracked separately). The 35m stopgap drops to 15m —
     # ~1.6x over the slowest (windows, 9.3min). If windows variance trips the cap,
     # raise toward 18-20m.
-    timeout-minutes: 15
+    #
+    # 2026-08-15: it tripped. windows-2022 shard 3/4 was cancelled at exactly
+    # 15m00s on an otherwise green run - 11 of 12 shards passed, and a cancelled
+    # shard reds out all three "Unit Tests (<os>)" required checks just like a
+    # failure would. That shard carries verifyPackagedResources (63 cases that
+    # each build a packaged fixture tree), so it is the slowest of the four.
+    # Taking the comment's own advice rather than inventing a new number.
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -235,6 +259,31 @@ jobs:
           # demand real history - it is a supply-chain authenticity check - so
           # deepen the checkout rather than weaken the assertion.
           fetch-depth: 0
+
+      - name: Fetch the Constitution provenance producer commit
+        shell: bash
+        run: |
+          # constitutionFsService re-derives the 991c502 producer corpus straight
+          # from git (rev-parse / archive / show / read-tree). That commit is
+          # reachable from NO remote ref - not main, not any PR branch, and the
+          # two local tags holding it were never pushed - so `fetch-depth: 0`
+          # cannot reach it either. The assertion passed only on long-lived
+          # clones that still had the loose object, which is why it went unseen
+          # until this branch first opened a PR.
+          #
+          # Fetch it by SHA, which GitHub permits; depth-1 carries the trees and
+          # blobs the assertion needs. Deliberately a CI step rather than a
+          # change to the test: it keeps network I/O out of the unit suite and
+          # leaves the supply-chain assertion demanding real history.
+          SHA=$(node -p "require('./tests/fixtures/constitution-fs/base-991c502-committed/fixture-manifest.json').producerCommit")
+          echo "producer commit: $SHA"
+          for attempt in 1 2 3; do
+            if git fetch --depth=1 --no-tags origin "$SHA"; then exit 0; fi
+            echo "fetch attempt $attempt failed; retrying" >&2
+            sleep 5
+          done
+          echo "could not fetch producer commit $SHA" >&2
+          exit 1
 
       - name: Resolve PR context
         uses: ./.github/actions/checkout-pr
@@ -512,6 +561,31 @@ jobs:
           # Same git-history requirement as the unit-test shards.
           fetch-depth: 0
 
+      - name: Fetch the Constitution provenance producer commit
+        shell: bash
+        run: |
+          # constitutionFsService re-derives the 991c502 producer corpus straight
+          # from git (rev-parse / archive / show / read-tree). That commit is
+          # reachable from NO remote ref - not main, not any PR branch, and the
+          # two local tags holding it were never pushed - so `fetch-depth: 0`
+          # cannot reach it either. The assertion passed only on long-lived
+          # clones that still had the loose object, which is why it went unseen
+          # until this branch first opened a PR.
+          #
+          # Fetch it by SHA, which GitHub permits; depth-1 carries the trees and
+          # blobs the assertion needs. Deliberately a CI step rather than a
+          # change to the test: it keeps network I/O out of the unit suite and
+          # leaves the supply-chain assertion demanding real history.
+          SHA=$(node -p "require('./tests/fixtures/constitution-fs/base-991c502-committed/fixture-manifest.json').producerCommit")
+          echo "producer commit: $SHA"
+          for attempt in 1 2 3; do
+            if git fetch --depth=1 --no-tags origin "$SHA"; then exit 0; fi
+            echo "fetch attempt $attempt failed; retrying" >&2
+            sleep 5
+          done
+          echo "could not fetch producer commit $SHA" >&2
+          exit 1
+
       - name: Resolve PR context
         uses: ./.github/actions/checkout-pr
         with:
@@ -544,8 +618,14 @@ jobs:
         if: always() && hashFiles('coverage/lcov.info') != '' && github.repository == 'FerroxLabs/wayland'
         uses: codecov/codecov-action@v5
         with:
+          # No `use_oidc`. It defaults to false, and it must stay false here: this job
+          # runs PR-authored code (bun install, postinstall, test:coverage), so an OIDC
+          # token minted in it would let any PR author assert this repo's identity to
+          # every relying party that trusts it. trustRootJobSeparation.test.ts pins that
+          # invariant for the test jobs; this step is the same class.
+          # `token` stays because it is the supported path once a CODECOV_TOKEN secret
+          # exists; until then it resolves to '' and the upload goes tokenless.
           token: ${{ secrets.CODECOV_TOKEN }}
-          use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}
           files: coverage/lcov.info
           fail_ci_if_error: false
           verbose: true

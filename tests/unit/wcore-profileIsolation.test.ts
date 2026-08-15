@@ -95,6 +95,9 @@ const PROFILE_DIR = '/home/u/.wayland/profiles/work';
 
 const MODEL = { provider: 'openai', useModel: 'gpt-5', apiKey: 'sk-test' } as unknown as TProviderWithModel;
 
+/** Every fake child spawned this test, so afterEach can force-exit any left in flight. */
+const spawnedChildren: (EventEmitter & Record<string, unknown>)[] = [];
+
 function makeFakeChild() {
   const child = new EventEmitter() as EventEmitter & Record<string, unknown>;
   child.pid = 4242;
@@ -103,6 +106,7 @@ function makeFakeChild() {
   child.stdin = new PassThrough();
   child.stdio = [child.stdin, child.stdout, child.stderr];
   child.kill = vi.fn();
+  spawnedChildren.push(child);
   return child;
 }
 
@@ -131,7 +135,22 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     ambientEnvDenylistMock = undefined;
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // K-01: `withGlobalWCoreProfileLease` serializes launches that resolve to
+    // the SAME WAYLAND_HOME. Several tests below fire-and-forget `start()`
+    // and only assert on the spawn call, leaving the agent's promise chain
+    // (and its lease) pending forever - which is harmless on its own, but
+    // several tests share the fake NATIVE_DIR/PROFILE_DIR constants, so a
+    // later test resolving to the same directory would otherwise queue
+    // behind a launch this file itself never finished. Force any child left
+    // in flight to "exit" so its agent's start() settles and releases both
+    // leases before the next test's beforeEach runs.
+    for (const child of spawnedChildren.splice(0)) {
+      child.emit('exit', null, 'SIGTERM');
+    }
+    // Let the exit -> readyReject -> lease-release promise chain fully
+    // unwind (several microtask hops) before the next test begins.
+    await new Promise((resolve) => setTimeout(resolve, 10));
     for (const workspace of testWorkspaces.splice(0)) {
       rmSync(workspace, { recursive: true, force: true });
     }
@@ -334,9 +353,16 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     expect(spawnedEnv().WAYLAND_HOME).toBeUndefined();
   });
 
-  it('passes the reserved profile and exact MCP allowlist on a Desktop-managed launch', async () => {
+  it('passes the reserved profile and writes the exact MCP allowlist into the GLOBAL config root, not the workspace file (K-01)', async () => {
     const workspace = mkdtempSync(join(tmpdir(), 'wcore-mcp-profile-'));
-    resolveActiveConfigDirMock.mockResolvedValue(NATIVE_DIR);
+    // K-01: the profile now lives in the config root Core's WAYLAND_HOME
+    // points at, not the fake NATIVE_DIR string other tests in this file use
+    // only for the WAYLAND_HOME env assertion - this test needs a REAL
+    // writable directory since writeGlobalMcpProfile performs a real fs
+    // write there.
+    const globalConfigDir = mkdtempSync(join(tmpdir(), 'wcore-mcp-profile-global-'));
+    testWorkspaces.push(workspace, globalConfigDir);
+    resolveActiveConfigDirMock.mockResolvedValue(globalConfigDir);
     const agent = new WCoreAgent({
       workspace,
       model: MODEL,
@@ -349,10 +375,15 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     const args = spawnMock.mock.calls[0]?.[1] as string[];
     expect(args).toContain('--profile');
     expect(args[args.indexOf('--profile') + 1]).toBe('__wayland_desktop_session');
-    const projectConfig = readFileSync(join(workspace, '.wayland-core.toml'), 'utf-8');
-    expect(projectConfig).toContain('[profiles.__wayland_desktop_session]');
-    expect(projectConfig).toContain('"firecrawl"');
-    expect(projectConfig).toContain('"tavily"');
-    rmSync(workspace, { recursive: true, force: true });
+
+    // K-01: Core 0.12.26 strips [profiles.*] from PROJECT config in an
+    // untrusted workspace, so the profile is spliced into the GLOBAL
+    // config.toml instead - the workspace .wayland-core.toml is never
+    // written at all here (buildSpawnConfig's mocked projectConfig is null).
+    const globalConfig = readFileSync(join(globalConfigDir, 'config.toml'), 'utf-8');
+    expect(globalConfig).toContain('[profiles.__wayland_desktop_session]');
+    expect(globalConfig).toContain('"firecrawl"');
+    expect(globalConfig).toContain('"tavily"');
+    expect(existsSync(join(workspace, '.wayland-core.toml'))).toBe(false);
   });
 });

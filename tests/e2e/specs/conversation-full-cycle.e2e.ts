@@ -714,7 +714,11 @@ test.describe('Conversation Full Cycle', () => {
       await confirmBtn.click();
 
       await page.waitForFunction(() => window.location.hash === '#/scheduled', { timeout: 10_000 }).catch(() => {});
-      await expect(page.locator('span').filter({ hasText: taskName }).first()).not.toBeVisible({ timeout: 5_000 });
+      // Archiving deliberately KEEPS the run's conversation ("completed chats
+      // ... are kept and can be restored"), and that conversation is named
+      // `${taskName} - MM/DD HH:mm` (WorkerTaskManagerJobExecutor), so a
+      // substring match on `span` still hits it. Assert the card's exact text.
+      await expect(page.getByText(taskName, { exact: true }).first()).not.toBeVisible({ timeout: 5_000 });
     }
   });
 

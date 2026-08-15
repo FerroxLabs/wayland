@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { mkdirSync as _mkdirSync, existsSync, lstatSync, readdirSync, readFileSync, renameSync } from 'fs';
@@ -14,6 +16,8 @@ import type { TMessage } from '@/common/chat/chatLib';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
 import { resolvePersistedPresetAgentType, resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
+import { getVoiceModelsDir } from '@process/extensions/constants';
+import { resolveAgentInstallRoot } from '@process/services/agentInstaller/installPrefix';
 import type { ConciergeDiagDeps } from '@process/resources/builtinMcp/conciergeDiagServer';
 import type {
   IChannelAssistantConfigRefer,
@@ -418,6 +422,24 @@ const dirConfig = envFile.getSync('wayland.dir');
 const cacheDir = dirConfig?.cacheDir || getHomePage();
 
 /**
+ * `app.runningUnderARM64Translation` — true when an x64 build is running on an
+ * ARM64 machine through macOS Rosetta / Windows ARM64 emulation. Required
+ * lazily (the `shellEnv` idiom) because this module also runs in the standalone
+ * non-Electron server, where `electron` must never be resolved. The property is
+ * darwin/win32-only, so it reads `undefined` elsewhere.
+ */
+function isRunningUnderArm64Translation(): boolean {
+  if (!hasElectronAppPath()) return false;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { app } = require('electron') as typeof import('electron');
+    return app.runningUnderARM64Translation === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Resolve the on-disk sources the `wayland_concierge_diag` tool reads, using the
  * EXACT same path expressions the app uses to write them. Single source of truth
  * shared by (a) the stdio subprocess env-wiring below and (b) any in-process
@@ -434,6 +456,16 @@ export function resolveConciergeDiagDeps(): ConciergeDiagDeps {
     logDir: getPlatformServices().paths.getLogsDir(),
     appConfigDir: cacheDir,
     engineConfigDir: nativeConfigDir(),
+    // The APP's arch, not the diag subprocess's: its node binary can differ.
+    appArch: process.arch,
+    runningUnderARM64Translation: isRunningUnderArm64Translation(),
+    // Neither of these can be derived inside the diag subprocess. It has no
+    // Electron, so `process.resourcesPath` and `app.getPath('userData')` are
+    // both undefined there, and reaching for the app-side resolvers would be
+    // worse than useless: they fall back to `~/.wayland-server`, which answers
+    // confidently and wrongly instead of honestly reporting "not available".
+    voiceModelsDir: getVoiceModelsDir(),
+    agentInstallRoot: resolveAgentInstallRoot(),
   };
 }
 
@@ -767,7 +799,8 @@ const getBuiltinAssistants = (): AcpBackendConfig[] => {
       preset.id === 'star-office-helper' ||
       preset.id === 'story-roleplay' ||
       preset.id === 'moltbook' ||
-      preset.id === 'beautiful-mermaid';
+      preset.id === 'beautiful-mermaid' ||
+      preset.id === 'smart-trader';
 
     assistants.push({
       id: `builtin-${preset.id}`,
@@ -1064,6 +1097,8 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
     //     reports).
     //   - WAYLAND_APP_CONFIG_DIR / WAYLAND_ENGINE_CONFIG_DIR → the two distinct
     //     config locations, for the configPaths report.
+    //   - WAYLAND_APP_ARCH / WAYLAND_ARM64_TRANSLATED → the app's own CPU arch
+    //     and whether it runs through ARM64 translation, for the platform report.
     // Enabled by default — the tool is silent unless invoked and never mutates.
     const conciergeDiagScriptPath = getBuiltinMcpScriptPath('builtin-mcp-concierge-diag');
     // Derive the subprocess env from the shared deps resolver so the in-process
@@ -1079,6 +1114,17 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
       // settings dir, and the wayland-core engine config dir.
       WAYLAND_APP_CONFIG_DIR: conciergeDiagDeps.appConfigDir!,
       WAYLAND_ENGINE_CONFIG_DIR: conciergeDiagDeps.engineConfigDir!,
+      // The app's own architecture + whether it is being translated, for the
+      // platform report. The subprocess cannot read either: it has no Electron,
+      // and its node binary's arch is not necessarily the app's.
+      WAYLAND_APP_ARCH: conciergeDiagDeps.appArch!,
+      WAYLAND_ARM64_TRANSLATED: conciergeDiagDeps.runningUnderARM64Translation ? '1' : '0',
+      // The bundled speech-to-text model, and the root every managed agent is
+      // installed under. Both are read-only probes; see the note in
+      // resolveConciergeDiagDeps for why they must be injected rather than
+      // resolved in the subprocess.
+      WAYLAND_VOICE_MODELS_DIR: conciergeDiagDeps.voiceModelsDir!,
+      WAYLAND_AGENT_INSTALL_ROOT: conciergeDiagDeps.agentInstallRoot!,
     };
     const conciergeDiagExistingIdx = mcpServers.findIndex(
       (s) => s.builtin === true && s.id === BUILTIN_CONCIERGE_DIAG_ID

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -16,16 +18,10 @@ import { sanitizeHtml } from '@renderer/utils/sanitize';
 const icon = {
   success: <CheckCircle2 size={16} color={theme.Color.FunctionalColor.success} className='m-t-2px' />,
   warning: (
-    <AlertTriangle size={16}
-      strokeLinejoin='bevel'
-      className='m-t-2px' color={theme.Color.FunctionalColor.warn}
-    />
+    <AlertTriangle size={16} strokeLinejoin='bevel' className='m-t-2px' color={theme.Color.FunctionalColor.warn} />
   ),
   error: (
-    <AlertTriangle size={16}
-      strokeLinejoin='bevel'
-      className='m-t-2px' color={theme.Color.FunctionalColor.error}
-    />
+    <AlertTriangle size={16} strokeLinejoin='bevel' className='m-t-2px' color={theme.Color.FunctionalColor.error} />
   ),
 };
 

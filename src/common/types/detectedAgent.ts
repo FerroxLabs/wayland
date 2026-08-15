@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 /**
@@ -16,6 +18,8 @@
  *   - `DetectedAgent<'acp'>`    - ACP-specific fields directly accessible
  *   - `DetectedAgent<'remote'>` - Remote-specific fields directly accessible
  */
+
+import type { AcpLaunchSpec } from './acpTypes';
 
 /** Remote agent communication protocol */
 export type RemoteAgentProtocol = 'openclaw' | 'zeroclaw' | 'acp';
@@ -33,6 +37,18 @@ type KindFields = {
   acp: {
     /** Resolved CLI binary path */
     cliPath?: string;
+    /**
+     * Structured launch descriptor, present ONLY on an agent Wayland installed
+     * itself. It wins over `cliPath` at spawn time and is never re-parsed.
+     *
+     * Absent on every PATH-detected agent, and that absence is load-bearing:
+     * `AgentRegistry.merge()` puts PATH-detected builtins ahead of managed
+     * installs, so a backend the user already has resolves to an entry with no
+     * `launch` and keeps launching the user's own copy (decision D1).
+     */
+    launch?: AcpLaunchSpec;
+    /** Catalogue id of the managed install backing this entry, when there is one. */
+    managedAgentId?: string;
     /** Extra arguments passed to the ACP CLI */
     acpArgs?: string[];
     /** Whether this agent was contributed by an extension */

@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { Check, ChevronDown, Folder, FolderOpen, FolderPlus, X } from 'lucide-react';
@@ -169,9 +171,7 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
           setMenuVisible((visible) => !visible);
         }}
         className={`flex min-h-44px items-center gap-10px rounded-10px border px-12px py-0 transition-all ${
-          menuVisible
-            ? 'border-primary-5 bg-fill-2 shadow-sm'
-            : 'border-border-2 bg-fill-1 hover:border-border-1 hover:bg-fill-2'
+          menuVisible ? 'border-primary-5 bg-fill-2 shadow-sm' : 'border-2 bg-fill-1 hover:border-1 hover:bg-fill-2'
         }`}
       >
         <FolderOpen size={16} className='shrink-0 text-t-secondary' />
@@ -186,7 +186,8 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
           )}
         </div>
         {value ? (
-          <X size={14}
+          <X
+            size={14}
             className='shrink-0 text-t-secondary transition-colors hover:text-t-primary'
             onClick={handleClear}
           />
@@ -212,7 +213,7 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
             WebkitBackdropFilter: 'none',
             isolation: 'isolate',
           }}
-          className='overflow-x-hidden overflow-y-auto rounded-12px border border-border-1 p-6px shadow-[0_18px_48px_rgba(0,0,0,0.42)]'
+          className='overflow-x-hidden overflow-y-auto rounded-12px border border-1 p-6px shadow-[0_18px_48px_rgba(0,0,0,0.42)]'
         >
           {recentWorkspaces.length > 0 && (
             <>
@@ -230,7 +231,7 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
                     className={`mx-2px flex cursor-pointer items-center gap-10px rounded-10px px-10px py-8px transition-all ${
                       isSelected
                         ? 'border border-primary-5 bg-fill-2 shadow-[0_0_0_1px_rgba(var(--primary-6),0.24)] hover:bg-fill-2'
-                        : 'border border-transparent hover:border-border-2 hover:bg-fill-1'
+                        : 'border border-transparent hover:border-2 hover:bg-fill-1'
                     }`}
                   >
                     <Folder size={16} className='shrink-0 text-t-secondary' />
@@ -242,13 +243,13 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
                   </div>
                 );
               })}
-              <div className='mx-6px my-4px border-t border-border-2' />
+              <div className='mx-6px my-4px border-t border-2' />
             </>
           )}
 
           <div
             onClick={() => void handleBrowse()}
-            className='mx-2px flex cursor-pointer items-center gap-10px rounded-10px border border-transparent px-10px py-8px transition-all hover:border-border-2 hover:bg-fill-1'
+            className='mx-2px flex cursor-pointer items-center gap-10px rounded-10px border border-transparent px-10px py-8px transition-all hover:border-2 hover:bg-fill-1'
           >
             <FolderPlus size={16} className='shrink-0 text-t-secondary' />
             <span className='text-sm text-t-primary'>{chooseDifferentLabel}</span>

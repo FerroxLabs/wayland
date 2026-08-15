@@ -989,14 +989,14 @@ describe('CreateTaskDialog - advanced settings workspace picker', () => {
 
     const workspaceTrigger = screen.getByTestId('cron-workspace-trigger');
     expect(workspaceTrigger.className).toContain('bg-fill-1');
-    expect(workspaceTrigger.className).toContain('border-border-2');
+    expect(workspaceTrigger.className).toContain('border-2');
     expect(workspaceTrigger.className).toContain('py-0');
     expect(screen.queryByText('Optional workspace')).not.toBeInTheDocument();
 
     fireEvent.click(workspaceTrigger);
 
     const workspaceMenu = screen.getByTestId('cron-workspace-menu');
-    expect(workspaceMenu.className).toContain('border-border-1');
+    expect(workspaceMenu.className).toContain('border-1');
     expect(screen.getAllByText('scheduled-workspace')).toHaveLength(2);
   });
 });

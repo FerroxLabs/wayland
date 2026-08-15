@@ -1,0 +1,103 @@
+/**
+ * Workbench card chrome.
+ *
+ * These live in a stylesheet rather than as utility classes because the `border`
+ * and `shadow-*` utilities were measured producing no CSS at all in this build,
+ * which is how the panel ended up with no surface, no border and no elevation.
+ * Real rules cannot silently no-op.
+ */
+
+/* Section labels are arbitrary React nodes - the Workspace section supplies a
+   rich node that carries its own type styles, which rendered its header as a
+   bold heading twice the size of its neighbours. Force the whole subtree onto
+   one type step so the stack reads as a set of peers.
+   14px, not 12: these are section HEADINGS in a stack, and at 12px they read as
+   metadata labels rather than as the titles of the things below them. */
+.sectionLabel,
+.sectionLabel * {
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0;
+}
+
+.sectionLabel * {
+  font-weight: inherit !important;
+  color: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline !important;
+}
+
+/* Each section is its own card floating on the darker panel, with a gap between
+   siblings supplied by the stack's flex `gap`. Discrete cards are what make the
+   stack read as a set of independent things you can open. */
+.section {
+  background: var(--bg-2);
+  border-radius: 10px;
+  border: 1px solid var(--bg-3);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  font-weight: 600;
+  border-radius: 10px;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.sectionHeader:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--t-primary, #ededed);
+}
+
+.sectionHeader:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.chev {
+  transition: transform 140ms ease;
+}
+
+.chevOpen {
+  transform: rotate(180deg);
+}
+
+/* The stack scrolls as a whole. A visible scrollbar inside a 340px card reads
+   as a rendering artefact wedged against the border; keep the scrolling, drop
+   the bar. */
+.stack {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stack::-webkit-scrollbar {
+  display: none;
+}
+
+/* Icon buttons in the card header. */
+.iconBtn {
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.iconBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--t-primary, #ededed);
+}
+
+.iconBtn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sectionHeader,
+  .chev,
+  .iconBtn {
+    transition: none;
+  }
+}

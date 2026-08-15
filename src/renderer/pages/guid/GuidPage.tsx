@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { Bot, ChevronDown, ChevronLeft, FolderKanban, PenSquare } from 'lucide-react';
@@ -38,6 +40,8 @@ import GuidModelSelector from './components/GuidModelSelector';
 import MentionDropdown, { MentionSelectorBadge } from './components/MentionDropdown';
 import FeedbackReportModal from '@/renderer/components/settings/SettingsModal/contents/FeedbackReportModal';
 import SpeechInputButton from '@/renderer/components/chat/SpeechInputButton';
+import VoiceModeEntryButton from '@/renderer/pages/conversation/voice/VoiceModeEntryButton';
+import { armVoiceModeOnNextConversation, disarmVoiceMode } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 import { appendSpeechTranscript } from '@/renderer/hooks/system/useSpeechInput';
 import { useHiddenAgents } from '@renderer/hooks/assistant/useHiddenAgents';
 import { filterVisibleAgents } from './hooks/agentSelectionUtils';
@@ -881,6 +885,38 @@ const GuidPage: React.FC = () => {
     [guidInput.setInput]
   );
 
+  /**
+   * "Talk with Wayland" from the new-chat page.
+   *
+   * A voice session sends its turns through a conversation's own send handler,
+   * and on this page there is no conversation yet - so this cannot start a
+   * session here. It arms one, creates the conversation through the ordinary
+   * send path (carrying whatever is already typed as the first turn, exactly
+   * like pressing Send), and the session provider that mounts on the
+   * conversation page begins listening. Consent, readiness and the hosted
+   * disclosure are untouched: `begin` still runs all of them there.
+   *
+   * The arming is cleared again whenever the conversation is not created, so a
+   * refused send never leaves voice primed for some unrelated chat opened later.
+   */
+  const handleLaunchVoiceMode = useCallback(() => {
+    if (guidInput.loading) return;
+    armVoiceModeOnNextConversation();
+    send
+      .handleSend()
+      .then((ok) => {
+        if (!ok) {
+          disarmVoiceMode();
+          return;
+        }
+        recordMessageSent();
+      })
+      .catch((error) => {
+        disarmVoiceMode();
+        console.error('Failed to launch voice mode:', error);
+      });
+  }, [guidInput.loading, send, recordMessageSent]);
+
   // Build the action row
   const actionRowNode = (
     <GuidActionRow
@@ -917,6 +953,7 @@ const GuidPage: React.FC = () => {
       speechInputNode={
         <SpeechInputButton variant='prominent' locale={i18n.language} onTranscript={handleSpeechTranscript} />
       }
+      voiceModeNode={<VoiceModeEntryButton onLaunch={handleLaunchVoiceMode} disabled={guidInput.loading} />}
       onSend={() => {
         // MED-3: only record telemetry on successful send. handleSend
         // resolves false on validation early-returns and rejects on

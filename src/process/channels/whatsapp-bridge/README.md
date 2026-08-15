@@ -13,11 +13,11 @@ Node subprocess that connects the Wayland main process (Electron) to WhatsApp vi
 
 Selected at launch with `--backend <name>` (default: `baileys`):
 
-| Backend | When to use |
-| --- | --- |
-| `baileys` | Personal WhatsApp via Web protocol. Fastest. QR pairing. Risk of Meta bans for high-volume bot use. |
-| `whatsapp-web` | Same Web protocol but driven through Chromium + Puppeteer. Useful as a fallback when Baileys breaks on a protocol bump. Heavier (~150 MB Chromium). |
-| `meta-business` | Official Meta WhatsApp Business Cloud API. Required for production / regulated traffic. Pay per message. No group inbound. |
+| Backend         | When to use                                                                                                                                         |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `baileys`       | Personal WhatsApp via Web protocol. Fastest. QR pairing. Risk of Meta bans for high-volume bot use.                                                 |
+| `whatsapp-web`  | Same Web protocol but driven through Chromium + Puppeteer. Useful as a fallback when Baileys breaks on a protocol bump. Heavier (~150 MB Chromium). |
+| `meta-business` | Official Meta WhatsApp Business Cloud API. Required for production / regulated traffic. Pay per message. No group inbound.                          |
 
 ## RPC surface (every backend)
 
@@ -64,8 +64,8 @@ needed - the next `bun install` (root) will fan out via postinstall.
 
 ## Attribution
 
-- `bridge.js`, `allowlist.js` - architectural pattern adapted from [Hermes Agent](https://github.com/hermes-agent/hermes-agent) (`scripts/whatsapp-bridge/`), Peter Steinberger / Hermes contributors, MIT.
-- `backends/baileys.js` - session, auth-store, identity logic ported from [OpenClaw](https://github.com/openclaw/openclaw) (`extensions/whatsapp/src/`), OpenClaw contributors, MIT.
+- `bridge.js`, `allowlist.js` - adapted from [Hermes Agent](https://github.com/NousResearch/hermes-agent) (`scripts/whatsapp-bridge/`), Copyright (c) 2025 Nous Research, MIT.
+- `backends/baileys.js` - session, auth-store, identity logic ported from [OpenClaw](https://github.com/openclaw/openclaw) (`extensions/whatsapp/src/`), Copyright (c) 2026 OpenClaw Foundation; portions (c) 2025 Peter Steinberger, MIT.
 - `backends/whatsapp-web.js` - wraps [`whatsapp-web.js`](https://github.com/pedroslopez/whatsapp-web.js) by Pedro S. Lopez, Apache-2.0.
 - `backends/meta-business.js` - Wayland original. Calls Meta Graph API directly via `axios`.
 

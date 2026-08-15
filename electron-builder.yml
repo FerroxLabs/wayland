@@ -114,11 +114,21 @@ extraResources:
   # pinned native OfficeCLI runtime.
   - from: notices
     to: notices
+  # Full MIT license texts for the upstreams whose code is adapted into the app.
+  # Source headers cite `LICENSES/openclaw.txt` by that exact path, so it has to
+  # ship for those pointers to resolve in the packaged app.
+  - from: LICENSES
+    to: LICENSES
+  # pptx2json is vendored under src/vendor and inlined into the main bundle, where
+  # the bundler drops its `//` comment header. Ship the upstream LICENSE itself
+  # rather than a second copy in the repo.
+  - from: src/vendor/pptx2json/LICENSE
+    to: LICENSES/pptx2json.txt
   - from: resources/app.png
     to: app.png
   - from: resources/bundled-bun
     to: bundled-bun
-  # aionrs binary (pre-compiled per platform/arch)
+  # wayland-core engine binary (pre-compiled per platform/arch)
   - from: resources/bundled-wayland-core
     to: bundled-wayland-core
   # Native anchored Constitution filesystem helper. The exact target helper

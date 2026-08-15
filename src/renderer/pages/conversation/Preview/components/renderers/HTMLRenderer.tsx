@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { ipcBridge } from '@/common';
@@ -95,13 +97,7 @@ function htmlBaseDir(htmlFilePath: string): string {
  * NOTE: SVG is allowed but is itself an active-content format - sanitization
  * before inlining is a separate follow-up item.
  */
-const ALLOWED_IMAGE_MIME = new Set<string>([
-  'image/png',
-  'image/jpeg',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
-]);
+const ALLOWED_IMAGE_MIME = new Set<string>(['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml']);
 
 function isAllowedImagePath(p: string): boolean {
   const m = /\.([a-zA-Z0-9]+)(?:\?|#|$)/.exec(p);
@@ -730,7 +726,7 @@ const HTMLRenderer: React.FC<HTMLRendererProps> = ({
   return (
     <div
       ref={containerRef || divRef}
-      className={`h-full w-full overflow-auto relative ${currentTheme === 'dark' ? 'bg-bg-1' : 'bg-white'}`}
+      className={`h-full w-full overflow-auto relative ${currentTheme === 'dark' ? 'bg-1' : 'bg-white'}`}
     >
       {isElectron ? (
         <>

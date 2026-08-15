@@ -220,6 +220,12 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'modelRegistry.connect',
   'modelRegistry.rekey',
   'modelRegistry.detectKeys',
+  // --- Spawns a local process (`ollama serve`) on the HOST machine. A paired
+  //     browser session must never be able to start a daemon on the desktop it
+  //     is talking to. The read-only `localRuntimeStatus` companion is NOT
+  //     denied: it reports only installed/running booleans and the remote
+  //     Models page needs it to explain why a local provider is unreachable. ---
+  'modelRegistry.startLocalRuntime',
   // --- Wayland Core tool-backend key mutation (plant/clear a search API key) ---
   'wcoreToolKeys.set',
   'wcoreToolKeys.delete',
@@ -352,6 +358,52 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     stays allowed. ---
   'onboarding.connect-pasted-key',
   'onboarding.connect-flux',
+  // --- Flux connector writes for Kimi Code. `setup-kimi` takes the stored Flux
+  //     key and writes it, in plaintext, into a CLI config file on the HOST.
+  //     That is the same class as connect-flux directly above, so a paired
+  //     remote caller must not be able to drive it. `remove-kimi` mutates the
+  //     same host file. `kimi-status` is a read and stays allowed so the
+  //     settings panel still renders remotely.
+  //
+  //     NOTE: the equivalent opencode and codex channels (`setup-opencode`,
+  //     `remove-opencode`, `setup-codex`, `remove-codex`) are NOT denied today
+  //     and remain reachable. That looks like an oversight rather than a
+  //     decision, but it is shipped behaviour and changing it could break a
+  //     paired-device flow, so it is left for an explicit call rather than
+  //     changed here. This entry stops the gap from widening by one more
+  //     channel in the meantime. ---
+  'flux-connector:setup-kimi',
+  'flux-connector:remove-kimi',
+  //     The openclaw pair is the same class and is denied for the same reason:
+  //     `setup-openclaw` reads the stored Flux key and writes it in plaintext
+  //     into `~/.openclaw/openclaw.json`, and also repoints the user's default
+  //     model; `remove-openclaw` mutates that same host file. `openclaw-status`
+  //     is a read and stays allowed so the panel still renders remotely.
+  'flux-connector:setup-openclaw',
+  'flux-connector:remove-openclaw',
+  // --- Managed agent installs (K-05, decision D7). `install` runs a package
+  //     manager against the user's profile — it fetches an npm package and
+  //     writes an executable tree under userData; `uninstall` recursively
+  //     removes a directory. Both are code-on-the-host actions of the same class
+  //     as `onboarding.connect-flux` above. A paired-device WS token proves a
+  //     remote BROWSER, not the local trusted user, so neither is reachable from
+  //     the wire. `agent-installer:status` is a read and stays allowed so the
+  //     Agents settings page still renders remotely.
+  //
+  //     THE KEYS BELOW ARE FULLY QUALIFIED ON PURPOSE. `isAllowedForRemote`
+  //     strips only the `subscribe-` transport prefix and then matches this set
+  //     EXACTLY against the remaining wire key, which is the whole channel name.
+  //     A bare `install` / `uninstall` entry would match nothing that is ever
+  //     sent, so it would sit here looking like protection while the install
+  //     channel stayed wide open to remote callers. A redteam test reproduces
+  //     that exact mistake as a mutation. ---
+  'agent-installer:install',
+  'agent-installer:uninstall',
+  //     `cancel` KILLS a running install. It writes nothing, but a remote caller
+  //     that can cancel can deny the local user the install they asked for, on
+  //     repeat. Denied for the same reason as the other two, and spelled out in
+  //     full for the same reason: matching is exact.
+  'agent-installer:cancel',
   // --- Native xAI "Sign in with X (Grok)" OAuth. Both mint/persist the `xai`
   //     provider credential via the model-registry connect path - same class as
   //     connect-flux above. A remote WS caller must never drive an OAuth mint or

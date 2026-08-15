@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import type { IConfirmation } from '@/common/chat/chatLib';
@@ -26,9 +28,19 @@ import type {
   CodexSetupResult,
   CodexStatusResult,
   FluxConnectorReport,
+  KimiSetupResult,
+  KimiStatusResult,
+  OpenClawSetupResult,
+  OpenClawStatusResult,
   OpencodeSetupResult,
   OpencodeStatusResult,
 } from '../types/fluxConnector';
+import type {
+  AgentInstallCancelResult,
+  AgentInstallerReport,
+  AgentInstallResult,
+  AgentUninstallResult,
+} from '../types/agentInstaller';
 import type {
   UpdateCheckRequest,
   UpdateCheckResult,
@@ -50,8 +62,8 @@ import type {
   XaiOAuthResult,
 } from '../types/onboarding';
 import type { ProtocolDetectionRequest, ProtocolDetectionResponse } from '../utils/protocolDetector';
-import type { SpeechToTextRequest, SpeechToTextResult } from '../types/speech';
-import type { DownloadProgress, DownloadResult, VoiceAsset } from '../types/voiceAsset';
+import type { SpeechToTextBridgeResult, SpeechToTextRequest } from '../types/speech';
+import type { DownloadProgress, VoiceAssetDownloadOutcome, VoiceAsset } from '../types/voiceAsset';
 import type {
   TerminalOpenParams,
   TerminalOpenResult,
@@ -502,7 +514,7 @@ export const fs = {
 };
 
 export const speechToText = {
-  transcribe: buildProvider<SpeechToTextResult, SpeechToTextRequest>('speech-to-text.transcribe'),
+  transcribe: buildProvider<SpeechToTextBridgeResult, SpeechToTextRequest>('speech-to-text.transcribe'),
 };
 
 export const voiceSynth = {
@@ -677,7 +689,7 @@ export const dataExport = {
 };
 
 export const voiceAsset = {
-  download: buildProvider<DownloadResult, VoiceAsset>('voice-asset.download'),
+  download: buildProvider<VoiceAssetDownloadOutcome, VoiceAsset>('voice-asset.download'),
   cancel: buildProvider<{ cancelled: boolean }, { assetId: string }>('voice-asset.cancel'),
   // Streamed per-chunk download progress. voiceAssetBridge feeds this from the
   // onProgress callback it hands to VoiceAssetManager.download; the renderer's
@@ -971,6 +983,17 @@ export const acpConversation = {
 };
 
 // MCP service related interface
+/**
+ * One agent's outcome from an MCP publish/remove.
+ *
+ * `unsupported` marks a backend that was detected on the machine but has no MCP
+ * implementation - nothing to publish to, nothing to remove from. It is NOT a
+ * failure and must be excluded before deciding an operation failed. See the
+ * field doc on `McpSyncResult` in McpProtocol.ts for why this distinction
+ * exists.
+ */
+export type McpAgentSyncResult = { agent: string; success: boolean; error?: string; unsupported?: boolean };
+
 export const mcpService = {
   getMcpConfigSnapshot: buildProvider<IBridgeResponse<{ revision: string; servers: IMcpServer[] }>, void>(
     'mcp.get-config-snapshot'
@@ -995,11 +1018,11 @@ export const mcpService = {
     IMcpServer
   >('mcp.test-connection'),
   syncMcpToAgents: buildProvider<
-    IBridgeResponse<{ success: boolean; results: Array<{ agent: string; success: boolean; error?: string }> }>,
+    IBridgeResponse<{ success: boolean; results: Array<McpAgentSyncResult> }>,
     { mcpServers: IMcpServer[]; agents: Array<{ backend: string; name: string; cliPath?: string }> }
   >('mcp.sync-to-agents'),
   removeMcpFromAgents: buildProvider<
-    IBridgeResponse<{ success: boolean; results: Array<{ agent: string; success: boolean; error?: string }> }>,
+    IBridgeResponse<{ success: boolean; results: Array<McpAgentSyncResult> }>,
     { mcpServerName: string; agents: Array<{ backend: string; name: string; cliPath?: string }> }
   >('mcp.remove-from-agents'),
   archiveConfiguredServer: buildProvider<
@@ -1292,6 +1315,36 @@ export const fluxConnector = {
   codexStatus: buildProvider<CodexStatusResult, void>('flux-connector:codex-status'),
   setupCodex: buildProvider<CodexSetupResult, void>('flux-connector:setup-codex'),
   removeCodex: buildProvider<FluxConnectorReport, void>('flux-connector:remove-codex'),
+  kimiStatus: buildProvider<KimiStatusResult, void>('flux-connector:kimi-status'),
+  setupKimi: buildProvider<KimiSetupResult, void>('flux-connector:setup-kimi'),
+  removeKimi: buildProvider<FluxConnectorReport, void>('flux-connector:remove-kimi'),
+  openclawStatus: buildProvider<OpenClawStatusResult, void>('flux-connector:openclaw-status'),
+  setupOpenClaw: buildProvider<OpenClawSetupResult, void>('flux-connector:setup-openclaw'),
+  removeOpenClaw: buildProvider<FluxConnectorReport, void>('flux-connector:remove-openclaw'),
+};
+
+/**
+ * Managed agent installs (K-05). Wayland fetches a PINNED npm package into its
+ * own prefix with `--ignore-scripts` and records a receipt.
+ *
+ * SECURITY: `agent-installer:install`, `agent-installer:uninstall` and
+ * `agent-installer:cancel` are listed in bridgeAllowlist's REMOTE_DENIED_KEYS.
+ * `install` executes a package manager against the user's profile, `uninstall`
+ * recursively removes a directory, and `cancel` KILLS a running install — a
+ * remote caller that can cancel can deny the local user the install they asked
+ * for. A paired-device WS token proves a remote browser, NOT the local trusted
+ * user, so none is reachable from the wire (same posture as
+ * `onboarding.connect-flux`). `agent-installer:status` is a read and stays
+ * allowed.
+ *
+ * Those denials are matched EXACTLY against the fully-qualified key below — an
+ * entry of `install`/`uninstall` would be decorative and never fire.
+ */
+export const agentInstaller = {
+  status: buildProvider<AgentInstallerReport, void>('agent-installer:status'),
+  install: buildProvider<AgentInstallResult, { agentId: string }>('agent-installer:install'),
+  uninstall: buildProvider<AgentUninstallResult, { agentId: string }>('agent-installer:uninstall'),
+  cancel: buildProvider<AgentInstallCancelResult, { agentId: string }>('agent-installer:cancel'),
 };
 
 // Ambient Mode - M1 bubble window (AC-M1-5 / AC-M1-10 / AC-M1-11 / AC-M1-13)
@@ -1688,6 +1741,14 @@ export interface IResponseMessage {
    * back to conversation-only keying (unchanged behaviour).
    */
   turnId?: string | number;
+  /**
+   * Stable machine-readable classification for a terminal `error` event, when
+   * the producer had one. `data` stays the human-readable text; this is what a
+   * renderer branches on to route the failure to its remedy UI, so routing does
+   * not depend on substring-matching an English (or localized) message — the
+   * fragility that misrouted non-auth errors in #624.
+   */
+  code?: string;
 }
 
 export interface IConversationTurnCompletedEvent {
@@ -2242,10 +2303,42 @@ export type IModelRegistryProviderView = {
   callableModelCount?: number;
   /** True only when the main-process chat-start resolver can build a dispatch handle. */
   dispatchEligible?: boolean;
+  /**
+   * True when the row's stored credential exists but cannot be DECRYPTED
+   * (`ProviderRepository.getRegistryProviderCreds` -> `'undecryptable'`).
+   *
+   * `state` alone cannot express this: the row is still stamped `connected`,
+   * so a view built from `state` + `modelCount` renders a green "Connected"
+   * badge for a provider that will fail every single call. Consumers must
+   * treat this as action-needed (re-key) regardless of `state`.
+   */
+  credsUndecryptable?: boolean;
   /** Producer-owned time when connection or callable inventory last changed. */
   observedAt?: number;
   error?: ConnectError;
 };
+
+/**
+ * Runtime facts for a keyless machine-local provider (today only `ollama-local`).
+ *
+ * A local provider that will not answer is NOT a credential problem - it has no
+ * credential. It is either not installed on this machine, or installed and not
+ * running. Settings needs both facts to say the true thing and to avoid
+ * offering a "start it" action that could never work.
+ */
+export type IModelRegistryLocalRuntimeStatus = {
+  /** This provider is a keyless machine-local runtime we can inspect at all. */
+  supported: boolean;
+  /** An executable runtime binary was found on this machine. */
+  installed: boolean;
+  /** The runtime answered its local endpoint. */
+  running: boolean;
+};
+
+/** Outcome of a local-runtime start attempt. `ok` means it is actually up. */
+export type IModelRegistryStartLocalRuntimeResult =
+  | { ok: true }
+  | { ok: false; reason: 'unsupported' | 'not-installed' | 'spawn-failed' | 'timeout' };
 
 /** Full catalog + curated view for a single provider. */
 export type IModelRegistryCatalogView = {
@@ -2439,6 +2532,23 @@ export const modelRegistry = {
   // The auto-refresh toggle (persisted `models.autoRefresh`, default on).
   getAutoRefresh: buildProvider<boolean, void>('modelRegistry.getAutoRefresh'),
   setAutoRefresh: buildProvider<{ ok: boolean }, { value: boolean }>('modelRegistry.setAutoRefresh'),
+  /**
+   * Whether a keyless machine-local provider's runtime is installed here and
+   * whether it is currently up. Only the renderer's main process can answer
+   * either question, and Settings needs both to avoid offering a "start it"
+   * button on a machine where nothing is installed to start.
+   */
+  localRuntimeStatus: buildProvider<IModelRegistryLocalRuntimeStatus, { providerId: ProviderId }>(
+    'modelRegistry.localRuntimeStatus'
+  ),
+  /**
+   * Start a keyless machine-local provider's runtime and wait until it answers.
+   * Resolves only once the daemon is actually reachable, so the UI never reports
+   * a success the provider cannot back. Remote-denied: it spawns a local process.
+   */
+  startLocalRuntime: buildProvider<IModelRegistryStartLocalRuntimeResult, { providerId: ProviderId }>(
+    'modelRegistry.startLocalRuntime'
+  ),
   // Emitted once after every successful refreshAll / manual per-provider refresh
   // so an open picker / the Models page can re-fetch curated views live.
   listChanged: buildEmitter<void>('modelRegistry.list-changed'),

@@ -18,7 +18,7 @@
  *   - cleanup runs inside a finally block so leftover test data never leaks
  */
 import { test, expect } from '../fixtures';
-import { invokeBridge } from '../helpers';
+import { invokeBridge, primeSiderCreateAffordance } from '../helpers';
 import type { TTeam } from '@/common/types/teamTypes';
 
 const PREFERRED_PRESET_CUSTOM_AGENT_ID = 'builtin-cowork';
@@ -32,12 +32,12 @@ test.describe('Team Create - preset assistant leader', () => {
 
     try {
       // ── Open Create Team modal via sidebar UI ───────────────────────────
-      const teamSection = page.locator('text=Teams').or(page.locator('text=团队'));
-      await expect(teamSection.first()).toBeVisible({ timeout: 15_000 });
-
-      const createBtn = page.locator('.h-20px.w-20px.rd-4px').first();
-      await expect(createBtn).toBeVisible({ timeout: 10_000 });
-      await createBtn.click();
+      // The old `.h-20px.w-20px.rd-4px` icon button was replaced by
+      // `sider-team-create-inline`; that class now matches only the CRON section.
+      // The Teams section also needs >=1 team and an expanded accordion to render.
+      const primed = await primeSiderCreateAffordance(page);
+      test.skip(!primed, 'team.create seed failed (no usable leader backend)');
+      await page.getByTestId('sider-team-create-inline').click();
 
       const modal = page.locator('.team-create-modal');
       await expect(modal).toBeVisible({ timeout: 10_000 });

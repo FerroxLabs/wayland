@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  *
  * AgentSetupCard - A card component displayed above the SendBox when the current
  * agent is not configured (no auth/API key). It guides new users to set up their
@@ -212,7 +214,7 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
   return (
     <div className='mb-12px'>
       {/* Main Card */}
-      <div className='relative rounded-12px p-16px bg-bg-2 border-1 border-solid border-border-2'>
+      <div className='relative rounded-12px p-16px bg-2 border-1 border-solid border-2'>
         {/* Collapsed View - single-line hint + expand button */}
         {!expanded && !hasAvailableAndSwitching && (
           <div className='flex items-center justify-between cursor-pointer' onClick={() => setExpanded(true)}>
@@ -294,14 +296,14 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
                       const isSelected = hasAvailableAndSwitching && isBest;
 
                       // Determine card style based on status
-                      let cardStyle = 'bg-fill-1 border-1 border-solid border-border-2';
+                      let cardStyle = 'bg-fill-1 border-1 border-solid border-2';
                       if (isSelected) {
                         cardStyle = 'bg-success-1 border-2 border-solid border-success-6';
                       } else if (result.checking) {
                         cardStyle = 'bg-warning-1 border-1 border-solid border-warning-3';
                       } else if (result.available && !hasAvailableAndSwitching) {
                         cardStyle =
-                          'bg-fill-1 border-1 border-solid border-border-2 cursor-pointer hover:border-primary-4 hover:bg-fill-2';
+                          'bg-fill-1 border-1 border-solid border-2 cursor-pointer hover:border-primary-4 hover:bg-fill-2';
                       }
 
                       // Determine status display
@@ -350,10 +352,7 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
                                 </div>
                               )}
                               {!result.available && !result.checking && (
-                                <XCircle
-                                  size={14}
-                                  className='absolute -top-2px -right-2px text-t-tertiary'
-                                />
+                                <XCircle size={14} className='absolute -top-2px -right-2px text-t-tertiary' />
                               )}
                             </div>
                             <div className='text-13px font-medium mb-2px text-t-primary'>{result.name}</div>

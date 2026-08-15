@@ -10,6 +10,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { IMcpServer } from '@/common/config/storage';
 import { mcpServerCollisionKey } from '@/common/mcp';
+import { mcpAgentOperationSucceeded } from './McpProtocol';
 
 const ARCHIVE_KIND = 'wayland-mcp-connector-archive' as const;
 const ARCHIVE_VERSION = 1 as const;
@@ -43,7 +44,13 @@ export interface McpLifecycleAgent {
 
 export interface McpLifecycleMutationResult {
   success: boolean;
-  results: Array<{ agent: string; success: boolean; error?: string }>;
+  /**
+   * `unsupported` marks a detected backend with no MCP implementation. It is a
+   * non-target, not a failure - see `mcpAgentOperationSucceeded` in
+   * McpProtocol.ts, which is the single definition of "did this operation
+   * succeed" and must be used instead of open-coding the check here.
+   */
+  results: Array<{ agent: string; success: boolean; error?: string; unsupported?: boolean }>;
 }
 
 export interface McpConnectorLifecycleDependencies {
@@ -295,7 +302,7 @@ export class McpConnectorLifecycleService {
   private async rollbackPublication(server: IMcpServer, agents: McpLifecycleAgent[]): Promise<void> {
     if (!server.enabled) return;
     const result = await this.deps.syncToAgents([server], agents);
-    if (!result.success || result.results.some((entry) => !entry.success)) {
+    if (!mcpAgentOperationSucceeded(result.results)) {
       throw new Error('MCP connector rollback publication failed');
     }
   }
@@ -310,10 +317,10 @@ export class McpConnectorLifecycleService {
       const archive = await this.archives.publish(server);
       try {
         const removal = await this.deps.removeFromAgents(server.name, agents);
-        if (!removal.success || removal.results.some((entry) => !entry.success)) {
+        if (!mcpAgentOperationSucceeded(removal.results, { emptyIsSuccess: true })) {
           const removalError = new Error(
             removal.results
-              .filter((entry) => !entry.success)
+              .filter((entry) => !entry.success && !entry.unsupported)
               .map((entry) => `${entry.agent}: ${entry.error || 'removal failed'}`)
               .join('; ') || 'MCP connector removal failed'
           );

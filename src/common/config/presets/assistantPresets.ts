@@ -1304,4 +1304,39 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
       ],
     },
   },
+  {
+    id: 'smart-trader',
+    // Lucide's CURRENT name for this glyph. `candlestick-chart` is the retired
+    // alias for the same icon and still resolves, so a wrong pick here would
+    // render fine and silently sit on a deprecated name.
+    avatar: 'lucide:ChartCandlestick',
+    // Native engine: the setup path has to run local commands and read its own
+    // toolset to tell "TVControl absent" from "TVControl not answering".
+    presetAgentType: 'wcore',
+    category: 'research',
+    resourceDir: 'src/process/resources/assistant/smart-trader',
+    ruleFiles: {
+      'en-US': 'smart-trader.md',
+    },
+    // Both names are filesystem directory names under
+    // src/process/resources/skills/ - defaultEnabledSkills resolves by
+    // directory name against the seeded builtin skills, not against the
+    // skills-library index.
+    defaultEnabledSkills: ['tvcontrol-setup', 'market-open-report'],
+    nameI18n: {
+      'en-US': 'Smart Trader',
+    },
+    descriptionI18n: {
+      'en-US':
+        'Connects Wayland to your TradingView chart, then reads it back in plain English and runs a pre-open scan of your watchlist. Sets everything up for you. Never places orders and never gives financial advice.',
+    },
+    promptsI18n: {
+      'en-US': [
+        'Connect Wayland to my TradingView chart',
+        'Is my chart connection actually working?',
+        'Run my morning report before the open',
+        'What is on my chart right now?',
+      ],
+    },
+  },
 ];

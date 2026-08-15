@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 import { Bot, ChevronDown } from 'lucide-react';
@@ -25,7 +27,7 @@ const MentionDropdown: React.FC<MentionDropdownProps> = ({ menuRef, options, sel
   return (
     <div
       ref={menuRef}
-      className='bg-bg-2 border border-[var(--color-border-2)] rd-12px shadow-lg overflow-hidden'
+      className='bg-2 border border-[var(--color-border-2)] rd-12px shadow-lg overflow-hidden'
       style={{ boxShadow: '0 0 0 1px var(--color-border-2), 0 12px 24px rgba(0, 0, 0, 0.12)' }}
     >
       <Menu

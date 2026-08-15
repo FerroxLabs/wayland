@@ -47,6 +47,35 @@ import * as fs from 'node:fs';
 
 const STARTUP_STDERR_MAX = 8192;
 
+/**
+ * How long to wait for a child that had ALREADY exited when the lifecycle
+ * listeners attached before synthesising its exit. 'close' normally arrives
+ * first and carries the flushed stderr with it; this is the backstop.
+ */
+const MISSED_EXIT_REPLAY_MS = 250;
+
+/**
+ * Resolve `target` to a real filesystem path, symlinks included.
+ *
+ * bun names the REAL path of the module it could not resolve. On macOS that is
+ * `/private/var/folders/.../T/bunx-...`, while `os.tmpdir()` hands back the
+ * symlinked `/var/folders/.../T` form of the same directory. A textual
+ * comparison of the two disagrees, so the containment guard below rejects bun's
+ * own working directory as "suspicious" and the corrupt install is never
+ * cleared. Both sides go through here so they are compared in the same form.
+ *
+ * Falls back to the lexically resolved path when the target does not exist,
+ * which keeps the guard usable for paths that were already removed.
+ */
+function resolveRealPath(target: string): string {
+  const resolved = path.resolve(target);
+  try {
+    return fs.realpathSync(resolved);
+  } catch {
+    return resolved;
+  }
+}
+
 type PendingRequest = {
   settled: boolean;
   reject: (error: unknown) => void;
@@ -125,6 +154,11 @@ export class ProcessAcpClient implements AcpClient {
         requestPermission: async (params) => this.options.handlers.onRequestPermission(params),
         readTextFile: async (params) => this.options.handlers.onReadTextFile(params),
         writeTextFile: async (params) => this.options.handlers.onWriteTextFile(params),
+        // Vendor extensions. The SDK does NOT schema-validate these, which is
+        // exactly why Nano's cost metering moved here after `sessionUpdate:
+        // 'budget'` was rejected outright. Without this arm the SDK answers
+        // methodNotFound and logs on every frame.
+        extNotification: async (method, params) => this.options.handlers.onExtNotification?.(method, params),
       }),
       stream
     );
@@ -462,10 +496,34 @@ export class ProcessAcpClient implements AcpClient {
       rejectFn = reject;
     });
 
+    // A bridge that crashes on import - the signature of an install missing a
+    // declared dependency - can be dead before any of the listeners above (or
+    // in attachLifecycleObservers) attach. Their 'exit' never fires again, so
+    // start() waits forever: the backend hangs rather than failing, and nothing
+    // downstream ever gets the chance to clear the bad install and retry.
+    // Replay the exit we already missed. 'close' lands once the stdio streams
+    // have flushed, so the stderr summary is complete by then; the timer is the
+    // backstop for when 'close' has been and gone too. Both paths are safe to
+    // run twice - recordAgentExit is first-write-wins and a settled promise
+    // ignores further rejections.
+    let replayTimer: NodeJS.Timeout | null = null;
+    const replayMissedExit = () => {
+      this.recordAgentExit('process_exit', child.exitCode, child.signalCode);
+      onExit(child.exitCode, child.signalCode as NodeJS.Signals | null);
+    };
+    const alreadyExited = child.exitCode !== null || child.signalCode !== null;
+    if (alreadyExited) {
+      child.once('close', replayMissedExit);
+      replayTimer = setTimeout(replayMissedExit, MISSED_EXIT_REPLAY_MS);
+      replayTimer.unref?.();
+    }
+
     const dispose = () => {
       disposed = true;
       child.off('exit', onExit);
       child.off('error', onError);
+      if (alreadyExited) child.off('close', replayMissedExit);
+      if (replayTimer) clearTimeout(replayTimer);
     };
 
     return { promise, dispose };
@@ -475,11 +533,23 @@ export class ProcessAcpClient implements AcpClient {
    * When SDK throws "ACP connection closed" during init, convert to
    * AgentStartupError with stderr + exit code. Waits briefly for the
    * exit event to arrive (handles the race between stream close and exit).
+   *
+   * An AgentDisconnectedError is converted for the same reason. Whichever of
+   * the four lifecycle signals lands first decides the error type, and when the
+   * SDK connection aborts ahead of the exit event the failure surfaces as a bare
+   * `Agent disconnected (connection_close, code: null)` with the captured stderr
+   * thrown away. That is the message the owner was shown for a bridge whose
+   * install was missing a dependency: it names nothing, and every downstream
+   * check that reads the stderr (the broken-install detection and the guidance
+   * rewrite) is starved. A disconnect during initialize IS a startup failure, so
+   * report it as one and keep the stderr attached.
    */
   private async normalizeInitializeError(error: unknown, child: ChildProcess): Promise<unknown> {
     if (error instanceof AgentStartupError || error instanceof AgentSpawnError) return error;
 
-    const isConnectionClosed = error instanceof Error && /acp connection closed/i.test(error.message);
+    const isConnectionClosed =
+      error instanceof AgentDisconnectedError ||
+      (error instanceof Error && /acp connection closed/i.test(error.message));
     if (!isConnectionClosed) return error;
 
     // Brief wait for exit event to capture exit code
@@ -509,10 +579,14 @@ export class ProcessAcpClient implements AcpClient {
    *      half-linked entry in the install cache. The next spawn re-crashes
    *      on the same stale state forever. Remove the scoped cache entry for
    *      that package so the retry re-resolves and re-saves the lockfile.
+   *
+   * @returns true when something was actually removed, so the caller can tell a
+   *          real recovery from a no-op instead of retrying a doomed spawn.
    */
-  clearBunxCacheIfNeeded(): void {
-    this.clearMissingPackageBunxCache();
-    this.clearLinkCorruptedBunCacheEntry();
+  clearBunxCacheIfNeeded(): boolean {
+    const clearedMissing = this.clearMissingPackageBunxCache();
+    const clearedLink = this.clearLinkCorruptedBunCacheEntry();
+    return clearedMissing || clearedLink;
   }
 
   /**
@@ -523,10 +597,10 @@ export class ProcessAcpClient implements AcpClient {
    */
   private bunCleanupAllowedRoots(): string[] {
     return [
-      path.resolve(process.env.BUN_TMPDIR || os.tmpdir()),
-      path.resolve(process.env.BUN_INSTALL_CACHE_DIR || path.join(os.homedir(), '.bun', 'install', 'cache')),
-      path.resolve(os.homedir(), '.bun'),
-    ];
+      process.env.BUN_TMPDIR || os.tmpdir(),
+      process.env.BUN_INSTALL_CACHE_DIR || path.join(os.homedir(), '.bun', 'install', 'cache'),
+      path.join(os.homedir(), '.bun'),
+    ].map(resolveRealPath);
   }
 
   private isInsideBunCleanupRoot(target: string): boolean {
@@ -544,23 +618,25 @@ export class ProcessAcpClient implements AcpClient {
    * path to the missing module appears in stderr; remove the versioned bunx
    * working dir so the next `bun x` does a fresh install.
    */
-  private clearMissingPackageBunxCache(): void {
-    if (!/Cannot find (?:package|module)/i.test(this.stderrBuffer)) return;
+  private clearMissingPackageBunxCache(): boolean {
+    if (!/Cannot find (?:package|module)/i.test(this.stderrBuffer)) return false;
 
     const match = this.stderrBuffer.match(/([^\s'"]*[/\\]bunx-\d+[^\s/\\]*[/\\][^\s/\\]+@[^\s/\\]+)[/\\]node_modules/);
-    if (!match) return;
+    if (!match) return false;
 
-    const cacheDir = path.resolve(match[1]);
+    const cacheDir = resolveRealPath(match[1]);
     if (!this.isInsideBunCleanupRoot(cacheDir)) {
       console.warn(`[AcpClient ${this.options.backend}] Refusing to clear suspicious cache path: ${cacheDir}`);
-      return;
+      return false;
     }
 
     console.log(`[AcpClient ${this.options.backend}] Clearing corrupted bunx cache: ${cacheDir}`);
     try {
       fs.rmSync(cacheDir, { recursive: true, force: true });
+      return true;
     } catch {
       /* best effort */
+      return false;
     }
   }
 
@@ -571,14 +647,14 @@ export class ProcessAcpClient implements AcpClient {
    * referencing it) so the retry re-resolves cleanly - this mirrors what
    * manually re-running `bun x --bun <pkg> --version` does to heal it.
    */
-  private clearLinkCorruptedBunCacheEntry(): void {
-    if (!/Failed to link\b/i.test(this.stderrBuffer) || !/EEXIST/i.test(this.stderrBuffer)) return;
+  private clearLinkCorruptedBunCacheEntry(): boolean {
+    if (!/Failed to link\b/i.test(this.stderrBuffer) || !/EEXIST/i.test(this.stderrBuffer)) return false;
 
     const match = this.stderrBuffer.match(/Failed to link\s+(@?[\w.-]+(?:\/[\w.-]+)?)\s*:/i);
-    if (!match) return;
+    if (!match) return false;
     const pkg = match[1];
 
-    const installCacheRoot = path.resolve(
+    const installCacheRoot = resolveRealPath(
       process.env.BUN_INSTALL_CACHE_DIR || path.join(os.homedir(), '.bun', 'install', 'cache')
     );
 
@@ -593,12 +669,13 @@ export class ProcessAcpClient implements AcpClient {
     cleared = this.removeBunCacheChildrenByPrefix(entryParentDir, entryBaseName) || cleared;
 
     // Any leftover bunx working dir referencing the package (best-effort).
-    const tmpRoot = path.resolve(process.env.BUN_TMPDIR || os.tmpdir());
+    const tmpRoot = resolveRealPath(process.env.BUN_TMPDIR || os.tmpdir());
     cleared = this.removeBunxWorkingDirsForPackage(tmpRoot, pkg) || cleared;
 
     if (cleared) {
       console.log(`[ACP] cleared stale bun link state for ${pkg} after EEXIST, retrying`);
     }
+    return cleared;
   }
 
   /**
@@ -607,7 +684,7 @@ export class ProcessAcpClient implements AcpClient {
    * cleanup-root allowlist and fully best-effort.
    */
   private removeBunCacheChildrenByPrefix(parentDir: string, baseName: string): boolean {
-    const resolvedParent = path.resolve(parentDir);
+    const resolvedParent = resolveRealPath(parentDir);
     if (!this.isBunCleanupRootOrInside(resolvedParent)) return false;
 
     let removed = false;
@@ -620,7 +697,7 @@ export class ProcessAcpClient implements AcpClient {
 
     for (const name of entries) {
       if (name !== baseName && !name.startsWith(`${baseName}@`)) continue;
-      const target = path.resolve(resolvedParent, name);
+      const target = resolveRealPath(path.join(resolvedParent, name));
       if (!this.isInsideBunCleanupRoot(target)) continue;
       try {
         fs.rmSync(target, { recursive: true, force: true });
@@ -637,8 +714,8 @@ export class ProcessAcpClient implements AcpClient {
    * reference the package, so a re-resolve does not collide with a stale dir.
    */
   private removeBunxWorkingDirsForPackage(tmpRoot: string, pkg: string): boolean {
-    const resolvedRoot = path.resolve(tmpRoot);
-    if (!this.isBunCleanupRootOrInside(resolvedRoot) && resolvedRoot !== path.resolve(os.tmpdir())) return false;
+    const resolvedRoot = resolveRealPath(tmpRoot);
+    if (!this.isBunCleanupRootOrInside(resolvedRoot) && resolvedRoot !== resolveRealPath(os.tmpdir())) return false;
 
     const baseName = pkg.includes('/') ? pkg.slice(pkg.lastIndexOf('/') + 1) : pkg;
     let removed = false;
@@ -651,7 +728,7 @@ export class ProcessAcpClient implements AcpClient {
 
     for (const name of entries) {
       if (!/^bunx-\d+/.test(name) || !name.includes(baseName)) continue;
-      const target = path.resolve(resolvedRoot, name);
+      const target = resolveRealPath(path.join(resolvedRoot, name));
       try {
         fs.rmSync(target, { recursive: true, force: true });
         removed = true;
