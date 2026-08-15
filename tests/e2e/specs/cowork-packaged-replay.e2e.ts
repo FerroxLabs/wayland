@@ -39,6 +39,21 @@ const USER_DATA = process.env.WAYLAND_M8_USER_DATA_DIR;
 const WORKSPACE_ROOT = process.env.WAYLAND_M8_WORKSPACE_ROOT;
 const EVIDENCE_ROOT = process.env.WAYLAND_M8_EVIDENCE_ROOT;
 
+/**
+ * ENVIRONMENT-REQUIRED. This replay drives a PACKAGED build against a prepared
+ * receipt fixture, so it needs all four WAYLAND_M8_* paths supplied by the
+ * release-acceptance harness. `testMatch` picks this file up under a plain
+ * `playwright test`, where those are unset and every test can only fail on a
+ * missing executable - noise that buries real regressions in the run total.
+ *
+ * File-scope skip (not describe-scope) on purpose: the beforeAll below launches
+ * the app, and a describe-level skip would not stop a top-level hook.
+ */
+test.skip(
+  !EXECUTABLE || !USER_DATA || !WORKSPACE_ROOT || !EVIDENCE_ROOT,
+  'M8-D packaged replay requires WAYLAND_M8_EXECUTABLE, WAYLAND_M8_USER_DATA_DIR, WAYLAND_M8_WORKSPACE_ROOT and WAYLAND_M8_EVIDENCE_ROOT. Run it from the release-acceptance harness.'
+);
+
 let app: ElectronApplication;
 let page: Page;
 let sourceServer: Server;
