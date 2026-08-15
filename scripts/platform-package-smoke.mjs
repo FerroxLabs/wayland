@@ -607,18 +607,22 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
           return candidate;
         }
       };
-      const mountPoints = [
-        ...new Set(
-          [
-            requestedMount,
-            ...[...plist.matchAll(/<key>mount-point<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) =>
-              decodeXml(match[1])
-            ),
-          ]
-            .filter((candidate) => fs.existsSync(candidate))
-            .map(canonicalise)
+      const seenMountPoints = new Set();
+      const mountPoints = [];
+      for (const candidate of [
+        requestedMount,
+        ...[...plist.matchAll(/<key>mount-point<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) =>
+          decodeXml(match[1])
         ),
-      ];
+      ]) {
+        if (!fs.existsSync(candidate)) continue;
+        const key = canonicalise(candidate);
+        if (seenMountPoints.has(key)) continue;
+        seenMountPoints.add(key);
+        // Keep the path as reported rather than its canonical form: only the
+        // duplicate detection needs canonicalising.
+        mountPoints.push(candidate);
+      }
       // Detach the whole-disk devices only. A plist lists both /dev/diskN and its
       // /dev/diskNsM partitions; detaching the disk invalidates its partitions, so
       // detaching every entry reports spurious "No such file or directory" failures
@@ -627,8 +631,7 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
         ...new Set(
           [...plist.matchAll(/<key>dev-entry<\/key>\s*<string>([^<]+)<\/string>/g)]
             .map((match) => decodeXml(match[1]))
-            .map((entry) => /^(\/dev\/disk\d+)/.exec(entry)?.[1])
-            .filter(Boolean)
+            .map((entry) => /^(\/dev\/disk\d+)s\d+$/.exec(entry)?.[1] ?? entry)
         ),
       ];
       // A device node is the idempotent hdiutil detach authority. Falling
@@ -656,13 +659,15 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
       const cleanupErrors = [];
       if (attachAttempted) {
         for (const mounted of detachTargets) {
-          // Detaching one device of an attachment tears down its siblings, so a
-          // device that has already disappeared is a success, not a cleanup failure.
-          if (!fs.existsSync(mounted)) continue;
           try {
             execute('hdiutil', ['detach', mounted, '-force'], { stdio: 'pipe' });
           } catch (error) {
-            cleanupErrors.push(`${mounted}: ${error instanceof Error ? error.message : String(error)}`);
+            // Detaching one device of an attachment tears down its siblings, so a
+            // device that is already gone reports a failure for work that has in
+            // fact succeeded. The desired end state is reached either way.
+            const message = error instanceof Error ? error.message : String(error);
+            if (/no such file or directory|not attached|no mountable file systems/i.test(message)) continue;
+            cleanupErrors.push(`${mounted}: ${message}`);
           }
         }
       }
