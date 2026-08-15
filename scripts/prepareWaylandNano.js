@@ -272,10 +272,19 @@ function resolveLatestTag() {
  * publishes no Windows ARM64 target):
  *   wayland-nano-0.1.0-darwin-arm64.zip
  */
+// wayland-nano does not publish a runtime for every target Desktop packages
+// (there is no win32-arm64 build). Callers use this to bundle where a runtime
+// exists and fall back to the npx launcher where one does not, rather than
+// failing the whole platform build.
+const SUPPORTED_WNANO_TARGETS = new Set(['darwin-arm64', 'darwin-x64', 'linux-arm64', 'linux-x64', 'win32-x64']);
+
+function isSupportedWNanoTarget(platform, arch) {
+  return SUPPORTED_WNANO_TARGETS.has(`${platform}-${arch}`);
+}
+
 function getAssetName(platform, arch, tag) {
   const runtimeKey = `${platform}-${arch}`;
-  const supported = new Set(['darwin-arm64', 'darwin-x64', 'linux-arm64', 'linux-x64', 'win32-x64']);
-  if (!supported.has(runtimeKey)) return null;
+  if (!SUPPORTED_WNANO_TARGETS.has(runtimeKey)) return null;
   const version = tag.startsWith('v') ? tag.slice(1) : tag;
   return `wayland-nano-${version}-${runtimeKey}.zip`;
 }
@@ -712,6 +721,8 @@ prepareWaylandNano.SHASUMS_FILE = SHASUMS_FILE;
 prepareWaylandNano.getAssetName = getAssetName;
 prepareWaylandNano.loadExpectedProvenance = loadExpectedProvenance;
 prepareWaylandNano.normalizeSha256 = normalizeSha256;
+prepareWaylandNano.SUPPORTED_WNANO_TARGETS = SUPPORTED_WNANO_TARGETS;
+prepareWaylandNano.isSupportedWNanoTarget = isSupportedWNanoTarget;
 prepareWaylandNano.normalizeExactReleaseTag = normalizeExactReleaseTag;
 prepareWaylandNano.pruneRuntimeDirectory = pruneRuntimeDirectory;
 

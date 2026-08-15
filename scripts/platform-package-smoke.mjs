@@ -18,6 +18,7 @@ const {
   inspectExecutable,
   verifyPackagedResources,
 } = require('./verify-packaged-resources.js');
+const { isSupportedWNanoTarget } = require('./prepareWaylandNano.js');
 
 const TAG = '[platform-package-smoke]';
 const OPTIONAL_RESOURCES = ['hub', 'whatsapp-bridge', 'signal-cli-runtime'];
@@ -198,7 +199,16 @@ export function currentSourceIdentity(cwd = process.cwd(), dependencies = {}) {
   // modified tracked file.
   const dirty = git('status', '--porcelain=v1', '--untracked-files=all');
   if (dirty) {
-    throw new Error(`${TAG} source worktree is not clean; refusing immutable commit/tree attestation`);
+    // Name the offending paths. Without them this gate reports only that something
+    // changed, which is undiagnosable on a CI runner whose worktree is already gone
+    // by the time anyone reads the log.
+    const paths = dirty.split('\n').filter(Boolean);
+    const shown = paths.slice(0, 20).join(', ');
+    const rest = paths.length > 20 ? ` (+${paths.length - 20} more)` : '';
+    throw new Error(
+      `${TAG} source worktree is not clean; refusing immutable commit/tree attestation. ` +
+        `Dirty paths: ${shown}${rest}`
+    );
   }
   return { commit, tree };
 }
@@ -586,17 +596,42 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
           { encoding: 'utf8' }
         )
       );
-      const mountPoints = [
-        ...new Set([
-          requestedMount,
-          ...[...plist.matchAll(/<key>mount-point<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) =>
-            decodeXml(match[1])
-          ),
-        ]),
-      ].filter((candidate) => fs.existsSync(candidate));
+      // hdiutil reports the canonical mount path (/private/var/...) while the
+      // requested mount is the symlinked form (/var/...). Deduplicating the raw
+      // strings therefore keeps both, the single mounted volume is scanned twice,
+      // and the one application bundle is counted as two.
+      const canonicalise = (candidate) => {
+        try {
+          return fs.realpathSync.native(candidate);
+        } catch {
+          return candidate;
+        }
+      };
+      const seenMountPoints = new Set();
+      const mountPoints = [];
+      for (const candidate of [
+        requestedMount,
+        ...[...plist.matchAll(/<key>mount-point<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) =>
+          decodeXml(match[1])
+        ),
+      ]) {
+        if (!fs.existsSync(candidate)) continue;
+        const key = canonicalise(candidate);
+        if (seenMountPoints.has(key)) continue;
+        seenMountPoints.add(key);
+        // Keep the path as reported rather than its canonical form: only the
+        // duplicate detection needs canonicalising.
+        mountPoints.push(candidate);
+      }
+      // Detach the whole-disk devices only. A plist lists both /dev/diskN and its
+      // /dev/diskNsM partitions; detaching the disk invalidates its partitions, so
+      // detaching every entry reports spurious "No such file or directory" failures
+      // for work that already succeeded.
       const deviceEntries = [
         ...new Set(
-          [...plist.matchAll(/<key>dev-entry<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) => decodeXml(match[1]))
+          [...plist.matchAll(/<key>dev-entry<\/key>\s*<string>([^<]+)<\/string>/g)]
+            .map((match) => decodeXml(match[1]))
+            .map((entry) => /^(\/dev\/disk\d+)s\d+$/.exec(entry)?.[1] ?? entry)
         ),
       ];
       // A device node is the idempotent hdiutil detach authority. Falling
@@ -609,7 +644,13 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
           .filter((entry) => entry.isDirectory() && entry.name.endsWith('.app'))
           .map((entry) => ({ mountPoint, name: entry.name }));
       });
-      if (mountedApps.length !== 1) throw new Error(`${TAG} DMG must expose exactly one application bundle`);
+      if (mountedApps.length !== 1) {
+        throw new Error(
+          `${TAG} DMG must expose exactly one application bundle; found ${mountedApps.length} ` +
+            `(${mountedApps.map((app) => `${app.mountPoint}/${app.name}`).join(', ') || 'none'}) ` +
+            `across mount points ${mountPoints.join(', ') || 'none'}`
+        );
+      }
       const [{ mountPoint, name }] = mountedApps;
       execute('ditto', [path.join(mountPoint, name), path.join(installRoot, name)], { stdio: 'pipe' });
     } catch (error) {
@@ -621,7 +662,12 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
           try {
             execute('hdiutil', ['detach', mounted, '-force'], { stdio: 'pipe' });
           } catch (error) {
-            cleanupErrors.push(`${mounted}: ${error instanceof Error ? error.message : String(error)}`);
+            // Detaching one device of an attachment tears down its siblings, so a
+            // device that is already gone reports a failure for work that has in
+            // fact succeeded. The desired end state is reached either way.
+            const message = error instanceof Error ? error.message : String(error);
+            if (/no such file or directory|not attached|no mountable file systems/i.test(message)) continue;
+            cleanupErrors.push(`${mounted}: ${message}`);
           }
         }
       }
@@ -1190,6 +1236,12 @@ export async function runSmoke(options, dependencies = {}) {
         `${options.targetPlatform}-${options.targetArch}`,
         '--officecli-runtime',
         `${options.targetPlatform}-${options.targetArch}`,
+        // Nano is bundled as of 0.12.0 and the verifier refuses to infer its target
+        // identity, so the installed-payload smoke has to declare it like the others.
+        // Targets wayland-nano does not publish (win32-arm64) carry no bundle to check.
+        ...(isSupportedWNanoTarget(options.targetPlatform, options.targetArch)
+          ? ['--wnano-runtime', `${options.targetPlatform}-${options.targetArch}`]
+          : []),
       ],
       logger,
     });
