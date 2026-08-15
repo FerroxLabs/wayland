@@ -601,7 +601,18 @@ function listNativeIdentities(root, identities = []) {
 
 function expectedSharpPackages(platform, arch) {
   if (platform === 'darwin') return [`sharp-darwin-${arch}`, `sharp-libvips-darwin-${arch}`];
-  if (platform === 'linux') return [`sharp-linux-${arch}`, `sharp-libvips-linux-${arch}`];
+  // bun's --os/--cpu filters select by platform and architecture but carry no libc
+  // dimension, so a linux install always lands both the glibc and the musl builds of
+  // sharp. Both are genuine linux/<arch> natives and both still have to satisfy the
+  // per-package os, cpu and native-identity assertions below; only the exact-inventory
+  // comparison needs to know they are expected.
+  if (platform === 'linux')
+    return [
+      `sharp-linux-${arch}`,
+      `sharp-libvips-linux-${arch}`,
+      `sharp-linuxmusl-${arch}`,
+      `sharp-libvips-linuxmusl-${arch}`,
+    ];
   if (platform === 'win32') return [`sharp-win32-${arch}`];
   return [];
 }

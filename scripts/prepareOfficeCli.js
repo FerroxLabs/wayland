@@ -367,13 +367,36 @@ function assertContractOutputs(versionOutput, topLevelHelp, formatHelp, watchHel
 // home with autoUpdate disabled, so the contract and smoke checks exercise the
 // pinned artifact rather than whatever upstream published most recently.
 function withUpdatesDisabled() {
-  const configHome = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-home-'));
+  // On Windows runners os.tmpdir() is an 8.3 short path (C:\\Users\\RUNNER~1\\...).
+  // Hand the child the expanded long form: a consumer that canonicalises the profile
+  // path differently would otherwise miss the config written here and fall back to its
+  // defaults, which is exactly the silent re-enable this function exists to prevent.
+  let configHome = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-home-'));
+  try {
+    configHome = fs.realpathSync.native(configHome);
+  } catch {
+    // A realpath failure is not fatal; the short path is still a usable directory.
+  }
   fs.mkdirSync(path.join(configHome, '.officecli'), { recursive: true });
   fs.writeFileSync(
     path.join(configHome, '.officecli', 'config.json'),
     `${JSON.stringify({ autoUpdate: false, log: false }, null, 2)}\n`
   );
   return { ...process.env, HOME: configHome, USERPROFILE: configHome };
+}
+
+// The probes above execute the binary. OfficeCLI's updater has replaced its own
+// executable in place before now, so re-assert the pinned digest afterwards: a build
+// must never package bytes that differ from the ones it verified.
+function assertBinaryUnchangedByProbes(binaryPath, expectedSha, assetName, version) {
+  const actual = `sha256:${computeSha256(binaryPath)}`;
+  const expected = String(expectedSha).startsWith('sha256:') ? String(expectedSha) : `sha256:${expectedSha}`;
+  if (actual !== expected) {
+    throw new Error(
+      `OfficeCLI ${assetName} mutated itself while being probed: expected ${expected}, found ${actual}. ` +
+        `The pinned ${version} binary replaced itself on disk; the self-updater is not disabled on this host.`
+    );
+  }
 }
 
 function verifyExecutableContract(binaryPath) {
@@ -799,8 +822,10 @@ function prepareOfficeCli(options = {}) {
   const ledgerProof = loadOfficeCliLedgerProof();
 
   fs.mkdirSync(targetDir, { recursive: true });
+  console.log(`Preparing OfficeCLI for ${runtimeKey} (version: ${version})`);
 
   if (fs.existsSync(targetBinary) && !options.forceDownload) {
+    console.log(`  Reusing existing ${runtimeKey} binary (digest-verified against the pin)`);
     verifyFile(targetBinary, expectedSha, assetName, version);
     if (platform !== 'win32') fs.chmodSync(targetBinary, 0o755);
     const publisherSignatureProof =
@@ -814,6 +839,7 @@ function prepareOfficeCli(options = {}) {
     const smokeProof = executableOnBuildHost
       ? verifyExecutableSmoke(targetBinary)
       : { formats: [], operations: [], reason: 'not-executable-on-build-host' };
+    if (executableOnBuildHost) assertBinaryUnchangedByProbes(targetBinary, expectedSha, assetName, version);
     const reportedVersion = contractProof.release.replace(/^v/i, '');
     writeManifest(
       targetDir,
@@ -859,6 +885,7 @@ function prepareOfficeCli(options = {}) {
     if (platform === process.platform && arch === process.arch) {
       contractProof = verifyExecutableContract(targetBinary);
       smokeProof = verifyExecutableSmoke(targetBinary);
+      assertBinaryUnchangedByProbes(targetBinary, expectedSha, assetName, version);
       reportedVersion = contractProof.release.replace(/^v/i, '');
     }
 
