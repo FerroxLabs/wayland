@@ -235,14 +235,31 @@ jobs:
           # demand real history - it is a supply-chain authenticity check - so
           # deepen the checkout rather than weaken the assertion.
           fetch-depth: 0
-          # ...and the tags with it. The 991c502 producer commit is NOT an
-          # ancestor of main or of any PR branch - it survives only under the
-          # `pre-secretfix-backup` and `strike/baseline-2026-07-17` tags. Since
-          # actions/checkout fetches with --no-tags by default, `fetch-depth: 0`
-          # alone still left it unreachable and `git rev-parse <sha>^{tree}`
-          # failed in CI while passing on any clone that happened to still hold
-          # the object. Same reasoning as above: fetch what the assertion needs.
-          fetch-tags: true
+
+      - name: Fetch the Constitution provenance producer commit
+        shell: bash
+        run: |
+          # constitutionFsService re-derives the 991c502 producer corpus straight
+          # from git (rev-parse / archive / show / read-tree). That commit is
+          # reachable from NO remote ref - not main, not any PR branch, and the
+          # two local tags holding it were never pushed - so `fetch-depth: 0`
+          # cannot reach it either. The assertion passed only on long-lived
+          # clones that still had the loose object, which is why it went unseen
+          # until this branch first opened a PR.
+          #
+          # Fetch it by SHA, which GitHub permits; depth-1 carries the trees and
+          # blobs the assertion needs. Deliberately a CI step rather than a
+          # change to the test: it keeps network I/O out of the unit suite and
+          # leaves the supply-chain assertion demanding real history.
+          SHA=$(node -p "require('./tests/fixtures/constitution-fs/base-991c502-committed/fixture-manifest.json').producerCommit")
+          echo "producer commit: $SHA"
+          for attempt in 1 2 3; do
+            if git fetch --depth=1 --no-tags origin "$SHA"; then exit 0; fi
+            echo "fetch attempt $attempt failed; retrying" >&2
+            sleep 5
+          done
+          echo "could not fetch producer commit $SHA" >&2
+          exit 1
 
       - name: Resolve PR context
         uses: ./.github/actions/checkout-pr
@@ -519,14 +536,31 @@ jobs:
         with:
           # Same git-history requirement as the unit-test shards.
           fetch-depth: 0
-          # ...and the tags with it. The 991c502 producer commit is NOT an
-          # ancestor of main or of any PR branch - it survives only under the
-          # `pre-secretfix-backup` and `strike/baseline-2026-07-17` tags. Since
-          # actions/checkout fetches with --no-tags by default, `fetch-depth: 0`
-          # alone still left it unreachable and `git rev-parse <sha>^{tree}`
-          # failed in CI while passing on any clone that happened to still hold
-          # the object. Same reasoning as above: fetch what the assertion needs.
-          fetch-tags: true
+
+      - name: Fetch the Constitution provenance producer commit
+        shell: bash
+        run: |
+          # constitutionFsService re-derives the 991c502 producer corpus straight
+          # from git (rev-parse / archive / show / read-tree). That commit is
+          # reachable from NO remote ref - not main, not any PR branch, and the
+          # two local tags holding it were never pushed - so `fetch-depth: 0`
+          # cannot reach it either. The assertion passed only on long-lived
+          # clones that still had the loose object, which is why it went unseen
+          # until this branch first opened a PR.
+          #
+          # Fetch it by SHA, which GitHub permits; depth-1 carries the trees and
+          # blobs the assertion needs. Deliberately a CI step rather than a
+          # change to the test: it keeps network I/O out of the unit suite and
+          # leaves the supply-chain assertion demanding real history.
+          SHA=$(node -p "require('./tests/fixtures/constitution-fs/base-991c502-committed/fixture-manifest.json').producerCommit")
+          echo "producer commit: $SHA"
+          for attempt in 1 2 3; do
+            if git fetch --depth=1 --no-tags origin "$SHA"; then exit 0; fi
+            echo "fetch attempt $attempt failed; retrying" >&2
+            sleep 5
+          done
+          echo "could not fetch producer commit $SHA" >&2
+          exit 1
 
       - name: Resolve PR context
         uses: ./.github/actions/checkout-pr

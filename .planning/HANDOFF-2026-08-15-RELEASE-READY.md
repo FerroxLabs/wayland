@@ -70,6 +70,7 @@ overflow. Selecting an agent widens that pill ~85px to reveal its label, which
 pushes the row past its box, and centred overflow is clipped at BOTH edges.
 
 Measured on a 22-agent profile [V]:
+
 - unselected: 715px row in a 715px box, `elementFromPoint` at pill 0 returns the
   pill, click works.
 - after selecting ANY pill: 799px row in a 766px box, pill 0 shifts from x=395
@@ -128,6 +129,46 @@ PROPOSE could create DUPLICATE jobs. That needs verification, not a release-day
 text swap. Release notes do not claim the cron contract is fully consistent.
 
 ---
+
+## 4b. This branch's CI had NEVER RUN — and three required checks were red
+
+427 commits with no PR means `pr-checks.yml` never executed on this branch.
+Opening PR #956 ran it for the first time and three REQUIRED checks failed
+immediately. None of it was caused by the release work; all of it had been
+sitting there.
+
+1. **I18n Check** — `i18n-keys.d.ts` was missing 11 keys that earlier commits
+   added to the locales without re-running the generator (voice turn-failed /
+   draft-ready / notice titles from `0ba9edd50`, and `onboarding.flow.layout.*`).
+   Regenerated.
+
+2. **Code Quality** — six oxlint errors in five pre-existing test files. Four
+   mechanical. TWO were suppressed with a written reason rather than "fixed",
+   because the code is correct and changing it would change behaviour:
+   `voiceModeSeparation` iterates a SNAPSHOT of `responseListeners` because a
+   listener that unsubscribes while responding splices itself out of that same
+   array; and `VoiceConversationMode`'s mock Audio must assign `this` in its
+   constructor because production calls `new Audio()` itself.
+
+3. **Unit Tests shards 1/4 and 3/4, every platform** — failed on
+   `git rev-parse 991c502e...^{tree}: unknown revision`. This looked like the
+   depth-1 problem the workflow comment says was already fixed with
+   `fetch-depth: 0`. IT IS NOT THE SAME PROBLEM.
+
+   🔑 **That producer commit is not an ancestor of main, of this branch, or of
+   any PR ref.** It survives only under the tags `pre-secretfix-backup` and
+   `strike/baseline-2026-07-17`. `actions/checkout` fetches with `--no-tags`
+   unless told otherwise, so full depth still gave no path to the object. It
+   passed locally ONLY because this long-lived clone still had the loose object
+   in its store — which is exactly why no one saw it before a PR existed.
+
+   Fixed with `fetch-tags: true` on the two jobs that run the assertion
+   (`unit-tests`, `coverage-tests`). This would have blocked ANY PR to main.
+
+⚠️ **Required checks for merging to `main`** (branch protection, `strict: true`):
+`Code Quality`, `Unit Tests (macos-14)`, `Unit Tests (ubuntu-latest)`,
+`Unit Tests (windows-2022)`. The per-shard jobs are not required; the three
+aggregators are.
 
 ## 5. Standing traps (still true)
 
