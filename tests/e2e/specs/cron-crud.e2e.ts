@@ -116,10 +116,19 @@ async function waitForCronJobCreated(
  */
 async function acceptCronProposal(
   page: import('@playwright/test').Page,
+  conversationId: string,
   timeoutMs = 120_000
 ): Promise<void> {
   const card = page.locator('[data-testid="cron-propose-card"]').last();
   await card.waitFor({ state: 'visible', timeout: timeoutMs });
+
+  // Assert the guarantee HERE, not earlier: the agent has now emitted its
+  // proposal and the card is on screen, and still nothing has been written.
+  // Checked before the card appears this is vacuous - it would pass simply by
+  // running ahead of the agent.
+  const before = await listCronJobs(page);
+  expect(before.some((j) => j.metadata.conversationId === conversationId)).toBe(false);
+
   const accept = card.locator('[data-testid="cron-propose-accept"]');
   await expect(accept).toBeEnabled({ timeout: 15_000 });
   await accept.click();
@@ -220,11 +229,9 @@ test.describe('Cron via AI conversation', () => {
     await waitForSessionActive(page, 120_000);
 
     // ── Step 3: Confirm the proposal, then wait for the job ──
-    // Nothing is written to cron_jobs until this click.
-    const preAccept = await listCronJobs(page);
-    expect(preAccept.some((j) => j.metadata.conversationId === conversationId)).toBe(false);
-
-    await acceptCronProposal(page);
+    // Nothing is written to cron_jobs until this click; acceptCronProposal
+    // asserts that at the only moment where the claim has teeth.
+    await acceptCronProposal(page, conversationId);
 
     const job = await waitForCronJobCreated(page, conversationId, 120_000);
     createdJobId = job.id;
@@ -349,7 +356,7 @@ test.describe('Cron via AI conversation', () => {
 
     await waitForSessionActive(page, 120_000);
 
-    await acceptCronProposal(page);
+    await acceptCronProposal(page, conversationId);
 
     const job = await waitForCronJobCreated(page, conversationId, 120_000);
     createdJobId = job.id;

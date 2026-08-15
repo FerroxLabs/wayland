@@ -201,7 +201,7 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
   return (
     <div className='w-full flex justify-center'>
       <div
-        className={`flex items-center ${isMobile ? 'justify-start' : ''}`}
+        className={`flex items-center scrollbar-hide ${isMobile ? 'justify-start' : ''}`}
         style={{
           // `safe center` centres the row while it fits, but degrades to
           // flex-start the moment it overflows. Plain `center` splits the
@@ -225,6 +225,10 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
           // scroll horizontally - the #1 mobile layout complaint.
           // Desktop scrolls too: `safe center` keeps the start edge reachable,
           // and this keeps the TAIL reachable when the row outgrows the box.
+          // Paired with `scrollbar-hide` above: base.css paints a visible 8px
+          // thumb by default (#523), which inside a 9999px-radius bar would
+          // show up clipped and add ~8px of height at the exact moment a pill
+          // is selected.
           overflowX: 'auto',
           overflowY: 'hidden',
           scrollSnapType: isMobile ? 'x proximity' : undefined,
