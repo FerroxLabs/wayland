@@ -898,11 +898,21 @@ function processSnapshot(targetPlatform, dependencies = {}, includeEnvironment =
       )
     );
   }
-  // Poll using the small process table. The final sweep opts into `eww` so an
-  // inherited launch token can recover a child that immediately reparented.
+  // Poll using the small process table. The final sweep asks for the environment
+  // too, so an inherited launch token can recover a child that immediately
+  // reparented.
+  //
+  // The environment form is not portable. BSD ps (macOS) takes `eww -axo`, while
+  // procps (Linux) rejects that exact combination with "must set personality to
+  // get -x option" and wants the all-BSD `axeww o` instead. Verified on both:
+  // `-axo` alone carries no environment on procps, so the split is required
+  // rather than cosmetic.
+  const format = 'pid=,ppid=,lstart=,command=';
   const args = includeEnvironment
-    ? ['eww', '-axo', 'pid=,ppid=,lstart=,command=']
-    : ['-axo', 'pid=,ppid=,lstart=,command='];
+    ? process.platform === 'linux'
+      ? ['axeww', 'o', format]
+      : ['eww', '-axo', format]
+    : ['-axo', format];
   return parsePosixProcesses(execute('ps', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
 }
 
