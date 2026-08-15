@@ -31,8 +31,8 @@ Cursor, Wayland — gets zero tools. Wayland's "Probe reported 0 tools" was repo
 **Root cause, one line — `src/tools/sweep.js:13`:**
 
 ```js
-inputs: z.record(z.array(z.union([z.string(), z.number()]))).optional()            // one arg
-inputs: z.record(z.string(), z.array(z.union([z.string(), z.number()]))).optional() // fixed
+inputs: z.record(z.array(z.union([z.string(), z.number()]))).optional(); // one arg
+inputs: z.record(z.string(), z.array(z.union([z.string(), z.number()]))).optional(); // fixed
 ```
 
 Zod v4 requires `z.record(keyType, valueType)`. One argument leaves the value type `undefined`, so
@@ -121,7 +121,7 @@ is silently mutating their real agent setup.
   Not a tvcontrol bug, but headless Windows screenshots are not trustworthy.
 - `ui_evaluate` (arbitrary page JS) is **disabled by default**, gated behind `TV_MCP_ADVANCED=1`.
   Correct posture. Any native bundling must not flip that.
-- My own error to not repeat: `--output` on `tv screenshot` is a *filename*, not a path. Passing an
+- My own error to not repeat: `--output` on `tv screenshot` is a _filename_, not a path. Passing an
   absolute path is misuse, not a defect.
 
 ---
@@ -134,7 +134,7 @@ friction), **2 runtime deps**, proper stdio entry at `src/server.js`, published 
 `@ferroxlabs/tvcontrol@2.2.0`.
 
 **The caveat is the precondition, not the code.** Unlike the other builtins it is inert unless
-TradingView Desktop is installed *and* relaunched with a debug port. Shipping it always-on gives most
+TradingView Desktop is installed _and_ relaunched with a debug port. Shipping it always-on gives most
 users a dead builtin.
 
 **Recommendation: detection-gated first-class support.** Detect TradingView Desktop, and only then
@@ -185,11 +185,11 @@ and nested its own 3.25.76; 1.29.0 widened to `^3.25 || ^4.0`. Rebuilt the pre-b
 both reproduced against the real CLI:
 
 - `claude mcp add-json` is not an upsert - exits 1 with `MCP server X already exists in user
-  config`. Only the STDIO path uses add-json; HTTP/SSE uses `claude mcp add`, which overwrites.
+config`. Only the STDIO path uses add-json; HTTP/SSE uses `claude mcp add`, which overwrites.
   So every re-publication of an stdio connector to Claude Code failed while the same operation
   on a remote connector always succeeded.
 - `claude mcp remove` on an absent server exits 1 with `No MCP server named "X" in <scope>
-  scope`. The absence check looked for `not found`/`does not exist` **and read
+scope`. The absence check looked for `not found`/`does not exist` **and read
   `error.message`, which safeExecFile fixes to `Command failed with exit code 1`** - so no
   wording could ever have matched. CodexMcpAgent already classified on the joined output.
 

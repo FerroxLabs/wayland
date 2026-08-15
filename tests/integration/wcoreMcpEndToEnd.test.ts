@@ -98,13 +98,17 @@ async function runTurn(prompt: string): Promise<TurnResult> {
   const child: ChildProcessWithoutNullStreams = spawn(
     ENGINE,
     [
-      '-p', 'openai',
-      '-b', BASE_URL,
-      '-m', MODEL,
+      '-p',
+      'openai',
+      '-b',
+      BASE_URL,
+      '-m',
+      MODEL,
       '--no-memory',
       '--auto-approve',
       // 0.12.26 refuses every runtime MCP declaration without an assistant identity.
-      '--assistant', 'wayland-desktop',
+      '--assistant',
+      'wayland-desktop',
       '--json-stream',
     ],
     {
@@ -224,9 +228,7 @@ async function runTurn(prompt: string): Promise<TurnResult> {
           // Let the server connect and report before the turn starts; the
           // engine only exposes tools it has a receipt for.
           messageTimer = setTimeout(() => {
-            child.stdin.write(
-              `${JSON.stringify({ type: 'message', msg_id: 'e2e-1', content: prompt })}\n`
-            );
+            child.stdin.write(`${JSON.stringify({ type: 'message', msg_id: 'e2e-1', content: prompt })}\n`);
           }, 3_000);
         }
 
@@ -251,37 +253,43 @@ async function runTurn(prompt: string): Promise<TurnResult> {
 }
 
 describe.skipIf(!ENABLED)('live: an MCP tool executes end to end on the bundled engine', () => {
-  it('publishes, discovers, INVOKES, and returns the tool output to the user', async () => {
-    expect(existsSync(ENGINE), `bundled engine missing at ${ENGINE}`).toBe(true);
-    expect(readKey(), 'no API key: set WCORE_E2E_API_KEY').toBeTruthy();
+  it(
+    'publishes, discovers, INVOKES, and returns the tool output to the user',
+    async () => {
+      expect(existsSync(ENGINE), `bundled engine missing at ${ENGINE}`).toBe(true);
+      expect(readKey(), 'no API key: set WCORE_E2E_API_KEY').toBeTruthy();
 
-    const result = await runTurn(
-      'What is the probe code? Use the available tool to get it, then tell me the code.'
-    );
+      const result = await runTurn('What is the probe code? Use the available tool to get it, then tell me the code.');
 
-    // 1. The engine accepted the runtime declaration and connected the server.
-    expect(result.eventTypes).toContain('mcp_ready');
-    expect(result.mcpReadyTools).toContain('wld_probe_secret');
+      // 1. The engine accepted the runtime declaration and connected the server.
+      expect(result.eventTypes).toContain('mcp_ready');
+      expect(result.mcpReadyTools).toContain('wld_probe_secret');
 
-    // 2. The tool BODY ran. Written by the tool itself, in a process the engine
-    //    spawned - the one thing the model cannot fabricate.
-    expect(result.witness).toContain('CALL wld_probe_secret');
+      // 2. The tool BODY ran. Written by the tool itself, in a process the engine
+      //    spawned - the one thing the model cannot fabricate.
+      expect(result.witness).toContain('CALL wld_probe_secret');
 
-    // 3. The engine reports the call, and the turn completed rather than erroring.
-    expect(result.toolsCalled).toContain('wld_probe_secret');
-    expect(result.finishReason).toBe('stop');
+      // 3. The engine reports the call, and the turn completed rather than erroring.
+      expect(result.toolsCalled).toContain('wld_probe_secret');
+      expect(result.finishReason).toBe('stop');
 
-    // 4. The output reached the user. This is the whole product claim: not that
-    //    a tool was discoverable, but that its result is in the answer.
-    expect(result.assistantText).toContain(SENTINEL);
-  }, TURN_TIMEOUT_MS + 30_000);
+      // 4. The output reached the user. This is the whole product claim: not that
+      //    a tool was discoverable, but that its result is in the answer.
+      expect(result.assistantText).toContain(SENTINEL);
+    },
+    TURN_TIMEOUT_MS + 30_000
+  );
 
-  it('records discovery separately from invocation, so a W-1 regression is legible', async () => {
-    const result = await runTurn('Use the tool to fetch the probe code and report it.');
+  it(
+    'records discovery separately from invocation, so a W-1 regression is legible',
+    async () => {
+      const result = await runTurn('Use the tool to fetch the probe code and report it.');
 
-    // If this ever fails while LIST is present, the regression is the W-1 loop
-    // (discovered but never invoked), not a connection or contract failure.
-    expect(result.witness).toContain('LIST');
-    expect(result.witness).toContain('CALL');
-  }, TURN_TIMEOUT_MS + 30_000);
+      // If this ever fails while LIST is present, the regression is the W-1 loop
+      // (discovered but never invoked), not a connection or contract failure.
+      expect(result.witness).toContain('LIST');
+      expect(result.witness).toContain('CALL');
+    },
+    TURN_TIMEOUT_MS + 30_000
+  );
 });

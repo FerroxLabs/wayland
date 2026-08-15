@@ -4,11 +4,13 @@ Every one of these came from Sean driving a real WCore turn through Flux. None
 was visible to the unit suite, which is green at 16,411 / 0 failed.
 
 Live rig that produced them (works, reuse it):
+
 ```
 node scripts/prepareConstitutionFs.js ; node scripts/build-mcp-servers.js
 WAYLAND_HOME=<scratch> WAYLAND_MULTI_INSTANCE=1 WAYLAND_DEV_PROFILE=LV-K06 \
   WAYLAND_DISABLE_AUTO_UPDATE=1 WAYLAND_CDP_PORT=9241 bun run start
 ```
+
 CDP helper `scratchpad/cdp.mjs` (import `ws` by ABSOLUTE path). Flux connects via
 Settings > Models > paste key > "Connect Flux Router" then the "Connect" button;
 77 models resolve. `curl` is hook-rewritten and fails against CDP - use node `fetch`.

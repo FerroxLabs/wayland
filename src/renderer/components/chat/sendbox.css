@@ -122,7 +122,6 @@
   color: var(--text-primary) !important;
 }
 
-
 /* Allow sendbox tools area to shrink so the send button stays visible */
 .sendbox-tools {
   min-width: 0;
@@ -247,7 +246,6 @@
   .sendbox-panel {
     margin-bottom: env(safe-area-inset-bottom, 0px);
   }
-
 }
 
 /* ========================================================
@@ -319,7 +317,7 @@
   0%,
   100% {
     box-shadow:
-      0 0 0 1px rgba(129, 140, 248, 0.30),
+      0 0 0 1px rgba(129, 140, 248, 0.3),
       0 0 20px rgba(129, 140, 248, 0.12);
   }
   50% {

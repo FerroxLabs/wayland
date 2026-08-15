@@ -80,7 +80,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     wireCode: -32603,
     retryable: false,
     title: 'Authentication failed',
-    hint: 'Check the provider\'s API key, then retry',
+    hint: "Check the provider's API key, then retry",
   },
   {
     kind: 'model_rate_limited',
@@ -279,7 +279,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     surface: 'tool_card',
     wireCode: -32603,
     retryable: false,
-    title: 'This MCP server doesn\'t expose resources.',
+    title: "This MCP server doesn't expose resources.",
     hint: '',
   },
   {
@@ -287,7 +287,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     surface: 'tool_card',
     wireCode: -32603,
     retryable: false,
-    title: 'That resource URI wasn\'t advertised by the server; list resources first.',
+    title: "That resource URI wasn't advertised by the server; list resources first.",
     hint: '',
   },
   {
@@ -295,7 +295,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     surface: 'tool_card',
     wireCode: -32603,
     retryable: false,
-    title: 'Binary resource content isn\'t supported yet.',
+    title: "Binary resource content isn't supported yet.",
     hint: '',
   },
   {
@@ -303,7 +303,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     surface: 'tool_card',
     wireCode: -32603,
     retryable: false,
-    title: 'This MCP server needs a question flow Nano doesn\'t support on this transport.',
+    title: "This MCP server needs a question flow Nano doesn't support on this transport.",
     hint: '',
   },
   {
@@ -367,7 +367,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     surface: 'tool_card',
     wireCode: -32603,
     retryable: false,
-    title: 'The review finished but its report couldn\'t be parsed',
+    title: "The review finished but its report couldn't be parsed",
     hint: '',
   },
   {
@@ -495,7 +495,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     surface: 'error_response',
     wireCode: -32602,
     retryable: false,
-    title: 'This model can\'t process images',
+    title: "This model can't process images",
     hint: 'Switch to a vision-capable model (/model)',
   },
   {
@@ -503,7 +503,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     surface: 'error_response',
     wireCode: -32602,
     retryable: false,
-    title: 'The image couldn\'t be read',
+    title: "The image couldn't be read",
     hint: 'Corrupt or not really an image',
   },
   {
@@ -511,7 +511,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     surface: 'error_response',
     wireCode: -32602,
     retryable: false,
-    title: 'That image format isn\'t supported',
+    title: "That image format isn't supported",
     hint: 'Convert to PNG or JPEG and retry',
   },
   {
@@ -535,7 +535,7 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     surface: 'tool_card',
     wireCode: -32603,
     retryable: false,
-    title: 'An earlier attachment couldn\'t be restored from the attachment store',
+    title: "An earlier attachment couldn't be restored from the attachment store",
     hint: '',
   },
   {

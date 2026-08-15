@@ -16,22 +16,22 @@
 > **The scope.** AionUi's tree has 1,324 distinct `.ts`/`.tsx` paths; **445 of them exist at the
 > same path in our `src/`**. A deterministic 23-file sample of those 445:
 >
-> | literal overlap with AionUi `main` | files | reading |
-> | --- | --- | --- |
-> | ≥50% | 16 | clearly derived |
-> | 20–50% | 6 | likely derived |
-> | <20% | 1 | diverged |
+> | literal overlap with AionUi `main` | files | reading         |
+> | ---------------------------------- | ----- | --------------- |
+> | ≥50%                               | 16    | clearly derived |
+> | 20–50%                             | 6     | likely derived  |
+> | <20%                               | 1     | diverged        |
 >
 > Six sampled files are ≥88% and three are 100%. Extrapolated, **~310 of the 445 are derived**.
 > `git grep -c "Copyright.*[Aa]ion[Uu]i" -- src` returns **0**.
 >
-> This is a **lower bound**: the comparison is against AionUi's *current* `main`, which has drifted
+> This is a **lower bound**: the comparison is against AionUi's _current_ `main`, which has drifted
 > since our fork, so overlap at the fork point was higher.
 >
 > **This refutes my own earlier recommendation, which was wrong.** `H-FINDINGS.md` and my session
 > memory say the AionUi §4(c) item "cannot be fixed mechanically — fork point unrecoverable" and
 > recommend "keep the prominent shipped notice, accept residual strict-§4(c) risk." Both halves are
-> wrong. It *is* mechanically discoverable — I just enumerated the candidate set from the upstream
+> wrong. It _is_ mechanically discoverable — I just enumerated the candidate set from the upstream
 > tree API in three commands. And "accept residual risk" is defensible for a diffuse concern, not for
 > ~310 files where the upstream copyright line was replaced with ours.
 >
@@ -51,19 +51,20 @@ introduced), one earned attribution was missed, and one unearned attribution sur
 Provenance verdicts here are measured, not read. For each claimed adaptation, literal
 substantive-line overlap against the **checked-out upstream pin**, calibrated with controls:
 
-| comparison                                    | overlap | reading            |
-| --------------------------------------------- | ------- | ------------------ |
-| `backoff.ts` vs `src/infra/backoff.ts`        | **80%** | positive control   |
-| `web-search.ts` vs gemini-cli upstream        | 33.8%   | derived (attributed) |
-| `web-fetch.ts` vs gemini-cli upstream         | 18.4%   | derived (NOT attributed) |
-| `baileys.js` vs `whatsapp/src/session.ts`     | 6.1%    | derived (10 identical lines + verbatim regex) |
-| `TunnelManager.ts` vs `voice-call/src/tunnel.ts` | 1.1% | one Tailscale call — not derived |
-| Discord trio vs **entire** discord extension  | 0–3.7%  | boilerplate only — not derived |
-| `webhookExposureGuard.ts` vs unrelated file   | 0%      | negative control   |
+| comparison                                       | overlap | reading                                       |
+| ------------------------------------------------ | ------- | --------------------------------------------- |
+| `backoff.ts` vs `src/infra/backoff.ts`           | **80%** | positive control                              |
+| `web-search.ts` vs gemini-cli upstream           | 33.8%   | derived (attributed)                          |
+| `web-fetch.ts` vs gemini-cli upstream            | 18.4%   | derived (NOT attributed)                      |
+| `baileys.js` vs `whatsapp/src/session.ts`        | 6.1%    | derived (10 identical lines + verbatim regex) |
+| `TunnelManager.ts` vs `voice-call/src/tunnel.ts` | 1.1%    | one Tailscale call — not derived              |
+| Discord trio vs **entire** discord extension     | 0–3.7%  | boilerplate only — not derived                |
+| `webhookExposureGuard.ts` vs unrelated file      | 0%      | negative control                              |
 
 Scripts: `litcmp2.py`, `maxoverlap.py` (scratchpad `xaudit-attribution/`).
 
 ⚠️ Two traps this pass hit and future passes will hit again:
+
 1. **A non-recursive listing of `src/process/agent/gemini/cli/` returns 13 files and there are
    exactly 13 Google-headered files.** The coincidence reads as "13/13 clean". It is 21 files
    and 8 are unheadered. Always `find -type f`, never `ls`.
@@ -82,9 +83,9 @@ Scripts: `litcmp2.py`, `maxoverlap.py` (scratchpad `xaudit-attribution/`).
 > imposes no further attribution obligation.
 
 `iOfficeAI/OfficeCLI` **does** distribute one — `api.github.com/repos/iOfficeAI/OfficeCLI/contents/NOTICE`
-returns 200, and it reads: *"This NOTICE file is part of the required attribution under Section 4
+returns 200, and it reads: _"This NOTICE file is part of the required attribution under Section 4
 of the Apache License, Version 2.0. Redistributions of this work, with or without modification,
-must retain this notice."* AionUi, aionrs and gemini-cli each 404, so the sentence is right about
+must retain this notice."_ AionUi, aionrs and gemini-cli each 404, so the sentence is right about
 three of four and wrong about the one that matters. Gemini flagged the same line by spotting that
 the OfficeCLI entry lower in the same document contradicts it.
 
@@ -105,8 +106,8 @@ whose attribution notices are reproduced, and ship the upstream NOTICE verbatim 
 Verified against the **shipped** engine binary `resources/bundled-wayland-core/darwin-arm64/wayland-core`:
 `wcore` appears 605 times but **`.wcore` never appears as a path at all**. The real names are
 `.wayland-core.toml` (file form) and `.wayland-core/config.toml` (dir form) — the binary carries
-the disambiguation warning string *"both .wayland-core.toml and .wayland-core/config.toml exist;
-using .wayland-core.toml (file form)"*. `src/process/agent/wcore/index.ts:56` says so explicitly:
+the disambiguation warning string _"both .wayland-core.toml and .wayland-core/config.toml exist;
+using .wayland-core.toml (file form)"_. `src/process/agent/wcore/index.ts:56` says so explicitly:
 "engine reads `.wayland-core.toml` (file form) — NOT `.wcore.toml`".
 
 The other three sub-claims in that list are TRUE: crates are `wcore-*`, the binary is
@@ -172,14 +173,14 @@ dismissed Gemini.
 The metric that actually discriminates is **shared hand-authored identifier names**, with one
 essential refinement learned the hard way below:
 
-| shared vocabulary                                        | signal |
-| -------------------------------------------------------- | ------ |
-| third-party API names (`GuildVoiceStates`, `joinVoiceChannel`, `MessagingApiClient`, `chat_guid`) | none — any independent implementation uses them |
-| hand-authored helper names (`getTailscaleDnsName`, `resolveSignalCliPath`, `sanitizeIrcTarget`) | strong |
-| names that appear only as an **import + call site** of a helper defined in an *attributed* sibling | none — the notice belongs on the definition |
+| shared vocabulary                                                                                  | signal                                          |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| third-party API names (`GuildVoiceStates`, `joinVoiceChannel`, `MessagingApiClient`, `chat_guid`)  | none — any independent implementation uses them |
+| hand-authored helper names (`getTailscaleDnsName`, `resolveSignalCliPath`, `sanitizeIrcTarget`)    | strong                                          |
+| names that appear only as an **import + call site** of a helper defined in an _attributed_ sibling | none — the notice belongs on the definition     |
 
 Calibration: a Ferrox-original file shares 17/38 identifiers with an unrelated upstream extension,
-so raw share-rate alone proves nothing. Judge the *content* of the shared set.
+so raw share-rate alone proves nothing. Judge the _content_ of the shared set.
 
 ### 5. SUPERSEDED — the Discord trio: UNVERIFIED, do NOT strip
 
@@ -244,7 +245,7 @@ shipped legal document that we incorporated MIT code we did not. Same bucket as 
 stripped in `9add51a0c`, adjudicated by the same method.
 
 **Note — the panel split here.** Gemini rated this CRITICAL under-attribution and recommended
-*adding* MIT headers plus listing the tunnel files in the notices. It reasoned from our own
+_adding_ MIT headers plus listing the tunnel files in the notices. It reasoned from our own
 comment text without checking upstream. Taking our comments at face value is precisely what
 produced the original over-attribution this packet exists to fix, so the measurement governs.
 
@@ -281,7 +282,7 @@ Kimi also found `electron-builder.yml`'s comment claims "31 source headers cite
 ### 8. HIGH — `3f1c5ba10` deleted third-party provenance on an unevidenced assertion (internal)
 
 That commit removed clauses naming acpx, Zed, Codex CLI, Claude Code, NocoBase, Figma and Cherry
-Studio from 8 files, justified by one sentence: *"None of these upstreams has code in this repo."*
+Studio from 8 files, justified by one sentence: _"None of these upstreams has code in this repo."_
 No per-file diff was produced — while `9add51a0c` gave a per-file upstream comparison for all 11
 OpenClaw removals. **Two evidentiary standards in one branch, and the weaker one was applied to the
 upstreams nobody audited.**
@@ -301,7 +302,7 @@ pointer. **Needs Sean:** restore the clauses pending verification, or fund the a
 ### 9. HIGH — `notices/README.md` ships, is stale, and states a falsehood (internal)
 
 `electron-builder.yml` ships the whole `notices/` directory. That README says the Apache text is kept
-*"solely to satisfy the attribution terms of the AionUi and aionrs upstreams"* — false once this
+_"solely to satisfy the attribution terms of the AionUi and aionrs upstreams"_ — false once this
 branch added Gemini CLI, and the ship set includes OfficeCLI. It calls the notices file "Apache-2.0
 attribution" when it now covers four MIT upstreams, lists 2 of 5 files, and never mentions the newly
 shipped `LICENSES/`. The branch never touched it.
@@ -317,7 +318,7 @@ is right.
 
 ### 11. MEDIUM — 7zip-bin "solely Windows" is inaccurate (Kimi)
 
-The entry says Wayland bundles the Windows ARM64/x64 `7za.exe` *solely* for the NSIS recovery
+The entry says Wayland bundles the Windows ARM64/x64 `7za.exe` _solely_ for the NSIS recovery
 extraction. True of the recovery flow, but the packaged app also ships macOS and Linux `7za` from the
 same package under `Resources/app.asar.unpacked/node_modules/7zip-bin/`, and `patches/7zip-bin@5.2.0.patch`
 deliberately keeps the bundled mac `7za` in use. Same MIT licence so exposure is low, but the shipped
@@ -331,7 +332,7 @@ description of what we bundle is wrong.
   trio and `baileys.js`, which cite no path.
 - `notices/THIRD-PARTY-NOTICES.md:113` "SHA-256 digest published by GitHub" misdescribes the control:
   `scripts/prepareOfficeCli.js` verifies against the checked-in `bundled-officecli-shasums.json`; no
-  live GitHub fetch exists. Kimi confirms the *values* are byte-identical to GitHub's published
+  live GitHub fetch exists. Kimi confirms the _values_ are byte-identical to GitHub's published
   SHA256SUMS, so it is the fetch path that is misdescribed.
 - `scripts/install-signal-cli.mjs` carries a full OpenClaw header but is missing from the notices
   entry's "the affected set is" enumeration (internal, M-2).
@@ -364,7 +365,7 @@ breach. All three independent routes agree they are correct.
 Kimi adjudicated all 11 against the pin: WebhookAdapter (upstream has no outbound HMAC signing at
 all), the three verifiers (different libs, endpoints and constructions), IrcPlugin (`irc-framework`
 vs upstream's hand-rolled net/tls), NextcloudTalk ×2 (OCS REST vs ActivityPub webhook), SignalPlugin
-(upstream's only mention is a TODO saying it is *not* ported), LinePlugin, ImessagePlugin.
+(upstream's only mention is a TODO saying it is _not_ ported), LinePlugin, ImessagePlugin.
 
 My own structural re-check raised a false alarm worth recording as a method lesson: `SignalPlugin.ts`
 shares `resolveSignalCliPath` and `IrcPlugin.ts` shares `sanitizeIrcTarget` / `IrcPrivmsgEvent` with

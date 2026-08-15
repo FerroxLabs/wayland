@@ -82,19 +82,19 @@ until that timeout is raised.
 ⚠️ **The background runner reported exit 0 with 12 failures.** Do not trust the exit code of a
 backgrounded vitest run; read the counts.
 
-| commit | what it fixes |
-|---|---|
-| `fe0753fc3` | wcore preset assistants silently lost their whole persona |
-| `2259fa41f` | engine contract pin check (first version — wrong, see below) |
-| `5e83189a7` | MCP checks count tools, not just servers |
-| `dc97a0b3c` | contract pin **compares** instead of testing for presence |
-| `c6c401a22` | morning report ported to Node |
-| `53bd06d58` | recovers personas stranded on the ACP key |
+| commit      | what it fixes                                                         |
+| ----------- | --------------------------------------------------------------------- |
+| `fe0753fc3` | wcore preset assistants silently lost their whole persona             |
+| `2259fa41f` | engine contract pin check (first version — wrong, see below)          |
+| `5e83189a7` | MCP checks count tools, not just servers                              |
+| `dc97a0b3c` | contract pin **compares** instead of testing for presence             |
+| `c6c401a22` | morning report ported to Node                                         |
+| `53bd06d58` | recovers personas stranded on the ACP key                             |
 | `e79f5a115` | concierge diag: voice, agent installs, TVControl **+ the env wiring** |
-| `0771c7b7f` | Smart Trader assistant + TVControl setup skill |
-| `20ae83947` | morning-report routine, seeded disabled |
-| `e267ba059` | Concierge persona brought current + two proposal-kind contracts |
-| `1558afbba` | any Lucide icon usable; locale parity repaired |
+| `0771c7b7f` | Smart Trader assistant + TVControl setup skill                        |
+| `20ae83947` | morning-report routine, seeded disabled                               |
+| `e267ba059` | Concierge persona brought current + two proposal-kind contracts       |
+| `1558afbba` | any Lucide icon usable; locale parity repaired                        |
 
 ---
 
@@ -114,7 +114,7 @@ never dropped at creation (an earlier commit message of mine said so and was wro
 conversation still holds its persona on a key nothing read. Without the fallback, rewriting an
 assistant's markdown reaches only chats created after the fix.
 
-**The contract pin check was wrong when first shipped.** Its first version failed on *absence*
+**The contract pin check was wrong when first shipped.** Its first version failed on _absence_
 of the pinned digest. But a Core advertising no `ready.contract` is a SUPPORTED configuration —
 `DesktopCoreV1Consumer.negotiate` sets mode `legacy` and carries on. It would have told users of
 a working install to reinstall, and an engine from an accepted in-app update lives in userData
@@ -145,6 +145,7 @@ binary with a known-positive control; all 48 Lucide names converting cleanly; Sm
 `index.json` (all 13 routines resolve); locale parity 83/83; the full suite.
 
 **NOT verified — nothing here has been seen running:**
+
 - Smart Trader has never met a real chart.
 - The routine has never fired.
 - No Concierge turn has ever read the new diagnostics.

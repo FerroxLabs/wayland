@@ -139,7 +139,7 @@ answers to six questions. Run it as a conversation and write the results down:
 2. What should they feel in the first second, before reading anything?
 3. What do they use today, and what is wrong with it?
 4. Name 3-5 brands you admire, from any industry -- and say what specifically you admire about each.
-5. Complete three of these: "We are ___, not ___." (approachable not casual; premium not pretentious)
+5. Complete three of these: "We are **_, not _**." (approachable not casual; premium not pretentious)
 6. What must this survive? Van, phone, embroidery, one-colour print, a 32px avatar?
 
 Question 6 is the one people skip and the one that constrains every decision afterwards.
@@ -148,7 +148,7 @@ Question 6 is the one people skip and the one that constrains every decision aft
 deliberately:
 
 - **Attributes:** each person picks 5 words that describe the brand and 5 that do not, from a list of
-  40-50. Compare. The words people *reject* differ more than the ones they choose, and that is where
+  40-50. Compare. The words people _reject_ differ more than the ones they choose, and that is where
   the real disagreement lives.
 - **Positioning map:** plot competitors on two axes that matter (traditional/modern,
   mass-market/premium) and find the white space.
@@ -331,15 +331,15 @@ asking a question, it is finished.
 teams touching the brand needs the full set. Delivering forty pages to a one-van operation guarantees
 nobody reads any of it.
 
-| Section | Contents |
-|---|---|
-| **Foundation** | Purpose in one line, values, attributes, voice and tone |
-| **Logo** | Primary mark, variations, clear space, minimum size, colour and one-colour versions, **misuse examples** |
-| **Colour** | Full palette with hex/RGB/CMYK, roles and proportions, contrast ratios, pairings to avoid |
-| **Typography** | Typefaces with **licence terms** and fallbacks, hierarchy with size / weight / line-height for each level |
-| **Imagery** | Photography and illustration style, iconography, treatments |
-| **Applications** | Only the surfaces this business actually uses -- cards, email signature, social, signage, packaging |
-| **Do's and don'ts** | Visual right-and-wrong for every element above |
+| Section             | Contents                                                                                                  |
+| ------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Foundation**      | Purpose in one line, values, attributes, voice and tone                                                   |
+| **Logo**            | Primary mark, variations, clear space, minimum size, colour and one-colour versions, **misuse examples**  |
+| **Colour**          | Full palette with hex/RGB/CMYK, roles and proportions, contrast ratios, pairings to avoid                 |
+| **Typography**      | Typefaces with **licence terms** and fallbacks, hierarchy with size / weight / line-height for each level |
+| **Imagery**         | Photography and illustration style, iconography, treatments                                               |
+| **Applications**    | Only the surfaces this business actually uses -- cards, email signature, social, signage, packaging       |
+| **Do's and don'ts** | Visual right-and-wrong for every element above                                                            |
 
 Two sections carry more weight than their length suggests. **Misuse examples** prevent more damage than
 correct-usage examples, because people improvise when the guide is silent. **Licence terms** on
@@ -501,7 +501,7 @@ brand. Budget is basically nothing."
 **Output:**
 
 **Positioning first:** a van that comes to anxious dogs, for owners who dread the trip to a groomer. The
-feeling in the first second should be *calm and competent*, not *fun and playful* -- playful is what every
+feeling in the first second should be _calm and competent_, not _fun and playful_ -- playful is what every
 competitor does, and it reads as inexperienced to someone whose dog panics.
 
 **Constraint that drives everything:** your primary surface is a moving van, read at 20 metres, and a phone
@@ -513,12 +513,12 @@ the descender as the only distinguishing detail -- the one thing that survives a
 
 **Palette (contrast checked):**
 
-| Role | Colour | Use | Contrast |
-|---|---|---|---|
-| Brand | Deep moss `#2F4B3F` | Van body, headers | 9.2:1 on white |
-| Accent | Warm clay `#C4714B` | Buttons, highlights | 4.6:1 on white -- passes AA |
-| Ink | Near-black `#1A1A1A` | Body text | 16.1:1 on white |
-| Surface | Bone `#F5F1E8` | Backgrounds | -- |
+| Role    | Colour               | Use                 | Contrast                    |
+| ------- | -------------------- | ------------------- | --------------------------- |
+| Brand   | Deep moss `#2F4B3F`  | Van body, headers   | 9.2:1 on white              |
+| Accent  | Warm clay `#C4714B`  | Buttons, highlights | 4.6:1 on white -- passes AA |
+| Ink     | Near-black `#1A1A1A` | Body text           | 16.1:1 on white             |
+| Surface | Bone `#F5F1E8`       | Backgrounds         | --                          |
 
 Moss and clay both survive greyscale as distinctly light and dark, so the van still reads on a one-colour
 print or a black-and-white local paper ad.

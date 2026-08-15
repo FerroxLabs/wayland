@@ -31,11 +31,7 @@ import { createReadStream } from 'node:fs';
  * `chunkSize` exists so the boundary case can be exercised cheaply in tests;
  * production callers should omit it and take the stream default.
  */
-export async function fileContainsMarker(
-  filePath: string,
-  marker: string,
-  chunkSize?: number
-): Promise<boolean> {
+export async function fileContainsMarker(filePath: string, marker: string, chunkSize?: number): Promise<boolean> {
   if (!marker) return false;
 
   const overlap = marker.length - 1;

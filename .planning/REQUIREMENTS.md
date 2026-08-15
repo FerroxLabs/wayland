@@ -246,18 +246,18 @@ upstream, or a **real packaged artifact**. Never against a commit message, a pri
 ### Phase I-02 — Small, settled, independent notices work
 
 - [x] **NTC-01**: Reproduce the Apache-2.0 licence text verbatim, with its appendix placeholder
-      intact rather than overwritten with our name. *(`78329477f`)*
+      intact rather than overwritten with our name. _(`78329477f`)_
 - [x] **NTC-02**: Ship `notices/OfficeCLI-NOTICE.txt` verbatim from the upstream `NOTICE` at the
-      pinned release — the one upstream for which §4(d) actually binds. *(`78329477f`)*
+      pinned release — the one upstream for which §4(d) actually binds. _(`78329477f`)_
 - [x] **NTC-03**: Remove the four false claims from the shipped notices file — the blanket §4(d)
       claim, the enumerated §4(b) list containing the false `.wcore.toml` / `~/.wcore` claims, the
       gemini-cli blanket header claim, and "every file carries a header" — plus the three smaller
       corrections (pptx2json not "verbatim", 7zip-bin not "solely Windows", OfficeCLI digests read
-      locally). *(`78329477f`)*
+      locally). _(`78329477f`)_
 - [x] **NTC-04**: Rewrite the stale shipped `notices/README.md`, and retract the false authorship
-      claim shipped in the notices. *(`78329477f`, `d99c70b07`)*
+      claim shipped in the notices. _(`78329477f`, `d99c70b07`)_
 - [x] **NTC-05**: Exclude `src/process/channels/whatsapp-bridge/` from formatting so the pinned bridge
-      cannot be silently reformatted out of pin. *(`78329477f`)*
+      cannot be silently reformatted out of pin. _(`78329477f`)_
 - [ ] **NTC-06**: Add the owed OpenClaw MIT notices to the tunnel trio and
       `src/process/channels/types.ts`, in an `@license` form that survives bundling and is present in
       a real packaged artifact.
@@ -313,7 +313,7 @@ upstream, or a **real packaged artifact**. Never against a commit message, a pri
       upstream candidate set enumerated by `find -type f`; best-match upstream file across the whole
       tree, not the plausibly-named sibling; the three-way split of shared identifiers; whose copyright
       the upstream file itself carries; verdict plus asymmetry note. No verdict without all five.
-- [ ] **HDR-04**: Each of the 6 DIVERGED files defaults to *independent*; a derived verdict requires a
+- [ ] **HDR-04**: Each of the 6 DIVERGED files defaults to _independent_; a derived verdict requires a
       written reason recorded in the same five fields.
 - [ ] **HDR-05**: The **negative** determinations recorded with the same fields as the positives —
       precisely the omission `3f1c5ba10` was faulted for.
@@ -342,7 +342,7 @@ upstream, or a **real packaged artifact**. Never against a commit message, a pri
       hand-editing anywhere in the path and byte-for-byte reproducible on regeneration.
 - [ ] **DEP-02**: Reconciliation against `@electron/asar list` over the **real** artifact as the
       ground-truth oracle — the shipped set is ~1,332 packages, not the 144 declared `dependencies`.
-      CI fails on *ships-but-undocumented* and warns only on the reverse, both directions proven by a
+      CI fails on _ships-but-undocumented_ and warns only on the reverse, both directions proven by a
       deliberate injection.
 - [ ] **DEP-03**: An explicit "could not determine" section naming each of the ~59 shipped packages
       that carry no licence file of their own, and the resolution attempted for each. No silent
@@ -390,50 +390,50 @@ upstream, or a **real packaged artifact**. Never against a commit message, a pri
 
 Every WLD-I requirement maps to exactly one phase in the `I-01` … `I-10` namespace.
 
-| Requirement | Phase | Status | Basis of proof |
-| --- | --- | --- | --- |
-| LEG-01 | I-01 Counsel — §4(c) question | Pending | Committed counsel packet; answer recorded verbatim with date |
-| LEG-02 | I-01 Counsel — §4(c) question | Pending | Packet enclosure list; grep shows no settled/measured question asked |
-| NTC-01 | I-02 Settled notices work | **Complete** (`78329477f`) | `diff notices/Apache-2.0.txt` against a fresh canonical copy |
-| NTC-02 | I-02 Settled notices work | **Complete** (`78329477f`) | `diff` against the upstream OfficeCLI `NOTICE` at the pinned release |
-| NTC-03 | I-02 Settled notices work | **Complete** (`78329477f`) | grep the four retracted claim strings in the shipped notices file → 0 |
-| NTC-04 | I-02 Settled notices work | **Complete** (`78329477f`, `d99c70b07`) | `notices/README.md` read against the tree it describes |
-| NTC-05 | I-02 Settled notices work | **Complete** (`78329477f`) | bridge pin clean: 9 pinned / 9 on disk / 0 drift at `2c0d1d203` |
-| NTC-06 | I-02 Settled notices work | Pending | `@license` block found in `out/main/**` after `dist:verify:mac` |
-| NTC-07 | I-02 Settled notices work | Pending | one dialect remains; inline adapted-from comment count unchanged |
-| NTC-08 | I-02 Settled notices work | Pending | `whatsappBridgeSourcePin.test.ts` green + launchable packaged artifact |
-| CUS-01 | I-03 Non-AionUi chain of custody | Pending | `git -C <pin> show 5b2c741f92:<path>` per row |
-| CUS-02 | I-03 Non-AionUi chain of custody | Pending | notices entry vs the upstream bytes that disprove each removed claim |
-| CUS-03 | I-03 Non-AionUi chain of custody | Pending | positive + negative controls reproduced in the same run |
-| MFT-01 | I-04 Manifest and generator | Pending | seeder reproduces the manifest byte-for-byte; tier counts 891/90/18/6 |
-| MFT-02 | I-04 Manifest and generator | Pending | `--check` runs with the network off |
-| MFT-03 | I-04 Manifest and generator | Pending | non-zero exit + no output with the checkout absent; no holder constant |
-| MFT-04 | I-04 Manifest and generator | Pending | test fails on a mutated pin / path / classification |
-| MFT-05 | I-04 Manifest and generator | Pending | each listed digest located in the file that carries it |
-| HDR-01 | I-05 Header sweep | Pending | `apply.mjs --check` exits zero post-sweep; command + output in each PR |
-| HDR-02 | I-05 Header sweep | Blocked on LEG-01 for content | every emitted copyright line `grep -F`-able verbatim at `5b2c741f92` |
-| HDR-03 | I-05 Header sweep | Pending | 18 committed five-field verdicts, no missing field |
-| HDR-04 | I-05 Header sweep | Pending | 6 committed verdicts; a derived call carries a written reason |
-| HDR-05 | I-05 Header sweep | Pending | negative determinations present with the same fields |
-| HDR-06 | I-05 Header sweep | Pending | grep the verbatim set for a Ferrox line or §4(b) statement → 0 |
-| HDR-07 | I-05 Header sweep | Pending | the 275 outside-`src/` files land as their own packet, §4(c) only |
-| ADJ-01 | I-06 Re-adjudicate `3f1c5ba10` | Pending | row count equals the removal count enumerated from the commit |
-| ADJ-02 | I-06 Re-adjudicate `3f1c5ba10` | Pending | pointer present in the tree, marked UNVERIFIED with its reason |
-| ADJ-03 | I-06 Re-adjudicate `3f1c5ba10` | Pending | named counsel decision recorded; default restore held meanwhile |
-| DEP-01 | I-07 npm licence report | Pending | delete + regenerate reproduces byte-for-byte from the lockfile |
-| DEP-02 | I-07 npm licence report | Pending | `@electron/asar list` over the real artifact; both CI directions proven |
-| DEP-03 | I-07 npm licence report | Pending | every undeterminable package named with its attempted resolution |
-| BND-01 | I-08 Bundle retention | Pending | regenerate + diff yields no change; unregenerated manifest edit fails |
-| BND-02 | I-08 Bundle retention | Pending | notices found in `out/main`, `out/preload`, `out/renderer`; check non-vacuous |
-| BND-03 | I-08 Bundle retention | Pending | retracted notices asserted absent; reintroduction fails the check |
-| BND-04 | I-08 Bundle retention | Pending | run under `bun run dist:verify:mac`, artifact launchable |
-| CIG-01 | I-09 Required CI gate | Pending | grep the workflow for `prek run --all-files` → 0; scoped args only |
-| CIG-02 | I-09 Required CI gate | Pending | docs-only PR still runs the check; missing cache fails the job |
-| CIG-03 | I-09 Required CI gate | Pending | stripped header and unattributed new file each produce a linked failure |
-| DIS-01 | I-10 Sign-off and disclosure | Blocked on LEG-01 | sign-off recorded with date and scope |
-| DIS-02 | I-10 Sign-off and disclosure | Blocked on LEG-01 | grep the note for a self-referential completeness word → 0 |
-| DIS-03 | I-10 Sign-off and disclosure | Blocked on LEG-01 | two separate files; neither carries the other's framing |
-| DIS-04 | I-10 Sign-off and disclosure | Blocked on LEG-01 | every check green on the exact candidate; no AionUi contact exists |
+| Requirement | Phase                            | Status                                  | Basis of proof                                                                |
+| ----------- | -------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------- |
+| LEG-01      | I-01 Counsel — §4(c) question    | Pending                                 | Committed counsel packet; answer recorded verbatim with date                  |
+| LEG-02      | I-01 Counsel — §4(c) question    | Pending                                 | Packet enclosure list; grep shows no settled/measured question asked          |
+| NTC-01      | I-02 Settled notices work        | **Complete** (`78329477f`)              | `diff notices/Apache-2.0.txt` against a fresh canonical copy                  |
+| NTC-02      | I-02 Settled notices work        | **Complete** (`78329477f`)              | `diff` against the upstream OfficeCLI `NOTICE` at the pinned release          |
+| NTC-03      | I-02 Settled notices work        | **Complete** (`78329477f`)              | grep the four retracted claim strings in the shipped notices file → 0         |
+| NTC-04      | I-02 Settled notices work        | **Complete** (`78329477f`, `d99c70b07`) | `notices/README.md` read against the tree it describes                        |
+| NTC-05      | I-02 Settled notices work        | **Complete** (`78329477f`)              | bridge pin clean: 9 pinned / 9 on disk / 0 drift at `2c0d1d203`               |
+| NTC-06      | I-02 Settled notices work        | Pending                                 | `@license` block found in `out/main/**` after `dist:verify:mac`               |
+| NTC-07      | I-02 Settled notices work        | Pending                                 | one dialect remains; inline adapted-from comment count unchanged              |
+| NTC-08      | I-02 Settled notices work        | Pending                                 | `whatsappBridgeSourcePin.test.ts` green + launchable packaged artifact        |
+| CUS-01      | I-03 Non-AionUi chain of custody | Pending                                 | `git -C <pin> show 5b2c741f92:<path>` per row                                 |
+| CUS-02      | I-03 Non-AionUi chain of custody | Pending                                 | notices entry vs the upstream bytes that disprove each removed claim          |
+| CUS-03      | I-03 Non-AionUi chain of custody | Pending                                 | positive + negative controls reproduced in the same run                       |
+| MFT-01      | I-04 Manifest and generator      | Pending                                 | seeder reproduces the manifest byte-for-byte; tier counts 891/90/18/6         |
+| MFT-02      | I-04 Manifest and generator      | Pending                                 | `--check` runs with the network off                                           |
+| MFT-03      | I-04 Manifest and generator      | Pending                                 | non-zero exit + no output with the checkout absent; no holder constant        |
+| MFT-04      | I-04 Manifest and generator      | Pending                                 | test fails on a mutated pin / path / classification                           |
+| MFT-05      | I-04 Manifest and generator      | Pending                                 | each listed digest located in the file that carries it                        |
+| HDR-01      | I-05 Header sweep                | Pending                                 | `apply.mjs --check` exits zero post-sweep; command + output in each PR        |
+| HDR-02      | I-05 Header sweep                | Blocked on LEG-01 for content           | every emitted copyright line `grep -F`-able verbatim at `5b2c741f92`          |
+| HDR-03      | I-05 Header sweep                | Pending                                 | 18 committed five-field verdicts, no missing field                            |
+| HDR-04      | I-05 Header sweep                | Pending                                 | 6 committed verdicts; a derived call carries a written reason                 |
+| HDR-05      | I-05 Header sweep                | Pending                                 | negative determinations present with the same fields                          |
+| HDR-06      | I-05 Header sweep                | Pending                                 | grep the verbatim set for a Ferrox line or §4(b) statement → 0                |
+| HDR-07      | I-05 Header sweep                | Pending                                 | the 275 outside-`src/` files land as their own packet, §4(c) only             |
+| ADJ-01      | I-06 Re-adjudicate `3f1c5ba10`   | Pending                                 | row count equals the removal count enumerated from the commit                 |
+| ADJ-02      | I-06 Re-adjudicate `3f1c5ba10`   | Pending                                 | pointer present in the tree, marked UNVERIFIED with its reason                |
+| ADJ-03      | I-06 Re-adjudicate `3f1c5ba10`   | Pending                                 | named counsel decision recorded; default restore held meanwhile               |
+| DEP-01      | I-07 npm licence report          | Pending                                 | delete + regenerate reproduces byte-for-byte from the lockfile                |
+| DEP-02      | I-07 npm licence report          | Pending                                 | `@electron/asar list` over the real artifact; both CI directions proven       |
+| DEP-03      | I-07 npm licence report          | Pending                                 | every undeterminable package named with its attempted resolution              |
+| BND-01      | I-08 Bundle retention            | Pending                                 | regenerate + diff yields no change; unregenerated manifest edit fails         |
+| BND-02      | I-08 Bundle retention            | Pending                                 | notices found in `out/main`, `out/preload`, `out/renderer`; check non-vacuous |
+| BND-03      | I-08 Bundle retention            | Pending                                 | retracted notices asserted absent; reintroduction fails the check             |
+| BND-04      | I-08 Bundle retention            | Pending                                 | run under `bun run dist:verify:mac`, artifact launchable                      |
+| CIG-01      | I-09 Required CI gate            | Pending                                 | grep the workflow for `prek run --all-files` → 0; scoped args only            |
+| CIG-02      | I-09 Required CI gate            | Pending                                 | docs-only PR still runs the check; missing cache fails the job                |
+| CIG-03      | I-09 Required CI gate            | Pending                                 | stripped header and unattributed new file each produce a linked failure       |
+| DIS-01      | I-10 Sign-off and disclosure     | Blocked on LEG-01                       | sign-off recorded with date and scope                                         |
+| DIS-02      | I-10 Sign-off and disclosure     | Blocked on LEG-01                       | grep the note for a self-referential completeness word → 0                    |
+| DIS-03      | I-10 Sign-off and disclosure     | Blocked on LEG-01                       | two separate files; neither carries the other's framing                       |
+| DIS-04      | I-10 Sign-off and disclosure     | Blocked on LEG-01                       | every check green on the exact candidate; no AionUi contact exists            |
 
 **WLD-I Coverage:**
 
@@ -442,7 +442,7 @@ Every WLD-I requirement maps to exactly one phase in the `I-01` … `I-10` names
 - Unmapped: **0** ✓
 - Duplicated across phases: **0** ✓
 - Already complete at milestone start: **5** (NTC-01 … NTC-05, `78329477f` / `d99c70b07`)
-- Blocked on the §4(c) answer for *content*: **HDR-02, DIS-01 … DIS-04**. HDR-01 and the existence of
+- Blocked on the §4(c) answer for _content_: **HDR-02, DIS-01 … DIS-04**. HDR-01 and the existence of
   the I-05 sweep are **not** blocked — §4(b) is per-file regardless.
 
 ### WLD-I Acceptance and Closure Rules
@@ -497,7 +497,7 @@ real engine, never by reading source. Any search returning zero is disbelieved u
 is shown to find a **known positive** — that rule caught a false finding during this milestone's own
 planning. A requirement's evidence may cite only what was actually run.
 
-### Phase K-01 — Move the launch profile out of project config *(the spine)*
+### Phase K-01 — Move the launch profile out of project config _(the spine)_
 
 - [ ] **PRF-01**: Desktop writes its launch-local MCP narrowing profile into the config root the
       engine is already pointed at (`resolveActiveConfigDir()` → `WAYLAND_HOME`), not into the
@@ -526,7 +526,7 @@ planning. A requirement's evidence may cite only what was actually run.
       can replace the bytes before the first engine reads them.
 - [ ] **PRF-06**: A launch killed mid-flight leaves the user's global config byte-identical to its
       pre-launch state, proven by a real kill test, not a simulated one.
-- [ ] **PRF-07**: A user edit made to the global config *during* the launch window survives, proven
+- [ ] **PRF-07**: A user edit made to the global config _during_ the launch window survives, proven
       by a test that performs the edit inside the lease window.
 - [ ] **PRF-08**: Genuinely project-scoped project-config writes are retained; only the profile
       block moves. No unrelated behaviour changes.
@@ -613,7 +613,7 @@ planning. A requirement's evidence may cite only what was actually run.
 - Migrating existing `@native` users onto a Desktop-owned named profile. The user-owned-file risk is
   real but that migration carries `memory.db`, credentials, skills and a hand-edited config; it is an
   explicit, validated, rollback-capable project, not a selector change.
-- Option F (`only_for_assistant` scoping) as the primary narrowing mechanism. It can only *restrict* —
+- Option F (`only_for_assistant` scoping) as the primary narrowing mechanism. It can only _restrict_ —
   an unmarked server is always injected — so it cannot enforce an exact per-chat allow-list, and one
   missed marking is a cross-chat tool leak. Retained only as possible later defence-in-depth.
 - Option C (ephemeral `WAYLAND_HOME` root). The config root also holds `memory.db` and skills, so an

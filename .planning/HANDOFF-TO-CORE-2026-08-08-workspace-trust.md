@@ -41,14 +41,14 @@ printf '[profiles.p]\nmcp_servers = ["x"]\n' > .wayland-core.toml
 wayland-core --profile p -p <provider> -k <key> -m <model> "hi"
 ```
 
-| engine | result |
-|---|---|
-| 0.12.25 | works |
-| 0.12.26-rc.2 | `Error: Profile 'p' not found in config` |
-| 0.12.26-rc.2 + `--project-dir <ws>` | same failure |
-| 0.12.26-rc.2 + `--trust-workspace` | **works** — `[mcp] Connected: 101 tools` |
+| engine                              | result                                   |
+| ----------------------------------- | ---------------------------------------- |
+| 0.12.25                             | works                                    |
+| 0.12.26-rc.2                        | `Error: Profile 'p' not found in config` |
+| 0.12.26-rc.2 + `--project-dir <ws>` | same failure                             |
+| 0.12.26-rc.2 + `--trust-workspace`  | **works** — `[mcp] Connected: 101 tools` |
 
-Both engines *parse* the file — invalid TOML errors identically on both — so it is read
+Both engines _parse_ the file — invalid TOML errors identically on both — so it is read
 and then stripped, not ignored.
 
 ---
@@ -76,7 +76,7 @@ Profile 'X' was ignored: this workspace's executable configuration is not truste
 Run with --trust-workspace, or `wayland-core ... --trust-workspace` once to persist.
 ```
 
-More generally: stripping authority-expanding config is a *decision*, and decisions that
+More generally: stripping authority-expanding config is a _decision_, and decisions that
 change behaviour should be visible at default verbosity, not a warn-level trace.
 
 ## Ask 2 (design question, your call)

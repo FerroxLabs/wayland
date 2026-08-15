@@ -50,6 +50,7 @@ runtime, but connectors published into the global `config.toml` load at startup 
 profile allow-list is what stops a connector that is OFF for this chat from leaking into it.
 
 **Read live at this worktree's HEAD (grounds every task below):**
+
 - `src/process/agent/wcore/index.ts:120-155` `sanitizeProjectConfig` — the EXISTING sanitizer for
   the workspace file does a full smol-toml `parse`+`stringify` round trip. That is correct there (a
   small, Desktop-managed transient file) and explicitly FORBIDDEN for the new global-file splice
@@ -70,10 +71,10 @@ profile allow-list is what stops a connector that is OFF for this chat from leak
 - `src/process/agent/wcore/projectConfigTransaction.ts` (full file) — `ProjectConfigTransaction`
   ALREADY hash-checks on **every** restore, not only crash recovery: `restore()` delegates to
   `recoverProjectConfigTransaction`, which computes `ownsCurrent = sha256(current on-disk bytes) ===
-  state.replacementSha256` (read fresh from the marker) before touching the target — a mismatch
+state.replacementSha256` (read fresh from the marker) before touching the target — a mismatch
   (user edited the file) is left completely alone. `tests/unit/process/agent/wcore/
-  projectConfigTransaction.test.ts` already proves this (`'preserves a user edit made after the
-  temporary file was published'`). **This means PRF-02/PRF-03's transactional/hash-ownership floor
+projectConfigTransaction.test.ts` already proves this (`'preserves a user edit made after the
+temporary file was published'`). **This means PRF-02/PRF-03's transactional/hash-ownership floor
   is REUSE, not new work** — the new work is routing a NEW target (the global `config.toml`) through
   this exact same machinery, never reimplementing a naive whole-file restore for it.
 - `src/process/agent/wcore/projectConfigLease.ts` (full file) — `withWCoreProjectConfigLease` is a
@@ -104,6 +105,7 @@ profile allow-list is what stops a connector that is OFF for this chat from leak
 
 **Design decisions this plan makes (not pre-decided upstream — do not deviate without re-reading the
 reasoning below):**
+
 1. **Do NOT extend `withProfileAuthorityLock`.** That queue is non-reentrant and shared by every
    profile (named and native). Holding it across an entire splice-write → Core-ready → restore
    window would (a) serialize every OTHER chat's unrelated `acquireProfileLaunchLease`/
@@ -133,6 +135,7 @@ reasoning below):**
    generic reject path `start()` already has.
 
 **Explicitly OUT of scope for this plan (do NOT touch):**
+
 - Migrating `@native` users onto a Desktop-owned named profile (REQUIREMENTS.md "Out of scope for
   WLD-K"; carries `memory.db`/credentials/skills, a separate validated project).
 - Option F (`only_for_assistant`) or Option C (ephemeral `WAYLAND_HOME`) as narrowing mechanisms —
@@ -187,7 +190,7 @@ All new assertions are RED (the modules/methods do not exist yet); nothing pre-e
      real config" decision above; contrast explicitly in a comment with `sanitizeProjectConfig`'s
      discard-on-fail-closed posture for the workspace file, and state why the global file must not
      take that path.
-  RED: the module does not exist (import fails).
+     RED: the module does not exist (import fails).
 - **Extend `tests/unit/process/agent/wcore/projectConfigLease.test.ts`** — add a new
   `describe('WCore GLOBAL profile config lease', ...)` block importing
   `withGlobalWCoreProfileLease` from the same `@process/agent/wcore/projectConfigLease` specifier.
@@ -200,7 +203,7 @@ All new assertions are RED (the modules/methods do not exist yet); nothing pre-e
 - **New file `tests/unit/process/agent/wcore/wcoreGlobalMcpProfile.test.ts`** — reuse the
   `new WCoreAgent(...) as unknown as {...}` cast pattern from `tests/unit/wcoreProjectConfig.security.test.ts`
   to reach the new private `writeGlobalMcpProfile(targetDir: string, serverNames: readonly
-  string[]): void` and `restoreGlobalMcpProfile(): void` methods directly (no process spawn). Use a
+string[]): void` and `restoreGlobalMcpProfile(): void` methods directly (no process spawn). Use a
   fresh `mkdtempSync` dir as `targetDir` standing in for a resolved `WAYLAND_HOME`. Assert:
   1. Fresh dir (no `config.toml` yet) → after write, `<targetDir>/config.toml` exists and parses with
      the given server names under `profiles.__wayland_desktop_session.mcp_servers`; restore REMOVES
@@ -221,13 +224,13 @@ All new assertions are RED (the modules/methods do not exist yet); nothing pre-e
      CURRENT flow's workspace write (`writeProjectConfig`) with `projectConfig` content that carries
      NO `[profiles.*]` fragment, and assert the workspace `.wayland-core.toml` never gains a
      `profiles.__wayland_desktop_session` key — the two writers are now fully independent.
-  RED: the two new methods do not exist yet (cast still compiles against the type, calls throw
-  "not a function" / TS structural mismatch depending on how the executor stages this — either way,
-  red).
-  Verify: `bun run test:vitest desktopProfileSplice`, `bun run test:vitest projectConfigLease`,
-  `bun run test:vitest wcoreGlobalMcpProfile` — all new assertions RED, zero pre-existing regressions.
-  Done: all three files committed as `test(K-01): ...` before any production file changes; every new
-  assertion above is RED against today's code.
+     RED: the two new methods do not exist yet (cast still compiles against the type, calls throw
+     "not a function" / TS structural mismatch depending on how the executor stages this — either way,
+     red).
+     Verify: `bun run test:vitest desktopProfileSplice`, `bun run test:vitest projectConfigLease`,
+     `bun run test:vitest wcoreGlobalMcpProfile` — all new assertions RED, zero pre-existing regressions.
+     Done: all three files committed as `test(K-01): ...` before any production file changes; every new
+     assertion above is RED against today's code.
 
 **Task 2 — GREEN: route the profile write to the global config root (commit `fix(K-01): move the
 launch-local MCP profile out of project config`).** Flips every Task-1 assertion GREEN. Touch ONLY
@@ -235,7 +238,7 @@ the sites named.
 
 - **New `src/process/agent/wcore/desktopProfileSplice.ts`** — a leaf pure module (no fs, no imports
   of `index.ts`). Export `class DesktopProfileSpliceError extends Error { readonly code =
-  'DESKTOP_PROFILE_SPLICE_INVALID' as const; }` (mirror `ProfileIsolationError`'s `code` pattern) and
+'DESKTOP_PROFILE_SPLICE_INVALID' as const; }` (mirror `ProfileIsolationError`'s `code` pattern) and
   `spliceDesktopMcpProfile(existing: string | null, fragment: string): string`:
   - Parse `existing ?? ''` with `smol-toml`'s `parse` FIRST for validation only (never use the parsed
     object for output) — an unparseable non-empty `existing` throws `DesktopProfileSpliceError`
@@ -250,7 +253,7 @@ the sites named.
     and double-underscore-prefixed, so no legitimate user table or comment can collide with it.
   - Append the given `fragment` at the end using the SAME base/blank-line joining convention
     `appendDesktopMcpProfile` already uses (`trimmedExisting ? `${trimmedExisting}\n\n${fragment}` :
-    fragment`) so formatting stays consistent with the rest of the codebase.
+fragment`) so formatting stays consistent with the rest of the codebase.
   - Validate the FINAL spliced string parses via `smol-toml`'s `parse` before returning it; throw
     `DesktopProfileSpliceError` on failure (defensive — should be unreachable given a validated
     `existing` plus an app-generated `fragment`, but PRF-04 requires the explicit check).
@@ -286,20 +289,20 @@ the sites named.
     leave a duplicate resolution).
   - Add `private writeGlobalMcpProfile(targetDir: string, serverNames: readonly string[]): void` —
     synchronous, mirroring `writeProjectConfig`'s shape: `const configPath = join(targetDir,
-    'config.toml'); recoverProjectConfigTransaction(configPath);` (heal a stale journal from a prior
+'config.toml'); recoverProjectConfigTransaction(configPath);` (heal a stale journal from a prior
     crashed launch BEFORE trusting on-disk bytes as ground truth — same reasoning as the existing
     call in `writeProjectConfig`), then `readProjectConfigNoFollow(configPath)` (reuse — never a
     fresh unguarded read of the user's real config), build the fragment via
     `appendDesktopMcpProfile(null, serverNames)` (UNCHANGED import from `envBuilder.ts`), splice via
     `spliceDesktopMcpProfile`, then `this.globalProfileConfigTransaction =
-    ProjectConfigTransaction.begin(configPath, spliced)`. Let `DesktopProfileSpliceError` propagate
+ProjectConfigTransaction.begin(configPath, spliced)`. Let `DesktopProfileSpliceError` propagate
     (do not swallow it — this is the deliberate fail-closed launch failure).
   - Add `private restoreGlobalMcpProfile(): void` — byte-for-byte mirror of `restoreProjectConfig`
     (null out `this.globalProfileConfigTransaction`, call `.restore()` in a try/catch that logs and
     keeps the journal on failure for the next launch to heal — never delete the only recovery
     evidence after a failed restore).
   - **In `start()`:** resolve `waylandHome` ONCE via `const waylandHome = await
-    this.resolveWaylandHomeForLaunch();` before either branch. Raw-engine branch becomes
+this.resolveWaylandHomeForLaunch();` before either branch. Raw-engine branch becomes
     `return this.startWithProjectConfigLease(this.options.workspace, waylandHome);` (harmless no-op
     resolution for that mode, since the method itself returns `this.options.waylandHome` unchanged
     when `rawEngineMode`). Non-raw branch nests the NEW lease INSIDE the existing workspace lease, in
@@ -314,15 +317,15 @@ the sites named.
     workspace restore (Core's ready event is the SAME "config ingestion confirmed" signal for both
     targets, since it is the SAME process reading both files).
   - **In `startWithProjectConfigLease(workspace = this.options.workspace, resolvedWaylandHome?:
-    string)`:** add the second parameter. Replace the current
+string)`:** add the second parameter. Replace the current
     `effectiveProjectConfig = appendDesktopMcpProfile(projectConfig, mcpServerNames)` /
     `writeProjectConfig(effectiveProjectConfig, workspace)` pairing with: when `!rawEngineMode &&
-    mcpServerNames !== undefined`, push `--profile` `WCORE_DESKTOP_MCP_PROFILE` into `args` (UNCHANGED)
+mcpServerNames !== undefined`, push `--profile` `WCORE_DESKTOP_MCP_PROFILE` into `args` (UNCHANGED)
     and call `this.writeGlobalMcpProfile(resolvedWaylandHome ?? nativeConfigDir(), mcpServerNames)`
     instead of folding the profile into the workspace content; separately, `if (projectConfig)
-    this.writeProjectConfig(projectConfig, workspace)` — now carrying ONLY genuinely project-scoped
+this.writeProjectConfig(projectConfig, workspace)` — now carrying ONLY genuinely project-scoped
     content, never the profile fragment (this is PRF-08). Replace the later inline `let waylandHome =
-    this.options.waylandHome; if (...) { waylandHome = await resolveActiveConfigDir(); ... }` block
+this.options.waylandHome; if (...) { waylandHome = await resolveActiveConfigDir(); ... }` block
     with `const waylandHome = resolvedWaylandHome;` — everything downstream (`resolveSpawnVaultPassphrase(waylandHome)`,
     `buildEngineSpawnEnv({ ..., waylandHome, ... })`) keeps referencing the same binding name,
     unchanged. Grep the function body first to confirm no OTHER read of the removed inline block
@@ -360,10 +363,10 @@ runs forever after as part of the ordinary suite (`tests/integration/**/*.test.t
   around a fresh `mkdtemp` dir (mirror `projectConfigLease.test.ts`'s setup). The test: writes a
   realistic ORIGINAL `config.toml` (with a comment and an unrelated `[providers.x]` table) into that
   dir; records its exact bytes; spawns the harness via `child_process.spawn('bun', [harnessPath,
-  targetDir, markerPath], { stdio: ... })`; polls for the marker file to appear (the write is
+targetDir, markerPath], { stdio: ... })`; polls for the marker file to appear (the write is
   confirmed on disk); sends `child.kill('SIGKILL')`; awaits the child's `'exit'` event with `signal
-  === 'SIGKILL'`; THEN calls the real `recoverProjectConfigTransaction(join(targetDir,
-  'config.toml'))` (the exact healing call `writeGlobalMcpProfile` already runs at the top of every
+=== 'SIGKILL'`; THEN calls the real `recoverProjectConfigTransaction(join(targetDir,
+'config.toml'))` (the exact healing call `writeGlobalMcpProfile` already runs at the top of every
   launch) and asserts the file is now byte-identical (`toBe`) to the recorded original — no
   transaction marker or backup file left behind. This is the literal PRF-06 acceptance: "a launch
   killed mid-flight leaves the user's global config byte-identical to its pre-launch state, proven by
@@ -382,9 +385,9 @@ runs forever after as part of the ordinary suite (`tests/integration/**/*.test.t
   > evidence must cite the Task 1 sequencing tests alongside it; on its own it is necessary, not
   > sufficient. If the 4-leg audit wants that gap closed, the fix is to expose a narrow internal
   > seam the harness can call directly — not to weaken the assertion.
-  Done: an actual OS-level `SIGKILL` of a real child process running real production code, followed
-  by real recovery, is part of the permanent, always-green suite — this class of regression cannot
-  silently return.
+  > Done: an actual OS-level `SIGKILL` of a real child process running real production code, followed
+  > by real recovery, is part of the permanent, always-green suite — this class of regression cannot
+  > silently return.
 
 **Task 4 — Exit bar: full suite, scope proof, dual-version live execution, 4-leg cross-audit (human
 checkpoint, no code commit).**
@@ -431,29 +434,30 @@ checkpoint, no code commit).**
      (confirm the single call site, no reversed-order acquisition anywhere else), the fail-closed
      behavior on an unparseable global `config.toml` (confirm no code path silently discards or
      partially writes it), and the splice regex's handling of adjacent/nested reserved-table headers.
-  Resume-signal: "approved" (all four legs clean or findings fixed) or a description of what needs
-  another pass.
+     Resume-signal: "approved" (all four legs clean or findings fixed) or a description of what needs
+     another pass.
 
 </tasks>
 
 <threat_model>
+
 ## Trust Boundaries
 
-| Boundary | Description |
-|----------|--------------|
-| Desktop main process → the user's real global `config.toml` | a file the user also hand-edits, now mutated by a background transaction on every profile-bearing launch |
-| concurrent chat launches (same `@native` profile) → the SAME global `config.toml` | multiple Desktop processes/chats can attempt a launch at once |
-| a killed/crashed Desktop process → the next launch's recovery pass | crash recovery trusts on-disk state left by whichever process died |
+| Boundary                                                                          | Description                                                                                              |
+| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Desktop main process → the user's real global `config.toml`                       | a file the user also hand-edits, now mutated by a background transaction on every profile-bearing launch |
+| concurrent chat launches (same `@native` profile) → the SAME global `config.toml` | multiple Desktop processes/chats can attempt a launch at once                                            |
+| a killed/crashed Desktop process → the next launch's recovery pass                | crash recovery trusts on-disk state left by whichever process died                                       |
 
 ## STRIDE Threat Register
 
-| Threat ID | Category | Component | Severity | Disposition | Mitigation Plan |
-|-----------|----------|-----------|----------|-------------|------------------|
-| T-K01-01 | Tampering | global `config.toml` write window (write → ready → restore) | high | mitigate | `ProjectConfigTransaction` + the new `withGlobalWCoreProfileLease` serialize every concurrent `@native` launch on the exact global config path; `readProjectConfigNoFollow` (lstat/no-follow, fd-identity recheck) is reused so a symlink swap of the user's real config between resolve and open cannot redirect the write; the pre-existing hash-ownership check in `recoverProjectConfigTransaction` governs the SAME restore call used for both crash recovery and the ordinary exit path. |
-| T-K01-02 | Information disclosure | a leftover `[profiles.__wayland_desktop_session]` table surviving on disk after an unrecovered crash, visible if the user runs Core standalone before Desktop's next launch heals it | low | accept | the leaked content is only same-session MCP server NAMES already visible in Desktop's own Settings UI, never a credential; self-heals automatically on the very next Desktop launch via the pre-write `recoverProjectConfigTransaction` call — the same accepted posture the workspace `.wayland-core.toml` transaction already has today. |
-| T-K01-03 | Denial of service | a hand-edited global `config.toml` that is not valid TOML makes any launch needing a profile refuse to spawn (deliberate fail-closed choice) | medium | mitigate | refusing to touch an unparseable file — rather than discarding it the way the workspace sanitizer does — is the correct tradeoff for a file that also holds the user's providers/credentials/memory settings; `DesktopProfileSpliceError` carries a message naming the exact file to fix; rich in-UI surfacing of this failure is K-02's job, not reinvented here. |
-| T-K01-04 | Denial of service | lock-ordering / reentrancy between the new global-config lease and the existing `withProfileAuthorityLock` FIFO queue | high | mitigate | the new lease is a SEPARATE keyed promise-tail map (own `Map`, mirrors `withWCoreProjectConfigLease`'s existing proven shape); it never calls into or nests inside `withProfileAuthorityLock`. `withProfileAuthorityLock`'s queue is non-reentrant — a nested call from inside a running operation would queue behind itself and hang — so reusing it for a window spanning an entire Core bootstrap was explicitly rejected (see `<objective>` design decision 1) to avoid both that self-deadlock and unrelated cross-profile serialization. |
-| T-K01-SC | Tampering | supply chain (new dependency) | n/a | accept | `smol-toml` is already an existing dependency, used in the new splice module for `parse`-validation only (never `stringify`); no new package added. Package Legitimacy Gate N/A. |
+| Threat ID | Category               | Component                                                                                                                                                                            | Severity | Disposition | Mitigation Plan                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| --------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T-K01-01  | Tampering              | global `config.toml` write window (write → ready → restore)                                                                                                                          | high     | mitigate    | `ProjectConfigTransaction` + the new `withGlobalWCoreProfileLease` serialize every concurrent `@native` launch on the exact global config path; `readProjectConfigNoFollow` (lstat/no-follow, fd-identity recheck) is reused so a symlink swap of the user's real config between resolve and open cannot redirect the write; the pre-existing hash-ownership check in `recoverProjectConfigTransaction` governs the SAME restore call used for both crash recovery and the ordinary exit path.                                                 |
+| T-K01-02  | Information disclosure | a leftover `[profiles.__wayland_desktop_session]` table surviving on disk after an unrecovered crash, visible if the user runs Core standalone before Desktop's next launch heals it | low      | accept      | the leaked content is only same-session MCP server NAMES already visible in Desktop's own Settings UI, never a credential; self-heals automatically on the very next Desktop launch via the pre-write `recoverProjectConfigTransaction` call — the same accepted posture the workspace `.wayland-core.toml` transaction already has today.                                                                                                                                                                                                     |
+| T-K01-03  | Denial of service      | a hand-edited global `config.toml` that is not valid TOML makes any launch needing a profile refuse to spawn (deliberate fail-closed choice)                                         | medium   | mitigate    | refusing to touch an unparseable file — rather than discarding it the way the workspace sanitizer does — is the correct tradeoff for a file that also holds the user's providers/credentials/memory settings; `DesktopProfileSpliceError` carries a message naming the exact file to fix; rich in-UI surfacing of this failure is K-02's job, not reinvented here.                                                                                                                                                                             |
+| T-K01-04  | Denial of service      | lock-ordering / reentrancy between the new global-config lease and the existing `withProfileAuthorityLock` FIFO queue                                                                | high     | mitigate    | the new lease is a SEPARATE keyed promise-tail map (own `Map`, mirrors `withWCoreProjectConfigLease`'s existing proven shape); it never calls into or nests inside `withProfileAuthorityLock`. `withProfileAuthorityLock`'s queue is non-reentrant — a nested call from inside a running operation would queue behind itself and hang — so reusing it for a window spanning an entire Core bootstrap was explicitly rejected (see `<objective>` design decision 1) to avoid both that self-deadlock and unrelated cross-profile serialization. |
+| T-K01-SC  | Tampering              | supply chain (new dependency)                                                                                                                                                        | n/a      | accept      | `smol-toml` is already an existing dependency, used in the new splice module for `parse`-validation only (never `stringify`); no new package added. Package Legitimacy Gate N/A.                                                                                                                                                                                                                                                                                                                                                               |
 
 </threat_model>
 
@@ -490,16 +494,16 @@ checkpoint, no code commit).**
 **Goal-backward check — each acceptance maps to "the profile lives where Core's untrusted-workspace
 policy cannot strip it, without weakening the never-clobber guarantee":**
 
-| Must be TRUE (goal) | Producer behavior that makes it true | Proven by |
-|----------------------|----------------------------------------|-----------|
-| A fresh launch with an MCP connector selected executes a real tool call on both engine versions (PRF-01) | `writeGlobalMcpProfile` targets `resolveWaylandHomeForLaunch()`'s SAME resolved dir that `buildEngineSpawnEnv` uses for `WAYLAND_HOME` | `wcoreGlobalMcpProfile.test.ts` (write lands at the right path) + the dual-version live suite (real tool call, both versions) |
-| The mutation is transactional, never leaves a partial write (PRF-02) | `ProjectConfigTransaction.begin`/`recoverProjectConfigTransaction` reused unmodified for the new target | `globalProfileCrashRecovery.test.ts` (real SIGKILL) |
-| Hash-ownership governs EVERY restore, user's bytes win on mismatch (PRF-03/PRF-07) | `restore()` always delegates to the hash-checking `recoverProjectConfigTransaction`, never a blind whole-file write | `wcoreGlobalMcpProfile.test.ts` test 3 (edit-during-window survives) + pre-existing `projectConfigTransaction.test.ts` |
-| Only the reserved table is spliced textually, validated before publish, no round trip (PRF-04) | `spliceDesktopMcpProfile` line-anchored removal + append + `parse`-only validation | `desktopProfileSplice.test.ts` (comment/table survival = anti-round-trip proof) |
-| Concurrent launches are serialised write → ingestion-confirmed → restore, keyed hotter than per-workspace (PRF-05) | `withGlobalWCoreProfileLease` keyed on the resolved config path, nested inside the workspace lease at one fixed call site | `projectConfigLease.test.ts` new describe block + `T-K01-04` deadlock-avoidance rationale |
-| A killed launch leaves the file byte-identical (PRF-06) | transaction + lease + pre-write `recoverProjectConfigTransaction` healing | `globalProfileCrashRecovery.test.ts` (real kill) |
-| A user edit during the window survives (PRF-07) | hash-ownership check leaves non-owned bytes untouched | `wcoreGlobalMcpProfile.test.ts` test 3 |
-| Project-scoped writes are retained, only the profile moved, no unrelated change (PRF-08) | `writeProjectConfig` now receives `projectConfig` alone, never the profile fragment; `envBuilder.ts`/`sanitizeProjectConfig` untouched | grep gate + `wcoreProjectConfig.security.test.ts` unchanged-and-green + `wcoreGlobalMcpProfile.test.ts` test 5 |
+| Must be TRUE (goal)                                                                                                | Producer behavior that makes it true                                                                                                   | Proven by                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| A fresh launch with an MCP connector selected executes a real tool call on both engine versions (PRF-01)           | `writeGlobalMcpProfile` targets `resolveWaylandHomeForLaunch()`'s SAME resolved dir that `buildEngineSpawnEnv` uses for `WAYLAND_HOME` | `wcoreGlobalMcpProfile.test.ts` (write lands at the right path) + the dual-version live suite (real tool call, both versions) |
+| The mutation is transactional, never leaves a partial write (PRF-02)                                               | `ProjectConfigTransaction.begin`/`recoverProjectConfigTransaction` reused unmodified for the new target                                | `globalProfileCrashRecovery.test.ts` (real SIGKILL)                                                                           |
+| Hash-ownership governs EVERY restore, user's bytes win on mismatch (PRF-03/PRF-07)                                 | `restore()` always delegates to the hash-checking `recoverProjectConfigTransaction`, never a blind whole-file write                    | `wcoreGlobalMcpProfile.test.ts` test 3 (edit-during-window survives) + pre-existing `projectConfigTransaction.test.ts`        |
+| Only the reserved table is spliced textually, validated before publish, no round trip (PRF-04)                     | `spliceDesktopMcpProfile` line-anchored removal + append + `parse`-only validation                                                     | `desktopProfileSplice.test.ts` (comment/table survival = anti-round-trip proof)                                               |
+| Concurrent launches are serialised write → ingestion-confirmed → restore, keyed hotter than per-workspace (PRF-05) | `withGlobalWCoreProfileLease` keyed on the resolved config path, nested inside the workspace lease at one fixed call site              | `projectConfigLease.test.ts` new describe block + `T-K01-04` deadlock-avoidance rationale                                     |
+| A killed launch leaves the file byte-identical (PRF-06)                                                            | transaction + lease + pre-write `recoverProjectConfigTransaction` healing                                                              | `globalProfileCrashRecovery.test.ts` (real kill)                                                                              |
+| A user edit during the window survives (PRF-07)                                                                    | hash-ownership check leaves non-owned bytes untouched                                                                                  | `wcoreGlobalMcpProfile.test.ts` test 3                                                                                        |
+| Project-scoped writes are retained, only the profile moved, no unrelated change (PRF-08)                           | `writeProjectConfig` now receives `projectConfig` alone, never the profile fragment; `envBuilder.ts`/`sanitizeProjectConfig` untouched | grep gate + `wcoreProjectConfig.security.test.ts` unchanged-and-green + `wcoreGlobalMcpProfile.test.ts` test 5                |
 
 </verification>
 

@@ -182,8 +182,10 @@ function CodeBlock(props: CodeBlockProps) {
             {'<' + language.toLocaleLowerCase() + '>'}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Copy size={18}
-              style={{ cursor: 'pointer' }} color='var(--text-secondary)'
+            <Copy
+              size={18}
+              style={{ cursor: 'pointer' }}
+              color='var(--text-secondary)'
               onClick={() => {
                 void copyText(formatCode(children))
                   .then(() => {
@@ -195,8 +197,10 @@ function CodeBlock(props: CodeBlockProps) {
               }}
             />
             {canCollapse && expanded && (
-              <ChevronUp size={20}
-                style={{ cursor: 'pointer' }} color='var(--text-secondary)'
+              <ChevronUp
+                size={20}
+                style={{ cursor: 'pointer' }}
+                color='var(--text-secondary)'
                 onMouseDown={(e: React.MouseEvent) => {
                   if (e.button === 0) {
                     e.preventDefault();

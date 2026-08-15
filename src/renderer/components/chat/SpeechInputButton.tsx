@@ -269,7 +269,8 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
       // user somewhere they do not need to go; only a real setup gap routes.
       if (leg.status === 'warming' || leg.status === 'preparing') return;
       if (leg.status === 'needsSetup' && typeof window !== 'undefined') {
-        window.location.hash = leg.cause === 'no-model-connected' ? OPEN_MODELS_SETTINGS_HASH : OPEN_VOICE_SETTINGS_HASH;
+        window.location.hash =
+          leg.cause === 'no-model-connected' ? OPEN_MODELS_SETTINGS_HASH : OPEN_VOICE_SETTINGS_HASH;
       }
       return;
     }

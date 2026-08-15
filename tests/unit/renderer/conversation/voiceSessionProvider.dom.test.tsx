@@ -628,7 +628,12 @@ describe('VoiceSessionProvider', () => {
      * was not.
      */
     it('asks before the microphone goes off-device', async () => {
-      storedStt = { enabled: true, origin: 'user', provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
+      storedStt = {
+        enabled: true,
+        origin: 'user',
+        provider: 'openai',
+        openai: { apiKey: 'sk-test', model: 'whisper-1' },
+      };
       renderSession();
 
       act(() => openVoiceMode('conversation-1'));
@@ -637,7 +642,12 @@ describe('VoiceSessionProvider', () => {
     });
 
     it('does not enter, speak, or record when the disclosure is declined', async () => {
-      storedStt = { enabled: true, origin: 'user', provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
+      storedStt = {
+        enabled: true,
+        origin: 'user',
+        provider: 'openai',
+        openai: { apiKey: 'sk-test', model: 'whisper-1' },
+      };
       renderSession();
 
       act(() => openVoiceMode('conversation-1'));
@@ -655,7 +665,12 @@ describe('VoiceSessionProvider', () => {
     });
 
     it('enters after the disclosure is accepted', async () => {
-      storedStt = { enabled: true, origin: 'user', provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
+      storedStt = {
+        enabled: true,
+        origin: 'user',
+        provider: 'openai',
+        openai: { apiKey: 'sk-test', model: 'whisper-1' },
+      };
       renderSession();
 
       act(() => openVoiceMode('conversation-1'));

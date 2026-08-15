@@ -86,11 +86,9 @@ function makeScratch(): Scratch {
 
 /** Spawns a real node process that reproduces one bridge failure shape. */
 function spawnFailingBridge(stderrText: string): ChildProcess {
-  return spawn(
-    process.execPath,
-    ['-e', `process.stderr.write(${JSON.stringify(stderrText)}); process.exit(1);`],
-    { stdio: ['pipe', 'pipe', 'pipe'] }
-  );
+  return spawn(process.execPath, ['-e', `process.stderr.write(${JSON.stringify(stderrText)}); process.exit(1);`], {
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
 }
 
 function createCallbacks(errors: string[]): SessionCallbacks {

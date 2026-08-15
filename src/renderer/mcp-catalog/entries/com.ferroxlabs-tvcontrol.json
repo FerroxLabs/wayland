@@ -23,18 +23,8 @@
   "remotes": [],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "data",
-      "research",
-      "automation"
-    ],
-    "tags": [
-      "tradingview",
-      "charts",
-      "trading",
-      "pine-script",
-      "markets"
-    ],
+    "categories": ["data", "research", "automation"],
+    "tags": ["tradingview", "charts", "trading", "pine-script", "markets"],
     "maintainerType": "wayland",
     "license": "MIT",
     "verifiedAt": "2026-08-04",
@@ -54,11 +44,7 @@
       "estimatedMinutes": 3,
       "stepCount": 3
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.9.0"
   }
 }

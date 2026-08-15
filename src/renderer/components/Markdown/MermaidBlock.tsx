@@ -214,8 +214,10 @@ function MermaidBlock({ code, style, showOpenInPanelButton = true }: MermaidBloc
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
             {showOpenInPanelButton && (
               <Eye
-                data-testid='mermaid-open-in-panel' size={18}
-                style={{ cursor: 'pointer', flexShrink: 0 }} color='var(--text-secondary)'
+                data-testid='mermaid-open-in-panel'
+                size={18}
+                style={{ cursor: 'pointer', flexShrink: 0 }}
+                color='var(--text-secondary)'
                 aria-label={t('preview.openInPanelTooltip')}
                 onClick={() => {
                   openPreview(`\`\`\`mermaid\n${code}\n\`\`\``, 'markdown', {
@@ -226,8 +228,10 @@ function MermaidBlock({ code, style, showOpenInPanelButton = true }: MermaidBloc
               />
             )}
             <Copy
-              data-testid='mermaid-copy' size={18}
-              style={{ cursor: 'pointer', flexShrink: 0 }} color='var(--text-secondary)'
+              data-testid='mermaid-copy'
+              size={18}
+              style={{ cursor: 'pointer', flexShrink: 0 }}
+              color='var(--text-secondary)'
               onClick={() => {
                 void copyText(code)
                   .then(() => {

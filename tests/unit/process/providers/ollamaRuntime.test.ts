@@ -124,10 +124,7 @@ describe('startOllamaDaemon', () => {
     if (process.platform !== 'darwin') return;
     mockExistsSync.mockImplementation((p) => p === MAC_APP_BINARY);
     // Refuse once (the pre-spawn check), then answer.
-    const fetchMock = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('ECONNREFUSED'))
-      .mockResolvedValue({ ok: true });
+    const fetchMock = vi.fn().mockRejectedValueOnce(new Error('ECONNREFUSED')).mockResolvedValue({ ok: true });
     vi.stubGlobal('fetch', fetchMock);
     const child = fakeChild();
     mockSpawn.mockReturnValue(child);

@@ -27,19 +27,20 @@ Baseline to beat: **137 failures / 832** [V, 14:36 run].
 All three landed. **One claim was wrong in its diagnosis, two "defects" were stale
 tests, and the biggest find was worse than reported.**
 
-| Claim | Verdict |
-|---|---|
-| team-import CTAs disabled | **REAL — and it blocked ALL imports.** Cool-off was innocent |
-| cron delete leaks | **STALE TEST.** Archive keeps the run's chat by contract |
-| deleted assistant still listed | **STALE TEST.** Delete *is* a non-destructive archive |
-| `webui.start` port 0 | **REAL** but latent — no shipping path passes 0 |
-| a11y `button-name` on guid-home | **REAL regression.** 2 unnamed buttons |
+| Claim                           | Verdict                                                      |
+| ------------------------------- | ------------------------------------------------------------ |
+| team-import CTAs disabled       | **REAL — and it blocked ALL imports.** Cool-off was innocent |
+| cron delete leaks               | **STALE TEST.** Archive keeps the run's chat by contract     |
+| deleted assistant still listed  | **STALE TEST.** Delete _is_ a non-destructive archive        |
+| `webui.start` port 0            | **REAL** but latent — no shipping path passes 0              |
+| a11y `button-name` on guid-home | **REAL regression.** 2 unnamed buttons                       |
 
 **Do not paste agent diffs verbatim.** Two were wrong where it mattered:
+
 - The a11y agent said `t` was already in scope in `ComposerAddMenu`. It is not — line 67
   belongs to `ComposerAddMenuPanel` (57-256); the button is in `ComposerAddMenu` (257+).
   Its diff would not have compiled. [V]
-- The cron agent's "delete works" was right, but only proved for the *scheduled card*.
+- The cron agent's "delete works" was right, but only proved for the _scheduled card_.
 
 ---
 
@@ -51,6 +52,7 @@ tests, and the biggest find was worse than reported.**
 `2c6737a50` assistant section-order test · `e47873196` **teams: imported roster ids**
 
 ### The ship blocker, in plain terms
+
 `makeSpecialistCatalog` read only `ExtensionRegistry`, but the waylandteams
 specialists stopped being extensions and now ship as native built-ins under
 `builtin-`. So **every import — including a file this same app exported — reported
@@ -75,6 +77,7 @@ Found by pulling the thread, not by a spec — no test asserts it yet.
   nothing here — always repeat this one.
 
 ### A trap that cost real time
+
 The `sort order` test failed and looked like my regression. It was **pre-existing**:
 restoring the pre-change spec and re-running showed it failing there too. Do not
 attribute a failure without running the old version.
@@ -95,6 +98,7 @@ attribute a failure without running the old version.
    under-reports. Flaky in the safe direction, but it hid this bug.
 
 **Deliberately NOT doing** (decided, with reasons — do not re-open):
+
 - **Nano error-table i18n.** `localeKeyParity` compares only renderer locale bundles;
   the table is a generated const in `src/common/types/`, so the gate **cannot fire on
   it** [V]. Zero consumers, 48 of 59 kinds collapse to `-32603`.
@@ -106,7 +110,7 @@ attribute a failure without running the old version.
 ## 5. Harness traps (all learned the hard way)
 
 - **The Playwright fixture launches the COMPILED `out/` bundle** — `electron.launch({
-  args: ['.'] })`, no build step [V]. `tests/` edits are live; **`src/` edits are
+args: ['.'] })`, no build step [V]. `tests/` edits are live; **`src/` edits are
   invisible until `bun run package`**. Check `out/main/index.js` mtime before believing
   any e2e result about a `src/` change.
 - **The teams/conversation UI is TABBED.** Setting `location.hash` routes without
@@ -161,14 +165,15 @@ discards the worker after every failure, so a failure-heavy run stops short.
 Four read-only agents cross-researched 46 of the 85. **~90% are STALE TESTS**, not
 product defects. Verified verdicts:
 
-| Lane | Fails | Real | Stale | Env |
-|---|---|---|---|---|
-| hub-backend-install | 10 | 0 | 10 | 0 |
-| extension family | 8 | 0 | 8 | 0 |
-| ACP feature suite | 11 | 0 | 11 | 0 |
-| renderer/cron/misc | 17 | 3 | 13 | 1 |
+| Lane                | Fails | Real | Stale | Env |
+| ------------------- | ----- | ---- | ----- | --- |
+| hub-backend-install | 10    | 0    | 10    | 0   |
+| extension family    | 8     | 0    | 8     | 0   |
+| ACP feature suite   | 11    | 0    | 11    | 0   |
+| renderer/cron/misc  | 17    | 3    | 13    | 1   |
 
 ### Fixed this stretch [all V by execution]
+
 - **15 failures, one cause** — 4 specs clicked `team-card-builtin-cold-outbound`,
   which pagination (48-card window over 60 teams) never renders. Probe: 0 cards
   before search, 1 after. Fixed via the search box (`bfc6f2ad9`).
@@ -180,6 +185,7 @@ product defects. Verified verdicts:
   confirmation card, no hidden wrapper. Use `.sendbox-stop-button`.
 
 ### Highest-value unfixed finding
+
 `waitForAiReply` (`tests/e2e/helpers/conversation.ts:204-206`) returns the
 **shadow-DOM stylesheet**, because `shadowRoot.textContent` concatenates the
 injected `<style>`. Its `expect.poll(...).toBeTruthy()` is satisfied the instant
@@ -188,6 +194,7 @@ every ACP test — **fixing it will likely expose tests currently passing for th
 wrong reason.** Read `.markdown-shadow-body` and gate on a minimum length.
 
 ### Other confirmed, unfixed
+
 - **3 real defects, one cause**: `.guidContainer` intercepts pointer events on
   `/guid`, so with ~10 detected agents some agent pills are unclickable and
   dropdowns clip. Playwright names the container as interceptor.
@@ -202,6 +209,7 @@ wrong reason.** Read `.markdown-shadow-body` and gate on a minimum length.
   so two tests stop the turn ~0s in and then assert partial text exists.
 
 ### Method note that keeps paying
+
 Three agent claims were wrong where it mattered: a diff that would not compile
 (`t` out of scope), a "shared root cause" that was five, and the Group D product
 defect. **Verify every agent claim by execution before applying it.**

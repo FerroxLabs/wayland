@@ -25,11 +25,11 @@ IJFW rewrites and which has stayed uncommitted deliberately across this whole ar
 
 812 files carry the joint notice. Evidence-led, never blanket: 742 AUTO + 70 REVIEW restored, 553
 owed nothing (upstream had no notice), 17 de minimis, 13 already Google LLC. The rebrand had
-*substituted* upstream's line rather than supplementing it, which is the §1202 fact pattern.
+_substituted_ upstream's line rather than supplementing it, which is the §1202 fact pattern.
 
 **Method lesson worth keeping: percentage is the wrong instrument.** `fileTypes.ts` scored 20% off
-*one* shared line; identifier overlap is noise below ~55% because a Ferrox-**original** shares ~45%
-with an *unrelated* upstream file. The measure that works is **shared expression lines** (substantive
+_one_ shared line; identifier overlap is noise below ~55% because a Ferrox-**original** shares ~45%
+with an _unrelated_ upstream file. The measure that works is **shared expression lines** (substantive
 minus imports, re-exports, bare type openers), cut at 5.
 
 I-01 determined without counsel — `I-01-DETERMINATION.md`. **acpx is MIT, not GPL** (my premise was
@@ -43,14 +43,14 @@ cure. Apache-2.0 has no reinstatement clause. Only AionUi can waive it.
 
 Nothing in the 142 open issues covered any of these. All were found by driving clean profiles.
 
-| commit | defect |
-|---|---|
+| commit      | defect                                                                                |
+| ----------- | ------------------------------------------------------------------------------------- |
 | `fd28d33d7` | marker spoof was a **NO-OP on 11 of 24 channels** incl. Matrix — denylist → allowlist |
-| `9b39e0e16` | ACP live attachments restored, gated so a model reply cannot smuggle a `files` field |
-| `fe732f350` | Flux "Connecting…" hang — bounded; affected **every** provider on desktop |
-| `1f06b48fb` | a healthy 4-provider install was told its agents were asleep |
-| `ff202c275` | a safety classifier was still the first-run default model |
-| `f17b90c6b` | Recent Chats badge counted chats the list excludes |
+| `9b39e0e16` | ACP live attachments restored, gated so a model reply cannot smuggle a `files` field  |
+| `fe732f350` | Flux "Connecting…" hang — bounded; affected **every** provider on desktop             |
+| `1f06b48fb` | a healthy 4-provider install was told its agents were asleep                          |
+| `ff202c275` | a safety classifier was still the first-run default model                             |
+| `f17b90c6b` | Recent Chats badge counted chats the list excludes                                    |
 
 **`1f06b48fb` is the one worth understanding.** Every WCore conversation rendered "Wake your agents /
 connect a model provider" with four providers connected and 170 models enabled, pushing the
@@ -63,7 +63,7 @@ as tiebreak. The capability mapping digest correctly caught the behaviour change
 constant, contract version and pinned digest moved with it.
 
 **`ff202c275`** — the earlier Curator fix was a no-op: `isNonChatClassifier` keys on sub-1K context
-with no tools, and `gpt-oss-safeguard-20b` declares 131072 and tools. The Curator *did* mark it
+with no tools, and `gpt-oss-safeguard-20b` declares 131072 and tools. The Curator _did_ mark it
 `recommended: false`, but `selectMirrorModelIds` returned Curator order and nothing read the flag.
 Stable recommended-first partition. Live-verified: default is now `openai/gpt-oss-120b`.
 
@@ -116,6 +116,7 @@ Closed on GitHub with evidence. #628 (the on-broadcast "node isn't installed" in
 ## Open, and who owns it
 
 **Sean's calls:**
+
 1. **#838** — should a failed / aborted / disconnected turn park or advance an AUTO workflow? And is
    a new OS notification stream on four backends acceptable? (The issue asks for it, but it is new
    user-visible behaviour.)
@@ -124,23 +125,17 @@ Closed on GitHub with evidence. #628 (the on-broadcast "node isn't installed" in
    re-aiming startup-advisor at income-assets is the right call.
 3. **#931** — a customer billed $60.74 who cannot find a Billing section in Wayland. Money-touching,
    unanswered, was 1 day old at triage.
-4. **#910 naming half** was already done by D-06; whether a *scheduled* chat belongs in Recents is
+4. **#910 naming half** was already done by D-06; whether a _scheduled_ chat belongs in Recents is
    still an open product question.
 
-**Blocked on the new Core:**
-5. **#907 live-verify** — connect from Wayland to a real OpenClaw 2026.7 gateway and confirm a
-   session rather than a protocol error. Static evidence only so far.
+**Blocked on the new Core:** 5. **#907 live-verify** — connect from Wayland to a real OpenClaw 2026.7 gateway and confirm a
+session rather than a protocol error. Static evidence only so far.
 
-**Unclaimed:**
-6. **#909** — reviewer returned BUILD-WITH-CHANGES and refuted the plan's scoping. Not attempted.
-7. **~24 desktop issues carry no `area:` label**, so nothing surfaces them as desktop. That is the
-   real reason things go unaddressed.
-8. Whether a tokenless Codecov upload is accepted — unknown. The failing run died inside the OIDC
-   step before Codecov was contacted. The next CI run answers it.
-9. Library duplicates of the three skills (`skills-library/bodies/skills/…`) are still the old
-   filler. Ignition loads the pinned copies, so Ignition is fixed, but skills-search still surfaces
-   the thin versions.
-10. Historical non-compliance window — only AionUi can waive.
+**Unclaimed:** 6. **#909** — reviewer returned BUILD-WITH-CHANGES and refuted the plan's scoping. Not attempted. 7. **~24 desktop issues carry no `area:` label**, so nothing surfaces them as desktop. That is the
+real reason things go unaddressed. 8. Whether a tokenless Codecov upload is accepted — unknown. The failing run died inside the OIDC
+step before Codecov was contacted. The next CI run answers it. 9. Library duplicates of the three skills (`skills-library/bodies/skills/…`) are still the old
+filler. Ignition loads the pinned copies, so Ignition is fixed, but skills-search still surfaces
+the thin versions. 10. Historical non-compliance window — only AionUi can waive.
 
 ---
 
@@ -158,7 +153,7 @@ search. The base touches 14 open issues: #457 #508 #537 #723 #836 #842 #853 #882
   Manufacturing receipts is forging attestations. `bun run package` (the vite half) is fine.
 - **`rtk` summarises `npx tsc`** — use `rtk proxy npx tsc` for raw errors and negative controls.
 - **Mocking `node:fs` by named exports only is not enough** when a module does `import fs from
-  'node:fs'`. The first run of the OpenClaw auth test read the REAL `~/.openclaw` config and asserted
+'node:fs'`. The first run of the OpenClaw auth test read the REAL `~/.openclaw` config and asserted
   against a live token. Mock `default` too.
 - **Do not mock `ws`** to test the OpenClaw handshake — the code compares the static `OPEN` on the
   default import, and a half-right mock fails on fixed AND unfixed code, proving nothing.
@@ -170,7 +165,7 @@ search. The base touches 14 open issues: #457 #508 #537 #723 #836 #842 #853 #882
   failed with the fix reverted. Two of them caught errors in my own first attempt.
 - **Live-test recipe:** `bun run package` THEN `node scripts/build-mcp-servers.js` (vite wipes
   `out/main`), then `WAYLAND_MULTI_INSTANCE=1 WAYLAND_DEV_PROFILE=<n> ./node_modules/.bin/electron
-  out/main/index.js`. The app picks its OWN CDP port (9230/9231) — read it from the log. Config store
+out/main/index.js`. The app picks its OWN CDP port (9230/9231) — read it from the log. Config store
   decodes as `json.loads(urllib.parse.unquote(base64.b64decode(...)))` from
   `<profile>/config/wayland-config.txt`; provider registry is sqlite at `<profile>/wayland/wayland.db`.
 

@@ -198,17 +198,13 @@ describe('opencode connector', () => {
     it('honors XDG_CONFIG_HOME when OPENCODE_CONFIG_DIR is unset', () => {
       delete process.env.OPENCODE_CONFIG_DIR;
       process.env.XDG_CONFIG_HOME = '/xdg/conf';
-      expect(resolveOpencodeConfigPath()).toBe(
-        path.join('/xdg/conf', 'opencode', 'opencode.json'),
-      );
+      expect(resolveOpencodeConfigPath()).toBe(path.join('/xdg/conf', 'opencode', 'opencode.json'));
     });
 
     it('falls back to ~/.config/opencode/opencode.json when both env vars are unset', () => {
       delete process.env.OPENCODE_CONFIG_DIR;
       delete process.env.XDG_CONFIG_HOME;
-      expect(resolveOpencodeConfigPath()).toBe(
-        path.join(os.homedir(), '.config', 'opencode', 'opencode.json'),
-      );
+      expect(resolveOpencodeConfigPath()).toBe(path.join(os.homedir(), '.config', 'opencode', 'opencode.json'));
     });
   });
 

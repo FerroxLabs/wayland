@@ -107,9 +107,7 @@ const ShellChoiceOverlay: React.FC = () => {
       style={{ width: 'min(760px, 94vw)' }}
       footer={
         <div className='flex justify-end gap-8px'>
-          <Button onClick={close}>
-            {t('shellChoice.prompt.later', { defaultValue: 'Not now' })}
-          </Button>
+          <Button onClick={close}>{t('shellChoice.prompt.later', { defaultValue: 'Not now' })}</Button>
           <Button type='primary' onClick={confirm}>
             {t('shellChoice.prompt.confirm', { defaultValue: 'Use this layout' })}
           </Button>

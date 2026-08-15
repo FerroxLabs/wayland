@@ -99,7 +99,9 @@ const mapSizeToNative = (size?: WaylandSelectSize): NativeSelectSize | undefined
   return size;
 };
 
-type WaylandSelectComponent = React.ForwardRefExoticComponent<WaylandSelectProps & React.RefAttributes<SelectHandle>> & {
+type WaylandSelectComponent = React.ForwardRefExoticComponent<
+  WaylandSelectProps & React.RefAttributes<SelectHandle>
+> & {
   Option: typeof Select.Option;
   OptGroup: typeof Select.OptGroup;
 };

@@ -1,15 +1,15 @@
 # First run picks a prompt-injection classifier as the default chat model
 
 **Status: REPRODUCED LIVE on a clean profile.** Not static analysis. Severity is high because it
-is the *first* thing a new user does, and it fails.
+is the _first_ thing a new user does, and it fails.
 
 ## What happens
 
 1. Fresh profile, onboarding completes. It detects agents and provider keys correctly and says
    **"Sean, you're all wired up"** and **"you're all set."**
 2. The composer's selected model is **`meta-llama/llama-prompt-guard-2-22m`** — Meta's Llama Prompt
-   Guard 2, a 22M-parameter prompt-injection *classifier*. The composer placeholder reads
-   *"Send message to Llama Prompt Guard 2…"*.
+   Guard 2, a 22M-parameter prompt-injection _classifier_. The composer placeholder reads
+   _"Send message to Llama Prompt Guard 2…"_.
 3. First message → `finish_reason: 'error'`, 0 input / 0 output tokens, 240ms, and the bubble shows:
 
    ```
@@ -47,11 +47,11 @@ Meanwhile the catalogue already knows what this model is
 (`resources/modelsdev-snapshot.json`), and **the picker UI already displays it** — the entry
 renders as "1K context" next to models showing "1049K context":
 
-| id | context | output | tool_call |
-|---|---|---|---|
-| `groq/meta-llama/llama-prompt-guard-2-22m` | 512 | 512 | false |
-| `groq/meta-llama/llama-prompt-guard-2-86m` | 512 | 512 | false |
-| `helicone/llama-prompt-guard-2-22m` | 512 | **2** | false |
+| id                                         | context | output | tool_call |
+| ------------------------------------------ | ------- | ------ | --------- |
+| `groq/meta-llama/llama-prompt-guard-2-22m` | 512     | 512    | false     |
+| `groq/meta-llama/llama-prompt-guard-2-86m` | 512     | 512    | false     |
+| `helicone/llama-prompt-guard-2-22m`        | 512     | **2**  | false     |
 
 ## Fix options, measured — do NOT use context size alone
 
@@ -97,7 +97,7 @@ rather than a 400.
 - **Do NOT invert the `undefined` -> admitted default.** I had floated failing closed; both legs
   say keep it fail-open. Inverting breaks day-one support for newly released models and hides
   local/custom models from Ollama and LM Studio, whose ids match no pattern we ship. Apply the
-  predicate as a *safety gate* on top of a fail-open default.
+  predicate as a _safety gate_ on top of a fail-open default.
 - **Codex found the real root, which I missed.** `CatalogAssembler.ts` already computes usage tags
   (`chat`, `image`, `audio`, `embeddings`, `vision`, `reasoning`, `tools`, `research`), and its
   default rule is `if (tags.size === 0 && kind === 'text') tags.add('chat')` (`:244`). That is why
@@ -128,14 +128,15 @@ the composer, and the first message now succeeds: "Hello, what is 2+2?" → **"4
 **But the default is still a safety-tuned model — and this is the documented limitation, live.**
 The new auto-selection is `openai/gpt-oss-safeguard-20b`. My filter correctly does NOT catch it
 (131K context, declares tool calling), and it genuinely works as a chat model. So this is no longer
-a *defect* — it is a **poor default**: a model tuned for safety-policy reasoning is a strange first
+a _defect_ — it is a **poor default**: a model tuned for safety-policy reasoning is a strange first
 impression for a user who wants writing, code or analysis.
 
 That is a product/ranking question, not a bug, and it sits in the Curator's "recommended" ordering
 rather than in the eligibility gate. Worth a separate decision on whether `*guard*` /
-`*safeguard*` families should be de-prioritised as *defaults* while remaining *selectable*.
+`*safeguard*` families should be de-prioritised as _defaults_ while remaining _selectable_.
 
 Also observed on this run (minor, unfiled):
+
 - `wcore-pricing catalog miss ... unknown model openai/gpt-oss-safeguard-20b for provider groq` —
   the pricing catalogue lacks this id and falls back to a cost heuristic.
 - The "Wake your agents / Connect a model provider" panel still renders after a **successful**

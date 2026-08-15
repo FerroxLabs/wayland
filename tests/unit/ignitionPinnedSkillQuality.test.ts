@@ -112,9 +112,7 @@ describe('Ignition pinned skills carry real expertise', () => {
   });
 
   it.each(pinned)('%s carries every section the house spine requires', (id) => {
-    const headings = new Set(
-      Array.from(body(id).matchAll(/^## (.+?)\s*$/gm), (m) => m[1].split(' -- ')[0].trim())
-    );
+    const headings = new Set(Array.from(body(id).matchAll(/^## (.+?)\s*$/gm), (m) => m[1].split(' -- ')[0].trim()));
     const missing = REQUIRED_SECTIONS.filter((s) => !headings.has(s));
     expect(missing, `${id} is missing house sections`).toEqual([]);
   });
@@ -171,9 +169,8 @@ describe('Ignition pinned skills carry real expertise', () => {
     // "Use when the user asks about copywriter" was the resident description --
     // the one line the model sees when deciding whether the skill is relevant.
     const description = /^description:\s*[|>]?-?\s*([\s\S]*?)^\w+:/m.exec(body(id))?.[1] ?? '';
-    expect(
-      new RegExp(`asks about ${id}\\b`, 'i').test(description),
-      `${id} resident description is circular`
-    ).toBe(false);
+    expect(new RegExp(`asks about ${id}\\b`, 'i').test(description), `${id} resident description is circular`).toBe(
+      false
+    );
   });
 });

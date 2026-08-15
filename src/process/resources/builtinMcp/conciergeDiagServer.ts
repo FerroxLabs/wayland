@@ -1109,8 +1109,9 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
     }
     let weightCount = 0;
     try {
-      weightCount = fs.readdirSync(path.join(modelDir, BUNDLED_STT_WEIGHTS_DIR)).filter((f) => f.endsWith('.onnx'))
-        .length;
+      weightCount = fs
+        .readdirSync(path.join(modelDir, BUNDLED_STT_WEIGHTS_DIR))
+        .filter((f) => f.endsWith('.onnx')).length;
     } catch {
       // Missing or unreadable weights dir — reported as the missing entry below.
     }

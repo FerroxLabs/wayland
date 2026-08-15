@@ -336,7 +336,7 @@ describe('Test voice — no silent no-op', () => {
       ok: false,
       errorCode: 'TTS_OPENAI_CREDENTIAL_UNREADABLE',
       detail: 'OpenAI is connected but its saved credential cannot be decrypted on this machine',
-      });
+    });
     renderSection();
     await clickTestVoice();
 

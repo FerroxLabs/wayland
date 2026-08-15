@@ -3,13 +3,13 @@ guideVersion: 1.0.0
 estimatedMinutes: 3
 steps:
   - id: install-tradingview
-    title: "Install TradingView Desktop"
+    title: 'Install TradingView Desktop'
     body: |
       TVControl drives the **desktop** app on this machine - not tradingview.com in a browser. If you do not have it yet, get it from [tradingview.com/desktop](https://www.tradingview.com/desktop/).
 
       Any TradingView plan works, including the free one. TVControl reads and drives whatever your account already has.
   - id: enable-control
-    title: "Restart TradingView with control enabled"
+    title: 'Restart TradingView with control enabled'
     body: |
       This is the one step that actually matters, and TVControl does nothing without it.
 
@@ -36,9 +36,9 @@ steps:
       If TradingView came from the Microsoft Store, the command above will not find it. Use the `launch_tv_debug.bat` script shipped in the package, which locates the Store install for you.
 
       Leave TradingView running. If you quit it, or restart it normally, the tools go quiet until you launch it this way again.
-    warning: "While the control port is open, any program on this computer can drive your signed-in TradingView. The assistant can change your chart - symbol, timeframe, indicators. It cannot place orders and cannot reach your broker."
+    warning: 'While the control port is open, any program on this computer can drive your signed-in TradingView. The assistant can change your chart - symbol, timeframe, indicators. It cannot place orders and cannot reach your broker.'
   - id: verify
-    title: "Ask for your chart"
+    title: 'Ask for your chart'
     body: |
       In any chat, ask: **"What symbol and timeframe is my TradingView chart on?"**
 

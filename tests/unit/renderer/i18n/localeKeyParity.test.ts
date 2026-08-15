@@ -158,7 +158,9 @@ describe('locale key parity', () => {
 
       expect(
         missing,
-        missing.length === 0 ? '' : `${locale} is missing:\n${missing.map((key) => `  - ${locale} :: ${key}`).join('\n')}`
+        missing.length === 0
+          ? ''
+          : `${locale} is missing:\n${missing.map((key) => `  - ${locale} :: ${key}`).join('\n')}`
       ).toEqual([]);
     });
 
@@ -194,7 +196,9 @@ describe('locale key parity', () => {
 
       expect(
         missing,
-        missing.length === 0 ? '' : `${locale} is missing:\n${missing.map((key) => `  - ${locale} :: ${key}`).join('\n')}`
+        missing.length === 0
+          ? ''
+          : `${locale} is missing:\n${missing.map((key) => `  - ${locale} :: ${key}`).join('\n')}`
       ).toEqual([]);
     });
 

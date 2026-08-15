@@ -167,9 +167,9 @@ describe('AcpAgentManager - installed-agent launch spec forwarding (K-05)', () =
 
   it('resolveAgentCliConfig forwards launch down BOTH dispatch arms', async () => {
     const call = (data: Record<string, unknown>): Promise<Resolved> =>
-      (manager('qwen') as unknown as { resolveAgentCliConfig: (d: unknown) => Promise<Resolved> }).resolveAgentCliConfig(
-        data
-      );
+      (
+        manager('qwen') as unknown as { resolveAgentCliConfig: (d: unknown) => Promise<Resolved> }
+      ).resolveAgentCliConfig(data);
 
     // customAgentId set -> custom arm; unset -> builtin arm.
     expect((await call({ backend: 'qwen', customAgentId: 'installed-qwen', launch: LAUNCH })).launch).toEqual(LAUNCH);

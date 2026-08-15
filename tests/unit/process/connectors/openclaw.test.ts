@@ -185,7 +185,7 @@ describe('openclaw connector', () => {
     expect(readConfig().models.providers.flux.baseUrl).toBe('http://127.0.0.1:7878/v1');
   });
 
-  it("restores a `flux` provider the user already owned instead of deleting it", async () => {
+  it('restores a `flux` provider the user already owned instead of deleting it', async () => {
     // `flux` is not a reserved id. A user can legitimately run their own router
     // under exactly this name - and they are the people most likely to click
     // this chip. Deleting their block would take their endpoint, their key and

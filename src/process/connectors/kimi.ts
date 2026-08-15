@@ -119,7 +119,10 @@ const FLUX_MODEL_BLOCK_RE = new RegExp(
 
 /** Remove every table we own, leaving all other bytes untouched. */
 function stripFluxBlocks(raw: string): string {
-  return raw.replace(FLUX_PROVIDER_BLOCK_RE, '').replace(FLUX_MODEL_BLOCK_RE, '').replace(/\n{3,}/g, '\n\n');
+  return raw
+    .replace(FLUX_PROVIDER_BLOCK_RE, '')
+    .replace(FLUX_MODEL_BLOCK_RE, '')
+    .replace(/\n{3,}/g, '\n\n');
 }
 
 function isObject(value: unknown): value is TomlObject {

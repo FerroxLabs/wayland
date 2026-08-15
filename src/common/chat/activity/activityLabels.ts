@@ -81,10 +81,7 @@ const SUBJECT_CAP = 56;
  * newlines, and not the logger's own "[... N similar lines]" collapse marker.
  */
 const isQueryLike = (text: string): boolean =>
-  text.length > 0 &&
-  text.length <= 60 &&
-  !/[\n\r{}[\]]/.test(text) &&
-  !/similar lines/i.test(text);
+  text.length > 0 && text.length <= 60 && !/[\n\r{}[\]]/.test(text) && !/similar lines/i.test(text);
 
 /**
  * True when the subject only restates the tool name, so appending it would give

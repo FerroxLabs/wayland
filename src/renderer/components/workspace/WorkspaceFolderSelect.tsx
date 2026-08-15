@@ -171,9 +171,7 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
           setMenuVisible((visible) => !visible);
         }}
         className={`flex min-h-44px items-center gap-10px rounded-10px border px-12px py-0 transition-all ${
-          menuVisible
-            ? 'border-primary-5 bg-fill-2 shadow-sm'
-            : 'border-2 bg-fill-1 hover:border-1 hover:bg-fill-2'
+          menuVisible ? 'border-primary-5 bg-fill-2 shadow-sm' : 'border-2 bg-fill-1 hover:border-1 hover:bg-fill-2'
         }`}
       >
         <FolderOpen size={16} className='shrink-0 text-t-secondary' />
@@ -188,7 +186,8 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
           )}
         </div>
         {value ? (
-          <X size={14}
+          <X
+            size={14}
             className='shrink-0 text-t-secondary transition-colors hover:text-t-primary'
             onClick={handleClear}
           />

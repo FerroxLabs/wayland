@@ -98,7 +98,8 @@ async function main(): Promise<void> {
           tvControl: () => handler.tvControl(),
           recentErrors: () => handler.recentErrors(),
         } as const;
-        const result = section && section in sections ? sections[section as keyof typeof sections]() : handler.overview();
+        const result =
+          section && section in sections ? sections[section as keyof typeof sections]() : handler.overview();
         return {
           content: [
             {

@@ -10,6 +10,7 @@ in this slot.** The panels were not starved by a turn-boundary heuristic; the as
 overwriting the user's own message in the database. W-A and W-C are closed.
 
 **Read in this order**
+
 1. this file
 2. `phases/WLD-K-core-first/W-1-RESULT.md` — the MCP root cause, measured
 3. `HANDOFF-TO-CORE-2026-08-08-v0.12.26-host-findings.md` — C-1…C-5b (C-5b filed as core#265)
@@ -28,14 +29,14 @@ ToolSearch("probe")                                   -> MATCH
 ToolSearch("wld_probe_secret tool schema parameters") -> no match
 ```
 
-The failing query **contains the tool's exact name**. Longer queries match *less*, so a model that
+The failing query **contains the tool's exact name**. Longer queries match _less_, so a model that
 gets nothing and rephrases more fully diverges. Punctuation is part of the token, so
 `aion_list_models,` never matches. **Not model-specific** — 28/28 tool calls were `ToolSearch` on
 `claude-sonnet-5`; re-repro'd on `gpt-5.6-sol`. My first attribution to the Gemini
 `thought_signature` defect (C-4) was **wrong**; that is a separate real defect.
 
 **C-5b is the half that still blocks us, and it is Core's.** With the matcher mitigated host-side,
-searches now MATCH and the tool *still* never becomes callable. The model said so itself, unprompted,
+searches now MATCH and the tool _still_ never becomes callable. The model said so itself, unprompted,
 via the shell: `printf 'Tool schema did not load into the callable tool registry.'` That is the
 hydration-blind snapshot — `registry.rs:206-216` is never rebuilt on hydration while the state lives
 in `engine.rs` `hydrated_tool_names`, with no write path between them.
@@ -78,7 +79,7 @@ actually happened; the full account is
 
 Done: corpus + pin moved to minor 13 / gen-14; the seven-event drift allowlist **deleted** (all
 seven now declared, checked name by name); `toolSearchGuidance.ts` **deleted** with its four tests
-and its use in the E2E — removed *before* measuring so it could not flatter the result.
+and its use in the E2E — removed _before_ measuring so it could not flatter the result.
 
 Measured, same prompt, matched control: **ToolSearch 23 → 10**, both runs produced an answer. The
 multi-KB echo never fired on the old binary either (largest body 117 chars), so Core's bounded-echo
@@ -101,8 +102,8 @@ publisher attestation, none was invented, and the resulting sha mismatch is a tr
 `msg_id === id ===` the turn id, then streams the reply under that same id. `composeMessage`'s text
 branch matched on `msg_id` alone, found the user's bubble, appended the reply to the prompt, and
 `Object.assign` flipped `position` from `right` to `left`. Proven on a live profile DB — one row
-holding *"Call the aion_list_models tool and paste its raw output verbatim."* glued to *"I couldn't
-call `aion_list_models`: ..."* as a single left bubble. **The user's question is gone from stored
+holding _"Call the aion_list_models tool and paste its raw output verbatim."_ glued to _"I couldn't
+call `aion_list_models`: ..."_ as a single left bubble. **The user's question is gone from stored
 history and cannot be recovered** — the concatenation has no separator.
 
 Every corrupted conversation is therefore missing its `text:right`, which is the boundary
@@ -144,7 +145,7 @@ my work; the audit was worth more than the build.**
 carrying it, so after a `tool_group` rebuilds the renderer index a following assistant delta finds a
 non-text message and starts a new bubble. Pre-dates this packet, spans every backend.
 
-**Open judgement call for Sean:** a *boundary-only* migration is available for the corrupted rows —
+**Open judgement call for Sean:** a _boundary-only_ migration is available for the corrupted rows —
 they are identifiable as `type='text' AND position='left' AND id = msg_id`, and flipping them back to
 `right` would restore the turn boundary and let the `msg_id` fallback be deleted. The content stays
 unrecoverable either way. It has one known false positive (`emitTruncationFlag` legitimately writes
@@ -156,6 +157,7 @@ rewrites the user's stored history, which is Sean's call, not mine.
 ## 4. What landed since the last handoff (17 commits)
 
 **MCP / Core**
+
 - `284f4f54b` W-1 root cause · `3227332a2` the guidance mitigation (28→2-5 searches, 19→0 no-match)
 - `442b91e4e` six cross-audit defects fixed in my own work (see §6)
 - `c967368e3` + `e26486ea2` **W-1b fixed**: a failed bootstrap was cached forever (same PID, 95s
@@ -165,6 +167,7 @@ rewrites the user's stored history, which is Sean's call, not mine.
 - `5856e5d5a` the live E2E test · `8f53cedc2` + `f4cc197c4` C-5b written up and filed as core#265
 
 **UI**
+
 - `72954ae01` clicking a dormant section no longer vaporises the workbench (`activate()` now records
   user intent that outranks the provider's `requestedOpen`)
 - `35340f42f` the panel had **no surface at all**: `bg-bg-2` / `border-border-1` are not real tokens
@@ -179,23 +182,27 @@ rewrites the user's stored history, which is Sean's call, not mine.
 ## 5. Work list
 
 ### W-A — Progress + Observability **[DONE 2026-08-09]**
+
 See §3. Five commits: `7d7ae8418` (the merge bug), `4b8ce32d3` (Steps taken), `adfe1f98f`
 (Observability + a masking defect in my own rail), `5d66c177a` + `346f2c479` (cross-audit fixes).
 Live-verified on a real engine turn and on a real corrupted conversation: **1 step → 25**, badge
 `queued` → `running` → `completed` as the run actually settles. 16,334 tests, 0 failed.
 
 ### W-C — Carry the tool's subject through to the label **[DONE 2026-08-09]**
+
 `ExecutionActivity` gained a `command` field distinct from `detail`, populated from a tool_group's
 description and secret-masked. `deriveStep` now builds from the invocation first and falls back to
 `detail`, so a ReadFile reads "Reading config.ts" in **both** the chat and the rail. The engine still
-does not send the raw ToolSearch *argument* — the query shown comes from Core's own echo — so if that
+does not send the raw ToolSearch _argument_ — the query shown comes from Core's own echo — so if that
 arg is ever plumbed through, `activityLabels.ts` already reads an explicit `query` field.
 
 ### W-B — Integrate the private C-1…C-5 Core build **[DONE 2026-08-09]**
+
 See §2. `f94487a6b` (integration) · `3c9540145` (reply to Core) · `5b2b8c627` (unlink-before-copy
 plus a correction to my own macOS claim). 16,328 tests, 0 failed.
 
 **Still open from the exchange, none blocking:**
+
 - **C-4 / the Gemini `position 2` 400 is untested by BOTH sides.** No request body has ever been
   captured. Our runs were GPT-5.6 Sol. If anyone runs Gemini with reasoning and hits it, capture the
   outbound body — specifically whether each `thought: true` part carries a `thoughtSignature` on
@@ -209,16 +216,19 @@ plus a correction to my own macOS claim). 16,328 tests, 0 failed.
   shipped anyway; do not repeat the cache story as fact.
 
 ### W-G — The renderer message index is not speaker-aware **[S/M · found by cross-audit]**
+
 `buildMessageIndex` maps a `msg_id` to the LAST message carrying it. WCore stamps the turn id on the
 user text, the assistant text AND every `tool_group`, so once a tool_group rebuilds the index a
 following assistant delta finds a non-text message and opens a new bubble — fragmenting prose.
 Pre-dates this packet and spans every backend, so it was deliberately NOT bolted onto W-A.
 
 ### W-D — The `bg-bg-*` sweep **[S/M]**
+
 15 other files use `bg-bg-2` and are presumably invisible the same way the workbench was. Deliberately
 not swept as a drive-by. Worth a measured pass: check computed style, do not trust the class name.
 
 ### W-E — K-05 agent installer **[L · plan ready, never started]**
+
 `K-05-INSTALLER-PLAN.md`. Requirements INS-01…INS-06 exist; there is **zero install code** in `src/`
 (positive-controlled). Detection exists for claude, codex, kimi, auggie, goose, qwen, opencode,
 copilot, droid. **Not blocked on Core** — Core's `plugin install` is for its own plugins and
@@ -228,6 +238,7 @@ Findings that change the shape, all established by execution: **auggie cannot sa
 `C:\Program Files\Wayland` because only the first quoted token survives `parseWindowsCliPath`.
 
 ### W-F — L-2…L-6 live verification **[M]**
+
 Still outstanding. **L-2 was NOT validly run** — it looked clean after a real SIGKILL but the
 positive control failed: polling every 250ms through a launch never observed the profile splice, and
 no `--profile` reached the spawn args. With no connectors selected there is nothing to write, so

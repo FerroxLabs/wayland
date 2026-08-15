@@ -6,32 +6,33 @@ Repo: `/Users/seandonahoe/dev/wayland-worktrees/packet-attribution`, branch `pac
 
 Every claim in the brief holds. Line-number corrections only:
 
-| Claim | Status |
-|---|---|
-| `parseFileMarker` `MessageText.tsx:99-113` | **Confirmed, exact.** No `position` guard anywhere in it or its call site (`:166`). |
-| `WAYLAND_FILES_MARKER = '[[AION_FILES]]'` `constants.ts:18` | Confirmed, exact. |
-| `resolvedFiles` `:175-178` | Confirmed, exact. |
-| `FilePreview` at `:290`, `:294` | `:290` exact; second is **`:295`**, not `:294`. |
-| `FilePreview.tsx:64` / `:82` IPC calls | Confirmed, exact. |
-| Copy payload poisoning `:241` | Confirmed, exact. `files.length ? ... files.map(...)` — attacker text lands in the clipboard. |
-| `chatLib.ts:662-682` → `position:'left'` for `content` | Confirmed (`:663` is the `case`, mapping at `:669`). |
-| `ChannelMessageService.ts:212-338` `yoloMode` at `:267-271` | Confirmed, exact. `isFromChannel` → `getOrBuildTask(…, {yoloMode: isFromChannel})`. |
-| `AcpAgentManager.ts:1770-1779` emits `user_content` | Confirmed, exact. Durable row written at **`:1748`** (`addMessage`), `position:'right'` at `:1750`. |
-| `StreamingMessageBuffer.ts:127-146` | Confirmed. |
-| `resolveMessageFilePath` "not exploitable" | Confirmed, agreed — actual span is **`:118-126`** (`:115-116` is `isAbsoluteMessageFilePath`). Not re-raised. |
-| Outbound strip `gemini/index.ts:813-825`, `AcpAgentManager.ts:1786-1788` | Confirmed, exact. Obscurity only, as stated. |
-| `shellBridge.ts:313` unconfined `openFile` | Confirmed, exact. |
-| `bridgeAllowlist.ts:417` `'open-file'` remote-denied | Confirmed, exact. |
+| Claim                                                                    | Status                                                                                                        |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `parseFileMarker` `MessageText.tsx:99-113`                               | **Confirmed, exact.** No `position` guard anywhere in it or its call site (`:166`).                           |
+| `WAYLAND_FILES_MARKER = '[[AION_FILES]]'` `constants.ts:18`              | Confirmed, exact.                                                                                             |
+| `resolvedFiles` `:175-178`                                               | Confirmed, exact.                                                                                             |
+| `FilePreview` at `:290`, `:294`                                          | `:290` exact; second is **`:295`**, not `:294`.                                                               |
+| `FilePreview.tsx:64` / `:82` IPC calls                                   | Confirmed, exact.                                                                                             |
+| Copy payload poisoning `:241`                                            | Confirmed, exact. `files.length ? ... files.map(...)` — attacker text lands in the clipboard.                 |
+| `chatLib.ts:662-682` → `position:'left'` for `content`                   | Confirmed (`:663` is the `case`, mapping at `:669`).                                                          |
+| `ChannelMessageService.ts:212-338` `yoloMode` at `:267-271`              | Confirmed, exact. `isFromChannel` → `getOrBuildTask(…, {yoloMode: isFromChannel})`.                           |
+| `AcpAgentManager.ts:1770-1779` emits `user_content`                      | Confirmed, exact. Durable row written at **`:1748`** (`addMessage`), `position:'right'` at `:1750`.           |
+| `StreamingMessageBuffer.ts:127-146`                                      | Confirmed.                                                                                                    |
+| `resolveMessageFilePath` "not exploitable"                               | Confirmed, agreed — actual span is **`:118-126`** (`:115-116` is `isAbsoluteMessageFilePath`). Not re-raised. |
+| Outbound strip `gemini/index.ts:813-825`, `AcpAgentManager.ts:1786-1788` | Confirmed, exact. Obscurity only, as stated.                                                                  |
+| `shellBridge.ts:313` unconfined `openFile`                               | Confirmed, exact.                                                                                             |
+| `bridgeAllowlist.ts:417` `'open-file'` remote-denied                     | Confirmed, exact.                                                                                             |
 
 ### New facts the brief did not have — these change the fix
 
 **(a) The exploit is strictly local-render-only. Independently confirmed.** `get-file-metadata` (`bridgeAllowlist.ts:188`) and `get-image-base64` (`:191`) are both in `REMOTE_DENIED_KEYS`. A paired WebUI cannot fetch the thumbnail or the `stat`. The brief's "no exfiltration channel" conclusion is correct and I could not break it.
 
-**(b) There is a second, benign marker sink the brief missed.** `WorkflowTranscript.tsx:99-100` (`extractAssistantBody`) does `content.indexOf(WAYLAND_FILES_MARKER)` and truncates. It renders **no** `FilePreview`, so it is not a file-disclosure sink. It *is* a minor content-suppression primitive — a model reply containing the literal marker has everything after it silently deleted from the workflow transcript. Same root cause; fold into the same fix for consistency, WARNING not BLOCKER.
+**(b) There is a second, benign marker sink the brief missed.** `WorkflowTranscript.tsx:99-100` (`extractAssistantBody`) does `content.indexOf(WAYLAND_FILES_MARKER)` and truncates. It renders **no** `FilePreview`, so it is not a file-disclosure sink. It _is_ a minor content-suppression primitive — a model reply containing the literal marker has everything after it silently deleted from the workflow transcript. Same root cause; fold into the same fix for consistency, WARNING not BLOCKER.
 
 **(c) The renderer's optimistic message is never persisted.** `useAddOrUpdateMessage` (`Messages/hooks.ts:329`) is pure in-memory list state. The durable row is written by **main** at `AcpAgentManager.ts:1748`, `GeminiAgentManager.ts:719`, `WCoreManager.ts:738`, plus `OpenClawAgentManager.ts:267`, `NanoBotAgentManager.ts:120`, `RemoteAgentManager.ts:221`, `TeamSession.ts:173/219`. **This kills any renderer-only trust flag** — it would evaporate on reload and blank every attachment in restored history.
 
 **(d) Three more unconfined `shell` providers of the same class**, not just `openFile`:
+
 - `shellBridge.ts:315-330` `showItemInFolder` — no `confinePath`; on Linux it feeds `openPathReporting(path.dirname(filePath))`. Allowlist `'show-item-in-folder'` at `:419` (remote-denied, local-renderer open).
 - `shellBridgeStandalone.ts:77` `openFile`, `:79` `showItemInFolder` — same gap in the standalone bridge.
 
@@ -47,19 +48,19 @@ Nor is a `buildDisplayMessage`-set flag viable on its own — see (c): it lives 
 
 **The trustworthy signal exists, and it is already present and already discarded.**
 
-`conversationBridge.ts:597` is the *only* IPC entry for a locally-composed send. It receives `files` as a **separate structured parameter**, validates it (`:770` — Gemini: `copyFilesToDirectory`; others: `(files ?? []).filter(f => path.isAbsolute(f))`), classifies it (`:790-706`), and forwards it: `task.sendMessage({...other, content: other.input, files: workspaceFiles, agentContent})` (`:764-769`).
+`conversationBridge.ts:597` is the _only_ IPC entry for a locally-composed send. It receives `files` as a **separate structured parameter**, validates it (`:770` — Gemini: `copyFilesToDirectory`; others: `(files ?? []).filter(f => path.isAbsolute(f))`), classifies it (`:790-706`), and forwards it: `task.sendMessage({...other, content: other.input, files: workspaceFiles, agentContent})` (`:764-769`).
 
 `AcpAgentManager.sendMessage`'s signature already declares `files?: string[]` (`:201`). **It then builds `userMessage` at `:1745-1757` using only `content.content` and throws `data.files` away.** Same in all six managers.
 
 Meanwhile `ChannelMessageService` passes **no `files` at all** (`:314-316`: `{content: message, msg_id: msgId}`), and a model reply never traverses `sendMessage` in any form.
 
-So the fix is not a heuristic and not a new abstraction — it is **stop discarding the authoritative list main already holds, and render from it instead of from parsed text.** Inbound-channel and model-reply messages then cannot produce an attachment *structurally*, not probabilistically. This is strictly stronger than the "only honour on locally-composed" direction in the brief, and it costs less trust plumbing.
+So the fix is not a heuristic and not a new abstraction — it is **stop discarding the authoritative list main already holds, and render from it instead of from parsed text.** Inbound-channel and model-reply messages then cannot produce an attachment _structurally_, not probabilistically. This is strictly stronger than the "only honour on locally-composed" direction in the brief, and it costs less trust plumbing.
 
 ---
 
 ## 3. What happens to existing stored messages — and the mandatory migration
 
-**Without a migration this fix blanks real attachments in all restored history.** Existing rows are `content = {content: "text\n\n[[AION_FILES]]\n/abs/path"}` with no `files` key. Under the new render path they show zero thumbnails, *and* the text is still truncated at the marker — so the user loses the paths entirely. That is the "worse than the bug" outcome, and it is not acceptable.
+**Without a migration this fix blanks real attachments in all restored history.** Existing rows are `content = {content: "text\n\n[[AION_FILES]]\n/abs/path"}` with no `files` key. Under the new render path they show zero thumbnails, _and_ the text is still truncated at the marker — so the user loses the paths entirely. That is the "worse than the bug" outcome, and it is not acceptable.
 
 `messageToRow` (`database/types.ts:236`) stores `content` as `JSON.stringify` and `rowToMessage` (`:247`) does `JSON.parse`. Adding `files` needs **no column change** — but it does need a **data** migration.
 
@@ -67,10 +68,10 @@ So the fix is not a heuristic and not a new abstraction — it is **stop discard
 
 - Select `messages WHERE type='text' AND position='right' AND content LIKE '%[[AION_FILES]]%'`.
 - **Exclude** rows whose conversation's `source` is in `CHANNEL_AUTO_APPROVE_SOURCES` (`channels/types.ts:780-791`; the `conversations.source` column exists — added in the migration at `migrations.ts:234`). This is what stops the migration from laundering an already-injected inbound message into a trusted `files` list.
-- For the survivors, parse the tail with the *existing* marker semantics and write `content.files`. Leave `content.content` byte-identical.
+- For the survivors, parse the tail with the _existing_ marker semantics and write `content.files`. Leave `content.content` byte-identical.
 - `down`: strip the `files` key from those rows.
 
-**Residual, and I recommend accepting it:** a legacy message the user composed *locally inside a channel-sourced conversation* loses its thumbnails. New ones are unaffected (they arrive through `conversationBridge` with real `files`). Small and bounded; the alternative is grandfathering the exact attack path.
+**Residual, and I recommend accepting it:** a legacy message the user composed _locally inside a channel-sourced conversation_ loses its thumbnails. New ones are unaffected (they arrive through `conversationBridge` with real `files`). Small and bounded; the alternative is grandfathering the exact attack path.
 
 ---
 
@@ -88,6 +89,7 @@ So the fix is not a heuristic and not a new abstraction — it is **stop discard
    - `src/process/task/RemoteAgentManager.ts:221` (surrounding block)
 
    In each: `...(data.files?.length ? { files: data.files } : {})`. Nothing else in those functions changes.
+
 3. `src/process/team/TeamSession.ts:168-177` and `:214-223` — same, **if** `files` is plumbed through `teamBridge.sendMessageToAgent`. See open question O-1.
 4. Ten renderer sendbox sites — set `files` on the optimistic in-memory message so attachments appear before the round-trip. `files` is already in scope at every one:
    `GeminiSendBox.tsx:254`, `useGeminiInitialMessage.ts:86`, `OpenClawSendBox.tsx:364/426/555`, `NanobotSendBox.tsx:247/364`, `WCoreSendBox.tsx:246`, `RemoteSendBox.tsx:257/319`, `AcpSendBox.tsx:203` / `useAcpInitialMessage.ts:49`.
@@ -99,6 +101,7 @@ So the fix is not a heuristic and not a new abstraction — it is **stop discard
    - `:286`, `:290`, `:295` — unchanged.
 
    Keep the marker literal stripped from displayed text for **both** positions. That preserves today's rendering exactly and avoids a second behaviour change riding along. See open question O-2.
+
 6. `src/process/services/database/migrations.ts` — `migration_v56` per §3, appended to `ALL_MIGRATIONS` at `:2421`.
 7. `src/renderer/pages/guid/components/workflow/WorkflowTranscript.tsx:99-100` — leave the truncation but note it now only affects display text (no file sink). Optional: gate the truncation on `m.position === 'right'` so a model reply's prose is not silently cut. Low priority, separable.
 
@@ -115,7 +118,7 @@ So the fix is not a heuristic and not a new abstraction — it is **stop discard
 
 ## 5. Tests
 
-**`tests/unit/renderer/conversation/Messages/components/MessageText.fileMarker.dom.test.tsx`** (new; collected by the `dom` project via `tests/unit/**/*.dom.test.tsx`, `vitest.config.ts:54`). Mock `ipcBridge.fs.getFileMetadata` / `getImageBase64` following `tests/unit/FilePreview.dom.test.tsx`, and assert on the mocks — *not* just on the DOM, so a silently-rendered-but-hidden preview still fails.
+**`tests/unit/renderer/conversation/Messages/components/MessageText.fileMarker.dom.test.tsx`** (new; collected by the `dom` project via `tests/unit/**/*.dom.test.tsx`, `vitest.config.ts:54`). Mock `ipcBridge.fs.getFileMetadata` / `getImageBase64` following `tests/unit/FilePreview.dom.test.tsx`, and assert on the mocks — _not_ just on the DOM, so a silently-rendered-but-hidden preview still fails.
 
 - **REG-1 (model reply):** `{position:'left', content:{content:'ok\n\n[[AION_FILES]]\n/Users/victim/Documents/passport.png'}}` → `getFileMetadata` **not called**, `getImageBase64` **not called**, zero `FilePreview` nodes.
 - **REG-2 (inbound channel — the one `position` misses):** identical assertions with `position:'right'` and **no** `content.files`. This is the test that fails under a `position`-only fix; it is the reason the fix is what it is.
@@ -125,6 +128,7 @@ So the fix is not a heuristic and not a new abstraction — it is **stop discard
 - **POS-3 (no marker, no files):** renders text only, no IPC.
 
 **`tests/unit/shellBridge.openFile.confinement.test.ts`** (new). Clone `tests/unit/shellBridge.openPath.confinement.test.ts` wholesale — it already hoists `openPathProvider`/`shellMock`/`confinePathMock` and mocks `@/common`, `electron`, `child_process`, `fs`, `./pathConfinement`.
+
 - in-root path → `confinePath` called, `shell.openPath` called **with the resolved value, not the raw input**;
 - `confinePath` → `null` → `{ok:false, error:'path not allowed'}` and `shell.openPath` **never called**;
 - `'~/Downloads/x.dmg'` → `confinePath` receives the home-expanded absolute, not the tilde;
@@ -132,11 +136,13 @@ So the fix is not a heuristic and not a new abstraction — it is **stop discard
 - Mirror the same four for `showItemInFolder`, incl. the Linux `path.dirname` branch.
 
 **`tests/unit/process/task/userMessageFiles.test.ts`** (new).
+
 - `AcpAgentManager.sendMessage({content, msg_id, files:['/ws/a.png']})` → the `addMessage` spy sees `content.files === ['/ws/a.png']`.
 - `sendMessage({content: '…[[AION_FILES]]\n/etc/passwd', msg_id})` **with no `files`** (the exact `ChannelMessageService` shape) → persisted `content` has **no `files` key**. This is the channel-injection regression at the persistence layer.
 - Repeat for `WCoreManager` and `GeminiAgentManager`.
 
 **`tests/unit/database/migration_v56.test.ts`** (new).
+
 - desktop-sourced legacy row with marker → gains `files`, `content.content` byte-identical;
 - **channel-sourced** legacy row with marker → gains **no** `files`;
 - row without the marker → untouched;
@@ -156,7 +162,7 @@ Run: `bun run test:vitest`. Per the durable note, do a full-suite pass on the me
 1. **BLOCKER if step 11 is skipped.** `confinePath`'s roots (`pathConfinement.ts:120-143`) are `getConfigPath()`, `getDataPath()`, `getTempPath()`, `os.tmpdir()`, and hardcoded `~/Desktop`, `~/Downloads`, `~/Documents`.
    - `SystemModalContent/index.tsx:517` opens `systemInfo.logDir` = `app.getPath('logs')` (`storageLocations.ts:26`). On macOS that is `~/Library/Logs/<app>` — **not** under `userData`. Confining `openFile` **breaks the "open log directory" button on macOS today.**
    - `UpdateModal.tsx:417` opens the updater download, written to `app.getPath('downloads')` (`updateBridge.ts:820`). That matches `~/Downloads` on a default box, but `app.getPath('downloads')` follows the OS/XDG setting while `confinePath` hardcodes `path.join(home,'Downloads')`. **Any user who relocated Downloads loses "Open" after an update download.**
-   Both are fixed by step 11 and both must be covered by a test.
+     Both are fixed by step 11 and both must be covered by a test.
 2. **Colon filenames.** `hasUnsafePathForm` (`pathConfinement.ts:196-202`) rejects any colon that is not a Windows drive colon. Legal on macOS/Linux. Pre-existing for `openPath`; **newly applies** to `openFile`/`showItemInFolder`, so a workspace file named `notes: draft.md` stops opening. Accept and note, or narrow the ADS check to Windows.
 3. **Legacy attachments.** Fully mitigated by `migration_v56` except the bounded channel-conversation residual in §3.
 4. **Team mode.** If `files` is not plumbed to `TeamSession`, team-mode attachments regress from rendering to not rendering. Open question O-1 — must be settled before merge.

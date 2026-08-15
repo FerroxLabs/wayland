@@ -382,10 +382,9 @@ describe('actual Desktop consumer corpus replay', () => {
       'command_integer_unrepresentable'
     );
     // Decimal and exponent spellings of the same overflow must not slip past.
-    for (const additional_tokens of [18446744073709551616e0, 1.8446744073709552e19]) {
+    for (const additional_tokens of [18446744073709551616, 1.8446744073709552e19]) {
       expectContractError(
-        () =>
-          consumer.validateOutboundCommand({ type: 'continue_with_budget', request_id: 'r1', additional_tokens }),
+        () => consumer.validateOutboundCommand({ type: 'continue_with_budget', request_id: 'r1', additional_tokens }),
         'command_integer_unrepresentable'
       );
     }

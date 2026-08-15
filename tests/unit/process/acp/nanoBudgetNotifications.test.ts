@@ -87,20 +87,24 @@ describe('parseNanoBudgetNotification', () => {
   });
 
   it('parses the warn frame', () => {
-    expect(parseNanoBudgetNotification(NANO_BUDGET_WARN_METHOD, {
-      sessionId: 's1',
-      limit: 100000,
-      observed: 82000,
-      pct_used: 82,
-    })).toEqual({ kind: 'budget_warn', sessionId: 's1', limit: 100000, observed: 82000, pctUsed: 82 });
+    expect(
+      parseNanoBudgetNotification(NANO_BUDGET_WARN_METHOD, {
+        sessionId: 's1',
+        limit: 100000,
+        observed: 82000,
+        pct_used: 82,
+      })
+    ).toEqual({ kind: 'budget_warn', sessionId: 's1', limit: 100000, observed: 82000, pctUsed: 82 });
   });
 
   it('parses the clamp frame', () => {
-    expect(parseNanoBudgetNotification(NANO_BUDGET_CLAMP_METHOD, {
-      sessionId: 's1',
-      requested: 8192,
-      granted: 4096,
-    })).toEqual({ kind: 'budget_clamp', sessionId: 's1', requested: 8192, granted: 4096 });
+    expect(
+      parseNanoBudgetNotification(NANO_BUDGET_CLAMP_METHOD, {
+        sessionId: 's1',
+        requested: 8192,
+        granted: 4096,
+      })
+    ).toEqual({ kind: 'budget_clamp', sessionId: 's1', requested: 8192, granted: 4096 });
   });
 
   it('ignores ext methods it does not own', () => {

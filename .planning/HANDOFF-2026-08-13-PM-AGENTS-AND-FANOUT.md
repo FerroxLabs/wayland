@@ -20,10 +20,10 @@ wrong — they each looked only in `src/process/connectors/`. It is built and pr
 
 ## 1. What landed this session
 
-| commit | what |
-|---|---|
+| commit      | what                                                                                |
+| ----------- | ----------------------------------------------------------------------------------- |
 | `d75822bf6` | `[CRON_PROPOSE]` markup no longer leaks into the chat bubble. **Half-fix** — see §4 |
-| `9fa2198de` | Classic/Cockpit chooser: onboarding step + one-time prompt for existing installs |
+| `9fa2198de` | Classic/Cockpit chooser: onboarding step + one-time prompt for existing installs    |
 
 **Uncommitted in the tree** (all verified, ready to commit): the e2e fixture fix, the new
 `shell-choice-prompt.e2e.ts`, the overlay close-order fix, two `data-testid` hooks.
@@ -40,7 +40,7 @@ Both were closed-as-duplicate PRs (#595, #598). Recoverable: `refs/pull/595/head
 1. **`HANDOFF-2026-08-14-NEXT.md` §3.1 is VOID.** #118 and #464 were already merged
    (`886cb4bb2`). Their branches were duplicates. Merging them would have regressed the app.
 2. **The agent installer is NOT "built and final".** Every K-05 box in `REQUIREMENTS.md`
-   (INS-01…INS-05) is still `[ ]`, including *"proven on a clean VM per OS"*. The catalogue holds
+   (INS-01…INS-05) is still `[ ]`, including _"proven on a clean VM per OS"_. The catalogue holds
    **2 of Sean's 7 target agents**. "npm subset" was sequencing, not a cap.
 3. **"Flux fan-out = unbuilt, zero code" is WRONG** (and it is K-07, not K-06). `fluxCompat`
    exists per backend; connectors are built for codex, kimi and opencode, **and Hermes routing is

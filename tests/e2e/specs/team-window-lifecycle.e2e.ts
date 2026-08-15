@@ -56,10 +56,9 @@ async function launchIsolated(userDataDir: string, statesFile: string): Promise<
       ...process.env,
       WAYLAND_EXTENSIONS_PATH:
         process.env.WAYLAND_EXTENSIONS_PATH ||
-        [
-          path.join(projectRoot, 'examples'),
-          path.join(projectRoot, 'tests/e2e/fixtures/extensions'),
-        ].join(process.platform === 'win32' ? ';' : ':'),
+        [path.join(projectRoot, 'examples'), path.join(projectRoot, 'tests/e2e/fixtures/extensions')].join(
+          process.platform === 'win32' ? ';' : ':'
+        ),
       WAYLAND_EXTENSION_STATES_FILE: statesFile,
       WAYLAND_DISABLE_AUTO_UPDATE: '1',
       WAYLAND_DISABLE_DEVTOOLS: '1',
@@ -183,11 +182,7 @@ test.describe.serial('Team window lifecycle (adversarial)', () => {
       },
     });
 
-    const beforeRestart = await invokeBridgeOn<{ agents?: Array<{ role: string }> } | null>(
-      p1,
-      'team.get',
-      { id }
-    );
+    const beforeRestart = await invokeBridgeOn<{ agents?: Array<{ role: string }> } | null>(p1, 'team.get', { id });
     expect(beforeRestart?.agents?.length).toBe(2);
 
     // Restart.

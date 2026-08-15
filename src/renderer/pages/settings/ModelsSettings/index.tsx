@@ -428,11 +428,7 @@ const ModelsSettingsInner: React.FC = () => {
     >
       {/* The hero's count and the connected row's count are the SAME field, so
           the page can never state two different numbers for Flux Router. */}
-      <FluxRouterHero
-        connected={fluxConnected}
-        modelCount={fluxProvider?.modelCount}
-        onConnectKey={connectFluxKey}
-      />
+      <FluxRouterHero connected={fluxConnected} modelCount={fluxProvider?.modelCount} onConnectKey={connectFluxKey} />
 
       <ConnectPanel
         detectedKeys={visibleDetected}

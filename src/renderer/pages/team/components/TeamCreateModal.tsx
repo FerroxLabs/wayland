@@ -165,12 +165,7 @@ const TeamCreateModal: React.FC<Props> = ({ visible, onClose, onCreated }) => {
           <Button onClick={handleClose} className='min-w-88px px-16px' style={{ borderRadius: 8 }}>
             {t('common.cancel', { defaultValue: 'Cancel' })}
           </Button>
-          <Button
-            type='primary'
-            onClick={handleCreate}
-            loading={loading}
-            className='min-w-88px'
-          >
+          <Button type='primary' onClick={handleCreate} loading={loading} className='min-w-88px'>
             {t('team.create.confirm', { defaultValue: 'Create Team' })}
           </Button>
         </div>

@@ -42,13 +42,13 @@ cannot see MCP tools there. The headline claim is demonstrable **only on 0.12.26
 
 ## 4. What is built (all pushed, nothing merged or tagged)
 
-| packet | state |
-|---|---|
-| K-01 profile → global config | built, 4-leg audited, **6 defects fixed**, live-verified as *working* for config plumbing |
-| K-02 honest failure surfacing | built; **gap found by L-1 — see §5.2** |
-| K-03 turn that never finishes | built, 2-leg audited, 3 defects fixed; **live-verify still owed** |
-| K-04 RC policy + Core handoff | decided and committed |
-| K-05 / K-06 / K-07 | **not started** |
+| packet                        | state                                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| K-01 profile → global config  | built, 4-leg audited, **6 defects fixed**, live-verified as _working_ for config plumbing |
+| K-02 honest failure surfacing | built; **gap found by L-1 — see §5.2**                                                    |
+| K-03 turn that never finishes | built, 2-leg audited, 3 defects fixed; **live-verify still owed**                         |
+| K-04 RC policy + Core handoff | decided and committed                                                                     |
+| K-05 / K-06 / K-07            | **not started**                                                                           |
 
 Suite: **16,292 tests, 0 failed** (baseline at milestone start was 16,231). Typecheck clean.
 
@@ -81,7 +81,7 @@ Keep 0.12.25 in the matrix for bootstrap + config hygiene only. **Rebuild `out/`
 ## 6. Tracked open items (from `K-01-CROSSAUDIT.md`)
 
 - **O-1** `configBridge` writes the same global `config.toml` under an unrelated `writeLock`. The
-  *damaging* branch is closed (it now refuses to persist the ephemeral profile). What remains is
+  _damaging_ branch is closed (it now refuses to persist the ephemeral profile). What remains is
   transient: a settings write in the exact second a chat launches can cost that launch its profile
   ("Profile not found"), no persistent damage. Durable fix = unify the locks; **needs its own packet
   and audit** because `configBridge` takes `withProfileAuthorityLock` then its own `writeLock`, and
@@ -99,11 +99,11 @@ Keep 0.12.25 in the matrix for bootstrap + config hygiene only. **Rebuild `out/`
 
 ## 8. Machines
 
-| box | address | notes |
-|---|---|---|
-| this Mac | — | darwin-arm64 |
-| `seandesktop` | `100.109.207.54` (Tailscale) | Windows, online. PowerShell uses `;` not `&&` |
-| `wayland-soak` | `100.81.158.63` (Tailscale SSH) | Linux, Ubuntu 24.04, node v22.21.1, online |
+| box            | address                         | notes                                         |
+| -------------- | ------------------------------- | --------------------------------------------- |
+| this Mac       | —                               | darwin-arm64                                  |
+| `seandesktop`  | `100.109.207.54` (Tailscale)    | Windows, online. PowerShell uses `;` not `&&` |
+| `wayland-soak` | `100.81.158.63` (Tailscale SSH) | Linux, Ubuntu 24.04, node v22.21.1, online    |
 
 `hetzner-dsm` (95.216.244.213) is the Donahoe Sales Machine — **different project, not this one.**
 

@@ -13,6 +13,7 @@ either a verification task or a known defect, not new feature work.
 ## 1. The four things that gate the push
 
 ### 1.1 🔴 Live-verify AS A USER — never done for any of this work
+
 The standing rule is a full user sweep before publishing, and none of this session's work has had
 one. Everything was verified at the component level (functions driven directly, output fed to real
 binaries). **The app itself was never opened.**
@@ -33,6 +34,7 @@ Recipe: `.planning/` → `cdp-live-verify-recipe-desktop`, or `WAYLAND_DEV_PROFI
 4. **Wayland Nano** — see §2.
 
 ### 1.2 🔴 Full Playwright e2e has NEVER completed green
+
 135 specs. Killed mid-run last session; pre-kill failures in `features/conversations/acp/` are
 **unclassified**. Not run since.
 
@@ -43,10 +45,12 @@ like the live app misbehaving. It did exactly that.
 ⚠️ e2e runs single-worker (singleton app instance).
 
 ### 1.3 🔴 Nothing packaged or verified as an artifact
+
 Dev-mode green is not the gate. Use `bun run package` (**never raw `electron-vite build`**), then
 verify the PACKAGED app.
 
 ### 1.4 The follow-up defect packet (4 items, none individually blocking)
+
 - 🔴 **HIGH — debounce race in `persistStrippedTurnText`** (`MessageMiddleware.ts`). Root-caused
   [V]: `flushAllBufferedStreamTexts()` looks synchronous but each iteration calls
   `addOrUpdateMessage` → `sync('accumulate', …)`, which schedules a **2000 ms** timer. Only an
@@ -87,6 +91,7 @@ what the preset spawns) and got back `agentInfo: wayland-nano 0.1.0`, `protocolV
 `loadSession: true`, extensions `_wayland/session/list` + `session/steer`.
 
 ### What to verify in the app (from `docs/MAC-HANDOFF.md`)
+
 1. `wayland-nano --version` in a fresh terminal
 2. Agent picker lists **Wayland Nano**; selecting it **starts a session**
 3. A simple prompt streams a response (needs a Flux key in env or a connected Desktop provider)
@@ -95,6 +100,7 @@ what the preset spawns) and got back `agentInfo: wayland-nano 0.1.0`, `protocolV
 6. Quit + relaunch → session/load resumes history
 
 ### ⚠️ Two traps for the Nano test
+
 - **`promptCapabilities` is TEXT-ONLY** [V]: `image: false`, `embeddedContext: false`. Matches the
   deferred `F-P2B-1 view_image`. Do not chase image input as a bug.
 - **Detection precedence is the known failure mode.** `AgentRegistry.createWNanoAgent()` returns a
@@ -107,6 +113,7 @@ branch (its tip WAS our merge-base; we are 366 ahead). wnano is first-class in `
 `AcpAgentManager` (spawns `wayland-nano acp-host`), `acpTypes`, and i18n across all 12 locales.
 
 ### 🟡 The nano error table is present but UNWIRED
+
 `nanoErrorCodes.ts` + `nano-error-codes.json` (57 kinds, incl. `review_parse_failed`) landed via
 PR #954. **Nothing imports them** — verified with a control (27 files mention `wnano`, 0 import the
 table). Wiring is a real packet, not an afternoon: `title`/`hint` are **hardcoded English** in
@@ -118,7 +125,7 @@ which demands all 11 locales for new keys. Decide: i18n 57×2 strings, or delibe
 ## 3. What WAS verified this session — do not redo
 
 - **OpenClaw gateway refusal reproduced live** [V] on a clean Ubuntu droplet: `openclaw gateway
-  --port 18789` on an un-onboarded box exits **78** with `Missing config. Run 'openclaw setup'`.
+--port 18789` on an un-onboarded box exits **78** with `Missing config. Run 'openclaw setup'`.
 - **The connector's config is accepted by the real `openclaw` binary** [V]: `models list` showed
   `flux/flux-auto … default`, and the gateway started. `baseUrl` casing (NOT `baseURL` like
   opencode), provider shape, and the primary-model write are all correct against the real product.

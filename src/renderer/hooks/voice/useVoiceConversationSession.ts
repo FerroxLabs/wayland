@@ -817,10 +817,13 @@ export const useVoiceConversationSession = ({
   );
 
   /** The named reason a context that is not running gives the user. */
-  const blockedAudioMessage = useCallback((audioContextState: AudioContextState): string => {
-    const blocked = resolveVoiceSessionReadiness(readinessInput(audioContextState));
-    return CAPTURE_BLOCKED_COPY[blocked.reason](blocked);
-  }, [readinessInput]);
+  const blockedAudioMessage = useCallback(
+    (audioContextState: AudioContextState): string => {
+      const blocked = resolveVoiceSessionReadiness(readinessInput(audioContextState));
+      return CAPTURE_BLOCKED_COPY[blocked.reason](blocked);
+    },
+    [readinessInput]
+  );
 
   /** Every way the speech pipeline can fail, said by name rather than in silence. */
   const failSpeech = useCallback(

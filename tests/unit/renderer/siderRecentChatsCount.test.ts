@@ -33,7 +33,8 @@ const conv = (extra: Record<string, unknown>): TChatConversation =>
 /** The badge's predicate, kept in step with SiderRecentChatsSection. */
 const countsTowardBadge = (c: TChatConversation): boolean => {
   const extra = c.extra as
-    { isHealthCheck?: boolean; teamId?: string; projectId?: string; cronJobId?: string; pinned?: boolean } | undefined;
+    | { isHealthCheck?: boolean; teamId?: string; projectId?: string; cronJobId?: string; pinned?: boolean }
+    | undefined;
   if (extra?.isHealthCheck === true || extra?.teamId || extra?.projectId) return false;
   return Boolean(extra?.pinned) || !extra?.cronJobId;
 };

@@ -16,13 +16,13 @@ Each was verified against a primary source in this research pass, not inferred.
 `api.github.com/repos/iOfficeAI/AionUi/contents/NOTICE` → 404; `NOTICE.txt` → 404. `LICENSE` is stock Apache-2.0 with the appendix filled as `Copyright 2025 AionUi (aionui.com)`. The live exposure is §4(c) (retain notices) and §4(b) (state modifications) only. This narrows the remedy considerably.
 
 **2. §4(b) never required the enumerated modification list — and that list is the source of the false claims.**
-Verified against `apache.org/licenses/LICENSE-2.0.txt`. §4(b) in full: *"You must cause any modified files to carry prominent notices stating that You changed the files."* It requires a statement **that** you changed files. It does not require saying **what** you changed. Two of the four false statements in `notices/THIRD-PARTY-NOTICES.md` (the `.wcore.toml` / `~/.wcore` renames) exist only because someone volunteered a specification-of-changes that the licence never asked for. Prior art agrees: OpenSearch's convention is literally *"Modifications Copyright OpenSearch Contributors. See GitHub history for details."* — a pointer to VCS, no enumeration.
+Verified against `apache.org/licenses/LICENSE-2.0.txt`. §4(b) in full: _"You must cause any modified files to carry prominent notices stating that You changed the files."_ It requires a statement **that** you changed files. It does not require saying **what** you changed. Two of the four false statements in `notices/THIRD-PARTY-NOTICES.md` (the `.wcore.toml` / `~/.wcore` renames) exist only because someone volunteered a specification-of-changes that the licence never asked for. Prior art agrees: OpenSearch's convention is literally _"Modifications Copyright OpenSearch Contributors. See GitHub history for details."_ — a pointer to VCS, no enumeration.
 
 **3. Apache-2.0 contains no termination-for-breach clause and no cure clause.**
 `grep -i terminat` over the licence text returns exactly one hit: §3, patent-litigation termination. There is no §8-style 30-day cure like AGPL-3.0 has, and no automatic termination like GPLv2. What that means for a cured §4(c) breach is **[COUNSEL]** — but note that at least one web source confidently told me Apache-2.0 has a "cure such failure in a reasonable period" clause. It does not; that is Eclipse Public License language. Do not let a summary of the licence into a planning document. Quote the text.
 
 **4. §4's final paragraph expressly blesses the dual-copyright form.**
-*"You may add Your own copyright statement to Your modifications and may provide additional or different license terms ... for any such Derivative Works as a whole, provided Your use, reproduction, and distribution of the Work otherwise complies with the conditions stated in this License."* The AGPL-3.0 relicensing of the whole is fine. The defect is narrow and specific: the Ferrox line **replaced** the AionUi line instead of **joining** it.
+_"You may add Your own copyright statement to Your modifications and may provide additional or different license terms ... for any such Derivative Works as a whole, provided Your use, reproduction, and distribution of the Work otherwise complies with the conditions stated in this License."_ The AGPL-3.0 relicensing of the whole is fine. The defect is narrow and specific: the Ferrox line **replaced** the AionUi line instead of **joining** it.
 
 ---
 
@@ -30,47 +30,49 @@ Verified against `apache.org/licenses/LICENSE-2.0.txt`. §4(b) in full: *"You mu
 
 Ordered by how directly it applies. Classification matters: the quality gate for this milestone is that licence-compliance disputes are not confused with trademark or copyleft disputes.
 
-| Case | Year | Type | Directly on point? |
-|---|---|---|---|
-| **Digger / OpenTaco vs OTF** | 2025 | Attribution-only, no attribution given, cured in public | **YES — closest analogue found** |
-| **OpenTofu vs HashiCorp** | 2024 | Attribution/relicensing *allegation*, refuted with a provenance record | **YES — the methodology case** |
-| **OpenSearch ← Elasticsearch** | 2021– | Apache-2.0 §4 header convention at fork scale | **YES — the mechanics case** |
-| **Valkey ← Redis** | 2024– | BSD-3 notice retention at fork scale | YES (contrasting model) |
-| **LibreOffice / TDF policy** | ongoing | Written policy on mixed third-party files | YES (answers the "both sides changed it" question) |
-| **Open WebUI licence tightening** | 2025 | Upstream *reaction* to rebranded forks | YES (predicts upstream behaviour) |
-| **AppGet / Microsoft winget** | 2020 | **Credit**, not licence | Partly — reputational only |
-| **ReactOS internal audit** | 2006–07 | Clean-room provenance, not attribution | Partly — cost-of-uncertainty only |
-| **Hellwig v. VMware** | 2016–19 | **Copyleft**, litigated | Partly — evidentiary burden only, and it cuts against us |
-| Elastic v. AWS; Hudson→Jenkins; CentOS/OpenELA/Rocky | various | **Trademark / governance / source availability** | **NO — off point, do not cite as precedent** |
-| MySQL→MariaDB; Gitea→Forgejo; Bitwarden SDK | various | Governance / licence-purity disputes | **NO — off point** |
+| Case                                                 | Year    | Type                                                                   | Directly on point?                                       |
+| ---------------------------------------------------- | ------- | ---------------------------------------------------------------------- | -------------------------------------------------------- |
+| **Digger / OpenTaco vs OTF**                         | 2025    | Attribution-only, no attribution given, cured in public                | **YES — closest analogue found**                         |
+| **OpenTofu vs HashiCorp**                            | 2024    | Attribution/relicensing _allegation_, refuted with a provenance record | **YES — the methodology case**                           |
+| **OpenSearch ← Elasticsearch**                       | 2021–   | Apache-2.0 §4 header convention at fork scale                          | **YES — the mechanics case**                             |
+| **Valkey ← Redis**                                   | 2024–   | BSD-3 notice retention at fork scale                                   | YES (contrasting model)                                  |
+| **LibreOffice / TDF policy**                         | ongoing | Written policy on mixed third-party files                              | YES (answers the "both sides changed it" question)       |
+| **Open WebUI licence tightening**                    | 2025    | Upstream _reaction_ to rebranded forks                                 | YES (predicts upstream behaviour)                        |
+| **AppGet / Microsoft winget**                        | 2020    | **Credit**, not licence                                                | Partly — reputational only                               |
+| **ReactOS internal audit**                           | 2006–07 | Clean-room provenance, not attribution                                 | Partly — cost-of-uncertainty only                        |
+| **Hellwig v. VMware**                                | 2016–19 | **Copyleft**, litigated                                                | Partly — evidentiary burden only, and it cuts against us |
+| Elastic v. AWS; Hudson→Jenkins; CentOS/OpenELA/Rocky | various | **Trademark / governance / source availability**                       | **NO — off point, do not cite as precedent**             |
+| MySQL→MariaDB; Gitea→Forgejo; Bitwarden SDK          | various | Governance / licence-purity disputes                                   | **NO — off point**                                       |
 
 ### 1. Digger / OpenTaco vs OTF (Sept 2025) — the closest analogue
 
-*Confidence: MEDIUM on narrative, HIGH on artifacts (the remediation PR diff and the archived post-mortem were fetched directly).*
+_Confidence: MEDIUM on narrative, HIGH on artifacts (the remediation PR diff and the archived post-mortem were fetched directly)._
 
 **Complaint.** Digger launched "Project OpenTaco" on Reddit on 2025-09-24. On 2025-09-25 `leg100` — Louis Garman, author of OTF (MPL-2.0, 691 stars) — pointed out in the launch thread that OpenTaco contained code copied from OTF with no attribution. The Reddit launch post was subsequently removed by moderators.
 
 **Root cause, and it is uncomfortably familiar.** From their own five-whys: the code was moved as-is out of an internal proof-of-concept repo; at PoC time "not much thought was given to open source best practices"; "we did not have any attribution guidelines and did not follow any ourselves"; and "we were rushing to launch by HashiConf and completely forgot about code copied from OTF by the time of the launch." A forgotten import from a PoC, discovered at launch. That is Wayland's root commit `2b3b60e11` with different names on it.
 
 **What they changed — within roughly 24 hours of being flagged, all three merged:**
-- `PR#2262` "Add appropriate attributions in source" — 8 files, **49 additions, 0 deletions**. Per-declaration comments `// Adapted from OTF (MPL License): https://github.com/leg100/otf` placed above each adapted struct and function, *plus* the same per-file provenance table added to the shipped `taco/README.md`.
+
+- `PR#2262` "Add appropriate attributions in source" — 8 files, **49 additions, 0 deletions**. Per-declaration comments `// Adapted from OTF (MPL License): https://github.com/leg100/otf` placed above each adapted struct and function, _plus_ the same per-file provenance table added to the shipped `taco/README.md`.
 - `PR#2263` — relicensed Digger from Apache-2.0 to MIT.
 - `PR#2264` — added explicit attribution guidelines to the contribution process.
 
-**How it was resolved.** A public post-mortem (Igor Zalutski, 2025-09-26) with a dated chain of events, a **per-file table naming every copied symbol**, an apology, explicit thanks to the person who caught them, and an open invitation: *"We'd love to know if there is anything else that we could / should do to make this right."* No litigation. No takedown. No visible upstream escalation. The project survived and was renamed OpenTaco in December 2025.
+**How it was resolved.** A public post-mortem (Igor Zalutski, 2025-09-26) with a dated chain of events, a **per-file table naming every copied symbol**, an apology, explicit thanks to the person who caught them, and an open invitation: _"We'd love to know if there is anything else that we could / should do to make this right."_ No litigation. No takedown. No visible upstream escalation. The project survived and was renamed OpenTaco in December 2025.
 
-**Cost.** Not publicly disclosed in money. Observable: the launch narrative was destroyed, the Reddit launch post was removed, three emergency PRs, a licence change, and a permanent public record. The Hacker News submission of the post-mortem drew **3 points and one comment** — and that one comment is the lesson: *"If I'm reading these five why's correct, essentially they just copied the code without caring, and then didn't want to let caring get in the way of their product announcement, and got caught. It's not even really malicious, it's just apathetic. I'm not sure which is worse."*
+**Cost.** Not publicly disclosed in money. Observable: the launch narrative was destroyed, the Reddit launch post was removed, three emergency PRs, a licence change, and a permanent public record. The Hacker News submission of the post-mortem drew **3 points and one comment** — and that one comment is the lesson: _"If I'm reading these five why's correct, essentially they just copied the code without caring, and then didn't want to let caring get in the way of their product announcement, and got caught. It's not even really malicious, it's just apathetic. I'm not sure which is worse."_
 
 **Two things to steal and one to avoid.**
+
 - Steal: the per-file/per-symbol provenance table, published, in a shipped file.
 - Steal: the speed. One day from flagged to merged cure.
 - Avoid: the five-whys framing. A root-cause chain that reads as "we were busy" invites the apathy reading. Lead with the measurement and the fix, not with why nobody noticed.
 
-**The unfinished part, and it is a real pitfall.** OTF is **MPL-2.0** — file-level copyleft. The cure was a provenance *comment* inside files that Digger then relicensed to **MIT**. Whether a comment saying "adapted from an MPL project" discharges MPL's own per-file notice obligation is **[COUNSEL]** and I take no position. What is observable and transferable: *a fast, public, well-received cure can still be substantively incomplete, and the incompleteness survives in public forever.* Cure by comment is not the same as cure by compliance.
+**The unfinished part, and it is a real pitfall.** OTF is **MPL-2.0** — file-level copyleft. The cure was a provenance _comment_ inside files that Digger then relicensed to **MIT**. Whether a comment saying "adapted from an MPL project" discharges MPL's own per-file notice obligation is **[COUNSEL]** and I take no position. What is observable and transferable: _a fast, public, well-received cure can still be substantively incomplete, and the incompleteness survives in public forever._ Cure by comment is not the same as cure by compliance.
 
 ### 2. OpenTofu vs HashiCorp (April 2024) — why the provenance record is the asset
 
-*Confidence: MEDIUM on narrative; HIGH on the header convention and CI enforcement, both fetched from the repo.*
+_Confidence: MEDIUM on narrative; HIGH on the header convention and CI enforcement, both fetched from the repo._
 
 **Complaint.** On 2024-04-03 Matt Asay (then MongoDB VP DevRel) wrote in InfoWorld that OpenTofu had taken BUSL-licensed Terraform code, removed the headers, and relicensed it as MPL-2.0. On 2024-04-05 GitHub issue `opentofu/opentofu#1469` made the same charge about `internal/refactoring/remove_statement.go`. HashiCorp sent a cease-and-desist alleging OpenTofu had "incorrectly re-labeled HashiCorp's code to make it appear as if it was made available by HashiCorp originally under a different license."
 
@@ -95,7 +97,7 @@ Fork first, upstream retained beneath, both with an SPDX tag. Machine-checkable.
 
 ### 3. OpenSearch ← Elasticsearch 7.10.2 (2021–) — the mechanics at fork scale
 
-*Confidence: MEDIUM (search + the tracking issue).*
+_Confidence: MEDIUM (search + the tracking issue)._
 
 Not a dispute — a fork that did the header sweep deliberately. Per `opensearch-project/.github#21`, coordinated across **29+ repositories**:
 
@@ -113,18 +115,18 @@ Modifications Copyright OpenSearch Contributors. See
 GitHub history for details.
 ```
 
-- **Years:** none for the fork's own line; *retain* years where an Elastic copyright is needed.
+- **Years:** none for the fork's own line; _retain_ years where an Elastic copyright is needed.
 - **Modifications:** not enumerated. "See GitHub history for details."
 
 Three details worth lifting:
 
 1. **They did not decide per file whether it was derived.** They applied the modifications block broadly and kept whatever was already there. Adding your own modification notice to a file that turns out not to be derived costs nothing. Deleting an upstream notice from a file that turns out to be derived is the breach. Prior art validates the asymmetry the WLD-H cross-audit already reached independently.
 2. **"See GitHub history for details" is the §4(b) answer** — and Wayland's squashed root commit is what makes that sentence a lie for pre-fork provenance. That gap must be filled by a checked-in baseline document, not by a pointer to history that does not exist.
-3. **Issue #21 is itself a correction issue** — titled *"Correct copyright notices to reflect Copyright OpenSearch Contributors."* The first sweep at a well-resourced AWS-backed project got it wrong and needed a second, coordinated pass. Plan for two passes.
+3. **Issue #21 is itself a correction issue** — titled _"Correct copyright notices to reflect Copyright OpenSearch Contributors."_ The first sweep at a well-resourced AWS-backed project got it wrong and needed a second, coordinated pass. Plan for two passes.
 
 ### 4. Valkey ← Redis (2024–) — the model Wayland can no longer use
 
-*Confidence: HIGH — verified from the repo.*
+_Confidence: HIGH — verified from the repo._
 
 `src/server.c` on `unstable` opens with `Copyright (c) 2009-2016, Redis Ltd.` and the full BSD-3 text, **completely untouched**, with no Valkey line added. The fork's own copyright appears only in top-level `COPYING`:
 
@@ -139,7 +141,7 @@ Valkey never had to classify a single file, because it never removed anything. T
 
 ### 5. LibreOffice / The Document Foundation — the written policy on mixed files
 
-*Confidence: MEDIUM (search summary; the wiki page itself blocked direct fetch).*
+_Confidence: MEDIUM (search summary; the wiki page itself blocked direct fetch)._
 
 TDF's `License_Policy` reportedly states that the project does not accept altering the licence on existing files without legal approval; that "additional **accurate** notices of copyright ownership may be added"; and — the part that answers the hardest question in WLD-I — that when mixing third-party and project code, contributors should **separate new code from old into separate files where possible**, and where major changes are unavoidable, **indicate clearly which is new code and which is third-party code that cannot be relicensed**.
 
@@ -147,33 +149,33 @@ Two operative words: **accurate** (an inaccurate added notice is not a safe defa
 
 ### 6. Open WebUI (2025) — what an upstream actually does about rebranded forks
 
-*Confidence: MEDIUM (their own docs + HN discussion).*
+_Confidence: MEDIUM (their own docs + HN discussion)._
 
-Open WebUI moved from BSD-3 to a custom "Open WebUI License" from **v0.6.6** onward, adding a branding-protection clause: users may not alter, remove, or obscure Open WebUI branding. Their stated reasoning is explicitly about rebranded deployments — *"Visible branding costs users nothing, but it connects the software to the team behind it."* Pre-v0.6.6 code stays BSD-3; contributions from v0.6.6 require a CLA; anyone who objects may fork from v0.6.5. The change was contentious on HN.
+Open WebUI moved from BSD-3 to a custom "Open WebUI License" from **v0.6.6** onward, adding a branding-protection clause: users may not alter, remove, or obscure Open WebUI branding. Their stated reasoning is explicitly about rebranded deployments — _"Visible branding costs users nothing, but it connects the software to the team behind it."_ Pre-v0.6.6 code stays BSD-3; contributions from v0.6.6 require a CLA; anyone who objects may fork from v0.6.5. The change was contentious on HN.
 
 **Why this matters for Wayland's remedy decision, concretely.** The most likely upstream response to discovering a 31k-star project's code inside a rebranded commercial-adjacent Electron app is **not a lawsuit**. It is (a) a public statement and (b) a licence tightening that freezes the fork at the last permissive revision. Wayland's ability to pull future AionUi improvements is a real asset, and it is the asset most exposed by a badly handled disclosure — more exposed than the bank account.
 
 ### 7. AppGet / Microsoft winget (June 2020) — reputational only, **not** a licence case
 
-*Confidence: MEDIUM.*
+_Confidence: MEDIUM._
 
-Explicitly classified: this was a **credit and process** dispute, not a licence breach. Microsoft interviewed AppGet's author Keivan Beigi, went quiet, then shipped winget with no acknowledgement. After days of community outrage, Andrew Clinick published a post crediting Beigi: *"Over the past couple of days we've listened and learned from our community and clearly we did not live up to this goal. More specifically, we failed to live up to this with Keivan and AppGet."* Press coverage was near-uniformly framed as "credits but offers no apology." AppGet was retired 1 August 2020.
+Explicitly classified: this was a **credit and process** dispute, not a licence breach. Microsoft interviewed AppGet's author Keivan Beigi, went quiet, then shipped winget with no acknowledgement. After days of community outrage, Andrew Clinick published a post crediting Beigi: _"Over the past couple of days we've listened and learned from our community and clearly we did not live up to this goal. More specifically, we failed to live up to this with Keivan and AppGet."_ Press coverage was near-uniformly framed as "credits but offers no apology." AppGet was retired 1 August 2020.
 
 **Two transferable lessons.** First: the delay was the damage. Silence between discovery and acknowledgement is where the story gets written by someone else. Second: **a credit that reads as legally-reviewed rather than sincere gets reported as a non-apology.** For Wayland, whose release-notes practice leads with strength, the trap is producing exactly that artifact.
 
 ### 8. ReactOS (2006–07) — the cost of an unresolved provenance question
 
-*Confidence: MEDIUM. Off-point on subject matter (clean-room/copyright, not attribution), on-point on cost.*
+_Confidence: MEDIUM. Off-point on subject matter (clean-room/copyright, not attribution), on-point on cost._
 
 On 2006-01-17 a developer alleged on the dev list that ReactOS contained code derived from disassembling Windows. On 2006-01-27 maintainers **disabled repository access**. An internal audit followed; the audit status was removed from the homepage only in **September 2007**. Details were never published.
 
-The datapoint: ~20 months of a project operating under an unresolved provenance cloud, with development frozen at the start of it. This is the cost of *not* answering the question, and it is the argument for finishing the WLD-I inventory rather than accepting residual risk.
+The datapoint: ~20 months of a project operating under an unresolved provenance cloud, with development frozen at the start of it. This is the cost of _not_ answering the question, and it is the argument for finishing the WLD-I inventory rather than accepting residual risk.
 
 ### 9. Hellwig v. VMware (2016–2019) — the evidentiary lesson, and it does not comfort us
 
-*Confidence: MEDIUM. Copyleft litigation, not attribution.*
+_Confidence: MEDIUM. Copyleft litigation, not attribution._
 
-Christoph Hellwig's GPL suit was dismissed in Hamburg because he failed to identify the specific lines of code in VMware's product that he owned — *"insufficient proof of the right ownership or the copyright protection capability of the components taken over from Linux"* on appeal. It turned on evidence, never reaching the derivative-work question.
+Christoph Hellwig's GPL suit was dismissed in Hamburg because he failed to identify the specific lines of code in VMware's product that he owned — _"insufficient proof of the right ownership or the copyright protection capability of the components taken over from Linux"_ on appeal. It turned on evidence, never reaching the derivative-work question.
 
 **Do not read this as protection.** Hellwig's problem was that he was one of thousands of contributors to a 20-million-line kernel claiming ownership of scattered modifications. AionUi's position is the opposite in every dimension: a single corporate copyright holder, a single upstream, **identical file paths**, and at least one file (`src/common/electronSafe.ts`) at 100% substantive-line identity with 34/34 shared distinctive identifiers where the only header change is `Copyright 2025 AionUi (aionui.com)` → `Copyright 2026 Ferrox Labs`. Proof would take an afternoon and a `diff`. The evidentiary difficulty that saved VMware is absent here. Anyone who reaches for "hard to prove" as comfort should be shown this paragraph.
 
@@ -183,7 +185,7 @@ Citing these as precedent would be an error, and the roadmap should not:
 
 - **Elastic v. AWS** (settled Feb 2022) — trademark.
 - **Hudson → Jenkins** (2011) — trademark ownership by Oracle.
-- **CentOS rebuilds / Rocky / AlmaLinux / OpenELA** (2023) — source availability and subscription terms. There *is* one useful distinction buried in it: debranding a rebuild legitimately removes the upstream's **trademarks**, and that necessity has never licensed removing the upstream's **copyright notices**. A rebrand is not a warrant to rewrite copyright lines. That distinction is the whole of Wayland's defect.
+- **CentOS rebuilds / Rocky / AlmaLinux / OpenELA** (2023) — source availability and subscription terms. There _is_ one useful distinction buried in it: debranding a rebuild legitimately removes the upstream's **trademarks**, and that necessity has never licensed removing the upstream's **copyright notices**. A rebrand is not a warrant to rewrite copyright lines. That distinction is the whole of Wayland's defect.
 - **MySQL → MariaDB**, **Gitea → Forgejo**, **Bitwarden SDK** — governance and licence-purity disputes.
 - **MinIO AGPL enforcement**, **Redis/Valkey licence change**, **Grafana AGPL** — copyleft and business-model, not attribution.
 - **Cherry Studio** — I could not verify my own recollection of an Apache-2.0-to-restrictive licence change driven by rebranded forks. Current verified state is AGPL-3.0 with a commercial licence required above 10 individuals. **Marked as unverified recollection; do not use.**
@@ -213,7 +215,7 @@ Citing these as precedent would be an error, and the roadmap should not:
 
 **Why it happens:** Enumerating feels more honest and more thorough. It is more thorough and it is a liability, because it converts one durable true sentence into N sentences that rot.
 
-**How to avoid:** Verified from the licence text — §4(b) requires only "prominent notices stating that You changed the files." Adopt the OpenSearch form: *modified, see history for details.* Delete the enumerated list rather than fixing it. If product marketing wants a rename table, that belongs in docs, not in a shipped legal notice.
+**How to avoid:** Verified from the licence text — §4(b) requires only "prominent notices stating that You changed the files." Adopt the OpenSearch form: _modified, see history for details._ Delete the enumerated list rather than fixing it. If product marketing wants a rename table, that belongs in docs, not in a shipped legal notice.
 
 **Warning signs:** Any bullet list under a §4(b) heading. Any specific string, path, or version number inside a notices file that isn't a copyright line.
 
@@ -227,7 +229,7 @@ Citing these as precedent would be an error, and the roadmap should not:
 
 **Why it happens:** Header generation is templating, and templating normalises. The instance already exists in this tree: `notices/THIRD-PARTY-NOTICES.md:59-60` credits the "OpenClaw Foundation," which appears nowhere at the pin, and the panel split on whether the sentence rescues itself. `baileys.js` says `Copyright (c) 2025 OpenClaw contributors` while `LICENSES/openclaw.txt` and the notices entry both say Peter Steinberger.
 
-**How to avoid:** One rule — **copy the notice byte-for-byte as it appears in the revision you took, and never modernise it.** OpenSearch's rule is the same shape: no year on your own line, retain years on the upstream's. TDF's word is *accurate*. Practically: for every restored header, the generator must read the upstream file at the pinned baseline and emit the exact bytes of its copyright line. If it cannot fetch that file, it must fail, not fall back to a template.
+**How to avoid:** One rule — **copy the notice byte-for-byte as it appears in the revision you took, and never modernise it.** OpenSearch's rule is the same shape: no year on your own line, retain years on the upstream's. TDF's word is _accurate_. Practically: for every restored header, the generator must read the upstream file at the pinned baseline and emit the exact bytes of its copyright line. If it cannot fetch that file, it must fail, not fall back to a template.
 
 **Warning signs:** A restoration script with a copyright string as a constant. Any restored header whose text is not `grep`-able verbatim in the baseline checkout. A year that matches the year of the sweep.
 
@@ -237,13 +239,13 @@ Citing these as precedent would be an error, and the roadmap should not:
 
 ### Pitfall 4: The notice ships as a bundler-stripped comment — a notice that does not exist
 
-**What goes wrong:** The header is in the source, the audit passes, and the packaged app contains nothing. `esbuild`'s definition of a legal comment (verified from its docs) is *"any statement-level comment in JS or rule-level comment in CSS that contains `@license` or `@preserve` or that starts with `//!` or `/*!`"* — default `eof` when bundling, `inline` otherwise. Anything else is discarded. The cross-audit already found this shape live: the tunnel trio carry provenance in a **second comment block with no `@license`**, byte-for-byte the form `485b212ff` fixed for eight other files, and therefore dropped from every build.
+**What goes wrong:** The header is in the source, the audit passes, and the packaged app contains nothing. `esbuild`'s definition of a legal comment (verified from its docs) is _"any statement-level comment in JS or rule-level comment in CSS that contains `@license` or `@preserve` or that starts with `//!` or `/_!`"* — default `eof`when bundling,`inline`otherwise. Anything else is discarded. The cross-audit already found this shape live: the tunnel trio carry provenance in a **second comment block with no`@license`**, byte-for-byte the form `485b212ff` fixed for eight other files, and therefore dropped from every build.
 
 **Why it happens:** Source-tree grep is the natural verification and it is the wrong artifact. And the failure is silent — nothing errors.
 
 **How to avoid:** Every restored provenance comment must sit **inside** an `@license` block (or `/*!`). Verification must run against the **packaged artifact**, not the source tree — which is already the WLD-I success standard ("confirmed present in a real packaged artifact, not inferred from `electron-builder.yml`"). Hold it.
 
-**The non-obvious corollary.** `eof` mode does not delete legal comments — it **relocates** them to the end of the emitted chunk. ASF's rule is that *"copyright notifications which have been relocated, rather than removed, from source files must be preserved in NOTICE."* A minified renderer chunk with all its legal comments swept to EOF is a relocation. This is the strongest argument for making the notices file the **primary** compliance vehicle and per-file headers the secondary one: the notices file is a plain text file that a builder copies, and its content survives.
+**The non-obvious corollary.** `eof` mode does not delete legal comments — it **relocates** them to the end of the emitted chunk. ASF's rule is that _"copyright notifications which have been relocated, rather than removed, from source files must be preserved in NOTICE."_ A minified renderer chunk with all its legal comments swept to EOF is a relocation. This is the strongest argument for making the notices file the **primary** compliance vehicle and per-file headers the secondary one: the notices file is a plain text file that a builder copies, and its content survives.
 
 **Warning signs:** A provenance comment in a second block. A restored header verified by `git grep`. A `@license`-less `/* Adapted from ... */`.
 
@@ -285,7 +287,7 @@ Citing these as precedent would be an error, and the roadmap should not:
 
 **Why it happens:** An unproven provenance comment looks like noise, or like over-attribution, and this milestone's stated purpose makes deletion feel aligned with the goal.
 
-**How to avoid:** This project already did it and its own audit caught it. `3f1c5ba10` removed clauses naming acpx, Zed, Codex CLI, Claude Code, NocoBase, Figma and Cherry Studio from 8 files on a single sentence of justification — *"None of these upstreams has code in this repo"* — with **no per-file diff**, while the sibling commit `9add51a0c` produced a per-file upstream comparison for all 11 of its OpenClaw removals. Two evidentiary standards in one branch, and the weaker one was applied to the upstreams nobody had audited. It is also internally inconsistent: `Modeled after Claude Code's team leader prompt` survived at `leadPrompt.ts:20`. One of the deleted clauses named **acpx and Zed — GPL-family**, the one with actual teeth, and one named Claude Code, which is closed-source and therefore undiffable, *which is exactly why that comment had value.*
+**How to avoid:** This project already did it and its own audit caught it. `3f1c5ba10` removed clauses naming acpx, Zed, Codex CLI, Claude Code, NocoBase, Figma and Cherry Studio from 8 files on a single sentence of justification — _"None of these upstreams has code in this repo"_ — with **no per-file diff**, while the sibling commit `9add51a0c` produced a per-file upstream comparison for all 11 of its OpenClaw removals. Two evidentiary standards in one branch, and the weaker one was applied to the upstreams nobody had audited. It is also internally inconsistent: `Modeled after Claude Code's team leader prompt` survived at `leadPrompt.ts:20`. One of the deleted clauses named **acpx and Zed — GPL-family**, the one with actual teeth, and one named Claude Code, which is closed-source and therefore undiffable, _which is exactly why that comment had value._
 
 The rule: **removal requires strictly more evidence than retention.** Retention is free. Removal is an act you will be asked to justify. Where the upstream cannot be diffed at all, the comment can never be disproven and must stay.
 
@@ -376,11 +378,11 @@ Prior art confirms the distinction: OpenTofu's SCO analysis is persuasive precis
 
 **Why not quiet.** The exposure is trivially discoverable — 445 same-path files against a 31,115-star project, one file at 100% identity, `git grep -c "Copyright.*[Aa]ion[Uu]i" -- src` returning 0. Anyone with a diff tool finds it in an afternoon, and the WLD-H artifacts mean it is already written down. A quiet fix does not remove the exposure; it removes Wayland's ability to be the one who tells the story. Digger's launch post was removed by moderators because the upstream author got there first. AppGet shows the days between discovery and acknowledgement are exactly where the narrative is lost.
 
-**Why not loud.** A prominent mea culpa on a product surface would be disproportionate to a §4(c) notice defect with no NOTICE-file obligation, and — per the AppGet coverage — a carefully-worded credit reads as a non-apology and gets reported that way. The HN reaction to Digger's post-mortem is the more precise warning: a self-published root-cause narrative that reads as "we were busy" earns *"it's just apathetic. I'm not sure which is worse."*
+**Why not loud.** A prominent mea culpa on a product surface would be disproportionate to a §4(c) notice defect with no NOTICE-file obligation, and — per the AppGet coverage — a carefully-worded credit reads as a non-apology and gets reported that way. The HN reaction to Digger's post-mortem is the more precise warning: a self-published root-cause narrative that reads as "we were busy" earns _"it's just apathetic. I'm not sure which is worse."_
 
 **The shape that works.** Prior art converges on: a short factual note, published **after** the cure ships, that states the defect, the method, the scope, and the fix, links the artifacts, and credits anyone who flagged it. Digger's structure minus its framing: keep the per-file provenance table, drop the five-whys.
 
-**On this project's standing rules.** Two rules are in tension and both can be honoured. *Announcements lead with strength* and *transparency is explicitly acceptable for security and trust fixes* — with a recorded easing on the never-reference-prior-problems rule for trust work, detailing the fix as rigor. Licence compliance is trust work. But the resolution is a **channel** decision, not a tone decision:
+**On this project's standing rules.** Two rules are in tension and both can be honoured. _Announcements lead with strength_ and _transparency is explicitly acceptable for security and trust fixes_ — with a recorded easing on the never-reference-prior-problems rule for trust work, detailing the fix as rigor. Licence compliance is trust work. But the resolution is a **channel** decision, not a tone decision:
 
 - **Release notes:** one strength-led line, forward-facing. Something in the register of "complete third-party attribution and per-file provenance now ship with every build, with a published inventory" — true, leads with the rigor, does not narrate the failure.
 - **A separate, linkable compliance note** (repo doc or blog, not the release announcement): the full factual record — method, baseline revision, counts, what was restored, what remains open. This is the artifact that wins the exchange if someone comes looking, and the one place where a plain "we found that our root import replaced upstream copyright lines with ours; that was wrong and here is the fix" belongs. Unhedged, once, in a low-traffic place, is far cheaper than hedged everywhere.
@@ -395,7 +397,7 @@ Do not merge these two. The release note carrying the confession is what produce
 
 ### The case for contacting (after cure)
 
-- It converts the frame from *"you are in breach"* to *"we found a gap in our own compliance and fixed it; here is the record."* That framing is only available to whoever speaks first, and only credible if the fix already exists.
+- It converts the frame from _"you are in breach"_ to _"we found a gap in our own compliance and fixed it; here is the record."_ That framing is only available to whoever speaks first, and only credible if the fix already exists.
 - It is the pattern that demonstrably worked. Digger cured within ~24 hours of being flagged and published immediately; the upstream did not escalate; the project survived. In every attribution-specific case found, a good-faith visible cure ended the matter.
 - It preserves the option of pulling future AionUi work. Open WebUI is the counterexample of what a blindsided upstream does: tighten the licence going forward and strand every fork at the last permissive revision. Given AionUi's velocity and the fact that its structure has already moved out from under Wayland's, that option has real value.
 - **[COUNSEL]** A contemporaneous, documented, self-initiated cure is generally understood to bear on willfulness. Ask counsel whether that holds in the relevant jurisdictions and whether the note should be drafted or reviewed by them.
@@ -405,15 +407,15 @@ Do not merge these two. The release note carrying the confession is what produce
 - **Apache-2.0 does not require upstream consent to cure.** §4(c) is a condition on redistribution, not a permission to be requested. Contacting creates an obligation-shaped conversation where none exists in the licence.
 - **You hand over control of timing.** Once notified, the upstream can publish on any schedule it likes, including during a Wayland release week.
 - **You create a dated admission by a named party.** **[COUNSEL]** on whether and how that matters, but the asymmetry is real: the note is discoverable and permanent, and it is evidence you authored.
-- **An approach invites a demand.** A commercially-motivated upstream — iOfficeAI runs `aionui.com` and also ships OfficeCLI, which *does* distribute a NOTICE file, so they are demonstrably attention-paying on licensing — may respond with an ask (prominent credit in the product UI, a link, a naming change, a commercial conversation) that is expensive to refuse once made in writing and cheap to refuse if never asked.
-- **The glass-house problem, and it is genuinely double-edged.** Verified in this pass: AionUi carries **778** `Copyright 2025 AionUi` headers and **zero** `Google LLC` copyright notices, ships **no NOTICE file**, and its README does not describe the project as derived from anything — while it markets itself extensively as a GUI for Gemini CLI. Whether AionUi has its own §4(c) position with respect to Google is **not established** by that and I am not asserting it. But it means (a) an upstream in a comparable posture is unlikely to want a public forensic exchange about copyright headers, which lowers the risk of contact; and (b) *any temptation to point this out is a trap.* Raising it converts a compliance cure into a mutual-accusation fight, forfeits the good-faith frame entirely, and is the single fastest way to turn a cooperative outcome into a punitive one. Note it as background for the risk assessment; never put it in a message.
+- **An approach invites a demand.** A commercially-motivated upstream — iOfficeAI runs `aionui.com` and also ships OfficeCLI, which _does_ distribute a NOTICE file, so they are demonstrably attention-paying on licensing — may respond with an ask (prominent credit in the product UI, a link, a naming change, a commercial conversation) that is expensive to refuse once made in writing and cheap to refuse if never asked.
+- **The glass-house problem, and it is genuinely double-edged.** Verified in this pass: AionUi carries **778** `Copyright 2025 AionUi` headers and **zero** `Google LLC` copyright notices, ships **no NOTICE file**, and its README does not describe the project as derived from anything — while it markets itself extensively as a GUI for Gemini CLI. Whether AionUi has its own §4(c) position with respect to Google is **not established** by that and I am not asserting it. But it means (a) an upstream in a comparable posture is unlikely to want a public forensic exchange about copyright headers, which lowers the risk of contact; and (b) _any temptation to point this out is a trap._ Raising it converts a compliance cure into a mutual-accusation fight, forfeits the good-faith frame entirely, and is the single fastest way to turn a cooperative outcome into a punitive one. Note it as background for the risk assessment; never put it in a message.
 - **Contacting before the cure is strictly worse than either alternative.** Silence is a stable state; a shipped cure is a stable state; "we're in breach and working on it" is a two-to-six-month window where the upstream holds all the initiative and Wayland cannot control the story.
 
 ### Do the upstreams respond punitively or cooperatively?
 
 The honest answer: **cooperatively, when the cure is already done — and there is no observed case of punitive response to a good-faith completed cure.** OTF's author flagged and let Digger fix it. HashiCorp escalated to a C&D and it went nowhere against a project that produced its provenance record. Open WebUI's response to rebranded forks was to change its own licence, not to attack the forks.
 
-But every one of those upstreams was reacting to something already visible. There is no prior-art case in this set of an upstream reacting to a *pre-emptive self-report of an unfixed breach*, so nobody should claim to know how that goes. That absence of precedent is itself an argument for the cure-first ordering.
+But every one of those upstreams was reacting to something already visible. There is no prior-art case in this set of an upstream reacting to a _pre-emptive self-report of an unfixed breach_, so nobody should claim to know how that goes. That absence of precedent is itself an argument for the cure-first ordering.
 
 **What the note should be if sent:** short, factual, no legal characterisation, no apology theatre, no request. State that Wayland is an AGPL-3.0 derivative that includes Apache-2.0-licensed AionUi code; that a compliance review found upstream copyright notices had been replaced rather than retained at the original import; that attribution has been restored across the identified set as of version X; link the published inventory and baseline; offer to correct anything they find wrong. Nothing else. **[COUNSEL]** should see it before it goes.
 
@@ -421,46 +423,46 @@ But every one of those upstreams was reacting to something already visible. Ther
 
 ## What NOT to do
 
-| Action | Why it looks reasonable | Why it makes things worse |
-|---|---|---|
-| **Delete provenance comments to "clean up"** | Reduces apparent over-attribution; aligns with the stated goal | Already done once here on one sentence of justification (`3f1c5ba10`, 8 files, incl. **GPL-family** acpx/Zed and undiffable Claude Code), and the audit flagged it. Destroys the only pointer, adds a fresh removal to explain, and is internally inconsistent with surviving clauses. **Removal needs more evidence than retention, never less.** |
-| **Backdate notices** | Makes the record look consistent | A copyright line asserting a year that predates the commit that wrote it is a fabricated record, discoverable by one `git log`, and converts a compliance gap into a credibility question. |
-| **Rewrite git history to fabricate a cleaner lineage** | "Restores" the fork point; makes the tree look properly derived | Fabricated provenance. Already forbidden by this repo's own rules. And it is self-defeating: reconstructed history is only worth anything if it is *true*, and a bracketed-and-measured `BASELINE.md` is more defensible than a synthesised commit graph precisely because it shows its work. |
-| **State in a shipped legal document that attribution is complete** | Clean milestone closure | Pitfall 6. Three instances of this pattern already exist in this tree and all three were found by the first serious audit. Assert method, scope, and date instead. |
-| **Rely on a bundler-stripped comment as the notice** | The header is right there in the source | Verified: `esbuild` keeps only comments containing `@license`/`@preserve` or starting with `//!`/`/*!`. The tunnel trio's provenance sits in a second block with no `@license` and is dropped from every build. Verify against the packaged artifact. |
-| **Apply the restoration to all 445 same-path files as derivation assertions** | Maximally conservative, fast | Conservative for *copyright retention*, reckless for *derivation claims*. ~30 of 445 are likely Ferrox originals. ASF: *"Do not add anything to NOTICE which is not legally required"* — each addition burdens downstream consumers. Two claim types, two standards. |
-| **Contact AionUi before the cure ships** | Good faith, gets ahead of it | Hands over timing and framing, creates a dated admission with no fix attached, and invites a demand. Cure first. |
-| **Mention AionUi's own attribution posture to AionUi** | It is materially relevant and verified | Instantly forfeits the good-faith frame and converts a cure into a fight. Background only. Never in a message. |
-| **Ship the confession in the release notes** | Transparency | Produces the AppGet "credits but no apology" headline and taints a release. Strength-led line in the release notes; full record in a separate linkable compliance note. |
-| **Close WLD-I with "accept residual §4(c) risk"** | It's diffuse, pre-existing, and not our fault | Already tried in `H-FINDINGS.md` and **withdrawn as wrong** by its own author. Defensible for a diffuse concern; not for ~310 files where the upstream copyright line was replaced with ours. ReactOS is the cost of leaving a provenance question open: repository frozen, ~20 months under a cloud. |
+| Action                                                                        | Why it looks reasonable                                         | Why it makes things worse                                                                                                                                                                                                                                                                                                                          |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Delete provenance comments to "clean up"**                                  | Reduces apparent over-attribution; aligns with the stated goal  | Already done once here on one sentence of justification (`3f1c5ba10`, 8 files, incl. **GPL-family** acpx/Zed and undiffable Claude Code), and the audit flagged it. Destroys the only pointer, adds a fresh removal to explain, and is internally inconsistent with surviving clauses. **Removal needs more evidence than retention, never less.** |
+| **Backdate notices**                                                          | Makes the record look consistent                                | A copyright line asserting a year that predates the commit that wrote it is a fabricated record, discoverable by one `git log`, and converts a compliance gap into a credibility question.                                                                                                                                                         |
+| **Rewrite git history to fabricate a cleaner lineage**                        | "Restores" the fork point; makes the tree look properly derived | Fabricated provenance. Already forbidden by this repo's own rules. And it is self-defeating: reconstructed history is only worth anything if it is _true_, and a bracketed-and-measured `BASELINE.md` is more defensible than a synthesised commit graph precisely because it shows its work.                                                      |
+| **State in a shipped legal document that attribution is complete**            | Clean milestone closure                                         | Pitfall 6. Three instances of this pattern already exist in this tree and all three were found by the first serious audit. Assert method, scope, and date instead.                                                                                                                                                                                 |
+| **Rely on a bundler-stripped comment as the notice**                          | The header is right there in the source                         | Verified: `esbuild` keeps only comments containing `@license`/`@preserve` or starting with `//!`/`/*!`. The tunnel trio's provenance sits in a second block with no `@license` and is dropped from every build. Verify against the packaged artifact.                                                                                              |
+| **Apply the restoration to all 445 same-path files as derivation assertions** | Maximally conservative, fast                                    | Conservative for _copyright retention_, reckless for _derivation claims_. ~30 of 445 are likely Ferrox originals. ASF: _"Do not add anything to NOTICE which is not legally required"_ — each addition burdens downstream consumers. Two claim types, two standards.                                                                               |
+| **Contact AionUi before the cure ships**                                      | Good faith, gets ahead of it                                    | Hands over timing and framing, creates a dated admission with no fix attached, and invites a demand. Cure first.                                                                                                                                                                                                                                   |
+| **Mention AionUi's own attribution posture to AionUi**                        | It is materially relevant and verified                          | Instantly forfeits the good-faith frame and converts a cure into a fight. Background only. Never in a message.                                                                                                                                                                                                                                     |
+| **Ship the confession in the release notes**                                  | Transparency                                                    | Produces the AppGet "credits but no apology" headline and taints a release. Strength-led line in the release notes; full record in a separate linkable compliance note.                                                                                                                                                                            |
+| **Close WLD-I with "accept residual §4(c) risk"**                             | It's diffuse, pre-existing, and not our fault                   | Already tried in `H-FINDINGS.md` and **withdrawn as wrong** by its own author. Defensible for a diffuse concern; not for ~310 files where the upstream copyright line was replaced with ours. ReactOS is the cost of leaving a provenance question open: repository frozen, ~20 months under a cloud.                                              |
 
 ---
 
 ## Technical Debt Patterns
 
-| Shortcut | Immediate benefit | Long-term cost | When acceptable |
-|---|---|---|---|
-| Measure against upstream `main` instead of a pinned baseline | One `git clone`, starts today | Every *exclusion* is unsafe; understates overlap; upstream drift makes it worse weekly (AionUi has already restructured) | For **inclusion** and scale-bounding only. Never for exclusion. |
-| One-time header sweep with no CI gate | Milestone closes | Regresses on the next import; the compliance claim silently rots. OpenTofu runs a `copyright` job on every PR | Never — the gate is cheaper than the sweep |
-| Verify restored notices by `git grep` in source | Fast, no build | Bundler-stripped notices pass. Already the live failure mode here | Only as a pre-check before the packaged verification |
-| Fix an enumerated §4(b) modification list instead of deleting it | Feels thorough | N new falsifiable claims that drift with the tree; two of WLD-H's four CRITICALs are this | Never — §4(b) does not require enumeration |
-| Machine-generate headers from a template constant | 310 files in one command | Uniform, invisible wrong-holder/wrong-year errors at scale (Pitfall 3) | Only if the generator reads the pinned upstream file and **fails** rather than falling back |
-| Defer the baseline reconstruction until the remedy is decided | Avoids work that may be moot | The baseline is a decaying asset — every week of upstream drift makes it harder and the inventory weaker | Never; the baseline is the input to the remedy decision, not its output |
-| Generate the dependency licence report from `package.json` ranges | One file to read | Reports licences for versions you don't ship. ASF: *"Only bundled bits matter"* and LICENSE/NOTICE *"must exactly represent the contents of the distribution"* | Never — resolve from the lockfile's production tree, and report only what is actually bundled in the packaged app |
+| Shortcut                                                          | Immediate benefit             | Long-term cost                                                                                                                                                 | When acceptable                                                                                                   |
+| ----------------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Measure against upstream `main` instead of a pinned baseline      | One `git clone`, starts today | Every _exclusion_ is unsafe; understates overlap; upstream drift makes it worse weekly (AionUi has already restructured)                                       | For **inclusion** and scale-bounding only. Never for exclusion.                                                   |
+| One-time header sweep with no CI gate                             | Milestone closes              | Regresses on the next import; the compliance claim silently rots. OpenTofu runs a `copyright` job on every PR                                                  | Never — the gate is cheaper than the sweep                                                                        |
+| Verify restored notices by `git grep` in source                   | Fast, no build                | Bundler-stripped notices pass. Already the live failure mode here                                                                                              | Only as a pre-check before the packaged verification                                                              |
+| Fix an enumerated §4(b) modification list instead of deleting it  | Feels thorough                | N new falsifiable claims that drift with the tree; two of WLD-H's four CRITICALs are this                                                                      | Never — §4(b) does not require enumeration                                                                        |
+| Machine-generate headers from a template constant                 | 310 files in one command      | Uniform, invisible wrong-holder/wrong-year errors at scale (Pitfall 3)                                                                                         | Only if the generator reads the pinned upstream file and **fails** rather than falling back                       |
+| Defer the baseline reconstruction until the remedy is decided     | Avoids work that may be moot  | The baseline is a decaying asset — every week of upstream drift makes it harder and the inventory weaker                                                       | Never; the baseline is the input to the remedy decision, not its output                                           |
+| Generate the dependency licence report from `package.json` ranges | One file to read              | Reports licences for versions you don't ship. ASF: _"Only bundled bits matter"_ and LICENSE/NOTICE _"must exactly represent the contents of the distribution"_ | Never — resolve from the lockfile's production tree, and report only what is actually bundled in the packaged app |
 
 ---
 
 ## Integration Gotchas
 
-| Integration | Common mistake | Correct approach |
-|---|---|---|
-| esbuild / Rollup / electron-vite | Assuming a provenance comment survives bundling | Wrap in `@license` (or `/*!`). Verify in the packaged artifact. Note `eof` mode **relocates** comments, which per ASF means the notices file must also carry them |
-| `scripts/whatsapp-bridge-source.json` and other sha/size pins | Editing a pinned file's header without re-pinning | Re-pin in the same commit; gate the sweep on a full packaged build. This exact file has already broken every packaged build once |
-| `electron-builder.yml` `extraResources` | Inferring that a notices file ships because it is listed | Grep the built `.app`/`.exe`/asar. Already the WLD-I success standard |
-| `patches/*.patch` | Header edits shift context lines and the patch stops applying | Include patched files in the pin-impact list; re-run `patch-package` in the sweep's verification |
-| GitHub code search / `gh api search/code` | Believing a zero | Run a positive control through the identical method and record it (Pitfall 9) |
-| npm production dependency tree (144 packages) | Reporting from declared ranges; omitting the report entirely | Resolve from the lockfile, restrict to what the packaged app actually contains, and ship the generated attribution file as a verified resource |
-| Upstream AionUi tree | Cloning `main` | Clone at the pinned baseline sha. `main` has already restructured into `packages/desktop/**` and dropped `src/process/agent` |
+| Integration                                                   | Common mistake                                                | Correct approach                                                                                                                                                  |
+| ------------------------------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| esbuild / Rollup / electron-vite                              | Assuming a provenance comment survives bundling               | Wrap in `@license` (or `/*!`). Verify in the packaged artifact. Note `eof` mode **relocates** comments, which per ASF means the notices file must also carry them |
+| `scripts/whatsapp-bridge-source.json` and other sha/size pins | Editing a pinned file's header without re-pinning             | Re-pin in the same commit; gate the sweep on a full packaged build. This exact file has already broken every packaged build once                                  |
+| `electron-builder.yml` `extraResources`                       | Inferring that a notices file ships because it is listed      | Grep the built `.app`/`.exe`/asar. Already the WLD-I success standard                                                                                             |
+| `patches/*.patch`                                             | Header edits shift context lines and the patch stops applying | Include patched files in the pin-impact list; re-run `patch-package` in the sweep's verification                                                                  |
+| GitHub code search / `gh api search/code`                     | Believing a zero                                              | Run a positive control through the identical method and record it (Pitfall 9)                                                                                     |
+| npm production dependency tree (144 packages)                 | Reporting from declared ranges; omitting the report entirely  | Resolve from the lockfile, restrict to what the packaged app actually contains, and ship the generated attribution file as a verified resource                    |
+| Upstream AionUi tree                                          | Cloning `main`                                                | Clone at the pinned baseline sha. `main` has already restructured into `packages/desktop/**` and dropped `src/process/agent`                                      |
 
 ---
 
@@ -468,12 +470,12 @@ But every one of those upstreams was reacting to something already visible. Ther
 
 Domain-specific to compliance work rather than general appsec.
 
-| Mistake | Risk | Prevention |
-|---|---|---|
-| Restoration commit silently invalidates a supply-chain checksum | Packaged builds fail, or worse, a verification gate gets loosened to make them pass | Pin-impact list up front; **fix the pin, never the check** — memory records a live security check being relaxed to satisfy a fixture artifact, caught only by cross-audit |
-| Relaxing a notices/header CI check to unblock a release | The compliance claim becomes unenforced while still being asserted | Treat the header gate as a required check. Note the standing trap: **a skipped required check counts as a pass**, and `paths:` filters fire on any match |
-| Shipping an unverified generated attribution file for 144 deps | A new class of false claims, at 144× scale, in a signed artifact | Generate from resolved lockfile data only; no hand-editing; verify a sample against the actual installed package's own LICENSE |
-| Publishing a release while the notices file contains known-false statements | Every installer built is a distributed copy of a false legal claim, and signed | No release ships while any known-false claim is outstanding. This is a release gate, not a nice-to-have |
+| Mistake                                                                     | Risk                                                                                | Prevention                                                                                                                                                                |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Restoration commit silently invalidates a supply-chain checksum             | Packaged builds fail, or worse, a verification gate gets loosened to make them pass | Pin-impact list up front; **fix the pin, never the check** — memory records a live security check being relaxed to satisfy a fixture artifact, caught only by cross-audit |
+| Relaxing a notices/header CI check to unblock a release                     | The compliance claim becomes unenforced while still being asserted                  | Treat the header gate as a required check. Note the standing trap: **a skipped required check counts as a pass**, and `paths:` filters fire on any match                  |
+| Shipping an unverified generated attribution file for 144 deps              | A new class of false claims, at 144× scale, in a signed artifact                    | Generate from resolved lockfile data only; no hand-editing; verify a sample against the actual installed package's own LICENSE                                            |
+| Publishing a release while the notices file contains known-false statements | Every installer built is a distributed copy of a false legal claim, and signed      | No release ships while any known-false claim is outstanding. This is a release gate, not a nice-to-have                                                                   |
 
 ---
 
@@ -483,7 +485,7 @@ Domain-specific to compliance work rather than general appsec.
 - [ ] **Restored headers:** inside an `@license` (or `/*!`) block, verified per file, not assumed
 - [ ] **Restored copyright lines:** each byte-identical to the line in the pinned baseline checkout — `grep -F` it, don't eyeball it
 - [ ] **Baseline:** a pinned upstream sha exists in a checked-in document, with the candidate set and scores that justify choosing it
-- [ ] **Inventory:** every *exclusion* justified against the **baseline**, never against upstream `main`
+- [ ] **Inventory:** every _exclusion_ justified against the **baseline**, never against upstream `main`
 - [ ] **Every zero and every tidy count:** accompanied by a recorded positive control through the identical method
 - [ ] **Notices file:** contains no unqualified "all / every / none / complete / fully"
 - [ ] **Notices file:** contains no enumerated modification list (§4(b) doesn't need one; the enumeration is where the falsehoods live)
@@ -491,7 +493,7 @@ Domain-specific to compliance work rather than general appsec.
 - [ ] **`notices/README.md`:** rewritten — it ships, it is stale, and it states a falsehood
 - [ ] **Pins:** every touched file's sha/size manifest re-pinned in the same commit; full packaged build green
 - [ ] **`3f1c5ba10`:** re-adjudicated per file, or the clauses restored pending adjudication
-- [ ] **CI gate:** a header/notices check runs on every PR and is a *required* check that cannot be satisfied by being skipped
+- [ ] **CI gate:** a header/notices check runs on every PR and is a _required_ check that cannot be satisfied by being skipped
 - [ ] **Dependency report:** generated from the lockfile's resolved production tree, restricted to bundled packages, and present in the packaged app
 - [ ] **Disclosure artifacts:** compliance note drafted, release-note line drafted separately, both reviewed before any release
 - [ ] **Counsel:** has seen the fact-finding and signed off on the remedy and the disclosure, per the 2026-07-30 decision
@@ -500,16 +502,16 @@ Domain-specific to compliance work rather than general appsec.
 
 ## Recovery Strategies
 
-| Pitfall | Recovery cost | Recovery steps |
-|---|---|---|
-| Over-attributed: header asserts derivation for a Ferrox original | LOW | Correct in a normal commit with the per-file measurement attached. Retaining a copyright line you didn't owe carries no liability; only a *derivation assertion* needs correcting |
-| Under-attributed: file 311 found after the sweep | LOW **if** completeness was never asserted; HIGH if it was | Method-scope-date phrasing makes this a follow-up commit. A prior "complete" claim makes it a credibility event |
-| Wrong holder/year across N generated headers | MEDIUM | Regenerate from the baseline checkout; a second corrective sweep is normal — OpenSearch needed one across 29+ repos |
-| Notice stripped by the bundler, found post-release | MEDIUM | Point release. The notices file (a copied text file, not a comment) is the durable vehicle; headers are the belt |
-| Pin invalidated, packaged builds broken | MEDIUM | Re-pin. Do **not** relax the verification to make the build pass |
-| False claim discovered in a signed shipped release | HIGH | Point release plus a correction in the compliance note. Cannot be un-shipped; installers are already out |
-| Upstream discovers it first and posts publicly | HIGH | Ship the cure and the record within days — Digger's ~24 hours is the benchmark. This is why the baseline and inventory artifacts should exist *before* the remedy debate concludes: they are the only fast response available |
-| DMCA takedown on npm / GitHub release | HIGH | **[COUNSEL]** — process and counter-notice. Mitigated by having a shipped cure and a published record before it happens |
+| Pitfall                                                          | Recovery cost                                              | Recovery steps                                                                                                                                                                                                                |
+| ---------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Over-attributed: header asserts derivation for a Ferrox original | LOW                                                        | Correct in a normal commit with the per-file measurement attached. Retaining a copyright line you didn't owe carries no liability; only a _derivation assertion_ needs correcting                                             |
+| Under-attributed: file 311 found after the sweep                 | LOW **if** completeness was never asserted; HIGH if it was | Method-scope-date phrasing makes this a follow-up commit. A prior "complete" claim makes it a credibility event                                                                                                               |
+| Wrong holder/year across N generated headers                     | MEDIUM                                                     | Regenerate from the baseline checkout; a second corrective sweep is normal — OpenSearch needed one across 29+ repos                                                                                                           |
+| Notice stripped by the bundler, found post-release               | MEDIUM                                                     | Point release. The notices file (a copied text file, not a comment) is the durable vehicle; headers are the belt                                                                                                              |
+| Pin invalidated, packaged builds broken                          | MEDIUM                                                     | Re-pin. Do **not** relax the verification to make the build pass                                                                                                                                                              |
+| False claim discovered in a signed shipped release               | HIGH                                                       | Point release plus a correction in the compliance note. Cannot be un-shipped; installers are already out                                                                                                                      |
+| Upstream discovers it first and posts publicly                   | HIGH                                                       | Ship the cure and the record within days — Digger's ~24 hours is the benchmark. This is why the baseline and inventory artifacts should exist _before_ the remedy debate concludes: they are the only fast response available |
+| DMCA takedown on npm / GitHub release                            | HIGH                                                       | **[COUNSEL]** — process and counter-notice. Mitigated by having a shipped cure and a published record before it happens                                                                                                       |
 
 ---
 
@@ -517,20 +519,20 @@ Domain-specific to compliance work rather than general appsec.
 
 Phase names are suggestions; the roadmapper owns them. Ordering is not.
 
-| Pitfall | Prevention phase | Verification |
-|---|---|---|
-| 8 — baseline from current `main` | **Baseline** (first, blocking) | A checked-in doc with the pinned sha, candidate revisions, scores, scripts; a local checkout exists that later phases read from |
-| 9 — method artifact read as clean | **Baseline + Inventory** | Every recorded query carries a positive control and its result |
-| 1 — restoration becomes the false statement | **Inventory** (before Restoration) | Per-file classification with score and method; two claim types separated; exclusions justified against the baseline |
-| 5 — invalidated pins | **Inventory** (produces the list) → **Restoration** (acts) | Pin-impact list exists; every touched pinned file re-pinned in the same commit; full packaged build green |
-| 3 — wrong holder/year at scale | **Restoration** | Every emitted copyright line found verbatim (`grep -F`) in the baseline checkout; generator fails rather than templating |
-| 4 — bundler-stripped notice | **Restoration** + **Packaged verification** | Sample of restored notices greppable in the built `.app`/`.exe`/asar |
-| 2 — enumerating modifications | **Shipped-claim truth pass** | No enumerated §4(b) list remains; §4(b) satisfied by a modification statement plus a VCS/baseline pointer |
-| 6 — asserting completeness | **Shipped-claim truth pass** | Lint: no unqualified universal quantifiers in shipped notices; every claim carries method, scope, date |
-| 7 — deleting provenance to clean up | **Re-adjudicate `3f1c5ba10`** | Per-file comparison for every removal, to the `9add51a0c` standard; undiffable upstreams retained by default |
-| Dependency report false claims | **Dependency licence report** | Generated from the lockfile's resolved production tree; restricted to bundled packages; sample-verified against installed LICENSE files |
-| Regression after the sweep | **CI gate** | Header/notices check required on every PR; verified to fail on a deliberately stripped header; cannot pass by being skipped |
-| 10 — distribution risk unaddressed | **Remedy & disclosure** (with counsel, gates the release) | Counsel sign-off recorded; compliance note and release-note line drafted separately; no release ships with a known-false claim |
+| Pitfall                                     | Prevention phase                                           | Verification                                                                                                                            |
+| ------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 8 — baseline from current `main`            | **Baseline** (first, blocking)                             | A checked-in doc with the pinned sha, candidate revisions, scores, scripts; a local checkout exists that later phases read from         |
+| 9 — method artifact read as clean           | **Baseline + Inventory**                                   | Every recorded query carries a positive control and its result                                                                          |
+| 1 — restoration becomes the false statement | **Inventory** (before Restoration)                         | Per-file classification with score and method; two claim types separated; exclusions justified against the baseline                     |
+| 5 — invalidated pins                        | **Inventory** (produces the list) → **Restoration** (acts) | Pin-impact list exists; every touched pinned file re-pinned in the same commit; full packaged build green                               |
+| 3 — wrong holder/year at scale              | **Restoration**                                            | Every emitted copyright line found verbatim (`grep -F`) in the baseline checkout; generator fails rather than templating                |
+| 4 — bundler-stripped notice                 | **Restoration** + **Packaged verification**                | Sample of restored notices greppable in the built `.app`/`.exe`/asar                                                                    |
+| 2 — enumerating modifications               | **Shipped-claim truth pass**                               | No enumerated §4(b) list remains; §4(b) satisfied by a modification statement plus a VCS/baseline pointer                               |
+| 6 — asserting completeness                  | **Shipped-claim truth pass**                               | Lint: no unqualified universal quantifiers in shipped notices; every claim carries method, scope, date                                  |
+| 7 — deleting provenance to clean up         | **Re-adjudicate `3f1c5ba10`**                              | Per-file comparison for every removal, to the `9add51a0c` standard; undiffable upstreams retained by default                            |
+| Dependency report false claims              | **Dependency licence report**                              | Generated from the lockfile's resolved production tree; restricted to bundled packages; sample-verified against installed LICENSE files |
+| Regression after the sweep                  | **CI gate**                                                | Header/notices check required on every PR; verified to fail on a deliberately stripped header; cannot pass by being skipped             |
+| 10 — distribution risk unaddressed          | **Remedy & disclosure** (with counsel, gates the release)  | Counsel sign-off recorded; compliance note and release-note line drafted separately; no release ships with a known-false claim          |
 
 **Ordering rationale.** Baseline before inventory, because inventory verdicts made against `main` are unsafe and would have to be redone. Inventory before restoration, because the restoration's correctness is the inventory's output. Truth pass after restoration, because the notices file must describe what actually shipped. Re-adjudication of `3f1c5ba10` is independent and can run in parallel. CI gate before the release, or the whole thing regresses on the next import. Remedy and disclosure last, and it gates the release rather than the code.
 
@@ -590,5 +592,6 @@ Per the 2026-07-30 decision, counsel reviews the remedy, not the fact-finding. T
 **Explicitly unverified — do not use:** any claim that Cherry Studio changed its licence in response to rebranded forks (my recollection; current verified state is AGPL-3.0 plus a commercial licence above 10 individuals). No documented Electron/AI-desktop-app attribution incident was found despite searching; the Digger case is the nearest in-domain analogue.
 
 ---
-*Pitfalls research for: post-hoc attribution restoration in a rebranded Apache-2.0-derived Electron fork*
-*Researched: 2026-07-30*
+
+_Pitfalls research for: post-hoc attribution restoration in a rebranded Apache-2.0-derived Electron fork_
+_Researched: 2026-07-30_

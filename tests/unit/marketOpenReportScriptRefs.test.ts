@@ -69,9 +69,7 @@ describe('market-open-report script references', () => {
    * thing a new user is shown, so it failing is the whole first impression.
    */
   it('ships the default watchlist and positions file the scripts fall back to', async () => {
-    const { DEFAULT_LIST, DEFAULT_POSITIONS } = await import(
-      path.join(SCRIPTS_DIR, 'report.mjs')
-    );
+    const { DEFAULT_LIST, DEFAULT_POSITIONS } = await import(path.join(SCRIPTS_DIR, 'report.mjs'));
     expect(existsSync(DEFAULT_LIST)).toBe(true);
     expect(existsSync(DEFAULT_POSITIONS)).toBe(true);
 

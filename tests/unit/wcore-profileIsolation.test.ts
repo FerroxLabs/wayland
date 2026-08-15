@@ -386,5 +386,4 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     expect(globalConfig).toContain('"tavily"');
     expect(existsSync(join(workspace, '.wayland-core.toml'))).toBe(false);
   });
-
 });

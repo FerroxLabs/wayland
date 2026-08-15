@@ -54,10 +54,7 @@ const ProjectionPanel: React.FC<{ projection: WorkbenchProjection; snapshot: Exe
 
   return (
     <section className='flex flex-col min-h-0 h-full' data-testid={`projection-${projection.id}`}>
-      <nav
-        className='shrink-0 flex flex-wrap gap-4px p-8px border-b border-1'
-        aria-label={`${projection.label} views`}
-      >
+      <nav className='shrink-0 flex flex-wrap gap-4px p-8px border-b border-1' aria-label={`${projection.label} views`}>
         {projection.facets.map((item) => (
           <button
             key={item.id}

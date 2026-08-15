@@ -31,13 +31,13 @@ is a Core defect and not a Wayland-plumbing, publication, or TVControl problem.
 
 ## Status by packet
 
-| Packet | State |
-|---|---|
-| **TVControl 2.2.1** | **SHIPPED** to npm, tagged `v2.2.1`, verified by clean install from the public registry (101 tools over stdio) |
-| **W-0** ToolSearch cannot see MCP tools | **WITH CORE** — handoff passed over; blocks the Wayland Core backend only |
-| **W-1A + W-1B** publication failed on every toggle | **DONE** — 4-leg cross-audited, live-verified |
-| **W-2** Claude Code agent fixes | **BUILT** (`e3303e5cc`), open question resolved, **needs a PR** |
-| **W-3** catalog connector | **DONE** — macOS/Windows/Linux |
+| Packet                                             | State                                                                                                          |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **TVControl 2.2.1**                                | **SHIPPED** to npm, tagged `v2.2.1`, verified by clean install from the public registry (101 tools over stdio) |
+| **W-0** ToolSearch cannot see MCP tools            | **WITH CORE** — handoff passed over; blocks the Wayland Core backend only                                      |
+| **W-1A + W-1B** publication failed on every toggle | **DONE** — 4-leg cross-audited, live-verified                                                                  |
+| **W-2** Claude Code agent fixes                    | **BUILT** (`e3303e5cc`), open question resolved, **needs a PR**                                                |
+| **W-3** catalog connector                          | **DONE** — macOS/Windows/Linux                                                                                 |
 
 ### TVControl (repo `~/dev/tvcontrol`, on `main`, clean)
 
@@ -60,7 +60,7 @@ never performs schema conversion. **Any future SDK bump must be gated on that te
 `5a4e84a66`, `0baf30ca0`, `44d6ef6d4`, `cdde65b3a`.
 
 **1-A.** A detected backend with no MCP implementation reported `success: false`,
-indistinguishable from a real failure. Both renderer paths throw if *any* result is
+indistinguishable from a real failure. Both renderer paths throw if _any_ result is
 unsuccessful, and a normal machine detects a dozen such backends (grok, goose, kimi, cursor,
 kiro, hermes, openclaw-gateway…) — so publication threw on every toggle even when all five real
 agents succeeded, and the rollback threw for the same reason, which is what persisted
@@ -86,7 +86,7 @@ tools:101 / lastError:None`. **No rollback line at all.**
 ## Next actions, in order
 
 1. **W-2 → PR.** `e3303e5cc` is built and its open question is resolved: the "added, then not
-   found in any scope" anomaly only occurred *during* a spurious rollback, which W-1 eliminates.
+   found in any scope" anomaly only occurred _during_ a spurious rollback, which W-1 eliminates.
 2. **Cross-audit W-3** — the catalog packet is the only one that has not been through the panel.
 3. **Decide on the 85 unpushed commits.** Biggest outstanding item; none of it is on a remote.
 4. **Live-verify the catalog install** — click Install in the Library and watch it pull from npm
@@ -146,12 +146,12 @@ tools:101 / lastError:None`. **No rollback line at all.**
   killed — load average went 31.9 → 7.7. `fseventsd` needs the reboot.
 - **The orphaned `ferrox-runlog-cc-*` processes are a leak in the Ferrox test tooling.** It
   spawns background loops and does not reap them. They will come back.
-- **TradingView must be *started* with `--remote-debugging-port=9222`** — not merely running.
+- **TradingView must be _started_ with `--remote-debugging-port=9222`** — not merely running.
   `bash ~/dev/tvcontrol/scripts/launch_tv_debug_mac.sh 9222`. Store/MSIX installs on Windows need
   `launch_tv_debug.bat`. This is the single most likely thing to break a live Master Class.
 - Test profile `tvfix` (`~/Library/Application Support/tvfix`) has a burner Flux provider and
   tvcontrol enabled. Launch: `WAYLAND_MULTI_INSTANCE=1 WAYLAND_DEV_PROFILE=tvfix
-  ./node_modules/.bin/electron out/main/index.js`. Renderer CDP lands on 9230 **or** 9231.
+./node_modules/.bin/electron out/main/index.js`. Renderer CDP lands on 9230 **or** 9231.
 - Build before any live test: `bun run package && node scripts/build-mcp-servers.js`.
 - **Sean's chart is at `NASDAQ:MRVL` 30m.** Always record the baseline and restore it.
 

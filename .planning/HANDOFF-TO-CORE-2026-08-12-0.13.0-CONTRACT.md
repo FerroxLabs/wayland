@@ -14,6 +14,7 @@ Every claim below is marked **[X] executed** or **[S] read from source**. Nothin
 ## 0. Where everything lives (absolute paths)
 
 **This document**
+
 ```
 /Users/seandonahoe/dev/wayland-worktrees/wl-integration/.planning/HANDOFF-TO-CORE-2026-08-12-0.13.0-CONTRACT.md
 ```
@@ -21,31 +22,34 @@ Every claim below is marked **[X] executed** or **[S] read from source**. Nothin
 **Desktop worktree** — branch `packet/wl-integration`, pushed to remote `ferrox`
 (`FerroxLabs/wayland`). This is a WORKTREE, not the canonical tree; do not write to
 `/Users/seandonahoe/dev/wayland/app`.
+
 ```
 /Users/seandonahoe/dev/wayland-worktrees/wl-integration
 ```
 
 **The Core brief this replies to**, read read-only from the core lane's session scratchpad:
+
 ```
 /private/tmp/claude-501/-Users-seandonahoe-dev-waylandcore/11929102-d58a-47e9-9644-0e9d530b58c4/scratchpad/DESKTOP-INTEGRATION-0.13.0.md
 ```
 
 **Desktop source referenced below** (all relative to the worktree root above):
 
-| what | path | line |
-|---|---|---|
-| The pin, and every check in §1 | `src/process/agent/wcore/desktopContractV1.ts` | `DESKTOP_CORE_V1_PIN` :37, `assertDescriptor` :274, tool-sequence rule :414, `negotiate` :1035 |
-| Exit-code handling (§4) | `src/process/task/WCoreManager.ts` | `handleProcessExit` :1326 |
-| Skill placement, now copying (§5) | `src/process/utils/initAgent.ts` | `placeSkill` inside `setupAssistantWorkspace` |
+| what                              | path                                           | line                                                                                           |
+| --------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| The pin, and every check in §1    | `src/process/agent/wcore/desktopContractV1.ts` | `DESKTOP_CORE_V1_PIN` :37, `assertDescriptor` :274, tool-sequence rule :414, `negotiate` :1035 |
+| Exit-code handling (§4)           | `src/process/task/WCoreManager.ts`             | `handleProcessExit` :1326                                                                      |
+| Skill placement, now copying (§5) | `src/process/utils/initAgent.ts`               | `placeSkill` inside `setupAssistantWorkspace`                                                  |
 
 **Core source referenced** (in `/Users/seandonahoe/dev/waylandcore`):
 
-| what | path |
-|---|---|
-| Sandbox containment + the symlink refusal (§5) | `crates/wcore-tools/src/vfs.rs` |
-| `SandboxPolicy` is an enum, not a struct (§6) | `crates/wcore-types/src/execution_policy.rs:33` |
+| what                                           | path                                            |
+| ---------------------------------------------- | ----------------------------------------------- |
+| Sandbox containment + the symlink refusal (§5) | `crates/wcore-tools/src/vfs.rs`                 |
+| `SandboxPolicy` is an enum, not a struct (§6)  | `crates/wcore-types/src/execution_policy.rs:33` |
 
 **The binary all the [X] evidence came from** — the published 0.12.26 bundled in Desktop:
+
 ```
 /Users/seandonahoe/dev/wayland-worktrees/wl-integration/resources/bundled-wayland-core/darwin-arm64/wayland-core
 ```
@@ -56,6 +60,7 @@ Every claim below is marked **[X] executed** or **[S] read from source**. Nothin
 - `4f55c1a14` — skills copied into the workspace instead of symlinked (§5)
 
 **Companion Desktop handoff**, for the wider Smart Trader context:
+
 ```
 /Users/seandonahoe/dev/wayland-worktrees/wl-integration/.planning/HANDOFF-2026-08-12-SMART-TRADER-LIVE.md
 ```
@@ -79,16 +84,16 @@ The brief says Desktop implements no part of contract negotiation, that the `con
 - If `ready` **does** carry one, `assertDescriptor()` (:274) runs and compares **all seven
   fields plus the canonical capability map**, failing closed on each:
 
-| field | failure code |
-|---|---|
-| `name` | `contract_name_mismatch` |
-| `major` | `contract_major_mismatch` |
-| `minor` | `contract_minor_mismatch` |
-| `generator` | `generator_mismatch` |
-| `fixture_digest` | `fixture_digest_mismatch` |
-| `schema_digest` | `schema_digest_mismatch` |
-| `source_inputs_digest` | `source_inputs_digest_mismatch` |
-| `capabilities` (canonicalised) | `capability_status_mismatch` |
+| field                          | failure code                    |
+| ------------------------------ | ------------------------------- |
+| `name`                         | `contract_name_mismatch`        |
+| `major`                        | `contract_major_mismatch`       |
+| `minor`                        | `contract_minor_mismatch`       |
+| `generator`                    | `generator_mismatch`            |
+| `fixture_digest`               | `fixture_digest_mismatch`       |
+| `schema_digest`                | `schema_digest_mismatch`        |
+| `source_inputs_digest`         | `source_inputs_digest_mismatch` |
+| `capabilities` (canonicalised) | `capability_status_mismatch`    |
 
 A `ready` carrying `major: 2` with forged digests does not sail past Desktop. It kills the
 session on the first frame.
@@ -271,14 +276,14 @@ I identified it by `--version`. The file told me not to and I did it anyway.
 
 **What is now UNVERIFIED and must not be relied on:**
 
-- The claim that *published* 0.12.26 advertises minor 13 / gen-14 / schema `4971f456…`. That
+- The claim that _published_ 0.12.26 advertises minor 13 / gen-14 / schema `4971f456…`. That
   describes the dev build. A prior note in `desktopContractV1.ts` said published 0.12.26
   advertises **minor 12 / gen-13 / schema `23fb3048…`**; I "refuted" it by grepping the bundled
   binary, which was the wrong artifact, so that note may well be correct.
 - Therefore **the §2 baseline question is NOT resolved.** Whether 0.13.0 is 13→14 or 12→14
   against what users actually run needs the published artifact, which is not on this machine.
 
-**Ask:** confirm the contract values the *published* v0.12.26 release emits, from the release
+**Ask:** confirm the contract values the _published_ v0.12.26 release emits, from the release
 asset rather than any dev tree.
 
 ## 6c. The pin is not the whole integration
@@ -311,16 +316,16 @@ sha256 c55205d4b36cd5fd843c767c897e8edb30a4dd193e74da0a8fdad0dcdb24b229
 
 Driven with the §1 reproduction; these are the values it puts on the wire [X]:
 
-| field | 0.12.26 published | 0.13.0 | moves? |
-|---|---|---|---|
-| `name` | `wayland-desktop-core` | same | no |
-| `major` | 1 | 1 | no |
-| `minor` | 13 | **14** | **yes** |
-| `generator` | `wcore-desktop-contract-gen/14` | same | **no** |
-| `fixture_digest` | `sha256:710a602f…` | **`sha256:d729f9336e7ba0b4ed5a4f50ffdf3e3903ff7f38d000f43275fc654e87e2ec3d`** | **yes** |
-| `schema_digest` | `sha256:4971f456…` | **`sha256:306d83e19fa01a83c1d17d6365c9159efeb94373b8328259cbf842d783e00152`** | **yes** |
-| `source_inputs_digest` | `sha256:6802f807…` | **`sha256:55d366c8706ea852b55595049e5dcb9b1d641745a2209e938121e95644c2e6d6`** | **yes** |
-| `capabilities` | 17 keys | 17 keys, **identical** | no |
+| field                  | 0.12.26 published               | 0.13.0                                                                        | moves?  |
+| ---------------------- | ------------------------------- | ----------------------------------------------------------------------------- | ------- |
+| `name`                 | `wayland-desktop-core`          | same                                                                          | no      |
+| `major`                | 1                               | 1                                                                             | no      |
+| `minor`                | 13                              | **14**                                                                        | **yes** |
+| `generator`            | `wcore-desktop-contract-gen/14` | same                                                                          | **no**  |
+| `fixture_digest`       | `sha256:710a602f…`              | **`sha256:d729f9336e7ba0b4ed5a4f50ffdf3e3903ff7f38d000f43275fc654e87e2ec3d`** | **yes** |
+| `schema_digest`        | `sha256:4971f456…`              | **`sha256:306d83e19fa01a83c1d17d6365c9159efeb94373b8328259cbf842d783e00152`** | **yes** |
+| `source_inputs_digest` | `sha256:6802f807…`              | **`sha256:55d366c8706ea852b55595049e5dcb9b1d641745a2209e938121e95644c2e6d6`** | **yes** |
+| `capabilities`         | 17 keys                         | 17 keys, **identical**                                                        | no      |
 
 So the baseline question in §2 resolves to **1.13 → 1.14**, and the generator does **not** move —
 it was already 14 on the published 0.12.26.

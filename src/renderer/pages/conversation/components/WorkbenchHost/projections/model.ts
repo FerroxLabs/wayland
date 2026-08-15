@@ -114,7 +114,11 @@ const KIND_ROLES = new Map<NonNullable<ExecutionActivity['toolKind']>, ToolRole>
   ['edit', 'edit'],
 ]);
 
-const toolIdentity = (name: string) => name.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+const toolIdentity = (name: string) =>
+  name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
 
 /**
  * The role this activity's STRUCTURED identity declares, or null when it

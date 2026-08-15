@@ -2495,9 +2495,7 @@ describe('runPostUpgradeCatalogRefresh', () => {
         { providerId: 'anthropic' as ProviderId, state: 'connected' as const },
       ],
       getRegistryProviderCreds: (id: ProviderId) =>
-        id === 'openai'
-          ? ({ status: 'undecryptable' } as const)
-          : ({ status: 'ok', creds: { key: 'fine' } } as const),
+        id === 'openai' ? ({ status: 'undecryptable' } as const) : ({ status: 'ok', creds: { key: 'fine' } } as const),
     };
     const handlersStub = {
       refresh: async ({ providerId }: { providerId: ProviderId }) => {

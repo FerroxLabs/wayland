@@ -11,7 +11,7 @@ Every file:line below was read in this worktree at this HEAD. Measurements name 
 ## SUMMARY
 
 1. **What.** Lift the voice session out of the full-screen orb into a hook + provider so the composer becomes the voice surface: status, stop, mute, glow, one entry point — and make Wayland speak sentence-by-sentence instead of after the whole answer.
-2. **Why it is one job.** `VoiceConversationMode.tsx` (764 lines) *is* the session today, so the composer cannot show voice state and workflow-mode surfaces have a dead soundwave button.
+2. **Why it is one job.** `VoiceConversationMode.tsx` (764 lines) _is_ the session today, so the composer cannot show voice state and workflow-mode surfaces have a dead soundwave button.
 3. **Critical path.** V1→V2→V3→**V4**→V5→V6→V7→V8→V9→V10→V11→V12→V13→V14→V15→V16→V17→V18→V19→V20→V21→V22.
 4. **V4 is the gate.** Nothing in Phase 2 or 3 starts before the hook + provider lands as a behaviour-neutral move.
 5. **V8 is a hidden gate.** The Arco Button mock in `sendboxQueue.dom.test.tsx` drops `aria-label`; until it forwards, every accessible-name assertion in Phase 2 tests the mock, not the app.
@@ -25,7 +25,7 @@ Every file:line below was read in this worktree at this HEAD. Measurements name 
 
 ## 0. Architecture, and the defects the lift fixes
 
-**The move.** Lift the session out of the full-screen component into a hook + provider mounted once per conversation surface. After the lift: the composer renders status/stop/mute/glow; the orb becomes an optional *view* of a session that already exists; there is one entry point; the synthesis pipeline has one owner.
+**The move.** Lift the session out of the full-screen component into a hook + provider mounted once per conversation surface. After the lift: the composer renders status/stop/mute/glow; the orb becomes an optional _view_ of a session that already exists; there is one entry point; the synthesis pipeline has one owner.
 
 **Verified defect A — workflow mode dead button.** `VoiceConversationMode` mounts inside `headerBlock` (`src/renderer/pages/conversation/components/ChatLayout/index.tsx:274`, itself gated on `{conversationId && …}` at `:273`), and the header renders only when `!props.hideHeader` (`:331`). Three call sites pass `hideHeader={true}` (`ChatConversation.tsx:308, 367, 637`). There, the composer soundwave dispatches `wayland:voice-mode-open` (`voiceTurnBridge.ts:34`) into a void. The provider must wrap the whole `ChatLayout` return (`:318`), not the header.
 
@@ -43,7 +43,7 @@ Every file:line below was read in this worktree at this HEAD. Measurements name 
 
 **Files.** `src/common/types/ttsTypes.ts:23` — `enabled: false` → `enabled: true`.
 
-**Migration reach, corrected (feasibility #8, accepted).** `normalizeTextToSpeechConfig:36` reads `typeof config?.enabled === 'boolean' ? config.enabled : DEFAULT`, so an explicitly stored `false` survives. Both writers persist the **whole object**: `VoiceSettings/index.tsx:65-73` (`handleTtsChange` writes `next` on *any* field change — voice, speed, provider, auto-read) and `ToolsModalContent.tsx:298` (`await ConfigStorage.set('tools.textToSpeech', config)` inside `handleTestVoice`, i.e. pressing **Test voice** persists the whole config as a side effect). Exact wording for release notes and for anyone reading this plan: **the flip fixes users who never touched *any* TTS field and never pressed Test voice.** It does not fix users who did. Those users are handled by V2's `disabled-by-user` reason plus V10's one-tap route, **not** by a data migration (see §Rejected R1).
+**Migration reach, corrected (feasibility #8, accepted).** `normalizeTextToSpeechConfig:36` reads `typeof config?.enabled === 'boolean' ? config.enabled : DEFAULT`, so an explicitly stored `false` survives. Both writers persist the **whole object**: `VoiceSettings/index.tsx:65-73` (`handleTtsChange` writes `next` on _any_ field change — voice, speed, provider, auto-read) and `ToolsModalContent.tsx:298` (`await ConfigStorage.set('tools.textToSpeech', config)` inside `handleTestVoice`, i.e. pressing **Test voice** persists the whole config as a side effect). Exact wording for release notes and for anyone reading this plan: **the flip fixes users who never touched _any_ TTS field and never pressed Test voice.** It does not fix users who did. Those users are handled by V2's `disabled-by-user` reason plus V10's one-tap route, **not** by a data migration (see §Rejected R1).
 
 **Leak argument (holds).** `autoReadResponses` has zero runtime consumers — `/usr/bin/grep -rn "autoReadResponses" src/` returns only the type (`ttsTypes.ts:18`), the default (`:27`), the normalizer (`:46-47`), and the inert Switch (`ToolsModalContent.tsx:434`). `voiceSynthBridge.ts:51-66` never reads `config.enabled`. Default-true cannot produce unprompted audio.
 
@@ -67,13 +67,13 @@ resolveVoiceSessionReadiness({ ttsConfig, sttConfig, platform, consent, audioCon
 
 Replaces the inline boolean at `VoiceConversationMode.tsx:274`.
 
-**Why both legs (privacy #3, accepted).** The draft gated entry on TTS only. On macOS after V1 the default TTS path is ready and silent, so a user enters, sees no disclosure, and the session immediately begins *continuous auto-re-arming* microphone capture routed to `openai` / `deepgram` / Flux-seeded `flux-voice`. Nothing leaks unconsented — `SpeechToTextService.ts:478-485` holds — but an unbounded continuous stream would be riding a one-shot dictation acknowledgement, and the entry flow would disclose the quieter leg while staying silent on the louder one.
+**Why both legs (privacy #3, accepted).** The draft gated entry on TTS only. On macOS after V1 the default TTS path is ready and silent, so a user enters, sees no disclosure, and the session immediately begins _continuous auto-re-arming_ microphone capture routed to `openai` / `deepgram` / Flux-seeded `flux-voice`. Nothing leaks unconsented — `SpeechToTextService.ts:478-485` holds — but an unbounded continuous stream would be riding a one-shot dictation acknowledgement, and the entry flow would disclose the quieter leg while staying silent on the louder one.
 
 **Why STT readiness at all (UX #8, accepted).** `DEFAULT_SPEECH_TO_TEXT_CONFIG.enabled = false` (`ToolsModalContent.tsx:43-45`), so conversation mode is a day-one dead end for the default user. Today the failure surfaces at `beginCapture` (`VoiceConversationMode.tsx:277-280`) as a `surfaceError` **only the orb renders** (`:702-706`). Collapsed, the user gets nothing.
 
 **Facts encoded.** `kokoro-local` always throws (`src/process/services/voice/KokoroLocal.ts:53` `resolveBinary: () => null`, `:90`); `system-native` throws off `darwin` (`TextToSpeechService.ts:123`); `openai` needs consent (`voiceSynthBridge.ts:57-62`); `audio-blocked` comes from V21.
 
-**Naive failure.** A bare boolean. The *reason* is what the composer needs to offer a one-tap fix; a boolean produces "Voice setup is incomplete" with no route out.
+**Naive failure.** A bare boolean. The _reason_ is what the composer needs to offer a one-tap fix; a boolean produces "Voice setup is incomplete" with no route out.
 
 **Test.** New `tests/unit/common/voiceReadiness.test.ts`, a table over platform × ttsProvider × sttProvider × enabled × consent × audioContextState.
 **Control:** the `darwin / system-native / whisper-local / both enabled / running` row must be `ready: true`. A table where every row is `false` proves nothing.
@@ -100,6 +100,7 @@ Plus, new in `tests/unit/renderer/voice/`: for a seeded-Flux config, the provide
 ### V4 — MUST — Extract the session into a hook + provider (was S4; + testability #4, #5, privacy #4, #5)
 
 **Files.**
+
 - New `src/renderer/hooks/voice/useVoiceConversationSession.ts` — `VoiceConversationMode.tsx:90-615` moved essentially verbatim, minus JSX.
   Returns `{ state, isActive, isExpanded, readiness, conversationId, lastTranscript, lastResponse, error, level, isMuted, begin, beginCapture, finishCapture, end, interrupt, toggleMute, expand, collapse }`.
   **`beginCapture` and `finishCapture` and `toggleMute` are in the API** — the draft omitted them and V6/V11 cannot exist without them (UX #1, privacy #2).
@@ -115,18 +116,19 @@ Plus, new in `tests/unit/renderer/voice/`: for a seeded-Flux config, the provide
 
 **(c) Conversation scoping (testability #5, accepted — this is a MUST, not a nicety).** `useVoiceSessionSafe()` returns `null` unless `session.conversationId === useConversationContextSafe()?.conversationId`. Without it, TeamPage's N composers all read one session.
 
-**(d) End the session on `conversationId` change (privacy #5, accepted).** All 18 `conversationId` sites in `VoiceConversationMode.tsx` *filter* by it; none ends the session when it changes. Today the modal orb (`role='dialog' aria-modal='true'`, `:749`) masks this. After the lift the user is back in the normal UI with a hot mic and a sidebar; `submitVoiceTurn({ conversationId, ... })` (`:239`) keeps the stale id and files spoken words into the conversation they navigated away from.
+**(d) End the session on `conversationId` change (privacy #5, accepted).** All 18 `conversationId` sites in `VoiceConversationMode.tsx` _filter_ by it; none ends the session when it changes. Today the modal orb (`role='dialog' aria-modal='true'`, `:749`) masks this. After the lift the user is back in the normal UI with a hot mic and a sidebar; `submitVoiceTurn({ conversationId, ... })` (`:239`) keeps the stale id and files spoken words into the conversation they navigated away from.
 
 **Preserve without "improving":** the ref-per-render layout effect (`:563-569`), the re-check-on-fire capture timer (`:135-150`), the deliberate no-op effect switch with the `never` drift guard (`:170-194`), and the documented reason each effect is a no-op (`:152-169`).
 
 **Naive failures.** (1) Mounting per SendBox — six wrappers means six sessions and six mic opens. (2) Mounting inside `headerBlock` — stays dead in workflow mode. (3) Rewriting the state machine while moving it. Move first, in one commit that changes no behaviour.
 
 **Tests.**
+
 - New `tests/unit/renderer/conversation/voiceSessionProvider.dom.test.tsx`: render `ChatLayout` with `hideHeader` and assert `wayland:voice-mode-open` still starts a session. **Write it failing first — it fails at HEAD.** **Control:** same assertion with `hideHeader={false}` must also pass.
 - Mount the provider with **no Router** — must not throw. **Control:** the same mount inside `MemoryRouter` passes.
 - Two SendBoxes with **different** conversation ids under one provider → exactly one shows voice state, exactly one capture start. (The draft's "two SendBoxes → one capture start" passes trivially without the differing ids.)
 - Provider renders `consentModal`: assert the modal element is in the DOM, not merely that `ensureConsent` was called.
-- **(d) The regression test that would have caught the shipped bug (testability #9, accepted).** `VoiceConversationMode.dom.test.tsx:51-58` stubs `tools.textToSpeech` to `{enabled:true, …}` — *that override is why 16,450 tests were green while every shipped session was silent.* Add to the ported session suite: `ConfigStorage.get('tools.textToSpeech')` resolves **undefined** (the real new-user path) → `voiceSynth.speak` **is** called. **Control:** stored `{enabled:false}` → `speak` not called and the settings route is offered.
+- **(d) The regression test that would have caught the shipped bug (testability #9, accepted).** `VoiceConversationMode.dom.test.tsx:51-58` stubs `tools.textToSpeech` to `{enabled:true, …}` — _that override is why 16,450 tests were green while every shipped session was silent._ Add to the ported session suite: `ConfigStorage.get('tools.textToSpeech')` resolves **undefined** (the real new-user path) → `voiceSynth.speak` **is** called. **Control:** stored `{enabled:false}` → `speak` not called and the settings route is offered.
 - **Retarget, do not relax (testability #1, accepted).** `tests/unit/renderer/conversation/VoiceConversationMode.dom.test.tsx` (527 lines) opens the session in **9 places** via `getByRole('button', { name: 'Start Voice conversation' })` — the exact button V11 deletes. V4 lands `begin()` on the hook and rewrites those 9 entry points to drive the hook, **in the same commit as V11**. Explicit prohibition: do **not** add a test-only entry button; that turns 9 behavioural tests into presence-only.
 
 ---
@@ -153,10 +155,10 @@ Entering conversation mode is consent to **make sound**; it is not consent to **
 
 **Two defects, one fix.**
 
-**(a) "Listening…" is a lie when the composer says it (UX #1).** `VoiceConversationMode.tsx:135-137` documents *"The first turn is always a deliberate tap: opening the panel must not open the microphone."* `openMode` lands in `listening` with `continuousArmedRef=false` and the mic **closed**. The only thing that opens it is the orb tap (`:646-648` → `beginCapture`). Existing copy is honest: `STATE_COPY.listening = 'Tap to speak'` (`:53`), switching to `'Listening'` only at `user-speaking` (`:54`). Collapse the orb and the everyman taps the wave, reads "Listening…", talks, and nothing happens.
+**(a) "Listening…" is a lie when the composer says it (UX #1).** `VoiceConversationMode.tsx:135-137` documents _"The first turn is always a deliberate tap: opening the panel must not open the microphone."_ `openMode` lands in `listening` with `continuousArmedRef=false` and the mic **closed**. The only thing that opens it is the orb tap (`:646-648` → `beginCapture`). Existing copy is honest: `STATE_COPY.listening = 'Tap to speak'` (`:53`), switching to `'Listening'` only at `user-speaking` (`:54`). Collapse the orb and the everyman taps the wave, reads "Listening…", talks, and nothing happens.
 → **The composer soundwave tap = `begin()` then `beginCapture()`.** One tap, one meaning.
 
-**(b) One tap destroys a live session (feasibility #5).** `openMode` (`:391-440`) unconditionally builds a *new* session and `setIsOpen(true)`. It calls `cancelAutoCapture()` but never `clearAudio()`, never `stopMonitoring()`, never `cancelRecording()`. Today the composer soundwave is `disabled` while `loading` (`sendbox.tsx:1663`, `:1684`), which masks it. V12 removes that guard and V11 makes the soundwave the sole door.
+**(b) One tap destroys a live session (feasibility #5).** `openMode` (`:391-440`) unconditionally builds a _new_ session and `setIsOpen(true)`. It calls `cancelAutoCapture()` but never `clearAudio()`, never `stopMonitoring()`, never `cancelRecording()`. Today the composer soundwave is `disabled` while `loading` (`sendbox.tsx:1663`, `:1684`), which masks it. V12 removes that guard and V11 makes the soundwave the sole door.
 → **`begin()` is a no-op when `isActive`.** The composer routes to `end()` when active (V11's toggle), so `begin()` can never be reached on a live session — the no-op is belt and braces.
 
 **Test.** Hook test: `begin()` on an active session does not construct a second session, does not re-open the mic, and does not clear audio. **Control:** `begin()` from `ended`/no-session does all three.
@@ -166,7 +168,7 @@ Composer test: one tap on the soundwave from idle ends in `state === 'listening'
 
 ### V7 — MUST — Teardown completeness: `stopAll()`, hard exits, one mic-off path (feasibility #2, privacy #1)
 
-**(a) `stopAll()` for audio.** `clearAudio` has **eight** call sites — `VoiceConversationMode.tsx:327, 347, 355, 365, 379, 461, 552, 579` (playback entry, playback error paths, interrupt, closeMode, the confirmation handler at `:552` which fires from `speaking`, and unmount at `:579`). V22 replaces `playResponse` with a queue, and its epoch counter stops *issuing* work — it does not stop audio already scheduled in the graph. Gapless scheduling means up to two `AudioBufferSourceNode`s are `start(when)`-scheduled at any instant. Without `stopAll()`, barge-in does not stop the voice, which is the one thing barge-in exists to do.
+**(a) `stopAll()` for audio.** `clearAudio` has **eight** call sites — `VoiceConversationMode.tsx:327, 347, 355, 365, 379, 461, 552, 579` (playback entry, playback error paths, interrupt, closeMode, the confirmation handler at `:552` which fires from `speaking`, and unmount at `:579`). V22 replaces `playResponse` with a queue, and its epoch counter stops _issuing_ work — it does not stop audio already scheduled in the graph. Gapless scheduling means up to two `AudioBufferSourceNode`s are `start(when)`-scheduled at any instant. Without `stopAll()`, barge-in does not stop the voice, which is the one thing barge-in exists to do.
 → The queue owns `stopAll()`: `source.stop()` on every scheduled node, cursor reset, epoch bump. **Wire it into all eight sites listed above.**
 
 **(b) `X` means stop (privacy #1, accepted; conflicts with draft S10 — draft loses).** Today all three orb exits call `closeMode` (`:634` Chat, `:637` X, `:748` End) and `closeMode` (`:452-465`) cancels the auto-capture timer, disarms `continuousArmedRef`, calls `stopMonitoring()` and `cancelRecording()`. Every exit is a hard mic-off. The draft re-pointed `X` and `Chat` to `collapse()`. `X` is the universal "stop this" glyph; leaving two live `getUserMedia` streams behind it is indefensible.
@@ -175,6 +177,7 @@ Composer test: one tap on the soundwave from idle ends in `state === 'listening'
 **(c) Six subscriptions gate on `isActive`, never `isExpanded` (feasibility #7, accepted).** Six effects are gated `if (!isOpen) return`: response stream (`:498`), `turnCompleted` (`:525`), turn-settled (`:533`), confirmations (`:547`), Escape (`:587`), plus the barge-in monitor (`:608`). V4 moves them verbatim; this step splits `isOpen` into `isActive`/`isExpanded` and **all six take `isActive`**. Take `isExpanded` and collapsing the orb mid-answer unsubscribes the response stream: the reply is never captured, `completeResponse` never runs, and the session hangs in `thinking` forever — while a `state !== 'ended'` assertion passes.
 
 **Test.**
+
 - `X` stops both media streams (recorder and barge-in monitor) and reaches `ended`. **Control:** `Chat` reaches `isExpanded === false` with `state !== 'ended'` and both streams still live.
 - Collapse during `thinking` → the turn still completes and still speaks. (The draft's `state !== 'ended'` assertion alone would have passed the broken version.)
 - `barge_in` during scheduled playback → every scheduled source received `stop()`. Write it before `stopAll()` exists and watch it fail.
@@ -215,19 +218,19 @@ Composer test: one tap on the soundwave from idle ends in `state === 'listening'
 
 Copy, keyed off the existing machine states, split where the machine already distinguishes (UX #1):
 
-| state | status | notes |
-|---|---|---|
-| `connecting` | Connecting… | |
-| `listening` (not armed) | Tap the wave to talk | matches `STATE_COPY:53` |
-| `listening` (armed) | Listening… | |
-| `user-speaking` | I can hear you | the only "am I being heard" signal |
-| `transcribing` | Transcribing… | |
-| `thinking` / `acting` | Wayland is thinking… | replaces "Working..." |
-| `approval-needed` | Needs your approval in chat | |
-| `speaking` | Wayland is speaking… | |
-| `interrupted` | Stopping… | |
-| `reconnecting` | Reconnecting… | |
-| `error` | the readiness reason from V2, with the one-tap route | |
+| state                   | status                                               | notes                              |
+| ----------------------- | ---------------------------------------------------- | ---------------------------------- |
+| `connecting`            | Connecting…                                          |                                    |
+| `listening` (not armed) | Tap the wave to talk                                 | matches `STATE_COPY:53`            |
+| `listening` (armed)     | Listening…                                           |                                    |
+| `user-speaking`         | I can hear you                                       | the only "am I being heard" signal |
+| `transcribing`          | Transcribing…                                        |                                    |
+| `thinking` / `acting`   | Wayland is thinking…                                 | replaces "Working..."              |
+| `approval-needed`       | Needs your approval in chat                          |                                    |
+| `speaking`              | Wayland is speaking…                                 |                                    |
+| `interrupted`           | Stopping…                                            |                                    |
+| `reconnecting`          | Reconnecting…                                        |                                    |
+| `error`                 | the readiness reason from V2, with the one-tap route |                                    |
 
 Placeholder change is retained as a **secondary** cue only (`placeholder={voicePlaceholder ?? placeholder}` at `:1608`; SendBox has no internal placeholder default — verified by execution, rendering with no `placeholder` prop yields an empty string). It is explicitly **not** the test target.
 
@@ -245,16 +248,17 @@ Placeholder change is retained as a **secondary** cue only (`placeholder={voiceP
 
 **(a) The soundwave is a start/end toggle.** Idle → `begin()`+`beginCapture()` (V6). Active → `end()`. Icon and accessible name flip ("Talk with Wayland" / "End voice conversation"). This is the composer's hard mic-off and it is the answer to "the user taps the wrong button" — the destructive direction must not be the one with no exit.
 
-**(b) Stop takes the action slot only when there is no draft (feasibility #9 and UX #5, identical finding, accepted).** `renderActionButtons()` (`sendbox.tsx:1362-1377`) deliberately keeps **Send** in the slot when `allowSendWhileLoading && hasDraftToSend`. A *leading* voice branch overrides that, so a user who types while Wayland is speaking loses the visible send affordance (Enter still works — for a non-technical everyman that reads as "it broke"). Rule: voice-Stop renders in the action slot only when `!hasDraftToSend`; with a draft, Send stays and voice-Stop moves next to the status element.
+**(b) Stop takes the action slot only when there is no draft (feasibility #9 and UX #5, identical finding, accepted).** `renderActionButtons()` (`sendbox.tsx:1362-1377`) deliberately keeps **Send** in the slot when `allowSendWhileLoading && hasDraftToSend`. A _leading_ voice branch overrides that, so a user who types while Wayland is speaking loses the visible send affordance (Enter still works — for a non-technical everyman that reads as "it broke"). Rule: voice-Stop renders in the action slot only when `!hasDraftToSend`; with a draft, Send stays and voice-Stop moves next to the status element.
 Voice-Stop shows for `{transcribing, thinking, acting, speaking}` and calls `session.interrupt()`.
 
 **(c) A mute / stop-listening control for `{listening (armed), user-speaking}` (privacy #2).** V4's `toggleMute` drives it. The orb's mute (`:729-732`, "Mic on"/"Muted") is the only mute control in the product today and collapsing the orb would delete it from reach.
 
 **(d) Expand is a chevron on the status element, SHOULD not MUST.** `session.expand()`. The orb renders on `isExpanded`.
 
-**Naive failure.** Reusing `stopHandler` (`sendbox.tsx:1304-1311`) for voice-Stop. It calls `onStop()` — the *model* stop — then `setIsLoading(false)`. During voice `speaking` the model has already finished; `interrupt()` itself decides whether the backend needs stopping (`VoiceConversationMode.tsx:376-387`: only from `thinking`/`acting`).
+**Naive failure.** Reusing `stopHandler` (`sendbox.tsx:1304-1311`) for voice-Stop. It calls `onStop()` — the _model_ stop — then `setIsLoading(false)`. During voice `speaking` the model has already finished; `interrupt()` itself decides whether the backend needs stopping (`VoiceConversationMode.tsx:376-387`: only from `thinking`/`acting`).
 
 **Test.** New `tests/unit/renderer/conversation/voiceComposerControls.dom.test.tsx`:
+
 - `speaking` + `loading === false` + empty draft → Stop renders in the action slot; clicking calls `interrupt`, **not** `onStop`. **Control:** `loading` with no voice session → the existing Stop still calls `onStop` (assertion exists at `sendboxQueue.dom.test.tsx:419`, must stay green).
 - `speaking` + non-empty draft → **Send** is in the action slot and voice-Stop is beside the status.
 - `listening` → mute control present and clickable; toggling it prevents the next auto-capture.
@@ -268,6 +272,7 @@ Voice-Stop shows for `{transcribing, thinking, acting, speaking}` and calls `ses
 **Files.** `sendbox.tsx:1656`, `:1663`, `:1677`, `:1684` — currently `disabled={disabled || isLoading || loading || isUploading}` on both voice buttons. Verified by execution: while `loading`, mic and soundwave both come back `disabled: true`. After V9 there is one site.
 
 Three rules, from two reviewers who partly conflict (§Calls C2):
+
 - **Mic** → `disabled || isUploading` (dictating into a queued draft is already legal; that is what `allowSendWhileLoading` at `:1363-1370` exists for) **AND** disabled-with-a-reason while a voice session is active.
 - **Soundwave** → `disabled` only.
 - Never `isLoading || loading` on either.
@@ -281,15 +286,16 @@ Plus: session active → mic `disabled` with a non-empty `title`; and exactly on
 
 ---
 
-### V13 — MUST — Glow, and a *distinct* listening indicator (was S9; UX #4 correction)
+### V13 — MUST — Glow, and a _distinct_ listening indicator (was S9; UX #4 correction)
 
 **Files.**
+
 - `src/renderer/hooks/chat/useInputFocusRing.ts` (14 lines) gains `speakingBorderColor`/`speakingShadow` and `listeningBorderColor`/`listeningShadow` — **visually distinct**, not the same warm ring.
 - `sendbox.tsx:1436-1437` keys the inline `borderColor`/`boxShadow` on `isInputActive || isVoiceSpeaking || isVoiceListening`.
 - `sendbox.css` gains `.sendbox-panel--voice-speaking` and `.sendbox-panel--voice-listening`, declared **after** the existing `.sendbox-panel:focus-within` block (`:487-494`) which sets the same properties. Do not delete that rule — unrelated regression.
 - A composer-level level meter driven by the **session hook's `level`**.
 
-**The draft's reuse instruction was factually wrong (UX #4).** It said to pair the glow with `SpeechInputButton`'s existing strip (`.speech-input-feedback__waveform`, `sendbox.css:155-208`, rendered at `SpeechInputButton.tsx:249-265`). `useSpeechInput` is entirely per-instance (`useSpeechInput.ts:253-258` — all `useState`/`useRef`, no module singleton), so that strip is driven by the *button's* own `recordingLevels` and stays idle for the whole session. Strike the instruction.
+**The draft's reuse instruction was factually wrong (UX #4).** It said to pair the glow with `SpeechInputButton`'s existing strip (`.speech-input-feedback__waveform`, `sendbox.css:155-208`, rendered at `SpeechInputButton.tsx:249-265`). `useSpeechInput` is entirely per-instance (`useSpeechInput.ts:253-258` — all `useState`/`useRef`, no module singleton), so that strip is driven by the _button's_ own `recordingLevels` and stays idle for the whole session. Strike the instruction.
 
 **Why listening must look different from speaking.** The mic reopens by itself 350 ms after every answer (`AUTO_CAPTURE_GRACE_MS`, `:132`, `scheduleAutoCapture` `:134-150`), stays open up to 8 s (`ENDPOINT_NO_SPEECH_TIMEOUT_MS = 8000`), and auto-sends what it hears. The user must be able to tell "it's hearing me" from "it's talking" without reading.
 
@@ -306,7 +312,7 @@ Plus: session active → mic `disabled` with a non-empty `title`; and exactly on
 
 Names: mic → `aria-label` "Dictate", `title` "Dictate — type with your voice". Soundwave → `aria-label` "Talk with Wayland" (active: "End voice conversation"), `title` "Talk with Wayland — it answers out loud". Differentiate the icons by fill/weight, not glyph alone.
 
-**Why.** After V11 the accessible name is the entire pre-tap signal, and "Start voice input" vs "Start Voice conversation" is not a signal. V17 proves the distinction behaviourally — but only *after* the mis-tap, and per V11(a) the mis-tap is the expensive one. Every new composer string in the draft was hardcoded English in a 12-locale product where everything else in the composer goes through `t()` (`sendbox.tsx:1357`).
+**Why.** After V11 the accessible name is the entire pre-tap signal, and "Start voice input" vs "Start Voice conversation" is not a signal. V17 proves the distinction behaviourally — but only _after_ the mis-tap, and per V11(a) the mis-tap is the expensive one. Every new composer string in the draft was hardcoded English in a 12-locale product where everything else in the composer goes through `t()` (`sendbox.tsx:1357`).
 
 **Test.** Add the accessible-name assertions to V17's separation suite (they only mean something after V8). Add an i18n key-parity test for the new `conversation.chat.voice.*` keys across all 12 locales. **Control:** delete one key from one locale → red.
 
@@ -318,7 +324,7 @@ Names: mic → `aria-label` "Dictate", `title` "Dictate — type with your voice
 
 **Verified by execution.** With `tools.speechToText.enabled = false` the composer renders 2 buttons (soundwave + send); with `true`, 3. So today "two distinct affordances side by side" is, for most users, one affordance.
 
-**Naive failure.** Enabling STT implicitly on click. `DEFAULT_SPEECH_TO_TEXT_CONFIG` is `{enabled:false, provider:'openai'}` (`ToolsModalContent.tsx:43-45`) while the renderer treats an *unset* provider as local whisper (`src/renderer/services/SpeechToTextService.ts:79`). A click that flips `enabled` silently moves the user from on-device to hosted. Consent still blocks the send, but the mental model is now wrong.
+**Naive failure.** Enabling STT implicitly on click. `DEFAULT_SPEECH_TO_TEXT_CONFIG` is `{enabled:false, provider:'openai'}` (`ToolsModalContent.tsx:43-45`) while the renderer treats an _unset_ provider as local whisper (`src/renderer/services/SpeechToTextService.ts:79`). A click that flips `enabled` silently moves the user from on-device to hosted. Consent still blocks the send, but the mental model is now wrong.
 
 The soundwave gets the same treatment via V2's `stt-disabled` reason and V10's one-tap route — never auto-enable.
 
@@ -328,7 +334,7 @@ The soundwave gets the same treatment via V2's `stt-disabled` reason and V10's o
 
 ### V16 — MUST — Staged attachments cannot be consumed by a spoken turn (UX #9, privacy #9)
 
-**The defect, verified.** `WCoreSendBox.tsx:369-377`: `onSendHandler` runs `collectSelectedFiles(uploadFile, atPath); clearFiles();` before dispatch, and `useVoiceTurnSubmission(conversation_id, onSendHandler)` (`:400`) routes voice text through that exact handler. Today the orb is a full-screen `role='dialog' aria-modal='true'` overlay (`:619`, `:749`) that hides the composer, so staging a file and then speaking is near-impossible. After this plan the composer *is* the voice surface. A user attaches a photo, then talks, and the photo goes with a sentence they never meant to attach it to — and `clearFiles()` means it is gone from the composer.
+**The defect, verified.** `WCoreSendBox.tsx:369-377`: `onSendHandler` runs `collectSelectedFiles(uploadFile, atPath); clearFiles();` before dispatch, and `useVoiceTurnSubmission(conversation_id, onSendHandler)` (`:400`) routes voice text through that exact handler. Today the orb is a full-screen `role='dialog' aria-modal='true'` overlay (`:619`, `:749`) that hides the composer, so staging a file and then speaking is near-impossible. After this plan the composer _is_ the voice surface. A user attaches a photo, then talks, and the photo goes with a sentence they never meant to attach it to — and `clearFiles()` means it is gone from the composer.
 
 **Change (minimal, contained).** When a voice turn is about to submit and files are staged, **do not auto-send.** Write the transcript into the composer draft and set the status to "Draft ready — press send to include your N attachment(s)." The user presses Send (or Enter) deliberately. This uses the existing draft path, needs no change in any of the six wrappers, and is fail-safe in the direction that matters.
 
@@ -343,11 +349,12 @@ The soundwave gets the same treatment via V2's `stt-disabled` reason and V10's o
 Nothing to build: the mic already never speaks (`SpeechInputButton` → `onTranscript` → `setInput(appendSpeechTranscript(...))`, `sendbox.tsx:1313-1319`). The deliverable is the proof, because the two affordances are distinguished by behaviour and a tooltip assertion is not that.
 
 **Test.** New `tests/unit/renderer/voiceModeSeparation.dom.test.tsx`, four halves in one file:
+
 1. Dictation end to end with `voiceSynth.speak` mocked → `speak` **never** called; transcript lands in the textarea and is **not** sent.
-2. Conversation path → `speak` **was** called and the turn auto-sent. *This is the control for half 1 — if `speak` is never called in either, the mock is simply not wired.*
+2. Conversation path → `speak` **was** called and the turn auto-sent. _This is the control for half 1 — if `speak` is never called in either, the mock is simply not wired._
 3. Exactly one `transcribeAudioBlob` per utterance (V12).
 4. The V16 staged-attachment pair.
-Plus the V14 accessible-name assertions.
+   Plus the V14 accessible-name assertions.
 
 ---
 
@@ -368,11 +375,13 @@ Plus the V14 accessible-name assertions.
 **We cannot do byte-level streaming TTS and we will not pretend to.** `say` requires a seekable sink — that is exactly why `TextToSpeechService.ts:130-133` writes a temp WAV, and why the pre-`af3c17e1b` `--output-file=/dev/stdout` approach returned rc=1 and zero bytes. There is no partial-audio path for the only local provider.
 
 What is feasible with **no IPC protocol change**: sentence-chunked synthesis with a bounded pipeline and gapless Web Audio scheduling. The three things that might have forced a protocol change do not:
+
 1. `voiceSynth.speak` (`ipcBridge.ts:511`) is stateless and re-entrant.
 2. The machine already accepts multiple segments per turn: `response_segment_ready` is valid from `speaking` (`VoiceSessionMachine.ts:335`) and accumulates `synthesizedSegmentIds` (`:340-345`).
 3. The `number[]` wire shape is not a bottleneck — measured: a 3.09 s WAV is 136,278 elements / 486 KB, 1 ms stringify, 1 ms parse; an 11.86 s paragraph is 1.78 MB, 6 ms / 8 ms.
 
 **Measured economics for `system-native`** (Darwin 25.3.0, default voice, `-r 175`, WAVE/LEI16@22050), independently reproduced by the feasibility audit:
+
 - `wall_ms ≈ 765 + 129 × audioSeconds` (fits every sample to ~40 ms; audit re-ran 3.361 s→1145 ms vs 1199 predicted, 4.455 s→1265 vs 1340, 1.66 s→928 vs 979).
 - Fixed overhead ≈ **765 ms** per call — not process spawn (`/usr/bin/true` measured 19–28 ms in the same harness); it is `say`'s own engine init, paid per subprocess.
 - **Break-even ≈ 0.88 s of audio** (≈2.6 words at 175 wpm). Real sentences clear it; one-word sentences do not ("Yes." = 0.668 s, reproduced exactly).
@@ -394,8 +403,9 @@ What is feasible with **no IPC protocol change**: sentence-chunked synthesis wit
 **Control for "no splitter exists":** the same `/usr/bin/grep -rEn` that returned NO MATCH for `splitSentences|sentenceBoundary|Intl.Segmenter|segmentSentences|toSentences` over `src/` **did** return `normalizeVoiceResponseText` at `voiceResponseText.ts:29`. The zero is real.
 
 Rules, each traceable to a fact:
+
 - Emit on `[.!?]` followed by whitespace or end-of-buffer.
-- **Hold everything while the count of ``` in the buffer is odd.** `normalizeVoiceResponseText:31` uses `` /```[\s\S]*?```/g ``, which needs a *closing* fence — run it on an open fence and the model's raw source is read aloud verbatim.
+- **Hold everything while the count of ``` in the buffer is odd.** `normalizeVoiceResponseText:31` uses `/```[\s\S]*?```/g`, which needs a _closing_ fence — run it on an open fence and the model's raw source is read aloud verbatim.
 - Merge any candidate under ~15 chars into the next (0.668 s < 0.88 s break-even → underrun and stutter).
 - Force-flush at ~200 chars with no terminator.
 - Never flush the trailing fragment; the caller flushes on `finish`.
@@ -404,21 +414,24 @@ Rules, each traceable to a fact:
 **Naive failure.** Splitting on `.` alone. "Dr. Smith", "3.5", "e.g." each become their own chunk at 765 ms fixed overhead plus a seam. Require whitespace after the terminator **and** reject a preceding single capital, digit, or known abbreviation. (Executed: a naive splitter turns `"It is 3.5 metres."` into `"It is 3."` + `"5 metres."`.)
 
 **The draft's headline invariant was unsatisfiable — corrected (testability #6, accepted, independently re-executed).** `normalizeVoiceResponseText` is **not distributive over chunks**: `^\s*[-*+]\s+` and `^\s*\d+[.)]\s+` are line-anchored, so a chunk boundary manufactures a line start. Executed counterexamples at this HEAD:
+
 - `"See below. - item one. - item two."` → whole: `"See below. - item one. - item two."`; per-sentence-then-join: `"See below. item one. item two."` — **not equal**.
 - `"Total 4. 2) second. done."` → per-sentence drops the `2)`.
-**Control (the check discriminates):** `"Done. See it."`, `"- leading bullet. next line."`, and `"1. numbered start. then more."` all came back **equal**.
-→ State the invariant over **raw** slices: `concat(rawSentences) + rest === rawBuffer`, fed one character at a time. Assert normalization **separately, per emitted sentence**. Do not assert that per-chunk normalization equals whole-text normalization — it does not, and the obvious repair is to weaken the test until it proves nothing.
+  **Control (the check discriminates):** `"Done. See it."`, `"- leading bullet. next line."`, and `"1. numbered start. then more."` all came back **equal**.
+  → State the invariant over **raw** slices: `concat(rawSentences) + rest === rawBuffer`, fed one character at a time. Assert normalization **separately, per emitted sentence**. Do not assert that per-chunk normalization equals whole-text normalization — it does not, and the obvious repair is to weaken the test until it proves nothing.
 
-**Test.** Extend `tests/unit/common/voiceResponseText.test.ts`: the raw round-trip invariant (character-by-character feed); an open ``` fence emits nothing and closing it emits the prose around it; `"Dr. Smith went home."` → one sentence; `"It is 3.5 metres."` → one sentence; a 400-char terminator-free buffer force-flushes exactly once. **Control:** a plain three-sentence paragraph emits exactly three.
+**Test.** Extend `tests/unit/common/voiceResponseText.test.ts`: the raw round-trip invariant (character-by-character feed); an open ```fence emits nothing and closing it emits the prose around it;`"Dr. Smith went home."`→ one sentence;`"It is 3.5 metres."` → one sentence; a 400-char terminator-free buffer force-flushes exactly once. **Control:** a plain three-sentence paragraph emits exactly three.
 
 ---
 
 ### V20 — MUST — Split `completeResponse` into a turn-terminal handler (feasibility #1, blocker, accepted)
 
 **Verified at `VoiceConversationMode.tsx:471`:**
+
 ```
 if (!current || !turnId || !['thinking', 'acting'].includes(current.state)) return;
 ```
+
 The moment the first sentence chunk fires `response_segment_ready`, the machine is in `speaking` (`VoiceSessionMachine.ts:343`). Every later call to `completeResponse` — from `finish` (`:519`) and from `turnCompleted` (`:528`) — then hits that guard and returns immediately. Under V22 the draft's stated owner of the tail **cannot run**: the trailing fragment is never spoken, `setLastResponse` never fires so captions stay empty, the `NO_SPEAKABLE_RESPONSE` branch is dead, and `completionKeyRef` is never set so the dedupe between the two terminal paths is gone.
 
 **Change.** Split into (a) a turn-terminal handler valid from `thinking|acting|speaking` that owns the tail, `setLastResponse`, the `NO_SPEAKABLE_RESPONSE` case, and the dedupe key (with `speaking` added to it); and (b) the existing single-clip path used when chunking is off. **This is V22's cost, not a free consequence of V19.**
@@ -432,7 +445,7 @@ The moment the first sentence chunk fires `response_segment_ready`, the machine 
 
 **Verified.** There is **no** `autoplay-policy` switch anywhere in main — `/usr/bin/grep -rn "appendSwitch" src/process/` returns only `ozone-platform`, `disable-gpu`, `disable-software-rasterizer` (`configureChromium.ts:45-47`), `no-sandbox` (`:59`), and `remote-debugging-port` (`:316`). Chromium's default gesture requirement applies. The in-repo precedent is `useSpeechInput.ts:698-699`: `if (audioContext.state === 'suspended') await audioContext.resume()`.
 
-**Why it is a blocker.** `playResponse` is invoked from a stream event, not a gesture. With `HTMLAudioElement` a blocked play *rejects* and you get `TTS_PLAYBACK_FAILED` (`VoiceConversationMode.tsx:364-367`). With Web Audio, a suspended context gives **no error at all**: `start(when)` schedules against a clock that is not advancing, nothing plays, `onended` never fires, `playback_completed` never fires, the session never re-arms. Symptom-for-symptom the bug this plan exists to fix.
+**Why it is a blocker.** `playResponse` is invoked from a stream event, not a gesture. With `HTMLAudioElement` a blocked play _rejects_ and you get `TTS_PLAYBACK_FAILED` (`VoiceConversationMode.tsx:364-367`). With Web Audio, a suspended context gives **no error at all**: `start(when)` schedules against a clock that is not advancing, nothing plays, `onended` never fires, `playback_completed` never fires, the session never re-arms. Symptom-for-symptom the bug this plan exists to fix.
 
 **Change.** Create and `resume()` the `AudioContext` inside the **entry-button click handler** (the gesture, V6). Assert `ctx.state === 'running'` before scheduling; otherwise fail to a named error and surface V2's `audio-blocked` reason. Never schedule against a suspended context.
 
@@ -445,6 +458,7 @@ The moment the first sentence chunk fires `response_segment_ready`, the machine 
 **Files.** Replaces `playResponse` (`VoiceConversationMode.tsx:325-371`, in the hook after V4) and adds `src/renderer/services/voice/voiceSpeechQueue.ts`.
 
 Behaviour:
+
 - Drive from the existing stream site (`:497-522`; chunks are deltas — confirmed at `:509` and at `chatLib.ts:1217/:1277`). After each `responseTextRef.current += chunk`, pull complete sentences with V19 and enqueue. V20's terminal handler owns the tail.
 - **At most 2 `voiceSynth.speak.invoke` in flight**, results stored by index.
 - Decode each result with `AudioContext.decodeAudioData` — the same primitive already used at `src/renderer/services/voice/localWhisper.ts:82-100`. Trim leading/trailing silence at |sample| > 200/32767, then `AudioBufferSourceNode.start(cursor)`; `cursor += trimmed.duration`.
@@ -457,10 +471,11 @@ Behaviour:
 
 **Naive failure 1.** Firing all N `speak` calls at once — `say` runs genuinely in parallel and short sentences resolve first, so clips play out of order; on `openai` a barge-in wastes N billed requests instead of 1.
 **Naive failure 2.** Emitting `playback_completed` per chunk. It unconditionally returns to `listening`, clears `activeTurnId`, and emits `start_capture` (`VoiceSessionMachine.ts:368-381`) — the mic reopens over Wayland's own voice mid-answer.
-**Naive failure 3.** Believing the epoch is a cancel. No cancel exists anywhere: `voiceSynth.stop` is an explicit no-op (`voiceSynthBridge.ts:70-73`), `speak`'s param type is `{text: string}` with no abort token, and main holds no handle on the `say` child (`TextToSpeechService.ts:135`) or the OpenAI fetch (`:90`). The epoch stops *issuing*; `stopAll()` stops *sounding*. Both are required. Accepted residual: at most **one** orphaned in-flight call per interrupt (harmless CPU on `say`; one billed-and-unheard request on `openai`).
-**Naive failure 4.** *(Draft's mp3 item deleted — see §Rejected R4. `openai` is the only mp3 producer and it does not chunk, so the clause was dead text contradicting §Not doing 3.)*
+**Naive failure 3.** Believing the epoch is a cancel. No cancel exists anywhere: `voiceSynth.stop` is an explicit no-op (`voiceSynthBridge.ts:70-73`), `speak`'s param type is `{text: string}` with no abort token, and main holds no handle on the `say` child (`TextToSpeechService.ts:135`) or the OpenAI fetch (`:90`). The epoch stops _issuing_; `stopAll()` stops _sounding_. Both are required. Accepted residual: at most **one** orphaned in-flight call per interrupt (harmless CPU on `say`; one billed-and-unheard request on `openai`).
+**Naive failure 4.** _(Draft's mp3 item deleted — see §Rejected R4. `openai` is the only mp3 producer and it does not chunk, so the clause was dead text contradicting §Not doing 3.)_
 
 **Tests.** New `tests/unit/renderer/voice/voiceSpeechQueue.test.ts` against a fake `speak` with per-index delays resolving **out of order** (index 2 before index 1) and a fake AudioContext recording `start(when)`:
+
 - playback order is 0, 1, 2;
 - `cursor` is monotonic and equals the sum of trimmed durations;
 - never more than 2 calls in flight;
@@ -487,7 +502,7 @@ Behaviour:
 
 ### V24 — SHOULD — Named failures and a circuit breaker (was S17)
 
-Adopt the taxonomy Anthropic publishes for Claude Code voice dictation: *recorder started but captured silence* vs *audio never reached the service* vs *service returned nothing* — they explicitly log conflating the first two as a bug fixed in v2.1.200. Our TTS-side analogue is our bug: a synth call that cannot succeed must produce a named error and re-arm the session, never advance the state machine silently. `TextToSpeechBridgeResult` already carries eight error codes (`ttsTypes.ts:70-78`); the gap is that the UI reaches `speaking` before `speak` resolves.
+Adopt the taxonomy Anthropic publishes for Claude Code voice dictation: _recorder started but captured silence_ vs _audio never reached the service_ vs _service returned nothing_ — they explicitly log conflating the first two as a bug fixed in v2.1.200. Our TTS-side analogue is our bug: a synth call that cannot succeed must produce a named error and re-arm the session, never advance the state machine silently. `TextToSpeechBridgeResult` already carries eight error codes (`ttsTypes.ts:70-78`); the gap is that the UI reaches `speaking` before `speak` resolves.
 Add a circuit breaker: after 3 consecutive capture failures, stop re-arming and say so.
 
 **Test.** A `speak` resolving `{ok:false}` leaves the session in `error` (not `speaking`) with a user-readable message. **Control:** the success path still reaches `speaking`. Breaker: 3 failures → no 4th `beginCapture`; 2 failures then a success → re-arms normally.
@@ -499,7 +514,7 @@ Every threshold in `useSpeechInput.ts` was tuned against a mocked analyser. Publ
 
 ### V26 — LATER — Barge-in calibrates against silence (was S20)
 
-`startMonitoring` is armed on `state === 'speaking'` (`:607-611`), but the machine enters `speaking` at `response_segment_ready` (`:490`) — *before* `playResponse` awaits `speak.invoke` (`:328`). So the 480 ms echo calibration (`useSpeechInput.ts:725-731`: 6 ticks × 80 ms) runs entirely during 765 ms–2.3 s of synthesis silence: `echoPeak ≈ 0` and the threshold pins to the 0.06 floor (`threshold = max(echoPeak × 3, 0.06)`). It has never been calibrated against real speaker bleed. Fix by calibrating from the first audible output sample. **Chunking does not cause this and slightly improves it — but it will be blamed for it.**
+`startMonitoring` is armed on `state === 'speaking'` (`:607-611`), but the machine enters `speaking` at `response_segment_ready` (`:490`) — _before_ `playResponse` awaits `speak.invoke` (`:328`). So the 480 ms echo calibration (`useSpeechInput.ts:725-731`: 6 ticks × 80 ms) runs entirely during 765 ms–2.3 s of synthesis silence: `echoPeak ≈ 0` and the threshold pins to the 0.06 floor (`threshold = max(echoPeak × 3, 0.06)`). It has never been calibrated against real speaker bleed. Fix by calibrating from the first audible output sample. **Chunking does not cause this and slightly improves it — but it will be blamed for it.**
 
 ### V27 — LATER — Launch Pad parity (was S21)
 
@@ -525,7 +540,7 @@ Feasibility wanted the composer soundwave to route to `expand()` on an active se
 **Call: both, on different axes.** S8's real point was the `isLoading || loading` gate, which kills barge-in — remove it. Privacy's real point is two concurrent `getUserMedia` recorders transcribing one utterance twice — add a `sessionActive` gate with a visible reason. They are not the same gate and there is no conflict once separated.
 
 **C3 — Streaming feasibility.** Synthesis lane: yes, no protocol change, with measurements. External lane: Claude's own streaming behaviour is unverified (Engadget says turn-based, datastudios says full-duplex — directly contradictory secondary sources) and waiting for a sentence boundary costs 200–500 ms.
-**Call: ship sentence chunking.** It is the only pipeline-compatible answer, the 200–500 ms is paid once at the start instead of waiting for the whole generation, and measured time-to-first-audio of ~1.1 s vs 2.29 s (and vs full-generation-then-synthesis in reality) is a large win. Described as *sentence-chunked synthesis*, never as "streaming audio".
+**Call: ship sentence chunking.** It is the only pipeline-compatible answer, the 200–500 ms is paid once at the start instead of waiting for the whole generation, and measured time-to-first-audio of ~1.1 s vs 2.29 s (and vs full-generation-then-synthesis in reality) is a large win. Described as _sentence-chunked synthesis_, never as "streaming audio".
 
 **C4 — Two buttons or one mic + chevron.** Claude Desktop consolidated to a single mic with a chevron that switches dictation ↔ voice and keeps the choice (changelog v1.25927.0). claude.ai web and ChatGPT keep two icons. Sean specified two.
 **Call: two buttons.** A chevron is a hidden affordance and the north star is a non-technical everyman who will never find it; two visible controls also let the distinction be asserted behaviourally (V17). Cost is composer width — real, and H7/H8 are the gates. This is the one place the plan knowingly diverges from the reference product, on Sean's call, with the divergence on the table.
@@ -534,7 +549,7 @@ Feasibility wanted the composer soundwave to route to `expand()` on an active se
 **Call: keep the field as a user kill switch, flip its default (V1), derive readiness on top of it (V2).** Deleting it breaks the settings Switch, the normalizer, and their tests for zero privacy gain, because it never gated anything.
 
 **C6 — Hands-free VAD or push-to-talk by default.** Claude and ChatGPT default hands-free with server-side VAD tuned on real traffic; Wispr and Claude Code default push-to-talk. Our endpointing has only been validated against a mocked analyser.
-**Call: hands-free stays the default inside conversation mode** (continuous turn-taking is the point) **but V25's wall-clock caps ship with it**, and V6 keeps the *first* turn a deliberate tap. Dictation stays tap-to-start / tap-to-stop and never auto-sends.
+**Call: hands-free stays the default inside conversation mode** (continuous turn-taking is the point) **but V25's wall-clock caps ship with it**, and V6 keeps the _first_ turn a deliberate tap. Dictation stays tap-to-start / tap-to-stop and never auto-sends.
 
 ---
 
@@ -542,7 +557,7 @@ Feasibility wanted the composer soundwave to route to `expand()` on an active se
 
 **R1 — Feasibility #8's alternative: a one-shot `enabled` migration.** Rejected (feasibility itself recommended against it). Rewriting a user's stored config to flip a switch they may have deliberately set is worse than leaving it; V2's `tts-disabled-by-user` reason plus V10's one-tap route fixes the same users with their consent. What is **accepted** from #8 is the honest wording — the flip does not fix anyone who ever changed a TTS field or pressed Test voice.
 
-**R2 — Privacy #3's proposed new main-side IPC returning `{ttsProvider, sttProvider}`.** Rejected as written; the *requirement* is accepted in full. The divergence exists only because settings shows a provider main does not use (the Flux seed). V3 fixes that at the root, after which the renderer's view is authoritative and no new IPC surface is needed. Guarded by V3's added test asserting renderer-resolved == main-resolved for the seeded-Flux case. If that test cannot be made to pass, the IPC comes back — but do not add it speculatively.
+**R2 — Privacy #3's proposed new main-side IPC returning `{ttsProvider, sttProvider}`.** Rejected as written; the _requirement_ is accepted in full. The divergence exists only because settings shows a provider main does not use (the Flux seed). V3 fixes that at the root, after which the renderer's view is authoritative and no new IPC surface is needed. Guarded by V3's added test asserting renderer-resolved == main-resolved for the seeded-Flux case. If that test cannot be made to pass, the IPC comes back — but do not add it speculatively.
 
 **R3 — Testability #3's option A: a new `ChatLayout` + real SendBox + `MemoryRouter` + real-Arco harness.** Rejected in favour of its own option B. Building a fourth composer harness to count buttons is disproportionate; two direct assertions (header entry absent, composer entry present) are stronger, cheaper, and do not create a harness someone must maintain. Testability's underlying correction — that "count is 2 at HEAD" is false — is **accepted** and the control is rewritten.
 
@@ -552,7 +567,7 @@ Feasibility wanted the composer soundwave to route to `expand()` on an active se
 
 **R6 — UX #6's literal aria-label strings** ("Dictate — type with your voice", "Talk with Wayland — it answers out loud"). Rejected as `aria-label` values — a screen reader reading a full sentence on every focus is worse than the problem. Accepted as `title` tooltips, with short distinct `aria-label`s ("Dictate" / "Talk with Wayland"). The substance — distinct names, distinct icon treatment, real i18n keys — is fully accepted as V14.
 
-**R7 — UX #2's implication that Expand can be dropped entirely.** Rejected. After V4 the orb costs one `isExpanded` boolean and reuses 764 lines of already-written captions, level meter, and controls, and Sean's E asks for it. It is demoted to SHOULD and given a proper labelled chevron, not deleted. What is **accepted** is that the second *entry point* must not survive.
+**R7 — UX #2's implication that Expand can be dropped entirely.** Rejected. After V4 the orb costs one `isExpanded` boolean and reuses 764 lines of already-written captions, level meter, and controls, and Sean's E asks for it. It is demoted to SHOULD and given a proper labelled chevron, not deleted. What is **accepted** is that the second _entry point_ must not survive.
 
 ---
 
@@ -582,7 +597,7 @@ Mandatory. None can be closed by a unit test, by an agent, or by CI. **H3 is a m
 - **H5 — `openai` TTS per-chunk latency and cost.** Never measured. The 0.88 s break-even is a local-subprocess number.
 - **H6 — The glow.** Warm ambient cue, or the "a little over-the-top" orange cloud MacStories described in Claude's own Mac dictation? Screenshot before/after, both themes, both the speaking and listening variants.
 - **H7 — Narrow-window and popout layout** with four controls plus a status string. `runningIndicator` is `white-space: nowrap` (`sendbox.css:517`) and the right cluster has no `min-w-0`/`flex-shrink`; popout is the narrowest real surface and no sendbox test covers it. jsdom cannot measure overflow.
-- **H8 — Mobile.** `.sendbox-input--mobile` forces 16 px (`sendbox.css:445`), `.sendbox-panel` takes a safe-area bottom margin (`:452`), and only the *left* tools rail scrolls (`sendbox.tsx:1673`). A wider right cluster steals width from the textarea.
+- **H8 — Mobile.** `.sendbox-input--mobile` forces 16 px (`sendbox.css:445`), `.sendbox-panel` takes a safe-area bottom margin (`:452`), and only the _left_ tools rail scrolls (`sendbox.tsx:1673`). A wider right cluster steals width from the textarea.
 - **H9 — Screen-reader pass** over the composer (dictate, talk, mute, expand, send/stop): reading order, and that the voice status is announced on state change and **not** per streamed token.
 - **H10 — Windows.** No local TTS at all off macOS, so the entire conversation path there is hosted OpenAI. Nothing may claim cross-platform voice until this runs on the Windows box (`ssh -i ~/.ssh/wayland_win seand@100.109.207.54`).
 - **H11 — Non-default `speed`.** All timing constants measured at `-r 175`. The user-configurable 0.5–2.0 range (`ttsTypes.ts:17`) may move the 765/129 fit and the 0.88 s break-even.
@@ -594,11 +609,11 @@ Mandatory. None can be closed by a unit test, by an agent, or by CI. **H3 is a m
 
 Five layers, cheapest first.
 
-1. **`useVoiceSessionSafe()` returns `null` outside a provider** (and outside a matching `conversationId`), and every composer read is written `voiceX ?? existingX`. Removing the one JSX wrapper in `ChatLayout/index.tsx:318` reverts the composer surface entirely: parent `placeholder`, parent `renderActionButtons()`, existing focus ring, `runningIndicator` restored. **Correction to the draft (testability):** this does *not* mean "no test outside the voice suites changes" — `tests/unit/sendboxQueue.dom.test.tsx` changes in V8 and must stay changed.
+1. **`useVoiceSessionSafe()` returns `null` outside a provider** (and outside a matching `conversationId`), and every composer read is written `voiceX ?? existingX`. Removing the one JSX wrapper in `ChatLayout/index.tsx:318` reverts the composer surface entirely: parent `placeholder`, parent `renderActionButtons()`, existing focus ring, `runningIndicator` restored. **Correction to the draft (testability):** this does _not_ mean "no test outside the voice suites changes" — `tests/unit/sendboxQueue.dom.test.tsx` changes in V8 and must stay changed.
 2. **One module-level kill switch** beside `ACOUSTIC_BARGE_IN_ENABLED` (`VoiceConversationMode.tsx:80`): `VOICE_IN_COMPOSER_ENABLED`. `false` → the provider still owns the session, the composer renders nothing voice-related, and the orb re-mounts its own entry button. One boolean, shippable in a patch.
-3. **Chunking has its own switch**, `VOICE_STREAM_SENTENCES_ENABLED`. **Corrected (testability #8, accepted):** flag-off is *not* "byte-for-byte today's single-clip path" — today's path is `new Audio(url)` + `addEventListener('ended')` (`VoiceConversationMode.tsx:340-352`) and the existing suite drives re-arm through its `MockAudio` and `lastAudio.fire('ended')` (10 references). Byte-for-byte is only reachable if the `HTMLAudioElement` implementation is genuinely retained. **Decision: retain it as a second, flag-selected path** until H3 passes on a packaged build and one release ships with chunking on; V29 then deletes it. Acceptance for layer 3 is the **ported** session suite from V4 passing with the flag off, not the unchanged file (V11 deletes the entry button those 9 tests click).
+3. **Chunking has its own switch**, `VOICE_STREAM_SENTENCES_ENABLED`. **Corrected (testability #8, accepted):** flag-off is _not_ "byte-for-byte today's single-clip path" — today's path is `new Audio(url)` + `addEventListener('ended')` (`VoiceConversationMode.tsx:340-352`) and the existing suite drives re-arm through its `MockAudio` and `lastAudio.fire('ended')` (10 references). Byte-for-byte is only reachable if the `HTMLAudioElement` implementation is genuinely retained. **Decision: retain it as a second, flag-selected path** until H3 passes on a packaged build and one release ships with chunking on; V29 then deletes it. Acceptance for layer 3 is the **ported** session suite from V4 passing with the flag off, not the unchanged file (V11 deletes the entry button those 9 tests click).
 4. **The typing invariants, as a named regression file** `tests/unit/composerTypingUnaffected.dom.test.tsx`, run across all 12 machine states: the textarea is never `disabled`; Enter sends the draft; focus is never stolen; the highlight overlay stays metric-aligned (already pinned at `sendboxAtFileMenu.dom.test.tsx:308`); and **`value` changes only from user input, with exactly one exception — V16's staged-attachment hand-off, which is asserted separately and only fires when files are staged.** If any go red, revert to layer 1; do not patch forward.
-5. **No new send path exists.** Voice turns already enter the same `onSend` as typed chat via `useVoiceTurnSubmission` (registered by all six wrappers: WCore:400, Gemini:360, OpenClaw:497, Nanobot:316, Acp:326, Remote:399). Nothing here changes that, so a voice regression cannot lose a *typed* message. **It can misfile a spoken one** — that is what V4(d) closes.
+5. **No new send path exists.** Voice turns already enter the same `onSend` as typed chat via `useVoiceTurnSubmission` (registered by all six wrappers: WCore:400, Gemini:360, OpenClaw:497, Nanobot:316, Acp:326, Remote:399). Nothing here changes that, so a voice regression cannot lose a _typed_ message. **It can misfile a spoken one** — that is what V4(d) closes.
 
 **Blast radius, plainly.** Two shared files carry real risk: `sendbox.tsx` (every conversation surface) and `ChatLayout/index.tsx` (provider mount, also rendered by `TeamPage.tsx:555`). The sendbox edits are confined to: `:1327`/`:1340` (a11y names), `:1353-1358` (status slot), `:1362-1377` (action slot), `:1436-1437` (ring), `:1608` (placeholder, secondary), and `:1652-1691` collapsed into one by V9.
 
@@ -608,14 +623,14 @@ Five layers, cheapest first.
 
 ## Phases
 
-| Phase | Steps | Gate to exit |
-|---|---|---|
-| **P0 — Readiness truth** | V1, V2, V3 | `voiceReadiness.test.ts` table green with its positive-control row; V3's renderer==main provider test green |
-| **P1 — The lift** | V4, V5, V6, V7 | V4's no-Router mount test green; V4(d) undefined-config test green; provider-scoping test green; the ported session suite green |
-| **P2 — Composer surface** | V8, V9, V10, V11, V12, V13, V14, V15, V16, V17, V18 | `composerTypingUnaffected.dom.test.tsx` green across all 12 states; exactly one `/voice conversation/i` control; H6/H7/H8/H9 scheduled |
-| **P3 — Chunking** | V19, V20, V21, V22, (V23) | **H3 passed on a packaged build** — hard gate. Then the queue suite green including the epoch/`stopAll`/suspended-context negative controls |
-| **P4 — Hardening** | V24, V25 | Circuit-breaker and wall-clock tests green |
-| **P5 — Later** | V26, V27, V28, V29 | Not scheduled here |
+| Phase                     | Steps                                               | Gate to exit                                                                                                                                |
+| ------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P0 — Readiness truth**  | V1, V2, V3                                          | `voiceReadiness.test.ts` table green with its positive-control row; V3's renderer==main provider test green                                 |
+| **P1 — The lift**         | V4, V5, V6, V7                                      | V4's no-Router mount test green; V4(d) undefined-config test green; provider-scoping test green; the ported session suite green             |
+| **P2 — Composer surface** | V8, V9, V10, V11, V12, V13, V14, V15, V16, V17, V18 | `composerTypingUnaffected.dom.test.tsx` green across all 12 states; exactly one `/voice conversation/i` control; H6/H7/H8/H9 scheduled      |
+| **P3 — Chunking**         | V19, V20, V21, V22, (V23)                           | **H3 passed on a packaged build** — hard gate. Then the queue suite green including the epoch/`stopAll`/suspended-context negative controls |
+| **P4 — Hardening**        | V24, V25                                            | Circuit-breaker and wall-clock tests green                                                                                                  |
+| **P5 — Later**            | V26, V27, V28, V29                                  | Not scheduled here                                                                                                                          |
 
 **H3 runs at the START of P3, before V22 is written.** If it fails: ship the two-chunk fallback (V19 + V20 only), skip V21/V22, and stop.
 
@@ -623,22 +638,22 @@ Five layers, cheapest first.
 
 Anything in the same row must run **strictly in the listed order, one at a time**. Rows are independent of each other only where no file is shared.
 
-| File | Steps, in order | Note |
-|---|---|---|
-| `src/renderer/components/chat/sendbox.tsx` | V8 → V9 → V10 → V11 → V12 → V13 → V15 → V16 | **SERIALIZED.** The single highest-contention file in the plan. V9 must land before V10–V13 or every edit is done twice. |
-| `src/renderer/pages/conversation/voice/VoiceConversationMode.tsx` | V4 → V6 → V7 → V11 → V18 → V20 → V22 | **SERIALIZED.** V4 is a pure move; nothing else touches this file until it lands. |
-| `src/renderer/hooks/voice/useVoiceConversationSession.ts` (new, from V4) | V4 → V5 → V6 → V7 → V18 → V20 → V21 → V22 | **SERIALIZED.** |
-| `tests/unit/sendboxQueue.dom.test.tsx` | V8 → V9 → V11 → V12 | **SERIALIZED. V8 first, always** — before it, no accessible-name assertion in this file means anything. |
-| `tests/unit/renderer/conversation/VoiceConversationMode.dom.test.tsx` | V4 → V11 → V22 | **SERIALIZED.** V4 and V11 retarget the 9 entry clicks **in one commit**. |
-| `src/renderer/pages/conversation/components/ChatLayout/index.tsx` | V4 | Single toucher. |
-| `src/common/voice/voiceResponseText.ts` + its test | V19 | Single toucher — **fully parallel with all of P0/P1/P2**. |
-| `src/renderer/components/settings/.../ToolsModalContent.tsx` | V3 | Single toucher. |
-| `src/common/types/ttsTypes.ts` | V1 | Single toucher. |
-| `src/common/voice/voiceReadiness.ts` (new) | V2 | Single toucher. |
-| `src/renderer/components/chat/SpeechInputButton.tsx` | V14 → V15 | SERIALIZED (small). |
-| `src/renderer/hooks/chat/useInputFocusRing.ts` + `sendbox.css` | V13 | Single toucher. Nine suites mock `useInputFocusRing`; additive fields are safe. |
-| `src/renderer/hooks/system/useSpeechInput.ts` | V25 | Single toucher. |
-| i18n locales (12 files) | V14 | Single toucher. |
+| File                                                                     | Steps, in order                             | Note                                                                                                                     |
+| ------------------------------------------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `src/renderer/components/chat/sendbox.tsx`                               | V8 → V9 → V10 → V11 → V12 → V13 → V15 → V16 | **SERIALIZED.** The single highest-contention file in the plan. V9 must land before V10–V13 or every edit is done twice. |
+| `src/renderer/pages/conversation/voice/VoiceConversationMode.tsx`        | V4 → V6 → V7 → V11 → V18 → V20 → V22        | **SERIALIZED.** V4 is a pure move; nothing else touches this file until it lands.                                        |
+| `src/renderer/hooks/voice/useVoiceConversationSession.ts` (new, from V4) | V4 → V5 → V6 → V7 → V18 → V20 → V21 → V22   | **SERIALIZED.**                                                                                                          |
+| `tests/unit/sendboxQueue.dom.test.tsx`                                   | V8 → V9 → V11 → V12                         | **SERIALIZED. V8 first, always** — before it, no accessible-name assertion in this file means anything.                  |
+| `tests/unit/renderer/conversation/VoiceConversationMode.dom.test.tsx`    | V4 → V11 → V22                              | **SERIALIZED.** V4 and V11 retarget the 9 entry clicks **in one commit**.                                                |
+| `src/renderer/pages/conversation/components/ChatLayout/index.tsx`        | V4                                          | Single toucher.                                                                                                          |
+| `src/common/voice/voiceResponseText.ts` + its test                       | V19                                         | Single toucher — **fully parallel with all of P0/P1/P2**.                                                                |
+| `src/renderer/components/settings/.../ToolsModalContent.tsx`             | V3                                          | Single toucher.                                                                                                          |
+| `src/common/types/ttsTypes.ts`                                           | V1                                          | Single toucher.                                                                                                          |
+| `src/common/voice/voiceReadiness.ts` (new)                               | V2                                          | Single toucher.                                                                                                          |
+| `src/renderer/components/chat/SpeechInputButton.tsx`                     | V14 → V15                                   | SERIALIZED (small).                                                                                                      |
+| `src/renderer/hooks/chat/useInputFocusRing.ts` + `sendbox.css`           | V13                                         | Single toucher. Nine suites mock `useInputFocusRing`; additive fields are safe.                                          |
+| `src/renderer/hooks/system/useSpeechInput.ts`                            | V25                                         | Single toucher.                                                                                                          |
+| i18n locales (12 files)                                                  | V14                                         | Single toucher.                                                                                                          |
 
 **Safe to parallelize:** {V1} ∥ {V2} ∥ {V3} ∥ {V19}. Everything from V4 onward funnels through the two serialized columns above.
 
@@ -654,8 +669,8 @@ These supersede the corresponding assumptions above.
 ## M1 — Streaming is justified. Time to first audio 5056ms -> 953ms.
 
 Five-sentence reply, `system-native`:
-  one-shot     synth 5056 ms, audio 10.76 s
-  per-sentence first chunk 953 ms; chunks 899-1280 ms each; total synth 5007 ms
+one-shot synth 5056 ms, audio 10.76 s
+per-sentence first chunk 953 ms; chunks 899-1280 ms each; total synth 5007 ms
 Synthesis comfortably outpaces playback, so the pipeline will not starve.
 **4.1 seconds earlier to first sound** is the whole case for V19-V22.
 
@@ -669,10 +684,10 @@ measurable difference that no listener can hear is not a defect.
 
 ## M3 — The "pronouncing the grammar" defect is INTONATION, not timing.
 
-  D raw commas              3.82 s   <- what ships today; Sean: sounds like it
-                                        is reading the punctuation
-  E comma -> [[slnc 150]]   3.87 s   <- Sean: "less rushed and more natural"  WINNER
-  F commas deleted          3.38 s   <- Sean: rushed
+D raw commas 3.82 s <- what ships today; Sean: sounds like it
+is reading the punctuation
+E comma -> [[slnc 150]] 3.87 s <- Sean: "less rushed and more natural" WINNER
+F commas deleted 3.38 s <- Sean: rushed
 
 D and E are the same length. The difference is that `say` performs a grammatical
 intonation contour at a comma. Deleting the comma removes the contour AND the
@@ -702,17 +717,18 @@ converted INTO prosody, not deleted. Commas down, list boundaries up.
 ## M6 — Provider ladder with a guaranteed local floor. (new, amends V3)
 
 Pieces already exist but are not chained.
-  speech in : OpenAI Whisper -> Flux Voice -> local Whisper (localWhisper.ts)
-  speech out: OpenAI TTS     -> Flux Voice -> system-native `say`
+speech in : OpenAI Whisper -> Flux Voice -> local Whisper (localWhisper.ts)
+speech out: OpenAI TTS -> Flux Voice -> system-native `say`
 Two rules that make this a design rather than a list:
- 1. The bottom rung is ALWAYS local. Voice must never hard-fail on a missing key
+
+1.  The bottom rung is ALWAYS local. Voice must never hard-fail on a missing key
     or a dropped network. Robotic-and-working beats silent, and silent is exactly
     the failure Sean hit on 2026-08-10.
- 2. Fallback is ANNOUNCED once in the UI, never silent. Silent degradation is how
+2.  Fallback is ANNOUNCED once in the UI, never silent. Silent degradation is how
     a user concludes their microphone is broken.
-RISK: `localWhisper.ts` has NO test file (verified; control - the same search
-found textToSpeech.test.ts). The guaranteed floor is currently the least proven
-rung in the chain. Exercise it before leaning on it.
+    RISK: `localWhisper.ts` has NO test file (verified; control - the same search
+    found textToSpeech.test.ts). The guaranteed floor is currently the least proven
+    rung in the chain. Exercise it before leaning on it.
 
 ## M7 — Calibrate the endpointer from the mic check, do not ship universal constants. (new; amends V21/V25)
 
@@ -722,10 +738,10 @@ Sean pointed out the app ALREADY has a microphone test:
 
 **It does not answer the endpointing question, and the reason is a trap.**
 
-| surface | measures | "no signal"/"speech" bar |
-|---|---|---|
-| MicrophoneCheck (`peakOverWindowRef`, :26-29) | PEAK amplitude | 0.02 |
-| endpointer (`Math.sqrt(sum/n)`, useSpeechInput.ts:344) | RMS | 0.02 (`ENDPOINT_SPEECH_THRESHOLD_MIN`) |
+| surface                                                | measures       | "no signal"/"speech" bar               |
+| ------------------------------------------------------ | -------------- | -------------------------------------- |
+| MicrophoneCheck (`peakOverWindowRef`, :26-29)          | PEAK amplitude | 0.02                                   |
+| endpointer (`Math.sqrt(sum/n)`, useSpeechInput.ts:344) | RMS            | 0.02 (`ENDPOINT_SPEECH_THRESHOLD_MIN`) |
 
 Same number, same 0-1 range, DIFFERENT QUANTITY. Speech crest factor is ~3-5x, so
 a 0.12 peak is roughly 0.025-0.04 RMS. Anyone comparing the two 0.02s concludes
@@ -737,10 +753,10 @@ comparable.
 MicrophoneCheck already owns getUserMedia, a device list, an AnalyserNode and a
 timed window. Add an RMS track beside the existing peak track and make the check
 TWO-STAGE:
-  stage 1 "stay quiet"    -> record room-tone RMS
-  stage 2 "say something" -> record speech RMS
+stage 1 "stay quiet" -> record room-tone RMS
+stage 2 "say something" -> record speech RMS
 Persist both PER DEVICE (deviceId), and have the endpointer PREFER stored
-calibration over ENDPOINT_SPEECH_THRESHOLD_MIN / ENDPOINT_NOISE_FLOOR_*.
+calibration over ENDPOINT*SPEECH_THRESHOLD_MIN / ENDPOINT_NOISE_FLOOR*\*.
 
 ### Why this is better than tuning the constants
 

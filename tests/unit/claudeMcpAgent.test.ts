@@ -89,7 +89,7 @@ describe('ClaudeMcpAgent CLI failure classification', () => {
   it('still reports a real failure as a failure', () => {
     // Negative control. Without it, `() => true` would satisfy every
     // assertion above and both defects would reappear as silent successes.
-    const denied = execErrorDetail(execFailure('EACCES: permission denied, open \'/Users/x/.claude.json\''));
+    const denied = execErrorDetail(execFailure("EACCES: permission denied, open '/Users/x/.claude.json'"));
     expect(isClaudeMcpAbsentDetail(denied)).toBe(false);
     expect(isClaudeMcpNameTakenDetail(denied)).toBe(false);
 

@@ -243,10 +243,9 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     // be honored, so the assertion is on that lane's own disclosure state
     // rather than on which single section won the panel.
     await waitFor(() => {
-      expect(screen.getByTestId('workbench-panel').querySelector('[data-section-id="projection:core"]')).toHaveAttribute(
-        'data-expanded',
-        'true'
-      );
+      expect(
+        screen.getByTestId('workbench-panel').querySelector('[data-section-id="projection:core"]')
+      ).toHaveAttribute('data-expanded', 'true');
     });
     expect(screen.getByTestId('projection:core-content')).toBeInTheDocument();
   });
@@ -276,10 +275,7 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
   // appears." No exception was thrown, which is why it hid.
   it('opens a dormant section when the user clicks its row, instead of collapsing the panel', async () => {
     render(
-      <WorkbenchHost
-        conversationId='dormant-click'
-        sections={[section('core', true), section('workspace', false)]}
-      >
+      <WorkbenchHost conversationId='dormant-click' sections={[section('core', true), section('workspace', false)]}>
         <main>chat</main>
       </WorkbenchHost>
     );
@@ -302,10 +298,7 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
 
   it('still lets the user close a section they opened by hand', async () => {
     render(
-      <WorkbenchHost
-        conversationId='dormant-close'
-        sections={[section('core', true), section('workspace', false)]}
-      >
+      <WorkbenchHost conversationId='dormant-close' sections={[section('core', true), section('workspace', false)]}>
         <main>chat</main>
       </WorkbenchHost>
     );
@@ -313,9 +306,10 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     await screen.findByTestId('workbench-panel');
     fireEvent.click(screen.getByRole('button', { name: /workspace/i }));
     await waitFor(() =>
-      expect(
-        screen.getByTestId('workbench-panel').querySelector('[data-section-id="workspace"]')
-      ).toHaveAttribute('data-expanded', 'true')
+      expect(screen.getByTestId('workbench-panel').querySelector('[data-section-id="workspace"]')).toHaveAttribute(
+        'data-expanded',
+        'true'
+      )
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Close workbench' }));

@@ -6,12 +6,12 @@
 
 ## Verdicts
 
-| leg | verdict | notes |
-|---|---|---|
-| Codex 5.6 Sol | **NO-GO** | 7 findings. Pinned to `c3beb0262`; could not run Vitest under its read-only sandbox |
-| Gemini 3.1 Pro | **NO-GO** | 4 findings. Its shell tool was blocked mid-run, so it reasoned from reads — findings still verified correct |
-| Kimi K3 | **FIX-FIRST** | 4 findings. Ran the affected test files (32 passed) |
-| internal `ferrox-code-reviewer` | **FIX-FIRST** | 1 finding, plus independent confirmation on nine other axes |
+| leg                             | verdict       | notes                                                                                                       |
+| ------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------------- |
+| Codex 5.6 Sol                   | **NO-GO**     | 7 findings. Pinned to `c3beb0262`; could not run Vitest under its read-only sandbox                         |
+| Gemini 3.1 Pro                  | **NO-GO**     | 4 findings. Its shell tool was blocked mid-run, so it reasoned from reads — findings still verified correct |
+| Kimi K3                         | **FIX-FIRST** | 4 findings. Ran the affected test files (32 passed)                                                         |
+| internal `ferrox-code-reviewer` | **FIX-FIRST** | 1 finding, plus independent confirmation on nine other axes                                                 |
 
 **Every finding below was reproduced by execution before being accepted.** No finding was taken on
 a leg's word — one leg's headline claim (that the normal restore path blind-writes) had already been
@@ -19,14 +19,14 @@ disproved earlier in this milestone by running the test that covers it.
 
 ## Fixed in `8e36abf05` and the follow-up commit
 
-| # | finding | legs | why it mattered |
-|---|---|---|---|
-| 1 | **Silent data loss.** The line scanner had no TOML string context, so a table header merely *quoted* inside a multi-line string started a removal block and deleted real user content up to the next header-looking line. The survivor still parsed, so the fail-closed guard never fired. | Gemini | The worst possible shape: silent, on a file the user owns, undetectable by the guard that exists to catch exactly this |
-| 2 | **Secret leakage.** `smol-toml` echoes the offending source line verbatim; the global config holds `api_key` values, so a malformed line put a live credential in the thrown message, which reaches `mainError` unredacted before the UI-layer redaction applies. | Gemini, Kimi, Codex | A user's TOML typo could write their key to main-process logs and the renderer log stream |
-| 3 | **Unactionable brick.** A config declaring `profiles` as an inline table can never accept a bracketed section, so every launch failed with an opaque "resulting content is not valid TOML". | Gemini | Failing closed is right; failing incomprehensibly is not. Now names the cause and the one-line fix |
-| 4 | **Lease key not canonicalised.** The sibling workspace lease `realpath`s; this one did not, so two symlink aliases to one `config.toml` got separate leases and could interleave the transaction — B's restore baking A's temporary profile permanently into the user's real config. | internal, Kimi, Codex | The exact defence already built and tested for the *lower-stakes* workspace file was not carried to the higher-stakes one |
-| 5 | **Quoted spelling bricked launches.** `[profiles."__wayland_desktop_session"]` is valid TOML for the same table; raw-string matching missed it, left the stale table, appended a second, and failed the output parse. | Codex, Kimi, internal | Bricked every managed launch until the user hand-rewrote otherwise-valid syntax |
-| 6 | **First-run ENOENT.** On a clean machine the native config dir may not exist. Connector publication creates it, but a chat with **zero** connectors skips that path and still reaches the profile write, so the transaction wrote its sibling backup/marker into a missing directory and aborted the launch. | Codex | A first-launch breaker on a fresh install — the single most likely finding to hit a real new user |
+| #   | finding                                                                                                                                                                                                                                                                                                      | legs                  | why it mattered                                                                                                           |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Silent data loss.** The line scanner had no TOML string context, so a table header merely _quoted_ inside a multi-line string started a removal block and deleted real user content up to the next header-looking line. The survivor still parsed, so the fail-closed guard never fired.                   | Gemini                | The worst possible shape: silent, on a file the user owns, undetectable by the guard that exists to catch exactly this    |
+| 2   | **Secret leakage.** `smol-toml` echoes the offending source line verbatim; the global config holds `api_key` values, so a malformed line put a live credential in the thrown message, which reaches `mainError` unredacted before the UI-layer redaction applies.                                            | Gemini, Kimi, Codex   | A user's TOML typo could write their key to main-process logs and the renderer log stream                                 |
+| 3   | **Unactionable brick.** A config declaring `profiles` as an inline table can never accept a bracketed section, so every launch failed with an opaque "resulting content is not valid TOML".                                                                                                                  | Gemini                | Failing closed is right; failing incomprehensibly is not. Now names the cause and the one-line fix                        |
+| 4   | **Lease key not canonicalised.** The sibling workspace lease `realpath`s; this one did not, so two symlink aliases to one `config.toml` got separate leases and could interleave the transaction — B's restore baking A's temporary profile permanently into the user's real config.                         | internal, Kimi, Codex | The exact defence already built and tested for the _lower-stakes_ workspace file was not carried to the higher-stakes one |
+| 5   | **Quoted spelling bricked launches.** `[profiles."__wayland_desktop_session"]` is valid TOML for the same table; raw-string matching missed it, left the stale table, appended a second, and failed the output parse.                                                                                        | Codex, Kimi, internal | Bricked every managed launch until the user hand-rewrote otherwise-valid syntax                                           |
+| 6   | **First-run ENOENT.** On a clean machine the native config dir may not exist. Connector publication creates it, but a chat with **zero** connectors skips that path and still reaches the profile write, so the transaction wrote its sibling backup/marker into a missing directory and aborted the launch. | Codex                 | A first-launch breaker on a fresh install — the single most likely finding to hit a real new user                         |
 
 Regression tests added: 9 (7 in the splice suite, 3 in the lease suite, minus overlap). Full suite
 after fixes: **16,256 tests, 0 failed** (`success: true`), typecheck clean.
@@ -36,7 +36,7 @@ after fixes: **16,256 tests, 0 failed** (`success: true`), typecheck clean.
 `projectConfigLease.test.ts` case (c) asserted which of two **independent** keys entered first within
 a tick. Canonicalising makes acquisition asynchronous, so that ordering is now scheduler-dependent
 and was never a guarantee this lease makes. The test now asserts the invariant it actually describes
-— B completes while A is held, A has *not* left, A finishes last — which is strictly stronger than
+— B completes while A is held, A has _not_ left, A finishes last — which is strictly stronger than
 the ordering tuple it replaced. Same-key mutual exclusion is untouched and still covered by cases
 (a), (b) and (d). All four legs independently confirmed `wcore-profileIsolation.test.ts` was
 strengthened, not loosened.
@@ -80,9 +80,9 @@ Connector publication also writes Core's startup config before spawn (`WCoreMana
 **Failure scenario.** Chat B reads the global config. Chat A takes the K-01 lease and splices in its
 temporary profile. B then publishes its earlier snapshot through the unrelated `writeLock`:
 
-- if B's write lands *without* A's profile, A's engine starts against bytes with no requested
+- if B's write lands _without_ A's profile, A's engine starts against bytes with no requested
   profile and fails with "Profile not found" — the exact bug K-01 exists to fix; or
-- if B read *after* A's splice, B structurally reserialises the whole user config including A's
+- if B read _after_ A's splice, B structurally reserialises the whole user config including A's
   temporary table, and A's hash-gated restore then preserves B's divergent bytes — permanently
   baking Desktop's internal profile into the user's config and destroying their comments.
 
@@ -124,7 +124,7 @@ security-sensitive splice. Recorded so nobody rediscovers it as new.
 
 ### O-4. Accepted, self-limiting
 
-An external editor that saves the config *while* it is spliced bakes the reserved table into the
+An external editor that saves the config _while_ it is spliced bakes the reserved table into the
 "original" snapshot. Cosmetic — Desktop strips any pre-existing reserved table on every subsequent
 splice, so runtime behaviour stays correct. Worth revisiting when O-1 is fixed, because the clean
 solution is the same: strip the reserved table from the content being backed up.

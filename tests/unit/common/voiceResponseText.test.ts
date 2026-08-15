@@ -203,9 +203,7 @@ describe('agent control markup is never spoken', () => {
   it('CONTROL: ordinary prose is still spoken unchanged', () => {
     // The whole suite above asserts absence, so it would pass on a normalizer
     // that returned the empty string for everything.
-    expect(normalizeVoiceResponseText('The build finished in 12 seconds.')).toBe(
-      'The build finished in 12 seconds.'
-    );
+    expect(normalizeVoiceResponseText('The build finished in 12 seconds.')).toBe('The build finished in 12 seconds.');
   });
 });
 

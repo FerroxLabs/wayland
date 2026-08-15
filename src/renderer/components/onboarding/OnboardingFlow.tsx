@@ -976,7 +976,8 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
         </h1>
         <p className={styles.sub}>
           {t('onboarding.flow.layout.sub', {
-            defaultValue: 'Both show the same chats, projects and settings. You can switch any time in Settings > Navigation.',
+            defaultValue:
+              'Both show the same chats, projects and settings. You can switch any time in Settings > Navigation.',
           })}
         </p>
         <div className={styles.block}>

@@ -21,12 +21,7 @@ import { mcpAgentOperationSucceeded } from '@process/services/mcpServices/McpPro
  */
 describe('mcpAgentOperationSucceeded', () => {
   it('succeeds when every actionable agent succeeded', () => {
-    expect(
-      mcpAgentOperationSucceeded([
-        { success: true },
-        { success: true },
-      ])
-    ).toBe(true);
+    expect(mcpAgentOperationSucceeded([{ success: true }, { success: true }])).toBe(true);
   });
 
   it('succeeds when the only unsuccessful agents are non-targets', () => {
@@ -44,12 +39,7 @@ describe('mcpAgentOperationSucceeded', () => {
   });
 
   it('fails when a real agent failed alongside non-targets', () => {
-    expect(
-      mcpAgentOperationSucceeded([
-        { success: false },
-        { success: false, unsupported: true },
-      ])
-    ).toBe(false);
+    expect(mcpAgentOperationSucceeded([{ success: false }, { success: false, unsupported: true }])).toBe(false);
   });
 
   it('fails when every agent is a non-target', () => {

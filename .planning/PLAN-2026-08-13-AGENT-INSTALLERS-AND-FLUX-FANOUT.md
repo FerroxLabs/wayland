@@ -18,13 +18,13 @@ before building.
 **This codebase already ruled the opposite way on vendor install scripts, with reasons.**
 `src/process/bridge/officecliInstaller.ts:7-19` [V]:
 
-> *"We intentionally do not run the upstream install scripts as a fallback: the tagged scripts
+> _"We intentionally do not run the upstream install scripts as a fallback: the tagged scripts
 > currently resolve a moving `latest` binary, so **checksum-pinning the script would not pin what
 > ultimately executes**." … "A missing or altered packaged binary is a release defect, **never
-> permission to download and execute mutable code at runtime**."*
+> permission to download and execute mutable code at runtime**."_
 
-`REQUIREMENTS.md:585` (INS-06) requires every non-npm channel to extend the same *"manifest,
-consent, **checksum**, and uninstall contract… No channel weakens it."*
+`REQUIREMENTS.md:585` (INS-06) requires every non-npm channel to extend the same _"manifest,
+consent, **checksum**, and uninstall contract… No channel weakens it."_
 
 Your ruling this session was that `curl | sh` is acceptable for a vendor's own official script.
 That is in direct tension with the above, and the technical objection is not ideology: **piping a
@@ -40,9 +40,9 @@ satisfies INS-06, and matches the OfficeCLI precedent rather than contradicting 
   platform binary, GPG `31DD DE24 DDFA B679 F42D 7BD2 BAA9 29FF 1A7E CACE` [V]. Also
   `winget Anthropic.ClaudeCode` and a Homebrew cask, which are themselves verified channels.
 - **Grok / Hermes / OpenClaw** — [?] **a wave must first establish whether each publishes a pinned,
-  hash-verifiable artifact.** If a vendor offers *only* `curl | sh` with a moving target, that agent
-  **does not ship in this milestone** — per INS-02's own words: *"A tool offering only a shell
-  installer does not ship in this phase."*
+  hash-verifiable artifact.** If a vendor offers _only_ `curl | sh` with a moving target, that agent
+  **does not ship in this milestone** — per INS-02's own words: _"A tool offering only a shell
+  installer does not ship in this phase."_
 
 **Do not dispatch Waves B–E until this is answered.** Wave A is unaffected.
 
@@ -63,34 +63,36 @@ installer + connector + live proof together, per agent, or do not ship that agen
 ## 2. Verified starting state
 
 ### 2.1 npm install machinery — PROVEN on a clean box [V]
+
 Fresh Ubuntu 24.04 droplet, **no node, no npm, no agents** (created, tested, destroyed):
 bundled bun **1.3.14** (checksum matched `scripts/bundled-bun-shasums.json`, `951ee2ae…`);
 `bun install --cwd <prefix> --ignore-scripts --no-save <pkg>@<ver>` installed
 `@agentclientprotocol/codex-acp@1.1.2` and `@moonshot-ai/kimi-code@0.34.0`; both launched.
 
-⚠️ **kimi's blocked postinstall is NOT proven harmless.** `installAgent.ts:13-14` [V]: *"kimi-code
-drags in node-pty"* — a native module **not built** under `--ignore-scripts`. `kimi --version`
+⚠️ **kimi's blocked postinstall is NOT proven harmless.** `installAgent.ts:13-14` [V]: _"kimi-code
+drags in node-pty"_ — a native module **not built** under `--ignore-scripts`. `kimi --version`
 printing `0.34.0` does not exercise PTY. **A wave must run a real shell-tool turn through kimi, or
 we state it as a known limitation.**
 
 ### 2.2 Flux fan-out is PARTLY built [V]
+
 `fluxCompat`: `'env'` (routes via env injection now) · `'setup'` (needs a config-writing connector)
 · `'vendor'` (locked to its own service). Connectors live in `src/process/connectors/`.
 
-| agent | fluxCompat | routing implementation |
-|---|---|---|
-| claude | `'env'` (`ANTHROPIC_BASE_URL`) | works today |
-| codex · kimi · opencode | `'setup'` | ✅ `connectors/{codex,kimi,opencode}.ts` |
-| **hermes** | `'setup'` | ✅ **ALREADY BUILT AND PROVEN — see below** |
-| **qoder** | `'setup'` | ❌ none |
-| grok | `'vendor'` | ⚠️ **contested — see §4.2** |
-| wcore · gemini | `'env'` via `NON_ACP_FLUX_COMPAT` | n/a |
+| agent                   | fluxCompat                        | routing implementation                      |
+| ----------------------- | --------------------------------- | ------------------------------------------- |
+| claude                  | `'env'` (`ANTHROPIC_BASE_URL`)    | works today                                 |
+| codex · kimi · opencode | `'setup'`                         | ✅ `connectors/{codex,kimi,opencode}.ts`    |
+| **hermes**              | `'setup'`                         | ✅ **ALREADY BUILT AND PROVEN — see below** |
+| **qoder**               | `'setup'`                         | ❌ none                                     |
+| grok                    | `'vendor'`                        | ⚠️ **contested — see §4.2**                 |
+| wcore · gemini          | `'env'` via `NON_ACP_FLUX_COMPAT` | n/a                                         |
 
 🟢 **Hermes routing EXISTS. Do NOT rebuild it.** `task/hermesConfig.ts`
 `materializeFluxHermesHome()` writes a scoped `HERMES_HOME` (`flux-hermes-home/config.yaml`) and
 **never touches the user's real `~/.hermes`**; `fluxRouting.ts:92`
-`SCOPED_HOME_FLUX_BACKENDS = ['hermes']`, `:90` *"Proven end-to-end against hermes v0.14.0
-(2026-06-12)"* [V]. Three of four audit legs missed this by looking only in
+`SCOPED_HOME_FLUX_BACKENDS = ['hermes']`, `:90` _"Proven end-to-end against hermes v0.14.0
+(2026-06-12)"_ [V]. Three of four audit legs missed this by looking only in
 `src/process/connectors/` — **a connector file is not the only routing mechanism.**
 
 ⭐ **ADOPT THE SCOPED-HOME PATTERN AS THE DEFAULT for every connector.** It routes through Flux
@@ -104,11 +106,13 @@ qoder**, advertising routing that cannot happen. Fix or hide it.
 **Fan-out surface is 9 backends, not 7** — `NON_ACP_FLUX_COMPAT` adds wcore and gemini.
 
 ### 2.3 Installable catalogue [V]
+
 `AGENT_PACKAGES` has exactly **2** entries: `codex` → `@agentclientprotocol/codex-acp@1.1.2`
 (`cliCommand: 'codex-acp'`, **not** `codex`), `kimi` → `@moonshot-ai/kimi-code@0.34.0`.
 Detection covers 18 agents. **Installation is the gap.**
 
 ### 2.4 OpenClaw already exists as a backend — v1 was WRONG [V]
+
 Not "no entry at all". `AgentBackend` includes `'openclaw-gateway'`; `DetectedAgentKind`,
 `OpenClawDetectedAgent`, a full `renderer/pages/conversation/platforms/openclaw/`, draft store,
 logo and agent scope all exist, plus a remote-agent path (`RemoteAgentProtocol = 'openclaw' | …`).
@@ -118,6 +122,7 @@ ids, two detection paths, two chips. `agentLogo.ts:39` already anticipates the c
 **Wave D must first decide: is OpenClaw an ACP CLI, or the gateway we already support?**
 
 ### 2.5 Assistants that already exist [V]
+
 `openclaw-setup.md` **19.5K** (thorough) · `hermes-setup.md` **3.1K** (thin) · `cli-setup/`.
 
 ---
@@ -127,15 +132,15 @@ ids, two detection paths, two chips. `agentLogo.ts:39` already anticipates the c
 **This section exists because v1 proposed shipping `@vibe-kit/grok-cli` — one personal gmail
 maintainer, no repository field — to users as "Grok Build". A name match is not provenance.**
 
-| Agent | Vendor | Official npm? | ACP |
-|---|---|---|---|
-| Claude Code | Anthropic | ✅ `@anthropic-ai/claude-code` (all `@anthropic.com`) | via `claude-agent-acp` (already npx'd) |
-| Codex | OpenAI | ✅ `@openai/codex` (all `@openai.com`) | via `codex-acp` — shipping |
-| Kimi | Moonshot | ✅ `@moonshot-ai/kimi-code` (MoonshotAI org) | native `kimi acp` |
-| OpenCode | SST | ✅ **`opencode-ai` is official** (`thdxr` = Dax Raad) | native `opencode acp` |
-| Grok Build | xAI | ❌ none | native ACP |
-| Hermes | Nous Research | ❌ **npm pkg is a third-party wrapper** (`wyrtensi`) | native `hermes acp` |
-| OpenClaw | openclaw/openclaw | [?] **unverified** | [?] see §2.4 |
+| Agent       | Vendor            | Official npm?                                         | ACP                                    |
+| ----------- | ----------------- | ----------------------------------------------------- | -------------------------------------- |
+| Claude Code | Anthropic         | ✅ `@anthropic-ai/claude-code` (all `@anthropic.com`) | via `claude-agent-acp` (already npx'd) |
+| Codex       | OpenAI            | ✅ `@openai/codex` (all `@openai.com`)                | via `codex-acp` — shipping             |
+| Kimi        | Moonshot          | ✅ `@moonshot-ai/kimi-code` (MoonshotAI org)          | native `kimi acp`                      |
+| OpenCode    | SST               | ✅ **`opencode-ai` is official** (`thdxr` = Dax Raad) | native `opencode acp`                  |
+| Grok Build  | xAI               | ❌ none                                               | native ACP                             |
+| Hermes      | Nous Research     | ❌ **npm pkg is a third-party wrapper** (`wyrtensi`)  | native `hermes acp`                    |
+| OpenClaw    | openclaw/openclaw | [?] **unverified**                                    | [?] see §2.4                           |
 
 **REJECTED — never pin:** `@vibe-kit/grok-cli`, `hermes-agent` (npm).
 
@@ -144,6 +149,7 @@ maintainer, no repository field — to users as "Grok Build". A name match is no
 ## 4. Known blockers
 
 ### 4.1 Claude Code under `--ignore-scripts` — ⚠️ CONTESTED, settle by execution [?]
+
 Anthropic's npm package uses a **postinstall** to link its platform binary. **Two audit legs
 disagree on the consequence:** one says the install is left non-functional; Codex cites Anthropic's
 troubleshooting docs saying Claude falls back to a slower wrapper and still works, making the real
@@ -154,12 +160,13 @@ with `--ignore-scripts` on a clean box, then call `resolveLaunchSpecWith` and la
 it settles whether Wave B is an npm entry or a vendor-artifact wave.
 
 **Regardless of outcome: do NOT drop `--ignore-scripts`** — it is a security control
-(`installAgent.ts:15`: *"`bun install` would execute arbitrary vendor code inside the user's
-profile"*).
+(`installAgent.ts:15`: _"`bun install` would execute arbitrary vendor code inside the user's
+profile"_).
 
 ### 4.2 Grok routing — ⚠️ CONTESTED, spike before concluding [?]
-Our config says `fluxCompat: 'vendor'` — *"Talks to xAI's own gateway (grok.com); not
-Flux-routable"* [V]. **Codex challenges this**, citing an official `GROK_MODELS_BASE_URL` custom
+
+Our config says `fluxCompat: 'vendor'` — _"Talks to xAI's own gateway (grok.com); not
+Flux-routable"_ [V]. **Codex challenges this**, citing an official `GROK_MODELS_BASE_URL` custom
 OpenAI-compatible endpoint in xAI's own repo. If that holds, Grok **is** routable and the `'vendor'`
 classification is stale.
 
@@ -168,23 +175,25 @@ agent where install ≠ revenue and it should be sequenced last (or cut) under t
 "everything feeds Flux" goal. Auth still requires SuperGrok ($30/mo) or X Premium+.
 
 ### 4.3 Grok's binary name [?→ likely resolved]
+
 Our config says `cliCommand: 'grok'`; earlier web reading suggested `grok-build`. Codex reports the
 installed binary is **definitively `grok`**, matching our config. Confirm on the clean box during
 the §4.2 spike; **do not change detection on documentation alone.**
 
 ### 4.4 The npm→vendor gap is structural, not per-wave [V]
+
 - `AgentPackage` has four fields (`npmPackage`, `version`, `cliCommand`, `acpBackend`) — **no
   channel discriminant, no URL, no checksum field**.
 - `AgentInstallReceipt` **requires** `npmPackage` as a non-empty string; validation rejects a
-  receipt without it, so a vendor install reads as *"no receipt"* and **uninstall removes nothing**.
-- Uninstall is exactly `rmSync(receipt.prefix)` — *"the only thing uninstall is allowed to remove"*.
+  receipt without it, so a vendor install reads as _"no receipt"_ and **uninstall removes nothing**.
+- Uninstall is exactly `rmSync(receipt.prefix)` — _"the only thing uninstall is allowed to remove"_.
   A vendor script scatters into `~/.local/bin`, `~/.hermes`, and may edit shell rc.
 - `launchSpecResolver` resolves **only** from `<prefix>/node_modules/<pkg>`.
 - `ManagedAgentStatus.npmPackage` / `.pinnedVersion` are required; `bundledBunAvailable` is a single
   global boolean → on win32-arm64 and non-AVX2 win32-x64 a **vendor-installed agent needing no bun
   would still render "unavailable"**.
 - `conciergeConfig.ts` `installAgentProposalMatchesPin` refuses any agent not in the npm-pinned
-  catalogue, explicitly to stop *"a prompt-injected block install an arbitrary npm package"*.
+  catalogue, explicitly to stop _"a prompt-injected block install an arbitrary npm package"_.
 
 **⇒ This is Wave 0, not a Wave F cleanup.** Run as v1 ordered it, Waves B–E each invent an ad-hoc
 receipt and F reconciles four of them.
@@ -197,11 +206,12 @@ guard to accept a channel or URL reopens the injection hole it exists to close.
 ## 5. Waves
 
 ### Wave 0 — Foundation (serialized, blocks B–E)
+
 1. **Channel abstraction** on the catalogue: `npm` | `vendor-artifact`, with URL + pinned
    version + expected signature/hash.
 2. **Download-verify-execute** — ⚠️ **reuse `services/voice/VoiceAssetManager.ts`**, which already
    does cancellable, progress-streaming, atomic-rename download with SHA-256
-   (`VOICE_ASSET_HASH_MISMATCH`). **Tighten first:** it *warns and proceeds* on an empty `sha256` —
+   (`VOICE_ASSET_HASH_MISMATCH`). **Tighten first:** it _warns and proceeds_ on an empty `sha256` —
    acceptable for a voice model, **unacceptable for an executable**. Refuse at the call site.
 3. **Generalised receipt**: `npmPackage` optional; record an explicit file/dir list, PATH entries
    and shell-rc deltas. Uninstall removes what the receipt lists.
@@ -214,6 +224,7 @@ guard to accept a channel or URL reopens the injection hole it exists to close.
    **Generalise before C and D run in parallel, or serialize them.**
 
 ### Wave A — OpenCode (can start now, in parallel with Wave 0)
+
 Official npm, native ACP, connector exists.
 🔴 **PRE-FLIGHT FIRST, ~5 minutes, before dispatch:** `launchSpecResolver` accepts only a native
 binary under `<pkg>-<platform>-<arch>/vendor/<triple>/…` or a `bin` ending `.js`/`.mjs`/`.cjs`.
@@ -222,11 +233,13 @@ extensionless bin** → likely `LaunchSpecUnresolvedError`. Install into a scrat
 `resolveLaunchSpecWith` before assuming this wave is small.
 
 ### Wave B — Claude Code (needs Wave 0 + §0 ruling)
+
 Pinned verified artifact via Anthropic's signed manifest; or winget/brew per platform.
 Flux is already `'env'` — **verify end to end, do not rebuild**.
 **Never** Claude Pro/Max subscription OAuth (standing hard NO, ToS). API key / Bedrock / Vertex.
 
 ### Wave C — Hermes (needs Wave 0 + §0 ruling) — **much smaller than v1 assumed**
+
 Official vendor artifact — **not** the npm wrapper.
 🟢 **Do NOT build a Flux connector — routing already exists and is proven** (§2.2). This wave is
 **installer + UI + live proof + assistant**, not routing.
@@ -235,13 +248,16 @@ one and match its shape rather than inventing. [?] Does the assistant run before
 after (configure what landed)? OpenClaw's is the proven model.
 
 ### Wave D — OpenClaw (needs Wave 0 + §0 ruling + §2.4 decision)
+
 Verify npm provenance. **Resolve the two-identity problem first.** Build its connector.
 `openclaw-setup.md` exists at 19.5K — audit against current OpenClaw, do not rewrite.
 
 ### Wave E — Grok (last; needs Wave 0 + §0 ruling)
+
 Resolve §4.3 on a clean box. **No Flux connector** — UI must state it does not route.
 
 ### Wave F — Cross-cutting
+
 Windows first-class (INS-04): PATH, `.cmd` shims, the `shell:false` spawn trap in
 `mcpStdioSpawn.ts`. Provenance disclosure in the UI wherever we install a **bridge** rather than the
 vendor's own tool (`codex-acp`, `claude-agent-acp` — we ship two already).
@@ -264,12 +280,12 @@ vendor's own tool (`codex-acp`, `claude-agent-acp` — we ship two already).
    per agent, on all three OSes.
 7. **FAN-02** — API key + base URL only. **Never Claude subscription OAuth.**
 8. **FAN-03** — the user **sees every config file we modified and can undo it**. No key written into
-   a file we do not own without saying so. *(Dropped from v1 — restored.)*
+   a file we do not own without saying so. _(Dropped from v1 — restored.)_
 9. **FAN-04** — an agent whose config we rewrote **keeps working if Flux is later removed** —
-   restore, do not strand. *(Dropped from v1 — restored.)*
+   restore, do not strand. _(Dropped from v1 — restored.)_
 10. **FAN-05** — pinned models **filtered per agent capability**; a model offered must work.
-    *(Dropped from v1 — restored. A connector that writes the full Flux catalog into an agent that
-    cannot serve those models ships a broken model picker.)*
+    _(Dropped from v1 — restored. A connector that writes the full Flux catalog into an agent that
+    cannot serve those models ships a broken model picker.)_
 
 **Routing consent is separate from install consent.** A user installing Claude Code expects traffic
 to reach Anthropic; pointing it at our router is its own decision and must be its own explicit,
@@ -322,13 +338,14 @@ implementation. **Convergence between auditors is not evidence; shared method pr
 spots.** Verify a claim by execution or by reading the code, not by counting votes.
 
 **Also from Codex, carried but not yet actioned:**
+
 - **The npm path is not INS-02 compliant either.** It pins only the top-level package, performs no
   Wayland-owned integrity verification, and writes the receipt immediately after resolving the
   executable. Codex and Kimi must get their own hardening/acceptance work — "already present" does
   not satisfy checksum, rollback and clean-OS requirements.
 - **Spawning a moving `latest` bridge is itself an unaddressed supply-chain risk.**
   `bridgeVersionResolver` fetches npm `latest` at connect time, so we execute whatever the registry
-  serves. That is the *opposite* trade-off from the pinned-artifact rule in §0 and deserves a
+  serves. That is the _opposite_ trade-off from the pinned-artifact rule in §0 and deserves a
   deliberate decision, not a default.
 - **Transactional rollback**: if install succeeds but Flux configuration fails, the machine must not
   be left half-configured.
@@ -347,5 +364,5 @@ claimed OpenClaw had no backend entry — it has `openclaw-gateway` and a full p
 
 **Rejected — Gemini's strategic NO-GO** ("installing Hermes/OpenClaw pays your competitors'
 acquisition cost"). Sean has weighed and decided this. The counter-argument assumes a user who
-reverts the base URL *and* uninstalls Wayland, and ignores that declining to install them does not
+reverts the base URL _and_ uninstalls Wayland, and ignores that declining to install them does not
 cost those projects a single user. **Recorded as dissent, not actioned.**

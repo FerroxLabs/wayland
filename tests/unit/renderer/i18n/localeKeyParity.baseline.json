@@ -5088,18 +5088,7 @@
     "zh-CN",
     "zh-TW"
   ],
-  "update.errors.httpsOnly": [
-    "de-DE",
-    "es-ES",
-    "fr-FR",
-    "ja-JP",
-    "ko-KR",
-    "pt-BR",
-    "tr-TR",
-    "uk-UA",
-    "zh-CN",
-    "zh-TW"
-  ],
+  "update.errors.httpsOnly": ["de-DE", "es-ES", "fr-FR", "ja-JP", "ko-KR", "pt-BR", "tr-TR", "uk-UA", "zh-CN", "zh-TW"],
   "update.errors.invalidUrl": [
     "de-DE",
     "es-ES",

@@ -240,7 +240,13 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
     // the turn still completes.
     it('attempts a budget-blowing unlock once and still completes the read', () => {
       const { root, authorityPath } = scratchProfile('budget');
-      const owner = new ConstitutionFsService(root, realBinary(), keychainBackend('installation-A'), undefined, authorityPath);
+      const owner = new ConstitutionFsService(
+        root,
+        realBinary(),
+        keychainBackend('installation-A'),
+        undefined,
+        authorityPath
+      );
       owner.readConstitution();
       corruptEnvelope(authorityPath);
       const unreadable = readFileSync(authorityPath, 'utf8');
@@ -377,7 +383,13 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
     // two states with their ring moved and nothing in its place.
     it('restores the original ring and routes to recovery when the reclaim cannot help', () => {
       const { root, authorityPath } = scratchProfile('unrescuable');
-      const owner = new ConstitutionFsService(root, realBinary(), keychainBackend('installation-A'), undefined, authorityPath);
+      const owner = new ConstitutionFsService(
+        root,
+        realBinary(),
+        keychainBackend('installation-A'),
+        undefined,
+        authorityPath
+      );
       owner.readConstitution();
       const sealed = readFileSync(authorityPath);
 
@@ -397,7 +409,9 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
         thrown = error;
       }
       expect(thrown).toBeInstanceOf(ConstitutionFsTransactionError);
-      expect((thrown as ConstitutionFsTransactionError).code).toBe('CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED');
+      expect((thrown as ConstitutionFsTransactionError).code).toBe(
+        'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED'
+      );
       // Never a crypto stack trace, always a remedy.
       expect((thrown as Error).message).not.toContain('safeStorage');
       expect((thrown as Error).message).toContain('Settings');

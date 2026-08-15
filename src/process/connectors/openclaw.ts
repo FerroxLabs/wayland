@@ -59,9 +59,7 @@ type JsonObject = Record<string, unknown>;
  * all REQUIRED by ModelDefinitionConfig — an entry missing any of them is
  * rejected, so this is the minimum viable row rather than a stylistic choice.
  */
-const FLUX_MODELS: JsonObject[] = [
-  { id: 'flux-auto', name: 'Flux Auto', reasoning: true, input: ['text', 'image'] },
-];
+const FLUX_MODELS: JsonObject[] = [{ id: 'flux-auto', name: 'Flux Auto', reasoning: true, input: ['text', 'image'] }];
 
 /**
  * Resolve OpenClaw's config path.
@@ -272,9 +270,7 @@ export async function setupOpenClaw(ctx: ConnectorContext): Promise<FluxConnecto
     changes.push(`Updated models.providers.${PROVIDER_ID}.baseUrl from ${priorBaseUrl} to ${baseUrl}`);
   }
   if (priorProvider !== null) {
-    changes.push(
-      `Replaced an existing "${PROVIDER_ID}" provider you already had; it is restored if you remove Flux`
-    );
+    changes.push(`Replaced an existing "${PROVIDER_ID}" provider you already had; it is restored if you remove Flux`);
   }
   changes.push(
     priorDefaultModel !== null

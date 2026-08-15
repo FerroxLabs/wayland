@@ -34,10 +34,15 @@ const runtimeKey = `${process.platform}-${process.arch}`;
 const triple = TRIPLES[runtimeKey];
 
 function warn(msg) {
-  console.log(`\n  [wayland] ${msg}\n  The Flux / API-key path works without it; the Wayland Core agent will be unavailable until then.\n`);
+  console.log(
+    `\n  [wayland] ${msg}\n  The Flux / API-key path works without it; the Wayland Core agent will be unavailable until then.\n`
+  );
 }
 
-if (!triple) { warn(`No prebuilt Wayland Core engine for ${runtimeKey} (skipping).`); process.exit(0); }
+if (!triple) {
+  warn(`No prebuilt Wayland Core engine for ${runtimeKey} (skipping).`);
+  process.exit(0);
+}
 
 const asset = `wayland-core-${WCORE_VERSION}-${triple}.tar.gz`;
 const url = `https://github.com/FerroxLabs/wayland-core/releases/download/${WCORE_VERSION}/${asset}`;
@@ -54,7 +59,10 @@ function download(u, dest, redirects = 0) {
         r.resume();
         return res(download(r.headers.location, dest, redirects + 1));
       }
-      if (r.statusCode !== 200) { r.resume(); return rej(new Error(`HTTP ${r.statusCode}`)); }
+      if (r.statusCode !== 200) {
+        r.resume();
+        return rej(new Error(`HTTP ${r.statusCode}`));
+      }
       const f = createWriteStream(dest);
       r.pipe(f);
       f.on('finish', () => f.close(() => res()));
@@ -75,8 +83,10 @@ try {
   const found = (function find(dir) {
     for (const e of readdirSync(dir, { withFileTypes: true })) {
       const p = join(dir, e.name);
-      if (e.isDirectory()) { const r = find(p); if (r) return r; }
-      else if (/^(aionrs|wayland-core|wcore)$/.test(e.name)) return p;
+      if (e.isDirectory()) {
+        const r = find(p);
+        if (r) return r;
+      } else if (/^(aionrs|wayland-core|wcore)$/.test(e.name)) return p;
     }
     return null;
   })(tmp);

@@ -13,11 +13,7 @@
  * stopped loading before a single assertion ran.
  */
 
-import {
-  isSpeechToTextProvider,
-  type SpeechToTextConfig,
-  type SpeechToTextConfigOrigin,
-} from '@/common/types/speech';
+import { isSpeechToTextProvider, type SpeechToTextConfig, type SpeechToTextConfigOrigin } from '@/common/types/speech';
 
 /**
  * The factory floor for speech-to-text.
@@ -104,7 +100,9 @@ export const normalizeSpeechToTextConfig = (
      *    CURRENT floor rather than honoured. A user-origin `false` is a real
      *    answer and is kept.
      */
-    enabled: isUserOrigin ? (config?.enabled ?? DEFAULT_SPEECH_TO_TEXT_CONFIG.enabled) : DEFAULT_SPEECH_TO_TEXT_CONFIG.enabled,
+    enabled: isUserOrigin
+      ? (config?.enabled ?? DEFAULT_SPEECH_TO_TEXT_CONFIG.enabled)
+      : DEFAULT_SPEECH_TO_TEXT_CONFIG.enabled,
     openai: {
       ...DEFAULT_SPEECH_TO_TEXT_CONFIG.openai,
       ...config?.openai,

@@ -12,7 +12,7 @@ so **nothing here blocks your 0.12.26 release.** This is the durable mechanism a
 ### What Desktop needs
 
 Each Desktop chat enables a different subset of MCP connectors. Connectors published into Core's
-**global** `config.toml` load at startup for *every* session, so Desktop needs to narrow the tool
+**global** `config.toml` load at startup for _every_ session, so Desktop needs to narrow the tool
 table to just the connectors selected for **this** chat.
 
 Today Desktop does that by writing a throwaway `[profiles.__wayland_desktop_session]` block with an
@@ -28,16 +28,16 @@ is really a **per-process argument**.
 
 **Semantics we would rely on:**
 
-| | behaviour |
-|---|---|
-| neither flag present | current behaviour, unchanged |
-| one or more `--mcp-server` | after **all** config and profile merging, retain exactly those server IDs |
-| `--no-mcp-servers` | retain none |
-| unknown ID | **fatal startup error naming the missing IDs** — not a silent drop |
-| duplicate IDs | harmless |
-| both flags together | rejected as mutually exclusive |
-| persistence | none — host-provided, session-local, never written to any config file |
-| interaction with trust | applied **independently of workspace trust**, and independently of assistant/persona identity |
+|                            | behaviour                                                                                     |
+| -------------------------- | --------------------------------------------------------------------------------------------- |
+| neither flag present       | current behaviour, unchanged                                                                  |
+| one or more `--mcp-server` | after **all** config and profile merging, retain exactly those server IDs                     |
+| `--no-mcp-servers`         | retain none                                                                                   |
+| unknown ID                 | **fatal startup error naming the missing IDs** — not a silent drop                            |
+| duplicate IDs              | harmless                                                                                      |
+| both flags together        | rejected as mutually exclusive                                                                |
+| persistence                | none — host-provided, session-local, never written to any config file                         |
+| interaction with trust     | applied **independently of workspace trust**, and independently of assistant/persona identity |
 
 The "fatal on unknown ID" row is the one we care most about. The failure mode that cost us this week
 was a silent drop, and a subtractive filter that silently retains nothing looks identical to a broken
@@ -52,7 +52,7 @@ We looked at both before asking, and rejected them on our side:
 - **`--assistant` + `only_for_assistant`** — we looked hard at this, since your help text says the
   desktop host is expected to set `--assistant`, and there is a real e2e test
   (`crates/wcore-cli/tests/mcp_assistant_scoping_e2e.rs`) covering the deferred json-stream path we
-  actually use. We are **not** using it for chat narrowing, because it can only *restrict*: a server
+  actually use. We are **not** using it for chat narrowing, because it can only _restrict_: a server
   **without** `only_for_assistant` is always injected. To express an exact per-chat allow-list Desktop
   would have to mark every entry, including ones the user hand-authored, and one missed marking is a
   cross-chat tool leak. It also encodes an N×M chat-by-server membership matrix in one file.
@@ -64,8 +64,8 @@ We looked at both before asking, and rejected them on our side:
 ## 2. Question — the misleading error (ENG-02)
 
 On 0.12.26, when a workspace is untrusted, Core strips `[profiles.*]` from project config and then
-reports **"Profile not found"** for a profile that *was present in a file Core parsed and then
-discarded*.
+reports **"Profile not found"** for a profile that _was present in a file Core parsed and then
+discarded_.
 
 That message sent us looking for a missing profile, a typo, and a path bug, in that order. The
 information that would have ended it in a minute — "this section was stripped because the workspace
@@ -89,7 +89,7 @@ While reading Core to understand the profile filter, we found in a **local, unco
 edit that `to_mcp_server_config` refuses stdio:
 
 > `wire-added stdio MCP servers are disabled because they launch a local process; configure trusted
-> stdio servers before session startup`
+stdio servers before session startup`
 
 We verified this is **not** in any released version — `git show v0.12.26-rc.2` shows
 `"stdio" => TransportType::Stdio`, i.e. stdio is still accepted. So we are **not** reporting a
@@ -107,7 +107,7 @@ migration path. If it is an abandoned experiment, ignore this section entirely.
 
 ## What Desktop is doing anyway (so this is not a dependency)
 
-Desktop is shipping the interim fix now: move the launch profile out of the per-chat *project* config
+Desktop is shipping the interim fix now: move the launch profile out of the per-chat _project_ config
 and into the **global** config root the engine is already pointed at via `WAYLAND_HOME`. Verified by
 execution against 0.12.26-rc.2 — symlinks present, **no** trust flag, `[mcp] Connected to
 'tvcontrol': 101 tools`, turn completes. It also works on 0.12.25, so Desktop supports both engines

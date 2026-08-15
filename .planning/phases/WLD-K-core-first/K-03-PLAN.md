@@ -51,20 +51,20 @@ This is FALSE for every Desktop-side layer that was actually run:
    `this.status = 'finished'` and calls `notifyTurnCompletion()` on ANY `finish`, content or not —
    EXECUTED: `npx vitest run tests/unit/WCoreManagerTurnCompletion.test.ts` — 10/10 passed,
    including `'notifies when turn has empty content'` and `'AC-6: error-only turn marks status
-   finished'`.
+finished'`.
 3. `DesktopCoreV1Consumer`'s `OrdinaryTurnToolReducer` (`src/process/agent/wcore/
-   desktopContractV1.ts:208-273`) does not gate `stream_start -> stream_end` (no `text_delta` in
+desktopContractV1.ts:208-273`) does not gate `stream_start -> stream_end` (no `text_delta` in
    between) on content — EXECUTED: `npx vitest run tests/unit/process/agent/wcore/
-   desktopContractV1.test.ts` — 37/37 passed, including the exact `stream_start -> stream_end`
+desktopContractV1.test.ts` — 37/37 passed, including the exact `stream_start -> stream_end`
    (no text) sequence at line 327-329 of that file.
 4. `useWCoreMessage`'s `case 'finish':` (`src/renderer/pages/conversation/platforms/wcore/
-   useWCoreMessage.ts:177-244`) clears `streamRunning`/`waitingResponse`/`hasActiveTools`
+useWCoreMessage.ts:177-244`) clears `streamRunning`/`waitingResponse`/`hasActiveTools`
    unconditionally. EXECUTED: a throwaway probe (`renderHook(() => useWCoreMessage(...))`, emit
    `start` then `finish` with `data:{finish_reason:'stop'}` and NO intervening content/tool_group
    frame) asserted `result.current.running === false` — PASSED, then the probe file was deleted
    (not part of this plan's deliverable; superseded by the permanent version in Task 1).
 5. `OrbitThinking`'s elapsed-seconds badge (`src/renderer/components/chat/observability/
-   OrbitThinking.tsx` — this is the literal "still running / 368s" UI) is driven by `isProcessing`,
+OrbitThinking.tsx` — this is the literal "still running / 368s" UI) is driven by `isProcessing`,
    which is `running` from (4) via `WCoreChat.tsx`'s `onRunningChange={setIsProcessing}`. Traced,
    not independently executed beyond (4) since it is a pure prop pass-through.
 
@@ -124,7 +124,7 @@ reconciled so it is silently absorbed rather than misread as a new empty/malform
 
 1. **No index.ts change, no `finishInput()` signature change.** An earlier design draft added a
    defense-in-depth recovery path inside `finishInput()` (called from `index.ts`'s `stdout.on('end',
-   ...)`). It is unnecessary: the per-chunk eager recovery in `consumeChunk()` runs on EVERY `data`
+...)`). It is unnecessary: the per-chunk eager recovery in `consumeChunk()` runs on EVERY `data`
    event, including the very last one the engine ever writes, so by construction
    `this.inputRemainder` can only ever hold a genuinely INCOMPLETE fragment after this fix —
    `finishInput()`'s existing throw-on-nonempty-remainder path remains correct and reachable only for
@@ -160,11 +160,11 @@ reconciled so it is silently absorbed rather than misread as a new empty/malform
   mid-turn with no terminal frame at all). This plan does not touch it, extend it, or rely on it; the
   fix here is orthogonal and strictly faster (bytes-driven, not a 10-minute ceiling).
 - Renaming/relaxing the pre-existing test titled `'bounds raw JSONL frames, rejects invalid UTF-8,
-  and requires a terminating newline'` (`desktopContractV1.test.ts:270`) beyond a documentation-only
+and requires a terminating newline'` (`desktopContractV1.test.ts:270`) beyond a documentation-only
   comment update if the executor judges its title now overstates what the assertions on lines
   271-274 actually require (they remain correct and green either way — see Task 1).
 - K-02's DIA-01/DIA-02 error-surfacing work, K-04's engine asks — independent phases.
-</objective>
+  </objective>
 
 <execution_context>
 @$HOME/.claude/ferrox-core/workflows/execute-plan.md
@@ -201,7 +201,7 @@ unterminated stream_end/error recovery`).** No production edit in this task.
      returns one `{kind:'event', event:{type:'stream_end', finish_reason:'stop', ...}}` (not `[]`,
      not a second call needed).
   2. Same shape but `type:'error'` with a non-null `msg_id` and a real `error:{code,message,
-     retryable}` object, again with no trailing `\n` — recovered eagerly too (covers TRN-02's error
+retryable}` object, again with no trailing `\n` — recovered eagerly too (covers TRN-02's error
      path). Assert the reducer's turn-sequencing still applies: this must be preceded by a
      `stream_start` for the same `msg_id` in the test, exactly like every other ordinary-turn case
      in this file.
@@ -226,18 +226,18 @@ unterminated stream_end/error recovery`).** No production edit in this task.
   6. **Anti-regression (non-object leftover falls back untouched):** feed a bare, non-`{`-leading
      byte sequence with no `\n` (e.g. a stray partial UTF-8 continuation or plain whitespace) —
      assert `[]`, no throw, unaffected by the new scanner's `{`-prefix short-circuit.
-  Note directly above this new `describe` block: cases 1-4 are RED against today's code (case 1/2/3
-  currently return `[]` where the assertion now expects the eager event; case 4's second call
-  currently WOULD throw `malformed_json` on the orphan `\n` today, since nothing consumed the first
-  object early) — cases 5-6 already pass unmodified today; call this out inline exactly as K-01's
-  PRF-03 called out its own already-correct behavior, so the executor does not mistake "already
-  green" for "test written wrong."
-  Also add a one-line comment above the pre-existing test at line 270
-  (`'bounds raw JSONL frames, rejects invalid UTF-8, and requires a terminating newline'`) noting
-  that its own assertions (lines 271-274, a genuinely mid-object split at byte 17) remain accurate
-  post-fix — the object is not yet complete at that split point, so it is correctly still buffered —
-  and that the title describes the general case, not the new eager-completion exception added by
-  this plan. Do not weaken or delete any existing assertion in that test.
+     Note directly above this new `describe` block: cases 1-4 are RED against today's code (case 1/2/3
+     currently return `[]` where the assertion now expects the eager event; case 4's second call
+     currently WOULD throw `malformed_json` on the orphan `\n` today, since nothing consumed the first
+     object early) — cases 5-6 already pass unmodified today; call this out inline exactly as K-01's
+     PRF-03 called out its own already-correct behavior, so the executor does not mistake "already
+     green" for "test written wrong."
+     Also add a one-line comment above the pre-existing test at line 270
+     (`'bounds raw JSONL frames, rejects invalid UTF-8, and requires a terminating newline'`) noting
+     that its own assertions (lines 271-274, a genuinely mid-object split at byte 17) remain accurate
+     post-fix — the object is not yet complete at that split point, so it is correctly still buffered —
+     and that the title describes the general case, not the new eager-completion exception added by
+     this plan. Do not weaken or delete any existing assertion in that test.
 
 - **New `tests/integration/wcore/fixtures/unterminatedLineHarness.ts`** — a small standalone script
   (no test-framework import, mirrors the house shape used for OS-level proofs elsewhere in this
@@ -253,13 +253,13 @@ unterminated stream_end/error recovery`).** No production edit in this task.
 - **New `tests/integration/wcore/streamEndUnterminatedLine.test.ts`** — `beforeEach`/`afterEach`
   around a fresh `mkdtemp` dir for the marker file (mirror the house pattern). Spawns the harness as
   a REAL, separate OS process (`child_process.spawn('bun', [harnessPath, markerPath], {stdio:
-  [...]})`), wires the child's REAL `stdout` directly into a REAL `DesktopCoreV1Consumer` instance
+[...]})`), wires the child's REAL `stdout` directly into a REAL `DesktopCoreV1Consumer` instance
   via `child.stdout.on('data', chunk => results.push(...consumer.consumeChunk(chunk)))` — the exact
   wiring `index.ts`'s `'data'` listener uses in production, reused here rather than reimplemented.
   Polls for the marker file to appear (proves the partial write physically landed in the OS pipe,
   not merely that the harness function returned), then asserts — with a bounded poll/wait, not a
   fixed `setTimeout` sleep — that `results` already contains one `{kind:'event', event:{type:
-  'stream_end', finish_reason:'stop', msg_id:'m1'}}` entry BEFORE the child ever writes another byte
+'stream_end', finish_reason:'stop', msg_id:'m1'}}` entry BEFORE the child ever writes another byte
   or exits. Kills the child in `afterEach` regardless of outcome. This is the literal, unmocked,
   real-process proof: the exact reported defect, reproduced through a genuinely separate OS process
   whose delimiter genuinely never arrives, using the real production `DesktopCoreV1Consumer` class.
@@ -278,8 +278,8 @@ unterminated stream_end/error recovery`).** No production edit in this task.
   regression guard and as the literal UI-layer evidence for TRN-03, complementing Task 1's
   transport-layer RED cases (which are the actual defect).
   Verify: `npx vitest run tests/unit/process/agent/wcore/desktopContractV1.test.ts
-  tests/integration/wcore/streamEndUnterminatedLine.test.ts
-  tests/unit/renderer/wcoreRunningStateOnContentFreeFinish.dom.test.tsx` — new cases 1-4 in the
+tests/integration/wcore/streamEndUnterminatedLine.test.ts
+tests/unit/renderer/wcoreRunningStateOnContentFreeFinish.dom.test.tsx` — new cases 1-4 in the
   contract test RED, cases 5-6 GREEN; the integration test RED (times out); the renderer test GREEN.
   Done: every assertion above is committed as `test(K-03): ...` before any production file changes.
 
@@ -289,7 +289,7 @@ ONLY `src/process/agent/wcore/desktopContractV1.ts`.
 
 - Add a private instance field `private awaitingOrphanDelimiter = false;` to `DesktopCoreV1Consumer`.
 - Add a new pure, stateless function (module-level or `private static`) `findCompleteObjectEnd(buf:
-  Buffer): number | null`. Contract: return `null` immediately if `buf` is empty or its first
+Buffer): number | null`. Contract: return `null` immediately if `buf` is empty or its first
   non-whitespace byte is not `{` (`0x7b`) — every `WCoreEvent` variant in `protocol.ts` is a JSON
   object, so this short-circuits everything else cheaply. Otherwise scan byte-by-byte tracking (a)
   `{`/`}` nesting depth, and (b) whether the scan position is currently inside a JSON string
@@ -318,7 +318,7 @@ ONLY `src/process/agent/wcore/desktopContractV1.ts`.
   bad schema, turn-sequence conflict, unknown critical type — completely independent of the missing
   delimiter), let it propagate exactly as it already does for the normal path (the surrounding
   `try {...} catch (error) { this.inputRemainder = Buffer.alloc(0); this.mode = 'failed'; throw
-  error; }` around the whole loop already handles this — no new catch needed here). On success, set
+error; }` around the whole loop already handles this — no new catch needed here). On success, set
   `this.awaitingOrphanDelimiter = true`, set `cursor = cursor.subarray(end)`, and `continue` the
   while-loop (NOT `break` — the remaining `cursor` may still contain a pending delimiter for THIS
   frame, and/or the start, or all, of a subsequent complete frame the engine already began writing
@@ -356,7 +356,7 @@ ONLY `src/process/agent/wcore/desktopContractV1.ts`.
 - **Scope/grep gate:** confirm the ONLY files touched are the five listed in this plan's
   `files_modified` frontmatter. Confirm byte-identical-to-pre-plan-HEAD (`git diff` empty) for:
   `src/process/task/WCoreManager.ts`, `src/renderer/pages/conversation/platforms/wcore/
-  useWCoreMessage.ts`, `src/renderer/pages/conversation/platforms/wcore/WCoreSendBox.tsx`,
+useWCoreMessage.ts`, `src/renderer/pages/conversation/platforms/wcore/WCoreSendBox.tsx`,
   `src/renderer/components/chat/observability/OrbitThinking.tsx`,
   `src/process/task/ConversationTurnCompletionService.ts` (if that is its actual path — confirm via
   the import in `WCoreManager.ts`), `src/process/task/GeminiAgentManager.ts`,
@@ -382,8 +382,8 @@ ONLY `src/process/agent/wcore/desktopContractV1.ts`.
      fix unless the SAME repro is shown to fail without it (a negative control: temporarily revert
      Task 2's diff locally, confirm the same live repro still hangs, then re-apply and confirm it
      no longer does).
-  Resume-signal: "approved" (all four legs of confirmation above hold, negative control performed)
-  or a description of what was actually observed if the mechanism turns out to differ live.
+     Resume-signal: "approved" (all four legs of confirmation above hold, negative control performed)
+     or a description of what was actually observed if the mechanism turns out to differ live.
 
 </tasks>
 
@@ -412,22 +412,23 @@ ONLY `src/process/agent/wcore/desktopContractV1.ts`.
   attribution trailers.
 
 <threat_model>
+
 ## Trust Boundaries
 
-| Boundary | Description |
-|----------|--------------|
+| Boundary                                                                 | Description                                                                                                                              |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | wcore engine process (child, spawned by Desktop) -> Desktop main process | untrusted-by-default bytes on stdout; the Desktop v1 contract (schema + manifest + `OrdinaryTurnToolReducer`) is the validation boundary |
-| the new eager-recovery scan window -> the same validation boundary | the scanner changes WHEN bytes are handed to `consumeLine`, not what `consumeLine` accepts |
+| the new eager-recovery scan window -> the same validation boundary       | the scanner changes WHEN bytes are handed to `consumeLine`, not what `consumeLine` accepts                                               |
 
 ## STRIDE Threat Register
 
-| Threat ID | Category | Component | Severity | Disposition | Mitigation Plan |
-|-----------|----------|-----------|----------|-------------|------------------|
-| T-K03-01 | Tampering | `findCompleteObjectEnd` eager-recovery path in `consumeChunk` | low | mitigate | eagerly-recovered bytes are handed to the SAME `consumeLine()` call every normal, newline-terminated line goes through — identical Ajv schema validation, identical known-event-type check, identical `OrdinaryTurnToolReducer`/`WorkflowReducer`/`PolicyReducer`/`AnvilReducer` turn-sequencing enforcement. No new acceptance criteria are introduced; only the timing of when parsing is attempted changes. |
-| T-K03-02 | Denial of service | `findCompleteObjectEnd`'s byte scan | low | mitigate | single linear O(n) pass, no recursion/backtracking, bounded by the pre-existing `DESKTOP_CORE_MAX_LINE_BYTES` cap which is checked before this scan runs; string/escape tracking is O(1) per byte. |
-| T-K03-03 | Tampering | accidental weakening of the pinned Desktop v1 producer contract (`DESKTOP_CORE_V1_PIN`, schema/manifest files) | medium | mitigate | Task 3's grep gate asserts `manifest.json`, `core-event.schema.json`, `host-command.schema.json` are byte-identical to pre-plan HEAD; this fix touches only the transport line-framing strategy in `desktopContractV1.ts`, never the contract descriptor or schemas. |
-| T-K03-04 | Repudiation / silent data loss | the pre-fix defect itself (a genuinely-received terminal frame vanishing with zero trace) | high | mitigate | this is the class of bug this entire plan closes; Task 1's real-OS-process integration test is the permanent regression guard against its reintroduction. |
-| T-K03-SC | Tampering | supply chain (new dependency) | n/a | accept | zero new dependencies; the fix is pure TypeScript using only `Buffer`/`TextDecoder` already imported in this file. |
+| Threat ID | Category                       | Component                                                                                                      | Severity | Disposition | Mitigation Plan                                                                                                                                                                                                                                                                                                                                                                                                |
+| --------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T-K03-01  | Tampering                      | `findCompleteObjectEnd` eager-recovery path in `consumeChunk`                                                  | low      | mitigate    | eagerly-recovered bytes are handed to the SAME `consumeLine()` call every normal, newline-terminated line goes through — identical Ajv schema validation, identical known-event-type check, identical `OrdinaryTurnToolReducer`/`WorkflowReducer`/`PolicyReducer`/`AnvilReducer` turn-sequencing enforcement. No new acceptance criteria are introduced; only the timing of when parsing is attempted changes. |
+| T-K03-02  | Denial of service              | `findCompleteObjectEnd`'s byte scan                                                                            | low      | mitigate    | single linear O(n) pass, no recursion/backtracking, bounded by the pre-existing `DESKTOP_CORE_MAX_LINE_BYTES` cap which is checked before this scan runs; string/escape tracking is O(1) per byte.                                                                                                                                                                                                             |
+| T-K03-03  | Tampering                      | accidental weakening of the pinned Desktop v1 producer contract (`DESKTOP_CORE_V1_PIN`, schema/manifest files) | medium   | mitigate    | Task 3's grep gate asserts `manifest.json`, `core-event.schema.json`, `host-command.schema.json` are byte-identical to pre-plan HEAD; this fix touches only the transport line-framing strategy in `desktopContractV1.ts`, never the contract descriptor or schemas.                                                                                                                                           |
+| T-K03-04  | Repudiation / silent data loss | the pre-fix defect itself (a genuinely-received terminal frame vanishing with zero trace)                      | high     | mitigate    | this is the class of bug this entire plan closes; Task 1's real-OS-process integration test is the permanent regression guard against its reintroduction.                                                                                                                                                                                                                                                      |
+| T-K03-SC  | Tampering                      | supply chain (new dependency)                                                                                  | n/a      | accept      | zero new dependencies; the fix is pure TypeScript using only `Buffer`/`TextDecoder` already imported in this file.                                                                                                                                                                                                                                                                                             |
 
 </threat_model>
 
@@ -456,12 +457,12 @@ ONLY `src/process/agent/wcore/desktopContractV1.ts`.
 
 **Goal-backward check:**
 
-| Must be TRUE (goal) | Producer behavior that makes it true | Proven by |
-|----------------------|----------------------------------------|-----------|
+| Must be TRUE (goal)                                                              | Producer behavior that makes it true                                                                                                                                | Proven by                                                                                                                                               |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | A turn Core ends is shown as ended, even with no assistant text (TRN-01, TRN-03) | `findCompleteObjectEnd` + eager `consumeLine` dispatch in `consumeChunk` recover a complete `stream_end` the instant its bytes arrive, independent of its delimiter | `desktopContractV1.test.ts` K-03 cases 1 & 3 + `streamEndUnterminatedLine.test.ts` (real process) + `wcoreRunningStateOnContentFreeFinish.dom.test.tsx` |
-| The error path also terminates the running state (TRN-02) | Same eager-recovery path applies identically to `type:'error'` objects | `desktopContractV1.test.ts` K-03 case 2 |
-| No unrelated behavior changes | `finishInput()`, `index.ts`, `WCoreManager.ts`, `useWCoreMessage.ts`, the four #838 backends untouched; contract schema/manifest untouched | Task 3 grep/scope gate |
-| The fix is cause-level, not a hidden timeout | Recovery gates purely on byte-completeness (`findCompleteObjectEnd`'s brace/string scan), never on elapsed time | Task 2 code + Task 3 human review of the diff |
+| The error path also terminates the running state (TRN-02)                        | Same eager-recovery path applies identically to `type:'error'` objects                                                                                              | `desktopContractV1.test.ts` K-03 case 2                                                                                                                 |
+| No unrelated behavior changes                                                    | `finishInput()`, `index.ts`, `WCoreManager.ts`, `useWCoreMessage.ts`, the four #838 backends untouched; contract schema/manifest untouched                          | Task 3 grep/scope gate                                                                                                                                  |
+| The fix is cause-level, not a hidden timeout                                     | Recovery gates purely on byte-completeness (`findCompleteObjectEnd`'s brace/string scan), never on elapsed time                                                     | Task 2 code + Task 3 human review of the diff                                                                                                           |
 
 </verification>
 

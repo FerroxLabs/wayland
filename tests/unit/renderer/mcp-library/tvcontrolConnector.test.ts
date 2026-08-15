@@ -30,10 +30,7 @@ import tvcontrolEntry from '@/renderer/mcp-catalog/entries/com.ferroxlabs-tvcont
 
 const entry = tvcontrolEntry as unknown as CatalogEntry;
 
-const GUIDE_PATH = join(
-  __dirname,
-  '../../../../src/renderer/mcp-catalog/guides/com.ferroxlabs-tvcontrol.md'
-);
+const GUIDE_PATH = join(__dirname, '../../../../src/renderer/mcp-catalog/guides/com.ferroxlabs-tvcontrol.md');
 
 function readGuideRaw(): string {
   return readFileSync(GUIDE_PATH, 'utf-8');
@@ -55,9 +52,7 @@ function parseGuideLikeProduction(): {
 } {
   const match = readGuideRaw().match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (!match) throw new Error('tvcontrol guide missing frontmatter');
-  return yaml.load(match[1], { schema: yaml.FAILSAFE_SCHEMA }) as ReturnType<
-    typeof parseGuideLikeProduction
-  >;
+  return yaml.load(match[1], { schema: yaml.FAILSAFE_SCHEMA }) as ReturnType<typeof parseGuideLikeProduction>;
 }
 
 describe('TVControl catalog connector', () => {
@@ -98,9 +93,7 @@ describe('TVControl catalog connector', () => {
 
   it('declares a setup guide, without which the precondition never reaches the user', () => {
     const guidePath = entry['x-wayland'].setupGuide?.path;
-    expect(guidePath, 'entry must declare x-wayland.setupGuide.path').toBe(
-      'guides/com.ferroxlabs-tvcontrol.md'
-    );
+    expect(guidePath, 'entry must declare x-wayland.setupGuide.path').toBe('guides/com.ferroxlabs-tvcontrol.md');
   });
 
   it('the guide actually tells the user to start TradingView with the control port', () => {

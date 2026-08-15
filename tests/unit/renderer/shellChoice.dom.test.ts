@@ -19,7 +19,11 @@ vi.mock('@/common/config/storage', () => ({
   ConfigStorage: { get: getSpy, set: setSpy },
 }));
 
-import { hasBeenPromptedForShell, markShellChoicePrompted, resetShellChoicePromptedForTests } from '@renderer/utils/ui/shellChoice';
+import {
+  hasBeenPromptedForShell,
+  markShellChoicePrompted,
+  resetShellChoicePromptedForTests,
+} from '@renderer/utils/ui/shellChoice';
 
 describe('shell choice prompted flag', () => {
   beforeEach(() => {

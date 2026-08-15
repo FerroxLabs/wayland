@@ -9,15 +9,15 @@ issue text. Inbox read was read-only; nothing was labelled, commented or closed.
 
 ## Already covered — close these once published
 
-| issue | evidence |
-|---|---|
-| #885 Skill Guard quarantines built-ins | `isTrustedBundleSkill` + `trustedBundleReport()` in `SkillLibrary.ts`, carrying an explicit `#885` comment (`e8edc12c2`, in the #925 base) |
-| #890 WhatsApp bridge never connects | `e29ccb85a` in the #925 base |
-| #537 send_message unknown channel: email | in the #925 base; already labelled `state:fixed-pending-release` |
-| #777 scroll-up latch residue | `20b8b5c94` on main |
-| #836 success green fails light-mode contrast | `default-color-scheme.css:180-182` — light uses Emerald-700, dark keeps `#34d399`, comment cites `(#836)` |
-| #441 bump engine 0.12.15 → 0.12.16 | **obsolete** — bundled manifest reads `v0.12.25` |
-| #304 desktop PR batch (3 PRs) | **stale** — ours is the only open PR in the repo |
+| issue                                        | evidence                                                                                                                                   |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| #885 Skill Guard quarantines built-ins       | `isTrustedBundleSkill` + `trustedBundleReport()` in `SkillLibrary.ts`, carrying an explicit `#885` comment (`e8edc12c2`, in the #925 base) |
+| #890 WhatsApp bridge never connects          | `e29ccb85a` in the #925 base                                                                                                               |
+| #537 send_message unknown channel: email     | in the #925 base; already labelled `state:fixed-pending-release`                                                                           |
+| #777 scroll-up latch residue                 | `20b8b5c94` on main                                                                                                                        |
+| #836 success green fails light-mode contrast | `default-color-scheme.css:180-182` — light uses Emerald-700, dark keeps `#34d399`, comment cites `(#836)`                                  |
+| #441 bump engine 0.12.15 → 0.12.16           | **obsolete** — bundled manifest reads `v0.12.25`                                                                                           |
+| #304 desktop PR batch (3 PRs)                | **stale** — ours is the only open PR in the repo                                                                                           |
 
 Nothing in the tracker covers the five defects fixed in this branch. Searched all 142 open issues
 for the classifier default, the connect hang, "Wake your agents", scheduling-by-chat and the licence

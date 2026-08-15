@@ -92,8 +92,6 @@ describe('#907 live handshake against a real OpenClaw 2026.7 gateway', () => {
     // This is the state #907 reported. If this ALSO succeeds, the protocol change
     // was not the fix and the positive test above proves nothing.
     const result = await handshake({ minProtocol: 3, maxProtocol: 3 });
-    expect(result.ok, 'pre-fix protocol window unexpectedly succeeded - the fix is not what made it work').toBe(
-      false
-    );
+    expect(result.ok, 'pre-fix protocol window unexpectedly succeeded - the fix is not what made it work').toBe(false);
   }, 30000);
 });

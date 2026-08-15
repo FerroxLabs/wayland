@@ -105,7 +105,8 @@ async function launchSandboxedApp(sandbox: Sandbox): Promise<CdpApp> {
     cdpPort: sandbox.cdpPort,
     readyTimeoutMs: RELAUNCH_TIMEOUT_MS,
     env: {
-      WAYLAND_EXTENSIONS_PATH: process.env.WAYLAND_EXTENSIONS_PATH || path.join(path.resolve(__dirname, '../..'), 'examples'),
+      WAYLAND_EXTENSIONS_PATH:
+        process.env.WAYLAND_EXTENSIONS_PATH || path.join(path.resolve(__dirname, '../..'), 'examples'),
       WAYLAND_EXTENSION_STATES_FILE: sandbox.extensionStatesFile,
     },
   });

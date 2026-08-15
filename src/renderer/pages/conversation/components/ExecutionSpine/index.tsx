@@ -154,11 +154,8 @@ const ExecutionSpine: React.FC<{
       ? t('conversation.execution.failedActivity', { defaultValue: 'The run stopped before it finished' })
       : t('conversation.execution.currentActivity', { defaultValue: 'Working through the current task' }));
 
-
   if (!visible) {
-    return (
-      <>{children}</>
-    );
+    return <>{children}</>;
   }
 
   return (

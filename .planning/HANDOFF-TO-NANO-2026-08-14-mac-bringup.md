@@ -13,16 +13,16 @@ Everything marked **[V]** was established by running it, not by reading code.
 
 ## 1. What was done
 
-| Step | Result |
-|---|---|
-| Prereqs (Xcode CLT, rustup, just, bun) | already present |
-| Clone + `cargo build --release` | **[V]** clean, 46.8s, 9 crates, 0 errors |
-| `--version` | **[V]** `wayland-nano 0.1.0`, exit 0 |
-| Bare run | **[V]** prints usage, exit **2** as documented |
-| Install on PATH | **[V]** resolves in a real login shell |
-| ACP handshake | **[V]** initialize → agentInfo, protocolVersion 1 |
-| Desktop PR #955 | **[V]** merged; error table now **59 kinds** |
-| Smoke 1–4 | **[V]** pass (see §3) |
+| Step                                   | Result                                            |
+| -------------------------------------- | ------------------------------------------------- |
+| Prereqs (Xcode CLT, rustup, just, bun) | already present                                   |
+| Clone + `cargo build --release`        | **[V]** clean, 46.8s, 9 crates, 0 errors          |
+| `--version`                            | **[V]** `wayland-nano 0.1.0`, exit 0              |
+| Bare run                               | **[V]** prints usage, exit **2** as documented    |
+| Install on PATH                        | **[V]** resolves in a real login shell            |
+| ACP handshake                          | **[V]** initialize → agentInfo, protocolVersion 1 |
+| Desktop PR #955                        | **[V]** merged; error table now **59 kinds**      |
+| Smoke 1–4                              | **[V]** pass (see §3)                             |
 
 Binary: 10.7 MB, sha256 `93a06b6607453d3270403145221e4de7b2f1455568d2bf99bb0abc1ac0691be7`.
 
@@ -114,14 +114,14 @@ substitute for a decision here.
 
 ## 3. Smoke list results (your §8)
 
-| # | Check | Result |
-|---|---|---|
-| 1 | `wayland-nano --version` in a fresh terminal | **[V] PASS** |
-| 2 | Picker lists Nano; selecting it opens a session | **[V] PASS** — spawns `wayland-nano acp-host`, initialize → session/new → prompt |
-| 3 | A simple prompt streams a response | **[V] PASS** — reply rendered live, composer shows "Routing via Flux" |
-| 4 | File-write triggers permission; Allow once writes | **[V] PASS** — `fs_write` prompt, Allow once, file on disk with exact content |
-| 5 | Cancel mid-turn leaves the session alive | **NOT RUN** |
-| 6 | Quit + relaunch resumes history (`session/load`) | **NOT RUN** — blocked, see §4 |
+| #   | Check                                             | Result                                                                           |
+| --- | ------------------------------------------------- | -------------------------------------------------------------------------------- |
+| 1   | `wayland-nano --version` in a fresh terminal      | **[V] PASS**                                                                     |
+| 2   | Picker lists Nano; selecting it opens a session   | **[V] PASS** — spawns `wayland-nano acp-host`, initialize → session/new → prompt |
+| 3   | A simple prompt streams a response                | **[V] PASS** — reply rendered live, composer shows "Routing via Flux"            |
+| 4   | File-write triggers permission; Allow once writes | **[V] PASS** — `fs_write` prompt, Allow once, file on disk with exact content    |
+| 5   | Cancel mid-turn leaves the session alive          | **NOT RUN**                                                                      |
+| 6   | Quit + relaunch resumes history (`session/load`)  | **NOT RUN** — blocked, see §4                                                    |
 
 Step 2 is the one worth calling out because your §10 flags the stub-vs-binary
 precedence trap: `AgentRegistry.createWNanoAgent()` returns an always-available

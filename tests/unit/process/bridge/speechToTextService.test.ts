@@ -443,9 +443,9 @@ describe('SpeechToTextService', () => {
         })
       ).rejects.toThrow('STT_OPENAI_NOT_CONFIGURED');
 
-      expect(
-        resolveEffectiveSttProvider({ stored, hasConnectedOpenAIKey: false, hasConnectedFluxKey: false })
-      ).toBe('openai');
+      expect(resolveEffectiveSttProvider({ stored, hasConnectedOpenAIKey: false, hasConnectedFluxKey: false })).toBe(
+        'openai'
+      );
     });
   });
 

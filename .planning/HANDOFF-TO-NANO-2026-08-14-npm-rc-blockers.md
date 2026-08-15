@@ -30,6 +30,7 @@ wayland-nano [WAYLAND_NANO_SPAWN_FAILED]: EACCES: permission denied,
 posix_spawn '/private/var/.../bunx-501-waylandnano@0.1.0-rc.0/
              node_modules/waylandnano/binaries/darwin-arm64/wayland-nano'
 ```
+
 [V] — exact stderr, driving the real Desktop spawn shape.
 
 **Control, so this is not mistaken for a broken package:** plain

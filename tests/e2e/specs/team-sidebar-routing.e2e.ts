@@ -14,7 +14,7 @@
  */
 
 import { test, expect } from '../fixtures';
-import { invokeBridge, expandTeamsAccordion} from '../helpers';
+import { invokeBridge, expandTeamsAccordion } from '../helpers';
 
 const TEAM_NAME = `E2E Sidebar Routing ${Date.now()}`;
 
@@ -84,9 +84,9 @@ test.describe('Team Sidebar - routing + typed-delete', () => {
     // `.group` class - match by walking up from the visible text.
     const row = sidebarEntry.locator(
       // SiderItem's root is `h-26px ... group ...` now, not h-40px. Match the
-    // `group` CLASS TOKEN exactly - a bare contains() also matches
-    // `group-hover:text-1` on an inner div, which has no menu trigger.
-    'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
+      // `group` CLASS TOKEN exactly - a bare contains() also matches
+      // `group-hover:text-1` on an inner div, which has no menu trigger.
+      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
     );
     await expect(row).toBeVisible({ timeout: 5_000 });
     await row.hover();

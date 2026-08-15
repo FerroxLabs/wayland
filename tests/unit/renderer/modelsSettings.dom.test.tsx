@@ -369,15 +369,15 @@ describe('ModelsSettings page', () => {
     fireEvent.click(await screen.findByText('settings.modelsPage.row.fix'));
     fireEvent.click(await screen.findByText('settings.modelsPage.manage.refresh'));
 
-    await waitFor(() =>
-      expect(warnSpy).toHaveBeenCalledWith('settings.modelsPage.manage.refreshStillActionNeeded')
-    );
+    await waitFor(() => expect(warnSpy).toHaveBeenCalledWith('settings.modelsPage.manage.refreshStillActionNeeded'));
     expect(successSpy).not.toHaveBeenCalledWith('settings.modelsPage.manage.refreshDone');
   });
 
   it('announces success when the refresh actually cleared the error (negative control)', async () => {
     // Same click path, but the reloaded snapshot comes back healthy.
-    mockList.mockResolvedValueOnce([erroredProvider]).mockResolvedValue([{ ...erroredProvider, state: 'connected', error: undefined, modelCount: 7 }]);
+    mockList
+      .mockResolvedValueOnce([erroredProvider])
+      .mockResolvedValue([{ ...erroredProvider, state: 'connected', error: undefined, modelCount: 7 }]);
     mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
     mockRefresh.mockResolvedValue({ ok: true });
 
@@ -426,9 +426,7 @@ describe('ModelsSettings page', () => {
     expect(screen.queryByText('settings.modelsPage.row.fix')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByText(/row\.localStart:provider=Ollama/));
-    await waitFor(() =>
-      expect(mockStartLocalRuntime).toHaveBeenCalledWith({ providerId: 'ollama-local' })
-    );
+    await waitFor(() => expect(mockStartLocalRuntime).toHaveBeenCalledWith({ providerId: 'ollama-local' }));
   });
 
   it('points at the download and offers no Start when Ollama is not installed', async () => {

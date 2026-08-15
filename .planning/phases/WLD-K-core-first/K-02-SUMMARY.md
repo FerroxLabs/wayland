@@ -21,7 +21,7 @@
   - `describeContractRejection(stderrDetail, fallbackDetail)` — the DIA-01 fix for the
     `failDesktopContract` site: empty `stderrDetail` → the original abstract wording, byte-exact
     (no regression); non-empty → fully replaces the abstraction with `wcore refused to start:
-    ${stderrDetail}${profileStripHedge(stderrDetail)}`. This is the ONLY site that replaces the
+${stderrDetail}${profileStripHedge(stderrDetail)}`. This is the ONLY site that replaces the
     phrase; the other two sites only ever append the hedge suffix.
 
 - **`src/process/agent/wcore/index.ts`** — one new import
@@ -71,6 +71,7 @@ by the engine)
 ```
 
 Checked live (Node script, not by eyeball) against:
+
 - `AUTH_FAILURE_SIGNATURES` (`acpAuthFailure.ts`) + the `\b401\b` pattern — no substring match.
 - `isContextCeilingErrorMessage`'s two substrings (`errorDetection.ts`) — no match.
 - `redactCommandSecrets.ts`'s `KEY_VALUE_REGEX`/`CAMEL_KEY_VALUE_REGEX` keyword adjacency
@@ -84,6 +85,7 @@ npx tsc --noEmit          → No errors found
 npx vitest run             → 4725/4725 suites, 16285 tests, 0 failed, 149 pending (skipped —
                               live-CLI smoke tests gated behind env vars, unrelated to this plan)
 ```
+
 Baseline to beat was 16,268/0. This plan added exactly 17 tests (11 + 5 + 1), landing at
 16,285/0 — matches the plan's own math.
 
@@ -92,7 +94,7 @@ Baseline to beat was 16,268/0. This plan added exactly 17 tests (11 + 5 + 1), la
 - `execFailureReason.ts` byte-identical to pre-plan HEAD — confirmed via `git status --short`
   (file does not appear in the diff at all).
 - No file under `src/renderer/` appears in either commit's diff — confirmed by `git status
-  --short` after staging; zero renderer changes were needed (the plain-text fallthrough in
+--short` after staging; zero renderer changes were needed (the plain-text fallthrough in
   `WCoreSendBox.tsx`'s `handleTurnError` already renders unclassified error text).
 - Zero new IPC channels, zero new dependencies.
 

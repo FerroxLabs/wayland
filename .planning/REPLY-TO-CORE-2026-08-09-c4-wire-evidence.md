@@ -15,6 +15,7 @@ records every outbound body verbatim. Rig: `gemini-recorder.js` (kept, see §5).
 Identical rig, identical prompts, two turns each. **Only the binary differs.**
 
 **OLD binary — released v0.12.26**
+
 ```
 turn 2 replayed history:
   model  thought=true   thoughtSignature=—                       "Let me think about that. "
@@ -23,6 +24,7 @@ turn 2 replayed history:
 ```
 
 **NEW binary — `d6f76c67` (`sha256:6d0ca72a…`)**
+
 ```
 turn 2 replayed history:
   model  thought=true   thoughtSignature=SIG-C4-ROUNDTRIP-0001   "Let me think about that. "
@@ -44,6 +46,7 @@ reject. We are **not** claiming that is the `position 2` 400 — see §3.
 ---
 
 ## 2. §6 — we could NOT reproduce the resumed-session residual, and you should check this before
+
 ## spending on it
 
 You wrote that a resumed session still replays thoughts unsigned, because

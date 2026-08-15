@@ -63,60 +63,56 @@ describe('K-03: a real, unterminated stream_end frame is recovered without waiti
     rmSync(root, { recursive: true, force: true });
   });
 
-  it(
-    'recovers a complete, unterminated stream_end the instant its bytes arrive, before the child writes anything else or exits',
-    async () => {
-      const consumer = new DesktopCoreV1Consumer();
-      const results: DesktopCoreConsumeResult[] = [];
+  it('recovers a complete, unterminated stream_end the instant its bytes arrive, before the child writes anything else or exits', async () => {
+    const consumer = new DesktopCoreV1Consumer();
+    const results: DesktopCoreConsumeResult[] = [];
 
-      child = spawn('bun', [HARNESS_PATH, markerPath], {
-        cwd: REPO_ROOT,
-        stdio: ['ignore', 'pipe', 'pipe'],
-      });
-      let stderr = '';
-      child.stderr.on('data', (chunk: Buffer) => {
-        stderr += chunk.toString();
-      });
-      child.stdout.on('data', (chunk: Buffer) => {
-        // The exact wiring index.ts's 'data' listener uses in production.
-        results.push(...consumer.consumeChunk(chunk));
-      });
+    child = spawn('bun', [HARNESS_PATH, markerPath], {
+      cwd: REPO_ROOT,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stderr = '';
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+    child.stdout.on('data', (chunk: Buffer) => {
+      // The exact wiring index.ts's 'data' listener uses in production.
+      results.push(...consumer.consumeChunk(chunk));
+    });
 
-      try {
-        // Proves the partial write physically landed in the OS pipe, not
-        // merely that the harness function returned.
-        await waitFor(() => existsSync(markerPath));
+    try {
+      // Proves the partial write physically landed in the OS pipe, not
+      // merely that the harness function returned.
+      await waitFor(() => existsSync(markerPath));
 
-        await waitFor(
-          () =>
-            results.some(
-              (r) =>
-                r.kind === 'event' &&
-                r.event.type === 'stream_end' &&
-                r.event.msg_id === 'm1' &&
-                r.event.finish_reason === 'stop'
-            ),
-          15000
-        );
-      } catch (error) {
-        throw new Error(
-          `stream_end was not recovered from the unterminated frame; stderr: ${stderr}; results so far: ${JSON.stringify(results)}; original error: ${(error as Error).message}`
-        );
-      }
+      await waitFor(
+        () =>
+          results.some(
+            (r) =>
+              r.kind === 'event' &&
+              r.event.type === 'stream_end' &&
+              r.event.msg_id === 'm1' &&
+              r.event.finish_reason === 'stop'
+          ),
+        15000
+      );
+    } catch (error) {
+      throw new Error(
+        `stream_end was not recovered from the unterminated frame; stderr: ${stderr}; results so far: ${JSON.stringify(results)}; original error: ${(error as Error).message}`
+      );
+    }
 
-      // The child is still alive and has written nothing further - the
-      // recovery happened purely because the bytes already received formed a
-      // complete object, not because of a subsequent delimiter or exit.
-      expect(child.killed).toBe(false);
-      expect(child.exitCode).toBeNull();
+    // The child is still alive and has written nothing further - the
+    // recovery happened purely because the bytes already received formed a
+    // complete object, not because of a subsequent delimiter or exit.
+    expect(child.killed).toBe(false);
+    expect(child.exitCode).toBeNull();
 
-      const exited = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolvePromise) => {
-        child?.once('exit', (code, signal) => resolvePromise({ code, signal }));
-      });
-      child.kill('SIGKILL');
-      const { signal } = await exited;
-      expect(signal).toBe('SIGKILL');
-    },
-    30000
-  );
+    const exited = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolvePromise) => {
+      child?.once('exit', (code, signal) => resolvePromise({ code, signal }));
+    });
+    child.kill('SIGKILL');
+    const { signal } = await exited;
+    expect(signal).toBe('SIGKILL');
+  }, 30000);
 });

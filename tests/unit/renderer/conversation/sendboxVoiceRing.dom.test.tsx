@@ -100,7 +100,11 @@ vi.mock('@icon-park/react', () => ({
   CloseSmall: () => null,
 }));
 vi.mock('@arco-design/web-react', () => ({
-  Button: ({ children, icon, ...rest }: Record<string, unknown> & { children?: React.ReactNode; icon?: React.ReactNode }) =>
+  Button: ({
+    children,
+    icon,
+    ...rest
+  }: Record<string, unknown> & { children?: React.ReactNode; icon?: React.ReactNode }) =>
     React.createElement('button', { type: 'button', ...rest }, (children as React.ReactNode) ?? icon),
   Input: {
     TextArea: ({ onChange, autoSize: _a, ...props }: Record<string, unknown> & { onChange?: (v: string) => void }) =>

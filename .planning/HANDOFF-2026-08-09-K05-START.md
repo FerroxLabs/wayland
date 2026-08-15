@@ -6,6 +6,7 @@ head **`8bc28852e`**, in sync with `ferrox`. Full suite **16,329 passed, 0 faile
 `constitutionFsAuthority.generated.ts` are dirty (both permanent).
 
 **Read in this order**
+
 1. this file
 2. `.planning/K-05-INSTALLER-PLAN.md` — the build plan, 415 lines, execution-corrected
 3. `.planning/HANDOFF-2026-08-09-WLD-K-v3.md` — the state K-05 starts from
@@ -20,7 +21,7 @@ head **`8bc28852e`**, in sync with `ferrox`. Full suite **16,329 passed, 0 faile
 - **Loose ends: clear all three first.** W-G, W-D, and the corrupted-conversation DB migration.
 - **The plan's own §4 blockers, taken as my recommendations unless Sean says otherwise:**
   - **Q1 — qwen ships first, auggie install-only.** auggie returns `authMethods: []` and requires
-    `auggie login` in a terminal; it can *never* satisfy "and a chat runs on it". qwen was proven
+    `auggie login` in a terminal; it can _never_ satisfy "and a chat runs on it". qwen was proven
     end-to-end (`session/new` returned a sessionId, nothing written outside our root).
   - **Q2 — the T6 credential path is IN SCOPE.** Without it INS-01 is unprovable:
     `resolveBuiltinBackendConfig` returns no `customEnv`, `acp.config[backend].authToken` has zero

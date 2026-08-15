@@ -246,7 +246,10 @@ const storedProfileCells: Array<[string, unknown]> = [
   ['nothing stored at all', undefined],
   ['pre-origin profile, the shipped factory default', JSON.parse('{"enabled":false,"provider":"openai"}')],
   ['pre-origin profile that named Deepgram', JSON.parse('{"enabled":false,"provider":"deepgram"}')],
-  ['pre-origin profile with a stale OpenAI key', JSON.parse('{"enabled":false,"provider":"openai","openai":{"apiKey":"sk-old","model":"whisper-1"}}')],
+  [
+    'pre-origin profile with a stale OpenAI key',
+    JSON.parse('{"enabled":false,"provider":"openai","openai":{"apiKey":"sk-old","model":"whisper-1"}}'),
+  ],
 ];
 
 const credentialCells: Array<[string, ConnectedVoiceCredentials]> = [

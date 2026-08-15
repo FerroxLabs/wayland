@@ -36,11 +36,7 @@ const OPENAI_TTS_URL = 'https://api.openai.com/v1/audio/speech';
  * decodes natively, which is what the renderer's `<audio>` element needs to ever
  * reach its `ended` event.
  */
-export const buildSystemNativeSayArgs = (
-  text: string,
-  config: TextToSpeechConfig,
-  outputPath: string
-): string[] => {
+export const buildSystemNativeSayArgs = (text: string, config: TextToSpeechConfig, outputPath: string): string[] => {
   const rate = Math.round(config.speed * 175);
   return [
     '-r',

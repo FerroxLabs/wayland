@@ -398,13 +398,7 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
           throw new Error('Error while decrypting the ciphertext provided to safeStorage.decryptString.');
         },
       };
-      const foreign = new ConstitutionFsService(
-        root,
-        binary,
-        foreignIdentityBackend,
-        undefined,
-        revisionAuthorityPath
-      );
+      const foreign = new ConstitutionFsService(root, binary, foreignIdentityBackend, undefined, revisionAuthorityPath);
 
       let thrown: unknown;
       try {

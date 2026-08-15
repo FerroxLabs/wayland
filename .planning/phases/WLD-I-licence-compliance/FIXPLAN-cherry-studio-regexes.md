@@ -5,7 +5,7 @@
 **The finding is confirmed — byte-identity verified against the pinned revision.** But three things in the brief's framing are wrong or incomplete, and one of them changes the scope materially:
 
 1. **It did not come from us.** The regex reached our tree via **AionUi**, our fork point. Nobody on our side copied from Cherry Studio.
-2. **It is not one regex, it is three.** Rewriting only the reranking regex leaves a *more* protectable Cherry Studio artifact in place.
+2. **It is not one regex, it is three.** Rewriting only the reranking regex leaves a _more_ protectable Cherry Studio artifact in place.
 3. **The escape hatch prior research left open (Q9) is now closed.** I checked the licence timing. AGPL governs. The exposure is real.
 
 **Rewriting is the right call. Rewriting only the rerank regex is not.**
@@ -28,7 +28,7 @@ const RERANK_MODEL = /(?:rerank|re-rank|re-ranker|re-ranking|retrieval|retriever
 Pin `b5632b009` resolves via the GitHub API to the full SHA **`b5632b0097d0240e6dbf1baf22c8c327850fc3f1`** (2025-09-06). Fetched that exact commit — not code search, which as you note only indexes the default branch. `/tmp/cs-probe/src/renderer/src/config/models/embedding.ts:9`:
 
 ```ts
-export const RERANKING_REGEX = /(?:rerank|re-rank|re-ranker|re-ranking|retrieval|retriever)/i
+export const RERANKING_REGEX = /(?:rerank|re-rank|re-ranker|re-ranking|retrieval|retriever)/i;
 ```
 
 SHA-256 of both regex literals: `9928af715f1b23d9dc1baccc6072b29909473651f884c9dcd0581aa7f448d704`. **Byte-identical confirmed.** Only the binding differs (`RERANK_MODEL` vs exported `RERANKING_REGEX`).
@@ -39,18 +39,18 @@ Four of the six alternatives are **redundant**. The match is unanchored, so `rer
 
 ### The chain, dated
 
-| Date | Event | Evidence |
-|---|---|---|
-| 2024-10-17 | Cherry LICENSE = Apache-2.0 **+ commercial rider** | `267c60f24`, raw LICENSE |
-| **2025-03-18** | **Cherry flips to AGPL-3.0 + >10-individual commercial trigger** | `9ae7c5101` |
-| 2025-06-03 | `RERANKING_REGEX` present in Cherry `models.ts:212` | `be1dae7ef` |
-| **2025-08-30** | **AionUi ADDS the byte-identical regex** | `7bc0312e1` (author `zmworm`), diff shows `+  rerank: /(?:rerank\|re-rank\|...)/i` |
-| 2026-05→ | AionUi v1.9.5 = `5b2c741f927b5043b60006bf850c7b7b1342698c` carries it at `src/renderer/utils/model/modelCapabilities.ts:23` | matches your supplied fork point |
-| 2026-06-07 | Enters our tree in squashed import `2b3b60e11` "Wayland v0.9.6-rc.1" | `git log -S` |
+| Date           | Event                                                                                                                       | Evidence                                                                           |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 2024-10-17     | Cherry LICENSE = Apache-2.0 **+ commercial rider**                                                                          | `267c60f24`, raw LICENSE                                                           |
+| **2025-03-18** | **Cherry flips to AGPL-3.0 + >10-individual commercial trigger**                                                            | `9ae7c5101`                                                                        |
+| 2025-06-03     | `RERANKING_REGEX` present in Cherry `models.ts:212`                                                                         | `be1dae7ef`                                                                        |
+| **2025-08-30** | **AionUi ADDS the byte-identical regex**                                                                                    | `7bc0312e1` (author `zmworm`), diff shows `+  rerank: /(?:rerank\|re-rank\|...)/i` |
+| 2026-05→       | AionUi v1.9.5 = `5b2c741f927b5043b60006bf850c7b7b1342698c` carries it at `src/renderer/utils/model/modelCapabilities.ts:23` | matches your supplied fork point                                                   |
+| 2026-06-07     | Enters our tree in squashed import `2b3b60e11` "Wayland v0.9.6-rc.1"                                                        | `git log -S`                                                                       |
 
 **This closes Q9 from `.planning/research/WLD-J/SUMMARY.md`.** That research correctly flagged that Cherry's licence was rewritten 2025-03-18 and that a pre-flip copy might be permissively licensed. It is not. AionUi copied **five months after** the AGPL flip. **AGPL-3.0 governs.**
 
-(Worth knowing anyway: even the pre-flip Apache-2.0 licence carried a rider requiring commercial authorisation for *"二次修改、开发（包括但不限于修改应用名称、logo、代码以及功能）"* — secondary modification including changing the app name, logo, code or functionality. A rebranded fork would have tripped it either way. The flip changed the flavour from attribution to copyleft, not the existence.)
+(Worth knowing anyway: even the pre-flip Apache-2.0 licence carried a rider requiring commercial authorisation for _"二次修改、开发（包括但不限于修改应用名称、logo、代码以及功能）"_ — secondary modification including changing the app name, logo, code or functionality. A rebranded fork would have tripped it either way. The flip changed the flavour from attribution to copyleft, not the existence.)
 
 AionUi shipped it under `SPDX-License-Identifier: Apache-2.0`. **Copyright does not launder through an intermediate fork.** AionUi's Apache grant cannot convey rights over expression AionUi did not own.
 
@@ -65,12 +65,12 @@ AionUi's own comments name the source, in Chinese, at the fork point (`/tmp/aion
 
 Comparing all three trees:
 
-| Pattern | Cherry @ pin | AionUi v1.9.5 | Ours today | Status |
-|---|---|---|---|---|
-| **rerank** | `RERANKING_REGEX` | identical | **identical** | ⚠️ **byte-identical, shipping** |
-| **embedding** | `EMBEDDING_REGEX` | **byte-identical** to Cherry | modified | ⚠️ **derived token set retained** |
-| **image gen** | `TEXT_TO_IMAGE_REGEX` | near-identical | modified head | ⚠️ **65-char identical run** |
-| vision / reasoning / web_search / function_calling | built via `new RegExp(arr.join('\|'))` with negative lookaheads | simple literals | simple literals | ✅ **not derived** |
+| Pattern                                            | Cherry @ pin                                                    | AionUi v1.9.5                | Ours today      | Status                            |
+| -------------------------------------------------- | --------------------------------------------------------------- | ---------------------------- | --------------- | --------------------------------- |
+| **rerank**                                         | `RERANKING_REGEX`                                               | identical                    | **identical**   | ⚠️ **byte-identical, shipping**   |
+| **embedding**                                      | `EMBEDDING_REGEX`                                               | **byte-identical** to Cherry | modified        | ⚠️ **derived token set retained** |
+| **image gen**                                      | `TEXT_TO_IMAGE_REGEX`                                           | near-identical               | modified head   | ⚠️ **65-char identical run**      |
+| vision / reasoning / web_search / function_calling | built via `new RegExp(arr.join('\|'))` with negative lookaheads | simple literals              | simple literals | ✅ **not derived**                |
 
 **Embedding.** Cherry and AionUi are byte-identical:
 `/(?:^text-|embed|bge-|e5-|LLM2Vec|retrieval|uae-|gte-|jina-clip|jina-embeddings|voyage-)/i`
@@ -89,13 +89,13 @@ diffusion|stabilityai|sd-|dall|cogview|janus|midjourney|mj-|image
 
 Whole-file identifier overlap, comments stripped, ≥3 chars:
 
-| Comparison | Overlap |
-|---|---|
-| POS: ours(common) vs AionUi | **87.1%** |
-| POS: ours(renderer) vs AionUi | **97.4%** |
-| NEG: `modelClassifierRules.ts` (Ferrox-original) vs AionUi | 31.9% |
-| NEG: `modelClassifierRules.ts` vs Cherry `embedding.ts` | **11.1%** |
-| TARGET: ours(common) vs Cherry `embedding.ts` | 26.9% |
+| Comparison                                                 | Overlap   |
+| ---------------------------------------------------------- | --------- |
+| POS: ours(common) vs AionUi                                | **87.1%** |
+| POS: ours(renderer) vs AionUi                              | **97.4%** |
+| NEG: `modelClassifierRules.ts` (Ferrox-original) vs AionUi | 31.9%     |
+| NEG: `modelClassifierRules.ts` vs Cherry `embedding.ts`    | **11.1%** |
+| TARGET: ours(common) vs Cherry `embedding.ts`              | 26.9%     |
 
 The 26.9% is **diluted and I am not relying on it** — our file is mostly ours. The meaningful read is the shared set itself: `bge, gte, uae, voyage, jina, clip, embed, embeddings, retrieval, retriever, rerank, rank, ranker, ranking`. That is the entire payload, at 100%, against an 11.1% baseline. (`llm2vec` is also shared; my tokeniser is case-sensitive and Cherry writes `LLM2Vec`.)
 
@@ -107,13 +107,13 @@ Cherry's `isEmbeddingModel` resolves: user-selected → provider special-case (`
 
 # 3. Straight verdict: does rewriting suffice?
 
-**Yes for the code, no as scoped — and the honest answer is that the rerank regex is the *weakest* of the three items you'd be fixing.**
+**Yes for the code, no as scoped — and the honest answer is that the rerank regex is the _weakest_ of the three items you'd be fixing.**
 
 Taking your two hypotheticals in turn, because the answer differs for each:
 
-**"A short functional regex may not be protectable at all."** For the *rerank* regex specifically, largely correct. Six morphological variants of one word plus `retrieval`/`retriever` is close to the only way to express "match reranker model names." Merger and scènes à faire bite hard. Four alternations are functionally dead, which proves copying but adds no creative expression. If this were the only item, I would tell you the exposure is thin enough to be theoretical.
+**"A short functional regex may not be protectable at all."** For the _rerank_ regex specifically, largely correct. Six morphological variants of one word plus `retrieval`/`retriever` is close to the only way to express "match reranker model names." Merger and scènes à faire bite hard. Four alternations are functionally dead, which proves copying but adds no creative expression. If this were the only item, I would tell you the exposure is thin enough to be theoretical.
 
-**"If what we took is the structure, swapping characters changes nothing."** For the three-layer logic, this does *not* bite — a resolution-precedence order is a method of operation, unprotectable under the idea/expression line. And we inherited that implementation from AionUi under Apache-2.0, which we are entitled to use with attribution.
+**"If what we took is the structure, swapping characters changes nothing."** For the three-layer logic, this does _not_ bite — a resolution-precedence order is a method of operation, unprotectable under the idea/expression line. And we inherited that implementation from AionUi under Apache-2.0, which we are entitled to use with attribution.
 
 **But there is a third thing you didn't list, and it is the real one.** The **embedding token list** is a curated selection of facts — exactly the thin-but-real `Feist` selection-and-arrangement copyright. It is more protectable than the rerank regex, it is still substantially in our tree, and it is not on your fix list. Same for the 65-character image run.
 
@@ -134,16 +134,16 @@ So: **the item does not evaporate, it moves.** If you rewrite only the rerank re
 
 **No caller anywhere requests the `'rerank'` capability.** Full sweep of `src/`:
 
-| Consumer | Capability requested |
-|---|---|
-| `src/common/utils/teamModelUtils.ts:37,39` | `function_calling`, `excludeFromPrimary` |
+| Consumer                                                 | Capability requested                     |
+| -------------------------------------------------------- | ---------------------------------------- |
+| `src/common/utils/teamModelUtils.ts:37,39`               | `function_calling`, `excludeFromPrimary` |
 | `src/renderer/hooks/agent/useModelProviderList.ts:87,88` | `function_calling`, `excludeFromPrimary` |
-| `src/renderer/pages/guid/utils/modelUtils.ts:36,37` | `function_calling`, `excludeFromPrimary` |
-| `src/renderer/utils/model/imageVisionGate.ts:71` | `vision` |
+| `src/renderer/pages/guid/utils/modelUtils.ts:36,37`      | `function_calling`, `excludeFromPrimary` |
+| `src/renderer/utils/model/imageVisionGate.ts:71`         | `vision`                                 |
 
 `'rerank'` appears only in the `ModelType` union (`src/common/config/storage.ts:785`) and as a user-selectable capability. `RERANK_MODEL` reaches observable behaviour **solely** through interpolation into `excludeFromPrimary` at `modelCapabilities.ts:62`.
 
-**Consequence:** the behaviour that must be preserved is *"which model ids get filtered out of the primary/workflow picker,"* not *"which ids are labelled rerank."* That is a much smaller surface than the brief assumed — and it is the surface where a regression actually hurts (#740, #108).
+**Consequence:** the behaviour that must be preserved is _"which model ids get filtered out of the primary/workflow picker,"_ not _"which ids are labelled rerank."_ That is a much smaller surface than the brief assumed — and it is the surface where a regression actually hurts (#740, #108).
 
 ### Derive from our own catalogue
 
@@ -176,36 +176,36 @@ Apply the same treatment to `EMBEDDING_MODEL` (:35) and the image alternation (:
 
 Both candidates run against the current regex over a 52-id corpus (real rerankers, real embeddings, chat models incl. the `#108`/`#740` regression guards, plus adversarial ids):
 
-| Model id | rerank cur→new | excludeFromPrimary cur→new |
-|---|---|---|
-| `bge-reranker-v2-m3` | true → true | true → true |
-| `bge-reranker-base` / `-large` | true → true | true → true |
-| `rerank-english-v3.0` | true → true | true → true |
-| `rerank-multilingual-v3.0` | true → true | true → true |
-| `rerank-v3.5` | true → true | true → true |
-| `jina-reranker-v2-base-multilingual` | true → true | true → true |
-| `jina-reranker-v1-turbo-en` | true → true | true → true |
-| `mxbai-rerank-large-v1` / `-xsmall-v1` | true → true | true → true |
-| `Qwen3-Reranker-8B` / `-0.6B` | true → true | true → true |
-| `bce-reranker-base_v1` | true → true | true → true |
-| `gte-multilingual-reranker-base` | true → true | true → true |
-| `xlm-roberta-base-reranker` | true → true | true → true |
-| `cohere.rerank-v3-5:0` | true → true | true → true |
-| `retriever-base`, `llm-retriever-v1` | true → true | true → true |
-| `bge-m3:latest`, `gte-large`, `voyage-3`, `e5-mistral-7b-instruct`, `jina-embeddings-v3`, `nomic-embed-text`, `text-embedding-3-large`, `jina-clip-v2` | false → false | true → true |
-| `gpt-4o`, `claude-3-5-sonnet`, `llama3.1:8b`, `qwen2.5-coder:7b`, `deepseek-chat`, `gemini-2.0-flash`, `mistral-large-latest`, `grok-4`, `command-r-plus`, `o1-preview` | false → false | false → false |
-| `kuae-coder`, `kuae-cloud-coding` (#740 guard) | false → false | false → false |
-| `text-davinci-003` (#740 guard) | false → false | false → false |
-| `flux-auto`, `flux-fast`, `flux-reasoning` (#108 guard) | false → false | false → false |
-| `ms-marco-MiniLM-L-6-v2` | false → false | false → false |
-| `my_rerank_model`, `Reranker`, `RERANK` | true → true | true → true |
-| `reranked-legacy` | true → **false** | true → **false** |
-| `prerank-model` | true → **false** | true → **false** |
-| `xrerank` | true → **false** | true → **false** |
+| Model id                                                                                                                                                                | rerank cur→new   | excludeFromPrimary cur→new |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | -------------------------- |
+| `bge-reranker-v2-m3`                                                                                                                                                    | true → true      | true → true                |
+| `bge-reranker-base` / `-large`                                                                                                                                          | true → true      | true → true                |
+| `rerank-english-v3.0`                                                                                                                                                   | true → true      | true → true                |
+| `rerank-multilingual-v3.0`                                                                                                                                              | true → true      | true → true                |
+| `rerank-v3.5`                                                                                                                                                           | true → true      | true → true                |
+| `jina-reranker-v2-base-multilingual`                                                                                                                                    | true → true      | true → true                |
+| `jina-reranker-v1-turbo-en`                                                                                                                                             | true → true      | true → true                |
+| `mxbai-rerank-large-v1` / `-xsmall-v1`                                                                                                                                  | true → true      | true → true                |
+| `Qwen3-Reranker-8B` / `-0.6B`                                                                                                                                           | true → true      | true → true                |
+| `bce-reranker-base_v1`                                                                                                                                                  | true → true      | true → true                |
+| `gte-multilingual-reranker-base`                                                                                                                                        | true → true      | true → true                |
+| `xlm-roberta-base-reranker`                                                                                                                                             | true → true      | true → true                |
+| `cohere.rerank-v3-5:0`                                                                                                                                                  | true → true      | true → true                |
+| `retriever-base`, `llm-retriever-v1`                                                                                                                                    | true → true      | true → true                |
+| `bge-m3:latest`, `gte-large`, `voyage-3`, `e5-mistral-7b-instruct`, `jina-embeddings-v3`, `nomic-embed-text`, `text-embedding-3-large`, `jina-clip-v2`                  | false → false    | true → true                |
+| `gpt-4o`, `claude-3-5-sonnet`, `llama3.1:8b`, `qwen2.5-coder:7b`, `deepseek-chat`, `gemini-2.0-flash`, `mistral-large-latest`, `grok-4`, `command-r-plus`, `o1-preview` | false → false    | false → false              |
+| `kuae-coder`, `kuae-cloud-coding` (#740 guard)                                                                                                                          | false → false    | false → false              |
+| `text-davinci-003` (#740 guard)                                                                                                                                         | false → false    | false → false              |
+| `flux-auto`, `flux-fast`, `flux-reasoning` (#108 guard)                                                                                                                 | false → false    | false → false              |
+| `ms-marco-MiniLM-L-6-v2`                                                                                                                                                | false → false    | false → false              |
+| `my_rerank_model`, `Reranker`, `RERANK`                                                                                                                                 | true → true      | true → true                |
+| `reranked-legacy`                                                                                                                                                       | true → **false** | true → **false**           |
+| `prerank-model`                                                                                                                                                         | true → **false** | true → **false**           |
+| `xrerank`                                                                                                                                                               | true → **false** | true → **false**           |
 
-**Identical on all 49 real model ids.** The three divergences are synthetic and are all cases where the *current* regex over-matches. `prerank-model` is worth pausing on: it matches today because "p‑**rerank**‑model" contains the substring. That is a latent false positive in shipping code — an unrelated model called `prerank-*` would be silently hidden from the picker. The rewrite fixes it.
+**Identical on all 49 real model ids.** The three divergences are synthetic and are all cases where the _current_ regex over-matches. `prerank-model` is worth pausing on: it matches today because "p‑**rerank**‑model" contains the substring. That is a latent false positive in shipping code — an unrelated model called `prerank-*` would be silently hidden from the picker. The rewrite fixes it.
 
-**If you want provably zero divergence instead**, this variant is identical on the 52-id corpus *and* on all 4,096 generated token concatenations I fuzzed:
+**If you want provably zero divergence instead**, this variant is identical on the 52-id corpus _and_ on all 4,096 generated token concatenations I fuzzed:
 
 ```ts
 const RERANK_MODEL = /re-?rank|retriev(?:al|er)/i;
@@ -236,13 +236,22 @@ const provider = { platform: 'ollama' } as unknown as IProvider;
 
 describe('hasSpecificModelCapability — reranker classification', () => {
   const rerankIds = [
-    'bge-reranker-v2-m3', 'bge-reranker-base', 'bge-reranker-large',
-    'rerank-english-v3.0', 'rerank-multilingual-v3.0', 'rerank-v3.5',
-    'jina-reranker-v2-base-multilingual', 'jina-reranker-v1-turbo-en',
-    'mxbai-rerank-large-v1', 'mxbai-rerank-xsmall-v1',
-    'Qwen3-Reranker-8B', 'Qwen3-Reranker-0.6B',
-    'bce-reranker-base_v1', 'gte-multilingual-reranker-base',
-    'xlm-roberta-base-reranker', 'cohere.rerank-v3-5:0',
+    'bge-reranker-v2-m3',
+    'bge-reranker-base',
+    'bge-reranker-large',
+    'rerank-english-v3.0',
+    'rerank-multilingual-v3.0',
+    'rerank-v3.5',
+    'jina-reranker-v2-base-multilingual',
+    'jina-reranker-v1-turbo-en',
+    'mxbai-rerank-large-v1',
+    'mxbai-rerank-xsmall-v1',
+    'Qwen3-Reranker-8B',
+    'Qwen3-Reranker-0.6B',
+    'bce-reranker-base_v1',
+    'gte-multilingual-reranker-base',
+    'xlm-roberta-base-reranker',
+    'cohere.rerank-v3-5:0',
   ];
 
   for (const id of rerankIds) {
@@ -259,9 +268,16 @@ describe('hasSpecificModelCapability — reranker classification', () => {
   // Over-exclusion guards. These repeat the #108 / #740 classes: a naive
   // substring match hides real chat models from the picker.
   const chatIds = [
-    'gpt-4o', 'claude-3-5-sonnet', 'llama3.1:8b', 'qwen2.5-coder:7b',
-    'deepseek-chat', 'gemini-2.0-flash', 'mistral-large-latest',
-    'command-r-plus', 'grok-4', 'o1-preview',
+    'gpt-4o',
+    'claude-3-5-sonnet',
+    'llama3.1:8b',
+    'qwen2.5-coder:7b',
+    'deepseek-chat',
+    'gemini-2.0-flash',
+    'mistral-large-latest',
+    'command-r-plus',
+    'grok-4',
+    'o1-preview',
   ];
 
   for (const id of chatIds) {
@@ -304,11 +320,11 @@ The existing `tests/unit/common/modelCapabilities.embedding.test.ts` (incl. its 
  * Determine whether a model has a given capability - three-layer resolution inspired by Cherry Studio
 ```
 
-Two corrections to the brief. It is **English, not Chinese** — `9f439fbeb` restored *our translation* of AionUi's Chinese original (the commit body says so explicitly, and AionUi's line 115 is the Chinese source). And `9f439fbeb` reverted `3f1c5ba10` on evidence, listing this file at 94.1% derived from AionUi.
+Two corrections to the brief. It is **English, not Chinese** — `9f439fbeb` restored _our translation_ of AionUi's Chinese original (the commit body says so explicitly, and AionUi's line 115 is the Chinese source). And `9f439fbeb` reverted `3f1c5ba10` on evidence, listing this file at 94.1% derived from AionUi.
 
-**The rewrite does not moot this comment, and that is the point.** Rewriting the three regexes removes Cherry Studio's *literal expression*. It does not remove the **three-layer resolution structure**, which is what the comment actually describes and which remains Cherry-derived (via AionUi). So after the rewrite the comment is still factually accurate and still the only record of that lineage.
+**The rewrite does not moot this comment, and that is the point.** Rewriting the three regexes removes Cherry Studio's _literal expression_. It does not remove the **three-layer resolution structure**, which is what the comment actually describes and which remains Cherry-derived (via AionUi). So after the rewrite the comment is still factually accurate and still the only record of that lineage.
 
-What *does* change: once no byte-identical Cherry expression ships, the exposure drops from "verbatim AGPL code in a distributed artifact" to "unprotectable method, credited." That is a materially different question for WLD-I's F3 (counsel on the headcount trigger) and Q8, and both should be re-scoped once the rewrite lands — plausibly downgraded from compliance to courtesy.
+What _does_ change: once no byte-identical Cherry expression ships, the exposure drops from "verbatim AGPL code in a distributed artifact" to "unprotectable method, credited." That is a materially different question for WLD-I's F3 (counsel on the headcount trigger) and Q8, and both should be re-scoped once the rewrite lands — plausibly downgraded from compliance to courtesy.
 
 **Do not reword or remove the comment as part of this work.** It is an inherited AionUi notice; touching it is itself a §4(c) act and belongs to WLD-I.
 

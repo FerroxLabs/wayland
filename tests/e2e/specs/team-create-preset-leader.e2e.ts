@@ -18,7 +18,7 @@
  *   - cleanup runs inside a finally block so leftover test data never leaks
  */
 import { test, expect } from '../fixtures';
-import { invokeBridge, primeSiderCreateAffordance} from '../helpers';
+import { invokeBridge, primeSiderCreateAffordance } from '../helpers';
 import type { TTeam } from '@/common/types/teamTypes';
 
 const PREFERRED_PRESET_CUSTOM_AGENT_ID = 'builtin-cowork';

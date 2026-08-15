@@ -3,11 +3,11 @@
 **Run 2026-08-08 against commit `95c745fd5`, rebuilt (`bun run package`) first.**
 **Verdict: L-1 does not pass on either engine. Neither cause is a K-01/K-02/K-03 defect.**
 
-| check | 0.12.25 | 0.12.26 stable |
-|---|---|---|
-| bootstrap + MCP publish | **PASS** — `Connected to 'tvcontrol': 102 tools`, clean `stream_end` | **FAIL** — `contract_minor_mismatch`, dies before any turn |
-| tool actually executes | **FAIL** — ToolSearch never indexes TVControl | not reached |
-| global `config.toml` hygiene | **PASS** — no residual profile after 5 turns; real config byte-identical (`0bc1051d…`) | **PASS** |
+| check                        | 0.12.25                                                                                | 0.12.26 stable                                             |
+| ---------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| bootstrap + MCP publish      | **PASS** — `Connected to 'tvcontrol': 102 tools`, clean `stream_end`                   | **FAIL** — `contract_minor_mismatch`, dies before any turn |
+| tool actually executes       | **FAIL** — ToolSearch never indexes TVControl                                          | not reached                                                |
+| global `config.toml` hygiene | **PASS** — no residual profile after 5 turns; real config byte-identical (`0bc1051d…`) | **PASS**                                                   |
 
 **K-01 itself works.** The config plumbing did its job on both engines: the profile is written,
 the turn runs where bootstrap gets that far, and the reserved table is gone afterwards. The real
@@ -20,7 +20,7 @@ global config was never touched — the run used an isolated `WAYLAND_HOME`.
 The live-verify agent reported this as a newly-discovered blocker "orthogonal to K-01/K-02/K-03".
 That framing is wrong, and the correction matters.
 
-W-0 *is* "ToolSearch cannot see MCP tools". It was fixed in Core **rc.2** and verified standalone end
+W-0 _is_ "ToolSearch cannot see MCP tools". It was fixed in Core **rc.2** and verified standalone end
 to end — see `HANDOFF-TO-CORE-2026-08-05-rc2-acceptance-PASSED.md` ("W-0 is closed from our end").
 **0.12.25 predates that fix**, so ToolSearch failing to index TVControl on 0.12.25 is the expected,
 already-understood behaviour of that engine — not a new defect and not something to open work on.

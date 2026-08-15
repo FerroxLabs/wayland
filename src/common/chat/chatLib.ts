@@ -1129,8 +1129,7 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
  * wildcard would therefore protect nothing real while reopening the exact hole
  * this closes; two messages that both omit a position still compare equal.
  */
-const isSameSpeaker = (existing: TMessage, incoming: TMessage): boolean =>
-  existing.position === incoming.position;
+const isSameSpeaker = (existing: TMessage, incoming: TMessage): boolean => existing.position === incoming.position;
 
 export const composeMessage = (
   message: TMessage | undefined,

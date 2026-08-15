@@ -12,7 +12,7 @@ not of the method.
 
 ## §0 — RESOLVED. And the ruling is narrower than the question implied.
 
-**Ruling: no `curl | sh`.** Resolve the vendor's *pinned* artifact, verify its published signature
+**Ruling: no `curl | sh`.** Resolve the vendor's _pinned_ artifact, verify its published signature
 or SHA-256, then execute. Keeps the intent (official vendor channels, never third-party
 repackages), satisfies INS-06, matches the shipped OfficeCLI precedent.
 
@@ -34,7 +34,7 @@ So §0 governs Grok and Hermes only. Everything else is an npm-channel wave.
 the app's own bundled bun (1.3.14, sha `cdf91d46…`):
 
 - The declared bin `bin/claude.exe` is **500 bytes of ASCII shell**, mode `-rw-r--r--`, whose entire
-  body prints *"Error: claude native binary not installed"* and exits 1. Anthropic ships this
+  body prints _"Error: claude native binary not installed"_ and exits 1. Anthropic ships this
   placeholder deliberately. Auditor 1 is right: **the declared entry point is dead.**
 - The real binary **is installed anyway** — it is an `optionalDependencies` entry, which
   `--ignore-scripts` does not touch: `@anthropic-ai/claude-code-darwin-arm64/claude`, Mach-O arm64,
@@ -61,7 +61,7 @@ exactly as codex needs `codex-acp`. **Wave B is install + bridge, and the bridge
 `opencode-ai@1.18.18`. Same shape as Claude Code, and it fails our resolver the same way — twice
 over:
 
-- `bin/opencode.exe` is a **479-byte shell stub** that prints *"postinstall script was not run"* and
+- `bin/opencode.exe` is a **479-byte shell stub** that prints _"postinstall script was not run"_ and
   exits 1. Named `.exe` on every platform. Our `.js/.mjs/.cjs` rejection of it is **correct and must
   be preserved.**
 - Platform siblings are named off the **bin** name, not the package: `opencode-darwin-arm64`, and
@@ -76,17 +76,17 @@ A catalogue-entry-only Wave A would ship an **install button that always fails**
 platform.
 
 🔴 **Latent path traversal found, proven by fixture** [V]: `bin.name` is an object KEY from a
-downloaded `package.json`, joined into paths with no containment check (unlike the `bin` *entry*,
+downloaded `package.json`, joined into paths with no containment check (unlike the `bin` _entry_,
 which is guarded). A package declaring
 `bin: {"../../../../../../../usr/bin/whoami": "dist/index.js"}` makes the real resolver return
 `{"command":"/usr/bin/whoami"}`. **Not reachable today** — the catalogue pins two trusted packages —
 so it is latent, not an open defect. But the fix for OpenCode promotes `binName` from a filename to
-a *directory* name, which is what makes it matter. **Fix it in the same packet.**
+a _directory_ name, which is what makes it matter. **Fix it in the same packet.**
 
 **Recommendation:** declare the sibling prefix in the pinned catalogue
 (`nativeBinPackagePrefix?: 'opencode'`) rather than deriving it from network metadata. Matches the
-existing `CODEX_NATIVE_PACKAGE` precedent and the file's own doctrine: *"`bin` comes from a
-downloaded package.json; never follow it out of the package."*
+existing `CODEX_NATIVE_PACKAGE` precedent and the file's own doctrine: _"`bin` comes from a
+downloaded package.json; never follow it out of the package."_
 
 ---
 
@@ -101,7 +101,7 @@ Verified in xAI's own shipped Rust, not just docs:
   than losing to it.
 - `server.rs:324` — the **`grok agent stdio` ACP path consults the same custom-endpoint config**, so
   this applies to the spawn we actually use.
-- Vendor docs, "Auth Behavior": *"You do not need `grok login` — the API key is enough."*
+- Vendor docs, "Auth Behavior": _"You do not need `grok login` — the API key is enough."_
   **No SuperGrok, no X Premium+.** API key + base URL only, so our hard rule is satisfied.
 
 **Official repo is `xai-org/grok-build`.** There is no `xai-org/grok-cli` — enumerated the whole org.
@@ -129,14 +129,15 @@ CLI path. **We have it.** `AgentRegistry.ts:133` runs `which openclaw` on the lo
 CLI.
 
 And upstream `openclaw acp` is **not an independent agent** — read the real `src/cli/acp-cli.ts`:
-*"Run an ACP bridge backed by the Gateway"*, taking the same `--url/--token/--password` and sharing
+_"Run an ACP bridge backed by the Gateway"_, taking the same `--url/--token/--password` and sharing
 the same session keyspace. It is strictly downstream of what we already spawn.
 
 **Adding an `openclaw` ACP backend id would break two concrete things:**
+
 1. **Double detection of one binary** — `POTENTIAL_ACP_CLIS` is generated from `ACP_BACKENDS_ALL`, so
    every user with OpenClaw gets **two cards, two chips, one binary.**
 2. **A silently dead route** — `getConversationTypeForBackend('openclaw')` already returns
-   `'openclaw-gateway'`, so the new backend would dispatch to the gateway manager and *appear* to
+   `'openclaw-gateway'`, so the new backend would dispatch to the gateway manager and _appear_ to
    work while doing nothing new.
 
 **Wave D builds on `openclaw-gateway`.** Leave the `openclaw` aliases in `agentLogo.ts` and
@@ -153,7 +154,7 @@ proposal kind is entirely unwired** [V]: no case in `ConciergeProposeDetector`'s
 case in `conciergeConfigBridge`'s apply switch, no branch in `ConciergeConfigCard`. Its only caller
 is a unit test. (Control: `provider_connect` appears in 7 files, `add_mcp` in 12.)
 
-So the plan's line *"non-npm agents are not concierge-installable"* is true but misleading: **no
+So the plan's line _"non-npm agents are not concierge-installable"_ is true but misleading: **no
 agent of any channel is concierge-installable today.** Nothing can be weakened because nothing is
 load-bearing — and "we didn't touch the guard" is **not** evidence the injection class is closed.
 
@@ -183,7 +184,7 @@ re-verifying** an existing file, and it **echoes back the expected hash rather t
 **no exec bit**.
 
 **Do not edit VoiceAssetManager** (its warn-and-proceed is deliberate for unpinned model weights).
-Refuse at the call site *before* download, and **re-assert the hash after** it returns.
+Refuse at the call site _before_ download, and **re-assert the hash after** it returns.
 
 ### FluxCompatChip — the defect is real but mis-aimed.
 
@@ -200,7 +201,7 @@ qoder chip is the one to fix.
 
 `fluxRouting.ts:85-86` and `:221-222` document the hermes scoped config as using
 `key_env = FLUX_API_KEY`. **False.** `hermesConfig.ts:54` writes `api_key` **inline**, and its own
-header records that `key_env` is *ignored* by hermes for a custom provider and returned 401. Anyone
+header records that `key_env` is _ignored_ by hermes for a custom provider and returned 401. Anyone
 copying the pattern from the `fluxRouting` comment instead of from `hermesConfig` builds a broken
 connector.
 
@@ -215,14 +216,14 @@ connector.
 
 ## 6. Revised wave sizing
 
-| wave | plan v2 | now | why |
-|---|---|---|---|
-| **A — OpenCode** | "can start now" | **M** | stub bin + sibling naming + `win32`→`windows`; carries the traversal fix |
-| **B — Claude Code** | vendor artifact | **npm + bridge** | npm works; **no `acp` subcommand** is the real gate |
-| **C — Hermes** | installer + UI + assistant | unchanged | routing already built; genuinely `curl \| sh`-only, so §0 applies |
-| **D — OpenClaw** | decide identity first | **decided** | build on `openclaw-gateway`; do not add a second id |
-| **E — Grok** | last, may not route | **routes; cheap** | env injection only, no connector file needed |
-| **0 — Foundation** | 6 items | **+2** | concierge guard signature; back-compat receipt default |
+| wave                | plan v2                    | now               | why                                                                      |
+| ------------------- | -------------------------- | ----------------- | ------------------------------------------------------------------------ |
+| **A — OpenCode**    | "can start now"            | **M**             | stub bin + sibling naming + `win32`→`windows`; carries the traversal fix |
+| **B — Claude Code** | vendor artifact            | **npm + bridge**  | npm works; **no `acp` subcommand** is the real gate                      |
+| **C — Hermes**      | installer + UI + assistant | unchanged         | routing already built; genuinely `curl \| sh`-only, so §0 applies        |
+| **D — OpenClaw**    | decide identity first      | **decided**       | build on `openclaw-gateway`; do not add a second id                      |
+| **E — Grok**        | last, may not route        | **routes; cheap** | env injection only, no connector file needed                             |
+| **0 — Foundation**  | 6 items                    | **+2**            | concierge guard signature; back-compat receipt default                   |
 
 **Sequencing consequence:** Grok moves from "sequence last or cut" to a strong early candidate — it
 is the only remaining agent whose Flux routing costs one table entry. Its cost is the install

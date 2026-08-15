@@ -21,12 +21,7 @@
  * vocative is not something a caller can assemble by concatenation.
  */
 
-export type VoiceGreetingVariantId =
-  | 'howAreYou'
-  | 'imListening'
-  | 'readyWhenYouAre'
-  | 'goodToHear'
-  | 'whereToStart';
+export type VoiceGreetingVariantId = 'howAreYou' | 'imListening' | 'readyWhenYouAre' | 'goodToHear' | 'whereToStart';
 
 /**
  * The pool, in a fixed order. Fixed because the order is what `roll` indexes

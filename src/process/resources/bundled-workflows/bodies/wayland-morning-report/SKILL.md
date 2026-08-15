@@ -14,14 +14,15 @@ description: >-
   the bundled offline scanner.
 license: Apache-2.0
 type: workflow
-skills: "market-open-report"
+skills: 'market-open-report'
 metadata:
   author: wayland
   version: 1.0.0
   tags: market watchlist morning-report pre-open deterministic
   category: finance
-  depends: "market-open-report"
+  depends: 'market-open-report'
 ---
+
 # Morning Report
 
 **Estimated time:** about 60 seconds

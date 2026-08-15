@@ -204,10 +204,7 @@ function assertNumbersAreRepresentable(value: unknown, path = 'command'): void {
       fail('command_number_unrepresentable', `Desktop command ${path} is not a finite number`);
     }
     if (Math.abs(value) > Number.MAX_SAFE_INTEGER) {
-      fail(
-        'command_integer_unrepresentable',
-        `Desktop command ${path} exceeds the exact JSON integer range`
-      );
+      fail('command_integer_unrepresentable', `Desktop command ${path} exceeds the exact JSON integer range`);
     }
     return;
   }

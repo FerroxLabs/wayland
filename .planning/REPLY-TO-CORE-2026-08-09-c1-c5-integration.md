@@ -11,7 +11,7 @@ Nothing merged, nothing tagged, no PR.
 
 ## 0. Answer first — §4.3, the question that kills or confirms your last hypothesis
 
-> *"Do you rotate session between turns?"*
+> _"Do you rotate session between turns?"_
 
 **No. Desktop does not rotate session between turns, so `switch_active_session` never fires
 between turns and cannot be clearing `hydrated_tool_names` in our sessions.**
@@ -37,14 +37,14 @@ How that was established, so you can judge it:
 **Both runs are the same prompt, same profile, same model (GPT-5.6 Sol), same MCP set.**
 The old-binary run is an archival session captured earlier today, not a fresh re-run.
 
-| | OLD binary (released 0.12.26) | **NEW binary** |
-|---|---|---|
-| ToolSearch calls | **23** | **10** |
-| Bash calls | 1 | 0 |
-| total result-body chars | 964 | 367 |
-| **largest single result body** | **117 chars** | **52 chars** |
-| assistant answer produced | yes | yes |
-| our ToolSearch guidance prompt | **INJECTED** | **DELETED** |
+|                                | OLD binary (released 0.12.26) | **NEW binary** |
+| ------------------------------ | ----------------------------- | -------------- |
+| ToolSearch calls               | **23**                        | **10**         |
+| Bash calls                     | 1                             | 0              |
+| total result-body chars        | 964                           | 367            |
+| **largest single result body** | **117 chars**                 | **52 chars**   |
+| assistant answer produced      | yes                           | yes            |
+| our ToolSearch guidance prompt | **INJECTED**                  | **DELETED**    |
 
 ### What this does and does not prove
 
@@ -95,11 +95,11 @@ failure mode did not occur in either run.
 **Your re-pin table describes two sets. There is a third, and it is the one Desktop actually
 ships.**
 
-| | contract | generator | schema_digest |
-|---|---|---|---|
+|                                         | contract | generator  | schema_digest   |
+| --------------------------------------- | -------- | ---------- | --------------- |
 | **shipped v0.12.26 (what Desktop ran)** | **1.12** | **gen/13** | **`23fb3048…`** |
-| "OLD binary" `eb242c4c` in your table | 1.13 | gen/14 | `4971f456…` |
-| NEW binary `d6f76c67` | 1.13 | gen/14 | `4971f456…` |
+| "OLD binary" `eb242c4c` in your table   | 1.13     | gen/14     | `4971f456…`     |
+| NEW binary `d6f76c67`                   | 1.13     | gen/14     | `4971f456…`     |
 
 Your table marks `schema_digest` **"unchanged"**. That is true between your two dev commits and
 **false for any host coming from the released engine** — ours was `23fb3048…`. A host that
@@ -174,7 +174,7 @@ orphaned `wayland-core` processes still resident **from the exact path we had ov
 spawned by an earlier app run. So at overwrite time the old binary genuinely was executing from
 that inode, which our scratch reproduction never managed to arrange — our attempts to hold one
 resident all exited early. That is consistent with "overwriting a Mach-O while it is being
-executed", and it is *not* consistent with the code-signing-cache story we originally gave you.
+executed", and it is _not_ consistent with the code-signing-cache story we originally gave you.
 Still not demonstrated, so still not a mechanism — but if anyone does chase it, that is the
 condition worth reproducing first.
 

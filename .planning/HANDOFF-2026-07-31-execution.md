@@ -11,7 +11,7 @@ automatically and which has been left uncommitted deliberately all session.
 2. **We did NOT fork an abandoned branch.** Upstream squash-merged that line (`5849b6899`,
    2026-05-11, single parent). A squash carries content but not ancestry, which is why
    `merge-base --is-ancestor` says NO while six of its changes are present at v2.1.44. Their own
-   commit calls our line `origin/main`. The *experiment* was `feat/backend-migration`.
+   commit calls our line `origin/main`. The _experiment_ was `feat/backend-migration`.
 3. **Scope is 1377 derived files, not 981.** Re-baselined in `5b6648712`; manifest is
    `AIONUI-INVENTORY-1925.csv`. `AIONUI-INVENTORY.csv` is kept only as the superseded v1.9.5
    measurement.
@@ -21,29 +21,29 @@ automatically and which has been left uncommitted deliberately all session.
 Launched just before this handoff; they survive compaction and will arrive as task notifications.
 Each is read-only and told to report findings, not fix.
 
-| audit | commit | the thing to look for |
-|---|---|---|
-| marker spoof | `cc82eddb1` | is `upgradeLegacyMarkerAttachments` actually WIRED on the read path, or tested-but-never-called? Did the `pathConfinement` roots companion change land (without it, "open log directory" on macOS is broken)? |
-| Cherry Studio | `afd3dd028` | were all THREE patterns re-derived, or only rerank? Is the result genuinely re-derived or a cosmetic reshuffle of the same alternation set (still a derivative)? |
-| arch guard | `39b49923f` | is the Doctor check actually REGISTERED or defined-but-unwired? Why did it touch `initStorage.ts` (+28)? |
+| audit         | commit      | the thing to look for                                                                                                                                                                                         |
+| ------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| marker spoof  | `cc82eddb1` | is `upgradeLegacyMarkerAttachments` actually WIRED on the read path, or tested-but-never-called? Did the `pathConfinement` roots companion change land (without it, "open log directory" on macOS is broken)? |
+| Cherry Studio | `afd3dd028` | were all THREE patterns re-derived, or only rerank? Is the result genuinely re-derived or a cosmetic reshuffle of the same alternation set (still a derivative)?                                              |
+| arch guard    | `39b49923f` | is the Doctor check actually REGISTERED or defined-but-unwired? Why did it touch `initStorage.ts` (+28)?                                                                                                      |
 
 **When they land: triage findings, fix what is real, do not chase nits.**
 
 ## What landed this session
 
-| commit | what |
-|---|---|
-| `d84a7fee4` | **top_p P1 fixed** — stop sending `temperature`/`top_p` to Anthropic from the AionCLI adapter |
-| `9f439fbeb` | **revert of `3f1c5ba10`** — 9 attribution restorations, adjudicated 9 RESTORE / 0 STAYS DELETED |
-| `d02da3d5f` | deleted 22 unreferenced `public/pet-states/` assets (shipped twice per artifact) |
-| `5b6648712` | inventory re-baselined on v1.9.25 (981 → 1377 derived) |
-| `c8a51dc75` | `FORK-POINT.md` established |
-| `687c793e3` | WLD-J `SUMMARY.md` (synthesiser's write was harness-blocked; orchestrator persisted it) |
-| `ec562a914` | corrected the abandoned-branch reading + the 50 divergent commits |
-| `0edee0f31`, `c1fa5a720` | the two fix plans |
-| `afd3dd028` | Cherry Studio: three patterns re-derived |
-| `cc82eddb1` | `[[AION_FILES]]` marker spoof + shell path confinement |
-| `39b49923f` | macOS wrong-arch warning (Doctor check + concierge diag) |
+| commit                   | what                                                                                            |
+| ------------------------ | ----------------------------------------------------------------------------------------------- |
+| `d84a7fee4`              | **top_p P1 fixed** — stop sending `temperature`/`top_p` to Anthropic from the AionCLI adapter   |
+| `9f439fbeb`              | **revert of `3f1c5ba10`** — 9 attribution restorations, adjudicated 9 RESTORE / 0 STAYS DELETED |
+| `d02da3d5f`              | deleted 22 unreferenced `public/pet-states/` assets (shipped twice per artifact)                |
+| `5b6648712`              | inventory re-baselined on v1.9.25 (981 → 1377 derived)                                          |
+| `c8a51dc75`              | `FORK-POINT.md` established                                                                     |
+| `687c793e3`              | WLD-J `SUMMARY.md` (synthesiser's write was harness-blocked; orchestrator persisted it)         |
+| `ec562a914`              | corrected the abandoned-branch reading + the 50 divergent commits                               |
+| `0edee0f31`, `c1fa5a720` | the two fix plans                                                                               |
+| `afd3dd028`              | Cherry Studio: three patterns re-derived                                                        |
+| `cc82eddb1`              | `[[AION_FILES]]` marker spoof + shell path confinement                                          |
+| `39b49923f`              | macOS wrong-arch warning (Doctor check + concierge diag)                                        |
 
 All three code packets: **typecheck clean, 226 tests passing.**
 

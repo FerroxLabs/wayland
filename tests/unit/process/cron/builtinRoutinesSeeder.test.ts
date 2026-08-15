@@ -63,9 +63,7 @@ describe('built-in routines seeder', () => {
     // A routine whose workflow is missing here is dropped with only a log line,
     // so this assertion is the only thing standing between a typo and a routine
     // that never appears at all.
-    const dangling = routines
-      .filter((r) => !workflowNames.has(r.workflow))
-      .map((r) => `${r.id} -> ${r.workflow}`);
+    const dangling = routines.filter((r) => !workflowNames.has(r.workflow)).map((r) => `${r.id} -> ${r.workflow}`);
     expect(dangling).toEqual([]);
   });
 

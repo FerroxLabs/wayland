@@ -84,10 +84,13 @@ describe('workbench attribution - a tool CALL is an action, never knowledge', ()
       {
         callId: 'call_Y2UpBn0VG9EDW9RgJ6RBnbO8',
         name: 'ToolSearch',
-        description:
-          'ToolSearch: {"query":"web search current authoritative sources retail trading strategies"}',
+        description: 'ToolSearch: {"query":"web search current authoritative sources retail trading strategies"}',
       },
-      { callId: 'call_8MAzNF0GVNS4ykUOwpL1kYjW', name: 'ToolSearch', description: 'ToolSearch: {"query":"brave_web_search"}' },
+      {
+        callId: 'call_8MAzNF0GVNS4ykUOwpL1kYjW',
+        name: 'ToolSearch',
+        description: 'ToolSearch: {"query":"brave_web_search"}',
+      },
     ]);
 
     const projections = deriveWorkbenchProjections(snapshot);
@@ -163,9 +166,7 @@ describe('workbench attribution - a tool CALL is an action, never knowledge', ()
 
     // Deduplicated by sourceId: two claims off one workbook is one source.
     expect(facetLabels(projections, 'sources')).toEqual(['Q3 metrics', 'Adoption brief']);
-    const sources = projections
-      .find((p) => p.id === 'knowledge')
-      ?.facets.find((f) => f.id === 'sources')?.evidence;
+    const sources = projections.find((p) => p.id === 'knowledge')?.facets.find((f) => f.id === 'sources')?.evidence;
     expect(sources?.[0].uri).toBe('file:///work/metrics.xlsx');
   });
 
@@ -319,7 +320,14 @@ describe('workbench attribution - ACP classifies on the protocol kind, not the a
   /** One real ACP turn: the user bubble is the turn boundary production slices on. */
   const acpTurn = (calls: readonly AcpCall[]): TMessage[] =>
     [
-      { id: 'user-1', conversation_id: 'conversation-1', type: 'text', position: 'right', content: { content: 'go' }, createdAt: now - 1 },
+      {
+        id: 'user-1',
+        conversation_id: 'conversation-1',
+        type: 'text',
+        position: 'right',
+        content: { content: 'go' },
+        createdAt: now - 1,
+      },
       ...calls.map((call) => ({
         id: `msg-${call.id}`,
         conversation_id: 'conversation-1',

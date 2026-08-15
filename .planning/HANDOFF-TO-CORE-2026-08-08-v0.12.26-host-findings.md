@@ -14,13 +14,13 @@ Desktop could not talk to v0.12.26 at all. Four distinct causes. **The first and
 and it is fixed on our side — it is written up here only because the way it hid for months is a
 contract-design problem worth your attention.
 
-| # | cause | whose |
-|---|---|---|
-| 0 | Desktop pinned a contract corpus from a commit that never shipped | **ours** — fixed |
-| 1 | The generated corpus under-declares the producer wire | **yours** — C-1 |
-| 2 | `add_mcp_server` requires an assistant identity, undocumented | **yours (docs)** — C-2 |
-| 3 | `backend = "plaintext"` refusal advertises a remedy that does not work | **yours** — C-3 |
-| 4 | Gemini function calls fail on a missing `thought_signature` | **yours, probably** — C-4 |
+| #   | cause                                                                  | whose                     |
+| --- | ---------------------------------------------------------------------- | ------------------------- |
+| 0   | Desktop pinned a contract corpus from a commit that never shipped      | **ours** — fixed          |
+| 1   | The generated corpus under-declares the producer wire                  | **yours** — C-1           |
+| 2   | `add_mcp_server` requires an assistant identity, undocumented          | **yours (docs)** — C-2    |
+| 3   | `backend = "plaintext"` refusal advertises a remedy that does not work | **yours** — C-3           |
+| 4   | Gemini function calls fail on a missing `thought_signature`            | **yours, probably** — C-4 |
 
 Nothing here is a complaint about the engine's direction. C-1 is the one that matters: it will break
 **any** host that does what the corpus tells hosts to do.
@@ -38,12 +38,12 @@ caught this. We have re-pinned to `1.12` / `gen-13`, imported byte-for-byte from
 
 **The design note:** a host cannot tell "the contract matched" from "the contract was never
 checked", because a producer with no descriptor is indistinguishable from a producer whose
-descriptor happens to be absent. If you ever ship an engine that *should* advertise a descriptor but
+descriptor happens to be absent. If you ever ship an engine that _should_ advertise a descriptor but
 does not, every strict host silently downgrades to unvalidated. Worth a thought.
 
 ---
 
-## C-1 — the generated corpus under-declares the producer wire  ⚠️ **highest impact**
+## C-1 — the generated corpus under-declares the producer wire ⚠️ **highest impact**
 
 `crates/wcore-protocol/src/contract/spec.rs` `PRODUCER_EVENT_TYPES` declares **59** producer events.
 `contracts/desktop/v1/manifest.json`, generated from the same tree, declares **52**. The seven-event
@@ -113,7 +113,7 @@ We now pass `--assistant` unconditionally, so we are unblocked.
 
 1. **Is mandatory assistant scoping the intended long-term contract for host-provided runtime MCP?**
    If it is, it materially changes the `--mcp-server` / `--no-mcp-servers` request we sent earlier: a
-   host-supplied *per-chat* assistant identity would already give exact per-chat MCP narrowing,
+   host-supplied _per-chat_ assistant identity would already give exact per-chat MCP narrowing,
    which is the whole thing that ask was for. We would much rather adopt the mechanism you intend
    than run a parallel one. We currently pass a single constant host identity
    (`wayland-desktop`) precisely because we do not want to commit to per-chat semantics before you
@@ -128,10 +128,10 @@ We now pass `--assistant` unconditionally, so we are unblocked.
 
 Verified against the released binary, with the same real config file:
 
-| engine | `backend = "plaintext"` + `[session] enabled = true` |
-|---|---|
-| **v0.12.25** | **starts** |
-| **v0.12.26** | **refuses** |
+| engine       | `backend = "plaintext"` + `[session] enabled = true` |
+| ------------ | ---------------------------------------------------- |
+| **v0.12.25** | **starts**                                           |
+| **v0.12.26** | **refuses**                                          |
 
 The refusal itself is defensible and the message is otherwise good — a plaintext store genuinely
 cannot hold the key durable session recovery needs. The defect is the remedy it advertises:
@@ -142,13 +142,13 @@ cannot hold the key durable session recovery needs. The defect is the remedy it 
 
 Full matrix, released binary:
 
-| config | result |
-|---|---|
-| `plaintext` + sessions on | **refuses** |
+| config                                                     | result            |
+| ---------------------------------------------------------- | ----------------- |
+| `plaintext` + sessions on                                  | **refuses**       |
 | `plaintext` + sessions on + **`WAYLAND_VAULT_PASSPHRASE`** | **still refuses** |
-| `plaintext` + sessions off | starts |
-| `keyring` + sessions on | starts |
-| no `[storage.credentials]` block + sessions on | starts |
+| `plaintext` + sessions off                                 | starts            |
+| `keyring` + sessions on                                    | starts            |
+| no `[storage.credentials]` block + sessions on             | starts            |
 
 **Row 2 is the bug.** The first remedy in your own error text does not work while an explicit
 `backend = "plaintext"` is configured — the explicit backend wins over the passphrase. The other
@@ -181,7 +181,7 @@ chase it further because it was not the blocker we were on.
 Reporting it because the shape is suggestive rather than obviously broken: `crates/wcore-providers/src/gemini.rs`
 already has `build_contents_round_trips_thought_signature_on_function_call` and
 `parse_sse_chunk_captures_thought_signature_on_function_call`, so the round-trip is implemented and
-tested. Yet **"position 2"** says the *first* function call carried its signature and a later one did
+tested. Yet **"position 2"** says the _first_ function call carried its signature and a later one did
 not. That points at a specific path — a replayed, synthesized, or post-approval call — rather than
 the feature being absent.
 
@@ -191,7 +191,7 @@ round-trip. We can supply a fuller repro if useful.
 
 ---
 
-## C-5 — `ToolSearch` matching makes MCP tools unreachable for every model  ⚠️ **highest impact**
+## C-5 — `ToolSearch` matching makes MCP tools unreachable for every model ⚠️ **highest impact**
 
 **This supersedes the "open question" we flagged in the previous draft.** We said we could not yet
 attribute the discover-but-never-invoke loop and would not claim a Core defect. We can now, and it
@@ -285,12 +285,12 @@ to adopt; we asked, and the answer is that there isn't one.
 
 ## Summary of asks
 
-| id | ask | severity |
-|---|---|---|
+| id      | ask                                                                                                                                  | severity                               |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------- |
 | **C-5** | Fix `ToolSearch` matching: strip punctuation, rank by token count instead of `all()`; then make the catalog snapshot hydration-aware | **blocks every MCP tool, every model** |
-| **C-1** | Add the 7 missing events to the corpus and re-cut; assert `PRODUCER_EVENT_TYPES` == manifest events in the generator | **blocks every strict host** |
-| **C-2** | Document the `--assistant` requirement as a breaking change; answer the two design questions | high |
-| **C-3** | Fix or remove the passphrase branch of the plaintext refusal message | medium, high user cost |
-| **C-4** | Triage `thought_signature` on non-first function calls | medium |
+| **C-1** | Add the 7 missing events to the corpus and re-cut; assert `PRODUCER_EVENT_TYPES` == manifest events in the generator                 | **blocks every strict host**           |
+| **C-2** | Document the `--assistant` requirement as a breaking change; answer the two design questions                                         | high                                   |
+| **C-3** | Fix or remove the passphrase branch of the plaintext refusal message                                                                 | medium, high user cost                 |
+| **C-4** | Triage `thought_signature` on non-first function calls                                                                               | medium                                 |
 
 Happy to supply binaries, logs, or a repro harness for any of these.

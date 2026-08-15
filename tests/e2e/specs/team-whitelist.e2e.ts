@@ -8,7 +8,7 @@
  * - TeamMcpServer.ts (spawn whitelist)
  */
 import { test, expect } from '../fixtures';
-import { TEAM_SUPPORTED_BACKENDS, primeSiderCreateAffordance} from '../helpers';
+import { TEAM_SUPPORTED_BACKENDS, primeSiderCreateAffordance } from '../helpers';
 
 test.describe('Team Agent Whitelist', () => {
   test('UI only shows whitelisted agents in create modal dropdown', async ({ page }) => {

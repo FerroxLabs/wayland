@@ -20,7 +20,7 @@
 
 import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
-import { invokeBridge, navigateTo, expandTeamsAccordion} from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion } from '../helpers';
 
 const LAUNCHER_ID = 'builtin-cold-outbound';
 const NAME_PREFIX = 'E2E RapidClicks';
@@ -137,9 +137,9 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
     const row = sidebarEntry.locator(
       // SiderItem's root is `h-26px ... group ...` now, not h-40px. Match the
-    // `group` CLASS TOKEN exactly - a bare contains() also matches
-    // `group-hover:text-1` on an inner div, which has no menu trigger.
-    'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
+      // `group` CLASS TOKEN exactly - a bare contains() also matches
+      // `group-hover:text-1` on an inner div, which has no menu trigger.
+      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
     );
     await row.hover();
     const threeDot = row.locator('span.flex-center.cursor-pointer').last();
@@ -254,9 +254,7 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
     // duplicate the roster if the guard is broken).
     await page.waitForTimeout(2_000);
 
-    const teammateCount = await page
-      .locator('[data-testid^="launcher-row-teammate-"]')
-      .count();
+    const teammateCount = await page.locator('[data-testid^="launcher-row-teammate-"]').count();
     // Suggest returns at most ~4 teammates per `targetSize: 5` (leader + 4).
     // If multiple invocations leaked through, the count would be >> 5.
     expect(teammateCount).toBeLessThanOrEqual(6);

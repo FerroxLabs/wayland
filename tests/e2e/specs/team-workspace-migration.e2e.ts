@@ -14,7 +14,7 @@
  *   7. Cleanup: delete team + temp directory
  */
 import { test, expect } from '../fixtures';
-import { invokeBridge, TEAM_SUPPORTED_BACKENDS, primeSiderCreateAffordance} from '../helpers';
+import { invokeBridge, TEAM_SUPPORTED_BACKENDS, primeSiderCreateAffordance } from '../helpers';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';

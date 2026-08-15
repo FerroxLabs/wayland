@@ -17,8 +17,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const norm = (p: string) => p.replace(/\\/g, '/');
 
 // Use vi.hoisted() so tracking variables are initialized before vi.mock factories run
-const { mkdirCalls, placementCalls, statResults, lstatResults, existsSyncResults, readdirResults, resetAll } = vi.hoisted(
-  () => {
+const { mkdirCalls, placementCalls, statResults, lstatResults, existsSyncResults, readdirResults, resetAll } =
+  vi.hoisted(() => {
     const dirs: string[] = [];
     const links: Array<{ source: string; target: string }> = [];
     const stats: Record<string, boolean> = {};
@@ -42,8 +42,7 @@ const { mkdirCalls, placementCalls, statResults, lstatResults, existsSyncResults
         for (const key of Object.keys(readdir)) delete readdir[key];
       },
     };
-  }
-);
+  });
 
 vi.mock('fs/promises', () => ({
   default: {
@@ -102,7 +101,9 @@ function makeLibrary(n: number): Array<{ name: string; security: { verdict: stri
 }
 
 describe('setupAssistantWorkspace - bounded skill-placement regression gate', () => {
-  let setupAssistantWorkspace: Awaited<ReturnType<typeof import('@process/utils/initAgent')>>['setupAssistantWorkspace'];
+  let setupAssistantWorkspace: Awaited<
+    ReturnType<typeof import('@process/utils/initAgent')>
+  >['setupAssistantWorkspace'];
 
   beforeEach(async () => {
     vi.clearAllMocks();

@@ -13,13 +13,13 @@ observed failure, never to assert behaviour on its own.
 ToolSearch**. It did none of those before this session. It does **not** yet execute an MCP tool,
 because of blocker 3, which is a Core behaviour change we have not yet adapted to.
 
-| stage | before | after |
-|---|---|---|
-| descriptor handshake | `contract_minor_mismatch` | **negotiated** |
-| first frame after `ready` | session killed on `workspace_policy` | **dropped cleanly, session lives** |
-| turn runs | never | **48.8s turn, 11,776 input tokens** |
-| ToolSearch called | never | **called** |
-| MCP tool executes | no | **no — blocker 3** |
+| stage                     | before                               | after                               |
+| ------------------------- | ------------------------------------ | ----------------------------------- |
+| descriptor handshake      | `contract_minor_mismatch`            | **negotiated**                      |
+| first frame after `ready` | session killed on `workspace_policy` | **dropped cleanly, session lives**  |
+| turn runs                 | never                                | **48.8s turn, 11,776 input tokens** |
+| ToolSearch called         | never                                | **called**                          |
+| MCP tool executes         | no                                   | **no — blocker 3**                  |
 
 ## Blocker 1 — the contract pin named a commit that never shipped. FIXED
 
@@ -31,7 +31,7 @@ the consumer takes its legacy branch and no v1 machinery runs. 0.12.26 is the fi
 to advertise a descriptor, so it is the first that could ever have caught this.
 
 Fixed in `7165d443f` (corpus re-imported byte-for-byte from released 0.12.26, pin updated) and
-`b4d37e4de` (bundled engine bumped to match — rc.2 advertises the same *version* but different
+`b4d37e4de` (bundled engine bumped to match — rc.2 advertises the same _version_ but different
 fixture and source digests, so it is not interchangeable).
 
 ## Blocker 2 — Core emits seven events its own corpus does not declare. FIXED our side
@@ -83,15 +83,15 @@ fn scope_host_runtime_mcp(config: McpServerConfig, active_assistant: Option<&str
 the host did not supply one**. Desktop launches ordinary chats without one, so every runtime MCP
 publication fails and the tool pool is empty. This is why no tool executes.
 
-The flag exists: `--assistant <id>`, documented in Core as *"The host's active assistant identity,
-for per-assistant MCP scoping."*
+The flag exists: `--assistant <id>`, documented in Core as _"The host's active assistant identity,
+for per-assistant MCP scoping."_
 
 **This deserves a design decision, not just a patch.** The milestone rejected option F
 (`only_for_assistant`) as the primary narrowing mechanism because it can only restrict — an unmarked
 server is always injected. Core 0.12.26 changes the calculus: runtime servers are now scoped to the
 assistant **automatically and mandatorily**. If Desktop passes a per-chat assistant identity, that
 scoping is exactly the per-chat MCP narrowing K-01's global-profile splice was invented to provide.
-K-01 stays correct and shipped; whether it stays *necessary* is now an open question worth answering
+K-01 stays correct and shipped; whether it stays _necessary_ is now an open question worth answering
 before the Master Class.
 
 ## Environment blocker — plaintext credentials backend refuses to start on 0.12.26
@@ -102,13 +102,13 @@ Core 0.12.26 refuses to start when `[storage.credentials] backend = "plaintext"`
 sessions are enabled. Sean's global `~/Library/Application Support/wayland-core/config.toml` has
 exactly that. Verified matrix against the released binary:
 
-| config | 0.12.26 |
-|---|---|
-| `backend = "plaintext"` + `[session] enabled = true` | **refuses to start** |
-| same, **plus `WAYLAND_VAULT_PASSPHRASE`** | **still refuses** |
-| `backend = "plaintext"` + `[session] enabled = false` | starts |
-| `backend = "keyring"` + sessions enabled | starts |
-| no `[storage.credentials]` block + sessions enabled | starts |
+| config                                                | 0.12.26              |
+| ----------------------------------------------------- | -------------------- |
+| `backend = "plaintext"` + `[session] enabled = true`  | **refuses to start** |
+| same, **plus `WAYLAND_VAULT_PASSPHRASE`**             | **still refuses**    |
+| `backend = "plaintext"` + `[session] enabled = false` | starts               |
+| `backend = "keyring"` + sessions enabled              | starts               |
+| no `[storage.credentials]` block + sessions enabled   | starts               |
 
 The second row is a **Core defect**: Core's own error text tells the user to set
 `WAYLAND_VAULT_PASSPHRASE_FD` / `WAYLAND_VAULT_PASSPHRASE`, and doing so does not work while an
@@ -149,15 +149,15 @@ CDP as a user would.
 
 ## What is now proven by execution
 
-| claim | evidence |
-|---|---|
-| descriptor handshake succeeds | session negotiates, no `contract_minor_mismatch` |
-| session survives the frames after `ready` | 5 × `dropped event { reason: 'producer_declared_unmodelled' }`, session lives |
-| turns run and complete | multiple, incl. a 3.6s turn with a real rendered reply |
-| **runtime MCP publication succeeds** | `[mcp] Connected to 'wayland-team-guide': 2 tools` — this was `mcp_failed` before |
-| **MCP tools are discoverable by the model** | `ToolSearch("aion")` → `` `aion_create_team` ``, `` `aion_list_models` `` |
-| builtin tools execute | `Tool call: Bash` → `Success`, exit 0 |
-| errors reach the user | the Gemini `thought_signature` failure rendered in the chat |
+| claim                                       | evidence                                                                          |
+| ------------------------------------------- | --------------------------------------------------------------------------------- |
+| descriptor handshake succeeds               | session negotiates, no `contract_minor_mismatch`                                  |
+| session survives the frames after `ready`   | 5 × `dropped event { reason: 'producer_declared_unmodelled' }`, session lives     |
+| turns run and complete                      | multiple, incl. a 3.6s turn with a real rendered reply                            |
+| **runtime MCP publication succeeds**        | `[mcp] Connected to 'wayland-team-guide': 2 tools` — this was `mcp_failed` before |
+| **MCP tools are discoverable by the model** | `ToolSearch("aion")` → `` `aion_create_team` ``, `` `aion_list_models` ``         |
+| builtin tools execute                       | `Tool call: Bash` → `Success`, exit 0                                             |
+| errors reach the user                       | the Gemini `thought_signature` failure rendered in the chat                       |
 
 Before the `--assistant` fix, every runtime MCP declaration was refused and that tool list was empty.
 The engine now connects the server and the model can see its tools by name.

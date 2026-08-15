@@ -430,15 +430,15 @@ Measured against **AionUi v1.9.5, tag `5b2c741f92`, dated 2026-04-01**, committe
 `.planning/phases/WLD-I-licence-compliance/AIONUI-INVENTORY.csv` (re-derivable by re-running
 `inventory.py`):
 
-| Measure | Value |
-| --- | --- |
-| Same-path files | **1005** (730 in `src/`, 275 outside it) |
-| DERIVED-HIGH | **891** (645 in `src/`, 246 outside) |
-| DERIVED-LIKELY | **90** (66 in `src/`, 24 outside) |
-| REVIEW | **18** (14 in `src/`, 4 outside) |
-| DIVERGED | **6** (5 in `src/`, 1 outside) |
-| Files at 100% literal line overlap | **186** |
-| Files carrying an AionUi copyright notice | **0** |
+| Measure                                   | Value                                    |
+| ----------------------------------------- | ---------------------------------------- |
+| Same-path files                           | **1005** (730 in `src/`, 275 outside it) |
+| DERIVED-HIGH                              | **891** (645 in `src/`, 246 outside)     |
+| DERIVED-LIKELY                            | **90** (66 in `src/`, 24 outside)        |
+| REVIEW                                    | **18** (14 in `src/`, 4 outside)         |
+| DIVERGED                                  | **6** (5 in `src/`, 1 outside)           |
+| Files at 100% literal line overlap        | **186**                                  |
+| Files carrying an AionUi copyright notice | **0**                                    |
 
 **Every other figure circulating in the four dimension research files is superseded.** Anyone
 quoting **445, 503, 550, ~310, 455, 1424, 1390, 2615, 3966, or 2316** — or the pins `b97f34b28e` /
@@ -452,12 +452,12 @@ The WLD-H branch is folded into this milestone (locked decision), and a material
 has already landed. These are recorded as **completed requirements inside Phase I-02** with
 verification-shaped criteria so they are re-checkable as regressions, not re-planned as work.
 
-| Commit | Landed |
-| --- | --- |
-| `78329477f` | Verbatim Apache-2.0 licence text restored (the appendix placeholder had been overwritten with our name); `notices/OfficeCLI-NOTICE.txt` shipped verbatim; four false claims removed from the shipped notices file (blanket §4(d) claim; enumerated §4(b) list containing the false `.wcore.toml` / `~/.wcore` claims; gemini-cli blanket header claim; "every file carries a header"); three smaller claim corrections (pptx2json not "verbatim", 7zip-bin not "solely Windows", OfficeCLI digests read locally); `notices/README.md` rewritten; whatsapp-bridge added to `.prettierignore` |
-| `d99c70b07` | A false authorship claim I shipped in the notices retracted |
-| `fc7939423`, `b11f6ad87`, `0aac367bc` | The AionUi inventory built and rebaselined onto the supplied fork point |
-| `4a516002e` | The four-leg WLD-H cross-audit recorded, two wrong verdicts corrected |
+| Commit                                | Landed                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `78329477f`                           | Verbatim Apache-2.0 licence text restored (the appendix placeholder had been overwritten with our name); `notices/OfficeCLI-NOTICE.txt` shipped verbatim; four false claims removed from the shipped notices file (blanket §4(d) claim; enumerated §4(b) list containing the false `.wcore.toml` / `~/.wcore` claims; gemini-cli blanket header claim; "every file carries a header"); three smaller claim corrections (pptx2json not "verbatim", 7zip-bin not "solely Windows", OfficeCLI digests read locally); `notices/README.md` rewritten; whatsapp-bridge added to `.prettierignore` |
+| `d99c70b07`                           | A false authorship claim I shipped in the notices retracted                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `fc7939423`, `b11f6ad87`, `0aac367bc` | The AionUi inventory built and rebaselined onto the supplied fork point                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `4a516002e`                           | The four-leg WLD-H cross-audit recorded, two wrong verdicts corrected                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 **There is no baseline-reconstruction phase.** The fork point was supplied by the owner and the
 inventory is committed. Every recommendation to reconstruct, bracket, or argmax-search a baseline is
@@ -483,7 +483,7 @@ Phase IDs are `I-NN` within milestone WLD-I. Blocked/not-blocked markers are car
 - [ ] **Phase I-02: Small, settled, independent notices work** - NOT BLOCKED. Partly landed already (`78329477f`, `d99c70b07`); remaining: OpenClaw MIT notices owed, six header dialects collapsed to one, baileys.js header isolated with the bridge pin re-pinned in the same commit.
 - [ ] **Phase I-03: Per-file chain of custody for non-AionUi upstreams** - NOT BLOCKED. The `web-fetch.ts` finding generalises: the gemini-cli notices entry is wrong wholesale. Stops the cure creating a new false claim.
 - [ ] **Phase I-04: Manifest, generator, drift test, upstream tree index** - NOT BLOCKED. Makes the sweep reviewable from a small reviewed input and produces the pin-impact list before a byte moves.
-- [ ] **Phase I-05: The header sweep — tier-shaped, generated, human-signed** - §4(b) half NOT BLOCKED; §4(c) *content* BLOCKED on I-01. The sweep happens either way.
+- [ ] **Phase I-05: The header sweep — tier-shaped, generated, human-signed** - §4(b) half NOT BLOCKED; §4(c) _content_ BLOCKED on I-01. The sweep happens either way.
 - [ ] **Phase I-06: Re-adjudicate `3f1c5ba10`** - NOT BLOCKED for fact-finding; the acpx/Zed GPL-family restore-or-leave call is a counsel item.
 - [ ] **Phase I-07: npm dependency licence report** - NOT BLOCKED, fully parallel. Reconciled against the asar over the real artifact.
 - [ ] **Phase I-08: Bundle-retention hardening and packaged-artifact verification** - NOT BLOCKED; consumes I-05's output so it lands after. A notice that Rollup strips is a notice that does not exist.
@@ -494,7 +494,7 @@ Phase IDs are `I-NN` within milestone WLD-I. Blocked/not-blocked markers are car
 
 ### Phase I-01: Counsel — the §4(c) placement question
 
-**Status**: NOT BLOCKED — it *is* the unblocking action.
+**Status**: NOT BLOCKED — it _is_ the unblocking action.
 **Goal**: The one question that sizes the milestone is in counsel's hands on day one, scoped to the
 remedy, so Phase I-05's §4(c) payload stops being a guess.
 **Depends on**: Nothing. Runs first and alone.
@@ -579,7 +579,7 @@ Do **not** run `bun run format` — bare `oxfmt` reformats the pinned bridge dir
 
 **Plans**: TBD (`I-03-PLAN.md`)
 **Method constraints**: shared third-party API vocabulary is not evidence; shared hand-authored
-helper names are. A shared name appearing only as an *import* of a helper defined in an attributed
+helper names are. A shared name appearing only as an _import_ of a helper defined in an attributed
 sibling needs no notice of its own — the notice belongs on the definition. `rtk` silently truncated
 `git log` to 50 of 18,151 commits during research: any enumeration uses `rtk proxy git …` or
 `child_process.execFile`.
@@ -617,10 +617,10 @@ silently invalidate a pin.
 
 ### Phase I-05: The header sweep — tier-shaped, generated, human-signed
 
-**Status**: §4(b) half **NOT BLOCKED**. §4(c) *content* **BLOCKED on I-01**. The sweep happens
+**Status**: §4(b) half **NOT BLOCKED**. §4(c) _content_ **BLOCKED on I-01**. The sweep happens
 either way; the answer changes what each header says, not whether the sweep exists.
 **Goal**: Every derived file states that it was changed, and carries the upstream copyright
-*alongside* the Ferrox line rather than in place of it.
+_alongside_ the Ferrox line rather than in place of it.
 **Depends on**: I-03 (so no Google LLC notice lands on a file whose custody runs through AionUi),
 I-04 (manifest, generator, pin-impact list). §4(c) payload consumes I-01's answer.
 **Requirements**: HDR-01, HDR-02, HDR-03, HDR-04, HDR-05, HDR-06, HDR-07
@@ -636,7 +636,7 @@ I-04 (manifest, generator, pin-impact list). §4(c) payload consumes I-01's answ
    candidate set enumerated by `find -type f`; best-match upstream file across the whole tree, not
    the plausibly-named sibling; the three-way split of shared identifiers; whose copyright the
    upstream file itself carries; verdict plus asymmetry note. No verdict exists with a missing field.
-   DIVERGED defaults to *independent*; a derived verdict needs a written reason.
+   DIVERGED defaults to _independent_; a derived verdict needs a written reason.
 4. No file classified verbatim-copy carries a Ferrox copyright or a §4(b) statement (grep the
    verbatim set → zero hits), and no previously unheadered file with no upstream notice to retain
    gained an Apache header.
@@ -693,7 +693,7 @@ the artifact.
    from resolved lockfile data, with **no** manual edit step anywhere in the path.
 2. Every package listed by `@electron/asar list` over the **real** built artifact appears in the
    report or in its explicit "could not determine" section. The reconciliation exits non-zero on
-   *ships-but-undocumented* and exits zero with a warning on *documented-but-not-shipped* — both
+   _ships-but-undocumented_ and exits zero with a warning on _documented-but-not-shipped_ — both
    directions proven by a deliberate injection.
 3. The report is **present inside a real packaged artifact**, confirmed by listing the artifact —
    not by reading `electron-builder.yml`. The shipped set is ~1,332 packages, not the 144 declared
@@ -803,48 +803,48 @@ public record.
 
 These bind every phase in WLD-I. A phase plan may add constraints; none may weaken these.
 
-| Constraint | Rule |
-| --- | --- |
-| Packet discipline | **One packet per PR.** No bulk cleanup bombs. A large generated diff is acceptable only when reproducible from a small reviewed input, with the exact `--check` command and output in the PR body. |
-| History | **No history rewriting, ever.** |
-| Commit hygiene | Conventional commits, `type(scope): subject`, `--strict --force-scope`. **No AI attribution trailers** in commits or PRs. |
-| Hooks | **`prek run --all-files` is forbidden.** Scoped CI steps with explicit file arguments only. |
-| `migrations.ts` | The `aionrs` SQL literals must **never** change. They are on-disk schema identity, not a branding artifact. |
-| Foundry naming | `FoundrySkills` / `foundry-skills` must **never** be renamed. |
-| whatsapp-bridge | Editing anything under `src/process/channels/whatsapp-bridge/` requires re-pinning `scripts/whatsapp-bridge-source.json` in the **same commit**. Fix the pin, never the check. Do not run `bun run format` (bare `oxfmt` reformats the pinned directory). |
-| Promotion | **Nothing merges, tags, or releases without the owner.** |
-| Evidence | Verify against the tree, the pinned upstream, or a real packaged artifact. Never against a commit message, a prior finding, or `electron-builder.yml`. A green `tsc` is not packaged evidence. |
-| Enumeration | `rtk` intercepts `git log` and silently truncated 18,151 commits to 50 during research. Any enumeration uses `rtk proxy git …` or `child_process.execFile`. A short commit list is a method artifact, not evidence. |
-| Counting | `ls` is never acceptable; use `find -type f`. Every zero and every tidy count needs a recorded positive control through the identical method. |
-| Claims | Assert **method, scope, date**. Never `all` / `every` / `none` / `complete` / `fully` about our own coverage. §4(b) requires only a statement **that** files changed — the default action on an enumerated modification claim is **delete**, not correct. |
+| Constraint        | Rule                                                                                                                                                                                                                                                      |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Packet discipline | **One packet per PR.** No bulk cleanup bombs. A large generated diff is acceptable only when reproducible from a small reviewed input, with the exact `--check` command and output in the PR body.                                                        |
+| History           | **No history rewriting, ever.**                                                                                                                                                                                                                           |
+| Commit hygiene    | Conventional commits, `type(scope): subject`, `--strict --force-scope`. **No AI attribution trailers** in commits or PRs.                                                                                                                                 |
+| Hooks             | **`prek run --all-files` is forbidden.** Scoped CI steps with explicit file arguments only.                                                                                                                                                               |
+| `migrations.ts`   | The `aionrs` SQL literals must **never** change. They are on-disk schema identity, not a branding artifact.                                                                                                                                               |
+| Foundry naming    | `FoundrySkills` / `foundry-skills` must **never** be renamed.                                                                                                                                                                                             |
+| whatsapp-bridge   | Editing anything under `src/process/channels/whatsapp-bridge/` requires re-pinning `scripts/whatsapp-bridge-source.json` in the **same commit**. Fix the pin, never the check. Do not run `bun run format` (bare `oxfmt` reformats the pinned directory). |
+| Promotion         | **Nothing merges, tags, or releases without the owner.**                                                                                                                                                                                                  |
+| Evidence          | Verify against the tree, the pinned upstream, or a real packaged artifact. Never against a commit message, a prior finding, or `electron-builder.yml`. A green `tsc` is not packaged evidence.                                                            |
+| Enumeration       | `rtk` intercepts `git log` and silently truncated 18,151 commits to 50 during research. Any enumeration uses `rtk proxy git …` or `child_process.execFile`. A short commit list is a method artifact, not evidence.                                       |
+| Counting          | `ls` is never acceptable; use `find -type f`. Every zero and every tidy count needs a recorded positive control through the identical method.                                                                                                             |
+| Claims            | Assert **method, scope, date**. Never `all` / `every` / `none` / `complete` / `fully` about our own coverage. §4(b) requires only a statement **that** files changed — the default action on an enumerated modification claim is **delete**, not correct. |
 
 ## Locked Decisions — constraints, never open questions
 
-| Decision | Owner call |
-| --- | --- |
-| Inventory before remedy | Done. `AIONUI-INVENTORY.csv` committed against pin `5b2c741f92`. |
-| The WLD-H branch | Fold into this milestone; do **not** merge as a standalone compliance packet. |
-| Outside legal review | On the **remedy** decision only, not on fact-finding. |
-| Contacting AionUi | **No contact now.** The post-cure notification recommendation is overruled; the cure comes first regardless. |
-| Discord attribution | **Stays.** Provenance UNVERIFIED; asymmetric risk favours keeping it. |
+| Decision                                       | Owner call                                                                                                                                                                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Inventory before remedy                        | Done. `AIONUI-INVENTORY.csv` committed against pin `5b2c741f92`.                                                                                                                                                          |
+| The WLD-H branch                               | Fold into this milestone; do **not** merge as a standalone compliance packet.                                                                                                                                             |
+| Outside legal review                           | On the **remedy** decision only, not on fact-finding.                                                                                                                                                                     |
+| Contacting AionUi                              | **No contact now.** The post-cure notification recommendation is overruled; the cure comes first regardless.                                                                                                              |
+| Discord attribution                            | **Stays.** Provenance UNVERIFIED; asymmetric risk favours keeping it.                                                                                                                                                     |
 | Per-file `SPDX-License-Identifier: Apache-2.0` | **Leave it alone.** Not a compliance defect and cannot become one — an identifier more permissive than the outbound licence over-grants Ferrox's own rights, and no third party has a claim. Panel disagreement recorded. |
-| SBOM | Deferred unless a customer demands it. |
+| SBOM                                           | Deferred unless a customer demands it.                                                                                                                                                                                    |
 
 ## Requirement Coverage — WLD-I
 
-| Phase | Requirement IDs | Count |
-| --- | --- | --- |
-| I-01 Counsel — §4(c) question | LEG-01, LEG-02 | 2 |
-| I-02 Settled notices work | NTC-01…NTC-08 | 8 (5 already complete) |
-| I-03 Non-AionUi chain of custody | CUS-01, CUS-02, CUS-03 | 3 |
-| I-04 Manifest, generator, drift test | MFT-01…MFT-05 | 5 |
-| I-05 Header sweep | HDR-01…HDR-07 | 7 |
-| I-06 Re-adjudicate `3f1c5ba10` | ADJ-01, ADJ-02, ADJ-03 | 3 |
-| I-07 npm dependency licence report | DEP-01, DEP-02, DEP-03 | 3 |
-| I-08 Bundle retention + packaged proof | BND-01…BND-04 | 4 |
-| I-09 Required CI gate | CIG-01, CIG-02, CIG-03 | 3 |
-| I-10 Sign-off and disclosure | DIS-01…DIS-04 | 4 |
-| **Total** | | **42 mapped exactly once; 0 unmapped** |
+| Phase                                  | Requirement IDs        | Count                                  |
+| -------------------------------------- | ---------------------- | -------------------------------------- |
+| I-01 Counsel — §4(c) question          | LEG-01, LEG-02         | 2                                      |
+| I-02 Settled notices work              | NTC-01…NTC-08          | 8 (5 already complete)                 |
+| I-03 Non-AionUi chain of custody       | CUS-01, CUS-02, CUS-03 | 3                                      |
+| I-04 Manifest, generator, drift test   | MFT-01…MFT-05          | 5                                      |
+| I-05 Header sweep                      | HDR-01…HDR-07          | 7                                      |
+| I-06 Re-adjudicate `3f1c5ba10`         | ADJ-01, ADJ-02, ADJ-03 | 3                                      |
+| I-07 npm dependency licence report     | DEP-01, DEP-02, DEP-03 | 3                                      |
+| I-08 Bundle retention + packaged proof | BND-01…BND-04          | 4                                      |
+| I-09 Required CI gate                  | CIG-01, CIG-02, CIG-03 | 3                                      |
+| I-10 Sign-off and disclosure           | DIS-01…DIS-04          | 4                                      |
+| **Total**                              |                        | **42 mapped exactly once; 0 unmapped** |
 
 Full definitions and traceability: `.planning/REQUIREMENTS.md`, section
 "WLD-I — Licence Compliance Requirements". The 55 current + 13 deferred requirements of the
@@ -852,18 +852,18 @@ Phase 1-7 milestone are untouched.
 
 ## Progress — WLD-I
 
-| Phase | Plans Complete | Status | Completed |
-| --- | --- | --- | --- |
-| I-01 Counsel — §4(c) question | 0/? | Not started | - |
-| I-02 Settled notices work | 0/? | Partly landed (`78329477f`, `d99c70b07`) | - |
-| I-03 Non-AionUi chain of custody | 0/? | Not started | - |
-| I-04 Manifest, generator, drift test | 0/? | Not started | - |
-| I-05 Header sweep | 0/? | Not started (§4(c) payload UNRESOLVED) | - |
-| I-06 Re-adjudicate `3f1c5ba10` | 0/? | Not started | - |
-| I-07 npm dependency licence report | 0/? | Not started | - |
-| I-08 Bundle retention + packaged proof | 0/? | Not started | - |
-| I-09 Required CI gate | 0/? | Not started | - |
-| I-10 Sign-off and disclosure | 0/? | Blocked (I-01 + counsel sign-off) | - |
+| Phase                                  | Plans Complete | Status                                   | Completed |
+| -------------------------------------- | -------------- | ---------------------------------------- | --------- |
+| I-01 Counsel — §4(c) question          | 0/?            | Not started                              | -         |
+| I-02 Settled notices work              | 0/?            | Partly landed (`78329477f`, `d99c70b07`) | -         |
+| I-03 Non-AionUi chain of custody       | 0/?            | Not started                              | -         |
+| I-04 Manifest, generator, drift test   | 0/?            | Not started                              | -         |
+| I-05 Header sweep                      | 0/?            | Not started (§4(c) payload UNRESOLVED)   | -         |
+| I-06 Re-adjudicate `3f1c5ba10`         | 0/?            | Not started                              | -         |
+| I-07 npm dependency licence report     | 0/?            | Not started                              | -         |
+| I-08 Bundle retention + packaged proof | 0/?            | Not started                              | -         |
+| I-09 Required CI gate                  | 0/?            | Not started                              | -         |
+| I-10 Sign-off and disclosure           | 0/?            | Blocked (I-01 + counsel sign-off)        | -         |
 
 ## Research Flags — WLD-I
 
@@ -880,7 +880,7 @@ Standard patterns, skip research:
 
 - **I-05** — mechanical once pin, inventory and generator exist; the OpenSearch / Linux-kernel
   SPDX-sweep pattern is well documented. Note OpenSearch's own header convention arrived as a
-  *correction* issue — plan for two passes.
+  _correction_ issue — plan for two passes.
 - **I-04, I-09** — drift-test pattern already proven in-repo
   (`tests/unit/scripts/whatsappBridgeSourcePin.test.ts`); OpenTofu's `copyright` job is the
   reference CI shape.
@@ -1005,7 +1005,7 @@ versions, because the profile lives in a location Core's untrusted-workspace pol
 5. Concurrent launches are serialised by a lease spanning write → **Core config ingestion
    confirmed** → restore, not a lease that ends at spawn — a sibling launch cannot replace the
    bytes before the first engine reads them.
-6. A user edit made to the global config *during* the launch window survives, proven by a test
+6. A user edit made to the global config _during_ the launch window survives, proven by a test
    that performs the edit inside the lease window.
 7. Genuinely project-scoped project-config writes are retained; only the profile block moves, with
    no unrelated behaviour change.
@@ -1184,8 +1184,8 @@ diff.
   final CI ahead of publish, and the committed Desktop pin (`v0.12.25`,
   `scripts/prepareWaylandCore.js:213`) cannot be bumped until K-01 lands, because current Desktop
   code dies at bootstrap on 0.12.26.
-- **K-03 runs next** — high user-visible value, small, and it affects users on the *already
-  shipped* engine today, independent of K-01.
+- **K-03 runs next** — high user-visible value, small, and it affects users on the _already
+  shipped_ engine today, independent of K-01.
 - **K-02 runs after K-03** — small, and it prevents the next lost afternoon of misdiagnosis; not a
   hard dependency, just lower priority than the visible turn-never-finishes fix.
 - **K-04 can run at any time and is doc-only.** Its ENG-01 handoff should be sent **early, in
@@ -1204,31 +1204,31 @@ diff.
 
 These bind every phase in WLD-K. A phase plan may add constraints; none may weaken these.
 
-| Constraint | Rule |
-| --- | --- |
-| Promotion | No merge, tag, or release without the owner. `build-and-release.yml` fires on **any** tag. |
-| Generated file | Never commit `src/process/services/constitution/constitutionFsAuthority.generated.ts`. |
-| Security shell | Never weaken `sandbox: true`, `contextIsolation: true`, `nodeIntegration: false`, CSP, `bridgeAllowlist.ts`, `urlValidation.ts`, DOMPurify, `safeStorage`. Never touch the signing pipeline. No forged attestations; any new flag defaults OFF. |
-| Schema identity | `migrations.ts` `aionrs` SQL literals never change. `FoundrySkills` / `foundry-skills` is never renamed. |
-| Hooks / history | `prek run --all-files` is forbidden. No history rewriting. No AI attribution trailers. |
-| TVControl | `ui_evaluate` stays disabled behind `TV_MCP_ADVANCED=1`; no WLD-K packet flips it. |
-| Proof standard | Every mechanism claim is established by **executing** it against a real engine, never by reading source. Any search returning zero is disbelieved until the same method is shown to find a **known positive**. |
-| Dual-version acceptance | Every PRF requirement is proven on **both** 0.12.25 and 0.12.26 (rc.2 until stable publishes, stable thereafter). |
-| Full suite | `npx vitest run` before any pass claim. Baseline to beat: **16,231 tests, 0 failures**. |
+| Constraint              | Rule                                                                                                                                                                                                                                            |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Promotion               | No merge, tag, or release without the owner. `build-and-release.yml` fires on **any** tag.                                                                                                                                                      |
+| Generated file          | Never commit `src/process/services/constitution/constitutionFsAuthority.generated.ts`.                                                                                                                                                          |
+| Security shell          | Never weaken `sandbox: true`, `contextIsolation: true`, `nodeIntegration: false`, CSP, `bridgeAllowlist.ts`, `urlValidation.ts`, DOMPurify, `safeStorage`. Never touch the signing pipeline. No forged attestations; any new flag defaults OFF. |
+| Schema identity         | `migrations.ts` `aionrs` SQL literals never change. `FoundrySkills` / `foundry-skills` is never renamed.                                                                                                                                        |
+| Hooks / history         | `prek run --all-files` is forbidden. No history rewriting. No AI attribution trailers.                                                                                                                                                          |
+| TVControl               | `ui_evaluate` stays disabled behind `TV_MCP_ADVANCED=1`; no WLD-K packet flips it.                                                                                                                                                              |
+| Proof standard          | Every mechanism claim is established by **executing** it against a real engine, never by reading source. Any search returning zero is disbelieved until the same method is shown to find a **known positive**.                                  |
+| Dual-version acceptance | Every PRF requirement is proven on **both** 0.12.25 and 0.12.26 (rc.2 until stable publishes, stable thereafter).                                                                                                                               |
+| Full suite              | `npx vitest run` before any pass claim. Baseline to beat: **16,231 tests, 0 failures**.                                                                                                                                                         |
 
 ## Requirement Coverage — WLD-K
 
-| Phase | Requirement IDs | Count |
-| --- | --- | --- |
-| K-01 Move the launch profile out of project config (the spine) | PRF-01…PRF-08 | 8 |
-| K-02 Honest failure surfacing | DIA-01, DIA-02 | 2 |
-| K-03 The turn that never finishes | TRN-01, TRN-02, TRN-03 | 3 |
-| K-04 Engine asks and release-candidate policy | ENG-01, ENG-02, ENG-03, RCI-01 | 4 |
-| K-05 Agent installer: npm subset | INS-01…INS-05 | 5 |
-| K-06 Agent installer: non-npm channels | INS-06 | 1 |
-| K-07 Flux fan-out | FAN-01…FAN-05 | 5 |
-| K-08 Milestone verification | PRF-09, DIA-03 | 2 |
-| **Total** | | **30 mapped exactly once; 0 unmapped** |
+| Phase                                                          | Requirement IDs                | Count                                  |
+| -------------------------------------------------------------- | ------------------------------ | -------------------------------------- |
+| K-01 Move the launch profile out of project config (the spine) | PRF-01…PRF-08                  | 8                                      |
+| K-02 Honest failure surfacing                                  | DIA-01, DIA-02                 | 2                                      |
+| K-03 The turn that never finishes                              | TRN-01, TRN-02, TRN-03         | 3                                      |
+| K-04 Engine asks and release-candidate policy                  | ENG-01, ENG-02, ENG-03, RCI-01 | 4                                      |
+| K-05 Agent installer: npm subset                               | INS-01…INS-05                  | 5                                      |
+| K-06 Agent installer: non-npm channels                         | INS-06                         | 1                                      |
+| K-07 Flux fan-out                                              | FAN-01…FAN-05                  | 5                                      |
+| K-08 Milestone verification                                    | PRF-09, DIA-03                 | 2                                      |
+| **Total**                                                      |                                | **30 mapped exactly once; 0 unmapped** |
 
 Full definitions and traceability: `.planning/REQUIREMENTS.md`, section "WLD-K — Core First
 Requirements". The **30** distinct REQ-IDs are `PRF-01…PRF-09`, `DIA-01…DIA-03`, `TRN-01…TRN-03`,
@@ -1244,16 +1244,16 @@ deferred requirements) is touched by this count.
 
 ## Progress — WLD-K
 
-| Phase | Plans Complete | Status | Completed |
-| --- | --- | --- | --- |
-| K-01 Move the launch profile out of project config (the spine) | 0/? | Not started — ship blocker, runs first | - |
-| K-02 Honest failure surfacing | 0/? | Not started | - |
-| K-03 The turn that never finishes | 0/? | Not started | - |
-| K-04 Engine asks and release-candidate policy | 0/? | Not started (ENG-01 handoff to send early, parallel with K-01) | - |
-| K-05 Agent installer: npm subset | 0/? | Not started | - |
-| K-06 Agent installer: non-npm channels | 0/? | Not started | - |
-| K-07 Flux fan-out | 0/? | Not started | - |
-| K-08 Milestone verification | 0/? | Blocked (K-01…K-07) | - |
+| Phase                                                          | Plans Complete | Status                                                         | Completed |
+| -------------------------------------------------------------- | -------------- | -------------------------------------------------------------- | --------- |
+| K-01 Move the launch profile out of project config (the spine) | 0/?            | Not started — ship blocker, runs first                         | -         |
+| K-02 Honest failure surfacing                                  | 0/?            | Not started                                                    | -         |
+| K-03 The turn that never finishes                              | 0/?            | Not started                                                    | -         |
+| K-04 Engine asks and release-candidate policy                  | 0/?            | Not started (ENG-01 handoff to send early, parallel with K-01) | -         |
+| K-05 Agent installer: npm subset                               | 0/?            | Not started                                                    | -         |
+| K-06 Agent installer: non-npm channels                         | 0/?            | Not started                                                    | -         |
+| K-07 Flux fan-out                                              | 0/?            | Not started                                                    | -         |
+| K-08 Milestone verification                                    | 0/?            | Blocked (K-01…K-07)                                            | -         |
 
 ## Explicitly rejected — record so nobody retries (WLD-K)
 
@@ -1262,8 +1262,8 @@ deferred requirements) is touched by this count.
   `3ebacf41c`.
 - Option C, ephemeral `WAYLAND_HOME` root — the config root also holds `memory.db` and skills, so
   it destroys memory continuity, and Core refuses symlinks that would restore it.
-- Option F, `only_for_assistant` scoping as the primary mechanism — it can only *restrict*; an
-  unmarked server is *always* injected, so it cannot enforce an exact per-chat allow-list, and one
+- Option F, `only_for_assistant` scoping as the primary mechanism — it can only _restrict_; an
+  unmarked server is _always_ injected, so it cannot enforce an exact per-chat allow-list, and one
   missed marking is a cross-chat tool leak. Retained only as possible later defence-in-depth.
 - Migrating existing `@native` users onto a Desktop-owned named profile inside this milestone — it
   carries `memory.db`, credentials, skills and hand-edited config; a real rollback-capable

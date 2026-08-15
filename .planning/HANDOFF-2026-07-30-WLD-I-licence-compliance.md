@@ -26,7 +26,7 @@ DERIVED-HIGH 891 · DERIVED-LIKELY 90 · REVIEW 18 · DIVERGED 6
 ZERO files carry an AionUi copyright notice
 ```
 
-**981 derived files.** The defect is not omission — it is *substitution*: `@license` and the SPDX
+**981 derived files.** The defect is not omission — it is _substitution_: `@license` and the SPDX
 line survived the import, only the ownership line was swapped to Ferrox Labs. That is what raises
 17 U.S.C. §1202 (false copyright information) rather than a bare §4(c) condition breach.
 
@@ -40,18 +40,19 @@ Measured truth: `src/` has **2057** tracked `.ts/.tsx`, **1626** carry `@license
 
 ## 2. WHAT SHIPPED (9 commits, local)
 
-| commit | what |
-| --- | --- |
+| commit      | what                                                                               |
+| ----------- | ---------------------------------------------------------------------------------- |
 | `4a516002e` | Four-leg cross-audit record → `.planning/phases/WLD-H-attribution/H-CROSSAUDIT.md` |
-| `ab675a9a3` | Milestone WLD-I opened (PROJECT.md + STATE.md via `state.milestone-switch`) |
-| `fc7939423` | First inventory (445 files) — **superseded** |
-| `d99c70b07` | **Retracted a false authorship claim I shipped that morning** |
-| `b11f6ad87` | Inventory extended past `src/` (503) — **superseded** |
-| `0aac367bc` | **Rebaselined on v1.9.5 → 981 derived. AUTHORITATIVE.** |
-| `78329477f` | **Wave 0** — made the shipped notices true |
-| `2c0d1d203` | Research synthesized → `SUMMARY.md` with corrections applied |
+| `ab675a9a3` | Milestone WLD-I opened (PROJECT.md + STATE.md via `state.milestone-switch`)        |
+| `fc7939423` | First inventory (445 files) — **superseded**                                       |
+| `d99c70b07` | **Retracted a false authorship claim I shipped that morning**                      |
+| `b11f6ad87` | Inventory extended past `src/` (503) — **superseded**                              |
+| `0aac367bc` | **Rebaselined on v1.9.5 → 981 derived. AUTHORITATIVE.**                            |
+| `78329477f` | **Wave 0** — made the shipped notices true                                         |
+| `2c0d1d203` | Research synthesized → `SUMMARY.md` with corrections applied                       |
 
 **Wave 0 (`78329477f`), six files, zero source files:**
+
 - `notices/Apache-2.0.txt` was **not a copy of the licence** — appendix placeholder overwritten
   with `Copyright 2026 Ferrox Labs`, plus a formatter reflow (315 diff lines). Replaced with
   verbatim text from apache.org. §4(a) needs "a copy of this License".
@@ -78,13 +79,14 @@ Measured truth: `src/` has **2057** tracked `.ts/.tsx`, **1626** carry `@license
 model."}`. Breaks every Claude 5 model. Sean's hypothesis (AionCLI's Anthropic path) was correct.
 
 **Root cause chain, all verified:**
+
 1. `node_modules/@office-ai/aioncli-core/dist/src/config/defaultModelConfigs.js` — gemini-cli code
    (`Copyright 2025 Google LLC`) — sets `topP: 1` on `base`, `topP: 0.95` + `temperature: 1` on
    `chat-base`.
 2. `baseLlmClient.js:88` spreads `...generateContentConfig`, so those land in `request.config`.
 3. `anthropicContentGenerator.js:278` — `buildSamplingParameters` falls back to
    `request.config?.topP`. **The leak is the FALLBACK side.** `configSamplingParams`
-   (`getContentGeneratorConfig()?.samplingParams`) is the separate *explicit user* setting.
+   (`getContentGeneratorConfig()?.samplingParams`) is the separate _explicit user_ setting.
 4. `anthropicContentGenerator.js:50-51` spreads `temperature` and `top_p` into the request.
 
 **Authoritative API rule (from the `claude-api` skill, not from memory):** `temperature`, `top_p`
@@ -100,11 +102,12 @@ accepted, while `topP: 0.95` is non-default.
 Then a regression test asserting neither key reaches the request.
 
 **Two rejected alternatives, do not retry:**
-- *Prefer `temperature` over `top_p`* (my first proposal) — **fatal**: temperature is rejected too,
+
+- _Prefer `temperature` over `top_p`_ (my first proposal) — **fatal**: temperature is rejected too,
   so it trades one 400 for another. Gemini caught this.
-- *Gemini's diff* (drop the `configSamplingParams` branch, keep `request.config`) — **backwards**:
+- _Gemini's diff_ (drop the `configSamplingParams` branch, keep `request.config`) — **backwards**:
   keeps the leaking default and discards explicit user config.
-- Model-name gating (`claude-*-5`) — rejected: this bug exists *because* of a hardcoded model
+- Model-name gating (`claude-*-5`) — rejected: this bug exists _because_ of a hardcoded model
   assumption; an allowlist rots identically.
 
 **Closed gaps:** `generateContentStream` (line 65) just delegates to `generateContent`, so there is
@@ -119,9 +122,9 @@ patch is correct but temporary; the real fix is re-platforming onto official SDK
 
 ## 4. OPEN DECISIONS FOR SEAN
 
-1. **The §4(c) counsel question — sizes the whole milestone.** *Does a central provenance manifest
+1. **The §4(c) counsel question — sizes the whole milestone.** _Does a central provenance manifest
    in the source tree satisfy Apache-2.0 §4(c), or must the notice sit in the file it was removed
-   from?* Decides whether restoration is **1 file or ~981**. Both STACK.md and ARCHITECTURE.md
+   from?_ Decides whether restoration is **1 file or ~981**. Both STACK.md and ARCHITECTURE.md
    identify it independently. **§4(b) is per-file regardless**, so the sweep happens either way —
    the answer changes each header's content, not whether the sweep exists.
 2. **Cleanup** — approved scope: one-worktree-root-per-repo, keep all repos. `~/dev` is 163GB with
@@ -223,7 +226,7 @@ comparison undercounted by half. `DIVERGED` fell 20 → 6 on the correct baselin
   ships the full transitive tree regardless of the `files` allowlist).
 - **Pre-existing, unrelated:** `bun run dist:verify:mac` aborts in the OfficeCLI prepackage smoke.
   Workaround `WAYLAND_LOCAL_VERIFICATION=1 CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder
-  --mac --dir` → `out/mac-arm64/`. Wants its own issue.
+--mac --dir` → `out/mac-arm64/`. Wants its own issue.
 - **Repo-wide, out of scope but real:** no pre-commit hook runs at all. `core.hooksPath=.husky/_`,
   the shim resolves the user hook to `.husky/pre-commit`, that file does not exist, so it `exit 0`s.
   lint-staged is configured at `package.json:376` and never invoked — so the secrets and

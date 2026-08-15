@@ -6,12 +6,12 @@ Everything marked **[X]** was established by reading or running something, not a
 
 ## 0. The decisions already made (do not relitigate)
 
-| decision | answer |
-|---|---|
-| Chart save | Set everything up programmatically, then tell the user to press Cmd+S. No `state_snapshot`, no keystroke automation. |
-| TC-TIDE | **Published PRIVATELY, direct link only.** Not searchable. The user must open the URL and favourite it first; only then can it be added. See §5.5. |
-| Morning report output | An app-owned folder, opened each morning. **Never** the documented path. |
-| Voice thread (earlier, separate work) | Dedicated visible "Voice" conversation, not hidden. |
+| decision                              | answer                                                                                                                                             |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chart save                            | Set everything up programmatically, then tell the user to press Cmd+S. No `state_snapshot`, no keystroke automation.                               |
+| TC-TIDE                               | **Published PRIVATELY, direct link only.** Not searchable. The user must open the URL and favourite it first; only then can it be added. See §5.5. |
+| Morning report output                 | An app-owned folder, opened each morning. **Never** the documented path.                                                                           |
+| Voice thread (earlier, separate work) | Dedicated visible "Voice" conversation, not hidden.                                                                                                |
 
 ---
 
@@ -35,6 +35,7 @@ containment — a throwing check becomes a `fail` result and cannot kill the run
 (`doctor.run` is in `REMOTE_DENIED_KEYS`, `bridgeAllowlist.ts:473-474`).
 
 ### Two structural facts to design against [X]
+
 1. **There is no auto-fix anywhere.** `remediation?: string` (`types.ts:48`) is the entire
    remediation surface, rendered verbatim (`DoctorSettings/index.tsx:59`, `reportText.ts:34`).
    Adding a fix button is a types + both-UIs + IPC change. **We are not doing that.**
@@ -42,6 +43,7 @@ containment — a throwing check becomes a `fail` result and cannot kill the run
    to the check `id` when no i18n key exists (`index.tsx:51`).
 
 ### The reentrancy trap — read before writing any check [X]
+
 `registry.ts:88-99`: never call `ConfigStorage.get` inside a check. It is a renderer↔main round
 trip, and because checks run inside the `doctor.run` bridge invocation the nested call never
 resolves — it hangs until the 30s timeout (issue #273). **Use `ProcessConfig`.** This is the exact
@@ -53,7 +55,7 @@ same defect class as the `voiceSynthBridge` hang fixed earlier today.
 
 **Why first: this is open blocker #1 and `/doctor` would state it in one line.**
 
-`engine.reachable` (`engineChecks.ts:40`) only confirms the binary returned *a* version string
+`engine.reachable` (`engineChecks.ts:40`) only confirms the binary returned _a_ version string
 (`:49-55`). Nothing compares it against the pin. Zero occurrences of `DESKTOP_CORE_V1_PIN`,
 `contract` or `pin` anywhere in `src/process/doctor/` [X].
 
@@ -106,6 +108,7 @@ All on-disk, all inside the sandbox. Nothing here may spawn, connect, or touch E
 ## 5. Work item D — the Smart Trader assistant
 
 ### Registration
+
 `ASSISTANT_PRESETS` (`src/common/config/presets/assistantPresets.ts:38`), 30 entries today.
 `presetAgentType: 'wcore'`. Persona markdown under `src/process/resources/assistant/smart-trader/`,
 named by `ruleFiles`. Seeded to `<assistantsDir>/builtin-smart-trader.<locale>.md` by
@@ -117,6 +120,7 @@ reads — so a wcore assistant created from the `+` menu ran with **no persona a
 would have shipped broken and silent. Fixed, with a RED→GREEN test.
 
 ### What it does — "don't make me think"
+
 1. **Check what they have.** Its own toolset tells it whether TVControl is connected. Then
    `tv_health_check` (live), `tv_capability_matrix` (per-tool availability table).
 2. **Advise + open the browser** to what is missing. TradingView Desktop download; the TC-TIDE
@@ -138,16 +142,17 @@ would have shipped broken and silent. Fixed, with a RED→GREEN test.
    So the order is fixed and the favourite is mandatory, not a fallback:
    a. `shell.openExternal` the script URL.
    b. Tell the user exactly which control to click — "Add to favourite indicators" on the script
-      page. This is the single step the assistant cannot do for them; say so plainly rather than
-      letting it look like a failure.
+   page. This is the single step the assistant cannot do for them; say so plainly rather than
+   letting it look like a failure.
    c. `indicator_search` with query "TC TIDE" and **no `section` constraint**, and report which
-      section it actually came back under. TradingView files favourited private scripts under
-      Favorites / Invite-only rather than Community Scripts, and I have NOT verified the exact
-      label — verifying it means driving the owner's live chart, which is forbidden. Searching
-      unconstrained and reading back the real section is both more robust and self-verifying.
+   section it actually came back under. TradingView files favourited private scripts under
+   Favorites / Invite-only rather than Community Scripts, and I have NOT verified the exact
+   label — verifying it means driving the owner's live chart, which is forbidden. Searching
+   unconstrained and reading back the real section is both more robust and self-verifying.
    d. `indicator_add_from_search` using the section just observed.
    e. If (c) still returns nothing, the favourite did not take. Say that, and re-open the page.
-      Do not silently continue with no indicator on the chart.
+   Do not silently continue with no indicator on the chart.
+
 6. **Chart.** Symbol, timeframe, indicators — then **ask the user to press Cmd+S**. There is no
    `layout_save` / `layout_create` / `saveChart` in TVControl; grep returns zero [X].
    `state_snapshot` writes a TVControl-local JSON TradingView never sees — do not call that "saved".
@@ -155,6 +160,7 @@ would have shipped broken and silent. Fixed, with a RED→GREEN test.
 8. **Offer the schedule.**
 
 ### Hard constraints
+
 - Never drive the owner's live chart during development.
 - `ui_evaluate` stays disabled behind `TV_MCP_ADVANCED=1`. Do not flip it.
 - `tv_launch` with `kill_existing: true` would kill a live session and lose unsaved state. Default
@@ -164,6 +170,7 @@ would have shipped broken and silent. Fixed, with a RED→GREEN test.
   page for `com.ferroxlabs/tvcontrol`, not something the assistant does itself.
 
 ### Already shipped, reuse it
+
 TVControl is a **first-party-verified catalog connector**:
 `src/renderer/mcp-catalog/entries/com.ferroxlabs-tvcontrol.json`, pinned
 `@ferroxlabs/tvcontrol@2.2.2`, verified 2026-08-04, plus a 3-step setup guide at
@@ -176,7 +183,9 @@ TVControl is a **first-party-verified catalog connector**:
 ## 6. Work item E — the morning report routine
 
 ### Use the Python chain, NOT the SKILL.md path [X]
+
 Two pipelines exist in `~/dev/tvcontrol/skills/market-open-report`:
+
 - `SKILL.md` (2026-08-05, first commit) — agent + MCP + a **visible foreground** TradingView.
   **Not schedulable**: a hidden TV window makes `Page.captureScreenshot` hang or return a stale
   composited frame that looks like a valid PNG (`HANDOFF-2026-08-11.md:93-99`). Also a hardcoded
@@ -191,11 +200,13 @@ python3 tools/brief_html.py <APP_TMP>/mr.json <APP_OUT>/morning-brief.html
 ```
 
 ### Wiring
+
 `routines.json` + `BuiltinRoutinesSeeder.ts`. A routine is a Wayland-shipped cron wrapper around a
 bundled workflow, created **DISABLED** (`BuiltinRoutinesSeeder.ts:21-24`), idempotent by
 `routineId`, user opts in. That is step 3 of the brief, already designed.
 
 ### The failure that matters [X]
+
 `yahoo_data.py:57-58` returns `[]` after 3 attempts; `morning_report.py:104-109` turns that into a
 per-row `'error': 'no data'`; `main()` never exits non-zero. **A rate-limited run produces a
 well-formed brief listing all 74 names as NO DATA and reports success.** The routine must assert on
@@ -211,6 +222,7 @@ daily — hence the app-owned folder decision.
 ## 6b. Work item F — bring Concierge up to date
 
 ### Correction to an earlier claim in this plan
+
 I wrote that Concierge can diagnose but not act. **That was wrong.** Commit `e52f16a70`
 (2026-06-29, the 0.11.7 headliner) is titled "Concierge assistant — knows, diagnoses, acts" and
 ships all three:
@@ -230,6 +242,7 @@ call, it is a proposal. Smart Trader step 1 should propose the TVControl install
 deep-linking the user into Settings.
 
 ### The upstream comparison is already done
+
 `.planning/research/WLD-J/03-feature-parity.md` §6: "We already have upstream's flagship feature,
 under another name." AionUi's Butler (v2.1.20 + v2.1.25 "via chat") vs our Concierge — we have the
 engine; **the gap is the affordance**, not the assistant. Ranked TAKE #1, marked ADAPT: contextual
@@ -238,38 +251,41 @@ pre-fill the prompt. Believed never built — CONFIRM before scheduling.
 Deliberately declined: Butler's Cloudflare-tunnel remote access (`SUMMARY.md:110`).
 
 ### F1 — what Concierge does not KNOW
+
 Everything below shipped AFTER 2026-06-29 [X, from `git log e52f16a70..HEAD`]:
 
-| system | landed |
-|---|---|
-| Voice, both directions — on-device whisper STT, platform-native TTS, composer voice mode, readiness ladder | Aug lanes |
-| Agent installers — install/uninstall managed ACP agents, receipts, the install band | Aug lanes |
-| Constitution / key-ring reclaim | Aug lanes |
-| TVControl as a first-class MCP catalog connector | 2026-08-04 |
-| Bundled engine moved to released Core v0.12.26 | 2026-08-08 |
-| Core extensions management (#481) | 2026-07-11 |
-| Per-workspace Chat/Cowork trust axis (#671) | 2026-07-12 |
-| Cron high-frequency guard + overlap skip (#845); routines | 2026-07-12 |
-| Task-completion notifications (#579) | 2026-07-12 |
-| Assistant export as credential-redacted SKILL.md (#848); workflow portable export (#512) | 2026-07-12 |
-| Hermes profiles as preset assistants (#851) | 2026-07-12 |
-| Per-chat native agent TUI over a PTY (#645) | 2026-07-04 |
-| Memory edit + delete (#414/#641/#647) | 2026-07-04 |
-| Persistent per-project workspace (#455); Project History timeline (#180) | 2026-06-30 / 07-04 |
-| Skills import + scan + verify (#582) | 2026-07-03 |
-| Output budget Auto/Fixed (#468); custom model ID per provider (#617) | 2026-06-30 / 07-04 |
-| Playwright MCP bundled + auto-enabled (#465) | 2026-06-30 |
-| macOS Computer-Use permission onboarding (#466) | 2026-06-30 |
-| Flux Router precedence over a local Ollama default | 2026-08-12 |
+| system                                                                                                     | landed             |
+| ---------------------------------------------------------------------------------------------------------- | ------------------ |
+| Voice, both directions — on-device whisper STT, platform-native TTS, composer voice mode, readiness ladder | Aug lanes          |
+| Agent installers — install/uninstall managed ACP agents, receipts, the install band                        | Aug lanes          |
+| Constitution / key-ring reclaim                                                                            | Aug lanes          |
+| TVControl as a first-class MCP catalog connector                                                           | 2026-08-04         |
+| Bundled engine moved to released Core v0.12.26                                                             | 2026-08-08         |
+| Core extensions management (#481)                                                                          | 2026-07-11         |
+| Per-workspace Chat/Cowork trust axis (#671)                                                                | 2026-07-12         |
+| Cron high-frequency guard + overlap skip (#845); routines                                                  | 2026-07-12         |
+| Task-completion notifications (#579)                                                                       | 2026-07-12         |
+| Assistant export as credential-redacted SKILL.md (#848); workflow portable export (#512)                   | 2026-07-12         |
+| Hermes profiles as preset assistants (#851)                                                                | 2026-07-12         |
+| Per-chat native agent TUI over a PTY (#645)                                                                | 2026-07-04         |
+| Memory edit + delete (#414/#641/#647)                                                                      | 2026-07-04         |
+| Persistent per-project workspace (#455); Project History timeline (#180)                                   | 2026-06-30 / 07-04 |
+| Skills import + scan + verify (#582)                                                                       | 2026-07-03         |
+| Output budget Auto/Fixed (#468); custom model ID per provider (#617)                                       | 2026-06-30 / 07-04 |
+| Playwright MCP bundled + auto-enabled (#465)                                                               | 2026-06-30         |
+| macOS Computer-Use permission onboarding (#466)                                                            | 2026-06-30         |
+| Flux Router precedence over a local Ollama default                                                         | 2026-08-12         |
 
 Open question the swarm is resolving: how much of the manifest is LIVE-computed (the commit claims
 real counts) versus prose. Only the prose can go stale — fix the source, not the symptom.
 
 ### F2 — what Concierge cannot DO
+
 Current proposal kinds, verified present in `conciergeConfig.ts:39-44`: `provider_connect`,
 `set_default_model`, `add_mcp`, `edit_assistant`, `file_bug_report`.
 
 None of them touch a system built in the last two months. Candidates, in value order:
+
 - `install_agent` — the agent-installer band. Highest value: it is the one new system with a real
   install flow and an existing consent surface to mirror.
 - `enable_routine` — routines seed DISABLED by design, so "shall I turn it on?" is the natural

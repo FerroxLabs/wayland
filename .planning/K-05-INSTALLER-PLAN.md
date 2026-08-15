@@ -17,13 +17,13 @@ I have enough verified ground. Everything below is either quoted from files I op
 
 I ran the experiments the design and both critiques left as "not established". Five inputs were wrong.
 
-| Claim | Source | Verdict |
-|---|---|---|
-| "auggie is the ideal first ship: zero deps, no postinstall" | DESIGN §6 | **False, twice over.** `@augmentcode/auggie@0.35.0` has `optionalDependencies: {"node-pty":"1.2.0-beta.14"}`, and node-pty declares `"install": "node scripts/prebuild.js \|\| node-gyp rebuild"` **and** `"postinstall": "node scripts/post-install.js"`. Worse — see below, auggie cannot satisfy INS-01 at all. |
-| "bun lockfile integrity enforcement — not established" | DESIGN §3, SEC F4 | **Established. It works.** I tampered one `sha512` in a real `bun.lock`, cold cache: `error: Integrity check failed for tarball: @augmentcode/auggie`, **real exit code 1**, `node_modules/@augmentcode/auggie` absent. Clean run: exit 0. |
-| Fix for registry redirect = "write a bunfig.toml pinning `registry`" | SEC F5(a) | **Disproven by execution.** With `$HOME/.npmrc` containing `@augmentcode:registry=https://registry.invalid.example.com/`, a cwd `bunfig.toml` with `[install] registry=…` **and** `[install.scopes]` both still failed (`FailedToOpenSocket`). The scoped `.npmrc` wins. **The fix that works is `HOME`→staging dir** — retested, install succeeded. |
-| "`grep -rn mergeCredentials src` → one hit, the definition" | WIN critique | **False.** Two real call sites: `SessionLifecycle.ts:69` and `:219`, fed by `loadAuthCredentials()` (`typeBridge.ts:275`) via `AcpAgentV2.ts:216`. |
-| "INS-01 is not achievable in K-05" | WIN critique | **False, but its instinct was right.** I proved INS-01 achievable — on qwen, not auggie. See §0.2. |
+| Claim                                                                | Source            | Verdict                                                                                                                                                                                                                                                                                                                                              |
+| -------------------------------------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "auggie is the ideal first ship: zero deps, no postinstall"          | DESIGN §6         | **False, twice over.** `@augmentcode/auggie@0.35.0` has `optionalDependencies: {"node-pty":"1.2.0-beta.14"}`, and node-pty declares `"install": "node scripts/prebuild.js \|\| node-gyp rebuild"` **and** `"postinstall": "node scripts/post-install.js"`. Worse — see below, auggie cannot satisfy INS-01 at all.                                   |
+| "bun lockfile integrity enforcement — not established"               | DESIGN §3, SEC F4 | **Established. It works.** I tampered one `sha512` in a real `bun.lock`, cold cache: `error: Integrity check failed for tarball: @augmentcode/auggie`, **real exit code 1**, `node_modules/@augmentcode/auggie` absent. Clean run: exit 0.                                                                                                           |
+| Fix for registry redirect = "write a bunfig.toml pinning `registry`" | SEC F5(a)         | **Disproven by execution.** With `$HOME/.npmrc` containing `@augmentcode:registry=https://registry.invalid.example.com/`, a cwd `bunfig.toml` with `[install] registry=…` **and** `[install.scopes]` both still failed (`FailedToOpenSocket`). The scoped `.npmrc` wins. **The fix that works is `HOME`→staging dir** — retested, install succeeded. |
+| "`grep -rn mergeCredentials src` → one hit, the definition"          | WIN critique      | **False.** Two real call sites: `SessionLifecycle.ts:69` and `:219`, fed by `loadAuthCredentials()` (`typeBridge.ts:275`) via `AcpAgentV2.ts:216`.                                                                                                                                                                                                   |
+| "INS-01 is not achievable in K-05"                                   | WIN critique      | **False, but its instinct was right.** I proved INS-01 achievable — on qwen, not auggie. See §0.2.                                                                                                                                                                                                                                                   |
 
 The design's `src/process/agent/acp/mcpStdioSpawn.ts` does not exist. Real path: **`src/process/services/mcpServices/mcpStdioSpawn.ts`**.
 
@@ -81,6 +81,7 @@ The `.cmd` route is closed by the same `shell: false`, exactly as `src/process/s
 const backendConfig = ACP_BACKENDS_ALL[data.backend];
 if (backendConfig?.acpArgs) customArgs = backendConfig.acpArgs;
 ```
+
 `AcpAgentManager.ts:1133-1136`
 
 **Files** — `src/process/agent/acp/acpConnectors.ts` (add a `launch?: { command: string; args: string[] }` parameter to `createGenericSpawnConfig`, consumed verbatim ahead of the `isWindows` / Unix branches); `src/process/acp/types.ts`, `src/process/acp/compat/typeBridge.ts`, `src/process/task/AcpAgentManager.ts` (thread it through); `src/process/agent/acp/index.ts:1804` (`ensureBackendAuth` uses `this.extra.cliPath` raw — same fix or it re-breaks for claude/qwen login).
@@ -135,6 +136,7 @@ Approach B from the design stands, and the lockfile mechanism is now **proven**,
 ```
 
 `stage-agent-pin.mjs` copies `scripts/stage-wcore-bump.mjs`. `check-agent-pins.mjs` runs in the release gate and asserts:
+
 1. pin file, shipped lockfiles and manifest contract version agree (the lockstep check whose absence let the engine pin drift 2 minors, #451);
 2. no lockfile entry contains an `npm:` alias spec — an alias moves the trust anchor to a name the pin never states, which is exactly the live codex case (`"@openai/codex-darwin-arm64": "npm:@openai/codex@0.147.0-darwin-arm64"`);
 3. pin age / distance from `latest`, fail past a threshold.
@@ -155,9 +157,10 @@ Surface the pinned version and its age on the Settings card.
 
 **Files (new)** — `src/process/agent/install/agentInstaller.ts`, `installLock.ts`, `installEnv.ts`.
 
-**Lock.** `installLock.ts` **must be copied and parameterised** — `lockPath()` is hardcoded to `~/.ijfw/.install-lock` with no argument (`installLock.ts:25-27`). Two corrections to the design while copying: `acquireLock` **does steal stale locks** and **recurses unbounded** (`installLock.ts:83-90`) — the design's "the lock is not stolen" is wrong about the code it proposes to copy. Bound the recursion. And **take the lock *after* consent**, not before: `requireConfirmation` blocks indefinitely, so a tray-minimised app would hold the lock behind a modal nobody sees.
+**Lock.** `installLock.ts` **must be copied and parameterised** — `lockPath()` is hardcoded to `~/.ijfw/.install-lock` with no argument (`installLock.ts:25-27`). Two corrections to the design while copying: `acquireLock` **does steal stale locks** and **recurses unbounded** (`installLock.ts:83-90`) — the design's "the lock is not stolen" is wrong about the code it proposes to copy. Bound the recursion. And **take the lock _after_ consent**, not before: `requireConfirmation` blocks indefinitely, so a tray-minimised app would hold the lock behind a modal nobody sees.
 
 **Consent.** `requireConfirmation` (`webuiDirectAuth.ts:71-99`) — correct primitive, `defaultId: 1, cancelId: 1` so Enter and Esc both cancel. Add:
+
 - `enforceRateLimit('agentInstall.install')` (`webuiDirectAuth.ts:33-57`, 5/60s) **before** the dialog, plus a process-wide single-flight. The per-agent lock does not help: loop nine agent IDs, get nine modals.
 - Refuse when `BrowserWindow.getAllWindows().length === 0` — the parentless fallback at `webuiDirectAuth.ts:88-97` degrades consent to a dialog nobody sees.
 - Build the entire `detail` from the pin record only; first statement of the handler is exact set membership of `agentId` in `Object.keys(ACP_BACKENDS_ALL)`.
@@ -203,8 +206,9 @@ Still add the bin dir to **both** extra-tool-path arrays — but only so `where`
 **Verify before every spawn, not only at install.** The manifest is a mutable JSON file in `userData` that feeds a spawn command; recording a hash and checking it twice (install, uninstall) makes the whole pin chain an install-time property. The repo already does better — `resolveManagedOfficeCliShimDir` re-verifies on **every** resolution:
 
 ```ts
-digestOfficeCliEvidence(readFileSync(shimPath)) !== expectedSha256
+digestOfficeCliEvidence(readFileSync(shimPath)) !== expectedSha256;
 ```
+
 `shellEnv.ts:172`
 
 Re-verify `entryPointSha256`, and that `launch.command` is the bundled-bun path, inside `refreshInstalledAgents()` **and** immediately before spawn. Mismatch → `state: 'foreign'`, drop from registry, never spawn.
@@ -244,7 +248,7 @@ Scope discipline: this is the minimum to make INS-01 honest. **No Flux, no base-
 
 **Files** — `src/process/agent/install/agentUninstaller.ts`.
 
-**Never iterate `ownedPaths` as an instruction.** The design applies the containment check to `prefixDir` only and re-hashing to `shims` only, so an entry that is neither — `"../../../../Documents"` — is deleted unchecked, and step 2 renders `ownedPaths` **verbatim** into the confirmation dialog, so the user's own consent screen faithfully lists the attacker's target. INS-05 says "by manifest, not by name"; the manifest is *evidence*, not authority.
+**Never iterate `ownedPaths` as an instruction.** The design applies the containment check to `prefixDir` only and re-hashing to `shims` only, so an entry that is neither — `"../../../../Documents"` — is deleted unchecked, and step 2 renders `ownedPaths` **verbatim** into the confirmation dialog, so the user's own consent screen faithfully lists the attacker's target. INS-05 says "by manifest, not by name"; the manifest is _evidence_, not authority.
 
 Reconstruct every deletable path at runtime from `agentId` + `version` + the shipped shim naming rule. Apply to **each** reconstructed path: `realpathSync(p).startsWith(realpathSync(root) + path.sep)` and `lstatSync().isSymbolicLink()` rejection — the `shellEnv.ts:123-131` pattern — with the one carve-out for our own `current` junction. Diff the reconstruction against `ownedPaths` and surface a divergence as a tamper signal.
 
@@ -265,7 +269,7 @@ Keep the design's shim-hash-before-delete: it genuinely exceeds INS-05. Never `b
 **Do not reuse `applyPendingSwap`.** It is a single-file primitive:
 
 ```ts
-rmSync(finalPath, { force: true });   // wcoreUpdater.ts:394 — no `recursive: true`
+rmSync(finalPath, { force: true }); // wcoreUpdater.ts:394 — no `recursive: true`
 ```
 
 which throws `ERR_FS_EISDIR` on a directory. Write a directory-aware `applyPendingAgentInstalls()`: `rmSync(..., { recursive: true, force: true })`, bounded retry-with-backoff on `EPERM`/`EBUSY`/`ENOTEMPTY` (Defender and Search Indexer hold transient handles on freshly written trees), plus a `.pending-delete` sweep. Bound the retry and surface a real message — a silent `{ applied: false }` loop is how you get a permanently half-installed agent. Two side corrections: "Windows `rename` will not overwrite" is true for **directories**, not files (libuv passes `MOVEFILE_REPLACE_EXISTING`) — build on the directory case; and use `moveWithExdevFallback`, do not assume same-volume.
@@ -308,21 +312,21 @@ All facts below fetched live from `registry.npmjs.org` today.
 
 ### Ships in K-05
 
-| Agent | Package @ version | Why it ships |
-|---|---|---|
-| **qwen** *(first)* | `@qwen-code/qwen-code@0.21.8` | 0 direct deps, **no lifecycle scripts**, installs clean under `--ignore-scripts` (47 lock entries, 116 MB, exit 0). The **only** candidate whose full install→detect→authenticate→`session/new` chain I proved end-to-end, writing nothing outside our root. Already `authRequired: true`, `acpArgs: ['--acp']` in `ACP_BACKENDS_ALL`. |
-| **gemini** | `@google/gemini-cli@0.54.4` | 0 direct deps, no scripts, 120 MB. `BACKEND_AUTH_KEYS.gemini` already lists `GOOGLE_API_KEY`/`GEMINI_API_KEY`. **Gated:** gemini is a *builtin* (`createGeminiAgent`, `AgentRegistry.ts:82`), not an AcpDetector backend — prove the registry splice works for it before committing. |
-| **auggie** | `@augmentcode/auggie@0.35.0` | Installs and speaks ACP under bundled bun (verified: `initialize` → `agentInfo.name: "auggie"`). Ships **install-only**, card reads "Sign in required — run `auggie login`". **Not** an INS-01 proof agent. Install with optional deps omitted: its `node-pty@1.2.0-beta.14` optional dep declares `install: node scripts/prebuild.js \|\| node-gyp rebuild`, which `--ignore-scripts` leaves unbuilt. Entry `augment.mjs`, sha256 `4d56d6f5bd07d48d41c87f15065906f6b395457465a97c31398cd110206621a9`. |
+| Agent              | Package @ version             | Why it ships                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **qwen** _(first)_ | `@qwen-code/qwen-code@0.21.8` | 0 direct deps, **no lifecycle scripts**, installs clean under `--ignore-scripts` (47 lock entries, 116 MB, exit 0). The **only** candidate whose full install→detect→authenticate→`session/new` chain I proved end-to-end, writing nothing outside our root. Already `authRequired: true`, `acpArgs: ['--acp']` in `ACP_BACKENDS_ALL`.                                                                                                                                                                 |
+| **gemini**         | `@google/gemini-cli@0.54.4`   | 0 direct deps, no scripts, 120 MB. `BACKEND_AUTH_KEYS.gemini` already lists `GOOGLE_API_KEY`/`GEMINI_API_KEY`. **Gated:** gemini is a _builtin_ (`createGeminiAgent`, `AgentRegistry.ts:82`), not an AcpDetector backend — prove the registry splice works for it before committing.                                                                                                                                                                                                                   |
+| **auggie**         | `@augmentcode/auggie@0.35.0`  | Installs and speaks ACP under bundled bun (verified: `initialize` → `agentInfo.name: "auggie"`). Ships **install-only**, card reads "Sign in required — run `auggie login`". **Not** an INS-01 proof agent. Install with optional deps omitted: its `node-pty@1.2.0-beta.14` optional dep declares `install: node scripts/prebuild.js \|\| node-gyp rebuild`, which `--ignore-scripts` leaves unbuilt. Entry `augment.mjs`, sha256 `4d56d6f5bd07d48d41c87f15065906f6b395457465a97c31398cd110206621a9`. |
 
 ### Deferred, with the reason
 
-| Agent | Reason |
-|---|---|
+| Agent                                          | Reason                                                                                                                                                                                                                                                                                  |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **claude** `@anthropic-ai/claude-code@2.1.226` | `postinstall: node install.cjs` is **required** — `bin` is `bin/claude.exe`, delivered by one of 8 platform optionalDeps and placed by that script. Cannot ship under unconditional `--ignore-scripts`, so verification cannot precede execution. → K-06 via direct-tarball Mechanic B. |
-| **opencode** `opencode-ai@1.18.15` | Same: `postinstall: node ./postinstall.mjs`, `bin: bin/opencode.exe`. → K-06. |
-| **copilot** `@github/copilot@1.0.78` | Genuinely clean (no scripts, proper platform-package pattern, one pure-JS dep `detect-libc`) — but `@github/copilot-darwin-arm64` unpacks to **339 MB**, and auth is GitHub OAuth. Defer on size + no env-var auth path. |
-| **codex** | The design's reasoning stands: `"@openai/codex-darwin-arm64": "npm:@openai/codex@0.147.0-darwin-arm64"` alias where the named package 404s. And it needs no PATH install — `acpTypes.ts:355` sets `defaultCliPath: npx <pkg>`. Optimisation, not a fix. |
-| **kimi, goose, droid** | Non-npm channels (PyPI/`uv`, GitHub releases/Homebrew) or unresolved package identity. INS-02's shell-installer exclusion applies as written. → K-06. |
+| **opencode** `opencode-ai@1.18.15`             | Same: `postinstall: node ./postinstall.mjs`, `bin: bin/opencode.exe`. → K-06.                                                                                                                                                                                                           |
+| **copilot** `@github/copilot@1.0.78`           | Genuinely clean (no scripts, proper platform-package pattern, one pure-JS dep `detect-libc`) — but `@github/copilot-darwin-arm64` unpacks to **339 MB**, and auth is GitHub OAuth. Defer on size + no env-var auth path.                                                                |
+| **codex**                                      | The design's reasoning stands: `"@openai/codex-darwin-arm64": "npm:@openai/codex@0.147.0-darwin-arm64"` alias where the named package 404s. And it needs no PATH install — `acpTypes.ts:355` sets `defaultCliPath: npx <pkg>`. Optimisation, not a fix.                                 |
+| **kimi, goose, droid**                         | Non-npm channels (PyPI/`uv`, GitHub releases/Homebrew) or unresolved package identity. INS-02's shell-installer exclusion applies as written. → K-06.                                                                                                                                   |
 
 ---
 
@@ -333,44 +337,35 @@ All facts below fetched live from `registry.npmjs.org` today.
 Fresh VM per OS, no Node, no npm, no agent CLI, no `~/.qwen`, packaged signed build (never dev mode).
 
 **Pre-flight, all OSes**
+
 1. `node --version` → not found. Screenshot.
 2. Settings → Agents. qwen appears under "Available to install" with pinned version and pin age. No other agent claims to be installed.
 
-**Install**
-3. Click Install. **A native dialog appears** naming package, exact version, target directory, "no postinstall scripts will run", and that sign-in is separate. Screenshot.
-4. Cancel → nothing on disk, no manifest entry, card unchanged. *(INS-03)*
-5. Install again, confirm. Progress reaches 100%.
-6. Filesystem: only `<root>/qwen/0.21.8/`, `<root>/bin/`, `<root>/current` junction, `manifest.json`. **Nothing under `~/.bun`, `~/.npm`, `%TEMP%`.** *(INS-02)*
+**Install** 3. Click Install. **A native dialog appears** naming package, exact version, target directory, "no postinstall scripts will run", and that sign-in is separate. Screenshot. 4. Cancel → nothing on disk, no manifest entry, card unchanged. _(INS-03)_ 5. Install again, confirm. Progress reaches 100%. 6. Filesystem: only `<root>/qwen/0.21.8/`, `<root>/bin/`, `<root>/current` junction, `manifest.json`. **Nothing under `~/.bun`, `~/.npm`, `%TEMP%`.** _(INS-02)_
 
-**Detect**
-7. Card reads `Installed · 0.21.8`. `getDetectedAgents()` includes qwen with the absolute `launch`.
-8. Post-install spawn test passed — the log shows a real ACP `initialize` response, not a registry-lookup tautology.
+**Detect** 7. Card reads `Installed · 0.21.8`. `getDetectedAgents()` includes qwen with the absolute `launch`. 8. Post-install spawn test passed — the log shows a real ACP `initialize` response, not a registry-lookup tautology.
 
-**Chat**
-9. Settings → qwen → paste an OpenAI-compatible API key. Restart not required.
-10. New conversation on qwen. Send "What is 2+2?". **A correct answer streams back.** Screenshot. *(INS-01)*
-11. Confirm `~/.qwen` was **not** created: `find ~ -maxdepth 2 -name '.qwen'` → empty. *(FAN-03 posture held early)*
+**Chat** 9. Settings → qwen → paste an OpenAI-compatible API key. Restart not required. 10. New conversation on qwen. Send "What is 2+2?". **A correct answer streams back.** Screenshot. _(INS-01)_ 11. Confirm `~/.qwen` was **not** created: `find ~ -maxdepth 2 -name '.qwen'` → empty. _(FAN-03 posture held early)_
 
-**Uninstall**
-12. Uninstall. Dialog lists every path. Confirm.
-13. Root is empty except `manifest.json` with no qwen entry. The user's own files untouched. Machine back to step 1 state. *(INS-05)*
+**Uninstall** 12. Uninstall. Dialog lists every path. Confirm. 13. Root is empty except `manifest.json` with no qwen entry. The user's own files untouched. Machine back to step 1 state. _(INS-05)_
 
 **Per-OS additions**
 
-*macOS (arm64 + x64):* run under a user whose home contains a space if one can be created. Confirm the app is notarized and Gatekeeper does not prompt on the installed agent.
+_macOS (arm64 + x64):_ run under a user whose home contains a space if one can be created. Confirm the app is notarized and Gatekeeper does not prompt on the installed agent.
 
-*Linux (x64 glibc):* confirm no `sudo`, nothing under `/usr/local`.
+_Linux (x64 glibc):_ confirm no `sudo`, nothing under `/usr/local`.
 
-*Windows 11 (x64), on the Windows box `seandesktop` (`ssh -i ~/.ssh/wayland_win seand@100.109.207.54`, PowerShell `;` not `&&`)* — this is where the packet fails if it fails:
-- W1. Install to `C:\Program Files\Wayland` (default `perMachine`). Assert `parseWindowsCliPath(manifest.launch.command).inlineArgs.length === 0`. *(T1)*
-- W2. Run as a user whose profile is `C:\Users\John Smith`. Install + chat must both work. *(T1)*
-- W3. Install tree is under `%LOCALAPPDATA%`, **not** `%APPDATA%`. *(T2)*
+_Windows 11 (x64), on the Windows box `seandesktop` (`ssh -i ~/.ssh/wayland_win seand@100.109.207.54`, PowerShell `;` not `&&`)_ — this is where the packet fails if it fails:
+
+- W1. Install to `C:\Program Files\Wayland` (default `perMachine`). Assert `parseWindowsCliPath(manifest.launch.command).inlineArgs.length === 0`. _(T1)_
+- W2. Run as a user whose profile is `C:\Users\John Smith`. Install + chat must both work. _(T1)_
+- W3. Install tree is under `%LOCALAPPDATA%`, **not** `%APPDATA%`. _(T2)_
 - W4. `where qwen` resolves the `.cmd` shim from the enhanced env. **Currently not established** — `AcpDetector.ts:120` passes `env: this.enhancedEnv` to `safeExecFile('where', [cmd])`. Detection display only; spawning does not depend on it.
-- W5. Install with an agent process running → `.pending`; restart → applied; chat works. *(T8)*
-- W6. Install `node@16` on PATH first. Chat must still work. *(T6.4)*
-- W7. Behind a proxy (`HTTP_PROXY` set): install succeeds, or fails with a proxy-specific message — never "Couldn't reach the package registry". *(T4)*
-- W8. **Prove or disprove the `Path` vs `PATH` enumeration trap** before trusting any allowlist copy. *(T4)*
-- W9. Full path length of the deepest installed file < 260 chars. *(T2)*
+- W5. Install with an agent process running → `.pending`; restart → applied; chat works. _(T8)_
+- W6. Install `node@16` on PATH first. Chat must still work. _(T6.4)_
+- W7. Behind a proxy (`HTTP_PROXY` set): install succeeds, or fails with a proxy-specific message — never "Couldn't reach the package registry". _(T4)_
+- W8. **Prove or disprove the `Path` vs `PATH` enumeration trap** before trusting any allowlist copy. _(T4)_
+- W9. Full path length of the deepest installed file < 260 chars. _(T2)_
 
 ---
 
@@ -379,7 +374,7 @@ Fresh VM per OS, no Node, no npm, no agent CLI, no `~/.qwen`, packaged signed bu
 Three. All are genuine blockers.
 
 **Q1 — K-05 ships qwen first and auggie install-only. Confirm?**
-**Recommendation: yes.** The milestone named auggie-style simplicity, but I ran it: auggie returns `authMethods: []` and *"Auggie does not currently support authenticating over ACP. Please run `auggie login` from your terminal"*. It can never satisfy "a chat runs on it". qwen I proved end-to-end — `session/new` returned a `sessionId`, and nothing was written outside our root. Cost: qwen is a 116 MB install versus auggie's 13 MB.
+**Recommendation: yes.** The milestone named auggie-style simplicity, but I ran it: auggie returns `authMethods: []` and _"Auggie does not currently support authenticating over ACP. Please run `auggie login` from your terminal"_. It can never satisfy "a chat runs on it". qwen I proved end-to-end — `session/new` returned a `sessionId`, and nothing was written outside our root. Cost: qwen is a 116 MB install versus auggie's 13 MB.
 
 **Q2 — T6 adds a per-agent API-key field and one `AuthNegotiator` change. In scope for K-05, or does INS-01 split?**
 **Recommendation: in scope, build it.** INS-01 says "and a chat runs on it". Today `resolveBuiltinBackendConfig` returns no `customEnv` (`AcpAgentManager.ts:1156`), `acp.config[backend].authToken` has zero consumers, and `selectAuthMethod` requires a `type` field qwen does not emit — so without T6 the requirement is unprovable and we would be signing off a half-truth. It is ~2 days, it writes to no file we do not own, and it gives K-07's Flux fan-out a working socket instead of greenfield. The alternative — formally splitting INS-01 and moving "chat runs" to K-07 — is honest but leaves K-05 shipping an installer nobody can use.
@@ -391,19 +386,19 @@ Three. All are genuine blockers.
 
 ## 5. Size and critical path
 
-| Task | Days |
-|---|---|
-| T1 structured spawn command | 1.5 |
-| T2 install root + manifest + reconcile | 2.0 |
-| T3 pins + bump + staleness gate | 2.0 |
-| T4 installer core | 3.0 |
-| T5 shims + PATH + registry + pre-spawn verify | 2.5 |
-| T6 credential path | 2.0 |
-| T7 uninstall + repair | 1.5 |
-| T8 Windows pending swap/delete | 1.5 |
-| T9 UI | 1.5 |
-| T10 acceptance (+ Windows box) | 1.0 |
-| **Total** | **18.5 d** |
+| Task                                          | Days       |
+| --------------------------------------------- | ---------- |
+| T1 structured spawn command                   | 1.5        |
+| T2 install root + manifest + reconcile        | 2.0        |
+| T3 pins + bump + staleness gate               | 2.0        |
+| T4 installer core                             | 3.0        |
+| T5 shims + PATH + registry + pre-spawn verify | 2.5        |
+| T6 credential path                            | 2.0        |
+| T7 uninstall + repair                         | 1.5        |
+| T8 Windows pending swap/delete                | 1.5        |
+| T9 UI                                         | 1.5        |
+| T10 acceptance (+ Windows box)                | 1.0        |
+| **Total**                                     | **18.5 d** |
 
 Add ~3 d for the cross-audit panel and fixes (Codex 5.6 Sol · Gemini 3.1 Pro · Kimi K3 · `ferrox-code-reviewer`), per the standing rule that green CI is not enough. **~21–22 d realistic.**
 

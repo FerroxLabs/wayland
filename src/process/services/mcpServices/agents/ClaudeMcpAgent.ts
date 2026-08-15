@@ -75,9 +75,7 @@ export function isClaudeMcpNameTakenDetail(detail: string): boolean {
  * CodexMcpAgent already classifies on the joined output for this reason.
  */
 export function isClaudeMcpAbsentDetail(detail: string): boolean {
-  return (
-    detail.includes('No MCP server named') || detail.includes('not found') || detail.includes('does not exist')
-  );
+  return detail.includes('No MCP server named') || detail.includes('not found') || detail.includes('does not exist');
 }
 
 /**

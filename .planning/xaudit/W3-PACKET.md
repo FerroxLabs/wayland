@@ -14,7 +14,7 @@ machine over the Chrome DevTools Protocol. It is published on npm as
 `@ferroxlabs/tvcontrol` (version 2.2.1 is live on the public registry, verified by clean
 install: 101 tools over stdio).
 
-**TVControl only works if TradingView Desktop was *started with* a debugging port open.**
+**TVControl only works if TradingView Desktop was _started with_ a debugging port open.**
 Merely having TradingView running is not enough - the port is only opened at process
 start. This is a precondition Wayland cannot satisfy on the user's behalf, and the
 catalog schema has no field to express a precondition. The setup guide is the only place
@@ -85,19 +85,19 @@ hand-edited.
 YAML frontmatter carries the interactive steps the Library renders; the markdown body is
 the prose shown under them.
 
-```markdown
+````markdown
 ---
 guideVersion: 1.0.0
 estimatedMinutes: 3
 steps:
   - id: install-tradingview
-    title: "Install TradingView Desktop"
+    title: 'Install TradingView Desktop'
     body: |
       TVControl drives the **desktop** app on this machine - not tradingview.com in a browser. If you do not have it yet, get it from [tradingview.com/desktop](https://www.tradingview.com/desktop/).
 
       Any TradingView plan works, including the free one. TVControl reads and drives whatever your account already has.
   - id: enable-control
-    title: "Restart TradingView with control enabled"
+    title: 'Restart TradingView with control enabled'
     body: |
       This is the one step that actually matters, and TVControl does nothing without it.
 
@@ -125,7 +125,7 @@ steps:
 
       Leave TradingView running. If you quit it, or restart it normally, the tools go quiet until you launch it this way again.
   - id: verify
-    title: "Ask for your chart"
+    title: 'Ask for your chart'
     body: |
       In any chat, ask: **"What symbol and timeframe is my TradingView chart on?"**
 
@@ -147,7 +147,7 @@ TradingView **Desktop**, running, started with its control port open. There is n
 **It can change your chart.** Asking for a different symbol or timeframe moves the chart you are looking at. It does not place orders, and it cannot access your broker.
 
 **Running arbitrary page JavaScript is off by default.** TVControl ships a `ui_evaluate` tool that is not registered unless you set `TV_MCP_ADVANCED=1` yourself. Leave it unset unless you know precisely why you want it.
-```
+````
 
 ### File 3 — `icons/com.ferroxlabs-tvcontrol.svg` (new, single line)
 
@@ -177,7 +177,10 @@ describe('TVControl catalog connector', () => {
   });
 
   it('the guide actually tells the user to start TradingView with the control port', () => {
-    const raw = readFileSync(join(__dirname, '../../../../src/renderer/mcp-catalog/guides/com.ferroxlabs-tvcontrol.md'), 'utf-8');
+    const raw = readFileSync(
+      join(__dirname, '../../../../src/renderer/mcp-catalog/guides/com.ferroxlabs-tvcontrol.md'),
+      'utf-8'
+    );
     const front = yaml.load(raw.split('---')[1]) as { steps: Array<{ id: string; body: string }> };
     const bodies = front.steps.map((s) => s.body).join('\n');
     expect(bodies).toContain('--remote-debugging-port=9222');

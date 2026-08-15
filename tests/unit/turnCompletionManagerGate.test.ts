@@ -98,9 +98,8 @@ describe.each(GATEWAY_MANAGERS)('$name only notifies on a clean turn (#838)', ({
 });
 
 describe('GeminiAgentManager only notifies on a clean turn (#838)', () => {
-  const notifyIfClean = (
-    GeminiAgentManager.prototype as unknown as { notifyTurnCompletionIfClean: () => void }
-  ).notifyTurnCompletionIfClean;
+  const notifyIfClean = (GeminiAgentManager.prototype as unknown as { notifyTurnCompletionIfClean: () => void })
+    .notifyTurnCompletionIfClean;
 
   const geminiStub = (turnActive: boolean, turnFailed: boolean) =>
     managerStub({ turnActive, turnFailed, model: { useModel: 'gemini-2.5-pro' } });

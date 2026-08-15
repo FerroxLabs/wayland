@@ -13,15 +13,15 @@ uninstalled cleanly. **Do not rebuild it.** This plan is the seam and the UI.
 
 ## Decisions already made. Do NOT relitigate.
 
-| # | Decision | Why |
-|---|---|---|
-| D1 | A detected **system copy wins**. Card reads "your system copy" + a version chip. No competing Install button. | Never break a working setup. Sean has all six installed; the version chip exists so support starts from a fact. |
-| D2 | Consent = one plain sentence + four facts (package, pinned version, destination, "install scripts blocked"). | It executes code. A bare "Install / Cancel" hides that. |
-| D3 | Band sits **below** More detected. | Keeps the shipped page order intact. Revisit only if the clean-machine empty state reads badly. |
-| D4 | Install goes to Wayland's own prefix, never a global install. | Global installs need elevation on Windows and produce `.cmd` shims Node cannot spawn with `shell:false`. |
-| D5 | The installer emits an **`AcpLaunchSpec`**, never a `cliPath` string. | `parseWindowsCliPath` shreds spaced paths; a test pins that broken output because T1 fixed it by BYPASSING the parser. |
-| D6 | Sign-in runs the **agent's own** `claude login` / `codex login` / `kimi login` in Wayland's existing terminal. | Standing hard NO on building Claude Pro/Max subscription OAuth (ToS). We launch their flow, never reimplement it. |
-| D7 | `setup-*` / `remove-*` channels are **denied to remote** WS callers; `*-status` stays allowed. | They write a credential/config on the host. Matches `onboarding.connect-flux`, already denied. |
+| #   | Decision                                                                                                       | Why                                                                                                                    |
+| --- | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| D1  | A detected **system copy wins**. Card reads "your system copy" + a version chip. No competing Install button.  | Never break a working setup. Sean has all six installed; the version chip exists so support starts from a fact.        |
+| D2  | Consent = one plain sentence + four facts (package, pinned version, destination, "install scripts blocked").   | It executes code. A bare "Install / Cancel" hides that.                                                                |
+| D3  | Band sits **below** More detected.                                                                             | Keeps the shipped page order intact. Revisit only if the clean-machine empty state reads badly.                        |
+| D4  | Install goes to Wayland's own prefix, never a global install.                                                  | Global installs need elevation on Windows and produce `.cmd` shims Node cannot spawn with `shell:false`.               |
+| D5  | The installer emits an **`AcpLaunchSpec`**, never a `cliPath` string.                                          | `parseWindowsCliPath` shreds spaced paths; a test pins that broken output because T1 fixed it by BYPASSING the parser. |
+| D6  | Sign-in runs the **agent's own** `claude login` / `codex login` / `kimi login` in Wayland's existing terminal. | Standing hard NO on building Claude Pro/Max subscription OAuth (ToS). We launch their flow, never reimplement it.      |
+| D7  | `setup-*` / `remove-*` channels are **denied to remote** WS callers; `*-status` stays allowed.                 | They write a credential/config on the host. Matches `onboarding.connect-flux`, already denied.                         |
 
 ---
 
@@ -80,5 +80,6 @@ uninstalled cleanly. **Do not rebuild it.** This plan is the seam and the UI.
 ---
 
 ## Out of scope here
+
 Mechanic B/C/D (tarball, PyPI, Grok's script), and the ACP handshake over stdio
 — `--version` proves the binary runs, not that ACP negotiates. Both are next.

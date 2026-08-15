@@ -101,9 +101,9 @@ test.describe.serial('Extension: Empty Directory / No Extensions', () => {
     // (agentProfileMerge.ts:369, `_source: 'vendored-agent-profile'`), and that
     // source is independent of WAYLAND_EXTENSIONS_PATH. Assert that no
     // EXTENSION assistant is present, which is what this spec is about.
-    expect(
-      (assistants as Array<{ _source?: string }>).filter((a) => a._source !== 'vendored-agent-profile')
-    ).toEqual([]);
+    expect((assistants as Array<{ _source?: string }>).filter((a) => a._source !== 'vendored-agent-profile')).toEqual(
+      []
+    );
     expect(agents).toEqual([]);
     expect(skills).toEqual([]);
     expect(themes).toEqual([]);

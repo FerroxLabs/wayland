@@ -54,15 +54,15 @@ Devanagari, Arabic, Hebrew RTL) — not per character.
 
 Taken as a SPEC from the upstream repo's Layer A, not as code:
 
-| Range | What | Disposition |
-|---|---|---|
-| U+E0000–E007F | Tag characters | **Strip always.** Injection vector, no legitimate use in our surfaces. |
-| U+200B, U+2060, U+FEFF | ZWSP, word joiner, BOM | Strip (BOM only when not leading a file). |
-| U+200C, U+200D | ZWNJ, ZWJ | **Context-sensitive** — keep inside emoji and Indic/Arabic runs. |
-| U+FE00–FE0F, U+E0100–E01EF | Variation selectors | Keep FE0x on emoji; strip the E01xx plane. |
-| U+202A–202E, U+2066–2069 | Bidi controls | Keep in RTL runs; strip stray/unbalanced. |
-| U+2000–200A, U+202F, U+205F, U+3000, U+00A0 | Exotic spaces | Normalise, do not delete. |
-| U+00AD | Soft hyphen | Strip. |
+| Range                                       | What                   | Disposition                                                            |
+| ------------------------------------------- | ---------------------- | ---------------------------------------------------------------------- |
+| U+E0000–E007F                               | Tag characters         | **Strip always.** Injection vector, no legitimate use in our surfaces. |
+| U+200B, U+2060, U+FEFF                      | ZWSP, word joiner, BOM | Strip (BOM only when not leading a file).                              |
+| U+200C, U+200D                              | ZWNJ, ZWJ              | **Context-sensitive** — keep inside emoji and Indic/Arabic runs.       |
+| U+FE00–FE0F, U+E0100–E01EF                  | Variation selectors    | Keep FE0x on emoji; strip the E01xx plane.                             |
+| U+202A–202E, U+2066–2069                    | Bidi controls          | Keep in RTL runs; strip stray/unbalanced.                              |
+| U+2000–200A, U+202F, U+205F, U+3000, U+00A0 | Exotic spaces          | Normalise, do not delete.                                              |
+| U+00AD                                      | Soft hyphen            | Strip.                                                                 |
 
 ## Explicitly OUT of scope
 

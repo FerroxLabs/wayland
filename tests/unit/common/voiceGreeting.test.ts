@@ -32,9 +32,7 @@ describe('selectVoiceGreeting', () => {
   it('reaches every variant across the roll range', () => {
     // A picker that indexed wrongly - floor of roll*(n-1), or a stray +1 -
     // would leave a variant permanently unreachable while still looking random.
-    const reached = new Set(
-      Array.from({ length: 1000 }, (_, i) => selectVoiceGreeting({ roll: i / 1000 }).variantId)
-    );
+    const reached = new Set(Array.from({ length: 1000 }, (_, i) => selectVoiceGreeting({ roll: i / 1000 }).variantId));
     expect([...reached].sort()).toEqual([...VOICE_GREETING_VARIANT_IDS].sort());
   });
 

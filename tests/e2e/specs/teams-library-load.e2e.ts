@@ -40,8 +40,7 @@ const EXPECTED_STANDING = STANDING_SLUGS.length;
 const EXPECTED_TEAMS_ON_PAGE_ONE = 48 - EXPECTED_STANDING;
 
 /** Strip whichever catalog prefix a card id carries, so we compare slugs. */
-const toSlug = (testId: string): string =>
-  testId.replace(/^team-card-/, '').replace(/^(?:builtin-|ext-)/, '');
+const toSlug = (testId: string): string => testId.replace(/^team-card-/, '').replace(/^(?:builtin-|ext-)/, '');
 
 test.describe('Teams Library - load', () => {
   test('renders Standing Companies + Teams sections from the built-in catalog', async ({ page }) => {

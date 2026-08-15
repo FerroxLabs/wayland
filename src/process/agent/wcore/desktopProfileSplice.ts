@@ -184,7 +184,12 @@ function isReservedProfileHeader(trimmedLine: string): boolean {
   // avoidable one. Raised by the K-01 cross-audit (Kimi K3 and internal legs).
   const dotted = match[1]
     .split('.')
-    .map((segment) => segment.trim().replace(/^"([\s\S]*)"$/, '$1').replace(/^'([\s\S]*)'$/, '$1'))
+    .map((segment) =>
+      segment
+        .trim()
+        .replace(/^"([\s\S]*)"$/, '$1')
+        .replace(/^'([\s\S]*)'$/, '$1')
+    )
     .join('.');
   const reserved = `profiles.${WCORE_DESKTOP_MCP_PROFILE}`;
   return dotted === reserved || dotted.startsWith(`${reserved}.`);

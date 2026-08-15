@@ -28,9 +28,9 @@ describe('classifyStartFailureDetail', () => {
   });
 
   it('classifies a bail naming the reserved Desktop profile as stripped-config', () => {
-    expect(
-      classifyStartFailureDetail(`Error: Profile '${WCORE_DESKTOP_MCP_PROFILE}' not found in config`)
-    ).toBe('stripped-config');
+    expect(classifyStartFailureDetail(`Error: Profile '${WCORE_DESKTOP_MCP_PROFILE}' not found in config`)).toBe(
+      'stripped-config'
+    );
   });
 
   it('classifies a bail naming any OTHER profile as profile-resolution (discriminates on identity)', () => {
@@ -40,9 +40,9 @@ describe('classifyStartFailureDetail', () => {
   });
 
   it('classifies the double-quote variant of the reserved profile as stripped-config', () => {
-    expect(
-      classifyStartFailureDetail(`Error: Profile "${WCORE_DESKTOP_MCP_PROFILE}" not found in config`)
-    ).toBe('stripped-config');
+    expect(classifyStartFailureDetail(`Error: Profile "${WCORE_DESKTOP_MCP_PROFILE}" not found in config`)).toBe(
+      'stripped-config'
+    );
   });
 
   it('classifies the double-quote variant naming another profile as profile-resolution', () => {

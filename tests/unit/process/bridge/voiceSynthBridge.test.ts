@@ -146,14 +146,14 @@ describe('voiceSynthBridge', () => {
    * catch-all, which is the case that needs it most.
    */
   it.each([
-    [
-      'TTS_WINDOWS_NATIVE_UNAVAILABLE: no audio produced',
-      'TTS_WINDOWS_NATIVE_UNAVAILABLE',
-      'no audio produced',
-    ],
+    ['TTS_WINDOWS_NATIVE_UNAVAILABLE: no audio produced', 'TTS_WINDOWS_NATIVE_UNAVAILABLE', 'no audio produced'],
     ['TTS_SYSTEM_NATIVE_UNAVAILABLE: wrong platform', 'TTS_SYSTEM_NATIVE_UNAVAILABLE', 'wrong platform'],
     ['TTS_OPENAI_NOT_CONFIGURED: connect OpenAI', 'TTS_OPENAI_NOT_CONFIGURED', 'connect OpenAI'],
-    ['TTS_OPENAI_CREDENTIAL_UNREADABLE: cannot be decrypted', 'TTS_OPENAI_CREDENTIAL_UNREADABLE', 'cannot be decrypted'],
+    [
+      'TTS_OPENAI_CREDENTIAL_UNREADABLE: cannot be decrypted',
+      'TTS_OPENAI_CREDENTIAL_UNREADABLE',
+      'cannot be decrypted',
+    ],
     ['TTS_CREDENTIAL_STORE_UNAVAILABLE: db locked', 'TTS_CREDENTIAL_STORE_UNAVAILABLE', 'db locked'],
     ['TTS_OPENAI_AUTH_ERROR: invalid credential', 'TTS_OPENAI_AUTH_ERROR', 'invalid credential'],
     ['TTS_OPENAI_RATE_LIMITED: try later', 'TTS_OPENAI_RATE_LIMITED', 'try later'],

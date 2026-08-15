@@ -27,10 +27,10 @@ they were. Sean caught it. The middle is where every remaining blocker lives.
 ## 2. Verified by execution
 
 - **The persona loads and behaves** [X]. Asked to buy Apple stock and for a view on NVDA it
-  answered *"I do not place orders. I do not give financial advice on what to buy, sell, or
-  hold."* The DB carries the full 7,923-char persona on the conversation row. An earlier
+  answered _"I do not place orders. I do not give financial advice on what to buy, sell, or
+  hold."_ The DB carries the full 7,923-char persona on the conversation row. An earlier
   alarm from me that the persona bug had returned was **wrong** — I checked and withdrew it.
-- **Beat 1 detection** [X]: *"TVControl is not installed here. Want me to set it up?"* on a
+- **Beat 1 detection** [X]: _"TVControl is not installed here. Want me to set it up?"_ on a
   clean profile, via the tool-presence rule.
 - **Beat 3 scheduling** [X]: a real consent card, then a real cron row —
   `0 8 * * 1-5`, "Every weekday at 8:00", enabled, next run 08:00 tomorrow.
@@ -57,7 +57,7 @@ wcore process exited unexpectedly (code=0) during active turn
 ```
 
 **Reproduced deliberately, twice** [X], and it kills BOTH beat 1 and the in-app report run.
-Core announces a tool as *running* that it never *requested*. One twin gets the approval; the
+Core announces a tool as _running_ that it never _requested_. One twin gets the approval; the
 other's `tool_request` is never on the wire.
 
 **This is Core-side, and Desktop is correct to fail closed.** The validator reads Core's raw
@@ -71,8 +71,8 @@ the engine dies mid-turn that log line is the only evidence left.
 
 Skills were **symlinked** into the workspace with targets in the app config dir. Core runs the
 agent against a `SandboxedFs` rooted at the workspace whose containment check canonicalizes
-first, precisely so *"a symlink planted inside the sandbox that points outside is detected and
-refused"* (`crates/wcore-tools/src/vfs.rs`). Deliberate hardening; our skills tripped it.
+first, precisely so _"a symlink planted inside the sandbox that points outside is detected and
+refused"_ (`crates/wcore-tools/src/vfs.rs`). Deliberate hardening; our skills tripped it.
 
 It hid well: markdown-only skills kept working, because that text is fed to the model directly.
 **Skills that ship scripts did not** — the agent could see the skill and read nothing in it.
@@ -134,7 +134,7 @@ against Desktop source anyway:
   re-confirmation; this is it.
 - 🟡 **"No exit-code handling" — right grep, wrong directory.** It lives in
   `src/process/task/WCoreManager.ts:1326` (`handleProcessExit`), not
-  `src/process/agent/wcore/`. Desktop does not *branch* on the value but does render it via
+  `src/process/agent/wcore/`. Desktop does not _branch_ on the value but does render it via
   `describeExitReason` — "Agent process exited with code 0" was on screen today [X]. Low risk
   to control flow, real change to user-visible text.
 

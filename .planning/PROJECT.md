@@ -170,7 +170,8 @@ Master Class demonstrates Wayland architecture — Wayland Desktop driving Wayla
 rather than Desktop driving Claude Code.
 
 **Target features:**
-- **K-1 (spine)** — move Desktop's launch-local MCP profile out of the per-chat *project*
+
+- **K-1 (spine)** — move Desktop's launch-local MCP profile out of the per-chat _project_
   config and into the global config root the engine is already pointed at. Core 0.12.26
   strips authority-expanding sections from untrusted project config, so today every turn
   dies at bootstrap on 0.12.26.
@@ -188,6 +189,7 @@ rather than Desktop driving Claude Code.
   the one key the user already connected. This is the moat, not the installer.
 
 **Key context:**
+
 - **Scope decision (Sean, 2026-08-08):** all seven packets stay in WLD-K. I recommended
   splitting K-5/K-6 into a follow-on milestone to protect the demo; overridden. The roadmap
   therefore marks an explicit "Master Class is safe at this line" boundary after K-2 so the
@@ -202,13 +204,13 @@ rather than Desktop driving Claude Code.
 - **Rejected, with reasons, do not reopen:** `--trust-workspace` (trips Core's symlink
   fail-closed rule and wrongly auto-trusts cloned repos); option C, an ephemeral config root
   (the config root also holds `memory.db` and skills, so it kills memory continuity); option F,
-  Core's `only_for_assistant` scoping (it can only *restrict* — an unmarked server is always
+  Core's `only_for_assistant` scoping (it can only _restrict_ — an unmarked server is always
   injected, so it cannot enforce an exact per-chat allow-list, and one missed marking is a
   cross-chat tool leak).
 - **The user-owned-file risk applies only to `@native`.** For named profiles the config root
   is already a Desktop-owned tree asserted symlink-free. Migrating existing `@native` users
   onto a Desktop-owned profile is a real, rollback-capable migration project — explicitly
-  *not* part of K-1.
+  _not_ part of K-1.
 - Authoritative input: `.planning/MILESTONE-WLD-K-core-first.md` (verified state table).
 
 ## Previous Milestone: WLD-I Licence Compliance
@@ -217,6 +219,7 @@ rather than Desktop driving Claude Code.
 Section 4(b)/4(c) and MIT, and make every attribution claim the app ships actually true.
 
 **Target features:**
+
 - AionUi Section 4(c) restoration — complete the inventory across all 445 same-path files, classify
   derived vs Ferrox-original by measurement, restore the upstream copyright alongside the Ferrox
   modification copyright on the derived set.
@@ -234,6 +237,7 @@ Section 4(b)/4(c) and MIT, and make every attribution claim the app ships actual
 - npm dependency licence report — 144 bundled production dependencies currently ship with none.
 
 **Key context:**
+
 - The AionUi exposure is **pre-existing**, dating to root commit `2b3b60e11` (2026-07-06 squashed
   6,245-file import). It was **not** introduced by the WLD-H branch, which all four cross-audit legs
   confirmed makes no functional change.
@@ -267,6 +271,7 @@ during WLD-K planning itself was caught only by the positive-control rule. A pac
 This document evolves at phase transitions and milestone boundaries.
 
 **After each phase transition** (the internal transition workflow, run automatically after phase verification):
+
 1. Requirements invalidated? → Move to Out of Scope with reason
 2. Requirements validated? → Move to Validated with phase reference
 3. New requirements emerged? → Add to Active
@@ -274,6 +279,7 @@ This document evolves at phase transitions and milestone boundaries.
 5. "What This Is" still accurate? → Update if drifted
 
 **After each milestone** (via `/ferrox-complete-milestone`):
+
 1. Full review of all sections
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?

@@ -54,7 +54,8 @@ const make = (content: Partial<IMessageSubAgent['content']>): IMessageSubAgent =
 });
 
 /** Exactly what MessageList renders for a `sub_agent` message. */
-const renderInline = (message: IMessageSubAgent) => render(<ActivityTimeline steps={[subAgentToStep(message.content)]} />);
+const renderInline = (message: IMessageSubAgent) =>
+  render(<ActivityTimeline steps={[subAgentToStep(message.content)]} />);
 
 describe('sub-agent turns render inline through ActivityTimeline', () => {
   it('renders the activity tree (with nested child) when content.nodes is present', () => {

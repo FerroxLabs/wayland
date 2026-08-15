@@ -72,7 +72,11 @@ function wellKnownPaths(): string[] {
       ];
     }
     default:
-      return ['/usr/local/bin/ollama', '/usr/bin/ollama', ...(home ? [path.join(home, '.local', 'bin', 'ollama')] : [])];
+      return [
+        '/usr/local/bin/ollama',
+        '/usr/bin/ollama',
+        ...(home ? [path.join(home, '.local', 'bin', 'ollama')] : []),
+      ];
   }
 }
 

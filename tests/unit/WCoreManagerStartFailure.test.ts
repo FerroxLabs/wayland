@@ -345,9 +345,7 @@ describe('WCoreManager bootstrap failure surfaces error + finish (S2)', () => {
 
     expect(agentStart).toHaveBeenCalledTimes(2);
     expect((manager as unknown as { agent: unknown }).agent).not.toBeNull();
-    const replayed = findEmissions('error').filter((e) =>
-      String(e.data).includes('.dirty-death.89279')
-    );
+    const replayed = findEmissions('error').filter((e) => String(e.data).includes('.dirty-death.89279'));
     expect(replayed).toHaveLength(0);
   });
 

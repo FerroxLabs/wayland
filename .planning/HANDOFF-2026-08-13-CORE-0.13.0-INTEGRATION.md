@@ -12,15 +12,15 @@ Goal: get 0.13.0 **integrated, tested and working**. This document is the playbo
 
 ## 0. Paths
 
-| what | where |
-|---|---|
-| Desktop worktree (branch `packet/wl-integration`, remote `ferrox`) | `/Users/seandonahoe/dev/wayland-worktrees/wl-integration` |
-| ⛔ canonical tree — never write here | `/Users/seandonahoe/dev/wayland/app` |
-| Core repo | `/Users/seandonahoe/dev/waylandcore` |
-| **0.13.0 binary (arm64), verified** | `/Users/seandonahoe/Downloads/wcore-0130/wayland-core-aarch64-apple-darwin/wayland-core` |
-| Core's handoff to us | `/private/tmp/claude-501/-Users-seandonahoe-dev-waylandcore/11929102-d58a-47e9-9644-0e9d530b58c4/scratchpad/HANDOFF-CORE-TO-DESKTOP-0.13.0.md` (durable copy: `hetzner-dsm:/root/…`) |
-| Our reply to Core | `.planning/HANDOFF-TO-CORE-2026-08-12-0.13.0-CONTRACT.md` |
-| Smart Trader context | `.planning/HANDOFF-2026-08-12-SMART-TRADER-LIVE.md` |
+| what                                                               | where                                                                                                                                                                                |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Desktop worktree (branch `packet/wl-integration`, remote `ferrox`) | `/Users/seandonahoe/dev/wayland-worktrees/wl-integration`                                                                                                                            |
+| ⛔ canonical tree — never write here                               | `/Users/seandonahoe/dev/wayland/app`                                                                                                                                                 |
+| Core repo                                                          | `/Users/seandonahoe/dev/waylandcore`                                                                                                                                                 |
+| **0.13.0 binary (arm64), verified**                                | `/Users/seandonahoe/Downloads/wcore-0130/wayland-core-aarch64-apple-darwin/wayland-core`                                                                                             |
+| Core's handoff to us                                               | `/private/tmp/claude-501/-Users-seandonahoe-dev-waylandcore/11929102-d58a-47e9-9644-0e9d530b58c4/scratchpad/HANDOFF-CORE-TO-DESKTOP-0.13.0.md` (durable copy: `hetzner-dsm:/root/…`) |
+| Our reply to Core                                                  | `.planning/HANDOFF-TO-CORE-2026-08-12-0.13.0-CONTRACT.md`                                                                                                                            |
+| Smart Trader context                                               | `.planning/HANDOFF-2026-08-12-SMART-TRADER-LIVE.md`                                                                                                                                  |
 
 ---
 
@@ -51,16 +51,16 @@ sha256 c55205d4b36cd5fd843c767c897e8edb30a4dd193e74da0a8fdad0dcdb24b229
 
 Contract read off a real `ready` frame [X]:
 
-| field | value |
-|---|---|
-| `name` | `wayland-desktop-core` |
-| `major` | 1 |
-| `minor` | **14** |
-| `generator` | `wcore-desktop-contract-gen/14` — **does NOT move** |
-| `fixture_digest` | `sha256:d729f9336e7ba0b4ed5a4f50ffdf3e3903ff7f38d000f43275fc654e87e2ec3d` |
-| `schema_digest` | `sha256:306d83e19fa01a83c1d17d6365c9159efeb94373b8328259cbf842d783e00152` |
+| field                  | value                                                                     |
+| ---------------------- | ------------------------------------------------------------------------- |
+| `name`                 | `wayland-desktop-core`                                                    |
+| `major`                | 1                                                                         |
+| `minor`                | **14**                                                                    |
+| `generator`            | `wcore-desktop-contract-gen/14` — **does NOT move**                       |
+| `fixture_digest`       | `sha256:d729f9336e7ba0b4ed5a4f50ffdf3e3903ff7f38d000f43275fc654e87e2ec3d` |
+| `schema_digest`        | `sha256:306d83e19fa01a83c1d17d6365c9159efeb94373b8328259cbf842d783e00152` |
 | `source_inputs_digest` | `sha256:55d366c8706ea852b55595049e5dcb9b1d641745a2209e938121e95644c2e6d6` |
-| `capabilities` | 17 keys, **identical to the current pin** [X] |
+| `capabilities`         | 17 keys, **identical to the current pin** [X]                             |
 
 ### How to re-read it yourself (do this, don't transcribe)
 
@@ -132,6 +132,7 @@ the move is 13→14 or 12→14 for the engine users actually have (§1).
 6. `npx tsc --noEmit` then the full suite: `node ./node_modules/vitest/vitest.mjs run --root <worktree>`.
 
 ### What to test once it runs
+
 - A turn completes at all (contract accepted, no `contract_*_mismatch`).
 - **Does the tool double-fire survive into 0.13.0?** See §5 — this is the real prize.
 - `/doctor` — `engine.contractPin` should agree; it reads the digest off the binary.

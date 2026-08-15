@@ -861,7 +861,9 @@ export class WCoreAgent {
         const reason = describeExitReason(code, signal);
         this.readyReject(
           new Error(
-            detail ? `wcore ${reason} during init: ${detail}${profileStripHedge(detail)}` : `wcore ${reason} during init`
+            detail
+              ? `wcore ${reason} during init: ${detail}${profileStripHedge(detail)}`
+              : `wcore ${reason} during init`
           )
         );
       }

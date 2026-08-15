@@ -4,12 +4,7 @@
  * Validates extension-contributed channel plugins on the channels settings page.
  */
 import { test, expect } from '../fixtures';
-import {
-  goToChannelsTab,
-  expectBodyContainsAny,
-  takeScreenshot,
-  waitForSettle,
-} from '../helpers';
+import { goToChannelsTab, expectBodyContainsAny, takeScreenshot, waitForSettle } from '../helpers';
 
 test.describe('Extension: Channel Plugins', () => {
   test('channels page renders', async ({ page }) => {
@@ -50,7 +45,10 @@ test.describe('Extension: Channel Plugins', () => {
   test('clicking a channel card opens its setup page', async ({ page }) => {
     await goToChannelsTab(page);
 
-    await page.getByRole('button', { name: /Telegram/i }).first().click();
+    await page
+      .getByRole('button', { name: /Telegram/i })
+      .first()
+      .click();
     await page.waitForFunction(() => window.location.hash.startsWith('#/settings/channels/telegram'), {
       timeout: 10_000,
     });

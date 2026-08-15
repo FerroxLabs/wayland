@@ -116,7 +116,11 @@ describe('install_agent proposal kind', () => {
     const swapped = validateInstallAgentProposal({ agentId: 'kimi', npmPackage: 'evil-pkg', version: '0.34.0' })!;
     expect(installAgentProposalMatchesPin(swapped, pinned)).toBe(false);
 
-    const wrongVersion = validateInstallAgentProposal({ agentId: 'kimi', npmPackage: pinned.npmPackage, version: '9.9.9' })!;
+    const wrongVersion = validateInstallAgentProposal({
+      agentId: 'kimi',
+      npmPackage: pinned.npmPackage,
+      version: '9.9.9',
+    })!;
     expect(installAgentProposalMatchesPin(wrongVersion, pinned)).toBe(false);
 
     // An agent that is not catalogued at all is a refusal, not an install.

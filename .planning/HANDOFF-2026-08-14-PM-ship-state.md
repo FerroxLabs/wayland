@@ -61,7 +61,7 @@ own test. **That is the first thing to pick up.**
   (minor 12). Every turn died at bootstrap with `contract_minor_mismatch`. Completed the bump:
   version pin, six checksums, the installer's own pin, and a v0.13.0 publisher-attestation
   policy. **The attestation was verified BEFORE the policy was written** [V] — `gh attestation
-  verify` reports sourceDigest `8f9c6684`, github-hosted, and its signed statement lists exactly
+verify` reports sourceDigest `8f9c6684`, github-hosted, and its signed statement lists exactly
   the seven asset digests staged. Engine downloads, verifies, and completes turns.
 - 🔴 **`047ebaeef` — the OpenClaw connector deleted a default model the user had set.** Setup
   decided whether `agents.defaults.model.primary` was ours by comparing it to the literal string
@@ -90,7 +90,7 @@ own test. **That is the first thing to pick up.**
   ext notifications. Desktop had no `extNotification` arm at all. Wired all three, flattened
   params. Frame shape confirmed by capture, not by reading the contract [V]:
   `{"method":"_wayland/session/budget","params":{"limit":null,"microcents":0,"observed":null,
-  "priced":false,"sessionId":"…","session_tokens":5958}}` with zero `sessionUpdate: 'budget'`
+"priced":false,"sessionId":"…","session_tokens":5958}}` with zero `sessionUpdate: 'budget'`
   frames remaining. **Honesty rule enforced in code**: `priced:false` renders `unpriced`, never
   `$0.000` — mutation-verified.
 - `1dfb78be7` — the npm pin (see §1).

@@ -90,8 +90,7 @@ describe('useWCoreMessage on an engine bootstrap failure (K-02 / DIA-01)', () =>
     renderHook(() => useWCoreMessage(CONV, { onError }));
     expect(streamHandler).toBeTruthy();
 
-    const detail =
-      'Agent failed to start: wcore refused to start: storage.credentials.backend is set to "plaintext"';
+    const detail = 'Agent failed to start: wcore refused to start: storage.credentials.backend is set to "plaintext"';
     emitStartFailureSequence(detail);
 
     // The user has to be told. This is the whole point of K-02: an engine that

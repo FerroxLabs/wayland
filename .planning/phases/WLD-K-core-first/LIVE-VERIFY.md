@@ -32,7 +32,7 @@ error tip rather than a silent spinner.
 ## Original checklist (unrun items below remain outstanding)
 
 Every packet in the demo-critical line (K-01…K-04) is built, unit-tested and audited. None of it is
-*proven* until the steps here execute against a real engine. This milestone's own success standard
+_proven_ until the steps here execute against a real engine. This milestone's own success standard
 says a mechanism claim is established by executing it, never by reading source — so until these are
 run, the correct description of K-01/K-02/K-03 is "built and audited", not "working".
 
@@ -105,7 +105,7 @@ locks and needs its own packet.
 3. Run a turn that ends in an **error** frame (an invalid API key will do). Confirm it also clears.
 4. Spot-check a tool-heavy turn still reconciles cleanly.
 5. **Negative control — do not skip this.** Revert `a211ea6cb` locally, confirm the same repro
-   *still hangs*, then re-apply and confirm it does not.
+   _still hangs_, then re-apply and confirm it does not.
 
 Step 5 is what separates "we changed something and the symptom went away" from "we fixed the cause".
 The root cause was established by feeding the consumer a newline-less frame directly; this proves the
@@ -118,7 +118,7 @@ establish.
 2. Read the chat bubble.
 
 **Pass:** it shows the engine's own reason, not "wcore Desktop contract rejected ready". Where the
-stripped-config inference applies, the hedge reads as a *possibility*, not a verdict.
+stripped-config inference applies, the hedge reads as a _possibility_, not a verdict.
 
 **Then the one that matters most:** put an API-key-shaped string somewhere the engine will echo to
 stderr and force a failure. **No fragment of that key may appear in the UI, the logs, or the renderer

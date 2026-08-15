@@ -46,10 +46,10 @@ commit data says the direction is right but **the magnitude was overstated.**
 Upstream kept `archive/main-before-backend-migration-2026-05-25`, the last pre-migration state. Set
 intersection against the range:
 
-| Segment | Commits | Share | Reachable for us? |
-|---|---:|---:|---|
-| In range **and** ancestor of the archive snapshot — pre-migration, our architecture | **752** | **42%** | Yes, in principle |
-| In range but **not** in the archive snapshot — post-migration | **1,032** | **58%** | No |
+| Segment                                                                             |   Commits |   Share | Reachable for us? |
+| ----------------------------------------------------------------------------------- | --------: | ------: | ----------------- |
+| In range **and** ancestor of the archive snapshot — pre-migration, our architecture |   **752** | **42%** | Yes, in principle |
+| In range but **not** in the archive snapshot — post-migration                       | **1,032** | **58%** | No                |
 
 **Corrected claim: 58% of the delta is architecturally unreachable, not ~70%.** The release-note view
 inflated it because the post-migration releases were numerous but small (v2.1.x shipped ~50 releases
@@ -70,7 +70,7 @@ The substance of the conclusion survives, and I still endorse it:
 The practical consequence is unchanged: a large share of what reads as "bug fixes" in `v2.1.x` —
 backend startup diagnostics, `__backendPort unset`, bundled-aioncore verification, port reuse after
 crash-restart, health-probe timeouts, snake_case adapter mapping, pre-warmup 404 suppression — are
-fixes to glue that exists *because* they made that move. In the sweep below these show up as a large
+fixes to glue that exists _because_ they made that move. In the sweep below these show up as a large
 `fix(adapter)` / `fix(ipcBridge)` / `fix(backend*)` cluster. They are not latent bugs in our tree.
 
 ---
@@ -126,22 +126,22 @@ the effective delta is meaningfully smaller than a naive `v1.9.5…v2.1.44` diff
 
 All rows **verified against our source**.
 
-| Unannounced upstream fix | Class | Our code | Verdict |
-|---|---|---|---|
-| `c88583048` streaming content lost when DB merge overwrites in-flight message | Data loss | `Messages/hooks.ts:480-507` — identical `streamingByMsgId` + length comparison | Already present |
-| `8523ba3ac` healthy DB wiped because native-module version mismatch read as corruption | Data loss | `services/database/index.ts:177` excludes native-module errors | Already present |
-| `186a0dab2` orphan cleanup deletes cron job that has child conversations | Data loss | `services/cron/CronService.ts:139-147` | Already present |
-| `c351a90b5` orphan cleanup deletes legacy cron jobs with empty `conversationId` | Data loss | `services/cron/CronService.ts:134` | Already present, **stronger** — we `archiveAndRemoveJob`, so even a false positive is recoverable |
-| `00c4aaa69` hook promise hangs until timeout when child exits cleanly without IPC | Hang | `extensions/lifecycle/lifecycle.ts:163-165` — same fallback, same rationale | Already present |
-| `5fac8c65e` `markExtensionForReinstall` mutates shared object reference | Correctness | `extensions/lifecycle/statePersistence.ts:230` — `{ ...state, installed: false }` | Already present |
-| `0c23c8b6e` multer temp path not validated (path traversal) | Security | `webserver/routes/apiRoutes.ts:41-45` — `MULTER_TEMP_DIR` + runtime validation | Already present |
-| `84adb5453` OpenAI 500 because `response_format` sent to gpt-image | API bug | `common/chat/imageGenCore.ts:304-305,498` — never sent to gpt-image arms | Already present (our shape differs: one core, not per-adapter) |
-| `0d7ffdf12` stale service worker serves poisoned scripts | White screen | `public/sw.js:95` — `networkFirst` | Already present |
-| `68a6ab005` symlink escapes in extension path confinement | Security | `extensions/sandbox/pathSafety.ts:39` — `realpathSync.native` canonicalizes both sides | Already present |
-| `5e5995b12` markdown sandbox `startsWith` bypassed by `..` segments | Security | **N/A** — we have no local-file resolution; every link goes to `openExternalUrl`, which allowlists https/http/mailto/wayland and rejects `file:` (`utils/platform.ts:125`); we also strip `file://` from markdown text (`Markdown/index.tsx:50`) | Structurally impossible |
-| `efc94e464` percent-encoded href bypasses local-file checks | Security | **N/A** — same reason | Structurally impossible |
-| `384265149` config migration overwrites user prefs every restart | Data loss | **N/A** — Electron→Rust-backend migration only | Out of scope |
-| `5f808f05b` close-to-tray ignored on custom title-bar close | UX | Our bridge calls `window.close()` (`windowControlsBridge.ts:70`), which fires the `close` event intercepted at `index.ts:844-850` and hides when close-to-tray is on | Does not reproduce — one choke point covers both paths |
+| Unannounced upstream fix                                                               | Class        | Our code                                                                                                                                                                                                                                         | Verdict                                                                                           |
+| -------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `c88583048` streaming content lost when DB merge overwrites in-flight message          | Data loss    | `Messages/hooks.ts:480-507` — identical `streamingByMsgId` + length comparison                                                                                                                                                                   | Already present                                                                                   |
+| `8523ba3ac` healthy DB wiped because native-module version mismatch read as corruption | Data loss    | `services/database/index.ts:177` excludes native-module errors                                                                                                                                                                                   | Already present                                                                                   |
+| `186a0dab2` orphan cleanup deletes cron job that has child conversations               | Data loss    | `services/cron/CronService.ts:139-147`                                                                                                                                                                                                           | Already present                                                                                   |
+| `c351a90b5` orphan cleanup deletes legacy cron jobs with empty `conversationId`        | Data loss    | `services/cron/CronService.ts:134`                                                                                                                                                                                                               | Already present, **stronger** — we `archiveAndRemoveJob`, so even a false positive is recoverable |
+| `00c4aaa69` hook promise hangs until timeout when child exits cleanly without IPC      | Hang         | `extensions/lifecycle/lifecycle.ts:163-165` — same fallback, same rationale                                                                                                                                                                      | Already present                                                                                   |
+| `5fac8c65e` `markExtensionForReinstall` mutates shared object reference                | Correctness  | `extensions/lifecycle/statePersistence.ts:230` — `{ ...state, installed: false }`                                                                                                                                                                | Already present                                                                                   |
+| `0c23c8b6e` multer temp path not validated (path traversal)                            | Security     | `webserver/routes/apiRoutes.ts:41-45` — `MULTER_TEMP_DIR` + runtime validation                                                                                                                                                                   | Already present                                                                                   |
+| `84adb5453` OpenAI 500 because `response_format` sent to gpt-image                     | API bug      | `common/chat/imageGenCore.ts:304-305,498` — never sent to gpt-image arms                                                                                                                                                                         | Already present (our shape differs: one core, not per-adapter)                                    |
+| `0d7ffdf12` stale service worker serves poisoned scripts                               | White screen | `public/sw.js:95` — `networkFirst`                                                                                                                                                                                                               | Already present                                                                                   |
+| `68a6ab005` symlink escapes in extension path confinement                              | Security     | `extensions/sandbox/pathSafety.ts:39` — `realpathSync.native` canonicalizes both sides                                                                                                                                                           | Already present                                                                                   |
+| `5e5995b12` markdown sandbox `startsWith` bypassed by `..` segments                    | Security     | **N/A** — we have no local-file resolution; every link goes to `openExternalUrl`, which allowlists https/http/mailto/wayland and rejects `file:` (`utils/platform.ts:125`); we also strip `file://` from markdown text (`Markdown/index.tsx:50`) | Structurally impossible                                                                           |
+| `efc94e464` percent-encoded href bypasses local-file checks                            | Security     | **N/A** — same reason                                                                                                                                                                                                                            | Structurally impossible                                                                           |
+| `384265149` config migration overwrites user prefs every restart                       | Data loss    | **N/A** — Electron→Rust-backend migration only                                                                                                                                                                                                   | Out of scope                                                                                      |
+| `5f808f05b` close-to-tray ignored on custom title-bar close                            | UX           | Our bridge calls `window.close()` (`windowControlsBridge.ts:70`), which fires the `close` event intercepted at `index.ts:844-850` and hides when close-to-tray is on                                                                             | Does not reproduce — one choke point covers both paths                                            |
 
 **Result: 10 already present, 3 not applicable, 1 does not reproduce, 0 reproducing.**
 
@@ -183,25 +183,25 @@ a **deletion**, not a take — and a concrete input for WLD-I (flagged, not chas
 Unchanged from the first pass; **every row verified against our source**, and two were independently
 re-confirmed by the commit sweep (`8523ba3ac`, `68a6ab005`).
 
-| Upstream fix | PR | Our code | Verdict |
-|---|---|---|---|
-| macOS mic dead under hardened runtime | #3294 | `entitlements.plist:15` + `electron-builder.yml:289-294` | Already fixed |
-| OpenAI SDK given `api_key` not `apiKey` | #3512 | `common/api/OpenAIRotatingClient.ts:41` | Never had it |
-| `aion.storage` reachable without manifest permission | #1803 | `extensions/sandbox/permissions.ts` | Already fixed, richer model |
-| Symlink escapes in path confinement | #2087 | `extensions/sandbox/pathSafety.ts:39` | Already fixed |
-| Destructive DB recovery on transient init errors | #2571 | `services/database/index.ts:183`; quarantines to `.corrupt.<ts>` at `:194` | Already fixed, **stronger** |
-| Windows `EPERM` — driver open during recovery | #2214 | `services/database/index.ts:161` | Already fixed |
-| Scheduled tasks lost local timezone | #3056 | `services/cron/CronService.ts:616,902` | Already fixed |
-| Installer mutated registry before arch check | #3619 | `resources/windows-installer-arm64.nsh` — `.onVerifyInstDir` runs before the install section | Correct by construction |
-| Spellcheck noise in prompt inputs | #2272 | `chat/sendbox.tsx:1604` | Already fixed |
-| Tray left-click did not toggle | #3726 | `process/utils/tray.ts:217` | Already fixed |
-| No turn-complete notification when unfocused | #3715 | `services/notifications/taskCompletionNotifier.ts` (#579) | Already fixed, **stronger** — quiet hours, sound, error/finished split, and it avoids the `ai_waiting_input` spam trap |
-| Long URL overflows bubble | #3727 | `Messages/components/MessageText.tsx:344` | Already handled |
-| Overlapping scheduled runs pile up | v2.1.36 | `services/cron/CronService.ts:743` (#163) | Already fixed |
-| Per-model vision capability | #3639 | `utils/model/imageVisionGate.ts`, `modelCapabilities.ts` | Already have |
-| Image avatars for custom agents | #3667 | `AssistantSettings/AssistantAvatar.tsx` | Already have |
-| Keyboard shortcut bindings | #3675 | cmdk palette (`components/cmdk/`) | Already ahead |
-| Visual cron schedule builder | #3552 | `cron/ScheduledTasksPage/CreateTaskDialog.tsx:66` | Already have |
+| Upstream fix                                         | PR      | Our code                                                                                     | Verdict                                                                                                                |
+| ---------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| macOS mic dead under hardened runtime                | #3294   | `entitlements.plist:15` + `electron-builder.yml:289-294`                                     | Already fixed                                                                                                          |
+| OpenAI SDK given `api_key` not `apiKey`              | #3512   | `common/api/OpenAIRotatingClient.ts:41`                                                      | Never had it                                                                                                           |
+| `aion.storage` reachable without manifest permission | #1803   | `extensions/sandbox/permissions.ts`                                                          | Already fixed, richer model                                                                                            |
+| Symlink escapes in path confinement                  | #2087   | `extensions/sandbox/pathSafety.ts:39`                                                        | Already fixed                                                                                                          |
+| Destructive DB recovery on transient init errors     | #2571   | `services/database/index.ts:183`; quarantines to `.corrupt.<ts>` at `:194`                   | Already fixed, **stronger**                                                                                            |
+| Windows `EPERM` — driver open during recovery        | #2214   | `services/database/index.ts:161`                                                             | Already fixed                                                                                                          |
+| Scheduled tasks lost local timezone                  | #3056   | `services/cron/CronService.ts:616,902`                                                       | Already fixed                                                                                                          |
+| Installer mutated registry before arch check         | #3619   | `resources/windows-installer-arm64.nsh` — `.onVerifyInstDir` runs before the install section | Correct by construction                                                                                                |
+| Spellcheck noise in prompt inputs                    | #2272   | `chat/sendbox.tsx:1604`                                                                      | Already fixed                                                                                                          |
+| Tray left-click did not toggle                       | #3726   | `process/utils/tray.ts:217`                                                                  | Already fixed                                                                                                          |
+| No turn-complete notification when unfocused         | #3715   | `services/notifications/taskCompletionNotifier.ts` (#579)                                    | Already fixed, **stronger** — quiet hours, sound, error/finished split, and it avoids the `ai_waiting_input` spam trap |
+| Long URL overflows bubble                            | #3727   | `Messages/components/MessageText.tsx:344`                                                    | Already handled                                                                                                        |
+| Overlapping scheduled runs pile up                   | v2.1.36 | `services/cron/CronService.ts:743` (#163)                                                    | Already fixed                                                                                                          |
+| Per-model vision capability                          | #3639   | `utils/model/imageVisionGate.ts`, `modelCapabilities.ts`                                     | Already have                                                                                                           |
+| Image avatars for custom agents                      | #3667   | `AssistantSettings/AssistantAvatar.tsx`                                                      | Already have                                                                                                           |
+| Keyboard shortcut bindings                           | #3675   | cmdk palette (`components/cmdk/`)                                                            | Already ahead                                                                                                          |
+| Visual cron schedule builder                         | #3552   | `cron/ScheduledTasksPage/CreateTaskDialog.tsx:66`                                            | Already have                                                                                                           |
 
 Also already present from the architecture-compatible window: Mermaid preview
 (`Markdown/MermaidBlock.tsx`), reply/quote (`SelectionReplyButton`, `MessageList.tsx:626`),
@@ -224,7 +224,7 @@ confusing failure. We already guard this on Windows, so it is an asymmetry.
 `render-process-gone` by **logging only**; our sole `disable-gpu` switch
 (`process/utils/configureChromium.ts:44`) is scoped to WebUI/headless Linux and never fires on the
 desktop path. Repeated GPU crashes leave a dead window with no recovery.
-*Caveat (inferred):* upstream shipped this against real Sentry IDs; I have no crash data of our own
+_Caveat (inferred):_ upstream shipped this against real Sentry IDs; I have no crash data of our own
 confirming it bites us. Reachable in principle, unobserved in practice.
 
 **c) No configurable font sizes** (#3223). `chatFontSize|fontSize.*(chat|markdown|code)` → **zero
@@ -239,7 +239,7 @@ entry points. **We have the engine: the Concierge.** `common/chat/conciergeConfi
 propose → confirm → apply over `provider_connect`, `set_default_model`, `add_mcp`, `edit_assistant`,
 `file_bug_report`, with an explicit confirm card as the consent boundary
 (`ConciergeConfigCard.tsx`) and secret hygiene upstream never claims — the key is entered in the card
-and is *"never stored in the message, never sent to the model, never written to the chat DB."* It is
+and is _"never stored in the message, never sent to the model, never written to the chat DB."_ It is
 pinned on the launchpad (`quickLaunchAnchors.ts`) and cannot be removed.
 
 The commit sweep sharpened the real delta: upstream built a dedicated **entry-point layer** —
@@ -255,50 +255,50 @@ Four takes and one delete. The commit sweep added no new takes; it added evidenc
 deletion. Everything here needs per-file provenance treatment under WLD-I — not done or re-litigated
 here.
 
-**1. Contextual "via chat" entry points for the Concierge** — *core-aligned, best value/effort*
+**1. Contextual "via chat" entry points for the Concierge** — _core-aligned, best value/effort_
 Upstream #3446 plus the unannounced `d7f4cc1d0`/`b1f78d7a1`/`e8499a2fa`/`eeaeef90b`. We own the hard
 part; what is missing is a "set this up by chat" action beside each manual surface that jumps home,
 selects the Concierge, and pre-fills the prompt. Purest expression of "friction is the enemy" in the
 whole delta, and for us it is wiring. **ADAPT** — their trigger points, our Concierge contract.
 
-**2. macOS wrong-architecture startup guard** — *core-aligned*
+**2. macOS wrong-architecture startup guard** — _core-aligned_
 #3232. Verified absent; we already do this on Windows. Contained. **TAKE** the concept, implement
 against `app.runningUnderARM64Translation`.
 
-**3. GPU-crash self-heal** — *core-aligned*
+**3. GPU-crash self-heal** — _core-aligned_
 #2945. Count crashes, relaunch with GPU disabled. A dead window is the worst outcome for a user who
 cannot read a log. **ADAPT** — their pattern, our bootstrap.
 
-**4. Configurable font sizes** — *core-aligned, accessibility*
+**4. Configurable font sizes** — _core-aligned, accessibility_
 #3223. Independent chat / markdown / code sizes, live-applied and persisted. **TAKE** the concept
 only; their implementation is entangled with a theme rewrite we should not import.
 
-**5. DELETE `public/pet-states/` (22 files)** — *housekeeping*
+**5. DELETE `public/pet-states/` (22 files)** — _housekeeping_
 Verified zero code references; ships twice per artifact; partly byte-identical to upstream with no
 attribution. Removing it shrinks the package and removes an attribution surface. **DELETE.**
 
-*Deliberately unpadded.* 953 unannounced commits produced **zero** new features worth taking and
+_Deliberately unpadded._ 953 unannounced commits produced **zero** new features worth taking and
 **zero** reproducing bugs. That is the finding, not a gap in the search.
 
 ---
 
 ## 8. DECLINE list
 
-| Item | One-line reason |
-|---|---|
-| Desktop Pet (v1.9.8-9, #2127) | A mascot, not a capability; a second always-on-top window with its own crash surface — upstream shipped 6+ follow-up fixes (#2170, #2179, #2193, #2212, `93c576e7d`, #3777). We already have the orphaned assets and none of the code; delete rather than finish. |
-| Team-mode arc — **102 of 307 unannounced fixes** | The single largest sink of upstream effort. We have our own (`process/team/`, 45 files). Adopting theirs means abandoning ours to chase a target now built on their Rust backend. |
-| Local markdown file links opening in Preview (`b2eb762df`, #3379/#3396) | The feature that produced two path-sandbox escapes (`5e5995b12`, `efc94e464`). Our allowlist design rejects `file:` outright and is safer by construction. Taking the feature means importing the attack surface. |
-| Butler remote access via automatic Cloudflare tunnel (v2.1.20) | Putting a non-dev's local agent on the public internet through a tunnel we do not control is a liability, not a friction win. |
-| Conversation-scoped MCP (#3109) | Verified absent, but it turns one global toolset into N per-conversation toolsets — more config surface for a user who does not want to think about MCP. Our curated 110-entry catalog is the everyman answer. |
-| 18 ACP registry agents (v2.1.38) | Each needs its own product CLI on PATH: 18 new ways for a non-dev to hit "command not found." Opposite of "one system to rule them all." |
-| Project Explorer (#3763) | Still landing upstream; our workspace tree works. |
-| WeChat / WeCom / Weixin / DingTalk channels | Wrong market; we have WhatsApp/Telegram/Lark. |
-| Aion CLI (`aionrs`) / AionCore / OfficeCLI / 3D Morph PPT / Snow / Hermes-as-backend | Upstream's own product stack; we have `wayland-core`. |
-| Kimi contributor campaign (v2.1.39) | Business development, not code. |
-| Persian (fa-IR) locale (#3284) | The only locale we lack (we ship 12, they 13). RTL layout work across the app, not a translation drop. |
-| The entire post-migration adapter/ipcBridge/backend fix stream | **1,032 commits (58% of the range)** fixing glue that exists only because they split out a Rust backend. Not latent bugs in our tree. |
-| All 31 fixes verified in §3.2 and §4 | Checked against our source; already fixed, N/A, or structurally impossible. Several of ours strictly stronger. |
+| Item                                                                                 | One-line reason                                                                                                                                                                                                                                                   |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desktop Pet (v1.9.8-9, #2127)                                                        | A mascot, not a capability; a second always-on-top window with its own crash surface — upstream shipped 6+ follow-up fixes (#2170, #2179, #2193, #2212, `93c576e7d`, #3777). We already have the orphaned assets and none of the code; delete rather than finish. |
+| Team-mode arc — **102 of 307 unannounced fixes**                                     | The single largest sink of upstream effort. We have our own (`process/team/`, 45 files). Adopting theirs means abandoning ours to chase a target now built on their Rust backend.                                                                                 |
+| Local markdown file links opening in Preview (`b2eb762df`, #3379/#3396)              | The feature that produced two path-sandbox escapes (`5e5995b12`, `efc94e464`). Our allowlist design rejects `file:` outright and is safer by construction. Taking the feature means importing the attack surface.                                                 |
+| Butler remote access via automatic Cloudflare tunnel (v2.1.20)                       | Putting a non-dev's local agent on the public internet through a tunnel we do not control is a liability, not a friction win.                                                                                                                                     |
+| Conversation-scoped MCP (#3109)                                                      | Verified absent, but it turns one global toolset into N per-conversation toolsets — more config surface for a user who does not want to think about MCP. Our curated 110-entry catalog is the everyman answer.                                                    |
+| 18 ACP registry agents (v2.1.38)                                                     | Each needs its own product CLI on PATH: 18 new ways for a non-dev to hit "command not found." Opposite of "one system to rule them all."                                                                                                                          |
+| Project Explorer (#3763)                                                             | Still landing upstream; our workspace tree works.                                                                                                                                                                                                                 |
+| WeChat / WeCom / Weixin / DingTalk channels                                          | Wrong market; we have WhatsApp/Telegram/Lark.                                                                                                                                                                                                                     |
+| Aion CLI (`aionrs`) / AionCore / OfficeCLI / 3D Morph PPT / Snow / Hermes-as-backend | Upstream's own product stack; we have `wayland-core`.                                                                                                                                                                                                             |
+| Kimi contributor campaign (v2.1.39)                                                  | Business development, not code.                                                                                                                                                                                                                                   |
+| Persian (fa-IR) locale (#3284)                                                       | The only locale we lack (we ship 12, they 13). RTL layout work across the app, not a translation drop.                                                                                                                                                            |
+| The entire post-migration adapter/ipcBridge/backend fix stream                       | **1,032 commits (58% of the range)** fixing glue that exists only because they split out a Rust backend. Not latent bugs in our tree.                                                                                                                             |
+| All 31 fixes verified in §3.2 and §4                                                 | Checked against our source; already fixed, N/A, or structurally impossible. Several of ours strictly stronger.                                                                                                                                                    |
 
 ---
 
@@ -313,7 +313,7 @@ three gaps in §5; the Concierge finding in §6; the orphaned-assets finding in 
 752/1,032 pre/post-migration split via set intersection against the archive snapshot; `9aaf742be`
 introducing `pet-states` and not being an ancestor of `v1.9.5`; the disjoint-history result.
 
-**Inferred, flagged as such:** *why* our tree contains post-v1.9.5 content (later snapshot vs.
+**Inferred, flagged as such:** _why_ our tree contains post-v1.9.5 content (later snapshot vs.
 manual porting) — WLD-I's question, not answered here. That the GPU-crash class is reachable in our
 build — plausible on shared Electron surface, but I have no crash data of our own. That the
 `getFocusedWindow()` no-op in `windowControlsBridge.ts:68-71` is user-visible — reasoned from code,

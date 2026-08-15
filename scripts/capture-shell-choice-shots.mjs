@@ -107,9 +107,7 @@ async function capture(ws, name) {
   // That is deliberate: these are the only two hero images in the bundle and
   // crisp beats small. Forcing 1x would mean setDeviceMetricsOverride, which
   // resizes the real viewport and risks baking a clipped layout into the asset.
-  const size = JSON.parse(
-    await evaluate(ws, 'JSON.stringify({ w: window.innerWidth, h: window.innerHeight })')
-  );
+  const size = JSON.parse(await evaluate(ws, 'JSON.stringify({ w: window.innerWidth, h: window.innerHeight })'));
   const shot = await send(ws, 'Page.captureScreenshot', {
     format: 'png',
     clip: { x: 0, y: 0, width: size.w, height: size.h, scale: 1 },
@@ -150,7 +148,9 @@ async function main() {
   if (!audit?.rendered) throw new Error('home screen never rendered — cannot audit the capture profile');
   console.log(`greeting: ${audit.greeting}`);
   if (!audit.empty) {
-    throw new Error('capture profile has chat history — refusing to bake real conversation titles into a shipped asset');
+    throw new Error(
+      'capture profile has chat history — refusing to bake real conversation titles into a shipped asset'
+    );
   }
 
   for (const [shell, label] of [

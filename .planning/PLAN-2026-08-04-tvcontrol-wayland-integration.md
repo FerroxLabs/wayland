@@ -17,7 +17,7 @@ tooling — keep out of every commit. 76 commits local, nothing pushed.
 
 ---
 
-## W-0 — The agent cannot reach TVControl's tools  🔴🔴 MASTER-CLASS BLOCKER
+## W-0 — The agent cannot reach TVControl's tools 🔴🔴 MASTER-CLASS BLOCKER
 
 **The fix is in `wayland-core`, not Desktop.** That matters for scoping: Core is already
 being rebuilt, and this belongs in that work.
@@ -60,7 +60,7 @@ rank.
 ### INFERRED, NOT PROVEN — the snapshot is frozen before MCP servers connect
 
 `ToolSearchTool` holds a construction-time snapshot, by its own doc comment
-(`tool_search.rs:18-21`): *"Snapshot of all tool definitions (taken at construction time)."*
+(`tool_search.rs:18-21`): _"Snapshot of all tool definitions (taken at construction time)."_
 It is constructed once, during bootstrap (`bootstrap.rs:2240`). MCP servers connect after
 session start. If bootstrap precedes MCP connection, MCP tools are invisible to ToolSearch for
 the entire session — which would explain why the single-word `"TradingView"` query matched
@@ -70,7 +70,7 @@ nothing despite 22 candidates.
 shape of claim that rev 1 got wrong.
 
 **Decisive experiment — cheap, Core-side, do this first:** a unit test that builds a registry,
-constructs `ToolSearchTool`, registers an MCP-style deferred tool *afterwards*, and searches
+constructs `ToolSearchTool`, registers an MCP-style deferred tool _afterwards_, and searches
 for it by exact name. If it is not found, the snapshot is the cause and the fix is to consult
 the live registry instead of a frozen copy.
 
@@ -92,7 +92,7 @@ human.
 ### Secondary defects surfaced by the same runs
 
 - **A turn that finds no tools never completes.** Core logged `stream_end ... finish_reason:
-  'stop'` at 93s; the UI still showed "running" 1145 seconds later.
+'stop'` at 93s; the UI still showed "running" 1145 seconds later.
 - **Wayland shows "Wake your agents / connect a model provider"** in a profile with a working
   configured provider that is actively answering.
 
@@ -107,7 +107,7 @@ human.
 
 ---
 
-## W-1 — Publication fails on every toggle  🔴 BLOCKER
+## W-1 — Publication fails on every toggle 🔴 BLOCKER
 
 Two stacked defects. Fixing only the first produces a new failure that looks identical.
 
@@ -162,6 +162,7 @@ queue entirely. So the instant 1-A is fixed and publication returns normally, th
 against a row publication itself changed, `committed` stays false, and the same rollback fires.
 
 Two corollaries the plan must carry:
+
 - The row is left `enabled: true` by this self-write even though the toggle never committed —
   which is why `retainMcpPublicationReconciliation` (`useMcpConnection.ts:109-115`,
   `enabled: current?.enabled ?? false`) retains an **enabled** divergence row.

@@ -14,16 +14,16 @@ NOT verified are marked **UNVERIFIED** and say what would settle them.
 
 Measured, not assumed:
 
-| Finding | How it was proven |
-| --- | --- |
-| The IPC transport cannot carry a rejection. A provider that throws leaves the renderer's `invoke()` pending **forever**. | Executed the real `@office-ai/platform` `buildProvider` with a known-positive control: resolving provider settles, rejecting provider times out. |
-| `voiceAsset.download` had no try/catch, so every failed acquisition hung the UI at "downloading". | Same transport property + code read. Fixed in `5703b758c`. |
-| `whisper-cpp` and `onnx-runtime` entries in `voiceBinaryManifest.ts` are **fabricated**. Both URLs 404. | `curl -I` → 404. The `v1.7.1` tag does not exist (`releases/tags/v1.7.1` → 404). |
-| whisper.cpp publishes **no macOS CLI binary at all**. | GitHub releases API, latest 3 releases: only `whisper-bin-*.zip` (Windows), `whisper-bin-ubuntu-*.tar.gz`, and an `xcframework` (a library, not an executable). |
-| So `acquireBinary('whisper-cpp')` can never succeed on macOS, no matter what URL is used. | Follows from the two rows above. |
-| The renderer never calls the main-process whisper path anyway. | `transcribeAudioBlob` short-circuits `whisper-local` (and unset) to `transcribeLocally` — transformers.js in a Web Worker, no IPC. |
-| Therefore the 141 MB `ggml-base.bin` in the owner's profile is **orphaned**: it feeds a code path the renderer never reaches. | Same as above. |
-| Flux Router exposes `/v1/audio/speech`, but registers **no TTS model** and customer keys carry **no TTS alias**. | Route probe: `/v1/audio/speech` → auth_error (route exists), `/v1/audio/translations` and a fabricated path → 404 (controls). `FULL_FLUX_MODELS` in flux-router lists only `flux-voice{,-accurate,-fast}` for audio. |
+| Finding                                                                                                                       | How it was proven                                                                                                                                                                                                    |
+| ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The IPC transport cannot carry a rejection. A provider that throws leaves the renderer's `invoke()` pending **forever**.      | Executed the real `@office-ai/platform` `buildProvider` with a known-positive control: resolving provider settles, rejecting provider times out.                                                                     |
+| `voiceAsset.download` had no try/catch, so every failed acquisition hung the UI at "downloading".                             | Same transport property + code read. Fixed in `5703b758c`.                                                                                                                                                           |
+| `whisper-cpp` and `onnx-runtime` entries in `voiceBinaryManifest.ts` are **fabricated**. Both URLs 404.                       | `curl -I` → 404. The `v1.7.1` tag does not exist (`releases/tags/v1.7.1` → 404).                                                                                                                                     |
+| whisper.cpp publishes **no macOS CLI binary at all**.                                                                         | GitHub releases API, latest 3 releases: only `whisper-bin-*.zip` (Windows), `whisper-bin-ubuntu-*.tar.gz`, and an `xcframework` (a library, not an executable).                                                      |
+| So `acquireBinary('whisper-cpp')` can never succeed on macOS, no matter what URL is used.                                     | Follows from the two rows above.                                                                                                                                                                                     |
+| The renderer never calls the main-process whisper path anyway.                                                                | `transcribeAudioBlob` short-circuits `whisper-local` (and unset) to `transcribeLocally` — transformers.js in a Web Worker, no IPC.                                                                                   |
+| Therefore the 141 MB `ggml-base.bin` in the owner's profile is **orphaned**: it feeds a code path the renderer never reaches. | Same as above.                                                                                                                                                                                                       |
+| Flux Router exposes `/v1/audio/speech`, but registers **no TTS model** and customer keys carry **no TTS alias**.              | Route probe: `/v1/audio/speech` → auth_error (route exists), `/v1/audio/translations` and a fabricated path → 404 (controls). `FULL_FLUX_MODELS` in flux-router lists only `flux-voice{,-accurate,-fast}` for audio. |
 
 **The pattern:** both local providers were half-installed in the same way —
 a model was acquired, a runtime never was — and the acquisition UI treated
@@ -40,12 +40,12 @@ at first run and again whenever a credential appears or disappears.
 
 ### 1.1 Speech IN (listen)
 
-| Rung | Condition | Provider | Download |
-| --- | --- | --- | --- |
-| 1 | Flux Router connected | `flux-voice` | none |
-| 2 | OpenAI credential present | `openai` | none |
-| 3 | neither | `whisper-local` | background, machine-relative tier |
-| 4 | rung 3 still acquiring | *preparing* | in flight |
+| Rung | Condition                 | Provider        | Download                          |
+| ---- | ------------------------- | --------------- | --------------------------------- |
+| 1    | Flux Router connected     | `flux-voice`    | none                              |
+| 2    | OpenAI credential present | `openai`        | none                              |
+| 3    | neither                   | `whisper-local` | background, machine-relative tier |
+| 4    | rung 3 still acquiring    | _preparing_     | in flight                         |
 
 **There is no floor on this side.** With nothing connected and nothing
 downloaded, speech-in genuinely cannot work. That is why `preparing` and
@@ -54,11 +54,11 @@ inactive-with-a-reason rather than clickable into silence.
 
 ### 1.2 Speech OUT (speak)
 
-| Rung | Condition | Provider | Download |
-| --- | --- | --- | --- |
-| 1 | OpenAI credential present | `openai` | none |
-| 2 | otherwise | `kokoro-local` | background, ~86 MB |
-| 3 | rung 2 acquiring or failed | `system-native` | none |
+| Rung | Condition                  | Provider        | Download           |
+| ---- | -------------------------- | --------------- | ------------------ |
+| 1    | OpenAI credential present  | `openai`        | none               |
+| 2    | otherwise                  | `kokoro-local`  | background, ~86 MB |
+| 3    | rung 2 acquiring or failed | `system-native` | none               |
 
 **`system-native` is a guaranteed floor on macOS**, so speech-out should
 essentially never reach `needsSetup` there; it reaches `degraded` and says
@@ -108,11 +108,11 @@ without a prompt.
 
 ### 1.5 Credential transitions
 
-| Event | Speech in | Speech out |
-| --- | --- | --- |
-| Flux connected | re-resolve to `flux-voice`; cancel a pending Whisper download | unchanged (Flux is STT-only) |
-| OpenAI connected | re-resolve to `openai` if origin is `default` | re-resolve to `openai` if origin is `default` |
-| Credential removed | fall back down the ladder; start acquisition if the next rung is local | fall back; `system-native` covers the gap immediately |
+| Event                            | Speech in                                                                                    | Speech out                                            |
+| -------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Flux connected                   | re-resolve to `flux-voice`; cancel a pending Whisper download                                | unchanged (Flux is STT-only)                          |
+| OpenAI connected                 | re-resolve to `openai` if origin is `default`                                                | re-resolve to `openai` if origin is `default`         |
+| Credential removed               | fall back down the ladder; start acquisition if the next rung is local                       | fall back; `system-native` covers the gap immediately |
 | Credential becomes undecryptable | treated as removed, and reported as `failed` with the real reason, never as "not configured" |
 
 Cancelling a pending download when a credential arrives is the point of the
@@ -148,23 +148,23 @@ garbage-collected, not counted as progress.
 
 Verified sizes (HTTP range request, `content-range` totals):
 
-| Tier | Download | Approx. peak RSS |
-| --- | --- | --- |
-| tiny | 77.7 MB | ~0.3 GB |
-| base | 148.0 MB | ~0.4 GB |
-| small | 487.6 MB | ~0.9 GB |
-| medium | 1.53 GB | ~2.1 GB |
-| large-v3 | 3.10 GB | ~3.9 GB |
+| Tier     | Download | Approx. peak RSS |
+| -------- | -------- | ---------------- |
+| tiny     | 77.7 MB  | ~0.3 GB          |
+| base     | 148.0 MB | ~0.4 GB          |
+| small    | 487.6 MB | ~0.9 GB          |
+| medium   | 1.53 GB  | ~2.1 GB          |
+| large-v3 | 3.10 GB  | ~3.9 GB          |
 
 Policy — chosen on **total** RAM, never free RAM (free memory on this host
 read 0.1 GiB while 24 GiB was installed; macOS uses everything it can, so
 free RAM is noise), plus core count as a latency proxy:
 
-| Condition | Tier |
-| --- | --- |
-| < 8 GiB total RAM | `tiny` |
-| ≥ 8 GiB | `base` |
-| ≥ 16 GiB **and** ≥ 8 cores | `small` |
+| Condition                                | Tier    |
+| ---------------------------------------- | ------- |
+| < 8 GiB total RAM                        | `tiny`  |
+| ≥ 8 GiB                                  | `base`  |
+| ≥ 16 GiB **and** ≥ 8 cores               | `small` |
 | arm64 Apple silicon, ≥ 16 GiB, ≥ 8 cores | `small` |
 
 Justification for stopping at `small`: `medium` is a 1.5 GB background
@@ -196,13 +196,13 @@ can never disagree, a contradiction that has already bitten this repo twice
 
 ### 3.1 States
 
-| State | Meaning | Control | Clickable |
-| --- | --- | --- | --- |
-| `ready` | provider usable, all components present, credential resolvable | normal | yes |
-| `preparing` | assets acquiring in the background | inactive + progress | no |
-| `needsSetup` | nothing usable and nothing downloading | inactive | no; the hover action routes to Settings > Voice |
-| `unsupported` | cannot work on this platform or build | inactive | no |
-| `failed` | a real error occurred | inactive, cause named | no; offers Retry |
+| State         | Meaning                                                        | Control               | Clickable                                       |
+| ------------- | -------------------------------------------------------------- | --------------------- | ----------------------------------------------- |
+| `ready`       | provider usable, all components present, credential resolvable | normal                | yes                                             |
+| `preparing`   | assets acquiring in the background                             | inactive + progress   | no                                              |
+| `needsSetup`  | nothing usable and nothing downloading                         | inactive              | no; the hover action routes to Settings > Voice |
+| `unsupported` | cannot work on this platform or build                          | inactive              | no                                              |
+| `failed`      | a real error occurred                                          | inactive, cause named | no; offers Retry                                |
 
 `preparing` is a progress state and is never styled or worded as an error.
 `failed` always names the cause; "unknown" is not a permitted rendering.
@@ -237,13 +237,13 @@ Components per provider:
 
 Speech-out has a floor and speech-in does not, so the copy is not shared.
 
-| State | Speech IN (mic, voice-mode button) | Speech OUT (Test voice, auto-read) |
-| --- | --- | --- |
-| `preparing` | "Downloading the speech model in the background" + % | not reachable; `system-native` covers it |
-| `needsSetup` | "Check voice settings to enable" -> routes to Settings > Voice | macOS: not reachable. Others: "No speech voice is available on this platform" |
-| `unsupported` | "This build cannot record audio" | "Speech output is not available on this platform" |
-| `failed` | the named cause, plus Retry | the named cause, plus Retry |
-| `ready` | normal | normal |
+| State         | Speech IN (mic, voice-mode button)                             | Speech OUT (Test voice, auto-read)                                            |
+| ------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `preparing`   | "Downloading the speech model in the background" + %           | not reachable; `system-native` covers it                                      |
+| `needsSetup`  | "Check voice settings to enable" -> routes to Settings > Voice | macOS: not reachable. Others: "No speech voice is available on this platform" |
+| `unsupported` | "This build cannot record audio"                               | "Speech output is not available on this platform"                             |
+| `failed`      | the named cause, plus Retry                                    | the named cause, plus Retry                                                   |
+| `ready`       | normal                                                         | normal                                                                        |
 
 Every string needs a real i18n key in all 12 locales. The mic already has a
 "Set up dictation" route; `needsSetup` reuses it rather than inventing a
@@ -271,7 +271,7 @@ on owner sign-off of this document.**
   Component-aware readiness (§3.2). Settings tells the exact truth per
   component. Flux Voice's own form stops rendering Deepgram's fields and
   stops asking for a key it does not need. No new runtime, no new
-  dependency. *Lowest risk.*
+  dependency. _Lowest risk._
 - **Stage 3 - the affordance state machine.** `resolveVoiceLeg`, the five
   states, and all four surfaces reading it (§3). Delivers "never clickable
   into a dead end" even before any new provider exists.

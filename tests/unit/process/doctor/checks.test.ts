@@ -7,11 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import { checkProviderConnectivity, checkModelRegistrySanity } from '@process/doctor/checks/providerChecks';
 import type { ProviderRegistryReader, ConnectProbe } from '@process/doctor/checks/providerChecks';
-import {
-  checkEngineReachable,
-  checkEngineRouting,
-  checkEngineContractPin,
-} from '@process/doctor/checks/engineChecks';
+import { checkEngineReachable, checkEngineRouting, checkEngineContractPin } from '@process/doctor/checks/engineChecks';
 import { checkMcpServers } from '@process/doctor/checks/mcpChecks';
 import { checkBackends } from '@process/doctor/checks/backendChecks';
 import {

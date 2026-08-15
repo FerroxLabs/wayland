@@ -65,100 +65,92 @@ describe('K-01: real SIGKILL crash-recovery proof for the global profile splice'
     rmSync(root, { recursive: true, force: true });
   });
 
-  it(
-    'a REAL SIGKILL of the real production write path leaves a byte-identical, fresh (no-original) target after recovery',
-    async () => {
-      // Fresh dir - no pre-existing config.toml. Node.js `spawn` requires the
-      // cwd to already exist.
-      const { mkdirSync } = await import('node:fs');
-      mkdirSync(targetDir, { recursive: true });
+  it('a REAL SIGKILL of the real production write path leaves a byte-identical, fresh (no-original) target after recovery', async () => {
+    // Fresh dir - no pre-existing config.toml. Node.js `spawn` requires the
+    // cwd to already exist.
+    const { mkdirSync } = await import('node:fs');
+    mkdirSync(targetDir, { recursive: true });
 
-      const child = spawn('bun', ['--preload', ELECTRON_STUB_PRELOAD_PATH, HARNESS_PATH, targetDir, markerPath], {
-        cwd: REPO_ROOT,
-        stdio: ['ignore', 'pipe', 'pipe'],
+    const child = spawn('bun', ['--preload', ELECTRON_STUB_PRELOAD_PATH, HARNESS_PATH, targetDir, markerPath], {
+      cwd: REPO_ROOT,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stderr = '';
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+
+    try {
+      // The write is durably on disk (fsynced by atomicWriteProjectConfig)
+      // by the time the harness writes this marker.
+      await waitFor(() => existsSync(markerPath));
+      expect(existsSync(configPath), `harness did not publish config.toml; stderr: ${stderr}`).toBe(true);
+
+      const exited = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolvePromise) => {
+        child.once('exit', (code, signal) => resolvePromise({ code, signal }));
       });
-      let stderr = '';
-      child.stderr.on('data', (chunk: Buffer) => {
-        stderr += chunk.toString();
+      child.kill('SIGKILL');
+      const { signal } = await exited;
+      expect(signal).toBe('SIGKILL');
+    } finally {
+      if (!child.killed) child.kill('SIGKILL');
+    }
+
+    // The exact healing call writeGlobalMcpProfile runs at the top of
+    // every launch.
+    expect(recoverProjectConfigTransaction(configPath)).toBe('restored');
+
+    expect(existsSync(configPath)).toBe(false);
+    expect(existsSync(`${configPath}.wayland-desktop.transaction.json`)).toBe(false);
+    expect(existsSync(`${configPath}.wayland-desktop.backup`)).toBe(false);
+  }, 30000);
+
+  it('a REAL SIGKILL of the real production write path leaves a REALISTIC pre-existing global config BYTE-IDENTICAL after recovery', async () => {
+    const { mkdirSync } = await import('node:fs');
+    mkdirSync(targetDir, { recursive: true });
+    const original = [
+      '# my note - do not remove',
+      '[providers.anthropic]',
+      'base_url = "https://api.anthropic.com"',
+      '',
+    ].join('\n');
+    writeFileSync(configPath, original, 'utf-8');
+
+    const child = spawn('bun', ['--preload', ELECTRON_STUB_PRELOAD_PATH, HARNESS_PATH, targetDir, markerPath], {
+      cwd: REPO_ROOT,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stderr = '';
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+
+    try {
+      await waitFor(() => existsSync(markerPath));
+      // Confirm the harness actually spliced the profile in - proves this
+      // is a real kill of a real in-progress write, not a kill before
+      // anything happened.
+      const midFlight = readFileSync(configPath, 'utf-8');
+      expect(midFlight, `harness did not splice the profile; stderr: ${stderr}`).toContain(
+        '[profiles.__wayland_desktop_session]'
+      );
+      expect(midFlight).toContain('# my note - do not remove');
+
+      const exited = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolvePromise) => {
+        child.once('exit', (code, signal) => resolvePromise({ code, signal }));
       });
+      child.kill('SIGKILL');
+      const { signal } = await exited;
+      expect(signal).toBe('SIGKILL');
+    } finally {
+      if (!child.killed) child.kill('SIGKILL');
+    }
 
-      try {
-        // The write is durably on disk (fsynced by atomicWriteProjectConfig)
-        // by the time the harness writes this marker.
-        await waitFor(() => existsSync(markerPath));
-        expect(existsSync(configPath), `harness did not publish config.toml; stderr: ${stderr}`).toBe(true);
+    expect(recoverProjectConfigTransaction(configPath)).toBe('restored');
 
-        const exited = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolvePromise) => {
-          child.once('exit', (code, signal) => resolvePromise({ code, signal }));
-        });
-        child.kill('SIGKILL');
-        const { signal } = await exited;
-        expect(signal).toBe('SIGKILL');
-      } finally {
-        if (!child.killed) child.kill('SIGKILL');
-      }
-
-      // The exact healing call writeGlobalMcpProfile runs at the top of
-      // every launch.
-      expect(recoverProjectConfigTransaction(configPath)).toBe('restored');
-
-      expect(existsSync(configPath)).toBe(false);
-      expect(existsSync(`${configPath}.wayland-desktop.transaction.json`)).toBe(false);
-      expect(existsSync(`${configPath}.wayland-desktop.backup`)).toBe(false);
-    },
-    30000
-  );
-
-  it(
-    'a REAL SIGKILL of the real production write path leaves a REALISTIC pre-existing global config BYTE-IDENTICAL after recovery',
-    async () => {
-      const { mkdirSync } = await import('node:fs');
-      mkdirSync(targetDir, { recursive: true });
-      const original = [
-        '# my note - do not remove',
-        '[providers.anthropic]',
-        'base_url = "https://api.anthropic.com"',
-        '',
-      ].join('\n');
-      writeFileSync(configPath, original, 'utf-8');
-
-      const child = spawn('bun', ['--preload', ELECTRON_STUB_PRELOAD_PATH, HARNESS_PATH, targetDir, markerPath], {
-        cwd: REPO_ROOT,
-        stdio: ['ignore', 'pipe', 'pipe'],
-      });
-      let stderr = '';
-      child.stderr.on('data', (chunk: Buffer) => {
-        stderr += chunk.toString();
-      });
-
-      try {
-        await waitFor(() => existsSync(markerPath));
-        // Confirm the harness actually spliced the profile in - proves this
-        // is a real kill of a real in-progress write, not a kill before
-        // anything happened.
-        const midFlight = readFileSync(configPath, 'utf-8');
-        expect(midFlight, `harness did not splice the profile; stderr: ${stderr}`).toContain(
-          '[profiles.__wayland_desktop_session]'
-        );
-        expect(midFlight).toContain('# my note - do not remove');
-
-        const exited = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolvePromise) => {
-          child.once('exit', (code, signal) => resolvePromise({ code, signal }));
-        });
-        child.kill('SIGKILL');
-        const { signal } = await exited;
-        expect(signal).toBe('SIGKILL');
-      } finally {
-        if (!child.killed) child.kill('SIGKILL');
-      }
-
-      expect(recoverProjectConfigTransaction(configPath)).toBe('restored');
-
-      // PRF-06, literal: byte-identical to the pre-launch state.
-      expect(readFileSync(configPath, 'utf-8')).toBe(original);
-      expect(existsSync(`${configPath}.wayland-desktop.transaction.json`)).toBe(false);
-      expect(existsSync(`${configPath}.wayland-desktop.backup`)).toBe(false);
-    },
-    30000
-  );
+    // PRF-06, literal: byte-identical to the pre-launch state.
+    expect(readFileSync(configPath, 'utf-8')).toBe(original);
+    expect(existsSync(`${configPath}.wayland-desktop.transaction.json`)).toBe(false);
+    expect(existsSync(`${configPath}.wayland-desktop.backup`)).toBe(false);
+  }, 30000);
 });

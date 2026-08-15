@@ -92,7 +92,11 @@ export async function restoreBackupHttp(opts: {
     credentials: 'include',
     body: formData,
   });
-  const json = (await res.json().catch(() => ({}))) as { success?: boolean; msg?: string; data?: { safetyBackupPath?: string } };
+  const json = (await res.json().catch(() => ({}))) as {
+    success?: boolean;
+    msg?: string;
+    data?: { safetyBackupPath?: string };
+  };
   // Both codes mean the SAME thing here: the request was denied before it ever
   // reached the restore handler. This route emits neither itself - a genuinely
   // wrong password surfaces as a 500 with a message - so mapping 401 to

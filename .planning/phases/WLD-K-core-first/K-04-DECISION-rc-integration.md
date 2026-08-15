@@ -18,14 +18,14 @@ We are not giving RCs an attestation policy. The gap is real but it is the corre
 
 ## What is actually true today (verified by execution, not by reading)
 
-| claim | how it was established | result |
-|---|---|---|
+| claim                                                                                | how it was established                                                                                                                                                       | result            |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ---------------------- | --------- |
 | The packaged path pins the engine **in source** and cannot be steered by environment | `grep -c 'env\.WCORE_VERSION'` on `scripts/build-with-builder.js`, with a positive control proving the same method finds **1** occurrence in `scripts/prepareWaylandCore.js` | **0** — confirmed |
-| The packaged path demands a verified engine | read `scripts/build-with-builder.js:766-771` — passes `version: prepareWaylandCore.DEFAULT_WCORE_VERSION` with `requireVerified: true` | confirmed |
-| Dev/integration runs *can* select an RC | `scripts/prepareWaylandCore.js:216` resolves `process.env.WCORE_VERSION || DEFAULT_WCORE_VERSION` | confirmed |
-| Pre-release tags are refused unless explicitly opted in | `scripts/prepareWaylandCore.js:228-238` and `scripts/stage-wcore-bump.mjs:85-101` | confirmed |
-| The opt-in is off by default and says so | `WCORE_ALLOW_PRERELEASE=1` warns *"bundling PRE-RELEASE wayland-core … for INTEGRATION ONLY (never ship it)"* | confirmed |
-| The committed pin | `scripts/prepareWaylandCore.js:213` → `'v0.12.25'` | confirmed |
+| The packaged path demands a verified engine                                          | read `scripts/build-with-builder.js:766-771` — passes `version: prepareWaylandCore.DEFAULT_WCORE_VERSION` with `requireVerified: true`                                       | confirmed         |
+| Dev/integration runs _can_ select an RC                                              | `scripts/prepareWaylandCore.js:216` resolves `process.env.WCORE_VERSION                                                                                                      |                   | DEFAULT_WCORE_VERSION` | confirmed |
+| Pre-release tags are refused unless explicitly opted in                              | `scripts/prepareWaylandCore.js:228-238` and `scripts/stage-wcore-bump.mjs:85-101`                                                                                            | confirmed         |
+| The opt-in is off by default and says so                                             | `WCORE_ALLOW_PRERELEASE=1` warns _"bundling PRE-RELEASE wayland-core … for INTEGRATION ONLY (never ship it)"_                                                                | confirmed         |
+| The committed pin                                                                    | `scripts/prepareWaylandCore.js:213` → `'v0.12.25'`                                                                                                                           | confirmed         |
 
 > **Method note.** The first attempt at row 1 counted the bare substring `WCORE_VERSION` and returned
 > **1**, which read as "the packaged path does consult the environment". That match was inside
@@ -44,7 +44,7 @@ was extracted, copied or executed. Loosening that to admit release candidates wo
 
 An RC exists precisely because it has not finished its own verification. Putting one inside an
 artifact that carries our signature inverts the meaning of the signature. **No shipping deadline is
-worth that trade**, and the cost of *not* making it is small: dev-mode RC validation catches engine
+worth that trade**, and the cost of _not_ making it is small: dev-mode RC validation catches engine
 regressions perfectly well, which is exactly how the 0.12.26-rc.2 acceptance was run.
 
 ## What we give up, stated plainly

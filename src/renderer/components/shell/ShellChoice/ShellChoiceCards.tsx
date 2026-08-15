@@ -69,7 +69,11 @@ const ShellChoiceCards: React.FC<ShellChoiceCardsProps> = ({ value, onChange, bu
   const { t } = useTranslation();
 
   return (
-    <div className={styles.grid} role='radiogroup' aria-label={t('shellChoice.groupLabel', { defaultValue: 'Interface layout' })}>
+    <div
+      className={styles.grid}
+      role='radiogroup'
+      aria-label={t('shellChoice.groupLabel', { defaultValue: 'Interface layout' })}
+    >
       {CARDS.map((card) => {
         const selected = value === card.shell;
         const title = t(card.titleKey, { defaultValue: card.titleFallback });

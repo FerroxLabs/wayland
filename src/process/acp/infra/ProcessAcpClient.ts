@@ -548,7 +548,8 @@ export class ProcessAcpClient implements AcpClient {
     if (error instanceof AgentStartupError || error instanceof AgentSpawnError) return error;
 
     const isConnectionClosed =
-      error instanceof AgentDisconnectedError || (error instanceof Error && /acp connection closed/i.test(error.message));
+      error instanceof AgentDisconnectedError ||
+      (error instanceof Error && /acp connection closed/i.test(error.message));
     if (!isConnectionClosed) return error;
 
     // Brief wait for exit event to capture exit code

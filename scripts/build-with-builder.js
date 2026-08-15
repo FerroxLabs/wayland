@@ -20,7 +20,11 @@ const prepareOfficeCli = require('./prepareOfficeCli');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
-const { isLocalVerificationDirBuild, findDistributableArtifacts, isUnpackedOutputDir } = require('./localVerificationGate');
+const {
+  isLocalVerificationDirBuild,
+  findDistributableArtifacts,
+  isUnpackedOutputDir,
+} = require('./localVerificationGate');
 const {
   VOICE_MODEL_FILES,
   resolvePackagedTarget,

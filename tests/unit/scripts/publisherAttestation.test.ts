@@ -14,9 +14,11 @@ const {
 
 // Derived, never re-typed: the release-acceptance gate requires exactly ONE
 // active policy, so hard-coding a tag here breaks the day the engine is bumped.
-const ACTIVE = readPolicy().policies.find(
-  (entry: { status: string }) => entry.status === 'active'
-) as { releaseTag: string; signerWorkflow: string; sourceDigest: string };
+const ACTIVE = readPolicy().policies.find((entry: { status: string }) => entry.status === 'active') as {
+  releaseTag: string;
+  signerWorkflow: string;
+  sourceDigest: string;
+};
 
 const roots: string[] = [];
 afterEach(() => {

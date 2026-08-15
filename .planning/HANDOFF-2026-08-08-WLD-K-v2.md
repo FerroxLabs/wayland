@@ -5,6 +5,7 @@ head **`425b596d7`**, in sync with `ferrox`. Full suite **16,301 passed, 0 faile
 **Nothing merged, nothing tagged, no PR.** Only `AGENTS.md` is dirty (permanent, never staged).
 
 **Read in this order**
+
 1. this file — state and the work list
 2. `phases/WLD-K-core-first/L-1-RESULT-2.md` — what live running actually proved
 3. `HANDOFF-TO-CORE-2026-08-08-v0.12.26-host-findings.md` — C-1…C-4, Sean's to send
@@ -23,7 +24,7 @@ server at runtime and Core connects it (`Connected to 'wayland-team-guide': 2 to
 sees those tools by name (`ToolSearch("aion")` → `aion_create_team`, `aion_list_models`) · builtin
 tools execute (`Bash` → Success) · provider errors render in the chat.
 
-**NOT proven — do not claim either:** an MCP tool's own *body* executing, and per-chat connector
+**NOT proven — do not claim either:** an MCP tool's own _body_ executing, and per-chat connector
 selection. Only the auto-published team-guide server was ever exercised.
 
 ### The eleven commits
@@ -61,7 +62,8 @@ deliberate opt-in.
 
 Each item states what "done" means so it can be handed to an agent without re-deriving scope.
 
-### W-1 — Why does the model never invoke a discovered MCP tool?  **✅ ANSWERED — see `phases/WLD-K-core-first/W-1-RESULT.md`**
+### W-1 — Why does the model never invoke a discovered MCP tool? **✅ ANSWERED — see `phases/WLD-K-core-first/W-1-RESULT.md`**
+
 **Root cause is Core's, and it is `ToolSearch` matching, not the deferred-tool design.**
 `tool_search.rs:120-123` requires **every whitespace token** of the query to be a literal substring
 of the tool name or description. A query containing the tool's EXACT name still misses if any other
@@ -76,7 +78,8 @@ and Gemini models, verified by a witness file the tool itself writes.
 Filed to Core as **C-5** (top of the summary table). Remaining on our side: a cheap usage-guidance
 prompt so the model searches by one distinctive keyword — raises the match rate without waiting.
 
-### W-1a — Autopilot wedge  **✅ WITHDRAWN — not a defect, I was wrong**
+### W-1a — Autopilot wedge **✅ WITHDRAWN — not a defect, I was wrong**
+
 I reported this as blocking MCP invocation. It is a **false alarm in the log line**, nothing more.
 The `turn may wedge` line fires 5 times in the live log and **4 of the 5 are followed within ~70ms
 by `[Bash success] Exit code: 0`** — the tool ran every time (verified with `grep -A2`). The turn
@@ -84,20 +87,24 @@ that skipped the MCP tool called `Bash` instead: a model choice, not a block.
 Residual nit: silence or correct the alarm, since a warning that never comes true trains people to
 ignore it. Not a blocker, no packet needed.
 
-### W-1b — A failed bootstrap is never retried  **✅ FIXED `c967368e3`**
+### W-1b — A failed bootstrap is never retried **✅ FIXED `c967368e3`**
+
 After one `refused to start`, later turns replayed the identical cached error — same sentinel path,
 same PID, 95s apart, with **no second `(start) failed` line between them**, so nothing respawned.
 `startError` had one writer and no reset. `sendMessage` now retries once per turn via
 `ensureBootstrap()`; guards cover a surviving agent identity, a retained profile lease, and
 teardown. Negative control run both directions.
 
-### W-2 — Per-chat connector selection on 0.12.26  **[S · untested]**
+### W-2 — Per-chat connector selection on 0.12.26 **[S · untested]**
+
 Only the auto-published `wayland-team-guide` was ever exercised. A user-selected connector
 (`wayland-search-skills` is enabled in the test profile) has never reached the pool on this engine.
-*Done when:* a connector chosen in the composer produces its tools in that chat and not in another.
+_Done when:_ a connector chosen in the composer produces its tools in that chat and not in another.
 
-### W-3 — L-2…L-6, the rest of live verification  **[M · all outstanding]**
+### W-3 — L-2…L-6, the rest of live verification **[M · all outstanding]**
+
 From `phases/WLD-K-core-first/LIVE-VERIFY.md`, none run on 0.12.26:
+
 - **L-2** crash safety: SIGKILL mid-launch, global `config.toml` byte-identical after
 - **L-3** concurrent launches with different connector selections, no cross-chat tool leakage
 - **L-4** settings write during launch (the accepted O-1 residual)
@@ -106,26 +113,30 @@ From `phases/WLD-K-core-first/LIVE-VERIFY.md`, none run on 0.12.26:
 - **L-6** honest failure surfacing **plus the secret-leak check**: put an API-key-shaped string where
   the engine will echo it to stderr, force a failure, confirm no fragment reaches UI, logs or the
   renderer console
-*Done when:* each has a recorded result, pass or fail, in `LIVE-VERIFY.md`.
+  _Done when:_ each has a recorded result, pass or fail, in `LIVE-VERIFY.md`.
 
-### W-4 — Is K-01's profile splice still NECESSARY?  **[S · decision, then possibly L]**
-Core 0.12.26 now scopes runtime MCP to the assistant automatically. If Desktop passed a *per-chat*
+### W-4 — Is K-01's profile splice still NECESSARY? **[S · decision, then possibly L]**
+
+Core 0.12.26 now scopes runtime MCP to the assistant automatically. If Desktop passed a _per-chat_
 assistant identity, that scoping may already deliver the per-chat narrowing the global-profile splice
 was invented for. K-01 is correct and shipped either way — this is only about whether it can retire.
 **Blocked on Core answering C-2 question 1.** Do not rework K-01 before that answer.
 
-### W-5 — O-1 / O-2 lock unification  **[M · deferred with sign-off]**
+### W-5 — O-1 / O-2 lock unification **[M · deferred with sign-off]**
+
 `configBridge` writes the same global `config.toml` under an unrelated `writeLock`. The damaging
 branch is closed (it refuses to persist the ephemeral table); unifying the locks needs its own packet
 because of ABBA risk. Tracked in `K-01-CROSSAUDIT.md`.
 
-### W-6 — K-05a / K-05b / K-06  **[L each · not started]**
+### W-6 — K-05a / K-05b / K-06 **[L each · not started]**
+
 Agent installer (npm subset first), non-npm channels, then Flux fan-out. Needs all three OSes:
 `seandesktop` 100.109.207.54 (Windows) · `wayland-soak` 100.81.158.63 (Linux, Ubuntu 24.04).
 `hetzner-dsm` 95.216.244.213 is a DIFFERENT project. Hard constraint on K-06: API key + base URL
 only, **never Claude subscription OAuth** (standing hard NO, ToS).
 
-### W-7 — Send Core the handoff  **[Sean's action, not an agent's]**
+### W-7 — Send Core the handoff **[Sean's action, not an agent's]**
+
 `HANDOFF-TO-CORE-2026-08-08-v0.12.26-host-findings.md` (C-1…C-4) plus the earlier ENG-01…03 file.
 No duplicates in Core's 15 open issues; their #183 is related to C-3.
 

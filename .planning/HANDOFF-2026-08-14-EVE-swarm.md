@@ -34,7 +34,7 @@ The collateral is real and must ride along: `StorageService.ts` maps 403 →
 restore is mislabelled either way, and flipping the middleware alone just swaps one
 wrong label for another.
 
-**Second, smaller call:** the settings id `tools` is ambiguous *in the product* —
+**Second, smaller call:** the settings id `tools` is ambiguous _in the product_ —
 `SettingsSider` LEGACY_ANCHOR_REMAP says `mcp-library`, `Router.tsx:183` says
 `capabilities?tab=tools`. I took `mcp-library` (the live IA) for the smoke sweeps.
 Someone should pick, because the product currently contradicts itself.
@@ -92,7 +92,7 @@ forever with no error. All four handlers now resolve with `action: 'failed'`.
 
 **`f98b36979`** — two e2e helper bugs that failed 30 specs before they ran.
 `deleteConversation` waited for the batch-delete button status while performing a
-single delete (15 specs, all in *cleanup*, after their real assertions passed).
+single delete (15 specs, all in _cleanup_, after their real assertions passed).
 `fetchCsrfTicket` matched the CSRF **body field** name against the Set-Cookie header
 (15 specs, threw before issuing any request).
 

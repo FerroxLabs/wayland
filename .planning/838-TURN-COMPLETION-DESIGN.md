@@ -8,14 +8,14 @@ the evidence, and the two questions — so it is one sitting's work once answere
 
 `ConversationTurnCompletionService.getInstance().notifyPotentialCompletion` appears:
 
-| manager | calls |
-|---|---|
-| `AcpAgentManager` | 2 |
-| `WCoreManager` | 1 |
-| `GeminiAgentManager` | **0** |
-| `NanoBotAgentManager` | **0** |
+| manager                | calls |
+| ---------------------- | ----- |
+| `AcpAgentManager`      | 2     |
+| `WCoreManager`         | 1     |
+| `GeminiAgentManager`   | **0** |
+| `NanoBotAgentManager`  | **0** |
 | `OpenClawAgentManager` | **0** |
-| `RemoteAgentManager` | **0** |
+| `RemoteAgentManager`   | **0** |
 
 Those four call `getCostRecorder().recordTurnFinish` for accounting but never emit
 `conversation.turn.completed` (the emit is `ConversationTurnCompletionService.ts:106`). So on four
@@ -69,7 +69,7 @@ be done deliberately rather than at the end of a long session.
 
 **1. On a failed, aborted or disconnected turn, should an AUTO workflow park or advance?**
 Today: parks (via watchdog). My recommendation: keep parking, and emit nothing on those paths. The
-alternative — thread `state: 'error'` so the run parks *immediately* rather than after 30 minutes —
+alternative — thread `state: 'error'` so the run parks _immediately_ rather than after 30 minutes —
 is better UX but a behaviour change on the workflow path, so it wants your sign-off.
 
 **2. This turns on a new OS notification stream on four backends.** The issue asks for exactly this

@@ -11,7 +11,7 @@
 
 import path from 'path';
 import { test, expect, type Page } from '../fixtures';
-import { invokeBridge, navigateTo, expandTeamsAccordion} from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion } from '../helpers';
 
 const NAME_PREFIX = 'E2E ModalLifecycle';
 const FIXTURES_DIR = path.resolve(__dirname, '../fixtures/team-imports');
@@ -191,7 +191,10 @@ test.describe('Team modal lifecycle (adversarial)', () => {
     await expect(page.locator('[data-testid="capability-review-modal"]')).toBeVisible({ timeout: 10_000 });
 
     // Click backdrop during 5s cool-off.
-    await page.locator('.arco-modal-mask').click({ position: { x: 5, y: 5 }, force: true }).catch(() => undefined);
+    await page
+      .locator('.arco-modal-mask')
+      .click({ position: { x: 5, y: 5 }, force: true })
+      .catch(() => undefined);
     await page.waitForTimeout(500);
 
     // Document the actual behavior. Whether the modal closes or stays open
@@ -207,7 +210,10 @@ test.describe('Team modal lifecycle (adversarial)', () => {
       .isVisible()
       .catch(() => false);
     if (modalStillOpen) {
-      await page.locator('[data-testid="capability-review-cancel"]').click().catch(() => undefined);
+      await page
+        .locator('[data-testid="capability-review-cancel"]')
+        .click()
+        .catch(() => undefined);
     }
   });
 

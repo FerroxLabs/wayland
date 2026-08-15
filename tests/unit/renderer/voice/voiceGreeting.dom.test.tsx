@@ -113,10 +113,13 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
  * to a real translated sentence is translating it for real.
  */
 const readKey = (key: string): unknown =>
-  key.split('.').reduce<unknown>((node, segment) => {
-    if (typeof node !== 'object' || node === null) return undefined;
-    return (node as Record<string, unknown>)[segment];
-  }, enUS as Record<string, unknown>);
+  key.split('.').reduce<unknown>(
+    (node, segment) => {
+      if (typeof node !== 'object' || node === null) return undefined;
+      return (node as Record<string, unknown>)[segment];
+    },
+    enUS as Record<string, unknown>
+  );
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -161,7 +164,13 @@ type FakeSource = {
 
 const speechBuffer = () => {
   const samples = new Float32Array(4000).fill(0.5);
-  return { numberOfChannels: 1, sampleRate: 8000, length: samples.length, duration: 0.5, getChannelData: () => samples };
+  return {
+    numberOfChannels: 1,
+    sampleRate: 8000,
+    length: samples.length,
+    duration: 0.5,
+    getChannelData: () => samples,
+  };
 };
 
 const contexts: GreetingAudioContext[] = [];

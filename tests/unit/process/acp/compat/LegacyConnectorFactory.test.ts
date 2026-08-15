@@ -101,11 +101,9 @@ describe('LegacyConnectorFactory', () => {
       // dropped config.env, so a flux-routed claude spawn never received
       // ANTHROPIC_BASE_URL / CLAUDE_CONFIG_DIR and the bridge hit native Anthropic.
       const child = makeFakeChild();
-      mocks.connectClaude.mockImplementation(
-        async (_cwd: string, hooks: { setup: (r: unknown) => Promise<void> }) => {
-          await hooks.setup({ child, isDetached: true });
-        }
-      );
+      mocks.connectClaude.mockImplementation(async (_cwd: string, hooks: { setup: (r: unknown) => Promise<void> }) => {
+        await hooks.setup({ child, isDetached: true });
+      });
       const env = {
         ANTHROPIC_BASE_URL: 'https://api.fluxrouter.ai/anthropic',
         ANTHROPIC_MODEL: 'flux-auto',

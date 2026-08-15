@@ -7,8 +7,8 @@ user-visible symptom as expected-but-unproven.
 
 ## Why this was investigated
 
-The unbuilt "set this up by chat" packet carried one blocking precondition: *does the
-`[Scheduling (CRITICAL)]` block reach Concierge's system prompt?* The plan verified only
+The unbuilt "set this up by chat" packet carried one blocking precondition: _does the
+`[Scheduling (CRITICAL)]` block reach Concierge's system prompt?_ The plan verified only
 `prepareFirstMessageWithSkillsIndex`, but `WCoreManager` calls a different builder.
 
 **The precondition resolves NO.** The packet must not ship as planned — the button would render a
@@ -18,11 +18,11 @@ independently of the button, which matters far more than the button did.
 
 ## The three prompt paths diverge
 
-| backend | builder | `[Scheduling (CRITICAL)]` | `[Skills Location]` paths | `[LOAD_SKILL:]` intercepted |
-|---|---|---|---|---|
-| ACP (Claude / Codex / OpenCode) | `prepareFirstMessageWithSkillsIndex` (`agentUtils.ts:615`) | **yes** (`:664-672`) | yes (`:651-662`) | n/a — reads files directly |
-| Gemini | `buildSystemInstructionsWithSkillsIndex` (`agentUtils.ts:728`) | **no** | no | yes (`GeminiAgentManager.ts:1301`) |
-| **WCore (Concierge default)** | `buildSystemInstructionsWithSkillsIndex` (`agentUtils.ts:728`) | **no** | no | **no** |
+| backend                         | builder                                                        | `[Scheduling (CRITICAL)]` | `[Skills Location]` paths | `[LOAD_SKILL:]` intercepted        |
+| ------------------------------- | -------------------------------------------------------------- | ------------------------- | ------------------------- | ---------------------------------- |
+| ACP (Claude / Codex / OpenCode) | `prepareFirstMessageWithSkillsIndex` (`agentUtils.ts:615`)     | **yes** (`:664-672`)      | yes (`:651-662`)          | n/a — reads files directly         |
+| Gemini                          | `buildSystemInstructionsWithSkillsIndex` (`agentUtils.ts:728`) | **no**                    | no                        | yes (`GeminiAgentManager.ts:1301`) |
+| **WCore (Concierge default)**   | `buildSystemInstructionsWithSkillsIndex` (`agentUtils.ts:728`) | **no**                    | no                        | **no**                             |
 
 `WCoreManager.ts:555` calls `buildSystemInstructionsWithSkillsIndex`. That function pushes only
 `indexText`, the team guide, the capabilities manifest, connector guidance and the workflow
@@ -36,7 +36,7 @@ correct block it would work. It has no way to learn the format:
 
 1. **The always-on index gives it one line.** `buildSkillsIndexText`
    (`AcpSkillManager.ts:566-577`) emits `- cron: Scheduled task management - propose, query,
-   update scheduled tasks...`. The `[CRON_PROPOSE]` block format — required fields, mandatory
+update scheduled tasks...`. The `[CRON_PROPOSE]` block format — required fields, mandatory
    closing tag (`_builtin/cron/SKILL.md:14`) — is nowhere in that line.
 2. **The advertised retrieval mechanism is dead on this path.** That same index text tells the
    model to output `[LOAD_SKILL: skill-name]`. `detectSkillLoadRequest` is imported and called
@@ -52,13 +52,13 @@ correct block it would work. It has no way to learn the format:
    searchable set at all.
    A cross-auditor ran the actual BM25 query for "schedule this every day at 9am": it ranked
    `travel-day-optimizer`, `daily-planning` and `time-blocking` top, with `cron-scheduler` not even
-   in the top six. So the library is not merely the *wrong* router for this intent — it is not a
+   in the top six. So the library is not merely the _wrong_ router for this intent — it is not a
    reliable router for it either.
 4. **The search tool surfaces the WRONG cron skill.** `wayland_search_skills` /
    `wayland_read_skill` read `SkillLibrary` (`searchSkillsServer.ts:120,210`), which is the
    2112-skill library — a different store from `resources/skills/_builtin/`. The library's only
-   cron entry is `software-engineering/cron-scheduler`, described as *"crontab syntax, systemd
-   timers, overlap prevention with flock…"*. That is generic OS crontab expertise.
+   cron entry is `software-engineering/cron-scheduler`, described as _"crontab syntax, systemd
+   timers, overlap prevention with flock…"_. That is generic OS crontab expertise.
 
 Point 4 is the sharp end. The `[Scheduling (CRITICAL)]` block exists precisely to stop the model
 using "cron daemons, external schedulers" that "create disconnected schedules the user can't see
@@ -91,7 +91,7 @@ be verified by the live test directly. The structural gap should be filed separa
 Both legs agreed the conclusion holds. Three claims in the first draft were wrong and are
 corrected above or here:
 
-- **The `alwaysOn` skip is not the WCore mechanism** — see hop 3. It *is* a real latent trap on
+- **The `alwaysOn` skip is not the WCore mechanism** — see hop 3. It _is_ a real latent trap on
   **Gemini**, which does pass `alwaysOnNames` and also receives only the index, never the bodies:
   there, an always-on skill's body is excluded from auto-load while never having been injected, so
   the model holds the name and none of the instructions. Worth filing separately.

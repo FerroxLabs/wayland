@@ -1,9 +1,9 @@
 # W-1 — why the model never invoked a discovered MCP tool
 
 **ROOT CAUSE FOUND, and it is Core's.** `ToolSearch` is not a semantic search. It is an
-**ALL-tokens literal substring match**, so a natural-language query that *contains the tool's
-exact name* still returns "no match" if any other word in it is absent from the name or
-description. The model rephrases — usually with *more* words — matches even less, and loops.
+**ALL-tokens literal substring match**, so a natural-language query that _contains the tool's
+exact name_ still returns "no match" if any other word in it is absent from the name or
+description. The model rephrases — usually with _more_ words — matches even less, and loops.
 
 The mechanism is not a model failure, not Desktop's publication path, and not the contract.
 **MCP tools do execute end to end on released v0.12.26** once the search matches.
@@ -85,11 +85,11 @@ body. That is the failure mode the `status` string was written for; it is real b
 Driving the released binary directly over `--json-stream`, Desktop removed entirely, with a
 one-tool stdio MCP server whose body appends to a witness file on every call:
 
-| # | path | model | discovered | **body executed** | sentinel in reply |
-|---|---|---|---|---|---|
-| A | config-declared, `deferred` default | `flux-fast` | yes | **yes** | yes |
-| B | config-declared, same | `flux-pinned-gemini-3-flash` | yes | **yes** | yes |
-| C | **runtime `add_mcp_server`** (Desktop's real path) | `flux-fast` | yes | **yes** | yes |
+| #   | path                                               | model                        | discovered | **body executed** | sentinel in reply |
+| --- | -------------------------------------------------- | ---------------------------- | ---------- | ----------------- | ----------------- |
+| A   | config-declared, `deferred` default                | `flux-fast`                  | yes        | **yes**           | yes               |
+| B   | config-declared, same                              | `flux-pinned-gemini-3-flash` | yes        | **yes**           | yes               |
+| C   | **runtime `add_mcp_server`** (Desktop's real path) | `flux-fast`                  | yes        | **yes**           | yes               |
 
 Run A's full user-visible reply: `The probe code is **PROBE-OK-8842**.` The witness file
 independently recorded `CALL wld_probe_secret` — the body ran; the model did not fabricate it.
@@ -109,7 +109,7 @@ This rules out: the deferred-tool design (all runs used `deferred` default true)
 
 - **W-1a — NOT A DEFECT. My earlier claim was wrong.** I reported that the Autopilot approval
   wedge blocked MCP invocation. It does not. The line `approval_required reason='exec' in auto
-  mode has no resume token and no HITL UI; turn may wedge` appears 5 times in the live log, and
+mode has no resume token and no HITL UI; turn may wedge` appears 5 times in the live log, and
   **4 of the 5 are followed within ~70ms by `[Bash success] Exit code: 0`** — the tool ran every
   time. Verified independently with `grep -A2`, not taken from the analysis that raised it.
   The turn that skipped `aion_list_models` called `Bash` instead: a model choice, not a block.
@@ -122,18 +122,18 @@ as a durable error tip instead of a silent spinner.
 ## The mitigation, measured live
 
 Shipped in `3227332a2`: when a session publishes an MCP server, Desktop injects one instruction
-telling the model to search with a single distinctive keyword, retry *shorter* never longer, and
+telling the model to search with a single distinctive keyword, retry _shorter_ never longer, and
 call the tool by name once matched. Placed before the user's own preset rules; skipped only when the
 session has no MCP tools at all. Sent on resume too (`442b91e4e`): it travels over `init_history`
 and is never persisted to our DB, so a resumed chat gets a fresh engine with no guidance otherwise.
 
 Same profile, same connector, same ask, before and after:
 
-| | before | after |
-|---|---|---|
-| ToolSearch calls | 28 in one session (captured log) | **2–5** |
-| "No deferred tools matching" | 19 of 28 | **0 — both matched** |
-| turn duration | 136s, then died | **16s** |
+|                              | before                           | after                |
+| ---------------------------- | -------------------------------- | -------------------- |
+| ToolSearch calls             | 28 in one session (captured log) | **2–5**              |
+| "No deferred tools matching" | 19 of 28                         | **0 — both matched** |
+| turn duration                | 136s, then died                  | **16s**              |
 
 The matching failure is gone. **The MCP tool still does not execute in the packaged app**, and the
 remaining cause is Core's, not ours — the second half of C-5.

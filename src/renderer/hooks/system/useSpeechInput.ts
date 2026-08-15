@@ -394,19 +394,19 @@ export const useSpeechInput = ({
     }
   }, []);
 
-  const readAnalyserRms = useCallback((
-    analyser: AnalyserNode | null,
-    data: Uint8Array<ArrayBuffer> | null
-  ): number | null => {
-    if (!analyser || !data) return null;
-    analyser.getByteTimeDomainData(data);
-    let sum = 0;
-    for (const sample of data) {
-      const normalized = (sample - 128) / 128;
-      sum += normalized * normalized;
-    }
-    return Math.sqrt(sum / data.length);
-  }, []);
+  const readAnalyserRms = useCallback(
+    (analyser: AnalyserNode | null, data: Uint8Array<ArrayBuffer> | null): number | null => {
+      if (!analyser || !data) return null;
+      analyser.getByteTimeDomainData(data);
+      let sum = 0;
+      for (const sample of data) {
+        const normalized = (sample - 128) / 128;
+        sum += normalized * normalized;
+      }
+      return Math.sqrt(sum / data.length);
+    },
+    []
+  );
 
   /**
    * One tick of the endpointing detector, driven by the waveform interval that

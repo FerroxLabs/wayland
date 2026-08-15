@@ -13,15 +13,15 @@ Supersedes `HANDOFF-2026-08-14-NIGHT-resume.md` (still worth reading for the ear
 
 ## 0. Verified state right now
 
-| Thing | State |
-|---|---|
-| `tsc --noEmit` | **clean, exit 0** [V] |
-| Unit suite | **17,620+ passing, 0 real failures** [V] — see the trap in §1 |
-| Packaged build | succeeds; `out/` rebuilt 00:53 and matches HEAD [V] |
-| Core engine pin | `DEFAULT_WCORE_VERSION = 'v0.13.0'`, and **v0.13.0 IS now tagged** on wayland-core [V] — the blocker carried in memory is CLEARED |
-| Desktop version | `0.11.18` — not yet bumped for a release |
-| vs `ferrox/main` | **420 commits ahead, 0 behind, NO PR open** [V] |
-| Working tree | clean except the two by-design files (§7) |
+| Thing            | State                                                                                                                             |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `tsc --noEmit`   | **clean, exit 0** [V]                                                                                                             |
+| Unit suite       | **17,620+ passing, 0 real failures** [V] — see the trap in §1                                                                     |
+| Packaged build   | succeeds; `out/` rebuilt 00:53 and matches HEAD [V]                                                                               |
+| Core engine pin  | `DEFAULT_WCORE_VERSION = 'v0.13.0'`, and **v0.13.0 IS now tagged** on wayland-core [V] — the blocker carried in memory is CLEARED |
+| Desktop version  | `0.11.18` — not yet bumped for a release                                                                                          |
+| vs `ferrox/main` | **420 commits ahead, 0 behind, NO PR open** [V]                                                                                   |
+| Working tree     | clean except the two by-design files (§7)                                                                                         |
 
 ---
 
@@ -57,6 +57,7 @@ left that way by the preceding case, `refresh during BuildMyOwn flow`, which cal
 `page.reload()` while a BuildMyOwn suggest is in flight.
 
 Captured by probe at the failure point [V]:
+
 ```
 PROBE_STUCK={"hash":"#/teams","bodyLen":2207,
   "head":"Something went wrong | An unexpected error occurred. | Reload this view",
@@ -222,7 +223,7 @@ Read-only agents may run in parallel; **all WRITES stay serial and by hand**.
 3. Take Sean's calls on the three items in §2.3.
 4. Mop up §3 (guid interception, cron, redteam, cowork, bubble) as time allows.
 5. Longer-term, and the reason this whole class exists: **`tests/**` is never typechecked**
-   (`tsconfig.json` `include` is `src/**`) and **CI runs exactly ONE e2e spec**
+(`tsconfig.json` `include`is`src/**`) and **CI runs exactly ONE e2e spec\*\*
    (`pr-checks.yml:845`). That is how a testid that exists nowhere, counts of 24/5/19
    against a live 60/7/53, and four stacked layers of selector drift all survived. Fixing
    individual specs treats symptoms.

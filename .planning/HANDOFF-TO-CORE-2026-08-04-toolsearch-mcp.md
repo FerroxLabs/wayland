@@ -86,7 +86,7 @@ valid candidates, which Defect 1 alone does not explain.
 **Note the apparent contradiction we cannot resolve from outside.**
 `bootstrap.rs:249-260` documents the deferred-MCP limitations and states:
 
-> *"Late tool REGISTRATION is fully supported; late skill/hook binding is not."*
+> _"Late tool REGISTRATION is fully supported; late skill/hook binding is not."_
 
 Both can be true at once: the **registry** may accept late tools correctly while
 `ToolSearchTool`'s independent copy does not. Someone who owns this code will know in minutes
@@ -104,7 +104,8 @@ Both belong in `crates/wcore-tools`, which builds without the full Core tree
 (`cargo test -p wcore-tools`).
 
 **Test A — the decisive one.** Build a registry, construct `ToolSearchTool`, register a
-deferred MCP-style tool *afterwards*, then search for it **by exact name**.
+deferred MCP-style tool _afterwards_, then search for it **by exact name**.
+
 - If it is **not** found → Defect 2 is real. Fix: consult the live registry rather than a
   construction-time copy, or rebuild the snapshot when tools register.
 - If it **is** found → Defect 2 is dead, Defect 1 is the whole story, and the fix is much

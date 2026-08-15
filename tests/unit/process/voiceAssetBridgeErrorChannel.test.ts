@@ -71,7 +71,13 @@ describe('voiceAsset.download reports failure as data', () => {
   });
 
   it('KNOWN POSITIVE: a successful download still resolves with its result', async () => {
-    download.mockResolvedValue({ assetId: ASSET.id, destPath: '/d/m.bin', cached: false, bytesWritten: 10, sha256: 'a' });
+    download.mockResolvedValue({
+      assetId: ASSET.id,
+      destPath: '/d/m.bin',
+      cached: false,
+      bytesWritten: 10,
+      sha256: 'a',
+    });
     const outcome = await invokeDownload();
     expect(outcome.ok).toBe(true);
     expect(outcome.result).toMatchObject({ assetId: 'whisper-ggml-base', bytesWritten: 10 });

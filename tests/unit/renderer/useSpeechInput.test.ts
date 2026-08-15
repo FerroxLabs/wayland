@@ -661,9 +661,7 @@ describe('useSpeechInput', () => {
       });
 
       const onBargeIn = vi.fn();
-      const { result } = renderHook(() =>
-        useSpeechInput({ locale: 'en-US', onTranscript: vi.fn(), onBargeIn })
-      );
+      const { result } = renderHook(() => useSpeechInput({ locale: 'en-US', onTranscript: vi.fn(), onBargeIn }));
 
       await act(async () => {
         await result.current.startMonitoring();

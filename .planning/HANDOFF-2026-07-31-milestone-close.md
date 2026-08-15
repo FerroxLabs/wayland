@@ -21,24 +21,24 @@ uncommitted deliberately across this whole arc.
 
 ### Licence compliance — the milestone's centre of gravity, now done
 
-**812 files carry the joint notice.** The rebrand had *substituted* upstream's line rather than
+**812 files carry the joint notice.** The rebrand had _substituted_ upstream's line rather than
 supplementing it (`git grep "Copyright.*AionUi" -- src` returned 0), which is the DMCA §1202 fact
 pattern, not mere omission.
 
 Scope was evidence-led, never blanket:
 
-| | |
-|---|---|
-| 742 | AUTO tier (≥50% retained) — upstream provably had a notice → restored |
-| 70 | REVIEW tier, credited on the expression test below |
-| 492 + 61 | upstream had **no** notice → nothing owed, untouched |
-| 17 | de minimis → left Ferrox-only |
-| 13 | already carried Google LLC (gemini-cli lineage) → untouched |
+|          |                                                                       |
+| -------- | --------------------------------------------------------------------- |
+| 742      | AUTO tier (≥50% retained) — upstream provably had a notice → restored |
+| 70       | REVIEW tier, credited on the expression test below                    |
+| 492 + 61 | upstream had **no** notice → nothing owed, untouched                  |
+| 17       | de minimis → left Ferrox-only                                         |
+| 13       | already carried Google LLC (gemini-cli lineage) → untouched           |
 
 **The REVIEW adjudication is the part worth understanding.** Percentage is the wrong instrument:
-`fileTypes.ts` scored 20% off *one* shared line (the file has five substantive lines), and
+`fileTypes.ts` scored 20% off _one_ shared line (the file has five substantive lines), and
 identifier overlap is noise below ~55% because a Ferrox-**original** shares ~45% of identifiers
-with an *unrelated* upstream file. So the measure became **shared expression lines** — substantive
+with an _unrelated_ upstream file. So the measure became **shared expression lines** — substantive
 lines minus imports, re-exports and bare type openers. Validated at the boundary: `export.ts`
 scores 64.5% on identifiers while sharing exactly one re-export line; `cronBridge.ts` shares 20
 lines that are all imports and IPC boilerplate. Cut at 5 lines (de minimis).
@@ -54,16 +54,16 @@ declared members; Zed is Rust vs our TS interface declaration).
 
 ### Code fixes
 
-| commit | what |
-|---|---|
-| `fd28d33d7` | **Marker spoof was a NO-OP on 11 of 24 channels** including Matrix — denylist → allowlist |
-| `9b39e0e16` | ACP live attachments restored; gated so a model reply can't smuggle a `files` field |
-| `49a814224` | Classifier models kept out of the chat picker (`context ≤1024 && !tools`, fails open) |
+| commit      | what                                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------------ |
+| `fd28d33d7` | **Marker spoof was a NO-OP on 11 of 24 channels** including Matrix — denylist → allowlist                          |
+| `9b39e0e16` | ACP live attachments restored; gated so a model reply can't smuggle a `files` field                                |
+| `49a814224` | Classifier models kept out of the chat picker (`context ≤1024 && !tools`, fails open)                              |
 | `d19f14c09` | Scheduling directive reaches WCore; `[LOAD_SKILL:]` only advertised where handled; safeguard models un-recommended |
-| `fe732f350` | Post-connect reload bounded on desktop — the Flux "Connecting…" hang, all providers |
-| `0622717d0` | Cherry Studio: dropped the inherited token selection the first rewrite kept |
-| `59a957e5f` | Bug-report fixture given the `platform` field its type requires |
-| `d4a03908b` | About screen: AGPL Appropriate Legal Notices + "Contact Me" → "Contact Us" (9 locales) |
+| `fe732f350` | Post-connect reload bounded on desktop — the Flux "Connecting…" hang, all providers                                |
+| `0622717d0` | Cherry Studio: dropped the inherited token selection the first rewrite kept                                        |
+| `59a957e5f` | Bug-report fixture given the `platform` field its type requires                                                    |
+| `d4a03908b` | About screen: AGPL Appropriate Legal Notices + "Contact Me" → "Contact Us" (9 locales)                             |
 
 ## ⚠️ Traps that each cost a wrong verdict — do not relearn these
 
@@ -77,7 +77,7 @@ declared members; Zed is Rust vs our TS interface declaration).
 - **`rtk` summarises `npx tsc`.** Use `rtk proxy npx tsc` when you need raw errors — e.g. for a
   negative control. A "clean" result may be rtk's summary, not tsc's.
 - **Always run a negative control.** Six separate times this session a test only proved something
-  because it *failed* with the fix reverted. A security test that passes on the vulnerable code is
+  because it _failed_ with the fix reverted. A security test that passes on the vulnerable code is
   worthless.
 - **One run per side is not a bisect.** I concluded the Curator change broke `WorkflowDetailModal`;
   three further runs showed 12/12 passing. It is timing-flaky.
@@ -93,6 +93,7 @@ bun run package                       # THEN:
 node scripts/build-mcp-servers.js     # vite wipes out/main; order matters or the MCP canary fails
 WAYLAND_MULTI_INSTANCE=1 WAYLAND_DEV_PROFILE=<name> ./node_modules/.bin/electron out/main/index.js
 ```
+
 The app **ignores `--remote-debugging-port`** and picks its own (`[CDP] Remote debugging port: 9231`).
 Driver: scratchpad `cdp.mjs` (`ws` must be imported by absolute path — NODE_PATH doesn't work for
 ESM). Menus need real `Input.dispatchMouseEvent`, not synthetic `.click()`.
@@ -106,8 +107,8 @@ observed in the running app, not inferred.
 
 **Item 5, "set this up by chat", is DONE and needs no further build.** On a Wayland Core
 conversation, "remind me to check the build every day at 9am" produced a `[CRON_PROPOSE]` card,
-"Yes, schedule" committed it, and it appears in Scheduled Tasks as *Check build · Active · Every
-day at 09:00 · `0 9 * * *` · next run 8/1/2026 · Ongoing conversation*. Natural language to a
+"Yes, schedule" committed it, and it appears in Scheduled Tasks as _Check build · Active · Every
+day at 09:00 · `0 9 _ \* _` · next run 8/1/2026 · Ongoing conversation_. Natural language to a
 persisted active cron task, on the backend where this was previously dead.
 
 **Item 6 was NOT fixed by the Curator change, and now is** (`ff202c275`). The default really was

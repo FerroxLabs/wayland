@@ -14,13 +14,13 @@ the opposite one: trying to beat OpenClaw at being OpenClaw.
 
 ## 1. What we are actually up against
 
-| | Scale | What it is |
-|---|---|---|
-| `openclaw/openclaw` | **385,769 stars** | "Your own personal AI assistant. Any OS. Any Platform." |
-| `VoltAgent/awesome-openclaw-skills` | 51,868 stars | **5,400+ community skills** |
-| `hesamsheikh/awesome-openclaw-usecases` | 31,669 stars | community use-case collection |
-| `xai-org/grok-build` | 24,577 stars | xAI's coding agent harness + TUI |
-| `MoonshotAI/kimi-cli` / `kimi-code` | 11,151 / 6,269 | Kimi Code (see §4) |
+|                                         | Scale             | What it is                                              |
+| --------------------------------------- | ----------------- | ------------------------------------------------------- |
+| `openclaw/openclaw`                     | **385,769 stars** | "Your own personal AI assistant. Any OS. Any Platform." |
+| `VoltAgent/awesome-openclaw-skills`     | 51,868 stars      | **5,400+ community skills**                             |
+| `hesamsheikh/awesome-openclaw-usecases` | 31,669 stars      | community use-case collection                           |
+| `xai-org/grok-build`                    | 24,577 stars      | xAI's coding agent harness + TUI                        |
+| `MoonshotAI/kimi-cli` / `kimi-code`     | 11,151 / 6,269    | Kimi Code (see §4)                                      |
 
 OpenClaw started the agentic hype cycle and has an enormous head start. That head
 start is not closable by building harder, and we should stop framing anything as
@@ -64,20 +64,20 @@ on a shelf next to seventeen alternatives.
   `auggie`, `droid`, `copilot`, `cursor`, `vibe`, `kiro`
 - unset — no compatibility claimed: `kimi`, `codebuddy`, `snow`, `custom`
 
-**Policy:** invest install effort in `env`/`setup` first. Be *compatible* with
+**Policy:** invest install effort in `env`/`setup` first. Be _compatible_ with
 `vendor` agents but build their channels last — they cost the most and return no
 revenue. Breadth still matters for the pitch, so `vendor` is "later", not "never".
 
 ## 4. The six, with evidence
 
-| # | Agent | Flux | Channel | Mechanic |
-|---|---|---|---|---|
-| 1 | **Claude Code** | `env` | npm, **postinstall required** | tarball + checksum |
-| 2 | **Codex** | `setup` | already `npx @openai/codex` | config only, no install |
-| 3 | **Kimi Code** | unset — **check it** | `@moonshot-ai/kimi-code@0.34.0`, **no postinstall** | npm, clean |
-| 4 | **OpenCode** | `setup` | npm, postinstall required | tarball + checksum |
-| 5 | **Goose** | `env` | GitHub / Homebrew | tarball + checksum |
-| 6 | **Grok Build** | `vendor` | `curl https://x.ai/cli/install.sh \| bash` | see §5 — do LAST |
+| #   | Agent           | Flux                 | Channel                                             | Mechanic                |
+| --- | --------------- | -------------------- | --------------------------------------------------- | ----------------------- |
+| 1   | **Claude Code** | `env`                | npm, **postinstall required**                       | tarball + checksum      |
+| 2   | **Codex**       | `setup`              | already `npx @openai/codex`                         | config only, no install |
+| 3   | **Kimi Code**   | unset — **check it** | `@moonshot-ai/kimi-code@0.34.0`, **no postinstall** | npm, clean              |
+| 4   | **OpenCode**    | `setup`              | npm, postinstall required                           | tarball + checksum      |
+| 5   | **Goose**       | `env`                | GitHub / Homebrew                                   | tarball + checksum      |
+| 6   | **Grok Build**  | `vendor`             | `curl https://x.ai/cli/install.sh \| bash`          | see §5 — do LAST        |
 
 **Dropped:** Gemini (we already supply a Gemini agent), Qwen (low real-world
 usage per Sean), auggie (`authMethods: []`, needs `auggie login` in a terminal —
@@ -85,10 +85,11 @@ can never satisfy "and a chat runs on it"), Copilot (`vendor`, 339 MB unpacked,
 GitHub OAuth only).
 
 ### Kimi Code supersedes Kimi CLI — verified three ways
-- the local binary's own help: *"Run **kimi-code** as an Agent Client Protocol
-  (ACP) server over stdio"*, and it answers `kimi acp`, matching our declared
+
+- the local binary's own help: _"Run **kimi-code** as an Agent Client Protocol
+  (ACP) server over stdio"_, and it answers `kimi acp`, matching our declared
   `acpArgs: ['acp']`
-- PyPI `kimi-cli` 1.49.0 describes itself as *"**Kimi Code** CLI"*
+- PyPI `kimi-cli` 1.49.0 describes itself as _"**Kimi Code** CLI"_
 - `MoonshotAI/kimi-code` created 2026-05-22, pushed 2026-08-10; `kimi-cli`
   created 2025-10-15. Newer repo, more active. Neither archived.
 
@@ -98,12 +99,13 @@ GitHub OAuth only).
 which would make it earn.
 
 ### ⚠️ Package identity — three traps, all confirmed live
-- npm **`kimi-cli`** = *"Quickly generate the project's front-end tools"* —
+
+- npm **`kimi-cli`** = _"Quickly generate the project's front-end tools"_ —
   completely unrelated package.
 - npm **`kimi-code`** and npm **`grok-cli`** are both by publisher
-  `whitesmith`, both *"starts anthropic-proxy with … and runs claude-code"* —
+  `whitesmith`, both _"starts anthropic-proxy with … and runs claude-code"_ —
   third-party proxy wrappers, not the products. A pattern, not a coincidence.
-- npm **`hermes-agent`** = ***unofficial*** bridge, and it has a `postinstall`.
+- npm **`hermes-agent`** = **_unofficial_** bridge, and it has a `postinstall`.
 
 **Never pin by plausible name. Resolve the vendor's own channel first.**
 
@@ -184,7 +186,7 @@ pre-verification. **Install Codex properly.**
 ## C2 — OpenClaw is CHANNEL BREADTH, not skills. (Sean's correction, confirmed)
 
 npm `openclaw@2026.7.1-2`, described by its own authors as
-*"Multi-channel AI gateway with extensible messaging integrations."* Bin
+_"Multi-channel AI gateway with extensible messaging integrations."_ Bin
 `openclaw`, scripts are dev/tui/lint/test — **no postinstall**, installs clean.
 
 The earlier "their moat is 5,400 skills" framing was wrong. Skills are an
@@ -210,7 +212,8 @@ The npm `hermes-agent` I flagged as blocking is an unofficial third-party bridge
 - `ChatGptButton.tsx` and `XGrokButton.tsx` in Models settings
 
 **Keep the two layers distinct:**
-- **Provider-level OAuth** (exists): logs *Wayland* into ChatGPT/Grok so
+
+- **Provider-level OAuth** (exists): logs _Wayland_ into ChatGPT/Grok so
   Wayland's own chat uses those models on the user's subscription.
 - **Agent-level login** (the better shape for installed agents): the agent runs
   its OWN `codex login` / `claude login` / `grok login` in our PTY.
@@ -219,12 +222,12 @@ They are not redundant and neither replaces the other.
 
 ## Revised install matrix — eight agents, four mechanics
 
-| Mechanic | Agents | Note |
-|---|---|---|
-| **A** npm + `--ignore-scripts` | **Codex, Kimi Code, OpenClaw** | all three verified postinstall-free |
-| **B** tarball + pinned checksum | Claude Code, OpenCode, Goose | postinstall required / non-npm |
-| **C** PyPI + uv | Hermes | official channel |
-| **D** sandboxed vendor script | Grok Build | `vendor`, earns no Flux — build LAST |
+| Mechanic                        | Agents                         | Note                                 |
+| ------------------------------- | ------------------------------ | ------------------------------------ |
+| **A** npm + `--ignore-scripts`  | **Codex, Kimi Code, OpenClaw** | all three verified postinstall-free  |
+| **B** tarball + pinned checksum | Claude Code, OpenCode, Goose   | postinstall required / non-npm       |
+| **C** PyPI + uv                 | Hermes                         | official channel                     |
+| **D** sandboxed vendor script   | Grok Build                     | `vendor`, earns no Flux — build LAST |
 
 ## Auth design — host it, never implement it
 

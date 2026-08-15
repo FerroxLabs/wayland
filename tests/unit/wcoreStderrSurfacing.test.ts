@@ -992,7 +992,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(err.message).toContain('Core emitted malformed JSON');
   });
 
-  it('DIA-02: an exit-path bail naming Desktop\'s own reserved profile is hedged as a stripped-config inference', async () => {
+  it("DIA-02: an exit-path bail naming Desktop's own reserved profile is hedged as a stripped-config inference", async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
 

@@ -27,9 +27,13 @@ function seedNeverPrompted(dir: string): void {
   const configDir = path.join(dir, 'config');
   fs.mkdirSync(configDir, { recursive: true });
   const json = JSON.stringify({ onboardingCompleted: true });
-  fs.writeFileSync(path.join(configDir, 'wayland-config.txt'), Buffer.from(encodeURIComponent(json), 'utf8').toString('base64'), {
-    mode: 0o600,
-  });
+  fs.writeFileSync(
+    path.join(configDir, 'wayland-config.txt'),
+    Buffer.from(encodeURIComponent(json), 'utf8').toString('base64'),
+    {
+      mode: 0o600,
+    }
+  );
 }
 
 function readConfig(dir: string): Record<string, unknown> {
@@ -92,9 +96,7 @@ test.describe.serial('Classic/Cockpit one-time prompt', () => {
       timeout: 15_000,
     });
 
-    await expect
-      .poll(() => readConfig(userDataDir)['ui.shellChoicePrompted'], { timeout: 15_000 })
-      .toBe(true);
+    await expect.poll(() => readConfig(userDataDir)['ui.shellChoicePrompted'], { timeout: 15_000 }).toBe(true);
     expect(readConfig(userDataDir)['ui.shell']).toBe('cockpit');
   });
 

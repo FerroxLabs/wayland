@@ -2,8 +2,8 @@
 
 **Created 2026-08-08. Deadline pressure: Master Class in ~3 weeks.**
 
-**North star for this milestone:** the Master Class demonstrates *Wayland
-architecture* — Wayland Desktop driving Wayland Core. Claude Code as the backend is
+**North star for this milestone:** the Master Class demonstrates _Wayland
+architecture_ — Wayland Desktop driving Wayland Core. Claude Code as the backend is
 a fallback we can live with, not the story we are telling. Everything here exists to
 make Wayland Core the path a non-technical user actually succeeds on.
 
@@ -11,17 +11,17 @@ make Wayland Core the path a non-technical user actually succeeds on.
 
 ## Where we actually are (verified, 2026-08-08)
 
-| fact | status |
-|---|---|
-| TVControl 2.2.2 | published; installs from the Library; 101 tools; **exonerated** |
-| W-0 (ToolSearch cannot see MCP tools) | **FIXED** in Core rc.2, verified standalone end to end |
-| Desktop + Wayland Core on 0.12.25 | works: engine boots, MCP connects, ToolSearch runs, tools callable |
-| Desktop + Wayland Core on 0.12.26-rc.2 | **BROKEN** — every turn dies at bootstrap |
-| Root cause | Core 0.12.26 strips authority-expanding *project* config from an untrusted workspace; Desktop writes its launch profile there |
-| `--trust-workspace` workaround | **rejected** — clears the profile error, then fails on symlinked skills; reverted in `3ebacf41c` |
-| **The real fix** | write the launch profile into the **global** config instead. Verified: symlinks present, no trust flag, `Connected: 101 tools` + completed turn |
-| v0.12.26 **stable** | **not published.** GitHub newest = `v0.12.26-rc.2` (pre-release); npm `latest` = 0.12.25 |
-| Unpushed | **97 commits**, single machine, no remote |
+| fact                                   | status                                                                                                                                          |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| TVControl 2.2.2                        | published; installs from the Library; 101 tools; **exonerated**                                                                                 |
+| W-0 (ToolSearch cannot see MCP tools)  | **FIXED** in Core rc.2, verified standalone end to end                                                                                          |
+| Desktop + Wayland Core on 0.12.25      | works: engine boots, MCP connects, ToolSearch runs, tools callable                                                                              |
+| Desktop + Wayland Core on 0.12.26-rc.2 | **BROKEN** — every turn dies at bootstrap                                                                                                       |
+| Root cause                             | Core 0.12.26 strips authority-expanding _project_ config from an untrusted workspace; Desktop writes its launch profile there                   |
+| `--trust-workspace` workaround         | **rejected** — clears the profile error, then fails on symlinked skills; reverted in `3ebacf41c`                                                |
+| **The real fix**                       | write the launch profile into the **global** config instead. Verified: symlinks present, no trust flag, `Connected: 101 tools` + completed turn |
+| v0.12.26 **stable**                    | **not published.** GitHub newest = `v0.12.26-rc.2` (pre-release); npm `latest` = 0.12.25                                                        |
+| Unpushed                               | **97 commits**, single machine, no remote                                                                                                       |
 
 ---
 
@@ -36,7 +36,7 @@ with `fseventsd` at 8.6 GB.
 
 ---
 
-## K-1 — Move the launch profile out of the project config *(the milestone's spine)*
+## K-1 — Move the launch profile out of the project config _(the milestone's spine)_
 
 **Problem.** `WCoreAgent` writes `.wayland-core.toml` into the per-chat workspace
 containing `[profiles.__wayland_desktop_session]`, then passes `--profile`. Core
@@ -51,10 +51,11 @@ profile (`envBuilder.ts:407-425`, `index.ts:497-507`).
 trust flag → `[mcp] Connected to 'tvcontrol': 101 tools`, turn completes.
 
 **This is not a workaround.** It is where launch-local, app-owned configuration
-belongs. The project file is for *project* config; Desktop's per-conversation MCP
+belongs. The project file is for _project_ config; Desktop's per-conversation MCP
 narrowing is neither project-scoped nor user-authored.
 
 **Design constraints:**
+
 - **Transactional.** For the `default` profile, `resolveActiveConfigDir()` resolves
   to the user's real `~/Library/Application Support/wayland-core`. A launch-local
   block must be journalled and restored exactly as `ProjectConfigTransaction` does
@@ -114,7 +115,7 @@ assistant text and asserts the UI leaves the running state.
 
 `stage-wcore-bump.mjs` and `prepareWaylandCore.js` both refuse pre-release tags
 (fixed behind an opt-in, `958099009`), and `build-with-builder.js:766` deliberately
-ignores `WCORE_VERSION` with `requireVerified: true`, so a *packaged* build can never
+ignores `WCORE_VERSION` with `requireVerified: true`, so a _packaged_ build can never
 carry an RC. That last part is correct and stays.
 
 **Remaining gap:** we cannot produce a signed, packaged build against an RC, so RC
@@ -126,7 +127,7 @@ bundled for internal verification builds.
 
 ---
 
-## K-5 — Agent Installer *(the new capability)*
+## K-5 — Agent Installer _(the new capability)_
 
 **Verified starting point:** `AgentRegistry` already detects **18** agents on a real
 machine — Wayland Core, Gemini CLI, Claude Code, Codex, Grok Build, Qwen Code, Goose,
@@ -141,6 +142,7 @@ Target set (Sean's list): Claude Code, Codex, Grok Build, Kimi Code, OpenCode, H
 Agent, OpenClaw.
 
 **Design constraints — these are what make it shippable rather than dangerous:**
+
 - **Never `curl | sh`.** Install through the package manager the tool actually
   publishes to, with a **pinned version and a verified checksum**, same posture as the
   bundled engine. If a tool only offers a shell installer, it does not ship in v1.
@@ -159,7 +161,7 @@ detected, and a chat runs on it. Uninstall returns the machine to its prior stat
 
 ---
 
-## K-6 — Flux fan-out *(the actual advantage)*
+## K-6 — Flux fan-out _(the actual advantage)_
 
 **This is the moat, not the installer.** Installing an agent is convenience.
 Installing an agent that can immediately drive Kimi K3, GPT-5, Gemini and everything
@@ -178,6 +180,7 @@ per-agent config files for MCP (`ClaudeMcpAgent`, `CodexMcpAgent`, `GeminiMcpAge
 so the write-into-someone-else's-config pattern exists and is tested.
 
 **Hard constraints:**
+
 - **API key + base URL only. Never Claude subscription OAuth** — standing hard NO on
   ToS grounds. This feature must not touch subscription auth on any agent.
 - **Never write a key into a file we do not own without saying so.** The user must

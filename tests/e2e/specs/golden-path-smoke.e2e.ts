@@ -23,7 +23,7 @@
  */
 
 import { test, expect } from '../fixtures';
-import { invokeBridge, navigateTo, expandTeamsAccordion} from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion } from '../helpers';
 
 const LAUNCHER_ID = 'builtin-cold-outbound';
 
@@ -102,9 +102,9 @@ test.describe('Golden path smoke - Cold Outbound', () => {
 
     const row = sidebarEntry.locator(
       // SiderItem's root is `h-26px ... group ...` now, not h-40px. Match the
-    // `group` CLASS TOKEN exactly - a bare contains() also matches
-    // `group-hover:text-1` on an inner div, which has no menu trigger.
-    'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
+      // `group` CLASS TOKEN exactly - a bare contains() also matches
+      // `group-hover:text-1` on an inner div, which has no menu trigger.
+      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
     );
     await row.hover();
     const threeDot = row.locator('span.flex-center.cursor-pointer').last();

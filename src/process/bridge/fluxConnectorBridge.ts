@@ -113,10 +113,7 @@ export async function handleSetupOpencode(): Promise<OpencodeSetupResult> {
  * Resolving with `action: 'failed'` puts the reason in the changes list the
  * modal already renders, and costs no new i18n key.
  */
-async function reportOnThrow(
-  tool: string,
-  run: () => Promise<FluxConnectorReport>
-): Promise<FluxConnectorReport> {
+async function reportOnThrow(tool: string, run: () => Promise<FluxConnectorReport>): Promise<FluxConnectorReport> {
   try {
     return await run();
   } catch (err) {

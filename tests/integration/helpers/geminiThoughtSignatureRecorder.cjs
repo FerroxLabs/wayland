@@ -66,10 +66,7 @@ const server = http.createServer((req, res) => {
     } catch {
       /* record it raw below */
     }
-    fs.appendFileSync(
-      REQ_LOG,
-      `${JSON.stringify({ turn, method: req.method, url: req.url, body: parsed ?? body })}\n`
-    );
+    fs.appendFileSync(REQ_LOG, `${JSON.stringify({ turn, method: req.method, url: req.url, body: parsed ?? body })}\n`);
     // eslint-disable-next-line no-console
     console.error(`[recorder] turn ${turn} ${req.method} ${req.url} (${body.length} bytes)`);
 

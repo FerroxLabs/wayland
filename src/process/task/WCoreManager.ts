@@ -152,10 +152,8 @@ export class WCoreApprovalStore extends BaseApprovalStore<WCoreApprovalKey> {
  * empty rules string has said something, and must not be silently overridden by
  * a stale value on the other key.
  */
-export const resolveWCorePresetRules = (data: {
-  presetRules?: string;
-  presetContext?: string;
-}): string | undefined => data.presetRules ?? data.presetContext;
+export const resolveWCorePresetRules = (data: { presetRules?: string; presetContext?: string }): string | undefined =>
+  data.presetRules ?? data.presetContext;
 
 type WCoreManagerData = {
   workspace: string;
@@ -454,8 +452,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // caller regardless of origin - more robust than sniffing for `cronMeta`,
     // which would miss other automatic paths.
     const now = Date.now();
-    const withinCooldown =
-      this.bootstrapRetries > 0 && now - this.lastBootstrapAttemptAt < BOOTSTRAP_RETRY_COOLDOWN_MS;
+    const withinCooldown = this.bootstrapRetries > 0 && now - this.lastBootstrapAttemptAt < BOOTSTRAP_RETRY_COOLDOWN_MS;
 
     const canRetry =
       !withinCooldown &&

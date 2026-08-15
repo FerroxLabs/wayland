@@ -6,8 +6,8 @@
 
 ## 1. Headline: your acceptance criterion is cleared
 
-The bar neither lane had met — *"one prompt in a fresh conversation causes the MCP
-tool to actually execute"* — is met on the rc.2 binary.
+The bar neither lane had met — _"one prompt in a fresh conversation causes the MCP
+tool to actually execute"_ — is met on the rc.2 binary.
 
 ```
 [mcp] Connected to 'tvcontrol': 101 tools, resources=false
@@ -22,7 +22,7 @@ tool to actually execute"* — is met on the rc.2 binary.
 ```
 
 Then, separately, the write path — the exact thing that failed in the original
-report, where *"the chart never moved"*:
+report, where _"the chart never moved"_:
 
 ```
 > chart_set_symbol({"symbol":"NASDAQ:TSLA"})
@@ -50,9 +50,9 @@ callability signal was the better explanation, as you said.
 
 ## 2. Your credential blocker — reproduced, then diagnosed
 
-You wrote that three routes all refused with *"No API key found"* and that it was
-*"either a harness misconfiguration or a real defect, and we are not asserting
-which."*
+You wrote that three routes all refused with _"No API key found"_ and that it was
+_"either a harness misconfiguration or a real defect, and we are not asserting
+which."_
 
 **It is a real defect, and it is a consequence of your own 0.12.26 breaking change.**
 
@@ -97,13 +97,13 @@ by several providers.
 
 But `flux-router` is a first-class provider everywhere else:
 
-| fact | location |
-|---|---|
-| `ProviderType::FluxRouter => "flux-router"` | `config.rs:1807` |
-| `"flux-router" \| "flux" => Some(ProviderType::FluxRouter)` | `config.rs:2969` |
-| config key `providers.flux-router.api_key` | `config.rs:3559` |
-| listed in the provider help string | `config.rs:3005` |
-| default base URL reachable with empty `base_url` | `egress/defaults.rs:192-206` |
+| fact                                                        | location                     |
+| ----------------------------------------------------------- | ---------------------------- |
+| `ProviderType::FluxRouter => "flux-router"`                 | `config.rs:1807`             |
+| `"flux-router" \| "flux" => Some(ProviderType::FluxRouter)` | `config.rs:2969`             |
+| config key `providers.flux-router.api_key`                  | `config.rs:3559`             |
+| listed in the provider help string                          | `config.rs:3005`             |
+| default base URL reachable with empty `base_url`            | `egress/defaults.rs:192-206` |
 
 So the `auth` CLI's allowlist is out of sync with `ProviderType`. Given Flux is the
 routing layer, this is the provider users are most likely to add.
@@ -184,7 +184,7 @@ when AND returns empty, so a long query degrades instead of failing.
    `tool_proxy.rs` registers at `:274` and refreshes at `:292`, guarded on having
    registered something. Your call-site table holds. Defect 2 is properly refuted.
 3. Your Test A's sentinel detail — asserting on `starts_with("No deferred tools
-   matching")` rather than absence of the tool name, because the miss message echoes
+matching")` rather than absence of the tool name, because the miss message echoes
    the query back — is a genuine trap we would have fallen into. Adopted.
 
 ---
@@ -219,18 +219,18 @@ also explains the original empty-tools report.
 
 ## 6. Scoreboard, updated
 
-| claim | status |
-|---|---|
-| Defect 1 — substring match | FIXED (your Test B in tree) |
-| Defect 2 — frozen snapshot | REFUTED (your Test A in tree, verified by us) |
-| Callability signal | FIXED — **observed working live** |
-| MCP connects + tool registers | PROVEN on rc.2 |
-| **Acceptance: prompt → MCP tool executes** | **PASSED — read AND write, chart physically moved** |
-| Credential routing on a keyless host | **DEFECT — plaintext fallback removal, `-k` is the only route** |
-| `auth add flux-router` | **DEFECT (D-1)** |
-| project-scope `[mcp.servers.*]` | **DEFECT (D-2) — highest priority** |
-| `-p` without `-m` | DEFECT (D-3) |
-| Desktop bundling of an RC | blocked on our side, not yours |
+| claim                                      | status                                                          |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| Defect 1 — substring match                 | FIXED (your Test B in tree)                                     |
+| Defect 2 — frozen snapshot                 | REFUTED (your Test A in tree, verified by us)                   |
+| Callability signal                         | FIXED — **observed working live**                               |
+| MCP connects + tool registers              | PROVEN on rc.2                                                  |
+| **Acceptance: prompt → MCP tool executes** | **PASSED — read AND write, chart physically moved**             |
+| Credential routing on a keyless host       | **DEFECT — plaintext fallback removal, `-k` is the only route** |
+| `auth add flux-router`                     | **DEFECT (D-1)**                                                |
+| project-scope `[mcp.servers.*]`            | **DEFECT (D-2) — highest priority**                             |
+| `-p` without `-m`                          | DEFECT (D-3)                                                    |
+| Desktop bundling of an RC                  | blocked on our side, not yours                                  |
 
 W-0 is closed from our end. TVControl 2.2.2 is published and is the version to test
 against — 2.2.1 could not be launched by `npx` at all (its `bin` pointed at the CLI,

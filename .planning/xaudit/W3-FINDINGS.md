@@ -122,8 +122,8 @@ and the badge asserts something untrue.
 Pinning also costs nothing here: F-1 already forces a TVControl 2.2.2 release, so the
 entry has to change anyway. Pin it to the release that gets verified.
 
-*(The 17 peers using `latest` are a separate, pre-existing question. None of them, as far
-as this audit went, ship a dormant arbitrary-JS tool.)*
+_(The 17 peers using `latest` are a separate, pre-existing question. None of them, as far
+as this audit went, ship a dormant arbitrary-JS tool.)_
 
 ## F-1c (MEDIUM, from Codex) - external agents receive literal `npx`, which the probe never tested
 
@@ -146,7 +146,7 @@ Recommend: track as its own packet. Do not fold into W-3.
 ## F-1d (MEDIUM, from Codex) - "green" means process-reachable, not TradingView-controllable
 
 Even after F-1 is fixed, the probe only proves the MCP process answered. If the user
-skipped the guide and TradingView is running *without* the debugging port, the server
+skipped the guide and TradingView is running _without_ the debugging port, the server
 still starts, the Library still goes green, and the first chart request fails.
 
 This is inherent to the schema - there is no readiness-check field - so it is a
@@ -168,9 +168,9 @@ Production parses guide frontmatter at `useMcpLibrary.ts:127` with
 The test therefore reads the file through a parser the app never uses, and cannot detect
 a frontmatter change that production would type differently.
 
-*(Raised independently by Gemini. Note the security hook that fired on `yaml.load()` is a
+_(Raised independently by Gemini. Note the security hook that fired on `yaml.load()` is a
 false positive here - js-yaml is 4.1.1, where `load` IS the safe parser and `safeLoad` no
-longer exists. The real issue is schema fidelity, not safety.)*
+longer exists. The real issue is schema fidelity, not safety.)_
 
 **Fix:** pass `{ schema: yaml.FAILSAFE_SCHEMA }` in the test.
 
@@ -184,10 +184,10 @@ Measured across all 108 ranked entries: ranks run 1..203 and **140 is the catalo
 duplicate value** - TVControl and Jam.dev now share it, giving those two an undefined
 relative order in the Library list.
 
-*(Gemini flagged this field but its reasoning was wrong - it assumed ranks were a dense
+_(Gemini flagged this field but its reasoning was wrong - it assumed ranks were a dense
 1..108 ordinal and concluded 140 was fabricated and would bury the entry at the bottom.
 Ranks reach 203, so 140 is mid-table and the placement is fine. The real defect is the
-collision, which Gemini did not identify.)*
+collision, which Gemini did not identify.)_
 
 **Fix:** pick an unused rank.
 
@@ -205,7 +205,7 @@ connector via npx/bun, the package lands in a hidden cache
 (`~/.npm/_npx/<hash>/`, `~/.bun/install/cache/`) that a non-technical user has no way to
 locate.
 
-*(Raised by Gemini.)*
+_(Raised by Gemini.)_
 
 **Fix:** inline the actual PowerShell one-liner for Store installs, or drop the sentence.
 
@@ -219,8 +219,8 @@ locate.
 top-level `guide.body`** - the markdown below the frontmatter. Verified: the only `.body`
 consumer in `McpLibrary/` is `step.body`.
 
-So everything in the prose section is invisible in the product: *"It can change your
-chart"*, *"it does not place orders"*, and the entire `ui_evaluate` paragraph.
+So everything in the prose section is invisible in the product: _"It can change your
+chart"_, _"it does not place orders"_, and the entire `ui_evaluate` paragraph.
 
 That matters more here than for peer guides, because step 2 instructs the user to
 **permanently run TradingView with an unauthenticated CDP port on 9222**. Any local
@@ -261,10 +261,10 @@ The guide says `$env:LOCALAPPDATA\Programs\TradingView\TradingView.exe`. The ups
 wrong, and the guide's path appears in neither the launcher nor its error text.
 
 **Better fix than correcting the path:** the MCP server registers a **`tv_launch`** tool -
-*"Launch TradingView Desktop with CDP enabled. Auto-detects install location on Mac,
-Windows, and Linux"* (`src/tools/health.js:82`; present in the live 101-tool listing).
-The .bat's own failure text points at it. Make step 2 *"ask the assistant to launch
-TradingView with control enabled"* and keep the manual commands as fallback. That also
+_"Launch TradingView Desktop with CDP enabled. Auto-detects install location on Mac,
+Windows, and Linux"_ (`src/tools/health.js:82`; present in the live 101-tool listing).
+The .bat's own failure text points at it. Make step 2 _"ask the assistant to launch
+TradingView with control enabled"_ and keep the manual commands as fallback. That also
 dissolves F-4 - no more pointing at a file in an npx cache.
 
 ## F-9 (LOW, from internal) - `x-wayland.platforms` is dead metadata, so commit `1267b2496` is a no-op
@@ -278,8 +278,8 @@ side; only its guide addition (the Linux command) has any effect. **My handoff a
 session memory both overstate this as "declares Linux platform support".** `minWaylandVersion`
 is dead the same way - which also disposes of Codex's finding #6 on that field.
 
-Related pre-existing wrongness: `com.wayland-apple-mcp.md` tells users *"the entry is
-hidden on Windows and Linux"*. It is not.
+Related pre-existing wrongness: `com.wayland-apple-mcp.md` tells users _"the entry is
+hidden on Windows and Linux"_. It is not.
 
 ## F-5 (LOW) - the `TV_MCP_ADVANCED` test is weaker than it looks
 
@@ -294,9 +294,9 @@ that `ui_evaluate` cannot be enabled. The genuine protection is upstream: TVCont
 not register `ui_evaluate` unless the env var is set, and the entry declares no
 `environmentVariables` at all.
 
-*(Raised by Gemini as "security theater". Downgraded: keeping a cheap tripwire is fine,
+_(Raised by Gemini as "security theater". Downgraded: keeping a cheap tripwire is fine,
 provided the structural assertion `environmentVariables` is empty stays alongside it -
-which it does.)*
+which it does.)_
 
 ---
 
@@ -359,7 +359,7 @@ closes it. Conscious deferral stands.
 - **`setupGuide.path`** - present, which is what makes the guide render at all.
 - **`version: "latest"`** - matches 17 peer entries. TVControl is first-party
   (FerroxLabs publishes it), so an unpinned fetch adds no third-party supply-chain
-  surface, and a hard pin would need a Wayland release to move. *Gemini concurred.*
+  surface, and a hard pin would need a Wayland release to move. _Gemini concurred._
 - **`license: MIT`** - matches the published package.
 - **Linux support** - the shipped `launch_tv_debug_linux.sh` probes 8 install locations
   (`/opt/TradingView/...`, snap, flatpak, PATH), so the `linux` platform claim is
@@ -378,27 +378,28 @@ closes it. Conscious deferral stands.
 
 ## Panel
 
-| Leg | Verdict | Found F-1? | Notes |
-|---|---|---|---|
+| Leg                                | Verdict   | Found F-1?             | Notes                                                                                                                                                               |
+| ---------------------------------- | --------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Internal** (live repo + tarball) | **NO-GO** | **YES, independently** | Richest leg by far. Own MCP-client probe; traced the user-visible error; found the #376 precedent, F-6, F-7, F-9, the `tv_launch` fix, and the 19-day 2.2.0 outage. |
-| Codex 5.6 Sol | FIX-FIRST | no | Overturned me on `latest` (F-1b) and promoted F-1c to a defect. 2 findings refuted. |
-| Kimi K3 | FIX-FIRST | no | Four unique findings (F-10); correctly mitigated F-1d where Codex and I both guessed wrong. |
-| Gemini 3.1 Pro | FIX-FIRST | no | 2 upheld (F-2, F-4), 1 downgraded (F-5), 1 corrected (F-3). |
-| Author (empirical) | **NO-GO** | yes | F-1, F-3 |
+| Codex 5.6 Sol                      | FIX-FIRST | no                     | Overturned me on `latest` (F-1b) and promoted F-1c to a defect. 2 findings refuted.                                                                                 |
+| Kimi K3                            | FIX-FIRST | no                     | Four unique findings (F-10); correctly mitigated F-1d where Codex and I both guessed wrong.                                                                         |
+| Gemini 3.1 Pro                     | FIX-FIRST | no                     | 2 upheld (F-2, F-4), 1 downgraded (F-5), 1 corrected (F-3).                                                                                                         |
+| Author (empirical)                 | **NO-GO** | yes                    | F-1, F-3                                                                                                                                                            |
 
 **Method note - the important one.**
 
 Three of the four legs returned FIX-FIRST on a connector that **cannot connect at all**.
-Not because they reasoned badly - Kimi's closing line was *"the packet's facts held up
-unusually well under checking, including the ones I tried hardest to refute"* - but
+Not because they reasoned badly - Kimi's closing line was _"the packet's facts held up
+unusually well under checking, including the ones I tried hardest to refute"_ - but
 because I wrote the broken mechanism into the packet's "verified surrounding facts"
-section as established truth. Facts 2 and 3 described what the code *would* produce; I
+section as established truth. Facts 2 and 3 described what the code _would_ produce; I
 never executed it. Everything downstream inherited the error.
 
 The only leg that found it was the one with live repo access **and** an explicit
 instruction to distrust the packet because its author had been confidently wrong before.
 
 Two rules out of this:
+
 1. **A packet may only assert as verified what was actually executed.** Anything derived
    by reading code is a hypothesis and must be labelled one.
 2. **At least one leg must be able to reach past the packet** - live tree, published

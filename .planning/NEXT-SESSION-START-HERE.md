@@ -1,9 +1,9 @@
 # START HERE — 2026-08-11 (end of session)
 
-| Lane | Worktree | Branch | Head | Suite |
-|---|---|---|---|---|
-| **Voice + UI** | `wayland-worktrees/packet-attribution` | `packet/attribution-audit` | `0754a662c` | **16,663 / 0 failed** |
-| **Agents** | `wayland-worktrees/packet-agent-installers` | `packet/agent-installers` | `24289e4f1` | green, but **NOT shippable — see blockers** |
+| Lane           | Worktree                                    | Branch                     | Head        | Suite                                       |
+| -------------- | ------------------------------------------- | -------------------------- | ----------- | ------------------------------------------- |
+| **Voice + UI** | `wayland-worktrees/packet-attribution`      | `packet/attribution-audit` | `0754a662c` | **16,663 / 0 failed**                       |
+| **Agents**     | `wayland-worktrees/packet-agent-installers` | `packet/agent-installers`  | `24289e4f1` | green, but **NOT shippable — see blockers** |
 
 Nothing merged, tagged, or PR'd. `AGENTS.md` and
 `constitutionFsAuthority.generated.ts` stay unstaged, always.
@@ -24,6 +24,7 @@ under a different app identity (safeStorage keys by identity, and running dev
 from a worktree ≠ the canonical app that wrote it).
 
 **But the failure MODE is a real bug and is the actual work:**
+
 - Path: `readAuthorityFile` → `ConstitutionRevisionAuthority.load` →
   `ConstitutionFsService.readConstitution` → `composePrompt` →
   `WCoreManager.start`. The raw crypto error is thrown straight through and
@@ -60,14 +61,14 @@ mid-install and back → a second `bun install` into the same directory. Main ha
 no in-flight guard.
 
 **MAJOR — the Flux chip on an `absent` card is a live config write.** My
-instruction, and it was wrong: for codex/kimi that chip is a *button* opening
+instruction, and it was wrong: for codex/kimi that chip is a _button_ opening
 FluxSetupModal, so a user can configure Flux for an agent they do not have. Make
 it inert when absent.
 
 **MAJOR — no timeout, no cancel** anywhere along the seam (`execFile` has no
 `timeout`, the handler awaits unbounded, the UI shows a disabled spinner).
 
-**MAJOR — D7's remote denial has no UI failure path.** The WS adapter *resolves*
+**MAJOR — D7's remote denial has no UI failure path.** The WS adapter _resolves_
 a denied invoke with `{error:'failed'}`, which the hook does not treat as
 failure → on a paired device, Install is a silent dead click.
 
@@ -118,7 +119,7 @@ never been seen running — they need a real microphone and a real streaming rep
   test pinning the removal so it cannot creep back.
   **Cost, stated plainly:** the two secret-masking tests lost their rendered-DOM
   leg — `redactCommandSecrets` had exactly one renderer, `MissionProgressPanel`,
-  now unmounted. They assert the fields *and* the humanized label instead;
+  now unmounted. They assert the fields _and_ the humanized label instead;
   mutation-testing confirms that is not weaker. `adapters.test.ts` never
   exercises that path with a secret, so those two are its only coverage.
   `MissionProgressPanel` is now dead code with a live test file — deletion is a
@@ -134,7 +135,7 @@ pointing at a real file, **spawn with `shell:false`**, and uninstall by manifest
 leaving siblings untouched. None route through `node_modules/.bin`.
 Also landed: kimi renamed to Kimi Code, the `.kimi/skills` → `.kimi-code/skills`
 bug fixed, the `cli-setup` skill repaired (it shipped `uv tool install kimi-cli`,
-which installs *different, legacy* software), and a Flux connector for Kimi Code
+which installs _different, legacy_ software), and a Flux connector for Kimi Code
 built, wired and mutation-proven.
 
 ---
@@ -157,6 +158,7 @@ built, wired and mutation-proven.
   nobody will use. `build-and-release.yml` fires on ANY tag.
 
 ## Method notes that keep paying
+
 - **NEVER `git checkout` an uncommitted file** to undo a mutation.
 - **`waitFor(() => expect(x).toBeNull())` can pass vacuously** — it succeeds on
   its first sync check, before async effects resolve.

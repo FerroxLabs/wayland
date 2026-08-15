@@ -239,9 +239,7 @@ export function buildDoctorChecks(): DoctorCheck[] {
           {
             binaryPath: () => binary ?? undefined,
             advertisedSchemaDigest: () =>
-              binary
-                ? extractFromFile(binary, SCHEMA_DIGEST_PATTERN, SCHEMA_DIGEST_LOOKBACK)
-                : Promise.resolve(null),
+              binary ? extractFromFile(binary, SCHEMA_DIGEST_PATTERN, SCHEMA_DIGEST_LOOKBACK) : Promise.resolve(null),
           },
           DESKTOP_CORE_V1_PIN.schemaDigest
         );

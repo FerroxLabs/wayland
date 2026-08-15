@@ -51,7 +51,9 @@ test.describe('F-RELIABILITY-01 Automatic connection timeout handling', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('sending a new message triggers reconnection verification (UI does not freeze + interaction continues)', async ({ page }) => {
+  test('sending a new message triggers reconnection verification (UI does not freeze + interaction continues)', async ({
+    page,
+  }) => {
     const textarea = page.locator('textarea').first();
     await textarea.waitFor({ state: 'visible', timeout: 10_000 });
     const isDisabled = await textarea.isDisabled();
