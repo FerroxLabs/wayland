@@ -98,9 +98,7 @@ describe('strict bundled wayland-nano provenance', () => {
       '',
       undefined,
     ]) {
-      expect(() => prepareWaylandNano.normalizeSha256(bad, 'test pin')).toThrow(
-        /Malformed or placeholder SHA-256/
-      );
+      expect(() => prepareWaylandNano.normalizeSha256(bad, 'test pin')).toThrow(/Malformed or placeholder SHA-256/);
     }
 
     // Known positive: without it the rejections above would prove nothing.
