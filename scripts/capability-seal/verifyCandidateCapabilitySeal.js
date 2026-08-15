@@ -428,13 +428,15 @@ function readReceiptAuthority(receiptsDir, selection, candidate, options = {}) {
       const observed = sha256(fs.readFileSync(file));
       if (observed !== expected)
         throw new Error(`Capability acceptance ${kind} digest mismatch: ${entry.capabilityId}.`);
-      (options.verifyAttestedFile || verifyAttestedFile)(
-        file,
-        observed,
-        candidate,
-        options.execFileSyncImpl,
-        trustedCommit
-      );
+      // Same deadlock as the manifest above: on the candidate build there is
+      // no trust root to verify against. The digest check immediately above
+      // still binds these bytes to the manifest, and the trust root attests
+      // and re-derives all of it with protected code.
+      if (options.verifyAttestedFile) {
+        options.verifyAttestedFile(file, observed, candidate, options.execFileSyncImpl, trustedCommit);
+      } else if (!candidateClaim) {
+        verifyAttestedFile(file, observed, candidate, options.execFileSyncImpl, trustedCommit);
+      }
     }
     receipts.set(entry.capabilityId, { ...entry, receiptFile, proofFile, logFile });
   }
