@@ -358,13 +358,33 @@ function assertContractOutputs(versionOutput, topLevelHelp, formatHelp, watchHel
   return { contract: `${contract.contract}/${contract.major}.${contract.minor}`, release: contract.release };
 }
 
+// OfficeCLI ships a background self-updater that is ON by default: it resolves the
+// moving `latest` release and swaps its own binary in place on a subsequent run.
+// That silently replaces the exact bytes this script just digest-verified, and it
+// broke every platform of the 0.12.0 release build (Windows reported 1.0.144 against
+// a pinned 1.0.136; macOS and Linux crashed mid-swap inside ApplyPendingUpdate).
+// Every invocation of the bundled binary therefore runs against an isolated config
+// home with autoUpdate disabled, so the contract and smoke checks exercise the
+// pinned artifact rather than whatever upstream published most recently.
+function withUpdatesDisabled() {
+  const configHome = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-home-'));
+  fs.mkdirSync(path.join(configHome, '.officecli'), { recursive: true });
+  fs.writeFileSync(
+    path.join(configHome, '.officecli', 'config.json'),
+    `${JSON.stringify({ autoUpdate: false, log: false }, null, 2)}\n`
+  );
+  return { ...process.env, HOME: configHome, USERPROFILE: configHome };
+}
+
 function verifyExecutableContract(binaryPath) {
   const contract = loadContract();
+  const env = withUpdatesDisabled();
   const run = (args) =>
     execFileSync(binaryPath, args, {
       encoding: 'utf8',
       timeout: 10_000,
       stdio: ['ignore', 'pipe', 'pipe'],
+      env,
     });
   const formatHelp = Object.fromEntries(
     Object.keys(contract.requiredElements).map((format) => [format, run(['help', format])])
@@ -379,12 +399,14 @@ function verifyExecutableSmoke(binaryPath) {
     xlsx: path.join(tempDir, 'proof.xlsx'),
     pptx: path.join(tempDir, 'proof.pptx'),
   };
+  const env = withUpdatesDisabled();
   const run = (args) =>
     execFileSync(binaryPath, args, {
       encoding: 'utf8',
       timeout: 15_000,
       maxBuffer: 2 * 1024 * 1024,
       stdio: ['ignore', 'pipe', 'pipe'],
+      env,
     });
 
   try {
