@@ -898,12 +898,33 @@ function processSnapshot(targetPlatform, dependencies = {}, includeEnvironment =
       )
     );
   }
-  // Poll using the small process table. The final sweep opts into `eww` so an
-  // inherited launch token can recover a child that immediately reparented.
-  const args = includeEnvironment
-    ? ['eww', '-axo', 'pid=,ppid=,lstart=,command=']
-    : ['-axo', 'pid=,ppid=,lstart=,command='];
-  return parsePosixProcesses(execute('ps', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+  // Poll using the small process table. The final sweep asks for the environment
+  // too, so an inherited launch token can recover a child that immediately
+  // reparented.
+  //
+  // The environment form is not portable. BSD ps (macOS) takes `eww -axo`, while
+  // procps (Linux) rejects that exact combination with "must set personality to
+  // get -x option" and wants the all-BSD `axeww o` instead. Verified on both:
+  // `-axo` alone carries no environment on procps, so the split is required
+  // rather than cosmetic.
+  const format = 'pid=,ppid=,lstart=,command=';
+  const options = { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 };
+  if (!includeEnvironment) {
+    return parsePosixProcesses(execute('ps', ['-axo', format], options));
+  }
+  try {
+    return parsePosixProcesses(execute('ps', ['eww', '-axo', format], options));
+  } catch (error) {
+    // procps (Linux) rejects that BSD/UNIX mix with "must set personality to get
+    // -x option" and wants the all-BSD spelling instead, while BSD ps (macOS)
+    // returns nothing for the all-BSD form. Retry only on that specific rejection
+    // so a real ps failure still propagates. Note `-axo` alone is not a substitute:
+    // it succeeds on procps but carries no environment, which would silently defeat
+    // the launch-token recovery this sweep exists for.
+    const message = error instanceof Error ? error.message : String(error);
+    if (!/must set personality|unsupported option|illegal option|invalid option/i.test(message)) throw error;
+    return parsePosixProcesses(execute('ps', ['axeww', 'o', format], options));
+  }
 }
 
 function descendantsFromSnapshot(rootPid, snapshot) {
@@ -1332,7 +1353,12 @@ export async function runSmoke(options, dependencies = {}) {
       }
       const browser = await request(`http://127.0.0.1:${port}/json/version`);
       if (!browser.webSocketDebuggerUrl) throw new Error(`${TAG} browser CDP endpoint omitted its websocket URL`);
-      await command(browser.webSocketDebuggerUrl, 'Browser.close', {}, 5_000);
+      // Five seconds is the acknowledgement budget for the CDP call, not for the
+      // shutdown itself. Both macOS release builds timed out here while the packaged
+      // app was still working through init on a contended runner. What the smoke
+      // actually asserts (the process exits, and the shutdown evidence validates) is
+      // enforced below and unchanged; a genuine hang still fails.
+      await command(browser.webSocketDebuggerUrl, 'Browser.close', {}, 20_000);
       const shutdown = await waitForExitImpl(child, 10_000);
       await new Promise((resolve) => setTimeout(resolve, dependencies.shutdownSettleMs ?? 250));
       const descendantRecords = processMonitor.stop();

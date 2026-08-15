@@ -230,6 +230,9 @@ graphify-out/
 .blackboard/
 design-mockups/
 src/process/channels/signal-cli-runtime/tmp-*/
+# Prepared at build time by the signal-cli runtime step, like the other bundled
+# runtimes. Leaving it untracked kept the release smoke's clean-worktree gate red.
+src/process/channels/signal-cli-runtime/bin/
 
 # Canonical GSD plans/contracts are versioned. Only volatile proof/runtime state
 # and private acceptance material remain local.
