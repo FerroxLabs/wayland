@@ -19,7 +19,7 @@
 
 import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
-import { invokeBridge, navigateTo, expandTeamsAccordion} from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion } from '../helpers';
 
 const LAUNCHER_ID = 'builtin-cold-outbound';
 const NAME_PREFIX = 'E2E NavChaos';
@@ -51,9 +51,7 @@ test.describe('Team Blitz - navigation chaos', () => {
     await expect(page.locator('[data-testid="team-page-load-error"]')).toBeVisible({
       timeout: 15_000,
     });
-    await expect(
-      page.locator('[data-testid="team-page-load-error-back-cta"]')
-    ).toBeVisible();
+    await expect(page.locator('[data-testid="team-page-load-error-back-cta"]')).toBeVisible();
   });
 
   test('direct URL to a deleted team → in-place error', async ({ page }) => {
@@ -138,9 +136,7 @@ test.describe('Team Blitz - navigation chaos', () => {
     expect(after.length).toBe(before.length);
   });
 
-  test('refresh during BuildMyOwn flow → safe landing, no orphan team', async ({
-    page,
-  }) => {
+  test('refresh during BuildMyOwn flow → safe landing, no orphan team', async ({ page }) => {
     test.setTimeout(60_000);
     await cleanupTeams(page);
 
@@ -154,9 +150,7 @@ test.describe('Team Blitz - navigation chaos', () => {
     await expect(page.locator('[data-testid="launcher-goal-card"]')).toBeVisible({
       timeout: 10_000,
     });
-    await page
-      .locator('[data-testid="launcher-goal-input"]')
-      .fill('ship a sales onboarding flow');
+    await page.locator('[data-testid="launcher-goal-input"]').fill('ship a sales onboarding flow');
     await page.locator('[data-testid="launcher-suggest-btn"]').click();
     // Don't wait for the suggest to settle - just reload.
     await page.reload();
@@ -257,7 +251,7 @@ test.describe('Team Blitz - navigation chaos', () => {
       // on the state the previous test left behind (catch-all redirect to /guid
       // vs the in-place team error) - both are alive, and this case only claims
       // "no crash". Pinning the destination made it order-dependent.
-      expect(await page.evaluate(() => (document.body.textContent?.length ?? 0))).toBeGreaterThan(50);
+      expect(await page.evaluate(() => document.body.textContent?.length ?? 0)).toBeGreaterThan(50);
     }
 
     // /teams/ (trailing slash) - renders TeamsLibraryPage.

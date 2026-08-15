@@ -175,7 +175,12 @@ const CronProposeCard: React.FC<CronProposeCardProps> = ({ message }) => {
         >
           <Check size={14} /> {t('cron.propose.yes')}
         </Button>
-        <Button size='mini' disabled={resolving} onClick={() => void sendAction('edit')} data-testid='cron-propose-edit'>
+        <Button
+          size='mini'
+          disabled={resolving}
+          onClick={() => void sendAction('edit')}
+          data-testid='cron-propose-edit'
+        >
           <Edit size={14} /> {t('cron.propose.edit')}
         </Button>
         <Button

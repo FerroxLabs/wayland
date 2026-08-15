@@ -588,8 +588,10 @@ const renderComposer = (platform: PlatformKey = 'wcore', options: { stagedFile?:
     <VoiceSessionProvider conversationId={conversationId} actorLabel='Wayland'>
       <ConversationProvider
         value={
-          { conversationId, type: platform === 'openclaw' ? 'openclaw-gateway' : platform } as unknown as
-            React.ComponentProps<typeof ConversationProvider>['value']
+          {
+            conversationId,
+            type: platform === 'openclaw' ? 'openclaw-gateway' : platform,
+          } as unknown as React.ComponentProps<typeof ConversationProvider>['value']
         }
       >
         {composerFor(platform, conversationId)}
@@ -640,8 +642,18 @@ const deliverAnswer = async (conversationId: string, text = 'Here is the answer.
     // and mutating the array mid-iteration would silently skip the next one.
     // eslint-disable-next-line unicorn/no-useless-spread
     for (const listener of [...responseListeners]) {
-      listener({ type: 'content', data: text, msg_id: 'assistant-1', conversation_id: conversationId } as IResponseMessage);
-      listener({ type: 'finish', data: null, msg_id: 'assistant-1', conversation_id: conversationId } as IResponseMessage);
+      listener({
+        type: 'content',
+        data: text,
+        msg_id: 'assistant-1',
+        conversation_id: conversationId,
+      } as IResponseMessage);
+      listener({
+        type: 'finish',
+        data: null,
+        msg_id: 'assistant-1',
+        conversation_id: conversationId,
+      } as IResponseMessage);
     }
   });
 };

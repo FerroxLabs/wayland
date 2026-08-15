@@ -182,7 +182,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
     expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);
   });
 
-  it('never overwrites the user\'s own prompt, even when it is the only row that matches', async () => {
+  it("never overwrites the user's own prompt, even when it is the only row that matches", async () => {
     // A msg_id names the TURN: WCore stamps the same one on the user's prompt
     // and the assistant's reply, and the DB lookup has no `position` clause. So
     // if the assistant row is not on disk yet, this lookup returns what the USER
@@ -282,7 +282,7 @@ describe('content_replace swaps the bubble instead of extending it', () => {
     expect((merged[0].content as { replaceContent?: boolean }).replaceContent).toBeUndefined();
   });
 
-  it('keeps the bubble\'s other content fields when it swaps the text', () => {
+  it("keeps the bubble's other content fields when it swaps the text", () => {
     // A `content_replace` frame carries the corrected TEXT and nothing else, so
     // substituting the whole content object drops everything the bubble already
     // had. The DB rewrite and the renderer's own merge both spread the existing
