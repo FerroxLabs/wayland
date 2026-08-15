@@ -20,17 +20,17 @@ because I labelled an option by its mechanism instead of its consequence.
 
 ## 1. State right now
 
-| Thing | State |
-|---|---|
-| Desktop `main` | `aae785322` [V] |
-| Version on main | **0.12.0** [V] |
-| `v0.12*` tag | **NONE** [V] — nothing published |
-| Open PRs | **#960** (the one to merge), **#951** (close as superseded) |
-| #960 head | `8dbfab151` [V] |
-| #960 CI | 15 pass / 5 pending / **1 advisory fail** — see §2 |
-| Trust root branch | `release-trust-v1` @ `aae785322`, protected [V] |
-| Repo var `WAYLAND_RELEASE_TRUST_ROOT_SHA` | `aae785322…` [V] |
-| Nano on npm | `waylandnano@0.1.1`, dist-tag `latest` [V] |
+| Thing                                     | State                                                       |
+| ----------------------------------------- | ----------------------------------------------------------- |
+| Desktop `main`                            | `aae785322` [V]                                             |
+| Version on main                           | **0.12.0** [V]                                              |
+| `v0.12*` tag                              | **NONE** [V] — nothing published                            |
+| Open PRs                                  | **#960** (the one to merge), **#951** (close as superseded) |
+| #960 head                                 | `8dbfab151` [V]                                             |
+| #960 CI                                   | 15 pass / 5 pending / **1 advisory fail** — see §2          |
+| Trust root branch                         | `release-trust-v1` @ `aae785322`, protected [V]             |
+| Repo var `WAYLAND_RELEASE_TRUST_ROOT_SHA` | `aae785322…` [V]                                            |
+| Nano on npm                               | `waylandnano@0.1.1`, dist-tag `latest` [V]                  |
 
 Merged to main this session: **#958** (nano typed errors), **#959** (the release-blocking
 deadlock fix).
@@ -49,7 +49,7 @@ It does not block merge.
 
 ⚠️ **Check the AGGREGATE `Unit Tests (<os>)` roll-ups, never a sample of shards.** Earlier today
 `gh pr checks` showed shards passing while shard 1/4 had failed on all three OSes. The roll-ups
-read `SHARDS_RESULT`. The roll-up prints a *"this red is stale"* banner that only applies when a
+read `SHARDS_RESULT`. The roll-up prints a _"this red is stale"_ banner that only applies when a
 NEWER run exists for the same commit — confirm the run count before believing it. [V]
 
 ---
@@ -95,8 +95,8 @@ workflow takes the build's own run id as a **required input** and downloads
 **Build waited on trust root. Trust root waited on build.** Unsatisfiable by construction —
 provisioning alone could never have fixed it.
 
-Reproduced by execution: a real packaged build died on *"Release acceptance trust root is
-unavailable."* before compiling anything [V].
+Reproduced by execution: a real packaged build died on _"Release acceptance trust root is
+unavailable."_ before compiling anything [V].
 
 **Fix (#959):** an explicit `candidateClaim: true` at the build's call site. The candidate's seal
 is a **claim**, not authority. Authority is unchanged — the trust root recreates the seal
@@ -125,18 +125,20 @@ node scripts/build-with-builder.js auto --mac --arm64 --dir
 
 ⚠️ **The tree must be CLEAN.** `public/capability-seal.json` and a modified
 `constitutionFsAuthority.generated.ts` left over from a previous build both trip
-*"Candidate source tree is dirty"* [V]. Remove the first, `git checkout --` the second
+_"Candidate source tree is dirty"_ [V]. Remove the first, `git checkout --` the second
 (**never commit it**).
 
 ⚠️ `WAYLAND_LOCAL_VERIFICATION=1` skips the seal but ONLY with canonical dir-only args. Bare
 `arm64` is **not** an allowed token — use `auto` [V].
 
 **Last full release-mode build result** [V]:
+
 ```
 [verify-packaged-resources]   OK   capability-seal.json
 [verify-packaged-resources]   OK   bundled-wayland-nano
 [verify-packaged-resources] PASS - all critical bundled resources present
 ```
+
 Bundled binary inside the `.app` reports `wayland-nano 0.1.1`, manifest `verified true`,
 `attested true` [V].
 
@@ -144,16 +146,17 @@ Bundled binary inside the `.app` reports `wayland-nano 0.1.1`, manifest `verifie
 
 ## 7. ⚠️ THE PROCESS MISTAKE — do not repeat it
 
-I asked Sean, via a menu, whether to *"Add attestations to wayland-nano now"*. He picked it.
+I asked Sean, via a menu, whether to _"Add attestations to wayland-nano now"_. He picked it.
 He later said:
 
 > "thats not what I meant and I have no idea what attestations are"
 
-The option was named after the **mechanism**. Hidden inside it was *"…which means publishing a
-brand-new Nano release to npm under the `latest` dist-tag."* That is now done and is not cleanly
+The option was named after the **mechanism**. Hidden inside it was _"…which means publishing a
+brand-new Nano release to npm under the `latest` dist-tag."_ That is now done and is not cleanly
 reversible.
 
 **Rules that follow:**
+
 - Label options by **consequence, in plain words**. If an option publishes, tags, charges money,
   or touches another repo, that belongs in the **first line** of the option.
 - If Sean cannot evaluate a term, he cannot consent to it. Translate it in one sentence first.
@@ -161,9 +164,9 @@ reversible.
   v0.1.1 carried 9 unreleased commits including **2 real product fixes** I had not read, because
   I branched off a master 81 commits ahead of my local checkout [V].
 
-Plain-English definition for reuse: *an attestation is a signed receipt from GitHub proving this
+Plain-English definition for reuse: _an attestation is a signed receipt from GitHub proving this
 exact file came out of this exact build from this exact source. Desktop refuses to bundle a
-binary that cannot show one.*
+binary that cannot show one._
 
 ---
 
@@ -181,6 +184,7 @@ merges, not PRs). **The v0.1.1 release notes have been rewritten** to say so, an
 changelog credits them.
 
 Two pre-existing RED tests on nano master were also fixed to get a clean gate:
+
 - `NANO_PRICING_PATH` race — `load_default` reads that env var and cargo runs every `#[test]` in
   ONE process across threads, so a sibling test's `set_var` leaked. Fixed with a shared
   poison-tolerant mutex; 40 consecutive clean runs [V].
