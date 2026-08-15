@@ -155,9 +155,7 @@ describe('normalizeTextToSpeechConfig', () => {
   });
 
   it('drops the retired kokoro-local value to the platform default on read', () => {
-    expect(normalizeTextToSpeechConfig({ provider: 'kokoro-local' } as never, 'win32').provider).toBe(
-      'windows-native'
-    );
+    expect(normalizeTextToSpeechConfig({ provider: 'kokoro-local' } as never, 'win32').provider).toBe('windows-native');
     expect(normalizeTextToSpeechConfig({ provider: 'kokoro-local' } as never).provider).toBe(
       DEFAULT_TTS_CONFIG.provider
     );
@@ -387,9 +385,9 @@ describe('synthesizeWindowsNative', () => {
     const original = process.platform;
     Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
     try {
-      await expect(
-        synthesizeWindowsNative('hi', baseConfig({ provider: 'windows-native' }), runtime)
-      ).rejects.toThrow(/^TTS_WINDOWS_NATIVE_UNAVAILABLE/);
+      await expect(synthesizeWindowsNative('hi', baseConfig({ provider: 'windows-native' }), runtime)).rejects.toThrow(
+        /^TTS_WINDOWS_NATIVE_UNAVAILABLE/
+      );
     } finally {
       Object.defineProperty(process, 'platform', { value: original, configurable: true });
     }
@@ -509,9 +507,19 @@ describe('synthesize (TextToSpeechService)', () => {
   });
 
   it('returns a typed unavailable error for windows-native off Windows', async () => {
-    await expect(synthesize('Hi', baseConfig({ provider: 'windows-native' }))).rejects.toBeInstanceOf(
-      WindowsNativeTtsError
-    );
+    // Pin the platform, exactly as the system-native case above does. The
+    // assertion is "windows-native is unavailable OFF Windows", which is only
+    // true off Windows - on the windows-2022 runner the provider really is
+    // available, so this resolved and the test failed for being right.
+    const originalPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+    try {
+      await expect(synthesize('Hi', baseConfig({ provider: 'windows-native' }))).rejects.toBeInstanceOf(
+        WindowsNativeTtsError
+      );
+    } finally {
+      Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
+    }
   });
 });
 
@@ -521,9 +529,7 @@ describe('synthesize (TextToSpeechService)', () => {
 
 describe('textToSpeechRegistry (VOC-04)', () => {
   it('registers every supported provider as an adapter', () => {
-    expect(new Set(textToSpeechRegistry.providers())).toEqual(
-      new Set(['system-native', 'windows-native', 'openai'])
-    );
+    expect(new Set(textToSpeechRegistry.providers())).toEqual(new Set(['system-native', 'windows-native', 'openai']));
   });
 
   it('marks local engines on-device and hosted OpenAI off-device', () => {

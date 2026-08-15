@@ -273,17 +273,34 @@ describe('WCore GLOBAL profile config lease', () => {
     const hold = new Promise<void>((resolve) => {
       releaseFirst = resolve;
     });
+    let firstEntered!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      firstEntered = resolve;
+    });
 
     const first = withGlobalWCoreProfileLease(physical, async () => {
       order.push('physical-enter');
+      firstEntered();
       await hold;
       order.push('physical-leave');
     });
+
+    // Wait until the physical path actually HOLDS the lease before asking for
+    // the alias. Both calls await `realpath` before they derive a key, so
+    // starting them back-to-back races on which canonicalizes first - on
+    // Windows the alias won, and the run came back
+    // ['alias-enter', 'physical-enter', 'physical-leave']: still perfectly
+    // serialized, just the other way round. Ordering by call site was never a
+    // property this lease provides, so asserting it made a correct
+    // implementation look broken on one platform.
+    await entered;
+
     const second = withGlobalWCoreProfileLease(alias, async () => {
       order.push('alias-enter');
     });
 
-    // The alias MUST queue behind the physical path, not run beside it.
+    // The regression itself: while the physical path holds the lease, an alias
+    // to the same physical dir MUST NOT get in beside it.
     await Promise.resolve();
     expect(order).not.toContain('alias-enter');
 

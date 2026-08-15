@@ -1047,6 +1047,10 @@ function verifyPackagedResources(options = {}) {
   }
 
   let criticalFailures = 0;
+  // Name what failed. A gate that says only "1 CRITICAL resource missing" makes
+  // a red CI run undiagnosable when the logger is silent (as it is under test),
+  // which is exactly how a Windows-only failure here stayed opaque.
+  const criticalFailureRels = [];
   let warnings = 0;
 
   for (const resDir of resourceDirs) {
@@ -1059,6 +1063,7 @@ function verifyPackagedResources(options = {}) {
         if (fs.existsSync(target)) {
           logger.error(`${TAG}   FAIL ${req.rel}  <-- local verification build must NOT contain a capability seal`);
           criticalFailures += 1;
+          criticalFailureRels.push(`${req.rel} (unexpected capability seal)`);
         } else {
           logger.log(`${TAG}   SKIP ${req.rel}  (intentionally omitted - local verification build)`);
         }
@@ -1089,6 +1094,7 @@ function verifyPackagedResources(options = {}) {
       } else if (req.critical || fs.existsSync(target)) {
         logger.error(`${TAG}   FAIL ${req.rel}  <-- CRITICAL, missing or invalid`);
         criticalFailures += 1;
+        criticalFailureRels.push(req.rel);
       } else {
         logger.warn(`${TAG}   WARN ${req.rel}  (optional, missing or empty)`);
         warnings += 1;
@@ -1098,8 +1104,8 @@ function verifyPackagedResources(options = {}) {
 
   if (criticalFailures > 0) {
     throw new Error(
-      `${TAG} ${criticalFailures} CRITICAL resource(s) missing or invalid in the packaged app. ` +
-        `Refusing to ship a broken build.`
+      `${TAG} ${criticalFailures} CRITICAL resource(s) missing or invalid in the packaged app: ` +
+        `${criticalFailureRels.join(', ')}. Refusing to ship a broken build.`
     );
   }
 
