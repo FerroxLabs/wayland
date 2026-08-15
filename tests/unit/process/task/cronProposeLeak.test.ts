@@ -257,8 +257,9 @@ describe('content_replace swaps the bubble instead of extending it', () => {
 
     expect(out?.type).toBe('text');
     expect(out?.position).toBe('left');
-    expect((out?.content as { content: string; replaceContent?: boolean }).content).toBe('clean prose');
-    expect((out?.content as { replaceContent?: boolean }).replaceContent).toBe(true);
+    const outContent = out?.content as { content: string; replaceContent?: boolean } | undefined;
+    expect(outContent?.content).toBe('clean prose');
+    expect(outContent?.replaceContent).toBe(true);
   });
 
   it('replaces the accumulated text rather than concatenating', () => {

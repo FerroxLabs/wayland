@@ -635,6 +635,10 @@ const speakOneTurn = async () => {
 /** The assistant answering, which is what makes the session speak out loud. */
 const deliverAnswer = async (conversationId: string, text = 'Here is the answer.') => {
   await act(async () => {
+    // Snapshot deliberately: a listener that unsubscribes while responding
+    // splices itself out of `responseListeners` (see the unsubscribe above),
+    // and mutating the array mid-iteration would silently skip the next one.
+    // eslint-disable-next-line unicorn/no-useless-spread
     for (const listener of [...responseListeners]) {
       listener({ type: 'content', data: text, msg_id: 'assistant-1', conversation_id: conversationId } as IResponseMessage);
       listener({ type: 'finish', data: null, msg_id: 'assistant-1', conversation_id: conversationId } as IResponseMessage);

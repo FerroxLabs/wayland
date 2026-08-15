@@ -153,6 +153,9 @@ class MockAudio {
   private listeners = new Map<string, () => void>();
 
   constructor() {
+    // Production calls `new Audio()` itself, so the only place this mock can
+    // hand its instance to the test is its own constructor.
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     lastAudio = this;
   }
 

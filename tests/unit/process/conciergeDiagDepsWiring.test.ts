@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { ConciergeDiagDeps } from '@process/resources/builtinMcp/conciergeDiagServer';
+import type { ConciergeDiagDeps } from '@process/resources/builtinMcp/conciergeDiagServer';
 
 /**
  * The gap that made three new diagnostics dead on arrival.

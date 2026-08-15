@@ -144,10 +144,9 @@ describe('kimi connector', () => {
     await setupKimi(ctx);
 
     const parsed = parseToml(await read()) as TomlRoot;
-    expect(parsed.providers?.['flux-router-2']).toBeDefined();
-    expect((parsed.providers?.['flux-router-2'] as Record<string, unknown>).base_url).toBe(
-      'https://example.invalid/v1'
-    );
+    const fluxProvider = parsed.providers?.['flux-router-2'] as Record<string, unknown> | undefined;
+    expect(fluxProvider).toBeDefined();
+    expect(fluxProvider?.base_url).toBe('https://example.invalid/v1');
   });
 
   it('is idempotent - a second setup does not duplicate the tables', async () => {
