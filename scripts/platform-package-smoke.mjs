@@ -18,6 +18,7 @@ const {
   inspectExecutable,
   verifyPackagedResources,
 } = require('./verify-packaged-resources.js');
+const { isSupportedWNanoTarget } = require('./prepareWaylandNano.js');
 
 const TAG = '[platform-package-smoke]';
 const OPTIONAL_RESOURCES = ['hub', 'whatsapp-bridge', 'signal-cli-runtime'];
@@ -198,7 +199,16 @@ export function currentSourceIdentity(cwd = process.cwd(), dependencies = {}) {
   // modified tracked file.
   const dirty = git('status', '--porcelain=v1', '--untracked-files=all');
   if (dirty) {
-    throw new Error(`${TAG} source worktree is not clean; refusing immutable commit/tree attestation`);
+    // Name the offending paths. Without them this gate reports only that something
+    // changed, which is undiagnosable on a CI runner whose worktree is already gone
+    // by the time anyone reads the log.
+    const paths = dirty.split('\n').filter(Boolean);
+    const shown = paths.slice(0, 20).join(', ');
+    const rest = paths.length > 20 ? ` (+${paths.length - 20} more)` : '';
+    throw new Error(
+      `${TAG} source worktree is not clean; refusing immutable commit/tree attestation. ` +
+        `Dirty paths: ${shown}${rest}`
+    );
   }
   return { commit, tree };
 }
@@ -1190,6 +1200,12 @@ export async function runSmoke(options, dependencies = {}) {
         `${options.targetPlatform}-${options.targetArch}`,
         '--officecli-runtime',
         `${options.targetPlatform}-${options.targetArch}`,
+        // Nano is bundled as of 0.12.0 and the verifier refuses to infer its target
+        // identity, so the installed-payload smoke has to declare it like the others.
+        // Targets wayland-nano does not publish (win32-arm64) carry no bundle to check.
+        ...(isSupportedWNanoTarget(options.targetPlatform, options.targetArch)
+          ? ['--wnano-runtime', `${options.targetPlatform}-${options.targetArch}`]
+          : []),
       ],
       logger,
     });
