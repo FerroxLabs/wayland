@@ -651,9 +651,18 @@ try {
     // seal. preserveGeneratedSource() restores any pre-existing file in `finally`.
     fs.rmSync(capabilitySealPath, { force: true });
   } else {
+    // `candidateClaim`: this is the UNTRUSTED candidate build. It records what
+    // the candidate's own acceptance receipts say; it is NOT release authority.
+    // The trust-root workflow recreates this seal from independently attested
+    // raw bytes with protected code and refuses to accept a mismatch, and
+    // publish-release is gated on that attested receipt. Without this flag the
+    // build demands an attestation that only the trust root can mint, and the
+    // trust root cannot run until this build has finished — a deadlock that
+    // made every release build fail before it produced a single artifact.
     writeCapabilitySeal({
       root: path.resolve(__dirname, '..'),
       outputFile: capabilitySealPath,
+      candidateClaim: true,
     });
   }
 

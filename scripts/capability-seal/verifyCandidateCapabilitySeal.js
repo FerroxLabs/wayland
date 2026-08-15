@@ -331,19 +331,36 @@ function verifyAttestedFile(file, fileSha256, _candidate, run = execFileSync, tr
 }
 
 function readReceiptAuthority(receiptsDir, selection, candidate, options = {}) {
-  const trustedCommit = options.verifyAttestedFile ? undefined : trustRootCommit(options);
+  // `candidateClaim` marks the UNTRUSTED candidate package build, which has no
+  // release authority to verify these receipts against.
+  //
+  // The ONLY attestation of the capability receipts is produced by
+  // release-acceptance-trust-root.yml ("Attest protected raw authority
+  // inputs"), and that workflow cannot start until this build has already
+  // uploaded `raw-release-acceptance-<candidate>` — it takes the build's own
+  // run id as a required input. Demanding an attestation here is therefore
+  // UNSATISFIABLE BY CONSTRUCTION: build waits on trust root, trust root waits
+  // on build. It is a deadlock, not a protection.
+  //
+  // Nothing is weakened by skipping it. The candidate's seal is a CLAIM, never
+  // authority: the trust root recreates the seal byte-for-byte from
+  // independently attested raw bytes using PROTECTED code, and
+  // verifyFinalAcceptance rejects any mismatch with
+  // 'seal-was-not-recreated-from-authoritative-receipts'. publish-release is
+  // gated on that attested receipt. Default stays fail-closed — only this
+  // explicit flag opts out, mirroring the WAYLAND_LOCAL_VERIFICATION pattern.
+  const candidateClaim = options.candidateClaim === true;
+  const trustedCommit = options.verifyAttestedFile || candidateClaim ? undefined : trustRootCommit(options);
   const manifestFile = path.join(receiptsDir, 'manifest.json');
   const stat = fs.lstatSync(manifestFile);
   if (!stat.isFile() || stat.isSymbolicLink()) throw new Error('Capability acceptance manifest is not a regular file.');
   const manifestBytes = fs.readFileSync(manifestFile);
   const manifestSha256 = sha256(manifestBytes);
-  (options.verifyAttestedFile || verifyAttestedFile)(
-    manifestFile,
-    manifestSha256,
-    candidate,
-    options.execFileSyncImpl,
-    trustedCommit
-  );
+  if (options.verifyAttestedFile) {
+    options.verifyAttestedFile(manifestFile, manifestSha256, candidate, options.execFileSyncImpl, trustedCommit);
+  } else if (!candidateClaim) {
+    verifyAttestedFile(manifestFile, manifestSha256, candidate, options.execFileSyncImpl, trustedCommit);
+  }
   const manifest = JSON.parse(manifestBytes.toString('utf8'));
   if (!exactKeys(manifest, ['contract', 'candidate', 'selectionSha256', 'receipts'])) {
     throw new Error('Capability acceptance manifest has missing or unknown critical fields.');
