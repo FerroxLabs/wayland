@@ -170,6 +170,45 @@ sitting there.
 `Unit Tests (windows-2022)`. The per-shard jobs are not required; the three
 aggregators are.
 
+## 4c. The honest e2e number
+
+**603 passed / 20 failed / 196 skipped / 4 did not run**, full suite, 1.3h.
+Previous recorded baseline was 85 failed / 535 passed, so 85 -> 20.
+
+The machine sat at load 30-47 for the whole run (Chrome + tvcontrol, left
+alone deliberately - they are Sean's). So every failure was RE-RUN INDIVIDUALLY
+before being believed. That changed most of the picture:
+
+**Load artifacts - pass in isolation, not regressions:**
+`accessibility` (checked first, because the pill-bar change could have caused
+it - it did not), `assistant-settings-skills`, `guid-agent-selection` (confirms
+the pill fix works), `agent-install-surface` (confirms the consent-leak fix).
+
+**`cron.e2e.ts` is NOT a cron defect.** The error is
+`Bridge invoke timeout: cron.add-job` - the IPC call timed out. The test
+immediately before it schedules a job 1s out and asserts it fires, and that
+one PASSED in 1.4s. Cron works; the invokeBridge helper's timeout is tight
+under load.
+
+**Genuinely failing, one:** `redteam-extension`. The probe still never runs, so
+the spec proves nothing in either direction. It was failing before this session
+and the srcdoc -> wayland-asset:// change did not fix it. What IS now correct:
+the fixture loads the way production loads extension HTML, and the spec's claim
+that the fixture was "NOT under an asset allowlist root" is gone - it was false
+(`fixtures.ts` puts `tests/e2e/fixtures/extensions` on WAYLAND_EXTENSIONS_PATH,
+and that feeds `buildAssetAllowlist`). Needs someone to determine whether the
+asset frame receives the app CSP.
+
+**Backend-required (no credentials on this machine):** the ACP
+config/messaging/session/permissions family, `team-agent-lifecycle` (codex and
+gemini leaders), `team-describe-assistant`, both `cron-crud` conversation specs,
+and one `guid-mode-to-conversation` case that fails in the MODE dropdown, not
+on a pill.
+
+⚠️ Several of these only became visible because the earlier `waitForAiReply`
+fix stopped accepting the shadow-root stylesheet as a reply. They are supposed
+to need a real model. Do not "fix" them by loosening that helper again.
+
 ## 5. Standing traps (still true)
 
 - The Playwright fixture launches the COMPILED `out/` bundle. `src/` edits are
