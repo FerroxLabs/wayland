@@ -171,12 +171,12 @@ is a feeling. "Bookkeeping Services" is a category. "Books done by Tuesday, ever
 
 Four openings that work, in rough order of how cold the traffic can be:
 
-| Shape                          | Use when                                | Example                                                 |
-| ------------------------------ | --------------------------------------- | ------------------------------------------------------- |
-| Result + timeframe             | Reader knows the problem                | "Ship your first paid feature in 14 days"               |
-| Named audience + specific pain | Reader does not know you                | "Electricians: stop losing Sundays to receipts"         |
-| Contradiction                  | Market is saturated with the same claim | "Most invoicing apps make you slower. Here's the test." |
-| Direct proof                   | You have one strong number              | "412 tradespeople stopped doing their own VAT"          |
+| Shape | Use when | Example |
+|---|---|---|
+| Result + timeframe | Reader knows the problem | "Ship your first paid feature in 14 days" |
+| Named audience + specific pain | Reader does not know you | "Electricians: stop losing Sundays to receipts" |
+| Contradiction | Market is saturated with the same claim | "Most invoicing apps make you slower. Here's the test." |
+| Direct proof | You have one strong number | "412 tradespeople stopped doing their own VAT" |
 
 Test the headline before anything else on the page. It is the only element that changes results by
 multiples rather than percentages.
@@ -220,7 +220,7 @@ trial" over "Start your free trial") because the button reads as the user's own 
 **Weak:** "Submit" · "Click here" · "Learn more" (acceptable for awareness, poor for conversion) ·
 "Buy now" (often too aggressive for cold traffic)
 
-**Placement:** above the fold, after each major benefit section, and at the bottom. One _primary_ CTA
+**Placement:** above the fold, after each major benefit section, and at the bottom. One *primary* CTA
 per page -- competing CTAs split attention and convert worse than either alone.
 
 **Design constraints worth stating to whoever builds it:** a real button rather than a text link,
@@ -342,7 +342,7 @@ user for the evidence, not to go fetch it from a running system.
   demonstration, guarantee, transparent process, or founder story. Say which substitute you used and why.
 
 - **Regulated claims.** In health, finance or legal, every outcome claim needs substantiation and most
-  need a disclaimer. Write to the strongest _defensible_ claim and flag each line that needs review, rather
+  need a disclaimer. Write to the strongest *defensible* claim and flag each line that needs review, rather
   than writing the strong version and leaving the user to discover the problem.
 
 - **Cold traffic treated as warm.** When the user wants a hard close on an audience that has never heard of
@@ -383,16 +383,16 @@ been burned by an accountant who was slow to reply.
 
 **Opening, Four-Layer Open:**
 
-> _Nerve strike:_ You finished a ten-hour day on site. Now there's a carrier bag of receipts on the
+> *Nerve strike:* You finished a ten-hour day on site. Now there's a carrier bag of receipts on the
 > passenger seat and it's Sunday tomorrow.
 >
-> _Side door:_ I'm not going to tell you to get organised. You are organised -- on the job. Paperwork is
+> *Side door:* I'm not going to tell you to get organised. You are organised -- on the job. Paperwork is
 > just not the thing you're for.
 >
-> _Skin in the game:_ I did books for my dad's plumbing firm for six years before I did it for anyone else.
+> *Skin in the game:* I did books for my dad's plumbing firm for six years before I did it for anyone else.
 > I know what a job sheet looks like when it's been in a van for a fortnight.
 >
-> _Fingerprint:_ I work with tradespeople only. Fourteen of them right now. If you run a marketing agency,
+> *Fingerprint:* I work with tradespeople only. Fourteen of them right now. If you run a marketing agency,
 > I'm the wrong person and I'll say so.
 
 **What to test this against:** the same page with the guarantee removed from the headline and moved to a

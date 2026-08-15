@@ -59,7 +59,7 @@ regression (see `.planning/HANDOFF-TO-CORE-2026-08-08-workspace-trust.md`):
 this.stderrTail).trim());` then `wcore ${describeExitReason(code, signal)} during init:
 ${detail}` when `detail` is non-empty (already correct for DIA-01 — nothing to fix here).
   3. The 30-second ready-timeout `Promise`: already does the identical `redactSecrets(stripAnsi(
-   this.stderrTail).trim())` composition, prefixed `wcore ready timeout (30s): ${detail}` (also
+this.stderrTail).trim())` composition, prefixed `wcore ready timeout (30s): ${detail}` (also
      already correct for DIA-01).
      Neither (2) nor (3) does ANY class-of-failure distinction today — that is DIA-02's gap, and it is
      present in all three sites, not just (1).
@@ -207,12 +207,12 @@ back — inferred from the profile name, not confirmed by the engine)`. Exact wo
      (`api_key`, `token`, `secret`, `password`, etc.) immediately followed by `:`/`=` or a
      secret-shaped value — plain prose with no such adjacency is safe.
   5. `export function describeContractRejection(stderrDetail: string, fallbackDetail: string):
-   string` — this is the DIA-01 fix for the `failDesktopContract` site specifically: if
+string` — this is the DIA-01 fix for the `failDesktopContract` site specifically: if
      `stderrDetail` (expected pre-redacted/pre-ANSI-stripped by the caller) is empty, return
      `` `wcore Desktop contract rejected ready: ${fallbackDetail}` `` UNCHANGED (there genuinely is no
      engine-side reason available — this is a Desktop-side contract-parsing bug, and losing that
      detail would be a regression); otherwise return `` `wcore refused to start: ${stderrDetail}
-   ${profileStripHedge(stderrDetail)}` `` (note: this is the ONLY site that fully replaces the
+${profileStripHedge(stderrDetail)}` `` (note: this is the ONLY site that fully replaces the
      abstract phrase — the other two sites, fixed in Task 2, only ever APPEND `profileStripHedge`'s
      suffix to their existing, already-correct wording; they never call this function).
      Behavior (write these as failing/RED tests before the module exists, matching the RED-then-GREEN

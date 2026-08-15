@@ -4,7 +4,7 @@ VERDICT: NO-GO
 SEVERITY: Critical
 Claim: The plan refuses to name a root cause, incorrectly dismissing H1 because `refreshServerStatuses` ignores `enabled: false` rows.
 Evidence: Context logs (`09:49:15.912 [WaylandMcpAgent] Installed MCP servers: tvcontrol`) and `handleToggleMcpServer` (lines 9-11).
-Correction: The root cause is determinable and H1 is correct. The competing writer is `useConnectedMcps`, not `refreshServerStatuses`. `syncMcpToAgents` takes 46 seconds to run serially. `WaylandMcpAgent` is second in the list and completes at 09:49:15. Wayland immediately detects its own agent's new configuration, connects to the server, and the `useEffect` at `useConnectedMcps` fires, calling `saveMcpServers` to update the status to `connected` and bumping `updatedAt`. 45 seconds later, `handleToggleMcpServer` executes its local commit, fails the `server.updatedAt !== targetServer.updatedAt` guard, throws, and triggers the rollback. 
+Correction: The root cause is determinable and H1 is correct. The competing writer is `useConnectedMcps`, not `refreshServerStatuses`. `syncMcpToAgents` takes 46 seconds to run serially. `WaylandMcpAgent` is second in the list and completes at 09:49:15. Wayland immediately detects its own agent's new configuration, connects to the server, and the `useEffect` at `useConnectedMcps` fires, calling `saveMcpServers` to update the status to `connected` and bumping `updatedAt`. 45 seconds later, `handleToggleMcpServer` executes its local commit, fails the `server.updatedAt !== targetServer.updatedAt` guard, throws, and triggers the rollback.
 
 2. DIAGNOSTIC SUFFICIENCY
 SEVERITY: Medium

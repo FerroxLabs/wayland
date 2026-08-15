@@ -98,6 +98,13 @@ repos:
         #  - src/process/resources/skills/**: skill bodies are SHA-256 pinned by
         #    scripts/prepareOfficeCli.js. Reformatting officecli-data-dashboard's
         #    SKILL.md produced "OfficeCLI skill digest mismatch".
+        #  - src/process/resources/skills-library/bodies/**: the SAME skills ship
+        #    twice - Ignition loads the pinned copy under resources/skills/ (already
+        #    excluded above) and skills-search surfaces this duplicate. Both are
+        #    hand-authored, and ignitionPinnedSkillQuality asserts they are
+        #    byte-identical. Excluding only one side let the formatter rewrite the
+        #    library copy of copywriter, startup-advisor and brand-identity-designer
+        #    and fail that assertion with "has drifted from its library copy".
         #  - tests/fixtures/** and strike/**: captured corpora pinned by digest AND
         #    byte size, including a .ts generator whose own hash is asserted.
         #    Reformatting them produced "State drift: size mismatch" in the
@@ -111,7 +118,7 @@ repos:
         # Every entry below was added because a formatter run actually broke it.
         # Adding a path here is cheaper than the build or suite failure it prevents.
         exclude: >-
-          ^(src/process/resources/(skills-library|bundled-workflows)/index\.json|src/process/resources/skills/.*|resources/modelsdev-snapshot\.json|contracts/.*|tests/fixtures/.*|strike/.*|src/process/channels/whatsapp-bridge/.*)$
+          ^(src/process/resources/(skills-library|bundled-workflows)/index\.json|src/process/resources/skills/.*|resources/modelsdev-snapshot\.json|src/process/resources/skills-library/bodies/.*|contracts/.*|tests/fixtures/.*|strike/.*|src/process/channels/whatsapp-bridge/.*)$
         pass_filenames: true
 
   # i18n translation files validation

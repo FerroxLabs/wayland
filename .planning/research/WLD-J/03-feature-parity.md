@@ -69,8 +69,8 @@ The substance of the conclusion survives, and I still endorse it:
 
 The practical consequence is unchanged: a large share of what reads as "bug fixes" in `v2.1.x` —
 backend startup diagnostics, `__backendPort unset`, bundled-aioncore verification, port reuse after
-crash-restart, health-probe timeouts, snake_case adapter mapping, pre-warmup 404 suppression — are
-fixes to glue that exists _because_ they made that move. In the sweep below these show up as a large
+crash-restart, health-probe timeouts, snake*case adapter mapping, pre-warmup 404 suppression — are
+fixes to glue that exists \_because* they made that move. In the sweep below these show up as a large
 `fix(adapter)` / `fix(ipcBridge)` / `fix(backend*)` cluster. They are not latent bugs in our tree.
 
 ---

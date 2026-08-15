@@ -147,14 +147,14 @@ where they actually are and give them the next stage's test.
 Each stage has one job and one bar. Until the bar is met, work on that stage -- effort spent on a
 later stage is wasted, and it is the most common way founders burn a year.
 
-| Stage                 | The one job                               | The bar to clear                                                                  | Typical failure                                         |
-| --------------------- | ----------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| **1. Ideation**       | Prove the problem is real and costly      | 10+ people describe the problem unprompted and can name what it costs them        | Falling for a problem nobody pays to fix                |
-| **2. Validation**     | Prove someone pays                        | Real money or a binding commitment from 5 people, before the thing exists         | Interviews that confirm interest but never test payment |
-| **3. MVP**            | Deliver the core value to first customers | 10 customers use it and at least half come back unprompted                        | Building the roadmap instead of the one thing           |
-| **4. Early traction** | Find one repeatable way to get customers  | The same channel produces customers three months running at a cost you can afford | Chasing five channels badly                             |
-| **5. Growth**         | Make the economics work at volume         | A customer costs less to acquire than they are worth, with the maths written down | Scaling a channel that loses money faster               |
-| **6. Scale**          | Build capacity beyond the founder         | The business runs a week without you and nothing breaks                           | Hiring before the process exists                        |
+| Stage | The one job | The bar to clear | Typical failure |
+|---|---|---|---|
+| **1. Ideation** | Prove the problem is real and costly | 10+ people describe the problem unprompted and can name what it costs them | Falling for a problem nobody pays to fix |
+| **2. Validation** | Prove someone pays | Real money or a binding commitment from 5 people, before the thing exists | Interviews that confirm interest but never test payment |
+| **3. MVP** | Deliver the core value to first customers | 10 customers use it and at least half come back unprompted | Building the roadmap instead of the one thing |
+| **4. Early traction** | Find one repeatable way to get customers | The same channel produces customers three months running at a cost you can afford | Chasing five channels badly |
+| **5. Growth** | Make the economics work at volume | A customer costs less to acquire than they are worth, with the maths written down | Scaling a channel that loses money faster |
+| **6. Scale** | Build capacity beyond the founder | The business runs a week without you and nothing breaks | Hiring before the process exists |
 
 ### Stage 1 -- Ideation
 
@@ -217,17 +217,17 @@ NRR for a mobile dog-grooming round.
 Second, a metric with no decision attached to it is a distraction. Before asking for a number, know
 what you would do differently at a high value versus a low one.
 
-| Metric                                | Formula                                                   | Healthy                                              | Applies to              |
-| ------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------- | ----------------------- |
-| **CAC** -- cost to acquire a customer | Sales + marketing spend / new customers                   | Must be recoverable inside 12 months of gross profit | Everyone                |
-| **LTV** -- what a customer is worth   | Average revenue per customer / churn rate                 | At least 3x CAC                                      | Everyone, roughly       |
-| **LTV:CAC**                           | LTV / CAC                                                 | 3:1 minimum, 5:1 healthy                             | Everyone                |
-| **Payback period**                    | CAC / monthly gross profit per customer                   | Under 12 months                                      | Everyone                |
-| **MRR / ARR**                         | Sum of monthly subscription revenue (x12 for ARR)         | 10-20% month-on-month early                          | Subscription only       |
-| **Churn**                             | Customers lost in month / customers at start              | Under 5% monthly SMB, under 1% enterprise            | Subscription only       |
-| **NRR**                               | (Start MRR + expansion - contraction - churn) / start MRR | Above 100%                                           | Subscription only       |
-| **DAU/MAU**                           | Daily actives / monthly actives                           | 20% good, 50% excellent                              | Habitual products only  |
-| **Burn and runway**                   | Monthly net cash out; cash / burn                         | Runway in months, honestly counted                   | Anyone spending savings |
+| Metric | Formula | Healthy | Applies to |
+|---|---|---|---|
+| **CAC** -- cost to acquire a customer | Sales + marketing spend / new customers | Must be recoverable inside 12 months of gross profit | Everyone |
+| **LTV** -- what a customer is worth | Average revenue per customer / churn rate | At least 3x CAC | Everyone, roughly |
+| **LTV:CAC** | LTV / CAC | 3:1 minimum, 5:1 healthy | Everyone |
+| **Payback period** | CAC / monthly gross profit per customer | Under 12 months | Everyone |
+| **MRR / ARR** | Sum of monthly subscription revenue (x12 for ARR) | 10-20% month-on-month early | Subscription only |
+| **Churn** | Customers lost in month / customers at start | Under 5% monthly SMB, under 1% enterprise | Subscription only |
+| **NRR** | (Start MRR + expansion - contraction - churn) / start MRR | Above 100% | Subscription only |
+| **DAU/MAU** | Daily actives / monthly actives | 20% good, 50% excellent | Habitual products only |
+| **Burn and runway** | Monthly net cash out; cash / burn | Runway in months, honestly counted | Anyone spending savings |
 
 For a founder using their own money, translate burn into the number that actually governs behaviour:
 **how many weeks can this continue before it hurts.** That is the constraint they will feel, and it is

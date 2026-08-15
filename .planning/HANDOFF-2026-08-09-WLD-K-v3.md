@@ -190,10 +190,10 @@ Live-verified on a real engine turn and on a real corrupted conversation: **1 st
 
 ### W-C — Carry the tool's subject through to the label **[DONE 2026-08-09]**
 
-`ExecutionActivity` gained a `command` field distinct from `detail`, populated from a tool_group's
+`ExecutionActivity` gained a `command` field distinct from `detail`, populated from a tool*group's
 description and secret-masked. `deriveStep` now builds from the invocation first and falls back to
 `detail`, so a ReadFile reads "Reading config.ts" in **both** the chat and the rail. The engine still
-does not send the raw ToolSearch _argument_ — the query shown comes from Core's own echo — so if that
+does not send the raw ToolSearch \_argument* — the query shown comes from Core's own echo — so if that
 arg is ever plumbed through, `activityLabels.ts` already reads an explicit `query` field.
 
 ### W-B — Integrate the private C-1…C-5 Core build **[DONE 2026-08-09]**
