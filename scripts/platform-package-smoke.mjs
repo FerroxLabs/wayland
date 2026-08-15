@@ -596,17 +596,39 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
           { encoding: 'utf8' }
         )
       );
+      // hdiutil reports the canonical mount path (/private/var/...) while the
+      // requested mount is the symlinked form (/var/...). Deduplicating the raw
+      // strings therefore keeps both, the single mounted volume is scanned twice,
+      // and the one application bundle is counted as two.
+      const canonicalise = (candidate) => {
+        try {
+          return fs.realpathSync.native(candidate);
+        } catch {
+          return candidate;
+        }
+      };
       const mountPoints = [
-        ...new Set([
-          requestedMount,
-          ...[...plist.matchAll(/<key>mount-point<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) =>
-            decodeXml(match[1])
-          ),
-        ]),
-      ].filter((candidate) => fs.existsSync(candidate));
+        ...new Set(
+          [
+            requestedMount,
+            ...[...plist.matchAll(/<key>mount-point<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) =>
+              decodeXml(match[1])
+            ),
+          ]
+            .filter((candidate) => fs.existsSync(candidate))
+            .map(canonicalise)
+        ),
+      ];
+      // Detach the whole-disk devices only. A plist lists both /dev/diskN and its
+      // /dev/diskNsM partitions; detaching the disk invalidates its partitions, so
+      // detaching every entry reports spurious "No such file or directory" failures
+      // for work that already succeeded.
       const deviceEntries = [
         ...new Set(
-          [...plist.matchAll(/<key>dev-entry<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) => decodeXml(match[1]))
+          [...plist.matchAll(/<key>dev-entry<\/key>\s*<string>([^<]+)<\/string>/g)]
+            .map((match) => decodeXml(match[1]))
+            .map((entry) => /^(\/dev\/disk\d+)/.exec(entry)?.[1])
+            .filter(Boolean)
         ),
       ];
       // A device node is the idempotent hdiutil detach authority. Falling
@@ -619,7 +641,13 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
           .filter((entry) => entry.isDirectory() && entry.name.endsWith('.app'))
           .map((entry) => ({ mountPoint, name: entry.name }));
       });
-      if (mountedApps.length !== 1) throw new Error(`${TAG} DMG must expose exactly one application bundle`);
+      if (mountedApps.length !== 1) {
+        throw new Error(
+          `${TAG} DMG must expose exactly one application bundle; found ${mountedApps.length} ` +
+            `(${mountedApps.map((app) => `${app.mountPoint}/${app.name}`).join(', ') || 'none'}) ` +
+            `across mount points ${mountPoints.join(', ') || 'none'}`
+        );
+      }
       const [{ mountPoint, name }] = mountedApps;
       execute('ditto', [path.join(mountPoint, name), path.join(installRoot, name)], { stdio: 'pipe' });
     } catch (error) {
@@ -628,6 +656,9 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
       const cleanupErrors = [];
       if (attachAttempted) {
         for (const mounted of detachTargets) {
+          // Detaching one device of an attachment tears down its siblings, so a
+          // device that has already disappeared is a success, not a cleanup failure.
+          if (!fs.existsSync(mounted)) continue;
           try {
             execute('hdiutil', ['detach', mounted, '-force'], { stdio: 'pipe' });
           } catch (error) {
