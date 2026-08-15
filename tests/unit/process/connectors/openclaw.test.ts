@@ -312,13 +312,16 @@ describe('openclaw connector', () => {
     it('honors OPENCLAW_CONFIG_PATH above everything', () => {
       process.env.OPENCLAW_CONFIG_PATH = '/custom/oc.json';
       process.env.OPENCLAW_STATE_DIR = '/ignored';
-      expect(resolveOpenClawConfigPath()).toBe('/custom/oc.json');
+      // Resolve the expectation: a POSIX literal lands on the current drive on
+      // Windows ('/custom/oc.json' -> 'D:\\custom\\oc.json'), which is the
+      // resolver behaving correctly, not a path-resolution bug.
+      expect(resolveOpenClawConfigPath()).toBe(path.resolve('/custom/oc.json'));
     });
 
     it('honors OPENCLAW_STATE_DIR next', () => {
       delete process.env.OPENCLAW_CONFIG_PATH;
       process.env.OPENCLAW_STATE_DIR = '/state';
-      expect(resolveOpenClawConfigPath()).toBe(path.join('/state', 'openclaw.json'));
+      expect(resolveOpenClawConfigPath()).toBe(path.resolve(path.join('/state', 'openclaw.json')));
     });
 
     it('falls back to ~/.openclaw', () => {

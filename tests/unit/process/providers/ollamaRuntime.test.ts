@@ -14,6 +14,7 @@
  * to start.
  */
 
+import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { mockExistsSync, mockAccessSync, mockSpawn } = vi.hoisted(() => ({
@@ -67,7 +68,10 @@ describe('findOllamaBinary', () => {
   });
 
   it('falls back to the shell-repaired PATH', () => {
-    const onPath = process.platform === 'win32' ? '/opt/custom/bin\\ollama.exe' : '/opt/custom/bin/ollama';
+    // Build it exactly as findOllamaBinary does. `path.join` rewrites EVERY
+    // separator on Windows, so the hand-written '/opt/custom/bin\\ollama.exe'
+    // could never match the '\\opt\\custom\\bin\\ollama.exe' it actually returns.
+    const onPath = path.join('/opt/custom/bin', process.platform === 'win32' ? 'ollama.exe' : 'ollama');
     mockExistsSync.mockImplementation((p) => p === onPath);
 
     expect(findOllamaBinary()).toBe(onPath);

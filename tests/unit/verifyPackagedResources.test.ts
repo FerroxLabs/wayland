@@ -805,7 +805,12 @@ describe('packaged resource release gate', () => {
   });
 
   /** KNOWN POSITIVE: the same fixture, untouched, must pass. */
-  it('KNOWN POSITIVE: the complete fixture with the voice model present verifies', () => {
+  // Requires the whole sweep to PASS, so it is host-limited for the reason
+  // documented at `itAcceptedSweep`: NTFS cannot carry the POSIX executable bit
+  // this darwin fixture pins. The four sibling accepted-sweep cases already use
+  // it; this one was left on plain `it` and was the only reason the
+  // windows-2022 3/4 shard stayed red.
+  itAcceptedSweep('KNOWN POSITIVE: the complete fixture with the voice model present verifies', () => {
     const out = createPackagedResources(true);
     expect(() => verify(out)).not.toThrow();
   });
