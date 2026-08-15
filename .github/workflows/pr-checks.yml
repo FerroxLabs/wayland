@@ -235,7 +235,14 @@ jobs:
     # runners are just slow; tracked separately). The 35m stopgap drops to 15m —
     # ~1.6x over the slowest (windows, 9.3min). If windows variance trips the cap,
     # raise toward 18-20m.
-    timeout-minutes: 15
+  #
+  # 2026-08-15: it tripped. windows-2022 shard 3/4 was cancelled at exactly
+  # 15m00s on an otherwise green run - 11 of 12 shards passed, and a cancelled
+  # shard reds out all three "Unit Tests (<os>)" required checks just like a
+  # failure would. That shard carries verifyPackagedResources (63 cases that
+  # each build a packaged fixture tree), so it is the slowest of the four.
+  # Taking the comment's own advice rather than inventing a new number.
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
