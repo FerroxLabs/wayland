@@ -741,6 +741,37 @@ function verifyBridgeLock(sourceDir) {
   });
 }
 
+function describeTargetForDiagnostics(target, maxEntries = 24) {
+  if (!fs.existsSync(target)) return 'absent';
+  const stats = fs.lstatSync(target);
+  if (stats.isSymbolicLink()) return `symlink -> ${fs.readlinkSync(target)}`;
+  if (!stats.isDirectory()) return `file, ${stats.size} bytes`;
+  const walk = (dir, prefix = '', depth = 0) => {
+    if (depth > 1) return [];
+    const rows = [];
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const rel = `${prefix}${entry.name}`;
+      if (entry.isDirectory()) {
+        rows.push(`${rel}/`);
+        rows.push(...walk(path.join(dir, entry.name), `${rel}/`, depth + 1));
+      } else {
+        let size = '?';
+        try {
+          size = String(fs.statSync(path.join(dir, entry.name)).size);
+        } catch {
+          // A file that vanished between readdir and stat is itself worth showing.
+        }
+        rows.push(`${rel} (${size})`);
+      }
+    }
+    return rows;
+  };
+  const rows = walk(target);
+  if (!rows.length) return 'directory, empty';
+  const shown = rows.slice(0, maxEntries).join(', ');
+  return `directory, contains: ${shown}${rows.length > maxEntries ? ` (+${rows.length - maxEntries} more)` : ''}`;
+}
+
 function verifySourceMirror(
   bundleDir,
   sourceDir,
@@ -1203,6 +1234,12 @@ function verifyPackagedResources(options = {}) {
         logger.log(`${TAG}   OK   ${req.rel}`);
       } else if (req.critical || fs.existsSync(target)) {
         logger.error(`${TAG}   FAIL ${req.rel}  <-- CRITICAL, missing or invalid`);
+        // The per-resource checks return a bare boolean, so a failure otherwise says
+        // only that something is wrong with a path nobody can inspect afterwards.
+        // Show what is actually on disk; absent, empty and wrong-shape look identical
+        // in the verdict but not here.
+        logger.error(`${TAG}        path: ${target}`);
+        logger.error(`${TAG}        ${describeTargetForDiagnostics(target)}`);
         criticalFailures += 1;
         criticalFailureRels.push(req.rel);
       } else {
