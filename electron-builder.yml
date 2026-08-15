@@ -131,6 +131,9 @@ extraResources:
   # wayland-core engine binary (pre-compiled per platform/arch)
   - from: resources/bundled-wayland-core
     to: bundled-wayland-core
+  # Wayland Nano first-party agent binary (pre-compiled per platform/arch)
+  - from: resources/bundled-wayland-nano
+    to: bundled-wayland-nano
   # Native anchored Constitution filesystem helper. The exact target helper
   # and adjacent manifest are staged from source before the ASAR is compiled;
   # the independently generated authority is compiled into main-process code.
@@ -259,16 +262,17 @@ mac:
   entitlementsInherit: entitlements.plist
   # Preserve the exact independently pinned nested executable bytes. OfficeCLI
   # is already Developer ID signed by its publisher. The released wayland-core
-  # binary is linker-signed. Re-signing either with Electron helper entitlements
-  # changes its pinned digest and grants a much broader authority surface than
-  # the standalone tool was built with; the post-package gate rechecks the exact
-  # bytes from Contents/Resources.
+  # and wayland-nano binaries are linker-signed. Re-signing any of them with
+  # Electron helper entitlements changes its pinned digest and grants a much
+  # broader authority surface than the standalone tool was built with; the
+  # post-package gate rechecks the exact bytes from Contents/Resources.
   signIgnore:
     - '/Contents/Resources/bundled-bun/[^/]+/bun$'
     - '/Contents/Resources/whatsapp-bridge/node_modules/@img/sharp-(?:libvips-)?darwin-(?:arm64|x64)/.*(?:\.node|\.dylib)$'
     - '/Contents/Resources/whatsapp-bridge/node_modules/(?:bare-fs|bare-os|bare-url)/prebuilds/(?:darwin-(?:arm64|x64)|ios-(?:arm64|arm64-simulator|x64-simulator))/[^/]+\.bare$'
     - '/Contents/Resources/bundled-officecli/[^/]+/officecli$'
     - '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$'
+    - '/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$'
     - '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$'
   # #466: Computer-Use uses Screen Recording (screenshots) + Apple Events (to
   # control other apps). NSAppleEventsUsageDescription IS an Apple-honored TCC

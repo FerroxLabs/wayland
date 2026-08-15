@@ -36,6 +36,18 @@
       "predicateType": "https://slsa.dev/provenance/v1",
       "oidcIssuer": "https://token.actions.githubusercontent.com",
       "runner": "github-hosted"
+    },
+    {
+      "id": "wayland-nano-v0.1.1-release",
+      "status": "active",
+      "releaseTag": "v0.1.1",
+      "repository": "FerroxLabs/wayland-nano",
+      "signerWorkflow": "FerroxLabs/wayland-nano/.github/workflows/release.yml",
+      "sourceRef": "refs/tags/v0.1.1",
+      "sourceDigest": "466f030db615038919d6f367e2b7f0354ac73f06",
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "oidcIssuer": "https://token.actions.githubusercontent.com",
+      "runner": "github-hosted"
     }
   ]
 }

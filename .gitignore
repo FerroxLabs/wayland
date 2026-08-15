@@ -209,6 +209,7 @@ lint-results.txt
 docs/superpowers/
 resources/bundled-bun
 resources/bundled-wayland-core
+resources/bundled-wayland-nano
 resources/bundled-officecli
 resources/bundled-constitution-fs
 resources/hub
