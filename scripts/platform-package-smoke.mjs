@@ -1342,7 +1342,12 @@ export async function runSmoke(options, dependencies = {}) {
       }
       const browser = await request(`http://127.0.0.1:${port}/json/version`);
       if (!browser.webSocketDebuggerUrl) throw new Error(`${TAG} browser CDP endpoint omitted its websocket URL`);
-      await command(browser.webSocketDebuggerUrl, 'Browser.close', {}, 5_000);
+      // Five seconds is the acknowledgement budget for the CDP call, not for the
+      // shutdown itself. Both macOS release builds timed out here while the packaged
+      // app was still working through init on a contended runner. What the smoke
+      // actually asserts (the process exits, and the shutdown evidence validates) is
+      // enforced below and unchanged; a genuine hang still fails.
+      await command(browser.webSocketDebuggerUrl, 'Browser.close', {}, 20_000);
       const shutdown = await waitForExitImpl(child, 10_000);
       await new Promise((resolve) => setTimeout(resolve, dependencies.shutdownSettleMs ?? 250));
       const descendantRecords = processMonitor.stop();
