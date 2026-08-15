@@ -141,13 +141,15 @@ const CronProposeCard: React.FC<CronProposeCardProps> = ({ message }) => {
   };
 
   return (
-    <div className={classNames(styles.shell, styles.pending)}>
+    <div className={classNames(styles.shell, styles.pending)} data-testid='cron-propose-card'>
       <div className={styles.header}>
         <Calendar size={16} /> {t('cron.propose.title')}
       </div>
       <dl className={styles.body}>
         <dt>{t('cron.propose.name')}</dt>
-        <dd className={styles.singleLine}>{name}</dd>
+        <dd className={styles.singleLine} data-testid='cron-propose-name'>
+          {name}
+        </dd>
         <dt>{t('cron.propose.schedule')}</dt>
         <dd>
           <span className={styles.singleLine}>{scheduleDescription}</span>
@@ -169,13 +171,20 @@ const CronProposeCard: React.FC<CronProposeCardProps> = ({ message }) => {
           size='mini'
           disabled={parseError || resolving}
           onClick={() => void sendAction('accept')}
+          data-testid='cron-propose-accept'
         >
           <Check size={14} /> {t('cron.propose.yes')}
         </Button>
-        <Button size='mini' disabled={resolving} onClick={() => void sendAction('edit')}>
+        <Button size='mini' disabled={resolving} onClick={() => void sendAction('edit')} data-testid='cron-propose-edit'>
           <Edit size={14} /> {t('cron.propose.edit')}
         </Button>
-        <Button type='text' size='mini' disabled={resolving} onClick={() => void sendAction('cancel')}>
+        <Button
+          type='text'
+          size='mini'
+          disabled={resolving}
+          onClick={() => void sendAction('cancel')}
+          data-testid='cron-propose-cancel'
+        >
           <X size={14} /> {t('cron.propose.cancel')}
         </Button>
       </div>

@@ -12,7 +12,7 @@ You can manage scheduled tasks that run at specified times. Wayland renders an i
 1. **ONE task per conversation** - Each conversation can only have ONE scheduled task in `existing` mode
 2. **Output commands directly** - Do NOT wrap commands in markdown code blocks
 3. **ALWAYS include closing tags** - `[CRON_PROPOSE]` MUST end with `[/CRON_PROPOSE]`, `[CRON_UPDATE]` MUST end with `[/CRON_UPDATE]`
-4. **PROPOSE-default** - Use `[CRON_PROPOSE]` for every user-driven scheduling request. The user will see a card with Yes / Edit / Cancel - the task is NOT created until they accept. Do NOT use `[CRON_CREATE]` for normal scheduling - that bypasses confirmation and exists only for the explicit override case (see "Override" section below).
+4. **PROPOSE is the ONLY creation path** - Use `[CRON_PROPOSE]` for every scheduling request. The user sees a card with Yes / Edit / Cancel and the task is NOT created until they accept. `[CRON_CREATE]` is REFUSED by the host: it creates nothing and the user gets a warning instead of their task. Emit `[CRON_PROPOSE]` even when the user says "just do it" or "don't ask me" - the single click is the confirmation.
 
 ## Workflow
 
@@ -46,7 +46,7 @@ The user will see an inline card with the proposed Name / Schedule / Prompt and 
 
 After emitting `[CRON_PROPOSE]`, your turn ends. Do NOT also say "Done, scheduled" - the card itself is the response; saying "Done" before the user clicks Yes is a lie. If the user confirms, the system will emit a follow-up state change you can observe.
 
-**Required fields** (same shape as the legacy `[CRON_CREATE]`):
+**Required fields:**
 
 - `name`: Short descriptive name
 - `schedule`: Valid cron expression (see reference below)
@@ -71,24 +71,6 @@ schedule: 0 9 \* \* MON
 schedule_description: Every Monday at 9:00 AM
 message: Reply with a short weekly meeting reminder that includes the current date and time.
 [/CRON_PROPOSE]
-
-## Override: [CRON_CREATE] (rare - skips user confirmation)
-
-`[CRON_CREATE]` creates the cron immediately with no user confirmation. Reserve this for:
-
-- The user EXPLICITLY says "create it without asking me" or "skip confirmation"
-- Programmatic ritual installs (Standing Company rituals etc. emitted by system, not by chat)
-
-For any normal user request to "schedule this every day at 9am" - even if it seems unambiguous - use `[CRON_PROPOSE]`. The confirmation card costs the user one click and saves them from accidental schedules they didn't intend.
-
-Format (same shape as PROPOSE, only the tag name differs):
-
-[CRON_CREATE]
-name: Task name
-schedule: Cron expression
-schedule_description: Human-readable description
-message: Message content
-[/CRON_CREATE]
 
 ## Update: [CRON_UPDATE]
 

@@ -3,7 +3,10 @@
  *
  * Verifies the full lifecycle of scheduled tasks via real AI conversations:
  * 1. Send a message asking AI to create a scheduled task
- * 2. AI outputs [CRON_LIST] → system responds → AI outputs [CRON_CREATE]
+ * 2. AI outputs [CRON_LIST] → system responds → AI outputs [CRON_PROPOSE],
+ *    which renders a confirmation card; the USER clicks Yes to create the job.
+ *    (Agent-emitted [CRON_CREATE] is refused by MessageMiddleware by design -
+ *    the confirmation click IS the creation path, so the specs drive it.)
  * 3. Verify task appears in sidebar and scheduled tasks page
  * 4. Send a follow-up message to modify the task
  * 5. AI outputs [CRON_UPDATE] preserving conversations
@@ -105,6 +108,24 @@ async function waitForCronJobCreated(
 }
 
 /**
+ * Accept the [CRON_PROPOSE] confirmation card.
+ *
+ * No cron row exists until this click - `cronBridge.confirmProposal` is the
+ * only writer. Asserting the card first is the point: it proves the agent took
+ * the PROPOSE path rather than the refused CREATE one.
+ */
+async function acceptCronProposal(
+  page: import('@playwright/test').Page,
+  timeoutMs = 120_000
+): Promise<void> {
+  const card = page.locator('[data-testid="cron-propose-card"]').last();
+  await card.waitFor({ state: 'visible', timeout: timeoutMs });
+  const accept = card.locator('[data-testid="cron-propose-accept"]');
+  await expect(accept).toBeEnabled({ timeout: 15_000 });
+  await accept.click();
+}
+
+/**
  * Wait for a cron job to be updated (name changed).
  * Polls until the job's name differs from the original.
  */
@@ -188,7 +209,7 @@ test.describe('Cron via AI conversation', () => {
     // ── Step 2: Send message to create a scheduled task ──
     conversationId = await sendMessageFromGuid(
       page,
-      'Create a scheduled task named "E2E Morning Greeting" that runs every day at 9:00 AM. The task should reply with a friendly good morning greeting. Do it now, don\'t ask me for confirmation.'
+      'Create a scheduled task named "E2E Morning Greeting" that runs every day at 9:00 AM. The task should reply with a friendly good morning greeting.'
     );
     expect(conversationId).toBeTruthy();
 
@@ -198,7 +219,13 @@ test.describe('Cron via AI conversation', () => {
     // Wait for agent session to be active
     await waitForSessionActive(page, 120_000);
 
-    // ── Step 3: Wait for the cron job to actually be created ──
+    // ── Step 3: Confirm the proposal, then wait for the job ──
+    // Nothing is written to cron_jobs until this click.
+    const preAccept = await listCronJobs(page);
+    expect(preAccept.some((j) => j.metadata.conversationId === conversationId)).toBe(false);
+
+    await acceptCronProposal(page);
+
     const job = await waitForCronJobCreated(page, conversationId, 120_000);
     createdJobId = job.id;
 
@@ -313,7 +340,7 @@ test.describe('Cron via AI conversation', () => {
 
     conversationId = await sendMessageFromGuid(
       page,
-      'Create a scheduled task called "E2E Sidebar Check" that runs hourly. The task should say hello. Create it immediately without asking.'
+      'Create a scheduled task called "E2E Sidebar Check" that runs hourly. The task should say hello.'
     );
     expect(conversationId).toBeTruthy();
 
@@ -321,6 +348,8 @@ test.describe('Cron via AI conversation', () => {
     stopAutoApprove = startAutoApproveConfirmations(page);
 
     await waitForSessionActive(page, 120_000);
+
+    await acceptCronProposal(page);
 
     const job = await waitForCronJobCreated(page, conversationId, 120_000);
     createdJobId = job.id;
