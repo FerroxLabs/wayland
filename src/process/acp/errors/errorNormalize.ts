@@ -3,6 +3,47 @@
 import { RequestError } from '@agentclientprotocol/sdk';
 import { AcpError, type AcpErrorCode } from '@process/acp/errors/AcpError';
 import { extractAcpError, formatUnknownError } from '@process/acp/errors/errorExtract';
+import { NANO_ERROR_BY_KIND } from '@/common/types/nanoErrorCodes';
+
+/**
+ * C7: a nano-typed error payload (`error.data.nanoError`) — the engine's
+ * closed error-code table entry. Fail-closed parsing: anything malformed
+ * (non-string kind, non-boolean retryable) is treated as absent.
+ */
+function extractNanoError(data: unknown): { kind: string; retryable: boolean } | undefined {
+  if (!data || typeof data !== 'object') return undefined;
+  const nano = (data as Record<string, unknown>).nanoError;
+  if (!nano || typeof nano !== 'object') return undefined;
+  const kind = (nano as Record<string, unknown>).kind;
+  const retryable = (nano as Record<string, unknown>).retryable;
+  if (typeof kind !== 'string' || typeof retryable !== 'boolean') return undefined;
+  return { kind, retryable };
+}
+
+/**
+ * C7: the nano error kind an arbitrary thrown value carries, checking both
+ * the normalized AcpError field and a raw JSON-RPC `data.nanoError` shape.
+ * Used by call sites that historically grepped message text (e.g.
+ * model_not_found) — the kind check is preferred, the grep stays as
+ * fallback for third-party agents.
+ */
+export function nanoErrorKindOf(error: unknown): string | undefined {
+  if (!error || typeof error !== 'object') return undefined;
+  const direct = (error as { nanoError?: { kind?: unknown } }).nanoError;
+  if (direct && typeof direct.kind === 'string') return direct.kind;
+  return extractNanoError((error as { data?: unknown }).data)?.kind;
+}
+
+/**
+ * C7: retryability for a nano-tagged error comes from the typed payload,
+ * OVERRIDING the numeric-code map (which classifies every -32603 as
+ * retryable — wrong for e.g. journal_unavailable). A kind the table does
+ * not know (a newer engine) classifies TERMINAL: an older UI must never
+ * auto-retry an error it does not understand.
+ */
+function nanoRetryable(nano: { kind: string; retryable: boolean }): boolean {
+  return NANO_ERROR_BY_KIND[nano.kind] ? nano.retryable : false;
+}
 
 /**
  * SDK JSON-RPC error code → AcpErrorCode + retryable mapping.
@@ -96,21 +137,30 @@ export function normalizeError(error: unknown): AcpError {
   // Prefer SDK's RequestError - it carries a typed .code from the ACP schema.
   if (error instanceof RequestError) {
     const mapped = ACP_CODE_MAP[error.code];
+    const nano = extractNanoError(error.data);
 
     // Message-based heuristic: some agents return auth failures as -32603
     // (Internal error) instead of -32000 (Auth required). Detect common
     // auth-related keywords to surface the correct auth flow to the user.
-    if (mapped && mapped.code !== 'AUTH_REQUIRED' && isAuthRelatedMessage(error.message)) {
+    // C7: a nano-tagged error already carries its typed classification, so
+    // the message-text heuristic is skipped for it (the text is a static
+    // table presentation, never provider prose).
+    if (!nano && mapped && mapped.code !== 'AUTH_REQUIRED' && isAuthRelatedMessage(error.message)) {
       return new AcpError('AUTH_REQUIRED', error.message, { cause: error, retryable: true });
     }
 
     if (mapped) {
       return new AcpError(mapped.code, withErrorDetail(error.message, error.data), {
         cause: error,
-        retryable: mapped.retryable,
+        retryable: nano ? nanoRetryable(nano) : mapped.retryable,
+        nanoError: nano,
       });
     }
-    return new AcpError('AGENT_ERROR', withErrorDetail(error.message, error.data), { cause: error });
+    return new AcpError('AGENT_ERROR', withErrorDetail(error.message, error.data), {
+      cause: error,
+      nanoError: nano,
+      retryable: nano ? nanoRetryable(nano) : false,
+    });
   }
 
   // Detect SDK "ACP connection closed" - child process exited before responding.
@@ -127,13 +177,19 @@ export function normalizeError(error: unknown): AcpError {
   if (acpPayload) {
     // Try code-based mapping first (same ACP codes)
     const mapped = ACP_CODE_MAP[acpPayload.code];
+    const nano = extractNanoError(acpPayload.data);
     if (mapped) {
       return new AcpError(mapped.code, withErrorDetail(acpPayload.message, acpPayload.data), {
         cause: error,
-        retryable: mapped.retryable,
+        retryable: nano ? nanoRetryable(nano) : mapped.retryable,
+        nanoError: nano,
       });
     }
-    return new AcpError('AGENT_ERROR', withErrorDetail(acpPayload.message, acpPayload.data), { cause: error });
+    return new AcpError('AGENT_ERROR', withErrorDetail(acpPayload.message, acpPayload.data), {
+      cause: error,
+      nanoError: nano,
+      retryable: nano ? nanoRetryable(nano) : false,
+    });
   }
 
   // Fallback
