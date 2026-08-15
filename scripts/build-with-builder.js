@@ -798,6 +798,13 @@ try {
   // scripts/bundled-wnano-shasums.json carries the signed release checksums.
   for (const platform of packagePlatforms) {
     for (const arch of packageArchitectures) {
+      if (!prepareWaylandNano.isSupportedWNanoTarget(platform, arch)) {
+        console.log(
+          `wayland-nano publishes no ${platform}-${arch} runtime; skipping the bundle. ` +
+            'Nano still launches on this target through the npx fallback.'
+        );
+        continue;
+      }
       prepareWaylandNano({
         platform,
         arch,
@@ -1067,7 +1074,11 @@ try {
     .flatMap((platform) => packageArchitectures.map((arch) => `--wcore-runtime ${platform}-${arch}`))
     .join(' ');
   const wnanoRuntimeArgs = packagePlatforms
-    .flatMap((platform) => packageArchitectures.map((arch) => `--wnano-runtime ${platform}-${arch}`))
+    .flatMap((platform) =>
+      packageArchitectures
+        .filter((arch) => prepareWaylandNano.isSupportedWNanoTarget(platform, arch))
+        .map((arch) => `--wnano-runtime ${platform}-${arch}`)
+    )
     .join(' ');
   execFileSync(
     'node',

@@ -363,26 +363,53 @@ function assertContractOutputs(versionOutput, topLevelHelp, formatHelp, watchHel
 // That silently replaces the exact bytes this script just digest-verified, and it
 // broke every platform of the 0.12.0 release build (Windows reported 1.0.144 against
 // a pinned 1.0.136; macOS and Linux crashed mid-swap inside ApplyPendingUpdate).
-// Every invocation of the bundled binary therefore runs against an isolated config
-// home with autoUpdate disabled, so the contract and smoke checks exercise the
-// pinned artifact rather than whatever upstream published most recently.
-function withUpdatesDisabled() {
-  // On Windows runners os.tmpdir() is an 8.3 short path (C:\\Users\\RUNNER~1\\...).
-  // Hand the child the expanded long form: a consumer that canonicalises the profile
-  // path differently would otherwise miss the config written here and fall back to its
-  // defaults, which is exactly the silent re-enable this function exists to prevent.
+//
+// The updater is disabled by writing `autoUpdate: false` into its config. Redirecting
+// HOME/USERPROFILE is not sufficient: on Windows the config directory resolves through
+// the shell API and the environment override is ignored, which is exactly why the first
+// attempt at this fix held on macOS and Linux but not on the Windows runners. So the
+// real per-user config is seeded for the duration of the probes and restored afterwards,
+// and the environment is isolated as well for hosts that do honour it.
+function officeCliConfigPath() {
+  return path.join(os.homedir(), '.officecli', 'config.json');
+}
+
+function beginUpdatesDisabled() {
+  const configPath = officeCliConfigPath();
+  const existed = fs.existsSync(configPath);
+  const previous = existed ? fs.readFileSync(configPath) : null;
+
   let configHome = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-home-'));
   try {
+    // os.tmpdir() is an 8.3 short path on Windows runners (C:\Users\RUNNER~1\...).
     configHome = fs.realpathSync.native(configHome);
   } catch {
     // A realpath failure is not fatal; the short path is still a usable directory.
   }
   fs.mkdirSync(path.join(configHome, '.officecli'), { recursive: true });
-  fs.writeFileSync(
-    path.join(configHome, '.officecli', 'config.json'),
-    `${JSON.stringify({ autoUpdate: false, log: false }, null, 2)}\n`
-  );
-  return { ...process.env, HOME: configHome, USERPROFILE: configHome };
+
+  const disabled = `${JSON.stringify({ autoUpdate: false, log: false }, null, 2)}\n`;
+  fs.writeFileSync(path.join(configHome, '.officecli', 'config.json'), disabled);
+  fs.mkdirSync(path.dirname(configPath), { recursive: true });
+  fs.writeFileSync(configPath, disabled);
+
+  return {
+    env: { ...process.env, HOME: configHome, USERPROFILE: configHome },
+    restore() {
+      if (previous === null) fs.rmSync(configPath, { force: true });
+      else fs.writeFileSync(configPath, previous);
+      fs.rmSync(configHome, { recursive: true, force: true });
+    },
+  };
+}
+
+function withUpdatesDisabled(probe) {
+  const session = beginUpdatesDisabled();
+  try {
+    return probe(session.env);
+  } finally {
+    session.restore();
+  }
 }
 
 // The probes above execute the binary. OfficeCLI's updater has replaced its own
@@ -401,18 +428,19 @@ function assertBinaryUnchangedByProbes(binaryPath, expectedSha, assetName, versi
 
 function verifyExecutableContract(binaryPath) {
   const contract = loadContract();
-  const env = withUpdatesDisabled();
-  const run = (args) =>
-    execFileSync(binaryPath, args, {
-      encoding: 'utf8',
-      timeout: 10_000,
-      stdio: ['ignore', 'pipe', 'pipe'],
-      env,
-    });
-  const formatHelp = Object.fromEntries(
-    Object.keys(contract.requiredElements).map((format) => [format, run(['help', format])])
-  );
-  return assertContractOutputs(run(['--version']), run(['--help']), formatHelp, run(['watch', '--help']), contract);
+  return withUpdatesDisabled((env) => {
+    const run = (args) =>
+      execFileSync(binaryPath, args, {
+        encoding: 'utf8',
+        timeout: 10_000,
+        stdio: ['ignore', 'pipe', 'pipe'],
+        env,
+      });
+    const formatHelp = Object.fromEntries(
+      Object.keys(contract.requiredElements).map((format) => [format, run(['help', format])])
+    );
+    return assertContractOutputs(run(['--version']), run(['--help']), formatHelp, run(['watch', '--help']), contract);
+  });
 }
 
 function verifyExecutableSmoke(binaryPath) {
@@ -422,14 +450,14 @@ function verifyExecutableSmoke(binaryPath) {
     xlsx: path.join(tempDir, 'proof.xlsx'),
     pptx: path.join(tempDir, 'proof.pptx'),
   };
-  const env = withUpdatesDisabled();
+  const session = beginUpdatesDisabled();
   const run = (args) =>
     execFileSync(binaryPath, args, {
       encoding: 'utf8',
       timeout: 15_000,
       maxBuffer: 2 * 1024 * 1024,
       stdio: ['ignore', 'pipe', 'pipe'],
-      env,
+      env: session.env,
     });
 
   try {
@@ -732,6 +760,7 @@ function verifyExecutableSmoke(binaryPath) {
       }
     }
     fs.rmSync(tempDir, { recursive: true, force: true });
+    session.restore();
   }
 }
 
