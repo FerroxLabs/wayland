@@ -11,6 +11,7 @@ Two months of work, 442 commits, and the largest release Wayland has shipped. Ma
 ### Highlights
 
 - **Wayland Nano — our own agent, built in.** A first-party sandboxed Rust agent that speaks ACP natively over stdio. It draws on every provider on your Models page, and it ships **inside the app**: the runtime is bundled and checksum-pinned, so there is no download and no npm on first run. Every release archive is verified against its published checksums **and** a signed SLSA provenance attestation before it is ever unpacked or executed.
+- **Nano fixes that landed with it (v0.1.1).** Hooks now actually run when Nano is driven over ACP, which is how Desktop drives it, so hook configuration that silently did nothing before now takes effect. Checkpoint tools are reachable too; they shipped wired to nothing.
 - **The Cockpit shell.** A new way to drive Wayland, offered as an explicit choice instead of being forced on you. Classic is still there; you pick, and you can change your mind.
 - **Bundled engine → wayland-core v0.13.0.** Including the MCP tool-name fix: tools from large servers now resolve by their real names instead of being folded into unusable placeholders.
 - **Voice, on device.** Dictation works offline on a fresh install with no download, backed by a bundled speech model.
