@@ -132,6 +132,23 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch the Constitution provenance producer commit
+        shell: bash
+        run: |
+          # Same reason as the unit-tests job: this job's "Prove Constitution
+          # filesystem authority" step runs constitutionFsService, which
+          # re-derives the 991c502 producer corpus from git. That commit is
+          # reachable from no remote ref, so it must be fetched by SHA.
+          SHA=$(node -p "require('./tests/fixtures/constitution-fs/base-991c502-committed/fixture-manifest.json').producerCommit")
+          echo "producer commit: $SHA"
+          for attempt in 1 2 3; do
+            if git fetch --depth=1 --no-tags origin "$SHA"; then exit 0; fi
+            echo "fetch attempt $attempt failed; retrying" >&2
+            sleep 5
+          done
+          echo "could not fetch producer commit $SHA" >&2
+          exit 1
+
       # Classified inline rather than via `needs: changed-files`, because a
       # failing dependency would SKIP this job, and a skipped required check
       # reads as a pass.
