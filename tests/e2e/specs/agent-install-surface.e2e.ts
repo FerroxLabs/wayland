@@ -78,6 +78,13 @@ test.describe('Agent install surface', () => {
     await button.click();
     await expect(page.locator(CONSENT)).toBeVisible({ timeout: 10_000 });
     await expect(page.locator('[data-testid="install-consent-confirm"]')).toBeVisible();
+
+    // Close it again. The app instance is shared across tests, and a consent
+    // sheet left open puts its modal mask over the page - the next test then
+    // cannot click anything and times out instead of failing for its own
+    // reason.
+    await page.locator('[data-testid="install-consent-cancel"]').click();
+    await expect(page.locator(CONSENT)).toBeHidden({ timeout: 10_000 });
   });
 
   test('cancelling consent starts no install', async ({ page }) => {
