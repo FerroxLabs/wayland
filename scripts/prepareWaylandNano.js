@@ -213,7 +213,7 @@ function verifyArchiveChecksum(archivePath, expectedHex, assetName, tag) {
 // packaging fails closed until DEFAULT_WNANO_VERSION is pinned to an exact
 // release tag here and scripts/bundled-wnano-shasums.json is filled in the
 // same commit. Override with WNANO_VERSION=... when bumping.
-const DEFAULT_WNANO_VERSION = 'latest';
+const DEFAULT_WNANO_VERSION = 'v0.1.1';
 
 function getVersion() {
   return (process.env.WNANO_VERSION || DEFAULT_WNANO_VERSION).trim();

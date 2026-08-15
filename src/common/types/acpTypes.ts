@@ -38,7 +38,7 @@ export const CODEBUDDY_ACP_NPX_PACKAGE = `@tencent-ai/codebuddy-code@${CODEBUDDY
  * than exec'ing it. Verified against 0.1.0 - `npx waylandnano@0.1.0 --version`
  * prints `wayland-nano 0.1.0`, and the `acp-host` subcommand below starts.
  */
-export const WNANO_NPM_VERSION = '0.1.0';
+export const WNANO_NPM_VERSION = '0.1.1';
 export const WNANO_NPX_PACKAGE = `waylandnano@${WNANO_NPM_VERSION}`;
 
 /**

@@ -1,12 +1,25 @@
 {
-  "_comment": "Authoritative SHA-256 checksums for bundled wayland-nano release archives (the downloaded .zip assets), keyed by release tag then asset filename. Mirrors scripts/bundled-wcore-shasums.json. Source of truth: the SHASUMS published alongside each signed FerroxLabs/wayland-nano release (the wayland-nano-<version>-shasums.json release asset, keyed by runtime pkg). The downloaded archive is verified against this file BEFORE it is extracted, copied, or executed. Update this file in lockstep with DEFAULT_WNANO_VERSION in scripts/prepareWaylandNano.js and regenerate on every agent version bump.",
-  "_ownerAction": "FILL ON FIRST RELEASE. No wayland-nano GitHub release assets exist yet, so this manifest intentionally has NO tag entries: every lookup fails closed (missing tag -> hard error, never a verification skip). When the first signed FerroxLabs/wayland-nano release lands, add one entry per tag shaped like the schema below, then pin DEFAULT_WNANO_VERSION to that exact tag in scripts/prepareWaylandNano.js and add the matching publisher-attestation policy to scripts/supply-chain/publisher-attestations.json in the SAME commit. Schema per tag: \"v0.1.0\": { \"wayland-nano-0.1.0-darwin-arm64.zip\": { \"archiveSha256\": \"sha256:<64 hex from the release shasums asset>\", \"binarySha256\": \"sha256:<64 hex of the extracted wayland-nano executable>\" }, ... }. Archive hashes come from the release's wayland-nano-<version>-shasums.json asset (keys darwin-arm64/darwin-x64/linux-arm64/linux-x64/win32-x64 map to assets wayland-nano-<version>-<key>.zip); binarySha256 is computed by extracting the verified zip and hashing the wayland-nano[.exe] inside - strict builds refuse a manifest that asserts only its own archive digest. Assets are named with the UNPREFIXED version (no 'v') while the manifest key and download URL use the 'v'-prefixed tag. There is NO win32-arm64 asset - the release workflow does not build one. Placeholder or malformed values are rejected as 'Malformed or placeholder SHA-256' and fail closed.",
-  "_fillOnReleaseExample": {
-    "v0.1.0": {
-      "wayland-nano-0.1.0-darwin-arm64.zip": {
-        "archiveSha256": "sha256:PENDING-fill-from-release-shasums-asset",
-        "binarySha256": "sha256:PENDING-hash-of-extracted-verified-binary"
-      }
+  "_comment": "Authoritative SHA-256 checksums for bundled wayland-nano release archives, keyed by release tag then asset filename. Mirrors scripts/bundled-wcore-shasums.json. Source of truth: the wayland-nano-<version>-shasums.json asset published alongside each signed FerroxLabs/wayland-nano release. Every archive is verified against this file BEFORE it is extracted, copied, or executed, and binarySha256 is the digest of the executable inside the verified archive. Update in lockstep with DEFAULT_WNANO_VERSION in scripts/prepareWaylandNano.js and the matching entry in scripts/supply-chain/publisher-attestations.json. Assets use the UNPREFIXED version; the manifest key and download URL use the 'v'-prefixed tag. There is no win32-arm64 asset.",
+  "v0.1.1": {
+    "wayland-nano-0.1.1-darwin-arm64.zip": {
+      "archiveSha256": "sha256:474e288a54ce59d83a6e7f0d185e7826e85fcf7307303fc337571e0a89a3653a",
+      "binarySha256": "sha256:73b6e5eac67eecb50e762fe45d8d5d608556d370932f9ac034802c6437ebeacf"
+    },
+    "wayland-nano-0.1.1-darwin-x64.zip": {
+      "archiveSha256": "sha256:c1a09855bdc929c6533717b369f351154cc26d9ebe5f955c046bc4a0beacf5e2",
+      "binarySha256": "sha256:81938e87c719f7aa0a6057656e4d51120dacccd647ff19acdac881e1e896026a"
+    },
+    "wayland-nano-0.1.1-linux-arm64.zip": {
+      "archiveSha256": "sha256:a5a182b06cf677853bd8d15b72cfd9bde13f03b04d80596a1384528f94358ad5",
+      "binarySha256": "sha256:09bdf86898205d1620613ef8ce1911c1bf90a8d20932ca33db62b3eb5521b207"
+    },
+    "wayland-nano-0.1.1-linux-x64.zip": {
+      "archiveSha256": "sha256:d46d09eb63d8e8680f3c60e1f941e527bf292bec747ccd1194b0038d14faf9d7",
+      "binarySha256": "sha256:0a099038989bf0979dc46b405e9669513a32198a8898d93da0c81c3d6b25e008"
+    },
+    "wayland-nano-0.1.1-win32-x64.zip": {
+      "archiveSha256": "sha256:2326ab956b3c06dc6e6eba40ca54c7153fa95696f4fb645f9537607fbb4a763d",
+      "binarySha256": "sha256:bb3854ce7ec7918ebb44297618ab87d2d91d2f0eea6b3fad65ae9b874ba5b5be"
     }
   }
 }
