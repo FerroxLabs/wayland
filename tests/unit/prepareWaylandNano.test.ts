@@ -17,6 +17,7 @@ const prepareWaylandNano = require('../../scripts/prepareWaylandNano.js') as {
     options?: { requireBinary?: boolean }
   ): { archiveSha256: string; binarySha256: string | null };
   normalizeExactReleaseTag(version: string): string;
+  normalizeSha256(raw: unknown, label: string): string;
   pruneRuntimeDirectory(dir: string, allowedNames: string[]): void;
 };
 
@@ -79,12 +80,31 @@ describe('strict bundled wayland-nano provenance', () => {
   });
 
   it('rejects placeholder or malformed pin values', () => {
-    // The skeleton's _fillOnReleaseExample deliberately nests PENDING values
-    // under a non-tag key; if such a placeholder ever reaches a real tag
-    // entry, normalizeSha256 rejects it (fail closed, never a loose match).
-    expect(() => prepareWaylandNano.loadExpectedProvenance('_fillOnReleaseExample', 'v0.1.0')).toThrow(
-      /Malformed or placeholder SHA-256/
-    );
+    // normalizeSha256 is the choke point every provenance lookup passes
+    // through. It must fail closed on a placeholder or a near-miss digest,
+    // never a loose match.
+    //
+    // This used to be driven through the manifest's _fillOnReleaseExample
+    // skeleton, which was removed when the real v0.1.1 pins landed. The
+    // invariant is unchanged and is now asserted against the guard itself,
+    // which is stricter: it covers near-miss shapes the skeleton never had.
+    for (const bad of [
+      'sha256:PENDING-fill-from-release-shasums-asset',
+      'PENDING-hash-of-extracted-verified-binary',
+      'sha256:not-a-hex-digest',
+      `sha256:${'a'.repeat(63)}`,
+      `sha256:${'a'.repeat(65)}`,
+      `sha256:${'g'.repeat(64)}`,
+      '',
+      undefined,
+    ]) {
+      expect(() => prepareWaylandNano.normalizeSha256(bad, 'test pin')).toThrow(
+        /Malformed or placeholder SHA-256/
+      );
+    }
+
+    // Known positive: without it the rejections above would prove nothing.
+    expect(prepareWaylandNano.normalizeSha256(`sha256:${'a'.repeat(64)}`, 'test pin')).toBe('a'.repeat(64));
   });
 
   it('rejects skip flags when strict preparation is requested', () => {

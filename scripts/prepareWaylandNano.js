@@ -711,6 +711,7 @@ prepareWaylandNano.DEFAULT_WNANO_VERSION = DEFAULT_WNANO_VERSION;
 prepareWaylandNano.SHASUMS_FILE = SHASUMS_FILE;
 prepareWaylandNano.getAssetName = getAssetName;
 prepareWaylandNano.loadExpectedProvenance = loadExpectedProvenance;
+prepareWaylandNano.normalizeSha256 = normalizeSha256;
 prepareWaylandNano.normalizeExactReleaseTag = normalizeExactReleaseTag;
 prepareWaylandNano.pruneRuntimeDirectory = pruneRuntimeDirectory;
 
