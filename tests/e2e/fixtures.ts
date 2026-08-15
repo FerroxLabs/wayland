@@ -566,6 +566,16 @@ type AmbientFixtures = {
   // test-case signature.
   electronApp: ElectronApplication;
   page: Page;
+  /**
+   * The ambient process's MAIN window.
+   *
+   * The bubble's preload exposes only `ambientAPI` (ambientPreload.ts), never
+   * `electronAPI`, so `invokeBridge` can never work against `page` here - it
+   * throws "electronAPI bridge is unavailable". The ambient process also opens
+   * a normal main window, and that one carries the bridge. Specs that need a
+   * bridge call from an ambient test must use this.
+   */
+  ambientMainPage: Page;
 };
 
 let sharedAmbientApp: ElectronApplication | null = null;
@@ -620,6 +630,11 @@ export const ambientTest = base.extend<AmbientFixtures>({
   // Alias: `electronApp` resolves to the ambient app.
   electronApp: async ({ ambientApp }, use) => {
     await use(ambientApp);
+  },
+
+  // The ambient process's main window - the one that actually has electronAPI.
+  ambientMainPage: async ({ ambientApp }, use) => {
+    await use(await resolveMainWindow(ambientApp));
   },
 
   // Alias: `page` resolves to the bubble page (non-null contract).
