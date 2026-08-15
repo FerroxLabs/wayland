@@ -908,12 +908,23 @@ function processSnapshot(targetPlatform, dependencies = {}, includeEnvironment =
   // `-axo` alone carries no environment on procps, so the split is required
   // rather than cosmetic.
   const format = 'pid=,ppid=,lstart=,command=';
-  const args = includeEnvironment
-    ? process.platform === 'linux'
-      ? ['axeww', 'o', format]
-      : ['eww', '-axo', format]
-    : ['-axo', format];
-  return parsePosixProcesses(execute('ps', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+  const options = { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 };
+  if (!includeEnvironment) {
+    return parsePosixProcesses(execute('ps', ['-axo', format], options));
+  }
+  try {
+    return parsePosixProcesses(execute('ps', ['eww', '-axo', format], options));
+  } catch (error) {
+    // procps (Linux) rejects that BSD/UNIX mix with "must set personality to get
+    // -x option" and wants the all-BSD spelling instead, while BSD ps (macOS)
+    // returns nothing for the all-BSD form. Retry only on that specific rejection
+    // so a real ps failure still propagates. Note `-axo` alone is not a substitute:
+    // it succeeds on procps but carries no environment, which would silently defeat
+    // the launch-token recovery this sweep exists for.
+    const message = error instanceof Error ? error.message : String(error);
+    if (!/must set personality|unsupported option|illegal option|invalid option/i.test(message)) throw error;
+    return parsePosixProcesses(execute('ps', ['axeww', 'o', format], options));
+  }
 }
 
 function descendantsFromSnapshot(rootPid, snapshot) {
