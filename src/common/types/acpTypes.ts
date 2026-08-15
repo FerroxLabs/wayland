@@ -25,12 +25,20 @@ export const CODEBUDDY_ACP_BRIDGE_VERSION = '2.73.0';
 export const CODEBUDDY_ACP_NPX_PACKAGE = `@tencent-ai/codebuddy-code@${CODEBUDDY_ACP_BRIDGE_VERSION}`;
 
 /**
- * Wayland Nano's own npm distribution. PINNED DELIBERATELY: npm's `latest`
- * dist-tag still points at `0.1.0-alpha.0` while the release lives on `next`,
- * so a bare `npx waylandnano` silently installs the OLDER alpha. A pin is also
- * reproducible in a way a moving tag is not.
+ * Wayland Nano's own npm distribution. PINNED DELIBERATELY: a pin is
+ * reproducible in a way a moving dist-tag is not.
+ *
+ * Now on the STABLE release. `latest` used to point at `0.1.0-alpha.0` while
+ * the candidate sat on `next`, so a bare `npx waylandnano` installed the older
+ * alpha; `latest` is `0.1.0` as of 2026-08-15 and that hazard is gone, but the
+ * pin stays for reproducibility.
+ *
+ * Note the tarball ships `bin/wayland-nano.js` mode 0644. That does NOT affect
+ * us: we launch through `npx`, which runs the file via node's bin shim rather
+ * than exec'ing it. Verified against 0.1.0 - `npx waylandnano@0.1.0 --version`
+ * prints `wayland-nano 0.1.0`, and the `acp-host` subcommand below starts.
  */
-export const WNANO_NPM_VERSION = '0.1.0-rc.0';
+export const WNANO_NPM_VERSION = '0.1.0';
 export const WNANO_NPX_PACKAGE = `waylandnano@${WNANO_NPM_VERSION}`;
 
 /**
