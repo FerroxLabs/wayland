@@ -225,13 +225,16 @@ test.describe('Team Blitz - navigation chaos', () => {
       )
       .toBeGreaterThan(0);
 
-    // NOTE (real defect, not flake): roughly 1 run in 3 this baseline never
-    // mounts because the app is sitting in its React error boundary -
-    // "Something went wrong / An unexpected error occurred / Reload this view" -
-    // left behind by the preceding case, which reloads while a BuildMyOwn
-    // suggest is in flight. `pageErrors` stays 0 because the boundary swallows
-    // it, which is why this reads as a timing race. Captured by probe; the fix
-    // belongs in the product, not here.
+    // WAS a real defect (now FIXED in useDetectedAgents): roughly 1 run in 3
+    // this baseline never mounted because the app was sitting in its React
+    // error boundary - "Something went wrong / An unexpected error occurred /
+    // Reload this view" - left behind by the preceding case, which reloads
+    // while a BuildMyOwn suggest is in flight. The reload left SWR unresolved,
+    // and the `data: rawAgents = []` default rebuilt a new array every render,
+    // churning `recommend()` into TeamLauncherPage's `initialState` memo until
+    // its setState-in-effect blew React's update-depth guard (#185).
+    // `pageErrors` stayed 0 throughout because the boundary swallows the throw,
+    // which is why it read as a timing race rather than a crash.
 
     // /team/ and /team// hit the Router '*' catch-all, which redirects to /guid
     // by design (Router.tsx:213). `navigateTo` asserts the hash STAYS at the
