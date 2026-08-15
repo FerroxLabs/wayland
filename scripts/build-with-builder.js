@@ -762,7 +762,12 @@ try {
   // artifact. Keep both roots target-exact so stale preparation from a prior
   // job cannot contaminate this package with foreign executables.
   const exactRuntimeKey = `${packagePlatforms[0]}-${packageArchitectures[0]}`;
-  for (const bundleName of ['bundled-wayland-core', 'bundled-wayland-nano', 'bundled-officecli', 'bundled-constitution-fs']) {
+  for (const bundleName of [
+    'bundled-wayland-core',
+    'bundled-wayland-nano',
+    'bundled-officecli',
+    'bundled-constitution-fs',
+  ]) {
     const bundleRoot = path.resolve(__dirname, '..', 'resources', bundleName);
     if (!fs.existsSync(bundleRoot)) continue;
     for (const entry of fs.readdirSync(bundleRoot, { withFileTypes: true })) {
