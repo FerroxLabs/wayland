@@ -4,6 +4,31 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-08-15
+
+Two months of work, 442 commits, and the largest release Wayland has shipped. Major parts of the app were taken apart and rebuilt rather than patched.
+
+### Highlights
+
+- **Wayland Nano — our own agent, built in.** A first-party sandboxed Rust agent that speaks ACP natively over stdio. It draws on every provider on your Models page, and it ships **inside the app**: the runtime is bundled and checksum-pinned, so there is no download and no npm on first run. Every release archive is verified against its published checksums **and** a signed SLSA provenance attestation before it is ever unpacked or executed.
+- **The Cockpit shell.** A new way to drive Wayland, offered as an explicit choice instead of being forced on you. Classic is still there; you pick, and you can change your mind.
+- **Bundled engine → wayland-core v0.13.0.** Including the MCP tool-name fix: tools from large servers now resolve by their real names instead of being folded into unusable placeholders.
+- **Voice, on device.** Dictation works offline on a fresh install with no download, backed by a bundled speech model.
+- **Teams.** Run several agents against one shared workspace, each on the backend and model you choose.
+- **Agent installation from inside the app.** Detection was never the hard part; installation was. Pinned versions, verified checksums, explicit per-install consent, and uninstall driven by a manifest rather than by guessing at names.
+- **TVControl as a first-class connector** in the MCP catalog.
+
+### Security
+
+- **The release itself is now evidence-backed.** Every packaged build carries a capability seal bound to the exact source commit, and publishing is gated on an independent, attested acceptance receipt produced by protected code from a pinned trust root — not by the build that made the artifact.
+- **Supply chain, end to end.** The bundled engine, the Nano runtime, and the authoring runtime are each pinned by exact release tag and verified by archive digest, extracted-binary digest, and publisher attestation before use. Anything missing or malformed fails the build rather than shipping.
+
+### Fixes
+
+We fixed a great deal — far more than is worth listing. The one worth calling out:
+
+- **The app no longer lands in an error screen on launch.** Roughly one start in three could drop into "Something went wrong" and stay there until you reloaded by hand. It hid for weeks because an error boundary swallows the crash, so no test could see it. Root cause was a single default value rebuilding an array on every render until React's update-depth guard tripped. Found, fixed, and verified.
+
 ## [0.11.9] - 2026-07-01
 
 ### Highlights
