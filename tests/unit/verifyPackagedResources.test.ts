@@ -893,11 +893,24 @@ describe('packaged resource release gate', () => {
     fs.writeFileSync(manifest, JSON.stringify(metadata));
 
     // Bytes match the staged digest, so only the signature stands between this
-    // and acceptance. Unsigned must fail...
+    // and acceptance: unsigned must fail. The accepting half of this pair lives
+    // in the itAcceptedSweep spec below, because a full accepting sweep cannot
+    // run on a Windows host (the fixture cannot reproduce POSIX exec modes).
     expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { darwinSignedCheck: () => false })).toThrow(
       /CRITICAL resource/
     );
-    // ...and a valid Ferrox Labs signature must be accepted.
+  });
+
+  itAcceptedSweep('accepts a darwin manifest claiming signed staging when the signature is valid', () => {
+    const out = createPackagedResources(true);
+    const manifest = wcoreManifestPath(out);
+    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
+    fs.appendFileSync(wcoreBinaryPath(out), 'signature');
+    metadata.binary.stagedSha256 = `sha256:${crypto
+      .createHash('sha256')
+      .update(fs.readFileSync(wcoreBinaryPath(out)))
+      .digest('hex')}`;
+    fs.writeFileSync(manifest, JSON.stringify(metadata));
     expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { darwinSignedCheck: () => true })).not.toThrow();
   });
 
@@ -912,7 +925,10 @@ describe('packaged resource release gate', () => {
         darwinSignedCheck: () => false,
       })
     ).toThrow(/CRITICAL resource/);
-    // The same build passes once the binaries carry our signature.
+  });
+
+  itAcceptedSweep('accepts a signed darwin runtime under release signature enforcement', () => {
+    const out = createPackagedResources(true);
     expect(() =>
       verify(out, 'darwin-arm64', 'darwin-arm64', {
         requireDarwinSignature: true,
