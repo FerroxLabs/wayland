@@ -1,6 +1,7 @@
 # Security review (per security_reminder_hook.py):
 # This workflow uses ${{ ... }} only for trusted contexts:
 #   - matrix.* values (defined inline in this file, trusted)
+#   - needs.* outputs produced by jobs in this same file (trusted)
 #   - github.event_name, github.ref, github.workspace, runner.* (trusted)
 # No untrusted PR/issue/commit text (github.event.issue.*, head_ref, etc.)
 # is ever interpolated into a run: step.
@@ -14,6 +15,11 @@ name: Build Matrix
 # targets. It intentionally has no repository-variable skip gate.
 # Manual trigger:
 #   gh workflow run build-matrix.yml
+#
+# Deliberately NOT a branch-protection required check: every trigger here is
+# paths-filtered, and GitHub counts a SKIPPED required check as a PASS
+# (documented bypass, see pr-checks.yml lines 10-24). Making it required would
+# hand any docs-only PR a free green on the packaged-build gate.
 
 on:
   push:
@@ -43,10 +49,81 @@ env:
   NODE_OPTIONS: '--max-old-space-size=8192'
 
 jobs:
+  # scripts/build-with-builder.js writes a candidate capability seal on every
+  # packaged build, and createCapabilitySeal() refuses to run without
+  # WAYLAND_CAPABILITY_RECEIPTS_DIR ("required for an evidence-backed package
+  # build", scripts/capability-seal/verifyCandidateCapabilitySeal.js:567-570).
+  # Nothing here produced those receipts, so from the seal's introduction every
+  # leg died seconds into the packaged build and this gate was 100% red - which
+  # is why nine packaging defects were first seen at tag time. This job is the
+  # same producer the release path uses (_build-reusable.yml lines 100-161).
+  capability-acceptance:
+    name: Candidate capability acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    outputs:
+      artifact-name: ${{ steps.candidate.outputs.artifact-name }}
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+
+      - name: Capture exact candidate
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse HEAD)"
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          if [ "${commit}" != "${GITHUB_SHA}" ]; then
+            echo "Refusing to attest a checkout that differs from the workflow's immutable source commit." >&2
+            exit 1
+          fi
+          # readReceiptAuthority() rejects a manifest whose candidate commit+tree
+          # differ from the building checkout, so the build job below must resolve
+          # to this same commit. It does: it uses a bare actions/checkout on the
+          # same push/schedule/dispatch event, which is GITHUB_SHA by definition.
+          echo "artifact-name=capability-acceptance-${commit}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3'
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate structured exact capability acceptance receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/capability-seal/generateCapabilityAcceptanceReceipts.js \
+            --out "${RUNNER_TEMP}/capability-acceptance"
+
+      - name: Upload capability acceptance receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.candidate.outputs.artifact-name }}
+          path: ${{ runner.temp }}/capability-acceptance
+          if-no-files-found: error
+          retention-days: 7
+
   build:
     name: Build (${{ matrix.release_track }} / ${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    needs: capability-acceptance
+    permissions:
+      actions: read
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -149,6 +226,23 @@ jobs:
       - name: Postinstall (CI uses prebuilt binaries; see scripts/postinstall.js)
         run: bun run postinstall || true
 
+      - name: Download exact capability acceptance authority
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.capability-acceptance.outputs.artifact-name }}
+          path: ${{ runner.temp }}/capability-acceptance
+
+      # A job-level `env:` entry cannot see the `runner` context (only
+      # github/inputs/needs/matrix/strategy/secrets/vars exist there), so this is
+      # exported from a step for the same reason, and with the same expression,
+      # as _build-reusable.yml lines 249-260. Keeping the expression identical to
+      # the download path above means the two cannot drift apart.
+      - name: Export capability acceptance authority path
+        shell: bash
+        env:
+          RECEIPTS_DIR: ${{ runner.temp }}/capability-acceptance
+        run: echo "WAYLAND_CAPABILITY_RECEIPTS_DIR=${RECEIPTS_DIR}" >> "$GITHUB_ENV"
+
       - name: Cache Electron artifacts
         uses: actions/cache@v4
         with:
@@ -212,6 +306,47 @@ jobs:
             --release-track "$WAYLAND_RELEASE_TRACK" \
             --candidate-state-file "${{ runner.temp }}/wayland-package-candidate-state.json" \
             --candidate-state-digest "${{ steps.package-candidate-state.outputs.candidate_state_digest }}"
+
+      # Mirrors _build-reusable.yml lines 717-718, but pins the resources
+      # directory explicitly. The test's own fallback
+      # (tests/integration/bundled-bun-packaged.test.ts findLatestResourcesDirUnderOut)
+      # only scans ./out for a directory whose basename is exactly "resources",
+      # which misses the preview track (out-preview) and every macOS bundle
+      # (Contents/Resources, capital R). Both resolve to null and the whole file
+      # silently it.skip()s to green. Resolve the real payload here and fail loudly
+      # when there is none.
+      - name: Verify packaged bundled bun assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          resources_dir="$(node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const root = path.resolve(process.env.PACKAGE_OUT_DIR);
+            const found = [];
+            (function walk(dir, depth) {
+              if (depth > 6) return;
+              let entries;
+              try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+              for (const entry of entries) {
+                if (!entry.isDirectory()) continue;
+                const child = path.join(dir, entry.name);
+                if (entry.name.toLowerCase() === "resources" && fs.existsSync(path.join(child, "app.asar"))) {
+                  found.push(child);
+                } else {
+                  walk(child, depth + 1);
+                }
+              }
+            })(root, 0);
+            if (found.length === 0) {
+              console.error("No packaged resources directory containing app.asar under " + root);
+              process.exit(1);
+            }
+            found.sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
+            process.stdout.write(found[0]);
+          ')"
+          echo "APP_RESOURCES_DIR=$resources_dir"
+          APP_RESOURCES_DIR="$resources_dir" bun run test:packaged:bun
 
       - name: List build output
         if: always()
