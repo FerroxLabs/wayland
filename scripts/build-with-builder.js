@@ -754,8 +754,7 @@ try {
     // Bun publishes nothing for this target. Staging a binary-less directory here is
     // what left win32-arm64 shipping a manifest with no runtime; declare it instead.
     console.log(
-      `bun publishes no ${bunPlatform}-${bunArch} runtime; skipping the bundle. ` +
-        'This target has never carried one.'
+      `bun publishes no ${bunPlatform}-${bunArch} runtime; skipping the bundle. ` + 'This target has never carried one.'
     );
   }
 

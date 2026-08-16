@@ -1223,8 +1223,7 @@ function verifyPackagedResources(options = {}) {
         continue;
       }
       const declaredAbsent =
-        (req.absentWhen === 'noWNanoRuntime' && noWNanoRuntime) ||
-        (req.absentWhen === 'noBunRuntime' && noBunRuntime);
+        (req.absentWhen === 'noWNanoRuntime' && noWNanoRuntime) || (req.absentWhen === 'noBunRuntime' && noBunRuntime);
       if (declaredAbsent) {
         // Opting out of a runtime is not the same as not checking for it. The bundle
         // has to be genuinely absent, so a stale or half-copied one cannot ride along
