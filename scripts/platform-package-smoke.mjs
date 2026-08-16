@@ -1353,12 +1353,25 @@ export async function runSmoke(options, dependencies = {}) {
       }
       const browser = await request(`http://127.0.0.1:${port}/json/version`);
       if (!browser.webSocketDebuggerUrl) throw new Error(`${TAG} browser CDP endpoint omitted its websocket URL`);
-      // Five seconds is the acknowledgement budget for the CDP call, not for the
-      // shutdown itself. Both macOS release builds timed out here while the packaged
-      // app was still working through init on a contended runner. What the smoke
-      // actually asserts (the process exits, and the shutdown evidence validates) is
-      // enforced below and unchanged; a genuine hang still fails.
-      await command(browser.webSocketDebuggerUrl, 'Browser.close', {}, 20_000);
+      // Browser.close is how the shutdown is requested; it is not the evidence that
+      // the shutdown happened. Packaged Wayland does not always answer the CDP call
+      // before it tears the session down, and macOS and Linux release builds both sat
+      // here until the call timed out even though the request had been delivered.
+      //
+      // A missing acknowledgement is therefore tolerated and reported. The assertions
+      // that matter are untouched and immediately below: the child must exit inside
+      // its own window, the shutdown evidence must validate, and the candidate must be
+      // byte-identical afterwards. An app that ignores the request still fails, now at
+      // the step that can say so.
+      try {
+        await command(browser.webSocketDebuggerUrl, 'Browser.close', {}, 20_000);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!/timed out: Browser\.close/.test(message)) throw error;
+        // Deliberately not the verifier's logger: those lines are parsed for optional
+        // capability states and must carry nothing else.
+        console.log(`${TAG} Browser.close was not acknowledged; falling through to the exit and shutdown checks`);
+      }
       const shutdown = await waitForExitImpl(child, 10_000);
       await new Promise((resolve) => setTimeout(resolve, dependencies.shutdownSettleMs ?? 250));
       const descendantRecords = processMonitor.stop();
