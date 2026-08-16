@@ -1,0 +1,154 @@
+name: Release Acceptance Dry Run
+
+run-name: acceptance-dryrun source-run=${{ inputs.source_run_id }}
+
+# Execute the four release-acceptance gates against an ALREADY-BUILT run,
+# without pushing a tag and without a ~50 minute six-platform rebuild.
+#
+# Before this entrypoint existed, the only way to run
+#   protected-platform-observations / protected-updater-observations /
+#   assemble-raw-release-acceptance / final-release-acceptance
+# was to push a tag - which builds six platforms first and publishes on success.
+# Ten tag attempts were burned discovering gate bugs that way.
+#
+# This workflow does NOT contain a copy of the acceptance logic. It calls the
+# same two reusable workflows build-and-release.yml calls, so a green dry run is
+# evidence about the real release path, not about a fork of it.
+#
+# NO-PUBLISH: this workflow creates no release, edits no release, pushes no tag,
+# and publishes to no registry. The no-publish-invariant job below proves that
+# mechanically before anything is dispatched, and its `contents: read` token
+# could not write a tag even if the code tried.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: >-
+          Run id of an already-completed "Build and Release" run whose six native
+          installer artifacts should be replayed through the acceptance chain.
+        required: true
+        type: string
+      candidate_commit:
+        description: >-
+          Optional. Exact 40-hex candidate commit. Defaults to the source run's
+          head_sha, which is what you want unless you are testing a mismatch.
+        required: false
+        default: ''
+        type: string
+      release_track:
+        description: Native package release track
+        required: true
+        default: stable
+        type: choice
+        options: [stable, preview]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-acceptance-dryrun-${{ inputs.source_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  no-publish-invariant:
+    name: Prove the dry run cannot publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Assert no release/tag/registry mutation in the dry-run chain
+        id: no-publish-scan
+        shell: bash
+        run: python3 .github/workflows/scripts/assert-no-publish.py
+
+  resolve:
+    name: Resolve the source build run
+    runs-on: ubuntu-latest
+    needs: [no-publish-invariant]
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      candidate_commit: ${{ steps.run.outputs.candidate_commit }}
+      producer_run_attempt: ${{ steps.run.outputs.producer_run_attempt }}
+    steps:
+      - name: Resolve candidate identity and require the build artifacts
+        id: run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          CANDIDATE_OVERRIDE: ${{ inputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]] || {
+            echo "::error::source_run_id must be numeric"; exit 1; }
+
+          run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}")"
+          head_sha="$(jq -r .head_sha <<<"$run")"
+          attempt="$(jq -r .run_attempt <<<"$run")"
+          conclusion="$(jq -r .conclusion <<<"$run")"
+          echo "source run: $(jq -r .name <<<"$run") / $(jq -r .display_title <<<"$run")"
+          echo "head_sha=$head_sha attempt=$attempt conclusion=$conclusion"
+
+          candidate="${CANDIDATE_OVERRIDE:-$head_sha}"
+          [[ "$candidate" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::candidate commit is not a 40-hex sha: $candidate"; exit 1; }
+
+          # The acceptance chain replays installer bytes; a run that never
+          # finished producing them wastes 40 minutes before failing.
+          artifacts="$(gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/artifacts?per_page=100" \
+            --jq '.artifacts[].name')"
+          missing=0
+          for required in \
+            macos-build-arm64 macos-build-x64 \
+            windows-build-x64 windows-build-arm64 \
+            linux-build-x64 linux-build-arm64 \
+            "capability-acceptance-${candidate}"; do
+            if ! /usr/bin/grep -qxF "$required" <<<"$artifacts"; then
+              echo "::error::source run $SOURCE_RUN_ID has no artifact '$required'"
+              missing=1
+            fi
+          done
+          [[ "$missing" -eq 0 ]] || exit 1
+
+          echo "candidate_commit=$candidate" >> "$GITHUB_OUTPUT"
+          echo "producer_run_attempt=$attempt" >> "$GITHUB_OUTPUT"
+
+  # Identical call to the one build-and-release.yml makes, except that
+  # producer_run_id points at the replayed source run instead of this run.
+  release-observations:
+    name: Protected release observations (dry run)
+    uses: ./.github/workflows/_release-observations-reusable.yml
+    needs: [resolve]
+    permissions:
+      actions: write
+      contents: read
+    with:
+      candidate_commit: ${{ needs.resolve.outputs.candidate_commit }}
+      producer_run_id: ${{ inputs.source_run_id }}
+      producer_run_attempt: ${{ needs.resolve.outputs.producer_run_attempt }}
+      release_track: ${{ inputs.release_track }}
+
+  # Identical call to the one build-and-release.yml makes, except that
+  # artifact_run_id points at the replayed source run. The observation bundles
+  # this run just uploaded are picked up from github.run_id by the reusable
+  # workflow's second download step.
+  release-acceptance:
+    name: Release acceptance (dry run)
+    uses: ./.github/workflows/_release-acceptance-reusable.yml
+    needs: [resolve, release-observations]
+    permissions:
+      actions: write
+      attestations: read
+      contents: read
+    with:
+      candidate_commit: ${{ needs.resolve.outputs.candidate_commit }}
+      artifact_run_id: ${{ inputs.source_run_id }}

@@ -1,0 +1,230 @@
+name: Release Observations (reusable)
+
+# Single copy of the protected-observation half of release acceptance.
+#
+# Called by BOTH:
+#   - .github/workflows/build-and-release.yml   (real tag release path)
+#   - .github/workflows/release-acceptance-dryrun.yml (no-tag dry run)
+#
+# A dry run therefore executes the exact bytes the release executes. There is
+# no second implementation to drift.
+#
+# NO-PUBLISH INVARIANT: this workflow creates no release, edits no release,
+# pushes no tag, and publishes to no registry. It only dispatches the read-only
+# protected observers on release-trust-v1 and re-uploads their signed bundles.
+# The dry-run entrypoint asserts this mechanically.
+
+on:
+  workflow_call:
+    inputs:
+      candidate_commit:
+        description: Exact candidate commit whose native installers are observed
+        required: true
+        type: string
+      producer_run_id:
+        description: Run id holding the built native installer artifacts
+        required: true
+        type: string
+      producer_run_attempt:
+        description: Attempt number of the producer run
+        required: true
+        type: string
+      release_track:
+        description: Native package release track (stable | preview)
+        required: false
+        default: stable
+        type: string
+
+jobs:
+  protected-platform-observations:
+    name: Observe all six native installers under protected code
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Resolve exact candidate tree without checking out candidate code
+        id: candidate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          tree="$(gh api "repos/${GITHUB_REPOSITORY}/git/commits/$CANDIDATE_COMMIT" --jq .tree.sha)"
+          [[ "$tree" =~ ^[0-9a-f]{40,64}$ ]]
+          echo "tree=$tree" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch deterministic protected native observer
+        id: dispatch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+          CANDIDATE_TREE: ${{ steps.candidate.outputs.tree }}
+          PRODUCER_RUN_ID: ${{ inputs.producer_run_id }}
+          PRODUCER_RUN_ATTEMPT: ${{ inputs.producer_run_attempt }}
+          RELEASE_TRACK: ${{ inputs.release_track }}
+        run: |
+          set -euo pipefail
+          requested_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          expected_title="protected-platform-observer candidate=$CANDIDATE_COMMIT producer=$PRODUCER_RUN_ID attempt=$PRODUCER_RUN_ATTEMPT"
+          gh workflow run protected-platform-package-observer.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref release-trust-v1 \
+            -f candidate_commit="$CANDIDATE_COMMIT" \
+            -f candidate_tree="$CANDIDATE_TREE" \
+            -f producer_run_id="$PRODUCER_RUN_ID" \
+            -f producer_run_attempt="$PRODUCER_RUN_ATTEMPT" \
+            -f release_track="$RELEASE_TRACK"
+          echo "requested_at=$requested_at" >> "$GITHUB_OUTPUT"
+          echo "expected_title=$expected_title" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve and require the exact protected observer run
+        id: observer
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_AT: ${{ steps.dispatch.outputs.requested_at }}
+          EXPECTED_TITLE: ${{ steps.dispatch.outputs.expected_title }}
+        run: |
+          set -euo pipefail
+          run_id=''
+          for attempt in $(seq 1 30); do
+            run_id="$(gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/protected-platform-package-observer.yml/runs?event=workflow_dispatch&branch=release-trust-v1&per_page=50" \
+              --jq ".workflow_runs | map(select(.created_at >= \"$REQUESTED_AT\" and .display_title == \"$EXPECTED_TITLE\")) | sort_by(.created_at) | last | .id // empty")"
+            test -n "$run_id" && break
+            sleep 10
+          done
+          [[ "$run_id" =~ ^[0-9]+$ ]]
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/$run_id")"
+          test "$(jq -r .display_title <<<"$run")" = "$EXPECTED_TITLE"
+          test "$(jq -r .head_branch <<<"$run")" = 'release-trust-v1'
+          test "$(jq -r .conclusion <<<"$run")" = 'success'
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Download all exact signed native observation bundles
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OBSERVER_RUN_ID: ${{ steps.observer.outputs.run_id }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          mkdir protected-platform-observations
+          for target in darwin-arm64 darwin-x64 win32-arm64 win32-x64 linux-arm64 linux-x64; do
+            name="protected-platform-observation-${target}-${CANDIDATE_COMMIT}"
+            gh run download "$OBSERVER_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "$name" \
+              --dir "protected-platform-observations/$target"
+            test -f "protected-platform-observations/$target/protected-platform-observation-$target.json"
+            test -f "protected-platform-observations/$target/platform-package-smoke-$target.json"
+          done
+
+      - name: Upload exact protected observation set into the producer run
+        uses: actions/upload-artifact@v6
+        with:
+          name: protected-platform-observations-${{ inputs.candidate_commit }}
+          path: protected-platform-observations
+          if-no-files-found: error
+          retention-days: 7
+
+  protected-updater-observations:
+    name: Exercise protected updater journeys on all six native targets
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Resolve exact candidate tree without checking out candidate code
+        id: candidate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          tree="$(gh api "repos/${GITHUB_REPOSITORY}/git/commits/$CANDIDATE_COMMIT" --jq .tree.sha)"
+          [[ "$tree" =~ ^[0-9a-f]{40,64}$ ]]
+          echo "tree=$tree" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch deterministic protected updater observer
+        id: dispatch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+          CANDIDATE_TREE: ${{ steps.candidate.outputs.tree }}
+          PRODUCER_RUN_ID: ${{ inputs.producer_run_id }}
+          PRODUCER_RUN_ATTEMPT: ${{ inputs.producer_run_attempt }}
+          RELEASE_TRACK: ${{ inputs.release_track }}
+        run: |
+          set -euo pipefail
+          requested_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          expected_title="protected-updater-observer candidate=$CANDIDATE_COMMIT producer=$PRODUCER_RUN_ID attempt=$PRODUCER_RUN_ATTEMPT"
+          gh workflow run protected-updater-journey-observer.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref release-trust-v1 \
+            -f candidate_commit="$CANDIDATE_COMMIT" \
+            -f candidate_tree="$CANDIDATE_TREE" \
+            -f producer_run_id="$PRODUCER_RUN_ID" \
+            -f producer_run_attempt="$PRODUCER_RUN_ATTEMPT" \
+            -f release_track="$RELEASE_TRACK"
+          echo "requested_at=$requested_at" >> "$GITHUB_OUTPUT"
+          echo "expected_title=$expected_title" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve and require the exact protected updater run
+        id: observer
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_AT: ${{ steps.dispatch.outputs.requested_at }}
+          EXPECTED_TITLE: ${{ steps.dispatch.outputs.expected_title }}
+        run: |
+          set -euo pipefail
+          run_id=''
+          for attempt in $(seq 1 30); do
+            run_id="$(gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/protected-updater-journey-observer.yml/runs?event=workflow_dispatch&branch=release-trust-v1&per_page=50" \
+              --jq ".workflow_runs | map(select(.created_at >= \"$REQUESTED_AT\" and .display_title == \"$EXPECTED_TITLE\")) | sort_by(.created_at) | last | .id // empty")"
+            test -n "$run_id" && break
+            sleep 10
+          done
+          [[ "$run_id" =~ ^[0-9]+$ ]]
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/$run_id")"
+          test "$(jq -r .display_title <<<"$run")" = "$EXPECTED_TITLE"
+          test "$(jq -r .head_branch <<<"$run")" = 'release-trust-v1'
+          test "$(jq -r .conclusion <<<"$run")" = 'success'
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Download all exact protected updater observations
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OBSERVER_RUN_ID: ${{ steps.observer.outputs.run_id }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          mkdir protected-updater-observations
+          for target in darwin-arm64 darwin-x64 win32-arm64 win32-x64 linux-arm64 linux-x64; do
+            name="protected-updater-observation-${target}-${CANDIDATE_COMMIT}"
+            gh run download "$OBSERVER_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "$name" \
+              --dir "protected-updater-observations/$target"
+            test -f "protected-updater-observations/$target/observation.json"
+          done
+
+      - name: Upload exact updater observation set into the producer run
+        uses: actions/upload-artifact@v6
+        with:
+          name: protected-updater-observations-${{ inputs.candidate_commit }}
+          path: protected-updater-observations
+          if-no-files-found: error
+          retention-days: 7

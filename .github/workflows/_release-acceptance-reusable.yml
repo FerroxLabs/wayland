@@ -1,0 +1,196 @@
+name: Release Acceptance (reusable)
+
+# Single copy of the assemble + final-acceptance half of release acceptance.
+#
+# Called by BOTH:
+#   - .github/workflows/build-and-release.yml   (real tag release path)
+#   - .github/workflows/release-acceptance-dryrun.yml (no-tag dry run)
+#
+# NO-PUBLISH INVARIANT: this workflow creates no release, edits no release,
+# pushes no tag, and publishes to no registry. It assembles evidence bytes and
+# requires a protected attested receipt. The draft->published flip lives only in
+# build-and-release.yml's publish-release job, which this workflow never runs.
+
+on:
+  workflow_call:
+    inputs:
+      candidate_commit:
+        description: Exact candidate commit under acceptance
+        required: true
+        type: string
+      artifact_run_id:
+        description: >-
+          Run id holding the canonical build artifacts. On the real release path
+          this is the current run (build-pipeline uploaded into it). On a dry run
+          it is the already-built source run being replayed.
+        required: true
+        type: string
+
+jobs:
+  assemble-raw-release-acceptance:
+    name: Assemble immutable raw release acceptance bytes
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.candidate_commit }}
+          persist-credentials: false
+
+      - name: Capture exact candidate identity
+        id: candidate
+        shell: bash
+        env:
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse HEAD)"
+          tree="$(git rev-parse 'HEAD^{tree}')"
+          [[ "$commit" == "$CANDIDATE_COMMIT" ]] || exit 1
+          [[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] || exit 1
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "tree=$tree" >> "$GITHUB_OUTPUT"
+
+      - name: Download exact canonical build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.artifact_run_id }}
+          path: canonical-artifacts
+
+      # Dry run only: a replayed source run may already hold acceptance outputs
+      # from its own failed tag attempt. Every one of them is re-derived below,
+      # and leaving the stale copies in place makes the assembler's exactlyOne()
+      # see two of everything - the exact failure mode that killed a tag attempt.
+      - name: Drop stale acceptance outputs from the replayed run
+        if: ${{ inputs.artifact_run_id != github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf \
+            canonical-artifacts/raw-release-acceptance-* \
+            canonical-artifacts/protected-platform-observations-* \
+            canonical-artifacts/protected-updater-observations-* \
+            canonical-artifacts/wayland-final-acceptance-* \
+            canonical-artifacts/wayland-protected-acceptance-evidence-*
+
+      # Dry run only: the observation bundles were uploaded into THIS run, while
+      # the installer bytes live in the replayed source run above. On the real
+      # release path both live in the same run and this step is a no-op skip.
+      - name: Download observation artifacts produced by this run
+        if: ${{ inputs.artifact_run_id != github.run_id }}
+        uses: actions/download-artifact@v7
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.run_id }}
+          path: canonical-artifacts
+
+      - name: Download exact pinned Wayland Core publisher artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Read the engine pin from the code that bundles it. A tag typed here
+          # drifts the moment DEFAULT_WCORE_VERSION moves, and the assembler -
+          # which derives the same pin - then finds zero assets and fails the
+          # release with M8I_PUBLISHER_ARTIFACT_INVALID.
+          tag="$(node -p "require('./scripts/prepareWaylandCore.js').DEFAULT_WCORE_VERSION")"
+          [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          mkdir -p "canonical-artifacts/wayland-core-$tag"
+          gh release download "$tag" \
+            --repo FerroxLabs/wayland-core \
+            --dir "canonical-artifacts/wayland-core-$tag" \
+            --pattern "wayland-core-$tag-*"
+
+      - name: Assemble complete raw acceptance source
+        run: |
+          node scripts/release-acceptance/assembleCanonicalRawAcceptance.js \
+            --artifacts canonical-artifacts \
+            --candidate '{"commit":"${{ steps.candidate.outputs.commit }}","tree":"${{ steps.candidate.outputs.tree }}"}' \
+            --out "$RUNNER_TEMP/raw-release-acceptance"
+
+      - name: Upload complete raw acceptance source
+        uses: actions/upload-artifact@v6
+        with:
+          name: raw-release-acceptance-${{ inputs.candidate_commit }}
+          path: ${{ runner.temp }}/raw-release-acceptance
+          if-no-files-found: error
+          retention-days: 7
+
+  final-release-acceptance:
+    name: Require protected exact-candidate final acceptance
+    runs-on: ubuntu-latest
+    needs: [assemble-raw-release-acceptance]
+    permissions:
+      actions: write
+      attestations: read
+      contents: read
+    steps:
+      - name: Dispatch protected trust-root workflow
+        id: dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          requested_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          # artifact_run_id is THIS run: assemble-raw-release-acceptance uploaded
+          # raw-release-acceptance-<candidate> into it a moment ago. That is true
+          # on the release path and on a dry run alike.
+          gh workflow run release-acceptance-trust-root.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref release-trust-v1 \
+            -f candidate_ref="$CANDIDATE_COMMIT" \
+            -f artifact_run_id="$GITHUB_RUN_ID"
+          echo "requested_at=$requested_at" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve and wait for the protected run
+        id: accepted
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_AT: ${{ steps.dispatch.outputs.requested_at }}
+        run: |
+          set -euo pipefail
+          run_id=''
+          for attempt in $(seq 1 30); do
+            run_id="$(gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/release-acceptance-trust-root.yml/runs?event=workflow_dispatch&branch=release-trust-v1&per_page=20" \
+              --jq ".workflow_runs | map(select(.created_at >= \"$REQUESTED_AT\")) | sort_by(.created_at) | last | .id // empty")"
+            [[ -n "$run_id" ]] && break
+            sleep 10
+          done
+          [[ "$run_id" =~ ^[0-9]+$ ]] || exit 1
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Download exact accepted receipt
+        uses: actions/download-artifact@v7
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.accepted.outputs.run_id }}
+          name: wayland-final-acceptance-${{ inputs.candidate_commit }}
+          path: accepted
+
+      - name: Verify exact accepted receipt and protected provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRUST_ROOT_SHA: ${{ vars.WAYLAND_RELEASE_TRUST_ROOT_SHA }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          jq -e --arg commit "$CANDIDATE_COMMIT" \
+            '.contract == "wayland-final-acceptance/1.0" and .accepted == true and .candidate.commit == $commit' \
+            accepted/final-acceptance-receipt.json >/dev/null
+          gh attestation verify accepted/final-acceptance-receipt.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml \
+            --signer-digest "$TRUST_ROOT_SHA" \
+            --source-digest "$TRUST_ROOT_SHA" \
+            --source-ref refs/heads/release-trust-v1 \
+            --deny-self-hosted-runners
