@@ -1372,6 +1372,20 @@ export async function runSmoke(options, dependencies = {}) {
         // capability states and must carry nothing else.
         console.log(`${TAG} Browser.close was not acknowledged; falling through to the exit and shutdown checks`);
       }
+      // Closing the windows quits the app on Linux and Windows. It deliberately does
+      // not on macOS: src/index.ts returns from window-all-closed for darwin, which is
+      // standard platform behaviour and is relied on by close-to-tray and by the
+      // updater. Asking a macOS app to quit is a separate act, so send the termination
+      // signal the way Cmd+Q would and let the app's own before-quit and will-quit
+      // handlers run. Their cleanup is exactly what the shutdown evidence below checks,
+      // so this exercises the real quit path rather than working around it.
+      //
+      // Verified against Electron on macOS: SIGTERM fires before-quit and will-quit and
+      // the process exits with code 0 and no signal, which is what
+      // verifyShutdownEvidence requires.
+      if (options.targetPlatform === 'darwin' && child.exitCode === null && child.signalCode === null) {
+        child.kill('SIGTERM');
+      }
       const shutdown = await waitForExitImpl(child, 10_000);
       await new Promise((resolve) => setTimeout(resolve, dependencies.shutdownSettleMs ?? 250));
       const descendantRecords = processMonitor.stop();
