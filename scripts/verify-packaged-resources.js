@@ -28,6 +28,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
+const { isDarwinDeveloperIdSigned, darwinSigningIdentifier } = require('./signDarwinStagedBinary');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
@@ -357,7 +358,12 @@ function parseRequiredRuntimes(argv, flag, label) {
   return [...new Set(runtimes)].sort();
 }
 
-function verifyWCoreRuntime(bundleDir, runtimeKey, authority = prepareWaylandCore) {
+function verifyWCoreRuntime(
+  bundleDir,
+  runtimeKey,
+  authority = prepareWaylandCore,
+  signedCheck = isDarwinDeveloperIdSigned
+) {
   const [platform, arch] = runtimeKey.split('-');
   const binaryName = platform === 'win32' ? 'wayland-core.exe' : 'wayland-core';
   const runtimeDir = path.join(bundleDir, runtimeKey);
@@ -383,6 +389,9 @@ function verifyWCoreRuntime(bundleDir, runtimeKey, authority = prepareWaylandCor
     .replace(/^sha256:/i, '')
     .toLowerCase();
   const manifestBinarySha256 = String(metadata.binary?.sha256 || '')
+    .replace(/^sha256:/i, '')
+    .toLowerCase();
+  const manifestStagedSha256 = String(metadata.binary?.stagedSha256 || '')
     .replace(/^sha256:/i, '')
     .toLowerCase();
   const expectedUrl = `https://github.com/FerroxLabs/wayland-core/releases/download/${releaseTag}/${assetName}`;
@@ -419,12 +428,30 @@ function verifyWCoreRuntime(bundleDir, runtimeKey, authority = prepareWaylandCor
     manifestArchiveSha256 === expected.archiveSha256 &&
     metadata.binary?.name === binaryName &&
     manifestBinarySha256 === expected.binarySha256 &&
-    actualBinarySha256 === expected.binarySha256 &&
+    // Byte identity is never traded for signer identity: the shipped bytes must
+    // equal the staged digest exactly. The staged bytes are then either the
+    // pinned upstream bytes verbatim, or - on macOS only - a Developer ID
+    // signed derivative of them, because Apple rejects ad-hoc Mach-O.
+    //
+    // Neither branch is a way in. Claiming the first forces the attacker to
+    // ship the genuine upstream binary. Claiming the second forces them to
+    // produce a Ferrox Labs signature whose IDENTIFIER embeds the pinned
+    // upstream digest - so a different, or older-but-also-signed, binary fails.
+    // The manifest is therefore not load-bearing for authenticity: it cannot be
+    // edited into accepting bytes we did not sign for this exact release.
+    actualBinarySha256 === manifestStagedSha256 &&
+    (manifestStagedSha256 === expected.binarySha256 ||
+      (platform === 'darwin' && signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256)))) &&
     JSON.stringify(metadata.files) === JSON.stringify([binaryName])
   );
 }
 
-function verifyWCoreBundle(bundleDir, requiredRuntimes, authority = prepareWaylandCore) {
+function verifyWCoreBundle(
+  bundleDir,
+  requiredRuntimes,
+  authority = prepareWaylandCore,
+  signedCheck = isDarwinDeveloperIdSigned
+) {
   if (!fs.statSync(bundleDir).isDirectory()) return false;
   const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
   if (entries.length === 0) return false;
@@ -433,14 +460,20 @@ function verifyWCoreBundle(bundleDir, requiredRuntimes, authority = prepareWayla
   }
   const packagedRuntimes = entries.map((entry) => entry.name).sort();
   if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
-  return packagedRuntimes.every((runtime) => verifyWCoreRuntime(bundleDir, runtime, authority));
+  return packagedRuntimes.every((runtime) => verifyWCoreRuntime(bundleDir, runtime, authority, signedCheck));
 }
 
 // Mirrors verifyWCoreRuntime for the bundled wayland-nano agent. The policy
 // selector is injectable because, unlike wayland-core, the first
 // FerroxLabs/wayland-nano publisher-attestation policy only exists once the
 // first signed release lands - tests substitute their own until then.
-function verifyWNanoRuntime(bundleDir, runtimeKey, authority = prepareWaylandNano, policySelector = selectPolicy) {
+function verifyWNanoRuntime(
+  bundleDir,
+  runtimeKey,
+  authority = prepareWaylandNano,
+  policySelector = selectPolicy,
+  signedCheck = isDarwinDeveloperIdSigned
+) {
   const [platform, arch] = runtimeKey.split('-');
   const binaryName = platform === 'win32' ? 'wayland-nano.exe' : 'wayland-nano';
   const runtimeDir = path.join(bundleDir, runtimeKey);
@@ -466,6 +499,9 @@ function verifyWNanoRuntime(bundleDir, runtimeKey, authority = prepareWaylandNan
     .replace(/^sha256:/i, '')
     .toLowerCase();
   const manifestBinarySha256 = String(metadata.binary?.sha256 || '')
+    .replace(/^sha256:/i, '')
+    .toLowerCase();
+  const manifestStagedSha256 = String(metadata.binary?.stagedSha256 || '')
     .replace(/^sha256:/i, '')
     .toLowerCase();
   const expectedUrl = `https://github.com/FerroxLabs/wayland-nano/releases/download/${releaseTag}/${assetName}`;
@@ -502,12 +538,23 @@ function verifyWNanoRuntime(bundleDir, runtimeKey, authority = prepareWaylandNan
     manifestArchiveSha256 === expected.archiveSha256 &&
     metadata.binary?.name === binaryName &&
     manifestBinarySha256 === expected.binarySha256 &&
-    actualBinarySha256 === expected.binarySha256 &&
+    // Same contract as wayland-core: exact bytes against the staged digest, and
+    // the staged bytes are either the pinned upstream bytes or a macOS-signed
+    // derivative of them.
+    actualBinarySha256 === manifestStagedSha256 &&
+    (manifestStagedSha256 === expected.binarySha256 ||
+      (platform === 'darwin' && signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256)))) &&
     JSON.stringify(metadata.files) === JSON.stringify([binaryName])
   );
 }
 
-function verifyWNanoBundle(bundleDir, requiredRuntimes, authority = prepareWaylandNano, policySelector = selectPolicy) {
+function verifyWNanoBundle(
+  bundleDir,
+  requiredRuntimes,
+  authority = prepareWaylandNano,
+  policySelector = selectPolicy,
+  signedCheck = isDarwinDeveloperIdSigned
+) {
   if (!fs.statSync(bundleDir).isDirectory()) return false;
   const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
   if (entries.length === 0) return false;
@@ -516,7 +563,9 @@ function verifyWNanoBundle(bundleDir, requiredRuntimes, authority = prepareWayla
   }
   const packagedRuntimes = entries.map((entry) => entry.name).sort();
   if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
-  return packagedRuntimes.every((runtime) => verifyWNanoRuntime(bundleDir, runtime, authority, policySelector));
+  return packagedRuntimes.every((runtime) =>
+    verifyWNanoRuntime(bundleDir, runtime, authority, policySelector, signedCheck)
+  );
 }
 
 function hasNonHiddenRegularFile(dir) {
@@ -992,7 +1041,8 @@ function isNonEmpty(
   verifyCandidateCapabilitySeal = verifyCapabilitySeal,
   requiredWNanoRuntimes = [],
   wnanoAuthority = prepareWaylandNano,
-  wnanoPolicySelector = selectPolicy
+  wnanoPolicySelector = selectPolicy,
+  darwinSignedCheck = isDarwinDeveloperIdSigned
 ) {
   try {
     if (kind === 'constitution-fs-bundle' && targetPlatform === 'win32') {
@@ -1012,10 +1062,10 @@ function isNonEmpty(
     }
     if (!st.isDirectory()) return false;
     if (kind === 'wcore-bundle') {
-      return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority);
+      return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority, darwinSignedCheck);
     }
     if (kind === 'wnano-bundle') {
-      return verifyWNanoBundle(p, requiredWNanoRuntimes, wnanoAuthority, wnanoPolicySelector);
+      return verifyWNanoBundle(p, requiredWNanoRuntimes, wnanoAuthority, wnanoPolicySelector, darwinSignedCheck);
     }
     if (kind === 'officecli-bundle') {
       const entries = fs.readdirSync(p, { withFileTypes: true });
@@ -1124,6 +1174,7 @@ function verifyPackagedResources(options = {}) {
     ((binaryPath) => officeCliAuthority.verifyDarwinPublisherSignature(binaryPath));
   const constitutionFsAuthority = options.constitutionFsAuthority;
   const verifyConstitutionFsDarwinSignature = options.verifyConstitutionFsDarwinSignature;
+  const darwinSignedCheck = options.darwinSignedCheck || isDarwinDeveloperIdSigned;
   const verifyCandidateCapabilitySeal = options.verifyCapabilitySeal || verifyCapabilitySeal;
   const verifyDarwinPackageSignature =
     options.verifyDarwinPackageSignature ||
@@ -1260,7 +1311,8 @@ function verifyPackagedResources(options = {}) {
         verifyCandidateCapabilitySeal,
         requiredWNanoRuntimes,
         wnanoAuthority,
-        wnanoPolicySelector
+        wnanoPolicySelector,
+        darwinSignedCheck
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);

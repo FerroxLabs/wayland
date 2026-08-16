@@ -25,6 +25,11 @@ const { execSync, execFileSync } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
+const {
+  signDarwinStagedBinary,
+  resolveDarwinSigningIdentity,
+  darwinSigningIdentifier,
+} = require('./signDarwinStagedBinary');
 const path = require('path');
 const { verifyPublisherAttestation } = require('./supply-chain/verifyPublisherAttestation');
 
@@ -467,6 +472,7 @@ function verifiedBundleManifest({
   archiveSha256,
   binaryName,
   binarySha256,
+  stagedBinarySha256,
   publisherAttestation,
 }) {
   return {
@@ -488,7 +494,14 @@ function verifiedBundleManifest({
     },
     binary: {
       name: binaryName,
+      // The verified UPSTREAM digest - the provenance pin, unchanged.
       sha256: `sha256:${binarySha256}`,
+      // The digest of the bytes actually staged into the package. Identical to
+      // the upstream digest everywhere except macOS, where the binary is
+      // Developer ID signed above so that the app can notarize. The packaged
+      // gate compares the shipped bytes against THIS, so byte identity is still
+      // proven exactly rather than downgraded to "signed by someone we trust".
+      stagedSha256: `sha256:${stagedBinarySha256 || binarySha256}`,
     },
     publisherAttestation: publisherAttestation || null,
     files: [binaryName],
@@ -498,6 +511,8 @@ function verifiedBundleManifest({
 
 function prepareWaylandCore(options = {}) {
   const projectRoot = path.resolve(__dirname, '..');
+  const signIdentity =
+    options.signIdentity === undefined ? resolveDarwinSigningIdentity(options.env) : options.signIdentity;
   const platform = options.platform || process.platform;
   // Support cross-compilation: WCORE_ARCH > npm_config_target_arch > process.arch
   const arch = options.arch || process.env.WCORE_ARCH || process.env.npm_config_target_arch || process.arch;
@@ -697,6 +712,23 @@ function prepareWaylandCore(options = {}) {
       );
     }
 
+    // Apple refuses to notarize an app containing an ad-hoc / linker-signed
+    // Mach-O, and released wayland-core binaries are linker-signed. Sign here,
+    // AFTER the upstream bytes have been checksum- and attestation-verified
+    // above and BEFORE the digest the packaged gate pins is taken, so the
+    // provenance chain stays intact and the shipped bytes stay byte-exact.
+    // `mac.signIgnore` then keeps electron-builder from re-signing this path.
+    if (platform === 'darwin') {
+      signDarwinStagedBinary(targetBinaryPath, {
+        identity: signIdentity,
+        // Binds the signature to the pinned upstream bytes, so a substituted or
+        // downgraded binary cannot pass by rewriting the manifest beside it.
+        identifier: darwinSigningIdentifier(binaryName, binarySha256),
+        label: `wayland-core ${runtimeKey}`,
+      });
+    }
+    const stagedBinarySha256 = computeFileSha256(targetBinaryPath);
+
     const manifest = verifiedBundleManifest({
       platform,
       arch,
@@ -706,6 +738,7 @@ function prepareWaylandCore(options = {}) {
       archiveSha256,
       binaryName,
       binarySha256,
+      stagedBinarySha256,
       publisherAttestation,
     });
     if (!strict && !expected.binarySha256) manifest.verified = false;

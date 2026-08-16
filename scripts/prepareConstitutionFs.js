@@ -10,6 +10,12 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const GENERATED = path.join(ROOT, 'src', 'process', 'services', 'constitution', 'constitutionFsAuthority.generated.ts');
 
+const {
+  signDarwinStagedBinary,
+  resolveDarwinSigningIdentity,
+  darwinSigningIdentifier,
+} = require('./signDarwinStagedBinary');
+
 function writeGenerated(authority, generatedPath = GENERATED) {
   fs.mkdirSync(path.dirname(generatedPath), { recursive: true });
   fs.writeFileSync(
@@ -31,6 +37,10 @@ function prepareConstitutionFs(options = {}) {
     path.join(root, 'src', 'process', 'services', 'constitution', 'constitutionFsAuthority.generated.ts');
   const execute = options.execFileSync || execFileSync;
   const prebuiltBinary = options.prebuiltBinary;
+  // Undefined (not null) means "resolve from the environment"; tests pass an
+  // explicit identity, and a build without one leaves the helper unsigned.
+  const signIdentity =
+    options.signIdentity === undefined ? resolveDarwinSigningIdentity(options.env) : options.signIdentity;
   const supportedPlatform = platform === 'darwin' || platform === 'linux';
 
   fs.rmSync(outputRoot, { recursive: true, force: true });
@@ -66,11 +76,21 @@ function prepareConstitutionFs(options = {}) {
   fs.chmodSync(destination, 0o755);
 
   if (platform === 'darwin') {
-    const identity = process.env.WAYLAND_CONSTITUTION_FS_SIGN_IDENTITY || '-';
-    execute('/usr/bin/codesign', ['--force', '--sign', identity, '--timestamp=none', destination], {
-      stdio: 'inherit',
+    // Sign BEFORE the digest below is taken. The manifest, the authority
+    // embedded in app.asar and the packaged gate all pin these exact bytes, and
+    // the helper is re-hashed against that authority at runtime - so a signature
+    // applied later would fail every launch with
+    // CONSTITUTION_FS_BINARY_UNVERIFIED. Ad-hoc signing (the previous default)
+    // also made Apple reject the whole app during notarization.
+    // Bind the signature to the bytes we just built, so the signature cannot be
+    // reused to bless a different helper.
+    const unsignedSha256 = crypto.createHash('sha256').update(fs.readFileSync(destination)).digest('hex');
+    signDarwinStagedBinary(destination, {
+      execFileSync: execute,
+      identity: signIdentity,
+      identifier: darwinSigningIdentifier(fileName, unsignedSha256),
+      label: `constitution-fs ${platform}-${arch}`,
     });
-    execute('/usr/bin/codesign', ['--verify', '--strict', destination], { stdio: 'inherit' });
   }
 
   const bytes = fs.readFileSync(destination);

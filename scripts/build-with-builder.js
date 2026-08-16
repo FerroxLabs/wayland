@@ -18,6 +18,7 @@ const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
+const { signDarwinStagedBinary, resolveDarwinSigningIdentity } = require('./signDarwinStagedBinary');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
@@ -338,6 +339,66 @@ function prepareOptionalHubResources(options = {}) {
   return { available: false, reason: 'trusted-hub-authority-unavailable' };
 }
 
+// The bridge ships prebuilt natives (sharp's .node/.dylib and the bare-* .bare
+// runtimes) that npm publishes UNSIGNED. Apple refuses to notarize an app that
+// contains them in that state - all 11 were named in the notary log that blocked
+// 0.12.0 - so they are Developer ID signed here, right after install and before
+// the bridge tree is validated and copied into the package.
+//
+// Signing before validation is what keeps the source/bundle mirror exact: both
+// sides then hold the same signed bytes, so verifySourceMirror still compares
+// them byte for byte with no exemption. `mac.signIgnore` stops electron-builder
+// re-signing them during packaging.
+//
+// Detection is by Mach-O magic rather than by file extension. The natives Apple
+// named use .node, .dylib and .bare today, but the set is dependency-controlled
+// and an extension list would silently skip an extensionless executable - which
+// is exactly the failure mode this whole change exists to remove.
+function isMachOFile(filePath) {
+  let handle;
+  try {
+    handle = fs.openSync(filePath, 'r');
+    const head = Buffer.alloc(4);
+    if (fs.readSync(handle, head, 0, 4, 0) < 4) return false;
+    const magic = head.readUInt32BE(0);
+    return (
+      magic === 0xfeedface || // 32-bit
+      magic === 0xfeedfacf || // 64-bit
+      magic === 0xcefaedfe || // 32-bit, byte-swapped
+      magic === 0xcffaedfe || // 64-bit, byte-swapped
+      magic === 0xcafebabe || // universal ("fat")
+      magic === 0xbebafeca // universal, byte-swapped
+    );
+  } catch {
+    return false;
+  } finally {
+    if (handle !== undefined) fs.closeSync(handle);
+  }
+}
+
+// Every native is signed rather than a fixed list, so a dependency that starts
+// shipping a new one cannot silently reintroduce an unsigned binary.
+function signWhatsAppBridgeNatives(nodeModules, options = {}) {
+  if (!fs.existsSync(nodeModules)) return [];
+  const sign = options.signDarwinStagedBinary || signDarwinStagedBinary;
+  const identity = options.signIdentity === undefined ? resolveDarwinSigningIdentity() : options.signIdentity;
+  const natives = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const target = path.join(dir, entry.name);
+      if (entry.isSymbolicLink()) continue;
+      if (entry.isDirectory()) walk(target);
+      else if (entry.isFile() && isMachOFile(target)) natives.push(target);
+    }
+  };
+  walk(nodeModules);
+  natives.sort();
+  for (const native of natives) {
+    sign(native, { identity, label: path.relative(nodeModules, native) });
+  }
+  return natives;
+}
+
 function prepareWhatsAppBridgeResources(options = {}) {
   const bridgeDir = options.bridgeDir || path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
   const nodeModules = path.join(bridgeDir, 'node_modules');
@@ -352,6 +413,7 @@ function prepareWhatsAppBridgeResources(options = {}) {
       stdio: 'inherit',
       env: process.env,
     });
+    if (platform === 'darwin') signWhatsAppBridgeNatives(nodeModules, options);
     if (!validate()) throw new Error('WhatsApp bridge clean frozen-lock input failed source/dependency validation');
   } catch (error) {
     fs.rmSync(nodeModules, { recursive: true, force: true });

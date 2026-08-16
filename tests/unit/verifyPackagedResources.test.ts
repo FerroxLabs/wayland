@@ -323,7 +323,13 @@ function addPackagedApp(
         sha256: `sha256:${TEST_WCORE_ARCHIVE_SHA}`,
         verified: true,
       },
-      binary: { name: 'wayland-core', sha256: `sha256:${TEST_WCORE_BINARY_SHA}` },
+      binary: {
+        name: 'wayland-core',
+        sha256: `sha256:${TEST_WCORE_BINARY_SHA}`,
+        // Unsigned fixture: the staged bytes are the upstream bytes verbatim,
+        // which is what a build with no Developer ID identity produces.
+        stagedSha256: `sha256:${TEST_WCORE_BINARY_SHA}`,
+      },
       files: ['wayland-core'],
       skipped: false,
     })
@@ -363,7 +369,11 @@ function addPackagedApp(
         sha256: `sha256:${TEST_WNANO_ARCHIVE_SHA}`,
         verified: true,
       },
-      binary: { name: 'wayland-nano', sha256: `sha256:${TEST_WNANO_BINARY_SHA}` },
+      binary: {
+        name: 'wayland-nano',
+        sha256: `sha256:${TEST_WNANO_BINARY_SHA}`,
+        stagedSha256: `sha256:${TEST_WNANO_BINARY_SHA}`,
+      },
       files: ['wayland-nano'],
       skipped: false,
     })
@@ -856,6 +866,39 @@ describe('packaged resource release gate', () => {
     const out = createPackagedResources(true);
     fs.appendFileSync(wcoreBinaryPath(out), 'tampered');
     expect(() => verify(out)).toThrow();
+  });
+
+  it('fails closed on a wayland-core manifest with no staged digest', () => {
+    const out = createPackagedResources(true);
+    const manifest = wcoreManifestPath(out);
+    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
+    delete metadata.binary.stagedSha256;
+    fs.writeFileSync(manifest, JSON.stringify(metadata));
+    // Without it there is nothing pinning the shipped bytes, so the gate must
+    // refuse rather than fall back to a laxer comparison.
+    expect(() => verify(out)).toThrow(/CRITICAL resource/);
+  });
+
+  it('demands a Developer ID signature once a darwin manifest claims signed staging', () => {
+    const out = createPackagedResources(true);
+    const manifest = wcoreManifestPath(out);
+    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
+    // Model a signed staging: the staged bytes differ from the pinned upstream
+    // bytes, which is only legitimate because we signed them.
+    fs.appendFileSync(wcoreBinaryPath(out), 'signature');
+    metadata.binary.stagedSha256 = `sha256:${crypto
+      .createHash('sha256')
+      .update(fs.readFileSync(wcoreBinaryPath(out)))
+      .digest('hex')}`;
+    fs.writeFileSync(manifest, JSON.stringify(metadata));
+
+    // Bytes match the staged digest, so only the signature stands between this
+    // and acceptance. Unsigned must fail...
+    expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { darwinSignedCheck: () => false })).toThrow(
+      /CRITICAL resource/
+    );
+    // ...and a valid Ferrox Labs signature must be accepted.
+    expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { darwinSignedCheck: () => true })).not.toThrow();
   });
 
   it('blocks a wayland-core manifest from the wrong release', () => {

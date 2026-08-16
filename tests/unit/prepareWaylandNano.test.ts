@@ -162,7 +162,15 @@ describe('strict bundled wayland-nano provenance', () => {
     expect(build).toContain('--wnano-runtime');
     expect(verifier).toContain("kind: 'wnano-bundle'");
     expect(verifier).toContain("['download', 'verified-cache'].includes(metadata.sourceType)");
-    expect(verifier).toContain('actualBinarySha256 === expected.binarySha256');
+    // The shipped bytes are pinned to the digest recorded when the binary was
+    // staged, and the staged bytes are either the pinned upstream bytes or a
+    // macOS Developer ID signed derivative of them - never merely 'signed'.
+    expect(verifier).toContain('actualBinarySha256 === manifestStagedSha256');
+    expect(verifier).toContain('manifestStagedSha256 === expected.binarySha256 ||');
+    // On darwin the fallback is not merely "signed by us": the signature's
+    // identifier must embed the pinned upstream digest, so a different or
+    // older binary we also signed cannot be substituted.
+    expect(verifier).toContain('darwinSigningIdentifier(binaryName, expected.binarySha256)');
     expect(builder).toContain('resources/bundled-wayland-nano');
     expect(builder).toContain("'/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$'");
   });
