@@ -976,7 +976,9 @@ describe('packaged resource release gate', () => {
     ).toThrow();
   });
 
-  it('accepts a target that declares it bundles no wayland-nano runtime', () => {
+  // Acceptance path: skipped on Windows like the other accepting specs, because the
+  // fixture cannot reproduce the POSIX executable mode that managed-cli-shims needs.
+  itAcceptedSweep('accepts a target that declares it bundles no wayland-nano runtime', () => {
     // wayland-nano publishes no win32-arm64 build. That target legitimately ships
     // none, but the absence has to be declared rather than inferred from a missing
     // flag, which is what --no-wnano-runtime states.
