@@ -225,6 +225,52 @@ win:
     certificateProfileName: ferroxlabs
   # Signed builds now satisfy the Windows auto-update Authenticode check.
   verifyUpdateCodeSignature: true
+  # Do not re-sign the third-party runtimes we bundle. Authenticode signing
+  # rewrites a binary, which destroys the exact upstream bytes that
+  # scripts/verify-packaged-resources.js checks against their pinned release
+  # digests - the 0.12.0 Windows builds failed on precisely that, with
+  # bundled-wayland-core, bundled-wayland-nano, bundled-officecli, bundled-bun
+  # and whatsapp-bridge all reported as invalid after signing.
+  #
+  # Signing them is also wrong on its own terms: an Authenticode signature says
+  # Ferrox Labs produced this binary, and bun, OfficeCLI, Core and Nano are not
+  # ours to vouch for. We pin and verify their published bytes instead. macOS has
+  # always done this through mac.signIgnore above; Windows has no path filter, so
+  # the same exclusions are expressed as negative signExts patterns, which
+  # electron-builder matches with endsWith against the full path.
+  #
+  # Everything else still signs exactly as before: Wayland.exe, the installer and
+  # uninstaller, elevate.exe, the node-pty helpers and 7za.
+  #
+  # The whatsapp-bridge entries are npm shim executables created by its frozen
+  # lockfile. If that lockfile ever grows a new shim, the build fails closed on
+  # the packaged-resource check rather than shipping a mismatch, and this list
+  # needs the new name.
+  signExts:
+    - '!\bundled-bun\win32-x64\bun.exe'
+    - '!\bundled-bun\win32-arm64\bun.exe'
+    - '!\bundled-officecli\win32-x64\officecli.exe'
+    - '!\bundled-officecli\win32-arm64\officecli.exe'
+    - '!\bundled-wayland-core\win32-x64\wayland-core.exe'
+    - '!\bundled-wayland-core\win32-arm64\wayland-core.exe'
+    - '!\bundled-wayland-nano\win32-x64\wayland-nano.exe'
+    - '!\bundled-wayland-nano\win32-arm64\wayland-nano.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\browsers.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\crc32.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\escodegen.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\esgenerate.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\esparse.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\esvalidate.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\extract-zip.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\glob.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\js-yaml.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\mime.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\pino.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\puppeteer.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\qrcode-terminal.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\semver.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\which.exe'
+    - '!\whatsapp-bridge\node_modules\cross-spawn\node_modules\.bin\node-which.exe'
 
 nsis:
   oneClick: false
