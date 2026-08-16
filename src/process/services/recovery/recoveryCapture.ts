@@ -186,9 +186,10 @@ async function addFileToEpoch(hash: ReturnType<typeof createHash>, filePath: str
 async function addPathToEpoch(
   hash: ReturnType<typeof createHash>,
   candidate: string,
-  excludedTopLevel: ReadonlySet<string> = new Set()
+  excludedTopLevel: ReadonlySet<string> = new Set(),
+  maxEntries = MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT
 ): Promise<void> {
-  let remaining = MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT;
+  let remaining = maxEntries;
   let stat: Awaited<ReturnType<typeof lstat>>;
   try {
     stat = await lstat(candidate);
@@ -242,8 +243,12 @@ function resolveInventoryUserDataRoot(inventory: RecoveryInventory): string {
   throw new Error('Recovery mutation epoch requires the authoritative user-data root.');
 }
 
-async function addNamespaceToEpoch(hash: ReturnType<typeof createHash>, userDataRoot: string): Promise<void> {
-  let remaining = MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT;
+async function addNamespaceToEpoch(
+  hash: ReturnType<typeof createHash>,
+  userDataRoot: string,
+  maxEntries = MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT
+): Promise<void> {
+  let remaining = maxEntries;
   const addDirectory = async (directory: string, relativeRoot: string): Promise<void> => {
     const directoryStat = await lstat(directory);
     if (directoryStat.isSymbolicLink() || !directoryStat.isDirectory()) {
@@ -273,10 +278,28 @@ async function addNamespaceToEpoch(hash: ReturnType<typeof createHash>, userData
   await addDirectory(userDataRoot, '');
 }
 
+/** Test-only override: it can tighten the inventory cap but can never raise production's fixed limit. */
+export type RecoveryEpochTestOptions = Readonly<{ maxEntriesPerRoot?: number }>;
+
+function resolveRecoveryEpochEntryLimit(options: RecoveryEpochTestOptions | undefined): number {
+  const requested = options?.maxEntriesPerRoot;
+  if (requested === undefined) return MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT;
+  if (!Number.isSafeInteger(requested) || requested < 1 || requested > MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT) {
+    throw new RangeError(
+      `Recovery epoch entry limit must be a safe integer between 1 and ${MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT}.`
+    );
+  }
+  return requested;
+}
+
 /** Content-bound epoch for Desktop-owned copied state; SQLite has its own online-backup authority. */
-export async function fingerprintDesktopRecoveryState(inventory: RecoveryInventory): Promise<string> {
+export async function fingerprintDesktopRecoveryState(
+  inventory: RecoveryInventory,
+  testOptions?: RecoveryEpochTestOptions
+): Promise<string> {
+  const maxEntries = resolveRecoveryEpochEntryLimit(testOptions);
   const hash = createHash('sha256');
-  await addNamespaceToEpoch(hash, resolveInventoryUserDataRoot(inventory));
+  await addNamespaceToEpoch(hash, resolveInventoryUserDataRoot(inventory), maxEntries);
   for (const authority of inventory.authorities.filter(({ id }) => EPOCH_AUTHORITIES.has(id))) {
     hash.update(`authority\0${authority.id}\0`);
     for (const evidence of authority.evidence) {
@@ -285,7 +308,8 @@ export async function fingerprintDesktopRecoveryState(inventory: RecoveryInvento
       await addPathToEpoch(
         hash,
         evidence.path,
-        authority.id === 'constitution.filesystem' ? new Set(['profiles']) : new Set()
+        authority.id === 'constitution.filesystem' ? new Set(['profiles']) : new Set(),
+        maxEntries
       );
     }
   }

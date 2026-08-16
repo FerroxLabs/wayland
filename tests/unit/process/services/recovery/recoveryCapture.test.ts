@@ -149,21 +149,23 @@ describe('Desktop recovery mutation epoch', () => {
     await expect(fingerprintDesktopRecoveryState(inventory(config))).rejects.toThrow('refuses hard-linked');
   });
 
-  it('bounds content hashing and rejects a 20,001-entry authority tree', async () => {
+  it('bounds content hashing without a huge physical fixture', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-epoch-bounded-'));
     roots.push(root);
     const userDataRoot = path.join(root, 'user-data');
     const config = path.join(root, 'oversize-config');
     fs.mkdirSync(userDataRoot);
     fs.mkdirSync(config);
-    for (let index = 0; index < 20_001; index += 1) {
+    for (let index = 0; index < 2; index += 1) {
       fs.writeFileSync(path.join(config, `${index.toString().padStart(5, '0')}.json`), '{}');
     }
     const value = inventory(config);
     value.userDataRoot = userDataRoot;
 
-    await expect(fingerprintDesktopRecoveryState(value)).rejects.toThrow('bounded content inventory');
-  }, 30_000);
+    await expect(fingerprintDesktopRecoveryState(value, { maxEntriesPerRoot: 1 })).rejects.toThrow(
+      'bounded content inventory'
+    );
+  });
 });
 
 describe('Desktop-only production capture boundary', () => {
