@@ -1,0 +1,50 @@
+name: Notary Log
+
+# Fetch Apple's notarization log for a submission ID.
+#
+# `xcrun notarytool submit --wait` exits 0 even when Apple returns
+# `status: Invalid`, so a rejected submission surfaces downstream only as
+# "stapler staple failed" — which reads like a transient service problem and is
+# not. The actual reason lives in the notary log, which the build never fetched.
+# This workflow retrieves it for any submission ID printed by a build.
+#
+# Usage: gh workflow run notary-log.yml -f submission_id=<uuid>
+
+on:
+  workflow_dispatch:
+    inputs:
+      submission_id:
+        description: 'notarytool submission UUID (printed by the build as "id: <uuid>")'
+        type: string
+        required: true
+
+jobs:
+  notary-log:
+    name: Fetch notary log
+    runs-on: macos-14
+    steps:
+      - name: Fetch the notarization log
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          SUBMISSION_ID: ${{ inputs.submission_id }}
+        run: |
+          set -euo pipefail
+          # Password goes through the environment, never argv.
+          xcrun notarytool log "$SUBMISSION_ID" \
+            --apple-id "$APPLE_ID" \
+            --team-id "$TEAM_ID" \
+            --password "$APPLE_ID_PASSWORD" \
+            notary-log.json
+          echo "===================== NOTARY LOG ====================="
+          cat notary-log.json
+          echo "======================================================"
+
+      - name: Upload the log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: notary-log-${{ inputs.submission_id }}
+          path: notary-log.json
+          if-no-files-found: warn
