@@ -189,15 +189,49 @@ function defaultVerifyReleaseBlockers(input, context) {
   return require('./verifyReleaseAuthorities').verifyReleaseBlockers(input, context);
 }
 
+// This function answers exactly one question: which wayland-core release is the
+// authoritative one to bundle? Everything downstream is core-specific - it reads
+// bundled-wcore-shasums.json (below), demands TARGETS.length assets (:206), and
+// fails with core-asset-coverage-mismatch (:722).
+//
+// The original filter was `status === 'active'` alone plus a length-1 check, which
+// was only ever correct while wayland-core was the sole publisher. Bundling Nano
+// added a second, legitimately active policy (wayland-nano v0.1.1): selectPolicy()
+// in verifyPublisherAttestation.js:40 throws on any non-'active' policy, and
+// prepareWaylandNano.js:398 calls it during packaging, so demoting Nano to
+// 'superseded' would break the build on every platform. The policy statuses are
+// right; the filter was under-specified.
+//
+// The fix narrows rather than relaxes. Nano is not accepted as a core release -
+// it is excluded by repository - and an active policy from any repository this
+// file does not know about is a hard failure rather than a silent pass, so a
+// rogue or typo'd publisher entry can never ride along unnoticed. Nano also
+// ships five assets, not six (scripts/bundled-wnano-shasums.json has no
+// win32-arm64 entry), so accepting a set here would trip :206 anyway.
+const CORE_PUBLISHER_REPOSITORY = 'FerroxLabs/wayland-core';
+const KNOWN_PUBLISHER_REPOSITORIES = Object.freeze(['FerroxLabs/wayland-core', 'FerroxLabs/wayland-nano']);
+
+function selectActiveCorePolicy(policyDocument) {
+  const policies = Array.isArray(policyDocument?.policies) ? policyDocument.policies : null;
+  if (!policies) fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'publisher-policy-unreadable');
+  const active = policies.filter((entry) => entry?.status === 'active');
+  // Fail closed: an active publisher this release does not expect is rejected
+  // outright, never merely ignored.
+  if (active.some((entry) => !KNOWN_PUBLISHER_REPOSITORIES.includes(entry?.repository))) {
+    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'unexpected-active-publisher');
+  }
+  const core = active.filter((entry) => entry.repository === CORE_PUBLISHER_REPOSITORY);
+  if (core.length !== 1) fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'no-unique-active-core-release');
+  return core[0];
+}
+
 function defaultExpectedPublisherAssets() {
   const { readPolicy } = require('../supply-chain/verifyPublisherAttestation');
-  const policy = readPolicy();
-  const active = policy.policies.filter((entry) => entry.status === 'active');
-  if (active.length !== 1) fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'no-unique-active-core-release');
+  const corePolicy = selectActiveCorePolicy(readPolicy());
   const shasums = JSON.parse(
     fs.readFileSync(path.join(productionCandidateRoot(), 'scripts', 'bundled-wcore-shasums.json'), 'utf8')
   );
-  const assets = Object.entries(shasums[active[0].releaseTag] || {})
+  const assets = Object.entries(shasums[corePolicy.releaseTag] || {})
     .map(([asset, evidence]) => ({
       asset,
       sha256: typeof evidence === 'string' ? evidence : evidence?.archiveSha256,
@@ -854,10 +888,13 @@ function testOnlyVerifyFinalAcceptance(input, injected = {}) {
 
 module.exports = {
   CAPABILITIES,
+  CORE_PUBLISHER_REPOSITORY,
   DEFAULT_VERIFIERS,
+  KNOWN_PUBLISHER_REPOSITORIES,
   RECEIPT_CONTRACT,
   REQUEST_CONTRACT,
   TARGETS,
+  selectActiveCorePolicy,
   testOnlyVerifyFinalAcceptance,
   verifyFinalAcceptance,
 };

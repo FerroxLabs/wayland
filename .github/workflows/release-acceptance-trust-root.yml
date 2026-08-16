@@ -43,6 +43,14 @@ jobs:
       ACTIONS_ID_TOKEN_REQUEST_TOKEN: ''
       GH_TOKEN: ''
       GITHUB_TOKEN: ''
+      # tsc OOMs at Node's ~2GB default old-space on this codebase. Every other
+      # tsc call site raises the limit - _build-reusable.yml:57-59, pr-checks.yml:71,
+      # and package.json's `typecheck` script via cross-env - and the typecheck gate
+      # below was the only one left running `bunx tsc --noEmit` bare. Set it here on
+      # the job rather than in the gate command: the command string is byte-pinned in
+      # promoteCandidateGateEvidence.js:20 and produceProtectedAcceptanceEvidence.js:24,
+      # so editing it fails the handoff with M8J_GATE_HANDOFF_INVALID.
+      NODE_OPTIONS: '--max-old-space-size=8192'
     steps:
       - name: Enforce non-authoritative execution context
         shell: bash
@@ -71,6 +79,36 @@ jobs:
           tree="$(git rev-parse 'HEAD^{tree}')"
           [[ "$tree" =~ ^[0-9a-f]{40,64}$ ]] || exit 1
           echo "tree=$tree" >> "$GITHUB_OUTPUT"
+
+      # The `tests` gate below runs constitutionFsService.test.ts, which
+      # re-derives the immutable 991c502 producer corpus straight from git
+      # (rev-parse / archive / show / read-tree) with no skip and no try/catch.
+      # That commit is reachable from NO remote ref, so neither the depth-1
+      # checkout above nor `fetch-depth: 0` can supply it, and `bun run test`
+      # fails deterministically without this. pr-checks.yml:263-285 solves the
+      # same problem the same way; this mirrors it.
+      #
+      # Runs AFTER the identity bind so the candidate is pinned before anything
+      # touches the object store, and it is object-only - fetch writes no
+      # worktree files, so the `git status --porcelain` immutability assertions
+      # here and in the sealing step still see a clean tree. The repository is
+      # public, so fetch-by-SHA needs no credentials and `persist-credentials:
+      # false` on the checkout is preserved.
+      - name: Fetch the Constitution provenance producer commit
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA=$(node -p "require('./tests/fixtures/constitution-fs/base-991c502-committed/fixture-manifest.json').producerCommit")
+          [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          echo "producer commit: $SHA"
+          for attempt in 1 2 3; do
+            if git fetch --depth=1 --no-tags origin "$SHA"; then exit 0; fi
+            echo "fetch attempt $attempt failed; retrying" >&2
+            sleep 5
+          done
+          echo "could not fetch producer commit $SHA" >&2
+          exit 1
 
       - name: Setup pinned untrusted candidate toolchain
         uses: oven-sh/setup-bun@v2
