@@ -1,0 +1,94 @@
+name: Publish getwayland to npm (Reusable)
+
+# The ONE copy of the getwayland npm publish. Two callers use it:
+#   * build-and-release.yml -> after publish-release succeeds on a tag push.
+#   * publish-npm.yml       -> manual workflow_dispatch against a release tag,
+#                              for a release whose automatic publish was
+#                              skipped (e.g. the draft was flipped by hand).
+# Duplicating these steps is what let npm drift ~5 releases behind before, so
+# keep this file the only place the publish logic lives.
+#
+# The published version is always the checked-out ref's app/package.json
+# version: installer/scripts/build-payload.mjs syncs installer/package.json
+# from it. Publishing for a tag therefore requires checking out that tag.
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: 'Git ref to publish from (leave empty to use the triggering commit)'
+        type: string
+        default: ''
+    secrets:
+      NPM_TOKEN:
+        description: 'npm automation token with publish rights on getwayland'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish getwayland to npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require an npm token
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "::error title=NPM_TOKEN missing::Add an npm automation token as the NPM_TOKEN repo secret so the getwayland self-host CLI publishes on every release."
+            exit 1
+          fi
+
+      # `ref` is supplied by the release workflow or by a write-access
+      # maintainer via workflow_dispatch (not untrusted external input). It only
+      # selects which commit to publish.
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Report the ref being published
+        env:
+          REF_INPUT: ${{ inputs.ref }}
+        run: |
+          echo "ref input   : ${REF_INPUT:-<triggering commit>}"
+          echo "commit      : $(git rev-parse HEAD)"
+          echo "app version : $(node -p "require('./package.json').version")"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build the getwayland payload (syncs version to the release)
+        working-directory: installer
+        run: node scripts/build-payload.mjs
+
+      - name: Publish to npm
+        working-directory: installer
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          case "$VERSION" in
+            *-*) DIST_TAG=next ;;   # prerelease (rc / beta) -> npm `next`
+            *)   DIST_TAG=latest ;; # stable -> npm `latest`
+          esac
+          echo "Publishing getwayland@$VERSION (dist-tag: $DIST_TAG)"
+          # Idempotent: a workflow re-run must not fail on an already-published version.
+          if npm view "getwayland@$VERSION" version >/dev/null 2>&1; then
+            echo "getwayland@$VERSION is already on npm - skipping."
+            exit 0
+          fi
+          npm publish --access public --tag "$DIST_TAG"

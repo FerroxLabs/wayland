@@ -1,72 +1,35 @@
 name: Publish getwayland to npm (manual)
 
-# On-demand publish of the getwayland self-host CLI to npm. Checks out the `ref`
-# you specify (a tag or branch) and publishes getwayland at that ref's
-# app/package.json version (build-payload syncs installer/package.json to it).
-# Use it to backfill a release whose automatic npm publish was skipped/failed.
-# Requires the NPM_TOKEN repo secret. Idempotent: a version already on npm is a
-# no-op. Dispatch is restricted to users with write access (workflow_dispatch).
+# On-demand publish of the getwayland self-host CLI to npm. Checks out the tag
+# you specify and publishes getwayland at THAT tag's app/package.json version
+# (build-payload syncs installer/package.json from it), so a backfill can never
+# publish whatever happens to be on main. Use it for a release whose automatic
+# npm publish was skipped or failed - e.g. a draft release flipped by hand, so
+# the publish-release job in build-and-release.yml never ran.
+#
+# The publish steps live in _publish-getwayland-npm-reusable.yml, shared with
+# build-and-release.yml. Requires the NPM_TOKEN repo secret. Idempotent: a
+# version already on npm is a no-op. Dispatch is restricted to users with write
+# access (workflow_dispatch).
 
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        description: 'Tag or branch to publish from (its app/package.json version is published, e.g. v0.10.2)'
+      tag:
+        description: 'Published release tag to publish from (e.g. v0.12.0). Any branch/SHA also works.'
         required: true
-        default: 'feat/workflows-collaborative-surface'
+        type: string
+
+permissions:
+  contents: read
 
 jobs:
   publish:
     name: Publish getwayland to npm
-    runs-on: ubuntu-latest
-    steps:
-      - name: Require an npm token
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "::error title=NPM_TOKEN missing::Add an npm automation token as the NPM_TOKEN repo secret."
-            exit 1
-          fi
-
-      # `ref` comes from a write-access maintainer via workflow_dispatch (not
-      # untrusted external input). It only selects which commit to publish.
-      - name: Checkout the ref to publish
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ inputs.ref }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Setup bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Build the getwayland payload (syncs version to app/package.json)
-        working-directory: installer
-        run: node scripts/build-payload.mjs
-
-      - name: Publish to npm
-        working-directory: installer
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          VERSION="$(node -p "require('./package.json').version")"
-          case "$VERSION" in
-            *-*) DIST_TAG=next ;;   # prerelease (rc / beta) -> npm `next`
-            *)   DIST_TAG=latest ;; # stable -> npm `latest`
-          esac
-          echo "Publishing getwayland@$VERSION (dist-tag: $DIST_TAG)"
-          if npm view "getwayland@$VERSION" version >/dev/null 2>&1; then
-            echo "getwayland@$VERSION is already on npm - skipping."
-            exit 0
-          fi
-          npm publish --access public --tag "$DIST_TAG"
+    uses: ./.github/workflows/_publish-getwayland-npm-reusable.yml
+    permissions:
+      contents: read
+    with:
+      ref: ${{ inputs.tag }}
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
