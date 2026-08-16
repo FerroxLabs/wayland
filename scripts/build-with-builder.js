@@ -18,7 +18,11 @@ const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
-const { signDarwinStagedBinary, resolveDarwinSigningIdentity } = require('./signDarwinStagedBinary');
+const {
+  signDarwinStagedBinary,
+  resolveDarwinSigningIdentity,
+  darwinSigningIdentifier,
+} = require('./signDarwinStagedBinary');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
@@ -155,8 +159,20 @@ function viteBuildExists() {
   return fs.existsSync(path.join(mainDir, 'index.js')) && fs.existsSync(path.join(rendererDir, 'index.html'));
 }
 
-function shouldSkipViteBuild(skipViteFlag, forceFlag) {
+function shouldSkipViteBuild(skipViteFlag, forceFlag, signedDarwinPackaging = false) {
   if (forceFlag) return false;
+  // Reusing a stale app.asar while the Constitution helper is re-signed ships an
+  // app that packages cleanly and then refuses to launch: the helper is
+  // re-hashed at runtime against the authority compiled INTO app.asar, and
+  // signing (with a fresh secure timestamp) changes the helper's bytes every
+  // time. The adjacent manifest would agree with the new binary while the
+  // embedded authority still described the old one, so the packaged gate passes
+  // and every launch fails with CONSTITUTION_FS_BINARY_UNVERIFIED.
+  if (signedDarwinPackaging && skipViteFlag) {
+    throw new Error(
+      '[build] --skip-vite cannot be combined with signed macOS packaging: the Constitution authority compiled into app.asar must be rebuilt whenever the helper is re-signed, or the packaged app will not launch.'
+    );
+  }
   if (skipViteFlag) return true;
 
   // Auto-detect: skip if build exists and hash matches
@@ -366,7 +382,10 @@ function isMachOFile(filePath) {
       magic === 0xfeedfacf || // 64-bit
       magic === 0xcefaedfe || // 32-bit, byte-swapped
       magic === 0xcffaedfe || // 64-bit, byte-swapped
-      magic === 0xcafebabe || // universal ("fat")
+      // 0xcafebabe is also the Java .class magic. Signing one would abort the
+      // build with "unsupported format for signature"; it fails closed rather
+      // than shipping something unsigned, but there is no reason to try.
+      (magic === 0xcafebabe && !filePath.endsWith('.class')) || // universal ("fat")
       magic === 0xbebafeca || // universal, byte-swapped
       magic === 0xcafebabf || // universal 64-bit
       magic === 0xbfbafeca // universal 64-bit, byte-swapped
@@ -422,7 +441,14 @@ function signWhatsAppBridgeNatives(nodeModules, options = {}) {
   walk(root);
   natives.sort();
   for (const native of natives) {
-    sign(native, { identity, label: path.relative(root, native) });
+    // Bind each signature to the bytes as installed, so a signature cannot be
+    // lifted onto a different native later.
+    const preSignSha256 = crypto.createHash('sha256').update(fs.readFileSync(native)).digest('hex');
+    sign(native, {
+      identity,
+      identifier: darwinSigningIdentifier(path.basename(native).replace(/[^A-Za-z0-9._-]/g, '_'), preSignSha256),
+      label: path.relative(root, native),
+    });
   }
   return natives;
 }
@@ -774,7 +800,11 @@ try {
   writeConstitutionPackageAuthority(constitutionAuthority);
 
   // 3. Check if we can skip Vite build (incremental build)
-  const skipViteBuild = shouldSkipViteBuild(skipVite, forceBuild);
+  const skipViteBuild = shouldSkipViteBuild(
+    skipVite,
+    forceBuild,
+    packagePlatforms[0] === 'darwin' && Boolean(resolveDarwinSigningIdentity())
+  );
 
   if (!skipViteBuild) {
     // Run electron-vite to build all bundles (main + preload + renderer)
