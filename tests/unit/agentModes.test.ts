@@ -52,6 +52,19 @@ describe('AGENT_MODES.wnano', () => {
   });
 });
 
+describe('AGENT_MODES.grok', () => {
+  it('exposes only Default and Wayland-owned Guarded Autopilot', () => {
+    expect(AGENT_MODES.grok).toEqual([
+      { value: 'default', label: 'Default' },
+      {
+        value: 'autoGuarded',
+        label: 'Guarded Autopilot',
+        description: 'Auto-approve normal tool calls; require confirmation for catastrophic commands',
+      },
+    ]);
+  });
+});
+
 describe('getAgentModes', () => {
   it('returns claude modes for "claude" backend', () => {
     const modes = getAgentModes('claude');
@@ -61,6 +74,10 @@ describe('getAgentModes', () => {
 
   it('returns empty array for unknown backend', () => {
     expect(getAgentModes('nonexistent')).toEqual([]);
+  });
+
+  it('returns Grok guarded-autopilot modes', () => {
+    expect(getAgentModes('grok').map((mode) => mode.value)).toEqual(['default', 'autoGuarded']);
   });
 
   it('returns empty array for undefined', () => {

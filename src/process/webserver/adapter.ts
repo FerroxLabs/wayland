@@ -11,6 +11,7 @@ import { registerWebSocketBroadcaster, getBridgeEmitter } from '@/common/adapter
 import {
   isAllowedInboundName,
   isAllowedForRemote,
+  isRemoteDeniedAcpModeChange,
   isAllowedOutboundToRemote,
   isRemoteDeniedConfigWrite,
 } from '@/common/adapter/bridgeAllowlist';
@@ -92,6 +93,14 @@ export function initWebAdapter(wss: WebSocketServer): void {
     // `webui.start`. The pref is the consent record; deny forging it.
     if (isRemoteDeniedConfigWrite(name, data)) {
       console.error('[adapter] Rejected remote config write to a protected key:', name);
+      settleRejectedInvoke(ws, name, data, 'remote-forbidden');
+      return;
+    }
+    // Guarded Autopilot arms unattended host-side tool approval. It is a
+    // local-desktop operator control; a paired WebUI session must never enable
+    // it, even though ordinary ACP mode changes remain available remotely.
+    if (isRemoteDeniedAcpModeChange(name, data)) {
+      console.error('[adapter] Rejected remote attempt to enable Guarded Autopilot:', name);
       settleRejectedInvoke(ws, name, data, 'remote-forbidden');
       return;
     }

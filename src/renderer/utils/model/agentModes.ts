@@ -11,6 +11,7 @@ import {
   CODEX_MODE_FULL_AUTO,
   CODEX_MODE_FULL_AUTO_NO_SANDBOX,
 } from '@/common/types/codex/codexModes';
+import { ACP_AUTO_GUARDED_MODE } from '@/common/types/agentModes';
 
 /**
  * Agent mode option interface
@@ -82,6 +83,18 @@ export const AGENT_MODES: Record<string, AgentModeOption[]> = {
     { value: CODEX_MODE_AUTO_EDIT, label: 'Auto Edit' },
     { value: CODEX_MODE_FULL_AUTO, label: 'Full Auto' },
     { value: CODEX_MODE_FULL_AUTO_NO_SANDBOX, label: 'Full Auto (No Sandbox)' },
+  ],
+  // Grok Build does not advertise a native full-auto ACP mode. Guarded
+  // Autopilot is intentionally Wayland-owned: the bridge remains in `default`
+  // and Wayland auto-approves non-catastrophic permission requests host-side.
+  // It is deliberately not `yolo`, which bypasses the host guardrail.
+  grok: [
+    { value: 'default', label: 'Default' },
+    {
+      value: ACP_AUTO_GUARDED_MODE,
+      label: 'Guarded Autopilot',
+      description: 'Auto-approve normal tool calls; require confirmation for catastrophic commands',
+    },
   ],
   cursor: [
     { value: 'agent', label: 'Agent', description: 'Full agent capabilities with tool access' },
