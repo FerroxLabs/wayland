@@ -19,6 +19,7 @@ const {
   verifyPackagedResources,
 } = require('./verify-packaged-resources.js');
 const { isSupportedWNanoTarget } = require('./prepareWaylandNano.js');
+const { isSupportedBunTarget } = require('./prepareBundledBun.js');
 
 const TAG = '[platform-package-smoke]';
 const OPTIONAL_RESOURCES = ['hub', 'whatsapp-bridge', 'signal-cli-runtime'];
@@ -1264,6 +1265,8 @@ export async function runSmoke(options, dependencies = {}) {
         ...(isSupportedWNanoTarget(options.targetPlatform, options.targetArch)
           ? ['--wnano-runtime', `${options.targetPlatform}-${options.targetArch}`]
           : ['--no-wnano-runtime']),
+        // bun publishes no win32-arm64 runtime, so that target bundles none.
+        ...(isSupportedBunTarget(options.targetPlatform, options.targetArch) ? [] : ['--no-bun-runtime']),
       ],
       logger,
     });

@@ -533,10 +533,25 @@ function prepareBundledBun(options = {}) {
   }
 }
 
+// Bun publishes no Windows ARM64 build, so that target has no runtime to bundle
+// and never has had one: prepareBundledBun has always written a skipped manifest
+// and warned. Callers use this to state the absence explicitly instead of leaving
+// a binary-less directory for the packaged-resource gate to trip over.
+function isSupportedBunTarget(platform, arch, version = getRuntimeVersion()) {
+  const assetName = getPlatformAsset(platform, arch);
+  if (!assetName) return false;
+  try {
+    return Boolean(loadExpectedShaForAsset(version, assetName));
+  } catch {
+    return false;
+  }
+}
+
 module.exports = prepareBundledBun;
 // Named helpers exposed for unit tests (the default export stays the function).
 module.exports.needsBaselineVariant = needsBaselineVariant;
 module.exports.getPlatformAsset = getPlatformAsset;
+module.exports.isSupportedBunTarget = isSupportedBunTarget;
 module.exports.isCachedRuntimeValid = isCachedRuntimeValid;
 module.exports.resolveBundledBunTarget = resolveBundledBunTarget;
 module.exports.verifyRuntimeBinary = verifyRuntimeBinary;

@@ -745,7 +745,19 @@ try {
   // target here instead of inheriting the build host architecture.
   process.env.npm_config_target_arch = targetArch;
   // This only affects packaging assets; runtime integration will be added in a future PR.
-  prepareBundledBun({ platform: packagePlatforms[0], arch: packageArchitectures[0] });
+  const bunPlatform = packagePlatforms[0];
+  const bunArch = packageArchitectures[0];
+  const bunRuntimeAvailable = prepareBundledBun.isSupportedBunTarget(bunPlatform, bunArch);
+  if (bunRuntimeAvailable) {
+    prepareBundledBun({ platform: bunPlatform, arch: bunArch });
+  } else {
+    // Bun publishes nothing for this target. Staging a binary-less directory here is
+    // what left win32-arm64 shipping a manifest with no runtime; declare it instead.
+    console.log(
+      `bun publishes no ${bunPlatform}-${bunArch} runtime; skipping the bundle. ` +
+        'This target has never carried one.'
+    );
+  }
 
   // 5b. The optional offline Hub is unavailable until a real immutable source
   // authority exists. Remove stale bytes and report the honest degraded state;
@@ -1081,6 +1093,7 @@ try {
   // A target with no published runtime says so explicitly. The verifier refuses to
   // infer nano's target identity from a missing flag, and then requires the bundle
   // to be genuinely absent.
+  const bunRuntimeArgs = bunRuntimeAvailable ? [] : ['--no-bun-runtime'];
   const wnanoRuntimeArgs = (
     wnanoRuntimeKeys.length ? wnanoRuntimeKeys.map((key) => `--wnano-runtime ${key}`) : ['--no-wnano-runtime']
   ).join(' ');
@@ -1100,6 +1113,7 @@ try {
       packagedTarget.executablePath,
       ...wcoreRuntimeArgs.split(' '),
       ...wnanoRuntimeArgs.split(' '),
+      ...bunRuntimeArgs,
       ...officeCliRuntimeArgs.split(' '),
       // On a local verification build the seal is intentionally absent; tell the
       // verifier to require its ABSENCE (not its presence) while still enforcing

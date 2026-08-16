@@ -1002,6 +1002,24 @@ describe('packaged resource release gate', () => {
     );
   });
 
+  itAcceptedSweep('accepts a target that declares it bundles no bun runtime', () => {
+    // bun publishes no Windows ARM64 build, so that target bundles none and never
+    // has. Declaring it keeps the gate honest instead of leaving a binary-less
+    // directory, which is what win32-arm64 was shipping.
+    const out = createPackagedResources(true, 'darwin-arm64');
+    fs.rmSync(path.join(packagedResourcesPath(out), 'bundled-bun'), { recursive: true, force: true });
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...verifyArgs(out), '--no-bun-runtime'] })
+    ).not.toThrow();
+  });
+
+  it('blocks a declared-absent bun bundle that is actually present', () => {
+    const out = createPackagedResources(true, 'darwin-arm64');
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...verifyArgs(out), '--no-bun-runtime'] })
+    ).toThrow(/bundled-bun/);
+  });
+
   it('rejects declaring both a wayland-nano runtime and no wayland-nano runtime', () => {
     const out = createPackagedResources(true, 'darwin-arm64');
     expect(() =>

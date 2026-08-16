@@ -81,7 +81,7 @@ const REQUIRED = [
     size: 1231360,
     sha256: 'b0cfdeaf429f5cc53f85123dd8f5a5feb92c19d31aa34df257edf9a26be05f95',
   },
-  { rel: 'bundled-bun', critical: true, kind: 'bun-bundle' },
+  { rel: 'bundled-bun', critical: true, kind: 'bun-bundle', absentWhen: 'noBunRuntime' },
   { rel: 'modelsdev-snapshot.json', critical: true, kind: 'models-snapshot' },
   { rel: 'voice-models', critical: true, kind: 'voice-bundle' },
   // Degradable features - warn loudly but do not block the release.
@@ -1144,6 +1144,9 @@ function verifyPackagedResources(options = {}) {
   if (noWNanoRuntime && hasWNanoRuntimeFlag) {
     throw new Error(`${TAG} --no-wnano-runtime cannot be combined with --wnano-runtime`);
   }
+  // Bun publishes no Windows ARM64 build, so that target bundles none. Same rule as
+  // nano: the absence is declared, never inferred, and the bundle must then be gone.
+  const noBunRuntime = argv.includes('--no-bun-runtime');
   const requiredWNanoRuntimes = noWNanoRuntime ? [] : parseRequiredRuntimes(argv, '--wnano-runtime', 'wayland-nano');
   // Local verification builds (`build-with-builder.js` with WAYLAND_LOCAL_VERIFICATION=1
   // + `--dir`) intentionally OMIT the release capability seal. When this flag is set we
@@ -1219,7 +1222,10 @@ function verifyPackagedResources(options = {}) {
         }
         continue;
       }
-      if (req.absentWhen === 'noWNanoRuntime' && noWNanoRuntime) {
+      const declaredAbsent =
+        (req.absentWhen === 'noWNanoRuntime' && noWNanoRuntime) ||
+        (req.absentWhen === 'noBunRuntime' && noBunRuntime);
+      if (declaredAbsent) {
         // Opting out of a runtime is not the same as not checking for it. The bundle
         // has to be genuinely absent, so a stale or half-copied one cannot ride along
         // unverified on the one target that declares it ships none.
@@ -1228,7 +1234,7 @@ function verifyPackagedResources(options = {}) {
           logger.error(`${TAG}        path: ${target}`);
           logger.error(`${TAG}        ${describeTargetForDiagnostics(target)}`);
           criticalFailures += 1;
-          criticalFailureRels.push(`${req.rel} (present despite --no-wnano-runtime)`);
+          criticalFailureRels.push(`${req.rel} (present despite its declared absence)`);
         } else {
           logger.log(`${TAG}   SKIP ${req.rel}  (no runtime published for this target)`);
         }
