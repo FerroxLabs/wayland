@@ -18,6 +18,11 @@ const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
+const {
+  signDarwinStagedBinary,
+  resolveDarwinSigningIdentity,
+  darwinSigningIdentifier,
+} = require('./signDarwinStagedBinary');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
@@ -154,8 +159,20 @@ function viteBuildExists() {
   return fs.existsSync(path.join(mainDir, 'index.js')) && fs.existsSync(path.join(rendererDir, 'index.html'));
 }
 
-function shouldSkipViteBuild(skipViteFlag, forceFlag) {
+function shouldSkipViteBuild(skipViteFlag, forceFlag, signedDarwinPackaging = false) {
   if (forceFlag) return false;
+  // Reusing a stale app.asar while the Constitution helper is re-signed ships an
+  // app that packages cleanly and then refuses to launch: the helper is
+  // re-hashed at runtime against the authority compiled INTO app.asar, and
+  // signing (with a fresh secure timestamp) changes the helper's bytes every
+  // time. The adjacent manifest would agree with the new binary while the
+  // embedded authority still described the old one, so the packaged gate passes
+  // and every launch fails with CONSTITUTION_FS_BINARY_UNVERIFIED.
+  if (signedDarwinPackaging && skipViteFlag) {
+    throw new Error(
+      '[build] --skip-vite cannot be combined with signed macOS packaging: the Constitution authority compiled into app.asar must be rebuilt whenever the helper is re-signed, or the packaged app will not launch.'
+    );
+  }
   if (skipViteFlag) return true;
 
   // Auto-detect: skip if build exists and hash matches
@@ -338,6 +355,104 @@ function prepareOptionalHubResources(options = {}) {
   return { available: false, reason: 'trusted-hub-authority-unavailable' };
 }
 
+// The bridge ships prebuilt natives (sharp's .node/.dylib and the bare-* .bare
+// runtimes) that npm publishes UNSIGNED. Apple refuses to notarize an app that
+// contains them in that state - all 11 were named in the notary log that blocked
+// 0.12.0 - so they are Developer ID signed here, right after install and before
+// the bridge tree is validated and copied into the package.
+//
+// Signing before validation is what keeps the source/bundle mirror exact: both
+// sides then hold the same signed bytes, so verifySourceMirror still compares
+// them byte for byte with no exemption. `mac.signIgnore` stops electron-builder
+// re-signing them during packaging.
+//
+// Detection is by Mach-O magic rather than by file extension. The natives Apple
+// named use .node, .dylib and .bare today, but the set is dependency-controlled
+// and an extension list would silently skip an extensionless executable - which
+// is exactly the failure mode this whole change exists to remove.
+function isMachOFile(filePath) {
+  let handle;
+  try {
+    handle = fs.openSync(filePath, 'r');
+    const head = Buffer.alloc(4);
+    if (fs.readSync(handle, head, 0, 4, 0) < 4) return false;
+    const magic = head.readUInt32BE(0);
+    return (
+      magic === 0xfeedface || // 32-bit
+      magic === 0xfeedfacf || // 64-bit
+      magic === 0xcefaedfe || // 32-bit, byte-swapped
+      magic === 0xcffaedfe || // 64-bit, byte-swapped
+      // 0xcafebabe is also the Java .class magic. Signing one would abort the
+      // build with "unsupported format for signature"; it fails closed rather
+      // than shipping something unsigned, but there is no reason to try.
+      (magic === 0xcafebabe && !filePath.endsWith('.class')) || // universal ("fat")
+      magic === 0xbebafeca || // universal, byte-swapped
+      magic === 0xcafebabf || // universal 64-bit
+      magic === 0xbfbafeca // universal 64-bit, byte-swapped
+    );
+  } catch {
+    return false;
+  } finally {
+    if (handle !== undefined) fs.closeSync(handle);
+  }
+}
+
+// Every native is signed rather than a fixed list, so a dependency that starts
+// shipping a new one cannot silently reintroduce an unsigned binary.
+function signWhatsAppBridgeNatives(nodeModules, options = {}) {
+  if (!fs.existsSync(nodeModules)) return [];
+  const sign = options.signDarwinStagedBinary || signDarwinStagedBinary;
+  const identity = options.signIdentity === undefined ? resolveDarwinSigningIdentity() : options.signIdentity;
+  // Symlinks are followed rather than skipped, but only while they stay inside
+  // the bridge's node_modules. A package manager that links a native in from a
+  // shared store would otherwise leave it unsigned here while electron-builder
+  // happily resolves and packages it - reintroducing the exact rejection this
+  // is meant to prevent. Anything pointing outside the tree is left alone: it is
+  // not ours to mutate, and the source/bundle mirror rejects escaping links.
+  const root = fs.realpathSync(nodeModules);
+  const seen = new Set();
+  const natives = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const target = path.join(dir, entry.name);
+      let real;
+      try {
+        real = fs.realpathSync(target);
+      } catch {
+        continue; // broken link
+      }
+      if (real !== root && !real.startsWith(`${root}${path.sep}`)) continue;
+      if (seen.has(real)) continue;
+      let stat;
+      try {
+        stat = fs.statSync(real);
+      } catch {
+        continue;
+      }
+      if (stat.isDirectory()) {
+        seen.add(real);
+        walk(real);
+      } else if (stat.isFile() && isMachOFile(real)) {
+        seen.add(real);
+        natives.push(real);
+      }
+    }
+  };
+  walk(root);
+  natives.sort();
+  for (const native of natives) {
+    // Bind each signature to the bytes as installed, so a signature cannot be
+    // lifted onto a different native later.
+    const preSignSha256 = crypto.createHash('sha256').update(fs.readFileSync(native)).digest('hex');
+    sign(native, {
+      identity,
+      identifier: darwinSigningIdentifier(path.basename(native).replace(/[^A-Za-z0-9._-]/g, '_'), preSignSha256),
+      label: path.relative(root, native),
+    });
+  }
+  return natives;
+}
+
 function prepareWhatsAppBridgeResources(options = {}) {
   const bridgeDir = options.bridgeDir || path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
   const nodeModules = path.join(bridgeDir, 'node_modules');
@@ -352,6 +467,7 @@ function prepareWhatsAppBridgeResources(options = {}) {
       stdio: 'inherit',
       env: process.env,
     });
+    if (platform === 'darwin') signWhatsAppBridgeNatives(nodeModules, options);
     if (!validate()) throw new Error('WhatsApp bridge clean frozen-lock input failed source/dependency validation');
   } catch (error) {
     fs.rmSync(nodeModules, { recursive: true, force: true });
@@ -684,7 +800,11 @@ try {
   writeConstitutionPackageAuthority(constitutionAuthority);
 
   // 3. Check if we can skip Vite build (incremental build)
-  const skipViteBuild = shouldSkipViteBuild(skipVite, forceBuild);
+  const skipViteBuild = shouldSkipViteBuild(
+    skipVite,
+    forceBuild,
+    packagePlatforms[0] === 'darwin' && Boolean(resolveDarwinSigningIdentity())
+  );
 
   if (!skipViteBuild) {
     // Run electron-vite to build all bundles (main + preload + renderer)
@@ -1118,6 +1238,14 @@ try {
       // verifier to require its ABSENCE (not its presence) while still enforcing
       // every other critical resource + signature check.
       ...(localVerificationBuild ? ['--allow-missing-seal'] : []),
+      // If this build had a Developer ID identity then every darwin nested
+      // binary was signed above, so the gate must REFUSE an unsigned one rather
+      // than fall back to accepting raw upstream bytes: unsigned means no
+      // hardened runtime and a guaranteed notarization rejection later. Builds
+      // with no identity (local, forks, PRs without secrets) stay buildable.
+      // The decision comes from the build environment, never from data inside
+      // the package, so it cannot be flipped by editing a manifest.
+      ...(packagePlatforms[0] === 'darwin' && resolveDarwinSigningIdentity() ? ['--require-darwin-signature'] : []),
     ],
     { stdio: 'inherit', env: process.env }
   );

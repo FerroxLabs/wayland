@@ -25,6 +25,11 @@ const { execSync, execFileSync } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
+const {
+  signDarwinStagedBinary,
+  resolveDarwinSigningIdentity,
+  darwinSigningIdentifier,
+} = require('./signDarwinStagedBinary');
 const path = require('path');
 const { verifyPublisherAttestation } = require('./supply-chain/verifyPublisherAttestation');
 
@@ -438,6 +443,7 @@ function verifiedBundleManifest({
   archiveSha256,
   binaryName,
   binarySha256,
+  stagedBinarySha256,
   publisherAttestation,
 }) {
   return {
@@ -459,7 +465,12 @@ function verifiedBundleManifest({
     },
     binary: {
       name: binaryName,
+      // Verified UPSTREAM digest - the provenance pin.
       sha256: `sha256:${binarySha256}`,
+      // Digest of the bytes actually staged. Differs from the upstream digest
+      // only on macOS, where the binary is Developer ID signed above; the
+      // packaged gate compares the shipped bytes against this.
+      stagedSha256: `sha256:${stagedBinarySha256 || binarySha256}`,
     },
     publisherAttestation: publisherAttestation || null,
     files: [binaryName],
@@ -468,6 +479,8 @@ function verifiedBundleManifest({
 }
 
 function prepareWaylandNano(options = {}) {
+  const signIdentity =
+    options.signIdentity === undefined ? resolveDarwinSigningIdentity(options.env) : options.signIdentity;
   const projectRoot = path.resolve(__dirname, '..');
   const platform = options.platform || process.platform;
   // Support cross-compilation: WNANO_ARCH > npm_config_target_arch > process.arch
@@ -598,7 +611,7 @@ function prepareWaylandNano(options = {}) {
         source: {
           note: 'Dev-only pre-placed binary. It is not eligible for packaged-resource acceptance.',
         },
-        binary: { name: binaryName, sha256: `sha256:${binarySha256}` },
+        binary: { name: binaryName, sha256: `sha256:${binarySha256}`, stagedSha256: `sha256:${binarySha256}` },
         files: [binaryName],
         skipped: false,
       });
@@ -669,6 +682,18 @@ function prepareWaylandNano(options = {}) {
       );
     }
 
+    // Released wayland-nano binaries are linker-signed, which Apple rejects.
+    // Sign AFTER the upstream checksum/attestation checks above and BEFORE the
+    // digest the packaged gate pins, so provenance and byte identity both hold.
+    if (platform === 'darwin') {
+      signDarwinStagedBinary(targetBinaryPath, {
+        identity: signIdentity,
+        identifier: darwinSigningIdentifier(binaryName, binarySha256),
+        label: `wayland-nano ${runtimeKey}`,
+      });
+    }
+    const stagedBinarySha256 = computeFileSha256(targetBinaryPath);
+
     const manifest = verifiedBundleManifest({
       platform,
       arch,
@@ -678,6 +703,7 @@ function prepareWaylandNano(options = {}) {
       archiveSha256,
       binaryName,
       binarySha256,
+      stagedBinarySha256,
       publisherAttestation,
     });
     if (!strict && !expected.binarySha256) manifest.verified = false;

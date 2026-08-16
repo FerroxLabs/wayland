@@ -130,4 +130,50 @@ describe('prepareConstitutionFs', () => {
       'COPY --from=builder /app/resources/bundled-constitution-fs ./resources/bundled-constitution-fs'
     );
   });
+
+  // Darwin-only by construction: prepareConstitutionFs refuses a target whose
+  // platform is not the host, and signing only happens on darwin. The macOS
+  // CI shard is what exercises this.
+  it.skipIf(process.platform !== 'darwin')('signs the helper BEFORE recording the digest the runtime re-checks', () => {
+    // The packaged app re-hashes this helper at launch against the authority
+    // embedded in app.asar (constitutionFsBinary.ts). A signature applied after
+    // that digest was recorded changes the bytes and makes every launch fail
+    // with CONSTITUTION_FS_BINARY_UNVERIFIED - a notarized but broken app.
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'constitution-sign-order-'));
+    const prebuilt = path.join(root, 'wayland-constitution-fs');
+    fs.writeFileSync(prebuilt, 'unsigned-bytes');
+    const outputRoot = path.join(root, 'out');
+    const generated = path.join(root, 'authority.generated.ts');
+
+    const order: string[] = [];
+    const execFileSync = vi.fn((command: string, args: string[]) => {
+      if (command === '/usr/bin/codesign' && args.includes('--sign')) {
+        order.push('sign');
+        // A real signature rewrites the binary; model that so the digest below
+        // can only match if it was taken afterwards.
+        fs.writeFileSync(args[args.length - 1], 'signed-bytes');
+      }
+      return '';
+    });
+
+    const authority = prepareConstitutionFs({
+      platform: 'darwin',
+      arch: process.arch,
+      root,
+      outputRoot,
+      generated,
+      prebuiltBinary: prebuilt,
+      execFileSync,
+      signIdentity: 'Developer ID Application: Ferrox Labs, LLC (PX6SP9GPWJ)',
+    });
+
+    expect(order).toEqual(['sign']);
+    const staged = path.join(outputRoot, `darwin-${process.arch}`, 'wayland-constitution-fs');
+    const onDisk = createHash('sha256').update(fs.readFileSync(staged)).digest('hex');
+    expect(authority.sha256).toBe(`sha256:${onDisk}`);
+    // And the adjacent manifest agrees, which is what the runtime cross-checks.
+    const manifest = JSON.parse(fs.readFileSync(path.join(path.dirname(staged), 'manifest.json'), 'utf8'));
+    expect(manifest.binary.sha256).toBe(`sha256:${onDisk}`);
+    fs.rmSync(root, { recursive: true, force: true });
+  });
 });
