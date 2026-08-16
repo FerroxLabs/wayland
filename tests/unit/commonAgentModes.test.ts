@@ -68,4 +68,11 @@ describe('autoGuarded mode (Autopilot guardrail)', () => {
     expect(mapModeForAcpBridge('bypassPermissions')).toBe('bypassPermissions');
     expect(mapModeForAcpBridge('plan')).toBe('plan');
   });
+
+  it('keeps Grok Guarded Autopilot off unsupported Grok ACP mode APIs', () => {
+    // Grok exposes no native mode list. The renderer stores autoGuarded, but
+    // the ACP bridge receives only its normal/default mode while Wayland owns
+    // guarded approval in AcpAgentManager.
+    expect(mapModeForAcpBridge('autoGuarded')).toBe('default');
+  });
 });

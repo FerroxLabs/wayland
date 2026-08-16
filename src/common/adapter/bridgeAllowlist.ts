@@ -580,6 +580,21 @@ export function isRemoteDeniedConfigWrite(name: string, data: unknown): boolean 
 }
 
 /**
+ * Guarded Autopilot is a local-desktop-only control. The paired WebUI's token
+ * proves a remote browser, not that its holder may arm unattended host tool
+ * approval. Keep ordinary ACP mode switching available remotely, but reject
+ * only the Wayland-owned guarded mode at the WebSocket trust boundary.
+ *
+ * This value-level guard mirrors `isRemoteDeniedConfigWrite`: a buildProvider
+ * handler has no remote/local signal, while the WebSocket adapter does.
+ */
+export function isRemoteDeniedAcpModeChange(name: string, data: unknown): boolean {
+  if (name !== 'subscribe-acp.set-mode') return false;
+  const mode = (data as { data?: { mode?: unknown } } | null | undefined)?.data?.mode;
+  return mode === 'autoGuarded';
+}
+
+/**
  * Emitter/broadcast (main -> client) names that must NOT be forwarded to a
  * remote WebSocket peer. Inbound denial (isAllowedForRemote) stops a peer
  * INVOKING a provider; this stops a peer passively RECEIVING an emitter stream.

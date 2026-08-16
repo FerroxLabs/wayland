@@ -108,12 +108,12 @@ function makeManager(workspace: string) {
   return manager;
 }
 
-function permissionSignal(kind: string) {
+function permissionSignal(kind: string, rawInput?: Record<string, unknown>) {
   return {
     type: 'acp_permission',
     msg_id: 'msg-1',
     data: {
-      toolCall: { toolCallId: 'call-1', kind, title: `${kind} tool` },
+      toolCall: { toolCallId: 'call-1', kind, title: `${kind} tool`, rawInput },
       options: [
         { optionId: 'allow-once', name: 'Allow', kind: 'allow_once' },
         { optionId: 'reject-once', name: 'Deny', kind: 'reject_once' },
@@ -182,5 +182,63 @@ describe('AcpAgentManager trusted-workspace gate (#671)', () => {
     await (mgr as unknown as { handleSignalEvent: SignalFn }).handleSignalEvent(permissionSignal('read'), 'claude');
     await vi.runAllTimersAsync();
     expect(isWorkspaceTrusted).toHaveBeenCalledWith('/specific/ws');
+  });
+});
+
+describe('AcpAgentManager Grok Guarded Autopilot gate', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    isWorkspaceTrusted.mockReset();
+    isWorkspaceTrusted.mockReturnValue(false);
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('auto-approves an ordinary Grok execute request in guarded mode', async () => {
+    const mgr = makeManager('/grok/ws');
+    (mgr as unknown as { currentMode: string }).currentMode = 'autoGuarded';
+    const confirm = vi.spyOn(mgr, 'confirm').mockResolvedValue(undefined);
+    const addConfirmation = vi.spyOn(mgr as unknown as { addConfirmation: (c: unknown) => void }, 'addConfirmation');
+
+    await (mgr as unknown as { handleSignalEvent: SignalFn }).handleSignalEvent(
+      permissionSignal('execute', { command: 'bun run build' }),
+      'grok'
+    );
+    await vi.runAllTimersAsync();
+
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(addConfirmation).not.toHaveBeenCalled();
+  });
+
+  it('holds a catastrophic Grok command for explicit confirmation in guarded mode', async () => {
+    const mgr = makeManager('/grok/ws');
+    (mgr as unknown as { currentMode: string }).currentMode = 'autoGuarded';
+    const confirm = vi.spyOn(mgr, 'confirm').mockResolvedValue(undefined);
+    const addConfirmation = vi.spyOn(mgr as unknown as { addConfirmation: (c: unknown) => void }, 'addConfirmation');
+
+    await (mgr as unknown as { handleSignalEvent: SignalFn }).handleSignalEvent(
+      permissionSignal('execute', { command: 'rm -rf ~' }),
+      'grok'
+    );
+    await vi.runAllTimersAsync();
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(addConfirmation).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps ordinary Grok execute requests prompting in Default mode', async () => {
+    const mgr = makeManager('/grok/ws');
+    const confirm = vi.spyOn(mgr, 'confirm').mockResolvedValue(undefined);
+    const addConfirmation = vi.spyOn(mgr as unknown as { addConfirmation: (c: unknown) => void }, 'addConfirmation');
+
+    await (mgr as unknown as { handleSignalEvent: SignalFn }).handleSignalEvent(
+      permissionSignal('execute', { command: 'bun run build' }),
+      'grok'
+    );
+    await vi.runAllTimersAsync();
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(addConfirmation).toHaveBeenCalledTimes(1);
   });
 });
