@@ -111,6 +111,12 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
     const smoke = exactlyOne(
       files,
       (file) => {
+        // The build job uploads its own copy of the smoke report next to the
+        // installers, so the protected observer's copy is not the only match in
+        // the artifact set. Only the protected copy is authority - scope the
+        // search to its directory, then the equality check below pins it to the
+        // exact byte the protected manifest names.
+        if (path.dirname(file) !== protectedRoot) return false;
         const value = parseJson(file);
         return (
           value?.contract === 'wayland-platform-package-smoke/2' &&

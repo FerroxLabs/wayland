@@ -579,11 +579,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p canonical-artifacts/wayland-core-v0.12.25
-          gh release download v0.12.25 \
+          set -euo pipefail
+          # Read the engine pin from the code that bundles it. A tag typed here
+          # drifts the moment DEFAULT_WCORE_VERSION moves, and the assembler -
+          # which derives the same pin - then finds zero assets and fails the
+          # release with M8I_PUBLISHER_ARTIFACT_INVALID.
+          tag="$(node -p "require('./scripts/prepareWaylandCore.js').DEFAULT_WCORE_VERSION")"
+          [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          mkdir -p "canonical-artifacts/wayland-core-$tag"
+          gh release download "$tag" \
             --repo FerroxLabs/wayland-core \
-            --dir canonical-artifacts/wayland-core-v0.12.25 \
-            --pattern 'wayland-core-v0.12.25-*'
+            --dir "canonical-artifacts/wayland-core-$tag" \
+            --pattern "wayland-core-$tag-*"
 
       - name: Assemble complete raw acceptance source
         run: |

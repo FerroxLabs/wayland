@@ -18,6 +18,22 @@ const { verifySevereDependencyAudit } = require('../../../scripts/release-accept
 const { REQUIRED_GATES } = require('../../../scripts/release-acceptance/produceProtectedAcceptanceEvidence') as {
   REQUIRED_GATES: Record<string, string>;
 };
+const { assembleCanonicalRawAcceptance } =
+  require('../../../scripts/release-acceptance/assembleCanonicalRawAcceptance') as {
+    assembleCanonicalRawAcceptance: (
+      artifacts: string,
+      candidate: { commit: string; tree: string },
+      out: string
+    ) => { candidate: { commit: string; tree: string }; files: number; output: string };
+  };
+const prepareWaylandCore = require('../../../scripts/prepareWaylandCore') as {
+  DEFAULT_WCORE_VERSION: string;
+  getAssetName: (platform: string, arch: string, tag: string) => string;
+};
+const { CAPABILITIES } = require('../../../scripts/release-acceptance/collectRawAcceptanceEvidence') as {
+  CAPABILITIES: string[];
+};
+const { TARGETS } = require('../../../scripts/release-acceptance/verifyHardeningMatrix') as { TARGETS: string[] };
 const { produceConditionalCapabilityReceipts } =
   require('../../../scripts/release-acceptance/produceProtectedAcceptanceEvidence') as {
     produceConditionalCapabilityReceipts: (
@@ -230,6 +246,105 @@ describe('protected release acceptance pipeline', () => {
       critical: 0,
       high: 0,
     });
+  });
+
+  it('derives the pinned Wayland Core release tag from the packaging code, never a typed literal', () => {
+    const release = YAML.parse(readFileSync('.github/workflows/build-and-release.yml', 'utf8'));
+    const assemble = release.jobs['assemble-raw-release-acceptance'];
+    const download = assemble.steps.find(
+      (step: { name?: string }) => step.name === 'Download exact pinned Wayland Core publisher artifacts'
+    );
+
+    expect(download).toBeTruthy();
+    expect(download.run).toContain("require('./scripts/prepareWaylandCore.js').DEFAULT_WCORE_VERSION");
+    // A hard-coded engine tag here is exactly the drift that made the assembler
+    // derive v0.13.0 asset names while the workflow downloaded v0.12.25.
+    expect(download.run).not.toMatch(/v\d+\.\d+\.\d+/);
+    expect(prepareWaylandCore.DEFAULT_WCORE_VERSION).toMatch(/^v\d+\.\d+\.\d+$/);
+  });
+
+  it('resolves the protected package smoke even when the build job uploaded its own copy', () => {
+    const root = mkdtempSync(join(tmpdir(), 'wayland-raw-acceptance-'));
+    roots.push(root);
+    const artifacts = join(root, 'artifacts');
+    const output = join(root, 'output');
+    const candidate = { commit: 'a'.repeat(40), tree: 'b'.repeat(40) };
+    const write = (file: string, value: unknown) => {
+      mkdirSync(join(artifacts, file, '..'), { recursive: true });
+      writeFileSync(join(artifacts, file), typeof value === 'string' ? value : JSON.stringify(value));
+    };
+    const smokeReport = (target: string, protectedCopy: boolean) => ({
+      contract: 'wayland-platform-package-smoke/2',
+      target,
+      protectedCopy,
+      sourceIdentity: { commit: candidate.commit, tree: candidate.tree },
+    });
+
+    for (const target of TARGETS) {
+      // 1. the build job's own upload - the duplicate that made exactlyOne throw
+      write(`build/${target}/platform-package-smoke-${target}.json`, smokeReport(target, false));
+      // 2. the protected observer bundle - the only authoritative copy
+      const dir = `protected-platform-observations/${target}`;
+      write(`${dir}/platform-package-smoke-${target}.json`, smokeReport(target, true));
+      write(`${dir}/installer-${target}.bin`, 'installer');
+      write(`${dir}/protected-platform-observation-${target}.json`, {
+        contract: 'wayland-protected-platform-package-observation/1.0',
+        target,
+        candidate,
+        report: { fileName: `platform-package-smoke-${target}.json` },
+        installer: { fileName: `installer-${target}.bin` },
+      });
+      // 3. the updater bundle, which carries a third copy of the smoke report
+      const updater = `updater-observations/${target}`;
+      write(`${updater}/package-smoke.json`, smokeReport(target, false));
+      for (const name of ['initial.bin', 'candidate.bin', 'rollback.bin', 'events.json', 'state-0.json']) {
+        write(`${updater}/${name}`, 'bytes');
+      }
+      write(`${updater}/observation.json`, {
+        contract: 'wayland-updater-packaged-observation/1.0',
+        target,
+        candidate,
+        initialArtifact: { file: 'initial.bin' },
+        candidateArtifact: { file: 'candidate.bin' },
+        rollbackArtifact: { file: 'rollback.bin' },
+        packageSmoke: { file: 'package-smoke.json' },
+        runtimeEvents: { file: 'events.json' },
+        stateSnapshots: [{ file: 'state-0.json' }],
+      });
+      const [platform, arch] = target.split('-');
+      write(
+        `wayland-core/${prepareWaylandCore.getAssetName(platform, arch, prepareWaylandCore.DEFAULT_WCORE_VERSION)}`,
+        'archive'
+      );
+    }
+    for (const capability of CAPABILITIES) {
+      write(`capability-receipts/${capability}.json`, { capabilityId: capability });
+      write(`capability-receipts/${capability}.proof.json`, { capabilityId: capability });
+      write(`capability-receipts/${capability}.proof.log`, 'log');
+    }
+    write('capability-receipts/manifest.json', {
+      contract: 'wayland-capability-acceptance-manifest/2.0',
+      candidate,
+      receipts: CAPABILITIES.map((capabilityId) => ({
+        capabilityId,
+        receiptFile: `${capabilityId}.json`,
+        proofFile: `${capabilityId}.proof.json`,
+        logFile: `${capabilityId}.proof.log`,
+      })),
+    });
+
+    const result = assembleCanonicalRawAcceptance(artifacts, candidate, output);
+
+    expect(result.candidate).toEqual(candidate);
+    for (const target of TARGETS) {
+      const copied = JSON.parse(readFileSync(join(output, 'package-smokes', `${target}.json`), 'utf8'));
+      expect(copied.protectedCopy).toBe(true);
+    }
+    const publisher = JSON.parse(readFileSync(join(output, 'publisher-artifacts.json'), 'utf8'));
+    expect(publisher.artifacts).toHaveLength(TARGETS.length);
+    for (const entry of publisher.artifacts) {
+      expect(entry.releaseTag).toBe(prepareWaylandCore.DEFAULT_WCORE_VERSION);
+    }
   });
 
   it('rejects symlink evidence instead of following it', () => {
