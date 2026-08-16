@@ -25,6 +25,19 @@ const TAG = '[platform-package-smoke]';
 const OPTIONAL_RESOURCES = ['hub', 'whatsapp-bridge', 'signal-cli-runtime'];
 const VALID_PLATFORMS = new Set(['darwin', 'linux', 'win32']);
 const VALID_ARCHES = new Set(['x64', 'arm64']);
+
+// Budget for the NSIS silent install (`installer.exe /S`).
+//
+// NSIS emits only a 32-bit x86 installer stub - there is no ARM64 stub - so on
+// ARM64 Windows the installer runs under x86 emulation and its single-threaded
+// LZMA extraction of the packaged payload is far slower than the same work on
+// x64. A 120s budget was enough for win32-x64 and expired on win32-arm64 every
+// time, surfacing as a bare `spawnSync ... ETIMEDOUT` with no indication that a
+// timeout - rather than the installer - was the problem.
+//
+// This bounds a slow install, it does not weaken what is being verified: the
+// payload must still install and the app must still boot and shut down cleanly.
+const WINDOWS_SILENT_INSTALL_TIMEOUT_MS = 600_000;
 const VALID_RELEASE_TRACKS = new Set(['stable', 'preview']);
 const INSTALLER_EXTENSIONS = { darwin: '.dmg', linux: '.deb', win32: '.exe' };
 const SMOKE_EVENT_CONTRACT = 'wayland-package-smoke-event/1';
@@ -693,7 +706,27 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
   } else if (targetPlatform === 'linux') {
     execute('dpkg-deb', ['-x', snapshotPath, installRoot], { stdio: 'pipe' });
   } else if (targetPlatform === 'win32') {
-    execute(snapshotPath, ['/S', `/D=${installRoot}`], { stdio: 'pipe', timeout: 120_000, windowsHide: true });
+    const startedAt = Date.now();
+    try {
+      execute(snapshotPath, ['/S', `/D=${installRoot}`], {
+        stdio: 'pipe',
+        timeout: WINDOWS_SILENT_INSTALL_TIMEOUT_MS,
+        windowsHide: true,
+      });
+    } catch (error) {
+      const elapsedMs = Date.now() - startedAt;
+      if (error?.code === 'ETIMEDOUT') {
+        throw new Error(
+          `${TAG} the Windows silent install did not finish within ` +
+            `${Math.round(WINDOWS_SILENT_INSTALL_TIMEOUT_MS / 1000)}s (ran ${Math.round(elapsedMs / 1000)}s). ` +
+            'The installer is still running, not wedged, if this keeps recurring - raise the budget rather than ' +
+            'weakening the check.',
+          { cause: error }
+        );
+      }
+      throw error;
+    }
+    console.log(`${TAG} silent install completed in ${Math.round((Date.now() - startedAt) / 1000)}s`);
   } else {
     throw new Error(`${TAG} unsupported installer platform: ${targetPlatform}`);
   }

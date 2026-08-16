@@ -780,6 +780,43 @@ describe('real installer extraction and lifecycle evidence', () => {
     }
   );
 
+  it('gives the Windows silent install a budget that survives x86 emulation on ARM64', () => {
+    const root = temporaryRoot();
+    const installRoot = path.join(root, 'installed');
+    const candidate = {
+      appDir: installRoot,
+      resourceDir: path.join(installRoot, 'resources'),
+      executablePath: 'app',
+    };
+    const execute = vi.fn(() => '');
+    installArtifactSnapshot('/snapshot/installer.exe', 'win32', 'arm64', installRoot, {
+      execFileSync: execute,
+      resolveInstalledCandidate: vi.fn(() => candidate),
+      releaseTrack: 'stable',
+    });
+    // NSIS ships only an x86 stub, so win32-arm64 extracts the payload under
+    // emulation. 120s expired on every arm64 release attempt; the budget must
+    // stay well clear of it.
+    const options = execute.mock.calls[0][2] as { timeout: number };
+    expect(options.timeout).toBeGreaterThanOrEqual(600_000);
+  });
+
+  it('reports a timed-out Windows install as a budget overrun, not a bare ETIMEDOUT', () => {
+    const root = temporaryRoot();
+    const installRoot = path.join(root, 'installed');
+    const timedOut = Object.assign(new Error('spawnSync installer.exe ETIMEDOUT'), { code: 'ETIMEDOUT' });
+    const execute = vi.fn(() => {
+      throw timedOut;
+    });
+    expect(() =>
+      installArtifactSnapshot('/snapshot/installer.exe', 'win32', 'arm64', installRoot, {
+        execFileSync: execute,
+        resolveInstalledCandidate: vi.fn(),
+        releaseTrack: 'stable',
+      })
+    ).toThrow(/did not finish within/);
+  });
+
   it('mounts a DMG read-only, copies its application into private storage, and detaches it', () => {
     const root = temporaryRoot();
     const mount = path.join(root, 'mount');
