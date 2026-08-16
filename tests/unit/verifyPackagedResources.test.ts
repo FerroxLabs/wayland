@@ -985,9 +985,7 @@ describe('packaged resource release gate', () => {
     const argv = verifyArgs(out).filter(
       (arg, index, all) => arg !== '--wnano-runtime' && all[index - 1] !== '--wnano-runtime'
     );
-    expect(() =>
-      verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...argv, '--no-wnano-runtime'] })
-    ).not.toThrow();
+    expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...argv, '--no-wnano-runtime'] })).not.toThrow();
   });
 
   it('blocks a declared-absent wayland-nano bundle that is actually present', () => {
@@ -997,9 +995,9 @@ describe('packaged resource release gate', () => {
     const argv = verifyArgs(out).filter(
       (arg, index, all) => arg !== '--wnano-runtime' && all[index - 1] !== '--wnano-runtime'
     );
-    expect(() =>
-      verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...argv, '--no-wnano-runtime'] })
-    ).toThrow(/bundled-wayland-nano/);
+    expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...argv, '--no-wnano-runtime'] })).toThrow(
+      /bundled-wayland-nano/
+    );
   });
 
   it('rejects declaring both a wayland-nano runtime and no wayland-nano runtime', () => {

@@ -1083,8 +1083,7 @@ try {
   // to be genuinely absent.
   const wnanoRuntimeArgs = (
     wnanoRuntimeKeys.length ? wnanoRuntimeKeys.map((key) => `--wnano-runtime ${key}`) : ['--no-wnano-runtime']
-  )
-    .join(' ');
+  ).join(' ');
   execFileSync(
     'node',
     [

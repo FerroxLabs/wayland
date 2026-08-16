@@ -1144,9 +1144,7 @@ function verifyPackagedResources(options = {}) {
   if (noWNanoRuntime && hasWNanoRuntimeFlag) {
     throw new Error(`${TAG} --no-wnano-runtime cannot be combined with --wnano-runtime`);
   }
-  const requiredWNanoRuntimes = noWNanoRuntime
-    ? []
-    : parseRequiredRuntimes(argv, '--wnano-runtime', 'wayland-nano');
+  const requiredWNanoRuntimes = noWNanoRuntime ? [] : parseRequiredRuntimes(argv, '--wnano-runtime', 'wayland-nano');
   // Local verification builds (`build-with-builder.js` with WAYLAND_LOCAL_VERIFICATION=1
   // + `--dir`) intentionally OMIT the release capability seal. When this flag is set we
   // require the seal to be ABSENT (not present-and-valid) — enforcing omit-not-forge —
