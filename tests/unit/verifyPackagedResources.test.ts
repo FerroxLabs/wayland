@@ -976,6 +976,41 @@ describe('packaged resource release gate', () => {
     ).toThrow();
   });
 
+  it('accepts a target that declares it bundles no wayland-nano runtime', () => {
+    // wayland-nano publishes no win32-arm64 build. That target legitimately ships
+    // none, but the absence has to be declared rather than inferred from a missing
+    // flag, which is what --no-wnano-runtime states.
+    const out = createPackagedResources(true, 'darwin-arm64');
+    fs.rmSync(path.join(packagedResourcesPath(out), 'bundled-wayland-nano'), { recursive: true, force: true });
+    const argv = verifyArgs(out).filter(
+      (arg, index, all) => arg !== '--wnano-runtime' && all[index - 1] !== '--wnano-runtime'
+    );
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...argv, '--no-wnano-runtime'] })
+    ).not.toThrow();
+  });
+
+  it('blocks a declared-absent wayland-nano bundle that is actually present', () => {
+    // Opting out is not the same as not looking: a stale or half-copied bundle must
+    // never ride along unverified on the target that says it ships none.
+    const out = createPackagedResources(true, 'darwin-arm64');
+    const argv = verifyArgs(out).filter(
+      (arg, index, all) => arg !== '--wnano-runtime' && all[index - 1] !== '--wnano-runtime'
+    );
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', { argv: [...argv, '--no-wnano-runtime'] })
+    ).toThrow(/bundled-wayland-nano/);
+  });
+
+  it('rejects declaring both a wayland-nano runtime and no wayland-nano runtime', () => {
+    const out = createPackagedResources(true, 'darwin-arm64');
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        argv: [...verifyArgs(out), '--no-wnano-runtime'],
+      })
+    ).toThrow(/cannot be combined/);
+  });
+
   it('blocks verification when only the OfficeCLI target is declared', () => {
     const out = createPackagedResources(true);
     expect(() =>

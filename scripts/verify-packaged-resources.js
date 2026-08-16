@@ -49,7 +49,7 @@ const REQUIRED = [
   { rel: 'skills-library', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-workflows', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-wayland-core', critical: true, kind: 'wcore-bundle' },
-  { rel: 'bundled-wayland-nano', critical: true, kind: 'wnano-bundle' },
+  { rel: 'bundled-wayland-nano', critical: true, kind: 'wnano-bundle', absentWhen: 'noWNanoRuntime' },
   { rel: 'bundled-officecli', critical: true, kind: 'officecli-bundle' },
   {
     rel: 'managed-cli-shims/officecli',
@@ -1135,17 +1135,31 @@ function verifyPackagedResources(options = {}) {
   const { platform: targetPlatform, arch: targetArch } = parseTarget(argv);
   const requiredOfficeCliRuntimes = parseRequiredRuntimes(argv, '--officecli-runtime', 'OfficeCLI');
   const requiredWCoreRuntimes = parseRequiredRuntimes(argv, '--wcore-runtime', 'wayland-core');
-  const requiredWNanoRuntimes = parseRequiredRuntimes(argv, '--wnano-runtime', 'wayland-nano');
+  // wayland-nano does not publish a runtime for every target Desktop packages
+  // (there is no win32-arm64 build), so such a target legitimately bundles none.
+  // That still has to be stated rather than inferred from an absent flag, which is
+  // why this is an explicit opt-out and is rejected alongside --wnano-runtime.
+  const noWNanoRuntime = argv.includes('--no-wnano-runtime');
+  const hasWNanoRuntimeFlag = argv.includes('--wnano-runtime');
+  if (noWNanoRuntime && hasWNanoRuntimeFlag) {
+    throw new Error(`${TAG} --no-wnano-runtime cannot be combined with --wnano-runtime`);
+  }
+  const requiredWNanoRuntimes = noWNanoRuntime
+    ? []
+    : parseRequiredRuntimes(argv, '--wnano-runtime', 'wayland-nano');
   // Local verification builds (`build-with-builder.js` with WAYLAND_LOCAL_VERIFICATION=1
   // + `--dir`) intentionally OMIT the release capability seal. When this flag is set we
   // require the seal to be ABSENT (not present-and-valid) — enforcing omit-not-forge —
   // while every other critical resource + signature check stays fully in force.
   const allowMissingSeal = argv.includes('--allow-missing-seal');
   const expectedRuntime = `${targetPlatform}-${targetArch}`;
+  // Nano is the one runtime that may legitimately be absent for a target, and only
+  // when that is declared. Everything else must still name exactly this target.
+  const expectedWNanoRuntimes = noWNanoRuntime ? [] : [expectedRuntime];
   if (
     JSON.stringify(requiredOfficeCliRuntimes) !== JSON.stringify([expectedRuntime]) ||
     JSON.stringify(requiredWCoreRuntimes) !== JSON.stringify([expectedRuntime]) ||
-    JSON.stringify(requiredWNanoRuntimes) !== JSON.stringify([expectedRuntime])
+    JSON.stringify(requiredWNanoRuntimes) !== JSON.stringify(expectedWNanoRuntimes)
   ) {
     throw new Error(`${TAG} Core, Nano and OfficeCLI runtime declarations must exactly match ${expectedRuntime}`);
   }
@@ -1204,6 +1218,21 @@ function verifyPackagedResources(options = {}) {
           criticalFailureRels.push(`${req.rel} (unexpected capability seal)`);
         } else {
           logger.log(`${TAG}   SKIP ${req.rel}  (intentionally omitted - local verification build)`);
+        }
+        continue;
+      }
+      if (req.absentWhen === 'noWNanoRuntime' && noWNanoRuntime) {
+        // Opting out of a runtime is not the same as not checking for it. The bundle
+        // has to be genuinely absent, so a stale or half-copied one cannot ride along
+        // unverified on the one target that declares it ships none.
+        if (fs.existsSync(target)) {
+          logger.error(`${TAG}   FAIL ${req.rel}  <-- declared absent for this target but present`);
+          logger.error(`${TAG}        path: ${target}`);
+          logger.error(`${TAG}        ${describeTargetForDiagnostics(target)}`);
+          criticalFailures += 1;
+          criticalFailureRels.push(`${req.rel} (present despite --no-wnano-runtime)`);
+        } else {
+          logger.log(`${TAG}   SKIP ${req.rel}  (no runtime published for this target)`);
         }
         continue;
       }

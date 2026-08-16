@@ -1258,11 +1258,12 @@ export async function runSmoke(options, dependencies = {}) {
         '--officecli-runtime',
         `${options.targetPlatform}-${options.targetArch}`,
         // Nano is bundled as of 0.12.0 and the verifier refuses to infer its target
-        // identity, so the installed-payload smoke has to declare it like the others.
-        // Targets wayland-nano does not publish (win32-arm64) carry no bundle to check.
+        // identity, so the installed-payload smoke declares it like the others. A
+        // target wayland-nano does not publish (win32-arm64) declares that instead of
+        // staying silent, and the verifier then requires the bundle to be absent.
         ...(isSupportedWNanoTarget(options.targetPlatform, options.targetArch)
           ? ['--wnano-runtime', `${options.targetPlatform}-${options.targetArch}`]
-          : []),
+          : ['--no-wnano-runtime']),
       ],
       logger,
     });
