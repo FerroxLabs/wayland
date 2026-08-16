@@ -1,6 +1,7 @@
 # Security review (per security_reminder_hook.py):
 # This workflow uses ${{ ... }} only for trusted contexts:
-#   - matrix.* values (defined inline in this file, trusted)
+#   - matrix.* values (produced by the matrix-plan job in this file, trusted)
+#   - needs.* outputs produced by jobs in this file (trusted)
 #   - github.event_name, github.ref, github.workspace, runner.* (trusted)
 # No untrusted PR/issue/commit text (github.event.issue.*, head_ref, etc.)
 # is ever interpolated into a run: step.
@@ -8,15 +9,29 @@
 name: Build Matrix
 
 # Cross-platform packaged-build verification for the Wayland fork.
-# Runs on push to main and on a weekly nightly schedule.
+# Runs on pull requests to main (cheap subset), on push to main, and on a
+# weekly nightly schedule.
 #
 # This is the mandatory recurring native-package proof for all six release
 # targets. It intentionally has no repository-variable skip gate.
 # Manual trigger:
 #   gh workflow run build-matrix.yml
+#
+# NOT a branch-protection required check, on purpose: every trigger here is
+# paths-filtered, and GitHub counts a SKIPPED required check as a PASS
+# (documented bypass, see pr-checks.yml lines 10-24). Making this required
+# would hand any docs-only PR a free green on the packaged-build gate.
 
 on:
   push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'design-mockups/**'
+      - '.planning/**'
+      - '.blackboard/**'
+  pull_request:
     branches: [main]
     paths-ignore:
       - '**/*.md'
@@ -31,7 +46,10 @@ on:
 
 concurrency:
   group: build-matrix-${{ github.ref }}
-  cancel-in-progress: false
+  # Superseded PR pushes are cancelled (a packaged six-target build is
+  # expensive); main/schedule runs are never cancelled because each one is the
+  # only packaged proof that its commit ever gets.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -39,62 +57,145 @@ permissions:
 env:
   # Platform smoke verifies the bundled engine as a critical runtime.
   WCORE_SKIP: '0'
+  # Mirrors _build-reusable.yml so this gate builds the same payload the
+  # release builds: the FerroxLabs/waylandHub repo does not exist yet and
+  # prepareHubResources.js aborts the build without this.
+  WAYLAND_HUB_SKIP: '1'
+  # Must stay equal to WAYLAND_BUN_VERSION in _build-reusable.yml and to
+  # PINNED_BUN_VERSION in scripts/prepareBundledBun.js. Pinning it here means a
+  # drift between the release pin and the script default fails this gate
+  # instead of shipping a differently-versioned bun in the installer.
+  WAYLAND_BUN_VERSION: '1.3.14'
   CI: 'true'
   NODE_OPTIONS: '--max-old-space-size=8192'
 
 jobs:
+  matrix-plan:
+    name: Plan build matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - name: Compute matrix
+        id: plan
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+
+          all_platforms='[
+            {"platform":"macos-arm64","os":"macos-15","build_script":"build-mac:arm64","target_platform":"darwin","arch":"arm64"},
+            {"platform":"macos-x64","os":"macos-15-intel","build_script":"build-mac:x64","target_platform":"darwin","arch":"x64"},
+            {"platform":"windows-x64","os":"windows-2022","build_script":"build-win","target_platform":"win32","arch":"x64"},
+            {"platform":"windows-arm64","os":"windows-11-arm","build_script":"build-win:arm64","target_platform":"win32","arch":"arm64"},
+            {"platform":"linux-x64","os":"ubuntu-24.04","build_script":"build-deb","target_platform":"linux","arch":"x64"},
+            {"platform":"linux-arm64","os":"ubuntu-24.04-arm","build_script":"build-deb","target_platform":"linux","arch":"arm64"}
+          ]'
+
+          # Cheap pre-merge subset: one runner family each. These three carry
+          # the platform-specific packaging code that has actually broken
+          # (dmg mount + notarization, NSIS/signExts, deb payload inventory).
+          # The two arm64 secondaries and the preview track still run on every
+          # push to main, so a regression there surfaces minutes after merge
+          # rather than at tag time.
+          pr_platforms='[
+            {"platform":"macos-arm64","os":"macos-15","build_script":"build-mac:arm64","target_platform":"darwin","arch":"arm64"},
+            {"platform":"windows-x64","os":"windows-2022","build_script":"build-win","target_platform":"win32","arch":"x64"},
+            {"platform":"linux-x64","os":"ubuntu-24.04","build_script":"build-deb","target_platform":"linux","arch":"x64"}
+          ]'
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            platforms="$pr_platforms"
+            tracks='["stable"]'
+          else
+            platforms="$all_platforms"
+            tracks='["stable","preview"]'
+          fi
+
+          matrix="$(jq -cn --argjson p "$platforms" --argjson t "$tracks" \
+            '{include: [$p[] as $pl | $t[] as $tr | ($pl + {release_track: $tr})]}')"
+          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
+          echo "$matrix" | jq .
+
+  capability-acceptance:
+    name: Candidate capability acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+
+    # scripts/build-with-builder.js writes a candidate capability seal on every
+    # packaged build, and createCapabilitySeal() refuses to run without
+    # WAYLAND_CAPABILITY_RECEIPTS_DIR ("required for an evidence-backed package
+    # build", scripts/capability-seal/verifyCandidateCapabilitySeal.js:567-570).
+    # Nothing in this workflow produced those receipts, so every leg died ~2s
+    # into the packaged build and this gate was 100% red from 2026-08-01
+    # onwards - which is why nine packaging defects were first seen at tag time.
+    # This job is the same producer _build-reusable.yml uses (its lines 100-161).
+    outputs:
+      artifact-name: ${{ steps.candidate.outputs.artifact-name }}
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+
+      - name: Capture exact candidate
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse HEAD)"
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          if [ "${commit}" != "${GITHUB_SHA}" ]; then
+            echo "Refusing to attest a checkout that differs from the workflow's immutable source commit." >&2
+            exit 1
+          fi
+          # validateReceipt() demands receipt.acceptedCommit === candidate.commit,
+          # so the build job below must check out this exact commit too.
+          echo "commit=${commit}" >> "$GITHUB_OUTPUT"
+          echo "artifact-name=capability-acceptance-${commit}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3'
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate structured exact capability acceptance receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/capability-seal/generateCapabilityAcceptanceReceipts.js \
+            --out "${RUNNER_TEMP}/capability-acceptance"
+
+      - name: Upload capability acceptance receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.candidate.outputs.artifact-name }}
+          path: ${{ runner.temp }}/capability-acceptance
+          if-no-files-found: error
+          retention-days: 7
+
   build:
     name: Build (${{ matrix.release_track }} / ${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    needs: [matrix-plan, capability-acceptance]
+    permissions:
+      actions: read
+      contents: read
     strategy:
       fail-fast: false
-      matrix:
-        platform_target:
-          - macos-arm64
-          - macos-x64
-          - windows-x64
-          - windows-arm64
-          - linux-x64
-          - linux-arm64
-        release_track: [stable, preview]
-        include:
-          - platform_target: macos-arm64
-            platform: macos-arm64
-            os: macos-15
-            build_script: build-mac:arm64
-            target_platform: darwin
-            arch: arm64
-          - platform_target: macos-x64
-            platform: macos-x64
-            os: macos-15-intel
-            build_script: build-mac:x64
-            target_platform: darwin
-            arch: x64
-          - platform_target: windows-x64
-            platform: windows-x64
-            os: windows-2022
-            build_script: build-win
-            target_platform: win32
-            arch: x64
-          - platform_target: windows-arm64
-            platform: windows-arm64
-            os: windows-11-arm
-            build_script: build-win:arm64
-            target_platform: win32
-            arch: arm64
-          - platform_target: linux-x64
-            platform: linux-x64
-            os: ubuntu-24.04
-            build_script: build-deb
-            target_platform: linux
-            arch: x64
-          - platform_target: linux-arm64
-            platform: linux-arm64
-            os: ubuntu-24.04-arm
-            build_script: build-deb
-            target_platform: linux
-            arch: arm64
+      matrix: ${{ fromJSON(needs.matrix-plan.outputs.matrix) }}
 
     env:
       WAYLAND_RELEASE_TRACK: ${{ matrix.release_track }}
@@ -149,6 +250,22 @@ jobs:
       - name: Postinstall (CI uses prebuilt binaries; see scripts/postinstall.js)
         run: bun run postinstall || true
 
+      - name: Download exact capability acceptance authority
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.capability-acceptance.outputs.artifact-name }}
+          path: ${{ runner.temp }}/capability-acceptance
+
+      # Job-level `env:` cannot see the `runner` context, so this is exported
+      # from a step (same reason and same expression as _build-reusable.yml
+      # lines 249-260). The packaged build reads it in
+      # scripts/capability-seal/verifyCandidateCapabilitySeal.js.
+      - name: Export capability acceptance authority path
+        shell: bash
+        env:
+          RECEIPTS_DIR: ${{ runner.temp }}/capability-acceptance
+        run: echo "WAYLAND_CAPABILITY_RECEIPTS_DIR=${RECEIPTS_DIR}" >> "$GITHUB_ENV"
+
       - name: Cache Electron artifacts
         uses: actions/cache@v4
         with:
@@ -188,12 +305,17 @@ jobs:
         env:
           ELECTRON_CACHE: ${{ runner.temp }}/.cache/electron
           ELECTRON_BUILDER_CACHE: ${{ runner.temp }}/.cache/electron-builder
-          # matrix.build_script is defined inline above (trusted).
+          # matrix.build_script is produced by matrix-plan above (trusted).
           BUILD_SCRIPT: ${{ matrix.build_script }}
           # Ad-hoc / unsigned by default. On macOS, electron-builder will
           # skip signing when CSC_LINK is unset; this also disables Keychain
           # autodiscovery on hosted runners.
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # WCORE_SKIP=0 makes prepareWaylandCore.js download the matching
+          # engine archive from FerroxLabs/wayland-core; unauthenticated it
+          # shares the runner's 60 req/hr API budget. Same expression as
+          # _build-reusable.yml line 658/701.
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
         shell: bash
         run: |
           rm -rf "$PACKAGE_OUT_DIR"
@@ -212,6 +334,22 @@ jobs:
             --release-track "$WAYLAND_RELEASE_TRACK" \
             --candidate-state-file "${{ runner.temp }}/wayland-package-candidate-state.json" \
             --candidate-state-digest "${{ steps.package-candidate-state.outputs.candidate_state_digest }}"
+
+      # Mirrors _build-reusable.yml lines 717-718, but pins the resources
+      # directory explicitly. The test's own fallback
+      # (tests/integration/bundled-bun-packaged.test.ts lines 26-36) scans
+      # ./out for a directory whose basename is literally "resources" - which
+      # misses the preview track (out-preview) AND every macOS bundle
+      # (Contents/Resources, capital R). Both cases resolve to null and the
+      # whole suite silently it.skip()s to green. Resolve the real payload
+      # directory here and fail loudly when there is none.
+      - name: Verify packaged bundled bun assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          resources_dir="$(node -e 'const fs=require("fs"),path=require("path");const root=path.resolve(process.env.PACKAGE_OUT_DIR);const found=[];(function walk(dir,depth){if(depth>6)return;let entries;try{entries=fs.readdirSync(dir,{withFileTypes:true})}catch{return}for(const entry of entries){if(!entry.isDirectory())continue;const child=path.join(dir,entry.name);if(entry.name.toLowerCase()==="resources"&&fs.existsSync(path.join(child,"app.asar"))){found.push(child)}else{walk(child,depth+1)}}})(root,0);if(found.length===0){console.error("No packaged resources directory containing app.asar under "+root);process.exit(1)}found.sort((a,b)=>fs.statSync(b).mtimeMs-fs.statSync(a).mtimeMs);process.stdout.write(found[0])')"
+          echo "APP_RESOURCES_DIR=$resources_dir"
+          APP_RESOURCES_DIR="$resources_dir" bun run test:packaged:bun
 
       - name: List build output
         if: always()
