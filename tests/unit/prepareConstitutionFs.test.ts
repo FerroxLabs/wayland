@@ -131,7 +131,10 @@ describe('prepareConstitutionFs', () => {
     );
   });
 
-  it('signs the helper BEFORE recording the digest the runtime re-checks', () => {
+  // Darwin-only by construction: prepareConstitutionFs refuses a target whose
+  // platform is not the host, and signing only happens on darwin. The macOS
+  // CI shard is what exercises this.
+  it.skipIf(process.platform !== 'darwin')('signs the helper BEFORE recording the digest the runtime re-checks', () => {
     // The packaged app re-hashes this helper at launch against the authority
     // embedded in app.asar (constitutionFsBinary.ts). A signature applied after
     // that digest was recorded changes the bytes and makes every launch fail
