@@ -1,6 +1,13 @@
-const { execSync } = require('child_process');
 const path = require('path');
-const { runBounded, isNotaryStall, markNotaryStalled, notaryStallSeen } = require('./signingExec');
+const {
+  runBounded,
+  isNotaryStall,
+  markNotaryStalled,
+  notaryStallSeen,
+  submitToNotary,
+  notaryRejectionError,
+} = require('./signingExec');
+const { resolveDarwinSigningIdentity } = require('./signDarwinStagedBinary');
 
 /**
  * afterAllArtifactBuild — notarize + staple the .dmg artifacts.
@@ -12,10 +19,16 @@ const { runBounded, isNotaryStall, markNotaryStalled, notaryStallSeen } = requir
  * perfectly notarized. That shipped once (rc.2.1). This hook closes the gap so
  * the disk image the user actually double-clicks is itself notarized.
  *
- * Mirrors afterSign's contract: failure is non-fatal and loud. The release
- * smoke gate (`scripts/release-smoke-macos.sh`) is the hard stop that refuses
- * to publish an unstapled dmg, so a transient notary stall degrades to "gate
- * blocks publish" rather than "broken dmg silently ships".
+ * Mirrors afterSign's contract: a TRANSIENT failure is non-fatal and loud. The
+ * release smoke gate (`scripts/release-smoke-macos.sh`) is the hard stop that
+ * refuses to publish an unstapled dmg, so a transient notary stall degrades to
+ * "gate blocks publish" rather than "broken dmg silently ships".
+ *
+ * A REJECTION (`status: Invalid`) fails the build outright when a Developer ID
+ * identity is present. It is a verdict on these bytes, so no amount of retrying
+ * or waiting for Apple to "recover" changes it, and letting it ride pushes the
+ * discovery all the way out to the smoke gate — which is how a v0.12.0
+ * rejection survived eight green release builds.
  *
  * @param {{ artifactPaths: string[], outDir: string }} buildResult
  */
@@ -42,6 +55,11 @@ exports.default = async function notarizeDmg(buildResult) {
     console.log('notarizeDmg: skipping — no signing identity (CSC_NAME) available');
     return;
   }
+  // Whether a notarization REJECTION should fail the build. `identity` above is
+  // only what codesign will be handed; this is the stricter read shared with the
+  // staged-binary signer (it also honours WAYLAND_DARWIN_SIGN_IDENTITY and
+  // rejects codesign's ad-hoc '-', which is exactly the state Apple refuses).
+  const hasIdentity = Boolean(resolveDarwinSigningIdentity(process.env));
 
   for (const dmg of dmgs) {
     const name = path.basename(dmg);
@@ -55,7 +73,7 @@ exports.default = async function notarizeDmg(buildResult) {
       // Without a retry a single Apple hiccup ships the dmg signed-but-unstapled
       // and the smoke gate blocks the entire release (v0.9.8 arm64 hit exactly
       // this). Retry the network-bound steps with backoff before degrading.
-      await notarizeAndStapleWithRetry({ dmg, name, appleId, appleIdPassword, teamId });
+      await notarizeAndStapleWithRetry({ dmg, name, appleId, appleIdPassword, teamId, hasIdentity });
 
       // Stapling rewrites the dmg bytes, so the updater metadata that referenced
       // the pre-staple dmg is now stale. The manifest CANNOT be repaired here:
@@ -66,6 +84,16 @@ exports.default = async function notarizeDmg(buildResult) {
       // smoke gate (verify-update-metadata.mjs) then confirms it.
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      if (error && error.notarizationFatal) {
+        console.error(`::error title=DMG notarization rejected::${name}: ${message}`);
+        throw error;
+      }
+      if (error && error.notarizationRejected) {
+        console.warn(
+          `::warning title=DMG notarization rejected::${name}: ${message} (non-fatal: this build has no Developer ID identity)`
+        );
+        continue;
+      }
       console.warn(`::warning title=DMG notarization not completed::${name}: ${message}`);
       console.warn(
         `⚠️ ${name} ships signed-but-unstapled. The release smoke gate will block publishing it — re-run once Apple's notary recovers.`
@@ -125,7 +153,7 @@ function shouldRetryNotarization({ attempt, maxAttempts, elapsedMs, waitTimeoutM
  * giving up, so the caller still degrades to "signed-but-unstapled" and the
  * smoke gate makes the final call.
  */
-async function notarizeAndStapleWithRetry({ dmg, name, appleId, appleIdPassword, teamId }) {
+async function notarizeAndStapleWithRetry({ dmg, name, appleId, appleIdPassword, teamId, hasIdentity }) {
   // If the .app notarize (afterSign) just hit a stall, the .dmg submission lands
   // on the SAME slow queue seconds later — don't re-burn three windows
   // rediscovering it; take one shot in case it cleared, then degrade.
@@ -135,36 +163,51 @@ async function notarizeAndStapleWithRetry({ dmg, name, appleId, appleIdPassword,
   }
   const backoffMs = 60000;
   const waitTimeoutMs = NOTARY_WAIT_TIMEOUT_MIN * 60000;
-  const submitCmd = [
-    'xcrun notarytool submit',
-    `"${dmg}"`,
-    `--apple-id "${appleId}"`,
-    `--team-id "${teamId}"`,
-    '--password "$NOTARYTOOL_PWD"',
-    '--wait',
-    `--timeout ${NOTARY_WAIT_TIMEOUT_MIN}m`,
-  ].join(' ');
 
   let lastError;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const startedAt = Date.now();
+    let elapsedMs = 0;
     try {
       console.log(`notarizeDmg: submitting ${name} to Apple notary service (attempt ${attempt}/${maxAttempts})…`);
-      execSync(submitCmd, {
-        stdio: 'inherit',
-        env: { ...process.env, NOTARYTOOL_PWD: appleIdPassword },
+      const submitted = submitToNotary({
+        archivePath: dmg,
+        appleId,
+        appleIdPassword,
+        teamId,
+        waitTimeoutMin: NOTARY_WAIT_TIMEOUT_MIN,
       });
+      elapsedMs = submitted.elapsedMs;
+
+      if (submitted.classification.kind === 'rejected') {
+        // Apple judged these bytes and refused them. Retrying spends windows on
+        // a verdict that cannot change, so surface Apple's reason and stop.
+        throw notaryRejectionError({
+          classification: submitted.classification,
+          label: `notarizeDmg: ${name}`,
+          appleId,
+          appleIdPassword,
+          teamId,
+          hasIdentity,
+        });
+      }
+      if (submitted.failure) {
+        throw submitted.failure;
+      }
 
       // Staple the ticket so Gatekeeper validates the dmg offline. `stapler`
       // contacts Apple's ticket servers with no client timeout, so bound it too.
-      if (!runBounded('xcrun', ['stapler', 'staple', dmg], { timeoutMs: 300000, label: `notarizeDmg: stapling ${name}` })) {
+      if (
+        !runBounded('xcrun', ['stapler', 'staple', dmg], { timeoutMs: 300000, label: `notarizeDmg: stapling ${name}` })
+      ) {
         throw new Error(`stapler staple failed or timed out for ${name}`);
       }
       console.log(`notarizeDmg: stapled ${name}`);
       return;
     } catch (error) {
+      if (error && error.notarizationRejected) {
+        throw error;
+      }
       lastError = error;
-      const elapsedMs = Date.now() - startedAt;
       const message = error instanceof Error ? error.message : String(error);
       // A near-full-window failure is a stalled queue — record it so any later
       // notarize call short-circuits, and stop retrying here.
@@ -234,4 +277,3 @@ function signDmgNoTimestamp(identity, dmg) {
 
 // Exported for unit testing the retry policy without spawning notarytool.
 exports.shouldRetryNotarization = shouldRetryNotarization;
-
