@@ -1337,8 +1337,23 @@ describe('platform workflows cannot silently skip installed-package smoke', () =
   it('covers all build-matrix targets with exact target identity and a mandatory smoke step', () => {
     const config = workflow('build-matrix.yml');
     const job = config.jobs.build;
-    expect(job.needs).toBeUndefined();
+    // The ONLY permitted dependency is the receipts producer. Without it the
+    // packaged build aborts on "WAYLAND_CAPABILITY_RECEIPTS_DIR is required for
+    // an evidence-backed package build" and this whole gate is dead; with any
+    // other `needs` (or any `if`) a leg could silently skip instead of failing.
+    expect(job.needs).toBe('capability-acceptance');
     expect(job.if).toBeUndefined();
+    const receiptsJob = config.jobs['capability-acceptance'];
+    expect(receiptsJob.if).toBeUndefined();
+    expect(receiptsJob.needs).toBeUndefined();
+    expect(
+      receiptsJob.steps!.find((step) => step.name === 'Generate structured exact capability acceptance receipts')!.run
+    ).toContain('generateCapabilityAcceptanceReceipts.js');
+    expect(
+      receiptsJob.steps!.find((step) => step.name === 'Upload capability acceptance receipts')!.with![
+        'if-no-files-found'
+      ]
+    ).toBe('error');
     expect(job.strategy!.matrix!.release_track).toEqual(['stable', 'preview']);
     expect(job.strategy!.matrix!.platform_target).toHaveLength(6);
     expect(job.strategy!.matrix!.include!.map((entry) => `${entry.target_platform}-${entry.arch}@${entry.os}`)).toEqual(
@@ -1355,6 +1370,7 @@ describe('platform workflows cannot silently skip installed-package smoke', () =
     const capture = steps.find((step) => step.name === 'Capture pre-build packaged content state')!;
     const smoke = steps.find((step) => step.name === 'Install and smoke real package payload')!;
     const hostAssertion = steps.find((step) => step.name === 'Assert native runner identity')!;
+    const upload = steps.find((step) => step.name === 'Upload artifacts')!;
     expect(steps.indexOf(hostAssertion)).toBeLessThan(steps.indexOf(capture));
     expect(steps.indexOf(capture)).toBeLessThan(steps.findIndex((step) => step.name === 'Run packaged build'));
     expect(capture.id).toBe('package-candidate-state');
@@ -1372,10 +1388,29 @@ describe('platform workflows cannot silently skip installed-package smoke', () =
     expect(smoke.run).toContain(
       '--candidate-state-digest "${{ steps.package-candidate-state.outputs.candidate_state_digest }}"'
     );
+    const download = steps.find((step) => step.name === 'Download exact capability acceptance authority')!;
+    const exportReceipts = steps.find((step) => step.name === 'Export capability acceptance authority path')!;
+    expect(download.with!.name).toBe('${{ needs.capability-acceptance.outputs.artifact-name }}');
+    expect(download.with!.path).toBe('${{ runner.temp }}/capability-acceptance');
+    // The exported path must be the same expression the artifact landed at, or
+    // the seal reads an empty directory.
+    expect(exportReceipts.env!.RECEIPTS_DIR).toBe(download.with!.path);
+    expect(exportReceipts.run).toContain('WAYLAND_CAPABILITY_RECEIPTS_DIR=${RECEIPTS_DIR}');
+    expect(steps.indexOf(exportReceipts)).toBeGreaterThan(steps.indexOf(download));
+    expect(steps.indexOf(exportReceipts)).toBeLessThan(steps.findIndex((step) => step.name === 'Run packaged build'));
+    // Packaged bundled-bun verification must run against the real payload
+    // directory: the test's own fallback scans ./out for a lowercase
+    // "resources" basename, which silently it.skip()s on macOS bundles
+    // (Contents/Resources) and on the preview track (out-preview).
+    const bundledBun = steps.find((step) => step.name === 'Verify packaged bundled bun assets')!;
+    expect(bundledBun.if).toBeUndefined();
+    expect(bundledBun['continue-on-error']).toBeUndefined();
+    expect(bundledBun.run).toContain('APP_RESOURCES_DIR="$resources_dir" bun run test:packaged:bun');
+    expect(steps.indexOf(bundledBun)).toBeGreaterThan(steps.indexOf(smoke));
+    expect(steps.indexOf(bundledBun)).toBeLessThan(steps.indexOf(upload));
     expect(config.env!.WCORE_SKIP).toBe('0');
     expect(job.env!.WAYLAND_RELEASE_TRACK).toBe('${{ matrix.release_track }}');
     expect(job.env!.PACKAGE_OUT_DIR).toContain('out-preview');
-    const upload = steps.find((step) => step.name === 'Upload artifacts')!;
     expect(upload.with!['if-no-files-found']).toBe('error');
     expect(upload.with!.path).toContain('platform-package-smoke-*.json');
     expect(upload.with!.name).toContain('${{ matrix.release_track }}');
