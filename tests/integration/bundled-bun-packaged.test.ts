@@ -1,6 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { describe, expect, it } from 'vitest';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { isSupportedBunTarget } = require('../../scripts/prepareBundledBun.js') as {
+  isSupportedBunTarget: (platform: string, arch: string) => boolean;
+};
 
 function listDirsRecursive(dir: string): string[] {
   const results: string[] = [];
@@ -80,7 +86,17 @@ describe('Packaged bundled bun resources integrity', () => {
 
   runOrSkip('should include bundled-bun runtime files and valid manifest', () => {
     const bundledRoot = path.join(resourcesDir as string, 'bundled-bun');
-    expect(fs.existsSync(bundledRoot)).toBe(true);
+
+    // bun publishes no Windows-on-ARM64 binary, so that target stages NOTHING:
+    // the whole bundled-bun tree is absent, not a skipped manifest. The packaged
+    // verifier is told the same thing via --no-bun-runtime and requires genuine
+    // absence, so emitting a placeholder manifest here would contradict it.
+    // Ask the build's own predicate rather than hardcoding the target, so this
+    // stays correct the day bun starts publishing one.
+    if (!fs.existsSync(bundledRoot)) {
+      expect(isSupportedBunTarget(process.platform, process.arch)).toBe(false);
+      return;
+    }
 
     const platformDirs = fs
       .readdirSync(bundledRoot, { withFileTypes: true })
