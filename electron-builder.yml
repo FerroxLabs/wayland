@@ -306,20 +306,30 @@ mac:
   gatekeeperAssess: false
   entitlements: entitlements.plist
   entitlementsInherit: entitlements.plist
-  # Preserve the exact independently pinned nested executable bytes. OfficeCLI
-  # is already Developer ID signed by its publisher. The released wayland-core
-  # and wayland-nano binaries are linker-signed. Re-signing any of them with
-  # Electron helper entitlements changes its pinned digest and grants a much
-  # broader authority surface than the standalone tool was built with; the
-  # post-package gate rechecks the exact bytes from Contents/Resources.
+  # Exclude ONLY nested binaries that already arrive Developer ID signed by
+  # their own publisher, so packaging preserves that publisher signature instead
+  # of replacing it with ours. Verified on the shipped 0.12.0 dmg:
+  #   bundled-bun/*/bun            -> Developer ID Application: Jarred Sumner
+  #   bundled-officecli/*/officecli -> Developer ID Application: AionUi Inc.
+  # Apple accepted both during notarization precisely because they carry a valid
+  # Developer ID signature, a secure timestamp and the hardened runtime.
+  #
+  # Nothing else may be listed here. Apple refuses to notarize an app that
+  # contains an unsigned or merely ad-hoc/linker-signed Mach-O, and every binary
+  # we bundle that upstream does NOT sign (our own wayland-core, wayland-nano and
+  # wayland-constitution-fs, plus the whatsapp-bridge sharp and bare-* natives)
+  # is exactly that. Listing them here made all six macOS notarization
+  # submissions for 0.12.0 come back "Invalid" with 14 rejected files. v0.11.18
+  # carried no signIgnore at all, signed all of them, and notarized.
+  #
+  # Their pinned upstream bytes are still verified - at STAGE time, where
+  # prepareWaylandCore / prepareWaylandNano download, checksum and attest them
+  # before packaging. Signing is a deliberate act applied to already-verified
+  # bytes, and the packaged gate then requires a Ferrox Labs Developer ID
+  # signature on each one (see verify-packaged-resources.js).
   signIgnore:
     - '/Contents/Resources/bundled-bun/[^/]+/bun$'
-    - '/Contents/Resources/whatsapp-bridge/node_modules/@img/sharp-(?:libvips-)?darwin-(?:arm64|x64)/.*(?:\.node|\.dylib)$'
-    - '/Contents/Resources/whatsapp-bridge/node_modules/(?:bare-fs|bare-os|bare-url)/prebuilds/(?:darwin-(?:arm64|x64)|ios-(?:arm64|arm64-simulator|x64-simulator))/[^/]+\.bare$'
     - '/Contents/Resources/bundled-officecli/[^/]+/officecli$'
-    - '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$'
-    - '/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$'
-    - '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$'
   # #466: Computer-Use uses Screen Recording (screenshots) + Apple Events (to
   # control other apps). NSAppleEventsUsageDescription IS an Apple-honored TCC
   # purpose string - macOS shows it on the automation consent prompt.

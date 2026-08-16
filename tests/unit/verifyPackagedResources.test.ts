@@ -507,6 +507,24 @@ afterEach(() => {
 // Production never verifies a darwin package from a Windows host (the darwin path shells out
 // to /usr/bin/codesign), so only the assertions that require the whole sweep to PASS are
 // host-limited. Every failure-path assertion in this file stays active on all hosts.
+// Stand-in for `codesign --verify` against a fixture: a real signature is
+// computed over the bytes, so it stays valid only while the bytes are unchanged.
+// Fixture binaries are written to match their staged manifest digest, which
+// gives a byte-exact reference to compare against without a signing identity.
+// A stub that blindly returned true would make every darwin byte-drift
+// assertion in this file vacuous.
+function fixtureSignatureIsIntact(binaryPath: string): boolean {
+  const manifestPath = path.join(path.dirname(binaryPath), 'manifest.json');
+  // Only the pinned runtimes ship a manifest beside the binary. Fixtures stage
+  // no whatsapp-bridge natives, so nothing else reaches this double today.
+  if (!fs.existsSync(manifestPath)) return true;
+  const actual = crypto.createHash('sha256').update(fs.readFileSync(binaryPath)).digest('hex');
+  const recorded = String(JSON.parse(fs.readFileSync(manifestPath, 'utf8'))?.binary?.sha256 || '')
+    .replace(/^sha256:/i, '')
+    .toLowerCase();
+  return recorded === actual;
+}
+
 const itAcceptedSweep = it.skipIf(process.platform === 'win32');
 
 describe('packaged resource release gate', () => {
@@ -528,7 +546,22 @@ describe('packaged resource release gate', () => {
       modelsAuthority: TEST_MODELS_AUTHORITY,
       officeCliAuthority: TEST_OFFICE_AUTHORITY,
       verifyOfficeCliDarwinSignature: () => TEST_OFFICE_SIGNATURE,
-      verifyConstitutionFsDarwinSignature: () => undefined,
+      // Same reasoning as darwinSignedCheck below: this replaces a codesign call
+      // that fails on tampered bytes, so the double has to fail on them too.
+      verifyConstitutionFsDarwinSignature: (binaryPath: string) => {
+        if (!fixtureSignatureIsIntact(binaryPath)) {
+          throw new Error('fixture: codesign signature does not match the packaged bytes');
+        }
+      },
+      // Fixtures are synthetic Mach-O stand-ins, so the real
+      // `codesign --verify --strict -R <Ferrox team>` cannot run against them.
+      // The double must still model what codesign actually guarantees: the
+      // signature is computed over the bytes, so ANY mutation invalidates it.
+      // A stub that blindly returned true would silently make every darwin
+      // byte-drift assertion in this file vacuous. In a fixture the packaged
+      // bytes are unsigned, so they still hash to the staged manifest digest -
+      // use that as the stand-in for a valid signature over these exact bytes.
+      darwinSignedCheck: fixtureSignatureIsIntact,
       verifyDarwinPackageSignature: () => undefined,
       verifyCapabilitySeal: () => undefined,
       ...extra,
@@ -856,6 +889,38 @@ describe('packaged resource release gate', () => {
     const out = createPackagedResources(true);
     fs.appendFileSync(wcoreBinaryPath(out), 'tampered');
     expect(() => verify(out)).toThrow();
+  });
+
+  it('rejects a darwin wayland-core binary that is not Developer ID signed by us', () => {
+    const out = createPackagedResources(true);
+    // Byte-identical to the staged manifest digest, i.e. the exact state that
+    // used to pass, but ad-hoc signed. Apple refuses to notarize this, so the
+    // packaged gate has to refuse it too.
+    expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { darwinSignedCheck: () => false })).toThrow(
+      /CRITICAL resource/
+    );
+  });
+
+  it('rejects a darwin wayland-nano binary that is not Developer ID signed by us', () => {
+    const out = createPackagedResources(true);
+    expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { darwinSignedCheck: () => false })).toThrow(
+      /CRITICAL resource/
+    );
+  });
+
+  itAcceptedSweep('requires the Developer ID check on exactly the darwin runtimes it signs', () => {
+    const out = createPackagedResources(true);
+    const checked: string[] = [];
+    verify(out, 'darwin-arm64', 'darwin-arm64', {
+      darwinSignedCheck: (binaryPath: string) => {
+        checked.push(path.basename(binaryPath));
+        return true;
+      },
+    });
+    // Both runtimes we sign on macOS must go through the signature gate; if the
+    // branch were keyed wrongly the packaged bytes would simply go unchecked.
+    expect(checked).toContain('wayland-core');
+    expect(checked).toContain('wayland-nano');
   });
 
   it('blocks a wayland-core manifest from the wrong release', () => {

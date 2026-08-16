@@ -164,7 +164,9 @@ describe('strict bundled wayland-nano provenance', () => {
     expect(verifier).toContain("['download', 'verified-cache'].includes(metadata.sourceType)");
     expect(verifier).toContain('actualBinarySha256 === expected.binarySha256');
     expect(builder).toContain('resources/bundled-wayland-nano');
-    expect(builder).toContain("'/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$'");
+    // Same as wayland-core: linker-signed upstream, so it must be signed by us
+    // or notarization fails with "not signed with a valid Developer ID".
+    expect(builder).not.toContain("'/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$'");
   });
 
   it('keeps the bundle receipt contract bound to binary pins and publisher attestation', () => {

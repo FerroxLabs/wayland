@@ -138,7 +138,10 @@ describe('strict bundled wayland-core provenance', () => {
     expect(verifier).toContain("kind: 'wcore-bundle'");
     expect(verifier).toContain("['download', 'verified-cache'].includes(metadata.sourceType)");
     expect(verifier).toContain('actualBinarySha256 === expected.binarySha256');
-    expect(builder).toContain("'/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$'");
+    // Released wayland-core binaries are only linker-signed, so excluding them
+    // from signing makes Apple reject the whole app. They are signed at package
+    // time; the upstream byte pin is enforced at stage time instead.
+    expect(builder).not.toContain("'/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$'");
   });
 
   it('keeps the bundle receipt contract and future bump tooling bound to binary pins', () => {

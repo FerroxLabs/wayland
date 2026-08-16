@@ -92,6 +92,46 @@ const REQUIRED = [
 
 const VOICE_MODEL_FILES = Object.keys(voiceModelPinnedRelease.files);
 
+// Apple refuses to notarize an app containing an unsigned or merely ad-hoc /
+// linker-signed Mach-O, so every nested binary that upstream does not sign is
+// signed by us at package time (see mac.signIgnore in electron-builder.yml).
+// Signing rewrites the binary, so its packaged bytes can no longer equal the
+// pinned upstream digest. The upstream-bytes guarantee therefore lives at STAGE
+// time - prepareWaylandCore / prepareWaylandNano download, checksum and attest
+// the binary before it is packaged, and the staged manifest still has to record
+// that verified digest - while the packaged gate proves the shipped bytes are
+// the ones WE signed.
+//
+// The requirement below is what makes that check real. A bare
+// `codesign --verify --strict` also succeeds on an ad-hoc signature, which is
+// exactly the state that made 0.12.0 unnotarizable, so it cannot distinguish a
+// properly signed binary from the broken one. Pinning the leaf certificate to
+// the Ferrox Labs team fails closed on ad-hoc, on unsigned, and on a signature
+// from any other publisher. Apple's own notarization enforces the hardened
+// runtime on top of this.
+const DARWIN_SIGNING_TEAM_ID = 'PX6SP9GPWJ';
+// The leading '=' is REQUIRED and is not cosmetic: `codesign -R` treats a bare
+// argument as a path to a requirement FILE and only parses inline requirement
+// text when it starts with '='. Without it codesign exits 1 with
+// "invalid requirement specification", which fails closed on every binary -
+// including correctly signed ones - and would block all macOS builds.
+const DARWIN_SIGNING_REQUIREMENT = `=anchor apple generic and certificate leaf[subject.OU] = "${DARWIN_SIGNING_TEAM_ID}"`;
+
+function assertDarwinDeveloperIdSigned(binaryPath, exec = execFileSync) {
+  exec('/usr/bin/codesign', ['--verify', '--strict', '-R', DARWIN_SIGNING_REQUIREMENT, binaryPath], {
+    stdio: 'pipe',
+  });
+}
+
+function isDarwinDeveloperIdSigned(binaryPath, exec = execFileSync) {
+  try {
+    assertDarwinDeveloperIdSigned(binaryPath, exec);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function parseSingleArg(argv, flag, required = true) {
   const values = [];
   for (let index = 0; index < argv.length; index += 1) {
@@ -167,8 +207,10 @@ function verifyConstitutionFsBundle(
   targetPlatform,
   targetArch,
   authority,
-  verifyDarwinSignature = (binaryPath) =>
-    execFileSync('/usr/bin/codesign', ['--verify', '--strict', binaryPath], { stdio: 'pipe' })
+  // A bare `codesign --verify --strict` also passes on an ad-hoc signature, so it
+  // could not tell a properly signed binary from the ad-hoc state that made
+  // 0.12.0 unnotarizable. Pin the leaf certificate to the Ferrox Labs team.
+  verifyDarwinSignature = assertDarwinDeveloperIdSigned
 ) {
   if (targetPlatform === 'win32') return !fs.existsSync(bundleRoot);
   const runtime = `${targetPlatform}-${targetArch}`;
@@ -193,15 +235,21 @@ function verifyConstitutionFsBundle(
     manifest.platform !== targetPlatform ||
     manifest.arch !== targetArch ||
     manifest.binary.fileName !== 'wayland-constitution-fs' ||
-    manifest.binary.sha256 !== digest ||
-    manifest.binary.size !== bytes.length ||
     authority.supported !== true ||
     authority.protocolVersion !== 2 ||
     authority.platform !== targetPlatform ||
     authority.arch !== targetArch ||
-    authority.sha256 !== digest ||
-    authority.size !== bytes.length ||
-    authority.fileName !== manifest.binary.fileName
+    // The manifest and the package authority must always agree with each other:
+    // that pairing is what proves the staged, verified binary is the one that
+    // was packaged, and it holds on every platform.
+    authority.sha256 !== manifest.binary.sha256 ||
+    authority.size !== manifest.binary.size ||
+    authority.fileName !== manifest.binary.fileName ||
+    // Off darwin the bytes are untouched, so they must still hash to the staged
+    // digest. On darwin we sign the binary after staging, which necessarily
+    // changes the bytes; the Developer ID check below is what proves the shipped
+    // bytes are ours.
+    (targetPlatform !== 'darwin' && (manifest.binary.sha256 !== digest || manifest.binary.size !== bytes.length))
   )
     return false;
   const identity = inspectExecutable(binaryPath);
@@ -357,7 +405,12 @@ function parseRequiredRuntimes(argv, flag, label) {
   return [...new Set(runtimes)].sort();
 }
 
-function verifyWCoreRuntime(bundleDir, runtimeKey, authority = prepareWaylandCore) {
+function verifyWCoreRuntime(
+  bundleDir,
+  runtimeKey,
+  authority = prepareWaylandCore,
+  signedCheck = isDarwinDeveloperIdSigned
+) {
   const [platform, arch] = runtimeKey.split('-');
   const binaryName = platform === 'win32' ? 'wayland-core.exe' : 'wayland-core';
   const runtimeDir = path.join(bundleDir, runtimeKey);
@@ -419,12 +472,20 @@ function verifyWCoreRuntime(bundleDir, runtimeKey, authority = prepareWaylandCor
     manifestArchiveSha256 === expected.archiveSha256 &&
     metadata.binary?.name === binaryName &&
     manifestBinarySha256 === expected.binarySha256 &&
-    actualBinarySha256 === expected.binarySha256 &&
+    // On macOS we sign this binary, so the packaged bytes intentionally differ
+    // from the pinned upstream digest recorded above. Prove instead that the
+    // shipped bytes carry our Developer ID signature.
+    (runtimeKey.startsWith('darwin-') ? signedCheck(binaryPath) : actualBinarySha256 === expected.binarySha256) &&
     JSON.stringify(metadata.files) === JSON.stringify([binaryName])
   );
 }
 
-function verifyWCoreBundle(bundleDir, requiredRuntimes, authority = prepareWaylandCore) {
+function verifyWCoreBundle(
+  bundleDir,
+  requiredRuntimes,
+  authority = prepareWaylandCore,
+  signedCheck = isDarwinDeveloperIdSigned
+) {
   if (!fs.statSync(bundleDir).isDirectory()) return false;
   const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
   if (entries.length === 0) return false;
@@ -433,14 +494,20 @@ function verifyWCoreBundle(bundleDir, requiredRuntimes, authority = prepareWayla
   }
   const packagedRuntimes = entries.map((entry) => entry.name).sort();
   if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
-  return packagedRuntimes.every((runtime) => verifyWCoreRuntime(bundleDir, runtime, authority));
+  return packagedRuntimes.every((runtime) => verifyWCoreRuntime(bundleDir, runtime, authority, signedCheck));
 }
 
 // Mirrors verifyWCoreRuntime for the bundled wayland-nano agent. The policy
 // selector is injectable because, unlike wayland-core, the first
 // FerroxLabs/wayland-nano publisher-attestation policy only exists once the
 // first signed release lands - tests substitute their own until then.
-function verifyWNanoRuntime(bundleDir, runtimeKey, authority = prepareWaylandNano, policySelector = selectPolicy) {
+function verifyWNanoRuntime(
+  bundleDir,
+  runtimeKey,
+  authority = prepareWaylandNano,
+  policySelector = selectPolicy,
+  signedCheck = isDarwinDeveloperIdSigned
+) {
   const [platform, arch] = runtimeKey.split('-');
   const binaryName = platform === 'win32' ? 'wayland-nano.exe' : 'wayland-nano';
   const runtimeDir = path.join(bundleDir, runtimeKey);
@@ -502,12 +569,20 @@ function verifyWNanoRuntime(bundleDir, runtimeKey, authority = prepareWaylandNan
     manifestArchiveSha256 === expected.archiveSha256 &&
     metadata.binary?.name === binaryName &&
     manifestBinarySha256 === expected.binarySha256 &&
-    actualBinarySha256 === expected.binarySha256 &&
+    // Signed by us on macOS, so the packaged bytes deliberately differ from the
+    // pinned upstream digest asserted above; require our signature instead.
+    (runtimeKey.startsWith('darwin-') ? signedCheck(binaryPath) : actualBinarySha256 === expected.binarySha256) &&
     JSON.stringify(metadata.files) === JSON.stringify([binaryName])
   );
 }
 
-function verifyWNanoBundle(bundleDir, requiredRuntimes, authority = prepareWaylandNano, policySelector = selectPolicy) {
+function verifyWNanoBundle(
+  bundleDir,
+  requiredRuntimes,
+  authority = prepareWaylandNano,
+  policySelector = selectPolicy,
+  signedCheck = isDarwinDeveloperIdSigned
+) {
   if (!fs.statSync(bundleDir).isDirectory()) return false;
   const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
   if (entries.length === 0) return false;
@@ -516,7 +591,9 @@ function verifyWNanoBundle(bundleDir, requiredRuntimes, authority = prepareWayla
   }
   const packagedRuntimes = entries.map((entry) => entry.name).sort();
   if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
-  return packagedRuntimes.every((runtime) => verifyWNanoRuntime(bundleDir, runtime, authority, policySelector));
+  return packagedRuntimes.every((runtime) =>
+    verifyWNanoRuntime(bundleDir, runtime, authority, policySelector, signedCheck)
+  );
 }
 
 function hasNonHiddenRegularFile(dir) {
@@ -625,6 +702,32 @@ const WHATSAPP_APPLE_BARE_RUNTIMES = [
   ['ios-arm64-simulator', 'arm64'],
   ['ios-x64-simulator', 'x64'],
 ];
+
+// The whatsapp-bridge natives that electron-builder signs on macOS. They are
+// enumerated exhaustively (rather than pattern-matched at compare time) so a new
+// unsigned native cannot slip into the bundle unnoticed: anything that appears
+// here and is not accounted for fails the inventory assertion below.
+function darwinSignedBridgeNatives(arch) {
+  const expected = [
+    {
+      relative: `node_modules/@img/sharp-darwin-${arch}/lib/sharp-darwin-${arch}.node`,
+      arch,
+    },
+    {
+      relative: `node_modules/@img/sharp-libvips-darwin-${arch}/lib/libvips-cpp.8.17.3.dylib`,
+      arch,
+    },
+  ];
+  for (const packageName of WHATSAPP_APPLE_BARE_PACKAGES) {
+    for (const [runtime, runtimeArch] of WHATSAPP_APPLE_BARE_RUNTIMES) {
+      expected.push({
+        relative: `node_modules/${packageName}/prebuilds/${runtime}/${packageName}.bare`,
+        arch: runtimeArch,
+      });
+    }
+  }
+  return expected;
+}
 
 function verifyWhatsAppDarwinSignIgnoreInventory(sourceDir, arch) {
   const expected = [
@@ -777,7 +880,8 @@ function verifySourceMirror(
   sourceDir,
   authority = whatsappBridgeSource,
   targetPlatform = process.platform,
-  targetArch = process.arch
+  targetArch = process.arch,
+  signedCheck = isDarwinDeveloperIdSigned
 ) {
   if (
     authority.contract !== 'wayland-whatsapp-bridge-source/1.0' ||
@@ -800,8 +904,31 @@ function verifySourceMirror(
   const ignoredPlaceholders = new Set(
     WHATSAPP_OMITTED_EMPTY_PLACEHOLDERS.filter((relative) => fs.existsSync(path.join(sourceDir, relative)))
   );
-  const source = sourceInventory(sourceDir, sourceDir, [], ignoredPlaceholders);
-  const bundled = sourceInventory(bundleDir, bundleDir, [], ignoredPlaceholders);
+  // On macOS electron-builder signs the bridge's native binaries during
+  // packaging, so the bundled copies deliberately no longer hash to the source
+  // copies. Every other file must still mirror the source byte for byte, and
+  // each signed native must be present, be the right Mach-O, and carry our
+  // Developer ID signature - so the exemption cannot hide a substituted binary.
+  // Derive the exemption from the natives that are actually staged, exactly as
+  // verifyWhatsAppNativeTarget tolerates a bridge built without them. Anything
+  // present in the bundle but NOT in the source still trips the mirror below, so
+  // this cannot become a hole through which an extra unsigned native arrives.
+  const signedNatives =
+    targetPlatform === 'darwin'
+      ? darwinSignedBridgeNatives(targetArch).filter(({ relative }) =>
+          fs.existsSync(path.join(sourceDir, ...relative.split('/')))
+        )
+      : [];
+  for (const { relative, arch: expectedArch } of signedNatives) {
+    const bundledNative = path.join(bundleDir, ...relative.split('/'));
+    if (!fs.existsSync(bundledNative) || !fs.lstatSync(bundledNative).isFile()) return false;
+    const identity = inspectExecutable(bundledNative);
+    if (identity?.platform !== 'darwin' || identity.arch !== expectedArch) return false;
+    if (!signedCheck(bundledNative)) return false;
+  }
+  const mirrorExempt = new Set([...ignoredPlaceholders, ...signedNatives.map(({ relative }) => relative)]);
+  const source = sourceInventory(sourceDir, sourceDir, [], mirrorExempt);
+  const bundled = sourceInventory(bundleDir, bundleDir, [], mirrorExempt);
   return source !== null && bundled !== null && JSON.stringify(bundled) === JSON.stringify(source);
 }
 
@@ -992,7 +1119,8 @@ function isNonEmpty(
   verifyCandidateCapabilitySeal = verifyCapabilitySeal,
   requiredWNanoRuntimes = [],
   wnanoAuthority = prepareWaylandNano,
-  wnanoPolicySelector = selectPolicy
+  wnanoPolicySelector = selectPolicy,
+  darwinSignedCheck = isDarwinDeveloperIdSigned
 ) {
   try {
     if (kind === 'constitution-fs-bundle' && targetPlatform === 'win32') {
@@ -1012,10 +1140,10 @@ function isNonEmpty(
     }
     if (!st.isDirectory()) return false;
     if (kind === 'wcore-bundle') {
-      return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority);
+      return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority, darwinSignedCheck);
     }
     if (kind === 'wnano-bundle') {
-      return verifyWNanoBundle(p, requiredWNanoRuntimes, wnanoAuthority, wnanoPolicySelector);
+      return verifyWNanoBundle(p, requiredWNanoRuntimes, wnanoAuthority, wnanoPolicySelector, darwinSignedCheck);
     }
     if (kind === 'officecli-bundle') {
       const entries = fs.readdirSync(p, { withFileTypes: true });
@@ -1101,7 +1229,7 @@ function isNonEmpty(
     if (kind === 'signal-bundle') return verifySignalBundle(p, targetPlatform, targetArch);
     if (kind === 'hub-bundle') return false;
     if (kind === 'whatsapp-bundle')
-      return verifySourceMirror(p, whatsappSourceDir, whatsappAuthority, targetPlatform, targetArch);
+      return verifySourceMirror(p, whatsappSourceDir, whatsappAuthority, targetPlatform, targetArch, darwinSignedCheck);
     return hasNonHiddenRegularFile(p);
   } catch {
     return false;
@@ -1124,6 +1252,7 @@ function verifyPackagedResources(options = {}) {
     ((binaryPath) => officeCliAuthority.verifyDarwinPublisherSignature(binaryPath));
   const constitutionFsAuthority = options.constitutionFsAuthority;
   const verifyConstitutionFsDarwinSignature = options.verifyConstitutionFsDarwinSignature;
+  const darwinSignedCheck = options.darwinSignedCheck || isDarwinDeveloperIdSigned;
   const verifyCandidateCapabilitySeal = options.verifyCapabilitySeal || verifyCapabilitySeal;
   const verifyDarwinPackageSignature =
     options.verifyDarwinPackageSignature ||
@@ -1260,7 +1389,8 @@ function verifyPackagedResources(options = {}) {
         verifyCandidateCapabilitySeal,
         requiredWNanoRuntimes,
         wnanoAuthority,
-        wnanoPolicySelector
+        wnanoPolicySelector,
+        darwinSignedCheck
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);

@@ -34,7 +34,10 @@ describe('prepareConstitutionFs', () => {
     expect(platformBinding).toBeGreaterThan(prepareCall);
     expect(prepareCall).toBeLessThan(build.indexOf('electron-vite build'));
     expect(builder).toContain('from: resources/bundled-constitution-fs');
-    expect(builder).toContain("'/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$'");
+    // The helper is ad-hoc signed upstream, so it must NOT be excluded from
+    // signing: Apple rejects an app containing it unsigned. It is signed during
+    // packaging and the packaged gate then requires our Developer ID on it.
+    expect(builder).not.toContain("'/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$'");
   });
 
   it('fails closed for a foreign target and removes stale helper bytes', () => {

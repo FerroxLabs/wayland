@@ -281,45 +281,48 @@ describe('prepareOfficeCli supply-chain contract', () => {
     expect(packageVerifier).toContain("rel: 'managed-cli-shims/officecli.cmd'");
   });
 
-  it('preserves the pinned publisher signature instead of applying Electron helper entitlements', () => {
+  it('excludes only nested binaries that upstream already Developer ID signs', () => {
     const builderConfig = parseYaml(fs.readFileSync(path.resolve('electron-builder.yml'), 'utf8')) as {
       mac?: { signIgnore?: string[] };
     };
     const signIgnore = builderConfig.mac?.signIgnore;
 
+    // Only bun and OfficeCLI arrive already signed by their own publisher
+    // (Jarred Sumner and AionUi Inc. respectively, both with a secure timestamp
+    // and the hardened runtime). Packaging preserves those signatures instead of
+    // replacing them with ours.
     expect(signIgnore).toEqual([
       '/Contents/Resources/bundled-bun/[^/]+/bun$',
-      '/Contents/Resources/whatsapp-bridge/node_modules/@img/sharp-(?:libvips-)?darwin-(?:arm64|x64)/.*(?:\\.node|\\.dylib)$',
-      '/Contents/Resources/whatsapp-bridge/node_modules/(?:bare-fs|bare-os|bare-url)/prebuilds/(?:darwin-(?:arm64|x64)|ios-(?:arm64|arm64-simulator|x64-simulator))/[^/]+\\.bare$',
       '/Contents/Resources/bundled-officecli/[^/]+/officecli$',
-      '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$',
-      '/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$',
-      '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$',
     ]);
-    // The bundled Nano runtime carries its own publisher signature and must be
-    // left alone, exactly like the engine and the authoring runtime beside it.
-    const nanoPath = '/tmp/Wayland.app/Contents/Resources/bundled-wayland-nano/darwin-arm64/wayland-nano';
-    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(nanoPath))).toBe(true);
-    const bunPath = '/tmp/Wayland.app/Contents/Resources/bundled-bun/darwin-arm64/bun';
-    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(bunPath))).toBe(true);
-    const whatsappNativePath =
-      '/tmp/Wayland.app/Contents/Resources/whatsapp-bridge/node_modules/@img/sharp-darwin-arm64/lib/sharp.node';
-    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(whatsappNativePath))).toBe(true);
-    const whatsappBarePath =
-      '/tmp/Wayland.app/Contents/Resources/whatsapp-bridge/node_modules/bare-fs/prebuilds/ios-arm64/bare-fs.bare';
-    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(whatsappBarePath))).toBe(true);
-    const whatsappAndroidBarePath =
-      '/tmp/Wayland.app/Contents/Resources/whatsapp-bridge/node_modules/bare-fs/prebuilds/android-arm64/bare-fs.bare';
-    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(whatsappAndroidBarePath))).toBe(false);
-    const whatsappJavascriptPath = '/tmp/Wayland.app/Contents/Resources/whatsapp-bridge/node_modules/axios/index.js';
-    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(whatsappJavascriptPath))).toBe(false);
-    const officeCliPath = '/tmp/Wayland.app/Contents/Resources/bundled-officecli/darwin-arm64/officecli';
-    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(officeCliPath))).toBe(true);
-    expect(signIgnore?.some((pattern) => new RegExp(pattern).test('/tmp/Wayland.app/Contents/MacOS/Wayland'))).toBe(
+
+    const matches = (candidate: string) => signIgnore?.some((pattern) => new RegExp(pattern).test(candidate)) ?? false;
+    const app = '/tmp/Wayland.app/Contents';
+
+    expect(matches(`${app}/Resources/bundled-bun/darwin-arm64/bun`)).toBe(true);
+    expect(matches(`${app}/Resources/bundled-officecli/darwin-arm64/officecli`)).toBe(true);
+
+    // Everything below is ad-hoc / linker-signed or unsigned upstream. Listing
+    // any of them here makes Apple reject the whole app as "Invalid" - that is
+    // exactly what blocked every 0.12.0 macOS notarization attempt, with these
+    // files named in the notary log. They must be signed by us instead.
+    expect(matches(`${app}/Resources/bundled-wayland-core/darwin-arm64/wayland-core`)).toBe(false);
+    expect(matches(`${app}/Resources/bundled-wayland-nano/darwin-arm64/wayland-nano`)).toBe(false);
+    expect(matches(`${app}/Resources/bundled-constitution-fs/darwin-arm64/wayland-constitution-fs`)).toBe(false);
+    expect(
+      matches(`${app}/Resources/whatsapp-bridge/node_modules/@img/sharp-darwin-arm64/lib/sharp-darwin-arm64.node`)
+    ).toBe(false);
+    expect(
+      matches(
+        `${app}/Resources/whatsapp-bridge/node_modules/@img/sharp-libvips-darwin-arm64/lib/libvips-cpp.8.17.3.dylib`
+      )
+    ).toBe(false);
+    expect(matches(`${app}/Resources/whatsapp-bridge/node_modules/bare-fs/prebuilds/darwin-arm64/bare-fs.bare`)).toBe(
       false
     );
-    expect(
-      signIgnore?.some((pattern) => new RegExp(pattern).test('/tmp/Wayland.app/Contents/Frameworks/Wayland Helper.app'))
-    ).toBe(false);
+
+    // The app itself and its helpers were never excluded and must stay signed.
+    expect(matches(`${app}/MacOS/Wayland`)).toBe(false);
+    expect(matches(`${app}/Frameworks/Wayland Helper.app`)).toBe(false);
   });
 });
