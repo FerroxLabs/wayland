@@ -362,7 +362,8 @@ function verifyWCoreRuntime(
   bundleDir,
   runtimeKey,
   authority = prepareWaylandCore,
-  signedCheck = isDarwinDeveloperIdSigned
+  signedCheck = isDarwinDeveloperIdSigned,
+  requireDarwinSignature = false
 ) {
   const [platform, arch] = runtimeKey.split('-');
   const binaryName = platform === 'win32' ? 'wayland-core.exe' : 'wayland-core';
@@ -440,8 +441,14 @@ function verifyWCoreRuntime(
     // The manifest is therefore not load-bearing for authenticity: it cannot be
     // edited into accepting bytes we did not sign for this exact release.
     actualBinarySha256 === manifestStagedSha256 &&
-    (manifestStagedSha256 === expected.binarySha256 ||
-      (platform === 'darwin' && signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256)))) &&
+    (platform === 'darwin' && requireDarwinSignature
+      ? // A release build must ship the SIGNED binary. Accepting the unsigned
+        // upstream bytes would mean shipping genuine code with no hardened
+        // runtime, and Apple would refuse to notarize it anyway.
+        signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256))
+      : manifestStagedSha256 === expected.binarySha256 ||
+        (platform === 'darwin' &&
+          signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256)))) &&
     JSON.stringify(metadata.files) === JSON.stringify([binaryName])
   );
 }
@@ -450,7 +457,8 @@ function verifyWCoreBundle(
   bundleDir,
   requiredRuntimes,
   authority = prepareWaylandCore,
-  signedCheck = isDarwinDeveloperIdSigned
+  signedCheck = isDarwinDeveloperIdSigned,
+  requireDarwinSignature = false
 ) {
   if (!fs.statSync(bundleDir).isDirectory()) return false;
   const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
@@ -460,7 +468,9 @@ function verifyWCoreBundle(
   }
   const packagedRuntimes = entries.map((entry) => entry.name).sort();
   if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
-  return packagedRuntimes.every((runtime) => verifyWCoreRuntime(bundleDir, runtime, authority, signedCheck));
+  return packagedRuntimes.every((runtime) =>
+    verifyWCoreRuntime(bundleDir, runtime, authority, signedCheck, requireDarwinSignature)
+  );
 }
 
 // Mirrors verifyWCoreRuntime for the bundled wayland-nano agent. The policy
@@ -472,7 +482,8 @@ function verifyWNanoRuntime(
   runtimeKey,
   authority = prepareWaylandNano,
   policySelector = selectPolicy,
-  signedCheck = isDarwinDeveloperIdSigned
+  signedCheck = isDarwinDeveloperIdSigned,
+  requireDarwinSignature = false
 ) {
   const [platform, arch] = runtimeKey.split('-');
   const binaryName = platform === 'win32' ? 'wayland-nano.exe' : 'wayland-nano';
@@ -542,8 +553,14 @@ function verifyWNanoRuntime(
     // the staged bytes are either the pinned upstream bytes or a macOS-signed
     // derivative of them.
     actualBinarySha256 === manifestStagedSha256 &&
-    (manifestStagedSha256 === expected.binarySha256 ||
-      (platform === 'darwin' && signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256)))) &&
+    (platform === 'darwin' && requireDarwinSignature
+      ? // A release build must ship the SIGNED binary. Accepting the unsigned
+        // upstream bytes would mean shipping genuine code with no hardened
+        // runtime, and Apple would refuse to notarize it anyway.
+        signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256))
+      : manifestStagedSha256 === expected.binarySha256 ||
+        (platform === 'darwin' &&
+          signedCheck(binaryPath, darwinSigningIdentifier(binaryName, expected.binarySha256)))) &&
     JSON.stringify(metadata.files) === JSON.stringify([binaryName])
   );
 }
@@ -553,7 +570,8 @@ function verifyWNanoBundle(
   requiredRuntimes,
   authority = prepareWaylandNano,
   policySelector = selectPolicy,
-  signedCheck = isDarwinDeveloperIdSigned
+  signedCheck = isDarwinDeveloperIdSigned,
+  requireDarwinSignature = false
 ) {
   if (!fs.statSync(bundleDir).isDirectory()) return false;
   const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
@@ -564,7 +582,7 @@ function verifyWNanoBundle(
   const packagedRuntimes = entries.map((entry) => entry.name).sort();
   if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
   return packagedRuntimes.every((runtime) =>
-    verifyWNanoRuntime(bundleDir, runtime, authority, policySelector, signedCheck)
+    verifyWNanoRuntime(bundleDir, runtime, authority, policySelector, signedCheck, requireDarwinSignature)
   );
 }
 
@@ -1042,7 +1060,8 @@ function isNonEmpty(
   requiredWNanoRuntimes = [],
   wnanoAuthority = prepareWaylandNano,
   wnanoPolicySelector = selectPolicy,
-  darwinSignedCheck = isDarwinDeveloperIdSigned
+  darwinSignedCheck = isDarwinDeveloperIdSigned,
+  requireDarwinSignature = false
 ) {
   try {
     if (kind === 'constitution-fs-bundle' && targetPlatform === 'win32') {
@@ -1062,10 +1081,17 @@ function isNonEmpty(
     }
     if (!st.isDirectory()) return false;
     if (kind === 'wcore-bundle') {
-      return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority, darwinSignedCheck);
+      return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority, darwinSignedCheck, requireDarwinSignature);
     }
     if (kind === 'wnano-bundle') {
-      return verifyWNanoBundle(p, requiredWNanoRuntimes, wnanoAuthority, wnanoPolicySelector, darwinSignedCheck);
+      return verifyWNanoBundle(
+        p,
+        requiredWNanoRuntimes,
+        wnanoAuthority,
+        wnanoPolicySelector,
+        darwinSignedCheck,
+        requireDarwinSignature
+      );
     }
     if (kind === 'officecli-bundle') {
       const entries = fs.readdirSync(p, { withFileTypes: true });
@@ -1143,7 +1169,8 @@ function isNonEmpty(
         targetPlatform,
         targetArch,
         constitutionFsAuthority,
-        verifyConstitutionFsDarwinSignature
+        verifyConstitutionFsDarwinSignature,
+        requireDarwinSignature
       );
     }
     if (kind === 'bun-bundle') return verifyBunBundle(p, targetPlatform, targetArch, bunAuthority);
@@ -1175,6 +1202,10 @@ function verifyPackagedResources(options = {}) {
   const constitutionFsAuthority = options.constitutionFsAuthority;
   const verifyConstitutionFsDarwinSignature = options.verifyConstitutionFsDarwinSignature;
   const darwinSignedCheck = options.darwinSignedCheck || isDarwinDeveloperIdSigned;
+  // Release builds must ship Developer ID signed nested binaries; an unsigned
+  // one cannot notarize, so accepting it here would only defer the failure.
+  // Local and PR builds have no signing identity and stay buildable.
+  const requireDarwinSignature = options.requireDarwinSignature ?? argv.includes('--require-darwin-signature');
   const verifyCandidateCapabilitySeal = options.verifyCapabilitySeal || verifyCapabilitySeal;
   const verifyDarwinPackageSignature =
     options.verifyDarwinPackageSignature ||
@@ -1312,7 +1343,8 @@ function verifyPackagedResources(options = {}) {
         requiredWNanoRuntimes,
         wnanoAuthority,
         wnanoPolicySelector,
-        darwinSignedCheck
+        darwinSignedCheck,
+        requireDarwinSignature
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);

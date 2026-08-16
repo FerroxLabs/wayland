@@ -367,7 +367,9 @@ function isMachOFile(filePath) {
       magic === 0xcefaedfe || // 32-bit, byte-swapped
       magic === 0xcffaedfe || // 64-bit, byte-swapped
       magic === 0xcafebabe || // universal ("fat")
-      magic === 0xbebafeca // universal, byte-swapped
+      magic === 0xbebafeca || // universal, byte-swapped
+      magic === 0xcafebabf || // universal 64-bit
+      magic === 0xbfbafeca // universal 64-bit, byte-swapped
     );
   } catch {
     return false;
@@ -382,19 +384,45 @@ function signWhatsAppBridgeNatives(nodeModules, options = {}) {
   if (!fs.existsSync(nodeModules)) return [];
   const sign = options.signDarwinStagedBinary || signDarwinStagedBinary;
   const identity = options.signIdentity === undefined ? resolveDarwinSigningIdentity() : options.signIdentity;
+  // Symlinks are followed rather than skipped, but only while they stay inside
+  // the bridge's node_modules. A package manager that links a native in from a
+  // shared store would otherwise leave it unsigned here while electron-builder
+  // happily resolves and packages it - reintroducing the exact rejection this
+  // is meant to prevent. Anything pointing outside the tree is left alone: it is
+  // not ours to mutate, and the source/bundle mirror rejects escaping links.
+  const root = fs.realpathSync(nodeModules);
+  const seen = new Set();
   const natives = [];
   const walk = (dir) => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const target = path.join(dir, entry.name);
-      if (entry.isSymbolicLink()) continue;
-      if (entry.isDirectory()) walk(target);
-      else if (entry.isFile() && isMachOFile(target)) natives.push(target);
+      let real;
+      try {
+        real = fs.realpathSync(target);
+      } catch {
+        continue; // broken link
+      }
+      if (real !== root && !real.startsWith(`${root}${path.sep}`)) continue;
+      if (seen.has(real)) continue;
+      let stat;
+      try {
+        stat = fs.statSync(real);
+      } catch {
+        continue;
+      }
+      if (stat.isDirectory()) {
+        seen.add(real);
+        walk(real);
+      } else if (stat.isFile() && isMachOFile(real)) {
+        seen.add(real);
+        natives.push(real);
+      }
     }
   };
-  walk(nodeModules);
+  walk(root);
   natives.sort();
   for (const native of natives) {
-    sign(native, { identity, label: path.relative(nodeModules, native) });
+    sign(native, { identity, label: path.relative(root, native) });
   }
   return natives;
 }
@@ -1180,6 +1208,14 @@ try {
       // verifier to require its ABSENCE (not its presence) while still enforcing
       // every other critical resource + signature check.
       ...(localVerificationBuild ? ['--allow-missing-seal'] : []),
+      // If this build had a Developer ID identity then every darwin nested
+      // binary was signed above, so the gate must REFUSE an unsigned one rather
+      // than fall back to accepting raw upstream bytes: unsigned means no
+      // hardened runtime and a guaranteed notarization rejection later. Builds
+      // with no identity (local, forks, PRs without secrets) stay buildable.
+      // The decision comes from the build environment, never from data inside
+      // the package, so it cannot be flipped by editing a manifest.
+      ...(packagePlatforms[0] === 'darwin' && resolveDarwinSigningIdentity() ? ['--require-darwin-signature'] : []),
     ],
     { stdio: 'inherit', env: process.env }
   );

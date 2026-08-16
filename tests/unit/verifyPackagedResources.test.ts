@@ -901,6 +901,26 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', { darwinSignedCheck: () => true })).not.toThrow();
   });
 
+  it('refuses unsigned darwin runtimes once the build had a signing identity', () => {
+    const out = createPackagedResources(true);
+    // Unsigned staging: staged bytes are the upstream bytes verbatim. That is
+    // fine for a local build, but a release that could sign and did not would
+    // ship without the hardened runtime and be rejected by Apple.
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        requireDarwinSignature: true,
+        darwinSignedCheck: () => false,
+      })
+    ).toThrow(/CRITICAL resource/);
+    // The same build passes once the binaries carry our signature.
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        requireDarwinSignature: true,
+        darwinSignedCheck: () => true,
+      })
+    ).not.toThrow();
+  });
+
   it('blocks a wayland-core manifest from the wrong release', () => {
     const out = createPackagedResources(true);
     const manifest = wcoreManifestPath(out);
