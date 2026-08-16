@@ -1073,13 +1073,17 @@ try {
   const wcoreRuntimeArgs = packagePlatforms
     .flatMap((platform) => packageArchitectures.map((arch) => `--wcore-runtime ${platform}-${arch}`))
     .join(' ');
-  const wnanoRuntimeArgs = packagePlatforms
-    .flatMap((platform) =>
-      packageArchitectures
-        .filter((arch) => prepareWaylandNano.isSupportedWNanoTarget(platform, arch))
-        .map((arch) => `--wnano-runtime ${platform}-${arch}`)
-    )
-    .join(' ');
+  const wnanoRuntimeKeys = packagePlatforms.flatMap((platform) =>
+    packageArchitectures
+      .filter((arch) => prepareWaylandNano.isSupportedWNanoTarget(platform, arch))
+      .map((arch) => `${platform}-${arch}`)
+  );
+  // A target with no published runtime says so explicitly. The verifier refuses to
+  // infer nano's target identity from a missing flag, and then requires the bundle
+  // to be genuinely absent.
+  const wnanoRuntimeArgs = (
+    wnanoRuntimeKeys.length ? wnanoRuntimeKeys.map((key) => `--wnano-runtime ${key}`) : ['--no-wnano-runtime']
+  ).join(' ');
   execFileSync(
     'node',
     [
