@@ -269,6 +269,56 @@ export class SqliteTeamRepository implements ITeamRepository {
     return merged;
   }
 
+  /**
+   * #980 - apply teammate STATUS changes only, atomically.
+   *
+   * `update` above is a whole-row read-modify-write: it re-writes every column
+   * from a `{...current, ...updates}` merge, so a caller that only wanted to
+   * touch `agents` still stamps `name`, `workspace`, `session_mode` and the rest
+   * from ITS snapshot. With a high-frequency status writer in the mix that turns
+   * every concurrent rename / session-mode / workspace / promote write into a
+   * lost update, and any roster field the status writer did not know about
+   * (`agentType` after `changeAgentBackend`) gets reverted.
+   *
+   * This method exists so status persistence can never do either. The read,
+   * merge and write happen inside ONE better-sqlite3 transaction, and the write
+   * touches only the `agents` and `updated_at` columns. Rows are matched by
+   * slotId, and every field except `status` is preserved from the row that is
+   * live at commit time - so a concurrent backend swap or rename survives.
+   *
+   * Unknown slotIds are ignored (the agent was removed mid-flight). Returns the
+   * committed team, or null when the team is gone.
+   */
+  async updateAgentStatuses(
+    id: string,
+    statuses: Array<{ slotId: string; status: TeamAgent['status'] }>
+  ): Promise<TTeam | null> {
+    if (statuses.length === 0) return this.findById(id);
+    const db = await this.getDb();
+    const wanted = new Map(statuses.map((s) => [s.slotId, s.status]));
+    const run = db.transaction((): TTeam | null => {
+      const row = db.prepare('SELECT * FROM teams WHERE id = ?').get(id) as TeamRow | undefined;
+      if (!row) return null;
+      const agents = JSON.parse(row.agents) as TeamAgent[];
+      let changed = false;
+      const merged = agents.map((agent) => {
+        const next = wanted.get(agent.slotId);
+        if (next === undefined || next === agent.status) return agent;
+        changed = true;
+        return { ...agent, status: next };
+      });
+      if (!changed) return rowToTeam(row);
+      const updatedAt = Date.now();
+      db.prepare('UPDATE teams SET agents = ?, updated_at = ? WHERE id = ?').run(
+        JSON.stringify(merged),
+        updatedAt,
+        id
+      );
+      return { ...rowToTeam(row), agents: merged, updatedAt };
+    });
+    return run();
+  }
+
   async delete(id: string): Promise<void> {
     const db = await this.getDb();
     db.prepare('DELETE FROM teams WHERE id = ?').run(id);

@@ -2328,38 +2328,37 @@ describe('TeammateManager status lifecycle (#983 / #980)', () => {
   // #980 defect 1: setStatus wrote the in-memory array only. `TeamAgent.status`
   // is persisted in `teams.agents`, so the DB copy went stale on every change.
   it('#980: persists the roster on every status transition', async () => {
-    const onAgentsChanged = vi.fn();
-    const { mgr, workerTaskManager } = makeTeammateManager(makeTeam(), { onAgentsChanged });
+    const onAgentStatusesChanged = vi.fn();
+    const { mgr, workerTaskManager } = makeTeammateManager(makeTeam(), { onAgentStatusesChanged });
     vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
       sendMessage: vi.fn().mockResolvedValue(undefined),
     } as never);
 
     await mgr.wake('slot-member');
 
-    expect(onAgentsChanged).toHaveBeenCalled();
-    const [teamId, agents] = onAgentsChanged.mock.calls.at(-1)!;
+    expect(onAgentStatusesChanged).toHaveBeenCalled();
+    const [teamId, statuses] = onAgentStatusesChanged.mock.calls.at(-1)!;
     expect(teamId).toBe('team-1');
-    expect(agents.find((a: TeamAgent) => a.slotId === 'slot-member')?.status).toBe('active');
+    expect(statuses).toEqual([{ slotId: 'slot-member', status: 'active' }]);
 
     mgr.dispose();
   });
 
   // #980 defect 1: nothing reconciled the persisted status after a restart.
   it('#980: reconciles a persisted `active` (process died mid-turn) back to pending on load', () => {
-    const onAgentsChanged = vi.fn();
+    const onAgentStatusesChanged = vi.fn();
     const stale = [
       makeAgent({ slotId: 'slot-lead', conversationId: 'conv-lead', role: 'leader', status: 'idle' }),
       makeAgent({ slotId: 'slot-member', conversationId: 'conv-member', role: 'teammate', status: 'active' }),
     ];
-    const { mgr } = makeTeammateManager(stale, { onAgentsChanged });
+    const { mgr } = makeTeammateManager(stale, { onAgentStatusesChanged });
     mgr.reconcilePersistedStatuses();
 
     expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('pending');
     // ...and the reconciliation is written back, so the DB stops disagreeing.
-    expect(onAgentsChanged).toHaveBeenCalledWith(
-      'team-1',
-      expect.arrayContaining([expect.objectContaining({ slotId: 'slot-member', status: 'pending' })])
-    );
+    expect(onAgentStatusesChanged).toHaveBeenCalledWith('team-1', [
+      { slotId: 'slot-member', status: 'pending' },
+    ]);
 
     mgr.dispose();
   });
@@ -2476,16 +2475,14 @@ describe('TeammateManager status lifecycle (#983 / #980)', () => {
   // killing the process. The live roster has to agree, or the two views diverge
   // until the next wake - the same class of bug this issue is about.
   it("#980: killAgentProcess leaves the slot at pending in the live roster", () => {
-    const onAgentsChanged = vi.fn();
-    const { mgr } = makeTeammateManager(makeTeam(), { onAgentsChanged });
+    const onAgentStatusesChanged = vi.fn();
+    const { mgr } = makeTeammateManager(makeTeam(), { onAgentStatusesChanged });
 
     mgr.setStatus("slot-member", "failed");
     mgr.killAgentProcess("slot-member");
 
     expect(mgr.getAgents().find((a) => a.slotId === "slot-member")?.status).toBe("pending");
-    expect(onAgentsChanged.mock.calls.at(-1)![1].find((a: TeamAgent) => a.slotId === "slot-member").status).toBe(
-      "pending"
-    );
+    expect(onAgentStatusesChanged.mock.calls.at(-1)![1]).toEqual([{ slotId: "slot-member", status: "pending" }]);
 
     mgr.dispose();
   });
@@ -2514,5 +2511,113 @@ describe('TeammateManager status lifecycle (#983 / #980)', () => {
     );
 
     mgr.dispose();
+  });
+
+  // -------------------------------------------------------------------------
+  // Audit follow-ups: F2 (stale wake ownership) and F5 (hard failure grant)
+  // -------------------------------------------------------------------------
+
+  // #983/F2: releasing the wake lock when the watchdog fires (so a wedged member
+  // is restartable at all) made a SECOND concurrent wake reachable. wake#1's send
+  // can still be pending inside sendMessage while wake#2 is live; when it finally
+  // rejects, its tail used to disarm wake#2's watchdog and mark the healthy turn
+  // failed - the original #983 symptom, one wake later.
+  it('F2: a stale wake settling late must not disarm or fail the live wake', async () => {
+    vi.useFakeTimers();
+    try {
+      let rejectFirst: ((reason: Error) => void) | undefined;
+      const firstSend = new Promise<void>((_resolve, reject) => {
+        rejectFirst = reject;
+      });
+      const sendMessage = vi
+        .fn()
+        .mockReturnValueOnce(firstSend)
+        .mockReturnValue(new Promise<void>(() => {}));
+      const { mgr, workerTaskManager } = makeTeammateManager(makeTeam());
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage } as never);
+
+      // wake#1 hangs; the watchdog gives up on it and frees the lock.
+      void mgr.wake('slot-member').catch(() => {});
+      await vi.advanceTimersByTimeAsync(1);
+      await vi.advanceTimersByTimeAsync(181_000);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+      expect(mgr.isWakeActive('slot-member')).toBe(false);
+
+      // wake#2 starts and is healthy.
+      void mgr.wake('slot-member').catch(() => {});
+      await vi.advanceTimersByTimeAsync(1);
+      // Two sends for THIS member (the stall also woke the leader, which sends too).
+      const memberSends = vi
+        .mocked(workerTaskManager.getOrBuildTask)
+        .mock.calls.filter(([conversationId]) => conversationId === 'conv-member');
+      expect(memberSends).toHaveLength(2);
+      expect(sendMessage).toHaveBeenCalled();
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+
+      // wake#1's send finally blows up, long after it was abandoned.
+      rejectFirst!(new Error('fork task child exited before responding'));
+      await vi.advanceTimersByTimeAsync(1);
+
+      // wake#2 is untouched: still active, still guarded.
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+      expect(mgr.isWakeActive('slot-member')).toBe(true);
+
+      // And its watchdog is still armed, so a real stall is still caught.
+      await vi.advanceTimersByTimeAsync(181_000);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+      mgr.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  // #983/F5: a slot soft-failed by the watchdog keeps its recovery grant. If the
+  // send then rejects (a HARD failure) the catch marks it failed but used to
+  // leave the grant behind, so a later finish/error frame sailed through
+  // finalizeTurn and advertised a dead member to the leader as idle.
+  it('F5: a hard send failure drops the soft-recovery grant', async () => {
+    vi.useFakeTimers();
+    try {
+      let rejectSend: ((reason: Error) => void) | undefined;
+      const send = new Promise<void>((_resolve, reject) => {
+        rejectSend = reject;
+      });
+      const { mgr, workerTaskManager } = makeTeammateManager(makeTeam());
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
+        sendMessage: vi.fn().mockReturnValue(send),
+      } as never);
+
+      const wake = mgr.wake('slot-member');
+      void wake.catch(() => {});
+      await vi.advanceTimersByTimeAsync(1);
+
+      // Watchdog fires first: soft failure, recovery granted.
+      await vi.advanceTimersByTimeAsync(181_000);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+      // Re-wake so this send owns the slot again, then have it hard-fail.
+      const wake2 = mgr.wake('slot-member');
+      void wake2.catch(() => {});
+      await vi.advanceTimersByTimeAsync(1);
+      rejectSend!(new Error('fork task child exited before responding'));
+      await vi.advanceTimersByTimeAsync(1);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+      // A stray terminal frame must NOT resurrect a dead member as idle.
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-member',
+        msg_id: 'late-finish',
+        data: {},
+      });
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+      mgr.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

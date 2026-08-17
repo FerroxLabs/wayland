@@ -55,12 +55,14 @@ type TeammateManagerParams = {
   /** Called after an agent is removed from in-memory list, so the caller can persist the change (e.g. update DB) */
   onAgentRemoved?: (teamId: string, agents: TeamAgent[]) => void;
   /**
-   * #980 - called whenever the roster's persisted shape changes for a reason
-   * other than removal (status transitions, load-time reconciliation) so the
-   * owner can write it back. Absent (standalone / existing tests) means status
+   * #980 - called with the slots whose STATUS changed, so the owner can write
+   * just that back. Deliberately not the whole roster: this manager only ever
+   * owns `status`, and handing over its full `agents` array would let a stale
+   * snapshot revert fields another writer owns (notably `agentType` after
+   * `changeAgentBackend`). Absent (standalone / existing tests) means status
    * stays in memory, exactly as before.
    */
-  onAgentsChanged?: (teamId: string, agents: TeamAgent[]) => void;
+  onAgentStatusesChanged?: (teamId: string, statuses: Array<{ slotId: string; status: TeammateStatus }>) => void;
   /**
    * W1e - optional team_event_log writer. When present, `wake()` logs a
    * `'wake'` event on completion and `acp_context_usage` stream messages
@@ -109,8 +111,11 @@ export class TeammateManager extends EventEmitter {
   private readonly mailbox: Mailbox;
   private readonly workerTaskManager: IWorkerTaskManager;
   private readonly onAgentRemovedFn?: (teamId: string, agents: TeamAgent[]) => void;
-  /** #980 - persists roster changes that are not removals (status, reconciliation). */
-  private readonly onAgentsChangedFn?: (teamId: string, agents: TeamAgent[]) => void;
+  /** #980 - persists STATUS-ONLY roster changes (transitions, reconciliation). */
+  private readonly onAgentStatusesChangedFn?: (
+    teamId: string,
+    statuses: Array<{ slotId: string; status: TeammateStatus }>
+  ) => void;
   /** Shared team workspace path (leader's working directory) */
   private readonly teamWorkspace: string | undefined;
   /** W4c - when true, wrap outgoing role prompts as imported untrusted content */
@@ -126,6 +131,21 @@ export class TeammateManager extends EventEmitter {
 
   /** Tracks which slotIds currently have an in-progress wake to avoid loops */
   private readonly activeWakes = new Set<string>();
+  /**
+   * #983 - per-slot generation token identifying the CURRENT wake.
+   *
+   * The wake lock used to be held until the send resolved, which made a second
+   * concurrent wake impossible - so `wake()`'s tail could safely assume the slot
+   * state it mutated was its own. Releasing the lock when the inactivity
+   * watchdog fires (so a wedged member is restartable at all) breaks that
+   * assumption: wake#1 can still be pending inside `sendMessage` while wake#2 is
+   * live. Without this token, wake#1's late rejection would disarm wake#2's
+   * watchdog and mark a healthy turn failed - the original #983 symptom,
+   * reintroduced one wake later. Every mutation in the post-send tail is now
+   * gated on still owning the generation.
+   */
+  private readonly wakeGeneration = new Map<string, number>();
+  private nextWakeId = 0;
   /**
    * #980 - slots flipped to `failed` by a SOFT cause (inactivity watchdog, 429)
    * where the CLI process was never killed and may still be alive.
@@ -219,7 +239,7 @@ export class TeammateManager extends EventEmitter {
     this.mailbox = params.mailbox;
     this.workerTaskManager = params.workerTaskManager;
     this.onAgentRemovedFn = params.onAgentRemoved;
-    this.onAgentsChangedFn = params.onAgentsChanged;
+    this.onAgentStatusesChangedFn = params.onAgentStatusesChanged;
     this.teamWorkspace = params.teamWorkspace;
     this.isSandboxed = params.isSandboxed === true;
     this.isImported = params.isImported === true;
@@ -305,6 +325,7 @@ export class TeammateManager extends EventEmitter {
 
     this.clearWakeTimeout(slotId);
     this.activeWakes.delete(slotId);
+    this.retireWake(slotId);
     // #980: the process is gone; nothing can recover on its own from here.
     this.recoverableFailures.delete(slotId);
     // #980: both callers (restartAgent / changeAgentBackend) write `pending` to
@@ -316,6 +337,20 @@ export class TeammateManager extends EventEmitter {
   /** True when a wake is currently in flight for the given slot. */
   isWakeActive(slotId: string): boolean {
     return this.activeWakes.has(slotId);
+  }
+
+  /**
+   * #983 - true while `wakeId` is still the live wake for this slot. False once
+   * the watchdog gave up on it, the process was killed, or a newer wake started.
+   * A stale wake must never mutate slot state it no longer owns.
+   */
+  private ownsWake(slotId: string, wakeId: number): boolean {
+    return this.wakeGeneration.get(slotId) === wakeId;
+  }
+
+  /** #983 - retire the current wake generation so its late settlement is inert. */
+  private retireWake(slotId: string): void {
+    this.wakeGeneration.delete(slotId);
   }
 
   /**
@@ -337,6 +372,9 @@ export class TeammateManager extends EventEmitter {
     // W1e: capture wall-clock duration of the wake for the event log
     const wakeStart = Date.now();
     this.activeWakes.add(slotId);
+    // #983: claim this wake's generation. Everything after the send checks it.
+    const wakeId = ++this.nextWakeId;
+    this.wakeGeneration.set(slotId, wakeId);
     // P2: stamp the durable lease on this slot's in_progress tasks using the
     // same wall-clock the wake/timeout code uses. Fire-and-forget so lease
     // persistence never blocks the wake dispatch.
@@ -519,6 +557,16 @@ export class TeammateManager extends EventEmitter {
 
       await agentTask.sendMessage(messageData);
 
+      // #983: this send may have outlived its own wake - the watchdog can have
+      // declared it stalled and a fresh wake can already be streaming. Touching
+      // slot state here would then disarm the LIVE wake's watchdog. The event
+      // log still records what happened; only the state mutations are gated.
+      if (!this.ownsWake(slotId, wakeId)) {
+        this.logWakeEvent(slotId, wakeStart, true, { superseded: true });
+        return;
+      }
+      this.retireWake(slotId);
+
       // Release wake lock immediately after message is sent.
       // finalizeTurn will also delete it (safe no-op). This prevents permanent
       // deadlock when finish events are lost or finalizeTurn never fires.
@@ -531,10 +579,24 @@ export class TeammateManager extends EventEmitter {
       });
     } catch (error) {
       console.error(`[TeammateManager] wake(${slotId}) failed:`, error);
+      // #983: same guard as the success path. A stale send that finally rejects
+      // must not clear the live wake's watchdog or mark a healthy turn failed.
+      if (!this.ownsWake(slotId, wakeId)) {
+        this.logWakeEvent(slotId, wakeStart, false, {
+          superseded: true,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
+      this.retireWake(slotId);
       // The watchdog is armed before the send now, so a rejected send must
       // disarm it - otherwise it lingers for the full budget on a slot that
       // already reported its failure.
       this.clearWakeTimeout(slotId);
+      // #983/F5: this is a HARD failure - the send itself blew up. Drop any soft
+      // recovery grant, or a later finish/error frame would sail through
+      // finalizeTurn and advertise a dead member to the leader as idle.
+      this.recoverableFailures.delete(slotId);
       this.setStatus(slotId, 'failed');
       this.activeWakes.delete(slotId);
       this.logWakeEvent(slotId, wakeStart, false, {
@@ -558,14 +620,19 @@ export class TeammateManager extends EventEmitter {
    */
   setStatus(slotId: string, status: TeammateStatus, lastMessage?: string): void {
     this.agents = this.agents.map((a) => (a.slotId === slotId ? { ...a, status } : a));
-    this.persistAgents();
+    this.persistStatuses([{ slotId, status }]);
     ipcBridge.team.agentStatusChanged.emit({ teamId: this.teamId, slotId, status, lastMessage });
     this.emit('agentStatusChanged', { teamId: this.teamId, slotId, status, lastMessage });
   }
 
-  /** #980 - hand the current roster to the owner so it lands in the DB. No-op standalone. */
-  private persistAgents(): void {
-    this.onAgentsChangedFn?.(this.teamId, this.getAgents());
+  /**
+   * #980 - hand the changed slots' status to the owner so it lands in the DB.
+   * No-op standalone. Status only, never the whole roster - see
+   * {@link TeammateManagerParams.onAgentStatusesChanged}.
+   */
+  private persistStatuses(statuses: Array<{ slotId: string; status: TeammateStatus }>): void {
+    if (statuses.length === 0) return;
+    this.onAgentStatusesChangedFn?.(this.teamId, statuses);
   }
 
   /**
@@ -582,14 +649,14 @@ export class TeammateManager extends EventEmitter {
    * be a different bug. Only the DB load path (TeamSession) may call this.
    */
   reconcilePersistedStatuses(): void {
-    let changed = false;
+    const reconciled: Array<{ slotId: string; status: TeammateStatus }> = [];
     this.agents = this.agents.map((agent) => {
       if (agent.status !== 'active') return agent;
-      changed = true;
+      reconciled.push({ slotId: agent.slotId, status: 'pending' });
       return { ...agent, status: 'pending' as const };
     });
     // Write it back so the DB stops disagreeing with us.
-    if (changed) this.persistAgents();
+    this.persistStatuses(reconciled);
   }
 
   /** Clean up all IPC listeners, timers, and EventEmitter handlers */
@@ -600,6 +667,7 @@ export class TeammateManager extends EventEmitter {
     }
     this.wakeTimeouts.clear();
     this.activeWakes.clear();
+    this.wakeGeneration.clear();
     this.recoverableFailures.clear();
     this.tokenUsageBaselines.clear();
     // W5 audit HIGH-2 fix (2026-05-19): drain ACP team-context registry
@@ -859,6 +927,9 @@ export class TeammateManager extends EventEmitter {
     // making TeamSessionService.restartAgent refuse with "Cannot restart while
     // wake in progress". That left a stuck member with no escape hatch at all.
     this.activeWakes.delete(agent.slotId);
+    // #983: retire the wake generation too. The send we gave up on may still
+    // settle later; once retired it can no longer touch this slot's state.
+    this.retireWake(agent.slotId);
     // The process was not killed; if it wakes up and streams, let it recover.
     this.recoverableFailures.add(agent.slotId);
     this.setStatus(agent.slotId, 'failed', reason);
@@ -1124,6 +1195,9 @@ export class TeammateManager extends EventEmitter {
     // soft-failure recovery grant so a straggler stream frame cannot flip this
     // slot back to `active` after its process is gone.
     this.recoverableFailures.delete(agent.slotId);
+    // #983: the in-flight send died with the process; retire its generation so
+    // its rejection cannot overwrite the `failed` status set below.
+    this.retireWake(agent.slotId);
 
     // Leader crash: mark as failed so the frontend shows the error, but never auto-remove.
     if (agent.role === 'leader') {
@@ -1227,6 +1301,7 @@ export class TeammateManager extends EventEmitter {
     // Cancel any pending wake timeout
     this.clearWakeTimeout(slotId);
     this.activeWakes.delete(slotId);
+    this.retireWake(slotId);
     this.recoverableFailures.delete(slotId);
 
     // Clean up owned conversation tracking

@@ -1,5 +1,5 @@
 // tests/unit/team-SqliteTeamRepository.test.ts
-import { it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { CURRENT_DB_VERSION, initSchema } from '@process/services/database/schema';
 import { runMigrations } from '@process/services/database/migrations';
 import { BetterSqlite3Driver } from '@process/services/database/drivers/BetterSqlite3Driver';
@@ -376,6 +376,80 @@ describeNativeSqlite('SqliteTeamRepository', () => {
 
       const stale = await repo.findStaleVerifyingTasks(NOW, 300_000);
       expect(stale.map((t) => t.id)).toEqual(['old']);
+    });
+  });
+
+  // #980/F1: teammate status is persisted inside the `agents` JSON blob, and the
+  // generic `update` is a whole-row read-modify-write from the CALLER's snapshot.
+  // Persisting status through it let a stale roster revert fields the status
+  // writer never owned (changeAgentBackend's `agentType`) and clobber concurrent
+  // name / sessionMode / workspace writes. `updateAgentStatuses` exists so that
+  // is structurally impossible.
+  describe('updateAgentStatuses (#980)', () => {
+    const twoAgents = () =>
+      makeTeam({
+        agents: [
+          makeTeam().agents[0],
+          {
+            slotId: 'slot-2',
+            conversationId: 'conv-2',
+            role: 'teammate' as const,
+            agentType: 'gemini',
+            agentName: 'Worker',
+            conversationType: 'gemini',
+            status: 'idle' as const,
+          },
+        ],
+      });
+
+    it('changes only the named slots\' status', async () => {
+      await repo.create(twoAgents());
+
+      await repo.updateAgentStatuses('team-1', [{ slotId: 'slot-2', status: 'active' }]);
+
+      const after = await repo.findById('team-1');
+      expect(after!.agents.find((a) => a.slotId === 'slot-2')!.status).toBe('active');
+      expect(after!.agents.find((a) => a.slotId === 'slot-1')!.status).toBe('idle');
+    });
+
+    it('F1: preserves a concurrent agentType swap instead of reverting it', async () => {
+      await repo.create(twoAgents());
+
+      // Someone else swaps the backend (changeAgentBackend) after our snapshot.
+      const live = await repo.findById('team-1');
+      await repo.update('team-1', {
+        agents: live!.agents.map((a) => (a.slotId === 'slot-2' ? { ...a, agentType: 'claude' } : a)),
+        updatedAt: Date.now(),
+      });
+
+      // Now a status write lands. It must not carry the backend back.
+      await repo.updateAgentStatuses('team-1', [{ slotId: 'slot-2', status: 'failed' }]);
+
+      const after = await repo.findById('team-1');
+      expect(after!.agents.find((a) => a.slotId === 'slot-2')!.agentType).toBe('claude');
+      expect(after!.agents.find((a) => a.slotId === 'slot-2')!.status).toBe('failed');
+    });
+
+    it('F1: leaves non-agent columns alone, so a concurrent rename survives', async () => {
+      await repo.create(twoAgents());
+      await repo.update('team-1', { name: 'Renamed Team', sessionMode: 'plan', updatedAt: Date.now() });
+
+      await repo.updateAgentStatuses('team-1', [{ slotId: 'slot-1', status: 'active' }]);
+
+      const after = await repo.findById('team-1');
+      expect(after!.name).toBe('Renamed Team');
+      expect(after!.sessionMode).toBe('plan');
+      expect(after!.agents.find((a) => a.slotId === 'slot-1')!.status).toBe('active');
+    });
+
+    it('ignores unknown slots and missing teams', async () => {
+      await repo.create(twoAgents());
+
+      await repo.updateAgentStatuses('team-1', [{ slotId: 'slot-gone', status: 'failed' }]);
+      const after = await repo.findById('team-1');
+      expect(after!.agents.map((a) => a.status)).toEqual(['idle', 'idle']);
+
+      expect(await repo.updateAgentStatuses('no-such-team', [{ slotId: 'slot-1', status: 'idle' }])).toBeNull();
     });
   });
 });

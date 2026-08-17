@@ -86,8 +86,14 @@ export class TeamSession extends EventEmitter {
       // #980: teammate status is a persisted field of `teams.agents`. Without
       // this the DB copy went stale the moment an agent changed state, so the
       // roster TeamSessionService reads back disagreed with the live manager.
-      onAgentsChanged: (teamId, agents) => {
-        void this.repo.update(teamId, { agents, updatedAt: Date.now() }).catch((error) => {
+      //
+      // Routed through `updateAgentStatuses`, NOT `update`: the generic update
+      // re-writes the whole row from the caller's snapshot, so persisting the
+      // manager's roster would revert any field the manager does not own -
+      // `changeAgentBackend`'s `agentType` swap was silently lost this way - and
+      // would clobber concurrent rename / session-mode / workspace writes.
+      onAgentStatusesChanged: (teamId, statuses) => {
+        void this.repo.updateAgentStatuses(teamId, statuses).catch((error) => {
           console.warn(
             `[TeamSession] Failed to persist agent status for team ${teamId}:`,
             error instanceof Error ? error.message : String(error)
