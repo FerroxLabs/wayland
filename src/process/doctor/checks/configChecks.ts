@@ -86,6 +86,11 @@ export async function checkEngineConfigIntegrity(
     // scrubs. Scrub again anyway: every future caller of this check inherits the
     // copy-to-support blast radius, and a defence that depends on the injection
     // being the right one is not a defence. `redactSecrets` is idempotent.
+    //
+    // This is a BACKSTOP, not the fix. The fix is the producer DROPPING the
+    // echoed source block (`probeEngineConfig`): `redactSecrets` misses the
+    // prefixed label spelling `ANTHROPIC_API_KEY=<value>` entirely (#1026), so a
+    // scrub over an unstripped parse error would still leak.
     const reason = redactSecrets(result.message);
     const position = describePosition(result);
     return {

@@ -15,6 +15,15 @@
  *
  * The engine-`config.toml` sink - the advisory's primary defect - is covered
  * separately and in more depth by `engineConfigParseErrorRedaction.test.ts`.
+ *
+ * SCOPE OF WHAT THESE PROVE: the sinks below are free-form text with no
+ * structure to strip, so `redactSecrets` is all they have, and it is best-effort.
+ * Every secret used here carries a recognisable VALUE prefix (`sk-ant-`, a JWT
+ * `eyJ` header), which is the rule that masks them. The scrubber's LABEL rule
+ * misses the prefixed spelling `ANTHROPIC_API_KEY=<prefixless value>` (#1026,
+ * owned elsewhere), so these tests must not be read as proving those sinks
+ * cannot leak - only that they no longer pass recognisable secrets straight
+ * through, which is what they previously did.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -70,6 +79,9 @@ describe('MCP check — the probe error is free-form text from a credential-carr
     const result = await checkMcpServers({
       listServers: async () => [server('custom')],
       testConnection: async () => ({
+        // Masked on the strength of the `sk-ant-` VALUE prefix. The
+        // `ANTHROPIC_API_KEY=` label itself does not trigger the scrubber's
+        // label rule (#1026) - that is why the value's shape matters here.
         success: false,
         error: `spawn failed: ANTHROPIC_API_KEY=${API_KEY} node ./server.js`,
       }),

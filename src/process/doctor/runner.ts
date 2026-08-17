@@ -59,7 +59,9 @@ async function runOne(check: DoctorCheck, timeoutMs: number): Promise<DoctorChec
       // unanticipated credential-bearing error message could reach a Doctor
       // report (which has a "Copy report" button). Scrub unconditionally -
       // nothing here knows which check threw or what it was reading
-      // (GHSA-2g2m-r86j-jg6h).
+      // (GHSA-2g2m-r86j-jg6h). A backstop, not a guarantee: `redactSecrets`
+      // misses the prefixed label form (#1026), so a check that can name a
+      // credential-bearing source must still sanitise at its own producer.
       const message = redactSecrets(error instanceof Error ? error.message : String(error));
       return {
         ...base,

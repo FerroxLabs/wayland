@@ -132,7 +132,10 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
       // the OAuth bearer `McpService.attachOAuthToken` adds), so a 401 body or an
       // stderr echo can hand a credential straight into a Doctor report that
       // exists to be copied to support - the same class of exposure as
-      // GHSA-2g2m-r86j-jg6h. Scrub before it reaches the detail.
+      // GHSA-2g2m-r86j-jg6h. Scrub before it reaches the detail. Best-effort
+      // only - `redactSecrets` matches known value prefixes and a labelled
+      // assignment, and misses the prefixed label form (#1026); there is no
+      // structure in free-form probe output to strip instead.
       errored.push(`${server.name}${result.error ? ` (${redactSecrets(result.error)})` : ''}`);
     }
   }

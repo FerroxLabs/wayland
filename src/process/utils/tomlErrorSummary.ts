@@ -35,6 +35,15 @@
  *     line carrying no file content is a property of the current parser, not a
  *     contract, and the scrub costs nothing on a one-line string.
  *
+ * Layer 1 is the defence. Layer 2 is a BACKSTOP and it is known to be
+ * incomplete: `redactSecrets` masks recognisable value prefixes plus a labelled
+ * assignment, and its label rule anchors a word boundary before the label, so
+ * the prefixed spelling that is actually common in the wild
+ * (`ANTHROPIC_API_KEY=<value>`, `my_api_key = "<value>"`) survives whenever the
+ * VALUE itself carries no recognisable prefix - issue #1026, confirmed by
+ * execution. Do not weaken layer 1 on the strength of layer 2, and do not read
+ * a passing scrubber assertion as proof a path is safe.
+ *
  * Discovered originally by the K-01 4-leg cross-audit (Gemini 3.1 Pro leg) and
  * confirmed by executing the parser against a key-bearing malformed line.
  */

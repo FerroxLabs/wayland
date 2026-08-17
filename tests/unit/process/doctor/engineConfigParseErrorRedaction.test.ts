@@ -96,9 +96,12 @@ describe('engine config parse errors (GHSA-2g2m-r86j-jg6h)', () => {
 
   it('drops the echoed source block entirely, not just the credential in it', async () => {
     const result = await doctorOutcome();
-    // Masking the key but keeping the echoed lines would still hand out the
-    // user's config: `base_url`, the `[security]` backend, whatever else the
-    // parser chose to quote. The whole block goes.
+    // This is the assertion that actually carries the fix, and it holds WITHOUT
+    // relying on `redactSecrets`. Masking alone is not enough on two counts:
+    // the echoed lines would still hand out the rest of the user's config
+    // (`base_url`, the `[security]` backend, whatever else the parser quoted),
+    // and the scrubber misses the prefixed label form `ANTHROPIC_API_KEY=<value>`
+    // outright (#1026). The whole block goes.
     expect(result.detail).not.toContain('api_key');
     expect(result.detail).not.toContain('base_url');
     expect(result.detail).not.toContain('\n');
