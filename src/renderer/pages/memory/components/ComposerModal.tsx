@@ -118,14 +118,31 @@ export function ComposerModal({
 
   // ESC already handled by Arco Modal's closable / onCancel - no extra listener needed.
 
+  // #924: the Memory page keys its project filter on BASENAME, and this modal
+  // turns that name into a WRITE destination. Two indexed projects can share a
+  // basename (`~/dev/one/app` and `~/dev/two/app` are both "app"), and a bare
+  // "app" then names an ambiguous place while the write always resolves to
+  // whichever came first. Qualify a colliding name with its parent directory so
+  // the label identifies exactly one project. Paths are compared as strings -
+  // the renderer has no `path` module - and both separators are handled because
+  // the same list is built from Windows paths too.
+  const basenameCounts = new Map<string, number>();
+  for (const p of projects) basenameCounts.set(p.basename, (basenameCounts.get(p.basename) ?? 0) + 1);
+  const labelFor = (p: { path: string; basename: string }): string => {
+    if ((basenameCounts.get(p.basename) ?? 0) < 2) return p.basename;
+    const parent = p.path.split(/[/\\]/).filter(Boolean).at(-2);
+    return parent ? `${p.basename} (${parent})` : p.path;
+  };
+
   // #924: name the destination the save will actually reach. Main is the
   // authority - it refuses a project-scoped save it cannot place rather than
   // redirecting it to the global brain - so the renderer's job is to pick the
   // project explicitly and show which one, never to re-decide the scope.
+  const selectedProject = projects.find((p) => p.path === projectPath);
   const destinationName =
     scope === 'global'
       ? t('archive.composer.destGlobal', 'Global memory (every chat)')
-      : (projects.find((p) => p.path === projectPath)?.basename ?? '');
+      : (selectedProject && labelFor(selectedProject)) || '';
 
   // ---- Submit ----
   const handleSubmit = useCallback(async () => {
@@ -356,7 +373,7 @@ export function ComposerModal({
             >
               {projects.map((p) => (
                 <option key={p.path} value={p.path}>
-                  {p.basename}
+                  {labelFor(p)}
                 </option>
               ))}
             </select>

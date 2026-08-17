@@ -369,4 +369,32 @@ describe('#924 F1: project-scoped save through the real /memory renderer path', 
     });
     expect((await screen.findByTestId('composer-error')).textContent).toContain('disk full');
   });
+
+  /**
+   * The Memory page's project filter is keyed on BASENAME, and this modal turns
+   * that name into a write destination. Two indexed projects can share one, and
+   * the write silently resolves to whichever came first - so the label has to
+   * identify exactly one project.
+   */
+  it('disambiguates the destination when two indexed projects share a basename', async () => {
+    mockMemory.getProjects.invoke.mockResolvedValue([
+      { path: '/dev/one/app', basename: 'app', count: 3, lastActive: Date.now() },
+      { path: '/dev/two/app', basename: 'app', count: 1, lastActive: Date.now() - 1000 },
+    ]);
+    await openComposer();
+
+    const picker = screen.getByTestId('composer-project-picker') as HTMLSelectElement;
+    const labels = Array.from(picker.options).map((o) => o.textContent);
+    expect(new Set(labels).size).toBe(2);
+    expect(labels).toEqual(['app (one)', 'app (two)']);
+    expect(screen.getByTestId('composer-destination').textContent).toContain('app (one)');
+
+    // Control: a basename that does NOT collide keeps its plain name.
+    cleanup();
+    mockMemory.getProjects.invoke.mockResolvedValue(MOCK_PROJECTS);
+    await openComposer();
+    expect(
+      Array.from((screen.getByTestId('composer-project-picker') as HTMLSelectElement).options).map((o) => o.textContent)
+    ).toEqual(['project-alpha', 'project-beta']);
+  });
 });
