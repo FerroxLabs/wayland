@@ -75,8 +75,13 @@ function summarizeTomlError(error: unknown): string {
  * surviving text can still parse, the fail-closed guard never fires and the
  * loss is SILENT. Found by the K-01 4-leg cross-audit (Gemini 3.1 Pro leg) and
  * reproduced by execution before this guard was written.
+ *
+ * Exported (#1024) so `engineConfigRecovery.ts` reuses this exact scanner rather
+ * than carrying a second copy: its automatic line-break repair must make the
+ * same "this line is DATA, not structure" call, and two divergent copies of this
+ * logic is how the silent-loss bug above comes back.
  */
-function multilineStringLineStates(source: string): boolean[] {
+export function multilineStringLineStates(source: string): boolean[] {
   const states: boolean[] = [];
   let inBasic = false; // inside """ ... """
   let inLiteral = false; // inside ''' ... '''
