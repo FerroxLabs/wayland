@@ -90,7 +90,9 @@
     "addTeammateError": "Échec de l'ajout du coéquipier",
     "restartAgent": "Redémarrer",
     "restartAgentSuccess": "Redémarrage lancé",
-    "restartAgentError": "Échec du redémarrage de l'agent"
+    "restartAgentError": "Échec du redémarrage de l'agent",
+    "restartActiveTitle": "Redémarrer un coéquipier en cours de travail ?",
+    "restartActiveConfirm": "Ce coéquipier travaille encore. Le redémarrer arrête son processus CLI et met fin au tour en cours. Cette action est irréversible."
   },
   "activity": {
     "tabLabel": "Activité",
