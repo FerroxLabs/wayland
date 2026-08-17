@@ -33,6 +33,7 @@ import path from 'node:path';
 import {
   applyBuiltinMcpRuntime,
   isOwnBuiltinCoreMcpScript,
+  mergeMcpSpawnEnv,
   resolveBuiltinMcpRuntimeSpawn,
   resolveSessionMcpStdioSpawn,
 } from '@process/services/mcpServices/builtinMcpRuntime';
@@ -115,7 +116,38 @@ describe('F2 — our own script is matched by exact path, never by basename', ()
   });
 
   it('posix: does NOT fold case (two different files on a case-sensitive volume)', () => {
+    // NOTE the fixture: only the DIRECTORY is uppercased. Uppercasing the whole
+    // path also uppercases the basename, which `isBuiltinCoreMcpArg`'s
+    // case-sensitive allowlist rejects first — so `isSamePath` is never reached
+    // and a mutant that case-folds on posix too would survive unseen.
+    const dirUpperOnly = path.join(path.dirname(OURS).toUpperCase(), 'builtin-mcp-search-skills.js');
+    expect(isOwnBuiltinCoreMcpScript(dirUpperOnly, deps())).toBe(false);
+    // KNOWN POSITIVE, same run: the correctly-cased path IS ours, so the false
+    // above is a real refusal and not a fixture that can never match anything.
+    expect(isOwnBuiltinCoreMcpScript(OURS, deps())).toBe(true);
+    // The whole-path form is also refused, for the earlier allowlist reason.
     expect(isOwnBuiltinCoreMcpScript(OURS.toUpperCase(), deps())).toBe(false);
+  });
+});
+
+describe('mergeMcpSpawnEnv — the runtime env must WIN on a collision', () => {
+  // The module's own contract: the dev runtime is only a Node runtime while
+  // ELECTRON_RUN_AS_NODE=1 rides along, so a server env that shadowed it would
+  // boot a second Electron app instead of the MCP server. Both existing merge
+  // tests use NON-COLLIDING keys, so flipping the spread order survives them.
+  it('overrides a colliding key from the server env', () => {
+    expect(mergeMcpSpawnEnv({ ELECTRON_RUN_AS_NODE: '0', KEEP: 'me' }, { ELECTRON_RUN_AS_NODE: '1' })).toEqual({
+      ELECTRON_RUN_AS_NODE: '1',
+      KEEP: 'me',
+    });
+  });
+
+  it('applies the same precedence through applyBuiltinMcpRuntime', () => {
+    const out = applyBuiltinMcpRuntime(
+      stdioServer('node', [OURS], { ELECTRON_RUN_AS_NODE: '0' }),
+      deps({ resolveRuntime: devRuntime })
+    );
+    expect((out.transport as { env?: Record<string, string> }).env).toEqual({ ELECTRON_RUN_AS_NODE: '1' });
   });
 });
 
@@ -153,6 +185,16 @@ describe('F1 — the resolved runtime tuple carries command AND env', () => {
     expect(resolveBuiltinMcpRuntimeSpawn('npx', ['-y', 'chrome-devtools-mcp@latest'], deps())).toBeNull();
     expect(resolveBuiltinMcpRuntimeSpawn('node', ['/opt/other/server.js'], deps())).toBeNull();
     expect(resolveBuiltinMcpRuntimeSpawn('/usr/bin/mcp-server', [], deps())).toBeNull();
+  });
+
+  it('refuses a non-`node` command even when args[0] IS one of our own scripts', () => {
+    // Kills the mutant that drops the `command !== 'node'` gate. The other
+    // negative-command case passes EMPTY args, so `first` is undefined and the
+    // gate is never reached — that test cannot see this.
+    expect(resolveBuiltinMcpRuntimeSpawn('/usr/bin/deno', [OURS], deps())).toBeNull();
+    expect(resolveBuiltinMcpRuntimeSpawn('bun', [OURS], deps())).toBeNull();
+    // KNOWN POSITIVE, same run: the identical args[0] under `node` IS ours.
+    expect(resolveBuiltinMcpRuntimeSpawn('node', [OURS], deps())).not.toBeNull();
   });
 });
 
