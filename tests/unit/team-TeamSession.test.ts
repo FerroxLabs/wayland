@@ -254,6 +254,28 @@ describe('TeamSession', () => {
       void session.dispose();
     });
 
+    // The constructor calls reconcilePersistedStatuses() synchronously, and the
+    // status callback used to invoke repo.updateAgentStatuses(...) unguarded - so
+    // a repository without the method took the whole constructor down with a
+    // TypeError rather than merely failing to persist. Latent because it only
+    // fires when the roster actually contains an `active` agent to reconcile.
+    it('survives a repository that does not implement updateAgentStatuses', () => {
+      const repo = makeRepo();
+      delete (repo as Partial<ITeamRepository>).updateAgentStatuses;
+      const team = makeTeam();
+      team.agents[1] = { ...team.agents[1], status: 'active' };
+
+      let session: TeamSession | undefined;
+      expect(() => {
+        session = new TeamSession(team, repo, makeWorkerTaskManager());
+      }).not.toThrow();
+
+      // The in-memory reconcile still happened; only persistence was skipped.
+      expect(session!.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('pending');
+
+      void session!.dispose();
+    });
+
     it('leaves a settled roster alone (no spurious write on load)', () => {
       const repo = makeRepo();
       const session = new TeamSession(makeTeam(), repo, makeWorkerTaskManager());

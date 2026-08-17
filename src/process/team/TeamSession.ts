@@ -93,7 +93,13 @@ export class TeamSession extends EventEmitter {
       // `changeAgentBackend`'s `agentType` swap was silently lost this way - and
       // would clobber concurrent rename / session-mode / workspace writes.
       onAgentStatusesChanged: (teamId, statuses) => {
-        void this.repo.updateAgentStatuses(teamId, statuses).catch((error) => {
+        // `reconcilePersistedStatuses()` is called synchronously from this
+        // constructor, so a repo without the method took the whole constructor
+        // down with a TypeError instead of merely failing to persist. Every real
+        // repository implements it; a test double may not.
+        const persisted = this.repo.updateAgentStatuses?.(teamId, statuses);
+        if (!persisted) return;
+        void persisted.catch((error) => {
           console.warn(
             `[TeamSession] Failed to persist agent status for team ${teamId}:`,
             error instanceof Error ? error.message : String(error)
