@@ -101,7 +101,15 @@ const BackupCard: React.FC = () => {
         }
         const applied = result.applied ?? [];
         const items = applied.join(', ');
-        if (applied.length === 0) {
+        if (applied.length === 0 && result.keysSkippedNoPassphrase) {
+          // A keys-only archive with no passphrase. Tested BEFORE the generic
+          // nothing-applied case, because that copy says the archive held no
+          // legacy files and that API keys live somewhere a file export does not
+          // cover - and for this archive every clause of that is false. The keys
+          // ARE in it, one passphrase away. Telling the user otherwise is the
+          // same class of harm as #1021 itself.
+          Message.warning({ content: t('settings.storagePage.restoreKeysOnlyNoPassphrase'), duration: 15000 });
+        } else if (applied.length === 0) {
           // The archive parsed and staged cleanly and still moved nothing.
           // Reporting success here is what turned a no-op into silent data
           // loss for the reporter of #1021.

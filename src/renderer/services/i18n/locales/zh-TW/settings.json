@@ -2141,6 +2141,7 @@
     "restoreApplied": "還原完成。已還原：{{items}}。",
     "restoreAppliedWithSafety": "還原完成。已還原：{{items}}。還原前的檔案備份副本位於 {{path}}。",
     "restoreNothingApplied": "未還原任何內容。此封存不含舊版對話檔案、附件或設定，因此此裝置上沒有任何變更。聊天、專案和 API 金鑰儲存在主資料庫中，舊版檔案匯出並不涵蓋它們。",
+    "restoreKeysOnlyNoPassphrase": "目前還沒有還原任何內容。這個封存檔中只有你的加密 API 金鑰，沒有其他屬於舊版檔案還原範圍的內容，但由於沒有輸入備份密語，金鑰被原樣保留。請輸入建立封存檔時設定的密語，然後重新還原。",
     "restoreKeysSkipped": "已還原：{{items}}。封存中還含有加密的 API 金鑰，但未輸入備份密語，因此金鑰未被還原。",
     "exportNoKeys": "已建立匯出，但其中不含 API 金鑰：此安裝沒有舊版金鑰檔案。您的 API 金鑰儲存在主資料庫中，舊版檔案匯出並不涵蓋它們。"
   },

@@ -4263,6 +4263,7 @@ export type I18nKey =
   | 'settings.storagePage.restoreBadPassword'
   | 'settings.storagePage.restoreConfirm'
   | 'settings.storagePage.restoreFailed'
+  | 'settings.storagePage.restoreKeysOnlyNoPassphrase'
   | 'settings.storagePage.restoreKeysSkipped'
   | 'settings.storagePage.restoreModalTitle'
   | 'settings.storagePage.restoreNoFile'

@@ -2166,6 +2166,7 @@
     "restoreApplied": "Restauração concluída. Restaurado: {{items}}.",
     "restoreAppliedWithSafety": "Restauração concluída. Restaurado: {{items}}. Sua cópia de recuperação anterior à restauração está em {{path}}.",
     "restoreNothingApplied": "Nada foi restaurado. Este arquivo não continha arquivos de conversa antigos, anexos nem configuração, portanto nada mudou neste dispositivo. Conversas, projetos e chaves de API ficam no banco de dados principal, que uma exportação de arquivos antiga não cobre.",
+    "restoreKeysOnlyNoPassphrase": "Nada foi restaurado ainda. Este arquivo contém suas chaves de API criptografadas, e nada mais que uma restauração de arquivos legados cubra, mas nenhuma senha de backup foi informada, então as chaves ficaram intactas. Digite a senha que você definiu ao criar o arquivo e restaure novamente.",
     "restoreKeysSkipped": "Restaurado: {{items}}. O arquivo também contém chaves de API criptografadas, mas nenhuma frase secreta de backup foi informada, portanto as chaves não foram restauradas.",
     "exportNoKeys": "Exportação criada, mas ela não contém chaves de API: esta instalação não tem um arquivo de chaves antigo. Suas chaves de API ficam no banco de dados principal, que uma exportação de arquivos antiga não cobre."
   },

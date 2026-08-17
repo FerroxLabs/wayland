@@ -241,6 +241,38 @@ describe('BackupCard export feedback (F5)', () => {
     expect(Message.success).not.toHaveBeenCalled();
   });
 
+  /**
+   * #1042 F4. `applied.length === 0` was tested BEFORE `keysSkippedNoPassphrase`,
+   * so a keys-only archive with no passphrase fell into restoreNothingApplied -
+   * whose copy says the archive held no legacy files and that API keys live
+   * somewhere a file export does not cover. Every clause of that is false here:
+   * the keys ARE in the archive, one passphrase away. That is the same class of
+   * harm as #1021 itself.
+   */
+  it('does not claim a keys-only archive was empty when no passphrase was given', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      safetyBackupPath: '/data/recovery/legacy-file-imports/pre-restore.zip',
+      applied: [],
+      outOfScope: [],
+      keysSkippedNoPassphrase: true,
+      fileCount: 0,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.restoreKeysOnlyNoPassphrase' })
+      );
+    });
+    expect(Message.warning).not.toHaveBeenCalledWith(
+      expect.objectContaining({ content: 'settings.storagePage.restoreNothingApplied' })
+    );
+    expect(Message.success).not.toHaveBeenCalled();
+  });
+
   it('says so when the archive carried keys the restore could not unlock', async () => {
     mockImportBackup.mockResolvedValue({
       ok: true,
