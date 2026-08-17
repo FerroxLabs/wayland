@@ -91,11 +91,21 @@ describe('build-mcp-servers optional-MCP gate (#940)', () => {
   // because actions/checkout cannot write above github.workspace, then moves the
   // tree to ROOT/.. before building. If an in-repo candidate is ever added back,
   // that move becomes optional and the containment silently disappears.
-  it('offers only sibling candidates, never one inside the app repo', () => {
-    const candidates = gate.mcpSourceCandidates('imap-mcp', {});
-    expect(candidates).toContain(path.resolve(REPO_ROOT, '..', 'waylandmcp', 'packages', 'imap-mcp'));
-    expect(candidates).toContain(path.resolve(REPO_ROOT, '..', '..', 'waylandmcp', 'packages', 'imap-mcp'));
-    expect(candidates.filter((candidate) => isInsideRepo(REPO_ROOT, candidate))).toEqual([]);
+  // ORDER is load-bearing, so this asserts the exact list rather than membership.
+  // The first existing candidate wins, and the os.homedir() entry is a developer
+  // convenience: if a future reorder floated it above the two CI positions, a
+  // build on any machine with a stale ~/dev/waylandmcp would silently bundle that
+  // tree instead of the deliberate checkout - the quiet substitution #940 exists
+  // to close - and a membership-only assertion (toContain) would stay green.
+  it('offers only sibling candidates, never one inside the app repo, in a pinned order', () => {
+    expect(gate.mcpSourceCandidates('imap-mcp', {})).toEqual([
+      path.resolve(REPO_ROOT, '..', '..', 'waylandmcp', 'packages', 'imap-mcp'),
+      path.resolve(REPO_ROOT, '..', 'waylandmcp', 'packages', 'imap-mcp'),
+      path.join(os.homedir(), 'dev', 'waylandmcp', 'packages', 'imap-mcp'),
+    ]);
+    expect(gate.mcpSourceCandidates('imap-mcp', {}).filter((candidate) => isInsideRepo(REPO_ROOT, candidate))).toEqual(
+      []
+    );
   });
 
   // The containment check above is only worth having if it still FAILS on an
