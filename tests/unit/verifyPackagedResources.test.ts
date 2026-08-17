@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
@@ -7,6 +8,13 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 const roots: string[] = [];
 const require = createRequire(import.meta.url);
+const { assertDarwinDeveloperIdSigned, DARWIN_TEAM_ID } = require('../../scripts/signDarwinStagedBinary') as {
+  assertDarwinDeveloperIdSigned: (
+    binaryPath: string,
+    options?: { execFileSync?: (file: string, args: string[], options?: unknown) => Buffer; identifier?: string }
+  ) => void;
+  DARWIN_TEAM_ID: string;
+};
 const {
   resolvePackagedTarget,
   snapshotPackagedTargets,
@@ -698,11 +706,136 @@ describe('packaged resource release gate', () => {
       expect(signatureChecks).toEqual([]);
       expect(verifyConstitutionFsBundle(root, 'darwin', arch, authority, record, true)).toBe(true);
       expect(signatureChecks).toEqual([path.join(runtimeRoot, 'wayland-constitution-fs')]);
-      // With an identity the real check runs, and these fixture bytes carry no
-      // Developer ID signature, so the gate must refuse them.
-      expect(() => verifyConstitutionFsBundle(root, 'darwin', arch, authority, undefined, true)).toThrow();
+      // Pin WHICH check the default performs, without spawning anything: the
+      // default must assert a Ferrox Labs Developer ID signature (codesign -R
+      // with the Developer ID leaf marker OID), not the ad-hoc-accepting
+      // `codesign --verify --strict` it replaced. A bare toThrow() here would
+      // also be satisfied by `spawnSync /usr/bin/codesign ENOENT` on the ubuntu
+      // and windows shards, so the requirement itself is what gets asserted.
+      const argv: string[][] = [];
+      verifyConstitutionFsBundle(
+        root,
+        'darwin',
+        arch,
+        authority,
+        (binaryPath: string) => {
+          assertDarwinDeveloperIdSigned(binaryPath, {
+            execFileSync: (_file: string, args: string[]) => {
+              argv.push(args);
+              return Buffer.alloc(0);
+            },
+          });
+        },
+        true
+      );
+      expect(argv).toHaveLength(1);
+      expect(argv[0]).toContain('-R');
+      const requirement = argv[0][argv[0].indexOf('-R') + 1];
+      expect(requirement.startsWith('=')).toBe(true);
+      expect(requirement).toContain('field.1.2.840.113635.100.6.1.13');
+      expect(requirement).toContain(`subject.OU] = \"${DARWIN_TEAM_ID}\"`);
+      expect(argv[0]).not.toEqual(['--verify', '--strict', path.join(runtimeRoot, 'wayland-constitution-fs')]);
     }
   );
+
+  // Binds the DEFAULT signature check, with nothing injected. Node's own binary
+  // is a real thin arm64 Mach-O carrying a valid Developer ID signature from a
+  // DIFFERENT team, so `codesign --verify --strict` (the check this replaced)
+  // accepts it while the Ferrox Labs Developer ID requirement refuses it. If the
+  // default is ever reverted to the ad-hoc-accepting form, this goes red.
+  // darwin-only because the real check shells out to /usr/bin/codesign.
+  it.skipIf(process.platform !== 'darwin')(
+    'default Constitution signature check pins the Ferrox Labs Developer ID, not merely "signed"',
+    () => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'constitution-fs-default-'));
+      roots.push(root);
+      const runtimeRoot = path.join(root, 'darwin-arm64');
+      fs.mkdirSync(runtimeRoot, { recursive: true });
+      const binary = path.join(runtimeRoot, 'wayland-constitution-fs');
+      fs.copyFileSync(process.execPath, binary);
+      fs.chmodSync(binary, 0o755);
+      const bytes = fs.readFileSync(binary);
+      const sha256 = `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`;
+      const authority = {
+        supported: true,
+        protocolVersion: 2,
+        platform: 'darwin',
+        arch: 'arm64',
+        fileName: 'wayland-constitution-fs',
+        size: bytes.length,
+        sha256,
+      };
+      fs.writeFileSync(
+        path.join(runtimeRoot, 'manifest.json'),
+        JSON.stringify({
+          schemaVersion: 1,
+          protocolVersion: 2,
+          platform: 'darwin',
+          arch: 'arm64',
+          binary: { fileName: authority.fileName, sha256, size: bytes.length },
+        })
+      );
+      fs.writeFileSync(path.join(runtimeRoot, 'package-authority.json'), JSON.stringify(authority));
+
+      // Signed, and every byte/authority check passes, so without an identity the
+      // gate accepts it - and `codesign --verify --strict` would accept it too.
+      expect(execFileSync('/usr/bin/codesign', ['--verify', '--strict', binary], { stdio: 'pipe' })).toBeDefined();
+      expect(verifyConstitutionFsBundle(root, 'darwin', 'arm64', authority, undefined, false)).toBe(true);
+      // With an identity the default must refuse it: wrong signing team.
+      expect(() => verifyConstitutionFsBundle(root, 'darwin', 'arm64', authority, undefined, true)).toThrow(
+        /code failed to satisfy specified code requirement/
+      );
+    }
+  );
+
+  // Covers the REAL hand-off, not the leaf: verifyPackagedResources -> the
+  // 23-positional-parameter isNonEmpty -> verifyConstitutionFsBundle. A single
+  // reordered argument in that list is literally what shipped this bug, and it
+  // would silently disable Constitution signature enforcement on signed releases
+  // while every leaf-level test above stayed green. Assert the injected check is
+  // reached through the full sweep, with the flag and without it.
+  itAcceptedSweep('routes --require-darwin-signature through the sweep to the Constitution helper', () => {
+    const out = createPackagedResources(true);
+    const helper = path.join(
+      packagedResourcesPath(out),
+      'bundled-constitution-fs',
+      'darwin-arm64',
+      'wayland-constitution-fs'
+    );
+
+    const withoutFlag: string[] = [];
+    expect(
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        verifyConstitutionFsDarwinSignature: (binaryPath: string) => {
+          withoutFlag.push(binaryPath);
+        },
+      })
+    ).toMatchObject({ warnings: 3 });
+    expect(withoutFlag).toEqual([]);
+
+    const withFlag: string[] = [];
+    expect(
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        argv: [...verifyArgs(out, 'darwin-arm64', 'darwin-arm64'), '--require-darwin-signature'],
+        darwinSignedCheck: () => true,
+        verifyConstitutionFsDarwinSignature: (binaryPath: string) => {
+          withFlag.push(binaryPath);
+        },
+      })
+    ).toMatchObject({ warnings: 3 });
+    expect(withFlag).toEqual([helper]);
+
+    // And a refusal from that check must fail the whole sweep, not be swallowed.
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        argv: [...verifyArgs(out, 'darwin-arm64', 'darwin-arm64'), '--require-darwin-signature'],
+        darwinSignedCheck: () => true,
+        verifyConstitutionFsDarwinSignature: () => {
+          throw new Error('test-requirement: code failed to satisfy specified code requirement(s)');
+        },
+      })
+    ).toThrow(/CRITICAL resource/);
+  });
 
   it('rejects helper digest drift and foreign runtime contamination', () => {
     const out = createPackagedResources(true);

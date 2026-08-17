@@ -218,8 +218,10 @@ function verifyConstitutionFsBundle(
   // helper unsigned - see signDarwinStagedBinary - and ld64 only linker-signs
   // arm64, never x86_64, so demanding *any* signature here failed every
   // darwin-x64 build that had no signing secrets. Byte identity is unaffected:
-  // the digest, size and package-sealed authority above still pin these exact
-  // bytes, and the app re-hashes the helper against app.asar at runtime.
+  // the digest and size checks above still pin these exact bytes, and the app
+  // re-hashes the helper at RUNTIME against the digest embedded in app.asar -
+  // which is what actually authenticates them, since package-authority.json
+  // ships inside the package alongside the manifest.
   if (targetPlatform === 'darwin' && requireDarwinSignature) {
     verifyDarwinSignature(binaryPath);
   }
