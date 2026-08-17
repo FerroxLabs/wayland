@@ -115,6 +115,13 @@ export class WorkerTaskManager implements IWorkerTaskManager {
       // persisted, so an edit to CONTEXT.md never reached it. Re-compose it here,
       // at the seam every backend's manager is built from, and persist the
       // result so the refresh also survives a restart.
+      //
+      // SPAWN, not "next message": the cached-task fast path above returns before
+      // any of this runs, so an edit made while an agent is already live does not
+      // reach that agent's current session. It lands on the next genuine respawn -
+      // reopening the chat, a restart, an idle-timeout kill, a workflow step. That
+      // is inherent to backends that take their system-rules channel once at
+      // process start, and is not something this seam can change.
       const refreshed = await refreshProjectKnowledge(conversation.extra as Record<string, unknown> | undefined);
       if (corrected || refreshed) {
         try {
