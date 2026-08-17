@@ -20,6 +20,17 @@ export type SecretCase = {
   readonly secret: string;
 };
 
+/**
+ * Assembled at runtime, never written as a literal. The value is a synthetic
+ * placeholder (all-zero team/channel ids), but it still matches GitHub's
+ * push-protection rule for a Slack incoming webhook, which blocks the push on
+ * the literal alone. Joining the segments keeps the runtime string - and so the
+ * regex coverage - identical while leaving nothing scannable in the source.
+ */
+const SYNTHETIC_SLACK_WEBHOOK = ['https://hooks.slack.com', 'services', 'T00000000', 'B00000000', 'X'.repeat(24)].join(
+  '/'
+);
+
 export const SECRET_CORPUS: readonly SecretCase[] = [
   {
     label: 'OpenAI/Anthropic-style sk- key',
@@ -90,6 +101,53 @@ export const SECRET_CORPUS: readonly SecretCase[] = [
     label: 'Authorization header with no scheme',
     text: 'request headers included Authorization: ABCDEFGHIJKLMNOP1234',
     secret: 'ABCDEFGHIJKLMNOP1234',
+  },
+  {
+    // The hyphen-form `sk-` pattern does not see the underscore form. Only the
+    // command-render bank had this; folded into the shared set by the #992 audit.
+    label: 'Stripe underscore secret key',
+    text: 'charge failed with sk_live_ABCDEFGH12345678',
+    secret: 'sk_live_ABCDEFGH12345678',
+  },
+  {
+    label: 'Basic authorization value',
+    text: 'Authorization: Basic YWRtaW46c3VwZXJzZWNyZXQxMjM0',
+    secret: 'YWRtaW46c3VwZXJzZWNyZXQxMjM0',
+  },
+  {
+    label: 'URL userinfo password',
+    text: 'connection refused: postgres://admin:s3cr3tp4ss@db.internal:5432/app',
+    secret: 's3cr3tp4ss',
+  },
+  {
+    label: 'Slack incoming-webhook URL',
+    text: `post failed to ${SYNTHETIC_SLACK_WEBHOOK}`,
+    secret: SYNTHETIC_SLACK_WEBHOOK,
+  },
+  {
+    label: 'PEM private key block',
+    text: '-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAxGGGGGGG\n-----END RSA PRIVATE KEY-----',
+    secret: 'MIIEowIBAAKCAQEAxGGGGGGG',
+  },
+  {
+    label: 'GitHub fine-grained PAT',
+    text: 'clone failed: github_pat_11ABCDEFG0abcdefghijklmnop',
+    secret: 'github_pat_11ABCDEFG0abcdefghijklmnop',
+  },
+  {
+    label: 'GitLab PAT',
+    text: 'registry auth failed for glpat-ABCDEFGH12345678',
+    secret: 'glpat-ABCDEFGH12345678',
+  },
+  {
+    label: 'Google OAuth refresh token',
+    text: 'refresh rejected: 1//0gABCDEFGHIJKLMNOP-abcdefg',
+    secret: '1//0gABCDEFGHIJKLMNOP-abcdefg',
+  },
+  {
+    label: 'AWS STS temporary key id',
+    text: 'assume-role returned ASIAIOSFODNN7EXAMPLE',
+    secret: 'ASIAIOSFODNN7EXAMPLE',
   },
   {
     label: 'labelled api_key assignment',

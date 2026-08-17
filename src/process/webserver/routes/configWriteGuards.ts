@@ -137,7 +137,10 @@ function socketLocal(req: Request): string | undefined {
  * no labelled assignment and no bare `Authorization:` header - which meant the
  * REMOTE-FACING routes ran the weaker of the two scrubbers in the codebase. The
  * shared module is the union of both pattern sets, so every shape this file
- * masked before is still masked, plus the ones it missed.
+ * masked before is still masked, plus the ones it missed. That is asserted by
+ * `tests/unit/secretRedaction.superset.test.ts`, which keeps the deleted
+ * pattern set alive as a fixture and diffs the two - the first attempt at this
+ * change believed the same sentence and was wrong on two shapes.
  *
  * Kept as a re-export so the ~10 route modules that import `redactSecrets` from
  * this gate keep importing it from the gate: the guard is the documented seam
