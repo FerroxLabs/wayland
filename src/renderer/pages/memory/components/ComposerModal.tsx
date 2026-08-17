@@ -155,7 +155,20 @@ export function ComposerModal({
           ...(scope === 'project' && projectPath ? { projectPath } : {}),
         });
         if (result.ok === false && result.error) {
-          throw new Error(result.error);
+          // #924: main answers a project-scoped save it cannot place with the
+          // internal code `unresolved_project_scope`, and that code was printed
+          // straight at the user. It is reachable on the FIRST-RUN path - before
+          // anything is indexed there is no project to name, so `projects` is
+          // empty, no picker renders, and the save cannot resolve. Say what
+          // happened and what to do instead of leaking the identifier.
+          throw new Error(
+            result.error === 'unresolved_project_scope'
+              ? t(
+                  'archive.composer.errorNoProject',
+                  'No project is indexed yet, so this cannot be saved to a project. Switch to global to save it.'
+                )
+              : result.error
+          );
         }
         // Fire archive refresh via the event emitter so MemoryList picks it up
         // (same pattern as FullPanelShell's handleQuickAdd → reload)

@@ -317,4 +317,56 @@ describe('#924 F1: project-scoped save through the real /memory renderer path', 
     await waitFor(() => expect(mockMemory.setQuickAdd.invoke).toHaveBeenCalled());
     expect(mockMemory.setQuickAdd.invoke.mock.calls[0][0].projectPath).toBe(BETA);
   });
+
+  /**
+   * First run: nothing indexed yet, so there is no project to name and main
+   * refuses the save with the internal code `unresolved_project_scope`. That
+   * code was printed straight at the user, which tells them nothing and hides
+   * the one action that works (switch to global).
+   */
+  it('explains a refused project-scoped save instead of printing the internal code', async () => {
+    mockMemory.getProjects.invoke.mockResolvedValue([]);
+    // Mirror main: it refuses ONLY a project-scoped save it cannot place.
+    mockMemory.setQuickAdd.invoke.mockImplementation(async (payload: { scope: string; projectPath?: string }) =>
+      payload.scope === 'project' && !payload.projectPath
+        ? { ok: false, error: 'unresolved_project_scope' }
+        : { ok: true }
+    );
+    await openComposer();
+    expect(screen.queryByTestId('composer-project-picker')).toBeNull();
+
+    fireEvent.change(screen.getByTestId('composer-textarea'), { target: { value: 'my first ever note' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+
+    const err = await screen.findByTestId('composer-error');
+    expect(err.textContent).not.toContain('unresolved_project_scope');
+    expect(err.textContent).toContain('No project is indexed yet');
+    expect(err.textContent).toContain('global');
+    // The note is still in the box, so switching to global saves it.
+    expect((screen.getByTestId('composer-textarea') as HTMLTextAreaElement).value).toBe('my first ever note');
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-scope-global'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+    await waitFor(() => {
+      const last = mockMemory.setQuickAdd.invoke.mock.calls.at(-1)![0];
+      expect(last.scope).toBe('global');
+    });
+  });
+
+  it('still surfaces an unrecognised save error verbatim', async () => {
+    // Control for the mapping above: only the one known code is translated, so
+    // a genuine failure is not swallowed behind generic copy.
+    mockMemory.setQuickAdd.invoke.mockResolvedValue({ ok: false, error: 'disk full' });
+    await openComposer();
+    fireEvent.change(screen.getByTestId('composer-textarea'), { target: { value: 'note' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+    expect((await screen.findByTestId('composer-error')).textContent).toContain('disk full');
+  });
 });
