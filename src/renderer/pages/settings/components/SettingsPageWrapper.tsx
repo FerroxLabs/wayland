@@ -208,6 +208,25 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
   return BUILTIN_TAB_IDS.map((id) => builtinMap[id]);
 }
 
+/**
+ * The builtin settings nav items this RUNTIME may offer, in canonical order.
+ *
+ * #997: desktop-only surfaces (Wayland Core) are dropped for WebUI/remote
+ * clients so the nav never offers a destination the router refuses.
+ *
+ * Deliberately separate from {@link getBuiltinSettingsNavItems}, which stays the
+ * full catalog because it is the nav ORDER contract that
+ * `tests/unit/SettingsPageWrapper.test.ts` pins. The runtime gate belongs here,
+ * where `isDesktop` means "Electron" rather than "wide layout" - the two senses
+ * of that flag are why it is not folded into the catalog builder.
+ *
+ * This is the ONLY thing `menuItems` below calls, so the compact settings
+ * layout's top-nav dropdown and this function cannot disagree.
+ */
+export function getVisibleSettingsNavItems(isDesktop: boolean, t: TranslateFn): NavItem[] {
+  return getBuiltinSettingsNavItems(isDesktop, t).filter((item) => isDesktop || !isDesktopOnlySettingsId(item.id));
+}
+
 const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, className, contentClassName }) => {
   const layout = useLayoutContext();
   const isMobile = (layout?.isMobile ?? false) || (typeof window !== 'undefined' && window.innerWidth < 768);
@@ -226,15 +245,8 @@ const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, cla
   const closeShortcuts = useCallback(() => setShortcutsOpen(false), []);
   useGlobalKeybind('?', openShortcuts, { meta: false, skipInputs: true });
 
-  // #997: desktop-only surfaces (Wayland Core) are dropped for WebUI/remote
-  // clients so the nav never offers a destination the router refuses.
-  // `getBuiltinSettingsNavItems` stays the canonical catalog (order contract);
-  // the runtime gate belongs here, where `isDesktop` means "Electron", not
-  // "wide layout".
-  const menuItems = React.useMemo(
-    () => getBuiltinSettingsNavItems(isDesktop, t).filter((item) => isDesktop || !isDesktopOnlySettingsId(item.id)),
-    [isDesktop, t]
-  );
+  // #997: feeds both the compact top-nav dropdown below and `activeNavItem`.
+  const menuItems = React.useMemo(() => getVisibleSettingsNavItems(isDesktop, t), [isDesktop, t]);
 
   const activeNavItem = React.useMemo(
     () => menuItems.find((item) => pathname.includes(`/settings/${item.path}`)),
