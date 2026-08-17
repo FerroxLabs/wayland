@@ -47,6 +47,19 @@ type WatchdogOptions = {
    * standalone/tests work without it.
    */
   onCompleted?: (taskId: string) => Promise<void>;
+  /**
+   * #980 - called after the sweep has REWRITTEN the task board, so somebody can
+   * tell the team's leader.
+   *
+   * The sweep re-queues, terminates, and completes-through tasks entirely
+   * behind the leader's back: it wrote to `team_event_log` (which no agent
+   * reads) and to nothing else. There are no `mailbox.write` calls anywhere
+   * under this file, which is exactly why a leader could keep reporting that a
+   * member was working a task the Watchdog had already taken away from it.
+   * Optional so standalone/tests work without it; failures are swallowed by the
+   * caller so a notification can never break a sweep.
+   */
+  onTaskBoardChanged?: (task: TeamTask, outcome: 'requeued' | 'exhausted' | 'verify_recovered') => Promise<void>;
 };
 
 const DEFAULT_VERIFY_STALE_MS = 5 * 60 * 1000;
@@ -161,6 +174,23 @@ export class Watchdog {
               retryBudget,
             },
     });
+    await this.notifyTaskBoardChanged(task, outcome);
+  }
+
+  /** #980 - surface a task-board rewrite to whoever can reach the leader. Never throws. */
+  private async notifyTaskBoardChanged(
+    task: TeamTask,
+    outcome: 'requeued' | 'exhausted' | 'verify_recovered'
+  ): Promise<void> {
+    if (!this.options.onTaskBoardChanged) return;
+    try {
+      await this.options.onTaskBoardChanged(task, outcome);
+    } catch (error) {
+      console.warn(
+        '[Watchdog] onTaskBoardChanged notification failed:',
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   /**
@@ -183,6 +213,7 @@ export class Watchdog {
       targetSlotId: task.id,
       payload: { action: 'verify_recovered', taskId: task.id, status: 'completed' },
     });
+    await this.notifyTaskBoardChanged(task, 'verify_recovered');
     // Release dependents blocked on this now-completed task.
     if (this.options.onCompleted) {
       await this.options.onCompleted(task.id).catch((error) => {

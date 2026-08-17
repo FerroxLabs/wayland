@@ -236,4 +236,36 @@ describe('TeamSession', () => {
       expect(repo.writeMessage).not.toHaveBeenCalled();
     });
   });
+
+  // #980: teammate status is a persisted field of `teams.agents`, and TeamSession
+  // is the seam where a DB roster becomes a live one.
+  describe("persisted teammate status (#980)", () => {
+    it("reconciles a persisted `active` back to pending on load and writes it back", () => {
+      const repo = makeRepo();
+      vi.mocked(repo.update).mockResolvedValue(undefined as never);
+      const team = makeTeam();
+      team.agents[1] = { ...team.agents[1], status: "active" };
+
+      const session = new TeamSession(team, repo, makeWorkerTaskManager());
+
+      expect(session.getAgents().find((a) => a.slotId === "slot-member")?.status).toBe("pending");
+      expect(repo.update).toHaveBeenCalledWith(
+        "team-1",
+        expect.objectContaining({
+          agents: expect.arrayContaining([expect.objectContaining({ slotId: "slot-member", status: "pending" })]),
+        })
+      );
+
+      void session.dispose();
+    });
+
+    it("leaves a settled roster alone (no spurious write on load)", () => {
+      const repo = makeRepo();
+      const session = new TeamSession(makeTeam(), repo, makeWorkerTaskManager());
+
+      expect(repo.update).not.toHaveBeenCalled();
+
+      void session.dispose();
+    });
+  });
 });

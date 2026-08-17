@@ -271,4 +271,53 @@ describe('Watchdog - zombie reclaim', () => {
     await new Promise((resolve) => setTimeout(resolve, 30));
     expect(spy.mock.calls.length).toBe(sweepsWhileRunning);
   });
+
+  // #980: the sweep rewrites the task board entirely behind the leader's back.
+  // team_event_log is not a channel any agent reads, and there is no mailbox.write
+  // anywhere under src/process/team/Watchdog.ts - so a leader kept believing a
+  // member was working a task the sweep had already taken away.
+  describe("task-board change notification (#980)", () => {
+    it("notifies on a re-queued reclaim", async () => {
+      const task = makeTask();
+      const { repo } = makeRepo([task]);
+      const { logger } = makeEventLogger();
+      const onTaskBoardChanged = vi.fn().mockResolvedValue(undefined);
+      const wd = new Watchdog(repo, logger, { checkIntervalMs: 60_000, onTaskBoardChanged });
+
+      await wd.runOnce(); // detect -> zombie
+      await wd.runOnce(); // reclaim -> pending
+
+      expect(onTaskBoardChanged).toHaveBeenCalledTimes(1);
+      expect(onTaskBoardChanged.mock.calls[0][0].id).toBe(task.id);
+      expect(onTaskBoardChanged.mock.calls[0][1]).toBe("requeued");
+    });
+
+    it("notifies on an exhausted-budget termination", async () => {
+      const task = makeTask({ retryBudget: 1, retriesUsed: 1 });
+      const { repo } = makeRepo([task]);
+      const { logger } = makeEventLogger();
+      const onTaskBoardChanged = vi.fn().mockResolvedValue(undefined);
+      const wd = new Watchdog(repo, logger, { checkIntervalMs: 60_000, onTaskBoardChanged });
+
+      await wd.runOnce();
+      await wd.runOnce();
+
+      expect(onTaskBoardChanged).toHaveBeenCalledTimes(1);
+      expect(onTaskBoardChanged.mock.calls[0][1]).toBe("exhausted");
+    });
+
+    it("a failing notifier never breaks the sweep", async () => {
+      const task = makeTask();
+      const { repo, tasks } = makeRepo([task]);
+      const { logger } = makeEventLogger();
+      const onTaskBoardChanged = vi.fn().mockRejectedValue(new Error("mailbox down"));
+      const wd = new Watchdog(repo, logger, { checkIntervalMs: 60_000, onTaskBoardChanged });
+
+      await wd.runOnce();
+      await wd.runOnce();
+
+      expect(onTaskBoardChanged).toHaveBeenCalled();
+      expect(tasks.get(task.id)!.status).toBe("pending");
+    });
+  });
 });

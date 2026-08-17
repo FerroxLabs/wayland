@@ -21,6 +21,7 @@ import { getAssistantsDir } from '@process/utils/initStorage';
 import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from '@process/providers/catalog/chatgptSubscriptionModels';
 import { resolveBackendCandidateProviders } from '@process/providers/backendProviderResolution';
 import { EventLogger } from './EventLogger';
+import { Mailbox } from './Mailbox';
 import { TaskManager } from './TaskManager';
 import { Watchdog } from './Watchdog';
 import { TeamSession } from './TeamSession';
@@ -76,6 +77,8 @@ export class TeamSessionService {
   private readonly eventLogger: EventLogger;
   /** P2 - periodic zombie reclaim sweep over lapsed task leases. */
   private readonly watchdog: Watchdog;
+  /** #980 - mailbox used to tell a leader that the Watchdog rewrote its task board. */
+  private readonly notifyMailbox: Mailbox;
 
   constructor(
     private readonly repo: ITeamRepository,
@@ -98,13 +101,53 @@ export class TeamSessionService {
     // bare TaskManager over the repo is enough to release dependents when the
     // Watchdog completes-through a verify-orphan.
     const unblocker = new TaskManager(repo, () => []);
+    this.notifyMailbox = new Mailbox(repo, this.eventLogger);
     this.watchdog = new Watchdog(repo, this.eventLogger, {
       checkIntervalMs: 60 * 1000,
       onCompleted: async (taskId: string): Promise<void> => {
         await unblocker.checkUnblocks(taskId);
       },
+      onTaskBoardChanged: (task, outcome) => this.notifyLeaderOfTaskBoardChange(task, outcome),
     });
     this.watchdog.start();
+  }
+
+  /**
+   * #980 - tell a team's leader that the Watchdog changed its task board.
+   *
+   * The sweep runs out of process-wide state, not per session, so the durable
+   * mailbox write is the primary act: it lands even for teams with no live
+   * session and is read on the leader's next wake. When a session IS live the
+   * leader is woken immediately so it stops planning around a task it no longer
+   * owns.
+   */
+  private async notifyLeaderOfTaskBoardChange(
+    task: TeamTask,
+    outcome: 'requeued' | 'exhausted' | 'verify_recovered'
+  ): Promise<void> {
+    const team = await this.repo.findById(task.teamId);
+    const leader = team?.agents.find((a) => a.role === 'leader');
+    if (!leader) return;
+
+    const previousOwner = task.leaseOwner ?? task.owner;
+    const ownerLabel = team?.agents.find((a) => a.slotId === previousOwner)?.agentName ?? previousOwner ?? 'nobody';
+    const detail =
+      outcome === 'requeued'
+        ? `has been taken back from ${ownerLabel} and re-queued as pending because their lease lapsed. Re-assign it.`
+        : outcome === 'exhausted'
+          ? `has been abandoned: ${ownerLabel} stopped responding and the retry budget is spent. Re-plan without it.`
+          : `was completed automatically after verification was interrupted. Treat its result as unverified.`;
+
+    await this.notifyMailbox.write({
+      teamId: task.teamId,
+      toAgentId: leader.slotId,
+      fromAgentId: 'system',
+      type: 'message',
+      summary: `Task board changed: ${task.subject}`,
+      content: `[System] Task "${task.subject}" (${task.id}) ${detail}`,
+    });
+
+    await this.sessions.get(task.teamId)?.wakeAgent(leader.slotId);
   }
 
   /** Expose the shared event logger so TeamSession can wire it into Mailbox + TaskManager + TeammateManager. */
