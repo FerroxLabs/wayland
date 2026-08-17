@@ -308,7 +308,8 @@ export function ComposerModal({
             place, and let them change it, before they save. */}
         <div className={styles.scopeRow} data-testid='composer-destination-row'>
           <span data-testid='composer-destination'>
-            {t('archive.composer.savingTo', 'Saving to')}: {destinationName || t('archive.composer.destNone', 'no project selected')}
+            {t('archive.composer.savingTo', 'Saving to')}:{' '}
+            {destinationName || t('archive.composer.destNone', 'no project selected')}
           </span>
           {scope === 'project' && projects.length > 1 && (
             <select

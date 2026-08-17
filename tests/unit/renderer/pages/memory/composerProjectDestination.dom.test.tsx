@@ -43,12 +43,23 @@ const MOCK_STATS = {
   projects: 2,
   banked: 0,
   deltas: {
-    total24h: 0, total7d: 0, decisions24h: 0, decisions7d: 0,
-    wiki24h: 0, wiki7d: 0, sessions24h: 0, sessions7d: 0,
+    total24h: 0,
+    total7d: 0,
+    decisions24h: 0,
+    decisions7d: 0,
+    wiki24h: 0,
+    wiki7d: 0,
+    sessions24h: 0,
+    sessions7d: 0,
   },
   sparkline: [],
   sparklines: {
-    total: [], banked: [], decisions: [], wiki: [], sessions: [], projects: [],
+    total: [],
+    banked: [],
+    decisions: [],
+    wiki: [],
+    sessions: [],
+    projects: [],
   },
   typeCounts: { decision: 1, pattern: 0, session: 0, observation: 0, wiki: 0, preference: 0 },
   streak: { sessions: 0, longestDays: 0, lastActiveDayMs: Date.now() },
@@ -70,7 +81,10 @@ const MOCK_ENTRY: MemoryEntry = {
 };
 
 const MOCK_CANDIDATES: PromotionCandidates = {
-  candidates: [], threshold: 90, lastRun: Date.now(), nextRun: Date.now() + 1000,
+  candidates: [],
+  threshold: 90,
+  lastRun: Date.now(),
+  nextRun: Date.now() + 1000,
 };
 
 const { mockMemory, mockShell, mockIjfw, mockModalConfirm } = vi.hoisted(() => {
@@ -107,7 +121,10 @@ const { mockMemory, mockShell, mockIjfw, mockModalConfirm } = vi.hoisted(() => {
 });
 
 vi.mock('@/common/adapter/ipcBridge', () => ({
-  memory: mockMemory, shell: mockShell, ijfw: mockIjfw, IjfwStatusPayload: {},
+  memory: mockMemory,
+  shell: mockShell,
+  ijfw: mockIjfw,
+  IjfwStatusPayload: {},
 }));
 vi.mock('@/common', () => ({ ipcBridge: { shell: mockShell, memory: mockMemory, ijfw: mockIjfw } }));
 
@@ -124,14 +141,24 @@ vi.mock('@arco-design/web-react', async () => {
     Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     Popover: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     Dropdown: ({ children, droplist }: { children: React.ReactNode; droplist: React.ReactNode }) => (
-      <div>{children}{droplist}</div>
+      <div>
+        {children}
+        {droplist}
+      </div>
     ),
   };
 });
 
-vi.mock('@icon-park/react', () => new Proxy({}, {
-  get: () => (p: Record<string, unknown>) => <span {...p} />,
-}));
+vi.mock(
+  '@icon-park/react',
+  () =>
+    new Proxy(
+      {},
+      {
+        get: () => (p: Record<string, unknown>) => <span {...p} />,
+      }
+    )
+);
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
