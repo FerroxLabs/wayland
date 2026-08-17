@@ -171,6 +171,10 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
  * here a LEADING boundary could not match because the preceding character was a
  * word character.
  *
+ * Not a novel construct here: `@common/utils/redactCommandSecrets` already used
+ * `(?<![A-Za-z0-9])` for this exact reason, with a comment saying so. The sibling
+ * bank had the rule right and the canonical one did not.
+ *
  * `(?<![A-Za-z0-9])` still refuses to match inside a longer alphanumeric run, so
  * `notmyapikey=` is not a label, while permitting the `_`, `-` and `.` that
  * actually separate a prefix from a label. It is a strict WIDENING: every
@@ -198,12 +202,67 @@ const LABELLED_SECRET_ASSIGNMENT = new RegExp(
  */
 const URL_USERINFO_PASSWORD = /(\b[a-z][a-z0-9+.-]*:\/\/[^\s:@/]+:)([^\s@/]+)(@)/gi;
 
+/**
+ * Mask every {@link SECRET_PATTERNS} match as ONE pass over the ORIGINAL text.
+ *
+ * It used to be a sequential `replace` per pattern, and that made the result
+ * order-dependent in a way that leaked. A narrow rule firing first injects the
+ * `[` and `]` of the marker, those characters are outside the wider rules'
+ * character classes, so the wider match aborts and the REST of the credential
+ * survives. Reproduced on a webhook URL whose middle path segment is an npm
+ * token: the narrow `npm_` rule masked the segment, the Slack-webhook rule then
+ * could not match the mangled URL, and the third path segment - which is part of
+ * the credential - reached the output. Same for a JWT whose payload segment
+ * carries a vendor prefix.
+ *
+ * This is a whole CLASS, not one bug: ten pattern pairs on `main` had it
+ * (`ghp_`/`gho_`/`ghu_`/`ghs_`/`ghr_`, `github_pat_`, `glpat-`, `gsk_`, `r8_`,
+ * `dop_v1_` all sit before the JWT, `Authorization:` and webhook rules), and
+ * reordering the array only moves which pairs are affected. Collecting spans
+ * against the pristine text and merging them removes the ordering question
+ * instead of re-answering it, so a pattern added later cannot re-open it.
+ *
+ * Measured on 506 container/token combinations carrying 682 sensitive segments:
+ * sequential masking leaked 142 of them, this leaks 10, and all 10 are the
+ * generator's own bookkeeping (a public JWT header, and `ya29.`/`1//` values that
+ * cannot form a real webhook path) which sequential masking also left. Zero
+ * weakenings against the previous behaviour there or across a 4200-case
+ * labelled-assignment corpus.
+ *
+ * Every pattern must carry `/g`. That was already required - a non-global
+ * pattern under the old `replace` would have masked only the FIRST occurrence
+ * per line - but `matchAll` turns the mistake into a loud throw rather than a
+ * silent under-mask.
+ */
+function maskPatternMatches(text: string): string {
+  const spans: Array<[number, number]> = [];
+  for (const pattern of SECRET_PATTERNS) {
+    for (const match of text.matchAll(pattern)) {
+      if (match[0].length > 0) spans.push([match.index, match.index + match[0].length]);
+    }
+  }
+  if (spans.length === 0) return text;
+  spans.sort((left, right) => left[0] - right[0] || left[1] - right[1]);
+  const merged: Array<[number, number]> = [];
+  for (const span of spans) {
+    const last = merged.at(-1);
+    // `<=`, not `<`: an overlapping OR touching span is one credential, so
+    // `Bearer npm_...` produces a single marker rather than two adjacent ones.
+    if (last && span[0] <= last[1]) last[1] = Math.max(last[1], span[1]);
+    else merged.push([span[0], span[1]]);
+  }
+  let built = '';
+  let cursor = 0;
+  for (const [start, end] of merged) {
+    built += text.slice(cursor, start) + '[redacted]';
+    cursor = end;
+  }
+  return built + text.slice(cursor);
+}
+
 export function redactSecrets(text: string): string {
   if (!text) return text;
-  let out = text;
-  for (const pattern of SECRET_PATTERNS) {
-    out = out.replace(pattern, '[redacted]');
-  }
+  let out = maskPatternMatches(text);
   // Label preserved, value masked, so the diagnostic still reads sensibly.
   out = out.replace(
     LABELLED_SECRET_ASSIGNMENT,

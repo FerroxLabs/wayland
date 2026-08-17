@@ -28,6 +28,72 @@ describe('redactSecrets (canonical)', () => {
   it('keeps the label of a masked assignment so the diagnostic still reads', () => {
     expect(redactSecrets('api_key = "hunter2hunter2"')).toContain('api_key');
   });
+
+  /**
+   * The oracle above - `not.toContain(secret)` plus `toContain('[redacted]')` -
+   * is satisfied by a PARTIAL replacement, and a partial replacement is exactly
+   * how a credential leaks. That blind spot is not hypothetical: it is why this
+   * suite was green while a webhook URL was reaching the output with one of its
+   * three path segments intact.
+   *
+   * So: no 8-character window of any corpus secret may survive. A window, not the
+   * whole string, is what makes this able to see a partial mask at all.
+   */
+  const WINDOW = 8;
+
+  it('every corpus secret is long enough for the window oracle to bite', () => {
+    const tooShort = SECRET_CORPUS.filter((entry) => entry.secret.length < WINDOW).map((entry) => entry.label);
+    expect(tooShort).toEqual([]);
+  });
+
+  it.each(SECRET_CORPUS.map((entry) => [entry.label, entry] as const))(
+    'leaves no %s fragment behind, not just the whole run',
+    (_label, entry) => {
+      const out = redactSecrets(entry.text);
+      const windows = Array.from({ length: entry.secret.length - WINDOW + 1 }, (_unused, at) =>
+        entry.secret.slice(at, at + WINDOW)
+      );
+      expect(windows.filter((window) => out.includes(window))).toEqual([]);
+    }
+  );
+});
+
+/**
+ * Composition, which no per-pattern test can see. A narrow rule that fires first
+ * injects the `[` and `]` of the marker; those characters sit outside the wider
+ * rules' character classes, so the wider match aborts and the remainder of the
+ * credential survives. Each container below is a credential IN WHOLE - a webhook
+ * URL, a JWT, an `Authorization:` header - so the only correct output is the
+ * marker and nothing else. `toBe`, deliberately: `not.toContain` is the oracle
+ * that missed this.
+ */
+describe('a narrow pattern inside a wider one does not split the wider match', () => {
+  // Synthetic, and shaped to reach the `{20,}` floor without being a real token.
+  const INNER = `npm_${'A'.repeat(24)}`;
+  const THIRD_SEGMENT = 'C'.repeat(24);
+  const JWT_SIGNATURE = 'dBjftJeZ4CVPmB92K27uhbUJU1p1r_wW1gFWFOEjXk';
+
+  const CONTAINERS: ReadonlyArray<readonly [string, string]> = [
+    [
+      'Slack incoming-webhook URL whose middle path segment is a vendor token',
+      ['https://hooks.slack.com', 'services', 'T00000000', INNER, THIRD_SEGMENT].join('/'),
+    ],
+    ['JWT whose payload segment is a vendor token', `eyJhbGciOiJIUzI1NiJ9.${INNER}.${JWT_SIGNATURE}`],
+    ['Authorization header carrying a vendor token with no scheme', `Authorization: ${INNER}`],
+  ];
+
+  it.each(CONTAINERS)('masks the whole %s', (_label, text) => {
+    expect(redactSecrets(text)).toBe('[redacted]');
+  });
+
+  it('the containers really are whole-credential (control against a vacuous toBe)', () => {
+    // Each container must carry BOTH the inner token and something outside it,
+    // or `toBe('[redacted]')` would prove nothing about the composition.
+    for (const [label, text] of CONTAINERS) {
+      expect(text, label).toContain(INNER);
+      expect(text.length, label).toBeGreaterThan(INNER.length + 10);
+    }
+  });
 });
 
 /**
