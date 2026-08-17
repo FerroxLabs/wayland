@@ -33,6 +33,7 @@ import type {
   WCoreUpdateCheck,
   WCoreUpdateProgress,
 } from '@/common/update/wcoreUpdateTypes';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { WCORE_OVERRIDE_SUBDIR, detectWCore } from './binaryResolver';
 
 export type { WCoreInstallResult, WCoreUpdateCheck, WCoreUpdateProgress };
@@ -274,7 +275,17 @@ export async function installWCoreUpdate(
     const expected = parseChecksum(checksums, assetName);
     if (!expected) return { ok: false, error: `no checksum for ${assetName}` };
     const actual = await sha256File(archivePath);
-    if (actual !== expected) return { ok: false, error: 'checksum mismatch' };
+    if (actual !== expected) {
+      // #853: name the asset AND both digests. The bare 'checksum mismatch' this
+      // replaced gave a user nothing to act on - they could not tell a truncated
+      // download from a wrong asset from a tampered mirror, and had nothing to
+      // compare against the release's checksums.txt. Scrubbed on the way out for
+      // the same reason the landed half of #853 scrubs surfaced engine failures.
+      return {
+        ok: false,
+        error: redactCommandSecrets(`checksum mismatch for ${assetName}: expected sha256 ${expected}, got ${actual}`),
+      };
+    }
 
     // 3. Extract + locate the binary.
     onProgress?.({ phase: 'extracting' });

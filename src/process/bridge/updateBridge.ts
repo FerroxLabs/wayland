@@ -16,6 +16,7 @@ import type {
   GitHubReleaseAsset,
 } from '@/common/update/updateTypes';
 import { uuid } from '@/common/utils';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { app } from 'electron';
 import * as crypto from 'node:crypto';
 import * as fs from 'fs';
@@ -417,15 +418,29 @@ const computeFileSha512 = (filePath: string): Promise<string> =>
   });
 
 /**
- * Verify the file at `filePath` matches `expectedBase64` (a base64 SHA-512).
- * Uses a constant-time comparison. Returns true only on an exact match.
+ * Outcome of a SHA-512 verification: the verdict AND the digest that produced
+ * it.
+ *
+ * #853: this used to be a bare boolean, so the digest the function had just
+ * computed was discarded at the `return`. The caller then had nothing to report
+ * beyond "checksum mismatch" - a user staring at a failed update could not tell
+ * a truncated download from a wrong asset from a tampered CDN copy, and had
+ * nothing to compare against the Releases page.
  */
-const verifyFileSha512 = async (filePath: string, expectedBase64: string): Promise<boolean> => {
+type Sha512Verification = { ok: boolean; actual: string };
+
+/**
+ * Verify the file at `filePath` matches `expectedBase64` (a base64 SHA-512).
+ * Uses a constant-time comparison. `ok` is true only on an exact match.
+ */
+const verifyFileSha512 = async (filePath: string, expectedBase64: string): Promise<Sha512Verification> => {
   const actual = await computeFileSha512(filePath);
   const a = Buffer.from(actual, 'base64');
   const b = Buffer.from(expectedBase64, 'base64');
-  if (a.length !== b.length || a.length === 0) return false;
-  return crypto.timingSafeEqual(a, b);
+  // Length mismatch (or an unparseable expectation) is a mismatch, not an error:
+  // `timingSafeEqual` throws on unequal lengths, so it must not be reached.
+  if (a.length !== b.length || a.length === 0) return { ok: false, actual };
+  return { ok: crypto.timingSafeEqual(a, b), actual };
 };
 
 const mapRelease = (rel: GitHubReleaseApi): UpdateReleaseInfo | null => {
@@ -697,9 +712,17 @@ const startDownloadInBackground = async (
     let verifyError = '';
     try {
       const expected = await fetchExpectedSha512(integrity.repo, integrity.tagName, integrity.assetName);
-      verified = await verifyFileSha512(filePath, expected);
+      const verification = await verifyFileSha512(filePath, expected);
+      verified = verification.ok;
       if (!verified) {
-        verifyError = (await getI18n()).t('update.errors.checksumMismatch');
+        // #853: name BOTH digests. Without them "checksum mismatch" is a dead
+        // end - with them a user can compare the expectation against the
+        // Releases page and tell a truncated download from a wrong asset.
+        const i18n = await getI18n();
+        verifyError = `${i18n.t('update.errors.checksumMismatch')} ${i18n.t('update.errors.checksumDigests', {
+          expected,
+          actual: verification.actual,
+        })}`;
       }
     } catch (err: unknown) {
       verifyError = err instanceof Error ? err.message : String(err);
@@ -711,13 +734,17 @@ const startDownloadInBackground = async (
       } catch {
         // ignore cleanup failure
       }
-      console.error('[updateBridge] Integrity verification failed; refusing to open artifact:', verifyError);
+      // The detail now carries a download URL / local path on the catch path, so
+      // scrub it the way the landed half of #853 scrubs surfaced engine failures
+      // (WCoreManager) before it reaches the log or the UI.
+      const surfaced = redactCommandSecrets(verifyError || (await getI18n()).t('update.errors.checksumMismatch'));
+      console.error('[updateBridge] Integrity verification failed; refusing to open artifact:', surfaced);
       emitProgress({
         downloadId,
         status: 'error',
         receivedBytes: finalResult.receivedBytes,
         totalBytes: finalResult.totalBytes,
-        error: verifyError || (await getI18n()).t('update.errors.checksumMismatch'),
+        error: surfaced,
       });
       return;
     }

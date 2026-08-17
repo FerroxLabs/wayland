@@ -5251,6 +5251,7 @@ export type I18nKey =
   | 'update.errorTitle'
   | 'update.errors.assetNotInMetadata'
   | 'update.errors.checkReturnedNull'
+  | 'update.errors.checksumDigests'
   | 'update.errors.checksumMismatch'
   | 'update.errors.downloadFailed'
   | 'update.errors.downloadNoBody'

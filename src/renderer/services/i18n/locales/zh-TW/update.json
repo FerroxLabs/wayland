@@ -34,7 +34,8 @@
     "missingTag": "無法驗證此更新：缺少發行標籤。請從 Releases 頁面更新。",
     "metadataMissing": "找不到此版本的已簽署更新中繼資料 (latest.yml)。拒絕開啟未經驗證的安裝程式。",
     "assetNotInMetadata": "下載的檔案「{{name}}」未列在已簽署的更新中繼資料中。拒絕開啟未經驗證的安裝程式。",
-    "checksumMismatch": "下載的更新未通過完整性驗證（校驗和不符），已被捨棄。請勿執行它。請重試或從 Releases 頁面下載。"
+    "checksumMismatch": "下載的更新未通過完整性驗證（校驗和不符），已被捨棄。請勿執行它。請重試或從 Releases 頁面下載。",
+    "checksumDigests": "預期的 SHA-512 為 {{expected}}，但下載的檔案是 {{actual}}。"
   },
   "pill": {
     "available": "Update",
