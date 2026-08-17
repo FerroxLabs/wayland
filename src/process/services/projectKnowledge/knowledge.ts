@@ -196,11 +196,10 @@ export async function loadGlobalMemoryBlock(): Promise<string> {
   const sections: string[] = [];
   let used = 0;
   // #924: the block is the agent's whole record of the user's memory, so every
-  // way it shrinks must be visible in the text. `emitted` + `skippedEmpty`
-  // account for the entries the loop consumed; anything left over was dropped
-  // by a size cap and is disclosed in the trailing notice below.
+  // way it shrinks must be visible in the text. Every entry the loop reaches is
+  // emitted, so `emitted` alone accounts for them; anything left over was
+  // dropped by a size cap and is disclosed in the trailing notice below.
   let emitted = 0;
-  let skippedEmpty = 0;
   for (const entry of globalEntries) {
     // Stop before reading the next body once the remaining char budget is
     // nearly exhausted: the heading + label overhead means a section needs room
@@ -220,11 +219,15 @@ export async function loadGlobalMemoryBlock(): Promise<string> {
       // fall back to the preview already in hand
     }
     body = body.trim();
-    if (!body) {
-      skippedEmpty++;
-      continue;
-    }
-    if (body.length > MEMORY_ENTRY_CHAR_CAP) body = `${body.slice(0, MEMORY_ENTRY_CHAR_CAP)}\n\n…(truncated)`;
+    // #924: an entry can carry no body at all - a preference note whose SUMMARY
+    // is the whole note (its 200-char index preview is then empty too), or a
+    // source file `getEntry` could not read or could no longer match. Skipping
+    // it left NO marker: the count was subtracted back out of the omission
+    // notice below, so the entry vanished from a block that still looked
+    // complete. Emit the heading - which carries the note in the common case -
+    // and say the body was empty.
+    if (!body) body = '…(entry body empty)';
+    else if (body.length > MEMORY_ENTRY_CHAR_CAP) body = `${body.slice(0, MEMORY_ENTRY_CHAR_CAP)}\n\n…(truncated)`;
     // #924: the list index carries only a 200-char preview. Substituting it for
     // the body when the full read fails used to be silent, so the agent read a
     // fragment as the complete entry and acted on the missing remainder.
@@ -238,7 +241,7 @@ export async function loadGlobalMemoryBlock(): Promise<string> {
   }
 
   if (sections.length === 0) return '';
-  const omitted = allGlobal.length - emitted - skippedEmpty;
+  const omitted = allGlobal.length - emitted;
   if (omitted > 0) {
     sections.push(`…(${omitted} more memory ${omitted === 1 ? 'entry' : 'entries'} omitted to fit the context budget)`);
   }

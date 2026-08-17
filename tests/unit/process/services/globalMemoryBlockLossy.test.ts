@@ -82,7 +82,7 @@ describe('loadGlobalMemoryBlock lossy disclosure (#924)', () => {
   });
 
   it('discloses how many entries the block budget dropped', async () => {
-    // Each body is 7_000 chars: two fit inside MEMORY_BLOCK_CHAR_CAP (24_000),
+    // Each body is 7_000 chars: three fit inside MEMORY_BLOCK_CHAR_CAP (24_000),
     // the loop then stops with entries still unread.
     const bodies: Record<string, string> = {};
     const entries: MemoryEntry[] = [];
@@ -107,8 +107,72 @@ describe('loadGlobalMemoryBlock lossy disclosure (#924)', () => {
 
     const block = await loadGlobalMemoryBlock();
     expect(block).toContain('entry 0');
-    // Some entries did not fit - the block must say so rather than end silently.
-    expect(block).toMatch(/\d+ more memory entr/);
+    // The COUNT is the whole disclosure: a notice that under-reports is worse
+    // than none, because it looks trustworthy. Three of six bodies fit, so the
+    // block must name exactly three - not "some", not an off-by-one.
+    expect(block.match(/^## entry \d+$/gm)).toHaveLength(3);
+    expect(block).toContain('…(3 more memory entries omitted to fit the context budget)');
+  });
+
+  it('counts entries dropped by the 50-entry cap exactly', async () => {
+    // MEMORY_BLOCK_MAX_ENTRIES (50) is a different drop path from the char cap
+    // above: the bodies are tiny, so all 50 survivors fit and the remaining 10
+    // are lost to the entry cap alone.
+    const entries: MemoryEntry[] = Array.from({ length: 60 }, (_, i) =>
+      entry({
+        id: `c${i}`,
+        summary: `capped ${i}`,
+        sourcePath: path.join(GLOBAL_DIR, `cap-${i}.md`),
+        storedAt: Date.now() - i * 1000,
+      })
+    );
+    setIjfwArchiveService({
+      listEntries: async () => ({ entries, total: entries.length }),
+      getEntry: async (id: string) => ({ ...entries.find((e) => e.id === id)!, body: `body ${id}` }),
+      dispose: () => {},
+    } as unknown as IjfwArchiveService);
+
+    const block = await loadGlobalMemoryBlock();
+    expect(block.match(/^## capped \d+$/gm)).toHaveLength(50);
+    expect(block).toContain('…(10 more memory entries omitted to fit the context budget)');
+  });
+
+  it('emits a summary-only entry with an empty-body marker instead of dropping it silently', async () => {
+    // The reachable case: a preference note whose SUMMARY is the whole note.
+    // `bodyPreview` is stripMarkdown(body).slice(0, 200) so it is '' too, and
+    // `getEntry` returns body: '' whenever the source block no longer matches.
+    // The entry used to be skipped AND subtracted back out of the omission
+    // notice, so it vanished from a block that still read as complete.
+    const summaryOnly = entry({
+      id: 'so',
+      summary: 'NEVER deploy on a Friday - this is the whole note',
+      sourcePath: path.join(GLOBAL_DIR, 'prefs.md'),
+      storedAt: Date.now(),
+      bodyPreview: '',
+    });
+    const withBody = entry({
+      id: 'wb',
+      summary: 'has a body',
+      sourcePath: path.join(GLOBAL_DIR, 'journal.md'),
+      storedAt: Date.now() - 1000,
+      bodyPreview: 'this body is present',
+    });
+    setIjfwArchiveService({
+      listEntries: async () => ({ entries: [summaryOnly, withBody], total: 2 }),
+      getEntry: async (id: string) =>
+        id === 'so' ? { ...summaryOnly, body: '' } : { ...withBody, body: 'this body is present' },
+      dispose: () => {},
+    } as unknown as IjfwArchiveService);
+
+    const block = await loadGlobalMemoryBlock();
+    // The note itself must survive - the summary IS the content here.
+    expect(block).toContain('NEVER deploy on a Friday - this is the whole note');
+    expect(block).toContain('…(entry body empty)');
+    expect(block).toContain('this body is present');
+    // Nothing was dropped, so no omission notice - and, critically, the empty
+    // entry must not be quietly subtracted out to make the numbers balance.
+    expect(block.match(/^## /gm)).toHaveLength(2);
+    expect(block).not.toMatch(/more memory entr/);
   });
 
   it('adds no omission notice when every entry fits', async () => {
