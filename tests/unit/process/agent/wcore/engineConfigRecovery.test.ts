@@ -313,10 +313,7 @@ describe('regenerateEngineConfig - explicit confirmation required', () => {
     const fs = fakeFs({ [CONFIG_PATH]: REPORTED_CORRUPT });
     const result = await regenerateEngineConfig({ confirmed: true }, fs.deps);
     expect(result.ok).toBe(true);
-    expect(fs.writes).toEqual([
-      '/scratch/wayland-core/config.toml.backup-20260817-142530',
-      `unlink:${CONFIG_PATH}`,
-    ]);
+    expect(fs.writes).toEqual(['/scratch/wayland-core/config.toml.backup-20260817-142530', `unlink:${CONFIG_PATH}`]);
     expect(fs.files.has(CONFIG_PATH)).toBe(false);
     // The credentials still exist - in the verified backup.
     expect(fs.files.get(fs.writes[0])).toBe(REPORTED_CORRUPT);
@@ -355,7 +352,7 @@ describe('repairEngineConfig against a real scratch config dir', () => {
     const result = await repairEngineConfig(deps);
     expect(result.ok).toBe(true);
 
-    const backupPath = result.ok ? result.backupPath : '';
+    const backupPath = result.backupPath ?? '';
     // The backup exists on disk and is byte-identical to the original.
     expect(await realReadFile(backupPath, 'utf-8')).toBe(REPORTED_CORRUPT);
 
@@ -385,7 +382,7 @@ describe('repairEngineConfig against a real scratch config dir', () => {
     const result = await regenerateEngineConfig({ confirmed: true }, deps);
     expect(result.ok).toBe(true);
     await expect(realReadFile(configPath, 'utf-8')).rejects.toThrow();
-    expect(await realReadFile(result.ok ? result.backupPath : '', 'utf-8')).toBe(REPORTED_CORRUPT);
+    expect(await realReadFile(result.backupPath ?? '', 'utf-8')).toBe(REPORTED_CORRUPT);
 
     await rm(scratch, { recursive: true, force: true });
   });

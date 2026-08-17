@@ -509,5 +509,41 @@
       "title": "任務失敗",
       "body": "{{title}} 因錯誤而停止。{{detail}}"
     }
+  },
+  "engineConfigInvalid": {
+    "title": "Wayland Core 的設定檔裡有個筆誤",
+    "explainer": "引擎讀不了自己的設定檔，所以代理無法啟動。什麼都沒有被改動——你的服務供應商、金鑰和設定都還在裡面。",
+    "dismiss": "關閉",
+    "details": "技術細節",
+    "checking": "正在檢查設定檔…",
+    "location": "問題出在第 {{line}} 行，第 {{column}} 欄。",
+    "noProblem": "設定檔現在可以正常讀取了。請重新傳送訊息。",
+    "unreadable": "Wayland 無法讀取設定檔。原因：{{reason}}",
+    "repair": {
+      "label": "幫我修正第 {{line}} 行",
+      "sublabel": "先備份檔案，然後補上缺少的換行。檔案裡其他內容不會改動。",
+      "action": "修正",
+      "unavailable": "第 {{line}} 行的問題需要人工判斷——Wayland 不會去猜。請在下方開啟檔案，或還原預設設定重新開始。"
+    },
+    "reveal": {
+      "label": "讓我看看這個檔案",
+      "sublabel": "開啟它所在的資料夾，這樣你不用自己去找路徑。",
+      "action": "顯示"
+    },
+    "regenerate": {
+      "label": "還原預設設定重新開始",
+      "sublabel": "最後的辦法。先備份你目前的檔案，然後刪除它，讓引擎寫一份新的。",
+      "action": "重新開始",
+      "confirmTitle": "要還原預設設定重新開始嗎？",
+      "confirmBody": "這會刪除你的引擎設定檔。你會失去服務供應商清單、儲存在其中的 API 金鑰，以及你的記憶與技能設定，必須重新設定一次。\n\n系統會先在原檔案旁邊儲存一份帶時間戳記的備份。如果這份備份無法驗證，就什麼都不會刪除。",
+      "confirmAction": "備份並重新開始"
+    },
+    "result": {
+      "repaired": "已修正。原檔案的備份已儲存為 {{name}}。",
+      "regenerated": "完成。你原本的設定已儲存為 {{name}}。",
+      "backupFailed": "Wayland 無法建立可驗證的備份，因此什麼都沒有改動。原因：{{reason}}",
+      "writeFailed": "這次變更沒能完成。原因：{{reason}}",
+      "revealFailed": "Wayland 無法開啟該資料夾。原因：{{reason}}"
+    }
   }
 }

@@ -590,6 +590,26 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     reaching it is a clipboard-injection primitive, so deny it too. ---
   'doctor.run',
   'doctor.copy-text',
+  // --- Engine config recovery (#1024). Three of these WRITE to or DELETE the
+  //     engine's `config.toml`, the file that holds the user's providers,
+  //     credentials and memory/skills settings: `repair` rewrites it,
+  //     `regenerate` removes it outright (behind a confirmation + a verified
+  //     backup), and `reveal` asks the HOST OS to open a Finder/Explorer window.
+  //     A paired-device WS token proves a remote BROWSER, not the local trusted
+  //     user, so none of them may be driven from the wire. `inspect` is a read,
+  //     but it discloses the host's engine config path and its integrity posture
+  //     - the same reconnaissance class as `doctor.run` directly above - so it is
+  //     denied too rather than left as the one open door in the namespace.
+  //
+  //     FULLY QUALIFIED ON PURPOSE: `isAllowedForRemote` strips only the
+  //     `subscribe-` transport prefix and then matches this set EXACTLY against
+  //     the whole remaining channel name, so a bare `repair` / `regenerate`
+  //     entry would match nothing that is ever sent and would sit here looking
+  //     like protection while the channel stayed open. ---
+  'engine-config-recovery.inspect',
+  'engine-config-recovery.repair',
+  'engine-config-recovery.regenerate',
+  'engine-config-recovery.reveal',
   // --- Terminal mode (#645) ENABLE toggle. The read (get-terminal-enabled) is a
   //     harmless boolean and stays allowed, but a remote peer must not flip the
   //     advanced PTY feature ON. The PTY spawn itself is already denied via the

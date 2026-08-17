@@ -23,7 +23,21 @@ import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageS
 import { copyText } from '@/renderer/utils/ui/clipboard';
 import { doctor } from '@/common/adapter/ipcBridge';
 import type { DoctorCheckResult, DoctorReport, DoctorStatus } from '@process/doctor/types';
+import EngineConfigRecoveryPanel from '@renderer/components/activation/EngineConfigRecoveryPanel';
 import { buildDoctorReportText } from './reportText';
+
+/**
+ * The `config.engineConfig` check's id (registry.ts). #1024: when that check
+ * FAILS the user needs actions, not a sentence telling them to hand-edit TOML, so
+ * the shared recovery panel is rendered inline under the row.
+ *
+ * Keyed on the check ID rather than on the detail/remediation PROSE on purpose:
+ * the wording of those strings is owned by the check (and is being tightened
+ * separately for message sanitisation), while the id is the stable contract. The
+ * panel also gets its own line/column and path straight from the main process,
+ * so it never has to parse a message that was written for a human.
+ */
+const ENGINE_CONFIG_CHECK_ID = 'config.engineConfig';
 
 /** Icon + token color per status. Colors use semantic CSS variables. */
 const STATUS_VISUALS: Record<DoctorStatus, { Icon: typeof CheckCircle2; color: string }> = {
@@ -38,7 +52,7 @@ const STATUS_LABEL_KEY: Record<DoctorStatus, string> = {
   fail: 'settings.doctor.status.fail',
 };
 
-const CheckRow: React.FC<{ result: DoctorCheckResult }> = ({ result }) => {
+const CheckRow: React.FC<{ result: DoctorCheckResult; onRecovered?: () => void }> = ({ result, onRecovered }) => {
   const { t } = useTranslation();
   const { Icon, color } = STATUS_VISUALS[result.status];
   return (
@@ -57,6 +71,11 @@ const CheckRow: React.FC<{ result: DoctorCheckResult }> = ({ result }) => {
         {result.remediation && (
           <div className='text-12px text-[var(--color-text-3)] mt-2px'>
             {t('settings.doctor.remediationPrefix', { defaultValue: 'Fix:' })} {result.remediation}
+          </div>
+        )}
+        {result.id === ENGINE_CONFIG_CHECK_ID && result.status === 'fail' && (
+          <div className='mt-10px' data-testid='doctor-engine-config-recovery'>
+            <EngineConfigRecoveryPanel onRecovered={onRecovered} />
           </div>
         )}
       </div>
@@ -152,7 +171,7 @@ const DoctorSettings: React.FC = () => {
           <div className='text-12px text-[var(--color-text-3)] mb-8px'>{summary}</div>
           <div className='flex flex-col'>
             {report.results.map((result) => (
-              <CheckRow key={result.id} result={result} />
+              <CheckRow key={result.id} result={result} onRecovered={() => void run()} />
             ))}
           </div>
         </Card>

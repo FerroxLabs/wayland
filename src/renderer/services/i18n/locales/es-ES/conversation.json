@@ -509,5 +509,41 @@
       "title": "La tarea falló",
       "body": "{{title}} se detuvo con un error. {{detail}}"
     }
+  },
+  "engineConfigInvalid": {
+    "title": "El archivo de ajustes de Wayland Core tiene un error de escritura",
+    "explainer": "El motor no ha podido leer su propio archivo de ajustes, así que el agente no puede arrancar. No se ha cambiado nada: tus proveedores, claves y ajustes siguen ahí.",
+    "dismiss": "Descartar",
+    "details": "Detalles técnicos",
+    "checking": "Comprobando el archivo de ajustes…",
+    "location": "El problema está en la línea {{line}}, columna {{column}}.",
+    "noProblem": "El archivo de ajustes ya se lee correctamente. Vuelve a enviar tu mensaje.",
+    "unreadable": "Wayland no ha podido leer el archivo de ajustes. Motivo: {{reason}}",
+    "repair": {
+      "label": "Arregla la línea {{line}} por mí",
+      "sublabel": "Primero hace una copia de seguridad del archivo y luego añade el salto de línea que falta. No cambia nada más.",
+      "action": "Arreglarlo",
+      "unavailable": "El problema de la línea {{line}} necesita un ojo humano; Wayland no va a adivinarlo. Abre el archivo abajo o empieza de cero con los ajustes por defecto."
+    },
+    "reveal": {
+      "label": "Muéstrame el archivo",
+      "sublabel": "Abre la carpeta que lo contiene, para que no tengas que buscar la ruta.",
+      "action": "Mostrar"
+    },
+    "regenerate": {
+      "label": "Empezar de cero con los ajustes por defecto",
+      "sublabel": "Último recurso. Primero se hace una copia de seguridad de tu archivo actual y luego se elimina para que el motor escriba uno nuevo.",
+      "action": "Empezar de cero",
+      "confirmTitle": "¿Empezar de cero con los ajustes por defecto?",
+      "confirmBody": "Esto elimina tu archivo de ajustes del motor. Perderás la lista de proveedores, las claves de API guardadas en él y tus ajustes de memoria y habilidades, y tendrás que configurarlos de nuevo.\n\nPrimero se guarda una copia de seguridad con fecha y hora junto al original. Si esa copia no se puede verificar, no se elimina nada.",
+      "confirmAction": "Copiar y empezar de cero"
+    },
+    "result": {
+      "repaired": "Arreglado. Se ha guardado una copia del original como {{name}}.",
+      "regenerated": "Hecho. Tus ajustes anteriores se han guardado como {{name}}.",
+      "backupFailed": "Wayland no ha podido crear una copia de seguridad verificada, así que no se ha cambiado nada. Motivo: {{reason}}",
+      "writeFailed": "No se ha podido completar el cambio. Motivo: {{reason}}",
+      "revealFailed": "Wayland no ha podido abrir la carpeta. Motivo: {{reason}}"
+    }
   }
 }

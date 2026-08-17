@@ -628,5 +628,41 @@
     "cost": "Receipt-backed cost",
     "costMismatch": "Cost evidence does not reconcile. Total hidden."
   },
-  "imageVisionBlocked": "{{model}} can’t read images. Pick a vision-capable model (e.g. GPT-4o, Claude, or Gemini) or remove the image."
+  "imageVisionBlocked": "{{model}} can’t read images. Pick a vision-capable model (e.g. GPT-4o, Claude, or Gemini) or remove the image.",
+  "engineConfigInvalid": {
+    "title": "Wayland Core’s settings file has a typo",
+    "explainer": "The engine could not read its own settings file, so the agent cannot start. Nothing has been changed — your providers, keys and settings are all still in there.",
+    "dismiss": "Dismiss",
+    "details": "Technical details",
+    "checking": "Checking the settings file…",
+    "location": "The problem is on line {{line}}, column {{column}}.",
+    "noProblem": "The settings file reads cleanly now. Send your message again.",
+    "unreadable": "Wayland could not read the settings file. Reason: {{reason}}",
+    "repair": {
+      "label": "Fix line {{line}} for me",
+      "sublabel": "Backs up the file first, then adds the missing line break. Nothing else in the file changes.",
+      "action": "Fix it",
+      "unavailable": "The problem on line {{line}} needs a human eye — Wayland will not guess at it. Open the file below, or start over with defaults."
+    },
+    "reveal": {
+      "label": "Show me the file",
+      "sublabel": "Opens the folder that contains it, so you do not have to hunt for the path.",
+      "action": "Show"
+    },
+    "regenerate": {
+      "label": "Start over with default settings",
+      "sublabel": "Last resort. Your current file is backed up first, then removed so the engine can write a fresh one.",
+      "action": "Start over",
+      "confirmTitle": "Start over with default settings?",
+      "confirmBody": "This removes your engine settings file. You will lose the provider list, the API keys stored in it, and your memory and skills settings, and you will have to set them up again.\n\nA timestamped backup is saved next to the original first. If that backup cannot be verified, nothing is removed.",
+      "confirmAction": "Back up and start over"
+    },
+    "result": {
+      "repaired": "Fixed. A backup of the original was saved as {{name}}.",
+      "regenerated": "Done. Your old settings were saved as {{name}}.",
+      "backupFailed": "Wayland could not create a verified backup, so nothing was changed. Reason: {{reason}}",
+      "writeFailed": "The change could not be completed. Reason: {{reason}}",
+      "revealFailed": "Wayland could not open the folder. Reason: {{reason}}"
+    }
+  }
 }
