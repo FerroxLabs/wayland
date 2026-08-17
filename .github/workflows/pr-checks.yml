@@ -774,44 +774,16 @@ jobs:
       - name: Postinstall (CI uses prebuilt binaries; see scripts/postinstall.js)
         run: bun run postinstall || true
 
-      # #940: the electron-vite build below bundles the four @wayland MCP
-      # connectors from the PRIVATE FerroxLabs/waylandmcp repo. A pull request
-      # from a FORK gets no repo secrets, so the deploy key is empty there and
-      # the sources are unreachable by construction - that PR keeps the bypass
-      # and says so loudly. This is the ONLY place the bypass survives; every
-      # release/publish path checks the sources out unconditionally and goes red
-      # if it cannot, so a shipped build can never be missing the connectors.
-      - name: Detect access to the @wayland MCP connector sources
-        id: mcp-src
-        env:
-          MCP_DEPLOY_KEY: ${{ secrets.WAYLANDMCP_DEPLOY_KEY }}
-        run: |
-          if [ -n "$MCP_DEPLOY_KEY" ]; then
-            echo 'available=true' >> "$GITHUB_OUTPUT"
-          else
-            echo 'available=false' >> "$GITHUB_OUTPUT"
-            echo 'WAYLAND_ALLOW_MISSING_MCP=1' >> "$GITHUB_ENV"
-            echo '::warning title=@wayland MCP connectors NOT built::Fork PRs get no repo secrets, so the private connector sources cannot be checked out and apple/imap/news/cal.com are excluded from this build only. Release builds have no such bypass (#940).'
-          fi
-
-      # actions/checkout refuses any `path` outside github.workspace, so the
-      # sources land at ./waylandmcp (gitignored) - the first candidate
-      # scripts/build-mcp-servers.js resolves. Must run AFTER the repo checkout
-      # above, whose `git clean -ffdx` would delete this tree.
-      - name: Checkout @wayland MCP connector sources
-        if: steps.mcp-src.outputs.available == 'true'
-        uses: actions/checkout@v4
-        with:
-          repository: FerroxLabs/waylandmcp
-          ssh-key: ${{ secrets.WAYLANDMCP_DEPLOY_KEY }}
-          path: waylandmcp
-          persist-credentials: false
-
-      - name: Install @wayland MCP connector dependencies
-        if: steps.mcp-src.outputs.available == 'true'
-        working-directory: waylandmcp
-        run: bun install --frozen-lockfile
-
+      # #940: no @wayland MCP connector checkout here on purpose. The build
+      # below runs electron-vite in PRODUCTION mode, and electron.vite.config.ts
+      # registers buildMcpServersPlugin only when mode === 'development', so
+      # nothing in this workflow ever invokes scripts/build-mcp-servers.js - the
+      # WAYLAND_ALLOW_MISSING_MCP=1 that used to sit in this file's env was never
+      # load-bearing. Checking the private sources out for a build that does not
+      # consume them would also break every FORK pull request, which gets no repo
+      # secrets. The connectors are proved by build-matrix.yml (every push to
+      # main, plus weekly) and by the release path, neither of which can be run
+      # from a fork and neither of which has a bypass any more.
       - name: Typecheck
         run: bunx tsc --noEmit
 

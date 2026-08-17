@@ -44,10 +44,10 @@ const SHARED_OPTIONS = {
  * installers because both skips below were unconditional warnings, and the
  * Library still advertised cards for them.
  *
- * CI no longer sets it on any trusted build: every workflow that builds now
- * checks FerroxLabs/waylandmcp out to ./waylandmcp first. The ONE remaining
- * setter is pr-checks.yml on a FORK pull request, which gets no repo secrets
- * and therefore cannot read the private connector sources at all - see #940.
+ * NOTHING in CI sets it any more: every workflow that actually runs this script
+ * checks FerroxLabs/waylandmcp out to ./waylandmcp first. The env var stays as
+ * the deliberate, loud escape hatch for a local build without the sources - see
+ * #940.
  */
 const ALLOW_MISSING_ENV = 'WAYLAND_ALLOW_MISSING_MCP';
 
