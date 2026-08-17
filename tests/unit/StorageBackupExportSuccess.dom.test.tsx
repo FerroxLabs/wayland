@@ -206,11 +206,16 @@ describe('BackupCard export feedback (F5)', () => {
    * its spinner with no toast and the card's Restore button spun for the rest of
    * the session, even after Cancel. Name the wrong passphrase, and stop spinning.
    */
-  it('names a mistyped backup passphrase and stops the spinner', async () => {
+  it('names a mistyped backup passphrase, stops the spinner, and keeps the dialog open', async () => {
     mockImportBackup.mockResolvedValue({ ok: false, failed: true, errorCode: 'BAD_PASSPHRASE' });
     render(<BackupCard />);
 
-    confirmDesktopRestore();
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    const passphraseInput = screen.getByPlaceholderText(
+      'settings.storagePage.restorePassphraseHint'
+    ) as HTMLInputElement;
+    fireEvent.change(passphraseInput, { target: { value: 'hunter2-typo' } });
+    fireEvent.click(screen.getByText('settings.storagePage.restoreConfirm'));
 
     await waitFor(() => {
       expect(Message.error).toHaveBeenCalledWith('settings.storagePage.restoreBadPassphrase');
@@ -218,6 +223,15 @@ describe('BackupCard export feedback (F5)', () => {
     expect(Message.success).not.toHaveBeenCalled();
     const restoreButton = screen.getByText('settings.storagePage.restore').closest('button');
     await waitFor(() => expect(restoreButton?.className).not.toContain('arco-btn-loading'));
+
+    // A typo is retryable, so the dialog must stay open WITH what was typed still
+    // in it. Closing it and clearing the field is a poor answer to a typo, and it
+    // is the half of this fix that nothing was holding.
+    const stillOpen = document.querySelector(
+      'input[placeholder="settings.storagePage.restorePassphraseHint"]'
+    ) as HTMLInputElement | null;
+    expect(stillOpen).not.toBeNull();
+    expect(stillOpen?.value).toBe('hunter2-typo');
   });
 
   // Cancelling the native file picker is not a failure. It must stay silent, or

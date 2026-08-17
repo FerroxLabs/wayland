@@ -110,6 +110,33 @@ describe('BackupCard WebUI restore reporting (#1021, #1042 F5)', () => {
     expect(Message.success).not.toHaveBeenCalled();
   });
 
+  /**
+   * The single deliberate decision that stops #1021 recurring: an `applied` list
+   * that is ABSENT, not merely empty, must still warn. Mutating the guard to
+   * `applied.length === 0 && report.applied` restores the original bug verbatim -
+   * a success toast over a restore that moved nothing - and left all 18,062 tests
+   * green, so nothing was holding it.
+   *
+   * The input is reachable in today's code, not hypothetical: StorageService's
+   * restore client ends `return json.data ?? {}`, so a 200 reply with no `data`
+   * object produces exactly this call. A warning that names no data is
+   * recoverable; a success claim over data that never moved is not.
+   */
+  it('warns rather than claims success when the reply carries no applied list', async () => {
+    mockRestoreHttp.mockResolvedValue({});
+    render(<BackupCard />);
+
+    confirmWebuiRestore();
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.restoreNothingApplied' })
+      );
+    });
+    expect(Message.success).not.toHaveBeenCalled();
+    expect(Message.error).not.toHaveBeenCalled();
+  });
+
   it('names what a WebUI restore applied instead of a flat success', async () => {
     mockRestoreHttp.mockResolvedValue({
       safetyBackupPath: '/data/recovery/legacy-file-imports/pre-restore.zip',

@@ -112,7 +112,12 @@ describe('POST /api/storage/restore reports what it applied (#1021, #1042 F5)', 
     fs.writeFileSync(uploaded, await zip.generateAsync({ type: 'nodebuffer' }));
   };
 
-  it('does not claim success when a modern-install archive applied nothing', async () => {
+  // `success` here is the TRANSPORT signal - the request was served - and the test
+  // asserts it stays true. The user-facing claim is made by the renderer's
+  // reportRestore, which warns on an empty `applied`. Naming this test "does not
+  // claim success" while asserting `success: true` was the same genre of problem
+  // this whole fix exists to catch, so it says what it checks instead.
+  it('reports an empty applied list when a modern-install archive moved nothing', async () => {
     // An archive whose only top-level entry is outside the legacy restore scope:
     // exactly the shape a modern install produces for the reporter of #1021.
     await writeArchive({ 'database/wayland.db': 'sqlite' });
