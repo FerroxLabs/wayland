@@ -2141,8 +2141,13 @@
     "restoreApplied": "恢复完成。已恢复：{{items}}。",
     "restoreAppliedWithSafety": "恢复完成。已恢复：{{items}}。恢复前的文件备份副本位于 {{path}}。",
     "restoreNothingApplied": "未恢复任何内容。此归档不含旧版会话文件、附件或配置，因此此设备上没有任何变化。聊天、项目和 API 密钥保存在主数据库中，旧版文件导出并不涵盖它们。",
+    "restoreNothingAppliedOutOfScope": "没有恢复任何内容。这个归档中的内容不在旧版文件恢复的范围内：{{items}}。此设备上的内容没有任何改动。对话、项目和 API 密钥保存在主数据库中，而旧版文件导出并不涵盖那里。",
     "restoreKeysOnlyNoPassphrase": "目前还没有恢复任何内容。这个归档中只有你的加密 API 密钥，没有其他属于旧版文件恢复范围的内容，但由于没有输入备份口令，密钥被原样保留。请输入创建归档时设置的口令，然后重新恢复。",
     "restoreKeysSkipped": "已恢复：{{items}}。归档中还包含加密的 API 密钥，但未输入备份口令，因此密钥未被恢复。",
+    "restoreItemConversations": "对话文件",
+    "restoreItemAttachments": "附件",
+    "restoreItemConfig": "设置文件",
+    "restoreItemKeys": "API 密钥",
     "exportNoKeys": "已创建导出，但其中不含 API 密钥：此安装没有旧版密钥文件。您的 API 密钥保存在主数据库中，旧版文件导出并不涵盖它们。"
   },
   "editorPage": {

@@ -2167,8 +2167,13 @@
     "restoreApplied": "Restauración completada. Restaurado: {{items}}.",
     "restoreAppliedWithSafety": "Restauración completada. Restaurado: {{items}}. Tu copia de seguridad previa a la restauración está en {{path}}.",
     "restoreNothingApplied": "No se restauró nada. Este archivo no contenía archivos de conversación heredados, adjuntos ni configuración, por lo que nada cambió en este dispositivo. Los chats, los proyectos y las claves de API viven en la base de datos principal, que una exportación de archivos heredada no cubre.",
+    "restoreNothingAppliedOutOfScope": "No se restauró nada. Lo que contenía este archivo queda fuera de lo que cubre una restauración de archivos antiguos: {{items}}. No se cambió nada en este dispositivo. Los chats, los proyectos y las claves de API viven en la base de datos principal, que una exportación de archivos antiguos no cubre.",
     "restoreKeysOnlyNoPassphrase": "Todavía no se ha restaurado nada. Este archivo contiene tus claves de API cifradas, y nada más que cubra una restauración de archivos antiguos, pero no se introdujo ninguna contraseña de copia de seguridad, así que las claves se dejaron intactas. Introduce la contraseña que estableciste al crear el archivo y vuelve a restaurar.",
     "restoreKeysSkipped": "Restaurado: {{items}}. El archivo también contiene claves de API cifradas, pero no se introdujo ninguna frase de contraseña de copia de seguridad, por lo que las claves no se restauraron.",
+    "restoreItemConversations": "archivos de conversación",
+    "restoreItemAttachments": "adjuntos",
+    "restoreItemConfig": "archivos de configuración",
+    "restoreItemKeys": "claves de API",
     "exportNoKeys": "Exportación creada, pero no contiene claves de API: esta instalación no tiene un archivo de claves heredado. Tus claves de API viven en la base de datos principal, que una exportación de archivos heredada no cubre."
   },
   "editorPage": {

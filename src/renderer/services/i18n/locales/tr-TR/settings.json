@@ -2140,8 +2140,13 @@
     "restoreApplied": "Geri yükleme tamamlandı. Geri yüklenenler: {{items}}.",
     "restoreAppliedWithSafety": "Geri yükleme tamamlandı. Geri yüklenenler: {{items}}. Geri yükleme öncesi dosya kurtarma kopyanız {{path}} konumunda.",
     "restoreNothingApplied": "Hiçbir şey geri yüklenmedi. Bu arşivde eski konuşma dosyaları, ekler veya yapılandırma yoktu, bu nedenle bu cihazda hiçbir şey değişmedi. Sohbetler, projeler ve API anahtarları, eski dosya dışa aktarımının kapsamadığı ana veritabanında bulunur.",
+    "restoreNothingAppliedOutOfScope": "Hiçbir şey geri yüklenmedi. Bu arşivin içeriği, eski dosya geri yüklemesinin kapsamı dışında: {{items}}. Bu cihazda hiçbir şey değişmedi. Sohbetler, projeler ve API anahtarları, eski dosya dışa aktarımının kapsamadığı ana veritabanında bulunur.",
     "restoreKeysOnlyNoPassphrase": "Henüz hiçbir şey geri yüklenmedi. Bu arşiv şifreli API anahtarlarınızı içeriyor ve eski dosya geri yüklemesinin kapsadığı başka bir şey yok, ancak yedek parolası girilmediği için anahtarlara dokunulmadı. Arşivi oluştururken belirlediğiniz parolayı girip yeniden geri yükleyin.",
     "restoreKeysSkipped": "Geri yüklenenler: {{items}}. Arşivde şifreli API anahtarları da var ancak yedek parolası girilmediği için anahtarlar geri yüklenmedi.",
+    "restoreItemConversations": "konuşma dosyaları",
+    "restoreItemAttachments": "ekler",
+    "restoreItemConfig": "ayar dosyaları",
+    "restoreItemKeys": "API anahtarları",
     "exportNoKeys": "Dışa aktarma oluşturuldu ancak API anahtarı içermiyor: bu kurulumda eski anahtar dosyası yok. API anahtarlarınız, eski dosya dışa aktarımının kapsamadığı ana veritabanında bulunur."
   },
   "editorPage": {

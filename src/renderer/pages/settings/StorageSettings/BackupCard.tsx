@@ -22,6 +22,38 @@ const restoreErrorKey = (code?: LegacyBackupErrorCode): string =>
 const exportErrorKey = (code?: LegacyBackupErrorCode): string =>
   code === 'PASSPHRASE_REQUIRED' ? 'exportPassphraseRequired' : 'exportFailed';
 
+/**
+ * The importer reports what it applied using its own on-disk directory names.
+ * Those are internal, and dropping them raw into twelve localized sentences
+ * produced "Restored: config, conversations, keys.json" for every language. This
+ * is the closed set `replaceFromStaging` can return, so there is nothing to fall
+ * back to in practice - the raw name is kept only so an unexpected entry names
+ * itself rather than vanishing.
+ */
+const RESTORE_ITEM_KEYS: Record<string, string> = {
+  conversations: 'restoreItemConversations',
+  attachments: 'restoreItemAttachments',
+  config: 'restoreItemConfig',
+  'keys.json': 'restoreItemKeys',
+};
+
+/**
+ * The archive's own top-level names, for the case where a restore applied nothing
+ * and naming what the archive DID hold is the only useful thing left to say.
+ *
+ * These names come out of a zip the user may simply have been handed, so they are
+ * capped and filtered to a conservative charset rather than interpolated raw. The
+ * toast renders as text, so this is not about markup: it is about a hostile or
+ * malformed archive writing a paragraph, or a plausible lookalike sentence, into
+ * the UI. Empty means there is nothing worth naming.
+ */
+const describeOutOfScope = (names?: string[]): string =>
+  (names ?? [])
+    .map((name) => name.replace(/[^A-Za-z0-9._-]/g, '').slice(0, 32))
+    .filter((name) => name.length > 0)
+    .slice(0, 5)
+    .join(', ');
+
 const BackupCard: React.FC = () => {
   const { t } = useTranslation();
   const isDesktop = isElectronDesktop();
@@ -93,7 +125,9 @@ const BackupCard: React.FC = () => {
    */
   const reportRestore = (report: RestoreReport) => {
     const applied = report.applied ?? [];
-    const items = applied.join(', ');
+    const items = applied
+      .map((name) => (RESTORE_ITEM_KEYS[name] ? t(`settings.storagePage.${RESTORE_ITEM_KEYS[name]}`) : name))
+      .join(', ');
     if (applied.length === 0 && report.keysSkippedNoPassphrase) {
       // A keys-only archive with no passphrase. Tested BEFORE the generic
       // nothing-applied case, because that copy says the archive held no
@@ -110,7 +144,18 @@ const BackupCard: React.FC = () => {
       // loss for the reporter of #1021. An absent `applied` lands here too, on
       // purpose: a warning that names no data is recoverable, a success claim
       // over data that never moved is not.
-      Message.warning({ content: t('settings.storagePage.restoreNothingApplied'), duration: 15000 });
+      //
+      // If the archive held top-level entries this restore does not cover, name
+      // them. For a real Wayland archive that list is always empty, so this only
+      // fires for a foreign or hand-made zip - which is exactly the case where
+      // "nothing was restored" on its own sends the user away with no idea why.
+      const held = describeOutOfScope(report.outOfScope);
+      Message.warning({
+        content: held
+          ? t('settings.storagePage.restoreNothingAppliedOutOfScope', { items: held })
+          : t('settings.storagePage.restoreNothingApplied'),
+        duration: 15000,
+      });
       return;
     }
     if (report.keysSkippedNoPassphrase) {

@@ -29,8 +29,9 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+const mockTranslate = vi.fn((key: string, _opts?: unknown) => key);
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en-US' } }),
+  useTranslation: () => ({ t: (key: string, opts?: unknown) => mockTranslate(key, opts), i18n: { language: 'en-US' } }),
 }));
 
 vi.mock('@arco-design/web-react', async (importOriginal) => {
@@ -306,6 +307,78 @@ describe('BackupCard export feedback (F5)', () => {
       );
     });
     expect(Message.success).not.toHaveBeenCalled();
+  });
+
+  /**
+   * #1042 F8, first half: `outOfScope` was plumbed from the importer all the way
+   * to the renderer and never read by anything. The nothing-applied case is where
+   * naming what the archive DID hold is the only useful thing left to say - for a
+   * real Wayland archive the list is always empty, so this only fires for a
+   * foreign or hand-made zip, which is exactly when a bare "nothing was restored"
+   * sends the user away with no idea why.
+   */
+  it('names what an out-of-scope archive actually held', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      applied: [],
+      outOfScope: ['database', 'wcore'],
+      keysSkippedNoPassphrase: false,
+      fileCount: 3,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.restoreNothingAppliedOutOfScope' })
+      );
+    });
+    expect(Message.warning).not.toHaveBeenCalledWith(
+      expect.objectContaining({ content: 'settings.storagePage.restoreNothingApplied' })
+    );
+  });
+
+  // The archive's top-level names are text out of a zip the user may simply have
+  // been handed, and they end up inside a toast. A hostile or malformed archive
+  // must not be able to write a paragraph or a lookalike sentence into the UI.
+  it('caps and filters archive-supplied names before showing them', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      applied: [],
+      outOfScope: [`evil sentence ${'A'.repeat(300)}`, '', 'a', 'b', 'c', 'd', 'e', 'f'],
+      fileCount: 1,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => expect(Message.warning).toHaveBeenCalled());
+    const call = mockTranslate.mock.calls.find((c) => c[0] === 'settings.storagePage.restoreNothingAppliedOutOfScope');
+    expect(call, 'the out-of-scope message was never rendered').toBeDefined();
+    const items = (call![1] as { items: string }).items;
+    // Spaces are gone, no entry exceeds 32 characters, and at most five survive.
+    expect(items).not.toContain(' evil');
+    const parts = items.split(', ');
+    expect(parts).toHaveLength(5);
+    expect(Math.max(...parts.map((part) => part.length))).toBeLessThanOrEqual(32);
+  });
+
+  // #1042 F8, second half: `applied.join(', ')` dropped the importer's own
+  // on-disk directory names into twelve localized sentences, so every language
+  // read "Restored: config, conversations, keys.json".
+  it('does not put raw internal directory names into a localized sentence', async () => {
+    mockImportBackup.mockResolvedValue({ ok: true, applied: ['config', 'conversations', 'keys.json'] });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => expect(Message.success).toHaveBeenCalled());
+    const appliedCall = mockTranslate.mock.calls.find((c) => c[0] === 'settings.storagePage.restoreApplied');
+    expect(appliedCall, 'the restoreApplied message was never rendered').toBeDefined();
+    expect((appliedCall![1] as { items: string }).items).toBe(
+      'settings.storagePage.restoreItemConfig, settings.storagePage.restoreItemConversations, settings.storagePage.restoreItemKeys'
+    );
   });
 
   it('passes the entered passphrase through to the desktop importer', async () => {

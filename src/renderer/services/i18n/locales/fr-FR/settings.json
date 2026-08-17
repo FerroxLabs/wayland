@@ -2167,8 +2167,13 @@
     "restoreApplied": "Restauration terminée. Restauré : {{items}}.",
     "restoreAppliedWithSafety": "Restauration terminée. Restauré : {{items}}. Votre copie de récupération antérieure à la restauration se trouve dans {{path}}.",
     "restoreNothingApplied": "Rien n'a été restauré. Cette archive ne contenait aucun fichier de conversation hérité, pièce jointe ni configuration, donc rien n'a changé sur cet appareil. Les discussions, les projets et les clés d'API se trouvent dans la base de données principale, qu'un export de fichiers hérité ne couvre pas.",
+    "restoreNothingAppliedOutOfScope": "Rien n'a été restauré. Ce que contenait cette archive sort du périmètre d'une restauration de fichiers héritée : {{items}}. Rien n'a changé sur cet appareil. Les conversations, les projets et les clés API vivent dans la base de données principale, qu'un export de fichiers hérité ne couvre pas.",
     "restoreKeysOnlyNoPassphrase": "Rien n'a encore été restauré. Cette archive contient vos clés API chiffrées, et rien d'autre que couvre une restauration de fichiers héritée, mais aucune phrase secrète de sauvegarde n'a été saisie, les clés ont donc été laissées intactes. Saisissez la phrase secrète définie à la création de l'archive, puis relancez la restauration.",
     "restoreKeysSkipped": "Restauré : {{items}}. L'archive contient aussi des clés d'API chiffrées, mais aucune phrase secrète de sauvegarde n'a été saisie, donc les clés n'ont pas été restaurées.",
+    "restoreItemConversations": "fichiers de conversation",
+    "restoreItemAttachments": "pièces jointes",
+    "restoreItemConfig": "fichiers de configuration",
+    "restoreItemKeys": "clés API",
     "exportNoKeys": "Export créé, mais il ne contient aucune clé d'API : cette installation n'a pas de fichier de clés hérité. Vos clés d'API se trouvent dans la base de données principale, qu'un export de fichiers hérité ne couvre pas."
   },
   "editorPage": {
