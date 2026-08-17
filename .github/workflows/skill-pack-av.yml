@@ -45,7 +45,19 @@ jobs:
         with:
           bun-version: latest
       - name: Install deps
-        run: bun install --frozen-lockfile
+        shell: bash
+        run: |
+          # Retry: package.json pins a GitHub git dependency, so install traffic
+          # hits api.github.com and an API 504 reds out this check for reasons
+          # unrelated to the diff. Not a flaky-test workaround. Backoff 20s/40s
+          # because an API outage outlasts a transient git fetch.
+          for attempt in 1 2 3; do
+            if bun install --frozen-lockfile; then exit 0; fi
+            echo "bun install attempt $attempt of 3 failed" >&2
+            if [[ $attempt -lt 3 ]]; then sleep $(( attempt * 20 )); fi
+          done
+          echo "bun install failed after 3 attempts (GitHub API or registry unreachable)" >&2
+          exit 1
       - name: Build skill pack
         run: bun run build:skill-pack
       - name: Verify pack (no loose .md, neutral blob, low entropy, byte-exact)
@@ -62,7 +74,19 @@ jobs:
         with:
           bun-version: latest
       - name: Install deps
-        run: bun install --frozen-lockfile
+        shell: bash
+        run: |
+          # Retry: package.json pins a GitHub git dependency, so install traffic
+          # hits api.github.com and an API 504 reds out this check for reasons
+          # unrelated to the diff. Not a flaky-test workaround. Backoff 20s/40s
+          # because an API outage outlasts a transient git fetch.
+          for attempt in 1 2 3; do
+            if bun install --frozen-lockfile; then exit 0; fi
+            echo "bun install attempt $attempt of 3 failed" >&2
+            if [[ $attempt -lt 3 ]]; then sleep $(( attempt * 20 )); fi
+          done
+          echo "bun install failed after 3 attempts (GitHub API or registry unreachable)" >&2
+          exit 1
       - name: Build skill pack
         run: bun run build:skill-pack
       - name: Update Defender signatures
