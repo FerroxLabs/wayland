@@ -120,8 +120,9 @@ function unwrapVariants(value: string): string[] {
  *    `--api-key=<v>` but also masked `@modelcontextprotocol/server-filesystem`
  *    and `/Users/alice/Documents`, which are exactly the strings the two
  *    commonest failures (wrong package, missing directory) need to stay readable.
- *    The ONE exception is an argument whose PRECEDING token names a credential
- *    ({@link CREDENTIAL_FLAG_PATTERN}), because `--api-key <value>` is a
+ *    The ONE exception is an argument preceded by a token that names a
+ *    credential and does not already carry its own value
+ *    ({@link namesFollowingCredential}), because `--api-key <value>` is a
  *    separator-free argument that IS the credential in full. That shape leaked
  *    [executed], and it is the documented CLI spelling for most servers.
  *
@@ -147,11 +148,61 @@ function asStrings(values: unknown[]): string[] {
 }
 
 /**
- * A token that names a credential, so whatever comes NEXT on the command line is
- * one. Matches `--api-key`, `--token`, `-secret`, `--password`, `--auth`, and the
- * same words inside a longer flag.
+ * A credential-naming word, anchored so it cannot match the tail of a longer
+ * lowercase word.
+ *
+ * The first version was `/(key|token|secret|password|auth)/i` with no boundary at
+ * all, and it was wrong in BOTH directions - every case below executed:
+ *
+ *  - `@acme/oauthy-mcp` matched on `auth` INSIDE `oauthy`, so the argument after
+ *    the package name - the served directory - came back `scandir '[redacted]'`.
+ *  - `command: 'keyring-mcp'` matched on `key`, and `command` is the token before
+ *    `args[0]`, so `npm ERR! 404 '@modelcontextprotocol/server-filesystem' is not
+ *    in the registry` came back `404 '[redacted]'`. That is one of the two
+ *    commonest failures {@link declaredSecretValues} exists to keep readable, i.e.
+ *    an FF-6 regression reached by a second route.
+ *  - and it MISSED `--bearer`, `--credential`, `--pat`, `--session-id`,
+ *    `--passphrase` and `--pwd`, each of which leaked its full bare value.
+ *
+ * The trailing `(?![a-z])` is what rejects `oauthy`; a leading boundary is NOT
+ * wanted, because `--api-key` and `-X-Auth-Token` are exactly the shapes to catch.
+ * `passphrase` is listed separately from `password` because it shares no prefix
+ * with it, and because `secretRedaction` is growing a `pass[_-]?phrase` label - two
+ * defences disagreeing about the same word is its own defect. `session` is here
+ * because a session id is bearer-equivalent (`--session-id <v>` leaked whole).
+ *
+ * `pat` earns the anchor twice over: without it `--path` and `--patch` would both
+ * flag their argument, which is the FF-6 direction again. `--compat` still would,
+ * and that over-masks one path rather than printing one credential, which is the
+ * direction this whole file trades in.
  */
-const CREDENTIAL_FLAG_PATTERN = /(key|token|secret|password|auth)/i;
+const CREDENTIAL_WORD_PATTERN =
+  /(?:key|token|secret|password|passphrase|auth|bearer|credential|session|pat|pwd)(?![a-z])/i;
+
+/**
+ * True when `preceding` names a credential AND makes a claim about what comes
+ * next, so the following argument is the value in full.
+ *
+ * One condition beyond the anchored word, and it was reached by execution: the
+ * token must not ALREADY carry its own value. `--api-key=<v>` yields `<v>` through
+ * `unwrapVariants` on its own, so treating the NEXT argument as a credential too
+ * buys nothing and cost a real path - `['-y', '--api-key=<v>', '/Users/alice/
+ * Documents']` reported `scandir '[redacted]'`. `unwrapVariants(...).length === 1`
+ * is the test: one variant means no `=`, `:` or whitespace inside.
+ *
+ * DELIBERATELY NOT `startsWith('-')`, and this was measured rather than assumed. A
+ * flag-only rule looks tighter and is wrong: `command` counts as the token before
+ * `args[0]`, and `command: 'x-auth-helper', args: ['<secret>']` is a real masked
+ * shape with an oracle of its own. Requiring a leading `-` reopened it. The anchor
+ * on {@link CREDENTIAL_WORD_PATTERN} is what actually separates the cases -
+ * `keyring-mcp` and `oauthy-mcp` fail it because `key` and `auth` are followed by a
+ * lowercase letter, while `x-auth-helper` and `--api-key` pass.
+ */
+function namesFollowingCredential(preceding: unknown): boolean {
+  if (typeof preceding !== 'string') return false;
+  if (unwrapVariants(preceding).length !== 1) return false;
+  return CREDENTIAL_WORD_PATTERN.test(preceding);
+}
 
 /** Shortest URL path or query segment worth treating as a possible token. */
 const MIN_URL_SEGMENT_LENGTH = 8;
@@ -235,15 +286,15 @@ function declaredSecretValues(server: IMcpServer): string[] {
   // strength of its own quotes.
   if (server.name.length >= MIN_DECLARED_SECRET_LENGTH) values.push(`"${server.name}"`);
   // Arguments: the remainder past a separator only, so paths and package names
-  // survive intact - UNLESS the preceding token names a credential, in which case
-  // this whole argument is the value. `command` counts as the token before
-  // `args[0]`, so `command: 'x-auth-helper'` covers its first argument too.
+  // survive intact - UNLESS the preceding token names a credential and carries no
+  // value of its own, in which case this whole argument is the value. `command`
+  // counts as the token before `args[0]`, so `command: 'x-auth-helper'` still
+  // covers its first argument. See {@link namesFollowingCredential}.
   const args = asStrings(transport?.args ?? []);
   for (let index = 0; index < args.length; index += 1) {
     const variants = unwrapVariants(args[index]);
     const preceding = index === 0 ? transport?.command : args[index - 1];
-    const flagged = typeof preceding === 'string' && CREDENTIAL_FLAG_PATTERN.test(preceding);
-    values.push(...(flagged ? variants : variants.slice(1)));
+    values.push(...(namesFollowingCredential(preceding) ? variants : variants.slice(1)));
   }
 
   return values.filter((value) => value.length >= MIN_DECLARED_SECRET_LENGTH).toSorted((a, b) => b.length - a.length);

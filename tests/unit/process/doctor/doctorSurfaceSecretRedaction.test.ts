@@ -386,6 +386,103 @@ describe('MCP check — the probe error is free-form text from a credential-carr
     expect(report.results[0].detail).toContain('mcp_11112222');
   });
 
+  /**
+   * THE FLAG RULE, pinned in BOTH directions.
+   *
+   * The rule started as an unanchored `/(key|token|secret|password|auth)/i` tested
+   * against the preceding arg OR the command, and every row below executed against
+   * it. It over-masked three diagnostics and missed six credential flags, so
+   * asserting only one side would have left the other free to move.
+   */
+  it('FLAG RULE — the diagnostics that must stay readable', async () => {
+    const readable: Array<[string, unknown, string, string]> = [
+      // An INLINE flag already yields its value through `unwrapVariants`, so
+      // flagging the NEXT argument bought nothing and cost the served directory.
+      [
+        'inline --api-key= then a path',
+        { type: 'stdio', command: 'npx', args: ['-y', `--api-key=${PREFIXLESS_KEY}`, '/Users/alice/Documents'] },
+        "ENOENT: no such file or directory, scandir '/Users/alice/Documents'",
+        '/Users/alice/Documents',
+      ],
+      // `auth` INSIDE `oauthy`: a package-name substring, not a credential flag.
+      [
+        'package name containing "oauth"',
+        { type: 'stdio', command: 'npx', args: ['-y', '@acme/oauthy-mcp', '/Users/alice/Documents'] },
+        "ENOENT: no such file or directory, scandir '/Users/alice/Documents'",
+        '/Users/alice/Documents',
+      ],
+      // `key` inside the COMMAND, which counts as the token before `args[0]` - so
+      // this masked the package name in the wrong-package failure. FF-6 again.
+      [
+        'command containing "key"',
+        { type: 'stdio', command: 'keyring-mcp', args: ['@modelcontextprotocol/server-filesystem'] },
+        "npm ERR! 404 '@modelcontextprotocol/server-filesystem' is not in the registry",
+        '@modelcontextprotocol/server-filesystem',
+      ],
+    ];
+
+    const results = await Promise.all(
+      readable.map(async ([why, transport, error, mustSurvive]) => ({
+        why,
+        mustSurvive,
+        detail: (
+          await checkMcpServers({
+            listServers: async () => [{ id: 'mcp_x', name: 'srv', enabled: true, transport } as unknown as IMcpServer],
+            testConnection: async () => ({ success: false, error }),
+          })
+        ).detail,
+      }))
+    );
+
+    for (const { why, mustSurvive, detail } of results) {
+      expect(detail, why).toContain(mustSurvive);
+      expect(detail, why).not.toContain('[redacted]');
+    }
+  });
+
+  it('FLAG RULE — every credential flag masks its separate value', async () => {
+    // All six of these leaked the full bare value. `PREFIXLESS_KEY` is the canary
+    // precisely because no scrubber sees it, so a mask here is the flag rule and
+    // nothing else - `--api-key` and `--token` ride along as known positives.
+    const flags = [
+      '--api-key',
+      '--token',
+      '--bearer',
+      '--credential',
+      '--pat',
+      '--session-id',
+      '--passphrase',
+      '--pwd',
+      '-X-Auth-Token',
+    ];
+    // KNOWN POSITIVE for the canary itself: unmasked, this text keeps the value.
+    expect(redactSecrets(`auth rejected for ${PREFIXLESS_KEY}`)).toContain(PREFIXLESS_KEY);
+
+    const results = await Promise.all(
+      flags.map(async (flag) => ({
+        flag,
+        detail: (
+          await checkMcpServers({
+            listServers: async () => [
+              {
+                id: 'mcp_x',
+                name: 'srv',
+                enabled: true,
+                transport: { type: 'stdio', command: 'npx', args: ['-y', 'pkg', flag, PREFIXLESS_KEY] },
+              } as unknown as IMcpServer,
+            ],
+            testConnection: async () => ({ success: false, error: `auth rejected for ${PREFIXLESS_KEY}` }),
+          })
+        ).detail,
+      }))
+    );
+
+    for (const { flag, detail } of results) {
+      expect(detail, flag).not.toContain(PREFIXLESS_KEY);
+      expect(detail, flag).toContain('[redacted]');
+    }
+  });
+
   it('PREFIXLESS CANARY: masks a token embedded in a hosted endpoint URL', async () => {
     // Path-embedded is the standard shape for Zapier / Smithery / Composio, and
     // undici echoes the URL in its own error text.
