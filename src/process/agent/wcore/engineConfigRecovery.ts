@@ -80,24 +80,39 @@ export type EngineConfigInspection =
       repair: EngineConfigRepairPlan | null;
     };
 
-/** Outcome of a write-side recovery action. `reason` is a stable machine code. */
-export type EngineConfigRecoveryResult =
-  | { ok: true; backupPath: string }
-  | {
-      ok: false;
-      /**
-       * `backup-failed`     - the backup could not be proven; NOTHING was written.
-       * `not-confirmed`     - regenerate was called without confirmation; no-op.
-       * `nothing-to-repair` - the file parses, or no unambiguous fix exists.
-       * `missing`           - there is no file to act on.
-       * `write-failed`      - the write failed AFTER a good backup was taken.
-       */
-      reason: 'backup-failed' | 'not-confirmed' | 'nothing-to-repair' | 'missing' | 'write-failed';
-      /** Scrubbed one-line detail for the log/UI. Never file content. */
-      detail: string;
-      /** Set when a backup was successfully taken before the failure. */
-      backupPath?: string;
-    };
+/** Why a write-side recovery action did not complete. */
+export type EngineConfigRecoveryFailure =
+  /** The backup could not be proven; NOTHING was written. */
+  | 'backup-failed'
+  /** Regenerate was called without confirmation; nothing happened. */
+  | 'not-confirmed'
+  /** The file parses, or no unambiguous fix exists. */
+  | 'nothing-to-repair'
+  /** There is no file to act on. */
+  | 'missing'
+  /** The write failed AFTER a good backup was taken. */
+  | 'write-failed';
+
+/**
+ * Outcome of a write-side recovery action.
+ *
+ * A FLAT shape with optional members rather than an `ok: true | false`
+ * discriminated union, deliberately: this repo's `tsconfig.json` does not enable
+ * `strictNullChecks`, so a boolean discriminant does not narrow and every
+ * consumer would need a cast. `ShellOpenResult` in `ipcBridge.ts` is flat for the
+ * same reason. `backupPath` is set on success and also on a post-backup failure
+ * (the user still needs to know where their data went); `reason`/`detail` are set
+ * only on failure.
+ */
+export type EngineConfigRecoveryResult = {
+  ok: boolean;
+  /** Path of the verified backup, when one was taken. */
+  backupPath?: string;
+  /** Stable machine code for the failure. Absent on success. */
+  reason?: EngineConfigRecoveryFailure;
+  /** Scrubbed one-line detail for the log/UI. Never file content. */
+  detail?: string;
+};
 
 /** Injectable seam so the tests can force each branch (incl. a failing backup). */
 export type EngineConfigRecoveryDeps = {
