@@ -11,6 +11,7 @@ import { Button, Tabs } from '@arco-design/web-react';
 import { AlertTriangle, Bot, Clock, Gauge, GitBranch, PictureInPicture2, RefreshCw, Users } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { useIsPopoutMode } from '@/renderer/hooks/system/useIsPopoutMode';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import { useMissionControl } from './useMissionControl';
 import { CostTab } from './cost/CostTab';
 import PageShell from '@/renderer/components/layout/PageShell';
@@ -306,18 +307,26 @@ const MissionControlPage: React.FC = () => {
   const { t } = useTranslation();
   const isPopout = useIsPopoutMode();
 
+  // The whole cost.* namespace is remote-denied (bridgeAllowlist.ts), so on a
+  // browser WebUI the cost tab can only ever render empty panels. Drop the tab
+  // there instead, and never honor a `?tab=cost` deep-link into it (#979).
+  const costTabAvailable = isElectronDesktop();
+
   // Honor a `?tab=` deep-link (e.g. the Titlebar SpendPill opens ?tab=cost),
   // while keeping the tab user-switchable.
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'cost' ? 'cost' : 'operations');
+  const [activeTab, setActiveTab] = useState(
+    costTabAvailable && searchParams.get('tab') === 'cost' ? 'cost' : 'operations'
+  );
 
   // Re-sync when the deep-link changes while the page is ALREADY mounted (e.g.
   // clicking SpendPill from Mission Control): the one-shot initial state above
   // would otherwise leave the tab stale (xaudit finding 1).
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'cost' || tab === 'operations') setActiveTab(tab);
-  }, [searchParams]);
+    if (tab === 'cost' && costTabAvailable) setActiveTab(tab);
+    else if (tab === 'operations') setActiveTab(tab);
+  }, [searchParams, costTabAvailable]);
 
   // Hide the pop-out trigger when this page is itself rendered inside a pop-out
   // window - there is nothing to pop out into from there (#157).
@@ -346,9 +355,11 @@ const MissionControlPage: React.FC = () => {
         <Tabs.TabPane key='operations' title={t('missionControl.tabs.operations')}>
           <OperationsView />
         </Tabs.TabPane>
-        <Tabs.TabPane key='cost' title={t('missionControl.tabs.cost')}>
-          <CostTab />
-        </Tabs.TabPane>
+        {costTabAvailable && (
+          <Tabs.TabPane key='cost' title={t('missionControl.tabs.cost')}>
+            <CostTab />
+          </Tabs.TabPane>
+        )}
       </Tabs>
     </PageShell>
   );
