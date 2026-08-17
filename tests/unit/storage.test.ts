@@ -256,6 +256,40 @@ describe('backupExport / backupImport round-trip', () => {
     expect(fs.existsSync(path.join(restore, 'keys.json'))).toBe(false);
   });
 
+  // #1042 F3: both temp cleanups in backupImport run in a `finally`, and a
+  // `finally` that throws REPLACES the successful return it follows. So an
+  // undeletable scratch file turned a restore that had already installed every
+  // file into a rejection, and the caller then told the user the restore failed
+  // and offered the safety archive - which would undo the good restore.
+  it.skipIf(process.platform === 'win32')(
+    'still reports the applied restore when the rollback cleanup cannot be removed',
+    async () => {
+      // A pre-existing `config` is DISPLACED into the rollback tree, carrying a
+      // read-only subdirectory with it, so removing that tree hits EACCES.
+      writeFixture(restore, 'config/settings.json', '{"theme":"OLD-LIVE"}');
+      writeFixture(restore, 'config/locked/pin.txt', 'pin');
+      fs.chmodSync(path.join(restore, 'config/locked'), 0o500);
+
+      writeFixture(src, 'config/settings.json', '{"theme":"NEW-FROM-ARCHIVE"}');
+      await backupExport({ userData: src, destPath: zipPath, includeKeys: false });
+
+      const report = await backupImport({ userData: restore, srcPath: zipPath });
+
+      expect(report.applied).toEqual(['config']);
+      expect(JSON.parse(fs.readFileSync(path.join(restore, 'config/settings.json'), 'utf-8'))).toEqual({
+        theme: 'NEW-FROM-ARCHIVE',
+      });
+
+      // Re-open the stranded read-only directory so afterEach can clean up.
+      for (const entry of fs.readdirSync(path.dirname(restore))) {
+        if (!entry.startsWith('.wayland-legacy-')) continue;
+        const locked = path.join(path.dirname(restore), entry, 'config/locked');
+        if (fs.existsSync(locked)) fs.chmodSync(locked, 0o700);
+        fs.rmSync(path.join(path.dirname(restore), entry), { recursive: true, force: true });
+      }
+    }
+  );
+
   it('reports archive entries that fall outside the legacy restore scope', async () => {
     const zip = new JSZip();
     zip.file(

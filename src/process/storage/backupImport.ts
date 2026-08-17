@@ -83,6 +83,27 @@ function writeFile(filePath: string, data: Buffer): void {
   fs.writeFileSync(filePath, data);
 }
 
+/**
+ * Remove a temporary tree, and NEVER throw doing it.
+ *
+ * Both cleanups here run in a `finally`, and a `finally` that throws REPLACES
+ * the successful return it was supposed to follow. So an undeletable temp file -
+ * an EACCES on a read-only directory, an EBUSY or EPERM on a Windows handle
+ * another process still holds - turned a restore that had already installed
+ * every file into a rejection carrying an `unlink` path. The caller then told
+ * the user the restore failed and offered them the safety archive, which would
+ * undo the good restore. Cleanup of our own scratch directory is best-effort by
+ * definition: leaving a stale temp dir behind is strictly better than lying
+ * about what happened to the user's data.
+ */
+function removeTempTree(target: string): void {
+  try {
+    fs.rmSync(target, { recursive: true, force: true });
+  } catch {
+    // Deliberately swallowed - see the doc comment above.
+  }
+}
+
 function validateLegacyManifest(value: unknown): void {
   if (!value || typeof value !== 'object') throw new Error('Backup manifest is missing or invalid.');
   const manifest = value as {
@@ -141,7 +162,7 @@ function replaceFromStaging(root: string, stagingRoot: string): string[] {
     }
     throw error;
   } finally {
-    fs.rmSync(rollbackRoot, { recursive: true, force: true });
+    removeTempTree(rollbackRoot);
   }
   return installed;
 }
@@ -226,6 +247,6 @@ export async function backupImport(opts: ImportOptions): Promise<ImportReport> {
       fileCount,
     };
   } finally {
-    fs.rmSync(stagingRoot, { recursive: true, force: true });
+    removeTempTree(stagingRoot);
   }
 }
