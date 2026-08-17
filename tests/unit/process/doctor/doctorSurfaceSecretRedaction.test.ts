@@ -26,6 +26,7 @@
  * through, which is what they previously did.
  */
 
+import { sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { checkMcpServers } from '@process/doctor/checks/mcpChecks';
 import type { McpTestResult } from '@process/doctor/checks/mcpChecks';
@@ -935,7 +936,13 @@ describe('workspace inventory — for a PROJECT the name re-enters through the p
   it('KNOWN POSITIVE: the leaf of a managed project workspace IS the sanitised name', () => {
     // If `sanitizeProjectFolderName` ever stopped passing this shape through, the
     // assertions below would hold for the wrong reason.
-    expect(resolveProjectWorkspacePath(BASE, BARE_SECRET, () => false)).toBe(managed);
+    // `resolveProjectWorkspacePath` builds the path with `path.join`, so on Windows
+    // it comes back separated by backslashes. Compare on POSIX separators rather
+    // than rewriting the fixtures: `${BASE}ia/mine` below is a deliberate
+    // string-prefix probe, and mixing separators into it would change what the
+    // containment check is being asked.
+    const produced = resolveProjectWorkspacePath(BASE, BARE_SECRET, () => false);
+    expect(produced.split(sep).join('/')).toBe(managed);
     // And no scrubber sees it, so the fix cannot be a scrub.
     expect(redactSecrets(managed)).toContain(BARE_SECRET);
   });
