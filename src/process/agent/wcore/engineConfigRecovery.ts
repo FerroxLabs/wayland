@@ -57,14 +57,19 @@
  *     a healthy credential-bearing config on a caller's say-so is not a
  *     recovery path. It is the rename itself that "removes" the file, so the
  *     user's data is always still on disk under the backup name.
- *  8. No rollback ever replaces a `config.toml` this module did not create. Between
- *     the backup move and any rollback the path does not exist, and a concurrent
+ *  8. No rollback replaces a `config.toml` this module did not create, except in
+ *     the one window where the two are genuinely INDISTINGUISHABLE. Between the
+ *     backup move and any rollback the path does not exist, and a concurrent
  *     writer can fill it - the engine writing defaults on a launch retry, or the
  *     user hand-saving the file "Show me the file" just invited them to open. Every
  *     rollback therefore CLASSIFIES the path first ({@link restoreOriginal}) and
  *     refuses rather than clobbers, reporting `restore-conflict` with both files
  *     kept and both named. This module's own failed write is the one thing it will
- *     clear, identified by its bytes.
+ *     clear, identified by its bytes - and only on the branch where such a write is
+ *     POSSIBLE. D4: after a write that SUCCEEDED, a 0-byte or truncated occupant is
+ *     PROOF of a concurrent writer rather than of our own partial write, so it is
+ *     kept. The residual is the write-FAILURE branch alone, where a failed `wx` may
+ *     or may not have created the file and no error code distinguishes the two.
  *
  * SECURITY: nothing here returns `config.toml` CONTENT. Only the path, the
  * failure's LINE and COLUMN (credential-free integers), and a scrubbed one-line
@@ -583,6 +588,12 @@ export async function createVerifiedBackup(
     // The rename never happened, so the original is untouched. Drop the
     // placeholder so a retry does not have to skip past it.
     await deps.removeFile(backupPath).catch(ignoreCleanupFailure);
+    // NOT a bug that `backupPath` is omitted, and NOT to be "fixed" into naming it.
+    // If the cleanup ALSO fails, a 0-byte placeholder is left behind - but the
+    // user's file is byte-intact at its canonical path, so "nothing was changed" is
+    // literally true, and naming that placeholder would point the user at an empty
+    // file instead of at their config. It also needs two independent failures to
+    // reach. Reporting it would be the lie, not the omission.
     throw new EngineConfigBackupError(summarizeReason(error));
   }
 
@@ -620,16 +631,40 @@ export async function createVerifiedBackup(
 type RestoreOutcome = 'restored' | 'conflict' | 'failed';
 
 /**
+ * The text a rollback's caller tried to write, and whether a HALF-FINISHED write of
+ * it can have happened on that caller's branch.
+ *
+ * Two fields rather than one so the prefix allowance cannot be inherited by a
+ * branch that has no partial write to forgive. `partial` has no default for the
+ * same reason.
+ */
+type OwnWrite = { text: string; partial: boolean };
+
+/**
  * Whether anything occupies `configPath`, and whether it is this module's own
  * failed write.
  *
  * `ownWrite` is the text the repair TRIED to write, or `undefined` on the paths
  * that have written nothing at all - where any file present is by definition
- * foreign. A failed `wx` write can still leave the file it created behind, holding
- * a PREFIX of the intended text (0 bytes when the disk filled between the create
- * and the write), so a prefix counts as ours. Nothing unique can be lost by
- * clearing it: every byte in it is a byte of the repair, which is itself the
- * original plus line breaks.
+ * foreign.
+ *
+ * `partial` says whether a HALF-FINISHED write of that text is possible here, and
+ * it is the whole reason the two are separate fields. On the write-FAILURE branch a
+ * failed `wx` can still leave the file it created behind holding a PREFIX of the
+ * intended text (0 bytes when the disk filled between the create and the write), so
+ * a prefix counts as ours: nothing unique is lost by clearing it, since every byte
+ * in it is a byte of the repair, which is itself the original plus line breaks.
+ *
+ * D4: on the VERIFY branches the exclusive create already returned with the FULL
+ * text, so a 0-byte or truncated occupant cannot be that write. It is the signature
+ * of a write still IN PROGRESS - and for 0 bytes the prefix test needs no content
+ * coincidence at all, so an editor that truncates before saving matched it every
+ * time. Executed with the same occupant bytes in both windows before this split:
+ * 0-byte and 63-byte-prefix occupants were reported `restore-conflict` with the
+ * backup named from `backup-readback-eio`, and `write-failed` with NO path from
+ * `verify-eio`, having been `unlink`ed - sending the writer's remaining bytes,
+ * possibly a fresh credential, to an unlinked inode. So the prefix allowance is
+ * spent only where a partial write can actually have happened.
  *
  * A read that fails for any reason OTHER than ENOENT means there is something
  * there this module cannot identify. That resolves to `foreign`, which is the
@@ -638,7 +673,7 @@ type RestoreOutcome = 'restored' | 'conflict' | 'failed';
 async function classifyRestoreTarget(
   configPath: string,
   deps: EngineConfigRecoveryDeps,
-  ownWrite: string | undefined
+  ownWrite: OwnWrite | undefined
 ): Promise<'absent' | 'ours' | 'foreign'> {
   let bytes: Buffer;
   try {
@@ -647,7 +682,8 @@ async function classifyRestoreTarget(
     return (error as { code?: string } | null)?.code === 'ENOENT' ? 'absent' : 'foreign';
   }
   if (ownWrite === undefined) return 'foreign';
-  const intended = Buffer.from(ownWrite, 'utf-8');
+  const intended = Buffer.from(ownWrite.text, 'utf-8');
+  if (!ownWrite.partial) return intended.equals(bytes) ? 'ours' : 'foreign';
   return intended.subarray(0, bytes.length).equals(bytes) ? 'ours' : 'foreign';
 }
 
@@ -682,12 +718,18 @@ async function restoreOriginal(
   configPath: string,
   backupPath: string,
   deps: EngineConfigRecoveryDeps,
-  ownWrite?: string
+  ownWrite?: OwnWrite
 ): Promise<RestoreOutcome> {
   const occupant = await classifyRestoreTarget(configPath, deps, ownWrite);
   if (occupant === 'foreign') return 'conflict';
   // Clear this module's own failed write so the restoring rename is not mistaken
   // for one that replaced a file it should have kept.
+  //
+  // Load-bearing only on WINDOWS, which is why removing it survives the suite on a
+  // POSIX runner: POSIX `rename` overwrites an existing destination atomically, so
+  // the unlink is redundant there, while `fs.rename` on Windows fails with EPERM /
+  // EEXIST when the destination exists - which would turn every own-failed-write
+  // rollback into `failed` and name a backup the user does not need to find.
   if (occupant === 'ours') await deps.removeFile(configPath).catch(ignoreCleanupFailure);
   try {
     await deps.renameFile(backupPath, configPath);
@@ -973,7 +1015,10 @@ export async function repairEngineConfig(
     if (isAlreadyExists(error)) {
       return { ok: false, reason: 'restore-conflict', detail: summarizeReason(error), backupPath };
     }
-    const outcome = await restoreOriginal(path, backupPath, deps, repair.repaired);
+    // `partial: true`: the `wx` create may have succeeded with the write failing
+    // after it, and no error code says which happened. This is the one branch that
+    // forgives a prefix (invariant 8).
+    const outcome = await restoreOriginal(path, backupPath, deps, { text: repair.repaired, partial: true });
     return rollbackResult(summarizeReason(error), backupPath, outcome);
   }
 
@@ -983,11 +1028,13 @@ export async function repairEngineConfig(
     const writtenBytes = await deps.readFileBytes(path);
     const written = decodeStrictUtf8(writtenBytes);
     if (written === null || findParseProblem(written)) {
-      const outcome = await restoreOriginal(path, backupPath, deps, repair.repaired);
+      // `partial: false` on both verify branches: `writeFileExclusive` returned, so
+      // the FULL text reached the path. Anything shorter is a concurrent writer.
+      const outcome = await restoreOriginal(path, backupPath, deps, { text: repair.repaired, partial: false });
       return rollbackResult('the repaired file still does not parse', backupPath, outcome);
     }
   } catch (error) {
-    const outcome = await restoreOriginal(path, backupPath, deps, repair.repaired);
+    const outcome = await restoreOriginal(path, backupPath, deps, { text: repair.repaired, partial: false });
     return rollbackResult(summarizeReason(error), backupPath, outcome);
   }
 

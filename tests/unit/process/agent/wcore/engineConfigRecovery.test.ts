@@ -1311,3 +1311,129 @@ describe('D3: the rollback keeps a config.toml it did not create', () => {
     await rm(dir, { recursive: true, force: true });
   });
 });
+
+/**
+ * D4 (#1031 delta audit round 3). Invariant 8 was absolute in the prose and false
+ * in the executed code, because ONE prefix test served three branches that are not
+ * the same state.
+ *
+ * On the write-FAILURE branch a partial `wx` write is genuinely possible, so a
+ * 0-byte or truncated occupant may be this module's own and a prefix counts as ours
+ * - the ENOSPC control above pins that and must keep passing. On the VERIFY branches
+ * `writeFileExclusive` has already RETURNED with the full text, so a short occupant
+ * is PROOF of a concurrent writer, and for 0 bytes the prefix test needed no content
+ * coincidence at all: an editor that truncates before saving matched it every time.
+ *
+ * Executed before the fix, same occupant bytes in two windows, opposite outcomes:
+ * `backup-readback-eio` reported `restore-conflict` with the backup named and the
+ * occupant kept, while `verify-eio` reported `write-failed` with NO path, having
+ * `unlink`ed the occupant - sending the concurrent writer's remaining bytes,
+ * possibly a fresh credential, to an unlinked inode.
+ */
+describe('D4: after a write that SUCCEEDED, a short config.toml is a concurrent writer', () => {
+  /**
+   * A COMPLETE, parseable provider block that is also a strict PREFIX of both the
+   * original and the repair - so it passes the old prefix test on content, not by
+   * being empty. 63 bytes: the table header plus the whole `api_key` line.
+   */
+  const PREFIX_OCCUPANT = REPORTED_CORRUPT.slice(0, 63);
+
+  /** Both verify branches: the write returned, then the confirmation failed. */
+  type VerifyWindow = 'verify-eio' | 'verify-unparseable';
+
+  /**
+   * Real filesystem for everything except the one verify fault. `occupant` is
+   * written at `configPath` at the instant the fault fires, which is inside the
+   * window where `config.toml` does not exist.
+   */
+  async function verifyWindow(window: VerifyWindow, occupant: string) {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-d4-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const isBackup = (p: string) => p.startsWith(`${configPath}.backup-`);
+    let configReads = 0;
+
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      readFileBytes: async (path) => {
+        if (isBackup(path)) return real.readFileBytes(path);
+        configReads += 1;
+        // Read 1 plans, read 2 verifies, read 3 is the rollback's own look. Only
+        // read 2 carries the fault, so the rollback decides from the real file.
+        if (configReads === 2) {
+          await realWriteFile(configPath, occupant, 'utf-8');
+          if (window === 'verify-eio') throw eio('read');
+          return Buffer.from('[a]\nb = ceegress = 1 x=\n', 'utf-8');
+        }
+        return real.readFileBytes(path);
+      },
+    };
+    return { dir, configPath, deps };
+  }
+
+  for (const window of ['verify-eio', 'verify-unparseable'] as VerifyWindow[]) {
+    for (const [label, occupant] of [
+      ['0-byte', ''],
+      ['a parseable PREFIX of the repair', PREFIX_OCCUPANT],
+    ] as [string, string][]) {
+      it(`${window}: ${label} occupant is KEPT, not cleared, and both files are named`, async () => {
+        const { dir, configPath, deps } = await verifyWindow(window, occupant);
+
+        const result = await repairEngineConfig(deps);
+
+        // A write still IN PROGRESS is not this module's finished write.
+        expect(result).toMatchObject({ ok: false, reason: 'restore-conflict' });
+        expect(result.detail).toContain('both files were kept');
+
+        // Byte-exact: the occupant was never unlinked and never renamed over.
+        expect(await realReadFile(configPath, 'utf-8')).toBe(occupant);
+
+        // And the user's original is on disk at the reported path.
+        expect(result.backupPath).toBeTruthy();
+        expect(await realReadFile(result.backupPath as string, 'utf-8')).toBe(REPORTED_CORRUPT);
+        expect(readdirSync(dir).length).toBe(2);
+
+        await rm(dir, { recursive: true, force: true });
+      });
+    }
+  }
+
+  /**
+   * The EEXIST early return is the ONLY thing keeping the most common
+   * concurrent-writer case - the writer got there FIRST - out of the prefix
+   * allowance, and nothing pinned it: a mutant swapping EEXIST for ENOENT survived,
+   * because a DIVERGENT occupant reaches the same `restore-conflict` by
+   * fall-through. A 0-byte occupant does not: fall-through would call it ours and
+   * clear it. So the pin uses a 0-byte one, and the EEXIST is REAL - a genuinely
+   * concurrent create, with the exclusive create reporting it, not a thrown stub.
+   */
+  it('a REAL EEXIST from a 0-byte concurrent create keeps both files', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-d4-eexist-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const isBackup = (p: string) => p.startsWith(`${configPath}.backup-`);
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      readFileBytes: async (path) => {
+        const bytes = await real.readFileBytes(path);
+        // The backup readback sits between the move and the `wx` write, so a create
+        // here is inside the window and the real `wx` below really does fail.
+        if (isBackup(path)) await realWriteFile(configPath, '', 'utf-8');
+        return bytes;
+      },
+    };
+
+    const result = await repairEngineConfig(deps);
+
+    expect(result).toMatchObject({ ok: false, reason: 'restore-conflict' });
+    expect(result.backupPath).toBeTruthy();
+    expect(await realReadFile(configPath, 'utf-8')).toBe('');
+    expect(await realReadFile(result.backupPath as string, 'utf-8')).toBe(REPORTED_CORRUPT);
+
+    await rm(dir, { recursive: true, force: true });
+  });
+});
