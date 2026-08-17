@@ -1245,6 +1245,66 @@ describe('MCP check — the server NAME is user-authored, so all four branches l
     // Not vacuous: the branch really did name this server, by its id.
     expect(outcome.detail).toContain(server.id);
   });
+
+  it('NEVER-THROWS ORACLE: a declaration with no name at all still reports every server', async () => {
+    // REGRESSION PIN. `IMcpServer.name` is declared non-optional, so reading
+    // `.length` off it type-checks - but a stored declaration is not a type. The
+    // config migration copies `mcp.config` entries VERBATIM out of an external
+    // `wayland-config.txt`, so a nameless entry reaches the check [executed: it threw
+    // `Cannot read properties of undefined (reading 'length')` straight out of
+    // `checkMcpServers`]. Not a leak: a diagnostic fail-closed. The throw escapes into
+    // `runOne`'s per-check catch and collapses the whole MCP row to `Check threw an
+    // error: ...`, destroying the healthy servers' per-server detail too - the #273
+    // mode `probeWithTimeout`'s catch exists to prevent.
+    const results = await Promise.all(
+      [undefined, null].map(async (name) => ({
+        name: String(name),
+        detail: (
+          await checkMcpServers({
+            listServers: async () =>
+              [
+                { id: 'mcp_nameless', name, enabled: true, transport: { type: 'stdio', command: 'node' } },
+                { id: 'mcp_healthy', name: 'srv', enabled: true, transport: { type: 'stdio', command: 'node' } },
+              ] as unknown as IMcpServer[],
+            testConnection: async (server) => ({ success: false, error: `boom ${server.id}` }),
+          })
+        ).detail,
+      }))
+    );
+
+    for (const { name, detail } of results) {
+      // Both servers keep their own detail, which is what the throw destroyed.
+      expect(detail, name).toContain('mcp_nameless');
+      expect(detail, name).toContain('mcp_healthy');
+    }
+  });
+
+  it('NAME FLOOR: a 2-3 char name is not masked, a 4-char one is', async () => {
+    // The floor exists so a server named `db` does not blank every "db" in the probe
+    // text - the FF-6 direction, one letter at a time. Both sides are pinned because
+    // dropping the condition and pushing unconditionally left the suite fully green.
+    const detail = async (name: string, error: string): Promise<string> =>
+      (
+        await checkMcpServers({
+          listServers: async () => [
+            {
+              id: 'mcp_floor',
+              name,
+              enabled: true,
+              transport: { type: 'stdio', command: 'node' },
+            } as unknown as IMcpServer,
+          ],
+          testConnection: async () => ({ success: false, error }),
+        })
+      ).detail;
+
+    // BELOW the floor: survives, quotes and all.
+    expect(await detail('db', 'cannot open "db"')).toContain('"db"');
+    expect(await detail('abc', 'cannot open "abc"')).toContain('"abc"');
+    // AT the floor: masked, so the assertions above are a boundary and not a no-op.
+    expect(await detail('abcd', 'cannot open "abcd"')).not.toContain('"abcd"');
+    expect(await detail('abcd', 'cannot open "abcd"')).toContain('[redacted]');
+  });
 });
 
 describe('workspace inventory — the producer chooses the label', () => {

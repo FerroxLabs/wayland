@@ -335,7 +335,22 @@ function declaredSecretValues(server: IMcpServer): string[] {
   // of the declaration from an incidental word. The floor is applied to the NAME
   // rather than the quoted string so a 2-character name is not masked on the
   // strength of its own quotes.
-  if (server.name.length >= MIN_DECLARED_SECRET_LENGTH) values.push(`"${server.name}"`);
+  //
+  // `typeof` guarded, and the guard is not defensive padding. `IMcpServer.name` is
+  // declared non-optional, so reading `.length` off it type-checks - but a stored
+  // declaration is not a type. The config migration copies `mcp.config` entries
+  // VERBATIM out of an external `wayland-config.txt`, so a nameless entry reaches
+  // here [executed: `{ id: 'mcp_abc', enabled: true, transport: {...} }` threw
+  // `Cannot read properties of undefined (reading 'length')` straight out of
+  // `checkMcpServers`]. That throw is not a leak, it is a diagnostic fail-closed:
+  // it escapes into `runOne`'s per-check catch and collapses the whole MCP row to
+  // `Check threw an error: ...`, destroying every other enabled server's per-server
+  // detail - the exact #273 mode `probeWithTimeout`'s catch exists to prevent. Same
+  // class as the three throw sites this branch already fixed elsewhere; the commit
+  // that added this line optional-chained every `transport` read and left the name.
+  if (typeof server.name === 'string' && server.name.length >= MIN_DECLARED_SECRET_LENGTH) {
+    values.push(`"${server.name}"`);
+  }
   // Arguments: the remainder past a separator only, so paths and package names
   // survive intact - UNLESS the preceding token names a credential and carries no
   // value of its own, in which case this whole argument is the value. `command`
