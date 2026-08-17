@@ -166,10 +166,10 @@ function asStrings(values: unknown[]): string[] {
  *
  * The trailing `(?![a-z])` is what rejects `oauthy`; a leading boundary is NOT
  * wanted, because `--api-key` and `-X-Auth-Token` are exactly the shapes to catch.
+ *
  * `passphrase` is listed separately from `password` because it shares no prefix
- * with it, and because `secretRedaction` is growing a `pass[_-]?phrase` label - two
- * defences disagreeing about the same word is its own defect. `session` is here
- * because a session id is bearer-equivalent (`--session-id <v>` leaked whole).
+ * with it. `session` is here because a session id is bearer-equivalent
+ * (`--session-id <v>` leaked whole).
  *
  * `pat` earns the anchor twice over: without it `--path` and `--patch` would both
  * flag their argument, which is the FF-6 direction again. `--compat` still would,
@@ -180,15 +180,32 @@ const CREDENTIAL_WORD_PATTERN =
   /(?:key|token|secret|password|passphrase|auth|bearer|credential|session|pat|pwd)(?![a-z])/i;
 
 /**
- * True when `preceding` names a credential AND makes a claim about what comes
- * next, so the following argument is the value in full.
+ * A credential-naming word with NO separator anywhere after it, i.e. a token that
+ * names a credential and does not already carry the value itself.
  *
- * One condition beyond the anchored word, and it was reached by execution: the
- * token must not ALREADY carry its own value. `--api-key=<v>` yields `<v>` through
- * `unwrapVariants` on its own, so treating the NEXT argument as a credential too
- * buys nothing and cost a real path - `['-y', '--api-key=<v>', '/Users/alice/
- * Documents']` reported `scandir '[redacted]'`. `unwrapVariants(...).length === 1`
- * is the test: one variant means no `=`, `:` or whitespace inside.
+ * The separator test is scoped to the text AFTER the word, and that scoping is the
+ * whole point. The first version asked whether the token contained a separator
+ * ANYWHERE (`unwrapVariants(preceding).length !== 1`), using "contains `=`, `:` or
+ * whitespace" as a proxy for "already carries its own value". The proxy is wrong,
+ * and the ordinary Windows spelling of the pinned Unix oracle is enough to defeat
+ * it - all of these executed, masking before the proxy landed and leaking the full
+ * bare argument after it:
+ *
+ *  - `C:\tools\x-auth-helper.exe` - a drive letter is a `:`.
+ *  - `/App Support/x-auth-helper` - any path with a space in it.
+ *  - `Authorization: Bearer` as the preceding argument - header-shaped, and it
+ *    carries no value at all.
+ *
+ * Asking instead whether a separator follows the word keeps the case the proxy
+ * existed for: `--api-key=<v>` yields `<v>` through `unwrapVariants` on its own, so
+ * treating the NEXT argument as a credential too buys nothing and cost a real path
+ * (`['-y', '--api-key=<v>', '/Users/alice/Documents']` reported
+ * `scandir '[redacted]'`). `=<v>` follows `key`, so that token is still refused,
+ * and so is `X-Api-Key: <v>` and `Authorization: Bearer <v>`.
+ *
+ * `[^=:\s]*$` rather than a search for the LAST match: they are the same test, and
+ * this one is one regex. It succeeds only where some anchored credential word is
+ * followed by separator-free text to the end of the token.
  *
  * DELIBERATELY NOT `startsWith('-')`, and this was measured rather than assumed. A
  * flag-only rule looks tighter and is wrong: `command` counts as the token before
@@ -198,10 +215,15 @@ const CREDENTIAL_WORD_PATTERN =
  * `keyring-mcp` and `oauthy-mcp` fail it because `key` and `auth` are followed by a
  * lowercase letter, while `x-auth-helper` and `--api-key` pass.
  */
+const CREDENTIAL_WORD_CARRYING_NO_VALUE = new RegExp(`${CREDENTIAL_WORD_PATTERN.source}[^=:\\s]*$`, 'i');
+
+/**
+ * True when `preceding` names a credential AND makes a claim about what comes
+ * next, so the following argument is the value in full.
+ */
 function namesFollowingCredential(preceding: unknown): boolean {
   if (typeof preceding !== 'string') return false;
-  if (unwrapVariants(preceding).length !== 1) return false;
-  return CREDENTIAL_WORD_PATTERN.test(preceding);
+  return CREDENTIAL_WORD_CARRYING_NO_VALUE.test(preceding);
 }
 
 /**

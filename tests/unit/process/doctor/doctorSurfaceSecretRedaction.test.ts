@@ -486,6 +486,85 @@ describe('MCP check — the probe error is free-form text from a credential-carr
     }
   });
 
+  it('FLAG RULE — a credential-naming token that merely CONTAINS a separator still flags', async () => {
+    // REGRESSION PIN. The no-own-value condition was first written as "the token
+    // contains no `=`, `:` or whitespace anywhere", using that as a proxy for
+    // "already carries its own value". The proxy is wrong, and the ordinary Windows
+    // spelling of the pinned Unix oracle (`x-auth-helper`, two rows below) is enough
+    // to defeat it: a drive letter is a `:`. Each row masked before the proxy landed
+    // and leaked the full bare value afterwards [executed pre and post].
+    //
+    // Pinned in BOTH positions, because `command` counts as the token before
+    // `args[0]` and a fix on one position would be worth nothing on the other.
+    const tokens = [
+      'x-auth-helper',
+      '/usr/local/bin/x-auth-helper',
+      'C:\\tools\\x-auth-helper.exe',
+      '/App Support/x-auth-helper',
+      'Authorization: Bearer',
+    ];
+    // KNOWN POSITIVE for the canary itself: unmasked, this text keeps the value.
+    expect(redactSecrets(`auth rejected for ${PREFIXLESS_KEY}`)).toContain(PREFIXLESS_KEY);
+
+    const probe = async (transport: unknown): Promise<string> =>
+      (
+        await checkMcpServers({
+          listServers: async () => [{ id: 'mcp_x', name: 'srv', enabled: true, transport } as unknown as IMcpServer],
+          testConnection: async () => ({ success: false, error: `auth rejected for ${PREFIXLESS_KEY}` }),
+        })
+      ).detail;
+
+    const results = await Promise.all(
+      tokens.flatMap((token) => [
+        probe({ type: 'stdio', command: 'node', args: [token, PREFIXLESS_KEY] }).then((detail) => ({
+          why: `args[i-1] ${token}`,
+          detail,
+        })),
+        probe({ type: 'stdio', command: token, args: [PREFIXLESS_KEY] }).then((detail) => ({
+          why: `command ${token}`,
+          detail,
+        })),
+      ])
+    );
+
+    for (const { why, detail } of results) {
+      expect(detail, why).not.toContain(PREFIXLESS_KEY);
+      expect(detail, why).toContain('[redacted]');
+    }
+
+    // THE OTHER DIRECTION, so the row above cannot be satisfied by deleting the
+    // condition outright: a separator AFTER the credential word means the token
+    // already yields the value through `unwrapVariants`, and flagging the next
+    // argument too costs a real path. `X-Api-Key: <v>` is the header spelling of the
+    // same thing, and it must NOT flag either.
+    const carriers = await Promise.all(
+      [`--api-key=${PREFIXLESS_KEY}`, `X-Api-Key: ${PREFIXLESS_KEY}`].map(async (carries) => ({
+        carries,
+        detail: (
+          await checkMcpServers({
+            listServers: async () => [
+              {
+                id: 'mcp_x',
+                name: 'srv',
+                enabled: true,
+                transport: { type: 'stdio', command: 'npx', args: ['-y', carries, '/Users/alice/Documents'] },
+              } as unknown as IMcpServer,
+            ],
+            testConnection: async () => ({
+              success: false,
+              error: "ENOENT: no such file or directory, scandir '/Users/alice/Documents'",
+            }),
+          })
+        ).detail,
+      }))
+    );
+
+    for (const { carries, detail } of carriers) {
+      expect(detail, carries).toContain('/Users/alice/Documents');
+      expect(detail, carries).not.toContain('[redacted]');
+    }
+  });
+
   it('PREFIXLESS CANARY: masks a token embedded in a hosted endpoint URL', async () => {
     // Path-embedded is the standard shape for Zapier / Smithery / Composio, and
     // undici echoes the URL in its own error text.
