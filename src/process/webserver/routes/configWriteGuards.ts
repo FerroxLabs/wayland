@@ -21,8 +21,8 @@
  *
  * The §0 invariant still holds end-to-end: these guards gate WRITES only. No
  * route built on them may return a secret back to the caller. `redactSecrets`
- * is provided so callers can scrub any upstream error body before echoing it
- * to a remote client (R6).
+ * is re-exported from `@process/utils/secretRedaction` so callers can scrub any
+ * upstream error body before echoing it to a remote client (R6).
  */
 
 import type { Request, Response } from 'express';
@@ -132,23 +132,21 @@ function socketLocal(req: Request): string | undefined {
  * Mask known secret formats in arbitrary text so an upstream error body echoed
  * to a remote client cannot leak the very key that was just planted (R6).
  *
- * Covers OpenAI-style `sk-...` keys (incl. `sk-live-`, `sk-proj-`, etc.),
- * `Bearer <token>` authorization values, and `xai-`/`xoxb-` style prefixes.
- * Conservative on purpose: it is fine to over-redact in an error message.
+ * Re-exported, NOT re-implemented (#992). This module used to carry its own
+ * narrower copy - Bearer / `sk-` / `xai-` / `xox*` prefixes only, with no JWT,
+ * no labelled assignment and no bare `Authorization:` header - which meant the
+ * REMOTE-FACING routes ran the weaker of the two scrubbers in the codebase. The
+ * shared module is the union of both pattern sets, so every shape this file
+ * masked before is still masked, plus the ones it missed. That is asserted by
+ * `tests/unit/secretRedaction.superset.test.ts`, which keeps the deleted
+ * pattern set alive as a fixture and diffs the two - the first attempt at this
+ * change believed the same sentence and was wrong on two shapes.
+ *
+ * Kept as a re-export so the ~10 route modules that import `redactSecrets` from
+ * this gate keep importing it from the gate: the guard is the documented seam
+ * for config-write routes, and the scrubber is part of that contract.
  */
-export function redactSecrets(text: string): string {
-  if (!text) return text;
-  return (
-    text
-      // Bearer <token>  -> Bearer [redacted]
-      .replace(/\bBearer\s+[A-Za-z0-9._\-+/=]+/gi, 'Bearer [redacted]')
-      // sk-... / sk-live-... / sk-proj-... (OpenAI/Anthropic-style)
-      .replace(/\bsk-[A-Za-z0-9-]{8,}/g, 'sk-[redacted]')
-      // xai- (xAI) and xoxb-/xoxp- (Slack) style prefixed tokens
-      .replace(/\bxai-[A-Za-z0-9-]{8,}/g, 'xai-[redacted]')
-      .replace(/\bxox[baprs]-[A-Za-z0-9-]{8,}/g, 'xox-[redacted]')
-  );
-}
+export { redactSecrets } from '@process/utils/secretRedaction';
 
 /**
  * Enforce the CONFIG-WRITE floor. Returns true when the request may proceed;

@@ -16,6 +16,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as zlib from 'zlib';
 import { enforceRateLimit } from './webuiDirectAuth';
+import { redactSecrets } from '@process/utils/secretRedaction';
 
 /**
  * Get log file paths for the last N days.
@@ -72,11 +73,22 @@ ipcMain.handle('feedback:collect-logs', async () => {
       return null;
     }
 
-    // Read and concatenate all log files with date headers
+    // Read and concatenate all log files with date headers.
+    //
+    // SECURITY (#996): redaction happens HERE, at COLLECTION time, not at send
+    // time. The bundle's only consumer today attaches it to a Sentry event via
+    // `hint.attachments` (FeedbackReportModal), and attachments ride the HINT,
+    // not the event - so the `beforeSend` scrubber (`createScrubPii`) is
+    // structurally incapable of seeing them. Scrubbing the bytes before they
+    // ever become an artifact makes the guarantee transport-independent: the
+    // bundle is safe wherever it is later sent, attached or written.
+    //
+    // Defence in depth on top of #984 (agent stderr redaction): even a log that
+    // should already be clean is scrubbed again before it leaves the machine.
     const parts: string[] = [];
     for (const logPath of logPaths) {
       const basename = path.basename(logPath);
-      const content = fs.readFileSync(logPath, 'utf-8');
+      const content = redactSecrets(fs.readFileSync(logPath, 'utf-8'));
       parts.push(`=== ${basename} ===\n${content}\n`);
     }
 

@@ -208,7 +208,7 @@ describe('channel config routes (W3.E write-only channel config)', () => {
 
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');
-    expect(JSON.stringify(res._json)).toContain('sk-[redacted]');
+    expect(JSON.stringify(res._json)).toContain('[redacted]');
   });
 
   // ---- disable-plugin ----
@@ -246,7 +246,11 @@ describe('channel config routes (W3.E write-only channel config)', () => {
       res
     );
 
-    expect(mockSyncChannelSettings).toHaveBeenCalledWith('telegram', { backend: 'gemini' }, { id: 'p1', useModel: 'm1' });
+    expect(mockSyncChannelSettings).toHaveBeenCalledWith(
+      'telegram',
+      { backend: 'gemini' },
+      { id: 'p1', useModel: 'm1' }
+    );
     expect(res._json).toEqual({ success: true, data: { ok: true } });
   });
 
@@ -309,10 +313,7 @@ describe('channel config routes (W3.E write-only channel config)', () => {
 
   it('rotate-webhook-token rejects a missing tuple (400) without minting', async () => {
     const res = makeRes();
-    await captureHandlers()['/api/channels/rotate-webhook-token'](
-      makeReq({ body: { platform: 'sms-twilio' } }),
-      res
-    );
+    await captureHandlers()['/api/channels/rotate-webhook-token'](makeReq({ body: { platform: 'sms-twilio' } }), res);
     expect(res._status).toBe(400);
     expect(mockTokenStore.register).not.toHaveBeenCalled();
   });
@@ -329,17 +330,14 @@ describe('channel config routes (W3.E write-only channel config)', () => {
 
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');
-    expect(JSON.stringify(res._json)).toContain('sk-[redacted]');
+    expect(JSON.stringify(res._json)).toContain('[redacted]');
   });
 
   // ---- approve-pairing ----
 
   it('approve-pairing approves and returns STATUS ONLY ({ ok }) - never the user record', async () => {
     const res = makeRes();
-    await captureHandlers()['/api/channels/approve-pairing'](
-      makeReq({ body: { code: 'ABC123' }, userId: 'u1' }),
-      res
-    );
+    await captureHandlers()['/api/channels/approve-pairing'](makeReq({ body: { code: 'ABC123' }, userId: 'u1' }), res);
 
     expect(mockApprovePairing).toHaveBeenCalledWith('ABC123');
     expect(res._json).toEqual({ success: true, data: { ok: true } });

@@ -34,7 +34,8 @@
     "missingTag": "Bu güncelleme doğrulanamıyor: sürüm etiketi eksik. Lütfen Releases sayfasından güncelleyin.",
     "metadataMissing": "Bu sürüm için imzalı güncelleme meta verisi (latest.yml) bulunamadı. Doğrulanmamış bir yükleyici açılmayacak.",
     "assetNotInMetadata": "İndirilen \"{{name}}\" dosyası imzalı güncelleme meta verisinde listelenmiyor. Doğrulanmamış bir yükleyici açılmayacak.",
-    "checksumMismatch": "İndirilen güncelleme bütünlük doğrulamasından (sağlama toplamı uyuşmazlığı) geçemedi ve silindi. Çalıştırmayın. Lütfen yeniden deneyin veya Releases sayfasından indirin."
+    "checksumMismatch": "İndirilen güncelleme bütünlük doğrulamasından (sağlama toplamı uyuşmazlığı) geçemedi ve silindi. Çalıştırmayın. Lütfen yeniden deneyin veya Releases sayfasından indirin.",
+    "checksumDigests": "Beklenen SHA-512 {{expected}} idi, ancak indirilen dosya {{actual}}."
   },
   "pill": {
     "available": "Update",
