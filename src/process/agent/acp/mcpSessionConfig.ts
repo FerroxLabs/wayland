@@ -10,6 +10,7 @@ import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import { BUILTIN_CONCIERGE_DIAG_ID } from '@process/resources/builtinMcp/constants';
 import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
+import { mergeMcpSpawnEnv, resolveSessionMcpStdioSpawn } from '@process/services/mcpServices/builtinMcpRuntime';
 import { sanitizeMcpServerName } from '@process/services/mcpServices/validateMcpServer';
 
 export interface AcpSessionMcpNameValue {
@@ -112,15 +113,19 @@ export function buildAcpSessionMcpServers(
         switch (server.transport.type) {
           case 'stdio': {
             if (!capabilities.stdio) return null;
-            // Use the same bundled-Bun tuple as the Library probe so a green
-            // connection test cannot depend on a different PATH/runtime.
-            const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
+            // Use the same runtime tuple as the Library probe so a green
+            // connection test cannot depend on a different PATH/runtime. That
+            // covers BOTH halves: `npx`→bundled Bun (#827) and Wayland's own
+            // bundled MCP servers→resolved JS runtime (#1008). The runtime env
+            // (`ELECTRON_RUN_AS_NODE` in dev) is load-bearing — without it the
+            // child boots a second Electron app instead of the MCP server.
+            const spawn = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
             return {
               type: 'stdio',
               name: server.name,
               command: spawn.command,
               args: spawn.args,
-              env: toNameValueEntries(server.transport.env) ?? [],
+              env: toNameValueEntries(mergeMcpSpawnEnv(server.transport.env, spawn.env)) ?? [],
             };
           }
           case 'http':

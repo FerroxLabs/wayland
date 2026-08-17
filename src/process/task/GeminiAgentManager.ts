@@ -40,7 +40,7 @@ import { ConversationTurnCompletionService } from '@process/task/ConversationTur
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
 import { isServerActiveForSession, shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
-import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
+import { mergeMcpSpawnEnv, resolveSessionMcpStdioSpawn } from '@process/services/mcpServices/builtinMcpRuntime';
 import BaseAgentManager from './BaseAgentManager';
 import { IpcAgentEventEmitter } from './IpcAgentEventEmitter';
 import { mainLog, mainWarn, mainError } from '@process/utils/mainLogger';
@@ -90,8 +90,8 @@ export function buildGeminiStdioMcpConfig(
   transport: Extract<IMcpServer['transport'], { type: 'stdio' }>,
   description?: string
 ): UiMcpServerConfig {
-  const { command, args } = resolveMcpStdioSpawn(transport.command, transport.args || []);
-  return { command, args, env: transport.env || {}, description };
+  const { command, args, env } = resolveSessionMcpStdioSpawn(transport.command, transport.args || []);
+  return { command, args, env: mergeMcpSpawnEnv(transport.env, env), description };
 }
 
 const sortedRecord = (value?: Record<string, string>): Array<[string, string]> =>

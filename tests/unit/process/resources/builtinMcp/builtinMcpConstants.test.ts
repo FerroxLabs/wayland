@@ -119,10 +119,21 @@ describe('builtinMcp/constants - isBuiltinCoreMcpArg (#1008)', () => {
     expect(isBuiltinCoreMcpArg('builtin-mcp-search-skills.js')).toBe(true);
   });
 
-  it('rejects a user-defined server and the sibling @wayland bundles', () => {
+  it('rejects a different filename and the sibling @wayland bundles', () => {
     expect(isBuiltinCoreMcpArg('/Users/me/custom-server.js')).toBe(false);
     expect(isBuiltinCoreMcpArg('/Users/me/builtin-mcp-search-skills.ts')).toBe(false);
     expect(isBuiltinCoreMcpArg('builtin-mcp-apple.mjs')).toBe(false);
+  });
+
+  it("is BASENAME-only and therefore cannot tell our script from the user's (#1015 F2)", () => {
+    // Deliberately asserted TRUE. This predicate is a filename primitive; it has
+    // no way to reach the filesystem (the module is bundled into the standalone
+    // stdio servers and imports nothing). A user's own server that merely shares
+    // our filename matches here, which is exactly why the spawn layer must NOT
+    // stop at this check — `isOwnBuiltinCoreMcpScript` compares against the exact
+    // resolved script path. The earlier negative used a `.ts` extension, so it
+    // could never have caught the hijack it appeared to disprove.
+    expect(isBuiltinCoreMcpArg('/Users/me/tools/builtin-mcp-search-skills.js')).toBe(true);
   });
 
   it('handles missing input defensively', () => {

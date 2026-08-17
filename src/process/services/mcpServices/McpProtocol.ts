@@ -16,9 +16,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { getEnhancedEnv, resolveNpxPath } from '@/process/utils/shellEnv';
 import { resolveMcpStdioSpawn } from './mcpStdioSpawn';
-import { getMcpScriptPath } from '@/process/utils/mcpScriptDir';
-import { resolveJsRuntime } from '@/process/utils/jsRuntime';
-import { isBuiltinCoreMcpArg, isBuiltinWaylandMcpArg } from '@/process/resources/builtinMcp/constants';
+import { resolveBuiltinMcpRuntimeSpawn } from './builtinMcpRuntime';
 
 /**
  * MCP source type - includes all ACP backends and Wayland built-ins
@@ -307,24 +305,14 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
       // app imported statically
 
       const rawArgs = transport.args ?? [];
-      // Bundled @wayland MCPs are stored as { command: 'node', args: ['builtin-mcp-<name>.mjs'] }.
+      // Wayland's own bundled MCPs are stored as { command: 'node', args: [<script>] }.
       // End-user Macs frequently have no system `node` on PATH, so spawning the
       // bare command dies on launch and surfaces only as -32000 "Connection
-      // closed". Run our own builtins through a resolved JS runtime — bundled Bun
-      // in packaged builds (the app binary can't be used: #706, the RunAsNode
-      // fuse makes ELECTRON_RUN_AS_NODE a no-op so it would boot as the app), or
-      // the app binary as Node in dev. The bare filename is also rewritten to an
-      // absolute path under out/main (dev) or app.asar.unpacked/out/main (packaged).
-      const isBuiltinWaylandMcp = transport.command === 'node' && isBuiltinWaylandMcpArg(rawArgs[0]);
-      // #1008: the SAME "no system node" failure hits the first-party core
-      // builtins (search-skills, concierge-diag, image-gen). They were missed
-      // because they are seeded into mcp.config with an ABSOLUTE script path
-      // rather than the bare filename the four sibling servers use, so the
-      // filename match above never saw them. macOS ships no `/usr/bin/node`, so
-      // on an end-user Mac the probe died with ENOENT and the servers reported
-      // "Enabled but exposes 0 tools" forever.
-      const isBuiltinCoreMcp = transport.command === 'node' && isBuiltinCoreMcpArg(rawArgs[0]);
-      const builtinRuntime = isBuiltinWaylandMcp || isBuiltinCoreMcp ? resolveJsRuntime() : null;
+      // closed". `resolveBuiltinMcpRuntimeSpawn` runs them through a resolved JS
+      // runtime instead — bundled Bun in packaged builds (the app binary can't be
+      // used: #706, the RunAsNode fuse makes ELECTRON_RUN_AS_NODE a no-op so it
+      // would boot as the app), or the app binary as Node in dev (#1008).
+      const builtinSpawn = resolveBuiltinMcpRuntimeSpawn(transport.command, rawArgs);
 
       // Use enhanced env (includes shell PATH) instead of bare process.env
       // so CLI tools installed via nvm/fnm/volta are discoverable in packaged mode
@@ -332,17 +320,20 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
         ...getEnhancedEnv(transport.env),
         TERM: 'dumb',
         NO_COLOR: '1',
-        ...(builtinRuntime ? builtinRuntime.env : {}),
+        ...(builtinSpawn ? builtinSpawn.env : {}),
       };
 
       // The probe and the live-session serializers MUST use the same runtime
       // tuple. A previous local npx branch here diverged from session injection
       // on macOS/Linux, allowing the Library to report green for bundled Bun
       // while the chat later attempted a bare host `npx` from a different PATH.
-      const resolvedSpawn = resolveMcpStdioSpawn(transport.command, rawArgs, () => resolveNpxPath(enhancedEnv));
+      // The builtin branch is the same shared resolver every serializer calls, so
+      // a green probe cannot again mean "chat still spawns bare node".
+      const resolvedSpawn =
+        builtinSpawn ?? resolveMcpStdioSpawn(transport.command, rawArgs, () => resolveNpxPath(enhancedEnv));
 
-      command = builtinRuntime ? builtinRuntime.command : resolvedSpawn.command;
-      args = isBuiltinWaylandMcp ? [getMcpScriptPath(rawArgs[0]), ...rawArgs.slice(1)] : resolvedSpawn.args;
+      command = resolvedSpawn.command;
+      args = resolvedSpawn.args;
 
       const stdioTransport = new StdioClientTransport({
         command,

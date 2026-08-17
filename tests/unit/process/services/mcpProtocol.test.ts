@@ -55,6 +55,15 @@ vi.mock('@process/services/mcpServices/McpOAuthService', () => ({
 
 import type { McpConnectionTestResult, McpOperationResult } from '@process/services/mcpServices/McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
+import { getMcpScriptPath } from '@process/utils/mcpScriptDir';
+
+// #1015 F2: the builtin carve-out matches the EXACT path this install would
+// spawn, not just the basename, so a user's own file that happens to share one
+// of our filenames is never re-pointed onto Wayland's runtime. Fixtures must
+// therefore use the real resolved path — an invented one is (correctly) foreign.
+const SEARCH_SKILLS_SCRIPT = getMcpScriptPath('builtin-mcp-search-skills.js');
+const CONCIERGE_DIAG_SCRIPT = getMcpScriptPath('builtin-mcp-concierge-diag.js');
+const IMAGE_GEN_SCRIPT = getMcpScriptPath('builtin-mcp-image-gen.js');
 
 // Create a concrete test subclass to access protected methods
 class TestAgent {
@@ -386,7 +395,7 @@ describe('AbstractMcpAgent', () => {
       const result = await testAgent.testMcpConnection({
         type: 'stdio',
         command: 'node',
-        args: ['/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main/builtin-mcp-search-skills.js'],
+        args: [SEARCH_SKILLS_SCRIPT],
       });
 
       expect(result.success).toBe(true);
@@ -396,9 +405,7 @@ describe('AbstractMcpAgent', () => {
       );
       expect(cfg.command).not.toBe('node');
       // The stored absolute path is spawned unchanged — only the runtime moves.
-      expect(cfg.args).toEqual([
-        '/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main/builtin-mcp-search-skills.js',
-      ]);
+      expect(cfg.args).toEqual([SEARCH_SKILLS_SCRIPT]);
       expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
     });
 
@@ -411,7 +418,7 @@ describe('AbstractMcpAgent', () => {
       const result = await testAgent.testMcpConnection({
         type: 'stdio',
         command: 'node',
-        args: ['/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main/builtin-mcp-concierge-diag.js'],
+        args: [CONCIERGE_DIAG_SCRIPT],
       });
 
       expect(result.success).toBe(true);
@@ -429,14 +436,14 @@ describe('AbstractMcpAgent', () => {
       const result = await testAgent.testMcpConnection({
         type: 'stdio',
         command: 'node',
-        args: ['/repo/app/out/main/builtin-mcp-image-gen.js'],
+        args: [IMAGE_GEN_SCRIPT],
       });
 
       expect(result.success).toBe(true);
       const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
       expect(cfg.command).toBe(process.execPath);
       expect(cfg.env.ELECTRON_RUN_AS_NODE).toBe('1');
-      expect(cfg.args).toEqual(['/repo/app/out/main/builtin-mcp-image-gen.js']);
+      expect(cfg.args).toEqual([IMAGE_GEN_SCRIPT]);
     });
 
     it('does NOT rewrite a user-defined node stdio server (only our bundled builtins)', async () => {
@@ -452,6 +459,24 @@ describe('AbstractMcpAgent', () => {
       const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
       expect(cfg.command).toBe('node');
       expect(cfg.args).toEqual(['/Users/me/custom-server.js']);
+      expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
+    });
+
+    // #1015 F2: same filename, the USER's own directory, the user's own file.
+    // Matching on the basename alone silently re-pointed it onto our runtime.
+    it('does NOT rewrite a user-owned server that merely shares a builtin basename', async () => {
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: ['/Users/me/tools/builtin-mcp-search-skills.js'],
+      });
+
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).toBe('node');
+      expect(cfg.args).toEqual(['/Users/me/tools/builtin-mcp-search-skills.js']);
       expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
     });
 

@@ -50,6 +50,7 @@ import type { IMcpServer } from '@/common/config/storage';
 import * as os from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
+import { applyBuiltinMcpRuntime } from '@process/services/mcpServices/builtinMcpRuntime';
 import { isServerActiveForSession, shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
 import { validateMcpServer } from '@process/services/mcpServices/validateMcpServer';
 import { addMessage, addOrUpdateMessage, nextTickToLocalFinish } from '@process/utils/message';
@@ -735,13 +736,18 @@ ${collectedResponses.join('\n')}`;
       .filter((server) => isServerActiveForSession(server, data.activeMcpServers))
       .map((server) => normalizeMcpServerForSpawn(server, os.homedir()));
     selected.forEach(validateMcpServer);
+    // #1008: after validation, rewrite Wayland's own bundled MCP servers onto the
+    // resolved JS runtime. Codex writes these verbatim into the session's
+    // config.toml [mcp_servers] table, so a bare `node` here is a chat with no
+    // builtin tools on any Mac — while the Library probe reported green.
+    const spawnable = selected.map((server) => applyBuiltinMcpRuntime(server));
 
     // Dynamic import avoids the OAuth module-init cycle documented in
     // McpService. The returned declarations carry current bearer tokens only
     // in memory; the scoped config references an env var, never the secret.
     const { mcpService } = await import('@process/services/mcpServices/McpService');
     return {
-      selectedServers: await mcpService.attachOAuthTokens(selected),
+      selectedServers: await mcpService.attachOAuthTokens(spawnable),
       managedServerNames: allServers.map((server) => server.name),
     };
   }
