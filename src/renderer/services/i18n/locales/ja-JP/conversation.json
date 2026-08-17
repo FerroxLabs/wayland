@@ -469,7 +469,8 @@
     "toolCount": "{{count}} tools",
     "noConnectors": "No connectors installed yet.",
     "addConnector": "Add a connector",
-    "manageConnectors": "Manage connectors"
+    "manageConnectors": "Manage connectors",
+    "toolNudgeAdvisory": "{{count}} 個のツールが有効です。ツールの一覧が長いと、ほとんどのモデルでツール選択の精度が下がります。このチャットのサーバーを絞るか、モデルを変更してください。"
   },
   "modelSelector": {
     "title": "Model",

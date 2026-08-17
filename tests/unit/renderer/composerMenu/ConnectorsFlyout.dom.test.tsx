@@ -63,19 +63,19 @@ afterEach(() => cleanup());
 
 describe('ConnectorsFlyout count-vs-cap nudge (#348)', () => {
   it('shows an over-limit nudge naming the model + cap when tools exceed the cap', () => {
-    renderFlyout({ servers: [srv(130)], modelCap: 128, modelLabel: 'gpt-5' });
+    renderFlyout({ servers: [srv(130)], modelCap: 128, modelCapDocumented: true, modelLabel: 'gpt-5' });
     const note = screen.getByRole('status');
     expect(note).toHaveTextContent('130 tools enabled');
     expect(note).toHaveTextContent('gpt-5 caps at 128');
   });
 
   it('shows a near-limit nudge when within the top 15% of headroom', () => {
-    renderFlyout({ servers: [srv(120)], modelCap: 128, modelLabel: 'gpt-5' });
+    renderFlyout({ servers: [srv(120)], modelCap: 128, modelCapDocumented: true, modelLabel: 'gpt-5' });
     expect(screen.getByRole('status')).toHaveTextContent('120 of 128 tools');
   });
 
   it('stays silent when comfortably under the cap', () => {
-    renderFlyout({ servers: [srv(10)], modelCap: 128, modelLabel: 'gpt-5' });
+    renderFlyout({ servers: [srv(10)], modelCap: 128, modelCapDocumented: true, modelLabel: 'gpt-5' });
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
@@ -85,7 +85,7 @@ describe('ConnectorsFlyout count-vs-cap nudge (#348)', () => {
   });
 
   it('falls back to "this model" when over the cap with no model label', () => {
-    renderFlyout({ servers: [srv(130)], modelCap: 128 });
+    renderFlyout({ servers: [srv(130)], modelCap: 128, modelCapDocumented: true });
     expect(screen.getByRole('status')).toHaveTextContent('this model caps at 128');
   });
 
@@ -94,9 +94,55 @@ describe('ConnectorsFlyout count-vs-cap nudge (#348)', () => {
     renderFlyout({
       servers: [srv(200, { allowedTools: ['a', 'b', 'c', 'd', 'e'] })],
       modelCap: 128,
+      modelCapDocumented: true,
       modelLabel: 'gpt-5',
     });
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * #998 — the same nudge must not invent a vendor limit. `modelCapDocumented`
+ * separates a published cap (exceeding it really 400s, so the copy may name the
+ * model and the number) from the shared advisory ceiling used for every provider
+ * that publishes nothing. Telling a Claude user "claude-sonnet-4-5 caps at 128"
+ * is a specific factual claim, and Anthropic publishes no such cap. This PR
+ * exists to remove a control that lied; a warning that lies is the same defect.
+ */
+describe('ConnectorsFlyout advisory ceiling copy (#998)', () => {
+  it('never names the model or a cap when the ceiling is only advisory', () => {
+    renderFlyout({
+      servers: [srv(130)],
+      modelCap: 128,
+      modelCapDocumented: false,
+      modelLabel: 'claude-sonnet-4-5',
+    });
+
+    const note = screen.getByRole('status');
+    expect(note).toHaveTextContent('130 tools enabled');
+    expect(note).toHaveTextContent('degrade tool selection on most models');
+    expect(note.textContent).not.toContain('caps at');
+    expect(note.textContent).not.toContain('claude-sonnet-4-5');
+    expect(note.textContent).not.toContain('128');
+  });
+
+  it('stays silent in the 85% near band, which on a made-up number is just noise', () => {
+    // 120 of an advisory 128 would be a permanent banner for anyone with a large
+    // inventory - exactly how users are trained to ignore warnings.
+    renderFlyout({
+      servers: [srv(120)],
+      modelCap: 128,
+      modelCapDocumented: false,
+      modelLabel: 'claude-sonnet-4-5',
+    });
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('treats an unwired modelCapDocumented as advisory, so the lie cannot leak back in', () => {
+    renderFlyout({ servers: [srv(130)], modelCap: 128, modelLabel: 'claude-sonnet-4-5' });
+
+    expect(screen.getByRole('status').textContent).not.toContain('caps at');
   });
 });
 

@@ -515,6 +515,7 @@ export type I18nKey =
   | 'conversation.composerMenu.tagBuiltin'
   | 'conversation.composerMenu.toggleAria'
   | 'conversation.composerMenu.toolCount'
+  | 'conversation.composerMenu.toolNudgeAdvisory'
   | 'conversation.composerMenu.toolNudgeModelFallback'
   | 'conversation.composerMenu.toolNudgeNear'
   | 'conversation.composerMenu.toolNudgeOver'

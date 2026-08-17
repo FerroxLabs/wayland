@@ -156,14 +156,31 @@ describe('#998 backends that CANNOT enforce it must not claim to', () => {
 });
 
 describe('#998 the tool-count nudge is backend-aware, not OpenAI-only', () => {
-  it('still reports the documented OpenAI cap', () => {
-    expect(resolveModelToolCap('openai', 'gpt-5')).toBe(PROVIDER_TOOL_LIMITS['gpt-5']);
-    expect(resolveModelToolCap('openai', 'some-unlisted-openai-model')).toBe(PROVIDER_TOOL_LIMITS.openai);
+  it('still reports the documented OpenAI cap, and marks it documented', () => {
+    expect(resolveModelToolCap('openai', 'gpt-5')).toEqual({ limit: PROVIDER_TOOL_LIMITS['gpt-5'], documented: true });
+    expect(resolveModelToolCap('openai', 'some-unlisted-openai-model')).toEqual({
+      limit: PROVIDER_TOOL_LIMITS.openai,
+      documented: true,
+    });
   });
 
-  it('warns Anthropic and Flux users instead of returning no cap at all', () => {
-    expect(resolveModelToolCap('anthropic', 'claude-sonnet-4-5')).toBe(DEFAULT_TOOL_ARRAY_CAP);
-    expect(resolveModelToolCap('flux', 'flux-auto')).toBe(DEFAULT_TOOL_ARRAY_CAP);
-    expect(resolveModelToolCap(undefined, undefined)).toBe(DEFAULT_TOOL_ARRAY_CAP);
+  it('gives Anthropic and Flux a ceiling instead of no cap at all', () => {
+    expect(resolveModelToolCap('anthropic', 'claude-sonnet-4-5').limit).toBe(DEFAULT_TOOL_ARRAY_CAP);
+    expect(resolveModelToolCap('flux', 'flux-auto').limit).toBe(DEFAULT_TOOL_ARRAY_CAP);
+    expect(resolveModelToolCap(undefined, undefined).limit).toBe(DEFAULT_TOOL_ARRAY_CAP);
+  });
+
+  it('never marks the fallback ceiling as documented', () => {
+    // The UI keys its copy off this flag. Marking the rule of thumb "documented"
+    // would put a false, model-attributed "caps at 128" in front of every
+    // Anthropic / Flux / ACP user - the same lie this issue exists to remove.
+    for (const [providerId, modelId] of [
+      ['anthropic', 'claude-sonnet-4-5'],
+      ['flux', 'flux-auto'],
+      ['google', 'gemini-2.5-pro'],
+      [undefined, undefined],
+    ] as Array<[string | undefined, string | undefined]>) {
+      expect(resolveModelToolCap(providerId, modelId).documented).toBe(false);
+    }
   });
 });

@@ -84,6 +84,11 @@ export type UiMcpServerConfig = {
    * the Gemini backend's REAL enforcement of the MCP Library's per-tool switch,
    * not a display hint. Absent => every tool (the migration-free default); `[]`
    * => none, matching `IMcpServer.allowedTools` exactly.
+   *
+   * `[]` is faithful at THIS layer but must not reach a launch: a server that
+   * discovers zero tools and zero prompts makes aioncli-core throw and mark the
+   * connector disconnected. `getMcpServers` therefore drops empty-allowlist
+   * connectors before they are emitted - see the filter there.
    */
   includeTools?: string[];
 };
@@ -620,7 +625,20 @@ export class GeminiAgentManager extends BaseAgentManager<
         .filter(
           (server: IMcpServer) =>
             server.id !== BUILTIN_CONCIERGE_DIAG_ID || isConciergeAssistant(this.presetAssistantId)
-        );
+        )
+        // #998: `allowedTools: []` ("Disable all") means this connector
+        // contributes nothing, so drop it from the launch entirely rather than
+        // declaring it with `includeTools: []`. aioncli-core's
+        // `connectAndDiscover` THROWS "No prompts or tools found on the server."
+        // when discovery yields zero prompts AND zero tools, and its catch emits
+        // error feedback and marks the server DISCONNECTED - so emitting it would
+        // turn "tools off" into a red, broken-looking connector plus an error
+        // toast. Omitting it leaves the connector installed and enabled while
+        // contributing no tools this session, which is what the user asked for.
+        // It is also dropped BEFORE `beginMcpSession`, so the session's expected
+        // receipts match what is actually launched instead of waiting forever on
+        // a publication that can never arrive.
+        .filter((server: IMcpServer) => server.allowedTools === undefined || server.allowedTools.length > 0);
 
       // Match the ACP/Core launch paths: hosted OAuth connectors must enter the
       // worker with a current bearer, not the stale header saved at install.

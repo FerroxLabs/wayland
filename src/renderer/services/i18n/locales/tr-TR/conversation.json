@@ -471,7 +471,8 @@
     "toolCount": "{{count}} tools",
     "noConnectors": "No connectors installed yet.",
     "addConnector": "Add a connector",
-    "manageConnectors": "Manage connectors"
+    "manageConnectors": "Manage connectors",
+    "toolNudgeAdvisory": "{{count}} araç etkin. Uzun araç listeleri çoğu modelde araç seçimini bozar — bu sohbetteki sunucuları daraltın ya da modeli değiştirin."
   },
   "modelSelector": {
     "title": "Model",

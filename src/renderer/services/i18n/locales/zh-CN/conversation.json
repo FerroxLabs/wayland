@@ -469,7 +469,8 @@
     "toolCount": "{{count}} tools",
     "noConnectors": "No connectors installed yet.",
     "addConnector": "Add a connector",
-    "manageConnectors": "Manage connectors"
+    "manageConnectors": "Manage connectors",
+    "toolNudgeAdvisory": "已启用 {{count}} 个工具。工具列表过长会降低大多数模型的工具选择质量 — 请为此对话缩减服务器或更换模型。"
   },
   "modelSelector": {
     "title": "Model",

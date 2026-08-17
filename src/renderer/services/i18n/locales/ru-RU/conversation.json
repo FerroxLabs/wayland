@@ -469,7 +469,8 @@
     "toolCount": "{{count}} tools",
     "noConnectors": "No connectors installed yet.",
     "addConnector": "Add a connector",
-    "manageConnectors": "Manage connectors"
+    "manageConnectors": "Manage connectors",
+    "toolNudgeAdvisory": "Включено инструментов: {{count}}. Длинные списки инструментов ухудшают их выбор у большинства моделей — ограничьте серверы для этого чата или смените модель."
   },
   "modelSelector": {
     "title": "Model",

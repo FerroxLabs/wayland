@@ -160,23 +160,44 @@ export const PROVIDER_TOOL_LIMITS: Record<string, number> = {
  * tools got NO nudge while the identical inventory warned on `gpt-5` — the
  * warning was hardcoded to one vendor rather than being backend-aware.
  *
- * 128 is the tightest published ceiling across the providers Wayland routes to,
- * and a router (Flux) can land a turn on any of them, so it is the honest floor
- * to warn against. It is advisory only: nothing is ever truncated client-side.
+ * This is a rule of thumb about tool-selection quality, NOT a published limit,
+ * and callers must never present it as one. See {@link ModelToolCap.documented}.
  */
 export const DEFAULT_TOOL_ARRAY_CAP = 128;
 
+/** The tool-array ceiling to compare a chat's inventory against. */
+export type ModelToolCap = {
+  /** The count the inventory is measured against. */
+  limit: number;
+  /**
+   * TRUE only when `limit` came from a published vendor limit in
+   * {@link PROVIDER_TOOL_LIMITS} — i.e. exceeding it really does fail the
+   * request, so the UI may say the model "caps at N" and name the model.
+   *
+   * FALSE when `limit` is the {@link DEFAULT_TOOL_ARRAY_CAP} rule of thumb. The
+   * UI must NOT attribute a hard cap to the model in that case: telling a Claude
+   * user "claude-sonnet-4-5 caps at 128" is a specific factual claim, and
+   * Anthropic publishes no such tool-array cap. This whole issue is about a
+   * control that lied to users; a warning that lies is the same defect wearing a
+   * different hat.
+   */
+  documented: boolean;
+};
+
 /**
- * The tool-array cap to warn a chat's target model against. Checks the model id
- * first (e.g. `gpt-5`) then the provider id (e.g. `openai`) so a capped model
+ * The tool-array ceiling to warn a chat's target model against. Checks the model
+ * id first (e.g. `gpt-5`) then the provider id (e.g. `openai`) so a capped model
  * under any provider still resolves, and falls back to
- * {@link DEFAULT_TOOL_ARRAY_CAP} so every backend gets a nudge rather than only
- * the vendors listed in {@link PROVIDER_TOOL_LIMITS}. Informational only.
+ * {@link DEFAULT_TOOL_ARRAY_CAP} (with `documented: false`) so every backend gets
+ * a nudge rather than only the vendors listed in {@link PROVIDER_TOOL_LIMITS}.
+ * Informational only — nothing is ever truncated client-side.
  */
-export function resolveModelToolCap(providerId?: string, modelId?: string): number {
-  if (modelId && modelId in PROVIDER_TOOL_LIMITS) return PROVIDER_TOOL_LIMITS[modelId];
-  if (providerId && providerId in PROVIDER_TOOL_LIMITS) return PROVIDER_TOOL_LIMITS[providerId];
-  return DEFAULT_TOOL_ARRAY_CAP;
+export function resolveModelToolCap(providerId?: string, modelId?: string): ModelToolCap {
+  if (modelId && modelId in PROVIDER_TOOL_LIMITS) return { limit: PROVIDER_TOOL_LIMITS[modelId], documented: true };
+  if (providerId && providerId in PROVIDER_TOOL_LIMITS) {
+    return { limit: PROVIDER_TOOL_LIMITS[providerId], documented: true };
+  }
+  return { limit: DEFAULT_TOOL_ARRAY_CAP, documented: false };
 }
 
 /**

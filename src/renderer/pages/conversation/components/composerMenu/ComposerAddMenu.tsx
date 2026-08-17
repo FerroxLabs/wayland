@@ -72,7 +72,7 @@ const ComposerAddMenuPanel: React.FC<{
   // per-conversation MCP selection drives the scoping toggles (#348). Live mode
   // only — a staged (home) composer has no conversation yet. Mirrors
   // useModelEffort's conversation.get usage.
-  const [targetModel, setTargetModel] = useState<{ cap?: number; label?: string }>({});
+  const [targetModel, setTargetModel] = useState<{ cap?: number; capDocumented?: boolean; label?: string }>({});
   const [activeServerIds, setActiveServerIds] = useState<string[] | undefined>(undefined);
   useEffect(() => {
     if (!conversationId) return;
@@ -88,7 +88,8 @@ const ComposerAddMenuPanel: React.FC<{
         // nudge instead of only OpenAI ones. The label falls back to a generic
         // "this model" when the id is unknown.
         const model = 'model' in conv ? conv.model : undefined;
-        setTargetModel({ cap: resolveModelToolCap(model?.id, model?.useModel), label: model?.useModel });
+        const cap = resolveModelToolCap(model?.id, model?.useModel);
+        setTargetModel({ cap: cap.limit, capDocumented: cap.documented, label: model?.useModel });
         const extra = conv.extra as { activeMcpServers?: string[] } | undefined;
         setActiveServerIds(extra?.activeMcpServers);
       })
@@ -241,6 +242,7 @@ const ComposerAddMenuPanel: React.FC<{
           onAddConnector={goConnectors}
           onManageConnectors={goConnectors}
           modelCap={targetModel.cap}
+          modelCapDocumented={targetModel.capDocumented}
           modelLabel={targetModel.label}
           onScopeChange={conversationId ? setActiveServers : undefined}
           activeServerIds={activeServerIds}
