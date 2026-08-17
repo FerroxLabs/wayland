@@ -45,6 +45,13 @@ env:
   # PINNED_BUN_VERSION in scripts/prepareBundledBun.js and the
   # corresponding entry in scripts/bundled-bun-shasums.json.
   WAYLAND_BUN_VERSION: '1.3.14'
+  # #940: four @wayland MCP connectors (apple, imap, news, cal.com) build from
+  # the sibling waylandmcp repo, which has no GitHub remote yet - CI cannot
+  # check it out. scripts/build-mcp-servers.js now FAILS the build when a
+  # connector cannot be bundled, so CI must opt out explicitly until that repo
+  # lands. DELETE this line the moment waylandmcp is checkout-able in CI; that
+  # is the whole point of the gate.
+  WAYLAND_ALLOW_MISSING_MCP: '1'
 
 jobs:
   code-quality:
