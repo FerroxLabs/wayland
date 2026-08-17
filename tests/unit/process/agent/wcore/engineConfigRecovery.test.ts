@@ -107,6 +107,8 @@ function fakeFs(
      * the file" invited them to open.
      */
     foreignWriteBeforeRepair?: string;
+    /** Paths `isRegularFile` reports as NOT regular - a symlink, a directory (F4). */
+    irregularPaths?: string[];
   } = {}
 ): FakeFs {
   const files = new Map<string, Buffer>(
@@ -163,6 +165,14 @@ function fakeFs(
       }
       ops.push(`unlink:${path}`);
       files.delete(path);
+    },
+    isRegularFile: async (path) => {
+      if (!files.has(path)) {
+        const error: NodeJS.ErrnoException = new Error(`ENOENT: no such file, lstat '${path}'`);
+        error.code = 'ENOENT';
+        throw error;
+      }
+      return !(options.irregularPaths ?? []).includes(path);
     },
     now: () => new Date(2026, 7, 17, 14, 25, 30),
   };
@@ -559,6 +569,26 @@ describe('repairEngineConfig - backup BEFORE write, original never lost', () => 
     expect(fs.ops.filter((op) => op.startsWith('unlink:'))).toEqual([]);
   });
 
+  /**
+   * F4. Every write path renames the original aside then EXCLUSIVE-creates a fresh
+   * file, which on a symlinked config silently converts the link into a regular
+   * file: the link goes into the backup name and the real target keeps the broken
+   * content forever. Executed before the guard: `configStillSymlink=false`,
+   * `backupIsSymlink=true`, `targetStillOriginalBroken=true`.
+   */
+  it('REFUSES a config.toml that is not a regular file, touching nothing', async () => {
+    const fs = fakeFs({ [CONFIG_PATH]: REPORTED_CORRUPT }, { irregularPaths: [CONFIG_PATH] });
+
+    expect(await repairEngineConfig(fs.deps)).toMatchObject({ ok: false, reason: 'not-a-regular-file' });
+    expect(await regenerateEngineConfig({ confirmed: true }, fs.deps)).toMatchObject({
+      ok: false,
+      reason: 'not-a-regular-file',
+    });
+    // Not one mutation on either path.
+    expect(fs.ops).toEqual([]);
+    expect(fs.files.get(CONFIG_PATH)!.toString('utf-8')).toBe(REPORTED_CORRUPT);
+  });
+
   it('REFUSES to rewrite a NON-UTF-8 config, touching nothing', async () => {
     const fs = fakeFs({ [CONFIG_PATH]: LONE_E9 });
     const result = await repairEngineConfig(fs.deps);
@@ -733,6 +763,41 @@ describe('against a real scratch config dir', () => {
     expect(() => parse(repaired)).not.toThrow();
 
     await rm(dir, { recursive: true, force: true });
+  });
+
+  /**
+   * F4 on a REAL filesystem, with a real symlink and the real `lstat` seam. Before
+   * the guard this returned `ok: true` while converting the link into a regular
+   * file and leaving the actual target broken forever.
+   */
+  it('leaves a SYMLINKED config.toml and its target completely alone', async () => {
+    const CORRUPT = '[security]\nenabled = falseegress_allow = [ "a" ]\n';
+    const { lstat, symlink } = await import('node:fs/promises');
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-link-'));
+    const target = join(dir, 'real-config.toml');
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(target, CORRUPT, 'utf-8');
+    await symlink(target, configPath);
+
+    const deps: EngineConfigRecoveryDeps = { ...defaultRecoveryDeps(), resolveConfigPath: async () => configPath };
+
+    expect(await repairEngineConfig(deps)).toMatchObject({ ok: false, reason: 'not-a-regular-file' });
+    expect(await regenerateEngineConfig({ confirmed: true }, deps)).toMatchObject({
+      ok: false,
+      reason: 'not-a-regular-file',
+    });
+
+    // Still a link, still pointing at the same target, and NO backup was made.
+    expect((await lstat(configPath)).isSymbolicLink()).toBe(true);
+    expect(await realReadFile(target, 'utf-8')).toBe(CORRUPT);
+    expect(readdirSync(dir).filter((f) => f.startsWith('config.toml.backup-'))).toEqual([]);
+
+    // The guard must not be firing on a plain file - the known positive.
+    const plain = await scratch(CORRUPT);
+    expect((await repairEngineConfig(plain.deps)).ok).toBe(true);
+
+    await rm(dir, { recursive: true, force: true });
+    await rm(plain.dir, { recursive: true, force: true });
   });
 
   it('FAILURE BRANCH on a real fs: an unwritable directory leaves the original intact', async () => {

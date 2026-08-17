@@ -64,7 +64,7 @@
  * follows that precedent exactly, and additionally routes the surviving reason
  * through the shared `redactCommandSecrets` scrubber.
  */
-import { readFile, rename, unlink, writeFile } from 'node:fs/promises';
+import { lstat, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { parse } from 'smol-toml';
 import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
@@ -131,6 +131,11 @@ export type EngineConfigRecoveryFailure =
    * BOTH that file and the backup were left in place. `backupPath` is always set.
    */
   | 'restore-conflict'
+  /**
+   * `config.toml` is not a regular file (a symlink, a directory, a device). This
+   * module refuses to write through it - see {@link refuseIrregularConfig}.
+   */
+  | 'not-a-regular-file'
   /** The write failed AFTER a good backup was taken. */
   | 'write-failed';
 
@@ -168,6 +173,13 @@ export type EngineConfigRecoveryDeps = {
   writeFileExclusive: (path: string, data: string) => Promise<void>;
   /** Atomic, byte-exact move. The ONLY way this module makes a backup. */
   renameFile: (from: string, to: string) => Promise<void>;
+  /**
+   * `lstat` WITHOUT following a link, reporting only whether `path` is a plain
+   * regular file. Deliberately not the full `Stats`: the one bit this module acts
+   * on is that bit, and a narrow seam is one the tests can drive honestly.
+   * Rejects when `path` cannot be stat'd at all.
+   */
+  isRegularFile: (path: string) => Promise<boolean>;
   /**
    * Delete a file. Used ONLY to clean up a backup-name placeholder this module
    * created moments earlier, or a repair write it is about to roll back - never
@@ -567,6 +579,9 @@ export function defaultRecoveryDeps(): EngineConfigRecoveryDeps {
       await writeFile(path, data, { encoding: 'utf-8', flag: 'wx', mode: 0o600 });
     },
     renameFile: (from, to) => rename(from, to),
+    // `lstat`, NOT `stat`: the whole point is to notice the link itself rather
+    // than following it to whatever it points at.
+    isRegularFile: async (path) => (await lstat(path)).isFile(),
     removeFile: (path) => unlink(path),
     now: () => new Date(),
   };
@@ -594,6 +609,46 @@ async function restoreFromBackup(
   } catch {
     return false;
   }
+}
+
+/**
+ * Refuse a `config.toml` that is not a regular file (F4).
+ *
+ * Every write path here is `rename` the original aside, then EXCLUSIVE-create a
+ * fresh file at `configPath`. On a symlinked config that silently converts the
+ * link into a regular file: `readFile` follows the link, `rename` moves the LINK
+ * itself into the backup name, and the `wx` create then makes a brand new regular
+ * file where the link used to be. No bytes are lost - but the real target keeps
+ * the broken content forever and Wayland quietly stops writing to it, which for a
+ * dotfiles or shared config is exactly the opposite of a repair. Executed on a
+ * symlinked config before this guard: `configStillSymlink=false`,
+ * `backupIsSymlink=true`, `targetStillOriginalBroken=true`.
+ *
+ * The earlier copy-based version of this module wrote THROUGH the link, so this is
+ * a regression the rename-based backup introduced. Writing through a link is not
+ * the fix - that is the symlink-following write the exclusive create exists to
+ * remove - so the honest answer is to refuse and point at Reveal.
+ *
+ * @returns a typed failure when the path is not a regular file, else `null`. A
+ *   failing `lstat` is NOT treated as a refusal: the read that follows reports it
+ *   with a better message, and a missing file already has its own branch.
+ */
+async function refuseIrregularConfig(
+  path: string,
+  deps: EngineConfigRecoveryDeps
+): Promise<EngineConfigRecoveryResult | null> {
+  let regular: boolean;
+  try {
+    regular = await deps.isRegularFile(path);
+  } catch {
+    return null;
+  }
+  if (regular) return null;
+  return {
+    ok: false,
+    reason: 'not-a-regular-file',
+    detail: 'the engine config is not a regular file, so Wayland will not replace it',
+  };
 }
 
 /** `true` when a failed exclusive create means the path already existed. */
@@ -676,6 +731,9 @@ export async function repairEngineConfig(
   deps: EngineConfigRecoveryDeps = defaultRecoveryDeps()
 ): Promise<EngineConfigRecoveryResult> {
   const path = await deps.resolveConfigPath();
+  const irregular = await refuseIrregularConfig(path, deps);
+  if (irregular) return irregular;
+
   const read = await readConfigBytes(path, deps);
   if ('failure' in read) return read.failure;
 
@@ -778,6 +836,9 @@ export async function regenerateEngineConfig(
   }
 
   const path = await deps.resolveConfigPath();
+  const irregular = await refuseIrregularConfig(path, deps);
+  if (irregular) return irregular;
+
   const read = await readConfigBytes(path, deps);
   if ('failure' in read) return read.failure;
 
