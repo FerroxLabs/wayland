@@ -423,24 +423,38 @@ describe('createConciergeDiagServer — recentErrors (logs)', () => {
   // The trailing MAX_LOG_LINES slice only means "most recent" if the files are
   // walked oldest-first. Otherwise a truncated section keeps the OLDEST lines
   // and discards the newest, which is the same defect one layer down and the
-  // half a user actually feels.
+  // half a user actually feels. It is also the half that decides what a user
+  // pastes into a support ticket: `collectBugReport.ts` slices this down again
+  // to MAX_ERROR_LINES of 8.
   //
-  // An earlier version of this test used two files of one line each. That
-  // proved the ordering but never activated the slice at all, because two
-  // matching lines against MAX_LOG_LINES of 40 makes `slice(-40)` a no-op, so
-  // the assertion in the name was not the assertion being made. This fixture
-  // carries 60 matching lines so truncation genuinely fires, and the newer file
-  // sorts FIRST alphabetically so directory order alone would put its lines at
-  // the front, where the tail slice throws them away.
+  // This test has been wrong twice, in two different ways, so both are recorded.
+  // First it used two files of ONE line each, which proved the ordering but never
+  // activated the slice at all, because two lines against MAX_LOG_LINES of 40
+  // makes `slice(-40)` a no-op. The rewrite added 30 lines per file so truncation
+  // genuinely fires -- and reintroduced the exact defect the earlier audit had
+  // condemned, by relying on the newer file sorting FIRST alphabetically so that
+  // "directory order alone" would bury its lines. That is an assumption about
+  // readdir order, i.e. an accident of APFS. With only two files there are only
+  // two possible orders, and the buggy implementation passed in one of them:
+  // measured across 250 shuffled orders it survived 130 of them, 52%.
+  //
+  // So this fixture reuses the 14-file layout above, where alphabetical position
+  // is uncorrelated with age and the newest files sit in the MIDDLE. Selection
+  // and ordering are then proved by one fixture, and the buggy implementation
+  // survives 0 of 250 shuffled orders.
   it('orders collected lines oldest-first so a truncated tail keeps the newest', () => {
     const logDir = tmp('logs-order');
     fs.mkdirSync(logDir);
     const base = Date.UTC(2026, 0, 1) / 1000;
-    const LINES_PER_FILE = 30;
-    for (const [name, ageHours] of [
-      ['a-newer', 2],
-      ['b-older', 1],
-    ] as const) {
+    const LINES_PER_FILE = 10;
+    // Same shape as the selection test: `m` newest, `z` middle, `a` oldest.
+    const fixture = [
+      ...Array.from({ length: 6 }, (_, i) => ({ name: `a${i + 1}`, ageHours: i + 1 })),
+      ...Array.from({ length: 6 }, (_, i) => ({ name: `z${i + 1}`, ageHours: i + 10 })),
+      { name: 'm1', ageHours: 20 },
+      { name: 'm2', ageHours: 21 },
+    ];
+    for (const { name, ageHours } of fixture) {
       const body = Array.from({ length: LINES_PER_FILE }, (_, i) => `error: ${name} entry ${i}`).join('\n');
       const file = path.join(logDir, `${name}.log`);
       fs.writeFileSync(file, `${body}\n`);
@@ -450,16 +464,71 @@ describe('createConciergeDiagServer — recentErrors (logs)', () => {
 
     const server = createConciergeDiagServer({ logDir });
     const lines = server.recentErrors().lines;
+    const countFor = (name: string) => lines.filter((line) => line.includes(`${name} entry`)).length;
 
-    // Truncation really happened: 60 matching lines in, MAX_LOG_LINES out.
+    // MAX_LOG_FILES picks the six newest (m2, m1, z6..z3) = 60 matching lines,
+    // and MAX_LOG_LINES then keeps the trailing 40. Truncation really happened.
     expect(lines).toHaveLength(40);
-    // What survived the tail slice is the NEWER file, not the older one.
-    const newerKept = lines.filter((line) => line.includes('a-newer entry')).length;
-    const olderKept = lines.filter((line) => line.includes('b-older entry')).length;
-    expect(newerKept).toBe(LINES_PER_FILE);
-    expect(olderKept).toBe(40 - LINES_PER_FILE);
+    // The four NEWEST of the selected six survive the tail slice in full.
+    for (const name of ['z5', 'z6', 'm1', 'm2']) {
+      expect(countFor(name)).toBe(LINES_PER_FILE);
+    }
+    // z3 and z4 were selected as files but their lines fell off the front of the
+    // slice; z1, z2 and the whole `a` block never made the file cut at all.
+    for (const name of ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'z1', 'z2', 'z3', 'z4']) {
+      expect(countFor(name)).toBe(0);
+    }
     // And the newest line of all is the last one retained.
-    expect(lines.at(-1)).toContain(`a-newer entry ${LINES_PER_FILE - 1}`);
+    expect(lines.at(-1)).toContain(`m2 entry ${LINES_PER_FILE - 1}`);
+  });
+
+  // Both guards below are behaviour this change introduced, and both were
+  // uncovered: reverting either left the whole file green.
+  it('does not let a directory named like a log consume a file slot', () => {
+    const logDir = tmp('logs-dir-entry');
+    fs.mkdirSync(logDir);
+    const base = Date.UTC(2026, 0, 1) / 1000;
+    for (let i = 1; i <= 6; i += 1) {
+      const file = path.join(logDir, `f${i}.log`);
+      fs.writeFileSync(file, `error: marker for f${i}\n`);
+      const when = base + i * 3600;
+      fs.utimesSync(file, when, when);
+    }
+    // Deliberately the NEWEST entry in the directory, so without the isFile()
+    // guard it wins a slot and evicts the oldest real file.
+    const dir = path.join(logDir, 'zz-dir.log');
+    fs.mkdirSync(dir);
+    fs.utimesSync(dir, base + 99 * 3600, base + 99 * 3600);
+
+    const result = createConciergeDiagServer({ logDir }).recentErrors();
+    const joined = result.lines.join('\n');
+
+    expect(result.available).toBe(true);
+    for (let i = 1; i <= 6; i += 1) {
+      expect(joined).toContain(`marker for f${i}`);
+    }
+  });
+
+  it('drops an entry that cannot be stat-ed rather than failing the section', () => {
+    const logDir = tmp('logs-vanished');
+    fs.mkdirSync(logDir);
+    const base = Date.UTC(2026, 0, 1) / 1000;
+    for (const name of ['keep1', 'keep2']) {
+      const file = path.join(logDir, `${name}.log`);
+      fs.writeFileSync(file, `error: marker for ${name}\n`);
+      fs.utimesSync(file, base, base);
+    }
+    // A real dangling symlink, not a mock: statSync follows it and throws ENOENT,
+    // which is what a log rotated away between readdir and stat looks like.
+    fs.symlinkSync(path.join(logDir, 'gone.log'), path.join(logDir, 'dangling.log'));
+
+    const result = createConciergeDiagServer({ logDir }).recentErrors();
+    const joined = result.lines.join('\n');
+
+    expect(result.available).toBe(true);
+    expect(joined).toContain('marker for keep1');
+    expect(joined).toContain('marker for keep2');
+    expect(joined).not.toContain('dangling');
   });
 });
 
