@@ -27,7 +27,8 @@
 export const CRASH_MARKER_PROCESS_EXIT = 'process exited unexpectedly';
 
 /**
- * The transport dropped and NO exit code or signal was observed, so a process
- * death is unproven - the child may still be running.
+ * The transport dropped and NO exit code or signal was observed, so neither a
+ * process death nor a live child is proven. The banner says only that, and
+ * deliberately does not reassure the user that the child is probably alive.
  */
 export const CRASH_MARKER_TRANSPORT_CLOSE = 'lost the connection to the agent process';

@@ -129,16 +129,21 @@ describe('#1020 end-to-end mid-prompt transport drop (real child, real client, r
 
     expect(banner).toContain(CRASH_MARKER_TRANSPORT_CLOSE);
     expect(banner).toContain('[reason: connection_close]');
-    expect(banner).toContain('may still be running');
+    expect(banner).toContain('we cannot tell whether the agent crashed or the connection dropped');
+    expect(banner).not.toContain('may still be running');
 
     // The old message asserted exactly the two facts that were NOT known.
     expect(banner).not.toContain(CRASH_MARKER_PROCESS_EXIT);
     expect(banner).not.toContain('code: unknown');
     expect(banner).not.toContain('signal: none');
 
-    // A turn was in flight and is not replayed, so the user has to be told.
-    expect(banner).toContain('did not complete');
-    expect(banner).toContain('send it again');
+    // A turn was in flight and is not replayed, so the user has to be told - and
+    // told to CHECK before resending, because the turn may already have run a tool
+    // whose notification died with the pipe (#1023).
+    expect(banner).toContain('lost before it could complete');
+    expect(banner).toContain('was not resent automatically');
+    expect(banner).toContain('The agent may already have carried out part of this message');
+    expect(banner).toContain('check the result before sending it again');
 
     // The stderr that names the real cause rides along - scrubbed.
     expect(banner).toContain('Agent stderr:');
@@ -146,7 +151,9 @@ describe('#1020 end-to-end mid-prompt transport drop (real child, real client, r
     expect(banner).toContain('[redacted]');
     expect(banner).not.toContain(LEAKED_SECRET);
 
-    // The child really is still running: "may still be running" is not a hedge.
+    // This child really IS still running - but the banner does not say so, because
+    // for a fast crash the same null/null report arrives while the child is dead
+    // (measured 6 of 20, #1023) and nothing synchronous can tell the two apart.
     const first = spawned[0];
     expect(first.pid).toBeTruthy();
     expect(isProcessAlive(first.pid!)).toBe(true);

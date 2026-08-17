@@ -73,8 +73,12 @@ describe('buildCrashMessage', () => {
         expect(msg).not.toContain(CRASH_MARKER_PROCESS_EXIT);
         expect(msg).not.toContain('code: unknown');
         expect(msg).not.toContain('signal: none');
-        // And it must say the process death is unproven.
-        expect(msg).toContain('may still be running');
+        // And it must say the process death is unproven WITHOUT reassuring the
+        // user that the child is probably alive: that reassurance was measured
+        // false for 6 of 20 real crashes (#1023).
+        expect(msg).toContain('we cannot tell whether the agent crashed or the connection dropped');
+        expect(msg).not.toContain('may still be running');
+        expect(msg).not.toContain('not a confirmed crash');
       });
     }
   });
@@ -82,13 +86,26 @@ describe('buildCrashMessage', () => {
   describe('prompt in flight vs idle', () => {
     it('tells the user the turn did not land when a prompt was in flight', () => {
       const msg = buildCrashMessage(info({ reason: 'connection_close', unexpectedDuringPrompt: true }))!;
-      expect(msg).toContain('did not complete');
-      expect(msg).toContain('send it again');
+      expect(msg).toContain('lost before it could complete');
+      expect(msg).toContain('was not resent automatically');
+    });
+
+    // #1023: `PromptExecutor.handlePromptError` refuses to replay this turn because a
+    // dead pipe can swallow the `tool_call` that would say what already ran, so the
+    // turn may have already executed an approved `rm`. The copy must not instruct the
+    // human to do by hand the thing the code declines to do for them.
+    it('warns that part of the turn may already have run instead of telling the user to resend', () => {
+      const msg = buildCrashMessage(info({ reason: 'connection_close', unexpectedDuringPrompt: true }))!;
+      expect(msg).toContain('The agent may already have carried out part of this message');
+      expect(msg).toContain('check the result before sending it again');
+      // The old copy was a bare instruction to resend.
+      expect(msg).not.toContain('was not resent automatically - send it again');
     });
 
     it('says nothing about a lost turn when none was in flight', () => {
       const msg = buildCrashMessage(info({ reason: 'connection_close', unexpectedDuringPrompt: false }))!;
-      expect(msg).not.toContain('did not complete');
+      expect(msg).not.toContain('lost before it could complete');
+      expect(msg).not.toContain('was not resent automatically');
     });
   });
 

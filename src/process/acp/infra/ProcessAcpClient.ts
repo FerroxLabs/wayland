@@ -476,9 +476,10 @@ export class ProcessAcpClient implements AcpClient {
     // The tradeoff this buys is accepted deliberately: because nothing waits for
     // the child's 'exit' event, a genuine fast crash whose exit is still a
     // millisecond away is reported as a transport close rather than a confirmed
-    // exit. That is the correct direction. A hedged "no exit was reported, the
-    // process may still be running" is honest about what was observed; asserting
-    // "process exited" with no code and no signal is the #1020 bug itself.
+    // exit. That is the correct direction. Reporting "no exit code or signal was
+    // reported" is honest about what was observed; asserting "process exited" with
+    // no code and no signal is the #1020 bug itself. The banner stops there and does
+    // not claim the child is probably alive, because for a fast crash it is not.
     const error = new AgentDisconnectedError(reason, exitCode, signal ? String(signal) : null, {
       outputAlreadyEmitted: this.hasActivePrompt,
     });

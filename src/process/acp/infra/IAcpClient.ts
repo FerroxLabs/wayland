@@ -101,8 +101,10 @@ export type DisconnectInfo = {
    * The report is deliberately NOT delayed to wait for a late 'exit' event (see
    * `ProcessAcpClient.recordAgentExit` - delaying it inverts the ordering the
    * session depends on), so a genuine fast crash can land here too. That is why
-   * `buildCrashMessage` hedges ("the process may still be running") instead of
-   * asserting an exit it has no evidence for (#1020).
+   * `buildCrashMessage` reports only what was observed ("no exit code or signal was
+   * reported") instead of asserting an exit it has no evidence for (#1020), and does
+   * NOT reassure the user that the child is probably alive - measured against each
+   * child's own 'exit' event, that reassurance was wrong for 6 of 20 real crashes.
    */
   exitCode: number | null;
   signal: string | null;

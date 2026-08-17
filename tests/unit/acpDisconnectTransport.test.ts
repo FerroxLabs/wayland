@@ -116,7 +116,10 @@ function assertHonest(d: Driven, expected: RealExit, label: string): 'exit-obser
   expect(info.reason, label).toBe('connection_close');
   expect(msg, label).toContain(CRASH_MARKER_TRANSPORT_CLOSE);
   expect(msg, label).not.toContain(CRASH_MARKER_PROCESS_EXIT);
-  expect(msg, label).toContain('may still be running');
+  expect(msg, label).toContain('we cannot tell whether the agent crashed or the connection dropped');
+  // #1023: 6 of these 20 real children were genuinely dead at report time, so the
+  // banner must not reassure the user that the child is probably alive.
+  expect(msg, label).not.toContain('may still be running');
   expect(msg, label).not.toContain('code: unknown');
   expect(msg, label).not.toContain('signal: none');
   return 'transport-drop';

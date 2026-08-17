@@ -113,6 +113,20 @@ function buildStderrTail(stderr: string): string | null {
  * So: claim an exit only when a code or a signal is present, name the reason either
  * way, and carry a scrubbed stderr tail so the real cause is recoverable.
  *
+ * The no-exit branch states only what was observed and stops there. It used to add
+ * that the process "may still be running", which was measured FALSE for 6 of 20 real
+ * crashes (an exit(7) or a SIGKILL whose 'exit' event was still a tick away when the
+ * transport aborted). There is no fix for that beyond dropping the reassurance:
+ * `kill(pid, 0)` returns true for the exited-but-unreaped child, so no synchronous
+ * probe can tell the two apart, and deferring the report inverts the ordering the
+ * session depends on (`ProcessAcpClient.recordAgentExit`).
+ *
+ * The in-flight line does not tell the user to resend. `PromptExecutor` refuses to
+ * replay that turn precisely because a dead pipe can swallow the `tool_call` that
+ * would say what already ran, so the turn may have already executed an approved
+ * `rm`. Copy that says "send it again" instructs the human to do by hand the exact
+ * thing the code declines to do for them.
+ *
  * Deliberately NOT routed through i18n - this matches the surrounding diagnostics
  * (`AgentDisconnectedError`, `AgentStartupError`, `enterError`), which are all raw
  * English strings, and the reason/stderr payload is untranslatable anyway.
@@ -124,11 +138,13 @@ export function buildCrashMessage(info?: DisconnectInfo): string | null {
   const lines: string[] = [
     exitObserved
       ? `${CRASH_MARKER_PROCESS_EXIT} (code: ${info.exitCode ?? 'unknown'}, signal: ${info.signal ?? 'none'}) [reason: ${info.reason}]`
-      : `${CRASH_MARKER_TRANSPORT_CLOSE} [reason: ${info.reason}]. No exit code or signal was reported, so the agent process may still be running - this is a transport-level disconnect, not a confirmed crash.`,
+      : `${CRASH_MARKER_TRANSPORT_CLOSE} [reason: ${info.reason}]. No exit code or signal was reported, so we cannot tell whether the agent crashed or the connection dropped.`,
   ];
 
   if (info.unexpectedDuringPrompt) {
-    lines.push('The message that was in flight did not complete and was not resent automatically - send it again.');
+    lines.push(
+      'The reply was lost before it could complete, and it was not resent automatically. The agent may already have carried out part of this message, so check the result before sending it again.'
+    );
   }
 
   const tail = buildStderrTail(info.stderr);
