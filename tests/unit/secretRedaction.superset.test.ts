@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import { redactSecrets } from '@process/utils/secretRedaction';
 import { legacyMaskedRuns, legacyWebserverRedactSecrets } from '../fixtures/legacyWebserverRedaction';
+import { SECRET_CORPUS } from '../fixtures/secretCorpus';
 
 /**
  * #992 moved the ~10 remote-facing config-write routes off their own scrubber
@@ -108,5 +109,46 @@ describe('shared scrubber masks a superset of the deleted webserver scrubber', (
   it('the sweep actually exercises the legacy scrubber (guards against a vacuous pass)', () => {
     const exercised = sweep.filter((text) => legacyMaskedRuns(text).length > 0);
     expect(exercised.length).toBeGreaterThan(sweep.length / 2);
+  });
+});
+
+/**
+ * The generalised form of the trailing-boundary defect, kept separate from the
+ * superset check above because it is a different question. The superset check
+ * only compares against the DELETED webserver set, which knew about four token
+ * shapes; it is structurally blind to a boundary bug on the GitHub, AWS or
+ * Google patterns, and those had one.
+ *
+ * The rule: a trailing `\b` on a token pattern is safe only if the character
+ * class contains every word character. Where it does not - `xox` and `gh*_`
+ * omit `_`, `AKIA` omits `_` and lowercase - a token followed by a word
+ * character produces no word/non-word transition, the boundary fails, and
+ * backtracking either falls under the length floor or (for a FIXED length) does
+ * not exist at all. The whole token escapes.
+ *
+ * Rather than pin the three known instances, assert the property over every
+ * shape in the corpus. A new pattern added with a trailing anchor fails here.
+ */
+describe('a word character after a token never lets it escape', () => {
+  // `_` is the one that broke three patterns, but pinning only `_` pins the
+  // symptom. Word chars, and separators that could re-trigger backtracking.
+  const SUFFIXES = ['_', '_x', '_tail', '_backup', 'X', '9', '-', '-tail', '.'];
+
+  const cases = SECRET_CORPUS.flatMap((entry) =>
+    SUFFIXES.map((suffix) => {
+      const at = entry.text.indexOf(entry.secret);
+      const spliced =
+        at < 0
+          ? `${entry.text}${suffix}`
+          : entry.text.slice(0, at + entry.secret.length) + suffix + entry.text.slice(at + entry.secret.length);
+      return { label: `${entry.label} + ${JSON.stringify(suffix)}`, spliced, secret: entry.secret };
+    })
+  );
+
+  it(`keeps ${cases.length} token+suffix combinations masked`, () => {
+    const escaped = cases
+      .filter(({ spliced, secret }) => redactSecrets(spliced).includes(secret))
+      .map(({ label, spliced }) => `${label}: ${JSON.stringify(spliced)}`);
+    expect(escaped).toEqual([]);
   });
 });

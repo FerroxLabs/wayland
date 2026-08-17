@@ -61,11 +61,13 @@
 // credential on disk and into the renderer DevTools stream regardless of the
 // redaction applied to the user-facing error. Every emission is now redacted.
 const SECRET_PATTERNS: RegExp[] = [
-  // No trailing `\b` - same defect class as the `xox`/`xai` patterns below.
-  // `sk-svcacct-` style bodies END in a separator, so a trailing boundary cannot
-  // be satisfied there, backtracking drops under the `{8,}` floor and the whole
-  // token goes unmasked. The `\b` this inherited hid that until a literal sweep
-  // over src/ found `sk-svcacct-` surviving.
+  // No trailing `\b`, for CONSISTENCY with the patterns below - not because this
+  // one was escaping. Its class `[A-Za-z0-9_-]` already contains every word
+  // character, so the match always ran through any following word chars and the
+  // boundary always held; unlike `xox`/`gh*_`/`AKIA`, this pattern was never
+  // defective. Dropping the anchor is harmless and keeps one rule for the whole
+  // list. The floor here IS a deliberate widening: 16 -> 8, from the deleted
+  // webserver copy.
   /\b(?:sk|pk|rk)-[A-Za-z0-9_-]{8,}/g, // OpenAI / Anthropic / Stripe style
   // Bearer <token>. Two properties here are load-bearing and BOTH were got wrong
   // on the first pass at #992, so do not "tidy" them:
@@ -82,7 +84,8 @@ const SECRET_PATTERNS: RegExp[] = [
   // `Basic <base64>` carries base64(user:password). Requires a base64-SHAPED
   // value so the ordinary English word "basic" followed by a word is not masked.
   /\bBasic\s+[A-Za-z0-9+/]{16,}={0,2}/gi,
-  /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}\b/g, // GitHub tokens
+  // No trailing `\b`: class omits `_`, so `ghp_<token>_backup` escaped ENTIRELY.
+  /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}/g, // GitHub tokens
   /\bgithub_pat_[A-Za-z0-9_]{20,}/g, // GitHub fine-grained PAT
   /\bglpat-[A-Za-z0-9_-]{8,}/g, // GitLab PAT
   /\bgsk_[A-Za-z0-9]{20,}/g, // Groq
@@ -98,8 +101,11 @@ const SECRET_PATTERNS: RegExp[] = [
   // trailing boundary for exactly this reason.
   /\bxox[baprs]-[A-Za-z0-9-]{8,}/g, // Slack tokens
   /\bxai-[A-Za-z0-9_-]{8,}/g, // xAI tokens
-  /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g, // AWS access key id / STS temporary key
-  /\bAIza[A-Za-z0-9_-]{35}\b/g, // Google API key
+  // No trailing `\b`: class omits `_` and lowercase, and the length is FIXED, so
+  // there is not even any backtracking to fall back on - `AKIA...EXAMPLE_x`
+  // escaped entirely.
+  /\b(?:AKIA|ASIA)[0-9A-Z]{16}/g, // AWS access key id / STS temporary key
+  /\bAIza[A-Za-z0-9_-]{35}/g, // Google API key (fixed length: same anchor trap as AKIA)
   // JWT: three base64url segments. The `eyJ` prefix (a `{"` header) makes this
   // specific enough not to swallow ordinary dotted identifiers.
   /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,
