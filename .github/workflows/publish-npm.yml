@@ -15,6 +15,13 @@ on:
         required: true
         default: 'feat/workflows-collaborative-surface'
 
+env:
+  # Exact FerroxLabs/waylandmcp commit whose four @wayland MCP connectors are
+  # bundled into this build. Pinned, not floating, so the installer's connector
+  # sources have a recorded identity (#940). Keep byte-identical across all four
+  # workflows that check this repo out - waylandmcp SourcePin test enforces it.
+  WAYLANDMCP_REF: '29a253804ccd3d7f1eb385cf610b0dc27a130478'
+
 jobs:
   publish:
     name: Publish getwayland to npm
@@ -57,10 +64,23 @@ jobs:
       # to the sibling position that script already resolves. Must run AFTER the
       # repo checkout above, whose `git clean -ffdx` would delete this tree. No
       # bypass on a publish path.
+      # #940 PROVENANCE: pin the sources to an exact commit. With no `ref` this
+      # took whatever FerroxLabs/waylandmcp's default branch happened to hold at
+      # build time and recorded that identity nowhere, so a shipped installer
+      # carried code no receipt could name. scripts/platform-package-smoke.mjs
+      # attests the app's own commit AND its untracked tree precisely because "a
+      # newly introduced build input is just as authoritative as a modified
+      # tracked file" - but this input lives OUTSIDE the repo and is gitignored,
+      # so neither that attestation nor the dirty-tree gate can see it. The pin
+      # plus the rev-parse echo in the next step are what put its identity on the
+      # record. WAYLANDMCP_REF follows the WAYLAND_HUB_TAG named-constant
+      # convention; tests/unit/scripts/waylandmcpSourcePin.test.ts holds the four
+      # copies byte-identical so they cannot drift apart.
       - name: Checkout @wayland MCP connector sources
         uses: actions/checkout@v6
         with:
           repository: FerroxLabs/waylandmcp
+          ref: ${{ env.WAYLANDMCP_REF }}
           ssh-key: ${{ secrets.WAYLANDMCP_DEPLOY_KEY }}
           path: waylandmcp
           persist-credentials: false
@@ -82,6 +102,21 @@ jobs:
           rm -rf ../waylandmcp
           mv waylandmcp ../waylandmcp
           cd ../waylandmcp
+          # #940 PROVENANCE: say WHICH commit was bundled, and PROVE it is the
+          # pinned one. build-mcp-servers.js already logs the PATH it resolved,
+          # and a path is not an identity. An empty or malformed WAYLANDMCP_REF
+          # would make actions/checkout silently take the default branch instead
+          # - the same quiet substitution #940 exists to stop - so assert rather
+          # than trust, the same way release-acceptance-trust-root.yml asserts
+          # TRUST_ROOT_SHA.
+          mcp_sha="$(git rev-parse HEAD)"
+          echo "waylandmcp source commit: $mcp_sha"
+          [[ "$WAYLANDMCP_REF" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::WAYLANDMCP_REF is not a 40-hex commit: '$WAYLANDMCP_REF'" >&2; exit 1;
+          }
+          [[ "$mcp_sha" == "$WAYLANDMCP_REF" ]] || {
+            echo "::error::waylandmcp HEAD $mcp_sha != pinned $WAYLANDMCP_REF" >&2; exit 1;
+          }
           bun install --frozen-lockfile
 
       - name: Build the getwayland payload (syncs version to app/package.json)
