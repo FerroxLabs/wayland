@@ -21,6 +21,8 @@ import {
   verifyStepUp,
   _resetStepUpLockoutForTests,
 } from '@process/webserver/routes/configWriteGuards';
+import { redactSecrets as canonicalRedactSecrets } from '@process/utils/secretRedaction';
+import { CLEAN_CORPUS, SECRET_CORPUS } from '../../fixtures/secretCorpus';
 
 type ReqOpts = { hostname?: string; peer?: string; secure?: boolean; userId?: string };
 
@@ -51,11 +53,27 @@ function makeRes(): Response & { _status?: number; _json?: unknown } {
 }
 
 describe('redactSecrets', () => {
+  // The placeholder text changed with #992 (`sk-[redacted]` -> `[redacted]`)
+  // because this route gate no longer carries its own scrubber. The assertions
+  // below therefore check the SECURITY property - the secret does not survive -
+  // rather than the cosmetic shape of the mask, which is what the old
+  // `toContain('sk-[redacted]')` form was really pinning.
   it('masks standalone sk- keys, Bearer tokens, and provider-prefixed tokens', () => {
-    expect(redactSecrets('rejected key sk-live-ABCDEFGH12345678 here')).toContain('sk-[redacted]');
-    expect(redactSecrets('Authorization: Bearer abcDEF123.tok-en_value')).toContain('Bearer [redacted]');
-    expect(redactSecrets('key xai-ABCDEFGH12345678 rejected')).toContain('xai-[redacted]');
-    expect(redactSecrets('token xoxb-ABCDEFGH12345678')).toContain('xox-[redacted]');
+    const sk = redactSecrets('rejected key sk-live-ABCDEFGH12345678 here');
+    expect(sk).not.toContain('sk-live-ABCDEFGH12345678');
+    expect(sk).toContain('[redacted]');
+
+    const bearer = redactSecrets('Authorization: Bearer abcDEF123.tok-en_value');
+    expect(bearer).not.toContain('abcDEF123.tok-en_value');
+    expect(bearer).toContain('[redacted]');
+
+    const xai = redactSecrets('key xai-ABCDEFGH12345678 rejected');
+    expect(xai).not.toContain('xai-ABCDEFGH12345678');
+    expect(xai).toContain('[redacted]');
+
+    const slack = redactSecrets('token xoxb-ABCDEFGH12345678');
+    expect(slack).not.toContain('xoxb-ABCDEFGH12345678');
+    expect(slack).toContain('[redacted]');
   });
 
   it('redacts a key even when it follows the word bearer (no leak either way)', () => {
@@ -71,6 +89,25 @@ describe('redactSecrets', () => {
   it('never leaves the original secret in the output', () => {
     const out = redactSecrets('failed: sk-live-SECRETKEY9999');
     expect(out).not.toContain('SECRETKEY9999');
+  });
+
+  // #992: this gate re-exports the shared scrubber instead of carrying a second,
+  // narrower copy. Same corpus through both entry points, byte-identical output -
+  // if anyone re-implements one side, this diverges and fails.
+  describe('parity with the shared scrubber', () => {
+    it.each(SECRET_CORPUS.map((entry) => [entry.label, entry] as const))(
+      'redacts %s identically to @process/utils/secretRedaction',
+      (_label, entry) => {
+        const viaGuard = redactSecrets(entry.text);
+        expect(viaGuard).toBe(canonicalRedactSecrets(entry.text));
+        expect(viaGuard).not.toContain(entry.secret);
+      }
+    );
+
+    it.each(CLEAN_CORPUS)('leaves %j untouched, identically', (line) => {
+      expect(redactSecrets(line)).toBe(canonicalRedactSecrets(line));
+      expect(redactSecrets(line)).toBe(line);
+    });
   });
 });
 

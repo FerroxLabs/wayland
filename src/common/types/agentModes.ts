@@ -14,13 +14,23 @@ import { CODEX_MODE_FULL_AUTO } from '@/common/types/codex/codexModes';
  */
 /**
  * Wayland-internal "guarded auto" ACP session mode for unattended runs
- * (workflows, Autopilot). The agent proceeds without per-tool prompts, but
- * Wayland still vetoes catastrophic commands - strictly safer than
- * 'bypassPermissions', which runs everything blind. The claude bridge does not
- * understand this value: `mapModeForAcpBridge` translates it to the bridge's
- * 'default' mode (which escalates risky tool calls as permission requests), and
- * `AcpAgentManager` auto-approves every escalated request except a destructive
- * one (see destructiveCommand.ts).
+ * (scheduled tasks, workflows). The agent proceeds without per-tool prompts for
+ * the tool kinds the guardrail allows, but Wayland still surfaces the rest -
+ * strictly safer than 'bypassPermissions', which runs everything blind. The
+ * claude bridge does not understand this value: `mapModeForAcpBridge` translates
+ * it to the bridge's 'default' mode (which escalates risky tool calls as
+ * permission requests), and `AcpAgentManager` runs each escalated request
+ * through `classifyAutopilotToolCall` (see destructiveCommand.ts): only
+ * read/search/edit/think, plus an `execute` whose command passes the
+ * catastrophic-command classifier, are auto-approved. Everything else surfaces
+ * a confirmation.
+ *
+ * Because that enforcement is entirely client-side, a guarded-auto session must
+ * never be given the blanket `yoloMode`/`autoApproveAll` flag - that short-
+ * circuits inside PermissionResolver before the guardrail is ever consulted.
+ * `AcpAgentManager` clears it for this mode on every path that sets it,
+ * including the scheduled-task executor, which builds every task with
+ * `yoloMode: true`.
  */
 export const ACP_AUTO_GUARDED_MODE = 'autoGuarded';
 
@@ -38,6 +48,25 @@ const FULL_AUTO_MODE: Record<string, string> = {
 /** True when a session is in the Wayland-internal guarded-auto mode. */
 export function isAutoGuardedMode(mode: string | undefined): boolean {
   return mode === ACP_AUTO_GUARDED_MODE;
+}
+
+/**
+ * Resolve the blanket auto-approve flag ("yolo" / `autoApproveAll`) for a session.
+ *
+ * This is the invariant that makes guarded-auto mean anything: guarded-auto is
+ * enforced ENTIRELY client-side by the Autopilot guardrail in `AcpAgentManager`,
+ * which can only run if permission requests actually reach it. The blanket flag
+ * short-circuits inside `PermissionResolver` before any classifier runs and
+ * without invoking the UI callback, so no permission signal is ever emitted and
+ * the guardrail is skipped completely.
+ *
+ * `requested` is whatever the caller would otherwise have used - including
+ * `data.yoloMode`, which the scheduled-task executor sets to true on EVERY task
+ * it builds. Guarded-auto overrides it. Every other mode passes through, so an
+ * explicitly chosen Autopilot ('bypassPermissions') session is unaffected.
+ */
+export function resolveBlanketAutoApprove(mode: string | undefined, requested: boolean): boolean {
+  return isAutoGuardedMode(mode) ? false : requested;
 }
 
 /**

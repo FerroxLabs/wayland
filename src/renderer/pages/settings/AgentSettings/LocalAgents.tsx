@@ -15,6 +15,7 @@ import { Alert, Button, Typography } from '@arco-design/web-react';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import useSWR from 'swr';
 import AgentCard from './AgentCard';
 import { AgentHubModal } from './AgentHubModal';
@@ -179,7 +180,11 @@ const LocalAgents: React.FC = () => {
           <AgentCard
             type='detected'
             agent={wcoreAgent}
-            settingsDisabled={false}
+            /* #997: this navigates to /settings/wcore, which redirects into the
+               now desktop-only Core page. /settings/agents is NOT gated, so on a
+               WebUI the button would silently bounce the user to General
+               settings. Disable it there instead of shipping a dead click. */
+            settingsDisabled={!isElectronDesktop()}
             onSettings={() => navigate('/settings/wcore')}
             variant='grid'
           />
