@@ -407,7 +407,17 @@ export class ProcessAcpClient implements AcpClient {
       console.error(`[ACP ${this.options.backend} STDERR]:`, chunk);
       this.stderrBuffer += chunk;
       if (this.stderrBuffer.length > STARTUP_STDERR_MAX) {
-        this.stderrBuffer = this.stderrBuffer.slice(-STARTUP_STDERR_MAX);
+        // Truncate on a RECORD boundary, never mid-token (#1023). #1020 routes this
+        // ring into the chat transcript via `buildCrashMessage`, so a cut at an
+        // arbitrary character is a disclosure path: `redactSecrets` only matches a
+        // WHOLE credential, and shaving one character off `sk-ant-api03-` defeats
+        // the vendor-prefix rule, so the remainder of a real key survives every
+        // downstream scrub. Dropping the partial leading line removes the half-token
+        // before anything can miss it. A tail with no newline at all keeps its whole
+        // 8KB rather than emptying itself (indexOf returns -1, slice(0) is a no-op),
+        // because an unbroken blob is still the only diagnostic we have.
+        const sliced = this.stderrBuffer.slice(-STARTUP_STDERR_MAX);
+        this.stderrBuffer = sliced.slice(sliced.indexOf('\n') + 1);
       }
     });
   }
