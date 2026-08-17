@@ -389,8 +389,12 @@ export class ChannelMessageService {
         throw new Error(`Task not found for conversation ${conversationId}`);
       }
 
-      // Call agent's confirm method
-      task.confirm(conversationId, callId, value);
+      // Call agent's confirm method. #983: the Gemini implementation returns the
+      // worker round-trip, which now rejects when the child exits - and this
+      // try/catch is synchronous, so a bare call would escape it as an unhandled
+      // rejection. Await it so a dead worker surfaces through the same path as
+      // every other confirm failure.
+      await Promise.resolve(task.confirm(conversationId, callId, value));
     } catch (error) {
       console.error(`[ChannelMessageService] Failed to confirm tool call:`, error);
       throw error;

@@ -818,7 +818,15 @@ export function initConversationBridge(
   ipcBridge.conversation.confirmation.confirm.provider(async ({ conversation_id, msg_id, data, callId, answer }) => {
     const task = workerTaskManager.getTask(conversation_id);
     if (!task) return { success: false, msg: 'conversation not found' };
-    task.confirm(msg_id, callId, data, answer);
+    // #983: the Gemini implementation returns the worker round-trip, which now
+    // rejects when the child exits. Discarding it bare would raise an unhandled
+    // rejection when a user confirms a card whose worker has died.
+    void Promise.resolve(task.confirm(msg_id, callId, data, answer)).catch((error: unknown) => {
+      console.warn(
+        `[conversationBridge] confirm for callId=${callId} was not delivered:`,
+        error instanceof Error ? error.message : String(error)
+      );
+    });
     return { success: true };
   });
   ipcBridge.conversation.confirmation.list.provider(async ({ conversation_id }) => {
