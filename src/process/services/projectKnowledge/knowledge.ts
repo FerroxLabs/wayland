@@ -142,18 +142,64 @@ const substantive = (raw: string): string => {
 const withoutSentinels = (body: string): string =>
   body.split(PROJECT_KNOWLEDGE_BLOCK_HEADER).join('').split(PROJECT_KNOWLEDGE_BLOCK_FOOTER).join('').trim();
 
+/** Largest single knowledge document body included in the injected block. */
+const KNOWLEDGE_DOC_CHAR_CAP = 32_000;
+/** Largest total project-knowledge block injected into a chat's system-rules channel. */
+const KNOWLEDGE_BLOCK_CHAR_CAP = 64_000;
+/** Left in the prompt so the agent is never handed a silently partial document. */
+const KNOWLEDGE_TRUNCATED_MARKER = '\n\n…(truncated)';
+
 /**
  * Compose the project's substantive knowledge into a single block ready to
  * append to a conversation's system-rules channel. Returns '' when the project
  * has no workspace or no edited knowledge yet (so nothing is injected).
+ *
+ * Size is capped HERE, at the collection site, mirroring the global-memory caps
+ * below. The three `.wayland/` docs are plain files the user - or the knowledge
+ * wizard, which drafts them with an LLM - can write without limit, and this block
+ * is copied into BOTH `presetRules` and `presetContext` at EVERY agent spawn and
+ * written back to the conversation row. Uncapped, a large document blocks the
+ * Electron main thread while it is read (~2ms per MB), is re-persisted on every
+ * spawn as a full-row UPDATE, and rides `getConversations` out over the IPC
+ * bridge, which silently drops any reply over 50MB and leaves the renderer
+ * hanging forever.
+ *
+ * The caps deliberately do NOT live in `readProjectKnowledge`: that same reader
+ * backs the knowledge editor, where handing back a truncated document would
+ * destroy its tail on the user's next save.
  */
 export async function loadProjectKnowledgeBlock(workspace: string): Promise<string> {
   const k = await readProjectKnowledge(workspace);
   const sections: string[] = [];
+  let used = 0;
+  let truncated = false;
   (Object.keys(KNOWLEDGE_FILE) as KnowledgeKind[]).forEach((kind) => {
-    const body = withoutSentinels(substantive(k[kind]));
-    if (body) sections.push(`## ${INJECT_LABEL[kind]}\n\n${body}`);
+    let body = withoutSentinels(substantive(k[kind]));
+    if (!body) return;
+    const heading = `## ${INJECT_LABEL[kind]}\n\n`;
+    // Whichever bites first: this document's own cap, or what is left of the
+    // whole-block budget once the heading and the marker are accounted for.
+    const room = Math.min(
+      KNOWLEDGE_DOC_CHAR_CAP,
+      KNOWLEDGE_BLOCK_CHAR_CAP - used - heading.length - KNOWLEDGE_TRUNCATED_MARKER.length
+    );
+    if (room <= 0) {
+      truncated = true;
+      return;
+    }
+    if (body.length > room) {
+      body = `${body.slice(0, room)}${KNOWLEDGE_TRUNCATED_MARKER}`;
+      truncated = true;
+    }
+    const section = `${heading}${body}`;
+    sections.push(section);
+    used += section.length;
   });
+  if (truncated) {
+    console.warn(
+      `[projectKnowledge] project knowledge exceeds the ${KNOWLEDGE_BLOCK_CHAR_CAP}-char injection budget; the agent is seeing a truncated block`
+    );
+  }
   if (sections.length === 0) return '';
   // Footer-delimited so the spawn-time refresh (#999) can remove exactly this
   // block, rather than guessing its extent from a `---` the user may have typed.

@@ -158,3 +158,51 @@ describe('project knowledge', () => {
     expect(result.map((f) => f.name)).toEqual(['ok.txt']);
   });
 });
+
+/**
+ * The composed block is copied into BOTH `presetRules` and `presetContext` and
+ * re-read at EVERY agent spawn, so its size is what bounds main-thread block
+ * time, the per-spawn SQLite row rewrite, and the `getConversations` IPC reply
+ * (the bridge silently drops a reply over 50MB and hangs the renderer). The
+ * documents themselves are uncapped files, so the cap has to live at the
+ * collection site.
+ */
+describe('project knowledge injection is size-capped at the collection site', () => {
+  const TRUNCATED = '…(truncated)';
+
+  it('passes a normal document through untouched', async () => {
+    const body = 'ACME ships daily.\n\n'.repeat(200); // ~3.8k chars, well inside the caps
+    await writeProjectKnowledge(ws, 'context', body);
+    const block = await loadProjectKnowledgeBlock(ws);
+    expect(block).toContain(body.trim());
+    expect(block).not.toContain(TRUNCATED);
+  });
+
+  it('bounds a single oversized document and says so in the prompt', async () => {
+    await writeProjectKnowledge(ws, 'context', 'A'.repeat(500_000));
+    const block = await loadProjectKnowledgeBlock(ws);
+    // Bounded, not merely "smaller than the input".
+    expect(block.length).toBeLessThan(40_000);
+    // The agent is told it received a partial document rather than being quietly
+    // handed a head and left to assume it is the whole thing.
+    expect(block).toContain(TRUNCATED);
+    // Still a well-formed, refreshable block.
+    expect(block.startsWith('[Project Knowledge - shared context for every chat in this project]')).toBe(true);
+    expect(block.endsWith('[/Project Knowledge]')).toBe(true);
+  });
+
+  it('bounds the whole block when every document is oversized', async () => {
+    await writeProjectKnowledge(ws, 'context', 'A'.repeat(500_000));
+    await writeProjectKnowledge(ws, 'rules', 'B'.repeat(500_000));
+    await writeProjectKnowledge(ws, 'decisions', 'C'.repeat(500_000));
+    const block = await loadProjectKnowledgeBlock(ws);
+    expect(block.length).toBeLessThan(70_000);
+    expect(block).toContain(TRUNCATED);
+    expect(block.endsWith('[/Project Knowledge]')).toBe(true);
+  });
+
+  it('truncates deterministically, so a refresh stays idempotent', async () => {
+    await writeProjectKnowledge(ws, 'context', 'A'.repeat(500_000));
+    expect(await loadProjectKnowledgeBlock(ws)).toBe(await loadProjectKnowledgeBlock(ws));
+  });
+});
