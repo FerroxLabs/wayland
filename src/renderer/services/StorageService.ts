@@ -71,15 +71,36 @@ export async function exportBackupHttp(opts: { includeKeys: boolean; passphrase?
 }
 
 /**
+ * What a restore actually did, as reported by POST /api/storage/restore.
+ *
+ * `applied` is the load-bearing field, and the reason a bare `success: true` is
+ * not enough: a legacy file export only ever covers `conversations`,
+ * `attachments`, `config` and the optional encrypted `keys.json`, so an archive
+ * taken from a modern install legitimately applies nothing. Reporting success
+ * over that no-op is the bug in #1021, and it was live on this surface after the
+ * desktop one was fixed.
+ */
+export type RestoreReport = {
+  safetyBackupPath?: string;
+  /** Top-level userData entries actually installed. Empty means nothing moved. */
+  applied?: string[];
+  /** Archive top-level names present but outside the legacy restore scope. */
+  outOfScope?: string[];
+  /** The archive carries encrypted keys that were skipped for want of a passphrase. */
+  keysSkippedNoPassphrase?: boolean;
+  fileCount?: number;
+};
+
+/**
  * Restore from an uploaded backup zip. Requires the step-up password; the
  * server also enforces operator provenance. Returns the safety-backup path the
- * server created before applying the restore.
+ * server created before applying the restore, plus what the restore applied.
  */
 export async function restoreBackupHttp(opts: {
   file: File;
   password: string;
   passphrase?: string;
-}): Promise<{ safetyBackupPath?: string }> {
+}): Promise<RestoreReport> {
   const csrf = getCsrfToken();
   const formData = new FormData();
   if (csrf) formData.append('_csrf', csrf);
@@ -95,7 +116,7 @@ export async function restoreBackupHttp(opts: {
   const json = (await res.json().catch(() => ({}))) as {
     success?: boolean;
     msg?: string;
-    data?: { safetyBackupPath?: string };
+    data?: RestoreReport;
   };
   // Both codes mean the SAME thing here: the request was denied before it ever
   // reached the restore handler. This route emits neither itself - a genuinely

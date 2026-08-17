@@ -7,6 +7,7 @@ import { storage } from '@/common/adapter/ipcBridge';
 import type { LegacyBackupErrorCode } from '@/common/types/storageBackup';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { exportBackupHttp, restoreBackupHttp } from '@renderer/services/StorageService';
+import type { RestoreReport } from '@renderer/services/StorageService';
 
 /**
  * The desktop backup providers cannot reject - the IPC bridge has no error
@@ -81,6 +82,48 @@ const BackupCard: React.FC = () => {
     setRestorePassphrase('');
   };
 
+  /**
+   * ONE reporter for both surfaces.
+   *
+   * The desktop caller was taught to report `applied` and the WebUI caller was
+   * not, so #1021 stayed fully live on the WebUI while being fixed on the
+   * desktop: the HTTP route discarded the ImportReport and the browser showed a
+   * flat "Restore complete" over a no-op. Sharing the decision is what stops the
+   * two surfaces drifting apart again, rather than remembering to change both.
+   */
+  const reportRestore = (report: RestoreReport) => {
+    const applied = report.applied ?? [];
+    const items = applied.join(', ');
+    if (applied.length === 0 && report.keysSkippedNoPassphrase) {
+      // A keys-only archive with no passphrase. Tested BEFORE the generic
+      // nothing-applied case, because that copy says the archive held no
+      // legacy files and that API keys live somewhere a file export does not
+      // cover - and for this archive every clause of that is false. The keys
+      // ARE in it, one passphrase away. Telling the user otherwise is the
+      // same class of harm as #1021 itself.
+      Message.warning({ content: t('settings.storagePage.restoreKeysOnlyNoPassphrase'), duration: 15000 });
+      return;
+    }
+    if (applied.length === 0) {
+      // The archive parsed and staged cleanly and still moved nothing.
+      // Reporting success here is what turned a no-op into silent data
+      // loss for the reporter of #1021. An absent `applied` lands here too, on
+      // purpose: a warning that names no data is recoverable, a success claim
+      // over data that never moved is not.
+      Message.warning({ content: t('settings.storagePage.restoreNothingApplied'), duration: 15000 });
+      return;
+    }
+    if (report.keysSkippedNoPassphrase) {
+      Message.warning({ content: t('settings.storagePage.restoreKeysSkipped', { items }), duration: 15000 });
+      return;
+    }
+    Message.success(
+      report.safetyBackupPath
+        ? t('settings.storagePage.restoreAppliedWithSafety', { items, path: report.safetyBackupPath })
+        : t('settings.storagePage.restoreApplied', { items })
+    );
+  };
+
   const submitRestore = async () => {
     if (isDesktop) {
       setRestoring(true);
@@ -99,30 +142,7 @@ const BackupCard: React.FC = () => {
           if (result.errorCode !== 'BAD_PASSPHRASE') closeRestore();
           return;
         }
-        const applied = result.applied ?? [];
-        const items = applied.join(', ');
-        if (applied.length === 0 && result.keysSkippedNoPassphrase) {
-          // A keys-only archive with no passphrase. Tested BEFORE the generic
-          // nothing-applied case, because that copy says the archive held no
-          // legacy files and that API keys live somewhere a file export does not
-          // cover - and for this archive every clause of that is false. The keys
-          // ARE in it, one passphrase away. Telling the user otherwise is the
-          // same class of harm as #1021 itself.
-          Message.warning({ content: t('settings.storagePage.restoreKeysOnlyNoPassphrase'), duration: 15000 });
-        } else if (applied.length === 0) {
-          // The archive parsed and staged cleanly and still moved nothing.
-          // Reporting success here is what turned a no-op into silent data
-          // loss for the reporter of #1021.
-          Message.warning({ content: t('settings.storagePage.restoreNothingApplied'), duration: 15000 });
-        } else if (result.keysSkippedNoPassphrase) {
-          Message.warning({ content: t('settings.storagePage.restoreKeysSkipped', { items }), duration: 15000 });
-        } else {
-          Message.success(
-            result.safetyBackupPath
-              ? t('settings.storagePage.restoreAppliedWithSafety', { items, path: result.safetyBackupPath })
-              : t('settings.storagePage.restoreApplied', { items })
-          );
-        }
+        reportRestore(result);
         closeRestore();
       } catch {
         Message.error(t('settings.storagePage.restoreFailed'));
@@ -140,11 +160,7 @@ const BackupCard: React.FC = () => {
         password: restorePassword,
         passphrase: restorePassphrase || undefined,
       });
-      Message.success(
-        result.safetyBackupPath
-          ? t('settings.storagePage.restoreSuccessWithSafety', { path: result.safetyBackupPath })
-          : t('settings.storagePage.restoreSuccess')
-      );
+      reportRestore(result);
       closeRestore();
     } catch (error) {
       const code = error instanceof Error ? error.message : '';
