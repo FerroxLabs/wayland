@@ -35,11 +35,13 @@
  *     back as raw bytes and compared with `Buffer.equals` against the bytes the
  *     repair was planned from. A mismatch means the file changed underneath us,
  *     so the backup is renamed back and the caller is refused - which closes the
- *     read-then-write TOCTOU window as well.
+ *     read-then-write TOCTOU window as well. "Renamed back" is subject to
+ *     invariant 8: if the path is no longer free, both files are kept instead.
  *  3. Nothing is ever written to `config.toml` while the original is still
  *     there. After the rename the path does not exist, so the repair is written
  *     with an EXCLUSIVE create (`wx`) - no temp file, no predictable temp name,
- *     and no symlink for a write to follow. Any failure renames the backup back.
+ *     and no symlink for a write to follow. Any failure renames the backup back,
+ *     subject to invariant 8.
  *  4. Text is decoded for PARSING with a FATAL `TextDecoder`, so a file that is
  *     not losslessly UTF-8 can never be offered an automatic repair. TOML
  *     documents must be valid UTF-8, so such a file is reported as invalid with
@@ -55,6 +57,14 @@
  *     a healthy credential-bearing config on a caller's say-so is not a
  *     recovery path. It is the rename itself that "removes" the file, so the
  *     user's data is always still on disk under the backup name.
+ *  8. No rollback ever replaces a `config.toml` this module did not create. Between
+ *     the backup move and any rollback the path does not exist, and a concurrent
+ *     writer can fill it - the engine writing defaults on a launch retry, or the
+ *     user hand-saving the file "Show me the file" just invited them to open. Every
+ *     rollback therefore CLASSIFIES the path first ({@link restoreOriginal}) and
+ *     refuses rather than clobbers, reporting `restore-conflict` with both files
+ *     kept and both named. This module's own failed write is the one thing it will
+ *     clear, identified by its bytes.
  *
  * SECURITY: nothing here returns `config.toml` CONTENT. Only the path, the
  * failure's LINE and COLUMN (credential-free integers), and a scrubbed one-line
@@ -491,17 +501,26 @@ export function decodeStrictUtf8(bytes: Buffer): string | null {
 export class EngineConfigBackupError extends Error {
   readonly code = 'ENGINE_CONFIG_BACKUP_FAILED' as const;
   /**
-   * Set ONLY when the move already happened and could NOT be undone, so
-   * `config.toml` is absent and the user's original bytes exist nowhere but here.
+   * Set ONLY when the move already happened and was NOT undone, so `config.toml`
+   * does not hold the user's original bytes and they exist nowhere but here.
    * Absent whenever the config path still holds those bytes, because then naming
    * a backup would point the user at a file that is not the one they need. The
    * callers turn this into the `backupPath` on their failure result.
    */
   readonly backupPath?: string;
-  constructor(detail: string, backupPath?: string) {
+  /**
+   * D3. Set when the undo was REFUSED because a foreign `config.toml` had appeared
+   * in the window, rather than having been attempted and failed. Both files are on
+   * disk and both are reported, so the callers report `restore-conflict` - the
+   * reason code F2 already spends on exactly this situation - instead of
+   * `backup-failed`.
+   */
+  readonly restoreConflict?: true;
+  constructor(detail: string, backupPath?: string, restoreConflict?: boolean) {
     super(`Could not create a verified backup of the engine config: ${detail}`);
     this.name = 'EngineConfigBackupError';
     if (backupPath) this.backupPath = backupPath;
+    if (restoreConflict) this.restoreConflict = true;
   }
 }
 
@@ -574,52 +593,134 @@ export async function createVerifiedBackup(
   try {
     backupBytes = await deps.readFileBytes(backupPath);
   } catch (error) {
-    const restored = await undoBackupMove(configPath, backupPath, deps);
-    throw new EngineConfigBackupError(
+    throw await backupUndoFailure(
       `backup could not be read back: ${summarizeReason(error)}`,
-      restored ? undefined : backupPath
+      configPath,
+      backupPath,
+      deps
     );
   }
 
   if (!backupBytes.equals(originalBytes)) {
-    const restored = await undoBackupMove(configPath, backupPath, deps);
-    throw new EngineConfigBackupError(
-      'the file changed while it was being backed up',
-      restored ? undefined : backupPath
-    );
+    throw await backupUndoFailure('the file changed while it was being backed up', configPath, backupPath, deps);
   }
 
   return backupPath;
 }
 
 /**
- * Put the moved-aside original back at `configPath` after a failed verification.
+ * What became of an attempt to put the moved-aside original back at `configPath`.
  *
- * F3b. This used to be `.catch(ignoreCleanupFailure)`, which discarded the one
- * fact the UI needed: whether the undo worked. When it does not, `config.toml`
- * is ABSENT and the user's only copy is the timestamped backup, and the panel was
- * telling them nothing had changed. Executed on a real filesystem with the
- * restoring rename forced to fail, on both verification branches and both write
- * paths: `config.toml exists=false`, `result.backupPath=ABSENT`, and the backup
- * held the original `api_key` bytes.
- *
- * Distinct from {@link restoreFromBackup}, which undoes a failed REPAIR WRITE and
- * so has to clear what that write left behind first. Nothing has been written yet
- * at this point, so there is nothing to clear.
- *
- * @returns `true` when `configPath` holds the original bytes again.
+ *  - `restored`: `configPath` holds the user's original bytes again.
+ *  - `conflict`: a `config.toml` this module did not create was sitting there, so
+ *    the restore was REFUSED. Both files are still on disk.
+ *  - `failed`: the restoring rename was attempted and threw. The bytes are still
+ *    at the backup, which the caller reports.
  */
-async function undoBackupMove(
+type RestoreOutcome = 'restored' | 'conflict' | 'failed';
+
+/**
+ * Whether anything occupies `configPath`, and whether it is this module's own
+ * failed write.
+ *
+ * `ownWrite` is the text the repair TRIED to write, or `undefined` on the paths
+ * that have written nothing at all - where any file present is by definition
+ * foreign. A failed `wx` write can still leave the file it created behind, holding
+ * a PREFIX of the intended text (0 bytes when the disk filled between the create
+ * and the write), so a prefix counts as ours. Nothing unique can be lost by
+ * clearing it: every byte in it is a byte of the repair, which is itself the
+ * original plus line breaks.
+ *
+ * A read that fails for any reason OTHER than ENOENT means there is something
+ * there this module cannot identify. That resolves to `foreign`, which is the
+ * fail-safe direction: keep the file and report the backup.
+ */
+async function classifyRestoreTarget(
+  configPath: string,
+  deps: EngineConfigRecoveryDeps,
+  ownWrite: string | undefined
+): Promise<'absent' | 'ours' | 'foreign'> {
+  let bytes: Buffer;
+  try {
+    bytes = await deps.readFileBytes(configPath);
+  } catch (error) {
+    return (error as { code?: string } | null)?.code === 'ENOENT' ? 'absent' : 'foreign';
+  }
+  if (ownWrite === undefined) return 'foreign';
+  const intended = Buffer.from(ownWrite, 'utf-8');
+  return intended.subarray(0, bytes.length).equals(bytes) ? 'ours' : 'foreign';
+}
+
+/**
+ * Put the moved-aside original back at `configPath` - but NEVER over a file this
+ * module did not create.
+ *
+ * D3 (#1031 delta audit). Both rollbacks used to clobber unconditionally: the
+ * post-move undo was a bare `rename(backup, config)`, and the post-write rollback
+ * `unlink`ed whatever sat at `configPath` first. Between the move and either
+ * rollback `config.toml` DOES NOT EXIST, and that window is conditioned on a live
+ * concurrent writer rather than on chance - a byte mismatch IS proof one is active,
+ * and "Show me the file" has just invited the user to open it in an editor. So if
+ * the engine wrote defaults on a launch retry, or the user hand-saved, the rollback
+ * destroyed a brand new credential with no backup anywhere, and because the rename
+ * SUCCEEDED it reported `restored`, so the panel said "nothing was changed".
+ *
+ * Executed on a real filesystem with a foreign `config.toml` planted inside the
+ * window, before this guard, on all four (readback-EIO, byte-mismatch race) x
+ * (repair, regenerate) and on EDQUOT-on-write / EIO-on-verify / unparseable-verify:
+ * `FOREIGN_KEY_SURVIVED=false` every time, the backup gone from disk, and the panel
+ * either "nothing was changed" or "could not be completed" with no path named.
+ * Known positive: the EEXIST window that `f261e7997` already guarded reports
+ * `restore-conflict` with BOTH files kept, which is what this makes the others do.
+ *
+ * The residual window between the classify and the rename is not closable with a
+ * `rename` - only the EEXIST branch gets that atomically, from the exclusive create
+ * itself - but it is a single syscall gap rather than the multi-operation window
+ * the findings are about.
+ */
+async function restoreOriginal(
+  configPath: string,
+  backupPath: string,
+  deps: EngineConfigRecoveryDeps,
+  ownWrite?: string
+): Promise<RestoreOutcome> {
+  const occupant = await classifyRestoreTarget(configPath, deps, ownWrite);
+  if (occupant === 'foreign') return 'conflict';
+  // Clear this module's own failed write so the restoring rename is not mistaken
+  // for one that replaced a file it should have kept.
+  if (occupant === 'ours') await deps.removeFile(configPath).catch(ignoreCleanupFailure);
+  try {
+    await deps.renameFile(backupPath, configPath);
+    return 'restored';
+  } catch {
+    return 'failed';
+  }
+}
+
+/**
+ * Appended to a conflict's detail so the sentence matches what is on disk. The
+ * panel already renders the config path in every branch and the backup name in
+ * this one, so both files are named without a new locale key.
+ */
+const CONFLICT_NOTE = 'a new config.toml appeared before the original could be put back, so both files were kept';
+
+/**
+ * Undo the backup move and describe the failure that made it necessary.
+ *
+ * Nothing has been written at this point, so there is no `ownWrite`: any file at
+ * `configPath` came from somewhere else and is kept.
+ */
+async function backupUndoFailure(
+  detail: string,
   configPath: string,
   backupPath: string,
   deps: EngineConfigRecoveryDeps
-): Promise<boolean> {
-  try {
-    await deps.renameFile(backupPath, configPath);
-    return true;
-  } catch {
-    return false;
+): Promise<EngineConfigBackupError> {
+  const outcome = await restoreOriginal(configPath, backupPath, deps);
+  if (outcome === 'conflict') {
+    return new EngineConfigBackupError(`${detail}; ${CONFLICT_NOTE}`, backupPath, true);
   }
+  return new EngineConfigBackupError(detail, outcome === 'restored' ? undefined : backupPath);
 }
 
 /** Live dependencies: raw-byte reads, exclusive creates, real renames. */
@@ -659,27 +760,20 @@ export function defaultRecoveryDeps(): EngineConfigRecoveryDeps {
 }
 
 /**
- * Put the original back after a failed repair write.
+ * Turn a failed repair WRITE, plus the outcome of rolling it back, into a result.
  *
- * @returns `true` when `configPath` holds the user's original bytes again. On
- *   `false` the bytes are still safe - they are at `backupPath`, which the caller
- *   reports so the user is never left wondering where their config went.
+ * D3: `restored` is the only outcome in which `config.toml` holds the user's
+ * original bytes, so it is the only one that names no path. A `conflict` is the
+ * same situation `restore-conflict` is already spent on - a foreign `config.toml`
+ * appeared, both files were kept - and a `failed` rollback leaves the bytes at the
+ * backup, which is `write-failed` carrying the path, as before.
  */
-async function restoreFromBackup(
-  configPath: string,
-  backupPath: string,
-  deps: EngineConfigRecoveryDeps
-): Promise<boolean> {
-  // Clear whatever the failed write left behind; a leftover file would make the
-  // restoring rename replace it, which is fine, but an exclusive-create failure
-  // must not be mistaken for a lost original.
-  await deps.removeFile(configPath).catch(ignoreCleanupFailure);
-  try {
-    await deps.renameFile(backupPath, configPath);
-    return true;
-  } catch {
-    return false;
+function rollbackResult(detail: string, backupPath: string, outcome: RestoreOutcome): EngineConfigRecoveryResult {
+  if (outcome === 'restored') return { ok: false, reason: 'write-failed', detail };
+  if (outcome === 'conflict') {
+    return { ok: false, reason: 'restore-conflict', detail: `${detail}; ${CONFLICT_NOTE}`, backupPath };
   }
+  return { ok: false, reason: 'write-failed', detail, backupPath };
 }
 
 /**
@@ -744,6 +838,21 @@ const backupPathOf = (error: unknown): { backupPath?: string } => {
   const backupPath = (error as EngineConfigBackupError | null)?.backupPath;
   return backupPath ? { backupPath } : {};
 };
+
+/**
+ * Turn a thrown {@link EngineConfigBackupError} into a result.
+ *
+ * D3: a REFUSED undo is not the same state as a failed one. When the undo was
+ * refused because a foreign `config.toml` had appeared, both files are on disk, so
+ * the honest code is `restore-conflict` - which the panel already renders with the
+ * backup named - rather than `backup-failed`, whose text is "nothing was changed".
+ */
+const backupFailureResult = (error: unknown): EngineConfigRecoveryResult => ({
+  ok: false,
+  reason: (error as EngineConfigBackupError | null)?.restoreConflict ? 'restore-conflict' : 'backup-failed',
+  detail: summarizeReason(error),
+  ...backupPathOf(error),
+});
 
 /** Read the config's raw bytes, mapping a missing file onto a typed result. */
 async function readConfigBytes(
@@ -846,7 +955,7 @@ export async function repairEngineConfig(
   try {
     backupPath = await createVerifiedBackup(path, read.bytes, deps);
   } catch (error) {
-    return { ok: false, reason: 'backup-failed', detail: summarizeReason(error), ...backupPathOf(error) };
+    return backupFailureResult(error);
   }
 
   // `config.toml` does not exist now, so this is an exclusive create: no temp
@@ -864,13 +973,8 @@ export async function repairEngineConfig(
     if (isAlreadyExists(error)) {
       return { ok: false, reason: 'restore-conflict', detail: summarizeReason(error), backupPath };
     }
-    const restored = await restoreFromBackup(path, backupPath, deps);
-    return {
-      ok: false,
-      reason: 'write-failed',
-      detail: summarizeReason(error),
-      ...(restored ? {} : { backupPath }),
-    };
+    const outcome = await restoreOriginal(path, backupPath, deps, repair.repaired);
+    return rollbackResult(summarizeReason(error), backupPath, outcome);
   }
 
   // Confirm from DISK, not from the in-memory candidate: the point of the whole
@@ -879,22 +983,12 @@ export async function repairEngineConfig(
     const writtenBytes = await deps.readFileBytes(path);
     const written = decodeStrictUtf8(writtenBytes);
     if (written === null || findParseProblem(written)) {
-      const restored = await restoreFromBackup(path, backupPath, deps);
-      return {
-        ok: false,
-        reason: 'write-failed',
-        detail: 'the repaired file still does not parse',
-        ...(restored ? {} : { backupPath }),
-      };
+      const outcome = await restoreOriginal(path, backupPath, deps, repair.repaired);
+      return rollbackResult('the repaired file still does not parse', backupPath, outcome);
     }
   } catch (error) {
-    const restored = await restoreFromBackup(path, backupPath, deps);
-    return {
-      ok: false,
-      reason: 'write-failed',
-      detail: summarizeReason(error),
-      ...(restored ? {} : { backupPath }),
-    };
+    const outcome = await restoreOriginal(path, backupPath, deps, repair.repaired);
+    return rollbackResult(summarizeReason(error), backupPath, outcome);
   }
 
   return { ok: true, backupPath };
@@ -950,7 +1044,7 @@ export async function regenerateEngineConfig(
     // This rename IS the removal. There is no `unlink` on this path at all.
     backupPath = await createVerifiedBackup(path, read.bytes, deps);
   } catch (error) {
-    return { ok: false, reason: 'backup-failed', detail: summarizeReason(error), ...backupPathOf(error) };
+    return backupFailureResult(error);
   }
 
   return { ok: true, backupPath };

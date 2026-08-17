@@ -22,9 +22,9 @@
  *    by identity rather than truthiness;
  *  - nothing the inspection returns carries file content.
  */
-import { appendFile, mkdtemp, readFile as realReadFile, rm, writeFile as realWriteFile } from 'node:fs/promises';
+import { appendFile, mkdir, mkdtemp, readFile as realReadFile, rm, writeFile as realWriteFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parse } from 'smol-toml';
@@ -1043,6 +1043,223 @@ describe('F3b: the restoring rename fails after the move', () => {
     expect(result.backupPath).toBeUndefined();
     expect(await realReadFile(configPath, 'utf-8')).toBe(REPORTED_CORRUPT);
     expect(readdirSync(dir)).toEqual(['config.toml']);
+
+    await rm(dir, { recursive: true, force: true });
+  });
+});
+
+/**
+ * D3 (#1031 delta audit). The rollback must never destroy a `config.toml` this
+ * module did not create.
+ *
+ * `f261e7997` guarded exactly ONE of the windows in which that can happen - the
+ * EEXIST-on-exclusive-create one, tested above - and the guard the FIX itself added
+ * re-opened the problem on the other branch of the same function. Between the
+ * backup move and any rollback, `config.toml` DOES NOT EXIST, and that window is
+ * conditioned on a live concurrent writer rather than on chance: a byte mismatch IS
+ * proof one is active, and "Show me the file" has just invited the user to open the
+ * file in an editor.
+ *
+ * Executed against a real filesystem before the fix, with a foreign `config.toml`
+ * planted inside the window: on all four (readback-EIO, byte-mismatch race) x
+ * (repair, regenerate) and on EDQUOT-on-write / EIO-on-verify / unparseable-verify,
+ * `FOREIGN_KEY_SURVIVED=false` every time, the backup was gone from disk, and the
+ * panel said either "nothing was changed" (over an absent config) or "the change
+ * could not be completed" with no path named.
+ */
+/** An injected read/rename I/O error, the shape a failing disk actually throws. */
+const eio = (op: string) => Object.assign(new Error(`EIO: i/o error, ${op}`), { code: 'EIO' });
+
+describe('D3: the rollback keeps a config.toml it did not create', () => {
+  /** What a concurrent writer put there - a BRAND NEW credential, not the old one. */
+  const FOREIGN = '[providers.anthropic]\napi_key = "sk-ant-api03-FRESHKEYFROMENGINE"\n';
+
+  type Window = 'backup-readback-eio' | 'backup-byte-mismatch' | 'write-failed' | 'verify-eio' | 'verify-unparseable';
+
+  /**
+   * Real filesystem for every operation except the ONE fault under test.
+   *
+   * `plant` decides whether a foreign writer wins the window, so the same harness
+   * drives the guard's positive AND its negative control. The byte MISMATCH is a
+   * REAL race - the config is appended to between the planning read and the rename,
+   * from inside the placeholder create that immediately precedes it - so no stub is
+   * reporting a mismatch that did not happen.
+   */
+  async function scratchWindow(window: Window, plant: boolean) {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-d3-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const isBackup = (p: string) => p.startsWith(`${configPath}.backup-`);
+    const plantForeign = async () => {
+      if (plant) await realWriteFile(configPath, FOREIGN, 'utf-8');
+    };
+    let configReads = 0;
+
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      writeFileExclusive: async (path, data) => {
+        if (isBackup(path)) {
+          await real.writeFileExclusive(path, data);
+          if (window === 'backup-byte-mismatch') await appendFile(configPath, '# raced\n', 'utf-8');
+          return;
+        }
+        if (window === 'write-failed') {
+          await plantForeign();
+          throw Object.assign(new Error('EDQUOT: disk quota exceeded, write'), { code: 'EDQUOT' });
+        }
+        return real.writeFileExclusive(path, data);
+      },
+      readFileBytes: async (path) => {
+        if (isBackup(path)) {
+          if (window === 'backup-readback-eio') {
+            await plantForeign();
+            throw eio('read');
+          }
+          const bytes = await real.readFileBytes(path);
+          if (window === 'backup-byte-mismatch') await plantForeign();
+          return bytes;
+        }
+        configReads += 1;
+        // Read 1 is the planning read, read 2 is the post-write verification, read 3
+        // is the rollback's OWN look at the path. Only read 2 carries the fault, so
+        // the rollback decides from the real file rather than from the injection -
+        // letting the fault bleed into read 3 fakes a conflict nothing decided.
+        if (configReads === 2) {
+          if (window === 'verify-eio') {
+            await plantForeign();
+            throw eio('read');
+          }
+          if (window === 'verify-unparseable') {
+            await plantForeign();
+            return Buffer.from('[a]\nb = ceegress = 1 x=\n', 'utf-8');
+          }
+        }
+        return real.readFileBytes(path);
+      },
+    };
+    return { dir, configPath, deps };
+  }
+
+  /** The two backup-verification windows are reached by BOTH write paths. */
+  const BACKUP_WINDOWS: Window[] = ['backup-readback-eio', 'backup-byte-mismatch'];
+  /** The repair-write windows. Regenerate never writes, so it cannot reach these. */
+  const WRITE_WINDOWS: Window[] = ['write-failed', 'verify-eio', 'verify-unparseable'];
+
+  const runners: [string, (deps: EngineConfigRecoveryDeps) => Promise<EngineConfigRecoveryResult>][] = [
+    ['repair', (deps) => repairEngineConfig(deps)],
+    ['regenerate', (deps) => regenerateEngineConfig({ confirmed: true }, deps)],
+  ];
+
+  for (const window of [...BACKUP_WINDOWS, ...WRITE_WINDOWS]) {
+    for (const [label, run] of runners) {
+      if (WRITE_WINDOWS.includes(window) && label === 'regenerate') continue;
+
+      it(`${window} on ${label}: a foreign config.toml is KEPT and both files are reported`, async () => {
+        const { dir, configPath, deps } = await scratchWindow(window, true);
+
+        const result = await run(deps);
+
+        // `restore-conflict` is the code F2 already spends on exactly this state.
+        expect(result).toMatchObject({ ok: false, reason: 'restore-conflict' });
+
+        // The foreign file - which can hold a brand new credential - is UNTOUCHED.
+        expect(await realReadFile(configPath, 'utf-8')).toBe(FOREIGN);
+
+        // And the user's original is still on disk, at the reported path.
+        expect(result.backupPath).toBeTruthy();
+        const kept = await realReadFile(result.backupPath, 'utf-8');
+        expect(kept.startsWith(REPORTED_CORRUPT)).toBe(true);
+        expect(kept).toContain('sk-ant-api03-EXAMPLEKEYVALUE');
+        expect(readdirSync(dir).length).toBe(2);
+
+        await rm(dir, { recursive: true, force: true });
+      });
+
+      it(`${window} on ${label}: NEGATIVE CONTROL - with no concurrent writer the rollback still runs`, async () => {
+        const { dir, configPath, deps } = await scratchWindow(window, false);
+
+        const result = await run(deps);
+
+        // The guard must not fire on the ordinary failure: "nothing was changed" and
+        // "the change could not be completed" are TRUE here, and naming a backup the
+        // user does not need to go and find would be the lie in the other direction.
+        expect(result.ok).toBe(false);
+        expect(result.reason).not.toBe('restore-conflict');
+        expect(result.backupPath).toBeUndefined();
+        expect(await realReadFile(configPath, 'utf-8')).toContain('sk-ant-api03-EXAMPLEKEYVALUE');
+        expect(readdirSync(dir)).toEqual(['config.toml']);
+
+        await rm(dir, { recursive: true, force: true });
+      });
+    }
+  }
+
+  /**
+   * NEGATIVE CONTROL for the ownership test itself.
+   *
+   * On a genuinely full disk `writeFile(..., 'wx')` CREATES the file and then the
+   * write fails, so the rollback finds a 0-byte `config.toml` that this module did
+   * create. Calling that foreign would leave a truncated config in place and report
+   * a conflict that never happened, so a PREFIX of the intended text counts as ours.
+   */
+  it('NEGATIVE CONTROL: a `wx` write that created the file and then failed is OURS, so it is cleared', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-d3-partial-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      writeFileExclusive: async (path, data) => {
+        if (path === configPath) {
+          await real.writeFileExclusive(path, ''); // the create succeeds ...
+          throw Object.assign(new Error('ENOSPC: no space left on device, write'), { code: 'ENOSPC' });
+        }
+        return real.writeFileExclusive(path, data);
+      },
+    };
+
+    const result = await repairEngineConfig(deps);
+
+    expect(result).toMatchObject({ ok: false, reason: 'write-failed' });
+    expect(result.backupPath).toBeUndefined();
+    expect(await realReadFile(configPath, 'utf-8')).toBe(REPORTED_CORRUPT);
+    expect(readdirSync(dir)).toEqual(['config.toml']);
+
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  /**
+   * A foreign file this module cannot even READ is still a file it did not create,
+   * so it resolves to a conflict rather than to a deletion. Executed on a directory
+   * planted at the config path, which is the shape a `readFileBytes` cannot decide.
+   */
+  it('an UNIDENTIFIABLE occupant is treated as foreign, never removed', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-d3-opaque-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const isBackup = (p: string) => p.startsWith(`${configPath}.backup-`);
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      readFileBytes: async (path) => {
+        if (isBackup(path)) {
+          await mkdir(configPath); // something opaque now occupies the path
+          throw Object.assign(new Error('EIO: i/o error, read'), { code: 'EIO' });
+        }
+        return real.readFileBytes(path);
+      },
+    };
+
+    const result = await repairEngineConfig(deps);
+
+    expect(result).toMatchObject({ ok: false, reason: 'restore-conflict' });
+    expect(result.backupPath).toBeTruthy();
+    expect(await realReadFile(result.backupPath, 'utf-8')).toBe(REPORTED_CORRUPT);
+    expect(statSync(configPath).isDirectory()).toBe(true);
 
     await rm(dir, { recursive: true, force: true });
   });
