@@ -149,7 +149,7 @@ function asStrings(values: unknown[]): string[] {
 
 /**
  * A credential-naming word, anchored so it cannot match the tail of a longer
- * lowercase word.
+ * lowercase word, and tolerant of a plural.
  *
  * The first version was `/(key|token|secret|password|auth)/i` with no boundary at
  * all, and it was wrong in BOTH directions - every case below executed:
@@ -167,6 +167,19 @@ function asStrings(values: unknown[]): string[] {
  * The trailing `(?![a-z])` is what rejects `oauthy`; a leading boundary is NOT
  * wanted, because `--api-key` and `-X-Auth-Token` are exactly the shapes to catch.
  *
+ * The `s?` and the extra spellings are a REGRESSION FIX, and each one was measured
+ * rather than reasoned about. Adding the anchor without them silently narrowed the
+ * rule: `--tokens`, `--secrets`, `--keys`, `--apikeys`, `--passwords`,
+ * `--credentials`, `--pats` and `--sessions` all masked their bare argument before
+ * the anchor landed and leaked it whole afterwards, because a plural `s` is a
+ * lowercase letter. `--authorization` is the reachable one of those - it is an
+ * ordinary option spelling, not a contrived one - and it needs its own alternative
+ * rather than an `s`, so it is listed. `passwd` and `sessionid`/`sessionId` never
+ * matched in either version, and `passwd` is ALREADY a label in
+ * `secretRedaction`'s `LABELLED_SECRET_ASSIGNMENT` [read: it carries
+ * `password|passwd`], so leaving it out left two defences disagreeing about one
+ * word - the exact defect that put `passphrase` on this list.
+ *
  * `passphrase` is listed separately from `password` because it shares no prefix
  * with it. `session` is here because a session id is bearer-equivalent
  * (`--session-id <v>` leaked whole).
@@ -174,10 +187,12 @@ function asStrings(values: unknown[]): string[] {
  * `pat` earns the anchor twice over: without it `--path` and `--patch` would both
  * flag their argument, which is the FF-6 direction again. `--compat` still would,
  * and that over-masks one path rather than printing one credential, which is the
- * direction this whole file trades in.
+ * direction this whole file trades in. The `s?` widens that accepted over-mask
+ * slightly (a command under a literal `/etc/keys/` directory now flags its first
+ * argument); one masked path is the cheaper side of the trade every time.
  */
 const CREDENTIAL_WORD_PATTERN =
-  /(?:key|token|secret|password|passphrase|auth|bearer|credential|session|pat|pwd)(?![a-z])/i;
+  /(?:key|token|secret|password|passwd|passphrase|auth|authorization|bearer|credential|session(?:[_-]?id)?|pat|pwd)s?(?![a-z])/i;
 
 /**
  * A credential-naming word with NO separator anywhere after it, i.e. a token that

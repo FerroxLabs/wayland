@@ -447,6 +447,16 @@ describe('MCP check — the probe error is free-form text from a credential-carr
     // All six of these leaked the full bare value. `PREFIXLESS_KEY` is the canary
     // precisely because no scrubber sees it, so a mask here is the flag rule and
     // nothing else - `--api-key` and `--token` ride along as known positives.
+    //
+    // The PLURALS and the three unmatched spellings are a REGRESSION PIN, added
+    // after the `(?![a-z])` anchor silently narrowed this rule: a plural `s` is a
+    // lowercase letter, so `--tokens`, `--secrets`, `--keys`, `--apikeys`,
+    // `--passwords`, `--credentials`, `--pats` and `--sessions` each masked before
+    // the anchor landed and leaked the full bare value afterwards [executed pre and
+    // post]. `--authorization` is the reachable one - an ordinary option spelling.
+    // `--passwd`, `--sessionid` and `--sessionId` never matched in either version;
+    // `passwd` is already a label in `secretRedaction`'s LABELLED_SECRET_ASSIGNMENT,
+    // so omitting it left two defences disagreeing about one word.
     const flags = [
       '--api-key',
       '--token',
@@ -457,6 +467,18 @@ describe('MCP check — the probe error is free-form text from a credential-carr
       '--passphrase',
       '--pwd',
       '-X-Auth-Token',
+      '--tokens',
+      '--secrets',
+      '--keys',
+      '--apikeys',
+      '--passwords',
+      '--credentials',
+      '--pats',
+      '--sessions',
+      '--authorization',
+      '--passwd',
+      '--sessionid',
+      '--sessionId',
     ];
     // KNOWN POSITIVE for the canary itself: unmasked, this text keeps the value.
     expect(redactSecrets(`auth rejected for ${PREFIXLESS_KEY}`)).toContain(PREFIXLESS_KEY);
