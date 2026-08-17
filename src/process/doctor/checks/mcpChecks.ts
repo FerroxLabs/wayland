@@ -53,46 +53,98 @@ export type McpCheckDeps = {
 const DEFAULT_PER_SERVER_TIMEOUT_MS = 10_000;
 
 /**
- * Shortest declared value worth masking. Below this a value is not a credential
- * and blanket-replacing it would shred the diagnostic - an `env` of
- * `NODE_ENV=production` or `PORT=3000` would blank the words "production" and
- * "3000" out of the probe's own error text. Matches the `{8,}` floors
- * `redactSecrets` already uses.
+ * Shortest `env`/`headers` value worth masking.
+ *
+ * A floor is needed at all because a literal replacement is blind: an `env` of
+ * `DEBUG=1` would otherwise blank every "1" in the probe's own error text, which
+ * destroys the diagnostic rather than protecting anything. But the first attempt
+ * set it to 8 and that was wrong in BOTH directions, proved by execution in a
+ * cross-audit: `DB_PASSWORD=hunter7` and `PIN=9182` sailed straight through
+ * (`redactSecrets` shares the same `{8,}` floor, so nothing caught them), while
+ * whole `args` were being masked and turned the two commonest MCP failures into
+ * `GET https://registry.npmjs.org/[redacted]` and `scandir '[redacted]'`.
+ *
+ * 4 is the compromise, and it only applies to `env` and `headers`, where a short
+ * value is far likelier to be a credential than a word the diagnostic needs.
+ * `args` are handled separately below and never masked whole.
  */
-const MIN_DECLARED_SECRET_LENGTH = 8;
+const MIN_DECLARED_SECRET_LENGTH = 4;
 
 /**
- * The user-supplied configuration values in `server`'s own declaration that can
- * BE a credential: a stdio server's `env` values and `args`, and an
- * http/sse/streamable_http server's `headers` values - each both whole and
- * unwrapped past a leading `--flag=` / `Bearer ` style prefix.
+ * Split a declared value at EVERY `=`, `:` or whitespace run and return each
+ * suffix, longest first, plus the trimmed original.
  *
- * Longest first, so a value that happens to contain another is replaced whole
- * rather than being half-substituted from the inside out.
+ * A credential is routinely declared WRAPPED, and one unwrap is not enough:
+ * `--header` `Authorization: Bearer <secret>` is the documented `mcp-remote`
+ * shape, and reaching `<secret>` from it takes two hops (past `:`, then past the
+ * space after `Bearer`). A single-pass unwrap stopped at `Bearer <secret>` and
+ * left the bare token unmasked whenever the server echoed only that - found by
+ * execution, not review. The trim matters for the same reason: an `env` value
+ * with a trailing space is legal (`validateMcpEnvEntry` only rejects <= 0x1f), and
+ * the untrimmed original never matches the echoed token.
  */
+function unwrapVariants(value: string): string[] {
+  const variants: string[] = [];
+  let rest = value.trim();
+  variants.push(rest);
+  // Bounded by the number of separators, so this cannot loop unexpectedly.
+  for (;;) {
+    const separator = rest.search(/[=:\s]/);
+    if (separator === -1) break;
+    rest = rest.slice(separator + 1).trim();
+    if (rest.length === 0) break;
+    variants.push(rest);
+  }
+  return variants;
+}
+
+/**
+ * Every user-supplied string in `server`'s own declaration that can BE a
+ * credential, longest first so an overlapping value is replaced whole rather
+ * than half-substituted from the inside out.
+ *
+ * The three sources are deliberately NOT treated alike:
+ *
+ *  - `env` values and `headers` values are masked WHOLE (and unwrapped), subject
+ *    only to {@link MIN_DECLARED_SECRET_LENGTH}. These are the credential slots.
+ *  - `url` is included because a hosted MCP endpoint routinely carries its token
+ *    IN THE URL - path-embedded is the standard shape for Zapier, Smithery and
+ *    Composio - and undici's own error text echoes the URL, as does a DNS
+ *    failure's `getaddrinfo`. Missing this was a live leak.
+ *  - `args` contribute ONLY their unwrapped remainder past a separator, never the
+ *    whole argument. This is the FF-6 line: masking whole args covered
+ *    `--api-key=<v>` but also masked `@modelcontextprotocol/server-filesystem`
+ *    and `/Users/alice/Documents`, which are exactly the strings the two
+ *    commonest failures (wrong package, missing directory) need to stay readable.
+ *
+ * ACCEPTED LIMITS of literal matching, not oversights: a case-folded echo, a
+ * URL-encoded echo, or a value glued to a short flag with no separator
+ * (`-k<secret>`) will not match. Chasing those means pattern-matching, which is
+ * the fragility this exists to avoid.
+ */
+function asStrings(values: unknown[]): string[] {
+  return values.filter((value): value is string => typeof value === 'string');
+}
+
 function declaredSecretValues(server: IMcpServer): string[] {
   const transport = server.transport as
-    | { env?: Record<string, string>; headers?: Record<string, string>; args?: string[] }
+    | { env?: Record<string, string>; headers?: Record<string, string>; args?: string[]; url?: string }
     | undefined;
   if (!transport) return [];
-  const declared = [
-    ...Object.values(transport.env ?? {}),
-    ...Object.values(transport.headers ?? {}),
-    ...(transport.args ?? []),
-  ].filter((value): value is string => typeof value === 'string');
 
   const values: string[] = [];
-  for (const value of declared) {
-    values.push(value);
-    // Also the right-hand side of a `--flag=value` / `Key: value` style token.
-    // A credential is routinely declared WRAPPED - `--api-key=<secret>` in `args`,
-    // `Bearer <secret>` in a header - and the server then echoes the bare secret
-    // on its own ("invalid key: <secret>"). Matching only the whole declared
-    // token would miss that, which a canary caught here rather than in
-    // production. Longest-first ordering below still replaces the wrapped form
-    // whole when the wrapped form is what was echoed.
-    const separator = value.search(/[=:\s]/);
-    if (separator !== -1) values.push(value.slice(separator + 1).trim());
+  // Credential slots: whole value, plus every unwrapped suffix.
+  for (const value of [
+    ...asStrings(Object.values(transport.env ?? {})),
+    ...asStrings(Object.values(transport.headers ?? {})),
+    ...asStrings([transport.url]),
+  ]) {
+    values.push(...unwrapVariants(value));
+  }
+  // Arguments: the remainder past a separator only, so paths and package names
+  // survive intact.
+  for (const arg of asStrings(transport.args ?? [])) {
+    values.push(...unwrapVariants(arg).slice(1));
   }
 
   return values.filter((value) => value.length >= MIN_DECLARED_SECRET_LENGTH).toSorted((a, b) => b.length - a.length);
@@ -102,20 +154,21 @@ function declaredSecretValues(server: IMcpServer): string[] {
  * Mask any value the user themselves put in this server's declaration wherever
  * it appears in the probe's output.
  *
- * This is the STRUCTURAL half of the mcp fix, and it is why this sink is not
- * left waiting on #1026: a literal string replacement pattern-matches nothing,
- * so it is immune to every shape a credential can take. A stdio server that dies
- * with `AZURE_OPENAI_API_KEY=<value>` on stderr has that stderr appended to the
+ * This is the STRUCTURAL half of the mcp fix, and it is why this sink does not
+ * wait on #1026: a literal string replacement pattern-matches nothing, so no
+ * credential SHAPE can slip past it. A stdio server that dies with
+ * `AZURE_OPENAI_API_KEY=<value>` on stderr has that stderr appended to the
  * user-facing error as `Server output: ...` (`McpProtocol.ts`), and the value is
- * masked here because it came out of `transport.env`, not because it looked like
+ * masked because it came out of `transport.env`, not because it looked like
  * anything.
  *
  * `split`/`join` rather than a built regex: the values are arbitrary user text
  * and a missed escape would be a silent no-match, i.e. a silent leak.
  *
- * It does NOT cover the OAuth bearer `McpService.attachOAuthToken` injects at
- * probe time - that token is never in the stored declaration this check reads.
- * `redactSecrets`' `Bearer` rule is what covers that one, which is why both run.
+ * Sound only because the STORED declaration is what actually gets spawned for
+ * these fields: `normalizeMcpServerForSpawn` rewrites the filesystem server's
+ * directory arguments and nothing else, and in particular does not expand
+ * `${TOKEN}` in a url or header.
  */
 function redactDeclaredValues(text: string, server: IMcpServer): string {
   let out = text;
@@ -128,7 +181,23 @@ function redactDeclaredValues(text: string, server: IMcpServer): string {
 /** Sentinel a per-server timeout resolves to, distinct from a real probe error. */
 const TIMED_OUT = Symbol('mcp-probe-timeout');
 
-/** Run one server's probe bounded by `timeoutMs`; resolves the timeout sentinel if it hangs. */
+/**
+ * Run one server's probe bounded by `timeoutMs`; resolves the timeout sentinel if
+ * it hangs, and converts a THROWN probe into an ordinary failed result.
+ *
+ * That catch is security-load-bearing, not tidiness. `testMcpConnection` calls
+ * `validateMcpServer` synchronously before it ever spawns anything, and that
+ * validator throws `Invalid MCP server URL for "<name>": <url>` carrying the RAW
+ * url. Without a catch the rejection escaped `Promise.all`, escaped
+ * `checkMcpServers` entirely, and surfaced through the runner's catch-all - which
+ * runs `redactSecrets` but knows nothing about this server's declaration. So the
+ * whole declaration-masking fix was BYPASSED for exactly the servers most likely
+ * to be malformed: stored declarations from older installs and JSON imports that
+ * predate validation. Proved end to end through `runDoctor`.
+ *
+ * It also stops one malformed server collapsing every other server's detail into
+ * a single thrown-error line.
+ */
 async function probeWithTimeout(
   testConnection: (server: IMcpServer) => Promise<McpTestResult>,
   server: IMcpServer,
@@ -140,6 +209,8 @@ async function probeWithTimeout(
   });
   try {
     return await Promise.race([testConnection(server), timeout]);
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   } finally {
     if (timer) clearTimeout(timer);
   }
@@ -211,8 +282,16 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
       // does. `redactDeclaredValues` masks the user's own configured values by
       // literal match, which needs no pattern and so is immune to #1026;
       // `redactSecrets` then catches credentials that were never in the
-      // declaration - notably the injected OAuth bearer, and anything the server
-      // volunteers about a third party.
+      // declaration.
+      //
+      // RESIDUAL, stated rather than papered over: the OAuth bearer
+      // `McpService.attachOAuthToken` injects at probe time is NOT in the stored
+      // declaration this check reads [verified], so literal masking cannot see
+      // it, and `redactSecrets` only catches it when the echo carries the literal
+      // `Bearer ` prefix. `"invalid token: Bearer <opaque>"` is masked;
+      // `"invalid token: <opaque>"` is NOT. Closing that needs the probe-time
+      // authed server threaded back to here, which is a change to the
+      // `testConnection` contract rather than to this check.
       errored.push(
         `${server.name}${result.error ? ` (${redactSecrets(redactDeclaredValues(result.error, server))})` : ''}`
       );

@@ -20,11 +20,12 @@
  * simulated.
  */
 
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { readConfig } from '@process/agent/wcore/configBridge';
+import { readConfig, resolveUserConfigPath } from '@process/agent/wcore/configBridge';
+import { activeMarkerPath, resolveActiveConfigPath } from '@process/agent/wcore/profilePaths';
 import { probeEngineConfig } from '@process/doctor/engineConfigProbe';
 import { checkEngineConfigIntegrity } from '@process/doctor/checks/configChecks';
 
@@ -148,5 +149,81 @@ describe('checkEngineConfigIntegrity defence in depth', () => {
     }));
     expect(findsKey(result.detail)).toBe(false);
     expect(result.detail).toContain('line 7, column 11');
+  });
+});
+
+describe('engine config target — the ACTIVE profile, not the native config', () => {
+  /**
+   * With a named profile active these two paths differ, and the check used to
+   * read the native one while the recovery panel mounted under the same row read
+   * the active one. The user-visible result was a row that failed forever, a panel
+   * beneath it reporting `ok`, and Reveal opening neither file.
+   *
+   * The active path is the correct side: the engine spawn sets `WAYLAND_HOME` from
+   * `resolveActiveConfigDir()` (`WCoreAgent.resolveWaylandHomeForLaunch`) and Core
+   * treats `$WAYLAND_HOME` as the literal config dir, so the active profile's
+   * `config.toml` IS the file the engine launches against.
+   */
+  let profilesRootDir: string;
+  const previousRoot = process.env.WAYLAND_PROFILES_ROOT;
+
+  beforeEach(async () => {
+    profilesRootDir = await mkdtemp(join(tmpdir(), 'doctor-profiles-'));
+    process.env.WAYLAND_PROFILES_ROOT = profilesRootDir;
+    await mkdir(join(profilesRootDir, 'work'), { recursive: true });
+    await writeFile(activeMarkerPath(), 'work', 'utf-8');
+  });
+
+  afterEach(async () => {
+    if (previousRoot === undefined) delete process.env.WAYLAND_PROFILES_ROOT;
+    else process.env.WAYLAND_PROFILES_ROOT = previousRoot;
+    await rm(profilesRootDir, { recursive: true, force: true });
+  });
+
+  it('the two paths really do diverge under a named profile (known positive)', async () => {
+    // Without this, every assertion below would hold vacuously on a machine where
+    // the active profile happens to be `default`.
+    expect(await resolveActiveConfigPath()).not.toBe(resolveUserConfigPath());
+  });
+
+  it('probes the active profile config and reports that path', async () => {
+    const activePath = await resolveActiveConfigPath();
+    await writeFile(activePath, 'oops = = =', 'utf-8');
+
+    const result = await probeEngineConfig();
+    expect(result.status).toBe('corrupt');
+    // The same target the recovery panel resolves through, so the row and the
+    // panel cannot disagree about which file they mean.
+    expect(result.status === 'corrupt' && result.path).toBe(activePath);
+    expect(result.status === 'corrupt' && result.path).not.toBe(resolveUserConfigPath());
+  });
+
+  it('a clean active config passes even when the native one is corrupt', async () => {
+    // The exact inversion of the shipped bug.
+    await writeFile(await resolveActiveConfigPath(), 'ok = true', 'utf-8');
+    const result = await probeEngineConfig();
+    expect(result.status).toBe('ok');
+  });
+
+  it('names the inspected path in the Doctor detail', async () => {
+    const activePath = await resolveActiveConfigPath();
+    await writeFile(activePath, 'oops = = =', 'utf-8');
+    const outcome = await checkEngineConfigIntegrity(() => probeEngineConfig());
+    expect(outcome.status).toBe('fail');
+    expect(outcome.detail).toContain(activePath);
+    expect(outcome.remediation).toContain(activePath);
+  });
+
+  it('reports an unresolvable profile as its own fault, not a parse failure', async () => {
+    // A marker naming a profile whose directory does not exist is fail-closed by
+    // the #278 contract.
+    await writeFile(activeMarkerPath(), 'missing', 'utf-8');
+    const result = await probeEngineConfig();
+    expect(result.status).toBe('unresolved');
+
+    const outcome = await checkEngineConfigIntegrity(() => probeEngineConfig());
+    expect(outcome.status).toBe('fail');
+    expect(outcome.detail).toContain('could not be resolved');
+    expect(outcome.detail).not.toContain('could not be parsed');
   });
 });

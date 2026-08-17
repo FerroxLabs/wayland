@@ -34,19 +34,44 @@ export type RoutableModelReader = {
 };
 
 /**
- * The version NUMBER inside a `--version` banner. `detectWCore` returns
- * unvalidated, unbounded `execFileSync` stdout (`binaryResolver.ts`), and this
- * check used to interpolate the whole of it, so anything the resolved binary
- * chose to print — including a credential from its own environment — rendered
- * verbatim in a report the Doctor panel offers to copy (the
- * GHSA-2g2m-r86j-jg6h class). Surfacing only the capture is structural: an
- * allowlisted shape rather than a scrub, so nothing about #1026 applies.
+ * The version NUMBER inside a `--version` banner, and nothing else.
  *
- * The optional `v` is part of the capture, not decoration: the engine's own
- * banner is `v0.10.0`-shaped and the existing reachability test asserts that
- * spelling survives, so dropping it would have been a silent contract change.
+ * `detectWCore` returns unvalidated, unbounded `execFileSync` stdout
+ * (`binaryResolver.ts`), so anything the resolved binary chooses to print can
+ * reach a report the Doctor panel offers to copy (GHSA-2g2m-r86j-jg6h).
+ *
+ * The first attempt at this ended the pattern with an unanchored, unbounded
+ * `[\w.+-]` run and it was NOT a fix - a cross-audit broke it by execution. That
+ * character class is the alphabet of most credentials, and with no anchors and no
+ * bound the match happily ran straight through one:
+ * `1.0.0-sk-ant-<40ch>` surfaced the whole token, `0.13.0+build.<JWT>`
+ * surfaced the whole JWT, `9.9.9-<200k chars>` surfaced all 200k, and
+ * `token=sk-ant-1.2.3-<58ch>` needed no version banner at all because the
+ * unanchored search simply started INSIDE the credential. Every one returned
+ * `pass`. Three properties fix that and all three are load-bearing:
+ *
+ *  - the leading `(?<![\w.+-])` forbids a match that starts mid-token, which is
+ *    what killed the `token=sk-ant-1.2.3-...` case;
+ *  - the trailing `(?![\w.+-])` forbids a glued suffix, so `0.13.0_<32 hex>`
+ *    cannot extend the match;
+ *  - the prerelease/build tail is `{0,10}` and must OPEN with an alphanumeric,
+ *    which bounds it instead of letting it run to end-of-input.
+ *
+ * `MAX_VERSION_LENGTH` is then a belt-and-braces cap on what is surfaced: the
+ * pattern is already bounded, and a second bound that does not depend on reading
+ * a regex correctly is cheap. This is an allowlisted shape plus a hard length
+ * limit - which is why it does not rely on `redactSecrets` and #1026 does not
+ * reach it. It is NOT immunity in general: it is immunity to whatever cannot fit
+ * through this shape.
+ *
+ * The optional `v` is part of the capture, not decoration: the engine's banner is
+ * `v0.10.0`-shaped and an existing reachability test asserts that spelling
+ * survives, so dropping it would have been a silent contract change.
  */
-const ENGINE_VERSION_PATTERN = /v?\d+\.\d+\.\d+[\w.+-]*/;
+const ENGINE_VERSION_PATTERN = /(?<![\w.+-])v?\d+\.\d+\.\d+(?:[-+][0-9A-Za-z][0-9A-Za-z.]{0,10})?(?![\w.+-])/;
+
+/** Hard cap on the surfaced version text, independent of the pattern above. */
+const MAX_VERSION_LENGTH = 32;
 
 /**
  * Engine reachability — the `wayland-core` binary resolves and answers
@@ -66,7 +91,9 @@ export async function checkEngineReachable(detect: () => WCoreDetection): Promis
   // Unparseable stdout is treated exactly like no stdout, and the raw text is
   // NOT echoed to say so. A binary whose `--version` carries no version number is
   // the same broken build either way, so the user loses no signal.
-  const version = result.version ? ENGINE_VERSION_PATTERN.exec(result.version)?.[0] : undefined;
+  const version = result.version
+    ? ENGINE_VERSION_PATTERN.exec(result.version)?.[0].slice(0, MAX_VERSION_LENGTH)
+    : undefined;
   if (!version) {
     return {
       status: 'warn',
@@ -124,7 +151,7 @@ export type EngineContractPinProbe = {
  *
  * That also makes the check safe on platforms where the manifest may not be
  * ASCII-recoverable from the binary. Only `darwin-arm64` has been confirmed
- * [verified: pinned digest found, the shipped-v0.12.26 digest `23fb3048…`
+ * [verified: pinned digest found, the shipped-v0.12.26 digest `23fb3048...`
  * absent, with a known-positive control]. Anywhere the digest cannot be read,
  * this degrades to the legacy branch and says nothing, rather than crying wolf.
  *

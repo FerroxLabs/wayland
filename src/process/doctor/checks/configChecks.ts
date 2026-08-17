@@ -35,7 +35,9 @@ export type ConfigCheckDeps = {
    * without echoing any of the file. `probeEngineConfig` is the real producer.
    */
   readEngineConfig: () => Promise<
-    { status: 'ok'; existed: boolean } | { status: 'corrupt'; message: string; line?: number; column?: number }
+    | { status: 'ok'; existed: boolean; path?: string }
+    | { status: 'corrupt'; message: string; path?: string; line?: number; column?: number }
+    | { status: 'unresolved'; message: string }
   >;
 };
 
@@ -81,6 +83,16 @@ export async function checkEngineConfigIntegrity(
   readEngineConfig: ConfigCheckDeps['readEngineConfig']
 ): Promise<DoctorCheckOutcome> {
   const result = await readEngineConfig();
+  // A profile that cannot be resolved is a DIFFERENT fault from a config that
+  // will not parse, and calling it a parse failure is the same misdiagnosis this
+  // check already shipped once by reading the wrong file (see `probeEngineConfig`).
+  if (result.status === 'unresolved') {
+    return {
+      status: 'fail',
+      detail: `The active profile's config directory could not be resolved: ${redactSecrets(result.message)}`,
+      remediation: 'Switch back to the default profile, or repair the active profile directory, then re-run Doctor.',
+    };
+  }
   if (result.status === 'corrupt') {
     // `readEngineConfig` is INJECTED, and the real producer already strips and
     // scrubs. Scrub again anyway: every future caller of this check inherits the
@@ -93,21 +105,26 @@ export async function checkEngineConfigIntegrity(
     // scrub over an unstripped parse error would still leak.
     const reason = redactSecrets(result.message);
     const position = describePosition(result);
+    // The PATH is named in the detail because the check and the recovery panel
+    // that mounts under this row must visibly agree on which file they mean; when
+    // they silently disagreed, Reveal opened a file nobody was complaining about.
+    const where = result.path ? ` (${result.path})` : '';
     return {
       status: 'fail',
       detail: position
-        ? `The engine's config.toml could not be parsed at ${position}: ${reason}`
-        : `The engine's config.toml could not be parsed: ${reason}`,
+        ? `The engine's config.toml${where} could not be parsed at ${position}: ${reason}`
+        : `The engine's config.toml${where} could not be parsed: ${reason}`,
       remediation: position
-        ? `Fix the TOML syntax at ${position} in the engine config.toml, or remove the file to regenerate defaults.`
-        : 'Fix the TOML syntax in the engine config.toml, or remove the file to regenerate defaults.',
+        ? `Fix the TOML syntax at ${position} in ${result.path ?? 'the engine config.toml'}, or remove the file to regenerate defaults.`
+        : `Fix the TOML syntax in ${result.path ?? 'the engine config.toml'}, or remove the file to regenerate defaults.`,
     };
   }
+  const target = result.path ? ` (${result.path})` : '';
   return {
     status: 'pass',
     detail: result.existed
-      ? 'Engine config.toml parses cleanly.'
-      : 'No engine config.toml yet (fresh install) — defaults apply.',
+      ? `Engine config.toml${target} parses cleanly.`
+      : `No engine config.toml yet${target} (fresh install) — defaults apply.`,
   };
 }
 

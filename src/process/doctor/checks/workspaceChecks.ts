@@ -44,17 +44,24 @@ export async function checkWorkspaceDrift(deps: WorkspaceCheckDeps): Promise<Doc
   const checked = await Promise.all(
     workspaces.map(async (entry) => ({ entry, exists: await deps.pathExists(entry.path) }))
   );
-  // `label` is `Chat "<name>"` / `Project "<name>"` (`doctor/registry.ts`), and a
-  // conversation's name is AUTO-GENERATED FROM THE USER'S FIRST MESSAGE — so a
-  // user who pastes a credential into chat gets it as the chat title, and from
-  // there into a report the Doctor panel offers to copy (the
-  // GHSA-2g2m-r86j-jg6h class). Scrub-only: the label IS user prose, so there is
-  // no structure to strip the way there is for a TOML parse error or an MCP
-  // declaration. That leaves the prefixed-label form (`FOO_API_KEY=<value>`)
-  // exposed until #1026 lands — tracked there, alongside backendChecks.
+  // BOTH halves are scrubbed, and neither is the real defence.
+  //
+  // `label` used to be `Chat "<name>"`, and a conversation's name is generated
+  // from the user's FIRST MESSAGE - so a credential pasted into chat became the
+  // chat title and then a line in a report the Doctor panel offers to copy
+  // (GHSA-2g2m-r86j-jg6h). A scrub cannot close that: a bare secret typed as a
+  // first message carries no label and no assignment, so no rule matches it. The
+  // fix is at the PRODUCER, which now emits the app-generated id instead of the
+  // name (`doctorEntityLabel` in `doctor/registry.ts`), making it unreachable.
+  //
+  // The scrub stays because this check is dependency-injected and any caller can
+  // pass any label. `path` is scrubbed for the same reason - a workspace folder
+  // can itself be named after a credential - but a path must stay readable to be
+  // actionable, so there is no structural option there and the prefixed-label
+  // form in a path remains exposed until #1026.
   const missing = checked
     .filter((result) => !result.exists)
-    .map((result) => `${redactSecrets(result.entry.label)} → ${result.entry.path}`);
+    .map((result) => `${redactSecrets(result.entry.label)} → ${redactSecrets(result.entry.path)}`);
 
   if (missing.length > 0) {
     return {
@@ -124,11 +131,10 @@ export async function checkWorkspaceConfigured(deps: WorkspaceConfiguredDeps): P
   );
 
   if (temp.length > 0) {
-    // Same user-authored label as in `checkWorkspaceDrift` above, same scrub,
-    // same #1026 caveat.
+    // Same two halves, same scrub, same reasoning as `checkWorkspaceDrift` above.
     const shown = temp
       .slice(0, MAX_LISTED_TEMP)
-      .map((entry) => `${redactSecrets(entry.label)} → ${entry.path ?? '(no folder)'}`);
+      .map((entry) => `${redactSecrets(entry.label)} → ${entry.path ? redactSecrets(entry.path) : '(no folder)'}`);
     const suffix = temp.length > MAX_LISTED_TEMP ? `; and ${temp.length - MAX_LISTED_TEMP} more` : '';
     return {
       status: 'warn',

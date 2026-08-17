@@ -20,40 +20,80 @@
  */
 
 import { access } from 'node:fs/promises';
-import { readConfig, resolveUserConfigPath } from '@process/agent/wcore/configBridge';
+import { readConfig } from '@process/agent/wcore/configBridge';
+import { resolveActiveConfigPath } from '@process/agent/wcore/profilePaths';
+import { redactSecrets } from '@process/utils/secretRedaction';
 import { summarizeTomlError, tomlErrorPosition } from '@process/utils/tomlErrorSummary';
 
 /**
  * `'ok'` when the config parsed or is simply absent (a fresh install has none);
- * `'corrupt'` with a SANITISED reason plus the failure's position as numbers.
+ * `'corrupt'` with a SANITISED reason plus the failure's position as numbers;
+ * `'unresolved'` when the ACTIVE PROFILE itself could not be resolved, which is
+ * a different fault and must not be reported as a parse failure.
+ *
+ * `path` is the file actually inspected, so the check can name the same target
+ * the recovery panel does instead of leaving the user to guess.
  */
 export type EngineConfigProbeResult =
-  | { status: 'ok'; existed: boolean }
-  | { status: 'corrupt'; message: string; line?: number; column?: number };
+  | { status: 'ok'; existed: boolean; path: string }
+  | { status: 'corrupt'; message: string; path: string; line?: number; column?: number }
+  | { status: 'unresolved'; message: string };
 
 /**
  * Read + parse the engine's user `config.toml`. Never throws, and never carries
  * any of the file's own bytes out - only the parser's one-line reason (scrubbed)
  * and the line/column numbers.
  *
- * @param path Optional override; defaults to the default profile's config.
+ * TARGET: `resolveActiveConfigPath()`, i.e. the ACTIVE PROFILE's config - NOT
+ * `resolveUserConfigPath()` (the native one). This was wrong on the first pass
+ * and it was reachable today, because profile activation is shipped UI. With a
+ * named profile active the two paths differ [verified by execution], so the check
+ * inspected a file the engine would never load: the Doctor row failed forever
+ * over a corrupt native config while the recovery panel mounted beneath it - which
+ * reads the active path - reported `ok`, and Reveal opened neither.
+ *
+ * The active path is the correct side, established rather than assumed: the
+ * engine spawn sets `WAYLAND_HOME` from `resolveActiveConfigDir()`
+ * (`WCoreAgent.resolveWaylandHomeForLaunch`), and Core treats `$WAYLAND_HOME` as
+ * the literal config dir. So the active profile's `config.toml` IS the file the
+ * engine launches against. `readConfig()` already defaults to the same path; only
+ * this caller was overriding it with the native one.
+ *
+ * @param path Optional override (tests / non-default homes).
  */
-export async function probeEngineConfig(path: string = resolveUserConfigPath()): Promise<EngineConfigProbeResult> {
+export async function probeEngineConfig(path?: string): Promise<EngineConfigProbeResult> {
+  let target: string;
+  if (path === undefined) {
+    try {
+      target = await resolveActiveConfigPath();
+    } catch (error) {
+      // A named profile that cannot be resolved is fail-closed by contract
+      // (#278) and is NOT a parse failure. Reporting it as "config.toml could
+      // not be parsed" would misdiagnose it exactly the way the wrong-target bug
+      // above did. Scrubbed like every other message that reaches a report the
+      // Doctor panel offers to copy.
+      return { status: 'unresolved', message: redactSecrets(summarizeTomlError(error)) };
+    }
+  } else {
+    target = path;
+  }
+
   let existed = true;
   try {
-    await access(path);
+    await access(target);
   } catch {
     existed = false;
   }
 
   try {
-    await readConfig(path);
-    return { status: 'ok', existed };
+    await readConfig(target);
+    return { status: 'ok', existed, path: target };
   } catch (error) {
     const position = tomlErrorPosition(error);
     return {
       status: 'corrupt',
       message: summarizeTomlError(error),
+      path: target,
       ...(position ? { line: position.line, column: position.column } : {}),
     };
   }
