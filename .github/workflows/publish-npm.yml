@@ -19,13 +19,6 @@ jobs:
   publish:
     name: Publish getwayland to npm
     runs-on: ubuntu-latest
-    env:
-      # #940: build-payload.mjs runs scripts/build-mcp-servers.js, which now
-      # FAILS when a @wayland MCP connector cannot be bundled. Those four
-      # connectors build from the sibling waylandmcp repo, which has no GitHub
-      # remote yet, so CI must opt out explicitly. DELETE this the moment
-      # waylandmcp is checkout-able in CI.
-      WAYLAND_ALLOW_MISSING_MCP: '1'
     steps:
       - name: Require an npm token
         env:
@@ -55,6 +48,24 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # #940: build-payload.mjs runs scripts/build-mcp-servers.js, which bundles
+      # the four @wayland MCP connectors from FerroxLabs/waylandmcp.
+      # actions/checkout refuses any `path` outside github.workspace, so the
+      # sources land at ./waylandmcp (gitignored) - the first candidate that
+      # script resolves. Must run AFTER the repo checkout above, whose
+      # `git clean -ffdx` would delete this tree. No bypass on a publish path.
+      - name: Checkout @wayland MCP connector sources
+        uses: actions/checkout@v6
+        with:
+          repository: FerroxLabs/waylandmcp
+          ssh-key: ${{ secrets.WAYLANDMCP_DEPLOY_KEY }}
+          path: waylandmcp
+          persist-credentials: false
+
+      - name: Install @wayland MCP connector dependencies
+        working-directory: waylandmcp
         run: bun install --frozen-lockfile
 
       - name: Build the getwayland payload (syncs version to app/package.json)

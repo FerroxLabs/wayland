@@ -44,8 +44,10 @@ const SHARED_OPTIONS = {
  * installers because both skips below were unconditional warnings, and the
  * Library still advertised cards for them.
  *
- * It is set deliberately in CI while FerroxLabs/waylandmcp does not exist as a
- * checkout-able repo. Remove the CI setting the moment it does - see #940.
+ * CI no longer sets it on any trusted build: every workflow that builds now
+ * checks FerroxLabs/waylandmcp out to ./waylandmcp first. The ONE remaining
+ * setter is pr-checks.yml on a FORK pull request, which gets no repo secrets
+ * and therefore cannot read the private connector sources at all - see #940.
  */
 const ALLOW_MISSING_ENV = 'WAYLAND_ALLOW_MISSING_MCP';
 
@@ -74,8 +76,33 @@ function skipOptionalMcpOrFail(pkgName, detail, env = process.env) {
 }
 
 /**
- * Bundle a sibling @wayland/<name>-mcp package into a single self-contained
- * .mjs file in out/main/. These packages live in ~/dev/waylandmcp and ship
+ * Where a @wayland/<name>-mcp source tree may live, in priority order.
+ *
+ * WAYLAND_MCP_SRC is an explicit override and therefore AUTHORITATIVE: when it
+ * is set it is the ONLY candidate. Falling back to a different tree after an
+ * operator named one silently builds something other than what was asked for -
+ * the same class of quiet substitution #940 is about.
+ */
+function mcpSourceCandidates(pkgName, env = process.env) {
+  if (env.WAYLAND_MCP_SRC) return [env.WAYLAND_MCP_SRC];
+  return [
+    // #940: the CI checkout. actions/checkout refuses any `path` outside
+    // github.workspace, so the sibling layouts below are unreachable on a runner
+    // (ROOT/.. is /home/runner/work/wayland, above the workspace). Every
+    // workflow that builds therefore checks FerroxLabs/waylandmcp out to
+    // ./waylandmcp inside the repo (gitignored). First, so a deliberate in-repo
+    // checkout always wins over whatever happens to sit in ~/dev.
+    path.resolve(ROOT, 'waylandmcp', 'packages', pkgName),
+    path.resolve(ROOT, '..', '..', 'waylandmcp', 'packages', pkgName),
+    path.resolve(ROOT, '..', 'waylandmcp', 'packages', pkgName),
+    path.join(require('os').homedir(), 'dev', 'waylandmcp', 'packages', pkgName),
+  ];
+}
+
+/**
+ * Bundle a @wayland/<name>-mcp package into a single self-contained .mjs file
+ * in out/main/. These packages live in FerroxLabs/waylandmcp - checked out to
+ * ./waylandmcp in CI, or a sibling ~/dev/waylandmcp tree locally - and ship
  * with the Electron installer (no npm registry dep).
  *
  * Sources use top-level await so the bundle must be ESM, not CJS.
@@ -84,23 +111,18 @@ function skipOptionalMcpOrFail(pkgName, detail, env = process.env) {
  * `WAYLAND_ALLOW_MISSING_MCP=1` is set (#940).
  */
 async function bundleWaylandMcp(pkgName, outName, opts = {}) {
-  // WAYLAND_MCP_SRC is an explicit override and therefore AUTHORITATIVE: when
-  // it is set it is the ONLY candidate. Falling back to a different tree after
-  // an operator named one silently builds something other than what was asked
-  // for - the same class of quiet substitution #940 is about.
-  const candidates = process.env.WAYLAND_MCP_SRC
-    ? [process.env.WAYLAND_MCP_SRC]
-    : [
-        path.resolve(ROOT, '..', '..', 'waylandmcp', 'packages', pkgName),
-        path.resolve(ROOT, '..', 'waylandmcp', 'packages', pkgName),
-        path.join(require('os').homedir(), 'dev', 'waylandmcp', 'packages', pkgName),
-      ];
+  const candidates = mcpSourceCandidates(pkgName);
 
   const src = candidates.find((p) => fs.existsSync(path.join(p, 'src', 'index.ts')));
   if (!src) {
     skipOptionalMcpOrFail(pkgName, `source not found in any of: ${candidates.join(', ')}`);
     return;
   }
+
+  // Say WHICH tree was bundled. Four candidates resolve silently, and a build
+  // that picked up a stale ~/dev copy instead of the intended checkout is the
+  // same quiet-substitution failure #940 is about - only visible if it is logged.
+  console.log(`[build-mcp-servers] @wayland/${pkgName} <- ${src}`);
 
   // A bundle failure of one of these - e.g. a transitive dep whose nested
   // node_modules copy is incomplete on a given runner (an @opentelemetry/core
@@ -199,4 +221,10 @@ if (require.main === module) {
   });
 }
 
-module.exports = { ALLOW_MISSING_ENV, bundleWaylandMcp, optionalMcpBypassEnabled, skipOptionalMcpOrFail };
+module.exports = {
+  ALLOW_MISSING_ENV,
+  bundleWaylandMcp,
+  mcpSourceCandidates,
+  optionalMcpBypassEnabled,
+  skipOptionalMcpOrFail,
+};

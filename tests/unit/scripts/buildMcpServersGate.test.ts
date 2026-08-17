@@ -28,6 +28,7 @@ const REPO_ROOT = path.resolve(__dirname, '../../..');
 const gate = require_(SCRIPT) as {
   ALLOW_MISSING_ENV: string;
   bundleWaylandMcp: (pkgName: string, outName: string) => Promise<void>;
+  mcpSourceCandidates: (pkgName: string, env?: NodeJS.ProcessEnv) => string[];
   optionalMcpBypassEnabled: (env?: NodeJS.ProcessEnv) => boolean;
   skipOptionalMcpOrFail: (pkgName: string, detail: string, env?: NodeJS.ProcessEnv) => void;
 };
@@ -48,6 +49,22 @@ describe('build-mcp-servers optional-MCP gate (#940)', () => {
     expect(gate.optionalMcpBypassEnabled({ WAYLAND_ALLOW_MISSING_MCP: '0' })).toBe(false);
     expect(gate.optionalMcpBypassEnabled({ WAYLAND_ALLOW_MISSING_MCP: 'true' })).toBe(false);
     expect(gate.optionalMcpBypassEnabled({ WAYLAND_ALLOW_MISSING_MCP: '1' })).toBe(true);
+  });
+
+  // #940: the six workflows that build check FerroxLabs/waylandmcp out to
+  // ./waylandmcp INSIDE the workspace, because actions/checkout refuses any
+  // `path` above github.workspace. If that candidate ever stops being first,
+  // CI silently reverts to bundling nothing (or, worse, a stale ~/dev tree).
+  it('resolves the in-workspace CI checkout first', () => {
+    const candidates = gate.mcpSourceCandidates('imap-mcp', {});
+    expect(candidates[0]).toBe(path.join(REPO_ROOT, 'waylandmcp', 'packages', 'imap-mcp'));
+    // The sibling layouts local dev relies on must survive alongside it.
+    expect(candidates).toContain(path.resolve(REPO_ROOT, '..', '..', 'waylandmcp', 'packages', 'imap-mcp'));
+    expect(candidates).toContain(path.resolve(REPO_ROOT, '..', 'waylandmcp', 'packages', 'imap-mcp'));
+  });
+
+  it('treats WAYLAND_MCP_SRC as the single authoritative candidate', () => {
+    expect(gate.mcpSourceCandidates('imap-mcp', { WAYLAND_MCP_SRC: MISSING_SRC })).toEqual([MISSING_SRC]);
   });
 
   it('throws (fatal) when a connector is skipped and the opt-out is NOT set', () => {

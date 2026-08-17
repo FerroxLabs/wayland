@@ -45,13 +45,6 @@ env:
   # PINNED_BUN_VERSION in scripts/prepareBundledBun.js and the
   # corresponding entry in scripts/bundled-bun-shasums.json.
   WAYLAND_BUN_VERSION: '1.3.14'
-  # #940: four @wayland MCP connectors (apple, imap, news, cal.com) build from
-  # the sibling waylandmcp repo, which has no GitHub remote yet - CI cannot
-  # check it out. scripts/build-mcp-servers.js now FAILS the build when a
-  # connector cannot be bundled, so CI must opt out explicitly until that repo
-  # lands. DELETE this line the moment waylandmcp is checkout-able in CI; that
-  # is the whole point of the gate.
-  WAYLAND_ALLOW_MISSING_MCP: '1'
 
 jobs:
   code-quality:
@@ -243,6 +236,30 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 30
           command: bun install --frozen-lockfile
+
+      # #940: the four bundled @wayland MCP connectors (apple, imap, news,
+      # cal.com) build from FerroxLabs/waylandmcp. actions/checkout refuses any
+      # `path` outside github.workspace, so the sources land at ./waylandmcp
+      # (gitignored) - the first candidate scripts/build-mcp-servers.js resolves.
+      # Must run AFTER the repo checkout above: that checkout's `git clean -ffdx`
+      # would delete this tree. There is deliberately NO bypass here - if this
+      # fails, the release build goes red rather than shipping a Library that
+      # offers four connectors it does not contain.
+      - name: Checkout @wayland MCP connector sources
+        uses: actions/checkout@v6
+        with:
+          repository: FerroxLabs/waylandmcp
+          ssh-key: ${{ secrets.WAYLANDMCP_DEPLOY_KEY }}
+          path: waylandmcp
+          persist-credentials: false
+
+      # esbuild resolves connector deps from the PER-PACKAGE node_modules
+      # (nodePaths in scripts/build-mcp-servers.js). bun's isolated linker does
+      # create packages/*/node_modules symlinks into the root store, so a plain
+      # workspace install at the root is enough.
+      - name: Install @wayland MCP connector dependencies
+        working-directory: waylandmcp
+        run: bun install --frozen-lockfile
 
       - name: Run postinstall
         run: bun run postinstall || true

@@ -47,13 +47,6 @@ env:
   WCORE_SKIP: '0'
   CI: 'true'
   NODE_OPTIONS: '--max-old-space-size=8192'
-  # #940: four @wayland MCP connectors (apple, imap, news, cal.com) build from
-  # the sibling waylandmcp repo, which has no GitHub remote yet - CI cannot
-  # check it out. scripts/build-mcp-servers.js now FAILS the build when a
-  # connector cannot be bundled, so CI must opt out explicitly until that repo
-  # lands. DELETE this line the moment waylandmcp is checkout-able in CI; that
-  # is the whole point of the gate.
-  WAYLAND_ALLOW_MISSING_MCP: '1'
 
 jobs:
   # scripts/build-with-builder.js writes a candidate capability seal on every
@@ -228,6 +221,25 @@ jobs:
             libxss1 libatspi2.0-dev libgtk-3-dev libxrandr2 libasound2-dev xvfb
 
       - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # #940: the four bundled @wayland MCP connectors (apple, imap, news,
+      # cal.com) build from FerroxLabs/waylandmcp. actions/checkout refuses any
+      # `path` outside github.workspace, so the sources land at ./waylandmcp
+      # (gitignored) - the first candidate scripts/build-mcp-servers.js resolves.
+      # Must run AFTER the repo checkout above, whose `git clean -ffdx` would
+      # delete this tree. No bypass: this gate exists to keep a packaged build
+      # from passing while four connectors are missing from it.
+      - name: Checkout @wayland MCP connector sources
+        uses: actions/checkout@v4
+        with:
+          repository: FerroxLabs/waylandmcp
+          ssh-key: ${{ secrets.WAYLANDMCP_DEPLOY_KEY }}
+          path: waylandmcp
+          persist-credentials: false
+
+      - name: Install @wayland MCP connector dependencies
+        working-directory: waylandmcp
         run: bun install --frozen-lockfile
 
       - name: Postinstall (CI uses prebuilt binaries; see scripts/postinstall.js)

@@ -264,3 +264,9 @@ installer/payload/
 # at build time from src/process/resources/**; shipped via electron-builder
 # extraResources so no loose SKILL.md reaches the package.
 .skill-pack/
+
+# #940: FerroxLabs/waylandmcp, checked out here by every workflow that builds so
+# scripts/build-mcp-servers.js can bundle the four @wayland MCP connectors.
+# actions/checkout refuses any path outside github.workspace, so it has to land
+# inside the repo - it must never be committable.
+/waylandmcp/
