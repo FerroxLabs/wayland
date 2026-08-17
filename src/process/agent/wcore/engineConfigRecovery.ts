@@ -177,19 +177,73 @@ export type EngineConfigRecoveryDeps = {
 const MAX_REPAIR_STEPS = 8;
 
 /**
- * Cost caps on the automatic repair (F7). Each candidate break position costs a
- * full re-parse of the WHOLE document, so cost is the product of document size
- * and candidate count - and all of it is synchronous work on the Electron MAIN
- * thread, in a channel that auto-fires when the recovery panel mounts. Measured
- * on the glued-assignment shape: 400 candidates on one line took 220ms and the
- * growth is super-linear, so a pathological config could stall the main process
- * for seconds. The real #1024 shape has 2 candidates and costs ~2ms, so these
- * bounds cost nothing real; past them the honest answer is "no automatic fix"
- * plus the reveal escape hatch, not a frozen app.
+ * THE cost bound on the automatic repair (F7): one CUMULATIVE budget spent by
+ * every parse the planner performs.
+ *
+ * Each candidate break position costs a full re-parse of the WHOLE document, so
+ * the real cost is a PRODUCT - steps x candidates x document size - and all of it
+ * is synchronous work on the Electron MAIN thread, in a channel that auto-fires
+ * when the recovery panel mounts. The first version of this bounded the three
+ * factors SEPARATELY, which does not bound their product: an input can sit just
+ * under every individual cap and still land in the expensive regime. Measured on
+ * a realistic config with the glued line near the END of the document (so every
+ * re-parse has to chew through the whole valid prefix before it reaches the
+ * break): 514 KB and 116 candidates, both under their caps, spent 58 MB across
+ * 117 parses. One parse of that document is ~310ms, so that is tens of seconds of
+ * frozen app - every window and all IPC - on the one surface a user only reaches
+ * when they are already broken.
+ *
+ * So the bound has to be on the total, not on the factors. `spendParseBudget`
+ * charges every parse against both a byte budget and a wall-clock deadline, and
+ * the planner gives up the moment either runs out. The byte budget is the
+ * deterministic one a test can assert; the deadline is what actually bounds the
+ * freeze on a machine slower than the one this was measured on.
+ *
+ * The real #1024 shape is ~150 bytes with 24 candidates and spends well under
+ * 1 MB, so this costs nothing real. Past it the honest answer is "no automatic
+ * fix" plus the reveal escape hatch, not a frozen app.
+ */
+const MAX_REPAIR_PARSE_BYTES = 2 * 1024 * 1024;
+const MAX_REPAIR_MILLIS = 250;
+
+/**
+ * Cheap pre-filters kept in FRONT of the budget. These are not the cost bound -
+ * the budget above is - but each still earns its place:
+ *
+ *  - `MAX_REPAIR_LINE_BYTES` bounds work the parse budget cannot see.
+ *    `candidateBreakOffsets` calls `line.slice(i)` once per character, which is
+ *    quadratic in the line's length and never reaches a parse at all.
+ *  - `MAX_BREAK_CANDIDATES` and `MAX_REPAIR_SOURCE_BYTES` refuse the pathological
+ *    shapes outright instead of letting them burn the whole budget first.
  */
 const MAX_REPAIR_LINE_BYTES = 4096;
 const MAX_BREAK_CANDIDATES = 128;
 const MAX_REPAIR_SOURCE_BYTES = 512 * 1024;
+
+/**
+ * The running cost of one {@link planLineBreakRepair} call. `remaining` is in
+ * bytes of document fed to the parser; `deadline` is an absolute epoch time.
+ */
+type ParseBudget = { remaining: number; deadline: number };
+
+const newParseBudget = (): ParseBudget => ({
+  remaining: MAX_REPAIR_PARSE_BYTES,
+  deadline: Date.now() + MAX_REPAIR_MILLIS,
+});
+
+/**
+ * Charge one parse of `source` to `budget`.
+ *
+ * @returns `false` when the parse must NOT happen - the budget is spent, or the
+ *   deadline has passed. Every caller turns that into "no automatic fix".
+ */
+function spendParseBudget(budget: ParseBudget, source: string): boolean {
+  const cost = Buffer.byteLength(source, 'utf-8');
+  if (cost > budget.remaining) return false;
+  if (Date.now() > budget.deadline) return false;
+  budget.remaining -= cost;
+  return true;
+}
 
 /** Any bare TOML key immediately followed by `=`, anchored at a candidate offset. */
 const BARE_KEY_ASSIGNMENT_RE = /^[A-Za-z0-9_-]+[ \t]*=/;
@@ -291,7 +345,11 @@ function candidateBreakOffsets(line: string): number[] {
  * working candidates produce two different files, and guessing which one the
  * user meant is precisely the data-loss risk this module exists to avoid.
  */
-function planSingleLineBreak(source: string, lineNumber: number): { column: number; next: string } | null {
+function planSingleLineBreak(
+  source: string,
+  lineNumber: number,
+  budget: ParseBudget
+): { column: number; next: string } | null {
   const lines = source.split('\n');
   const index = lineNumber - 1;
   if (index < 0 || index >= lines.length) return null;
@@ -303,10 +361,9 @@ function planSingleLineBreak(source: string, lineNumber: number): { column: numb
   if (multilineStringLineStates(source)[index]) return null;
 
   const line = lines[index];
-  // F7 cost caps. Each candidate below re-parses the whole document, synchronously
-  // on the main thread; bound the work rather than letting a pathological line
-  // stall the app. Refusing here is a correct outcome - the panel still offers
-  // reveal and regenerate.
+  // F7 pre-filters. The real bound is `budget`, charged per parse below; these two
+  // just refuse the pathological shapes before they burn any of it. Refusing here
+  // is a correct outcome - the panel still offers reveal and regenerate.
   if (Buffer.byteLength(line, 'utf-8') > MAX_REPAIR_LINE_BYTES) return null;
   const candidates = candidateBreakOffsets(line);
   if (candidates.length > MAX_BREAK_CANDIDATES) return null;
@@ -321,6 +378,10 @@ function planSingleLineBreak(source: string, lineNumber: number): { column: numb
     if (seen.has(next)) continue;
     seen.add(next);
     if (!isLineBreakOnlyEdit(source, next)) continue;
+    // Out of budget. Bail on the WHOLE step rather than returning what has been
+    // accepted so far: the ambiguity check below is only sound once EVERY
+    // candidate has been tried, so a partial sweep must not produce a repair.
+    if (!spendParseBudget(budget, next)) return null;
     // The step is accepted when THIS line stops being the failure point. A later
     // line may still be malformed; the caller loops for that.
     const problem = findParseProblem(next);
@@ -334,16 +395,19 @@ function planSingleLineBreak(source: string, lineNumber: number): { column: numb
 /**
  * The full automatic repair: repeatedly insert one unambiguous line break until
  * the document parses. `null` when `source` already parses, when any step is
- * ambiguous, or when it would take more than {@link MAX_REPAIR_STEPS} steps.
+ * ambiguous, when it would take more than {@link MAX_REPAIR_STEPS} steps, or when
+ * the cumulative parse budget runs out (see {@link MAX_REPAIR_PARSE_BYTES}).
  */
 export function planLineBreakRepair(source: string): { plan: EngineConfigRepairPlan; repaired: string } | null {
-  // F7: the document is the other half of the cost product (see the cap consts).
+  // F7 pre-filter; the cumulative budget below is what actually bounds the cost.
   if (Buffer.byteLength(source, 'utf-8') > MAX_REPAIR_SOURCE_BYTES) return null;
 
+  const budget = newParseBudget();
   let current = source;
   let lineBreaks = 0;
 
   for (let step = 0; step < MAX_REPAIR_STEPS; step += 1) {
+    if (!spendParseBudget(budget, current)) return null;
     const problem = findParseProblem(current);
     if (!problem) {
       if (lineBreaks === 0) return null; // already valid - nothing to repair
@@ -352,7 +416,7 @@ export function planLineBreakRepair(source: string): { plan: EngineConfigRepairP
       if (!isLineBreakOnlyEdit(source, current)) return null;
       return { plan: { lineBreaks }, repaired: current };
     }
-    const next = planSingleLineBreak(current, problem.line);
+    const next = planSingleLineBreak(current, problem.line, budget);
     if (!next) return null;
     current = next.next;
     lineBreaks += 1;

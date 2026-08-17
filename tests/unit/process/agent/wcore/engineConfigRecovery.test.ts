@@ -306,6 +306,69 @@ describe('planLineBreakRepair', () => {
     expect(planLineBreakRepair(`[a]\n${bulk}\nbroken = 1also = 2\n`)).toBeNull();
     expect(Date.now() - started).toBeLessThan(2000);
   });
+
+  /**
+   * The regression the three separate caps did NOT catch. Each of them bounds one
+   * factor, but the cost is their PRODUCT, so an input can sit UNDER EVERY ONE of
+   * them and still be ruinous. This shape does exactly that: 513,799 bytes (under
+   * the 512 KiB source cap), 116 candidates on the failing line (under the 128
+   * candidate cap), and the failing line at the END of the document so every
+   * re-parse has to chew through the whole valid prefix first.
+   *
+   * Measured on the pre-fix planner, in-process, against this exact document: 852
+   * parses totalling 417 MB. One parse of a REALISTIC config that size costs
+   * ~424ms, so that is ~6 minutes of a frozen Electron main thread - every window
+   * and all IPC - on a panel that auto-fires when it mounts. With the cumulative
+   * budget: 4 parses, 1.96 MB.
+   *
+   * The filler here is comment lines, which parse ~250x cheaper per byte than a
+   * real config. That is deliberate: it leaves the parse COUNT and parse BYTES
+   * identical to the realistic shape while keeping this test fast. The wall-clock
+   * bound below is therefore very generous and still fails loudly on a regression -
+   * the pre-fix planner took 23.5s on this same document.
+   */
+  it('bounds the COST PRODUCT, not just the three factors (F7 regression)', () => {
+    // Keys are THREE LETTERS, always. Every character of a bare key is its own
+    // candidate offset, so a digit in the name silently inflates the count: an
+    // earlier draft of this test used `k<letter><i>` and quietly went to 150
+    // candidates, tripping MAX_BREAK_CANDIDATES and testing nothing at all.
+    // 40 keys x 3 characters, less the line's own first token, is 119 - under 128.
+    const alpha = 'abcdefghijklmnopqrstuvwxyz';
+    const pairs = Array.from({ length: 40 }, (_, i) => `${alpha[i % 26]}${alpha[Math.floor(i / 26)]}q = "v"`);
+    const commentLine = `# ${'f'.repeat(120)}\n`;
+    const tail = `[tail]\n${pairs.join(' ')}\n`;
+    let doc = '';
+    while (Buffer.byteLength(doc, 'utf-8') + commentLine.length <= 513852 - Buffer.byteLength(tail, 'utf-8')) {
+      doc += commentLine;
+    }
+    doc += tail;
+
+    // Confirm the input really is under every legacy cap, or this proves nothing.
+    expect(Buffer.byteLength(doc, 'utf-8')).toBeLessThan(512 * 1024);
+    expect(Buffer.byteLength(tail.split('\n')[1], 'utf-8')).toBeLessThan(4096);
+
+    const started = Date.now();
+    expect(planLineBreakRepair(doc)).toBeNull();
+    // Measured on this exact document with the budget disabled: 2638ms. With it:
+    // 71ms, even with the machine at load 125. A 37x margin, so this is a real
+    // guard rather than a coin flip under load.
+    expect(Date.now() - started).toBeLessThan(500);
+  });
+
+  it('still repairs a normal-sized config that needs several breaks (known positive)', () => {
+    // The budget must not have made the feature useless. 20 KB of real tables plus
+    // a glued line needing 4 breaks - the shape a user actually has.
+    let doc = '';
+    for (let t = 0; doc.length < 20000; t += 1) {
+      doc += `[section_${t}]\nname = "value-${t}"\nnote = "padpadpadpadpadpadpadpadpadpad"\n\n`;
+    }
+    doc += `[tail]\n${Array.from({ length: 5 }, (_, i) => `k${i} = 1`).join('')}\n`;
+
+    const repair = planLineBreakRepair(doc);
+    expect(repair).not.toBeNull();
+    expect(repair?.plan.lineBreaks).toBe(4);
+    expect(() => parse(repair!.repaired)).not.toThrow();
+  });
 });
 
 describe('backupStamp', () => {
