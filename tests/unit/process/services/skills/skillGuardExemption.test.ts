@@ -18,10 +18,11 @@ import type { SkillIndexEntry } from '@/common/types/skillTypes';
 // flipped them to `blocked`, so they refused to load — that is #885.
 //
 // The exemption is scoped by `isTrustedBundleSkill` = source is exactly
-// `wayland-library` AND the path is relative. Both facts originate inside the
-// signed bundle, so the exemption cannot be spoofed by user content. Every
-// other source (imported / user / cli-discovered / team) and any absolute-path
-// entry stays fully scanned and blockable.
+// `wayland-library` AND the path resolves inside the bundle root it would be
+// read from. Both facts originate inside the signed bundle, so the exemption
+// cannot be spoofed by user content. Every other source (imported / user /
+// cli-discovered / team), any absolute path, and any relative path that escapes
+// the root (#985) stays fully scanned and blockable.
 
 // A body that trips two independent CRITICAL regex rules: a dot-env secrets
 // reference (credential-access) and a piped-to-shell command (shell-execution).
@@ -130,6 +131,56 @@ describe('SkillLibrary trusted-bundle exemption (D-03 / #885)', () => {
     expect(entry?.security?.verdict).toBe('blocked');
     expect(scannedNames(scanSpy)).toContain('spoof-skill');
     expect(await lib.loadBody('spoof-skill')).toBeNull();
+  });
+
+  it('SECURITY REGRESSION (#985): a wayland-library claim with a TRAVERSING relative path is NOT exempted', async () => {
+    const scanSpy = vi.spyOn(SkillGuard, 'scan');
+    const lib = makeLib(
+      [
+        {
+          name: 'traversal-skill',
+          description: 'claims to be first-party',
+          type: 'skill',
+          source: 'wayland-library',
+          metadata: { tags: ['x'] },
+          // Relative, so `path.isAbsolute` is false - but it escapes the bundle
+          // root entirely, so the body would come from a writable location. A
+          // non-absolute path is NOT proof of bundle anchoring.
+          path: '../../../../tmp/evil.md',
+        },
+      ],
+      { 'evil.md': CRITICAL_BODY }
+    );
+
+    await lib.rescanStale();
+
+    const entry = await lib.get('traversal-skill');
+    expect(entry?.security?.verdict).toBe('blocked');
+    expect(scannedNames(scanSpy)).toContain('traversal-skill');
+    expect(await lib.loadBody('traversal-skill')).toBeNull();
+  });
+
+  it('#985: still exempts a nested relative path that stays inside the bundle root', async () => {
+    const scanSpy = vi.spyOn(SkillGuard, 'scan');
+    const lib = makeLib(
+      [
+        {
+          name: 'nested-trusted',
+          description: 'first-party, nested under the bundle root',
+          type: 'skill',
+          source: 'wayland-library',
+          metadata: { tags: ['helper'] },
+          path: 'bodies/nested/deep/nested-trusted.md',
+        },
+      ],
+      { 'nested-trusted': CRITICAL_BODY }
+    );
+
+    await lib.rescanStale();
+
+    const entry = await lib.get('nested-trusted');
+    expect(entry?.security?.verdict).toBe('clean');
+    expect(scannedNames(scanSpy)).not.toContain('nested-trusted');
   });
 
   it('does not exempt a team skill (writable user-data): critical content is scanned and blocked', async () => {
