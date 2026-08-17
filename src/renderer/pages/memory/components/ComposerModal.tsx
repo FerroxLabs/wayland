@@ -38,11 +38,7 @@ export type ComposerModalProps = {
    * global store rather than to an unrelated project.
    */
   projectPath?: string;
-  onSubmit?: (entry: {
-    content: string;
-    scope: 'project' | 'global';
-    tags: string[];
-  }) => void | Promise<void>;
+  onSubmit?: (entry: { content: string; scope: 'project' | 'global'; tags: string[] }) => void | Promise<void>;
 };
 
 const MAX_CHARS = 8000;
@@ -98,7 +94,7 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
       setError(
         t('archive.composer.errorTooLong', `Content exceeds ${MAX_CHARS} character limit.`, {
           max: MAX_CHARS,
-        }),
+        })
       );
       return;
     }
@@ -137,7 +133,7 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
         void handleSubmit();
       }
     },
-    [handleSubmit],
+    [handleSubmit]
   );
 
   // ---- Tag management ----
@@ -161,7 +157,7 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
         setAddingTag(false);
       }
     },
-    [commitTag],
+    [commitTag]
   );
 
   const removeTag = useCallback((tag: string) => {
@@ -183,15 +179,13 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
       reader.onload = (ev) => {
         const text = ev.target?.result;
         if (typeof text === 'string') {
-          const block = content.trim()
-            ? `${content}\n\n\`\`\`\n${text}\n\`\`\``
-            : text;
+          const block = content.trim() ? `${content}\n\n\`\`\`\n${text}\n\`\`\`` : text;
           setContent(block);
         }
       };
       reader.readAsText(file);
     },
-    [content],
+    [content]
   );
 
   if (!open) return null;
@@ -289,11 +283,7 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
           {tags.map((tag) => (
             <span key={tag} className={styles.tagChip} data-testid={`composer-tag-${tag}`}>
               {tag}
-              <button
-                className={styles.tagRemoveBtn}
-                onClick={() => removeTag(tag)}
-                aria-label={`Remove tag ${tag}`}
-              >
+              <button className={styles.tagRemoveBtn} onClick={() => removeTag(tag)} aria-label={`Remove tag ${tag}`}>
                 <X size={10} aria-hidden />
               </button>
             </span>
@@ -311,11 +301,7 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
               autoFocus
             />
           ) : (
-            <button
-              className={styles.addTagBtn}
-              onClick={() => setAddingTag(true)}
-              data-testid='composer-add-tag-btn'
-            >
+            <button className={styles.addTagBtn} onClick={() => setAddingTag(true)} data-testid='composer-add-tag-btn'>
               + {t('archive.composer.addTag', 'Add tag')}
             </button>
           )}
@@ -338,11 +324,7 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
         <div className={styles.footer}>
           <span className={styles.footerHint}>⌘↵ {t('archive.composer.hint', 'to Remember')}</span>
           <div className={styles.footerActions}>
-            <Button
-              onClick={onClose}
-              disabled={submitting}
-              data-testid='composer-cancel-btn'
-            >
+            <Button onClick={onClose} disabled={submitting} data-testid='composer-cancel-btn'>
               {t('common.cancel', 'Cancel')}
             </Button>
             <Button
