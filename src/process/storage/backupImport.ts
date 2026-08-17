@@ -60,7 +60,7 @@ function decryptBuffer(encoded: string, passphrase: string): Buffer {
   try {
     return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
   } catch {
-    throw new Error('BAD_PASSPHRASE: the archive\'s encrypted keys would not decrypt.');
+    throw new Error("BAD_PASSPHRASE: the archive's encrypted keys would not decrypt.");
   }
 }
 
