@@ -523,7 +523,8 @@
       "label": "帮我修复第 {{line}} 行",
       "sublabel": "先备份文件，然后补上缺失的换行。文件里其他内容不会改动。",
       "action": "修复",
-      "unavailable": "第 {{line}} 行的问题需要人工判断——Wayland 不会去猜。请在下面打开文件，或者恢复默认设置重新开始。"
+      "unavailable": "第 {{line}} 行的问题需要人工判断——Wayland 不会去猜。请在下面打开文件，或者恢复默认设置重新开始。",
+      "notTextUnavailable": "Wayland 不会去重写一个自己无法准确读取的文件，所以这里没有自动修复。请在下面打开文件，或者恢复默认设置重新开始。"
     },
     "reveal": {
       "label": "让我看看这个文件",
@@ -544,6 +545,7 @@
       "backupFailed": "Wayland 无法创建可校验的备份，因此什么都没有改动。原因：{{reason}}",
       "writeFailed": "这次改动没能完成。原因：{{reason}}",
       "revealFailed": "Wayland 无法打开该文件夹。原因：{{reason}}"
-    }
+    },
+    "notText": "Wayland 无法把这个文件当作文本读取——它有些字节不是有效的 UTF-8，而设置文件格式要求 UTF-8。什么都没有被改动。"
   }
 }

@@ -642,7 +642,8 @@
       "label": "Fix line {{line}} for me",
       "sublabel": "Backs up the file first, then adds the missing line break. Nothing else in the file changes.",
       "action": "Fix it",
-      "unavailable": "The problem on line {{line}} needs a human eye — Wayland will not guess at it. Open the file below, or start over with defaults."
+      "unavailable": "The problem on line {{line}} needs a human eye — Wayland will not guess at it. Open the file below, or start over with defaults.",
+      "notTextUnavailable": "Wayland will not rewrite a file it cannot read exactly, so there is no automatic fix here. Open the file below, or start over with defaults."
     },
     "reveal": {
       "label": "Show me the file",
@@ -663,6 +664,7 @@
       "backupFailed": "Wayland could not create a verified backup, so nothing was changed. Reason: {{reason}}",
       "writeFailed": "The change could not be completed. Reason: {{reason}}",
       "revealFailed": "Wayland could not open the folder. Reason: {{reason}}"
-    }
+    },
+    "notText": "Wayland cannot read this file as text — some of its bytes are not valid UTF-8, which the settings format requires. Nothing has been changed."
   }
 }

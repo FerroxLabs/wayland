@@ -20,17 +20,41 @@
  * data, so every write here is preceded by a VERIFIED timestamped backup.
  *
  * INVARIANTS, in the order they are enforced:
- *  1. A backup is written and PROVEN byte-identical (length + sha256) before the
- *     original is touched. If the backup cannot be proven, nothing is written
- *     and the caller is told so - see {@link createVerifiedBackup}.
- *  2. The one automatic repair only ever INSERTS `\n` characters. Enforced by
+ *  1. The backup is made by RENAMING the original aside, never by copying it.
+ *     A rename is atomic and byte-exact by construction: no decode, no
+ *     re-encode, no partial write. This is not a style choice - the first
+ *     version of this file copied via `readFile(path, 'utf-8')`, and Node
+ *     substitutes U+FFFD for every invalid byte DURING that decode, so a
+ *     sha256 taken over the resulting string compared a mangled string to
+ *     itself and ALWAYS passed. Executed against a config holding a lone
+ *     `0xE9`: a 96-byte original produced a 98-byte "verified" backup with
+ *     `EF BF BD` substituted, and regenerate then deleted the only copy of the
+ *     real bytes. A truncated or legacy-encoded config is precisely the
+ *     corruption class this feature exists to handle.
+ *  2. The rename is still VERIFIED, now at the BUFFER level: the backup is read
+ *     back as raw bytes and compared with `Buffer.equals` against the bytes the
+ *     repair was planned from. A mismatch means the file changed underneath us,
+ *     so the backup is renamed back and the caller is refused - which closes the
+ *     read-then-write TOCTOU window as well.
+ *  3. Nothing is ever written to `config.toml` while the original is still
+ *     there. After the rename the path does not exist, so the repair is written
+ *     with an EXCLUSIVE create (`wx`) - no temp file, no predictable temp name,
+ *     and no symlink for a write to follow. Any failure renames the backup back.
+ *  4. Text is decoded for PARSING with a FATAL `TextDecoder`, so a file that is
+ *     not losslessly UTF-8 can never be offered an automatic repair. TOML
+ *     documents must be valid UTF-8, so such a file is reported as invalid with
+ *     no repair rather than silently rewritten.
+ *  5. The one automatic repair only ever INSERTS `\n` characters. Enforced by
  *     comparing both texts with every `\n` removed ({@link isLineBreakOnlyEdit}),
  *     so a repair can never alter, reorder or drop a single user byte.
- *  3. A repair is only offered when it is UNAMBIGUOUS: exactly one candidate
+ *  6. A repair is only offered when it is UNAMBIGUOUS: exactly one candidate
  *     line-break position makes the whole document parse. Two candidates that
  *     both parse produce different files, so we refuse to guess.
- *  4. Regenerating defaults requires an explicit `confirmed` flag from the
- *     caller AND still takes the verified backup first.
+ *  7. Regenerating defaults requires `confirmed === true` (identity, not
+ *     truthiness) AND refuses outright when the file actually parses - deleting
+ *     a healthy credential-bearing config on a caller's say-so is not a
+ *     recovery path. It is the rename itself that "removes" the file, so the
+ *     user's data is always still on disk under the backup name.
  *
  * SECURITY: nothing here returns `config.toml` CONTENT. Only the path, the
  * failure's LINE and COLUMN (credential-free integers), and a scrubbed one-line
@@ -40,7 +64,6 @@
  * follows that precedent exactly, and additionally routes the surviving reason
  * through the shared `redactCommandSecrets` scrubber.
  */
-import { createHash } from 'node:crypto';
 import { readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { parse } from 'smol-toml';
@@ -75,7 +98,20 @@ export type EngineConfigInspection =
   | {
       status: 'invalid';
       path: string;
-      problem: EngineConfigProblem;
+      /**
+       * Where the TOML parser gave up. ABSENT when the file is not losslessly
+       * UTF-8: there is no meaningful line/column for a byte-level encoding
+       * fault, and the document was never decoded to look for one.
+       */
+      problem?: EngineConfigProblem;
+      /**
+       * True when the file's bytes are not valid UTF-8. TOML documents must be
+       * valid UTF-8, so this is a real fault and not a warning - and it is a
+       * hard stop for the automatic repair, which would otherwise write back a
+       * U+FFFD-substituted rendering of the user's own bytes. `repair` is always
+       * `null` when this is set.
+       */
+      encodingLossy?: boolean;
       /** `null` when no unambiguous automatic fix exists. */
       repair: EngineConfigRepairPlan | null;
     };
@@ -117,15 +153,43 @@ export type EngineConfigRecoveryResult = {
 /** Injectable seam so the tests can force each branch (incl. a failing backup). */
 export type EngineConfigRecoveryDeps = {
   resolveConfigPath: () => Promise<string>;
-  readFileUtf8: (path: string) => Promise<string>;
+  /**
+   * Read RAW BYTES. Deliberately not a string: `readFile(path, 'utf-8')`
+   * substitutes U+FFFD for invalid bytes during the decode, which is what made
+   * the original byte-identical check blind (see invariant 1 in the head).
+   */
+  readFileBytes: (path: string) => Promise<Buffer>;
+  /** Create `path` with `wx` - fails if anything, including a symlink, exists. */
   writeFileExclusive: (path: string, data: string) => Promise<void>;
-  writeFileAtomic: (path: string, data: string) => Promise<void>;
+  /** Atomic, byte-exact move. The ONLY way this module makes a backup. */
+  renameFile: (from: string, to: string) => Promise<void>;
+  /**
+   * Delete a file. Used ONLY to clean up a backup-name placeholder this module
+   * created moments earlier, or a repair write it is about to roll back - never
+   * to delete the user's `config.toml`. That "deletion" is the rename in
+   * {@link createVerifiedBackup}, so the bytes are always still on disk.
+   */
   removeFile: (path: string) => Promise<void>;
   now: () => Date;
 };
 
 /** Hard cap on the repair loop: a file needing more than this is not "one line". */
 const MAX_REPAIR_STEPS = 8;
+
+/**
+ * Cost caps on the automatic repair (F7). Each candidate break position costs a
+ * full re-parse of the WHOLE document, so cost is the product of document size
+ * and candidate count - and all of it is synchronous work on the Electron MAIN
+ * thread, in a channel that auto-fires when the recovery panel mounts. Measured
+ * on the glued-assignment shape: 400 candidates on one line took 220ms and the
+ * growth is super-linear, so a pathological config could stall the main process
+ * for seconds. The real #1024 shape has 2 candidates and costs ~2ms, so these
+ * bounds cost nothing real; past them the honest answer is "no automatic fix"
+ * plus the reveal escape hatch, not a frozen app.
+ */
+const MAX_REPAIR_LINE_BYTES = 4096;
+const MAX_BREAK_CANDIDATES = 128;
+const MAX_REPAIR_SOURCE_BYTES = 512 * 1024;
 
 /** Any bare TOML key immediately followed by `=`, anchored at a candidate offset. */
 const BARE_KEY_ASSIGNMENT_RE = /^[A-Za-z0-9_-]+[ \t]*=/;
@@ -239,10 +303,18 @@ function planSingleLineBreak(source: string, lineNumber: number): { column: numb
   if (multilineStringLineStates(source)[index]) return null;
 
   const line = lines[index];
+  // F7 cost caps. Each candidate below re-parses the whole document, synchronously
+  // on the main thread; bound the work rather than letting a pathological line
+  // stall the app. Refusing here is a correct outcome - the panel still offers
+  // reveal and regenerate.
+  if (Buffer.byteLength(line, 'utf-8') > MAX_REPAIR_LINE_BYTES) return null;
+  const candidates = candidateBreakOffsets(line);
+  if (candidates.length > MAX_BREAK_CANDIDATES) return null;
+
   const accepted: { column: number; next: string }[] = [];
   const seen = new Set<string>();
 
-  for (const offset of candidateBreakOffsets(line)) {
+  for (const offset of candidates) {
     const patched = [...lines];
     patched[index] = `${line.slice(0, offset)}\n${line.slice(offset)}`;
     const next = patched.join('\n');
@@ -265,6 +337,9 @@ function planSingleLineBreak(source: string, lineNumber: number): { column: numb
  * ambiguous, or when it would take more than {@link MAX_REPAIR_STEPS} steps.
  */
 export function planLineBreakRepair(source: string): { plan: EngineConfigRepairPlan; repaired: string } | null {
+  // F7: the document is the other half of the cost product (see the cap consts).
+  if (Buffer.byteLength(source, 'utf-8') > MAX_REPAIR_SOURCE_BYTES) return null;
+
   let current = source;
   let lineBreaks = 0;
 
@@ -295,11 +370,36 @@ export function backupStamp(when: Date): string {
   );
 }
 
-function sha256(value: string): string {
-  return createHash('sha256').update(value, 'utf-8').digest('hex');
+/**
+ * Swallow a best-effort CLEANUP failure.
+ *
+ * Only ever attached to rolling back this module's own placeholder or a failed
+ * repair write. Never to an operation whose failure could lose user bytes: those
+ * are all reported, and the user's data is on disk under the backup name either
+ * way. Named rather than inline because `strictNullChecks` is off in this repo,
+ * so `() => undefined` infers as an implicit `any` return.
+ */
+const ignoreCleanupFailure = (): void => {};
+
+/**
+ * Decode `bytes` as UTF-8, LOSSLESSLY or not at all.
+ *
+ * `TextDecoder` with `fatal: true` throws on any invalid sequence instead of
+ * substituting U+FFFD. That distinction is the whole point: the substituting
+ * decode is what let the first version of this file "verify" a backup against a
+ * mangled copy of itself, and then rewrite a `0xE9` byte out of the live config.
+ * A `null` return means "Wayland cannot read this file as text", which is a hard
+ * stop for anything that would write it back.
+ */
+export function decodeStrictUtf8(bytes: Buffer): string | null {
+  try {
+    return new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(bytes);
+  } catch {
+    return null;
+  }
 }
 
-/** Thrown when a backup could not be written AND proven identical. */
+/** Thrown when the original could not be moved aside and PROVEN intact. */
 export class EngineConfigBackupError extends Error {
   readonly code = 'ENGINE_CONFIG_BACKUP_FAILED' as const;
   constructor(detail: string) {
@@ -309,21 +409,13 @@ export class EngineConfigBackupError extends Error {
 }
 
 /**
- * Write `content` to a timestamped sibling of `configPath` and PROVE the bytes
- * landed: the backup is read back and compared by length and sha256.
+ * Reserve an unused timestamped backup name next to `configPath`.
  *
- * This is step 1 of every write path in this module and it is not optional. An
- * unproven backup throws {@link EngineConfigBackupError}, and every caller
- * treats that as "do nothing at all" - the user's broken config is still their
- * only copy of their credentials, so a repair we cannot undo is worse than no
- * repair. An exclusive (`wx`) create means a colliding name is retried rather
- * than an existing backup being overwritten.
+ * The reservation is a 0-byte EXCLUSIVE (`wx`) create, so two concurrent
+ * recoveries cannot pick the same name and the subsequent rename cannot land on
+ * top of an older backup. The placeholder is replaced atomically by the rename.
  */
-export async function createVerifiedBackup(
-  configPath: string,
-  content: string,
-  deps: EngineConfigRecoveryDeps
-): Promise<string> {
+async function reserveBackupName(configPath: string, deps: EngineConfigRecoveryDeps): Promise<string> {
   const dir = dirname(configPath);
   const stamp = backupStamp(deps.now());
   let lastError = 'no candidate name available';
@@ -332,47 +424,126 @@ export async function createVerifiedBackup(
     const suffix = attempt === 0 ? '' : `-${attempt + 1}`;
     const backupPath = join(dir, `config.toml.backup-${stamp}${suffix}`);
     try {
-      await deps.writeFileExclusive(backupPath, content);
+      await deps.writeFileExclusive(backupPath, '');
+      return backupPath;
     } catch (error) {
       // EEXIST just means this second already has a backup; anything else is a
       // real failure (permissions, disk full) and must not be retried silently.
-      const code = (error as { code?: string } | null)?.code;
       lastError = summarizeReason(error);
-      if (code === 'EEXIST') continue;
+      if ((error as { code?: string } | null)?.code === 'EEXIST') continue;
       throw new EngineConfigBackupError(lastError);
     }
-
-    let readBack: string;
-    try {
-      readBack = await deps.readFileUtf8(backupPath);
-    } catch (error) {
-      throw new EngineConfigBackupError(`backup could not be read back: ${summarizeReason(error)}`);
-    }
-    if (readBack.length !== content.length || sha256(readBack) !== sha256(content)) {
-      throw new EngineConfigBackupError('backup does not match the original byte-for-byte');
-    }
-    return backupPath;
   }
 
   throw new EngineConfigBackupError(lastError);
 }
 
-/** Live dependencies: atomic (tmp + rename) writes, real clock, active profile. */
+/**
+ * Move `configPath` aside to a timestamped sibling and PROVE the bytes are the
+ * ones `originalBytes` was read from.
+ *
+ * This is step 1 of every write path and it is not optional. The move is a
+ * `rename`: atomic, byte-exact, and decode-free, so there is no encoding step to
+ * corrupt (invariant 1). The verification then compares RAW BUFFERS - a mismatch
+ * means the file changed between the read and the rename, so the backup is
+ * renamed back and the caller is refused rather than proceeding against bytes it
+ * never planned for.
+ *
+ * On return, `configPath` DOES NOT EXIST. That is deliberate: it is what lets the
+ * repair write with an exclusive create, and it is what "removing" the file means
+ * for regenerate - the user's providers, credentials and memory/skills settings
+ * are still on disk, under the returned path.
+ */
+export async function createVerifiedBackup(
+  configPath: string,
+  originalBytes: Buffer,
+  deps: EngineConfigRecoveryDeps
+): Promise<string> {
+  const backupPath = await reserveBackupName(configPath, deps);
+
+  try {
+    await deps.renameFile(configPath, backupPath);
+  } catch (error) {
+    // The rename never happened, so the original is untouched. Drop the
+    // placeholder so a retry does not have to skip past it.
+    await deps.removeFile(backupPath).catch(ignoreCleanupFailure);
+    throw new EngineConfigBackupError(summarizeReason(error));
+  }
+
+  let backupBytes: Buffer;
+  try {
+    backupBytes = await deps.readFileBytes(backupPath);
+  } catch (error) {
+    await deps.renameFile(backupPath, configPath).catch(ignoreCleanupFailure);
+    throw new EngineConfigBackupError(`backup could not be read back: ${summarizeReason(error)}`);
+  }
+
+  if (!backupBytes.equals(originalBytes)) {
+    await deps.renameFile(backupPath, configPath).catch(ignoreCleanupFailure);
+    throw new EngineConfigBackupError('the file changed while it was being backed up');
+  }
+
+  return backupPath;
+}
+
+/** Live dependencies: raw-byte reads, exclusive creates, real renames. */
 export function defaultRecoveryDeps(): EngineConfigRecoveryDeps {
   return {
     resolveConfigPath: resolveActiveConfigPath,
-    readFileUtf8: (path) => readFile(path, 'utf-8'),
+    readFileBytes: (path) => readFile(path),
     writeFileExclusive: async (path, data) => {
+      // `wx` is `O_CREAT | O_EXCL`, which fails if the path exists AT ALL -
+      // including an existing symlink, dangling or not. That is what removes the
+      // symlink-following write the temp-file version of this had (F4).
       await writeFile(path, data, { encoding: 'utf-8', flag: 'wx', mode: 0o600 });
     },
-    writeFileAtomic: async (path, data) => {
-      const temp = `${path}.wayland-recovery-${process.pid}.tmp`;
-      await writeFile(temp, data, { encoding: 'utf-8', mode: 0o600 });
-      await rename(temp, path);
-    },
+    renameFile: (from, to) => rename(from, to),
     removeFile: (path) => unlink(path),
     now: () => new Date(),
   };
+}
+
+/**
+ * Put the original back after a failed repair write.
+ *
+ * @returns `true` when `configPath` holds the user's original bytes again. On
+ *   `false` the bytes are still safe - they are at `backupPath`, which the caller
+ *   reports so the user is never left wondering where their config went.
+ */
+async function restoreFromBackup(
+  configPath: string,
+  backupPath: string,
+  deps: EngineConfigRecoveryDeps
+): Promise<boolean> {
+  // Clear whatever the failed write left behind; a leftover file would make the
+  // restoring rename replace it, which is fine, but an exclusive-create failure
+  // must not be mistaken for a lost original.
+  await deps.removeFile(configPath).catch(ignoreCleanupFailure);
+  try {
+    await deps.renameFile(backupPath, configPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Read the config's raw bytes, mapping a missing file onto a typed result. */
+async function readConfigBytes(
+  path: string,
+  deps: EngineConfigRecoveryDeps
+): Promise<{ bytes: Buffer } | { failure: EngineConfigRecoveryResult }> {
+  try {
+    return { bytes: await deps.readFileBytes(path) };
+  } catch (error) {
+    const missing = (error as { code?: string } | null)?.code === 'ENOENT';
+    return {
+      failure: {
+        ok: false,
+        reason: missing ? 'missing' : 'write-failed',
+        detail: summarizeReason(error),
+      },
+    };
+  }
 }
 
 /**
@@ -380,6 +551,15 @@ export function defaultRecoveryDeps(): EngineConfigRecoveryDeps {
  *
  * Never throws: an unreadable file is a reported status, because this is the
  * function the failure UI calls and it must always have something to render.
+ *
+ * NOTE (F5): the Doctor's own `config.engineConfig` check currently reads
+ * `resolveUserConfigPath()` (the NATIVE config) while this reads
+ * `resolveActiveConfigPath()` (the ACTIVE PROFILE's). With a named profile active
+ * those are different files. This module is right - the launch path that throws
+ * `DesktopProfileSpliceError` splices the ACTIVE profile's config - so the fix
+ * belongs on the check side (#1029 lane). Until then the resolved path is
+ * rendered in EVERY branch, so a mismatch is visible to the user rather than
+ * silently confusing.
  */
 export async function inspectEngineConfig(
   deps: EngineConfigRecoveryDeps = defaultRecoveryDeps()
@@ -391,13 +571,20 @@ export async function inspectEngineConfig(
     return { status: 'unreadable', path: '', reason: summarizeReason(error) };
   }
 
-  let source: string;
+  let bytes: Buffer;
   try {
-    source = await deps.readFileUtf8(path);
+    bytes = await deps.readFileBytes(path);
   } catch (error) {
     if ((error as { code?: string } | null)?.code === 'ENOENT') return { status: 'missing', path };
     return { status: 'unreadable', path, reason: summarizeReason(error) };
   }
+
+  // A TOML document MUST be valid UTF-8, so bytes that do not decode losslessly
+  // are a genuine fault, not a warning - and one Desktop must never try to
+  // "repair", since the only text it could write back is a U+FFFD-substituted
+  // rendering of the user's own bytes.
+  const source = decodeStrictUtf8(bytes);
+  if (source === null) return { status: 'invalid', path, encodingLossy: true, repair: null };
 
   const problem = findParseProblem(source);
   if (!problem) return { status: 'ok', path };
@@ -405,23 +592,27 @@ export async function inspectEngineConfig(
 }
 
 /**
- * Apply the unambiguous line-break repair. Order is load-bearing: inspect,
- * verify a repair exists, take a VERIFIED backup, and only then write. A failed
- * backup returns `backup-failed` with the original untouched.
+ * Apply the unambiguous line-break repair.
+ *
+ * Order is load-bearing and every step is reversible: read the raw bytes, refuse
+ * unless they decode losslessly, plan the repair, MOVE the original aside and
+ * prove the move (which leaves `config.toml` absent), write the repair with an
+ * exclusive create, then re-read and re-parse from DISK. Any failure after the
+ * move renames the original back.
  */
 export async function repairEngineConfig(
   deps: EngineConfigRecoveryDeps = defaultRecoveryDeps()
 ): Promise<EngineConfigRecoveryResult> {
   const path = await deps.resolveConfigPath();
-  let source: string;
-  try {
-    source = await deps.readFileUtf8(path);
-  } catch (error) {
-    const missing = (error as { code?: string } | null)?.code === 'ENOENT';
+  const read = await readConfigBytes(path, deps);
+  if ('failure' in read) return read.failure;
+
+  const source = decodeStrictUtf8(read.bytes);
+  if (source === null) {
     return {
       ok: false,
-      reason: missing ? 'missing' : 'write-failed',
-      detail: summarizeReason(error),
+      reason: 'nothing-to-repair',
+      detail: 'the file is not valid UTF-8, so Wayland will not rewrite it',
     };
   }
 
@@ -432,69 +623,100 @@ export async function repairEngineConfig(
 
   let backupPath: string;
   try {
-    backupPath = await createVerifiedBackup(path, source, deps);
+    backupPath = await createVerifiedBackup(path, read.bytes, deps);
   } catch (error) {
     return { ok: false, reason: 'backup-failed', detail: summarizeReason(error) };
   }
 
+  // `config.toml` does not exist now, so this is an exclusive create: no temp
+  // file, no predictable temp name, and nothing for a planted symlink to redirect.
   try {
-    await deps.writeFileAtomic(path, repair.repaired);
+    await deps.writeFileExclusive(path, repair.repaired);
   } catch (error) {
-    return { ok: false, reason: 'write-failed', detail: summarizeReason(error), backupPath };
+    const restored = await restoreFromBackup(path, backupPath, deps);
+    return {
+      ok: false,
+      reason: 'write-failed',
+      detail: summarizeReason(error),
+      ...(restored ? {} : { backupPath }),
+    };
   }
 
   // Confirm from DISK, not from the in-memory candidate: the point of the whole
   // flow is that the app can launch against the file that is actually there.
   try {
-    const written = await deps.readFileUtf8(path);
-    if (findParseProblem(written)) {
-      await deps.writeFileAtomic(path, source);
-      return { ok: false, reason: 'write-failed', detail: 'the repaired file still does not parse', backupPath };
+    const writtenBytes = await deps.readFileBytes(path);
+    const written = decodeStrictUtf8(writtenBytes);
+    if (written === null || findParseProblem(written)) {
+      const restored = await restoreFromBackup(path, backupPath, deps);
+      return {
+        ok: false,
+        reason: 'write-failed',
+        detail: 'the repaired file still does not parse',
+        ...(restored ? {} : { backupPath }),
+      };
     }
   } catch (error) {
-    return { ok: false, reason: 'write-failed', detail: summarizeReason(error), backupPath };
+    const restored = await restoreFromBackup(path, backupPath, deps);
+    return {
+      ok: false,
+      reason: 'write-failed',
+      detail: summarizeReason(error),
+      ...(restored ? {} : { backupPath }),
+    };
   }
 
   return { ok: true, backupPath };
 }
 
 /**
- * Remove `config.toml` so the engine writes fresh defaults on the next launch.
+ * Move `config.toml` aside so the engine writes fresh defaults on the next launch.
  *
- * DESTRUCTIVE: it discards the user's providers, credentials and memory/skills
- * settings from the live file. Two guards, both mandatory: `confirmed` must be
- * `true` (the UI only sets it from an explicit confirmation that NAMES what is
- * lost), and the verified backup must already be on disk - so "discarded" means
- * "moved to a file we proved is identical", never "gone".
+ * DESTRUCTIVE for the LIVE file: the user's providers, credentials and
+ * memory/skills settings stop applying. Three mandatory guards:
+ *
+ *  1. `confirmed` must be the boolean `true` - IDENTITY, not truthiness. The
+ *     bridge already coerces, but a module that documents its own re-check has to
+ *     actually do one; `'true'` and `1` used to reach the delete.
+ *  2. The file must genuinely be broken. A config that decodes and PARSES is
+ *     healthy, and deleting a healthy credential-bearing file because a caller
+ *     passed a flag is not a recovery path - it is the data loss this module
+ *     exists to prevent. The UI only offers the button for an invalid file, so
+ *     this check costs nothing and closes the capability outright.
+ *  3. The verified backup must succeed first - and since that backup IS the
+ *     rename, "removed" always means "moved to a file we proved holds the same
+ *     bytes", never "gone".
  */
 export async function regenerateEngineConfig(
   options: { confirmed: boolean },
   deps: EngineConfigRecoveryDeps = defaultRecoveryDeps()
 ): Promise<EngineConfigRecoveryResult> {
-  if (!options.confirmed) {
+  if (options?.confirmed !== true) {
     return { ok: false, reason: 'not-confirmed', detail: 'regenerate requires an explicit confirmation' };
   }
 
   const path = await deps.resolveConfigPath();
-  let source: string;
-  try {
-    source = await deps.readFileUtf8(path);
-  } catch (error) {
-    const missing = (error as { code?: string } | null)?.code === 'ENOENT';
-    return { ok: false, reason: missing ? 'missing' : 'write-failed', detail: summarizeReason(error) };
+  const read = await readConfigBytes(path, deps);
+  if ('failure' in read) return read.failure;
+
+  const source = decodeStrictUtf8(read.bytes);
+  // Guard 2. A lossy decode is NOT healthy - TOML must be UTF-8 - so that case
+  // stays eligible: regenerating is the only in-app way out of a file Wayland
+  // cannot even read as text.
+  if (source !== null && findParseProblem(source) === null) {
+    return {
+      ok: false,
+      reason: 'nothing-to-repair',
+      detail: 'the engine config parses cleanly, so it will not be replaced',
+    };
   }
 
   let backupPath: string;
   try {
-    backupPath = await createVerifiedBackup(path, source, deps);
+    // This rename IS the removal. There is no `unlink` on this path at all.
+    backupPath = await createVerifiedBackup(path, read.bytes, deps);
   } catch (error) {
     return { ok: false, reason: 'backup-failed', detail: summarizeReason(error) };
-  }
-
-  try {
-    await deps.removeFile(path);
-  } catch (error) {
-    return { ok: false, reason: 'write-failed', detail: summarizeReason(error), backupPath };
   }
 
   return { ok: true, backupPath };

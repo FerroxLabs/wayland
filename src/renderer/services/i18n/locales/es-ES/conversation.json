@@ -523,7 +523,8 @@
       "label": "Arregla la línea {{line}} por mí",
       "sublabel": "Primero hace una copia de seguridad del archivo y luego añade el salto de línea que falta. No cambia nada más.",
       "action": "Arreglarlo",
-      "unavailable": "El problema de la línea {{line}} necesita un ojo humano; Wayland no va a adivinarlo. Abre el archivo abajo o empieza de cero con los ajustes por defecto."
+      "unavailable": "El problema de la línea {{line}} necesita un ojo humano; Wayland no va a adivinarlo. Abre el archivo abajo o empieza de cero con los ajustes por defecto.",
+      "notTextUnavailable": "Wayland no va a reescribir un archivo que no puede leer con exactitud, así que aquí no hay arreglo automático. Abre el archivo abajo o empieza de cero con los ajustes por defecto."
     },
     "reveal": {
       "label": "Muéstrame el archivo",
@@ -544,6 +545,7 @@
       "backupFailed": "Wayland no ha podido crear una copia de seguridad verificada, así que no se ha cambiado nada. Motivo: {{reason}}",
       "writeFailed": "No se ha podido completar el cambio. Motivo: {{reason}}",
       "revealFailed": "Wayland no ha podido abrir la carpeta. Motivo: {{reason}}"
-    }
+    },
+    "notText": "Wayland no puede leer este archivo como texto: algunos de sus bytes no son UTF-8 válido, que es lo que requiere el formato de ajustes. No se ha cambiado nada."
   }
 }

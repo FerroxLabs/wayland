@@ -17,7 +17,13 @@
  *  - the repair button is offered only when main reported an unambiguous fix;
  *  - clicking "Start over" does NOT call `regenerate`; only the confirmation does,
  *    and it passes `confirmed: true`;
- *  - a `backup-failed` result is reported as "nothing was changed".
+ *  - a `backup-failed` result is reported as "nothing was changed";
+ *  - a REJECTED bridge call (what all four channels do on the remote WebUI
+ *    transport, where they are correctly remote-denied) surfaces as an outcome
+ *    line instead of an unhandled rejection;
+ *  - the resolved PATH is shown in every state, not only `invalid`, so the
+ *    Doctor-vs-panel path mismatch (F5) is visible rather than silently confusing;
+ *  - a not-valid-UTF-8 config offers NO automatic repair.
  */
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -100,11 +106,38 @@ describe('EngineConfigRecoveryPanel', () => {
 
   it('always offers the reveal escape hatch, even when the config parses', async () => {
     mockInspect.mockResolvedValue({ status: 'ok', path: '/tmp/config.toml' });
-    render(<EngineConfigRecoveryPanel />);
+    const { container } = render(<EngineConfigRecoveryPanel />);
     await waitFor(() => expect(screen.getByTestId('engine-config-reveal')).toBeTruthy());
     // No repair and no destructive action are offered when there is no problem.
     expect(screen.queryByTestId('engine-config-repair')).toBeNull();
     expect(screen.queryByTestId('engine-config-regenerate')).toBeNull();
+    // F5: which file was inspected must be visible even in the `ok` state - the
+    // Doctor row may have failed against a DIFFERENT path.
+    expect(container.textContent).toContain('/tmp/config.toml');
+  });
+
+  it('F5: shows the inspected path in the missing state too', async () => {
+    mockInspect.mockResolvedValue({ status: 'missing', path: '/tmp/named-profile/config.toml' });
+    const { container } = render(<EngineConfigRecoveryPanel />);
+    await waitFor(() => expect(screen.getByTestId('engine-config-reveal')).toBeTruthy());
+    expect(container.textContent).toContain('/tmp/named-profile/config.toml');
+  });
+
+  it('offers no automatic repair for a file that is not valid UTF-8', async () => {
+    mockInspect.mockResolvedValue({
+      status: 'invalid',
+      path: INVALID.path,
+      encodingLossy: true,
+      repair: null,
+    });
+    const { container } = render(<EngineConfigRecoveryPanel />);
+    await waitFor(() => expect(screen.getByTestId('engine-config-reveal')).toBeTruthy());
+    expect(screen.queryByTestId('engine-config-repair')).toBeNull();
+    // Regenerate stays available - it is the only in-app way out of a file
+    // Wayland cannot even read as text.
+    expect(screen.getByTestId('engine-config-regenerate')).toBeTruthy();
+    expect(container.textContent).toContain('engineConfigInvalid.notText');
+    expect(container.textContent).toContain('repair.notTextUnavailable');
   });
 
   it('offers reveal but no repair when main found no unambiguous fix', async () => {
@@ -163,6 +196,41 @@ describe('EngineConfigRecoveryPanel', () => {
 
     fireEvent.click(screen.getByText('confirm'));
     await waitFor(() => expect(mockRegenerate).toHaveBeenCalledWith({ confirmed: true }));
+  });
+
+  it('F6: a REJECTED repair call becomes an outcome line, not an unhandled rejection', async () => {
+    mockInspect.mockResolvedValue(INVALID);
+    mockRepair.mockRejectedValue(new Error('Bridge method "engine-config-recovery.repair" is not available'));
+    render(<EngineConfigRecoveryPanel />);
+    await waitFor(() => expect(screen.getByTestId('engine-config-repair')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('engine-config-repair').querySelector('button')!);
+    await waitFor(() =>
+      expect(screen.getByTestId('engine-config-outcome').textContent).toContain('result.writeFailed')
+    );
+  });
+
+  it('F6: a REJECTED reveal call becomes an outcome line', async () => {
+    mockInspect.mockResolvedValue(INVALID);
+    mockReveal.mockRejectedValue(new Error('Bridge method "engine-config-recovery.reveal" is not available'));
+    render(<EngineConfigRecoveryPanel />);
+    await waitFor(() => expect(screen.getByTestId('engine-config-reveal')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('engine-config-reveal').querySelector('button')!);
+    await waitFor(() =>
+      expect(screen.getByTestId('engine-config-outcome').textContent).toContain('result.revealFailed')
+    );
+  });
+
+  it('F6: a REJECTED regenerate call becomes an outcome line', async () => {
+    mockInspect.mockResolvedValue(INVALID);
+    mockRegenerate.mockRejectedValue(new Error('Bridge method "engine-config-recovery.regenerate" is not available'));
+    render(<EngineConfigRecoveryPanel />);
+    await waitFor(() => expect(screen.getByTestId('engine-config-regenerate')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('engine-config-regenerate').querySelector('button')!);
+    await waitFor(() => expect(screen.getByTestId('confirm')).toBeTruthy());
+    fireEvent.click(screen.getByText('confirm'));
+    await waitFor(() =>
+      expect(screen.getByTestId('engine-config-outcome').textContent).toContain('result.writeFailed')
+    );
   });
 
   it('surfaces a reveal failure instead of a silent no-op', async () => {

@@ -523,7 +523,8 @@
       "label": "Corrigez la ligne {{line}} pour moi",
       "sublabel": "Sauvegarde d’abord le fichier, puis ajoute le saut de ligne manquant. Rien d’autre ne change.",
       "action": "Corriger",
-      "unavailable": "Le problème à la ligne {{line}} demande un œil humain — Wayland ne le devinera pas. Ouvrez le fichier ci-dessous, ou repartez des réglages par défaut."
+      "unavailable": "Le problème à la ligne {{line}} demande un œil humain — Wayland ne le devinera pas. Ouvrez le fichier ci-dessous, ou repartez des réglages par défaut.",
+      "notTextUnavailable": "Wayland ne réécrira pas un fichier qu’il ne peut pas lire exactement, il n’y a donc pas de correction automatique ici. Ouvrez le fichier ci-dessous, ou repartez des réglages par défaut."
     },
     "reveal": {
       "label": "Montrez-moi le fichier",
@@ -544,6 +545,7 @@
       "backupFailed": "Wayland n’a pas pu créer de sauvegarde vérifiée, donc rien n’a été modifié. Raison : {{reason}}",
       "writeFailed": "La modification n’a pas pu être effectuée. Raison : {{reason}}",
       "revealFailed": "Wayland n’a pas pu ouvrir le dossier. Raison : {{reason}}"
-    }
+    },
+    "notText": "Wayland ne peut pas lire ce fichier comme du texte : certains de ses octets ne sont pas de l’UTF-8 valide, ce qu’exige le format des réglages. Rien n’a été modifié."
   }
 }

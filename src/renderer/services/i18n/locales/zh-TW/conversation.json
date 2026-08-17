@@ -523,7 +523,8 @@
       "label": "幫我修正第 {{line}} 行",
       "sublabel": "先備份檔案，然後補上缺少的換行。檔案裡其他內容不會改動。",
       "action": "修正",
-      "unavailable": "第 {{line}} 行的問題需要人工判斷——Wayland 不會去猜。請在下方開啟檔案，或還原預設設定重新開始。"
+      "unavailable": "第 {{line}} 行的問題需要人工判斷——Wayland 不會去猜。請在下方開啟檔案，或還原預設設定重新開始。",
+      "notTextUnavailable": "Wayland 不會去重寫一個自己無法準確讀取的檔案，所以這裡沒有自動修正。請在下方開啟檔案，或還原預設設定重新開始。"
     },
     "reveal": {
       "label": "讓我看看這個檔案",
@@ -544,6 +545,7 @@
       "backupFailed": "Wayland 無法建立可驗證的備份，因此什麼都沒有改動。原因：{{reason}}",
       "writeFailed": "這次變更沒能完成。原因：{{reason}}",
       "revealFailed": "Wayland 無法開啟該資料夾。原因：{{reason}}"
-    }
+    },
+    "notText": "Wayland 無法把這個檔案當作文字讀取——它有些位元組不是有效的 UTF-8，而設定檔格式要求 UTF-8。什麼都沒有被改動。"
   }
 }

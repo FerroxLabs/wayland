@@ -1324,9 +1324,10 @@ export const doctor = {
  * `inspect` returns the path plus LINE and COLUMN numbers and a scrubbed
  * one-line reason - never file content. See `engineConfigRecovery.ts` for why.
  *
- * All four are remote-denied (bridgeAllowlist): three of them write to or delete
- * a credential-bearing file on the host, and `inspect` discloses the host's
- * config path and posture.
+ * The WHOLE namespace is remote-denied by PREFIX in bridgeAllowlist - three of
+ * these move a credential-bearing file on the host and `inspect` discloses the
+ * host's config path and posture, so a future channel added here must not be one
+ * omission away from being remotely reachable.
  */
 export const engineConfigRecovery = {
   inspect: buildProvider<EngineConfigInspection, void>('engine-config-recovery.inspect'),

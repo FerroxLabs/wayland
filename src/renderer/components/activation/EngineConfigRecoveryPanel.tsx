@@ -36,6 +36,11 @@ import cardStyles from './AcpAuthFailureCard.module.css';
  * `desktopProfileSplice.ts` documents: the echoed source line can be an
  * `api_key`.
  */
+/** One-line text for a rejected bridge call. */
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 const EngineConfigRecoveryPanel: React.FC<{
   /** Re-run the surrounding surface's own check after a successful repair. */
   onRecovered?: () => void;
@@ -54,7 +59,7 @@ const EngineConfigRecoveryPanel: React.FC<{
       setInspection({
         status: 'unreadable',
         path: '',
-        reason: error instanceof Error ? error.message : String(error),
+        reason: messageOf(error),
       });
     }
   }, []);
@@ -85,6 +90,15 @@ const EngineConfigRecoveryPanel: React.FC<{
     [t]
   );
 
+  /**
+   * F6: every bridge call needs a `catch`, not just a `finally`.
+   *
+   * On the REMOTE (paired-device WebUI) transport all four of these channels are
+   * remote-denied - correctly - so `invoke()` REJECTS with a `BridgeUnavailableError`.
+   * The card itself still renders there, because the conversation stream that
+   * triggers it is remote-allowed. Without a catch the click became an unhandled
+   * rejection instead of the `revealFailed` / `writeFailed` line the user needs.
+   */
   const runRepair = useCallback(async () => {
     setBusy(true);
     try {
@@ -92,10 +106,15 @@ const EngineConfigRecoveryPanel: React.FC<{
       setOutcome(describe(result, 'repaired'));
       await inspect();
       if (result.ok) onRecovered?.();
+    } catch (error) {
+      setOutcome({
+        tone: 'error',
+        text: t('conversation.engineConfigInvalid.result.writeFailed', { reason: messageOf(error) }),
+      });
     } finally {
       setBusy(false);
     }
-  }, [describe, inspect, onRecovered]);
+  }, [describe, inspect, onRecovered, t]);
 
   const runRegenerate = useCallback(async () => {
     setBusy(true);
@@ -107,17 +126,29 @@ const EngineConfigRecoveryPanel: React.FC<{
       setOutcome(describe(result, 'regenerated'));
       await inspect();
       if (result.ok) onRecovered?.();
+    } catch (error) {
+      setOutcome({
+        tone: 'error',
+        text: t('conversation.engineConfigInvalid.result.writeFailed', { reason: messageOf(error) }),
+      });
     } finally {
       setBusy(false);
     }
-  }, [describe, inspect, onRecovered]);
+  }, [describe, inspect, onRecovered, t]);
 
   const runReveal = useCallback(async () => {
-    const result = await engineConfigRecovery.reveal.invoke();
-    if (!result.ok) {
+    try {
+      const result = await engineConfigRecovery.reveal.invoke();
+      if (!result.ok) {
+        setOutcome({
+          tone: 'error',
+          text: t('conversation.engineConfigInvalid.result.revealFailed', { reason: result.error ?? '' }),
+        });
+      }
+    } catch (error) {
       setOutcome({
         tone: 'error',
-        text: t('conversation.engineConfigInvalid.result.revealFailed', { reason: result.error ?? '' }),
+        text: t('conversation.engineConfigInvalid.result.revealFailed', { reason: messageOf(error) }),
       });
     }
   }, [t]);
@@ -132,31 +163,39 @@ const EngineConfigRecoveryPanel: React.FC<{
   }
 
   const invalid = inspection.status === 'invalid' ? inspection : null;
+  const problem = invalid?.problem;
 
   return (
     <div className='flex flex-col gap-12px'>
-      {invalid ? (
-        <div className='flex flex-col gap-4px'>
+      <div className='flex flex-col gap-4px'>
+        {invalid ? (
           <div className='text-13px text-t-primary'>
-            {t('conversation.engineConfigInvalid.location', {
-              line: invalid.problem.line,
-              column: invalid.problem.column,
-            })}
+            {problem
+              ? t('conversation.engineConfigInvalid.location', {
+                  line: problem.line,
+                  column: problem.column,
+                })
+              : t('conversation.engineConfigInvalid.notText')}
           </div>
-          {/* The PATH is safe to show and is half the point of the fix - the
-              reporter could not find this file. The file's CONTENT is not. */}
-          <code className='text-11px text-t-secondary break-all select-all'>{invalid.path}</code>
-        </div>
-      ) : inspection.status === 'unreadable' ? (
-        <div className='text-13px text-t-primary'>
-          {t('conversation.engineConfigInvalid.unreadable', { reason: inspection.reason })}
-        </div>
-      ) : (
-        <div className='text-13px text-t-primary'>{t('conversation.engineConfigInvalid.noProblem')}</div>
-      )}
+        ) : inspection.status === 'unreadable' ? (
+          <div className='text-13px text-t-primary'>
+            {t('conversation.engineConfigInvalid.unreadable', { reason: inspection.reason })}
+          </div>
+        ) : (
+          <div className='text-13px text-t-primary'>{t('conversation.engineConfigInvalid.noProblem')}</div>
+        )}
+        {/* F5: the PATH is rendered in EVERY branch, not just `invalid`.
+            The Doctor's own check currently resolves the NATIVE config while this
+            resolves the ACTIVE PROFILE's, so with a named profile active the row
+            can fail while this panel reports no problem. Showing which file was
+            actually inspected makes that visible instead of silently confusing.
+            The path is safe to show and is half the point of the fix - the #1024
+            reporter could not find this file. The file's CONTENT is not. */}
+        {inspection.path && <code className='text-11px text-t-secondary break-all select-all'>{inspection.path}</code>}
+      </div>
 
       <ul className='flex flex-col gap-8px' role='list'>
-        {invalid?.repair && (
+        {invalid?.repair && problem && (
           <li
             role='listitem'
             data-testid='engine-config-repair'
@@ -167,7 +206,7 @@ const EngineConfigRecoveryPanel: React.FC<{
             </span>
             <div className='flex flex-1 flex-col gap-2px min-w-0'>
               <span className='text-13px text-t-primary font-500'>
-                {t('conversation.engineConfigInvalid.repair.label', { line: invalid.problem.line })}
+                {t('conversation.engineConfigInvalid.repair.label', { line: problem.line })}
               </span>
               <span className='text-12px text-t-secondary'>
                 {t('conversation.engineConfigInvalid.repair.sublabel')}
@@ -185,7 +224,9 @@ const EngineConfigRecoveryPanel: React.FC<{
               <FileSearch size={18} />
             </span>
             <span className='text-12px text-t-secondary flex-1'>
-              {t('conversation.engineConfigInvalid.repair.unavailable', { line: invalid.problem.line })}
+              {problem
+                ? t('conversation.engineConfigInvalid.repair.unavailable', { line: problem.line })
+                : t('conversation.engineConfigInvalid.repair.notTextUnavailable')}
             </span>
           </li>
         )}

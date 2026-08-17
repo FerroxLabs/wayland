@@ -523,7 +523,8 @@
       "label": "Corrija a linha {{line}} para mim",
       "sublabel": "Faz um backup do arquivo primeiro e depois adiciona a quebra de linha que falta. Nada mais é alterado.",
       "action": "Corrigir",
-      "unavailable": "O problema na linha {{line}} precisa de um olhar humano — o Wayland não vai adivinhar. Abra o arquivo abaixo ou comece de novo com as configurações padrão."
+      "unavailable": "O problema na linha {{line}} precisa de um olhar humano — o Wayland não vai adivinhar. Abra o arquivo abaixo ou comece de novo com as configurações padrão.",
+      "notTextUnavailable": "O Wayland não vai reescrever um arquivo que não consegue ler com exatidão, então não há correção automática aqui. Abra o arquivo abaixo ou comece de novo com as configurações padrão."
     },
     "reveal": {
       "label": "Mostre-me o arquivo",
@@ -544,6 +545,7 @@
       "backupFailed": "O Wayland não conseguiu criar um backup verificado, então nada foi alterado. Motivo: {{reason}}",
       "writeFailed": "Não foi possível concluir a alteração. Motivo: {{reason}}",
       "revealFailed": "O Wayland não conseguiu abrir a pasta. Motivo: {{reason}}"
-    }
+    },
+    "notText": "O Wayland não consegue ler este arquivo como texto — alguns de seus bytes não são UTF-8 válido, que é o que o formato de configurações exige. Nada foi alterado."
   }
 }

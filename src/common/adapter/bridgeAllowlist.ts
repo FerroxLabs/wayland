@@ -250,6 +250,21 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // privileged export/import publication. Deny the entire namespace so a
   // future provider cannot become remotely reachable by omission.
   'waylandTransfer.',
+  // #1024 Engine config recovery. Three of the four channels write to or move
+  // the engine's `config.toml`, the file holding the user's providers, API keys
+  // and memory/skills settings: `repair` rewrites it, `regenerate` renames it
+  // away behind a confirmation, and `reveal` asks the HOST OS to open a
+  // Finder/Explorer window. The fourth, `inspect`, is a read, but it discloses
+  // the host's engine config path and its integrity posture - the same
+  // reconnaissance class as `doctor.run`. A paired-device WS token proves a
+  // remote BROWSER, not the local trusted user, so the ENTIRE namespace is
+  // denied. A PREFIX and not four exact keys, for the reason stated on
+  // `waylandTransfer.` directly above and proved by execution: with only the
+  // exact keys listed, `engine-config-recovery.setPath` was remotely ALLOWED
+  // while `terminal.anythingNew` was denied. A namespace where three of four
+  // channels move a credential-bearing file must not be one omission away from
+  // being reachable.
+  'engine-config-recovery.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
 // (e.g. `write-file`, `remove-entry`), so the dangerous fs surface is enumerated
@@ -590,26 +605,8 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     reaching it is a clipboard-injection primitive, so deny it too. ---
   'doctor.run',
   'doctor.copy-text',
-  // --- Engine config recovery (#1024). Three of these WRITE to or DELETE the
-  //     engine's `config.toml`, the file that holds the user's providers,
-  //     credentials and memory/skills settings: `repair` rewrites it,
-  //     `regenerate` removes it outright (behind a confirmation + a verified
-  //     backup), and `reveal` asks the HOST OS to open a Finder/Explorer window.
-  //     A paired-device WS token proves a remote BROWSER, not the local trusted
-  //     user, so none of them may be driven from the wire. `inspect` is a read,
-  //     but it discloses the host's engine config path and its integrity posture
-  //     - the same reconnaissance class as `doctor.run` directly above - so it is
-  //     denied too rather than left as the one open door in the namespace.
-  //
-  //     FULLY QUALIFIED ON PURPOSE: `isAllowedForRemote` strips only the
-  //     `subscribe-` transport prefix and then matches this set EXACTLY against
-  //     the whole remaining channel name, so a bare `repair` / `regenerate`
-  //     entry would match nothing that is ever sent and would sit here looking
-  //     like protection while the channel stayed open. ---
-  'engine-config-recovery.inspect',
-  'engine-config-recovery.repair',
-  'engine-config-recovery.regenerate',
-  'engine-config-recovery.reveal',
+  // NOTE: `engine-config-recovery.*` (#1024) is denied by PREFIX in
+  //     REMOTE_DENIED_PREFIXES above, not enumerated here. See that entry.
   // --- Terminal mode (#645) ENABLE toggle. The read (get-terminal-enabled) is a
   //     harmless boolean and stays allowed, but a remote peer must not flip the
   //     advanced PTY feature ON. The PTY spawn itself is already denied via the

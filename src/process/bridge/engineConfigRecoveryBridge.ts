@@ -69,7 +69,9 @@ export function initEngineConfigRecoveryBridge(): void {
   ipcBridge.engineConfigRecovery.regenerate.provider(async (params): Promise<EngineConfigRecoveryResult> => {
     // Re-derived here rather than trusted: `confirmed` must be the boolean
     // `true`, so a missing/absent/truthy-ish payload can never reach the
-    // destructive path. `regenerateEngineConfig` checks it again.
+    // destructive path. `regenerateEngineConfig` checks it again by IDENTITY -
+    // and it independently refuses a config that actually parses, so this flag
+    // alone can never delete a healthy file.
     const confirmed = params?.confirmed === true;
     try {
       return await regenerateEngineConfig({ confirmed });

@@ -16,11 +16,14 @@ import { isAllowedForRemote } from '@/common/adapter/bridgeAllowlist';
  * wire. `inspect` is a read, but it discloses the host's config path and
  * integrity posture - the same reconnaissance class as `doctor.run`.
  *
- * The allowlist is a DENYLIST (default-allow), so a missing or mis-spelled key
- * silently exposes the channel. It also matches the wire key EXACTLY after
- * stripping `subscribe-`, which is the mistake the agent-installer redteam test
- * documents: a bare `repair` entry would match nothing that is ever sent while
- * looking like protection. This test pins the fully-qualified spellings.
+ * The allowlist is a DENYLIST (default-allow), so a missing key silently exposes
+ * the channel. Denial is therefore by PREFIX, following the rule the
+ * `waylandTransfer.` entry states in that file - "deny the entire namespace so a
+ * future provider cannot become remotely reachable by omission". The first
+ * version of this PR listed the four exact keys instead, and
+ * `engine-config-recovery.setPath` was remotely ALLOWED while
+ * `terminal.anythingNew` was denied; the last test here is the mutation that
+ * catches a regression back to exact keys.
  */
 describe('isAllowedForRemote - engine-config-recovery.* denied to remote callers (#1024)', () => {
   it('denies the destructive regenerate - the critical one', () => {
@@ -39,10 +42,26 @@ describe('isAllowedForRemote - engine-config-recovery.* denied to remote callers
     expect(isAllowedForRemote('subscribe-engine-config-recovery.inspect')).toBe(false);
   });
 
-  it('mutation guard: an UNQUALIFIED entry would not have protected these', () => {
-    // Proves the check above is not passing for the wrong reason. `repair` on its
-    // own is not a denied key, so if the denylist had carried the bare names the
-    // fully-qualified assertions above would fail.
+  it('denies a channel that does not exist yet - the point of a prefix', () => {
+    // The regression this pins: with four exact keys and no prefix, each of these
+    // was remotely ALLOWED. A namespace where three of four channels move a
+    // credential-bearing file must not be one omission away from reachable.
+    expect(isAllowedForRemote('subscribe-engine-config-recovery.setPath')).toBe(false);
+    expect(isAllowedForRemote('subscribe-engine-config-recovery.writeConfig')).toBe(false);
+    expect(isAllowedForRemote('subscribe-engine-config-recovery.')).toBe(false);
+  });
+
+  it('matches the prefix convention its siblings already use', () => {
+    // Same shape as terminal.* / workspaceTrust.* / waylandTransfer.*, so the
+    // comparison is apples to apples rather than a claim about this namespace.
+    expect(isAllowedForRemote('subscribe-terminal.anythingNew')).toBe(false);
+    expect(isAllowedForRemote('subscribe-waylandTransfer.anythingNew')).toBe(false);
+  });
+
+  it('mutation guard: the prefix must not be so loose it denies neighbours', () => {
+    // `engine-config-recovery` without the dot would also swallow a hypothetical
+    // sibling namespace; prove the boundary is where it should be.
+    expect(isAllowedForRemote('subscribe-engine-config-recoveryOther.read')).toBe(true);
     expect(isAllowedForRemote('subscribe-repair')).toBe(true);
     expect(isAllowedForRemote('subscribe-regenerate')).toBe(true);
   });

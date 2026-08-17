@@ -523,7 +523,8 @@
       "label": "Zeile {{line}} für mich korrigieren",
       "sublabel": "Sichert die Datei zuerst und fügt dann den fehlenden Zeilenumbruch ein. Sonst ändert sich nichts.",
       "action": "Korrigieren",
-      "unavailable": "Das Problem in Zeile {{line}} braucht ein menschliches Auge – Wayland rät nicht. Öffne die Datei unten oder fange mit den Standardeinstellungen neu an."
+      "unavailable": "Das Problem in Zeile {{line}} braucht ein menschliches Auge – Wayland rät nicht. Öffne die Datei unten oder fange mit den Standardeinstellungen neu an.",
+      "notTextUnavailable": "Wayland überschreibt keine Datei, die es nicht exakt lesen kann, deshalb gibt es hier keine automatische Korrektur. Öffne die Datei unten oder fange mit den Standardeinstellungen neu an."
     },
     "reveal": {
       "label": "Zeig mir die Datei",
@@ -544,6 +545,7 @@
       "backupFailed": "Wayland konnte keine überprüfte Sicherung anlegen, deshalb wurde nichts geändert. Grund: {{reason}}",
       "writeFailed": "Die Änderung konnte nicht abgeschlossen werden. Grund: {{reason}}",
       "revealFailed": "Wayland konnte den Ordner nicht öffnen. Grund: {{reason}}"
-    }
+    },
+    "notText": "Wayland kann diese Datei nicht als Text lesen – einige ihrer Bytes sind kein gültiges UTF-8, das das Einstellungsformat verlangt. Es wurde nichts geändert."
   }
 }
