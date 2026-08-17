@@ -16,6 +16,7 @@ import { clearStorageDir, getLogsDir, getStorageDirs } from '@process/storage/st
 import { backupExport } from '@process/storage/backupExport';
 import { backupImport } from '@process/storage/backupImport';
 import { createLegacySafetyExport } from '@process/storage/legacySafetyExport';
+import { publicBackupErrorCode } from '@/common/types/storageBackup';
 
 /** Largest backup zip accepted for restore upload (1 GiB - matches the import zip-bomb total cap). */
 const MAX_RESTORE_ZIP_BYTES = 1024 * 1024 * 1024;
@@ -167,7 +168,12 @@ export function registerStorageRoutes(app: Express, validateApiAccess: RequestHa
       } catch (error) {
         cleanup();
         console.error('[API] Storage restore error:', error);
-        res.status(500).json({ success: false, msg: error instanceof Error ? error.message : 'Failed to restore' });
+        // A fixed code, not the error text. A decrypt or zip failure can carry a
+        // userData path or a decrypted fragment in its message, and this reply
+        // ends up in a browser the operator may not be the only reader of. The
+        // code also lets the client name a mistyped passphrase, which is the
+        // everyday failure here and which the desktop surface already names.
+        res.status(500).json({ success: false, msg: publicBackupErrorCode(error) });
       }
     }
   );

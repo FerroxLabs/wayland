@@ -145,6 +145,20 @@ describe('BackupCard WebUI restore reporting (#1021, #1042 F5)', () => {
     expect(Message.success).not.toHaveBeenCalled();
   });
 
+  // The desktop surface names a mistyped backup passphrase; naming it on one
+  // surface only is exactly how #1021 stayed live on the other one.
+  it('names a mistyped backup passphrase on the WebUI surface too', async () => {
+    mockRestoreHttp.mockRejectedValue(new Error('BAD_PASSPHRASE'));
+    render(<BackupCard />);
+
+    confirmWebuiRestore();
+
+    await waitFor(() => {
+      expect(Message.error).toHaveBeenCalledWith('settings.storagePage.restoreBadPassphrase');
+    });
+    expect(Message.success).not.toHaveBeenCalled();
+  });
+
   it('still maps a denied WebUI restore to its own message', async () => {
     mockRestoreHttp.mockRejectedValue(new Error('RESTORE_NOT_OPERATOR'));
     render(<BackupCard />);

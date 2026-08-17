@@ -125,6 +125,20 @@ describe('POST /api/storage/restore reports what it applied (#1021, #1042 F5)', 
     expect(body).toMatchObject({ success: true, data: { applied: [] } });
   });
 
+  it('replies with a classified code, never the raw error text', async () => {
+    // A malformed archive: the underlying error text can carry a userData path or
+    // a decrypted fragment, and this reply lands in a browser.
+    fs.writeFileSync(uploaded, 'not a zip at all');
+    const app = express();
+    registerStorageRoutes(app, passThrough);
+
+    const { status, body } = await callRestore(app, uploaded);
+
+    expect(status).toBe(500);
+    expect(body).toEqual({ success: false, msg: 'BACKUP_FAILED' });
+    expect(JSON.stringify(body)).not.toContain(userData);
+  });
+
   it('forwards the applied list and the keys-skipped flag on a real restore', async () => {
     await writeArchive({
       'config/settings.json': '{"theme":"dark"}',

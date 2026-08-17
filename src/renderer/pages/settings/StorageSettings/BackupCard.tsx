@@ -216,7 +216,13 @@ const BackupCard: React.FC = () => {
             ? 'restoreBadPassword'
             : code === 'FILE_TOO_LARGE'
               ? 'restoreTooLarge'
-              : 'restoreFailed';
+              : // The route classifies its failures with the same vocabulary the
+                // desktop provider uses, so a mistyped backup passphrase names
+                // itself here too. Naming it on one surface only is how #1021
+                // stayed live on the other one.
+                code === 'BAD_PASSPHRASE'
+                ? 'restoreBadPassphrase'
+                : 'restoreFailed';
       Message.error(t(`settings.storagePage.${key}`));
     } finally {
       setRestoring(false);
