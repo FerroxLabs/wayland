@@ -41,11 +41,31 @@ import type {
 } from '@process/acp/infra/IAcpClient';
 import { NdjsonTransport } from '@process/acp/infra/NdjsonTransport';
 import { gracefulShutdown, waitForExit, waitForSpawn } from '@process/acp/infra/processUtils';
+import { redactSecrets } from '@process/utils/secretRedaction';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
 import type { ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs';
 
 const STARTUP_STDERR_MAX = 8192;
+
+/**
+ * How much of the stderr ring's trailing non-whitespace run is held back from the
+ * collection-site scrub.
+ *
+ * A credential can straddle two stderr chunks. Scrubbing the buffer the moment it
+ * overflows would mask the half that has arrived, replacing its ANCHOR with
+ * `[redacted]` and orphaning the half that arrives next - which no later scrub can
+ * match, because the thing that identified it is gone. Measured through the real
+ * path: 51 characters of a live-shaped Anthropic key reached the banner that way.
+ *
+ * So the trailing run is left raw for the next chunk to complete. That is safe
+ * because it sits at the ring's TAIL, which the cap keeps rather than cuts, and
+ * because a partial with its PREFIX still intact is redactable
+ * (`redactSecrets('sk-ant-api03-AbCdEfGhIjK')` masks) - it is only the anchorless
+ * REMAINDER that is invisible to the scrubber. A run longer than this is a blob, not
+ * a straddled credential, so it is scrubbed normally.
+ */
+const STDERR_CHUNK_SPLIT_CARRY_MAX = 256;
 
 /**
  * How long to wait for a child that had ALREADY exited when the lifecycle
@@ -407,32 +427,43 @@ export class ProcessAcpClient implements AcpClient {
       console.error(`[ACP ${this.options.backend} STDERR]:`, chunk);
       this.stderrBuffer += chunk;
       if (this.stderrBuffer.length > STARTUP_STDERR_MAX) {
-        // Truncate on a RECORD boundary, never mid-token (#1023). #1020 routes this
-        // ring into the chat transcript via `buildCrashMessage`, so a cut at an
-        // arbitrary character is a disclosure path: `redactSecrets` only matches a
-        // WHOLE credential, and shaving one character off `sk-ant-api03-` defeats
-        // the vendor-prefix rule, so the remainder of a real key survives every
-        // downstream scrub. Dropping the partial leading record removes the half-token
-        // before anything can miss it.
+        // SCRUB, then cap on a RECORD boundary (#1023). #1020 routes this ring into the
+        // chat transcript through `buildCrashMessage`, which makes the ring's truncation a
+        // disclosure path: `redactSecrets` only matches a WHOLE credential, so any cut
+        // through one leaves a remainder that every downstream scrub misses.
         //
-        // A boundary is `\r` as well as `\n`. Bare-CR output - progress bars, old-Mac
-        // line endings - has real record boundaries with no `\n` anywhere, and taking
-        // whichever comes FIRST also keeps more diagnostics when a `\r` record sits in
-        // front of a `\n` one.
+        // The order is the fix. Scrubbing HERE, before the cap, means a credential is
+        // masked while it is still whole and the cap can only ever cut through
+        // `[redacted]` or through text the scrubber already declined to match. Capping
+        // first and scrubbing at read time - the order this used to use - cannot be made
+        // safe by any choice of cut, because the scrubber's anchor is not always attached
+        // to the secret: `Bearer <token>`, `Authorization: <token>` and `api_key = <value>`
+        // each keep the anchor in a SEPARATE whitespace-delimited word. A cut landing
+        // inside the anchor left the secret whole and un-anchored, and dropping the leading
+        // non-whitespace run then removed the anchor rather than the secret. Executed
+        // through the real path, all four of those shapes leaked into the banner.
         //
-        // With no boundary at all in the retained 8KB there is nothing to cut at, so
-        // drop just the leading run of non-whitespace. That run is exactly the span a
-        // half-token can occupy, because a credential contains no whitespace, so this
-        // costs one token out of 8KB instead of the whole buffer. Keeping the whole
-        // buffer was the original hole: `indexOf` returned -1, `slice(0)` was a no-op,
-        // and the half-token stayed at character 0 of a ring that redaction had already
-        // shrunk under the banner's own 2048-character tail - on screen, in the chat.
-        // One 8KB token with no whitespace at all does empty the ring, and that is the
-        // right call: nothing there distinguishes a blob from a secret, and the banner
-        // still names the disconnect reason without a stderr line.
-        const sliced = this.stderrBuffer.slice(-STARTUP_STDERR_MAX);
+        // The remaining boundary cut is no longer a security measure - the scrub above is -
+        // but it is still worth doing, because a ring that begins mid-record reads as
+        // corrupt. A boundary is `\r` as well as `\n`: bare-CR output (progress bars,
+        // old-Mac line endings) has real record boundaries with no `\n` anywhere, and
+        // taking whichever comes FIRST also keeps more diagnostics when a `\r` record sits
+        // in front of a `\n` one.
+        //
+        // `cutRing || sliced` keeps the scrubbed window whenever the cut would empty it.
+        // A single record larger than the ring - a minified stack frame, a JSON config
+        // echo, a base64 dump - puts its only boundary at the very last character, so
+        // `slice(boundary + 1)` returned `''` and the user got a banner with no `Agent
+        // stderr:` section at all. Measured: 21KB in one line gave `ringLen=0` where main
+        // delivered 8192 characters including the real error. Falling back is safe here
+        // only because the scrub already ran.
+        const trailingRun = /\S*$/.exec(this.stderrBuffer)?.[0] ?? '';
+        const carry = trailingRun.length <= STDERR_CHUNK_SPLIT_CARRY_MAX ? trailingRun : '';
+        const scrubbed = redactSecrets(this.stderrBuffer.slice(0, this.stderrBuffer.length - carry.length)) + carry;
+        const sliced = scrubbed.slice(-STARTUP_STDERR_MAX);
         const boundary = sliced.search(/[\r\n]/);
-        this.stderrBuffer = boundary >= 0 ? sliced.slice(boundary + 1) : sliced.replace(/^\S+/, '');
+        const cutRing = boundary >= 0 ? sliced.slice(boundary + 1) : sliced.replace(/^\S+/, '');
+        this.stderrBuffer = cutRing || sliced;
       }
     });
   }

@@ -124,8 +124,9 @@ function buildStderrTail(stderr: string): string | null {
  * The in-flight line does not tell the user to resend. `PromptExecutor` refuses to
  * replay that turn precisely because a dead pipe can swallow the `tool_call` that
  * would say what already ran, so the turn may have already executed an approved
- * `rm`. Copy that says "send it again" instructs the human to do by hand the exact
- * thing the code declines to do for them.
+ * `rm`. So the copy tells the user to CHECK the result before sending it again,
+ * rather than offering the bare "send it again" that would have them redo by hand the
+ * exact thing the code declines to do for them.
  *
  * Deliberately NOT routed through i18n - this matches the surrounding diagnostics
  * (`AgentDisconnectedError`, `AgentStartupError`, `enterError`), which are all raw

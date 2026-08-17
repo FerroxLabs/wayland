@@ -48,6 +48,13 @@ const SECRET = 'sk-ant-api03-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGhIjKlMnO
 /** Mirrors `STARTUP_STDERR_MAX` in ProcessAcpClient. */
 const RING_MAX = 8192;
 
+/**
+ * A bare 32-hex secret, used deliberately INSTEAD of a prefixed key: no rule matches it
+ * on its own, so a row built on it tests the scrubber's ANCHOR STRUCTURE rather than
+ * prefix luck.
+ */
+const HEX = 'f0e9d8c7b6a5948372615041302f1e0d';
+
 const spawned: ChildProcess[] = [];
 
 afterEach(() => {
@@ -93,6 +100,71 @@ async function driveChildStderr(payload: string): Promise<{ ring: string; banner
     unexpectedDuringPrompt: false,
   })!;
   return { ring, banner };
+}
+
+/**
+ * Two real stderr writes separated by a real gap, so they arrive as SEPARATE chunks and
+ * split `whole` across the ring's overflow. `first` must already exceed {@link RING_MAX}
+ * or the overflow branch never runs on it and the test proves nothing - asserted, because
+ * a first cut of this test used a 8130-character chunk and passed vacuously.
+ */
+async function driveSplitChildStderr(first: string, second: string): Promise<{ ring: string; banner: string }> {
+  if (first.length <= RING_MAX) throw new Error('the first chunk must overflow the ring');
+  const client = new ProcessAcpClient(
+    async () => {
+      const child = spawn(
+        process.execPath,
+        [
+          '-e',
+          'process.stderr.write(process.env.ACP_A ?? "");' +
+            'setTimeout(() => process.stderr.write(process.env.ACP_B ?? ""), 150);',
+        ],
+        { stdio: 'pipe', env: { ...process.env, ACP_A: first, ACP_B: second } }
+      );
+      spawned.push(child);
+      return child;
+    },
+    { backend: 'probe', handlers: {} as never }
+  );
+
+  await client.start().catch(() => undefined);
+  await new Promise((r) => setTimeout(r, 600));
+
+  const ring = (client as unknown as { stderrBuffer: string }).stderrBuffer;
+  const banner = buildCrashMessage({
+    reason: 'connection_close',
+    exitCode: null,
+    signal: null,
+    stderr: ring,
+    unexpectedDuringPrompt: false,
+  })!;
+  return { ring, banner };
+}
+
+/**
+ * A payload whose last {@link RING_MAX} characters begin exactly `offset` characters INTO
+ * `head` - an ANCHOR followed by its secret - with NO record boundary anywhere in that
+ * window, then whole credentials so redaction shrinks the ring under the banner's
+ * 2048-character tail.
+ *
+ * The leading padding is space-separated on purpose. `\bBearer`, `\bAuthorization` and
+ * `\bapi_key` each need a word boundary in FRONT of the anchor, and padding that ends on a
+ * word character silently defeats all three - which made a first cut of this probe report
+ * a post-fix leak that its own padding, not the code, had caused. Both that and the cut
+ * arithmetic are ASSERTED rather than assumed.
+ */
+function anchorCutPayload(head: string, offset: number): string {
+  const restLen = RING_MAX - (head.length - offset);
+  let rest = ' ';
+  while (rest.length + SECRET.length + 1 <= restLen) rest += `${SECRET} `;
+  rest += 'o'.repeat(restLen - rest.length);
+
+  const payload = `${'q '.repeat(250)}${head}${rest}`;
+  const window = payload.slice(-RING_MAX);
+  if (window !== head.slice(offset) + rest) throw new Error(`payload arithmetic wrong for ${head}`);
+  if (/[\r\n]/.test(window)) throw new Error('the retained window must contain no record boundary');
+  if (!payload.includes(` ${head}`)) throw new Error('the anchor needs a word boundary in front of it');
+  return payload;
 }
 
 /**
@@ -186,14 +258,108 @@ describe('#1023 the stderr ring must not leak a truncated credential', () => {
     expect(banner).toContain('THE-REAL-ERROR');
   }, 20000);
 
-  it('a boundary-free run of 8KB with no whitespace at all empties the ring', async () => {
-    // The accepted cost, pinned so it cannot drift silently: when the whole retained
-    // window is a single whitespace-free token there is nothing there that separates
-    // a base64 blob from a secret, so it all goes. The banner still names the reason.
+  it('a boundary-free run of 8KB with no whitespace at all still delivers the diagnostic', async () => {
+    // This pinned an accepted COST, not an invariant: the whole retained window was one
+    // whitespace-free token, `^\S+` ate all of it and the ring emptied, and the user got a
+    // banner with no stderr section. The cost stopped existing when the scrub moved to the
+    // collection site - every credential in the window is already `[redacted]` by the time
+    // the cut is chosen, so keeping the window is safe and `cutRing || sliced` keeps it.
     const { ring, banner } = await driveChildStderr('y'.repeat(9000) + 'GLUED-ON-ERROR');
-    expect(ring).toBe('');
-    expect(banner).not.toContain('GLUED-ON-ERROR');
+    expect(ring).toContain('GLUED-ON-ERROR');
+    expect(banner).toContain('GLUED-ON-ERROR');
     expect(banner).toContain('connection_close');
+  }, 20000);
+
+  it('KNOWN POSITIVE: the scrubber needs its ANCHOR, so an anchorless secret is invisible', () => {
+    // The premise the rows below rest on. `redactSecrets` masks `Bearer <token>` because of
+    // the word `Bearer`, not because of anything in the token - so a cut that damages the
+    // ANCHOR is just as much a disclosure as a cut that damages the secret, and dropping
+    // the leading non-whitespace run removes the anchor rather than the secret.
+    expect(redactSecrets(HEX)).toBe(HEX);
+    expect(redactSecrets(`Bearer ${HEX}`)).toContain('[redacted]');
+    expect(redactSecrets(`earer ${HEX}`)).toContain(HEX);
+    expect(redactSecrets('api_key = hunter2hunter2')).toContain('[redacted]');
+    expect(redactSecrets('_key = hunter2hunter2')).toContain('hunter2hunter2');
+  });
+
+  // The scrubber's anchor is not always attached to its secret: `Bearer`, `Authorization:`
+  // and `api_key =` all keep it in a separate whitespace-delimited word. A ring cut landing
+  // inside the ANCHOR therefore left the secret WHOLE and merely un-anchored, and the
+  // no-boundary fallback then dropped the mangled anchor and kept the secret. All four rows
+  // below reached the banner intact before the scrub moved to the collection site.
+  for (const [label, head, offset, secret] of [
+    ['inside "Bearer"', `Bearer ${HEX}`, 2, HEX],
+    ['inside "api_key"', 'api_key = hunter2hunter2', 3, 'hunter2hunter2'],
+    ['at the "api_key = " separator', 'api_key = hunter2hunter2', 7, 'hunter2hunter2'],
+    ['inside "Authorization"', `Authorization: ${HEX}`, 4, HEX],
+    // Already safe before the fix, and kept as the contrast: this shape puts the anchor and
+    // the secret in ONE whitespace-free run, so dropping that run took the secret with it.
+    ['inside "password=" (anchor and secret in one run)', 'password=SuperSecret99', 2, 'SuperSecret99'],
+  ] as const) {
+    it(`a ring cut ${label} leaves no anchorless secret behind`, async () => {
+      const { ring, banner } = await driveChildStderr(anchorCutPayload(head, offset));
+      expect(redactSecrets(ring)).not.toContain(secret);
+      expect(banner).not.toContain(secret);
+      // Known positive in the SAME payload: the whole `sk-ant-` keys did redact, so a pass
+      // here is the anchor being preserved and not the scrubber being absent.
+      expect(banner).toContain('[redacted]');
+    }, 20000);
+  }
+
+  it('a single record larger than the whole ring still delivers a diagnostic', async () => {
+    // A 21KB minified stack frame, JSON config echo or base64 dump terminated by one `\n`
+    // leaves the retained window with its only boundary at the very last character, so
+    // `slice(boundary + 1)` returned '' and the banner lost its stderr section entirely -
+    // a diagnostic main delivered. Measured before: ringLen=0. Main: 8192 with the error.
+    const payload = `${'z'.repeat(20000)} THE-REAL-ERROR${'z'.repeat(1000)}\n`;
+    const { ring, banner } = await driveChildStderr(payload);
+    expect(ring.length).toBe(RING_MAX);
+    expect(ring).toContain('THE-REAL-ERROR');
+    expect(banner).toContain('Agent stderr:');
+    expect(banner).toContain('THE-REAL-ERROR');
+  }, 20000);
+
+  it('a credential split across two stderr chunks is not orphaned by the scrub', async () => {
+    // The hazard the collection-site scrub introduces, and the reason it holds back the
+    // ring's trailing non-whitespace run. Scrubbing the buffer the instant it overflows
+    // would mask the half of a credential that has arrived, replacing its ANCHOR with
+    // `[redacted]`, and the half arriving in the NEXT chunk would then be unmatchable by
+    // any later scrub. Measured that way: 51 characters of this key reached the banner.
+    const split = 24;
+    const first = `${'pad line\n'.repeat(950)}token ${SECRET.slice(0, split)}`;
+    const { ring, banner } = await driveSplitChildStderr(first, `${SECRET.slice(split)} trailing diagnostic\n`);
+
+    expect(ring).not.toContain(SECRET.slice(split));
+    expect(banner).not.toContain(SECRET.slice(split));
+    // Known positives: the credential was masked as a WHOLE one rather than lost, and the
+    // diagnostic that arrived with it still reached the user.
+    expect(ring).not.toContain(SECRET);
+    expect(banner).toContain('[redacted]');
+    expect(banner).toContain('trailing diagnostic');
+  }, 30000);
+
+  it('an oversized Bearer token is scrubbed rather than held back raw past its anchor', async () => {
+    // The bound on the chunk-split carry. The carry leaves the ring's trailing
+    // non-whitespace run raw so a credential straddling two chunks is not half-masked. Left
+    // UNBOUNDED that backfires: a single 9KB `Bearer` value is one non-whitespace run, so the
+    // whole thing would be held back raw, the cap would land inside it, and the `Bearer`
+    // anchor sitting just before it would be cut away - leaving exactly the anchorless
+    // remainder the carry exists to prevent. A run longer than a credential prefix is a
+    // value, not a straddle, so it is scrubbed normally.
+    const token = 'Zk9'.repeat(3000);
+    const payload = `${'q '.repeat(50)}Bearer ${token}`;
+    if (payload.length <= RING_MAX) throw new Error('the payload must overflow the ring');
+    if (/[\r\n]/.test(payload.slice(-RING_MAX))) throw new Error('the window must have no boundary');
+    if (!payload.slice(-RING_MAX).startsWith('Zk9') && !payload.slice(-RING_MAX).startsWith('k9Z')) {
+      throw new Error('the window must start INSIDE the token, past the Bearer anchor');
+    }
+
+    const { ring, banner } = await driveChildStderr(payload);
+    expect(redactSecrets(ring)).not.toContain(token.slice(-1000));
+    expect(banner).not.toContain(token.slice(-1000));
+    // Known positive: this value IS redactable when its anchor survives, so a pass here is
+    // the anchor being kept rather than the scrubber having no rule for it.
+    expect(redactSecrets(`Bearer ${token}`)).toContain('[redacted]');
   }, 20000);
 
   it('cuts at a leading \\r rather than a later \\n, keeping the records in between', async () => {
