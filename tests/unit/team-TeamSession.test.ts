@@ -240,23 +240,21 @@ describe('TeamSession', () => {
 
   // #980: teammate status is a persisted field of `teams.agents`, and TeamSession
   // is the seam where a DB roster becomes a live one.
-  describe("persisted teammate status (#980)", () => {
-    it("reconciles a persisted `active` back to pending on load and writes it back", () => {
+  describe('persisted teammate status (#980)', () => {
+    it('reconciles a persisted `active` back to pending on load and writes it back', () => {
       const repo = makeRepo();
       const team = makeTeam();
-      team.agents[1] = { ...team.agents[1], status: "active" };
+      team.agents[1] = { ...team.agents[1], status: 'active' };
 
       const session = new TeamSession(team, repo, makeWorkerTaskManager());
 
-      expect(session.getAgents().find((a) => a.slotId === "slot-member")?.status).toBe("pending");
-      expect(repo.updateAgentStatuses).toHaveBeenCalledWith("team-1", [
-        { slotId: "slot-member", status: "pending" },
-      ]);
+      expect(session.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('pending');
+      expect(repo.updateAgentStatuses).toHaveBeenCalledWith('team-1', [{ slotId: 'slot-member', status: 'pending' }]);
 
       void session.dispose();
     });
 
-    it("leaves a settled roster alone (no spurious write on load)", () => {
+    it('leaves a settled roster alone (no spurious write on load)', () => {
       const repo = makeRepo();
       const session = new TeamSession(makeTeam(), repo, makeWorkerTaskManager());
 
@@ -269,10 +267,10 @@ describe('TeamSession', () => {
     // status through it let the manager's stale roster revert fields it does not
     // own - changeAgentBackend's agentType swap was silently lost - and clobber
     // concurrent name / sessionMode / workspace writes.
-    it("F1: never routes status through the whole-row update()", () => {
+    it('F1: never routes status through the whole-row update()', () => {
       const repo = makeRepo();
       const team = makeTeam();
-      team.agents[1] = { ...team.agents[1], status: "active" };
+      team.agents[1] = { ...team.agents[1], status: 'active' };
       const session = new TeamSession(team, repo, makeWorkerTaskManager());
 
       expect(repo.update).not.toHaveBeenCalled();
@@ -280,7 +278,7 @@ describe('TeamSession', () => {
       // Status pairs only - no agent bodies that could carry a stale agentType.
       const [, statuses] = vi.mocked(repo.updateAgentStatuses).mock.calls[0]!;
       for (const entry of statuses) {
-        expect(Object.keys(entry).toSorted()).toEqual(["slotId", "status"]);
+        expect(Object.keys(entry).toSorted()).toEqual(['slotId', 'status']);
       }
 
       void session.dispose();

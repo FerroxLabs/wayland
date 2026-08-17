@@ -309,11 +309,7 @@ export class SqliteTeamRepository implements ITeamRepository {
       });
       if (!changed) return rowToTeam(row);
       const updatedAt = Date.now();
-      db.prepare('UPDATE teams SET agents = ?, updated_at = ? WHERE id = ?').run(
-        JSON.stringify(merged),
-        updatedAt,
-        id
-      );
+      db.prepare('UPDATE teams SET agents = ?, updated_at = ? WHERE id = ?').run(JSON.stringify(merged), updatedAt, id);
       return { ...rowToTeam(row), agents: merged, updatedAt };
     });
     return run();

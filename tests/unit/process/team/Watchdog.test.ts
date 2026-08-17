@@ -229,7 +229,12 @@ describe('Watchdog - zombie reclaim', () => {
   });
 
   it('recovers a task orphaned in `verifying` by completing it through with an advisory note', async () => {
-    const stuck = makeTask({ status: 'verifying', leaseOwner: undefined, leaseExpiresAt: undefined, updatedAt: NOW - 10 * 60_000 });
+    const stuck = makeTask({
+      status: 'verifying',
+      leaseOwner: undefined,
+      leaseExpiresAt: undefined,
+      updatedAt: NOW - 10 * 60_000,
+    });
     const { repo, tasks } = makeRepo([stuck]);
     const { logger, events } = makeEventLogger();
     const wd = new Watchdog(repo, logger, { checkIntervalMs: 1000, verifyStaleMs: 5 * 60_000 });
@@ -276,11 +281,11 @@ describe('Watchdog - zombie reclaim', () => {
   // team_event_log is not a channel any agent reads, and there is no mailbox.write
   // anywhere under src/process/team/Watchdog.ts - so a leader kept believing a
   // member was working a task the sweep had already taken away.
-  describe("task-board change notification (#980)", () => {
+  describe('task-board change notification (#980)', () => {
     /** The notifier is fired without being awaited; let its microtask land. */
     const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-    it("notifies on a re-queued reclaim", async () => {
+    it('notifies on a re-queued reclaim', async () => {
       const task = makeTask();
       const { repo } = makeRepo([task]);
       const { logger } = makeEventLogger();
@@ -295,10 +300,10 @@ describe('Watchdog - zombie reclaim', () => {
       const batch = onTaskBoardChanged.mock.calls[0][0];
       expect(batch).toHaveLength(1);
       expect(batch[0].task.id).toBe(task.id);
-      expect(batch[0].outcome).toBe("requeued");
+      expect(batch[0].outcome).toBe('requeued');
     });
 
-    it("notifies on an exhausted-budget termination", async () => {
+    it('notifies on an exhausted-budget termination', async () => {
       const task = makeTask({ retryBudget: 1, retriesUsed: 1 });
       const { repo } = makeRepo([task]);
       const { logger } = makeEventLogger();
@@ -310,14 +315,14 @@ describe('Watchdog - zombie reclaim', () => {
       await settle();
 
       expect(onTaskBoardChanged).toHaveBeenCalledTimes(1);
-      expect(onTaskBoardChanged.mock.calls[0][0][0].outcome).toBe("exhausted");
+      expect(onTaskBoardChanged.mock.calls[0][0][0].outcome).toBe('exhausted');
     });
 
-    it("a failing notifier never breaks the sweep", async () => {
+    it('a failing notifier never breaks the sweep', async () => {
       const task = makeTask();
       const { repo, tasks } = makeRepo([task]);
       const { logger } = makeEventLogger();
-      const onTaskBoardChanged = vi.fn().mockRejectedValue(new Error("mailbox down"));
+      const onTaskBoardChanged = vi.fn().mockRejectedValue(new Error('mailbox down'));
       const wd = new Watchdog(repo, logger, { checkIntervalMs: 60_000, onTaskBoardChanged });
 
       await wd.runOnce();
@@ -325,14 +330,14 @@ describe('Watchdog - zombie reclaim', () => {
       await settle();
 
       expect(onTaskBoardChanged).toHaveBeenCalled();
-      expect(tasks.get(task.id)!.status).toBe("pending");
+      expect(tasks.get(task.id)!.status).toBe('pending');
     });
 
     // #980/F3: notifying per task INSIDE the sweep serialized the whole sweep
     // behind the notifier. Waking a leader is turn-scoped, so N reclaimed tasks
     // meant N sequential leader turns while the `sweeping` guard dropped every
     // 60s tick - suspending zombie detection exactly when the team is degraded.
-    it("F3: batches the whole sweep into ONE notification and never awaits it", async () => {
+    it('F3: batches the whole sweep into ONE notification and never awaits it', async () => {
       const tasksSeed = [makeTask(), makeTask(), makeTask()];
       const { repo } = makeRepo(tasksSeed);
       const { logger } = makeEventLogger();
@@ -353,7 +358,7 @@ describe('Watchdog - zombie reclaim', () => {
 
       // The notifier is still pending, yet the sweep already returned and the
       // next sweep runs - i.e. the re-entrancy guard was not held across it.
-      const spy = vi.spyOn(repo, "findZombieTasks");
+      const spy = vi.spyOn(repo, 'findZombieTasks');
       await wd.runOnce();
       expect(spy).toHaveBeenCalled();
 

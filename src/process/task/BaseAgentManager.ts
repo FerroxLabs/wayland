@@ -75,14 +75,12 @@ class BaseAgentManager<Data, ConfirmationOption extends any = any>
         // here, and that promise now rejects when the child exits. Wrap so a
         // dead worker cannot turn a yolo auto-confirm into a process-killing
         // unhandled rejection.
-        void Promise.resolve(this.confirm(data.id, data.callId, autoOption.value, autoOption.answer)).catch(
-          (error) => {
-            console.warn(
-              `[BaseAgentManager] yolo auto-confirm for callId=${data.callId} was not delivered:`,
-              error instanceof Error ? error.message : String(error)
-            );
-          }
-        );
+        void Promise.resolve(this.confirm(data.id, data.callId, autoOption.value, autoOption.answer)).catch((error) => {
+          console.warn(
+            `[BaseAgentManager] yolo auto-confirm for callId=${data.callId} was not delivered:`,
+            error instanceof Error ? error.message : String(error)
+          );
+        });
       }, 50);
       return;
     }

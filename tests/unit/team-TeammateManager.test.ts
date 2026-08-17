@@ -2223,7 +2223,13 @@ describe('TeammateManager status lifecycle (#983 / #980)', () => {
 
   function makeTeam() {
     return [
-      makeAgent({ slotId: 'slot-lead', conversationId: 'conv-lead', role: 'leader', status: 'idle', agentName: 'Lead' }),
+      makeAgent({
+        slotId: 'slot-lead',
+        conversationId: 'conv-lead',
+        role: 'leader',
+        status: 'idle',
+        agentName: 'Lead',
+      }),
       makeAgent({
         slotId: 'slot-member',
         conversationId: 'conv-member',
@@ -2356,9 +2362,7 @@ describe('TeammateManager status lifecycle (#983 / #980)', () => {
 
     expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('pending');
     // ...and the reconciliation is written back, so the DB stops disagreeing.
-    expect(onAgentStatusesChanged).toHaveBeenCalledWith('team-1', [
-      { slotId: 'slot-member', status: 'pending' },
-    ]);
+    expect(onAgentStatusesChanged).toHaveBeenCalledWith('team-1', [{ slotId: 'slot-member', status: 'pending' }]);
 
     mgr.dispose();
   });
@@ -2474,15 +2478,15 @@ describe('TeammateManager status lifecycle (#983 / #980)', () => {
   // #980: restartAgent/changeAgentBackend write `pending` to the DB right after
   // killing the process. The live roster has to agree, or the two views diverge
   // until the next wake - the same class of bug this issue is about.
-  it("#980: killAgentProcess leaves the slot at pending in the live roster", () => {
+  it('#980: killAgentProcess leaves the slot at pending in the live roster', () => {
     const onAgentStatusesChanged = vi.fn();
     const { mgr } = makeTeammateManager(makeTeam(), { onAgentStatusesChanged });
 
-    mgr.setStatus("slot-member", "failed");
-    mgr.killAgentProcess("slot-member");
+    mgr.setStatus('slot-member', 'failed');
+    mgr.killAgentProcess('slot-member');
 
-    expect(mgr.getAgents().find((a) => a.slotId === "slot-member")?.status).toBe("pending");
-    expect(onAgentStatusesChanged.mock.calls.at(-1)![1]).toEqual([{ slotId: "slot-member", status: "pending" }]);
+    expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('pending');
+    expect(onAgentStatusesChanged.mock.calls.at(-1)![1]).toEqual([{ slotId: 'slot-member', status: 'pending' }]);
 
     mgr.dispose();
   });
