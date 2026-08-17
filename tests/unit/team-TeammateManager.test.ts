@@ -2517,6 +2517,31 @@ describe('TeammateManager status lifecycle (#983 / #980)', () => {
     mgr.dispose();
   });
 
+  // A backend under quota pressure emits 429s in BURSTS. Only the transition
+  // into `failed` is news: re-notifying per frame would bury the leader in
+  // mailbox traffic and re-wake it on every retry.
+  it('#980: notifies the leader once per 429 burst, not once per frame', async () => {
+    const { mgr, mailbox } = makeTeammateManager(makeTeam());
+
+    for (let i = 0; i < 3; i++) {
+      teamEventBus.emit('responseStream', {
+        type: 'error',
+        conversation_id: 'conv-member',
+        msg_id: `err-429-${i}`,
+        data: '429 Too Many Requests: quota exceeded',
+      });
+      await new Promise((r) => setTimeout(r, 20));
+    }
+
+    expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+    const rateLimitNotices = vi
+      .mocked(mailbox.write)
+      .mock.calls.filter(([m]) => typeof m?.content === 'string' && m.content.includes('rate-limited'));
+    expect(rateLimitNotices).toHaveLength(1);
+
+    mgr.dispose();
+  });
+
   // -------------------------------------------------------------------------
   // Audit follow-ups: F2 (stale wake ownership) and F5 (hard failure grant)
   // -------------------------------------------------------------------------
@@ -2569,6 +2594,92 @@ describe('TeammateManager status lifecycle (#983 / #980)', () => {
       // And its watchdog is still armed, so a real stall is still caught.
       await vi.advanceTimersByTimeAsync(181_000);
       expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+      mgr.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  // The other half of the success-path guard: when a wake DOES own its
+  // generation, the tail must run. It releases the wake lock as soon as the send
+  // resolves rather than waiting for a finish event, which is what makes a lost
+  // or never-delivered finish frame survivable. finalizeTurn also clears the
+  // lock, so a guard that wrongly fired here would be masked by any test that
+  // completes a turn - hence this asserts it BEFORE any finish event.
+  it('#983: a wake that owns its generation releases the lock as soon as the send resolves', async () => {
+    vi.useFakeTimers();
+    try {
+      const sendMessage = vi.fn().mockResolvedValue(undefined);
+      const { mgr, workerTaskManager } = makeTeammateManager(makeTeam());
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage } as never);
+
+      await mgr.wake('slot-member');
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(sendMessage).toHaveBeenCalled();
+      // No finish event has been delivered, so finalizeTurn cannot be what
+      // cleared this.
+      expect(mgr.isWakeActive('slot-member')).toBe(false);
+
+      mgr.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  // #983/F2, SUCCESS-path twin of the test above. The catch path is not the only
+  // way a stale send settles: it can also RESOLVE late. Without the ownsWake
+  // guard on the success path, that resolve calls retireWake on the LIVE
+  // generation and drops the live wake's lock - so a third wake becomes
+  // admissible while wake #2 is still in flight, and wake #2's own tail then
+  // early-returns because its generation is gone. That is the original wedge,
+  // one wake later.
+  it('F2: a stale wake RESOLVING late must not retire or unlock the live wake', async () => {
+    vi.useFakeTimers();
+    try {
+      let resolveFirst: (() => void) | undefined;
+      const firstSend = new Promise<void>((resolve) => {
+        resolveFirst = resolve;
+      });
+      const sendMessage = vi
+        .fn()
+        .mockReturnValueOnce(firstSend)
+        .mockReturnValue(new Promise<void>(() => {}));
+      const { mgr, workerTaskManager } = makeTeammateManager(makeTeam());
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage } as never);
+
+      // wake#1 hangs; the watchdog gives up on it and frees the lock.
+      void mgr.wake('slot-member').catch(() => {});
+      await vi.advanceTimersByTimeAsync(1);
+      await vi.advanceTimersByTimeAsync(181_000);
+      expect(mgr.isWakeActive('slot-member')).toBe(false);
+
+      // wake#2 starts and is healthy.
+      void mgr.wake('slot-member').catch(() => {});
+      await vi.advanceTimersByTimeAsync(1);
+      expect(mgr.isWakeActive('slot-member')).toBe(true);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+
+      const sendsBefore = vi
+        .mocked(workerTaskManager.getOrBuildTask)
+        .mock.calls.filter(([conversationId]) => conversationId === 'conv-member').length;
+
+      // wake#1's send finally SUCCEEDS, long after it was abandoned.
+      resolveFirst!();
+      await vi.advanceTimersByTimeAsync(1);
+
+      // wake#2 still owns the slot: lock held, status untouched.
+      expect(mgr.isWakeActive('slot-member')).toBe(true);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+
+      // And because the lock was never dropped, no third concurrent wake is
+      // admitted for this member while wake#2 is still in flight.
+      await mgr.wake('slot-member');
+      const sendsAfter = vi
+        .mocked(workerTaskManager.getOrBuildTask)
+        .mock.calls.filter(([conversationId]) => conversationId === 'conv-member').length;
+      expect(sendsAfter).toBe(sendsBefore);
 
       mgr.dispose();
     } finally {
