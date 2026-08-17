@@ -22,7 +22,14 @@ const {
     options?: { previousSnapshot?: Map<string, string> }
   ) => { executablePath: string; resourceDir: string };
   snapshotPackagedTargets: (out: string) => Map<string, string>;
-  verifyConstitutionFsBundle: (root: string, platform: string, arch: string) => boolean;
+  verifyConstitutionFsBundle: (
+    root: string,
+    platform: string,
+    arch: string,
+    authority?: unknown,
+    verifyDarwinSignature?: (binaryPath: string) => void,
+    requireDarwinSignature?: boolean
+  ) => boolean;
   verifyPackagedResources: (options: Record<string, unknown>) => { resourceDirs: string[]; warnings: number };
   verifyWhatsAppDarwinSignIgnoreInventory: (root: string, arch: string) => boolean;
   verifyWhatsAppNativeTarget: (root: string, platform: string, arch: string) => boolean;
@@ -656,6 +663,46 @@ describe('packaged resource release gate', () => {
     fs.rmSync(root, { recursive: true, force: true });
     expect(verifyConstitutionFsBundle(root, 'win32', 'x64')).toBe(true);
   });
+
+  // A build with no Developer ID identity stages the helper UNSIGNED on purpose
+  // (see signDarwinStagedBinary). ld64 only linker-signs arm64, never x86_64, so
+  // a gate that demanded *any* signature failed every darwin-x64 build without
+  // signing secrets while darwin-arm64 passed on the linker's ad-hoc signature.
+  // A signed build must still be held to a real Developer ID signature - ad-hoc
+  // is exactly what Apple refuses to notarize.
+  it.each(['arm64', 'x64'] as const)(
+    'requires a Constitution helper signature on darwin-%s only when the build had a signing identity',
+    (arch) => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), `constitution-fs-sign-${arch}-`));
+      roots.push(root);
+      const runtimeRoot = path.join(root, `darwin-${arch}`);
+      const authority = testConstitutionAuthority(arch);
+      writeMachExecutable(path.join(runtimeRoot, 'wayland-constitution-fs'), arch);
+      fs.writeFileSync(
+        path.join(runtimeRoot, 'manifest.json'),
+        JSON.stringify({
+          schemaVersion: 1,
+          protocolVersion: 2,
+          platform: 'darwin',
+          arch,
+          binary: { fileName: authority.fileName, sha256: authority.sha256, size: authority.size },
+        })
+      );
+      fs.writeFileSync(path.join(runtimeRoot, 'package-authority.json'), JSON.stringify(authority));
+
+      const signatureChecks: string[] = [];
+      const record = (binaryPath: string) => {
+        signatureChecks.push(binaryPath);
+      };
+      expect(verifyConstitutionFsBundle(root, 'darwin', arch, authority, record, false)).toBe(true);
+      expect(signatureChecks).toEqual([]);
+      expect(verifyConstitutionFsBundle(root, 'darwin', arch, authority, record, true)).toBe(true);
+      expect(signatureChecks).toEqual([path.join(runtimeRoot, 'wayland-constitution-fs')]);
+      // With an identity the real check runs, and these fixture bytes carry no
+      // Developer ID signature, so the gate must refuse them.
+      expect(() => verifyConstitutionFsBundle(root, 'darwin', arch, authority, undefined, true)).toThrow();
+    }
+  );
 
   it('rejects helper digest drift and foreign runtime contamination', () => {
     const out = createPackagedResources(true);
