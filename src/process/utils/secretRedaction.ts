@@ -89,6 +89,13 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bgithub_pat_[A-Za-z0-9_]{20,}/g, // GitHub fine-grained PAT
   /\bglpat-[A-Za-z0-9_-]{8,}/g, // GitLab PAT
   /\bgsk_[A-Za-z0-9]{20,}/g, // Groq
+  // npm automation/publish token and Hugging Face user access token. Both carry
+  // an underscore INSIDE the prefix, and the `{20,}` floor over a class that
+  // omits `_` is what keeps them off ordinary npm env vars: `npm_config_cache`
+  // and `npm_lifecycle_script` have no 20-character unbroken alphanumeric run,
+  // so they cannot reach the floor. No trailing `\b`, per the rule above.
+  /\bnpm_[A-Za-z0-9]{20,}/g, // npm access token
+  /\bhf_[A-Za-z0-9]{20,}/g, // Hugging Face access token
   /\br8_[A-Za-z0-9]{20,}/g, // Replicate
   /\bdop_v1_[A-Za-z0-9]{20,}/g, // DigitalOcean
   /\bya29\.[A-Za-z0-9_.-]{8,}/g, // Google OAuth access token
@@ -126,9 +133,56 @@ const SECRET_PATTERNS: RegExp[] = [
  * {@link SECRET_PATTERNS} rather than indexed inside it: an index-based special
  * case silently mis-applies itself the moment somebody inserts a pattern above
  * it, which it did on the first attempt here.
+ *
+ * The labels are a list rather than an inline alternation, and exported, so the
+ * suite can ENUMERATE them instead of spot-checking a few. #1026 survived
+ * because the tests covered the bare form of two labels; a new label added here
+ * is now automatically held to the prefixed form too.
  */
-const LABELLED_SECRET_ASSIGNMENT =
-  /\b(api[_-]?key|auth[_-]?token|access[_-]?token|refresh[_-]?token|client[_-]?secret|password|passwd)(\s*[:=]\s*)["']?[^\s"',}]{8,}["']?/gi;
+export const LABELLED_SECRET_LABELS: readonly string[] = [
+  'api[_-]?key',
+  'auth[_-]?token',
+  'access[_-]?token',
+  'refresh[_-]?token',
+  // `AWS_SECRET_ACCESS_KEY` (#1026). Its 40-character value has no prefix and no
+  // shape worth keying on - 40 characters of the base64 alphabet is also every
+  // git SHA and every sha1 digest in a build log - so the label is the ONLY
+  // high-confidence signal, and until #1026 the label could not be reached.
+  // Listed before `access[_-]?token` would matter only for a shared prefix; it
+  // does not share one, and alternation backtracks through every branch anyway.
+  'secret[_-]?access[_-]?key',
+  'client[_-]?secret',
+  'password',
+  'passwd',
+];
+
+/**
+ * #1026: the leading anchor is a NEGATIVE LOOKBEHIND, not `\b`.
+ *
+ * `\b` here was unreachable for the common case and that was a live leak. There
+ * is no word boundary between `_` and a letter because both are word characters,
+ * so `ANTHROPIC_API_KEY=...`, `AZURE_OPENAI_API_KEY=...` and `my_api_key=...` all
+ * failed to match while the bare `API_KEY=...` matched. Environment variables are
+ * conventionally PREFIXED, so the shape that escaped was the shape that actually
+ * appears in agent stderr and error text.
+ *
+ * This is the mirror image of the four escapes fixed in #1004: there a TRAILING
+ * boundary could not match because the character class omitted a word character;
+ * here a LEADING boundary could not match because the preceding character was a
+ * word character.
+ *
+ * `(?<![A-Za-z0-9])` still refuses to match inside a longer alphanumeric run, so
+ * `notmyapikey=` is not a label, while permitting the `_`, `-` and `.` that
+ * actually separate a prefix from a label. It is a strict WIDENING: every
+ * position where `\b` succeeded had a non-word character before it, and a
+ * non-word character is also a non-alphanumeric one, so nothing that was masked
+ * before can stop being masked. Single-character, fixed-width and outside the
+ * quantified section, so it adds no backtracking.
+ */
+const LABELLED_SECRET_ASSIGNMENT = new RegExp(
+  `(?<![A-Za-z0-9])(${LABELLED_SECRET_LABELS.join('|')})(\\s*[:=]\\s*)["']?[^\\s"',}]{8,}["']?`,
+  'gi'
+);
 
 /**
  * `scheme://user:PASSWORD@host` - the password segment of a URL or DSN. No

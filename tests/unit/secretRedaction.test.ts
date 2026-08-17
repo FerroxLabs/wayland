@@ -7,7 +7,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { redactSecrets } from '@process/utils/secretRedaction';
+import { LABELLED_SECRET_LABELS, redactSecrets } from '@process/utils/secretRedaction';
 import { CLEAN_CORPUS, SECRET_CORPUS } from '../fixtures/secretCorpus';
 
 describe('redactSecrets (canonical)', () => {
@@ -27,6 +27,93 @@ describe('redactSecrets (canonical)', () => {
 
   it('keeps the label of a masked assignment so the diagnostic still reads', () => {
     expect(redactSecrets('api_key = "hunter2hunter2"')).toContain('api_key');
+  });
+});
+
+/**
+ * The coverage CLASS that was missing, and the reason #1026 shipped: the suite
+ * above tests labelled assignments in their BARE form (`api_key=`, `client_secret=`),
+ * which is the one form the broken leading `\b` could still match. Every prefixed
+ * form - the form an environment variable actually takes - went untested and
+ * unmasked.
+ *
+ * So this does not spot-check a few prefixes. It enumerates the module's own
+ * label list, expands each label into every spelling the pattern accepts, and
+ * asserts the prefixed assignment is masked in all of them. A label added to
+ * `LABELLED_SECRET_LABELS` later is covered here without anyone remembering to
+ * come back.
+ */
+describe('every labelled secret is masked in its PREFIXED form (#1026)', () => {
+  /** Unrecognizable on its own: no vendor prefix, so ONLY the label can catch it. */
+  const VALUE = 'not-a-real-value-0123456789';
+
+  /**
+   * Expand one label fragment into the concrete spellings it accepts. `[_-]?` is
+   * the only regex construct the label list uses; a fragment this cannot read
+   * FAILS rather than being silently skipped, because a label the expander does
+   * not understand is a label this suite is not actually covering.
+   */
+  function spellings(fragment: string): string[] {
+    expect(
+      fragment.replaceAll('[_-]?', ''),
+      `label ${fragment} uses regex syntax this test cannot expand - extend spellings()`
+    ).toMatch(/^[a-z]+$/);
+    return fragment
+      .split('[_-]?')
+      .slice(1)
+      .reduce<string[]>(
+        (acc, part) => acc.flatMap((sofar) => ['_', '-', ''].map((joiner) => `${sofar}${joiner}${part}`)),
+        [fragment.split('[_-]?')[0]]
+      );
+  }
+
+  // Real provider prefixes, a user-invented one, and the separators that occur
+  // in practice. `''` keeps the bare form covered too.
+  const PREFIXES = ['', 'ANTHROPIC_', 'AZURE_OPENAI_', 'my_', 'x-', 'wayland.'];
+
+  const cases = LABELLED_SECRET_LABELS.flatMap((fragment) =>
+    spellings(fragment).flatMap((spelling) =>
+      [spelling, spelling.toUpperCase()].flatMap((cased) =>
+        PREFIXES.map((prefix) => ({
+          name: `${prefix}${cased}`,
+          text: `child exited 1: ${prefix}${cased}=${VALUE}`,
+        }))
+      )
+    )
+  );
+
+  it(`covers all ${LABELLED_SECRET_LABELS.length} labels as ${cases.length} prefixed assignments`, () => {
+    expect(LABELLED_SECRET_LABELS.length).toBeGreaterThanOrEqual(8);
+    const survived = cases.filter(({ text }) => redactSecrets(text).includes(VALUE)).map(({ text }) => text);
+    expect(survived).toEqual([]);
+  });
+
+  it('every case really carries the value, and the mask really fires (control)', () => {
+    // A "no secret found" result means nothing unless the input demonstrably
+    // contained one and the redactor demonstrably acted on it.
+    const wrong = cases
+      .filter(({ text }) => !text.includes(VALUE) || !redactSecrets(text).includes('[redacted]'))
+      .map(({ text }) => text);
+    expect(wrong).toEqual([]);
+  });
+
+  it('the harness is not vacuous: an unlabelled variable of the same shape survives', () => {
+    // If this ever starts being masked, the sweep above stops proving anything
+    // about labels and the module has started masking on shape alone.
+    const line = `child exited 1: ANTHROPIC_HOSTNAME=${VALUE}`;
+    expect(redactSecrets(line)).toBe(line);
+  });
+
+  it('keeps the prefix and the label so the diagnostic still names the variable', () => {
+    const out = redactSecrets(`child exited 1: ANTHROPIC_API_KEY=${VALUE}`);
+    expect(out).toBe('child exited 1: ANTHROPIC_API_KEY=[redacted]');
+  });
+
+  it('does not treat a label buried inside a longer alphanumeric run as a label', () => {
+    // The lookbehind still refuses `[A-Za-z0-9]` before the label, so this is
+    // NOT an assignment of anything called a key.
+    const line = `notmyapikey=${VALUE}`;
+    expect(redactSecrets(line)).toBe(line);
   });
 });
 
