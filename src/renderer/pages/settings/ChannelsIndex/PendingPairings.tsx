@@ -68,9 +68,12 @@ const PendingPairings: React.FC = () => {
     return `${minutes} min`;
   };
 
+  // approve/reject are remote-denied (a paired WebUI must never self-approve), so
+  // on that transport the invoke REJECTS (#979). Catch it, or the operator gets
+  // silence where they used to get a failure toast.
   const handleApprove = useCallback(
     async (code: string) => {
-      const result = await channel.approvePairing.invoke({ code });
+      const result = await channel.approvePairing.invoke({ code }).catch((): undefined => undefined);
       if (result?.success) {
         Message.success(t('settings.channelsIndex.pendingPairing.approved'));
       } else {
@@ -82,7 +85,7 @@ const PendingPairings: React.FC = () => {
 
   const handleReject = useCallback(
     async (code: string) => {
-      const result = await channel.rejectPairing.invoke({ code });
+      const result = await channel.rejectPairing.invoke({ code }).catch((): undefined => undefined);
       if (result?.success) {
         Message.info(t('settings.channelsIndex.pendingPairing.rejected'));
       } else {

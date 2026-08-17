@@ -89,4 +89,26 @@ describe('Mission Control ?tab deep-link (D-06 xaudit finding 1)', () => {
     );
     expect(tabByTitle('missionControl.tabs.cost')).toHaveAttribute('aria-selected', 'true');
   });
+
+  it('hides the cost tab on the remote WebUI transport and ignores ?tab=cost there (#979)', () => {
+    // The whole cost.* namespace is remote-denied, so on a browser WebUI the tab
+    // could only ever show empty panels - it must not be offered at all, and the
+    // SpendPill deep-link must not be able to land on it.
+    const electronApi = (window as { electronAPI?: unknown }).electronAPI;
+    delete (window as { electronAPI?: unknown }).electronAPI;
+    try {
+      render(
+        <MemoryRouter initialEntries={['/mission-control?tab=cost']}>
+          <Routes>
+            <Route path='/mission-control' element={<MissionControlPage />} />
+          </Routes>
+        </MemoryRouter>
+      );
+      expect(tabByTitle('missionControl.tabs.cost')).toBeUndefined();
+      expect(screen.queryByTestId('cost-tab-content')).not.toBeInTheDocument();
+      expect(tabByTitle('missionControl.tabs.operations')).toHaveAttribute('aria-selected', 'true');
+    } finally {
+      (window as { electronAPI?: unknown }).electronAPI = electronApi;
+    }
+  });
 });

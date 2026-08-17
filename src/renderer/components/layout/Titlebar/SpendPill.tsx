@@ -21,6 +21,7 @@ import { ipcBridge } from '@/common';
 import type { BudgetSeverity } from '@renderer/pages/mission-control/cost/costChart';
 import { budgetSeverity } from '@renderer/pages/mission-control/cost/costChart';
 import { formatUsd } from '@renderer/utils/format/tokens';
+import { isElectronDesktop } from '@renderer/utils/platform';
 
 // Shares the exact tier colors used by the cost budget bars (Cost.module.css).
 const SEVERITY_COLOR: Record<BudgetSeverity, string> = {
@@ -40,8 +41,14 @@ export const SpendPill: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  // The whole cost.* namespace is remote-denied (bridgeAllowlist.ts), so a
+  // browser WebUI can never read a budget: fetching would only ever fail, and
+  // the pill could only ever be blank. Skip the fetch and hide the control
+  // entirely rather than showing a dead affordance (#979).
+  const costAvailable = isElectronDesktop();
+
   const { data, mutate } = useSWR<BudgetLike[]>(
-    'titlebar-spend',
+    costAvailable ? 'titlebar-spend' : null,
     (): Promise<BudgetLike[]> => ipcBridge.cost.listBudgets.invoke() as Promise<BudgetLike[]>,
     { revalidateOnFocus: true }
   );
@@ -55,6 +62,8 @@ export const SpendPill: React.FC = () => {
     });
     return () => off();
   }, [mutate]);
+
+  if (!costAvailable) return null;
 
   const budgets = data ?? [];
   // Prefer the monthly global budget; fall back to any global budget.
