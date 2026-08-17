@@ -875,23 +875,42 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
         lines: [],
       };
     }
-    let files: string[];
+    // #1038: readdirSync returns DIRECTORY order, not sorted and not by time, so
+    // taking the first MAX_LOG_FILES entries kept an arbitrary subset that in
+    // practice skewed oldest. A diagnostics bundle then reported stale lines
+    // under the heading "recent errors", and every triage that trusted it was
+    // reading the wrong data. Select by mtime, newest first, then walk the
+    // survivors oldest-first so the trailing MAX_LOG_LINES slice below really is
+    // the most recent output rather than whichever file happened to be last.
+    let files: Array<{ name: string; stat: fs.Stats }>;
     try {
       files = fs
         .readdirSync(logDir)
         .filter((f) => f.endsWith('.log') || f.endsWith('.txt'))
-        .slice(0, MAX_LOG_FILES);
+        .map((name) => {
+          try {
+            const stat = fs.statSync(path.join(logDir, name));
+            return stat.isFile() ? { name, stat } : null;
+          } catch {
+            // Vanished or turned unreadable between readdir and stat. A rotating
+            // log directory does this routinely, and one missing file must not
+            // cost the whole section.
+            return null;
+          }
+        })
+        .filter((entry): entry is { name: string; stat: fs.Stats } => entry !== null)
+        .sort((left, right) => right.stat.mtimeMs - left.stat.mtimeMs)
+        .slice(0, MAX_LOG_FILES)
+        .reverse();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       return { available: false, source: `log dir read failed: ${scrubHome(message)}`, lines: [] };
     }
 
     const collected: string[] = [];
-    for (const file of files) {
+    for (const { name: file, stat } of files) {
       const full = path.join(logDir, file);
       try {
-        const stat = fs.statSync(full);
-        if (!stat.isFile()) continue;
         const start = Math.max(0, stat.size - MAX_LOG_TAIL_BYTES);
         const fd = fs.openSync(full, 'r');
         try {

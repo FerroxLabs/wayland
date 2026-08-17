@@ -373,6 +373,68 @@ describe('createConciergeDiagServer — recentErrors (logs)', () => {
     expect(serialized).toContain('/Users/<user>');
     expect(serialized).toContain('C:\\\\Users\\\\<user>');
   });
+
+  // #1038: readdirSync returns directory order, so keeping the FIRST
+  // MAX_LOG_FILES entries dropped the newest logs and the section reported
+  // stale lines as "recent". Eight files, mtimes set explicitly, and the two
+  // newest are also last alphabetically AND last created, so any
+  // implementation that takes the first six of either ordering loses them.
+  it('reports the NEWEST log files, not whichever the directory listed first', () => {
+    const logDir = tmp('logs-rotating');
+    fs.mkdirSync(logDir);
+    const base = Date.UTC(2026, 0, 1) / 1000;
+    // a1 oldest through a8 newest, one hour apart.
+    for (let index = 1; index <= 8; index += 1) {
+      const file = path.join(logDir, `a${index}.log`);
+      fs.writeFileSync(file, `error: marker for file ${index}\n`);
+      const when = base + index * 3600;
+      fs.utimesSync(file, when, when);
+    }
+
+    const server = createConciergeDiagServer({ logDir });
+    const result = server.recentErrors();
+    const joined = result.lines.join('\n');
+
+    expect(result.available).toBe(true);
+    // The six newest are present.
+    for (const index of [3, 4, 5, 6, 7, 8]) {
+      expect(joined).toContain(`marker for file ${index}`);
+    }
+    // The two oldest fell outside MAX_LOG_FILES and must be gone.
+    expect(joined).not.toContain('marker for file 1');
+    expect(joined).not.toContain('marker for file 2');
+  });
+
+  // The trailing MAX_LOG_LINES slice only means "most recent" if the files are
+  // walked oldest-first. Otherwise a truncated section can keep the oldest
+  // lines and discard the newest, which is the same defect one layer down.
+  it('orders collected lines oldest-first so a truncated tail keeps the newest', () => {
+    const logDir = tmp('logs-order');
+    fs.mkdirSync(logDir);
+    const base = Date.UTC(2026, 0, 1) / 1000;
+    // The NEWER file is deliberately created first and named to sort first, so
+    // both plausible readdir orders (creation and name) put it ahead of the
+    // older one. Selecting by mtime has to reverse that; directory order alone
+    // leaves the newest line first, where a truncating tail slice drops it.
+    for (const [name, ageHours] of [
+      ['a-newer', 2],
+      ['b-older', 1],
+    ] as const) {
+      const file = path.join(logDir, `${name}.log`);
+      fs.writeFileSync(file, `error: ${name} entry\n`);
+      const when = base + ageHours * 3600;
+      fs.utimesSync(file, when, when);
+    }
+
+    const server = createConciergeDiagServer({ logDir });
+    const lines = server.recentErrors().lines;
+    const olderAt = lines.findIndex((line) => line.includes('b-older entry'));
+    const newerAt = lines.findIndex((line) => line.includes('a-newer entry'));
+
+    expect(olderAt).toBeGreaterThanOrEqual(0);
+    expect(newerAt).toBeGreaterThanOrEqual(0);
+    expect(newerAt).toBeGreaterThan(olderAt);
+  });
 });
 
 // ---------------------------------------------------------------------------
