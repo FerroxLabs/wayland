@@ -338,7 +338,12 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
       // on macOS/Linux, allowing the Library to report green for bundled Bun
       // while the chat later attempted a bare host `npx` from a different PATH.
       // The builtin branch is the same shared resolver every serializer calls, so
-      // a green probe cannot again mean "chat still spawns bare node".
+      // a green probe cannot again mean "chat still spawns bare node". That claim
+      // is only true while the LIST of callers is complete: the wcore chat loads
+      // its connectors from a launch-local config.toml written by `WCoreManager`,
+      // which is not one of `McpService.syncMcpToAgents`' targets and needed the
+      // rewrite applied to it separately (#1015 F1). Add a new publication path
+      // and it must call this resolver too, or this comment becomes false again.
       const resolvedSpawn =
         builtinSpawn ?? resolveMcpStdioSpawn(transport.command, rawArgs, () => resolveNpxPath(enhancedEnv));
 
