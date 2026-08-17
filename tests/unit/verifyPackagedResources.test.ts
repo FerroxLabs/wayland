@@ -733,7 +733,7 @@ describe('packaged resource release gate', () => {
       const requirement = argv[0][argv[0].indexOf('-R') + 1];
       expect(requirement.startsWith('=')).toBe(true);
       expect(requirement).toContain('field.1.2.840.113635.100.6.1.13');
-      expect(requirement).toContain(`subject.OU] = \"${DARWIN_TEAM_ID}\"`);
+      expect(requirement).toContain(`subject.OU] = "${DARWIN_TEAM_ID}"`);
       expect(argv[0]).not.toEqual(['--verify', '--strict', path.join(runtimeRoot, 'wayland-constitution-fs')]);
     }
   );
