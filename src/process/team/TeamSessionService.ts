@@ -1295,8 +1295,16 @@ export class TeamSessionService {
     // state change needed.
     session?.killAgentProcess(slotId);
 
-    const updatedAgents = team.agents.map((a) => (a.slotId === slotId ? { ...a, status: 'pending' as const } : a));
-    await this.repo.update(teamId, { agents: updatedAgents, updatedAt: Date.now() });
+    // #980: status is LIVE data now that TeammateManager.setStatus persists every
+    // transition, so this must not re-write the whole `agents` blob from the
+    // snapshot taken above. Doing so reverted any status another writer committed
+    // in between - measured against the real repository as a durable `idle`
+    // flipping back to `active`, which reconcilePersistedStatuses then turned
+    // into a wrong `pending` on the next session load. The atomic status writer
+    // merges by slotId inside one transaction and touches only that slot, which
+    // also means the un-awaited setStatus('pending') that killAgentProcess fires
+    // just above can no longer race this write.
+    await this.repo.updateAgentStatuses(teamId, [{ slotId, status: 'pending' }]);
 
     ipcBridge.team.agentStatusChanged.emit({ teamId, slotId, status: 'pending' });
 

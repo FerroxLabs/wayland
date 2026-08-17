@@ -72,6 +72,7 @@ function makeRepo(overrides: Partial<ITeamRepository> = {}): ITeamRepository {
     findById: vi.fn(),
     findAll: vi.fn(),
     update: vi.fn().mockResolvedValue(undefined),
+    updateAgentStatuses: vi.fn().mockResolvedValue(null),
     delete: vi.fn(),
     deleteMailboxByTeam: vi.fn(),
     deleteTasksByTeam: vi.fn(),
@@ -148,23 +149,24 @@ describe('TeamSessionService.restartAgent', () => {
   it('resets agent status to pending + emits IPC + appends wake event on success', async () => {
     const team = makeTeam();
     const update = vi.fn().mockResolvedValue(undefined);
+    const updateAgentStatuses = vi.fn().mockResolvedValue(null);
     const appendEvent = vi.fn().mockResolvedValue(undefined);
     const repo = makeRepo({
       findById: vi.fn().mockResolvedValue(team),
       update,
+      updateAgentStatuses,
       appendEvent,
     });
     const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     await svc.restartAgent('team-1', 'slot-1');
 
-    // Status reset + persisted
-    expect(update).toHaveBeenCalledTimes(1);
-    const updateArgs = update.mock.calls[0];
-    expect(updateArgs[0]).toBe('team-1');
-    const persistedAgents = (updateArgs[1] as { agents: TeamAgent[] }).agents;
-    const restarted = persistedAgents.find((a) => a.slotId === 'slot-1');
-    expect(restarted?.status).toBe('pending');
+    // Status reset + persisted through the ATOMIC, field-scoped writer. #980:
+    // going through the whole-row `update` would re-write every other slot's
+    // status from the snapshot taken at the top of restartAgent.
+    expect(updateAgentStatuses).toHaveBeenCalledTimes(1);
+    expect(updateAgentStatuses).toHaveBeenCalledWith('team-1', [{ slotId: 'slot-1', status: 'pending' }]);
+    expect(update).not.toHaveBeenCalled();
 
     // IPC notification so the rail flips the status dot
     expect(mockIpcBridge.team.agentStatusChanged.emit).toHaveBeenCalledWith({
@@ -196,8 +198,9 @@ describe('TeamSessionService.restartAgent', () => {
 
     await expect(svc.restartAgent('team-1', 'slot-1')).rejects.toThrow(/wake in progress/i);
     expect(fakeSession.killAgentProcess).not.toHaveBeenCalled();
-    // No repo update on the refused path
+    // No persistence of any kind on the refused path
     expect(repo.update).not.toHaveBeenCalled();
+    expect(repo.updateAgentStatuses).not.toHaveBeenCalled();
   });
 
   it('kills residual process via the live session before resetting status', async () => {
@@ -215,6 +218,6 @@ describe('TeamSessionService.restartAgent', () => {
     await svc.restartAgent('team-1', 'slot-1');
 
     expect(killAgentProcess).toHaveBeenCalledWith('slot-1');
-    expect(repo.update).toHaveBeenCalledTimes(1);
+    expect(repo.updateAgentStatuses).toHaveBeenCalledTimes(1);
   });
 });

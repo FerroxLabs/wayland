@@ -16,6 +16,17 @@ export interface ITeamCrudRepository {
    * only ever touches the `agents` and `updated_at` columns - so a concurrent
    * rename, backend swap or session-mode change survives. Unknown slotIds are
    * ignored. Returns null when the team no longer exists.
+   *
+   * SCOPE, precisely: this closes the race FOR THIS WRITER, not for the system.
+   * `teams.agents[].status` is live data, and these whole-row `update` callers
+   * still re-write the entire blob from a snapshot taken earlier, so each can
+   * still revert a status committed in between:
+   *   - TeamSessionService.spawnAgent / renameAgent / changeAgentBackend /
+   *     removeAgent
+   *   - TeamSession's rename + roster persistence
+   * `restartAgent` was moved onto this method because it changes nothing but
+   * status. The rest need a field-scoped roster writer; until they have one, do
+   * NOT read the surrounding commentary as "the lost update is gone".
    */
   updateAgentStatuses(
     id: string,
