@@ -397,4 +397,49 @@ describe('#924 F1: project-scoped save through the real /memory renderer path', 
       Array.from((screen.getByTestId('composer-project-picker') as HTMLSelectElement).options).map((o) => o.textContent)
     ).toEqual(['project-alpha', 'project-beta']);
   });
+
+  /**
+   * The ref that makes a pick authoritative is cleared on close, and nothing
+   * pinned that. Leave it set and the next open skips the seeding branch:
+   * `projectPath` stays '' from the close reset, the destination reads "no
+   * project selected", and the save goes out with no `projectPath` at all -
+   * which main refuses. That is #924 coming back through the fix for #924.
+   *
+   * It is invisible in the picker, which still DISPLAYS project-alpha: a
+   * `<select>` whose value matches no option falls back to showing the first
+   * one. Assert the destination line and the payload, never the picker's value.
+   */
+  it('re-seeds the destination on reopen, so a pick from a previous open cycle cannot leave it blank', async () => {
+    await openComposer();
+
+    // Control: the pick really registers, so the reopen assertions below are
+    // exercising a ref that was actually set - not a cycle that never picked.
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('composer-project-picker'), { target: { value: BETA } });
+    });
+    expect(screen.getByTestId('composer-destination').textContent).toContain('project-beta');
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-cancel-btn'));
+    });
+    expect(screen.queryByTestId('composer-destination')).toBeNull();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('memory-btn-quickadd'));
+    });
+
+    const dest = screen.getByTestId('composer-destination').textContent ?? '';
+    expect(dest).not.toContain('no project selected');
+    expect(dest).toContain('project-alpha');
+
+    fireEvent.change(screen.getByTestId('composer-textarea'), { target: { value: 'note after reopen' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+
+    await waitFor(() => expect(mockMemory.setQuickAdd.invoke).toHaveBeenCalled());
+    const payload = mockMemory.setQuickAdd.invoke.mock.calls[0][0];
+    expect(payload.scope).toBe('project');
+    expect(payload.projectPath).toBe(ALPHA);
+  });
 });

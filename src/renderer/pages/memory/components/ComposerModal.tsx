@@ -36,7 +36,10 @@ export type ComposerModalProps = {
    * save must name exactly one of these (#924): the Memory page is a standalone
    * route with no conversation context, so there is nothing to infer the
    * project FROM and the destination has to be chosen explicitly. An empty list
-   * means project scope is unavailable and the toggle is disabled.
+   * does NOT disable project scope: the pill stays enabled and selected, the
+   * destination reads "no project selected", and main refuses the save - the
+   * handler below turns that refusal into copy telling the user to switch to
+   * global.
    */
   projects?: ReadonlyArray<{ path: string; basename: string }>;
   /** Project pre-selected on open - the Memory page's project filter, when set. */
