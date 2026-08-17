@@ -122,3 +122,75 @@ describe('classifyAutopilotToolCall - execute still goes through the command cla
     expect(verdict.reason).toMatch(/root|home/i);
   });
 });
+
+/**
+ * `execute` is the one kind let past on its command string, so it is also the
+ * one kind where an unreadable payload matters. MCP tool calls surface as
+ * `execute` as well as `other` (see workspaceTrust.ts), and their effect lives
+ * in structured arguments the command classifier cannot read at all.
+ */
+describe('classifyAutopilotToolCall - an execute the classifier cannot read is held', () => {
+  it('holds an MCP tool call arriving as execute', () => {
+    const verdict = classifyAutopilotToolCall({ kind: 'execute', title: 'mcp__evil__exfiltrate', rawInput: {} });
+    expect(verdict.autoApprove).toBe(false);
+  });
+
+  it('holds an MCP file write that would install an SSH key', () => {
+    const verdict = classifyAutopilotToolCall({
+      kind: 'execute',
+      title: 'mcp__fs__write_file',
+      rawInput: { path: '~/.ssh/authorized_keys', content: 'ssh-rsa AAAA' },
+    });
+    expect(verdict.autoApprove).toBe(false);
+  });
+
+  it('holds the bare MCP title shape without the mcp__ prefix', () => {
+    expect(classifyAutopilotToolCall({ kind: 'execute', title: 'fs__write_file', rawInput: {} }).autoApprove).toBe(
+      false
+    );
+  });
+
+  it('holds an execute carrying no readable command at all', () => {
+    expect(classifyAutopilotToolCall({ kind: 'execute' }).autoApprove).toBe(false);
+    expect(classifyAutopilotToolCall({ kind: 'execute', title: '', rawInput: {} }).autoApprove).toBe(false);
+    expect(classifyAutopilotToolCall({ kind: 'execute', title: '   ', rawInput: { note: 42 } }).autoApprove).toBe(
+      false
+    );
+  });
+
+  it('still auto-approves an ordinary shell command whose title is not an MCP name', () => {
+    expect(
+      classifyAutopilotToolCall({ kind: 'execute', title: 'Bash', rawInput: { command: 'bun run build' } }).autoApprove
+    ).toBe(true);
+  });
+
+  it('does not mistake a shell command containing a double underscore for an MCP call', () => {
+    expect(
+      classifyAutopilotToolCall({ kind: 'execute', title: 'Bash', rawInput: { command: 'node build__step.js' } })
+        .autoApprove
+    ).toBe(true);
+  });
+});
+
+describe('classifyAutopilotToolCall - non-string command payloads are classified', () => {
+  it('holds a catastrophic command supplied as an argv array', () => {
+    expect(
+      classifyAutopilotToolCall({ kind: 'execute', title: 'Bash', rawInput: { command: ['rm', '-rf', '~'] } })
+        .autoApprove
+    ).toBe(false);
+  });
+
+  it('holds a catastrophic command nested inside a wrapper object', () => {
+    expect(
+      classifyAutopilotToolCall({ kind: 'execute', title: 'Bash', rawInput: { input: { command: 'rm -rf ~' } } })
+        .autoApprove
+    ).toBe(false);
+  });
+
+  it('auto-approves an ordinary argv array', () => {
+    expect(
+      classifyAutopilotToolCall({ kind: 'execute', title: 'Bash', rawInput: { command: ['bun', 'run', 'build'] } })
+        .autoApprove
+    ).toBe(true);
+  });
+});
