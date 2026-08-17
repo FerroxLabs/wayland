@@ -152,6 +152,22 @@ describe('BackupCard export feedback (F5)', () => {
     fireEvent.click(screen.getByText('settings.storagePage.restoreConfirm'));
   };
 
+  /**
+   * #1042 F6. The private-network restriction is a fact about the WebUI route's
+   * operator gate, not about restore. On desktop the archive comes from a native
+   * file dialog, so showing it there reads to someone on an offline laptop as
+   * "this will not work for me".
+   */
+  it('does not show the WebUI network restriction in the desktop restore dialog', () => {
+    render(<BackupCard />);
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+
+    // Known positive: the dialog's own warning IS rendered, so a missing network
+    // clause is a real absence and not an unopened dialog.
+    expect(screen.getByText('settings.storagePage.restoreWarning')).toBeInTheDocument();
+    expect(screen.queryByText(/restoreWarningNetwork/)).toBeNull();
+  });
+
   it('reports the durable safety path after a desktop restore', async () => {
     mockImportBackup.mockResolvedValue({
       ok: true,

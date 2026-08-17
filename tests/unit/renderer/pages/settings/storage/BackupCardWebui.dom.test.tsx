@@ -80,6 +80,16 @@ describe('BackupCard WebUI restore reporting (#1021, #1042 F5)', () => {
     fireEvent.click(screen.getByText('settings.storagePage.restoreConfirm'));
   };
 
+  // #1042 F6, the other side of the same split: the network restriction is real
+  // for this surface, so it must still be shown here.
+  it('still shows the network restriction in the WebUI restore dialog', () => {
+    render(<BackupCard />);
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+
+    expect(document.body.textContent).toContain('settings.storagePage.restoreWarning');
+    expect(document.body.textContent).toContain('settings.storagePage.restoreWarningNetwork');
+  });
+
   it('never reports success when a WebUI restore applied nothing', async () => {
     mockRestoreHttp.mockResolvedValue({
       safetyBackupPath: '/data/recovery/legacy-file-imports/pre-restore.zip',

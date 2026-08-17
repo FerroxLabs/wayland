@@ -4278,6 +4278,7 @@ export type I18nKey =
   | 'settings.storagePage.restoreSuccessWithSafety'
   | 'settings.storagePage.restoreTooLarge'
   | 'settings.storagePage.restoreWarning'
+  | 'settings.storagePage.restoreWarningNetwork'
   | 'settings.storagePage.reviewCandidateReason'
   | 'settings.storagePage.sync.backendCloudRelay'
   | 'settings.storagePage.sync.backendIntro'

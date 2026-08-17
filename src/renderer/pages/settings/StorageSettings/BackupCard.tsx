@@ -228,7 +228,14 @@ const BackupCard: React.FC = () => {
         okButtonProps={{ status: 'danger', disabled: !isDesktop && (!restoreFile || !restorePassword) }}
       >
         <div className='flex flex-col gap-12px'>
-          <div className='text-12px text-t-tertiary leading-relaxed'>{t('settings.storagePage.restoreWarning')}</div>
+          <div className='text-12px text-t-tertiary leading-relaxed'>
+            {t('settings.storagePage.restoreWarning')}
+            {/* The private-network restriction is a fact about the WebUI route's
+                operator gate, not about restore. Showing it on desktop, where
+                the archive comes from a native file dialog, reads to someone on
+                an offline laptop as "this will not work for me". */}
+            {!isDesktop && ` ${t('settings.storagePage.restoreWarningNetwork')}`}
+          </div>
 
           {/* Desktop picks the archive through the native dialog in the main
               process, and has no WebUI operator password to step up against. */}
