@@ -77,7 +77,10 @@ const EngineConfigRecoveryPanel: React.FC<{
       if (result.ok) {
         return { tone: 'ok' as const, text: t(`conversation.engineConfigInvalid.result.${successKey}`, { name }) };
       }
-      if (result.reason === 'backup-failed') {
+      // `&& !backupPath` is load-bearing: a `backup-failed` that NAMES a backup is
+      // the F3b state below, where `config.toml` is gone, so "nothing was changed"
+      // would be false. Ordering alone is not enough - this branch is tested first.
+      if (result.reason === 'backup-failed' && !backupPath) {
         return {
           tone: 'error' as const,
           text: t('conversation.engineConfigInvalid.result.backupFailed', { reason: result.detail ?? '' }),
@@ -86,12 +89,18 @@ const EngineConfigRecoveryPanel: React.FC<{
       if (result.reason === 'not-a-regular-file') {
         return { tone: 'error' as const, text: t('conversation.engineConfigInvalid.result.notARegularFile') };
       }
-      // F3: the rollback-failure and restore-conflict branches are the ONLY reported
-      // states in which `config.toml` may not hold the user's original bytes, and
-      // they are exactly the states where main sets `backupPath`. The generic
-      // writeFailed line names no path, so this used to be the one place the user
-      // could not find out where their config went - which is the opposite of what
-      // this module's header promises. Whenever main names the backup, render it.
+      // F3. There are THREE reported states in which `config.toml` may not hold the
+      // user's original bytes: a failed rollback after a failed repair write, a
+      // restore-conflict, and a backup whose move succeeded but could not be undone
+      // (F3b - the readback or the byte check failed, then the restoring rename
+      // failed too). Main sets `backupPath` on all three and only on those, so the
+      // rule here is the whole rule: whenever main names a backup, render it, and
+      // never mind which `reason` came with it. The generic writeFailed line names
+      // no path, so this used to be the one place the user could not find out where
+      // their config went, which is the opposite of what this module's header
+      // promises. Executed before the F3 fix, on both halves: mentionsBackup=false;
+      // before the F3b fix, main dropped the path a step earlier, so this branch
+      // could not have rendered it at all.
       if (backupPath) {
         return {
           tone: 'error' as const,

@@ -17,7 +17,8 @@
  *  - the repair button is offered only when main reported an unambiguous fix;
  *  - clicking "Start over" does NOT call `regenerate`; only the confirmation does,
  *    and it passes `confirmed: true`;
- *  - a `backup-failed` result is reported as "nothing was changed";
+ *  - a `backup-failed` result is reported as "nothing was changed" - unless it
+ *    NAMES a backup, which means `config.toml` is gone and that line would be false;
  *  - a REJECTED bridge call (what all four channels do on the remote WebUI
  *    transport, where they are correctly remote-denied) surfaces as an outcome
  *    line instead of an unhandled rejection;
@@ -224,6 +225,35 @@ describe('EngineConfigRecoveryPanel', () => {
       expect(screen.getByTestId('engine-config-outcome').textContent).toContain('result.writeFailedWithBackup')
     );
     expect(screen.getByTestId('engine-config-outcome').textContent).toContain('config.toml.backup-20260817-142530');
+  });
+
+  /**
+   * F3b. A `backup-failed` that NAMES a backup is the state where the move
+   * succeeded and could not be undone: `config.toml` is GONE and the original
+   * bytes are only at that path. Rendering "nothing was changed" there is the
+   * exact misinformation this panel exists to remove, and the `backup-failed`
+   * branch is tested BEFORE the generic backupPath catch-all, so ordering alone
+   * would not have saved it.
+   */
+  it('F3b: a backup-failed that NAMES a backup must not say "nothing was changed"', async () => {
+    mockInspect.mockResolvedValue(INVALID);
+    mockRepair.mockResolvedValue({
+      ok: false,
+      reason: 'backup-failed',
+      detail: 'backup could not be read back: EIO: i/o error, read',
+      backupPath: '/x/config.toml.backup-20260817-215959',
+    });
+    render(<EngineConfigRecoveryPanel />);
+
+    await waitFor(() => expect(screen.getByTestId('engine-config-repair')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('engine-config-repair').querySelector('button')!);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('engine-config-outcome').textContent).toContain('result.writeFailedWithBackup')
+    );
+    const text = screen.getByTestId('engine-config-outcome').textContent ?? '';
+    expect(text).toContain('config.toml.backup-20260817-215959');
+    expect(text).not.toContain('result.backupFailed');
   });
 
   it('a failure with NO backup still uses the plain writeFailed line', async () => {

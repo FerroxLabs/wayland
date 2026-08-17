@@ -118,7 +118,12 @@ export type EngineConfigInspection =
 
 /** Why a write-side recovery action did not complete. */
 export type EngineConfigRecoveryFailure =
-  /** The backup could not be proven; NOTHING was written. */
+  /**
+   * The backup could not be PROVEN, so nothing was ever written. Usually nothing
+   * moved either and `config.toml` is untouched - but if the move succeeded and
+   * could not be undone, the config path is EMPTY and `backupPath` is set to the
+   * one place the original bytes are (F3b).
+   */
   | 'backup-failed'
   /** Regenerate was called without confirmation; nothing happened. */
   | 'not-confirmed'
@@ -146,9 +151,11 @@ export type EngineConfigRecoveryFailure =
  * discriminated union, deliberately: this repo's `tsconfig.json` does not enable
  * `strictNullChecks`, so a boolean discriminant does not narrow and every
  * consumer would need a cast. `ShellOpenResult` in `ipcBridge.ts` is flat for the
- * same reason. `backupPath` is set on success and also on a post-backup failure
- * (the user still needs to know where their data went); `reason`/`detail` are set
- * only on failure.
+ * same reason. `backupPath` is set on success and on EVERY failure in which
+ * `config.toml` may not hold the user's original bytes - the user still needs to
+ * know where their data went - and deliberately absent otherwise, which is what
+ * lets the renderer tell those two apart; `reason`/`detail` are set only on
+ * failure.
  */
 export type EngineConfigRecoveryResult = {
   ok: boolean;
@@ -483,9 +490,18 @@ export function decodeStrictUtf8(bytes: Buffer): string | null {
 /** Thrown when the original could not be moved aside and PROVEN intact. */
 export class EngineConfigBackupError extends Error {
   readonly code = 'ENGINE_CONFIG_BACKUP_FAILED' as const;
-  constructor(detail: string) {
+  /**
+   * Set ONLY when the move already happened and could NOT be undone, so
+   * `config.toml` is absent and the user's original bytes exist nowhere but here.
+   * Absent whenever the config path still holds those bytes, because then naming
+   * a backup would point the user at a file that is not the one they need. The
+   * callers turn this into the `backupPath` on their failure result.
+   */
+  readonly backupPath?: string;
+  constructor(detail: string, backupPath?: string) {
     super(`Could not create a verified backup of the engine config: ${detail}`);
     this.name = 'EngineConfigBackupError';
+    if (backupPath) this.backupPath = backupPath;
   }
 }
 
@@ -551,20 +567,59 @@ export async function createVerifiedBackup(
     throw new EngineConfigBackupError(summarizeReason(error));
   }
 
+  // From here on the move HAS happened, so `configPath` does not exist. Every
+  // exit below either puts the original back or reports where it is; a failure
+  // that does neither is the "nothing was changed" lie F3b was filed about.
   let backupBytes: Buffer;
   try {
     backupBytes = await deps.readFileBytes(backupPath);
   } catch (error) {
-    await deps.renameFile(backupPath, configPath).catch(ignoreCleanupFailure);
-    throw new EngineConfigBackupError(`backup could not be read back: ${summarizeReason(error)}`);
+    const restored = await undoBackupMove(configPath, backupPath, deps);
+    throw new EngineConfigBackupError(
+      `backup could not be read back: ${summarizeReason(error)}`,
+      restored ? undefined : backupPath
+    );
   }
 
   if (!backupBytes.equals(originalBytes)) {
-    await deps.renameFile(backupPath, configPath).catch(ignoreCleanupFailure);
-    throw new EngineConfigBackupError('the file changed while it was being backed up');
+    const restored = await undoBackupMove(configPath, backupPath, deps);
+    throw new EngineConfigBackupError(
+      'the file changed while it was being backed up',
+      restored ? undefined : backupPath
+    );
   }
 
   return backupPath;
+}
+
+/**
+ * Put the moved-aside original back at `configPath` after a failed verification.
+ *
+ * F3b. This used to be `.catch(ignoreCleanupFailure)`, which discarded the one
+ * fact the UI needed: whether the undo worked. When it does not, `config.toml`
+ * is ABSENT and the user's only copy is the timestamped backup, and the panel was
+ * telling them nothing had changed. Executed on a real filesystem with the
+ * restoring rename forced to fail, on both verification branches and both write
+ * paths: `config.toml exists=false`, `result.backupPath=ABSENT`, and the backup
+ * held the original `api_key` bytes.
+ *
+ * Distinct from {@link restoreFromBackup}, which undoes a failed REPAIR WRITE and
+ * so has to clear what that write left behind first. Nothing has been written yet
+ * at this point, so there is nothing to clear.
+ *
+ * @returns `true` when `configPath` holds the original bytes again.
+ */
+async function undoBackupMove(
+  configPath: string,
+  backupPath: string,
+  deps: EngineConfigRecoveryDeps
+): Promise<boolean> {
+  try {
+    await deps.renameFile(backupPath, configPath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** Live dependencies: raw-byte reads, exclusive creates, real renames. */
@@ -653,6 +708,17 @@ async function refuseIrregularConfig(
 
 /** `true` when a failed exclusive create means the path already existed. */
 const isAlreadyExists = (error: unknown): boolean => (error as { code?: string } | null)?.code === 'EEXIST';
+
+/**
+ * Spread of the backup path a backup failure is carrying, or nothing.
+ *
+ * A spread rather than an assignment so `backupPath` stays ABSENT on the common
+ * case, which is what the renderer keys the "nothing was changed" line off.
+ */
+const backupPathOf = (error: unknown): { backupPath?: string } => {
+  const backupPath = (error as EngineConfigBackupError | null)?.backupPath;
+  return backupPath ? { backupPath } : {};
+};
 
 /** Read the config's raw bytes, mapping a missing file onto a typed result. */
 async function readConfigBytes(
@@ -755,7 +821,7 @@ export async function repairEngineConfig(
   try {
     backupPath = await createVerifiedBackup(path, read.bytes, deps);
   } catch (error) {
-    return { ok: false, reason: 'backup-failed', detail: summarizeReason(error) };
+    return { ok: false, reason: 'backup-failed', detail: summarizeReason(error), ...backupPathOf(error) };
   }
 
   // `config.toml` does not exist now, so this is an exclusive create: no temp
@@ -859,7 +925,7 @@ export async function regenerateEngineConfig(
     // This rename IS the removal. There is no `unlink` on this path at all.
     backupPath = await createVerifiedBackup(path, read.bytes, deps);
   } catch (error) {
-    return { ok: false, reason: 'backup-failed', detail: summarizeReason(error) };
+    return { ok: false, reason: 'backup-failed', detail: summarizeReason(error), ...backupPathOf(error) };
   }
 
   return { ok: true, backupPath };

@@ -22,7 +22,7 @@
  *    by identity rather than truthiness;
  *  - nothing the inspection returns carries file content.
  */
-import { mkdtemp, readFile as realReadFile, rm, writeFile as realWriteFile } from 'node:fs/promises';
+import { appendFile, mkdtemp, readFile as realReadFile, rm, writeFile as realWriteFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { existsSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -42,6 +42,7 @@ import {
   backupStamp,
   defaultRecoveryDeps,
   type EngineConfigRecoveryDeps,
+  type EngineConfigRecoveryResult,
 } from '@process/agent/wcore/engineConfigRecovery';
 import { DesktopProfileSpliceError, spliceDesktopMcpProfile } from '@process/agent/wcore/desktopProfileSplice';
 import { appendDesktopMcpProfile, WCORE_DESKTOP_MCP_PROFILE } from '@process/agent/wcore/envBuilder';
@@ -848,5 +849,150 @@ describe('against a real scratch config dir', () => {
 
     await rm(dir, { recursive: true, force: true });
     await rm(healthy.dir, { recursive: true, force: true });
+  });
+});
+
+/**
+ * F3b (#1031 delta audit). The THIRD state in which `config.toml` is gone and the
+ * user's original bytes live only at the backup: `createVerifiedBackup` completed
+ * the rename, then the readback failed or the byte comparison did not match, and
+ * the RESTORING rename failed as well. The error carried no path, so both callers
+ * returned `backup-failed` with no `backupPath` and the panel rendered "nothing
+ * was changed" over an absent config, pointing at nothing.
+ *
+ * Executed before the fix, on both branches and both write paths:
+ * `result.backupPath=ABSENT`, `config.toml exists=false`, and the backup held the
+ * original credential bytes under a timestamped name the user was never told.
+ */
+describe('F3b: the restoring rename fails after the move', () => {
+  /**
+   * Real filesystem for every operation except the ONE fault under test. The
+   * restoring rename (backup -> config) is forced to fail in both modes. The
+   * readback fault is an injected `EIO`; the byte MISMATCH is a REAL race - the
+   * config is appended to between the read and the rename, from inside the
+   * placeholder create that immediately precedes it - so no stub is reporting a
+   * mismatch that did not happen.
+   */
+  async function brokenRestore(mode: 'readback-eio' | 'toctou') {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-f3b-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const isBackup = (p: string) => p.startsWith(`${configPath}.backup-`);
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      writeFileExclusive: async (path, data) => {
+        await real.writeFileExclusive(path, data);
+        if (mode === 'toctou' && isBackup(path)) await appendFile(configPath, '# raced\n', 'utf-8');
+      },
+      readFileBytes: async (path) => {
+        if (mode === 'readback-eio' && isBackup(path)) {
+          throw Object.assign(new Error('EIO: i/o error, read'), { code: 'EIO' });
+        }
+        return real.readFileBytes(path);
+      },
+      renameFile: async (from, to) => {
+        // ONLY the restoring direction fails; the backup move itself is real.
+        if (isBackup(from) && to === configPath) {
+          throw Object.assign(new Error('EIO: i/o error, rename'), { code: 'EIO' });
+        }
+        return real.renameFile(from, to);
+      },
+    };
+    return { dir, configPath, deps };
+  }
+
+  const writePaths: [string, (deps: EngineConfigRecoveryDeps) => Promise<EngineConfigRecoveryResult>][] = [
+    ['repair', (deps) => repairEngineConfig(deps)],
+    ['regenerate', (deps) => regenerateEngineConfig({ confirmed: true }, deps)],
+  ];
+
+  for (const mode of ['readback-eio', 'toctou'] as const) {
+    for (const [label, run] of writePaths) {
+      it(`${mode} on ${label}: config.toml is gone, so the backup MUST be named`, async () => {
+        const { dir, configPath, deps } = await brokenRestore(mode);
+
+        const result = await run(deps);
+        expect(result).toMatchObject({ ok: false, reason: 'backup-failed' });
+
+        // The premise of the "nothing was changed" line is false here.
+        expect(existsSync(configPath)).toBe(false);
+
+        // So the path the user needs has to come back with the failure.
+        expect(result.backupPath).toBeTruthy();
+        expect(result.backupPath.startsWith(`${configPath}.backup-`)).toBe(true);
+        expect(existsSync(result.backupPath)).toBe(true);
+
+        // And it is the user's original file, credential included.
+        const kept = await realReadFile(result.backupPath, 'utf-8');
+        expect(kept.startsWith(REPORTED_CORRUPT)).toBe(true);
+        expect(kept).toContain('sk-ant-api03-EXAMPLEKEYVALUE');
+
+        await rm(dir, { recursive: true, force: true });
+      });
+    }
+  }
+
+  it('KNOWN POSITIVE: the same scratch dir with no fault injected repairs cleanly', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-f3b-ok-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const deps: EngineConfigRecoveryDeps = { ...defaultRecoveryDeps(), resolveConfigPath: async () => configPath };
+
+    const result = await repairEngineConfig(deps);
+    expect(result.ok).toBe(true);
+    expect(result.reason).toBeUndefined();
+    expect(existsSync(configPath)).toBe(true);
+
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  it('NEGATIVE CONTROL: a restore that SUCCEEDS reports no path, because the config is back', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-f3b-restored-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      readFileBytes: async (path) => {
+        if (path.startsWith(`${configPath}.backup-`)) {
+          throw Object.assign(new Error('EIO: i/o error, read'), { code: 'EIO' });
+        }
+        return real.readFileBytes(path);
+      },
+    };
+
+    const result = await repairEngineConfig(deps);
+    expect(result).toMatchObject({ ok: false, reason: 'backup-failed' });
+    // "Nothing was changed" is TRUE here, so naming a backup would be the lie.
+    expect(result.backupPath).toBeUndefined();
+    expect(await realReadFile(configPath, 'utf-8')).toBe(REPORTED_CORRUPT);
+    expect(readdirSync(dir)).toEqual(['config.toml']);
+
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  it('NEGATIVE CONTROL: a backup that fails BEFORE the move reports no path either', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-f3b-nomove-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      renameFile: async () => {
+        throw Object.assign(new Error('EIO: i/o error, rename'), { code: 'EIO' });
+      },
+    };
+
+    const result = await repairEngineConfig(deps);
+    expect(result).toMatchObject({ ok: false, reason: 'backup-failed' });
+    expect(result.backupPath).toBeUndefined();
+    expect(await realReadFile(configPath, 'utf-8')).toBe(REPORTED_CORRUPT);
+    expect(readdirSync(dir)).toEqual(['config.toml']);
+
+    await rm(dir, { recursive: true, force: true });
   });
 });
