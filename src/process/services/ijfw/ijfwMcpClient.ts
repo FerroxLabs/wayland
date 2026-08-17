@@ -143,6 +143,14 @@ type WriteQueueItem = {
 
 type RuntimeMode = 'degraded' | 'full';
 
+/**
+ * #891: raised by `ensureSpawned` when the respawn backoff declined to attempt
+ * a spawn. It is NOT a spawn failure - nothing was tried - so `invoke` reports
+ * it as `spawn_backoff`, telling the caller the result is retryable once the
+ * window closes rather than a confirmed dead runtime.
+ */
+class RespawnBackoffError extends Error {}
+
 class IjfwMcpClient {
   private child: ChildProcess | null = null;
   private childPromise: Promise<ChildProcess | null> | null = null;
@@ -192,7 +200,13 @@ class IjfwMcpClient {
       child = await this.ensureSpawned();
     } catch (err) {
       log.warn('[ijfw-mcp] spawn failed', { err });
-      return { ok: false, error: (err as Error).message, errorReason: 'spawn_error' };
+      // #891: the backoff refuses to spawn for RESPAWN_BACKOFF_MS after a
+      // failure - that path never touched the runtime, so it must NOT be
+      // reported as `spawn_error`. A health probe landing inside the window
+      // would otherwise record a spawn failure that never happened and latch
+      // the Memory runtime row to Degraded for the rest of the session.
+      const errorReason = err instanceof RespawnBackoffError ? 'spawn_backoff' : 'spawn_error';
+      return { ok: false, error: (err as Error).message, errorReason };
     }
     if (!child) {
       return { ok: false, error: 'spawn returned no child', errorReason: 'spawn_error' };
@@ -302,7 +316,9 @@ class IjfwMcpClient {
     // until the user uninstalls.
     const sinceLastFailure = Date.now() - this.lastSpawnFailureAt;
     if (this.lastSpawnFailureAt > 0 && sinceLastFailure < RESPAWN_BACKOFF_MS) {
-      throw new Error(`IJFW MCP respawn backoff active (${RESPAWN_BACKOFF_MS - sinceLastFailure}ms remaining)`);
+      throw new RespawnBackoffError(
+        `IJFW MCP respawn backoff active (${RESPAWN_BACKOFF_MS - sinceLastFailure}ms remaining)`
+      );
     }
     this.childPromise = this.spawnChild()
       .then((child) => {
