@@ -341,6 +341,20 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'wcoreConfig.getBrowserPolicy',
   // Exact runtime config identity includes absolute local filesystem paths.
   'wcoreConfig.getEffectiveRuntime',
+  //     #990: `wcoreConfig.getOutputBudget` is the one member of this namespace
+  //     that is deliberately NOT denied, and the gap is design rather than drift.
+  //     It was carved out in the same commit that denied every sibling (#925),
+  //     and `bridgeAllowlist.redteam.test.ts` has asserted the split ever since
+  //     ("keeps output-budget reads remote but denies the mutation"). The reason
+  //     the reads above are denied does not apply to it: its whole payload is
+  //     `{ mode: 'auto' | 'fixed'; value?: number }` - a token cap, with no
+  //     secret, no local path, and nothing about the sandbox or tool posture.
+  //     `setOutputBudget` above is the half that matters and stays denied, as
+  //     does the `wcore.outputBudget` config-storage side door further down.
+  //     Recorded here because an unexplained gap in an otherwise-uniform group
+  //     gets re-raised every time someone reads the file; the sync test in
+  //     `bridgeAllowlistWcoreConfig.redteam.test.ts` now pins the whole namespace
+  //     so a FUTURE sibling cannot inherit this carve-out by omission.
   // Profile metadata includes local names and filesystem paths. Remote has no
   // redacted DTO or authority contract, so fail closed.
   'wcoreProfiles.list',
@@ -657,9 +671,10 @@ const REMOTE_DENIED_CONFIG_KEY_PREFIXES: readonly string[] = [
   'webui.desktop.',
   'workspace.trustLevel',
   'wcore.rawEngineMode',
-  // Output-budget writes must use the dedicated transactional provider. A
-  // remote peer may use that typed path, but must not bypass its validation,
-  // serialization, and explicit failure result through generic storage.
+  // Output-budget writes must use the dedicated transactional provider, and that
+  // provider (`wcoreConfig.setOutputBudget`) is itself remote-denied. Guard the
+  // persisted key so the generic storage setter cannot become the side door the
+  // typed path closed. The matching READ stays remote-reachable by design (#990).
   'wcore.outputBudget',
 ];
 
