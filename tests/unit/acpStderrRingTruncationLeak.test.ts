@@ -25,6 +25,13 @@
  * Fixed at the ring rather than at the banner: drop the partial leading record, so
  * no half-token ever exists for the scrubber to miss.
  *
+ * A record boundary is `\r` as well as `\n`, and a ring with NO boundary anywhere
+ * still has to drop its leading run of non-whitespace. The first cut of this fix
+ * handled only `\n` and kept the entire 8KB when there was none, which left the
+ * half-token exactly where it started - reproduced live, `LEAK=true`, on a
+ * space-separated config echo and on bare-CR output. So both paths are exercised
+ * here WITH a credential in the payload, not just for diagnostic survival.
+ *
  * Driven through a REAL child process writing to REAL stderr.
  */
 
@@ -90,19 +97,23 @@ async function driveChildStderr(payload: string): Promise<{ ring: string; banner
 
 /**
  * A payload whose last {@link RING_MAX} characters begin exactly `offset` characters
- * INTO a credential, followed by whole newline-separated credentials so redaction
+ * INTO a credential, followed by whole `sep`-separated credentials so redaction
  * shrinks the ring under the banner's 2048-character tail.
+ *
+ * `sep` is the separator standing in for a newline. A single space is the case that
+ * matters most: a structured logger emitting one JSON line of over 8KB with a config
+ * echo in it has no `\n` in the retained window at all.
  *
  * The arithmetic is ASSERTED, not assumed: the first cut of this test put the cut in
  * the filler instead and passed against the unfixed code.
  */
-function payloadCutting(offset: number): string {
+function payloadCutting(offset: number, sep = '\n'): string {
   const restLen = RING_MAX - (SECRET.length - offset);
-  let rest = '\n';
-  while (rest.length + SECRET.length + 1 <= restLen) rest += `${SECRET}\n`;
+  let rest = sep;
+  while (rest.length + SECRET.length + sep.length <= restLen) rest += `${SECRET}${sep}`;
   rest += 'o'.repeat(restLen - rest.length);
 
-  const payload = `noise ${'x'.repeat(70)}\n`.repeat(30) + `token ${SECRET}${rest}`;
+  const payload = `noise ${'x'.repeat(70)}${sep}`.repeat(30) + `token ${SECRET}${rest}`;
   const cut = payload.slice(-RING_MAX);
   if (cut !== SECRET.slice(offset) + rest) throw new Error(`payload arithmetic wrong for offset ${offset}`);
   return payload;
@@ -140,11 +151,59 @@ describe('#1023 the stderr ring must not leak a truncated credential', () => {
     });
   }
 
+  // The separators that are NOT `\n`. A single space is the no-boundary case, where
+  // the first cut of this fix kept all 8192 characters including the half-token; a
+  // bare `\r` is a real record boundary that a `\n`-only search walks straight past.
+  // Both were reproduced leaking against the `\n`-only code, so a pass here is the
+  // second cut of the fix and not an untested payload.
+  for (const [label, sep] of [
+    ['no newline anywhere, space-separated', ' '],
+    ['bare carriage returns, no newline', '\r'],
+  ] as const) {
+    describe(`a ring cut mid-credential with ${label}`, () => {
+      it('leaves no half-token in the ring itself', async () => {
+        const { ring } = await driveChildStderr(payloadCutting(6, sep));
+        expect(ring.length).toBeLessThanOrEqual(RING_MAX);
+        expect(ring.startsWith(SECRET.slice(6))).toBe(false);
+        expect(redactSecrets(ring)).not.toContain(SECRET.slice(6));
+      }, 20000);
+
+      it('leaves no half-token in the user-visible banner', async () => {
+        const { banner } = await driveChildStderr(payloadCutting(6, sep));
+        expect(banner).not.toContain(SECRET.slice(6));
+        // Known positive in the same banner: the whole credentials DID redact, so a
+        // pass is the truncation being fixed and not the scrubber being absent.
+        expect(banner).toContain('[redacted]');
+      }, 20000);
+    });
+  }
+
   it('a stderr tail with NO newline at all still reaches the banner', async () => {
-    // 9KB of unbroken text has no record boundary to cut at, so the ring must keep
-    // what it has rather than emptying itself.
-    const { ring, banner } = await driveChildStderr('y'.repeat(9000) + 'THE-REAL-ERROR');
+    // 9KB of unbroken text has no record boundary to cut at. Dropping the leading
+    // run of non-whitespace costs one token, so the real error still lands on screen.
+    const { ring, banner } = await driveChildStderr('y'.repeat(9000) + ' THE-REAL-ERROR');
     expect(ring).toContain('THE-REAL-ERROR');
     expect(banner).toContain('THE-REAL-ERROR');
+  }, 20000);
+
+  it('a boundary-free run of 8KB with no whitespace at all empties the ring', async () => {
+    // The accepted cost, pinned so it cannot drift silently: when the whole retained
+    // window is a single whitespace-free token there is nothing there that separates
+    // a base64 blob from a secret, so it all goes. The banner still names the reason.
+    const { ring, banner } = await driveChildStderr('y'.repeat(9000) + 'GLUED-ON-ERROR');
+    expect(ring).toBe('');
+    expect(banner).not.toContain('GLUED-ON-ERROR');
+    expect(banner).toContain('connection_close');
+  }, 20000);
+
+  it('cuts at a leading \\r rather than a later \\n, keeping the records in between', async () => {
+    // Taking whichever boundary comes FIRST is what makes bare-CR output safe, and it
+    // is also the cheaper cut: the `\n`-only search discarded everything up to the
+    // newline, which measured 2801 characters of real diagnostics on this payload.
+    const head = `${SECRET}\r${'diag line one '.repeat(200)}\n${'diag line two '.repeat(200)}`;
+    const pad = 'p'.repeat(RING_MAX - (SECRET.length - 6) - (head.length - SECRET.length));
+    const { ring } = await driveChildStderr('lead '.repeat(100) + head + pad);
+    expect(ring.startsWith(SECRET.slice(6))).toBe(false);
+    expect(ring).toContain('diag line one');
   }, 20000);
 });
