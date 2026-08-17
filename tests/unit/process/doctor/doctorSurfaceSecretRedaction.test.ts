@@ -1087,7 +1087,74 @@ describe('workspace inventory — for a PROJECT the name re-enters through the p
   });
 });
 
-describe('runner — the catch-all for every check', () => {
+describe('runner — the whole-surface guarantees', () => {
+  it('NEVER-THROWS ORACLE: an Error whose message getter throws does not escape', async () => {
+    // Reading `error.message` was the hole in the never-throws contract: the
+    // extraction itself threw, the rejection escaped `Promise.all`, `runDoctor`
+    // rejected, and the SECONDARY error reached `doctorBridge` unscrubbed
+    // [executed]. Exotic, but the contract is either true or it is not.
+    class Hostile extends Error {
+      override get message(): string {
+        throw new Error(`secondary carrying ${API_KEY}`);
+      }
+    }
+
+    const report = await runDoctor([
+      {
+        id: 'test.hostile',
+        titleKey: 'test.hostile',
+        category: 'config',
+        run: async () => {
+          throw new Hostile();
+        },
+      },
+    ]);
+
+    const [result] = report.results;
+    expect(result.status).toBe('fail');
+    expect(findsSecret(surfaced(result))).toBe(false);
+    // Still says a check threw, so the failure is not silent.
+    expect(result.detail).toContain('Check threw an error');
+  });
+
+  it('LENGTH ORACLE: an unbounded detail is capped at the report boundary', async () => {
+    // Executed on the unfixed runner a 2,000,000-character probe error produced a
+    // 2,000,052-character detail, which the UI renders and offers to copy.
+    const report = await runDoctor([
+      {
+        id: 'test.huge',
+        titleKey: 'test.huge',
+        category: 'config',
+        run: async () => ({
+          status: 'fail' as const,
+          detail: 'q'.repeat(2_000_000),
+          remediation: 'r'.repeat(2_000_000),
+        }),
+      },
+    ]);
+
+    const [result] = report.results;
+    expect(result.detail).toHaveLength(4_000);
+    expect(result.remediation).toHaveLength(4_000);
+    expect(result.detail).toContain('[truncated]');
+  });
+
+  it('leaves an ordinary detail untouched, including a large real one', async () => {
+    // The cap must not be trimming real diagnostics. 3,000 characters is about a
+    // twenty-server MCP failure, the largest this surface legitimately produces.
+    const real = `${'a'.repeat(3_000)} end`;
+    const report = await runDoctor([
+      {
+        id: 'test.real',
+        titleKey: 'test.real',
+        category: 'config',
+        run: async () => ({ status: 'warn' as const, detail: real }),
+      },
+    ]);
+    expect(report.results[0].detail).toBe(real);
+    expect(report.results[0].detail).not.toContain('[truncated]');
+  });
+
   it('scrubs a credential carried by a thrown check error', async () => {
     const report = await runDoctor([
       {
