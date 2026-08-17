@@ -44,7 +44,15 @@ const roots: string[] = [];
 const SPAWN_TIMEOUT_MS = 30_000;
 
 function run(script: string, args: string[]) {
-  return spawnSync('bash', [script, ...args], { cwd: process.cwd(), encoding: 'utf8' });
+  // Give the subprocess a REAL deadline. vitest's testTimeout cannot interrupt a
+  // blocking spawnSync -- #1011's case ran 12236ms under a 10000ms cap -- so
+  // without this an unbounded hang becomes a CANCELLED shard, which reds out the
+  // required checks indistinguishably from a genuine failure. Bounded red instead.
+  return spawnSync('bash', [script, ...args], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    timeout: SPAWN_TIMEOUT_MS - 5_000,
+  });
 }
 
 /**
