@@ -77,6 +77,41 @@ describe('geminiConversationBridge', () => {
     expect(result).toEqual({ success: true });
   });
 
+  // #983: postMessagePromise now rejects when the worker child exits, so this
+  // bridge has to handle the rejection. IAgentManager.confirm is typed `void`
+  // and only the Gemini implementation returns a promise, so chaining .catch
+  // straight onto the call throws "Cannot read properties of undefined" for
+  // every implementation (and every mock) that returns nothing.
+  it('#983: survives a confirm implementation that returns no promise', async () => {
+    const task = makeGeminiTask('c1');
+    task.confirm.mockReturnValue(undefined);
+    vi.mocked(taskManager.getTask).mockReturnValue(task as any);
+
+    await expect(
+      handlers['confirmMessage']({ conversation_id: 'c1', msg_id: 'msg-1', confirmKey: 'allow', callId: 'call-1' })
+    ).resolves.toEqual({ success: true });
+  });
+
+  // #983: a worker that died mid-confirm rejects the round-trip. That must be
+  // swallowed into a log, never left to surface as an unhandled rejection.
+  it('#983: swallows a rejected confirm round-trip instead of leaking it', async () => {
+    const task = makeGeminiTask('c1');
+    task.confirm.mockRejectedValue(new Error('fork task child exited before responding'));
+    vi.mocked(taskManager.getTask).mockReturnValue(task as any);
+
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await expect(
+        handlers['confirmMessage']({ conversation_id: 'c1', msg_id: 'msg-1', confirmKey: 'allow', callId: 'call-1' })
+      ).resolves.toEqual({ success: true });
+      // Let the rejection settle; an unguarded one would escape here.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('call-1'), expect.stringContaining('child exited'));
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it('returns error response when task is not found in manager', async () => {
     vi.mocked(taskManager.getTask).mockReturnValue(undefined);
 

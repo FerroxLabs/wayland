@@ -1174,7 +1174,13 @@ export class TeammateManager extends EventEmitter {
       `[TeammateManager] maybeWakeLeaderWhenAllIdle: ${nonLeadAgents.map((a) => `${a.agentName}:${a.status}`).join(', ')} → ${allSettled ? 'WAKE' : 'SKIP'}`
     );
     if (allSettled) {
-      void this.wake(leadSlotId);
+      // #983: wake() rejects on a dead worker now that the fork round-trip is
+      // bounded, and this one is fire-and-forget - unguarded it becomes an
+      // unhandled rejection. The leader simply was not woken; the mailbox entry
+      // that triggered this is durable and rides the next wake.
+      void this.wake(leadSlotId).catch((err) => {
+        console.error(`[TeammateManager] maybeWakeLeaderWhenAllIdle wake(${leadSlotId}) failed:`, err);
+      });
     }
   }
 
@@ -1278,8 +1284,12 @@ export class TeammateManager extends EventEmitter {
     // 4. Mark as failed (frontend shows error status, tab stays)
     this.setStatus(agent.slotId, 'failed', errorMessage.slice(0, 200));
 
-    // 5. Wake leader to process the testament
-    void this.wake(leadAgent.slotId);
+    // 5. Wake leader to process the testament. #983: guarded for the same
+    // reason as above - the testament is already durable in the mailbox, so a
+    // failed wake must log, not raise an unhandled rejection.
+    void this.wake(leadAgent.slotId).catch((err) => {
+      console.error(`[TeammateManager] handleAgentCrash wake(${leadAgent.slotId}) failed:`, err);
+    });
   }
 
   /** Remove an agent: kill process, cancel pending wake, clear buffers, remove from in-memory list.
