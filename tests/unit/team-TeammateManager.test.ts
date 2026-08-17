@@ -2211,3 +2211,308 @@ describe('TeammateManager', () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// #983 / #980 - status lifecycle regressions
+// ---------------------------------------------------------------------------
+
+describe('TeammateManager status lifecycle (#983 / #980)', () => {
+  afterEach(() => {
+    teamEventBus.removeAllListeners('responseStream');
+  });
+
+  function makeTeam() {
+    return [
+      makeAgent({ slotId: 'slot-lead', conversationId: 'conv-lead', role: 'leader', status: 'idle', agentName: 'Lead' }),
+      makeAgent({
+        slotId: 'slot-member',
+        conversationId: 'conv-member',
+        role: 'teammate',
+        status: 'idle',
+        agentName: 'Codex',
+        agentType: 'codex',
+      }),
+    ];
+  }
+
+  // #983: the watchdog used to be armed AFTER `await agentTask.sendMessage(...)`.
+  // On the gemini backend that await spans the whole turn and the ForkTask
+  // round-trip has no deadline, so a send that never resolved could never be
+  // guarded: the member stayed 'active' forever with nothing surfaced.
+  it('#983: a send that never resolves still trips the watchdog and surfaces a failure', async () => {
+    vi.useFakeTimers();
+    try {
+      const neverResolves = vi.fn(() => new Promise<void>(() => {}));
+      const { mgr, mailbox, workerTaskManager } = makeTeammateManager(makeTeam());
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage: neverResolves } as never);
+
+      // Deliberately NOT awaited: on the broken code this promise never settles.
+      const wakePromise = mgr.wake('slot-member');
+      void wakePromise.catch(() => {});
+      // Let the wake's own awaits (mailbox read, getOrBuildTask) drain.
+      await vi.advanceTimersByTimeAsync(1);
+
+      expect(neverResolves).toHaveBeenCalledTimes(1);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+
+      await vi.advanceTimersByTimeAsync(181_000);
+
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+      expect(mailbox.write).toHaveBeenCalledWith(
+        expect.objectContaining({
+          toAgentId: 'slot-lead',
+          fromAgentId: 'slot-member',
+          type: 'idle_notification',
+          content: expect.stringContaining('Codex'),
+        })
+      );
+
+      mgr.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  // #983: with the wake lock still held, TeamSessionService.restartAgent refuses
+  // ("Cannot restart while wake in progress") - the stuck member had no escape.
+  it('#983: releases the wake lock when the watchdog fires, so restart becomes reachable', async () => {
+    vi.useFakeTimers();
+    try {
+      const { mgr, workerTaskManager } = makeTeammateManager(makeTeam());
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
+        sendMessage: vi.fn(() => new Promise<void>(() => {})),
+      } as never);
+
+      void mgr.wake('slot-member').catch(() => {});
+      await vi.advanceTimersByTimeAsync(1);
+      expect(mgr.isWakeActive('slot-member')).toBe(true);
+
+      await vi.advanceTimersByTimeAsync(181_000);
+
+      expect(mgr.isWakeActive('slot-member')).toBe(false);
+
+      mgr.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  // #983: ForkTask now rejects a pending call when the child dies. That rejection
+  // has to reach the user as a failed member rather than being swallowed.
+  it('#983: a rejected send fails the member immediately and disarms the watchdog', async () => {
+    vi.useFakeTimers();
+    try {
+      const { mgr, workerTaskManager } = makeTeammateManager(makeTeam());
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
+        sendMessage: vi.fn().mockRejectedValue(new Error('fork task child exited before responding')),
+      } as never);
+
+      await expect(mgr.wake('slot-member')).rejects.toThrow('child exited');
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+      // Watchdog disarmed: no second 'failed' escalation once the budget lapses.
+      const statusEmits = () =>
+        mockIpcBridge.team.agentStatusChanged.emit.mock.calls.filter(
+          ([e]: [{ slotId: string; status: string }]) => e.slotId === 'slot-member' && e.status === 'failed'
+        ).length;
+      const before = statusEmits();
+      await vi.advanceTimersByTimeAsync(181_000);
+      expect(statusEmits()).toBe(before);
+
+      mgr.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  // #980 defect 1: setStatus wrote the in-memory array only. `TeamAgent.status`
+  // is persisted in `teams.agents`, so the DB copy went stale on every change.
+  it('#980: persists the roster on every status transition', async () => {
+    const onAgentsChanged = vi.fn();
+    const { mgr, workerTaskManager } = makeTeammateManager(makeTeam(), { onAgentsChanged });
+    vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+    } as never);
+
+    await mgr.wake('slot-member');
+
+    expect(onAgentsChanged).toHaveBeenCalled();
+    const [teamId, agents] = onAgentsChanged.mock.calls.at(-1)!;
+    expect(teamId).toBe('team-1');
+    expect(agents.find((a: TeamAgent) => a.slotId === 'slot-member')?.status).toBe('active');
+
+    mgr.dispose();
+  });
+
+  // #980 defect 1: nothing reconciled the persisted status after a restart.
+  it('#980: reconciles a persisted `active` (process died mid-turn) back to pending on load', () => {
+    const onAgentsChanged = vi.fn();
+    const stale = [
+      makeAgent({ slotId: 'slot-lead', conversationId: 'conv-lead', role: 'leader', status: 'idle' }),
+      makeAgent({ slotId: 'slot-member', conversationId: 'conv-member', role: 'teammate', status: 'active' }),
+    ];
+    const { mgr } = makeTeammateManager(stale, { onAgentsChanged });
+    mgr.reconcilePersistedStatuses();
+
+    expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('pending');
+    // ...and the reconciliation is written back, so the DB stops disagreeing.
+    expect(onAgentsChanged).toHaveBeenCalledWith(
+      'team-1',
+      expect.arrayContaining([expect.objectContaining({ slotId: 'slot-member', status: 'pending' })])
+    );
+
+    mgr.dispose();
+  });
+
+  it('#980: a persisted `failed` survives a restart untouched', () => {
+    const stale = [
+      makeAgent({ slotId: 'slot-lead', conversationId: 'conv-lead', role: 'leader', status: 'idle' }),
+      makeAgent({ slotId: 'slot-member', conversationId: 'conv-member', role: 'teammate', status: 'failed' }),
+    ];
+    const { mgr } = makeTeammateManager(stale);
+    mgr.reconcilePersistedStatuses();
+
+    expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+    mgr.dispose();
+  });
+
+  // #980 defect 4: `failed` was sticky. finalizeTurn only returned an 'active'
+  // agent to idle, so a soft-failed member that finished its turn stayed dead in
+  // the leader's view forever.
+  it('#980: a soft-failed member returns to idle when its turn completes', async () => {
+    vi.useFakeTimers();
+    try {
+      const { mgr, workerTaskManager } = makeTeammateManager(makeTeam());
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
+        sendMessage: vi.fn(() => new Promise<void>(() => {})),
+      } as never);
+
+      void mgr.wake('slot-member').catch(() => {});
+      await vi.advanceTimersByTimeAsync(1);
+      await vi.advanceTimersByTimeAsync(181_000);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+      // The process was never killed; it eventually finishes its turn.
+      teamEventBus.emit('responseStream', {
+        type: 'finish',
+        conversation_id: 'conv-member',
+        msg_id: 'fin-1',
+        data: {},
+      });
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('idle');
+
+      mgr.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  // #980 defect 4: the heartbeat re-arm was gated on `status === 'active' &&
+  // wakeTimeouts.has(slot)`. After the timeout fired both were false forever, so
+  // a recovered member could never be re-armed and a SECOND stall went unseen.
+  it('#980: streaming after a soft failure restores `active` and re-arms the watchdog', async () => {
+    vi.useFakeTimers();
+    try {
+      const { mgr, workerTaskManager } = makeTeammateManager(makeTeam());
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
+        sendMessage: vi.fn(() => new Promise<void>(() => {})),
+      } as never);
+
+      void mgr.wake('slot-member').catch(() => {});
+      await vi.advanceTimersByTimeAsync(1);
+      await vi.advanceTimersByTimeAsync(181_000);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+      teamEventBus.emit('responseStream', {
+        type: 'text',
+        conversation_id: 'conv-member',
+        msg_id: 'm-recover',
+        data: { text: 'back from a long silent tool run' },
+      });
+      await Promise.resolve();
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('active');
+
+      // Re-armed: a second stall is caught rather than ignored.
+      await vi.advanceTimersByTimeAsync(181_000);
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+      mgr.dispose();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  // #980 defect 4 guard: a HARD crash killed the process. A straggler stream
+  // frame must not resurrect it.
+  it('#980: a crashed member is not un-failed by a straggler stream frame', async () => {
+    const { mgr } = makeTeammateManager(makeTeam());
+
+    teamEventBus.emit('responseStream', {
+      type: 'finish',
+      conversation_id: 'conv-member',
+      msg_id: 'crash-1',
+      data: { error: 'process exited unexpectedly', agentCrash: true },
+    });
+    await new Promise((r) => setTimeout(r, 50));
+    expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+    teamEventBus.emit('responseStream', {
+      type: 'text',
+      conversation_id: 'conv-member',
+      msg_id: 'straggler',
+      data: { text: 'late buffered output' },
+    });
+    await new Promise((r) => setTimeout(r, 10));
+
+    expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+
+    mgr.dispose();
+  });
+
+  // #980: restartAgent/changeAgentBackend write `pending` to the DB right after
+  // killing the process. The live roster has to agree, or the two views diverge
+  // until the next wake - the same class of bug this issue is about.
+  it("#980: killAgentProcess leaves the slot at pending in the live roster", () => {
+    const onAgentsChanged = vi.fn();
+    const { mgr } = makeTeammateManager(makeTeam(), { onAgentsChanged });
+
+    mgr.setStatus("slot-member", "failed");
+    mgr.killAgentProcess("slot-member");
+
+    expect(mgr.getAgents().find((a) => a.slotId === "slot-member")?.status).toBe("pending");
+    expect(onAgentsChanged.mock.calls.at(-1)![1].find((a: TeamAgent) => a.slotId === "slot-member").status).toBe(
+      "pending"
+    );
+
+    mgr.dispose();
+  });
+
+  // #980 defect 3: `ipcBridge.team.agentStatusChanged` reaches the renderer only.
+  // A rate-limited member left the leader believing it was still working.
+  it('#980: pushes a 429 failure into the leader mailbox', async () => {
+    const { mgr, mailbox } = makeTeammateManager(makeTeam());
+
+    teamEventBus.emit('responseStream', {
+      type: 'error',
+      conversation_id: 'conv-member',
+      msg_id: 'err-429',
+      data: '429 Too Many Requests: quota exceeded',
+    });
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+    expect(mailbox.write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        toAgentId: 'slot-lead',
+        fromAgentId: 'slot-member',
+        type: 'idle_notification',
+        content: expect.stringContaining('rate-limited'),
+      })
+    );
+
+    mgr.dispose();
+  });
+});

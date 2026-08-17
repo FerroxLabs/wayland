@@ -202,7 +202,14 @@ const TeammateRow: React.FC<{
         </div>
       </div>
       <div className='flex items-center gap-6px shrink-0'>
-        {status === 'failed' && (
+        {/*
+          #983: Restart used to be reachable only from `failed`. A member wedged
+          mid-turn sits at `active` - the exact state a user needs to escape -
+          and had no control at all, so "Processing" forever was a dead end.
+          `active` gets the button too; the main process still refuses while a
+          wake is genuinely in flight and the refusal surfaces as a toast.
+        */}
+        {(status === 'failed' || status === 'active') && (
           <button
             type='button'
             data-testid='team-right-rail-restart'
