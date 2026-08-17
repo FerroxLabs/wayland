@@ -49,6 +49,7 @@
   },
   "error": {
     "spawn_error": "No se pudo iniciar el instalador. Comprueba que npm está en tu PATH.",
+    "spawn_backoff": "Memory está esperando un periodo de espera antes de reiniciar. Lo intentará de nuevo en un momento.",
     "install_exit_nonzero": "La instalación finalizó con un error. Los detalles de abajo pueden ayudar.",
     "invalid_target_version": "Número de versión no válido en el registro. Inténtalo de nuevo más tarde.",
     "unsafe_ownership": "La carpeta de instalación pendiente tiene una propiedad insegura y fue rechazada. Reinstala para recuperarla.",

@@ -493,6 +493,33 @@ describe('ijfwMcpClient', () => {
     expect(spawnSpy).not.toHaveBeenCalled();
   });
 
+  // #891: the respawn backoff answers WITHOUT attempting a spawn. Reporting
+  // that as `spawn_error` invents a spawn failure that never happened, and a
+  // health probe that lands inside the 5s window then latches the Memory
+  // runtime row to Degraded for the whole session. The backoff must report a
+  // distinct, retryable reason.
+  it('#891: backoff refusal reports spawn_backoff, not spawn_error', async () => {
+    const { ijfwMcpClient } = await loadClient();
+    const { resolveEntry } = await import('@process/services/ijfw/entryResolver');
+    // Arm the backoff with ONE real spawn failure.
+    vi.mocked(resolveEntry).mockRejectedValueOnce(new Error('entry missing'));
+
+    const first = await ijfwMcpClient.invoke('metrics', {}, { timeoutMs: 25 });
+    expect(first.ok).toBe(false);
+    if (!first.ok) expect(first.errorReason).toBe('spawn_error');
+
+    // Second call lands inside RESPAWN_BACKOFF_MS: no spawn is attempted, so
+    // the result must NOT claim a spawn failure.
+    const second = await ijfwMcpClient.invoke('metrics', {}, { timeoutMs: 25 });
+    expect(second.ok).toBe(false);
+    if (!second.ok) {
+      expect(second.errorReason).toBe('spawn_backoff');
+      expect(second.error).toContain('respawn backoff active');
+    }
+    // The backoff still holds: exactly zero children were forked.
+    expect(spawnSpy).not.toHaveBeenCalled();
+  });
+
   it('Codex B2: MCP envelope with isError=true surfaces as ok:false / mcp_error', async () => {
     const { ijfwMcpClient } = await loadClient();
     const promise = ijfwMcpClient.invoke('memory_recall', { query: 'x' });

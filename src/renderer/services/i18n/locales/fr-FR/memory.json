@@ -49,6 +49,7 @@
   },
   "error": {
     "spawn_error": "Impossible de lancer l'installateur. Vérifiez que npm est dans votre PATH.",
+    "spawn_backoff": "Memory attend la fin d'un délai avant redémarrage. Une nouvelle tentative aura lieu dans un instant.",
     "install_exit_nonzero": "L'installation s'est terminée par une erreur. Les détails ci-dessous peuvent vous aider.",
     "invalid_target_version": "Numéro de version invalide depuis le registre. Réessayez plus tard.",
     "unsafe_ownership": "Le dossier d'installation en attente a des droits de propriété non sûrs et a été rejeté. Réinstallez pour récupérer.",

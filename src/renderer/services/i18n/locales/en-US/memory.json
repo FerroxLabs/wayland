@@ -50,6 +50,7 @@
   },
   "error": {
     "spawn_error": "Couldn't start the installer. Check that npm is on your PATH.",
+    "spawn_backoff": "Memory is waiting out a restart cooldown. It will retry in a moment.",
     "install_exit_nonzero": "Install exited with an error. The details below may help.",
     "invalid_target_version": "Invalid version number from the registry. Try again later.",
     "unsafe_ownership": "The pending install folder has unsafe ownership and was rejected. Reinstall to recover.",

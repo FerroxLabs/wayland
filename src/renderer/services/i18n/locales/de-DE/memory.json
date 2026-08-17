@@ -49,6 +49,7 @@
   },
   "error": {
     "spawn_error": "Der Installer konnte nicht gestartet werden. Stelle sicher, dass npm in deinem PATH liegt.",
+    "spawn_backoff": "Memory wartet eine Neustart-Abkühlzeit ab. Es versucht es gleich erneut.",
     "install_exit_nonzero": "Die Installation wurde mit einem Fehler beendet. Die Details unten können helfen.",
     "invalid_target_version": "Ungültige Versionsnummer aus der Registry. Versuche es später erneut.",
     "unsafe_ownership": "Der ausstehende Installationsordner hat unsichere Besitzrechte und wurde abgelehnt. Neuinstallation zur Wiederherstellung.",
