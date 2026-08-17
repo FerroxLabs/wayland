@@ -27,7 +27,7 @@
  *     persist an absolute bundled-Bun path that a Linux AppImage remounts
  *   - a core builtin (known negative for the selection filter) — must not be here
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IMcpServer } from '@/common/config/storage';
 import type { ResolvedJsRuntime } from '@process/utils/jsRuntime';
 
@@ -39,6 +39,8 @@ const h = vi.hoisted(() => ({
   published: [] as IMcpServer[][],
   /** The config.toml path that agent was constructed against. */
   configPaths: [] as Array<string | undefined>,
+  /** Whether that agent was told the file is rewritten on every launch (#1056). */
+  launchLocalFlags: [] as Array<boolean | undefined>,
   resolveJsRuntime: vi.fn<() => ResolvedJsRuntime>(),
   runtimeServers: [] as IMcpServer[],
 }));
@@ -52,8 +54,9 @@ vi.mock('@process/services/mcpServices/agents/WCoreMcpAgent', async (orig) => {
   return {
     ...actual,
     WCoreMcpAgent: class {
-      constructor(configPath?: string) {
+      constructor(configPath?: string, launchLocal?: boolean) {
         h.configPaths.push(configPath);
+        h.launchLocalFlags.push(launchLocal);
       }
       installMcpServers(servers: IMcpServer[]) {
         h.published.push(servers);
@@ -151,7 +154,11 @@ vi.mock('@process/task/agentUtils', () => ({
   resolveCapabilitiesManifest: vi.fn(async () => undefined),
 }));
 
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import { WCoreManager } from '@process/task/WCoreManager';
+import { applyBuiltinMcpRuntime } from '@process/services/mcpServices/builtinMcpRuntime';
 import { toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import { getMcpScriptPath } from '@process/utils/mcpScriptDir';
 
@@ -226,6 +233,7 @@ describe.each([
   beforeEach(() => {
     h.published.length = 0;
     h.configPaths.length = 0;
+    h.launchLocalFlags.length = 0;
     h.runtimeServers = [APPLE, NPX, CORE_BUILTIN];
     h.resolveJsRuntime.mockReset().mockImplementation(runtime);
   });
@@ -244,7 +252,7 @@ describe.each([
     // ...and it survives the REAL config.toml serializer, ENV half included: the
     // dev runtime is the app binary and is only a Node runtime with
     // ELECTRON_RUN_AS_NODE=1 riding along.
-    const toml = toWCoreConfig(apple!);
+    const toml = toWCoreConfig(apple!, { launchLocal: true });
     expect(toml.command).toBe(command);
     expect(toml.args?.[0]).toMatch(/[/\\]builtin-mcp-apple\.mjs$/);
     expect(toml.env).toEqual(env);
@@ -264,5 +272,121 @@ describe.each([
     expect(published.map((s) => s.name)).not.toContain('wayland-search-skills');
     // The publication targeted the launch-local profile, not the global config.
     expect(h.configPaths[0]).toContain('/launch/wayland-home');
+    // ...and said so, which is what licenses the absolute bundled-runtime path
+    // asserted above: this file is rewritten on every launch (#1056).
+    expect(h.launchLocalFlags[0]).toBe(true);
+  });
+});
+
+/**
+ * #1015 F3 / #1056 — the GLOBAL config.toml, the OTHER writer of `toWCoreConfig`.
+ *
+ * `McpService.syncMcpToAgents` publishes through `new WCoreMcpAgent()` with no
+ * launch-local flag, and NOTHING resyncs that file: every `syncMcpToAgents`
+ * caller is user-action driven, so whatever one launch writes stays until the
+ * user next touches MCP settings. On a Linux AppImage (a shipped target,
+ * `electron-builder.yml`) `process.resourcesPath` is a per-launch squashfs mount
+ * point, so the absolute bundled-Bun command `applyBuiltinMcpRuntime` produces
+ * names a binary that stops existing the moment the app restarts.
+ *
+ * The remount is simulated for real: the tuple is serialized while mount A is on
+ * disk, mount A is then removed (unmounted) and mount B is the live one, and
+ * both sides of every comparison are produced in the SAME run.
+ */
+describe('#1056 global config.toml survives an AppImage remount', () => {
+  const realPlatform = process.platform;
+  let root = '';
+  let mountA = '';
+  let mountB = '';
+  const bunIn = (mount: string) => join(mount, 'bundled-bun', 'linux-x64', 'bun');
+  const scriptIn = (mount: string) => (name: string) => join(mount, 'app.asar.unpacked', 'out', 'main', name);
+  /** Exactly what launch A resolves for the sibling, before any serializer. */
+  const resolvedOnA = () =>
+    applyBuiltinMcpRuntime(APPLE, { scriptPath: scriptIn(mountA), platform: 'linux' }).transport as Extract<
+      IMcpServer['transport'],
+      { type: 'stdio' }
+    >;
+
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'wl-1056-'));
+    mountA = join(root, '.mount_WaylanAAAAAA');
+    mountB = join(root, '.mount_WaylanBBBBBB');
+    for (const mount of [mountA, mountB]) {
+      mkdirSync(dirname(bunIn(mount)), { recursive: true });
+      writeFileSync(bunIn(mount), '#!/bin/sh\n');
+      const script = scriptIn(mount)('builtin-mcp-apple.mjs');
+      mkdirSync(dirname(script), { recursive: true });
+      writeFileSync(script, '');
+    }
+    h.resolveJsRuntime.mockReset().mockImplementation(() => ({ command: bunIn(mountA), env: {}, kind: 'bundled-bun' }));
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('persists a command that is still resolvable after the mount point changes', () => {
+    const persisted = toWCoreConfig(applyBuiltinMcpRuntime(APPLE, { scriptPath: scriptIn(mountA), platform: 'linux' }));
+    const absolute = resolvedOnA().command;
+
+    expect(absolute).toBe(bunIn(mountA));
+    expect(existsSync(absolute)).toBe(true); // known positive: valid on the launch that wrote it
+    rmSync(mountA, { recursive: true, force: true }); // ...the AppImage unmounts
+    expect(existsSync(absolute)).toBe(false); // so the persisted absolute command is gone
+    expect(existsSync(bunIn(mountB))).toBe(true); // known positive: the check does find a live mount
+
+    // The persisted command is not a mount path at all: it is the portable `bun`
+    // Core finds on the PATH it is launched with, exactly like the npx form.
+    expect(persisted.command).toBe('bun');
+    expect(persisted.command).not.toContain(root);
+
+    // Stated, not blessed: the SCRIPT path is still mount-local, so this entry
+    // does not become spawnable again on its own after a remount — no file
+    // Desktop never resyncs can be. That half is unchanged by this fix and
+    // predates it (the core builtins have persisted an absolute
+    // `app.asar.unpacked` args[0] since long before the runtime rewrite). What
+    // the fix removes is the runtime path this PR newly introduced.
+    expect(persisted.args?.[0]).toBe(scriptIn(mountA)('builtin-mcp-apple.mjs'));
+    expect(existsSync(persisted.args![0]!)).toBe(false);
+  });
+
+  it('keeps the absolute runtime on Windows, where install paths are stable', () => {
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    const persisted = toWCoreConfig(applyBuiltinMcpRuntime(APPLE, { scriptPath: scriptIn(mountA), platform: 'linux' }));
+    expect(persisted.command).toBe(bunIn(mountA));
+  });
+
+  it('leaves the launch-local file on the absolute tuple the probe spawns', () => {
+    const spawnable = applyBuiltinMcpRuntime(APPLE, { scriptPath: scriptIn(mountA), platform: 'linux' });
+    const persisted = toWCoreConfig(spawnable, { launchLocal: true });
+    expect(persisted.command).toBe(resolvedOnA().command);
+    expect(persisted.args).toEqual(resolvedOnA().args);
+  });
+
+  it('rewrites only OUR bundled runtime, and leaves the npx form untouched', () => {
+    const foreign = server({
+      id: 'foreign',
+      name: 'foreign-bun',
+      transport: { type: 'stdio', command: '/opt/tools/bun', args: ['server.js'], env: {} },
+    });
+    expect(toWCoreConfig(foreign).command).toBe('/opt/tools/bun');
+    expect(toWCoreConfig(NPX)).toEqual({ transport: 'stdio', command: 'bun', args: ['x', '--bun', 'some-mcp'] });
+
+    // A non-bundled runtime is never collapsed either: the dev runtime is the app
+    // binary and is only a Node runtime while its ENV half rides along, so `bun`
+    // would be a different program entirely.
+    h.resolveJsRuntime.mockImplementation(() => ({
+      command: DEV_ELECTRON,
+      env: { ELECTRON_RUN_AS_NODE: '1' },
+      kind: 'electron-node',
+    }));
+    const dev = server({
+      id: 'dev',
+      name: 'dev-runtime',
+      transport: { type: 'stdio', command: DEV_ELECTRON, args: ['s.mjs'], env: { ELECTRON_RUN_AS_NODE: '1' } },
+    });
+    expect(toWCoreConfig(dev).command).toBe(DEV_ELECTRON);
   });
 });

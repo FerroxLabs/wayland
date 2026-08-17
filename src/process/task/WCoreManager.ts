@@ -629,7 +629,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           // receipt-bound ToolSearch candidate gate scopes over this launch.
           this.sessionMcpServers = authedServers;
           this.beginMcpSession(expectedSessionMcpServers);
-          const publication = await new WCoreMcpAgent(join(launchWaylandHome!, 'config.toml')).installMcpServers(
+          const publication = await new WCoreMcpAgent(join(launchWaylandHome!, 'config.toml'), true).installMcpServers(
             authedServers
           );
           if (publication.success) {
