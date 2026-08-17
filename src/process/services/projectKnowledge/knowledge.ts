@@ -9,7 +9,7 @@ import type { Dirent } from 'fs';
 import os from 'os';
 import path from 'path';
 import { WAYLAND_KNOWLEDGE_DIR } from './bootstrap';
-import { PROJECT_KNOWLEDGE_BLOCK_HEADER } from './blockFormat';
+import { PROJECT_KNOWLEDGE_BLOCK_FOOTER, PROJECT_KNOWLEDGE_BLOCK_HEADER } from './blockFormat';
 import { confinePath } from '@process/bridge/pathConfinement';
 import { resolveWithinApprovedDirectory } from '@process/bridge/userApprovedPaths';
 import { getIjfwArchiveService } from '@process/services/memory/ijfwArchiveService';
@@ -74,11 +74,22 @@ export type ArchivedReferenceFile = {
 
 const knowledgeRoot = (workspace: string): string => path.join(workspace, WAYLAND_KNOWLEDGE_DIR);
 
+/**
+ * Read a knowledge document, treating only "the file is not there" as empty.
+ *
+ * Any other error - EIO, EACCES, a read that lands mid-write, because
+ * `writeProjectKnowledge` truncates in place rather than writing a temp file and
+ * renaming - is rethrown. Collapsing those into '' is indistinguishable from
+ * "the user cleared this document", and the spawn-time refresh would then strip
+ * the project's knowledge out of the prompt and persist the loss. The caller's
+ * catch turns a rethrow into keep-what-we-have instead.
+ */
 const readIfExists = async (filePath: string): Promise<string> => {
   try {
     return await fs.readFile(filePath, 'utf-8');
-  } catch {
-    return '';
+  } catch (err) {
+    if (isNotFound(err)) return '';
+    throw err;
   }
 };
 
@@ -124,6 +135,14 @@ const substantive = (raw: string): string => {
 };
 
 /**
+ * Remove the block sentinels from user-authored body text. A hand-typed (or
+ * pasted) header/footer inside CONTEXT.md would otherwise close the block early
+ * and leave the tail behind as an un-removable orphan on the next refresh.
+ */
+const withoutSentinels = (body: string): string =>
+  body.split(PROJECT_KNOWLEDGE_BLOCK_HEADER).join('').split(PROJECT_KNOWLEDGE_BLOCK_FOOTER).join('').trim();
+
+/**
  * Compose the project's substantive knowledge into a single block ready to
  * append to a conversation's system-rules channel. Returns '' when the project
  * has no workspace or no edited knowledge yet (so nothing is injected).
@@ -132,11 +151,13 @@ export async function loadProjectKnowledgeBlock(workspace: string): Promise<stri
   const k = await readProjectKnowledge(workspace);
   const sections: string[] = [];
   (Object.keys(KNOWLEDGE_FILE) as KnowledgeKind[]).forEach((kind) => {
-    const body = substantive(k[kind]);
+    const body = withoutSentinels(substantive(k[kind]));
     if (body) sections.push(`## ${INJECT_LABEL[kind]}\n\n${body}`);
   });
   if (sections.length === 0) return '';
-  return `${PROJECT_KNOWLEDGE_BLOCK_HEADER}\n\n${sections.join('\n\n')}`;
+  // Footer-delimited so the spawn-time refresh (#999) can remove exactly this
+  // block, rather than guessing its extent from a `---` the user may have typed.
+  return `${PROJECT_KNOWLEDGE_BLOCK_HEADER}\n\n${sections.join('\n\n')}\n\n${PROJECT_KNOWLEDGE_BLOCK_FOOTER}`;
 }
 
 /** Largest single memory entry body included in the injected memory block. */

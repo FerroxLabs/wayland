@@ -43,6 +43,8 @@ import type { TChatConversation } from '../../src/common/config/storage';
 const SEPARATOR = '\n\n---\n\n';
 /** Stable header every injected project-knowledge block starts with. */
 const HEADER = '[Project Knowledge - shared context for every chat in this project]';
+/** Stable footer closing every injected project-knowledge block. */
+const FOOTER = '[/Project Knowledge]';
 
 function makeRepo(
   conversation: TChatConversation | undefined,
@@ -188,6 +190,103 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     expect(spawned.presetRules).toContain('ASSISTANT BASE RULES');
     expect(spawned.presetRules).toContain('Ship on Tuesdays.');
     expect(spawned.presetContext).toContain('Ship on Tuesdays.');
+  });
+
+  // A markdown thematic break in the user's own knowledge produces the exact
+  // byte sequence blocks are joined with. Removal must not be fooled by it.
+  it('replaces the whole block when the knowledge body contains a thematic break', async () => {
+    await writeProjectKnowledge(ws, 'context', 'Ship on Fridays.\n\n---\n\nSecret note: OLD VALUE');
+    const extra = await frozenExtra('ASSISTANT BASE RULES');
+    expect(extra.presetRules).toContain('OLD VALUE');
+
+    await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.\n\n---\n\nSecret note: NEW VALUE');
+
+    const conversation = { id: 'c7', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c7');
+    const first = spawnedExtra(captured).presetRules as string;
+    expect(first).toContain('NEW VALUE');
+    expect(first).not.toContain('OLD VALUE');
+    expect(first).toContain('ASSISTANT BASE RULES');
+    expect(occurrences(first, HEADER)).toBe(1);
+
+    // ...and it must not grow, or re-persist, on every later spawn.
+    await manager.getOrBuildTask('c7', { skipCache: true });
+    await manager.getOrBuildTask('c7', { skipCache: true });
+    const third = spawnedExtra(captured).presetRules as string;
+    expect(third).toBe(first);
+    expect(occurrences(third, HEADER)).toBe(1);
+  });
+
+  it('is not truncated by sentinel literals typed into the knowledge body', async () => {
+    await writeProjectKnowledge(ws, 'context', `Ship on Fridays. ${HEADER} and ${FOOTER} typed by hand.`);
+    const extra = await frozenExtra('ASSISTANT BASE RULES');
+    await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
+
+    const conversation = { id: 'c8', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c8');
+    const spawned = spawnedExtra(captured).presetRules as string;
+    expect(spawned).toContain('Ship on Tuesdays.');
+    expect(spawned).not.toContain('Ship on Fridays.');
+    expect(spawned).toBe(`ASSISTANT BASE RULES${SEPARATOR}${await loadProjectKnowledgeBlock(ws)}`);
+  });
+
+  it('refreshes a legacy block written before the footer existed, keeping the memory block', async () => {
+    await writeProjectKnowledge(ws, 'context', 'Ship on Fridays.\n\n---\n\nSecret note: OLD VALUE');
+    // Exactly what the pre-footer composer wrote: header, no footer, memory last.
+    const legacyBlock = `${HEADER}\n\n## Project context\n\nShip on Fridays.\n\n---\n\nSecret note: OLD VALUE`;
+    const memoryBlock = '[User memory (from Wayland Memory)]\n\n## A note\n\nRemember this.';
+    const extra = {
+      projectId: 'p1',
+      workspace: ws,
+      presetRules: ['ASSISTANT BASE RULES', legacyBlock, memoryBlock].join(SEPARATOR),
+      presetContext: [legacyBlock, memoryBlock].join(SEPARATOR),
+    };
+    await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
+
+    const conversation = { id: 'c9', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c9');
+    const spawned = spawnedExtra(captured);
+    for (const field of ['presetRules', 'presetContext'] as const) {
+      const value = spawned[field] as string;
+      expect(value).toContain('Ship on Tuesdays.');
+      expect(value).not.toContain('OLD VALUE');
+      expect(value).not.toContain('Ship on Fridays.');
+      // The global memory snapshot must survive the legacy cut.
+      expect(value).toContain('Remember this.');
+      expect(occurrences(value, HEADER)).toBe(1);
+    }
+    expect(spawned.presetRules).toContain('ASSISTANT BASE RULES');
+  });
+
+  it('an unreadable knowledge document is not mistaken for a cleared one', async () => {
+    await writeProjectKnowledge(ws, 'context', 'Ship on Fridays.');
+    const extra = await frozenExtra('ASSISTANT BASE RULES');
+    const before = extra.presetRules as string;
+    // A read error that is NOT "file is missing": EISDIR here, but EIO, EACCES
+    // or a read landing mid-write are the real-world cases. Collapsing these to
+    // '' would look exactly like the user clearing the document.
+    const contextFile = path.join(ws, '.wayland', 'CONTEXT.md');
+    await fs.rm(contextFile);
+    await fs.mkdir(contextFile);
+
+    const conversation = { id: 'c10', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    const repo = makeRepo(conversation);
+    manager = new WorkerTaskManager(makeFactory(captured), repo);
+
+    await manager.getOrBuildTask('c10');
+
+    expect(spawnedExtra(captured).presetRules).toBe(before);
+    expect(repo.updateConversation).not.toHaveBeenCalled();
   });
 
   it('leaves a chat that is not in a project untouched', async () => {

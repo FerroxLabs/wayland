@@ -22,7 +22,11 @@
  */
 
 import { SqliteProjectRepository } from '@process/services/database/SqliteProjectRepository';
-import { INJECTED_BLOCK_SEPARATOR, PROJECT_KNOWLEDGE_BLOCK_HEADER } from './blockFormat';
+import {
+  INJECTED_BLOCK_SEPARATOR,
+  PROJECT_KNOWLEDGE_BLOCK_FOOTER,
+  PROJECT_KNOWLEDGE_BLOCK_HEADER,
+} from './blockFormat';
 import { loadProjectKnowledgeBlock } from './knowledge';
 
 /**
@@ -34,15 +38,53 @@ const SYSTEM_RULES_FIELDS = ['presetRules', 'presetContext'] as const;
 
 const asString = (value: unknown): string => (typeof value === 'string' ? value : '');
 
+/**
+ * Index just past the end of the block that starts at `start`.
+ *
+ * Normally that is the matching footer. A block written before the footer
+ * existed has none, and its extent cannot be found by splitting on the block
+ * separator - `INJECTED_BLOCK_SEPARATOR` is a plain markdown thematic break, and
+ * a `---` in the user's own CONTEXT.md produces exactly those bytes. So the
+ * legacy cut runs to the end of the string, stopping only at the start of the
+ * next separator-joined block: the global-memory block is the only thing ever
+ * appended after project knowledge, and it always opens with `[`.
+ *
+ * A user whose knowledge contains a thematic break followed by a line opening
+ * with `[` cuts short, leaving one stale fragment behind. That is bounded and
+ * one-shot - the replacement block carries a footer, so every later refresh is
+ * exact - and it is the safe direction: overshooting would silently delete the
+ * conversation's global-memory snapshot.
+ */
+function projectKnowledgeBlockEnd(value: string, start: number): number {
+  const bodyAt = start + PROJECT_KNOWLEDGE_BLOCK_HEADER.length;
+  const footerAt = value.indexOf(PROJECT_KNOWLEDGE_BLOCK_FOOTER, bodyAt);
+  if (footerAt >= 0) return footerAt + PROJECT_KNOWLEDGE_BLOCK_FOOTER.length;
+  const nextBlockAt = value.indexOf(`${INJECTED_BLOCK_SEPARATOR}[`, bodyAt);
+  return nextBlockAt >= 0 ? nextBlockAt : value.length;
+}
+
 /** Drop every previously injected project-knowledge block from one field. */
 function withoutProjectKnowledge(value: unknown): string {
-  const current = asString(value);
-  if (!current.includes(PROJECT_KNOWLEDGE_BLOCK_HEADER)) return current;
-  return current
-    .split(INJECTED_BLOCK_SEPARATOR)
-    .filter((segment) => !segment.trimStart().startsWith(PROJECT_KNOWLEDGE_BLOCK_HEADER))
-    .join(INJECTED_BLOCK_SEPARATOR)
-    .trim();
+  let out = asString(value);
+  for (;;) {
+    const start = out.indexOf(PROJECT_KNOWLEDGE_BLOCK_HEADER);
+    if (start < 0) return out;
+    const end = projectKnowledgeBlockEnd(out, start);
+    // Take the separator that joined this block to a neighbour with it, so the
+    // removal never leaves a dangling `---`. Exactly one side, never both: the
+    // separators further out belong to the neighbours, not to this block.
+    let cutStart = start;
+    let cutEnd = end;
+    if (
+      start >= INJECTED_BLOCK_SEPARATOR.length &&
+      out.slice(start - INJECTED_BLOCK_SEPARATOR.length, start) === INJECTED_BLOCK_SEPARATOR
+    ) {
+      cutStart = start - INJECTED_BLOCK_SEPARATOR.length;
+    } else if (out.slice(end, end + INJECTED_BLOCK_SEPARATOR.length) === INJECTED_BLOCK_SEPARATOR) {
+      cutEnd = end + INJECTED_BLOCK_SEPARATOR.length;
+    }
+    out = out.slice(0, cutStart) + out.slice(cutEnd);
+  }
 }
 
 /**

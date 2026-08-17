@@ -16,9 +16,17 @@
 export const INJECTED_BLOCK_SEPARATOR = '\n\n---\n\n';
 
 /**
- * Stable first line of every injected project-knowledge block. It is the handle
- * the spawn-time refresh (#999) uses to find and replace a block captured
- * earlier, so it must stay byte-identical: conversations created before that
- * refresh existed carry this exact literal.
+ * Sentinels delimiting an injected project-knowledge block. The spawn-time
+ * refresh (#999) finds a previously injected block by these markers and removes
+ * header-to-footer, so the boundary can never be confused with a `---` thematic
+ * break the user happened to type into their own knowledge documents.
+ *
+ * The header must stay byte-identical forever: conversations created before the
+ * footer existed carry this exact literal and are still refreshed by it.
+ *
+ * Neither literal may appear in composed body text - `loadProjectKnowledgeBlock`
+ * strips both out of user content so a hand-typed sentinel cannot truncate the
+ * block.
  */
 export const PROJECT_KNOWLEDGE_BLOCK_HEADER = '[Project Knowledge - shared context for every chat in this project]';
+export const PROJECT_KNOWLEDGE_BLOCK_FOOTER = '[/Project Knowledge]';
