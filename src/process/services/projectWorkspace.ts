@@ -52,9 +52,16 @@ export async function enforceProjectWorkspace(extra: Record<string, unknown> | u
  * files an agent writes "to the local workspace" are not lost in a hidden temp
  * dir. Electron is imported lazily so this module stays loadable in unit tests
  * that don't exercise allocation.
+ *
+ * Exported because the Doctor has to withhold the LEAF of any path under this
+ * base: the leaf is the sanitised project name, so for a managed workspace the
+ * name IS the path (`doctorWorkspaceDisplayPath` in `doctor/workspaceInventory`).
+ * Read through this function rather than rebuilding `<documents>/Wayland` at the
+ * call site - a second copy of the literal is a silent fail-open the moment this
+ * one moves.
  */
 let _baseDirPromise: Promise<string> | null = null;
-async function defaultWorkspaceBaseDir(): Promise<string> {
+export async function defaultWorkspaceBaseDir(): Promise<string> {
   // Memoized: the documents dir doesn't change at runtime, and sharing a single
   // import keeps concurrent allocations from each re-importing electron.
   if (!_baseDirPromise) {

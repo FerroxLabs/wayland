@@ -17,8 +17,17 @@
 import { redactSecrets } from '@process/utils/secretRedaction';
 import type { DoctorCheckOutcome } from '../types';
 
-/** A configured workspace path with a label for the diagnostic copy. */
-export type WorkspaceEntry = { label: string; path: string };
+/**
+ * A configured workspace path with a label for the diagnostic copy.
+ *
+ * `path` is the REAL path and is what gets stat'd. `displayPath`, when the
+ * producer sets it, is what gets RENDERED - see `doctorWorkspaceDisplayPath`: for
+ * an app-derived workspace the folder name is the user-authored entity name, so
+ * the leaf has to be withheld while the path itself is still probed. Rendering
+ * `path` when a `displayPath` exists puts the name straight back in the report;
+ * probing `displayPath` would stat a folder that does not exist.
+ */
+export type WorkspaceEntry = { label: string; path: string; displayPath?: string };
 
 /** Dependencies — the configured paths, plus an injectable existence probe. */
 export type WorkspaceCheckDeps = {
@@ -44,24 +53,34 @@ export async function checkWorkspaceDrift(deps: WorkspaceCheckDeps): Promise<Doc
   const checked = await Promise.all(
     workspaces.map(async (entry) => ({ entry, exists: await deps.pathExists(entry.path) }))
   );
-  // BOTH halves are scrubbed, and neither is the real defence.
+  // BOTH halves are scrubbed, and neither scrub is the real defence.
   //
   // `label` used to be `Chat "<name>"`, and a conversation's name is generated
   // from the user's FIRST MESSAGE - so a credential pasted into chat became the
   // chat title and then a line in a report the Doctor panel offers to copy
   // (GHSA-2g2m-r86j-jg6h). A scrub cannot close that: a bare secret typed as a
   // first message carries no label and no assignment, so no rule matches it. The
-  // fix is at the PRODUCER, which now emits the app-generated id instead of the
-  // name (`doctorEntityLabel` in `doctor/registry.ts`), making it unreachable.
+  // fix is at the PRODUCER, which emits the app-generated id instead of the name
+  // (`doctorEntityLabel` in `doctor/workspaceInventory.ts`).
+  //
+  // The id alone was NOT enough, and the earlier claim that it made the leak
+  // unreachable was wrong. A project's default workspace is
+  // `~/Documents/Wayland/<project-name>`, so for a project the name IS the path
+  // and it walked straight back in through this second half of the line
+  // [measured]. The producer now also supplies a `displayPath` with the
+  // app-derived leaf withheld, and it is `displayPath` that is rendered while
+  // `path` above is what got stat'd.
   //
   // The scrub stays because this check is dependency-injected and any caller can
-  // pass any label. `path` is scrubbed for the same reason - a workspace folder
-  // can itself be named after a credential - but a path must stay readable to be
-  // actionable, so there is no structural option there and the prefixed-label
-  // form in a path remains exposed until #1026.
+  // pass any label or path. A path the user chose OUTSIDE the app's base dir is
+  // still rendered verbatim - it has to be, to be actionable - so the
+  // prefixed-label form inside such a path remains exposed until #1026.
   const missing = checked
     .filter((result) => !result.exists)
-    .map((result) => `${redactSecrets(result.entry.label)} → ${redactSecrets(result.entry.path)}`);
+    .map(
+      (result) =>
+        `${redactSecrets(result.entry.label)} → ${redactSecrets(result.entry.displayPath ?? result.entry.path)}`
+    );
 
   if (missing.length > 0) {
     return {
@@ -81,6 +100,8 @@ export type WorkspaceConfigEntry = {
   label: string;
   /** Resolved workspace path, or `null` when the binding carries none (itself a temp fallback). */
   path: string | null;
+  /** Rendered instead of `path` when set. Same split, same reason, as {@link WorkspaceEntry}. */
+  displayPath?: string;
   /**
    * The app's authoritative "this is a user-chosen persistent workspace" flag
    * (a conversation's `extra.customWorkspace`). `false` means a temp/default
@@ -131,10 +152,13 @@ export async function checkWorkspaceConfigured(deps: WorkspaceConfiguredDeps): P
   );
 
   if (temp.length > 0) {
-    // Same two halves, same scrub, same reasoning as `checkWorkspaceDrift` above.
-    const shown = temp
-      .slice(0, MAX_LISTED_TEMP)
-      .map((entry) => `${redactSecrets(entry.label)} → ${entry.path ? redactSecrets(entry.path) : '(no folder)'}`);
+    // Same two halves, same scrub, same display/probe split and same reasoning as
+    // `checkWorkspaceDrift` above. `isTempWorkspacePath` above classified the REAL
+    // `path`; only the rendering below prefers `displayPath`.
+    const shown = temp.slice(0, MAX_LISTED_TEMP).map((entry) => {
+      const rendered = entry.displayPath ?? entry.path;
+      return `${redactSecrets(entry.label)} → ${rendered ? redactSecrets(rendered) : '(no folder)'}`;
+    });
     const suffix = temp.length > MAX_LISTED_TEMP ? `; and ${temp.length - MAX_LISTED_TEMP} more` : '';
     return {
       status: 'warn',

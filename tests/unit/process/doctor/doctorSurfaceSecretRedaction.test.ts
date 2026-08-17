@@ -35,6 +35,7 @@ import { checkWorkspaceDrift, checkWorkspaceConfigured } from '@process/doctor/c
 import { collectConfiguredWorkspaces, collectWorkspaceConfigEntries } from '@process/doctor/workspaceInventory';
 import { runDoctor } from '@process/doctor/runner';
 import { redactSecrets } from '@process/utils/secretRedaction';
+import { resolveProjectWorkspacePath } from '@process/utils/workspaceLocation';
 import type { IMcpServer } from '@/common/config/storage';
 import type { DetectedAgent } from '@/common/types/detectedAgent';
 
@@ -632,6 +633,9 @@ describe('workspace inventory — the producer chooses the label', () => {
     listConversations: async () => [
       { id: 'conv-1', name: BARE_SECRET, extra: { workspace: '/gone/chat-ws', customWorkspace: false } },
     ],
+    // These two paths are OUTSIDE the app's base dir, so they are the user's own
+    // and stay verbatim. The app-derived case is the next describe block.
+    appManagedWorkspaceBase: '/Users/a/Documents/Wayland',
   } as unknown as Parameters<typeof collectConfiguredWorkspaces>[0];
 
   it('KNOWN POSITIVE: no scrubber can mask a bare credential used as a chat title', () => {
@@ -668,6 +672,180 @@ describe('workspace inventory — the producer chooses the label', () => {
     expect(result.status).toBe('fail');
     expect(result.detail).not.toContain(BARE_SECRET);
     expect(result.detail).toContain('/gone/ws');
+  });
+});
+
+describe('workspace inventory — for a PROJECT the name re-enters through the path', () => {
+  // The id-label fix closed the LABEL half only. A project's default workspace is
+  // `~/Documents/Wayland/<project-name>` (`allocateProjectWorkspace`) and the leaf
+  // is the sanitised name verbatim, so the drift detail printed the name anyway.
+  // Measured, not reasoned: the detail read
+  // `Project proj-1 -> /Users/a/Documents/Wayland/<the name>`.
+  const BASE = '/Users/a/Documents/Wayland';
+  const managed = `${BASE}/${BARE_SECRET}`;
+
+  const appDerived = {
+    listProjects: async () => [
+      { id: 'proj-1', name: BARE_SECRET, workspace: managed, pinned: false, createTime: 0, modifyTime: 0 },
+    ],
+    listConversations: async () => [
+      { id: 'conv-1', name: BARE_SECRET, extra: { workspace: managed, customWorkspace: false } },
+    ],
+    appManagedWorkspaceBase: BASE,
+  } as unknown as Parameters<typeof collectConfiguredWorkspaces>[0];
+
+  it('KNOWN POSITIVE: the leaf of a managed project workspace IS the sanitised name', () => {
+    // If `sanitizeProjectFolderName` ever stopped passing this shape through, the
+    // assertions below would hold for the wrong reason.
+    expect(resolveProjectWorkspacePath(BASE, BARE_SECRET, () => false)).toBe(managed);
+    // And no scrubber sees it, so the fix cannot be a scrub.
+    expect(redactSecrets(managed)).toContain(BARE_SECRET);
+  });
+
+  it('BARE CANARY: the drift detail carries neither the label nor the path leaf', async () => {
+    const result = await checkWorkspaceDrift({
+      listWorkspaces: () => collectConfiguredWorkspaces(appDerived),
+      // Not vacuous: this is what makes the entries reach the detail at all.
+      pathExists: async () => false,
+    });
+    expect(result.status).toBe('fail');
+    expect(surfaced(result)).not.toContain(BARE_SECRET);
+    // The base dir survives, because that is the half the user acts on.
+    expect(result.detail).toContain(BASE);
+    expect(result.detail).toContain('folder name withheld');
+  });
+
+  it('BARE CANARY: the configured-workspace detail carries neither half', async () => {
+    const result = await checkWorkspaceConfigured({
+      listWorkspaces: () => collectWorkspaceConfigEntries(appDerived),
+      tmpDir: '/var/folders/zz',
+    });
+    expect(result.status).toBe('warn');
+    expect(surfaced(result)).not.toContain(BARE_SECRET);
+    expect(result.detail).toContain(BASE);
+  });
+
+  it('still STATS the real path, so drift is not silently hidden', async () => {
+    // Collapsing `path` into `displayPath` would stat the base dir, which exists,
+    // and this check would stop failing on a missing workspace altogether.
+    const stated: string[] = [];
+    await checkWorkspaceDrift({
+      listWorkspaces: () => collectConfiguredWorkspaces(appDerived),
+      pathExists: async (path) => {
+        stated.push(path);
+        return false;
+      },
+    });
+    expect(stated).toEqual([managed]);
+  });
+
+  it('leaves a path the user chose OUTSIDE the base dir verbatim', async () => {
+    // Deliberate: a user-chosen path is not derived from an entity name, and it is
+    // the one the user most needs named in order to act on it.
+    const own = {
+      listProjects: async () => [
+        { id: 'proj-2', name: 'work', workspace: '/Users/a/code/myapp', pinned: false, createTime: 0, modifyTime: 0 },
+      ],
+      listConversations: async () => [],
+      appManagedWorkspaceBase: BASE,
+    } as unknown as Parameters<typeof collectConfiguredWorkspaces>[0];
+    const result = await checkWorkspaceDrift({
+      listWorkspaces: () => collectConfiguredWorkspaces(own),
+      pathExists: async () => false,
+    });
+    expect(result.detail).toContain('/Users/a/code/myapp');
+    expect(result.detail).not.toContain('withheld');
+  });
+
+  it('withholds a nested path under the base too, not just a direct child', async () => {
+    const nested = {
+      listProjects: async () => [
+        {
+          id: 'proj-3',
+          name: BARE_SECRET,
+          workspace: `${BASE}/${BARE_SECRET}/sub`,
+          pinned: false,
+          createTime: 0,
+          modifyTime: 0,
+        },
+      ],
+      listConversations: async () => [],
+      appManagedWorkspaceBase: BASE,
+    } as unknown as Parameters<typeof collectConfiguredWorkspaces>[0];
+    const result = await checkWorkspaceDrift({
+      listWorkspaces: () => collectConfiguredWorkspaces(nested),
+      pathExists: async () => false,
+    });
+    expect(surfaced(result)).not.toContain(BARE_SECRET);
+  });
+
+  it('a sibling directory whose name merely STARTS with the base is not withheld', async () => {
+    // `relative()` returns `../Waylandia/...` here, and the guard has to reject it
+    // on the separator rather than on a bare `..` prefix.
+    const sibling = {
+      listProjects: async () => [
+        {
+          id: 'proj-4',
+          name: 'x',
+          workspace: `${BASE}ia/mine`,
+          pinned: false,
+          createTime: 0,
+          modifyTime: 0,
+        },
+      ],
+      listConversations: async () => [],
+      appManagedWorkspaceBase: BASE,
+    } as unknown as Parameters<typeof collectConfiguredWorkspaces>[0];
+    const result = await checkWorkspaceDrift({
+      listWorkspaces: () => collectConfiguredWorkspaces(sibling),
+      pathExists: async () => false,
+    });
+    expect(result.detail).toContain(`${BASE}ia/mine`);
+  });
+
+  it('withholds a folder INSIDE the base whose name starts with two dots', async () => {
+    // The fail-open case for a naive `relative().startsWith('..')`: this path is
+    // inside the base, and its relative form `..hidden<key>` starts with `..`, so a
+    // guard without the separator calls it outside and prints the name. A
+    // conversation's `extra.workspace` is not passed through
+    // `sanitizeProjectFolderName`, so this shape is reachable.
+    const dotted = {
+      listProjects: async () => [],
+      listConversations: async () => [
+        { id: 'conv-9', name: 'x', extra: { workspace: `${BASE}/..hidden${BARE_SECRET}`, customWorkspace: true } },
+      ],
+      appManagedWorkspaceBase: BASE,
+    } as unknown as Parameters<typeof collectConfiguredWorkspaces>[0];
+    const result = await checkWorkspaceDrift({
+      listWorkspaces: () => collectConfiguredWorkspaces(dotted),
+      pathExists: async () => false,
+    });
+    expect(result.status).toBe('fail');
+    expect(surfaced(result)).not.toContain(BARE_SECRET);
+  });
+
+  it('withholds when the stored path differs from the base only in case', async () => {
+    // macOS and Windows filesystems are case-insensitive by default, so this names
+    // the same directory.
+    const cased = {
+      listProjects: async () => [
+        {
+          id: 'proj-5',
+          name: BARE_SECRET,
+          workspace: `/Users/a/documents/wayland/${BARE_SECRET}`,
+          pinned: false,
+          createTime: 0,
+          modifyTime: 0,
+        },
+      ],
+      listConversations: async () => [],
+      appManagedWorkspaceBase: BASE,
+    } as unknown as Parameters<typeof collectConfiguredWorkspaces>[0];
+    const result = await checkWorkspaceDrift({
+      listWorkspaces: () => collectConfiguredWorkspaces(cased),
+      pathExists: async () => false,
+    });
+    expect(surfaced(result)).not.toContain(BARE_SECRET);
   });
 });
 

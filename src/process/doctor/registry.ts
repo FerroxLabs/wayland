@@ -36,6 +36,7 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import type { IMcpServer } from '@/common/config/storage';
 import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
 import { conversationServiceSingleton } from '@process/services/conversationServiceSingleton';
+import { defaultWorkspaceBaseDir } from '@process/services/projectWorkspace';
 import type { DoctorCheck } from './types';
 import { extractFromFile } from './fileMarker';
 
@@ -60,6 +61,7 @@ import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from
 import { checkAppArchitecture } from './checks/platformChecks';
 import { probeEngineConfig } from './engineConfigProbe';
 import { collectConfiguredWorkspaces, collectWorkspaceConfigEntries } from './workspaceInventory';
+import type { WorkspaceInventoryDeps } from './workspaceInventory';
 
 /** Build a `ProviderRepository` bound to the live UI database. */
 async function providerRepo(): Promise<ProviderRepository> {
@@ -119,10 +121,23 @@ async function listMcpServers(): Promise<IMcpServer[]> {
  */
 export function buildDoctorChecks(): DoctorCheck[] {
   const connectionTester = new ConnectionTester();
-  const workspaceServices = {
+  const listingServices = {
     listProjects: () => projectServiceSingleton.listProjects(),
     listConversations: () => conversationServiceSingleton.listAllConversations(),
   };
+  /**
+   * The listing services PLUS the app's own workspace base dir, which the
+   * inventory needs to know which paths are app-derived and must have their leaf
+   * withheld (a project's default workspace is `<base>/<project-name>`, so the
+   * name IS the path). Read through `defaultWorkspaceBaseDir` rather than
+   * rebuilding the literal here - a second copy would fail open silently if the
+   * allocator's base ever moves. A failure to resolve it yields `null`, which the
+   * inventory treats as "withhold nothing" rather than crashing the check.
+   */
+  const workspaceServices = async (): Promise<WorkspaceInventoryDeps> => ({
+    ...listingServices,
+    appManagedWorkspaceBase: await defaultWorkspaceBaseDir().catch((): string | null => null),
+  });
 
   return [
     {
@@ -221,18 +236,22 @@ export function buildDoctorChecks(): DoctorCheck[] {
       id: 'workspace.drift',
       titleKey: 'settings.doctor.checks.workspaceDrift',
       category: 'workspace',
-      run: () =>
-        checkWorkspaceDrift({ listWorkspaces: () => collectConfiguredWorkspaces(workspaceServices), pathExists }),
+      run: async () => {
+        const services = await workspaceServices();
+        return checkWorkspaceDrift({ listWorkspaces: () => collectConfiguredWorkspaces(services), pathExists });
+      },
     },
     {
       id: 'workspace.configured',
       titleKey: 'settings.doctor.checks.workspaceConfigured',
       category: 'workspace',
-      run: () =>
-        checkWorkspaceConfigured({
-          listWorkspaces: () => collectWorkspaceConfigEntries(workspaceServices),
+      run: async () => {
+        const services = await workspaceServices();
+        return checkWorkspaceConfigured({
+          listWorkspaces: () => collectWorkspaceConfigEntries(services),
           tmpDir: tmpdir(),
-        }),
+        });
+      },
     },
     {
       id: 'config.paths',
