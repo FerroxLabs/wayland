@@ -8,7 +8,7 @@ import { teamEventBus } from '@process/team/teamEventBus';
 import { ipcBridge } from '@/common';
 import type { CronMessageMeta, TMessage } from '@/common/chat/chatLib';
 import { isCodexAutoApproveMode } from '@/common/types/codex/codexModes';
-import { isAutoGuardedMode, shouldAutoApproveAcpEdit } from '@/common/types/agentModes';
+import { isAutoGuardedMode, resolveBlanketAutoApprove, shouldAutoApproveAcpEdit } from '@/common/types/agentModes';
 import { classifyAutopilotToolCall } from '@/common/security/destructiveCommand';
 import { trustedWorkspaceAutoApprovesAcpKind } from '@/common/security/workspaceTrust';
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
@@ -249,8 +249,15 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
     this.currentMode = data.sessionMode || 'default';
     this.persistedModelId = data.currentModelId || null;
     this.status = 'pending';
-    // Sync yoloMode from sessionMode so addConfirmation auto-approves when Full Auto is selected
-    this.yoloMode = this.yoloMode || this.isYoloMode(this.currentMode);
+    // Sync yoloMode from sessionMode so addConfirmation auto-approves when Full Auto is selected.
+    // A guarded-auto session is the one exception: it must NEVER carry the blanket
+    // yoloMode flag. Its whole contract is that the Autopilot guardrail inspects each
+    // escalated request, and BaseAgentManager.addConfirmation auto-confirms whenever
+    // this flag is set - which would approve the very calls the guardrail held.
+    // Scheduled runs arrive here with data.yoloMode=true (the cron executor builds
+    // every task that way), so without this the flag would be set on exactly the
+    // unattended path the guardrail exists to protect.
+    this.yoloMode = resolveBlanketAutoApprove(this.currentMode, this.yoloMode || this.isYoloMode(this.currentMode));
   }
 
   private acceptMcpProjection(projection: McpConfigProjection): void {
@@ -1274,8 +1281,15 @@ ${collectedResponses.join('\n')}`;
     }
 
     // Derive effective yoloMode from currentMode so that the agent respects
-    // the user's explicit mode choice. data.yoloMode (cron jobs) always takes priority.
-    const yoloMode = data.yoloMode ?? this.isYoloMode(this.currentMode);
+    // the user's explicit mode choice. data.yoloMode (cron jobs) takes priority -
+    // EXCEPT in guarded-auto, where blanket auto-approve is the one thing the mode
+    // must not do. This value becomes AcpSession's `autoApproveAll`, and
+    // PermissionResolver short-circuits on it before any classifier runs and without
+    // invoking the UI callback, so no acp_permission signal is emitted and the
+    // Autopilot guardrail in handleSignalEvent never executes. Guarded-auto is
+    // enforced entirely client-side by that guardrail, so it needs the permission
+    // requests to actually arrive.
+    const yoloMode = resolveBlanketAutoApprove(this.currentMode, data.yoloMode ?? this.isYoloMode(this.currentMode));
 
     // Get acpArgs from backend config (for goose, auggie, opencode, etc.)
     const backendConfig = ACP_BACKENDS_ALL[data.backend];
@@ -2318,6 +2332,13 @@ ${collectedResponses.join('\n')}`;
    * If not, enables yoloMode on the active ACP session dynamically.
    */
   async ensureYoloMode(): Promise<boolean> {
+    // A guarded-auto session is already in its full-auto state; blanket
+    // auto-approve is deliberately NOT part of it. Report success so the cron
+    // executor reuses the task (returning false makes it kill and rebuild the
+    // task with yoloMode: true, which is exactly what must not happen here).
+    if (isAutoGuardedMode(this.currentMode)) {
+      return true;
+    }
     if (this.options.yoloMode) {
       return true;
     }

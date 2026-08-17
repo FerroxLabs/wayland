@@ -323,8 +323,12 @@ export class SessionLifecycle {
     if (!yoloModeId) {
       // A backend whose full-auto IS the Wayland-internal 'autoGuarded' mode (claude)
       // has nothing to set on the agent: guarded-auto is enforced entirely client-side
-      // by the AcpAgentManager guardrail (auto-approve every escalated tool except a
-      // destructive one), and the bridge never advertises the internal mode. That is
+      // by the AcpAgentManager guardrail (auto-approve only the allowlisted tool kinds,
+      // plus an execute whose command passes the catastrophic-command classifier; every
+      // other kind surfaces a confirmation), and the bridge never advertises the
+      // internal mode. Reaching this branch at all means agentConfig.yoloMode was set
+      // on a guarded-auto session, which AcpAgentManager prevents precisely because
+      // client-side autoApproveAll would bypass that guardrail entirely. That is
       // expected, not a missing capability - warning here reads as "claude has no
       // full-auto", which is false and drove a bug report (#749). Full blind auto is
       // still available via Autopilot ('bypassPermissions'), a separate advertised mode.
