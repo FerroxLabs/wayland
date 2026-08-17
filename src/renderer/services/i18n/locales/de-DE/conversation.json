@@ -544,6 +544,8 @@
       "regenerated": "Fertig. Deine alten Einstellungen wurden als {{name}} gespeichert.",
       "backupFailed": "Wayland konnte keine überprüfte Sicherung anlegen, deshalb wurde nichts geändert. Grund: {{reason}}",
       "writeFailed": "Die Änderung konnte nicht abgeschlossen werden. Grund: {{reason}}",
+      "writeFailedWithBackup": "Die Änderung konnte nicht abgeschlossen werden. Grund: {{reason}} Nichts ist verloren: Deine ursprünglichen Einstellungen liegen in {{name}}.",
+      "notARegularFile": "Diese Einstellungsdatei ist eine Verknüpfung auf eine andere Datei, deshalb ersetzt Wayland sie nicht. Nutze „Zeig mir die Datei“ und bearbeite sie dort, wo sie wirklich liegt.",
       "revealFailed": "Wayland konnte den Ordner nicht öffnen. Grund: {{reason}}"
     },
     "notText": "Wayland kann diese Datei nicht als Text lesen – einige ihrer Bytes sind kein gültiges UTF-8, das das Einstellungsformat verlangt. Es wurde nichts geändert."

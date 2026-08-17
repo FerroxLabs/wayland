@@ -663,6 +663,8 @@
       "regenerated": "Done. Your old settings were saved as {{name}}.",
       "backupFailed": "Wayland could not create a verified backup, so nothing was changed. Reason: {{reason}}",
       "writeFailed": "The change could not be completed. Reason: {{reason}}",
+      "writeFailedWithBackup": "The change could not be completed. Reason: {{reason}} Nothing is lost: your original settings are in {{name}}.",
+      "notARegularFile": "This settings file is a link to another file, so Wayland will not replace it. Use Show me the file and edit it where it actually lives.",
       "revealFailed": "Wayland could not open the folder. Reason: {{reason}}"
     },
     "notText": "Wayland cannot read this file as text — some of its bytes are not valid UTF-8, which the settings format requires. Nothing has been changed."

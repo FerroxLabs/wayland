@@ -179,6 +179,84 @@ describe('EngineConfigRecoveryPanel', () => {
     expect(onRecovered).not.toHaveBeenCalled();
   });
 
+  /**
+   * F3. The rollback-failure and restore-conflict branches are the ONLY reported
+   * states in which `config.toml` may not hold the user's original bytes, and they
+   * are exactly the states where main sets `backupPath`. `describe` used to read
+   * `backupPath` only on the `ok` branch, so both fell through to the generic
+   * writeFailed line, which names no path - the user was told the change failed
+   * and never told where their config went. Main returned it; the renderer dropped
+   * it. Executed before the fix, on both halves: mentionsBackup=false.
+   */
+  it('F3: names the backup when a FAILED result carries one', async () => {
+    mockInspect.mockResolvedValue(INVALID);
+    mockRepair.mockResolvedValue({
+      ok: false,
+      reason: 'write-failed',
+      detail: 'the repaired file still does not parse',
+      backupPath: '/x/config.toml.backup-20260817-142530',
+    });
+    render(<EngineConfigRecoveryPanel />);
+
+    await waitFor(() => expect(screen.getByTestId('engine-config-repair')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('engine-config-repair').querySelector('button')!);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('engine-config-outcome').textContent).toContain('result.writeFailedWithBackup')
+    );
+    expect(screen.getByTestId('engine-config-outcome').textContent).toContain('config.toml.backup-20260817-142530');
+  });
+
+  it('F2/F3: a restore-conflict names the backup too', async () => {
+    mockInspect.mockResolvedValue(INVALID);
+    mockRepair.mockResolvedValue({
+      ok: false,
+      reason: 'restore-conflict',
+      detail: 'EEXIST: file already exists',
+      backupPath: '/x/config.toml.backup-20260817-142530',
+    });
+    render(<EngineConfigRecoveryPanel />);
+
+    await waitFor(() => expect(screen.getByTestId('engine-config-repair')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('engine-config-repair').querySelector('button')!);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('engine-config-outcome').textContent).toContain('result.writeFailedWithBackup')
+    );
+    expect(screen.getByTestId('engine-config-outcome').textContent).toContain('config.toml.backup-20260817-142530');
+  });
+
+  it('a failure with NO backup still uses the plain writeFailed line', async () => {
+    mockInspect.mockResolvedValue(INVALID);
+    mockRepair.mockResolvedValue({ ok: false, reason: 'write-failed', detail: 'ENOSPC' });
+    render(<EngineConfigRecoveryPanel />);
+
+    await waitFor(() => expect(screen.getByTestId('engine-config-repair')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('engine-config-repair').querySelector('button')!);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('engine-config-outcome').textContent).toContain('result.writeFailed')
+    );
+    expect(screen.getByTestId('engine-config-outcome').textContent).not.toContain('WithBackup');
+  });
+
+  it('F4: an irregular config.toml gets its own line, pointing at Reveal', async () => {
+    mockInspect.mockResolvedValue(INVALID);
+    mockRepair.mockResolvedValue({
+      ok: false,
+      reason: 'not-a-regular-file',
+      detail: 'the engine config is not a regular file, so Wayland will not replace it',
+    });
+    render(<EngineConfigRecoveryPanel />);
+
+    await waitFor(() => expect(screen.getByTestId('engine-config-repair')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('engine-config-repair').querySelector('button')!);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('engine-config-outcome').textContent).toContain('result.notARegularFile')
+    );
+  });
+
   it('does NOT regenerate until the confirmation is accepted', async () => {
     mockInspect.mockResolvedValue(INVALID);
     mockRegenerate.mockResolvedValue({ ok: true, backupPath: '/x/config.toml.backup-1' });

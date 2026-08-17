@@ -544,6 +544,8 @@
       "regenerated": "완료했습니다. 기존 설정을 {{name}}(으)로 저장했습니다.",
       "backupFailed": "Wayland가 검증된 백업을 만들 수 없어 아무것도 변경하지 않았습니다. 이유: {{reason}}",
       "writeFailed": "변경을 완료할 수 없었습니다. 이유: {{reason}}",
+      "writeFailedWithBackup": "변경을 완료할 수 없었습니다. 이유: {{reason}} 잃어버린 것은 없습니다. 원래 설정은 {{name}}에 있습니다.",
+      "notARegularFile": "이 설정 파일은 다른 파일을 가리키는 링크라서 Wayland가 교체하지 않습니다. ‘파일 위치 보기’로 실제 파일이 있는 곳에서 수정해 주세요.",
       "revealFailed": "Wayland가 폴더를 열 수 없었습니다. 이유: {{reason}}"
     },
     "notText": "Wayland가 이 파일을 텍스트로 읽을 수 없습니다. 설정 파일 형식이 요구하는 UTF-8로 유효하지 않은 바이트가 들어 있습니다. 아무것도 변경하지 않았습니다."

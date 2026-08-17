@@ -544,6 +544,8 @@
       "regenerated": "完成。你原来的设置已保存为 {{name}}。",
       "backupFailed": "Wayland 无法创建可校验的备份，因此什么都没有改动。原因：{{reason}}",
       "writeFailed": "这次改动没能完成。原因：{{reason}}",
+      "writeFailedWithBackup": "这次改动没能完成。原因：{{reason}} 什么都没丢：你原来的设置在 {{name}} 里。",
+      "notARegularFile": "这个设置文件是指向另一个文件的链接，所以 Wayland 不会替换它。用“让我看看这个文件”，到它真正所在的位置去改。",
       "revealFailed": "Wayland 无法打开该文件夹。原因：{{reason}}"
     },
     "notText": "Wayland 无法把这个文件当作文本读取——它有些字节不是有效的 UTF-8，而设置文件格式要求 UTF-8。什么都没有被改动。"

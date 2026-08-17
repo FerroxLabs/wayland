@@ -71,15 +71,34 @@ const EngineConfigRecoveryPanel: React.FC<{
   /** Map a main-process result onto the one line the user reads. */
   const describe = useCallback(
     (result: EngineConfigRecoveryResult, successKey: 'repaired' | 'regenerated') => {
+      const backupPath = result.backupPath ?? '';
+      const name = backupPath.split(/[\\/]/).pop() ?? backupPath;
+
       if (result.ok) {
-        const backupPath = result.backupPath ?? '';
-        const name = backupPath.split(/[\\/]/).pop() ?? backupPath;
         return { tone: 'ok' as const, text: t(`conversation.engineConfigInvalid.result.${successKey}`, { name }) };
       }
       if (result.reason === 'backup-failed') {
         return {
           tone: 'error' as const,
           text: t('conversation.engineConfigInvalid.result.backupFailed', { reason: result.detail ?? '' }),
+        };
+      }
+      if (result.reason === 'not-a-regular-file') {
+        return { tone: 'error' as const, text: t('conversation.engineConfigInvalid.result.notARegularFile') };
+      }
+      // F3: the rollback-failure and restore-conflict branches are the ONLY reported
+      // states in which `config.toml` may not hold the user's original bytes, and
+      // they are exactly the states where main sets `backupPath`. The generic
+      // writeFailed line names no path, so this used to be the one place the user
+      // could not find out where their config went - which is the opposite of what
+      // this module's header promises. Whenever main names the backup, render it.
+      if (backupPath) {
+        return {
+          tone: 'error' as const,
+          text: t('conversation.engineConfigInvalid.result.writeFailedWithBackup', {
+            reason: result.detail ?? '',
+            name,
+          }),
         };
       }
       return {

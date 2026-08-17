@@ -544,6 +544,8 @@
       "regenerated": "Hecho. Tus ajustes anteriores se han guardado como {{name}}.",
       "backupFailed": "Wayland no ha podido crear una copia de seguridad verificada, así que no se ha cambiado nada. Motivo: {{reason}}",
       "writeFailed": "No se ha podido completar el cambio. Motivo: {{reason}}",
+      "writeFailedWithBackup": "No se ha podido completar el cambio. Motivo: {{reason}} No se ha perdido nada: tus ajustes originales están en {{name}}.",
+      "notARegularFile": "Este archivo de ajustes es un enlace a otro archivo, así que Wayland no lo va a reemplazar. Usa «Muéstrame el archivo» y edítalo donde está de verdad.",
       "revealFailed": "Wayland no ha podido abrir la carpeta. Motivo: {{reason}}"
     },
     "notText": "Wayland no puede leer este archivo como texto: algunos de sus bytes no son UTF-8 válido, que es lo que requiere el formato de ajustes. No se ha cambiado nada."

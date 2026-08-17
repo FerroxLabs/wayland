@@ -544,6 +544,8 @@
       "regenerated": "Pronto. Suas configurações antigas foram salvas como {{name}}.",
       "backupFailed": "O Wayland não conseguiu criar um backup verificado, então nada foi alterado. Motivo: {{reason}}",
       "writeFailed": "Não foi possível concluir a alteração. Motivo: {{reason}}",
+      "writeFailedWithBackup": "Não foi possível concluir a alteração. Motivo: {{reason}} Nada foi perdido: suas configurações originais estão em {{name}}.",
+      "notARegularFile": "Este arquivo de configurações é um link para outro arquivo, então o Wayland não vai substituí-lo. Use “Mostre-me o arquivo” e edite onde ele realmente está.",
       "revealFailed": "O Wayland não conseguiu abrir a pasta. Motivo: {{reason}}"
     },
     "notText": "O Wayland não consegue ler este arquivo como texto — alguns de seus bytes não são UTF-8 válido, que é o que o formato de configurações exige. Nada foi alterado."

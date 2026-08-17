@@ -544,6 +544,8 @@
       "regenerated": "完成。你原本的設定已儲存為 {{name}}。",
       "backupFailed": "Wayland 無法建立可驗證的備份，因此什麼都沒有改動。原因：{{reason}}",
       "writeFailed": "這次變更沒能完成。原因：{{reason}}",
+      "writeFailedWithBackup": "這次變更沒能完成。原因：{{reason}} 什麼都沒丟：你原本的設定在 {{name}} 裡。",
+      "notARegularFile": "這個設定檔是指向另一個檔案的連結，所以 Wayland 不會替換它。用「讓我看看這個檔案」，到它真正所在的位置去改。",
       "revealFailed": "Wayland 無法開啟該資料夾。原因：{{reason}}"
     },
     "notText": "Wayland 無法把這個檔案當作文字讀取——它有些位元組不是有效的 UTF-8，而設定檔格式要求 UTF-8。什麼都沒有被改動。"

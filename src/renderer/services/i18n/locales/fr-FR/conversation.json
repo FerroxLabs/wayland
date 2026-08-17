@@ -544,6 +544,8 @@
       "regenerated": "Terminé. Vos anciens réglages ont été enregistrés sous {{name}}.",
       "backupFailed": "Wayland n’a pas pu créer de sauvegarde vérifiée, donc rien n’a été modifié. Raison : {{reason}}",
       "writeFailed": "La modification n’a pas pu être effectuée. Raison : {{reason}}",
+      "writeFailedWithBackup": "La modification n’a pas pu être effectuée. Raison : {{reason}} Rien n’est perdu : vos réglages d’origine sont dans {{name}}.",
+      "notARegularFile": "Ce fichier de réglages est un lien vers un autre fichier, donc Wayland ne va pas le remplacer. Utilisez « Montrez-moi le fichier » et modifiez-le là où il se trouve vraiment.",
       "revealFailed": "Wayland n’a pas pu ouvrir le dossier. Raison : {{reason}}"
     },
     "notText": "Wayland ne peut pas lire ce fichier comme du texte : certains de ses octets ne sont pas de l’UTF-8 valide, ce qu’exige le format des réglages. Rien n’a été modifié."
