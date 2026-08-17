@@ -511,7 +511,7 @@
     }
   },
   "engineConfigInvalid": {
-    "title": "Wayland Core 的設定檔裡有個筆誤",
+    "title": "Wayland Core 的設定檔需要修正",
     "explainer": "引擎讀不了自己的設定檔，所以代理無法啟動。什麼都沒有被改動——你的服務供應商、金鑰和設定都還在裡面。",
     "dismiss": "關閉",
     "details": "技術細節",

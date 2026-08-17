@@ -511,7 +511,7 @@
     }
   },
   "engineConfigInvalid": {
-    "title": "Wayland Core 的设置文件里有个笔误",
+    "title": "Wayland Core 的设置文件需要修复",
     "explainer": "引擎读不了自己的设置文件，所以智能体无法启动。什么都没有被改动——你的服务商、密钥和设置都还在里面。",
     "dismiss": "关闭",
     "details": "技术细节",

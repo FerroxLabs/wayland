@@ -513,7 +513,7 @@
     }
   },
   "engineConfigInvalid": {
-    "title": "Wayland Core’un ayar dosyasında bir yazım hatası var",
+    "title": "Wayland Core’un ayar dosyasının düzeltilmesi gerekiyor",
     "explainer": "Motor kendi ayar dosyasını okuyamadı, bu yüzden aracı başlatılamıyor. Hiçbir şey değiştirilmedi — sağlayıcılarınız, anahtarlarınız ve ayarlarınız hâlâ dosyanın içinde.",
     "dismiss": "Kapat",
     "details": "Teknik ayrıntılar",

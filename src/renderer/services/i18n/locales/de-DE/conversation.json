@@ -511,7 +511,7 @@
     }
   },
   "engineConfigInvalid": {
-    "title": "In der Einstellungsdatei von Wayland Core ist ein Tippfehler",
+    "title": "Die Einstellungsdatei von Wayland Core muss korrigiert werden",
     "explainer": "Die Engine konnte ihre eigene Einstellungsdatei nicht lesen, deshalb kann der Agent nicht starten. Es wurde nichts geändert – deine Anbieter, Schlüssel und Einstellungen sind alle noch darin.",
     "dismiss": "Schließen",
     "details": "Technische Details",

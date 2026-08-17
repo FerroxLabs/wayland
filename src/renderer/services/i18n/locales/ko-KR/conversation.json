@@ -511,7 +511,7 @@
     }
   },
   "engineConfigInvalid": {
-    "title": "Wayland Core 설정 파일에 오타가 있습니다",
+    "title": "Wayland Core 설정 파일을 고쳐야 합니다",
     "explainer": "엔진이 자기 설정 파일을 읽지 못해 에이전트를 시작할 수 없습니다. 아무것도 변경하지 않았습니다. 제공업체, 키, 설정은 모두 그대로 남아 있습니다.",
     "dismiss": "닫기",
     "details": "기술 세부 정보",

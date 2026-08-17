@@ -630,7 +630,7 @@
   },
   "imageVisionBlocked": "{{model}} can’t read images. Pick a vision-capable model (e.g. GPT-4o, Claude, or Gemini) or remove the image.",
   "engineConfigInvalid": {
-    "title": "Wayland Core’s settings file has a typo",
+    "title": "Wayland Core’s settings file needs a fix",
     "explainer": "The engine could not read its own settings file, so the agent cannot start. Nothing has been changed — your providers, keys and settings are all still in there.",
     "dismiss": "Dismiss",
     "details": "Technical details",

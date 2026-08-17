@@ -511,7 +511,7 @@
     }
   },
   "engineConfigInvalid": {
-    "title": "El archivo de ajustes de Wayland Core tiene un error de escritura",
+    "title": "El archivo de ajustes de Wayland Core necesita un arreglo",
     "explainer": "El motor no ha podido leer su propio archivo de ajustes, así que el agente no puede arrancar. No se ha cambiado nada: tus proveedores, claves y ajustes siguen ahí.",
     "dismiss": "Descartar",
     "details": "Detalles técnicos",

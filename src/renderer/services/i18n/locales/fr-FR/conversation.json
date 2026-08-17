@@ -511,7 +511,7 @@
     }
   },
   "engineConfigInvalid": {
-    "title": "Le fichier de réglages de Wayland Core contient une faute de frappe",
+    "title": "Le fichier de réglages de Wayland Core doit être corrigé",
     "explainer": "Le moteur n’a pas pu lire son propre fichier de réglages, donc l’agent ne peut pas démarrer. Rien n’a été modifié : vos fournisseurs, vos clés et vos réglages y sont toujours.",
     "dismiss": "Ignorer",
     "details": "Détails techniques",

@@ -511,7 +511,7 @@
     }
   },
   "engineConfigInvalid": {
-    "title": "O arquivo de configurações do Wayland Core tem um erro de digitação",
+    "title": "O arquivo de configurações do Wayland Core precisa de um reparo",
     "explainer": "O motor não conseguiu ler o próprio arquivo de configurações, então o agente não pode iniciar. Nada foi alterado — seus provedores, chaves e configurações continuam lá.",
     "dismiss": "Fechar",
     "details": "Detalhes técnicos",
