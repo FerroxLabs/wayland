@@ -82,8 +82,11 @@ const ComposerAddMenuPanel: React.FC<{
       .then((conv) => {
         if (!alive || !conv) return;
         // Not every conversation variant carries a top-level `model` (ACP/codex
-        // store it elsewhere); narrow before reading so the cap stays undefined
-        // (nudge hidden) for those rather than guessing.
+        // store it elsewhere); narrow before reading. #998: an unresolved model
+        // no longer means "no cap" - `resolveModelToolCap` falls back to the
+        // shared advisory ceiling, so those chats get the same count-vs-cap
+        // nudge instead of only OpenAI ones. The label falls back to a generic
+        // "this model" when the id is unknown.
         const model = 'model' in conv ? conv.model : undefined;
         setTargetModel({ cap: resolveModelToolCap(model?.id, model?.useModel), label: model?.useModel });
         const extra = conv.extra as { activeMcpServers?: string[] } | undefined;

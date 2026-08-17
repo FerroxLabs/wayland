@@ -77,6 +77,15 @@ export type UiMcpServerConfig = {
   type?: 'sse' | 'http';
   headers?: Record<string, string>;
   description?: string;
+  /**
+   * #998 — per-server tool allowlist handed to aioncli-core's `MCPServerConfig`.
+   * The runtime filters discovered tools through it (`mcp-client.ts` isEnabled:
+   * a tool survives only when `includeTools` is absent or names it), so this is
+   * the Gemini backend's REAL enforcement of the MCP Library's per-tool switch,
+   * not a display hint. Absent => every tool (the migration-free default); `[]`
+   * => none, matching `IMcpServer.allowedTools` exactly.
+   */
+  includeTools?: string[];
 };
 
 /**
@@ -88,10 +97,19 @@ export type UiMcpServerConfig = {
  */
 export function buildGeminiStdioMcpConfig(
   transport: Extract<IMcpServer['transport'], { type: 'stdio' }>,
-  description?: string
+  description?: string,
+  allowedTools?: readonly string[]
 ): UiMcpServerConfig {
   const { command, args } = resolveMcpStdioSpawn(transport.command, transport.args || []);
-  return { command, args, env: transport.env || {}, description };
+  return {
+    command,
+    args,
+    env: transport.env || {},
+    description,
+    // #998: carry the per-tool switch into the runtime. `undefined` must stay
+    // omitted - an empty `includeTools` means "no tools", not "all tools".
+    ...(allowedTools === undefined ? {} : { includeTools: [...allowedTools] }),
+  };
 }
 
 const sortedRecord = (value?: Record<string, string>): Array<[string, string]> =>
@@ -617,7 +635,7 @@ export class GeminiAgentManager extends BaseAgentManager<
 
       selectedServers.forEach((server: IMcpServer) => {
         if (server.transport.type === 'stdio') {
-          mcpConfig[server.name] = buildGeminiStdioMcpConfig(server.transport, server.description);
+          mcpConfig[server.name] = buildGeminiStdioMcpConfig(server.transport, server.description, server.allowedTools);
         } else if (
           server.transport.type === 'sse' ||
           server.transport.type === 'http' ||
@@ -630,6 +648,8 @@ export class GeminiAgentManager extends BaseAgentManager<
             type,
             headers: server.transport.headers || {},
             description: server.description,
+            // #998: hosted connectors honour the per-tool switch too.
+            ...(server.allowedTools === undefined ? {} : { includeTools: [...server.allowedTools] }),
           };
         }
         if (mcpConfig[server.name]) this.publishMcpServer(server.name);

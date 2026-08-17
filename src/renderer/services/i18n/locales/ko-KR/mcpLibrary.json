@@ -94,6 +94,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "이 스위치는 {{engines}}에서만 적용됩니다. Wayland Core와 ACP 에이전트를 비롯한 다른 엔진에는 커넥터 전체가 전달되므로 여기서 끈 도구도 호출될 수 있습니다. 모든 곳에서 제거하려면 커넥터 자체를 끄세요.",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "setupHeading": "Setup guide",

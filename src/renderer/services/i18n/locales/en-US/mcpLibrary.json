@@ -126,6 +126,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "These switches are enforced on {{engines}}. Other engines - including Wayland Core and the ACP agents - receive the whole connector, so a tool switched off here is still callable there. Turn the connector itself off to remove it everywhere.",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "enableAllTools": "Enable all",

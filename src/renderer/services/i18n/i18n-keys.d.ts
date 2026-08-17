@@ -1324,6 +1324,7 @@ export type I18nKey =
   | 'mcpLibrary.detail.tabTools'
   | 'mcpLibrary.detail.toggleTool'
   | 'mcpLibrary.detail.toolGroupCount'
+  | 'mcpLibrary.detail.toolScopeNotice'
   | 'mcpLibrary.detail.tools'
   | 'mcpLibrary.detail.toolsHeading'
   | 'mcpLibrary.detail.toolsLocked'

@@ -9,6 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Message, Switch, Modal } from '@arco-design/web-react';
 import {
+  AlertTriangle,
   ArrowLeft,
   BadgeCheck,
   Check,
@@ -41,6 +42,7 @@ import { mcpService, application } from '@/common/adapter/ipcBridge';
 import type { IMcpServer } from '@/common/config/storage';
 import type { McpPrepublicationTruth } from '@process/services/mcpServices/McpProtocol';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
+import { TOOL_ALLOWLIST_ENFORCING_BACKENDS } from '@/common/mcp';
 import { useMcpLibrary } from './hooks/useMcpLibrary';
 import { SetupGuide } from './components/SetupGuide';
 import StatusChip from './components/StatusChip';
@@ -614,6 +616,10 @@ export function DetailPage() {
   // once every tool is re-enabled, so the default stays clean.
   const allowedTools = installedServer?.allowedTools;
   const isToolEnabled = (toolName: string) => allowedTools === undefined || allowedTools.includes(toolName);
+  // #998: these switches are a real constraint only on the backends that carry
+  // the allowlist into their launch config. Read the engine names off that
+  // single source of truth so the banner can never drift from the behaviour.
+  const enforcingEngines = TOOL_ALLOWLIST_ENFORCING_BACKENDS.map((backend) => titleCase(backend)).join(', ');
   const persistAllowedTools = (next: string[] | undefined) => {
     if (!installedServer) return;
     void saveMcpServers((prev) =>
@@ -968,6 +974,18 @@ export function DetailPage() {
                   </div>
                 )}
               </div>
+              {installedServer?.tools && installedServer.tools.length > 0 && (
+                <div className={styles.toolScopeNotice} role='status'>
+                  <AlertTriangle size={14} strokeWidth={2} />
+                  <span>
+                    {t(
+                      'mcpLibrary.detail.toolScopeNotice',
+                      'These switches are enforced on {{engines}}. Other engines - including Wayland Core and the ACP agents - receive the whole connector, so a tool switched off here is still callable there. Turn the connector itself off to remove it everywhere.',
+                      { engines: enforcingEngines }
+                    )}
+                  </span>
+                </div>
+              )}
               {installedServer?.tools && installedServer.tools.length > 0 ? (
                 installedServer.tools.map((tool) => (
                   <div key={tool.name} className={styles.tool}>

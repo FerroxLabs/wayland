@@ -94,6 +94,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "Bu anahtarlar yalnızca {{engines}} üzerinde geçerlidir. Wayland Core ve ACP aracıları dahil diğer motorlar bağlayıcının tamamını alır; burada kapatılan bir araç orada hâlâ çağrılabilir. Her yerden kaldırmak için bağlayıcının kendisini kapatın.",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "setupHeading": "Setup guide",

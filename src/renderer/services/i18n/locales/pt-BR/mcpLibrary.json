@@ -94,6 +94,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "Estas chaves são aplicadas em {{engines}}. Os outros motores - incluindo o Wayland Core e os agentes ACP - recebem o conector inteiro, então uma ferramenta desligada aqui continua acessível lá. Desligue o próprio conector para removê-lo em todos os lugares.",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "setupHeading": "Setup guide",
