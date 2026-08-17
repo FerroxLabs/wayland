@@ -125,7 +125,9 @@ describe('#1020 ProcessAcpClient disconnect diagnostics (executed)', () => {
       client.onDisconnect((i) => {
         info ??= i;
       });
-      (client as unknown as { recordAgentExit(r: AgentDisconnectReason, c: number | null, s: string | null): void }).recordAgentExit(reason, null, null);
+      (
+        client as unknown as { recordAgentExit(r: AgentDisconnectReason, c: number | null, s: string | null): void }
+      ).recordAgentExit(reason, null, null);
       await new Promise((r) => setTimeout(r, 50));
       expect(info, reason).not.toBeNull();
       expect(info!.reason).toBe(reason);
