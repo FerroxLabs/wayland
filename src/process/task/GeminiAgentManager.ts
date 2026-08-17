@@ -983,6 +983,24 @@ export class GeminiAgentManager extends BaseAgentManager<
     };
   };
   /**
+   * Fire-and-forget "proceed" for an auto-approved confirmation.
+   *
+   * #983: `postMessagePromise` now rejects when the worker child exits, so this
+   * call can no longer be `void`ed bare - a dead child would turn every pending
+   * auto-approval into an unhandled rejection and take the process down. The
+   * approval is advisory (the tool is already gone with the child), so log and
+   * move on.
+   */
+  private autoApproveConfirmation(callId: string): void {
+    void this.postMessagePromise(callId, ToolConfirmationOutcome.ProceedOnce).catch((error) => {
+      console.warn(
+        `[GeminiAgentManager] auto-approve for callId=${callId} was not delivered:`,
+        error instanceof Error ? error.message : String(error)
+      );
+    });
+  }
+
+  /**
    * Check if a confirmation should be auto-approved based on current mode.
    * Returns true if auto-approved (caller should skip UI), false otherwise.
    */
@@ -994,7 +1012,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     if (this.currentMode === 'yolo') {
       // yolo: auto-approve ALL operations
       console.debug(`[GeminiAgentManager] YOLO auto-approving ${type}: callId=${content.callId}`);
-      void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+      this.autoApproveConfirmation(content.callId);
       return true;
     }
     // Team MCP servers (wayland-team-*) are always auto-approved regardless of mode
@@ -1004,7 +1022,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         console.log(
           `[GeminiAgentManager] Auto-approving team MCP tool: serverName=${serverName}, callId=${content.callId}`
         );
-        void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+        this.autoApproveConfirmation(content.callId);
         return true;
       }
     }
@@ -1013,7 +1031,7 @@ export class GeminiAgentManager extends BaseAgentManager<
       // Only exec and mcp still require manual confirmation
       if (type === 'edit' || type === 'info') {
         console.log(`[GeminiAgentManager] Auto-approving ${type}: callId=${content.callId}`);
-        void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+        this.autoApproveConfirmation(content.callId);
         return true;
       }
     }
@@ -1025,7 +1043,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     // mode and only auto-approve concrete file edits. Persisted per-workspace.
     if (isWorkspaceTrusted(this.workspace) && trustedWorkspaceAutoApprovesConfirmationType(type)) {
       console.log(`[GeminiAgentManager] Trusted-workspace auto-approving ${type}: callId=${content.callId}`);
-      void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+      this.autoApproveConfirmation(content.callId);
       return true;
     }
     return false;

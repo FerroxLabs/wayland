@@ -71,7 +71,18 @@ class BaseAgentManager<Data, ConfirmationOption extends any = any>
       // (#504: pass the option's answer so a yolo-auto-confirmed question sends
       // the first choice instead of an empty answer the engine would error on).
       setTimeout(() => {
-        void this.confirm(data.id, data.callId, autoOption.value, autoOption.answer);
+        // #983: subclasses (GeminiAgentManager) return the worker round-trip
+        // here, and that promise now rejects when the child exits. Wrap so a
+        // dead worker cannot turn a yolo auto-confirm into a process-killing
+        // unhandled rejection.
+        void Promise.resolve(this.confirm(data.id, data.callId, autoOption.value, autoOption.answer)).catch(
+          (error) => {
+            console.warn(
+              `[BaseAgentManager] yolo auto-confirm for callId=${data.callId} was not delivered:`,
+              error instanceof Error ? error.message : String(error)
+            );
+          }
+        );
       }, 50);
       return;
     }
