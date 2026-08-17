@@ -64,14 +64,11 @@ export function expectedReleaseIdentity(releaseTrack, targetPlatform, targetArch
   if (!VALID_RELEASE_TRACKS.has(releaseTrack)) throw new Error(`${TAG} invalid release track: ${releaseTrack}`);
   const preview = releaseTrack === 'preview';
   const productName = preview ? 'Wayland Preview' : 'Wayland';
-  const executableName =
-    targetPlatform === 'win32'
-      ? `${productName}.exe`
-      : targetPlatform === 'linux'
-        ? preview
-          ? 'wayland-preview'
-          : 'wayland'
-        : productName;
+  // Both electron-builder configs set `executableName` to the product name and
+  // electron-builder writes it verbatim, so Linux ships `Wayland` /
+  // `Wayland Preview` - it does not sanitize either into a lowercase hyphenated
+  // name. Comparisons against this value are case-insensitive.
+  const executableName = targetPlatform === 'win32' ? `${productName}.exe` : productName;
   const baseChannel = preview ? 'preview' : 'latest';
   const updateChannel =
     targetPlatform === 'win32' && targetArch === 'arm64'

@@ -53,7 +53,7 @@ function report(target = 'linux-x64') {
     releaseIdentity: {
       releaseTrack: 'stable',
       productName: 'Wayland',
-      executableName: platform === 'win32' ? 'Wayland.exe' : platform === 'linux' ? 'wayland' : 'Wayland',
+      executableName: platform === 'win32' ? 'Wayland.exe' : 'Wayland',
       bundleName: 'Wayland.app',
       protocolScheme: 'wayland',
       updateChannel:

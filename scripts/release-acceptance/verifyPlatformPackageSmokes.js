@@ -77,14 +77,9 @@ function expectedReleaseIdentity(releaseTrack, platform, arch) {
   }
   const preview = releaseTrack === 'preview';
   const productName = preview ? 'Wayland Preview' : 'Wayland';
-  const executableName =
-    platform === 'win32'
-      ? `${productName}.exe`
-      : platform === 'linux'
-        ? preview
-          ? 'wayland-preview'
-          : 'wayland'
-        : productName;
+  // Mirrors scripts/platform-package-smoke.mjs: electron-builder writes
+  // `executableName` verbatim, so Linux ships `Wayland` / `Wayland Preview`.
+  const executableName = platform === 'win32' ? `${productName}.exe` : productName;
   const baseChannel = preview ? 'preview' : 'latest';
   const updateChannel =
     platform === 'win32' && arch === 'arm64'

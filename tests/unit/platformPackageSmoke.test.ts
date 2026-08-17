@@ -382,10 +382,30 @@ describe('platform package smoke contract', () => {
     expect(() => expectedReleaseIdentity('nightly', 'linux', 'x64')).toThrow('invalid release track');
   });
 
+  // electron-builder writes `executableName` verbatim, so the Linux Preview
+  // binary keeps its space. Expecting `wayland-preview` made both Linux preview
+  // legs of Build Matrix report "found 0. Inventory: <empty>" against an
+  // out-preview tree that had in fact packaged correctly.
+  it('binds the Linux executable name to the product name on both tracks', () => {
+    expect(expectedReleaseIdentity('stable', 'linux', 'x64').executableName).toBe('Wayland');
+    expect(expectedReleaseIdentity('preview', 'linux', 'x64').executableName).toBe('Wayland Preview');
+  });
+
+  it('resolves a Linux Preview packaged app whose executable carries the product name', () => {
+    const out = path.join(temporaryRoot(), 'out-preview');
+    const appDir = path.join(out, 'linux-unpacked');
+    fs.mkdirSync(path.join(appDir, 'resources'), { recursive: true });
+    fs.writeFileSync(path.join(appDir, 'Wayland Preview'), executableBytes('linux', 'x64'), { mode: 0o755 });
+    expect(path.basename(resolvePackagedTarget(out, 'linux', 'x64').executablePath)).toBe('Wayland Preview');
+
+    fs.renameSync(path.join(appDir, 'Wayland Preview'), path.join(appDir, 'not-our-app'));
+    expect(() => resolvePackagedTarget(out, 'linux', 'x64')).toThrow('found 0');
+  });
+
   it('captures only the payload belonging to the requested release track', () => {
     const root = temporaryRoot();
     const preview = writeUnpackedTarget(root, 'linux', 'x64');
-    fs.renameSync(preview.executablePath, path.join(preview.appDir, 'wayland-preview'));
+    fs.renameSync(preview.executablePath, path.join(preview.appDir, 'Wayland Preview'));
     const stableState = captureCandidateState(root, 'linux', 'x64', path.join(root, 'stable-state.json'), {
       ...cleanSourceDependencies(),
       captureNonce: '7'.repeat(64),

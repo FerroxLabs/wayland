@@ -36,6 +36,25 @@ export function getReleaseProtocolScheme(track: WaylandReleaseTrack): 'wayland' 
   return track === 'preview' ? 'wayland-preview' : 'wayland';
 }
 
+/**
+ * The basename of the packaged launcher for a track on a platform.
+ *
+ * electron-builder writes `executableName` verbatim, and both configs set it to
+ * the product name, so Linux ships `Wayland` / `Wayland Preview` - it is never
+ * sanitized into a lowercase hyphenated name. Assuming otherwise is what made
+ * both Linux Preview legs of Build Matrix report an empty packaged inventory.
+ *
+ * This is the single source the packaged runtime derives its boot-start
+ * `releaseIdentity.executableName` from. That event is compared byte-for-byte
+ * against `expectedReleaseIdentity` in scripts/platform-package-smoke.mjs, so
+ * the two derivations must never drift; tests/unit/releaseTrack.test.ts binds
+ * them together.
+ */
+export function getPackagedExecutableName(track: WaylandReleaseTrack, platform: NodeJS.Platform): string {
+  const { appName } = getPackagedReleaseIdentity(track);
+  return platform === 'win32' ? `${appName}.exe` : appName;
+}
+
 export type ReleaseRuntime = {
   platform: NodeJS.Platform;
   arch: string;
