@@ -99,7 +99,12 @@ import {
   handleDeepLinkUrl,
   PROTOCOL_SCHEME,
 } from './process/utils/deepLink';
-import { getPackagedReleaseIdentity, getReleaseTrack, getReleaseUpdateChannel } from './common/releaseTrack';
+import {
+  getPackagedExecutableName,
+  getPackagedReleaseIdentity,
+  getReleaseTrack,
+  getReleaseUpdateChannel,
+} from './common/releaseTrack';
 import {
   bindMainWindowReferences,
   showAndFocusMainWindow,
@@ -128,14 +133,7 @@ function packagedRuntimeReleaseIdentity(): {
 } {
   const releaseTrack = getReleaseTrack();
   const { appName: productName } = getPackagedReleaseIdentity(releaseTrack);
-  const executableName =
-    process.platform === 'win32'
-      ? `${productName}.exe`
-      : process.platform === 'linux'
-        ? releaseTrack === 'preview'
-          ? 'wayland-preview'
-          : 'wayland'
-        : productName;
+  const executableName = getPackagedExecutableName(releaseTrack, process.platform);
   return {
     releaseTrack,
     productName,
