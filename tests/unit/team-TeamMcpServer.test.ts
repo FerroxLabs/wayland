@@ -104,8 +104,12 @@ function makeMailbox(): Mailbox {
 }
 
 function makeTaskManager() {
+  const create = vi.fn().mockResolvedValue({ id: 'task-1', subject: 'Test', status: 'pending', owner: undefined });
   return {
-    create: vi.fn().mockResolvedValue({ id: 'task-1', subject: 'Test', status: 'pending', owner: undefined }),
+    create,
+    // #981 - the MCP layer calls createOrReuse; delegate so `create` assertions
+    // keep describing what the tool actually asked the task board to do.
+    createOrReuse: vi.fn(async (params: unknown) => ({ task: await create(params), reused: false })),
     // Mirror the real TaskManager.update: the RETURNED task carries the status
     // that was actually applied (the P3 gate keys unblocking on the final status,
     // so a non-completed update must come back non-completed).

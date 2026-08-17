@@ -136,12 +136,14 @@ function makeAgent(overrides: Partial<TeamAgent> = {}): TeamAgent {
 
 function buildServer(agents: TeamAgent[], wakeAgent = vi.fn().mockResolvedValue(undefined)) {
   const mailbox = { write: vi.fn().mockResolvedValue({ id: 'msg-1' }) } as unknown as Mailbox;
+  const create = vi.fn().mockImplementation(async (p: { teamId: string; subject: string }) => ({
+    id: crypto.randomUUID(),
+    subject: p.subject,
+    status: 'pending',
+  }));
   const taskManager = {
-    create: vi.fn().mockImplementation(async (p: { teamId: string; subject: string }) => ({
-      id: crypto.randomUUID(),
-      subject: p.subject,
-      status: 'pending',
-    })),
+    create,
+    createOrReuse: vi.fn(async (p: unknown) => ({ task: await create(p), reused: false })),
     update: vi.fn().mockResolvedValue({ id: 'task-1', status: 'in_progress' }),
     list: vi.fn().mockResolvedValue([]),
     checkUnblocks: vi.fn().mockResolvedValue([]),
