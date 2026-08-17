@@ -29,6 +29,7 @@ import type { MemoryStats, MemoryEntry, ProjectSummary, PromotionCandidates } fr
 
 const ALPHA = '/dev/project-alpha';
 const BETA = '/dev/project-beta';
+const GAMMA = '/dev/project-gamma';
 
 const MOCK_PROJECTS: ProjectSummary[] = [
   { path: ALPHA, basename: 'project-alpha', count: 9, lastActive: Date.now() },
@@ -87,9 +88,14 @@ const MOCK_CANDIDATES: PromotionCandidates = {
   nextRun: Date.now() + 1000,
 };
 
-const { mockMemory, mockShell, mockIjfw, mockModalConfirm } = vi.hoisted(() => {
+const { mockMemory, mockShell, mockIjfw, mockModalConfirm, indexListeners } = vi.hoisted(() => {
   const emitter = { on: () => () => {} };
+  // A REAL listener registry for memory.onIndexChanged: the F1 regression below
+  // only happens when the index-changed handlers actually run, so a no-op
+  // emitter cannot see it.
+  const indexListeners: Array<() => void> = [];
   return {
+    indexListeners,
     mockMemory: {
       getStats: { invoke: vi.fn() },
       listEntries: { invoke: vi.fn() },
@@ -104,7 +110,15 @@ const { mockMemory, mockShell, mockIjfw, mockModalConfirm } = vi.hoisted(() => {
       listArchivedEntries: { invoke: vi.fn() },
       restoreArchivedEntry: { invoke: vi.fn() },
       setPromotionThreshold: { invoke: vi.fn() },
-      onIndexChanged: emitter,
+      onIndexChanged: {
+        on: (cb: () => void) => {
+          indexListeners.push(cb);
+          return () => {
+            const i = indexListeners.indexOf(cb);
+            if (i >= 0) indexListeners.splice(i, 1);
+          };
+        },
+      },
       import: {
         claudeMem: { invoke: vi.fn() },
         obsidianVault: { invoke: vi.fn() },
@@ -182,6 +196,7 @@ afterEach(() => {
   cleanup();
   vi.clearAllMocks();
   localStorage.clear();
+  indexListeners.length = 0;
 });
 
 beforeEach(() => {
@@ -255,5 +270,51 @@ describe('#924 F1: project-scoped save through the real /memory renderer path', 
     const payload = mockMemory.setQuickAdd.invoke.mock.calls[0][0];
     expect(payload.scope).toBe('global');
     expect(payload.projectPath).toBeUndefined();
+  });
+
+  /**
+   * #924 recurrence: the reset effect re-seeded the destination from
+   * `projects[0]` whenever its deps changed. The Memory page re-fetches its
+   * project list on every `onIndexChanged`, which IJFW fires whenever an agent
+   * writes memory in the background, so a refresh that reordered the list
+   * rewrote the user's explicit pick WHILE THE MODAL WAS OPEN and the note went
+   * to a project they never named.
+   */
+  it('keeps the destination the user picked when a background index refresh reorders the projects', async () => {
+    await openComposer();
+
+    // Explicit pick: project-beta, not the default first entry.
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('composer-project-picker'), { target: { value: BETA } });
+    });
+    expect(screen.getByTestId('composer-destination').textContent).toContain('project-beta');
+
+    // A background write lands and GAMMA becomes the most recent project.
+    mockMemory.getProjects.invoke.mockResolvedValue([
+      { path: GAMMA, basename: 'project-gamma', count: 1, lastActive: Date.now() + 100_000 },
+      ...MOCK_PROJECTS,
+    ]);
+    expect(indexListeners.length).toBeGreaterThan(0);
+    await act(async () => {
+      indexListeners.forEach((fire) => fire());
+    });
+
+    // Control: the refresh really did reach the open composer - GAMMA is now an
+    // option - so a picker that still reads BETA is holding the user's choice,
+    // not merely failing to notice the change.
+    await waitFor(() => {
+      const picker = screen.getByTestId('composer-project-picker') as HTMLSelectElement;
+      expect(Array.from(picker.options).map((o) => o.value)).toContain(GAMMA);
+    });
+    expect((screen.getByTestId('composer-project-picker') as HTMLSelectElement).value).toBe(BETA);
+    expect(screen.getByTestId('composer-destination').textContent).toContain('project-beta');
+
+    fireEvent.change(screen.getByTestId('composer-textarea'), { target: { value: 'beta-only note' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+
+    await waitFor(() => expect(mockMemory.setQuickAdd.invoke).toHaveBeenCalled());
+    expect(mockMemory.setQuickAdd.invoke.mock.calls[0][0].projectPath).toBe(BETA);
   });
 });

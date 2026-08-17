@@ -81,13 +81,23 @@ export function ComposerModal({
   // exhausted the heap.
   const firstProjectPath = projects[0]?.path ?? '';
 
+  // #924: once the user has picked a destination it is authoritative for the
+  // rest of this open cycle. `firstProjectPath` (and `defaultProjectPath`) move
+  // whenever a BACKGROUND index refresh reorders the project list - the Memory
+  // page re-fetches on `onIndexChanged`, which IJFW fires whenever an agent
+  // writes memory - and re-seeding then rewrote the chosen destination out from
+  // under the open picker, sending the note to a project the user never named.
+  // Seeding stays live only while the user has not chosen, so a project list
+  // that arrives after the modal opens still fills the destination in.
+  const userPickedRef = useRef(false);
+
   // Auto-focus textarea when modal opens; reset state on close.
   useEffect(() => {
     if (open) {
       // Seed the destination from the page's project filter, else the first
       // indexed project. Never left blank while a project exists, so the
       // destination line below always names a real place (#924).
-      setProjectPath(defaultProjectPath ?? firstProjectPath);
+      if (!userPickedRef.current) setProjectPath(defaultProjectPath ?? firstProjectPath);
       // Defer focus so Arco has time to mount
       const id = window.setTimeout(() => {
         textareaRef.current?.focus();
@@ -95,6 +105,7 @@ export function ComposerModal({
       return () => window.clearTimeout(id);
     } else {
       // Clear on close
+      userPickedRef.current = false;
       setContent('');
       setScope('project');
       setProjectPath('');
@@ -323,7 +334,10 @@ export function ComposerModal({
           {scope === 'project' && projects.length > 1 && (
             <select
               value={projectPath}
-              onChange={(e) => setProjectPath(e.target.value)}
+              onChange={(e) => {
+                userPickedRef.current = true;
+                setProjectPath(e.target.value);
+              }}
               aria-label={t('archive.composer.projectPicker', 'Project to save to')}
               data-testid='composer-project-picker'
             >
