@@ -412,12 +412,27 @@ export class ProcessAcpClient implements AcpClient {
         // arbitrary character is a disclosure path: `redactSecrets` only matches a
         // WHOLE credential, and shaving one character off `sk-ant-api03-` defeats
         // the vendor-prefix rule, so the remainder of a real key survives every
-        // downstream scrub. Dropping the partial leading line removes the half-token
-        // before anything can miss it. A tail with no newline at all keeps its whole
-        // 8KB rather than emptying itself (indexOf returns -1, slice(0) is a no-op),
-        // because an unbroken blob is still the only diagnostic we have.
+        // downstream scrub. Dropping the partial leading record removes the half-token
+        // before anything can miss it.
+        //
+        // A boundary is `\r` as well as `\n`. Bare-CR output - progress bars, old-Mac
+        // line endings - has real record boundaries with no `\n` anywhere, and taking
+        // whichever comes FIRST also keeps more diagnostics when a `\r` record sits in
+        // front of a `\n` one.
+        //
+        // With no boundary at all in the retained 8KB there is nothing to cut at, so
+        // drop just the leading run of non-whitespace. That run is exactly the span a
+        // half-token can occupy, because a credential contains no whitespace, so this
+        // costs one token out of 8KB instead of the whole buffer. Keeping the whole
+        // buffer was the original hole: `indexOf` returned -1, `slice(0)` was a no-op,
+        // and the half-token stayed at character 0 of a ring that redaction had already
+        // shrunk under the banner's own 2048-character tail - on screen, in the chat.
+        // One 8KB token with no whitespace at all does empty the ring, and that is the
+        // right call: nothing there distinguishes a blob from a secret, and the banner
+        // still names the disconnect reason without a stderr line.
         const sliced = this.stderrBuffer.slice(-STARTUP_STDERR_MAX);
-        this.stderrBuffer = sliced.slice(sliced.indexOf('\n') + 1);
+        const boundary = sliced.search(/[\r\n]/);
+        this.stderrBuffer = boundary >= 0 ? sliced.slice(boundary + 1) : sliced.replace(/^\S+/, '');
       }
     });
   }
