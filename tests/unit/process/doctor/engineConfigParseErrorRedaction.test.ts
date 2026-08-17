@@ -214,13 +214,95 @@ describe('engine config target — the ACTIVE profile, not the native config', (
     expect(result.status).toBe('ok');
   });
 
-  it('names the inspected path in the Doctor detail', async () => {
+  /**
+   * PREMISE CORRECTED. This test used to assert the FULL active path appeared in
+   * both the detail and the remediation, and in doing so it PINNED a leak of
+   * exactly the class this file exists to close: under a named profile the path's
+   * own segment IS the user-authored profile name (`PROFILE_NAME_RE` accepts a
+   * 32-hex key or an `sk-ant-` token whole), so "names the inspected path" and
+   * "names the profile" were the same sentence. It fired on every run, not only on
+   * a fault - see the healthy-config case below.
+   *
+   * What the check owes the user is the LOCATION, not the name: the profiles root
+   * (where they look in Finder) and the line/column. Those are asserted positively
+   * so this cannot pass by saying nothing.
+   */
+  it('withholds the profile NAME from both Doctor fields while staying actionable', async () => {
+    await mkdir(join(profilesRootDir, BARE_SECRET), { recursive: true });
+    await writeFile(activeMarkerPath(), BARE_SECRET, 'utf-8');
     const activePath = await resolveActiveConfigPath();
     await writeFile(activePath, 'oops = = =', 'utf-8');
+
+    // KNOWN POSITIVE: the real path genuinely carries the name, and no scrubber
+    // sees it - so a clean assertion below is the fix working, not luck.
+    expect(activePath).toContain(BARE_SECRET);
+    expect(redactSecrets(activePath)).toContain(BARE_SECRET);
+
     const outcome = await checkEngineConfigIntegrity(() => probeEngineConfig());
     expect(outcome.status).toBe('fail');
-    expect(outcome.detail).toContain(activePath);
-    expect(outcome.remediation).toContain(activePath);
+    const surfaced = `${outcome.detail}\n${outcome.remediation ?? ''}`;
+    expect(surfaced).not.toContain(BARE_SECRET);
+    // BOTH fields, separately: the leak lived in two places, so one assertion over
+    // the join would have passed on a half-fix.
+    expect(outcome.detail).not.toContain(BARE_SECRET);
+    expect(outcome.remediation).not.toContain(BARE_SECRET);
+    // NOT VACUOUS: each field still names where to look and what to fix.
+    expect(outcome.detail).toContain(profilesRootDir);
+    expect(outcome.remediation).toContain(profilesRootDir);
+    expect(outcome.detail).toContain('(profile name withheld)');
+    expect(outcome.remediation).toContain('(profile name withheld)');
+    expect(outcome.detail).toContain('line 1, column 8');
+
+    // And Reveal-in-Finder still gets the REAL file: withholding is a RENDERING
+    // decision, so collapsing `path` into `displayPath` would break the panel.
+    const probe = await probeEngineConfig();
+    expect(probe.status === 'corrupt' && probe.path).toBe(activePath);
+  });
+
+  it('withholds the profile NAME on a HEALTHY config too, not just on a fault', async () => {
+    // The pass branch names the path as well, so the name reached the report on
+    // EVERY Doctor run [executed: `Engine config.toml (.../<name>/config.toml)
+    // parses cleanly.`]. Treating this as an error-path concern was the mistake.
+    await mkdir(join(profilesRootDir, BARE_SECRET), { recursive: true });
+    await writeFile(activeMarkerPath(), BARE_SECRET, 'utf-8');
+    await writeFile(await resolveActiveConfigPath(), 'ok = true', 'utf-8');
+
+    const outcome = await checkEngineConfigIntegrity(() => probeEngineConfig());
+    expect(outcome.status).toBe('pass');
+    expect(outcome.detail).not.toContain(BARE_SECRET);
+    expect(outcome.detail).toContain('(profile name withheld)');
+    expect(outcome.detail).toContain('parses cleanly');
+  });
+
+  /**
+   * THE OVER-FIX ORACLE. Withholding unconditionally would be the easy wrong fix:
+   * the native config dir is `<config-base>/wayland-core` and carries no
+   * user-authored segment at all, so withholding it costs the user the one path
+   * they actually need and protects nothing. This is the assertion that reds if
+   * `displayPath` is ever set without consulting the active profile.
+   */
+  it('OVER-FIX ORACLE: the NATIVE profile keeps its real path verbatim', async () => {
+    const nativeHome = await mkdtemp(join(tmpdir(), 'doctor-native-'));
+    const previousHome = process.env.WAYLAND_HOME;
+    process.env.WAYLAND_HOME = nativeHome;
+    try {
+      // No active marker at all, so `getActiveProfile` selects `@native`.
+      await rm(activeMarkerPath(), { force: true });
+      await writeFile(join(nativeHome, 'config.toml'), 'ok = true', 'utf-8');
+
+      const probe = await probeEngineConfig();
+      expect(probe.status).toBe('ok');
+      expect(probe.status === 'ok' && probe.displayPath).toBeUndefined();
+
+      const outcome = await checkEngineConfigIntegrity(() => probeEngineConfig());
+      expect(outcome.status).toBe('pass');
+      expect(outcome.detail).toContain(join(nativeHome, 'config.toml'));
+      expect(outcome.detail).not.toContain('withheld');
+    } finally {
+      if (previousHome === undefined) delete process.env.WAYLAND_HOME;
+      else process.env.WAYLAND_HOME = previousHome;
+      await rm(nativeHome, { recursive: true, force: true });
+    }
   });
 
   it('reports an unresolvable profile as its own fault, not a parse failure', async () => {

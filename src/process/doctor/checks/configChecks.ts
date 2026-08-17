@@ -33,10 +33,16 @@ export type ConfigCheckDeps = {
    * that line is the user's own config, credentials included
    * (GHSA-2g2m-r86j-jg6h). `line`/`column` are how this check stays actionable
    * without echoing any of the file. `probeEngineConfig` is the real producer.
+   *
+   * `displayPath` is RENDERED IN PLACE OF `path` whenever the producer sets it.
+   * Under a named profile the path's own segment is the user-authored profile
+   * name, so naming the real path names the name; `path` still exists because the
+   * recovery panel and Reveal-in-Finder need the real file. Same split, same
+   * reason, as `WorkspaceEntry.displayPath`.
    */
   readEngineConfig: () => Promise<
-    | { status: 'ok'; existed: boolean; path?: string }
-    | { status: 'corrupt'; message: string; path?: string; line?: number; column?: number }
+    | { status: 'ok'; existed: boolean; path?: string; displayPath?: string }
+    | { status: 'corrupt'; message: string; path?: string; displayPath?: string; line?: number; column?: number }
     | { status: 'unresolved'; message: string }
   >;
 };
@@ -68,6 +74,18 @@ function describePosition(result: { line?: number; column?: number }): string | 
   if (typeof result.line !== 'number' || !Number.isFinite(result.line)) return null;
   if (typeof result.column !== 'number' || !Number.isFinite(result.column)) return `line ${result.line}`;
   return `line ${result.line}, column ${result.column}`;
+}
+
+/**
+ * The path to render, preferring the producer's withheld `displayPath`. `null`
+ * when the producer named no path at all.
+ *
+ * A helper rather than four inline `??`s because there ARE four render sites - two
+ * fields on the corrupt branch and two spellings on the healthy one - and the leak
+ * this closes existed because a reader assumed there was one.
+ */
+function renderedPath(result: { path?: string; displayPath?: string }): string | null {
+  return result.displayPath ?? result.path ?? null;
 }
 
 /**
@@ -108,18 +126,29 @@ export async function checkEngineConfigIntegrity(
     // The PATH is named in the detail because the check and the recovery panel
     // that mounts under this row must visibly agree on which file they mean; when
     // they silently disagreed, Reveal opened a file nobody was complaining about.
-    const where = result.path ? ` (${result.path})` : '';
+    //
+    // `displayPath` FIRST, always. Under a named profile the real path's own
+    // segment is the user-authored profile name, and a profile name accepts a
+    // 32-hex key or an `sk-ant-` token whole (`PROFILE_NAME_RE`), which no scrubber
+    // sees as a bare path segment [executed: `redactSecrets` returns a bare 32-hex
+    // untouched]. Both fields below rendered it, so a single site was never the fix.
+    const rendered = renderedPath(result);
+    const where = rendered ? ` (${rendered})` : '';
     return {
       status: 'fail',
       detail: position
         ? `The engine's config.toml${where} could not be parsed at ${position}: ${reason}`
         : `The engine's config.toml${where} could not be parsed: ${reason}`,
       remediation: position
-        ? `Fix the TOML syntax at ${position} in ${result.path ?? 'the engine config.toml'}, or remove the file to regenerate defaults.`
-        : `Fix the TOML syntax in ${result.path ?? 'the engine config.toml'}, or remove the file to regenerate defaults.`,
+        ? `Fix the TOML syntax at ${position} in ${rendered ?? 'the engine config.toml'}, or remove the file to regenerate defaults.`
+        : `Fix the TOML syntax in ${rendered ?? 'the engine config.toml'}, or remove the file to regenerate defaults.`,
     };
   }
-  const target = result.path ? ` (${result.path})` : '';
+  // The healthy branch names the path too, so it leaked the profile name on EVERY
+  // run rather than only on a fault - which is why this cannot be treated as an
+  // error-path concern.
+  const shown = renderedPath(result);
+  const target = shown ? ` (${shown})` : '';
   return {
     status: 'pass',
     detail: result.existed
