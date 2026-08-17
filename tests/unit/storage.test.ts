@@ -211,6 +211,167 @@ describe('backupExport / backupImport round-trip', () => {
     expect(fs.readFileSync(path.join(restore, 'config/settings.json'), 'utf8')).toBe('{"theme":"keep"}');
   });
 
+  // #1021: an import that throws nothing routinely applies nothing, because
+  // chats, projects and provider credentials all live in the primary database
+  // this legacy export never covers. The importer must say so, or the UI
+  // reports a confident success over silent data loss.
+  it('reports nothing applied for an archive from a database-only install', async () => {
+    // A modern install: state lives in userData/wayland/wayland.db, and there
+    // is no legacy conversations dir, no attachments and no keys.json.
+    writeFixture(src, 'wayland/wayland.db', 'SQLITE-conversations+projects+providers');
+    writeFixture(src, 'wayland/wayland.db-wal', 'WAL');
+
+    const exported = await backupExport({ userData: src, destPath: zipPath, includeKeys: true, passphrase: 'pw' });
+    expect(exported.includesKeys).toBe(false);
+    expect(exported.keysRequestedButAbsent).toBe(true);
+    expect(exported.fileCount).toBe(0);
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath, passphrase: undefined });
+    expect(report.applied).toEqual([]);
+    expect(report.fileCount).toBe(0);
+    expect(report.keysSkippedNoPassphrase).toBe(false);
+  });
+
+  it('reports which top-level entries an import actually applied', async () => {
+    writeFixture(src, 'conversations/c.json', 'chat');
+    writeFixture(src, 'attachments/a.bin', 'blob');
+    writeFixture(src, 'config/settings.json', '{}');
+    writeFixture(src, 'keys.json', '{"k":"v"}');
+    await backupExport({ userData: src, destPath: zipPath, includeKeys: true, passphrase: 'pw' });
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath, passphrase: 'pw' });
+    expect(report.applied.toSorted()).toEqual(['attachments', 'config', 'conversations', 'keys.json']);
+    expect(report.keysSkippedNoPassphrase).toBe(false);
+    expect(report.fileCount).toBe(4);
+  });
+
+  it('reports encrypted keys skipped when no passphrase is supplied', async () => {
+    writeFixture(src, 'config/settings.json', '{}');
+    writeFixture(src, 'keys.json', '{"k":"v"}');
+    await backupExport({ userData: src, destPath: zipPath, includeKeys: true, passphrase: 'pw' });
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath, passphrase: undefined });
+    expect(report.keysSkippedNoPassphrase).toBe(true);
+    expect(report.applied).toEqual(['config']);
+    expect(fs.existsSync(path.join(restore, 'keys.json'))).toBe(false);
+  });
+
+  // #1042 F3: both temp cleanups in backupImport run in a `finally`, and a
+  // `finally` that throws REPLACES the successful return it follows. So an
+  // undeletable scratch file turned a restore that had already installed every
+  // file into a rejection, and the caller then told the user the restore failed
+  // and offered the safety archive - which would undo the good restore.
+  it.skipIf(process.platform === 'win32')(
+    'still reports the applied restore when the rollback cleanup cannot be removed',
+    async () => {
+      // A pre-existing `config` is DISPLACED into the rollback tree, carrying a
+      // read-only subdirectory with it, so removing that tree hits EACCES.
+      writeFixture(restore, 'config/settings.json', '{"theme":"OLD-LIVE"}');
+      writeFixture(restore, 'config/locked/pin.txt', 'pin');
+      fs.chmodSync(path.join(restore, 'config/locked'), 0o500);
+
+      writeFixture(src, 'config/settings.json', '{"theme":"NEW-FROM-ARCHIVE"}');
+      await backupExport({ userData: src, destPath: zipPath, includeKeys: false });
+
+      const report = await backupImport({ userData: restore, srcPath: zipPath });
+
+      expect(report.applied).toEqual(['config']);
+      expect(JSON.parse(fs.readFileSync(path.join(restore, 'config/settings.json'), 'utf-8'))).toEqual({
+        theme: 'NEW-FROM-ARCHIVE',
+      });
+
+      // Re-open the stranded read-only directory so afterEach can clean up.
+      for (const entry of fs.readdirSync(path.dirname(restore))) {
+        if (!entry.startsWith('.wayland-legacy-')) continue;
+        const locked = path.join(path.dirname(restore), entry, 'config/locked');
+        if (fs.existsSync(locked)) fs.chmodSync(locked, 0o700);
+        fs.rmSync(path.join(path.dirname(restore), entry), { recursive: true, force: true });
+      }
+    }
+  );
+
+  it('reports archive entries that fall outside the legacy restore scope', async () => {
+    const zip = new JSZip();
+    zip.file(
+      'manifest.json',
+      JSON.stringify({
+        format: 'wayland-legacy-file-export',
+        version: 2,
+        authoritative: false,
+        exportedAt: new Date().toISOString(),
+        includesKeys: false,
+        includedPaths: ['conversations', 'attachments', 'config'],
+        excludedAuthorities: [],
+      })
+    );
+    zip.file('conversations/c.json', 'chat');
+    zip.file('sensitive/secret.txt', 'secret');
+    fs.writeFileSync(zipPath, await zip.generateAsync({ type: 'nodebuffer' }));
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath });
+    expect(report.applied).toEqual(['conversations']);
+    expect(report.outOfScope).toEqual(['sensitive']);
+    expect(fs.existsSync(path.join(restore, 'sensitive'))).toBe(false);
+  });
+
+  /**
+   * The `outOfScope` diagnostic must be BOUNDED at the source.
+   *
+   * It crosses the IPC bridge, whose adapter silently drops any reply over 50 MB,
+   * and the HTTP route, which ships it to a browser. Executed against a legal zip
+   * of 1000 zero-byte entries under 60 KB-long top-level names: the field came
+   * back with 1000 entries, the longest 60,004 characters, the serialized reply
+   * was 57.2 MB, and the adapter dropped it - leaving the renderer's await
+   * unsettled forever, because `invoke` has no reject and no timeout. The
+   * zip-bomb byte caps cannot see this, since nothing decompresses.
+   *
+   * This fixture is the same shape, kept small enough to run fast.
+   */
+  it('bounds the out-of-scope diagnostic by count and by name length', async () => {
+    const zip = new JSZip();
+    zip.file('manifest.json', JSON.stringify({ version: 1 }));
+    for (let i = 0; i < 50; i += 1) {
+      zip.file(`${String(i).padStart(3, '0')}${'x'.repeat(300)}/entry`, '');
+    }
+    zip.file('conversations/c.json', 'chat');
+    fs.writeFileSync(zipPath, await zip.generateAsync({ type: 'nodebuffer' }));
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath });
+
+    // Known positive: the in-scope entry still applied, so the loop really ran
+    // over all 51 entries and the assertions below are not vacuous.
+    expect(report.applied).toEqual(['conversations']);
+    expect(report.outOfScope.length).toBeLessThanOrEqual(20);
+    expect(report.outOfScope.length).toBeGreaterThan(0);
+    expect(Math.max(...report.outOfScope.map((name) => name.length))).toBeLessThanOrEqual(64);
+  });
+
+  // A Windows exporter emits the same forward-slash entry names as a POSIX one
+  // (addDir builds `${zipPath}/${entry.name}`), so a Windows-origin archive is
+  // not what blocks a Linux restore (#1021).
+  it('applies a Windows-origin archive on this platform', async () => {
+    const zip = new JSZip();
+    zip.file(
+      'manifest.json',
+      JSON.stringify({
+        format: 'wayland-legacy-file-export',
+        version: 2,
+        authoritative: false,
+        exportedAt: new Date().toISOString(),
+        includesKeys: false,
+        includedPaths: ['conversations', 'attachments', 'config'],
+        excludedAuthorities: [],
+      })
+    );
+    zip.file('config/wayland-config.txt', 'FROM-WINDOWS');
+    zip.file('conversations/win-chat.json', '{"id":"win"}');
+    fs.writeFileSync(zipPath, await zip.generateAsync({ type: 'nodebuffer' }));
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath });
+    expect(report.applied.toSorted()).toEqual(['config', 'conversations']);
+    expect(fs.readFileSync(path.join(restore, 'config/wayland-config.txt'), 'utf8')).toBe('FROM-WINDOWS');
+  });
+
   // Cross-audit 2026-06-15: the per-install .secret-key decrypts stored
   // credentials. It must never be bundled into an export, or a backup becomes
   // plaintext secret exfiltration. Guard it even when it sits inside a walked dir.

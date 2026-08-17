@@ -4,8 +4,60 @@ import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, PreferenceRow } from '@renderer/components/settings/shared';
 import { storage } from '@/common/adapter/ipcBridge';
+import type { LegacyBackupErrorCode } from '@/common/types/storageBackup';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { exportBackupHttp, restoreBackupHttp } from '@renderer/services/StorageService';
+import type { RestoreReport } from '@renderer/services/StorageService';
+
+/**
+ * The desktop backup providers cannot reject - the IPC bridge has no error
+ * channel, so a throwing provider leaves this component's `await` unsettled
+ * forever. They return `{ok:false, failed:true, errorCode}` instead, and
+ * `failed` is what separates a real failure from the user cancelling the native
+ * file dialog. Cancelling must stay silent; failing must be reported.
+ */
+const restoreErrorKey = (code?: LegacyBackupErrorCode): string =>
+  code === 'BAD_PASSPHRASE' ? 'restoreBadPassphrase' : 'restoreFailed';
+
+const exportErrorKey = (code?: LegacyBackupErrorCode): string =>
+  code === 'PASSPHRASE_REQUIRED' ? 'exportPassphraseRequired' : 'exportFailed';
+
+/**
+ * The importer reports what it applied using its own on-disk directory names.
+ * Those are internal, and dropping them raw into twelve localized sentences
+ * produced "Restored: config, conversations, keys.json" for every language. This
+ * is the closed set `replaceFromStaging` can return, so there is nothing to fall
+ * back to in practice - the raw name is kept only so an unexpected entry names
+ * itself rather than vanishing.
+ */
+const RESTORE_ITEM_KEYS: Record<string, string> = {
+  conversations: 'restoreItemConversations',
+  attachments: 'restoreItemAttachments',
+  config: 'restoreItemConfig',
+  'keys.json': 'restoreItemKeys',
+};
+
+/**
+ * The archive's own top-level names, for the case where a restore applied nothing
+ * and naming what the archive DID hold is the only useful thing left to say.
+ *
+ * These names come out of a zip the user may simply have been handed, so they are
+ * filtered to a conservative charset rather than interpolated raw. The toast
+ * renders as text, so this is not about markup: it is about a hostile or malformed
+ * archive writing a paragraph, or a plausible lookalike sentence, into the UI.
+ * Empty means there is nothing worth naming.
+ *
+ * The count and length caps here are BELT AND BRACES. The real bound is in
+ * backupImport, at the point the names are collected: sanitising here happens
+ * after the payload has already crossed the IPC bridge and the HTTP route, and an
+ * oversized reply is silently dropped by the bridge adapter rather than delivered.
+ */
+const describeOutOfScope = (names?: string[]): string =>
+  (names ?? [])
+    .map((name) => name.replace(/[^A-Za-z0-9._-]/g, '').slice(0, 32))
+    .filter((name) => name.length > 0)
+    .slice(0, 5)
+    .join(', ');
 
 const BackupCard: React.FC = () => {
   const { t } = useTranslation();
@@ -28,7 +80,21 @@ const BackupCard: React.FC = () => {
     try {
       const opts = { includeKeys, passphrase: includeKeys ? passphrase : undefined };
       if (isDesktop) {
-        await storage.exportAll.invoke(opts);
+        const result = await storage.exportAll.invoke(opts);
+        if (!result.ok) {
+          // Cancelling the native save dialog is not a failure and must stay
+          // silent; anything else must be named, or the button just stops.
+          if (result.failed) Message.error(t(`settings.storagePage.${exportErrorKey(result.errorCode)}`));
+          return;
+        }
+        // Asking for keys and getting none is the norm on a modern install:
+        // provider credentials live in the primary database, which a legacy
+        // file export does not cover. Say so rather than claim a plain
+        // success the archive does not back up (#1021).
+        if (result.keysRequestedButAbsent) {
+          Message.warning({ content: t('settings.storagePage.exportNoKeys'), duration: 12000 });
+          return;
+        }
       } else {
         await exportBackupHttp(opts);
       }
@@ -40,25 +106,11 @@ const BackupCard: React.FC = () => {
     }
   };
 
-  const handleRestoreClick = () => {
-    if (isDesktop) {
-      setImporting(true);
-      void storage.importBackup
-        .invoke({})
-        .then((result) => {
-          if (!result.ok) return;
-          Message.success(
-            result.safetyBackupPath
-              ? t('settings.storagePage.restoreSuccessWithSafety', { path: result.safetyBackupPath })
-              : t('settings.storagePage.restoreSuccess')
-          );
-        })
-        .catch(() => Message.error(t('settings.storagePage.restoreFailed')))
-        .finally(() => setImporting(false));
-      return;
-    }
-    setRestoreOpen(true);
-  };
+  // Both surfaces open the same dialog. The desktop one exists purely to
+  // collect the backup passphrase: without it the importer silently drops the
+  // archive's encrypted keys, which is how a restore could report success and
+  // leave the user with no keys at all (#1021).
+  const handleRestoreClick = () => setRestoreOpen(true);
 
   const closeRestore = () => {
     setRestoreOpen(false);
@@ -67,7 +119,89 @@ const BackupCard: React.FC = () => {
     setRestorePassphrase('');
   };
 
+  /**
+   * ONE reporter for both surfaces.
+   *
+   * The desktop caller was taught to report `applied` and the WebUI caller was
+   * not, so #1021 stayed fully live on the WebUI while being fixed on the
+   * desktop: the HTTP route discarded the ImportReport and the browser showed a
+   * flat "Restore complete" over a no-op. Sharing the decision is what stops the
+   * two surfaces drifting apart again, rather than remembering to change both.
+   */
+  const reportRestore = (report: RestoreReport) => {
+    const applied = report.applied ?? [];
+    const items = applied
+      .map((name) => (RESTORE_ITEM_KEYS[name] ? t(`settings.storagePage.${RESTORE_ITEM_KEYS[name]}`) : name))
+      .join(', ');
+    if (applied.length === 0 && report.keysSkippedNoPassphrase) {
+      // A keys-only archive with no passphrase. Tested BEFORE the generic
+      // nothing-applied case, because that copy says the archive held no
+      // legacy files and that API keys live somewhere a file export does not
+      // cover - and for this archive every clause of that is false. The keys
+      // ARE in it, one passphrase away. Telling the user otherwise is the
+      // same class of harm as #1021 itself.
+      Message.warning({ content: t('settings.storagePage.restoreKeysOnlyNoPassphrase'), duration: 15000 });
+      return;
+    }
+    if (applied.length === 0) {
+      // The archive parsed and staged cleanly and still moved nothing.
+      // Reporting success here is what turned a no-op into silent data
+      // loss for the reporter of #1021. An absent `applied` lands here too, on
+      // purpose: a warning that names no data is recoverable, a success claim
+      // over data that never moved is not.
+      //
+      // If the archive held top-level entries this restore does not cover, name
+      // them. For a real Wayland archive that list is always empty, so this only
+      // fires for a foreign or hand-made zip - which is exactly the case where
+      // "nothing was restored" on its own sends the user away with no idea why.
+      const held = describeOutOfScope(report.outOfScope);
+      Message.warning({
+        content: held
+          ? t('settings.storagePage.restoreNothingAppliedOutOfScope', { items: held })
+          : t('settings.storagePage.restoreNothingApplied'),
+        duration: 15000,
+      });
+      return;
+    }
+    if (report.keysSkippedNoPassphrase) {
+      Message.warning({ content: t('settings.storagePage.restoreKeysSkipped', { items }), duration: 15000 });
+      return;
+    }
+    Message.success(
+      report.safetyBackupPath
+        ? t('settings.storagePage.restoreAppliedWithSafety', { items, path: report.safetyBackupPath })
+        : t('settings.storagePage.restoreApplied', { items })
+    );
+  };
+
   const submitRestore = async () => {
+    if (isDesktop) {
+      setRestoring(true);
+      setImporting(true);
+      try {
+        const result = await storage.importBackup.invoke({ passphrase: restorePassphrase || undefined });
+        if (!result.ok) {
+          // ok:false with no `failed` means the OS file picker was cancelled -
+          // nothing to report. With `failed` the restore really did fail, and
+          // saying nothing is what left a mistyped passphrase looking like a
+          // frozen panel.
+          if (result.failed) Message.error(t(`settings.storagePage.${restoreErrorKey(result.errorCode)}`));
+          // A wrong passphrase is retryable, so leave the dialog open with what
+          // they typed. Closing it and clearing the field is a poor answer to a
+          // typo. Anything else is not retryable from here.
+          if (result.errorCode !== 'BAD_PASSPHRASE') closeRestore();
+          return;
+        }
+        reportRestore(result);
+        closeRestore();
+      } catch {
+        Message.error(t('settings.storagePage.restoreFailed'));
+      } finally {
+        setRestoring(false);
+        setImporting(false);
+      }
+      return;
+    }
     if (!restoreFile || !restorePassword) return;
     setRestoring(true);
     try {
@@ -76,11 +210,7 @@ const BackupCard: React.FC = () => {
         password: restorePassword,
         passphrase: restorePassphrase || undefined,
       });
-      Message.success(
-        result.safetyBackupPath
-          ? t('settings.storagePage.restoreSuccessWithSafety', { path: result.safetyBackupPath })
-          : t('settings.storagePage.restoreSuccess')
-      );
+      reportRestore(result);
       closeRestore();
     } catch (error) {
       const code = error instanceof Error ? error.message : '';
@@ -91,7 +221,13 @@ const BackupCard: React.FC = () => {
             ? 'restoreBadPassword'
             : code === 'FILE_TOO_LARGE'
               ? 'restoreTooLarge'
-              : 'restoreFailed';
+              : // The route classifies its failures with the same vocabulary the
+                // desktop provider uses, so a mistyped backup passphrase names
+                // itself here too. Naming it on one surface only is how #1021
+                // stayed live on the other one.
+                code === 'BAD_PASSPHRASE'
+                ? 'restoreBadPassphrase'
+                : 'restoreFailed';
       Message.error(t(`settings.storagePage.${key}`));
     } finally {
       setRestoring(false);
@@ -122,7 +258,15 @@ const BackupCard: React.FC = () => {
       )}
 
       <div className='flex gap-8px mt-4px'>
-        <Button type='primary' size='small' loading={exporting} onClick={() => void handleExport()}>
+        {/* Exporting keys with no passphrase cannot succeed - backupExport refuses
+            it - so stop the click rather than only reporting it afterwards. */}
+        <Button
+          type='primary'
+          size='small'
+          loading={exporting}
+          disabled={includeKeys && !passphrase}
+          onClick={() => void handleExport()}
+        >
           {t('settings.storagePage.exportAll')}
         </Button>
         <Button size='small' loading={importing} onClick={handleRestoreClick}>
@@ -130,61 +274,72 @@ const BackupCard: React.FC = () => {
         </Button>
       </div>
 
-      {!isDesktop && (
-        <Modal
-          title={t('settings.storagePage.restoreModalTitle')}
-          visible={restoreOpen}
-          onCancel={closeRestore}
-          onOk={() => void submitRestore()}
-          okText={t('settings.storagePage.restoreConfirm')}
-          confirmLoading={restoring}
-          okButtonProps={{ status: 'danger', disabled: !restoreFile || !restorePassword }}
-        >
-          <div className='flex flex-col gap-12px'>
-            <div className='text-12px text-t-tertiary leading-relaxed'>{t('settings.storagePage.restoreWarning')}</div>
-
-            <input
-              ref={fileRef}
-              type='file'
-              accept='.zip'
-              className='hidden'
-              onChange={(e) => setRestoreFile(e.target.files?.[0] ?? null)}
-            />
-            <div className='flex items-center gap-8px'>
-              <Button size='small' onClick={() => fileRef.current?.click()}>
-                {t('settings.storagePage.restorePickFile')}
-              </Button>
-              <span className='text-12px text-t-secondary break-all'>
-                {restoreFile?.name ?? t('settings.storagePage.restoreNoFile')}
-              </span>
-            </div>
-
-            <div>
-              <div className='text-12px text-t-secondary mb-4px'>{t('settings.storagePage.restorePasswordLabel')}</div>
-              <Input
-                type='password'
-                value={restorePassword}
-                onChange={setRestorePassword}
-                placeholder={t('settings.storagePage.restorePasswordHint')}
-                size='small'
-              />
-            </div>
-
-            <div>
-              <div className='text-12px text-t-secondary mb-4px'>
-                {t('settings.storagePage.restorePassphraseLabel')}
-              </div>
-              <Input
-                type='password'
-                value={restorePassphrase}
-                onChange={setRestorePassphrase}
-                placeholder={t('settings.storagePage.restorePassphraseHint')}
-                size='small'
-              />
-            </div>
+      <Modal
+        title={t('settings.storagePage.restoreModalTitle')}
+        visible={restoreOpen}
+        onCancel={closeRestore}
+        onOk={() => void submitRestore()}
+        okText={t('settings.storagePage.restoreConfirm')}
+        confirmLoading={restoring}
+        okButtonProps={{ status: 'danger', disabled: !isDesktop && (!restoreFile || !restorePassword) }}
+      >
+        <div className='flex flex-col gap-12px'>
+          <div className='text-12px text-t-tertiary leading-relaxed'>
+            {t('settings.storagePage.restoreWarning')}
+            {/* The private-network restriction is a fact about the WebUI route's
+                operator gate, not about restore. Showing it on desktop, where
+                the archive comes from a native file dialog, reads to someone on
+                an offline laptop as "this will not work for me". */}
+            {!isDesktop && ` ${t('settings.storagePage.restoreWarningNetwork')}`}
           </div>
-        </Modal>
-      )}
+
+          {/* Desktop picks the archive through the native dialog in the main
+              process, and has no WebUI operator password to step up against. */}
+          {!isDesktop && (
+            <>
+              <input
+                ref={fileRef}
+                type='file'
+                accept='.zip'
+                className='hidden'
+                onChange={(e) => setRestoreFile(e.target.files?.[0] ?? null)}
+              />
+              <div className='flex items-center gap-8px'>
+                <Button size='small' onClick={() => fileRef.current?.click()}>
+                  {t('settings.storagePage.restorePickFile')}
+                </Button>
+                <span className='text-12px text-t-secondary break-all'>
+                  {restoreFile?.name ?? t('settings.storagePage.restoreNoFile')}
+                </span>
+              </div>
+
+              <div>
+                <div className='text-12px text-t-secondary mb-4px'>
+                  {t('settings.storagePage.restorePasswordLabel')}
+                </div>
+                <Input
+                  type='password'
+                  value={restorePassword}
+                  onChange={setRestorePassword}
+                  placeholder={t('settings.storagePage.restorePasswordHint')}
+                  size='small'
+                />
+              </div>
+            </>
+          )}
+
+          <div>
+            <div className='text-12px text-t-secondary mb-4px'>{t('settings.storagePage.restorePassphraseLabel')}</div>
+            <Input
+              type='password'
+              value={restorePassphrase}
+              onChange={setRestorePassphrase}
+              placeholder={t('settings.storagePage.restorePassphraseHint')}
+              size='small'
+            />
+          </div>
+        </div>
+      </Modal>
     </Card>
   );
 };
