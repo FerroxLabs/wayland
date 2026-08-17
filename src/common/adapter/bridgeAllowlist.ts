@@ -66,16 +66,106 @@ const CONTROL_ALLOWED: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Wrap `bridge.buildProvider` so every declared provider key is recorded.
+ * Thrown by a bridge `invoke()` when the call cannot reach its provider on the
+ * transport this renderer is using (#979).
  *
- * Returned object is identical in shape and behavior to the platform's
- * `buildProvider` - this is a pure side-effect wrapper.
+ * The platform's `invoke()` is RESOLVE-ONLY: it settles a call only when
+ * `subscribe.callback-<key><id>` arrives, and there is no reject path and no
+ * timeout in the wire protocol. The WS dispatcher therefore answers a
+ * remote-denied call with an error ENVELOPE (`settleRejectedInvoke`,
+ * src/process/webserver/adapter.ts) so the caller settles instead of hanging -
+ * which means the renderer receives a NON-NULL object where it expected data,
+ * every `?? []` / `?? default` is skipped, and the next `.find()` / `.slice()`
+ * throws in render phase and blanks the app via the root ErrorBoundary.
+ *
+ * This error restores the missing failure channel on the client side: a call
+ * that cannot succeed rejects, so `catch` / SWR `error` / `?? default` all work
+ * the way the call sites already assume.
+ */
+export class BridgeUnavailableError extends Error {
+  /** Provider key (the part after the `subscribe-` wire prefix). */
+  readonly key: string;
+  /** Why the call cannot reach a provider (`remote-forbidden` / `not-allowed`). */
+  readonly reason: string;
+
+  constructor(key: string, reason: string) {
+    super(`Bridge method "${key}" is not available on this transport (${reason})`);
+    this.name = 'BridgeUnavailableError';
+    this.key = key;
+    this.reason = reason;
+  }
+}
+
+/**
+ * True iff this JS context is a renderer talking to main over the REMOTE
+ * WebSocket transport (browser WebUI / paired device / standalone Docker).
+ *
+ * Reuses the signal the app already uses everywhere else for this question -
+ * the presence of the preload-injected `window.electronAPI` (see
+ * `isElectronDesktop()` in src/renderer/utils/platform.ts, and the transport
+ * branch in src/common/adapter/browser.ts which opens the WebSocket precisely
+ * when that object is absent). The main process has no `window`, so it is never
+ * classified as remote; this is deliberately evaluated per call rather than
+ * memoized at module load, because preload injection races module evaluation.
+ *
+ * This is a CLIENT-side convenience gate only. It is not a security control and
+ * removes none: the authority is still `isAllowedForRemote` on the server's WS
+ * dispatch path, which is what this function's key check consults.
+ */
+export function isRemoteBridgeTransport(): boolean {
+  return typeof window !== 'undefined' && !(window as { electronAPI?: unknown }).electronAPI;
+}
+
+/** `detail` values `settleRejectedInvoke` uses when it refuses a call. */
+const REJECTION_ENVELOPE_DETAILS: ReadonlySet<string> = new Set(['remote-forbidden', 'not-allowed']);
+
+/**
+ * True iff `value` is exactly the refusal envelope `settleRejectedInvoke`
+ * sends: `{ error: 'failed', detail: <refusal reason> }` and nothing else.
+ *
+ * The shape check is deliberately exact. Real providers do return payloads that
+ * carry `error: 'failed'` (e.g. `project.generate-knowledge-draft` answers
+ * `{ draft: '', error: 'failed', detail: <server message> }`), and those are
+ * legitimate resolved values that must NOT be turned into rejections.
+ */
+function isRefusalEnvelope(value: unknown): value is { error: 'failed'; detail: string } {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  if (record.error !== 'failed') return false;
+  if (typeof record.detail !== 'string' || !REJECTION_ENVELOPE_DETAILS.has(record.detail)) return false;
+  return Object.keys(record).length === 2;
+}
+
+/**
+ * Wrap `bridge.buildProvider` so every declared provider key is recorded, and
+ * so a call that the remote transport cannot serve REJECTS instead of resolving
+ * with the refusal envelope (#979).
+ *
+ * `provider` is passed through untouched; only `invoke` is wrapped, and only on
+ * the remote transport. On the local Electron renderer and in the main process
+ * this is the same pure side-effect wrapper it has always been.
  */
 export function buildProvider<Data, Params = undefined>(
   key: string
 ): ReturnType<typeof bridge.buildProvider<Data, Params>> {
   providerKeys.add(key);
-  return bridge.buildProvider<Data, Params>(key);
+  const base = bridge.buildProvider<Data, Params>(key);
+  const baseInvoke = base.invoke as (params?: Params) => Promise<Data>;
+
+  const invoke = async (params?: Params): Promise<Data> => {
+    if (!isRemoteBridgeTransport()) return baseInvoke(params);
+    // Fail fast on a key the server's WS dispatcher will refuse anyway. Reading
+    // the SAME predicate the dispatcher applies is what makes drift structurally
+    // impossible - there is no second copy of the denylist.
+    if (isRemoteDeniedProviderKey(key)) throw new BridgeUnavailableError(key, 'remote-forbidden');
+    const result = await baseInvoke(params);
+    // Defence in depth: a refusal can still arrive for a key this side did not
+    // classify as denied (e.g. the value-level config-write gate). Convert it.
+    if (isRefusalEnvelope(result)) throw new BridgeUnavailableError(key, result.detail);
+    return result;
+  };
+
+  return { provider: base.provider, invoke: invoke as typeof base.invoke };
 }
 
 /**
@@ -513,12 +603,25 @@ export function isAllowedForRemote(name: string): boolean {
   // heartbeat) is already constrained by isAllowedInboundName.
   if (!name.startsWith('subscribe-')) return true;
 
-  const key = name.slice('subscribe-'.length);
-  if (REMOTE_DENIED_KEYS.has(key)) return false;
+  return !isRemoteDeniedProviderKey(name.slice('subscribe-'.length));
+}
+
+/**
+ * Key-level half of {@link isAllowedForRemote}: true iff the provider key (the
+ * part after the `subscribe-` wire prefix) is denied to REMOTE callers.
+ *
+ * Exists so the bridge CLIENT (`buildProvider`, #979) can ask the same question
+ * the server's dispatcher asks, against the same two collections. Nothing about
+ * the denylist changes here - `isAllowedForRemote` is the identical function it
+ * was, expressed in terms of this predicate.
+ */
+export function isRemoteDeniedProviderKey(key: string): boolean {
+  if (typeof key !== 'string' || key.length === 0) return false;
+  if (REMOTE_DENIED_KEYS.has(key)) return true;
   for (const prefix of REMOTE_DENIED_PREFIXES) {
-    if (key.startsWith(prefix)) return false;
+    if (key.startsWith(prefix)) return true;
   }
-  return true;
+  return false;
 }
 
 /**

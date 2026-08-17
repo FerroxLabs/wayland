@@ -7,6 +7,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ipcBridge } from '@/common';
+import { isElectronDesktop } from '@renderer/utils/platform';
 
 /** The conversation id in `#/conversation/:id`, or null for any other route. */
 export function foregroundConversationIdFromPath(pathname: string): string | null {
@@ -35,6 +36,12 @@ export function useForegroundConversationReporter(): void {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    // `app.set-foreground-conversation` is remote-denied on purpose: a paired
+    // browser's on-screen conversation is not the desktop's, so it must not
+    // steer the local completion-focus gate (#579). Reporting from a remote
+    // renderer can therefore only ever fail - don't make the call (#979).
+    if (!isElectronDesktop()) return;
+
     const conversationId = foregroundConversationIdFromPath(pathname);
     const report = () => {
       // Only the focused window owns the single main-process value.
