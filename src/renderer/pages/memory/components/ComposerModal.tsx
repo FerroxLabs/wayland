@@ -72,13 +72,22 @@ export function ComposerModal({
   const tagInputRef = useRef<HTMLInputElement | null>(null);
   const dropZoneRef = useRef<HTMLDivElement | null>(null);
 
+  // The seed below reads exactly one thing out of `projects`: the first path.
+  // Depend on THAT, never on the array identity - `projects` is a fresh array on
+  // every parent render (the `= []` default included, and FullPanelShell builds
+  // its list with `.map`). With the array in the effect's dependency list the
+  // effect re-ran after every render, its close-branch `setTags([])` committed a
+  // new array each time, and the two fed each other in an unbounded loop that
+  // exhausted the heap.
+  const firstProjectPath = projects[0]?.path ?? '';
+
   // Auto-focus textarea when modal opens; reset state on close.
   useEffect(() => {
     if (open) {
       // Seed the destination from the page's project filter, else the first
       // indexed project. Never left blank while a project exists, so the
       // destination line below always names a real place (#924).
-      setProjectPath(defaultProjectPath ?? projects[0]?.path ?? '');
+      setProjectPath(defaultProjectPath ?? firstProjectPath);
       // Defer focus so Arco has time to mount
       const id = window.setTimeout(() => {
         textareaRef.current?.focus();
@@ -94,7 +103,7 @@ export function ComposerModal({
       setAddingTag(false);
       setError(null);
     }
-  }, [open, defaultProjectPath, projects]);
+  }, [open, defaultProjectPath, firstProjectPath]);
 
   // ESC already handled by Arco Modal's closable / onCancel - no extra listener needed.
 
