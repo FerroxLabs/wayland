@@ -33,6 +33,24 @@ import type { AgentConfig, SessionCallbacks } from '@process/acp/types';
 
 const FIXTURE = path.resolve(__dirname, '../../../../fixtures/acp/fakeAcpAgent.cjs');
 
+/**
+ * The mid-prompt drop this test drives cannot happen on Windows, so there is nothing for
+ * it to observe there.
+ *
+ * Executed on the win32 box: a child that closes stdout (via `process.stdout.end()` AND
+ * via the definitive `fs.closeSync(1)`) while STAYING ALIVE produces no 'end' and no
+ * 'close' on the parent's read end, while a child that really exits produces the full
+ * `[stdout:end, stdout:close, exit, close]` set in the same run - so the known-positive
+ * control fires and the negative is a platform fact, not a dead fixture. The same probe
+ * on darwin reports `[stdout:end, stdout:close]` with the child still alive.
+ *
+ * The PRODUCT limitation is recorded next to the detection code in
+ * `ProcessAcpClient.attachLifecycleObservers`: on Windows this banner is reachable only
+ * when the agent's process actually dies, never for a live agent whose transport went
+ * away. Tracked as a #1020 follow-up - do not read this skip as "the test was flaky".
+ */
+const itLiveChildDrop = it.skipIf(process.platform === 'win32');
+
 /** A real credential shape, so the scrubber is exercised on the real path. */
 const LEAKED_SECRET = 'sk-abcdefghijklmnopqrstuvwx';
 const STDERR_NOISE = `bridge failed: Cannot find module zod/v4 (token ${LEAKED_SECRET})\n`;
@@ -102,62 +120,66 @@ function errorMessages(callbacks: SessionCallbacks): string[] {
 }
 
 describe('#1020 end-to-end mid-prompt transport drop (real child, real client, real session)', () => {
-  it('the banner the SESSION emits describes a transport drop, not an invented exit', async () => {
-    const callbacks = createCallbacks();
-    const session = new AcpSession(baseConfig, realClientFactory('drop-on-prompt'), callbacks);
+  itLiveChildDrop(
+    'the banner the SESSION emits describes a transport drop, not an invented exit',
+    async () => {
+      const callbacks = createCallbacks();
+      const session = new AcpSession(baseConfig, realClientFactory('drop-on-prompt'), callbacks);
 
-    session.start();
-    await vi.waitFor(() => expect(session.status).toBe('active'), { timeout: 15000 });
+      session.start();
+      await vi.waitFor(() => expect(session.status).toBe('active'), { timeout: 15000 });
 
-    // The turn rejects with AgentDisconnectedError once the pipe goes.
-    await expect(session.sendMessage('please approve this')).rejects.toBeTruthy();
+      // The turn rejects with AgentDisconnectedError once the pipe goes.
+      await expect(session.sendMessage('please approve this')).rejects.toBeTruthy();
 
-    const errors = await vi.waitFor(
-      () => {
-        const msgs = errorMessages(callbacks);
-        expect(msgs.length).toBeGreaterThan(0);
-        return msgs;
-      },
-      { timeout: 15000 }
-    );
+      const errors = await vi.waitFor(
+        () => {
+          const msgs = errorMessages(callbacks);
+          expect(msgs.length).toBeGreaterThan(0);
+          return msgs;
+        },
+        { timeout: 15000 }
+      );
 
-    // FIRST, not merely present: whichever error banner lands first is the one the
-    // user reads. If `handlePromptError` beats `onDisconnect`, this is instead the
-    // raw "Agent disconnected (connection_close, code: null)" and the whole #1020
-    // payload below never reaches a screen.
-    const banner = errors[0];
+      // FIRST, not merely present: whichever error banner lands first is the one the
+      // user reads. If `handlePromptError` beats `onDisconnect`, this is instead the
+      // raw "Agent disconnected (connection_close, code: null)" and the whole #1020
+      // payload below never reaches a screen.
+      const banner = errors[0];
 
-    expect(banner).toContain(CRASH_MARKER_TRANSPORT_CLOSE);
-    expect(banner).toContain('[reason: connection_close]');
-    expect(banner).toContain('we cannot tell whether the agent crashed or the connection dropped');
-    expect(banner).not.toContain('may still be running');
+      expect(banner).toContain(CRASH_MARKER_TRANSPORT_CLOSE);
+      expect(banner).toContain('[reason: connection_close]');
+      expect(banner).toContain('we cannot tell whether the agent crashed or the connection dropped');
+      expect(banner).not.toContain('may still be running');
 
-    // The old message asserted exactly the two facts that were NOT known.
-    expect(banner).not.toContain(CRASH_MARKER_PROCESS_EXIT);
-    expect(banner).not.toContain('code: unknown');
-    expect(banner).not.toContain('signal: none');
+      // The old message asserted exactly the two facts that were NOT known.
+      expect(banner).not.toContain(CRASH_MARKER_PROCESS_EXIT);
+      expect(banner).not.toContain('code: unknown');
+      expect(banner).not.toContain('signal: none');
 
-    // A turn was in flight and is not replayed, so the user has to be told - and
-    // told to CHECK before resending, because the turn may already have run a tool
-    // whose notification died with the pipe (#1023).
-    expect(banner).toContain('lost before it could complete');
-    expect(banner).toContain('was not resent automatically');
-    expect(banner).toContain('The agent may already have carried out part of this message');
-    expect(banner).toContain('check the result before sending it again');
+      // A turn was in flight and is not replayed, so the user has to be told - and
+      // told to CHECK before resending, because the turn may already have run a tool
+      // whose notification died with the pipe (#1023).
+      expect(banner).toContain('lost before it could complete');
+      expect(banner).toContain('was not resent automatically');
+      expect(banner).toContain('The agent may already have carried out part of this message');
+      expect(banner).toContain('check the result before sending it again');
 
-    // The stderr that names the real cause rides along - scrubbed.
-    expect(banner).toContain('Agent stderr:');
-    expect(banner).toContain('Cannot find module zod/v4');
-    expect(banner).toContain('[redacted]');
-    expect(banner).not.toContain(LEAKED_SECRET);
+      // The stderr that names the real cause rides along - scrubbed.
+      expect(banner).toContain('Agent stderr:');
+      expect(banner).toContain('Cannot find module zod/v4');
+      expect(banner).toContain('[redacted]');
+      expect(banner).not.toContain(LEAKED_SECRET);
 
-    // This child really IS still running - but the banner does not say so, because
-    // for a fast crash the same null/null report arrives while the child is dead
-    // (measured 6 of 20, #1023) and nothing synchronous can tell the two apart.
-    const first = spawned[0];
-    expect(first.pid).toBeTruthy();
-    expect(isProcessAlive(first.pid!)).toBe(true);
+      // This child really IS still running - but the banner does not say so, because
+      // for a fast crash the same null/null report arrives while the child is dead
+      // (measured 6 of 20, #1023) and nothing synchronous can tell the two apart.
+      const first = spawned[0];
+      expect(first.pid).toBeTruthy();
+      expect(isProcessAlive(first.pid!)).toBe(true);
 
-    await session.stop();
-  }, 40000);
+      await session.stop();
+    },
+    40000
+  );
 });

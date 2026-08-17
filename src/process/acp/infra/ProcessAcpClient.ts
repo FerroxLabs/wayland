@@ -439,6 +439,43 @@ export class ProcessAcpClient implements AcpClient {
 
   // ─── Internals: 4-signal lifecycle detection ───────────────
 
+  /**
+   * KNOWN PRODUCT LIMITATION, WINDOWS: a live agent whose transport dies is NOT
+   * detected here (#1020 follow-up).
+   *
+   * Three of the four signals below are transport signals - `pipe_close` fires on the
+   * child's stdout 'close', and `connection_close` (attached in start()) fires when the
+   * SDK aborts on that readable's 'end'. On win32 neither ever fires while the child is
+   * still running. Executed on a real Windows box, with a known positive in the same
+   * run:
+   *
+   *   child does `process.stdout.end()`, stays alive -> parent sees nothing
+   *   child does `fs.closeSync(1)`, stays alive      -> parent sees nothing
+   *   child really exits (control)                   -> parent sees
+   *      stdout 'end', stdout 'close', 'exit', 'close'
+   *
+   * The same probe on darwin reports stdout 'end' + 'close' with the child still alive
+   * for both of the first two cases, so this is a platform difference, not a bug in the
+   * probe.
+   *
+   * What still works on Windows: a genuinely crashed or killed agent IS reported,
+   * because process death closes the pipe (the control above). What does not: an agent
+   * process that lives on but stops speaking ACP - the #1020 customer shape - produces
+   * no disconnect at all on win32, so the session neither drops the client nor shows the
+   * transport-close banner, and the in-flight prompt hangs until the caller gives up.
+   * Detecting it needs a signal that does not depend on the pipe (an ACP-level
+   * request/heartbeat timeout); a failing write does not help, because the parent writes
+   * to the child's STDIN, which is still open.
+   *
+   * Two effects on Windows even when the child DOES die: `connection_close` reliably
+   * wins the first-write-wins race below, so `exitCode` and `signal` reach
+   * `buildCrashMessage` as null and the banner never carries an exit code from this
+   * path; the CRLF stderr ring is preserved either way.
+   *
+   * The tests that drive the live-child shape are `skipIf(win32)` for this reason -
+   * `tests/unit/acpDisconnectTransport.test.ts` and
+   * `tests/integration/process/acp/session/AcpSession.disconnectBanner.test.ts`.
+   */
   private attachLifecycleObservers(child: ChildProcess): void {
     child.once('exit', (code, signal) => {
       this.recordAgentExit('process_exit', code, signal);
