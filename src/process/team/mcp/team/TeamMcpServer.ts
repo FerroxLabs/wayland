@@ -165,6 +165,32 @@ export class TeamMcpServer {
   }
 
   /**
+   * #981 - resolve a task `owner` argument to a slotId.
+   *
+   * `owner` arrives as whatever identifier the calling model has been shown,
+   * and the leader is only ever shown NAMES (`team_members`, the lead prompt
+   * roster). `TaskManager` validates `owner` against slotIds, so a name went
+   * in and a `TEAM_TASK_OWNER_NOT_FOUND` came back - the task-board write did
+   * not stick. Resolve name-or-slotId here, exactly as `team_send_message`
+   * already resolves its `to` argument.
+   *
+   * Returns the slotId to persist plus the display name for the ack, or
+   * `undefined` when no owner was supplied (an unassigned task).
+   */
+  private resolveTaskOwner(owner: string | undefined): { slotId: string; name: string } | undefined {
+    if (!owner) return undefined;
+    const agents = this.params.getAgents();
+    const slotId = this.resolveSlotId(owner);
+    if (!slotId) {
+      throw new Error(`Task owner "${owner}" not found. Available: ${agents.map((a) => a.agentName).join(', ')}`);
+    }
+    const name = agents.find((a) => a.slotId === slotId)?.agentName ?? slotId;
+    // Echo BOTH in acks: the caller thinks in names, but seeing the slotId next
+    // to the name is how it learns the identifier the rest of the board uses.
+    return { slotId, name: name === slotId ? slotId : `${name} (${slotId})` };
+  }
+
+  /**
    * Fire-and-forget wake that logs failures instead of swallowing them.
    * wakeAgent() can legitimately reject (e.g. dead ACP process, mailbox DB error)
    * but the MCP tool call must still return to the caller, so we can't await it.
@@ -508,17 +534,17 @@ export class TeamMcpServer {
     const { teamId, taskManager } = this.params;
     const subject = String(args.subject ?? '');
     const description = args.description ? String(args.description) : undefined;
-    const owner = args.owner ? String(args.owner) : undefined;
+    const owner = this.resolveTaskOwner(args.owner ? String(args.owner) : undefined);
 
-    const task = await taskManager.create({ teamId, subject, description, owner });
-    return `Task created: [${task.id.slice(0, 8)}] "${subject}"${owner ? ` (assigned to ${owner})` : ''}`;
+    const task = await taskManager.create({ teamId, subject, description, owner: owner?.slotId });
+    return `Task created: [${task.id.slice(0, 8)}] "${subject}"${owner ? ` (assigned to ${owner.name})` : ''}`;
   }
 
   private async handleTaskUpdate(args: Record<string, unknown>): Promise<string> {
     const { taskManager } = this.params;
     const taskId = String(args.task_id ?? '');
     const rawStatus = args.status ? String(args.status) : undefined;
-    const owner = args.owner ? String(args.owner) : undefined;
+    const owner = this.resolveTaskOwner(args.owner ? String(args.owner) : undefined);
 
     const VALID_STATUSES = new Set(['pending', 'in_progress', 'completed', 'deleted']);
     const status =
@@ -529,7 +555,7 @@ export class TeamMcpServer {
       throw new Error(`Invalid task status "${rawStatus}". Must be one of: ${[...VALID_STATUSES].join(', ')}`);
     }
 
-    const updatedTask = await taskManager.update(taskId, { status, owner });
+    const updatedTask = await taskManager.update(taskId, { status, owner: owner?.slotId });
     // P3: key unblocking on the FINAL status, not the proposed one. The
     // verification gate may turn a proposed `completed` into `verifying` (in
     // flight) or `in_progress` (blocking reject) - only a real `completed`
@@ -538,7 +564,7 @@ export class TeamMcpServer {
       await taskManager.checkUnblocks(taskId);
     }
     const finalStatus = status ? updatedTask.status : undefined;
-    return `Task ${taskId.slice(0, 8)} updated.${finalStatus ? ` Status: ${finalStatus}.` : ''}${owner ? ` Owner: ${owner}.` : ''}`;
+    return `Task ${taskId.slice(0, 8)} updated.${finalStatus ? ` Status: ${finalStatus}.` : ''}${owner ? ` Owner: ${owner.name}.` : ''}`;
   }
 
   private async handleTaskList(args: Record<string, unknown>): Promise<string> {

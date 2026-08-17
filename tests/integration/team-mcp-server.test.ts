@@ -454,11 +454,14 @@ describe('TeamMcpServer - TCP tool interface', () => {
 
       expect(resp.result).toContain('Deploy to prod');
       expect(resp.result).toContain('Worker');
+      // #981: `owner` arrives as the teammate NAME (the only identifier the
+      // leader is ever shown) and is resolved to the slotId TaskManager
+      // validates against before it reaches the task board.
       expect(taskManager.create).toHaveBeenCalledWith(
         expect.objectContaining({
           subject: 'Deploy to prod',
           description: 'Run migration scripts',
-          owner: 'Worker',
+          owner: 'slot-worker',
         })
       );
     });
