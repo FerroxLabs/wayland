@@ -441,10 +441,7 @@ describe('createConciergeDiagServer — recentErrors (logs)', () => {
       ['a-newer', 2],
       ['b-older', 1],
     ] as const) {
-      const body = Array.from(
-        { length: LINES_PER_FILE },
-        (_, i) => `error: ${name} entry ${i}`
-      ).join('\n');
+      const body = Array.from({ length: LINES_PER_FILE }, (_, i) => `error: ${name} entry ${i}`).join('\n');
       const file = path.join(logDir, `${name}.log`);
       fs.writeFileSync(file, `${body}\n`);
       const when = base + ageHours * 3600;
