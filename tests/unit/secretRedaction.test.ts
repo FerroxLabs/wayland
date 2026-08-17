@@ -36,10 +36,20 @@ describe('redactSecrets (canonical)', () => {
    * suite was green while a webhook URL was reaching the output with one of its
    * three path segments intact.
    *
-   * So: no 8-character window of any corpus secret may survive. A window, not the
-   * whole string, is what makes this able to see a partial mask at all.
+   * So: no short window of any corpus secret may survive. A window, not the whole
+   * string, is what makes this able to see a partial mask at all.
+   *
+   * The window length is the oracle's FLOOR, so it is measured, not picked. With
+   * a tail-leak mutation injected into the masker, 24 of these tests fail when
+   * the surviving tail is at least WINDOW characters and only the 3 whole-string
+   * `toBe` tests below fail when it is shorter - so at WINDOW = 8 a 7-character
+   * survival of a corpus secret passed green, and the two shortest corpus secrets
+   * are 10 and 11 characters. 4 is the tightest value that still leaves this
+   * suite green: at 3, `cre` and `npm` collide with ordinary words in the
+   * surrounding log text and the oracle starts reporting leaks that are not
+   * there.
    */
-  const WINDOW = 8;
+  const WINDOW = 4;
 
   it('every corpus secret is long enough for the window oracle to bite', () => {
     const tooShort = SECRET_CORPUS.filter((entry) => entry.secret.length < WINDOW).map((entry) => entry.label);
