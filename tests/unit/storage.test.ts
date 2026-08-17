@@ -211,6 +211,101 @@ describe('backupExport / backupImport round-trip', () => {
     expect(fs.readFileSync(path.join(restore, 'config/settings.json'), 'utf8')).toBe('{"theme":"keep"}');
   });
 
+  // #1021: an import that throws nothing routinely applies nothing, because
+  // chats, projects and provider credentials all live in the primary database
+  // this legacy export never covers. The importer must say so, or the UI
+  // reports a confident success over silent data loss.
+  it('reports nothing applied for an archive from a database-only install', async () => {
+    // A modern install: state lives in userData/wayland/wayland.db, and there
+    // is no legacy conversations dir, no attachments and no keys.json.
+    writeFixture(src, 'wayland/wayland.db', 'SQLITE-conversations+projects+providers');
+    writeFixture(src, 'wayland/wayland.db-wal', 'WAL');
+
+    const exported = await backupExport({ userData: src, destPath: zipPath, includeKeys: true, passphrase: 'pw' });
+    expect(exported.includesKeys).toBe(false);
+    expect(exported.keysRequestedButAbsent).toBe(true);
+    expect(exported.fileCount).toBe(0);
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath, passphrase: undefined });
+    expect(report.applied).toEqual([]);
+    expect(report.fileCount).toBe(0);
+    expect(report.keysSkippedNoPassphrase).toBe(false);
+  });
+
+  it('reports which top-level entries an import actually applied', async () => {
+    writeFixture(src, 'conversations/c.json', 'chat');
+    writeFixture(src, 'attachments/a.bin', 'blob');
+    writeFixture(src, 'config/settings.json', '{}');
+    writeFixture(src, 'keys.json', '{"k":"v"}');
+    await backupExport({ userData: src, destPath: zipPath, includeKeys: true, passphrase: 'pw' });
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath, passphrase: 'pw' });
+    expect(report.applied.toSorted()).toEqual(['attachments', 'config', 'conversations', 'keys.json']);
+    expect(report.keysSkippedNoPassphrase).toBe(false);
+    expect(report.fileCount).toBe(4);
+  });
+
+  it('reports encrypted keys skipped when no passphrase is supplied', async () => {
+    writeFixture(src, 'config/settings.json', '{}');
+    writeFixture(src, 'keys.json', '{"k":"v"}');
+    await backupExport({ userData: src, destPath: zipPath, includeKeys: true, passphrase: 'pw' });
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath, passphrase: undefined });
+    expect(report.keysSkippedNoPassphrase).toBe(true);
+    expect(report.applied).toEqual(['config']);
+    expect(fs.existsSync(path.join(restore, 'keys.json'))).toBe(false);
+  });
+
+  it('reports archive entries that fall outside the legacy restore scope', async () => {
+    const zip = new JSZip();
+    zip.file(
+      'manifest.json',
+      JSON.stringify({
+        format: 'wayland-legacy-file-export',
+        version: 2,
+        authoritative: false,
+        exportedAt: new Date().toISOString(),
+        includesKeys: false,
+        includedPaths: ['conversations', 'attachments', 'config'],
+        excludedAuthorities: [],
+      })
+    );
+    zip.file('conversations/c.json', 'chat');
+    zip.file('sensitive/secret.txt', 'secret');
+    fs.writeFileSync(zipPath, await zip.generateAsync({ type: 'nodebuffer' }));
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath });
+    expect(report.applied).toEqual(['conversations']);
+    expect(report.outOfScope).toEqual(['sensitive']);
+    expect(fs.existsSync(path.join(restore, 'sensitive'))).toBe(false);
+  });
+
+  // A Windows exporter emits the same forward-slash entry names as a POSIX one
+  // (addDir builds `${zipPath}/${entry.name}`), so a Windows-origin archive is
+  // not what blocks a Linux restore (#1021).
+  it('applies a Windows-origin archive on this platform', async () => {
+    const zip = new JSZip();
+    zip.file(
+      'manifest.json',
+      JSON.stringify({
+        format: 'wayland-legacy-file-export',
+        version: 2,
+        authoritative: false,
+        exportedAt: new Date().toISOString(),
+        includesKeys: false,
+        includedPaths: ['conversations', 'attachments', 'config'],
+        excludedAuthorities: [],
+      })
+    );
+    zip.file('config/wayland-config.txt', 'FROM-WINDOWS');
+    zip.file('conversations/win-chat.json', '{"id":"win"}');
+    fs.writeFileSync(zipPath, await zip.generateAsync({ type: 'nodebuffer' }));
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath });
+    expect(report.applied.toSorted()).toEqual(['config', 'conversations']);
+    expect(fs.readFileSync(path.join(restore, 'config/wayland-config.txt'), 'utf8')).toBe('FROM-WINDOWS');
+  });
+
   // Cross-audit 2026-06-15: the per-install .secret-key decrypts stored
   // credentials. It must never be bundled into an export, or a backup becomes
   // plaintext secret exfiltration. Guard it even when it sits inside a walked dir.

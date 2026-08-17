@@ -2160,7 +2160,12 @@
     "restoreNotOperator": "Restore is only available from a trusted local network (loopback, LAN, or Tailscale).",
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
-    "restoreFailed": "Restore failed"
+    "restoreFailed": "Restore failed",
+    "restoreApplied": "Wiederherstellung abgeschlossen. Wiederhergestellt: {{items}}.",
+    "restoreAppliedWithSafety": "Wiederherstellung abgeschlossen. Wiederhergestellt: {{items}}. Ihre Sicherungskopie vor der Wiederherstellung liegt unter {{path}}.",
+    "restoreNothingApplied": "Es wurde nichts wiederhergestellt. Dieses Archiv enthielt keine alten Konversationsdateien, Anhänge oder Konfiguration, daher hat sich auf diesem Gerät nichts geändert. Chats, Projekte und API-Schlüssel liegen in der Hauptdatenbank, die ein einfacher Dateiexport nicht abdeckt.",
+    "restoreKeysSkipped": "Wiederhergestellt: {{items}}. Das Archiv enthält außerdem verschlüsselte API-Schlüssel, aber es wurde keine Backup-Passphrase eingegeben, daher wurden die Schlüssel nicht wiederhergestellt.",
+    "exportNoKeys": "Export erstellt, enthält jedoch keine API-Schlüssel: diese Installation hat keine alte Schlüsseldatei. Ihre API-Schlüssel liegen in der Hauptdatenbank, die ein einfacher Dateiexport nicht abdeckt."
   },
   "editorPage": {
     "title": "Editor",

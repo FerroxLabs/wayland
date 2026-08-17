@@ -2135,7 +2135,12 @@
     "restoreNotOperator": "Restore is only available from a trusted local network (loopback, LAN, or Tailscale).",
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
-    "restoreFailed": "Restore failed"
+    "restoreFailed": "Restore failed",
+    "restoreApplied": "復元が完了しました。復元された項目: {{items}}。",
+    "restoreAppliedWithSafety": "復元が完了しました。復元された項目: {{items}}。復元前のファイル復旧コピーは {{path}} にあります。",
+    "restoreNothingApplied": "何も復元されませんでした。このアーカイブにはレガシーの会話ファイル、添付ファイル、設定が含まれていなかったため、このデバイスでは何も変更されていません。チャット、プロジェクト、API キーはプライマリデータベースにあり、レガシーのファイルエクスポートでは対象外です。",
+    "restoreKeysSkipped": "復元された項目: {{items}}。アーカイブには暗号化された API キーも含まれていますが、バックアップのパスフレーズが入力されなかったため、キーは復元されませんでした。",
+    "exportNoKeys": "エクスポートを作成しましたが、API キーは含まれていません。このインストールにはレガシーのキーファイルがありません。API キーはプライマリデータベースにあり、レガシーのファイルエクスポートでは対象外です。"
   },
   "editorPage": {
     "title": "エディター",

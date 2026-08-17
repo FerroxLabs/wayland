@@ -48,13 +48,13 @@ export function initStorageBridge(): void {
       filters: [{ name: 'ZIP archive', extensions: ['zip'] }],
     });
     if (result.canceled || !result.filePath) return { ok: false };
-    await backupExport({
+    const report = await backupExport({
       userData: getUserData(),
       destPath: result.filePath,
       includeKeys: opts.includeKeys,
       passphrase: opts.passphrase,
     });
-    return { ok: true, path: result.filePath };
+    return { ok: true, path: result.filePath, ...report };
   });
 
   // Import a legacy file-only export.
@@ -69,13 +69,16 @@ export function initStorageBridge(): void {
       userData: getUserData(),
       passphrase: opts.passphrase,
     });
-    await backupImport({
+    const report = await backupImport({
       userData: getUserData(),
       srcPath: result.filePaths[0],
       passphrase: opts.passphrase,
     });
     invalidateUsageCache();
-    return { ok: true, safetyBackupPath };
+    // Report what the import actually applied. `ok` only means the archive was
+    // read and staged without error; an archive from a modern install can
+    // legitimately carry nothing this importer can restore (#1021).
+    return { ok: true, safetyBackupPath, ...report };
   });
 
   // Full data reset (renderer must enforce double-confirm before calling)

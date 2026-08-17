@@ -2265,6 +2265,11 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreApplied": "Restore complete. Restored: {{items}}.",
+    "restoreAppliedWithSafety": "Restore complete. Restored: {{items}}. Your pre-restore file recovery copy is at {{path}}.",
+    "restoreNothingApplied": "Nothing was restored. This archive held no legacy conversation files, attachments or config, so nothing on this device changed. Chats, projects and API keys live in the primary database, which a legacy file export does not cover.",
+    "restoreKeysSkipped": "Restored: {{items}}. The archive also holds encrypted API keys, but no backup passphrase was entered, so the keys were not restored.",
+    "exportNoKeys": "Export created, but it contains no API keys: this install has no legacy keys file. Your API keys live in the primary database, which a legacy file export does not cover.",
     "resetFailed": "Couldn't reset Wayland. Your data was not deleted. Please try again.",
     "exportSuccess": "Legacy file export created",
     "transfer": {

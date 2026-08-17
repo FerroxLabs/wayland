@@ -2133,7 +2133,12 @@
     "restoreNotOperator": "Restore is only available from a trusted local network (loopback, LAN, or Tailscale).",
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
-    "restoreFailed": "Restore failed"
+    "restoreFailed": "Restore failed",
+    "restoreApplied": "Geri yükleme tamamlandı. Geri yüklenenler: {{items}}.",
+    "restoreAppliedWithSafety": "Geri yükleme tamamlandı. Geri yüklenenler: {{items}}. Geri yükleme öncesi dosya kurtarma kopyanız {{path}} konumunda.",
+    "restoreNothingApplied": "Hiçbir şey geri yüklenmedi. Bu arşivde eski konuşma dosyaları, ekler veya yapılandırma yoktu, bu nedenle bu cihazda hiçbir şey değişmedi. Sohbetler, projeler ve API anahtarları, eski dosya dışa aktarımının kapsamadığı ana veritabanında bulunur.",
+    "restoreKeysSkipped": "Geri yüklenenler: {{items}}. Arşivde şifreli API anahtarları da var ancak yedek parolası girilmediği için anahtarlar geri yüklenmedi.",
+    "exportNoKeys": "Dışa aktarma oluşturuldu ancak API anahtarı içermiyor: bu kurulumda eski anahtar dosyası yok. API anahtarlarınız, eski dosya dışa aktarımının kapsamadığı ana veritabanında bulunur."
   },
   "editorPage": {
     "title": "Düzenleyici",

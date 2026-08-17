@@ -28,7 +28,16 @@ const BackupCard: React.FC = () => {
     try {
       const opts = { includeKeys, passphrase: includeKeys ? passphrase : undefined };
       if (isDesktop) {
-        await storage.exportAll.invoke(opts);
+        const result = await storage.exportAll.invoke(opts);
+        if (!result.ok) return;
+        // Asking for keys and getting none is the norm on a modern install:
+        // provider credentials live in the primary database, which a legacy
+        // file export does not cover. Say so rather than claim a plain
+        // success the archive does not back up (#1021).
+        if (result.keysRequestedButAbsent) {
+          Message.warning({ content: t('settings.storagePage.exportNoKeys'), duration: 12000 });
+          return;
+        }
       } else {
         await exportBackupHttp(opts);
       }
@@ -40,25 +49,11 @@ const BackupCard: React.FC = () => {
     }
   };
 
-  const handleRestoreClick = () => {
-    if (isDesktop) {
-      setImporting(true);
-      void storage.importBackup
-        .invoke({})
-        .then((result) => {
-          if (!result.ok) return;
-          Message.success(
-            result.safetyBackupPath
-              ? t('settings.storagePage.restoreSuccessWithSafety', { path: result.safetyBackupPath })
-              : t('settings.storagePage.restoreSuccess')
-          );
-        })
-        .catch(() => Message.error(t('settings.storagePage.restoreFailed')))
-        .finally(() => setImporting(false));
-      return;
-    }
-    setRestoreOpen(true);
-  };
+  // Both surfaces open the same dialog. The desktop one exists purely to
+  // collect the backup passphrase: without it the importer silently drops the
+  // archive's encrypted keys, which is how a restore could report success and
+  // leave the user with no keys at all (#1021).
+  const handleRestoreClick = () => setRestoreOpen(true);
 
   const closeRestore = () => {
     setRestoreOpen(false);
@@ -68,6 +63,41 @@ const BackupCard: React.FC = () => {
   };
 
   const submitRestore = async () => {
+    if (isDesktop) {
+      setRestoring(true);
+      setImporting(true);
+      try {
+        const result = await storage.importBackup.invoke({ passphrase: restorePassphrase || undefined });
+        // ok:false means the OS file picker was cancelled - nothing to report.
+        if (!result.ok) {
+          closeRestore();
+          return;
+        }
+        const applied = result.applied ?? [];
+        const items = applied.join(', ');
+        if (applied.length === 0) {
+          // The archive parsed and staged cleanly and still moved nothing.
+          // Reporting success here is what turned a no-op into silent data
+          // loss for the reporter of #1021.
+          Message.warning({ content: t('settings.storagePage.restoreNothingApplied'), duration: 15000 });
+        } else if (result.keysSkippedNoPassphrase) {
+          Message.warning({ content: t('settings.storagePage.restoreKeysSkipped', { items }), duration: 15000 });
+        } else {
+          Message.success(
+            result.safetyBackupPath
+              ? t('settings.storagePage.restoreAppliedWithSafety', { items, path: result.safetyBackupPath })
+              : t('settings.storagePage.restoreApplied', { items })
+          );
+        }
+        closeRestore();
+      } catch {
+        Message.error(t('settings.storagePage.restoreFailed'));
+      } finally {
+        setRestoring(false);
+        setImporting(false);
+      }
+      return;
+    }
     if (!restoreFile || !restorePassword) return;
     setRestoring(true);
     try {
@@ -130,61 +160,65 @@ const BackupCard: React.FC = () => {
         </Button>
       </div>
 
-      {!isDesktop && (
-        <Modal
-          title={t('settings.storagePage.restoreModalTitle')}
-          visible={restoreOpen}
-          onCancel={closeRestore}
-          onOk={() => void submitRestore()}
-          okText={t('settings.storagePage.restoreConfirm')}
-          confirmLoading={restoring}
-          okButtonProps={{ status: 'danger', disabled: !restoreFile || !restorePassword }}
-        >
-          <div className='flex flex-col gap-12px'>
-            <div className='text-12px text-t-tertiary leading-relaxed'>{t('settings.storagePage.restoreWarning')}</div>
+      <Modal
+        title={t('settings.storagePage.restoreModalTitle')}
+        visible={restoreOpen}
+        onCancel={closeRestore}
+        onOk={() => void submitRestore()}
+        okText={t('settings.storagePage.restoreConfirm')}
+        confirmLoading={restoring}
+        okButtonProps={{ status: 'danger', disabled: !isDesktop && (!restoreFile || !restorePassword) }}
+      >
+        <div className='flex flex-col gap-12px'>
+          <div className='text-12px text-t-tertiary leading-relaxed'>{t('settings.storagePage.restoreWarning')}</div>
 
-            <input
-              ref={fileRef}
-              type='file'
-              accept='.zip'
-              className='hidden'
-              onChange={(e) => setRestoreFile(e.target.files?.[0] ?? null)}
-            />
-            <div className='flex items-center gap-8px'>
-              <Button size='small' onClick={() => fileRef.current?.click()}>
-                {t('settings.storagePage.restorePickFile')}
-              </Button>
-              <span className='text-12px text-t-secondary break-all'>
-                {restoreFile?.name ?? t('settings.storagePage.restoreNoFile')}
-              </span>
-            </div>
-
-            <div>
-              <div className='text-12px text-t-secondary mb-4px'>{t('settings.storagePage.restorePasswordLabel')}</div>
-              <Input
-                type='password'
-                value={restorePassword}
-                onChange={setRestorePassword}
-                placeholder={t('settings.storagePage.restorePasswordHint')}
-                size='small'
+          {/* Desktop picks the archive through the native dialog in the main
+              process, and has no WebUI operator password to step up against. */}
+          {!isDesktop && (
+            <>
+              <input
+                ref={fileRef}
+                type='file'
+                accept='.zip'
+                className='hidden'
+                onChange={(e) => setRestoreFile(e.target.files?.[0] ?? null)}
               />
-            </div>
-
-            <div>
-              <div className='text-12px text-t-secondary mb-4px'>
-                {t('settings.storagePage.restorePassphraseLabel')}
+              <div className='flex items-center gap-8px'>
+                <Button size='small' onClick={() => fileRef.current?.click()}>
+                  {t('settings.storagePage.restorePickFile')}
+                </Button>
+                <span className='text-12px text-t-secondary break-all'>
+                  {restoreFile?.name ?? t('settings.storagePage.restoreNoFile')}
+                </span>
               </div>
-              <Input
-                type='password'
-                value={restorePassphrase}
-                onChange={setRestorePassphrase}
-                placeholder={t('settings.storagePage.restorePassphraseHint')}
-                size='small'
-              />
-            </div>
+
+              <div>
+                <div className='text-12px text-t-secondary mb-4px'>
+                  {t('settings.storagePage.restorePasswordLabel')}
+                </div>
+                <Input
+                  type='password'
+                  value={restorePassword}
+                  onChange={setRestorePassword}
+                  placeholder={t('settings.storagePage.restorePasswordHint')}
+                  size='small'
+                />
+              </div>
+            </>
+          )}
+
+          <div>
+            <div className='text-12px text-t-secondary mb-4px'>{t('settings.storagePage.restorePassphraseLabel')}</div>
+            <Input
+              type='password'
+              value={restorePassphrase}
+              onChange={setRestorePassphrase}
+              placeholder={t('settings.storagePage.restorePassphraseHint')}
+              size='small'
+            />
           </div>
-        </Modal>
-      )}
+        </div>
+      </Modal>
     </Card>
   );
 };

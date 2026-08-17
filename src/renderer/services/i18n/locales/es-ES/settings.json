@@ -2160,7 +2160,12 @@
     "restoreNotOperator": "Restore is only available from a trusted local network (loopback, LAN, or Tailscale).",
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
-    "restoreFailed": "Restore failed"
+    "restoreFailed": "Restore failed",
+    "restoreApplied": "Restauración completada. Restaurado: {{items}}.",
+    "restoreAppliedWithSafety": "Restauración completada. Restaurado: {{items}}. Tu copia de seguridad previa a la restauración está en {{path}}.",
+    "restoreNothingApplied": "No se restauró nada. Este archivo no contenía archivos de conversación heredados, adjuntos ni configuración, por lo que nada cambió en este dispositivo. Los chats, los proyectos y las claves de API viven en la base de datos principal, que una exportación de archivos heredada no cubre.",
+    "restoreKeysSkipped": "Restaurado: {{items}}. El archivo también contiene claves de API cifradas, pero no se introdujo ninguna frase de contraseña de copia de seguridad, por lo que las claves no se restauraron.",
+    "exportNoKeys": "Exportación creada, pero no contiene claves de API: esta instalación no tiene un archivo de claves heredado. Tus claves de API viven en la base de datos principal, que una exportación de archivos heredada no cubre."
   },
   "editorPage": {
     "title": "Editor",

@@ -2135,7 +2135,12 @@
     "restoreNotOperator": "Restore is only available from a trusted local network (loopback, LAN, or Tailscale).",
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
-    "restoreFailed": "Restore failed"
+    "restoreFailed": "Restore failed",
+    "restoreApplied": "還原完成。已還原：{{items}}。",
+    "restoreAppliedWithSafety": "還原完成。已還原：{{items}}。還原前的檔案備份副本位於 {{path}}。",
+    "restoreNothingApplied": "未還原任何內容。此封存不含舊版對話檔案、附件或設定，因此此裝置上沒有任何變更。聊天、專案和 API 金鑰儲存在主資料庫中，舊版檔案匯出並不涵蓋它們。",
+    "restoreKeysSkipped": "已還原：{{items}}。封存中還含有加密的 API 金鑰，但未輸入備份密語，因此金鑰未被還原。",
+    "exportNoKeys": "已建立匯出，但其中不含 API 金鑰：此安裝沒有舊版金鑰檔案。您的 API 金鑰儲存在主資料庫中，舊版檔案匯出並不涵蓋它們。"
   },
   "editorPage": {
     "title": "編輯器",

@@ -10,6 +10,28 @@ export type ImportOptions = {
 };
 
 /**
+ * What an import actually did. A legacy file export only ever covers
+ * `conversations`, `attachments`, `config` and the optional encrypted
+ * `keys.json`; everything else the app owns (the primary database - which is
+ * where chats, projects and provider credentials live - Wayland Core state and
+ * external workspaces) is out of scope by design. That makes "the archive was
+ * read without error" a useless success signal: an archive taken from a modern
+ * install legitimately contains nothing this importer can apply. Callers must
+ * report `applied` to the user rather than assume a non-throwing import moved
+ * data (#1021).
+ */
+export type ImportReport = {
+  /** Top-level userData entries actually installed. Empty means nothing moved. */
+  applied: string[];
+  /** Archive top-level names present but outside the legacy restore scope. */
+  outOfScope: string[];
+  /** The archive carries encrypted keys that were skipped for want of a passphrase. */
+  keysSkippedNoPassphrase: boolean;
+  /** Files written into staging, keys included. */
+  fileCount: number;
+};
+
+/**
  * Decompression caps to defend against zip-bombs. A backup archive holding
  * conversations + attachments is large but bounded; these limits reject a
  * single entry or a total payload that is implausible for a real backup.
@@ -83,7 +105,7 @@ function validateLegacyManifest(value: unknown): void {
   }
 }
 
-function replaceFromStaging(root: string, stagingRoot: string): void {
+function replaceFromStaging(root: string, stagingRoot: string): string[] {
   const parent = path.dirname(root);
   const rollbackRoot = fs.mkdtempSync(path.join(parent, '.wayland-legacy-rollback-'));
   const relativeTargets = ['conversations', 'attachments', 'config', 'keys.json'];
@@ -121,9 +143,10 @@ function replaceFromStaging(root: string, stagingRoot: string): void {
   } finally {
     fs.rmSync(rollbackRoot, { recursive: true, force: true });
   }
+  return installed;
 }
 
-export async function backupImport(opts: ImportOptions): Promise<void> {
+export async function backupImport(opts: ImportOptions): Promise<ImportReport> {
   const raw = fs.readFileSync(opts.srcPath);
   const zip = await JSZip.loadAsync(raw);
 
@@ -144,6 +167,9 @@ export async function backupImport(opts: ImportOptions): Promise<void> {
 
   // Running total of decompressed bytes to bound zip-bomb amplification.
   let totalBytes = 0;
+  let fileCount = 0;
+  let keysSkippedNoPassphrase = false;
+  const outOfScope = new Set<string>();
   const accountBytes = (len: number): void => {
     if (len > MAX_ENTRY_BYTES) throw new Error('Backup entry exceeds the decompression limit.');
     totalBytes += len;
@@ -157,13 +183,17 @@ export async function backupImport(opts: ImportOptions): Promise<void> {
       // Handle encrypted keys. Containment still applies even though the
       // destination is fixed - the same hardening must guard every write.
       if (zipPath === 'keys.json.enc') {
-        if (!opts.passphrase) continue;
+        if (!opts.passphrase) {
+          keysSkippedNoPassphrase = true;
+          continue;
+        }
         const encoded = await file.async('string');
         const decrypted = decryptBuffer(encoded, opts.passphrase);
         accountBytes(decrypted.length);
         const keysDest = resolveContained(stagingRoot, 'keys.json');
         if (keysDest === null) continue;
         writeFile(keysDest, decrypted);
+        fileCount += 1;
         continue;
       }
 
@@ -174,7 +204,10 @@ export async function backupImport(opts: ImportOptions): Promise<void> {
       // entry cannot slip a foreign top directory past the allowlist.
       const normalized = zipPath.replace(/\\/g, '/');
       const topDir = normalized.split('/')[0];
-      if (!restoreDirs.has(topDir)) continue;
+      if (!restoreDirs.has(topDir)) {
+        outOfScope.add(topDir);
+        continue;
+      }
 
       // Restore files under known dirs, enforcing path containment.
       const destFull = resolveContained(stagingRoot, zipPath);
@@ -183,8 +216,15 @@ export async function backupImport(opts: ImportOptions): Promise<void> {
       const data = await file.async('nodebuffer');
       accountBytes(data.length);
       writeFile(destFull, data);
+      fileCount += 1;
     }
-    replaceFromStaging(root, stagingRoot);
+    const applied = replaceFromStaging(root, stagingRoot);
+    return {
+      applied,
+      outOfScope: [...outOfScope].sort(),
+      keysSkippedNoPassphrase,
+      fileCount,
+    };
   } finally {
     fs.rmSync(stagingRoot, { recursive: true, force: true });
   }

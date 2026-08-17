@@ -11,6 +11,21 @@ export type ExportOptions = {
   passphrase?: string;
 };
 
+/**
+ * What an export actually captured. `includesKeys` can be false even when the
+ * caller asked for keys: the legacy `keys.json` credential file does not exist
+ * on a modern install, where provider credentials live in the primary database
+ * instead. Callers must surface that rather than report a plain success (#1021).
+ */
+export type ExportReport = {
+  /** True when an encrypted keys blob was written into the archive. */
+  includesKeys: boolean;
+  /** True when the caller asked for keys but no legacy keys file existed. */
+  keysRequestedButAbsent: boolean;
+  /** Files placed in the archive, excluding the manifest. */
+  fileCount: number;
+};
+
 export type LegacyFileExportManifest = {
   format: 'wayland-legacy-file-export';
   version: 2;
@@ -34,20 +49,23 @@ export type LegacyFileExportManifest = {
 const NEVER_EXPORT_FILES = new Set(['.secret-key']);
 
 /** Recursively add a directory's contents into a JSZip folder. */
-async function addDir(zip: JSZip, dir: string, zipPath: string): Promise<void> {
-  if (!fs.existsSync(dir)) return;
+async function addDir(zip: JSZip, dir: string, zipPath: string): Promise<number> {
+  if (!fs.existsSync(dir)) return 0;
   const entries = fs.readdirSync(dir, { withFileTypes: true });
+  let added = 0;
   for (const entry of entries) {
     if (NEVER_EXPORT_FILES.has(entry.name)) continue;
     const srcFull = path.join(dir, entry.name);
     const zipFull = `${zipPath}/${entry.name}`;
     if (entry.isDirectory()) {
-      await addDir(zip, srcFull, zipFull);
+      added += await addDir(zip, srcFull, zipFull);
     } else if (entry.isFile()) {
       const data = fs.readFileSync(srcFull);
       zip.file(zipFull, data);
+      added += 1;
     }
   }
+  return added;
 }
 
 /** AES-256-GCM encrypt a Buffer with a passphrase. Returns base64. */
@@ -62,24 +80,25 @@ function encryptBuffer(buf: Buffer, passphrase: string): string {
   return Buffer.concat([salt, iv, tag, encrypted]).toString('base64');
 }
 
-export async function backupExport(opts: ExportOptions): Promise<void> {
+export async function backupExport(opts: ExportOptions): Promise<ExportReport> {
   if (opts.includeKeys && !opts.passphrase) {
     throw new Error('A passphrase is required when API keys are included.');
   }
   const zip = new JSZip();
 
   // Conversations
-  await addDir(zip, path.join(opts.userData, 'conversations'), 'conversations');
+  let fileCount = await addDir(zip, path.join(opts.userData, 'conversations'), 'conversations');
 
   // Attachments / blobs
-  await addDir(zip, path.join(opts.userData, 'attachments'), 'attachments');
+  fileCount += await addDir(zip, path.join(opts.userData, 'attachments'), 'attachments');
 
   // Settings (localStorage snapshot not accessible from main; export config files)
   const configDir = path.join(opts.userData, 'config');
-  await addDir(zip, configDir, 'config');
+  fileCount += await addDir(zip, configDir, 'config');
 
   // API keys (optional, encrypted)
   let includesKeys = false;
+  let keysRequestedButAbsent = false;
   if (opts.includeKeys && opts.passphrase) {
     const keysFile = path.join(opts.userData, 'keys.json');
     if (fs.existsSync(keysFile)) {
@@ -87,6 +106,13 @@ export async function backupExport(opts: ExportOptions): Promise<void> {
       const encrypted = encryptBuffer(raw, opts.passphrase);
       zip.file('keys.json.enc', encrypted);
       includesKeys = true;
+      fileCount += 1;
+    } else {
+      // The caller asked for keys and there are none to take. Provider
+      // credentials live in the primary database, which this legacy file
+      // export does not cover, so a silent `includesKeys: false` would let the
+      // UI claim a keys-bearing export it never made (#1021).
+      keysRequestedButAbsent = true;
     }
   }
 
@@ -119,4 +145,5 @@ export async function backupExport(opts: ExportOptions): Promise<void> {
 
   const content = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   fs.writeFileSync(opts.destPath, content);
+  return { includesKeys, keysRequestedButAbsent, fileCount };
 }

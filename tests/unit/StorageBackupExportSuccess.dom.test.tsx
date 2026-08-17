@@ -37,7 +37,7 @@ vi.mock('@arco-design/web-react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@arco-design/web-react')>();
   return {
     ...actual,
-    Message: { success: vi.fn(), error: vi.fn(), loading: vi.fn(() => vi.fn()) },
+    Message: { success: vi.fn(), error: vi.fn(), warning: vi.fn(), loading: vi.fn(() => vi.fn()) },
   };
 });
 
@@ -86,17 +86,28 @@ describe('BackupCard export feedback (F5)', () => {
     expect(Message.success).not.toHaveBeenCalled();
   });
 
+  /**
+   * Desktop restore now goes through a confirmation dialog so the passphrase
+   * can be collected (#1021): without one the importer silently drops the
+   * archive's encrypted keys. Drive the dialog, then assert the outcome.
+   */
+  const confirmDesktopRestore = () => {
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    fireEvent.click(screen.getByText('settings.storagePage.restoreConfirm'));
+  };
+
   it('reports the durable safety path after a desktop restore', async () => {
     mockImportBackup.mockResolvedValue({
       ok: true,
       safetyBackupPath: '/data/recovery/legacy-file-imports/pre-restore.zip',
+      applied: ['config', 'conversations'],
     });
     render(<BackupCard />);
 
-    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    confirmDesktopRestore();
 
     await waitFor(() => {
-      expect(Message.success).toHaveBeenCalledWith('settings.storagePage.restoreSuccessWithSafety');
+      expect(Message.success).toHaveBeenCalledWith('settings.storagePage.restoreAppliedWithSafety');
     });
   });
 
@@ -104,10 +115,91 @@ describe('BackupCard export feedback (F5)', () => {
     mockImportBackup.mockRejectedValue(new Error('disk full'));
     render(<BackupCard />);
 
-    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    confirmDesktopRestore();
 
     await waitFor(() => {
       expect(Message.error).toHaveBeenCalledWith('settings.storagePage.restoreFailed');
     });
+  });
+
+  // #1021: the archive read and staged cleanly and moved nothing, because the
+  // reporter's chats, projects and keys all live in the primary database this
+  // legacy export never covers. Claiming success here is silent data loss.
+  it('never reports success when a desktop restore applied nothing', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      safetyBackupPath: '/data/recovery/legacy-file-imports/pre-restore.zip',
+      applied: [],
+      outOfScope: [],
+      keysSkippedNoPassphrase: false,
+      fileCount: 0,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.restoreNothingApplied' })
+      );
+    });
+    expect(Message.success).not.toHaveBeenCalled();
+  });
+
+  it('says so when the archive carried keys the restore could not unlock', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      applied: ['config'],
+      keysSkippedNoPassphrase: true,
+      fileCount: 1,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.restoreKeysSkipped' })
+      );
+    });
+    expect(Message.success).not.toHaveBeenCalled();
+  });
+
+  it('passes the entered passphrase through to the desktop importer', async () => {
+    mockImportBackup.mockResolvedValue({ ok: true, applied: ['config', 'keys.json'] });
+    render(<BackupCard />);
+
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    fireEvent.change(screen.getByPlaceholderText('settings.storagePage.restorePassphraseHint'), {
+      target: { value: 'hunter2' },
+    });
+    fireEvent.click(screen.getByText('settings.storagePage.restoreConfirm'));
+
+    await waitFor(() => {
+      expect(mockImportBackup).toHaveBeenCalledWith({ passphrase: 'hunter2' });
+    });
+  });
+
+  // The export offers "include API keys" on an install that has no legacy keys
+  // file, so the archive it produces carries none. Saying "export created" and
+  // nothing else is how the reporter of #1021 ended up with a keyless archive
+  // they believed held their keys.
+  it('warns when an export was asked for keys it could not find', async () => {
+    mockExportAll.mockResolvedValue({
+      ok: true,
+      path: '/tmp/backup.zip',
+      includesKeys: false,
+      keysRequestedButAbsent: true,
+    });
+    render(<BackupCard />);
+
+    fireEvent.click(screen.getByText('settings.storagePage.exportAll'));
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.exportNoKeys' })
+      );
+    });
+    expect(Message.success).not.toHaveBeenCalled();
   });
 });

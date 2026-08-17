@@ -2135,7 +2135,12 @@
     "restoreNotOperator": "Restore is only available from a trusted local network (loopback, LAN, or Tailscale).",
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
-    "restoreFailed": "Restore failed"
+    "restoreFailed": "Restore failed",
+    "restoreApplied": "복원이 완료되었습니다. 복원된 항목: {{items}}.",
+    "restoreAppliedWithSafety": "복원이 완료되었습니다. 복원된 항목: {{items}}. 복원 전 파일 복구 사본은 {{path}}에 있습니다.",
+    "restoreNothingApplied": "아무것도 복원되지 않았습니다. 이 아카이브에는 레거시 대화 파일, 첨부 파일 또는 설정이 없었으므로 이 기기에서 변경된 것이 없습니다. 채팅, 프로젝트, API 키는 기본 데이터베이스에 저장되며 레거시 파일 내보내기는 이를 포함하지 않습니다.",
+    "restoreKeysSkipped": "복원된 항목: {{items}}. 아카이브에 암호화된 API 키도 있지만 백업 암호가 입력되지 않아 키는 복원되지 않았습니다.",
+    "exportNoKeys": "내보내기를 만들었지만 API 키는 포함되어 있지 않습니다. 이 설치에는 레거시 키 파일이 없습니다. API 키는 기본 데이터베이스에 저장되며 레거시 파일 내보내기는 이를 포함하지 않습니다."
   },
   "editorPage": {
     "title": "편집기",

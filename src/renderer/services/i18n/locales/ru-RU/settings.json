@@ -2135,7 +2135,12 @@
     "restoreNotOperator": "Restore is only available from a trusted local network (loopback, LAN, or Tailscale).",
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
-    "restoreFailed": "Restore failed"
+    "restoreFailed": "Restore failed",
+    "restoreApplied": "Восстановление завершено. Восстановлено: {{items}}.",
+    "restoreAppliedWithSafety": "Восстановление завершено. Восстановлено: {{items}}. Резервная копия файлов до восстановления находится в {{path}}.",
+    "restoreNothingApplied": "Ничего не восстановлено. В этом архиве не было устаревших файлов переписки, вложений или конфигурации, поэтому на этом устройстве ничего не изменилось. Чаты, проекты и API-ключи хранятся в основной базе данных, которую устаревший файловый экспорт не охватывает.",
+    "restoreKeysSkipped": "Восстановлено: {{items}}. В архиве также есть зашифрованные API-ключи, но парольная фраза резервной копии не введена, поэтому ключи не восстановлены.",
+    "exportNoKeys": "Экспорт создан, но он не содержит API-ключей: в этой установке нет устаревшего файла ключей. Ваши API-ключи хранятся в основной базе данных, которую устаревший файловый экспорт не охватывает."
   },
   "editorPage": {
     "title": "Редактор",

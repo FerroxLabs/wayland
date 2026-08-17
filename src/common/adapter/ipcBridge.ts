@@ -2902,12 +2902,26 @@ export const storage = {
   openDir: buildProvider<void, string>('storage:openDir'),
   clearDir: buildProvider<void, string>('storage:clearDir'),
   changeDir: buildProvider<string | null, void>('storage:changeDir'),
-  exportAll: buildProvider<{ ok: boolean; path?: string }, { includeKeys: boolean; passphrase?: string }>(
-    'storage:exportAll'
-  ),
-  importBackup: buildProvider<{ ok: boolean; safetyBackupPath?: string }, { passphrase?: string }>(
-    'storage:importBackup'
-  ),
+  exportAll: buildProvider<
+    { ok: boolean; path?: string; includesKeys?: boolean; keysRequestedButAbsent?: boolean; fileCount?: number },
+    { includeKeys: boolean; passphrase?: string }
+  >('storage:exportAll'),
+  // `applied` is the load-bearing field: a legacy import that throws nothing
+  // still routinely applies nothing, because chats, projects and provider
+  // credentials live in the primary database this export never covers. The
+  // renderer must report `applied` instead of treating `ok` as "data moved"
+  // (#1021).
+  importBackup: buildProvider<
+    {
+      ok: boolean;
+      safetyBackupPath?: string;
+      applied?: string[];
+      outOfScope?: string[];
+      keysSkippedNoPassphrase?: boolean;
+      fileCount?: number;
+    },
+    { passphrase?: string }
+  >('storage:importBackup'),
   resetAll: buildProvider<void, void>('storage:resetAll'),
 };
 

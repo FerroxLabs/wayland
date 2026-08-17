@@ -2100,7 +2100,12 @@
     "restoreNotOperator": "Restore is only available from a trusted local network (loopback, LAN, or Tailscale).",
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
-    "restoreFailed": "Restore failed"
+    "restoreFailed": "Restore failed",
+    "restoreApplied": "Відновлення завершено. Відновлено: {{items}}.",
+    "restoreAppliedWithSafety": "Відновлення завершено. Відновлено: {{items}}. Резервну копію файлів перед відновленням збережено в {{path}}.",
+    "restoreNothingApplied": "Нічого не відновлено. У цьому архіві не було застарілих файлів розмов, вкладень або конфігурації, тому на цьому пристрої нічого не змінилося. Чати, проєкти та ключі API зберігаються в основній базі даних, яку застарілий файловий експорт не охоплює.",
+    "restoreKeysSkipped": "Відновлено: {{items}}. Архів також містить зашифровані ключі API, але парольну фразу резервної копії не введено, тому ключі не відновлено.",
+    "exportNoKeys": "Експорт створено, але він не містить ключів API: у цій інсталяції немає застарілого файлу ключів. Ваші ключі API зберігаються в основній базі даних, яку застарілий файловий експорт не охоплює."
   },
   "editorPage": {
     "title": "Редактор",
