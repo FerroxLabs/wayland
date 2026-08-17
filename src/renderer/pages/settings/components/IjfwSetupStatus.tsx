@@ -40,6 +40,28 @@ const probeFailureReason = (r: IjfwInvokeResult): string | undefined => {
   return fail.error || fail.errorReason;
 };
 
+/**
+ * #891: true when the probe never actually reached the runtime because the
+ * main-side respawn backoff declined to attempt a spawn. Such a result says
+ * nothing about the runtime's health, so the row must retry instead of
+ * reporting Degraded.
+ */
+const isBackoffFailure = (r: IjfwInvokeResult): boolean =>
+  (r as { ok: false; errorReason?: string }).errorReason === 'spawn_backoff';
+
+/**
+ * #891: total mount-probe attempts (one immediate + one retry). Bounded on
+ * purpose - a genuinely dead runtime must not be hammered.
+ */
+const PROBE_MAX_ATTEMPTS = 2;
+
+/**
+ * #891: delay before the retry. Must exceed the main-side RESPAWN_BACKOFF_MS
+ * (5_000 in ijfwMcpClient) so the retry lands AFTER the window and actually
+ * attempts a spawn instead of collecting a second synthetic failure.
+ */
+const PROBE_RETRY_DELAY_MS = 5_500;
+
 export type IjfwSetupStatusProps = {
   /** Latest lifecycle status from `ipcBridge.ijfw.getStatus`. */
   status: IjfwLifecycleStatus | null;
@@ -104,31 +126,53 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
       return;
     }
     let disposed = false;
-    void ipcBridge.ijfw.brainInvoke
-      // `metrics`, NOT `state`. See handleTest below for why `state` could
-      // never succeed.
-      .invoke({ verb: 'metrics' })
-      .then((r) => {
-        if (disposed) return;
-        if (r.ok) {
-          setRuntimeReachable(true);
-          setRuntimeReason(undefined);
-        } else {
-          // #891: keep the real reason the probe returned. `error` is the human
-          // message; fall back to the `errorReason` code; undefined if neither.
-          setRuntimeReachable(false);
-          setRuntimeReason(probeFailureReason(r));
-        }
-      })
-      .catch(() => {
-        // A rejected probe carries no structured reason; leave it undefined so
-        // the bare degraded label shows.
-        if (disposed) return;
-        setRuntimeReachable(false);
-        setRuntimeReason(undefined);
-      });
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    // A fresh probe is in flight: show `checking`, never a stale verdict.
+    setRuntimeReachable(null);
+    setRuntimeReason(undefined);
+
+    // #891: a `spawn_backoff` result means the main side refused to attempt a
+    // spawn, so nothing was probed. Retrying once past the backoff window is
+    // the only way to tell "runtime is down" from "we asked too early" -
+    // without it the very first probe of a session could report Degraded
+    // permanently. Every other failure settles immediately (no hammering).
+    const settleFailure = (r: IjfwInvokeResult | null, attempt: number) => {
+      if (r && isBackoffFailure(r) && attempt < PROBE_MAX_ATTEMPTS) {
+        retryTimer = setTimeout(() => runProbe(attempt + 1), PROBE_RETRY_DELAY_MS);
+        return;
+      }
+      // #891: keep the real reason the probe returned. `error` is the human
+      // message; fall back to the `errorReason` code; undefined if neither.
+      // A rejected probe (r === null) carries no structured reason, so the
+      // bare degraded label shows.
+      setRuntimeReachable(false);
+      setRuntimeReason(r ? probeFailureReason(r) : undefined);
+    };
+
+    const runProbe = (attempt: number) => {
+      void ipcBridge.ijfw.brainInvoke
+        // `metrics`, NOT `state`. See handleTest below for why `state` could
+        // never succeed.
+        .invoke({ verb: 'metrics' })
+        .then((r) => {
+          if (disposed) return;
+          if (r.ok) {
+            setRuntimeReachable(true);
+            setRuntimeReason(undefined);
+          } else {
+            settleFailure(r, attempt);
+          }
+        })
+        .catch(() => {
+          if (disposed) return;
+          settleFailure(null, attempt);
+        });
+    };
+
+    runProbe(1);
     return () => {
       disposed = true;
+      if (retryTimer) clearTimeout(retryTimer);
     };
   }, [installOk]);
 
@@ -207,18 +251,28 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
       // `{}` errors, `ijfw_metrics` with `{}` returns cleanly. `metrics` is
       // read-only and cheap, which is what a health probe wants.
       const result = await ipcBridge.ijfw.brainInvoke.invoke({ verb: 'metrics' });
+      // #891: the Test button is the LATEST evidence about the runtime, so it
+      // drives the runtime row too. Without this a single early failure (e.g.
+      // one landing inside the respawn backoff) left the row reading Degraded
+      // for the whole session even after Test proved the runtime answers.
       if (result.ok) {
         setTestState('pass');
         setTestFailReason(undefined);
+        setRuntimeReachable(true);
+        setRuntimeReason(undefined);
       } else {
         // #891: keep the real reason so the fail text says WHY.
         setTestState('fail');
         setTestFailReason(probeFailureReason(result));
+        setRuntimeReachable(false);
+        setRuntimeReason(probeFailureReason(result));
       }
     } catch {
       // A thrown probe carries no structured reason; fall back to the fixed text.
       setTestState('fail');
       setTestFailReason(undefined);
+      setRuntimeReachable(false);
+      setRuntimeReason(undefined);
     }
   }, [testState]);
 

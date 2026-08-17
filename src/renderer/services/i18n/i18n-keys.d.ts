@@ -1592,6 +1592,7 @@ export type I18nKey =
   | 'memory.error.mcp_error'
   | 'memory.error.opt_out'
   | 'memory.error.rollback_also_failed'
+  | 'memory.error.spawn_backoff'
   | 'memory.error.spawn_error'
   | 'memory.error.stage_pending_failed'
   | 'memory.error.stage_swap_failed'

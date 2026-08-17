@@ -20,7 +20,7 @@
  */
 
 import React from 'react';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const brainInvoke = vi.hoisted(() => vi.fn());
@@ -48,6 +48,9 @@ import IjfwSetupStatus from '@/renderer/pages/settings/components/IjfwSetupStatu
 afterEach(() => {
   cleanup();
   brainInvoke.mockReset();
+  // #891 adds a timer-driven probe retry; make sure a fake-timer test can never
+  // leak its clock into the next one.
+  vi.useRealTimers();
 });
 
 describe('IjfwSetupStatus (#414)', () => {
@@ -200,6 +203,109 @@ describe('IjfwSetupStatus (#414)', () => {
       expect(result.getAttribute('data-result')).toBe('fail');
       expect(result.textContent).toContain('method not found: ijfw_state');
     });
+  });
+
+  // #891 — the runtime row must reflect the LATEST probe, not the first failure
+  // ever seen. Two mechanisms produced the reported false negative: the
+  // main-side respawn backoff manufactures a failure WITHOUT probing, and the
+  // renderer latched that first failure for the whole session.
+  it('retries the mount probe past the respawn backoff instead of latching Degraded (#891)', async () => {
+    vi.useFakeTimers();
+    brainInvoke
+      .mockResolvedValueOnce({
+        ok: false,
+        error: 'IJFW MCP respawn backoff active (4200ms remaining)',
+        errorReason: 'spawn_backoff',
+      })
+      .mockResolvedValue({ ok: true });
+
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+
+    // First probe resolves with the synthetic backoff failure. Nothing was
+    // actually probed, so the row must stay neutral, NOT flip to Degraded.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(brainInvoke).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('checking');
+
+    // Past the backoff window the retry runs and finds a healthy runtime.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(6_000);
+    });
+    expect(brainInvoke).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('ok');
+  });
+
+  it('stops retrying and reports Degraded when the backoff retry also fails (#891)', async () => {
+    vi.useFakeTimers();
+    brainInvoke.mockResolvedValue({
+      ok: false,
+      error: 'IJFW MCP respawn backoff active (4200ms remaining)',
+      errorReason: 'spawn_backoff',
+    });
+
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+
+    // Bounded: one immediate probe + exactly one retry. A dead runtime must not
+    // be hammered, so a long wait adds no further calls.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    expect(brainInvoke).toHaveBeenCalledTimes(2);
+    const runtime = screen.getByTestId('ijfw-status-item-runtime');
+    expect(runtime.getAttribute('data-status')).toBe('pending');
+    expect(runtime.textContent).toContain('respawn backoff active');
+  });
+
+  it('does NOT retry a genuine runtime failure (#891 - no hammering)', async () => {
+    vi.useFakeTimers();
+    brainInvoke.mockResolvedValue({ ok: false, error: 'nope', errorReason: 'mcp_error' });
+
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+    expect(brainInvoke).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('pending');
+  });
+
+  it('a passing Test clears an already-degraded runtime row (#891)', async () => {
+    // Mount probe fails for real, so the row goes Degraded...
+    brainInvoke.mockResolvedValueOnce({ ok: false, error: 'nope', errorReason: 'mcp_error' });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('pending');
+    });
+
+    // ...and the user presses Test, which succeeds. The row must follow the
+    // LATEST evidence instead of staying pinned to the first failure.
+    brainInvoke.mockResolvedValue({ ok: true });
+    fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('pass');
+    });
+    const runtime = screen.getByTestId('ijfw-status-item-runtime');
+    expect(runtime.getAttribute('data-status')).toBe('ok');
+    expect(runtime.textContent).toContain('Live');
+  });
+
+  it('a failing Test degrades a previously-healthy runtime row with its reason (#891)', async () => {
+    brainInvoke.mockResolvedValueOnce({ ok: true });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('ok');
+    });
+
+    brainInvoke.mockResolvedValue({ ok: false, error: 'memory crashed', errorReason: 'mcp_crashed' });
+    fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('fail');
+    });
+    const runtime = screen.getByTestId('ijfw-status-item-runtime');
+    expect(runtime.getAttribute('data-status')).toBe('pending');
+    expect(runtime.textContent).toContain('memory crashed');
   });
 
   it('Test button with no reason preserves the fixed fail string (#891 regression guard)', async () => {
