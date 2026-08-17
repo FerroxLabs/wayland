@@ -96,8 +96,10 @@ function makeMailbox(): Mailbox {
 }
 
 function makeTaskManager() {
+  const create = vi.fn().mockResolvedValue({ id: 'task-1', subject: 'Test', status: 'pending', owner: undefined });
   return {
-    create: vi.fn().mockResolvedValue({ id: 'task-1', subject: 'Test', status: 'pending', owner: undefined }),
+    create,
+    createOrReuse: vi.fn(async (params: unknown) => ({ task: await create(params), reused: false })),
     update: vi.fn().mockResolvedValue({ id: 'task-1', status: 'completed' }),
     list: vi.fn().mockResolvedValue([]),
     getByOwner: vi.fn().mockResolvedValue([]),

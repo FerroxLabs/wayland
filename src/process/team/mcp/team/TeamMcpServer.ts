@@ -536,8 +536,14 @@ export class TeamMcpServer {
     const description = args.description ? String(args.description) : undefined;
     const owner = this.resolveTaskOwner(args.owner ? String(args.owner) : undefined);
 
-    const task = await taskManager.create({ teamId, subject, description, owner: owner?.slotId });
-    return `Task created: [${task.id.slice(0, 8)}] "${subject}"${owner ? ` (assigned to ${owner.name})` : ''}`;
+    const { task, reused } = await taskManager.createOrReuse({ teamId, subject, description, owner: owner?.slotId });
+    const assignment = owner ? ` (assigned to ${owner.name})` : '';
+    // #981 - say it out loud. A silent no-op reads as a lost write and the
+    // leader retries again; naming the reuse is what stops the loop.
+    if (reused) {
+      return `Task already on the board: [${task.id.slice(0, 8)}] "${task.subject}"${assignment}. Reused the existing task - no duplicate was created.`;
+    }
+    return `Task created: [${task.id.slice(0, 8)}] "${subject}"${assignment}`;
   }
 
   private async handleTaskUpdate(args: Record<string, unknown>): Promise<string> {

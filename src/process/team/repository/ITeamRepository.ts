@@ -22,8 +22,31 @@ export interface IMailboxRepository {
   getMailboxHistory(teamId: string, toAgentId: string, limit?: number): Promise<MailboxMessage[]>;
 }
 
+/**
+ * #981 - raised by `createTask` when the insert collapsed onto a task that is
+ * already live for the same (team, normalized subject, owner). Carries the row
+ * that survived so the caller can hand it straight back to whoever asked.
+ *
+ * Thrown rather than returned so the "a task was created" return type stays
+ * honest: on this path nothing was written.
+ */
+export class TeamTaskDuplicateError extends Error {
+  readonly code = 'TEAM_TASK_DUPLICATE';
+
+  constructor(readonly existing: TeamTask) {
+    super(`A live task with subject "${existing.subject}" already exists on this team (${existing.id}).`);
+    this.name = 'TeamTaskDuplicateError';
+  }
+}
+
 /** Task board persistence */
 export interface ITaskRepository {
+  /**
+   * Insert a task.
+   *
+   * @throws {TeamTaskDuplicateError} when a live task already covers the same
+   *   (team, normalized subject, owner) - nothing is written in that case.
+   */
   createTask(task: TeamTask): Promise<TeamTask>;
   findTaskById(id: string): Promise<TeamTask | null>;
   updateTask(id: string, updates: Partial<TeamTask>): Promise<TeamTask>;
