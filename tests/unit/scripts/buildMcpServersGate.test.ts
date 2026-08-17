@@ -51,16 +51,23 @@ describe('build-mcp-servers optional-MCP gate (#940)', () => {
     expect(gate.optionalMcpBypassEnabled({ WAYLAND_ALLOW_MISSING_MCP: '1' })).toBe(true);
   });
 
-  // #940: the six workflows that build check FerroxLabs/waylandmcp out to
-  // ./waylandmcp INSIDE the workspace, because actions/checkout refuses any
-  // `path` above github.workspace. If that candidate ever stops being first,
-  // CI silently reverts to bundling nothing (or, worse, a stale ~/dev tree).
-  it('resolves the in-workspace CI checkout first', () => {
+  // #940 CONTAINMENT: every candidate must be a SIBLING of the app repo, never
+  // inside it. esbuild resolves bare imports by walking node_modules upward from
+  // the entry point, so a source tree inside the repo puts the app's ~2100-package
+  // node_modules on that walk - a connector importing something it does not
+  // declare then resolves SILENTLY against the app's copy instead of failing the
+  // build. Proven by A/B: identical source bundles clean in-workspace and dies
+  // with "Could not resolve" as a sibling. CI checks out to ./waylandmcp only
+  // because actions/checkout cannot write above github.workspace, then moves the
+  // tree to ROOT/.. before building. If an in-repo candidate is ever added back,
+  // that move becomes optional and the containment silently disappears.
+  it('offers only sibling candidates, never one inside the app repo', () => {
     const candidates = gate.mcpSourceCandidates('imap-mcp', {});
-    expect(candidates[0]).toBe(path.join(REPO_ROOT, 'waylandmcp', 'packages', 'imap-mcp'));
-    // The sibling layouts local dev relies on must survive alongside it.
-    expect(candidates).toContain(path.resolve(REPO_ROOT, '..', '..', 'waylandmcp', 'packages', 'imap-mcp'));
     expect(candidates).toContain(path.resolve(REPO_ROOT, '..', 'waylandmcp', 'packages', 'imap-mcp'));
+    expect(candidates).toContain(path.resolve(REPO_ROOT, '..', '..', 'waylandmcp', 'packages', 'imap-mcp'));
+    for (const candidate of candidates) {
+      expect(path.relative(REPO_ROOT, candidate).startsWith('..')).toBe(true);
+    }
   });
 
   it('treats WAYLAND_MCP_SRC as the single authoritative candidate', () => {

@@ -747,9 +747,10 @@ jobs:
       # #940: build-payload.mjs runs scripts/build-mcp-servers.js, which bundles
       # the four @wayland MCP connectors from FerroxLabs/waylandmcp.
       # actions/checkout refuses any `path` outside github.workspace, so the
-      # sources land at ./waylandmcp (gitignored) - the first candidate that
-      # script resolves. Must run AFTER the repo checkout above, whose
-      # `git clean -ffdx` would delete this tree. No bypass on a publish path.
+      # sources land at ./waylandmcp (gitignored), and the next step moves them
+      # to the sibling position that script already resolves. Must run AFTER the
+      # repo checkout above, whose `git clean -ffdx` would delete this tree. No
+      # bypass on a publish path.
       - name: Checkout @wayland MCP connector sources
         uses: actions/checkout@v6
         with:
@@ -758,9 +759,24 @@ jobs:
           path: waylandmcp
           persist-credentials: false
 
-      - name: Install @wayland MCP connector dependencies
-        working-directory: waylandmcp
-        run: bun install --frozen-lockfile
+      # Move the checkout OUT of the app repo to /home/runner/work/wayland/waylandmcp,
+      # which is the pre-existing sibling candidate. This is a containment fix, not
+      # cosmetics: esbuild resolves a bare import by walking node_modules UPWARD from
+      # the entry point. Left inside the workspace, that walk continues into the
+      # desktop app's ~2100-package node_modules, so a connector importing something
+      # it does not declare resolves SILENTLY against the app's copy instead of
+      # failing. Proven by A/B: identical source bundles clean in-workspace and dies
+      # with "Could not resolve" as a sibling. Green build, wrong artifact is exactly
+      # the quiet substitution #940 exists to stop. The rm -rf covers a self-hosted
+      # runner, where the sibling path escapes the workspace `git clean -ffdx`.
+      - name: Relocate and install @wayland MCP connector sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf ../waylandmcp
+          mv waylandmcp ../waylandmcp
+          cd ../waylandmcp
+          bun install --frozen-lockfile
 
       - name: Build the getwayland payload (syncs version to the release)
         working-directory: installer

@@ -85,14 +85,15 @@ function skipOptionalMcpOrFail(pkgName, detail, env = process.env) {
  */
 function mcpSourceCandidates(pkgName, env = process.env) {
   if (env.WAYLAND_MCP_SRC) return [env.WAYLAND_MCP_SRC];
+  // #940: every candidate is a SIBLING of the app repo, never inside it, and that
+  // is load-bearing. esbuild resolves a bare import by walking node_modules
+  // upward from the entry point, so a tree placed inside the repo would have the
+  // app's ~2100-package node_modules on that walk: a connector importing
+  // something it does not declare would resolve silently against the app's copy
+  // instead of failing. actions/checkout cannot write above github.workspace, so
+  // CI checks out to ./waylandmcp and then MOVES the tree to ROOT/.. before
+  // building - see the "Relocate and install" step in the build workflows.
   return [
-    // #940: the CI checkout. actions/checkout refuses any `path` outside
-    // github.workspace, so the sibling layouts below are unreachable on a runner
-    // (ROOT/.. is /home/runner/work/wayland, above the workspace). Every
-    // workflow that builds therefore checks FerroxLabs/waylandmcp out to
-    // ./waylandmcp inside the repo (gitignored). First, so a deliberate in-repo
-    // checkout always wins over whatever happens to sit in ~/dev.
-    path.resolve(ROOT, 'waylandmcp', 'packages', pkgName),
     path.resolve(ROOT, '..', '..', 'waylandmcp', 'packages', pkgName),
     path.resolve(ROOT, '..', 'waylandmcp', 'packages', pkgName),
     path.join(require('os').homedir(), 'dev', 'waylandmcp', 'packages', pkgName),
@@ -207,7 +208,23 @@ async function main() {
         if (fs.existsSync(bridge)) {
           fs.copyFileSync(bridge, path.join(OUT_MAIN, 'eventkit-bridge'));
           fs.chmodSync(path.join(OUT_MAIN, 'eventkit-bridge'), 0o755);
+          return;
         }
+        // #940: this used to be a silent no-op, and silence is the bug. The
+        // binary is built by `bun run build:native` (swiftc) into dist/, which
+        // waylandmcp gitignores, so a plain CI checkout never has it. Without it
+        // the apple connector still ships and still advertises 9 tools that
+        // cannot work: Calendar listEvents/createEvent/updateEvent/deleteEvent/
+        // findFreeSlot and Reminders listReminders/createReminder/
+        // completeReminder/deleteReminder all route through it. Notes, Mail,
+        // Maps and Photos use AppleScript and are unaffected. A card that offers
+        // a control which cannot work is the failure #940 is about, so say it
+        // loudly enough to find in a CI log. Tracked for a real fix in #1013.
+        console.warn(
+          `::warning::[build-mcp-servers] @wayland/apple-mcp was bundled WITHOUT its Swift EventKit ` +
+            `bridge (no ${bridge}). On macOS its 5 Calendar and 4 Reminders tools will fail at runtime ` +
+            `while the Library still offers them; Notes/Mail/Maps/Photos are unaffected. See #1013.`
+        );
       },
     }),
   ]);

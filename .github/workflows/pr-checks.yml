@@ -781,9 +781,16 @@ jobs:
       # WAYLAND_ALLOW_MISSING_MCP=1 that used to sit in this file's env was never
       # load-bearing. Checking the private sources out for a build that does not
       # consume them would also break every FORK pull request, which gets no repo
-      # secrets. The connectors are proved by build-matrix.yml (every push to
-      # main, plus weekly) and by the release path, neither of which can be run
-      # from a fork and neither of which has a bypass any more.
+      # secrets. The connectors are built by build-matrix.yml (every push to main,
+      # plus weekly) and by the release path, neither of which can run from a fork
+      # and neither of which has a bypass any more. Note "built", not "proved":
+      # build-matrix is currently RED on main - in run 31993152345 four legs went
+      # green, macos-x64 and both preview Linux legs failed at Run packaged build,
+      # and all four Windows legs were cancelled. So the only standing proof today
+      # is the four legs that do pass; the Windows connector checkout in particular
+      # has never executed. A single build-manual.yml dispatch across all six
+      # platforms goes through _build-reusable with secrets: inherit and neither
+      # tags nor publishes, which is the cheapest way to close that gap.
       - name: Typecheck
         run: bunx tsc --noEmit
 

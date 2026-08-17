@@ -265,8 +265,11 @@ installer/payload/
 # extraResources so no loose SKILL.md reaches the package.
 .skill-pack/
 
-# #940: FerroxLabs/waylandmcp, checked out here by every workflow that builds so
-# scripts/build-mcp-servers.js can bundle the four @wayland MCP connectors.
-# actions/checkout refuses any path outside github.workspace, so it has to land
-# inside the repo - it must never be committable.
+# #940: FerroxLabs/waylandmcp lands here transiently. actions/checkout cannot
+# write above github.workspace, so the connector sources are checked out here and
+# then MOVED to the sibling position build-mcp-servers.js resolves. Keep this
+# ignore: besides making the checkout uncommittable, it is what stops
+# scripts/platform-package-smoke.mjs (which throws on ANY non-ignored untracked
+# path, and runs after the checkout) from hard-failing every packaged build if
+# the tree is ever left behind.
 /waylandmcp/
