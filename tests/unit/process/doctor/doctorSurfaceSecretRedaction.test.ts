@@ -81,6 +81,30 @@ const findsSecret = (text: string): boolean =>
 /** Separate matcher for the prefixless canary, on the VALUE not the label. */
 const findsPrefixlessKey = (text: string): boolean => text.includes(PREFIXLESS_KEY);
 
+/**
+ * Length of the longest CONTIGUOUS run of `secret` that appears anywhere in
+ * `text`, so a PARTIAL disclosure counts.
+ *
+ * A whole-literal `not.toContain` is not an oracle for a truncating defence: a
+ * 32-character cap satisfies it while still handing out 25 characters of a
+ * credential. That is exactly how the engine banner's two protections came to be
+ * individually unpinned - reverting either one on its own left the suite green,
+ * because the cap trimmed every payload just enough. Assert against this instead
+ * and state the floor.
+ */
+const longestSecretRun = (text: string, secret: string): number => {
+  let best = 0;
+  for (let start = 0; start < secret.length; start += 1) {
+    for (let end = secret.length; end > start + best; end -= 1) {
+      if (text.includes(secret.slice(start, end))) {
+        best = end - start;
+        break;
+      }
+    }
+  }
+  return best;
+};
+
 /** Every string a Doctor result can put in front of the user. */
 const surfaced = (result: { detail: string; remediation?: string }): string =>
   `${result.detail}\n${result.remediation ?? ''}`;
@@ -410,6 +434,106 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
       expect(text).not.toContain(long);
       // Belt-and-braces cap: nothing version-shaped can be long.
       expect(text.length).toBeLessThan(200);
+    }
+  });
+
+  /**
+   * THE ANCHOR ORACLE, and it exists because the assertions above are not one.
+   *
+   * They are whole-literal `not.toContain` checks, and `MAX_VERSION_LENGTH`
+   * truncates every payload above just enough to satisfy them. Executed: with the
+   * anchors reverted to the original unbounded `[\w.+-]*` tail and the 32-char cap
+   * left in place, `0.13.0_<32 hex>` surfaced `0.13.0_f0e9d8c7b6a59483726150413`
+   * with the whole suite still green - 25 characters of a credential.
+   *
+   * So this pins what the ANCHORS do, which is REFUSE these banners rather than
+   * trim them. `warn` is the observable difference: the anchored pattern finds no
+   * version at all, so the check reports a broken build and echoes nothing, while
+   * the unanchored one matches from inside the credential and returns `pass`.
+   */
+  it('ANCHOR ORACLE: each adversarial banner is REFUSED, not merely truncated', async () => {
+    const refused = [
+      // Prerelease tail that runs into a key: the tail must not extend over `-`.
+      `1.0.0-sk-ant-api03-${'A'.repeat(40)}`,
+      // Glued suffix: `_` is `\w`, so the trailing lookahead must reject it.
+      `0.13.0_${PREFIXLESS_KEY}`,
+      // Build tail that runs into a JWT: bounded at 11 characters, so it cannot
+      // reach the end and the whole match fails.
+      `0.13.0+build.${'eyJhbGciOiJIUzI1NiJ9'}.${'b'.repeat(46)}`,
+      // No version banner at all - the leading lookbehind is what stops the search
+      // starting INSIDE the token.
+      `token=sk-ant-1.2.3-${'c'.repeat(58)}`,
+      // Unbounded run after a legal version.
+      `9.9.9-${'x'.repeat(200_000)}`,
+      // A real Anthropic key glued to a legal version.
+      `0.13.0-${API_KEY}`,
+    ];
+
+    const results = await Promise.all(
+      refused.map((version) => checkEngineReachable(() => ({ available: true, path: '/opt/e', version })))
+    );
+
+    for (const result of results) {
+      expect(result.status).toBe('warn');
+      expect(result.detail).toContain('did not report a usable version');
+    }
+  });
+
+  /**
+   * THE CAP ORACLE, independent of the anchors.
+   *
+   * With the anchors in place the only unbounded part of the pattern is `\d+`, so a
+   * long numeric run is the ONLY input that can reach `MAX_VERSION_LENGTH` - which
+   * is the whole point of having a second bound that does not depend on reading a
+   * regex correctly. This banner matches under BOTH the anchored and the unanchored
+   * pattern, so the assertion below moves only when the CAP moves.
+   */
+  it('CAP ORACLE: a version-shaped banner longer than the cap is truncated at exactly 32', async () => {
+    const result = await checkEngineReachable(() => ({
+      available: true,
+      path: '/opt/e',
+      version: `${'9'.repeat(40)}.0.0`,
+    }));
+    expect(result.status).toBe('pass');
+    expect(result.detail).toBe(`Wayland Core engine ${'9'.repeat(32)} is reachable.`);
+    expect(result.detail).not.toContain('9'.repeat(33));
+  });
+
+  /**
+   * THE PARTIAL-LEAK FLOOR, measured rather than picked.
+   *
+   * Across the eight adversarial banners the longest CONTIGUOUS run of any of the
+   * five credentials that reaches the surfaced text is 2 characters, and those two
+   * are incidental collisions with the fixed English copy ("Engine binary found
+   * at ..."), not credential material. The bound below is that measurement. For
+   * scale, the equivalent floor on the engine banner before the anchors was 25.
+   */
+  it('FLOOR ORACLE: no more than 2 contiguous characters of any credential reach the surface', async () => {
+    const secrets = [PREFIXLESS_KEY, API_KEY, 'A'.repeat(40), 'b'.repeat(46), 'c'.repeat(58)];
+    const banners = [
+      `1.0.0-sk-ant-api03-${'A'.repeat(40)}`,
+      `0.13.0_${PREFIXLESS_KEY}`,
+      `0.13.0+build.${'eyJhbGciOiJIUzI1NiJ9'}.${'b'.repeat(46)}`,
+      `token=sk-ant-1.2.3-${'c'.repeat(58)}`,
+      `9.9.9-${'x'.repeat(200_000)}`,
+      `wayland-core 0.13.0 (env ${PREFIXLESS_ASSIGNMENT})`,
+      `${'9'.repeat(40)}.0.0`,
+      `0.13.0-${API_KEY}`,
+    ];
+
+    const results = await Promise.all(
+      banners.map((version) => checkEngineReachable(() => ({ available: true, path: '/opt/e', version })))
+    );
+
+    // KNOWN POSITIVE: the measurement finds a long run when one is really there,
+    // so a row of zeroes below is a result and not a broken helper.
+    expect(longestSecretRun(`banner 0.13.0_${PREFIXLESS_KEY}`, PREFIXLESS_KEY)).toBe(PREFIXLESS_KEY.length);
+
+    for (const result of results) {
+      const text = surfaced(result);
+      for (const secret of secrets) {
+        expect(longestSecretRun(text, secret)).toBeLessThanOrEqual(2);
+      }
     }
   });
 
