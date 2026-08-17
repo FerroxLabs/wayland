@@ -49,6 +49,7 @@
   },
   "error": {
     "spawn_error": "Yükleyici başlatılamadı. npm'in PATH'inizde olduğundan emin olun.",
+    "spawn_backoff": "Memory yeniden başlatma bekleme süresini tamamlıyor. Birazdan yeniden denenecek.",
     "install_exit_nonzero": "Kurulum bir hatayla sonlandı. Aşağıdaki ayrıntılar yardımcı olabilir.",
     "invalid_target_version": "Kayıt defterinden geçersiz bir sürüm numarası geldi. Daha sonra yeniden deneyin.",
     "unsafe_ownership": "Bekleyen kurulum klasörünün sahipliği güvenli olmadığı için reddedildi. Kurtarmak için yeniden yükleyin.",

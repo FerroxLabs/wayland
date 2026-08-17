@@ -49,6 +49,7 @@
   },
   "error": {
     "spawn_error": "无法启动安装程序。请确认 npm 在你的 PATH 中。",
+    "spawn_backoff": "Memory 正在等待重启冷却时间，稍后会重试。",
     "install_exit_nonzero": "安装以错误结束。下方详情可能有帮助。",
     "invalid_target_version": "注册表返回了无效的版本号。请稍后再试。",
     "unsafe_ownership": "待安装文件夹的所有权不安全已被拒绝。请重新安装以恢复。",

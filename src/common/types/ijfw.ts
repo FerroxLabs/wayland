@@ -13,6 +13,12 @@
 
 export type IjfwErrorReason =
   | 'spawn_error'
+  /**
+   * #891: the respawn backoff refused to even ATTEMPT a spawn, so nothing was
+   * probed. Distinct from `spawn_error` (a spawn was attempted and failed) so
+   * callers can retry after the window instead of latching a false negative.
+   */
+  | 'spawn_backoff'
   | 'install_exit_nonzero'
   | 'invalid_target_version'
   | 'unsafe_ownership'
@@ -32,6 +38,7 @@ export type IjfwErrorReason =
 
 export const IJFW_ERROR_REASONS = [
   'spawn_error',
+  'spawn_backoff',
   'install_exit_nonzero',
   'invalid_target_version',
   'unsafe_ownership',

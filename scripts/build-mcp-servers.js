@@ -38,39 +38,76 @@ const SHARED_OPTIONS = {
 };
 
 /**
+ * #940: name of the ONE env var that downgrades a missing/failed @wayland MCP
+ * bundle from a build failure to a loud warning. Default is fail-closed: four
+ * connectors (apple, imap, news, cal.com) silently vanished from shipped
+ * installers because both skips below were unconditional warnings, and the
+ * Library still advertised cards for them.
+ *
+ * It is set deliberately in CI while FerroxLabs/waylandmcp does not exist as a
+ * checkout-able repo. Remove the CI setting the moment it does - see #940.
+ */
+const ALLOW_MISSING_ENV = 'WAYLAND_ALLOW_MISSING_MCP';
+
+/** True only when the opt-out is explicitly set to 1. */
+function optionalMcpBypassEnabled(env = process.env) {
+  return env[ALLOW_MISSING_ENV] === '1';
+}
+
+/**
+ * #940: a missing source tree or a failed bundle is a SHIPPING DEFECT - the
+ * connector is absent from the installer while the app still offers it. Fail
+ * the build unless the bypass is explicitly set, and when it is, say so loudly
+ * enough to find in a CI log.
+ *
+ * Throws (fatal, main() exits 1) when the bypass is not set; returns when it is.
+ */
+function skipOptionalMcpOrFail(pkgName, detail, env = process.env) {
+  const what = `@wayland/${pkgName} was NOT bundled into this build (${detail})`;
+  if (!optionalMcpBypassEnabled(env)) {
+    throw new Error(
+      `[build-mcp-servers] ${what}. The connector would be missing from the shipped app while the ` +
+        `Library still offers it (#940). Set ${ALLOW_MISSING_ENV}=1 to build without it on purpose.`
+    );
+  }
+  console.warn(`::warning::[build-mcp-servers] ${ALLOW_MISSING_ENV}=1 BYPASS: ${what}. See #940.`);
+}
+
+/**
  * Bundle a sibling @wayland/<name>-mcp package into a single self-contained
  * .mjs file in out/main/. These packages live in ~/dev/waylandmcp and ship
  * with the Electron installer (no npm registry dep).
  *
  * Sources use top-level await so the bundle must be ESM, not CJS.
  *
- * Tolerates a missing source tree (e.g. CI without the sibling repo): logs and
- * skips so the rest of the build still completes.
+ * A missing source tree or a bundle failure is FATAL unless
+ * `WAYLAND_ALLOW_MISSING_MCP=1` is set (#940).
  */
 async function bundleWaylandMcp(pkgName, outName, opts = {}) {
-  const candidates = [
-    process.env.WAYLAND_MCP_SRC,
-    path.resolve(ROOT, '..', '..', 'waylandmcp', 'packages', pkgName),
-    path.resolve(ROOT, '..', 'waylandmcp', 'packages', pkgName),
-    path.join(require('os').homedir(), 'dev', 'waylandmcp', 'packages', pkgName),
-  ].filter(Boolean);
+  // WAYLAND_MCP_SRC is an explicit override and therefore AUTHORITATIVE: when
+  // it is set it is the ONLY candidate. Falling back to a different tree after
+  // an operator named one silently builds something other than what was asked
+  // for - the same class of quiet substitution #940 is about.
+  const candidates = process.env.WAYLAND_MCP_SRC
+    ? [process.env.WAYLAND_MCP_SRC]
+    : [
+        path.resolve(ROOT, '..', '..', 'waylandmcp', 'packages', pkgName),
+        path.resolve(ROOT, '..', 'waylandmcp', 'packages', pkgName),
+        path.join(require('os').homedir(), 'dev', 'waylandmcp', 'packages', pkgName),
+      ];
 
   const src = candidates.find((p) => fs.existsSync(path.join(p, 'src', 'index.ts')));
   if (!src) {
-    console.warn(
-      `[build-mcp-servers] @wayland/${pkgName} source not found in any of: ${candidates.join(', ')} - skipping.`
-    );
+    skipOptionalMcpOrFail(pkgName, `source not found in any of: ${candidates.join(', ')}`);
     return;
   }
 
-  // These sibling packages are OPTIONAL ship-with-installer extras (already
-  // skipped when their source is absent). A bundle failure of one - e.g. a
-  // transitive dep whose nested node_modules copy is incomplete on a given
-  // runner (an @opentelemetry/core ESM submodule failed to resolve on
-  // windows-x64) - must NOT take the entire app release down with it. Skip the
-  // one server loudly and let the core builtins + the other extras ship. The
-  // first-party core servers in main() still hard-fail (they must build
-  // everywhere); only these optional extras degrade to a skip.
+  // A bundle failure of one of these - e.g. a transitive dep whose nested
+  // node_modules copy is incomplete on a given runner (an @opentelemetry/core
+  // ESM submodule failed to resolve on windows-x64) - used to be an
+  // unconditional warn-and-continue. #940: that is exactly how a connector
+  // reaches users' Library as a card backed by no script, so it now fails the
+  // build unless the bypass is set.
   try {
     await esbuild.build({
       bundle: true,
@@ -94,9 +131,7 @@ async function bundleWaylandMcp(pkgName, outName, opts = {}) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.warn(
-      `::warning::[build-mcp-servers] optional @wayland/${pkgName} failed to bundle and was SKIPPED (the builtin will be unavailable in this build): ${message.split('\n')[0]}`
-    );
+    skipOptionalMcpOrFail(pkgName, `bundle step failed: ${message.split('\n')[0]}`);
     return;
   }
 
@@ -156,7 +191,12 @@ async function main() {
   ]);
 }
 
-main().catch((err) => {
-  console.error('MCP server build failed:', err);
-  process.exit(1);
-});
+// Running as a script builds; being `require`d (tests) only exposes the pieces.
+if (require.main === module) {
+  main().catch((err) => {
+    console.error('MCP server build failed:', err);
+    process.exit(1);
+  });
+}
+
+module.exports = { ALLOW_MISSING_ENV, bundleWaylandMcp, optionalMcpBypassEnabled, skipOptionalMcpOrFail };

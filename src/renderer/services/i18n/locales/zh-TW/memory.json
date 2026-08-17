@@ -49,6 +49,7 @@
   },
   "error": {
     "spawn_error": "無法啟動安裝程式。請確認 npm 在你的 PATH 中。",
+    "spawn_backoff": "Memory 正在等待重新啟動的冷卻時間，稍後會重試。",
     "install_exit_nonzero": "安裝以錯誤結束。下方詳情可能有幫助。",
     "invalid_target_version": "登錄回傳了無效的版本號。請稍後再試。",
     "unsafe_ownership": "待安裝資料夾的擁有權不安全，已被拒絕。請重新安裝以還原。",
