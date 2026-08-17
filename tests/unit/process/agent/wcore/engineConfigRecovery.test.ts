@@ -1436,4 +1436,92 @@ describe('D4: after a write that SUCCEEDED, a short config.toml is a concurrent 
 
     await rm(dir, { recursive: true, force: true });
   });
+
+  /**
+   * F2 round 3, finding 2. The `failed` rollback branch is the ONE state in which
+   * `config.toml` does not exist at all - the restoring rename threw, so the user's
+   * only copy is the backup - and dropping `backupPath` from it passed the whole
+   * suite. That regression is exactly the "told the change failed, never told where
+   * the config went" lie, on the state where it costs the most.
+   */
+  it('a rollback whose restoring rename FAILS still names the backup, with config.toml gone', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-d4-exdev-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const isBackup = (p: string) => p.startsWith(`${configPath}.backup-`);
+    let configReads = 0;
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      // Only the RESTORING direction fails, so the backup move itself is real.
+      renameFile: async (from, to) => {
+        if (isBackup(from) && to === configPath) {
+          throw Object.assign(new Error('EXDEV: cross-device link not permitted, rename'), { code: 'EXDEV' });
+        }
+        return real.renameFile(from, to);
+      },
+      readFileBytes: async (path) => {
+        if (isBackup(path)) return real.readFileBytes(path);
+        configReads += 1;
+        if (configReads === 2) throw eio('read');
+        return real.readFileBytes(path);
+      },
+    };
+
+    const result = await repairEngineConfig(deps);
+
+    expect(result).toMatchObject({ ok: false, reason: 'write-failed' });
+    // The assertion that was missing: the user is TOLD where their config went.
+    expect(result.backupPath).toBeTruthy();
+    expect(await realReadFile(result.backupPath as string, 'utf-8')).toBe(REPORTED_CORRUPT);
+    // And it is the only copy - `config.toml` is genuinely absent here.
+    expect(existsSync(configPath)).toBe(false);
+    expect(readdirSync(dir).length).toBe(1);
+
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  /**
+   * The own-failed-write cleanup is load-bearing only on WINDOWS, so removing it
+   * survives a POSIX suite: POSIX `rename` overwrites the destination atomically,
+   * while `fs.rename` on Windows fails when the destination exists. Emulating just
+   * that one platform rule pins the line on every runner.
+   */
+  it('WINDOWS-SHAPED: the own-failed-write cleanup is what lets the restoring rename land', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-d4-win-'));
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(configPath, REPORTED_CORRUPT, 'utf-8');
+    const real = defaultRecoveryDeps();
+    const deps: EngineConfigRecoveryDeps = {
+      ...real,
+      resolveConfigPath: async () => configPath,
+      writeFileExclusive: async (path, data) => {
+        if (path === configPath) {
+          await real.writeFileExclusive(path, ''); // the `wx` create succeeds ...
+          throw Object.assign(new Error('ENOSPC: no space left on device, write'), { code: 'ENOSPC' });
+        }
+        return real.writeFileExclusive(path, data);
+      },
+      // The Windows rule, on the RESTORING rename only. The backup move lands on
+      // the reserved 0-byte placeholder on purpose, and that Windows gap is a
+      // separate question from the one this test pins.
+      renameFile: async (from, to) => {
+        if (to === configPath && existsSync(to)) {
+          throw Object.assign(new Error('EPERM: operation not permitted, rename'), { code: 'EPERM' });
+        }
+        return real.renameFile(from, to);
+      },
+    };
+
+    const result = await repairEngineConfig(deps);
+
+    // Without the cleanup this is `failed`, naming a backup the user need not find.
+    expect(result).toMatchObject({ ok: false, reason: 'write-failed' });
+    expect(result.backupPath).toBeUndefined();
+    expect(await realReadFile(configPath, 'utf-8')).toBe(REPORTED_CORRUPT);
+    expect(readdirSync(dir)).toEqual(['config.toml']);
+
+    await rm(dir, { recursive: true, force: true });
+  });
 });
