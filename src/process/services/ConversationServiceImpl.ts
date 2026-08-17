@@ -11,8 +11,8 @@ import type { IConversationRepository } from '@process/services/database/IConver
 import type { TChatConversation } from '@/common/config/storage';
 import { uuid } from '@/common/utils';
 import { cronService } from './cron/cronServiceSingleton';
-import { SqliteProjectRepository } from '@process/services/database/SqliteProjectRepository';
-import { loadProjectKnowledgeBlock, loadGlobalMemoryBlock } from '@process/services/projectKnowledge/knowledge';
+import { loadGlobalMemoryBlock } from '@process/services/projectKnowledge/knowledge';
+import { appendInjectedBlock, refreshProjectKnowledge } from '@process/services/projectKnowledge/injection';
 import { enforceProjectWorkspace, ensureProjectWorkspace } from '@process/services/projectWorkspace';
 import {
   createGeminiAgent,
@@ -173,33 +173,17 @@ export class ConversationServiceImpl implements IConversationService {
   private async injectProjectKnowledge(params: CreateConversationParams): Promise<void> {
     const extra = params.extra as Record<string, unknown> | undefined;
     if (!extra) return;
-    const blocks: string[] = [];
-    try {
-      const projectId = extra.projectId as string | undefined;
-      if (projectId) {
-        const project = await new SqliteProjectRepository().getProject(projectId);
-        const workspace = project?.workspace;
-        if (workspace) {
-          const block = await loadProjectKnowledgeBlock(workspace);
-          if (block) blocks.push(block);
-        }
-      }
-    } catch (err) {
-      console.error('[ConversationServiceImpl] project knowledge injection failed:', err);
-    }
+    // Composed by the shared helper (#999) so creation and every later agent
+    // spawn produce the SAME block, and the spawn-time refresh can find and
+    // replace what creation wrote. gemini + wcore read presetRules; acp reads
+    // presetContext - the helper sets both, and the unused field is ignored.
+    await refreshProjectKnowledge(extra);
     try {
       const memoryBlock = await loadGlobalMemoryBlock();
-      if (memoryBlock) blocks.push(memoryBlock);
+      if (memoryBlock) appendInjectedBlock(extra, memoryBlock);
     } catch (err) {
       console.error('[ConversationServiceImpl] global memory injection failed:', err);
     }
-    if (blocks.length === 0) return;
-    const merge = (existing: unknown): string =>
-      [existing as string | undefined, ...blocks].filter(Boolean).join('\n\n---\n\n');
-    // gemini + wcore read presetRules; acp reads presetContext. Set both so the
-    // active backend picks it up; the others harmlessly ignore the unused field.
-    extra.presetRules = merge(extra.presetRules);
-    extra.presetContext = merge(extra.presetContext);
   }
 
   /**

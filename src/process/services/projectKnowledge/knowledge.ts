@@ -9,6 +9,7 @@ import type { Dirent } from 'fs';
 import os from 'os';
 import path from 'path';
 import { WAYLAND_KNOWLEDGE_DIR } from './bootstrap';
+import { PROJECT_KNOWLEDGE_BLOCK_HEADER } from './blockFormat';
 import { confinePath } from '@process/bridge/pathConfinement';
 import { resolveWithinApprovedDirectory } from '@process/bridge/userApprovedPaths';
 import { getIjfwArchiveService } from '@process/services/memory/ijfwArchiveService';
@@ -135,7 +136,7 @@ export async function loadProjectKnowledgeBlock(workspace: string): Promise<stri
     if (body) sections.push(`## ${INJECT_LABEL[kind]}\n\n${body}`);
   });
   if (sections.length === 0) return '';
-  return `[Project Knowledge - shared context for every chat in this project]\n\n${sections.join('\n\n')}`;
+  return `${PROJECT_KNOWLEDGE_BLOCK_HEADER}\n\n${sections.join('\n\n')}`;
 }
 
 /** Largest single memory entry body included in the injected memory block. */

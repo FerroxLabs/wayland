@@ -15,6 +15,7 @@ import type { TChatConversation } from '@/common/config/storage';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { enforceProjectWorkspace } from '@process/services/projectWorkspace';
+import { refreshProjectKnowledge } from '@process/services/projectKnowledge/injection';
 
 /** Default idle timeout: 5 minutes. Overridden by user config 'acp.agentIdleTimeout' (in minutes). */
 const DEFAULT_IDLE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -109,11 +110,17 @@ export class WorkerTaskManager implements IWorkerTaskManager {
       // reconcile) before the agent factory reads extra.workspace, and persist
       // the correction so the fix sticks across restarts.
       const corrected = await enforceProjectWorkspace(conversation.extra as Record<string, unknown> | undefined);
-      if (corrected) {
+      // #999: the project's `.wayland/` knowledge was composed into this
+      // conversation's system-rules channel when the chat was created and then
+      // persisted, so an edit to CONTEXT.md never reached it. Re-compose it here,
+      // at the seam every backend's manager is built from, and persist the
+      // result so the refresh also survives a restart.
+      const refreshed = await refreshProjectKnowledge(conversation.extra as Record<string, unknown> | undefined);
+      if (corrected || refreshed) {
         try {
           await this.repo.updateConversation(conversation.id, { extra: conversation.extra });
         } catch (err) {
-          console.error('[WorkerTaskManager] failed to persist #30 workspace correction:', err);
+          console.error('[WorkerTaskManager] failed to persist conversation extra correction:', err);
         }
       }
       // The repository lookup and project reconciliation both yield. Re-check
