@@ -13,10 +13,12 @@
  * never reached the conversation, so a user who fixed a mistake in their project
  * knowledge had to start a brand new chat before the agent saw the correction.
  *
- * The block is therefore delimited by a stable header and is REPLACED rather
- * than appended, so the same composition can run again at every agent spawn.
- * The header literal is unchanged from the original injection, so a conversation
- * created before this module existed is refreshed correctly too.
+ * The block is therefore delimited by a stable header AND a footer, and is
+ * REPLACED rather than appended, so the same composition can run again at every
+ * agent spawn. The header literal is unchanged from the original injection, so a
+ * conversation created before this module existed is refreshed too - but a
+ * pre-footer block has no exact end marker, so its extent is inferred; see
+ * `projectKnowledgeBlockEnd` for what that costs and why it errs the way it does.
  *
  * Main-process only.
  */
@@ -39,28 +41,70 @@ const SYSTEM_RULES_FIELDS = ['presetRules', 'presetContext'] as const;
 const asString = (value: unknown): string => (typeof value === 'string' ? value : '');
 
 /**
+ * Opening shape of the global-memory block - the only block ever appended after
+ * project knowledge: a bracketed label alone on its line, a blank line, then its
+ * first `## ` section heading. The label itself CANNOT be matched as a literal,
+ * because it is translated (`memory.injectedLabel`) and a conversation may have
+ * been created under any locale; the shape is what is stable.
+ *
+ * Sticky, so it can be tested at an offset without slicing a copy of a tail that
+ * may be very large.
+ */
+const MEMORY_BLOCK_OPENING = /\[[^\n]*\]\n\n## /y;
+
+/**
+ * Start of the global-memory block appended after `from`, or -1 if there is
+ * none. Candidates are separator-joined lines opening with `[`; each is then
+ * checked against the memory block's opening shape, so an ordinary bracketed
+ * line in the user's own knowledge (`[2026-02-11] rotated the staging key`) is
+ * not mistaken for a block boundary.
+ *
+ * The LAST match wins, because the memory block is always the final block in the
+ * string - so any earlier match is inside the knowledge body.
+ */
+function memoryBlockStartAfter(value: string, from: number): number {
+  const candidate = `${INJECTED_BLOCK_SEPARATOR}[`;
+  let found = -1;
+  for (let at = value.indexOf(candidate, from); at >= 0; at = value.indexOf(candidate, at + 1)) {
+    MEMORY_BLOCK_OPENING.lastIndex = at + INJECTED_BLOCK_SEPARATOR.length;
+    if (MEMORY_BLOCK_OPENING.test(value)) found = at;
+  }
+  return found;
+}
+
+/**
  * Index just past the end of the block that starts at `start`.
  *
  * Normally that is the matching footer. A block written before the footer
- * existed has none, and its extent cannot be found by splitting on the block
- * separator - `INJECTED_BLOCK_SEPARATOR` is a plain markdown thematic break, and
- * a `---` in the user's own CONTEXT.md produces exactly those bytes. So the
- * legacy cut runs to the end of the string, stopping only at the start of the
- * next separator-joined block: the global-memory block is the only thing ever
- * appended after project knowledge, and it always opens with `[`.
+ * existed has none, so its extent must be inferred: the legacy cut runs to the
+ * end of the string, stopping only where the global-memory block begins.
  *
- * A user whose knowledge contains a thematic break followed by a line opening
- * with `[` cuts short, leaving one stale fragment behind. That is bounded and
- * one-shot - the replacement block carries a footer, so every later refresh is
- * exact - and it is the safe direction: overshooting would silently delete the
- * conversation's global-memory snapshot.
+ * `INJECTED_BLOCK_SEPARATOR` alone cannot mark that boundary - it is a plain
+ * markdown thematic break, and a `---` in the user's own CONTEXT.md produces
+ * exactly those bytes - so the boundary is found by the memory block's opening
+ * SHAPE instead (`memoryBlockStartAfter`), scanning to the LAST match.
+ *
+ * This is a heuristic, and the reason it errs towards overshooting is that the
+ * two failure directions are NOT equally bad. Cutting short leaves a fragment of
+ * knowledge the user has since DELETED, and that fragment carries no header, so
+ * `withoutProjectKnowledge` can never find it again: a rotated credential or a
+ * retracted decision would stay in the system prompt for the entire life of the
+ * conversation, unreachable by every later refresh. Overshooting loses a
+ * creation-time snapshot of global memory whose source files are still on disk.
+ *
+ * Residual, deliberately accepted and covered by tests: a body that itself opens
+ * like a memory block (a bracketed line alone, blank line, `## ` heading) is
+ * still ambiguous. Inside a MEMORY entry it costs part of that snapshot; inside
+ * a legacy knowledge body with no memory block at all it still cuts short. Both
+ * need the user to have pasted block-shaped markdown into their own documents,
+ * and neither can arise for a block that carries a footer.
  */
 function projectKnowledgeBlockEnd(value: string, start: number): number {
   const bodyAt = start + PROJECT_KNOWLEDGE_BLOCK_HEADER.length;
   const footerAt = value.indexOf(PROJECT_KNOWLEDGE_BLOCK_FOOTER, bodyAt);
   if (footerAt >= 0) return footerAt + PROJECT_KNOWLEDGE_BLOCK_FOOTER.length;
-  const nextBlockAt = value.indexOf(`${INJECTED_BLOCK_SEPARATOR}[`, bodyAt);
-  return nextBlockAt >= 0 ? nextBlockAt : value.length;
+  const memoryAt = memoryBlockStartAfter(value, bodyAt);
+  return memoryAt >= 0 ? memoryAt : value.length;
 }
 
 /** Drop every previously injected project-knowledge block from one field. */

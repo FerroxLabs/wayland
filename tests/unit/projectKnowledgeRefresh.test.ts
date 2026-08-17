@@ -306,6 +306,244 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     expect(repo.updateConversation).not.toHaveBeenCalled();
   });
 
+  /**
+   * The global-memory block, the only block ever appended after project
+   * knowledge. Its label is translated (`memory.injectedLabel`), so a legacy cut
+   * cannot match it as a literal - only its SHAPE is stable: a bracketed label
+   * alone on its line, a blank line, then its first `## ` section.
+   */
+  const MEMORY_BLOCK = `[User memory (from Wayland Memory) - the user dropped or saved this]\n\n## A note\n\nRemember this.`;
+
+  /** A legacy (pre-footer) block: the exact bytes the old composer wrote. */
+  const legacyBlock = (label: string, body: string): string => `${HEADER}\n\n## ${label}\n\n${body}`;
+
+  /**
+   * A decisions.md written the way `bootstrap.ts` seeds it and the knowledge
+   * wizard drafts it: dated `[YYYY-MM-DD]` entries with thematic breaks between
+   * them. Each break plus the following `[` is byte-identical to the separator
+   * injected blocks are joined with.
+   */
+  const ROTATED_KEY = 'AKIA_ROTATED_9F3B';
+  const DECISIONS_WITH_KEY = [
+    '[2026-01-05] Postgres over MySQL for the ledger.',
+    `[2026-02-11] Staging deploys with ${ROTATED_KEY} until SSO lands.`,
+    '[2026-03-02] Staging moved to OIDC; the old key is dead.',
+  ].join(SEPARATOR);
+  const DECISIONS_KEY_DELETED = [
+    '[2026-01-05] Postgres over MySQL for the ledger.',
+    '[2026-03-02] Staging moved to OIDC; the old key is dead.',
+  ].join(SEPARATOR);
+
+  /**
+   * The whole point of #999: a correction must actually LAND. A legacy block has
+   * no footer, so its end is inferred - and inferring it from the first `---[`
+   * cut short here, leaving the deleted entry behind. That fragment carries no
+   * header, so no later refresh can ever find it again: the rotated key would
+   * stay in the system prompt for the life of the conversation.
+   */
+  it('a deleted decision does not survive in a legacy block of separator-joined entries', async () => {
+    await writeProjectKnowledge(ws, 'decisions', DECISIONS_WITH_KEY);
+    const extra = {
+      projectId: 'p1',
+      workspace: ws,
+      presetRules: ['ASSISTANT BASE RULES', legacyBlock('Project decisions', DECISIONS_WITH_KEY), MEMORY_BLOCK].join(
+        SEPARATOR
+      ),
+      presetContext: [legacyBlock('Project decisions', DECISIONS_WITH_KEY), MEMORY_BLOCK].join(SEPARATOR),
+    };
+    // The user deletes the superseded decision that names the rotated key.
+    await writeProjectKnowledge(ws, 'decisions', DECISIONS_KEY_DELETED);
+
+    const conversation = { id: 'c11', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    const repo = makeRepo(conversation);
+    manager = new WorkerTaskManager(makeFactory(captured), repo);
+
+    const expectClean = () => {
+      for (const field of ['presetRules', 'presetContext'] as const) {
+        const value = spawnedExtra(captured)[field] as string;
+        expect(value).not.toContain(ROTATED_KEY);
+        expect(value).toContain('Staging moved to OIDC');
+        expect(value).toContain('Remember this.'); // memory snapshot survives
+        expect(occurrences(value, HEADER)).toBe(1);
+      }
+      expect(spawnedExtra(captured).presetRules).toContain('ASSISTANT BASE RULES');
+    };
+
+    // Three spawns: the fragment must never appear, not once and not by healing
+    // later - a headerless fragment is unreachable, so "bounded" is not enough.
+    await manager.getOrBuildTask('c11');
+    expectClean();
+    await manager.getOrBuildTask('c11', { skipCache: true });
+    expectClean();
+    await manager.getOrBuildTask('c11', { skipCache: true });
+    expectClean();
+    // One migrating write, then stable.
+    expect(repo.updateConversation).toHaveBeenCalledTimes(1);
+  });
+
+  // Same legacy shape with no memory block at all: the cut must run to the end of
+  // the string, not stop at the last dated entry.
+  it('removes a legacy block of separator-joined entries entirely when no memory block follows', async () => {
+    await writeProjectKnowledge(ws, 'decisions', DECISIONS_WITH_KEY);
+    const extra = {
+      projectId: 'p1',
+      workspace: ws,
+      presetRules: ['ASSISTANT BASE RULES', legacyBlock('Project decisions', DECISIONS_WITH_KEY)].join(SEPARATOR),
+    };
+    await writeProjectKnowledge(ws, 'decisions', DECISIONS_KEY_DELETED);
+
+    const conversation = { id: 'c12', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c12');
+    expect(spawnedExtra(captured).presetRules).toBe(
+      `ASSISTANT BASE RULES${SEPARATOR}${await loadProjectKnowledgeBlock(ws)}`
+    );
+  });
+
+  // A knowledge body that itself opens like an injected block is the one shape
+  // the legacy cut cannot tell from a real block boundary. With a memory block
+  // present the real boundary is the LAST one, so the cut is still exact.
+  it('removes a legacy block whose own body opens like an injected block', async () => {
+    const shapedBody = `Intro.${SEPARATOR}[Pasted label]\n\n## Sub\n\nOLD SECRET VALUE`;
+    await writeProjectKnowledge(ws, 'context', shapedBody);
+    const extra = {
+      projectId: 'p1',
+      workspace: ws,
+      presetRules: ['ASSISTANT BASE RULES', legacyBlock('Project context', shapedBody), MEMORY_BLOCK].join(SEPARATOR),
+    };
+    await writeProjectKnowledge(ws, 'context', 'Clean context now.');
+
+    const conversation = { id: 'c13', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c13');
+    const value = spawnedExtra(captured).presetRules as string;
+    expect(value).not.toContain('OLD SECRET VALUE');
+    expect(value).not.toContain('[Pasted label]');
+    expect(value).toContain('Clean context now.');
+    expect(value).toContain('Remember this.');
+    expect(occurrences(value, HEADER)).toBe(1);
+  });
+
+  /**
+   * The accepted cost of scanning to the LAST boundary, pinned so it stays a
+   * decision rather than a surprise: a MEMORY entry whose own body opens like a
+   * block moves the last boundary inside the memory block, so part of that
+   * creation-time snapshot is lost. Deliberate - the deleted knowledge is still
+   * removed in full, and the memory files are still on disk, whereas cutting
+   * short would leave deleted knowledge in the prompt permanently.
+   */
+  it('accepts losing part of a memory snapshot rather than keeping deleted knowledge', async () => {
+    const nastyMemory = `${MEMORY_BLOCK}${SEPARATOR}[Quoted block]\n\n## Inner\n\ntail of the memory entry`;
+    await writeProjectKnowledge(ws, 'decisions', DECISIONS_WITH_KEY);
+    const extra = {
+      projectId: 'p1',
+      workspace: ws,
+      presetRules: ['ASSISTANT BASE RULES', legacyBlock('Project decisions', DECISIONS_WITH_KEY), nastyMemory].join(
+        SEPARATOR
+      ),
+    };
+    await writeProjectKnowledge(ws, 'decisions', DECISIONS_KEY_DELETED);
+
+    const conversation = { id: 'c14', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c14');
+    const value = spawnedExtra(captured).presetRules as string;
+    // What matters: no deleted knowledge left behind.
+    expect(value).not.toContain(ROTATED_KEY);
+    // The stale copy is gone: the surviving entries appear once, in the new block.
+    expect(occurrences(value, '[2026-01-05]')).toBe(1);
+    expect(occurrences(value, HEADER)).toBe(1);
+    expect(value).toContain('ASSISTANT BASE RULES');
+    // The documented cost: the head of the memory block goes with it.
+    expect(value).not.toContain('Remember this.');
+    expect(value).toContain('tail of the memory entry');
+  });
+
+  /**
+   * What the footer is actually load-bearing for. With it, removal is exact for
+   * ANY body, including the one shape the legacy scan cannot resolve. Drop the
+   * footer from the composer, or stop honouring it here, and this reds.
+   */
+  it('removes a footer-delimited block exactly, even when its body opens like an injected block', async () => {
+    await writeProjectKnowledge(ws, 'context', `Intro.${SEPARATOR}[Pasted label]\n\n## Sub\n\nOLD SECRET VALUE`);
+    const extra = await frozenExtra('ASSISTANT BASE RULES');
+    expect(extra.presetRules).toContain('OLD SECRET VALUE');
+    await writeProjectKnowledge(ws, 'context', 'Clean context now.');
+
+    const conversation = { id: 'c15', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c15');
+    const value = spawnedExtra(captured).presetRules as string;
+    expect(value).not.toContain('OLD SECRET VALUE');
+    expect(value).not.toContain('[Pasted label]');
+    expect(value).toBe(`ASSISTANT BASE RULES${SEPARATOR}${await loadProjectKnowledgeBlock(ws)}`);
+  });
+
+  /**
+   * A project row whose workspace has been cleared must not be read as "this
+   * project has no knowledge". Without the guard the block is stripped AND the
+   * loss is persisted, which is the failure direction #999 exists to avoid.
+   */
+  it('a project whose workspace was cleared keeps its existing block', async () => {
+    await writeProjectKnowledge(ws, 'context', 'Ship on Fridays.');
+    const extra = await frozenExtra('ASSISTANT BASE RULES');
+    const before = extra.presetRules as string;
+    mockGetProject.mockResolvedValue({ workspace: '' });
+
+    const conversation = { id: 'c16', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    const repo = makeRepo(conversation);
+    manager = new WorkerTaskManager(makeFactory(captured), repo);
+
+    await manager.getOrBuildTask('c16');
+
+    expect(spawnedExtra(captured).presetRules).toBe(before);
+    expect(spawnedExtra(captured).presetRules).toContain('Ship on Fridays.');
+    expect(repo.updateConversation).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Creation writes [base, knowledge, memory]; the refresh removes and re-appends
+   * the knowledge block, so the first spawn of every project chat that has a
+   * memory block reorders it to [base, memory, knowledge] and costs exactly one
+   * extra write and one prompt-cache miss. Once, not per spawn - pinned here so a
+   * regression to per-spawn churn is visible.
+   */
+  it('reorders the blocks at most once for a chat created with a memory block', async () => {
+    await writeProjectKnowledge(ws, 'context', 'Ship on Fridays.');
+    const block = await loadProjectKnowledgeBlock(ws);
+    const extra = {
+      projectId: 'p1',
+      workspace: ws,
+      presetRules: ['ASSISTANT BASE RULES', block, MEMORY_BLOCK].join(SEPARATOR),
+      presetContext: [block, MEMORY_BLOCK].join(SEPARATOR),
+    };
+
+    const conversation = { id: 'c17', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    const repo = makeRepo(conversation);
+    manager = new WorkerTaskManager(makeFactory(captured), repo);
+
+    await manager.getOrBuildTask('c17');
+    const first = spawnedExtra(captured).presetRules as string;
+    expect(first).toBe(['ASSISTANT BASE RULES', MEMORY_BLOCK, block].join(SEPARATOR));
+    expect(repo.updateConversation).toHaveBeenCalledTimes(1);
+
+    await manager.getOrBuildTask('c17', { skipCache: true });
+    await manager.getOrBuildTask('c17', { skipCache: true });
+    expect(spawnedExtra(captured).presetRules).toBe(first);
+    expect(repo.updateConversation).toHaveBeenCalledTimes(1);
+  });
+
   it('a failed project lookup leaves the frozen block in place rather than dropping it', async () => {
     await writeProjectKnowledge(ws, 'context', 'Ship on Fridays.');
     const extra = await frozenExtra('ASSISTANT BASE RULES');
