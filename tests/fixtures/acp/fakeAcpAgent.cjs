@@ -1,10 +1,35 @@
-// Minimal ACP-speaking child used to drive ProcessAcpClient's four disconnect
-// signals from real OS process behaviour. MODE selects what it does after it
-// answers `initialize`.
+// Minimal ACP-speaking child used to drive ProcessAcpClient's disconnect signals
+// from real OS process behaviour. MODE selects what it does.
+//
+//   exit-code       exit(7) shortly after answering `initialize`
+//   signal          SIGKILL itself shortly after answering `initialize`
+//   pipe-close      end stdout after `initialize` but STAY ALIVE
+//   drop-on-prompt  answer `initialize` + `session/new`, then end stdout on
+//                   `session/prompt` and STAY ALIVE - the customer shape of
+//                   #1020, and the shape the disconnect-ordering proof needs
+//   stay (default)  answer everything and stay alive
+//
+// Any other request carrying an `id` is answered with an empty result, so a
+// session can reach `session/prompt` without hanging on config re-assertion.
 const MODE = process.env.FAKE_ACP_MODE || 'stay';
 const NOISE = process.env.FAKE_ACP_STDERR || '';
 
 if (NOISE) process.stderr.write(NOISE);
+
+/** Keep the process alive without holding the event loop busy. */
+function stayAlive() {
+  setTimeout(() => {}, 60_000);
+}
+
+function send(id, result) {
+  process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
+}
+
+/** Drop the stdio pipe but keep running: nothing about a process exit is true. */
+function dropTransport() {
+  process.stdout.end();
+  stayAlive();
+}
 
 let buf = '';
 process.stdin.on('data', (chunk) => {
@@ -20,18 +45,39 @@ process.stdin.on('data', (chunk) => {
     } catch {
       continue;
     }
-    if (msg.method === 'initialize') {
-      process.stdout.write(
-        JSON.stringify({
-          jsonrpc: '2.0',
-          id: msg.id,
-          result: { protocolVersion: msg.params?.protocolVersion ?? 1, agentCapabilities: {}, authMethods: [] },
-        }) + '\n'
-      );
-      setTimeout(act, 30);
-    }
+    if (msg.id === undefined || msg.id === null) continue;
+    handle(msg);
   }
 });
+
+function handle(msg) {
+  switch (msg.method) {
+    case 'initialize':
+      send(msg.id, {
+        protocolVersion: msg.params?.protocolVersion ?? 1,
+        agentCapabilities: { loadSession: true },
+        authMethods: [],
+      });
+      setTimeout(act, 30);
+      return;
+    case 'session/new':
+      send(msg.id, { sessionId: 'fake-session-1' });
+      return;
+    case 'session/load':
+      send(msg.id, {});
+      return;
+    case 'session/prompt':
+      if (MODE === 'drop-on-prompt') {
+        dropTransport();
+        return;
+      }
+      send(msg.id, { stopReason: 'end_turn' });
+      return;
+    default:
+      send(msg.id, {});
+      return;
+  }
+}
 
 function act() {
   switch (MODE) {
@@ -42,15 +88,9 @@ function act() {
       process.kill(process.pid, 'SIGKILL');
       break;
     case 'pipe-close':
-      // Drop the stdio pipe but keep running: this is the shape the customer hit.
-      process.stdout.end();
-      setTimeout(() => {}, 60_000);
-      break;
-    case 'garbage':
-      process.stdout.write('this is not ndjson\n');
-      setTimeout(() => {}, 60_000);
+      dropTransport();
       break;
     default:
-      setTimeout(() => {}, 60_000);
+      stayAlive();
   }
 }

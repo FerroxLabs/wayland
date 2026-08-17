@@ -94,11 +94,15 @@ export type AgentLifecycleSnapshot = {
 export type DisconnectInfo = {
   reason: AgentDisconnectReason;
   /**
-   * Null for BOTH of these only when no process exit was ever observed - i.e. a
-   * transport-level drop while the child was, as far as Node could see, still
-   * running. The disconnect is not reported until the exit event has had a
-   * bounded window to arrive, so null/null is now evidence of absence rather
-   * than a lost race (#1020).
+   * Null for BOTH of these means no process exit had been observed AT THE MOMENT
+   * the disconnect was reported - typically a transport-level drop while the
+   * child was, as far as Node could see, still running.
+   *
+   * The report is deliberately NOT delayed to wait for a late 'exit' event (see
+   * `ProcessAcpClient.recordAgentExit` - delaying it inverts the ordering the
+   * session depends on), so a genuine fast crash can land here too. That is why
+   * `buildCrashMessage` hedges ("the process may still be running") instead of
+   * asserting an exit it has no evidence for (#1020).
    */
   exitCode: number | null;
   signal: string | null;

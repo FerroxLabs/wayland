@@ -15,10 +15,17 @@
  *    'close') and `pipe_close` cannot (the SDK aborts the connection on the
  *    readable's 'end', which precedes the stdout stream's 'close'). Those two are
  *    driven directly below instead of through the OS.
- *  - Before the fix, a child that exited cleanly with code 7 reported
- *    `connection_close / exitCode: null / signal: null` on roughly 3 runs in 5,
- *    because the SDK's abort listener beat Node's 'exit' event. A SIGKILL lost its
- *    signal the same way, every time. The exit detail was populated 0-1ms later.
+ *  - A child that exits cleanly with code 7 reports `process_exit / 7 / null` on
+ *    some runs and `connection_close / null / null` on others (measured 5/12 vs
+ *    7/12 here), because the SDK's abort listener races Node's 'exit' event. A
+ *    SIGKILL races the same way. The child's exit detail becomes readable 0-1ms
+ *    later - but reading it costs a wait, and a wait between the disconnect and
+ *    the notification inverts the ordering the session depends on (see
+ *    `recordAgentExit`). So the race is NOT closed here, deliberately: a fast
+ *    crash may be reported as a transport drop, and `buildCrashMessage` hedges
+ *    accordingly instead of asserting an exit it has no evidence for. What the
+ *    tests below pin is that the report is never WRONG - never a fabricated code,
+ *    never a fabricated signal, never a claimed exit that was not observed.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -27,6 +34,8 @@ import * as path from 'node:path';
 import { ProcessAcpClient } from '@process/acp/infra/ProcessAcpClient';
 import type { AgentDisconnectReason, DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { isProcessAlive } from '@process/acp/infra/processUtils';
+import { buildCrashMessage } from '@process/acp/session/AcpSession';
+import { CRASH_MARKER_PROCESS_EXIT, CRASH_MARKER_TRANSPORT_CLOSE } from '@process/acp/session/crashMarkers';
 
 const FIXTURE = path.resolve(__dirname, '../fixtures/acp/fakeAcpAgent.cjs');
 
@@ -37,20 +46,34 @@ const handlers = {
   onWriteTextFile: async () => ({}),
 } as never;
 
+type RealExit = { code: number | null; signal: string | null };
+
 type Driven = {
   info: DisconnectInfo | null;
   client: ProcessAcpClient;
   aliveAfter: boolean;
   pid: number | null;
+  /**
+   * What the OS actually reported for the child, read straight off its own 'exit'
+   * event and independent of anything `ProcessAcpClient` decided. This is the
+   * known-positive control: it proves the fixture really did exit the way the test
+   * asked, so a null in `DisconnectInfo` is a reporting choice rather than a
+   * broken fixture.
+   */
+  realExit: RealExit | null;
 };
 
 async function drive(mode: string, stderrNoise = ''): Promise<Driven> {
   let child: ChildProcess | null = null;
+  let realExit: RealExit | null = null;
   const client = new ProcessAcpClient(
     async () => {
       child = spawn(process.execPath, [FIXTURE], {
         stdio: 'pipe',
         env: { ...process.env, FAKE_ACP_MODE: mode, FAKE_ACP_STDERR: stderrNoise },
+      });
+      child.once('exit', (code, signal) => {
+        realExit ??= { code: code ?? null, signal: signal ? String(signal) : null };
       });
       return child;
     },
@@ -63,9 +86,40 @@ async function drive(mode: string, stderrNoise = ''): Promise<Driven> {
   await client.start();
   const deadline = Date.now() + 6000;
   while (!info && Date.now() < deadline) await new Promise((r) => setTimeout(r, 10));
+  // The child's own exit event can trail the disconnect report by a millisecond;
+  // that is the whole point of these tests, so give it a moment before reading it.
+  const exitDeadline = Date.now() + 1000;
+  while (!realExit && Date.now() < exitDeadline) await new Promise((r) => setTimeout(r, 5));
   const pid = child?.pid ?? null;
   const aliveAfter = pid ? isProcessAlive(pid) : false;
-  return { info, client, aliveAfter, pid };
+  return { info, client, aliveAfter, pid, realExit };
+}
+
+/**
+ * The invariant that replaced "always reports the code": whatever the race
+ * outcome, the report must be self-consistent and must never assert an exit that
+ * was not observed.
+ */
+function assertHonest(d: Driven, expected: RealExit, label: string): 'exit-observed' | 'transport-drop' {
+  const info = d.info!;
+  const msg = buildCrashMessage(info)!;
+  if (info.exitCode !== null || info.signal !== null) {
+    // The exit won the race: it must be the REAL exit, not an approximation.
+    expect(info.exitCode, `${label} exitCode`).toBe(expected.code);
+    expect(info.signal, `${label} signal`).toBe(expected.signal);
+    expect(msg, label).toContain(CRASH_MARKER_PROCESS_EXIT);
+    expect(msg, label).not.toContain(CRASH_MARKER_TRANSPORT_CLOSE);
+    return 'exit-observed';
+  }
+  // The transport abort won: nothing about a process exit is known, so nothing
+  // about a process exit may be claimed (#1020).
+  expect(info.reason, label).toBe('connection_close');
+  expect(msg, label).toContain(CRASH_MARKER_TRANSPORT_CLOSE);
+  expect(msg, label).not.toContain(CRASH_MARKER_PROCESS_EXIT);
+  expect(msg, label).toContain('may still be running');
+  expect(msg, label).not.toContain('code: unknown');
+  expect(msg, label).not.toContain('signal: none');
+  return 'transport-drop';
 }
 
 function reap(d: Driven): void {
@@ -79,24 +133,33 @@ function reap(d: Driven): void {
 }
 
 describe('#1020 ProcessAcpClient disconnect diagnostics (executed)', () => {
-  it('KNOWN POSITIVE: a clean exit(7) reports code 7 every time', async () => {
-    // Repeated because this was a ~60% coin flip before the fix.
-    for (let i = 0; i < 4; i++) {
+  it('a clean exit(7) is either reported as code 7 or hedged - never fabricated', async () => {
+    const outcomes: string[] = [];
+    for (let i = 0; i < 6; i++) {
       const d = await drive('exit-code', 'startup noise\n');
       reap(d);
+      // KNOWN POSITIVE: the harness really did drive a code-7 exit. Without this
+      // control a null in DisconnectInfo could just mean the fixture never ran.
+      expect(d.realExit, `run ${i} real exit`).toEqual({ code: 7, signal: null });
       expect(d.info, `run ${i}`).not.toBeNull();
-      expect(d.info!.exitCode, `run ${i} reason=${d.info!.reason}`).toBe(7);
-      expect(d.info!.signal).toBeNull();
-      expect(d.info!.stderr).toContain('startup noise');
+      expect(d.info!.stderr, `run ${i}`).toContain('startup noise');
+      outcomes.push(assertHonest(d, { code: 7, signal: null }, `run ${i}`));
     }
-  }, 30000);
+    console.log(`[#1020 exit(7) race] ${outcomes.join(', ')}`);
+  }, 45000);
 
-  it('a SIGKILLed child reports its signal, not "none"', async () => {
-    const d = await drive('signal');
-    reap(d);
-    expect(d.info).not.toBeNull();
-    expect(d.info!.signal).toBe('SIGKILL');
-  }, 15000);
+  it('a SIGKILLed child is either reported as SIGKILL or hedged - never fabricated', async () => {
+    const outcomes: string[] = [];
+    for (let i = 0; i < 6; i++) {
+      const d = await drive('signal');
+      reap(d);
+      // KNOWN POSITIVE: the OS really did deliver SIGKILL.
+      expect(d.realExit, `run ${i} real exit`).toEqual({ code: null, signal: 'SIGKILL' });
+      expect(d.info, `run ${i}`).not.toBeNull();
+      outcomes.push(assertHonest(d, { code: null, signal: 'SIGKILL' }, `run ${i}`));
+    }
+    console.log(`[#1020 SIGKILL race] ${outcomes.join(', ')}`);
+  }, 45000);
 
   it('a transport drop with a LIVE child reports no exit code and no signal', async () => {
     const d = await drive('pipe-close');
@@ -116,23 +179,121 @@ describe('#1020 ProcessAcpClient disconnect diagnostics (executed)', () => {
     expect(d.info!.unexpectedDuringPrompt).toBe(false);
   }, 15000);
 
-  it('pipe_close and process_close carry the same null/null shape', async () => {
+  it('pipe_close and process_close carry the same null/null shape on a STARTED client', async () => {
     // Unreachable as first-writers through the OS (see the file header), so they
-    // are driven straight at the recorder to pin their DisconnectInfo shape.
+    // are driven straight at the recorder to pin their DisconnectInfo shape - but
+    // against a client that has really start()ed, so `this.child` is a live
+    // process and the stderr buffer is the real one. An earlier version of this
+    // test constructed the client WITHOUT start(): `this.child` stayed null, so
+    // the recorder ran over a hollow object and the live-child state the
+    // disconnect path reads was never exercised at all.
     for (const reason of ['pipe_close', 'process_close'] as AgentDisconnectReason[]) {
-      const client = new ProcessAcpClient(async () => ({}) as ChildProcess, { backend: 'probe', handlers });
+      let child: ChildProcess | null = null;
+      const client = new ProcessAcpClient(
+        async () => {
+          child = spawn(process.execPath, [FIXTURE], {
+            stdio: 'pipe',
+            env: { ...process.env, FAKE_ACP_MODE: 'stay', FAKE_ACP_STDERR: 'live child noise\n' },
+          });
+          return child;
+        },
+        { backend: 'probe', handlers }
+      );
       let info: DisconnectInfo | null = null;
       client.onDisconnect((i) => {
         info ??= i;
       });
+      await client.start();
+
+      // The client really is started and the child really is alive, which is what
+      // the un-started fixture could not claim.
+      const pid = (child as unknown as ChildProcess).pid!;
+      expect(client.lifecycleSnapshot.pid, reason).toBe(pid);
+      expect(client.lifecycleSnapshot.running, reason).toBe(true);
+      expect(isProcessAlive(pid), reason).toBe(true);
+
       (
         client as unknown as { recordAgentExit(r: AgentDisconnectReason, c: number | null, s: string | null): void }
       ).recordAgentExit(reason, null, null);
-      await new Promise((r) => setTimeout(r, 50));
+
+      // Asserted with NO await: the disconnect must be reported synchronously.
+      // A deferral here is what disabled the whole #1020 fix at session level.
       expect(info, reason).not.toBeNull();
       expect(info!.reason).toBe(reason);
       expect(info!.exitCode).toBeNull();
       expect(info!.signal).toBeNull();
+      expect(info!.stderr, reason).toContain('live child noise');
+      // Still alive: null/null really did mean "no exit observed", not "exited".
+      expect(isProcessAlive(pid), reason).toBe(true);
+      process.kill(pid, 'SIGKILL');
     }
-  }, 15000);
+  }, 20000);
+
+  /**
+   * The ordering the session depends on, measured rather than reasoned about.
+   *
+   * `AcpSession.onDisconnect` must see the drop BEFORE `PromptExecutor` sees the
+   * in-flight prompt reject. Otherwise `handlePromptError` runs while the status is
+   * still 'prompting', takes its retryable branch, emits its own raw banner and
+   * flushes the queued follow-up at the dead client (#774) - and every #1020
+   * banner becomes unreachable.
+   *
+   * Measured with the customer's shape: the child answers initialize and
+   * session/new, then ends stdout on session/prompt and STAYS ALIVE.
+   */
+  it('reports the disconnect BEFORE the in-flight prompt rejects', async () => {
+    let child: ChildProcess | null = null;
+    const client = new ProcessAcpClient(
+      async () => {
+        child = spawn(process.execPath, [FIXTURE], {
+          stdio: 'pipe',
+          env: { ...process.env, FAKE_ACP_MODE: 'drop-on-prompt' },
+        });
+        return child;
+      },
+      { backend: 'probe', handlers }
+    );
+
+    const t0 = Date.now();
+    const order: string[] = [];
+    let tDisconnect = -1;
+    let tReject = -1;
+    let seen: DisconnectInfo | null = null;
+    client.onDisconnect((i) => {
+      if (tDisconnect >= 0) return;
+      seen = i;
+      tDisconnect = Date.now() - t0;
+      order.push('disconnect');
+    });
+
+    await client.start();
+    const session = await client.createSession({ cwd: process.cwd() });
+    await client.prompt(session.sessionId, [{ type: 'text', text: 'hello' }]).then(
+      () => {
+        order.push('prompt-resolved');
+      },
+      () => {
+        if (tReject >= 0) return;
+        tReject = Date.now() - t0;
+        order.push('prompt-rejected');
+      }
+    );
+
+    console.log(
+      `[#1020 ordering] disconnect t=${tDisconnect}ms -> prompt-rejected t=${tReject}ms ` +
+        `(gap ${tReject - tDisconnect}ms) order=${order.join(' -> ')}`
+    );
+
+    expect(order).toEqual(['disconnect', 'prompt-rejected']);
+    // Same tick: the two are separated only by a microtask, never by a timer.
+    expect(tReject - tDisconnect).toBeLessThan(50);
+    expect(seen).not.toBeNull();
+    expect(seen!.exitCode).toBeNull();
+    expect(seen!.signal).toBeNull();
+    expect(seen!.unexpectedDuringPrompt).toBe(true);
+
+    const pid = (child as unknown as ChildProcess).pid!;
+    expect(isProcessAlive(pid)).toBe(true);
+    process.kill(pid, 'SIGKILL');
+  }, 20000);
 });
