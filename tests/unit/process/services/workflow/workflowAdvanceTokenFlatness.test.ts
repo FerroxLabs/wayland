@@ -35,7 +35,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { sendWorkflowAdvanceDirective, type WorkflowAdvanceResetDeps } from '@process/services/workflow/workflowAdvanceReset';
+import {
+  sendWorkflowAdvanceDirective,
+  type WorkflowAdvanceResetDeps,
+} from '@process/services/workflow/workflowAdvanceReset';
 import { composeResetSeed } from '@process/task/resumeSeed';
 import type { TMessage } from '@/common/chat/chatLib';
 
