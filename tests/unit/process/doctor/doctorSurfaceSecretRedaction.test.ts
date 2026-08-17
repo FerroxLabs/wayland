@@ -35,6 +35,7 @@ import { checkEngineContractPin, checkEngineReachable } from '@process/doctor/ch
 import { checkWorkspaceDrift, checkWorkspaceConfigured } from '@process/doctor/checks/workspaceChecks';
 import { collectConfiguredWorkspaces, collectWorkspaceConfigEntries } from '@process/doctor/workspaceInventory';
 import { runDoctor } from '@process/doctor/runner';
+import { validateMcpServer } from '@process/services/mcpServices/validateMcpServer';
 import { redactSecrets } from '@process/utils/secretRedaction';
 import { resolveProjectWorkspacePath } from '@process/utils/workspaceLocation';
 import type { IMcpServer } from '@/common/config/storage';
@@ -286,6 +287,103 @@ describe('MCP check — the probe error is free-form text from a credential-carr
     });
     expect(missingDir.detail).toContain('ENOENT: no such file or directory');
     expect(missingDir.detail).toContain("scandir '/Users/alice/Documents'");
+  });
+
+  /**
+   * THE THROWN-VALIDATOR ROUTE, end to end through the real validator.
+   *
+   * `doctorServerLabel` emits the id and not the name, and that closed the LABEL.
+   * It did nothing for the MESSAGE: `McpService.testMcpConnection` calls
+   * `validateMcpServer` SYNCHRONOUSLY before it spawns anything, the validator
+   * interpolates the name into its throw (`Invalid MCP server URL for "<name>":
+   * <url>`), and `probeWithTimeout` converts that throw into
+   * `{ success: false, error: error.message }` - straight into the errored branch.
+   * Executed on the unfixed check the detail read `mcp_5c1a7e64-... (Invalid MCP
+   * server URL for "f0e9d8c7b6a5948372615041302f1e0d": [redacted])`: id right, url
+   * masked, name whole.
+   *
+   * `SAFE_MCP_NAME` is `[A-Za-z0-9_.-]+`, so a bare 32-hex name is storable, and the
+   * declarations that trip these throws are precisely the older installs and JSON
+   * imports `probeWithTimeout`'s catch exists for.
+   *
+   * NOT A VACUOUS ORACLE: `id` and `name` are deliberately DIFFERENT here, so
+   * `not.toContain(name)` cannot be satisfied by the label, and the id is asserted
+   * present so the check has not simply gone quiet.
+   */
+  it('THROWN-VALIDATOR CANARY: the real validator cannot carry the server NAME out', async () => {
+    const id = 'mcp_5c1a7e64-0f2b-4d90-9a11-6b83c2f4de07';
+    const declarations: Array<[string, unknown]> = [
+      // The unparseable-URL throw.
+      ['bad url', { type: 'streamable_http', url: 'not-a-valid-url' }],
+      // The scheme throw.
+      ['bad scheme', { type: 'sse', url: 'ftp://mcp.example.com/sse' }],
+      // The SSRF throw, which interpolates the name from a THIRD call site.
+      ['metadata host', { type: 'http', url: 'http://169.254.169.254/latest/meta-data/' }],
+      // The env-key throw, on a different transport kind entirely.
+      ['bad env key', { type: 'stdio', command: 'node', args: [], env: { 'bad-key': 'value' } }],
+    ];
+
+    const probed = await Promise.all(
+      declarations.map(async ([why, transport]) => {
+        const declaration = { id, name: PREFIXLESS_KEY, enabled: true, transport } as unknown as IMcpServer;
+        // KNOWN POSITIVE: the validator really does throw, and its raw message
+        // really does carry the name - so a clean detail below is masking, not luck.
+        let raw = '';
+        try {
+          validateMcpServer(declaration);
+        } catch (error) {
+          raw = (error as Error).message;
+        }
+        const result = await checkMcpServers({
+          listServers: async () => [declaration],
+          testConnection: async (candidate) => {
+            validateMcpServer(candidate);
+            return { success: true };
+          },
+        });
+        return { why, raw, result };
+      })
+    );
+
+    for (const { why, raw, result } of probed) {
+      expect(raw, `${why}: expected the validator to throw`).toContain(PREFIXLESS_KEY);
+      // And no scrubber sees it, which is why the fix has to be structural.
+      expect(redactSecrets(raw), why).toContain(PREFIXLESS_KEY);
+      expect(result.status, why).toBe('fail');
+      expect(result.detail, why).not.toContain(PREFIXLESS_KEY);
+      // Not vacuous: the row still names WHICH server, by its app-generated id.
+      expect(result.detail, why).toContain(id);
+    }
+  });
+
+  it('THROWN-VALIDATOR CANARY: and through the whole runner, not just the check', async () => {
+    // `runDoctor`'s catch-all runs `redactSecrets` and knows nothing about the
+    // declaration, so a route that escaped `checkMcpServers` would land there
+    // unmasked. Pinned end to end so the two layers cannot both be assumed.
+    const report = await runDoctor([
+      {
+        id: 'mcp.servers',
+        titleKey: 'settings.doctor.checks.mcpServers',
+        category: 'mcp',
+        run: () =>
+          checkMcpServers({
+            listServers: async () => [
+              {
+                id: 'mcp_11112222',
+                name: PREFIXLESS_KEY,
+                enabled: true,
+                transport: { type: 'streamable_http', url: 'not-a-valid-url' },
+              } as unknown as IMcpServer,
+            ],
+            testConnection: async (candidate) => {
+              validateMcpServer(candidate);
+              return { success: true };
+            },
+          }),
+      },
+    ]);
+    expect(surfaced(report.results[0])).not.toContain(PREFIXLESS_KEY);
+    expect(report.results[0].detail).toContain('mcp_11112222');
   });
 
   it('PREFIXLESS CANARY: masks a token embedded in a hosted endpoint URL', async () => {

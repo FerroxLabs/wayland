@@ -103,7 +103,7 @@ function unwrapVariants(value: string): string[] {
  * credential, longest first so an overlapping value is replaced whole rather
  * than half-substituted from the inside out.
  *
- * The three sources are deliberately NOT treated alike:
+ * The four sources are deliberately NOT treated alike:
  *
  *  - `env` values and `headers` values are masked WHOLE (and unwrapped), subject
  *    only to {@link MIN_DECLARED_SECRET_LENGTH}. These are the credential slots.
@@ -111,6 +111,10 @@ function unwrapVariants(value: string): string[] {
  *    IN THE URL - path-embedded is the standard shape for Zapier, Smithery and
  *    Composio - and undici's own error text echoes the URL, as does a DNS
  *    failure's `getaddrinfo`. Missing this was a live leak.
+ *  - `server.name` contributes only its DOUBLE-QUOTED form. It is not a credential
+ *    slot, but it is user-authored free text that the validator interpolates into
+ *    thrown messages this check renders. Masking it bare regressed FF-6 - see the
+ *    note at its push below.
  *  - `args` contribute ONLY their unwrapped remainder past a separator, never the
  *    whole argument. This is the FF-6 line: masking whole args covered
  *    `--api-key=<v>` but also masked `@modelcontextprotocol/server-filesystem`
@@ -183,31 +187,61 @@ function declaredSecretValues(server: IMcpServer): string[] {
         command?: string;
       }
     | undefined;
-  if (!transport) return [];
-
+  // NOT an early `return []`: `server.name` below is masked regardless of transport,
+  // and the name-grammar throw (`Invalid MCP server name "<name>"`) fires before
+  // `validateMcpServer` ever looks at the transport.
   const values: string[] = [];
   // Credential slots: whole value, plus every unwrapped suffix.
   for (const value of [
-    ...asStrings(Object.values(transport.env ?? {})),
-    ...asStrings(Object.values(transport.headers ?? {})),
-    ...asStrings([transport.url]),
+    ...asStrings(Object.values(transport?.env ?? {})),
+    ...asStrings(Object.values(transport?.headers ?? {})),
+    ...asStrings([transport?.url]),
   ]) {
     values.push(...unwrapVariants(value));
   }
   // A path-embedded or query-embedded token, reachable only by splitting on `/`.
-  for (const url of asStrings([transport.url])) {
+  for (const url of asStrings([transport?.url])) {
     for (const segment of urlTokenSegments(url)) {
       values.push(...unwrapVariants(segment));
     }
   }
+  // `server.name` is not a declared VALUE, and it is here anyway because it reaches
+  // this exact sink by a route the id-based label does not cover. `validateMcpServer`
+  // interpolates the name into FOUR thrown messages (`Invalid MCP server URL for
+  // "<name>": ...`, the name-grammar throw, and both env-entry throws),
+  // `testMcpConnection` calls it synchronously, and `probeWithTimeout` converts the
+  // throw into `{ success: false, error: error.message }` - which lands in the
+  // errored branch below. So the label was the id while the message carried the name
+  // whole [executed end to end through `runDoctor`: `mcp_5c1a7e64-... (Invalid MCP
+  // server URL for "f0e9d8c7b6a5948372615041302f1e0d": [redacted])` - id right, url
+  // masked, name leaked]. `SAFE_MCP_NAME` accepts a bare 32-hex name so it is
+  // storable, and the older installs and JSON imports that motivate the catch above
+  // are exactly the declarations that trip these throws.
+  //
+  // Masked in its QUOTED form, and the bare form was TRIED AND REJECTED by
+  // execution. Pushing the bare name regressed FF-6 immediately: a server named
+  // `filesystem` turned `npm ERR! 404 Not Found - GET
+  // https://registry.npmjs.org/@modelcontextprotocol/server-filesystem` into
+  // `...server-[redacted]`, i.e. it destroyed one of the two commonest MCP failures
+  // this function exists to keep readable - the existing acceptance oracle caught it.
+  // A name is ordinary English far more often than a credential, so masking it
+  // everywhere costs more than it buys.
+  //
+  // All FIVE validator throws write the name as `"<name>"` with double quotes
+  // [read: `validateMcpServer`, `validateMcpEnvEntry`, `assertSafeMcpUrl`], and a
+  // package name or path echoes without them, so the quoted form separates the echo
+  // of the declaration from an incidental word. The floor is applied to the NAME
+  // rather than the quoted string so a 2-character name is not masked on the
+  // strength of its own quotes.
+  if (server.name.length >= MIN_DECLARED_SECRET_LENGTH) values.push(`"${server.name}"`);
   // Arguments: the remainder past a separator only, so paths and package names
   // survive intact - UNLESS the preceding token names a credential, in which case
   // this whole argument is the value. `command` counts as the token before
   // `args[0]`, so `command: 'x-auth-helper'` covers its first argument too.
-  const args = asStrings(transport.args ?? []);
+  const args = asStrings(transport?.args ?? []);
   for (let index = 0; index < args.length; index += 1) {
     const variants = unwrapVariants(args[index]);
-    const preceding = index === 0 ? transport.command : args[index - 1];
+    const preceding = index === 0 ? transport?.command : args[index - 1];
     const flagged = typeof preceding === 'string' && CREDENTIAL_FLAG_PATTERN.test(preceding);
     values.push(...(flagged ? variants : variants.slice(1)));
   }
