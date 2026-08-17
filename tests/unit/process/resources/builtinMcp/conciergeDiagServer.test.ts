@@ -376,18 +376,31 @@ describe('createConciergeDiagServer — recentErrors (logs)', () => {
 
   // #1038: readdirSync returns directory order, so keeping the FIRST
   // MAX_LOG_FILES entries dropped the newest logs and the section reported
-  // stale lines as "recent". Eight files, mtimes set explicitly, and the two
-  // newest are also last alphabetically AND last created, so any
-  // implementation that takes the first six of either ordering loses them.
+  // stale lines as "recent".
+  //
+  // The fixture puts the NEWEST files in the MIDDLE of the alphabet on purpose.
+  // An earlier version named them so the newest sorted last, on the reasoning
+  // that any implementation taking "the first six" would lose them. That only
+  // held for a FORWARD directory order: reversed, the newest two land first and
+  // the buggy slice keeps them, so the test passed against the bug. Measured
+  // across 200 shuffled orders, the buggy implementation survived 28 of them.
+  // With the newest in the middle, neither direction can reach them by accident.
   it('reports the NEWEST log files, not whichever the directory listed first', () => {
     const logDir = tmp('logs-rotating');
     fs.mkdirSync(logDir);
     const base = Date.UTC(2026, 0, 1) / 1000;
-    // a1 oldest through a8 newest, one hour apart.
-    for (let index = 1; index <= 8; index += 1) {
-      const file = path.join(logDir, `a${index}.log`);
-      fs.writeFileSync(file, `error: marker for file ${index}\n`);
-      const when = base + index * 3600;
+    // Alphabetical position is deliberately uncorrelated with age: the `m` pair
+    // is newest, the `z` block is middle-aged, the `a` block is oldest.
+    const fixture = [
+      ...Array.from({ length: 6 }, (_, i) => ({ name: `a${i + 1}`, ageHours: i + 1 })),
+      ...Array.from({ length: 6 }, (_, i) => ({ name: `z${i + 1}`, ageHours: i + 10 })),
+      { name: 'm1', ageHours: 20 },
+      { name: 'm2', ageHours: 21 },
+    ];
+    for (const { name, ageHours } of fixture) {
+      const file = path.join(logDir, `${name}.log`);
+      fs.writeFileSync(file, `error: marker for ${name}\n`);
+      const when = base + ageHours * 3600;
       fs.utimesSync(file, when, when);
     }
 
@@ -396,44 +409,60 @@ describe('createConciergeDiagServer — recentErrors (logs)', () => {
     const joined = result.lines.join('\n');
 
     expect(result.available).toBe(true);
-    // The six newest are present.
-    for (const index of [3, 4, 5, 6, 7, 8]) {
-      expect(joined).toContain(`marker for file ${index}`);
+    // The six newest by mtime, and nothing else: m2, m1, then z6 down to z3.
+    for (const name of ['m2', 'm1', 'z6', 'z5', 'z4', 'z3']) {
+      expect(joined).toContain(`marker for ${name}`);
     }
-    // The two oldest fell outside MAX_LOG_FILES and must be gone.
-    expect(joined).not.toContain('marker for file 1');
-    expect(joined).not.toContain('marker for file 2');
+    // Everything older fell outside MAX_LOG_FILES. The `a` block is first in
+    // directory order, which is exactly what the old implementation kept.
+    for (const name of ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'z1', 'z2']) {
+      expect(joined).not.toContain(`marker for ${name}`);
+    }
   });
 
   // The trailing MAX_LOG_LINES slice only means "most recent" if the files are
-  // walked oldest-first. Otherwise a truncated section can keep the oldest
-  // lines and discard the newest, which is the same defect one layer down.
+  // walked oldest-first. Otherwise a truncated section keeps the OLDEST lines
+  // and discards the newest, which is the same defect one layer down and the
+  // half a user actually feels.
+  //
+  // An earlier version of this test used two files of one line each. That
+  // proved the ordering but never activated the slice at all, because two
+  // matching lines against MAX_LOG_LINES of 40 makes `slice(-40)` a no-op, so
+  // the assertion in the name was not the assertion being made. This fixture
+  // carries 60 matching lines so truncation genuinely fires, and the newer file
+  // sorts FIRST alphabetically so directory order alone would put its lines at
+  // the front, where the tail slice throws them away.
   it('orders collected lines oldest-first so a truncated tail keeps the newest', () => {
     const logDir = tmp('logs-order');
     fs.mkdirSync(logDir);
     const base = Date.UTC(2026, 0, 1) / 1000;
-    // The NEWER file is deliberately created first and named to sort first, so
-    // both plausible readdir orders (creation and name) put it ahead of the
-    // older one. Selecting by mtime has to reverse that; directory order alone
-    // leaves the newest line first, where a truncating tail slice drops it.
+    const LINES_PER_FILE = 30;
     for (const [name, ageHours] of [
       ['a-newer', 2],
       ['b-older', 1],
     ] as const) {
+      const body = Array.from(
+        { length: LINES_PER_FILE },
+        (_, i) => `error: ${name} entry ${i}`
+      ).join('\n');
       const file = path.join(logDir, `${name}.log`);
-      fs.writeFileSync(file, `error: ${name} entry\n`);
+      fs.writeFileSync(file, `${body}\n`);
       const when = base + ageHours * 3600;
       fs.utimesSync(file, when, when);
     }
 
     const server = createConciergeDiagServer({ logDir });
     const lines = server.recentErrors().lines;
-    const olderAt = lines.findIndex((line) => line.includes('b-older entry'));
-    const newerAt = lines.findIndex((line) => line.includes('a-newer entry'));
 
-    expect(olderAt).toBeGreaterThanOrEqual(0);
-    expect(newerAt).toBeGreaterThanOrEqual(0);
-    expect(newerAt).toBeGreaterThan(olderAt);
+    // Truncation really happened: 60 matching lines in, MAX_LOG_LINES out.
+    expect(lines).toHaveLength(40);
+    // What survived the tail slice is the NEWER file, not the older one.
+    const newerKept = lines.filter((line) => line.includes('a-newer entry')).length;
+    const olderKept = lines.filter((line) => line.includes('b-older entry')).length;
+    expect(newerKept).toBe(LINES_PER_FILE);
+    expect(olderKept).toBe(40 - LINES_PER_FILE);
+    // And the newest line of all is the last one retained.
+    expect(lines.at(-1)).toContain(`a-newer entry ${LINES_PER_FILE - 1}`);
   });
 });
 
