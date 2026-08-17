@@ -21,8 +21,7 @@
 
 import { access } from 'node:fs/promises';
 import { readConfig } from '@process/agent/wcore/configBridge';
-import { resolveActiveConfigPath } from '@process/agent/wcore/profilePaths';
-import { redactSecrets } from '@process/utils/secretRedaction';
+import { ProfileIsolationError, resolveActiveConfigPath } from '@process/agent/wcore/profilePaths';
 import { summarizeTomlError, tomlErrorPosition } from '@process/utils/tomlErrorSummary';
 
 /**
@@ -38,6 +37,34 @@ export type EngineConfigProbeResult =
   | { status: 'ok'; existed: boolean; path: string }
   | { status: 'corrupt'; message: string; path: string; line?: number; column?: number }
   | { status: 'unresolved'; message: string };
+
+/**
+ * The two reasons an active profile can fail to resolve, as CONSTANTS.
+ *
+ * This branch used to route the thrown error through `summarizeTomlError`, and
+ * that failed open. `ProfileIsolationError` interpolates the profile name into
+ * the FIRST line of its own message (`Cannot resolve the config directory for the
+ * active profile "<name>" ...`), so keeping only the first line kept the name, and
+ * the scrub cannot see a bare value. Executed, the Doctor detail read
+ * `... active profile "f0e9d8c7b6a5948372615041302f1e0d"`.
+ *
+ * A profile name is user-authored: `PROFILE_NAME_RE` allows 64 characters of
+ * `[A-Za-z0-9._-]`, which fits a 32-hex key and an `sk-ant-` token alike, and the
+ * invalid-marker branch passes whatever the marker file contained. So the name is
+ * withheld outright rather than surfaced or truncated.
+ *
+ * The two constants preserve the distinction the #278 contract actually turns on -
+ * a named profile whose directory is broken (fail closed) versus a fault reading
+ * the selection itself - and the remediation covers both. The error's own `detail`
+ * argument is dropped with them, because on two of its three call sites it is an
+ * fs message carrying the profile path, and therefore the name again.
+ */
+const PROFILE_ISOLATION_REASON = 'a named profile is active and its config directory could not be resolved';
+const PROFILE_SELECTION_REASON = 'the active-profile selection could not be read';
+
+function profileUnresolvedReason(error: unknown): string {
+  return error instanceof ProfileIsolationError ? PROFILE_ISOLATION_REASON : PROFILE_SELECTION_REASON;
+}
 
 /**
  * Read + parse the engine's user `config.toml`. Never throws, and never carries
@@ -70,9 +97,8 @@ export async function probeEngineConfig(path?: string): Promise<EngineConfigProb
       // A named profile that cannot be resolved is fail-closed by contract
       // (#278) and is NOT a parse failure. Reporting it as "config.toml could
       // not be parsed" would misdiagnose it exactly the way the wrong-target bug
-      // above did. Scrubbed like every other message that reaches a report the
-      // Doctor panel offers to copy.
-      return { status: 'unresolved', message: redactSecrets(summarizeTomlError(error)) };
+      // above did.
+      return { status: 'unresolved', message: profileUnresolvedReason(error) };
     }
   } else {
     target = path;

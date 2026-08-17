@@ -28,21 +28,32 @@
  * conclusions about the same data, and the one on the copy-to-support surface
  * was the one that leaked. It is one helper now, and both call it.
  *
- * Two layers:
+ * Three layers:
  *  1. keep only the FIRST line - the human-readable reason - and drop the echoed
  *     source block entirely;
- *  2. run the survivor through the shared `redactSecrets` scrubber. The first
- *     line carrying no file content is a property of the current parser, not a
- *     contract, and the scrub costs nothing on a one-line string.
+ *  2. cap the survivor's LENGTH, because a first line is not a short line;
+ *  3. run it through the shared `redactSecrets` scrubber. The first line carrying
+ *     no file content is a property of the current parser, not a contract, and
+ *     the scrub costs nothing on a bounded string.
  *
- * Layer 1 is the defence. Layer 2 is a BACKSTOP and it is known to be
+ * Layer 1 is the defence. Layer 3 is a BACKSTOP and it is known to be
  * incomplete: `redactSecrets` masks recognisable value prefixes plus a labelled
  * assignment, and its label rule anchors a word boundary before the label, so
  * the prefixed spelling that is actually common in the wild
  * (`ANTHROPIC_API_KEY=<value>`, `my_api_key = "<value>"`) survives whenever the
  * VALUE itself carries no recognisable prefix - issue #1026, confirmed by
- * execution. Do not weaken layer 1 on the strength of layer 2, and do not read
+ * execution. Do not weaken layer 1 on the strength of layer 3, and do not read
  * a passing scrubber assertion as proof a path is safe.
+ *
+ * WHAT THIS HELPER IS FOR, and what it is not. It is for `smol-toml` parse
+ * errors, whose first line is a fixed English reason [verified across ten real
+ * corrupt files: the reason ran 36 to 87 characters and the file's own content
+ * never reached line 1]. It is NOT a general-purpose sanitiser, and routing an
+ * arbitrary error through it fails open. `probeEngineConfig` used to route a
+ * `ProfileIsolationError` here, and that error interpolates the profile name on
+ * its FIRST line, so layer 1 was inert and layer 2 could not see a bare value -
+ * the profile name went straight into the report. That branch returns a constant
+ * now. Before adding a caller, check that its first line cannot carry user text.
  *
  * Discovered originally by the K-01 4-leg cross-audit (Gemini 3.1 Pro leg) and
  * confirmed by executing the parser against a key-bearing malformed line.
@@ -54,12 +65,44 @@ import { redactSecrets } from './secretRedaction';
 export type TomlErrorPosition = { line: number; column: number };
 
 /**
+ * Every character a line can END on, not just `\n`.
+ *
+ * `split('\n', 1)` was not enough, and both gaps were reached by execution. A
+ * message whose lines end in a bare `\r` (classic-Mac line endings still occur in
+ * hand-edited files, and any producer can emit one) kept its whole body in
+ * "line 1", and so did one separated by U+2028 LINE SEPARATOR or U+2029 PARAGRAPH
+ * SEPARATOR - both of which JavaScript treats as line terminators, so text
+ * downstream renders them as breaks while `split('\n')` never saw them.
+ */
+const LINE_TERMINATOR = /\r\n|\r|\n|\u2028|\u2029/;
+
+/**
+ * Hard cap on the surfaced reason.
+ *
+ * Layer 1 keeps only the first line, but a first line is not a SHORT line: a
+ * single-line 500,000-character message returned all 500,032 characters, straight
+ * into a report the UI renders and offers to copy [executed]. 200 is a measured
+ * bound, not a guess: across ten real corrupt TOML files the smol-toml reason line
+ * ran 36 to 87 characters, the longest being "only letter, numbers, dashes and
+ * underscores are allowed in keys" at 87, so this leaves better than twice the
+ * headroom of anything the parser actually produces.
+ */
+const MAX_SUMMARY_LENGTH = 200;
+
+/**
  * The human-readable reason for a TOML parse failure, with the echoed source
- * block stripped and the survivor scrubbed. Safe to surface, log, and copy.
+ * block stripped, the survivor scrubbed, and the result length-capped. Safe to
+ * surface, log, and copy.
+ *
+ * ORDER IS LOAD-BEARING: scrub, THEN cap. Capping first truncates a credential
+ * that straddles the boundary, and a truncated credential can fail to match its
+ * own pattern - so the cap would hand out the surviving fragment instead of a
+ * mask. Scrubbing the whole line first means the pattern sees the value intact.
  */
 export function summarizeTomlError(error: unknown): string {
   const raw = error instanceof Error ? error.message : String(error);
-  return redactSecrets(raw.split('\n', 1)[0].trim());
+  const firstLine = raw.split(LINE_TERMINATOR, 1)[0].trim();
+  return redactSecrets(firstLine).slice(0, MAX_SUMMARY_LENGTH);
 }
 
 /**
