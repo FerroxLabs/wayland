@@ -227,6 +227,30 @@ describe('every labelled secret is masked in its PREFIXED form (#1026)', () => {
     expect(survived).toEqual([]);
   });
 
+  // #1042 put a backup passphrase on the IPC payload and this array is its only
+  // backstop, so pin the label explicitly. The generated cases above cover it
+  // only for as long as it stays in the array; this fails if someone takes it
+  // out, which the generated suite cannot notice by construction.
+  it('masks a passphrase label in every separator spelling (#1042 backstop)', () => {
+    const shapes = [
+      `restore failed: passphrase=${VALUE}`,
+      `restore failed: pass_phrase: ${VALUE}`,
+      `restore failed: pass-phrase=${VALUE}`,
+      `restore failed: PASSPHRASE=${VALUE}`,
+      `restore failed: BACKUP_PASSPHRASE=${VALUE}`,
+    ];
+    expect(LABELLED_SECRET_LABELS).toContain('pass[_-]?phrase');
+    for (const text of shapes) {
+      expect(redactSecrets(text)).not.toContain(VALUE);
+    }
+    // Control: the value really is present and long enough to be maskable, and
+    // ordinary prose using the word is not mangled.
+    expect(shapes.every((t) => t.includes(VALUE))).toBe(true);
+    expect(redactSecrets('the user typed a passphrase and it was wrong')).toBe(
+      'the user typed a passphrase and it was wrong'
+    );
+  });
+
   it('every case really carries the value, and the mask really fires (control)', () => {
     // A "no secret found" result means nothing unless the input demonstrably
     // contained one and the redactor demonstrably acted on it.

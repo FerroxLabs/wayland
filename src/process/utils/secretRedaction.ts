@@ -154,6 +154,12 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
   'client[_-]?secret',
   'password',
   'passwd',
+  // #1042 routed this here rather than editing its own branch, because that PR
+  // newly puts a backup passphrase on the IPC payload and this array is the only
+  // backstop for it. `password` and `passwd` already matched; `passphrase` did
+  // not, so `passphrase=`, `pass_phrase:` and a JSON `"passphrase"` all survived
+  // verbatim. Verified by execution with `password=` as the known positive.
+  'pass[_-]?phrase',
 ];
 
 /**
