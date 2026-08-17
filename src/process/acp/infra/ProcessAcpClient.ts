@@ -55,6 +55,25 @@ const STARTUP_STDERR_MAX = 8192;
 const MISSED_EXIT_REPLAY_MS = 250;
 
 /**
+ * How long a transport-level disconnect that carries NO exit code and NO signal
+ * waits for the child's own exit event before it is reported as a transport drop.
+ *
+ * The four lifecycle signals are first-write-wins, and the SDK's connection abort
+ * structurally beats Node's exit event: the abort fires on the readable's 'end',
+ * which precedes both `stdout`'s 'close' and 'exit'. Measured on macOS/node 22, a
+ * child that called `process.exit(7)` reported `connection_close / exitCode: null
+ * / signal: null` on ~3 runs in 5, and a SIGKILL lost its signal every time -
+ * while `child.exitCode`/`child.signalCode` were populated 0-1ms later. So the
+ * banner asserted "code: unknown, signal: none" for ordinary, fully-diagnosable
+ * crashes (#1020).
+ *
+ * `normalizeInitializeError` already resolves this exact race with the same 200ms
+ * budget; that fix only ever covered the initialize path. This extends it to the
+ * post-init disconnect path.
+ */
+const EXIT_CONFIRM_MS = 200;
+
+/**
  * Resolve `target` to a real filesystem path, symlinks included.
  *
  * bun names the REAL path of the module it could not resolve. On macOS that is
@@ -456,21 +475,54 @@ export class ProcessAcpClient implements AcpClient {
       unexpectedDuringPrompt: !this.closing && this.hasActivePrompt,
     };
 
-    // Reject all pending SDK requests with our own error type
+    // Reject all pending SDK requests with our own error type. This stays
+    // synchronous: a request left hanging is worse than a slightly less precise
+    // exit summary, and the in-flight prompt needs to fail now.
     const error = new AgentDisconnectedError(reason, exitCode, signal ? String(signal) : null, {
       outputAlreadyEmitted: this.hasActivePrompt,
     });
     this.rejectPendingRequests(error);
 
-    // Notify disconnect handler
-    if (this.disconnectHandler) {
-      this.disconnectHandler({
-        reason,
-        exitCode,
-        signal: signal ? String(signal) : null,
-        stderr: this.stderrBuffer,
-      });
+    // No exit detail and a child still attached: the exit event may simply not
+    // have landed yet. Give it a bounded window before reporting "no process exit
+    // observed", so the banner never asserts the absence of something that was
+    // one millisecond away (#1020). Everything else reports immediately, exactly
+    // as before.
+    if (exitCode === null && !signal && this.child) {
+      void this.confirmExitThenNotify(reason);
+      return;
     }
+    this.notifyDisconnect(reason);
+  }
+
+  /**
+   * Wait out {@link EXIT_CONFIRM_MS} for the child's exit, then report whatever is
+   * actually known. `_lastExit` is upgraded in place: `reason` keeps first-write-wins
+   * (the transport close IS what we saw first), but the exit detail is filled in
+   * rather than pinned at null, so `lifecycleSnapshot` agrees with the banner.
+   */
+  private async confirmExitThenNotify(reason: AgentDisconnectReason): Promise<void> {
+    const child = this.child;
+    if (child) {
+      await waitForExit(child, EXIT_CONFIRM_MS);
+      const exitCode = child.exitCode ?? null;
+      const signal = child.signalCode ? String(child.signalCode) : null;
+      if (this._lastExit && (exitCode !== null || signal !== null)) {
+        this._lastExit = { ...this._lastExit, exitCode, signal };
+      }
+    }
+    this.notifyDisconnect(reason);
+  }
+
+  private notifyDisconnect(reason: AgentDisconnectReason): void {
+    if (!this.disconnectHandler) return;
+    this.disconnectHandler({
+      reason,
+      exitCode: this._lastExit?.exitCode ?? null,
+      signal: this._lastExit?.signal ?? null,
+      stderr: this.stderrBuffer,
+      unexpectedDuringPrompt: this._lastExit?.unexpectedDuringPrompt ?? false,
+    });
   }
 
   // ─── Internals: Startup failure watcher ────────────────────

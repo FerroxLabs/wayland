@@ -24,6 +24,7 @@ import {
 } from '@process/acp/compat/typeBridge';
 import { AcpError as AcpSessionError } from '@process/acp/errors/AcpError';
 import { AcpSession, type SessionOptions } from '@process/acp/session/AcpSession';
+import { CRASH_MARKER_PROCESS_EXIT, CRASH_MARKER_TRANSPORT_CLOSE } from '@process/acp/session/crashMarkers';
 import { readClaudeModelInfoFromCcSwitch } from '@process/services/ccSwitchModelSource';
 import { buildClaudeSlotModelInfo } from '@process/agent/acp/utils';
 // TODO(ACP Discovery): Re-enable when acp_session persistence is restored.
@@ -622,8 +623,12 @@ export class AcpAgentV2 {
           case 'error': {
             // Detect process crash from error message keywords to emit agentCrash
             // flag that TeammateManager.handleResponseStream relies on (V1 parity).
+            // CRASH_MARKER_TRANSPORT_CLOSE is the #1020 wording for a disconnect
+            // with no observed process exit. Without it here a transport drop
+            // stopped matching, and the renderer's loading state never cleared.
             const isCrash =
-              event.message.includes('process exited unexpectedly') ||
+              event.message.includes(CRASH_MARKER_PROCESS_EXIT) ||
+              event.message.includes(CRASH_MARKER_TRANSPORT_CLOSE) ||
               event.message.includes('PROCESS_CRASHED') ||
               event.message.includes('Process disconnected');
 

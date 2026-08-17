@@ -18,6 +18,7 @@ import type { ITaskRepository } from './repository/ITeamRepository';
 import { buildRolePrompt } from './prompts/buildRolePrompt';
 import { formatMessages } from './prompts/formatHelpers';
 import { agentRegistry } from '@process/agent/AgentRegistry';
+import { CRASH_MARKER_PROCESS_EXIT, CRASH_MARKER_TRANSPORT_CLOSE } from '@process/acp/session/crashMarkers';
 // W4 audit CRIT-1 (2026-05-19): register / unregister team context for
 // each agent conversation so the ACP file-op gate can resolve the team
 // when sandboxed imported agents request file ops.
@@ -661,7 +662,14 @@ export class TeammateManager extends EventEmitter {
     }
     if (msg.type === 'error') {
       const errorText = typeof msg.data === 'string' ? msg.data : (msgData?.error ?? '');
-      if (errorText.includes('process exited unexpectedly') || errorText.includes('Session not found')) {
+      // CRASH_MARKER_TRANSPORT_CLOSE covers the #1020 wording for a disconnect
+      // with no observed process exit, which used to arrive as the process-exit
+      // phrase and so already routed here.
+      if (
+        errorText.includes(CRASH_MARKER_PROCESS_EXIT) ||
+        errorText.includes(CRASH_MARKER_TRANSPORT_CLOSE) ||
+        errorText.includes('Session not found')
+      ) {
         void this.handleAgentCrash(agent, errorText);
         return;
       }

@@ -93,9 +93,24 @@ export type AgentLifecycleSnapshot = {
 
 export type DisconnectInfo = {
   reason: AgentDisconnectReason;
+  /**
+   * Null for BOTH of these only when no process exit was ever observed - i.e. a
+   * transport-level drop while the child was, as far as Node could see, still
+   * running. The disconnect is not reported until the exit event has had a
+   * bounded window to arrive, so null/null is now evidence of absence rather
+   * than a lost race (#1020).
+   */
   exitCode: number | null;
   signal: string | null;
   stderr: string;
+  /**
+   * True if a prompt request was in flight when the transport dropped. That turn
+   * is NOT replayed - `PromptExecutor.handlePromptError` deliberately refuses to
+   * re-queue an in-flight prompt on a dead stream, because a `tool_call` it had
+   * already run can be lost with the pipe - so the user has to be told it did
+   * not land (#1020).
+   */
+  unexpectedDuringPrompt: boolean;
 };
 
 // ─── Client Factory ─────────────────────────────────────────────
