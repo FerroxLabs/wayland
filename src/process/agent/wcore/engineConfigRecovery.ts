@@ -636,7 +636,23 @@ export function defaultRecoveryDeps(): EngineConfigRecoveryDeps {
     renameFile: (from, to) => rename(from, to),
     // `lstat`, NOT `stat`: the whole point is to notice the link itself rather
     // than following it to whatever it points at.
-    isRegularFile: async (path) => (await lstat(path)).isFile(),
+    //
+    // `nlink > 1` is the HARDLINK half of the same fault, and `isFile()` alone
+    // cannot see it - a hardlink IS a regular file. Executed on a hardlinked
+    // config before this clause: `nlink=2 sameInode=true` going in, then
+    // `ok:true`, `config.toml AFTER = repaired`, `dotfile AFTER = still the
+    // original broken bytes`, `inodes now differ = true`. Exactly the outcome the
+    // symlink rationale above refuses: the other name keeps the broken content
+    // forever and Wayland quietly stops writing to it.
+    //
+    // Written as `!(nlink > 1)` rather than `=== 1` on purpose: only a PROVEN
+    // multiple-link count refuses. A platform that reports 0 or an unreliable
+    // count falls back to today's behaviour instead of refusing every config,
+    // which is the failure mode worth avoiding here.
+    isRegularFile: async (path) => {
+      const stats = await lstat(path);
+      return stats.isFile() && !(stats.nlink > 1);
+    },
     removeFile: (path) => unlink(path),
     now: () => new Date(),
   };
@@ -667,7 +683,7 @@ async function restoreFromBackup(
 }
 
 /**
- * Refuse a `config.toml` that is not a regular file (F4).
+ * Refuse a `config.toml` that is not a regular SINGLE-LINK file (F4, D2).
  *
  * Every write path here is `rename` the original aside, then EXCLUSIVE-create a
  * fresh file at `configPath`. On a symlinked config that silently converts the
@@ -683,6 +699,15 @@ async function restoreFromBackup(
  * a regression the rename-based backup introduced. Writing through a link is not
  * the fix - that is the symlink-following write the exclusive create exists to
  * remove - so the honest answer is to refuse and point at Reveal.
+ *
+ * D2: a HARDLINK decouples the same way and `lstat().isFile()` is TRUE for one, so
+ * the seam checks the link COUNT as well. That is not a regression - the
+ * copy-based version wrote through a hardlink correctly and the rename-based one
+ * never caught it - but the rationale above applies to it verbatim, and a hardlink
+ * is the only irregular kind besides a symlink that can actually reach this
+ * refusal: executed on each, a directory inspects as `unreadable`, a device as
+ * `ok` and a FIFO blocks in the read, so none of them is ever offered an action,
+ * while a hardlink inspects as `invalid` with BOTH buttons live.
  *
  * @returns a typed failure when the path is not a regular file, else `null`. A
  *   failing `lstat` is NOT treated as a refusal: the read that follows reports it

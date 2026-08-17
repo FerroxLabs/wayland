@@ -801,6 +801,57 @@ describe('against a real scratch config dir', () => {
     await rm(plain.dir, { recursive: true, force: true });
   });
 
+  /**
+   * D2 on a REAL filesystem, with a real hardlink. `lstat().isFile()` is TRUE for
+   * a hardlink, so the F4 guard passed it and the repair decoupled the two names:
+   * executed before the link-count clause, `nlink=2 sameInode=true` going in, then
+   * `ok:true`, `config.toml AFTER = repaired`, `dotfile AFTER = still the original
+   * broken bytes`, `inodes now differ = true`. No bytes are lost - the original
+   * inode survives, reachable from the other name - but the dotfiles copy keeps the
+   * broken content forever and Wayland silently stops writing to it, which is the
+   * outcome the symlink half of this guard exists to refuse.
+   */
+  it('leaves a HARDLINKED config.toml and its other name completely alone', async () => {
+    const CORRUPT = '[security]\nenabled = falseegress_allow = [ "a" ]\n';
+    const { link, lstat } = await import('node:fs/promises');
+    const dir = await mkdtemp(join(tmpdir(), 'wayland-configrecovery-hardlink-'));
+    const dotfile = join(dir, 'dotfiles-config.toml');
+    const configPath = join(dir, 'config.toml');
+    await realWriteFile(dotfile, CORRUPT, 'utf-8');
+    await link(dotfile, configPath);
+
+    // The premise: this IS a regular file by every check except the link count.
+    const before = await lstat(configPath);
+    expect(before.isFile()).toBe(true);
+    expect(before.isSymbolicLink()).toBe(false);
+    expect(before.nlink).toBe(2);
+
+    const deps: EngineConfigRecoveryDeps = { ...defaultRecoveryDeps(), resolveConfigPath: async () => configPath };
+
+    expect(await repairEngineConfig(deps)).toMatchObject({ ok: false, reason: 'not-a-regular-file' });
+    expect(await regenerateEngineConfig({ confirmed: true }, deps)).toMatchObject({
+      ok: false,
+      reason: 'not-a-regular-file',
+    });
+
+    // Both names still point at the SAME inode, both still hold the user's bytes,
+    // and nothing was moved aside.
+    expect((await lstat(configPath)).ino).toBe((await lstat(dotfile)).ino);
+    expect((await lstat(configPath)).nlink).toBe(2);
+    expect(await realReadFile(configPath, 'utf-8')).toBe(CORRUPT);
+    expect(await realReadFile(dotfile, 'utf-8')).toBe(CORRUPT);
+    expect(readdirSync(dir).filter((f) => f.startsWith('config.toml.backup-'))).toEqual([]);
+
+    // KNOWN POSITIVE: an ordinary single-link config in the same harness still
+    // repairs, so the link-count clause is not refusing everything.
+    const plain = await scratch(CORRUPT);
+    expect((await lstat(plain.configPath)).nlink).toBe(1);
+    expect((await repairEngineConfig(plain.deps)).ok).toBe(true);
+
+    await rm(dir, { recursive: true, force: true });
+    await rm(plain.dir, { recursive: true, force: true });
+  });
+
   it('FAILURE BRANCH on a real fs: an unwritable directory leaves the original intact', async () => {
     const { chmod } = await import('node:fs/promises');
     const { dir, configPath, deps } = await scratch(REPORTED_CORRUPT);
