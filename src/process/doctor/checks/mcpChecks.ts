@@ -204,7 +204,21 @@ function namesFollowingCredential(preceding: unknown): boolean {
   return CREDENTIAL_WORD_PATTERN.test(preceding);
 }
 
-/** Shortest URL path or query segment worth treating as a possible token. */
+/**
+ * Shortest URL path or query segment worth treating as a possible token.
+ *
+ * 8, and the cost is real rather than theoretical: measured, a 7-character segment
+ * survives and an 8-character one is masked, so ordinary route names are masked too
+ * - `messages` (the Streamable HTTP spec's own path), `endpoint`, `connectors`,
+ * `streamable`, `healthcheck` all read `[redacted]` in an echoed 404.
+ *
+ * KEPT ANYWAY, because the trade is asymmetric. A masked route name costs a reader
+ * one word they can recover from their own settings, and the status code, the
+ * hostname and the rest of the path all survive. An UNMASKED short path token is a
+ * credential in a report with a "Copy report" button, and nothing recovers that.
+ * Raising the floor to clear `messages` would un-mask every 8-to-11-character path
+ * token to buy prettier 404s. Both sides of the boundary are pinned.
+ */
 const MIN_URL_SEGMENT_LENGTH = 8;
 
 /**

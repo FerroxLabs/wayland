@@ -54,6 +54,9 @@ const BEARER = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YXlsYW5kLXRlc3QifQ.s3cr3tS1gnat
  * is the only kind of fix that cannot regress when a pattern set shifts.
  */
 const PREFIXLESS_KEY = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+
+/** Alphanumeric-opening semver build tail, sliced to length by the TAIL BOUND ORACLE. */
+const BUILD_TAIL = 'a1b2c3d4e5f6';
 const PREFIXLESS_ASSIGNMENT = `AZURE_OPENAI_API_KEY=${PREFIXLESS_KEY}`;
 
 /**
@@ -754,7 +757,6 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
    * number to quote about this sink.
    */
   it('TAIL BOUND ORACLE: a build tail passes at 11 characters and is refused at 12', async () => {
-    const tail = (n: number): string => 'a1b2c3d4e5f6'.slice(0, n);
     const cases = await Promise.all(
       (['+', '-'] as const).flatMap((separator) =>
         [11, 12].map(async (n) => ({
@@ -763,7 +765,8 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
           result: await checkEngineReachable(() => ({
             available: true,
             path: '/opt/e',
-            version: `0.13.0${separator}${tail(n)} `,
+            // Alphanumeric-opening tail, the only shape the pattern allows.
+            version: `0.13.0${separator}${BUILD_TAIL.slice(0, n)} `,
           })),
         }))
       )
@@ -772,7 +775,7 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
       const why = `${separator}${n}`;
       if (n === 11) {
         expect(result.status, why).toBe('pass');
-        expect(result.detail, why).toContain(`0.13.0${separator}${tail(11)}`);
+        expect(result.detail, why).toContain(`0.13.0${separator}${BUILD_TAIL.slice(0, 11)}`);
       } else {
         expect(result.status, why).toBe('warn');
         expect(result.detail, why).toContain('did not report a usable version');
@@ -1027,6 +1030,47 @@ describe('MCP check — declaration masking across every credential SHAPE', () =
     );
     expect(text).toContain('/proxy/');
     expect(text).toContain('/stream');
+  });
+
+  /**
+   * THE OTHER SIDE OF THE FLOOR'S OWN BOUNDARY, which was untested.
+   *
+   * The test above exercises 5 and 6 characters only, so nothing pinned where the
+   * rule actually switches. Measured: 7 survives, 8 is masked. That means ordinary
+   * route names DO get masked - `messages` (the Streamable HTTP spec's own path),
+   * `endpoint`, `connectors`, `streamable`, `healthcheck` all read `[redacted]` in
+   * an echoed 404.
+   *
+   * DECIDED, and the threshold is deliberately NOT raised. The trade is asymmetric:
+   * a masked route name costs a reader one word they can recover from their own
+   * settings, while the status code, the hostname and the surrounding path all
+   * survive - whereas an unmasked short path token is a credential in a report with
+   * a "Copy report" button, and nothing recovers that. Raising the floor to clear
+   * `messages` would un-mask every 8-to-11-character path token to buy prettier
+   * 404s, which is the wrong direction for this surface and against the
+   * over-withhold convention the rest of this file follows. Pinned in both
+   * directions so the boundary cannot move unnoticed.
+   */
+  it('URL SEGMENT BOUNDARY: 7 characters survive, 8 are masked', async () => {
+    const survives = await probe(
+      { type: 'sse', url: 'https://mcp.example.com/connect/rpc' },
+      '404 Not Found for /connect/rpc'
+    );
+    expect(survives).toContain('/connect/rpc');
+
+    // `messages` is a REAL MCP route, not a contrived string, which is what makes
+    // this the accepted cost rather than a hypothetical one.
+    const eaten = await probe(
+      { type: 'sse', url: 'https://mcp.example.com/messages/rpc' },
+      '404 Not Found for /messages/rpc on host mcp.example.com'
+    );
+    expect(eaten).not.toContain('messages');
+    expect(eaten).toContain('[redacted]');
+    // NOT VACUOUS, and this is what makes the cost affordable: the code, the host
+    // and the rest of the path all still reach the user.
+    expect(eaten).toContain('404 Not Found');
+    expect(eaten).toContain('mcp.example.com');
+    expect(eaten).toContain('/rpc');
   });
 
   it('does NOT mask a package name or a directory behind an ordinary flag', async () => {
