@@ -53,9 +53,7 @@ vi.mock('@process/acp/session/AcpSession', async (importOriginal) => {
 });
 
 vi.mock('@process/acp/compat/LegacyConnectorFactory', () => ({
-  LegacyConnectorFactory: class {
-    constructor() {}
-  },
+  LegacyConnectorFactory: class {},
 }));
 
 vi.mock('@process/acp/compat/typeBridge', async (importOriginal) => {
