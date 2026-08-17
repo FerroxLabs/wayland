@@ -59,6 +59,7 @@ import EmptyStateHero from '../components/EmptyStateHero';
 import MemoryStatusBar from '../components/MemoryStatusBar';
 import ImportDrawer from '../components/ImportDrawer';
 import ComposerModal from '../components/ComposerModal';
+import { useActiveBrainScope } from '../getActiveBrainScope';
 import EntryEditorModal from '../components/EntryEditorModal';
 import ArchivedMemoryModal from '../components/ArchivedMemoryModal';
 import { useMemoryIndex } from '../hooks/useMemoryIndex';
@@ -129,6 +130,12 @@ const FullPanelShell: React.FC = () => {
   // Root-namespace t for the one string reused from #591 (memory.settings.*),
   // so the strip adds no new i18n keys.
   const { t: tRoot } = useTranslation();
+
+  // #924: the project the active chat is working in. A `project`-scoped
+  // quick-add is written HERE, not into whichever project the archive index
+  // happens to rank first.
+  const brainScope = useActiveBrainScope();
+  const activeProjectPath = brainScope.scope === 'project' ? brainScope.path : undefined;
 
   const [filter, setFilter] = useState<ListFilter>(DEFAULT_FILTER);
   const [timeWindow, setTimeWindow] = useState<TimeWindow>('all');
@@ -656,7 +663,7 @@ const FullPanelShell: React.FC = () => {
       <ImportDrawer open={importOpen} onClose={() => setImportOpen(false)} />
 
       {/* ---- Composer modal ---- */}
-      <ComposerModal open={composerOpen} onClose={() => setComposerOpen(false)} />
+      <ComposerModal open={composerOpen} onClose={() => setComposerOpen(false)} projectPath={activeProjectPath} />
 
       {/* ---- Entry editor modal (#414) ---- */}
       <EntryEditorModal

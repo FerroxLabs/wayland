@@ -31,6 +31,13 @@ import styles from './ComposerModal.module.css';
 export type ComposerModalProps = {
   open: boolean;
   onClose: () => void;
+  /**
+   * Absolute path of the project the user is currently in, when there is one.
+   * Forwarded with a `project`-scoped save so the entry lands in THIS project
+   * (#924); without it the main process refuses to guess and writes to the
+   * global store rather than to an unrelated project.
+   */
+  projectPath?: string;
   onSubmit?: (entry: {
     content: string;
     scope: 'project' | 'global';
@@ -44,7 +51,7 @@ const MAX_CHARS = 8000;
 // Component
 // ---------------------------------------------------------------------------
 
-export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): React.ReactElement | null {
+export function ComposerModal({ open, onClose, projectPath, onSubmit }: ComposerModalProps): React.ReactElement | null {
   const { t } = useTranslation();
 
   const [content, setContent] = useState('');
@@ -102,7 +109,11 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
         await onSubmit({ content: trimmed, scope, tags });
       } else {
         // DEVIATION: tags not in IPC payload - scope IS forwarded
-        const result = await memoryBridge.setQuickAdd.invoke({ content: trimmed, scope });
+        const result = await memoryBridge.setQuickAdd.invoke({
+          content: trimmed,
+          scope,
+          ...(scope === 'project' && projectPath ? { projectPath } : {}),
+        });
         if (result.ok === false && result.error) {
           throw new Error(result.error);
         }
@@ -116,7 +127,7 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
     } finally {
       setSubmitting(false);
     }
-  }, [content, scope, tags, onSubmit, onClose, t]);
+  }, [content, scope, tags, projectPath, onSubmit, onClose, t]);
 
   // ---- Cmd/Ctrl+Enter to submit ----
   const handleKeyDown = useCallback(

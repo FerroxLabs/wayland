@@ -3221,7 +3221,7 @@ export const memory = {
   /** Quick-add a new memory from the renderer input. */
   setQuickAdd: buildProvider<
     { ok: boolean; error?: string },
-    { content: string; scope: 'project' | 'global'; type?: string }
+    { content: string; scope: 'project' | 'global'; type?: string; projectPath?: string }
   >('memory.set-quick-add'),
   /** Entries whose promotionScore meets the threshold. */
   getPromotionCandidates: buildProvider<PromotionCandidates, void>('memory.get-promotion-candidates'),
