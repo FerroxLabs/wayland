@@ -9,7 +9,7 @@ import { ipcBridge } from '@/common';
 import type { CronMessageMeta, TMessage } from '@/common/chat/chatLib';
 import { isCodexAutoApproveMode } from '@/common/types/codex/codexModes';
 import { isAutoGuardedMode, shouldAutoApproveAcpEdit } from '@/common/types/agentModes';
-import { classifyDestructiveToolCall } from '@/common/security/destructiveCommand';
+import { classifyAutopilotToolCall } from '@/common/security/destructiveCommand';
 import { trustedWorkspaceAutoApprovesAcpKind } from '@/common/security/workspaceTrust';
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import type { SlashCommandItem } from '@/common/chat/slash/types';
@@ -1686,13 +1686,16 @@ ${collectedResponses.join('\n')}`;
 
       // Autopilot guardrail. In guarded-auto mode (workflows / Autopilot run the
       // bridge in 'default' so it escalates risky tool calls) the run proceeds
-      // unattended, so auto-approve every escalated request EXCEPT a catastrophic
-      // command - that must never fire without a human. A flagged command is NOT
-      // auto-approved; it falls through to addConfirmation so it surfaces for an
-      // explicit decision (the run pauses rather than nuking the machine).
+      // unattended, so escalated requests are auto-approved - but only for the
+      // explicit allowlist of tool kinds in `classifyAutopilotToolCall`, and an
+      // `execute` call only when its command survives the catastrophic-command
+      // classifier. Everything else (delete, move, fetch, switch_mode, other,
+      // and any kind Wayland does not recognize) is NOT auto-approved; it falls
+      // through to addConfirmation so it surfaces for an explicit decision (the
+      // run pauses rather than acting unsupervised).
       if (isAutoGuardedMode(this.currentMode) && options.length > 0) {
-        const verdict = classifyDestructiveToolCall(toolCall);
-        if (!verdict.destructive) {
+        const verdict = classifyAutopilotToolCall(toolCall);
+        if (verdict.autoApprove) {
           const allowOption = options.find((option) => !option.kind.startsWith('reject')) ?? options[0];
           setTimeout(() => {
             void this.confirm(v.msg_id, toolCall.toolCallId || v.msg_id, allowOption);
@@ -1701,7 +1704,7 @@ ${collectedResponses.join('\n')}`;
         }
         mainWarn(
           '[AcpAgentManager]',
-          `Autopilot guardrail held a destructive command (${verdict.reason}); surfacing for confirmation: ${toolCall.title || ''}`
+          `Autopilot guardrail held a tool call (${verdict.reason}); surfacing for confirmation: ${toolCall.title || ''}`
         );
         // fall through to addConfirmation below
       }
