@@ -97,6 +97,69 @@ describe('a narrow pattern inside a wider one does not split the wider match', (
 });
 
 /**
+ * The two places single-pass span merging does NOT help, pinned so neither is
+ * carried as a claim again. The doc comment on `maskPatternMatches` used to say
+ * there were zero weakenings; there are two shapes, both recorded here.
+ *
+ * Neither is merge-blocking and neither is a regression against the sequential
+ * masking that shipped before it. They are pinned because the module's comment is
+ * load-bearing security documentation, and an unpinned comment is how #1004 and
+ * #1026 both shipped.
+ */
+describe('the limits of single-pass span merging, pinned rather than claimed', () => {
+  const AWS_ACCESS_KEY_ID = 'AKIAIOSFODNN7EXAMPLE';
+  const JWT = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dBjftJeZ4CVPmB92K27uhbUJU1p1r_wW1gFWFOEjXk';
+
+  /**
+   * Sequential masking caught this JWT, and it did so by ACCIDENT: it injected
+   * `[redacted]`, `]` is a non-word character, and the JWT's leading `\b` then
+   * matched a boundary the pristine string does not contain. Only the two
+   * FIXED-LENGTH rules can stop mid-run and supply that boundary, so this is the
+   * whole shape, not a sample of a large class.
+   *
+   * `toBe` on the exact string, deliberately. If anyone closes this - by looping
+   * to a fixed point, or by fixing the anchors in #1037 - this test fails and the
+   * doc comment has to be brought with it, which is the point.
+   */
+  it('a credential glued to an AWS key id with NO separator keeps its own coverage only if it has an anchor', () => {
+    const out = redactSecrets(`err ${AWS_ACCESS_KEY_ID}${JWT} done`);
+    expect(out, 'the AWS key id itself must still be masked').not.toContain(AWS_ACCESS_KEY_ID);
+    expect(out).toBe(`err [redacted]${JWT} done`);
+  });
+
+  it('the same two credentials separated by a single space are BOTH masked (the shape that actually occurs)', () => {
+    // The control that makes the test above a narrow boundary rather than a hole:
+    // any separator at all, and there is no loss.
+    expect(redactSecrets(`err ${AWS_ACCESS_KEY_ID} ${JWT} done`)).toBe('err [redacted] [redacted] done');
+  });
+
+  /**
+   * An accepted READABILITY cost, not a leak. The `Authorization:` rule eats its
+   * own header name whenever no narrower rule pre-empts it - true on `main` too,
+   * for a header carrying a value with no vendor prefix - and merging makes that
+   * fire in one more case, where a narrower vendor rule also matched. The over-
+   * match corpus had no Authorization-header-carrying-a-vendor-token line, so it
+   * reported no change here. This is that line.
+   */
+  it('masking an Authorization header carrying a vendor token also consumes the header name', () => {
+    const token = `ghp_${'A'.repeat(36)}`;
+    expect(redactSecrets(`Authorization: ${token} failed for repo owner/name`)).toBe(
+      '[redacted] failed for repo owner/name'
+    );
+    // The `Bearer` form keeps the header name, because the Bearer rule starts
+    // after the colon. Most real headers are this shape.
+    expect(redactSecrets(`Authorization: Bearer ${token} failed`)).toBe('Authorization: [redacted] failed');
+  });
+
+  it('the two pass-2 rules still run sequentially, so a swallowed scheme still costs a DSN password', () => {
+    // `1//` is greedy over letters, so it eats the `postgres` scheme that
+    // URL_USERINFO_PASSWORD anchors on. Sequential masking lost this too.
+    const out = redactSecrets(`1//${'abcdefghijklmnop'}postgres://user:s3cr3tp4ss@host`);
+    expect(out).toBe('[redacted]://user:s3cr3tp4ss@host');
+  });
+});
+
+/**
  * The coverage CLASS that was missing, and the reason #1026 shipped: the suite
  * above tests labelled assignments in their BARE form (`api_key=`, `client_secret=`),
  * which is the one form the broken leading `\b` could still match. Every prefixed

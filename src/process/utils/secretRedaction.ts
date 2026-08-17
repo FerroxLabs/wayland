@@ -219,15 +219,45 @@ const URL_USERINFO_PASSWORD = /(\b[a-z][a-z0-9+.-]*:\/\/[^\s:@/]+:)([^\s@/]+)(@)
  * (`ghp_`/`gho_`/`ghu_`/`ghs_`/`ghr_`, `github_pat_`, `glpat-`, `gsk_`, `r8_`,
  * `dop_v1_` all sit before the JWT, `Authorization:` and webhook rules), and
  * reordering the array only moves which pairs are affected. Collecting spans
- * against the pristine text and merging them removes the ordering question
- * instead of re-answering it, so a pattern added later cannot re-open it.
+ * against the pristine text and merging them removes the ordering question for
+ * {@link SECRET_PATTERNS}, so a pattern added to THAT array later cannot re-open
+ * it.
+ *
+ * It does not close the question for the two rules that run AFTER this function,
+ * over its output. Those are still sequential, and still lose an anchor:
+ * `1//<refresh-token>` immediately followed by `postgres://user:pw@host` still
+ * leaks `pw`, because the greedy `1//` span swallows the `postgres` scheme that
+ * {@link URL_USERINFO_PASSWORD} needs to anchor on. Sequential masking leaked it
+ * too, so this is not a regression, but the ordering claim above stops at the
+ * end of this function. #1037 owns the anchor rules.
  *
  * Measured on 506 container/token combinations carrying 682 sensitive segments:
  * sequential masking leaked 142 of them, this leaks 10, and all 10 are the
  * generator's own bookkeeping (a public JWT header, and `ya29.`/`1//` values that
- * cannot form a real webhook path) which sequential masking also left. Zero
- * weakenings against the previous behaviour there or across a 4200-case
- * labelled-assignment corpus.
+ * cannot form a real webhook path) which sequential masking also left.
+ *
+ * On weakenings, stated exactly, because an earlier version of this comment
+ * claimed zero and that was FALSE. Where two credentials are SEPARATED by
+ * anything at all - space, comma, quote, ampersand, newline, pipe, semicolon -
+ * there are zero: 447216 segment checks over every ordered triple of the pattern
+ * set under seven separators found none, against both sequential masking and
+ * `main`, and the 4200-case labelled-assignment corpus is likewise unchanged.
+ *
+ * Two credentials concatenated with NO separator between them are the exception,
+ * and there sequential masking had coverage this loses. It had it by ACCIDENT:
+ * injecting `[redacted]` put a non-word character into the text, and a later
+ * `\b`-anchored rule then matched at a boundary that does not exist in the
+ * pristine string. Only the two FIXED-LENGTH rules can stop mid-run and hand a
+ * following rule that boundary (`AKIA`/`ASIA`, `AIza`); every other class is
+ * greedy over `[A-Za-z0-9]` and eats the following letters instead. The rules
+ * that lose out are the later `\b`-anchored ones: `AIza`, the JWT, the
+ * `Authorization:` header and the Slack webhook. Nine ordered pairs and 295
+ * ordered triples of the pattern set behave this way, against 1442 triples this
+ * masks and sequential masking leaked, so even the no-separator shape is a large
+ * net improvement. `AKIAIOSFODNN7EXAMPLE` immediately followed by a JWT is
+ * pinned in the suite so the boundary is recorded rather than assumed, and two
+ * distinct high-entropy credentials glued together with no delimiter is not a
+ * shape subprocess stderr produces.
  *
  * Every pattern must carry `/g`. That was already required - a non-global
  * pattern under the old `replace` would have masked only the FIRST occurrence
