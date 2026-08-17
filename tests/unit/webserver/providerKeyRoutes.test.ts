@@ -101,7 +101,12 @@ describe('POST /api/providers/connect (W1.A write-only provider key)', () => {
 
   it('passes baseUrl through to the connect when provided', async () => {
     mockConnect.mockResolvedValue({ ok: true });
-    mockGetView.mockResolvedValue({ providerId: 'openai-compatible', connectedVia: 'API key', state: 'connected', modelCount: 1 });
+    mockGetView.mockResolvedValue({
+      providerId: 'openai-compatible',
+      connectedVia: 'API key',
+      state: 'connected',
+      modelCount: 1,
+    });
 
     const handler = captureHandler();
     const res = makeRes();
@@ -110,7 +115,10 @@ describe('POST /api/providers/connect (W1.A write-only provider key)', () => {
       res
     );
 
-    expect(mockConnect).toHaveBeenCalledWith('openai-compatible', { key: 'localkey', baseUrl: 'http://127.0.0.1:8000/v1' });
+    expect(mockConnect).toHaveBeenCalledWith('openai-compatible', {
+      key: 'localkey',
+      baseUrl: 'http://127.0.0.1:8000/v1',
+    });
   });
 
   it('audits the write with provider/action/ip/reachedVia and NEVER the key', async () => {
@@ -118,18 +126,30 @@ describe('POST /api/providers/connect (W1.A write-only provider key)', () => {
     mockGetView.mockResolvedValue({ providerId: 'openai', connectedVia: 'API key', state: 'connected', modelCount: 2 });
 
     const handler = captureHandler();
-    await handler(makeReq({ body: { providerId: 'openai', key: 'sk-live-SECRET123456' }, userId: 'u1', peer: '100.64.0.9' }), makeRes());
+    await handler(
+      makeReq({ body: { providerId: 'openai', key: 'sk-live-SECRET123456' }, userId: 'u1', peer: '100.64.0.9' }),
+      makeRes()
+    );
 
     expect(mockAppendAudit).toHaveBeenCalledTimes(1);
     const entry = mockAppendAudit.mock.calls[0][0];
-    expect(entry).toMatchObject({ userId: 'u1', action: 'provider.connect', target: 'openai', ip: '100.64.0.9', reachedVia: 'tailscale' });
+    expect(entry).toMatchObject({
+      userId: 'u1',
+      action: 'provider.connect',
+      target: 'openai',
+      ip: '100.64.0.9',
+      reachedVia: 'tailscale',
+    });
     expect(JSON.stringify(entry)).not.toContain('SECRET123456');
   });
 
   it('refuses a plain-HTTP write from the public internet (403, before persisting)', async () => {
     const handler = captureHandler();
     const res = makeRes();
-    await handler(makeReq({ body: { providerId: 'openai', key: 'sk-live-x' }, peer: '203.0.113.5', secure: false }), res);
+    await handler(
+      makeReq({ body: { providerId: 'openai', key: 'sk-live-x' }, peer: '203.0.113.5', secure: false }),
+      res
+    );
 
     expect(res._status).toBe(403);
     expect(JSON.stringify(res._json)).toMatch(/HTTPS required/i);
@@ -143,7 +163,10 @@ describe('POST /api/providers/connect (W1.A write-only provider key)', () => {
 
     const handler = captureHandler();
     const res = makeRes();
-    await handler(makeReq({ body: { providerId: 'openai', key: 'sk-live-x' }, peer: '203.0.113.5', secure: true }), res);
+    await handler(
+      makeReq({ body: { providerId: 'openai', key: 'sk-live-x' }, peer: '203.0.113.5', secure: true }),
+      res
+    );
 
     expect(mockConnect).toHaveBeenCalled();
     expect(res._json).toMatchObject({ success: true });

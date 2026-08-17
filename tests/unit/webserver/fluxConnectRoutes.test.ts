@@ -49,7 +49,14 @@ function captureHandlers(): { post: Record<string, CapturedHandler>; get: Record
   return { post, get };
 }
 
-type ReqOpts = { body?: Record<string, unknown>; query?: Record<string, string>; peer?: string; secure?: boolean; hostname?: string; userId?: string };
+type ReqOpts = {
+  body?: Record<string, unknown>;
+  query?: Record<string, string>;
+  peer?: string;
+  secure?: boolean;
+  hostname?: string;
+  userId?: string;
+};
 function makeReq({ body, query, peer, secure, hostname, userId }: ReqOpts): Request {
   return {
     body: body ?? {},
@@ -123,10 +130,7 @@ describe('flux connect routes (W4a write-only remote Flux OAuth)', () => {
 
   it('start refuses a plain-HTTP request from the public internet (403, before minting)', async () => {
     const res = makeRes();
-    await captureHandlers().post['/api/flux/connect/start'](
-      makeReq({ peer: '203.0.113.5', secure: false }),
-      res
-    );
+    await captureHandlers().post['/api/flux/connect/start'](makeReq({ peer: '203.0.113.5', secure: false }), res);
     expect(res._status).toBe(403);
     expect(JSON.stringify(res._json)).toMatch(/HTTPS required/i);
     expect(mockCreatePkce).not.toHaveBeenCalled();
@@ -242,10 +246,7 @@ describe('flux connect routes (W4a write-only remote Flux OAuth)', () => {
 
   it('callback bounces the browser to the SPA with the code+state (never serves a key)', () => {
     const res = makeRes();
-    captureHandlers().get['/api/flux/connect/callback'](
-      makeReq({ query: { code: 'abc', state: 'state-123' } }),
-      res
-    );
+    captureHandlers().get['/api/flux/connect/callback'](makeReq({ query: { code: 'abc', state: 'state-123' } }), res);
     expect(res._redirect).toContain('/settings/models');
     expect(res._redirect).toContain('fluxCode=abc');
     expect(res._redirect).toContain('fluxState=state-123');
