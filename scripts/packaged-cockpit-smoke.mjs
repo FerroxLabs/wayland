@@ -891,6 +891,15 @@ async function main() {
   // --no-surfaces exists to iterate on the chat assertion without paying for the
   // full navigation walk every time. It weakens the run, so it is never a pass:
   // the final verdict below treats a skipped walk as not-a-green-gate.
+  // Dismiss BEFORE the surface walk, not just before chat. The prompt becomes
+  // eligible at the reload above (`eligible = !prompted && onboarded`, and this
+  // smoke sets onboardingCompleted), so it is open for the whole walk. Its mask
+  // swallows pointer events, every sider `click()` times out, and walkSurfaces'
+  // silent hash fallback rescues the navigation — so all 12 surfaces come back
+  // OK with `navMethod: 'hash'` and the sider is never actually exercised.
+  // Verified on a real packaged Windows build: 12 of 12 reported `hash`.
+  const shellChoiceDismissed = await dismissShellChoicePrompt(page);
+
   const findings = options.surfaces ? await walkSurfaces(page, consoleErrors, reportDir) : [];
   if (!options.surfaces) log('surfaces: SKIPPED (--no-surfaces) — this run cannot certify the cockpit');
   const chat = options.chat ? await runChat(page, reportDir) : { ok: null, skipped: true };
@@ -924,6 +933,7 @@ async function main() {
     catalogProviders,
     modelConfigSummary,
     chat,
+    shellChoiceDismissed,
     surfacesWalked: options.surfaces,
     surfaces: findings,
     catalogOk,
