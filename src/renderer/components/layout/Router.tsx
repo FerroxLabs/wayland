@@ -4,6 +4,7 @@ import { ErrorBoundary } from '@renderer/components/ErrorBoundary';
 import AppLoader from '@renderer/components/layout/AppLoader';
 import { useAuth } from '@renderer/hooks/context/AuthContext';
 import { TEAM_MODE_ENABLED } from '@/common/config/constants';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import { ToastProvider } from '@renderer/components/settings/shared/feedback/Toast';
 import OnboardingOverlay from '@renderer/components/onboarding/OnboardingOverlay';
 import ShellChoiceOverlay from '@renderer/components/shell/ShellChoice/ShellChoiceOverlay';
@@ -127,8 +128,21 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/settings/images' element={withRouteFallback(ImageGenSettings)} />
             <Route path='/settings/voice' element={withRouteFallback(VoiceSettings)} />
             {/* ENGINE - the Wayland Core configuration surface (its own destination).
-              It subsumes the former standalone `wcore` engine-status page. */}
-            <Route path='/settings/wcore-config' element={withRouteFallback(WCoreConfig)} />
+              It subsumes the former standalone `wcore` engine-status page.
+
+              #997: DESKTOP ONLY. The page drives the local engine's config.toml,
+              its profile directories and the in-app engine updater, and every
+              `wcoreConfig.*` provider behind it is remote-denied in
+              bridgeAllowlist.ts - a paired WebUI that reached it would render a
+              surface on which nothing works. The nav entry is dropped for the
+              same runtime (`visibleSettingsNavigationIds`); this guard closes the
+              deep-link/legacy-redirect door the rail no longer opens. */}
+            <Route
+              path='/settings/wcore-config'
+              element={
+                isElectronDesktop() ? withRouteFallback(WCoreConfig) : <Navigate to='/settings/general' replace />
+              }
+            />
             {/* Legacy redirect: old standalone route now lands inside Core. */}
             <Route path='/settings/wcore' element={<Navigate to='/settings/wcore-config' replace />} />
             {/* INTEGRATIONS */}

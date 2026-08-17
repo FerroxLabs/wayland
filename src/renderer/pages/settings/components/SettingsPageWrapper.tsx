@@ -34,6 +34,7 @@ import { isElectronDesktop } from '@/renderer/utils/platform';
 import { Dropdown, Menu } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { isDesktopOnlySettingsId } from '@/common/navigation';
 import { BUILTIN_TAB_IDS } from './SettingsSider';
 import './settings.css';
 
@@ -225,7 +226,15 @@ const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, cla
   const closeShortcuts = useCallback(() => setShortcutsOpen(false), []);
   useGlobalKeybind('?', openShortcuts, { meta: false, skipInputs: true });
 
-  const menuItems = React.useMemo(() => getBuiltinSettingsNavItems(isDesktop, t), [isDesktop, t]);
+  // #997: desktop-only surfaces (Wayland Core) are dropped for WebUI/remote
+  // clients so the nav never offers a destination the router refuses.
+  // `getBuiltinSettingsNavItems` stays the canonical catalog (order contract);
+  // the runtime gate belongs here, where `isDesktop` means "Electron", not
+  // "wide layout".
+  const menuItems = React.useMemo(
+    () => getBuiltinSettingsNavItems(isDesktop, t).filter((item) => isDesktop || !isDesktopOnlySettingsId(item.id)),
+    [isDesktop, t]
+  );
 
   const activeNavItem = React.useMemo(
     () => menuItems.find((item) => pathname.includes(`/settings/${item.path}`)),

@@ -34,3 +34,22 @@ export const SETTINGS_ROUTE_PATHS = {
 export type SettingsNavigationId = keyof typeof SETTINGS_ROUTE_PATHS;
 
 export const SETTINGS_NAVIGATION_IDS = Object.freeze(Object.keys(SETTINGS_ROUTE_PATHS) as SettingsNavigationId[]);
+
+/**
+ * Settings surfaces that exist only in the Electron desktop app (#997).
+ *
+ * The Wayland Core page drives the local engine's `config.toml`, its profile
+ * directories and the in-app engine updater. Every one of its `wcoreConfig.*`
+ * providers is remote-denied in `bridgeAllowlist.ts`, so a paired WebUI that
+ * reaches the page renders a surface on which nothing works. Gate the route and
+ * the nav entry instead of shipping a dead page to remote clients.
+ */
+export const DESKTOP_ONLY_SETTINGS_IDS: readonly SettingsNavigationId[] = Object.freeze(['wcore']);
+
+/** True iff `id` names a settings surface the WebUI/remote client must not reach. */
+export const isDesktopOnlySettingsId = (id: string): boolean =>
+  (DESKTOP_ONLY_SETTINGS_IDS as readonly string[]).includes(id);
+
+/** The settings nav ids visible on this runtime, in canonical order. */
+export const visibleSettingsNavigationIds = (isDesktop: boolean): readonly SettingsNavigationId[] =>
+  isDesktop ? SETTINGS_NAVIGATION_IDS : SETTINGS_NAVIGATION_IDS.filter((id) => !isDesktopOnlySettingsId(id));
