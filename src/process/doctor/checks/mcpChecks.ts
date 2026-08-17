@@ -354,10 +354,23 @@ function redactDeclaredValues(text: string, server: IMcpServer): string {
  * Three of them previously rendered `name` raw, which meant the fix on one branch
  * would have been worth nothing.
  *
- * `id` is app-generated at every creation path: both `handleAddMcpServer` and the
- * library install in `useMcpServerCRUD` mint `mcp_<randomUUID>`, and the type they
- * accept is `Omit<IMcpServer, 'id' | ...>` so an imported declaration cannot carry
- * its own [verified: `newMcpServerId` is the only assignment of this field].
+ * `id` is app-generated on every path that reaches THIS check, which is a narrower
+ * claim than an earlier version of this comment made, and the difference matters.
+ *
+ * `handleAddMcpServer` and the library install in `useMcpServerCRUD` both mint
+ * `mcp_<randomUUID>` and accept `Omit<IMcpServer, 'id' | ...>`. But
+ * `newMcpServerId` is NOT the only assignment of the field: `initStorage` mints
+ * `mcp_default_<ts>_<i>`, and `WCoreMcpAgent` and `CodexMcpAgent` mint
+ * `wcore_${name}` and `codex_${entry.name}` - which DERIVE THE ID FROM THE NAME.
+ * Nor is it true that an imported declaration "cannot carry its own": the config
+ * migration copies `mcp.config` entries verbatim from an external
+ * `wayland-config.txt`, ids included (`filterMcpConfig` only drops builtins).
+ *
+ * The conclusion survives because the Doctor reads ONE source -
+ * `ProcessConfig.get('mcp.config')` (`registry.ts`) - and neither agent projection
+ * is written there. So `doctorServerLabel` is safe today and is ONE PRODUCER away
+ * from being a name-carrying label. If a `wcore_`/`codex_` projection ever reaches
+ * `mcp.config`, this function is where it has to be caught.
  */
 function doctorServerLabel(server: IMcpServer): string {
   return server.id;

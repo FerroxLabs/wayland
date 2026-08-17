@@ -696,15 +696,28 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
   });
 
   /**
-   * THE PARTIAL-LEAK FLOOR, measured rather than picked.
+   * THE CORPUS FLOOR - a property of THESE EIGHT BANNERS, not a bound on the sink.
    *
-   * Across the eight adversarial banners the longest CONTIGUOUS run of any of the
-   * five credentials that reaches the surfaced text is 2 characters, and those two
-   * are incidental collisions with the fixed English copy ("Engine binary found
-   * at ..."), not credential material. The bound below is that measurement. For
-   * scale, the equivalent floor on the engine banner before the anchors was 25.
+   * CORRECTION, and the reason the title changed. This oracle used to be called
+   * "no more than 2 contiguous characters of any credential reach the surface", and
+   * a note beside it read "the equivalent floor before the anchors was 25", which
+   * invited the sink-wide reading. That reading is FALSE and was refuted by
+   * execution: `0.13.0+a1b2c3d4e5f ` and `0.13.0-a1b2c3d4e5f ` both return
+   * `status: pass` with detail `Wayland Core engine 0.13.0+a1b2c3d4e5f is
+   * reachable.` - ELEVEN contiguous credential characters surfaced, with this suite
+   * green. Eleven is where the `{0,10}` tail quantifier runs out; at twelve the
+   * pattern refuses the banner entirely and the check warns.
+   *
+   * So 2 is what the eight banners below happen to produce, and those two are
+   * incidental collisions with the fixed English copy ("Engine binary found at
+   * ..."), not credential material. The real bound on the sink is the SHAPE plus
+   * `MAX_VERSION_LENGTH`, which the ANCHOR and CAP oracles above pin directly.
+   * That 11-character build tail is a declared non-finding - a legal semver build
+   * tail is exactly what the allowlist is for - and this oracle is not the place
+   * to relitigate it. What it does establish is that nothing in this corpus
+   * regresses, which is worth keeping and worth naming accurately.
    */
-  it('FLOOR ORACLE: no more than 2 contiguous characters of any credential reach the surface', async () => {
+  it('CORPUS FLOOR ORACLE: none of these eight banners surfaces more than 2 credential characters', async () => {
     const secrets = [PREFIXLESS_KEY, API_KEY, 'A'.repeat(40), 'b'.repeat(46), 'c'.repeat(58)];
     const banners = [
       `1.0.0-sk-ant-api03-${'A'.repeat(40)}`,
@@ -729,6 +742,40 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
       const text = surfaced(result);
       for (const secret of secrets) {
         expect(longestSecretRun(text, secret)).toBeLessThanOrEqual(2);
+      }
+    }
+  });
+
+  /**
+   * THE MEASURED BOUND, stated where the corpus floor above cannot mislead.
+   *
+   * Pinned in both directions so the `{0,10}` quantifier cannot move silently: 11
+   * tail characters pass and are echoed, 12 are refused outright. This is the
+   * number to quote about this sink.
+   */
+  it('TAIL BOUND ORACLE: a build tail passes at 11 characters and is refused at 12', async () => {
+    const tail = (n: number): string => 'a1b2c3d4e5f6'.slice(0, n);
+    const cases = await Promise.all(
+      (['+', '-'] as const).flatMap((separator) =>
+        [11, 12].map(async (n) => ({
+          separator,
+          n,
+          result: await checkEngineReachable(() => ({
+            available: true,
+            path: '/opt/e',
+            version: `0.13.0${separator}${tail(n)} `,
+          })),
+        }))
+      )
+    );
+    for (const { separator, n, result } of cases) {
+      const why = `${separator}${n}`;
+      if (n === 11) {
+        expect(result.status, why).toBe('pass');
+        expect(result.detail, why).toContain(`0.13.0${separator}${tail(11)}`);
+      } else {
+        expect(result.status, why).toBe('warn');
+        expect(result.detail, why).toContain('did not report a usable version');
       }
     }
   });
