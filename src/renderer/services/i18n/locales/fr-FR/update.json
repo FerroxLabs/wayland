@@ -34,7 +34,8 @@
     "missingTag": "Impossible de vérifier cette mise à jour : le tag de version est manquant. Veuillez effectuer la mise à jour depuis la page Releases.",
     "metadataMissing": "Impossible de trouver les métadonnées de mise à jour signées (latest.yml) pour cette version. Refus d'ouvrir un programme d'installation non vérifié.",
     "assetNotInMetadata": "Le fichier téléchargé « {{name}} » ne figure pas dans les métadonnées de mise à jour signées. Refus d'ouvrir un programme d'installation non vérifié.",
-    "checksumMismatch": "La mise à jour téléchargée a échoué à la vérification d'intégrité (somme de contrôle non concordante) et a été supprimée. Ne l'exécutez pas. Veuillez réessayer ou télécharger depuis la page Releases."
+    "checksumMismatch": "La mise à jour téléchargée a échoué à la vérification d'intégrité (somme de contrôle non concordante) et a été supprimée. Ne l'exécutez pas. Veuillez réessayer ou télécharger depuis la page Releases.",
+    "checksumDigests": "La somme SHA-512 attendue était {{expected}}, mais le fichier téléchargé est {{actual}}."
   },
   "pill": {
     "available": "Update",

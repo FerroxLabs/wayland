@@ -34,7 +34,8 @@
     "missingTag": "Dieses Update kann nicht verifiziert werden: Das Release-Tag fehlt. Bitte aktualisiere über die Releases-Seite.",
     "metadataMissing": "Signierte Update-Metadaten (latest.yml) für dieses Release wurden nicht gefunden. Das Öffnen eines nicht verifizierten Installationsprogramms wird verweigert.",
     "assetNotInMetadata": "Die heruntergeladene Datei \"{{name}}\" ist nicht in den signierten Update-Metadaten aufgeführt. Das Öffnen eines nicht verifizierten Installationsprogramms wird verweigert.",
-    "checksumMismatch": "Die Integritätsprüfung des heruntergeladenen Updates ist fehlgeschlagen (Prüfsummen-Abweichung) und es wurde verworfen. Führe es nicht aus. Bitte versuche es erneut oder lade es von der Releases-Seite herunter."
+    "checksumMismatch": "Die Integritätsprüfung des heruntergeladenen Updates ist fehlgeschlagen (Prüfsummen-Abweichung) und es wurde verworfen. Führe es nicht aus. Bitte versuche es erneut oder lade es von der Releases-Seite herunter.",
+    "checksumDigests": "Erwartet wurde SHA-512 {{expected}}, die heruntergeladene Datei ist jedoch {{actual}}."
   },
   "pill": {
     "available": "Update",

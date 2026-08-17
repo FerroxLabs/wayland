@@ -34,7 +34,8 @@
     "missingTag": "Não é possível verificar esta atualização: a tag da versão está ausente. Atualize pela página de Releases.",
     "metadataMissing": "Não foi possível encontrar os metadados de atualização assinados (latest.yml) para esta versão. Recusando-se a abrir um instalador não verificado.",
     "assetNotInMetadata": "O arquivo baixado \"{{name}}\" não consta nos metadados de atualização assinados. Recusando-se a abrir um instalador não verificado.",
-    "checksumMismatch": "A atualização baixada falhou na verificação de integridade (checksum divergente) e foi descartada. Não a execute. Tente novamente ou baixe pela página de Releases."
+    "checksumMismatch": "A atualização baixada falhou na verificação de integridade (checksum divergente) e foi descartada. Não a execute. Tente novamente ou baixe pela página de Releases.",
+    "checksumDigests": "Era esperado o SHA-512 {{expected}}, mas o arquivo baixado é {{actual}}."
   },
   "pill": {
     "available": "Update",

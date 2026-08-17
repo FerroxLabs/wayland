@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tooltip } from '@arco-design/web-react';
 import { getSiderTooltipProps } from '@/renderer/utils/ui/siderTooltip';
-import { SETTINGS_NAVIGATION_IDS, SETTINGS_ROUTE_PATHS } from '@/common/navigation';
+import { SETTINGS_NAVIGATION_IDS, SETTINGS_ROUTE_PATHS, visibleSettingsNavigationIds } from '@/common/navigation';
 
 /** Builtin settings tab IDs in display order (must match router paths). */
 export const BUILTIN_TAB_IDS = SETTINGS_NAVIGATION_IDS;
@@ -247,7 +247,9 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
       },
     };
 
-    const result: SiderItem[] = BUILTIN_TAB_IDS.map((id) => ({
+    // #997: desktop-only surfaces (Wayland Core) are dropped for WebUI/remote
+    // clients so the rail never offers a destination the router refuses.
+    const result: SiderItem[] = visibleSettingsNavigationIds(isDesktop).map((id) => ({
       ...builtinMap[id],
       path: SETTINGS_ROUTE_PATHS[id],
     }));
