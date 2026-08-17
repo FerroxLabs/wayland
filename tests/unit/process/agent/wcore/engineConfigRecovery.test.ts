@@ -26,7 +26,7 @@ import { appendFile, mkdir, mkdtemp, readFile as realReadFile, rm, writeFile as 
 import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import { parse } from 'smol-toml';
 import { describe, expect, it } from 'vitest';
 import {
@@ -49,6 +49,25 @@ import { appendDesktopMcpProfile, WCORE_DESKTOP_MCP_PROFILE } from '@process/age
 
 const CONFIG_PATH = '/scratch/wayland-core/config.toml';
 const BACKUP_PATH = '/scratch/wayland-core/config.toml.backup-20260817-142530';
+
+/**
+ * Fold a path's separators to `/` so the POSIX fixtures above mean the same file
+ * on every platform.
+ *
+ * The module derives the backup name as `join(dirname(configPath), ...)`, and on
+ * Windows those two disagree: `dirname` PRESERVES the `/` it was handed while
+ * `join` emits `\`. Executed via `path.win32` rather than assumed -
+ * `dirname('/scratch/wayland-core/config.toml')` is `'/scratch/wayland-core'`,
+ * and joining the backup name onto it gives
+ * `'\scratch\wayland-core\config.toml.backup-20260817-142530'`. So ONE path has
+ * two spellings there, which is what reddened five of these tests on the Windows
+ * runner while the module itself behaved correctly.
+ *
+ * Only the separators fold. Every other byte is still compared exactly, including
+ * the whole backup filename - its `config.toml.backup-` prefix, its stamp, and the
+ * `-2` collision suffix - so the assertions keep their teeth.
+ */
+const toPosix = (value: string) => value.split(sep).join('/');
 
 /** The reporter's file from #1024, with a live-shaped credential above the break. */
 const REPORTED_CORRUPT =
@@ -112,13 +131,19 @@ function fakeFs(
     irregularPaths?: string[];
   } = {}
 ): FakeFs {
+  // Keyed on the CANONICAL spelling. A real filesystem resolves `\dir\file` and
+  // `/dir/file` to the same file; a raw string-keyed Map does not, so on Windows a
+  // path the module spelled with `join` missed a fixture seeded with `/` and the
+  // EEXIST retry below was never reached. Canonicalising at the seam - rather than
+  // at each call site - keeps every assertion comparing whole paths.
   const files = new Map<string, Buffer>(
-    Object.entries(initial).map(([k, v]) => [k, Buffer.isBuffer(v) ? v : Buffer.from(v, 'utf-8')])
+    Object.entries(initial).map(([k, v]) => [toPosix(k), Buffer.isBuffer(v) ? v : Buffer.from(v, 'utf-8')])
   );
   const ops: string[] = [];
   const deps: EngineConfigRecoveryDeps = {
     resolveConfigPath: async () => CONFIG_PATH,
-    readFileBytes: async (path) => {
+    readFileBytes: async (rawPath) => {
+      const path = toPosix(rawPath);
       const value = files.get(path);
       if (value === undefined) {
         const error: NodeJS.ErrnoException = new Error(`ENOENT: no such file, open '${path}'`);
@@ -127,7 +152,8 @@ function fakeFs(
       }
       return value;
     },
-    writeFileExclusive: async (path, data) => {
+    writeFileExclusive: async (rawPath, data) => {
+      const path = toPosix(rawPath);
       // The 0-byte reservation and the repair write share this dep, exactly as
       // production does; the options let each be failed independently.
       const isReservation = data === '';
@@ -145,7 +171,8 @@ function fakeFs(
       ops.push(`create:${path}`);
       files.set(path, Buffer.from(data, 'utf-8'));
     },
-    renameFile: async (from, to) => {
+    renameFile: async (rawFrom, rawTo) => {
+      const [from, to] = [toPosix(rawFrom), toPosix(rawTo)];
       if (options.failRenameWith && from === CONFIG_PATH) throw options.failRenameWith;
       const value = files.get(from);
       if (value === undefined) {
@@ -158,7 +185,8 @@ function fakeFs(
       // Simulate the file changing under us between the read and the rename.
       files.set(to, options.mutateDuringBackup ?? value);
     },
-    removeFile: async (path) => {
+    removeFile: async (rawPath) => {
+      const path = toPosix(rawPath);
       if (!files.has(path)) {
         const error: NodeJS.ErrnoException = new Error(`ENOENT: no such file, unlink '${path}'`);
         error.code = 'ENOENT';
@@ -167,13 +195,14 @@ function fakeFs(
       ops.push(`unlink:${path}`);
       files.delete(path);
     },
-    isRegularFile: async (path) => {
+    isRegularFile: async (rawPath) => {
+      const path = toPosix(rawPath);
       if (!files.has(path)) {
         const error: NodeJS.ErrnoException = new Error(`ENOENT: no such file, lstat '${path}'`);
         error.code = 'ENOENT';
         throw error;
       }
-      return !(options.irregularPaths ?? []).includes(path);
+      return !(options.irregularPaths ?? []).map(toPosix).includes(path);
     },
     now: () => new Date(2026, 7, 17, 14, 25, 30),
   };
@@ -404,7 +433,7 @@ describe('createVerifiedBackup - rename, not copy', () => {
   it('reserves a name, renames the original onto it, and leaves config.toml absent', async () => {
     const fs = fakeFs({ [CONFIG_PATH]: REPORTED_CORRUPT });
     const backupPath = await createVerifiedBackup(CONFIG_PATH, fs.files.get(CONFIG_PATH)!, fs.deps);
-    expect(backupPath).toBe(BACKUP_PATH);
+    expect(toPosix(backupPath)).toBe(BACKUP_PATH);
     expect(fs.ops).toEqual([`create:${BACKUP_PATH}`, `rename:${CONFIG_PATH}->${BACKUP_PATH}`]);
     expect(fs.files.has(CONFIG_PATH)).toBe(false);
     expect(fs.files.get(BACKUP_PATH)!.toString('utf-8')).toBe(REPORTED_CORRUPT);
@@ -413,7 +442,7 @@ describe('createVerifiedBackup - rename, not copy', () => {
   it('is byte-exact on a NON-UTF-8 file (the bug the first version had)', async () => {
     const fs = fakeFs({ [CONFIG_PATH]: LONE_E9 });
     const backupPath = await createVerifiedBackup(CONFIG_PATH, LONE_E9, fs.deps);
-    const backupBytes = fs.files.get(backupPath)!;
+    const backupBytes = fs.files.get(toPosix(backupPath))!;
     expect(backupBytes.length).toBe(LONE_E9.length);
     expect(sha256(backupBytes)).toBe(sha256(LONE_E9));
     expect(backupBytes.equals(LONE_E9)).toBe(true);
@@ -434,7 +463,7 @@ describe('createVerifiedBackup - rename, not copy', () => {
   it('picks a fresh name instead of clobbering an existing backup', async () => {
     const fs = fakeFs({ [CONFIG_PATH]: REPORTED_CORRUPT, [BACKUP_PATH]: 'older backup' });
     const backupPath = await createVerifiedBackup(CONFIG_PATH, fs.files.get(CONFIG_PATH)!, fs.deps);
-    expect(backupPath).toBe(`${BACKUP_PATH}-2`);
+    expect(toPosix(backupPath)).toBe(`${BACKUP_PATH}-2`);
     expect(fs.files.get(BACKUP_PATH)!.toString('utf-8')).toBe('older backup');
   });
 
@@ -561,7 +590,8 @@ describe('repairEngineConfig - backup BEFORE write, original never lost', () => 
 
     const result = await repairEngineConfig(fs.deps);
 
-    expect(result).toMatchObject({ ok: false, reason: 'restore-conflict', backupPath: BACKUP_PATH });
+    expect(result).toMatchObject({ ok: false, reason: 'restore-conflict' });
+    expect(toPosix(result.backupPath!)).toBe(BACKUP_PATH);
     // The foreign file is UNTOUCHED - not replaced by the corrupt original.
     expect(fs.files.get(CONFIG_PATH)!.toString('utf-8')).toBe(foreign);
     // And the user's original bytes are still on disk, at the reported path.
@@ -644,7 +674,8 @@ describe('regenerateEngineConfig - confirmation, health check, verified move', (
   it('with confirmation on a BROKEN config: reserves, renames, no unlink at all', async () => {
     const fs = fakeFs({ [CONFIG_PATH]: REPORTED_CORRUPT });
     const result = await regenerateEngineConfig({ confirmed: true }, fs.deps);
-    expect(result).toMatchObject({ ok: true, backupPath: BACKUP_PATH });
+    expect(result).toMatchObject({ ok: true });
+    expect(toPosix(result.backupPath!)).toBe(BACKUP_PATH);
     expect(fs.ops).toEqual([`create:${BACKUP_PATH}`, `rename:${CONFIG_PATH}->${BACKUP_PATH}`]);
     expect(fs.ops.some((op) => op.startsWith('unlink:'))).toBe(false);
     expect(fs.files.has(CONFIG_PATH)).toBe(false);
@@ -656,7 +687,7 @@ describe('regenerateEngineConfig - confirmation, health check, verified move', (
     const fs = fakeFs({ [CONFIG_PATH]: LONE_E9 });
     const result = await regenerateEngineConfig({ confirmed: true }, fs.deps);
     expect(result.ok).toBe(true);
-    const backupBytes = fs.files.get(result.backupPath!)!;
+    const backupBytes = fs.files.get(toPosix(result.backupPath!))!;
     expect(sha256(backupBytes)).toBe(sha256(LONE_E9));
     expect(backupBytes.equals(LONE_E9)).toBe(true);
   });
@@ -852,31 +883,47 @@ describe('against a real scratch config dir', () => {
     await rm(plain.dir, { recursive: true, force: true });
   });
 
-  it('FAILURE BRANCH on a real fs: an unwritable directory leaves the original intact', async () => {
-    const { chmod } = await import('node:fs/promises');
-    const { dir, configPath, deps } = await scratch(REPORTED_CORRUPT);
-    const originalBytes = await realReadFile(configPath);
+  // Missing Windows primitive: POSIX mode bits. Windows does not implement them -
+  // `chmod(dir, 0o500)` is a no-op there and every mode reads back 0o666 (measured
+  // on the runner, same finding as sourceSigningAuthorityStore.test.ts) - so the
+  // directory stays writable, the reservation SUCCEEDS, and this test asserted
+  // `{ok:false}` against a genuine `{ok:true}`. There is nothing to provoke by this
+  // mechanism, so it is skipped rather than relaxed.
+  //
+  // The INVARIANT is not skipped. The same production branch - a failed backup-name
+  // reservation must report `backup-failed`, write nothing and leave the original
+  // byte-intact - is asserted platform-independently by the injected `failCreateWith`
+  // cases in `repairEngineConfig`/`regenerateEngineConfig` above, which DO run on
+  // Windows. It was additionally provoked the Windows way by hand on the runner (a
+  // real locked/read-only condition) and held.
+  it.skipIf(process.platform === 'win32')(
+    'FAILURE BRANCH on a real fs: an unwritable directory leaves the original intact',
+    async () => {
+      const { chmod } = await import('node:fs/promises');
+      const { dir, configPath, deps } = await scratch(REPORTED_CORRUPT);
+      const originalBytes = await realReadFile(configPath);
 
-    // Make the config DIRECTORY unwritable, so the backup-name reservation fails.
-    // This is the real-filesystem version of the injected `failCreateWith` cases:
-    // both repair and regenerate must report `backup-failed` and touch nothing.
-    await chmod(dir, 0o500);
-    try {
-      expect(await repairEngineConfig(deps)).toMatchObject({ ok: false, reason: 'backup-failed' });
-      expect(await regenerateEngineConfig({ confirmed: true }, deps)).toMatchObject({
-        ok: false,
-        reason: 'backup-failed',
-      });
-    } finally {
-      await chmod(dir, 0o700);
+      // Make the config DIRECTORY unwritable, so the backup-name reservation fails.
+      // This is the real-filesystem version of the injected `failCreateWith` cases:
+      // both repair and regenerate must report `backup-failed` and touch nothing.
+      await chmod(dir, 0o500);
+      try {
+        expect(await repairEngineConfig(deps)).toMatchObject({ ok: false, reason: 'backup-failed' });
+        expect(await regenerateEngineConfig({ confirmed: true }, deps)).toMatchObject({
+          ok: false,
+          reason: 'backup-failed',
+        });
+      } finally {
+        await chmod(dir, 0o700);
+      }
+
+      // Byte-for-byte intact, and no half-made backup left lying around.
+      expect((await realReadFile(configPath)).equals(originalBytes)).toBe(true);
+      expect(readdirSync(dir)).toEqual(['config.toml']);
+
+      await rm(dir, { recursive: true, force: true });
     }
-
-    // Byte-for-byte intact, and no half-made backup left lying around.
-    expect((await realReadFile(configPath)).equals(originalBytes)).toBe(true);
-    expect(readdirSync(dir)).toEqual(['config.toml']);
-
-    await rm(dir, { recursive: true, force: true });
-  });
+  );
 
   it('regenerate leaves a real, readable backup and refuses a healthy file', async () => {
     const { dir, configPath, deps } = await scratch(REPORTED_CORRUPT);
