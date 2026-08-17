@@ -281,6 +281,233 @@ describe('every labelled secret is masked in its PREFIXED form (#1026)', () => {
 });
 
 /**
+ * #1051 and #1037. The #1026 block above enumerates every label in its PREFIXED
+ * form; these two defects were the same class in the two remaining directions,
+ * and both were live on a surface with a "Copy report" button.
+ *
+ *  - #1051: the separator had to sit IMMEDIATELY after the label, and in JSON it
+ *    does not - the label's closing `"` sits there. So a JSON body leaked its
+ *    secret for EVERY label in the list.
+ *  - #1037: a SUFFIX after the label broke the same requirement from the other
+ *    side (`API_KEY_PROD=`), and two label CORES were missing outright
+ *    (`SECRET_KEY`, and any vendor-prefixed `*_TOKEN`).
+ *
+ * Enumerated over `LABELLED_SECRET_LABELS` rather than spot-checked, for the
+ * same reason the #1026 block is: both defects were properties of the shared
+ * pattern, so a label added later must inherit the coverage without anyone
+ * remembering to come back here.
+ */
+describe('a labelled secret is masked in JSON and in suffixed form (#1051, #1037)', () => {
+  /** No vendor prefix, so ONLY the label can catch it. */
+  const VALUE = 'not-a-real-value-0123456789';
+
+  /** Same expander contract as the #1026 block: an unreadable fragment FAILS. */
+  function spellings(fragment: string): string[] {
+    expect(
+      fragment.replaceAll('[_-]?', ''),
+      `label ${fragment} uses regex syntax this test cannot expand - extend spellings()`
+    ).toMatch(/^[a-z]+$/);
+    return fragment
+      .split('[_-]?')
+      .slice(1)
+      .reduce<string[]>(
+        (acc, part) => acc.flatMap((sofar) => ['_', '-', ''].map((joiner) => `${sofar}${joiner}${part}`)),
+        [fragment.split('[_-]?')[0]]
+      );
+  }
+
+  const labels = LABELLED_SECRET_LABELS.flatMap((fragment) =>
+    spellings(fragment).flatMap((spelling) => [spelling, spelling.toUpperCase()])
+  );
+
+  /**
+   * The shapes #1051 and #1037 name, plus the syntaxes that share the defect.
+   * `%s` is the label; each entry builds a line around it.
+   */
+  const SHAPES: ReadonlyArray<readonly [string, (label: string) => string]> = [
+    ['JSON object field', (label) => `upstream 400: {"${label}":"${VALUE}"}`],
+    ['JSON with spaces around the colon', (label) => `upstream 400: { "${label}" : "${VALUE}" }`],
+    ['JSON field among other fields', (label) => `{"model":"x","${label}":"${VALUE}","max_tokens":4096}`],
+    ['single-quoted JSON-ish field', (label) => `{'${label}':'${VALUE}'}`],
+    ['suffixed assignment', (label) => `env dump: ${label}_PROD=${VALUE}`],
+    ['doubly suffixed assignment', (label) => `env dump: ${label}_PROD_V2=${VALUE}`],
+    ['hyphen-suffixed assignment', (label) => `env dump: ${label}-prod=${VALUE}`],
+    ['prefixed AND suffixed assignment', (label) => `env dump: ANTHROPIC_${label}_PROD=${VALUE}`],
+    ['suffixed JSON field', (label) => `{"${label}_prod":"${VALUE}"}`],
+    ['YAML quoted value', (label) => `${label}: "${VALUE}"`],
+    ['TOML quoted value', (label) => `${label} = "${VALUE}"`],
+  ];
+
+  const cases = SHAPES.flatMap(([shape, build]) =>
+    labels.map((label) => ({ name: `${shape} / ${label}`, text: build(label) }))
+  );
+
+  it(`masks all ${LABELLED_SECRET_LABELS.length} labels across ${cases.length} JSON and suffixed shapes`, () => {
+    const survived = cases.filter(({ text }) => redactSecrets(text).includes(VALUE)).map(({ name }) => name);
+    expect(survived).toEqual([]);
+  });
+
+  it('every case really carries the value and the mask really fires (control)', () => {
+    // A sweep that reports no leaks proves nothing unless each input demonstrably
+    // contained the value and the redactor demonstrably acted on it.
+    const wrong = cases
+      .filter(({ text }) => !text.includes(VALUE) || !redactSecrets(text).includes('[redacted]'))
+      .map(({ name }) => name);
+    expect(wrong).toEqual([]);
+  });
+
+  /**
+   * The two cores #1037 named. Pinned explicitly, because the generated sweep
+   * above covers them only for as long as they stay in the array and cannot
+   * notice their removal by construction - the same reason #1042's passphrase
+   * label is pinned above.
+   */
+  it('masks SECRET_KEY and a vendor-prefixed *_TOKEN (#1037 label cores)', () => {
+    expect(LABELLED_SECRET_LABELS).toContain('secret[_-]?key');
+    expect(LABELLED_SECRET_LABELS).toContain('token');
+    for (const name of ['SECRET_KEY', 'SECRET_KEY_BASE', 'GITHUB_TOKEN', 'SLACK_TOKEN', 'NPM_TOKEN', 'token']) {
+      expect(redactSecrets(`env dump: ${name}=${VALUE}`), name).toBe(`env dump: ${name}=[redacted]`);
+    }
+  });
+
+  /**
+   * The compound `*_token` cores are NOT redundant now that a bare `token` core
+   * exists: the lookbehind refuses to reach into a longer alphanumeric run, so
+   * only the compound core can see an unseparated spelling.
+   */
+  it('keeps the unseparated token spellings that the bare core cannot reach', () => {
+    for (const name of ['authtoken', 'accesstoken', 'refreshtoken']) {
+      expect(redactSecrets(`${name}=${VALUE}`), name).toBe(`${name}=[redacted]`);
+    }
+  });
+
+  /**
+   * The output of masking a JSON body must still BE JSON. The quotes around the
+   * value are consumed by the pattern, so they have to be re-emitted; dropping
+   * them (which is what the pattern did before #1051) yields
+   * `{"api_key":[redacted]}`, and a diagnostic the user copies out of the app
+   * and pastes into a parser is then broken by the security control.
+   */
+  it('leaves the masked JSON body parseable', () => {
+    const body = `{"model":"x","api_key":"${VALUE}","max_tokens":4096}`;
+    const out = redactSecrets(body);
+    expect(out).toBe('{"model":"x","api_key":"[redacted]","max_tokens":4096}');
+    expect(JSON.parse(out)).toEqual({ model: 'x', api_key: '[redacted]', max_tokens: 4096 });
+  });
+
+  it('re-emits only the quotes that were there, so an unquoted value is unchanged in shape', () => {
+    // The quote re-emission must not INVENT quotes: a bare env assignment had
+    // none and must not grow any.
+    expect(redactSecrets(`API_KEY=${VALUE}`)).toBe('API_KEY=[redacted]');
+    expect(redactSecrets(`API_KEY="${VALUE}"`)).toBe('API_KEY="[redacted]"');
+    expect(redactSecrets(`API_KEY='${VALUE}'`)).toBe("API_KEY='[redacted]'");
+  });
+
+  it('leaves a SHORT quoted value alone, so the 8-character floor still holds', () => {
+    // The floor is what keeps ordinary configuration and ordinary counters
+    // readable. If the JSON widening had lowered it, this would mask.
+    for (const line of ['{"a":"x"}', '{"api_key":"x"}', '{"password":"short"}', 'api_key=""']) {
+      expect(redactSecrets(line), line).toBe(line);
+    }
+  });
+
+  /**
+   * The false-positive TRADE, asserted rather than asserted-in-a-comment.
+   *
+   * The suffix widening masks metadata ABOUT a credential as well as the
+   * credential (`api_key_length=`, `secret_key_id=`, `token_count=`). That was
+   * chosen deliberately - over-masking a diagnostic is far cheaper than handing
+   * out a live key - and the thing that makes it cheap is the 8-character value
+   * floor, which keeps the LLM counters this app actually prints readable.
+   *
+   * Both halves are pinned. The first half fails if someone "tightens" the
+   * suffix back out and re-opens `API_KEY_PROD=`; the second fails if someone
+   * drops the floor and starts eating every token count in the log.
+   */
+  it('accepts masking credential METADATA as the price of the suffix widening', () => {
+    const overMasked = [
+      'api_key_length=12345678',
+      'api_key_id=abcdefgh1234',
+      'secret_key_id=ABCDEFGH12',
+      'secret_key_ref=my-configmap-ref',
+      'access_token_expires_in=3600000000',
+      'token_count=12345678',
+    ];
+    for (const line of overMasked) expect(redactSecrets(line), line).toContain('[redacted]');
+  });
+
+  it('but the 8-character floor keeps the LLM counters this app prints readable', () => {
+    const readable = [
+      'token_count=4096',
+      'token_count=128000',
+      'token_limit=1000000',
+      'max_tokens=12345678',
+      'input_tokens=12345678',
+      'total_tokens: 1234567890',
+      'tokens_used=12345678',
+      'token_type=Bearer',
+    ];
+    for (const line of readable) expect(redactSecrets(line), line).toBe(line);
+  });
+
+  it('the label lookbehind still holds against the suffix widening', () => {
+    // A suffix must not become a way in through the front: the label still may
+    // not sit inside a longer alphanumeric run.
+    for (const line of [`notmyapikey_prod=${VALUE}`, `ANTHROPIC_HOSTNAME=${VALUE}`, `{"hostname":"${VALUE}"}`]) {
+      expect(redactSecrets(line), line).toBe(line);
+    }
+  });
+});
+
+/**
+ * The shapes in this family that STILL leak, pinned rather than claimed - same
+ * discipline as the span-merging limits above. #1051 and #1037 are about the
+ * label and the separator; each of these needs the VALUE matcher or the
+ * separator class widened, which is a different decision with a different blast
+ * radius, so they are recorded and left for their own change.
+ *
+ * If you close one of these, this test fails and the KNOWN GAPS list in
+ * `secretRedaction.ts` has to be brought with it. That is the point.
+ */
+describe('the labelled-assignment shapes that still leak, pinned rather than claimed', () => {
+  const VALUE = 'not-a-real-value-0123456789';
+
+  it('an XML element body leaks: the separator is `>`, not `:` or `=`', () => {
+    const line = `<api_key>${VALUE}</api_key>`;
+    expect(redactSecrets(line)).toBe(line);
+  });
+
+  it('a JSON value containing a space or a `}` leaks: both are outside the value class', () => {
+    // The run before the excluded character is 3 characters, under the floor, so
+    // nothing matches at all.
+    for (const line of ['{"api_key":"abc def 12345678"}', '{"api_key":"abc}def12345678"}']) {
+      expect(redactSecrets(line), line).toBe(line);
+    }
+    // Control: the same field with a value that has neither IS masked, so this
+    // is a value-class limit and not a claim that JSON is unmasked.
+    expect(redactSecrets(`{"api_key":"${VALUE}"}`)).toBe('{"api_key":"[redacted]"}');
+  });
+
+  it('a bare `*_SECRET` with no `key` leaks: there is no bare `secret` core', () => {
+    // Deliberate: a bare `secret` core would also mask `secret_name=` and
+    // `secretRef=` in a Kubernetes or Vault diagnostic.
+    for (const name of ['JWT_SECRET', 'APP_SECRET', 'WEBHOOK_SECRET']) {
+      expect(redactSecrets(`${name}=${VALUE}`), name).toBe(`${name}=${VALUE}`);
+    }
+    // Control: the two `secret` cores that DO exist still fire.
+    expect(redactSecrets(`CLIENT_SECRET=${VALUE}`)).toBe('CLIENT_SECRET=[redacted]');
+    expect(redactSecrets(`SECRET_KEY=${VALUE}`)).toBe('SECRET_KEY=[redacted]');
+  });
+
+  it('a URL query value is masked but swallows the following parameters (over-mask, not a leak)', () => {
+    // `&` is not excluded from the value class. Recorded because the marker
+    // eating `&x=1` is surprising when reading a masked URL, not because
+    // anything escapes.
+    expect(redactSecrets(`https://x.test/a?api_key=${VALUE}&x=1`)).toBe('https://x.test/a?api_key=[redacted]');
+  });
+});
+
+/**
  * #992 asked for a test asserting there is exactly ONE redaction implementation.
  * That premise turned out to be false, and the first version of this test
  * encoded the false premise: it matched only the NAME `redactSecrets`, so it
