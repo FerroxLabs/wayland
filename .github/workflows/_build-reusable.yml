@@ -795,7 +795,7 @@ jobs:
             out/*.deb
             out/*.AppImage
             out/*.rpm
-            out/Wayland-*-win32-*.zip
+            out/Wayland-*-win-*.zip
             out/Wayland-*-mac-*.zip
             out/*.yml
             out/*.blockmap
