@@ -51,7 +51,20 @@ const MAX_FIELD_LENGTH = 4_000;
 /** Appended when a field is trimmed, so the user is not misled by a clean cut. */
 const TRUNCATION_NOTE = ' [truncated]';
 
-function boundedField(text: string): string {
+/**
+ * Bound one field, tolerating a non-string.
+ *
+ * TypeScript forbids an outcome without a `detail`, and so did it forbid the
+ * hostile-getter case `safeErrorMessage` guards five lines below - the contract is
+ * either true at runtime or it is not. An outcome missing `detail` made this read
+ * `undefined.length`, the TypeError escaped `runOne` (its `try` at the bottom has a
+ * `finally` and no `catch`, so `bounded` runs OUTSIDE the per-check guard) and
+ * `runDoctor` REJECTED with `Cannot read properties of undefined (reading
+ * 'length')` [executed]. Pre-delta the same input was harmless, so bounding every
+ * field is what introduced the exposure and this is where it belongs.
+ */
+function boundedField(text: unknown): string {
+  if (typeof text !== 'string') return '';
   if (text.length <= MAX_FIELD_LENGTH) return text;
   return `${text.slice(0, MAX_FIELD_LENGTH - TRUNCATION_NOTE.length)}${TRUNCATION_NOTE}`;
 }

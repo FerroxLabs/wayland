@@ -1319,6 +1319,27 @@ describe('runner — the whole-surface guarantees', () => {
     expect(result.detail).toContain('Check threw an error');
   });
 
+  it('NEVER-THROWS ORACLE: an outcome missing its detail does not reject the report', async () => {
+    // `bounded` runs OUTSIDE the per-check guard - `runOne`'s trailing `try` has a
+    // `finally` and no `catch` - so `boundedField(undefined)` read
+    // `undefined.length` and `runDoctor` REJECTED with `Cannot read properties of
+    // undefined (reading 'length')` [executed]. TypeScript forbids this outcome, and
+    // so did it forbid the hostile-getter case guarded above; bounding every field
+    // is what introduced the exposure, and pre-delta the same input was harmless.
+    const report = await runDoctor([
+      {
+        id: 'test.detailless',
+        titleKey: 'test.detailless',
+        category: 'config',
+        run: async () => ({ status: 'pass' }) as never,
+      },
+    ]);
+    expect(report.results).toHaveLength(1);
+    expect(report.results[0].detail).toBe('');
+    // Not vacuous: the report still aggregates, so the battery completed.
+    expect(report.counts.pass).toBe(1);
+  });
+
   it('LENGTH ORACLE: an unbounded detail is capped at the report boundary', async () => {
     // Executed on the unfixed runner a 2,000,000-character probe error produced a
     // 2,000,052-character detail, which the UI renders and offers to copy.

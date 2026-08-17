@@ -100,9 +100,20 @@ const MAX_SUMMARY_LENGTH = 200;
  * mask. Scrubbing the whole line first means the pattern sees the value intact.
  */
 export function summarizeTomlError(error: unknown): string {
-  const raw = error instanceof Error ? error.message : String(error);
-  const firstLine = raw.split(LINE_TERMINATOR, 1)[0].trim();
-  return redactSecrets(firstLine).slice(0, MAX_SUMMARY_LENGTH);
+  try {
+    const raw = error instanceof Error ? error.message : String(error);
+    const firstLine = raw.split(LINE_TERMINATOR, 1)[0].trim();
+    return redactSecrets(firstLine).slice(0, MAX_SUMMARY_LENGTH);
+  } catch {
+    // `error.message` is a GETTER, and `String(error)` runs `toString`; either can
+    // throw on a hostile or badly-built Error. Unguarded, that throw propagated out
+    // of `probeEngineConfig`'s own catch and falsified its documented "Never throws"
+    // contract [executed]. Nothing leaked today only because the runner's
+    // `safeErrorMessage` happened to be downstream - i.e. the contract was held up
+    // by a coincidence rather than by this function. Same guard, and the same
+    // reasoning, as `safeErrorMessage` in `doctor/runner.ts`.
+    return '(the parse error could not be read)';
+  }
 }
 
 /**
@@ -118,8 +129,16 @@ export function summarizeTomlError(error: unknown): string {
  */
 export function tomlErrorPosition(error: unknown): TomlErrorPosition | null {
   if (typeof error !== 'object' || error === null) return null;
-  const { line, column } = error as { line?: unknown; column?: unknown };
-  if (typeof line !== 'number' || !Number.isFinite(line)) return null;
-  if (typeof column !== 'number' || !Number.isFinite(column)) return null;
-  return { line, column };
+  try {
+    // The DESTRUCTURE is the exposure, not the type tests below it: `line` and
+    // `column` are read as properties, so a throwing getter throws here [executed].
+    // Position is a nice-to-have - the caller drops it when it is absent - so
+    // failing to `null` is strictly better than propagating.
+    const { line, column } = error as { line?: unknown; column?: unknown };
+    if (typeof line !== 'number' || !Number.isFinite(line)) return null;
+    if (typeof column !== 'number' || !Number.isFinite(column)) return null;
+    return { line, column };
+  } catch {
+    return null;
+  }
 }

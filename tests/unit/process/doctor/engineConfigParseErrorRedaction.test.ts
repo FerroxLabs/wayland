@@ -29,7 +29,7 @@ import { ProfileIsolationError, activeMarkerPath, resolveActiveConfigPath } from
 import { probeEngineConfig } from '@process/doctor/engineConfigProbe';
 import { checkEngineConfigIntegrity } from '@process/doctor/checks/configChecks';
 import { redactSecrets } from '@process/utils/secretRedaction';
-import { summarizeTomlError } from '@process/utils/tomlErrorSummary';
+import { summarizeTomlError, tomlErrorPosition } from '@process/utils/tomlErrorSummary';
 
 /**
  * A BARE credential used as a profile name. `PROFILE_NAME_RE` allows 64 characters
@@ -369,6 +369,38 @@ describe('summarizeTomlError layers', () => {
       const summary = summarizeTomlError(new Error(`Invalid TOML document: invalid value${separator}${BARE_SECRET}`));
       expect(summary).toBe('Invalid TOML document: invalid value');
     }
+  });
+
+  it('NEVER-THROWS ORACLE: a hostile message getter is contained, not propagated', () => {
+    // `probeEngineConfig` documents "Never throws". Reading `error.message` was the
+    // hole: the getter threw, the throw propagated out of the probe's own catch and
+    // falsified the contract [executed]. Nothing leaked today only because the
+    // runner's `safeErrorMessage` happened to be downstream, which is a coincidence
+    // and not a defence.
+    class Hostile extends Error {
+      override get message(): string {
+        throw new Error(`secondary carrying ${BARE_SECRET}`);
+      }
+    }
+    // KNOWN POSITIVE: the getter really does throw, so the assertions are real.
+    expect(() => new Hostile().message).toThrow();
+
+    const summary = summarizeTomlError(new Hostile());
+    expect(summary).toBe('(the parse error could not be read)');
+    expect(summary).not.toContain(BARE_SECRET);
+  });
+
+  it('NEVER-THROWS ORACLE: a hostile position getter is contained too', () => {
+    // Same exposure in `tomlErrorPosition`: the DESTRUCTURE reads the properties, so
+    // a throwing getter throws before any type test runs. Position is optional to
+    // every caller, so `null` is the right containment.
+    const hostile = {
+      get line(): number {
+        throw new Error('line getter exploded');
+      },
+    };
+    expect(() => hostile.line).toThrow();
+    expect(tomlErrorPosition(hostile)).toBeNull();
   });
 
   it('CAP ORACLE: a single-line 500,000-character message is capped at 200', () => {
