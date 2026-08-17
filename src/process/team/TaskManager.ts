@@ -1,5 +1,6 @@
 // src/process/team/TaskManager.ts
 import type { EventLogger } from './EventLogger';
+import { TeamTaskDuplicateError } from './repository/ITeamRepository';
 import type { ITeamRepository } from './repository/ITeamRepository';
 import { LEASE_TTL_MS } from './types';
 import type { TeamAgent, TeamTask } from './types';
@@ -98,6 +99,20 @@ export class TaskManager {
    *   present on the current team roster.
    */
   async create(params: CreateTaskParams): Promise<TeamTask> {
+    return (await this.createOrReuse(params)).task;
+  }
+
+  /**
+   * #981 - `create()` plus the answer to "was this actually new?".
+   *
+   * A leader that retries `team_task_create` composes a fresh tool call, so the
+   * duplicate can only be recognised by what the task IS. The repository writes
+   * through a partial UNIQUE index over the live statuses and reports a
+   * collapsed insert as `TeamTaskDuplicateError`. On reuse nothing else fires:
+   * no second bidirectional link, no second `task` event - the board really is
+   * unchanged.
+   */
+  async createOrReuse(params: CreateTaskParams): Promise<{ task: TeamTask; reused: boolean }> {
     this.validateOwner(params.owner);
 
     const now = Date.now();
@@ -115,7 +130,13 @@ export class TaskManager {
       updatedAt: now,
     };
 
-    const created = await this.repo.createTask(task);
+    let created: TeamTask;
+    try {
+      created = await this.repo.createTask(task);
+    } catch (error) {
+      if (error instanceof TeamTaskDuplicateError) return { task: error.existing, reused: true };
+      throw error;
+    }
 
     // Atomically append to `blocks` on each upstream task (bidirectional link)
     if (created.blockedBy.length > 0) {
@@ -138,7 +159,7 @@ export class TaskManager {
       });
     }
 
-    return created;
+    return { task: created, reused: false };
   }
 
   /**
@@ -230,11 +251,7 @@ export class TaskManager {
    * The gate's own writes go straight to `repo.updateTask` (not back through
    * `update`), so the re-entrancy branch in `update()` is belt-and-suspenders.
    */
-  private async runVerificationGate(
-    taskId: string,
-    current: TeamTask,
-    updates: UpdateTaskParams
-  ): Promise<TeamTask> {
+  private async runVerificationGate(taskId: string, current: TeamTask, updates: UpdateTaskParams): Promise<TeamTask> {
     // The add AND the `verifying` write are inside the try so that if the
     // verifying write throws, the finally still removes taskId from `gating` -
     // otherwise the single-flight guard would silently drop all future completions.
@@ -280,7 +297,12 @@ export class TaskManager {
           metadata: {
             ...current.metadata,
             ...updates.metadata,
-            verification: { outcome: 'advisory', note: `verify write failed: ${message}`, failCount: 0, checkedAt: Date.now() },
+            verification: {
+              outcome: 'advisory',
+              note: `verify write failed: ${message}`,
+              failCount: 0,
+              checkedAt: Date.now(),
+            },
           },
           updatedAt: Date.now(),
         })

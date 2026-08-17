@@ -7,6 +7,12 @@
  */
 
 import type { ISqliteDriver } from './drivers/ISqliteDriver';
+import {
+  CREATE_TASK_DEDUPE_INDEX_SQL,
+  LIVE_TASK_PREDICATE_SQL,
+  TASK_DEDUPE_INDEX_NAME,
+  normalizedSubjectSql,
+} from './teamTaskDedupe';
 
 /**
  * Migration script definition
@@ -2407,6 +2413,59 @@ const migration_v55: IMigration = {
 };
 
 /**
+ * Migration v55 -> v56: stop the team task board accumulating duplicates (#981).
+ *
+ * A retried `team_task_create` (the leader re-reads its plan, an ACP turn is
+ * replayed, a wake fires twice) arrives as a brand-new tool call carrying no
+ * idempotency key, so nothing downstream could tell it apart from a second,
+ * genuine task. A partial UNIQUE index on (team, normalized subject, owner)
+ * over the LIVE statuses makes the second insert a no-op the repository can
+ * detect and turn into "reused the existing task".
+ *
+ * Databases written before this migration already contain those duplicates, and
+ * CREATE UNIQUE INDEX would fail on them - which would abort startup. So the
+ * pre-existing duplicates are collapsed first: the oldest row in each group is
+ * kept, every later one is parked in `deleted` (never dropped - task ids appear
+ * in other tasks' blockedBy/blocks, and the row is evidence) and stamped with
+ * the id it was folded into.
+ */
+const migration_v56: IMigration = {
+  version: 56,
+  name: 'Collapse duplicate live team tasks and enforce uniqueness with a partial index',
+  up: (db) => {
+    const norm = normalizedSubjectSql;
+    // The oldest live row sharing this row's dedupe key - the keeper. Correlated
+    // on the outer row, so it also matches the outer row itself.
+    const keeperId = `(SELECT keep.id FROM team_tasks keep
+       WHERE keep.team_id = team_tasks.team_id
+         AND ${norm('keep.subject')} = ${norm('team_tasks.subject')}
+         AND coalesce(keep.owner, '') = coalesce(team_tasks.owner, '')
+         AND keep.${LIVE_TASK_PREDICATE_SQL}
+       ORDER BY keep.created_at ASC, keep.id ASC
+       LIMIT 1)`;
+    db.exec(`UPDATE team_tasks
+       SET status = 'deleted',
+           metadata = json_set(
+             CASE WHEN json_valid(metadata) THEN metadata ELSE '{}' END,
+             '$.dedupedInto', ${keeperId}
+           ),
+           updated_at = CAST(strftime('%s', 'now') AS INTEGER) * 1000
+     WHERE ${LIVE_TASK_PREDICATE_SQL}
+       AND id <> ${keeperId}`);
+    db.exec(CREATE_TASK_DEDUPE_INDEX_SQL);
+    console.log('[Migration v56] Collapsed duplicate live team tasks and added the dedupe index');
+  },
+  down: (db) => {
+    // The index is the only reversible half. Rows folded into `deleted` keep
+    // their `metadata.dedupedInto` stamp: resurrecting them would re-create the
+    // duplicates the board was cleaned of, and the stamp is how an operator
+    // finds them if that is ever actually wanted.
+    db.exec(`DROP INDEX IF EXISTS ${TASK_DEDUPE_INDEX_NAME}`);
+    console.log('[Migration v56] Rolled back: removed the team task dedupe index');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -2420,7 +2479,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v37, migration_v38, migration_v39, migration_v40, migration_v41, migration_v42,
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
   migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
-  migration_v53, migration_v54, migration_v55,
+  migration_v53, migration_v54, migration_v55, migration_v56,
 ];
 
 /**

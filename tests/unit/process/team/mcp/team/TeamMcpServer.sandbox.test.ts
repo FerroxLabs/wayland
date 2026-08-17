@@ -96,8 +96,10 @@ function makeMailbox(): Mailbox {
 }
 
 function makeTaskManager() {
+  const create = vi.fn().mockResolvedValue({ id: 'task-1', subject: 'Test', status: 'pending', owner: undefined });
   return {
-    create: vi.fn().mockResolvedValue({ id: 'task-1', subject: 'Test', status: 'pending', owner: undefined }),
+    create,
+    createOrReuse: vi.fn(async (params: unknown) => ({ task: await create(params), reused: false })),
     update: vi.fn().mockResolvedValue({ id: 'task-1', status: 'completed' }),
     list: vi.fn().mockResolvedValue([]),
     getByOwner: vi.fn().mockResolvedValue([]),
@@ -151,9 +153,7 @@ async function startServer(team: TTeam, mailbox: Mailbox, taskManager: TaskManag
     getTeam: () => team,
     mailbox,
     taskManager,
-    spawnAgent: vi.fn().mockResolvedValue(
-      makeAgent({ slotId: 'slot-new', agentName: 'NewBot', role: 'teammate' })
-    ),
+    spawnAgent: vi.fn().mockResolvedValue(makeAgent({ slotId: 'slot-new', agentName: 'NewBot', role: 'teammate' })),
     renameAgent: vi.fn(),
     removeAgent: vi.fn(),
     wakeAgent: vi.fn().mockResolvedValue(undefined),

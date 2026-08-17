@@ -150,7 +150,10 @@ Best practices:
   {
     subject: z.string().describe('Short task title (what needs to be done)'),
     description: z.string().optional().describe('Detailed description of the task'),
-    owner: z.string().optional().describe('Teammate name to assign this task to'),
+    owner: z
+      .string()
+      .optional()
+      .describe('Teammate to assign this task to - their name (as shown by team_members) or their slotId'),
   },
   TEAM_MCP_PORT,
   TEAM_AGENT_SLOT_ID,
@@ -170,7 +173,7 @@ Use this to:
   {
     task_id: z.string().describe('Task ID (first 8 chars are enough)'),
     status: z.enum(['pending', 'in_progress', 'completed', 'deleted']).optional().describe('New task status'),
-    owner: z.string().optional().describe('New owner (teammate name)'),
+    owner: z.string().optional().describe('New owner - their name (as shown by team_members) or their slotId'),
   },
   TEAM_MCP_PORT,
   TEAM_AGENT_SLOT_ID,

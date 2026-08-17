@@ -1,8 +1,14 @@
 // src/process/team/repository/SqliteTeamRepository.ts
 import { getDatabase } from '@process/services/database';
+import {
+  LIVE_TASK_PREDICATE_SQL,
+  TASK_DEDUPE_KEY_SQL,
+  normalizedSubjectSql,
+} from '@process/services/database/teamTaskDedupe';
 import type { ISqliteDriver } from '@process/services/database/drivers/ISqliteDriver';
 import { DEFAULT_RETRY_BUDGET, LEASE_TTL_MS } from '../types';
 import type { MailboxMessage, TeamAgent, TeamEvent, TeamEventType, TeamTask, TTeam } from '../types';
+import { TeamTaskDuplicateError } from './ITeamRepository';
 import type { ITeamRepository } from './ITeamRepository';
 
 // ---------------------------------------------------------------------------
@@ -351,30 +357,67 @@ export class SqliteTeamRepository implements ITeamRepository {
   // Task operations
   // -------------------------------------------------------------------------
 
+  /**
+   * #981 - insert a task, or hand back the live task that already covers it.
+   *
+   * The insert targets the partial UNIQUE index on
+   * (team_id, normalized subject, owner) over the non-terminal statuses, so a
+   * retried `team_task_create` collapses into the existing row instead of
+   * opening a second one. `DO NOTHING` is scoped to that index specifically -
+   * a primary-key collision still throws, because a duplicate task id is a bug,
+   * not a retry.
+   *
+   * The insert and the re-select run in ONE transaction so a second attempt
+   * racing the first cannot observe "no row inserted, and no row to reuse".
+   *
+   * @throws {TeamTaskDuplicateError} carrying the live row that already covers
+   *   this task. Nothing was written on that path.
+   */
   async createTask(task: TeamTask): Promise<TeamTask> {
     const db = await this.getDb();
-    db.prepare(
+    const insert = db.prepare(
       `INSERT INTO team_tasks (id, team_id, subject, description, status, owner, blocked_by, blocks, metadata, created_at, updated_at, lease_owner, lease_expires_at, last_heartbeat, retry_budget, retries_used)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(
-      task.id,
-      task.teamId,
-      task.subject,
-      task.description ?? null,
-      task.status,
-      task.owner ?? null,
-      JSON.stringify(task.blockedBy),
-      JSON.stringify(task.blocks),
-      JSON.stringify(task.metadata),
-      task.createdAt,
-      task.updatedAt,
-      task.leaseOwner ?? null,
-      task.leaseExpiresAt ?? null,
-      task.lastHeartbeat ?? null,
-      task.retryBudget ?? DEFAULT_RETRY_BUDGET,
-      task.retriesUsed ?? 0
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT (${TASK_DEDUPE_KEY_SQL}) WHERE ${LIVE_TASK_PREDICATE_SQL} DO NOTHING`
     );
-    return task;
+    const findLive = db.prepare(
+      `SELECT * FROM team_tasks
+        WHERE team_id = ?
+          AND ${normalizedSubjectSql('subject')} = ${normalizedSubjectSql('?')}
+          AND coalesce(owner, '') = ?
+          AND ${LIVE_TASK_PREDICATE_SQL}
+        ORDER BY created_at ASC, id ASC
+        LIMIT 1`
+    );
+    return db.transaction(() => {
+      const inserted = insert.run(
+        task.id,
+        task.teamId,
+        task.subject,
+        task.description ?? null,
+        task.status,
+        task.owner ?? null,
+        JSON.stringify(task.blockedBy),
+        JSON.stringify(task.blocks),
+        JSON.stringify(task.metadata),
+        task.createdAt,
+        task.updatedAt,
+        task.leaseOwner ?? null,
+        task.leaseExpiresAt ?? null,
+        task.lastHeartbeat ?? null,
+        task.retryBudget ?? DEFAULT_RETRY_BUDGET,
+        task.retriesUsed ?? 0
+      );
+      if (inserted.changes > 0) return task;
+      const existing = findLive.get(task.teamId, task.subject, task.owner ?? '') as TaskRow | undefined;
+      if (!existing) {
+        // Unreachable: the conflict proves a live row with this key exists, and
+        // we are inside the same transaction that saw it. Fail loudly rather
+        // than return a task that was never written.
+        throw new Error(`Task "${task.subject}" collided on the dedupe index but no live row was found`);
+      }
+      throw new TeamTaskDuplicateError(rowToTask(existing));
+    })();
   }
 
   async findTaskById(id: string): Promise<TeamTask | null> {
@@ -498,9 +541,9 @@ export class SqliteTeamRepository implements ITeamRepository {
     // the outcome guarded by `status='zombie'`. Increment is a SQL expression on
     // the column, never a JS snapshot, so two passes cannot double-increment.
     const run = db.transaction((): 'requeued' | 'exhausted' | 'skipped' => {
-      const row = db.prepare('SELECT status, metadata, retry_budget, retries_used FROM team_tasks WHERE id = ?').get(id) as
-        | Pick<TaskRow, 'status' | 'metadata' | 'retry_budget' | 'retries_used'>
-        | undefined;
+      const row = db
+        .prepare('SELECT status, metadata, retry_budget, retries_used FROM team_tasks WHERE id = ?')
+        .get(id) as Pick<TaskRow, 'status' | 'metadata' | 'retry_budget' | 'retries_used'> | undefined;
       if (!row || row.status !== 'zombie') return 'skipped';
 
       if (row.retries_used < row.retry_budget) {
@@ -514,7 +557,11 @@ export class SqliteTeamRepository implements ITeamRepository {
         return 'requeued';
       }
 
-      const metadata = { ...(JSON.parse(row.metadata) as Record<string, unknown>), failed: true, failureReason: 'lease exhausted' };
+      const metadata = {
+        ...(JSON.parse(row.metadata) as Record<string, unknown>),
+        failed: true,
+        failureReason: 'lease exhausted',
+      };
       // Terminal state is `failed` (NOT `deleted`): a permanently-failed task
       // must stay VISIBLE in Mission Control's attention surface, not vanish.
       db.prepare(

@@ -132,6 +132,7 @@ type MockMailbox = {
 
 type MockTaskManager = {
   create: ReturnType<typeof vi.fn>;
+  createOrReuse: ReturnType<typeof vi.fn>;
   update: ReturnType<typeof vi.fn>;
   list: ReturnType<typeof vi.fn>;
   checkUnblocks: ReturnType<typeof vi.fn>;
@@ -144,8 +145,12 @@ function makeMockMailbox(): MockMailbox {
 }
 
 function makeMockTaskManager(): MockTaskManager {
+  const create = vi.fn().mockResolvedValue({ id: 'task-uuid-001', subject: 'Test task' });
   return {
-    create: vi.fn().mockResolvedValue({ id: 'task-uuid-001', subject: 'Test task' }),
+    create,
+    // #981 - the MCP layer calls createOrReuse; delegate so `create` assertions
+    // keep describing what the tool actually asked the task board to do.
+    createOrReuse: vi.fn(async (params: unknown) => ({ task: await create(params), reused: false })),
     // Echo the requested status so the returned task reflects what was applied -
     // the P3 gate keys checkUnblocks on the FINAL status, not the proposed one.
     update: vi.fn().mockImplementation(async (_id: string, updates: { status?: string }) => ({
@@ -454,11 +459,14 @@ describe('TeamMcpServer - TCP tool interface', () => {
 
       expect(resp.result).toContain('Deploy to prod');
       expect(resp.result).toContain('Worker');
+      // #981: `owner` arrives as the teammate NAME (the only identifier the
+      // leader is ever shown) and is resolved to the slotId TaskManager
+      // validates against before it reaches the task board.
       expect(taskManager.create).toHaveBeenCalledWith(
         expect.objectContaining({
           subject: 'Deploy to prod',
           description: 'Run migration scripts',
-          owner: 'Worker',
+          owner: 'slot-worker',
         })
       );
     });
