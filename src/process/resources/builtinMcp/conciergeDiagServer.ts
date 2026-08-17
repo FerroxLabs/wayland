@@ -803,9 +803,14 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
       const enabled = s.enabled === true;
       const toolCount = Array.isArray(s.tools) ? s.tools.length : 0;
       const lastError = asNullableString(s.lastError);
+      // #1008: a bundled first-party server has no command, args or credentials
+      // the user owns, so telling them to check those sends them looking for a
+      // mistake they cannot have made. Say plainly that it is ours to fix.
       const flag =
         enabled && toolCount === 0
-          ? 'Enabled but exposes 0 tools — it likely failed to connect or registered nothing; check its command, args, or credentials.'
+          ? s.builtin === true
+            ? 'Enabled but exposes 0 tools — this is a server bundled with Wayland, so there is nothing for you to configure. It either failed to start or has not been probed yet. Please report it.'
+            : 'Enabled but exposes 0 tools — it likely failed to connect or registered nothing; check its command, args, or credentials.'
           : null;
       return {
         name: typeof s.name === 'string' ? s.name : '(unnamed)',

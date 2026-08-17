@@ -371,6 +371,74 @@ describe('AbstractMcpAgent', () => {
       expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
     });
 
+    // #1008: the FIRST-PARTY core builtins (search-skills, concierge-diag,
+    // image-gen) are seeded into mcp.config with an ABSOLUTE script path, not
+    // the bare filename the four sibling @wayland servers use. They were
+    // therefore never matched by the builtin carve-out above and kept spawning
+    // bare `node` — which macOS does not ship — so on an end-user Mac they
+    // reported "Enabled but exposes 0 tools" forever.
+    it('#1008 packaged: launches a first-party core builtin under bundled Bun, not bare node', async () => {
+      h.isPackaged = true;
+      h.bundledBunDir = '/res/bundled-bun/darwin-arm64';
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: ['/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main/builtin-mcp-search-skills.js'],
+      });
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).toBe(
+        path.join('/res/bundled-bun/darwin-arm64', process.platform === 'win32' ? 'bun.exe' : 'bun')
+      );
+      expect(cfg.command).not.toBe('node');
+      // The stored absolute path is spawned unchanged — only the runtime moves.
+      expect(cfg.args).toEqual([
+        '/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main/builtin-mcp-search-skills.js',
+      ]);
+      expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
+    });
+
+    it('#1008 packaged: launches the concierge-diag builtin under bundled Bun, not bare node', async () => {
+      h.isPackaged = true;
+      h.bundledBunDir = '/res/bundled-bun/darwin-arm64';
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: ['/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main/builtin-mcp-concierge-diag.js'],
+      });
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).not.toBe('node');
+      expect(cfg.command).toBe(
+        path.join('/res/bundled-bun/darwin-arm64', process.platform === 'win32' ? 'bun.exe' : 'bun')
+      );
+    });
+
+    it('#1008 dev: launches a first-party core builtin via Electron-as-Node, not bare node', async () => {
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: ['/repo/app/out/main/builtin-mcp-image-gen.js'],
+      });
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).toBe(process.execPath);
+      expect(cfg.env.ELECTRON_RUN_AS_NODE).toBe('1');
+      expect(cfg.args).toEqual(['/repo/app/out/main/builtin-mcp-image-gen.js']);
+    });
+
     it('does NOT rewrite a user-defined node stdio server (only our bundled builtins)', async () => {
       await setupClientOk();
       const { StdioClientTransport } = await setupTransport();

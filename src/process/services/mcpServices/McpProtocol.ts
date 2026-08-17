@@ -18,7 +18,7 @@ import { getEnhancedEnv, resolveNpxPath } from '@/process/utils/shellEnv';
 import { resolveMcpStdioSpawn } from './mcpStdioSpawn';
 import { getMcpScriptPath } from '@/process/utils/mcpScriptDir';
 import { resolveJsRuntime } from '@/process/utils/jsRuntime';
-import { isBuiltinWaylandMcpArg } from '@/process/resources/builtinMcp/constants';
+import { isBuiltinCoreMcpArg, isBuiltinWaylandMcpArg } from '@/process/resources/builtinMcp/constants';
 
 /**
  * MCP source type - includes all ACP backends and Wayland built-ins
@@ -316,7 +316,15 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
       // the app binary as Node in dev. The bare filename is also rewritten to an
       // absolute path under out/main (dev) or app.asar.unpacked/out/main (packaged).
       const isBuiltinWaylandMcp = transport.command === 'node' && isBuiltinWaylandMcpArg(rawArgs[0]);
-      const builtinRuntime = isBuiltinWaylandMcp ? resolveJsRuntime() : null;
+      // #1008: the SAME "no system node" failure hits the first-party core
+      // builtins (search-skills, concierge-diag, image-gen). They were missed
+      // because they are seeded into mcp.config with an ABSOLUTE script path
+      // rather than the bare filename the four sibling servers use, so the
+      // filename match above never saw them. macOS ships no `/usr/bin/node`, so
+      // on an end-user Mac the probe died with ENOENT and the servers reported
+      // "Enabled but exposes 0 tools" forever.
+      const isBuiltinCoreMcp = transport.command === 'node' && isBuiltinCoreMcpArg(rawArgs[0]);
+      const builtinRuntime = isBuiltinWaylandMcp || isBuiltinCoreMcp ? resolveJsRuntime() : null;
 
       // Use enhanced env (includes shell PATH) instead of bare process.env
       // so CLI tools installed via nvm/fnm/volta are discoverable in packaged mode

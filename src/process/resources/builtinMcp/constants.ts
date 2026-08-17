@@ -60,6 +60,37 @@ export function isBuiltinWaylandMcpTransport(transport?: {
   return isBuiltinWaylandMcpArg(first);
 }
 
+/**
+ * First-party bundled stdio MCP servers emitted by `scripts/build-mcp-servers.js`.
+ *
+ * These differ from `BUILTIN_WAYLAND_MCP_FILES` above in HOW they are stored:
+ * the four sibling @wayland servers keep a bare filename in `args[0]`, while
+ * these are seeded into `mcp.config` with an ABSOLUTE path (see
+ * `getBuiltinMcpScriptPath` in initStorage). Matching therefore has to look at
+ * the basename, not the whole argument.
+ */
+export const BUILTIN_CORE_MCP_FILES = [
+  'builtin-mcp-image-gen.js',
+  'builtin-mcp-search-skills.js',
+  'builtin-mcp-concierge-diag.js',
+] as const;
+
+export type BuiltinCoreMcpFile = (typeof BUILTIN_CORE_MCP_FILES)[number];
+
+/**
+ * True if `arg` points at one of the first-party bundled stdio servers (#1008).
+ *
+ * The stored argument is an absolute path, so compare the basename. Split on
+ * BOTH separators rather than using `path.basename`: this module is bundled
+ * into the standalone stdio servers and deliberately imports nothing, and a
+ * Windows path can reach a resolver running with POSIX semantics in tests.
+ */
+export function isBuiltinCoreMcpArg(arg: string | undefined | null): boolean {
+  if (!arg) return false;
+  const base = arg.split(/[\\/]/).pop();
+  return (BUILTIN_CORE_MCP_FILES as readonly string[]).includes(base ?? '');
+}
+
 export function isBuiltinImageGenName(name?: string | null): boolean {
   if (!name) return false;
   return (

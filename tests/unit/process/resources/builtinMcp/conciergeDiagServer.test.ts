@@ -240,6 +240,35 @@ describe('createConciergeDiagServer — MCP health (config JSON)', () => {
     expect(disabled?.flag).toBeNull();
   });
 
+  // #1008: a bundled first-party server exposes no command, args or credentials
+  // the user controls, so the generic "check its command, args, or credentials"
+  // advice sent two reporters hunting for a mistake they could not have made.
+  it('#1008 tells a bundled builtin apart from a user-configured server', () => {
+    const configPath = tmp('wayland-config-builtin.txt');
+    fs.writeFileSync(
+      configPath,
+      encodeConfig({
+        'mcp.config': [
+          { id: 'builtin-search-skills', name: 'wayland-search-skills', enabled: true, builtin: true, tools: [] },
+          { id: 'u', name: 'user-server', enabled: true, tools: [] },
+        ],
+      })
+    );
+
+    const server = createConciergeDiagServer({ configPath });
+    const result = server.mcpHealth();
+
+    const builtin = result.items.find((s) => s.name === 'wayland-search-skills');
+    expect(builtin?.flag).toContain('0 tools');
+    expect(builtin?.flag).toContain('bundled with Wayland');
+    // It must NOT send the user off to check settings they do not own.
+    expect(builtin?.flag).not.toContain('credentials');
+
+    const user = result.items.find((s) => s.name === 'user-server');
+    expect(user?.flag).toContain('0 tools');
+    expect(user?.flag).toContain('credentials');
+  });
+
   it('degrades gracefully when the config path is missing', () => {
     const server = createConciergeDiagServer({ configPath: tmp('does-not-exist.txt') });
     const result = server.mcpHealth();
