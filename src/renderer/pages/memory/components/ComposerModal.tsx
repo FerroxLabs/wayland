@@ -32,12 +32,15 @@ export type ComposerModalProps = {
   open: boolean;
   onClose: () => void;
   /**
-   * Absolute path of the project the user is currently in, when there is one.
-   * Forwarded with a `project`-scoped save so the entry lands in THIS project
-   * (#924); without it the main process refuses to guess and writes to the
-   * global store rather than to an unrelated project.
+   * Projects the archive has indexed, as {path, basename}. A `project`-scoped
+   * save must name exactly one of these (#924): the Memory page is a standalone
+   * route with no conversation context, so there is nothing to infer the
+   * project FROM and the destination has to be chosen explicitly. An empty list
+   * means project scope is unavailable and the toggle is disabled.
    */
-  projectPath?: string;
+  projects?: ReadonlyArray<{ path: string; basename: string }>;
+  /** Project pre-selected on open - the Memory page's project filter, when set. */
+  defaultProjectPath?: string;
   onSubmit?: (entry: { content: string; scope: 'project' | 'global'; tags: string[] }) => void | Promise<void>;
 };
 
@@ -47,11 +50,18 @@ const MAX_CHARS = 8000;
 // Component
 // ---------------------------------------------------------------------------
 
-export function ComposerModal({ open, onClose, projectPath, onSubmit }: ComposerModalProps): React.ReactElement | null {
+export function ComposerModal({
+  open,
+  onClose,
+  projects = [],
+  defaultProjectPath,
+  onSubmit,
+}: ComposerModalProps): React.ReactElement | null {
   const { t } = useTranslation();
 
   const [content, setContent] = useState('');
   const [scope, setScope] = useState<'project' | 'global'>('project');
+  const [projectPath, setProjectPath] = useState<string>('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [addingTag, setAddingTag] = useState(false);
@@ -65,6 +75,10 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
   // Auto-focus textarea when modal opens; reset state on close.
   useEffect(() => {
     if (open) {
+      // Seed the destination from the page's project filter, else the first
+      // indexed project. Never left blank while a project exists, so the
+      // destination line below always names a real place (#924).
+      setProjectPath(defaultProjectPath ?? projects[0]?.path ?? '');
       // Defer focus so Arco has time to mount
       const id = window.setTimeout(() => {
         textareaRef.current?.focus();
@@ -74,14 +88,24 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
       // Clear on close
       setContent('');
       setScope('project');
+      setProjectPath('');
       setTags([]);
       setTagInput('');
       setAddingTag(false);
       setError(null);
     }
-  }, [open]);
+  }, [open, defaultProjectPath, projects]);
 
   // ESC already handled by Arco Modal's closable / onCancel - no extra listener needed.
+
+  // #924: name the destination the save will actually reach. Main is the
+  // authority - it refuses a project-scoped save it cannot place rather than
+  // redirecting it to the global brain - so the renderer's job is to pick the
+  // project explicitly and show which one, never to re-decide the scope.
+  const destinationName =
+    scope === 'global'
+      ? t('archive.composer.destGlobal', 'Global memory (every chat)')
+      : (projects.find((p) => p.path === projectPath)?.basename ?? '');
 
   // ---- Submit ----
   const handleSubmit = useCallback(async () => {
@@ -276,6 +300,30 @@ export function ComposerModal({ open, onClose, projectPath, onSubmit }: Composer
           >
             🌐 {t('archive.composer.scopeGlobal', 'global')}
           </button>
+        </div>
+
+        {/* ---- Destination (#924) ---- */}
+        {/* The scope pill alone told the user "project" while the actual
+            destination was resolved elsewhere and could differ. Name the real
+            place, and let them change it, before they save. */}
+        <div className={styles.scopeRow} data-testid='composer-destination-row'>
+          <span data-testid='composer-destination'>
+            {t('archive.composer.savingTo', 'Saving to')}: {destinationName || t('archive.composer.destNone', 'no project selected')}
+          </span>
+          {scope === 'project' && projects.length > 1 && (
+            <select
+              value={projectPath}
+              onChange={(e) => setProjectPath(e.target.value)}
+              aria-label={t('archive.composer.projectPicker', 'Project to save to')}
+              data-testid='composer-project-picker'
+            >
+              {projects.map((p) => (
+                <option key={p.path} value={p.path}>
+                  {p.basename}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         {/* ---- Tag chip input ---- */}

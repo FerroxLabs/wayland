@@ -59,7 +59,6 @@ import EmptyStateHero from '../components/EmptyStateHero';
 import MemoryStatusBar from '../components/MemoryStatusBar';
 import ImportDrawer from '../components/ImportDrawer';
 import ComposerModal from '../components/ComposerModal';
-import { useActiveBrainScope } from '../getActiveBrainScope';
 import EntryEditorModal from '../components/EntryEditorModal';
 import ArchivedMemoryModal from '../components/ArchivedMemoryModal';
 import { useMemoryIndex } from '../hooks/useMemoryIndex';
@@ -130,12 +129,6 @@ const FullPanelShell: React.FC = () => {
   // Root-namespace t for the one string reused from #591 (memory.settings.*),
   // so the strip adds no new i18n keys.
   const { t: tRoot } = useTranslation();
-
-  // #924: the project the active chat is working in. A `project`-scoped
-  // quick-add is written HERE, not into whichever project the archive index
-  // happens to rank first.
-  const brainScope = useActiveBrainScope();
-  const activeProjectPath = brainScope.scope === 'project' ? brainScope.path : undefined;
 
   const [filter, setFilter] = useState<ListFilter>(DEFAULT_FILTER);
   const [timeWindow, setTimeWindow] = useState<TimeWindow>('all');
@@ -404,6 +397,13 @@ const FullPanelShell: React.FC = () => {
   // Result count for filter bar
   const resultCountLabel = isLoading ? '' : `${total.toLocaleString()} ${t('archive.filter.results', 'results')}`;
 
+  // #924: the Memory page is a standalone route with no conversation context,
+  // so a project-scoped save cannot be inferred - it is chosen. Feed the
+  // composer the indexed projects and pre-select the page's project filter.
+  const composerProjects = projects.map((p) => ({ path: p.path, basename: p.basename }));
+  const composerDefaultProjectPath =
+    filter.project !== 'all' ? projects.find((p) => p.basename === filter.project)?.path : undefined;
+
   const projectSelected = filter.project !== 'all' ? filter.project : null;
   const typeCounts = stats?.typeCounts ?? {
     decision: 0,
@@ -663,7 +663,12 @@ const FullPanelShell: React.FC = () => {
       <ImportDrawer open={importOpen} onClose={() => setImportOpen(false)} />
 
       {/* ---- Composer modal ---- */}
-      <ComposerModal open={composerOpen} onClose={() => setComposerOpen(false)} projectPath={activeProjectPath} />
+      <ComposerModal
+        open={composerOpen}
+        onClose={() => setComposerOpen(false)}
+        projects={composerProjects}
+        defaultProjectPath={composerDefaultProjectPath}
+      />
 
       {/* ---- Entry editor modal (#414) ---- */}
       <EntryEditorModal

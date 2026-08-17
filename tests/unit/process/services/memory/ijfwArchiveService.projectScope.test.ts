@@ -125,31 +125,50 @@ describe('IjfwArchiveService.quickAdd project scoping (#924)', () => {
     expect(alphaContent).not.toContain('beta-only secret note');
   });
 
-  it('falls back to the global store rather than guessing a project when the path is unknown', async () => {
+  it('refuses an unknown project path instead of redirecting the note anywhere', async () => {
     service = new IjfwArchiveService(noopWatcherFactory);
     await service.init();
 
-    await service.quickAdd('unscoped note', 'project', 'observation', path.join(tmpRoot, 'never-registered'));
+    await expect(
+      service.quickAdd('unscoped note', 'project', 'observation', path.join(tmpRoot, 'never-registered'))
+    ).rejects.toThrow('unresolved_project_scope');
 
+    // Not into another project, and NOT into the global store either - the
+    // global block is injected into every chat, so redirecting there would
+    // widen the note's reach far beyond the one project the user asked for.
     const globalJournal = path.join(fakeHome, '.ijfw', 'memory', 'journal.md');
-    expect(fs.existsSync(globalJournal)).toBe(true);
-    expect(fs.readFileSync(globalJournal, 'utf8')).toContain('unscoped note');
-
-    const alphaJournal = journalOf(recentProject);
-    const alphaContent = fs.existsSync(alphaJournal) ? fs.readFileSync(alphaJournal, 'utf8') : '';
-    expect(alphaContent).not.toContain('unscoped note');
+    expect(fs.existsSync(globalJournal)).toBe(false);
+    for (const root of [recentProject, callerProject]) {
+      const j = journalOf(root);
+      expect(fs.existsSync(j) ? fs.readFileSync(j, 'utf8') : '').not.toContain('unscoped note');
+    }
   });
   it('refuses to guess a project when the caller names none and several exist', async () => {
     service = new IjfwArchiveService(noopWatcherFactory);
     await service.init();
 
-    await service.quickAdd('ambiguous note', 'project');
+    await expect(service.quickAdd('ambiguous note', 'project')).rejects.toThrow('unresolved_project_scope');
 
     const globalJournal = path.join(fakeHome, '.ijfw', 'memory', 'journal.md');
-    expect(fs.readFileSync(globalJournal, 'utf8')).toContain('ambiguous note');
+    expect(fs.existsSync(globalJournal)).toBe(false);
     for (const root of [recentProject, callerProject]) {
       const j = journalOf(root);
       expect(fs.existsSync(j) ? fs.readFileSync(j, 'utf8') : '').not.toContain('ambiguous note');
     }
+  });
+
+  it('a project-scoped save can never land in the global store (#924 F1)', async () => {
+    service = new IjfwArchiveService(noopWatcherFactory);
+    await service.init();
+
+    // Every project-scope call shape: named-and-valid, named-and-unknown, unnamed.
+    await service.quickAdd('valid', 'project', 'observation', callerProject);
+    await expect(service.quickAdd('unknown', 'project', 'observation', '/nope')).rejects.toThrow();
+    await expect(service.quickAdd('unnamed', 'project')).rejects.toThrow();
+
+    // The global journal - the one loadGlobalMemoryBlock injects into EVERY
+    // chat - must be untouched by all three.
+    const globalJournal = path.join(fakeHome, '.ijfw', 'memory', 'journal.md');
+    expect(fs.existsSync(globalJournal)).toBe(false);
   });
 });

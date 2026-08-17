@@ -791,37 +791,37 @@ class IjfwArchiveService {
 
   /**
    * Resolve the `.ijfw/memory` dir a project-scoped quick-add must be written
-   * to (#924).
+   * to (#924), or null when no project can be named with confidence.
    *
    * `projectPath` is the project the CALLER is in. It is accepted only when it
    * matches an indexed project root, so an IPC caller can never steer a write
-   * at an arbitrary directory. When it cannot be resolved we fall back to the
-   * global store: writing the user's note somewhere predictable is correct,
-   * writing it into whichever unrelated project happens to be most recently
-   * active is not - that was the cross-project bleed in #924.
+   * at an arbitrary directory.
    *
-   * The no-argument case keeps the historical `projects[0]` behaviour ONLY when
-   * there is a single indexed project, where it is unambiguous. With two or
-   * more, "most recently active" is a guess and we refuse to make it.
+   * There is deliberately NO fallback to the global store. Redirecting a
+   * `project`-scoped save to the machine-wide brain would be worse than the bug
+   * it replaced: the old code misplaced the note into ONE unrelated project,
+   * whereas the global store is injected into every chat in every project by
+   * `loadGlobalMemoryBlock`. Refusing is the only honest answer, and the caller
+   * surfaces the refusal rather than silently widening the note's reach.
+   *
+   * The no-argument case keeps the historical behaviour ONLY when there is a
+   * single indexed project, where it is unambiguous.
    */
-  private resolveProjectMemoryDir(projectPath?: string): string {
-    const globalDir = path.join(os.homedir(), '.ijfw', 'memory');
+  private resolveProjectMemoryDir(projectPath?: string): string | null {
     const roots = this.index.projects;
 
     if (projectPath && projectPath.trim()) {
       const resolved = path.resolve(projectPath);
       if (roots.some((p) => p.path === resolved)) return path.join(resolved, '.ijfw', 'memory');
-      log.warn('[memory-archive] quickAdd: unknown project path, writing to the global store', { projectPath });
-      return globalDir;
+      log.warn('[memory-archive] quickAdd: project path is not an indexed project root', { projectPath });
+      return null;
     }
 
     if (roots.length === 1) return path.join(roots[0].path, '.ijfw', 'memory');
-    if (roots.length > 1) {
-      log.warn('[memory-archive] quickAdd: no project path supplied, writing to the global store', {
-        candidates: roots.length,
-      });
-    }
-    return globalDir;
+    log.warn('[memory-archive] quickAdd: no project named and the project is ambiguous', {
+      candidates: roots.length,
+    });
+    return null;
   }
 
   async quickAdd(
@@ -832,6 +832,9 @@ class IjfwArchiveService {
   ): Promise<void> {
     const memDir =
       scope === 'global' ? path.join(os.homedir(), '.ijfw', 'memory') : this.resolveProjectMemoryDir(projectPath);
+    if (memDir === null) {
+      throw new Error('unresolved_project_scope');
+    }
     await fs.promises.mkdir(memDir, { recursive: true });
     const journalPath = path.join(memDir, 'journal.md');
     const now = new Date().toISOString();
