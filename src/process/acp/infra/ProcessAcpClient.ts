@@ -473,7 +473,7 @@ export class ProcessAcpClient implements AcpClient {
     // client (#774), and the session-level #1020 banner becomes dead code. Do not
     // add one.
     //
-    // The tradeoff that buys is accepted deliberately: because nothing waits for
+    // The tradeoff this buys is accepted deliberately: because nothing waits for
     // the child's 'exit' event, a genuine fast crash whose exit is still a
     // millisecond away is reported as a transport close rather than a confirmed
     // exit. That is the correct direction. A hedged "no exit was reported, the
