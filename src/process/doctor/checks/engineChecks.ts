@@ -34,9 +34,25 @@ export type RoutableModelReader = {
 };
 
 /**
+ * The version NUMBER inside a `--version` banner. `detectWCore` returns
+ * unvalidated, unbounded `execFileSync` stdout (`binaryResolver.ts`), and this
+ * check used to interpolate the whole of it, so anything the resolved binary
+ * chose to print — including a credential from its own environment — rendered
+ * verbatim in a report the Doctor panel offers to copy (the
+ * GHSA-2g2m-r86j-jg6h class). Surfacing only the capture is structural: an
+ * allowlisted shape rather than a scrub, so nothing about #1026 applies.
+ *
+ * The optional `v` is part of the capture, not decoration: the engine's own
+ * banner is `v0.10.0`-shaped and the existing reachability test asserts that
+ * spelling survives, so dropping it would have been a silent contract change.
+ */
+const ENGINE_VERSION_PATTERN = /v?\d+\.\d+\.\d+[\w.+-]*/;
+
+/**
  * Engine reachability — the `wayland-core` binary resolves and answers
- * `--version`. FAIL when no binary is found; WARN when a binary exists but did
- * not report a version (it may be the wrong arch or a broken build).
+ * `--version` with a recognisable version number. FAIL when no binary is found;
+ * WARN when a binary exists but reported no usable version (it may be the wrong
+ * arch or a broken build).
  */
 export async function checkEngineReachable(detect: () => WCoreDetection): Promise<DoctorCheckOutcome> {
   const result = detect();
@@ -47,14 +63,18 @@ export async function checkEngineReachable(detect: () => WCoreDetection): Promis
       remediation: 'Reinstall the app, or install the wayland-core engine on your PATH.',
     };
   }
-  if (!result.version) {
+  // Unparseable stdout is treated exactly like no stdout, and the raw text is
+  // NOT echoed to say so. A binary whose `--version` carries no version number is
+  // the same broken build either way, so the user loses no signal.
+  const version = result.version ? ENGINE_VERSION_PATTERN.exec(result.version)?.[0] : undefined;
+  if (!version) {
     return {
       status: 'warn',
-      detail: `Engine binary found at ${result.path ?? 'an unknown path'} but it did not report a version.`,
+      detail: `Engine binary found at ${result.path ?? 'an unknown path'} but it did not report a usable version.`,
       remediation: 'The binary may be the wrong architecture or a broken build — reinstall the app.',
     };
   }
-  return { status: 'pass', detail: `Wayland Core engine ${result.version} is reachable.` };
+  return { status: 'pass', detail: `Wayland Core engine ${version} is reachable.` };
 }
 
 /**

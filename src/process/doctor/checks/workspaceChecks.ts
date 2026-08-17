@@ -14,6 +14,7 @@
  * that are missing.
  */
 
+import { redactSecrets } from '@process/utils/secretRedaction';
 import type { DoctorCheckOutcome } from '../types';
 
 /** A configured workspace path with a label for the diagnostic copy. */
@@ -43,9 +44,17 @@ export async function checkWorkspaceDrift(deps: WorkspaceCheckDeps): Promise<Doc
   const checked = await Promise.all(
     workspaces.map(async (entry) => ({ entry, exists: await deps.pathExists(entry.path) }))
   );
+  // `label` is `Chat "<name>"` / `Project "<name>"` (`doctor/registry.ts`), and a
+  // conversation's name is AUTO-GENERATED FROM THE USER'S FIRST MESSAGE — so a
+  // user who pastes a credential into chat gets it as the chat title, and from
+  // there into a report the Doctor panel offers to copy (the
+  // GHSA-2g2m-r86j-jg6h class). Scrub-only: the label IS user prose, so there is
+  // no structure to strip the way there is for a TOML parse error or an MCP
+  // declaration. That leaves the prefixed-label form (`FOO_API_KEY=<value>`)
+  // exposed until #1026 lands — tracked there, alongside backendChecks.
   const missing = checked
     .filter((result) => !result.exists)
-    .map((result) => `${result.entry.label} → ${result.entry.path}`);
+    .map((result) => `${redactSecrets(result.entry.label)} → ${result.entry.path}`);
 
   if (missing.length > 0) {
     return {
@@ -115,7 +124,11 @@ export async function checkWorkspaceConfigured(deps: WorkspaceConfiguredDeps): P
   );
 
   if (temp.length > 0) {
-    const shown = temp.slice(0, MAX_LISTED_TEMP).map((entry) => `${entry.label} → ${entry.path ?? '(no folder)'}`);
+    // Same user-authored label as in `checkWorkspaceDrift` above, same scrub,
+    // same #1026 caveat.
+    const shown = temp
+      .slice(0, MAX_LISTED_TEMP)
+      .map((entry) => `${redactSecrets(entry.label)} → ${entry.path ?? '(no folder)'}`);
     const suffix = temp.length > MAX_LISTED_TEMP ? `; and ${temp.length - MAX_LISTED_TEMP} more` : '';
     return {
       status: 'warn',

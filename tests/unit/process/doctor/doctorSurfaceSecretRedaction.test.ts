@@ -29,7 +29,8 @@
 import { describe, expect, it } from 'vitest';
 import { checkMcpServers } from '@process/doctor/checks/mcpChecks';
 import { checkBackends } from '@process/doctor/checks/backendChecks';
-import { checkEngineContractPin } from '@process/doctor/checks/engineChecks';
+import { checkEngineContractPin, checkEngineReachable } from '@process/doctor/checks/engineChecks';
+import { checkWorkspaceDrift, checkWorkspaceConfigured } from '@process/doctor/checks/workspaceChecks';
 import { runDoctor } from '@process/doctor/runner';
 import type { IMcpServer } from '@/common/config/storage';
 import type { DetectedAgent } from '@/common/types/detectedAgent';
@@ -37,12 +38,27 @@ import type { DetectedAgent } from '@/common/types/detectedAgent';
 const API_KEY = 'sk-ant-api03-Zx91QmT4LpVn7BdKe0RsYcHu2WjAgF6oXlP3NtEbQvMk8ZaSdCyRfGhJ';
 const BEARER = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YXlsYW5kLXRlc3QifQ.s3cr3tS1gnatureV4lu3';
 
+/**
+ * THE PREFIXLESS CANARY. A 32-hex value behind a PREFIXED label - the common
+ * spelling in the wild, and the one `redactSecrets` cannot see: its label rule
+ * anchors a word boundary before the label and there is no boundary between `_`
+ * and a letter, so `AZURE_OPENAI_API_KEY=<value>` survives a scrub entirely
+ * (#1026). Any sink that keeps this out is doing so STRUCTURALLY - by dropping
+ * the text, matching the declaration literally, or allowlisting a shape - which
+ * is the only kind of fix that cannot regress when a pattern set shifts.
+ */
+const PREFIXLESS_KEY = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+const PREFIXLESS_ASSIGNMENT = `AZURE_OPENAI_API_KEY=${PREFIXLESS_KEY}`;
+
 /** Distinctive prefixes as well as whole values, so a partial leak still counts. */
 const findsSecret = (text: string): boolean =>
   text.includes(API_KEY) ||
   text.includes('sk-ant-api03-Zx91') ||
   text.includes(BEARER) ||
   text.includes('s3cr3tS1gnatureV4lu3');
+
+/** Separate matcher for the prefixless canary, on the VALUE not the label. */
+const findsPrefixlessKey = (text: string): boolean => text.includes(PREFIXLESS_KEY);
 
 /** Every string a Doctor result can put in front of the user. */
 const surfaced = (result: { detail: string; remediation?: string }): string =>
@@ -75,6 +91,96 @@ describe('MCP check — the probe error is free-form text from a credential-carr
     expect(result.detail).toContain('notion');
   });
 
+  it('PREFIXLESS CANARY: masks a declared env value the server echoed on stderr', async () => {
+    const stdio = {
+      id: 'azure',
+      name: 'azure',
+      enabled: true,
+      transport: {
+        type: 'stdio',
+        command: 'node',
+        args: ['./server.js'],
+        env: { AZURE_OPENAI_API_KEY: PREFIXLESS_KEY },
+      },
+    } as unknown as IMcpServer;
+
+    // The real shape: the child dies before the handshake and `McpProtocol`
+    // appends up to 300 characters of its stderr as `Server output: ...`.
+    const result = await checkMcpServers({
+      listServers: async () => [stdio],
+      testConnection: async () => ({
+        success: false,
+        error: `MCP error -32000: Connection closed. Server output: Traceback: config error with ${PREFIXLESS_ASSIGNMENT} at startup`,
+      }),
+    });
+
+    expect(result.status).toBe('fail');
+    // `redactSecrets` alone cannot do this - see PREFIXLESS_KEY. It is masked
+    // because the value is in `transport.env`, matched literally.
+    expect(findsPrefixlessKey(surfaced(result))).toBe(false);
+    // The diagnostic still identifies the server and the failure.
+    expect(result.detail).toContain('azure');
+    expect(result.detail).toContain('Connection closed');
+  });
+
+  it('PREFIXLESS CANARY: masks a declared header value and a declared arg', async () => {
+    const declared = {
+      id: 'hosted',
+      name: 'hosted',
+      enabled: true,
+      transport: {
+        type: 'http',
+        url: 'https://mcp.example.com',
+        headers: { 'X-Api-Key': PREFIXLESS_KEY },
+      },
+    } as unknown as IMcpServer;
+    const withArg = {
+      id: 'argy',
+      name: 'argy',
+      enabled: true,
+      transport: { type: 'stdio', command: 'node', args: ['./s.js', `--api-key=${PREFIXLESS_KEY}`] },
+    } as unknown as IMcpServer;
+
+    // Both spellings the server can echo: the BARE secret on its own, and the
+    // whole wrapped token it was declared as.
+    const echoes = [
+      `rejected request carrying ${PREFIXLESS_KEY}`,
+      `Usage: server --api-key=${PREFIXLESS_KEY}`,
+      `X-Api-Key: ${PREFIXLESS_KEY} was refused`,
+    ];
+    const cases = [declared, withArg].flatMap((subject) => echoes.map((echo) => ({ subject, echo })));
+    const results = await Promise.all(
+      cases.map(async ({ subject, echo }) => ({
+        subject,
+        outcome: await checkMcpServers({
+          listServers: async () => [subject],
+          testConnection: async () => ({ success: false, error: echo }),
+        }),
+      }))
+    );
+    for (const { subject, outcome } of results) {
+      expect(findsPrefixlessKey(surfaced(outcome))).toBe(false);
+      expect(outcome.detail).toContain(subject.name);
+    }
+  });
+
+  it('leaves a short non-secret env value alone so the diagnostic survives', async () => {
+    // A blanket literal replacement with no length floor would blank the word
+    // "production" out of the probe's own error text.
+    const server2 = {
+      id: 'plain',
+      name: 'plain',
+      enabled: true,
+      transport: { type: 'stdio', command: 'node', env: { NODE_ENV: 'prod', PORT: '3000' } },
+    } as unknown as IMcpServer;
+    const result = await checkMcpServers({
+      listServers: async () => [server2],
+      testConnection: async () => ({ success: false, error: 'listen EADDRINUSE on port 3000 in prod mode' }),
+    });
+    expect(result.detail).toContain('3000');
+    expect(result.detail).toContain('prod');
+  });
+
   it('scrubs an api_key echoed from a stdio server env', async () => {
     const result = await checkMcpServers({
       listServers: async () => [server('custom')],
@@ -105,6 +211,72 @@ describe('backends check — loader errors come from credential-bearing config s
     expect(findsSecret(surfaced(result))).toBe(false);
     // Still reports that a loader failed, and how many.
     expect(result.detail).toContain('1 loader error(s)');
+  });
+});
+
+describe('engine reachability check — unbounded `--version` stdout', () => {
+  it('PREFIXLESS CANARY: surfaces only the version number, never the rest of the banner', async () => {
+    // `detectWCore` hands back whatever `execFileSync` printed, unvalidated and
+    // unbounded (`binaryResolver.ts`).
+    const result = await checkEngineReachable(() => ({
+      available: true,
+      path: '/opt/wayland/engine',
+      version: `wayland-core 0.13.0 (env ${PREFIXLESS_ASSIGNMENT})`,
+    }));
+
+    expect(result.status).toBe('pass');
+    expect(findsPrefixlessKey(surfaced(result))).toBe(false);
+    // Still actionable: the version the user needs is still reported.
+    expect(result.detail).toContain('0.13.0');
+  });
+
+  it('warns without echoing stdout when it carries no version number', async () => {
+    const result = await checkEngineReachable(() => ({
+      available: true,
+      path: '/opt/wayland/engine',
+      version: `garbage ${PREFIXLESS_ASSIGNMENT}`,
+    }));
+
+    expect(result.status).toBe('warn');
+    expect(findsPrefixlessKey(surfaced(result))).toBe(false);
+    expect(result.detail).toContain('did not report a usable version');
+  });
+});
+
+/**
+ * SCRUB-ONLY, and knowingly incomplete. A chat title IS user prose, so unlike a
+ * TOML parse error or an MCP declaration there is nothing structural to strip.
+ * The prefixed-label form `AZURE_OPENAI_API_KEY=<value>` therefore still survives
+ * both labels - verified by execution - exactly as it does in backendChecks, and
+ * it is blocked on the same fix (#1026). It is deliberately NOT pinned by an
+ * assertion here: the scrub call is already the regression guard, #1026 closes
+ * the prefixed form through that same call with no further change to this file,
+ * and a test asserting the gap stays open would only red out that lane's CI.
+ */
+describe('workspace checks — labels built from auto-generated chat titles', () => {
+  // A conversation's name is generated from the user's FIRST MESSAGE, so pasting
+  // a credential into chat makes it the chat title (`doctor/registry.ts`).
+  const leakyLabel = `Chat "Rotate my ${API_KEY} please"`;
+
+  it('scrubs the label in the drift check', async () => {
+    const result = await checkWorkspaceDrift({
+      listWorkspaces: async () => [{ label: leakyLabel, path: '/gone/workspace' }],
+      pathExists: async () => false,
+    });
+    expect(result.status).toBe('fail');
+    expect(findsSecret(surfaced(result))).toBe(false);
+    // Still names the path so the user can act.
+    expect(result.detail).toContain('/gone/workspace');
+  });
+
+  it('scrubs the label in the configured check', async () => {
+    const result = await checkWorkspaceConfigured({
+      listWorkspaces: async () => [{ label: leakyLabel, path: '/tmp/throwaway', customWorkspace: false }],
+      tmpDir: '/tmp',
+    });
+    expect(result.status).toBe('warn');
+    expect(findsSecret(surfaced(result))).toBe(false);
+    expect(result.detail).toContain('/tmp/throwaway');
   });
 });
 

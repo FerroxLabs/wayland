@@ -52,6 +52,79 @@ export type McpCheckDeps = {
 /** Default per-server probe budget. Three servers at 10s each stay under the runner's 30s. */
 const DEFAULT_PER_SERVER_TIMEOUT_MS = 10_000;
 
+/**
+ * Shortest declared value worth masking. Below this a value is not a credential
+ * and blanket-replacing it would shred the diagnostic - an `env` of
+ * `NODE_ENV=production` or `PORT=3000` would blank the words "production" and
+ * "3000" out of the probe's own error text. Matches the `{8,}` floors
+ * `redactSecrets` already uses.
+ */
+const MIN_DECLARED_SECRET_LENGTH = 8;
+
+/**
+ * The user-supplied configuration values in `server`'s own declaration that can
+ * BE a credential: a stdio server's `env` values and `args`, and an
+ * http/sse/streamable_http server's `headers` values - each both whole and
+ * unwrapped past a leading `--flag=` / `Bearer ` style prefix.
+ *
+ * Longest first, so a value that happens to contain another is replaced whole
+ * rather than being half-substituted from the inside out.
+ */
+function declaredSecretValues(server: IMcpServer): string[] {
+  const transport = server.transport as
+    | { env?: Record<string, string>; headers?: Record<string, string>; args?: string[] }
+    | undefined;
+  if (!transport) return [];
+  const declared = [
+    ...Object.values(transport.env ?? {}),
+    ...Object.values(transport.headers ?? {}),
+    ...(transport.args ?? []),
+  ].filter((value): value is string => typeof value === 'string');
+
+  const values: string[] = [];
+  for (const value of declared) {
+    values.push(value);
+    // Also the right-hand side of a `--flag=value` / `Key: value` style token.
+    // A credential is routinely declared WRAPPED - `--api-key=<secret>` in `args`,
+    // `Bearer <secret>` in a header - and the server then echoes the bare secret
+    // on its own ("invalid key: <secret>"). Matching only the whole declared
+    // token would miss that, which a canary caught here rather than in
+    // production. Longest-first ordering below still replaces the wrapped form
+    // whole when the wrapped form is what was echoed.
+    const separator = value.search(/[=:\s]/);
+    if (separator !== -1) values.push(value.slice(separator + 1).trim());
+  }
+
+  return values.filter((value) => value.length >= MIN_DECLARED_SECRET_LENGTH).toSorted((a, b) => b.length - a.length);
+}
+
+/**
+ * Mask any value the user themselves put in this server's declaration wherever
+ * it appears in the probe's output.
+ *
+ * This is the STRUCTURAL half of the mcp fix, and it is why this sink is not
+ * left waiting on #1026: a literal string replacement pattern-matches nothing,
+ * so it is immune to every shape a credential can take. A stdio server that dies
+ * with `AZURE_OPENAI_API_KEY=<value>` on stderr has that stderr appended to the
+ * user-facing error as `Server output: ...` (`McpProtocol.ts`), and the value is
+ * masked here because it came out of `transport.env`, not because it looked like
+ * anything.
+ *
+ * `split`/`join` rather than a built regex: the values are arbitrary user text
+ * and a missed escape would be a silent no-match, i.e. a silent leak.
+ *
+ * It does NOT cover the OAuth bearer `McpService.attachOAuthToken` injects at
+ * probe time - that token is never in the stored declaration this check reads.
+ * `redactSecrets`' `Bearer` rule is what covers that one, which is why both run.
+ */
+function redactDeclaredValues(text: string, server: IMcpServer): string {
+  let out = text;
+  for (const value of declaredSecretValues(server)) {
+    out = out.split(value).join('[redacted]');
+  }
+  return out;
+}
+
 /** Sentinel a per-server timeout resolves to, distinct from a real probe error. */
 const TIMED_OUT = Symbol('mcp-probe-timeout');
 
@@ -132,11 +205,17 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
       // the OAuth bearer `McpService.attachOAuthToken` adds), so a 401 body or an
       // stderr echo can hand a credential straight into a Doctor report that
       // exists to be copied to support - the same class of exposure as
-      // GHSA-2g2m-r86j-jg6h. Scrub before it reaches the detail. Best-effort
-      // only - `redactSecrets` matches known value prefixes and a labelled
-      // assignment, and misses the prefixed label form (#1026); there is no
-      // structure in free-form probe output to strip instead.
-      errored.push(`${server.name}${result.error ? ` (${redactSecrets(result.error)})` : ''}`);
+      // GHSA-2g2m-r86j-jg6h.
+      //
+      // TWO layers, because the probe TEXT has no structure but the DECLARATION
+      // does. `redactDeclaredValues` masks the user's own configured values by
+      // literal match, which needs no pattern and so is immune to #1026;
+      // `redactSecrets` then catches credentials that were never in the
+      // declaration - notably the injected OAuth bearer, and anything the server
+      // volunteers about a third party.
+      errored.push(
+        `${server.name}${result.error ? ` (${redactSecrets(redactDeclaredValues(result.error, server))})` : ''}`
+      );
     }
   }
 
