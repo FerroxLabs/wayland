@@ -117,7 +117,20 @@ jobs:
           [[ "$mcp_sha" == "$WAYLANDMCP_REF" ]] || {
             echo "::error::waylandmcp HEAD $mcp_sha != pinned $WAYLANDMCP_REF" >&2; exit 1;
           }
-          bun install --frozen-lockfile
+          # Retried because this is an unattended network op on the release and
+          # publish paths, four lines below an app-side `bun install
+          # --frozen-lockfile` that IS wrapped in nick-fields/retry@v3. The
+          # checkout above needs no wrapper: its only network call (git fetch)
+          # already runs inside actions/checkout's own 3-attempt retry helper.
+          # Loop shape matches pr-checks.yml - a genuine failure still exits
+          # non-zero after the third attempt, so a retry cannot mask one.
+          for attempt in 1 2 3; do
+            if bun install --frozen-lockfile; then exit 0; fi
+            echo "waylandmcp bun install attempt $attempt failed; retrying" >&2
+            sleep 30
+          done
+          echo "waylandmcp: bun install --frozen-lockfile failed after 3 attempts" >&2
+          exit 1
 
       - name: Build the getwayland payload (syncs version to app/package.json)
         working-directory: installer

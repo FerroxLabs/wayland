@@ -106,6 +106,18 @@ describe('@wayland MCP connector source pin (#940)', () => {
     }
   );
 
+  it.each(withCheckout.map((entry) => [entry.file, entry] as const))(
+    '%s retries the connector bun install and still fails after 3 attempts',
+    (_file, entry) => {
+      const run = entry.relocate?.run ?? '';
+      // House retry idiom (pr-checks.yml): bounded attempts, and a trailing
+      // non-zero exit so a retry cannot mask a genuine failure.
+      expect(run).toContain('for attempt in 1 2 3; do');
+      expect(run).toContain('if bun install --frozen-lockfile; then exit 0; fi');
+      expect(run.trimEnd().endsWith('exit 1')).toBe(true);
+    }
+  );
+
   // SKIP-IS-A-PASS: on GitHub a skipped required check counts as a PASS, and a
   // continue-on-error step reports success. Neither of these steps may acquire
   // either - a #940 gate that can be skipped is not a gate.
