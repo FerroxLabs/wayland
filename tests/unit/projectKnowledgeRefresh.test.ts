@@ -430,6 +430,43 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
   });
 
   /**
+   * The one disclosed residual of the legacy cut, pinned so a later round cannot
+   * "fix" it in the wrong direction: the same block-shaped body as above but
+   * with NO memory block after it. There is no later boundary to scan to, so the
+   * shaped line inside the body IS the last one and the cut stops there, leaving
+   * the tail behind with no header - unreachable by every future refresh.
+   *
+   * This is not a regression: it behaves identically under the shipped code,
+   * under a bare `lastIndexOf`, and under the shape-LAST scan. It needs the user
+   * to have pasted block-shaped markdown into their own document, and it cannot
+   * arise for any block that carries a footer (every block written since #999).
+   * Pinned as the accepted cost, not as desired behaviour.
+   */
+  it('leaves the tail of a shaped legacy body behind when no memory block follows', async () => {
+    const shapedBody = `Intro.${SEPARATOR}[Pasted label]\n\n## Sub\n\nOLD SECRET VALUE`;
+    await writeProjectKnowledge(ws, 'context', shapedBody);
+    const extra = {
+      projectId: 'p1',
+      workspace: ws,
+      presetRules: ['ASSISTANT BASE RULES', legacyBlock('Project context', shapedBody)].join(SEPARATOR),
+    };
+    await writeProjectKnowledge(ws, 'context', 'Clean context now.');
+
+    const conversation = { id: 'c18', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c18');
+    const value = spawnedExtra(captured).presetRules as string;
+    // The head of the legacy block IS removed, and the fresh block lands.
+    expect(value).not.toContain('Intro.');
+    expect(value).toContain('Clean context now.');
+    expect(occurrences(value, HEADER)).toBe(1);
+    // The accepted cost: the tail past the shaped line survives, headerless.
+    expect(value).toContain('OLD SECRET VALUE');
+  });
+
+  /**
    * The accepted cost of scanning to the LAST boundary, pinned so it stays a
    * decision rather than a surprise: a MEMORY entry whose own body opens like a
    * block moves the last boundary inside the memory block, so part of that
