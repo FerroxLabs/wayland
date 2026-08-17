@@ -119,7 +119,9 @@ export function buildAcpSessionMcpServers(
             // bundled MCP servers→resolved JS runtime (#1008). The runtime env
             // (`ELECTRON_RUN_AS_NODE` in dev) is load-bearing — without it the
             // child boots a second Electron app instead of the MCP server.
-            const spawn = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
+            const spawn = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? [], {
+              libraryEntryId: server.libraryEntryId,
+            });
             return {
               type: 'stdio',
               name: server.name,

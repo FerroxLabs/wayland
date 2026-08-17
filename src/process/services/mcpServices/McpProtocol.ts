@@ -261,10 +261,17 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
     try {
       // Detect whether it's a full IMcpServer or just a transport
       const transport = 'transport' in serverOrTransport ? serverOrTransport.transport : serverOrTransport;
+      const libraryEntryId = 'transport' in serverOrTransport ? serverOrTransport.libraryEntryId : undefined;
 
       switch (transport.type) {
         case 'stdio':
-          return this.testStdioConnection(transport);
+          // The bare-filename @wayland builtins are only expanded on the
+          // authority of the record's catalog provenance (#1015 F2), so it has to
+          // travel with the transport. A caller that hands us a bare transport
+          // (an agent CLI's own config entry) has no provenance to give and gets
+          // no rewrite — which is the same answer every serializer gives for that
+          // record, so probe and session still agree.
+          return this.testStdioConnection(transport, libraryEntryId);
         case 'sse':
           return this.testSseConnection(transport);
         case 'http':
@@ -289,11 +296,14 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
    * Generic implementation for testing a Stdio connection
    * Uses the MCP SDK for correct protocol communication
    */
-  protected async testStdioConnection(transport: {
-    command: string;
-    args?: string[];
-    env?: Record<string, string>;
-  }): Promise<McpConnectionTestResult> {
+  protected async testStdioConnection(
+    transport: {
+      command: string;
+      args?: string[];
+      env?: Record<string, string>;
+    },
+    libraryEntryId?: string
+  ): Promise<McpConnectionTestResult> {
     let mcpClient: Client | null = null;
     // Hoisted so the catch block can report the resolved spawn argv and the
     // child's stderr even when connect() throws.
@@ -312,7 +322,7 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
       // runtime instead — bundled Bun in packaged builds (the app binary can't be
       // used: #706, the RunAsNode fuse makes ELECTRON_RUN_AS_NODE a no-op so it
       // would boot as the app), or the app binary as Node in dev (#1008).
-      const builtinSpawn = resolveBuiltinMcpRuntimeSpawn(transport.command, rawArgs);
+      const builtinSpawn = resolveBuiltinMcpRuntimeSpawn(transport.command, rawArgs, { libraryEntryId });
 
       // Use enhanced env (includes shell PATH) instead of bare process.env
       // so CLI tools installed via nvm/fnm/volta are discoverable in packaged mode

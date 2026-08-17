@@ -65,6 +65,27 @@ const SEARCH_SKILLS_SCRIPT = getMcpScriptPath('builtin-mcp-search-skills.js');
 const CONCIERGE_DIAG_SCRIPT = getMcpScriptPath('builtin-mcp-concierge-diag.js');
 const IMAGE_GEN_SCRIPT = getMcpScriptPath('builtin-mcp-image-gen.js');
 
+// #1015 F2b: the four sibling @wayland builtins are stored as a BARE FILENAME
+// and the resolver REPLACES args[0] with our own script, so the filename alone is
+// not authority to do it — a user's relative script of the same name would have a
+// different file substituted. The authority is catalog PROVENANCE, and the
+// Library install writes it in the same record it writes the bare filename into.
+// Fixtures must therefore be the whole installed record, not a bare transport.
+const bundledWaylandServer = (file: string, libraryEntryId: string): IMcpServer => ({
+  id: `lib_${libraryEntryId}`,
+  name: libraryEntryId.replace(/[^A-Za-z0-9_.-]/g, '-'),
+  enabled: true,
+  status: 'disconnected',
+  source: 'library',
+  libraryEntryId,
+  transport: { type: 'stdio', command: 'node', args: [file], env: {} },
+  tools: [],
+  createdAt: 1,
+  updatedAt: 1,
+  originalJson: '{}',
+});
+const APPLE_SERVER = () => bundledWaylandServer('builtin-mcp-apple.mjs', 'com.wayland/apple-mcp');
+
 // Create a concrete test subclass to access protected methods
 class TestAgent {
   private agent: InstanceType<typeof import('@process/services/mcpServices/McpProtocol').AbstractMcpAgent>;
@@ -339,11 +360,7 @@ describe('AbstractMcpAgent', () => {
       await setupClientOk();
       const { StdioClientTransport } = await setupTransport();
 
-      const result = await testAgent.testMcpConnection({
-        type: 'stdio',
-        command: 'node',
-        args: ['builtin-mcp-apple.mjs'],
-      });
+      const result = await testAgent.testMcpConnection(APPLE_SERVER());
 
       expect(result.success).toBe(true);
       const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
@@ -362,11 +379,7 @@ describe('AbstractMcpAgent', () => {
       await setupClientOk();
       const { StdioClientTransport } = await setupTransport();
 
-      const result = await testAgent.testMcpConnection({
-        type: 'stdio',
-        command: 'node',
-        args: ['builtin-mcp-apple.mjs'],
-      });
+      const result = await testAgent.testMcpConnection(APPLE_SERVER());
 
       expect(result.success).toBe(true);
       const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
@@ -378,6 +391,41 @@ describe('AbstractMcpAgent', () => {
       expect(cfg.args[0]).toMatch(/[/\\]builtin-mcp-apple\.mjs$/);
       // A real runtime must NOT carry the Electron-as-Node env var.
       expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
+    });
+
+    it('#1015 F2b: a bare @wayland filename with NO catalog provenance is spawned verbatim', async () => {
+      // Same filename, same run, provenance removed: the probe must not swap in
+      // Wayland's script. A user's own relative `builtin-mcp-apple.mjs` is theirs.
+      h.isPackaged = true;
+      h.bundledBunDir = '/res/bundled-bun/darwin-arm64';
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: ['builtin-mcp-apple.mjs'],
+      });
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).toBe('node');
+      expect(cfg.args).toEqual(['builtin-mcp-apple.mjs']);
+    });
+
+    it('#1015 F2b KNOWN POSITIVE: the same install WITH provenance is rewritten', async () => {
+      h.isPackaged = true;
+      h.bundledBunDir = '/res/bundled-bun/darwin-arm64';
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection(APPLE_SERVER());
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).not.toBe('node');
+      expect(cfg.args[0]).toMatch(/[/\\]builtin-mcp-apple\.mjs$/);
+      expect(cfg.args[0]).not.toBe('builtin-mcp-apple.mjs');
     });
 
     // #1008: the FIRST-PARTY core builtins (search-skills, concierge-diag,
@@ -497,11 +545,7 @@ describe('AbstractMcpAgent', () => {
         } as any;
       } as any);
 
-      const result = await testAgent.testMcpConnection({
-        type: 'stdio',
-        command: 'node',
-        args: ['builtin-mcp-apple.mjs'],
-      });
+      const result = await testAgent.testMcpConnection(APPLE_SERVER());
 
       expect(result.success).toBe(false);
       expect((result as { error?: string }).error).toContain('-32000');

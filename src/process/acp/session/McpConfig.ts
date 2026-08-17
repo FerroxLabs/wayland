@@ -143,7 +143,9 @@ export class McpConfig {
           // Same runtime tuple as the Library probe: `npx`→bundled Bun (#827)
           // AND Wayland's own bundled MCP servers→resolved JS runtime (#1008),
           // carrying the runtime env the dev runtime needs to BE a Node runtime.
-          const spawn = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
+          const spawn = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? [], {
+            libraryEntryId: server.libraryEntryId,
+          });
           runtimeServer = {
             name: server.name,
             command: spawn.command,

@@ -88,9 +88,12 @@ export type UiMcpServerConfig = {
  */
 export function buildGeminiStdioMcpConfig(
   transport: Extract<IMcpServer['transport'], { type: 'stdio' }>,
-  description?: string
+  description?: string,
+  libraryEntryId?: string
 ): UiMcpServerConfig {
-  const { command, args, env } = resolveSessionMcpStdioSpawn(transport.command, transport.args || []);
+  const { command, args, env } = resolveSessionMcpStdioSpawn(transport.command, transport.args || [], {
+    libraryEntryId,
+  });
   return { command, args, env: mergeMcpSpawnEnv(transport.env, env), description };
 }
 
@@ -617,7 +620,11 @@ export class GeminiAgentManager extends BaseAgentManager<
 
       selectedServers.forEach((server: IMcpServer) => {
         if (server.transport.type === 'stdio') {
-          mcpConfig[server.name] = buildGeminiStdioMcpConfig(server.transport, server.description);
+          mcpConfig[server.name] = buildGeminiStdioMcpConfig(
+            server.transport,
+            server.description,
+            server.libraryEntryId
+          );
         } else if (
           server.transport.type === 'sse' ||
           server.transport.type === 'http' ||

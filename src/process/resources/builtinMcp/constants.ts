@@ -47,6 +47,48 @@ export function isBuiltinWaylandMcpArg(arg: string | undefined | null): arg is B
 }
 
 /**
+ * Catalog entry id -> the bundled script that entry installs.
+ *
+ * WHY PROVENANCE, NOT THE FILENAME (#1015 F2)
+ * -------------------------------------------
+ * A bare filename with no separator is indistinguishable from a user's own
+ * relative script path by string inspection alone, so the allowlist above is not
+ * sufficient authority to REPLACE `args[0]` with our own script — that would
+ * execute a DIFFERENT FILE than the one the user configured. The only code path
+ * that ever writes the bare-filename form is the MCP Library install
+ * (`entryToServerData`), and it writes `libraryEntryId` in the same record. That
+ * pair is the proof of ownership; the filename on its own is not.
+ *
+ * A Map, not an object literal, so a hostile `libraryEntryId` like
+ * `__proto__`/`constructor` cannot reach a prototype member.
+ */
+const BUILTIN_WAYLAND_MCP_ENTRY_FILES = new Map<string, BuiltinWaylandMcpFile>([
+  [BUILTIN_WAYLAND_APPLE_NAME, BUILTIN_WAYLAND_APPLE_FILE],
+  [BUILTIN_WAYLAND_IMAP_NAME, BUILTIN_WAYLAND_IMAP_FILE],
+  [BUILTIN_WAYLAND_NEWS_NAME, BUILTIN_WAYLAND_NEWS_FILE],
+  [BUILTIN_WAYLAND_CAL_COM_NAME, BUILTIN_WAYLAND_CAL_COM_FILE],
+]);
+
+/**
+ * True only when `libraryEntryId` is the catalog entry that installs exactly
+ * `arg`. Both halves must agree: a @wayland record pointed at a DIFFERENT
+ * builtin's filename is not the entry it claims to be and is left alone.
+ */
+export function isOwnBuiltinWaylandMcpScript(
+  libraryEntryId: string | undefined | null,
+  arg: string | undefined | null
+): boolean {
+  if (!libraryEntryId || !arg) return false;
+  return BUILTIN_WAYLAND_MCP_ENTRY_FILES.get(libraryEntryId) === arg;
+}
+
+/** True if `libraryEntryId` names one of the four bundled @wayland catalog entries. */
+export function isBundledWaylandMcpEntryId(libraryEntryId: string | undefined | null): boolean {
+  if (!libraryEntryId) return false;
+  return BUILTIN_WAYLAND_MCP_ENTRY_FILES.has(libraryEntryId);
+}
+
+/**
  * True if the transport is a bundled @wayland MCP spawn (node + bare filename
  * args[0] matching one of the four built-ins).
  */

@@ -17,8 +17,15 @@
  *      runtime while ELECTRON_RUN_AS_NODE=1 rides along.
  *
  *  F2: matching our scripts by BASENAME re-pointed a user's own server that
- *      merely shares one of our filenames onto our runtime. The match must be an
- *      exact comparison against the path this install would actually spawn.
+ *      merely shares one of our filenames onto our runtime. For the core builtins
+ *      (stored as an absolute path) the match must be an exact comparison against
+ *      the path this install would actually spawn.
+ *
+ *  F2b: the four sibling @wayland servers are stored as a BARE FILENAME and the
+ *      branch that handles them REPLACES args[0] with our own script — so a
+ *      filename-only match runs a DIFFERENT FILE than the user configured, which
+ *      is worse than F2's wrong-runtime-on-the-right-file. That branch is gated on
+ *      catalog PROVENANCE (`libraryEntryId`), never on the filename.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -46,6 +53,9 @@ const devRuntime = (): ResolvedJsRuntime => ({
 
 const posixScriptPath = (name: string) => `${OUT_MAIN}/${name}`;
 const OURS = posixScriptPath('builtin-mcp-search-skills.js');
+/** Catalog entry ids of two of the four bundled @wayland siblings. */
+const APPLE_ENTRY = 'com.wayland/apple-mcp';
+const IMAP_ENTRY = 'com.wayland/imap-mcp';
 
 const winPath = (name: string) => `C:\\Program Files\\Wayland\\out\\main\\${name}`;
 
@@ -126,8 +136,13 @@ describe('F1 — the resolved runtime tuple carries command AND env', () => {
     });
   });
 
-  it('expands the sibling @wayland servers from their bare stored filename', () => {
-    expect(resolveBuiltinMcpRuntimeSpawn('node', ['builtin-mcp-apple.mjs', '--flag'], deps())).toEqual({
+  it('expands the sibling @wayland servers from their bare stored filename ON CATALOG PROVENANCE', () => {
+    // The bare filename alone is NOT authority to substitute our script (see the
+    // F2b block below) — the record's catalog entry id is. This is the shape the
+    // Library install actually persists: bare filename + its entry id.
+    expect(
+      resolveBuiltinMcpRuntimeSpawn('node', ['builtin-mcp-apple.mjs', '--flag'], deps({ libraryEntryId: APPLE_ENTRY }))
+    ).toEqual({
       command: PACKAGED_BUN,
       args: [posixScriptPath('builtin-mcp-apple.mjs'), '--flag'],
       env: {},
@@ -138,6 +153,60 @@ describe('F1 — the resolved runtime tuple carries command AND env', () => {
     expect(resolveBuiltinMcpRuntimeSpawn('npx', ['-y', 'chrome-devtools-mcp@latest'], deps())).toBeNull();
     expect(resolveBuiltinMcpRuntimeSpawn('node', ['/opt/other/server.js'], deps())).toBeNull();
     expect(resolveBuiltinMcpRuntimeSpawn('/usr/bin/mcp-server', [], deps())).toBeNull();
+  });
+});
+
+describe('F2b — a bare @wayland filename is expanded ONLY on catalog provenance', () => {
+  // A bare filename with no separator is indistinguishable from a user's own
+  // relative script by string alone, and the sibling branch REPLACES args[0]
+  // with Wayland's script — so it executes a DIFFERENT FILE than the user
+  // configured. That is worse than F2's original "same file, wrong runtime".
+  // `libraryEntryId` is written only by the Library install that also writes the
+  // bare filename, so the pair — never the filename — is the authority.
+  const userOwned = (args: string[]) => stdioServer('node', args);
+
+  it('refuses a user-owned relative script that shares one of our filenames', () => {
+    expect(resolveBuiltinMcpRuntimeSpawn('node', ['builtin-mcp-apple.mjs'], deps())).toBeNull();
+    // Reaches the live session spawning exactly what the user configured.
+    expect(resolveSessionMcpStdioSpawn('node', ['builtin-mcp-apple.mjs'], deps())).toEqual({
+      command: 'node',
+      args: ['builtin-mcp-apple.mjs'],
+      env: {},
+    });
+    const input = userOwned(['builtin-mcp-apple.mjs']);
+    expect(applyBuiltinMcpRuntime(input, deps())).toBe(input);
+  });
+
+  it('refuses a @wayland record whose entry id does not ship that filename', () => {
+    // Both halves must agree: the imap entry never installs the apple script.
+    expect(
+      resolveBuiltinMcpRuntimeSpawn('node', ['builtin-mcp-apple.mjs'], deps({ libraryEntryId: IMAP_ENTRY }))
+    ).toBeNull();
+    // KNOWN POSITIVE, same run: the imap entry DOES ship the imap script.
+    expect(
+      resolveBuiltinMcpRuntimeSpawn('node', ['builtin-mcp-imap.mjs'], deps({ libraryEntryId: IMAP_ENTRY }))
+    ).toEqual({ command: PACKAGED_BUN, args: [posixScriptPath('builtin-mcp-imap.mjs')], env: {} });
+  });
+
+  it('refuses a foreign entry id, including prototype keys', () => {
+    for (const id of ['com.evil/apple-mcp', '__proto__', 'constructor', 'toString']) {
+      expect(resolveBuiltinMcpRuntimeSpawn('node', ['builtin-mcp-apple.mjs'], deps({ libraryEntryId: id }))).toBeNull();
+    }
+  });
+
+  it('applyBuiltinMcpRuntime reads provenance off the record itself', () => {
+    // The publication chokepoints (McpService, AcpAgentManager, WCoreManager)
+    // hand over a whole IMcpServer and pass no deps, so the record must carry it.
+    const installed = { ...stdioServer('node', ['builtin-mcp-apple.mjs']), libraryEntryId: APPLE_ENTRY };
+    expect(applyBuiltinMcpRuntime(installed, deps()).transport).toEqual({
+      type: 'stdio',
+      command: PACKAGED_BUN,
+      args: [posixScriptPath('builtin-mcp-apple.mjs')],
+      env: {},
+    });
+    // KNOWN NEGATIVE, same run: strip the provenance and the record is untouched.
+    const withoutProvenance = stdioServer('node', ['builtin-mcp-apple.mjs']);
+    expect(applyBuiltinMcpRuntime(withoutProvenance, deps())).toBe(withoutProvenance);
   });
 });
 

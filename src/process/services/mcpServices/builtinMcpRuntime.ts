@@ -26,18 +26,27 @@
  *
  * IDENTIFYING OUR OWN SCRIPTS
  * ---------------------------
- * Matching on the basename alone would re-point a USER's own server that merely
+ * Matching on a filename alone would re-point a USER's own server that merely
  * shares one of our filenames (e.g. `~/tools/builtin-mcp-search-skills.js`) onto
- * our runtime — a silent substitution on a file the user owns. The core builtins
- * are seeded with the absolute path `getMcpScriptPath()` produces, so the match is
- * an EXACT path comparison against that same resolved path. The four sibling
- * @wayland servers are stored as a bare filename by design (the spawn layer is
- * what expands them), so those keep the allowlisted-filename match.
+ * our runtime — a silent substitution on a file the user owns. Neither branch is
+ * allowed to do that:
+ *
+ *  - The core builtins are seeded with the absolute path `getMcpScriptPath()`
+ *    produces, so the match is an EXACT path comparison against that same
+ *    resolved path.
+ *  - The four sibling @wayland servers are stored as a bare filename by design
+ *    (the spawn layer is what expands them). A bare filename is indistinguishable
+ *    from a user's own relative script by string alone, and expanding it swaps in
+ *    a DIFFERENT FILE — strictly worse than the wrong runtime on the right file.
+ *    So that branch is gated on PROVENANCE: the record's `libraryEntryId` must be
+ *    the catalog entry that ships exactly that filename. The Library install is
+ *    the only writer of the bare-filename form and it always writes the entry id
+ *    alongside, so the pair proves ownership where the filename cannot.
  */
 
 import path from 'node:path';
 import type { IMcpServer } from '@/common/config/storage';
-import { isBuiltinCoreMcpArg, isBuiltinWaylandMcpArg } from '@process/resources/builtinMcp/constants';
+import { isBuiltinCoreMcpArg, isOwnBuiltinWaylandMcpScript } from '@process/resources/builtinMcp/constants';
 import { getMcpScriptPath } from '@process/utils/mcpScriptDir';
 import { resolveJsRuntime, type ResolvedJsRuntime } from '@process/utils/jsRuntime';
 import { resolveMcpStdioSpawn } from './mcpStdioSpawn';
@@ -54,6 +63,14 @@ export interface BuiltinMcpRuntimeDeps {
   resolveRuntime?: () => ResolvedJsRuntime;
   scriptPath?: (name: string) => string;
   platform?: NodeJS.Platform;
+  /**
+   * `IMcpServer.libraryEntryId` of the record being resolved — the catalog
+   * provenance that authorizes expanding the bare-filename @wayland form.
+   * Absent (a hand-added server, or a transport reached without its record) means
+   * "not provably ours", so that branch is refused. NOT consulted by the
+   * absolute-path core-builtin branch, which proves ownership from the path.
+   */
+  libraryEntryId?: string;
 }
 
 /**
@@ -103,8 +120,11 @@ export function resolveBuiltinMcpRuntimeSpawn(
   const first = rawArgs[0];
   const scriptPath = deps.scriptPath ?? getMcpScriptPath;
 
-  // Sibling @wayland servers: stored as a BARE filename, expanded here.
-  if (isBuiltinWaylandMcpArg(first)) {
+  // Sibling @wayland servers: stored as a BARE filename, expanded here — but
+  // ONLY when the record's catalog provenance says the filename is ours. Without
+  // that, a user's own relative script named `builtin-mcp-apple.mjs` would have
+  // its args[0] REPLACED by Wayland's script and we would run a different file.
+  if (isOwnBuiltinWaylandMcpScript(deps.libraryEntryId, first)) {
     const runtime = (deps.resolveRuntime ?? resolveJsRuntime)();
     return { command: runtime.command, args: [scriptPath(first), ...rawArgs.slice(1)], env: { ...runtime.env } };
   }
@@ -154,13 +174,17 @@ export function mergeMcpSpawnEnv(
  * the restart-safe portable (`resolvePersistedMcpStdioSpawn`) form, and
  * pre-resolving it here would silently take that choice away.
  */
-export function applyBuiltinMcpRuntime<T extends { transport: IMcpServer['transport'] }>(
-  server: T,
-  deps: BuiltinMcpRuntimeDeps = {}
-): T {
+export function applyBuiltinMcpRuntime<
+  T extends { transport: IMcpServer['transport']; libraryEntryId?: IMcpServer['libraryEntryId'] },
+>(server: T, deps: BuiltinMcpRuntimeDeps = {}): T {
   const transport = server.transport;
   if (transport.type !== 'stdio') return server;
-  const builtin = resolveBuiltinMcpRuntimeSpawn(transport.command, transport.args ?? [], deps);
+  // The record carries its own provenance; an explicit dep still wins so tests
+  // and the probe (which is sometimes handed a bare transport) can state it.
+  const builtin = resolveBuiltinMcpRuntimeSpawn(transport.command, transport.args ?? [], {
+    libraryEntryId: server.libraryEntryId,
+    ...deps,
+  });
   if (!builtin) return server;
   return {
     ...server,
