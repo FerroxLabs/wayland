@@ -89,18 +89,18 @@ const EngineConfigRecoveryPanel: React.FC<{
       if (result.reason === 'not-a-regular-file') {
         return { tone: 'error' as const, text: t('conversation.engineConfigInvalid.result.notARegularFile') };
       }
-      // F3. There are THREE reported states in which `config.toml` may not hold the
-      // user's original bytes: a failed rollback after a failed repair write, a
-      // restore-conflict, and a backup whose move succeeded but could not be undone
-      // (F3b - the readback or the byte check failed, then the restoring rename
-      // failed too). Main sets `backupPath` on all three and only on those, so the
-      // rule here is the whole rule: whenever main names a backup, render it, and
-      // never mind which `reason` came with it. The generic writeFailed line names
-      // no path, so this used to be the one place the user could not find out where
-      // their config went, which is the opposite of what this module's header
-      // promises. Executed before the F3 fix, on both halves: mentionsBackup=false;
-      // before the F3b fix, main dropped the path a step earlier, so this branch
-      // could not have rendered it at all.
+      // F3. This branch does NOT enumerate the states in which `config.toml` may not
+      // hold the user's original bytes. An earlier version of this comment did, and
+      // two later rounds of review each found one it had missed (F3b, then D3), so
+      // the list was worse than no list: it read as a proof of coverage. The rule is
+      // the whole rule and it is deliberately blind to `reason` - whenever main names
+      // a backup, render it. Main sets `backupPath` on exactly the states where the
+      // user has somewhere to go and look, which is main's job to know, not this
+      // component's. The generic writeFailed line names no path, so this used to be
+      // the one place the user could not find out where their config went, which is
+      // the opposite of what this module's header promises. Executed before the F3
+      // fix, on both halves: mentionsBackup=false; before the F3b fix, main dropped
+      // the path a step earlier, so this branch could not have rendered it at all.
       if (backupPath) {
         return {
           tone: 'error' as const,

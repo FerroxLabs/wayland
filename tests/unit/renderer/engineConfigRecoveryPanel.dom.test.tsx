@@ -181,13 +181,19 @@ describe('EngineConfigRecoveryPanel', () => {
   });
 
   /**
-   * F3. The rollback-failure and restore-conflict branches are the ONLY reported
-   * states in which `config.toml` may not hold the user's original bytes, and they
-   * are exactly the states where main sets `backupPath`. `describe` used to read
-   * `backupPath` only on the `ok` branch, so both fell through to the generic
-   * writeFailed line, which names no path - the user was told the change failed
-   * and never told where their config went. Main returned it; the renderer dropped
-   * it. Executed before the fix, on both halves: mentionsBackup=false.
+   * F3. This panel does NOT enumerate the states in which `config.toml` may not
+   * hold the user's original bytes - an earlier version of this comment did, and
+   * both later rounds of review found another one it had missed (F3b, then D3).
+   * The rule here is the whole rule, and it is deliberately blind to `reason`:
+   * whenever main sets `backupPath`, render it. Main sets it on exactly the states
+   * where the user has somewhere to go and look, so the renderer never has to know
+   * which ones those are.
+   *
+   * `describe` used to read `backupPath` only on the `ok` branch, so every failure
+   * fell through to the generic writeFailed line, which names no path - the user
+   * was told the change failed and never told where their config went. Main
+   * returned it; the renderer dropped it. Executed before the fix, on both halves:
+   * mentionsBackup=false.
    */
   it('F3: names the backup when a FAILED result carries one', async () => {
     mockInspect.mockResolvedValue(INVALID);
