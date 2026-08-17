@@ -1,5 +1,7 @@
 // src/process/acp/errors/AcpError.ts
 
+import { redactSecrets } from '@process/utils/secretRedaction';
+
 export type AcpErrorCode =
   | 'CONNECTION_FAILED'
   | 'AUTH_FAILED'
@@ -57,22 +59,37 @@ export class AgentSpawnError extends AcpError {
   }
 }
 
-/** Process exited before initialize completed. Includes stderr + exit code. */
+/**
+ * Process exited before initialize completed. Includes stderr + exit code.
+ *
+ * #984: the agent's stderr is scrubbed HERE, at the single point where it enters
+ * the error, rather than at each of the call sites that build one. An agent
+ * subprocess prints to stderr exactly when credentials are in play (auth
+ * failures echoing a token, an SDK logging request headers), and this message
+ * is both shown to the user and written to the daily log file a bug report gets
+ * attached to. `stderrSummary` is stored redacted for the same reason - a
+ * consumer must not be able to reach the raw text by reading the field.
+ */
 export class AgentStartupError extends AcpError {
+  /** Agent stderr, ALREADY redacted (#984). The raw text is never retained. */
+  readonly stderrSummary: string;
+
   constructor(
     public readonly agentCommand: string,
     public readonly exitCode: number | null,
     public readonly signal: string | null,
-    public readonly stderrSummary: string,
+    stderrSummary: string,
     cause?: unknown
   ) {
+    const redactedStderr = stderrSummary ? redactSecrets(stderrSummary) : stderrSummary;
     const exitSummary = signal ? `signal: ${signal}` : `code: ${exitCode}`;
-    const stderrSuffix = stderrSummary ? `\n${stderrSummary}` : '';
+    const stderrSuffix = redactedStderr ? `\n${redactedStderr}` : '';
     super('PROCESS_CRASHED', `Agent exited before initialize completed (${exitSummary})${stderrSuffix}`, {
       cause,
       retryable: true,
     });
     this.name = 'AgentStartupError';
+    this.stderrSummary = redactedStderr;
   }
 }
 

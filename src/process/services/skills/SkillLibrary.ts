@@ -143,17 +143,34 @@ function resolveBundledWorkflowsDir(): string {
  *  1. `source === 'wayland-library'` — this source string is minted ONLY by the
  *     bundled index.json load; no IPC / import / CLI / team vector accepts a
  *     caller-supplied source, so user content cannot spoof it.
- *  2. `!path.isAbsolute(entry.path)` — vendored bodies resolve by a RELATIVE
- *     path against the read-only resourceDir / packed blob. Every externally
- *     rooted source uses an ABSOLUTE path into writable user-data, so a relative
- *     path proves the body is served from the signed bundle, not a writable one.
+ *  2. The path RESOLVES INSIDE the bundle root it is served from. Vendored
+ *     bodies are stored as a relative path against the read-only resourceDir /
+ *     packed blob; externally rooted sources use an absolute path into writable
+ *     user-data. #985: "not absolute" alone did NOT prove bundle-anchored -
+ *     `../../../../tmp/evil.md` is a relative path that escapes the bundle
+ *     entirely - so containment is now checked by normalizing against the root,
+ *     which is what the "bundle-anchored location" claim always meant.
  *
  * `team` is deliberately NOT trusted: team bodies live in writable user-data and
  * would be spoofable by a local writer, so they stay fully scanned. Trust is by
  * provenance (bundle-anchored location), not by content.
  */
-function isTrustedBundleSkill(entry: SkillIndexEntry): boolean {
-  return entry.source === 'wayland-library' && !path.isAbsolute(entry.path);
+function isTrustedBundleSkill(entry: SkillIndexEntry, bundleRoot: string): boolean {
+  return entry.source === 'wayland-library' && isContainedInBundle(bundleRoot, entry.path);
+}
+
+/**
+ * True when `entryPath` names a file that resolves strictly INSIDE `bundleRoot`.
+ *
+ * Rejects absolute paths (they name a location the root does not govern), the
+ * root itself (`rel === ''` is a directory, not a body), and anything that
+ * normalizes back out of the root. Same containment form the repo already uses
+ * for user-approved directories in the fs bridge.
+ */
+function isContainedInBundle(bundleRoot: string, entryPath: string): boolean {
+  if (!entryPath || path.isAbsolute(entryPath)) return false;
+  const rel = path.relative(bundleRoot, path.resolve(bundleRoot, entryPath));
+  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
 }
 
 /**
@@ -538,7 +555,7 @@ export class SkillLibrary {
     if (stored >= SKILL_SCANNER_VERSION) return entry.security ?? null;
     // #885: trusted first-party bundle skills are exempt — stamp clean without
     // reading the body or invoking SkillGuard.scan. See isTrustedBundleSkill.
-    if (isTrustedBundleSkill(entry)) {
+    if (isTrustedBundleSkill(entry, this.bundleRootFor(entry.name))) {
       entry.security = trustedBundleReport();
       return entry.security;
     }
@@ -550,6 +567,17 @@ export class SkillLibrary {
     );
     entry.security = report;
     return report;
+  }
+
+  /**
+   * The bundle root a (relative) entry path is resolved against - the built-in
+   * workflows root for entries merged from {@link bundledWorkflowsDir}, the
+   * skills-library root otherwise. Mirrors `loadBody`/`readScanBody`'s routing
+   * so the trust containment check is made against the SAME root the body would
+   * actually be read from.
+   */
+  private bundleRootFor(name: string): string {
+    return this.bundledWorkflowNames.has(name) ? this.bundledWorkflowsDir : this.resourceDir;
   }
 
   /**
@@ -605,7 +633,7 @@ export class SkillLibrary {
     // Only untrusted entries feed the scan pipeline. See isTrustedBundleSkill.
     const untrusted: SkillIndexEntry[] = [];
     for (const entry of stale) {
-      if (isTrustedBundleSkill(entry)) {
+      if (isTrustedBundleSkill(entry, this.bundleRootFor(entry.name))) {
         entry.security = trustedBundleReport();
         done += 1;
         opts?.onProgress?.({ done, total, currentName: entry.name });
