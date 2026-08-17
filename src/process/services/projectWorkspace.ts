@@ -65,7 +65,18 @@ export async function defaultWorkspaceBaseDir(): Promise<string> {
   // Memoized: the documents dir doesn't change at runtime, and sharing a single
   // import keeps concurrent allocations from each re-importing electron.
   if (!_baseDirPromise) {
-    _baseDirPromise = import('electron').then(({ app }) => path.join(app.getPath('documents'), 'Wayland'));
+    const pending = import('electron').then(({ app }) => path.join(app.getPath('documents'), 'Wayland'));
+    _baseDirPromise = pending;
+    // Cache the SUCCESS, not the attempt. Caching the promise unconditionally meant
+    // ONE rejected read was replayed for the whole process lifetime - and
+    // `app.getPath` is not throw-free - so the Doctor's `.catch(() => null)` turned
+    // a transient fault into `appManagedWorkspaceBase: null` permanently, which
+    // disables the workspace-name withholding rather than degrading it. Clearing the
+    // slot on rejection keeps the concurrent-dedup property (in-flight callers still
+    // share `pending`) while letting the next call retry.
+    pending.catch(() => {
+      if (_baseDirPromise === pending) _baseDirPromise = null;
+    });
   }
   return _baseDirPromise;
 }
