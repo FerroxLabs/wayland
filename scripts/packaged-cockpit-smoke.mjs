@@ -427,6 +427,46 @@ async function readModelPin(page) {
   return pin.ok ? (pin.value ?? null) : { error: pin.error };
 }
 
+/**
+ * Dismiss the first-run "Try the new Cockpit layout?" prompt.
+ *
+ * This smoke launches with a FRESH `mkdtemp` userData directory every run, so the
+ * shell-choice prompt (`ShellChoiceOverlay`) is ALWAYS eligible and always opens
+ * over the home composer. It is an Arco `Modal` with `maskClosable={false}`, so
+ * its mask swallows pointer events aimed at anything underneath.
+ *
+ * That made the chat step unpassable in a way that looked like a product bug:
+ * `sendButton.isEnabled()` returns TRUE (it does not test occlusion), so the
+ * enable loop succeeds and only the subsequent `click()` fails, timing out on all
+ * three retries with "locator.click: Timeout 10000ms exceeded". The composer was
+ * fine the whole time; the click simply could not reach it.
+ *
+ * Dismiss via the modal's close control, which is wired to the same `close`
+ * handler as the "Not now" button: it records that the user answered and leaves
+ * the CURRENT shell in place, so the smoke keeps exercising the default layout
+ * rather than opting itself into Cockpit. Matching on the button text would break
+ * on any non-English locale, so key off the modal's `data-testid` instead.
+ *
+ * Returns true when a prompt was found and closed. Absence is not a failure - the
+ * prompt is skipped once answered, so a reused profile legitimately has none.
+ */
+async function dismissShellChoicePrompt(page) {
+  const prompt = page.locator('[data-testid="shell-choice-prompt"]');
+  if (!(await prompt.count().catch(() => 0))) return false;
+  const modal = page.locator('.arco-modal').filter({ has: prompt }).first();
+  await modal
+    .locator('.arco-modal-close-btn')
+    .first()
+    .click({ timeout: 5_000 })
+    .catch(() => page.keyboard.press('Escape').catch(() => {}));
+  // Wait for it to actually leave the DOM: clicking and assuming would just move
+  // the same occlusion failure a few lines down.
+  await prompt.waitFor({ state: 'detached', timeout: 10_000 }).catch(() => {});
+  const stillOpen = Boolean(await prompt.count().catch(() => 0));
+  log(stillOpen ? 'shell choice: STILL OPEN after dismiss' : 'shell choice: dismissed');
+  return !stillOpen;
+}
+
 async function runChat(page, reportDir) {
   const result = {
     ok: false,
@@ -443,6 +483,8 @@ async function runChat(page, reportDir) {
       window.location.hash = '#/guid';
     });
     await sleep(3_000);
+
+    result.shellChoiceDismissed = await dismissShellChoicePrompt(page);
 
     const composer = page.locator('.guid-input-card-shell textarea').first();
     await composer.waitFor({ state: 'visible', timeout: 20_000 });
