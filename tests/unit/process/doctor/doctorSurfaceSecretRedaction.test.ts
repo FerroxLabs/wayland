@@ -28,6 +28,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { checkMcpServers } from '@process/doctor/checks/mcpChecks';
+import type { McpTestResult } from '@process/doctor/checks/mcpChecks';
 import { checkBackends } from '@process/doctor/checks/backendChecks';
 import { checkEngineContractPin, checkEngineReachable } from '@process/doctor/checks/engineChecks';
 import { checkWorkspaceDrift, checkWorkspaceConfigured } from '@process/doctor/checks/workspaceChecks';
@@ -567,6 +568,55 @@ describe('MCP check — a THROWN probe must not bypass the declaration masking',
     expect(result.detail).toContain('ok');
     expect(result.detail).toContain('plain failure');
     expect(findsPrefixlessKey(surfaced(result))).toBe(false);
+  });
+});
+
+describe('MCP check — the server NAME is user-authored, so all four branches label by id', () => {
+  // `server.name` comes straight from the Add Custom field or an imported JSON
+  // file, so a credential pasted there becomes a line in a report the Doctor
+  // panel offers to copy - the same defect as the conversation name, in a file
+  // that renders it four separate times. `enabled: true` is load-bearing:
+  // `checkMcpServers` filters on it, and a harness that omits it exercises
+  // nothing at all.
+  const named = (): IMcpServer =>
+    ({
+      id: 'mcp_5c1a7e64-0f2b-4d90-9a11-6b83c2f4de07',
+      name: BARE_SECRET,
+      enabled: true,
+      transport: { type: 'stdio', command: 'node' },
+    }) as unknown as IMcpServer;
+
+  it('KNOWN POSITIVE: the harness reaches the check at all, and no scrubber can mask this name', async () => {
+    // Two controls in one. First: a DISABLED server is filtered out, so if the
+    // assertions below ever pass because the server never reached the loop, this
+    // control is the only thing that would notice.
+    const skipped = await checkMcpServers({
+      listServers: async () => [{ ...named(), enabled: false } as IMcpServer],
+      testConnection: async () => ({ success: false, error: 'boom' }),
+    });
+    expect(skipped.detail).toBe('No MCP servers are enabled.');
+    // Second: the scrub-only option was never available for this sink.
+    expect(redactSecrets(BARE_SECRET)).toContain(BARE_SECRET);
+  });
+
+  const branches: Array<{ label: string; result: McpTestResult | 'hang'; expect: 'fail' | 'warn' }> = [
+    { label: 'errored', result: { success: false, error: 'MCP error -32000: Connection closed' }, expect: 'fail' },
+    { label: 'needsAuth', result: { success: false, needsAuth: true }, expect: 'warn' },
+    { label: 'toolless', result: { success: true, tools: [] }, expect: 'warn' },
+    { label: 'timedOut', result: 'hang', expect: 'fail' },
+  ];
+
+  it.each(branches)('BARE CANARY: the $label branch names the id, not the name', async ({ result, expect: status }) => {
+    const server = named();
+    const outcome = await checkMcpServers({
+      listServers: async () => [server],
+      testConnection: result === 'hang' ? () => new Promise<McpTestResult>(() => {}) : async () => result,
+      perServerTimeoutMs: 25,
+    });
+    expect(outcome.status).toBe(status);
+    expect(surfaced(outcome)).not.toContain(BARE_SECRET);
+    // Not vacuous: the branch really did name this server, by its id.
+    expect(outcome.detail).toContain(server.id);
   });
 });
 

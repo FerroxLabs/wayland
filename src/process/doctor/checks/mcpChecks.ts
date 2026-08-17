@@ -178,6 +178,32 @@ function redactDeclaredValues(text: string, server: IMcpServer): string {
   return out;
 }
 
+/**
+ * Identify a server in a Doctor detail by its APP-GENERATED id, never by the
+ * user-authored `server.name`.
+ *
+ * `name` is free-form user text: the MCP Library's Add Custom flow takes it
+ * verbatim, and a JSON import takes whatever the file says. So a credential
+ * pasted into that field becomes a line in a report the Doctor panel offers to
+ * copy (GHSA-2g2m-r86j-jg6h). No scrubber closes that - a bare credential in a
+ * name carries no label, no assignment and no recognisable prefix, so it matches
+ * no rule at all [verified by execution: `redactSecrets` returns a bare 32-hex
+ * name untouched]. It is the same defect, and the same fix, as the conversation
+ * name in `doctor/workspaceInventory.ts`.
+ *
+ * All FOUR branches label through here (errored, needsAuth, toolless, timedOut).
+ * Three of them previously rendered `name` raw, which meant the fix on one branch
+ * would have been worth nothing.
+ *
+ * `id` is app-generated at every creation path: both `handleAddMcpServer` and the
+ * library install in `useMcpServerCRUD` mint `mcp_<randomUUID>`, and the type they
+ * accept is `Omit<IMcpServer, 'id' | ...>` so an imported declaration cannot carry
+ * its own [verified: `newMcpServerId` is the only assignment of this field].
+ */
+function doctorServerLabel(server: IMcpServer): string {
+  return server.id;
+}
+
 /** Sentinel a per-server timeout resolves to, distinct from a real probe error. */
 const TIMED_OUT = Symbol('mcp-probe-timeout');
 
@@ -256,7 +282,7 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
     const server = enabled[i];
     const result = results[i];
     if (result === TIMED_OUT) {
-      timedOut.push(server.name);
+      timedOut.push(doctorServerLabel(server));
     } else if (result.success) {
       okCount += 1;
       // `tools` absent and `tools: []` are NOT the same thing, and conflating
@@ -264,11 +290,11 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
       // tool list at all; only an explicitly empty list means "connected and
       // published nothing".
       if (Array.isArray(result.tools)) {
-        if (result.tools.length === 0) toolless.push(server.name);
+        if (result.tools.length === 0) toolless.push(doctorServerLabel(server));
         else toolCount += result.tools.length;
       }
     } else if (result.needsAuth) {
-      needAuth.push(server.name);
+      needAuth.push(doctorServerLabel(server));
     } else {
       // `result.error` is FREE-FORM text from the probe: an HTTP response body,
       // or a spawned server's stderr. The declaration being probed carries the
@@ -293,7 +319,9 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
       // authed server threaded back to here, which is a change to the
       // `testConnection` contract rather than to this check.
       errored.push(
-        `${server.name}${result.error ? ` (${redactSecrets(redactDeclaredValues(result.error, server))})` : ''}`
+        `${doctorServerLabel(server)}${
+          result.error ? ` (${redactSecrets(redactDeclaredValues(result.error, server))})` : ''
+        }`
       );
     }
   }
