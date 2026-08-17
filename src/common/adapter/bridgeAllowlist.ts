@@ -231,8 +231,15 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'wcoreToolKeys.delete',
   // --- Wayland Core engine config.toml mutation (rewrite tool allow-list /
   //     sandbox policy / env passthrough). A remote caller reaching this could
-  //     disable the sandbox or force-allow secrets into bash (SEC-6). ---
-  'wcoreConfig.setSection',
+  //     disable the sandbox or force-allow secrets into bash (SEC-6).
+  //
+  //     #987: a `wcoreConfig.setSection` entry used to head this group. No such
+  //     provider is registered — `setSection()` is a MAIN-process helper in
+  //     src/process/agent/wcore/configBridge.ts that the typed providers below
+  //     call; it never crosses the wire. Matching here is exact, so the entry
+  //     could never fire: it was protection that protected nothing, the same
+  //     failure the agent-installer note further down warns about. The real
+  //     wire surface is the typed setters, all of which are denied. ---
   'wcoreConfig.patchField',
   'wcoreConfig.setBrowserPolicy',
   'wcoreConfig.setRawEngineMode',
@@ -262,7 +269,7 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     would spawn a Force/AutoEdit-mode agent with NO local user action. There
   //     is no per-call remote/local signal inside a buildProvider handler (remote
   //     enforcement is name-based here), so mode cannot be clamped in-handler;
-  //     deny the write/exec surface outright, mirroring `wcoreConfig.setSection`.
+  //     deny the write/exec surface outright, mirroring `wcoreConfig.patchField`.
   //     add-job/update-job set the mode; run-now fires the agent (exec);
   //     save-skill writes the job's SKILL.md verbatim (validated only for YAML
   //     frontmatter shape, NOT instruction content), so a remote caller could
@@ -580,25 +587,35 @@ export function isRemoteDeniedConfigWrite(name: string, data: unknown): boolean 
 }
 
 /**
- * Emitter/broadcast (main -> client) names that must NOT be forwarded to a
- * remote WebSocket peer. Inbound denial (isAllowedForRemote) stops a peer
+ * True iff an emitter `name` (main -> client) may be broadcast to a remote
+ * WebSocket peer. Inbound denial ({@link isAllowedForRemote}) stops a peer
  * INVOKING a provider; this stops a peer passively RECEIVING an emitter stream.
  *
- * #645: terminal.output / terminal.exit carry the live PTY stream (command
- * output, file contents, whatever the agent CLI prints). The terminal is
- * local-only, so a paired peer must never receive it even though it can never
- * spawn/drive one. The local Electron renderer is unaffected — it receives
- * emitters over the in-process IPC adapter, not this WS broadcast path.
+ * #987: this used to be a SECOND hand-maintained prefix list (`['terminal.']`),
+ * and a second hand-maintained list is exactly how it drifted. The inbound rule
+ * grew a `cost.` deny — the whole namespace, because those methods disclose
+ * spend — and the outbound rule did not, so `cost.budgetAlert` and
+ * `cost.budgetGateBlocked` were still broadcast to every paired device.
+ * budgetGateBlocked carries the HELD USER MESSAGE BODY (`content`, plus the
+ * attached file paths), not just a number.
+ *
+ * The fix is structural rather than one more entry: the outbound rule is now
+ * DERIVED from the inbound one, which is the single source of truth. The
+ * invariant is that a namespace a paired peer may not INVOKE is a namespace it
+ * may not RECEIVE either, so any future addition to REMOTE_DENIED_PREFIXES /
+ * REMOTE_DENIED_KEYS is denied in both directions by construction and the two
+ * rules cannot drift apart again.
+ *
+ * #645 (terminal.output / terminal.exit, the live PTY stream) is preserved by
+ * the derived `terminal.` namespace. The local Electron renderer is unaffected
+ * — it receives emitters over the in-process IPC adapter, not this WS broadcast
+ * path.
  */
-const REMOTE_OUTBOUND_DENIED_PREFIXES: readonly string[] = ['terminal.'];
-
-/** True iff an emitter `name` may be broadcast to remote WS peers. */
 export function isAllowedOutboundToRemote(name: string): boolean {
   if (typeof name !== 'string' || name.length === 0) return false;
-  for (const prefix of REMOTE_OUTBOUND_DENIED_PREFIXES) {
-    if (name.startsWith(prefix)) return false;
-  }
-  return true;
+  // Emitter names carry no `subscribe-` transport prefix, so re-add it and
+  // reuse the inbound predicate verbatim instead of re-implementing the match.
+  return isAllowedForRemote(`subscribe-${name}`);
 }
 
 /**
