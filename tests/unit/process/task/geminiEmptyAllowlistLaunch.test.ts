@@ -228,6 +228,31 @@ const connector = (allowedTools?: string[]): IMcpServer =>
     updatedAt: 1,
   }) as IMcpServer;
 
+/**
+ * The same stored connector reached over a hosted transport. `getMcpServers`
+ * builds hosted entries inline (url/type/headers) rather than through
+ * `buildGeminiStdioMcpConfig`, so the per-tool switch is threaded in a SECOND
+ * place that the stdio-only enforcement pin cannot see.
+ */
+const hostedConnector = (transportType: 'http' | 'sse', allowedTools?: string[]): IMcpServer =>
+  ({
+    id: 'srv-hosted',
+    name: 'workspace',
+    enabled: true,
+    status: 'connected',
+    source: 'library',
+    transport: {
+      type: transportType,
+      url: 'https://mcp.example.com/endpoint',
+      headers: { Authorization: 'Bearer stored' },
+    },
+    allowedTools,
+    tools: [{ name: 'search_files' }, { name: 'delete_everything' }],
+    originalJson: '{}',
+    createdAt: 1,
+    updatedAt: 1,
+  }) as IMcpServer;
+
 function createManager(): GeminiAgentManager {
   vi.spyOn(GeminiAgentManager.prototype as unknown as Record<string, unknown>, 'createBootstrap').mockResolvedValue(
     undefined
@@ -235,9 +260,11 @@ function createManager(): GeminiAgentManager {
   return new GeminiAgentManager({ workspace: '/ws', conversation_id: 'conv-test' }, MODEL);
 }
 
-const emittedMcpConfig = async (): Promise<Record<string, { includeTools?: string[] }>> => {
+type EmittedEntry = { includeTools?: string[]; type?: string; url?: string; command?: string };
+
+const emittedMcpConfig = async (): Promise<Record<string, EmittedEntry>> => {
   const manager = createManager() as unknown as {
-    getMcpServers: () => Promise<Record<string, { includeTools?: string[] }>>;
+    getMcpServers: () => Promise<Record<string, EmittedEntry>>;
   };
   return manager.getMcpServers();
 };
@@ -287,4 +314,46 @@ describe('#998 GeminiAgentManager.getMcpServers and the empty allowlist', () => 
 
     expect(manager.mcpSessionState.expectedServerNames).toEqual([]);
   });
+});
+
+/**
+ * #998 — the HOSTED half of the same fix.
+ *
+ * `TOOL_ALLOWLIST_ENFORCING_BACKENDS` claims gemini enforces the MCP Library's
+ * per-tool switches, and `mcpToolAllowlistEnforcement.test.ts` holds that claim
+ * to the STDIO builder (`buildGeminiStdioMcpConfig`). `getMcpServers` builds
+ * SSE/HTTP entries inline instead, so deleting the hosted `includeTools` spread
+ * left the whole suite green while every OAuth connector reached Gemini with its
+ * full inventory behind a banner promising otherwise. Enforcement itself is
+ * transport-agnostic — `connectAndDiscover` funnels every transport through the
+ * same `discoverTools` proven above — so the only thing missing was this pin.
+ */
+describe('#998 GeminiAgentManager.getMcpServers scopes hosted connectors too', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  for (const transportType of ['http', 'sse'] as const) {
+    it(`emits includeTools for a scoped ${transportType} connector`, async () => {
+      mcpState.servers = [hostedConnector(transportType, ['search_files'])];
+
+      const config = await emittedMcpConfig();
+
+      // Proves the hosted branch built this entry, not the stdio builder.
+      expect(config.workspace.type).toBe(transportType);
+      expect(config.workspace.url).toBe('https://mcp.example.com/endpoint');
+      expect(config.workspace).not.toHaveProperty('command');
+      expect(config.workspace.includeTools).toEqual(['search_files']);
+    });
+
+    it(`omits includeTools entirely for an unscoped ${transportType} connector`, async () => {
+      mcpState.servers = [hostedConnector(transportType, undefined)];
+
+      const config = await emittedMcpConfig();
+
+      // `undefined` must stay ABSENT: an empty includeTools means "no tools".
+      expect(config.workspace.type).toBe(transportType);
+      expect(config.workspace).not.toHaveProperty('includeTools');
+    });
+  }
 });
