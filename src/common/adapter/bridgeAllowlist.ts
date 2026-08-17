@@ -545,6 +545,13 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'memory.update-entry',
   'memory.delete-entry',
   'memory.restore-archived-entry',
+  //     #924: set-quick-add is a WRITE that was sitting on the allowed side of
+  //     the read/write line stated above. It creates an on-disk memory entry,
+  //     and it now carries a projectPath selector that steers WHICH indexed
+  //     project receives it. Denying it puts the namespace back in line with
+  //     the READS-only policy this block documents and keeps the new selector
+  //     off the remote surface entirely. Local Electron IPC is unaffected.
+  'memory.set-quick-add',
   // --- Project knowledge draft (reads arbitrary filePaths to feed the model) ---
   'project.generate-knowledge-draft',
   // --- Storage destructive / disk operations ---
