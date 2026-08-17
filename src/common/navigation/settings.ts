@@ -39,10 +39,22 @@ export const SETTINGS_NAVIGATION_IDS = Object.freeze(Object.keys(SETTINGS_ROUTE_
  * Settings surfaces that exist only in the Electron desktop app (#997).
  *
  * The Wayland Core page drives the local engine's `config.toml`, its profile
- * directories and the in-app engine updater. Every one of its `wcoreConfig.*`
- * providers is remote-denied in `bridgeAllowlist.ts`, so a paired WebUI that
- * reaches the page renders a surface on which nothing works. Gate the route and
- * the nav entry instead of shipping a dead page to remote clients.
+ * directories and the in-app engine updater. Every `wcoreConfig` WRITE and every
+ * local-identity READ behind it is remote-denied in `bridgeAllowlist.ts`
+ * (patchField, setBrowserPolicy, setRawEngineMode, setOutputBudget,
+ * openEffectiveRuntimeFolder, getSection, getBrowserPolicy, getEffectiveRuntime,
+ * plus the whole `wcoreProfiles.*` namespace and `wcoreUpdate.check/install`).
+ *
+ * Two reads are reachable BY DESIGN, so the page is degraded rather than inert:
+ * the token-cap `wcoreConfig.getOutputBudget` (#990) and the presence-only
+ * `wcoreToolKeys.list`, which populates the Services and Keys pane with
+ * `{id, hasKey}` and never a key value. `bridgeAllowlistWcoreConfig.redteam.test.ts`
+ * is the executable statement of that split - prefer it over this prose.
+ *
+ * So the gate removes attack surface and a mostly-broken destination; it is NOT
+ * the security boundary. That is enforced server-side in
+ * `src/process/webserver/adapter.ts`, which applies the same allowlist to every
+ * remote call regardless of what the client renders.
  */
 export const DESKTOP_ONLY_SETTINGS_IDS: readonly SettingsNavigationId[] = Object.freeze(['wcore']);
 

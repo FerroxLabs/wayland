@@ -131,11 +131,22 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
               It subsumes the former standalone `wcore` engine-status page.
 
               #997: DESKTOP ONLY. The page drives the local engine's config.toml,
-              its profile directories and the in-app engine updater, and every
-              `wcoreConfig.*` provider behind it is remote-denied in
-              bridgeAllowlist.ts - a paired WebUI that reached it would render a
-              surface on which nothing works. The nav entry is dropped for the
-              same runtime (`visibleSettingsNavigationIds`); this guard closes the
+              its profile directories and the in-app engine updater. Every
+              wcoreConfig WRITE and every local-identity READ behind it is
+              remote-denied in bridgeAllowlist.ts, so a paired WebUI reaching it
+              got a mostly-broken surface. Not an inert one: getOutputBudget
+              (#990) and the presence-only wcoreToolKeys.list are reachable by
+              design, and the latter really did populate the Services and Keys
+              pane. See DESKTOP_ONLY_SETTINGS_IDS for the full split.
+
+              This gate is CLIENT-SIDE and is therefore attack-surface and UX
+              reduction, NOT a security boundary - a remote browser can define
+              window.electronAPI before the bundle loads and render the page. It
+              gains nothing: src/process/webserver/adapter.ts applies the same
+              allowlist server-side, so a spoofer lands in the pre-#997 state.
+
+              The nav entry is dropped for the same runtime
+              (`visibleSettingsNavigationIds`); this guard closes the
               deep-link/legacy-redirect door the rail no longer opens. */}
             <Route
               path='/settings/wcore-config'

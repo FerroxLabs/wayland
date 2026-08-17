@@ -734,9 +734,19 @@ const startDownloadInBackground = async (
       } catch {
         // ignore cleanup failure
       }
-      // The detail now carries a download URL / local path on the catch path, so
-      // scrub it the way the landed half of #853 scrubs surfaced engine failures
-      // (WCoreManager) before it reaches the log or the UI.
+      // Mask CREDENTIAL SHAPES only, the way the landed half of #853 scrubs
+      // surfaced engine failures (WCoreManager). Scope matters here, because
+      // `update.downloadProgress` is outbound-ALLOWED to a paired WebUI
+      // (src/process/webserver/adapter.ts): the catch path can carry an errno
+      // string with an absolute local path, and `redactCommandSecrets` does NOT
+      // redact paths - its docblock puts path masking deliberately out of scope,
+      // and the same is true of the newer `@process/utils/secretRedaction`. So a
+      // filesystem error still ships the desktop user's home path to that peer.
+      // That is unchanged from before #853 (this line previously emitted
+      // `verifyError` with no scrubbing at all), and it is why the claim is
+      // written narrowly: tokens are masked, the base64 digests stay readable,
+      // paths are not touched. Path scrubbing is a redaction-lane change (#991's
+      // module is the place for it), not a drive-by in an updater fix.
       const surfaced = redactCommandSecrets(verifyError || (await getI18n()).t('update.errors.checksumMismatch'));
       console.error('[updateBridge] Integrity verification failed; refusing to open artifact:', surfaced);
       emitProgress({
