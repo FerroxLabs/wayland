@@ -696,6 +696,120 @@ describe('MCP check — a THROWN probe must not bypass the declaration masking',
   });
 });
 
+describe('MCP check — declaration masking across every credential SHAPE', () => {
+  // Executed against a PREFIXLESS secret, which is the only honest way to test
+  // this: a value with a recognisable prefix is masked by `redactSecrets` whatever
+  // the declaration does, so a passing assertion would prove nothing about the
+  // declaration masking at all.
+  const probe = async (transport: unknown, echo: string): Promise<string> => {
+    const result = await checkMcpServers({
+      listServers: async () => [{ id: 'srv', name: 'srv', enabled: true, transport } as unknown as IMcpServer],
+      testConnection: async () => ({ success: false, error: echo }),
+    });
+    return surfaced(result);
+  };
+
+  it('KNOWN POSITIVE: an UNDECLARED prefixless value is not masked, so these are real', async () => {
+    // The control this whole block depends on. If a bare 32-hex value were masked
+    // by the scrubber alone, every assertion below would hold vacuously.
+    const text = await probe(
+      { type: 'stdio', command: 'node', args: ['./server.js'] },
+      `rejected token ${PREFIXLESS_KEY}`
+    );
+    expect(text).toContain(PREFIXLESS_KEY);
+  });
+
+  const masked: Array<[string, unknown, string]> = [
+    // The two shapes this fix adds.
+    [
+      'space-separated flag: --api-key <value>',
+      { type: 'stdio', command: 'node', args: ['--api-key', PREFIXLESS_KEY] },
+      `rejected ${PREFIXLESS_KEY}`,
+    ],
+    [
+      'space-separated flag: --token <value>',
+      { type: 'stdio', command: 'node', args: ['server.js', '--token', PREFIXLESS_KEY] },
+      `bad token: ${PREFIXLESS_KEY}`,
+    ],
+    [
+      'command itself names the credential',
+      { type: 'stdio', command: 'x-auth-helper', args: [PREFIXLESS_KEY] },
+      `refused ${PREFIXLESS_KEY}`,
+    ],
+    [
+      'url path segment echoed alone',
+      { type: 'sse', url: `https://mcp.example.com/v1/${PREFIXLESS_KEY}/sse` },
+      `token ${PREFIXLESS_KEY} refused`,
+    ],
+    [
+      'url query value echoed alone',
+      { type: 'sse', url: `https://mcp.example.com/sse?t=${PREFIXLESS_KEY}&x=1` },
+      `token ${PREFIXLESS_KEY} refused`,
+    ],
+    // The shapes that already worked, kept here so a change to the extraction
+    // cannot quietly drop one of them.
+    ['env whole', { type: 'stdio', command: 'node', env: { K: PREFIXLESS_KEY } }, `rejected ${PREFIXLESS_KEY}`],
+    [
+      'header whole',
+      { type: 'http', url: 'https://mcp.example.com', headers: { 'X-Api-Key': PREFIXLESS_KEY } },
+      `rejected ${PREFIXLESS_KEY}`,
+    ],
+    [
+      'glued flag: --api-key=<value>',
+      { type: 'stdio', command: 'node', args: [`--api-key=${PREFIXLESS_KEY}`] },
+      `rejected ${PREFIXLESS_KEY}`,
+    ],
+  ];
+
+  it.each(masked)('masks %s', async (_label, transport, echo) => {
+    expect(await probe(transport, echo)).not.toContain(PREFIXLESS_KEY);
+  });
+
+  it('does NOT mask the hostname out of a URL declaration', async () => {
+    // The reason URL segments skip the scheme and authority. Masking the host turns
+    // the commonest hosted-server failure into `[redacted]`.
+    const text = await probe(
+      { type: 'sse', url: `https://mcp.example.com/v1/${PREFIXLESS_KEY}/sse` },
+      'getaddrinfo ENOTFOUND mcp.example.com'
+    );
+    expect(text).toContain('mcp.example.com');
+  });
+
+  it('does NOT mask a short structural path segment out of a URL', async () => {
+    // The reason the URL segment floor is 8 rather than the general 4. `proxy` and
+    // `stream` are route structure, and a 404 that names the route is the diagnostic.
+    const text = await probe(
+      { type: 'sse', url: `https://mcp.example.com/proxy/${PREFIXLESS_KEY}/stream` },
+      '404 Not Found for /proxy/<id>/stream on mcp.example.com'
+    );
+    expect(text).toContain('/proxy/');
+    expect(text).toContain('/stream');
+  });
+
+  it('does NOT mask a package name or a directory behind an ordinary flag', async () => {
+    // The FF-6 acceptance line, re-asserted against the new arg rule: neither `-y`
+    // nor the package name names a credential, so nothing here may be masked whole.
+    const text = await probe(
+      {
+        type: 'stdio',
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-filesystem', '/Users/alice/Documents'],
+      },
+      "npm ERR! 404 GET https://registry.npmjs.org/@modelcontextprotocol/server-filesystem; ENOENT: no such file or directory, scandir '/Users/alice/Documents'"
+    );
+    expect(text).toContain('@modelcontextprotocol/server-filesystem');
+    expect(text).toContain('/Users/alice/Documents');
+  });
+
+  it('STATED LIMIT: a lone separator-free arg with no credential flag is NOT masked', async () => {
+    // Pinned deliberately, so the trade is visible rather than assumed. This shape
+    // is indistinguishable from a package name, and masking it whole is the FF-6
+    // regression. Change this test only alongside a real way to tell them apart.
+    const text = await probe({ type: 'stdio', command: 'node', args: [PREFIXLESS_KEY] }, `rejected ${PREFIXLESS_KEY}`);
+    expect(text).toContain(PREFIXLESS_KEY);
+  });
+});
+
 describe('MCP check — the server NAME is user-authored, so all four branches label by id', () => {
   // `server.name` comes straight from the Add Custom field or an imported JSON
   // file, so a credential pasted there becomes a line in a report the Doctor

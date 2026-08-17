@@ -116,19 +116,72 @@ function unwrapVariants(value: string): string[] {
  *    `--api-key=<v>` but also masked `@modelcontextprotocol/server-filesystem`
  *    and `/Users/alice/Documents`, which are exactly the strings the two
  *    commonest failures (wrong package, missing directory) need to stay readable.
+ *    The ONE exception is an argument whose PRECEDING token names a credential
+ *    ({@link CREDENTIAL_FLAG_PATTERN}), because `--api-key <value>` is a
+ *    separator-free argument that IS the credential in full. That shape leaked
+ *    [executed], and it is the documented CLI spelling for most servers.
  *
  * ACCEPTED LIMITS of literal matching, not oversights: a case-folded echo, a
  * URL-encoded echo, or a value glued to a short flag with no separator
  * (`-k<secret>`) will not match. Chasing those means pattern-matching, which is
  * the fragility this exists to avoid.
+ *
+ * ONE MORE ACCEPTED LIMIT, and it is a leak rather than a miss, so it is named
+ * plainly. A single separator-free argument with NO credential-naming token before
+ * it - `args: ['<secret>']` behind `command: 'node'` - is not masked. It cannot be:
+ * it is indistinguishable from `args: ['@modelcontextprotocol/server-filesystem']`,
+ * and masking it whole is precisely the FF-6 regression that made the tool unable
+ * to name the package or directory in the two commonest failures. It is a trade,
+ * not an oversight.
+ *
+ * The over-masking direction of the flag rule is accepted too: `--auth-file
+ * /Users/alice/creds.json` masks the path, so an ENOENT on it reads
+ * `[redacted]`. A flag that names a credential is worth that.
  */
 function asStrings(values: unknown[]): string[] {
   return values.filter((value): value is string => typeof value === 'string');
 }
 
+/**
+ * A token that names a credential, so whatever comes NEXT on the command line is
+ * one. Matches `--api-key`, `--token`, `-secret`, `--password`, `--auth`, and the
+ * same words inside a longer flag.
+ */
+const CREDENTIAL_FLAG_PATTERN = /(key|token|secret|password|auth)/i;
+
+/** Shortest URL path or query segment worth treating as a possible token. */
+const MIN_URL_SEGMENT_LENGTH = 8;
+
+/**
+ * The `/`-delimited path segments and query values of a hosted endpoint URL.
+ *
+ * The whole URL is already contributed as one value, but that only helps when the
+ * probe echoes the whole URL. A server that rejects a path-embedded token and
+ * echoes only the TOKEN - the standard Zapier / Smithery / Composio shape - was not
+ * covered, because `unwrapVariants` splits on `=`, `:` and whitespace and never on
+ * `/` [executed: `url: 'https://host/<secret>/sse'` leaked when the probe echoed
+ * only the token].
+ *
+ * The scheme and authority are dropped FIRST so a hostname can never be masked.
+ * Masking it would turn `getaddrinfo ENOTFOUND mcp.example.com` into `[redacted]`
+ * and destroy the commonest hosted-server diagnostic. The 8-character floor is
+ * higher than the general one for the same reason: short path segments (`v1`,
+ * `sse`, `api`) are structure, not secrets.
+ */
+function urlTokenSegments(url: string): string[] {
+  const afterAuthority = url.replace(/^[a-z][a-z0-9+.-]*:\/\/[^/?#]*/i, '');
+  return afterAuthority.split(/[/?#&]/).filter((segment) => segment.length >= MIN_URL_SEGMENT_LENGTH);
+}
+
 function declaredSecretValues(server: IMcpServer): string[] {
   const transport = server.transport as
-    | { env?: Record<string, string>; headers?: Record<string, string>; args?: string[]; url?: string }
+    | {
+        env?: Record<string, string>;
+        headers?: Record<string, string>;
+        args?: string[];
+        url?: string;
+        command?: string;
+      }
     | undefined;
   if (!transport) return [];
 
@@ -141,10 +194,22 @@ function declaredSecretValues(server: IMcpServer): string[] {
   ]) {
     values.push(...unwrapVariants(value));
   }
+  // A path-embedded or query-embedded token, reachable only by splitting on `/`.
+  for (const url of asStrings([transport.url])) {
+    for (const segment of urlTokenSegments(url)) {
+      values.push(...unwrapVariants(segment));
+    }
+  }
   // Arguments: the remainder past a separator only, so paths and package names
-  // survive intact.
-  for (const arg of asStrings(transport.args ?? [])) {
-    values.push(...unwrapVariants(arg).slice(1));
+  // survive intact - UNLESS the preceding token names a credential, in which case
+  // this whole argument is the value. `command` counts as the token before
+  // `args[0]`, so `command: 'x-auth-helper'` covers its first argument too.
+  const args = asStrings(transport.args ?? []);
+  for (let index = 0; index < args.length; index += 1) {
+    const variants = unwrapVariants(args[index]);
+    const preceding = index === 0 ? transport.command : args[index - 1];
+    const flagged = typeof preceding === 'string' && CREDENTIAL_FLAG_PATTERN.test(preceding);
+    values.push(...(flagged ? variants : variants.slice(1)));
   }
 
   return values.filter((value) => value.length >= MIN_DECLARED_SECRET_LENGTH).toSorted((a, b) => b.length - a.length);
@@ -155,12 +220,21 @@ function declaredSecretValues(server: IMcpServer): string[] {
  * it appears in the probe's output.
  *
  * This is the STRUCTURAL half of the mcp fix, and it is why this sink does not
- * wait on #1026: a literal string replacement pattern-matches nothing, so no
- * credential SHAPE can slip past it. A stdio server that dies with
- * `AZURE_OPENAI_API_KEY=<value>` on stderr has that stderr appended to the
- * user-facing error as `Server output: ...` (`McpProtocol.ts`), and the value is
- * masked because it came out of `transport.env`, not because it looked like
+ * wait on #1026: a literal string replacement pattern-matches nothing, so a
+ * credential's SHAPE is irrelevant to whether it is masked. A stdio server that
+ * dies with `AZURE_OPENAI_API_KEY=<value>` on stderr has that stderr appended to
+ * the user-facing error as `Server output: ...` (`McpProtocol.ts`), and the value
+ * is masked because it came out of `transport.env`, not because it looked like
  * anything.
+ *
+ * CORRECTION. An earlier version of this comment said "no credential SHAPE can
+ * slip past it", and that overclaimed in a way execution refuted. Shape-blindness
+ * is not coverage: what is masked is whatever {@link declaredSecretValues} extracts
+ * from the declaration, and three shapes were escaping that extraction entirely -
+ * `--api-key <value>` as two separate args, a lone separator-free arg, and a
+ * `/`-delimited URL path segment. Two are fixed below and the third is a stated
+ * trade. Read the accepted-limits list on `declaredSecretValues` as the actual
+ * coverage claim; this paragraph is only about WHY the mechanism needs no pattern.
  *
  * `split`/`join` rather than a built regex: the values are arbitrary user text
  * and a missed escape would be a silent no-match, i.e. a silent leak.
