@@ -28,7 +28,6 @@ import { Curator } from '@process/providers/catalog/Curator';
 import type { ProviderId } from '@process/providers/types';
 import { detectWCore, resolveWCoreBinary } from '@process/agent/wcore/binaryResolver';
 import { DESKTOP_CORE_V1_PIN } from '@process/agent/wcore/desktopContractV1';
-import { readConfig, resolveUserConfigPath } from '@process/agent/wcore/configBridge';
 import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
 import { getConfigPath } from '@process/utils/utils';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
@@ -65,6 +64,7 @@ import {
 } from './checks/workspaceChecks';
 import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from './checks/configChecks';
 import { checkAppArchitecture } from './checks/platformChecks';
+import { probeEngineConfig } from './engineConfigProbe';
 
 /** Build a `ProviderRepository` bound to the live UI database. */
 async function providerRepo(): Promise<ProviderRepository> {
@@ -322,17 +322,12 @@ export function buildDoctorChecks(): DoctorCheck[] {
       id: 'config.engineConfig',
       titleKey: 'settings.doctor.checks.engineConfig',
       category: 'config',
-      run: () =>
-        checkEngineConfigIntegrity(async () => {
-          const path = resolveUserConfigPath();
-          const existed = await pathExists(path);
-          try {
-            await readConfig(path);
-            return { status: 'ok', existed };
-          } catch (error) {
-            return { status: 'corrupt', message: error instanceof Error ? error.message : String(error) };
-          }
-        }),
+      // `probeEngineConfig`, not an inline read: it is the sanitisation point
+      // for GHSA-2g2m-r86j-jg6h (the raw `smol-toml` message echoes the user's
+      // own config lines, `api_key`s included, and Doctor reports get copied
+      // into support threads), and it lives in its own Electron-free module so
+      // that boundary is reachable from a unit test.
+      run: () => checkEngineConfigIntegrity(() => probeEngineConfig()),
     },
   ];
 }

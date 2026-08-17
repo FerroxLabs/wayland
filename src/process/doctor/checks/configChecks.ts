@@ -17,6 +17,7 @@
  *     (a fresh install has none).
  */
 
+import { redactSecrets } from '@process/utils/secretRedaction';
 import type { DoctorCheckOutcome } from '../types';
 
 /** Config check dependencies — all injectable so the checks are unit-testable. */
@@ -25,9 +26,17 @@ export type ConfigCheckDeps = {
   isEncryptionAvailable: () => boolean;
   /**
    * Read + parse the engine's user `config.toml`. Resolves `'ok'` (parsed or
-   * absent), or `'corrupt'` with the parse error message. Never throws.
+   * absent), or `'corrupt'` with the parse failure's reason and, when the parser
+   * reported one, its position. Never throws.
+   *
+   * `message` is the reason ONLY. It must never carry the offending source line:
+   * that line is the user's own config, credentials included
+   * (GHSA-2g2m-r86j-jg6h). `line`/`column` are how this check stays actionable
+   * without echoing any of the file. `probeEngineConfig` is the real producer.
    */
-  readEngineConfig: () => Promise<{ status: 'ok'; existed: boolean } | { status: 'corrupt'; message: string }>;
+  readEngineConfig: () => Promise<
+    { status: 'ok'; existed: boolean } | { status: 'corrupt'; message: string; line?: number; column?: number }
+  >;
 };
 
 /**
@@ -48,18 +57,45 @@ export async function checkSecretStorage(isEncryptionAvailable: () => boolean): 
 }
 
 /**
+ * Render `line`/`column` as a position phrase, or `null` when the parser gave
+ * neither. Deliberately NUMBERS only - naming the position is what keeps the
+ * remediation actionable now that the offending line's TEXT is withheld
+ * (GHSA-2g2m-r86j-jg6h).
+ */
+function describePosition(result: { line?: number; column?: number }): string | null {
+  if (typeof result.line !== 'number' || !Number.isFinite(result.line)) return null;
+  if (typeof result.column !== 'number' || !Number.isFinite(result.column)) return `line ${result.line}`;
+  return `line ${result.line}, column ${result.column}`;
+}
+
+/**
  * Engine config integrity — the user `config.toml` parses. FAIL when it exists
  * but is corrupt; PASS when it parses or is absent (a fresh install).
+ *
+ * The corrupt branch names the POSITION of the fault and never its text. The
+ * Doctor panel has a "Copy report" button and exists to be shared with support,
+ * so echoing the offending config line would hand out whatever credential
+ * happened to sit next to it (GHSA-2g2m-r86j-jg6h).
  */
 export async function checkEngineConfigIntegrity(
   readEngineConfig: ConfigCheckDeps['readEngineConfig']
 ): Promise<DoctorCheckOutcome> {
   const result = await readEngineConfig();
   if (result.status === 'corrupt') {
+    // `readEngineConfig` is INJECTED, and the real producer already strips and
+    // scrubs. Scrub again anyway: every future caller of this check inherits the
+    // copy-to-support blast radius, and a defence that depends on the injection
+    // being the right one is not a defence. `redactSecrets` is idempotent.
+    const reason = redactSecrets(result.message);
+    const position = describePosition(result);
     return {
       status: 'fail',
-      detail: `The engine's config.toml could not be parsed: ${result.message}`,
-      remediation: 'Fix the TOML syntax in the engine config.toml, or remove the file to regenerate defaults.',
+      detail: position
+        ? `The engine's config.toml could not be parsed at ${position}: ${reason}`
+        : `The engine's config.toml could not be parsed: ${reason}`,
+      remediation: position
+        ? `Fix the TOML syntax at ${position} in the engine config.toml, or remove the file to regenerate defaults.`
+        : 'Fix the TOML syntax in the engine config.toml, or remove the file to regenerate defaults.',
     };
   }
   return {

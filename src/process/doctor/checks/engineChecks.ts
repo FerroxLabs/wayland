@@ -19,6 +19,7 @@
  *     model exists — rather than spawning a real turn.
  */
 
+import { redactSecrets } from '@process/utils/secretRedaction';
 import type { DoctorCheckOutcome } from '../types';
 
 /** Engine binary detection result — shape of `detectWCore()`. */
@@ -129,9 +130,14 @@ export async function checkEngineContractPin(
   } catch (error) {
     return {
       status: 'warn',
-      detail: `The engine binary could not be read to verify its contract version: ${
+      // Scrubbed for UNIFORMITY, not because this source is known to be
+      // credential-bearing: it is an fs failure reading the engine binary. The
+      // Doctor surface now holds one rule - no raw error text reaches a report
+      // that gets copied to support (GHSA-2g2m-r86j-jg6h) - because a per-check
+      // judgement call is exactly what the next check author gets wrong.
+      detail: `The engine binary could not be read to verify its contract version: ${redactSecrets(
         error instanceof Error ? error.message : String(error)
-      }`,
+      )}`,
       remediation: 'Check that the app has permission to read its own bundled engine.',
     };
   }

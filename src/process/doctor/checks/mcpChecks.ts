@@ -22,6 +22,7 @@
  * total tool count on the way through.
  */
 
+import { redactSecrets } from '@process/utils/secretRedaction';
 import type { IMcpServer } from '@/common/config/storage';
 import type { DoctorCheckOutcome } from '../types';
 
@@ -125,7 +126,14 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
     } else if (result.needsAuth) {
       needAuth.push(server.name);
     } else {
-      errored.push(`${server.name}${result.error ? ` (${result.error})` : ''}`);
+      // `result.error` is FREE-FORM text from the probe: an HTTP response body,
+      // or a spawned server's stderr. The declaration being probed carries the
+      // server's `env` (API keys) and `headers` (an `Authorization:` value, plus
+      // the OAuth bearer `McpService.attachOAuthToken` adds), so a 401 body or an
+      // stderr echo can hand a credential straight into a Doctor report that
+      // exists to be copied to support - the same class of exposure as
+      // GHSA-2g2m-r86j-jg6h. Scrub before it reaches the detail.
+      errored.push(`${server.name}${result.error ? ` (${redactSecrets(result.error)})` : ''}`);
     }
   }
 

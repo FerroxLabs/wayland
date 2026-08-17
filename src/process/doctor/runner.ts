@@ -14,6 +14,7 @@
  * would needlessly multiply the wall-clock time.
  */
 
+import { redactSecrets } from '@process/utils/secretRedaction';
 import type { DoctorCheck, DoctorCheckResult, DoctorReport, DoctorStatus } from './types';
 
 /** Per-check wall-clock budget. A check that exceeds this resolves to `fail`. */
@@ -54,7 +55,12 @@ async function runOne(check: DoctorCheck, timeoutMs: number): Promise<DoctorChec
       const outcome = await check.run();
       return { ...base, ...outcome, durationMs: Date.now() - started };
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      // The catch-all for EVERY check, so it is also the last place an
+      // unanticipated credential-bearing error message could reach a Doctor
+      // report (which has a "Copy report" button). Scrub unconditionally -
+      // nothing here knows which check threw or what it was reading
+      // (GHSA-2g2m-r86j-jg6h).
+      const message = redactSecrets(error instanceof Error ? error.message : String(error));
       return {
         ...base,
         status: 'fail',
