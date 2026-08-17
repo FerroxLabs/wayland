@@ -159,6 +159,18 @@ export async function replaceGeminiMcpWorker(
  * evidence of a resumable session. The recovery adapter binds this fact and
  * refuses to treat process existence as resumability.
  */
+/**
+ * #983 - deadline for a confirm round-trip to the gemini worker.
+ *
+ * Unlike `send.message`, which is TURN-scoped and legitimately runs for many
+ * minutes, a confirm is REQUEST-scoped: the worker's `pipe.once(callId, ...)`
+ * handler resolves its deferred as soon as the message lands, so a healthy
+ * answer is effectively immediate. Bounding it means a confirm for a callId the
+ * LIVE worker never registered - a stale approval card met by a fresh worker -
+ * fails instead of wedging `ChannelMessageService.confirm` forever.
+ */
+const CONFIRM_ROUND_TRIP_TIMEOUT_MS = 60_000;
+
 export const GEMINI_SESSION_AUTHORITY = {
   producer: 'gemini-cli',
   handleSource: 'gemini.none',
@@ -992,7 +1004,9 @@ export class GeminiAgentManager extends BaseAgentManager<
    * move on.
    */
   private autoApproveConfirmation(callId: string): void {
-    void this.postMessagePromise(callId, ToolConfirmationOutcome.ProceedOnce).catch((error) => {
+    void this.postMessagePromise(callId, ToolConfirmationOutcome.ProceedOnce, {
+      timeoutMs: CONFIRM_ROUND_TRIP_TIMEOUT_MS,
+    }).catch((error) => {
       console.warn(
         `[GeminiAgentManager] auto-approve for callId=${callId} was not delivered:`,
         error instanceof Error ? error.message : String(error)
@@ -1503,8 +1517,20 @@ export class GeminiAgentManager extends BaseAgentManager<
     }
 
     super.confirm(id, callId, data);
-    // Send confirmation to worker, using callId as message type
-    return this.postMessagePromise(callId, data);
+
+    // #983: the worker consumes its `pipe.once(callId)` listener on first use,
+    // so a replayed confirm (a channel platform retrying its callback, or a
+    // repeated yolo auto-confirm) must not post again - that promise could
+    // never settle, and ChannelMessageService.confirm awaits it.
+    if (!this.claimConfirmCallId(callId)) {
+      console.warn(`[GeminiAgentManager] ignoring repeat confirm for callId=${callId}`);
+      return Promise.resolve();
+    }
+
+    // Send confirmation to worker, using callId as message type. The deadline
+    // caps the cases the claim cannot see, e.g. a callId registered by a worker
+    // that has since been replaced.
+    return this.postMessagePromise(callId, data, { timeoutMs: CONFIRM_ROUND_TRIP_TIMEOUT_MS });
   }
 
   // Manually trigger context reload

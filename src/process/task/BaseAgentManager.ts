@@ -13,6 +13,9 @@ import type { IAgentEventEmitter } from './IAgentEventEmitter';
 import type { IAgentManager } from './IAgentManager';
 import { resolveMainBundlePath } from '@process/utils/mainBundlePath';
 
+/** #983 - upper bound on remembered consumed callIds (see consumedConfirmCallIds). */
+const CONSUMED_CONFIRM_CALLID_LIMIT = 500;
+
 /**
  * @description Base class for agent tasks
  * */
@@ -27,6 +30,22 @@ class BaseAgentManager<Data, ConfirmationOption extends any = any>
   workspace: string = '';
   conversation_id: string = '';
   protected confirmations: Array<IConfirmation<ConfirmationOption>> = [];
+  /**
+   * #983 - callIds this manager has already confirmed once.
+   *
+   * The worker registers exactly ONE `pipe.once(callId, ...)` listener per
+   * callId and deletes it when it fires (src/process/worker/gemini.ts), so a
+   * SECOND confirm for the same callId posts a message nobody will ever answer.
+   * Subclasses that forward a confirmation over the worker round-trip gate that
+   * post on {@link claimConfirmCallId} so the repeat never becomes a promise
+   * that cannot settle.
+   *
+   * Deliberately NOT derived from `this.confirmations`: `addConfirmation`
+   * returns BEFORE populating that cache under yoloMode, and `tryAutoApprove`
+   * never populates it at all, so an "absent from the cache" guard would
+   * swallow every auto-approval rather than just the repeats.
+   */
+  private readonly consumedConfirmCallIds = new Set<string>();
   status: AgentStatus | undefined;
   protected _lastActivityAt: number = Date.now();
   get lastActivityAt(): number {
@@ -107,6 +126,30 @@ class BaseAgentManager<Data, ConfirmationOption extends any = any>
     if (confirmationToRemove) {
       this.emitter.emitConfirmationRemove(this.conversation_id, confirmationToRemove.id);
     }
+  }
+  /**
+   * #983 - claim the worker's single-use confirm slot for `callId`.
+   *
+   * @returns `true` the first time a callId is claimed, `false` for every
+   *   repeat. A caller that forwards the confirmation over the worker
+   *   round-trip MUST skip that post on `false`: the worker's one-shot listener
+   *   for the callId is already gone, so `postMessagePromise` would return a
+   *   promise bounded only by child death - and `ChannelMessageService.confirm`
+   *   awaits it.
+   */
+  protected claimConfirmCallId(callId: string): boolean {
+    if (this.consumedConfirmCallIds.has(callId)) return false;
+    this.consumedConfirmCallIds.add(callId);
+    // Bound the set so a very long conversation cannot grow it without limit.
+    // callIds are unique per tool call (the model's own id, else
+    // `name_<timestamp>_<counter>`), so evicting the oldest entries cannot
+    // resurrect a callId that is still live.
+    while (this.consumedConfirmCallIds.size > CONSUMED_CONFIRM_CALLID_LIMIT) {
+      const oldest = this.consumedConfirmCallIds.values().next().value;
+      if (oldest === undefined) break;
+      this.consumedConfirmCallIds.delete(oldest);
+    }
+    return true;
   }
   getConfirmations() {
     return this.confirmations;
