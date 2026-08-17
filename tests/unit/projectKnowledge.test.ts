@@ -169,6 +169,7 @@ describe('project knowledge', () => {
  */
 describe('project knowledge injection is size-capped at the collection site', () => {
   const TRUNCATED = '…(truncated)';
+  const OMITTED = '…(omitted - exceeds the injection budget)';
 
   it('passes a normal document through untouched', async () => {
     const body = 'ACME ships daily.\n\n'.repeat(200); // ~3.8k chars, well inside the caps
@@ -204,5 +205,47 @@ describe('project knowledge injection is size-capped at the collection site', ()
   it('truncates deterministically, so a refresh stays idempotent', async () => {
     await writeProjectKnowledge(ws, 'context', 'A'.repeat(500_000));
     expect(await loadProjectKnowledgeBlock(ws)).toBe(await loadProjectKnowledgeBlock(ws));
+  });
+
+  /**
+   * The dropped-document path, which the per-document caps above do NOT cover.
+   * `Object.keys(KNOWLEDGE_FILE)` is a fixed order (context, rules, decisions),
+   * so a document squeezed out by the whole-block budget is ALWAYS decisions.md
+   * - and it used to go out before its heading was pushed, leaving nothing in
+   * the prompt at all. The only signal was a `console.warn` the model cannot
+   * see, which is strictly worse than a document marked partial. 32,000 chars
+   * each is the measured threshold: at 31,900 each, decisions still made it in.
+   */
+  it('reserves a floor per document, so the last one is never dropped in silence', async () => {
+    await writeProjectKnowledge(ws, 'context', 'A'.repeat(32_000));
+    await writeProjectKnowledge(ws, 'rules', 'B'.repeat(32_000));
+    await writeProjectKnowledge(ws, 'decisions', 'C'.repeat(32_000));
+    const block = await loadProjectKnowledgeBlock(ws);
+    // Present as a heading AND carrying real content, not a heading over nothing.
+    expect(block).toContain('## Project decisions');
+    expect(block).toContain('CCC');
+    expect(block.split('## Project decisions')[1].length).toBeGreaterThan(3_000);
+    // Every document that was cut says so, and the block is still bounded.
+    expect(block).toContain(TRUNCATED);
+    expect(block.length).toBeLessThan(70_000);
+  });
+
+  it('announces no truncation and no omission when nothing was cut', async () => {
+    await writeProjectKnowledge(ws, 'context', 'ACME ships daily.');
+    await writeProjectKnowledge(ws, 'rules', 'Two-space indent.');
+    await writeProjectKnowledge(ws, 'decisions', 'Staging moved to OIDC; the old key is dead.');
+    const block = await loadProjectKnowledgeBlock(ws);
+    expect(block).toContain('Staging moved to OIDC; the old key is dead.');
+    expect(block).not.toContain(TRUNCATED);
+    expect(block).not.toContain(OMITTED);
+  });
+
+  it('gives a document the user never edited no heading and no omission marker', async () => {
+    await writeProjectKnowledge(ws, 'context', 'A'.repeat(500_000));
+    const block = await loadProjectKnowledgeBlock(ws);
+    expect(block).toContain(TRUNCATED);
+    expect(block).not.toContain('## Project rules');
+    expect(block).not.toContain('## Project decisions');
+    expect(block).not.toContain(OMITTED);
   });
 });

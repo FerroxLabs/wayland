@@ -148,6 +148,13 @@ const KNOWLEDGE_DOC_CHAR_CAP = 32_000;
 const KNOWLEDGE_BLOCK_CHAR_CAP = 64_000;
 /** Left in the prompt so the agent is never handed a silently partial document. */
 const KNOWLEDGE_TRUNCATED_MARKER = '\n\n…(truncated)';
+/** Left under the heading of a document dropped whole, so its absence is not silent. */
+const KNOWLEDGE_OMITTED_MARKER = '…(omitted - exceeds the injection budget)';
+/**
+ * Slice of the block budget held back for each document still to come, so a
+ * large earlier document cannot starve a later one out of the block entirely.
+ */
+const KNOWLEDGE_DOC_CHAR_FLOOR = 4_000;
 
 /**
  * Compose the project's substantive knowledge into a single block ready to
@@ -170,28 +177,38 @@ const KNOWLEDGE_TRUNCATED_MARKER = '\n\n…(truncated)';
  */
 export async function loadProjectKnowledgeBlock(workspace: string): Promise<string> {
   const k = await readProjectKnowledge(workspace);
+  const present = (Object.keys(KNOWLEDGE_FILE) as KnowledgeKind[])
+    .map((kind) => ({ heading: `## ${INJECT_LABEL[kind]}\n\n`, body: withoutSentinels(substantive(k[kind])) }))
+    .filter((doc) => doc.body.length > 0);
+  // `Object.keys(KNOWLEDGE_FILE)` is a fixed order (context, rules, decisions),
+  // so without a floor the document squeezed out of the block is ALWAYS
+  // decisions.md - the one carrying "the old key is dead". Clamped to an equal
+  // share so the reservation can never over-subscribe the budget however the
+  // caps are retuned.
+  const floor = Math.min(KNOWLEDGE_DOC_CHAR_FLOOR, Math.floor(KNOWLEDGE_BLOCK_CHAR_CAP / Math.max(present.length, 1)));
   const sections: string[] = [];
   let used = 0;
   let truncated = false;
-  (Object.keys(KNOWLEDGE_FILE) as KnowledgeKind[]).forEach((kind) => {
-    let body = withoutSentinels(substantive(k[kind]));
-    if (!body) return;
-    const heading = `## ${INJECT_LABEL[kind]}\n\n`;
+  present.forEach(({ heading, body }, index) => {
     // Whichever bites first: this document's own cap, or what is left of the
-    // whole-block budget once the heading and the marker are accounted for.
+    // whole-block budget once the heading, the marker, and the floor still owed
+    // to the documents after this one are accounted for.
     const room = Math.min(
       KNOWLEDGE_DOC_CHAR_CAP,
-      KNOWLEDGE_BLOCK_CHAR_CAP - used - heading.length - KNOWLEDGE_TRUNCATED_MARKER.length
+      KNOWLEDGE_BLOCK_CHAR_CAP -
+        used -
+        heading.length -
+        KNOWLEDGE_TRUNCATED_MARKER.length -
+        floor * (present.length - index - 1)
     );
-    if (room <= 0) {
-      truncated = true;
-      return;
-    }
-    if (body.length > room) {
-      body = `${body.slice(0, room)}${KNOWLEDGE_TRUNCATED_MARKER}`;
-      truncated = true;
-    }
-    const section = `${heading}${body}`;
+    // Only reachable if the caps are retuned so small that even the floor does
+    // not fit. Emit the heading and say the body was withheld: a document
+    // dropped in silence is worse than one the agent knows it is missing.
+    if (room <= 0 || body.length > room) truncated = true;
+    const section =
+      room <= 0
+        ? `${heading}${KNOWLEDGE_OMITTED_MARKER}`
+        : `${heading}${body.length > room ? `${body.slice(0, room)}${KNOWLEDGE_TRUNCATED_MARKER}` : body}`;
     sections.push(section);
     used += section.length;
   });
