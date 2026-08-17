@@ -100,6 +100,13 @@ function fakeFs(
     failRenameWith?: NodeJS.ErrnoException;
     failRepairWriteWith?: NodeJS.ErrnoException;
     mutateDuringBackup?: Buffer;
+    /**
+     * Content something ELSE writes to `config.toml` just before the repair write,
+     * so that write hits the same EEXIST production would (F2). The engine writing
+     * defaults on a launch retry, or the user hand-saving the file that "Show me
+     * the file" invited them to open.
+     */
+    foreignWriteBeforeRepair?: string;
   } = {}
 ): FakeFs {
   const files = new Map<string, Buffer>(
@@ -123,6 +130,10 @@ function fakeFs(
       const isReservation = data === '';
       if (isReservation && options.failCreateWith) throw options.failCreateWith;
       if (!isReservation && options.failRepairWriteWith) throw options.failRepairWriteWith;
+      if (!isReservation && options.foreignWriteBeforeRepair !== undefined && !files.has(path)) {
+        // Not journalled in `ops`: this write is NOT one this module made.
+        files.set(path, Buffer.from(options.foreignWriteBeforeRepair, 'utf-8'));
+      }
       if (files.has(path)) {
         const error: NodeJS.ErrnoException = new Error('EEXIST: file already exists');
         error.code = 'EEXIST';
@@ -520,6 +531,32 @@ describe('repairEngineConfig - backup BEFORE write, original never lost', () => 
     // Renamed back: the user has their original config.toml and no stray backup.
     expect(fs.files.get(CONFIG_PATH)!.toString('utf-8')).toBe(REPORTED_CORRUPT);
     expect(fs.files.has(BACKUP_PATH)).toBe(false);
+  });
+
+  /**
+   * F2. EEXIST means something ELSE created `config.toml` inside the recovery
+   * window - the engine writing defaults on a launch retry, or the user
+   * hand-saving the file that "Show me the file" just invited them to open.
+   *
+   * The rollback used to `unlink` that file unconditionally and rename the CORRUPT
+   * original back over it, destroying a file this module never created, possibly
+   * carrying a brand new credential, and reporting nothing. Executed before the
+   * fix: `externalHealthySurvives=false`, `configIsOldCorrupt=true`,
+   * `reportsBackupPath=false`.
+   */
+  it('FAILURE BRANCH: an EEXIST write keeps BOTH files and names the backup', async () => {
+    const foreign = '[providers.anthropic]\napi_key = "sk-ant-BRAND-NEW-CREDENTIAL"\n';
+    const fs = fakeFs({ [CONFIG_PATH]: REPORTED_CORRUPT }, { foreignWriteBeforeRepair: foreign });
+
+    const result = await repairEngineConfig(fs.deps);
+
+    expect(result).toMatchObject({ ok: false, reason: 'restore-conflict', backupPath: BACKUP_PATH });
+    // The foreign file is UNTOUCHED - not replaced by the corrupt original.
+    expect(fs.files.get(CONFIG_PATH)!.toString('utf-8')).toBe(foreign);
+    // And the user's original bytes are still on disk, at the reported path.
+    expect(fs.files.get(BACKUP_PATH)!.toString('utf-8')).toBe(REPORTED_CORRUPT);
+    // Nothing was deleted at all.
+    expect(fs.ops.filter((op) => op.startsWith('unlink:'))).toEqual([]);
   });
 
   it('REFUSES to rewrite a NON-UTF-8 config, touching nothing', async () => {

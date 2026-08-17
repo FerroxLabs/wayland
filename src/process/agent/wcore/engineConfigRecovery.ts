@@ -126,6 +126,11 @@ export type EngineConfigRecoveryFailure =
   | 'nothing-to-repair'
   /** There is no file to act on. */
   | 'missing'
+  /**
+   * Something else created `config.toml` while the recovery was in flight, so
+   * BOTH that file and the backup were left in place. `backupPath` is always set.
+   */
+  | 'restore-conflict'
   /** The write failed AFTER a good backup was taken. */
   | 'write-failed';
 
@@ -591,6 +596,9 @@ async function restoreFromBackup(
   }
 }
 
+/** `true` when a failed exclusive create means the path already existed. */
+const isAlreadyExists = (error: unknown): boolean => (error as { code?: string } | null)?.code === 'EEXIST';
+
 /** Read the config's raw bytes, mapping a missing file onto a typed result. */
 async function readConfigBytes(
   path: string,
@@ -697,6 +705,16 @@ export async function repairEngineConfig(
   try {
     await deps.writeFileExclusive(path, repair.repaired);
   } catch (error) {
+    // F2. EEXIST means something ELSE created `config.toml` inside the recovery
+    // window - the engine writing defaults on a launch retry, or the user
+    // hand-saving the file that "Show me the file" just invited them to open. That
+    // file is not ours, it can hold a brand new credential, and the rollback below
+    // would `unlink` it to put the CORRUPT original back. Destroying a file this
+    // module never created is precisely the data loss it exists to prevent, so
+    // keep BOTH and report where the original went.
+    if (isAlreadyExists(error)) {
+      return { ok: false, reason: 'restore-conflict', detail: summarizeReason(error), backupPath };
+    }
     const restored = await restoreFromBackup(path, backupPath, deps);
     return {
       ok: false,
