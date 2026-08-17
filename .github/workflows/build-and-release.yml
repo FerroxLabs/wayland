@@ -251,6 +251,17 @@ jobs:
         shell: bash
         run: bash scripts/prepare-release-assets.sh build-artifacts release-assets
 
+      # #989: assert the COMPLETE expected artifact set before anything is
+      # published. verify-release-assets.sh previously ran only against the CI
+      # mock fixture in pr-checks.yml, so it never saw a real release - which is
+      # why #941 (the Windows portable zip dropped by a bad upload glob) reached
+      # users unnoticed for several releases. Running it here, on the real
+      # normalized assets, is what makes it an actual gate: a missing artifact
+      # class now fails the job before the draft release is created.
+      - name: Verify release assets (complete expected set)
+        shell: bash
+        run: bash scripts/verify-release-assets.sh release-assets
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
