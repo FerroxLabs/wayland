@@ -265,6 +265,6 @@ describe('username routes (W3 H write-only change-username)', () => {
 
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');
-    expect(JSON.stringify(res._json)).toContain('sk-[redacted]');
+    expect(JSON.stringify(res._json)).toContain('[redacted]');
   });
 });

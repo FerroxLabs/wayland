@@ -237,7 +237,7 @@ describe('flux connect routes (W4a write-only remote Flux OAuth)', () => {
     );
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');
-    expect(JSON.stringify(res._json)).toContain('sk-[redacted]');
+    expect(JSON.stringify(res._json)).toContain('[redacted]');
   });
 
   it('callback bounces the browser to the SPA with the code+state (never serves a key)', () => {

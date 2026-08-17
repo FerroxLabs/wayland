@@ -187,6 +187,6 @@ describe('POST /api/providers/connect (W1.A write-only provider key)', () => {
 
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');
-    expect(JSON.stringify(res._json)).toContain('sk-[redacted]');
+    expect(JSON.stringify(res._json)).toContain('[redacted]');
   });
 });

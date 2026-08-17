@@ -208,7 +208,7 @@ describe('channel config routes (W3.E write-only channel config)', () => {
 
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');
-    expect(JSON.stringify(res._json)).toContain('sk-[redacted]');
+    expect(JSON.stringify(res._json)).toContain('[redacted]');
   });
 
   // ---- disable-plugin ----
@@ -329,7 +329,7 @@ describe('channel config routes (W3.E write-only channel config)', () => {
 
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');
-    expect(JSON.stringify(res._json)).toContain('sk-[redacted]');
+    expect(JSON.stringify(res._json)).toContain('[redacted]');
   });
 
   // ---- approve-pairing ----

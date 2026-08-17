@@ -167,7 +167,7 @@ describe('tool key routes (W1.B write-only tool/service key)', () => {
 
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');
-    expect(JSON.stringify(res._json)).toContain('sk-[redacted]');
+    expect(JSON.stringify(res._json)).toContain('[redacted]');
   });
 
   it('delete clears the key and returns { hasKey: false }', async () => {

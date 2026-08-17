@@ -14,9 +14,17 @@
  * are unchanged from that original; this module only moves them somewhere every
  * consumer can reach.
  *
- * NOTE: `@process/webserver/routes/configWriteGuards` exports a separate,
- * narrower `redactSecrets` for HTTP response bodies. It is deliberately left
- * alone here - unifying the two is a behaviour change, not an extraction.
+ * #992 then folded in the SECOND copy: `@process/webserver/routes/configWriteGuards`
+ * carried its own narrower `redactSecrets` for HTTP response bodies - no JWT, no
+ * labelled assignment, no bare `Authorization:` header - and that narrower copy
+ * guarded the REMOTE-FACING routes. Two divergent copies is how the weaker one
+ * ended up on the more exposed surface, so they are now one.
+ *
+ * The pattern set below is therefore the UNION of both, not the extracted set
+ * alone: the `xai-` prefix, base64 padding characters in a Bearer value and the
+ * shorter minimum token lengths came from the webserver copy. Nothing either
+ * side masked before is unmasked now. `tests/unit/secretRedaction.test.ts` fails
+ * the build if a third implementation appears.
  *
  * Keep this module dependency-free: it is imported by `AcpError`, which is
  * pulled into bundles that must not drag storage/electron modules along.
@@ -34,10 +42,15 @@
 // credential on disk and into the renderer DevTools stream regardless of the
 // redaction applied to the user-facing error. Every emission is now redacted.
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(?:sk|pk|rk)-[A-Za-z0-9_-]{16,}\b/g, // OpenAI / Anthropic / Stripe style
-  /\bBearer\s+[A-Za-z0-9._-]{16,}\b/gi, // Authorization: Bearer <token>
+  /\b(?:sk|pk|rk)-[A-Za-z0-9_-]{8,}\b/g, // OpenAI / Anthropic / Stripe style
+  // Bearer <token>. The character class carries base64 padding (`+/=`) because
+  // a bearer value is frequently raw base64; without them the tail of the token
+  // survived the mask. Both this and the `sk-` floor above come from the
+  // webserver copy folded in by #992 - raising them back re-opens that gap.
+  /\bBearer\s+[A-Za-z0-9._\-+/=]{8,}/gi,
   /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}\b/g, // GitHub tokens
-  /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g, // Slack tokens
+  /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g, // Slack tokens
+  /\bxai-[A-Za-z0-9_-]{8,}\b/g, // xAI tokens
   /\bAKIA[0-9A-Z]{16}\b/g, // AWS access key id
   /\bAIza[A-Za-z0-9_-]{35}\b/g, // Google API key
   // JWT: three base64url segments. The `eyJ` prefix (a `{"` header) makes this
@@ -59,6 +72,7 @@ const LABELLED_SECRET_ASSIGNMENT =
   /\b(api[_-]?key|auth[_-]?token|access[_-]?token|refresh[_-]?token|client[_-]?secret|password|passwd)(\s*[:=]\s*)["']?[^\s"',}]{8,}["']?/gi;
 
 export function redactSecrets(text: string): string {
+  if (!text) return text;
   let out = text;
   for (const pattern of SECRET_PATTERNS) {
     out = out.replace(pattern, '[redacted]');
