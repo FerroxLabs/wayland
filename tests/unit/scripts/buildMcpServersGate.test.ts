@@ -36,6 +36,29 @@ const gate = require_(SCRIPT) as {
 /** A source root that cannot exist, so the missing-source path is deterministic. */
 const MISSING_SRC = path.join(REPO_ROOT, 'does-not-exist-940', 'packages', 'imap-mcp');
 
+/**
+ * True when `candidate` IS `root` or lives underneath it.
+ *
+ * "path.relative(root, candidate).startsWith('..')" is not a containment test,
+ * and it is wrong in both directions:
+ *  - On Windows path.relative returns an ABSOLUTE path when the two paths sit
+ *    on different drives, because no relative path can cross a drive root. CI
+ *    checks the app out to D:\a\wayland\wayland while os.homedir() is
+ *    C:\Users\runneradmin, so the homedir candidate relativises to
+ *    "C:\Users\..." - obviously outside the repo, yet it does not start with
+ *    "..". That is the whole windows-2022-only failure.
+ *  - A path INSIDE the repo whose first segment merely begins with two dots,
+ *    e.g. ROOT/..foo, relativises to "..foo" and would be waved through.
+ * Compare the first path segment instead, and treat an absolute result as the
+ * different-root (therefore outside) case it is.
+ */
+function isInsideRepo(root: string, candidate: string): boolean {
+  const rel = path.relative(root, candidate);
+  if (rel === '') return true; // the repo root itself
+  if (path.isAbsolute(rel)) return false; // different drive/root - outside
+  return rel.split(/[\\/]/)[0] !== '..';
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
   delete process.env.WAYLAND_MCP_SRC;
@@ -65,9 +88,24 @@ describe('build-mcp-servers optional-MCP gate (#940)', () => {
     const candidates = gate.mcpSourceCandidates('imap-mcp', {});
     expect(candidates).toContain(path.resolve(REPO_ROOT, '..', 'waylandmcp', 'packages', 'imap-mcp'));
     expect(candidates).toContain(path.resolve(REPO_ROOT, '..', '..', 'waylandmcp', 'packages', 'imap-mcp'));
-    for (const candidate of candidates) {
-      expect(path.relative(REPO_ROOT, candidate).startsWith('..')).toBe(true);
-    }
+    expect(candidates.filter((candidate) => isInsideRepo(REPO_ROOT, candidate))).toEqual([]);
+  });
+
+  // The containment check above is only worth having if it still FAILS on an
+  // in-repo path. Pin the predicate itself, including the two shapes the old
+  // "starts with .." string test got wrong.
+  it('detects an in-repo path as contained, on every platform', () => {
+    expect(isInsideRepo(REPO_ROOT, REPO_ROOT)).toBe(true);
+    expect(isInsideRepo(REPO_ROOT, path.join(REPO_ROOT, 'waylandmcp', 'packages', 'imap-mcp'))).toBe(true);
+    // Inside the repo, yet path.relative() yields "..foo".
+    expect(isInsideRepo(REPO_ROOT, path.join(REPO_ROOT, '..foo'))).toBe(true);
+    expect(isInsideRepo(REPO_ROOT, path.resolve(REPO_ROOT, '..', 'waylandmcp'))).toBe(false);
+    // The exact windows-2022 shape, pinned on every platform: across drives no
+    // relative path exists, so path.relative hands back an ABSOLUTE one. This
+    // is why the old "starts with .." check read an outside path as inside.
+    expect(path.win32.relative('D:\\a\\wayland\\wayland', 'C:\\Users\\runneradmin\\dev\\waylandmcp')).toBe(
+      'C:\\Users\\runneradmin\\dev\\waylandmcp'
+    );
   });
 
   it('treats WAYLAND_MCP_SRC as the single authoritative candidate', () => {
