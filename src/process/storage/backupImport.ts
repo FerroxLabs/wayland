@@ -40,6 +40,15 @@ const MAX_ENTRY_BYTES = 256 * 1024 * 1024; // 256 MiB per entry
 const MAX_TOTAL_BYTES = 1024 * 1024 * 1024; // 1 GiB total
 
 /**
+ * Caps on the `outOfScope` diagnostic. Unlike the byte caps above these bound the
+ * REPLY rather than the extraction, because the byte caps cannot see this: an
+ * archive of zero-length entries decompresses to nothing while still carrying
+ * megabytes of entry NAMES. See the call site for the executed consequence.
+ */
+const MAX_OUT_OF_SCOPE_NAMES = 20;
+const MAX_OUT_OF_SCOPE_NAME_CHARS = 64;
+
+/**
  * AES-256-GCM decrypt a base64-encoded payload produced by backupExport.
  *
  * A wrong passphrase surfaces as an authentication-tag failure from
@@ -238,7 +247,22 @@ export async function backupImport(opts: ImportOptions): Promise<ImportReport> {
       const normalized = zipPath.replace(/\\/g, '/');
       const topDir = normalized.split('/')[0];
       if (!restoreDirs.has(topDir)) {
-        outOfScope.add(topDir);
+        // BOUNDED AT THE SOURCE, not in the renderer.
+        //
+        // These names are archive-controlled and this field crosses two
+        // boundaries: the IPC bridge, whose adapter SILENTLY DROPS any reply over
+        // 50 MB, and the HTTP route, which ships it to a browser. A zip of ~1000
+        // zero-byte entries under 60 KB-long top-level names is legal, and the
+        // zip-bomb BYTE caps never fire because nothing decompresses. Executed:
+        // 1000 entries produced a 57.2 MB reply, the adapter dropped it, and
+        // because `invoke` has no reject and no timeout the Restore button spun
+        // for the rest of the session with nothing said - the exact symptom the
+        // classified-result work exists to remove.
+        //
+        // Sanitising in the renderer is too late: the payload has already crossed.
+        // This field is a diagnostic hint, so a couple of dozen truncated names is
+        // all it was ever worth.
+        if (outOfScope.size < MAX_OUT_OF_SCOPE_NAMES) outOfScope.add(topDir.slice(0, MAX_OUT_OF_SCOPE_NAME_CHARS));
         continue;
       }
 

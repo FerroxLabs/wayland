@@ -42,10 +42,15 @@ const RESTORE_ITEM_KEYS: Record<string, string> = {
  * and naming what the archive DID hold is the only useful thing left to say.
  *
  * These names come out of a zip the user may simply have been handed, so they are
- * capped and filtered to a conservative charset rather than interpolated raw. The
- * toast renders as text, so this is not about markup: it is about a hostile or
- * malformed archive writing a paragraph, or a plausible lookalike sentence, into
- * the UI. Empty means there is nothing worth naming.
+ * filtered to a conservative charset rather than interpolated raw. The toast
+ * renders as text, so this is not about markup: it is about a hostile or malformed
+ * archive writing a paragraph, or a plausible lookalike sentence, into the UI.
+ * Empty means there is nothing worth naming.
+ *
+ * The count and length caps here are BELT AND BRACES. The real bound is in
+ * backupImport, at the point the names are collected: sanitising here happens
+ * after the payload has already crossed the IPC bridge and the HTTP route, and an
+ * oversized reply is silently dropped by the bridge adapter rather than delivered.
  */
 const describeOutOfScope = (names?: string[]): string =>
   (names ?? [])

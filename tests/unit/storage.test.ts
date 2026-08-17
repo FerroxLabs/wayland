@@ -314,6 +314,38 @@ describe('backupExport / backupImport round-trip', () => {
     expect(fs.existsSync(path.join(restore, 'sensitive'))).toBe(false);
   });
 
+  /**
+   * The `outOfScope` diagnostic must be BOUNDED at the source.
+   *
+   * It crosses the IPC bridge, whose adapter silently drops any reply over 50 MB,
+   * and the HTTP route, which ships it to a browser. Executed against a legal zip
+   * of 1000 zero-byte entries under 60 KB-long top-level names: the field came
+   * back with 1000 entries, the longest 60,004 characters, the serialized reply
+   * was 57.2 MB, and the adapter dropped it - leaving the renderer's await
+   * unsettled forever, because `invoke` has no reject and no timeout. The
+   * zip-bomb byte caps cannot see this, since nothing decompresses.
+   *
+   * This fixture is the same shape, kept small enough to run fast.
+   */
+  it('bounds the out-of-scope diagnostic by count and by name length', async () => {
+    const zip = new JSZip();
+    zip.file('manifest.json', JSON.stringify({ version: 1 }));
+    for (let i = 0; i < 50; i += 1) {
+      zip.file(`${String(i).padStart(3, '0')}${'x'.repeat(300)}/entry`, '');
+    }
+    zip.file('conversations/c.json', 'chat');
+    fs.writeFileSync(zipPath, await zip.generateAsync({ type: 'nodebuffer' }));
+
+    const report = await backupImport({ userData: restore, srcPath: zipPath });
+
+    // Known positive: the in-scope entry still applied, so the loop really ran
+    // over all 51 entries and the assertions below are not vacuous.
+    expect(report.applied).toEqual(['conversations']);
+    expect(report.outOfScope.length).toBeLessThanOrEqual(20);
+    expect(report.outOfScope.length).toBeGreaterThan(0);
+    expect(Math.max(...report.outOfScope.map((name) => name.length))).toBeLessThanOrEqual(64);
+  });
+
   // A Windows exporter emits the same forward-slash entry names as a POSIX one
   // (addDir builds `${zipPath}/${entry.name}`), so a Windows-origin archive is
   // not what blocks a Linux restore (#1021).
