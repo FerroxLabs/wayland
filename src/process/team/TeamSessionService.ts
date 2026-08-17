@@ -23,7 +23,7 @@ import { resolveBackendCandidateProviders } from '@process/providers/backendProv
 import { EventLogger } from './EventLogger';
 import { Mailbox } from './Mailbox';
 import { TaskManager } from './TaskManager';
-import { Watchdog } from './Watchdog';
+import { Watchdog, type TaskBoardChange } from './Watchdog';
 import { TeamSession } from './TeamSession';
 import type { TTeam, TeamAgent, TeamTask } from './types';
 import fs from 'fs/promises';
@@ -107,47 +107,70 @@ export class TeamSessionService {
       onCompleted: async (taskId: string): Promise<void> => {
         await unblocker.checkUnblocks(taskId);
       },
-      onTaskBoardChanged: (task, outcome) => this.notifyLeaderOfTaskBoardChange(task, outcome),
+      onTaskBoardChanged: (changes) => this.notifyLeadersOfTaskBoardChanges(changes),
     });
     this.watchdog.start();
   }
 
   /**
-   * #980 - tell a team's leader that the Watchdog changed its task board.
+   * #980 - tell each affected leader that the Watchdog changed its task board.
    *
-   * The sweep runs out of process-wide state, not per session, so the durable
-   * mailbox write is the primary act: it lands even for teams with no live
-   * session and is read on the leader's next wake. When a session IS live the
-   * leader is woken immediately so it stops planning around a task it no longer
-   * owns.
+   * Called ONCE per sweep with every rewrite it performed. The durable mailbox
+   * write is the primary act: it lands even for teams with no live session and
+   * is read on the leader's next wake. Where a session IS live the leader is
+   * woken so it stops planning around a task it no longer owns - but exactly
+   * ONCE per team per sweep, no matter how many tasks moved, because a wake is
+   * turn-scoped and one-per-task would queue a serial turn per reclaimed task.
    */
-  private async notifyLeaderOfTaskBoardChange(
-    task: TeamTask,
-    outcome: 'requeued' | 'exhausted' | 'verify_recovered'
-  ): Promise<void> {
-    const team = await this.repo.findById(task.teamId);
+  private async notifyLeadersOfTaskBoardChanges(changes: TaskBoardChange[]): Promise<void> {
+    const byTeam = new Map<string, TaskBoardChange[]>();
+    for (const change of changes) {
+      const bucket = byTeam.get(change.task.teamId);
+      if (bucket) bucket.push(change);
+      else byTeam.set(change.task.teamId, [change]);
+    }
+
+    for (const [teamId, teamChanges] of byTeam) {
+      // eslint-disable-next-line no-await-in-loop -- serialized per team on purpose: one leader wake at a time
+      await this.notifyLeaderOfTaskBoardChanges(teamId, teamChanges).catch((error) => {
+        console.warn(
+          `[TeamSessionService] Failed to notify leader of task board changes for team ${teamId}:`,
+          error instanceof Error ? error.message : String(error)
+        );
+      });
+    }
+  }
+
+  /** #980 - one team's worth of task-board rewrites: N mailbox messages, ONE wake. */
+  private async notifyLeaderOfTaskBoardChanges(teamId: string, changes: TaskBoardChange[]): Promise<void> {
+    const team = await this.repo.findById(teamId);
     const leader = team?.agents.find((a) => a.role === 'leader');
     if (!leader) return;
 
-    const previousOwner = task.leaseOwner ?? task.owner;
-    const ownerLabel = team?.agents.find((a) => a.slotId === previousOwner)?.agentName ?? previousOwner ?? 'nobody';
-    const detail =
-      outcome === 'requeued'
-        ? `has been taken back from ${ownerLabel} and re-queued as pending because their lease lapsed. Re-assign it.`
-        : outcome === 'exhausted'
-          ? `has been abandoned: ${ownerLabel} stopped responding and the retry budget is spent. Re-plan without it.`
-          : `was completed automatically after verification was interrupted. Treat its result as unverified.`;
+    for (const { task, outcome } of changes) {
+      const previousOwner = task.leaseOwner ?? task.owner;
+      const ownerLabel = team.agents.find((a) => a.slotId === previousOwner)?.agentName ?? previousOwner ?? 'nobody';
+      const detail =
+        outcome === 'requeued'
+          ? `has been taken back from ${ownerLabel} and re-queued as pending because their lease lapsed. Re-assign it.`
+          : outcome === 'exhausted'
+            ? `has been abandoned: ${ownerLabel} stopped responding and the retry budget is spent. Re-plan without it.`
+            : `was completed automatically after verification was interrupted. Treat its result as unverified.`;
 
-    await this.notifyMailbox.write({
-      teamId: task.teamId,
-      toAgentId: leader.slotId,
-      fromAgentId: 'system',
-      type: 'message',
-      summary: `Task board changed: ${task.subject}`,
-      content: `[System] Task "${task.subject}" (${task.id}) ${detail}`,
-    });
+      // eslint-disable-next-line no-await-in-loop -- ordered mailbox writes
+      await this.notifyMailbox.write({
+        teamId,
+        toAgentId: leader.slotId,
+        fromAgentId: 'system',
+        type: 'message',
+        summary: `Task board changed: ${task.subject}`,
+        content: `[System] Task "${task.subject}" (${task.id}) ${detail}`,
+      });
+    }
 
-    await this.sessions.get(task.teamId)?.wakeAgent(leader.slotId);
+    // Exactly one wake for the whole batch, and never awaited into the sweep -
+    // the Watchdog already fired this notifier without waiting for it.
+    await this.sessions.get(teamId)?.wakeAgent(leader.slotId);
   }
 
   /** Expose the shared event logger so TeamSession can wire it into Mailbox + TaskManager + TeammateManager. */

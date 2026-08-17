@@ -48,18 +48,29 @@ type WatchdogOptions = {
    */
   onCompleted?: (taskId: string) => Promise<void>;
   /**
-   * #980 - called after the sweep has REWRITTEN the task board, so somebody can
-   * tell the team's leader.
+   * #980 - called ONCE at the end of a sweep with every task-board rewrite it
+   * performed, so somebody can tell the affected leaders.
    *
    * The sweep re-queues, terminates, and completes-through tasks entirely
    * behind the leader's back: it wrote to `team_event_log` (which no agent
    * reads) and to nothing else. There are no `mailbox.write` calls anywhere
    * under this file, which is exactly why a leader could keep reporting that a
    * member was working a task the Watchdog had already taken away from it.
-   * Optional so standalone/tests work without it; failures are swallowed by the
-   * caller so a notification can never break a sweep.
+   *
+   * Batched and fire-and-forget BY DESIGN. Notifying per task inside the sweep
+   * loops would serialize the sweep behind the notifier: waking a leader is
+   * turn-scoped, so N reclaimed tasks meant N sequential leader turns, and the
+   * `sweeping` guard drops every 60s tick meanwhile - suspending zombie
+   * detection, reclaim and verify-recovery exactly when the team is already
+   * degraded. Optional so standalone/tests work without it.
    */
-  onTaskBoardChanged?: (task: TeamTask, outcome: 'requeued' | 'exhausted' | 'verify_recovered') => Promise<void>;
+  onTaskBoardChanged?: (changes: TaskBoardChange[]) => Promise<void>;
+};
+
+/** #980 - one task-board rewrite performed by a sweep. */
+export type TaskBoardChange = {
+  task: TeamTask;
+  outcome: 'requeued' | 'exhausted' | 'verify_recovered';
 };
 
 const DEFAULT_VERIFY_STALE_MS = 5 * 60 * 1000;
@@ -68,6 +79,8 @@ export class Watchdog {
   private intervalId: ReturnType<typeof setInterval> | null = null;
   /** Re-entrancy guard - true while a sweep is in flight (prevents overlap). */
   private sweeping = false;
+  /** #980 - task-board rewrites accumulated by the sweep in progress. */
+  private pendingChanges: TaskBoardChange[] = [];
   private readonly verifyStaleMs: number;
 
   constructor(
@@ -125,7 +138,28 @@ export class Watchdog {
       console.warn('[Watchdog] sweep failed:', error instanceof Error ? error.message : String(error));
     } finally {
       this.sweeping = false;
+      // Outside the guard and deliberately NOT awaited - see onTaskBoardChanged.
+      this.flushTaskBoardChanges();
     }
+  }
+
+  /**
+   * #980 - hand this sweep's rewrites to the notifier and forget about them.
+   * Runs after `sweeping` is cleared so the next tick is never blocked, and
+   * never rejects: a notifier failure must not affect the sweep.
+   */
+  private flushTaskBoardChanges(): void {
+    if (this.pendingChanges.length === 0) return;
+    const changes = this.pendingChanges;
+    this.pendingChanges = [];
+    const notify = this.options.onTaskBoardChanged;
+    if (!notify) return;
+    void notify(changes).catch((error) => {
+      console.warn(
+        '[Watchdog] onTaskBoardChanged notification failed:',
+        error instanceof Error ? error.message : String(error)
+      );
+    });
   }
 
   /** Atomically flip ONE lapsed-lease task to `zombie`; emit the event only if we won the CAS. */
@@ -174,23 +208,7 @@ export class Watchdog {
               retryBudget,
             },
     });
-    await this.notifyTaskBoardChanged(task, outcome);
-  }
-
-  /** #980 - surface a task-board rewrite to whoever can reach the leader. Never throws. */
-  private async notifyTaskBoardChanged(
-    task: TeamTask,
-    outcome: 'requeued' | 'exhausted' | 'verify_recovered'
-  ): Promise<void> {
-    if (!this.options.onTaskBoardChanged) return;
-    try {
-      await this.options.onTaskBoardChanged(task, outcome);
-    } catch (error) {
-      console.warn(
-        '[Watchdog] onTaskBoardChanged notification failed:',
-        error instanceof Error ? error.message : String(error)
-      );
-    }
+    this.pendingChanges.push({ task, outcome });
   }
 
   /**
@@ -213,7 +231,7 @@ export class Watchdog {
       targetSlotId: task.id,
       payload: { action: 'verify_recovered', taskId: task.id, status: 'completed' },
     });
-    await this.notifyTaskBoardChanged(task, 'verify_recovered');
+    this.pendingChanges.push({ task, outcome: 'verify_recovered' });
     // Release dependents blocked on this now-completed task.
     if (this.options.onCompleted) {
       await this.options.onCompleted(task.id).catch((error) => {

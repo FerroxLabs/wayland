@@ -277,6 +277,9 @@ describe('Watchdog - zombie reclaim', () => {
   // anywhere under src/process/team/Watchdog.ts - so a leader kept believing a
   // member was working a task the sweep had already taken away.
   describe("task-board change notification (#980)", () => {
+    /** The notifier is fired without being awaited; let its microtask land. */
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
     it("notifies on a re-queued reclaim", async () => {
       const task = makeTask();
       const { repo } = makeRepo([task]);
@@ -286,10 +289,13 @@ describe('Watchdog - zombie reclaim', () => {
 
       await wd.runOnce(); // detect -> zombie
       await wd.runOnce(); // reclaim -> pending
+      await settle();
 
       expect(onTaskBoardChanged).toHaveBeenCalledTimes(1);
-      expect(onTaskBoardChanged.mock.calls[0][0].id).toBe(task.id);
-      expect(onTaskBoardChanged.mock.calls[0][1]).toBe("requeued");
+      const batch = onTaskBoardChanged.mock.calls[0][0];
+      expect(batch).toHaveLength(1);
+      expect(batch[0].task.id).toBe(task.id);
+      expect(batch[0].outcome).toBe("requeued");
     });
 
     it("notifies on an exhausted-budget termination", async () => {
@@ -301,9 +307,10 @@ describe('Watchdog - zombie reclaim', () => {
 
       await wd.runOnce();
       await wd.runOnce();
+      await settle();
 
       expect(onTaskBoardChanged).toHaveBeenCalledTimes(1);
-      expect(onTaskBoardChanged.mock.calls[0][1]).toBe("exhausted");
+      expect(onTaskBoardChanged.mock.calls[0][0][0].outcome).toBe("exhausted");
     });
 
     it("a failing notifier never breaks the sweep", async () => {
@@ -315,9 +322,43 @@ describe('Watchdog - zombie reclaim', () => {
 
       await wd.runOnce();
       await wd.runOnce();
+      await settle();
 
       expect(onTaskBoardChanged).toHaveBeenCalled();
       expect(tasks.get(task.id)!.status).toBe("pending");
+    });
+
+    // #980/F3: notifying per task INSIDE the sweep serialized the whole sweep
+    // behind the notifier. Waking a leader is turn-scoped, so N reclaimed tasks
+    // meant N sequential leader turns while the `sweeping` guard dropped every
+    // 60s tick - suspending zombie detection exactly when the team is degraded.
+    it("F3: batches the whole sweep into ONE notification and never awaits it", async () => {
+      const tasksSeed = [makeTask(), makeTask(), makeTask()];
+      const { repo } = makeRepo(tasksSeed);
+      const { logger } = makeEventLogger();
+      let released: (() => void) | undefined;
+      const notifierBlocked = new Promise<void>((resolve) => {
+        released = resolve;
+      });
+      const onTaskBoardChanged = vi.fn().mockReturnValue(notifierBlocked);
+      const wd = new Watchdog(repo, logger, { checkIntervalMs: 60_000, onTaskBoardChanged });
+
+      await wd.runOnce(); // detect all three -> zombie
+      await wd.runOnce(); // reclaim all three
+      await settle();
+
+      // ONE call carrying all three, not three calls.
+      expect(onTaskBoardChanged).toHaveBeenCalledTimes(1);
+      expect(onTaskBoardChanged.mock.calls[0][0]).toHaveLength(3);
+
+      // The notifier is still pending, yet the sweep already returned and the
+      // next sweep runs - i.e. the re-entrancy guard was not held across it.
+      const spy = vi.spyOn(repo, "findZombieTasks");
+      await wd.runOnce();
+      expect(spy).toHaveBeenCalled();
+
+      released!();
+      await settle();
     });
   });
 });
