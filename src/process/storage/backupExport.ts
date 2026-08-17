@@ -82,7 +82,9 @@ function encryptBuffer(buf: Buffer, passphrase: string): string {
 
 export async function backupExport(opts: ExportOptions): Promise<ExportReport> {
   if (opts.includeKeys && !opts.passphrase) {
-    throw new Error('A passphrase is required when API keys are included.');
+    // Code-prefixed so the IPC provider can classify it without reading the
+    // message, which is the only way the renderer can name the actual mistake.
+    throw new Error('PASSPHRASE_REQUIRED: A passphrase is required when API keys are included.');
   }
   const zip = new JSZip();
 

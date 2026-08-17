@@ -4,8 +4,22 @@ import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, PreferenceRow } from '@renderer/components/settings/shared';
 import { storage } from '@/common/adapter/ipcBridge';
+import type { LegacyBackupErrorCode } from '@/common/types/storageBackup';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { exportBackupHttp, restoreBackupHttp } from '@renderer/services/StorageService';
+
+/**
+ * The desktop backup providers cannot reject - the IPC bridge has no error
+ * channel, so a throwing provider leaves this component's `await` unsettled
+ * forever. They return `{ok:false, failed:true, errorCode}` instead, and
+ * `failed` is what separates a real failure from the user cancelling the native
+ * file dialog. Cancelling must stay silent; failing must be reported.
+ */
+const restoreErrorKey = (code?: LegacyBackupErrorCode): string =>
+  code === 'BAD_PASSPHRASE' ? 'restoreBadPassphrase' : 'restoreFailed';
+
+const exportErrorKey = (code?: LegacyBackupErrorCode): string =>
+  code === 'PASSPHRASE_REQUIRED' ? 'exportPassphraseRequired' : 'exportFailed';
 
 const BackupCard: React.FC = () => {
   const { t } = useTranslation();
@@ -29,7 +43,12 @@ const BackupCard: React.FC = () => {
       const opts = { includeKeys, passphrase: includeKeys ? passphrase : undefined };
       if (isDesktop) {
         const result = await storage.exportAll.invoke(opts);
-        if (!result.ok) return;
+        if (!result.ok) {
+          // Cancelling the native save dialog is not a failure and must stay
+          // silent; anything else must be named, or the button just stops.
+          if (result.failed) Message.error(t(`settings.storagePage.${exportErrorKey(result.errorCode)}`));
+          return;
+        }
         // Asking for keys and getting none is the norm on a modern install:
         // provider credentials live in the primary database, which a legacy
         // file export does not cover. Say so rather than claim a plain
@@ -68,9 +87,16 @@ const BackupCard: React.FC = () => {
       setImporting(true);
       try {
         const result = await storage.importBackup.invoke({ passphrase: restorePassphrase || undefined });
-        // ok:false means the OS file picker was cancelled - nothing to report.
         if (!result.ok) {
-          closeRestore();
+          // ok:false with no `failed` means the OS file picker was cancelled -
+          // nothing to report. With `failed` the restore really did fail, and
+          // saying nothing is what left a mistyped passphrase looking like a
+          // frozen panel.
+          if (result.failed) Message.error(t(`settings.storagePage.${restoreErrorKey(result.errorCode)}`));
+          // A wrong passphrase is retryable, so leave the dialog open with what
+          // they typed. Closing it and clearing the field is a poor answer to a
+          // typo. Anything else is not retryable from here.
+          if (result.errorCode !== 'BAD_PASSPHRASE') closeRestore();
           return;
         }
         const applied = result.applied ?? [];
@@ -152,7 +178,15 @@ const BackupCard: React.FC = () => {
       )}
 
       <div className='flex gap-8px mt-4px'>
-        <Button type='primary' size='small' loading={exporting} onClick={() => void handleExport()}>
+        {/* Exporting keys with no passphrase cannot succeed - backupExport refuses
+            it - so stop the click rather than only reporting it afterwards. */}
+        <Button
+          type='primary'
+          size='small'
+          loading={exporting}
+          disabled={includeKeys && !passphrase}
+          onClick={() => void handleExport()}
+        >
           {t('settings.storagePage.exportAll')}
         </Button>
         <Button size='small' loading={importing} onClick={handleRestoreClick}>

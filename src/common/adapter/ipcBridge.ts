@@ -63,6 +63,7 @@ import type {
 } from '../types/onboarding';
 import type { ProtocolDetectionRequest, ProtocolDetectionResponse } from '../utils/protocolDetector';
 import type { SpeechToTextBridgeResult, SpeechToTextRequest } from '../types/speech';
+import type { LegacyBackupErrorCode } from '../types/storageBackup';
 import type { DownloadProgress, VoiceAssetDownloadOutcome, VoiceAsset } from '../types/voiceAsset';
 import type {
   TerminalOpenParams,
@@ -2902,8 +2903,21 @@ export const storage = {
   openDir: buildProvider<void, string>('storage:openDir'),
   clearDir: buildProvider<void, string>('storage:clearDir'),
   changeDir: buildProvider<string | null, void>('storage:changeDir'),
+  // `failed` + `errorCode` exist because this bridge has no error channel: a
+  // provider that throws never settles the renderer's await. Both backup
+  // providers therefore return their failures. `ok:false` alone still means the
+  // user cancelled the native dialog, which must stay silent. See
+  // @/common/types/storageBackup.
   exportAll: buildProvider<
-    { ok: boolean; path?: string; includesKeys?: boolean; keysRequestedButAbsent?: boolean; fileCount?: number },
+    {
+      ok: boolean;
+      failed?: boolean;
+      errorCode?: LegacyBackupErrorCode;
+      path?: string;
+      includesKeys?: boolean;
+      keysRequestedButAbsent?: boolean;
+      fileCount?: number;
+    },
     { includeKeys: boolean; passphrase?: string }
   >('storage:exportAll'),
   // `applied` is the load-bearing field: a legacy import that throws nothing
@@ -2914,6 +2928,8 @@ export const storage = {
   importBackup: buildProvider<
     {
       ok: boolean;
+      failed?: boolean;
+      errorCode?: LegacyBackupErrorCode;
       safetyBackupPath?: string;
       applied?: string[];
       outOfScope?: string[];

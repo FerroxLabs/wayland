@@ -39,7 +39,15 @@ export type ImportReport = {
 const MAX_ENTRY_BYTES = 256 * 1024 * 1024; // 256 MiB per entry
 const MAX_TOTAL_BYTES = 1024 * 1024 * 1024; // 1 GiB total
 
-/** AES-256-GCM decrypt a base64-encoded payload produced by backupExport. */
+/**
+ * AES-256-GCM decrypt a base64-encoded payload produced by backupExport.
+ *
+ * A wrong passphrase surfaces as an authentication-tag failure from
+ * `decipher.final()`, and that is by far the likeliest way a restore fails - a
+ * typo. It is re-thrown under a fixed `BAD_PASSPHRASE:` code so the caller can
+ * tell the user which of their two inputs was wrong WITHOUT forwarding the
+ * underlying error, whose text can carry decrypted fragments and paths.
+ */
 function decryptBuffer(encoded: string, passphrase: string): Buffer {
   const buf = Buffer.from(encoded, 'base64');
   const salt = buf.subarray(0, 16);
@@ -49,7 +57,11 @@ function decryptBuffer(encoded: string, passphrase: string): Buffer {
   const key = crypto.scryptSync(passphrase, salt, 32);
   const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
   decipher.setAuthTag(tag);
-  return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  try {
+    return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  } catch {
+    throw new Error('BAD_PASSPHRASE: the archive\'s encrypted keys would not decrypt.');
+  }
 }
 
 /**
