@@ -34,9 +34,25 @@ export type DestructiveVerdict = {
 const NOT_DESTRUCTIVE: DestructiveVerdict = { destructive: false, reason: '' };
 
 /**
- * Patterns for effectively-irreversible system/account destruction or remote
- * code execution. Each entry is [regex, reason]. Kept conservative on purpose.
- * Regexes run against a whitespace-normalized, lowercased command string.
+ * Home directory, as it survives `normalize`: a bare `~` or the `$home`
+ * variable (normalize collapses `${HOME}` and strips quotes, so `"$HOME"`,
+ * `'$HOME'` and `${HOME}` all arrive here as `$home`).
+ */
+const HOME = String.raw`(?:~|\$home)`;
+
+/**
+ * Path fragments that identify credential or secret material. Used to flag a
+ * command that hands one of these to a network client - the shape a credential
+ * egress takes. Kept to well-known, unambiguous locations; a generic "any file
+ * with a secret in it" test is not possible from a command string.
+ */
+const CREDENTIAL_PATH = String.raw`(?:\.ssh|\.aws|\.gnupg|\.kube|\.netrc|\.npmrc|\.pypirc|\.docker\/config|id_rsa|id_ed25519|id_ecdsa|\.env)\b`;
+
+/**
+ * Patterns for effectively-irreversible system/account destruction, remote code
+ * execution, or credential egress. Each entry is [regex, reason]. Kept
+ * conservative on purpose. Regexes run against the output of `normalize` -
+ * whitespace-collapsed, lowercased, unquoted, with `${VAR}` reduced to `$VAR`.
  */
 const CATASTROPHIC_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
   // rm whose FIRST argument (right after the flags) is root, root-glob, or home.
@@ -44,13 +60,31 @@ const CATASTROPHIC_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
   // catastrophic `rm -rf /` / `rm -rf ~` from the everyday `rm -rf ./build`,
   // `rm -rf dist/`, `rm -rf node_modules` - the latter's target starts with a
   // name or `.`, never with `/`, `~`, or `$HOME`.
-  [/\brm\s+(?:-\S+\s+)*(?:\/(?:\s|$|\*)|~\/?(?:\s|$)|\$home\/?(?:\s|$))/, 'recursive delete of root or home'],
-  // rm of a whole system top-level directory (rm -rf /etc, /usr, ...). A deeper
-  // targeted path under them (/var/log/app) is NOT flagged.
+  [new RegExp(String.raw`\brm\s+(?:-\S+\s+)*(?:\/(?:\s|$|\*)|${HOME}\/?(?:\s|$))`), 'recursive delete of root or home'],
+  // rm of a dotfile or dot-directory sitting directly in home (~/.ssh, $HOME/.aws,
+  // ~/.config). Nothing a build run legitimately deletes lives there - those are
+  // credentials and machine config - so this costs no false positives while
+  // `rm -rf ~/dev/app/node_modules` (a real workflow delete, target not a dotfile)
+  // stays unflagged.
+  [new RegExp(String.raw`\brm\s+(?:-\S+\s+)*${HOME}\/\.[^\s/]`), 'delete of a home config or credential directory'],
+  // rm of a whole top-level personal-data directory under home.
   [
-    /\brm\s+(?:-\S+\s+)*\/(?:usr|etc|bin|sbin|lib|lib64|boot|sys|proc|dev|var|home|root|opt)(?:\/\s|\/$|\s|$)/,
+    new RegExp(
+      String.raw`\brm\s+(?:-\S+\s+)*${HOME}\/(?:library|documents|desktop|downloads|pictures|movies|music|applications)(?:\/\s|\/$|\s|$)`
+    ),
+    'delete of a personal data directory',
+  ],
+  // rm of a whole system top-level directory (rm -rf /etc, /usr, /Applications, ...).
+  // A deeper targeted path under them (/var/log/app) is NOT flagged.
+  [
+    /\brm\s+(?:-\S+\s+)*\/(?:usr|etc|bin|sbin|lib|lib64|boot|sys|proc|dev|var|home|root|opt|applications|library|system|users|volumes|private)(?:\/\s|\/$|\s|$)/,
     'delete of a system directory',
   ],
+  // An rm whose blast radius comes from where the shell is standing rather than
+  // from its argument: `cd ~ && rm -rf *`, `cd / ; rm -rf *`. The target `*` is
+  // far too common to flag on its own, but chained onto a cd to root or home it
+  // is unambiguous.
+  [new RegExp(String.raw`\bcd\s+(?:\/|${HOME})\s*(?:&&|;|\|\|)\s*(?:sudo\s+)?rm\b`), 'delete run from root or home'],
   // rm with --no-preserve-root is never legitimate from an agent
   [/\brm\s+.*--no-preserve-root/, 'rm with --no-preserve-root'],
   // Disk/device writes and filesystem creation
@@ -66,10 +100,32 @@ const CATASTROPHIC_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
   ],
   // Network pull piped straight into a shell (curl|sh, wget|bash, ...)
   [/\b(curl|wget|fetch)\b[^|]*\|\s*(sudo\s+)?(sh|bash|zsh|dash|ksh)\b/, 'pipe of downloaded content into a shell'],
+  // Network pull run through command or process substitution - the same
+  // fetch-and-run with no pipe in sight: `bash -c "$(curl ...)"`,
+  // `eval "$(wget -qO- ...)"`, `bash <(curl ...)`.
+  [
+    /\b(?:eval|source)\b[^|&;]*(?:\$\(|<\()\s*(?:sudo\s+)?(?:curl|wget|fetch)\b/,
+    'shell execution of downloaded content',
+  ],
+  [
+    /\b(?:sh|bash|zsh|dash|ksh)\b[^|&;]*(?:\$\(|<\()\s*(?:sudo\s+)?(?:curl|wget|fetch)\b/,
+    'shell execution of downloaded content',
+  ],
   // Overwriting core system files
   [/>\s*\/(etc|boot|sys)\//, 'overwrite of a system file'],
-  // find / -delete (mass delete from root)
-  [/\bfind\s+\/\s+[^|&;]*-delete\b/, 'find / -delete (mass delete)'],
+  // find rooted at / or home with -delete (mass delete). A scoped
+  // `find ./src ... -delete` is NOT flagged.
+  [new RegExp(String.raw`\bfind\s+(?:\/|${HOME})\s+[^|&;]*-delete\b`), 'find -delete rooted at root or home'],
+  // Credential material handed to a network client, in either direction:
+  // the client names the path, or the path is piped into the client.
+  [
+    new RegExp(String.raw`\b(?:curl|wget|nc|ncat|netcat)\b[^|&;]*${CREDENTIAL_PATH}`),
+    'network command referencing a credential path',
+  ],
+  [
+    new RegExp(String.raw`${CREDENTIAL_PATH}[^|]*\|\s*(?:sudo\s+)?(?:curl|wget|nc|ncat|netcat|base64|openssl|ssh)\b`),
+    'credential material piped to a network command',
+  ],
   // Mass-destructive git on the whole tree is NOT included (recoverable / scoped).
 ];
 
@@ -94,9 +150,23 @@ export function extractCommandText(toolCall: { kind?: string; title?: string; ra
   return parts.join('\n');
 }
 
-/** Normalize for matching: collapse whitespace, lowercase. */
+/**
+ * Normalize for matching: collapse whitespace, lowercase, then remove the two
+ * cheapest ways to hide a target from a literal pattern - surrounding quotes
+ * and `${VAR}` braces. `rm -rf "$HOME"`, `rm -rf '$HOME'`, `rm -rf ${HOME}`
+ * and `rm -rf $HOME` all normalize to the same string.
+ *
+ * Dropping quotes is safe for matching because no pattern below depends on
+ * quoting to identify a target (a quoted `"*.ts"` is still `*.ts`), and it is
+ * what a shell does anyway before the command runs.
+ */
 function normalize(command: string): string {
-  return command.replace(/\s+/g, ' ').trim().toLowerCase();
+  return command
+    .toLowerCase()
+    .replace(/["']/g, '')
+    .replace(/\$\{([a-z_][a-z0-9_]*)\}/g, '$$$1')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
