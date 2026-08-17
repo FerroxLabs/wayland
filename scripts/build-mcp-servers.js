@@ -101,6 +101,39 @@ function mcpSourceCandidates(pkgName, env = process.env) {
 }
 
 /**
+ * Copy the Swift EventKit bridge binary alongside the apple-mcp JS bundle.
+ *
+ * Extracted from an inline callback so it is reachable from a unit test: both
+ * branches are log-only behaviour that nothing could otherwise pin, and the
+ * `return` below is load-bearing in the direction that is easy to miss - drop it
+ * and EVERY macOS build that DOES have the bridge also emits the "will fail at
+ * runtime" warning, a control lying the opposite way.
+ */
+async function copyEventKitBridge(src, outMain = OUT_MAIN) {
+  const bridge = path.join(src, 'dist', 'eventkit-bridge');
+  if (fs.existsSync(bridge)) {
+    fs.copyFileSync(bridge, path.join(outMain, 'eventkit-bridge'));
+    fs.chmodSync(path.join(outMain, 'eventkit-bridge'), 0o755);
+    return;
+  }
+  // #940: this used to be a silent no-op, and silence is the bug. The
+  // binary is built by `bun run build:native` (swiftc) into dist/, which
+  // waylandmcp gitignores, so a plain CI checkout never has it. Without it
+  // the apple connector still ships and still advertises 9 tools that
+  // cannot work: Calendar listEvents/createEvent/updateEvent/deleteEvent/
+  // findFreeSlot and Reminders listReminders/createReminder/
+  // completeReminder/deleteReminder all route through it. Notes, Mail,
+  // Maps and Photos use AppleScript and are unaffected. A card that offers
+  // a control which cannot work is the failure #940 is about, so say it
+  // loudly enough to find in a CI log. Tracked for a real fix in #1013.
+  console.warn(
+    `::warning::[build-mcp-servers] @wayland/apple-mcp was bundled WITHOUT its Swift EventKit ` +
+      `bridge (no ${bridge}). On macOS its 5 Calendar and 4 Reminders tools will fail at runtime ` +
+      `while the Library still offers them; Notes/Mail/Maps/Photos are unaffected. See #1013.`
+  );
+}
+
+/**
  * Bundle a @wayland/<name>-mcp package into a single self-contained .mjs file
  * in out/main/. These packages live in FerroxLabs/waylandmcp - checked out to
  * ./waylandmcp in CI, or a sibling ~/dev/waylandmcp tree locally - and ship
@@ -201,32 +234,7 @@ async function main() {
     bundleWaylandMcp('imap-mcp', 'builtin-mcp-imap.mjs'),
     bundleWaylandMcp('news-mcp', 'builtin-mcp-news.mjs'),
     bundleWaylandMcp('cal-com-mcp', 'builtin-mcp-cal-com.mjs'),
-    bundleWaylandMcp('apple-mcp', 'builtin-mcp-apple.mjs', {
-      onSuccess: async (src) => {
-        // Copy the Swift EventKit bridge binary alongside the JS bundle.
-        const bridge = path.join(src, 'dist', 'eventkit-bridge');
-        if (fs.existsSync(bridge)) {
-          fs.copyFileSync(bridge, path.join(OUT_MAIN, 'eventkit-bridge'));
-          fs.chmodSync(path.join(OUT_MAIN, 'eventkit-bridge'), 0o755);
-          return;
-        }
-        // #940: this used to be a silent no-op, and silence is the bug. The
-        // binary is built by `bun run build:native` (swiftc) into dist/, which
-        // waylandmcp gitignores, so a plain CI checkout never has it. Without it
-        // the apple connector still ships and still advertises 9 tools that
-        // cannot work: Calendar listEvents/createEvent/updateEvent/deleteEvent/
-        // findFreeSlot and Reminders listReminders/createReminder/
-        // completeReminder/deleteReminder all route through it. Notes, Mail,
-        // Maps and Photos use AppleScript and are unaffected. A card that offers
-        // a control which cannot work is the failure #940 is about, so say it
-        // loudly enough to find in a CI log. Tracked for a real fix in #1013.
-        console.warn(
-          `::warning::[build-mcp-servers] @wayland/apple-mcp was bundled WITHOUT its Swift EventKit ` +
-            `bridge (no ${bridge}). On macOS its 5 Calendar and 4 Reminders tools will fail at runtime ` +
-            `while the Library still offers them; Notes/Mail/Maps/Photos are unaffected. See #1013.`
-        );
-      },
-    }),
+    bundleWaylandMcp('apple-mcp', 'builtin-mcp-apple.mjs', { onSuccess: copyEventKitBridge }),
   ]);
 }
 
@@ -241,6 +249,7 @@ if (require.main === module) {
 module.exports = {
   ALLOW_MISSING_ENV,
   bundleWaylandMcp,
+  copyEventKitBridge,
   mcpSourceCandidates,
   optionalMcpBypassEnabled,
   skipOptionalMcpOrFail,
