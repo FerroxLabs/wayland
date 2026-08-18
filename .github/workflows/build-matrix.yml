@@ -272,7 +272,40 @@ jobs:
       # record. WAYLANDMCP_REF follows the WAYLAND_HUB_TAG named-constant
       # convention; tests/unit/scripts/waylandmcpSourcePin.test.ts holds the four
       # copies byte-identical so they cannot drift apart.
+      # windows-11-arm ONLY. actions/checkout's ssh-key mode cannot authenticate
+      # on this runner image: both @v4 and @v6 fail identically after three
+      # retries with "git@github.com: Permission denied (publickey)", proven on
+      # the runner itself before this step was written. Every other target
+      # authenticates fine, so the action below is left exactly as it was for
+      # them rather than swapping ten working jobs onto an untested mechanism.
+      # The difference is which ssh binary runs: the action invokes Windows
+      # native OpenSSH (C:\Windows\System32\OpenSSH\ssh.exe), which rejects the
+      # key the action writes, while the bash shell here uses Git's bundled
+      # OpenSSH (C:\Program Files\Git\usr\bin\ssh.exe), which accepts it. The
+      # clone lands the pinned commit as a detached HEAD, so the provenance
+      # assertion in the relocate step below is unchanged and still authoritative.
+      # The key is written under RUNNER_TEMP and removed on step exit, which is
+      # what persist-credentials:false buys on the other targets.
+      - name: Checkout @wayland MCP connector sources (windows-arm64)
+        if: runner.os == 'Windows' && runner.arch == 'ARM64'
+        shell: bash
+        env:
+          WAYLANDMCP_DEPLOY_KEY: ${{ secrets.WAYLANDMCP_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          key="$RUNNER_TEMP/waylandmcp_deploy_key"
+          trap 'rm -f "$key"' EXIT
+          printf '%s\n' "$WAYLANDMCP_DEPLOY_KEY" > "$key"
+          chmod 600 "$key"
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+          rm -rf waylandmcp
+          git clone --no-checkout git@github.com:FerroxLabs/waylandmcp.git waylandmcp
+          cd waylandmcp
+          git fetch --depth 1 origin "$WAYLANDMCP_REF"
+          git checkout --detach FETCH_HEAD
+
       - name: Checkout @wayland MCP connector sources
+        if: "!(runner.os == 'Windows' && runner.arch == 'ARM64')"
         uses: actions/checkout@v4
         with:
           repository: FerroxLabs/waylandmcp
