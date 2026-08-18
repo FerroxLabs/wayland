@@ -101,8 +101,24 @@ function memoryBlockStartAfter(value: string, from: number): number {
  */
 function projectKnowledgeBlockEnd(value: string, start: number): number {
   const bodyAt = start + PROJECT_KNOWLEDGE_BLOCK_HEADER.length;
-  const footerAt = value.indexOf(PROJECT_KNOWLEDGE_BLOCK_FOOTER, bodyAt);
-  if (footerAt >= 0) return footerAt + PROJECT_KNOWLEDGE_BLOCK_FOOTER.length;
+  // Accept a footer ONLY where it TERMINATES the block: end of string, or the
+  // separator that joins it to the next block. A bare indexOf takes the first
+  // footer literal anywhere in the remainder, and a LEGACY block has no footer
+  // of its own - that is the whole premise of this path. Legacy bodies predate
+  // `withoutSentinels`, so they were never stripped, and once this feature
+  // ships the literal appears in every project chat's system prompt: a user who
+  // saves that text into Wayland Memory acquires it without typing anything.
+  // Trusting a mid-body match then cuts past the memory block's opening and
+  // destroys it, or stops short and orphans a deleted credential with no header
+  // for any later refresh to find.
+  for (
+    let footerAt = value.indexOf(PROJECT_KNOWLEDGE_BLOCK_FOOTER, bodyAt);
+    footerAt >= 0;
+    footerAt = value.indexOf(PROJECT_KNOWLEDGE_BLOCK_FOOTER, footerAt + 1)
+  ) {
+    const after = footerAt + PROJECT_KNOWLEDGE_BLOCK_FOOTER.length;
+    if (after === value.length || value.startsWith(INJECTED_BLOCK_SEPARATOR, after)) return after;
+  }
   const memoryAt = memoryBlockStartAfter(value, bodyAt);
   return memoryAt >= 0 ? memoryAt : value.length;
 }

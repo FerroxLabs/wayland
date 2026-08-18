@@ -267,6 +267,68 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     expect(spawned.presetRules).toContain('ASSISTANT BASE RULES');
   });
 
+  it('a footer literal inside a LEGACY body does not orphan the deleted tail', async () => {
+    // A legacy block has no footer of its own. Its body was composed before
+    // `withoutSentinels` existed, so it was never stripped and CAN contain the
+    // literal. Trusting that mid-body match cuts short and strands everything
+    // after it with no header, so no later refresh can ever reach it again.
+    const legacyBlock =
+      `${HEADER}\n\n## Project context\n\nPasted docs: ${FOOTER} was in the paste.\n\n` + 'Secret note: OLD VALUE';
+    const extra = {
+      projectId: 'p1',
+      workspace: ws,
+      presetRules: ['ASSISTANT BASE RULES', legacyBlock].join(SEPARATOR),
+      presetContext: legacyBlock,
+    };
+    await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
+
+    const conversation = { id: 'c8b', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c8b');
+    for (const field of ['presetRules', 'presetContext'] as const) {
+      const value = spawnedExtra(captured)[field] as string;
+      expect(value).toContain('Ship on Tuesdays.');
+      // The whole point: the deleted tail must be GONE, not merely headerless.
+      expect(value).not.toContain('OLD VALUE');
+      expect(occurrences(value, HEADER)).toBe(1);
+    }
+  });
+
+  it('a footer literal saved into global MEMORY does not destroy the memory block', async () => {
+    // Nobody has to type anything for this one. Once the block ships, the
+    // literal appears in every project chat's system prompt, so a user who
+    // saves a prompt dump into Wayland Memory acquires it. The cut then runs
+    // from the knowledge header PAST the memory block's own opening.
+    const legacyBlock = `${HEADER}\n\n## Project context\n\nShip on Fridays.`;
+    const memoryBlock =
+      `[User memory (from Wayland Memory)]\n\n## KEEP_ME_HEAD\n\nSaved dump containing ${FOOTER} inline.\n\n` +
+      '## KEEP_ME_TAIL\n\nStill mine.';
+    const extra = {
+      projectId: 'p1',
+      workspace: ws,
+      presetRules: ['ASSISTANT BASE RULES', legacyBlock, memoryBlock].join(SEPARATOR),
+      presetContext: [legacyBlock, memoryBlock].join(SEPARATOR),
+    };
+    await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
+
+    const conversation = { id: 'c8c', type: 'wcore', extra } as unknown as TChatConversation;
+    const captured: { conv?: TChatConversation } = {};
+    manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
+
+    await manager.getOrBuildTask('c8c');
+    for (const field of ['presetRules', 'presetContext'] as const) {
+      const value = spawnedExtra(captured)[field] as string;
+      expect(value).toContain('Ship on Tuesdays.');
+      expect(value).not.toContain('Ship on Fridays.');
+      // Both halves of the user's own memory survive intact.
+      expect(value).toContain('KEEP_ME_HEAD');
+      expect(value).toContain('KEEP_ME_TAIL');
+      expect(occurrences(value, HEADER)).toBe(1);
+    }
+  });
+
   it('an unreadable knowledge document is not mistaken for a cleared one', async () => {
     await writeProjectKnowledge(ws, 'context', 'Ship on Fridays.');
     const extra = await frozenExtra('ASSISTANT BASE RULES');
