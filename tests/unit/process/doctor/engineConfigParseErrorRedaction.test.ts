@@ -20,7 +20,7 @@
  * simulated.
  */
 
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -247,8 +247,13 @@ describe('engine config target — the ACTIVE profile, not the native config', (
     expect(outcome.detail).not.toContain(BARE_SECRET);
     expect(outcome.remediation).not.toContain(BARE_SECRET);
     // NOT VACUOUS: each field still names where to look and what to fix.
-    expect(outcome.detail).toContain(profilesRootDir);
-    expect(outcome.remediation).toContain(profilesRootDir);
+    // Compare against the SAME realpath'd source of truth resolveProfileDir
+    // uses. On macOS the raw mkdtemp path passes only by substring luck
+    // (/var is inside /private/var); on Windows realpath expands 8.3 short
+    // names (RUNNER~1 -> runneradmin) and the raw path does not match at all.
+    const realProfilesRoot = await realpath(profilesRootDir);
+    expect(outcome.detail).toContain(realProfilesRoot);
+    expect(outcome.remediation).toContain(realProfilesRoot);
     expect(outcome.detail).toContain('(profile name withheld)');
     expect(outcome.remediation).toContain('(profile name withheld)');
     expect(outcome.detail).toContain('line 1, column 8');

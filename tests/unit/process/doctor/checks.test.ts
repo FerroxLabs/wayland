@@ -325,6 +325,34 @@ describe('checkMcpServers', () => {
     expect(result.status).toBe('pass');
   });
 
+  /**
+   * `mcp.config` entries are copied verbatim out of the external base64 config
+   * store with no shape validation (configMigration.ts:105-111), so `args` can
+   * arrive as a string, an object or a number. The real probe tolerates that
+   * (normalizeMcpServerForSpawn guards with Array.isArray); only the Doctor's
+   * secret-masking path threw, and because that throw escapes the whole check,
+   * ONE malformed entry destroyed every other server's per-server detail.
+   */
+  it.each([['a string'], [{ not: 'an array' }], [42]])(
+    'survives a non-array transport.args (%o) without collapsing the whole check',
+    async (badArgs) => {
+      const result = await checkMcpServers({
+        listServers: async () => [
+          mcpServer({
+            id: 'mcp_malformed',
+            name: 'malformed',
+            transport: { type: 'stdio', command: 'x', args: badArgs } as unknown as IMcpServer['transport'],
+          }),
+          mcpServer({ id: 'mcp_healthy', name: 'healthy' }),
+        ],
+        testConnection: async () => ({ success: false, error: 'probe failed' }),
+      });
+      // Not "Check threw an error": the other server's detail must survive.
+      expect(result.detail).not.toContain('threw an error');
+      expect(result.detail).toContain('mcp_healthy');
+    }
+  );
+
   it('fails when an enabled server errors', async () => {
     const result = await checkMcpServers({
       listServers: async () => [mcpServer({ id: 'mcp_broken', name: 'broken' })],

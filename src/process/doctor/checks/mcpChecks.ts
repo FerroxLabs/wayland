@@ -143,7 +143,15 @@ function unwrapVariants(value: string): string[] {
  * /Users/alice/creds.json` masks the path, so an ENOENT on it reads
  * `[redacted]`. A flag that names a credential is worth that.
  */
-function asStrings(values: unknown[]): string[] {
+function asStrings(values: unknown): string[] {
+  // `?? []` only catches null/undefined. `mcp.config` entries are copied
+  // verbatim out of the external base64 config store with no shape validation
+  // (configMigration.ts:105-111), so `args` can be a string, object or number.
+  // The real probe tolerates that; only this masking path threw, and one
+  // malformed entry collapsed the whole MCP row -- destroying every OTHER
+  // server's per-server detail, which is exactly the #273 mode the probe's
+  // catch exists to prevent.
+  if (!Array.isArray(values)) return [];
   return values.filter((value): value is string => typeof value === 'string');
 }
 
