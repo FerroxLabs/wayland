@@ -242,6 +242,32 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
  *      - `api_key_length=`, `api_key_id=`, `secret_key_id=`,
  *        `secret_key_ref=`, `access_token_expires_in=` - metadata ABOUT a
  *        credential rather than the credential.
+ *      - `token_endpoint=` - a PUBLIC OAuth discovery URL. The app reads it by
+ *        name (`@process/onboarding/xaiOAuthCore` `parseDiscovery`), and its
+ *        sibling `jwks_uri` carries no secret label, so a masked
+ *        `token_endpoint` next to an unmasked `jwks_uri` reads as an intact
+ *        report when it is not.
+ *      - `api_key_env=` - an environment-variable NAME, never a value,
+ *        validated as one at `@process/agent/wcore/profileStore`
+ *        `isCloneSafeSecretNameException`. Masking it turns "which env var did
+ *        I misspell" into an unanswerable question.
+ *    Both are LISTED rather than EXCLUDED, deliberately. `profileStore` can
+ *    carve a field name out because it owns the writer and gates the carve-out
+ *    on the value's exact producer shape; this module's input is UNTRUSTED
+ *    subprocess output, where the field name is chosen by whatever produced the
+ *    line. And the shape that would gate `api_key_env` (`[A-Za-z_][A-Za-z0-9_]*`)
+ *    is also the shape of an unprefixed random credential - exactly the class
+ *    that `secret[_-]?access[_-]?key` exists to catch on the label alone - so
+ *    the exception would be a bypass for the one case the label rule is for.
+ *    Neither field is emitted into a log line by this app today (`token_endpoint`
+ *    is parsed and discarded; `fetchXaiEndpoints` logs nothing on failure), so
+ *    the diagnostic cost is currently hypothetical and the bypass would not be.
+ *    Already safe without an exception, verified by execution: `max_tokens=`,
+ *    `input_tokens=`, `total_tokens=` at any value (plural `s`, so the suffix
+ *    cannot start). NOT safe and not claimed to be: `token_family=`,
+ *    `token_blacklist=` and `total_token_usage=` DO mask once their value
+ *    reaches 8 characters - they are ordinary instances of the `token` suffix
+ *    trade above, not exceptions to it.
  *    The trade taken: mask them. An over-masked field name in a diagnostic
  *    costs one round trip of "what was that number"; an under-masked
  *    `API_KEY_PROD=` hands a live credential to whatever the user pastes the
@@ -257,6 +283,28 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
  *    still parses. A quote is a delimiter, never credential material, so
  *    putting it back cannot put any secret back.
  *
+ *    This buys JSON validity for a QUOTED value and for nothing else, and an
+ *    earlier version of this note claimed it as a property of the masking. It
+ *    is not. An UNQUOTED JSON value has no quotes to re-emit, so the marker
+ *    lands bare and the object stops parsing:
+ *      {"token_expires_at":1755424800}                  -> {"token_expires_at":[redacted]}
+ *      {"password_updated_at":1755424800,"user":"sean"} -> ...:[redacted],...
+ *    The "only a count above 10,000,000 is masked" mitigation above does not
+ *    reach these: an epoch-seconds stamp is 10 digits and an epoch-millis stamp
+ *    is 13, so every timestamp field whose name carries a secret core is over
+ *    the floor by construction.
+ *
+ *    Left as a documented limit rather than fixed, because the only fix is to
+ *    INVENT quotes the input did not have, and this function cannot tell JSON
+ *    from the other things it scrubs. It runs over whole log FILES
+ *    (`feedbackBridge` collect-time scrub) and over raw subprocess stderr, most
+ *    of which is not JSON at all, so quoting `TOKEN=abc123456` into
+ *    `TOKEN="[redacted]"` would fabricate syntax in the common case to repair it
+ *    in the rare one - and even in the JSON case it silently changes a number to
+ *    a string, which is its own lie in a machine-read diagnostic. Masking a
+ *    10-digit stamp is also not something to trade away: a bare 10-digit run is
+ *    equally the shape of a numeric passcode.
+ *
  * The suffix is `(?:[_-][A-Za-z0-9]+)*` and not `(?:[A-Za-z0-9_-]*)`: the two
  * classes are DISJOINT, so each iteration must consume exactly one `[_-]`, the
  * partition of any input is unique, and there is no ambiguity for the engine to
@@ -266,8 +314,20 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
  * KNOWN GAPS, reported rather than closed here, because widening the value
  * matcher is a different decision with a different blast radius:
  *   - XML `<api_key>v</api_key>` - the separator is `>`, not `[:=]`.
- *   - a JSON value containing a space or a `}` - excluded from the value class,
- *     so the run falls under the 8-character floor.
+ *   - a JSON value containing a space or a `}`, for every label EXCEPT the
+ *     password cores (see {@link PASSPHRASE_ASSIGNMENT}, which closes it for
+ *     those). An earlier version of this line said the run "falls under the
+ *     8-character floor", i.e. that nothing matches. That is only true when the
+ *     FIRST run is short, and the pinned case used to be exactly that benign
+ *     one. When the first run REACHES the floor the rule fires and stops at the
+ *     excluded character, which is the worse outcome of the two:
+ *       {"api_key":"SUPERSECRETPART1 SUPERSECRETPART2"} -> "[redacted] SUPERSECRETPART2"
+ *       {"api_key":"SUPERSECRETPART1}SUPERSECRETPART2"} -> "[redacted]}SUPERSECRETPART2"
+ *     A PARTIAL mask presenting as a complete one is not a missing mask: a human
+ *     reviewing a feedback bundle sees a marker and stops looking, while most of
+ *     the value ships. Recorded here and pinned in the suite rather than closed,
+ *     because closing it for every label is the wide-value-matcher decision this
+ *     change deliberately took only for the password cores.
  *   - `JWT_SECRET=` / `APP_SECRET=` / `WEBHOOK_SECRET=` - no bare `secret` core.
  *   - a URL query `?api_key=<v>&x=1` IS masked, but `&` is not excluded from the
  *     value class so `&x=1` is swallowed into the marker. Over-mask, not a leak.
@@ -275,6 +335,97 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
 const LABELLED_SECRET_ASSIGNMENT = new RegExp(
   `(?<![A-Za-z0-9])((?:${LABELLED_SECRET_LABELS.join('|')})(?:[_-][A-Za-z0-9]+)*)` +
     `(["']?\\s*[:=]\\s*)(["']?)[^\\s"',}]{8,}(["']?)`,
+  'gi'
+);
+
+/**
+ * The `password` / `passwd` / `passphrase` cores from
+ * {@link LABELLED_SECRET_LABELS}, re-matched with a value matcher that does not
+ * stop at a space.
+ *
+ * A passphrase is PROSE, and {@link LABELLED_SECRET_ASSIGNMENT}'s value class
+ * `[^\s"',}]{8,}` excludes whitespace. The product's own sync passphrase input
+ * (`SyncPassphraseDialog`) requires 16 characters and restricts no character, so
+ * a four-word phrase is not an edge case, it is the expected shape. Measured on
+ * the released rule, with the path to disk being `configureConsoleLog` ->
+ * `redactLogData` -> `redactSecrets` and the feedback bundle re-scrubbing the
+ * same bytes at collection time:
+ *
+ *   {"passphrase":"correct horse battery staple"}     -> UNCHANGED
+ *   passphrase=correct horse battery staple           -> UNCHANGED
+ *   {"passphrase":"watermelon sugar high tonight"}    -> "[redacted] sugar high tonight"
+ *   BACKUP_PASSPHRASE="watermelon sugar high tonight" -> "[redacted] sugar high tonight"
+ *
+ * The first two escape because the first run is under the 8-character floor. The
+ * last two are WORSE than either: they look redacted, so a human reviewing a
+ * feedback bundle sees a marker and stops looking while most of the secret
+ * ships.
+ *
+ * Separate from {@link LABELLED_SECRET_ASSIGNMENT} and NOT a widening of it. A
+ * value matcher that runs past whitespace is the classic over-redaction shape,
+ * and applied to `token`/`api[_-]?key` it would eat the ordinary log lines those
+ * labels appear in. The password cores are the only ones whose value is known to
+ * be user-typed prose, so they are the only ones that get it.
+ *
+ * The three value branches, and what each one refuses to do:
+ *
+ * 1. `(")[^"\r\n]{8,}?"` - a double-quoted value runs to the closing quote and
+ *    stops there. TWO independent things stop it, and an earlier draft of this
+ *    note credited the wrong one, so both are stated as mutation testing found
+ *    them. The CLASS excludes `"`, so no run can cross a quote in either
+ *    direction; the quantifier being LAZY means the first closing quote wins
+ *    even if the class were widened. Each alone is sufficient: mutating greedy,
+ *    and separately mutating the class to `[^\r\n]`, are both EQUIVALENT
+ *    mutants that change no output in the suite. Only BOTH together over-run -
+ *    `{"passphrase":"abcdefghij","api_url":"..."}` then masks the rest of the
+ *    object - and that double mutant is caught. Do not "simplify" either one.
+ *    `\r\n` is excluded because this runs over whole log FILES, not single
+ *    lines: an unterminated quote must fail at end of line rather than swallow
+ *    the next forty lines up to some unrelated quote.
+ * 2. The same for a single-quoted value, so `{ password: 'a b c' }` (util.inspect
+ *    output, which this app's logs are full of) is covered.
+ * 3. An UNQUOTED value runs to end of line, but stops at `,` or `}` and at any
+ *    whitespace that is followed by another `ident=` / `ident:` assignment. Both
+ *    guards are there for over-redaction, and both were verified by execution:
+ *      { password: null, user: 'sean' }               -> unchanged (`null` is under the floor)
+ *      host=db01 password=hunter2xx user=sean         -> `user=sean` survives
+ *      {"password":null,"api_url":"https://x.test"}   -> unchanged
+ *    Without them the marker eats the rest of the object or the rest of the
+ *    connection string, which destroys the diagnostic the bundle exists for.
+ *
+ * The lookahead body is `[A-Za-z0-9_.-]{1,64}` - BOUNDED, so its cost per space
+ * is a constant. The repeated group's two alternatives are disjoint (one
+ * consumes exactly one space or tab, the other exactly one non-space), so the
+ * partition of any input is unique and there is nothing for the engine to
+ * backtrack through: the same disjointness argument the label suffix relies on.
+ * Measured linear against six adversarial shapes from 10 KB to 1.28 MB,
+ * including one unterminated quote per line and a colon-dense single line;
+ * worst observed cost is 1.3x the rule set without it, and it is often cheaper
+ * because masking earlier leaves less text for the pass below.
+ *
+ * Runs BEFORE {@link LABELLED_SECRET_ASSIGNMENT}, which then re-matches
+ * `password="[redacted]"` and re-emits it unchanged. Idempotent, asserted in the
+ * suite rather than assumed.
+ *
+ * KNOWN GAPS, pinned in the suite:
+ *   - an unquoted value containing `,` or `}` is masked only up to it.
+ *   - an unquoted value whose second word is followed by `:` or `=` (a phrase
+ *     like `my secret: phrase`) stops there, and if the head is under the floor
+ *     nothing masks at all - the same outcome as before this rule existed.
+ *   - an UNTERMINATED quote (`password="a b c` with no closing `"` on the line)
+ *     matches no branch here - branch 1 needs the closing quote and branch 3
+ *     refuses a leading one - so it falls through to
+ *     {@link LABELLED_SECRET_ASSIGNMENT} and gets the old partial mask. Left
+ *     that way on purpose: the alternative is letting branch 3 start on a quote,
+ *     which is exactly how a value would swallow the rest of a JSON object.
+ */
+export const PASSPHRASE_SECRET_LABELS: readonly string[] = ['password', 'passwd', 'pass[_-]?phrase'];
+
+const PASSPHRASE_ASSIGNMENT = new RegExp(
+  `(?<![A-Za-z0-9])((?:${PASSPHRASE_SECRET_LABELS.join('|')})(?:[_-][A-Za-z0-9]+)*)` +
+    `(["']?\\s*[:=]\\s*)` +
+    `(?:(")[^"\\r\\n]{8,}?"|(')[^'\\r\\n]{8,}?'` +
+    `|[^\\s"',}\\r\\n](?:[ \\t](?![A-Za-z0-9_.-]{1,64}[ \\t]*[:=])|[^\\s,}\\r\\n]){7,})`,
   'gi'
 );
 
@@ -383,6 +534,16 @@ function maskPatternMatches(text: string): string {
 export function redactSecrets(text: string): string {
   if (!text) return text;
   let out = maskPatternMatches(text);
+  // Password cores first: their value matcher runs past whitespace, so it has to
+  // see the value before the whitespace-terminated rule below takes a bite out
+  // of it and leaves a partial mask behind.
+  out = out.replace(
+    PASSPHRASE_ASSIGNMENT,
+    (_match, label: string, separator: string, doubleQuote: string | undefined, singleQuote: string | undefined) => {
+      const quote = doubleQuote ?? singleQuote ?? '';
+      return `${label}${separator}${quote}[redacted]${quote}`;
+    }
+  );
   // Label preserved, value masked, so the diagnostic still reads sensibly.
   out = out.replace(
     LABELLED_SECRET_ASSIGNMENT,

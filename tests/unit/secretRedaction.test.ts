@@ -7,7 +7,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { LABELLED_SECRET_LABELS, redactSecrets } from '@process/utils/secretRedaction';
+import { LABELLED_SECRET_LABELS, PASSPHRASE_SECRET_LABELS, redactSecrets } from '@process/utils/secretRedaction';
 import { CLEAN_CORPUS, SECRET_CORPUS } from '../fixtures/secretCorpus';
 
 describe('redactSecrets (canonical)', () => {
@@ -488,6 +488,77 @@ describe('the labelled-assignment shapes that still leak, pinned rather than cla
     expect(redactSecrets(`{"api_key":"${VALUE}"}`)).toBe('{"api_key":"[redacted]"}');
   });
 
+  /**
+   * PREMISE CORRECTION. The case above is the BENIGN half of that gap and was
+   * the only half pinned, so the suite recorded "nothing matches" as the whole
+   * behaviour. It is not. "Nothing matches" holds only while the FIRST run is
+   * under the 8-character floor; once it reaches the floor the rule fires and
+   * stops at the excluded character, and a PARTIAL mask that presents as a
+   * complete one is the worse of the two outcomes - the reviewer of a feedback
+   * bundle sees a marker and stops reading while most of the value ships.
+   *
+   * Pinned here so the real shape is on the record. Closing it for every label
+   * needs the wide value matcher that `PASSPHRASE_ASSIGNMENT` takes only for the
+   * password cores.
+   */
+  it('a JSON value whose FIRST run reaches the floor is masked only up to the space or `}`', () => {
+    expect(redactSecrets('{"api_key":"SUPERSECRETPART1 SUPERSECRETPART2"}')).toBe(
+      '{"api_key":"[redacted] SUPERSECRETPART2"}'
+    );
+    expect(redactSecrets('{"api_key":"SUPERSECRETPART1}SUPERSECRETPART2"}')).toBe(
+      '{"api_key":"[redacted]}SUPERSECRETPART2"}'
+    );
+    // Control, and the reason this is a LABEL-scoped gap rather than a value-class
+    // one: the identical shape under a password core is masked end to end.
+    expect(redactSecrets('{"password":"SUPERSECRETPART1 SUPERSECRETPART2"}')).toBe('{"password":"[redacted]"}');
+  });
+
+  /**
+   * FINDING 3, recorded rather than fixed. The re-emitted quotes keep the masked
+   * JSON parseable only when the VALUE was quoted. An unquoted one has no quotes
+   * to re-emit and the object stops parsing, and the "only a count above
+   * 10,000,000 is masked" mitigation does not reach a timestamp: epoch-seconds is
+   * 10 digits, epoch-millis is 13.
+   */
+  it('an UNQUOTED value is masked into invalid JSON, and epoch stamps are over the floor', () => {
+    for (const [line, masked] of [
+      ['{"token_expires_at":1755424800}', '{"token_expires_at":[redacted]}'],
+      ['{"password_updated_at":1755424800,"user":"sean"}', '{"password_updated_at":[redacted],"user":"sean"}'],
+      ['{"token_created_at":1755424800123}', '{"token_created_at":[redacted]}'],
+    ] as const) {
+      expect(redactSecrets(line), line).toBe(masked);
+      expect(() => JSON.parse(line)).not.toThrow();
+      expect(() => JSON.parse(redactSecrets(line)), `${line} stays parseable`).toThrow();
+    }
+    // Control: the QUOTED form does keep parsing, which is the property the
+    // quote re-emission actually buys.
+    expect(() => JSON.parse(redactSecrets(`{"api_key":"${VALUE}"}`))).not.toThrow();
+  });
+
+  /**
+   * FINDING 4. Two fields this app reads BY NAME are destroyed. Both are listed
+   * in the module's accepted-false-positive inventory rather than excluded: this
+   * module's input is untrusted subprocess output, so a field-name exception is
+   * a name the producer of the line chooses, and `api_key_env`'s safe shape is
+   * also the shape of an unprefixed credential.
+   */
+  it('over-masks `token_endpoint` and `api_key_env`, which are documented, not excluded', () => {
+    expect(redactSecrets('{"token_endpoint":"https://api.x.ai/oauth2/token","jwks_uri":"https://api.x.ai/jwks"}')).toBe(
+      '{"token_endpoint":"[redacted]","jwks_uri":"https://api.x.ai/jwks"}'
+    );
+    expect(redactSecrets('{"api_key_env":"XAI_API_KEY"}')).toBe('{"api_key_env":"[redacted]"}');
+    // The same suffix trade, stated exactly: these three mask once the value
+    // reaches the floor and are NOT exceptions, contrary to a claim that they
+    // were already safe.
+    for (const name of ['token_family', 'token_blacklist', 'total_token_usage']) {
+      expect(redactSecrets(`${name}=abcdefghij`), name).toBe(`${name}=[redacted]`);
+    }
+    // These three ARE safe at any value: the plural `s` is not `[_-]`, so the
+    // suffix cannot start and the separator cannot match a letter.
+    const counters = 'max_tokens=100000000 input_tokens=123456789 total_tokens=987654321';
+    expect(redactSecrets(counters)).toBe(counters);
+  });
+
   it('a bare `*_SECRET` with no `key` leaks: there is no bare `secret` core', () => {
     // Deliberate: a bare `secret` core would also mask `secret_name=` and
     // `secretRef=` in a Kubernetes or Vault diagnostic.
@@ -504,6 +575,146 @@ describe('the labelled-assignment shapes that still leak, pinned rather than cla
     // eating `&x=1` is surprising when reading a masked URL, not because
     // anything escapes.
     expect(redactSecrets(`https://x.test/a?api_key=${VALUE}&x=1`)).toBe('https://x.test/a?api_key=[redacted]');
+  });
+});
+
+/**
+ * FINDING 1 (HIGH). A real user passphrase reached the log file and the feedback
+ * bundle unmasked, because `LABELLED_SECRET_ASSIGNMENT`'s value class
+ * `[^\s"',}]{8,}` stops at the first space and a passphrase is prose.
+ *
+ * Reachable, not hypothetical: #1042 routed `pass[_-]?phrase` into
+ * `LABELLED_SECRET_LABELS` because that array is its only backstop, and the
+ * product's own sync passphrase input requires 16 characters while restricting
+ * no character, so a four-word phrase is the expected shape and not an edge
+ * case. Measured on the released rule:
+ *
+ *   {"passphrase":"correct horse battery staple"}     -> UNCHANGED
+ *   passphrase=correct horse battery staple           -> UNCHANGED
+ *   {"passphrase":"watermelon sugar high tonight"}    -> "[redacted] sugar high tonight"
+ *   BACKUP_PASSPHRASE="watermelon sugar high tonight" -> "[redacted] sugar high tonight"
+ *
+ * The partial pair is the worse half: it looks redacted.
+ */
+describe('a multi-word passphrase is masked end to end (#1042 follow-up)', () => {
+  const PHRASE = 'correct horse battery staple';
+
+  it('masks the whole phrase in every container the product actually produces', () => {
+    const shapes = [
+      `{"passphrase":"${PHRASE}"}`,
+      `{"password":"${PHRASE}"}`,
+      `{ "pass_phrase" : "${PHRASE}" }`,
+      `{ password: '${PHRASE}', user: 'sean' }`,
+      `passphrase=${PHRASE}`,
+      `pass-phrase: ${PHRASE}`,
+      `BACKUP_PASSPHRASE="${PHRASE}"`,
+      `SYNC_PASSWD='${PHRASE}'`,
+      `[2026-08-18 10:22:01] [error] restore failed: passphrase=${PHRASE}`,
+    ];
+    for (const text of shapes) {
+      const out = redactSecrets(text);
+      expect(out, text).toContain('[redacted]');
+      // Not just "the whole value is gone" - no WORD of it may survive, which is
+      // what the partial mask used to leave behind.
+      for (const word of PHRASE.split(' ')) expect(out, `${text} leaked "${word}"`).not.toContain(word);
+    }
+    // Control: every case really carried the phrase, so a clean result means
+    // something.
+    expect(shapes.every((t) => t.includes(PHRASE))).toBe(true);
+  });
+
+  it('stops at the closing quote and never runs into the rest of the object', () => {
+    expect(redactSecrets(`{"passphrase":"${PHRASE}","user":"sean","port":5432}`)).toBe(
+      '{"passphrase":"[redacted]","user":"sean","port":5432}'
+    );
+    expect(redactSecrets(`{"password":"abcdefghij","api_url":"https://x.test/a"}`)).toBe(
+      '{"password":"[redacted]","api_url":"https://x.test/a"}'
+    );
+    expect(redactSecrets(`{ password: '${PHRASE}', user: 'sean' }`)).toBe("{ password: '[redacted]', user: 'sean' }");
+    // Still valid JSON, which is the whole reason the quotes are re-emitted.
+    expect(() => JSON.parse(redactSecrets(`{"passphrase":"${PHRASE}","user":"sean"}`))).not.toThrow();
+  });
+
+  /**
+   * The OVER-REDACTION half, which matters as much as the leak: a value matcher
+   * that runs past whitespace is exactly the shape that eats a diagnostic. Each
+   * of these is a real log line shape and each one has to survive.
+   */
+  it('does not eat the rest of the line, the object, or the connection string', () => {
+    const kept = [
+      // A key=value connection line: the siblings after the password survive.
+      ['psql: connecting password=hunter2xx user=sean host=db01 port=5432', 'user=sean host=db01 port=5432'],
+      ['psql: connecting host=db01 password=hunter2xx user=sean', 'host=db01'],
+      // util.inspect output with a non-secret value.
+      ["{ password: undefined, user: 'sean' }", "user: 'sean'"],
+    ] as const;
+    for (const [line, survivor] of kept) {
+      expect(redactSecrets(line), line).toContain(survivor);
+      expect(redactSecrets(line), line).toContain('[redacted]');
+    }
+
+    // Untouched entirely: no assignment, a value under the floor, or a JSON
+    // literal that is not a credential.
+    const untouched = [
+      'the user typed a passphrase and it was wrong',
+      'FATAL: password authentication failed for user "sean"',
+      "Password for 'https://sean@github.com':",
+      'Enter passphrase:',
+      '{"password":"short"}',
+      "{ password: null, user: 'sean', host: 'db01' }",
+      '{"password":null,"api_url":"https://x.test","user":"sean"}',
+      '{"password":false,"retries":3}',
+    ];
+    for (const line of untouched) expect(redactSecrets(line), line).toBe(line);
+  });
+
+  it('does not cross a newline: one masked line leaves the rest of the log alone', () => {
+    const log = ['host=db01', `passphrase=${PHRASE}`, 'user=sean', 'port=5432'].join('\n');
+    expect(redactSecrets(log)).toBe(['host=db01', 'passphrase=[redacted]', 'user=sean', 'port=5432'].join('\n'));
+
+    // The same guard on the QUOTED branch, which is the one that could do real
+    // damage: this runs over whole log FILES at feedback-collection time, so an
+    // unterminated quote must fail at end of line rather than run to the next
+    // quote forty lines down and mask everything between.
+    const unterminated = ['password="abc', 'user="sean"', 'host="db01"'].join('\n');
+    expect(redactSecrets(unterminated)).toBe(unterminated);
+  });
+
+  it('is idempotent, so the feedback bundle re-scrub cannot mangle an already-masked line', () => {
+    for (const text of [`{"passphrase":"${PHRASE}"}`, `passphrase=${PHRASE}`, `PASSWD="${PHRASE}"`]) {
+      const once = redactSecrets(text);
+      expect(redactSecrets(once), text).toBe(once);
+    }
+  });
+
+  it('applies to the password cores ONLY, and every one of them is a real label', () => {
+    // A wide value matcher on `token`/`api_key` would eat ordinary log lines, so
+    // the widening is scoped. This fails if somebody adds a core to the wide list
+    // that the narrow list does not have, or drops one from the wide list.
+    expect(PASSPHRASE_SECRET_LABELS).toEqual(['password', 'passwd', 'pass[_-]?phrase']);
+    for (const core of PASSPHRASE_SECRET_LABELS) expect(LABELLED_SECRET_LABELS).toContain(core);
+    // The scoping, asserted: the same phrase under a NON-password core still
+    // stops at the space. That is the pinned gap two describes up, restated here
+    // so the boundary of this fix is on the record next to the fix.
+    expect(redactSecrets(`{"api_key":"SUPERSECRETPART1 ${PHRASE}"}`)).toContain('battery');
+  });
+
+  /**
+   * The shapes this rule does NOT close, pinned rather than claimed - same
+   * discipline as the gap list above.
+   */
+  it('still leaks an unterminated quote and a value cut short by a `,`', () => {
+    // Branch 1 needs the closing quote and branch 3 refuses a leading one, so an
+    // unterminated quote falls through to the narrow rule and gets whatever that
+    // rule gets. Which of its two outcomes depends on the first word: under the
+    // floor it is a total leak, over it a partial mask. Both are pinned because
+    // the partial one is the shape that presents as complete.
+    expect(redactSecrets(`password="${PHRASE}`)).toBe(`password="${PHRASE}`);
+    expect(redactSecrets('password="unterminated phrase here')).toBe('password="[redacted] phrase here');
+    // `,` terminates the unquoted branch, which is what protects the rest of a
+    // JSON object and an inspect dump. Still an improvement on the narrow rule,
+    // which left this one wholly unmasked.
+    expect(redactSecrets('passphrase=correct horse, battery staple')).toBe('passphrase=[redacted], battery staple');
   });
 });
 
