@@ -136,7 +136,14 @@ jobs:
   build:
     name: Build (${{ matrix.release_track }} / ${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    # 120, matching `_build-reusable.yml`, because this job exists to prove that
+    # workflow's builds and a gate given less budget than the thing it gates
+    # cannot gate it. At 60 every Windows target was killed mid-`Run packaged
+    # build` at ~51-53 minutes and reported as CANCELLED, which reds out
+    # identically to a real failure - so the one platform most likely to break
+    # was the one platform this gate could never actually check. A Windows
+    # packaged build with the @wayland connectors bundled measures ~69 minutes.
+    timeout-minutes: 120
     needs: capability-acceptance
     permissions:
       actions: read
