@@ -880,13 +880,31 @@ function describeTargetForDiagnostics(target, maxEntries = 24) {
 //
 // Anything that fails the signature check keeps its real digest and the inventory
 // comparison below rejects it, so this fails closed.
+// `file:<relative>:<size>:<sha256>`, parsed from the RIGHT. A relative path may
+// legally contain ':' on darwin, and reading the first ':' after the prefix would
+// then truncate the path and look up a DIFFERENT file's digest.
+function parseFileInventoryEntry(entry) {
+  if (!entry.startsWith('file:')) return null;
+  const sha256At = entry.lastIndexOf(':');
+  const sizeAt = entry.lastIndexOf(':', sha256At - 1);
+  if (sha256At <= 'file:'.length || sizeAt <= 'file:'.length) return null;
+  return {
+    relative: entry.slice('file:'.length, sizeAt),
+    sha256: entry.slice(sha256At + 1),
+  };
+}
+
 function reconcileStagedDarwinNatives(bundleDir, sourceEntries, bundledEntries, signedCheck) {
   return bundledEntries.map((entry) => {
-    if (!entry.startsWith('file:')) return entry;
-    const relative = entry.slice('file:'.length, entry.indexOf(':', 'file:'.length));
-    const sourceEntry = sourceEntries.find((candidate) => candidate.startsWith(`file:${relative}:`));
+    const bundledParsed = parseFileInventoryEntry(entry);
+    if (!bundledParsed) return entry;
+    const { relative } = bundledParsed;
+    const sourceEntry = sourceEntries.find((candidate) => {
+      const parsed = parseFileInventoryEntry(candidate);
+      return parsed !== null && parsed.relative === relative;
+    });
     if (!sourceEntry || sourceEntry === entry) return entry;
-    const sourceSha256 = sourceEntry.slice(sourceEntry.lastIndexOf(':') + 1);
+    const sourceSha256 = parseFileInventoryEntry(sourceEntry).sha256;
     if (!/^[0-9a-f]{64}$/.test(sourceSha256)) return entry;
     // Mirrors the identifier build-with-builder.js used when it signed this file.
     const identifier = darwinSigningIdentifier(

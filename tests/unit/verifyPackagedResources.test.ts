@@ -1652,6 +1652,24 @@ describe('staged darwin native reconciliation', () => {
     expect(reconcileStagedDarwinNatives('/bundle', [sourceEntry], [extra], () => true)).toEqual([extra]);
   });
 
+  it('reads the path from the right so a colon in a name cannot borrow another digest', () => {
+    // ':' is legal in a darwin filename. Reading the first ':' after the prefix
+    // truncated `awkward:name.node` to `awkward` and looked up whatever file was
+    // actually called `awkward` - handing a planted file a legitimate file's
+    // digest, and pointing the signature check at the legitimate file's path.
+    const REAL = 'node_modules/pkg/awkward';
+    const PLANTED = 'node_modules/pkg/awkward:name.node';
+    const realSource = `file:${REAL}:10:${'d'.repeat(64)}`;
+    const plantedBundled = `file:${PLANTED}:99:${'e'.repeat(64)}`;
+    const seen: string[] = [];
+    const result = reconcileStagedDarwinNatives('/bundle', [realSource], [plantedBundled], (binaryPath) => {
+      seen.push(binaryPath);
+      return true;
+    });
+    expect(result).toEqual([plantedBundled]);
+    expect(seen).toEqual([]);
+  });
+
   it('refuses to reconcile against a malformed source digest', () => {
     const malformed = `file:${REL}:100:not-a-sha`;
     expect(reconcileStagedDarwinNatives('/bundle', [malformed], [bundledEntry], () => true)).toEqual([bundledEntry]);
