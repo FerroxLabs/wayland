@@ -28,16 +28,15 @@ import { Curator } from '@process/providers/catalog/Curator';
 import type { ProviderId } from '@process/providers/types';
 import { detectWCore, resolveWCoreBinary } from '@process/agent/wcore/binaryResolver';
 import { DESKTOP_CORE_V1_PIN } from '@process/agent/wcore/desktopContractV1';
-import { readConfig, resolveUserConfigPath } from '@process/agent/wcore/configBridge';
 import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
 import { getConfigPath } from '@process/utils/utils';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { ProcessConfig } from '@process/utils/initStorage';
-import type { IMcpServer, TChatConversation } from '@/common/config/storage';
-import type { IProject } from '@/common/types/project';
+import type { IMcpServer } from '@/common/config/storage';
 import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
 import { conversationServiceSingleton } from '@process/services/conversationServiceSingleton';
+import { defaultWorkspaceBaseDir } from '@process/services/projectWorkspace';
 import type { DoctorCheck } from './types';
 import { extractFromFile } from './fileMarker';
 
@@ -57,14 +56,12 @@ import { checkProviderConnectivity, checkModelRegistrySanity } from './checks/pr
 import { checkEngineReachable, checkEngineRouting, checkEngineContractPin } from './checks/engineChecks';
 import { checkMcpServers } from './checks/mcpChecks';
 import { checkBackends } from './checks/backendChecks';
-import {
-  checkWorkspaceDrift,
-  checkWorkspaceConfigured,
-  type WorkspaceEntry,
-  type WorkspaceConfigEntry,
-} from './checks/workspaceChecks';
+import { checkWorkspaceDrift, checkWorkspaceConfigured } from './checks/workspaceChecks';
 import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from './checks/configChecks';
 import { checkAppArchitecture } from './checks/platformChecks';
+import { probeEngineConfig } from './engineConfigProbe';
+import { collectConfiguredWorkspaces, collectWorkspaceConfigEntries } from './workspaceInventory';
+import type { WorkspaceInventoryDeps } from './workspaceInventory';
 
 /** Build a `ProviderRepository` bound to the live UI database. */
 async function providerRepo(): Promise<ProviderRepository> {
@@ -117,67 +114,6 @@ async function listMcpServers(): Promise<IMcpServer[]> {
 }
 
 /**
- * Collect every configured workspace path: project workspaces plus
- * conversation `extra.workspace` directories. Deduplicated by path so a project
- * and its conversations sharing a folder are reported once.
- */
-async function listConfiguredWorkspaces(): Promise<WorkspaceEntry[]> {
-  const entries: WorkspaceEntry[] = [];
-  const seen = new Set<string>();
-
-  const add = (label: string, path: unknown): void => {
-    if (typeof path !== 'string' || path.trim().length === 0) return;
-    if (seen.has(path)) return;
-    seen.add(path);
-    entries.push({ label, path });
-  };
-
-  const projects = await projectServiceSingleton.listProjects().catch((): IProject[] => []);
-  for (const project of projects) {
-    add(`Project "${project.name}"`, project.workspace);
-  }
-
-  const conversations = await conversationServiceSingleton.listAllConversations().catch((): TChatConversation[] => []);
-  for (const conversation of conversations) {
-    // `extra.workspace` exists on gemini/acp conversations; read defensively
-    // since the union is wide and some kinds carry no workspace.
-    const extra = conversation.extra as { workspace?: unknown } | undefined;
-    add(`Chat "${conversation.name ?? conversation.id}"`, extra?.workspace);
-  }
-
-  return entries;
-}
-
-/**
- * Collect every configured workspace with its persistent-vs-temp classification
- * inputs: project workspaces (no `customWorkspace` flag → `null`) plus
- * conversation `extra.workspace` / `extra.customWorkspace`. Conversations that
- * carry no workspace binding at all are skipped (nothing to assess).
- */
-async function listWorkspaceConfigEntries(): Promise<WorkspaceConfigEntry[]> {
-  const entries: WorkspaceConfigEntry[] = [];
-
-  const asPath = (value: unknown): string | null =>
-    typeof value === 'string' && value.trim().length > 0 ? value : null;
-
-  const projects = await projectServiceSingleton.listProjects().catch((): IProject[] => []);
-  for (const project of projects) {
-    entries.push({ label: `Project "${project.name}"`, path: asPath(project.workspace), customWorkspace: null });
-  }
-
-  const conversations = await conversationServiceSingleton.listAllConversations().catch((): TChatConversation[] => []);
-  for (const conversation of conversations) {
-    const extra = conversation.extra as { workspace?: unknown; customWorkspace?: unknown } | undefined;
-    const path = asPath(extra?.workspace);
-    const customWorkspace = typeof extra?.customWorkspace === 'boolean' ? extra.customWorkspace : null;
-    if (path === null && customWorkspace === null) continue;
-    entries.push({ label: `Chat "${conversation.name ?? conversation.id}"`, path, customWorkspace });
-  }
-
-  return entries;
-}
-
-/**
  * Build the ordered list of Doctor checks with live dependencies bound.
  *
  * The order here is the display order in the UI. Each entry binds its pure
@@ -185,6 +121,23 @@ async function listWorkspaceConfigEntries(): Promise<WorkspaceConfigEntry[]> {
  */
 export function buildDoctorChecks(): DoctorCheck[] {
   const connectionTester = new ConnectionTester();
+  const listingServices = {
+    listProjects: () => projectServiceSingleton.listProjects(),
+    listConversations: () => conversationServiceSingleton.listAllConversations(),
+  };
+  /**
+   * The listing services PLUS the app's own workspace base dir, which the
+   * inventory needs to know which paths are app-derived and must have their leaf
+   * withheld (a project's default workspace is `<base>/<project-name>`, so the
+   * name IS the path). Read through `defaultWorkspaceBaseDir` rather than
+   * rebuilding the literal here - a second copy would fail open silently if the
+   * allocator's base ever moves. A failure to resolve it yields `null`, which the
+   * inventory treats as "withhold nothing" rather than crashing the check.
+   */
+  const workspaceServices = async (): Promise<WorkspaceInventoryDeps> => ({
+    ...listingServices,
+    appManagedWorkspaceBase: await defaultWorkspaceBaseDir().catch((): string | null => null),
+  });
 
   return [
     {
@@ -283,13 +236,22 @@ export function buildDoctorChecks(): DoctorCheck[] {
       id: 'workspace.drift',
       titleKey: 'settings.doctor.checks.workspaceDrift',
       category: 'workspace',
-      run: () => checkWorkspaceDrift({ listWorkspaces: listConfiguredWorkspaces, pathExists }),
+      run: async () => {
+        const services = await workspaceServices();
+        return checkWorkspaceDrift({ listWorkspaces: () => collectConfiguredWorkspaces(services), pathExists });
+      },
     },
     {
       id: 'workspace.configured',
       titleKey: 'settings.doctor.checks.workspaceConfigured',
       category: 'workspace',
-      run: () => checkWorkspaceConfigured({ listWorkspaces: listWorkspaceConfigEntries, tmpDir: tmpdir() }),
+      run: async () => {
+        const services = await workspaceServices();
+        return checkWorkspaceConfigured({
+          listWorkspaces: () => collectWorkspaceConfigEntries(services),
+          tmpDir: tmpdir(),
+        });
+      },
     },
     {
       id: 'config.paths',
@@ -322,17 +284,12 @@ export function buildDoctorChecks(): DoctorCheck[] {
       id: 'config.engineConfig',
       titleKey: 'settings.doctor.checks.engineConfig',
       category: 'config',
-      run: () =>
-        checkEngineConfigIntegrity(async () => {
-          const path = resolveUserConfigPath();
-          const existed = await pathExists(path);
-          try {
-            await readConfig(path);
-            return { status: 'ok', existed };
-          } catch (error) {
-            return { status: 'corrupt', message: error instanceof Error ? error.message : String(error) };
-          }
-        }),
+      // `probeEngineConfig`, not an inline read: it is the sanitisation point
+      // for GHSA-2g2m-r86j-jg6h (the raw `smol-toml` message echoes the user's
+      // own config lines, `api_key`s included, and Doctor reports get copied
+      // into support threads), and it lives in its own Electron-free module so
+      // that boundary is reachable from a unit test.
+      run: () => checkEngineConfigIntegrity(() => probeEngineConfig()),
     },
   ];
 }

@@ -52,13 +52,31 @@ export async function enforceProjectWorkspace(extra: Record<string, unknown> | u
  * files an agent writes "to the local workspace" are not lost in a hidden temp
  * dir. Electron is imported lazily so this module stays loadable in unit tests
  * that don't exercise allocation.
+ *
+ * Exported because the Doctor has to withhold the LEAF of any path under this
+ * base: the leaf is the sanitised project name, so for a managed workspace the
+ * name IS the path (`doctorWorkspaceDisplayPath` in `doctor/workspaceInventory`).
+ * Read through this function rather than rebuilding `<documents>/Wayland` at the
+ * call site - a second copy of the literal is a silent fail-open the moment this
+ * one moves.
  */
 let _baseDirPromise: Promise<string> | null = null;
-async function defaultWorkspaceBaseDir(): Promise<string> {
+export async function defaultWorkspaceBaseDir(): Promise<string> {
   // Memoized: the documents dir doesn't change at runtime, and sharing a single
   // import keeps concurrent allocations from each re-importing electron.
   if (!_baseDirPromise) {
-    _baseDirPromise = import('electron').then(({ app }) => path.join(app.getPath('documents'), 'Wayland'));
+    const pending = import('electron').then(({ app }) => path.join(app.getPath('documents'), 'Wayland'));
+    _baseDirPromise = pending;
+    // Cache the SUCCESS, not the attempt. Caching the promise unconditionally meant
+    // ONE rejected read was replayed for the whole process lifetime - and
+    // `app.getPath` is not throw-free - so the Doctor's `.catch(() => null)` turned
+    // a transient fault into `appManagedWorkspaceBase: null` permanently, which
+    // disables the workspace-name withholding rather than degrading it. Clearing the
+    // slot on rejection keeps the concurrent-dedup property (in-flight callers still
+    // share `pending`) while letting the next call retry.
+    pending.catch(() => {
+      if (_baseDirPromise === pending) _baseDirPromise = null;
+    });
   }
   return _baseDirPromise;
 }

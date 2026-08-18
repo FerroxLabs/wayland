@@ -327,20 +327,20 @@ describe('checkMcpServers', () => {
 
   it('fails when an enabled server errors', async () => {
     const result = await checkMcpServers({
-      listServers: async () => [mcpServer({ name: 'broken' })],
+      listServers: async () => [mcpServer({ id: 'mcp_broken', name: 'broken' })],
       testConnection: async () => ({ success: false, error: 'spawn failed' }),
     });
     expect(result.status).toBe('fail');
-    expect(result.detail).toContain('broken');
+    expect(result.detail).toContain('mcp_broken');
   });
 
   it('warns when an enabled server needs auth', async () => {
     const result = await checkMcpServers({
-      listServers: async () => [mcpServer({ name: 'needs-login' })],
+      listServers: async () => [mcpServer({ id: 'mcp_needs-login', name: 'needs-login' })],
       testConnection: async () => ({ success: false, needsAuth: true }),
     });
     expect(result.status).toBe('warn');
-    expect(result.detail).toContain('needs-login');
+    expect(result.detail).toContain('mcp_needs-login');
   });
 
   /**
@@ -351,11 +351,11 @@ describe('checkMcpServers', () => {
    */
   it('names a server that connects but publishes no tools', async () => {
     const result = await checkMcpServers({
-      listServers: async () => [mcpServer({ name: 'tvcontrol' })],
+      listServers: async () => [mcpServer({ id: 'mcp_tvcontrol', name: 'tvcontrol' })],
       testConnection: async () => ({ success: true, tools: [] }),
     });
     expect(result.status).toBe('warn');
-    expect(result.detail).toContain('tvcontrol');
+    expect(result.detail).toContain('mcp_tvcontrol');
     expect(result.detail).toContain('no tools');
   });
 
@@ -388,13 +388,16 @@ describe('checkMcpServers', () => {
    */
   it('reports a toolless server and an unauthenticated one together', async () => {
     const result = await checkMcpServers({
-      listServers: async () => [mcpServer({ name: 'empty' }), mcpServer({ name: 'locked', id: 'b' })],
+      listServers: async () => [
+        mcpServer({ id: 'mcp_empty', name: 'empty' }),
+        mcpServer({ id: 'mcp_locked', name: 'locked' }),
+      ],
       testConnection: async (server) =>
         server.name === 'empty' ? { success: true, tools: [] } : { success: false, needsAuth: true },
     });
     expect(result.status).toBe('warn');
-    expect(result.detail).toContain('empty');
-    expect(result.detail).toContain('locked');
+    expect(result.detail).toContain('mcp_empty');
+    expect(result.detail).toContain('mcp_locked');
     expect(result.detail).toContain('no tools');
     expect(result.detail).toContain('authentication');
     expect(result.remediation).toContain('Log in');

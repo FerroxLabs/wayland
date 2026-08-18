@@ -14,6 +14,7 @@
  * sub-detector reported a load error.
  */
 
+import { redactSecrets } from '@process/utils/secretRedaction';
 import type { DetectedAgent } from '@/common/types/detectedAgent';
 import type { DoctorCheckOutcome } from '../types';
 
@@ -45,7 +46,13 @@ export async function checkBackends(reader: BackendReader): Promise<DoctorCheckO
   if (loadErrors.length > 0) {
     return {
       status: 'warn',
-      detail: `${available.length} backend(s) detected (${names}); ${loadErrors.length} loader error(s): ${loadErrors.join('; ')}.`,
+      // `AgentRegistry.loadErrors` are raw `error.message` strings from reading the
+      // managed-install manifests and the remote-agent rows, both of which carry
+      // auth material. Scrub before they reach a Doctor report that gets copied to
+      // support - same class as GHSA-2g2m-r86j-jg6h. Best-effort: `redactSecrets`
+      // misses the prefixed label form (#1026), and free-form loader text has no
+      // structure to strip instead.
+      detail: `${available.length} backend(s) detected (${names}); ${loadErrors.length} loader error(s): ${redactSecrets(loadErrors.join('; '))}.`,
       remediation: 'A configured backend failed to load — check its configuration in Settings → Agents.',
     };
   }
