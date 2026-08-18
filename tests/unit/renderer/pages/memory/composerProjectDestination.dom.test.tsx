@@ -319,6 +319,157 @@ describe('#924 F1: project-scoped save through the real /memory renderer path', 
   });
 
   /**
+   * #924 F1: `getProjects` returns the GLOBAL store (`~/.ijfw/memory`) as an
+   * ordinary row so the Memory tab can browse it (#137), and it sorts to the
+   * FRONT right after any global save, drop ingest or importer run - which is
+   * exactly what seeds the composer's destination. The user would read
+   * "Saving to: <their-username>", write a project-private note, and land it in
+   * the store injected into every chat in every project.
+   */
+  it('never offers or seeds the global store as a project destination', async () => {
+    mockMemory.getProjects.invoke.mockResolvedValue([
+      { path: '/Users/someone', basename: 'someone', count: 40, lastActive: Date.now() + 100_000, isGlobalStore: true },
+      ...MOCK_PROJECTS,
+    ]);
+    await openComposer();
+
+    // Seeded from the first REAL project, not the global store.
+    expect(screen.getByTestId('composer-destination').textContent).toContain('project-alpha');
+    expect(screen.getByTestId('composer-destination').textContent).not.toContain('someone');
+    const picker = screen.getByTestId('composer-project-picker') as HTMLSelectElement;
+    expect(Array.from(picker.options).map((o) => o.value)).toEqual([ALPHA, BETA]);
+
+    fireEvent.change(screen.getByTestId('composer-textarea'), { target: { value: 'project-private note' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+    await waitFor(() => expect(mockMemory.setQuickAdd.invoke).toHaveBeenCalled());
+    expect(mockMemory.setQuickAdd.invoke.mock.calls[0][0].projectPath).toBe(ALPHA);
+  });
+
+  /**
+   * Over-filter guard: dropping the global store from the PROJECT picker must
+   * not touch the deliberate global save, which is the supported way in.
+   */
+  it('still saves to global when the user picks the global scope', async () => {
+    mockMemory.getProjects.invoke.mockResolvedValue([
+      { path: '/Users/someone', basename: 'someone', count: 40, lastActive: Date.now() + 100_000, isGlobalStore: true },
+      ...MOCK_PROJECTS,
+    ]);
+    await openComposer();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-scope-global'));
+    });
+    expect(screen.getByTestId('composer-destination').textContent).toContain('Global memory');
+
+    fireEvent.change(screen.getByTestId('composer-textarea'), { target: { value: 'deliberate global note' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+    await waitFor(() => expect(mockMemory.setQuickAdd.invoke).toHaveBeenCalled());
+    const payload = mockMemory.setQuickAdd.invoke.mock.calls[0][0];
+    expect(payload.scope).toBe('global');
+    expect(payload.projectPath).toBeUndefined();
+  });
+
+  /**
+   * #924 F2: the same race, for the user who never touches the picker. The
+   * "authoritative" flag is set ONLY by the <select> onChange, and that select
+   * renders only when more than one project is indexed - so a user who reads
+   * "Saving to: project-alpha" and accepts it never sets it. The background
+   * refresh then re-seeds the destination out from under them and the note goes
+   * somewhere they were never shown.
+   */
+  it('saves to the destination it SHOWED, even when the user never touched the picker', async () => {
+    await openComposer();
+    expect(screen.getByTestId('composer-destination').textContent).toContain('project-alpha');
+
+    // A background agent write lands; GAMMA becomes the most recent project.
+    mockMemory.getProjects.invoke.mockResolvedValue([
+      { path: GAMMA, basename: 'project-gamma', count: 1, lastActive: Date.now() + 100_000 },
+      ...MOCK_PROJECTS,
+    ]);
+    expect(indexListeners.length).toBeGreaterThan(0);
+    await act(async () => {
+      indexListeners.forEach((fire) => fire());
+    });
+
+    // Control: the refresh really reached the open composer.
+    await waitFor(() => {
+      const picker = screen.getByTestId('composer-project-picker') as HTMLSelectElement;
+      expect(Array.from(picker.options).map((o) => o.value)).toContain(GAMMA);
+    });
+
+    // The destination the user was shown must not have moved.
+    expect(screen.getByTestId('composer-destination').textContent).toContain('project-alpha');
+
+    fireEvent.change(screen.getByTestId('composer-textarea'), { target: { value: 'note for alpha' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+
+    await waitFor(() => expect(mockMemory.setQuickAdd.invoke).toHaveBeenCalled());
+    expect(mockMemory.setQuickAdd.invoke.mock.calls[0][0].projectPath).toBe(ALPHA);
+  });
+
+  /**
+   * Over-freeze guard: freezing the SEED must not freeze the picker. A
+   * deliberate change after a background refresh still has to win.
+   */
+  it('still honours a deliberate picker change made after a background refresh', async () => {
+    await openComposer();
+
+    mockMemory.getProjects.invoke.mockResolvedValue([
+      { path: GAMMA, basename: 'project-gamma', count: 1, lastActive: Date.now() + 100_000 },
+      ...MOCK_PROJECTS,
+    ]);
+    await act(async () => {
+      indexListeners.forEach((fire) => fire());
+    });
+    await waitFor(() => {
+      const picker = screen.getByTestId('composer-project-picker') as HTMLSelectElement;
+      expect(Array.from(picker.options).map((o) => o.value)).toContain(GAMMA);
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('composer-project-picker'), { target: { value: GAMMA } });
+    });
+    expect(screen.getByTestId('composer-destination').textContent).toContain('project-gamma');
+
+    fireEvent.change(screen.getByTestId('composer-textarea'), { target: { value: 'note for gamma' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+    await waitFor(() => expect(mockMemory.setQuickAdd.invoke).toHaveBeenCalled());
+    expect(mockMemory.setQuickAdd.invoke.mock.calls[0][0].projectPath).toBe(GAMMA);
+  });
+
+  /**
+   * The seed must stay live while the destination is still UNRESOLVED: on a cold
+   * open the project list arrives after the modal mounts, and a freeze that
+   * started before it landed would leave the destination permanently blank.
+   */
+  it('still fills a blank destination in when the project list arrives after open', async () => {
+    mockMemory.getProjects.invoke.mockResolvedValue([]);
+    await openComposer();
+    expect(screen.getByTestId('composer-destination').textContent).toContain('no project selected');
+
+    mockMemory.getProjects.invoke.mockResolvedValue(MOCK_PROJECTS);
+    await act(async () => {
+      indexListeners.forEach((fire) => fire());
+    });
+
+    await waitFor(() => expect(screen.getByTestId('composer-destination').textContent).toContain('project-alpha'));
+
+    fireEvent.change(screen.getByTestId('composer-textarea'), { target: { value: 'late list note' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('composer-submit-btn'));
+    });
+    await waitFor(() => expect(mockMemory.setQuickAdd.invoke).toHaveBeenCalled());
+    expect(mockMemory.setQuickAdd.invoke.mock.calls[0][0].projectPath).toBe(ALPHA);
+  });
+
+  /**
    * First run: nothing indexed yet, so there is no project to name and main
    * refuses the save with the internal code `unresolved_project_scope`. That
    * code was printed straight at the user, which tells them nothing and hides

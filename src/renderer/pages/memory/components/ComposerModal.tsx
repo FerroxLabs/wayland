@@ -84,15 +84,19 @@ export function ComposerModal({
   // exhausted the heap.
   const firstProjectPath = projects[0]?.path ?? '';
 
-  // #924: once the user has picked a destination it is authoritative for the
-  // rest of this open cycle. `firstProjectPath` (and `defaultProjectPath`) move
-  // whenever a BACKGROUND index refresh reorders the project list - the Memory
-  // page re-fetches on `onIndexChanged`, which IJFW fires whenever an agent
-  // writes memory - and re-seeding then rewrote the chosen destination out from
-  // under the open picker, sending the note to a project the user never named.
-  // Seeding stays live only while the user has not chosen, so a project list
-  // that arrives after the modal opens still fills the destination in.
-  const userPickedRef = useRef(false);
+  // #924: the destination is authoritative for the rest of this open cycle once
+  // it RESOLVES - whether the user picked it or simply accepted the one they were
+  // shown. `firstProjectPath` (and `defaultProjectPath`) move whenever a
+  // BACKGROUND index refresh reorders the project list - the Memory page
+  // re-fetches on `onIndexChanged`, which IJFW fires whenever an agent writes
+  // memory - and re-seeding then rewrote the destination out from under the open
+  // modal, sending the note to a project the user never saw. Keying this on an
+  // explicit pick was not enough (F2): the picker renders only when more than one
+  // project is indexed, so the user who reads "Saving to: X" and accepts it never
+  // set the flag and the race stayed open for them. Seeding stays live only while
+  // the destination is still EMPTY, so a project list that arrives after the
+  // modal opens still fills it in - and is then frozen too.
+  const destinationSettledRef = useRef(false);
 
   // Auto-focus textarea when modal opens; reset state on close.
   useEffect(() => {
@@ -100,7 +104,11 @@ export function ComposerModal({
       // Seed the destination from the page's project filter, else the first
       // indexed project. Never left blank while a project exists, so the
       // destination line below always names a real place (#924).
-      if (!userPickedRef.current) setProjectPath(defaultProjectPath ?? firstProjectPath);
+      if (!destinationSettledRef.current) {
+        const seeded = defaultProjectPath ?? firstProjectPath;
+        if (seeded) destinationSettledRef.current = true;
+        setProjectPath(seeded);
+      }
       // Defer focus so Arco has time to mount
       const id = window.setTimeout(() => {
         textareaRef.current?.focus();
@@ -108,7 +116,7 @@ export function ComposerModal({
       return () => window.clearTimeout(id);
     } else {
       // Clear on close
-      userPickedRef.current = false;
+      destinationSettledRef.current = false;
       setContent('');
       setScope('project');
       setProjectPath('');
@@ -368,7 +376,7 @@ export function ComposerModal({
             <select
               value={projectPath}
               onChange={(e) => {
-                userPickedRef.current = true;
+                destinationSettledRef.current = true;
                 setProjectPath(e.target.value);
               }}
               aria-label={t('archive.composer.projectPicker', 'Project to save to')}

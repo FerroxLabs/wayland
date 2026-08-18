@@ -81,6 +81,61 @@ describe('loadGlobalMemoryBlock lossy disclosure (#924)', () => {
     expect(block).toContain('(preview only');
   });
 
+  /**
+   * #924 F3: the shape production ACTUALLY emits. `getEntry` never throws on an
+   * unreadable source - it catches and returns the 200-char list preview as
+   * `body` - so the test above (which forces a throw) passed while the marker
+   * was dead on the only path that reaches it. The service reports the
+   * substitution with `bodyIsPreview`; nothing else can tell the two apart.
+   */
+  it('marks a preview the service substituted WITHOUT throwing', async () => {
+    const droppedPath = path.join(GLOBAL_DIR, 'dropped-2-spec.md');
+    const preview = 'Step 1 of 5: cut the branch';
+    setIjfwArchiveService({
+      listEntries: async () => ({
+        entries: [
+          entry({ id: 'p2', summary: 'Five-step release spec', sourcePath: droppedPath, bodyPreview: preview }),
+        ],
+        total: 1,
+      }),
+      // Exactly what the real getEntry returns when readFile fails.
+      getEntry: async (id: string) => ({
+        ...entry({ id, summary: 'Five-step release spec', sourcePath: droppedPath, bodyPreview: preview }),
+        body: preview,
+        bodyIsPreview: true,
+      }),
+      dispose: () => {},
+    } as unknown as IjfwArchiveService);
+
+    const block = await loadGlobalMemoryBlock();
+    expect(block).toContain(preview);
+    expect(block).toContain('(preview only');
+  });
+
+  /**
+   * Over-fix control: a real body must NOT be labelled a preview, or the marker
+   * becomes noise the agent learns to ignore.
+   */
+  it('does not mark a full body as a preview', async () => {
+    const src = path.join(GLOBAL_DIR, 'intact.md');
+    setIjfwArchiveService({
+      listEntries: async () => ({
+        entries: [entry({ id: 'p3', summary: 'Intact note', sourcePath: src, bodyPreview: 'the first 200 chars' })],
+        total: 1,
+      }),
+      getEntry: async (id: string) => ({
+        ...entry({ id, summary: 'Intact note', sourcePath: src, bodyPreview: 'the first 200 chars' }),
+        body: 'the first 200 chars and then the whole rest of the note',
+        bodyIsPreview: false,
+      }),
+      dispose: () => {},
+    } as unknown as IjfwArchiveService);
+
+    const block = await loadGlobalMemoryBlock();
+    expect(block).toContain('the whole rest of the note');
+    expect(block).not.toContain('(preview only');
+  });
+
   it('discloses how many entries the block budget dropped', async () => {
     // Each body is 7_000 chars: three fit inside MEMORY_BLOCK_CHAR_CAP (24_000),
     // the loop then stops with entries still unread.

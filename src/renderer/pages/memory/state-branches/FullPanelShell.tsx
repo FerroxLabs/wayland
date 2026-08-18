@@ -400,9 +400,16 @@ const FullPanelShell: React.FC = () => {
   // #924: the Memory page is a standalone route with no conversation context,
   // so a project-scoped save cannot be inferred - it is chosen. Feed the
   // composer the indexed projects and pre-select the page's project filter.
-  const composerProjects = projects.map((p) => ({ path: p.path, basename: p.basename }));
+  // #924 F1: `projects` carries the GLOBAL store as an ordinary row (#137) so the
+  // list below can browse it, and it sorts to the front whenever a global save,
+  // a drop ingest or an importer just ran. As a composer destination it is a
+  // privacy hole - `loadGlobalMemoryBlock` injects that store into every chat in
+  // every project - so it is dropped from the picker and from the seed. A
+  // deliberate global save still goes through the composer's `global` scope pill.
+  const destinationProjects = projects.filter((p) => p.isGlobalStore !== true);
+  const composerProjects = destinationProjects.map((p) => ({ path: p.path, basename: p.basename }));
   const composerDefaultProjectPath =
-    filter.project !== 'all' ? projects.find((p) => p.basename === filter.project)?.path : undefined;
+    filter.project !== 'all' ? destinationProjects.find((p) => p.basename === filter.project)?.path : undefined;
 
   const projectSelected = filter.project !== 'all' ? filter.project : null;
   const typeCounts = stats?.typeCounts ?? {

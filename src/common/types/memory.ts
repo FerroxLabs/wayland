@@ -101,6 +101,16 @@ export type ProjectSummary = {
   basename: string;
   count: number;
   lastActive: number;
+  /**
+   * True for the machine-wide store at `~/.ijfw/memory`, which #137 injects into
+   * this list as an ordinary project so the Memory tab can browse imported and
+   * global-scoped memories. It is NOT a project: `loadGlobalMemoryBlock` feeds it
+   * into every chat in every project, so a `project`-scoped save must never be
+   * able to name it. Consumers that turn this list into a WRITE destination (the
+   * composer's picker, `resolveProjectMemoryDir`) must drop it; consumers that
+   * only browse keep it.
+   */
+  isGlobalStore?: boolean;
 };
 
 export type TagCount = {

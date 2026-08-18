@@ -160,6 +160,16 @@ async function readRegistry(): Promise<RegistryEntry[]> {
   }
 }
 
+/**
+ * True for the home dir, whose `.ijfw/memory` IS the global store - the one
+ * `loadGlobalMemoryBlock` injects into every chat in every project. #137 adds it
+ * to the project index so the Memory tab can browse it; it must never be
+ * reachable as a `project`-scoped WRITE destination (#924 F1).
+ */
+function isGlobalStoreRoot(projectPath: string): boolean {
+  return path.resolve(projectPath) === path.resolve(os.homedir());
+}
+
 async function fallbackScanForProjects(): Promise<RegistryEntry[]> {
   const devDir = path.join(os.homedir(), 'dev');
   const entries: RegistryEntry[] = [];
@@ -453,6 +463,7 @@ class IjfwArchiveService {
         basename: projectName,
         count: projectEntries.length,
         lastActive: maxStored,
+        ...(isGlobalStoreRoot(pPath) ? { isGlobalStore: true } : {}),
       });
     }
 
@@ -723,7 +734,15 @@ class IjfwArchiveService {
     return { entries, total };
   }
 
-  async getEntry(id: string): Promise<(MemoryEntry & { body: string }) | null> {
+  /**
+   * `bodyIsPreview` is true when the source read failed and the 200-char list
+   * preview was substituted for the body (#924 F3). This method does NOT throw
+   * on an unreadable source - it falls back - so a caller that only checks for a
+   * truthy body cannot tell a complete entry from a fragment, and
+   * `loadGlobalMemoryBlock` was handing the agent a truncated preview as the
+   * authoritative entry. The flag is what makes the two distinguishable.
+   */
+  async getEntry(id: string): Promise<(MemoryEntry & { body: string; bodyIsPreview?: boolean }) | null> {
     await this.init();
     this.ensureRefs();
     const entry = this.index.byId.get(id);
@@ -731,6 +750,7 @@ class IjfwArchiveService {
 
     // Read the full body from disk if not already in memory.
     let body = entry.body ?? '';
+    let bodyIsPreview = false;
     if (!body) {
       try {
         const content = await fs.promises.readFile(entry.sourcePath, 'utf8');
@@ -744,10 +764,11 @@ class IjfwArchiveService {
         if (match) body = match.body;
       } catch {
         body = entry.bodyPreview;
+        bodyIsPreview = true;
       }
     }
 
-    return { ...entry, body };
+    return { ...entry, body, bodyIsPreview };
   }
 
   async getProjects(): Promise<ProjectSummary[]> {
@@ -808,7 +829,13 @@ class IjfwArchiveService {
    * single indexed project, where it is unambiguous.
    */
   private resolveProjectMemoryDir(projectPath?: string): string | null {
-    const roots = this.index.projects;
+    // #924 F1: the global store rides in `index.projects` (see #137) and would
+    // otherwise be an ordinary candidate here - both as a nameable root and, on
+    // a fresh install that imported memories but has no IJFW project, as the
+    // single root the no-argument fallback below resolves to. Either way a
+    // project-private note would land in the machine-wide brain. It stays
+    // reachable through the explicit `global` scope, and only through that.
+    const roots = this.index.projects.filter((p) => !isGlobalStoreRoot(p.path));
 
     if (projectPath && projectPath.trim()) {
       const resolved = path.resolve(projectPath);

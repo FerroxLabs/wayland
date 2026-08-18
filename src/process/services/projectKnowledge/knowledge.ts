@@ -298,7 +298,12 @@ export async function loadGlobalMemoryBlock(): Promise<string> {
       const full = await svc.getEntry(entry.id);
       if (full?.body) {
         body = full.body;
-        previewOnly = false;
+        // #924 F3: `getEntry` does NOT throw on an unreadable source - it
+        // catches and returns the 200-char list preview as `body`. Treating any
+        // truthy body as authoritative therefore silenced the marker on the ONLY
+        // path that reaches it in production, and the agent read a fragment as
+        // the whole entry. The service says which one it handed back.
+        previewOnly = full.bodyIsPreview === true;
       }
     } catch {
       // fall back to the preview already in hand
