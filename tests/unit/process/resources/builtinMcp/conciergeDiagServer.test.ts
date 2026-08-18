@@ -473,11 +473,18 @@ describe('createConciergeDiagServer — recentErrors (logs)', () => {
       { name: 'm1', ageHours: 20 },
       { name: 'm2', ageHours: 21 },
     ];
-    for (const { name, ageHours } of fixture) {
+    // Creation order is reversed relative to age, so a stat key that tracks
+    // creation cannot reproduce the mtime answer by accident either.
+    for (const { name, ageHours } of [...fixture].reverse()) {
       const file = path.join(logDir, `${name}.log`);
       fs.writeFileSync(file, `error: marker for ${name}\n`);
-      const when = base + ageHours * 3600;
-      fs.utimesSync(file, when, when);
+      // atime runs OPPOSITE to mtime. Setting them to the same value makes
+      // `atimeMs` an undetectable substitution for `mtimeMs`, and sorting by
+      // atime would promote any log merely READ recently -- restoring #1038.
+      // NOTE: `birthtimeMs` stays unprovable on macOS whatever we do here --
+      // APFS clamps birthtime DOWN to mtime when utimesSync backdates a file,
+      // so no utimes-based fixture can separate the two. Linux can.
+      fs.utimesSync(file, base + (100 - ageHours) * 3600, base + ageHours * 3600);
     }
 
     const server = createConciergeDiagServer({ logDir });
@@ -530,12 +537,13 @@ describe('createConciergeDiagServer — recentErrors (logs)', () => {
       { name: 'm1', ageHours: 20 },
       { name: 'm2', ageHours: 21 },
     ];
-    for (const { name, ageHours } of fixture) {
+    // Same decorrelation as the selection test: creation order reversed, and
+    // atime deliberately opposite to mtime.
+    for (const { name, ageHours } of [...fixture].reverse()) {
       const body = Array.from({ length: LINES_PER_FILE }, (_, i) => `error: ${name} entry ${i}`).join('\n');
       const file = path.join(logDir, `${name}.log`);
       fs.writeFileSync(file, `${body}\n`);
-      const when = base + ageHours * 3600;
-      fs.utimesSync(file, when, when);
+      fs.utimesSync(file, base + (100 - ageHours) * 3600, base + ageHours * 3600);
     }
 
     const server = createConciergeDiagServer({ logDir });
