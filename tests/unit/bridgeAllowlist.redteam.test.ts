@@ -200,9 +200,15 @@ describe('isAllowedForRemote - doctor surface denied (#458)', () => {
  * local memory files. A remote (paired-device WebSocket) caller must never
  * reach them. Read-only views stay allowed so the remote Archive panel still
  * functions without granting host-filesystem mutation authority.
+ *
+ * #924 adds `memory.set-quick-add` to that deny set. It was on the allowed side
+ * of the read/write line despite CREATING an on-disk memory entry, and it now
+ * carries a `projectPath` selector that steers WHICH indexed project receives
+ * the write - so a remote peer could both write the user's memory and choose
+ * where it landed.
  */
 describe('isAllowedForRemote - memory mutation denied (#414)', () => {
-  it.each(['memory.update-entry', 'memory.delete-entry', 'memory.restore-archived-entry'])(
+  it.each(['memory.update-entry', 'memory.delete-entry', 'memory.restore-archived-entry', 'memory.set-quick-add'])(
     'denies subscribe-%s for remote callers (blocks remote memory mutation)',
     (key) => {
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);

@@ -397,6 +397,13 @@ const FullPanelShell: React.FC = () => {
   // Result count for filter bar
   const resultCountLabel = isLoading ? '' : `${total.toLocaleString()} ${t('archive.filter.results', 'results')}`;
 
+  // #924: the Memory page is a standalone route with no conversation context,
+  // so a project-scoped save cannot be inferred - it is chosen. Feed the
+  // composer the indexed projects and pre-select the page's project filter.
+  const composerProjects = projects.map((p) => ({ path: p.path, basename: p.basename }));
+  const composerDefaultProjectPath =
+    filter.project !== 'all' ? projects.find((p) => p.basename === filter.project)?.path : undefined;
+
   const projectSelected = filter.project !== 'all' ? filter.project : null;
   const typeCounts = stats?.typeCounts ?? {
     decision: 0,
@@ -656,7 +663,12 @@ const FullPanelShell: React.FC = () => {
       <ImportDrawer open={importOpen} onClose={() => setImportOpen(false)} />
 
       {/* ---- Composer modal ---- */}
-      <ComposerModal open={composerOpen} onClose={() => setComposerOpen(false)} />
+      <ComposerModal
+        open={composerOpen}
+        onClose={() => setComposerOpen(false)}
+        projects={composerProjects}
+        defaultProjectPath={composerDefaultProjectPath}
+      />
 
       {/* ---- Entry editor modal (#414) ---- */}
       <EntryEditorModal

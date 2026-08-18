@@ -789,11 +789,52 @@ class IjfwArchiveService {
     };
   }
 
-  async quickAdd(content: string, scope: 'project' | 'global', type = 'observation'): Promise<void> {
+  /**
+   * Resolve the `.ijfw/memory` dir a project-scoped quick-add must be written
+   * to (#924), or null when no project can be named with confidence.
+   *
+   * `projectPath` is the project the CALLER is in. It is accepted only when it
+   * matches an indexed project root, so an IPC caller can never steer a write
+   * at an arbitrary directory.
+   *
+   * There is deliberately NO fallback to the global store. Redirecting a
+   * `project`-scoped save to the machine-wide brain would be worse than the bug
+   * it replaced: the old code misplaced the note into ONE unrelated project,
+   * whereas the global store is injected into every chat in every project by
+   * `loadGlobalMemoryBlock`. Refusing is the only honest answer, and the caller
+   * surfaces the refusal rather than silently widening the note's reach.
+   *
+   * The no-argument case keeps the historical behaviour ONLY when there is a
+   * single indexed project, where it is unambiguous.
+   */
+  private resolveProjectMemoryDir(projectPath?: string): string | null {
+    const roots = this.index.projects;
+
+    if (projectPath && projectPath.trim()) {
+      const resolved = path.resolve(projectPath);
+      if (roots.some((p) => p.path === resolved)) return path.join(resolved, '.ijfw', 'memory');
+      log.warn('[memory-archive] quickAdd: project path is not an indexed project root', { projectPath });
+      return null;
+    }
+
+    if (roots.length === 1) return path.join(roots[0].path, '.ijfw', 'memory');
+    log.warn('[memory-archive] quickAdd: no project named and the project is ambiguous', {
+      candidates: roots.length,
+    });
+    return null;
+  }
+
+  async quickAdd(
+    content: string,
+    scope: 'project' | 'global',
+    type = 'observation',
+    projectPath?: string
+  ): Promise<void> {
     const memDir =
-      scope === 'global'
-        ? path.join(os.homedir(), '.ijfw', 'memory')
-        : path.join(this.index.projects[0]?.path ?? os.homedir(), '.ijfw', 'memory');
+      scope === 'global' ? path.join(os.homedir(), '.ijfw', 'memory') : this.resolveProjectMemoryDir(projectPath);
+    if (memDir === null) {
+      throw new Error('unresolved_project_scope');
+    }
     await fs.promises.mkdir(memDir, { recursive: true });
     const journalPath = path.join(memDir, 'journal.md');
     const now = new Date().toISOString();

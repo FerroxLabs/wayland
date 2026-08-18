@@ -43,6 +43,10 @@ const quickAddSchema = z.object({
   content: z.string().min(1).max(10_000),
   scope: z.enum(['project', 'global']),
   type: z.string().optional(),
+  // #924: the project the caller is actually in. The service accepts it only
+  // when it matches an indexed project root, so this is a selector, not a
+  // free-form write path.
+  projectPath: z.string().max(4_096).optional(),
 });
 
 const thresholdSchema = z.object({ threshold: z.number().int().min(0).max(100) });
@@ -187,7 +191,7 @@ export function initMemoryArchiveBridge(): void {
     const parsed = quickAddSchema.safeParse(args);
     if (!parsed.success) return { ok: false, error: parsed.error.message };
     try {
-      await svc.quickAdd(parsed.data.content, parsed.data.scope, parsed.data.type);
+      await svc.quickAdd(parsed.data.content, parsed.data.scope, parsed.data.type, parsed.data.projectPath);
       return { ok: true };
     } catch (err) {
       log.error('[memory-archive] setQuickAdd failed', { err });

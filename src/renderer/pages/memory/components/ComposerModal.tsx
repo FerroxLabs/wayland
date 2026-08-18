@@ -31,11 +31,20 @@ import styles from './ComposerModal.module.css';
 export type ComposerModalProps = {
   open: boolean;
   onClose: () => void;
-  onSubmit?: (entry: {
-    content: string;
-    scope: 'project' | 'global';
-    tags: string[];
-  }) => void | Promise<void>;
+  /**
+   * Projects the archive has indexed, as {path, basename}. A `project`-scoped
+   * save must name exactly one of these (#924): the Memory page is a standalone
+   * route with no conversation context, so there is nothing to infer the
+   * project FROM and the destination has to be chosen explicitly. An empty list
+   * does NOT disable project scope: the pill stays enabled and selected, the
+   * destination reads "no project selected", and main refuses the save - the
+   * handler below turns that refusal into copy telling the user to switch to
+   * global.
+   */
+  projects?: ReadonlyArray<{ path: string; basename: string }>;
+  /** Project pre-selected on open - the Memory page's project filter, when set. */
+  defaultProjectPath?: string;
+  onSubmit?: (entry: { content: string; scope: 'project' | 'global'; tags: string[] }) => void | Promise<void>;
 };
 
 const MAX_CHARS = 8000;
@@ -44,11 +53,18 @@ const MAX_CHARS = 8000;
 // Component
 // ---------------------------------------------------------------------------
 
-export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): React.ReactElement | null {
+export function ComposerModal({
+  open,
+  onClose,
+  projects = [],
+  defaultProjectPath,
+  onSubmit,
+}: ComposerModalProps): React.ReactElement | null {
   const { t } = useTranslation();
 
   const [content, setContent] = useState('');
   const [scope, setScope] = useState<'project' | 'global'>('project');
+  const [projectPath, setProjectPath] = useState<string>('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [addingTag, setAddingTag] = useState(false);
@@ -59,9 +75,32 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
   const tagInputRef = useRef<HTMLInputElement | null>(null);
   const dropZoneRef = useRef<HTMLDivElement | null>(null);
 
+  // The seed below reads exactly one thing out of `projects`: the first path.
+  // Depend on THAT, never on the array identity - `projects` is a fresh array on
+  // every parent render (the `= []` default included, and FullPanelShell builds
+  // its list with `.map`). With the array in the effect's dependency list the
+  // effect re-ran after every render, its close-branch `setTags([])` committed a
+  // new array each time, and the two fed each other in an unbounded loop that
+  // exhausted the heap.
+  const firstProjectPath = projects[0]?.path ?? '';
+
+  // #924: once the user has picked a destination it is authoritative for the
+  // rest of this open cycle. `firstProjectPath` (and `defaultProjectPath`) move
+  // whenever a BACKGROUND index refresh reorders the project list - the Memory
+  // page re-fetches on `onIndexChanged`, which IJFW fires whenever an agent
+  // writes memory - and re-seeding then rewrote the chosen destination out from
+  // under the open picker, sending the note to a project the user never named.
+  // Seeding stays live only while the user has not chosen, so a project list
+  // that arrives after the modal opens still fills the destination in.
+  const userPickedRef = useRef(false);
+
   // Auto-focus textarea when modal opens; reset state on close.
   useEffect(() => {
     if (open) {
+      // Seed the destination from the page's project filter, else the first
+      // indexed project. Never left blank while a project exists, so the
+      // destination line below always names a real place (#924).
+      if (!userPickedRef.current) setProjectPath(defaultProjectPath ?? firstProjectPath);
       // Defer focus so Arco has time to mount
       const id = window.setTimeout(() => {
         textareaRef.current?.focus();
@@ -69,16 +108,44 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
       return () => window.clearTimeout(id);
     } else {
       // Clear on close
+      userPickedRef.current = false;
       setContent('');
       setScope('project');
+      setProjectPath('');
       setTags([]);
       setTagInput('');
       setAddingTag(false);
       setError(null);
     }
-  }, [open]);
+  }, [open, defaultProjectPath, firstProjectPath]);
 
   // ESC already handled by Arco Modal's closable / onCancel - no extra listener needed.
+
+  // #924: the Memory page keys its project filter on BASENAME, and this modal
+  // turns that name into a WRITE destination. Two indexed projects can share a
+  // basename (`~/dev/one/app` and `~/dev/two/app` are both "app"), and a bare
+  // "app" then names an ambiguous place while the write always resolves to
+  // whichever came first. Qualify a colliding name with its parent directory so
+  // the label identifies exactly one project. Paths are compared as strings -
+  // the renderer has no `path` module - and both separators are handled because
+  // the same list is built from Windows paths too.
+  const basenameCounts = new Map<string, number>();
+  for (const p of projects) basenameCounts.set(p.basename, (basenameCounts.get(p.basename) ?? 0) + 1);
+  const labelFor = (p: { path: string; basename: string }): string => {
+    if ((basenameCounts.get(p.basename) ?? 0) < 2) return p.basename;
+    const parent = p.path.split(/[/\\]/).filter(Boolean).at(-2);
+    return parent ? `${p.basename} (${parent})` : p.path;
+  };
+
+  // #924: name the destination the save will actually reach. Main is the
+  // authority - it refuses a project-scoped save it cannot place rather than
+  // redirecting it to the global brain - so the renderer's job is to pick the
+  // project explicitly and show which one, never to re-decide the scope.
+  const selectedProject = projects.find((p) => p.path === projectPath);
+  const destinationName =
+    scope === 'global'
+      ? t('archive.composer.destGlobal', 'Global memory (every chat)')
+      : (selectedProject && labelFor(selectedProject)) || '';
 
   // ---- Submit ----
   const handleSubmit = useCallback(async () => {
@@ -91,7 +158,7 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
       setError(
         t('archive.composer.errorTooLong', `Content exceeds ${MAX_CHARS} character limit.`, {
           max: MAX_CHARS,
-        }),
+        })
       );
       return;
     }
@@ -102,9 +169,26 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
         await onSubmit({ content: trimmed, scope, tags });
       } else {
         // DEVIATION: tags not in IPC payload - scope IS forwarded
-        const result = await memoryBridge.setQuickAdd.invoke({ content: trimmed, scope });
+        const result = await memoryBridge.setQuickAdd.invoke({
+          content: trimmed,
+          scope,
+          ...(scope === 'project' && projectPath ? { projectPath } : {}),
+        });
         if (result.ok === false && result.error) {
-          throw new Error(result.error);
+          // #924: main answers a project-scoped save it cannot place with the
+          // internal code `unresolved_project_scope`, and that code was printed
+          // straight at the user. It is reachable on the FIRST-RUN path - before
+          // anything is indexed there is no project to name, so `projects` is
+          // empty, no picker renders, and the save cannot resolve. Say what
+          // happened and what to do instead of leaking the identifier.
+          throw new Error(
+            result.error === 'unresolved_project_scope'
+              ? t(
+                  'archive.composer.errorNoProject',
+                  'No project is indexed yet, so this cannot be saved to a project. Switch to global to save it.'
+                )
+              : result.error
+          );
         }
         // Fire archive refresh via the event emitter so MemoryList picks it up
         // (same pattern as FullPanelShell's handleQuickAdd → reload)
@@ -116,7 +200,7 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
     } finally {
       setSubmitting(false);
     }
-  }, [content, scope, tags, onSubmit, onClose, t]);
+  }, [content, scope, tags, projectPath, onSubmit, onClose, t]);
 
   // ---- Cmd/Ctrl+Enter to submit ----
   const handleKeyDown = useCallback(
@@ -126,7 +210,7 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
         void handleSubmit();
       }
     },
-    [handleSubmit],
+    [handleSubmit]
   );
 
   // ---- Tag management ----
@@ -150,7 +234,7 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
         setAddingTag(false);
       }
     },
-    [commitTag],
+    [commitTag]
   );
 
   const removeTag = useCallback((tag: string) => {
@@ -172,15 +256,13 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
       reader.onload = (ev) => {
         const text = ev.target?.result;
         if (typeof text === 'string') {
-          const block = content.trim()
-            ? `${content}\n\n\`\`\`\n${text}\n\`\`\``
-            : text;
+          const block = content.trim() ? `${content}\n\n\`\`\`\n${text}\n\`\`\`` : text;
           setContent(block);
         }
       };
       reader.readAsText(file);
     },
-    [content],
+    [content]
   );
 
   if (!open) return null;
@@ -273,16 +355,40 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
           </button>
         </div>
 
+        {/* ---- Destination (#924) ---- */}
+        {/* The scope pill alone told the user "project" while the actual
+            destination was resolved elsewhere and could differ. Name the real
+            place, and let them change it, before they save. */}
+        <div className={styles.scopeRow} data-testid='composer-destination-row'>
+          <span data-testid='composer-destination'>
+            {t('archive.composer.savingTo', 'Saving to')}:{' '}
+            {destinationName || t('archive.composer.destNone', 'no project selected')}
+          </span>
+          {scope === 'project' && projects.length > 1 && (
+            <select
+              value={projectPath}
+              onChange={(e) => {
+                userPickedRef.current = true;
+                setProjectPath(e.target.value);
+              }}
+              aria-label={t('archive.composer.projectPicker', 'Project to save to')}
+              data-testid='composer-project-picker'
+            >
+              {projects.map((p) => (
+                <option key={p.path} value={p.path}>
+                  {labelFor(p)}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
         {/* ---- Tag chip input ---- */}
         <div className={styles.tagRow} data-testid='composer-tag-row'>
           {tags.map((tag) => (
             <span key={tag} className={styles.tagChip} data-testid={`composer-tag-${tag}`}>
               {tag}
-              <button
-                className={styles.tagRemoveBtn}
-                onClick={() => removeTag(tag)}
-                aria-label={`Remove tag ${tag}`}
-              >
+              <button className={styles.tagRemoveBtn} onClick={() => removeTag(tag)} aria-label={`Remove tag ${tag}`}>
                 <X size={10} aria-hidden />
               </button>
             </span>
@@ -300,11 +406,7 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
               autoFocus
             />
           ) : (
-            <button
-              className={styles.addTagBtn}
-              onClick={() => setAddingTag(true)}
-              data-testid='composer-add-tag-btn'
-            >
+            <button className={styles.addTagBtn} onClick={() => setAddingTag(true)} data-testid='composer-add-tag-btn'>
               + {t('archive.composer.addTag', 'Add tag')}
             </button>
           )}
@@ -327,11 +429,7 @@ export function ComposerModal({ open, onClose, onSubmit }: ComposerModalProps): 
         <div className={styles.footer}>
           <span className={styles.footerHint}>⌘↵ {t('archive.composer.hint', 'to Remember')}</span>
           <div className={styles.footerActions}>
-            <Button
-              onClick={onClose}
-              disabled={submitting}
-              data-testid='composer-cancel-btn'
-            >
+            <Button onClick={onClose} disabled={submitting} data-testid='composer-cancel-btn'>
               {t('common.cancel', 'Cancel')}
             </Button>
             <Button
