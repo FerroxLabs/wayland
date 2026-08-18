@@ -509,5 +509,45 @@
       "title": "Échec de la tâche",
       "body": "{{title}} s’est arrêté avec une erreur. {{detail}}"
     }
+  },
+  "engineConfigInvalid": {
+    "title": "Le fichier de réglages de Wayland Core doit être corrigé",
+    "explainer": "Le moteur n’a pas pu lire son propre fichier de réglages, donc l’agent ne peut pas démarrer. Rien n’a été modifié : vos fournisseurs, vos clés et vos réglages y sont toujours.",
+    "dismiss": "Ignorer",
+    "details": "Détails techniques",
+    "checking": "Vérification du fichier de réglages…",
+    "location": "Le problème se situe à la ligne {{line}}, colonne {{column}}.",
+    "noProblem": "Le fichier de réglages se lit correctement maintenant. Renvoyez votre message.",
+    "unreadable": "Wayland n’a pas pu lire le fichier de réglages. Raison : {{reason}}",
+    "repair": {
+      "label": "Corrigez la ligne {{line}} pour moi",
+      "sublabel": "Sauvegarde d’abord le fichier, puis ajoute le saut de ligne manquant. Rien d’autre ne change.",
+      "action": "Corriger",
+      "unavailable": "Le problème à la ligne {{line}} demande un œil humain — Wayland ne le devinera pas. Ouvrez le fichier ci-dessous, ou repartez des réglages par défaut.",
+      "notTextUnavailable": "Wayland ne réécrira pas un fichier qu’il ne peut pas lire exactement, il n’y a donc pas de correction automatique ici. Ouvrez le fichier ci-dessous, ou repartez des réglages par défaut."
+    },
+    "reveal": {
+      "label": "Montrez-moi le fichier",
+      "sublabel": "Ouvre le dossier qui le contient, pour que vous n’ayez pas à chercher le chemin.",
+      "action": "Afficher"
+    },
+    "regenerate": {
+      "label": "Repartir des réglages par défaut",
+      "sublabel": "En dernier recours. Votre fichier actuel est d’abord sauvegardé, puis supprimé pour que le moteur en écrive un neuf.",
+      "action": "Repartir de zéro",
+      "confirmTitle": "Repartir des réglages par défaut ?",
+      "confirmBody": "Cela supprime votre fichier de réglages du moteur. Vous perdrez la liste des fournisseurs, les clés d’API qui y sont enregistrées, ainsi que vos réglages de mémoire et de compétences, et vous devrez les reconfigurer.\n\nUne sauvegarde horodatée est d’abord enregistrée à côté de l’original. Si cette sauvegarde ne peut pas être vérifiée, rien n’est supprimé.",
+      "confirmAction": "Sauvegarder et repartir de zéro"
+    },
+    "result": {
+      "repaired": "Corrigé. Une sauvegarde de l’original a été enregistrée sous {{name}}.",
+      "regenerated": "Terminé. Vos anciens réglages ont été enregistrés sous {{name}}.",
+      "backupFailed": "Wayland n’a pas pu créer de sauvegarde vérifiée, donc rien n’a été modifié. Raison : {{reason}}",
+      "writeFailed": "La modification n’a pas pu être effectuée. Raison : {{reason}}",
+      "writeFailedWithBackup": "La modification n’a pas pu être effectuée. Raison : {{reason}} Rien n’est perdu : vos réglages d’origine sont dans {{name}}.",
+      "notARegularFile": "Ce fichier de réglages est un lien vers un autre fichier, donc Wayland ne va pas le remplacer. Utilisez « Montrez-moi le fichier » et modifiez-le là où il se trouve vraiment.",
+      "revealFailed": "Wayland n’a pas pu ouvrir le dossier. Raison : {{reason}}"
+    },
+    "notText": "Wayland ne peut pas lire ce fichier comme du texte : certains de ses octets ne sont pas de l’UTF-8 valide, ce qu’exige le format des réglages. Rien n’a été modifié."
   }
 }

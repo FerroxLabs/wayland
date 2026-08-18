@@ -78,6 +78,7 @@ import {
   createMcpSessionExpectedServer,
 } from '@process/services/mcpServices/mcpSessionTruthGate';
 import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
+import { DesktopProfileSpliceError } from '@process/agent/wcore/desktopProfileSplice';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -1415,6 +1416,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // the renderer can route it to a remedy card by code. Constitution
       // authority failures are the case that needs it: the fix is a recovery
       // flow the user cannot reach from an error bubble.
+      // #1024: the same treatment for an unparseable engine `config.toml`. The
+      // splice's refusal is correct and stays correct - it protects the user's
+      // providers/credentials - but the prose it produced ('Fix the file by
+      // hand') was a dead end. The code routes it to the recovery card instead.
+      ...(error instanceof DesktopProfileSpliceError ? { code: error.code } : {}),
       ...(error instanceof ConstitutionFsTransactionError ? { code: error.code } : {}),
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);

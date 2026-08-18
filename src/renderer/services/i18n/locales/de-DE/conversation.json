@@ -509,5 +509,45 @@
       "title": "Aufgabe fehlgeschlagen",
       "body": "{{title}} wurde mit einem Fehler beendet. {{detail}}"
     }
+  },
+  "engineConfigInvalid": {
+    "title": "Die Einstellungsdatei von Wayland Core muss korrigiert werden",
+    "explainer": "Die Engine konnte ihre eigene Einstellungsdatei nicht lesen, deshalb kann der Agent nicht starten. Es wurde nichts geändert – deine Anbieter, Schlüssel und Einstellungen sind alle noch darin.",
+    "dismiss": "Schließen",
+    "details": "Technische Details",
+    "checking": "Einstellungsdatei wird geprüft …",
+    "location": "Das Problem liegt in Zeile {{line}}, Spalte {{column}}.",
+    "noProblem": "Die Einstellungsdatei lässt sich jetzt einwandfrei lesen. Sende deine Nachricht erneut.",
+    "unreadable": "Wayland konnte die Einstellungsdatei nicht lesen. Grund: {{reason}}",
+    "repair": {
+      "label": "Zeile {{line}} für mich korrigieren",
+      "sublabel": "Sichert die Datei zuerst und fügt dann den fehlenden Zeilenumbruch ein. Sonst ändert sich nichts.",
+      "action": "Korrigieren",
+      "unavailable": "Das Problem in Zeile {{line}} braucht ein menschliches Auge – Wayland rät nicht. Öffne die Datei unten oder fange mit den Standardeinstellungen neu an.",
+      "notTextUnavailable": "Wayland überschreibt keine Datei, die es nicht exakt lesen kann, deshalb gibt es hier keine automatische Korrektur. Öffne die Datei unten oder fange mit den Standardeinstellungen neu an."
+    },
+    "reveal": {
+      "label": "Zeig mir die Datei",
+      "sublabel": "Öffnet den Ordner, in dem sie liegt, damit du den Pfad nicht suchen musst.",
+      "action": "Anzeigen"
+    },
+    "regenerate": {
+      "label": "Mit Standardeinstellungen neu anfangen",
+      "sublabel": "Letztes Mittel. Deine aktuelle Datei wird zuerst gesichert und dann entfernt, damit die Engine eine neue schreiben kann.",
+      "action": "Neu anfangen",
+      "confirmTitle": "Mit Standardeinstellungen neu anfangen?",
+      "confirmBody": "Damit wird deine Engine-Einstellungsdatei entfernt. Du verlierst die Anbieterliste, die darin gespeicherten API-Schlüssel sowie deine Speicher- und Skills-Einstellungen und musst sie neu einrichten.\n\nZuerst wird eine Sicherung mit Zeitstempel neben dem Original gespeichert. Kann diese Sicherung nicht überprüft werden, wird nichts entfernt.",
+      "confirmAction": "Sichern und neu anfangen"
+    },
+    "result": {
+      "repaired": "Korrigiert. Eine Sicherung des Originals wurde als {{name}} gespeichert.",
+      "regenerated": "Fertig. Deine alten Einstellungen wurden als {{name}} gespeichert.",
+      "backupFailed": "Wayland konnte keine überprüfte Sicherung anlegen, deshalb wurde nichts geändert. Grund: {{reason}}",
+      "writeFailed": "Die Änderung konnte nicht abgeschlossen werden. Grund: {{reason}}",
+      "writeFailedWithBackup": "Die Änderung konnte nicht abgeschlossen werden. Grund: {{reason}} Nichts ist verloren: Deine ursprünglichen Einstellungen liegen in {{name}}.",
+      "notARegularFile": "Diese Einstellungsdatei ist eine Verknüpfung auf eine andere Datei, deshalb ersetzt Wayland sie nicht. Nutze „Zeig mir die Datei“ und bearbeite sie dort, wo sie wirklich liegt.",
+      "revealFailed": "Wayland konnte den Ordner nicht öffnen. Grund: {{reason}}"
+    },
+    "notText": "Wayland kann diese Datei nicht als Text lesen – einige ihrer Bytes sind kein gültiges UTF-8, das das Einstellungsformat verlangt. Es wurde nichts geändert."
   }
 }
