@@ -16,6 +16,7 @@ import { clearStorageDir, getLogsDir, getStorageDirs } from '@process/storage/st
 import { backupExport } from '@process/storage/backupExport';
 import { backupImport } from '@process/storage/backupImport';
 import { createLegacySafetyExport } from '@process/storage/legacySafetyExport';
+import { publicBackupErrorCode } from '@/common/types/storageBackup';
 
 /** Largest backup zip accepted for restore upload (1 GiB - matches the import zip-bomb total cap). */
 const MAX_RESTORE_ZIP_BYTES = 1024 * 1024 * 1024;
@@ -152,15 +153,27 @@ export function registerStorageRoutes(app: Express, validateApiAccess: RequestHa
 
         // Apply the restore (core enforces zip-slip containment, dir allowlist,
         // zip-bomb caps, and skips encrypted keys when no passphrase is given).
-        await backupImport({ userData, srcPath: uploadedPath, passphrase });
+        const report = await backupImport({ userData, srcPath: uploadedPath, passphrase });
         invalidateUsageCache();
 
         cleanup();
-        res.json({ success: true, data: { safetyBackupPath: safetyPath } });
+        // Forward the report, do not swallow it. This route is the second caller
+        // of the same importer, and `success: true` on its own is a useless
+        // signal: a legacy file export only covers conversations, attachments,
+        // config and the optional encrypted keys, so an archive from a modern
+        // install legitimately applies nothing. Replying with a bare success over
+        // a no-op is verbatim #1021, and the desktop caller being fixed did not
+        // fix this one.
+        res.json({ success: true, data: { safetyBackupPath: safetyPath, ...report } });
       } catch (error) {
         cleanup();
         console.error('[API] Storage restore error:', error);
-        res.status(500).json({ success: false, msg: error instanceof Error ? error.message : 'Failed to restore' });
+        // A fixed code, not the error text. A decrypt or zip failure can carry a
+        // userData path or a decrypted fragment in its message, and this reply
+        // ends up in a browser the operator may not be the only reader of. The
+        // code also lets the client name a mistyped passphrase, which is the
+        // everyday failure here and which the desktop surface already names.
+        res.status(500).json({ success: false, msg: publicBackupErrorCode(error) });
       }
     }
   );

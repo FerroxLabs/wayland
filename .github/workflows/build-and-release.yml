@@ -251,6 +251,17 @@ jobs:
         shell: bash
         run: bash scripts/prepare-release-assets.sh build-artifacts release-assets
 
+      # #989: assert the COMPLETE expected artifact set before anything is
+      # published. verify-release-assets.sh previously ran only against the CI
+      # mock fixture in pr-checks.yml, so it never saw a real release - which is
+      # why #941 (the Windows portable zip dropped by a bad upload glob) reached
+      # users unnoticed for several releases. Running it here, on the real
+      # normalized assets, is what makes it an actual gate: a missing artifact
+      # class now fails the job before the draft release is created.
+      - name: Verify release assets (complete expected set)
+        shell: bash
+        run: bash scripts/verify-release-assets.sh release-assets
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -298,7 +309,19 @@ jobs:
           bun-version: latest
 
       - name: Install deps (for the connect probe)
-        run: bun install --frozen-lockfile
+        shell: bash
+        run: |
+          # Retry: package.json pins a GitHub git dependency, so install traffic
+          # hits api.github.com and an API 504 reds out this check for reasons
+          # unrelated to the diff. Not a flaky-test workaround. Backoff 20s/40s
+          # because an API outage outlasts a transient git fetch.
+          for attempt in 1 2 3; do
+            if bun install --frozen-lockfile; then exit 0; fi
+            echo "bun install attempt $attempt of 3 failed" >&2
+            if [[ $attempt -lt 3 ]]; then sleep $(( attempt * 20 )); fi
+          done
+          echo "bun install failed after 3 attempts (GitHub API or registry unreachable)" >&2
+          exit 1
 
       - name: Resolve tag
         id: tag
@@ -749,7 +772,19 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        shell: bash
+        run: |
+          # Retry: package.json pins a GitHub git dependency, so install traffic
+          # hits api.github.com and an API 504 reds out this check for reasons
+          # unrelated to the diff. Not a flaky-test workaround. Backoff 20s/40s
+          # because an API outage outlasts a transient git fetch.
+          for attempt in 1 2 3; do
+            if bun install --frozen-lockfile; then exit 0; fi
+            echo "bun install attempt $attempt of 3 failed" >&2
+            if [[ $attempt -lt 3 ]]; then sleep $(( attempt * 20 )); fi
+          done
+          echo "bun install failed after 3 attempts (GitHub API or registry unreachable)" >&2
+          exit 1
 
       - name: Build the getwayland payload (syncs version to the release)
         working-directory: installer

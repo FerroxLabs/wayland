@@ -28,7 +28,11 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
-const { isDarwinDeveloperIdSigned, darwinSigningIdentifier } = require('./signDarwinStagedBinary');
+const {
+  assertDarwinDeveloperIdSigned,
+  isDarwinDeveloperIdSigned,
+  darwinSigningIdentifier,
+} = require('./signDarwinStagedBinary');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
@@ -168,8 +172,8 @@ function verifyConstitutionFsBundle(
   targetPlatform,
   targetArch,
   authority,
-  verifyDarwinSignature = (binaryPath) =>
-    execFileSync('/usr/bin/codesign', ['--verify', '--strict', binaryPath], { stdio: 'pipe' })
+  verifyDarwinSignature = (binaryPath) => assertDarwinDeveloperIdSigned(binaryPath),
+  requireDarwinSignature = false
 ) {
   if (targetPlatform === 'win32') return !fs.existsSync(bundleRoot);
   const runtime = `${targetPlatform}-${targetArch}`;
@@ -207,7 +211,18 @@ function verifyConstitutionFsBundle(
     return false;
   const identity = inspectExecutable(binaryPath);
   if (identity?.platform !== targetPlatform || identity?.arch !== targetArch) return false;
-  if (targetPlatform === 'darwin') {
+  // Signature policy matches wcore/wnano: only a build that HAD a Developer ID
+  // identity must ship a signed helper, and then it must be a real Ferrox Labs
+  // Developer ID signature (ad-hoc / linker-signed is exactly what Apple
+  // rejects at notarization). A build with no identity deliberately stages the
+  // helper unsigned - see signDarwinStagedBinary - and ld64 only linker-signs
+  // arm64, never x86_64, so demanding *any* signature here failed every
+  // darwin-x64 build that had no signing secrets. Byte identity is unaffected:
+  // the digest and size checks above still pin these exact bytes, and the app
+  // re-hashes the helper at RUNTIME against the digest embedded in app.asar -
+  // which is what actually authenticates them, since package-authority.json
+  // ships inside the package alongside the manifest.
+  if (targetPlatform === 'darwin' && requireDarwinSignature) {
     verifyDarwinSignature(binaryPath);
   }
   return true;
@@ -266,9 +281,12 @@ function findPackagedCandidates(outDir) {
       .filter(({ executablePath, identity }) => {
         if (!identity) return false;
         const name = path.basename(executablePath).toLowerCase();
+        // electron-builder writes `executableName` verbatim on every platform,
+        // so the Preview overlay's `Wayland Preview` keeps its SPACE on Linux
+        // too - it is not sanitized to `wayland-preview`.
         return identity.platform === 'win32'
           ? /^wayland(?: preview)?\.exe$/.test(name)
-          : /^wayland(?:-preview)?$/.test(name);
+          : /^wayland(?: preview)?$/.test(name);
       });
     for (const { executablePath, identity } of executables) {
       candidates.push({ appDir: dir, resourceDir, executablePath, ...identity });

@@ -34,6 +34,13 @@ declare global {
 // are still surfaced via electron-log + console.error directly above each call).
 type SentryMainModule = typeof import('@sentry/electron/main');
 let _sentry: SentryMainModule | undefined;
+// WHAT SETTING SENTRY_DSN ACTUALLY SWITCHES ON (#996): not just crash reports.
+// The Send Feedback flow uploads up to three days of application logs as a gzip
+// ATTACHMENT (FeedbackReportModal -> `hint.attachments`). Attachments ride the
+// event HINT, so `createScrubPii` below - a `beforeSend` hook, which only ever
+// sees the EVENT - cannot inspect them. The log bundle is therefore scrubbed at
+// COLLECTION time instead, in `@process/bridge/feedbackBridge`. If you add a DSN,
+// you are enabling that upload; do not move the bundle's redaction to send time.
 if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.trim()) {
   import('@sentry/electron/main')
     .then((Sentry) => {
@@ -92,7 +99,12 @@ import {
   handleDeepLinkUrl,
   PROTOCOL_SCHEME,
 } from './process/utils/deepLink';
-import { getPackagedReleaseIdentity, getReleaseTrack, getReleaseUpdateChannel } from './common/releaseTrack';
+import {
+  getPackagedExecutableName,
+  getPackagedReleaseIdentity,
+  getReleaseTrack,
+  getReleaseUpdateChannel,
+} from './common/releaseTrack';
 import {
   bindMainWindowReferences,
   showAndFocusMainWindow,
@@ -121,14 +133,7 @@ function packagedRuntimeReleaseIdentity(): {
 } {
   const releaseTrack = getReleaseTrack();
   const { appName: productName } = getPackagedReleaseIdentity(releaseTrack);
-  const executableName =
-    process.platform === 'win32'
-      ? `${productName}.exe`
-      : process.platform === 'linux'
-        ? releaseTrack === 'preview'
-          ? 'wayland-preview'
-          : 'wayland'
-        : productName;
+  const executableName = getPackagedExecutableName(releaseTrack, process.platform);
   return {
     releaseTrack,
     productName,

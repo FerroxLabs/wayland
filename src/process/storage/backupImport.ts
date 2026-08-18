@@ -10,6 +10,28 @@ export type ImportOptions = {
 };
 
 /**
+ * What an import actually did. A legacy file export only ever covers
+ * `conversations`, `attachments`, `config` and the optional encrypted
+ * `keys.json`; everything else the app owns (the primary database - which is
+ * where chats, projects and provider credentials live - Wayland Core state and
+ * external workspaces) is out of scope by design. That makes "the archive was
+ * read without error" a useless success signal: an archive taken from a modern
+ * install legitimately contains nothing this importer can apply. Callers must
+ * report `applied` to the user rather than assume a non-throwing import moved
+ * data (#1021).
+ */
+export type ImportReport = {
+  /** Top-level userData entries actually installed. Empty means nothing moved. */
+  applied: string[];
+  /** Archive top-level names present but outside the legacy restore scope. */
+  outOfScope: string[];
+  /** The archive carries encrypted keys that were skipped for want of a passphrase. */
+  keysSkippedNoPassphrase: boolean;
+  /** Files written into staging, keys included. */
+  fileCount: number;
+};
+
+/**
  * Decompression caps to defend against zip-bombs. A backup archive holding
  * conversations + attachments is large but bounded; these limits reject a
  * single entry or a total payload that is implausible for a real backup.
@@ -17,7 +39,24 @@ export type ImportOptions = {
 const MAX_ENTRY_BYTES = 256 * 1024 * 1024; // 256 MiB per entry
 const MAX_TOTAL_BYTES = 1024 * 1024 * 1024; // 1 GiB total
 
-/** AES-256-GCM decrypt a base64-encoded payload produced by backupExport. */
+/**
+ * Caps on the `outOfScope` diagnostic. Unlike the byte caps above these bound the
+ * REPLY rather than the extraction, because the byte caps cannot see this: an
+ * archive of zero-length entries decompresses to nothing while still carrying
+ * megabytes of entry NAMES. See the call site for the executed consequence.
+ */
+const MAX_OUT_OF_SCOPE_NAMES = 20;
+const MAX_OUT_OF_SCOPE_NAME_CHARS = 64;
+
+/**
+ * AES-256-GCM decrypt a base64-encoded payload produced by backupExport.
+ *
+ * A wrong passphrase surfaces as an authentication-tag failure from
+ * `decipher.final()`, and that is by far the likeliest way a restore fails - a
+ * typo. It is re-thrown under a fixed `BAD_PASSPHRASE:` code so the caller can
+ * tell the user which of their two inputs was wrong WITHOUT forwarding the
+ * underlying error, whose text can carry decrypted fragments and paths.
+ */
 function decryptBuffer(encoded: string, passphrase: string): Buffer {
   const buf = Buffer.from(encoded, 'base64');
   const salt = buf.subarray(0, 16);
@@ -27,7 +66,11 @@ function decryptBuffer(encoded: string, passphrase: string): Buffer {
   const key = crypto.scryptSync(passphrase, salt, 32);
   const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
   decipher.setAuthTag(tag);
-  return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  try {
+    return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  } catch {
+    throw new Error("BAD_PASSPHRASE: the archive's encrypted keys would not decrypt.");
+  }
 }
 
 /**
@@ -61,6 +104,27 @@ function writeFile(filePath: string, data: Buffer): void {
   fs.writeFileSync(filePath, data);
 }
 
+/**
+ * Remove a temporary tree, and NEVER throw doing it.
+ *
+ * Both cleanups here run in a `finally`, and a `finally` that throws REPLACES
+ * the successful return it was supposed to follow. So an undeletable temp file -
+ * an EACCES on a read-only directory, an EBUSY or EPERM on a Windows handle
+ * another process still holds - turned a restore that had already installed
+ * every file into a rejection carrying an `unlink` path. The caller then told
+ * the user the restore failed and offered them the safety archive, which would
+ * undo the good restore. Cleanup of our own scratch directory is best-effort by
+ * definition: leaving a stale temp dir behind is strictly better than lying
+ * about what happened to the user's data.
+ */
+function removeTempTree(target: string): void {
+  try {
+    fs.rmSync(target, { recursive: true, force: true });
+  } catch {
+    // Deliberately swallowed - see the doc comment above.
+  }
+}
+
 function validateLegacyManifest(value: unknown): void {
   if (!value || typeof value !== 'object') throw new Error('Backup manifest is missing or invalid.');
   const manifest = value as {
@@ -83,7 +147,7 @@ function validateLegacyManifest(value: unknown): void {
   }
 }
 
-function replaceFromStaging(root: string, stagingRoot: string): void {
+function replaceFromStaging(root: string, stagingRoot: string): string[] {
   const parent = path.dirname(root);
   const rollbackRoot = fs.mkdtempSync(path.join(parent, '.wayland-legacy-rollback-'));
   const relativeTargets = ['conversations', 'attachments', 'config', 'keys.json'];
@@ -119,11 +183,12 @@ function replaceFromStaging(root: string, stagingRoot: string): void {
     }
     throw error;
   } finally {
-    fs.rmSync(rollbackRoot, { recursive: true, force: true });
+    removeTempTree(rollbackRoot);
   }
+  return installed;
 }
 
-export async function backupImport(opts: ImportOptions): Promise<void> {
+export async function backupImport(opts: ImportOptions): Promise<ImportReport> {
   const raw = fs.readFileSync(opts.srcPath);
   const zip = await JSZip.loadAsync(raw);
 
@@ -144,6 +209,9 @@ export async function backupImport(opts: ImportOptions): Promise<void> {
 
   // Running total of decompressed bytes to bound zip-bomb amplification.
   let totalBytes = 0;
+  let fileCount = 0;
+  let keysSkippedNoPassphrase = false;
+  const outOfScope = new Set<string>();
   const accountBytes = (len: number): void => {
     if (len > MAX_ENTRY_BYTES) throw new Error('Backup entry exceeds the decompression limit.');
     totalBytes += len;
@@ -157,13 +225,17 @@ export async function backupImport(opts: ImportOptions): Promise<void> {
       // Handle encrypted keys. Containment still applies even though the
       // destination is fixed - the same hardening must guard every write.
       if (zipPath === 'keys.json.enc') {
-        if (!opts.passphrase) continue;
+        if (!opts.passphrase) {
+          keysSkippedNoPassphrase = true;
+          continue;
+        }
         const encoded = await file.async('string');
         const decrypted = decryptBuffer(encoded, opts.passphrase);
         accountBytes(decrypted.length);
         const keysDest = resolveContained(stagingRoot, 'keys.json');
         if (keysDest === null) continue;
         writeFile(keysDest, decrypted);
+        fileCount += 1;
         continue;
       }
 
@@ -174,7 +246,25 @@ export async function backupImport(opts: ImportOptions): Promise<void> {
       // entry cannot slip a foreign top directory past the allowlist.
       const normalized = zipPath.replace(/\\/g, '/');
       const topDir = normalized.split('/')[0];
-      if (!restoreDirs.has(topDir)) continue;
+      if (!restoreDirs.has(topDir)) {
+        // BOUNDED AT THE SOURCE, not in the renderer.
+        //
+        // These names are archive-controlled and this field crosses two
+        // boundaries: the IPC bridge, whose adapter SILENTLY DROPS any reply over
+        // 50 MB, and the HTTP route, which ships it to a browser. A zip of ~1000
+        // zero-byte entries under 60 KB-long top-level names is legal, and the
+        // zip-bomb BYTE caps never fire because nothing decompresses. Executed:
+        // 1000 entries produced a 57.2 MB reply, the adapter dropped it, and
+        // because `invoke` has no reject and no timeout the Restore button spun
+        // for the rest of the session with nothing said - the exact symptom the
+        // classified-result work exists to remove.
+        //
+        // Sanitising in the renderer is too late: the payload has already crossed.
+        // This field is a diagnostic hint, so a couple of dozen truncated names is
+        // all it was ever worth.
+        if (outOfScope.size < MAX_OUT_OF_SCOPE_NAMES) outOfScope.add(topDir.slice(0, MAX_OUT_OF_SCOPE_NAME_CHARS));
+        continue;
+      }
 
       // Restore files under known dirs, enforcing path containment.
       const destFull = resolveContained(stagingRoot, zipPath);
@@ -183,9 +273,16 @@ export async function backupImport(opts: ImportOptions): Promise<void> {
       const data = await file.async('nodebuffer');
       accountBytes(data.length);
       writeFile(destFull, data);
+      fileCount += 1;
     }
-    replaceFromStaging(root, stagingRoot);
+    const applied = replaceFromStaging(root, stagingRoot);
+    return {
+      applied,
+      outOfScope: [...outOfScope].sort(),
+      keysSkippedNoPassphrase,
+      fileCount,
+    };
   } finally {
-    fs.rmSync(stagingRoot, { recursive: true, force: true });
+    removeTempTree(stagingRoot);
   }
 }

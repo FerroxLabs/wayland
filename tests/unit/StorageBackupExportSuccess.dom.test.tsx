@@ -29,15 +29,16 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+const mockTranslate = vi.fn((key: string, _opts?: unknown) => key);
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en-US' } }),
+  useTranslation: () => ({ t: (key: string, opts?: unknown) => mockTranslate(key, opts), i18n: { language: 'en-US' } }),
 }));
 
 vi.mock('@arco-design/web-react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@arco-design/web-react')>();
   return {
     ...actual,
-    Message: { success: vi.fn(), error: vi.fn(), loading: vi.fn(() => vi.fn()) },
+    Message: { success: vi.fn(), error: vi.fn(), warning: vi.fn(), loading: vi.fn(() => vi.fn()) },
   };
 });
 
@@ -74,8 +75,16 @@ describe('BackupCard export feedback (F5)', () => {
     expect(Message.error).not.toHaveBeenCalled();
   });
 
+  /**
+   * This asserted a REJECTION, and the bridge cannot carry one: `provider` calls
+   * `fn(data).then(...)` with no `.catch`, and `invoke` is a `new Promise(resolve)`
+   * with no reject, so a throwing provider leaves the renderer's await unsettled
+   * forever. Executed: a resolving provider settles, a throwing one times out and
+   * emits an unhandledRejection in main. The provider therefore returns its
+   * failure, and this asserts the shape production actually emits (#1042 F1).
+   */
   it('still shows an error toast when export fails', async () => {
-    mockExportAll.mockRejectedValue(new Error('disk full'));
+    mockExportAll.mockResolvedValue({ ok: false, failed: true, errorCode: 'BACKUP_FAILED' });
     render(<BackupCard />);
 
     fireEvent.click(screen.getByText('settings.storagePage.exportAll'));
@@ -86,28 +95,341 @@ describe('BackupCard export feedback (F5)', () => {
     expect(Message.success).not.toHaveBeenCalled();
   });
 
+  // #1042 F2: ticking "include API keys" and leaving the passphrase blank made
+  // backupExport throw, which the bridge dropped, so the Export button span
+  // forever with nothing said. Name the actual mistake instead.
+  it('names the missing passphrase when an export needed one', async () => {
+    mockExportAll.mockResolvedValue({ ok: false, failed: true, errorCode: 'PASSPHRASE_REQUIRED' });
+    render(<BackupCard />);
+
+    fireEvent.click(screen.getByText('settings.storagePage.exportAll'));
+
+    await waitFor(() => {
+      expect(Message.error).toHaveBeenCalledWith('settings.storagePage.exportPassphraseRequired');
+    });
+    expect(Message.success).not.toHaveBeenCalled();
+  });
+
+  // #1042 F2, second half: the combination cannot succeed, so stop the click.
+  it('disables Export while API keys are requested with no passphrase', () => {
+    render(<BackupCard />);
+    const button = screen.getByText('settings.storagePage.exportAll').closest('button');
+
+    expect(button).not.toBeDisabled();
+    fireEvent.click(screen.getByRole('checkbox'));
+    expect(screen.getByText('settings.storagePage.exportAll').closest('button')).toBeDisabled();
+
+    fireEvent.change(screen.getByPlaceholderText('settings.storagePage.exportPassphrasePlaceholder'), {
+      target: { value: 'hunter2' },
+    });
+    expect(screen.getByText('settings.storagePage.exportAll').closest('button')).not.toBeDisabled();
+  });
+
+  /**
+   * Mutation M9 killer. On main `handleExport` had no `result.ok` check, so
+   * cancelling the native save dialog showed "Legacy file export created" over a
+   * file that was never written. Cancelling is not a failure either, so it must
+   * produce NO toast at all.
+   */
+  it('says nothing at all when the native save dialog is cancelled', async () => {
+    mockExportAll.mockResolvedValue({ ok: false });
+    render(<BackupCard />);
+
+    fireEvent.click(screen.getByText('settings.storagePage.exportAll'));
+
+    await waitFor(() => expect(mockExportAll).toHaveBeenCalled());
+    expect(Message.success).not.toHaveBeenCalled();
+    expect(Message.error).not.toHaveBeenCalled();
+    expect(Message.warning).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Desktop restore now goes through a confirmation dialog so the passphrase
+   * can be collected (#1021): without one the importer silently drops the
+   * archive's encrypted keys. Drive the dialog, then assert the outcome.
+   */
+  const confirmDesktopRestore = () => {
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    fireEvent.click(screen.getByText('settings.storagePage.restoreConfirm'));
+  };
+
+  /**
+   * #1042 F6. The private-network restriction is a fact about the WebUI route's
+   * operator gate, not about restore. On desktop the archive comes from a native
+   * file dialog, so showing it there reads to someone on an offline laptop as
+   * "this will not work for me".
+   */
+  it('does not show the WebUI network restriction in the desktop restore dialog', () => {
+    render(<BackupCard />);
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+
+    // Known positive: the dialog's own warning IS rendered, so a missing network
+    // clause is a real absence and not an unopened dialog.
+    expect(screen.getByText('settings.storagePage.restoreWarning')).toBeInTheDocument();
+    expect(screen.queryByText(/restoreWarningNetwork/)).toBeNull();
+  });
+
   it('reports the durable safety path after a desktop restore', async () => {
     mockImportBackup.mockResolvedValue({
       ok: true,
       safetyBackupPath: '/data/recovery/legacy-file-imports/pre-restore.zip',
+      applied: ['config', 'conversations'],
     });
     render(<BackupCard />);
 
-    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    confirmDesktopRestore();
 
     await waitFor(() => {
-      expect(Message.success).toHaveBeenCalledWith('settings.storagePage.restoreSuccessWithSafety');
+      expect(Message.success).toHaveBeenCalledWith('settings.storagePage.restoreAppliedWithSafety');
     });
   });
 
+  /**
+   * Same correction as the export case above: this asserted a rejection the
+   * bridge cannot transport, so it was green against a shape production never
+   * emits - which is precisely why the hang shipped invisible (#1042 F1).
+   */
   it('surfaces a desktop restore failure instead of silently swallowing it', async () => {
-    mockImportBackup.mockRejectedValue(new Error('disk full'));
+    mockImportBackup.mockResolvedValue({ ok: false, failed: true, errorCode: 'BACKUP_FAILED' });
     render(<BackupCard />);
 
-    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    confirmDesktopRestore();
 
     await waitFor(() => {
       expect(Message.error).toHaveBeenCalledWith('settings.storagePage.restoreFailed');
     });
+  });
+
+  /**
+   * #1042 F1, the reported symptom. `decipher.final()` throws on a mistyped
+   * passphrase; the bridge dropped that rejection, so the modal stayed open on
+   * its spinner with no toast and the card's Restore button spun for the rest of
+   * the session, even after Cancel. Name the wrong passphrase, and stop spinning.
+   */
+  it('names a mistyped backup passphrase, stops the spinner, and keeps the dialog open', async () => {
+    mockImportBackup.mockResolvedValue({ ok: false, failed: true, errorCode: 'BAD_PASSPHRASE' });
+    render(<BackupCard />);
+
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    const passphraseInput = screen.getByPlaceholderText(
+      'settings.storagePage.restorePassphraseHint'
+    ) as HTMLInputElement;
+    fireEvent.change(passphraseInput, { target: { value: 'hunter2-typo' } });
+    fireEvent.click(screen.getByText('settings.storagePage.restoreConfirm'));
+
+    await waitFor(() => {
+      expect(Message.error).toHaveBeenCalledWith('settings.storagePage.restoreBadPassphrase');
+    });
+    expect(Message.success).not.toHaveBeenCalled();
+    const restoreButton = screen.getByText('settings.storagePage.restore').closest('button');
+    await waitFor(() => expect(restoreButton?.className).not.toContain('arco-btn-loading'));
+
+    // A typo is retryable, so the dialog must stay open WITH what was typed still
+    // in it. Closing it and clearing the field is a poor answer to a typo, and it
+    // is the half of this fix that nothing was holding.
+    const stillOpen = document.querySelector(
+      'input[placeholder="settings.storagePage.restorePassphraseHint"]'
+    ) as HTMLInputElement | null;
+    expect(stillOpen).not.toBeNull();
+    expect(stillOpen?.value).toBe('hunter2-typo');
+  });
+
+  // Cancelling the native file picker is not a failure. It must stay silent, or
+  // every cancelled restore reads as an error.
+  it('says nothing at all when the restore file picker is cancelled', async () => {
+    mockImportBackup.mockResolvedValue({ ok: false });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => expect(mockImportBackup).toHaveBeenCalled());
+    expect(Message.success).not.toHaveBeenCalled();
+    expect(Message.error).not.toHaveBeenCalled();
+    expect(Message.warning).not.toHaveBeenCalled();
+  });
+
+  // #1021: the archive read and staged cleanly and moved nothing, because the
+  // reporter's chats, projects and keys all live in the primary database this
+  // legacy export never covers. Claiming success here is silent data loss.
+  it('never reports success when a desktop restore applied nothing', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      safetyBackupPath: '/data/recovery/legacy-file-imports/pre-restore.zip',
+      applied: [],
+      outOfScope: [],
+      keysSkippedNoPassphrase: false,
+      fileCount: 0,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.restoreNothingApplied' })
+      );
+    });
+    expect(Message.success).not.toHaveBeenCalled();
+  });
+
+  /**
+   * #1042 F4. `applied.length === 0` was tested BEFORE `keysSkippedNoPassphrase`,
+   * so a keys-only archive with no passphrase fell into restoreNothingApplied -
+   * whose copy says the archive held no legacy files and that API keys live
+   * somewhere a file export does not cover. Every clause of that is false here:
+   * the keys ARE in the archive, one passphrase away. That is the same class of
+   * harm as #1021 itself.
+   */
+  it('does not claim a keys-only archive was empty when no passphrase was given', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      safetyBackupPath: '/data/recovery/legacy-file-imports/pre-restore.zip',
+      applied: [],
+      outOfScope: [],
+      keysSkippedNoPassphrase: true,
+      fileCount: 0,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.restoreKeysOnlyNoPassphrase' })
+      );
+    });
+    expect(Message.warning).not.toHaveBeenCalledWith(
+      expect.objectContaining({ content: 'settings.storagePage.restoreNothingApplied' })
+    );
+    expect(Message.success).not.toHaveBeenCalled();
+  });
+
+  it('says so when the archive carried keys the restore could not unlock', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      applied: ['config'],
+      keysSkippedNoPassphrase: true,
+      fileCount: 1,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.restoreKeysSkipped' })
+      );
+    });
+    expect(Message.success).not.toHaveBeenCalled();
+  });
+
+  /**
+   * #1042 F8, first half: `outOfScope` was plumbed from the importer all the way
+   * to the renderer and never read by anything. The nothing-applied case is where
+   * naming what the archive DID hold is the only useful thing left to say - for a
+   * real Wayland archive the list is always empty, so this only fires for a
+   * foreign or hand-made zip, which is exactly when a bare "nothing was restored"
+   * sends the user away with no idea why.
+   */
+  it('names what an out-of-scope archive actually held', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      applied: [],
+      outOfScope: ['database', 'wcore'],
+      keysSkippedNoPassphrase: false,
+      fileCount: 3,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.restoreNothingAppliedOutOfScope' })
+      );
+    });
+    expect(Message.warning).not.toHaveBeenCalledWith(
+      expect.objectContaining({ content: 'settings.storagePage.restoreNothingApplied' })
+    );
+  });
+
+  // The archive's top-level names are text out of a zip the user may simply have
+  // been handed, and they end up inside a toast. A hostile or malformed archive
+  // must not be able to write a paragraph or a lookalike sentence into the UI.
+  it('caps and filters archive-supplied names before showing them', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      applied: [],
+      outOfScope: [`evil sentence ${'A'.repeat(300)}`, '', 'a', 'b', 'c', 'd', 'e', 'f'],
+      fileCount: 1,
+    });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => expect(Message.warning).toHaveBeenCalled());
+    const call = mockTranslate.mock.calls.find((c) => c[0] === 'settings.storagePage.restoreNothingAppliedOutOfScope');
+    expect(call, 'the out-of-scope message was never rendered').toBeDefined();
+    const items = (call![1] as { items: string }).items;
+    // Spaces are gone, no entry exceeds 32 characters, and at most five survive.
+    expect(items).not.toContain(' evil');
+    const parts = items.split(', ');
+    expect(parts).toHaveLength(5);
+    expect(Math.max(...parts.map((part) => part.length))).toBeLessThanOrEqual(32);
+  });
+
+  // #1042 F8, second half: `applied.join(', ')` dropped the importer's own
+  // on-disk directory names into twelve localized sentences, so every language
+  // read "Restored: config, conversations, keys.json".
+  it('does not put raw internal directory names into a localized sentence', async () => {
+    mockImportBackup.mockResolvedValue({ ok: true, applied: ['config', 'conversations', 'keys.json'] });
+    render(<BackupCard />);
+
+    confirmDesktopRestore();
+
+    await waitFor(() => expect(Message.success).toHaveBeenCalled());
+    const appliedCall = mockTranslate.mock.calls.find((c) => c[0] === 'settings.storagePage.restoreApplied');
+    expect(appliedCall, 'the restoreApplied message was never rendered').toBeDefined();
+    expect((appliedCall![1] as { items: string }).items).toBe(
+      'settings.storagePage.restoreItemConfig, settings.storagePage.restoreItemConversations, settings.storagePage.restoreItemKeys'
+    );
+  });
+
+  it('passes the entered passphrase through to the desktop importer', async () => {
+    mockImportBackup.mockResolvedValue({ ok: true, applied: ['config', 'keys.json'] });
+    render(<BackupCard />);
+
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+    fireEvent.change(screen.getByPlaceholderText('settings.storagePage.restorePassphraseHint'), {
+      target: { value: 'hunter2' },
+    });
+    fireEvent.click(screen.getByText('settings.storagePage.restoreConfirm'));
+
+    await waitFor(() => {
+      expect(mockImportBackup).toHaveBeenCalledWith({ passphrase: 'hunter2' });
+    });
+  });
+
+  // The export offers "include API keys" on an install that has no legacy keys
+  // file, so the archive it produces carries none. Saying "export created" and
+  // nothing else is how the reporter of #1021 ended up with a keyless archive
+  // they believed held their keys.
+  it('warns when an export was asked for keys it could not find', async () => {
+    mockExportAll.mockResolvedValue({
+      ok: true,
+      path: '/tmp/backup.zip',
+      includesKeys: false,
+      keysRequestedButAbsent: true,
+    });
+    render(<BackupCard />);
+
+    fireEvent.click(screen.getByText('settings.storagePage.exportAll'));
+
+    await waitFor(() => {
+      expect(Message.warning).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'settings.storagePage.exportNoKeys' })
+      );
+    });
+    expect(Message.success).not.toHaveBeenCalled();
   });
 });

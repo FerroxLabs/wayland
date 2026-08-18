@@ -28,11 +28,8 @@ import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import type {
-  WCoreInstallResult,
-  WCoreUpdateCheck,
-  WCoreUpdateProgress,
-} from '@/common/update/wcoreUpdateTypes';
+import type { WCoreInstallResult, WCoreUpdateCheck, WCoreUpdateProgress } from '@/common/update/wcoreUpdateTypes';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { WCORE_OVERRIDE_SUBDIR, detectWCore } from './binaryResolver';
 
 export type { WCoreInstallResult, WCoreUpdateCheck, WCoreUpdateProgress };
@@ -66,7 +63,11 @@ export function runtimeKey(platform: string = process.platform, arch: string = p
  * `wayland-core-v0.12.2-aarch64-apple-darwin.tar.gz`. Returns `null` for an
  * unsupported platform/arch.
  */
-export function assetNameFor(tag: string, platform: string = process.platform, arch: string = process.arch): string | null {
+export function assetNameFor(
+  tag: string,
+  platform: string = process.platform,
+  arch: string = process.arch
+): string | null {
   const a = ARCH_MAP[arch];
   const p = PLATFORM_MAP[platform];
   if (!a || !p) return null;
@@ -274,7 +275,17 @@ export async function installWCoreUpdate(
     const expected = parseChecksum(checksums, assetName);
     if (!expected) return { ok: false, error: `no checksum for ${assetName}` };
     const actual = await sha256File(archivePath);
-    if (actual !== expected) return { ok: false, error: 'checksum mismatch' };
+    if (actual !== expected) {
+      // #853: name the asset AND both digests. The bare 'checksum mismatch' this
+      // replaced gave a user nothing to act on - they could not tell a truncated
+      // download from a wrong asset from a tampered mirror, and had nothing to
+      // compare against the release's checksums.txt. Scrubbed on the way out for
+      // the same reason the landed half of #853 scrubs surfaced engine failures.
+      return {
+        ok: false,
+        error: redactCommandSecrets(`checksum mismatch for ${assetName}: expected sha256 ${expected}, got ${actual}`),
+      };
+    }
 
     // 3. Extract + locate the binary.
     onProgress?.({ phase: 'extracting' });

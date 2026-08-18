@@ -163,7 +163,12 @@ describe('Desktop recovery mutation epoch', () => {
     value.userDataRoot = userDataRoot;
 
     await expect(fingerprintDesktopRecoveryState(value)).rejects.toThrow('bounded content inventory');
-  }, 30_000);
+    // The fixture is 20,001 real files and the walker then opens a read stream
+    // for the 20,000 it accepts before the bound trips, so the cost is inherent
+    // to what is being asserted. A Windows runner measured 34.4s against the
+    // previous 30s budget, which reddened every required Unit Tests rollup for
+    // whichever pull request happened to draw a slow runner.
+  }, 180_000);
 });
 
 describe('Desktop-only production capture boundary', () => {

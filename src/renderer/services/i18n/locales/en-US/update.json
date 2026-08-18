@@ -35,6 +35,7 @@
     "metadataMissing": "Could not find signed update metadata (latest.yml) for this release. Refusing to open an unverified installer.",
     "assetNotInMetadata": "The downloaded file \"{{name}}\" is not listed in the signed update metadata. Refusing to open an unverified installer.",
     "checksumMismatch": "The downloaded update failed integrity verification (checksum mismatch) and was discarded. Do not run it. Please retry or download from the Releases page.",
+    "checksumDigests": "Expected SHA-512 {{expected}} but the downloaded file is {{actual}}.",
     "githubApiFailed": "Could not reach the update server (GitHub returned {{status}}). This is often a temporary rate limit. Please try again in a few minutes or check the Releases page.",
     "githubApiNotArray": "The update server returned an unexpected response. Please try again later or check the Releases page.",
     "githubApiTimeout": "The update check timed out. Please check your connection and try again.",

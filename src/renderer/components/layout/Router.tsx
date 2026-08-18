@@ -4,6 +4,7 @@ import { ErrorBoundary } from '@renderer/components/ErrorBoundary';
 import AppLoader from '@renderer/components/layout/AppLoader';
 import { useAuth } from '@renderer/hooks/context/AuthContext';
 import { TEAM_MODE_ENABLED } from '@/common/config/constants';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import { ToastProvider } from '@renderer/components/settings/shared/feedback/Toast';
 import OnboardingOverlay from '@renderer/components/onboarding/OnboardingOverlay';
 import ShellChoiceOverlay from '@renderer/components/shell/ShellChoice/ShellChoiceOverlay';
@@ -127,8 +128,32 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/settings/images' element={withRouteFallback(ImageGenSettings)} />
             <Route path='/settings/voice' element={withRouteFallback(VoiceSettings)} />
             {/* ENGINE - the Wayland Core configuration surface (its own destination).
-              It subsumes the former standalone `wcore` engine-status page. */}
-            <Route path='/settings/wcore-config' element={withRouteFallback(WCoreConfig)} />
+              It subsumes the former standalone `wcore` engine-status page.
+
+              #997: DESKTOP ONLY. The page drives the local engine's config.toml,
+              its profile directories and the in-app engine updater. Every
+              wcoreConfig WRITE and every local-identity READ behind it is
+              remote-denied in bridgeAllowlist.ts, so a paired WebUI reaching it
+              got a mostly-broken surface. Not an inert one: getOutputBudget
+              (#990) and the presence-only wcoreToolKeys.list are reachable by
+              design, and the latter really did populate the Services and Keys
+              pane. See DESKTOP_ONLY_SETTINGS_IDS for the full split.
+
+              This gate is CLIENT-SIDE and is therefore attack-surface and UX
+              reduction, NOT a security boundary - a remote browser can define
+              window.electronAPI before the bundle loads and render the page. It
+              gains nothing: src/process/webserver/adapter.ts applies the same
+              allowlist server-side, so a spoofer lands in the pre-#997 state.
+
+              The nav entry is dropped for the same runtime
+              (`visibleSettingsNavigationIds`); this guard closes the
+              deep-link/legacy-redirect door the rail no longer opens. */}
+            <Route
+              path='/settings/wcore-config'
+              element={
+                isElectronDesktop() ? withRouteFallback(WCoreConfig) : <Navigate to='/settings/general' replace />
+              }
+            />
             {/* Legacy redirect: old standalone route now lands inside Core. */}
             <Route path='/settings/wcore' element={<Navigate to='/settings/wcore-config' replace />} />
             {/* INTEGRATIONS */}

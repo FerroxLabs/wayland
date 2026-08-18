@@ -709,7 +709,7 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     );
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');
-    expect(JSON.stringify(res._json)).toContain('sk-[redacted]');
+    expect(JSON.stringify(res._json)).toContain('[redacted]');
   });
 
   it('reset restores the default and returns { ok } only - never the default body', async () => {
