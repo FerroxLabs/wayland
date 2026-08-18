@@ -439,6 +439,17 @@ jobs:
           # skip signing when CSC_LINK is unset; this also disables Keychain
           # autodiscovery on hosted runners.
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # The Windows counterpart. This workflow deliberately holds no Azure
+          # credentials, and electron-builder's Azure Trusted Signing falls
+          # through to an INTERACTIVE flow when they are absent - which hung
+          # every Windows target here for 107 minutes at "signing with Azure
+          # Trusted Signing", AFTER the build output was already written, until
+          # the job timeout killed it and reported CANCELLED. That is why this
+          # gate had never once completed a Windows build. Verification builds do
+          # not need signatures; the release path keeps its credentials and its
+          # refuse-to-ship-unsigned guard, and build-with-builder.js refuses this
+          # flag outright on a tag or on dev.
+          WAYLAND_SKIP_WINDOWS_SIGNING: '1'
         shell: bash
         run: |
           rm -rf "$PACKAGE_OUT_DIR"

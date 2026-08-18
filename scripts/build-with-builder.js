@@ -551,9 +551,40 @@ function cleanupWindowsPackOutput() {
   }
 }
 
+/**
+ * Decide whether this build may skip Windows Authenticode signing.
+ *
+ * `electron-builder.yml` declares `win.azureSignOptions` unconditionally and
+ * authenticates through the Azure EnvironmentCredential. With no
+ * AZURE_TENANT_ID / AZURE_CLIENT_ID / AZURE_CLIENT_SECRET the chain falls
+ * through to an INTERACTIVE flow and the build stops dead - 107 minutes of
+ * silence at "signing with Azure Trusted Signing" on a runner that had already
+ * written its output, killed by the job timeout and reported as CANCELLED. That
+ * is why `build-matrix.yml` had never completed a single Windows build.
+ *
+ * Verification builds do not need signatures, so they may opt out. A RELEASE
+ * build may not, ever: this throws on a tag and on `dev`, the two refs
+ * `build-and-release.yml` fires on, so the flag cannot silently unsign a shipped
+ * artifact even if it leaks into the release environment.
+ *
+ * @returns {boolean} true when the caller should disable Windows signing.
+ */
+function resolveWindowsSigningOptOut(env = process.env) {
+  if (env.WAYLAND_SKIP_WINDOWS_SIGNING !== '1') return false;
+  const ref = env.GITHUB_REF || '';
+  if (ref.startsWith('refs/tags/') || ref === 'refs/heads/dev') {
+    throw new Error(
+      `WAYLAND_SKIP_WINDOWS_SIGNING=1 is set on a RELEASE build (${ref}). ` +
+        'Refusing to produce an unsigned Windows artifact.'
+    );
+  }
+  return true;
+}
+
 if (require.main !== module) {
   module.exports = {
     buildWithDmgRetry,
+    resolveWindowsSigningOptOut,
     cleanGeneratedResourceRoots,
     hasFreshTargetDmg,
     prepareOptionalHubResources,
@@ -1093,7 +1124,28 @@ try {
     cleanupWindowsPackOutput();
   }
 
-  const builderCommand = `bunx electron-builder ${BUILDER_CONFIG_ARG} ${builderArgs} ${archFlag} ${nsisInclude} ${publishArg}`;
+  // Windows signing opt-out for BUILD-VERIFICATION runs only.
+  //
+  // `electron-builder.yml` declares `win.azureSignOptions` unconditionally, and
+  // electron-builder authenticates through the Azure EnvironmentCredential. When
+  // AZURE_TENANT_ID / AZURE_CLIENT_ID / AZURE_CLIENT_SECRET are absent the
+  // credential chain falls through to an INTERACTIVE flow and the build stops
+  // dead - observed as 107 minutes of silence at "signing with Azure Trusted
+  // Signing" on a runner that had already produced its output, killed by the job
+  // timeout and reported as CANCELLED. That is why `build-matrix.yml` had never
+  // completed a Windows build.
+  //
+  // This is the Windows counterpart of the macOS `CSC_IDENTITY_AUTO_DISCOVERY`
+  // opt-out those workflows already set. It is refused on a release build, so it
+  // cannot silently unsign a shipped artifact: the release path supplies real
+  // credentials and fails closed if the secret is empty on a tag.
+  const skipWindowsSigning = resolveWindowsSigningOptOut();
+  if (skipWindowsSigning) {
+    console.log('⚠️  WAYLAND_SKIP_WINDOWS_SIGNING=1 - BUILD VERIFICATION ONLY, this artifact must never ship.');
+  }
+  const winSignArg = skipWindowsSigning && isWindowsBuild ? ' --config.win.azureSignOptions=null' : '';
+
+  const builderCommand = `bunx electron-builder ${BUILDER_CONFIG_ARG} ${builderArgs} ${archFlag} ${nsisInclude} ${publishArg}${winSignArg}`;
   const previousPackages = snapshotPackagedTargets(BUILDER_OUTPUT_DIR);
   const previousDmgs = snapshotDmgArtifacts(BUILDER_OUTPUT_DIR);
   try {
