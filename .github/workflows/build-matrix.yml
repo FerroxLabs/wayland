@@ -293,8 +293,14 @@ jobs:
           WAYLANDMCP_DEPLOY_KEY: ${{ secrets.WAYLANDMCP_DEPLOY_KEY }}
         run: |
           set -euo pipefail
-          key="$RUNNER_TEMP/waylandmcp_deploy_key"
+          # $HOME, not $RUNNER_TEMP. Both name a real directory, but RUNNER_TEMP
+          # holds a WINDOWS path and ssh eats its backslashes as escapes when it
+          # is interpolated into GIT_SSH_COMMAND, so the key argument arrives as
+          # "C:a_temp/..." and ssh falls back to no identity. In Git bash $HOME
+          # is a POSIX path and survives the same interpolation intact.
+          key="$HOME/.ssh/waylandmcp_deploy_key"
           trap 'rm -f "$key"' EXIT
+          mkdir -p "$HOME/.ssh"
           printf '%s\n' "$WAYLANDMCP_DEPLOY_KEY" > "$key"
           chmod 600 "$key"
           export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
