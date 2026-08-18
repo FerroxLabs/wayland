@@ -20,13 +20,24 @@
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-const { mockGet, mockIsCliAvailable } = vi.hoisted(() => ({
+const { mockGet, mockIsCliAvailable, mockResolveWNanoBinary } = vi.hoisted(() => ({
   mockGet: vi.fn(),
   mockIsCliAvailable: vi.fn(),
+  mockResolveWNanoBinary: vi.fn(),
 }));
 
 vi.mock('@process/agent/acp/AcpDetector', () => ({
   acpDetector: { isCliAvailable: mockIsCliAvailable },
+}));
+// `resolveWNanoBinary` probes the REAL filesystem (userData override, bundled
+// resource, dev resources) and runs BEFORE the PATH probe below, so leaving it
+// unmocked made every assertion here depend on whether the machine happened to
+// have Nano installed: green in CI, three failures on any developer box with a
+// copy at ~/.local/bin/wayland-nano. The default is null - "no verified binary
+// present" - which is the precondition the npm-fallback cases are about; the
+// case that DOES have one sets it explicitly.
+vi.mock('@process/agent/wnano/binaryResolver', () => ({
+  resolveWNanoBinary: mockResolveWNanoBinary,
 }));
 vi.mock('@process/services/cron/CronBusyGuard', () => ({
   cronBusyGuard: { setProcessing: vi.fn(), isProcessing: vi.fn(() => false) },
@@ -106,6 +117,8 @@ describe('resolveBuiltinBackendConfig — npm fallback for builtins', () => {
     mockGet.mockReset();
     mockGet.mockResolvedValue(undefined);
     mockIsCliAvailable.mockReset();
+    mockResolveWNanoBinary.mockReset();
+    mockResolveWNanoBinary.mockReturnValue(null);
   });
 
   it('falls back to the pinned npm package when wayland-nano is NOT on PATH', async () => {
@@ -126,6 +139,30 @@ describe('resolveBuiltinBackendConfig — npm fallback for builtins', () => {
 
     expect(res.cliPath).toBe('wayland-nano');
     expect(res.cliPath).not.toContain('npx');
+  });
+
+  it('prefers a verified bundled binary over BOTH the npm pin and a bare PATH name', async () => {
+    // The ordering this file exists to pin, and the branch the unmocked
+    // filesystem was silently exercising: a resolved binary outranks the npm
+    // fallback even when PATH cannot serve the bare command.
+    mockIsCliAvailable.mockReturnValue(false);
+    mockResolveWNanoBinary.mockReturnValue('/opt/wayland/resources/wayland-nano');
+
+    const res = await resolveBuiltin('wnano')({ backend: 'wnano' });
+
+    expect(res.cliPath).toBe('/opt/wayland/resources/wayland-nano');
+    expect(res.cliPath).not.toContain('npx');
+  });
+
+  it('quotes a resolved binary path that contains whitespace', async () => {
+    // macOS userData lives under "Application Support"; an unquoted path would
+    // be split into two tokens by the spawn config.
+    mockIsCliAvailable.mockReturnValue(false);
+    mockResolveWNanoBinary.mockReturnValue('/Users/x/Application Support/wayland-nano');
+
+    const res = await resolveBuiltin('wnano')({ backend: 'wnano' });
+
+    expect(res.cliPath).toBe('"/Users/x/Application Support/wayland-nano"');
   });
 
   it('never overrides an explicitly configured cliPath, and does not even probe PATH', async () => {
