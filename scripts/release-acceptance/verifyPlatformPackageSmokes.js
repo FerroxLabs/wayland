@@ -203,7 +203,12 @@ function verifySemanticRuntime(report, platform, arch) {
     'platform smoke electron evidence'
   );
   safeRelativePath(electron.expectedRendererPath, 'platform smoke expected renderer path');
-  hexDigest(electron.markerSha256, 'platform smoke marker digest');
+  // `sha256:`-prefixed, not bare. platform-package-smoke.mjs builds this one with
+  // sha256Bytes(), which prefixes, while executableSha256 and appAsarSha256 come from
+  // sha256File(), which does not. Validating this field as bare hex could therefore
+  // never accept a genuine report on any platform - it failed all six updater legs
+  // identically the first time this validator was ever reached.
+  digest(electron.markerSha256, 'platform smoke marker digest');
   if (
     electron.booted !== true ||
     electron.rendererReady !== true ||

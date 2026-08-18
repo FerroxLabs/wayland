@@ -73,7 +73,12 @@ function report(target = 'linux-x64') {
       booted: true,
       rendererReady: true,
       expectedRendererPath: 'resources/app.asar/out/renderer/index.html',
-      markerSha256: '7'.repeat(64),
+      // `sha256:`-prefixed, because platform-package-smoke.mjs builds this field with
+      // sha256Bytes(), which prefixes - unlike executableSha256/appAsarSha256, which come
+      // from sha256File() and are bare. This fixture used the bare form, so it agreed with
+      // a validator that no real report could ever satisfy, and the whole updater observer
+      // failed on all six targets the first time it was reached.
+      markerSha256: `sha256:${'7'.repeat(64)}`,
       readyState: 'complete',
       title: 'Wayland',
       url: 'file:///resources/app.asar/out/renderer/index.html',
