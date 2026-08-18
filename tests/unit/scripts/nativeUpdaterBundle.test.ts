@@ -5,6 +5,7 @@
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
+import { assertRejectionAttributableToCorruption } from '../../../scripts/release-acceptance/produceNativeUpdaterObservation.mjs';
 import crypto from 'node:crypto';
 import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -231,5 +232,65 @@ describe('expiresAtFor', () => {
     const { expiresAtFor } = await import('../../../scripts/release-acceptance/produceNativeUpdaterObservation.mjs');
 
     expect(() => expiresAtFor('not-a-date')).toThrow(/parsable instant/);
+  });
+});
+
+/**
+ * The corrupted-installer step is the only thing in this observation that proves
+ * the packaged app refuses tampered bytes. It used to accept ANY throw as proof,
+ * so an out-of-disk or missing-extractor failure would turn the gate green having
+ * proved nothing.
+ *
+ * Classifying the error cannot close that hole: `execFileSync` reports a nonzero
+ * exit as `status` with `code` undefined, and this file's `fail()` throws a plain
+ * Error with neither - so the failures that matter carry nothing to match on.
+ * The guard is a positive control instead.
+ */
+describe('corrupted-installer rejection is attributable', () => {
+  const request = {
+    candidateArtifact: { path: '/candidate.dmg' },
+    platform: 'darwin',
+    arch: 'arm64',
+  } as never;
+
+  it('accepts the rejection when the intact candidate still prepares', () => {
+    const calls: string[] = [];
+    const prepare = (artifact: string) => {
+      calls.push(artifact);
+      return {} as never;
+    };
+    expect(() =>
+      assertRejectionAttributableToCorruption(prepare, request, '/work', {})
+    ).not.toThrow();
+    expect(calls).toEqual(['/candidate.dmg']);
+  });
+
+  it('voids the observation when the intact candidate also fails', () => {
+    const prepare = () => {
+      throw new Error('No space left on device');
+    };
+    expect(() => assertRejectionAttributableToCorruption(prepare, request, '/work', {})).toThrow(
+      /not attributable to the corruption/
+    );
+  });
+
+  it('voids the observation for a plain fail() with no errno at all', () => {
+    const prepare = () => {
+      throw new Error('[updater-observation] snapshot helper missing');
+    };
+    expect(() => assertRejectionAttributableToCorruption(prepare, request, '/work', {})).toThrow(
+      /not attributable to the corruption/
+    );
+  });
+
+  it('voids the observation for a nonzero exit, which carries status but no code', () => {
+    const prepare = () => {
+      const error = new Error('Command failed: hdiutil attach') as Error & { status?: number };
+      error.status = 1;
+      throw error;
+    };
+    expect(() => assertRejectionAttributableToCorruption(prepare, request, '/work', {})).toThrow(
+      /not attributable to the corruption/
+    );
   });
 });

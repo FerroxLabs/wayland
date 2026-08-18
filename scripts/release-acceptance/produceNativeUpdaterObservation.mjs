@@ -408,35 +408,35 @@ function hashSupportedData(root) {
   return `sha256:${hash.digest('hex')}`;
 }
 
-// A bare `catch {}` around the corrupted-installer attempt would let ANY throw
-// stand in as proof that the corruption was rejected. An out-of-disk, permission
-// or file-descriptor failure during that step would then read as "corruption
-// correctly rejected" and turn this gate green while proving nothing - the exact
-// failure this observer exists to catch.
+// A bare `catch {}` around the corrupted-installer attempt lets ANY throw stand in
+// as proof that the corruption was rejected, so an out-of-disk, missing-helper or
+// crashed-extractor failure turns this gate green having proved nothing.
 //
-// The uncorrupted artifact has already been prepared successfully in the same
-// work root moments earlier, so the environment is known good. Anything that
-// still looks like an environment failure rather than a rejection of these bytes
-// is therefore a real error, and is re-raised instead of being counted as a pass.
-const ENVIRONMENT_FAILURE_CODES = new Set([
-  'ENOSPC',
-  'EACCES',
-  'EPERM',
-  'EROFS',
-  'EDQUOT',
-  'EMFILE',
-  'ENFILE',
-  'ENOMEM',
-]);
-
-function assertRejectedForCorruption(error) {
-  const code = error && error.code;
-  if (ENVIRONMENT_FAILURE_CODES.has(code))
-    fail(
-      `corrupted candidate installer was not rejected on its bytes: the attempt failed with the environment error ${code} (${
-        (error && error.message) || 'no message'
-      })`
+// Classifying the error cannot fix it: `execFileSync` reports a nonzero exit as
+// `status` with `code` left undefined, and this file's own `fail()` throws a plain
+// Error with neither. Almost every real environment failure therefore arrives
+// carrying nothing to match on.
+//
+// So the check is a POSITIVE CONTROL instead: after the corrupted artifact is
+// refused, the SAME preparation of the INTACT candidate must succeed, here, now,
+// in this work root. If it does, the refusal is attributable to the corrupted
+// bytes. If it does not, the environment is broken and this observation is void.
+export function assertRejectionAttributableToCorruption(prepare, request, workRoot, dependencies) {
+  try {
+    prepare(
+      request.candidateArtifact.path,
+      request.platform,
+      request.arch,
+      'candidate',
+      path.join(workRoot, 'corrupt-control'),
+      dependencies
     );
+  } catch (error) {
+    fail(
+      'corrupted-installer rejection is not attributable to the corruption: preparing the INTACT ' +
+        `candidate in the same work root also failed (${(error && error.message) || 'no message'})`
+    );
+  }
 }
 
 function corruptInstaller(source, destination) {
@@ -651,7 +651,7 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       corruptedRejection = error;
     }
     if (!corruptedRejection) fail('deliberately corrupted candidate installer was accepted');
-    assertRejectedForCorruption(corruptedRejection);
+    assertRejectionAttributableToCorruption(prepare, request, workRoot, dependencies);
     if (candidateContentDigest(initial) !== initialInstalledDigest)
       fail('failed update changed the installed initial payload');
     if (hashSupportedData(liveState) !== supportedDataSetSha256) fail('failed update changed supported state');
