@@ -967,10 +967,24 @@ function descendantsFromSnapshot(rootPid, snapshot) {
     children.push(record);
     childrenByParent.set(record.parentPid, children);
   }
+  // A process table is NOT guaranteed to be a tree, so this walk must not assume
+  // one. Windows recycles PIDs aggressively, and a surviving child whose parent
+  // slot has been reused can report a ppid that is itself inside this subtree -
+  // a cycle. Without the visited set below the queue refills forever and the
+  // only thing that stops it is `descendants.push` throwing
+  // "RangeError: Invalid array length" once the array reaches 2^32-1, which is
+  // what took down the windows-x64 leg of the v0.12.1 release AFTER a clean
+  // install and build. Marking a PID before enqueueing it makes the walk
+  // terminate on any graph, and bounds the result at one entry per process.
+  // rootPid is pre-seeded so a self-parent or a child pointing back at the root
+  // cannot re-enter either.
   const descendants = [];
+  const seen = new Set([rootPid]);
   const queue = [...(childrenByParent.get(rootPid) || [])];
   while (queue.length) {
     const record = queue.shift();
+    if (seen.has(record.pid)) continue;
+    seen.add(record.pid);
     descendants.push(record);
     queue.push(...(childrenByParent.get(record.pid) || []));
   }
