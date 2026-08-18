@@ -32,6 +32,13 @@ import type { IMcpServer } from '@/common/config/storage';
 import type { ResolvedJsRuntime } from '@process/utils/jsRuntime';
 
 const PACKAGED_BUN = '/Applications/Wayland.app/Contents/Resources/bundled-bun/darwin-arm64/bun';
+/**
+ * The portable runtime name Core resolves off PATH. Windows keeps the `.exe`
+ * suffix because `toRestartSafeBundledRuntimeCommand` returns win32 commands
+ * unchanged: install paths are stable there and there is no AppImage remount
+ * to defend against.
+ */
+const PORTABLE_BUN = process.platform === 'win32' ? 'bun.exe' : 'bun';
 const DEV_ELECTRON = '/repo/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron';
 
 const h = vi.hoisted(() => ({
@@ -264,14 +271,18 @@ describe.each([
     expect(npx).toBeDefined();
     // applyBuiltinMcpRuntime deliberately does NOT pre-resolve npx, so
     // WCoreMcpAgent keeps its own choice of the portable form.
-    expect(toWCoreConfig(npx!)).toEqual({ transport: 'stdio', command: 'bun', args: ['x', '--bun', 'some-mcp'] });
+    expect(toWCoreConfig(npx!)).toEqual({
+      transport: 'stdio',
+      command: PORTABLE_BUN,
+      args: ['x', '--bun', 'some-mcp'],
+    });
   });
 
   it('never publishes a core builtin into the wcore launch config', async () => {
     const published = await startManager();
     expect(published.map((s) => s.name)).not.toContain('wayland-search-skills');
     // The publication targeted the launch-local profile, not the global config.
-    expect(h.configPaths[0]).toContain('/launch/wayland-home');
+    expect(h.configPaths[0].replace(/\\/g, '/')).toContain('/launch/wayland-home');
     // ...and said so, which is what licenses the absolute bundled-runtime path
     // asserted above: this file is rewritten on every launch (#1056).
     expect(h.launchLocalFlags[0]).toBe(true);
