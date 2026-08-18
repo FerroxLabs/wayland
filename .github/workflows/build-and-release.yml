@@ -716,6 +716,19 @@ jobs:
   # Publish only after BOTH the macOS and Windows install gates pass. Keeping
   # publish in its own job (instead of inside the macOS gate) makes the draft ->
   # published flip depend on a green Windows signature too.
+  #
+  # `-rehearsal-` is the ONLY thing this job excludes beyond `-dev-`, and that is
+  # what makes this pipeline testable. Every acceptance job - both observers, the
+  # assembler and the final trust-root acceptance - runs only on a tag, so until
+  # now a defect in them could be discovered only by cutting a REAL release and
+  # burning two hours of six-platform matrix, which is why five separate blockers
+  # accumulated in code that had never executed. A `vX.Y.Z-rehearsal-N` tag runs
+  # the entire chain end to end - dispatch, OIDC, attestation, all six targets -
+  # and stops here, so it can prove the pipeline without shipping anything.
+  #
+  # It is deliberately NOT the `-dev-` marker: create-tag pushes `vX.Y.Z-dev-<sha>`
+  # on every dev-branch build, and admitting those would fire a second full build
+  # plus the whole acceptance matrix on every dev push.
   publish-release:
     name: Publish Release (both gates passed)
     runs-on: ubuntu-latest
@@ -725,7 +738,9 @@ jobs:
       needs.release-smoke-gate.result == 'success' &&
       needs.release-smoke-gate-windows.result == 'success' &&
       needs.final-release-acceptance.result == 'success' &&
-      startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+      startsWith(github.ref, 'refs/tags/') &&
+      !contains(github.ref, '-dev-') &&
+      !contains(github.ref, '-rehearsal-')
     steps:
       - name: Resolve tag
         id: tag
