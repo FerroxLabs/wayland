@@ -553,6 +553,7 @@
     "addConnector": "Add a connector",
     "manageConnectors": "Manage connectors",
     "toolNudgeOver": "{{count}} tools enabled · {{model}} caps at {{cap}}. Scope servers for this chat or switch models.",
+    "toolNudgeAdvisory": "{{count}} tools enabled. Long tool lists degrade tool selection on most models — scope servers for this chat or switch models.",
     "toolNudgeNear": "{{count}} of {{cap}} tools · {{model}}. Near the limit, so scope servers or switch models before adding more.",
     "toolNudgeModelFallback": "this model"
   },

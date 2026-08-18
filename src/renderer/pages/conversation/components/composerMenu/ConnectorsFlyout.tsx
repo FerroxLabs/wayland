@@ -33,11 +33,23 @@ type Props = {
   /** Open the MCP Library to manage connectors. */
   onManageConnectors: () => void;
   /**
-   * The target model's tool-array cap (#348). When provided and the probe-based
-   * inventory estimate is near/over it, a count-vs-cap nudge is shown so the user can scope
-   * servers or switch models. Absent (no known cap / staged composer) hides it.
+   * The target model's tool-array ceiling (#348). When provided and the
+   * probe-based inventory estimate is near/over it, a count-vs-cap nudge is shown
+   * so the user can scope servers or switch models. Absent (staged composer)
+   * hides it.
    */
   modelCap?: number;
+  /**
+   * #998 — whether `modelCap` is a PUBLISHED vendor limit (true) or the shared
+   * advisory rule of thumb (false/absent). It selects the copy, and the copy is
+   * a factual claim: only a documented cap may say the named model "caps at N",
+   * because only then does exceeding it actually fail the request. An advisory
+   * ceiling gets non-attributed wording, and warns only once the count is
+   * genuinely past it — the 85% "near" band on a made-up number would be a
+   * permanent banner for anyone with a large inventory, which is how users are
+   * trained to ignore warnings.
+   */
+  modelCapDocumented?: boolean;
   /** Display name of the target model, used in the nudge text. */
   modelLabel?: string;
   /**
@@ -105,6 +117,7 @@ const ConnectorsFlyout: React.FC<Props> = ({
   onAddConnector,
   onManageConnectors,
   modelCap,
+  modelCapDocumented,
   modelLabel,
   onScopeChange,
   activeServerIds,
@@ -116,7 +129,12 @@ const ConnectorsFlyout: React.FC<Props> = ({
   // session receipt. `ok` stays silent to avoid noise.
   const toolCount = countEnabledMcpTools(servers);
   const budget = modelCap ? toolBudgetStatus(toolCount, modelCap) : 'ok';
-  const showNudge = modelCap !== undefined && budget !== 'ok';
+  // #998: a documented vendor cap keeps the near+over bands and the "caps at N"
+  // copy, because exceeding it really does fail the request. An advisory ceiling
+  // only speaks once the count is actually past it, and never attributes a limit
+  // to the model.
+  const documentedCap = modelCapDocumented === true;
+  const showNudge = modelCap !== undefined && (documentedCap ? budget !== 'ok' : budget === 'over');
 
   // Per-conversation scoping (#348): in live mode (onScopeChange given) the
   // toggle reflects "active for THIS chat" over the enabled servers; in staged
@@ -147,28 +165,37 @@ const ConnectorsFlyout: React.FC<Props> = ({
 
       <div className={styles.flyoutScroll}>
         {showNudge && (
-          <div className={`${styles.toolNudge} ${budget === 'over' ? styles.toolNudgeOver : ''}`} role='status'>
+          <div
+            className={`${styles.toolNudge} ${documentedCap && budget === 'over' ? styles.toolNudgeOver : ''}`}
+            role='status'
+          >
             <AlertTriangle size={14} strokeWidth={2} className={styles.toolNudgeIc} />
             <span>
-              {budget === 'over'
-                ? t('conversation.composerMenu.toolNudgeOver', {
+              {!documentedCap
+                ? t('conversation.composerMenu.toolNudgeAdvisory', {
                     defaultValue:
-                      '{{count}} tools enabled · {{model}} caps at {{cap}}. Scope servers for this chat or switch models.',
+                      '{{count}} tools enabled. Long tool lists degrade tool selection on most models — scope servers for this chat or switch models.',
                     count: toolCount,
-                    cap: modelCap,
-                    model:
-                      modelLabel ??
-                      t('conversation.composerMenu.toolNudgeModelFallback', { defaultValue: 'this model' }),
                   })
-                : t('conversation.composerMenu.toolNudgeNear', {
-                    defaultValue:
-                      '{{count}} of {{cap}} tools · {{model}}. Near the limit — scope servers or switch models before adding more.',
-                    count: toolCount,
-                    cap: modelCap,
-                    model:
-                      modelLabel ??
-                      t('conversation.composerMenu.toolNudgeModelFallback', { defaultValue: 'this model' }),
-                  })}
+                : budget === 'over'
+                  ? t('conversation.composerMenu.toolNudgeOver', {
+                      defaultValue:
+                        '{{count}} tools enabled · {{model}} caps at {{cap}}. Scope servers for this chat or switch models.',
+                      count: toolCount,
+                      cap: modelCap,
+                      model:
+                        modelLabel ??
+                        t('conversation.composerMenu.toolNudgeModelFallback', { defaultValue: 'this model' }),
+                    })
+                  : t('conversation.composerMenu.toolNudgeNear', {
+                      defaultValue:
+                        '{{count}} of {{cap}} tools · {{model}}. Near the limit — scope servers or switch models before adding more.',
+                      count: toolCount,
+                      cap: modelCap,
+                      model:
+                        modelLabel ??
+                        t('conversation.composerMenu.toolNudgeModelFallback', { defaultValue: 'this model' }),
+                    })}
             </span>
           </div>
         )}

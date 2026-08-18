@@ -77,6 +77,20 @@ export type UiMcpServerConfig = {
   type?: 'sse' | 'http';
   headers?: Record<string, string>;
   description?: string;
+  /**
+   * #998 — per-server tool allowlist handed to aioncli-core's `MCPServerConfig`.
+   * The runtime filters discovered tools through it (`mcp-client.ts` isEnabled:
+   * a tool survives only when `includeTools` is absent or names it), so this is
+   * the Gemini backend's REAL enforcement of the MCP Library's per-tool switch,
+   * not a display hint. Absent => every tool (the migration-free default); `[]`
+   * => none, matching `IMcpServer.allowedTools` exactly.
+   *
+   * `[]` is faithful at THIS layer but must not reach a launch: a server that
+   * discovers zero tools and zero prompts makes aioncli-core throw and mark the
+   * connector disconnected. `getMcpServers` therefore drops empty-allowlist
+   * connectors before they are emitted - see the filter there.
+   */
+  includeTools?: string[];
 };
 
 /**
@@ -89,12 +103,23 @@ export type UiMcpServerConfig = {
 export function buildGeminiStdioMcpConfig(
   transport: Extract<IMcpServer['transport'], { type: 'stdio' }>,
   description?: string,
+  // allowedTools stays the THIRD parameter: it is the only one any existing
+  // caller passes positionally, so #1006's tests keep their exact call shape.
+  allowedTools?: readonly string[],
   libraryEntryId?: string
 ): UiMcpServerConfig {
   const { command, args, env } = resolveSessionMcpStdioSpawn(transport.command, transport.args || [], {
     libraryEntryId,
   });
-  return { command, args, env: mergeMcpSpawnEnv(transport.env, env), description };
+  return {
+    command,
+    args,
+    env: mergeMcpSpawnEnv(transport.env, env),
+    description,
+    // #998: carry the per-tool switch into the runtime. `undefined` must stay
+    // omitted - an empty `includeTools` means "no tools", not "all tools".
+    ...(allowedTools === undefined ? {} : { includeTools: [...allowedTools] }),
+  };
 }
 
 const sortedRecord = (value?: Record<string, string>): Array<[string, string]> =>
@@ -617,7 +642,20 @@ export class GeminiAgentManager extends BaseAgentManager<
         .filter(
           (server: IMcpServer) =>
             server.id !== BUILTIN_CONCIERGE_DIAG_ID || isConciergeAssistant(this.presetAssistantId)
-        );
+        )
+        // #998: `allowedTools: []` ("Disable all") means this connector
+        // contributes nothing, so drop it from the launch entirely rather than
+        // declaring it with `includeTools: []`. aioncli-core's
+        // `connectAndDiscover` THROWS "No prompts or tools found on the server."
+        // when discovery yields zero prompts AND zero tools, and its catch emits
+        // error feedback and marks the server DISCONNECTED - so emitting it would
+        // turn "tools off" into a red, broken-looking connector plus an error
+        // toast. Omitting it leaves the connector installed and enabled while
+        // contributing no tools this session, which is what the user asked for.
+        // It is also dropped BEFORE `beginMcpSession`, so the session's expected
+        // receipts match what is actually launched instead of waiting forever on
+        // a publication that can never arrive.
+        .filter((server: IMcpServer) => server.allowedTools === undefined || server.allowedTools.length > 0);
 
       // Match the ACP/Core launch paths: hosted OAuth connectors must enter the
       // worker with a current bearer, not the stale header saved at install.
@@ -635,6 +673,7 @@ export class GeminiAgentManager extends BaseAgentManager<
           mcpConfig[server.name] = buildGeminiStdioMcpConfig(
             server.transport,
             server.description,
+            server.allowedTools,
             server.libraryEntryId
           );
         } else if (
@@ -649,6 +688,8 @@ export class GeminiAgentManager extends BaseAgentManager<
             type,
             headers: server.transport.headers || {},
             description: server.description,
+            // #998: hosted connectors honour the per-tool switch too.
+            ...(server.allowedTools === undefined ? {} : { includeTools: [...server.allowedTools] }),
           };
         }
         if (mcpConfig[server.name]) this.publishMcpServer(server.name);

@@ -79,8 +79,15 @@ export function shouldInjectSessionMcpServer(server: IMcpServer): boolean {
  * Builtins (image-gen, skill-search) always inject — they're infrastructure,
  * not user-scopable. A user server passes when the chat has no selection
  * (`activeServerIds === undefined` ⇒ all enabled servers) or the selection
- * includes it. `[]` scopes out every user server. The user's per-server
- * `allowedTools` still trims tools within whatever servers stay active.
+ * includes it. `[]` scopes out every user server.
+ *
+ * Scoping here is SERVER-level only. The user's per-server `allowedTools` does
+ * NOT trim tools on this path: neither the ACP `session/new` `mcpServers` array
+ * nor Wayland Core's launch profile has a per-tool field, so whatever server
+ * survives this predicate reaches the engine with its FULL tool inventory
+ * (#998). The MCP Library states that plainly rather than implying otherwise;
+ * `TOOL_ALLOWLIST_ENFORCING_BACKENDS` in `@/common/mcp` is the single source of
+ * truth for which backends really do enforce it (codex, gemini).
  */
 export function isServerActiveForSession(server: IMcpServer, activeServerIds?: readonly string[]): boolean {
   if (server.builtin === true) return true;
@@ -88,6 +95,16 @@ export function isServerActiveForSession(server: IMcpServer, activeServerIds?: r
   return activeServerIds.includes(server.id);
 }
 
+/**
+ * Build the `session/new` `mcpServers` array for an ACP backend.
+ *
+ * #998 — SERVER-level selection only. The ACP protocol's MCP server descriptor
+ * carries name + transport and has no per-tool field, so a server that reaches
+ * here is registered with every tool it publishes; the MCP Library's per-tool
+ * switches are not enforced on this path. Codex is the exception and does NOT
+ * rely on this array for scoping - its `enabled_tools` are written into the
+ * generated `config.toml` by `buildCodexMcpServerTable`.
+ */
 export function buildAcpSessionMcpServers(
   mcpServers: IMcpServer[] | undefined | null,
   capabilities: AcpMcpCapabilities,
@@ -181,6 +198,13 @@ export function buildAcpSessionMcpServers(
  * connector whose raw name needs sanitizing (e.g. `com.slack/slack-mcp`) would
  * be injected under the raw name while config.toml holds `com.slack-slack-mcp` -
  * the dedup would miss and the engine would register it twice (#478).
+ *
+ * #998 - no per-tool allowlist is emitted, because the engine has nowhere to
+ * put one: `add_mcp_server` carries name/transport/command/args/env only, and
+ * Core's `[mcp.servers.*]` table and profile `mcp_servers = [...]` are both
+ * server-level. A user's per-tool switches are therefore NOT enforced on the
+ * Wayland Core backend; see `TOOL_ALLOWLIST_ENFORCING_BACKENDS` in
+ * `@/common/mcp` and the notice the MCP Library shows because of it.
  */
 export function buildWCoreUserStdioMcpServers(
   mcpServers: IMcpServer[] | undefined | null,
@@ -215,6 +239,10 @@ export function buildWCoreUserStdioMcpServers(
  * Core launch. Core loads these from trusted startup config; the companion
  * per-session profile allowlist prevents globally-published connectors that are
  * off for this chat from leaking into the session.
+ *
+ * That profile allowlist is SERVER-level (`mcp_servers = [...]`). Per-tool
+ * switches are not enforced on this path - see the note on
+ * {@link buildWCoreUserStdioMcpServers} (#998).
  */
 export function buildWCoreSessionMcpServers(
   mcpServers: IMcpServer[] | undefined | null,

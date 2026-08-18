@@ -94,6 +94,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "これらのスイッチが有効になるのは {{engines}} のみです。Wayland Core や ACP エージェントなど他のエンジンにはコネクタ全体が渡されるため、ここで無効にしたツールも呼び出せます。すべてから削除するにはコネクタ自体をオフにしてください。",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "setupHeading": "Setup guide",

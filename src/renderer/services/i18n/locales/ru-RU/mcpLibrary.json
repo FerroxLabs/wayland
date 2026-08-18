@@ -94,6 +94,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "Эти переключатели действуют в {{engines}}. Другие движки - включая Wayland Core и ACP-агентов - получают коннектор целиком, поэтому отключённый здесь инструмент остаётся доступным для вызова. Чтобы убрать его везде, отключите сам коннектор.",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "setupHeading": "Setup guide",

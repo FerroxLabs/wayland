@@ -94,6 +94,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "Ces interrupteurs sont appliqués sur {{engines}}. Les autres moteurs - dont Wayland Core et les agents ACP - reçoivent le connecteur entier : un outil désactivé ici reste appelable là-bas. Désactivez le connecteur lui-même pour le retirer partout.",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "setupHeading": "Setup guide",
