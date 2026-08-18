@@ -50,6 +50,8 @@ vi.mock('@process/services/database', () => ({
 }));
 
 import { TeammateManager, computeUsageDelta } from '@process/team/TeammateManager';
+import { buildCrashMessage } from '@process/acp/session/AcpSession';
+import type { DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { teamEventBus } from '@process/team/teamEventBus';
 import type { TeamAgent } from '@process/team/types';
 import type { Mailbox } from '@process/team/Mailbox';
@@ -1894,6 +1896,56 @@ describe('TeammateManager', () => {
 
       // Agent still exists
       expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')).toBeDefined();
+
+      mgr.dispose();
+    });
+
+    // #1023 REGRESSION LOCK. Deleting the CRASH_MARKER_TRANSPORT_CLOSE arm of the
+    // error matcher survived the whole suite: the transport banner matches neither
+    // the process-exit phrase nor 'Session not found', so without that arm a #1020
+    // transport drop never routes to handleAgentCrash and the teammate is left
+    // wedged. The banner text comes from the REAL buildCrashMessage, so a reword of
+    // the production string cannot silently drift away from the matcher.
+    it('#1023 routes a REAL transport-drop banner (null code, null signal) to the crash flow', async () => {
+      const leader = makeAgent({ slotId: 'slot-lead', conversationId: 'conv-lead', role: 'leader' });
+      const member = makeAgent({
+        slotId: 'slot-member',
+        conversationId: 'conv-member',
+        role: 'teammate',
+        agentName: 'Worker',
+        conversationType: 'acp',
+      });
+      const { mgr, mailbox, workerTaskManager } = makeTeammateManager([leader, member]);
+
+      const drop: DisconnectInfo = {
+        reason: 'connection_close',
+        exitCode: null,
+        signal: null,
+        stderr: '',
+        unexpectedDuringPrompt: true,
+      };
+      const banner = buildCrashMessage(drop)!;
+
+      // Guard the guard: if the banner ever matched one of the other substrings
+      // this test would pass without exercising the transport arm at all.
+      expect(banner).not.toContain('process exited unexpectedly');
+      expect(banner).not.toContain('Session not found');
+
+      teamEventBus.emit('responseStream', {
+        type: 'error',
+        conversation_id: 'conv-member',
+        msg_id: 'transport-drop-1',
+        data: banner,
+      });
+
+      await new Promise((r) => setTimeout(r, 100));
+
+      // handleAgentCrash ran: testament to the leader, member failed, process killed.
+      expect(mailbox.write).toHaveBeenCalledWith(
+        expect.objectContaining({ toAgentId: 'slot-lead', fromAgentId: 'slot-member' })
+      );
+      expect(mgr.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('failed');
+      expect(workerTaskManager.kill).toHaveBeenCalledWith('conv-member');
 
       mgr.dispose();
     });

@@ -41,11 +41,31 @@ import type {
 } from '@process/acp/infra/IAcpClient';
 import { NdjsonTransport } from '@process/acp/infra/NdjsonTransport';
 import { gracefulShutdown, waitForExit, waitForSpawn } from '@process/acp/infra/processUtils';
+import { redactSecrets } from '@process/utils/secretRedaction';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
 import type { ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs';
 
 const STARTUP_STDERR_MAX = 8192;
+
+/**
+ * How much of the stderr ring's trailing non-whitespace run is held back from the
+ * collection-site scrub.
+ *
+ * A credential can straddle two stderr chunks. Scrubbing the buffer the moment it
+ * overflows would mask the half that has arrived, replacing its ANCHOR with
+ * `[redacted]` and orphaning the half that arrives next - which no later scrub can
+ * match, because the thing that identified it is gone. Measured through the real
+ * path: 51 characters of a live-shaped Anthropic key reached the banner that way.
+ *
+ * So the trailing run is left raw for the next chunk to complete. That is safe
+ * because it sits at the ring's TAIL, which the cap keeps rather than cuts, and
+ * because a partial with its PREFIX still intact is redactable
+ * (`redactSecrets('sk-ant-api03-AbCdEfGhIjK')` masks) - it is only the anchorless
+ * REMAINDER that is invisible to the scrubber. A run longer than this is a blob, not
+ * a straddled credential, so it is scrubbed normally.
+ */
+const STDERR_CHUNK_SPLIT_CARRY_MAX = 256;
 
 /**
  * How long to wait for a child that had ALREADY exited when the lifecycle
@@ -407,13 +427,86 @@ export class ProcessAcpClient implements AcpClient {
       console.error(`[ACP ${this.options.backend} STDERR]:`, chunk);
       this.stderrBuffer += chunk;
       if (this.stderrBuffer.length > STARTUP_STDERR_MAX) {
-        this.stderrBuffer = this.stderrBuffer.slice(-STARTUP_STDERR_MAX);
+        // SCRUB, then cap on a RECORD boundary (#1023). #1020 routes this ring into the
+        // chat transcript through `buildCrashMessage`, which makes the ring's truncation a
+        // disclosure path: `redactSecrets` only matches a WHOLE credential, so any cut
+        // through one leaves a remainder that every downstream scrub misses.
+        //
+        // The order is the fix. Scrubbing HERE, before the cap, means a credential is
+        // masked while it is still whole and the cap can only ever cut through
+        // `[redacted]` or through text the scrubber already declined to match. Capping
+        // first and scrubbing at read time - the order this used to use - cannot be made
+        // safe by any choice of cut, because the scrubber's anchor is not always attached
+        // to the secret: `Bearer <token>`, `Authorization: <token>` and `api_key = <value>`
+        // each keep the anchor in a SEPARATE whitespace-delimited word. A cut landing
+        // inside the anchor left the secret whole and un-anchored, and dropping the leading
+        // non-whitespace run then removed the anchor rather than the secret. Executed
+        // through the real path, all four of those shapes leaked into the banner.
+        //
+        // The remaining boundary cut is no longer a security measure - the scrub above is -
+        // but it is still worth doing, because a ring that begins mid-record reads as
+        // corrupt. A boundary is `\r` as well as `\n`: bare-CR output (progress bars,
+        // old-Mac line endings) has real record boundaries with no `\n` anywhere, and
+        // taking whichever comes FIRST also keeps more diagnostics when a `\r` record sits
+        // in front of a `\n` one.
+        //
+        // `cutRing || sliced` keeps the scrubbed window whenever the cut would empty it.
+        // A single record larger than the ring - a minified stack frame, a JSON config
+        // echo, a base64 dump - puts its only boundary at the very last character, so
+        // `slice(boundary + 1)` returned `''` and the user got a banner with no `Agent
+        // stderr:` section at all. Measured: 21KB in one line gave `ringLen=0` where main
+        // delivered 8192 characters including the real error. Falling back is safe here
+        // only because the scrub already ran.
+        const trailingRun = /\S*$/.exec(this.stderrBuffer)?.[0] ?? '';
+        const carry = trailingRun.length <= STDERR_CHUNK_SPLIT_CARRY_MAX ? trailingRun : '';
+        const scrubbed = redactSecrets(this.stderrBuffer.slice(0, this.stderrBuffer.length - carry.length)) + carry;
+        const sliced = scrubbed.slice(-STARTUP_STDERR_MAX);
+        const boundary = sliced.search(/[\r\n]/);
+        const cutRing = boundary >= 0 ? sliced.slice(boundary + 1) : sliced.replace(/^\S+/, '');
+        this.stderrBuffer = cutRing || sliced;
       }
     });
   }
 
   // ─── Internals: 4-signal lifecycle detection ───────────────
 
+  /**
+   * KNOWN PRODUCT LIMITATION, WINDOWS: a live agent whose transport dies is NOT
+   * detected here (#1020 follow-up).
+   *
+   * Three of the four signals below are transport signals - `pipe_close` fires on the
+   * child's stdout 'close', and `connection_close` (attached in start()) fires when the
+   * SDK aborts on that readable's 'end'. On win32 neither ever fires while the child is
+   * still running. Executed on a real Windows box, with a known positive in the same
+   * run:
+   *
+   *   child does `process.stdout.end()`, stays alive -> parent sees nothing
+   *   child does `fs.closeSync(1)`, stays alive      -> parent sees nothing
+   *   child really exits (control)                   -> parent sees
+   *      stdout 'end', stdout 'close', 'exit', 'close'
+   *
+   * The same probe on darwin reports stdout 'end' + 'close' with the child still alive
+   * for both of the first two cases, so this is a platform difference, not a bug in the
+   * probe.
+   *
+   * What still works on Windows: a genuinely crashed or killed agent IS reported,
+   * because process death closes the pipe (the control above). What does not: an agent
+   * process that lives on but stops speaking ACP - the #1020 customer shape - produces
+   * no disconnect at all on win32, so the session neither drops the client nor shows the
+   * transport-close banner, and the in-flight prompt hangs until the caller gives up.
+   * Detecting it needs a signal that does not depend on the pipe (an ACP-level
+   * request/heartbeat timeout); a failing write does not help, because the parent writes
+   * to the child's STDIN, which is still open.
+   *
+   * Two effects on Windows even when the child DOES die: `connection_close` reliably
+   * wins the first-write-wins race below, so `exitCode` and `signal` reach
+   * `buildCrashMessage` as null and the banner never carries an exit code from this
+   * path; the CRLF stderr ring is preserved either way.
+   *
+   * The tests that drive the live-child shape are `skipIf(win32)` for this reason -
+   * `tests/unit/acpDisconnectTransport.test.ts` and
+   * `tests/integration/process/acp/session/AcpSession.disconnectBanner.test.ts`.
+   */
   private attachLifecycleObservers(child: ChildProcess): void {
     child.once('exit', (code, signal) => {
       this.recordAgentExit('process_exit', code, signal);
@@ -448,27 +541,50 @@ export class ProcessAcpClient implements AcpClient {
       console.warn(`[ACP ${this.options.backend}] Process exited with code ${exitCode} [reason: ${reason}]`);
     }
 
+    const unexpectedDuringPrompt = !this.closing && this.hasActivePrompt;
+
     this._lastExit = {
       exitCode,
       signal: signal ? String(signal) : null,
       reason,
       stderr: this.stderrBuffer,
-      unexpectedDuringPrompt: !this.closing && this.hasActivePrompt,
+      unexpectedDuringPrompt,
     };
 
-    // Reject all pending SDK requests with our own error type
+    // Reject the pending SDK requests, then notify the disconnect handler - both
+    // SYNCHRONOUSLY, in that order.
+    //
+    // That order is load-bearing, and it is not what it looks like. A rejection's
+    // continuation is a microtask, so `AcpSession.onDisconnect` still runs BEFORE
+    // `PromptExecutor.handlePromptError` sees the rejected prompt. That is exactly
+    // what arms `handlePromptError`'s "someone else owns recovery" guard
+    // (`status !== 'prompting'`): `onDisconnect` has already moved the session on.
+    //
+    // Put ANY await, timer or deferral between these two statements and the
+    // ordering inverts: `handlePromptError` runs first, takes its retryable
+    // branch, emits its own raw banner, flushes the queued follow-up at the dead
+    // client (#774), and the session-level #1020 banner becomes dead code. Do not
+    // add one.
+    //
+    // The tradeoff this buys is accepted deliberately: because nothing waits for
+    // the child's 'exit' event, a genuine fast crash whose exit is still a
+    // millisecond away is reported as a transport close rather than a confirmed
+    // exit. That is the correct direction. Reporting "no exit code or signal was
+    // reported" is honest about what was observed; asserting "process exited" with
+    // no code and no signal is the #1020 bug itself. The banner stops there and does
+    // not claim the child is probably alive, because for a fast crash it is not.
     const error = new AgentDisconnectedError(reason, exitCode, signal ? String(signal) : null, {
       outputAlreadyEmitted: this.hasActivePrompt,
     });
     this.rejectPendingRequests(error);
 
-    // Notify disconnect handler
     if (this.disconnectHandler) {
       this.disconnectHandler({
         reason,
         exitCode,
         signal: signal ? String(signal) : null,
         stderr: this.stderrBuffer,
+        unexpectedDuringPrompt,
       });
     }
   }
