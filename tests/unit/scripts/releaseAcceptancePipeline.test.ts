@@ -188,7 +188,18 @@ describe('protected release acceptance pipeline', () => {
     expect(observe.env.ACTIONS_ID_TOKEN_REQUEST_URL).toBe('');
     expect(observeText).toContain('platform-package-smoke.mjs');
     expect(observeText).toContain('.github/workflows/build-and-release.yml');
-    expect(observeText).toContain('in_progress:null|completed:success');
+    // The producer is IN FLIGHT while this observer runs - it dispatched this job and
+    // is waiting on it - and GitHub reports that as queued/waiting/pending/requested as
+    // well as in_progress. Admitting only in_progress made this gate a race on runner
+    // availability: three of six platform legs and five of six updater legs failed on
+    // `queued:null` in the first real rehearsal, with nothing wrong with the candidate.
+    // Both halves of the replacement are asserted, so the widening cannot silently
+    // become "admit anything".
+    // observeText is a JSON.stringify of the job, so quotes arrive escaped; match on the
+    // quote-free failure messages instead.
+    expect(observeText).toContain('producer_status');
+    expect(observeText).toContain('refusing to observe it');
+    expect(observeText).toContain('producer run reports conclusion');
     expect(observeText).not.toContain('attest-build-provenance');
     expect(observeText).not.toContain('createProtectedPlatformObservation.js');
 

@@ -198,11 +198,28 @@ jobs:
           test "$(printf '%s' "$producer" | jq -r .run_attempt)" = "$PRODUCER_RUN_ATTEMPT"
           test "$(printf '%s' "$producer" | jq -r .head_sha)" = "$EXPECTED_COMMIT"
           test "$(printf '%s' "$producer" | jq -r .path)" = ".github/workflows/build-and-release.yml"
-          producer_state="$(printf '%s' "$producer" | jq -r '[.status, (.conclusion // "null")] | join(":")')"
-          case "$producer_state" in
-            in_progress:null|completed:success) ;;
-            *) echo "producer run is not an admissible exact build state: $producer_state" >&2; exit 1 ;;
-          esac
+          # The producer dispatches this observer and then WAITS on it, so while this
+          # job runs the producer is still in flight by definition. GitHub reports that
+          # in-flight state as queued, waiting, pending or requested as well as
+          # in_progress, depending on whether its remaining jobs have runners yet.
+          # Admitting only in_progress therefore made this gate a race: an observer leg
+          # that happened to start while the producer sat in `queued` failed for no
+          # reason at all. Measured on run 32153073848 - three of six platform legs and
+          # five of six updater legs died on exactly that, while the legs that started
+          # during an in_progress window passed.
+          #
+          # The property that actually matters is unchanged: never observe a producer
+          # that has already CONCLUDED as anything other than success.
+          producer_status="$(printf '%s' "$producer" | jq -r .status)"
+          producer_conclusion="$(printf '%s' "$producer" | jq -r '.conclusion // "null"')"
+          if [[ "$producer_status" == "completed" && "$producer_conclusion" != "success" ]]; then
+            echo "producer run concluded $producer_conclusion; refusing to observe it" >&2
+            exit 1
+          fi
+          if [[ "$producer_status" != "completed" && "$producer_conclusion" != "null" ]]; then
+            echo "producer run reports conclusion $producer_conclusion while $producer_status" >&2
+            exit 1
+          fi
           gh run download "$PRODUCER_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT_NAME" --dir payload
 
       - name: Independently observe installed native package
@@ -238,8 +255,13 @@ jobs:
           mkdir -p releases/initial releases/rollback
           gh release download v0.11.18 --repo "$GITHUB_REPOSITORY" --pattern "$INITIAL_ASSET" --dir releases/initial
           gh release download v0.11.8 --repo "$GITHUB_REPOSITORY" --pattern "$ROLLBACK_ASSET" --dir releases/rollback
-          test -f "releases/initial/$INITIAL_ASSET"
-          test -f "releases/rollback/$ROLLBACK_ASSET"
+          for expected in "releases/initial/$INITIAL_ASSET" "releases/rollback/$ROLLBACK_ASSET"; do
+            if [[ ! -f "$expected" ]]; then
+              echo "baseline asset $expected was not downloaded" >&2
+              find releases -type f -print >&2
+              exit 1
+            fi
+          done
 
       - name: Observe initial failure rollback and re-upgrade from protected code
         shell: bash
@@ -255,10 +277,22 @@ jobs:
           test -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
           test -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"
           candidate_version="$(jq -er .version candidate/package.json)"
+          # These were bare `test` calls. Under `set -e` they exit 1 in silence, so a
+          # failing leg produced NO output at all and the reason had to be guessed from
+          # the surrounding log - the same blindness that made the packaged-resource
+          # failures unreadable. Say which assertion failed and show the evidence.
           installer_count="$(find payload -maxdepth 1 -type f -iname "*.$INSTALLER_EXTENSION" -print | wc -l | tr -d ' ')"
-          test "$installer_count" -eq 1
+          if [[ "$installer_count" -ne 1 ]]; then
+            echo "expected exactly one .$INSTALLER_EXTENSION in payload, found $installer_count:" >&2
+            find payload -maxdepth 1 -type f -print >&2
+            exit 1
+          fi
           installer="$(find payload -maxdepth 1 -type f -iname "*.$INSTALLER_EXTENSION" -print)"
-          test -f "payload/platform-package-smoke-$TARGET.json"
+          if [[ ! -f "payload/platform-package-smoke-$TARGET.json" ]]; then
+            echo "payload/platform-package-smoke-$TARGET.json is absent; payload holds:" >&2
+            find payload -maxdepth 2 -print >&2
+            exit 1
+          fi
           nonce="$(openssl rand -hex 32)"
           node trust/scripts/release-acceptance/produceNativeUpdaterObservation.mjs \
             --target "$TARGET" \

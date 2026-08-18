@@ -173,11 +173,28 @@ jobs:
           test "$actual_attempt" = "$PRODUCER_RUN_ATTEMPT"
           test "$(printf '%s' "$producer" | jq -r .head_sha)" = "$EXPECTED_COMMIT"
           test "$(printf '%s' "$producer" | jq -r .path)" = ".github/workflows/build-and-release.yml"
-          producer_state="$(printf '%s' "$producer" | jq -r '[.status, (.conclusion // "null")] | join(":")')"
-          case "$producer_state" in
-            in_progress:null|completed:success) ;;
-            *) echo "producer run is not an admissible exact build state: $producer_state" >&2; exit 1 ;;
-          esac
+          # The producer dispatches this observer and then WAITS on it, so while this
+          # job runs the producer is still in flight by definition. GitHub reports that
+          # in-flight state as queued, waiting, pending or requested as well as
+          # in_progress, depending on whether its remaining jobs have runners yet.
+          # Admitting only in_progress therefore made this gate a race: an observer leg
+          # that happened to start while the producer sat in `queued` failed for no
+          # reason at all. Measured on run 32153073848 - three of six platform legs and
+          # five of six updater legs died on exactly that, while the legs that started
+          # during an in_progress window passed.
+          #
+          # The property that actually matters is unchanged: never observe a producer
+          # that has already CONCLUDED as anything other than success.
+          producer_status="$(printf '%s' "$producer" | jq -r .status)"
+          producer_conclusion="$(printf '%s' "$producer" | jq -r '.conclusion // "null"')"
+          if [[ "$producer_status" == "completed" && "$producer_conclusion" != "success" ]]; then
+            echo "producer run concluded $producer_conclusion; refusing to observe it" >&2
+            exit 1
+          fi
+          if [[ "$producer_status" != "completed" && "$producer_conclusion" != "null" ]]; then
+            echo "producer run reports conclusion $producer_conclusion while $producer_status" >&2
+            exit 1
+          fi
           gh run download "$PRODUCER_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT_NAME" --dir payload
 
       - name: Independently observe installed native package
