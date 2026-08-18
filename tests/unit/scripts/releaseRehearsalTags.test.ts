@@ -72,3 +72,39 @@ describe('release rehearsal tags', () => {
     }
   });
 });
+
+/**
+ * Every precondition asserted here is a blocker this pipeline has already hit, and
+ * each was checkable in seconds but only surfaced hours into a six-platform matrix.
+ */
+describe('release preflight', () => {
+  it('runs before anything is built', () => {
+    expect(workflow).toContain('release-preflight:');
+    const build = workflow.slice(workflow.indexOf('\n  build-pipeline:'));
+    expect(build).toContain('needs: [release-preflight]');
+  });
+
+  it('asserts both observers are registered on the default branch', () => {
+    // `gh workflow run <file>` resolves by filename against the DEFAULT branch, so
+    // an observer absent from main 404s the dispatch mid-release.
+    expect(workflow).toContain('protected-platform-package-observer.yml protected-updater-journey-observer.yml');
+    expect(workflow).toContain('actions/workflows/$wf');
+  });
+
+  it('asserts the trust root pin still matches the protected verifier branch', () => {
+    // A stale pin fails `gh attestation verify --signer-digest` for all six targets
+    // at the very last step, after the whole matrix has been spent.
+    expect(workflow).toContain('git/ref/heads/release-trust-v1');
+    expect(workflow).toContain('every attestation would be rejected');
+  });
+
+  it('asserts the pinned engine release actually carries every required asset', () => {
+    expect(workflow).toContain('DEFAULT_WCORE_VERSION');
+    expect(workflow).toContain('is missing $asset');
+  });
+
+  it('lets dev-branch builds through even though preflight is tag-only', () => {
+    const build = workflow.slice(workflow.indexOf('\n  build-pipeline:'));
+    expect(build).toContain("needs.release-preflight.result == 'skipped'");
+  });
+});

@@ -18,14 +18,107 @@ env:
   WAYLANDMCP_REF: '29a253804ccd3d7f1eb385cf610b0dc27a130478'
 
 jobs:
+  # Everything this job checks is a blocker this pipeline has ALREADY hit, and every
+  # one of them was discoverable in seconds but only ever surfaced two hours into a
+  # six-platform matrix - or worse, after the release had been cut. A stale trust
+  # root fails EVERY attestation at the very end; an observer workflow missing from
+  # the default branch 404s the dispatch, because that is where GitHub resolves
+  # workflow_dispatch by filename; a moved engine pin makes the acceptance assembler
+  # demand asset names that no download can match.
+  #
+  # It runs first and the build depends on it, so the answer to "are we ready?"
+  # arrives in a minute instead of after the whole matrix has been spent.
+  release-preflight:
+    name: Release Preflight
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Assert every release precondition
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRUST_ROOT_SHA: ${{ vars.WAYLAND_RELEASE_TRUST_ROOT_SHA }}
+        run: |
+          set -euo pipefail
+          failed=0
+          note() { echo "PREFLIGHT FAIL: $*" >&2; failed=1; }
+
+          # 1. The observers must be registered on the DEFAULT branch, or the
+          #    producer's `gh workflow run <file>` dies with a 404 mid-release.
+          for wf in protected-platform-package-observer.yml protected-updater-journey-observer.yml; do
+            if ! gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$wf" >/dev/null 2>&1; then
+              note "workflow $wf is not registered on the default branch; dispatch would 404"
+            fi
+          done
+
+          # 2. The trust root pin must match the protected verifier branch. A stale
+          #    pin fails `gh attestation verify --signer-digest` for all six targets
+          #    at the LAST step of the pipeline.
+          if [[ -z "${TRUST_ROOT_SHA:-}" ]]; then
+            note "WAYLAND_RELEASE_TRUST_ROOT_SHA is unset"
+          else
+            head="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/release-trust-v1" --jq .object.sha 2>/dev/null || true)"
+            if [[ -z "$head" ]]; then
+              note "release-trust-v1 does not exist"
+            elif [[ "$head" != "$TRUST_ROOT_SHA" ]]; then
+              note "trust root pin $TRUST_ROOT_SHA != release-trust-v1 head $head; every attestation would be rejected"
+            fi
+          fi
+
+          # 3. The engine tag is read from the bundle authority, and every asset the
+          #    acceptance assembler demands must actually exist upstream.
+          core_tag="$(node -p "require('./scripts/prepareWaylandCore').DEFAULT_WCORE_VERSION")"
+          if [[ ! "$core_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            note "engine pin is not a release tag: '$core_tag'"
+          else
+            available="$(gh release view "$core_tag" --repo FerroxLabs/wayland-core --json assets --jq '.assets[].name' 2>/dev/null || true)"
+            if [[ -z "$available" ]]; then
+              note "wayland-core $core_tag has no downloadable release"
+            else
+              while read -r asset; do
+                [[ -z "$asset" ]] && continue
+                grep -qxF "$asset" <<<"$available" || note "wayland-core $core_tag is missing $asset"
+              done < <(node -e "
+                const p=require('./scripts/prepareWaylandCore');
+                const m=require('./scripts/release-acceptance/verifyHardeningMatrix');
+                for (const t of m.TARGETS) { const [pl,ar]=t.split('-'); console.log(p.getAssetName(pl,ar,p.DEFAULT_WCORE_VERSION)); }
+              ")
+            fi
+          fi
+
+          if [[ "$failed" -ne 0 ]]; then
+            echo "Preflight refused the release. Nothing was built." >&2
+            exit 1
+          fi
+          echo "Preflight passed: observers registered, trust root current, engine $core_tag complete."
+
   build-pipeline:
     name: Build Pipeline
+    needs: [release-preflight]
     uses: ./.github/workflows/_build-reusable.yml
     permissions:
       actions: read
       contents: read
-    # dev 分支或正式 tag 触发构建（排除 -dev- tag，避免重复构建）
-    if: github.ref == 'refs/heads/dev' || (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-'))
+    # The dev branch, or a real tag (dev-branch auto tags are excluded to avoid a
+    # duplicate build). `always()` plus the explicit skipped check is required
+    # because preflight only runs for tags, and a skipped dependency would
+    # otherwise propagate and cancel every dev-branch build.
+    if: |
+      always() &&
+      (needs.release-preflight.result == 'success' || needs.release-preflight.result == 'skipped') &&
+      (github.ref == 'refs/heads/dev' || (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')))
     with:
       matrix: >-
         {"include":[
