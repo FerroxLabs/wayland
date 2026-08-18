@@ -9,6 +9,7 @@ import type { Dirent } from 'fs';
 import os from 'os';
 import path from 'path';
 import { WAYLAND_KNOWLEDGE_DIR } from './bootstrap';
+import { PROJECT_KNOWLEDGE_BLOCK_FOOTER, PROJECT_KNOWLEDGE_BLOCK_HEADER } from './blockFormat';
 import { confinePath } from '@process/bridge/pathConfinement';
 import { resolveWithinApprovedDirectory } from '@process/bridge/userApprovedPaths';
 import { getIjfwArchiveService } from '@process/services/memory/ijfwArchiveService';
@@ -73,11 +74,22 @@ export type ArchivedReferenceFile = {
 
 const knowledgeRoot = (workspace: string): string => path.join(workspace, WAYLAND_KNOWLEDGE_DIR);
 
+/**
+ * Read a knowledge document, treating only "the file is not there" as empty.
+ *
+ * Any other error - EIO, EACCES, a read that lands mid-write, because
+ * `writeProjectKnowledge` truncates in place rather than writing a temp file and
+ * renaming - is rethrown. Collapsing those into '' is indistinguishable from
+ * "the user cleared this document", and the spawn-time refresh would then strip
+ * the project's knowledge out of the prompt and persist the loss. The caller's
+ * catch turns a rethrow into keep-what-we-have instead.
+ */
 const readIfExists = async (filePath: string): Promise<string> => {
   try {
     return await fs.readFile(filePath, 'utf-8');
-  } catch {
-    return '';
+  } catch (err) {
+    if (isNotFound(err)) return '';
+    throw err;
   }
 };
 
@@ -123,19 +135,92 @@ const substantive = (raw: string): string => {
 };
 
 /**
+ * Remove the block sentinels from user-authored body text. A hand-typed (or
+ * pasted) header/footer inside CONTEXT.md would otherwise close the block early
+ * and leave the tail behind as an un-removable orphan on the next refresh.
+ */
+const withoutSentinels = (body: string): string =>
+  body.split(PROJECT_KNOWLEDGE_BLOCK_HEADER).join('').split(PROJECT_KNOWLEDGE_BLOCK_FOOTER).join('').trim();
+
+/** Largest single knowledge document body included in the injected block. */
+const KNOWLEDGE_DOC_CHAR_CAP = 32_000;
+/** Largest total project-knowledge block injected into a chat's system-rules channel. */
+const KNOWLEDGE_BLOCK_CHAR_CAP = 64_000;
+/** Left in the prompt so the agent is never handed a silently partial document. */
+const KNOWLEDGE_TRUNCATED_MARKER = '\n\n…(truncated)';
+/** Left under the heading of a document dropped whole, so its absence is not silent. */
+const KNOWLEDGE_OMITTED_MARKER = '…(omitted - exceeds the injection budget)';
+/**
+ * Slice of the block budget held back for each document still to come, so a
+ * large earlier document cannot starve a later one out of the block entirely.
+ */
+const KNOWLEDGE_DOC_CHAR_FLOOR = 4_000;
+
+/**
  * Compose the project's substantive knowledge into a single block ready to
  * append to a conversation's system-rules channel. Returns '' when the project
  * has no workspace or no edited knowledge yet (so nothing is injected).
+ *
+ * Size is capped HERE, at the collection site, mirroring the global-memory caps
+ * below. The three `.wayland/` docs are plain files the user - or the knowledge
+ * wizard, which drafts them with an LLM - can write without limit, and this block
+ * is copied into BOTH `presetRules` and `presetContext` at EVERY agent spawn and
+ * written back to the conversation row. Uncapped, a large document blocks the
+ * Electron main thread while it is read (~2ms per MB), is re-persisted on every
+ * spawn as a full-row UPDATE, and rides `getConversations` out over the IPC
+ * bridge, which silently drops any reply over 50MB and leaves the renderer
+ * hanging forever.
+ *
+ * The caps deliberately do NOT live in `readProjectKnowledge`: that same reader
+ * backs the knowledge editor, where handing back a truncated document would
+ * destroy its tail on the user's next save.
  */
 export async function loadProjectKnowledgeBlock(workspace: string): Promise<string> {
   const k = await readProjectKnowledge(workspace);
+  const present = (Object.keys(KNOWLEDGE_FILE) as KnowledgeKind[])
+    .map((kind) => ({ heading: `## ${INJECT_LABEL[kind]}\n\n`, body: withoutSentinels(substantive(k[kind])) }))
+    .filter((doc) => doc.body.length > 0);
+  // `Object.keys(KNOWLEDGE_FILE)` is a fixed order (context, rules, decisions),
+  // so without a floor the document squeezed out of the block is ALWAYS
+  // decisions.md - the one carrying "the old key is dead". Clamped to an equal
+  // share so the reservation can never over-subscribe the budget however the
+  // caps are retuned.
+  const floor = Math.min(KNOWLEDGE_DOC_CHAR_FLOOR, Math.floor(KNOWLEDGE_BLOCK_CHAR_CAP / Math.max(present.length, 1)));
   const sections: string[] = [];
-  (Object.keys(KNOWLEDGE_FILE) as KnowledgeKind[]).forEach((kind) => {
-    const body = substantive(k[kind]);
-    if (body) sections.push(`## ${INJECT_LABEL[kind]}\n\n${body}`);
+  let used = 0;
+  let truncated = false;
+  present.forEach(({ heading, body }, index) => {
+    // Whichever bites first: this document's own cap, or what is left of the
+    // whole-block budget once the heading, the marker, and the floor still owed
+    // to the documents after this one are accounted for.
+    const room = Math.min(
+      KNOWLEDGE_DOC_CHAR_CAP,
+      KNOWLEDGE_BLOCK_CHAR_CAP -
+        used -
+        heading.length -
+        KNOWLEDGE_TRUNCATED_MARKER.length -
+        floor * (present.length - index - 1)
+    );
+    // Only reachable if the caps are retuned so small that even the floor does
+    // not fit. Emit the heading and say the body was withheld: a document
+    // dropped in silence is worse than one the agent knows it is missing.
+    if (room <= 0 || body.length > room) truncated = true;
+    const section =
+      room <= 0
+        ? `${heading}${KNOWLEDGE_OMITTED_MARKER}`
+        : `${heading}${body.length > room ? `${body.slice(0, room)}${KNOWLEDGE_TRUNCATED_MARKER}` : body}`;
+    sections.push(section);
+    used += section.length;
   });
+  if (truncated) {
+    console.warn(
+      `[projectKnowledge] project knowledge exceeds the ${KNOWLEDGE_BLOCK_CHAR_CAP}-char injection budget; the agent is seeing a truncated block`
+    );
+  }
   if (sections.length === 0) return '';
-  return `[Project Knowledge - shared context for every chat in this project]\n\n${sections.join('\n\n')}`;
+  // Footer-delimited so the spawn-time refresh (#999) can remove exactly this
+  // block, rather than guessing its extent from a `---` the user may have typed.
+  return `${PROJECT_KNOWLEDGE_BLOCK_HEADER}\n\n${sections.join('\n\n')}\n\n${PROJECT_KNOWLEDGE_BLOCK_FOOTER}`;
 }
 
 /** Largest single memory entry body included in the injected memory block. */

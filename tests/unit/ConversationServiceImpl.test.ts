@@ -558,6 +558,63 @@ describe('ConversationServiceImpl.createConversation', () => {
     expect(vi.mocked(createGeminiAgent).mock.calls[0][1]).toBe('/projects/alpha');
   });
 
+  /**
+   * #999 rewrote the creation-time injection to run through the SAME helper as the
+   * spawn-time refresh, which changed both how the block is merged and the order
+   * the two injected blocks end up in. The knowledge block must still actually
+   * reach the factory - deleting the call from this path used to red nothing,
+   * because the default mock composes no block at all.
+   */
+  it('composes the project knowledge block into presetRules a gemini chat is built with', async () => {
+    const { createGeminiAgent } = await import('../../src/process/utils/initAgent');
+    const { loadProjectKnowledgeBlock, loadGlobalMemoryBlock } =
+      await import('../../src/process/services/projectKnowledge/knowledge');
+    const knowledge =
+      '[Project Knowledge - shared context for every chat in this project]\nShip on Tuesdays.\n[/Project Knowledge]';
+    const memory = '[User memory (from Wayland Memory)]\n\n## A note\n\nRemember this.';
+    vi.mocked(loadProjectKnowledgeBlock).mockResolvedValueOnce(knowledge);
+    vi.mocked(loadGlobalMemoryBlock).mockResolvedValueOnce(memory);
+    mockGetProject.mockResolvedValue({ workspace: '/projects/alpha' });
+
+    const svc = new ConversationServiceImpl(makeRepo());
+    await svc.createConversation({
+      type: 'gemini',
+      model: { provider: 'gemini', model: 'gemini-2.0-flash' } as any,
+      extra: { projectId: 'p1', workspace: '/projects/alpha', presetRules: 'ASSISTANT BASE RULES' },
+    });
+
+    // Arg 6 is the presetRules the gemini factory is handed.
+    const presetRules = vi.mocked(createGeminiAgent).mock.calls[0][6] as string;
+    expect(presetRules).toContain('ASSISTANT BASE RULES');
+    expect(presetRules).toContain('Ship on Tuesdays.');
+    expect(presetRules).toContain('Remember this.');
+    // Order: the assistant's own rules, then knowledge, then memory. The
+    // spawn-time refresh re-appends knowledge last, so this is the one shape the
+    // refresh will change (once) - pinned so the change stays deliberate.
+    expect(presetRules.indexOf('ASSISTANT BASE RULES')).toBeLessThan(presetRules.indexOf('Ship on Tuesdays.'));
+    expect(presetRules.indexOf('Ship on Tuesdays.')).toBeLessThan(presetRules.indexOf('Remember this.'));
+  });
+
+  // acp reads presetContext, not presetRules; the helper sets both, and dropping
+  // either leaves that whole family of backends with no project knowledge.
+  it('composes the project knowledge block into presetContext an acp chat is built with', async () => {
+    const { createAcpAgent } = await import('../../src/process/utils/initAgent');
+    const { loadProjectKnowledgeBlock } = await import('../../src/process/services/projectKnowledge/knowledge');
+    vi.mocked(loadProjectKnowledgeBlock).mockResolvedValueOnce('KNOWLEDGE BLOCK');
+    mockGetProject.mockResolvedValue({ workspace: '/projects/alpha' });
+
+    const svc = new ConversationServiceImpl(makeRepo());
+    await svc.createConversation({
+      type: 'acp',
+      model: { provider: 'anthropic', model: 'claude-3-5-sonnet' } as any,
+      extra: { projectId: 'p1', workspace: '/projects/alpha', backend: 'claude' },
+    });
+
+    const passed = vi.mocked(createAcpAgent).mock.calls[0][0] as any;
+    expect(passed.extra.presetContext).toContain('KNOWLEDGE BLOCK');
+    expect(passed.extra.presetRules).toContain('KNOWLEDGE BLOCK');
+  });
+
   it('does not overwrite factory-produced extra fields with params extra', async () => {
     const { createGeminiAgent } = await import('../../src/process/utils/initAgent');
     vi.mocked(createGeminiAgent).mockResolvedValueOnce({
