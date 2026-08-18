@@ -1584,7 +1584,6 @@ describe('packaged resource release gate', () => {
   });
 });
 
-
 /**
  * The bridge natives are Developer ID signed at stage time, so a packaged copy is
  * never byte-identical to a freshly installed source tree. The producer never

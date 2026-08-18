@@ -264,9 +264,7 @@ describe('corrupted-installer rejection is attributable', () => {
       calls.push(artifact);
       return {} as never;
     };
-    expect(() =>
-      assertRejectionAttributableToCorruption(prepare, request, '/work', {})
-    ).not.toThrow();
+    expect(() => assertRejectionAttributableToCorruption(prepare, request, '/work', {})).not.toThrow();
     expect(calls).toEqual(['/candidate.dmg']);
   });
 
@@ -332,10 +330,7 @@ describe('supported state survival', () => {
   }
 
   it('tracks user and app data but not Chromium state or app-shipped content', () => {
-    expect([...supportedStateEntries(profile())].sort()).toEqual([
-      'config/wayland-config.txt',
-      'wayland/wayland.db',
-    ]);
+    expect([...supportedStateEntries(profile())].sort()).toEqual(['config/wayland-config.txt', 'wayland/wayland.db']);
   });
 
   it('passes when only Chromium state and shipped content differ', () => {
@@ -362,9 +357,7 @@ describe('supported state survival', () => {
     const after = profile();
     plantSupportedStateSentinel(after, 'a'.repeat(64));
     rmSync(path.join(after, victim), { force: true });
-    expect(() => assertSupportedStateSurvived(entries, sha, after, 'rollback')).toThrow(
-      /destroyed supported state/
-    );
+    expect(() => assertSupportedStateSurvived(entries, sha, after, 'rollback')).toThrow(/destroyed supported state/);
   });
 
   it('rejects a destroyed sentinel', () => {

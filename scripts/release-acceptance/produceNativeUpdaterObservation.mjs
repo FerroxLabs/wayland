@@ -458,10 +458,8 @@ export function supportedStateEntries(root) {
  */
 export function assertSupportedStateSurvived(beforeEntries, sentinelSha256, root, label) {
   const sentinel = path.join(root, USER_DATA_SENTINEL);
-  if (!fs.existsSync(sentinel) || !fs.statSync(sentinel).isFile())
-    fail(`${label} destroyed the user data sentinel`);
-  if (sha256Bytes(fs.readFileSync(sentinel)) !== sentinelSha256)
-    fail(`${label} rewrote the user data sentinel`);
+  if (!fs.existsSync(sentinel) || !fs.statSync(sentinel).isFile()) fail(`${label} destroyed the user data sentinel`);
+  if (sha256Bytes(fs.readFileSync(sentinel)) !== sentinelSha256) fail(`${label} rewrote the user data sentinel`);
   const after = supportedStateEntries(root);
   const lost = [...beforeEntries].filter((relative) => !after.has(relative)).sort();
   if (lost.length) fail(`${label} destroyed supported state: ${lost.slice(0, 8).join(', ')}`);

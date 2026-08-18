@@ -11,15 +11,14 @@ import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const { assembleCanonicalRawAcceptance: assemble } = require(
-  '../../../scripts/release-acceptance/assembleCanonicalRawAcceptance.js'
-) as {
-  assembleCanonicalRawAcceptance: (
-    artifactsDirectory: string,
-    candidate: unknown,
-    outputDirectory: string
-  ) => unknown;
-};
+const { assembleCanonicalRawAcceptance: assemble } =
+  require('../../../scripts/release-acceptance/assembleCanonicalRawAcceptance.js') as {
+    assembleCanonicalRawAcceptance: (
+      artifactsDirectory: string,
+      candidate: unknown,
+      outputDirectory: string
+    ) => unknown;
+  };
 
 const roots: string[] = [];
 afterEach(() => {

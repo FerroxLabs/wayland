@@ -907,10 +907,7 @@ function reconcileStagedDarwinNatives(bundleDir, sourceEntries, bundledEntries, 
     const sourceSha256 = parseFileInventoryEntry(sourceEntry).sha256;
     if (!/^[0-9a-f]{64}$/.test(sourceSha256)) return entry;
     // Mirrors the identifier build-with-builder.js used when it signed this file.
-    const identifier = darwinSigningIdentifier(
-      path.basename(relative).replace(/[^A-Za-z0-9._-]/g, '_'),
-      sourceSha256
-    );
+    const identifier = darwinSigningIdentifier(path.basename(relative).replace(/[^A-Za-z0-9._-]/g, '_'), sourceSha256);
     let signed = false;
     try {
       signed = signedCheck(path.join(bundleDir, relative), identifier);
@@ -953,8 +950,7 @@ function verifySourceMirror(
   const source = sourceInventory(sourceDir, sourceDir, [], ignoredPlaceholders);
   let bundled = sourceInventory(bundleDir, bundleDir, [], ignoredPlaceholders);
   if (source === null || bundled === null) return false;
-  if (targetPlatform === 'darwin')
-    bundled = reconcileStagedDarwinNatives(bundleDir, source, bundled, signedCheck);
+  if (targetPlatform === 'darwin') bundled = reconcileStagedDarwinNatives(bundleDir, source, bundled, signedCheck);
   return JSON.stringify(bundled) === JSON.stringify(source);
 }
 
