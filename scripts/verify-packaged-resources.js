@@ -857,12 +857,59 @@ function describeTargetForDiagnostics(target, maxEntries = 24) {
   return `directory, contains: ${shown}${rows.length > maxEntries ? ` (+${rows.length - maxEntries} more)` : ''}`;
 }
 
+// The bridge's prebuilt natives are Developer ID signed at STAGE time by
+// scripts/build-with-builder.js (signWhatsAppBridgeNatives), exactly like the
+// bundled wayland-core, wayland-nano and constitution-fs binaries verified above.
+// Apple refuses to notarize an app containing unsigned Mach-Os, and all of these
+// were named in the notary log that blocked 0.12.0.
+//
+// Signing rewrites the Mach-O, so a packaged native is never byte-identical to a
+// freshly installed source tree. The producer does not notice, because it signs
+// its OWN source tree and then both sides hold the same bytes. An INDEPENDENT
+// verifier cannot reproduce those bytes at all: it holds no Developer ID identity,
+// and codesign embeds a secure timestamp, so the output is not deterministic even
+// with one. Byte equality is therefore unsatisfiable for anybody except the
+// machine that did the signing.
+//
+// Resolve it the way every other staged-signed binary in this file already is:
+// require the packaged copy to carry a Ferrox Labs Developer ID signature whose
+// IDENTIFIER embeds the sha256 of the source file it was produced from. That is
+// strictly STRONGER than byte equality - byte equality alone says nothing about
+// who signed the file, while this proves upstream provenance, proves we signed
+// these exact bytes, and stops the signature being lifted onto a different native.
+//
+// Anything that fails the signature check keeps its real digest and the inventory
+// comparison below rejects it, so this fails closed.
+function reconcileStagedDarwinNatives(bundleDir, sourceEntries, bundledEntries, signedCheck) {
+  return bundledEntries.map((entry) => {
+    if (!entry.startsWith('file:')) return entry;
+    const relative = entry.slice('file:'.length, entry.indexOf(':', 'file:'.length));
+    const sourceEntry = sourceEntries.find((candidate) => candidate.startsWith(`file:${relative}:`));
+    if (!sourceEntry || sourceEntry === entry) return entry;
+    const sourceSha256 = sourceEntry.slice(sourceEntry.lastIndexOf(':') + 1);
+    if (!/^[0-9a-f]{64}$/.test(sourceSha256)) return entry;
+    // Mirrors the identifier build-with-builder.js used when it signed this file.
+    const identifier = darwinSigningIdentifier(
+      path.basename(relative).replace(/[^A-Za-z0-9._-]/g, '_'),
+      sourceSha256
+    );
+    let signed = false;
+    try {
+      signed = signedCheck(path.join(bundleDir, relative), identifier);
+    } catch {
+      signed = false;
+    }
+    return signed ? sourceEntry : entry;
+  });
+}
+
 function verifySourceMirror(
   bundleDir,
   sourceDir,
   authority = whatsappBridgeSource,
   targetPlatform = process.platform,
-  targetArch = process.arch
+  targetArch = process.arch,
+  signedCheck = isDarwinDeveloperIdSigned
 ) {
   if (
     authority.contract !== 'wayland-whatsapp-bridge-source/1.0' ||
@@ -886,8 +933,11 @@ function verifySourceMirror(
     WHATSAPP_OMITTED_EMPTY_PLACEHOLDERS.filter((relative) => fs.existsSync(path.join(sourceDir, relative)))
   );
   const source = sourceInventory(sourceDir, sourceDir, [], ignoredPlaceholders);
-  const bundled = sourceInventory(bundleDir, bundleDir, [], ignoredPlaceholders);
-  return source !== null && bundled !== null && JSON.stringify(bundled) === JSON.stringify(source);
+  let bundled = sourceInventory(bundleDir, bundleDir, [], ignoredPlaceholders);
+  if (source === null || bundled === null) return false;
+  if (targetPlatform === 'darwin')
+    bundled = reconcileStagedDarwinNatives(bundleDir, source, bundled, signedCheck);
+  return JSON.stringify(bundled) === JSON.stringify(source);
 }
 
 function verifySkillPack(packDir) {
@@ -1398,6 +1448,7 @@ function verifyPackagedResources(options = {}) {
 
 module.exports = {
   VOICE_MODEL_FILES,
+  reconcileStagedDarwinNatives,
   findPackagedCandidates,
   inspectExecutable,
   resolvePackagedTarget,

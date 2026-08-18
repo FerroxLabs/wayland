@@ -1312,8 +1312,16 @@ export async function runSmoke(options, dependencies = {}) {
       warn: (...items) => verifierLines.push(items.join(' ')),
       error: (...items) => verifierLines.push(items.join(' ')),
     };
-    const verification = verifyResources({
-      argv: [
+    // The verifier writes its FAIL <rel> / path: / reason diagnostics through this
+    // logger, and they are the only thing that says WHICH resource check failed.
+    // Collecting them into an array and then letting the throw escape discarded
+    // exactly the lines written for this situation, leaving a single opaque
+    // "N CRITICAL resource(s) missing or invalid" with no way to tell a signature
+    // mismatch from an absent file. Replay them before rethrowing.
+    let verification;
+    try {
+      verification = verifyResources({
+        argv: [
         'node',
         'verify-packaged-resources.js',
         '--out',
@@ -1338,10 +1346,14 @@ export async function runSmoke(options, dependencies = {}) {
           ? ['--wnano-runtime', `${options.targetPlatform}-${options.targetArch}`]
           : ['--no-wnano-runtime']),
         // bun publishes no win32-arm64 runtime, so that target bundles none.
-        ...(isSupportedBunTarget(options.targetPlatform, options.targetArch) ? [] : ['--no-bun-runtime']),
-      ],
-      logger,
-    });
+          ...(isSupportedBunTarget(options.targetPlatform, options.targetArch) ? [] : ['--no-bun-runtime']),
+        ],
+        logger,
+      });
+    } catch (error) {
+      for (const line of verifierLines) console.error(`[verifier] ${line}`);
+      throw error;
+    }
     if (
       !Array.isArray(verification?.resourceDirs) ||
       !verification.resourceDirs.some((directory) => path.resolve(directory) === path.resolve(candidate.resourceDir))

@@ -15,7 +15,11 @@ const { assertDarwinDeveloperIdSigned, DARWIN_TEAM_ID } = require('../../scripts
   ) => void;
   DARWIN_TEAM_ID: string;
 };
+const { darwinSigningIdentifier } = require('../../scripts/signDarwinStagedBinary') as {
+  darwinSigningIdentifier: (binaryName: string, upstreamSha256: string) => string;
+};
 const {
+  reconcileStagedDarwinNatives,
   resolvePackagedTarget,
   snapshotPackagedTargets,
   verifyConstitutionFsBundle,
@@ -23,6 +27,12 @@ const {
   verifyWhatsAppDarwinSignIgnoreInventory,
   verifyWhatsAppNativeTarget,
 } = require('../../scripts/verify-packaged-resources.js') as {
+  reconcileStagedDarwinNatives: (
+    bundleDir: string,
+    sourceEntries: string[],
+    bundledEntries: string[],
+    signedCheck: (binaryPath: string, identifier: string) => boolean
+  ) => string[];
   resolvePackagedTarget: (
     out: string,
     platform: string,
@@ -1571,5 +1581,79 @@ describe('packaged resource release gate', () => {
     const target = path.join(packagedResourcesPath(out), 'skills-library', 'skill-bodies.offsets.json');
     fs.writeFileSync(target, JSON.stringify({ version: 1, entries: { test: [1, 3] } }));
     expect(() => verify(out)).toThrow(/CRITICAL/);
+  });
+});
+
+
+/**
+ * The bridge natives are Developer ID signed at stage time, so a packaged copy is
+ * never byte-identical to a freshly installed source tree. The producer never
+ * noticed because it signs its own source tree; an independent observer cannot
+ * reproduce the bytes at all, because codesign embeds a secure timestamp. Byte
+ * equality was therefore unsatisfiable off the signing machine, and the protected
+ * platform observer failed on both darwin legs every time it ran.
+ *
+ * These cases pin the replacement rule: a differing native is accepted ONLY when
+ * it carries a Ferrox Labs Developer ID signature whose identifier embeds the
+ * sha256 of the source file, and is rejected in every other case.
+ */
+describe('staged darwin native reconciliation', () => {
+  const SOURCE_SHA = 'a'.repeat(64);
+  const REL = 'node_modules/@img/sharp-darwin-arm64/lib/sharp-darwin-arm64.node';
+  const sourceEntry = `file:${REL}:100:${SOURCE_SHA}`;
+  const bundledEntry = `file:${REL}:220:${'b'.repeat(64)}`;
+
+  it('accepts a signed native by substituting the source entry', () => {
+    expect(reconcileStagedDarwinNatives('/bundle', [sourceEntry], [bundledEntry], () => true)).toEqual([sourceEntry]);
+  });
+
+  it('demands the identifier that binds the signature to the source digest', () => {
+    const seen: Array<{ binaryPath: string; identifier: string }> = [];
+    reconcileStagedDarwinNatives('/bundle', [sourceEntry], [bundledEntry], (binaryPath, identifier) => {
+      seen.push({ binaryPath, identifier });
+      return true;
+    });
+    expect(seen).toHaveLength(1);
+    expect(seen[0].binaryPath).toBe(path.join('/bundle', REL));
+    // Exactly the identifier build-with-builder.js signed it with. A signature
+    // lifted from any other native carries a different identifier and fails.
+    expect(seen[0].identifier).toBe(darwinSigningIdentifier('sharp-darwin-arm64.node', SOURCE_SHA));
+  });
+
+  it('keeps the differing entry when the signature check refuses', () => {
+    expect(reconcileStagedDarwinNatives('/bundle', [sourceEntry], [bundledEntry], () => false)).toEqual([bundledEntry]);
+  });
+
+  it('fails closed when the signature check throws', () => {
+    expect(
+      reconcileStagedDarwinNatives('/bundle', [sourceEntry], [bundledEntry], () => {
+        throw new Error('codesign unavailable');
+      })
+    ).toEqual([bundledEntry]);
+  });
+
+  it('never consults the signature check for entries that already match', () => {
+    let calls = 0;
+    const result = reconcileStagedDarwinNatives('/bundle', [sourceEntry], [sourceEntry], () => {
+      calls += 1;
+      return true;
+    });
+    expect(result).toEqual([sourceEntry]);
+    expect(calls).toBe(0);
+  });
+
+  it('leaves directory and symlink entries alone', () => {
+    const structural = ['dir:node_modules', 'link:node_modules/.bin/x:../y'];
+    expect(reconcileStagedDarwinNatives('/bundle', [], structural, () => true)).toEqual(structural);
+  });
+
+  it('does not invent a match for a bundled file the source does not have', () => {
+    const extra = `file:node_modules/extra.node:10:${'c'.repeat(64)}`;
+    expect(reconcileStagedDarwinNatives('/bundle', [sourceEntry], [extra], () => true)).toEqual([extra]);
+  });
+
+  it('refuses to reconcile against a malformed source digest', () => {
+    const malformed = `file:${REL}:100:not-a-sha`;
+    expect(reconcileStagedDarwinNatives('/bundle', [malformed], [bundledEntry], () => true)).toEqual([bundledEntry]);
   });
 });
