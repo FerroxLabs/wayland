@@ -144,6 +144,17 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
   'auth[_-]?token',
   'access[_-]?token',
   'refresh[_-]?token',
+  // A BARE `token` core (#1037). `GITHUB_TOKEN`, `SLACK_TOKEN`, `NPM_TOKEN`,
+  // `HF_TOKEN` and a plain `token=` all leaked: the three compound cores above
+  // require the words `auth`/`access`/`refresh` immediately before `token`, and
+  // a provider name is not one of them. The lookbehind already permits an
+  // arbitrary `_`-separated prefix, so one core covers every vendor.
+  //
+  // The compound cores stay: they catch the UNSEPARATED spellings
+  // (`authtoken=`, `accesstoken=`) that the lookbehind refuses to reach through,
+  // and matching starts at the leftmost position so `AUTH_TOKEN` still reports
+  // its whole label in the diagnostic rather than just `TOKEN`.
+  'token',
   // `AWS_SECRET_ACCESS_KEY` (#1026). Its 40-character value has no prefix and no
   // shape worth keying on - 40 characters of the base64 alphabet is also every
   // git SHA and every sha1 digest in a build log - so the label is the ONLY
@@ -151,6 +162,15 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
   // Listed before `access[_-]?token` would matter only for a shared prefix; it
   // does not share one, and alternation backtracks through every branch anyway.
   'secret[_-]?access[_-]?key',
+  // `SECRET_KEY` / `SECRET_KEY_BASE` (#1037). `secret[_-]?access[_-]?key` does
+  // NOT match it - `access` sits between the two words - and no other label
+  // core does either, so the whole assignment survived. Kept as its own core
+  // rather than widening to a bare `secret`, which would also swallow
+  // `secret_name=`/`secretRef=` in a Kubernetes or Vault diagnostic. That
+  // narrowness is a KNOWN gap, not an oversight: `JWT_SECRET=`,
+  // `APP_SECRET=` and `WEBHOOK_SECRET=` are still unmasked. See the trade
+  // note on LABELLED_SECRET_ASSIGNMENT.
+  'secret[_-]?key',
   'client[_-]?secret',
   'password',
   'passwd',
@@ -188,9 +208,73 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
  * non-word character is also a non-alphanumeric one, so nothing that was masked
  * before can stop being masked. Single-character, fixed-width and outside the
  * quantified section, so it adds no backtracking.
+ *
+ * ---------------------------------------------------------------------------
+ * #1051 and #1037: the three things after the label, and the FALSE POSITIVES
+ * each one buys. Read this before tightening or widening any of them.
+ * ---------------------------------------------------------------------------
+ *
+ * 1. `["']?` BEFORE the separator (#1051). The separator used to have to sit
+ *    IMMEDIATELY after the label, and in JSON it does not - a closing `"` sits
+ *    there instead. So `{"api_key":"<v>"}`, `{"password":"<v>"}`,
+ *    `{"passphrase":"<v>"}` and `{ "client_secret" : "<v>" }` all reached the
+ *    output verbatim, for EVERY label in the list. Fixed once here rather than
+ *    per label. JSON is not an exotic shape on this surface: agent stderr,
+ *    upstream HTTP error bodies and the feedback log bundle are full of it.
+ *    Costs no false positives worth the name - a quote plus `:`/`=` after a
+ *    secret label is an assignment in every syntax that produces it.
+ *
+ * 2. The suffix `(?:[_-][A-Za-z0-9]+)*` (#1037a). A SUFFIX broke the same
+ *    immediate-separator requirement from the other side: `API_KEY_PROD=`,
+ *    `API_KEY_STAGING=`, `SECRET_KEY_BASE=`. The lookbehind already handled
+ *    arbitrary PREFIXES; this is its mirror image.
+ *
+ *    This one DOES buy false positives, and they are accepted deliberately.
+ *    What newly masks and is not a secret:
+ *      - `token_count=<8+ chars>`, `token_limit=`, `token_usage=` - LLM
+ *        bookkeeping, and this is an LLM app, so the shape is common. Mitigated
+ *        by the 8-character value floor, which real counts rarely reach: 4096,
+ *        128000 and 1000000 all stay readable, and only a count above
+ *        10,000,000 is masked. `input_tokens=`, `total_tokens=` and
+ *        `max_tokens=` are untouched at any value, because the plural `s` is
+ *        not `[_-]` so the suffix cannot start there and the separator cannot
+ *        match a letter.
+ *      - `api_key_length=`, `api_key_id=`, `secret_key_id=`,
+ *        `secret_key_ref=`, `access_token_expires_in=` - metadata ABOUT a
+ *        credential rather than the credential.
+ *    The trade taken: mask them. An over-masked field name in a diagnostic
+ *    costs one round trip of "what was that number"; an under-masked
+ *    `API_KEY_PROD=` hands a live credential to whatever the user pastes the
+ *    Copy-report output into. The floor keeps the common LLM counters readable,
+ *    which is what makes the trade cheap rather than merely correct.
+ *
+ * 3. The value's quotes are CAPTURED AND RE-EMITTED, not swallowed. Both
+ *    optional quotes used to be consumed and dropped, so the #1051 fix would
+ *    have turned `{"api_key":"<v>"}` into `{"api_key":[redacted]}` - no longer
+ *    parseable, on a surface whose whole job is to hand a machine-readable
+ *    diagnostic to a human who will paste it somewhere. Re-emitting exactly the
+ *    characters that were consumed yields `{"api_key":"[redacted]"}`, which
+ *    still parses. A quote is a delimiter, never credential material, so
+ *    putting it back cannot put any secret back.
+ *
+ * The suffix is `(?:[_-][A-Za-z0-9]+)*` and not `(?:[A-Za-z0-9_-]*)`: the two
+ * classes are DISJOINT, so each iteration must consume exactly one `[_-]`, the
+ * partition of any input is unique, and there is no ambiguity for the engine to
+ * backtrack through. A `(?:[A-Za-z0-9_-]+)*` spelling would be the classic
+ * nested-quantifier blowup.
+ *
+ * KNOWN GAPS, reported rather than closed here, because widening the value
+ * matcher is a different decision with a different blast radius:
+ *   - XML `<api_key>v</api_key>` - the separator is `>`, not `[:=]`.
+ *   - a JSON value containing a space or a `}` - excluded from the value class,
+ *     so the run falls under the 8-character floor.
+ *   - `JWT_SECRET=` / `APP_SECRET=` / `WEBHOOK_SECRET=` - no bare `secret` core.
+ *   - a URL query `?api_key=<v>&x=1` IS masked, but `&` is not excluded from the
+ *     value class so `&x=1` is swallowed into the marker. Over-mask, not a leak.
  */
 const LABELLED_SECRET_ASSIGNMENT = new RegExp(
-  `(?<![A-Za-z0-9])(${LABELLED_SECRET_LABELS.join('|')})(\\s*[:=]\\s*)["']?[^\\s"',}]{8,}["']?`,
+  `(?<![A-Za-z0-9])((?:${LABELLED_SECRET_LABELS.join('|')})(?:[_-][A-Za-z0-9]+)*)` +
+    `(["']?\\s*[:=]\\s*)(["']?)[^\\s"',}]{8,}(["']?)`,
   'gi'
 );
 
@@ -302,7 +386,8 @@ export function redactSecrets(text: string): string {
   // Label preserved, value masked, so the diagnostic still reads sensibly.
   out = out.replace(
     LABELLED_SECRET_ASSIGNMENT,
-    (_match, label: string, separator: string) => `${label}${separator}[redacted]`
+    (_match, label: string, separator: string, openQuote: string, closeQuote: string) =>
+      `${label}${separator}${openQuote}[redacted]${closeQuote}`
   );
   // Scheme/user/host preserved, password masked.
   return out.replace(

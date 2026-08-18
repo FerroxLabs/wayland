@@ -224,6 +224,49 @@ export const SECRET_CORPUS: readonly SecretCase[] = [
     text: 'model download refused: hf_EXAMPLEnotarealtoken0123456789',
     secret: 'hf_EXAMPLEnotarealtoken0123456789',
   },
+  {
+    // #1051. A JSON body, which is what an upstream HTTP error and most agent
+    // stderr actually look like. The labelled-assignment rule required `[:=]`
+    // IMMEDIATELY after the label and JSON puts the label's closing `"` there,
+    // so this survived for EVERY label in the list, not just this one.
+    label: 'JSON api_key field',
+    text: 'upstream 400: {"model":"x","api_key":"json-shaped-not-a-real-value-01"}',
+    secret: 'json-shaped-not-a-real-value-01',
+  },
+  {
+    // Whitespace around the JSON colon, which pretty-printed bodies carry.
+    label: 'JSON client_secret field with spaces around the colon',
+    text: 'token exchange failed: { "client_secret" : "spaced-json-not-a-real-value" }',
+    secret: 'spaced-json-not-a-real-value',
+  },
+  {
+    label: 'JSON password field',
+    text: 'connect failed: {"user":"admin","password":"json-pw-not-a-real-value-0"}',
+    secret: 'json-pw-not-a-real-value-0',
+  },
+  {
+    // #1037a. A SUFFIX after the label breaks the same immediate-separator
+    // requirement from the other side. The #1026 fix reached arbitrary
+    // PREFIXES; nothing reached suffixes.
+    label: 'suffixed API_KEY_PROD assignment',
+    text: 'env dump: API_KEY_PROD=suffixed-not-a-real-value-012',
+    secret: 'suffixed-not-a-real-value-012',
+  },
+  {
+    // #1037b. `secret[_-]?access[_-]?key` does NOT match `SECRET_KEY` - the word
+    // `access` sits between the two halves - and no other core did either.
+    label: 'SECRET_KEY assignment',
+    text: 'rails boot failed: SECRET_KEY=secretkey-not-a-real-value-0',
+    secret: 'secretkey-not-a-real-value-0',
+  },
+  {
+    // #1037b. No bare `token` core existed, so every vendor-prefixed token
+    // variable leaked: the three compound cores all require `auth`/`access`/
+    // `refresh` immediately before `token`, and `GITHUB` is none of them.
+    label: 'GITHUB_TOKEN assignment',
+    text: 'gh auth failed: GITHUB_TOKEN=ghtoken-not-a-real-value-012',
+    secret: 'ghtoken-not-a-real-value-012',
+  },
 ];
 
 /** Lines that must pass through redaction completely untouched. */
@@ -245,4 +288,17 @@ export const CLEAN_CORPUS: readonly string[] = [
   // The reason this module refuses a bare 40-character rule for the AWS secret
   // shape: a 40-character run is also every git SHA in every build log.
   'built ok at commit 0123456789abcdef0123456789abcdef01234567',
+  // #1037 added a bare `token` core and an optional `[_-]`-separated suffix
+  // after every label. These are the LLM bookkeeping lines that must not start
+  // disappearing as a result - they are the whole reason the value floor stays
+  // at 8 characters. `token_count` reaches the floor only above ten million;
+  // the plural forms cannot match at any value, because `s` is neither `[_-]`
+  // (so the suffix cannot start) nor a separator.
+  'token_count=4096',
+  'token_count=128000',
+  'token_limit=1000000',
+  'max_tokens=12345678',
+  'input_tokens=12345678',
+  'total_tokens: 1234567890',
+  'tokens_used=12345678',
 ];
