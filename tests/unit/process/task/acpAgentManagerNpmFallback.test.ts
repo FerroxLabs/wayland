@@ -154,6 +154,20 @@ describe('resolveBuiltinBackendConfig — npm fallback for builtins', () => {
     expect(res.cliPath).not.toContain('npx');
   });
 
+  it('prefers the resolved binary even when the bare command IS on PATH', async () => {
+    // The other half of the headline claim, and the half that matters: an
+    // in-app-accepted update under userData has to supersede an older copy that
+    // happens to be on PATH. Asserting this only with the PATH probe returning
+    // false proved the resolved binary beats the npm pin and nothing more.
+    mockIsCliAvailable.mockReturnValue(true);
+    mockResolveWNanoBinary.mockReturnValue('/opt/wayland/resources/wayland-nano');
+
+    const res = await resolveBuiltin('wnano')({ backend: 'wnano' });
+
+    expect(res.cliPath).toBe('/opt/wayland/resources/wayland-nano');
+    expect(res.cliPath).not.toBe('wayland-nano');
+  });
+
   it('quotes a resolved binary path that contains whitespace', async () => {
     // macOS userData lives under "Application Support"; an unquoted path would
     // be split into two tokens by the spawn config.
@@ -167,6 +181,10 @@ describe('resolveBuiltinBackendConfig — npm fallback for builtins', () => {
 
   it('never overrides an explicitly configured cliPath, and does not even probe PATH', async () => {
     mockIsCliAvailable.mockReturnValue(false);
+    // A bundled binary must be PRESENT here, or the `!cliPath` half of the guard
+    // is unpinned: delete it and the resolver would clobber a path the user
+    // deliberately configured, and every assertion would still pass.
+    mockResolveWNanoBinary.mockReturnValue('/opt/bundled/wayland-nano');
 
     const res = await resolveBuiltin('wnano')({ backend: 'wnano', cliPath: '/opt/custom/wayland-nano' });
 

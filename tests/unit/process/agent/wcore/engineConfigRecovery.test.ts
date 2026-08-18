@@ -447,6 +447,7 @@ describe('planLineBreakRepair', () => {
     // average. The deadline gets its own test below rather than being asserted
     // here by accident.
     const now = vi.spyOn(Date, 'now').mockReturnValue(1_000_000);
+    parseCalls.n = 0;
     try {
       const repair = planLineBreakRepair(normalSizedGluedConfig());
       expect(repair).not.toBeNull();
@@ -455,6 +456,13 @@ describe('planLineBreakRepair', () => {
     } finally {
       now.mockRestore();
     }
+    // Freezing the clock removed something real: with a live clock this
+    // assertion transitively proved a realistic repair FINISHES inside
+    // MAX_REPAIR_MILLIS on actual hardware. Make somebody making this planner
+    // quadratic fail here, deterministically, instead of shipping a feature that
+    // silently stops being offered to every user because it now blows the
+    // deadline. A work bound, not a stopwatch.
+    expect(parseCalls.n).toBe(40);
   });
 
   it('bounds PARSES by the byte budget alone, with the clock frozen', () => {
@@ -480,8 +488,12 @@ describe('planLineBreakRepair', () => {
     } finally {
       now.mockRestore();
     }
-    // 4 parses with the budget; 852 without. Anything in between still fails.
-    expect(parseCalls.n).toBeLessThan(20);
+    // EXACT, not a range. `< 20` tolerated MAX_REPAIR_PARSE_BYTES growing from
+    // 2 MB to ~10 MB - a 5x increase in the main-thread freeze this budget
+    // exists to prevent - while still passing green. The count is fully
+    // deterministic here: frozen clock, fixed ASCII document, integer budget
+    // arithmetic. 4 parses with the budget, 852 without.
+    expect(parseCalls.n).toBe(4);
   });
 
   it('gives up on that SAME config once the wall-clock deadline passes', () => {
