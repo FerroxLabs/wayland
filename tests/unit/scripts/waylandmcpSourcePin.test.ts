@@ -157,15 +157,16 @@ describe('@wayland MCP connector source pin (#940)', () => {
   // The arm64 clone is the one checkout that cannot express its pin through
   // `with.ref`, so it has to assert the same thing in shell. Without this it
   // could silently drift onto the default branch - the exact #940 failure.
-  it.each(
-    parsed.filter((entry) => entry.arm64Checkout).map((entry) => [entry.file, entry] as const)
-  )('%s pins the windows-arm64 clone to the same WAYLANDMCP_REF', (_file, entry) => {
-    const run = entry.arm64Checkout?.run ?? '';
-    expect(entry.arm64Checkout?.shell).toBe('bash');
-    expect(run).toContain('git fetch --depth 1 origin "$WAYLANDMCP_REF"');
-    expect(run).toContain('git checkout --detach FETCH_HEAD');
-    expect(run).toContain('FerroxLabs/waylandmcp.git');
-  });
+  it.each(parsed.filter((entry) => entry.arm64Checkout).map((entry) => [entry.file, entry] as const))(
+    '%s pins the windows-arm64 clone to the same WAYLANDMCP_REF',
+    (_file, entry) => {
+      const run = entry.arm64Checkout?.run ?? '';
+      expect(entry.arm64Checkout?.shell).toBe('bash');
+      expect(run).toContain('git fetch --depth 1 origin "$WAYLANDMCP_REF"');
+      expect(run).toContain('git checkout --detach FETCH_HEAD');
+      expect(run).toContain('FerroxLabs/waylandmcp.git');
+    }
+  );
 
   it('keeps the windows-arm64 clone bodies byte-identical', () => {
     const bodies = parsed.filter((entry) => entry.arm64Checkout).map((entry) => entry.arm64Checkout?.run);
