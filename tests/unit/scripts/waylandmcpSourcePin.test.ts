@@ -34,6 +34,12 @@ const WORKFLOWS = path.resolve(__dirname, '../../../.github/workflows');
  *  DERIVED from the files rather than hardcoded. */
 const CHECKOUT_STEP = 'Checkout @wayland MCP connector sources';
 const RELOCATE_STEP = 'Relocate and install @wayland MCP connector sources';
+/** windows-11-arm cannot authenticate actions/checkout's ssh-key mode, so that
+ *  one image clones explicitly instead. The pair below must stay a TOTAL and
+ *  MUTUALLY EXCLUSIVE split - see the skip-is-a-pass test at the bottom. */
+const ARM64_CHECKOUT_STEP = 'Checkout @wayland MCP connector sources (windows-arm64)';
+const ARM64_ONLY = "runner.os == 'Windows' && runner.arch == 'ARM64'";
+const NOT_ARM64 = `!(${ARM64_ONLY})`;
 
 type Step = {
   name?: string;
@@ -55,6 +61,7 @@ const parsed = ['_build-reusable.yml', 'build-and-release.yml', 'build-matrix.ym
     file,
     ref: doc.env?.WAYLANDMCP_REF,
     checkout: steps.find((step) => step.name === CHECKOUT_STEP),
+    arm64Checkout: steps.find((step) => step.name === ARM64_CHECKOUT_STEP),
     relocate: steps.find((step) => step.name === RELOCATE_STEP),
   };
 });
@@ -119,15 +126,50 @@ describe('@wayland MCP connector source pin (#940)', () => {
   );
 
   // SKIP-IS-A-PASS: on GitHub a skipped required check counts as a PASS, and a
-  // continue-on-error step reports success. Neither of these steps may acquire
+  // continue-on-error step reports success. No connector step may acquire
   // either - a #940 gate that can be skipped is not a gate.
+  //
+  // The checkout is allowed to exist as a PAIR, because windows-11-arm cannot
+  // authenticate actions/checkout's ssh-key mode and clones explicitly instead.
+  // That is only safe while the pair is TOTAL and MUTUALLY EXCLUSIVE: the two
+  // conditions must be exact complements, so every platform runs exactly one of
+  // them and none can fall through the gap into a connector-less build. Pinning
+  // the literal strings is deliberate - a third condition, a widened guard or a
+  // typo in either one all break the complement and fail here.
   it.each(withCheckout.map((entry) => [entry.file, entry] as const))(
-    '%s leaves both connector steps unconditional and fail-closed',
+    '%s runs exactly one connector checkout on every platform, fail-closed',
     (_file, entry) => {
-      for (const step of [entry.checkout, entry.relocate]) {
-        expect(step?.if).toBeUndefined();
-        expect(step?.['continue-on-error']).toBeUndefined();
+      if (entry.arm64Checkout) {
+        expect(entry.checkout?.if).toBe(NOT_ARM64);
+        expect(entry.arm64Checkout.if).toBe(ARM64_ONLY);
+      } else {
+        // No split in this workflow, so the single checkout must be unguarded.
+        expect(entry.checkout?.if).toBeUndefined();
+      }
+      // The relocate step consumes whichever checkout ran and is never guarded.
+      expect(entry.relocate?.if).toBeUndefined();
+      for (const step of [entry.checkout, entry.arm64Checkout, entry.relocate]) {
+        if (step) expect(step['continue-on-error']).toBeUndefined();
       }
     }
   );
+
+  // The arm64 clone is the one checkout that cannot express its pin through
+  // `with.ref`, so it has to assert the same thing in shell. Without this it
+  // could silently drift onto the default branch - the exact #940 failure.
+  it.each(
+    parsed.filter((entry) => entry.arm64Checkout).map((entry) => [entry.file, entry] as const)
+  )('%s pins the windows-arm64 clone to the same WAYLANDMCP_REF', (_file, entry) => {
+    const run = entry.arm64Checkout?.run ?? '';
+    expect(entry.arm64Checkout?.shell).toBe('bash');
+    expect(run).toContain('git fetch --depth 1 origin "$WAYLANDMCP_REF"');
+    expect(run).toContain('git checkout --detach FETCH_HEAD');
+    expect(run).toContain('FerroxLabs/waylandmcp.git');
+  });
+
+  it('keeps the windows-arm64 clone bodies byte-identical', () => {
+    const bodies = parsed.filter((entry) => entry.arm64Checkout).map((entry) => entry.arm64Checkout?.run);
+    expect(bodies.length).toBeGreaterThan(0);
+    expect(new Set(bodies).size).toBe(1);
+  });
 });
