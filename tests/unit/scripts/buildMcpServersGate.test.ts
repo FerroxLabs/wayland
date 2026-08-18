@@ -204,7 +204,15 @@ describe('build-mcp-servers optional-MCP gate (#940)', () => {
       const copied = path.join(outMain, 'eventkit-bridge');
       expect(fs.readFileSync(copied, 'utf-8')).toBe('binary');
       // 0o755 on the copy, so the packaged app can execute it.
-      expect(fs.statSync(copied).mode & 0o777).toBe(0o755);
+      // Windows has no POSIX permission bits: fs.statSync reports 0o666 there
+      // whatever chmod was asked for (measured on the win32 shard: 438, not
+      // 493), and executability comes from the file extension instead. One
+      // shard failure reds all three required Unit Tests rollups, so this
+      // assertion has to be POSIX-only. The copy itself, its contents and the
+      // silence are still asserted on every platform.
+      if (process.platform !== 'win32') {
+        expect(fs.statSync(copied).mode & 0o777).toBe(0o755);
+      }
       expect(warn).not.toHaveBeenCalled();
     } finally {
       fs.rmSync(src, { recursive: true, force: true });
