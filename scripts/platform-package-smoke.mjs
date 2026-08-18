@@ -1312,36 +1312,48 @@ export async function runSmoke(options, dependencies = {}) {
       warn: (...items) => verifierLines.push(items.join(' ')),
       error: (...items) => verifierLines.push(items.join(' ')),
     };
-    const verification = verifyResources({
-      argv: [
-        'node',
-        'verify-packaged-resources.js',
-        '--out',
-        installed.installRoot,
-        '--target-platform',
-        options.targetPlatform,
-        '--target-arch',
-        options.targetArch,
-        '--resources-dir',
-        candidate.resourceDir,
-        '--app-executable',
-        candidate.executablePath,
-        '--wcore-runtime',
-        `${options.targetPlatform}-${options.targetArch}`,
-        '--officecli-runtime',
-        `${options.targetPlatform}-${options.targetArch}`,
-        // Nano is bundled as of 0.12.0 and the verifier refuses to infer its target
-        // identity, so the installed-payload smoke declares it like the others. A
-        // target wayland-nano does not publish (win32-arm64) declares that instead of
-        // staying silent, and the verifier then requires the bundle to be absent.
-        ...(isSupportedWNanoTarget(options.targetPlatform, options.targetArch)
-          ? ['--wnano-runtime', `${options.targetPlatform}-${options.targetArch}`]
-          : ['--no-wnano-runtime']),
-        // bun publishes no win32-arm64 runtime, so that target bundles none.
-        ...(isSupportedBunTarget(options.targetPlatform, options.targetArch) ? [] : ['--no-bun-runtime']),
-      ],
-      logger,
-    });
+    // The verifier writes its FAIL <rel> / path: / reason diagnostics through this
+    // logger, and they are the only thing that says WHICH resource check failed.
+    // Collecting them into an array and then letting the throw escape discarded
+    // exactly the lines written for this situation, leaving a single opaque
+    // "N CRITICAL resource(s) missing or invalid" with no way to tell a signature
+    // mismatch from an absent file. Replay them before rethrowing.
+    let verification;
+    try {
+      verification = verifyResources({
+        argv: [
+          'node',
+          'verify-packaged-resources.js',
+          '--out',
+          installed.installRoot,
+          '--target-platform',
+          options.targetPlatform,
+          '--target-arch',
+          options.targetArch,
+          '--resources-dir',
+          candidate.resourceDir,
+          '--app-executable',
+          candidate.executablePath,
+          '--wcore-runtime',
+          `${options.targetPlatform}-${options.targetArch}`,
+          '--officecli-runtime',
+          `${options.targetPlatform}-${options.targetArch}`,
+          // Nano is bundled as of 0.12.0 and the verifier refuses to infer its target
+          // identity, so the installed-payload smoke declares it like the others. A
+          // target wayland-nano does not publish (win32-arm64) declares that instead of
+          // staying silent, and the verifier then requires the bundle to be absent.
+          ...(isSupportedWNanoTarget(options.targetPlatform, options.targetArch)
+            ? ['--wnano-runtime', `${options.targetPlatform}-${options.targetArch}`]
+            : ['--no-wnano-runtime']),
+          // bun publishes no win32-arm64 runtime, so that target bundles none.
+          ...(isSupportedBunTarget(options.targetPlatform, options.targetArch) ? [] : ['--no-bun-runtime']),
+        ],
+        logger,
+      });
+    } catch (error) {
+      for (const line of verifierLines) console.error(`[verifier] ${line}`);
+      throw error;
+    }
     if (
       !Array.isArray(verification?.resourceDirs) ||
       !verification.resourceDirs.some((directory) => path.resolve(directory) === path.resolve(candidate.resourceDir))

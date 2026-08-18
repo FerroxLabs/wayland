@@ -1,0 +1,369 @@
+name: Protected native updater journey observer
+run-name: protected-updater-observer candidate=${{ inputs.candidate_commit }} producer=${{ inputs.producer_run_id }} attempt=${{ inputs.producer_run_attempt }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_commit:
+        description: Exact candidate commit built by the producer run
+        required: true
+        type: string
+      candidate_tree:
+        description: Exact candidate tree built by the producer run
+        required: true
+        type: string
+      producer_run_id:
+        description: Exact build-and-release run containing the native installers
+        required: true
+        type: string
+      producer_run_attempt:
+        description: Exact producer run attempt
+        required: true
+        type: string
+      release_track:
+        description: Native package release track
+        required: true
+        default: stable
+        type: choice
+        options: [stable, preview]
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: protected-updater-observer-${{ inputs.candidate_commit }}-${{ inputs.producer_run_id }}-${{ inputs.producer_run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    name: Observe native updater journey (${{ matrix.target }})
+    if: github.ref == 'refs/heads/release-trust-v1'
+    permissions:
+      actions: read
+      contents: read
+    env:
+      # Candidate application bytes execute in this job. Keep OIDC capability absent
+      # even if a future caller broadens workflow-level permissions, and keep the
+      # forge tokens out of the default environment so only the steps that must talk
+      # to the API can.
+      ACTIONS_ID_TOKEN_REQUEST_TOKEN: ''
+      ACTIONS_ID_TOKEN_REQUEST_URL: ''
+      GH_TOKEN: ''
+      GITHUB_TOKEN: ''
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: darwin-arm64
+            os: macos-15
+            platform: darwin
+            arch: arm64
+            artifact: macos-build-arm64
+            extension: dmg
+            initial: Wayland-0.11.18-mac-arm64.dmg
+            rollback: Wayland-0.11.8-mac-arm64.zip
+          - target: darwin-x64
+            os: macos-15-intel
+            platform: darwin
+            arch: x64
+            artifact: macos-build-x64
+            extension: dmg
+            initial: Wayland-0.11.18-mac-x64.dmg
+            rollback: Wayland-0.11.8-mac-x64.zip
+          - target: win32-arm64
+            os: windows-11-arm
+            platform: win32
+            arch: arm64
+            artifact: windows-build-arm64
+            extension: exe
+            initial: Wayland-0.11.18-win-arm64.exe
+            rollback: Wayland-0.11.8-win-arm64.exe
+          - target: win32-x64
+            os: windows-2022
+            platform: win32
+            arch: x64
+            artifact: windows-build-x64
+            extension: exe
+            initial: Wayland-0.11.18-win-x64.exe
+            rollback: Wayland-0.11.8-win-x64.exe
+          - target: linux-arm64
+            os: ubuntu-24.04-arm
+            platform: linux
+            arch: arm64
+            artifact: linux-build-arm64
+            extension: deb
+            initial: Wayland-0.11.18-linux-arm64.deb
+            rollback: Wayland-0.11.8-linux-arm64.AppImage
+          - target: linux-x64
+            os: ubuntu-24.04
+            platform: linux
+            arch: x64
+            artifact: linux-build-x64
+            extension: deb
+            initial: Wayland-0.11.18-linux-amd64.deb
+            rollback: Wayland-0.11.8-linux-x86_64.AppImage
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - name: Checkout pinned protected observer
+        uses: actions/checkout@v6
+        with:
+          ref: release-trust-v1
+          path: trust
+          persist-credentials: false
+
+      - name: Checkout exact candidate as data
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.candidate_commit }}
+          path: candidate
+          persist-credentials: false
+
+      - name: Verify protected and candidate identities
+        shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ inputs.candidate_commit }}
+          EXPECTED_TREE: ${{ inputs.candidate_tree }}
+        run: |
+          set -euo pipefail
+          test -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
+          test -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"
+          test "$(git -C trust rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git -C candidate rev-parse HEAD)" = "$EXPECTED_COMMIT"
+          test "$(git -C candidate rev-parse HEAD^{tree})" = "$EXPECTED_TREE"
+          test -z "$(git -C candidate status --porcelain=v1 --untracked-files=all)"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.14'
+
+      - name: Install protected observer dependencies
+        working-directory: trust
+        shell: bash
+        run: |
+          # Retry: package.json pins a GitHub git dependency, so install traffic hits
+          # api.github.com and an API 504 reds out this observer for reasons unrelated
+          # to the release. The sibling platform observer already retries for exactly
+          # this reason. It matters more here than it looks: once any observer job
+          # fails, the producer run concludes `failure`, and both observers refuse a
+          # producer that is not in-progress or successful - so a single transient
+          # install failure cannot be re-dispatched and costs a whole new tag run.
+          for attempt in 1 2 3; do
+            if bun install --frozen-lockfile; then exit 0; fi
+            echo "bun install attempt $attempt of 3 failed" >&2
+            if [[ $attempt -lt 3 ]]; then sleep $(( attempt * 20 )); fi
+          done
+          echo "bun install failed after 3 attempts (GitHub API or registry unreachable)" >&2
+          exit 1
+
+      # Capture runs before anything is downloaded so the recorded prior digests are
+      # provably empty. The digest is published as a step output because a step cannot
+      # read its own outputs: `${{ steps.<id>.outputs.* }}` is expanded before the step
+      # body runs and would interpolate to the empty string.
+      - name: Capture empty pre-download package state
+        id: package-state
+        shell: bash
+        env:
+          TARGET_PLATFORM: ${{ matrix.platform }}
+          TARGET_ARCH: ${{ matrix.arch }}
+          RELEASE_TRACK: ${{ inputs.release_track }}
+        run: |
+          set -euo pipefail
+          mkdir payload
+          cd candidate
+          node ../trust/scripts/platform-package-smoke.mjs \
+            --out ../payload \
+            --target-platform "$TARGET_PLATFORM" \
+            --target-arch "$TARGET_ARCH" \
+            --release-track "$RELEASE_TRACK" \
+            --capture-state "$RUNNER_TEMP/protected-updater-package-state.json" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Authenticate producer and download exact candidate package
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRODUCER_RUN_ID: ${{ inputs.producer_run_id }}
+          PRODUCER_RUN_ATTEMPT: ${{ inputs.producer_run_attempt }}
+          ARTIFACT_NAME: ${{ matrix.artifact }}
+          EXPECTED_COMMIT: ${{ inputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          producer="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PRODUCER_RUN_ID")"
+          test "$(printf '%s' "$producer" | jq -r .run_attempt)" = "$PRODUCER_RUN_ATTEMPT"
+          test "$(printf '%s' "$producer" | jq -r .head_sha)" = "$EXPECTED_COMMIT"
+          test "$(printf '%s' "$producer" | jq -r .path)" = ".github/workflows/build-and-release.yml"
+          producer_state="$(printf '%s' "$producer" | jq -r '[.status, (.conclusion // "null")] | join(":")')"
+          case "$producer_state" in
+            in_progress:null|completed:success) ;;
+            *) echo "producer run is not an admissible exact build state: $producer_state" >&2; exit 1 ;;
+          esac
+          gh run download "$PRODUCER_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT_NAME" --dir payload
+
+      - name: Independently observe installed native package
+        shell: bash
+        env:
+          TARGET_PLATFORM: ${{ matrix.platform }}
+          TARGET_ARCH: ${{ matrix.arch }}
+          RELEASE_TRACK: ${{ inputs.release_track }}
+          CANDIDATE_STATE_DIGEST: ${{ steps.package-state.outputs.candidate_state_digest }}
+        run: |
+          set -euo pipefail
+          test -n "$CANDIDATE_STATE_DIGEST"
+          cd candidate
+          node ../trust/scripts/platform-package-smoke.mjs \
+            --out ../payload \
+            --target-platform "$TARGET_PLATFORM" \
+            --target-arch "$TARGET_ARCH" \
+            --release-track "$RELEASE_TRACK" \
+            --candidate-state-file "$RUNNER_TEMP/protected-updater-package-state.json" \
+            --candidate-state-digest "$CANDIDATE_STATE_DIGEST"
+
+      # Downloaded outside payload/ on purpose. The compiled v0.11.18 initial installer
+      # shares the candidate's extension on linux and windows, and the smoke step above
+      # scans payload/ for installers.
+      - name: Download exact compiled initial and rollback releases
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INITIAL_ASSET: ${{ matrix.initial }}
+          ROLLBACK_ASSET: ${{ matrix.rollback }}
+        run: |
+          set -euo pipefail
+          mkdir -p releases/initial releases/rollback
+          gh release download v0.11.18 --repo "$GITHUB_REPOSITORY" --pattern "$INITIAL_ASSET" --dir releases/initial
+          gh release download v0.11.8 --repo "$GITHUB_REPOSITORY" --pattern "$ROLLBACK_ASSET" --dir releases/rollback
+          test -f "releases/initial/$INITIAL_ASSET"
+          test -f "releases/rollback/$ROLLBACK_ASSET"
+
+      - name: Observe initial failure rollback and re-upgrade from protected code
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+          CANDIDATE_TREE: ${{ inputs.candidate_tree }}
+          INITIAL_ASSET: ${{ matrix.initial }}
+          ROLLBACK_ASSET: ${{ matrix.rollback }}
+          INSTALLER_EXTENSION: ${{ matrix.extension }}
+        run: |
+          set -euo pipefail
+          test -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
+          test -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"
+          candidate_version="$(jq -er .version candidate/package.json)"
+          installer_count="$(find payload -maxdepth 1 -type f -iname "*.$INSTALLER_EXTENSION" -print | wc -l | tr -d ' ')"
+          test "$installer_count" -eq 1
+          installer="$(find payload -maxdepth 1 -type f -iname "*.$INSTALLER_EXTENSION" -print)"
+          test -f "payload/platform-package-smoke-$TARGET.json"
+          nonce="$(openssl rand -hex 32)"
+          node trust/scripts/release-acceptance/produceNativeUpdaterObservation.mjs \
+            --target "$TARGET" \
+            --commit "$CANDIDATE_COMMIT" \
+            --tree "$CANDIDATE_TREE" \
+            --version "$candidate_version" \
+            --nonce "$nonce" \
+            --run-id "$GITHUB_RUN_ID" \
+            --initial "releases/initial/$INITIAL_ASSET" \
+            --candidate "$installer" \
+            --rollback "releases/rollback/$ROLLBACK_ASSET" \
+            --package-smoke "payload/platform-package-smoke-$TARGET.json" \
+            --out observation-bundle
+          test -f observation-bundle/observation.json
+
+      - name: Upload untrusted native execution bundle
+        uses: actions/upload-artifact@v6
+        with:
+          name: untrusted-updater-observation-${{ matrix.target }}-${{ inputs.candidate_commit }}
+          path: observation-bundle
+          if-no-files-found: error
+          retention-days: 14
+
+  sign:
+    name: Sign protected updater observation (${{ matrix.target }})
+    needs: observe
+    if: github.ref == 'refs/heads/release-trust-v1'
+    permissions:
+      actions: read
+      attestations: write
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [darwin-arm64, darwin-x64, win32-arm64, win32-x64, linux-arm64, linux-x64]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout pinned signing authority only
+        uses: actions/checkout@v6
+        with:
+          ref: release-trust-v1
+          path: trust
+          persist-credentials: false
+
+      - name: Verify signing authority identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C trust rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git -C trust status --porcelain=v1 --untracked-files=all)"
+
+      # Pinned like the observe job. This job runs the validator that IS the gate;
+      # inheriting whatever Node the runner image happens to ship puts a
+      # release-critical script on an unpinned toolchain.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Download same-run inert observation bytes
+        uses: actions/download-artifact@v7
+        with:
+          name: untrusted-updater-observation-${{ matrix.target }}-${{ inputs.candidate_commit }}
+          path: bundle
+
+      - name: Validate exact bundle without executing candidate
+        id: validate
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+          CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+          CANDIDATE_TREE: ${{ inputs.candidate_tree }}
+        run: |
+          set -euo pipefail
+          validation="$(node trust/scripts/release-acceptance/validateNativeUpdaterBundle.js \
+            --bundle bundle \
+            --commit "$CANDIDATE_COMMIT" \
+            --tree "$CANDIDATE_TREE" \
+            --target "$TARGET" \
+            --run-id "$GITHUB_RUN_ID")"
+          printf '%s\n' "$validation"
+          candidate_installer="$(printf '%s' "$validation" | jq -er .candidateArtifactFile)"
+          case "$candidate_installer" in
+            ''|*/*|*\\*|.|..) echo "candidate artifact reference is not a bundle-local basename" >&2; exit 1 ;;
+          esac
+          test -f "bundle/$candidate_installer"
+          echo "candidate_installer=$candidate_installer" >> "$GITHUB_OUTPUT"
+
+      # The observation receipt carries this workflow's identity for the trust root's
+      # `gh attestation verify --signer-workflow`. The candidate installer is attested
+      # by the same job because verifyUpdaterObservation demands provenance from this
+      # exact workflow for the linux candidate artifact; signing all six keeps the
+      # matrix uniform and costs one extra subject.
+      - name: Attest exact protected updater observation bytes
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            bundle/observation.json
+            bundle/${{ steps.validate.outputs.candidate_installer }}
+
+      - name: Publish protected updater observation bundle
+        uses: actions/upload-artifact@v6
+        with:
+          name: protected-updater-observation-${{ matrix.target }}-${{ inputs.candidate_commit }}
+          path: bundle
+          if-no-files-found: error
+          retention-days: 14

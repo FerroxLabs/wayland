@@ -108,8 +108,20 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
         fail('M8I_PLATFORM_SMOKE_INVALID', `${target}:unsafe-protected-binding`);
       }
     }
+    // Scoped to the protected observation directory, NOT to every downloaded file.
+    // THREE copies of platform-package-smoke-<target>.json reach this job and all
+    // three carry the same contract, target and candidate identity:
+    //   1. the build artifact itself (_build-reusable.yml uploads out/platform-package-smoke-*.json),
+    //   2. the protected platform observation bundle - the authoritative one,
+    //   3. the protected updater observation bundle, which byte-binds its own copy
+    //      (validateNativeUpdaterBundle requires observation.packageSmoke, so it
+    //      cannot simply be dropped from that bundle).
+    // Searching all of them failed `count-3` for every target. The path assertion
+    // below already declared that only the protected copy is acceptable; this makes
+    // the search agree with it instead of contradicting it.
+    const protectedFiles = files.filter((file) => path.dirname(file) === protectedRoot);
     const smoke = exactlyOne(
-      files,
+      protectedFiles,
       (file) => {
         const value = parseJson(file);
         return (
