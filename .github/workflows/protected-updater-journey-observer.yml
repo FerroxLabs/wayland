@@ -144,7 +144,22 @@ jobs:
 
       - name: Install protected observer dependencies
         working-directory: trust
-        run: bun install --frozen-lockfile
+        shell: bash
+        run: |
+          # Retry: package.json pins a GitHub git dependency, so install traffic hits
+          # api.github.com and an API 504 reds out this observer for reasons unrelated
+          # to the release. The sibling platform observer already retries for exactly
+          # this reason. It matters more here than it looks: once any observer job
+          # fails, the producer run concludes `failure`, and both observers refuse a
+          # producer that is not in-progress or successful - so a single transient
+          # install failure cannot be re-dispatched and costs a whole new tag run.
+          for attempt in 1 2 3; do
+            if bun install --frozen-lockfile; then exit 0; fi
+            echo "bun install attempt $attempt of 3 failed" >&2
+            if [[ $attempt -lt 3 ]]; then sleep $(( attempt * 20 )); fi
+          done
+          echo "bun install failed after 3 attempts (GitHub API or registry unreachable)" >&2
+          exit 1
 
       # Capture runs before anything is downloaded so the recorded prior digests are
       # provably empty. The digest is published as a step output because a step cannot
@@ -296,6 +311,13 @@ jobs:
           set -euo pipefail
           test "$(git -C trust rev-parse HEAD)" = "$GITHUB_SHA"
           test -z "$(git -C trust status --porcelain=v1 --untracked-files=all)"
+
+      # Pinned like the observe job. This job runs the validator that IS the gate;
+      # inheriting whatever Node the runner image happens to ship puts a
+      # release-critical script on an unpinned toolchain.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
 
       - name: Download same-run inert observation bytes
         uses: actions/download-artifact@v7

@@ -378,6 +378,95 @@ function copyTree(source, destination) {
   fs.cpSync(source, destination, { recursive: true, dereference: false, errorOnExist: true, force: false });
 }
 
+// Chromium owns these inside an Electron profile and rewrites them on ordinary
+// launches: leveldb reopens rewrite LOG/LOG.old/MANIFEST, the cache index files
+// are stamped every run, and DevToolsActivePort is per-session. Measured on a real
+// v0.11.18 -> v0.11.8 boot pair: 16 files changed and 3 appeared, with no update
+// involved at all.
+const CHROMIUM_MANAGED_ENTRIES = new Set([
+  'Cache',
+  'Code Cache',
+  'GPUCache',
+  'DawnCache',
+  'DawnGraphiteCache',
+  'DawnWebGPUCache',
+  'Shared Dictionary',
+  'Local Storage',
+  'Session Storage',
+  'Service Worker',
+  'IndexedDB',
+  'Network',
+  'blob_storage',
+  'Crashpad',
+  'DevToolsActivePort',
+  'Local State',
+  'Preferences',
+  'Network Persistent State',
+  'SingletonCookie',
+  'SingletonLock',
+  'SingletonSocket',
+]);
+
+// Content SHIPPED inside the app bundle and re-materialised into the profile on
+// launch. It is version-scoped by design - v0.11.18 ships six builtin skills that
+// v0.11.8 does not - so it can never be byte-stable across an upgrade or rollback
+// and is not user data.
+const APP_SHIPPED_PREFIXES = ['config/assistants/', 'config/builtin-skills/'];
+
+// A file no version of the app reads or writes, planted into the profile before the
+// update sequence. It stands in for the user's own content: if an update, rollback
+// or re-upgrade wipes or rewrites the profile, this is destroyed and the
+// observation fails. Unlike a whole-profile hash it cannot be invalidated by
+// legitimate version differences.
+const USER_DATA_SENTINEL = 'wayland-updater-observation-sentinel.bin';
+
+export function plantSupportedStateSentinel(root, nonce) {
+  const bytes = Buffer.from(`wayland-updater-observation/1\0${nonce}\0`, 'utf8');
+  fs.writeFileSync(path.join(root, USER_DATA_SENTINEL), bytes, { mode: 0o600 });
+  return sha256Bytes(bytes);
+}
+
+export function supportedStateEntries(root) {
+  const resolved = fs.realpathSync(root);
+  const entries = new Set();
+  const visit = (directory) => {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const absolute = path.join(directory, entry.name);
+      const relative = path.relative(resolved, absolute).split(path.sep).join('/');
+      if (CHROMIUM_MANAGED_ENTRIES.has(entry.name) || CHROMIUM_MANAGED_ENTRIES.has(relative)) continue;
+      if (APP_SHIPPED_PREFIXES.some((prefix) => `${relative}/`.startsWith(prefix))) continue;
+      if (entry.name.endsWith('.log') || entry.name.endsWith('.lock')) continue;
+      if (entry.isSymbolicLink()) fail(`supported state contains symlink: ${relative}`);
+      else if (entry.isDirectory()) visit(absolute);
+      else if (entry.isFile()) entries.add(relative);
+      else fail(`supported state contains unsupported entry: ${relative}`);
+    }
+  };
+  visit(resolved);
+  return entries;
+}
+
+/**
+ * The property worth gating is that the update sequence DESTROYS NOTHING the user
+ * owns - not that a Chromium-managed profile is frozen byte for byte across three
+ * different application versions, which is unsatisfiable and was never true.
+ *
+ * So: the planted sentinel must survive byte-identical, and every user/app data
+ * file that existed before must still exist afterwards. Their BYTES may legitimately
+ * change, because the app rewrites its own wayland.db and wayland-config.txt on
+ * every launch and runs migrations across versions.
+ */
+export function assertSupportedStateSurvived(beforeEntries, sentinelSha256, root, label) {
+  const sentinel = path.join(root, USER_DATA_SENTINEL);
+  if (!fs.existsSync(sentinel) || !fs.statSync(sentinel).isFile())
+    fail(`${label} destroyed the user data sentinel`);
+  if (sha256Bytes(fs.readFileSync(sentinel)) !== sentinelSha256)
+    fail(`${label} rewrote the user data sentinel`);
+  const after = supportedStateEntries(root);
+  const lost = [...beforeEntries].filter((relative) => !after.has(relative)).sort();
+  if (lost.length) fail(`${label} destroyed supported state: ${lost.slice(0, 8).join(', ')}`);
+}
+
 function hashSupportedData(root) {
   const resolved = fs.realpathSync(root);
   const hash = crypto.createHash('sha256');
@@ -608,6 +697,10 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
   const boot = dependencies.bootInstalledRuntime || bootInstalledRuntime;
   const prepare = dependencies.prepareInstalledArtifact || prepareInstalledArtifact;
   const now = dependencies.now || (() => new Date());
+  // Stamped as each phase actually completes. Generating all four at the end put
+  // every observedAt within microseconds of the others, so anything downstream
+  // checking phase ordering or duration was validating fiction.
+  const phaseObservedAt = [];
   try {
     const liveState = path.join(workRoot, 'live-state');
     fs.mkdirSync(liveState, { recursive: true, mode: 0o700 });
@@ -630,8 +723,14 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       !initialBoot.shutdownComplete
     )
       fail('initial phase lacks actual native lifecycle evidence');
+    phaseObservedAt.push(now().toISOString());
+    // Planted into the LIVE profile before it is copied, so the baseline snapshot and
+    // every phase derived from it carry the same sentinel. Planting it into the copy
+    // instead would make the failed-update comparison below diff the sentinel itself.
+    const sentinelSha256 = plantSupportedStateSentinel(liveState, request.nonce);
     const supportedSource = path.join(workRoot, 'supported-source');
     copyTree(liveState, supportedSource);
+    const supportedEntries = supportedStateEntries(supportedSource);
     const supportedDataSetSha256 = hashSupportedData(supportedSource);
     const initialInstalledDigest = initial.installedDigest;
 
@@ -655,6 +754,7 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
     if (candidateContentDigest(initial) !== initialInstalledDigest)
       fail('failed update changed the installed initial payload');
     if (hashSupportedData(liveState) !== supportedDataSetSha256) fail('failed update changed supported state');
+    phaseObservedAt.push(now().toISOString());
 
     const rollbackState = path.join(workRoot, 'rollback-state');
     copyTree(supportedSource, rollbackState);
@@ -677,7 +777,8 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       !rollbackBoot.shutdownComplete
     )
       fail('rollback phase lacks actual native lifecycle evidence');
-    if (hashSupportedData(rollbackState) !== supportedDataSetSha256) fail('rollback changed supported state bytes');
+    assertSupportedStateSurvived(supportedEntries, sentinelSha256, rollbackState, 'rollback');
+    phaseObservedAt.push(now().toISOString());
 
     const reupgradeState = path.join(workRoot, 'reupgrade-state');
     copyTree(supportedSource, reupgradeState);
@@ -700,7 +801,8 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       !reupgradeBoot.shutdownComplete
     )
       fail('re-upgrade phase lacks actual native lifecycle evidence');
-    if (hashSupportedData(reupgradeState) !== supportedDataSetSha256) fail('re-upgrade changed supported state bytes');
+    assertSupportedStateSurvived(supportedEntries, sentinelSha256, reupgradeState, 're-upgrade');
+    phaseObservedAt.push(now().toISOString());
 
     const initialPublisher = (dependencies.verifyPublisherEvidence || verifyPublisherEvidence)(
       request.target,
@@ -739,7 +841,8 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
         path.join(request.outDir, path.basename(request.packageSmoke.path))
       ),
     };
-    const phaseTimes = [now(), now(), now(), now()].map((value) => value.toISOString());
+    if (phaseObservedAt.length !== 4) fail(`expected four observed phase times, got ${phaseObservedAt.length}`);
+    const phaseTimes = phaseObservedAt;
     const versions = { candidate: request.candidate.version };
     const digests = {
       initial: artifactRefs.initial.sha256,

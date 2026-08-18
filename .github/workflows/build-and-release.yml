@@ -598,6 +598,12 @@ jobs:
           echo "commit=$commit" >> "$GITHUB_OUTPUT"
           echo "tree=$tree" >> "$GITHUB_OUTPUT"
 
+      # The acceptance scripts below are release-critical and were running on
+      # whatever Node the runner image happened to ship.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Download exact canonical build artifacts
         uses: actions/download-artifact@v7
         with:

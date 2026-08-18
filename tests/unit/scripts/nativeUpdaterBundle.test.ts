@@ -5,9 +5,14 @@
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
-import { assertRejectionAttributableToCorruption } from '../../../scripts/release-acceptance/produceNativeUpdaterObservation.mjs';
+import {
+  assertRejectionAttributableToCorruption,
+  assertSupportedStateSurvived,
+  plantSupportedStateSentinel,
+  supportedStateEntries,
+} from '../../../scripts/release-acceptance/produceNativeUpdaterObservation.mjs';
 import crypto from 'node:crypto';
-import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -291,6 +296,95 @@ describe('corrupted-installer rejection is attributable', () => {
     };
     expect(() => assertRejectionAttributableToCorruption(prepare, request, '/work', {})).toThrow(
       /not attributable to the corruption/
+    );
+  });
+});
+
+/**
+ * The rollback and re-upgrade phases used to demand a byte-identical profile hash
+ * across THREE different application versions. Measured against real boots of
+ * v0.11.18 and v0.11.8 on the same profile: 16 files changed, 3 appeared and 6
+ * disappeared with no update involved. Chromium rewrites leveldb LOG/LOG.old and
+ * its cache indexes on every launch, Wayland rewrites its own wayland.db and
+ * wayland-config.txt, and v0.11.8 simply ships six fewer builtin skills than
+ * v0.11.18. The check could never pass, which is why this gate never went green.
+ *
+ * The property that IS true and worth gating is that the update sequence destroys
+ * nothing the user owns.
+ */
+describe('supported state survival', () => {
+  const roots2: string[] = [];
+  afterEach(() => {
+    for (const root of roots2.splice(0)) rmSync(root, { recursive: true, force: true });
+  });
+
+  function profile() {
+    const root = mkdtempSync(path.join(tmpdir(), 'wl-survive-'));
+    roots2.push(root);
+    mkdirSync(path.join(root, 'wayland'), { recursive: true });
+    mkdirSync(path.join(root, 'config/builtin-skills/copywriter'), { recursive: true });
+    mkdirSync(path.join(root, 'Local Storage/leveldb'), { recursive: true });
+    writeFileSync(path.join(root, 'wayland/wayland.db'), 'user-rows');
+    writeFileSync(path.join(root, 'config/wayland-config.txt'), 'user-config');
+    writeFileSync(path.join(root, 'config/builtin-skills/copywriter/SKILL.md'), 'shipped');
+    writeFileSync(path.join(root, 'Local Storage/leveldb/LOG'), 'chromium noise');
+    return root;
+  }
+
+  it('tracks user and app data but not Chromium state or app-shipped content', () => {
+    expect([...supportedStateEntries(profile())].sort()).toEqual([
+      'config/wayland-config.txt',
+      'wayland/wayland.db',
+    ]);
+  });
+
+  it('passes when only Chromium state and shipped content differ', () => {
+    const before = profile();
+    const sha = plantSupportedStateSentinel(before, 'a'.repeat(64));
+    const entries = supportedStateEntries(before);
+    const after = profile();
+    plantSupportedStateSentinel(after, 'a'.repeat(64));
+    // the deltas a real version change produces
+    writeFileSync(path.join(after, 'Local Storage/leveldb/LOG'), 'rewritten by relaunch');
+    writeFileSync(path.join(after, 'Local Storage/leveldb/LOG.old'), 'rotated');
+    rmSync(path.join(after, 'config/builtin-skills/copywriter'), { recursive: true, force: true });
+    writeFileSync(path.join(after, 'wayland/wayland.db'), 'migrated rows');
+    expect(() => assertSupportedStateSurvived(entries, sha, after, 'rollback')).not.toThrow();
+  });
+
+  it.each([
+    ['the user database', 'wayland/wayland.db'],
+    ['the user config', 'config/wayland-config.txt'],
+  ])('rejects destruction of %s', (_label, victim) => {
+    const before = profile();
+    const sha = plantSupportedStateSentinel(before, 'a'.repeat(64));
+    const entries = supportedStateEntries(before);
+    const after = profile();
+    plantSupportedStateSentinel(after, 'a'.repeat(64));
+    rmSync(path.join(after, victim), { force: true });
+    expect(() => assertSupportedStateSurvived(entries, sha, after, 'rollback')).toThrow(
+      /destroyed supported state/
+    );
+  });
+
+  it('rejects a destroyed sentinel', () => {
+    const before = profile();
+    const sha = plantSupportedStateSentinel(before, 'a'.repeat(64));
+    const entries = supportedStateEntries(before);
+    const after = profile();
+    expect(() => assertSupportedStateSurvived(entries, sha, after, 'rollback')).toThrow(
+      /destroyed the user data sentinel/
+    );
+  });
+
+  it('rejects a rewritten sentinel', () => {
+    const before = profile();
+    const sha = plantSupportedStateSentinel(before, 'a'.repeat(64));
+    const entries = supportedStateEntries(before);
+    const after = profile();
+    plantSupportedStateSentinel(after, 'b'.repeat(64));
+    expect(() => assertSupportedStateSurvived(entries, sha, after, 'rollback')).toThrow(
+      /rewrote the user data sentinel/
     );
   });
 });

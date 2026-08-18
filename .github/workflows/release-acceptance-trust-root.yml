@@ -124,7 +124,12 @@ jobs:
               >> "$records"
           }
           run_gate tests 'bun run test'
-          run_gate typecheck 'bunx tsc --noEmit'
+          # `bun run typecheck`, not a raw `tsc`: package.json sets
+          # NODE_OPTIONS=--max-old-space-size=8192 for this project, and without it the
+          # check dies of heap exhaustion. Every other gate here already goes through
+          # its script; this one bypassed it and would have OOM'd the first time this
+          # job was reached - which has never happened.
+          run_gate typecheck 'bun run typecheck'
           run_gate lint 'bun run lint'
           run_gate build 'bun run build:renderer:web'
           bun audit --json > "$GATE_OUTPUT/dependency-audit.json" 2> "$GATE_OUTPUT/dependency-audit.stderr" || true
