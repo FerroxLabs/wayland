@@ -28,7 +28,29 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, sep } from 'node:path';
 import { parse } from 'smol-toml';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+/**
+ * Counts every TOML parse without changing what one does.
+ *
+ * The two halves of the repair budget - bytes and wall clock - mask each other:
+ * with both live, deleting either still yields "gave up", so a result-only
+ * assertion cannot tell them apart and a mutant that removes the byte cap
+ * survives. Parses are the unit the byte budget is actually spent in, so
+ * counting them lets the byte cap be asserted directly, with the clock frozen
+ * so it cannot be what stopped the work.
+ */
+const parseCalls = vi.hoisted(() => ({ n: 0 }));
+vi.mock('smol-toml', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('smol-toml')>();
+  return {
+    ...actual,
+    parse: (...args: Parameters<typeof actual.parse>) => {
+      parseCalls.n += 1;
+      return actual.parse(...args);
+    },
+  };
+});
 import {
   EngineConfigBackupError,
   createVerifiedBackup,
@@ -406,19 +428,91 @@ describe('planLineBreakRepair', () => {
     expect(Date.now() - started).toBeLessThan(500);
   });
 
-  it('still repairs a normal-sized config that needs several breaks (known positive)', () => {
-    // The budget must not have made the feature useless. 20 KB of real tables plus
-    // a glued line needing 4 breaks - the shape a user actually has.
+  /** 20 KB of real tables plus a glued line needing 4 breaks - the shape a user
+   *  actually has. Shared so the two clock cases below argue about the SAME
+   *  document and differ only in what time does. */
+  function normalSizedGluedConfig(): string {
     let doc = '';
     for (let t = 0; doc.length < 20000; t += 1) {
       doc += `[section_${t}]\nname = "value-${t}"\nnote = "padpadpadpadpadpadpadpadpadpad"\n\n`;
     }
-    doc += `[tail]\n${Array.from({ length: 5 }, (_, i) => `k${i} = 1`).join('')}\n`;
+    return doc + `[tail]\n${Array.from({ length: 5 }, (_, i) => `k${i} = 1`).join('')}\n`;
+  }
 
-    const repair = planLineBreakRepair(doc);
-    expect(repair).not.toBeNull();
-    expect(repair?.plan.lineBreaks).toBe(4);
-    expect(() => parse(repair!.repaired)).not.toThrow();
+  it('still repairs a normal-sized config that needs several breaks (known positive)', () => {
+    // The BYTE budget must not have made the feature useless. Time is frozen so
+    // the separate WALL-CLOCK bound cannot decide this case: with a real clock
+    // the 250ms deadline races the test, and on a loaded machine it wins and
+    // turns a statement about the byte budget into a statement about the load
+    // average. The deadline gets its own test below rather than being asserted
+    // here by accident.
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_000_000);
+    parseCalls.n = 0;
+    try {
+      const repair = planLineBreakRepair(normalSizedGluedConfig());
+      expect(repair).not.toBeNull();
+      expect(repair?.plan.lineBreaks).toBe(4);
+      expect(() => parse(repair!.repaired)).not.toThrow();
+    } finally {
+      now.mockRestore();
+    }
+    // Freezing the clock removed something real: with a live clock this
+    // assertion transitively proved a realistic repair FINISHES inside
+    // MAX_REPAIR_MILLIS on actual hardware. Make somebody making this planner
+    // quadratic fail here, deterministically, instead of shipping a feature that
+    // silently stops being offered to every user because it now blows the
+    // deadline. A work bound, not a stopwatch.
+    expect(parseCalls.n).toBe(40);
+  });
+
+  it('bounds PARSES by the byte budget alone, with the clock frozen', () => {
+    // The byte half of the budget, asserted where the clock cannot reach it.
+    // Same pathological document as the cost-product test above: 852 parses
+    // totalling 417 MB before the budget existed, 4 parses and 1.96 MB after.
+    // Frozen time means only the byte cap can stop this, and a count rather
+    // than a stopwatch means a loaded machine cannot change the answer.
+    const alpha = 'abcdefghijklmnopqrstuvwxyz';
+    const pairs = Array.from({ length: 40 }, (_, i) => `${alpha[i % 26]}${alpha[Math.floor(i / 26)]}q = "v"`);
+    const commentLine = `# ${'f'.repeat(120)}\n`;
+    const tail = `[tail]\n${pairs.join(' ')}\n`;
+    let doc = '';
+    while (Buffer.byteLength(doc, 'utf-8') + commentLine.length <= 513852 - Buffer.byteLength(tail, 'utf-8')) {
+      doc += commentLine;
+    }
+    doc += tail;
+
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_000_000);
+    parseCalls.n = 0;
+    try {
+      expect(planLineBreakRepair(doc)).toBeNull();
+    } finally {
+      now.mockRestore();
+    }
+    // EXACT, not a range. `< 20` tolerated MAX_REPAIR_PARSE_BYTES growing from
+    // 2 MB to ~10 MB - a 5x increase in the main-thread freeze this budget
+    // exists to prevent - while still passing green. The count is fully
+    // deterministic here: frozen clock, fixed ASCII document, integer budget
+    // arithmetic. 4 parses with the budget, 852 without.
+    expect(parseCalls.n).toBe(4);
+  });
+
+  it('gives up on that SAME config once the wall-clock deadline passes', () => {
+    // The deadline half of the budget, which nothing covered while it was only
+    // ever exercised by accident. A clock that jumps 200ms per reading passes
+    // MAX_REPAIR_MILLIS partway through, so the planner must abandon a document
+    // it just proved it can repair - and abandon it whole, returning null rather
+    // than a partial plan.
+    let t = 1_000_000;
+    const now = vi.spyOn(Date, 'now').mockImplementation(() => {
+      const value = t;
+      t += 200;
+      return value;
+    });
+    try {
+      expect(planLineBreakRepair(normalSizedGluedConfig())).toBeNull();
+    } finally {
+      now.mockRestore();
+    }
   });
 });
 

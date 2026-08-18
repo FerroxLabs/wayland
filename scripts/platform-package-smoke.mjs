@@ -967,11 +967,53 @@ function descendantsFromSnapshot(rootPid, snapshot) {
     children.push(record);
     childrenByParent.set(record.parentPid, children);
   }
+  // A process table is NOT guaranteed to be a walkable tree, and this walk must
+  // terminate on whatever it is handed.
+  //
+  // Every record carries exactly ONE parentPid, so `childrenByParent` is an
+  // inverted functional graph: each node has a single in-edge. A node sitting on
+  // a cycle therefore has its only parent inside that cycle, so its ancestor
+  // chain never reaches rootPid and the walk cannot enter it. Only two shapes
+  // actually loop, and it is worth naming them precisely because the obvious
+  // guess - "some descendant's ppid points back into the subtree" - is exactly
+  // the unreachable case:
+  //
+  //   1. rootPid is ITSELF on the cycle. Its own children are seeded into the
+  //      queue, the walk comes back around to rootPid, and its children are
+  //      seeded again, forever. This is the physically realistic one: PID reuse
+  //      lets the root's ancestry re-enter its own subtree.
+  //   2. The snapshot contains two records with the SAME pid. Get-CimInstance
+  //      cannot emit that - PIDs are unique at an instant - so this is defence
+  //      against a malformed table rather than an observed shape.
+  //
+  // Untreated, shape 1 took down the windows-x64 leg of the v0.12.1 release
+  // AFTER a clean build and a successful install, with `descendants.push`
+  // refusing the array length. Marking a PID before expanding it makes the walk
+  // terminate on any graph and bounds the result at one entry per process.
+  // rootPid is pre-seeded so shape 1 cannot re-enter; nothing is lost by it,
+  // because the root's own children were already seeded into the queue.
+  //
+  // Keying by pid alone is deliberate and safe: PID reuse is a phenomenon across
+  // TIME and this walk only ever sees one instant. The kill path does not rely
+  // on this list being identity-unique either - `createProcessMonitor` and
+  // `terminateProcessTree` both re-key on `pid\0identity`.
   const descendants = [];
+  const seen = new Set([rootPid]);
   const queue = [...(childrenByParent.get(rootPid) || [])];
   while (queue.length) {
     const record = queue.shift();
+    if (seen.has(record.pid)) continue;
+    seen.add(record.pid);
     descendants.push(record);
+    // Belt and braces, and the reason a regression here FAILS instead of hanging.
+    // The result is provably bounded by the snapshot size, so this can never fire
+    // on a legitimate table. Without it, breaking the visited set does not raise a
+    // catchable error: it allocates until the process dies of a FATAL heap OOM,
+    // which in a test shard reads as a crashed or hung runner rather than a
+    // failing assertion.
+    if (descendants.length > snapshot.length) {
+      throw new Error(`${TAG} descendant walk did not terminate (rootPid=${rootPid})`);
+    }
     queue.push(...(childrenByParent.get(record.pid) || []));
   }
   return descendants;
