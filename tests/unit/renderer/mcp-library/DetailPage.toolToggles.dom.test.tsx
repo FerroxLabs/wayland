@@ -179,3 +179,28 @@ test('disable-all sets allowedTools to [] (none enabled)', async () => {
   await waitFor(() => expect(saveMcpServers).toHaveBeenCalled());
   expect(persistedAllowedTools()).toEqual([]);
 });
+
+/**
+ * #998 - the switches above are a real constraint only on the backends that
+ * carry `allowedTools` into their launch config (Codex, Gemini). On Wayland
+ * Core and the ACP agents the connector reaches the engine whole. The panel
+ * must say so: an active control that silently does nothing manufactures false
+ * confidence about a security-relevant setting.
+ */
+test('the tools panel states which engines actually enforce the switches', async () => {
+  renderDetail();
+  await openToolsTab();
+
+  const notice = await screen.findByText(/enforced on/i);
+  expect(notice.textContent).toContain('Codex, Gemini');
+  expect(notice.textContent).toContain('Wayland Core');
+  expect(notice.textContent).toMatch(/still callable there/i);
+});
+
+test('the enforcement notice is not shown before a connector has tools', async () => {
+  hookState.mcpServers = [{ ...seed(), tools: [] } as IMcpServer];
+  renderDetail();
+  await openToolsTab();
+
+  expect(screen.queryByText(/enforced on/i)).toBeNull();
+});

@@ -16,6 +16,10 @@ import type { McpSource } from '../../process/services/mcpServices/McpProtocol';
 import type { CuaPermissionStatus, PrivacyPane } from '../../process/services/macPermissions/cuaPermissions';
 import type { MicPermissionStatus } from '../../process/services/macPermissions/micPermission';
 import type { DoctorReport } from '../../process/doctor/types';
+import type {
+  EngineConfigInspection,
+  EngineConfigRecoveryResult,
+} from '../../process/agent/wcore/engineConfigRecovery';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
 import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/workspaceTrust';
@@ -1306,6 +1310,33 @@ export const doctor = {
   // gesture), so the Doctor "Copy report" button routes through Electron's
   // `clipboard.writeText` here instead (#269).
   copyText: buildProvider<void, { text: string }>('doctor.copy-text'),
+};
+
+/**
+ * #1024 - in-app recovery for an engine `config.toml` that is not valid TOML.
+ *
+ * The renderer supplies NO path on any of these: the main process resolves the
+ * active profile's `config.toml` itself. That is deliberate - it means there is
+ * no renderer-controlled filesystem target to confine or smuggle, and `reveal`
+ * can therefore point at the engine config dir (which is NOT one of
+ * `pathConfinement`'s authorized roots, so the generic `show-item-in-folder`
+ * channel would reject it) without widening that surface by a single byte.
+ *
+ * `inspect` returns the path plus LINE and COLUMN numbers and a scrubbed
+ * one-line reason - never file content. See `engineConfigRecovery.ts` for why.
+ *
+ * The WHOLE namespace is remote-denied by PREFIX in bridgeAllowlist - three of
+ * these move a credential-bearing file on the host and `inspect` discloses the
+ * host's config path and posture, so a future channel added here must not be one
+ * omission away from being remotely reachable.
+ */
+export const engineConfigRecovery = {
+  inspect: buildProvider<EngineConfigInspection, void>('engine-config-recovery.inspect'),
+  repair: buildProvider<EngineConfigRecoveryResult, void>('engine-config-recovery.repair'),
+  // `confirmed` is carried explicitly so the destructive path cannot be reached
+  // by an empty/absent payload; the main process re-checks it (never assumed).
+  regenerate: buildProvider<EngineConfigRecoveryResult, { confirmed: boolean }>('engine-config-recovery.regenerate'),
+  reveal: buildProvider<ShellOpenResult, void>('engine-config-recovery.reveal'),
 };
 
 // Flux compatibility-layer connectors (opencode, etc.)
@@ -3251,7 +3282,7 @@ export const memory = {
   /** Quick-add a new memory from the renderer input. */
   setQuickAdd: buildProvider<
     { ok: boolean; error?: string },
-    { content: string; scope: 'project' | 'global'; type?: string }
+    { content: string; scope: 'project' | 'global'; type?: string; projectPath?: string }
   >('memory.set-quick-add'),
   /** Entries whose promotionScore meets the threshold. */
   getPromotionCandidates: buildProvider<PromotionCandidates, void>('memory.get-promotion-candidates'),

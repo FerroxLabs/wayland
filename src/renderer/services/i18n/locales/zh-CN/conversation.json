@@ -469,7 +469,8 @@
     "toolCount": "{{count}} tools",
     "noConnectors": "No connectors installed yet.",
     "addConnector": "Add a connector",
-    "manageConnectors": "Manage connectors"
+    "manageConnectors": "Manage connectors",
+    "toolNudgeAdvisory": "已启用 {{count}} 个工具。工具列表过长会降低大多数模型的工具选择质量 — 请为此对话缩减服务器或更换模型。"
   },
   "modelSelector": {
     "title": "Model",
@@ -509,5 +510,45 @@
       "title": "任务失败",
       "body": "{{title}} 因错误而停止。{{detail}}"
     }
+  },
+  "engineConfigInvalid": {
+    "title": "Wayland Core 的设置文件需要修复",
+    "explainer": "引擎读不了自己的设置文件，所以智能体无法启动。什么都没有被改动——你的服务商、密钥和设置都还在里面。",
+    "dismiss": "关闭",
+    "details": "技术细节",
+    "checking": "正在检查设置文件…",
+    "location": "问题出在第 {{line}} 行，第 {{column}} 列。",
+    "noProblem": "设置文件现在可以正常读取了。请重新发送消息。",
+    "unreadable": "Wayland 无法读取设置文件。原因：{{reason}}",
+    "repair": {
+      "label": "帮我修复第 {{line}} 行",
+      "sublabel": "先备份文件，然后补上缺失的换行。文件里其他内容不会改动。",
+      "action": "修复",
+      "unavailable": "第 {{line}} 行的问题需要人工判断——Wayland 不会去猜。请在下面打开文件，或者恢复默认设置重新开始。",
+      "notTextUnavailable": "Wayland 不会去重写一个自己无法准确读取的文件，所以这里没有自动修复。请在下面打开文件，或者恢复默认设置重新开始。"
+    },
+    "reveal": {
+      "label": "让我看看这个文件",
+      "sublabel": "打开它所在的文件夹，这样你不用自己去找路径。",
+      "action": "显示"
+    },
+    "regenerate": {
+      "label": "恢复默认设置重新开始",
+      "sublabel": "最后的办法。先备份你当前的文件，然后删除它，让引擎写一份新的。",
+      "action": "重新开始",
+      "confirmTitle": "要恢复默认设置重新开始吗？",
+      "confirmBody": "这会删除你的引擎设置文件。你会丢失服务商列表、保存在其中的 API 密钥，以及你的记忆和技能设置，需要重新配置一遍。\n\n系统会先在原文件旁边保存一份带时间戳的备份。如果这份备份无法校验，就什么都不会删除。",
+      "confirmAction": "备份并重新开始"
+    },
+    "result": {
+      "repaired": "已修复。原文件的备份已保存为 {{name}}。",
+      "regenerated": "完成。你原来的设置已保存为 {{name}}。",
+      "backupFailed": "Wayland 无法创建可校验的备份，因此什么都没有改动。原因：{{reason}}",
+      "writeFailed": "这次改动没能完成。原因：{{reason}}",
+      "writeFailedWithBackup": "这次改动没能完成。原因：{{reason}} 什么都没丢：你原来的设置在 {{name}} 里。",
+      "notARegularFile": "这个设置文件是指向另一个文件的链接，所以 Wayland 不会替换它。用“让我看看这个文件”，到它真正所在的位置去改。",
+      "revealFailed": "Wayland 无法打开该文件夹。原因：{{reason}}"
+    },
+    "notText": "Wayland 无法把这个文件当作文本读取——它有些字节不是有效的 UTF-8，而设置文件格式要求 UTF-8。什么都没有被改动。"
   }
 }

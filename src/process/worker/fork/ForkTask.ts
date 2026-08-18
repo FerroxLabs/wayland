@@ -25,6 +25,16 @@ export class ForkTask<Data> extends Pipe {
   protected fcp: IWorkerProcess | undefined;
   private enableFork: boolean;
   private childExitExpected = false;
+  /**
+   * #983 - in-flight {@link postMessagePromise} waiters, keyed by pipeId.
+   *
+   * A waiter only ever settled on the child's callback message, so a child that
+   * died (crash, kill, failed spawn) left every caller pending FOREVER: no
+   * resolve, no reject, no timeout. Upstream that surfaced as a teammate frozen
+   * in "Processing" with no error to show. Keeping the rejectors here lets the
+   * exit/error handlers fail them all deterministically.
+   */
+  private readonly pendingCalls = new Map<string, (reason: Error) => void>();
   // NOTE(M14/AUDIT-05 F5): per-instance `process.on('exit', ...)` registration
   // was removed here. Every ForkTask used to register its own exit listener,
   // which tripped Node's default 11-listener cap once >10 forks were live
@@ -91,7 +101,10 @@ export class ForkTask<Data> extends Pipe {
       }
     });
     fcp.on('error', (...args: unknown[]) => {
-      this.emit('error', args[0] as Error);
+      const error = args[0] as Error;
+      // #983: the child will never answer once it has errored out.
+      this.rejectPendingCalls(new Error(`fork task child errored: ${error?.message ?? String(error)}`));
+      this.emit('error', error);
     });
     fcp.on('exit', (code: number | null, signal: NodeJS.Signals | null) => {
       const expected = this.childExitExpected;
@@ -99,6 +112,12 @@ export class ForkTask<Data> extends Pipe {
       if (this.fcp === fcp) {
         this.fcp = undefined;
       }
+
+      // #983: reject on EVERY exit, expected or not. An expected exit (kill(),
+      // or the child's own 'complete'/'error' frame) is still an exit: any
+      // callback the child had not already posted is never coming, and leaving
+      // the waiter pending is exactly the hang this fixes.
+      this.rejectPendingCalls(new Error(`fork task child exited before responding (code=${code}, signal=${signal})`));
 
       if (!expected) {
         this.emit('exit', { code, signal });
@@ -111,21 +130,68 @@ export class ForkTask<Data> extends Pipe {
     const { data } = this;
     return this.postMessagePromise('start', data);
   }
-  // Send message to child process and await callback
-  protected postMessagePromise(type: string, data: any) {
+  /** #983 - fail every in-flight {@link postMessagePromise} waiter at once. */
+  private rejectPendingCalls(reason: Error): void {
+    if (this.pendingCalls.size === 0) return;
+    const rejectors = [...this.pendingCalls.values()];
+    this.pendingCalls.clear();
+    for (const rejectCall of rejectors) rejectCall(reason);
+  }
+
+  /**
+   * Send a message to the child process and await its callback.
+   *
+   * The returned promise is bounded three ways (#983): the child's callback,
+   * child exit/error (see {@link rejectPendingCalls}), and — only when the
+   * caller asks for it — `options.timeoutMs`.
+   *
+   * There is deliberately NO default timeout. Several message types are
+   * turn-scoped rather than request-scoped: `send.message` resolves when the
+   * whole agent turn ends (see src/process/worker/gemini.ts), which legitimately
+   * runs for many minutes. A blanket deadline here would abort healthy long
+   * turns. Wake-level stall detection is TeammateManager's inactivity watchdog,
+   * which can tell silence from slowness because it sees the response stream.
+   */
+  protected postMessagePromise(type: string, data: any, options?: { timeoutMs?: number }) {
     if (!this.fcp) {
       return Promise.reject(new Error('fork task not enabled'));
     }
     return new Promise<any>((resolve, reject) => {
       const pipeId = uuid(8);
-      this.once(this.callbackKey(pipeId), (data) => {
-        if (data.state === 'fulfilled') {
-          resolve(data.data);
+      const key = this.callbackKey(pipeId);
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const settle = () => {
+        this.pendingCalls.delete(pipeId);
+        if (timer !== undefined) clearTimeout(timer);
+      };
+      const fail = (reason: Error) => {
+        // Drop the never-fired callback listener; the pipeId is unique so this
+        // cannot clear anyone else's handler.
+        this.off(key);
+        settle();
+        reject(reason);
+      };
+
+      this.pendingCalls.set(pipeId, fail);
+      this.once(key, (payload) => {
+        settle();
+        if (payload.state === 'fulfilled') {
+          resolve(payload.data);
         } else {
-          reject(data.data);
+          reject(payload.data);
         }
       });
-      this.postMessage(type, data, { pipeId });
+
+      const timeoutMs = options?.timeoutMs;
+      if (typeof timeoutMs === 'number' && timeoutMs > 0) {
+        timer = setTimeout(() => fail(new Error(`fork task "${type}" timed out after ${timeoutMs}ms`)), timeoutMs);
+      }
+
+      try {
+        this.postMessage(type, data, { pipeId });
+      } catch (error) {
+        fail(error instanceof Error ? error : new Error(String(error)));
+      }
     });
   }
   // Send callback to child process

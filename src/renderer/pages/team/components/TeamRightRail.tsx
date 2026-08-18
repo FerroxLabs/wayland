@@ -15,7 +15,7 @@
 //     can build the agent payload with the leader's backend as fallback.
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Message, Tooltip } from '@arco-design/web-react';
+import { Button, Message, Modal, Tooltip } from '@arco-design/web-react';
 import { ChevronLeft, ChevronRight, Crown, Plus, RotateCw, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
@@ -139,11 +139,12 @@ const TeammateRow: React.FC<{
   const dotClass = STATUS_DOT_COLOR[status] ?? STATUS_DOT_COLOR.idle;
   const palette = resolveSpecialistPalette(specialist, agent.customAgentId ?? agent.agentName);
 
-  const handleRestart = async () => {
+  const doRestart = async () => {
     try {
-      const result = (await ipcBridge.team.restartAgent.invoke({ teamId, slotId: agent.slotId })) as
-        | void
-        | { __bridgeError: true; message?: string };
+      const result = (await ipcBridge.team.restartAgent.invoke({ teamId, slotId: agent.slotId })) as void | {
+        __bridgeError: true;
+        message?: string;
+      };
       if (result && typeof result === 'object' && '__bridgeError' in result) {
         Message.error(
           result.message ?? t('teams.rightRail.restartAgentError', { defaultValue: 'Failed to restart agent' })
@@ -155,6 +156,28 @@ const TeammateRow: React.FC<{
       const msg = error instanceof Error ? error.message : String(error);
       Message.error(msg || t('teams.rightRail.restartAgentError', { defaultValue: 'Failed to restart agent' }));
     }
+  };
+
+  // #983: Restart is reachable from `active` so a wedged member is not a dead
+  // end. But `active` is also a healthy streaming turn, and a soft-failed member
+  // that recovered is back to `active` WITHOUT holding the wake lock - so the
+  // main process would accept the restart and kill a live CLI mid-turn. One
+  // click, no undo. Confirm first; `failed` restarts stay one-click.
+  const handleRestart = () => {
+    if (status !== 'active') {
+      void doRestart();
+      return;
+    }
+    Modal.confirm({
+      title: t('teams.rightRail.restartActiveTitle', { defaultValue: 'Restart a working teammate?' }),
+      content: t('teams.rightRail.restartActiveConfirm', {
+        defaultValue:
+          'This teammate is still working. Restarting kills its CLI process and ends the current turn. This cannot be undone.',
+      }),
+      okText: t('teams.rightRail.restartAgent', { defaultValue: 'Restart' }),
+      okButtonProps: { status: 'warning' },
+      onOk: doRestart,
+    });
   };
 
   return (
@@ -189,11 +212,7 @@ const TeammateRow: React.FC<{
           <div className='flex items-center gap-4px min-w-0'>
             <div className='text-12.5px font-medium text-[color:var(--color-text-1)] truncate'>{agent.agentName}</div>
             {isLeader && (
-              <Crown
-                size={11}
-                aria-hidden='true'
-                className='shrink-0 text-[rgb(245,158,11)] drop-shadow-sm'
-              />
+              <Crown size={11} aria-hidden='true' className='shrink-0 text-[rgb(245,158,11)] drop-shadow-sm' />
             )}
           </div>
           <div className='text-10px text-[color:var(--color-text-4)] truncate'>
@@ -202,7 +221,16 @@ const TeammateRow: React.FC<{
         </div>
       </div>
       <div className='flex items-center gap-6px shrink-0'>
-        {status === 'failed' && (
+        {/*
+          #983: Restart used to be reachable only from `failed`. A member wedged
+          mid-turn sits at `active` - the exact state a user needs to escape -
+          and had no control at all, so "Processing" forever was a dead end.
+          `active` gets the button too, behind a confirmation (see handleRestart):
+          the main process refuses mid-wake with a toast, but a recovered member
+          is `active` without the wake lock, so an unconfirmed click there would
+          kill a live turn.
+        */}
+        {(status === 'failed' || status === 'active') && (
           <button
             type='button'
             data-testid='team-right-rail-restart'
@@ -225,14 +253,7 @@ const TeammateRow: React.FC<{
   );
 };
 
-const TeamRightRail: React.FC<Props> = ({
-  agents,
-  statusMap,
-  launcher,
-  workspacePath,
-  teamId,
-  onTeammateAdded,
-}) => {
+const TeamRightRail: React.FC<Props> = ({ agents, statusMap, launcher, workspacePath, teamId, onTeammateAdded }) => {
   const { t } = useTranslation();
   const rituals = launcher?._rituals ?? [];
   const hasWorkspace = Boolean(workspacePath && workspacePath.length > 0);

@@ -240,6 +240,82 @@ describe('createConciergeDiagServer — MCP health (config JSON)', () => {
     expect(disabled?.flag).toBeNull();
   });
 
+  // #1008: a bundled first-party server exposes no command, args or credentials
+  // the user controls, so the generic "check its command, args, or credentials"
+  // advice sent two reporters hunting for a mistake they could not have made.
+  it('#1008 tells a bundled builtin apart from a user-configured server', () => {
+    const configPath = tmp('wayland-config-builtin.txt');
+    fs.writeFileSync(
+      configPath,
+      encodeConfig({
+        'mcp.config': [
+          { id: 'builtin-search-skills', name: 'wayland-search-skills', enabled: true, builtin: true, tools: [] },
+          { id: 'u', name: 'user-server', enabled: true, tools: [] },
+        ],
+      })
+    );
+
+    const server = createConciergeDiagServer({ configPath });
+    const result = server.mcpHealth();
+
+    const builtin = result.items.find((s) => s.name === 'wayland-search-skills');
+    expect(builtin?.flag).toContain('0 tools');
+    expect(builtin?.flag).toContain('bundled with Wayland');
+    // It must NOT send the user off to check settings they do not own.
+    expect(builtin?.flag).not.toContain('credentials');
+
+    const user = result.items.find((s) => s.name === 'user-server');
+    expect(user?.flag).toContain('0 tools');
+    expect(user?.flag).toContain('credentials');
+  });
+
+  // #1015: the four sibling @wayland servers (Apple/IMAP/News/Cal.com) are
+  // installed from the MCP Library and carry NO `builtin` field, so the #1008
+  // gate above dropped them into the user-error branch — advice to "check its
+  // command, args" about a spawn Wayland itself wrote. Their credentials really
+  // are the user's, so they get their own line rather than either of the others.
+  it('#1015 tells a bundled @wayland sibling apart by catalog provenance', () => {
+    const configPath = tmp('wayland-config-wayland-sibling.txt');
+    fs.writeFileSync(
+      configPath,
+      encodeConfig({
+        'mcp.config': [
+          {
+            id: 'lib_apple',
+            name: 'com.wayland-apple-mcp',
+            enabled: true,
+            source: 'library',
+            libraryEntryId: 'com.wayland/apple-mcp',
+            tools: [],
+          },
+          // KNOWN POSITIVE, same run: another Library install that is NOT ours
+          // still gets the generic advice, so the new branch is not swallowing
+          // every catalog server.
+          {
+            id: 'lib_other',
+            name: 'com.vendor-thing-mcp',
+            enabled: true,
+            source: 'library',
+            libraryEntryId: 'com.vendor/thing-mcp',
+            tools: [],
+          },
+        ],
+      })
+    );
+
+    const result = createConciergeDiagServer({ configPath }).mcpHealth();
+
+    const apple = result.items.find((s) => s.name === 'com.wayland-apple-mcp');
+    expect(apple?.flag).toContain('0 tools');
+    expect(apple?.flag).toContain('ships with Wayland');
+    // It must NOT send the user hunting through a command and args we wrote.
+    expect(apple?.flag).not.toContain('check its command, args');
+
+    const other = result.items.find((s) => s.name === 'com.vendor-thing-mcp');
+    expect(other?.flag).toContain('check its command, args');
+    expect(other?.flag).not.toContain('ships with Wayland');
+  });
+
   it('degrades gracefully when the config path is missing', () => {
     const server = createConciergeDiagServer({ configPath: tmp('does-not-exist.txt') });
     const result = server.mcpHealth();
@@ -372,6 +448,171 @@ describe('createConciergeDiagServer — recentErrors (logs)', () => {
     // The path shape is preserved with the username masked.
     expect(serialized).toContain('/Users/<user>');
     expect(serialized).toContain('C:\\\\Users\\\\<user>');
+  });
+
+  // #1038: readdirSync returns directory order, so keeping the FIRST
+  // MAX_LOG_FILES entries dropped the newest logs and the section reported
+  // stale lines as "recent".
+  //
+  // The fixture puts the NEWEST files in the MIDDLE of the alphabet on purpose.
+  // An earlier version named them so the newest sorted last, on the reasoning
+  // that any implementation taking "the first six" would lose them. That only
+  // held for a FORWARD directory order: reversed, the newest two land first and
+  // the buggy slice keeps them, so the test passed against the bug. Measured
+  // across 200 shuffled orders, the buggy implementation survived 28 of them.
+  // With the newest in the middle, neither direction can reach them by accident.
+  it('reports the NEWEST log files, not whichever the directory listed first', () => {
+    const logDir = tmp('logs-rotating');
+    fs.mkdirSync(logDir);
+    const base = Date.UTC(2026, 0, 1) / 1000;
+    // Alphabetical position is deliberately uncorrelated with age: the `m` pair
+    // is newest, the `z` block is middle-aged, the `a` block is oldest.
+    const fixture = [
+      ...Array.from({ length: 6 }, (_, i) => ({ name: `a${i + 1}`, ageHours: i + 1 })),
+      ...Array.from({ length: 6 }, (_, i) => ({ name: `z${i + 1}`, ageHours: i + 10 })),
+      { name: 'm1', ageHours: 20 },
+      { name: 'm2', ageHours: 21 },
+    ];
+    // Creation order is reversed relative to age, so a stat key that tracks
+    // creation cannot reproduce the mtime answer by accident either.
+    for (const { name, ageHours } of [...fixture].reverse()) {
+      const file = path.join(logDir, `${name}.log`);
+      fs.writeFileSync(file, `error: marker for ${name}\n`);
+      // atime runs OPPOSITE to mtime. Setting them to the same value makes
+      // `atimeMs` an undetectable substitution for `mtimeMs`, and sorting by
+      // atime would promote any log merely READ recently -- restoring #1038.
+      // NOTE: `birthtimeMs` stays unprovable on macOS whatever we do here --
+      // APFS clamps birthtime DOWN to mtime when utimesSync backdates a file,
+      // so no utimes-based fixture can separate the two. Linux can.
+      fs.utimesSync(file, base + (100 - ageHours) * 3600, base + ageHours * 3600);
+    }
+
+    const server = createConciergeDiagServer({ logDir });
+    const result = server.recentErrors();
+    const joined = result.lines.join('\n');
+
+    expect(result.available).toBe(true);
+    // The six newest by mtime, and nothing else: m2, m1, then z6 down to z3.
+    for (const name of ['m2', 'm1', 'z6', 'z5', 'z4', 'z3']) {
+      expect(joined).toContain(`marker for ${name}`);
+    }
+    // Everything older fell outside MAX_LOG_FILES. The `a` block is first in
+    // directory order, which is exactly what the old implementation kept.
+    for (const name of ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'z1', 'z2']) {
+      expect(joined).not.toContain(`marker for ${name}`);
+    }
+  });
+
+  // The trailing MAX_LOG_LINES slice only means "most recent" if the files are
+  // walked oldest-first. Otherwise a truncated section keeps the OLDEST lines
+  // and discards the newest, which is the same defect one layer down and the
+  // half a user actually feels. It is also the half that decides what a user
+  // pastes into a support ticket: `collectBugReport.ts` slices this down again
+  // to MAX_ERROR_LINES of 8.
+  //
+  // This test has been wrong twice, in two different ways, so both are recorded.
+  // First it used two files of ONE line each, which proved the ordering but never
+  // activated the slice at all, because two lines against MAX_LOG_LINES of 40
+  // makes `slice(-40)` a no-op. The rewrite added 30 lines per file so truncation
+  // genuinely fires -- and reintroduced the exact defect the earlier audit had
+  // condemned, by relying on the newer file sorting FIRST alphabetically so that
+  // "directory order alone" would bury its lines. That is an assumption about
+  // readdir order, i.e. an accident of APFS. With only two files there are only
+  // two possible orders, and the buggy implementation passed in one of them:
+  // measured across 250 shuffled orders it survived 130 of them, 52%.
+  //
+  // So this fixture reuses the 14-file layout above, where alphabetical position
+  // is uncorrelated with age and the newest files sit in the MIDDLE. Selection
+  // and ordering are then proved by one fixture, and the buggy implementation
+  // survives 0 of 250 shuffled orders.
+  it('orders collected lines oldest-first so a truncated tail keeps the newest', () => {
+    const logDir = tmp('logs-order');
+    fs.mkdirSync(logDir);
+    const base = Date.UTC(2026, 0, 1) / 1000;
+    const LINES_PER_FILE = 10;
+    // Same shape as the selection test: `m` newest, `z` middle, `a` oldest.
+    const fixture = [
+      ...Array.from({ length: 6 }, (_, i) => ({ name: `a${i + 1}`, ageHours: i + 1 })),
+      ...Array.from({ length: 6 }, (_, i) => ({ name: `z${i + 1}`, ageHours: i + 10 })),
+      { name: 'm1', ageHours: 20 },
+      { name: 'm2', ageHours: 21 },
+    ];
+    // Same decorrelation as the selection test: creation order reversed, and
+    // atime deliberately opposite to mtime.
+    for (const { name, ageHours } of [...fixture].reverse()) {
+      const body = Array.from({ length: LINES_PER_FILE }, (_, i) => `error: ${name} entry ${i}`).join('\n');
+      const file = path.join(logDir, `${name}.log`);
+      fs.writeFileSync(file, `${body}\n`);
+      fs.utimesSync(file, base + (100 - ageHours) * 3600, base + ageHours * 3600);
+    }
+
+    const server = createConciergeDiagServer({ logDir });
+    const lines = server.recentErrors().lines;
+    const countFor = (name: string) => lines.filter((line) => line.includes(`${name} entry`)).length;
+
+    // MAX_LOG_FILES picks the six newest (m2, m1, z6..z3) = 60 matching lines,
+    // and MAX_LOG_LINES then keeps the trailing 40. Truncation really happened.
+    expect(lines).toHaveLength(40);
+    // The four NEWEST of the selected six survive the tail slice in full.
+    for (const name of ['z5', 'z6', 'm1', 'm2']) {
+      expect(countFor(name)).toBe(LINES_PER_FILE);
+    }
+    // z3 and z4 were selected as files but their lines fell off the front of the
+    // slice; z1, z2 and the whole `a` block never made the file cut at all.
+    for (const name of ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'z1', 'z2', 'z3', 'z4']) {
+      expect(countFor(name)).toBe(0);
+    }
+    // And the newest line of all is the last one retained.
+    expect(lines.at(-1)).toContain(`m2 entry ${LINES_PER_FILE - 1}`);
+  });
+
+  // Both guards below are behaviour this change introduced, and both were
+  // uncovered: reverting either left the whole file green.
+  it('does not let a directory named like a log consume a file slot', () => {
+    const logDir = tmp('logs-dir-entry');
+    fs.mkdirSync(logDir);
+    const base = Date.UTC(2026, 0, 1) / 1000;
+    for (let i = 1; i <= 6; i += 1) {
+      const file = path.join(logDir, `f${i}.log`);
+      fs.writeFileSync(file, `error: marker for f${i}\n`);
+      const when = base + i * 3600;
+      fs.utimesSync(file, when, when);
+    }
+    // Deliberately the NEWEST entry in the directory, so without the isFile()
+    // guard it wins a slot and evicts the oldest real file.
+    const dir = path.join(logDir, 'zz-dir.log');
+    fs.mkdirSync(dir);
+    fs.utimesSync(dir, base + 99 * 3600, base + 99 * 3600);
+
+    const result = createConciergeDiagServer({ logDir }).recentErrors();
+    const joined = result.lines.join('\n');
+
+    expect(result.available).toBe(true);
+    for (let i = 1; i <= 6; i += 1) {
+      expect(joined).toContain(`marker for f${i}`);
+    }
+  });
+
+  it('drops an entry that cannot be stat-ed rather than failing the section', () => {
+    const logDir = tmp('logs-vanished');
+    fs.mkdirSync(logDir);
+    const base = Date.UTC(2026, 0, 1) / 1000;
+    for (const name of ['keep1', 'keep2']) {
+      const file = path.join(logDir, `${name}.log`);
+      fs.writeFileSync(file, `error: marker for ${name}\n`);
+      fs.utimesSync(file, base, base);
+    }
+    // A real dangling symlink, not a mock: statSync follows it and throws ENOENT,
+    // which is what a log rotated away between readdir and stat looks like.
+    fs.symlinkSync(path.join(logDir, 'gone.log'), path.join(logDir, 'dangling.log'));
+
+    const result = createConciergeDiagServer({ logDir }).recentErrors();
+    const joined = result.lines.join('\n');
+
+    expect(result.available).toBe(true);
+    expect(joined).toContain('marker for keep1');
+    expect(joined).toContain('marker for keep2');
+    expect(joined).not.toContain('dangling');
   });
 });
 

@@ -250,6 +250,21 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // privileged export/import publication. Deny the entire namespace so a
   // future provider cannot become remotely reachable by omission.
   'waylandTransfer.',
+  // #1024 Engine config recovery. Three of the four channels write to or move
+  // the engine's `config.toml`, the file holding the user's providers, API keys
+  // and memory/skills settings: `repair` rewrites it, `regenerate` renames it
+  // away behind a confirmation, and `reveal` asks the HOST OS to open a
+  // Finder/Explorer window. The fourth, `inspect`, is a read, but it discloses
+  // the host's engine config path and its integrity posture - the same
+  // reconnaissance class as `doctor.run`. A paired-device WS token proves a
+  // remote BROWSER, not the local trusted user, so the ENTIRE namespace is
+  // denied. A PREFIX and not four exact keys, for the reason stated on
+  // `waylandTransfer.` directly above and proved by execution: with only the
+  // exact keys listed, `engine-config-recovery.setPath` was remotely ALLOWED
+  // while `terminal.anythingNew` was denied. A namespace where three of four
+  // channels move a credential-bearing file must not be one omission away from
+  // being reachable.
+  'engine-config-recovery.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
 // (e.g. `write-file`, `remove-entry`), so the dangerous fs surface is enumerated
@@ -559,6 +574,13 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'memory.update-entry',
   'memory.delete-entry',
   'memory.restore-archived-entry',
+  //     #924: set-quick-add is a WRITE that was sitting on the allowed side of
+  //     the read/write line stated above. It creates an on-disk memory entry,
+  //     and it now carries a projectPath selector that steers WHICH indexed
+  //     project receives it. Denying it puts the namespace back in line with
+  //     the READS-only policy this block documents and keeps the new selector
+  //     off the remote surface entirely. Local Electron IPC is unaffected.
+  'memory.set-quick-add',
   // --- Project knowledge draft (reads arbitrary filePaths to feed the model) ---
   'project.generate-knowledge-draft',
   // --- Storage destructive / disk operations ---
@@ -590,6 +612,8 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     reaching it is a clipboard-injection primitive, so deny it too. ---
   'doctor.run',
   'doctor.copy-text',
+  // NOTE: `engine-config-recovery.*` (#1024) is denied by PREFIX in
+  //     REMOTE_DENIED_PREFIXES above, not enumerated here. See that entry.
   // --- Terminal mode (#645) ENABLE toggle. The read (get-terminal-enabled) is a
   //     harmless boolean and stays allowed, but a remote peer must not flip the
   //     advanced PTY feature ON. The PTY spawn itself is already denied via the

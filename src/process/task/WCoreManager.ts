@@ -19,6 +19,7 @@ import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig
 import { WCoreMcpAgent } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
+import { applyBuiltinMcpRuntime } from '@process/services/mcpServices/builtinMcpRuntime';
 import { validateMcpServer } from '@process/services/mcpServices/validateMcpServer';
 import { getCandidateTools } from '@process/services/mcpServices/getCandidateTools';
 import type { CandidateTool } from '@process/services/tools/toolContract';
@@ -77,6 +78,7 @@ import {
   createMcpSessionExpectedServer,
 } from '@process/services/mcpServices/mcpSessionTruthGate';
 import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
+import { DesktopProfileSpliceError } from '@process/agent/wcore/desktopProfileSplice';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -602,7 +604,23 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           );
           this.beginMcpSession(expectedSessionMcpServers);
           for (const server of normalizedServers) validateMcpServer(server);
-          const authedServers = await mcpService.attachOAuthTokens(normalizedServers);
+          // #1015 F1: this launch-local config.toml is the ONLY thing the wcore
+          // chat loads its connectors from, and it is NOT one of the
+          // `McpService.syncMcpToAgents` targets — so the shared builtin-runtime
+          // rewrite has to be applied here too. Without it the four bundled
+          // @wayland servers (Apple/IMAP/News/Cal.com — `builtin` is not set on
+          // them, so `buildWCoreSessionMcpServers` does select them) reached Core
+          // as `node` + a bare relative filename: ENOENT on a stock macOS, and
+          // MODULE_NOT_FOUND against Core's cwd where a system node exists, while
+          // the Library probe and every ACP serializer emitted resolved Bun plus
+          // an absolute path for the SAME record. Applied AFTER validateMcpServer
+          // for the same reason McpService does: validation grades the
+          // user-visible declaration, never Wayland's own trusted runtime path.
+          // The absolute path is safe to publish HERE (unlike the global
+          // config.toml `WCoreMcpAgent` deliberately keeps portable for Linux
+          // AppImage) because this file is rewritten on every launch.
+          const spawnableServers = normalizedServers.map((server) => applyBuiltinMcpRuntime(server));
+          const authedServers = await mcpService.attachOAuthTokens(spawnableServers);
           // OAuth refresh can change the exact launch definition. Rebind before
           // publication so a receipt can only correlate to what Core received.
           expectedSessionMcpServers = authedServers.map((server) =>
@@ -612,7 +630,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           // receipt-bound ToolSearch candidate gate scopes over this launch.
           this.sessionMcpServers = authedServers;
           this.beginMcpSession(expectedSessionMcpServers);
-          const publication = await new WCoreMcpAgent(join(launchWaylandHome!, 'config.toml')).installMcpServers(
+          const publication = await new WCoreMcpAgent(join(launchWaylandHome!, 'config.toml'), true).installMcpServers(
             authedServers
           );
           if (publication.success) {
@@ -1398,6 +1416,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // the renderer can route it to a remedy card by code. Constitution
       // authority failures are the case that needs it: the fix is a recovery
       // flow the user cannot reach from an error bubble.
+      // #1024: the same treatment for an unparseable engine `config.toml`. The
+      // splice's refusal is correct and stays correct - it protects the user's
+      // providers/credentials - but the prose it produced ('Fix the file by
+      // hand') was a dead end. The code routes it to the recovery card instead.
+      ...(error instanceof DesktopProfileSpliceError ? { code: error.code } : {}),
       ...(error instanceof ConstitutionFsTransactionError ? { code: error.code } : {}),
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);

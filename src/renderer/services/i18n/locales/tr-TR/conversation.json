@@ -471,7 +471,8 @@
     "toolCount": "{{count}} tools",
     "noConnectors": "No connectors installed yet.",
     "addConnector": "Add a connector",
-    "manageConnectors": "Manage connectors"
+    "manageConnectors": "Manage connectors",
+    "toolNudgeAdvisory": "{{count}} araç etkin. Uzun araç listeleri çoğu modelde araç seçimini bozar — bu sohbetteki sunucuları daraltın ya da modeli değiştirin."
   },
   "modelSelector": {
     "title": "Model",
@@ -511,5 +512,45 @@
       "title": "Görev başarısız",
       "body": "{{title}} bir hatayla durdu. {{detail}}"
     }
+  },
+  "engineConfigInvalid": {
+    "title": "Wayland Core’un ayar dosyasının düzeltilmesi gerekiyor",
+    "explainer": "Motor kendi ayar dosyasını okuyamadı, bu yüzden aracı başlatılamıyor. Hiçbir şey değiştirilmedi — sağlayıcılarınız, anahtarlarınız ve ayarlarınız hâlâ dosyanın içinde.",
+    "dismiss": "Kapat",
+    "details": "Teknik ayrıntılar",
+    "checking": "Ayar dosyası kontrol ediliyor…",
+    "location": "Sorun {{line}}. satırda, {{column}}. sütunda.",
+    "noProblem": "Ayar dosyası artık sorunsuz okunuyor. Mesajınızı yeniden gönderin.",
+    "unreadable": "Wayland ayar dosyasını okuyamadı. Neden: {{reason}}",
+    "repair": {
+      "label": "{{line}}. satırı benim için düzelt",
+      "sublabel": "Önce dosyanın yedeğini alır, sonra eksik satır sonunu ekler. Dosyada başka hiçbir şey değişmez.",
+      "action": "Düzelt",
+      "unavailable": "{{line}}. satırdaki sorun için insan gözü gerekiyor — Wayland tahmin yürütmez. Aşağıdan dosyayı açın ya da varsayılan ayarlarla baştan başlayın.",
+      "notTextUnavailable": "Wayland tam olarak okuyamadığı bir dosyanın üzerine yazmaz, bu yüzden burada otomatik bir düzeltme yok. Aşağıdan dosyayı açın ya da varsayılan ayarlarla baştan başlayın."
+    },
+    "reveal": {
+      "label": "Dosyayı bana göster",
+      "sublabel": "Dosyanın bulunduğu klasörü açar, böylece yolu aramak zorunda kalmazsınız.",
+      "action": "Göster"
+    },
+    "regenerate": {
+      "label": "Varsayılan ayarlarla baştan başla",
+      "sublabel": "Son çare. Mevcut dosyanızın önce yedeği alınır, sonra motorun yenisini yazabilmesi için silinir.",
+      "action": "Baştan başla",
+      "confirmTitle": "Varsayılan ayarlarla baştan başlanılsın mı?",
+      "confirmBody": "Bu işlem motor ayar dosyanızı siler. Sağlayıcı listesini, dosyada saklanan API anahtarlarını ve bellek ile beceri ayarlarınızı kaybedersiniz; bunları yeniden kurmanız gerekir.\n\nÖnce özgün dosyanın yanına zaman damgalı bir yedek kaydedilir. Bu yedek doğrulanamazsa hiçbir şey silinmez.",
+      "confirmAction": "Yedekle ve baştan başla"
+    },
+    "result": {
+      "repaired": "Düzeltildi. Özgün dosyanın yedeği {{name}} olarak kaydedildi.",
+      "regenerated": "Tamamlandı. Eski ayarlarınız {{name}} olarak kaydedildi.",
+      "backupFailed": "Wayland doğrulanmış bir yedek oluşturamadı, bu yüzden hiçbir şey değiştirilmedi. Neden: {{reason}}",
+      "writeFailed": "Değişiklik tamamlanamadı. Neden: {{reason}}",
+      "writeFailedWithBackup": "Değişiklik tamamlanamadı. Neden: {{reason}} Hiçbir şey kaybolmadı: özgün ayarlarınız {{name}} içinde.",
+      "notARegularFile": "Bu ayar dosyası başka bir dosyaya giden bir bağlantı, bu yüzden Wayland onu değiştirmeyecek. “Dosyayı bana göster”i kullanıp dosyayı gerçekte bulunduğu yerde düzenleyin.",
+      "revealFailed": "Wayland klasörü açamadı. Neden: {{reason}}"
+    },
+    "notText": "Wayland bu dosyayı metin olarak okuyamıyor — bazı baytları, ayar biçiminin gerektirdiği geçerli UTF-8 değil. Hiçbir şey değiştirilmedi."
   }
 }

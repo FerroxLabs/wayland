@@ -22,8 +22,20 @@ export function initGeminiConversationBridge(workerTaskManager: IWorkerTaskManag
       return { success: false, msg: 'only supported for gemini' };
     }
 
-    // Call GeminiAgentManager.confirm() to send confirmation to worker
-    void (task as GeminiAgentManager).confirm(msg_id, callId, confirmKey);
+    // Call GeminiAgentManager.confirm() to send confirmation to worker.
+    // #983: that returns the worker round-trip, which now rejects when the
+    // child exits - so a user clicking Allow on a card whose worker has died
+    // would otherwise raise an unhandled rejection (logged + reported to Sentry
+    // by the handler in src/index.ts). The confirmation is moot at that point;
+    // log and move on. Promise.resolve wraps it because IAgentManager.confirm
+    // is typed `void`: only the Gemini implementation returns a promise, so
+    // chaining .catch directly throws on every other implementation.
+    void Promise.resolve((task as GeminiAgentManager).confirm(msg_id, callId, confirmKey)).catch((error: unknown) => {
+      console.warn(
+        `[geminiConversationBridge] confirm for callId=${callId} was not delivered:`,
+        error instanceof Error ? error.message : String(error)
+      );
+    });
     return { success: true };
   });
 }

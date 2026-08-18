@@ -469,7 +469,8 @@
     "toolCount": "{{count}} tools",
     "noConnectors": "No connectors installed yet.",
     "addConnector": "Add a connector",
-    "manageConnectors": "Manage connectors"
+    "manageConnectors": "Manage connectors",
+    "toolNudgeAdvisory": "{{count}} ferramentas ativas. Listas longas de ferramentas pioram a seleção de ferramentas na maioria dos modelos — limite os servidores desta conversa ou troque de modelo."
   },
   "modelSelector": {
     "title": "Model",
@@ -509,5 +510,45 @@
       "title": "A tarefa falhou",
       "body": "{{title}} parou com um erro. {{detail}}"
     }
+  },
+  "engineConfigInvalid": {
+    "title": "O arquivo de configurações do Wayland Core precisa de um reparo",
+    "explainer": "O motor não conseguiu ler o próprio arquivo de configurações, então o agente não pode iniciar. Nada foi alterado — seus provedores, chaves e configurações continuam lá.",
+    "dismiss": "Fechar",
+    "details": "Detalhes técnicos",
+    "checking": "Verificando o arquivo de configurações…",
+    "location": "O problema está na linha {{line}}, coluna {{column}}.",
+    "noProblem": "O arquivo de configurações agora é lido sem problemas. Envie sua mensagem novamente.",
+    "unreadable": "O Wayland não conseguiu ler o arquivo de configurações. Motivo: {{reason}}",
+    "repair": {
+      "label": "Corrija a linha {{line}} para mim",
+      "sublabel": "Faz um backup do arquivo primeiro e depois adiciona a quebra de linha que falta. Nada mais é alterado.",
+      "action": "Corrigir",
+      "unavailable": "O problema na linha {{line}} precisa de um olhar humano — o Wayland não vai adivinhar. Abra o arquivo abaixo ou comece de novo com as configurações padrão.",
+      "notTextUnavailable": "O Wayland não vai reescrever um arquivo que não consegue ler com exatidão, então não há correção automática aqui. Abra o arquivo abaixo ou comece de novo com as configurações padrão."
+    },
+    "reveal": {
+      "label": "Mostre-me o arquivo",
+      "sublabel": "Abre a pasta que o contém, para você não precisar caçar o caminho.",
+      "action": "Mostrar"
+    },
+    "regenerate": {
+      "label": "Começar de novo com as configurações padrão",
+      "sublabel": "Último recurso. Seu arquivo atual é copiado primeiro e depois removido, para o motor escrever um novo.",
+      "action": "Começar de novo",
+      "confirmTitle": "Começar de novo com as configurações padrão?",
+      "confirmBody": "Isso remove o arquivo de configurações do motor. Você vai perder a lista de provedores, as chaves de API guardadas nele e suas configurações de memória e habilidades, e terá que configurar tudo de novo.\n\nPrimeiro é salvo um backup com data e hora ao lado do original. Se esse backup não puder ser verificado, nada é removido.",
+      "confirmAction": "Fazer backup e começar de novo"
+    },
+    "result": {
+      "repaired": "Corrigido. Um backup do original foi salvo como {{name}}.",
+      "regenerated": "Pronto. Suas configurações antigas foram salvas como {{name}}.",
+      "backupFailed": "O Wayland não conseguiu criar um backup verificado, então nada foi alterado. Motivo: {{reason}}",
+      "writeFailed": "Não foi possível concluir a alteração. Motivo: {{reason}}",
+      "writeFailedWithBackup": "Não foi possível concluir a alteração. Motivo: {{reason}} Nada foi perdido: suas configurações originais estão em {{name}}.",
+      "notARegularFile": "Este arquivo de configurações é um link para outro arquivo, então o Wayland não vai substituí-lo. Use “Mostre-me o arquivo” e edite onde ele realmente está.",
+      "revealFailed": "O Wayland não conseguiu abrir a pasta. Motivo: {{reason}}"
+    },
+    "notText": "O Wayland não consegue ler este arquivo como texto — alguns de seus bytes não são UTF-8 válido, que é o que o formato de configurações exige. Nada foi alterado."
   }
 }

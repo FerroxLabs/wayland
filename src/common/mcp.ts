@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import type { AgentBackend } from '@/common/types/acpTypes';
+
 /**
  * Shared MCP server-name helpers usable from BOTH the main process and the
  * renderer (the renderer cannot import `src/process/...`).
@@ -140,8 +142,11 @@ export function mcpSessionFingerprint(
  * Per-provider/model hard cap on the tool array a single request may carry
  * (OpenAI's limit is 128). Used ONLY to show the user a count-vs-cap nudge
  * (#348) — Wayland never truncates client-side; Wayland Core owns the smart
- * BM25 curation that actually fits the array, and Flux humanizes the 400. An
- * absent key => no known cap (the nudge then shows the count without a ceiling).
+ * BM25 curation that actually fits the array, and Flux humanizes the 400.
+ *
+ * Entries here are documented VENDOR caps. A provider that is absent is not
+ * uncapped — it falls back to {@link DEFAULT_TOOL_ARRAY_CAP}; see
+ * {@link resolveModelToolCap}.
  */
 export const PROVIDER_TOOL_LIMITS: Record<string, number> = {
   openai: 128,
@@ -149,13 +154,79 @@ export const PROVIDER_TOOL_LIMITS: Record<string, number> = {
 };
 
 /**
- * The known tool-array cap for a chat's target model, or `undefined` when the
- * provider/model has no known ceiling. Checks the model id first (e.g. `gpt-5`)
- * then the provider id (e.g. `openai`) so a capped model under any provider
- * still resolves. Informational only — see {@link PROVIDER_TOOL_LIMITS}.
+ * Advisory ceiling used when the target provider/model publishes no cap of its
+ * own (#998). Previously `resolveModelToolCap` returned `undefined` for
+ * everything that was not OpenAI, so an Anthropic or Flux chat carrying 122
+ * tools got NO nudge while the identical inventory warned on `gpt-5` — the
+ * warning was hardcoded to one vendor rather than being backend-aware.
+ *
+ * This is a rule of thumb about tool-selection quality, NOT a published limit,
+ * and callers must never present it as one. See {@link ModelToolCap.documented}.
  */
-export function resolveModelToolCap(providerId?: string, modelId?: string): number | undefined {
-  if (modelId && modelId in PROVIDER_TOOL_LIMITS) return PROVIDER_TOOL_LIMITS[modelId];
-  if (providerId && providerId in PROVIDER_TOOL_LIMITS) return PROVIDER_TOOL_LIMITS[providerId];
-  return undefined;
+export const DEFAULT_TOOL_ARRAY_CAP = 128;
+
+/** The tool-array ceiling to compare a chat's inventory against. */
+export type ModelToolCap = {
+  /** The count the inventory is measured against. */
+  limit: number;
+  /**
+   * TRUE only when `limit` came from a published vendor limit in
+   * {@link PROVIDER_TOOL_LIMITS} — i.e. exceeding it really does fail the
+   * request, so the UI may say the model "caps at N" and name the model.
+   *
+   * FALSE when `limit` is the {@link DEFAULT_TOOL_ARRAY_CAP} rule of thumb. The
+   * UI must NOT attribute a hard cap to the model in that case: telling a Claude
+   * user "claude-sonnet-4-5 caps at 128" is a specific factual claim, and
+   * Anthropic publishes no such tool-array cap. This whole issue is about a
+   * control that lied to users; a warning that lies is the same defect wearing a
+   * different hat.
+   */
+  documented: boolean;
+};
+
+/**
+ * The tool-array ceiling to warn a chat's target model against. Checks the model
+ * id first (e.g. `gpt-5`) then the provider id (e.g. `openai`) so a capped model
+ * under any provider still resolves, and falls back to
+ * {@link DEFAULT_TOOL_ARRAY_CAP} (with `documented: false`) so every backend gets
+ * a nudge rather than only the vendors listed in {@link PROVIDER_TOOL_LIMITS}.
+ * Informational only — nothing is ever truncated client-side.
+ */
+export function resolveModelToolCap(providerId?: string, modelId?: string): ModelToolCap {
+  if (modelId && modelId in PROVIDER_TOOL_LIMITS) return { limit: PROVIDER_TOOL_LIMITS[modelId], documented: true };
+  if (providerId && providerId in PROVIDER_TOOL_LIMITS) {
+    return { limit: PROVIDER_TOOL_LIMITS[providerId], documented: true };
+  }
+  return { limit: DEFAULT_TOOL_ARRAY_CAP, documented: false };
+}
+
+/**
+ * Backends whose LAUNCH CONFIGURATION actually carries the per-server
+ * `allowedTools` list to the engine, so a tool switched off in the MCP Library
+ * is genuinely not callable (#998):
+ *
+ *   - `codex`  — `enabled_tools` in the generated Codex config.toml
+ *                (`buildCodexMcpServerTable`).
+ *   - `gemini` — `includeTools` on the aioncli-core `MCPServerConfig`
+ *                (`buildGeminiStdioMcpConfig`); the runtime drops every
+ *                unlisted tool at discovery time.
+ *
+ * Every OTHER backend receives a SERVER-level allowlist only, and no amount of
+ * desktop-side filtering changes that: Wayland Core's launch profile carries
+ * `mcp_servers = [...]` with no tool dimension (`appendDesktopMcpProfile`, and
+ * Core's `ProfileConfig` / `McpServerConfig` have no per-tool field), and the
+ * ACP `session/new` `mcpServers` array has no per-tool field in the protocol.
+ * On those the switch is UI state plus a desktop candidate-pool filter, NOT an
+ * engine constraint — so the MCP Library says exactly that instead of implying
+ * a restriction that is not there.
+ *
+ * Adding a backend to this list without ALSO emitting its tool list re-creates
+ * the #998 lying control; `tests/unit/process/mcpToolAllowlistEnforcement.test.ts`
+ * cross-checks this list against what each launch builder really emits.
+ */
+export const TOOL_ALLOWLIST_ENFORCING_BACKENDS: readonly AgentBackend[] = ['codex', 'gemini'];
+
+/** Does `backend` carry per-server `allowedTools` through to its engine? */
+export function backendEnforcesToolAllowlist(backend: string | undefined): boolean {
+  return backend !== undefined && (TOOL_ALLOWLIST_ENFORCING_BACKENDS as readonly string[]).includes(backend);
 }

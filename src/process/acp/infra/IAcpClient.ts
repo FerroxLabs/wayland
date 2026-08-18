@@ -93,9 +93,30 @@ export type AgentLifecycleSnapshot = {
 
 export type DisconnectInfo = {
   reason: AgentDisconnectReason;
+  /**
+   * Null for BOTH of these means no process exit had been observed AT THE MOMENT
+   * the disconnect was reported - typically a transport-level drop while the
+   * child was, as far as Node could see, still running.
+   *
+   * The report is deliberately NOT delayed to wait for a late 'exit' event (see
+   * `ProcessAcpClient.recordAgentExit` - delaying it inverts the ordering the
+   * session depends on), so a genuine fast crash can land here too. That is why
+   * `buildCrashMessage` reports only what was observed ("no exit code or signal was
+   * reported") instead of asserting an exit it has no evidence for (#1020), and does
+   * NOT reassure the user that the child is probably alive - measured against each
+   * child's own 'exit' event, that reassurance was wrong for 6 of 20 real crashes.
+   */
   exitCode: number | null;
   signal: string | null;
   stderr: string;
+  /**
+   * True if a prompt request was in flight when the transport dropped. That turn
+   * is NOT replayed - `PromptExecutor.handlePromptError` deliberately refuses to
+   * re-queue an in-flight prompt on a dead stream, because a `tool_call` it had
+   * already run can be lost with the pipe - so the user has to be told it did
+   * not land (#1020).
+   */
+  unexpectedDuringPrompt: boolean;
 };
 
 // ─── Client Factory ─────────────────────────────────────────────

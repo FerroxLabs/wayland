@@ -21,8 +21,9 @@ import { getAssistantsDir } from '@process/utils/initStorage';
 import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from '@process/providers/catalog/chatgptSubscriptionModels';
 import { resolveBackendCandidateProviders } from '@process/providers/backendProviderResolution';
 import { EventLogger } from './EventLogger';
+import { Mailbox } from './Mailbox';
 import { TaskManager } from './TaskManager';
-import { Watchdog } from './Watchdog';
+import { Watchdog, type TaskBoardChange } from './Watchdog';
 import { TeamSession } from './TeamSession';
 import type { TTeam, TeamAgent, TeamTask } from './types';
 import fs from 'fs/promises';
@@ -76,6 +77,8 @@ export class TeamSessionService {
   private readonly eventLogger: EventLogger;
   /** P2 - periodic zombie reclaim sweep over lapsed task leases. */
   private readonly watchdog: Watchdog;
+  /** #980 - mailbox used to tell a leader that the Watchdog rewrote its task board. */
+  private readonly notifyMailbox: Mailbox;
 
   constructor(
     private readonly repo: ITeamRepository,
@@ -98,13 +101,76 @@ export class TeamSessionService {
     // bare TaskManager over the repo is enough to release dependents when the
     // Watchdog completes-through a verify-orphan.
     const unblocker = new TaskManager(repo, () => []);
+    this.notifyMailbox = new Mailbox(repo, this.eventLogger);
     this.watchdog = new Watchdog(repo, this.eventLogger, {
       checkIntervalMs: 60 * 1000,
       onCompleted: async (taskId: string): Promise<void> => {
         await unblocker.checkUnblocks(taskId);
       },
+      onTaskBoardChanged: (changes) => this.notifyLeadersOfTaskBoardChanges(changes),
     });
     this.watchdog.start();
+  }
+
+  /**
+   * #980 - tell each affected leader that the Watchdog changed its task board.
+   *
+   * Called ONCE per sweep with every rewrite it performed. The durable mailbox
+   * write is the primary act: it lands even for teams with no live session and
+   * is read on the leader's next wake. Where a session IS live the leader is
+   * woken so it stops planning around a task it no longer owns - but exactly
+   * ONCE per team per sweep, no matter how many tasks moved, because a wake is
+   * turn-scoped and one-per-task would queue a serial turn per reclaimed task.
+   */
+  private async notifyLeadersOfTaskBoardChanges(changes: TaskBoardChange[]): Promise<void> {
+    const byTeam = new Map<string, TaskBoardChange[]>();
+    for (const change of changes) {
+      const bucket = byTeam.get(change.task.teamId);
+      if (bucket) bucket.push(change);
+      else byTeam.set(change.task.teamId, [change]);
+    }
+
+    for (const [teamId, teamChanges] of byTeam) {
+      // eslint-disable-next-line no-await-in-loop -- serialized per team on purpose: one leader wake at a time
+      await this.notifyLeaderOfTaskBoardChanges(teamId, teamChanges).catch((error) => {
+        console.warn(
+          `[TeamSessionService] Failed to notify leader of task board changes for team ${teamId}:`,
+          error instanceof Error ? error.message : String(error)
+        );
+      });
+    }
+  }
+
+  /** #980 - one team's worth of task-board rewrites: N mailbox messages, ONE wake. */
+  private async notifyLeaderOfTaskBoardChanges(teamId: string, changes: TaskBoardChange[]): Promise<void> {
+    const team = await this.repo.findById(teamId);
+    const leader = team?.agents.find((a) => a.role === 'leader');
+    if (!leader) return;
+
+    for (const { task, outcome } of changes) {
+      const previousOwner = task.leaseOwner ?? task.owner;
+      const ownerLabel = team.agents.find((a) => a.slotId === previousOwner)?.agentName ?? previousOwner ?? 'nobody';
+      const detail =
+        outcome === 'requeued'
+          ? `has been taken back from ${ownerLabel} and re-queued as pending because their lease lapsed. Re-assign it.`
+          : outcome === 'exhausted'
+            ? `has been abandoned: ${ownerLabel} stopped responding and the retry budget is spent. Re-plan without it.`
+            : `was completed automatically after verification was interrupted. Treat its result as unverified.`;
+
+      // eslint-disable-next-line no-await-in-loop -- ordered mailbox writes
+      await this.notifyMailbox.write({
+        teamId,
+        toAgentId: leader.slotId,
+        fromAgentId: 'system',
+        type: 'message',
+        summary: `Task board changed: ${task.subject}`,
+        content: `[System] Task "${task.subject}" (${task.id}) ${detail}`,
+      });
+    }
+
+    // Exactly one wake for the whole batch, and never awaited into the sweep -
+    // the Watchdog already fired this notifier without waiting for it.
+    await this.sessions.get(teamId)?.wakeAgent(leader.slotId);
   }
 
   /** Expose the shared event logger so TeamSession can wire it into Mailbox + TaskManager + TeammateManager. */
@@ -1229,8 +1295,16 @@ export class TeamSessionService {
     // state change needed.
     session?.killAgentProcess(slotId);
 
-    const updatedAgents = team.agents.map((a) => (a.slotId === slotId ? { ...a, status: 'pending' as const } : a));
-    await this.repo.update(teamId, { agents: updatedAgents, updatedAt: Date.now() });
+    // #980: status is LIVE data now that TeammateManager.setStatus persists every
+    // transition, so this must not re-write the whole `agents` blob from the
+    // snapshot taken above. Doing so reverted any status another writer committed
+    // in between - measured against the real repository as a durable `idle`
+    // flipping back to `active`, which reconcilePersistedStatuses then turned
+    // into a wrong `pending` on the next session load. The atomic status writer
+    // merges by slotId inside one transaction and touches only that slot, which
+    // also means the un-awaited setStatus('pending') that killAgentProcess fires
+    // just above can no longer race this write.
+    await this.repo.updateAgentStatuses(teamId, [{ slotId, status: 'pending' }]);
 
     ipcBridge.team.agentStatusChanged.emit({ teamId, slotId, status: 'pending' });
 

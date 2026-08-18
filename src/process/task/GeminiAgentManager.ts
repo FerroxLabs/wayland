@@ -40,7 +40,7 @@ import { ConversationTurnCompletionService } from '@process/task/ConversationTur
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
 import { isServerActiveForSession, shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
-import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
+import { mergeMcpSpawnEnv, resolveSessionMcpStdioSpawn } from '@process/services/mcpServices/builtinMcpRuntime';
 import BaseAgentManager from './BaseAgentManager';
 import { IpcAgentEventEmitter } from './IpcAgentEventEmitter';
 import { mainLog, mainWarn, mainError } from '@process/utils/mainLogger';
@@ -77,6 +77,20 @@ export type UiMcpServerConfig = {
   type?: 'sse' | 'http';
   headers?: Record<string, string>;
   description?: string;
+  /**
+   * #998 — per-server tool allowlist handed to aioncli-core's `MCPServerConfig`.
+   * The runtime filters discovered tools through it (`mcp-client.ts` isEnabled:
+   * a tool survives only when `includeTools` is absent or names it), so this is
+   * the Gemini backend's REAL enforcement of the MCP Library's per-tool switch,
+   * not a display hint. Absent => every tool (the migration-free default); `[]`
+   * => none, matching `IMcpServer.allowedTools` exactly.
+   *
+   * `[]` is faithful at THIS layer but must not reach a launch: a server that
+   * discovers zero tools and zero prompts makes aioncli-core throw and mark the
+   * connector disconnected. `getMcpServers` therefore drops empty-allowlist
+   * connectors before they are emitted - see the filter there.
+   */
+  includeTools?: string[];
 };
 
 /**
@@ -88,10 +102,24 @@ export type UiMcpServerConfig = {
  */
 export function buildGeminiStdioMcpConfig(
   transport: Extract<IMcpServer['transport'], { type: 'stdio' }>,
-  description?: string
+  description?: string,
+  // allowedTools stays the THIRD parameter: it is the only one any existing
+  // caller passes positionally, so #1006's tests keep their exact call shape.
+  allowedTools?: readonly string[],
+  libraryEntryId?: string
 ): UiMcpServerConfig {
-  const { command, args } = resolveMcpStdioSpawn(transport.command, transport.args || []);
-  return { command, args, env: transport.env || {}, description };
+  const { command, args, env } = resolveSessionMcpStdioSpawn(transport.command, transport.args || [], {
+    libraryEntryId,
+  });
+  return {
+    command,
+    args,
+    env: mergeMcpSpawnEnv(transport.env, env),
+    description,
+    // #998: carry the per-tool switch into the runtime. `undefined` must stay
+    // omitted - an empty `includeTools` means "no tools", not "all tools".
+    ...(allowedTools === undefined ? {} : { includeTools: [...allowedTools] }),
+  };
 }
 
 const sortedRecord = (value?: Record<string, string>): Array<[string, string]> =>
@@ -159,6 +187,18 @@ export async function replaceGeminiMcpWorker(
  * evidence of a resumable session. The recovery adapter binds this fact and
  * refuses to treat process existence as resumability.
  */
+/**
+ * #983 - deadline for a confirm round-trip to the gemini worker.
+ *
+ * Unlike `send.message`, which is TURN-scoped and legitimately runs for many
+ * minutes, a confirm is REQUEST-scoped: the worker's `pipe.once(callId, ...)`
+ * handler resolves its deferred as soon as the message lands, so a healthy
+ * answer is effectively immediate. Bounding it means a confirm for a callId the
+ * LIVE worker never registered - a stale approval card met by a fresh worker -
+ * fails instead of wedging `ChannelMessageService.confirm` forever.
+ */
+const CONFIRM_ROUND_TRIP_TIMEOUT_MS = 60_000;
+
 export const GEMINI_SESSION_AUTHORITY = {
   producer: 'gemini-cli',
   handleSource: 'gemini.none',
@@ -602,7 +642,20 @@ export class GeminiAgentManager extends BaseAgentManager<
         .filter(
           (server: IMcpServer) =>
             server.id !== BUILTIN_CONCIERGE_DIAG_ID || isConciergeAssistant(this.presetAssistantId)
-        );
+        )
+        // #998: `allowedTools: []` ("Disable all") means this connector
+        // contributes nothing, so drop it from the launch entirely rather than
+        // declaring it with `includeTools: []`. aioncli-core's
+        // `connectAndDiscover` THROWS "No prompts or tools found on the server."
+        // when discovery yields zero prompts AND zero tools, and its catch emits
+        // error feedback and marks the server DISCONNECTED - so emitting it would
+        // turn "tools off" into a red, broken-looking connector plus an error
+        // toast. Omitting it leaves the connector installed and enabled while
+        // contributing no tools this session, which is what the user asked for.
+        // It is also dropped BEFORE `beginMcpSession`, so the session's expected
+        // receipts match what is actually launched instead of waiting forever on
+        // a publication that can never arrive.
+        .filter((server: IMcpServer) => server.allowedTools === undefined || server.allowedTools.length > 0);
 
       // Match the ACP/Core launch paths: hosted OAuth connectors must enter the
       // worker with a current bearer, not the stale header saved at install.
@@ -617,7 +670,12 @@ export class GeminiAgentManager extends BaseAgentManager<
 
       selectedServers.forEach((server: IMcpServer) => {
         if (server.transport.type === 'stdio') {
-          mcpConfig[server.name] = buildGeminiStdioMcpConfig(server.transport, server.description);
+          mcpConfig[server.name] = buildGeminiStdioMcpConfig(
+            server.transport,
+            server.description,
+            server.allowedTools,
+            server.libraryEntryId
+          );
         } else if (
           server.transport.type === 'sse' ||
           server.transport.type === 'http' ||
@@ -630,6 +688,8 @@ export class GeminiAgentManager extends BaseAgentManager<
             type,
             headers: server.transport.headers || {},
             description: server.description,
+            // #998: hosted connectors honour the per-tool switch too.
+            ...(server.allowedTools === undefined ? {} : { includeTools: [...server.allowedTools] }),
           };
         }
         if (mcpConfig[server.name]) this.publishMcpServer(server.name);
@@ -983,6 +1043,26 @@ export class GeminiAgentManager extends BaseAgentManager<
     };
   };
   /**
+   * Fire-and-forget "proceed" for an auto-approved confirmation.
+   *
+   * #983: `postMessagePromise` now rejects when the worker child exits, so this
+   * call can no longer be `void`ed bare - a dead child would turn every pending
+   * auto-approval into an unhandled rejection and take the process down. The
+   * approval is advisory (the tool is already gone with the child), so log and
+   * move on.
+   */
+  private autoApproveConfirmation(callId: string): void {
+    void this.postMessagePromise(callId, ToolConfirmationOutcome.ProceedOnce, {
+      timeoutMs: CONFIRM_ROUND_TRIP_TIMEOUT_MS,
+    }).catch((error) => {
+      console.warn(
+        `[GeminiAgentManager] auto-approve for callId=${callId} was not delivered:`,
+        error instanceof Error ? error.message : String(error)
+      );
+    });
+  }
+
+  /**
    * Check if a confirmation should be auto-approved based on current mode.
    * Returns true if auto-approved (caller should skip UI), false otherwise.
    */
@@ -994,7 +1074,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     if (this.currentMode === 'yolo') {
       // yolo: auto-approve ALL operations
       console.debug(`[GeminiAgentManager] YOLO auto-approving ${type}: callId=${content.callId}`);
-      void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+      this.autoApproveConfirmation(content.callId);
       return true;
     }
     // Team MCP servers (wayland-team-*) are always auto-approved regardless of mode
@@ -1004,7 +1084,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         console.log(
           `[GeminiAgentManager] Auto-approving team MCP tool: serverName=${serverName}, callId=${content.callId}`
         );
-        void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+        this.autoApproveConfirmation(content.callId);
         return true;
       }
     }
@@ -1013,7 +1093,7 @@ export class GeminiAgentManager extends BaseAgentManager<
       // Only exec and mcp still require manual confirmation
       if (type === 'edit' || type === 'info') {
         console.log(`[GeminiAgentManager] Auto-approving ${type}: callId=${content.callId}`);
-        void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+        this.autoApproveConfirmation(content.callId);
         return true;
       }
     }
@@ -1025,7 +1105,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     // mode and only auto-approve concrete file edits. Persisted per-workspace.
     if (isWorkspaceTrusted(this.workspace) && trustedWorkspaceAutoApprovesConfirmationType(type)) {
       console.log(`[GeminiAgentManager] Trusted-workspace auto-approving ${type}: callId=${content.callId}`);
-      void this.postMessagePromise(content.callId, ToolConfirmationOutcome.ProceedOnce);
+      this.autoApproveConfirmation(content.callId);
       return true;
     }
     return false;
@@ -1485,8 +1565,20 @@ export class GeminiAgentManager extends BaseAgentManager<
     }
 
     super.confirm(id, callId, data);
-    // Send confirmation to worker, using callId as message type
-    return this.postMessagePromise(callId, data);
+
+    // #983: the worker consumes its `pipe.once(callId)` listener on first use,
+    // so a replayed confirm (a channel platform retrying its callback, or a
+    // repeated yolo auto-confirm) must not post again - that promise could
+    // never settle, and ChannelMessageService.confirm awaits it.
+    if (!this.claimConfirmCallId(callId)) {
+      console.warn(`[GeminiAgentManager] ignoring repeat confirm for callId=${callId}`);
+      return Promise.resolve();
+    }
+
+    // Send confirmation to worker, using callId as message type. The deadline
+    // caps the cases the claim cannot see, e.g. a callId registered by a worker
+    // that has since been replaced.
+    return this.postMessagePromise(callId, data, { timeoutMs: CONFIRM_ROUND_TRIP_TIMEOUT_MS });
   }
 
   // Manually trigger context reload

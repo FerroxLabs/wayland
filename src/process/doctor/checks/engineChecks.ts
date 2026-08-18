@@ -19,6 +19,7 @@
  *     model exists — rather than spawning a real turn.
  */
 
+import { redactSecrets } from '@process/utils/secretRedaction';
 import type { DoctorCheckOutcome } from '../types';
 
 /** Engine binary detection result — shape of `detectWCore()`. */
@@ -33,9 +34,50 @@ export type RoutableModelReader = {
 };
 
 /**
+ * The version NUMBER inside a `--version` banner, and nothing else.
+ *
+ * `detectWCore` returns unvalidated, unbounded `execFileSync` stdout
+ * (`binaryResolver.ts`), so anything the resolved binary chooses to print can
+ * reach a report the Doctor panel offers to copy (GHSA-2g2m-r86j-jg6h).
+ *
+ * The first attempt at this ended the pattern with an unanchored, unbounded
+ * `[\w.+-]` run and it was NOT a fix - a cross-audit broke it by execution. That
+ * character class is the alphabet of most credentials, and with no anchors and no
+ * bound the match happily ran straight through one:
+ * `1.0.0-sk-ant-<40ch>` surfaced the whole token, `0.13.0+build.<JWT>`
+ * surfaced the whole JWT, `9.9.9-<200k chars>` surfaced all 200k, and
+ * `token=sk-ant-1.2.3-<58ch>` needed no version banner at all because the
+ * unanchored search simply started INSIDE the credential. Every one returned
+ * `pass`. Three properties fix that and all three are load-bearing:
+ *
+ *  - the leading `(?<![\w.+-])` forbids a match that starts mid-token, which is
+ *    what killed the `token=sk-ant-1.2.3-...` case;
+ *  - the trailing `(?![\w.+-])` forbids a glued suffix, so `0.13.0_<32 hex>`
+ *    cannot extend the match;
+ *  - the prerelease/build tail is `{0,10}` and must OPEN with an alphanumeric,
+ *    which bounds it instead of letting it run to end-of-input.
+ *
+ * `MAX_VERSION_LENGTH` is then a belt-and-braces cap on what is surfaced: the
+ * pattern is already bounded, and a second bound that does not depend on reading
+ * a regex correctly is cheap. This is an allowlisted shape plus a hard length
+ * limit - which is why it does not rely on `redactSecrets` and #1026 does not
+ * reach it. It is NOT immunity in general: it is immunity to whatever cannot fit
+ * through this shape.
+ *
+ * The optional `v` is part of the capture, not decoration: the engine's banner is
+ * `v0.10.0`-shaped and an existing reachability test asserts that spelling
+ * survives, so dropping it would have been a silent contract change.
+ */
+const ENGINE_VERSION_PATTERN = /(?<![\w.+-])v?\d+\.\d+\.\d+(?:[-+][0-9A-Za-z][0-9A-Za-z.]{0,10})?(?![\w.+-])/;
+
+/** Hard cap on the surfaced version text, independent of the pattern above. */
+const MAX_VERSION_LENGTH = 32;
+
+/**
  * Engine reachability — the `wayland-core` binary resolves and answers
- * `--version`. FAIL when no binary is found; WARN when a binary exists but did
- * not report a version (it may be the wrong arch or a broken build).
+ * `--version` with a recognisable version number. FAIL when no binary is found;
+ * WARN when a binary exists but reported no usable version (it may be the wrong
+ * arch or a broken build).
  */
 export async function checkEngineReachable(detect: () => WCoreDetection): Promise<DoctorCheckOutcome> {
   const result = detect();
@@ -46,14 +88,20 @@ export async function checkEngineReachable(detect: () => WCoreDetection): Promis
       remediation: 'Reinstall the app, or install the wayland-core engine on your PATH.',
     };
   }
-  if (!result.version) {
+  // Unparseable stdout is treated exactly like no stdout, and the raw text is
+  // NOT echoed to say so. A binary whose `--version` carries no version number is
+  // the same broken build either way, so the user loses no signal.
+  const version = result.version
+    ? ENGINE_VERSION_PATTERN.exec(result.version)?.[0].slice(0, MAX_VERSION_LENGTH)
+    : undefined;
+  if (!version) {
     return {
       status: 'warn',
-      detail: `Engine binary found at ${result.path ?? 'an unknown path'} but it did not report a version.`,
+      detail: `Engine binary found at ${result.path ?? 'an unknown path'} but it did not report a usable version.`,
       remediation: 'The binary may be the wrong architecture or a broken build — reinstall the app.',
     };
   }
-  return { status: 'pass', detail: `Wayland Core engine ${result.version} is reachable.` };
+  return { status: 'pass', detail: `Wayland Core engine ${version} is reachable.` };
 }
 
 /**
@@ -103,7 +151,7 @@ export type EngineContractPinProbe = {
  *
  * That also makes the check safe on platforms where the manifest may not be
  * ASCII-recoverable from the binary. Only `darwin-arm64` has been confirmed
- * [verified: pinned digest found, the shipped-v0.12.26 digest `23fb3048…`
+ * [verified: pinned digest found, the shipped-v0.12.26 digest `23fb3048...`
  * absent, with a known-positive control]. Anywhere the digest cannot be read,
  * this degrades to the legacy branch and says nothing, rather than crying wolf.
  *
@@ -129,9 +177,14 @@ export async function checkEngineContractPin(
   } catch (error) {
     return {
       status: 'warn',
-      detail: `The engine binary could not be read to verify its contract version: ${
+      // Scrubbed for UNIFORMITY, not because this source is known to be
+      // credential-bearing: it is an fs failure reading the engine binary. The
+      // Doctor surface now holds one rule - no raw error text reaches a report
+      // that gets copied to support (GHSA-2g2m-r86j-jg6h) - because a per-check
+      // judgement call is exactly what the next check author gets wrong.
+      detail: `The engine binary could not be read to verify its contract version: ${redactSecrets(
         error instanceof Error ? error.message : String(error)
-      }`,
+      )}`,
       remediation: 'Check that the app has permission to read its own bundled engine.',
     };
   }

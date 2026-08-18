@@ -247,6 +247,53 @@ describe('IjfwArchiveService', () => {
     }
   });
 
+  /**
+   * #924 F3: `getEntry` does NOT throw when the source file has gone - it
+   * catches and substitutes the 200-char list preview for the body. A caller
+   * that only checks for a truthy body therefore cannot tell a complete entry
+   * from a fragment, and `loadGlobalMemoryBlock` was passing the fragment to the
+   * agent as the whole entry with no marker. `bodyIsPreview` is the only signal
+   * that distinguishes the two, so it has to be pinned on BOTH shapes.
+   */
+  it('getEntry flags a body it had to fall back to the preview for', async () => {
+    const fakeHome = path.join(tmpRoot, 'fake-home');
+    const ijfwHomeDir = path.join(fakeHome, '.ijfw');
+    fs.mkdirSync(ijfwHomeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(ijfwHomeDir, 'registry.md'),
+      `${projectRoot} | abc123 | ${new Date().toISOString()}\n`,
+      'utf8'
+    );
+
+    const origHome = process.env.HOME;
+    const origUserProfile = process.env.USERPROFILE;
+    process.env.HOME = fakeHome;
+    process.env.USERPROFILE = fakeHome;
+
+    try {
+      service = new IjfwArchiveService(noopWatcherFactory);
+      const list = await service.listEntries({ limit: 10 });
+      const first = list.entries[0];
+
+      // Readable source: a real body, not flagged.
+      const intact = await service.getEntry(first.id);
+      expect(intact!.bodyIsPreview).toBe(false);
+
+      // Source deleted behind the index's back - what a moved/pruned/renamed
+      // memory file looks like at read time.
+      fs.rmSync(first.sourcePath);
+      const stale = await service.getEntry(first.id);
+      expect(stale).not.toBeNull();
+      // It still answers - it does not throw - which is exactly why the flag is
+      // needed rather than a try/catch at the call site.
+      expect(stale!.body).toBe(first.bodyPreview);
+      expect(stale!.bodyIsPreview).toBe(true);
+    } finally {
+      restoreEnv('HOME', origHome);
+      restoreEnv('USERPROFILE', origUserProfile);
+    }
+  });
+
   it('getProjects returns at least one project', async () => {
     const fakeHome = path.join(tmpRoot, 'fake-home');
     const ijfwHomeDir = path.join(fakeHome, '.ijfw');

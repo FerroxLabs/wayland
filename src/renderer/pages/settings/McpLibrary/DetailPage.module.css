@@ -380,6 +380,28 @@
 }
 
 /* tools list */
+/* #998 - the per-tool switches below are only enforced on some backends, and
+   this banner says so. Warning-toned on purpose: a user who reads it as
+   decoration is exactly the user who believes a tool is disabled when it is
+   not. */
+.toolScopeNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  margin: 12px 0 16px;
+  border-radius: var(--radius-card-inner);
+  background: var(--warning-soft-bg);
+  color: var(--warning);
+  font-size: var(--type-12);
+  line-height: 1.5;
+}
+
+.toolScopeNotice svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
 .toolsHeader {
   display: flex;
   align-items: center;

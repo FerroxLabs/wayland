@@ -97,6 +97,9 @@ interface EventTypes {
    * the main-process explanation so the user can inspect it.
    */
   'wcore.constitution.locked.card': [{ conversation_id: string; rawError?: string }];
+  // #1024: the engine's config.toml is not valid TOML, so the launch profile
+  // splice refused. Routed on the structured error CODE, not the prose.
+  'wcore.engineConfig.invalid.card': [{ conversation_id: string; rawError?: string }];
   /**
    * #466 Fired by WCoreSendBox when the engine advertises (or drops) the
    * Computer-Use capability for this conversation. WCoreChat listens and shows

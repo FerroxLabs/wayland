@@ -69,13 +69,6 @@ env:
   WCORE_SKIP: '1'
   CI: 'true'
   NODE_OPTIONS: '--max-old-space-size=8192'
-  # #940: four @wayland MCP connectors (apple, imap, news, cal.com) build from
-  # the sibling waylandmcp repo, which has no GitHub remote yet - CI cannot
-  # check it out. scripts/build-mcp-servers.js now FAILS the build when a
-  # connector cannot be bundled, so CI must opt out explicitly until that repo
-  # lands. DELETE this line the moment waylandmcp is checkout-able in CI; that
-  # is the whole point of the gate.
-  WAYLAND_ALLOW_MISSING_MCP: '1'
 
 jobs:
   # Cancel in-progress runs when PR is closed (merged or manually closed)
@@ -841,6 +834,23 @@ jobs:
       - name: Postinstall (CI uses prebuilt binaries; see scripts/postinstall.js)
         run: bun run postinstall || true
 
+      # #940: no @wayland MCP connector checkout here on purpose. The build
+      # below runs electron-vite in PRODUCTION mode, and electron.vite.config.ts
+      # registers buildMcpServersPlugin only when mode === 'development', so
+      # nothing in this workflow ever invokes scripts/build-mcp-servers.js - the
+      # WAYLAND_ALLOW_MISSING_MCP=1 that used to sit in this file's env was never
+      # load-bearing. Checking the private sources out for a build that does not
+      # consume them would also break every FORK pull request, which gets no repo
+      # secrets. The connectors are built by build-matrix.yml (every push to main,
+      # plus weekly) and by the release path, neither of which can run from a fork
+      # and neither of which has a bypass any more. Note "built", not "proved":
+      # build-matrix is currently RED on main - in run 31993152345 four legs went
+      # green, macos-x64 and both preview Linux legs failed at Run packaged build,
+      # and all four Windows legs were cancelled. So the only standing proof today
+      # is the four legs that do pass; the Windows connector checkout in particular
+      # has never executed. A single build-manual.yml dispatch across all six
+      # platforms goes through _build-reusable with secrets: inherit and neither
+      # tags nor publishes, which is the cheapest way to close that gap.
       - name: Typecheck
         run: bunx tsc --noEmit
 

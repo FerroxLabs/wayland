@@ -94,6 +94,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "这些开关仅在 {{engines}} 上生效。其他引擎（包括 Wayland Core 和各 ACP 代理）会收到整个连接器，因此在此关闭的工具仍可被调用。若要彻底移除，请关闭连接器本身。",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "setupHeading": "Setup guide",

@@ -90,7 +90,9 @@
     "addTeammateError": "Hinzufügen des Teammitglieds fehlgeschlagen",
     "restartAgent": "Neu starten",
     "restartAgentSuccess": "Neustart eingeleitet",
-    "restartAgentError": "Neustart des Agenten fehlgeschlagen"
+    "restartAgentError": "Neustart des Agenten fehlgeschlagen",
+    "restartActiveTitle": "Arbeitenden Teamkollegen neu starten?",
+    "restartActiveConfirm": "Dieser Teamkollege arbeitet noch. Ein Neustart beendet seinen CLI-Prozess und den laufenden Zug. Das kann nicht rückgängig gemacht werden."
   },
   "activity": {
     "tabLabel": "Aktivität",

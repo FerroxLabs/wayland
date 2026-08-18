@@ -21,6 +21,7 @@ import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncR
 import { mcpAgentOperationSucceeded } from './McpProtocol';
 import { validateMcpServer, sanitizeMcpServerName } from './validateMcpServer';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
+import { applyBuiltinMcpRuntime } from '@process/services/mcpServices/builtinMcpRuntime';
 import { mcpServerCollisionKey } from '@/common/mcp';
 import { bindMcpPrepublicationProbeTruth } from './mcpSessionTruthGate';
 
@@ -332,7 +333,14 @@ export class McpService {
       // port (ERR_CONNECTION_REFUSED) and the MCP never connects even though
       // Wayland's own login succeeded. Injecting the token we already hold makes
       // the engine skip its OAuth entirely.
-      const authedServers = await this.attachOAuthTokens(enabledServers);
+      // #1008: Wayland's own bundled MCP servers are stored as bare `node`, which
+      // does not exist on a stock macOS. Rewrite them onto the resolved JS runtime
+      // (the SAME tuple the Library probe spawns) before any agent serializes them,
+      // so all eight CLI publication targets emit a command that can actually run.
+      // Applied AFTER validateMcpServer so validation still grades the user-visible
+      // declaration, never Wayland's own trusted runtime path.
+      const spawnableServers = enabledServers.map((server) => applyBuiltinMcpRuntime(server));
+      const authedServers = await this.attachOAuthTokens(spawnableServers);
 
       // Run MCP sync across all agents concurrently
       const promises = allAgents.map(async (agent) => {

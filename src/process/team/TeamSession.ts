@@ -83,11 +83,39 @@ export class TeamSession extends EventEmitter {
       onAgentRemoved: (teamId, agents) => {
         void this.repo.update(teamId, { agents, updatedAt: Date.now() });
       },
+      // #980: teammate status is a persisted field of `teams.agents`. Without
+      // this the DB copy went stale the moment an agent changed state, so the
+      // roster TeamSessionService reads back disagreed with the live manager.
+      //
+      // Routed through `updateAgentStatuses`, NOT `update`: the generic update
+      // re-writes the whole row from the caller's snapshot, so persisting the
+      // manager's roster would revert any field the manager does not own -
+      // `changeAgentBackend`'s `agentType` swap was silently lost this way - and
+      // would clobber concurrent rename / session-mode / workspace writes.
+      onAgentStatusesChanged: (teamId, statuses) => {
+        // `reconcilePersistedStatuses()` is called synchronously from this
+        // constructor, so a repo without the method took the whole constructor
+        // down with a TypeError instead of merely failing to persist. Every real
+        // repository implements it; a test double may not.
+        const persisted = this.repo.updateAgentStatuses?.(teamId, statuses);
+        if (!persisted) return;
+        void persisted.catch((error) => {
+          console.warn(
+            `[TeamSession] Failed to persist agent status for team ${teamId}:`,
+            error instanceof Error ? error.message : String(error)
+          );
+        });
+      },
       eventLogger: logger,
       // P2 durable execution: give the manager the task repo so it can stamp /
       // renew the lease on a slot's in_progress tasks across the wake lifecycle.
       taskRepo: repo,
     });
+
+    // #980: `team.agents` came straight out of the DB. Anything still marked
+    // `active` belongs to a process that no longer exists - reconcile before
+    // the leader (or the right rail) reads it.
+    this.teammateManager.reconcilePersistedStatuses();
 
     // Create MCP server for team coordination tools
     this.mcpServer = new TeamMcpServer({
@@ -261,6 +289,15 @@ export class TeamSession extends EventEmitter {
   /** True when the named agent currently has a wake in flight. */
   isWakeActive(slotId: string): boolean {
     return this.teammateManager.isWakeActive(slotId);
+  }
+
+  /**
+   * #980 - wake an agent without delivering new content. Used by out-of-band
+   * notifiers (the task Watchdog) that write to the mailbox themselves and then
+   * need the leader to actually read it.
+   */
+  wakeAgent(slotId: string): Promise<void> {
+    return this.teammateManager.wake(slotId);
   }
 
   /** Get current agent states */

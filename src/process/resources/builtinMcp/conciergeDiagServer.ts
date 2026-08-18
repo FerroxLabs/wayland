@@ -35,6 +35,10 @@ import os from 'node:os';
 import path from 'node:path';
 import BetterSqlite3 from 'better-sqlite3';
 import type Database from 'better-sqlite3';
+// Relative, and from the deliberately dependency-free constants module: this file
+// is esbuild-bundled into a standalone stdio server, so an alias or a module with
+// side effects would be a build/runtime hazard here.
+import { isBundledWaylandMcpEntryId } from './constants';
 
 // ---------------------------------------------------------------------------
 // Bounds (re-clamped here so output can never balloon, regardless of source).
@@ -803,9 +807,21 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
       const enabled = s.enabled === true;
       const toolCount = Array.isArray(s.tools) ? s.tools.length : 0;
       const lastError = asNullableString(s.lastError);
+      // #1008: a bundled first-party server has no command, args or credentials
+      // the user owns, so telling them to check those sends them looking for a
+      // mistake they cannot have made. Say plainly that it is ours to fix.
+      // #1015: the four sibling @wayland servers (Apple/IMAP/News/Cal.com) do NOT
+      // carry `builtin`, so they fell into the user-error branch and were told to
+      // check a command and args Wayland wrote. Their spawn is ours; their
+      // credentials genuinely are the user's, so they get their own line rather
+      // than either of the other two.
       const flag =
         enabled && toolCount === 0
-          ? 'Enabled but exposes 0 tools — it likely failed to connect or registered nothing; check its command, args, or credentials.'
+          ? s.builtin === true
+            ? 'Enabled but exposes 0 tools — this is a server bundled with Wayland, so there is nothing for you to configure. It either failed to start or has not been probed yet. Please report it.'
+            : isBundledWaylandMcpEntryId(asNullableString(s.libraryEntryId))
+              ? 'Enabled but exposes 0 tools — this server ships with Wayland, so its command and args are not yours to fix. Check any credentials you entered for it; if those are correct, please report it.'
+              : 'Enabled but exposes 0 tools — it likely failed to connect or registered nothing; check its command, args, or credentials.'
           : null;
       return {
         name: typeof s.name === 'string' ? s.name : '(unnamed)',
@@ -875,23 +891,42 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
         lines: [],
       };
     }
-    let files: string[];
+    // #1038: readdirSync returns DIRECTORY order, not sorted and not by time, so
+    // taking the first MAX_LOG_FILES entries kept an arbitrary subset that in
+    // practice skewed oldest. A diagnostics bundle then reported stale lines
+    // under the heading "recent errors", and every triage that trusted it was
+    // reading the wrong data. Select by mtime, newest first, then walk the
+    // survivors oldest-first so the trailing MAX_LOG_LINES slice below really is
+    // the most recent output rather than whichever file happened to be last.
+    let files: Array<{ name: string; stat: fs.Stats }>;
     try {
       files = fs
         .readdirSync(logDir)
         .filter((f) => f.endsWith('.log') || f.endsWith('.txt'))
-        .slice(0, MAX_LOG_FILES);
+        .map((name) => {
+          try {
+            const stat = fs.statSync(path.join(logDir, name));
+            return stat.isFile() ? { name, stat } : null;
+          } catch {
+            // Vanished or turned unreadable between readdir and stat. A rotating
+            // log directory does this routinely, and one missing file must not
+            // cost the whole section.
+            return null;
+          }
+        })
+        .filter((entry): entry is { name: string; stat: fs.Stats } => entry !== null)
+        .sort((left, right) => right.stat.mtimeMs - left.stat.mtimeMs)
+        .slice(0, MAX_LOG_FILES)
+        .reverse();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       return { available: false, source: `log dir read failed: ${scrubHome(message)}`, lines: [] };
     }
 
     const collected: string[] = [];
-    for (const file of files) {
+    for (const { name: file, stat } of files) {
       const full = path.join(logDir, file);
       try {
-        const stat = fs.statSync(full);
-        if (!stat.isFile()) continue;
         const start = Math.max(0, stat.size - MAX_LOG_TAIL_BYTES);
         const fd = fs.openSync(full, 'r');
         try {

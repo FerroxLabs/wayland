@@ -90,7 +90,9 @@
     "addTeammateError": "Falha ao adicionar colega",
     "restartAgent": "Reiniciar",
     "restartAgentSuccess": "Reinício iniciado",
-    "restartAgentError": "Falha ao reiniciar o agente"
+    "restartAgentError": "Falha ao reiniciar o agente",
+    "restartActiveTitle": "Reiniciar um colega que está trabalhando?",
+    "restartActiveConfirm": "Este colega ainda está trabalhando. Reiniciar encerra o processo da CLI e interrompe o turno atual. Isso não pode ser desfeito."
   },
   "activity": {
     "tabLabel": "Atividade",

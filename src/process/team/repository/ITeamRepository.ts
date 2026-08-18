@@ -1,5 +1,5 @@
 // src/process/team/repository/ITeamRepository.ts
-import type { MailboxMessage, TeamEvent, TeamEventType, TeamTask, TTeam } from '../types';
+import type { MailboxMessage, TeamAgent, TeamEvent, TeamEventType, TeamTask, TTeam } from '../types';
 
 /** Team CRUD + cascade-delete operations */
 export interface ITeamCrudRepository {
@@ -7,6 +7,31 @@ export interface ITeamCrudRepository {
   findById(id: string): Promise<TTeam | null>;
   findAll(userId: string): Promise<TTeam[]>;
   update(id: string, updates: Partial<TTeam>): Promise<TTeam>;
+  /**
+   * #980 - atomically apply teammate STATUS changes and nothing else.
+   *
+   * `update` re-writes the whole row from the caller's snapshot, so it cannot be
+   * used by a high-frequency status writer without losing concurrent writes.
+   * This one reads, merges by slotId and writes inside a single transaction, and
+   * only ever touches the `agents` and `updated_at` columns - so a concurrent
+   * rename, backend swap or session-mode change survives. Unknown slotIds are
+   * ignored. Returns null when the team no longer exists.
+   *
+   * SCOPE, precisely: this closes the race FOR THIS WRITER, not for the system.
+   * `teams.agents[].status` is live data, and these whole-row `update` callers
+   * still re-write the entire blob from a snapshot taken earlier, so each can
+   * still revert a status committed in between:
+   *   - TeamSessionService.spawnAgent / renameAgent / changeAgentBackend /
+   *     removeAgent
+   *   - TeamSession's rename + roster persistence
+   * `restartAgent` was moved onto this method because it changes nothing but
+   * status. The rest need a field-scoped roster writer; until they have one, do
+   * NOT read the surrounding commentary as "the lost update is gone".
+   */
+  updateAgentStatuses(
+    id: string,
+    statuses: Array<{ slotId: string; status: TeamAgent['status'] }>
+  ): Promise<TTeam | null>;
   delete(id: string): Promise<void>;
   deleteMailboxByTeam(teamId: string): Promise<void>;
   deleteTasksByTeam(teamId: string): Promise<void>;

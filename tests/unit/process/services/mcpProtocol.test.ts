@@ -55,6 +55,36 @@ vi.mock('@process/services/mcpServices/McpOAuthService', () => ({
 
 import type { McpConnectionTestResult, McpOperationResult } from '@process/services/mcpServices/McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
+import { getMcpScriptPath } from '@process/utils/mcpScriptDir';
+
+// #1015 F2: the builtin carve-out matches the EXACT path this install would
+// spawn, not just the basename, so a user's own file that happens to share one
+// of our filenames is never re-pointed onto Wayland's runtime. Fixtures must
+// therefore use the real resolved path — an invented one is (correctly) foreign.
+const SEARCH_SKILLS_SCRIPT = getMcpScriptPath('builtin-mcp-search-skills.js');
+const CONCIERGE_DIAG_SCRIPT = getMcpScriptPath('builtin-mcp-concierge-diag.js');
+const IMAGE_GEN_SCRIPT = getMcpScriptPath('builtin-mcp-image-gen.js');
+
+// #1015 F2b: the four sibling @wayland builtins are stored as a BARE FILENAME
+// and the resolver REPLACES args[0] with our own script, so the filename alone is
+// not authority to do it — a user's relative script of the same name would have a
+// different file substituted. The authority is catalog PROVENANCE, and the
+// Library install writes it in the same record it writes the bare filename into.
+// Fixtures must therefore be the whole installed record, not a bare transport.
+const bundledWaylandServer = (file: string, libraryEntryId: string): IMcpServer => ({
+  id: `lib_${libraryEntryId}`,
+  name: libraryEntryId.replace(/[^A-Za-z0-9_.-]/g, '-'),
+  enabled: true,
+  status: 'disconnected',
+  source: 'library',
+  libraryEntryId,
+  transport: { type: 'stdio', command: 'node', args: [file], env: {} },
+  tools: [],
+  createdAt: 1,
+  updatedAt: 1,
+  originalJson: '{}',
+});
+const APPLE_SERVER = () => bundledWaylandServer('builtin-mcp-apple.mjs', 'com.wayland/apple-mcp');
 
 // Create a concrete test subclass to access protected methods
 class TestAgent {
@@ -330,11 +360,7 @@ describe('AbstractMcpAgent', () => {
       await setupClientOk();
       const { StdioClientTransport } = await setupTransport();
 
-      const result = await testAgent.testMcpConnection({
-        type: 'stdio',
-        command: 'node',
-        args: ['builtin-mcp-apple.mjs'],
-      });
+      const result = await testAgent.testMcpConnection(APPLE_SERVER());
 
       expect(result.success).toBe(true);
       const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
@@ -353,11 +379,7 @@ describe('AbstractMcpAgent', () => {
       await setupClientOk();
       const { StdioClientTransport } = await setupTransport();
 
-      const result = await testAgent.testMcpConnection({
-        type: 'stdio',
-        command: 'node',
-        args: ['builtin-mcp-apple.mjs'],
-      });
+      const result = await testAgent.testMcpConnection(APPLE_SERVER());
 
       expect(result.success).toBe(true);
       const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
@@ -369,6 +391,107 @@ describe('AbstractMcpAgent', () => {
       expect(cfg.args[0]).toMatch(/[/\\]builtin-mcp-apple\.mjs$/);
       // A real runtime must NOT carry the Electron-as-Node env var.
       expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
+    });
+
+    it('#1015 F2b: a bare @wayland filename with NO catalog provenance is spawned verbatim', async () => {
+      // Same filename, same run, provenance removed: the probe must not swap in
+      // Wayland's script. A user's own relative `builtin-mcp-apple.mjs` is theirs.
+      h.isPackaged = true;
+      h.bundledBunDir = '/res/bundled-bun/darwin-arm64';
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: ['builtin-mcp-apple.mjs'],
+      });
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).toBe('node');
+      expect(cfg.args).toEqual(['builtin-mcp-apple.mjs']);
+    });
+
+    it('#1015 F2b KNOWN POSITIVE: the same install WITH provenance is rewritten', async () => {
+      h.isPackaged = true;
+      h.bundledBunDir = '/res/bundled-bun/darwin-arm64';
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection(APPLE_SERVER());
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).not.toBe('node');
+      expect(cfg.args[0]).toMatch(/[/\\]builtin-mcp-apple\.mjs$/);
+      expect(cfg.args[0]).not.toBe('builtin-mcp-apple.mjs');
+    });
+
+    // #1008: the FIRST-PARTY core builtins (search-skills, concierge-diag,
+    // image-gen) are seeded into mcp.config with an ABSOLUTE script path, not
+    // the bare filename the four sibling @wayland servers use. They were
+    // therefore never matched by the builtin carve-out above and kept spawning
+    // bare `node` — which macOS does not ship — so on an end-user Mac they
+    // reported "Enabled but exposes 0 tools" forever.
+    it('#1008 packaged: launches a first-party core builtin under bundled Bun, not bare node', async () => {
+      h.isPackaged = true;
+      h.bundledBunDir = '/res/bundled-bun/darwin-arm64';
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: [SEARCH_SKILLS_SCRIPT],
+      });
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).toBe(
+        path.join('/res/bundled-bun/darwin-arm64', process.platform === 'win32' ? 'bun.exe' : 'bun')
+      );
+      expect(cfg.command).not.toBe('node');
+      // The stored absolute path is spawned unchanged — only the runtime moves.
+      expect(cfg.args).toEqual([SEARCH_SKILLS_SCRIPT]);
+      expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
+    });
+
+    it('#1008 packaged: launches the concierge-diag builtin under bundled Bun, not bare node', async () => {
+      h.isPackaged = true;
+      h.bundledBunDir = '/res/bundled-bun/darwin-arm64';
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: [CONCIERGE_DIAG_SCRIPT],
+      });
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).not.toBe('node');
+      expect(cfg.command).toBe(
+        path.join('/res/bundled-bun/darwin-arm64', process.platform === 'win32' ? 'bun.exe' : 'bun')
+      );
+    });
+
+    it('#1008 dev: launches a first-party core builtin via Electron-as-Node, not bare node', async () => {
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      const result = await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: [IMAGE_GEN_SCRIPT],
+      });
+
+      expect(result.success).toBe(true);
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).toBe(process.execPath);
+      expect(cfg.env.ELECTRON_RUN_AS_NODE).toBe('1');
+      expect(cfg.args).toEqual([IMAGE_GEN_SCRIPT]);
     });
 
     it('does NOT rewrite a user-defined node stdio server (only our bundled builtins)', async () => {
@@ -384,6 +507,24 @@ describe('AbstractMcpAgent', () => {
       const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
       expect(cfg.command).toBe('node');
       expect(cfg.args).toEqual(['/Users/me/custom-server.js']);
+      expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
+    });
+
+    // #1015 F2: same filename, the USER's own directory, the user's own file.
+    // Matching on the basename alone silently re-pointed it onto our runtime.
+    it('does NOT rewrite a user-owned server that merely shares a builtin basename', async () => {
+      await setupClientOk();
+      const { StdioClientTransport } = await setupTransport();
+
+      await testAgent.testMcpConnection({
+        type: 'stdio',
+        command: 'node',
+        args: ['/Users/me/tools/builtin-mcp-search-skills.js'],
+      });
+
+      const cfg = vi.mocked(StdioClientTransport).mock.calls[0]![0] as any;
+      expect(cfg.command).toBe('node');
+      expect(cfg.args).toEqual(['/Users/me/tools/builtin-mcp-search-skills.js']);
       expect(cfg.env.ELECTRON_RUN_AS_NODE).toBeUndefined();
     });
 
@@ -404,11 +545,7 @@ describe('AbstractMcpAgent', () => {
         } as any;
       } as any);
 
-      const result = await testAgent.testMcpConnection({
-        type: 'stdio',
-        command: 'node',
-        args: ['builtin-mcp-apple.mjs'],
-      });
+      const result = await testAgent.testMcpConnection(APPLE_SERVER());
 
       expect(result.success).toBe(false);
       expect((result as { error?: string }).error).toContain('-32000');

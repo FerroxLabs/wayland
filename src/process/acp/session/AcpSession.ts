@@ -11,6 +11,9 @@ import { buildAcpAdapterCorruptionGuidance, buildAcpSetupGuidance } from '@proce
 import type { ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { noopMetrics, type AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import { ConfigTracker } from '@process/acp/session/ConfigTracker';
+import { CRASH_MARKER_PROCESS_EXIT, CRASH_MARKER_TRANSPORT_CLOSE } from '@process/acp/session/crashMarkers';
+import { stripAnsi } from '@process/agent/wcore/stderrLog';
+import { redactSecrets } from '@process/utils/secretRedaction';
 import { InputPreprocessor } from '@process/acp/session/InputPreprocessor';
 import { MessageTranslator } from '@process/acp/session/MessageTranslator';
 import { PermissionResolver } from '@process/acp/session/PermissionResolver';
@@ -75,9 +78,80 @@ function wrapCallbacks(raw: SessionCallbacks): SessionCallbacks {
   return wrapped as SessionCallbacks;
 }
 
+/**
+ * Bound on the scrubbed stderr tail carried into the banner, mirroring
+ * `WCORE_STDERR_TAIL_MAX`. `ProcessAcpClient` already caps its ring buffer at 8KB;
+ * this trims again for a chat row.
+ */
+const DISCONNECT_STDERR_TAIL_MAX = 2048;
+
+/**
+ * Last {@link DISCONNECT_STDERR_TAIL_MAX} characters of the agent's stderr, ANSI
+ * stripped and secret-scrubbed.
+ *
+ * Scrubbing is not optional: this is untrusted subprocess output on its way to the
+ * chat transcript and the log file, and an agent bridge prints to stderr exactly
+ * when credentials are in play. Routed through the shared scrubber (#984) rather
+ * than any local pattern list.
+ */
+function buildStderrTail(stderr: string): string | null {
+  const cleaned = redactSecrets(stripAnsi(stderr)).trim();
+  if (!cleaned) return null;
+  return cleaned.length > DISCONNECT_STDERR_TAIL_MAX ? cleaned.slice(-DISCONNECT_STDERR_TAIL_MAX) : cleaned;
+}
+
+/**
+ * Describe a disconnect WITHOUT asserting anything that was not observed (#1020).
+ *
+ * The old single line claimed `process exited unexpectedly (code: unknown, signal:
+ * none)` whenever both fields were null - which is precisely the case where no
+ * process exit was observed at all. A customer on the Claude Code backend was shown
+ * that for a transport drop, asked what it meant, and got a confabulated answer
+ * about the process dying, because the message named the only two facts that were
+ * not known and discarded the two that were: `reason` and the stderr buffer.
+ *
+ * So: claim an exit only when a code or a signal is present, name the reason either
+ * way, and carry a scrubbed stderr tail so the real cause is recoverable.
+ *
+ * The no-exit branch states only what was observed and stops there. It used to add
+ * that the process "may still be running", which was measured FALSE for 6 of 20 real
+ * crashes (an exit(7) or a SIGKILL whose 'exit' event was still a tick away when the
+ * transport aborted). There is no fix for that beyond dropping the reassurance:
+ * `kill(pid, 0)` returns true for the exited-but-unreaped child, so no synchronous
+ * probe can tell the two apart, and deferring the report inverts the ordering the
+ * session depends on (`ProcessAcpClient.recordAgentExit`).
+ *
+ * The in-flight line does not tell the user to resend. `PromptExecutor` refuses to
+ * replay that turn precisely because a dead pipe can swallow the `tool_call` that
+ * would say what already ran, so the turn may have already executed an approved
+ * `rm`. So the copy tells the user to CHECK the result before sending it again,
+ * rather than offering the bare "send it again" that would have them redo by hand the
+ * exact thing the code declines to do for them.
+ *
+ * Deliberately NOT routed through i18n - this matches the surrounding diagnostics
+ * (`AgentDisconnectedError`, `AgentStartupError`, `enterError`), which are all raw
+ * English strings, and the reason/stderr payload is untranslatable anyway.
+ */
 export function buildCrashMessage(info?: DisconnectInfo): string | null {
   if (!info) return null;
-  return `process exited unexpectedly (code: ${info.exitCode ?? 'unknown'}, signal: ${info.signal ?? 'none'})`;
+
+  const exitObserved = info.exitCode !== null || info.signal !== null;
+  const lines: string[] = [
+    exitObserved
+      ? `${CRASH_MARKER_PROCESS_EXIT} (code: ${info.exitCode ?? 'unknown'}, signal: ${info.signal ?? 'none'}) [reason: ${info.reason}]`
+      : `${CRASH_MARKER_TRANSPORT_CLOSE} [reason: ${info.reason}]. No exit code or signal was reported, so we cannot tell whether the agent crashed or the connection dropped.`,
+  ];
+
+  if (info.unexpectedDuringPrompt) {
+    lines.push(
+      'The reply was lost before it could complete, and it was not resent automatically. The agent may already have carried out part of this message, so check the result before sending it again.'
+    );
+  }
+
+  const tail = buildStderrTail(info.stderr);
+  if (tail) lines.push(`Agent stderr:\n${tail}`);
+
+  return lines.join('\n');
 }
 
 export class AcpSession {
@@ -419,6 +493,20 @@ export class AcpSession {
         return;
 
       case 'prompting': {
+        // Surfaced, NOT silently recovered (#1020). `resumeFromDisconnect` below
+        // respawns the agent and re-flushes the pending QUEUE, but the turn that
+        // was in flight is gone: `flush()` shifted it off the queue before
+        // `execute()`, and `handlePromptError` deliberately refuses to hand it
+        // back on a dead stream, because a `tool_call` it had already run can be
+        // lost with the pipe. So the user's turn genuinely did not land, and
+        // staying quiet would leave them believing it did - which is how the
+        // customer's approval disappeared. The banner now says so explicitly (via
+        // `unexpectedDuringPrompt`) rather than asserting a process exit.
+        //
+        // Tradeoff accepted: a benign inactivity-shaped transport close that
+        // happens to land mid-prompt still shows a banner, where the 'active'
+        // branch below stays silent. That asymmetry is correct - in 'active'
+        // nothing was lost, here a turn was.
         this.lifecycle.clearClient();
         this.emitCrashSignalIfProcessDied(info);
         this.promptExecutor.stopTimer();

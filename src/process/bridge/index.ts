@@ -88,6 +88,7 @@ import { initWcoreConfigBridge } from './wcoreConfigBridge';
 import { initWcoreUpdateBridge } from './wcoreUpdateBridge';
 import { initPendingSendBridge } from './pendingSendBridge';
 import { initDoctorBridge } from './doctorBridge';
+import { initEngineConfigRecoveryBridge } from './engineConfigRecoveryBridge';
 import { initDesktopFluxRoutingEvidenceAdapter } from '@process/flux/FluxRoutingEvidenceAdapter';
 import { initWorkspaceRetentionBridge } from './workspaceRetentionBridge';
 import { loadManagedWorkspaceProvenance } from '@process/services/managedWorkspaceProvenance';
@@ -245,6 +246,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   );
   initOnboardingBridge();
   initDoctorBridge();
+  initEngineConfigRecoveryBridge();
 }
 
 /**
@@ -315,6 +317,7 @@ export {
   initMigrationBridge,
   initWorkspaceTrustBridge,
   initDoctorBridge,
+  initEngineConfigRecoveryBridge,
 };
 export { initModelRegistryIpc } from '@process/providers/ipc/modelRegistryIpc';
 export { disposeAllSnapshots } from './workspaceSnapshotBridge';

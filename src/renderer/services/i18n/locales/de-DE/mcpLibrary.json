@@ -94,6 +94,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "Diese Schalter werden auf {{engines}} durchgesetzt. Andere Engines - darunter Wayland Core und die ACP-Agenten - erhalten den gesamten Connector, ein hier deaktiviertes Tool bleibt dort also aufrufbar. Deaktiviere den Connector selbst, um ihn überall zu entfernen.",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "setupHeading": "Setup guide",

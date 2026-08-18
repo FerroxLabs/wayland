@@ -4,6 +4,28 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-08-18
+
+A focused follow-up to 0.12.0. Every change here was found by adversarially auditing the fixes themselves, not just the code they fixed, and several of the most serious were introduced by the very changes meant to close them.
+
+### Security
+
+- **Your passphrase is masked in full, not just its first word.** Passphrases with spaces reached the log file and the support bundle either completely unmasked or, worse, masked only up to the first space, which looks handled while most of the secret ships. Sync passphrases allow spaces by design, so this was the ordinary case rather than an edge one.
+- **Secrets are masked in the shapes they actually appear in.** Labelled credentials written in JSON, with prefixes or with suffixes (`SECRET_KEY=`, `GITHUB_TOKEN=`, `API_KEY_PROD=`), plus npm and Hugging Face tokens, are now recognised. The masked output stays valid JSON.
+- **Crash reports no longer carry pieces of a credential.** A key split across two reads of an agent's output could leave part of itself in the message shown in chat and stored with the conversation. Agent output is now kept as whole lines and only ever masked as complete text.
+- **Doctor reports stop naming things that identify you.** The engine profile name and MCP server names no longer appear in the report you are asked to copy into a support request.
+- **Deleted project knowledge is really gone.** In conversations created before this release, knowledge you removed could stay in the system prompt for the life of that conversation, out of reach of every later refresh.
+- **Project-private notes stay in the project.** The global memory store could appear as the default save destination, sending a note meant for one project into the store that is injected into every chat in every project.
+
+### Fixes
+
+- **Teammates no longer sit in Processing forever**, and a leader's state reconciles instead of drifting.
+- **Per-tool switches are honoured on every backend.** Turning a tool off could be reported as enforced while the connector still handed the model its whole inventory.
+- **First-party MCP servers run on a real JavaScript runtime**, so the tools they publish match what the connection test found.
+- **A dropped connection is reported as a dropped connection**, not as an agent that exited, and the message no longer suggests resending work that may already have run.
+- **An invalid engine config.toml can be repaired from inside the app**, and a repair that cannot be completed safely leaves your file and a named backup rather than guessing.
+- **Diagnostics collect the newest logs.** They previously reported whichever files the filesystem happened to list first, which is usually the oldest.
+
 ## [0.12.0] - 2026-08-15
 
 Two months of work, 442 commits, and the largest release Wayland has shipped. Major parts of the app were taken apart and rebuilt rather than patched.

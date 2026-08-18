@@ -10,7 +10,10 @@ import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer, IMcpServerTransport } from '@/common/config/storage';
 import { ensurePlaywrightChromium } from '../playwrightBrowsers';
 import { BUILTIN_PLAYWRIGHT_ID } from '@process/resources/builtinMcp/constants';
-import { resolvePersistedMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
+import {
+  resolvePersistedMcpStdioSpawn,
+  toRestartSafeBundledRuntimeCommand,
+} from '@process/services/mcpServices/mcpStdioSpawn';
 
 /**
  * wayland-core config.toml transport type (kebab-case)
@@ -87,9 +90,23 @@ function toMcpServer(name: string, config: WCoreServerConfig): IMcpServer {
 }
 
 /**
+ * How long the config.toml being written lives.
+ *
+ * `launchLocal` is the per-launch file `WCoreManager` rewrites on every start,
+ * so an absolute bundled-runtime path in it is always the one this launch
+ * resolved — and keeping it absolute is what makes the wcore launch tuple
+ * byte-identical to the Library probe's. Everything else (the global/profile
+ * config.toml) outlives the launch that wrote it and gets the restart-safe
+ * portable command instead (#1056).
+ */
+export interface WCoreConfigSerializeOptions {
+  launchLocal?: boolean;
+}
+
+/**
  * Convert a wayland IMcpServer to a wayland-core server config entry
  */
-export function toWCoreConfig(server: IMcpServer): WCoreServerConfig {
+export function toWCoreConfig(server: IMcpServer, options: WCoreConfigSerializeOptions = {}): WCoreServerConfig {
   const wcoreType = toWCoreTransportType(server.transport.type);
 
   if (server.transport.type === 'stdio') {
@@ -98,7 +115,7 @@ export function toWCoreConfig(server: IMcpServer): WCoreServerConfig {
     const spawn = resolvePersistedMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
     const config: WCoreServerConfig = {
       transport: wcoreType,
-      command: spawn.command,
+      command: options.launchLocal ? spawn.command : toRestartSafeBundledRuntimeCommand(spawn.command),
       args: spawn.args.length ? spawn.args : undefined,
     };
     if (server.transport.env && Object.keys(server.transport.env).length > 0) {
@@ -127,7 +144,16 @@ export function toWCoreConfig(server: IMcpServer): WCoreServerConfig {
  * wayland-core uses TOML format with [mcp.servers.*] sections
  */
 export class WCoreMcpAgent extends AbstractMcpAgent {
-  constructor(private readonly configPath?: string) {
+  /**
+   * @param configPath  config.toml to write. Omitted = the active profile's.
+   * @param launchLocal True only for a file the caller rewrites on every launch
+   *   (`WCoreManager`'s launch-local config). Defaults to false so any file that
+   *   survives the process gets the restart-safe portable command (#1056).
+   */
+  constructor(
+    private readonly configPath?: string,
+    private readonly launchLocal: boolean = false
+  ) {
     super('wcore');
   }
 
@@ -195,7 +221,7 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
           config.mcp ??= { servers: {} };
           config.mcp.servers ??= {};
           for (const server of mcpServers) {
-            config.mcp.servers[server.name] = toWCoreConfig(server);
+            config.mcp.servers[server.name] = toWCoreConfig(server, { launchLocal: this.launchLocal });
             console.log(`[WCoreMcpAgent] Added MCP server: ${server.name}`);
           }
           return { value: undefined, changed: mcpServers.length > 0 };

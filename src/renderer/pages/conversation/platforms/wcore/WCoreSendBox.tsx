@@ -60,6 +60,7 @@ import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { classifyAcpAuthFailure } from '@/renderer/pages/conversation/platforms/acp/acpAuthFailure';
 import { isContextCeilingErrorMessage } from '@/renderer/utils/model/errorDetection';
 import { isConstitutionLockedError } from './constitutionLockedFailure';
+import { isEngineConfigInvalidError } from './engineConfigFailure';
 import { isFluxModelId } from '@/common/config/flux';
 import { useVoiceTurnSubmission, type VoiceTurnDeferral } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
@@ -141,12 +142,13 @@ const WCoreSendBox: React.FC<{
 
   // When the engine surfaces a terminal turn error, route it to the matching
   // in-thread remedy card so the user gets a one-click fix instead of a raw
-  // dead-end. Three cases are handled: a Constitution that cannot be unlocked
+  // dead-end. Four cases are handled: a Constitution that cannot be unlocked
   // on this machine, where the fix is the Settings recovery flow; a provider
   // auth failure (401 / invalid x-api-key — same card the ACP backends use; the
   // main process separately flips that provider off "connected"), and a
   // context-window-ceiling stop (#615), where the fix is to switch to a
-  // larger-context model and retry.
+  // larger-context model and retry; and an engine `config.toml` that is not
+  // valid TOML (#1024), where the fix is the config-recovery card.
   const handleTurnError = useCallback(
     (message: IResponseMessage) => {
       const text = typeof message.data === 'string' ? message.data : String(message.data ?? '');
@@ -155,6 +157,13 @@ const WCoreSendBox: React.FC<{
       // that the message-substring classifiers below would otherwise claim.
       if (isConstitutionLockedError(message.code)) {
         emitter.emit('wcore.constitution.locked.card', { conversation_id, rawError: text });
+        return;
+      }
+      // #1024: also checked on the structured code, and BEFORE the prose
+      // classifiers below - the splice's message quotes the parser's reason,
+      // which the substring matchers have no business claiming.
+      if (isEngineConfigInvalidError(message.code)) {
+        emitter.emit('wcore.engineConfig.invalid.card', { conversation_id, rawError: text });
         return;
       }
       if (classifyAcpAuthFailure('wcore', text)) {

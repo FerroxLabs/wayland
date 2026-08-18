@@ -148,6 +148,7 @@ vi.mock('@/process/task/agentUtils', () => ({
 import { WCoreManager } from '@/process/task/WCoreManager';
 import { buildSystemInstructionsWithSkillsIndex } from '@/process/task/agentUtils';
 import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
+import { DesktopProfileSpliceError } from '@process/agent/wcore/desktopProfileSplice';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -241,6 +242,29 @@ describe('WCoreManager bootstrap failure surfaces error + finish (S2)', () => {
     expect(String(errors[0].data)).toContain('could not be unlocked');
     // The raw crypto failure must never be what reaches the chat.
     expect(String(errors[0].data)).not.toContain('safeStorage');
+  });
+
+  // ── #1024: an invalid engine config.toml must stay routable ───────
+  //
+  // `spliceDesktopMcpProfile` refuses to touch an unparseable global
+  // `config.toml` and is right to - that file holds the user's providers,
+  // credentials and memory/skills settings. But the refusal's prose ('Fix the
+  // file by hand before Desktop can launch against it') was a DEAD END for a
+  // non-technical user. The code is what lets the renderer put the config
+  // recovery card in front of them instead.
+
+  it('carries the splice code alongside the prose so the turn can be routed to config recovery', async () => {
+    agentStart.mockRejectedValue(
+      new DesktopProfileSpliceError('existing content is not valid TOML: Invalid TOML document: invalid value')
+    );
+    const manager = createManager('conv-sf-splice-code');
+
+    await manager.sendMessage({ content: 'hello', msg_id: 'msg-sf-splice-code' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    expect(errors[0].code).toBe('DESKTOP_PROFILE_SPLICE_INVALID');
+    expect(String(errors[0].data)).toContain('is not valid TOML');
   });
 
   it('leaves the code off a bootstrap failure that carries no classification', async () => {

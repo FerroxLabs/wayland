@@ -193,7 +193,13 @@ describe('AcpSession lifecycle', () => {
     await vi.waitFor(() => expect(session.status).toBe('active'));
 
     // Simulate process exit while session is idle (active, no prompt in flight)
-    disconnectHandler!({ reason: 'process_exit', exitCode: 1, signal: null, stderr: '' });
+    disconnectHandler!({
+      reason: 'process_exit',
+      exitCode: 1,
+      signal: null,
+      stderr: '',
+      unexpectedDuringPrompt: false,
+    });
 
     expect(session.status).toBe('suspended');
     // onSignal should NOT have been called with an error crash message
@@ -225,7 +231,13 @@ describe('AcpSession lifecycle', () => {
     await vi.waitFor(() => expect(session.status).toBe('prompting'));
 
     // Simulate process crash during prompting
-    disconnectHandler!({ reason: 'process_exit', exitCode: 1, signal: null, stderr: '' });
+    disconnectHandler!({
+      reason: 'process_exit',
+      exitCode: 1,
+      signal: null,
+      stderr: '',
+      unexpectedDuringPrompt: false,
+    });
 
     // onSignal SHOULD have been called with a crash error
     const signalCalls = (callbacks.onSignal as ReturnType<typeof vi.fn>).mock.calls;

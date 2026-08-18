@@ -90,7 +90,9 @@
     "addTeammateError": "[TODO:translate] Failed to add teammate",
     "restartAgent": "[TODO:translate] Restart",
     "restartAgentSuccess": "[TODO:translate] Restart initiated",
-    "restartAgentError": "[TODO:translate] Failed to restart agent"
+    "restartAgentError": "[TODO:translate] Failed to restart agent",
+    "restartActiveTitle": "작업 중인 팀원을 다시 시작할까요?",
+    "restartActiveConfirm": "이 팀원은 아직 작업 중입니다. 다시 시작하면 CLI 프로세스가 종료되고 현재 턴이 중단됩니다. 이 작업은 되돌릴 수 없습니다."
   },
   "activity": {
     "tabLabel": "[TODO:translate] Activity",

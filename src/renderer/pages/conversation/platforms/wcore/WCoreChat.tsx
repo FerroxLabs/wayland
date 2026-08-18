@@ -33,6 +33,7 @@ import ConversationChatConfirm from '../../components/ConversationChatConfirm';
 import WCoreSendBox from './WCoreSendBox';
 import WCoreContextCeilingCard from './WCoreContextCeilingCard';
 import WCoreConstitutionLockedCard from './WCoreConstitutionLockedCard';
+import WCoreEngineConfigCard from './WCoreEngineConfigCard';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 import ExecutionSpine from '../../components/ExecutionSpine';
 
@@ -132,6 +133,18 @@ const WCoreChat: React.FC<{
     [conversation_id]
   );
   const goToConstitutionRecovery = useCallback(() => navigate('/settings/constitution'), [navigate]);
+  // #1024: invalid engine `config.toml` remedy card. The card's own panel talks
+  // to the main process for the line/column and the three recovery actions; this
+  // only decides when it is on screen.
+  const [engineConfigInvalid, setEngineConfigInvalid] = useState<{ rawError?: string } | null>(null);
+  useAddEventListener(
+    'wcore.engineConfig.invalid.card',
+    (p) => {
+      if (p.conversation_id !== conversation_id) return;
+      setEngineConfigInvalid({ rawError: p.rawError });
+    },
+    [conversation_id]
+  );
   // #466: Computer-Use permission onboarding. WCoreSendBox emits the engine's
   // `computer_use` capability; we prime the macOS permission card only while CUA
   // is available (the card itself stays null unless a grant is actually missing).
@@ -152,6 +165,7 @@ const WCoreChat: React.FC<{
     setCeilingRemedy(null);
     pendingCeilingTurnRef.current = null;
     setConstitutionLocked(null);
+    setEngineConfigInvalid(null);
     setHasCuaCapability(false);
     setCuaCardDismissed(false);
   }, [conversation_id]);
@@ -271,6 +285,14 @@ const WCoreChat: React.FC<{
                   rawError={constitutionLocked.rawError}
                   onOpenRecovery={goToConstitutionRecovery}
                   onDismiss={() => setConstitutionLocked(null)}
+                />
+              </div>
+            )}
+            {engineConfigInvalid && (
+              <div className='max-w-800px w-full mx-auto mb-12px'>
+                <WCoreEngineConfigCard
+                  rawError={engineConfigInvalid.rawError}
+                  onDismiss={() => setEngineConfigInvalid(null)}
                 />
               </div>
             )}

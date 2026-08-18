@@ -94,6 +94,7 @@
     "tabSetup": "Setup",
     "tabPermissions": "Permissions",
     "toolsHeading": "Tools",
+    "toolScopeNotice": "Ці перемикачі діють у {{engines}}. Інші рушії - зокрема Wayland Core та ACP-агенти - отримують конектор цілком, тож вимкнений тут інструмент лишається доступним для виклику. Щоб прибрати його всюди, вимкніть сам конектор.",
     "toolGroupCount": "{{count}} tools",
     "toolsLocked": "Install to see its tools.",
     "setupHeading": "Setup guide",

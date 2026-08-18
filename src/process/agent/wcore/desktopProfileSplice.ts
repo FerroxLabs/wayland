@@ -17,6 +17,7 @@
  * formatting.
  */
 import { parse } from 'smol-toml';
+import { summarizeTomlError } from '@process/utils/tomlErrorSummary';
 import { WCORE_DESKTOP_MCP_PROFILE } from './envBuilder';
 
 /**
@@ -46,27 +47,6 @@ export class DesktopProfileSpliceError extends Error {
 const TABLE_HEADER_LINE_RE = /^\[{1,2}\s*([^\]]+?)\s*\]{1,2}/;
 
 /**
- * A `smol-toml` parse error message echoes the OFFENDING SOURCE LINE verbatim
- * after a blank line, e.g.:
- *
- *   Invalid TOML document: each key-value declaration must be followed by ...
- *
- *   1:  api_key = "sk-ant-REDACTED-EXAMPLE" oops
- *                                           ^
- *
- * This file operates on the user's REAL global `config.toml`, which holds
- * `api_key` values. Embedding the raw message would carry a live credential
- * into an Error that is surfaced, logged, and (via K-02) shown in the UI. Keep
- * only the first line - the human-readable reason - and drop the echoed source
- * block entirely. Found by the K-01 4-leg cross-audit (Gemini 3.1 Pro leg) and
- * confirmed by executing the parser against a key-bearing malformed line.
- */
-function summarizeTomlError(error: unknown): string {
-  const raw = error instanceof Error ? error.message : String(error);
-  return raw.split('\n', 1)[0].trim();
-}
-
-/**
  * Line indices that begin INSIDE a TOML multi-line string (`"""` or `'''`).
  *
  * Without this, the line scanner below matches a table header that is merely
@@ -75,8 +55,13 @@ function summarizeTomlError(error: unknown): string {
  * surviving text can still parse, the fail-closed guard never fires and the
  * loss is SILENT. Found by the K-01 4-leg cross-audit (Gemini 3.1 Pro leg) and
  * reproduced by execution before this guard was written.
+ *
+ * Exported (#1024) so `engineConfigRecovery.ts` reuses this exact scanner rather
+ * than carrying a second copy: its automatic line-break repair must make the
+ * same "this line is DATA, not structure" call, and two divergent copies of this
+ * logic is how the silent-loss bug above comes back.
  */
-function multilineStringLineStates(source: string): boolean[] {
+export function multilineStringLineStates(source: string): boolean[] {
   const states: boolean[] = [];
   let inBasic = false; // inside """ ... """
   let inLiteral = false; // inside ''' ... '''

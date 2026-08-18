@@ -11,13 +11,11 @@ on:
 
 env:
   BUN_INSTALL_REGISTRY: 'https://registry.npmjs.org/'
-  # #940: four @wayland MCP connectors (apple, imap, news, cal.com) build from
-  # the sibling waylandmcp repo, which has no GitHub remote yet - CI cannot
-  # check it out. scripts/build-mcp-servers.js now FAILS the build when a
-  # connector cannot be bundled, so CI must opt out explicitly until that repo
-  # lands. DELETE this line the moment waylandmcp is checkout-able in CI; that
-  # is the whole point of the gate.
-  WAYLAND_ALLOW_MISSING_MCP: '1'
+  # Exact FerroxLabs/waylandmcp commit whose four @wayland MCP connectors are
+  # bundled into this build. Pinned, not floating, so the installer's connector
+  # sources have a recorded identity (#940). Keep byte-identical across all four
+  # workflows that check this repo out - waylandmcp SourcePin test enforces it.
+  WAYLANDMCP_REF: '29a253804ccd3d7f1eb385cf610b0dc27a130478'
 
 jobs:
   build-pipeline:
@@ -784,6 +782,81 @@ jobs:
             if [[ $attempt -lt 3 ]]; then sleep $(( attempt * 20 )); fi
           done
           echo "bun install failed after 3 attempts (GitHub API or registry unreachable)" >&2
+          exit 1
+
+      # #940: build-payload.mjs runs scripts/build-mcp-servers.js, which bundles
+      # the four @wayland MCP connectors from FerroxLabs/waylandmcp.
+      # actions/checkout refuses any `path` outside github.workspace, so the
+      # sources land at ./waylandmcp (gitignored), and the next step moves them
+      # to the sibling position that script already resolves. Must run AFTER the
+      # repo checkout above, whose `git clean -ffdx` would delete this tree. No
+      # bypass on a publish path.
+      # #940 PROVENANCE: pin the sources to an exact commit. With no `ref` this
+      # took whatever FerroxLabs/waylandmcp's default branch happened to hold at
+      # build time and recorded that identity nowhere, so a shipped installer
+      # carried code no receipt could name. scripts/platform-package-smoke.mjs
+      # attests the app's own commit AND its untracked tree precisely because "a
+      # newly introduced build input is just as authoritative as a modified
+      # tracked file" - but this input lives OUTSIDE the repo and is gitignored,
+      # so neither that attestation nor the dirty-tree gate can see it. The pin
+      # plus the rev-parse echo in the next step are what put its identity on the
+      # record. WAYLANDMCP_REF follows the WAYLAND_HUB_TAG named-constant
+      # convention; tests/unit/scripts/waylandmcpSourcePin.test.ts holds the four
+      # copies byte-identical so they cannot drift apart.
+      - name: Checkout @wayland MCP connector sources
+        uses: actions/checkout@v6
+        with:
+          repository: FerroxLabs/waylandmcp
+          ref: ${{ env.WAYLANDMCP_REF }}
+          ssh-key: ${{ secrets.WAYLANDMCP_DEPLOY_KEY }}
+          path: waylandmcp
+          persist-credentials: false
+
+      # Move the checkout OUT of the app repo to /home/runner/work/wayland/waylandmcp,
+      # which is the pre-existing sibling candidate. This is a containment fix, not
+      # cosmetics: esbuild resolves a bare import by walking node_modules UPWARD from
+      # the entry point. Left inside the workspace, that walk continues into the
+      # desktop app's ~2100-package node_modules, so a connector importing something
+      # it does not declare resolves SILENTLY against the app's copy instead of
+      # failing. Proven by A/B: identical source bundles clean in-workspace and dies
+      # with "Could not resolve" as a sibling. Green build, wrong artifact is exactly
+      # the quiet substitution #940 exists to stop. The rm -rf covers a self-hosted
+      # runner, where the sibling path escapes the workspace `git clean -ffdx`.
+      - name: Relocate and install @wayland MCP connector sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf ../waylandmcp
+          mv waylandmcp ../waylandmcp
+          cd ../waylandmcp
+          # #940 PROVENANCE: say WHICH commit was bundled, and PROVE it is the
+          # pinned one. build-mcp-servers.js already logs the PATH it resolved,
+          # and a path is not an identity. An empty or malformed WAYLANDMCP_REF
+          # would make actions/checkout silently take the default branch instead
+          # - the same quiet substitution #940 exists to stop - so assert rather
+          # than trust, the same way release-acceptance-trust-root.yml asserts
+          # TRUST_ROOT_SHA.
+          mcp_sha="$(git rev-parse HEAD)"
+          echo "waylandmcp source commit: $mcp_sha"
+          [[ "$WAYLANDMCP_REF" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::WAYLANDMCP_REF is not a 40-hex commit: '$WAYLANDMCP_REF'" >&2; exit 1;
+          }
+          [[ "$mcp_sha" == "$WAYLANDMCP_REF" ]] || {
+            echo "::error::waylandmcp HEAD $mcp_sha != pinned $WAYLANDMCP_REF" >&2; exit 1;
+          }
+          # Retried because this is an unattended network op on the release and
+          # publish paths, four lines below an app-side `bun install
+          # --frozen-lockfile` that IS wrapped in nick-fields/retry@v3. The
+          # checkout above needs no wrapper: its only network call (git fetch)
+          # already runs inside actions/checkout's own 3-attempt retry helper.
+          # Loop shape matches pr-checks.yml - a genuine failure still exits
+          # non-zero after the third attempt, so a retry cannot mask one.
+          for attempt in 1 2 3; do
+            if bun install --frozen-lockfile; then exit 0; fi
+            echo "waylandmcp bun install attempt $attempt failed; retrying" >&2
+            sleep 30
+          done
+          echo "waylandmcp: bun install --frozen-lockfile failed after 3 attempts" >&2
           exit 1
 
       - name: Build the getwayland payload (syncs version to the release)
