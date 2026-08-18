@@ -603,15 +603,26 @@ jobs:
         with:
           path: canonical-artifacts
 
+      # The engine tag is READ from the bundle authority, never re-typed.
+      # assembleCanonicalRawAcceptance.js derives the asset names it demands from
+      # prepareWaylandCore.DEFAULT_WCORE_VERSION, so a literal tag here goes stale
+      # the moment the pin moves and nothing downloaded can ever match it - which
+      # is exactly what a hard-coded v0.12.25 did once the pin reached v0.13.0.
       - name: Download exact pinned Wayland Core publisher artifacts
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p canonical-artifacts/wayland-core-v0.12.25
-          gh release download v0.12.25 \
+          set -euo pipefail
+          core_tag="$(node -p "require('./scripts/prepareWaylandCore').DEFAULT_WCORE_VERSION")"
+          [[ "$core_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]] || {
+            echo "refusing to download an unpinned engine tag: '$core_tag'" >&2
+            exit 1
+          }
+          mkdir -p "canonical-artifacts/wayland-core-$core_tag"
+          gh release download "$core_tag" \
             --repo FerroxLabs/wayland-core \
-            --dir canonical-artifacts/wayland-core-v0.12.25 \
-            --pattern 'wayland-core-v0.12.25-*'
+            --dir "canonical-artifacts/wayland-core-$core_tag" \
+            --pattern "wayland-core-$core_tag-*"
 
       - name: Assemble complete raw acceptance source
         run: |

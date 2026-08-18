@@ -408,6 +408,37 @@ function hashSupportedData(root) {
   return `sha256:${hash.digest('hex')}`;
 }
 
+// A bare `catch {}` around the corrupted-installer attempt would let ANY throw
+// stand in as proof that the corruption was rejected. An out-of-disk, permission
+// or file-descriptor failure during that step would then read as "corruption
+// correctly rejected" and turn this gate green while proving nothing - the exact
+// failure this observer exists to catch.
+//
+// The uncorrupted artifact has already been prepared successfully in the same
+// work root moments earlier, so the environment is known good. Anything that
+// still looks like an environment failure rather than a rejection of these bytes
+// is therefore a real error, and is re-raised instead of being counted as a pass.
+const ENVIRONMENT_FAILURE_CODES = new Set([
+  'ENOSPC',
+  'EACCES',
+  'EPERM',
+  'EROFS',
+  'EDQUOT',
+  'EMFILE',
+  'ENFILE',
+  'ENOMEM',
+]);
+
+function assertRejectedForCorruption(error) {
+  const code = error && error.code;
+  if (ENVIRONMENT_FAILURE_CODES.has(code))
+    fail(
+      `corrupted candidate installer was not rejected on its bytes: the attempt failed with the environment error ${code} (${
+        (error && error.message) || 'no message'
+      })`
+    );
+}
+
 function corruptInstaller(source, destination) {
   fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL);
   const descriptor = fs.openSync(destination, 'r+');
@@ -606,7 +637,7 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
 
     const corrupted = path.join(workRoot, `corrupted${path.extname(request.candidateArtifact.path)}`);
     corruptInstaller(request.candidateArtifact.path, corrupted);
-    let corruptedRejected = false;
+    let corruptedRejection = null;
     try {
       prepare(
         corrupted,
@@ -616,10 +647,11 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
         path.join(workRoot, 'corrupt-attempt'),
         dependencies
       );
-    } catch {
-      corruptedRejected = true;
+    } catch (error) {
+      corruptedRejection = error;
     }
-    if (!corruptedRejected) fail('deliberately corrupted candidate installer was accepted');
+    if (!corruptedRejection) fail('deliberately corrupted candidate installer was accepted');
+    assertRejectedForCorruption(corruptedRejection);
     if (candidateContentDigest(initial) !== initialInstalledDigest)
       fail('failed update changed the installed initial payload');
     if (hashSupportedData(liveState) !== supportedDataSetSha256) fail('failed update changed supported state');
