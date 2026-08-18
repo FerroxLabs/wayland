@@ -6,9 +6,11 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  BUILTIN_CORE_MCP_FILES,
   BUILTIN_SEARCH_SKILLS_ID,
   BUILTIN_SEARCH_SKILLS_NAME,
   BUILTIN_SEARCH_SKILLS_TOOL_NAME,
+  isBuiltinCoreMcpArg,
   isBuiltinSearchSkillsName,
   isBuiltinSearchSkillsTransport,
 } from '@process/resources/builtinMcp/constants';
@@ -79,5 +81,64 @@ describe('builtinMcp/constants - search-skills', () => {
       expect(isBuiltinSearchSkillsTransport({ type: 'stdio', command: 'node', args: null })).toBe(false);
       expect(isBuiltinSearchSkillsTransport(undefined)).toBe(false);
     });
+  });
+});
+
+// #1008: the first-party core builtins are stored with an ABSOLUTE path, so the
+// spawn layer has to match them on the basename. Matching only the bare
+// filename (as the four sibling @wayland servers do) missed them entirely and
+// left them spawning bare `node`.
+describe('builtinMcp/constants - isBuiltinCoreMcpArg (#1008)', () => {
+  it('covers every first-party bundled stdio server seeded into mcp.config', () => {
+    expect([...BUILTIN_CORE_MCP_FILES]).toEqual([
+      'builtin-mcp-image-gen.js',
+      'builtin-mcp-search-skills.js',
+      'builtin-mcp-concierge-diag.js',
+    ]);
+  });
+
+  it('matches an absolute POSIX path to a bundled core server', () => {
+    expect(
+      isBuiltinCoreMcpArg(
+        '/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main/builtin-mcp-search-skills.js'
+      )
+    ).toBe(true);
+    expect(isBuiltinCoreMcpArg('/repo/app/out/main/builtin-mcp-concierge-diag.js')).toBe(true);
+    expect(isBuiltinCoreMcpArg('/repo/app/out/main/builtin-mcp-image-gen.js')).toBe(true);
+  });
+
+  it('matches an absolute Windows path to a bundled core server', () => {
+    expect(
+      isBuiltinCoreMcpArg(
+        String.raw`C:\Program Files\Wayland\resources\app.asar.unpacked\out\main\builtin-mcp-search-skills.js`
+      )
+    ).toBe(true);
+  });
+
+  it('matches a bare filename too', () => {
+    expect(isBuiltinCoreMcpArg('builtin-mcp-search-skills.js')).toBe(true);
+  });
+
+  it('rejects a different filename and the sibling @wayland bundles', () => {
+    expect(isBuiltinCoreMcpArg('/Users/me/custom-server.js')).toBe(false);
+    expect(isBuiltinCoreMcpArg('/Users/me/builtin-mcp-search-skills.ts')).toBe(false);
+    expect(isBuiltinCoreMcpArg('builtin-mcp-apple.mjs')).toBe(false);
+  });
+
+  it("is BASENAME-only and therefore cannot tell our script from the user's (#1015 F2)", () => {
+    // Deliberately asserted TRUE. This predicate is a filename primitive; it has
+    // no way to reach the filesystem (the module is bundled into the standalone
+    // stdio servers and imports nothing). A user's own server that merely shares
+    // our filename matches here, which is exactly why the spawn layer must NOT
+    // stop at this check — `isOwnBuiltinCoreMcpScript` compares against the exact
+    // resolved script path. The earlier negative used a `.ts` extension, so it
+    // could never have caught the hijack it appeared to disprove.
+    expect(isBuiltinCoreMcpArg('/Users/me/tools/builtin-mcp-search-skills.js')).toBe(true);
+  });
+
+  it('handles missing input defensively', () => {
+    expect(isBuiltinCoreMcpArg(undefined)).toBe(false);
+    expect(isBuiltinCoreMcpArg(null)).toBe(false);
+    expect(isBuiltinCoreMcpArg('')).toBe(false);
   });
 });

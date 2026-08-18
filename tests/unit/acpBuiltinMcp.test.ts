@@ -8,8 +8,27 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IMcpServer } from '../../src/common/config/storage';
+import type { ResolvedJsRuntime } from '../../src/process/utils/jsRuntime';
 import { buildAcpSessionMcpServers } from '../../src/process/agent/acp/mcpSessionConfig';
+import { getMcpScriptPath } from '../../src/process/utils/mcpScriptDir';
 import { parseAgentCapabilities } from '../../src/common/types/acpTypes';
+
+// #1008/#1015: Wayland's OWN bundled MCP servers are stored as bare `node`, which
+// does not exist on a stock macOS. The session must spawn them through the same
+// resolved JS runtime the Library probe uses, carrying the runtime env — pinned to
+// a fixed runtime here so the assertion is deterministic on every CI shard.
+const RESOLVED_RUNTIME = '/Applications/Wayland.app/Contents/Resources/bundled-bun/darwin-arm64/bun';
+const runtimeMock = vi.hoisted(() => ({ resolveJsRuntime: vi.fn<() => ResolvedJsRuntime>() }));
+vi.mock('@process/utils/jsRuntime', () => ({ resolveJsRuntime: runtimeMock.resolveJsRuntime }));
+runtimeMock.resolveJsRuntime.mockImplementation(() => ({
+  command: RESOLVED_RUNTIME,
+  env: {},
+  kind: 'bundled-bun',
+}));
+
+/** The exact absolute path `initStorage.ensureBuiltinMcpServers` seeds. */
+const searchSkillsScript = getMcpScriptPath('builtin-mcp-search-skills.js');
+const imageGenScript = getMcpScriptPath('builtin-mcp-image-gen.js');
 
 // #827: the standalone probe and every live session resolve a bare `npx` hint
 // through Wayland's bundled Bun on every platform. Keeping raw npx on macOS or
@@ -34,7 +53,7 @@ describe('ACP built-in MCP session config - wayland_search_skills (C1)', () => {
         transport: {
           type: 'stdio',
           command: 'node',
-          args: ['/abs/builtin-mcp-search-skills.js'],
+          args: [searchSkillsScript],
           env: {},
         },
         createdAt: 1,
@@ -45,12 +64,14 @@ describe('ACP built-in MCP session config - wayland_search_skills (C1)', () => {
 
     const result = buildAcpSessionMcpServers(servers, { stdio: true, http: false, sse: false });
 
+    // Bare `node` here is the #1015 defect: the probe went green while the chat
+    // spawned a runtime that does not exist on a stock macOS.
     expect(result).toEqual([
       {
         type: 'stdio',
         name: 'wayland-search-skills',
-        command: 'node',
-        args: ['/abs/builtin-mcp-search-skills.js'],
+        command: RESOLVED_RUNTIME,
+        args: [searchSkillsScript],
         env: [],
       },
     ]);
@@ -66,7 +87,7 @@ describe('ACP built-in MCP session config - wayland_search_skills (C1)', () => {
         transport: {
           type: 'stdio',
           command: 'node',
-          args: ['/abs/builtin-mcp-search-skills.js'],
+          args: [searchSkillsScript],
           env: {},
         },
         createdAt: 1,
@@ -92,7 +113,7 @@ describe('ACP built-in MCP session config', () => {
         transport: {
           type: 'stdio',
           command: 'node',
-          args: ['/abs/builtin-mcp-image-gen.js'],
+          args: [imageGenScript],
           env: {
             WAYLAND_IMG_PLATFORM: 'openai',
             WAYLAND_IMG_MODEL: 'gpt-image-1',
@@ -171,8 +192,8 @@ describe('ACP built-in MCP session config', () => {
       {
         type: 'stdio',
         name: 'wayland-image-generation',
-        command: 'node',
-        args: ['/abs/builtin-mcp-image-gen.js'],
+        command: RESOLVED_RUNTIME,
+        args: [imageGenScript],
         env: [
           { name: 'WAYLAND_IMG_PLATFORM', value: 'openai' },
           { name: 'WAYLAND_IMG_MODEL', value: 'gpt-image-1' },

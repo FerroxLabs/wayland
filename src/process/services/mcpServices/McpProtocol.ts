@@ -16,9 +16,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { getEnhancedEnv, resolveNpxPath } from '@/process/utils/shellEnv';
 import { resolveMcpStdioSpawn } from './mcpStdioSpawn';
-import { getMcpScriptPath } from '@/process/utils/mcpScriptDir';
-import { resolveJsRuntime } from '@/process/utils/jsRuntime';
-import { isBuiltinWaylandMcpArg } from '@/process/resources/builtinMcp/constants';
+import { resolveBuiltinMcpRuntimeSpawn } from './builtinMcpRuntime';
 
 /**
  * MCP source type - includes all ACP backends and Wayland built-ins
@@ -263,10 +261,17 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
     try {
       // Detect whether it's a full IMcpServer or just a transport
       const transport = 'transport' in serverOrTransport ? serverOrTransport.transport : serverOrTransport;
+      const libraryEntryId = 'transport' in serverOrTransport ? serverOrTransport.libraryEntryId : undefined;
 
       switch (transport.type) {
         case 'stdio':
-          return this.testStdioConnection(transport);
+          // The bare-filename @wayland builtins are only expanded on the
+          // authority of the record's catalog provenance (#1015 F2), so it has to
+          // travel with the transport. A caller that hands us a bare transport
+          // (an agent CLI's own config entry) has no provenance to give and gets
+          // no rewrite — which is the same answer every serializer gives for that
+          // record, so probe and session still agree.
+          return this.testStdioConnection(transport, libraryEntryId);
         case 'sse':
           return this.testSseConnection(transport);
         case 'http':
@@ -291,11 +296,14 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
    * Generic implementation for testing a Stdio connection
    * Uses the MCP SDK for correct protocol communication
    */
-  protected async testStdioConnection(transport: {
-    command: string;
-    args?: string[];
-    env?: Record<string, string>;
-  }): Promise<McpConnectionTestResult> {
+  protected async testStdioConnection(
+    transport: {
+      command: string;
+      args?: string[];
+      env?: Record<string, string>;
+    },
+    libraryEntryId?: string
+  ): Promise<McpConnectionTestResult> {
     let mcpClient: Client | null = null;
     // Hoisted so the catch block can report the resolved spawn argv and the
     // child's stderr even when connect() throws.
@@ -307,16 +315,14 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
       // app imported statically
 
       const rawArgs = transport.args ?? [];
-      // Bundled @wayland MCPs are stored as { command: 'node', args: ['builtin-mcp-<name>.mjs'] }.
+      // Wayland's own bundled MCPs are stored as { command: 'node', args: [<script>] }.
       // End-user Macs frequently have no system `node` on PATH, so spawning the
       // bare command dies on launch and surfaces only as -32000 "Connection
-      // closed". Run our own builtins through a resolved JS runtime — bundled Bun
-      // in packaged builds (the app binary can't be used: #706, the RunAsNode
-      // fuse makes ELECTRON_RUN_AS_NODE a no-op so it would boot as the app), or
-      // the app binary as Node in dev. The bare filename is also rewritten to an
-      // absolute path under out/main (dev) or app.asar.unpacked/out/main (packaged).
-      const isBuiltinWaylandMcp = transport.command === 'node' && isBuiltinWaylandMcpArg(rawArgs[0]);
-      const builtinRuntime = isBuiltinWaylandMcp ? resolveJsRuntime() : null;
+      // closed". `resolveBuiltinMcpRuntimeSpawn` runs them through a resolved JS
+      // runtime instead — bundled Bun in packaged builds (the app binary can't be
+      // used: #706, the RunAsNode fuse makes ELECTRON_RUN_AS_NODE a no-op so it
+      // would boot as the app), or the app binary as Node in dev (#1008).
+      const builtinSpawn = resolveBuiltinMcpRuntimeSpawn(transport.command, rawArgs, { libraryEntryId });
 
       // Use enhanced env (includes shell PATH) instead of bare process.env
       // so CLI tools installed via nvm/fnm/volta are discoverable in packaged mode
@@ -324,17 +330,25 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
         ...getEnhancedEnv(transport.env),
         TERM: 'dumb',
         NO_COLOR: '1',
-        ...(builtinRuntime ? builtinRuntime.env : {}),
+        ...(builtinSpawn ? builtinSpawn.env : {}),
       };
 
       // The probe and the live-session serializers MUST use the same runtime
       // tuple. A previous local npx branch here diverged from session injection
       // on macOS/Linux, allowing the Library to report green for bundled Bun
       // while the chat later attempted a bare host `npx` from a different PATH.
-      const resolvedSpawn = resolveMcpStdioSpawn(transport.command, rawArgs, () => resolveNpxPath(enhancedEnv));
+      // The builtin branch is the same shared resolver every serializer calls, so
+      // a green probe cannot again mean "chat still spawns bare node". That claim
+      // is only true while the LIST of callers is complete: the wcore chat loads
+      // its connectors from a launch-local config.toml written by `WCoreManager`,
+      // which is not one of `McpService.syncMcpToAgents`' targets and needed the
+      // rewrite applied to it separately (#1015 F1). Add a new publication path
+      // and it must call this resolver too, or this comment becomes false again.
+      const resolvedSpawn =
+        builtinSpawn ?? resolveMcpStdioSpawn(transport.command, rawArgs, () => resolveNpxPath(enhancedEnv));
 
-      command = builtinRuntime ? builtinRuntime.command : resolvedSpawn.command;
-      args = isBuiltinWaylandMcp ? [getMcpScriptPath(rawArgs[0]), ...rawArgs.slice(1)] : resolvedSpawn.args;
+      command = resolvedSpawn.command;
+      args = resolvedSpawn.args;
 
       const stdioTransport = new StdioClientTransport({
         command,

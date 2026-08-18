@@ -240,6 +240,82 @@ describe('createConciergeDiagServer — MCP health (config JSON)', () => {
     expect(disabled?.flag).toBeNull();
   });
 
+  // #1008: a bundled first-party server exposes no command, args or credentials
+  // the user controls, so the generic "check its command, args, or credentials"
+  // advice sent two reporters hunting for a mistake they could not have made.
+  it('#1008 tells a bundled builtin apart from a user-configured server', () => {
+    const configPath = tmp('wayland-config-builtin.txt');
+    fs.writeFileSync(
+      configPath,
+      encodeConfig({
+        'mcp.config': [
+          { id: 'builtin-search-skills', name: 'wayland-search-skills', enabled: true, builtin: true, tools: [] },
+          { id: 'u', name: 'user-server', enabled: true, tools: [] },
+        ],
+      })
+    );
+
+    const server = createConciergeDiagServer({ configPath });
+    const result = server.mcpHealth();
+
+    const builtin = result.items.find((s) => s.name === 'wayland-search-skills');
+    expect(builtin?.flag).toContain('0 tools');
+    expect(builtin?.flag).toContain('bundled with Wayland');
+    // It must NOT send the user off to check settings they do not own.
+    expect(builtin?.flag).not.toContain('credentials');
+
+    const user = result.items.find((s) => s.name === 'user-server');
+    expect(user?.flag).toContain('0 tools');
+    expect(user?.flag).toContain('credentials');
+  });
+
+  // #1015: the four sibling @wayland servers (Apple/IMAP/News/Cal.com) are
+  // installed from the MCP Library and carry NO `builtin` field, so the #1008
+  // gate above dropped them into the user-error branch — advice to "check its
+  // command, args" about a spawn Wayland itself wrote. Their credentials really
+  // are the user's, so they get their own line rather than either of the others.
+  it('#1015 tells a bundled @wayland sibling apart by catalog provenance', () => {
+    const configPath = tmp('wayland-config-wayland-sibling.txt');
+    fs.writeFileSync(
+      configPath,
+      encodeConfig({
+        'mcp.config': [
+          {
+            id: 'lib_apple',
+            name: 'com.wayland-apple-mcp',
+            enabled: true,
+            source: 'library',
+            libraryEntryId: 'com.wayland/apple-mcp',
+            tools: [],
+          },
+          // KNOWN POSITIVE, same run: another Library install that is NOT ours
+          // still gets the generic advice, so the new branch is not swallowing
+          // every catalog server.
+          {
+            id: 'lib_other',
+            name: 'com.vendor-thing-mcp',
+            enabled: true,
+            source: 'library',
+            libraryEntryId: 'com.vendor/thing-mcp',
+            tools: [],
+          },
+        ],
+      })
+    );
+
+    const result = createConciergeDiagServer({ configPath }).mcpHealth();
+
+    const apple = result.items.find((s) => s.name === 'com.wayland-apple-mcp');
+    expect(apple?.flag).toContain('0 tools');
+    expect(apple?.flag).toContain('ships with Wayland');
+    // It must NOT send the user hunting through a command and args we wrote.
+    expect(apple?.flag).not.toContain('check its command, args');
+
+    const other = result.items.find((s) => s.name === 'com.vendor-thing-mcp');
+    expect(other?.flag).toContain('check its command, args');
+    expect(other?.flag).not.toContain('ships with Wayland');
+  });
+
   it('degrades gracefully when the config path is missing', () => {
     const server = createConciergeDiagServer({ configPath: tmp('does-not-exist.txt') });
     const result = server.mcpHealth();

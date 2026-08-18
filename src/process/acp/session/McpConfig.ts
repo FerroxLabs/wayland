@@ -2,7 +2,7 @@
 import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
-import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
+import { mergeMcpSpawnEnv, resolveSessionMcpStdioSpawn } from '@process/services/mcpServices/builtinMcpRuntime';
 import { isServerActiveForSession } from '@process/agent/acp/mcpSessionConfig';
 import {
   createMcpSessionState,
@@ -140,12 +140,17 @@ export class McpConfig {
             reason = 'ACP runtime did not advertise stdio MCP transport support';
             break;
           }
-          const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
+          // Same runtime tuple as the Library probe: `npx`→bundled Bun (#827)
+          // AND Wayland's own bundled MCP servers→resolved JS runtime (#1008),
+          // carrying the runtime env the dev runtime needs to BE a Node runtime.
+          const spawn = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? [], {
+            libraryEntryId: server.libraryEntryId,
+          });
           runtimeServer = {
             name: server.name,
             command: spawn.command,
             args: spawn.args,
-            env: toNameValueArray(server.transport.env),
+            env: toNameValueArray(mergeMcpSpawnEnv(server.transport.env, spawn.env)),
           };
           break;
         }
