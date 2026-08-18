@@ -6,9 +6,12 @@
  *      (the team.create IPC honors the supplied agent status verbatim).
  *   2. Navigate to /team/<id>.
  *   3. The right rail restart icon ([data-testid="team-right-rail-restart"])
- *      renders only on rows whose live status === 'failed'.
- *   4. Click restart → team.restart-agent IPC fires → status flips off
- *      'failed' (the restart icon disappears).
+ *      renders on rows whose live status is 'failed' or 'active' (#983 - a
+ *      member wedged mid-turn sits at 'active' and needs the escape hatch too).
+ *      This spec only ever sees 'failed', where the click is unconfirmed; the
+ *      'active' path goes through a Modal.confirm first.
+ *   4. Click restart → team.restart-agent IPC fires → status flips to 'pending'
+ *      (the restart icon disappears).
  *   5. Activity tab gains a `wake` event whose payload includes
  *      `outcome: 'restarted_by_user'`.
  */

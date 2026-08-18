@@ -90,7 +90,9 @@
     "addTeammateError": "Failed to add teammate",
     "restartAgent": "Restart",
     "restartAgentSuccess": "Restart initiated",
-    "restartAgentError": "Failed to restart agent"
+    "restartAgentError": "Failed to restart agent",
+    "restartActiveTitle": "Restart a working teammate?",
+    "restartActiveConfirm": "This teammate is still working. Restarting kills its CLI process and ends the current turn. This cannot be undone."
   },
   "activity": {
     "tabLabel": "Activity",

@@ -5169,6 +5169,8 @@ export type I18nKey =
   | 'teams.rightRail.addTeammate'
   | 'teams.rightRail.addTeammateError'
   | 'teams.rightRail.addTeammateSuccess'
+  | 'teams.rightRail.restartActiveConfirm'
+  | 'teams.rightRail.restartActiveTitle'
   | 'teams.rightRail.restartAgent'
   | 'teams.rightRail.restartAgentError'
   | 'teams.rightRail.restartAgentSuccess'

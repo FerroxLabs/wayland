@@ -42,7 +42,8 @@ function makeRepo(): ITeamRepository {
     create: vi.fn(),
     findById: vi.fn(),
     findAll: vi.fn(),
-    update: vi.fn(),
+    update: vi.fn(async () => null),
+    updateAgentStatuses: vi.fn(async () => null),
     delete: vi.fn(),
     deleteMailboxByTeam: vi.fn(),
     deleteTasksByTeam: vi.fn(),
@@ -234,6 +235,75 @@ describe('TeamSession', () => {
 
       await expect(session.sendMessage('hello team')).rejects.toThrow('mcp failed');
       expect(repo.writeMessage).not.toHaveBeenCalled();
+    });
+  });
+
+  // #980: teammate status is a persisted field of `teams.agents`, and TeamSession
+  // is the seam where a DB roster becomes a live one.
+  describe('persisted teammate status (#980)', () => {
+    it('reconciles a persisted `active` back to pending on load and writes it back', () => {
+      const repo = makeRepo();
+      const team = makeTeam();
+      team.agents[1] = { ...team.agents[1], status: 'active' };
+
+      const session = new TeamSession(team, repo, makeWorkerTaskManager());
+
+      expect(session.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('pending');
+      expect(repo.updateAgentStatuses).toHaveBeenCalledWith('team-1', [{ slotId: 'slot-member', status: 'pending' }]);
+
+      void session.dispose();
+    });
+
+    // The constructor calls reconcilePersistedStatuses() synchronously, and the
+    // status callback used to invoke repo.updateAgentStatuses(...) unguarded - so
+    // a repository without the method took the whole constructor down with a
+    // TypeError rather than merely failing to persist. Latent because it only
+    // fires when the roster actually contains an `active` agent to reconcile.
+    it('survives a repository that does not implement updateAgentStatuses', () => {
+      const repo = makeRepo();
+      delete (repo as Partial<ITeamRepository>).updateAgentStatuses;
+      const team = makeTeam();
+      team.agents[1] = { ...team.agents[1], status: 'active' };
+
+      let session: TeamSession | undefined;
+      expect(() => {
+        session = new TeamSession(team, repo, makeWorkerTaskManager());
+      }).not.toThrow();
+
+      // The in-memory reconcile still happened; only persistence was skipped.
+      expect(session!.getAgents().find((a) => a.slotId === 'slot-member')?.status).toBe('pending');
+
+      void session!.dispose();
+    });
+
+    it('leaves a settled roster alone (no spurious write on load)', () => {
+      const repo = makeRepo();
+      const session = new TeamSession(makeTeam(), repo, makeWorkerTaskManager());
+
+      expect(repo.updateAgentStatuses).not.toHaveBeenCalled();
+
+      void session.dispose();
+    });
+
+    // #980/F1: the generic `update` is a whole-row read-modify-write. Persisting
+    // status through it let the manager's stale roster revert fields it does not
+    // own - changeAgentBackend's agentType swap was silently lost - and clobber
+    // concurrent name / sessionMode / workspace writes.
+    it('F1: never routes status through the whole-row update()', () => {
+      const repo = makeRepo();
+      const team = makeTeam();
+      team.agents[1] = { ...team.agents[1], status: 'active' };
+      const session = new TeamSession(team, repo, makeWorkerTaskManager());
+
+      expect(repo.update).not.toHaveBeenCalled();
+      expect(repo.updateAgentStatuses).toHaveBeenCalledTimes(1);
+      // Status pairs only - no agent bodies that could carry a stale agentType.
+      const [, statuses] = vi.mocked(repo.updateAgentStatuses).mock.calls[0]!;
+      for (const entry of statuses) {
+        expect(Object.keys(entry).toSorted()).toEqual(['slotId', 'status']);
+      }
+
+      void session.dispose();
     });
   });
 });
