@@ -41,31 +41,35 @@ import type {
 } from '@process/acp/infra/IAcpClient';
 import { NdjsonTransport } from '@process/acp/infra/NdjsonTransport';
 import { gracefulShutdown, waitForExit, waitForSpawn } from '@process/acp/infra/processUtils';
-import { redactSecrets } from '@process/utils/secretRedaction';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
 import type { ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs';
 
+/**
+ * Bound on the COMPLETE records the stderr ring retains. Enforced by dropping whole
+ * records off the front, never by cutting through one - see {@link ProcessAcpClient.appendStderr}.
+ */
 const STARTUP_STDERR_MAX = 8192;
 
 /**
- * How much of the stderr ring's trailing non-whitespace run is held back from the
- * collection-site scrub.
+ * Hard ceiling on ONE unterminated record - an agent that writes megabytes without
+ * ever emitting `\r` or `\n`.
  *
- * A credential can straddle two stderr chunks. Scrubbing the buffer the moment it
- * overflows would mask the half that has arrived, replacing its ANCHOR with
- * `[redacted]` and orphaning the half that arrives next - which no later scrub can
- * match, because the thing that identified it is gone. Measured through the real
- * path: 51 characters of a live-shaped Anthropic key reached the banner that way.
+ * The ring cannot cut a partial record safely (that is the whole point of
+ * `appendStderr`), so this is not a slice: on overflow the accumulated fragment is
+ * FROZEN as a final record and everything after it is discarded until the next real
+ * boundary arrives. Freezing keeps the head, which keeps every credential's ANCHOR
+ * attached to the part that is retained; discarding to the next boundary is what
+ * guarantees the resumed stream cannot begin mid-credential.
  *
- * So the trailing run is left raw for the next chunk to complete. That is safe
- * because it sits at the ring's TAIL, which the cap keeps rather than cuts, and
- * because a partial with its PREFIX still intact is redactable
- * (`redactSecrets('sk-ant-api03-AbCdEfGhIjK')` masks) - it is only the anchorless
- * REMAINDER that is invisible to the scrubber. A run longer than this is a blob, not
- * a straddled credential, so it is scrubbed normally.
+ * 32KB = 4x the record budget. It has to sit well ABOVE the largest single line a
+ * real agent emits or it would throw away the diagnostic it exists to preserve: a
+ * 21KB minified stack frame on one line is a measured shape, and a bound near
+ * {@link STARTUP_STDERR_MAX} would have frozen that record before its error text
+ * arrived. It has to sit well BELOW anything that matters for memory, which 32KB
+ * per client does not.
  */
-const STDERR_CHUNK_SPLIT_CARRY_MAX = 256;
+const STDERR_PENDING_MAX = 32768;
 
 /**
  * How long to wait for a child that had ALREADY exited when the lifecycle
@@ -113,8 +117,16 @@ export class ProcessAcpClient implements AcpClient {
   private _connProxy: ClientSideConnection | null = null;
   private closing = false;
 
-  // Stderr ring buffer
-  private stderrBuffer = '';
+  // Stderr ring buffer, held as COMPLETE records plus the incomplete tail fragment.
+  private stderrRecords: string[] = [];
+  private stderrRecordsLength = 0;
+  private stderrPending = '';
+  private stderrResyncing = false;
+
+  /** The ring as one string. Raw and unscrubbed - every consumer scrubs. */
+  private get stderrBuffer(): string {
+    return this.stderrRecords.join('') + this.stderrPending;
+  }
 
   // Lifecycle state (first-write-wins)
   private _lastExit: AgentExitInfo | null = null;
@@ -425,47 +437,100 @@ export class ProcessAcpClient implements AcpClient {
     child.stderr?.on('data', (data: Buffer) => {
       const chunk = data.toString();
       console.error(`[ACP ${this.options.backend} STDERR]:`, chunk);
-      this.stderrBuffer += chunk;
-      if (this.stderrBuffer.length > STARTUP_STDERR_MAX) {
-        // SCRUB, then cap on a RECORD boundary (#1023). #1020 routes this ring into the
-        // chat transcript through `buildCrashMessage`, which makes the ring's truncation a
-        // disclosure path: `redactSecrets` only matches a WHOLE credential, so any cut
-        // through one leaves a remainder that every downstream scrub misses.
-        //
-        // The order is the fix. Scrubbing HERE, before the cap, means a credential is
-        // masked while it is still whole and the cap can only ever cut through
-        // `[redacted]` or through text the scrubber already declined to match. Capping
-        // first and scrubbing at read time - the order this used to use - cannot be made
-        // safe by any choice of cut, because the scrubber's anchor is not always attached
-        // to the secret: `Bearer <token>`, `Authorization: <token>` and `api_key = <value>`
-        // each keep the anchor in a SEPARATE whitespace-delimited word. A cut landing
-        // inside the anchor left the secret whole and un-anchored, and dropping the leading
-        // non-whitespace run then removed the anchor rather than the secret. Executed
-        // through the real path, all four of those shapes leaked into the banner.
-        //
-        // The remaining boundary cut is no longer a security measure - the scrub above is -
-        // but it is still worth doing, because a ring that begins mid-record reads as
-        // corrupt. A boundary is `\r` as well as `\n`: bare-CR output (progress bars,
-        // old-Mac line endings) has real record boundaries with no `\n` anywhere, and
-        // taking whichever comes FIRST also keeps more diagnostics when a `\r` record sits
-        // in front of a `\n` one.
-        //
-        // `cutRing || sliced` keeps the scrubbed window whenever the cut would empty it.
-        // A single record larger than the ring - a minified stack frame, a JSON config
-        // echo, a base64 dump - puts its only boundary at the very last character, so
-        // `slice(boundary + 1)` returned `''` and the user got a banner with no `Agent
-        // stderr:` section at all. Measured: 21KB in one line gave `ringLen=0` where main
-        // delivered 8192 characters including the real error. Falling back is safe here
-        // only because the scrub already ran.
-        const trailingRun = /\S*$/.exec(this.stderrBuffer)?.[0] ?? '';
-        const carry = trailingRun.length <= STDERR_CHUNK_SPLIT_CARRY_MAX ? trailingRun : '';
-        const scrubbed = redactSecrets(this.stderrBuffer.slice(0, this.stderrBuffer.length - carry.length)) + carry;
-        const sliced = scrubbed.slice(-STARTUP_STDERR_MAX);
-        const boundary = sliced.search(/[\r\n]/);
-        const cutRing = boundary >= 0 ? sliced.slice(boundary + 1) : sliced.replace(/^\S+/, '');
-        this.stderrBuffer = cutRing || sliced;
-      }
+      this.appendStderr(chunk);
     });
+  }
+
+  /**
+   * Grow the stderr ring by one chunk, keeping it a sequence of COMPLETE RECORDS
+   * (#1023). NOTHING is scrubbed here. `redactSecrets` runs at READ time only, in
+   * `buildStderrTail` and `AgentStartupError`, where it is handed whole text.
+   *
+   * #1020 routes this ring into the chat transcript through `buildCrashMessage`,
+   * which makes its truncation a disclosure path: `redactSecrets` only matches a
+   * WHOLE credential, so any cut through one leaves a remainder that every
+   * downstream scrub misses. Cutting only on record boundaries removes the cut
+   * that could do that - a boundary never lands mid-word, so the four shapes that
+   * leaked on main cannot recur: `Bearer <token>`, `Authorization: <token>` and
+   * `api_key = <value>` each keep their ANCHOR in a separate whitespace-delimited
+   * word, and a cut landing inside the anchor left the secret whole and merely
+   * un-anchored, while `password=<value>` keeps both in one run.
+   *
+   * Scrubbing HERE instead was the first attempt at that and it is NOT safe, which
+   * is why this reads at collection and masks at read rather than the reverse.
+   * `redactSecrets` is not resumable: masking a PARTIAL credential replaces its
+   * anchor with `[redacted]`, and the continuation arriving in the NEXT chunk is
+   * then anchorless and invisible to every later scrub. Measured through the real
+   * path, both against a live-shaped key inside a >256 character run of minified
+   * JSON (51 characters reached the banner, sitting immediately after the
+   * `[redacted]` that ate its prefix) and against a PEM private key split across
+   * two writes - the PEM rule matches BEGIN-to-end-of-input, so the head scrub
+   * consumed the anchor while the body was still arriving and the whole key body
+   * plus its `-----END PRIVATE KEY-----` line reached the banner.
+   *
+   * A boundary is `\r` as well as `\n`: bare-CR output (progress bars, old-Mac
+   * line endings) has real record boundaries with no `\n` anywhere. `\r\n` splits
+   * into two records; joining is lossless either way, so the ring is always a
+   * verbatim substring of the child's stderr.
+   *
+   * Two degenerate cases, both measured:
+   *
+   *  - A SINGLE record larger than the whole ring (a minified stack frame, a JSON
+   *    config echo, a base64 dump). Eviction stops at one record rather than
+   *    emptying the ring, so the diagnostic still reaches the banner: 21KB on one
+   *    line used to give `ringLen=0` and a banner with no `Agent stderr:` section
+   *    at all. Its tail cannot be trimmed to the budget, because trimming a tail is
+   *    exactly the anchor-cut above. It is dropped as soon as any NEWER record
+   *    exists, which is the more recent diagnostic anyway.
+   *
+   *  - Unbounded PENDING growth, handled by {@link STDERR_PENDING_MAX}.
+   */
+  private appendStderr(chunk: string): void {
+    let text = chunk;
+
+    // Discarding to the next real boundary after a frozen record: resuming anywhere
+    // else could resume INSIDE a credential whose anchor was frozen away.
+    if (this.stderrResyncing) {
+      const boundary = text.search(/[\r\n]/);
+      if (boundary < 0) return;
+      text = text.slice(boundary + 1);
+      this.stderrResyncing = false;
+    }
+
+    this.stderrPending += text;
+
+    const lastBoundary = Math.max(this.stderrPending.lastIndexOf('\n'), this.stderrPending.lastIndexOf('\r'));
+    if (lastBoundary >= 0) {
+      const complete = this.stderrPending.slice(0, lastBoundary + 1);
+      this.stderrPending = this.stderrPending.slice(lastBoundary + 1);
+      for (const record of complete.match(/[^\r\n]*[\r\n]/g) ?? []) {
+        this.stderrRecords.push(record);
+        this.stderrRecordsLength += record.length;
+      }
+    }
+
+    if (this.stderrPending.length > STDERR_PENDING_MAX) {
+      this.stderrRecords.push(this.stderrPending);
+      this.stderrRecordsLength += this.stderrPending.length;
+      this.stderrPending = '';
+      this.stderrResyncing = true;
+    }
+
+    // Drop WHOLE records off the front until the ring fits the budget. The budget
+    // counts the pending fragment too, because that is what a consumer reads.
+    //
+    // The last clause is the oversized-record case above: eviction stops rather than
+    // leaving the ring EMPTY, because a banner with no `Agent stderr:` section at all
+    // is worse than an over-budget one, and there is no safe way to trim a single
+    // record down to size. When the retained text still exceeds the budget it is
+    // because no record boundary exists to cut on - never because a cut was declined.
+    while (
+      this.stderrRecords.length > 0 &&
+      this.stderrRecordsLength + this.stderrPending.length > STARTUP_STDERR_MAX &&
+      (this.stderrRecords.length > 1 || this.stderrPending.length > 0)
+    ) {
+      this.stderrRecordsLength -= this.stderrRecords.shift()!.length;
+    }
   }
 
   // ─── Internals: 4-signal lifecycle detection ───────────────

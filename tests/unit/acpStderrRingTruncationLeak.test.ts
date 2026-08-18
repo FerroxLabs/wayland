@@ -22,15 +22,18 @@
  * 8192 to about 1300 characters, no tail slice happens, and the one token that was
  * NOT redacted is the half one at the cut - on screen, in the chat transcript.
  *
- * Fixed at the ring rather than at the banner: drop the partial leading record, so
- * no half-token ever exists for the scrubber to miss.
+ * Fixed at the ring rather than at the banner: the ring holds COMPLETE RECORDS, and
+ * its budget is enforced by dropping whole records off the front, so no half-token
+ * ever exists for the scrubber to miss.
  *
- * A record boundary is `\r` as well as `\n`, and a ring with NO boundary anywhere
- * still has to drop its leading run of non-whitespace. The first cut of this fix
- * handled only `\n` and kept the entire 8KB when there was none, which left the
- * half-token exactly where it started - reproduced live, `LEAK=true`, on a
- * space-separated config echo and on bare-CR output. So both paths are exercised
- * here WITH a credential in the payload, not just for diagnostic survival.
+ * A record boundary is `\r` as well as `\n`. Output with NO boundary anywhere has
+ * nothing to drop, so it is retained from its head instead of cut - which is safe for
+ * the same reason the drop is: what is retained keeps the ANCHOR that makes it
+ * redactable, and it is the anchorless REMAINDER that the scrubber cannot see.
+ *
+ * The second half of this file is the audit of the first attempt at that fix, which
+ * scrubbed at the COLLECTION site instead and shipped two HIGH regressions. See
+ * 'a partial credential is never scrubbed at the collection site' below.
  *
  * Driven through a REAL child process writing to REAL stderr.
  */
@@ -47,6 +50,9 @@ const SECRET = 'sk-ant-api03-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfGhIjKlMnO
 
 /** Mirrors `STARTUP_STDERR_MAX` in ProcessAcpClient. */
 const RING_MAX = 8192;
+
+/** Mirrors `STDERR_PENDING_MAX` in ProcessAcpClient. */
+const PENDING_MAX = 32768;
 
 /**
  * A bare 32-hex secret, used deliberately INSTEAD of a prefixed key: no rule matches it
@@ -228,14 +234,22 @@ describe('#1023 the stderr ring must not leak a truncated credential', () => {
   // bare `\r` is a real record boundary that a `\n`-only search walks straight past.
   // Both were reproduced leaking against the `\n`-only code, so a pass here is the
   // second cut of the fix and not an untested payload.
-  for (const [label, sep] of [
-    ['no newline anywhere, space-separated', ' '],
-    ['bare carriage returns, no newline', '\r'],
+  //
+  // PREMISE CHANGED for the space-separated row (#1023 audit HIGH-1/HIGH-2 fix). It
+  // used to assert the ring never exceeds `RING_MAX`, and that could only ever be
+  // true because the ring CUT its retained text at an arbitrary character. It no
+  // longer does: the budget is now enforced by dropping whole records, so a payload
+  // with no record boundary in it has nothing to drop and is retained entire, up to
+  // `PENDING_MAX`. The substantive assertions - the ring never begins mid-token, and
+  // nothing in it survives the scrubber - are unchanged and are what this row is for.
+  for (const [label, sep, maxLen] of [
+    ['no newline anywhere, space-separated', ' ', PENDING_MAX],
+    ['bare carriage returns, no newline', '\r', RING_MAX],
   ] as const) {
     describe(`a ring cut mid-credential with ${label}`, () => {
       it('leaves no half-token in the ring itself', async () => {
         const { ring } = await driveChildStderr(payloadCutting(6, sep));
-        expect(ring.length).toBeLessThanOrEqual(RING_MAX);
+        expect(ring.length).toBeLessThanOrEqual(maxLen);
         expect(ring.startsWith(SECRET.slice(6))).toBe(false);
         expect(redactSecrets(ring)).not.toContain(SECRET.slice(6));
       }, 20000);
@@ -251,8 +265,9 @@ describe('#1023 the stderr ring must not leak a truncated credential', () => {
   }
 
   it('a stderr tail with NO newline at all still reaches the banner', async () => {
-    // 9KB of unbroken text has no record boundary to cut at. Dropping the leading
-    // run of non-whitespace costs one token, so the real error still lands on screen.
+    // 9KB of unbroken text has no record boundary to cut at, so it is retained whole
+    // rather than cut - the real error still lands on screen, and nothing in the ring
+    // ever lost the anchor that makes it redactable.
     const { ring, banner } = await driveChildStderr('y'.repeat(9000) + ' THE-REAL-ERROR');
     expect(ring).toContain('THE-REAL-ERROR');
     expect(banner).toContain('THE-REAL-ERROR');
@@ -261,9 +276,9 @@ describe('#1023 the stderr ring must not leak a truncated credential', () => {
   it('a boundary-free run of 8KB with no whitespace at all still delivers the diagnostic', async () => {
     // This pinned an accepted COST, not an invariant: the whole retained window was one
     // whitespace-free token, `^\S+` ate all of it and the ring emptied, and the user got a
-    // banner with no stderr section. The cost stopped existing when the scrub moved to the
-    // collection site - every credential in the window is already `[redacted]` by the time
-    // the cut is chosen, so keeping the window is safe and `cutRing || sliced` keeps it.
+    // banner with no stderr section. The cost stopped existing when the ring started
+    // cutting on RECORD boundaries only - there is no boundary here, so there is no cut,
+    // and a run kept from its head keeps every anchor attached to what is retained.
     const { ring, banner } = await driveChildStderr('y'.repeat(9000) + 'GLUED-ON-ERROR');
     expect(ring).toContain('GLUED-ON-ERROR');
     expect(banner).toContain('GLUED-ON-ERROR');
@@ -311,41 +326,55 @@ describe('#1023 the stderr ring must not leak a truncated credential', () => {
     // leaves the retained window with its only boundary at the very last character, so
     // `slice(boundary + 1)` returned '' and the banner lost its stderr section entirely -
     // a diagnostic main delivered. Measured before: ringLen=0. Main: 8192 with the error.
+    //
+    // PREMISE CHANGED (#1023 audit HIGH-1/HIGH-2 fix): this used to assert the ring is
+    // EXACTLY `RING_MAX`, which required cutting the record's head off at character
+    // 12809. That cut is the disclosure path this whole file exists for - `redactSecrets`
+    // cannot mask what has lost its anchor - and it is not made safe by scrubbing first,
+    // because a scrub applied to text the child is still writing orphans the remainder.
+    // So the record is retained WHOLE, bounded by `PENDING_MAX`, and the assertion that
+    // matters is unchanged: the real error reaches the user.
     const payload = `${'z'.repeat(20000)} THE-REAL-ERROR${'z'.repeat(1000)}\n`;
     const { ring, banner } = await driveChildStderr(payload);
-    expect(ring.length).toBe(RING_MAX);
+    expect(ring.length).toBeGreaterThan(RING_MAX);
+    expect(ring.length).toBeLessThanOrEqual(PENDING_MAX);
     expect(ring).toContain('THE-REAL-ERROR');
     expect(banner).toContain('Agent stderr:');
     expect(banner).toContain('THE-REAL-ERROR');
   }, 20000);
 
   it('a credential split across two stderr chunks is not orphaned by the scrub', async () => {
-    // The hazard the collection-site scrub introduces, and the reason it holds back the
-    // ring's trailing non-whitespace run. Scrubbing the buffer the instant it overflows
-    // would mask the half of a credential that has arrived, replacing its ANCHOR with
-    // `[redacted]`, and the half arriving in the NEXT chunk would then be unmatchable by
-    // any later scrub. Measured that way: 51 characters of this key reached the banner.
+    // The hazard a collection-site scrub introduces. Scrubbing the buffer the instant it
+    // overflows masks the half of a credential that has arrived, replacing its ANCHOR with
+    // `[redacted]`, and the half arriving in the NEXT chunk is then unmatchable by any
+    // later scrub. Measured that way: 51 characters of this key reached the banner.
+    //
+    // PREMISE CHANGED (#1023 audit HIGH-1/HIGH-2 fix): the two ring assertions used to be
+    // written on the RAW ring, which only passed because the ring was pre-scrubbed at the
+    // collection site. It no longer is - a resumable scrub does not exist, so the ring
+    // holds raw text and every consumer scrubs at read. The assertion is therefore made
+    // where the guarantee actually lives: on the SCRUBBED ring, which is what
+    // `buildStderrTail` and `AgentStartupError` hand the user.
     const split = 24;
     const first = `${'pad line\n'.repeat(950)}token ${SECRET.slice(0, split)}`;
     const { ring, banner } = await driveSplitChildStderr(first, `${SECRET.slice(split)} trailing diagnostic\n`);
 
-    expect(ring).not.toContain(SECRET.slice(split));
+    expect(redactSecrets(ring)).not.toContain(SECRET.slice(split));
     expect(banner).not.toContain(SECRET.slice(split));
     // Known positives: the credential was masked as a WHOLE one rather than lost, and the
     // diagnostic that arrived with it still reached the user.
-    expect(ring).not.toContain(SECRET);
+    expect(redactSecrets(ring)).not.toContain(SECRET);
     expect(banner).toContain('[redacted]');
     expect(banner).toContain('trailing diagnostic');
   }, 30000);
 
   it('an oversized Bearer token is scrubbed rather than held back raw past its anchor', async () => {
-    // The bound on the chunk-split carry. The carry leaves the ring's trailing
-    // non-whitespace run raw so a credential straddling two chunks is not half-masked. Left
-    // UNBOUNDED that backfires: a single 9KB `Bearer` value is one non-whitespace run, so the
-    // whole thing would be held back raw, the cap would land inside it, and the `Bearer`
-    // anchor sitting just before it would be cut away - leaving exactly the anchorless
-    // remainder the carry exists to prevent. A run longer than a credential prefix is a
-    // value, not a straddle, so it is scrubbed normally.
+    // A single 9KB `Bearer` value is one boundary-free run that overflows the budget on
+    // its own, and the anchor that makes it redactable is the word sitting in FRONT of
+    // it. Any cut that trims this to the budget takes the anchor and leaves the value,
+    // which is the disclosure this file exists for - so the run is retained from its
+    // head instead, anchor included, and the read-time scrub still masks the whole
+    // thing. This shape is why the budget is not a hard cap.
     const token = 'Zk9'.repeat(3000);
     const payload = `${'q '.repeat(50)}Bearer ${token}`;
     if (payload.length <= RING_MAX) throw new Error('the payload must overflow the ring');
@@ -372,4 +401,105 @@ describe('#1023 the stderr ring must not leak a truncated credential', () => {
     expect(ring.startsWith(SECRET.slice(6))).toBe(false);
     expect(ring).toContain('diag line one');
   }, 20000);
+  // ─── The audit of the FIRST attempt at this fix ────────────────────────────────
+  //
+  // #1023 originally scrubbed at the COLLECTION site - `redactSecrets` on the buffer
+  // the moment it overflowed, before the cap - on the argument that a credential masked
+  // while whole cannot be cut in half afterwards. The argument is sound and the code was
+  // not, because `redactSecrets` is not RESUMABLE: the buffer at overflow time is a
+  // PREFIX of a stream the child is still writing, masking a partial credential replaces
+  // its anchor with `[redacted]`, and the continuation arriving in the next chunk is then
+  // anchorless and invisible to every later scrub - including the read-time scrub in
+  // `buildStderrTail`, which is the only thing between the ring and the transcript.
+  //
+  // Both rows below were reproduced leaking through the real path before the ring moved
+  // to complete records. They are the regression tests for that.
+
+  it('a partial credential is never scrubbed at the collection site (long-run straddle)', async () => {
+    // HIGH-1. The first attempt held back the trailing non-whitespace run from its scrub
+    // so a straddled credential could be completed by the next chunk - but bounded that
+    // carry at 256 characters, and minified JSON on stderr is ONE long run. Over the
+    // bound the carry was disabled and the partial was masked anyway. Measured through
+    // this exact path: `"key":"[redacted]` followed by 51 plaintext characters of the
+    // key, in the banner.
+    const split = 24;
+    // Known positives for the shape: the partial IS masked while its prefix is intact,
+    // and the remainder alone is invisible - which is what makes an orphan a leak.
+    expect(redactSecrets(`{"key":"${SECRET.slice(0, split)}`)).toContain('[redacted]');
+    expect(redactSecrets(SECRET.slice(split))).toBe(SECRET.slice(split));
+
+    const run = `{"cfg":"${'A'.repeat(300)}","key":"${SECRET.slice(0, split)}`;
+    if ((/\S*$/.exec(run)?.[0].length ?? 0) <= 256) throw new Error('the run must exceed any plausible carry bound');
+    const first = `${'pad line here\n'.repeat(700)}${run}`;
+    const { ring, banner } = await driveSplitChildStderr(first, `${SECRET.slice(split)}","tail":"REAL-DIAGNOSTIC"}\n`);
+
+    expect(redactSecrets(ring)).not.toContain(SECRET.slice(split));
+    expect(banner).not.toContain(SECRET.slice(split));
+    // Known positives in the same banner: the key was masked as a WHOLE credential, and
+    // the diagnostic that arrived with it still reached the user.
+    expect(banner).toContain('[redacted]');
+    expect(banner).toContain('REAL-DIAGNOSTIC');
+  }, 30000);
+
+  it('a partial credential is never scrubbed at the collection site (PEM straddle)', async () => {
+    // HIGH-2. The carry bound is irrelevant here - PEM lines are 64 characters - and no
+    // carry could have helped, because the credential spans RECORDS. The PEM rule has an
+    // end-of-input alternative, so an unterminated block matches BEGIN-to-end-of-buffer:
+    // the collection-site scrub ate the `-----BEGIN PRIVATE KEY-----` anchor while the
+    // body was still arriving, and everything after it was never masked again. Measured
+    // through this path: the whole key body AND its `-----END PRIVATE KEY-----` line in
+    // the banner. Needs only a multi-KB key across more than one write.
+    const body = 'MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj';
+    const pemHead = `-----BEGIN PRIVATE KEY-----\n${`${body}\n`.repeat(6)}`;
+    const pemTail = `${`${body}\n`.repeat(6)}-----END PRIVATE KEY-----\n`;
+    // Known positives for the shape: a WHOLE block is masked, and a block that has lost
+    // its BEGIN line is invisible to the scrubber.
+    expect(redactSecrets(pemHead + pemTail)).not.toContain(body);
+    expect(redactSecrets(pemTail)).toContain(body);
+
+    const first = `${'pad line here\n'.repeat(700)}${pemHead}`;
+    const { ring, banner } = await driveSplitChildStderr(first, `${pemTail}REAL-DIAGNOSTIC\n`);
+
+    expect(redactSecrets(ring)).not.toContain(body);
+    expect(banner).not.toContain(body);
+    expect(banner).not.toContain('-----END PRIVATE KEY-----');
+    expect(banner).toContain('[redacted]');
+    expect(banner).toContain('REAL-DIAGNOSTIC');
+  }, 30000);
+
+  it('an agent that never emits a newline cannot grow the ring without bound', async () => {
+    // The other half of "never cut a partial record": a partial that is never completed
+    // would otherwise be retained forever. At `PENDING_MAX` the fragment is FROZEN as a
+    // final record and the stream is discarded until the next real boundary, so the ring
+    // resumes at a point that cannot be mid-credential - the alternative, trimming the
+    // fragment's head, is the anchor cut this whole file is about.
+    //
+    // Generated INSIDE the child rather than passed through the environment: a 33KB
+    // environment variable is over the win32 limit.
+    const client = new ProcessAcpClient(
+      async () => {
+        const child = spawn(
+          process.execPath,
+          [
+            '-e',
+            "process.stderr.write('x'.repeat(33000) + ' token sk-ant-api03-AbCdEfGhIjK');" +
+              "setTimeout(() => process.stderr.write('LmNoPqRsTuVwXyZ0123456789 orphan\\nREAL-DIAGNOSTIC\\n'), 150);",
+          ],
+          { stdio: 'pipe' }
+        );
+        spawned.push(child);
+        return child;
+      },
+      { backend: 'probe', handlers: {} as never }
+    );
+    await client.start().catch(() => undefined);
+    await new Promise((r) => setTimeout(r, 600));
+    const ring = (client as unknown as { stderrBuffer: string }).stderrBuffer;
+
+    expect(ring.length).toBeLessThanOrEqual(PENDING_MAX);
+    // The continuation of the frozen fragment is DISCARDED, not retained anchorless.
+    expect(ring).not.toContain('LmNoPqRsTuVwXyZ0123456789');
+    // And the ring resumes: the diagnostic written after the flood still reaches the user.
+    expect(ring).toContain('REAL-DIAGNOSTIC');
+  }, 30000);
 });
