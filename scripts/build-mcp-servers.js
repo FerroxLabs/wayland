@@ -44,8 +44,10 @@ const SHARED_OPTIONS = {
  * installers because both skips below were unconditional warnings, and the
  * Library still advertised cards for them.
  *
- * It is set deliberately in CI while FerroxLabs/waylandmcp does not exist as a
- * checkout-able repo. Remove the CI setting the moment it does - see #940.
+ * NOTHING in CI sets it any more: every workflow that actually runs this script
+ * checks FerroxLabs/waylandmcp out to ./waylandmcp first. The env var stays as
+ * the deliberate, loud escape hatch for a local build without the sources - see
+ * #940.
  */
 const ALLOW_MISSING_ENV = 'WAYLAND_ALLOW_MISSING_MCP';
 
@@ -74,8 +76,67 @@ function skipOptionalMcpOrFail(pkgName, detail, env = process.env) {
 }
 
 /**
- * Bundle a sibling @wayland/<name>-mcp package into a single self-contained
- * .mjs file in out/main/. These packages live in ~/dev/waylandmcp and ship
+ * Where a @wayland/<name>-mcp source tree may live, in priority order.
+ *
+ * WAYLAND_MCP_SRC is an explicit override and therefore AUTHORITATIVE: when it
+ * is set it is the ONLY candidate. Falling back to a different tree after an
+ * operator named one silently builds something other than what was asked for -
+ * the same class of quiet substitution #940 is about.
+ */
+function mcpSourceCandidates(pkgName, env = process.env) {
+  if (env.WAYLAND_MCP_SRC) return [env.WAYLAND_MCP_SRC];
+  // #940: every candidate is a SIBLING of the app repo, never inside it, and that
+  // is load-bearing. esbuild resolves a bare import by walking node_modules
+  // upward from the entry point, so a tree placed inside the repo would have the
+  // app's ~2100-package node_modules on that walk: a connector importing
+  // something it does not declare would resolve silently against the app's copy
+  // instead of failing. actions/checkout cannot write above github.workspace, so
+  // CI checks out to ./waylandmcp and then MOVES the tree to ROOT/.. before
+  // building - see the "Relocate and install" step in the build workflows.
+  return [
+    path.resolve(ROOT, '..', '..', 'waylandmcp', 'packages', pkgName),
+    path.resolve(ROOT, '..', 'waylandmcp', 'packages', pkgName),
+    path.join(require('os').homedir(), 'dev', 'waylandmcp', 'packages', pkgName),
+  ];
+}
+
+/**
+ * Copy the Swift EventKit bridge binary alongside the apple-mcp JS bundle.
+ *
+ * Extracted from an inline callback so it is reachable from a unit test: both
+ * branches are log-only behaviour that nothing could otherwise pin, and the
+ * `return` below is load-bearing in the direction that is easy to miss - drop it
+ * and EVERY macOS build that DOES have the bridge also emits the "will fail at
+ * runtime" warning, a control lying the opposite way.
+ */
+async function copyEventKitBridge(src, outMain = OUT_MAIN) {
+  const bridge = path.join(src, 'dist', 'eventkit-bridge');
+  if (fs.existsSync(bridge)) {
+    fs.copyFileSync(bridge, path.join(outMain, 'eventkit-bridge'));
+    fs.chmodSync(path.join(outMain, 'eventkit-bridge'), 0o755);
+    return;
+  }
+  // #940: this used to be a silent no-op, and silence is the bug. The
+  // binary is built by `bun run build:native` (swiftc) into dist/, which
+  // waylandmcp gitignores, so a plain CI checkout never has it. Without it
+  // the apple connector still ships and still advertises 9 tools that
+  // cannot work: Calendar listEvents/createEvent/updateEvent/deleteEvent/
+  // findFreeSlot and Reminders listReminders/createReminder/
+  // completeReminder/deleteReminder all route through it. Notes, Mail,
+  // Maps and Photos use AppleScript and are unaffected. A card that offers
+  // a control which cannot work is the failure #940 is about, so say it
+  // loudly enough to find in a CI log. Tracked for a real fix in #1013.
+  console.warn(
+    `::warning::[build-mcp-servers] @wayland/apple-mcp was bundled WITHOUT its Swift EventKit ` +
+      `bridge (no ${bridge}). On macOS its 5 Calendar and 4 Reminders tools will fail at runtime ` +
+      `while the Library still offers them; Notes/Mail/Maps/Photos are unaffected. See #1013.`
+  );
+}
+
+/**
+ * Bundle a @wayland/<name>-mcp package into a single self-contained .mjs file
+ * in out/main/. These packages live in FerroxLabs/waylandmcp - checked out to
+ * ./waylandmcp in CI, or a sibling ~/dev/waylandmcp tree locally - and ship
  * with the Electron installer (no npm registry dep).
  *
  * Sources use top-level await so the bundle must be ESM, not CJS.
@@ -84,23 +145,18 @@ function skipOptionalMcpOrFail(pkgName, detail, env = process.env) {
  * `WAYLAND_ALLOW_MISSING_MCP=1` is set (#940).
  */
 async function bundleWaylandMcp(pkgName, outName, opts = {}) {
-  // WAYLAND_MCP_SRC is an explicit override and therefore AUTHORITATIVE: when
-  // it is set it is the ONLY candidate. Falling back to a different tree after
-  // an operator named one silently builds something other than what was asked
-  // for - the same class of quiet substitution #940 is about.
-  const candidates = process.env.WAYLAND_MCP_SRC
-    ? [process.env.WAYLAND_MCP_SRC]
-    : [
-        path.resolve(ROOT, '..', '..', 'waylandmcp', 'packages', pkgName),
-        path.resolve(ROOT, '..', 'waylandmcp', 'packages', pkgName),
-        path.join(require('os').homedir(), 'dev', 'waylandmcp', 'packages', pkgName),
-      ];
+  const candidates = mcpSourceCandidates(pkgName);
 
   const src = candidates.find((p) => fs.existsSync(path.join(p, 'src', 'index.ts')));
   if (!src) {
     skipOptionalMcpOrFail(pkgName, `source not found in any of: ${candidates.join(', ')}`);
     return;
   }
+
+  // Say WHICH tree was bundled. Four candidates resolve silently, and a build
+  // that picked up a stale ~/dev copy instead of the intended checkout is the
+  // same quiet-substitution failure #940 is about - only visible if it is logged.
+  console.log(`[build-mcp-servers] @wayland/${pkgName} <- ${src}`);
 
   // A bundle failure of one of these - e.g. a transitive dep whose nested
   // node_modules copy is incomplete on a given runner (an @opentelemetry/core
@@ -178,16 +234,7 @@ async function main() {
     bundleWaylandMcp('imap-mcp', 'builtin-mcp-imap.mjs'),
     bundleWaylandMcp('news-mcp', 'builtin-mcp-news.mjs'),
     bundleWaylandMcp('cal-com-mcp', 'builtin-mcp-cal-com.mjs'),
-    bundleWaylandMcp('apple-mcp', 'builtin-mcp-apple.mjs', {
-      onSuccess: async (src) => {
-        // Copy the Swift EventKit bridge binary alongside the JS bundle.
-        const bridge = path.join(src, 'dist', 'eventkit-bridge');
-        if (fs.existsSync(bridge)) {
-          fs.copyFileSync(bridge, path.join(OUT_MAIN, 'eventkit-bridge'));
-          fs.chmodSync(path.join(OUT_MAIN, 'eventkit-bridge'), 0o755);
-        }
-      },
-    }),
+    bundleWaylandMcp('apple-mcp', 'builtin-mcp-apple.mjs', { onSuccess: copyEventKitBridge }),
   ]);
 }
 
@@ -199,4 +246,11 @@ if (require.main === module) {
   });
 }
 
-module.exports = { ALLOW_MISSING_ENV, bundleWaylandMcp, optionalMcpBypassEnabled, skipOptionalMcpOrFail };
+module.exports = {
+  ALLOW_MISSING_ENV,
+  bundleWaylandMcp,
+  copyEventKitBridge,
+  mcpSourceCandidates,
+  optionalMcpBypassEnabled,
+  skipOptionalMcpOrFail,
+};
