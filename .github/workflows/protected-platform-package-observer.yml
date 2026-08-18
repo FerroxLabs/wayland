@@ -168,7 +168,7 @@ jobs:
           EXPECTED_COMMIT: ${{ inputs.candidate_commit }}
         run: |
           set -euo pipefail
-          producer="$(gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$PRODUCER_RUN_ID")"
+          producer="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PRODUCER_RUN_ID")"
           actual_attempt="$(printf '%s' "$producer" | jq -r .run_attempt)"
           test "$actual_attempt" = "$PRODUCER_RUN_ATTEMPT"
           test "$(printf '%s' "$producer" | jq -r .head_sha)" = "$EXPECTED_COMMIT"
