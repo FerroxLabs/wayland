@@ -2625,9 +2625,15 @@ ${collectedResponses.join('\n')}`;
    * before mode switching is possible, as we need an active ACP session.
    *
    * @param mode - The mode ID to set
+   * @param options.persist - false applies the mode to the LIVE session only and
+   *   leaves the conversation's stored `sessionMode` alone (cron runs borrowing
+   *   a chat the user owns).
    * @returns Promise that resolves with success status and current mode
    */
-  async setMode(mode: string): Promise<{ success: boolean; msg?: string; data?: { mode: string } }> {
+  async setMode(
+    mode: string,
+    options?: { persist?: boolean }
+  ): Promise<{ success: boolean; msg?: string; data?: { mode: string } }> {
     // Codex (via codex-acp bridge) does not support ACP session/set_mode - it uses MCP
     // and manages approval at the Manager layer. Update local state only to avoid
     // "Invalid params" JSON-RPC error from the bridge.
@@ -2640,7 +2646,7 @@ ${collectedResponses.join('\n')}`;
       // longer write the user's ~/.codex/config.toml. codex-acp has no live
       // set_mode, so the change applies on the next spawn regardless.
       this.options.sandboxMode = getCodexSandboxModeForSessionMode(mode, this.options.sandboxMode);
-      this.saveSessionMode(mode);
+      if (options?.persist !== false) this.saveSessionMode(mode);
 
       if (this.isYoloMode(prev) && !this.isYoloMode(mode)) {
         void this.clearLegacyYoloConfig();
@@ -2654,7 +2660,7 @@ ${collectedResponses.join('\n')}`;
       const prev = this.currentMode;
       this.currentMode = mode;
       this.yoloMode = this.isYoloMode(mode);
-      this.saveSessionMode(mode);
+      if (options?.persist !== false) this.saveSessionMode(mode);
 
       if (this.isYoloMode(prev) && !this.isYoloMode(mode)) {
         void this.clearLegacyYoloConfig();
@@ -2685,7 +2691,7 @@ ${collectedResponses.join('\n')}`;
       const prev = this.currentMode;
       this.currentMode = mode;
       this.yoloMode = this.isYoloMode(mode);
-      this.saveSessionMode(mode);
+      if (options?.persist !== false) this.saveSessionMode(mode);
 
       // Sync legacy yoloMode config: when leaving yolo mode, clear the old
       // SecurityModalContent setting to prevent it from re-activating on next session.

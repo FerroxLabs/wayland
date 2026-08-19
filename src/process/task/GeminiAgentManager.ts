@@ -1489,11 +1489,18 @@ export class GeminiAgentManager extends BaseAgentManager<
    *
    * Unlike ACP agents, Gemini mode affects approval behavior at the manager layer,
    * not via a protocol-level session/set_mode call.
+   *
+   * @param options.persist - false applies the mode to the LIVE session only and
+   *   leaves the conversation's stored `sessionMode` alone (cron runs borrowing
+   *   a chat the user owns).
    */
-  async setMode(mode: string): Promise<{ success: boolean; msg?: string; data?: { mode: string } }> {
+  async setMode(
+    mode: string,
+    options?: { persist?: boolean }
+  ): Promise<{ success: boolean; msg?: string; data?: { mode: string } }> {
     const prev = this.currentMode;
     this.currentMode = mode;
-    this.saveSessionMode(mode);
+    if (options?.persist !== false) this.saveSessionMode(mode);
 
     // Sync legacy yoloMode config: when leaving yolo mode, clear the old
     // SecurityModalContent setting to prevent it from re-activating on next session.
