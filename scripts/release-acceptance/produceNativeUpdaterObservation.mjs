@@ -766,10 +766,19 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       corruptedRejection = error;
     }
     if (!corruptedRejection) fail('deliberately corrupted candidate installer was accepted');
-    assertRejectionAttributableToCorruption(prepare, request, workRoot, dependencies);
+    // Settled against the corrupted attempt alone, which is the claim being made.
+    // The control below installs the INTACT candidate, and Windows installs are not
+    // independent: electron-builder's one-click NSIS runs the previously registered
+    // uninstaller first, and that uninstaller RMDir /r's the earlier install root.
+    // Proven on windows-2022 by installing 0.11.18 and then 0.11.8 into separate
+    // /D= roots - the second install completed and the first root was gone. Running
+    // these two checks after the control therefore measured the control, and both
+    // Windows legs of run 32217649937 died reading an initial payload that the
+    // control install had legitimately removed.
     if (candidateContentDigest(initial) !== initialInstalledDigest)
       fail('failed update changed the installed initial payload');
     if (hashSupportedData(liveState) !== supportedDataSetSha256) fail('failed update changed supported state');
+    assertRejectionAttributableToCorruption(prepare, request, workRoot, dependencies);
     phaseObservedAt.push(now().toISOString());
 
     const rollbackState = path.join(workRoot, 'rollback-state');
