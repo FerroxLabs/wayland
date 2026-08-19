@@ -12,13 +12,20 @@ const {
   verifyPublisherAttestation,
 } = require('../../../scripts/supply-chain/verifyPublisherAttestation');
 
-// Derived, never re-typed: the release-acceptance gate requires exactly ONE
-// active policy, so hard-coding a tag here breaks the day the engine is bumped.
-const ACTIVE = readPolicy().policies.find((entry: { status: string }) => entry.status === 'active') as {
-  releaseTag: string;
-  signerWorkflow: string;
-  sourceDigest: string;
-};
+// Derived, never re-typed: hard-coding a tag here breaks the day the engine is
+// bumped. Scoped to the ENGINE, because the document is not single-active: an
+// active wayland-nano policy sits alongside it, and taking the first active
+// entry made this depend on array order. It picked the engine only while the
+// engine entry happened to come first, and asserts a wayland-core signer
+// workflow, so the day the order changed it failed claiming the engine was
+// misconfigured.
+const ACTIVE_ENGINE_POLICIES = readPolicy().policies.filter(
+  (entry: { status: string; id: string }) => entry.status === 'active' && entry.id.startsWith('wayland-core-')
+) as { releaseTag: string; signerWorkflow: string; sourceDigest: string; id: string }[];
+if (ACTIVE_ENGINE_POLICIES.length !== 1) {
+  throw new Error(`expected exactly one active wayland-core publisher policy, found ${ACTIVE_ENGINE_POLICIES.length}`);
+}
+const ACTIVE = ACTIVE_ENGINE_POLICIES[0]!;
 
 const roots: string[] = [];
 afterEach(() => {
