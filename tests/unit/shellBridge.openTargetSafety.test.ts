@@ -112,6 +112,12 @@ fs.mkdirSync(powershellFolder, { recursive: true });
 // double quoting, so quoting the argument does not save the terminal branch.
 const subexpressionFolder = path.join(sandbox, 'proj$(calc)');
 fs.mkdirSync(subexpressionFolder, { recursive: true });
+// `%` is cmd.exe variable expansion, and cmd.exe expands `%FOO%` while PARSING -
+// before the line is tokenised into operators - so whatever the variable holds is
+// then read as command syntax. It is not a PowerShell operator and not a cmd.exe
+// operator either, which is exactly why an "operator-only" filter misses it.
+const percentFolder = path.join(sandbox, 'proj%FOO%calc');
+fs.mkdirSync(percentFolder, { recursive: true });
 
 afterAll(() => {
   fs.rmSync(sandbox, { recursive: true, force: true });
@@ -531,6 +537,27 @@ describe('shellBridge.openFolderWith - win32 shell metacharacters', () => {
 
     nothingLaunched();
     expect(result.ok).toBe(false);
+  });
+
+  it('refuses a cmd.exe variable-expansion folder name on the vscode branch', async () => {
+    await loadBridge('win32');
+
+    const result = await providers['openFolderWith']({ folderPath: percentFolder, tool: 'vscode' });
+
+    nothingLaunched();
+    expect(result.ok).toBe(false);
+    expect((result as { error: string }).error).toContain('forbidden characters');
+  });
+
+  it('never builds a cmd.exe command line out of a variable-expansion path (the .cmd fallback)', async () => {
+    await withProgramFiles(async () => {
+      await loadBridge('win32');
+
+      const calls = await driveVscodeCmdFallback(percentFolder);
+
+      expect(calls).toHaveLength(0);
+      shellMock.openPath.mock.calls.forEach((call) => expect(call[0]).not.toBe(percentFolder));
+    });
   });
 
   it('still opens a metacharacter-free folder with vscode on win32', async () => {

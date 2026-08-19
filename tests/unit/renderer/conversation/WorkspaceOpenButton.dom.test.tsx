@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockCheckToolInstalled = vi.hoisted(() => vi.fn());
 const mockOpenFolderWith = vi.hoisted(() => vi.fn());
+const mockMessageError = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -55,7 +56,14 @@ vi.mock('@arco-design/web-react', () => ({
   // openFolderWith now reports a structured `{ ok: false }` refusal (confinement
   // or open-target type gate) instead of returning void, and the button surfaces
   // it as an error toast rather than a silent no-op.
-  Message: { error: vi.fn() },
+  //
+  // This mock is HOISTED and ASSERTED ON below. It has to be: the IPC bridge is
+  // resolve-only, so the refusal this component exists to surface arrives as a
+  // RESOLVED `{ ok: false }`, and a suite that only ever drives a REJECTION
+  // passes identically against the pre-fix component, which already had the
+  // try/catch. Without an assertion on a resolved refusal there is no regression
+  // guard on the fix at all.
+  Message: { error: (...args: unknown[]) => mockMessageError(...args) },
 }));
 
 import WorkspaceOpenButton from '@/renderer/pages/conversation/components/ChatLayout/WorkspaceOpenButton';
@@ -162,9 +170,65 @@ describe('WorkspaceOpenButton', () => {
       expect(errorSpy).toHaveBeenCalled();
     });
 
+    // The rejection path must also toast. Pre-fix this branch logged and stopped.
+    expect(mockMessageError).toHaveBeenCalled();
+
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
 
     warnSpy.mockRestore();
     errorSpy.mockRestore();
+  });
+
+  it('surfaces an error toast when openFolderWith RESOLVES a refusal', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Not a rejection - a RESOLVED refusal. This is the only shape the provider
+    // ever reports a confinement or open-target-gate denial with, because the
+    // IPC bridge has no rejection channel. The pre-fix component awaited this
+    // value and ignored it, so the click was a silent dead click.
+    mockOpenFolderWith.mockResolvedValue({ ok: false, error: 'Refused: path is outside an authorized root' });
+
+    render(<WorkspaceOpenButton workspacePath='/workspace/project' />);
+
+    await waitFor(() => {
+      expect(mockCheckToolInstalled).toHaveBeenCalledWith({ tool: 'vscode' });
+    });
+
+    fireEvent.click(screen.getAllByRole('button')[0]);
+
+    await waitFor(() => {
+      expect(mockOpenFolderWith).toHaveBeenCalledWith({
+        folderPath: '/workspace/project',
+        tool: 'terminal',
+      });
+    });
+
+    await waitFor(() => {
+      expect(mockMessageError).toHaveBeenCalled();
+    });
+    expect(errorSpy).toHaveBeenCalled();
+
+    errorSpy.mockRestore();
+  });
+
+  it('does not toast when openFolderWith RESOLVES success', async () => {
+    mockOpenFolderWith.mockResolvedValue({ ok: true });
+
+    render(<WorkspaceOpenButton workspacePath='/workspace/project' />);
+
+    await waitFor(() => {
+      expect(mockCheckToolInstalled).toHaveBeenCalledWith({ tool: 'vscode' });
+    });
+
+    fireEvent.click(screen.getAllByRole('button')[0]);
+
+    await waitFor(() => {
+      expect(mockOpenFolderWith).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(localStorage.getItem(STORAGE_KEY)).toBe('terminal');
+    });
+
+    expect(mockMessageError).not.toHaveBeenCalled();
   });
 });

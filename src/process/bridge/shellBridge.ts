@@ -103,20 +103,28 @@ async function isVSCodeInstalled(): Promise<boolean> {
  * This is the UNION of the two shells' operator sets, because the two guarded
  * branches reach different shells and the set must cover whichever one runs:
  *
- *  - cmd.exe (the `vscode` `.cmd` fallback): `& | < > ^ "`.
+ *  - cmd.exe (the `vscode` `.cmd` fallback): `& | < > ^ "` and `%`. `%` is not
+ *    an operator, it is variable expansion - but cmd.exe expands `%FOO%` while
+ *    PARSING, before the line is tokenised into operators, so the expansion's
+ *    contents are themselves read as command syntax. It belongs in the same set.
  *  - PowerShell (the `terminal` branch): additionally `;` (statement separator),
- *    `` ` `` (escape), `$` and `(` `)` (subexpression), `{` `}` (script block)
- *    and `,` (array operator). None of those is a cmd.exe operator, so a
- *    cmd.exe-only filter passed `proj;calc` straight through - and `$(...)`
+ *    `` ` `` (escape), `$` and `(` `)` (subexpression), `{` `}` (script block),
+ *    `'` (quote) and `,` (array operator). None of those is a cmd.exe operator,
+ *    so a cmd.exe-only filter passed `proj;calc` straight through - and `$(...)`
  *    survives double quoting, so quoting the argument would not have helped
  *    either.
  *
- * The cost is that a win32 folder named `Report (v2)` cannot be opened in VS
- * Code or a terminal. That is the deliberate fail-closed trade this module
- * already makes elsewhere: the refusal is REPORTED to the renderer, and the
- * `explorer` branch - which never builds a command line - still opens it.
+ * The friction this buys is real and was weighed, not overlooked. A win32 folder
+ * named `Report (v2)`, `Bob's Project` (apostrophe - a PowerShell quote), `Q3,
+ * Q4` (comma - the array operator) or `100% Done` (percent - cmd.exe expansion)
+ * cannot be opened in VS Code or a terminal. Every one of those is a plausible
+ * real folder name, and the apostrophe is the most likely to be hit. They are
+ * refused anyway: this is the deliberate fail-closed trade the module makes
+ * elsewhere, the refusal is REPORTED to the renderer rather than being a dead
+ * click, and the `explorer` branch - which never builds a command line - still
+ * opens all of them.
  */
-const WIN32_SHELL_METACHARACTERS = /[;,&|<>^"'`$(){}]/;
+const WIN32_SHELL_METACHARACTERS = /[;,&|<>^"'`$(){}%]/;
 
 /**
  * Refuse a win32 folder path that would reach a shell command line.
