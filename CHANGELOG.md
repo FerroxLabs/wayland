@@ -4,6 +4,21 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.12.2] - 2026-08-19
+
+Two bugs that made a fully configured install look broken, and the engine everyone is already running.
+
+### Fixed
+
+- **"No model configured yet" on a machine with every model configured.** With providers connected and a model already chosen, the home screen could still claim nothing was set up and leave Send greyed out, while the composer showed a different model from the one actually pinned. Picking a model from the list did nothing.
+- **The assistant and agent selector works again.** On a preset assistant such as Smart Trader, choosing a different backend or agent silently did nothing at all: no change, no error.
+
+  Both had the same origin. A save that never completed left the app waiting forever with no way to fail, so the error handling written for exactly this case could never run. Saves now give up rather than hang, which also closes the same failure for every other setting that writes to disk.
+
+### Changed
+
+- **Bundled engine moves to wayland-core v0.13.2.**
+
 ## [0.12.1] - 2026-08-18
 
 A focused follow-up to 0.12.0. Every change here was found by adversarially auditing the fixes themselves, not just the code they fixed, and several of the most serious were introduced by the very changes meant to close them.

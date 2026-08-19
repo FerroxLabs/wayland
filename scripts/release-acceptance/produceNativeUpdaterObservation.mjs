@@ -358,11 +358,35 @@ function prepareInstalledArtifact(artifactPath, platform, arch, role, root, depe
   );
   const installRoot = path.join(root, 'installed');
   if (role === 'rollback' && platform === 'linux') {
+    // Extracted rather than executed in place, for the same reason the deb roles are
+    // extracted rather than dpkg -i'd. The payload under test is identical; what goes
+    // away is the AppImage's self-mounting runtime wrapper, which does not exit.
+    // Measured on ubuntu-24.04 against this exact artifact: booted as shipped, the
+    // entire application tree quits and the wrapper process alone stays alive with no
+    // children for over 180s, so 'native app did not exit' was reporting the wrapper
+    // and never the app. The same payload extracted and booted directly exits cleanly
+    // inside the unchanged 10s budget, as does the 0.11.18 deb control alongside it.
     fs.mkdirSync(installRoot, { recursive: true, mode: 0o700 });
-    const executablePath = path.join(installRoot, path.basename(artifactPath));
-    fs.copyFileSync(snapshot.snapshotPath, executablePath, fs.constants.COPYFILE_EXCL);
-    fs.chmodSync(executablePath, 0o700);
-    return { executablePath, installRoot, installedDigest: sha256File(executablePath), snapshot };
+    const runtimePath = path.join(installRoot, path.basename(artifactPath));
+    fs.copyFileSync(snapshot.snapshotPath, runtimePath, fs.constants.COPYFILE_EXCL);
+    fs.chmodSync(runtimePath, 0o700);
+    (dependencies.execFileSync || execFileSync)(runtimePath, ['--appimage-extract'], {
+      cwd: installRoot,
+      stdio: 'pipe',
+      // Extraction narrates every entry it writes, and the default 1MB pipe budget is
+      // the wrong thing to fail this on: an over-budget listing reads as a broken
+      // rollback artifact rather than as a chatty extractor.
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    // The runtime is evidence, not payload, and the snapshot already holds its bytes.
+    fs.rmSync(runtimePath, { force: true });
+    const candidate = (dependencies.resolveInstalledCandidate || resolveInstalledCandidate)(
+      installRoot,
+      platform,
+      arch,
+      'stable'
+    );
+    return { ...candidate, installRoot, installedDigest: candidateContentDigest(candidate), snapshot };
   }
   if (role === 'rollback' && platform === 'darwin') {
     fs.mkdirSync(installRoot, { recursive: true, mode: 0o700 });
@@ -766,10 +790,25 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       corruptedRejection = error;
     }
     if (!corruptedRejection) fail('deliberately corrupted candidate installer was accepted');
-    assertRejectionAttributableToCorruption(prepare, request, workRoot, dependencies);
+    // Settled against the corrupted attempt alone, which is the claim being made.
+    // The control below installs the INTACT candidate, and Windows installs are not
+    // independent: electron-builder's one-click NSIS runs the previously registered
+    // uninstaller first, and that uninstaller RMDir /r's the earlier install root.
+    // Proven on windows-2022 by installing 0.11.18 and then 0.11.8 into separate
+    // /D= roots - the second install completed and the first root was gone. Running
+    // these two checks after the control therefore measured the control, and both
+    // Windows legs of run 32217649937 died reading an initial payload that the
+    // control install had legitimately removed.
     if (candidateContentDigest(initial) !== initialInstalledDigest)
       fail('failed update changed the installed initial payload');
     if (hashSupportedData(liveState) !== supportedDataSetSha256) fail('failed update changed supported state');
+    assertRejectionAttributableToCorruption(prepare, request, workRoot, dependencies);
+    // The control is a real installation, so it gets held to the same standard. The
+    // payload comparison cannot be repeated here because on Windows the control is
+    // entitled to replace the initial install, but supported state is independent of
+    // every install root and a control that touched it would be a defect either way.
+    if (hashSupportedData(liveState) !== supportedDataSetSha256)
+      fail('the intact-candidate control install changed supported state');
     phaseObservedAt.push(now().toISOString());
 
     const rollbackState = path.join(workRoot, 'rollback-state');

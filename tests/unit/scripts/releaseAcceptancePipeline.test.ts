@@ -219,7 +219,7 @@ describe('protected release acceptance pipeline', () => {
   it('binds the protected proof plan to the complete required gate set', () => {
     expect(REQUIRED_GATES).toEqual({
       tests: 'bun run test',
-      typecheck: 'bunx tsc --noEmit',
+      typecheck: 'bun run typecheck',
       lint: 'bun run lint',
       build: 'bun run build:renderer:web',
       'dependency-security':

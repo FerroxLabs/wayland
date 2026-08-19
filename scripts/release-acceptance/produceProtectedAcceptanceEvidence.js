@@ -21,7 +21,11 @@ const hardeningMatrix = require('./hardening-matrix.json');
 
 const REQUIRED_GATES = Object.freeze({
   tests: 'bun run test',
-  typecheck: 'bunx tsc --noEmit',
+  // `bun run typecheck`, matching the workflow. package.json sets
+  // NODE_OPTIONS=--max-old-space-size=8192 for this project and a raw tsc dies of
+  // heap exhaustion without it. The workflow was corrected; these two copies were
+  // not, and nothing caught the drift because this code had never executed.
+  typecheck: 'bun run typecheck',
   lint: 'bun run lint',
   build: 'bun run build:renderer:web',
   'dependency-security':
