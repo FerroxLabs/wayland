@@ -191,6 +191,50 @@ export function buildEmitter<Params = undefined>(key: string): ReturnType<typeof
  * Behavior is otherwise identical to `storage.buildStorage` - pure side-effect
  * wrapper for allowlist registration.
  */
+/**
+ * How long a single storage call may hang before it is treated as failed.
+ *
+ * The bridge underneath is resolve-only: it has no reject path and no timeout,
+ * so a provider that never answers leaves the renderer's promise pending
+ * FOREVER. Every `await ConfigStorage.get/set(...)` in the renderer - and there
+ * are dozens - is therefore a potential permanent stall, and because nothing
+ * ever rejects, the `.catch()` blocks already written around them cannot fire
+ * and the failure is completely silent.
+ *
+ * That is not theoretical. It shipped: one stalled write left a user's home
+ * page showing "No model configured yet" with a dead Send button while the
+ * picker listed hundreds of models, and separately made the preset assistant's
+ * backend switch a silent no-op - no change, no error, because that handler
+ * awaits storage inside a try/catch that never sees a rejection.
+ *
+ * Generous on purpose. These are local disk reads and writes of a config that
+ * is ~1 MB; anything past this is wedged, not slow. Turning the stall into a
+ * rejection is what lets all that existing error handling finally work.
+ */
+const STORAGE_CALL_TIMEOUT_MS = 15_000;
+
+function withStorageTimeout<T>(namespace: string, method: string, call: () => Promise<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      reject(new Error(`${namespace}.storage.${method} did not answer within ${STORAGE_CALL_TIMEOUT_MS}ms`));
+    }, STORAGE_CALL_TIMEOUT_MS);
+    const finish = (fn: (value: never) => void) => (value: never) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      fn(value);
+    };
+    try {
+      call().then(finish(resolve as never), finish(reject as never));
+    } catch (error) {
+      finish(reject as never)(error as never);
+    }
+  });
+}
+
 export function buildStorage<Refer = unknown>(
   namespace: string,
   options?: { debug: boolean }
@@ -199,7 +243,19 @@ export function buildStorage<Refer = unknown>(
   providerKeys.add(`${namespace}.storage.set`);
   providerKeys.add(`${namespace}.storage.clear`);
   providerKeys.add(`${namespace}.storage.remove`);
-  return options ? storage.buildStorage<Refer>(namespace, options) : storage.buildStorage<Refer>(namespace);
+  const built = options ? storage.buildStorage<Refer>(namespace, options) : storage.buildStorage<Refer>(namespace);
+  // Wrap the four wire methods so a wedged provider surfaces as a rejection
+  // instead of an eternal pending promise. Allowlist registration above is
+  // untouched: this changes only how long a call may hang, never which calls
+  // are permitted.
+  const wrapped = built as unknown as Record<string, unknown>;
+  for (const method of ['get', 'set', 'clear', 'remove'] as const) {
+    const original = wrapped[method];
+    if (typeof original !== 'function') continue;
+    const fn = original as (...args: unknown[]) => Promise<unknown>;
+    wrapped[method] = (...args: unknown[]) => withStorageTimeout(namespace, method, () => fn.apply(built, args));
+  }
+  return built;
 }
 
 /**
