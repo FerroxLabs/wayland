@@ -313,7 +313,11 @@ describe('shellBridge', () => {
       // findVSCodeExecutable finds code.cmd via ProgramFiles
       fsMock.existsSync.mockImplementation((p: string) => p.endsWith('code.cmd') && p.includes('Program Files'));
 
-      await openFolderWithProvider.fn!({ folderPath: 'C:\\Projects\\Q&M', tool: 'vscode' });
+      // The folder name must be free of cmd.exe metacharacters: the provider now
+      // refuses those BEFORE dispatch on win32, because the `shell: true` fallback
+      // below is exactly where `&` would split the command line. The .cmd/EINVAL
+      // mechanics this test pins are unchanged; only the fixture name moved.
+      await openFolderWithProvider.fn!({ folderPath: 'C:\\Projects\\Demo App', tool: 'vscode' });
 
       // Trigger ENOENT on first spawn
       expect(errorCallback).toBeDefined();
@@ -329,7 +333,7 @@ describe('shellBridge', () => {
       expect(fallbackErrorCallback).toBeDefined();
       shellMock.openPath.mockResolvedValue('');
       fallbackErrorCallback!(new Error('spawn EINVAL'));
-      expect(shellMock.openPath).toHaveBeenCalledWith('C:\\Projects\\Q&M');
+      expect(shellMock.openPath).toHaveBeenCalledWith('C:\\Projects\\Demo App');
 
       // Restore env
       if (origProgramFiles === undefined) {

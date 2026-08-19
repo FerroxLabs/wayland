@@ -93,6 +93,38 @@ async function isVSCodeInstalled(): Promise<boolean> {
 }
 
 /**
+ * Characters cmd.exe / PowerShell treat as command separators or redirections.
+ *
+ * `confinePath` bounds a path's LOCATION and rejects NUL/UNC/device/ADS forms;
+ * it says nothing about shell metacharacters, and a directory named
+ * `proj & calc.exe` is a perfectly legal, confinable folder inside a workspace.
+ */
+const WIN32_SHELL_METACHARACTERS = /[&|<>"^]/;
+
+/**
+ * Refuse a win32 folder path that would reach a shell command line.
+ *
+ * Two branches of `openFolderWithTool` build one on Windows: `terminal` spawns
+ * PowerShell, and `vscode` falls back to `spawn(codePath, [folderPath], { shell: true })`
+ * because a `.cmd`/`.bat` launcher cannot be started without one - and Node does
+ * NOT quote arguments under `shell: true`, so cmd.exe splits the line on `&`.
+ * The terminal branch already guarded itself, but only by logging and returning,
+ * which is a silent dead click; checking here lets the provider REPORT the
+ * refusal. `explorer` needs no guard - it goes to `shell.openPath`, never a shell.
+ *
+ * @returns A structured refusal, or `null` when the path is safe to dispatch.
+ */
+function refuseWindowsShellMetacharacters(
+  folderPath: string,
+  tool: 'vscode' | 'terminal' | 'explorer'
+): { ok: false; error: string } | null {
+  if (process.platform !== 'win32') return null;
+  if (tool !== 'vscode' && tool !== 'terminal') return null;
+  if (!WIN32_SHELL_METACHARACTERS.test(folderPath)) return null;
+  return { ok: false, error: 'folder path contains forbidden characters' };
+}
+
+/**
  * Open folder with specified tool
  */
 async function openFolderWithTool(folderPath: string, tool: 'vscode' | 'terminal' | 'explorer'): Promise<void> {
@@ -135,7 +167,7 @@ async function openFolderWithTool(folderPath: string, tool: 'vscode' | 'terminal
           console.error('[shellBridge] terminal: folderPath is not a directory:', folderPath);
           return;
         }
-        if (/[&|<>"^]/.test(folderPath)) {
+        if (WIN32_SHELL_METACHARACTERS.test(folderPath)) {
           console.error('[shellBridge] terminal: folderPath contains forbidden characters:', folderPath);
           return;
         }
@@ -436,6 +468,11 @@ export function initShellBridge(): void {
   ipcBridge.shell.openFolderWith.provider(async ({ folderPath, tool }) => {
     const confined = await confineAndGateOpenTarget(folderPath);
     if ('ok' in confined) return confined;
+    // Location and type are settled; on Windows the vscode/terminal branches
+    // still build a shell command line out of this path, so reject the
+    // separators before dispatch - and report it rather than no-op.
+    const injection = refuseWindowsShellMetacharacters(confined.path, tool);
+    if (injection) return injection;
     try {
       await openFolderWithTool(confined.path, tool);
       return { ok: true };

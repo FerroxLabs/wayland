@@ -61,6 +61,34 @@ fs.mkdirSync(dottedFolder, { recursive: true });
 // realpath-collapses the existing prefix, so anything under it must fail closed.
 fs.symlinkSync('/etc', escapeSymlink, 'dir');
 
+// Non-executing source/text types a user opens constantly. None of these has an
+// OS execute association on macOS, Linux or Windows (Windows Script Host
+// dispatches `.js`/`.jse`/`.wsf`/`.vbs`, never `.ts`), so they belong in the same
+// class as the already-allowed `.java`/`.go`/`.rs`/`.swift`. Refusing them bought
+// no security and, on a TypeScript codebase, turned the memory panel's
+// "Open source file" into a dead click.
+const nonExecutingSourceFiles = [
+  'module.ts',
+  'Panel.tsx',
+  'widget.jsx',
+  'App.vue',
+  'App.svelte',
+  'esm.mts',
+  'cjs.cts',
+  'paper.tex',
+  'captions.srt',
+  'captions.vtt',
+  'local.env',
+].map((name) => path.join(sandbox, name));
+for (const file of nonExecutingSourceFiles) fs.writeFileSync(file, 'source\n');
+
+// A confined, in-root folder whose NAME carries cmd.exe metacharacters. The
+// win32 vscode branch reaches `spawn(codePath, [folderPath], { shell: true })`
+// for a `.cmd` launcher, and `confinePath` filters NUL/UNC/device/ADS forms only
+// - never `&` - so cmd.exe splits the command line on it.
+const injectionFolder = path.join(sandbox, 'proj & calc.exe');
+fs.mkdirSync(injectionFolder, { recursive: true });
+
 afterAll(() => {
   fs.rmSync(sandbox, { recursive: true, force: true });
 });
@@ -348,5 +376,97 @@ describe('shell open providers - app-produced open targets', () => {
 
     nothingLaunched();
     expect(result.ok).toBe(false);
+  });
+});
+
+// --- The allow-list must not refuse types nothing executes -------------------
+
+describe('shell open providers - non-executing source/text types are openable', () => {
+  for (const file of nonExecutingSourceFiles) {
+    it(`opens ${path.basename(file)}`, async () => {
+      const result = await providers['openFile'](file);
+
+      expect(result).toEqual({ ok: true });
+      expect(shellMock.openPath).toHaveBeenCalledWith(file);
+    });
+  }
+});
+
+// --- win32: the vscode branch reaches a cmd.exe command line -----------------
+
+describe('shellBridge.openFolderWith - win32 shell metacharacters', () => {
+  const withProgramFiles = async (fn: () => Promise<void>): Promise<void> => {
+    const vsRoot = path.join(sandbox, 'PF');
+    fs.mkdirSync(path.join(vsRoot, 'Microsoft VS Code', 'bin'), { recursive: true });
+    fs.writeFileSync(path.join(vsRoot, 'Microsoft VS Code', 'bin', 'code.cmd'), '@echo off\n');
+    const previous = process.env['ProgramFiles'];
+    process.env['ProgramFiles'] = vsRoot;
+    try {
+      await fn();
+    } finally {
+      if (previous === undefined) delete process.env['ProgramFiles'];
+      else process.env['ProgramFiles'] = previous;
+    }
+  };
+
+  it('refuses a confined folder whose name carries cmd.exe metacharacters (vscode) and launches nothing', async () => {
+    await loadBridge('win32');
+
+    const result = await providers['openFolderWith']({ folderPath: injectionFolder, tool: 'vscode' });
+
+    nothingLaunched();
+    expect(result.ok).toBe(false);
+    expect((result as { error: string }).error).toContain('forbidden characters');
+  });
+
+  it('never builds a cmd.exe command line out of a metacharacter path (the .cmd fallback)', async () => {
+    await withProgramFiles(async () => {
+      await loadBridge('win32');
+      let onError: ((err: Error) => void | Promise<void>) | undefined;
+      spawnMock.mockReturnValue({
+        on: (event: string, cb: (err: Error) => void) => {
+          if (event === 'error') onError = cb;
+        },
+        unref: vi.fn(),
+      });
+
+      await providers['openFolderWith']({ folderPath: injectionFolder, tool: 'vscode' });
+      // Drive the ENOENT path that reaches the `shell: true` .cmd fallback.
+      if (onError) await onError(new Error('spawn code ENOENT'));
+
+      for (const call of spawnMock.mock.calls) {
+        const options = call[2] as { shell?: boolean } | undefined;
+        if (options?.shell) {
+          expect(JSON.stringify(call[1])).not.toContain('&');
+        }
+      }
+    });
+  });
+
+  it('reports the terminal-branch refusal instead of silently returning', async () => {
+    await loadBridge('win32');
+
+    const result = await providers['openFolderWith']({ folderPath: injectionFolder, tool: 'terminal' });
+
+    nothingLaunched();
+    expect(result.ok).toBe(false);
+  });
+
+  it('still opens a metacharacter-free folder with vscode on win32', async () => {
+    await loadBridge('win32');
+
+    const result = await providers['openFolderWith']({ folderPath: dottedFolder, tool: 'vscode' });
+
+    expect(result).toEqual({ ok: true });
+    expect(spawnMock).toHaveBeenCalledWith('code', [dottedFolder], { detached: true, stdio: 'ignore' });
+  });
+
+  it('still opens a metacharacter-bearing folder in the file explorer (no shell involved)', async () => {
+    await loadBridge('win32');
+
+    const result = await providers['openFolderWith']({ folderPath: injectionFolder, tool: 'explorer' });
+
+    expect(result).toEqual({ ok: true });
+    expect(shellMock.openPath).toHaveBeenCalledWith(injectionFolder);
   });
 });

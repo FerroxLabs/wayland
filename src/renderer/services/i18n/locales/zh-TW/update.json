@@ -29,6 +29,8 @@
   },
   "showInFolder": "在資料夾中顯示",
   "openFile": "開啟檔案",
+  "openFileFailed": "無法開啟已下載的檔案",
+  "showInFolderFailed": "無法在檔案管理員中顯示下載內容",
   "errorTitle": "更新失敗",
   "errors": {
     "missingTag": "無法驗證此更新：缺少發行標籤。請從 Releases 頁面更新。",

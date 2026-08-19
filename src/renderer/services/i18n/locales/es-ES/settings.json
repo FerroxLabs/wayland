@@ -170,6 +170,7 @@
   "cacheDir": "Directorio de caché",
   "workDir": "Directorio de trabajo",
   "logDir": "Directorio de registros",
+  "openLogDirFailed": "No se pudo abrir la carpeta de registros",
   "dirNotConfigured": "Aún sin configurar",
   "cacheClean": "Limpieza de caché",
   "clean": "Limpiar",

@@ -46,9 +46,25 @@ import path from 'path';
  * `.exe`, `.bat`, `.cmd`, `.com`, `.ps1`, `.psm1`, `.scr`, `.msi`, `.msp`,
  * `.lnk`, `.pif`, `.cpl`, `.reg`, `.inf`, `.scf`, `.hta`, `.vbs`, `.vbe`,
  * `.wsf`, `.jse`; cross-platform interpreter targets `.js`, `.mjs`, `.cjs`,
- * `.py`, `.pyw`, `.rb`, `.pl`, `.php`, `.jar`, `.sh`, `.bash`, `.zsh`, `.fish`;
- * macro-enabled Office `.docm`, `.xlsm`, `.pptm`, `.xlam`, `.ppam`; and
- * archives/disk images, which expand into any of the above.
+ * `.py`, `.pyw`, `.rb`, `.pl`, `.php`, `.jar`, `.sh`, `.bash`, `.zsh`, `.fish`,
+ * `.lua`, `.r` (a Lua-for-Windows or R install registers those to an
+ * interpreter, exactly the "inert here, executable there" case a launcher must
+ * fail closed on); and archives/disk images, which expand into any of the above.
+ *
+ * ## Office documents
+ *
+ * `.doc`, `.xls`, `.ppt`, `.docx`, `.xlsx`, `.pptx` are admitted deliberately.
+ * The gate's question is "does the OS handler EXECUTE this by default", and for
+ * every Office format the answer is no: the handler opens a document, and macro
+ * execution is gated behind Protected View and the Trust Center (macros in
+ * internet-sourced files are blocked outright since 2022). The legacy OLE
+ * formats are macro-CAPABLE, but capability is not dispatch, and refusing an
+ * everyday `.doc` would be friction with no security won.
+ *
+ * The macro-enabled formats (`.docm`, `.xlsm`, `.pptm`, `.xlam`, `.ppam`) stay
+ * out on a different basis: they SELF-DECLARE macros, so refusing them is a free
+ * signal-based filter, and nothing this feature legitimately produces needs a
+ * macro workbook. That asymmetry is intentional, not an oversight.
  *
  * Refusals are returned as a structured `{ ok: false, error }` - the IPC bridge
  * has no rejection channel, so a throw would hang the renderer forever, and a
@@ -159,6 +175,23 @@ const OPENABLE_FILE_EXTENSIONS = new Set([
   '.sql',
   '.graphql',
   '.proto',
+  // TypeScript / component sources. Same class as the compiled-language sources
+  // above: no OS association executes them anywhere. Windows Script Host
+  // dispatches `.js`/`.jse`/`.wsf`/`.vbs` - never `.ts`, which the Windows shell
+  // maps to an MPEG-2 transport stream, i.e. a media viewer. Refusing them made
+  // the memory archive's "Open source file" a dead click on this very codebase.
+  '.ts',
+  '.tsx',
+  '.jsx',
+  '.mts',
+  '.cts',
+  '.vue',
+  '.svelte',
+  // Plain-text authoring/data formats with an editor (or subtitle) association.
+  '.tex',
+  '.srt',
+  '.vtt',
+  '.env',
 ]);
 
 /**

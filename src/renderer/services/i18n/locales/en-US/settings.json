@@ -177,6 +177,7 @@
   "cacheDir": "Cache Directory",
   "workDir": "Work Directory",
   "logDir": "Log Directory",
+  "openLogDirFailed": "Could not open the log folder",
   "dirNotConfigured": "Not configured yet",
   "cacheClean": "Cache Cleanup",
   "clean": "Clean",

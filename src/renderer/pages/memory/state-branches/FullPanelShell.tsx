@@ -359,13 +359,25 @@ const FullPanelShell: React.FC = () => {
     [t, clearSelection, reload]
   );
 
-  // Open source file
+  // Open source file.
+  //
+  // The IPC bridge is RESOLVE-ONLY: a refusal (an unconfined path, or a type the
+  // open-target gate declines) comes back as a RESOLVED `{ ok: false }`, never as
+  // a rejection. A `.catch()`-only handler therefore did nothing at all on a
+  // refusal - no toast, and this clipboard fallback never ran. Branch on the
+  // resolved result, the way the workspace context menu already does.
   const handleOpenSource = useCallback(
-    (path: string, _line: number) => {
-      ipcBridge.shell.openFile.invoke(path).catch(() => {
+    async (path: string, _line: number) => {
+      const copyPathInstead = (): void => {
         void navigator.clipboard.writeText(path);
         Message.success(t('archive.toast.pathCopied', 'Path copied'));
-      });
+      };
+      try {
+        const res = await ipcBridge.shell.openFile.invoke(path);
+        if (!res?.ok) copyPathInstead();
+      } catch {
+        copyPathInstead();
+      }
     },
     [t]
   );

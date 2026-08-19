@@ -170,6 +170,7 @@
   "cacheDir": "Cache-Verzeichnis",
   "workDir": "Arbeitsverzeichnis",
   "logDir": "Protokollverzeichnis",
+  "openLogDirFailed": "Der Protokollordner konnte nicht geöffnet werden",
   "dirNotConfigured": "Noch nicht konfiguriert",
   "cacheClean": "Cache-Bereinigung",
   "clean": "Bereinigen",
