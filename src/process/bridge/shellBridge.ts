@@ -11,6 +11,7 @@ import { ipcBridge } from '@/common';
 import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
 import { isAllowedExternalUrl } from '@/common/utils/urlValidation';
 import { confinePath } from './pathConfinement';
+import { refuseUnsafeOpenTarget } from './shellOpenSafety';
 import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 import * as fs from 'fs';
@@ -338,9 +339,29 @@ async function confineShellPath(inputPath: unknown): Promise<{ ok: false; error:
   return { path: resolved };
 }
 
+/**
+ * Confine a renderer-supplied path AND gate its type, for the providers that
+ * hand the result to an OS *launcher*.
+ *
+ * Confinement bounds the location only: a workspace is an authorized root, so
+ * an agent-written `report.command` / `payload.desktop` / `Evil.app` inside it
+ * passes `confinePath` and is then EXECUTED by the OS handler. `refuseUnsafeOpenTarget`
+ * adds the missing type check. Reveal (`showItemInFolder`) deliberately skips
+ * it - selecting a file in the file manager never runs it.
+ *
+ * @returns The confined absolute path, or a failure result to return verbatim.
+ */
+async function confineAndGateOpenTarget(inputPath: unknown): Promise<{ ok: false; error: string } | { path: string }> {
+  const confined = await confineShellPath(inputPath);
+  if ('ok' in confined) return confined;
+  const refusal = await refuseUnsafeOpenTarget(confined.path);
+  if (refusal) return refusal;
+  return confined;
+}
+
 export function initShellBridge(): void {
   ipcBridge.shell.openFile.provider(async (filePath) => {
-    const confined = await confineShellPath(filePath);
+    const confined = await confineAndGateOpenTarget(filePath);
     if ('ok' in confined) return confined;
     return openPathReporting(confined.path);
   });
@@ -400,14 +421,27 @@ export function initShellBridge(): void {
     }
   });
 
-  // Open folder with specified tool
+  // Open folder with specified tool.
+  //
+  // `openFolderWithTool` reaches `spawn('open'|'xdg-open'|'code', [folderPath])`
+  // and `shell.openPath`, so an unconfined argument here was "launch any path
+  // the OS user can reach" - on macOS, arbitrary application launch. The bridge
+  // allowlist validates the IPC event name only, never the arguments, so this
+  // takes the same confinement the other open providers use, plus the open-target
+  // type gate (a workspace named `Evil.app` is a launchable bundle, not a folder).
+  //
+  // The former `catch` fell back to a second, likewise-unconfined
+  // `shell.openPath(folderPath)`; it is gone. Failure is now reported through the
+  // structured result instead of being swallowed into an unchecked retry.
   ipcBridge.shell.openFolderWith.provider(async ({ folderPath, tool }) => {
+    const confined = await confineAndGateOpenTarget(folderPath);
+    if ('ok' in confined) return confined;
     try {
-      await openFolderWithTool(folderPath, tool);
+      await openFolderWithTool(confined.path, tool);
+      return { ok: true };
     } catch (error) {
       console.error(`[shellBridge] Failed to open folder with ${tool}:`, error);
-      // Fallback to default shell open
-      await shell.openPath(folderPath);
+      return { ok: false, error: (error as Error).message };
     }
   });
 
@@ -436,6 +470,11 @@ export function initShellBridge(): void {
     if (resolved === null) {
       return { ok: false, error: 'path not allowed' };
     }
+    // Confinement bounds the location, never the type: an agent-authored
+    // `.command`/`.desktop`/`.exe`/`.app` inside an authorized root would be
+    // EXECUTED here. Gate the type before handing it to the OS handler.
+    const refusal = await refuseUnsafeOpenTarget(resolved);
+    if (refusal) return refusal;
     try {
       const errorMessage = await shell.openPath(resolved);
       if (errorMessage) {

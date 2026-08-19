@@ -128,9 +128,12 @@ export const shell = {
   showItemInFolder: buildProvider<ShellOpenResult, string>('show-item-in-folder'), // Open folder
   openExternal: buildProvider<void, string>('open-external'), // Open external link with the system default program
   checkToolInstalled: buildProvider<boolean, { tool: string }>('shell.check-tool-installed'), // Check whether a tool is installed
-  openFolderWith: buildProvider<void, { folderPath: string; tool: 'vscode' | 'terminal' | 'explorer' }>(
+  /** Open a folder with the specified tool. Confined to the authorized roots and
+   *  type-gated like the other open providers, so a refusal is reported through
+   *  `ShellOpenResult` instead of being swallowed into an unconfined retry. */
+  openFolderWith: buildProvider<ShellOpenResult, { folderPath: string; tool: 'vscode' | 'terminal' | 'explorer' }>(
     'shell.open-folder-with'
-  ), // Open a folder with the specified tool
+  ),
   /** Open a filesystem path (file or directory) via the OS default handler.
    *  Only `~`-expansion is applied - no `..` traversal is allowed. */
   openPath: buildProvider<{ ok: boolean; error?: string }, { path: string }>('shell.open-path'),

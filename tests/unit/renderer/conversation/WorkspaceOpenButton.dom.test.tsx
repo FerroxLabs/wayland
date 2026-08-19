@@ -52,6 +52,10 @@ vi.mock('@arco-design/web-react', () => ({
     </div>
   ),
   Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  // openFolderWith now reports a structured `{ ok: false }` refusal (confinement
+  // or open-target type gate) instead of returning void, and the button surfaces
+  // it as an error toast rather than a silent no-op.
+  Message: { error: vi.fn() },
 }));
 
 import WorkspaceOpenButton from '@/renderer/pages/conversation/components/ChatLayout/WorkspaceOpenButton';
