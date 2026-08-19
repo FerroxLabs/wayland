@@ -33,7 +33,17 @@ jobs:
           ls -la anchors
 
       - name: Install the CDP client the observer imports
-        run: npm install --no-save --no-package-lock ws@8.21.1
+        run: |
+          set -euo pipefail
+          # Installing into the repo trips npm EOVERRIDE against its own ws override,
+          # so resolve it out of band and drop the package where node will find it.
+          mkdir -p "$RUNNER_TEMP/wsdep"
+          cd "$RUNNER_TEMP/wsdep"
+          npm init -y >/dev/null
+          npm install ws@8.21.1 --no-audit --no-fund >/dev/null
+          mkdir -p "$GITHUB_WORKSPACE/node_modules"
+          cp -R "$RUNNER_TEMP/wsdep/node_modules/ws" "$GITHUB_WORKSPACE/node_modules/ws"
+          node -e "console.log(require.resolve('ws', {paths: ['$GITHUB_WORKSPACE']}))"
 
       - name: Boot both anchors and report exit behaviour
         run: |
