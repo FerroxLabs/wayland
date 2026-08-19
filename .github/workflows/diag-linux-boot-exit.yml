@@ -1,0 +1,40 @@
+name: diag linux boot exit
+
+on:
+  push:
+    branches:
+      - 'diag/**'
+
+permissions:
+  contents: read
+
+jobs:
+  diag:
+    name: diag linux boot exit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download the anchors
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p anchors
+          gh release download v0.11.18 --repo "$GITHUB_REPOSITORY" --pattern 'Wayland-0.11.18-linux-amd64.deb' --dir anchors
+          gh release download v0.11.8 --repo "$GITHUB_REPOSITORY" --pattern 'Wayland-0.11.8-linux-x86_64.AppImage' --dir anchors
+          ls -la anchors
+
+      - name: Boot both anchors and report exit behaviour
+        run: |
+          set -euo pipefail
+          node scripts/diag/linux-boot-exit.mjs \
+            anchors/Wayland-0.11.18-linux-amd64.deb \
+            anchors/Wayland-0.11.8-linux-x86_64.AppImage
