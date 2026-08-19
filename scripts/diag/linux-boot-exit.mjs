@@ -7,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawn } from 'node:child_process';
 import { bootInstalledRuntime } from '../release-acceptance/produceNativeUpdaterObservation.mjs';
+import { candidateContentDigest, resolveInstalledCandidate } from '../platform-package-smoke.mjs';
 
 const EXTENDED_WAIT_MS = 180000;
 
@@ -126,6 +127,18 @@ fs.rmSync(extractSource, { force: true });
 const extractedExe = findExecutable(extractRoot);
 console.log(`extracted appimage executable: ${extractedExe}`);
 
+// The proposed branch does not use a hand-rolled lookup: it hands the extracted root
+// to the real resolveInstalledCandidate, which also enforces the confinement and
+// symlink assertions. Prove that whole path, not just that a binary exists.
+let resolved = null;
+try {
+  resolved = resolveInstalledCandidate(extractRoot, 'linux', 'x64', 'stable');
+  console.log(`resolveInstalledCandidate ACCEPTED the extracted tree: ${resolved.executablePath}`);
+  console.log(`candidateContentDigest: ${candidateContentDigest(resolved)}`);
+} catch (error) {
+  console.log(`resolveInstalledCandidate REJECTED the extracted tree: ${error instanceof Error ? error.message : String(error)}`);
+}
+
 await run('CONTROL deb 0.11.18', debExe, path.join(root, 'state-deb'));
 await run('SUBJECT appimage 0.11.8 as shipped', appExe, path.join(root, 'state-app'));
-await run('PROPOSED appimage 0.11.8 extracted', extractedExe, path.join(root, 'state-extracted'));
+await run('PROPOSED appimage 0.11.8 extracted', resolved?.executablePath || extractedExe, path.join(root, 'state-extracted'));
