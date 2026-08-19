@@ -373,6 +373,10 @@ function prepareInstalledArtifact(artifactPath, platform, arch, role, root, depe
     (dependencies.execFileSync || execFileSync)(runtimePath, ['--appimage-extract'], {
       cwd: installRoot,
       stdio: 'pipe',
+      // Extraction narrates every entry it writes, and the default 1MB pipe budget is
+      // the wrong thing to fail this on: an over-budget listing reads as a broken
+      // rollback artifact rather than as a chatty extractor.
+      maxBuffer: 64 * 1024 * 1024,
     });
     // The runtime is evidence, not payload, and the snapshot already holds its bytes.
     fs.rmSync(runtimePath, { force: true });
@@ -799,6 +803,12 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       fail('failed update changed the installed initial payload');
     if (hashSupportedData(liveState) !== supportedDataSetSha256) fail('failed update changed supported state');
     assertRejectionAttributableToCorruption(prepare, request, workRoot, dependencies);
+    // The control is a real installation, so it gets held to the same standard. The
+    // payload comparison cannot be repeated here because on Windows the control is
+    // entitled to replace the initial install, but supported state is independent of
+    // every install root and a control that touched it would be a defect either way.
+    if (hashSupportedData(liveState) !== supportedDataSetSha256)
+      fail('the intact-candidate control install changed supported state');
     phaseObservedAt.push(now().toISOString());
 
     const rollbackState = path.join(workRoot, 'rollback-state');
