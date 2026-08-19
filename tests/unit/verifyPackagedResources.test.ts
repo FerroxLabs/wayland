@@ -56,13 +56,27 @@ const {
 // the real DEFAULT_WCORE_VERSION and the real attestation policy, so a
 // hard-coded tag here fails the day the engine is bumped and proves nothing in
 // between.
-const TEST_WCORE_ACTIVE_POLICY = (
+//
+// Selected by engine id, NOT by "the first active entry". The document also
+// carries an active wayland-nano policy, so position decided which product this
+// picked: while the active engine entry happened to precede nano it worked, and
+// appending v0.13.3 after nano silently handed these fixtures the NANO tag and
+// failed fifteen tests on a mismatch that had nothing to do with the engine.
+// The production selector keys off releaseTag and demands a unique match, so
+// only this test was ever order-dependent.
+const TEST_WCORE_ACTIVE_POLICIES = (
   require('../../scripts/supply-chain/verifyPublisherAttestation') as {
     readPolicy: () => { policies: Array<{ status: string; id: string; releaseTag: string; sourceDigest: string }> };
   }
 )
   .readPolicy()
-  .policies.find((entry) => entry.status === 'active')!;
+  .policies.filter((entry) => entry.status === 'active' && entry.id.startsWith('wayland-core-'));
+if (TEST_WCORE_ACTIVE_POLICIES.length !== 1) {
+  throw new Error(
+    `expected exactly one active wayland-core publisher policy, found ${TEST_WCORE_ACTIVE_POLICIES.length}`
+  );
+}
+const TEST_WCORE_ACTIVE_POLICY = TEST_WCORE_ACTIVE_POLICIES[0]!;
 const TEST_WCORE_RELEASE = TEST_WCORE_ACTIVE_POLICY.releaseTag;
 const TEST_WCORE_ARCHIVE_SHA = 'a'.repeat(64);
 const TEST_WCORE_BYTES = Buffer.from('deterministic-test-wayland-core');

@@ -160,6 +160,12 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // changed, and exactly six vendored fixtures carry that stamp; every other
     // byte of the corpus is unchanged.
     //
+    // v0.13.2 -> v0.13.3 moved NOTHING in the contract: the released manifest
+    // carries byte-identical fixture, schema and source-inputs digests, the same
+    // gen/14 generator and the same seventeen capability statuses. Re-derived
+    // from that manifest, not assumed - the assertions above are what prove it,
+    // and they are unchanged because the bytes are.
+    //
     // That distinction is the whole risk. assertDescriptor fails closed on both
     // of those fields, so bumping the bundled tag WITHOUT re-vendoring them
     // would have handed users a build that dies at the handshake on every turn
@@ -170,7 +176,7 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // must be re-derived from the released manifest, not patched.
     expect(DESKTOP_CORE_V1_PIN.minor).toBe(14);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.2'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.3'"
     );
   });
 
