@@ -81,7 +81,14 @@
  *
  *   MARKET_OPEN_REPORT_LIST       watchlist CSV     (default: ../package/exports/TC-MASTER-WATCHLIST.csv)
  *   MARKET_OPEN_REPORT_POSITIONS  positions CSV     (default: ../package/exports/positions.csv)
- *   MARKET_OPEN_REPORT_CACHE      Yahoo cache dir   (default: ~/.cache/market-open-report/yahoo-cache)
+ *   MARKET_OPEN_REPORT_CACHE      Yahoo cache dir   (no fixed default - probed, see below)
+ *
+ * There is no fixed cache default: `~/.cache` is unreachable under the agent
+ * sandbox, so with MARKET_OPEN_REPORT_CACHE unset `report.mjs` probes, in
+ * order, `~/.cache/market-open-report/yahoo-cache`, then
+ * `<cwd>/.market-open-report-cache/yahoo-cache`, then
+ * `<tmpdir>/market-open-report/yahoo-cache`, and keeps the first it can
+ * create. In the sandbox the first fails EPERM and the second is used.
  *
  * The output path is --json, as in the Python.
  */

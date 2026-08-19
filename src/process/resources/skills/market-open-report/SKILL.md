@@ -16,11 +16,15 @@ reloads, and every one of those is a place the UI can fail silently.
 
 ## Running it
 
-From the skill directory:
+Both commands run from this skill's own directory, but the output directory is
+relative to the WORKSPACE ROOT — not to this directory. Pin it to an absolute
+path before you `cd`, starting from the workspace root:
 
 ```bash
-node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
-node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
+OUT="$PWD/artifacts"; mkdir -p "$OUT"
+cd .wayland-core/skills/market-open-report
+node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
+node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
 
 Node only. No dependencies, no install step, no Python.
@@ -40,10 +44,12 @@ not belong:
 | `MARKET_OPEN_REPORT_POSITIONS` | the user's holdings CSV (absent is valid) |
 | `MARKET_OPEN_REPORT_CACHE` | Yahoo cache directory. **Leave it unset** unless you have a writable path: it overrides the script's own probe for a writable cache, and if it points anywhere the sandbox refuses (anywhere outside the workspace, home included) `mkdir` fails `EPERM`, every symbol reports NO DATA, and the run still exits 0. |
 
-Write `--json` and the HTML brief to the workspace-relative output directory
-(default `artifacts/`, i.e. `<workspace>/artifacts/`). Never write beside this
-skill's own script — `.wayland-core/skills/` is a hidden engine directory the
-Workbench does not show — and never write into a git repository.
+Write `--json` and the HTML brief to the output directory, resolved against the
+workspace root (default `artifacts/`, i.e. `<workspace>/artifacts/`) — never
+against this skill's own directory. Never write beside this skill's own script:
+`.wayland-core/skills/` is a hidden engine directory the Workbench does not show,
+so a brief written there exists and is invisible. Never write into a git
+repository.
 
 ## Reading the result — this part matters
 
