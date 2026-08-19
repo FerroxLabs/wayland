@@ -310,17 +310,36 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
   const setCurrentModel = useCallback(
     async (modelInfo: TProviderWithModel) => {
       selectedModelKeyRef.current = buildModelKey(modelInfo.id, modelInfo.useModel);
-      // Persist the account binding alongside the model (multi-account, audit
-      // C2/C5). Defaults to the implicit single-account row, so existing pins
-      // keep working untouched.
-      await ConfigStorage.set(storageKey, {
+      // Apply to React state FIRST, and never gate it on the write.
+      //
+      // The renderer IPC bridge is resolve-only: it has no reject path and no
+      // timeout (see bridgeAllowlist.ts), so a provider that never answers
+      // leaves this promise pending forever - the inline .catch() below cannot
+      // fire, because nothing ever rejects. While that awaited write sat ahead
+      // of the state update, one stalled config write left `currentModel`
+      // undefined for the rest of the session: the home page showed
+      // "No model configured yet" with a dead Send button while the picker
+      // listed hundreds of models, and every manual pick was swallowed by the
+      // same await. Reported live on v0.12.0 against eleven connected
+      // providers and a perfectly valid saved pin.
+      //
+      // Ordering it this way makes the UI depend only on state that is already
+      // in hand. Persistence is still attempted, still logs on failure, and a
+      // lost write costs at most the pin - not the running session.
+      _setCurrentModel(modelInfo);
+      // Detached on purpose, for the same reason: awaiting it here would hand
+      // the caller a promise that can never settle. handlePickCurated awaits
+      // this setter, so a stalled write would strand the pick mid-flight and
+      // skip everything after it. Persist the account binding alongside the
+      // model (multi-account, audit C2/C5); defaults to the implicit
+      // single-account row, so existing pins keep working untouched.
+      void ConfigStorage.set(storageKey, {
         id: modelInfo.id,
         useModel: modelInfo.useModel,
         accountId: resolveAccountId(modelInfo),
       }).catch((error) => {
         console.error('Failed to save default model:', error);
       });
-      _setCurrentModel(modelInfo);
     },
     [storageKey]
   );
