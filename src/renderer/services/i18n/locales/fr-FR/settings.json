@@ -170,6 +170,7 @@
   "cacheDir": "Répertoire de cache",
   "workDir": "Répertoire de travail",
   "logDir": "Répertoire des journaux",
+  "openLogDirFailed": "Impossible d'ouvrir le dossier des journaux",
   "dirNotConfigured": "Pas encore configuré",
   "cacheClean": "Nettoyage du cache",
   "clean": "Nettoyer",

@@ -24,6 +24,7 @@ import * as path from 'path';
 import yaml from 'js-yaml';
 import semver from 'semver';
 import { autoUpdaterService } from '../services/autoUpdaterService';
+import { registerAppProducedOpenTarget } from './shellOpenSafety';
 import { ijfwSystemService } from '../services/ijfwSystemService';
 
 /** Lazily loads i18n to avoid pulling in initStorage chain at module load time */
@@ -758,6 +759,14 @@ const startDownloadInBackground = async (
       });
       return;
     }
+
+    // The artifact is an installer (.dmg/.exe/.msi/.AppImage/...), so the
+    // shell bridge's open-target type gate would refuse it - correctly, for
+    // renderer-supplied input. This is the main process vouching for a file it
+    // downloaded itself and just verified against the signed metadata above; the
+    // renderer cannot add to that registry, and it authorizes this one file, not
+    // a type. Registering only here keeps an unverified artifact un-openable.
+    registerAppProducedOpenTarget(filePath);
 
     emitProgress({
       downloadId,

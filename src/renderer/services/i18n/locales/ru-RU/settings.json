@@ -149,6 +149,7 @@
   "cacheDir": "Папка кэша",
   "workDir": "Рабочая папка",
   "logDir": "Папка логов",
+  "openLogDirFailed": "Не удалось открыть папку журналов",
   "dirNotConfigured": "Не настроено",
   "cacheClean": "Очистка кэша",
   "clean": "Очистить",

@@ -149,6 +149,7 @@
   "cacheDir": "Önbellek Dizini",
   "workDir": "Çalışma Dizini",
   "logDir": "Günlük Dizini",
+  "openLogDirFailed": "Günlük klasörü açılamadı",
   "dirNotConfigured": "Henüz yapılandırılmadı",
   "cacheClean": "Önbellek Temizliği",
   "clean": "Temizle",

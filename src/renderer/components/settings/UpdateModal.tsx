@@ -414,18 +414,36 @@ const UpdateModal: React.FC = () => {
     setVisible(false);
   };
 
-  const openFile = () => {
+  // Both of these report failure through a RESOLVED `{ ok: false, error }` - the
+  // IPC bridge has no rejection channel - so a `.catch()`-only handler left the
+  // button doing nothing at all. That is not hypothetical here: the open-target
+  // gate refuses an installer unless the main process vouched for it, and the
+  // vouch registry is in-memory, so after an app restart the download from the
+  // previous session is no longer vouched for and "Open" is refused.
+  const openFile = async () => {
     if (!downloadPath) return;
-    void ipcBridge.shell.openFile.invoke(downloadPath).catch((error) => {
+    try {
+      const res = await ipcBridge.shell.openFile.invoke(downloadPath);
+      if (!res?.ok) {
+        Message.error(res?.error || t('update.openFileFailed'));
+      }
+    } catch (error) {
       console.error('Failed to open file:', error);
-    });
+      Message.error(t('update.openFileFailed'));
+    }
   };
 
-  const showInFolder = () => {
+  const showInFolder = async () => {
     if (!downloadPath) return;
-    void ipcBridge.shell.showItemInFolder.invoke(downloadPath).catch((error) => {
+    try {
+      const res = await ipcBridge.shell.showItemInFolder.invoke(downloadPath);
+      if (!res?.ok) {
+        Message.error(res?.error || t('update.showInFolderFailed'));
+      }
+    } catch (error) {
       console.error('Failed to show item in folder:', error);
-    });
+      Message.error(t('update.showInFolderFailed'));
+    }
   };
 
   const renderContent = () => {

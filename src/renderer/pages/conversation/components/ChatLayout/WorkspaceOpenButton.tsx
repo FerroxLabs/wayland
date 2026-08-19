@@ -2,7 +2,7 @@ import { ChevronDown, Command, Folder, Terminal } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { isTemporaryWorkspace } from '@/renderer/utils/workspace/workspace';
-import { Button, Dropdown, Tooltip } from '@arco-design/web-react';
+import { Button, Dropdown, Message, Tooltip } from '@arco-design/web-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -57,12 +57,20 @@ const WorkspaceOpenButton: React.FC<WorkspaceOpenButtonProps> = ({ workspacePath
 
   const handleOpenWith = async (tool: ToolType) => {
     try {
-      await ipcBridge.shell.openFolderWith.invoke({ folderPath: workspacePath, tool });
+      // The provider reports failure via `{ ok: false }` (the IPC bridge has no
+      // rejection channel), so a confinement or open-target refusal surfaces as
+      // an error toast instead of doing nothing.
+      const res = await ipcBridge.shell.openFolderWith.invoke({ folderPath: workspacePath, tool });
+      if (res && res.ok === false) {
+        console.error(`[WorkspaceOpenButton] Refused to open folder with ${tool}:`, res.error);
+        Message.error(t('conversation.workspace.contextMenu.openFailed') || 'Failed to open');
+      }
       // Save preference
       localStorage.setItem(STORAGE_KEY, tool);
       setPreferredTool(tool);
     } catch (error) {
       console.error(`[WorkspaceOpenButton] Failed to open folder with ${tool}:`, error);
+      Message.error(t('conversation.workspace.contextMenu.openFailed') || 'Failed to open');
     }
     setDropdownOpen(false);
   };

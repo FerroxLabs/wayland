@@ -149,6 +149,7 @@
   "cacheDir": "キャッシュディレクトリ",
   "workDir": "作業ディレクトリ",
   "logDir": "ログディレクトリ",
+  "openLogDirFailed": "ログフォルダーを開けませんでした",
   "dirNotConfigured": "まだ設定されていません",
   "cacheClean": "Cache Cleanup",
   "clean": "Clean",
