@@ -52,6 +52,49 @@ jobs:
             anchors/Wayland-0.11.18-linux-amd64.deb \
             anchors/Wayland-0.11.8-linux-x86_64.AppImage
 
+  diagarm:
+    name: diag linux boot exit arm64
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download the anchors
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p anchors
+          gh release download v0.11.18 --repo "$GITHUB_REPOSITORY" --pattern 'Wayland-0.11.18-linux-arm64.deb' --dir anchors
+          gh release download v0.11.8 --repo "$GITHUB_REPOSITORY" --pattern 'Wayland-0.11.8-linux-arm64.AppImage' --dir anchors
+          ls -la anchors
+
+      - name: Install the CDP client the observer imports
+        run: |
+          set -euo pipefail
+          # Installing into the repo trips npm EOVERRIDE against its own ws override,
+          # so resolve it out of band and drop the package where node will find it.
+          mkdir -p "$RUNNER_TEMP/wsdep"
+          cd "$RUNNER_TEMP/wsdep"
+          npm init -y >/dev/null
+          npm install ws@8.21.1 --no-audit --no-fund >/dev/null
+          mkdir -p "$GITHUB_WORKSPACE/node_modules"
+          cp -R "$RUNNER_TEMP/wsdep/node_modules/ws" "$GITHUB_WORKSPACE/node_modules/ws"
+          node -e "console.log(require.resolve('ws', {paths: ['$GITHUB_WORKSPACE']}))"
+
+      - name: Boot both anchors and report exit behaviour
+        run: |
+          set -euo pipefail
+          node scripts/diag/linux-boot-exit.mjs \
+            anchors/Wayland-0.11.18-linux-arm64.deb \
+            anchors/Wayland-0.11.8-linux-arm64.AppImage
+
   windiag:
     name: diag windows install interference
     runs-on: windows-2022
