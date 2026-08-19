@@ -17,15 +17,20 @@ reloads, and every one of those is a place the UI can fail silently.
 ## Running it
 
 Both commands run from this skill's own directory, but the output directory is
-relative to the WORKSPACE ROOT — not to this directory. Pin it to an absolute
-path before you `cd`, starting from the workspace root:
+relative to the WORKSPACE ROOT — **not** to this directory. So pin it to an
+absolute path FIRST, while you are still standing in the workspace root, and
+only then change into the skill directory:
 
 ```bash
-OUT="$PWD/artifacts"; mkdir -p "$OUT"
-cd .wayland-core/skills/market-open-report
+OUT="$PWD/artifacts"; mkdir -p "$OUT"     # $PWD here is the workspace root
+cd <this skill's directory>               # e.g. .wayland-core/skills/market-open-report
 node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
 node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
+
+Resolve the output directory after that `cd` and a bare `artifacts` lands beside
+this script instead — under a hidden engine directory the Workbench does not
+show, so the brief exists and the user never sees it.
 
 Node only. No dependencies, no install step, no Python.
 
