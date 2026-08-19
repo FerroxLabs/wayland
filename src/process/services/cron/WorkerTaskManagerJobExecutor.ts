@@ -15,6 +15,7 @@ import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { TChatConversation, TProviderWithModel } from '@/common/config/storage';
 import type { AcpBackendAll, AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
+import { getConversationTypeForBackend } from '@/common/utils/buildAgentConversationParams';
 import type BaseAgentManager from '@process/task/BaseAgentManager';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { copyFilesToDirectory } from '@process/utils';
@@ -59,13 +60,33 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       conversationId = await this.resolveConversationForJob(job);
     }
 
+    // This run can be happening inside a chat the USER owns (see
+    // isUserOwnedConversation). None of the job's settings may be persisted onto
+    // that chat - not its model, and above all not its full-auto mode - and the
+    // live session it borrows has to be handed back when the run finishes.
+    //
+    // Resolved for EVERY path, not just 'existing' + agentConfig: a "make this
+    // daily" job accepted from chat carries no agentConfig until
+    // CronService.init() backfills one, so it skips resolveConversationForJob
+    // entirely and runs straight in the source chat - which is exactly the case
+    // that must be protected. A cron-created conversation always carries
+    // extra.cronWorkspace, so this stays false for new_conversation mode and for
+    // the job's own children.
+    let runsInUserOwnedChat = false;
+    let sourceConversation: TChatConversation | undefined;
+    if (conversationId) {
+      const convService = await getConversationService();
+      sourceConversation = (await convService.getConversation(conversationId)) ?? undefined;
+      runsInUserOwnedChat = !!sourceConversation && this.isUserOwnedConversation(sourceConversation);
+    }
+
     // For existing mode, ensure the reused conversation uses the correct model.
     // If the job specifies a modelId, use that; otherwise fall back to the user's
     // preferred model so it doesn't stay on whatever it was originally created with.
     if (job.target.executionMode === 'existing' && conversationId && job.metadata.agentConfig) {
       const convService = await getConversationService();
-      const conv = await convService.getConversation(conversationId);
-      if (conv) {
+      const conv = sourceConversation;
+      if (conv && !runsInUserOwnedChat) {
         const baseModel = await this.resolveModelForBackend(job.metadata.agentConfig.backend);
         const currentModel = job.metadata.agentConfig.modelId
           ? { ...baseModel, useModel: job.metadata.agentConfig.modelId }
@@ -127,13 +148,23 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       job.metadata.agentConfig?.configOptions ||
       job.metadata.agentConfig?.modelId
     ) {
-      const ok = await this.applyAgentSettings(task, job);
+      const persistSettings = !runsInUserOwnedChat;
+      const ok = await this.applyAgentSettings(task, job, persistSettings);
       if (!ok) {
         console.warn(`[CronExecutor] Agent settings failed for job ${job.id}, recreating task and retrying`);
         this.taskManager.kill(conversationId);
         task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true });
-        await this.applyAgentSettings(task, job);
+        await this.applyAgentSettings(task, job, persistSettings);
       }
+    }
+
+    // Registered AFTER the settings retry above, so it releases the task the run
+    // actually used rather than one that was already replaced. The conversation
+    // is still marked busy at this point - neither WCoreManager.kill() nor
+    // AcpAgentManager.kill() touches the busy guard (only stop() does), so the
+    // retry's kill cannot make onceIdle fire before the run has even sent.
+    if (runsInUserOwnedChat) {
+      this.releaseBorrowedTaskWhenIdle(conversationId, task);
     }
 
     const workspace = (task as { workspace?: string }).workspace;
@@ -540,11 +571,29 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // Compare against cronWorkspace (what was configured), not workspace
           // (which may be overwritten by agent runtime, e.g. codex temp dir).
           const prevCronWorkspace = (extra?.cronWorkspace as string | undefined) ?? '';
-          const agentChanged = convBackend !== config.backend;
+          // `extra.backend` is only persisted by the conversation factories that
+          // need it to pick a CLI - acp and openclaw-gateway. The wcore, gemini,
+          // nanobot and remote factories carry that identity in `type` instead
+          // and their extra whitelists drop `backend` outright. So a missing
+          // `extra.backend` means "this conversation type does not record one",
+          // never "the agent changed": read it through `type` in that case.
+          //
+          // Getting this wrong silently relocated every chat-propose schedule.
+          // Those jobs are created with no `metadata.agentConfig`, so
+          // `prepareConversation` early-returns and they behave all session.
+          // On the next launch `CronService.init()` backfills an agentConfig
+          // (backend only, no workspace) - the early return disappears, the
+          // comparison lands here, `undefined !== 'wcore'` reads as an agent
+          // change, and the job is rehomed into a brand-new conversation with
+          // `workspace: ''`, i.e. an empty `wcore-temp-<ts>` dir that cannot
+          // see any of the configured chat's files.
+          const agentChanged = convBackend
+            ? convBackend !== config.backend
+            : latestConv.type !== getConversationTypeForBackend(config.backend);
           const workspaceChanged = prevCronWorkspace !== configWorkspace;
 
           console.log(
-            `[CronExecutor] resolveConversation: convBackend=${convBackend}, configBackend=${config.backend}, agentChanged=${agentChanged}, prevCronWorkspace=${prevCronWorkspace}, configWorkspace=${configWorkspace}, workspaceChanged=${workspaceChanged}`
+            `[CronExecutor] resolveConversation: convBackend=${convBackend}, convType=${latestConv.type}, configBackend=${config.backend}, agentChanged=${agentChanged}, prevCronWorkspace=${prevCronWorkspace}, configWorkspace=${configWorkspace}, workspaceChanged=${workspaceChanged}`
           );
 
           if (agentChanged || workspaceChanged) {
@@ -555,20 +604,30 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // Sync extra fields so the frontend reads correct values immediately.
           const extraUpdates: Record<string, unknown> = {};
 
+          // ...but only onto a conversation this job owns. When the reuse target
+          // is the user's OWN chat, writing the job's settings there silently
+          // reconfigures an interactive session: a UI-created job carries
+          // `mode: getFullAutoMode(backend)` (='yolo' for wcore), and once that
+          // lands in `extra.sessionMode` the next WCoreManager built for the chat
+          // starts in yolo and auto-approves every tool call with no dialog,
+          // permanently. The workspace backfill below is exempt - it only fills a
+          // field the chat already has.
+          const userOwnedChat = this.isUserOwnedConversation(latestConv);
+
           // Backfill workspace for old conversations created before this field was always set
           if (extra?.workspace === undefined || extra?.workspace === null) {
             extraUpdates.workspace = config.workspace || '';
           }
 
-          if (config.mode && extra?.sessionMode !== config.mode) {
+          if (!userOwnedChat && config.mode && extra?.sessionMode !== config.mode) {
             extraUpdates.sessionMode = config.mode;
           }
 
-          if (config.modelId && extra?.currentModelId !== config.modelId) {
+          if (!userOwnedChat && config.modelId && extra?.currentModelId !== config.modelId) {
             extraUpdates.currentModelId = config.modelId;
           }
 
-          if (config.configOptions && Object.keys(config.configOptions).length > 0) {
+          if (!userOwnedChat && config.configOptions && Object.keys(config.configOptions).length > 0) {
             // Prefer patching existing conversation cache; fall back to global cache
             const existing = Array.isArray(extra?.cachedConfigOptions) ? extra.cachedConfigOptions : undefined;
             if (existing && existing.length > 0) {
@@ -602,29 +661,114 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
   }
 
   /**
+   * True when `conv` is a chat the USER owns rather than one this cron job
+   * created for itself.
+   *
+   * `buildConversationForJob` stamps every cron-created conversation with
+   * `extra.cronWorkspace` (always a string, `''` when the job has no workspace),
+   * and no conversation factory consumes that key, so
+   * `ConversationServiceImpl.createConversation` merges it through for every
+   * backend. A source chat only ever receives `extra.cronJobId`, written by
+   * `CronService.addJob` / `backfillCronJobIdOnConversations`, so it is the one
+   * member of `getConversationsByCronJob(job.id)` with no `cronWorkspace`.
+   *
+   * Deliberately NOT `conv.id === job.metadata.conversationId`: for 'existing'
+   * mode `CronService.executeJobInner` rewrites `metadata.conversationId` to the
+   * child it just created, so from the second run that test matches the cron
+   * child and would suppress the job's own settings instead.
+   */
+  private isUserOwnedConversation(conv: TChatConversation): boolean {
+    const extra = conv.extra as Record<string, unknown> | undefined;
+    return extra?.cronWorkspace === undefined;
+  }
+
+  /**
+   * Hand a borrowed session back to the user once the scheduled run goes idle.
+   *
+   * Suppressing the PERSISTED writes is not enough on its own. Every scheduled
+   * run reconfigures the LIVE agent it borrows, and that agent stays in
+   * `WorkerTaskManager` keyed by the conversation, so the user's next
+   * interactive turn in that chat runs on the reconfigured one:
+   *
+   *   - `WCoreManager` inherits `BaseAgentManager.ensureYoloMode()` (returns
+   *     `false`), so the executor kills the user's task and rebuilds it with
+   *     `yoloMode: true`; `applyAgentSettings` then sets `currentMode = 'yolo'`.
+   *     `tryAutoApprove` auto-approves every tool call from that mode, and the
+   *     `this.yoloMode` branch of the `approval_required` handler auto-resumes
+   *     what would otherwise reach the user's confirmation gate.
+   *   - `AcpAgentManager.ensureYoloMode()` sets `options.yoloMode = true` and
+   *     calls `agent.enableYoloMode()` on the live ACP session.
+   *
+   * Nothing put any of that back, so the downgrade lasted until the app
+   * restarted. Restoring each field individually would need an inverse for
+   * `setMode`, `setModel`, `setConfigOption` AND the `yoloMode` constructor flag
+   * across every manager; killing the task restores all of them at once, and
+   * the next turn rebuilds it from the conversation row - which round 2
+   * guarantees still holds the user's own settings. This is an ordinary
+   * lifecycle event, not a new hazard: `WorkerTaskManager.killIdleCliAgents()`
+   * already tears down idle acp/wcore agents on a timer, and both resume their
+   * session from the persisted markers.
+   */
+  private releaseBorrowedTaskWhenIdle(conversationId: string, borrowed: unknown): void {
+    this.busyGuard.onceIdle(conversationId, () => {
+      // `onceIdle` fires SYNCHRONOUSLY from inside `setProcessing(false)`, and the
+      // managers call that at the TOP of turn teardown and then keep working -
+      // `WCoreManager.handleTurnEnd` goes on to flush buffered stream text, settle
+      // the activity card, notify turn completion, and can even start a follow-up
+      // turn. Killing there would tear the manager down mid-teardown. Defer one
+      // macrotask and re-check, exactly as `CronBusyGuard.fireGlobalIdleIfIdle`
+      // does for the app-wide case; if work resumed, wait for the next real idle.
+      setImmediate(() => {
+        if (this.busyGuard.isProcessing(conversationId)) {
+          this.releaseBorrowedTaskWhenIdle(conversationId, borrowed);
+          return;
+        }
+        // Already replaced or torn down - killing a successor would end a session
+        // this run never touched.
+        if ((this.taskManager.getTask(conversationId) as unknown) !== borrowed) return;
+        void Promise.resolve(this.taskManager.kill(conversationId)).catch((err) => {
+          console.warn(`[CronExecutor] failed to release borrowed task ${conversationId}:`, err);
+        });
+      });
+    });
+  }
+
+  /**
    * Apply mode and config options from the job's agentConfig onto the task.
    * Returns true if all settings were applied successfully, false if any failed
    * (indicating the agent may be stale and needs recreation).
+   *
+   * @param persistSettings - false when the run is happening inside a chat the
+   *   user owns. Every setting still reaches the LIVE session (an unattended run
+   *   has nobody to answer a tool confirmation, and for wcore auto-approval is
+   *   driven by `currentMode`), but the agent managers' conversation-row writes -
+   *   `saveSessionMode`, `saveModelId`, `saveConfigOptions` - are suppressed so
+   *   the user's chat keeps its own mode, model and config options. The live
+   *   session itself is handed back by `releaseBorrowedTaskWhenIdle`.
    */
   private async applyAgentSettings(
     task: { type: string; sendMessage: (data: unknown) => Promise<void> },
-    job: CronJob
+    job: CronJob,
+    persistSettings = true
   ): Promise<boolean> {
     type SetModeResult = { success?: boolean; msg?: string };
     const hasSetMode =
-      'setMode' in task && typeof (task as { setMode?: (mode: string) => Promise<unknown> }).setMode === 'function';
+      'setMode' in task &&
+      typeof (task as { setMode?: (mode: string, options?: { persist?: boolean }) => Promise<unknown> }).setMode ===
+        'function';
     const hasSetConfigOption =
       'setConfigOption' in task &&
-      typeof (task as { setConfigOption?: (id: string, val: string) => Promise<unknown> }).setConfigOption ===
-        'function';
+      typeof (
+        task as { setConfigOption?: (id: string, val: string, options?: { persist?: boolean }) => Promise<unknown> }
+      ).setConfigOption === 'function';
 
     // Apply mode
     if (job.metadata.agentConfig?.mode && hasSetMode) {
       const desiredMode = job.metadata.agentConfig.mode;
       try {
-        const result = (await (task as { setMode: (mode: string) => Promise<unknown> }).setMode(
-          desiredMode
-        )) as SetModeResult;
+        const result = (await (
+          task as { setMode: (mode: string, options?: { persist?: boolean }) => Promise<unknown> }
+        ).setMode(desiredMode, { persist: persistSettings })) as SetModeResult;
         if (result && result.success === false) {
           console.warn(`[CronExecutor] setMode("${desiredMode}") failed for job ${job.id}: ${result.msg ?? 'unknown'}`);
           return false;
@@ -639,10 +783,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     if (job.metadata.agentConfig?.configOptions && hasSetConfigOption) {
       for (const [configId, value] of Object.entries(job.metadata.agentConfig.configOptions)) {
         try {
-          await (task as { setConfigOption: (id: string, val: string) => Promise<unknown> }).setConfigOption(
-            configId,
-            value
-          );
+          await (
+            task as { setConfigOption: (id: string, val: string, options?: { persist?: boolean }) => Promise<unknown> }
+          ).setConfigOption(configId, value, { persist: persistSettings });
         } catch (err) {
           console.warn(`[CronExecutor] setConfigOption("${configId}", "${value}") threw for job ${job.id}:`, err);
           return false;
@@ -654,11 +797,15 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     if (job.metadata.agentConfig?.modelId) {
       const hasSetModel =
         'setModel' in task &&
-        typeof (task as { setModel?: (modelId: string) => Promise<unknown> }).setModel === 'function';
+        typeof (task as { setModel?: (modelId: string, options?: { persist?: boolean }) => Promise<unknown> })
+          .setModel === 'function';
       if (hasSetModel) {
         const desiredModel = job.metadata.agentConfig.modelId;
         try {
-          await (task as { setModel: (modelId: string) => Promise<unknown> }).setModel(desiredModel);
+          await (task as { setModel: (modelId: string, options?: { persist?: boolean }) => Promise<unknown> }).setModel(
+            desiredModel,
+            { persist: persistSettings }
+          );
         } catch (err) {
           console.warn(`[CronExecutor] setModel("${desiredModel}") threw for job ${job.id}:`, err);
           return false;

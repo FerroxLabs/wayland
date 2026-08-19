@@ -2101,9 +2101,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     return { mode: this.currentMode, initialized: true };
   }
 
-  async setMode(mode: string): Promise<{ success: boolean; data?: { mode: string } }> {
+  /**
+   * @param options.persist - false applies the mode to the LIVE session only and
+   *   leaves the conversation's stored `sessionMode` alone. Used by the cron
+   *   executor when a scheduled run borrows a chat the user owns: the run needs
+   *   full-auto, but the user's chat must not be left in it.
+   */
+  async setMode(mode: string, options?: { persist?: boolean }): Promise<{ success: boolean; data?: { mode: string } }> {
     this.currentMode = mode;
-    this.saveSessionMode(mode);
+    if (options?.persist !== false) this.saveSessionMode(mode);
     if (this.agent) {
       this._configSentAt = Date.now();
       mainLog('[WCoreManager]', `set_mode sent: mode=${mode}`);
