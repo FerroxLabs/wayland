@@ -47,9 +47,18 @@ import path from 'path';
  * `.lnk`, `.pif`, `.cpl`, `.reg`, `.inf`, `.scf`, `.hta`, `.vbs`, `.vbe`,
  * `.wsf`, `.jse`; cross-platform interpreter targets `.js`, `.mjs`, `.cjs`,
  * `.py`, `.pyw`, `.rb`, `.pl`, `.php`, `.jar`, `.sh`, `.bash`, `.zsh`, `.fish`,
- * `.lua`, `.r` (a Lua-for-Windows or R install registers those to an
- * interpreter, exactly the "inert here, executable there" case a launcher must
- * fail closed on); and archives/disk images, which expand into any of the above.
+ * `.lua`, `.r`; and archives/disk images, which expand into any of the above.
+ *
+ * ## `.lua` and `.r` (settled - do not re-open)
+ *
+ * These were argued to be inert text worth admitting alongside `.ts`/`.java`.
+ * They are not, and the "zero security benefit" reading was wrong on Windows:
+ * the Lua-for-Windows installer registers `.lua` to `lua.exe`, and the CRAN R
+ * installer registers `.r`/`.R` to Rscript. A double-click on a machine with
+ * either installed RUNS the file. That is precisely the "inert here, executable
+ * there" case this module fails closed on - the same reason `.py` and `.jar` are
+ * out - and it is what separates them from `.ts`, which no OS dispatches to an
+ * interpreter anywhere.
  *
  * ## Office documents
  *

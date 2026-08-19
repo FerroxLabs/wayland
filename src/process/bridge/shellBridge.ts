@@ -93,13 +93,30 @@ async function isVSCodeInstalled(): Promise<boolean> {
 }
 
 /**
- * Characters cmd.exe / PowerShell treat as command separators or redirections.
+ * Characters cmd.exe or PowerShell treat as command separators, redirections,
+ * escapes or substitutions.
  *
  * `confinePath` bounds a path's LOCATION and rejects NUL/UNC/device/ADS forms;
  * it says nothing about shell metacharacters, and a directory named
  * `proj & calc.exe` is a perfectly legal, confinable folder inside a workspace.
+ *
+ * This is the UNION of the two shells' operator sets, because the two guarded
+ * branches reach different shells and the set must cover whichever one runs:
+ *
+ *  - cmd.exe (the `vscode` `.cmd` fallback): `& | < > ^ "`.
+ *  - PowerShell (the `terminal` branch): additionally `;` (statement separator),
+ *    `` ` `` (escape), `$` and `(` `)` (subexpression), `{` `}` (script block)
+ *    and `,` (array operator). None of those is a cmd.exe operator, so a
+ *    cmd.exe-only filter passed `proj;calc` straight through - and `$(...)`
+ *    survives double quoting, so quoting the argument would not have helped
+ *    either.
+ *
+ * The cost is that a win32 folder named `Report (v2)` cannot be opened in VS
+ * Code or a terminal. That is the deliberate fail-closed trade this module
+ * already makes elsewhere: the refusal is REPORTED to the renderer, and the
+ * `explorer` branch - which never builds a command line - still opens it.
  */
-const WIN32_SHELL_METACHARACTERS = /[&|<>"^]/;
+const WIN32_SHELL_METACHARACTERS = /[;,&|<>^"'`$(){}]/;
 
 /**
  * Refuse a win32 folder path that would reach a shell command line.
@@ -111,6 +128,12 @@ const WIN32_SHELL_METACHARACTERS = /[&|<>"^]/;
  * The terminal branch already guarded itself, but only by logging and returning,
  * which is a silent dead click; checking here lets the provider REPORT the
  * refusal. `explorer` needs no guard - it goes to `shell.openPath`, never a shell.
+ *
+ * This is the second layer, not the only one: the `terminal` branch no longer
+ * puts the path into PowerShell command text at all (see `openFolderWithTool`),
+ * so a character this filter ever misses is still not parseable as script there.
+ * The `vscode` `.cmd` fallback has no such structural escape - `shell: true` is
+ * the only way to start a `.cmd` - so for that branch this filter IS the defence.
  *
  * @returns A structured refusal, or `null` when the path is safe to dispatch.
  */
@@ -153,9 +176,9 @@ async function openFolderWithTool(folderPath: string, tool: 'vscode' | 'terminal
 
     case 'terminal': {
       if (platform === 'win32') {
-        // Windows: spawn PowerShell directly with arg-array semantics - no cmd.exe shell
-        // interpolation. Validate folderPath first to reject metacharacters and ensure
-        // the target is an existing directory (defense-in-depth against command injection).
+        // Windows: spawn PowerShell directly - no cmd.exe involved. Validate the
+        // target is an existing directory first (the launcher would otherwise
+        // fail opaquely).
         let stat: fs.Stats;
         try {
           stat = fs.statSync(folderPath);
@@ -171,12 +194,24 @@ async function openFolderWithTool(folderPath: string, tool: 'vscode' | 'terminal
           console.error('[shellBridge] terminal: folderPath contains forbidden characters:', folderPath);
           return;
         }
+        // An arg array is NOT a safe boundary here: PowerShell parses everything
+        // after `-Command` as SCRIPT, so the path lands in command text however
+        // it is passed, and `;` / `$(...)` / backtick execute there (quoting does
+        // not help - `"$(calc)"` still expands). Hand the value over out-of-band
+        // in the environment instead and reference it as a variable: PowerShell
+        // expands `$env:...` to a single string argument and never re-parses the
+        // contents as code, so no folder name can become a statement.
         const child = spawn(
           'powershell.exe',
-          ['-NoProfile', '-Command', 'Start-Process', '-FilePath', 'powershell.exe', '-WorkingDirectory', folderPath],
+          [
+            '-NoProfile',
+            '-Command',
+            'Start-Process -FilePath powershell.exe -WorkingDirectory $env:WAYLAND_TERMINAL_CWD',
+          ],
           {
             detached: true,
             windowsHide: false,
+            env: { ...process.env, WAYLAND_TERMINAL_CWD: folderPath },
           }
         );
         child.on('error', (err) => {

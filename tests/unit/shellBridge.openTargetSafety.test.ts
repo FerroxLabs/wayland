@@ -82,12 +82,36 @@ const nonExecutingSourceFiles = [
 ].map((name) => path.join(sandbox, name));
 for (const file of nonExecutingSourceFiles) fs.writeFileSync(file, 'source\n');
 
+// Settled decisions the allow-list encodes, pinned so they cannot drift back.
+// `.lua`/`.r` stay REFUSED: the Lua-for-Windows installer registers `.lua` to
+// `lua.exe` and the CRAN R installer registers `.r` to Rscript, so they are the
+// "inert here, executable there" case. Legacy Office stays ALLOWED: the handler
+// opens a document, and macros are gated by Protected View / the Trust Center.
+const interpreterSourceFiles = ['plot.lua', 'analysis.r'].map((name) => path.join(sandbox, name));
+for (const file of interpreterSourceFiles) fs.writeFileSync(file, 'print(1)\n');
+const legacyOfficeFiles = ['memo.doc', 'budget.xls', 'deck.ppt'].map((name) => path.join(sandbox, name));
+for (const file of legacyOfficeFiles) fs.writeFileSync(file, 'ole\n');
+const macroOfficeFiles = ['memo.docm', 'budget.xlsm', 'deck.pptm'].map((name) => path.join(sandbox, name));
+for (const file of macroOfficeFiles) fs.writeFileSync(file, 'ole+macro\n');
+
 // A confined, in-root folder whose NAME carries cmd.exe metacharacters. The
 // win32 vscode branch reaches `spawn(codePath, [folderPath], { shell: true })`
 // for a `.cmd` launcher, and `confinePath` filters NUL/UNC/device/ADS forms only
 // - never `&` - so cmd.exe splits the command line on it.
 const injectionFolder = path.join(sandbox, 'proj & calc.exe');
 fs.mkdirSync(injectionFolder, { recursive: true });
+
+// The win32 `terminal` branch spawns `powershell.exe -Command ...`, and
+// PowerShell parses EVERYTHING after `-Command` as script text. `;` is a
+// statement separator there and is not a cmd.exe operator, so a folder named
+// `proj;calc` is confinable, passes a cmd.exe-only metacharacter filter, and
+// still becomes a second PowerShell statement.
+const powershellFolder = path.join(sandbox, 'proj;calc');
+fs.mkdirSync(powershellFolder, { recursive: true });
+// `$(...)` and backticks are PowerShell subexpression/escape syntax and survive
+// double quoting, so quoting the argument does not save the terminal branch.
+const subexpressionFolder = path.join(sandbox, 'proj$(calc)');
+fs.mkdirSync(subexpressionFolder, { recursive: true });
 
 afterAll(() => {
   fs.rmSync(sandbox, { recursive: true, force: true });
@@ -392,6 +416,37 @@ describe('shell open providers - non-executing source/text types are openable', 
   }
 });
 
+// --- Settled allow-list decisions -------------------------------------------
+
+describe('shell open providers - settled allow-list decisions', () => {
+  for (const file of interpreterSourceFiles) {
+    it(`refuses ${path.basename(file)} - a Windows install registers it to an interpreter`, async () => {
+      const result = await providers['openFile'](file);
+
+      nothingLaunched();
+      expect(result.ok).toBe(false);
+    });
+  }
+
+  for (const file of legacyOfficeFiles) {
+    it(`opens ${path.basename(file)} - the handler opens a document, it does not execute one`, async () => {
+      const result = await providers['openFile'](file);
+
+      expect(result).toEqual({ ok: true });
+      expect(shellMock.openPath).toHaveBeenCalledWith(file);
+    });
+  }
+
+  for (const file of macroOfficeFiles) {
+    it(`refuses ${path.basename(file)} - a macro-enabled format self-declares macros`, async () => {
+      const result = await providers['openFile'](file);
+
+      nothingLaunched();
+      expect(result.ok).toBe(false);
+    });
+  }
+});
+
 // --- win32: the vscode branch reaches a cmd.exe command line -----------------
 
 describe('shellBridge.openFolderWith - win32 shell metacharacters', () => {
@@ -419,27 +474,53 @@ describe('shellBridge.openFolderWith - win32 shell metacharacters', () => {
     expect((result as { error: string }).error).toContain('forbidden characters');
   });
 
+  /**
+   * Drive the `vscode` branch and force the primary `spawn('code', ...)` to fail
+   * with ENOENT, which is the only route to the `shell: true` `.cmd` fallback.
+   *
+   * @param folderPath - The folder to open.
+   * @returns Every spawn call the branch made, in order.
+   */
+  const driveVscodeCmdFallback = async (folderPath: string): Promise<unknown[][]> => {
+    let onError: ((err: Error) => void | Promise<void>) | undefined;
+    spawnMock.mockReturnValue({
+      on: (event: string, cb: (err: Error) => void) => {
+        if (event === 'error') onError = cb;
+      },
+      unref: vi.fn(),
+    });
+
+    await providers['openFolderWith']({ folderPath, tool: 'vscode' });
+    if (onError) await onError(new Error('spawn code ENOENT'));
+
+    return spawnMock.mock.calls as unknown[][];
+  };
+
+  it('reaches the shell: true .cmd fallback for a clean path (so the refusal below is not vacuous)', async () => {
+    await withProgramFiles(async () => {
+      await loadBridge('win32');
+
+      const calls = await driveVscodeCmdFallback(dottedFolder);
+
+      // The control case: the fallback IS reachable, and when it runs it builds a
+      // cmd.exe command line out of the folder path with no quoting from Node.
+      const shellCalls = calls.filter((call) => (call[2] as { shell?: boolean } | undefined)?.shell === true);
+      expect(shellCalls).toHaveLength(1);
+      expect(shellCalls[0]![1]).toEqual([dottedFolder]);
+    });
+  });
+
   it('never builds a cmd.exe command line out of a metacharacter path (the .cmd fallback)', async () => {
     await withProgramFiles(async () => {
       await loadBridge('win32');
-      let onError: ((err: Error) => void | Promise<void>) | undefined;
-      spawnMock.mockReturnValue({
-        on: (event: string, cb: (err: Error) => void) => {
-          if (event === 'error') onError = cb;
-        },
-        unref: vi.fn(),
-      });
 
-      await providers['openFolderWith']({ folderPath: injectionFolder, tool: 'vscode' });
-      // Drive the ENOENT path that reaches the `shell: true` .cmd fallback.
-      if (onError) await onError(new Error('spawn code ENOENT'));
+      const calls = await driveVscodeCmdFallback(injectionFolder);
 
-      for (const call of spawnMock.mock.calls) {
-        const options = call[2] as { shell?: boolean } | undefined;
-        if (options?.shell) {
-          expect(JSON.stringify(call[1])).not.toContain('&');
-        }
-      }
+      // Refused before dispatch, so the fallback the control case just proved
+      // reachable is never entered at all - zero spawns, not "a spawn we hope is
+      // clean".
+      expect(calls).toHaveLength(0);
+      shellMock.openPath.mock.calls.forEach((call) => expect(call[0]).not.toBe(injectionFolder));
     });
   });
 
@@ -468,5 +549,54 @@ describe('shellBridge.openFolderWith - win32 shell metacharacters', () => {
 
     expect(result).toEqual({ ok: true });
     expect(shellMock.openPath).toHaveBeenCalledWith(injectionFolder);
+  });
+});
+
+// --- win32: the terminal branch reaches a PowerShell command line ------------
+
+describe('shellBridge.openFolderWith - win32 PowerShell command text', () => {
+  it('refuses a confined folder whose name carries a PowerShell statement separator (terminal)', async () => {
+    await loadBridge('win32');
+
+    const result = await providers['openFolderWith']({ folderPath: powershellFolder, tool: 'terminal' });
+
+    nothingLaunched();
+    expect(result.ok).toBe(false);
+  });
+
+  it('refuses a folder name carrying PowerShell subexpression syntax (terminal)', async () => {
+    await loadBridge('win32');
+
+    const result = await providers['openFolderWith']({ folderPath: subexpressionFolder, tool: 'terminal' });
+
+    nothingLaunched();
+    expect(result.ok).toBe(false);
+  });
+
+  it('refuses a PowerShell statement separator on the vscode branch too', async () => {
+    await loadBridge('win32');
+
+    const result = await providers['openFolderWith']({ folderPath: powershellFolder, tool: 'vscode' });
+
+    nothingLaunched();
+    expect(result.ok).toBe(false);
+  });
+
+  it('never places the folder path inside the powershell -Command script text', async () => {
+    await loadBridge('win32');
+
+    const result = await providers['openFolderWith']({ folderPath: dottedFolder, tool: 'terminal' });
+
+    expect(result).toEqual({ ok: true });
+    const psCall = spawnMock.mock.calls.find((call) => call[0] === 'powershell.exe');
+    expect(psCall).toBeDefined();
+    const argv = psCall![1] as string[];
+    const commandIndex = argv.indexOf('-Command');
+    expect(commandIndex).toBeGreaterThanOrEqual(0);
+    // Everything after `-Command` is parsed by PowerShell AS SCRIPT. The path
+    // must never appear there in any form.
+    for (const token of argv.slice(commandIndex + 1)) {
+      expect(token).not.toContain(dottedFolder);
+    }
   });
 });

@@ -374,15 +374,24 @@ describe('shellBridge with actual providers', () => {
 
       await registeredProviders['openFolderWith']({ folderPath: 'C:\\Projects', tool: 'terminal' });
 
-      // L5: direct powershell.exe spawn with arg-array (no cmd.exe shell interpolation).
+      // L5: direct powershell.exe spawn, no cmd.exe shell interpolation - and the
+      // folder path is handed over in the ENVIRONMENT, never inside the
+      // `-Command` script text PowerShell parses.
       expect(spawn).toHaveBeenCalledWith(
         'powershell.exe',
-        ['-NoProfile', '-Command', 'Start-Process', '-FilePath', 'powershell.exe', '-WorkingDirectory', 'C:\\Projects'],
-        {
+        [
+          '-NoProfile',
+          '-Command',
+          'Start-Process -FilePath powershell.exe -WorkingDirectory $env:WAYLAND_TERMINAL_CWD',
+        ],
+        expect.objectContaining({
           detached: true,
           windowsHide: false,
-        }
+          env: expect.objectContaining({ WAYLAND_TERMINAL_CWD: 'C:\\Projects' }),
+        })
       );
+      const psCall = vi.mocked(spawn).mock.calls.find((call) => call[0] === 'powershell.exe');
+      expect(JSON.stringify(psCall?.[1])).not.toContain('C:\\Projects');
     });
 
     it('opens folder with explorer on macOS using open command', async () => {
