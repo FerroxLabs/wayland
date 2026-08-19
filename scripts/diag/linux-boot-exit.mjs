@@ -132,7 +132,7 @@ console.log(`extracted appimage executable: ${extractedExe}`);
 // symlink assertions. Prove that whole path, not just that a binary exists.
 let resolved = null;
 try {
-  resolved = resolveInstalledCandidate(extractRoot, 'linux', 'x64', 'stable');
+  resolved = resolveInstalledCandidate(extractRoot, 'linux', process.arch === 'arm64' ? 'arm64' : 'x64', 'stable');
   console.log(`resolveInstalledCandidate ACCEPTED the extracted tree: ${resolved.executablePath}`);
   console.log(`candidateContentDigest: ${candidateContentDigest(resolved)}`);
 } catch (error) {
