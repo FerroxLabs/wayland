@@ -15,6 +15,7 @@ import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { TChatConversation, TProviderWithModel } from '@/common/config/storage';
 import type { AcpBackendAll, AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
+import { getConversationTypeForBackend } from '@/common/utils/buildAgentConversationParams';
 import type BaseAgentManager from '@process/task/BaseAgentManager';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { copyFilesToDirectory } from '@process/utils';
@@ -540,11 +541,29 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // Compare against cronWorkspace (what was configured), not workspace
           // (which may be overwritten by agent runtime, e.g. codex temp dir).
           const prevCronWorkspace = (extra?.cronWorkspace as string | undefined) ?? '';
-          const agentChanged = convBackend !== config.backend;
+          // `extra.backend` is only persisted by the conversation factories that
+          // need it to pick a CLI - acp and openclaw-gateway. The wcore, gemini,
+          // nanobot and remote factories carry that identity in `type` instead
+          // and their extra whitelists drop `backend` outright. So a missing
+          // `extra.backend` means "this conversation type does not record one",
+          // never "the agent changed": read it through `type` in that case.
+          //
+          // Getting this wrong silently relocated every chat-propose schedule.
+          // Those jobs are created with no `metadata.agentConfig`, so
+          // `prepareConversation` early-returns and they behave all session.
+          // On the next launch `CronService.init()` backfills an agentConfig
+          // (backend only, no workspace) - the early return disappears, the
+          // comparison lands here, `undefined !== 'wcore'` reads as an agent
+          // change, and the job is rehomed into a brand-new conversation with
+          // `workspace: ''`, i.e. an empty `wcore-temp-<ts>` dir that cannot
+          // see any of the configured chat's files.
+          const agentChanged = convBackend
+            ? convBackend !== config.backend
+            : latestConv.type !== getConversationTypeForBackend(config.backend);
           const workspaceChanged = prevCronWorkspace !== configWorkspace;
 
           console.log(
-            `[CronExecutor] resolveConversation: convBackend=${convBackend}, configBackend=${config.backend}, agentChanged=${agentChanged}, prevCronWorkspace=${prevCronWorkspace}, configWorkspace=${configWorkspace}, workspaceChanged=${workspaceChanged}`
+            `[CronExecutor] resolveConversation: convBackend=${convBackend}, convType=${latestConv.type}, configBackend=${config.backend}, agentChanged=${agentChanged}, prevCronWorkspace=${prevCronWorkspace}, configWorkspace=${configWorkspace}, workspaceChanged=${workspaceChanged}`
           );
 
           if (agentChanged || workspaceChanged) {
