@@ -197,6 +197,20 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
   private currentMode: string = 'default';
   private persistedModelId: string | null = null;
   /**
+   * Set the moment a `persist: false` call mutates the live session, and never
+   * cleared for the life of this manager.
+   *
+   * The backend echoes an in-place `set_model` / `set_config_option` back as a
+   * `config_option_update` notification, which the ACP agent re-emits as an
+   * `acp_model_info` STREAM FRAME. That frame's handler persists
+   * `extra.cachedConfigOptions` on its own, so the echo walked straight past
+   * the `persist: false` gates and durably overwrote the config options of the
+   * chat a scheduled run had only borrowed. The echo is asynchronous and can
+   * land long after the gated call resolved, so the suppression has to live on
+   * the instance rather than around the call.
+   */
+  private suppressConfigOptionPersist: boolean = false;
+  /**
    * Latest cumulative USD cost gauge from acp_context_usage this turn.
    * ACP's used field is current context occupancy, not cumulative processed or
    * billable tokens, and therefore must never feed the cumulative ledger.
@@ -1466,8 +1480,10 @@ ${collectedResponses.join('\n')}`;
       });
     }
 
-    // Persist config options to DB so AcpConfigSelector can render from cache
-    if (message.type === 'acp_model_info') {
+    // Persist config options to DB so AcpConfigSelector can render from cache.
+    // Skipped once the live session has been mutated for a borrowed run - this
+    // frame is the echo of that mutation and must not land on the user's row.
+    if (message.type === 'acp_model_info' && !this.suppressConfigOptionPersist) {
       const configOptions = this.getConfigOptions();
       if (configOptions.length > 0) {
         void this.saveConfigOptions(configOptions);
@@ -2470,6 +2486,11 @@ ${collectedResponses.join('\n')}`;
    */
   async setModel(modelId: string, options?: { persist?: boolean }): Promise<AcpModelInfo | null> {
     const persist = options?.persist !== false;
+    // An in-place set_model also makes the backend send config_option_update,
+    // which comes back as an acp_model_info frame; that frame's handler writes
+    // cachedConfigOptions. Latch the suppression so the echo cannot land the
+    // borrowed run's options on the user's row.
+    if (!persist) this.suppressConfigOptionPersist = true;
     // Durable-first for codex and the generic ACP CLIs: persist the user's
     // REQUESTED model id to the conversation record BEFORE the live init /
     // set_model round-trip, so the pick survives a disconnected or unspawnable
@@ -2622,6 +2643,12 @@ ${collectedResponses.join('\n')}`;
     value: string,
     options?: { persist?: boolean }
   ): Promise<AcpSessionConfigOption[]> {
+    // persist: false applies to the LIVE session only - a scheduled run borrowing
+    // a chat the user owns must not leave its reasoning effort (or any other
+    // option) cached on that chat's row. Latch first: the spawn below and the
+    // backend's config_option_update echo both emit acp_model_info frames, and
+    // those can land while this call is still in flight.
+    if (options?.persist === false) this.suppressConfigOptionPersist = true;
     if (!this.agent) {
       try {
         await this.initAgent(this.options);
@@ -2631,9 +2658,6 @@ ${collectedResponses.join('\n')}`;
     }
     if (!this.agent) return [];
     const updated = await this.agent.setConfigOption(configId, value);
-    // persist: false applies to the LIVE session only - a scheduled run borrowing
-    // a chat the user owns must not leave its reasoning effort (or any other
-    // option) cached on that chat's row.
     if (updated.length > 0 && options?.persist !== false) {
       void this.saveConfigOptions(updated);
     }
