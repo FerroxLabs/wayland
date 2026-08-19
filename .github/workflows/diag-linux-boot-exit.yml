@@ -38,3 +38,35 @@ jobs:
           node scripts/diag/linux-boot-exit.mjs \
             anchors/Wayland-0.11.18-linux-amd64.deb \
             anchors/Wayland-0.11.8-linux-x86_64.AppImage
+
+  windiag:
+    name: diag windows install interference
+    runs-on: windows-2022
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download the anchors
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p anchors
+          gh release download v0.11.18 --repo "$GITHUB_REPOSITORY" --pattern 'Wayland-0.11.18-win-x64.exe' --dir anchors
+          gh release download v0.11.8 --repo "$GITHUB_REPOSITORY" --pattern 'Wayland-0.11.8-win-x64.exe' --dir anchors
+          ls -la anchors
+
+      - name: Install both anchors and report interference
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/diag/win-install-interference.mjs \
+            anchors/Wayland-0.11.18-win-x64.exe \
+            anchors/Wayland-0.11.8-win-x64.exe
