@@ -473,6 +473,15 @@ export function supportedStateEntries(root) {
       if (CHROMIUM_MANAGED_ENTRIES.has(entry.name) || CHROMIUM_MANAGED_ENTRIES.has(relative)) continue;
       if (APP_SHIPPED_PREFIXES.some((prefix) => `${relative}/`.startsWith(prefix))) continue;
       if (entry.name.endsWith('.log') || entry.name.endsWith('.lock')) continue;
+      // SQLite write-ahead sidecars. A clean shutdown checkpoints the WAL into its
+      // database and DELETES both sidecars, so their absence afterwards is the
+      // library working, not user data being destroyed. Whether the baseline even
+      // contains one depends on whether that boot happened to exit mid-transaction,
+      // which made this a coin toss: rehearsal 7 lost `DIPS-wal` on darwin-arm64 and
+      // reported it as destroyed state, having passed the identical check before.
+      // The databases themselves stay tracked, so real loss is still reported - the
+      // durable bytes live in the main file once the checkpoint completes.
+      if (entry.name.endsWith('-wal') || entry.name.endsWith('-shm')) continue;
       if (entry.isSymbolicLink()) fail(`supported state contains symlink: ${relative}`);
       else if (entry.isDirectory()) visit(absolute);
       else if (entry.isFile()) entries.add(relative);
@@ -605,20 +614,37 @@ export function verifyPublisherEvidence(target, role, prepared, dependencies = {
   if (target.startsWith('win32-')) {
     const run = dependencies.spawnSync || spawnSync;
     const script = [
-      '$s=Get-AuthenticodeSignature -LiteralPath $args[0]',
+      '$s=Get-AuthenticodeSignature -LiteralPath $env:WAYLAND_PUBLISHER_SUBJECT',
       '$subject=if($s.SignerCertificate){$s.SignerCertificate.Subject}else{""}',
       '[pscustomobject]@{Status=[string]$s.Status;Subject=$subject}|ConvertTo-Json -Compress',
     ].join(';');
-    const result = run(
-      'powershell.exe',
-      ['-NoProfile', '-NonInteractive', '-Command', script, prepared.snapshot?.snapshotPath || prepared.executablePath],
-      { encoding: 'utf8' }
-    );
+    // The path travels in the ENVIRONMENT, not as a trailing argument. `-Command`
+    // consumes the rest of the command line AS COMMAND TEXT, so a path appended
+    // after the script never reaches `$args[0]`: it was being parsed as a
+    // positional argument to ConvertTo-Json, which binds nothing, writes nothing to
+    // stdout and made JSON.parse('') the reported failure. This is the first
+    // release where the Windows legs got far enough to run this at all.
+    const subjectPath = prepared.snapshot?.snapshotPath || prepared.executablePath;
+    const result = run('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], {
+      encoding: 'utf8',
+      env: { ...process.env, WAYLAND_PUBLISHER_SUBJECT: subjectPath },
+    });
     let evidence;
     try {
       evidence = JSON.parse(String(result.stdout || ''));
     } catch {
-      fail(`${role} Windows publisher verifier returned malformed evidence`);
+      // Say what the verifier actually did. A bare 'malformed evidence' cost a
+      // whole release rehearsal to attribute.
+      const stderr = String(result.stderr || '')
+        .trim()
+        .slice(0, 400);
+      const stdout = String(result.stdout || '')
+        .trim()
+        .slice(0, 200);
+      fail(
+        `${role} Windows publisher verifier returned malformed evidence for ${subjectPath} ` +
+          `(exit ${result.status}; stdout ${stdout || '<empty>'}; stderr ${stderr || '<empty>'})`
+      );
     }
     if (
       result.status !== 0 ||
