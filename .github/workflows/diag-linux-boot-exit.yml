@@ -32,6 +32,9 @@ jobs:
           gh release download v0.11.8 --repo "$GITHUB_REPOSITORY" --pattern 'Wayland-0.11.8-linux-x86_64.AppImage' --dir anchors
           ls -la anchors
 
+      - name: Install the CDP client the observer imports
+        run: npm install --no-save --no-package-lock ws@8.21.1
+
       - name: Boot both anchors and report exit behaviour
         run: |
           set -euo pipefail
