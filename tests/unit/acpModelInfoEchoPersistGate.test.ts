@@ -10,7 +10,7 @@
  * The `persist: false` gates on setModel/setConfigOption are bypassed by the
  * CLI's own echo.
  *
- * `AcpAgent.setConfigOption` / `setModelByConfigOption` make the backend send a
+ * `AcpAgentV2.setConfigOption` / `setModelByConfigOption` make the backend send a
  * `config_option_update` session notification; the agent turns that into an
  * `acp_model_info` STREAM FRAME, and `handleStreamEvent` wrote
  * `extra.cachedConfigOptions` for every such frame with no gate at all. So a
@@ -121,15 +121,27 @@ function makeManager(conversationId = 'conv-acp') {
   // What the LIVE session reports after the job mutated it - i.e. exactly what
   // the echoed frame carries back.
   const mockAgent = {
-    setModelByConfigOption: vi.fn(async (id: string) => ({
-      source: 'models',
-      sourceDetail: 'live',
-      currentModelId: id,
-      currentModelLabel: id,
-      canSwitch: true,
-      availableModels: [{ id, label: id }],
-    })),
-    setConfigOption: vi.fn(async () => JOB_OPTIONS),
+    // The echo is emitted from INSIDE the call, before the awaiting caller
+    // resumes - mirroring AcpAgentV2.ts:479-490, where emitModelInfo() runs
+    // after resolveOp but before the promise the manager is awaiting settles.
+    // Firing it after the await instead would let a latch set BELOW the await
+    // still pass, so the latch-first ordering the fix depends on would be
+    // untested. Keep this in-call.
+    setModelByConfigOption: vi.fn(async (id: string) => {
+      feedModelInfoFrame(manager);
+      return {
+        source: 'models',
+        sourceDetail: 'live',
+        currentModelId: id,
+        currentModelLabel: id,
+        canSwitch: true,
+        availableModels: [{ id, label: id }],
+      };
+    }),
+    setConfigOption: vi.fn(async () => {
+      feedModelInfoFrame(manager);
+      return JOB_OPTIONS;
+    }),
     getConfigOptions: vi.fn(() => JOB_OPTIONS),
     getModelInfo: vi.fn(() => ({
       source: 'models',
@@ -154,7 +166,7 @@ function makeManager(conversationId = 'conv-acp') {
 
 /**
  * Feed the manager the frame the ACP agent emits when the backend echoes a
- * `config_option_update` notification (agent/acp/index.ts emitModelInfo()).
+ * `config_option_update` notification (acp/compat/AcpAgentV2.ts:485 emitModelInfo()).
  */
 function feedModelInfoFrame(manager: AcpAgentManager) {
   (
