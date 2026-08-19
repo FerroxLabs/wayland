@@ -238,11 +238,24 @@ async function waitForGenericRenderer(port, child, timeoutMs) {
   fail(`renderer did not become ready: ${last}`);
 }
 
-function waitForExit(child, timeoutMs) {
+function waitForExit(child, timeoutMs, label = 'native app') {
   if (child.exitCode !== null || child.signalCode !== null)
     return Promise.resolve({ code: child.exitCode, signal: child.signalCode });
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('native app did not exit')), timeoutMs);
+    // Name the phase and the budget. The bare 'native app did not exit' could not say
+    // which of the three boots hung, so a linux failure was indistinguishable between
+    // the 0.11.18 initial deb, the 0.11.8 rollback AppImage running under
+    // APPIMAGE_EXTRACT_AND_RUN, and the candidate re-upgrade.
+    const timer = setTimeout(
+      () =>
+        reject(
+          new Error(
+            `${label} did not exit within ${timeoutMs}ms (pid ${child.pid}, killed=${child.killed}, ` +
+              `exitCode=${child.exitCode}, signalCode=${child.signalCode})`
+          )
+        ),
+      timeoutMs
+    );
     child.once('exit', (code, signal) => {
       clearTimeout(timer);
       resolve({ code, signal });
@@ -314,7 +327,7 @@ export async function bootInstalledRuntime(input, dependencies = {}) {
     if (input.platform === 'darwin' && child.exitCode === null && child.signalCode === null) {
       child.kill('SIGTERM');
     }
-    const shutdown = await waitForExit(child, 10000);
+    const shutdown = await waitForExit(child, 10000, `${input.label || 'native app'} (${input.platform})`);
     const descendants = monitor.stop();
     if (shutdown.code !== 0 || shutdown.signal !== null) fail('native app did not shut down cleanly');
     return {
@@ -711,7 +724,12 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       dependencies
     );
     const initialBoot = await boot(
-      { executablePath: initial.executablePath, platform: request.platform, userDataRoot: liveState },
+      {
+        executablePath: initial.executablePath,
+        platform: request.platform,
+        userDataRoot: liveState,
+        label: 'initial boot',
+      },
       dependencies
     );
     if (
@@ -765,7 +783,12 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       dependencies
     );
     const rollbackBoot = await boot(
-      { executablePath: rollback.executablePath, platform: request.platform, userDataRoot: rollbackState },
+      {
+        executablePath: rollback.executablePath,
+        platform: request.platform,
+        userDataRoot: rollbackState,
+        label: 'rollback boot',
+      },
       dependencies
     );
     if (
@@ -789,7 +812,12 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
       dependencies
     );
     const reupgradeBoot = await boot(
-      { executablePath: reupgrade.executablePath, platform: request.platform, userDataRoot: reupgradeState },
+      {
+        executablePath: reupgrade.executablePath,
+        platform: request.platform,
+        userDataRoot: reupgradeState,
+        label: 'reupgrade boot',
+      },
       dependencies
     );
     if (

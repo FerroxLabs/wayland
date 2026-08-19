@@ -142,7 +142,7 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('9b58c893');
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('4106b6a7');
     expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 14 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
@@ -152,17 +152,25 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // observer rejects a descriptor mismatch in either direction, so a pin that
     // does not name the bundled release is a broken install, not a stale note.
     //
-    // The tripwire this block used to carry is discharged: v0.13.0 is tagged
-    // and released, and the bundled tag now names it. Proven by execution, not
-    // by reading - the released binary was downloaded, attestation-verified and
-    // run, and Wayland Core completes turns on it. Before the tag moved, every
-    // turn died with `contract_minor_mismatch` (pin 14 vs the engine's 12).
+    // Moved v0.13.0 -> v0.13.2 by re-deriving from the released manifest, which
+    // is what this assertion demands rather than patching the string. v0.13.2
+    // advertises the SAME contract identity - minor 14, gen/14, an identical
+    // schema_digest and an identical capability set - so the corpus shape did
+    // not move. Only the stamped `fixture_digest` and `source_inputs_digest`
+    // changed, and exactly six vendored fixtures carry that stamp; every other
+    // byte of the corpus is unchanged.
+    //
+    // That distinction is the whole risk. assertDescriptor fails closed on both
+    // of those fields, so bumping the bundled tag WITHOUT re-vendoring them
+    // would have handed users a build that dies at the handshake on every turn
+    // - the same shape of failure as the `contract_minor_mismatch` (pin 14 vs
+    // engine 12) that preceded the v0.13.0 move.
     //
     // If the pin is ever NOT 14 this whole assertion is stale and the coupling
     // must be re-derived from the released manifest, not patched.
     expect(DESKTOP_CORE_V1_PIN.minor).toBe(14);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.0'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.2'"
     );
   });
 

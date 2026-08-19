@@ -724,6 +724,23 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
       throw error;
     }
     console.log(`${TAG} silent install completed in ${Math.round((Date.now() - startedAt) / 1000)}s`);
+    // The installer exits 0 and the directory we created is then GONE, which surfaced
+    // downstream as a bare `ENOENT ... lstat <installRoot>` from realpathSync with no
+    // clue attached. Say what actually happened and where the payload went instead:
+    // electron-builder's one-click NSIS honours /D only for assisted installers, and a
+    // bundled uninstaller can RMDir /r the target. Those need opposite fixes, so report
+    // the evidence rather than guessing at one.
+    if (!fs.existsSync(installRoot)) {
+      const parent = path.dirname(installRoot);
+      const siblings = fs.existsSync(parent) ? fs.readdirSync(parent).join(', ') || '<empty>' : '<parent missing>';
+      const perUser = path.join(process.env.LOCALAPPDATA || '', 'Programs');
+      const perUserEntries = fs.existsSync(perUser) ? fs.readdirSync(perUser).join(', ') || '<empty>' : '<absent>';
+      throw new Error(
+        `${TAG} the Windows silent install reported success but ${installRoot} no longer exists. ` +
+          `Parent ${parent} holds: ${siblings}. ${perUser} holds: ${perUserEntries}. ` +
+          'Either /D was ignored (one-click NSIS) or an uninstaller removed the target.'
+      );
+    }
   } else {
     throw new Error(`${TAG} unsupported installer platform: ${targetPlatform}`);
   }
@@ -1227,10 +1244,18 @@ export function prepareInstalledCandidate(options, dependencies = {}) {
     options.releaseTrack,
     dependencies
   );
-  const privateRoot = (
+  const createdPrivateRoot = (
     dependencies.createPrivateRoot || (() => fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-installed-smoke-')))
   )();
-  fs.chmodSync(privateRoot, 0o700);
+  fs.chmodSync(createdPrivateRoot, 0o700);
+  // Resolve the symlinks NOW, because resolveInstalledCandidate walks a realpath'd root
+  // and therefore reports an executable path that is already resolved. Leaving this one
+  // unresolved makes the two disagree, and `path.relative` between them climbs out of the
+  // evidence root: on macOS os.tmpdir() is /var/folders/... whose realpath is
+  // /private/var/folders/..., so installedExecutable came out as a seven-level `../`
+  // escape and safeRelativePath rejected every darwin report. Resolving here keeps the
+  // containment check strict; it never widens what counts as inside the root.
+  const privateRoot = fs.realpathSync(createdPrivateRoot);
   try {
     const snapshot = (dependencies.snapshotInstallerArtifact || snapshotInstallerArtifact)(
       artifactPath,

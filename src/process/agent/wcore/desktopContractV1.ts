@@ -15,7 +15,7 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '9b58c893' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '4106b6a7' as const;
 
 /**
  * Pinned to Core `116f2d21` ("fix(protocol): announce a call that runs without
@@ -43,9 +43,9 @@ export const DESKTOP_CORE_V1_PIN = {
   major: 1,
   minor: 14,
   generator: 'wcore-desktop-contract-gen/14',
-  fixtureDigest: 'sha256:9d5ef0ca25d3a1a3085ed39a64ec70b7e55c39b43e76ced17d08b7674b77b233',
+  fixtureDigest: 'sha256:8dd56f9a7d3ec5883074b8809730ba85214559fda49d913bb99e228e3fa59248',
   schemaDigest: 'sha256:306d83e19fa01a83c1d17d6365c9159efeb94373b8328259cbf842d783e00152',
-  sourceInputsDigest: 'sha256:59b607a0fd8bcd94eeb7e708926f1f29259e54a47a46e3cbea70ff77f21ab8ae',
+  sourceInputsDigest: 'sha256:6db45f83ca5d868554eea9595a9748474f2028a6297be69f865119caf8ed54bd',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
