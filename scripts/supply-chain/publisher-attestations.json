@@ -39,7 +39,7 @@
     },
     {
       "id": "wayland-core-v0.13.2-release",
-      "status": "active",
+      "status": "superseded",
       "releaseTag": "v0.13.2",
       "repository": "FerroxLabs/wayland-core",
       "signerWorkflow": "FerroxLabs/wayland-core/.github/workflows/release.yml",
@@ -57,6 +57,18 @@
       "signerWorkflow": "FerroxLabs/wayland-nano/.github/workflows/release.yml",
       "sourceRef": "refs/tags/v0.1.1",
       "sourceDigest": "466f030db615038919d6f367e2b7f0354ac73f06",
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "oidcIssuer": "https://token.actions.githubusercontent.com",
+      "runner": "github-hosted"
+    },
+    {
+      "id": "wayland-core-v0.13.3-release",
+      "status": "active",
+      "releaseTag": "v0.13.3",
+      "repository": "FerroxLabs/wayland-core",
+      "signerWorkflow": "FerroxLabs/wayland-core/.github/workflows/release.yml",
+      "sourceRef": "refs/heads/main",
+      "sourceDigest": "37edc24414def682c46d749fe84b369a091c286a",
       "predicateType": "https://slsa.dev/provenance/v1",
       "oidcIssuer": "https://token.actions.githubusercontent.com",
       "runner": "github-hosted"

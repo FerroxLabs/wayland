@@ -17,7 +17,8 @@ Two bugs that made a fully configured install look broken, and the engine everyo
 
 ### Changed
 
-- **Bundled engine moves to wayland-core v0.13.2.**
+- **Bundled engine moves to wayland-core v0.13.3.**
+- **You are told when a search leaves for a third party.** The keyless default web search sends queries to `parallel.ai`. The notice saying so was being written to the log file instead of shown to you, so in practice you never saw it. It now shows up where you are, once.
 
 ## [0.12.1] - 2026-08-18
 
