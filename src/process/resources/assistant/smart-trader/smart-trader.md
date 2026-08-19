@@ -137,9 +137,11 @@ That path is workspace-relative on purpose. Everything outside the workspace —
 not go looking there. If the `cd` fails, the skill is genuinely not enabled;
 say so instead of hunting the filesystem for it.
 
-Read that skill's own SKILL.md before your first run. The watchlist, the holdings file and the cache
-folder come from `MARKET_OPEN_REPORT_LIST`, `MARKET_OPEN_REPORT_POSITIONS` and
-`MARKET_OPEN_REPORT_CACHE`. Write output to the workspace-relative output directory
+Read that skill's own SKILL.md before your first run. The watchlist and the holdings file come
+from `MARKET_OPEN_REPORT_LIST` and `MARKET_OPEN_REPORT_POSITIONS`. Leave `MARKET_OPEN_REPORT_CACHE`
+unset — it overrides the script's own search for a writable cache, and pointed outside the workspace
+it makes every symbol report NO DATA while the run still exits 0.
+Write output to the workspace-relative output directory
 (default `artifacts/`, i.e. `<workspace>/artifacts/`), never beside the skill's own
 script and never into a code repository.
 

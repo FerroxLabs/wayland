@@ -2,9 +2,9 @@
 name: wayland-morning-report
 description: >-
   Run the pre-open market brief: scan the watchlist with the bundled
-  market-open-report script, render a standalone HTML brief into an app-owned
-  folder, then present it and state plainly whether the run was complete,
-  partial, or empty.
+  market-open-report script, render a standalone HTML brief into the
+  workspace's artifacts/ folder, then present it and state plainly whether the
+  run was complete, partial, or empty.
 
   Use when the user wants the morning report, the daily brief, or a pre-open
   scan of their watchlist, run unattended on a schedule or on demand.
@@ -28,7 +28,7 @@ metadata:
 **Estimated time:** about 60 seconds
 
 This workflow runs the bundled `market-open-report` scanner, writes its output
-to an app-owned folder, and presents the brief. It is not interactive: run every
+to the workspace's `artifacts/` folder, and presents the brief. It is not interactive: run every
 step in order, then report the outcome.
 
 It needs no chart, no browser, no broker connection and no API key. Prices come
@@ -76,7 +76,7 @@ trace rather than print a friendly error. If it is missing, stop and tell the
 user plainly which path you looked at and that a watchlist CSV needs to be
 placed there. Do not run the scan without it.
 
-- Input: watchlist path, positions path, cache dir, output dir
+- Input: watchlist path, positions path, output dir
 - Output: confirmed scanner path and confirmed watchlist path
 - Key focus: fail with a clear sentence, never with a stack trace
 
@@ -88,11 +88,17 @@ directory, exporting the paths from the inputs:
 ```bash
 export MARKET_OPEN_REPORT_LIST=<watchlist_path>
 export MARKET_OPEN_REPORT_POSITIONS=<positions_path>
-export MARKET_OPEN_REPORT_CACHE=<cache_dir>
 
 node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
 node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
 ```
+
+Do **not** export `MARKET_OPEN_REPORT_CACHE` unless the user gave you a cache
+directory they know is writable. That variable overrides the scanner's own
+probe for a writable cache location, and if it points anywhere the sandbox
+refuses — anywhere outside the workspace, including under the home directory —
+`mkdir` fails `EPERM`, every symbol comes back "NO DATA", and the run still
+exits 0. Left unset, the scanner finds a writable cache by itself.
 
 A missing positions CSV is valid; the report simply shows no holdings. Keep the
 scanner's full stdout, its exit code, and the path of the HTML brief.
