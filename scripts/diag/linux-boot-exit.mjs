@@ -90,7 +90,7 @@ function findExecutable(directory) {
         queue.push(absolute);
         continue;
       }
-      if (!entry.isFile() || entry.name !== 'wayland') continue;
+      if (!entry.isFile() || entry.name.toLowerCase() !== 'wayland') continue;
       if (!fs.existsSync(path.join(current, 'resources', 'app.asar'))) continue;
       return absolute;
     }
