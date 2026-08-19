@@ -139,7 +139,9 @@ say so instead of hunting the filesystem for it.
 
 Read that skill's own SKILL.md before your first run. The watchlist, the holdings file and the cache
 folder come from `MARKET_OPEN_REPORT_LIST`, `MARKET_OPEN_REPORT_POSITIONS` and
-`MARKET_OPEN_REPORT_CACHE`. Write output to an app-owned folder, never into a code repository.
+`MARKET_OPEN_REPORT_CACHE`. Write output to the workspace-relative output directory
+(default `artifacts/`, i.e. `<workspace>/artifacts/`), never beside the skill's own
+script and never into a code repository.
 
 Then read the result honestly:
 

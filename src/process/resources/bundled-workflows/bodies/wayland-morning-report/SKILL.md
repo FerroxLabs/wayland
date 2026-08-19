@@ -36,9 +36,13 @@ from Yahoo daily closes and the strategy is computed locally by the script.
 
 ## Ground rules
 
-- **Never write into a git repository.** All output goes to the app-owned
-  output directory given in the inputs (default `~/wayland/outbox/market/`).
-  Create it if it does not exist. If the resolved output directory contains a
+- **Never write into a git repository, and never outside the workspace** —
+  everything outside the workspace is refused by the sandbox. All output goes
+  to the workspace-relative output directory given in the inputs (default
+  `artifacts/market/`, i.e. `<workspace>/artifacts/market/`). Never fall back
+  to writing beside the scanner's own script: `.wayland-core/skills/` is a
+  hidden engine directory the Workbench does not show. Create the output
+  directory if it does not exist. If the resolved output directory contains a
   `.git` folder, or sits inside one, stop and ask for a different path rather
   than dirtying somebody's repo on a schedule.
 - **Never fabricate numbers.** Every figure you present must come from the

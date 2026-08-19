@@ -142,7 +142,7 @@
       "watchlist_path": "~/wayland/market/watchlist.csv",
       "positions_path": "~/wayland/market/positions.csv",
       "cache_dir": "~/wayland/cache/market-open-report/",
-      "output_dir": "~/wayland/outbox/market/"
+      "output_dir": "artifacts/market/"
     }
   },
   {

@@ -40,7 +40,10 @@ not belong:
 | `MARKET_OPEN_REPORT_POSITIONS` | the user's holdings CSV (absent is valid) |
 | `MARKET_OPEN_REPORT_CACHE` | Yahoo cache directory |
 
-Write output to an app-owned directory. Never write into a git repository.
+Write `--json` and the HTML brief to the workspace-relative output directory
+(default `artifacts/`, i.e. `<workspace>/artifacts/`). Never write beside this
+skill's own script — `.wayland-core/skills/` is a hidden engine directory the
+Workbench does not show — and never write into a git repository.
 
 ## Reading the result — this part matters
 
