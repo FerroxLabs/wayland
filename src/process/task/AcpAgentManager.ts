@@ -2458,8 +2458,18 @@ ${collectedResponses.join('\n')}`;
    * case we re-spawn the agent so `resolveAgentCliConfig` re-injects the correct
    * env. Same-routing switches (flux-auto->flux-reasoning, sonnet->opus) keep the
    * cheap in-place path.
+   *
+   * @param options.persist - false switches the LIVE session only and leaves the
+   *   conversation's stored `currentModelId` alone. Used by the cron executor
+   *   when a scheduled run borrows a chat the user owns: the run needs its own
+   *   model, but the user's chat must keep theirs. `resolveConversationForJob`
+   *   gates that exact field, so without this the job wrote it back through here.
+   *   Skipping the write also skips `saveModelId`'s `emitModelInfoUpdate`, which
+   *   is correct: that emit exists to keep the context meter in step with the
+   *   AUTHORITATIVE row (#801), and the row deliberately is not moving.
    */
-  async setModel(modelId: string): Promise<AcpModelInfo | null> {
+  async setModel(modelId: string, options?: { persist?: boolean }): Promise<AcpModelInfo | null> {
+    const persist = options?.persist !== false;
     // Durable-first for codex and the generic ACP CLIs: persist the user's
     // REQUESTED model id to the conversation record BEFORE the live init /
     // set_model round-trip, so the pick survives a disconnected or unspawnable
@@ -2472,7 +2482,7 @@ ${collectedResponses.join('\n')}`;
     if (earlyPersistEligible) {
       this.persistedModelId = modelId;
       this.options.currentModelId = modelId;
-      await this.saveModelId(modelId);
+      if (persist) await this.saveModelId(modelId);
     }
 
     if (!this.agent) {
@@ -2506,7 +2516,10 @@ ${collectedResponses.join('\n')}`;
     const nativeClaudeSlotChange = claudeSlot !== undefined;
 
     if (crossesRoutingBoundary || nativeClaudeSlotChange) {
-      return this.respawnForRoutingChange(claudeSlot ?? modelId);
+      const target = claudeSlot ?? modelId;
+      // Called with one argument on the persisting path so the user-driven
+      // signature stays exactly as it was.
+      return persist ? this.respawnForRoutingChange(target) : this.respawnForRoutingChange(target, false);
     }
 
     // Same-routing switch TO a Flux id (e.g. the chat is already flux-routed and
@@ -2515,7 +2528,7 @@ ${collectedResponses.join('\n')}`;
     // unlisted id via set_model, so persist + skip the in-place call.
     if (isFluxModelId(modelId)) {
       this.persistedModelId = modelId;
-      await this.saveModelId(modelId);
+      if (persist) await this.saveModelId(modelId);
       return this.getModelInfo();
     }
 
@@ -2531,7 +2544,7 @@ ${collectedResponses.join('\n')}`;
       // S6: await (was fire-and-forget) so a persist failure can't surface as an
       // unhandled rejection and the selected model is actually persisted before
       // returning (matters for resume).
-      await this.saveModelId(confirmedId);
+      if (persist) await this.saveModelId(confirmedId);
       // Update cached models so Guid page defaults to the newly selected model
       if (result.availableModels?.length > 0) {
         void this.cacheModelList(result);
@@ -2550,11 +2563,13 @@ ${collectedResponses.join('\n')}`;
    * path). The new model is persisted BEFORE re-spawn so initAgent's
    * `this.persistedModelId` carries it into `agentConfig.extra.currentModelId`.
    */
-  private async respawnForRoutingChange(modelId: string): Promise<AcpModelInfo | null> {
-    // Persist the new model first so the re-spawn picks it up.
+  private async respawnForRoutingChange(modelId: string, persist = true): Promise<AcpModelInfo | null> {
+    // Carry the new model into the re-spawn. `this.options.currentModelId` is what
+    // initAgent reads, so a non-persisting caller still gets the correct spawn env -
+    // only the conversation row is left alone.
     this.persistedModelId = modelId;
     this.options.currentModelId = modelId;
-    await this.saveModelId(modelId);
+    if (persist) await this.saveModelId(modelId);
 
     // Reload the latest resume markers so the fresh spawn resumes this session
     // (these are written async by saveAcpSessionId during the prior session).
@@ -2602,7 +2617,11 @@ ${collectedResponses.join('\n')}`;
    * Set a config option value on the underlying ACP agent.
    * Used for reasoning effort and other non-model config options.
    */
-  async setConfigOption(configId: string, value: string): Promise<AcpSessionConfigOption[]> {
+  async setConfigOption(
+    configId: string,
+    value: string,
+    options?: { persist?: boolean }
+  ): Promise<AcpSessionConfigOption[]> {
     if (!this.agent) {
       try {
         await this.initAgent(this.options);
@@ -2612,7 +2631,10 @@ ${collectedResponses.join('\n')}`;
     }
     if (!this.agent) return [];
     const updated = await this.agent.setConfigOption(configId, value);
-    if (updated.length > 0) {
+    // persist: false applies to the LIVE session only - a scheduled run borrowing
+    // a chat the user owns must not leave its reasoning effort (or any other
+    // option) cached on that chat's row.
+    if (updated.length > 0 && options?.persist !== false) {
       void this.saveConfigOptions(updated);
     }
     return updated;
