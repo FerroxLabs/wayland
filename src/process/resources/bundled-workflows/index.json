@@ -1516,7 +1516,7 @@
   {
     "name": "wayland-morning-report",
     "title": "Morning Report",
-    "description": "Run the pre-open market brief: scan the watchlist with the bundled market-open-report script, render a standalone HTML brief into an app-owned folder, then present it and state plainly whether the run was complete, partial, or empty.\nUse when the user wants the morning report, the daily brief, or a pre-open scan of their watchlist, run unattended on a schedule or on demand.\nDo NOT use for reading a live TradingView chart, for intraday signals, or for any request that needs a broker or market-data API; this workflow uses only the bundled offline scanner.",
+    "description": "Run the pre-open market brief: scan the watchlist with the bundled market-open-report script, render a standalone HTML brief into the workspace's artifacts/ folder, then present it and state plainly whether the run was complete, partial, or empty.\nUse when the user wants the morning report, the daily brief, or a pre-open scan of their watchlist, run unattended on a schedule or on demand.\nDo NOT use for reading a live TradingView chart, for intraday signals, or for any request that needs a broker or market-data API; this workflow uses only the bundled offline scanner.",
     "type": "workflow",
     "source": "wayland-library",
     "path": "bodies/wayland-morning-report/SKILL.md",

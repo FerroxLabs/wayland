@@ -16,12 +16,21 @@ reloads, and every one of those is a place the UI can fail silently.
 
 ## Running it
 
-From the skill directory:
+Both commands run from this skill's own directory, but the output directory is
+relative to the WORKSPACE ROOT — **not** to this directory. So pin it to an
+absolute path FIRST, while you are still standing in the workspace root, and
+only then change into the skill directory:
 
 ```bash
-node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
-node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
+OUT="$PWD/artifacts"; mkdir -p "$OUT"     # $PWD here is the workspace root
+cd <this skill's directory>               # e.g. .wayland-core/skills/market-open-report
+node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
+node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
+
+Resolve the output directory after that `cd` and a bare `artifacts` lands beside
+this script instead — under a hidden engine directory the Workbench does not
+show, so the brief exists and the user never sees it.
 
 Node only. No dependencies, no install step, no Python.
 
@@ -38,9 +47,14 @@ not belong:
 |---|---|
 | `MARKET_OPEN_REPORT_LIST` | watchlist CSV (defaults to the bundled one) |
 | `MARKET_OPEN_REPORT_POSITIONS` | the user's holdings CSV (absent is valid) |
-| `MARKET_OPEN_REPORT_CACHE` | Yahoo cache directory |
+| `MARKET_OPEN_REPORT_CACHE` | Yahoo cache directory. **Leave it unset** unless you have a writable path: it overrides the script's own probe for a writable cache, and if it points anywhere the sandbox refuses (anywhere outside the workspace, home included) `mkdir` fails `EPERM`, every symbol reports NO DATA, and the run still exits 0. |
 
-Write output to an app-owned directory. Never write into a git repository.
+Write `--json` and the HTML brief to the output directory, resolved against the
+workspace root (default `artifacts/`, i.e. `<workspace>/artifacts/`) — never
+against this skill's own directory. Never write beside this skill's own script:
+`.wayland-core/skills/` is a hidden engine directory the Workbench does not show,
+so a brief written there exists and is invisible. Never write into a git
+repository.
 
 ## Reading the result — this part matters
 

@@ -124,22 +124,36 @@ connector is broken, or TradingView will not start, or they are stuck halfway th
 still hand them a real report. Do that rather than leaving them with an error and nothing.
 
 The skill is inside your workspace at `.wayland-core/skills/market-open-report`.
-Change into it and run it from there:
+You have to change into it to run it — so pin the output directory to an absolute
+path FIRST, while you are still standing in the workspace root, and only then `cd`:
 
 ```bash
+OUT="$PWD/artifacts/market"; mkdir -p "$OUT"
 cd .wayland-core/skills/market-open-report
-node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
-node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
+node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
+node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
 
-That path is workspace-relative on purpose. Everything outside the workspace —
-`~/.wayland`, `~/Library`, the user's home — is refused by the sandbox, so do
-not go looking there. If the `cd` fails, the skill is genuinely not enabled;
-say so instead of hunting the filesystem for it.
+The order matters. You start in the workspace root, so `$PWD` on that first line
+IS the workspace root. Resolve the output directory after the `cd` instead and a
+bare `artifacts/market` lands under
+`.wayland-core/skills/market-open-report/artifacts/market` — a dot directory the
+Workbench file scanners skip, so the user's report exists and is invisible.
+The output directory always resolves against the WORKSPACE ROOT, never against
+the scanner's own directory.
 
-Read that skill's own SKILL.md before your first run. The watchlist, the holdings file and the cache
-folder come from `MARKET_OPEN_REPORT_LIST`, `MARKET_OPEN_REPORT_POSITIONS` and
-`MARKET_OPEN_REPORT_CACHE`. Write output to an app-owned folder, never into a code repository.
+The scanner path is workspace-relative on purpose. Everything outside the
+workspace — `~/.wayland`, `~/Library`, the user's home — is refused by the
+sandbox, so do not go looking there. If the `cd` fails, the skill is genuinely
+not enabled; say so instead of hunting the filesystem for it.
+
+Read that skill's own SKILL.md before your first run. The watchlist and the holdings file come
+from `MARKET_OPEN_REPORT_LIST` and `MARKET_OPEN_REPORT_POSITIONS`. Leave `MARKET_OPEN_REPORT_CACHE`
+unset — it overrides the script's own search for a writable cache, and pointed outside the workspace
+it makes every symbol report NO DATA while the run still exits 0.
+Write output to the output directory named in the inputs, resolved against the
+workspace root (default `artifacts/`, i.e. `<workspace>/artifacts/`) — never
+beside the skill's own script and never into a code repository.
 
 Then read the result honestly:
 

@@ -29,6 +29,7 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 import { logger } from '@office-ai/platform';
 import type { AgentBackend } from '@/common/types/acpTypes';
+import { buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
 import type { CronService } from './CronService';
 import type { CronJob, CronSchedule } from './CronStore';
 
@@ -50,21 +51,28 @@ type RoutineDef = {
 
 /**
  * Resolve the directory holding `routines.json` + `index.json`.
- * Mirrors SkillLibrary.resolveBundledWorkflowsDir's dev / packaged / standalone
- * probe order so the seeder reads from the same place workflows are read from.
+ *
+ * Delegates to {@link buildResourceDirCandidates} - the SAME probe order
+ * SkillLibrary uses - instead of a hand-copied list. The copy this replaced had
+ * drifted: it was a snapshot of the PRE-#22 candidate order, anchored only on
+ * `__filename`, and it had no `process.resourcesPath` candidate at all. Because
+ * `bundled-workflows` ships through electron-builder `extraResources` (beside
+ * `app.asar`, never inside it and never under `app.asar.unpacked`), every
+ * candidate missed in a real install and the loop fell through to
+ * `<Resources>/app.asar.unpacked/resources/bundled-workflows`, which does not
+ * exist - so NO routine was ever seeded in any packaged build. Only the dev
+ * source-tree candidate ever hit, which is why dev-mode testing never saw it.
+ *
+ * The shared builder is a strict superset of the old list: all four former
+ * candidates are still probed, after `resourcesPath` and the three-levels-up
+ * extraResources path, so dev, packaged main, packaged subprocess and the
+ * standalone payload layout all resolve.
  */
-function resolveBundledWorkflowsDir(): string {
-  const myDir = path.dirname(__filename);
-  const baseDir = path.basename(myDir) === 'chunks' ? path.dirname(myDir) : myDir;
-  const baseDirUnpacked = baseDir.replace('app.asar', 'app.asar.unpacked');
-
-  const candidates = [
-    path.resolve(baseDirUnpacked, '../../resources/bundled-workflows'),
-    path.resolve(baseDir, '../../src/process/resources/bundled-workflows'),
-    path.resolve(baseDir, '../../resources/bundled-workflows'),
-    path.resolve(baseDir, '../resources/bundled-workflows'),
-  ];
-
+export function resolveBundledWorkflowsDir(
+  bundleDir: string = path.dirname(__filename),
+  resourcesPath: string | undefined = process.resourcesPath
+): string {
+  const candidates = buildResourceDirCandidates(bundleDir, resourcesPath, 'bundled-workflows');
   for (const candidate of candidates) {
     if (existsSync(path.join(candidate, 'routines.json'))) return candidate;
   }
