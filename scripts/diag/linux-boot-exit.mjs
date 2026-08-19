@@ -79,6 +79,25 @@ async function run(label, executablePath, userDataRoot) {
   }
 }
 
+function findExecutable(directory) {
+  const queue = [directory];
+  while (queue.length) {
+    const current = queue.shift();
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const absolute = path.join(current, entry.name);
+      if (entry.isSymbolicLink()) continue;
+      if (entry.isDirectory()) {
+        queue.push(absolute);
+        continue;
+      }
+      if (!entry.isFile() || entry.name !== 'wayland') continue;
+      if (!fs.existsSync(path.join(current, 'resources', 'app.asar'))) continue;
+      return absolute;
+    }
+  }
+  return null;
+}
+
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-diag-'));
 const deb = process.argv[2];
 const appImage = process.argv[3];
@@ -86,11 +105,7 @@ const appImage = process.argv[3];
 const debRoot = path.join(root, 'deb');
 fs.mkdirSync(debRoot, { recursive: true, mode: 0o700 });
 execFileSync('dpkg-deb', ['-x', deb, debRoot], { stdio: 'pipe' });
-const debExe = execFileSync('find', [debRoot, '-type', 'f', '-name', 'wayland'], { encoding: 'utf8' })
-  .split('\n')
-  .map((value) => value.trim())
-  .filter(Boolean)
-  .find((candidate) => fs.statSync(candidate).size > 1024 * 1024);
+const debExe = findExecutable(debRoot);
 console.log(`deb executable: ${debExe}`);
 
 const appRoot = path.join(root, 'appimage');
@@ -99,5 +114,18 @@ const appExe = path.join(appRoot, path.basename(appImage));
 fs.copyFileSync(appImage, appExe);
 fs.chmodSync(appExe, 0o700);
 
+// The proposed fix: extract the AppImage the way the deb is extracted and run the
+// payload directly, so the self-mounting runtime wrapper is never in the picture.
+const extractRoot = path.join(root, 'appimage-extracted');
+fs.mkdirSync(extractRoot, { recursive: true, mode: 0o700 });
+const extractSource = path.join(extractRoot, path.basename(appImage));
+fs.copyFileSync(appImage, extractSource);
+fs.chmodSync(extractSource, 0o700);
+execFileSync(extractSource, ['--appimage-extract'], { cwd: extractRoot, stdio: 'pipe' });
+fs.rmSync(extractSource, { force: true });
+const extractedExe = findExecutable(extractRoot);
+console.log(`extracted appimage executable: ${extractedExe}`);
+
 await run('CONTROL deb 0.11.18', debExe, path.join(root, 'state-deb'));
-await run('SUBJECT appimage 0.11.8', appExe, path.join(root, 'state-app'));
+await run('SUBJECT appimage 0.11.8 as shipped', appExe, path.join(root, 'state-app'));
+await run('PROPOSED appimage 0.11.8 extracted', extractedExe, path.join(root, 'state-extracted'));
