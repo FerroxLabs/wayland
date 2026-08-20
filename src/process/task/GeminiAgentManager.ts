@@ -999,6 +999,21 @@ export class GeminiAgentManager extends BaseAgentManager<
           );
         }
         break;
+      case 'path_boundary':
+        {
+          // #1099: a filesystem-boundary escalation is a wcore engine
+          // classification, so Gemini never emits one; this arm exists for
+          // confirmationDetails-union exhaustiveness, like `question` above.
+          // Explicit rather than fall-through: `default` below IS the mcp case,
+          // and an unhandled boundary would be labelled an MCP tool prompt and
+          // offered proceed_once / proceed_always — the vocabulary a folder
+          // grant must never speak. No options: this surface cannot express a
+          // folder grant, and the dedicated card (PathBoundaryConfirmCard) is
+          // the only place that can.
+          question = confirmationDetails.title;
+          description = confirmationDetails.target;
+        }
+        break;
       default: {
         const mcpProps = confirmationDetails;
         question = t('messages.confirmation.allowMCPTool', {
