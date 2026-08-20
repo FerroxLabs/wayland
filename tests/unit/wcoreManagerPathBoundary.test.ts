@@ -24,7 +24,6 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-
 // ── Hoisted mocks ──────────────────────────────────────────────────
 
 const {
@@ -169,14 +168,10 @@ vi.mock('@process/agent/wcore', () => ({
   })),
 }));
 
-
 // ── Import under test ──────────────────────────────────────────────
 
 import { WCoreManager } from '@/process/task/WCoreManager';
-import {
-  PATH_BOUNDARY_DENY,
-  PATH_BOUNDARY_GRANT_FOLDER,
-} from '@/common/chat/pathBoundaryConsent';
+import { PATH_BOUNDARY_DENY, PATH_BOUNDARY_GRANT_FOLDER } from '@/common/chat/pathBoundaryConsent';
 
 // ── Helpers ────────────────────────────────────────────────────────
 

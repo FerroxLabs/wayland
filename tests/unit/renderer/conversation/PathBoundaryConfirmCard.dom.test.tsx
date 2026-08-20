@@ -29,7 +29,9 @@ const checkInvoke = vi.fn(() => Promise.resolve(false));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) =>
-      options && typeof options.folder === 'string' ? `${key}:${options.folder}` : ((options?.defaultValue as string) ?? key),
+      options && typeof options.folder === 'string'
+        ? `${key}:${options.folder}`
+        : ((options?.defaultValue as string) ?? key),
   }),
 }));
 
@@ -60,10 +62,7 @@ vi.mock('@arco-design/web-react', () => ({
 }));
 
 import ConversationChatConfirm from '@/renderer/pages/conversation/components/ConversationChatConfirm';
-import {
-  PATH_BOUNDARY_DENY,
-  PATH_BOUNDARY_GRANT_FOLDER,
-} from '@/common/chat/pathBoundaryConsent';
+import { PATH_BOUNDARY_DENY, PATH_BOUNDARY_GRANT_FOLDER } from '@/common/chat/pathBoundaryConsent';
 
 const CONVERSATION_ID = 'conv-1099';
 const ROOT = '/Users/sean/Documents/reports';

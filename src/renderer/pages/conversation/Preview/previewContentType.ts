@@ -81,7 +81,9 @@ export function previewIsEditable(contentType: PreviewContentType): boolean {
  * recognise). The mapping is total over the closed vocabulary, so there is no
  * fallback branch to get wrong.
  */
-export function previewContentTypeForRenderMime(mime: 'text/plain' | 'text/markdown' | 'text/html'): PreviewContentType {
+export function previewContentTypeForRenderMime(
+  mime: 'text/plain' | 'text/markdown' | 'text/html'
+): PreviewContentType {
   switch (mime) {
     case 'text/markdown':
       return 'markdown';

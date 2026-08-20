@@ -53,9 +53,7 @@ export function isPathBoundaryOptionValue(value: unknown): value is PathBoundary
  * structural: a card cannot claim to be an ordinary approval while carrying a
  * grant button, and every exclusion below reads the same fact.
  */
-export function isPathBoundaryConfirmation(confirmation: {
-  options?: Array<{ value?: unknown }>;
-}): boolean {
+export function isPathBoundaryConfirmation(confirmation: { options?: Array<{ value?: unknown }> }): boolean {
   return Boolean(confirmation.options?.some((option) => isPathBoundaryOptionValue(option?.value)));
 }
 

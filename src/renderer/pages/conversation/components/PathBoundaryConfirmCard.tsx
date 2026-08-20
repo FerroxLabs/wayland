@@ -54,7 +54,10 @@ const PathBoundaryConfirmCard: React.FC<{
             <div className='text-12px color-[var(--text-secondary)]'>
               {t('messages.confirmation.pathBoundaryTargetLabel')}
             </div>
-            <div data-testid='path-boundary-target' className='text-13px font-mono color-[var(--text-primary)] break-all'>
+            <div
+              data-testid='path-boundary-target'
+              className='text-13px font-mono color-[var(--text-primary)] break-all'
+            >
               {target}
             </div>
           </div>
@@ -77,9 +80,7 @@ const PathBoundaryConfirmCard: React.FC<{
           <div
             key={String(option.value)}
             onClick={() => onConfirm(option)}
-            data-testid={
-              option.value === PATH_BOUNDARY_GRANT_FOLDER ? 'path-boundary-grant' : 'path-boundary-deny'
-            }
+            data-testid={option.value === PATH_BOUNDARY_GRANT_FOLDER ? 'path-boundary-grant' : 'path-boundary-deny'}
             className={`b-1px b-solid min-h-30px rd-8px px-12px py-6px leading-snug cursor-pointer mt-10px flex flex-col color-[var(--text-primary)] ${
               index === 0
                 ? 'b-[rgba(22,93,255,1)] hover:bg-[var(--bg-hover)]'

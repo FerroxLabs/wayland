@@ -1039,20 +1039,20 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
               { label: 'messages.confirmation.grantFolderDeny', value: PATH_BOUNDARY_DENY },
             ]
           : details?.type === 'question'
-          ? [
-              ...details.choices.map((choice) => ({
-                label: choice.label,
-                value: ToolConfirmationOutcome.ProceedOnce,
-                answer: choice.label,
-                ...(choice.description ? { description: choice.description } : {}),
-              })),
-              { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
-            ]
-          : [
-              { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },
-              { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
-              { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
-            ];
+            ? [
+                ...details.choices.map((choice) => ({
+                  label: choice.label,
+                  value: ToolConfirmationOutcome.ProceedOnce,
+                  answer: choice.label,
+                  ...(choice.description ? { description: choice.description } : {}),
+                })),
+                { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
+              ]
+            : [
+                { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },
+                { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
+                { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
+              ];
 
       this.addConfirmation({
         title: (details?.type === 'question' ? details.question : details?.title) || content.name || '',
