@@ -152,6 +152,26 @@ describe('#1099 folder-grant card', () => {
     expect(confirmInvoke).not.toHaveBeenCalled();
   });
 
+  it('stays excluded even if the card ever starts carrying an `action`', async () => {
+    // As shipped, WCoreManager emits a boundary card with NO `action`, and
+    // checkAndAutoConfirm bails on a missing action before it reaches any value
+    // match. That makes the explicit exclusion redundant TODAY — and redundant
+    // only until someone adds an action for logging, telemetry or grouping.
+    //
+    // This fixture is deliberately NOT the shape the product emits. It is the
+    // shape one plausible future edit produces, and it exists so the explicit
+    // guard is the single thing standing between that edit and a silent
+    // filesystem grant. Without the guard this test auto-confirms.
+    checkInvoke.mockResolvedValue(true);
+    listInvoke.mockResolvedValue([{ ...boundaryConfirmation, action: 'info' }]);
+
+    renderCard();
+
+    expect(await screen.findByTestId('path-boundary-card')).toBeTruthy();
+    expect(confirmInvoke).not.toHaveBeenCalled();
+    expect(checkInvoke).not.toHaveBeenCalled();
+  });
+
   it('does not even consult the approval store for a boundary card', async () => {
     checkInvoke.mockResolvedValue(true);
 
