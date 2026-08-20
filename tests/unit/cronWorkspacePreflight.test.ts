@@ -243,6 +243,20 @@ describe('P2-10 the run refuses to start', () => {
     expect(getOrBuildTask).not.toHaveBeenCalled();
   });
 
+  it('refuses at prepareConversation too, so "Run now" fails before a chat is created', async () => {
+    // runNow calls prepareConversation FIRST and returns its conversation id to
+    // the renderer, then fires executeJob in the background. Guarding only
+    // executeJob would leave an orphan conversation behind and report the
+    // failure to nobody.
+    const ws = pathMod.join(tmp, 'Gone Too');
+    const { executor } = makeExecutor();
+    const job = makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' });
+
+    await expect(executor.prepareConversation(job)).rejects.toThrow(/workspace/i);
+    expect(createConversationMock).not.toHaveBeenCalled();
+    expect(existsSync(ws)).toBe(false);
+  });
+
   it('refuses to write into a folder whose marker belongs to someone else', async () => {
     const ws = pathMod.join(tmp, 'Stranger');
     await fsp.mkdir(ws);

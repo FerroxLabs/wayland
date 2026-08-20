@@ -129,10 +129,19 @@ vi.mock('@process/services/conversationServiceSingleton', () => ({
     ),
   },
 }));
+import os from 'os';
+import pathMod from 'path';
+import fsp from 'fs/promises';
 import { WorkerTaskManagerJobExecutor } from '@/process/services/cron/WorkerTaskManagerJobExecutor';
 import type { CronJob } from '@/process/services/cron/CronStore';
 
-const DURABLE_WORKSPACE = '/Users/tester/Documents/Wayland/Tasks/Morning Brief';
+// Real directories: the P2-10 preflight stats the workspace before every run, so
+// a job pointed at a path that does not exist fails closed rather than resolving
+// a conversation. These suites are about WHICH workspace wins, not about a
+// missing one, so both candidates have to actually be on disk.
+let tmp: string;
+let DURABLE_WORKSPACE: string;
+let OTHER_WORKSPACE: string;
 
 function makeExistingModeJob(agentConfig: CronJob['metadata']['agentConfig']): CronJob {
   return {
@@ -179,11 +188,17 @@ function makeRealExecutor(): WorkerTaskManagerJobExecutor {
 }
 
 describe('P2-3 the conversation is the source of truth for the workspace', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    tmp = await fsp.mkdtemp(pathMod.join(os.tmpdir(), 'wl-p23-'));
+    DURABLE_WORKSPACE = pathMod.join(tmp, 'Wayland', 'Tasks', 'Morning Brief');
+    OTHER_WORKSPACE = pathMod.join(tmp, 'Somewhere Else');
+    await fsp.mkdir(DURABLE_WORKSPACE, { recursive: true });
+    await fsp.mkdir(OTHER_WORKSPACE, { recursive: true });
     conversationStore.clear();
     createConversationMock.mockClear();
   });
-  afterEach(() => {
+  afterEach(async () => {
+    await fsp.rm(tmp, { recursive: true, force: true });
     vi.clearAllMocks();
   });
 
@@ -215,14 +230,14 @@ describe('P2-3 the conversation is the source of truth for the workspace', () =>
     const job = makeExistingModeJob({
       backend: 'wcore' as CronJob['metadata']['agentType'],
       name: 'Morning Brief',
-      workspace: '/Users/tester/Documents/Somewhere Else',
+      workspace: OTHER_WORKSPACE,
     });
 
     const resolved = await makeRealExecutor().prepareConversation(job);
 
     expect(createConversationMock).toHaveBeenCalledTimes(1);
     expect(resolved).not.toBe('conv-child');
-    expect(conversationStore.get(resolved).extra.workspace).toBe('/Users/tester/Documents/Somewhere Else');
+    expect(conversationStore.get(resolved).extra.workspace).toBe(OTHER_WORKSPACE);
   });
 
   it('STILL rehomes when the agent genuinely changed, even with no job workspace', async () => {

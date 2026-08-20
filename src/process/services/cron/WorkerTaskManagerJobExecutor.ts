@@ -55,21 +55,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     preparedConversationId?: string,
     triggeredAt = Date.now()
   ): Promise<string | void> {
-    // P2-10: before ANYTHING else - before a conversation is built, before a
-    // task is acquired - check that the folder this job runs in is still the
-    // folder it was given. Deleted, or replaced by something else, both fail the
-    // run closed. Recreating it here would hide a workspace whose history is
-    // gone behind one that looks healthy, and writing into a folder whose marker
-    // does not match writes into whatever the user put there instead.
-    const workspaceProblem = await preflightJobWorkspace(job);
-    if (workspaceProblem) {
-      throw new Error(
-        i18n.t(workspaceProblem.status === 'missing' ? 'cron.error.workspaceMissing' : 'cron.error.workspaceMismatch', {
-          name: job.name,
-          path: workspaceProblem.workspace,
-        })
-      );
-    }
+    await this.assertWorkspaceUsable(job);
 
     let conversationId = preparedConversationId ?? job.metadata.conversationId;
 
@@ -549,7 +535,33 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     return buildNewConvPrompt(job.name, job.schedule.description, rawText);
   }
 
+  /**
+   * P2-10: refuse to go anywhere near a workspace that is gone, or that is no
+   * longer the one this job was given.
+   *
+   * Called before a conversation is built and again before a task is acquired.
+   * Both, because `runNow` calls `prepareConversation` first and hands its
+   * conversation id straight back to the renderer, then fires `executeJob` in
+   * the background - guarding only the second would leave an orphan chat behind
+   * and report the failure to nobody.
+   *
+   * Deliberately no auto-repair. A recreated folder is indistinguishable from
+   * one whose history was lost, and writing into a folder whose marker does not
+   * match writes into whatever the user put there instead.
+   */
+  private async assertWorkspaceUsable(job: CronJob): Promise<void> {
+    const problem = await preflightJobWorkspace(job);
+    if (!problem) return;
+    throw new Error(
+      i18n.t(problem.status === 'missing' ? 'cron.error.workspaceMissing' : 'cron.error.workspaceMismatch', {
+        name: job.name,
+        path: problem.workspace,
+      })
+    );
+  }
+
   async prepareConversation(job: CronJob): Promise<string> {
+    await this.assertWorkspaceUsable(job);
     if (!job.metadata.agentConfig) {
       return job.metadata.conversationId;
     }
