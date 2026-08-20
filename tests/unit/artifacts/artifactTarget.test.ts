@@ -149,4 +149,35 @@ describe('readVerifiedArtifact', () => {
     const outcome = await readVerifiedArtifact(record.artifactId, [record]);
     expect(outcome.ok).toBe(false);
   });
+
+  /**
+   * The SAME LENGTH, which is the only version of this that reaches the digest.
+   *
+   * Every other tamper case here changes the byte count, so
+   * `stat.size !== record.sizeBytes` refuses first and the sha256 comparison
+   * never runs - delete the digest check and they all still pass. This one
+   * keeps the size identical (14 bytes either way), so the digest is the only
+   * thing left standing between a swapped file and the recipient.
+   *
+   * The scenario is not theoretical: an agent with workspace write access
+   * replaces the deliverable during the confirmation pause. The dialog names
+   * `brief.html` and the honest size; without this check the bytes on the wire
+   * are the attacker's.
+   */
+  it('refuses bytes swapped for DIFFERENT content of the SAME length', async () => {
+    const original = '<h1>brief</h1>';
+    const tampered = '<h1>EVIL!</h1>';
+    expect(tampered.length).toBe(original.length);
+
+    const record = await register('artifacts/brief.html', original);
+    await fs.writeFile(path.join(workspace, record.relativePath), tampered);
+
+    const outcome = await readVerifiedArtifact(record.artifactId, [record]);
+    expect(outcome.ok).toBe(false);
+    // Control, same fixture: the untampered file IS handed over, so the refusal
+    // above is the digest deciding and not the read failing for some other reason.
+    const clean = await register('artifacts/clean.html', original);
+    const ok = await readVerifiedArtifact(clean.artifactId, [clean]);
+    expect(ok.ok).toBe(true);
+  });
 });
