@@ -69,11 +69,7 @@ describe('buildSmtpEnvelope attachments', () => {
   });
 
   it('omits the field entirely for an ordinary reply', () => {
-    const envelope = buildSmtpEnvelope(
-      { type: 'text', text: 'just a reply' },
-      'team@example.com',
-      'me@example.com'
-    );
+    const envelope = buildSmtpEnvelope({ type: 'text', text: 'just a reply' }, 'team@example.com', 'me@example.com');
     expect(envelope.attachments).toBeUndefined();
   });
 

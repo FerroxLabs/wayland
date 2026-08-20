@@ -23,10 +23,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import {
-  FILE_CAPABLE_CHANNEL_TYPES,
-  buildSendTargets,
-} from '@process/services/artifacts/artifactSendConnectors';
+import { FILE_CAPABLE_CHANNEL_TYPES, buildSendTargets } from '@process/services/artifacts/artifactSendConnectors';
 import type { IChannelPluginConfig, IChannelUser } from '@process/channels/types';
 
 const plugin = (over: Partial<IChannelPluginConfig> = {}): IChannelPluginConfig =>
@@ -94,10 +91,7 @@ describe('buildSendTargets', () => {
   });
 
   it('lists one entry per address, however many rows carry it', () => {
-    const targets = buildSendTargets(
-      [plugin()],
-      [user(), user({ id: 'u2', displayName: 'The Team (again)' })]
-    );
+    const targets = buildSendTargets([plugin()], [user(), user({ id: 'u2', displayName: 'The Team (again)' })]);
     expect(targets[0].destinations).toEqual([{ destinationId: 'team@example.com', label: 'The Team' }]);
   });
 

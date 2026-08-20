@@ -209,10 +209,9 @@ export const artifacts = {
    * are all re-resolved in main, and a path or an address from the renderer
    * reaches nothing.
    */
-  sendTo: buildProvider<
-    ArtifactSendResult,
-    { artifactId: string; targetId: string; destinationId: string }
-  >('artifacts.send-to'),
+  sendTo: buildProvider<ArtifactSendResult, { artifactId: string; targetId: string; destinationId: string }>(
+    'artifacts.send-to'
+  ),
 };
 
 // #466 Computer-Use macOS permission onboarding. getStatus uses non-prompting

@@ -70,10 +70,8 @@ export function parseImapMessage(raw: ImapMessageEnvelope): IUnifiedIncomingMess
   if (!fromAddress || !messageId || !Number.isFinite(raw.uid)) return null;
 
   const toAddress = (raw.to?.[0]?.address ?? '').trim();
-  const subject =
-    typeof raw.subject === 'string' && raw.subject.length > 0 ? raw.subject : DEFAULT_SUBJECT;
-  const displayName =
-    typeof raw.from?.name === 'string' && raw.from.name.length > 0 ? raw.from.name : fromAddress;
+  const subject = typeof raw.subject === 'string' && raw.subject.length > 0 ? raw.subject : DEFAULT_SUBJECT;
+  const displayName = typeof raw.from?.name === 'string' && raw.from.name.length > 0 ? raw.from.name : fromAddress;
   const text = pickBodyText(raw.text, raw.html);
   const timestamp = normalizeTimestamp(raw.date);
   const references = Array.isArray(raw.references) ? raw.references.slice() : undefined;
@@ -123,10 +121,7 @@ export function buildSmtpEnvelope(
   if (!text) {
     throw new Error('SMTP envelope cannot be empty');
   }
-  const subject =
-    typeof message.subject === 'string' && message.subject.length > 0
-      ? message.subject
-      : DEFAULT_SUBJECT;
+  const subject = typeof message.subject === 'string' && message.subject.length > 0 ? message.subject : DEFAULT_SUBJECT;
 
   const replyId = inReplyTo ?? message.replyToMessageId;
 
@@ -155,9 +150,7 @@ export function buildSmtpEnvelope(
  * imports no node builtins, and a Windows-shaped name can reach a resolver
  * running with POSIX semantics in tests.
  */
-function buildAttachments(
-  hostAttachments: IUnifiedOutgoingMessage['hostAttachments']
-): readonly SmtpAttachment[] {
+function buildAttachments(hostAttachments: IUnifiedOutgoingMessage['hostAttachments']): readonly SmtpAttachment[] {
   if (!hostAttachments || hostAttachments.length === 0) return [];
 
   const built: SmtpAttachment[] = [];

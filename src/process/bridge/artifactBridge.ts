@@ -122,7 +122,8 @@ function buildSendEffects(channelRepo: IChannelRepository): ArtifactSendEffects 
     // Rebuilt from the user's own Settings -> Channels registry on EVERY call.
     // Never cached: a recipient revoked in Settings must stop being reachable
     // from a card immediately, not at the next restart.
-    listTargets: async () => buildSendTargets(await channelRepo.getChannelPlugins(), await channelRepo.getChannelUsers()),
+    listTargets: async () =>
+      buildSendTargets(await channelRepo.getChannelPlugins(), await channelRepo.getChannelUsers()),
     confirmSend: confirmArtifactSend,
     deliver: deliverArtifact,
   };
