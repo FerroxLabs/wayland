@@ -471,6 +471,13 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'cron.save-skill',
   'cron.confirm-proposal',
   'cron.restore-archived-job',
+  // --- P2-4 workspace promotion. `promote` copies the chat's files into the
+  //     user's Documents, pauses and re-arms the schedule, and repoints the
+  //     conversation; `preview` enumerates local workspace paths and the names
+  //     of every file earlier runs left behind. A paired-device token proves a
+  //     remote browser, not the local trusted user, so the whole namespace is
+  //     denied rather than just the write. ---
+  'promotion.',
   // --- In-app engine updater. `install` downloads + stages a native binary the
   //     next engine spawn executes; a remote caller reaching it is an RCE chain.
   //     `check` hits the network + discloses the engine version. HUMAN-only. ---

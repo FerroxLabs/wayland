@@ -24,6 +24,7 @@ import { initChannelBridge } from './channelBridge';
 import { initCockpitPreviewBridge } from './cockpitPreviewBridge';
 import { initConversationBridge } from './conversationBridge';
 import { initCronBridge } from './cronBridge';
+import { initPromotionBridge } from './promotionBridge';
 import { initConciergeConfigBridge } from './conciergeConfigBridge';
 import { initProjectBridge } from './projectBridge';
 import { initDatabaseBridge } from './databaseBridge';
@@ -152,6 +153,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initDatabaseBridge(deps.conversationRepo);
   initExtensionsBridge(deps.conversationRepo, deps.workerTaskManager);
   initCronBridge();
+  initPromotionBridge();
   initConciergeConfigBridge();
   initProjectBridge();
   initKickoffBridge();
@@ -282,6 +284,7 @@ export {
   initCockpitPreviewBridge,
   initConversationBridge,
   initCronBridge,
+  initPromotionBridge,
   initConciergeConfigBridge,
   initProjectBridge,
   initDatabaseBridge,
