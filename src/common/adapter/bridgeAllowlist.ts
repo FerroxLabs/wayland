@@ -275,6 +275,13 @@ export function buildStorage<Refer = unknown>(
 const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // Shell execution / open-with handlers (cmd/explorer, open, xdg-open).
   'shell.',
+  // P2-9 artifact seam. `artifacts.open` reaches an OS launcher on the LOCAL
+  // machine and `artifacts.save-copy` writes a file there; both are the same
+  // class as `shell.` above. `artifacts.list` is denied with them rather than
+  // separately, because it enumerates the absolute paths of every workspace the
+  // user has - a reconnaissance aid, and the exact input a path-based attack
+  // would want. There is no remote artifact view, so the whole namespace goes.
+  'artifacts.',
   // Hub extension install/update/retry/uninstall - remote-reachable RCE chain.
   'hub.',
   // Cost observability (WS-D). There is no remote cost view today, so deny the
