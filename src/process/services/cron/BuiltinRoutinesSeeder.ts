@@ -31,13 +31,17 @@ import { logger } from '@office-ai/platform';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
 import type { CronService } from './CronService';
-import type { CronJob, CronSchedule } from './CronStore';
+import { CRON_ROUTINE_KIND, type CronJob, type CronSchedule } from './CronStore';
 
 /** Backend used for seeded routines. wcore is the bundled Wayland Core engine, always present. */
 const ROUTINE_BACKEND: AgentBackend = 'wcore';
 
-/** Tag written into agentConfig.configOptions so routine crons are identifiable. */
-const ROUTINE_KIND = 'routine';
+/**
+ * Tag written into agentConfig.configOptions so routine crons are identifiable.
+ * Shared with `durableTaskWorkspace`, which uses it to keep seeding from
+ * allocating a durable folder for a routine nobody has enabled (P2-2).
+ */
+const ROUTINE_KIND = CRON_ROUTINE_KIND;
 
 type RoutineDef = {
   id: string;

@@ -18,6 +18,7 @@ import i18n, { i18nReady } from '@process/services/i18n';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 import { ProcessConfig } from '@process/utils/initStorage';
 import type { CronJob, CronSchedule } from './CronStore';
+import { durableWorkspaceMetadataForJob, isBundledRoutineJob } from './durableTaskWorkspace';
 import type { ICronRepository } from './ICronRepository';
 import type { ICronEventEmitter } from './ICronEventEmitter';
 import type { ICronJobExecutor } from './ICronJobExecutor';
@@ -300,6 +301,19 @@ export class CronService {
       },
     };
 
+    // P2-2: a `new_conversation` job with no workspace mints a throwaway temp dir
+    // on every fire, so it can never see its own history. Give it a durable task
+    // root before it is ever armed.
+    //
+    // Bundled routines are exempt HERE and only here: the seeder creates them
+    // through this method (which always creates enabled) and disables them a
+    // moment later, so allocating now would seed a folder for each of a dozen
+    // routines nobody enabled. They allocate on the enable transition instead.
+    if (job.enabled && !isBundledRoutineJob(job)) {
+      const metadata = await durableWorkspaceMetadataForJob(job);
+      if (metadata) job.metadata = metadata;
+    }
+
     // Calculate next run time
     this.updateNextRunTime(job);
 
@@ -356,11 +370,23 @@ export class CronService {
       throw new Error(i18n.t('cron.error.highFreqNewConversation'));
     }
 
+    // P2-2: first enable is when a recurring task earns a durable workspace.
+    // Allocated BEFORE the write and merged INTO it, so the workspace and the
+    // enable land together - two writes would let a crash arm a job that still
+    // has no workspace, which is the bug this fixes. An allocation failure
+    // propagates and the job stays disabled.
+    let effectiveUpdates = updates;
+    if (updates.enabled === true && !existing.enabled) {
+      const merged = { ...existing, ...updates, metadata: updates.metadata ?? existing.metadata } as CronJob;
+      const metadata = await durableWorkspaceMetadataForJob(merged);
+      if (metadata) effectiveUpdates = { ...updates, metadata };
+    }
+
     // Stop existing timer
     this.stopTimer(jobId);
 
     // Update in database
-    await this.repo.update(jobId, updates);
+    await this.repo.update(jobId, effectiveUpdates);
 
     // Get updated job
     const updated = (await this.repo.getById(jobId))!;
