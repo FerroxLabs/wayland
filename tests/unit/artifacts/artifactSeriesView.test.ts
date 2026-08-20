@@ -64,7 +64,10 @@ async function anArtifactOf(runId: string): Promise<string> {
 }
 
 beforeEach(async () => {
-  root = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-series-view-'));
+  // realpath, because the ledger records the realpath-collapsed workspace and
+  // macOS collapses `/var` to `/private/var`. Comparing against the
+  // un-collapsed form asserts a difference the platform invented.
+  root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'wl-series-view-')));
   workspace = path.join(root, 'workspace');
   seriesDir = path.join(workspace, 'artifacts', SERIES);
   ledgerPath = artifactLedgerPath(path.join(root, 'data'));
