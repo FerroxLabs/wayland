@@ -80,6 +80,36 @@ export type PromotionOutcome =
     }
   | { ok: false; refusal: PromotionRefusal };
 
+export type PromotionAssessment =
+  | { eligible: true; sourceWorkspace: string }
+  | { eligible: false; refusal: PromotionRefusal };
+
+/**
+ * The eligibility rules, shared by the offer (which must not touch anything)
+ * and by the promotion itself. Keeping one copy is the point: an offer that
+ * disagrees with what promotion will do is an offer that fails on accept.
+ */
+export function assessPromotion(
+  job: CronJob | null,
+  extra: Record<string, unknown> | undefined
+): PromotionAssessment {
+  if (!job) return { eligible: false, refusal: 'job-missing' };
+  // Rule 7: commit has to stay ONE write. A job that names its own workspace
+  // would need the CronStore updated too, which is the multi-store transaction
+  // a crash can leave disagreeing - and P2-2 already gives those jobs a durable
+  // workspace, so there is nothing here to fix.
+  if (job.metadata.agentConfig?.workspace) return { eligible: false, refusal: 'job-owns-workspace' };
+  if (!extra) return { eligible: false, refusal: 'conversation-missing' };
+  const source = typeof extra.workspace === 'string' ? extra.workspace.trim() : '';
+  if (!source) return { eligible: false, refusal: 'no-workspace' };
+  if (!isManagedWorkspaceName(path.basename(source))) {
+    // Rule 8. Not a `*-temp-*` name, so it is not the app's scratch directory:
+    // either the user picked it or it is already durable. Either way, hands off.
+    return { eligible: false, refusal: extra.customWorkspace === true ? 'user-chosen-workspace' : 'already-durable' };
+  }
+  return { eligible: true, sourceWorkspace: source };
+}
+
 export type PromotionDeps = {
   journal: PromotionJournal;
   getJob(jobId: string): Promise<CronJob | null>;
@@ -138,19 +168,13 @@ async function run(
   }
 
   const job = await deps.getJob(jobId);
-  if (!job) return { ok: false, refusal: 'job-missing' };
-  if (job.metadata.agentConfig?.workspace) return { ok: false, refusal: 'job-owns-workspace' };
+  const conversation = job ? await deps.getConversation(conversationId) : undefined;
+  const extra = conversation?.extra ?? (conversation ? {} : undefined);
+  const assessment = assessPromotion(job, extra);
+  if (assessment.eligible !== true) return { ok: false, refusal: assessment.refusal };
+  const source = assessment.sourceWorkspace;
 
-  const conversation = await deps.getConversation(conversationId);
-  if (!conversation) return { ok: false, refusal: 'conversation-missing' };
-  const extra = conversation.extra ?? {};
-  const source = typeof extra.workspace === 'string' ? extra.workspace.trim() : '';
-  if (!source) return { ok: false, refusal: 'no-workspace' };
-  if (!isManagedWorkspaceName(path.basename(source))) {
-    return { ok: false, refusal: extra.customWorkspace === true ? 'user-chosen-workspace' : 'already-durable' };
-  }
-
-  const wasEnabled = job.enabled;
+  const wasEnabled = job!.enabled;
   if (wasEnabled) await deps.setJobEnabled(jobId, false);
   try {
     if (!(await drain(conversationId, deps))) return { ok: false, refusal: 'run-in-flight' };
@@ -165,7 +189,7 @@ async function run(
     if (resumable) {
       record = resumable;
     } else {
-      const allocated = await deps.allocate(job.name, { ownerKind: 'task', ownerId: jobId });
+      const allocated = await deps.allocate(job!.name, { ownerKind: 'task', ownerId: jobId });
       const operationId = randomUUID();
       record = {
         schemaVersion: 1,

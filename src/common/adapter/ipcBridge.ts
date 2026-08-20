@@ -1519,6 +1519,65 @@ export const cron = {
 };
 
 /**
+ * P2-4 - promotion of a recurring chat's throwaway workspace to a durable one.
+ *
+ * Everything crossing this boundary is an ID. The renderer never names a
+ * filesystem path: the source workspaces are resolved in main from the
+ * conversations the job owns, and the destination is the promotion's own
+ * result. Both providers are remote-denied - promotion copies user data and
+ * writes into the user's Documents, which a paired browser token must not do.
+ */
+export const promotion = {
+  /** What to show BEFORE the user accepts. Touches nothing. */
+  preview: buildProvider<IPromotionOffer, { conversationId: string; jobId: string }>('promotion.preview'),
+  /** Accept the offer, optionally bringing forward chosen earlier-run files. */
+  promote: buildProvider<
+    IPromotionResult,
+    { conversationId: string; jobId: string; keep?: Array<{ conversationId: string; relPath: string }> }
+  >('promotion.promote'),
+};
+
+export type IPromotionRefusal =
+  | 'job-missing'
+  | 'job-owns-workspace'
+  | 'conversation-missing'
+  | 'no-workspace'
+  | 'already-durable'
+  | 'user-chosen-workspace'
+  | 'promotion-in-progress'
+  | 'run-in-flight';
+
+/** A file an earlier run left behind, offered for the user to keep or ignore. */
+export interface IEarlierRunDeliverable {
+  conversationId: string;
+  sourceWorkspace: string;
+  relPath: string;
+  size: number;
+  modifiedAtMs: number;
+  declared: boolean;
+  hidden: boolean;
+}
+
+export interface IPromotionOffer {
+  eligible: boolean;
+  refusal?: IPromotionRefusal;
+  sourceWorkspace?: string;
+  targetName?: string;
+  earlierRuns: IEarlierRunDeliverable[];
+  earlierRunsTruncated: boolean;
+}
+
+export interface IPromotionResult {
+  ok: boolean;
+  refusal?: IPromotionRefusal;
+  workspace?: string;
+  alreadyPromoted?: boolean;
+  skipped: Array<{ relPath: string; reason: 'symlink' | 'non-regular' }>;
+  imported: Array<{ relPath: string; sha256: string; sourceWorkspace: string }>;
+  importFailed: Array<{ relPath: string; reason: 'outside-workspace' | 'not-a-file' | 'copy-failed' }>;
+}
+
+/**
  * Concierge Phase 2b - confirm or dismiss an inline ConciergeConfigCard (rendered
  * when the agent emits [CONCIERGE_PROPOSE] in a chat). The mutation is applied in
  * MAIN only on `accept`; the optional `secret` carries a card-entered API key for
