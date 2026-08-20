@@ -9,9 +9,10 @@
  *
  * A paired-device WebSocket token proves a REMOTE BROWSER, not the local
  * trusted user. `artifacts.open` reaches an OS launcher on the LOCAL machine,
- * and `artifacts.list` enumerates the absolute paths of the user's workspaces -
- * a launcher and a reconnaissance aid respectively. Neither has any remote
- * surface, so the whole namespace is denied, the same way `shell.` is.
+ * and `artifacts.list` and `artifacts.series` enumerate the absolute paths of
+ * the user's workspaces - a launcher and a reconnaissance aid respectively.
+ * Neither has any remote surface, so the whole namespace is denied, the same
+ * way `shell.` is.
  *
  * This is a redteam test: it exists to fail if someone later adds an
  * `artifacts.*` capability and forgets the boundary.
@@ -30,11 +31,23 @@ describe('artifact seam remote boundary', () => {
     }
   });
 
-  it('registers exactly the four capabilities the surface needs, and no generic open', () => {
+  it('registers exactly the capabilities the surface needs, and no generic open', () => {
+    // The enumeration is the point: it fails the moment an `artifacts.*` key is
+    // added, so the boundary above is re-examined rather than inherited by
+    // accident. `series` enumerates canonical paths exactly as `list` does, and
+    // `open-target` reads the OS handler for one of them - both are the same
+    // local-only class as the rest of the namespace.
     const capabilities = [..._getRegisteredKeysForTests().providers]
       .filter((key) => key.startsWith('artifacts.'))
       .toSorted();
-    expect(capabilities).toEqual(['artifacts.list', 'artifacts.open', 'artifacts.reveal', 'artifacts.save-copy']);
+    expect(capabilities).toEqual([
+      'artifacts.list',
+      'artifacts.open',
+      'artifacts.open-target',
+      'artifacts.reveal',
+      'artifacts.save-copy',
+      'artifacts.series',
+    ]);
   });
 
   it('still allows an unrelated read so the denial is not vacuous', () => {

@@ -151,6 +151,8 @@ import { buildEngineSpawnEnv } from '@process/agent/wcore/envBuilder';
 import { listRuns, readLatest } from '@process/services/artifacts/artifactSeries';
 import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
 import { activeRunOutputDir, clearRunOutputDirs } from '@process/services/artifacts/runOutputDir';
+import { readRunJournal } from '@process/services/artifacts/artifactRunJournal';
+import { buildArtifactSeriesView } from '@process/services/artifacts/artifactSeriesView';
 
 /** The stable name a routine's prompt can hand the NEXT run as its input. */
 const BRIEF = 'last-brief.md';
@@ -269,12 +271,16 @@ function makeHarness(workspace: string) {
     await executor.executeJob(job, undefined, conversationId);
     if (opts.crash) return conversationId;
     guard.setProcessing(conversationId, false);
-    // The commit is fired from the idle callback without being awaited, as it
-    // is in production; drain the microtask queue the same way the app does.
+    // The commit is fired from the idle callback without being awaited, exactly
+    // as it is in production, so "the conversation is idle" is not "the run is
+    // published". A fixed sleep here was a race: under a loaded machine the
+    // ledger write had not landed and the assertions read an empty ledger.
+    // `onceIdle` fires SYNCHRONOUSLY inside setProcessing, so by the time that
+    // call returns the settle promise exists and can simply be awaited.
     await vi.waitFor(async () => {
       expect(guard.isProcessing(conversationId)).toBe(false);
     });
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await executor._whenSettledForTests();
     return conversationId;
   }
 
@@ -618,5 +624,96 @@ describe('a scheduled routine publishes a durable, dated, discoverable series', 
     const refusal = warned.filter((line) => line.includes('stolen.md'));
     expect(refusal).toHaveLength(1);
     expect(refusal[0]).toContain('symlink');
+  });
+  /**
+   * ------------------------------------------------------------------------
+   * A RUN THAT DID NOT PUBLISH HAS TO BE VISIBLE TO A PERSON.
+   * ------------------------------------------------------------------------
+   * Every one of these outcomes used to end at a `console.warn` and an
+   * abandoned staging tree, which means the filesystem afterwards is byte for
+   * byte identical to "the task never ran". The user's series simply stopped
+   * advancing, with nothing anywhere to say why - and the two states they most
+   * need to tell apart, "it broke" and "it has not run yet", looked the same.
+   *
+   * These drive the REAL executor and then read the REAL series view the card
+   * renders, so what is asserted is what a person would actually see.
+   */
+
+  it('a run whose TURN dies is recorded, and shows up in the history as failed', async () => {
+    const h = makeHarness(workspace);
+    await h.run(jobs[0], async (outputDir) => {
+      await fsp.writeFile(pathMod.join(outputDir, BRIEF), 'MONDAY', 'utf8');
+    });
+
+    await expect(
+      h.run(jobs[0], async () => {
+        throw new Error('engine died on start');
+      })
+    ).rejects.toThrow('engine died on start');
+
+    // The filesystem still holds exactly one run - the abandon path is intact.
+    const published = await listRuns(seriesDir);
+    expect(published).toHaveLength(1);
+
+    // ...and the failure is now RECORDED rather than only warned about.
+    const journal = await readRunJournal(seriesDir);
+    expect(journal).toHaveLength(1);
+    expect(journal[0]).toMatchObject({ status: 'failed', taskId: jobs[0].id });
+    expect(journal[0].message).toContain('engine died on start');
+    expect(journal[0].runId).not.toBe(published[0].runId);
+
+    // And this is what the card shows: two runs, the newest one broken, the
+    // deliverable on screen marked as the older one that worked.
+    const records = await readArtifactLedger(ledger);
+    const view = await buildArtifactSeriesView(records[0].artifactId, {
+      readLedger: async () => records,
+    });
+    expect(view!.totalRuns).toBe(2);
+    expect(view!.runs[0].status).toBe('failed');
+    expect(view!.runs[0].message).toContain('engine died on start');
+    expect(view!.runs[1]).toMatchObject({ runId: published[0].runId, status: 'published', current: true });
+  });
+
+  it('a run that produces NOTHING is recorded as no-output, not as a failure', async () => {
+    const h = makeHarness(workspace);
+    await h.run(jobs[0], async (outputDir) => {
+      await fsp.writeFile(pathMod.join(outputDir, BRIEF), 'MONDAY', 'utf8');
+    });
+    await h.run(jobs[0], async () => {});
+
+    const journal = await readRunJournal(seriesDir);
+    expect(journal).toHaveLength(1);
+    expect(journal[0].status).toBe('no-output');
+    // Nothing was published for it, and the last real brief is untouched.
+    expect(await listRuns(seriesDir)).toHaveLength(1);
+    expect(await fsp.readFile(pathMod.join(seriesDir, BRIEF), 'utf8')).toBe('MONDAY');
+  });
+
+  it('a PUBLICATION that throws is recorded, instead of vanishing into a console warning', async () => {
+    // This is the exact line the lane was pointed at: `settleArtifactRun`
+    // caught a failed `commitTaskRun`, warned, abandoned, and returned. The
+    // ledger write is made impossible mid-run by pointing the app data
+    // directory at a FILE, which is the cheapest real way to break it.
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const h = makeHarness(workspace);
+      await h.run(jobs[0], async (outputDir) => {
+        await fsp.writeFile(pathMod.join(outputDir, BRIEF), 'TUESDAY', 'utf8');
+        const blocked = pathMod.join(documentsDir, 'ledger-in-the-way');
+        await fsp.writeFile(blocked, 'not a directory', 'utf8');
+        dataPathRef.value = blocked;
+      });
+    } finally {
+      warnSpy.mockRestore();
+      dataPathRef.value = dataDir;
+    }
+
+    const journal = await readRunJournal(seriesDir);
+    expect(journal).toHaveLength(1);
+    expect(journal[0].status).toBe('failed');
+    expect(journal[0].message).toBeTruthy();
+    // The ledger really did not get the run: without the journal there would be
+    // no record of it anywhere the user can reach.
+    expect(await readArtifactLedger(ledger)).toEqual([]);
   });
 });

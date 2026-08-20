@@ -28,6 +28,7 @@ import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
+import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal';
 import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import { assertNotPromoting } from '@process/services/promotion/promotionLock';
 import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
@@ -69,6 +70,28 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    */
   private readonly settledRuns = new Set<string>();
 
+  /**
+   * The publication currently in flight.
+   *
+   * The idle hook that starts a settle is a CALLBACK: it cannot await, so the
+   * publication runs detached and "the conversation went idle" is NOT "the run
+   * is published". Nothing in production needs to know the difference. A test
+   * does, and the only thing it had was a fixed sleep - which passes on an idle
+   * machine, fails under a loaded one, and turns a real ordering question into
+   * a flake.
+   */
+  private settleInFlight: Promise<void> = Promise.resolve();
+
+  /**
+   * Await the publication started by the last turn, if any.
+   *
+   * @internal Ordering seam for tests. Never resolves to a value and never
+   * rejects: `settleArtifactRun` reports its own failures.
+   */
+  _whenSettledForTests(): Promise<void> {
+    return this.settleInFlight;
+  }
+
   constructor(
     private readonly taskManager: IWorkerTaskManager,
     private readonly busyGuard: CronBusyGuard
@@ -102,7 +125,10 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     try {
       return await this.runJobTurn(job, artifactRun, onAcquired, preparedConversationId, triggeredAt);
     } catch (error) {
-      if (artifactRun) await this.settleArtifactRun(artifactRun, job, false);
+      if (artifactRun) {
+        this.settleInFlight = this.settleArtifactRun(artifactRun, job, false, error);
+        await this.settleInFlight;
+      }
       throw error;
     }
   }
@@ -141,7 +167,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * latched. A commit that itself fails abandons rather than leaving a staging
    * directory claiming the workspace's output.
    */
-  private async settleArtifactRun(handle: TaskRunHandle, job: CronJob, publish: boolean): Promise<void> {
+  private async settleArtifactRun(
+    handle: TaskRunHandle,
+    job: CronJob,
+    publish: boolean,
+    failure?: unknown
+  ): Promise<void> {
     if (this.settledRuns.has(handle.runId)) return;
     this.settledRuns.add(handle.runId);
     while (this.settledRuns.size > MAX_REMEMBERED_SETTLED_RUNS) {
@@ -151,6 +182,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     }
 
     if (!publish) {
+      // The run never reached its turn. `abandonTaskRun` removes the staging
+      // tree, so after this nothing on disk says the run was attempted - which
+      // is why the journal entry is written FIRST and unconditionally. A
+      // console.warn was the only record this ever had, and the user does not
+      // read the console: they read a series whose newest entry is yesterday's.
+      await this.journalRun(handle, job, 'failed', failure);
       await abandonTaskRun(handle).catch((err) => {
         console.warn(`[CronExecutor] Failed to abandon run ${handle.runId} for job ${job.id}:`, err);
       });
@@ -164,6 +201,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       });
       if (!outcome.published) {
         console.info(`[CronExecutor] Job ${job.id} run ${handle.runId} produced no output; nothing published.`);
+        // "It ran and made nothing" is a different problem from "it broke", and
+        // both were previously indistinguishable from "it never ran".
+        await this.journalRun(handle, job, 'no-output');
         return;
       }
       console.info(
@@ -178,8 +218,31 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       }
     } catch (err) {
       console.warn(`[CronExecutor] Failed to publish run ${handle.runId} for job ${job.id}:`, err);
+      // A publication that throws leaves NO dated directory, so this is the
+      // only place the failure can be recorded where a user will ever see it.
+      await this.journalRun(handle, job, 'failed', err);
       await abandonTaskRun(handle).catch(() => {});
     }
+  }
+
+  /**
+   * Leave a durable record that this run settled without publishing.
+   *
+   * Best effort by construction - `recordRunOutcome` never throws - because a
+   * run that already failed must not fail a second time over its own epitaph.
+   */
+  private async journalRun(
+    handle: TaskRunHandle,
+    job: CronJob,
+    status: 'failed' | 'no-output',
+    failure?: unknown
+  ): Promise<void> {
+    await recordRunOutcome(handle.seriesDir, {
+      runId: handle.runId,
+      taskId: job.id,
+      status,
+      message: failure instanceof Error ? failure.message : failure === undefined ? undefined : String(failure),
+    });
   }
 
   private async runJobTurn(
@@ -296,7 +359,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // end of the run; the conversation going idle is.
     if (artifactRun) {
       this.busyGuard.onceIdle(conversationId, () => {
-        void this.settleArtifactRun(artifactRun, job, true);
+        this.settleInFlight = this.settleArtifactRun(artifactRun, job, true);
       });
     }
 

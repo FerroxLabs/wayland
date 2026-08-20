@@ -41,11 +41,12 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
-import type { ArtifactSaveResult, ArtifactSummary } from '@/common/types/artifacts';
+import type { ArtifactOpenTarget, ArtifactSaveResult, ArtifactSummary } from '@/common/types/artifacts';
 import { refuseUnsafeOpenTarget } from '@process/bridge/shellOpenSafety';
 
 import type { ArtifactRecord } from './artifactLedger';
 import { readVerifiedArtifact, resolveArtifactTarget } from './artifactTarget';
+import { cachedDefaultApplicationName } from './defaultApplication';
 
 /**
  * The host capabilities these actions need. Injected so the decision logic can
@@ -89,6 +90,33 @@ export async function openArtifact(artifactId: unknown, effects: ArtifactHostEff
   if (refusal) return refusal;
 
   return effects.launch(confined);
+}
+
+/**
+ * Name the application `openArtifact` would reach for this deliverable.
+ *
+ * Same first two steps as opening it - resolve the id through the ledger, then
+ * confine - because naming an app must not become a second, laxer way to turn
+ * an id into a path. The resolver then consults the type gate itself, so a
+ * target `openArtifact` would refuse is never labelled with an app that will
+ * not open it, and no subprocess is spent on one.
+ *
+ * Every failure is `{ applicationName: null }`, which renders as the plain
+ * "Open". A label is not worth an error toast, and a button that names the
+ * wrong app is worse than one that names none.
+ */
+export async function describeArtifactOpenTarget(
+  artifactId: unknown,
+  effects: ArtifactHostEffects,
+  resolveApplicationName: (target: string) => Promise<string | null> = cachedDefaultApplicationName
+): Promise<ArtifactOpenTarget> {
+  const resolved = await resolveArtifactTarget(artifactId, await effects.readLedger());
+  if (!resolved.ok) return { applicationName: null };
+
+  const confined = await effects.confine(resolved.path);
+  if (!confined) return { applicationName: null };
+
+  return { applicationName: await resolveApplicationName(confined) };
 }
 
 /**
@@ -160,15 +188,27 @@ export async function listArtifactSummaries(effects: ArtifactHostEffects): Promi
   return records
     .toSorted((left, right) => (right.runAt ?? '').localeCompare(left.runAt ?? ''))
     .slice(0, MAX_LISTED_ARTIFACTS)
-    .map((record) => ({
-      artifactId: record.artifactId,
-      taskId: record.taskId,
-      runId: record.runId,
-      ...(record.title ? { title: record.title } : {}),
-      fileName: path.basename(record.relativePath),
-      canonicalPath: path.resolve(record.workspace, ...record.relativePath.split('/')),
-      sizeBytes: record.sizeBytes,
-      runAt: record.runAt,
-      declaredBy: record.declaredBy,
-    }));
+    .map(toArtifactSummary);
+}
+
+/**
+ * The renderer-facing projection of one ledger record.
+ *
+ * Shared with the series view rather than duplicated: the two surfaces must
+ * agree on what `canonicalPath` is, and a second copy of this mapping is how
+ * the bar ends up showing a different target than the history row that opens
+ * the same file.
+ */
+export function toArtifactSummary(record: ArtifactRecord): ArtifactSummary {
+  return {
+    artifactId: record.artifactId,
+    taskId: record.taskId,
+    runId: record.runId,
+    ...(record.title ? { title: record.title } : {}),
+    fileName: path.basename(record.relativePath),
+    canonicalPath: path.resolve(record.workspace, ...record.relativePath.split('/')),
+    sizeBytes: record.sizeBytes,
+    runAt: record.runAt,
+    declaredBy: record.declaredBy,
+  };
 }

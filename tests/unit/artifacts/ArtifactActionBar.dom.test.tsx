@@ -20,6 +20,12 @@ const ipcMock = vi.hoisted(() => ({
   reveal: vi.fn(),
   saveCopy: vi.fn(),
   list: vi.fn(),
+  // The card also asks the host what app would open this and what its run
+  // history is. Both are answered as "nothing to add" here on purpose: what
+  // this file pins is that the THREE ACTIONS still address an id and still
+  // report a refusal, unchanged by anything the history strip does.
+  series: vi.fn(),
+  openTarget: vi.fn(),
 }));
 
 vi.mock('@/common', () => ({
@@ -29,6 +35,8 @@ vi.mock('@/common', () => ({
       reveal: { invoke: ipcMock.reveal },
       saveCopy: { invoke: ipcMock.saveCopy },
       list: { invoke: ipcMock.list },
+      series: { invoke: ipcMock.series },
+      openTarget: { invoke: ipcMock.openTarget },
     },
   },
 }));
@@ -59,6 +67,8 @@ beforeEach(() => {
   ipcMock.open.mockResolvedValue({ ok: true });
   ipcMock.reveal.mockResolvedValue({ ok: true });
   ipcMock.saveCopy.mockResolvedValue({ ok: true, savedTo: '/Users/sean/Desktop/brief.html' });
+  ipcMock.series.mockResolvedValue(null);
+  ipcMock.openTarget.mockResolvedValue({ applicationName: null });
 });
 
 describe('ArtifactActionBar', () => {
@@ -71,7 +81,7 @@ describe('ArtifactActionBar', () => {
     const onMessage = vi.fn();
     render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
 
-    fireEvent.click(screen.getByText('preview.artifactOpen'));
+    fireEvent.click(screen.getByTestId('artifact-open'));
     await waitFor(() => expect(ipcMock.open).toHaveBeenCalledTimes(1));
     fireEvent.click(screen.getByText('preview.artifactReveal'));
     await waitFor(() => expect(ipcMock.reveal).toHaveBeenCalledTimes(1));
@@ -90,7 +100,7 @@ describe('ArtifactActionBar', () => {
     const onMessage = vi.fn();
     render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
 
-    fireEvent.click(screen.getByText('preview.artifactOpen'));
+    fireEvent.click(screen.getByTestId('artifact-open'));
     await waitFor(() => expect(onMessage).toHaveBeenCalledTimes(1));
     expect(onMessage.mock.calls[0][0]).toBe('error');
     expect(onMessage.mock.calls[0][1]).toContain('.command');

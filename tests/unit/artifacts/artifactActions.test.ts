@@ -18,6 +18,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { registerArtifacts, type ArtifactRecord } from '@process/services/artifacts/artifactLedger';
 import {
+  describeArtifactOpenTarget,
   listArtifactSummaries,
   openArtifact,
   revealArtifact,
@@ -222,5 +223,71 @@ describe('listArtifactSummaries', () => {
     await register('artifacts/seed.html', 'x');
     const summaries = await listArtifactSummaries(effects);
     expect(summaries.length).toBeLessThanOrEqual(500);
+  });
+});
+
+describe('describeArtifactOpenTarget', () => {
+  /**
+   * The button used to say a bare "Open" and the user could not tell what would
+   * happen before clicking. Naming the app fixes that - and must not become a
+   * second, laxer way to turn an id into a path, or a promise the click does
+   * not keep.
+   */
+  it('names the app for the CONFINED, ledger-resolved path and nothing else', async () => {
+    const record = await register('artifacts/2026-08-20/r1/brief.html', '<h1>brief</h1>');
+    const { effects } = buildEffects();
+    const resolveName = vi.fn(async () => 'Preview');
+
+    await expect(describeArtifactOpenTarget(record.artifactId, effects, resolveName)).resolves.toEqual({
+      applicationName: 'Preview',
+    });
+    expect(resolveName).toHaveBeenCalledTimes(1);
+    expect(resolveName.mock.calls[0][0]).toBe(path.join(workspace, record.relativePath));
+  });
+
+  it('names nothing for an id the ledger does not know, and never resolves anything', async () => {
+    await register('artifacts/2026-08-20/r1/brief.html', '<h1>brief</h1>');
+    const { effects } = buildEffects();
+    const resolveName = vi.fn(async () => 'Preview');
+
+    for (const id of ['f'.repeat(32), '', undefined, { artifactId: 'x' }]) {
+      // eslint-disable-next-line no-await-in-loop -- each id is a separate claim
+      await expect(describeArtifactOpenTarget(id, effects, resolveName)).resolves.toEqual({ applicationName: null });
+    }
+    expect(resolveName).not.toHaveBeenCalled();
+  });
+
+  it('names nothing when confinement refuses the target', async () => {
+    const record = await register('artifacts/2026-08-20/r1/brief.html', '<h1>brief</h1>');
+    const { effects } = buildEffects({ confine: async () => null });
+    const resolveName = vi.fn(async () => 'Preview');
+
+    await expect(describeArtifactOpenTarget(record.artifactId, effects, resolveName)).resolves.toEqual({
+      applicationName: null,
+    });
+    expect(resolveName).not.toHaveBeenCalled();
+  });
+
+  it('names nothing when the file no longer matches what the ledger recorded', async () => {
+    // Same identity re-verification `openArtifact` does. A label computed from
+    // a file that has since been swapped would describe the wrong document.
+    const record = await register('artifacts/2026-08-20/r1/brief.html', '<h1>brief</h1>');
+    await fs.writeFile(path.join(workspace, record.relativePath), '<h1>something else entirely</h1>');
+    const { effects } = buildEffects();
+    const resolveName = vi.fn(async () => 'Preview');
+
+    await expect(describeArtifactOpenTarget(record.artifactId, effects, resolveName)).resolves.toEqual({
+      applicationName: null,
+    });
+    expect(resolveName).not.toHaveBeenCalled();
+  });
+
+  it('reports no name rather than failing when the resolver has no answer', async () => {
+    const record = await register('artifacts/2026-08-20/r1/brief.html', '<h1>brief</h1>');
+    const { effects } = buildEffects();
+
+    await expect(describeArtifactOpenTarget(record.artifactId, effects, async () => null)).resolves.toEqual({
+      applicationName: null,
+    });
   });
 });

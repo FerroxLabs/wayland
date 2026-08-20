@@ -26,7 +26,7 @@ import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/wor
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
-import type { ArtifactSaveResult, ArtifactSummary } from '../types/artifacts';
+import type { ArtifactOpenTarget, ArtifactSaveResult, ArtifactSeriesView, ArtifactSummary } from '../types/artifacts';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
 import type { IjfwErrorReason, IjfwInvokeResult, IjfwRuntimeModePublic } from '../types/ijfw';
 import type {
@@ -163,6 +163,21 @@ export const artifacts = {
   reveal: buildProvider<ShellOpenResult, { artifactId: string }>('artifacts.reveal'),
   /** Copy the VERIFIED bytes somewhere the user chooses (mail, Desktop, share). */
   saveCopy: buildProvider<ArtifactSaveResult, { artifactId: string }>('artifacts.save-copy'),
+  /**
+   * The run history of the series this deliverable belongs to - newest first,
+   * capped, every run carrying its own artifact IDS. The series is derived from
+   * the requested artifact's own ledger record, never from the caller, and
+   * opening an earlier run goes back through `open` with an id like any other.
+   * Null when the id is unknown or the artifact is not filed in a series.
+   */
+  series: buildProvider<ArtifactSeriesView | null, { artifactId: string }>('artifacts.series'),
+  /**
+   * What the OS would open this deliverable with, so the button can say
+   * "Open in Preview" instead of "Open". A LABEL, never a capability: the type
+   * gate still decides what may be launched, and `applicationName` is null
+   * whenever the answer cannot be established honestly.
+   */
+  openTarget: buildProvider<ArtifactOpenTarget, { artifactId: string }>('artifacts.open-target'),
 };
 
 // #466 Computer-Use macOS permission onboarding. getStatus uses non-prompting

@@ -23,6 +23,7 @@ import path from 'path';
 import { ipcBridge } from '@/common';
 import { getDataPath } from '@process/utils';
 import {
+  describeArtifactOpenTarget,
   listArtifactSummaries,
   openArtifact,
   revealArtifact,
@@ -30,6 +31,7 @@ import {
   type ArtifactHostEffects,
 } from '@process/services/artifacts/artifactActions';
 import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
+import { buildArtifactSeriesView } from '@process/services/artifacts/artifactSeriesView';
 
 import { confinePath } from './pathConfinement';
 import { openPathReporting, revealPathReporting } from './shellBridge';
@@ -63,4 +65,7 @@ export function initArtifactBridge(): void {
   ipcBridge.artifacts.open.provider(({ artifactId }) => openArtifact(artifactId, effects));
   ipcBridge.artifacts.reveal.provider(({ artifactId }) => revealArtifact(artifactId, effects));
   ipcBridge.artifacts.saveCopy.provider(({ artifactId }) => saveArtifactCopy(artifactId, effects));
+  ipcBridge.artifacts.series.provider(({ artifactId }) => buildArtifactSeriesView(artifactId, effects));
+  ipcBridge.artifacts.openTarget.provider(({ artifactId }) => describeArtifactOpenTarget(artifactId, effects));
 }
+

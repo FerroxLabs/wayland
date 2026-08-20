@@ -293,10 +293,14 @@ function makeHarness(workspace: string) {
     const conversationId = await executor.prepareConversation(job);
     await executor.executeJob(job, undefined, conversationId);
     guard.setProcessing(conversationId, false);
+    // The commit is fired from the idle callback without being awaited, exactly
+    // as it is in production, so "the conversation is idle" is not "the run is
+    // published". A fixed sleep here was a race: under a loaded machine the
+    // ledger write had not landed and the assertions read an empty ledger.
     await vi.waitFor(async () => {
       expect(guard.isProcessing(conversationId)).toBe(false);
     });
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await executor._whenSettledForTests();
     return conversationId;
   }
 
