@@ -567,7 +567,18 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           const config = job.metadata.agentConfig!;
           const extra = latestConv.extra as Record<string, unknown> | undefined;
           const convBackend = extra?.backend as string | undefined;
-          const configWorkspace = config.workspace || '';
+          // P2-3: the CONVERSATION is the source of truth for the workspace. The
+          // job's copy is authoritative only when it actually names one.
+          //
+          // `config.workspace || ''` used to turn "this job expresses no opinion"
+          // into "the workspace is now empty", which read as a change and rehomed
+          // the run into a fresh conversation with `workspace: ''` - i.e. a new
+          // `wcore-temp-<ts>` that cannot see any previous run. That is the
+          // `extra.backend` defect one field over: `backfillCronJobIdOnConversations`
+          // synthesises an agentConfig carrying a backend and NO workspace, so it
+          // only ever bit after a restart, and it would throw away exactly the
+          // durable workspace P2-2 allocates.
+          const configWorkspace = config.workspace;
           // Compare against cronWorkspace (what was configured), not workspace
           // (which may be overwritten by agent runtime, e.g. codex temp dir).
           const prevCronWorkspace = (extra?.cronWorkspace as string | undefined) ?? '';
@@ -590,7 +601,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           const agentChanged = convBackend
             ? convBackend !== config.backend
             : latestConv.type !== getConversationTypeForBackend(config.backend);
-          const workspaceChanged = prevCronWorkspace !== configWorkspace;
+          const workspaceChanged = configWorkspace !== undefined && prevCronWorkspace !== configWorkspace;
 
           console.log(
             `[CronExecutor] resolveConversation: convBackend=${convBackend}, convType=${latestConv.type}, configBackend=${config.backend}, agentChanged=${agentChanged}, prevCronWorkspace=${prevCronWorkspace}, configWorkspace=${configWorkspace}, workspaceChanged=${workspaceChanged}`
@@ -614,9 +625,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // field the chat already has.
           const userOwnedChat = this.isUserOwnedConversation(latestConv);
 
-          // Backfill workspace for old conversations created before this field was always set
-          if (extra?.workspace === undefined || extra?.workspace === null) {
-            extraUpdates.workspace = config.workspace || '';
+          // Backfill workspace for old conversations created before this field was
+          // always set - but only from a workspace the job actually names. Writing
+          // `''` here would copy the job's non-answer into the conversation store
+          // and make the two disagree about which one holds the truth (P2-3).
+          if ((extra?.workspace === undefined || extra?.workspace === null) && configWorkspace) {
+            extraUpdates.workspace = configWorkspace;
           }
 
           if (!userOwnedChat && config.mode && extra?.sessionMode !== config.mode) {
