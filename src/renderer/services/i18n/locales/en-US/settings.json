@@ -2160,6 +2160,12 @@
   },
   "storagePage": {
     "title": "Storage",
+    "retentionWindowLabel": "Offer folders with files for review after",
+    "retentionWindow30": "30 days",
+    "retentionWindow60": "60 days",
+    "retentionWindow90": "90 days",
+    "retentionWindowNever": "Never",
+    "retentionWindowSaveFailed": "Could not save the review window.",
     "authorityConversation": "Chats",
     "authorityProject": "Projects",
     "authoritySchedule": "Schedules",

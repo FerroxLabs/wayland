@@ -2039,6 +2039,12 @@
   },
   "storagePage": {
     "title": "存储",
+    "retentionWindowLabel": "多久后将含有文件的文件夹列入待审阅",
+    "retentionWindow30": "30 天",
+    "retentionWindow60": "60 天",
+    "retentionWindow90": "90 天",
+    "retentionWindowNever": "从不",
+    "retentionWindowSaveFailed": "无法保存审阅周期。",
     "authorityConversation": "聊天",
     "authorityProject": "项目",
     "authoritySchedule": "计划任务",

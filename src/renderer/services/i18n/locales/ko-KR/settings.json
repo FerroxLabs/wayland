@@ -2040,6 +2040,12 @@
   },
   "storagePage": {
     "title": "저장소",
+    "retentionWindowLabel": "파일이 있는 폴더를 검토 대상으로 올리기까지",
+    "retentionWindow30": "30일",
+    "retentionWindow60": "60일",
+    "retentionWindow90": "90일",
+    "retentionWindowNever": "안 함",
+    "retentionWindowSaveFailed": "검토 기간을 저장하지 못했습니다.",
     "authorityConversation": "채팅",
     "authorityProject": "프로젝트",
     "authoritySchedule": "예약",

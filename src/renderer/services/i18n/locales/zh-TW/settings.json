@@ -2040,6 +2040,12 @@
   },
   "storagePage": {
     "title": "儲存",
+    "retentionWindowLabel": "多久後將含有檔案的資料夾列入待審閱",
+    "retentionWindow30": "30 天",
+    "retentionWindow60": "60 天",
+    "retentionWindow90": "90 天",
+    "retentionWindowNever": "從不",
+    "retentionWindowSaveFailed": "無法儲存審閱週期。",
     "authorityConversation": "聊天",
     "authorityProject": "專案",
     "authoritySchedule": "排程",

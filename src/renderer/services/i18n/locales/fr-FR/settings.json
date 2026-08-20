@@ -2065,6 +2065,12 @@
   },
   "storagePage": {
     "title": "Stockage",
+    "retentionWindowLabel": "Proposer les dossiers contenant des fichiers pour révision après",
+    "retentionWindow30": "30 jours",
+    "retentionWindow60": "60 jours",
+    "retentionWindow90": "90 jours",
+    "retentionWindowNever": "Jamais",
+    "retentionWindowSaveFailed": "Impossible d’enregistrer le délai de révision.",
     "authorityConversation": "Discussions",
     "authorityProject": "Projets",
     "authoritySchedule": "Planifications",
