@@ -18,7 +18,7 @@ import i18n, { i18nReady } from '@process/services/i18n';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 import { ProcessConfig } from '@process/utils/initStorage';
 import type { CronJob, CronSchedule } from './CronStore';
-import { durableWorkspaceMetadataForJob, isBundledRoutineJob } from './durableTaskWorkspace';
+import { durableWorkspaceMetadataForJob, isBundledRoutineJob, jobNeedsDurableWorkspace } from './durableTaskWorkspace';
 import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import type { ICronRepository } from './ICronRepository';
 import type { ICronEventEmitter } from './ICronEventEmitter';
@@ -621,6 +621,10 @@ export class CronService {
     if (!job) {
       throw new Error(`Job not found: ${jobId}`);
     }
+    // BEFORE prepareConversation: that call is what mints the conversation and
+    // its workspace, so a back-fill after it would arrive one temp directory
+    // too late.
+    await this.backfillDurableWorkspace(job);
     const conversationId = await this.executor.prepareConversation(job);
     // Fire-and-forget: execute in background, pass the prepared conversationId to skip re-creation
     void this.executeJob(job, conversationId);
@@ -811,9 +815,49 @@ export class CronService {
     }
     this.runningJobs.add(job.id);
     try {
+      await this.backfillDurableWorkspace(job);
       await this.executeJobInner(job, preparedConversationId);
     } finally {
       this.runningJobs.delete(job.id);
+    }
+  }
+
+  /**
+   * P2-2 BACK-FILL: give a durable task root to a job that was already ENABLED
+   * when durable workspaces shipped.
+   *
+   * `durableWorkspaceMetadataForJob` is reached from exactly two places -
+   * `addJob` and the disabled-to-enabled transition in `updateJob`. A job armed
+   * before either existed passes through neither, so every fire mints a fresh
+   * `wcore-temp-<ts>` and the task can never see its own history. Nothing in
+   * the product would ever have repaired it: the user would have to toggle the
+   * task off and on again, and there is nothing telling them to.
+   *
+   * DELIBERATELY LAZY, AND DELIBERATELY NOT A BOOT SWEEP. Allocating at startup
+   * would create a folder in the user's Documents for every routine they ever
+   * enabled and forgot, on an upgrade they did not ask for. Allocating HERE
+   * creates one only for a task that is about to run and write a report into
+   * it, which is what the enable was supposed to do in the first place.
+   *
+   * An allocation failure is swallowed on purpose - unlike the enable path,
+   * which aborts. There the user is standing in front of the UI and a failed
+   * enable is honest feedback; here the run is already happening unattended and
+   * the pre-P2-2 behaviour (a throwaway workspace) is strictly better than not
+   * running at all.
+   */
+  private async backfillDurableWorkspace(job: CronJob): Promise<void> {
+    if (!job.enabled || !jobNeedsDurableWorkspace(job)) return;
+    try {
+      const metadata = await durableWorkspaceMetadataForJob(job);
+      if (!metadata) return;
+      await this.repo.update(job.id, { metadata });
+      // The timer holds this same object and hands it to the next fire, so the
+      // in-memory copy has to move with the stored one or the next run
+      // re-allocates.
+      job.metadata = metadata;
+      console.info(`[CronService] Allocated a durable workspace for already-enabled job ${job.id} at first fire.`);
+    } catch (err) {
+      console.warn(`[CronService] Could not back-fill a durable workspace for job ${job.id}:`, err);
     }
   }
 

@@ -231,10 +231,21 @@ describe('no bundled content sends a deliverable outside the workspace', () => {
  *
  * The engine spawns the agent with `cwd: workspace`
  * (src/process/agent/wcore/index.ts:643; the ACP path does the same with
- * `workingDir`), and sets no workspace env var, so `$PWD` at the start of a
- * command block IS the workspace root. Anchoring the output directory to
- * `$PWD` BEFORE the `cd` is therefore what makes the resolved location
- * correct, and it is what this test requires.
+ * `workingDir`), so `$PWD` at the start of a command block IS the workspace
+ * root. Anchoring the output directory BEFORE the `cd` is therefore what makes
+ * the resolved location correct, and it is what this test requires.
+ *
+ * TWO ANCHORS ARE LEGAL, and the test was widened - not relaxed - to accept
+ * the second. The engine now also exports `WAYLAND_OUTPUT_DIR`, an ABSOLUTE
+ * path that on a scheduled run is that run's staging directory, and a skill
+ * that ignores it stages nothing, so its run publishes nothing and the task
+ * keeps no history. `$PWD/` alone was the only anchor when this was written and
+ * is still correct for an ad-hoc run, so it stays legal as the FALLBACK half of
+ * `${WAYLAND_OUTPUT_DIR:-$PWD/...}`. What stays refused is what always was: an
+ * output path that is bare-relative, or anchored after the `cd`. The fallback
+ * half is checked for the same `$PWD/` anchoring, because a `${VAR:-artifacts/x}`
+ * default is resolved at USE time - after the `cd` - and would reintroduce the
+ * original defect through the back door.
  * ---------------------------------------------------------------------------
  */
 
@@ -287,11 +298,25 @@ describe('a documented output directory resolves against the workspace root, not
       // The anchor must be IN the command block, not merely described in prose:
       // prose cannot be executed, and a block that lost its anchor while the
       // prose survived is exactly the regression this guards.
-      const anchors = shell.filter((l) => /\bOUT="?\$\{?PWD\}?\//.test(l.text));
+      const anchors = shell.filter((l) => /\bOUT="?\$\{?(?:WAYLAND_OUTPUT_DIR\b|PWD\}?\/)/.test(l.text));
 
       if (anchors.length === 0) {
-        offenders.push(`${rel}: uses <OUT> at line ${uses[0].line} but never anchors it to $PWD`);
+        offenders.push(
+          `${rel}: uses <OUT> at line ${uses[0].line} but never anchors it to $WAYLAND_OUTPUT_DIR or $PWD`
+        );
         continue;
+      }
+
+      // A `${WAYLAND_OUTPUT_DIR:-...}` default is expanded where OUT is USED,
+      // so a bare-relative fallback resolves AFTER the cd - the original defect
+      // wearing the new syntax.
+      for (const anchor of anchors) {
+        const fallback = anchor.text.match(/\bOUT="?\$\{WAYLAND_OUTPUT_DIR:-([^}]*)\}/);
+        if (fallback && !/^\$\{?PWD\}?\//.test(fallback[1])) {
+          offenders.push(
+            `${rel}:${anchor.line}: WAYLAND_OUTPUT_DIR fallback "${fallback[1]}" is not anchored to $PWD`
+          );
+        }
       }
       const firstAnchor = anchors[0].line;
       if (firstAnchor > uses[0].line) {
