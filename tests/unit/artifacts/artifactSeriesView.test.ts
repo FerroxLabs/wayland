@@ -27,7 +27,7 @@ import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
+import { artifactLedgerPath, readArtifactLedger, registerArtifacts } from '@process/services/artifacts/artifactLedger';
 import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal';
 import { buildArtifactSeriesView, MAX_SERIES_RUNS } from '@process/services/artifacts/artifactSeriesView';
 import { beginTaskRun, commitTaskRun } from '@process/services/artifacts/taskRun';
@@ -165,7 +165,12 @@ describe('the run history behind a deliverable', () => {
     // A run whose only staged entry is a symlink: the directory publishes, the
     // ledger refuses the file, and the user has a run with nothing in it. A
     // row that claimed "published" here would be a lie about a real failure.
-    const handle = await beginTaskRun({ workspace, taskId: TASK, series: SERIES, now: new Date('2026-08-20T07:00:00Z') });
+    const handle = await beginTaskRun({
+      workspace,
+      taskId: TASK,
+      series: SERIES,
+      now: new Date('2026-08-20T07:00:00Z'),
+    });
     await fs.writeFile(path.join(root, 'outside.md'), 'not a deliverable', 'utf8');
     await fs.symlink(path.join(root, 'outside.md'), path.join(handle.stagingDir, 'brief.md'));
     const outcome = await commitTaskRun(handle, {
@@ -258,6 +263,72 @@ describe('the run history behind a deliverable', () => {
         expect(deliverable.canonicalPath.startsWith(workspace)).toBe(true);
       }
     }
+  });
+
+  it('holds when the foreign workspace shares this RUN ID, which is the only case the filter decides', async () => {
+    // The case above cannot exercise the workspace filter: a foreign run gets a
+    // foreign run id, the rows come from THIS series directory, and a bucket
+    // keyed on an id no published run has is never read. So the guard could be
+    // deleted and that test would still pass - it was proving the run-id
+    // namespace, not the filter.
+    //
+    // What the filter actually decides is a COLLISION: a record from another
+    // workspace filed under this same run id and the same series prefix, which
+    // is the shape the module comment describes. Registered straight into the
+    // ledger because that is the only way to pin the id - `beginTaskRun` mints
+    // its own, so it cannot state this case.
+    const mine = await publishRun({ 'brief.md': 'mine' });
+    const otherWorkspace = path.join(root, 'colliding-workspace');
+    const runDir = path.join(otherWorkspace, 'artifacts', SERIES, '2026-08-20', mine);
+    await fs.mkdir(runDir, { recursive: true });
+    await fs.writeFile(path.join(runDir, 'brief.md'), 'somewhere else', 'utf8');
+    const registration = await registerArtifacts({
+      ledgerPath,
+      workspace: otherWorkspace,
+      runDir,
+      taskId: TASK,
+      runId: mine,
+      declaredBy: 'Morning Brief',
+      declarations: [{ path: 'brief.md', title: 'Morning Brief' }],
+    });
+    // Control: the collision is REAL, not a fixture that quietly failed to
+    // register. Without this the test could pass on an empty ledger write.
+    expect(registration.rejected).toEqual([]);
+    expect(registration.registered).toHaveLength(1);
+    expect(registration.registered[0].runId).toBe(mine);
+
+    const view = await buildArtifactSeriesView(await anArtifactOf(mine), effects);
+
+    const row = view!.runs.find((entry) => entry.runId === mine);
+    expect(row!.artifacts).toHaveLength(1);
+    expect(row!.artifacts[0].canonicalPath.startsWith(workspace)).toBe(true);
+    expect(row!.artifacts.some((entry) => entry.canonicalPath.startsWith(otherWorkspace))).toBe(false);
+  });
+
+  it('holds when a colliding record sits under a DIFFERENT series in this same workspace', async () => {
+    // The prefix filter is the other half, and nothing claimed it. Same
+    // workspace, same run id, a different series: without the prefix check the
+    // other series' brief joins this card's history.
+    const mine = await publishRun({ 'brief.md': 'mine' });
+    const runDir = path.join(workspace, 'artifacts', 'support', '2026-08-20', mine);
+    await fs.mkdir(runDir, { recursive: true });
+    await fs.writeFile(path.join(runDir, 'ticket-digest.md'), 'other series', 'utf8');
+    const registration = await registerArtifacts({
+      ledgerPath,
+      workspace,
+      runDir,
+      taskId: TASK,
+      runId: mine,
+      declaredBy: 'Support Digest',
+      declarations: [{ path: 'ticket-digest.md', title: 'Support Digest' }],
+    });
+    expect(registration.rejected).toEqual([]);
+    expect(registration.registered).toHaveLength(1);
+
+    const view = await buildArtifactSeriesView(await anArtifactOf(mine), effects);
+
+    const row = view!.runs.find((entry) => entry.runId === mine);
+    expect(row!.artifacts.map((entry) => entry.fileName)).toEqual(['brief.md']);
   });
 
   it('answers null for an unknown id and for an artifact that is not filed in a series', async () => {
