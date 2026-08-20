@@ -26,6 +26,7 @@ import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/wor
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
+import type { ArtifactSaveResult, ArtifactSummary } from '../types/artifacts';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
 import type { IjfwErrorReason, IjfwInvokeResult, IjfwRuntimeModePublic } from '../types/ijfw';
 import type {
@@ -137,6 +138,31 @@ export const shell = {
   /** Open a filesystem path (file or directory) via the OS default handler.
    *  Only `~`-expansion is applied - no `..` traversal is allowed. */
   openPath: buildProvider<{ ok: boolean; error?: string }, { path: string }>('shell.open-path'),
+};
+
+/**
+ * P2-9. Deliverables, addressed by ARTIFACT ID.
+ *
+ * Every one of these takes an id and NEVER a path. The host resolves the path
+ * from the ledger, re-validates the artifact's identity immediately before
+ * acting - ancestor symlinks, file type, digest - and only then reaches an OS
+ * launcher. A path arriving from the renderer would be attacker input the
+ * moment the renderer is compromised, and no amount of validation turns it back
+ * into a trustworthy one; `canonicalPath` therefore travels main -> renderer
+ * only, so the controls can show the user what will actually open.
+ *
+ * This is not, and must never become, a generic `open`. The engine cannot reach
+ * it: it is driven by a user clicking host chrome.
+ */
+export const artifacts = {
+  /** The series, newest first, capped. Includes the host-resolved target. */
+  list: buildProvider<ArtifactSummary[], void>('artifacts.list'),
+  /** Open in the OS default app. Type-gated - a `.command` is refused. */
+  open: buildProvider<ShellOpenResult, { artifactId: string }>('artifacts.open'),
+  /** Reveal in the OS file manager. Not type-gated: selecting never executes. */
+  reveal: buildProvider<ShellOpenResult, { artifactId: string }>('artifacts.reveal'),
+  /** Copy the VERIFIED bytes somewhere the user chooses (mail, Desktop, share). */
+  saveCopy: buildProvider<ArtifactSaveResult, { artifactId: string }>('artifacts.save-copy'),
 };
 
 // #466 Computer-Use macOS permission onboarding. getStatus uses non-prompting

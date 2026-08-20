@@ -77,6 +77,7 @@ import { initHubBridge } from './hubBridge';
 import { initTeamBridge } from './teamBridge';
 import { initMissionControlBridge } from './missionControlBridge';
 import { initStorageBridge } from '@process/storage/storageIpc';
+import { initArtifactBridge } from './artifactBridge';
 import { initNicknamesBridge } from '@process/storage/nicknamesIpc';
 import { initSyncIpc } from '@process/sync/syncIpc';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
@@ -200,6 +201,9 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initWcoreUpdateBridge();
   initPendingSendBridge();
   initStorageBridge();
+  // P2-9: Open / Reveal / Save a copy, addressed by artifact id. Registered
+  // beside the retention bridge because both read the same ledger.
+  initArtifactBridge();
   initWorkspaceRetentionBridge({
     getWorkDir: () => getSystemDir().workDir,
     getInstallationId: () => getInstallUuid(),

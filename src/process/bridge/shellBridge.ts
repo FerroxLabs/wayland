@@ -348,7 +348,7 @@ function spawnXdgOpen(target: string): Promise<ShellOpenResult> {
  * result and, on Linux, retry with an explicit `xdg-open` spawn whose ENOENT we
  * can detect and report.
  */
-async function openPathReporting(target: string): Promise<ShellOpenResult> {
+export async function openPathReporting(target: string): Promise<ShellOpenResult> {
   try {
     if (process.platform === 'linux') {
       // Race shell.openPath against a timeout: it can hang forever when the
@@ -434,6 +434,34 @@ async function confineAndGateOpenTarget(inputPath: unknown): Promise<{ ok: false
   return confined;
 }
 
+/**
+ * Reveal a path in the OS file manager and report the outcome.
+ *
+ * Extracted from the `showItemInFolder` provider so the artifact seam (P2-9)
+ * reveals through the SAME code rather than a second copy of it - the Linux
+ * fallback below is exactly the kind of hard-won detail a fork loses.
+ *
+ * macOS (`open -R`) and Windows (`explorer /select`) reveal reliably through
+ * Electron. On Linux, `shell.showItemInFolder` depends on a freedesktop file
+ * manager over D-Bus and silently no-ops when none is available (#616), so fall
+ * back to opening the containing directory via `xdg-open` and report failure
+ * instead of a silent no-op.
+ *
+ * Deliberately NOT type-gated: selecting a file in a file manager never
+ * executes it, so gating Reveal would only break a safe action.
+ */
+export async function revealPathReporting(target: string): Promise<ShellOpenResult> {
+  if (process.platform === 'linux') {
+    return openPathReporting(path.dirname(target));
+  }
+  try {
+    shell.showItemInFolder(target);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: (error as Error).message };
+  }
+}
+
 export function initShellBridge(): void {
   ipcBridge.shell.openFile.provider(async (filePath) => {
     const confined = await confineAndGateOpenTarget(filePath);
@@ -444,20 +472,7 @@ export function initShellBridge(): void {
   ipcBridge.shell.showItemInFolder.provider(async (filePath) => {
     const confined = await confineShellPath(filePath);
     if ('ok' in confined) return confined;
-    // macOS (`open -R`) and Windows (`explorer /select`) reveal reliably through
-    // Electron. On Linux, `shell.showItemInFolder` depends on a freedesktop file
-    // manager over D-Bus and silently no-ops when none is available (#616), so
-    // fall back to opening the containing directory via `xdg-open` and report
-    // failure instead of a silent no-op.
-    if (process.platform === 'linux') {
-      return openPathReporting(path.dirname(confined.path));
-    }
-    try {
-      shell.showItemInFolder(confined.path);
-      return { ok: true };
-    } catch (error) {
-      return { ok: false, error: (error as Error).message };
-    }
+    return revealPathReporting(confined.path);
   });
 
   ipcBridge.shell.openExternal.provider(async (url) => {
