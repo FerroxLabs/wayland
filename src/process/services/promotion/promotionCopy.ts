@@ -151,7 +151,7 @@ async function walkTree(
  * Copy, compare source against destination, and on a mismatch wait for the
  * writer to quiesce and copy again. Only an exhausted budget is an error.
  */
-async function copyFileWithQuiesce(
+export async function copyFileWithQuiesce(
   abs: string,
   target: string,
   rel: string,
