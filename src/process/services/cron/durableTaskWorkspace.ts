@@ -99,3 +99,35 @@ export async function preflightJobWorkspace(job: CronJob): Promise<JobWorkspaceP
   const { status } = await checkWorkspaceIdentity(workspace, job.metadata.agentConfig?.workspaceId ?? null);
   return status === 'ok' ? null : { status, workspace };
 }
+
+/**
+ * Which `artifacts/<series>/` directory this job publishes into.
+ *
+ * A recurring task needs ONE stable folder name for its whole history, and the
+ * four bundled routines that read a prior run already name theirs in a prompt
+ * baked at seed time (`artifacts/ops/last-weekly-review.md`). So the seeder
+ * records the routine's own series and this reads it back; a job with none -
+ * a task the user made from a chat - falls back to its id, which is stable for
+ * the life of the job and is what "one folder per task" means when the task
+ * never declared a domain.
+ *
+ * Sanitised because the value becomes a path segment the user sees in Finder,
+ * and dot-leading is refused because `.staging` and `.latest.json` already mean
+ * something inside a series directory.
+ */
+export function artifactSeriesForJob(job: CronJob): string {
+  const declared = job.metadata.agentConfig?.configOptions?.artifactSeries;
+  return sanitizeSeriesName(declared) ?? sanitizeSeriesName(job.id) ?? 'task';
+}
+
+/** One safe path segment, or null when nothing usable survives. */
+export function sanitizeSeriesName(raw: string | undefined): string | null {
+  if (!raw) return null;
+  const cleaned = raw
+    .trim()
+    .replace(/[^A-Za-z0-9._-]/g, '-')
+    .replace(/^[^A-Za-z0-9]+/, '')
+    .slice(0, 64)
+    .replace(/[-.]+$/, '');
+  return cleaned.length > 0 ? cleaned : null;
+}

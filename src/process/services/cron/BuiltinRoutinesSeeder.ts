@@ -43,7 +43,7 @@ const ROUTINE_BACKEND: AgentBackend = 'wcore';
  */
 const ROUTINE_KIND = CRON_ROUTINE_KIND;
 
-type RoutineDef = {
+export type RoutineDef = {
   id: string;
   name: string;
   description: string;
@@ -112,6 +112,25 @@ async function loadWorkflowNames(dir: string): Promise<Set<string>> {
  * resolve inputs from disk first, fall back to connectors, and skip rather than
  * fabricate when no data is reachable.
  */
+/**
+ * The `artifacts/<series>/` folder this routine's runs publish into.
+ *
+ * Taken from the routine's OWN declared artifact paths rather than invented:
+ * `weekday-morning-report` writes `artifacts/market/` and
+ * `weekly-competitor-watch` reads `artifacts/marketing/last-competitor-scan.md`,
+ * and those prompts are baked at seed time, so the series the run publishes
+ * into has to be the one the prompt already names or the routine reads a folder
+ * nothing ever writes - the bug this milestone exists to close, in its
+ * input-side form. A routine that declares no artifact path gets its own id.
+ */
+export function seriesForRoutine(routine: RoutineDef): string {
+  for (const value of Object.values(routine.inputs ?? {})) {
+    const segments = value.split('/').filter(Boolean);
+    if (segments[0] === 'artifacts' && segments[1] && !segments[1].startsWith('.')) return segments[1];
+  }
+  return routine.id;
+}
+
 function buildRoutinePrompt(routine: RoutineDef): string {
   const inputLines = routine.inputs
     ? Object.entries(routine.inputs)
@@ -190,7 +209,7 @@ export async function seedBuiltinRoutines(cronService: CronService): Promise<voi
       backend: ROUTINE_BACKEND,
       name: routine.name,
       mode: 'bypassPermissions',
-      configOptions: { kind: ROUTINE_KIND, routineId: routine.id },
+      configOptions: { kind: ROUTINE_KIND, routineId: routine.id, artifactSeries: seriesForRoutine(routine) },
     };
 
     try {

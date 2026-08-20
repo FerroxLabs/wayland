@@ -27,8 +27,11 @@ import type { CronJob } from './CronStore';
 import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
-import { preflightJobWorkspace } from './durableTaskWorkspace';
+import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
 import { assertNotPromoting } from '@process/services/promotion/promotionLock';
+import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
+import { abandonTaskRun, beginTaskRun, commitTaskRun, type TaskRunHandle } from '@process/services/artifacts/taskRun';
+import { getDataPath } from '@process/utils';
 import i18n from '@process/services/i18n';
 import { AcpSkillManager } from '@process/task/AcpSkillManager';
 import { skillSuggestWatcher } from './SkillSuggestWatcher';
@@ -41,6 +44,9 @@ async function getConversationService() {
 
 /** Executes cron jobs by delegating to WorkerTaskManager and tracking busy state via CronBusyGuard. */
 export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
+  /** Run ids already published or discarded. Keeps settle one-shot. */
+  private readonly settledRuns = new Set<string>();
+
   constructor(
     private readonly taskManager: IWorkerTaskManager,
     private readonly busyGuard: CronBusyGuard
@@ -50,6 +56,19 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     return this.busyGuard.isProcessing(conversationId);
   }
 
+  /**
+   * P2-11: one scheduled run, wrapped in one artifact publication.
+   *
+   * The run opens BEFORE the task is acquired, because acquiring the task is
+   * what spawns the engine and the engine reads `WAYLAND_OUTPUT_DIR` once, at
+   * spawn. It closes on the conversation going idle - `sendMessage` returns as
+   * soon as the turn is sent, so returning from here does not mean the agent
+   * has finished writing.
+   *
+   * Anything that throws on the way to the turn abandons the run: no dated
+   * directory appears, `latest` does not move, and the stable alias still holds
+   * the last run that actually worked.
+   */
   async executeJob(
     job: CronJob,
     onAcquired?: () => void,
@@ -57,7 +76,92 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     triggeredAt = Date.now()
   ): Promise<string | void> {
     await this.assertWorkspaceUsable(job);
+    const artifactRun = await this.openArtifactRun(job);
+    try {
+      return await this.runJobTurn(job, artifactRun, onAcquired, preparedConversationId, triggeredAt);
+    } catch (error) {
+      if (artifactRun) await this.settleArtifactRun(artifactRun, job, false);
+      throw error;
+    }
+  }
 
+  /**
+   * Open this run's staging directory and make it the workspace's live output
+   * directory. Returns null when the job has no durable workspace to publish
+   * into - a job running in a chat the user owns, or one armed before P2-2 -
+   * which runs exactly as it did before rather than failing.
+   */
+  private async openArtifactRun(job: CronJob): Promise<TaskRunHandle | null> {
+    // `new_conversation` only, which is every bundled routine and every job
+    // that P2-2 gives a durable task root. An `existing`-mode job runs inside a
+    // chat the USER owns, whose workspace they may have pointed several chats
+    // at; opening a run there would redirect an unrelated chat's next engine
+    // spawn into this run's staging directory. Those jobs keep writing into the
+    // series root exactly as before.
+    if (job.target.executionMode !== 'new_conversation') return null;
+    const workspace = job.metadata.agentConfig?.workspace;
+    if (!workspace) return null;
+    try {
+      return await beginTaskRun({ workspace, taskId: job.id, series: artifactSeriesForJob(job) });
+    } catch (err) {
+      // A run that cannot stage still has to run: the user asked for the task,
+      // not for the filing. It writes into the series root as before.
+      console.warn(`[CronExecutor] Could not open an artifact run for job ${job.id}:`, err);
+      return null;
+    }
+  }
+
+  /**
+   * Publish or discard the run, exactly once.
+   *
+   * Both the idle callback and the failure path can reach this - a send that
+   * throws after the conversation was marked busy fires both - so the run id is
+   * latched. A commit that itself fails abandons rather than leaving a staging
+   * directory claiming the workspace's output.
+   */
+  private async settleArtifactRun(handle: TaskRunHandle, job: CronJob, publish: boolean): Promise<void> {
+    if (this.settledRuns.has(handle.runId)) return;
+    this.settledRuns.add(handle.runId);
+
+    if (!publish) {
+      await abandonTaskRun(handle).catch((err) => {
+        console.warn(`[CronExecutor] Failed to abandon run ${handle.runId} for job ${job.id}:`, err);
+      });
+      return;
+    }
+
+    try {
+      const outcome = await commitTaskRun(handle, {
+        ledgerPath: artifactLedgerPath(getDataPath()),
+        declaredBy: job.name,
+      });
+      if (!outcome.published) {
+        console.info(`[CronExecutor] Job ${job.id} run ${handle.runId} produced no output; nothing published.`);
+        return;
+      }
+      console.info(
+        `[CronExecutor] Job ${job.id} published ${outcome.registered.length} artifact(s) at ${outcome.publication.relativePath}`
+      );
+      // A rejected declaration is a real deliverable the user will not see, so
+      // it is never swallowed. The good ones in the same run still landed.
+      for (const rejection of outcome.rejected) {
+        console.warn(
+          `[CronExecutor] Job ${job.id} run ${handle.runId} refused ${JSON.stringify(rejection.path)}: ${rejection.reason}`
+        );
+      }
+    } catch (err) {
+      console.warn(`[CronExecutor] Failed to publish run ${handle.runId} for job ${job.id}:`, err);
+      await abandonTaskRun(handle).catch(() => {});
+    }
+  }
+
+  private async runJobTurn(
+    job: CronJob,
+    artifactRun: TaskRunHandle | null,
+    onAcquired?: () => void,
+    preparedConversationId?: string,
+    triggeredAt = Date.now()
+  ): Promise<string | void> {
     let conversationId = preparedConversationId ?? job.metadata.conversationId;
 
     // Create a conversation when needed (skip if already prepared by runNow):
@@ -150,6 +254,15 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // Notify caller so it can register onceIdle callbacks while the conversation
     // is already marked busy (prevents premature idle fires).
     onAcquired?.();
+
+    // Registered while the conversation is already busy, so it cannot fire
+    // before the turn has even been sent. `sendMessage` returning is not the
+    // end of the run; the conversation going idle is.
+    if (artifactRun) {
+      this.busyGuard.onceIdle(conversationId, () => {
+        void this.settleArtifactRun(artifactRun, job, true);
+      });
+    }
 
     // Apply mode and config options if configured (must succeed before sendMessage).
     // If the task's agent is stale/disconnected, settings may fail - kill and retry
