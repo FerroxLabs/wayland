@@ -135,6 +135,54 @@ describe('#1098 render_artifact intake', () => {
     });
   }
 
+  /**
+   * The mime is validated; `content` and `title` are untyped JSON off a wire.
+   * The engine caps them, but the cost of trusting that and being wrong is not
+   * a bad render - the IPC bridge has no reject and no timeout, so one
+   * oversized payload wedges the renderer for the life of the process.
+   */
+  it('drops a frame whose content or title is not a string', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    for (const bad of [{ content: { evil: true } }, { title: 42 }, { content: null }]) {
+      const { emitted, feed } = makeAgent();
+      feed({ ...(frame('text/markdown') as object), ...bad } as unknown as WCoreEvent);
+      expect(emitted.filter((e) => e.type === 'render_artifact'), JSON.stringify(bad)).toHaveLength(0);
+    }
+    warn.mockRestore();
+  });
+
+  it('clamps oversized content rather than dropping it, and says so via truncated', () => {
+    const { emitted, feed } = makeAgent();
+    const huge = 'x'.repeat(1024 * 1024 + 500);
+
+    feed({ ...(frame('text/markdown') as object), content: huge, truncated: false } as unknown as WCoreEvent);
+
+    const data = emitted.find((e) => e.type === 'render_artifact')?.data as Record<string, unknown>;
+    expect(data).toBeTruthy();
+    expect((data.content as string).length).toBe(1024 * 1024);
+    expect(data.truncated).toBe(true);
+  });
+
+  it('clamps an oversized title', () => {
+    const { emitted, feed } = makeAgent();
+
+    feed({ ...(frame('text/markdown') as object), title: 'T'.repeat(900) } as unknown as WCoreEvent);
+
+    const data = emitted.find((e) => e.type === 'render_artifact')?.data as Record<string, unknown>;
+    expect((data.title as string).length).toBe(256);
+  });
+
+  // CONTROL: an ordinary in-budget frame is untouched by any of the above, so
+  // the clamps are deciding rather than mangling every artifact.
+  it('CONTROL: leaves an in-budget title and content exactly as sent', () => {
+    const { emitted, feed } = makeAgent();
+    feed(frame('text/markdown'));
+    const data = emitted.find((e) => e.type === 'render_artifact')?.data as Record<string, unknown>;
+    expect(data.content).toBe('# Q3');
+    expect(data.title).toBe('Q3 summary');
+    expect(data.truncated).toBe(false);
+  });
+
   it('refuses a mime outside the closed vocabulary instead of coercing it to one we can render', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const { emitted, feed } = makeAgent();

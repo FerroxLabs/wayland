@@ -79,6 +79,16 @@ const WCORE_STDERR_TAIL_MAX = 2048;
  * is untyped JSON — the compile-time union proves nothing about what actually
  * arrives, and Core's rule is that an unknown kind is REFUSED, never coerced.
  */
+/**
+ * Host-side caps for a `render_artifact`, mirroring the engine's own 1 MiB /
+ * 256-byte limits. Restated here because a host must not rely on the far side
+ * of a wire for its own safety, and because the failure mode is unrecoverable:
+ * the IPC bridge has no reject and no timeout, so an oversized payload hangs
+ * the renderer for the life of the process.
+ */
+const MAX_RENDER_ARTIFACT_CONTENT_CHARS = 1024 * 1024;
+const MAX_RENDER_ARTIFACT_TITLE_CHARS = 256;
+
 const RENDERABLE_ARTIFACT_MIMES: ReadonlySet<RenderMime> = new Set<RenderMime>([
   'text/plain',
   'text/markdown',
@@ -1180,14 +1190,29 @@ export class WCoreAgent {
           console.warn(`[WCoreAgent] dropped render_artifact with unrenderable mime: ${String(event.mime)}`);
           break;
         }
+        // The mime is validated above; `content` and `title` are not, and they
+        // arrive as untyped JSON. The engine caps them, but a host must not
+        // depend on the far side of a wire for its own safety - and the cost of
+        // being wrong here is not a bad render, it is a PERMANENT one: the IPC
+        // bridge can neither reject nor carry an oversized reply, so a single
+        // malformed frame wedges the renderer with no timeout to recover it.
+        // Non-strings are dropped like an unrenderable mime; oversize is clamped
+        // rather than dropped, and reuses the `truncated` flag the event already
+        // carries so the user is told the view is partial.
+        if (typeof event.content !== 'string' || typeof event.title !== 'string') {
+          console.warn('[WCoreAgent] dropped render_artifact with a non-string title or content');
+          break;
+        }
+        const clampedContent = event.content.slice(0, MAX_RENDER_ARTIFACT_CONTENT_CHARS);
+        const clampedTitle = event.title.slice(0, MAX_RENDER_ARTIFACT_TITLE_CHARS);
         this.onStreamEvent({
           type: 'render_artifact',
           data: {
             callId: event.call_id,
-            title: event.title,
+            title: clampedTitle,
             mime: event.mime,
-            content: event.content,
-            truncated: event.truncated,
+            content: clampedContent,
+            truncated: event.truncated || clampedContent.length < event.content.length,
           },
           msg_id: event.msg_id,
         });
