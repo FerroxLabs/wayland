@@ -28,6 +28,16 @@ const ipcMock = vi.hoisted(() => ({
   openTarget: vi.fn(),
 }));
 
+/**
+ * The history strip previews an earlier run in the INTERNAL viewer, which needs
+ * the preview provider tree. Stubbed here so this file keeps testing what it is
+ * about - that the three actions still address an id and still report a refusal
+ * - rather than acquiring a dependency on the preview context to do it.
+ */
+vi.mock('@/renderer/hooks/file/usePreviewLauncher', () => ({
+  usePreviewLauncher: () => ({ launchPreview: vi.fn(), loading: false }),
+}));
+
 vi.mock('@/common', () => ({
   ipcBridge: {
     artifacts: {
@@ -43,8 +53,7 @@ vi.mock('@/common', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, params?: Record<string, unknown>) =>
-      params ? `${key}:${JSON.stringify(params)}` : key,
+    t: (key: string, params?: Record<string, unknown>) => (params ? `${key}:${JSON.stringify(params)}` : key),
   }),
 }));
 
