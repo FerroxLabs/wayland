@@ -844,9 +844,22 @@ export class CronService {
    * enable is honest feedback; here the run is already happening unattended and
    * the pre-P2-2 behaviour (a throwaway workspace) is strictly better than not
    * running at all.
+   *
+   * IT DOES NOT MATTER WHETHER THE JOB IS ENABLED. It used to: enabling was
+   * treated as the opt-in that earned a folder in the user's Documents, so a
+   * one-off Run-now on a switched-off routine kept the throwaway workspace and
+   * left nothing behind. Verified against the real app, that rule was backwards.
+   * All twelve bundled routines SEED PAUSED, and pressing Run-now on one is how
+   * a person tries it - so the single most common first encounter with a routine
+   * wrote its brief into `wcore-temp-<ts>` and let the cleaner take it, which is
+   * the exact defect P2-2 exists to fix.
+   *
+   * Both call sites already mean "this job is about to run and write a report",
+   * which is the condition that earns the folder. `enabled` was never the
+   * question.
    */
   private async backfillDurableWorkspace(job: CronJob): Promise<void> {
-    if (!job.enabled || !jobNeedsDurableWorkspace(job)) return;
+    if (!jobNeedsDurableWorkspace(job)) return;
     try {
       const metadata = await durableWorkspaceMetadataForJob(job);
       if (!metadata) return;

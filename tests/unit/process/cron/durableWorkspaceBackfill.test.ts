@@ -215,19 +215,24 @@ describe('a task that was already enabled gets a durable workspace at its first 
     expect(h.workspacesSeen[0]).toBe('/mock/documents/Wayland/Tasks/Morning Brief 1');
   });
 
-  it('allocates nothing for a one-off Run-now on a task the user never enabled', async () => {
-    // ENABLING is the opt-in that earns a folder in the user's Documents; that
-    // is the rule `updateJob` already enforces and this back-fill only completes
-    // it for jobs armed before it existed. A single manual run of a routine that
-    // is still switched off keeps today's disposable workspace, so browsing the
-    // routine list and pressing Run-now leaves nothing behind.
+  it('allocates for a Run-now on a task that is still PAUSED, which is how routines are tried', async () => {
+    // This used to assert the opposite, on the theory that enabling is the
+    // opt-in that earns a folder in the user's Documents. Verified against the
+    // real app, that was backwards: all twelve bundled routines seed PAUSED, so
+    // pressing Run-now on a switched-off routine is the single most common way
+    // anyone first runs one - and it wrote the brief into `wcore-temp-<ts>` for
+    // the cleaner to take, which is the exact defect this milestone exists to
+    // fix. A run that is about to write a report earns the folder; `enabled`
+    // was never the question.
     const jobs = [armedJob({ enabled: false })];
     const h = harness(jobs);
 
     await h.service.runNow('cron_already_on');
 
-    expect(allocateWorkspace).not.toHaveBeenCalled();
-    expect(jobs[0].metadata.agentConfig!.workspace).toBeUndefined();
+    expect(allocateWorkspace).toHaveBeenCalledTimes(1);
+    expect(jobs[0].metadata.agentConfig!.workspace).toBe('/mock/documents/Wayland/Tasks/Morning Brief 1');
+    // And the run that triggered it used the durable path, not a temp dir.
+    expect(h.workspacesSeen[0]).toBe('/mock/documents/Wayland/Tasks/Morning Brief 1');
   });
 
   it('leaves a job that already has a workspace untouched', async () => {
