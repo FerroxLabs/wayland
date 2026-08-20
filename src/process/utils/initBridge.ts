@@ -145,6 +145,19 @@ const cronReadyPromise = cronService
     } catch (error) {
       console.warn('[initBridge] Built-in routine seeding skipped:', error);
     }
+    // Seeding is first-write-wins, so it reaches a FRESH install only. An
+    // install that already holds these routines keeps whatever definition it
+    // was seeded with - including input paths that point at a directory nothing
+    // writes, and a prompt that names no output directory at all. This brings
+    // those up to the shipped definition, and only where the stored prompt is
+    // provably still ours. Never throws; a routine left on its old definition
+    // is the state we are already in.
+    try {
+      const { migrateSeededRoutines } = await import('@process/services/cron/routineDefinitionMigration');
+      await migrateSeededRoutines(cronService);
+    } catch (error) {
+      console.warn('[initBridge] Seeded routine migration skipped:', error);
+    }
     try {
       const jobs = await cronService.listJobs();
       const backends = jobs

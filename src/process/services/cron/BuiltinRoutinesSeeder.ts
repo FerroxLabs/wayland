@@ -83,6 +83,12 @@ export function resolveBundledWorkflowsDir(
   return candidates[0];
 }
 
+/** The bundled routine definitions, or undefined when they cannot be read. */
+export async function loadBundledRoutines(dir: string = resolveBundledWorkflowsDir()): Promise<RoutineDef[] | undefined> {
+  const routines = await readJson<RoutineDef[]>(path.join(dir, 'routines.json'));
+  return Array.isArray(routines) ? routines : undefined;
+}
+
 /** Read and JSON-parse a file, returning undefined on any failure. */
 async function readJson<T>(filePath: string): Promise<T | undefined> {
   try {
@@ -131,7 +137,40 @@ export function seriesForRoutine(routine: RoutineDef): string {
   return routine.id;
 }
 
-function buildRoutinePrompt(routine: RoutineDef): string {
+/** First line of a seeder-generated prompt. Also the migration's fingerprint. */
+export function routinePromptHeader(workflow: string): string {
+  return `Run the "${workflow}" workflow now as a scheduled, unattended routine.`;
+}
+
+/**
+ * Where a scheduled run must write.
+ *
+ * Without this the routine prompt named no destination at all, so a run wrote
+ * wherever the workflow body happened to say - and only ONE of the 71 bundled
+ * bodies says anything. Everything the run leaves in `WAYLAND_OUTPUT_DIR` is
+ * what gets published; a run that writes elsewhere stages nothing, is abandoned
+ * as empty, and leaves the four routines that read a PRIOR run's deliverable
+ * (`artifacts/ops/last-weekly-review.md` and friends) reading a path nothing
+ * ever writes.
+ */
+export const ROUTINE_OUTPUT_DIR_SENTENCE =
+  'Write every file this run produces into the directory named by the WAYLAND_OUTPUT_DIR environment variable. It is an absolute path inside the workspace, and it is the only place this run\'s output is collected from - a file written anywhere else is not published and the next run cannot read it. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.';
+
+/** Closing rule, unchanged since the first seeded routine. */
+export const ROUTINE_NO_ATTACHMENT_SENTENCE =
+  'This run has no attached file. Resolve each input from disk first; if a path is missing, fall back to the connected MCP connector for that domain. If no data source is reachable, skip the run and report "no data" rather than guessing or fabricating output.';
+
+/**
+ * Every whole-line sentence the seeder has ever emitted. The migration uses
+ * this to tell a prompt IT wrote from one the user has edited: an unrecognised
+ * line means hands off.
+ */
+export const ROUTINE_GENERATED_SENTENCES: readonly string[] = [
+  ROUTINE_OUTPUT_DIR_SENTENCE,
+  ROUTINE_NO_ATTACHMENT_SENTENCE,
+];
+
+export function buildRoutinePrompt(routine: RoutineDef): string {
   const inputLines = routine.inputs
     ? Object.entries(routine.inputs)
         .map(([k, v]) => `- ${k}: ${v}`)
@@ -139,11 +178,13 @@ function buildRoutinePrompt(routine: RoutineDef): string {
     : '';
 
   return [
-    `Run the "${routine.workflow}" workflow now as a scheduled, unattended routine.`,
+    routinePromptHeader(routine.workflow),
     '',
     inputLines ? `Inputs:\n${inputLines}` : '',
     '',
-    'This run has no attached file. Resolve each input from disk first; if a path is missing, fall back to the connected MCP connector for that domain. If no data source is reachable, skip the run and report "no data" rather than guessing or fabricating output.',
+    ROUTINE_OUTPUT_DIR_SENTENCE,
+    '',
+    ROUTINE_NO_ATTACHMENT_SENTENCE,
   ]
     .filter((line) => line !== '')
     .join('\n');
