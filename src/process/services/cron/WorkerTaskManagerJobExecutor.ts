@@ -28,6 +28,7 @@ import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
 import { preflightJobWorkspace } from './durableTaskWorkspace';
+import { assertNotPromoting } from '@process/services/promotion/promotionLock';
 import i18n from '@process/services/i18n';
 import { AcpSkillManager } from '@process/task/AcpSkillManager';
 import { skillSuggestWatcher } from './SkillSuggestWatcher';
@@ -63,6 +64,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     if (!preparedConversationId && job.metadata.agentConfig) {
       conversationId = await this.resolveConversationForJob(job);
     }
+
+    // Promotion rule 3, checked again here because `runNow` prepares the
+    // conversation up front and hands the id back before this call: a promotion
+    // that starts in that gap would otherwise still get a run written into the
+    // workspace it is copying away from.
+    assertNotPromoting(conversationId);
 
     // This run can be happening inside a chat the USER owns (see
     // isUserOwnedConversation). None of the job's settings may be persisted onto
@@ -561,6 +568,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
   }
 
   async prepareConversation(job: CronJob): Promise<string> {
+    assertNotPromoting(job.metadata.conversationId);
     await this.assertWorkspaceUsable(job);
     if (!job.metadata.agentConfig) {
       return job.metadata.conversationId;
@@ -577,6 +585,18 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * Mode and configOptions changes do NOT require a new conversation.
    */
   private async resolveConversationForJob(job: CronJob): Promise<string> {
+    // Promotion rule 3: the fence has to be read HERE, at the moment a run
+    // picks its conversation, not from a busy counter sampled earlier. A fire
+    // croner has scheduled but not yet dispatched reads as zero activity, so a
+    // counter says "idle" while this run is about to write a report into the
+    // workspace promotion has already digested and is about to leave behind.
+    assertNotPromoting(job.metadata.conversationId);
+    const resolved = await this.resolveConversationForJobUnfenced(job);
+    assertNotPromoting(resolved);
+    return resolved;
+  }
+
+  private async resolveConversationForJobUnfenced(job: CronJob): Promise<string> {
     // new_conversation mode: always create
     if (job.target.executionMode === 'new_conversation') {
       const conv = await this.buildConversationForJob(job);
