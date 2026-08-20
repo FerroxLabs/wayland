@@ -19,7 +19,12 @@
  */
 
 import '@/common/adapter/ipcBridge';
-import { _getRegisteredKeysForTests, isAllowedForRemote } from '@/common/adapter/bridgeAllowlist';
+import {
+  _getRegisteredKeysForTests,
+  isAllowedForRemote,
+  isAllowedOutboundToRemote,
+  isRemoteDeniedProviderKey,
+} from '@/common/adapter/bridgeAllowlist';
 import { describe, expect, it } from 'vitest';
 
 describe('artifact seam remote boundary', () => {
@@ -46,8 +51,53 @@ describe('artifact seam remote boundary', () => {
       'artifacts.open-target',
       'artifacts.reveal',
       'artifacts.save-copy',
+      'artifacts.send-targets',
+      'artifacts.send-to',
       'artifacts.series',
     ]);
+  });
+
+  /**
+   * The send pair is a different CLASS to the rest of the namespace.
+   *
+   * Everything else here ends on the local machine - a launcher, a file
+   * manager, a save dialog, a listing. `send-to` puts the user's file on a
+   * WIRE, and `send-targets` enumerates the connectors and the recipients that
+   * wire could reach. The `artifacts.` prefix covers both today; these cases
+   * exist so that if someone later narrows that prefix to re-open the harmless
+   * reads to a paired WebUI, the two that must NEVER re-open fail loudly first.
+   */
+  it('denies the SEND pair by exact key, not only by the namespace prefix', () => {
+    for (const key of ['artifacts.send-targets', 'artifacts.send-to']) {
+      expect(isRemoteDeniedProviderKey(key), `${key} must be remote-denied`).toBe(true);
+      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+      // The outbound rule is DERIVED from the inbound one, so denying a key
+      // inbound also stops a paired peer passively RECEIVING anything under it.
+      expect(isAllowedOutboundToRemote(key)).toBe(false);
+    }
+  });
+
+  /**
+   * The other half of the derived-rule trap, and the reason this file does not
+   * add a PREFIX.
+   *
+   * `isAllowedOutboundToRemote` re-uses the inbound predicate verbatim, so an
+   * over-broad entry does not merely deny one provider - it silently stops the
+   * matching EMITTER stream reaching every paired device, which is how a remote
+   * chat wedges with no error anywhere. These are the keys a paired WebUI needs
+   * in order to hold a conversation at all; they must be unaffected by anything
+   * this round added.
+   */
+  it('leaves the keys a remote chat depends on untouched, in both directions', () => {
+    const registered = _getRegisteredKeysForTests().providers;
+    const remoteEssential = ['cron.list-jobs', 'modelRegistry.resolveForChatStart'];
+    for (const key of remoteEssential) {
+      // Control: a typo here would make the assertion below vacuous, because a
+      // key nobody registered is not evidence about anything.
+      expect(registered.has(key), `${key} must actually be a registered provider`).toBe(true);
+      expect(isAllowedForRemote(`subscribe-${key}`), `${key} must stay remote-allowed`).toBe(true);
+      expect(isAllowedOutboundToRemote(key), `${key} must stay broadcastable`).toBe(true);
+    }
   });
 
   it('still allows an unrelated read so the denial is not vacuous', () => {

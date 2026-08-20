@@ -542,6 +542,30 @@ export interface IChannelMediaAction {
 }
 
 /**
+ * A file the HOST is attaching, carried as bytes rather than as a path.
+ *
+ * Deliberately separate from {@link IChannelMediaAction}, and the separation is
+ * a security boundary rather than a style choice. `mediaActions` is
+ * AGENT-REACHABLE: an agent emits a `[WAYLAND_CHANNEL_SEND]` block in its own
+ * reply, `resolveChannelSendProtocol` parses it and `ActionExecutor` attaches
+ * the result. A plugin that attached `mediaActions` would therefore hand the
+ * agent whatever exfiltration primitive that plugin represents.
+ *
+ * `hostAttachments` is set in exactly one place - the main-process artifact
+ * send, after an explicit human confirmation and after the bytes have been
+ * verified against the artifact ledger. Nothing the agent writes can produce
+ * this field.
+ *
+ * BASE64, NOT A BUFFER, because this crosses a forked-worker IPC boundary that
+ * serialises as JSON: a Buffer arrives on the far side as
+ * `{type:'Buffer',data:[...]}` and would be attached as that JSON.
+ */
+export interface IChannelHostAttachment {
+  filename: string;
+  contentBase64: string;
+}
+
+/**
  * Unified outgoing message format (System -> Platform)
  */
 export interface IUnifiedOutgoingMessage {
@@ -555,6 +579,11 @@ export interface IUnifiedOutgoingMessage {
   fileUrl?: string;
   fileName?: string;
   mediaActions?: IChannelMediaAction[];
+  /**
+   * Host-attached files (bytes). NEVER populated from agent output - see
+   * {@link IChannelHostAttachment}.
+   */
+  hostAttachments?: readonly IChannelHostAttachment[];
   replyToMessageId?: string;
   silent?: boolean;
   subject?: string; // email subject

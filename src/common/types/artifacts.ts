@@ -106,3 +106,58 @@ export interface ArtifactSeriesView {
 export interface ArtifactOpenTarget {
   applicationName: string | null;
 }
+
+/**
+ * One place a deliverable can be sent, on a connector the user configured.
+ *
+ * `destinationId` is the connector's own address for that recipient (for
+ * email-imap, the mail address the user already authorized). It travels
+ * main -> renderer so the menu can be drawn, and comes back as an ID that is
+ * re-looked-up in the LIVE connector list - never used as an address the
+ * renderer supplied. That is the same rule `canonicalPath` follows for paths.
+ */
+export interface ArtifactSendDestination {
+  destinationId: string;
+  /** Display name, or the address itself when the user never gave one. */
+  label: string;
+}
+
+/** A configured connector, with the recipients it is already authorized for. */
+export interface ArtifactSendTarget {
+  /** The configured channel plugin's id. */
+  targetId: string;
+  /** Plugin type, e.g. `email-imap`. Chooses the icon and the verb. */
+  channel: string;
+  /** The account a send would leave FROM, e.g. the configured inbox address. */
+  label: string;
+  /** Never empty: a connector with nobody to send to is not offered at all. */
+  destinations: ArtifactSendDestination[];
+}
+
+/**
+ * Why a send did not happen. Codes, not sentences, because the renderer owns
+ * the wording in twelve locales and a message from main cannot be translated.
+ */
+export type ArtifactSendErrorCode =
+  | 'invalid_request'
+  | 'unknown_artifact'
+  | 'unknown_target'
+  | 'unknown_destination'
+  | 'too_large'
+  | 'send_failed';
+
+/**
+ * Outcome of Send to...
+ *
+ * `sentTo` is absent when the user DECLINED, exactly as `savedTo` is absent
+ * when they cancelled the save dialog. Declining is `ok` - it is not a failure,
+ * and it must not raise an error toast.
+ */
+export interface ArtifactSendResult {
+  ok: boolean;
+  /** Recipient label, present only on a completed send. */
+  sentTo?: string;
+  errorCode?: ArtifactSendErrorCode;
+  /** Connector-authored detail for `send_failed`. Display only, never parsed. */
+  message?: string;
+}

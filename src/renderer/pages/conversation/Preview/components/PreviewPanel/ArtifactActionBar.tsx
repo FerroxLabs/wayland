@@ -33,11 +33,39 @@
  *    tell the user something they can already act without.
  *  - The RUN HISTORY. It reads a directory tree and the ledger. Absent, the
  *    card is exactly what it was before this round.
+ *
+ * AND ONE THING MAY NOT ARRIVE AT ALL. "Send to..." is offered only when the
+ * host reports a connector the user has actually configured, with somebody it
+ * is authorized to reach. Nothing configured means NO BUTTON - not a disabled
+ * one, not one that opens an empty menu. The other products put a destination
+ * in the primary slot because their artifact lives somewhere awkward and every
+ * action starts with a download; ours is already a real file in the user's own
+ * Documents folder, so an unbacked destination here would be decoration.
+ *
+ * The menu shows a recipient's LABEL and sends that recipient's ID. The address
+ * on screen is never what travels: main re-resolves the id against the live
+ * connector registry, so a revoked recipient stops being reachable immediately
+ * and a card rendering hostile data cannot name a destination of its own.
  */
 
 import { ipcBridge } from '@/common';
-import type { ArtifactSeriesRun, ArtifactSeriesView, ArtifactSummary } from '@/common/types/artifacts';
-import { AlertTriangle, ChevronDown, ChevronRight, ExternalLink, FileWarning, FolderOpen, Save } from 'lucide-react';
+import type {
+  ArtifactSendErrorCode,
+  ArtifactSendTarget,
+  ArtifactSeriesRun,
+  ArtifactSeriesView,
+  ArtifactSummary,
+} from '@/common/types/artifacts';
+import {
+  AlertTriangle,
+  ChevronDown,
+  ChevronRight,
+  ExternalLink,
+  FileWarning,
+  FolderOpen,
+  Save,
+  Send,
+} from 'lucide-react';
 import { usePreviewLauncher } from '@/renderer/hooks/file/usePreviewLauncher';
 import {
   previewContentTypeForFileName,
@@ -60,6 +88,29 @@ const linkClass =
   'px-6px py-2px rd-4px cursor-pointer border-none bg-transparent text-12px text-t-secondary ' +
   'hover:bg-3 hover:text-t-primary transition-colors disabled:opacity-50 truncate max-w-200px';
 
+/**
+ * A refusal code, in words.
+ *
+ * `unknown_target`, `unknown_destination` and `invalid_request` all collapse to
+ * the same sentence on purpose: from the user's side they are one situation -
+ * the connector list moved between drawing the menu and clicking it, because
+ * something was disabled or a recipient was revoked in Settings. Three
+ * different messages for one situation is noise, and the distinctions matter to
+ * the host, not to them.
+ */
+function sendReasonKey(code: ArtifactSendErrorCode | undefined): string {
+  switch (code) {
+    case 'unknown_artifact':
+      return 'preview.artifactSendReasonMissing';
+    case 'too_large':
+      return 'preview.artifactSendReasonTooLarge';
+    case 'send_failed':
+      return 'preview.artifactSendReasonFailed';
+    default:
+      return 'preview.artifactSendReasonUnavailable';
+  }
+}
+
 /** Local date and time. A run is a moment in the user's day, not a UTC string. */
 function formatRunTime(iso: string): string {
   const parsed = new Date(iso);
@@ -73,6 +124,8 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
   const [series, setSeries] = useState<ArtifactSeriesView | null>(null);
   const [expanded, setExpanded] = useState(false);
   const { launchPreview } = usePreviewLauncher();
+  const [sendTargets, setSendTargets] = useState<ArtifactSendTarget[]>([]);
+  const [sendOpen, setSendOpen] = useState(false);
 
   const artifactId = artifact.artifactId;
 
@@ -142,6 +195,75 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
       });
     },
     [launchPreview]
+  );
+
+  useEffect(() => {
+    setSendTargets([]);
+    setSendOpen(false);
+    let cancelled = false;
+    void ipcBridge.artifacts.sendTargets
+      .invoke()
+      .then((result) => {
+        if (!cancelled) setSendTargets(Array.isArray(result) ? result : []);
+      })
+      .catch(() => {
+        // Nothing configured is the honest rendering of "we could not tell",
+        // and it must never take the preview panel down.
+        if (!cancelled) setSendTargets([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [artifactId]);
+
+  /**
+   * Every authorized recipient, across every configured connector, each still
+   * carrying the connector it belongs to. Flattened because the user is picking
+   * a PERSON, not a protocol - "email it to my team" is one decision, and
+   * making them choose a transport first would be the product explaining its
+   * own plumbing.
+   */
+  const destinations = useMemo(
+    () =>
+      sendTargets.flatMap((target) =>
+        target.destinations.map((destination) => ({
+          targetId: target.targetId,
+          destinationId: destination.destinationId,
+          label: destination.label,
+        }))
+      ),
+    [sendTargets]
+  );
+
+  const sendTo = useCallback(
+    async (targetId: string, destinationId: string) => {
+      // Closed before the await: the native confirmation is modal and the menu
+      // must not still be hanging open behind it when it returns.
+      setSendOpen(false);
+      setBusy(true);
+      try {
+        const result = await ipcBridge.artifacts.sendTo.invoke({ artifactId, targetId, destinationId });
+        if (!result?.ok) {
+          // The connector's own words are appended when it gave any: "the
+          // connector refused it (SMTP 535 authentication failed)" is
+          // actionable, "could not send" is not. They are NOT translated -
+          // they came off a wire, and inventing a locale for them would be a
+          // lie about their origin.
+          const reason = result?.message
+            ? `${t(sendReasonKey(result?.errorCode))} (${result.message})`
+            : t(sendReasonKey(result?.errorCode));
+          onMessage('error', t('preview.artifactSendFailed', { file: artifact.fileName, reason }));
+          return;
+        }
+        // No `sentTo` means the user declined the native confirmation, which is
+        // not an outcome that deserves a toast in either direction.
+        if (result.sentTo)
+          onMessage('success', t('preview.artifactSent', { file: artifact.fileName, destination: result.sentTo }));
+      } finally {
+        setBusy(false);
+      }
+    },
+    [artifact.fileName, artifactId, onMessage, t]
   );
 
   const openById = useCallback(
@@ -254,8 +376,43 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
             <Save className='size-14px' />
             {t('preview.artifactSaveCopy')}
           </button>
+          {/*
+            Rendered ONLY when the host reported somewhere to send. `destinations`
+            is empty for an unconfigured app, for a disabled connector and for a
+            connector nobody is authorized on - all three are "no button".
+          */}
+          {destinations.length > 0 && (
+            <button
+              type='button'
+              className={buttonClass}
+              disabled={busy}
+              onClick={() => setSendOpen((open) => !open)}
+              data-testid='artifact-send'
+            >
+              <Send className='size-14px' />
+              {t('preview.artifactSendTo')}
+            </button>
+          )}
         </div>
       </div>
+
+      {sendOpen && destinations.length > 0 && (
+        <ul className='m-0 mb-6px flex list-none flex-col gap-2px px-12px pb-2px' data-testid='artifact-send-menu'>
+          {destinations.map((destination) => (
+            <li key={`${destination.targetId}:${destination.destinationId}`} className='flex'>
+              <button
+                type='button'
+                className={linkClass}
+                disabled={busy}
+                onClick={() => void sendTo(destination.targetId, destination.destinationId)}
+                data-testid='artifact-send-destination'
+              >
+                {destination.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {series && series.runs.length > 0 && (
         <div className='flex flex-col px-12px pb-6px' data-testid='artifact-series'>

@@ -99,6 +99,9 @@ export class EmailImapConnection {
       text: envelope.text,
       ...(envelope.inReplyTo ? { inReplyTo: envelope.inReplyTo } : {}),
       ...(envelope.references ? { references: envelope.references } : {}),
+      // Host-attached bytes only. `buildSmtpEnvelope` builds this exclusively
+      // from `hostAttachments`, which nothing an agent writes can populate.
+      ...(envelope.attachments?.length ? { attachments: [...envelope.attachments] } : {}),
     });
     const id = typeof info.messageId === 'string' ? info.messageId : '';
     if (!id) throw new Error('SMTP send returned no Message-ID');
