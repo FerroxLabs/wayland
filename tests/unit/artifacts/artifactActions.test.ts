@@ -30,7 +30,7 @@ let workspace: string;
 let ledgerPath: string;
 let records: ArtifactRecord[];
 
-const register = async (relative: string, contents: string, runId = 'r1'): Promise<ArtifactRecord> => {
+const register = async (relative: string, contents: string, runId = 'r1', now?: Date): Promise<ArtifactRecord> => {
   const absolute = path.join(workspace, relative);
   await fs.mkdir(path.dirname(absolute), { recursive: true });
   await fs.writeFile(absolute, contents);
@@ -41,6 +41,10 @@ const register = async (relative: string, contents: string, runId = 'r1'): Promi
     taskId: 'morning-brief',
     runId,
     declaredBy: 'market-open-report',
+    // The ledger stamps runAt from the clock, and listArtifactSummaries sorts on
+    // it. Two runs registered in the same millisecond tie, so any ordering test
+    // must pin the run time rather than race the clock.
+    ...(now ? { now } : {}),
     declarations: [{ path: relative, title: 'Morning Brief' }],
   });
   expect(result.rejected).toEqual([]);
@@ -194,8 +198,8 @@ describe('saveArtifactCopy', () => {
 
 describe('listArtifactSummaries', () => {
   it('hands the renderer the HOST-computed canonical target, newest first', async () => {
-    await register('artifacts/2026-08-19/r1/older.html', 'a', 'r1');
-    await register('artifacts/2026-08-20/r2/newer.html', 'b', 'r2');
+    await register('artifacts/2026-08-19/r1/older.html', 'a', 'r1', new Date('2026-08-19T13:30:00.000Z'));
+    await register('artifacts/2026-08-20/r2/newer.html', 'b', 'r2', new Date('2026-08-20T13:30:00.000Z'));
     const { effects } = buildEffects();
     const summaries = await listArtifactSummaries(effects);
     expect(summaries).toHaveLength(2);
