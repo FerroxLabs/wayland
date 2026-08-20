@@ -10,8 +10,8 @@
  * That file proves the decision layer against an INJECTED `confirmSend` and an
  * INJECTED `deliver`. Both are honest tests of the logic and both stay green if
  * the two functions `artifactBridge` actually supplies are gutted, because a
- * fake was substituted for each of them at the seam. One specific gutting is
- * the reason this file exists, and it has cases below that go red for it:
+ * fake was substituted for each of them at the seam. Two specific gutting are
+ * the reason this file exists, and each has a case below that goes red for it:
  *
  *  - `confirmArtifactSend` returning `true` without raising a dialog. The
  *    consent logic would still be perfect and the human gate would be gone -
@@ -19,6 +19,11 @@
  *    case here drives the REAL `requireConfirmation`, so the assertion is that
  *    a native `dialog.showMessageBox` was raised, that its first line names the
  *    file and the recipient, and that Cancel actually stops the send.
+ *
+ *  - `deliverArtifact` losing the line that attaches the bytes. The connector
+ *    would report success and the recipient would get an empty message - the
+ *    shipped-class bug the SMTP path in this change was written to fix. So the
+ *    payload handed to the live plugin is inspected for the attachment itself.
  *
  * Nothing between the provider and the filesystem is faked: the real ledger,
  * the real digest verifier and the real `requireConfirmation` all run. Only the
@@ -217,5 +222,50 @@ describe('the send provider is wired to a real human gate', () => {
     expect(result).toEqual({ ok: false, errorCode: 'unknown_target' });
     expect(env.showMessageBox).not.toHaveBeenCalled();
     expect(env.sendMessage).not.toHaveBeenCalled();
+  });
+});
+
+describe('the delivered message actually carries the file', () => {
+  beforeEach(() => {
+    env.showMessageBox.mockResolvedValue({ response: 0, checkboxChecked: false });
+  });
+
+  it('attaches the verified bytes to the connector payload', async () => {
+    const result = await send();
+
+    expect(result).toEqual({ ok: true, sentTo: 'The Team' });
+    expect(env.sendMessage).toHaveBeenCalledTimes(1);
+    const [destinationId, payload] = env.sendMessage.mock.calls[0] as unknown as [
+      string,
+      { type: string; hostAttachments?: { filename: string; contentBase64: string }[] },
+    ];
+
+    expect(destinationId).toBe('team@example.com');
+    expect(payload.type).toBe('file');
+    // The bug this kills is a cheerful "sent" with an empty message: a payload
+    // that names a file in its text and carries no bytes.
+    expect(payload.hostAttachments).toEqual([
+      { filename: 'brief.html', contentBase64: Buffer.from(CONTENTS).toString('base64') },
+    ]);
+  });
+
+  it('never attaches via mediaActions, which an agent can already produce', async () => {
+    await send();
+
+    const payload = env.sendMessage.mock.calls[0][1] as unknown as Record<string, unknown>;
+    // `mediaActions` is what an agent's own [WAYLAND_CHANNEL_SEND] block emits.
+    // Carrying the host's bytes on it would hand the agent a mail-shaped
+    // exfiltration primitive as a side effect of building a human one.
+    expect(payload.mediaActions).toBeUndefined();
+  });
+
+  it('reports the connector refusing, and never a bare success', async () => {
+    env.sendMessage.mockRejectedValueOnce(new Error('SMTP 535 authentication failed'));
+
+    expect(await send()).toEqual({
+      ok: false,
+      errorCode: 'send_failed',
+      message: 'SMTP 535 authentication failed',
+    });
   });
 });
