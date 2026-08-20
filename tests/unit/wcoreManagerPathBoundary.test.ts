@@ -287,6 +287,38 @@ describe('#1099 a path boundary is never auto-approved', () => {
     });
   }
 
+  // Isolates the INDEX-keyed gate in BaseAgentManager.addConfirmation, which is
+  // reachable on its own: `yoloMode` and `sessionMode` are independent fields,
+  // so a session can carry yoloMode without currentMode === 'yolo'. That gate
+  // picks options[0] by position — on this card, the grant itself — so own
+  // option values give it no protection at all.
+  it('is not auto-confirmed by the index-keyed yolo gate when sessionMode is not yolo', () => {
+    (manager as any).currentMode = 'default';
+    (manager as any).yoloMode = true;
+
+    emitEvent(manager, boundaryFrame());
+
+    expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
+    expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(agent.denyTool).not.toHaveBeenCalled();
+  });
+
+  it('CONTROL: the index-keyed yolo gate DOES auto-confirm an ordinary card', async () => {
+    vi.useFakeTimers();
+    (manager as any).currentMode = 'default';
+    (manager as any).yoloMode = true;
+    const confirmSpy = vi.spyOn(manager, 'confirm').mockImplementation(() => undefined as never);
+
+    emitEvent(manager, infoFrame());
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(emitConfirmationAdd).not.toHaveBeenCalled();
+    expect(confirmSpy).toHaveBeenCalled();
+    // options[0] — picked by POSITION, which is the whole hazard.
+    expect(confirmSpy.mock.calls[0][2]).toBe('proceed_once');
+    vi.useRealTimers();
+  });
+
   it('builds the card with its own option values, the grant first, and no allow-once', () => {
     emitEvent(manager, boundaryFrame());
 
