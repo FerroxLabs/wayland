@@ -48,7 +48,7 @@ interface ArtifactActionBarProps {
 }
 
 const buttonClass =
-  'flex items-center gap-4px px-8px py-4px rd-6px cursor-pointer border-none bg-transparent ' +
+  'flex shrink-0 items-center gap-4px whitespace-nowrap px-8px py-4px rd-6px cursor-pointer border-none bg-transparent ' +
   'text-12px text-t-secondary hover:bg-3 hover:text-t-primary transition-colors disabled:opacity-50';
 
 const linkClass =
@@ -165,40 +165,61 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
 
   return (
     <div className='flex flex-col bd-b b-solid b-1px b-border text-12px'>
-      <div className='flex items-center gap-8px px-12px py-6px'>
-        <span className='shrink-0 px-6px py-2px rd-4px bg-3 text-t-secondary'>{t('preview.artifactLabel')}</span>
-        {/*
+      {/*
+        IDENTITY ROW, THEN ACTION ROW.
+
+        One row could not hold both. The panel this bar lives in is ~296px by
+        default, and the three labelled buttons plus the type chip need ~335px
+        on their own - so the row first squeezed the canonical path to ZERO
+        width (deleting the one thing the bar exists to state) and then still
+        pushed "Save a copy" past the panel edge, with `overflow-x: visible`
+        and no scroll port to reach it. The third action was unclickable at the
+        width the user actually gets.
+
+        Stacking is unconditional rather than breakpoint-driven on purpose:
+        UnoCSS breakpoints track the VIEWPORT, and this panel is resized
+        independently of it, so a `sm:` rule would flip on window width while
+        the panel stayed narrow.
+      */}
+      <div className='flex flex-col gap-4px px-12px py-6px'>
+        <div className='flex items-center gap-8px'>
+          <span className='shrink-0 px-6px py-2px rd-4px bg-3 text-t-secondary'>{t('preview.artifactLabel')}</span>
+          {/*
           The canonical target, and the reason this bar exists. `dir="rtl"` with
           `text-left` keeps the END of the path visible when it overflows - the
           filename and its extension are the part that decides what opens, and a
           head-truncated path hides exactly that. The full path is in the tooltip.
         */}
-        <span
-          className='min-w-0 flex-1 truncate font-mono text-t-secondary'
-          dir='rtl'
-          title={artifact.canonicalPath}
-          data-testid='artifact-canonical-path'
-        >
-          {artifact.canonicalPath}
-        </span>
-        <button
-          type='button'
-          className={buttonClass}
-          disabled={busy}
-          onClick={() => void run('open')}
-          data-testid='artifact-open'
-        >
-          <ExternalLink className='size-14px' />
-          {openLabel}
-        </button>
-        <button type='button' className={buttonClass} disabled={busy} onClick={() => void run('reveal')}>
-          <FolderOpen className='size-14px' />
-          {t('preview.artifactReveal')}
-        </button>
-        <button type='button' className={buttonClass} disabled={busy} onClick={() => void run('saveCopy')}>
-          <Save className='size-14px' />
-          {t('preview.artifactSaveCopy')}
-        </button>
+          <span
+            className='min-w-0 flex-1 truncate font-mono text-t-secondary'
+            dir='rtl'
+            title={artifact.canonicalPath}
+            data-testid='artifact-canonical-path'
+          >
+            {artifact.canonicalPath}
+          </span>
+        </div>
+        {/* Still wraps: two labelled actions fit a 296px panel, three do not. */}
+        <div className='flex flex-wrap items-center justify-end gap-8px'>
+          <button
+            type='button'
+            className={buttonClass}
+            disabled={busy}
+            onClick={() => void run('open')}
+            data-testid='artifact-open'
+          >
+            <ExternalLink className='size-14px' />
+            {openLabel}
+          </button>
+          <button type='button' className={buttonClass} disabled={busy} onClick={() => void run('reveal')}>
+            <FolderOpen className='size-14px' />
+            {t('preview.artifactReveal')}
+          </button>
+          <button type='button' className={buttonClass} disabled={busy} onClick={() => void run('saveCopy')}>
+            <Save className='size-14px' />
+            {t('preview.artifactSaveCopy')}
+          </button>
+        </div>
       </div>
 
       {series && series.runs.length > 0 && (
