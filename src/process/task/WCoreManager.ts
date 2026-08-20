@@ -2225,9 +2225,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // workspace, read-only. `write: false` is not a default we could widen
     // later from here: write access outside the workspace is not grantable at
     // all, so Core never raises a boundary asking for it.
-    const boundaryConfirmation = this.confirmations.find(
-      (c) => c.callId === callId && isPathBoundaryConfirmation(c)
-    );
+    const boundaryConfirmation = this.confirmations.find((c) => c.callId === callId && isPathBoundaryConfirmation(c));
     if (boundaryConfirmation) {
       // A folder grant answers ONLY in its own vocabulary. Anything else that
       // reaches this callId came from a surface that never rendered THIS card:

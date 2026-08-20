@@ -146,7 +146,10 @@ describe('#1098 render_artifact intake', () => {
     for (const bad of [{ content: { evil: true } }, { title: 42 }, { content: null }]) {
       const { emitted, feed } = makeAgent();
       feed({ ...(frame('text/markdown') as object), ...bad } as unknown as WCoreEvent);
-      expect(emitted.filter((e) => e.type === 'render_artifact'), JSON.stringify(bad)).toHaveLength(0);
+      expect(
+        emitted.filter((e) => e.type === 'render_artifact'),
+        JSON.stringify(bad)
+      ).toHaveLength(0);
     }
     warn.mockRestore();
   });
