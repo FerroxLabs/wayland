@@ -117,9 +117,7 @@ describe('naming the default application', () => {
     // every hostile character the host actually permits rather than skipping
     // the assertion there: the argument-passing contract holds on all three.
     const hostileName =
-      process.platform === 'win32'
-        ? "it's quoted; osascript -e evil.html"
-        : 'it\'s "quoted"; osascript -e evil.html';
+      process.platform === 'win32' ? "it's quoted; osascript -e evil.html" : 'it\'s "quoted"; osascript -e evil.html';
     const hostile = path.join(root, hostileName);
     await fs.writeFile(hostile, '<html></html>', 'utf8');
     const run = vi.fn(async () => 'Preview\n');
