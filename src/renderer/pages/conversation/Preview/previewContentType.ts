@@ -68,3 +68,26 @@ export function previewContentTypeForFileName(fileName: string): PreviewContentT
 export function previewIsEditable(contentType: PreviewContentType): boolean {
   return contentType !== 'markdown' && contentType !== 'image';
 }
+
+/**
+ * #1098: which internal viewer renders a `render_artifact` frame.
+ *
+ * Keyed on the engine's CLOSED `RenderMime` vocabulary rather than a filename,
+ * because the frame carries content and no path — there is no extension to
+ * read, and inventing one would be inventing a file that does not exist.
+ *
+ * `text/plain` maps to `code`, which is this app's plain-text viewer (it is
+ * also where `previewContentTypeForFileName` sends anything it does not
+ * recognise). The mapping is total over the closed vocabulary, so there is no
+ * fallback branch to get wrong.
+ */
+export function previewContentTypeForRenderMime(mime: 'text/plain' | 'text/markdown' | 'text/html'): PreviewContentType {
+  switch (mime) {
+    case 'text/markdown':
+      return 'markdown';
+    case 'text/html':
+      return 'html';
+    case 'text/plain':
+      return 'code';
+  }
+}

@@ -34,6 +34,7 @@ import MessagePlan from './components/MessagePlan';
 import MessageTips from './components/MessageTips';
 import MessageToolCall from './components/MessageToolCall';
 import MessageToolGroup from './components/MessageToolGroup';
+import MessageRenderArtifact from './components/MessageRenderArtifact';
 import ActivityTimeline from '@/renderer/components/chat/observability/ActivityTimeline';
 import OrbitThinking from '@/renderer/components/chat/observability/OrbitThinking';
 import { activityToSteps, subAgentToStep, toolSummaryToSteps } from '@/common/chat/activity/projectMessages';
@@ -180,6 +181,10 @@ const MessageItem: React.FC<{
           // #252 rework: the live activity tree (tool lifecycle, chunks, cost,
           // circuit/browser/cua) renders inline as the unified timeline.
           return <ActivityTimeline steps={activityToSteps(message.content)} />;
+        case 'render_artifact':
+          // #1098: content the engine handed us to display. Preview only — the
+          // frame carries no path, so there is nothing to Open or Reveal.
+          return <MessageRenderArtifact message={message} />;
         case 'execution_evidence':
           // Durable authority evidence is consumed by the contextual workbench,
           // never rendered as a chat bubble.
