@@ -31,7 +31,11 @@ export type WorkspaceAuthorityReference = {
   source: WorkspaceReferenceAuthoritySource;
   id: string;
   workspace: string;
-  /** Only conversation/Project collectors may assert explicit user promotion. */
+  /**
+   * Only conversation/Project collectors may ASSERT explicit user promotion.
+   * A `schedule` reference promotes structurally instead (see P2-11 below), so
+   * the schedule collector never needs to set this flag.
+   */
   userPromoted?: boolean;
 };
 
@@ -359,7 +363,13 @@ export async function collectManagedWorkspaceInventory(
         ).length;
         const observedUserPromotion = matchedReferences.some(
           (reference) =>
-            (reference.source === 'conversation' || reference.source === 'project') && reference.userPromoted === true
+            ((reference.source === 'conversation' || reference.source === 'project') &&
+              reference.userPromoted === true) ||
+            // P2-11: a schedule IS a promotion. The user chose to keep running
+            // work here, and that choice lives only in the schedule row. Without
+            // this, a workspace promoted BY BEING SCHEDULED reports
+            // `userPromoted: null` and a deleter reads it as unclaimed.
+            reference.source === 'schedule'
         );
 
         // Positive observations are safe to report even when another authority

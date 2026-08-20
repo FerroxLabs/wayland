@@ -11,9 +11,14 @@ import type { TChatConversation } from '@/common/config/storage';
 import type { IProject } from '@/common/types/project';
 import type { CronJob } from '@/process/services/cron/CronStore';
 import {
+  DEFAULT_MANAGED_WORKSPACE_RETENTION_MS,
   collectDesktopManagedWorkspaceInventory,
   type DesktopManagedWorkspaceAuthoritySources,
 } from '@/process/services/desktopManagedWorkspaceInventory';
+import {
+  DEFAULT_WORKSPACE_RETENTION_WINDOW_DAYS,
+  retentionWindowMsFor,
+} from '@/common/types/workspaceRetentionSettings';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -145,6 +150,31 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
     expect(report.summary).toEqual({ discovered: 1, preserved: 1, reviewCandidate: 0, unknown: 1 });
     expect(report.entries[0].decision.disposition).toBe('preserve');
     await expect(fs.stat(candidate)).resolves.toBeTruthy();
+  });
+
+  it('defaults the review window to the locked 60-day choice', async () => {
+    expect(DEFAULT_MANAGED_WORKSPACE_RETENTION_MS).toBe(retentionWindowMsFor(DEFAULT_WORKSPACE_RETENTION_WINDOW_DAYS));
+    expect(DEFAULT_MANAGED_WORKSPACE_RETENTION_MS).toBe(60 * DAY);
+
+    const report = await collectDesktopManagedWorkspaceInventory({
+      workDir: root,
+      installationId: INSTALLATION_ID,
+      nowMs: NOW,
+      sources: sources(),
+    });
+    expect(report.entries[0].evidence.retentionWindowMs).toBe(60 * DAY);
+  });
+
+  it('carries the configured review window into the evidence the classifier reads', async () => {
+    const report = await collectDesktopManagedWorkspaceInventory({
+      workDir: root,
+      installationId: INSTALLATION_ID,
+      nowMs: NOW,
+      retentionWindowMs: retentionWindowMsFor('never'),
+      sources: sources(),
+    });
+    expect(report.entries[0].evidence.retentionWindowMs).toBe(Number.MAX_SAFE_INTEGER);
+    expect(report.entries[0].decision.disposition).toBe('preserve');
   });
 
   it('fails closed and reports the exact authority when a producer throws', async () => {

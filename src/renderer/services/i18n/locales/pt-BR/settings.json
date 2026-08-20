@@ -2065,6 +2065,12 @@
   },
   "storagePage": {
     "title": "Armazenamento",
+    "retentionWindowLabel": "Oferecer pastas com arquivos para revisão após",
+    "retentionWindow30": "30 dias",
+    "retentionWindow60": "60 dias",
+    "retentionWindow90": "90 dias",
+    "retentionWindowNever": "Nunca",
+    "retentionWindowSaveFailed": "Não foi possível salvar o período de revisão.",
     "authorityConversation": "Conversas",
     "authorityProject": "Projetos",
     "authoritySchedule": "Agendamentos",

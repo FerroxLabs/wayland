@@ -424,6 +424,14 @@ export interface IConfigStorageRefer {
    * persisted; unknown IDs (e.g. uninstalled extension) are skipped at render.
    */
   'launchpad.barOrder'?: import('@/common/types/launchpad').LaunchpadBarOrder;
+  /**
+   * Managed-workspace retention. `windowDays` is the TIER-2 REVIEW window only:
+   * how old a scratch workspace WITH FILES IN IT has to be before Wayland
+   * offers it for review. It never deletes anything on its own, and it cannot
+   * move the fixed 7-day tier-1 sweep of provably empty scratch.
+   * Absent = the 60-day default. See `common/types/workspaceRetentionSettings`.
+   */
+  'workspace.retention'?: import('@/common/types/workspaceRetentionSettings').WorkspaceRetentionSettings;
   // Ambient Mode: persisted bubble window position (displayId used for multi-monitor recovery)
   'ambient.bubblePosition'?: { x: number; y: number; displayId: number };
   /**

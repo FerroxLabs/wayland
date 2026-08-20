@@ -15,6 +15,11 @@ import type { ManagedWorkspaceProvenanceLoad } from '@process/services/managedWo
 export type WorkspaceRetentionBridgeDependencies = {
   getWorkDir: () => string;
   getInstallationId: () => Promise<string>;
+  /**
+   * The user's TIER-2 review window. Read per request so a change in Settings
+   * is reflected by the next Refresh without a restart.
+   */
+  getRetentionWindowMs: () => Promise<number>;
   loadProvenance: () => Promise<ManagedWorkspaceProvenanceLoad>;
   sources: Omit<DesktopManagedWorkspaceAuthoritySources, 'loadProvenance'>;
 };
@@ -34,6 +39,7 @@ export function initWorkspaceRetentionBridge(deps: WorkspaceRetentionBridgeDepen
     const report = await collectDesktopManagedWorkspaceInventory({
       workDir: deps.getWorkDir(),
       installationId: await deps.getInstallationId(),
+      retentionWindowMs: await deps.getRetentionWindowMs(),
       sources: { ...deps.sources, loadProvenance: deps.loadProvenance },
     });
     const validated = parseManagedWorkspaceInventoryReport(report);

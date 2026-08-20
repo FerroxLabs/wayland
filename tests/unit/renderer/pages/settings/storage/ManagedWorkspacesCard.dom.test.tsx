@@ -37,6 +37,18 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
   shell: { showItemInFolder: { invoke: (...args: unknown[]) => showItemInFolder(...args) } },
 }));
 
+const configStore = new Map<string, unknown>();
+const configSet = vi.fn(async (key: string, value: unknown) => {
+  configStore.set(key, value);
+  return value;
+});
+vi.mock('@/common/config/storage', () => ({
+  ConfigStorage: {
+    get: async (key: string) => configStore.get(key),
+    set: (key: string, value: unknown) => configSet(key, value),
+  },
+}));
+
 import ManagedWorkspacesCard from '@renderer/pages/settings/StorageSettings/ManagedWorkspacesCard';
 
 const REPORT = {
@@ -100,6 +112,7 @@ describe('ManagedWorkspacesCard', () => {
     runtime.desktop = true;
     preview.mockResolvedValue(REPORT);
     showItemInFolder.mockResolvedValue({ ok: true });
+    configStore.clear();
   });
 
   it('shows the protection contract, incompleteness, and no destructive action', async () => {
@@ -262,5 +275,31 @@ describe('ManagedWorkspacesCard', () => {
     expect(
       await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
     ).toBeTruthy();
+  });
+
+  it('offers the four locked review windows and defaults to 60 days', async () => {
+    render(<ManagedWorkspacesCard />);
+
+    const select = (await screen.findByLabelText('Offer folders with files for review after')) as HTMLSelectElement;
+    expect([...select.options].map((option) => option.value)).toEqual(['30', '60', '90', 'never']);
+    expect(select.value).toBe('60');
+  });
+
+  it('persists a chosen review window through the shared config key', async () => {
+    render(<ManagedWorkspacesCard />);
+    const select = await screen.findByLabelText('Offer folders with files for review after');
+
+    fireEvent.change(select, { target: { value: 'never' } });
+
+    await waitFor(() => expect(configSet).toHaveBeenCalledWith('workspace.retention', { windowDays: 'never' }));
+    await waitFor(() => expect(preview).toHaveBeenCalledTimes(2));
+  });
+
+  it('reads back a stored window instead of assuming the default', async () => {
+    configStore.set('workspace.retention', { windowDays: 90 });
+    render(<ManagedWorkspacesCard />);
+
+    const select = (await screen.findByLabelText('Offer folders with files for review after')) as HTMLSelectElement;
+    await waitFor(() => expect(select.value).toBe('90'));
   });
 });

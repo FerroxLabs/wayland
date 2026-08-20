@@ -98,7 +98,8 @@ import { getInstallUuid } from '@process/services/kickoff/installUuid';
 import { initWaylandTransferBridge } from './waylandTransferBridge';
 import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
 import { cronService } from '@process/services/cron/cronServiceSingleton';
-import { getSystemDir } from '@process/utils/initStorage';
+import { getSystemDir, ProcessConfig } from '@process/utils/initStorage';
+import { loadRetentionWindowMs } from '@/common/types/workspaceRetentionSettings';
 import { getDataPath } from '@process/utils';
 import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
 import { buildWaylandTransferInventoryPreflight } from '@process/services/transfer/inventory/transferPreflight';
@@ -209,6 +210,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initWorkspaceRetentionBridge({
     getWorkDir: () => getSystemDir().workDir,
     getInstallationId: () => getInstallUuid(),
+    getRetentionWindowMs: () => loadRetentionWindowMs(() => ProcessConfig.get('workspace.retention')),
     loadProvenance: async () => loadManagedWorkspaceProvenance(getDataPath(), await getInstallUuid()),
     sources: {
       listConversations: () => deps.conversationRepo.listAllConversations(),

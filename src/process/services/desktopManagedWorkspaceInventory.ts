@@ -10,6 +10,10 @@ import type { CronJob } from './cron/CronStore';
 import type { ArtifactRecord } from './artifacts/artifactLedger';
 import type { ManagedWorkspaceProvenanceLoad } from './managedWorkspaceProvenance';
 import {
+  DEFAULT_WORKSPACE_RETENTION_WINDOW_DAYS,
+  retentionWindowMsFor,
+} from '@/common/types/workspaceRetentionSettings';
+import {
   collectManagedWorkspaceInventory,
   type ManagedWorkspaceInventoryReport,
   type WorkspaceAuthorityCompleteness,
@@ -17,7 +21,11 @@ import {
   type WorkspaceAuthoritySource,
 } from './managedWorkspaceInventory';
 
-export const DEFAULT_MANAGED_WORKSPACE_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+/**
+ * The tier-2 review window used when no caller supplies one. Derived from the
+ * single shared setting so there is exactly one default in the tree.
+ */
+export const DEFAULT_MANAGED_WORKSPACE_RETENTION_MS = retentionWindowMsFor(DEFAULT_WORKSPACE_RETENTION_WINDOW_DAYS);
 
 export type ActiveWorkspaceProcess = {
   id: string;

@@ -2040,6 +2040,12 @@
   },
   "storagePage": {
     "title": "ストレージ",
+    "retentionWindowLabel": "ファイルを含むフォルダーを確認対象にするまでの期間",
+    "retentionWindow30": "30 日",
+    "retentionWindow60": "60 日",
+    "retentionWindow90": "90 日",
+    "retentionWindowNever": "なし",
+    "retentionWindowSaveFailed": "確認期間を保存できませんでした。",
     "authorityConversation": "チャット",
     "authorityProject": "プロジェクト",
     "authoritySchedule": "スケジュール",

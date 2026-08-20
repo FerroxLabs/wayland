@@ -2065,6 +2065,12 @@
   },
   "storagePage": {
     "title": "Speicher",
+    "retentionWindowLabel": "Ordner mit Dateien zur Prüfung anbieten nach",
+    "retentionWindow30": "30 Tage",
+    "retentionWindow60": "60 Tage",
+    "retentionWindow90": "90 Tage",
+    "retentionWindowNever": "Nie",
+    "retentionWindowSaveFailed": "Der Prüfzeitraum konnte nicht gespeichert werden.",
     "authorityConversation": "Chats",
     "authorityProject": "Projekte",
     "authoritySchedule": "Zeitpläne",

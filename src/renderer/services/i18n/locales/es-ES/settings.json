@@ -2065,6 +2065,12 @@
   },
   "storagePage": {
     "title": "Almacenamiento",
+    "retentionWindowLabel": "Ofrecer carpetas con archivos para revisión después de",
+    "retentionWindow30": "30 días",
+    "retentionWindow60": "60 días",
+    "retentionWindow90": "90 días",
+    "retentionWindowNever": "Nunca",
+    "retentionWindowSaveFailed": "No se pudo guardar el periodo de revisión.",
     "authorityConversation": "Chats",
     "authorityProject": "Proyectos",
     "authoritySchedule": "Programaciones",
