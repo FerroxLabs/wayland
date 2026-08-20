@@ -943,14 +943,28 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private tryAutoApprove(content: IMessageToolGroup['content'][number]): boolean {
     const type = content.confirmationDetails?.type;
 
-    // #1099: a filesystem boundary is never auto-approved, in any mode. Two
-    // independent reasons, either of which alone is decisive:
+    // #1099: a filesystem boundary is never auto-approved by THIS HOST, in any
+    // mode. Two independent reasons, either of which alone is decisive:
     //   SECURITY - it widens the session's authority BEYOND the workspace, so
     //     an autopilot answer would hand out standing read access to a folder
     //     the user never saw named.
     //   CORRECTNESS - every path below approves with `once`, and Core cannot
     //     run the call under a one-shot grant. An auto-approved boundary is a
     //     refused read that also skipped the only question that could fix it.
+    //
+    // ⚠️ SCOPE OF THAT CLAIM. It is about host behaviour and nothing more. In
+    // Autopilot the escalation never arrives in the first place: `yoloMode`
+    // becomes `--auto-approve` (`wcore/index.ts:539` → `envBuilder.ts:606`),
+    // which puts Core in `force` mode, and Core suppresses the classifier
+    // outright — `let path_boundary = if globally_approved || recovered_approval
+    // { None }` (`wcore-agent/src/orchestration/mod.rs:3150`, and their own
+    // comment at :3144 says force "still bypasses"). So under Autopilot there is
+    // no card, and the user meets the same dead-end refusal this feature exists
+    // to replace. Fail-closed — no grant is ever minted — but ABSENT, not
+    // enforced, and the scheduled-task executor sets `yoloMode` on every task.
+    // Note also that `resolveBlanketAutoApprove`, which lets Guarded Auto
+    // override a blanket yolo, is applied in `AcpAgentManager` only and never on
+    // this path. Do not read the guard below as covering Autopilot.
     if (type === 'path_boundary') return false;
 
     if (this.currentMode === 'yolo') {
