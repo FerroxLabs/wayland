@@ -80,7 +80,7 @@
     "workflow": "wayland-competitor-watch",
     "inputs": {
       "competitor_list_path": "~/wayland/marketing/competitors.yaml",
-      "last_scan_path": "~/wayland/outbox/marketing/last-competitor-scan.md"
+      "last_scan_path": "artifacts/marketing/last-competitor-scan.md"
     }
   },
   {
@@ -92,7 +92,7 @@
     "workflow": "business-ops-weekly-review",
     "inputs": {
       "data_dirs": "~/wayland/inbox/finance,~/wayland/inbox/sales,~/wayland/inbox/support",
-      "prior_review_path": "~/wayland/outbox/ops/last-weekly-review.md"
+      "prior_review_path": "artifacts/ops/last-weekly-review.md"
     }
   },
   {
@@ -104,7 +104,7 @@
     "workflow": "business-ops-monthly-review",
     "inputs": {
       "data_dirs": "~/wayland/inbox/finance,~/wayland/inbox/sales,~/wayland/inbox/support",
-      "prior_review_path": "~/wayland/outbox/ops/last-monthly-review.md"
+      "prior_review_path": "artifacts/ops/last-monthly-review.md"
     }
   },
   {
@@ -116,7 +116,7 @@
     "workflow": "wayland-batch-investor-update",
     "inputs": {
       "data_dir": "~/wayland/inbox/monthly-data/",
-      "prior_update_path": "~/wayland/outbox/investor-updates/last.md"
+      "prior_update_path": "artifacts/investor-updates/last.md"
     }
   },
   {

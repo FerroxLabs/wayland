@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import path from 'path';
+
 import type { TProviderWithModel } from '@/common/config/storage';
 import { isLocalBaseUrl, isOpenAIHost } from '@/common/utils/urlValidation';
 import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from '@process/providers/catalog/chatgptSubscriptionModels';
@@ -945,6 +947,7 @@ export function buildEngineSpawnEnv(opts: {
   providerEnv: Record<string, string>;
   toolKeys?: Record<string, string>;
   waylandHome?: string;
+  workspace?: string;
   vaultPassphraseEnv?: Record<string, string>;
   spawnEnvDenylist?: readonly string[];
   ambientEnvDenylist?: readonly string[];
@@ -1048,6 +1051,28 @@ export function buildEngineSpawnEnv(opts: {
   // error instead of the opaque "unknown channel". Standalone/CLI engines (which
   // DO hand-author channel toml) never set this and are unaffected.
   out.WAYLAND_SEND_MESSAGE_HOST_DELEGATE = '1';
+
+  // P2-6: the deliverable destination, handed to the skill instead of guessed
+  // by it. The bundled morning-report SKILL.md named an app-owned absolute path
+  // (`~/wayland/outbox/market/`) while also stating that everything outside the
+  // workspace is refused; with nowhere legal to write, the agent wrote beside
+  // its own script inside `.wayland-core/skills/...`, a dot directory every
+  // workspace scanner skips, and the deliverable was invisible. A skill author
+  // cannot reproduce that if the destination is not theirs to choose: they pick
+  // a relative FILENAME and join it onto this.
+  //
+  // Set here, after the ambient allowlist filter and after both denylist
+  // sweeps, for the same reason WAYLAND_ALLOW_WIRE_FORCE is: a stale value in
+  // the user's shell must never win (it is not allowlisted, so it never enters
+  // `full`), and a denylist that revokes provider authority must not silently
+  // leave a skill with no output directory at all.
+  //
+  // Deliberately NOT created here. `<workspace>` may be gone - the user owns
+  // that folder - and an mkdir would silently resurrect a deleted workspace,
+  // which is exactly what P2-10 forbids. Bundled skills already `mkdir -p`.
+  if (opts.workspace) {
+    out.WAYLAND_OUTPUT_DIR = path.join(opts.workspace, 'artifacts');
+  }
 
   return out;
 }

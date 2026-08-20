@@ -98,6 +98,7 @@ import { projectServiceSingleton } from '@process/services/projectServiceSinglet
 import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { getSystemDir } from '@process/utils/initStorage';
 import { getDataPath } from '@process/utils';
+import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
 import { buildWaylandTransferInventoryPreflight } from '@process/services/transfer/inventory/transferPreflight';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
 import { getReleaseTrack } from '@/common/releaseTrack';
@@ -209,6 +210,10 @@ export function initAllBridges(deps: BridgeDependencies): void {
       listSchedules: () => cronService.listJobs(),
       listActiveProcesses: () =>
         deps.workerTaskManager.listWorkspaceAuthorities().map(({ id, workspace }) => ({ id, workspace })),
+      // P2-7: the artifact ledger is what lets a workspace holding a real
+      // deliverable classify as `artifact-bearing`. Without it the authority
+      // stayed `unavailable` and that classification was unreachable.
+      listArtifacts: () => readArtifactLedger(artifactLedgerPath(getDataPath())),
     },
   });
   initWaylandTransferBridge(async (request) => {
