@@ -115,13 +115,20 @@ describe('the stable copy at the series root is listed as the same deliverable',
 
     const summaries = await listArtifactSummaries(effects());
     expect(summaries).toHaveLength(2);
-    for (const summary of summaries) {
-      const alias = (summary.aliasPaths ?? [])[0];
-      expect(alias).toBeDefined();
-      // Same file name in both series: the alias has to follow the SERIES, not
-      // the name, or previewing one series' copy shows the other's history.
-      await expect(fs.readFile(alias, 'utf8')).resolves.toBe(await fs.readFile(summary.canonicalPath, 'utf8'));
-    }
+    // Same file name in both series: the alias has to follow the SERIES, not
+    // the name, or previewing one series' copy shows the other's history.
+    const pairs = await Promise.all(
+      summaries.map(async (summary) => {
+        const alias = (summary.aliasPaths ?? [])[0];
+        expect(alias).toBeDefined();
+        return {
+          alias: await fs.readFile(alias, 'utf8'),
+          canonical: await fs.readFile(summary.canonicalPath, 'utf8'),
+        };
+      })
+    );
+    for (const pair of pairs) expect(pair.alias).toBe(pair.canonical);
+    expect(pairs.map((pair) => pair.alias).toSorted()).toEqual(['<h1>market</h1>', '<h1>support</h1>']);
   });
 
   it('preserves a nested path inside the run directory', async () => {
