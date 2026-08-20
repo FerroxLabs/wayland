@@ -32,6 +32,7 @@ import {
   planVaultPassphraseDelivery,
   type VaultPassphraseDelivery,
 } from './envBuilder';
+import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
 import { ProfileIsolationError, nativeConfigDir, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
@@ -638,6 +639,11 @@ export class WCoreAgent {
           // P2-6: same value the child stands in (`cwd` below), so
           // WAYLAND_OUTPUT_DIR and the agent's own `$PWD` can never disagree.
           workspace,
+          // P2-11: when a scheduled run is open on this workspace, its staging
+          // directory is the destination - the run publishes by rename, so a
+          // crash leaves nothing where the user or the next run would read it.
+          // Undefined for an interactive chat, which keeps the series root.
+          outputDir: activeRunOutputDir(workspace),
           vaultPassphraseEnv: vaultDelivery?.env,
           spawnEnvDenylist,
           ambientEnvDenylist,

@@ -943,11 +943,36 @@ export const AWS_AUTHORITY_ENV_KEYS = [
  *     never diverge. Layered last so a stray `process.env.WAYLAND_HOME` can't
  *     override the resolved profile dir.
  */
+/**
+ * The run's staging directory when one is open and genuinely inside the
+ * workspace, otherwise the series root. Containment is re-checked HERE rather
+ * than trusted from the caller: this value becomes a host-blessed write
+ * destination handed to model-authored skill text, so the one place it is
+ * produced is the right place to prove it cannot point out of the sandbox.
+ */
+function resolveOutputDir(workspace: string, outputDir?: string): string {
+  const seriesRoot = path.join(workspace, 'artifacts');
+  if (!outputDir) return seriesRoot;
+  const resolvedWorkspace = path.resolve(workspace);
+  const resolved = path.resolve(outputDir);
+  const relative = path.relative(resolvedWorkspace, resolved);
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return seriesRoot;
+  return resolved;
+}
+
 export function buildEngineSpawnEnv(opts: {
   providerEnv: Record<string, string>;
   toolKeys?: Record<string, string>;
   waylandHome?: string;
   workspace?: string;
+  /**
+   * P2-11: the OPEN RUN'S staging directory, when a scheduled run is in flight.
+   * Overrides the `<workspace>/artifacts` default so a crashed or half-finished
+   * run cannot leave partial output where the next run - or the user - reads it
+   * as a real deliverable. Ignored unless it resolves inside `workspace`: this
+   * is a hint from the run path, not a second way to choose a write root.
+   */
+  outputDir?: string;
   vaultPassphraseEnv?: Record<string, string>;
   spawnEnvDenylist?: readonly string[];
   ambientEnvDenylist?: readonly string[];
@@ -1071,7 +1096,7 @@ export function buildEngineSpawnEnv(opts: {
   // that folder - and an mkdir would silently resurrect a deleted workspace,
   // which is exactly what P2-10 forbids. Bundled skills already `mkdir -p`.
   if (opts.workspace) {
-    out.WAYLAND_OUTPUT_DIR = path.join(opts.workspace, 'artifacts');
+    out.WAYLAND_OUTPUT_DIR = resolveOutputDir(opts.workspace, opts.outputDir);
   }
 
   return out;
