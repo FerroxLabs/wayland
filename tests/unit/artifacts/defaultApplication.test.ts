@@ -113,7 +113,14 @@ describe('naming the default application', () => {
   it('runs the darwin resolver with the path as an ARGUMENT, never inside the script', async () => {
     // A filename is model-authored text. Building a script around one is how a
     // quoting bug becomes script injection in a process that can open anything.
-    const hostile = path.join(root, 'it\'s "quoted"; osascript -e evil.html');
+    // A double quote is illegal in a Windows filename, so the fixture keeps
+    // every hostile character the host actually permits rather than skipping
+    // the assertion there: the argument-passing contract holds on all three.
+    const hostileName =
+      process.platform === 'win32'
+        ? "it's quoted; osascript -e evil.html"
+        : 'it\'s "quoted"; osascript -e evil.html';
+    const hostile = path.join(root, hostileName);
     await fs.writeFile(hostile, '<html></html>', 'utf8');
     const run = vi.fn(async () => 'Preview\n');
 

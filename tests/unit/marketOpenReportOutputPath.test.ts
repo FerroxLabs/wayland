@@ -18,6 +18,19 @@ import { describe, expect, it } from 'vitest';
  */
 const REPO_ROOT = path.resolve(__dirname, '../..');
 
+/**
+ * Every exemption key and allowlist key below is written with POSIX separators,
+ * but `path.relative` yields `\` on win32. Comparing an unnormalised relative
+ * path against them misses EVERY exemption and reports the entire 2k-file
+ * corpus as offending - which is exactly what the windows-2022 shard did on
+ * 2026-08-20. Normalise once, here, so the sweep means the same thing on every
+ * platform. A backslash is legal in a POSIX filename, so the sweeps below also
+ * assert no bundled path actually contains one.
+ */
+export const toPosixSeparators = (value: string): string => value.replace(/\\/g, '/');
+
+const repoRelPosix = (file: string): string => toPosixSeparators(path.relative(REPO_ROOT, file));
+
 /** Extract the output-directory default declared as "... (default `PATH`)". */
 function extractDeclaredDefault(markdown: string): string {
   const match = markdown.match(/default\s+`([^`]+)`/);
@@ -116,6 +129,24 @@ function collectFiles(root: string, extensions: string[]): string[] {
   return out;
 }
 
+describe('the corpus sweep means the same thing on every platform', () => {
+  const WIN_REL = 'src\\process\\resources\\skills\\tvcontrol-setup\\SKILL.md';
+
+  it('normalises win32 separators so POSIX-keyed exemptions still match', () => {
+    expect(toPosixSeparators(WIN_REL)).toBe('src/process/resources/skills/tvcontrol-setup/SKILL.md');
+    // The consequence, stated directly: unnormalised, the exemption misses.
+    expect([...APP_OWNED_EXEMPTIONS].some((exempt) => WIN_REL.endsWith(exempt))).toBe(false);
+    expect([...APP_OWNED_EXEMPTIONS].some((exempt) => toPosixSeparators(WIN_REL).endsWith(exempt))).toBe(true);
+  });
+
+  it('normalises the allowlist key shape the write sweep builds', () => {
+    const rel = toPosixSeparators('src\\process\\resources\\skills\\moltbook\\SKILL.md');
+    expect(`${rel.replace(/^src\/process\/resources\//, '')}::~/.moltbot/skills/moltbook`).toBe(
+      'skills/moltbook/SKILL.md::~/.moltbot/skills/moltbook'
+    );
+  });
+});
+
 describe('no bundled content sends a deliverable outside the workspace', () => {
   it('no bundled workflow or skill tells the agent to write to an "app-owned" location', () => {
     const files = [
@@ -129,10 +160,13 @@ describe('no bundled content sends a deliverable outside the workspace', () => {
     // bundled-workflows; skills/ and assistant/ ship as loose resources). A
     // guard of >50 passed at 182 while the sweep quietly excluded 92% of it.
     expect(files.length).toBeGreaterThan(2000);
+    // Backslash is legal in a POSIX filename, so the unconditional separator
+    // normalisation above is only safe while no bundled path contains one.
+    if (path.sep === '/') expect(files.filter((f) => f.includes('\\'))).toEqual([]);
 
     const offenders: string[] = [];
     for (const file of files) {
-      const rel = path.relative(REPO_ROOT, file);
+      const rel = repoRelPosix(file);
       if ([...APP_OWNED_EXEMPTIONS].some((exempt) => rel.endsWith(exempt))) continue;
       const text = readFileSync(file, 'utf-8');
       text.split('\n').forEach((line, i) => {
@@ -286,7 +320,7 @@ describe('a documented output directory resolves against the workspace root, not
 
     const offenders: string[] = [];
     for (const file of files) {
-      const rel = path.relative(REPO_ROOT, file);
+      const rel = repoRelPosix(file);
       if ([...OUT_ANCHOR_EXEMPTIONS].some((exempt) => rel.endsWith(exempt))) continue;
       const markdown = readFileSync(file, 'utf-8');
       const shell = shellFenceLines(markdown);
@@ -480,7 +514,7 @@ describe('no bundled shell instruction writes outside the workspace', () => {
 
     const offenders: string[] = [];
     for (const file of files) {
-      const rel = path.relative(REPO_ROOT, file);
+      const rel = repoRelPosix(file);
       for (const { line, text } of shellCandidates(readFileSync(file, 'utf-8'))) {
         for (const target of outOfWorkspaceWriteTargets(text)) {
           const key = [...OUT_OF_WORKSPACE_WRITE_ALLOWLIST.keys()].find(

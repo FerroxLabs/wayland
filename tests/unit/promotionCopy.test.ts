@@ -86,7 +86,9 @@ describe('promotion copy semantics (rule 5)', () => {
     expect(await fsp.readFile(path.join(dest, 'real.txt'), 'utf8')).toBe('body');
   });
 
-  it('skips a non-regular file with a report', async () => {
+  // `mkfifo` is POSIX-only; Windows has no equivalent to create through fs, and
+  // a FIFO cannot appear inside a directory tree there at all.
+  it.skipIf(process.platform === 'win32')('skips a non-regular file with a report', async () => {
     await fsp.writeFile(path.join(source, 'keep.txt'), 'keep', 'utf8');
     execFileSync('/usr/bin/mkfifo', [path.join(source, 'pipe')]);
 
