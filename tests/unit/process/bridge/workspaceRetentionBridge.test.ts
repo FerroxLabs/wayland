@@ -39,6 +39,10 @@ vi.mock('@process/services/desktopManagedWorkspaceInventory', () => ({
 
 import { initWorkspaceRetentionBridge } from '@process/bridge/workspaceRetentionBridge';
 
+/** The user's TIER-2 review window. Distinctive so the assertion below proves
+ *  the bridge actually forwards it rather than defaulting internally. */
+const REVIEW_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+
 describe('workspaceRetentionBridge', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -55,6 +59,7 @@ describe('workspaceRetentionBridge', () => {
     initWorkspaceRetentionBridge({
       getWorkDir: () => '/managed/work',
       getInstallationId: () => 'desktop-test-installation',
+      getRetentionWindowMs: async () => REVIEW_WINDOW_MS,
       loadProvenance,
       sources,
     });
@@ -65,6 +70,7 @@ describe('workspaceRetentionBridge', () => {
     expect(collectDesktopManagedWorkspaceInventory).toHaveBeenCalledWith({
       workDir: '/managed/work',
       installationId: 'desktop-test-installation',
+      retentionWindowMs: REVIEW_WINDOW_MS,
       sources: { ...sources, loadProvenance },
     });
   });
@@ -82,6 +88,7 @@ describe('workspaceRetentionBridge', () => {
     initWorkspaceRetentionBridge({
       getWorkDir: () => '/managed/work',
       getInstallationId: () => 'desktop-test-installation',
+      getRetentionWindowMs: async () => REVIEW_WINDOW_MS,
       loadProvenance: async () => ({ state: 'unavailable', records: [], errors: [] }),
       sources: {
         listConversations: async () => [],
