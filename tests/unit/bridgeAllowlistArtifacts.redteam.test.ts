@@ -24,6 +24,7 @@ import {
   isAllowedForRemote,
   isAllowedOutboundToRemote,
   isRemoteDeniedProviderKey,
+  REMOTE_DENIED_KEYS,
 } from '@/common/adapter/bridgeAllowlist';
 import { describe, expect, it } from 'vitest';
 
@@ -69,6 +70,11 @@ describe('artifact seam remote boundary', () => {
    */
   it('denies the SEND pair by exact key, not only by the namespace prefix', () => {
     for (const key of ['artifacts.send-targets', 'artifacts.send-to']) {
+      // MEMBERSHIP, not outcome. The `artifacts.` prefix already denies these,
+      // so `isRemoteDeniedProviderKey` returns true whether or not the exact
+      // key is present - deleting both entries leaves an outcome-only assertion
+      // green, which is the whole thing this case exists to prevent.
+      expect(REMOTE_DENIED_KEYS.has(key), `${key} must be an EXACT denied key, not only prefix-covered`).toBe(true);
       expect(isRemoteDeniedProviderKey(key), `${key} must be remote-denied`).toBe(true);
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
       // The outbound rule is DERIVED from the inbound one, so denying a key

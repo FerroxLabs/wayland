@@ -339,7 +339,15 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
  * agent-install mutation, and the app.* providers that can write settings, change
  * the CDP config, control startup, or restart the process.
  */
-const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
+/**
+ * EXPORTED for tests only. Asserting `isRemoteDeniedProviderKey(key) === true`
+ * does NOT pin an entry here: every key below that also matches a
+ * `REMOTE_DENIED_PREFIXES` entry is SHADOWED by it, so the outcome is identical
+ * whether the exact key is present or absent. The exact keys exist precisely so
+ * that narrowing a prefix later cannot silently re-open them, and only set
+ * membership can hold that.
+ */
+export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   // --- Artifact SEND (exfiltration). The `artifacts.` prefix above already
   //     covers these, and they are named here ANYWAY. The prefix is a policy
   //     about a namespace; these two keys are the only ones on it that put a
