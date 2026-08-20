@@ -710,6 +710,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       stdioMcpServers,
       mcpServerNames: sessionMcpServerNames,
       waylandHome: launchWaylandHome,
+      // P2-11: the identity a scheduled run's output claim is keyed on.
+      conversationId: this.conversation_id,
       onStreamEvent: (event) => this.emit('wcore.message', event),
       onProcessExit: (code, activeMsgId, signal) => {
         this.handleProcessExit(code, activeMsgId, signal);

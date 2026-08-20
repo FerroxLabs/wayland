@@ -76,6 +76,32 @@ describe('WAYLAND_OUTPUT_DIR reaches every skill', () => {
     expect('WAYLAND_OUTPUT_DIR' in env).toBe(false);
   });
 
+  /**
+   * `resolveOutputDir` re-checks containment itself, rather than trusting the
+   * run path that produced the value, because THIS is where the value becomes a
+   * host-blessed write destination handed to model-authored skill text. Nothing
+   * asserted that, so the whole containment branch could be deleted and every
+   * test in the suite stayed green.
+   */
+  describe('an open run overrides the default, but only inside the workspace', () => {
+    const staging = path.join(WORKSPACE, 'artifacts', 'market', '.staging', 'r1');
+
+    it('uses the run staging directory when it is inside the workspace', () => {
+      const env = buildEngineSpawnEnv({ providerEnv: {}, workspace: WORKSPACE, outputDir: staging });
+      expect(env.WAYLAND_OUTPUT_DIR).toBe(staging);
+    });
+
+    it.each([
+      ['an absolute path elsewhere', path.join(path.sep, 'tmp', 'somewhere-else')],
+      ['a sibling that shares the workspace prefix', `${WORKSPACE}-evil`],
+      ['a traversal back out of the workspace', path.join(WORKSPACE, '..', 'elsewhere')],
+      ['the workspace root itself', WORKSPACE],
+    ])('falls back to the series root for %s', (_label, outputDir) => {
+      const env = buildEngineSpawnEnv({ providerEnv: {}, workspace: WORKSPACE, outputDir });
+      expect(env.WAYLAND_OUTPUT_DIR).toBe(EXPECTED);
+    });
+  });
+
   it('does not disturb the other authoritative spawn values', () => {
     const env = buildEngineSpawnEnv({
       providerEnv: { ANTHROPIC_API_KEY: 'k' },

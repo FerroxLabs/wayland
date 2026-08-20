@@ -227,21 +227,36 @@ type Agent = (outputDir: string, workspace: string) => Promise<void>;
 function makeHarness(workspace: string) {
   const guard = new CronBusyGuard();
   let agent: Agent = async () => {};
+  /**
+   * The conversation the task was built for - which is what `WCoreManager`
+   * passes to the engine as `conversationId`, and therefore what the output
+   * lookup is keyed on. Captured here rather than assumed, so the harness
+   * cannot resolve a run the executor never bound to this spawn.
+   */
+  let spawnConversationId: string | undefined;
   const task = {
     type: 'wcore',
     workspace,
     sendMessage: vi.fn(async () => {
-      // The destination is read the way the real engine reads it: the spawn
-      // call in `WCoreManager.start()`, verbatim - same builder, same
-      // workspace, same `activeRunOutputDir` lookup. `spawnSiteIsWired` below
-      // pins that this really is what the spawn site passes.
-      const env = buildEngineSpawnEnv({ providerEnv: {}, workspace, outputDir: activeRunOutputDir(workspace) });
+      // A MIRROR of the spawn call, and only a convenience one: the spawn site
+      // itself is driven for real in `wcoreSpawnRunOutputDir.test.ts` (through
+      // `WCoreAgent.start()` and a real `spawn`) and the manager's half in
+      // `wcoreManagerRunOutputHandoff.test.ts`. What THIS file is proving is
+      // the publication chain around the turn, not the env plumbing.
+      const env = buildEngineSpawnEnv({
+        providerEnv: {},
+        workspace,
+        outputDir: activeRunOutputDir(spawnConversationId),
+      });
       await agent(env.WAYLAND_OUTPUT_DIR, workspace);
     }),
   };
   const taskManager = {
     getTask: vi.fn(() => undefined),
-    getOrBuildTask: vi.fn(async () => task),
+    getOrBuildTask: vi.fn(async (conversationId: string) => {
+      spawnConversationId = conversationId;
+      return task;
+    }),
     kill: vi.fn(),
     buildConversation: vi.fn(),
   };
@@ -303,27 +318,27 @@ describe('a scheduled routine publishes a durable, dated, discoverable series', 
   });
 
   it('hands the running agent its own staging directory, not the series the user reads', async () => {
-    // Outside a run, the workspace's output directory is the series root - an
-    // interactive chat in a task workspace is unchanged.
-    expect(
-      buildEngineSpawnEnv({ providerEnv: {}, workspace, outputDir: activeRunOutputDir(workspace) })
-        .WAYLAND_OUTPUT_DIR
-    ).toBe(pathMod.join(workspace, 'artifacts'));
-
     let seen = '';
+    /** What the user's own chat in this same folder would be handed, mid-run. */
+    let userChatSawDuringRun = '';
     const h = makeHarness(workspace);
     await h.run(jobs[0], async (outputDir) => {
       seen = outputDir;
+      userChatSawDuringRun = buildEngineSpawnEnv({
+        providerEnv: {},
+        workspace,
+        outputDir: activeRunOutputDir('a-chat-the-user-opened-in-this-folder'),
+      }).WAYLAND_OUTPUT_DIR;
       await fsp.writeFile(pathMod.join(outputDir, BRIEF), 'day one', 'utf8');
     });
 
     const relative = pathMod.relative(workspace, seen).split(pathMod.sep);
     expect(relative.slice(0, 3)).toEqual(['artifacts', SERIES, '.staging']);
-    // And the run closed: the next spawn is back on the series root.
-    expect(
-      buildEngineSpawnEnv({ providerEnv: {}, workspace, outputDir: activeRunOutputDir(workspace) })
-        .WAYLAND_OUTPUT_DIR
-    ).toBe(pathMod.join(workspace, 'artifacts'));
+    // ...and NOT the user's chat, which keeps the series root even while the
+    // scheduled run is in flight. Keyed on the workspace, this was the run's
+    // staging directory and the user's output was published as the run's.
+    expect(userChatSawDuringRun).toBe(pathMod.join(workspace, 'artifacts'));
+    expect(userChatSawDuringRun).not.toBe(seen);
   });
 
   it('day 1 publishes a dated run, moves latest, records the ledger and refreshes the stable input', async () => {
@@ -471,6 +486,72 @@ describe('a scheduled routine publishes a durable, dated, discoverable series', 
     expect(await fsp.readFile(pathMod.join(seriesDir, BRIEF), 'utf8')).toBe('REAL');
   });
 
+  it('a turn that dies AFTER the agent wrote abandons the run rather than publishing half of it', async () => {
+    // The existing "turn throws" case has the agent write nothing, so abandon
+    // and publish leave the same empty result behind and the abandon branch is
+    // unobservable. Here the agent stages a real, complete-looking file and
+    // THEN the turn fails: publishing it would put a brief the run never
+    // finished into the series, move `latest` onto it, and refresh the stable
+    // alias the NEXT run reads as yesterday's output.
+    const h = makeHarness(workspace);
+    await h.run(jobs[0], async (outputDir) => {
+      await fsp.writeFile(pathMod.join(outputDir, BRIEF), 'MONDAY', 'utf8');
+    });
+    const before = await listRuns(seriesDir);
+    expect(before).toHaveLength(1);
+
+    await expect(
+      h.run(jobs[0], async (outputDir) => {
+        await fsp.writeFile(pathMod.join(outputDir, BRIEF), 'TUESDAY, HALF WRITTEN', 'utf8');
+        throw new Error('engine died mid-turn');
+      })
+    ).rejects.toThrow('engine died mid-turn');
+
+    expect((await listRuns(seriesDir)).map((r) => r.runId)).toEqual(before.map((r) => r.runId));
+    expect((await readLatest(seriesDir))?.runId).toBe(before[0].runId);
+    expect(await readArtifactLedger(ledger)).toHaveLength(1);
+    // The stable alias the next run reads still holds the last run that worked.
+    expect(await fsp.readFile(pathMod.join(seriesDir, BRIEF), 'utf8')).toBe('MONDAY');
+    // And the half-written bytes are gone, not left claiming the output dir.
+    expect(await fsp.readdir(pathMod.join(seriesDir, '.staging'))).toEqual([]);
+  });
+
+  it('remembers settled runs in a BOUNDED latch', async () => {
+    // White-box on purpose: a memory bound on a process-lifetime singleton has
+    // no other observable. The executor is a singleton and a run id is never
+    // revisited, so an unbounded latch grows for as long as the app runs -
+    // which, for a daily routine on an always-on machine, is forever.
+    const h = makeHarness(workspace);
+    const internals = h.executor as unknown as {
+      settledRuns: Set<string>;
+      settleArtifactRun: (handle: unknown, job: CronJob, publish: boolean) => Promise<void>;
+    };
+
+    for (let i = 0; i < 400; i += 1) {
+      const runId = `r-latch-${String(i).padStart(4, '0')}`;
+      // eslint-disable-next-line no-await-in-loop -- the latch is sequential by construction
+      await internals.settleArtifactRun(
+        {
+          taskId: jobs[0].id,
+          workspace,
+          series: SERIES,
+          seriesDir,
+          runId,
+          stagingDir: pathMod.join(seriesDir, '.staging', runId),
+          startedAt: new Date(),
+        },
+        jobs[0],
+        false
+      );
+    }
+
+    expect(internals.settledRuns.size).toBeLessThanOrEqual(256);
+    // ...and it is the OLDEST that was dropped: the newest settle, which is the
+    // one a duplicate could still be racing, is still latched.
+    expect(internals.settledRuns.has('r-latch-0399')).toBe(true);
+    expect(internals.settledRuns.has('r-latch-0000')).toBe(false);
+  });
+
   it('a job running in a chat the user owns opens no run at all', async () => {
     // `existing` mode runs inside a conversation the user owns, and several of
     // their chats can share one folder. Redirecting that folder's next engine
@@ -504,20 +585,38 @@ describe('a scheduled routine publishes a durable, dated, discoverable series', 
     expect(await readArtifactLedger(ledger)).toEqual([]);
   });
 
-  it('a symlink smuggled into staging is refused, and the run publishes anyway', async () => {
+  it('a symlink smuggled into staging is refused OUT LOUD, and the run publishes anyway', async () => {
     const secret = pathMod.join(documentsDir, 'id_rsa');
     await fsp.writeFile(secret, 'PRIVATE KEY', 'utf8');
 
-    const h = makeHarness(workspace);
-    await h.run(jobs[0], async (outputDir) => {
-      await fsp.writeFile(pathMod.join(outputDir, BRIEF), 'REAL', 'utf8');
-      await fsp.symlink(secret, pathMod.join(outputDir, 'stolen.md'));
+    // "Refused" and "quietly dropped" leave the same filesystem behind, so the
+    // absence assertions below cannot tell them apart on their own. The walk
+    // COLLECTS a symlink on purpose, so that the ledger gets to reject it and
+    // the rejection reaches a human; a skill author whose deliverable silently
+    // vanished has nothing to go on.
+    const warned: string[] = [];
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+      warned.push(args.map(String).join(' '));
     });
+
+    const h = makeHarness(workspace);
+    try {
+      await h.run(jobs[0], async (outputDir) => {
+        await fsp.writeFile(pathMod.join(outputDir, BRIEF), 'REAL', 'utf8');
+        await fsp.symlink(secret, pathMod.join(outputDir, 'stolen.md'));
+      });
+    } finally {
+      warnSpy.mockRestore();
+    }
 
     const records = await readArtifactLedger(ledger);
     expect(records.map((r) => pathMod.basename(r.relativePath))).toEqual([BRIEF]);
     // Never aliased into the namespace the user and the next run read.
     expect(existsSync(pathMod.join(seriesDir, 'stolen.md'))).toBe(false);
     expect(await fsp.readFile(pathMod.join(seriesDir, BRIEF), 'utf8')).toBe('REAL');
+    // The refusal was reported, naming both the file and the reason.
+    const refusal = warned.filter((line) => line.includes('stolen.md'));
+    expect(refusal).toHaveLength(1);
+    expect(refusal[0]).toContain('symlink');
   });
 });
