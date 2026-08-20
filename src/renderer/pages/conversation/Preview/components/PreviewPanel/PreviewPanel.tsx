@@ -41,6 +41,7 @@ import {
 } from '.';
 import { DEFAULT_SPLIT_RATIO, FILE_TYPES_WITH_BUILTIN_OPEN, MAX_SPLIT_WIDTH, MIN_SPLIT_WIDTH } from '../../constants';
 import { resolveOpenInSystemToast } from '../../fileUtils';
+import { externalOpenNeedsWarning } from '../../previewDocument';
 import {
   usePreviewHistory,
   usePreviewKeyboardShortcuts,
@@ -92,6 +93,9 @@ const PreviewPanel: React.FC = () => {
   // Confirmation dialog states
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [closeTabConfirm, setCloseTabConfirm] = useState<CloseTabConfirmState>({ show: false, tabId: null });
+  // P2-8: gate on the external open for HTML, which is the only preview kind
+  // whose content is an active document once it leaves this panel.
+  const [showExternalOpenConfirm, setShowExternalOpenConfirm] = useState(false);
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({ show: false, x: 0, y: 0, tabId: null });
@@ -426,8 +430,16 @@ const PreviewPanel: React.FC = () => {
     }
   }, [content, contentType, metadata?.fileName, metadata?.filePath, metadata?.language, messageApi, t]);
 
-  // Open file in system default application
-  const handleOpenInSystem = useCallback(async () => {
+  // Open file in system default application.
+  //
+  // P2-8 split this in two. `performOpenInSystem` is the act; `handleOpenInSystem`
+  // decides whether the act needs a warning first. HTML is the case that does:
+  // the in-app preview runs it with no scripts and no network, and the OS
+  // default browser runs it with both - against third-party data a model pulled
+  // in and nobody vetted. Every other preview kind (an image, a PDF, a CSV) is
+  // inert by comparison and opens straight through, because a warning nobody
+  // needs is a warning nobody reads.
+  const performOpenInSystem = useCallback(async () => {
     if (!metadata?.filePath) {
       try {
         messageApi.error(t('preview.openInSystemFailed'));
@@ -460,6 +472,23 @@ const PreviewPanel: React.FC = () => {
       }
     }
   }, [metadata?.filePath, messageApi, t]);
+
+  const handleOpenInSystem = useCallback(() => {
+    if (externalOpenNeedsWarning(contentType)) {
+      setShowExternalOpenConfirm(true);
+      return;
+    }
+    void performOpenInSystem();
+  }, [contentType, performOpenInSystem]);
+
+  const handleConfirmExternalOpen = useCallback(() => {
+    setShowExternalOpenConfirm(false);
+    void performOpenInSystem();
+  }, [performOpenInSystem]);
+
+  const handleCancelExternalOpen = useCallback(() => {
+    setShowExternalOpenConfirm(false);
+  }, []);
 
   // Render history dropdown
   const renderHistoryDropdown = () => {
@@ -760,6 +789,9 @@ const PreviewPanel: React.FC = () => {
           onSaveAndCloseTab={handleSaveAndCloseTab}
           onCloseWithoutSave={handleCloseWithoutSave}
           onCancelCloseTab={handleCancelCloseTab}
+          showExternalOpenConfirm={showExternalOpenConfirm}
+          onConfirmExternalOpen={handleConfirmExternalOpen}
+          onCancelExternalOpen={handleCancelExternalOpen}
         />
 
         {/* Tab bar */}

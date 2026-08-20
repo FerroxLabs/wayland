@@ -63,6 +63,22 @@ interface PreviewConfirmModalsProps {
    * Cancel close tab
    */
   onCancelCloseTab: () => void;
+
+  /**
+   * P2-8. Whether to warn before handing a generated HTML report to the OS
+   * default browser.
+   */
+  showExternalOpenConfirm: boolean;
+
+  /**
+   * Proceed with the external open despite the warning.
+   */
+  onConfirmExternalOpen: () => void;
+
+  /**
+   * Abandon the external open.
+   */
+  onCancelExternalOpen: () => void;
 }
 
 /**
@@ -78,6 +94,9 @@ const PreviewConfirmModals: React.FC<PreviewConfirmModalsProps> = ({
   onSaveAndCloseTab,
   onCloseWithoutSave,
   onCancelCloseTab,
+  showExternalOpenConfirm,
+  onConfirmExternalOpen,
+  onCancelExternalOpen,
 }) => {
   const { t } = useTranslation();
 
@@ -133,6 +152,31 @@ const PreviewConfirmModals: React.FC<PreviewConfirmModalsProps> = ({
         }
       >
         <div className='text-14px text-t-secondary'>{t('preview.closeTabMessage')}</div>
+      </Modal>
+
+      {/*
+        P2-8. Leaving the preview is a downgrade in protection, and the user is
+        the only one who can weigh it. In here the report runs with no scripts
+        and no network; in the default browser it runs with both, against data
+        Wayland never vetted. So the external open stays available - it is how a
+        report gets printed, shared or attached - but it is SECONDARY and it
+        says what changes. Cancel is the default: the modal's own dismissal
+        paths (Escape, backdrop, the X) all land on `onCancelExternalOpen`, so
+        nothing but a deliberate click on the warned button opens the browser.
+      */}
+      <Modal
+        visible={showExternalOpenConfirm}
+        title={t('preview.externalOpenTitle')}
+        onCancel={onCancelExternalOpen}
+        onOk={onConfirmExternalOpen}
+        okText={t('preview.externalOpenConfirm')}
+        cancelText={t('common.cancel')}
+        okButtonProps={{ status: 'warning' }}
+        style={{ borderRadius: '12px' }}
+        alignCenter
+        getPopupContainer={() => document.body}
+      >
+        <div className='text-14px text-t-secondary'>{t('preview.externalOpenMessage')}</div>
       </Modal>
     </>
   );
