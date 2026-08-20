@@ -10,6 +10,13 @@ import * as os from 'node:os';
 import { join } from 'node:path';
 import type { CronMessageMeta, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
+import {
+  PATH_BOUNDARY_DENY,
+  PATH_BOUNDARY_GRANT_FOLDER,
+  PATH_BOUNDARY_ROOT_PARAM,
+  isPathBoundaryOptionValue,
+  pathBoundaryRootOf,
+} from '@/common/chat/pathBoundaryConsent';
 import { composeResetSeed, type ResumeSeedOptions } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
@@ -935,6 +942,16 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private tryAutoApprove(content: IMessageToolGroup['content'][number]): boolean {
     const type = content.confirmationDetails?.type;
 
+    // #1099: a filesystem boundary is never auto-approved, in any mode. Two
+    // independent reasons, either of which alone is decisive:
+    //   SECURITY - it widens the session's authority BEYOND the workspace, so
+    //     an autopilot answer would hand out standing read access to a folder
+    //     the user never saw named.
+    //   CORRECTNESS - every path below approves with `once`, and Core cannot
+    //     run the call under a one-shot grant. An auto-approved boundary is a
+    //     refused read that also skipped the only question that could fix it.
+    if (type === 'path_boundary') return false;
+
     if (this.currentMode === 'yolo') {
       // #504: a question needs an answer, not a bare approval - approving an
       // AskUserQuestion with no answer makes the engine run its loud-defensive
@@ -976,6 +993,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // Check mode-based auto-approval
       if (this.tryAutoApprove(content)) continue;
 
+      // #1099 note: the persisted "always allow" memory cannot speak for a
+      // folder grant, and structurally never does. Its keys are category-shaped
+      // (exec/edit/info/mcp) and say nothing about WHICH root was approved, so
+      // a `path_boundary` action yields no keys and the branch below cannot
+      // fire. The card is likewise emitted with no `action`, so the renderer's
+      // mirror of this check (ConversationChatConfirm.checkAndAutoConfirm) has
+      // nothing to key on either.
       // Check approval store ("always allow" memory)
       const action = content.confirmationDetails?.type ?? 'info';
       const commandType =
@@ -991,7 +1015,30 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // engine), instead of the generic allow/deny buttons.
       const details = content.confirmationDetails;
       const options =
-        details?.type === 'question'
+        // #1099: the folder-grant card. Its own option values, never
+        // `proceed_once`/`proceed_always` — those are what every other approval
+        // matcher in this app keys on, so reusing them would let a stored
+        // "always allow" for an unrelated tool replay as a filesystem grant.
+        //
+        // The grant is FIRST because it is the primary action: Core cannot
+        // resolve a boundary with a one-shot approval, so there is no "allow
+        // once" here at all. A Once button would refuse the read anyway and
+        // read to the user as a broken feature.
+        //
+        // The root travels in `params`, which is also what the label
+        // interpolates — so the folder named on the button and the folder the
+        // grant opens are one value and cannot drift apart.
+        details?.type === 'path_boundary'
+          ? [
+              {
+                label: 'messages.confirmation.grantFolderAlways',
+                value: PATH_BOUNDARY_GRANT_FOLDER,
+                params: { [PATH_BOUNDARY_ROOT_PARAM]: details.suggestedRoot },
+                description: 'messages.confirmation.grantFolderAlwaysHint',
+              },
+              { label: 'messages.confirmation.grantFolderDeny', value: PATH_BOUNDARY_DENY },
+            ]
+          : details?.type === 'question'
           ? [
               ...details.choices.map((choice) => ({
                 label: choice.label,
@@ -1010,8 +1057,16 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       this.addConfirmation({
         title: (details?.type === 'question' ? details.question : details?.title) || content.name || '',
         id: content.callId,
-        action,
-        description: (details?.type === 'question' ? details.header : content.description) || '',
+        // #1099: a boundary card carries NO `action`. The approval store is
+        // category-keyed and cannot describe which root was approved, so there
+        // is no key it would be honest to store or replay — and the renderer's
+        // auto-confirm bails on a missing action before it reaches any value
+        // match (ConversationChatConfirm.checkAndAutoConfirm).
+        ...(details?.type === 'path_boundary' ? {} : { action }),
+        description:
+          details?.type === 'path_boundary'
+            ? details.target
+            : (details?.type === 'question' ? details.header : content.description) || '',
         callId: content.callId,
         options,
         commandType,
@@ -2146,6 +2201,30 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       this.pendingApprovalTokens.delete(callId);
       super.confirm(id, callId, data);
       this.agent?.resumeApproval(pendingToken, data !== ToolConfirmationOutcome.Cancel);
+      return;
+    }
+
+    // #1099: the folder-grant answer. Routed before the ordinary approval path
+    // because it needs a scope no other card can produce — `always_path`, which
+    // EXPANDS the session's filesystem authority to one root outside the
+    // workspace, read-only. `write: false` is not a default we could widen
+    // later from here: write access outside the workspace is not grantable at
+    // all, so Core never raises a boundary asking for it.
+    const boundaryConfirmation = isPathBoundaryOptionValue(data)
+      ? this.confirmations.find((c) => c.callId === callId)
+      : undefined;
+    if (boundaryConfirmation) {
+      const root = pathBoundaryRootOf(boundaryConfirmation);
+      super.confirm(id, callId, data);
+      if (data === PATH_BOUNDARY_GRANT_FOLDER && root) {
+        // NOTE: the engine acks this as approved whether or not the grant took
+        // — `apply_path_grant`'s refusal bool is discarded at both call sites
+        // (wcore-protocol/src/lib.rs:424 and :497). A refused grant is reported
+        // on the session output, not here, so this ack is not proof of access.
+        this.agent?.approveTool(callId, { always_path: { root, write: false } });
+      } else {
+        this.agent?.denyTool(callId, 'User declined access to the folder');
+      }
       return;
     }
 

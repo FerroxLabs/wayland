@@ -69,7 +69,13 @@
     "yesAllowAlways": "はい、常に許可",
     "yesAlwaysAllowTool": "はい、サーバー \"{{serverName}}\" のツール \"{{toolName}}\" を常に許可",
     "yesAlwaysAllowServer": "はい、サーバー \"{{serverName}}\" のすべてのツールを常に許可",
-    "no": "いいえ (esc)"
+    "no": "いいえ (esc)",
+    "grantFolderAlways": "このフォルダーを常に許可: {{folder}}",
+    "grantFolderAlwaysHint": "読み取り専用で、このセッションの間だけ有効です。ワークスペース外のほかの場所は開放されません。",
+    "grantFolderDeny": "許可しない",
+    "pathBoundaryTitle": "ワークスペース外のフォルダーへのアクセスを許可しますか？",
+    "pathBoundaryTargetLabel": "エージェントが読み取ろうとしている対象",
+    "pathBoundaryRootLabel": "許可すると開放されるフォルダー"
   },
   "slash.customBadge": "Custom",
   "runaway": {
@@ -77,5 +83,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "エージェントより",
+    "preview": "プレビュー",
+    "truncated": "切り詰められました — 大きすぎるため全体を表示できません。"
   }
 }

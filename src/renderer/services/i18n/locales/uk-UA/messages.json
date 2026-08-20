@@ -68,7 +68,13 @@
     "yesAllowAlways": "Так, дозволити завжди",
     "yesAlwaysAllowTool": "Так, завжди дозволяти інструмент «{{toolName}}» із сервера «{{serverName}}»",
     "yesAlwaysAllowServer": "Так, завжди дозволяти всі інструменти із сервера «{{serverName}}»",
-    "no": "Ні (esc)"
+    "no": "Ні (esc)",
+    "grantFolderAlways": "Завжди дозволяти цю теку: {{folder}}",
+    "grantFolderAlwaysHint": "Лише читання, до кінця цього сеансу. Нічого іншого поза межами робочої області не відкривається.",
+    "grantFolderDeny": "Не дозволяти",
+    "pathBoundaryTitle": "Дозволити доступ до теки поза межами робочої області?",
+    "pathBoundaryTargetLabel": "Агент хоче прочитати",
+    "pathBoundaryRootLabel": "Дозвіл відкриє цю теку"
   },
   "copyLastOutput": {
     "empty": "Ще немає відповіді для копіювання"
@@ -79,5 +85,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "Від агента",
+    "preview": "Перегляд",
+    "truncated": "Обрізано — завеликий, щоб показати повністю."
   }
 }

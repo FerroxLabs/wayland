@@ -41,7 +41,7 @@ import { vertexSpawnCredentialsForModel } from '@process/providers/vertexSpawnCr
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
-import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
+import type { WCoreEvent, WCoreCommand, WCoreCapabilities, ApprovalScope, RenderMime } from './protocol';
 import { parseQuestionTool } from './questionTool';
 import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { redactSecrets } from '@process/utils/secretRedaction';
@@ -72,6 +72,18 @@ const WCORE_PROJECT_CONFIG = '.wayland-core.toml';
 // engine's real bail reason (e.g. a keyless model, bad config) instead of an
 // opaque "exited with code N" (#484). Capped to bound memory on a chatty engine.
 const WCORE_STDERR_TAIL_MAX = 2048;
+
+/**
+ * #1098: the closed `render_artifact` mime vocabulary, mirrored from
+ * `wcore-protocol::events::RenderMime`. Held as a runtime set because the wire
+ * is untyped JSON — the compile-time union proves nothing about what actually
+ * arrives, and Core's rule is that an unknown kind is REFUSED, never coerced.
+ */
+const RENDERABLE_ARTIFACT_MIMES: ReadonlySet<RenderMime> = new Set<RenderMime>([
+  'text/plain',
+  'text/markdown',
+  'text/html',
+]);
 
 type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string; subject?: string }) => void;
 
@@ -1156,6 +1168,32 @@ export class WCoreAgent {
         this.resumeStallWatchdog(`tool:${event.call_id}`);
         break;
 
+      // #1098: the engine handed us CONTENT to display. No path is carried, so
+      // nothing downstream can offer the OS launcher a target — which is the
+      // whole point (#1102: `open` is unavailable under the macOS seatbelt, and
+      // granting `lsopen` would be an execution escape).
+      case 'render_artifact': {
+        // The mime vocabulary is CLOSED engine-side. Refuse anything outside it
+        // here, at the first boundary, rather than defaulting: a kind we cannot
+        // render must not reach the renderer disguised as one we can.
+        if (!RENDERABLE_ARTIFACT_MIMES.has(event.mime)) {
+          console.warn(`[WCoreAgent] dropped render_artifact with unrenderable mime: ${String(event.mime)}`);
+          break;
+        }
+        this.onStreamEvent({
+          type: 'render_artifact',
+          data: {
+            callId: event.call_id,
+            title: event.title,
+            mime: event.mime,
+            content: event.content,
+            truncated: event.truncated,
+          },
+          msg_id: event.msg_id,
+        });
+        break;
+      }
+
       case 'stream_end': {
         const finishPayload: Record<string, unknown> = {};
         if (event.usage) Object.assign(finishPayload, event.usage);
@@ -1589,6 +1627,22 @@ export class WCoreAgent {
   private mapConfirmationDetails(event: WCoreEvent & { type: 'tool_request' }) {
     const { tool } = event;
 
+    // #1099: the engine classified a filesystem boundary BEFORE running the
+    // call. Checked first, ahead of every category dispatch, because the
+    // escalation is orthogonal to category — a `Read` outside the workspace
+    // arrives as `info`, which is the branch Auto Edit auto-approves. Routing
+    // it here is what stops it being answered as an ordinary info prompt.
+    const escalation = tool.escalation;
+    if (escalation?.kind === 'path_boundary') {
+      return {
+        type: 'path_boundary' as const,
+        title: tool.description,
+        target: escalation.target,
+        suggestedRoot: escalation.suggested_root,
+        access: escalation.access,
+      };
+    }
+
     // #504: AskUserQuestion arrives as an `info`-category tool (the engine has
     // no `question` ToolCategory), with the question + choices inside args. It
     // used to fall through to the `info` branch and render an empty approval
@@ -1673,7 +1727,7 @@ export class WCoreAgent {
     this.sendCommand({ type: 'stop' });
   }
 
-  approveTool(callId: string, scope: 'once' | 'always' = 'once', answer?: string): void {
+  approveTool(callId: string, scope: ApprovalScope = 'once', answer?: string): void {
     // `answer` carries an AskUserQuestion choice back through the approval
     // channel (see WCoreCommand.tool_approve). Only attach when present so a
     // plain approval keeps its exact prior wire shape.

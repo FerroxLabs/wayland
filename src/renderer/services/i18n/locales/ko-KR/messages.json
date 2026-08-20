@@ -69,7 +69,13 @@
     "yesAllowAlways": "예, 항상 허용",
     "yesAlwaysAllowTool": "예, 서버 \"{{serverName}}\"의 도구 \"{{toolName}}\" 항상 허용",
     "yesAlwaysAllowServer": "예, 서버 \"{{serverName}}\"의 모든 도구 항상 허용",
-    "no": "아니요 (esc)"
+    "no": "아니요 (esc)",
+    "grantFolderAlways": "이 폴더를 항상 허용: {{folder}}",
+    "grantFolderAlwaysHint": "읽기 전용이며 이번 세션 동안만 유효합니다. 작업 공간 밖의 다른 위치는 열리지 않습니다.",
+    "grantFolderDeny": "허용 안 함",
+    "pathBoundaryTitle": "작업 공간 밖의 폴더에 대한 접근을 허용할까요?",
+    "pathBoundaryTargetLabel": "에이전트가 읽으려는 대상",
+    "pathBoundaryRootLabel": "허용하면 열리는 폴더"
   },
   "slash.customBadge": "Custom",
   "runaway": {
@@ -77,5 +83,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "에이전트가 보냄",
+    "preview": "미리 보기",
+    "truncated": "잘림 — 너무 커서 전체를 표시할 수 없습니다."
   }
 }

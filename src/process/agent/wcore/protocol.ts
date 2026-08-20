@@ -20,12 +20,78 @@
 
 export type ToolCategory = 'info' | 'edit' | 'exec' | 'mcp';
 
+/**
+ * Access level on a path grant. Mirrors `wcore-protocol::commands::PathGrantAccess`
+ * (`#[serde(rename_all = "snake_case")]`). `write` is expressible on the wire and
+ * REFUSED by the engine — Core keeps it legible rather than absent so a host
+ * cannot ship a button promising more than it delivers.
+ */
+export type PathGrantAccess = 'read' | 'write';
+
+/**
+ * A boundary a tool call is about to cross, classified by the engine BEFORE the
+ * call runs (wayland-core v0.13.4, #1099).
+ *
+ * Mirrors `wcore-protocol::events::ToolEscalation`, an internally tagged enum
+ * (`#[serde(tag = "kind", rename_all = "snake_case")]`), so the discriminant
+ * arrives as `kind`. Switch on `kind` rather than assuming the single variant:
+ * Core made it an enum precisely so a second answer to "why am I being asked?"
+ * can arrive without breaking a host that already shipped.
+ *
+ * The win over the old flow is the ordering. Previously a read outside the
+ * workspace was REFUSED and then explained; this arrives with the approval
+ * request, so the user answers a folder question instead of reading a path out
+ * of a failure message.
+ */
+export type ToolEscalation = {
+  kind: 'path_boundary';
+  /** The path the call named, canonicalized. */
+  target: string;
+  /** `read` today; write outside the workspace is not grantable. */
+  access: PathGrantAccess;
+  /**
+   * The CONTAINING DIRECTORY of `target` — what a grant actually opens.
+   * Core is explicit that putting `target` on the button would be a button
+   * that lies about its own scope, so this is the value the card must show.
+   */
+  suggested_root: string;
+};
+
 export type ToolInfo = {
   name: string;
   category: ToolCategory;
   args: Record<string, unknown>;
   description: string;
+  /**
+   * Present only when the engine classified this call as crossing a boundary.
+   * Additive and `skip_serializing_if = "Option::is_none"` on the engine side,
+   * so an unescalated `tool_request` is byte-identical to what shipped before.
+   */
+  escalation?: ToolEscalation;
 };
+
+/**
+ * The scope an approval is granted under. Mirrors
+ * `wcore-protocol::commands::ApprovalScope`, an EXTERNALLY tagged enum with
+ * `rename_all = "snake_case"`: unit variants serialise as bare strings
+ * (`"once"`, `"always"`) and struct variants as a single-key object
+ * (`{"always_path":{"root":"/Users/me/reports","write":false}}`).
+ *
+ * `always_path` EXPANDS the session's filesystem authority beyond the sandbox
+ * root — unlike `always`, which only narrows an authority the session already
+ * has. It is the only answer that resolves a `path_boundary` escalation:
+ * `once` leaves the read refused, because the authority plumbing cannot run the
+ * call under a one-shot grant.
+ */
+export type ApprovalScope = 'once' | 'always' | { always_path: { root: string; write: boolean } };
+
+/**
+ * The CLOSED media-type vocabulary a `render_artifact` frame may carry.
+ * Mirrors `wcore-protocol::events::RenderMime`. Closed on purpose: a future
+ * value must not arrive as free text and be accepted by a host that has never
+ * heard of it, so anything outside this set is refused rather than guessed.
+ */
+export type RenderMime = 'text/plain' | 'text/markdown' | 'text/html';
 
 export type TokenUsage = {
   input_tokens: number;
@@ -164,6 +230,34 @@ export type WCoreEvent =
       metadata?: Record<string, unknown>;
     }
   | { type: 'tool_cancelled'; msg_id: string; call_id: string; reason: string }
+  // ── #1098 render_artifact — CONTENT handed to the host, no path ────
+  //
+  // The sanctioned replacement for shelling out to `open` (#1102: the macOS
+  // seatbelt profile is `(deny default)` and never grants `lsopen`, so `open`
+  // fails -54; granting it would be an execution-confinement escape). This
+  // frame needs ZERO filesystem authority at the host.
+  //
+  // SECURITY: `content` is UNTRUSTED — model-authored or read out of the
+  // workspace — and carries NO path, so a host must never offer Open or Reveal
+  // on it: there is nothing to hand the OS. `text/html` must be rendered only
+  // in a sandboxed surface with no host-process bridge.
+  //
+  // `critical` is always the JSON literal `false`, carried explicitly so a host
+  // pinned to an older contract corpus drops the frame instead of hard-erroring
+  // on a missing classification.
+  | {
+      type: 'render_artifact';
+      msg_id: string;
+      call_id: string;
+      /** Short label for the surface. Engine-capped at 256 bytes. */
+      title: string;
+      mime: RenderMime;
+      /** Engine-capped at 1 MiB, already secret-scrubbed engine-side. */
+      content: string;
+      /** `content` is a truncated prefix; the surface should badge it partial. */
+      truncated: boolean;
+      critical: false;
+    }
   | {
       type: 'stream_end';
       msg_id: string;
@@ -417,7 +511,10 @@ export type WCoreCommand =
   // synthesizes the tool result from it (guarded engine-side on
   // tool_name == "AskUserQuestion"). Omitted for a plain approval; older
   // engines ignore the extra field (serde default None).
-  | { type: 'tool_approve'; call_id: string; scope: 'once' | 'always'; answer?: string }
+  // `scope` widened to `ApprovalScope` for #1099. `'once'`/`'always'` keep the
+  // exact bare-string wire form they always had; `always_path` is the object
+  // form an older engine never sees because an older host never sends it.
+  | { type: 'tool_approve'; call_id: string; scope: ApprovalScope; answer?: string }
   | { type: 'tool_deny'; call_id: string; reason?: string }
   // W7 S4 HITL: resume a suspended turn waiting on an `approval_required`.
   // Engine-side resolve is idempotent — a stale/duplicate token is ignored.

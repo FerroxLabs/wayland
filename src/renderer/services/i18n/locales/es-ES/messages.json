@@ -69,7 +69,13 @@
     "yesAllowAlways": "Sí, permitir siempre",
     "yesAlwaysAllowTool": "Sí, permitir siempre la herramienta \"{{toolName}}\" del servidor \"{{serverName}}\"",
     "yesAlwaysAllowServer": "Sí, permitir siempre todas las herramientas del servidor \"{{serverName}}\"",
-    "no": "No (esc)"
+    "no": "No (esc)",
+    "grantFolderAlways": "Permitir siempre esta carpeta: {{folder}}",
+    "grantFolderAlwaysHint": "Solo lectura, durante el resto de esta sesión. No se abre nada más fuera de tu espacio de trabajo.",
+    "grantFolderDeny": "No permitir",
+    "pathBoundaryTitle": "¿Permitir el acceso a una carpeta fuera de tu espacio de trabajo?",
+    "pathBoundaryTargetLabel": "El agente quiere leer",
+    "pathBoundaryRootLabel": "Permitirlo abrirá esta carpeta"
   },
   "slash.customBadge": "Custom",
   "runaway": {
@@ -77,5 +83,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "Del agente",
+    "preview": "Vista previa",
+    "truncated": "Truncado: es demasiado grande para mostrarlo por completo."
   }
 }
