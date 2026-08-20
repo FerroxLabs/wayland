@@ -28,6 +28,7 @@ import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
+import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import { assertNotPromoting } from '@process/services/promotion/promotionLock';
 import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
 import { abandonTaskRun, beginTaskRun, commitTaskRun, type TaskRunHandle } from '@process/services/artifacts/taskRun';
@@ -672,11 +673,20 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
   private async assertWorkspaceUsable(job: CronJob): Promise<void> {
     const problem = await preflightJobWorkspace(job);
     if (!problem) return;
-    throw new Error(
-      i18n.t(problem.status === 'missing' ? 'cron.error.workspaceMissing' : 'cron.error.workspaceMismatch', {
+    // H1: CLASSIFIED, not a bare Error. `runNow` reaches here from the cron
+    // bridge, which cannot transport a rejection - it has to hand the renderer
+    // a resolved `{ ok: false, errorCode, path }`. A localized sentence alone
+    // would collapse to the catch-all code, and "the folder is gone" versus
+    // "the folder is no longer yours" is the whole distinction the three-option
+    // message is written around.
+    const missing = problem.status === 'missing';
+    throw new CronWorkspaceError(
+      missing ? 'workspace_missing' : 'workspace_mismatch',
+      i18n.t(missing ? 'cron.error.workspaceMissing' : 'cron.error.workspaceMismatch', {
         name: job.name,
         path: problem.workspace,
-      })
+      }),
+      problem.workspace
     );
   }
 

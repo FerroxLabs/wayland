@@ -28,8 +28,15 @@ vi.mock('@/common/platform', () => ({
   getPlatformServices: () => ({ power: { preventSleep: vi.fn(() => 1), allowSleep: vi.fn() } }),
 }));
 vi.mock('croner', () => ({ Cron: vi.fn(() => ({ stop: vi.fn(), nextRun: vi.fn(() => null) })) }));
+// The double INTERPOLATES: a `t` that drops its params would make any
+// assertion about an interpolated value vacuous, which is precisely the
+// mistake this round exists to stop repeating.
 vi.mock('@process/services/i18n', () => ({
-  default: { t: vi.fn((key: string) => key) },
+  default: {
+    t: vi.fn((key: string, params?: Record<string, unknown>) =>
+      params ? [key, ...Object.values(params).map(String)].join(' | ') : key
+    ),
+  },
   i18nReady: Promise.resolve(),
 }));
 vi.mock('@process/utils/message', () => ({ addMessage: vi.fn() }));
@@ -45,6 +52,7 @@ const mockAllocate = vi.hoisted(() => vi.fn());
 vi.mock('@process/services/projectWorkspace', () => ({ allocateWorkspace: mockAllocate }));
 
 import { CronService, type CreateCronJobParams } from '@process/services/cron/CronService';
+import { asCronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import type { CronJob } from '@process/services/cron/CronStore';
 import type { ICronRepository } from '@process/services/cron/ICronRepository';
 import type { ICronEventEmitter } from '@process/services/cron/ICronEventEmitter';
@@ -188,6 +196,40 @@ describe('P2-2 durable workspace at first enable', () => {
     await expect(service.updateJob('cron_mb', { enabled: true })).rejects.toThrow(/ENOSPC/);
     expect(stored[0].enabled).toBe(false);
     expect(updates.some((u) => u.enabled === true)).toBe(false);
+  });
+
+  /**
+   * H1 - on macOS the task root lives under a TCC-protected Documents path, so
+   * a missing grant makes this allocation throw during an ordinary enable. The
+   * throw crosses the cron bridge, which cannot transport a rejection, so the
+   * toggle used to spin forever with the job silently left off. The bridge can
+   * only turn it into a rendered message if the throw says WHAT failed.
+   */
+  it('classifies the allocation failure, and keeps the underlying cause in the message', async () => {
+    mockAllocate.mockRejectedValue(new Error('EPERM: operation not permitted'));
+    const { service } = makeService(makeRoutineJob());
+
+    const thrown = await service.updateJob('cron_mb', { enabled: true }).then(
+      () => null,
+      (error: unknown) => error
+    );
+
+    const classified = asCronWorkspaceError(thrown);
+    expect(classified).not.toBeNull();
+    expect(classified!.code).toBe('workspace_alloc_failed');
+    expect(classified!.message).toContain('EPERM');
+  });
+
+  it('classifies an allocation failure at creation the same way', async () => {
+    mockAllocate.mockRejectedValue(new Error('EPERM: operation not permitted'));
+    const { service } = makeService(makeRoutineJob());
+
+    const thrown = await service.addJob(baseParams).then(
+      () => null,
+      (error: unknown) => error
+    );
+
+    expect(asCronWorkspaceError(thrown)?.code).toBe('workspace_alloc_failed');
   });
 });
 

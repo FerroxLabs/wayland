@@ -238,6 +238,94 @@ describe('promotion of an existing chat', () => {
     expect((await journal.read(promotionKey(CONV, JOB)))!.state).toBe('committed');
   });
 
+  /**
+   * H5 - a crash during promotion permanently disabled the user's recurring
+   * task, and a successful retry did not repair it.
+   *
+   * `wasEnabled` was read from the LIVE job and `enabled: false` was persisted
+   * before a single byte moved. If the process dies in between, the `finally`
+   * that re-arms never runs, the job is left off, and the RETRY reads the same
+   * live job - now `enabled: false` - so it decides there was nothing to
+   * restore. The Morning Brief just stops happening, with no error anywhere.
+   *
+   * The intended final state is journalled BEFORE the fence, so the retry knows
+   * what the schedule is supposed to end as regardless of what it currently is.
+   *
+   * "The process died" is modelled as the re-arm never completing: the disable
+   * is persisted, the re-enable is not.
+   */
+  function killBeforeRearm(over: Partial<PromotionDeps> = {}): PromotionDeps {
+    return makeDeps({
+      setJobEnabled: async (jobId, enabled) => {
+        enabledCalls.push({ jobId, enabled });
+        if (!enabled) {
+          if (job) job = { ...job, enabled: false };
+          return;
+        }
+        throw new Error('kill -9');
+      },
+      ...over,
+    });
+  }
+
+  it('a crash between the fence and the copy does not leave the task off forever', async () => {
+    const source = await makeTempWorkspace();
+    conversations.set(CONV, { id: CONV, extra: { workspace: source, customWorkspace: true } });
+
+    await promoteConversationWorkspace(
+      { conversationId: CONV, jobId: JOB },
+      killBeforeRearm({
+        allocate: async () => {
+          throw new Error('kill -9');
+        },
+      })
+    ).catch(() => undefined);
+
+    // The state a user is actually left in: task silently off, nothing promoted.
+    expect(job!.enabled).toBe(false);
+    expect(conversations.get(CONV)!.extra.workspace).toBe(source);
+
+    const outcome = await promoteConversationWorkspace({ conversationId: CONV, jobId: JOB }, makeDeps());
+
+    expect(outcome.ok).toBe(true);
+    // THE assertion: the retry put the schedule back the way the user left it.
+    expect(job!.enabled).toBe(true);
+  });
+
+  it('a crash after the commit is repaired by the retry too', async () => {
+    const source = await makeTempWorkspace();
+    conversations.set(CONV, { id: CONV, extra: { workspace: source, customWorkspace: true } });
+
+    await promoteConversationWorkspace({ conversationId: CONV, jobId: JOB }, killBeforeRearm()).catch(
+      () => undefined
+    );
+    expect(job!.enabled).toBe(false);
+    expect((await journal.read(promotionKey(CONV, JOB)))!.state).toBe('committed');
+
+    const outcome = await promoteConversationWorkspace({ conversationId: CONV, jobId: JOB }, makeDeps());
+
+    expect(outcome.ok && outcome.alreadyPromoted).toBe(true);
+    expect(job!.enabled).toBe(true);
+  });
+
+  it('does not re-arm a task the user turned off AFTER a completed promotion', async () => {
+    const source = await makeTempWorkspace();
+    conversations.set(CONV, { id: CONV, extra: { workspace: source, customWorkspace: true } });
+
+    await promoteConversationWorkspace({ conversationId: CONV, jobId: JOB }, makeDeps());
+    expect(job!.enabled).toBe(true);
+
+    // The user pauses it themselves. The repair is a one-shot, keyed on the
+    // journal, so a later duplicate accept must not undo their choice.
+    job = { ...job!, enabled: false };
+    enabledCalls.length = 0;
+
+    await promoteConversationWorkspace({ conversationId: CONV, jobId: JOB }, makeDeps());
+
+    expect(job!.enabled).toBe(false);
+    expect(enabledCalls).toEqual([]);
+  });
+
   it('is idempotent: a second accept returns the first result and allocates nothing', async () => {
     const source = await makeTempWorkspace();
     conversations.set(CONV, { id: CONV, extra: { workspace: source, customWorkspace: true } });

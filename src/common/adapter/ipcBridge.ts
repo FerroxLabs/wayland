@@ -1511,28 +1511,84 @@ export const webui = {
   >('webui.activity-log'),
 };
 
+/**
+ * H1 - a cron provider must never REJECT.
+ *
+ * `buildProvider(...).invoke` is `new Promise(function(resolve){...})`: it has
+ * no reject and no timeout, and the provider half calls `handler(data).then(cb)`
+ * with no `.catch`. A throw inside a provider body therefore does not surface as
+ * an error the renderer can show - it is a promise that never settles, so the
+ * caller's `catch` AND its `finally` never run and the button spins forever.
+ *
+ * The three cron providers that can hit a real workspace problem (P2-2
+ * allocation, P2-10 preflight) return this instead. `message` is the same
+ * user-facing sentence the throw used to carry, already localized by the main
+ * process; `errorCode` is what the renderer can actually branch on.
+ */
+export type ICronBridgeErrorCode =
+  | 'workspace_missing'
+  | 'workspace_mismatch'
+  | 'workspace_alloc_failed'
+  /** Catch-all so no future throw can reach the un-catchable `invoke`. */
+  | 'cron_operation_failed';
+
+export type ICronBridgeFailure = Readonly<{
+  ok: false;
+  errorCode: ICronBridgeErrorCode;
+  /** The folder the failure is about, when the failure names one. */
+  path?: string;
+  /** Already-localized, user-facing sentence. Safe to render as-is. */
+  message: string;
+}>;
+
+/**
+ * Narrow a cron provider result to the failure arm.
+ *
+ * Deliberately structural rather than a `'ok' in value` check: `ICronJob` has
+ * no `ok` field, so the discriminator is unambiguous, and the renderer gets one
+ * import instead of a hand-written type guard per call site.
+ */
+export function isCronBridgeFailure(value: unknown): value is ICronBridgeFailure {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as { ok?: unknown; errorCode?: unknown };
+  return candidate.ok === false && typeof candidate.errorCode === 'string';
+}
+
 // Cron job management API
 export const cron = {
   // Query
-  listJobs: buildProvider<ICronJob[], void>('cron.list-jobs'),
-  listArchivedJobs: buildProvider<IArchivedCronJob[], void>('cron.list-archived-jobs'),
-  listJobsByConversation: buildProvider<ICronJob[], { conversationId: string }>('cron.list-jobs-by-conversation'),
-  getJob: buildProvider<ICronJob | null, { jobId: string }>('cron.get-job'),
-  // CRUD
-  addJob: buildProvider<ICronJob, ICreateCronJobParams>('cron.add-job'),
-  updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }>(
-    'cron.update-job'
+  // H1: every cron provider carries the failure arm, not only the three that
+  // can hit a workspace problem. A read that rejects hangs a spinner exactly
+  // as permanently as a write that rejects - `TaskDetailPage.fetchJob` has the
+  // same never-runs `finally` as `handleRunNow`.
+  listJobs: buildProvider<ICronJob[] | ICronBridgeFailure, void>('cron.list-jobs'),
+  listArchivedJobs: buildProvider<IArchivedCronJob[] | ICronBridgeFailure, void>('cron.list-archived-jobs'),
+  listJobsByConversation: buildProvider<ICronJob[] | ICronBridgeFailure, { conversationId: string }>(
+    'cron.list-jobs-by-conversation'
   ),
-  removeJob: buildProvider<IArchivedCronJob, { jobId: string }>('cron.remove-job'),
-  restoreArchivedJob: buildProvider<ICronJob, { archiveId: string }>('cron.restore-archived-job'),
-  runNow: buildProvider<{ conversationId: string }, { jobId: string }>('cron.run-now'),
-  saveSkill: buildProvider<void, { jobId: string; content: string }>('cron.save-skill'),
-  hasSkill: buildProvider<boolean, { jobId: string }>('cron.has-skill'),
+  getJob: buildProvider<ICronJob | null | ICronBridgeFailure, { jobId: string }>('cron.get-job'),
+  // CRUD
+  // H1: the success arm is the unchanged `ICronJob`; the failure arm is a
+  // RESOLVED payload, because a rejection cannot cross this bridge at all.
+  addJob: buildProvider<ICronJob | ICronBridgeFailure, ICreateCronJobParams>('cron.add-job'),
+  updateJob: buildProvider<
+    ICronJob | ICronBridgeFailure,
+    { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }
+  >('cron.update-job'),
+  removeJob: buildProvider<IArchivedCronJob | ICronBridgeFailure, { jobId: string }>('cron.remove-job'),
+  restoreArchivedJob: buildProvider<ICronJob | ICronBridgeFailure, { archiveId: string }>(
+    'cron.restore-archived-job'
+  ),
+  runNow: buildProvider<{ conversationId: string } | ICronBridgeFailure, { jobId: string }>('cron.run-now'),
+  saveSkill: buildProvider<void | ICronBridgeFailure, { jobId: string; content: string }>('cron.save-skill'),
+  hasSkill: buildProvider<boolean | ICronBridgeFailure, { jobId: string }>('cron.has-skill'),
   // v0.6.2.6 - confirm or dismiss an inline CronProposeCard (rendered when
   // the agent emits [CRON_PROPOSE] in a chat). Status transitions are
   // guarded server-side to prevent double-fire from rapid clicks.
   confirmProposal: buildProvider<
-    { ok: true; jobId?: string; editPayload?: ICronProposeEditPayload } | { ok: false; reason: string },
+    | { ok: true; jobId?: string; editPayload?: ICronProposeEditPayload }
+    | { ok: false; reason: string }
+    | ICronBridgeFailure,
     { conversationId: string; msgId: string; action: 'accept' | 'edit' | 'cancel' }
   >('cron.confirm-proposal'),
   // Events
@@ -1571,7 +1627,13 @@ export type IPromotionRefusal =
   | 'already-durable'
   | 'user-chosen-workspace'
   | 'promotion-in-progress'
-  | 'run-in-flight';
+  | 'run-in-flight'
+  /**
+   * H4: the catch-all. Neither promotion provider had a try/catch, and this
+   * bridge cannot transport a rejection, so an unexpected throw used to hang
+   * the caller forever. It arrives as a refusal now.
+   */
+  | 'promotion-failed';
 
 /** A file an earlier run left behind, offered for the user to keep or ignore. */
 export interface IEarlierRunDeliverable {
@@ -1600,7 +1662,10 @@ export interface IPromotionResult {
   alreadyPromoted?: boolean;
   skipped: Array<{ relPath: string; reason: 'symlink' | 'non-regular' }>;
   imported: Array<{ relPath: string; sha256: string; sourceWorkspace: string }>;
-  importFailed: Array<{ relPath: string; reason: 'outside-workspace' | 'not-a-file' | 'copy-failed' }>;
+  importFailed: Array<{
+    relPath: string;
+    reason: 'outside-workspace' | 'not-a-file' | 'copy-failed' | 'not-offered';
+  }>;
 }
 
 /**
@@ -1694,6 +1759,16 @@ export interface ICronAgentConfig {
   modelId?: string;
   configOptions?: Record<string, string>;
   workspace?: string;
+  /**
+   * P2-0 identity of `workspace`: the id in that folder's own
+   * `.wayland-workspace.json`. A pathname is not identity - the user can
+   * replace the folder - so the preflight compares this, not the path.
+   *
+   * H6: it was missing from this renderer-facing type while the store type
+   * had it, which is part of why the Create Task dialog dropped it on every
+   * edit without anything complaining.
+   */
+  workspaceId?: string;
 }
 
 export interface ICreateCronJobParams {

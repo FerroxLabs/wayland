@@ -14,6 +14,8 @@ import ModalWrapper from '@renderer/components/base/ModalWrapper';
 import { isNewConversationFootgun } from '@/common/cron/cronFrequency';
 import { ipcBridge } from '@/common';
 import type { ICreateCronJobParams, ICronAgentConfig, ICronJob } from '@/common/adapter/ipcBridge';
+import { unwrapCron } from '@renderer/pages/cron/cronBridgeResult';
+import { preservedWorkspaceId } from '@renderer/pages/cron/cronWorkspaceIdentity';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import { toDisplayName } from '@renderer/pages/settings/SkillsSettings/displayName';
 import { useConversationAgents } from '@renderer/pages/conversation/hooks/useConversationAgents';
@@ -227,7 +229,8 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     // synchronously inside this passive effect (and Promise.resolve tolerates
     // a non-promise/undefined return).
     getJobPromiseRef.current = Promise.resolve(ipcBridge.cron.getJob?.invoke?.({ jobId: editJob.id }))
-      .then((latest) => {
+      .then((raw) => {
+        const latest = unwrapCron(raw);
         if (cancelled || !latest) return;
         latestJobRef.current = latest;
         // Only re-drive the form when the store copy actually differs from the
@@ -646,6 +649,13 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       return Object.keys(defaults).length > 0 ? { ...defaults, ...configOptions } : configOptions;
     })();
 
+    // H6: `workspaceId` is not form state, so rebuilding agentConfig from the
+    // form dropped it on every edit and silently turned the P2-10 mismatch
+    // check into a bare existence check. Carried across only while it still
+    // describes the chosen folder - see `preservedWorkspaceId`.
+    const priorConfig = (latestJobRef.current ?? editJob)?.metadata.agentConfig;
+    const workspaceId = preservedWorkspaceId(priorConfig, workspace);
+
     let agentConfig: ICronAgentConfig | undefined;
     let resolvedAgentType: ICreateCronJobParams['agentType'] = (agentType ||
       'claude') as ICreateCronJobParams['agentType'];
@@ -662,6 +672,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           modelId,
           configOptions: mergedConfigOptions,
           workspace,
+          ...(workspaceId ? { workspaceId } : {}),
         };
       }
     } else if (agentKind === 'preset') {
@@ -678,6 +689,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           modelId,
           configOptions: mergedConfigOptions,
           workspace,
+          ...(workspaceId ? { workspaceId } : {}),
         };
       }
     }
@@ -732,8 +744,12 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         // fired before the fetch resolved uses the freshest baseline.
         await getJobPromiseRef.current;
         const baseline = latestJobRef.current ?? editJob!;
-        await ipcBridge.cron.updateJob.invoke({
-          jobId: baseline.id,
+        // H1: a workspace-allocation failure now RESOLVES. `unwrapCron` turns
+        // it back into a throw the catch below already renders, instead of a
+        // promise that never settles and a Save button stuck on its spinner.
+        unwrapCron(
+          await ipcBridge.cron.updateJob.invoke({
+            jobId: baseline.id,
           updates: {
             name: values.name,
             description: values.description,
@@ -750,9 +766,10 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               updatedAt: Date.now(),
             },
           },
-          // The user confirmed the high-frequency warning above (#163).
-          allowHighFrequency: isFootgun || undefined,
-        });
+            // The user confirmed the high-frequency warning above (#163).
+            allowHighFrequency: isFootgun || undefined,
+          })
+        );
         Message.success(t('cron.page.updateSuccess'));
       } else {
         // Create mode
@@ -775,7 +792,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           // above; tell the server guard to allow it (#163).
           allowHighFrequency: isFootgun || undefined,
         };
-        await ipcBridge.cron.addJob.invoke(params);
+        unwrapCron(await ipcBridge.cron.addJob.invoke(params));
         Message.success(t('cron.page.createSuccess'));
       }
 

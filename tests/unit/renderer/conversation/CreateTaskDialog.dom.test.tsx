@@ -587,6 +587,77 @@ describe('CreateTaskDialog - parseCronExpr utility', () => {
   });
 });
 
+/**
+ * H6 - editing a scheduled task through the dialog destroyed its workspace
+ * identity binding, which silently turned OFF the P2-10 mismatch protection.
+ *
+ * `resolveAgentConfig` rebuilds `agentConfig` from form state. `workspaceId` -
+ * the id in the folder's own `.wayland-workspace.json`, which is what the
+ * preflight compares against, because a pathname is not identity - is not form
+ * state, so every edit dropped it. From then on `checkWorkspaceIdentity` has
+ * nothing to compare and degrades to a bare existence check: the task will
+ * happily write into whatever the user later put at that path.
+ *
+ * Nothing about the failure is visible. The task keeps running.
+ */
+describe('CreateTaskDialog - H6 the workspace identity survives an edit', () => {
+  function jobWithIdentity(workspace: string, workspaceId: string): ICronJob {
+    return {
+      id: 'job-identity',
+      name: 'Morning Brief',
+      schedule: { kind: 'cron', expr: '0 * * * *', description: 'Every hour' },
+      target: { payload: { kind: 'message', text: 'brief me' }, executionMode: 'existing' },
+      metadata: {
+        agentType: 'claude',
+        createdBy: 'user',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        agentConfig: {
+          backend: 'claude',
+          name: 'Claude',
+          cliPath: '/usr/bin/claude',
+          workspace,
+          workspaceId,
+        },
+      },
+      enabled: true,
+      state: { runCount: 0, retryCount: 0, maxRetries: 3 },
+    } as ICronJob;
+  }
+
+  async function saveEdit(editJob: ICronJob): Promise<Record<string, any>> {
+    mockUpdateJob.mockResolvedValue(undefined);
+    const { rerender } = render(
+      <CreateTaskDialog visible={false} onClose={vi.fn()} editJob={editJob} conversationId='conv-1' />
+    );
+    rerender(<CreateTaskDialog visible={true} onClose={vi.fn()} editJob={editJob} conversationId='conv-1' />);
+    fireEvent.click(screen.getByTestId('modal-ok'));
+    await waitFor(() => {
+      expect(mockUpdateJob).toHaveBeenCalled();
+    });
+    return mockUpdateJob.mock.calls[0][0];
+  }
+
+  it('keeps workspaceId when the edit does not repoint the workspace', async () => {
+    const args = await saveEdit(jobWithIdentity('/Users/x/Documents/Wayland/Tasks/Morning Brief', 'ws-original'));
+
+    // Control: the edit really did rewrite agentConfig, so the assertion below
+    // is about preservation and not about the dialog having done nothing.
+    expect(args.updates.metadata.agentConfig.name).toBe('Claude');
+    expect(args.updates.metadata.agentConfig.workspace).toBe('/Users/x/Documents/Wayland/Tasks/Morning Brief');
+    expect(args.updates.metadata.agentConfig.workspaceId).toBe('ws-original');
+  });
+
+  it('drops workspaceId when the job never had one', async () => {
+    const editJob = jobWithIdentity('/Users/x/Documents/Wayland/Tasks/Morning Brief', 'ws-original');
+    delete (editJob.metadata.agentConfig as Record<string, unknown>).workspaceId;
+
+    const args = await saveEdit(editJob);
+
+    expect(args.updates.metadata.agentConfig.workspaceId).toBeUndefined();
+  });
+});
+
 describe('CreateTaskDialog - getAgentKeyFromJob utility', () => {
   it('returns correct key for CLI agent', () => {
     const editJob: ICronJob = {

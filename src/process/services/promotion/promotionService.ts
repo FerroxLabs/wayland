@@ -25,6 +25,7 @@ import {
   type DeliverableCandidate,
   type ImportFailure,
   type ImportedDeliverable,
+  type ImportSelection,
 } from './earlierRunDeliverables';
 import {
   assessPromotion,
@@ -34,6 +35,29 @@ import {
   type PromotionRefusal,
 } from './promoteConversationWorkspace';
 import { defaultPromotionJournal } from './promotionJournal';
+
+/**
+ * H3 - one relative path segment sequence, and nothing that can mean anything
+ * else.
+ *
+ * This is the SYNTACTIC half of the confinement. It is deliberately not the
+ * whole answer: `path.resolve` does not resolve symlinks and `fs.lstat` only
+ * declines to follow the FINAL component, so a lexically-inside path whose
+ * ANCESTOR is a symlink (an agent can leave one in a chat workspace) still
+ * escapes. The structural half - only ever accepting a path the OFFER itself
+ * enumerated - is what closes that, in `runPromotion` below.
+ *
+ * `path.win32.isAbsolute` as well as the platform one, because the renderer is
+ * untrusted input and a drive-letter path is not something a POSIX
+ * `path.isAbsolute` recognises.
+ */
+export function isSafeRelPath(relPath: unknown): boolean {
+  if (typeof relPath !== 'string' || relPath.length === 0) return false;
+  if (relPath.includes('\0')) return false;
+  if (path.isAbsolute(relPath) || path.win32.isAbsolute(relPath)) return false;
+  const segments = relPath.split(/[\\/]/);
+  return segments.every((segment) => segment.length > 0 && segment !== '.' && segment !== '..');
+}
 
 /** Which earlier-run file the user chose to keep. Ids only, never paths. */
 export type KeepSelection = Readonly<{ conversationId: string; relPath: string }>;
@@ -159,13 +183,41 @@ export async function runPromotion(input: {
   // Resolve every source path HERE, from the job's own conversations, so a
   // renderer-supplied conversation id can never name a workspace this job does
   // not own.
-  const allowed = new Map(
-    (await earlierRunWorkspaces(input.jobId, input.conversationId)).map((w) => [w.conversationId, w.workspace])
-  );
-  const selections = input.keep
-    .filter((k) => allowed.has(k.conversationId))
-    .map((k) => ({ conversationId: k.conversationId, sourceWorkspace: allowed.get(k.conversationId)!, relPath: k.relPath }));
+  const workspaces = await earlierRunWorkspaces(input.jobId, input.conversationId);
+  const allowed = new Map(workspaces.map((w) => [w.conversationId, w.workspace]));
+
+  // H3: the conversationId was checked and the relPath was not, which left the
+  // renderer naming any file it liked inside a workspace the job DOES own -
+  // including through a symlinked ancestor, which no lexical check can see, and
+  // including control files the picker deliberately hides.
+  //
+  // So re-derive the OFFER and accept only what it listed. That is the same
+  // rule the rest of this seam already follows ("everything crossing the bridge
+  // is an id"), applied to the one field that had been exempt: the candidate
+  // list is built by a walk that lstats every entry, so it can contain nothing
+  // but real regular files reachable without following a link.
+  const offered = await findEarlierRunDeliverables({ workspaces });
+  const offeredByConversation = new Map<string, Set<string>>();
+  for (const candidate of offered.candidates) {
+    const set = offeredByConversation.get(candidate.conversationId) ?? new Set<string>();
+    set.add(candidate.relPath);
+    offeredByConversation.set(candidate.conversationId, set);
+  }
+
+  const selections: ImportSelection[] = [];
+  const refused: ImportFailure[] = [];
+  for (const keep of input.keep) {
+    const sourceWorkspace = allowed.get(keep.conversationId);
+    // A conversation this job does not own was never a legal selection at all;
+    // dropped silently, as before, rather than confirming it exists.
+    if (!sourceWorkspace) continue;
+    if (!isSafeRelPath(keep.relPath) || !offeredByConversation.get(keep.conversationId)?.has(keep.relPath)) {
+      refused.push({ relPath: keep.relPath, reason: 'not-offered' });
+      continue;
+    }
+    selections.push({ conversationId: keep.conversationId, sourceWorkspace, relPath: keep.relPath });
+  }
 
   const result = await importEarlierRunDeliverables(outcome.workspace, selections);
-  return { outcome, imported: result.imported, importFailed: result.failed };
+  return { outcome, imported: result.imported, importFailed: [...refused, ...result.failed] };
 }

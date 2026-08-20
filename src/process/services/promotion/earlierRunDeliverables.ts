@@ -70,7 +70,11 @@ export type ImportSelection = Readonly<{ conversationId: string; sourceWorkspace
 
 export type ImportedDeliverable = Readonly<{ relPath: string; sha256: string; sourceWorkspace: string }>;
 
-export type ImportFailure = Readonly<{ relPath: string; reason: 'outside-workspace' | 'not-a-file' | 'copy-failed' }>;
+export type ImportFailure = Readonly<{
+  relPath: string;
+  /** `not-offered`: the selection was not one of the files the OFFER listed. */
+  reason: 'outside-workspace' | 'not-a-file' | 'copy-failed' | 'not-offered';
+}>;
 
 const toRel = (rel: string): string => rel.split(path.sep).join('/');
 

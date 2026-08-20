@@ -19,6 +19,7 @@ import type { IConversationRepository } from '@process/services/database/IConver
 import { ProcessConfig } from '@process/utils/initStorage';
 import type { CronJob, CronSchedule } from './CronStore';
 import { durableWorkspaceMetadataForJob, isBundledRoutineJob } from './durableTaskWorkspace';
+import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import type { ICronRepository } from './ICronRepository';
 import type { ICronEventEmitter } from './ICronEventEmitter';
 import type { ICronJobExecutor } from './ICronJobExecutor';
@@ -310,7 +311,7 @@ export class CronService {
     // moment later, so allocating now would seed a folder for each of a dozen
     // routines nobody enabled. They allocate on the enable transition instead.
     if (job.enabled && !isBundledRoutineJob(job)) {
-      const metadata = await durableWorkspaceMetadataForJob(job);
+      const metadata = await this.allocateDurableWorkspaceMetadata(job);
       if (metadata) job.metadata = metadata;
     }
 
@@ -378,7 +379,7 @@ export class CronService {
     let effectiveUpdates = updates;
     if (updates.enabled === true && !existing.enabled) {
       const merged = { ...existing, ...updates, metadata: updates.metadata ?? existing.metadata } as CronJob;
-      const metadata = await durableWorkspaceMetadataForJob(merged);
+      const metadata = await this.allocateDurableWorkspaceMetadata(merged);
       if (metadata) effectiveUpdates = { ...updates, metadata };
     }
 
@@ -408,6 +409,34 @@ export class CronService {
     this.emitter.emitJobUpdated(updated);
 
     return updated;
+  }
+
+  /**
+   * H1 - allocation failure has to be CLASSIFIED, because it crosses the bridge.
+   *
+   * `durableWorkspaceMetadataForJob` throws on purpose: an armed routine with no
+   * durable workspace is the bug P2-2 exists to fix, so the enable is aborted
+   * rather than completed dishonestly. But on macOS the task root lives under a
+   * TCC-protected Documents path, so a missing grant makes this the ORDINARY
+   * outcome of flipping the toggle - and a bare throw crossing `cron.update-job`
+   * is a promise the renderer never sees settle. The toggle spun forever with
+   * the job silently left off.
+   *
+   * The refusal is unchanged; only its shape is. The underlying cause travels in
+   * `{{detail}}` so the user is told what actually stopped it.
+   */
+  private async allocateDurableWorkspaceMetadata(job: CronJob): Promise<CronJob['metadata'] | null> {
+    try {
+      return await durableWorkspaceMetadataForJob(job);
+    } catch (error) {
+      throw new CronWorkspaceError(
+        'workspace_alloc_failed',
+        i18n.t('cron.error.workspaceAllocFailed', {
+          name: job.name,
+          detail: error instanceof Error ? error.message : String(error),
+        })
+      );
+    }
   }
 
   private async detachArchivedJobConversations(job: CronJob): Promise<void> {

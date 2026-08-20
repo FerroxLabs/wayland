@@ -163,7 +163,8 @@
     "scheduledTimePassed": "Zamanlanmış saat geçti",
     "conversationBusy": "Konuşma meşgul, {{count}} denemeden sonra atlandı",
     "workspaceMissing": "Zamanlanmış görev \"{{name}}\" çalışmadı: klasörü kayıp ({{path}}). Hiçbir şey yeniden oluşturulmadı. Görevi açıp klasörü boş olarak yeniden oluşturun, başka bir klasör seçin ya da görevi kapatın.",
-    "workspaceMismatch": "Zamanlanmış görev \"{{name}}\" çalışmadı: {{path}} konumundaki klasör artık bu görevin çalışma alanı değil, bu yüzden içine hiçbir şey yazılmadı. Görevi açıp klasörü boş olarak yeniden oluşturun, başka bir klasör seçin ya da görevi kapatın."
+    "workspaceMismatch": "Zamanlanmış görev \"{{name}}\" çalışmadı: {{path}} konumundaki klasör artık bu görevin çalışma alanı değil, bu yüzden içine hiçbir şey yazılmadı. Görevi açıp klasörü boş olarak yeniden oluşturun, başka bir klasör seçin ya da görevi kapatın.",
+    "workspaceAllocFailed": "Zamanlanmış görev \"{{name}}\" açılamadı: Wayland klasörünü oluşturamadı ({{detail}}). Görev hâlâ kapalı. Wayland'ın bu konumu kullanmasına izin verildiğinden emin olup yeniden deneyin."
   },
   "propose": {
     "title": "Program onayı",

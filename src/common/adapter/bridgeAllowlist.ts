@@ -476,8 +476,19 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     conversation; `preview` enumerates local workspace paths and the names
   //     of every file earlier runs left behind. A paired-device token proves a
   //     remote browser, not the local trusted user, so the whole namespace is
-  //     denied rather than just the write. ---
-  'promotion.',
+  //     denied rather than just the write.
+  //
+  //     EXACT keys, not a prefix: this Set is matched with `.has(key)`, so the
+  //     bare string `'promotion.'` that used to sit here matched no provider at
+  //     all and the namespace stayed remote-reachable. The prefix list is not
+  //     the answer either - `isAllowedOutboundToRemote` is DERIVED from this
+  //     rule, so a namespace prefix silences every emitter under it too. Every
+  //     promotion key that exists is named here, and
+  //     `tests/unit/promotionRemoteDenied.test.ts` enumerates the LIVE provider
+  //     registry rather than a hand list, so a future `promotion.*` provider
+  //     cannot slip past this the way the first one did. ---
+  'promotion.preview',
+  'promotion.promote',
   // --- In-app engine updater. `install` downloads + stages a native binary the
   //     next engine spawn executes; a remote caller reaching it is an RCE chain.
   //     `check` hits the network + discloses the engine version. HUMAN-only. ---

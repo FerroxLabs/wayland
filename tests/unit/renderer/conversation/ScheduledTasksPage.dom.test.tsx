@@ -101,6 +101,15 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
     getKeepAwake: { invoke: () => mockGetKeepAwake() },
     setKeepAwake: { invoke: (...args: unknown[]) => mockSetKeepAwake(...args) },
   },
+  // H1: the cron hooks unwrap a resolved `{ ok: false, errorCode }` failure
+  // through this predicate. Stubbing the module without it makes every cron
+  // read throw "isCronBridgeFailure is not a function" - the real
+  // implementation, not a shortcut, so the double cannot drift from it.
+  isCronBridgeFailure: (value: unknown) =>
+    !!value &&
+    typeof value === 'object' &&
+    (value as { ok?: unknown }).ok === false &&
+    typeof (value as { errorCode?: unknown }).errorCode === 'string',
 }));
 
 // Mock Arco Design components

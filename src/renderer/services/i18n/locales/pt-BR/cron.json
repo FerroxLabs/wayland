@@ -150,7 +150,8 @@
     "scheduledTimePassed": "O horário agendado já passou",
     "conversationBusy": "Conversa ocupada após {{count}} tentativas",
     "workspaceMissing": "A tarefa agendada \"{{name}}\" não foi executada: a pasta dela sumiu ({{path}}). Nada foi recriado. Abra a tarefa para recriá-la vazia, escolher outra pasta ou desligar a tarefa.",
-    "workspaceMismatch": "A tarefa agendada \"{{name}}\" não foi executada: a pasta em {{path}} não é mais o espaço de trabalho dela, então nada foi escrito ali. Abra a tarefa para recriá-la vazia, escolher outra pasta ou desligar a tarefa."
+    "workspaceMismatch": "A tarefa agendada \"{{name}}\" não foi executada: a pasta em {{path}} não é mais o espaço de trabalho dela, então nada foi escrito ali. Abra a tarefa para recriá-la vazia, escolher outra pasta ou desligar a tarefa.",
+    "workspaceAllocFailed": "A tarefa agendada \"{{name}}\" não pôde ser ligada: o Wayland não conseguiu criar a pasta dela ({{detail}}). A tarefa continua desligada. Verifique se o Wayland pode usar esse local e tente de novo."
   },
   "propose": {
     "title": "Confirmação de agendamento",

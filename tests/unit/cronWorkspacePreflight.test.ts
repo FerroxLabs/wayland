@@ -131,6 +131,7 @@ import { WorkerTaskManagerJobExecutor } from '@/process/services/cron/WorkerTask
 import type { CronJob } from '@/process/services/cron/CronStore';
 import { preflightJobWorkspace } from '@/process/services/cron/durableTaskWorkspace';
 import { buildWorkspaceMarker, writeWorkspaceMarker } from '@process/services/workspaceIdentity';
+import { asCronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 
 let tmp: string;
 
@@ -255,6 +256,54 @@ describe('P2-10 the run refuses to start', () => {
     await expect(executor.prepareConversation(job)).rejects.toThrow(/workspace/i);
     expect(createConversationMock).not.toHaveBeenCalled();
     expect(existsSync(ws)).toBe(false);
+  });
+
+  /**
+   * H1 - the refusal has to survive the trip to the renderer.
+   *
+   * These throws are what the cron bridge converts into a RESOLVED
+   * `{ ok: false, errorCode, path }` payload, because `buildProvider`'s
+   * `invoke` has no reject channel: an unclassified `Error` carrying only a
+   * localized sentence would collapse to the catch-all code and the renderer
+   * could not tell "folder gone" from "folder replaced" - which is the whole
+   * difference the three-option message is written around.
+   */
+  it('classifies a missing workspace so the bridge can render the right message', async () => {
+    const ws = pathMod.join(tmp, 'Gone Classified');
+    const { executor } = makeExecutor();
+    const job = makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-1' });
+
+    const thrown = await executor.prepareConversation(job).then(
+      () => null,
+      (error: unknown) => error
+    );
+
+    const classified = asCronWorkspaceError(thrown);
+    expect(classified).not.toBeNull();
+    expect(classified!.code).toBe('workspace_missing');
+    expect(classified!.path).toBe(ws);
+    expect(classified!.message).toContain('workspaceMissing');
+  });
+
+  it('classifies a replaced workspace under its own code', async () => {
+    const ws = pathMod.join(tmp, 'Stranger Classified');
+    await fsp.mkdir(ws);
+    await writeWorkspaceMarker(
+      ws,
+      buildWorkspaceMarker({ ownerKind: 'project', ownerId: 'p-other', displayName: 'Tax Returns' })
+    );
+    const { executor } = makeExecutor();
+    const job = makeTaskJob({ backend: 'wcore', name: 'Morning Brief', workspace: ws, workspaceId: 'ws-ours' });
+
+    const thrown = await executor.executeJob(job).then(
+      () => null,
+      (error: unknown) => error
+    );
+
+    const classified = asCronWorkspaceError(thrown);
+    expect(classified).not.toBeNull();
+    expect(classified!.code).toBe('workspace_mismatch');
+    expect(classified!.path).toBe(ws);
   });
 
   it('refuses to write into a folder whose marker belongs to someone else', async () => {

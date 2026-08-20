@@ -34,12 +34,17 @@ import type { SkippedEntry } from './promotionCopy';
 export const PROMOTION_JOURNAL_FILE = 'workspace-promotions.json';
 
 /**
+ * `intent`    - H5. The schedule state this operation must END in, written
+ *               BEFORE the job is paused. Nothing is allocated yet, so this is
+ *               explicitly NOT resumable as a copy - it exists only so a crash
+ *               between the pause and the copy cannot lose the fact that the
+ *               user's task was supposed to be ON.
  * `staged`    - target allocated and recorded; the copy may be partial.
  * `copied`    - the staging tree is complete and verified; publish may be partial.
  * `committed` - the conversation points at the new workspace. Terminal, replayable.
  * `aborted`   - cleaned up. A later attempt with the same key starts fresh.
  */
-export type PromotionState = 'staged' | 'copied' | 'committed' | 'aborted';
+export type PromotionState = 'intent' | 'staged' | 'copied' | 'committed' | 'aborted';
 
 export type PromotionRecord = Readonly<{
   schemaVersion: 1;
@@ -56,6 +61,19 @@ export type PromotionRecord = Readonly<{
   finishedAtMs?: number;
   skipped?: readonly SkippedEntry[];
   error?: string;
+  /**
+   * H5 - whether the recurring task was ARMED when promotion started, and must
+   * therefore be armed again when it ends. Read from the journal rather than
+   * from the live job, because by the time a retry runs the live job has
+   * already been paused by the attempt that crashed.
+   */
+  resumeEnabled?: boolean;
+  /**
+   * True once the schedule has actually been put back. Makes the repair a
+   * one-shot: a user who pauses the task themselves after a completed promotion
+   * must not have that undone by a later duplicate accept.
+   */
+  scheduleRestored?: boolean;
 }>;
 
 /** Rule 1: the idempotency key. */

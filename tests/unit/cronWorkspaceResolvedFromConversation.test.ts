@@ -115,14 +115,16 @@ const createConversationMock = vi.fn(async (params: any) => {
   return conv;
 });
 
+const updateConversationMock = vi.fn(async (id: string, patch: any) => {
+  const conv = conversationStore.get(id);
+  if (conv) conversationStore.set(id, { ...conv, ...patch });
+});
+
 vi.mock('@process/services/conversationServiceSingleton', () => ({
   conversationServiceSingleton: {
     getConversation: vi.fn(async (id: string) => conversationStore.get(id)),
     createConversation: createConversationMock,
-    updateConversation: vi.fn(async (id: string, patch: any) => {
-      const conv = conversationStore.get(id);
-      if (conv) conversationStore.set(id, { ...conv, ...patch });
-    }),
+    updateConversation: updateConversationMock,
     // Production ordering: `getConversationsByCronJobId` is `ORDER BY created_at DESC`.
     getConversationsByCronJob: vi.fn(async (cronJobId: string) =>
       [...conversationStore.values()].filter((c) => c.extra?.cronJobId === cronJobId).sort((a, b) => b.createTime - a.createTime)
@@ -180,6 +182,30 @@ function seedDurableChild(cronWorkspace: string) {
   });
 }
 
+/**
+ * An OLDER child conversation: created before `extra.workspace` was always
+ * written, so the field is absent entirely rather than empty.
+ *
+ * `seedDurableChild` cannot stand in for this. It always sets
+ * `extra.workspace`, and the backfill branch is guarded on
+ * `workspace === undefined || workspace === null` - so every test built on it
+ * skips that branch completely, whatever the branch does.
+ */
+function seedChildMissingWorkspace(cronWorkspace: string) {
+  conversationStore.set('conv-child', {
+    id: 'conv-child',
+    type: 'wcore',
+    name: 'Morning Brief - 08/18 07:00',
+    createTime: 4000,
+    modifyTime: 4000,
+    extra: {
+      cronWorkspace,
+      cronJobId: 'job-brief',
+      backend: 'wcore',
+    },
+  });
+}
+
 function makeRealExecutor(): WorkerTaskManagerJobExecutor {
   return new WorkerTaskManagerJobExecutor(
     { getTask: vi.fn(), buildConversation: vi.fn() } as any,
@@ -196,6 +222,7 @@ describe('P2-3 the conversation is the source of truth for the workspace', () =>
     await fsp.mkdir(OTHER_WORKSPACE, { recursive: true });
     conversationStore.clear();
     createConversationMock.mockClear();
+    updateConversationMock.mockClear();
   });
   afterEach(async () => {
     await fsp.rm(tmp, { recursive: true, force: true });
@@ -215,7 +242,7 @@ describe('P2-3 the conversation is the source of truth for the workspace', () =>
     expect(conversationStore.get(resolved).extra.workspace).toBe(DURABLE_WORKSPACE);
   });
 
-  it('does not overwrite the conversation workspace with the empty job value', async () => {
+  it('leaves an existing conversation workspace exactly as it was', async () => {
     seedDurableChild(DURABLE_WORKSPACE);
     const job = makeExistingModeJob({ backend: 'wcore' as CronJob['metadata']['agentType'], name: 'Morning Brief' });
 
@@ -223,6 +250,50 @@ describe('P2-3 the conversation is the source of truth for the workspace', () =>
 
     expect(conversationStore.get('conv-child').extra.workspace).toBe(DURABLE_WORKSPACE);
     expect(conversationStore.get('conv-child').extra.cronWorkspace).toBe(DURABLE_WORKSPACE);
+  });
+
+  /**
+   * The BACKFILL branch, which the four tests above never reach.
+   *
+   * Every one of them seeds a child that already has `extra.workspace`, and the
+   * branch is guarded on that field being absent - so a full revert of P2-3 left
+   * this whole area green. These two enter it: the first proves it is reachable
+   * and does its job, the second pins the guard that stops it copying the job's
+   * NON-ANSWER into the conversation store.
+   */
+  it('backfills the workspace onto an older conversation from the job that names one', async () => {
+    seedChildMissingWorkspace(DURABLE_WORKSPACE);
+    const job = makeExistingModeJob({
+      backend: 'wcore' as CronJob['metadata']['agentType'],
+      name: 'Morning Brief',
+      workspace: DURABLE_WORKSPACE,
+    });
+
+    const resolved = await makeRealExecutor().prepareConversation(job);
+
+    // Reused, not rehomed: the job names the same folder the conversation was
+    // already configured with.
+    expect(createConversationMock).not.toHaveBeenCalled();
+    expect(resolved).toBe('conv-child');
+    expect(conversationStore.get('conv-child').extra.workspace).toBe(DURABLE_WORKSPACE);
+  });
+
+  it('writes NOTHING onto the conversation when the job names no workspace', async () => {
+    seedChildMissingWorkspace('');
+    // What `backfillCronJobIdOnConversations` synthesises after a restart: a
+    // backend and no workspace at all. `config.workspace || ''` used to turn
+    // that non-answer into "the workspace is now empty" and persist it, which
+    // makes the store and the job disagree about which one holds the truth.
+    const job = makeExistingModeJob({ backend: 'wcore' as CronJob['metadata']['agentType'], name: 'Morning Brief' });
+
+    const resolved = await makeRealExecutor().prepareConversation(job);
+
+    expect(resolved).toBe('conv-child');
+    expect(createConversationMock).not.toHaveBeenCalled();
+    // Not "is empty" - ABSENT. Writing `undefined` or `''` here is the defect.
+    expect('workspace' in conversationStore.get('conv-child').extra).toBe(false);
+    // And with nothing else to sync, the conversation was not touched at all.
+    expect(updateConversationMock).not.toHaveBeenCalled();
   });
 
   it('STILL rehomes when the user repoints the job at a different workspace', async () => {

@@ -57,7 +57,7 @@ vi.mock('@process/services/conversationServiceSingleton', () => ({
   },
 }));
 
-import { previewPromotion, runPromotion } from '@process/services/promotion/promotionService';
+import { isSafeRelPath, previewPromotion, runPromotion } from '@process/services/promotion/promotionService';
 
 const JOB = 'job-brief';
 const CURRENT = 'conv-current';
@@ -88,6 +88,10 @@ async function workspace(name: string, file: string, body: string): Promise<stri
 
 beforeEach(async () => {
   await fsp.rm(path.join(documentsDir, 'Wayland'), { recursive: true, force: true });
+  // The journal is keyed on (conversationId, jobId) and both are constants here,
+  // so without this every promote after the first short-circuits as
+  // `alreadyPromoted` and silently tests nothing.
+  await fsp.rm(path.join(configDirRef.value, 'workspace-promotions.json'), { force: true });
   state.jobs.clear();
   state.conversations.clear();
   state.updates.length = 0;
@@ -178,4 +182,162 @@ describe('accepting the offer', () => {
     expect(state.updates[0].id).toBe(CURRENT);
     expect(state.updates[0].extra.workspace).toBe(target);
   });
+});
+
+/**
+ * H3 - `runPromotion` validated the renderer-supplied conversationId and then
+ * passed the renderer-supplied relPath straight through.
+ *
+ * The renderer is untrusted input. `importEarlierRunDeliverables` rejected an
+ * absolute path and a LEXICALLY escaping one, which reads like confinement and
+ * is not: `path.resolve` does not resolve symlinks, and `fs.lstat` only refuses
+ * to follow the FINAL component - so `artifacts/<link>/secret.txt`, where
+ * `<link>` is a symlinked directory an agent left in the chat workspace,
+ * resolves lexically inside, statted as a regular file, and got copied into the
+ * user's Documents. The same gap let a relPath that was never OFFERED name any
+ * file in the workspace, including the identity marker the scan deliberately
+ * hides.
+ *
+ * The fix is the milestone's own rule applied properly: the renderer chooses
+ * among what the OFFER enumerated, and nothing else is a legal selection.
+ */
+describe('H3 the renderer cannot aim the import with a path', () => {
+  async function twoRuns(seed: number): Promise<{ current: string; earlier: string }> {
+    const current = await workspace(`wcore-temp-${seed}`, 'today.md', '# today');
+    const earlier = await workspace(`wcore-temp-${seed + 1}`, 'yesterday.md', '# yesterday');
+    state.conversations.set(CURRENT, { id: CURRENT, createTime: 1, extra: { workspace: current, cronJobId: JOB } });
+    state.conversations.set(EARLIER, { id: EARLIER, createTime: 1, extra: { workspace: earlier, cronJobId: JOB } });
+    return { current, earlier };
+  }
+
+  it('rejects a traversal relPath', async () => {
+    const { earlier } = await twoRuns(1700000000010);
+    const secret = path.join(sandbox, 'outside-secret.txt');
+    await fsp.writeFile(secret, 'TOP SECRET', 'utf8');
+
+    const result = await runPromotion({
+      conversationId: CURRENT,
+      jobId: JOB,
+      keep: [{ conversationId: EARLIER, relPath: '../../outside-secret.txt' }],
+    });
+
+    expect(result.outcome.ok).toBe(true);
+    expect(result.imported).toEqual([]);
+    expect(result.importFailed.map((f) => f.relPath)).toEqual(['../../outside-secret.txt']);
+    void earlier;
+  });
+
+  it('rejects an absolute relPath', async () => {
+    await twoRuns(1700000000020);
+    const secret = path.join(sandbox, 'absolute-secret.txt');
+    await fsp.writeFile(secret, 'TOP SECRET', 'utf8');
+
+    const result = await runPromotion({
+      conversationId: CURRENT,
+      jobId: JOB,
+      keep: [{ conversationId: EARLIER, relPath: secret }],
+    });
+
+    expect(result.imported).toEqual([]);
+    expect(result.importFailed).toHaveLength(1);
+  });
+
+  /** The one the lexical check cannot see. */
+  it('rejects a path whose ANCESTOR is a symlink out of the workspace', async () => {
+    const { earlier } = await twoRuns(1700000000030);
+    const outside = path.join(sandbox, 'outside-dir');
+    await fsp.mkdir(outside, { recursive: true });
+    await fsp.writeFile(path.join(outside, 'secret.txt'), 'TOP SECRET', 'utf8');
+    await fsp.symlink(outside, path.join(earlier, 'artifacts', 'escape'), 'dir');
+
+    const result = await runPromotion({
+      conversationId: CURRENT,
+      jobId: JOB,
+      keep: [{ conversationId: EARLIER, relPath: 'artifacts/escape/secret.txt' }],
+    });
+
+    expect(result.outcome.ok).toBe(true);
+    if (!result.outcome.ok) return;
+    expect(result.imported).toEqual([]);
+    expect(result.importFailed).toHaveLength(1);
+    // Nothing from outside the workspace reached the user's Documents.
+    const files = await fsp.readdir(path.join(result.outcome.workspace, 'artifacts'), { recursive: true });
+    expect(files.some((f) => String(f).includes('secret'))).toBe(false);
+  });
+
+  it('rejects a symlinked FILE inside the workspace', async () => {
+    const { earlier } = await twoRuns(1700000000040);
+    const secret = path.join(sandbox, 'linked-secret.txt');
+    await fsp.writeFile(secret, 'TOP SECRET', 'utf8');
+    await fsp.symlink(secret, path.join(earlier, 'artifacts', 'innocent.md'));
+
+    const result = await runPromotion({
+      conversationId: CURRENT,
+      jobId: JOB,
+      keep: [{ conversationId: EARLIER, relPath: 'artifacts/innocent.md' }],
+    });
+
+    expect(result.imported).toEqual([]);
+    expect(result.importFailed).toHaveLength(1);
+  });
+
+  /**
+   * A real regular file, inside the workspace, that the OFFER deliberately does
+   * not list. Accepting it is how a caller reads (or republishes) a control file
+   * the picker was written to hide.
+   */
+  it('rejects a real in-workspace file that the offer never listed', async () => {
+    const { earlier } = await twoRuns(1700000000050);
+    await fsp.writeFile(path.join(earlier, '.wayland-workspace.json'), '{"workspaceId":"ws-earlier"}', 'utf8');
+
+    const offer = await previewPromotion({ conversationId: CURRENT, jobId: JOB });
+    // Control: the marker really is absent from the offer, so the case below is
+    // testing what it claims to test.
+    expect(offer.earlierRuns.map((c) => c.relPath)).toEqual(['artifacts/yesterday.md']);
+
+    const result = await runPromotion({
+      conversationId: CURRENT,
+      jobId: JOB,
+      keep: [{ conversationId: EARLIER, relPath: '.wayland-workspace.json' }],
+    });
+
+    expect(result.imported).toEqual([]);
+    expect(result.importFailed).toHaveLength(1);
+  });
+
+  it('still imports a file the offer DID list (control)', async () => {
+    await twoRuns(1700000000060);
+
+    const result = await runPromotion({
+      conversationId: CURRENT,
+      jobId: JOB,
+      keep: [{ conversationId: EARLIER, relPath: 'artifacts/yesterday.md' }],
+    });
+
+    expect(result.importFailed).toEqual([]);
+    expect(result.imported).toHaveLength(1);
+  });
+});
+
+describe('H3 isSafeRelPath', () => {
+  it('accepts an ordinary nested relative path', () => {
+    expect(isSafeRelPath('artifacts/2026-08-20/report.md')).toBe(true);
+  });
+
+  for (const bad of [
+    '',
+    '.',
+    '..',
+    '../escape.md',
+    'artifacts/../../escape.md',
+    'artifacts/./report.md',
+    '/etc/passwd',
+    'C:\\Windows\\win.ini',
+    'artifacts//report.md',
+    'artifacts/re\u0000port.md',
+  ]) {
+    it(`refuses ${JSON.stringify(bad)}`, () => {
+      expect(isSafeRelPath(bad)).toBe(false);
+    });
+  }
 });

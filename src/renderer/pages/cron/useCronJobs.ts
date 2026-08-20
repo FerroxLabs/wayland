@@ -10,6 +10,7 @@ import { ipcBridge } from '@/common';
 import type { ICronJob } from '@/common/adapter/ipcBridge';
 import type { TChatConversation } from '@/common/config/storage';
 import { emitter } from '@/renderer/utils/emitter';
+import { unwrapCron } from './cronBridgeResult';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
@@ -31,7 +32,7 @@ function useCronJobActions(
 ): CronJobActionsResult {
   const pauseJob = useCallback(
     async (jobId: string) => {
-      const updated = await ipcBridge.cron.updateJob.invoke({ jobId, updates: { enabled: false } });
+      const updated = unwrapCron(await ipcBridge.cron.updateJob.invoke({ jobId, updates: { enabled: false } }));
       onJobUpdated?.(jobId, updated);
     },
     [onJobUpdated]
@@ -39,7 +40,7 @@ function useCronJobActions(
 
   const resumeJob = useCallback(
     async (jobId: string) => {
-      const updated = await ipcBridge.cron.updateJob.invoke({ jobId, updates: { enabled: true } });
+      const updated = unwrapCron(await ipcBridge.cron.updateJob.invoke({ jobId, updates: { enabled: true } }));
       onJobUpdated?.(jobId, updated);
     },
     [onJobUpdated]
@@ -47,7 +48,7 @@ function useCronJobActions(
 
   const archiveJob = useCallback(
     async (jobId: string) => {
-      await ipcBridge.cron.removeJob.invoke({ jobId });
+      unwrapCron(await ipcBridge.cron.removeJob.invoke({ jobId }));
       onJobArchived?.(jobId);
     },
     [onJobArchived]
@@ -55,7 +56,7 @@ function useCronJobActions(
 
   const updateJob = useCallback(
     async (jobId: string, updates: Partial<ICronJob>) => {
-      const updated = await ipcBridge.cron.updateJob.invoke({ jobId, updates });
+      const updated = unwrapCron(await ipcBridge.cron.updateJob.invoke({ jobId, updates }));
       onJobUpdated?.(jobId, updated);
       return updated;
     },
@@ -111,7 +112,7 @@ export function useCronJobs(conversationId?: string) {
     setError(null);
 
     try {
-      const result = await ipcBridge.cron.listJobsByConversation.invoke({ conversationId });
+      const result = unwrapCron(await ipcBridge.cron.listJobsByConversation.invoke({ conversationId }));
       setJobs(result || []);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch cron jobs'));
@@ -181,7 +182,7 @@ export function useAllCronJobs() {
     const silent = opts?.silent === true;
     if (!silent) setLoading(true);
     try {
-      const allJobs = await ipcBridge.cron.listJobs.invoke();
+      const allJobs = unwrapCron(await ipcBridge.cron.listJobs.invoke());
       setJobs(allJobs || []);
     } catch (err) {
       console.error('[useAllCronJobs] Failed to fetch jobs:', err);
@@ -298,7 +299,7 @@ export function useCronJobsMap() {
   const fetchAllJobs = useCallback(async () => {
     setLoading(true);
     try {
-      const allJobs = await ipcBridge.cron.listJobs.invoke();
+      const allJobs = unwrapCron(await ipcBridge.cron.listJobs.invoke());
       const map = new Map<string, ICronJob[]>();
 
       for (const job of allJobs || []) {

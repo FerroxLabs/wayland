@@ -157,6 +157,10 @@ async function run(
   // user's Documents with nothing able to explain what it is.
   const prior = await deps.journal.read(key);
   if (prior?.state === 'committed') {
+    // Rule 1, plus H5: the previous attempt may have committed and then died
+    // before re-arming the schedule, which leaves the user's task silently off
+    // with a fully successful promotion behind it.
+    await restoreSchedule(prior, deps);
     return {
       ok: true,
       workspace: prior.targetWorkspace,
@@ -174,8 +178,42 @@ async function run(
   if (assessment.eligible !== true) return { ok: false, refusal: assessment.refusal };
   const source = assessment.sourceWorkspace;
 
-  const wasEnabled = job!.enabled;
-  if (wasEnabled) await deps.setJobEnabled(jobId, false);
+  // H5. `wasEnabled` used to be read from the LIVE job here, one line before
+  // the job was persisted disabled. A crash in between left the task off, and
+  // the retry read that same live job - now disabled - and concluded there was
+  // nothing to restore. The user's recurring task stopped happening forever,
+  // with no error anywhere and a "successful" promotion in the way.
+  //
+  // So the intended FINAL state is journalled BEFORE the fence goes up. A
+  // resumable record already carries it; an `intent` placeholder is written
+  // when there is nothing to resume, because at this point nothing has been
+  // allocated and there is no target to record yet.
+  const resumable = prior && prior.state !== 'aborted' && prior.state !== 'intent' ? prior : null;
+  let journalled: PromotionRecord | null = resumable ?? null;
+  // Only a journal intent that has NOT yet been spent overrides the live job.
+  // Once `scheduleRestored` is set the schedule is back where the user left it,
+  // so a later attempt must read the live job again - otherwise a task the user
+  // paused themselves would be silently re-armed by a duplicate accept.
+  const resumeEnabled = prior && prior.scheduleRestored !== true ? (prior.resumeEnabled ?? job!.enabled) : job!.enabled;
+  if (!resumable) {
+    journalled = {
+      schemaVersion: 1,
+      key,
+      operationId: randomUUID(),
+      conversationId,
+      jobId,
+      sourceWorkspace: source,
+      targetWorkspace: '',
+      stagingDir: '',
+      workspaceId: null,
+      state: 'intent',
+      startedAtMs: Date.now(),
+      resumeEnabled,
+    };
+    await deps.journal.write(journalled);
+  }
+
+  if (job!.enabled) await deps.setJobEnabled(jobId, false);
   try {
     if (!(await drain(conversationId, deps))) return { ok: false, refusal: 'run-in-flight' };
 
@@ -184,29 +222,27 @@ async function run(
     // and abandons the first - a complete, unexplained duplicate of the user's
     // reports sitting in Finder. `aborted` records cleaned up after themselves,
     // so those start fresh.
-    const resumable = prior && prior.state !== 'aborted' ? { ...prior, sourceWorkspace: source } : null;
     let record: PromotionRecord;
     if (resumable) {
-      record = resumable;
+      record = { ...resumable, sourceWorkspace: source, resumeEnabled };
     } else {
       const allocated = await deps.allocate(job!.name, { ownerKind: 'task', ownerId: jobId });
-      const operationId = randomUUID();
+      const operationId = journalled!.operationId;
       record = {
-        schemaVersion: 1,
-        key,
+        ...journalled!,
         operationId,
-        conversationId,
-        jobId,
         sourceWorkspace: source,
         targetWorkspace: allocated.dir,
         stagingDir: `${allocated.dir}.promoting-${operationId}`,
         workspaceId: allocated.marker?.workspaceId ?? null,
         state: 'staged',
         startedAtMs: Date.now(),
+        resumeEnabled,
       };
       // JOURNAL FIRST: the target is durable before a single byte is copied.
       await deps.journal.write(record);
     }
+    journalled = record;
 
     let skipped: readonly SkippedEntry[] = [];
     try {
@@ -218,18 +254,21 @@ async function run(
       } else {
         skipped = await stage(record, deps);
         record = { ...record, state: 'copied', skipped };
+        journalled = record;
         await deps.journal.write(record);
         await publish(record);
       }
     } catch (err) {
       await abort(record, deps, err instanceof Error ? err.message : String(err));
+      journalled = { ...record, state: 'aborted' };
       throw err;
     }
 
     await deps.updateConversation(conversationId, {
       extra: { ...extra, workspace: record.targetWorkspace, customWorkspace: true, workspaceId: record.workspaceId },
     });
-    await deps.journal.write({ ...record, state: 'committed', finishedAtMs: Date.now() });
+    journalled = { ...record, state: 'committed', finishedAtMs: Date.now() };
+    await deps.journal.write(journalled);
 
     return {
       ok: true,
@@ -240,8 +279,32 @@ async function run(
       alreadyPromoted: false,
     };
   } finally {
-    if (wasEnabled) await deps.setJobEnabled(jobId, true);
+    if (journalled) await restoreSchedule(journalled, deps);
   }
+}
+
+/**
+ * H5 - put the schedule back the way the user left it, exactly once.
+ *
+ * Reads the intent from the JOURNAL, not from the live job: a retry after a
+ * crash sees a job that the crashed attempt already paused, so the live value
+ * says "it was off" about a task the user had on. `scheduleRestored` makes this
+ * a one-shot, so a user who pauses the task after a completed promotion does
+ * not have that quietly undone by a duplicate accept.
+ *
+ * Never throws: a failure to re-arm must not turn a promotion that copied every
+ * byte correctly into a reported failure.
+ */
+async function restoreSchedule(record: PromotionRecord, deps: PromotionDeps): Promise<void> {
+  if (record.resumeEnabled !== true || record.scheduleRestored === true) return;
+  try {
+    await deps.setJobEnabled(record.jobId, true);
+  } catch {
+    // Leave `scheduleRestored` unset so the NEXT attempt tries again. Throwing
+    // from a `finally` would also swallow the real outcome of the promotion.
+    return;
+  }
+  await deps.journal.write({ ...record, scheduleRestored: true }).catch((): undefined => undefined);
 }
 
 /** Wait for any in-flight run of this conversation to finish. */

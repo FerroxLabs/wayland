@@ -10,6 +10,7 @@ import { RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { IArchivedCronJob } from '@/common/adapter/ipcBridge';
+import { unwrapCron } from '@renderer/pages/cron/cronBridgeResult';
 import { formatSchedule } from '@renderer/pages/cron/cronUtils';
 
 type ArchivedSchedulesModalProps = {
@@ -27,7 +28,7 @@ const ArchivedSchedulesModal: React.FC<ArchivedSchedulesModalProps> = ({ open, o
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setEntries(await ipcBridge.cron.listArchivedJobs.invoke());
+      setEntries(unwrapCron(await ipcBridge.cron.listArchivedJobs.invoke()));
     } catch (error) {
       console.error('[ArchivedSchedulesModal] Failed to load archives:', error);
       Message.error(t('cron.archive.loadError'));
@@ -43,7 +44,7 @@ const ArchivedSchedulesModal: React.FC<ArchivedSchedulesModalProps> = ({ open, o
   const restore = async (archiveId: string): Promise<void> => {
     setRestoringId(archiveId);
     try {
-      await ipcBridge.cron.restoreArchivedJob.invoke({ archiveId });
+      unwrapCron(await ipcBridge.cron.restoreArchivedJob.invoke({ archiveId }));
       Message.success(t('cron.archive.restoreSuccess'));
       await load();
       onRestored();
