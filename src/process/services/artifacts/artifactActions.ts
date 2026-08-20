@@ -44,6 +44,9 @@ import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
 import type { ArtifactOpenTarget, ArtifactSaveResult, ArtifactSummary } from '@/common/types/artifacts';
 import { refuseUnsafeOpenTarget } from '@process/bridge/shellOpenSafety';
 
+import { isReservedSeriesEntry } from './artifactSeries';
+import { ARTIFACTS_DIR_NAME } from './taskRun';
+
 import type { ArtifactRecord } from './artifactLedger';
 import { readVerifiedArtifact, resolveArtifactTarget } from './artifactTarget';
 import { cachedDefaultApplicationName } from './defaultApplication';
@@ -150,10 +153,7 @@ export async function revealArtifact(artifactId: unknown, effects: ArtifactHostE
  * Not type-gated, and that is deliberate: copying bytes never executes them,
  * and the file is already on the user's disk. Refusing would be theatre.
  */
-export async function saveArtifactCopy(
-  artifactId: unknown,
-  effects: ArtifactHostEffects
-): Promise<ArtifactSaveResult> {
+export async function saveArtifactCopy(artifactId: unknown, effects: ArtifactHostEffects): Promise<ArtifactSaveResult> {
   const verified = await readVerifiedArtifact(artifactId, await effects.readLedger());
   if (!verified.ok) return verified;
 
@@ -185,10 +185,69 @@ export async function saveArtifactCopy(
  */
 export async function listArtifactSummaries(effects: ArtifactHostEffects): Promise<ArtifactSummary[]> {
   const records = await effects.readLedger();
-  return records
+  const listed = records
     .toSorted((left, right) => (right.runAt ?? '').localeCompare(left.runAt ?? ''))
-    .slice(0, MAX_LISTED_ARTIFACTS)
-    .map(toArtifactSummary);
+    .slice(0, MAX_LISTED_ARTIFACTS);
+  const newestRunPerSeries = newestRunBySeries(listed);
+  return listed.map((record) => {
+    const alias = seriesAliasPathFor(record);
+    const mirrored = alias !== null && newestRunPerSeries.get(alias.seriesKey) === record.runId;
+    return toArtifactSummary(record, mirrored ? [alias.aliasPath] : undefined);
+  });
+}
+
+/**
+ * THE STABLE COPY IS DERIVED, NOT READ.
+ *
+ * `refreshSeriesAliases` mirrors the newest run's deliverables to the series
+ * root at `<series>/<path-inside-the-run-dir>` and retires everything the newest
+ * run did not reproduce, so the alias set is a pure function of the newest run's
+ * ledger records - the same records this listing already holds. Deriving it here
+ * keeps the listing a single ledger read: asking the filesystem would mean an
+ * `.aliases.json` read per series on every preview selection, for a path the
+ * caller is already looking at.
+ *
+ * The two rules that decide whether a record HAS an alias are applied here as
+ * well, because both are what publication applied: the entry must sit inside a
+ * `artifacts/<series>/<date>/<run-id>/` run directory, and its path inside that
+ * run directory must not be a reserved series entry.
+ *
+ * Returns null for anything that is not a series-published run artifact.
+ */
+function seriesAliasPathFor(record: ArtifactRecord): { seriesKey: string; aliasPath: string } | null {
+  const segments = record.relativePath.split('/').filter((segment) => segment.length > 0);
+  // artifacts / <series> / <date> / <run-id> / <one or more segments>
+  if (segments.length < 5) return null;
+  if (segments[0] !== ARTIFACTS_DIR_NAME) return null;
+  const insideRunDir = segments.slice(4).join('/');
+  if (isReservedSeriesEntry(insideRunDir)) return null;
+  return {
+    // NUL cannot occur in either half, so the join cannot alias two different
+    // (workspace, series) pairs onto one key.
+    seriesKey: `${record.workspace}\u0000${segments[1]}`,
+    aliasPath: path.resolve(record.workspace, segments[0], segments[1], ...segments.slice(4)),
+  };
+}
+
+/**
+ * Which run is the newest in each series, by the same ordering the caller
+ * already sorted by. Only that run's deliverables are mirrored to the series
+ * root; every earlier run's copies were retired when it published.
+ */
+function newestRunBySeries(records: readonly ArtifactRecord[]): Map<string, string> {
+  const newest = new Map<string, { runId: string; runAt: string }>();
+  for (const record of records) {
+    const alias = seriesAliasPathFor(record);
+    if (!alias) continue;
+    const current = newest.get(alias.seriesKey);
+    // Ties broken by run id so the answer does not depend on ledger order: two
+    // runs sharing a `runAt` is a clock artefact, not a reason to be arbitrary.
+    const runAt = record.runAt ?? '';
+    if (!current || runAt > current.runAt || (runAt === current.runAt && record.runId > current.runId)) {
+      newest.set(alias.seriesKey, { runId: record.runId, runAt });
+    }
+  }
+  return new Map([...newest].map(([key, value]) => [key, value.runId]));
 }
 
 /**
@@ -199,8 +258,9 @@ export async function listArtifactSummaries(effects: ArtifactHostEffects): Promi
  * the bar ends up showing a different target than the history row that opens
  * the same file.
  */
-export function toArtifactSummary(record: ArtifactRecord): ArtifactSummary {
+export function toArtifactSummary(record: ArtifactRecord, aliasPaths?: readonly string[]): ArtifactSummary {
   return {
+    ...(aliasPaths?.length ? { aliasPaths: [...aliasPaths] } : {}),
     artifactId: record.artifactId,
     taskId: record.taskId,
     runId: record.runId,

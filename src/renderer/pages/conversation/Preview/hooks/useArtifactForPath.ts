@@ -51,7 +51,18 @@ export function useArtifactForPath(filePath: string | undefined): ArtifactSummar
       .invoke()
       .then((summaries) => {
         if (cancelled) return;
-        setArtifact((summaries ?? []).find((entry) => samePath(entry.canonicalPath, filePath)) ?? null);
+        setArtifact(
+          (summaries ?? []).find(
+            (entry) =>
+              samePath(entry.canonicalPath, filePath) ||
+              // The stable copy at the series root is the same deliverable under
+              // a path that does not move, and it is the one a person clicks:
+              // it is two levels shallower than the dated run directory and it
+              // is what a prior-run reader is pointed at. Matching it here is
+              // what puts Open, Reveal and the run history on that file too.
+              (entry.aliasPaths ?? []).some((alias) => samePath(alias, filePath))
+          ) ?? null
+        );
       })
       .catch(() => {
         // A missing or unreadable ledger means "not a known deliverable", which

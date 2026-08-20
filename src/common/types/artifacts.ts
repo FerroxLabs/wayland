@@ -28,6 +28,20 @@ export interface ArtifactSummary {
   runAt: string;
   /** Skill/workflow name as declared. A LABEL, not an authenticated identity. */
   declaredBy: string;
+  /**
+   * Host-resolved absolute paths that are STABLE COPIES of `canonicalPath`,
+   * present only on the newest run of a series.
+   *
+   * A publication mirrors the newest run's deliverables to the series root so a
+   * reader has a path that does not move (`artifacts/market/brief.html`), and
+   * that shallow, undated copy is the one a person actually clicks in the
+   * workspace tree. Without it listed here the preview matches nothing and the
+   * most discoverable file in the whole layout is the one with no Open, no
+   * Reveal and no history. Display/matching only: every action still travels by
+   * `artifactId` and the host still acts on `canonicalPath`, which is the same
+   * bytes.
+   */
+  aliasPaths?: string[];
 }
 
 /** Outcome of Save a copy. `savedTo` is absent when the user cancelled. */
