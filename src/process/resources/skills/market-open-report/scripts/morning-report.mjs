@@ -95,13 +95,7 @@
 
 import { basename } from 'node:path';
 
-import {
-  DEFAULT_CACHE_DIR,
-  DEFAULT_LIST,
-  DEFAULT_POSITIONS,
-  main,
-  writeJson,
-} from './report.mjs';
+import { DEFAULT_CACHE_DIR, DEFAULT_LIST, DEFAULT_POSITIONS, main, writeJson } from './report.mjs';
 
 const PROG = basename(process.argv[1] || 'morning-report.mjs');
 
@@ -132,9 +126,7 @@ function parseArgs(argv) {
    */
   const pyInt = (s, opt) => {
     if (!/^[+-]?\d+$/.test(String(s).trim())) {
-      throw new ArgparseError(
-        `argument ${opt}: invalid int value: '${s}'`
-      );
+      throw new ArgparseError(`argument ${opt}: invalid int value: '${s}'`);
     }
     return Number.parseInt(String(s).trim(), 10);
   };
@@ -155,9 +147,7 @@ function parseArgs(argv) {
       a.tier = pyInt(need(i, '--tier'), '--tier');
       i++;
       if (a.tier !== 1 && a.tier !== 2) {
-        throw new ArgparseError(
-          `argument --tier: invalid choice: ${a.tier} (choose from 1, 2)`
-        );
+        throw new ArgparseError(`argument --tier: invalid choice: ${a.tier} (choose from 1, 2)`);
       }
     } else if (arg === '--slots') {
       a.slots = pyInt(need(i, '--slots'), '--slots');

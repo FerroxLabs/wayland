@@ -124,10 +124,22 @@ describe('a declaration that checks out becomes a record', () => {
    * line" case was covered, so every one of these shapes was accepted.
    */
   it.each([
-    ['a relative path that traverses out', '{"version":1,"artifactId":"a1","workspace":"/ws","relativePath":"../../.ssh/id_rsa","sha256":"x","sizeBytes":1}'],
-    ['an absolute relative path', '{"version":1,"artifactId":"a2","workspace":"/ws","relativePath":"/etc/passwd","sha256":"x","sizeBytes":1}'],
-    ['a version this build does not know', '{"version":2,"artifactId":"a3","workspace":"/ws","relativePath":"brief.md","sha256":"x","sizeBytes":1}'],
-    ['a size that is not a whole number', '{"version":1,"artifactId":"a4","workspace":"/ws","relativePath":"brief.md","sha256":"x","sizeBytes":1.5}'],
+    [
+      'a relative path that traverses out',
+      '{"version":1,"artifactId":"a1","workspace":"/ws","relativePath":"../../.ssh/id_rsa","sha256":"x","sizeBytes":1}',
+    ],
+    [
+      'an absolute relative path',
+      '{"version":1,"artifactId":"a2","workspace":"/ws","relativePath":"/etc/passwd","sha256":"x","sizeBytes":1}',
+    ],
+    [
+      'a version this build does not know',
+      '{"version":2,"artifactId":"a3","workspace":"/ws","relativePath":"brief.md","sha256":"x","sizeBytes":1}',
+    ],
+    [
+      'a size that is not a whole number',
+      '{"version":1,"artifactId":"a4","workspace":"/ws","relativePath":"brief.md","sha256":"x","sizeBytes":1.5}',
+    ],
     ['a row that is not an object', '"not a record"'],
   ])('drops %s while keeping the real records around it', async (_label, row) => {
     const { workspace, runDir, ledgerPath } = tmpWorkspace();
@@ -186,23 +198,26 @@ describe('a declaration is a claim, not a proof', () => {
   });
 
   // Windows needs elevation or Developer Mode to create a symlink.
-  it.skipIf(process.platform === 'win32')('rejects a symlink, even one pointing at a legitimate in-workspace file', async () => {
-    const { workspace, runDir, ledgerPath } = tmpWorkspace();
-    writeFileSync(path.join(runDir, 'real.html'), 'real', 'utf-8');
-    symlinkSync(path.join(runDir, 'real.html'), path.join(runDir, 'link.html'));
+  it.skipIf(process.platform === 'win32')(
+    'rejects a symlink, even one pointing at a legitimate in-workspace file',
+    async () => {
+      const { workspace, runDir, ledgerPath } = tmpWorkspace();
+      writeFileSync(path.join(runDir, 'real.html'), 'real', 'utf-8');
+      symlinkSync(path.join(runDir, 'real.html'), path.join(runDir, 'link.html'));
 
-    const result = await registerArtifacts({
-      ledgerPath,
-      workspace,
-      runDir,
-      ...RUN,
-      declarations: [{ path: 'link.html' }, { path: 'real.html' }],
-    });
+      const result = await registerArtifacts({
+        ledgerPath,
+        workspace,
+        runDir,
+        ...RUN,
+        declarations: [{ path: 'link.html' }, { path: 'real.html' }],
+      });
 
-    expect(result.rejected).toEqual([{ path: 'link.html', reason: 'symlink' }]);
-    // The good declaration in the same run still lands.
-    expect(result.registered.map((r) => path.basename(r.relativePath))).toEqual(['real.html']);
-  });
+      expect(result.rejected).toEqual([{ path: 'link.html', reason: 'symlink' }]);
+      // The good declaration in the same run still lands.
+      expect(result.registered.map((r) => path.basename(r.relativePath))).toEqual(['real.html']);
+    }
+  );
 
   it.skipIf(process.platform === 'win32')('rejects a symlink that escapes the workspace entirely', async () => {
     const { workspace, runDir, ledgerPath } = tmpWorkspace();

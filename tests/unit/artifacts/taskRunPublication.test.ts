@@ -24,7 +24,12 @@ import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { listRuns, readLatest, reapStaleStagingRuns, STAGING_DIR_NAME } from '@process/services/artifacts/artifactSeries';
+import {
+  listRuns,
+  readLatest,
+  reapStaleStagingRuns,
+  STAGING_DIR_NAME,
+} from '@process/services/artifacts/artifactSeries';
 import { beginTaskRun, bindTaskRunOutput, commitTaskRun, abandonTaskRun } from '@process/services/artifacts/taskRun';
 import { activeRunOutputDir, clearRunOutputDirs } from '@process/services/artifacts/runOutputDir';
 
@@ -102,9 +107,12 @@ describe('the series root reserves its own control namespace', () => {
     expect(await read('last-brief.md')).toBe('TUESDAY');
     // The file itself is not lost - it is published inside the run, where it
     // is only ever read as that run's output.
-    expect(await fs.readFile(path.join((second as { publication: { runDir: string } }).publication.runDir, '.latest.json'), 'utf8')).toBe(
-      'not json at all'
-    );
+    expect(
+      await fs.readFile(
+        path.join((second as { publication: { runDir: string } }).publication.runDir, '.latest.json'),
+        'utf8'
+      )
+    ).toBe('not json at all');
   });
 
   it('a run cannot alias into the staging namespace or any other dot entry', async () => {

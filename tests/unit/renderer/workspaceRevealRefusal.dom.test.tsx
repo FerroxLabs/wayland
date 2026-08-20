@@ -48,9 +48,7 @@ const WORKSPACE = '/workspace/project';
  * @returns The hook result.
  */
 const renderMigration = async () => {
-  const { useWorkspaceMigration } = await import(
-    '@/renderer/pages/conversation/Workspace/hooks/useWorkspaceMigration'
-  );
+  const { useWorkspaceMigration } = await import('@/renderer/pages/conversation/Workspace/hooks/useWorkspaceMigration');
   return renderHook(() =>
     useWorkspaceMigration({
       conversation_id: 'conv-1',

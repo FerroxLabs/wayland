@@ -43,11 +43,11 @@ a watchlist before running it once.
 Override any of it through the environment, so nothing is written where it does
 not belong:
 
-| variable | meaning |
-|---|---|
-| `MARKET_OPEN_REPORT_LIST` | watchlist CSV (defaults to the bundled one) |
-| `MARKET_OPEN_REPORT_POSITIONS` | the user's holdings CSV (absent is valid) |
-| `MARKET_OPEN_REPORT_CACHE` | Yahoo cache directory. **Leave it unset** unless you have a writable path: it overrides the script's own probe for a writable cache, and if it points anywhere the sandbox refuses (anywhere outside the workspace, home included) `mkdir` fails `EPERM`, every symbol reports NO DATA, and the run still exits 0. |
+| variable                       | meaning                                                                                                                                                                                                                                                                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `MARKET_OPEN_REPORT_LIST`      | watchlist CSV (defaults to the bundled one)                                                                                                                                                                                                                                                                        |
+| `MARKET_OPEN_REPORT_POSITIONS` | the user's holdings CSV (absent is valid)                                                                                                                                                                                                                                                                          |
+| `MARKET_OPEN_REPORT_CACHE`     | Yahoo cache directory. **Leave it unset** unless you have a writable path: it overrides the script's own probe for a writable cache, and if it points anywhere the sandbox refuses (anywhere outside the workspace, home included) `mkdir` fails `EPERM`, every symbol reports NO DATA, and the run still exits 0. |
 
 Write `--json` and the HTML brief to the output directory, resolved against the
 workspace root (default `artifacts/`, i.e. `<workspace>/artifacts/`) — never
@@ -59,7 +59,7 @@ repository.
 ## Reading the result — this part matters
 
 **Check the exit code, and check the NO DATA line.** A run where Yahoo rate
-limits or blocks produces a *complete, well-formed, entirely empty* report:
+limits or blocks produces a _complete, well-formed, entirely empty_ report:
 every symbol listed under NO DATA, every table empty, and it looks fine. The
 Python original returned success in exactly that case. This version exits
 non-zero when every scanned symbol failed — but a partial failure still exits

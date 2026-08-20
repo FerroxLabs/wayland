@@ -25,13 +25,19 @@ describe('buildPreviewDocument', () => {
   });
 
   it('injects a base href so relative resources still resolve, AFTER the policy', () => {
-    const out = buildPreviewDocument('<html><head></head><body><img src="chart.png"></body></html>', '/tmp/report/r.html');
+    const out = buildPreviewDocument(
+      '<html><head></head><body><img src="chart.png"></body></html>',
+      '/tmp/report/r.html'
+    );
     expect(out).toContain('<base href="file:///tmp/report/">');
     expect(out.indexOf('Content-Security-Policy')).toBeLessThan(out.indexOf('<base'));
   });
 
   it('does not add a second base when the document already has one', () => {
-    const out = buildPreviewDocument('<html><head><base href="file:///a/"></head><body></body></html>', '/tmp/r/r.html');
+    const out = buildPreviewDocument(
+      '<html><head><base href="file:///a/"></head><body></body></html>',
+      '/tmp/r/r.html'
+    );
     expect(out.match(/<base\b/gi)).toHaveLength(1);
   });
 
@@ -47,7 +53,10 @@ describe('buildPreviewDocument', () => {
 
 describe('buildPreviewDataUrl', () => {
   it('produces a data: URL whose decoded document is policed', () => {
-    const url = buildPreviewDataUrl('<html><head></head><body><script>fetch("https://x")</script></body></html>', undefined);
+    const url = buildPreviewDataUrl(
+      '<html><head></head><body><script>fetch("https://x")</script></body></html>',
+      undefined
+    );
     expect(url.startsWith('data:text/html;charset=utf-8,')).toBe(true);
     const doc = decode(url);
     expect(doc).toContain(UNTRUSTED_PREVIEW_CSP);

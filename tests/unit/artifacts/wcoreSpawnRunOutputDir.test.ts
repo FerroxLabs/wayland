@@ -50,11 +50,7 @@ import path from 'path';
 import { mkdtempSync, rmSync } from 'fs';
 
 import { WCoreAgent } from '@process/agent/wcore';
-import {
-  activeRunOutputDir,
-  clearRunOutputDirs,
-  openRunOutputDir,
-} from '@process/services/artifacts/runOutputDir';
+import { activeRunOutputDir, clearRunOutputDirs, openRunOutputDir } from '@process/services/artifacts/runOutputDir';
 
 const SCHEDULED_CHAT = 'conv-scheduled-run';
 const USER_CHAT = 'conv-the-user-opened-here';

@@ -45,13 +45,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { isManagedWorkspaceName } from '@/common/types/managedWorkspaceRetention';
 import type { AllocatedWorkspace, AllocateWorkspaceOptions } from '@process/services/projectWorkspace';
-import {
-  readWorkspaceMarker,
-  writeWorkspaceMarker,
-  WORKSPACE_MARKER_FILE,
-} from '@process/services/workspaceIdentity';
+import { readWorkspaceMarker, writeWorkspaceMarker, WORKSPACE_MARKER_FILE } from '@process/services/workspaceIdentity';
 import type { CronJob } from '@process/services/cron/CronStore';
-import { buildTreeManifest, copyTreeVerified, diffManifests, type CopyTreeOptions, type SkippedEntry } from './promotionCopy';
+import {
+  buildTreeManifest,
+  copyTreeVerified,
+  diffManifests,
+  type CopyTreeOptions,
+  type SkippedEntry,
+} from './promotionCopy';
 import { promotionKey, type PromotionJournal, type PromotionRecord } from './promotionJournal';
 import { acquirePromotionLock, releasePromotionLock } from './promotionLock';
 
@@ -89,10 +91,7 @@ export type PromotionAssessment =
  * and by the promotion itself. Keeping one copy is the point: an offer that
  * disagrees with what promotion will do is an offer that fails on accept.
  */
-export function assessPromotion(
-  job: CronJob | null,
-  extra: Record<string, unknown> | undefined
-): PromotionAssessment {
+export function assessPromotion(job: CronJob | null, extra: Record<string, unknown> | undefined): PromotionAssessment {
   if (!job) return { eligible: false, refusal: 'job-missing' };
   // Rule 7: commit has to stay ONE write. A job that names its own workspace
   // would need the CronStore updated too, which is the multi-store transaction
@@ -145,10 +144,7 @@ export async function promoteConversationWorkspace(
   }
 }
 
-async function run(
-  input: { conversationId: string; jobId: string },
-  deps: PromotionDeps
-): Promise<PromotionOutcome> {
+async function run(input: { conversationId: string; jobId: string }, deps: PromotionDeps): Promise<PromotionOutcome> {
   const { conversationId, jobId } = input;
   const key = promotionKey(conversationId, jobId);
 
@@ -363,4 +359,3 @@ async function abort(record: PromotionRecord, deps: PromotionDeps, error: string
   }
   await deps.journal.write({ ...record, state: 'aborted', error, finishedAtMs: Date.now() });
 }
-

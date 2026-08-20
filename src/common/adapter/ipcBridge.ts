@@ -1591,9 +1591,7 @@ export const cron = {
     { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }
   >('cron.update-job'),
   removeJob: buildProvider<IArchivedCronJob | ICronBridgeFailure, { jobId: string }>('cron.remove-job'),
-  restoreArchivedJob: buildProvider<ICronJob | ICronBridgeFailure, { archiveId: string }>(
-    'cron.restore-archived-job'
-  ),
+  restoreArchivedJob: buildProvider<ICronJob | ICronBridgeFailure, { archiveId: string }>('cron.restore-archived-job'),
   runNow: buildProvider<{ conversationId: string } | ICronBridgeFailure, { jobId: string }>('cron.run-now'),
   saveSkill: buildProvider<void | ICronBridgeFailure, { jobId: string; content: string }>('cron.save-skill'),
   hasSkill: buildProvider<boolean | ICronBridgeFailure, { jobId: string }>('cron.has-skill'),
@@ -3156,10 +3154,7 @@ export const storage = {
  * callers, so the provider is remote-denied in bridgeAllowlist.ts.
  */
 export const workspaceRetention = {
-  preview: buildProvider<
-    import('@/common/types/managedWorkspaceRetention').WorkspaceRetentionPreviewResult,
-    void
-  >(
+  preview: buildProvider<import('@/common/types/managedWorkspaceRetention').WorkspaceRetentionPreviewResult, void>(
     'workspaceRetention.preview'
   ),
 };

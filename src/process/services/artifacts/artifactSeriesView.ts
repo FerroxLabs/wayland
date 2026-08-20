@@ -35,7 +35,12 @@
  * "open today's". An earlier run is an artifact, not a path.
  */
 
-import type { ArtifactRunStatus, ArtifactSeriesRun, ArtifactSeriesView, ArtifactSummary } from '@/common/types/artifacts';
+import type {
+  ArtifactRunStatus,
+  ArtifactSeriesRun,
+  ArtifactSeriesView,
+  ArtifactSummary,
+} from '@/common/types/artifacts';
 
 import { toArtifactSummary } from './artifactActions';
 import type { ArtifactRecord } from './artifactLedger';
@@ -168,7 +173,9 @@ export async function buildArtifactSeriesView(
   // Newest first. The run id breaks a tie: two runs can settle inside the same
   // millisecond (a retry loop, a manual run racing the cron), and an unstable
   // order there would reshuffle the history between two reads of the same data.
-  const ordered = runs.toSorted((left, right) => right.at.localeCompare(left.at) || right.runId.localeCompare(left.runId));
+  const ordered = runs.toSorted(
+    (left, right) => right.at.localeCompare(left.at) || right.runId.localeCompare(left.runId)
+  );
 
   return {
     taskId: subject.taskId,

@@ -126,7 +126,9 @@ vi.mock('@process/services/conversationServiceSingleton', () => ({
     }),
     // Production ordering: `getConversationsByCronJobId` is `ORDER BY created_at DESC`.
     getConversationsByCronJob: vi.fn(async (cronJobId: string) =>
-      [...conversationStore.values()].filter((c) => c.extra?.cronJobId === cronJobId).sort((a, b) => b.createTime - a.createTime)
+      [...conversationStore.values()]
+        .filter((c) => c.extra?.cronJobId === cronJobId)
+        .sort((a, b) => b.createTime - a.createTime)
     ),
   },
 }));

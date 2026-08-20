@@ -286,9 +286,18 @@ describe('a crash leaves the old state or the new state, never a half-written ru
 
     for (const [label, body] of [
       ['a truncated write', '{"version":1,"runId":'],
-      ['a version this build does not know', '{"version":2,"runId":"rabc","date":"2026-08-20","relativePath":"2026-08-20/rabc","publishedAt":"x"}'],
-      ['a run id that is really a path', '{"version":1,"runId":"../../etc","date":"2026-08-20","relativePath":"x","publishedAt":"x"}'],
-      ['a date that is not a date', '{"version":1,"runId":"rabc","date":"yesterday","relativePath":"x","publishedAt":"x"}'],
+      [
+        'a version this build does not know',
+        '{"version":2,"runId":"rabc","date":"2026-08-20","relativePath":"2026-08-20/rabc","publishedAt":"x"}',
+      ],
+      [
+        'a run id that is really a path',
+        '{"version":1,"runId":"../../etc","date":"2026-08-20","relativePath":"x","publishedAt":"x"}',
+      ],
+      [
+        'a date that is not a date',
+        '{"version":1,"runId":"rabc","date":"yesterday","relativePath":"x","publishedAt":"x"}',
+      ],
       ['a record that is not an object at all', '"just a string"'],
     ] as const) {
       it(`reads null for ${label}, and the series still lists its runs`, async () => {

@@ -168,7 +168,7 @@ describe('hardenUntrustedPreviewSession', () => {
     captured.headersReceived!(
       {
         url: 'file:///tmp/report/report.html',
-        responseHeaders: { 'content-security-policy': ["default-src *"], 'X-Other': ['keep'] },
+        responseHeaders: { 'content-security-policy': ['default-src *'], 'X-Other': ['keep'] },
       },
       cb
     );

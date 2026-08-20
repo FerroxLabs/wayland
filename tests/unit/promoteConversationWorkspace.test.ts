@@ -296,9 +296,7 @@ describe('promotion of an existing chat', () => {
     const source = await makeTempWorkspace();
     conversations.set(CONV, { id: CONV, extra: { workspace: source, customWorkspace: true } });
 
-    await promoteConversationWorkspace({ conversationId: CONV, jobId: JOB }, killBeforeRearm()).catch(
-      () => undefined
-    );
+    await promoteConversationWorkspace({ conversationId: CONV, jobId: JOB }, killBeforeRearm()).catch(() => undefined);
     expect(job!.enabled).toBe(false);
     expect((await journal.read(promotionKey(CONV, JOB)))!.state).toBe('committed');
 

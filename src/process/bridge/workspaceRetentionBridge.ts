@@ -47,35 +47,33 @@ export type WorkspaceRetentionBridgeDependencies = {
  * that cannot be proven leaves this process as an error code, never as entries.
  */
 export function initWorkspaceRetentionBridge(deps: WorkspaceRetentionBridgeDependencies): void {
-  ipcBridge.workspaceRetention.preview.provider(
-    async (request?: unknown): Promise<WorkspaceRetentionPreviewResult> => {
-      // This provider deliberately has no renderer-controlled request surface.
-      // Refuse rather than ignore fields so a future caller cannot smuggle a
-      // path, root, classification, or mutation intent across the boundary.
-      if (request !== undefined) return { ok: false, errorCode: 'invalid-request' };
+  ipcBridge.workspaceRetention.preview.provider(async (request?: unknown): Promise<WorkspaceRetentionPreviewResult> => {
+    // This provider deliberately has no renderer-controlled request surface.
+    // Refuse rather than ignore fields so a future caller cannot smuggle a
+    // path, root, classification, or mutation intent across the boundary.
+    if (request !== undefined) return { ok: false, errorCode: 'invalid-request' };
 
-      let report: unknown;
-      try {
-        report = await collectDesktopManagedWorkspaceInventory({
-          workDir: deps.getWorkDir(),
-          installationId: await deps.getInstallationId(),
-          retentionWindowMs: await deps.getRetentionWindowMs(),
-          sources: { ...deps.sources, loadProvenance: deps.loadProvenance },
-        });
-      } catch {
-        // Deliberately unclassified beyond the code: the underlying message
-        // carries canonical local paths and authority identifiers.
-        return { ok: false, errorCode: 'inventory-unavailable' };
-      }
-
-      let validated: ReturnType<typeof parseManagedWorkspaceInventoryReport> = null;
-      try {
-        validated = parseManagedWorkspaceInventoryReport(report);
-      } catch {
-        return { ok: false, errorCode: 'inventory-unprovable' };
-      }
-      if (!validated) return { ok: false, errorCode: 'inventory-unprovable' };
-      return { ok: true, report: validated };
+    let report: unknown;
+    try {
+      report = await collectDesktopManagedWorkspaceInventory({
+        workDir: deps.getWorkDir(),
+        installationId: await deps.getInstallationId(),
+        retentionWindowMs: await deps.getRetentionWindowMs(),
+        sources: { ...deps.sources, loadProvenance: deps.loadProvenance },
+      });
+    } catch {
+      // Deliberately unclassified beyond the code: the underlying message
+      // carries canonical local paths and authority identifiers.
+      return { ok: false, errorCode: 'inventory-unavailable' };
     }
-  );
+
+    let validated: ReturnType<typeof parseManagedWorkspaceInventoryReport> = null;
+    try {
+      validated = parseManagedWorkspaceInventoryReport(report);
+    } catch {
+      return { ok: false, errorCode: 'inventory-unprovable' };
+    }
+    if (!validated) return { ok: false, errorCode: 'inventory-unprovable' };
+    return { ok: true, report: validated };
+  });
 }

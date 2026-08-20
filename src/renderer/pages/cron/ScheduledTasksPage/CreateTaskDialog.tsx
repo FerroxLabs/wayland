@@ -750,22 +750,22 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         unwrapCron(
           await ipcBridge.cron.updateJob.invoke({
             jobId: baseline.id,
-          updates: {
-            name: values.name,
-            description: values.description,
-            schedule: { kind: 'cron', expr: scheduleExpr, description: scheduleDesc },
-            target: {
-              ...baseline.target,
-              payload: { kind: 'message', text: values.prompt },
-              executionMode,
+            updates: {
+              name: values.name,
+              description: values.description,
+              schedule: { kind: 'cron', expr: scheduleExpr, description: scheduleDesc },
+              target: {
+                ...baseline.target,
+                payload: { kind: 'message', text: values.prompt },
+                executionMode,
+              },
+              metadata: {
+                ...baseline.metadata,
+                agentType: resolvedAgentType,
+                agentConfig,
+                updatedAt: Date.now(),
+              },
             },
-            metadata: {
-              ...baseline.metadata,
-              agentType: resolvedAgentType,
-              agentConfig,
-              updatedAt: Date.now(),
-            },
-          },
             // The user confirmed the high-frequency warning above (#163).
             allowHighFrequency: isFootgun || undefined,
           })

@@ -34,11 +34,9 @@ vi.mock('react-i18next', () => ({
 }));
 
 // CSS side-effect import — no-op under jsdom.
-vi.mock(
-  '@/renderer/pages/conversation/Preview/components/PreviewPanel/preview.css',
-  () => ({}),
-  { virtual: true } as never
-);
+vi.mock('@/renderer/pages/conversation/Preview/components/PreviewPanel/preview.css', () => ({}), {
+  virtual: true,
+} as never);
 
 // The active tab is a `code` tab, so renderContent() mounts CodeViewer.
 const activeTab = {

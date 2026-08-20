@@ -57,7 +57,10 @@ describe('bundled market-report deliverables stay inside <workspace>/artifacts/'
   });
 
   it('the Smart Trader persona declares an in-workspace artifacts/ default', () => {
-    const md = readFileSync(path.join(REPO_ROOT, 'src/process/resources/assistant/smart-trader/smart-trader.md'), 'utf-8');
+    const md = readFileSync(
+      path.join(REPO_ROOT, 'src/process/resources/assistant/smart-trader/smart-trader.md'),
+      'utf-8'
+    );
     assertWorkspaceSafeArtifactPath(extractDeclaredDefault(md));
   });
 
@@ -178,9 +181,10 @@ describe('no bundled content sends a deliverable outside the workspace', () => {
     'weekly-support-review.sla_targets_path',
   ]);
 
-  const routines = JSON.parse(
-    readFileSync(path.join(BUNDLED_WORKFLOWS, 'routines.json'), 'utf-8')
-  ) as Array<{ id: string; inputs?: Record<string, string> }>;
+  const routines = JSON.parse(readFileSync(path.join(BUNDLED_WORKFLOWS, 'routines.json'), 'utf-8')) as Array<{
+    id: string;
+    inputs?: Record<string, string>;
+  }>;
 
   it('no bundled routine hands the agent a write target outside the workspace', () => {
     expect(routines.length).toBeGreaterThan(5);
@@ -190,11 +194,7 @@ describe('no bundled content sends a deliverable outside the workspace', () => {
       for (const [key, value] of Object.entries(routine.inputs ?? {})) {
         if (!WRITE_TARGET_KEYS.has(key)) continue;
         const segments = value.split('/').filter(Boolean);
-        if (
-          value.startsWith('~') ||
-          path.isAbsolute(value) ||
-          segments.some((segment) => segment.startsWith('.'))
-        ) {
+        if (value.startsWith('~') || path.isAbsolute(value) || segments.some((segment) => segment.startsWith('.'))) {
           offenders.push(`${routine.id}.${key} = ${value}`);
         }
       }
@@ -248,7 +248,6 @@ describe('no bundled content sends a deliverable outside the workspace', () => {
  * original defect through the back door.
  * ---------------------------------------------------------------------------
  */
-
 
 const SHELL_FENCE = /^(bash|sh|shell|zsh|console|terminal)$/i;
 
@@ -313,9 +312,7 @@ describe('a documented output directory resolves against the workspace root, not
       for (const anchor of anchors) {
         const fallback = anchor.text.match(/\bOUT="?\$\{WAYLAND_OUTPUT_DIR:-([^}]*)\}/);
         if (fallback && !/^\$\{?PWD\}?\//.test(fallback[1])) {
-          offenders.push(
-            `${rel}:${anchor.line}: WAYLAND_OUTPUT_DIR fallback "${fallback[1]}" is not anchored to $PWD`
-          );
+          offenders.push(`${rel}:${anchor.line}: WAYLAND_OUTPUT_DIR fallback "${fallback[1]}" is not anchored to $PWD`);
         }
       }
       const firstAnchor = anchors[0].line;
@@ -414,28 +411,61 @@ const OUT_OF_WORKSPACE_WRITE_ALLOWLIST = new Map<string, string>([
   ['skills/moltbook/SKILL.md::~/.moltbot/skills/moltbook/package.json', 'moltbot skill store'],
   ['skills/moltbook/HEARTBEAT.md::~/.moltbot/skills/moltbook/SKILL.md', 'moltbot skill store'],
   ['skills/moltbook/HEARTBEAT.md::~/.moltbot/skills/moltbook/HEARTBEAT.md', 'moltbot skill store'],
-  ['assistant/moltbook/moltbook.md::~/.config/moltbook/credentials.json', 'reads the user credential store; the copy target is workspace-relative'],
-  ['assistant/moltbook/moltbook-skills.md::~/.config/moltbook/credentials.json', 'reads the user credential store; the copy target is workspace-relative'],
-  ['skills/openclaw-setup/references/usage.md::~/.openclaw/workspace/AGENTS.md', 'openclaw reads its own workspace dir'],
+  [
+    'assistant/moltbook/moltbook.md::~/.config/moltbook/credentials.json',
+    'reads the user credential store; the copy target is workspace-relative',
+  ],
+  [
+    'assistant/moltbook/moltbook-skills.md::~/.config/moltbook/credentials.json',
+    'reads the user credential store; the copy target is workspace-relative',
+  ],
+  [
+    'skills/openclaw-setup/references/usage.md::~/.openclaw/workspace/AGENTS.md',
+    'openclaw reads its own workspace dir',
+  ],
   ['skills/openclaw-setup/references/usage.md::~/.openclaw/workspace/SOUL.md', 'openclaw reads its own workspace dir'],
   ['skills/openclaw-setup/references/usage.md::~/.openclaw/workspace/TOOLS.md', 'openclaw reads its own workspace dir'],
   ['skills/openclaw-setup/references/best-practices.md::~/.openclaw/workspace', 'openclaw reads its own workspace dir'],
-  ['skills/openclaw-setup/references/uninstallation.md::~/.openclaw.backup', 'backup of the openclaw config store before removing it'],
+  [
+    'skills/openclaw-setup/references/uninstallation.md::~/.openclaw.backup',
+    'backup of the openclaw config store before removing it',
+  ],
   // Third-party APPLICATION install root, created by this skill's own setup
   // script (`INSTALL_DIR:-$HOME/Star-Office-UI`). It is a service checkout the
   // user runs, not a Workbench deliverable.
-  ['skills/star-office-helper/SKILL.md::~/Star-Office-UI', 'third-party app install root created by star_office_setup.sh'],
+  [
+    'skills/star-office-helper/SKILL.md::~/Star-Office-UI',
+    'third-party app install root created by star_office_setup.sh',
+  ],
   ['skills/star-office-helper/SKILL.md::~/Star-Office-UI/backend', 'third-party app install root'],
   ['skills/star-office-helper/SKILL.md::~/Star-Office-UI/frontend', 'third-party app install root'],
   // skills-library: generic third-party how-to content teaching host sysadmin
   // and shell-config practice. These document the READER's own machine, not a
   // Wayland deliverable path.
-  ['skills-library/bodies/skills/devops-cloud/linux-admin/SKILL.md::/shared/team', 'Linux permissions tutorial on the reader host'],
-  ['skills-library/bodies/skills/devops-cloud/linux-admin/SKILL.md::/data', 'Linux filesystem tutorial on the reader host'],
-  ['skills-library/bodies/skills/writing/how-to-guide/SKILL.md::/var/backups/postgresql', 'sample how-to prose, not an executed instruction'],
-  ['skills-library/bodies/skills/software-engineering/cron-scheduler/SKILL.md::~/crontab-backup-$(date', 'backs up the host crontab, which lives outside any workspace'],
-  ['skills-library/bodies/skills/software-engineering/terminal-productivity-boost/SKILL.md::~/notes.md', 'shell-config tutorial on the reader host'],
-  ['skills-library/bodies/skills/software-engineering/terminal-productivity-boost/SKILL.md::~/.fzf', 'installs fzf into the reader shell'],
+  [
+    'skills-library/bodies/skills/devops-cloud/linux-admin/SKILL.md::/shared/team',
+    'Linux permissions tutorial on the reader host',
+  ],
+  [
+    'skills-library/bodies/skills/devops-cloud/linux-admin/SKILL.md::/data',
+    'Linux filesystem tutorial on the reader host',
+  ],
+  [
+    'skills-library/bodies/skills/writing/how-to-guide/SKILL.md::/var/backups/postgresql',
+    'sample how-to prose, not an executed instruction',
+  ],
+  [
+    'skills-library/bodies/skills/software-engineering/cron-scheduler/SKILL.md::~/crontab-backup-$(date',
+    'backs up the host crontab, which lives outside any workspace',
+  ],
+  [
+    'skills-library/bodies/skills/software-engineering/terminal-productivity-boost/SKILL.md::~/notes.md',
+    'shell-config tutorial on the reader host',
+  ],
+  [
+    'skills-library/bodies/skills/software-engineering/terminal-productivity-boost/SKILL.md::~/.fzf',
+    'installs fzf into the reader shell',
+  ],
 ]);
 
 describe('no bundled shell instruction writes outside the workspace', () => {

@@ -205,10 +205,7 @@ export async function copyTreeVerified(
   return { manifest, skipped };
 }
 
-export function diffManifests(
-  expected: readonly CopyManifestEntry[],
-  actual: readonly CopyManifestEntry[]
-): string[] {
+export function diffManifests(expected: readonly CopyManifestEntry[], actual: readonly CopyManifestEntry[]): string[] {
   const problems: string[] = [];
   const actualByPath = new Map(actual.map((e) => [e.relPath, e]));
   for (const want of expected) {

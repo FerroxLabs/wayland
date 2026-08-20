@@ -57,7 +57,9 @@ vi.mock('electron', () => ({
  * every boot, and a folder per forgotten routine in the user's Documents is a
  * sweep. Spying rather than stubbing, so "it was never called" is an assertion.
  */
-const allocateWorkspace = vi.hoisted(() => vi.fn(async () => ({ dir: '/mock/documents/Wayland/Tasks/X', marker: null })));
+const allocateWorkspace = vi.hoisted(() =>
+  vi.fn(async () => ({ dir: '/mock/documents/Wayland/Tasks/X', marker: null }))
+);
 vi.mock('@process/services/projectWorkspace', () => ({ allocateWorkspace }));
 
 import { readFileSync } from 'fs';
@@ -214,9 +216,7 @@ describe('an already-seeded routine is brought up to the shipped definition', ()
 
   it('gives the prompt the write destination it never named, so the run stages something', async () => {
     const def = routine('weekday-morning-report');
-    const jobs = [
-      legacyJob({ id: 'cron_1', routineId: def.id, workflow: def.workflow, inputs: def.inputs! }),
-    ];
+    const jobs = [legacyJob({ id: 'cron_1', routineId: def.id, workflow: def.workflow, inputs: def.inputs! })];
 
     expect(jobs[0].target.payload.text).not.toContain('WAYLAND_OUTPUT_DIR');
 
@@ -228,9 +228,7 @@ describe('an already-seeded routine is brought up to the shipped definition', ()
 
   it('stops the run publishing into artifacts/cron_<uuid>/ while its prompt reads artifacts/market/', async () => {
     const def = routine('weekday-morning-report');
-    const jobs = [
-      legacyJob({ id: 'cron_88ab12cd', routineId: def.id, workflow: def.workflow, inputs: def.inputs! }),
-    ];
+    const jobs = [legacyJob({ id: 'cron_88ab12cd', routineId: def.id, workflow: def.workflow, inputs: def.inputs! })];
 
     // The defect, verbatim: the write side falls back to the job id while the
     // prompt's own output_dir names `artifacts/market/`.
@@ -270,9 +268,7 @@ describe('an already-seeded routine is brought up to the shipped definition', ()
 
   it('is idempotent: a second boot finds nothing to do', async () => {
     const def = routine('weekday-morning-report');
-    const jobs = [
-      legacyJob({ id: 'cron_1', routineId: def.id, workflow: def.workflow, inputs: def.inputs! }),
-    ];
+    const jobs = [legacyJob({ id: 'cron_1', routineId: def.id, workflow: def.workflow, inputs: def.inputs! })];
 
     expect(await migrateSeededRoutines(makeService(jobs), ROUTINES)).toHaveLength(1);
     expect(await migrateSeededRoutines(makeService(jobs), ROUTINES)).toEqual([]);

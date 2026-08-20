@@ -44,10 +44,12 @@ describe('promotion copy semantics (rule 5)', () => {
     const result = await copyTreeVerified(source, dest);
 
     expect(result.skipped).toEqual([]);
-    expect(result.manifest.filter((e) => e.type === 'file').map((e) => e.relPath).toSorted()).toEqual([
-      'artifacts/2026-08-19/brief.md',
-      'notes.md',
-    ]);
+    expect(
+      result.manifest
+        .filter((e) => e.type === 'file')
+        .map((e) => e.relPath)
+        .toSorted()
+    ).toEqual(['artifacts/2026-08-19/brief.md', 'notes.md']);
     expect(await fsp.readFile(path.join(dest, 'artifacts', '2026-08-19', 'brief.md'), 'utf8')).toBe('# Monday');
 
     const after = await buildTreeManifest(dest);

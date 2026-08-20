@@ -49,11 +49,7 @@ const routines = JSON.parse(readFileSync(ROUTINES, 'utf-8')) as Routine[];
  * is handed to the agent as "here is what you produced last time, diff against
  * it". They are ours to place, so they must live in the workspace series.
  */
-const PRIOR_RUN_INPUT_KEYS = new Set([
-  'last_scan_path',
-  'prior_review_path',
-  'prior_update_path',
-]);
+const PRIOR_RUN_INPUT_KEYS = new Set(['last_scan_path', 'prior_review_path', 'prior_update_path']);
 
 /** The output space no code has ever written to, on either side of the sandbox. */
 const UNREACHABLE_OUTBOX = '~/wayland/outbox';

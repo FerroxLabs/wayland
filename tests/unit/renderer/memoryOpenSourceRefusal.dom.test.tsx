@@ -42,10 +42,9 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('@arco-design/web-react', () => ({
   Button: ({ children, ...rest }: React.ComponentProps<'button'>) => <button {...rest}>{children}</button>,
-  Input: Object.assign(
-    (props: React.ComponentProps<'input'>) => <input {...props} />,
-    { Search: (props: React.ComponentProps<'input'>) => <input {...props} /> }
-  ),
+  Input: Object.assign((props: React.ComponentProps<'input'>) => <input {...props} />, {
+    Search: (props: React.ComponentProps<'input'>) => <input {...props} />,
+  }),
   Message: { success: h.messageSuccess, error: h.messageError, warning: vi.fn() },
   Modal: { confirm: vi.fn() },
 }));

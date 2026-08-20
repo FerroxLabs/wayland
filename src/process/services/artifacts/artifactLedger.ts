@@ -162,7 +162,9 @@ function unsafeForm(raw: string): boolean {
 }
 
 /** Validate the shape of a claim. Returns the raw relative path or a reason. */
-function validateDeclarationShape(declaration: unknown): { relative: string; title?: string } | ArtifactRejectionReason {
+function validateDeclarationShape(
+  declaration: unknown
+): { relative: string; title?: string } | ArtifactRejectionReason {
   if (typeof declaration !== 'object' || declaration === null || Array.isArray(declaration)) return 'not-an-object';
   const raw = (declaration as { path?: unknown }).path;
   if (typeof raw !== 'string') return 'not-a-string';
@@ -316,7 +318,11 @@ export async function registerArtifacts(input: RegisterArtifactsInput): Promise<
 
   if (registered.length > 0) {
     await fs.mkdir(path.dirname(input.ledgerPath), { recursive: true });
-    await fs.appendFile(input.ledgerPath, `${registered.map((record) => JSON.stringify(record)).join('\n')}\n`, 'utf-8');
+    await fs.appendFile(
+      input.ledgerPath,
+      `${registered.map((record) => JSON.stringify(record)).join('\n')}\n`,
+      'utf-8'
+    );
   }
 
   return { registered, rejected };

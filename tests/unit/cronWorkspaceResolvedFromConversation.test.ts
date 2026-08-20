@@ -22,7 +22,6 @@
  * to keep the job authoritative only when it actually names a workspace.
  */
 
-
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('electron', () => ({
@@ -127,7 +126,9 @@ vi.mock('@process/services/conversationServiceSingleton', () => ({
     updateConversation: updateConversationMock,
     // Production ordering: `getConversationsByCronJobId` is `ORDER BY created_at DESC`.
     getConversationsByCronJob: vi.fn(async (cronJobId: string) =>
-      [...conversationStore.values()].filter((c) => c.extra?.cronJobId === cronJobId).sort((a, b) => b.createTime - a.createTime)
+      [...conversationStore.values()]
+        .filter((c) => c.extra?.cronJobId === cronJobId)
+        .sort((a, b) => b.createTime - a.createTime)
     ),
   },
 }));

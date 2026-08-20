@@ -199,7 +199,7 @@ function installScannerStubs(workspace: string): void {
     [
       "import { writeFileSync } from 'fs';",
       "const i = process.argv.indexOf('--json');",
-      "writeFileSync(process.argv[i + 1], JSON.stringify({ bar: process.env.FAKE_BAR }));",
+      'writeFileSync(process.argv[i + 1], JSON.stringify({ bar: process.env.FAKE_BAR }));',
       "console.log('20 names scanned');",
     ].join('\n'),
     'utf-8'
@@ -384,10 +384,7 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
 
     // The Workbench can find it: it is in the ledger, under this job.
     const records = await readArtifactLedger(ledger);
-    expect(records.map((r) => pathMod.basename(r.relativePath)).toSorted()).toEqual([
-      'morning-brief.html',
-      'mr.json',
-    ]);
+    expect(records.map((r) => pathMod.basename(r.relativePath)).toSorted()).toEqual(['morning-brief.html', 'mr.json']);
     expect(records[0].taskId).toBe(job.id);
 
     // And the fixed path a seed-time prompt can name holds day 1.

@@ -212,7 +212,5 @@ export async function readRunJournal(seriesDir: string): Promise<RunJournalEntry
     });
   }
 
-  return [...byRunId.values()]
-    .toSorted((left, right) => right.at.localeCompare(left.at))
-    .slice(0, MAX_JOURNAL_ENTRIES);
+  return [...byRunId.values()].toSorted((left, right) => right.at.localeCompare(left.at)).slice(0, MAX_JOURNAL_ENTRIES);
 }

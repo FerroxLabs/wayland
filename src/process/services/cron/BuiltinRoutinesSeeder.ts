@@ -84,7 +84,9 @@ export function resolveBundledWorkflowsDir(
 }
 
 /** The bundled routine definitions, or undefined when they cannot be read. */
-export async function loadBundledRoutines(dir: string = resolveBundledWorkflowsDir()): Promise<RoutineDef[] | undefined> {
+export async function loadBundledRoutines(
+  dir: string = resolveBundledWorkflowsDir()
+): Promise<RoutineDef[] | undefined> {
   const routines = await readJson<RoutineDef[]>(path.join(dir, 'routines.json'));
   return Array.isArray(routines) ? routines : undefined;
 }
@@ -154,7 +156,7 @@ export function routinePromptHeader(workflow: string): string {
  * ever writes.
  */
 export const ROUTINE_OUTPUT_DIR_SENTENCE =
-  'Write every file this run produces into the directory named by the WAYLAND_OUTPUT_DIR environment variable. It is an absolute path inside the workspace, and it is the only place this run\'s output is collected from - a file written anywhere else is not published and the next run cannot read it. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.';
+  "Write every file this run produces into the directory named by the WAYLAND_OUTPUT_DIR environment variable. It is an absolute path inside the workspace, and it is the only place this run's output is collected from - a file written anywhere else is not published and the next run cannot read it. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.";
 
 /** Closing rule, unchanged since the first seeded routine. */
 export const ROUTINE_NO_ATTACHMENT_SENTENCE =

@@ -68,4 +68,3 @@ export function initArtifactBridge(): void {
   ipcBridge.artifacts.series.provider(({ artifactId }) => buildArtifactSeriesView(artifactId, effects));
   ipcBridge.artifacts.openTarget.provider(({ artifactId }) => describeArtifactOpenTarget(artifactId, effects));
 }
-

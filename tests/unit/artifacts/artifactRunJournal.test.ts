@@ -118,7 +118,13 @@ describe('the run journal', () => {
     await fs.writeFile(
       journalFile(),
       [
-        JSON.stringify({ version: 1, runId: '../../etc', taskId: 't', status: 'failed', at: '2026-08-20T00:00:00.000Z' }),
+        JSON.stringify({
+          version: 1,
+          runId: '../../etc',
+          taskId: 't',
+          status: 'failed',
+          at: '2026-08-20T00:00:00.000Z',
+        }),
         JSON.stringify({ version: 1, runId: 'r/../x', taskId: 't', status: 'failed', at: '2026-08-20T00:00:00.000Z' }),
         JSON.stringify({ version: 2, runId: 'rfuture', taskId: 't', status: 'failed', at: '2026-08-20T00:00:00.000Z' }),
         JSON.stringify({ version: 1, runId: 'rbad', taskId: 't', status: 'exploded', at: '2026-08-20T00:00:00.000Z' }),

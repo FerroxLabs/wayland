@@ -30,10 +30,7 @@ import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 const REPO_ROOT = path.resolve(__dirname, '../../..');
-const SKILL = path.join(
-  REPO_ROOT,
-  'src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md'
-);
+const SKILL = path.join(REPO_ROOT, 'src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md');
 const ROUTINES = path.join(REPO_ROOT, 'src/process/resources/bundled-workflows/routines.json');
 
 /** Workspace-relative home of the bundled scanner, as the skill names it. */
@@ -81,7 +78,7 @@ function installFakeScanner(workspace: string): void {
       "import { writeFileSync } from 'fs';",
       "const i = process.argv.indexOf('--json');",
       "if (i < 0) { console.error('no --json'); process.exit(2); }",
-      "writeFileSync(process.argv[i + 1], '{\"symbols\":[]}');",
+      'writeFileSync(process.argv[i + 1], \'{"symbols":[]}\');',
       "console.log('20 names scanned');",
     ].join('\n'),
     'utf-8'
@@ -149,7 +146,7 @@ describe('the bundled morning-report skill writes where the run can publish from
     expect(existsSync(path.join(workspace, 'artifacts', 'market', 'morning-brief.html'))).toBe(false);
   });
 
-  it('falls back to the routine\'s workspace-relative output_dir when the variable is absent', async () => {
+  it("falls back to the routine's workspace-relative output_dir when the variable is absent", async () => {
     runBlock(resolvePlaceholders(scanCommandBlock(), morningReportRoutine().inputs ?? {}), workspace, {
       WAYLAND_OUTPUT_DIR: undefined,
     });
