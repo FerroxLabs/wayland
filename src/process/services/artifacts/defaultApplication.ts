@@ -115,7 +115,9 @@ const MAC_RESOLVER_SCRIPT = [
 ].join('\n');
 
 async function resolveOnMac(target: string, effects: DefaultApplicationEffects): Promise<string | null> {
-  return sanitizeApplicationName(await effects.run('osascript', ['-l', 'JavaScript', '-e', MAC_RESOLVER_SCRIPT, target]));
+  return sanitizeApplicationName(
+    await effects.run('osascript', ['-l', 'JavaScript', '-e', MAC_RESOLVER_SCRIPT, target])
+  );
 }
 
 /**
@@ -238,9 +240,25 @@ export function clearDefaultApplicationCache(): void {
 
 export async function cachedDefaultApplicationName(
   target: string,
-  effects?: DefaultApplicationEffects,
+  effects: DefaultApplicationEffects = createDefaultApplicationEffects(),
   now: number = Date.now()
 ): Promise<string | null> {
+  // THE GATE IS AHEAD OF THE CACHE, NOT BEHIND IT.
+  //
+  // The cache key is the EXTENSION; `refuseUnsafeOpenTarget` is PATH-dependent
+  // for three of its refusals - the target does not exist, it is not a regular
+  // file, it is extensionless-executable. Consulting the gate only inside
+  // `resolveDefaultApplicationName` meant it ran on the first `.html` and never
+  // again, so a DELETED artifact inherited "Open in Google Chrome" from a
+  // sibling and refused on click - the exact promise this module exists not to
+  // make. It failed in the other direction too: one missing `.html` cached a
+  // null and flattened every `.html` to the bare "Open" for five minutes.
+  //
+  // The resolver keeps its own gate for direct callers. On a cache miss that is
+  // one extra stat against a subprocess spawn, which is not a trade worth
+  // engineering around.
+  if (await effects.refuse(target)) return null;
+
   const key = path.extname(target).toLowerCase();
   // A file with no extension resolves by content on Linux and by type on macOS,
   // so it has no cache key that means anything. Asked every time, or never.

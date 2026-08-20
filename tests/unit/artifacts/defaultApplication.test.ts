@@ -113,7 +113,7 @@ describe('naming the default application', () => {
   it('runs the darwin resolver with the path as an ARGUMENT, never inside the script', async () => {
     // A filename is model-authored text. Building a script around one is how a
     // quoting bug becomes script injection in a process that can open anything.
-    const hostile = path.join(root, "it's \"quoted\"; osascript -e evil.html");
+    const hostile = path.join(root, 'it\'s "quoted"; osascript -e evil.html');
     await fs.writeFile(hostile, '<html></html>', 'utf8');
     const run = vi.fn(async () => 'Preview\n');
 
@@ -149,12 +149,14 @@ describe('naming the default application', () => {
   });
 
   it('parses Name from the [Desktop Entry] group and nowhere else', async () => {
-    expect(
-      parseDesktopEntryName(['[Desktop Entry]', 'Name=Okular', 'Name[de]=Okular DE', ''].join('\n'))
-    ).toBe('Okular');
+    expect(parseDesktopEntryName(['[Desktop Entry]', 'Name=Okular', 'Name[de]=Okular DE', ''].join('\n'))).toBe(
+      'Okular'
+    );
     // A desktop ACTION carries its own Name for a menu item, not the app.
     expect(
-      parseDesktopEntryName(['[Desktop Entry]', 'Type=Application', '', '[Desktop Action new]', 'Name=New Window'].join('\n'))
+      parseDesktopEntryName(
+        ['[Desktop Entry]', 'Type=Application', '', '[Desktop Action new]', 'Name=New Window'].join('\n')
+      )
     ).toBeNull();
     // Localised keys alone are not an answer.
     expect(parseDesktopEntryName(['[Desktop Entry]', 'Name[de]=Nur Deutsch'].join('\n'))).toBeNull();
@@ -210,8 +212,43 @@ describe('naming the default application', () => {
     expect(run).toHaveBeenCalledTimes(2);
   });
 
+  it('re-runs the type gate on EVERY call, because the cache key is the extension', async () => {
+    // The gate is PATH-dependent - target does not exist, not a regular file,
+    // extensionless-executable - and the cache key is the EXTENSION. With the
+    // gate behind the cache it ran for the first `.html` and never again, so a
+    // DELETED artifact inherited a sibling's "Open in Preview" and then refused
+    // on click: a button naming an app that will not open the file, which is
+    // the one outcome this module exists to prevent.
+    const run = vi.fn(async () => 'Preview\n');
+    const effects = effectsFor('darwin', run);
+    const gone = path.join(root, 'deleted.html');
+
+    // Warm the cache from a file that really is there.
+    expect(await cachedDefaultApplicationName(brief, effects, 1_000)).toBe('Preview');
+    expect(run).toHaveBeenCalledTimes(1);
+
+    // Same extension, cache hot, but this file does not exist. The real gate
+    // refuses it, so it gets no name - and no second subprocess either.
+    expect(await cachedDefaultApplicationName(gone, effects, 1_100)).toBeNull();
+    expect(run).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not let one refused target poison the cache for its whole extension', async () => {
+    // The inverse failure. Resolving a missing `.html` first used to store a
+    // null under `.html`, flattening every real `.html` to the bare "Open" for
+    // the whole TTL.
+    const run = vi.fn(async () => 'Preview\n');
+    const effects = effectsFor('darwin', run);
+    const gone = path.join(root, 'deleted.html');
+
+    expect(await cachedDefaultApplicationName(gone, effects, 1_000)).toBeNull();
+    expect(await cachedDefaultApplicationName(brief, effects, 1_100)).toBe('Preview');
+  });
+
   it('caches per EXTENSION, so a different type is resolved separately', async () => {
-    const run = vi.fn(async (_file: string, args: readonly string[]) => (args[args.length - 1]?.endsWith('.pdf') ? 'Acrobat\n' : 'Preview\n'));
+    const run = vi.fn(async (_file: string, args: readonly string[]) =>
+      args[args.length - 1]?.endsWith('.pdf') ? 'Acrobat\n' : 'Preview\n'
+    );
     const effects = effectsFor('darwin', run);
     const pdf = path.join(root, 'report.pdf');
     await fs.writeFile(pdf, '%PDF-1.4', 'utf8');
