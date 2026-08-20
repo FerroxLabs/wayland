@@ -36,7 +36,14 @@ import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 // --- Fixture roots -----------------------------------------------------------
 // `os.tmpdir()` is a static authorized root, so a directory created under it
 // stands in for an agent workspace: in-root, agent-writable, arbitrary content.
-const sandbox = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-shell-safety-')));
+// `realpathSync.native` (GetFinalPathNameByHandle), NOT the pure-JS
+// `realpathSync`: on Windows `os.tmpdir()` is an 8.3 short path
+// (`C:\Users\RUNNER~1\...`) and only the native call expands it. `confinePath`
+// canonicalises candidates with `fs/promises.realpath`, which DOES expand, so a
+// fixture seeded from the short form never matches what the bridge returns -
+// see the same note in `src/process/bridge/pathConfinement.ts:96`. On macOS and
+// Linux the two calls agree, so this is a no-op there.
+const sandbox = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-shell-safety-')));
 
 const workspaceFile = path.join(sandbox, 'report.md');
 const executableFile = path.join(sandbox, 'report.command');

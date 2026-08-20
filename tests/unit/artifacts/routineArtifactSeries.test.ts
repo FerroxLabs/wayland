@@ -87,7 +87,10 @@ describe('a routine publishes into the series its own prompt already names', () 
   });
 
   it('the run directory a routine publishes into is the directory its prompt reads', () => {
-    const workspace = path.join(path.sep, 'ws');
+    // `path.resolve`: `seriesDirFor` calls `path.resolve(workspace)`, which on
+    // Windows qualifies a drive-less absolute path with the current drive, so a
+    // `path.join(path.sep, ...)` fixture can never match it. POSIX is unaffected.
+    const workspace = path.resolve(path.sep, 'ws');
     for (const routine of routines) {
       for (const [key, value] of Object.entries(routine.inputs ?? {})) {
         if (!PRIOR_RUN_INPUT_KEYS.has(key)) continue;

@@ -29,7 +29,11 @@ import { buildEngineSpawnEnv } from '../../../src/process/agent/wcore/envBuilder
  * revoked-authority denylist can leave a skill guessing.
  */
 
-const WORKSPACE = path.join(path.sep, 'tmp', 'wl-workspace-fixture');
+// `path.resolve`, not `path.join`: on Windows `path.join(path.sep, ...)` yields
+// a drive-LESS absolute path (`\tmp\...`) while the code under test resolves
+// its workspace with `path.resolve`, which qualifies it with the current drive
+// (`D:\tmp\...`). The two never compare equal. POSIX is unaffected.
+const WORKSPACE = path.resolve(path.sep, 'tmp', 'wl-workspace-fixture');
 const EXPECTED = path.join(WORKSPACE, 'artifacts');
 
 describe('WAYLAND_OUTPUT_DIR reaches every skill', () => {

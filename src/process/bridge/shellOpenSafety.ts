@@ -266,6 +266,18 @@ export function registerAppProducedOpenTarget(target: string): void {
   } catch {
     // Not created yet, or already removed; the resolved form still applies.
   }
+  // ...and the NATIVE form. On Windows the updater downloads into a temp path
+  // that is routinely an 8.3 short name (`C:\Users\SEANDO~1\AppData\Local\Temp`),
+  // which the pure-JS `realpathSync` above does NOT expand but `confinePath`'s
+  // `fs/promises.realpath` (GetFinalPathNameByHandle) does. Without this the set
+  // lookup misses the only form the gate is ever asked about and the app refuses
+  // to open the installer it just downloaded itself. Same asymmetry as
+  // `pathConfinement.ts:96`. On macOS and Linux this collapses to the form above.
+  try {
+    appProducedTargets.add(realpathSync.native(resolved));
+  } catch {
+    // Native realpath unavailable or the file is gone; the forms above apply.
+  }
 }
 
 /**
