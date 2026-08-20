@@ -96,6 +96,38 @@ describe('ArtifactActionBar', () => {
     expect(onMessage.mock.calls[0][1]).toContain('.command');
   });
 
+  /**
+   * Open was the only action whose refusal was pinned. Reveal and Save a copy
+   * were not: deleting their `if (!result?.ok)` branches left this suite green,
+   * so two of the three buttons had no guard against becoming the dead click
+   * the whole `{ ok: false }` convention exists to prevent. The bridge has no
+   * rejection channel, so a refusal that nobody reads is a button that does
+   * nothing at all.
+   */
+  it('surfaces a REVEAL refusal instead of leaving a dead button', async () => {
+    ipcMock.reveal.mockResolvedValue({ ok: false, error: 'artifact is no longer on disk' });
+    const onMessage = vi.fn();
+    render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
+
+    fireEvent.click(screen.getByText('preview.artifactReveal'));
+    await waitFor(() => expect(onMessage).toHaveBeenCalledTimes(1));
+    expect(onMessage.mock.calls[0][0]).toBe('error');
+    expect(onMessage.mock.calls[0][1]).toContain('no longer on disk');
+  });
+
+  it('surfaces a SAVE-A-COPY refusal, and never claims a save that did not happen', async () => {
+    ipcMock.saveCopy.mockResolvedValue({ ok: false, error: 'destination is outside every allowed root' });
+    const onMessage = vi.fn();
+    render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
+
+    fireEvent.click(screen.getByText('preview.artifactSaveCopy'));
+    await waitFor(() => expect(onMessage).toHaveBeenCalledTimes(1));
+    expect(onMessage.mock.calls[0][0]).toBe('error');
+    expect(onMessage.mock.calls[0][1]).toContain('outside every allowed root');
+    // A refusal must never be reported as a completed save.
+    expect(onMessage.mock.calls.some(([kind]) => kind === 'success')).toBe(false);
+  });
+
   it('says nothing when the user cancels the save dialog', async () => {
     ipcMock.saveCopy.mockResolvedValue({ ok: true });
     const onMessage = vi.fn();

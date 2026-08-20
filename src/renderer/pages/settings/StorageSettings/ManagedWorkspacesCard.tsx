@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { shell, workspaceRetention } from '@/common/adapter/ipcBridge';
 import { ConfigStorage } from '@/common/config/storage';
 import {
-  parseManagedWorkspaceInventoryReport,
+  parseWorkspaceRetentionPreviewResult,
   type ManagedWorkspaceClassification,
   type ManagedWorkspaceInventoryReport,
 } from '@/common/types/managedWorkspaceRetention';
@@ -74,9 +74,18 @@ const ManagedWorkspacesCard: React.FC = () => {
     setLoading(true);
     setError(false);
     try {
-      const next = parseManagedWorkspaceInventoryReport(await workspaceRetention.preview.invoke());
-      if (!next) throw new Error('workspace retention returned a malformed report');
-      setReport(next);
+      // The provider RESOLVES a classified refusal rather than rejecting: the
+      // IPC bridge has no reject and no timeout, so a throw on the process side
+      // would leave this component loading forever with neither `catch` nor
+      // `finally` running. Both halves of the union fail closed to the same
+      // protective message.
+      const result = parseWorkspaceRetentionPreviewResult(await workspaceRetention.preview.invoke());
+      if (!result?.ok) {
+        setReport(null);
+        setError(true);
+        return;
+      }
+      setReport(result.report);
     } catch {
       setError(true);
     } finally {
