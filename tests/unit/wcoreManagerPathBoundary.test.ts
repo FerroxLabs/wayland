@@ -384,6 +384,36 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
     });
   });
 
+  /**
+   * A REMOTE surface must not be able to answer this card.
+   *
+   * `ActionExecutor`'s generic arm offers "Confirm"/"Cancel" carrying
+   * `proceed_once`, and `ChatActions.handleToolConfirm` passes the callback
+   * `value` straight through with no allowlisting. Before this guard, that
+   * value fell past the boundary route into the ordinary approval path, where
+   * `super.confirm` CLEARED the desktop user's card and `approveTool(callId,
+   * 'once')` approved the tool without any grant. The read then failed for want
+   * of authority and the folder could never be granted for the rest of the
+   * session - the feature defeated from a chat window.
+   */
+  it('refuses a foreign approval vocabulary on a boundary call and leaves the card standing', () => {
+    for (const foreign of ['proceed_once', 'proceed_always', 'proceed_always_tool', 'proceed_always_server']) {
+      vi.clearAllMocks();
+      manager.confirm('call-boundary', 'call-boundary', foreign as never);
+
+      expect(agent.approveTool, `${foreign} must not approve`).not.toHaveBeenCalled();
+      expect(agent.denyTool, `${foreign} must not deny`).not.toHaveBeenCalled();
+      expect(emitConfirmationRemove, `${foreign} must not clear the card`).not.toHaveBeenCalled();
+    }
+
+    // CONTROL, same card and same manager: the card is still live, so the
+    // refusals above are the guard deciding and not a dead fixture.
+    vi.clearAllMocks();
+    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_GRANT_FOLDER);
+    expect(agent.approveTool).toHaveBeenCalledTimes(1);
+    expect(agent.approveTool.mock.calls[0][1]).toEqual({ always_path: { root: ROOT, write: false } });
+  });
+
   it('denies the tool call outright when the folder is refused', () => {
     manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_DENY);
 

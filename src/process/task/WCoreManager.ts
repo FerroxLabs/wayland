@@ -14,6 +14,7 @@ import {
   PATH_BOUNDARY_DENY,
   PATH_BOUNDARY_GRANT_FOLDER,
   PATH_BOUNDARY_ROOT_PARAM,
+  isPathBoundaryConfirmation,
   isPathBoundaryOptionValue,
   pathBoundaryRootOf,
 } from '@/common/chat/pathBoundaryConsent';
@@ -2210,13 +2211,26 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // workspace, read-only. `write: false` is not a default we could widen
     // later from here: write access outside the workspace is not grantable at
     // all, so Core never raises a boundary asking for it.
-    const boundaryConfirmation = isPathBoundaryOptionValue(data)
-      ? this.confirmations.find((c) => c.callId === callId)
-      : undefined;
+    const boundaryConfirmation = this.confirmations.find(
+      (c) => c.callId === callId && isPathBoundaryConfirmation(c)
+    );
     if (boundaryConfirmation) {
+      // A folder grant answers ONLY in its own vocabulary. Anything else that
+      // reaches this callId came from a surface that never rendered THIS card:
+      // today that is the remote chat gateway, whose generic `default:` arm in
+      // `ActionExecutor` offers "Confirm"/"Cancel" carrying `proceed_once`.
+      //
+      // Falling through was the bug. `super.confirm` clears the card and
+      // `approveTool(callId, 'once')` approves the tool WITHOUT the grant, so
+      // the read still fails for want of authority AND the desktop user's card
+      // is gone, leaving the folder ungrantable for the rest of the session.
+      // Refuse instead, and leave the card standing for the surface that owns
+      // the decision. `Cancel` is honoured as a decline so no path strands it.
+      const isCancel = data === ToolConfirmationOutcome.Cancel;
+      if (!isPathBoundaryOptionValue(data) && !isCancel) return;
       const root = pathBoundaryRootOf(boundaryConfirmation);
       super.confirm(id, callId, data);
-      if (data === PATH_BOUNDARY_GRANT_FOLDER && root) {
+      if (data === PATH_BOUNDARY_GRANT_FOLDER && !isCancel && root) {
         // NOTE: the engine acks this as approved whether or not the grant took
         // — `apply_path_grant`'s refusal bool is discarded at both call sites
         // (wcore-protocol/src/lib.rs:424 and :497). A refused grant is reported
