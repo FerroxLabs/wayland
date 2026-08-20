@@ -939,6 +939,8 @@ export type I18nKey =
   | 'cron.error.missedJob'
   | 'cron.error.overlapSkipped'
   | 'cron.error.scheduledTimePassed'
+  | 'cron.error.workspaceMismatch'
+  | 'cron.error.workspaceMissing'
   | 'cron.goToConversation'
   | 'cron.highFreqWarn.body'
   | 'cron.highFreqWarn.createAnyway'

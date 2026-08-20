@@ -163,7 +163,9 @@
     "scheduledTimePassed": "Scheduled time has passed",
     "conversationBusy": "Conversation busy after {{count}} retries",
     "highFreqNewConversation": "This task runs every minute and creates a new conversation each run, which floods your history and can spawn overlapping processes. Use \"Reuse conversation\" mode instead, or lower the frequency.",
-    "overlapSkipped": "Skipped: the previous run was still in progress"
+    "overlapSkipped": "Skipped: the previous run was still in progress",
+    "workspaceMissing": "Scheduled task \"{{name}}\" did not run: its folder is gone ({{path}}). Nothing was recreated. Open the task to recreate it empty, pick a different folder, or turn the task off.",
+    "workspaceMismatch": "Scheduled task \"{{name}}\" did not run: the folder at {{path}} is no longer its workspace, so nothing was written to it. Open the task to recreate it empty, pick a different folder, or turn the task off."
   },
   "highFreqWarn": {
     "title": "Run every minute in a new conversation?",

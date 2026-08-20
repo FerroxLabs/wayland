@@ -148,7 +148,9 @@
     "jobNotFound": "Tâche introuvable : {{id}}",
     "conversationNotFound": "Conversation introuvable",
     "scheduledTimePassed": "L'heure planifiée est dépassée",
-    "conversationBusy": "Conversation occupée après {{count}} tentatives"
+    "conversationBusy": "Conversation occupée après {{count}} tentatives",
+    "workspaceMissing": "La tâche planifiée « {{name}} » n'a pas été exécutée : son dossier a disparu ({{path}}). Rien n'a été recréé. Ouvrez la tâche pour le recréer vide, choisir un autre dossier ou désactiver la tâche.",
+    "workspaceMismatch": "La tâche planifiée « {{name}} » n'a pas été exécutée : le dossier {{path}} n'est plus son espace de travail, rien n'y a été écrit. Ouvrez la tâche pour le recréer vide, choisir un autre dossier ou désactiver la tâche."
   },
   "propose": {
     "title": "Confirmation de la planification",

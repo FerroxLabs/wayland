@@ -27,6 +27,8 @@ import type { CronJob } from './CronStore';
 import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
+import { preflightJobWorkspace } from './durableTaskWorkspace';
+import i18n from '@process/services/i18n';
 import { AcpSkillManager } from '@process/task/AcpSkillManager';
 import { skillSuggestWatcher } from './SkillSuggestWatcher';
 
@@ -53,6 +55,8 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     preparedConversationId?: string,
     triggeredAt = Date.now()
   ): Promise<string | void> {
+    await this.assertWorkspaceUsable(job);
+
     let conversationId = preparedConversationId ?? job.metadata.conversationId;
 
     // Create a conversation when needed (skip if already prepared by runNow):
@@ -531,7 +535,33 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     return buildNewConvPrompt(job.name, job.schedule.description, rawText);
   }
 
+  /**
+   * P2-10: refuse to go anywhere near a workspace that is gone, or that is no
+   * longer the one this job was given.
+   *
+   * Called before a conversation is built and again before a task is acquired.
+   * Both, because `runNow` calls `prepareConversation` first and hands its
+   * conversation id straight back to the renderer, then fires `executeJob` in
+   * the background - guarding only the second would leave an orphan chat behind
+   * and report the failure to nobody.
+   *
+   * Deliberately no auto-repair. A recreated folder is indistinguishable from
+   * one whose history was lost, and writing into a folder whose marker does not
+   * match writes into whatever the user put there instead.
+   */
+  private async assertWorkspaceUsable(job: CronJob): Promise<void> {
+    const problem = await preflightJobWorkspace(job);
+    if (!problem) return;
+    throw new Error(
+      i18n.t(problem.status === 'missing' ? 'cron.error.workspaceMissing' : 'cron.error.workspaceMismatch', {
+        name: job.name,
+        path: problem.workspace,
+      })
+    );
+  }
+
   async prepareConversation(job: CronJob): Promise<string> {
+    await this.assertWorkspaceUsable(job);
     if (!job.metadata.agentConfig) {
       return job.metadata.conversationId;
     }
@@ -567,7 +597,18 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           const config = job.metadata.agentConfig!;
           const extra = latestConv.extra as Record<string, unknown> | undefined;
           const convBackend = extra?.backend as string | undefined;
-          const configWorkspace = config.workspace || '';
+          // P2-3: the CONVERSATION is the source of truth for the workspace. The
+          // job's copy is authoritative only when it actually names one.
+          //
+          // `config.workspace || ''` used to turn "this job expresses no opinion"
+          // into "the workspace is now empty", which read as a change and rehomed
+          // the run into a fresh conversation with `workspace: ''` - i.e. a new
+          // `wcore-temp-<ts>` that cannot see any previous run. That is the
+          // `extra.backend` defect one field over: `backfillCronJobIdOnConversations`
+          // synthesises an agentConfig carrying a backend and NO workspace, so it
+          // only ever bit after a restart, and it would throw away exactly the
+          // durable workspace P2-2 allocates.
+          const configWorkspace = config.workspace;
           // Compare against cronWorkspace (what was configured), not workspace
           // (which may be overwritten by agent runtime, e.g. codex temp dir).
           const prevCronWorkspace = (extra?.cronWorkspace as string | undefined) ?? '';
@@ -590,7 +631,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           const agentChanged = convBackend
             ? convBackend !== config.backend
             : latestConv.type !== getConversationTypeForBackend(config.backend);
-          const workspaceChanged = prevCronWorkspace !== configWorkspace;
+          const workspaceChanged = configWorkspace !== undefined && prevCronWorkspace !== configWorkspace;
 
           console.log(
             `[CronExecutor] resolveConversation: convBackend=${convBackend}, convType=${latestConv.type}, configBackend=${config.backend}, agentChanged=${agentChanged}, prevCronWorkspace=${prevCronWorkspace}, configWorkspace=${configWorkspace}, workspaceChanged=${workspaceChanged}`
@@ -614,9 +655,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // field the chat already has.
           const userOwnedChat = this.isUserOwnedConversation(latestConv);
 
-          // Backfill workspace for old conversations created before this field was always set
-          if (extra?.workspace === undefined || extra?.workspace === null) {
-            extraUpdates.workspace = config.workspace || '';
+          // Backfill workspace for old conversations created before this field was
+          // always set - but only from a workspace the job actually names. Writing
+          // `''` here would copy the job's non-answer into the conversation store
+          // and make the two disagree about which one holds the truth (P2-3).
+          if ((extra?.workspace === undefined || extra?.workspace === null) && configWorkspace) {
+            extraUpdates.workspace = configWorkspace;
           }
 
           if (!userOwnedChat && config.mode && extra?.sessionMode !== config.mode) {
