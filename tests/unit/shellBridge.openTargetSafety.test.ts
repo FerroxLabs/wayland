@@ -66,7 +66,13 @@ fs.writeFileSync(extensionlessData, 'plain notes\n');
 fs.mkdirSync(dottedFolder, { recursive: true });
 // A symlink that points outside every authorized root. `confinePath`
 // realpath-collapses the existing prefix, so anything under it must fail closed.
-fs.symlinkSync('/etc', escapeSymlink, 'dir');
+// The target must EXIST: a missing target fails closed for the WRONG reason
+// ("target does not exist"), which satisfies a refusal assertion while proving
+// nothing about confinement. `/etc` does not exist on Windows, so the win32 leg
+// uses the system root - likewise a real directory outside the temp root.
+const escapeTargetDir = process.platform === 'win32' ? (process.env['SystemRoot'] ?? 'C:\\Windows') : '/etc';
+const escapeTargetChild = process.platform === 'win32' ? 'win.ini' : 'passwd';
+fs.symlinkSync(escapeTargetDir, escapeSymlink, 'dir');
 
 // Non-executing source/text types a user opens constantly. None of these has an
 // OS execute association on macOS, Linux or Windows (Windows Script Host
@@ -275,15 +281,19 @@ describe('shellBridge.openFolderWith - confinement (defect 1)', () => {
 // --- Defect 2: confinement bounds location, never type ----------------------
 
 describe('shell open providers - executable-type refusal (defect 2)', () => {
-  const executableCases: Array<[string, string]> = [
-    ['macOS .command', executableFile],
-    ['linux .desktop', desktopFile],
-    ['win32 .exe', windowsFile],
-    ['an extensionless file with the execute bit set', extensionlessScript],
+  // Windows has no execute bit: `chmodSync(0o755)` is a no-op there and
+  // `stat().mode` reports 0o666, so the execute-bit branch of the gate cannot be
+  // reached at all. The other three cases are extension-keyed and do run there.
+  const skipNoExecuteBit = process.platform === 'win32';
+  const executableCases: Array<[string, string, boolean]> = [
+    ['macOS .command', executableFile, false],
+    ['linux .desktop', desktopFile, false],
+    ['win32 .exe', windowsFile, false],
+    ['an extensionless file with the execute bit set', extensionlessScript, skipNoExecuteBit],
   ];
 
-  for (const [label, target] of executableCases) {
-    it(`shell.openFile refuses ${label} inside an authorized root`, async () => {
+  for (const [label, target, skip] of executableCases) {
+    it.skipIf(skip)(`shell.openFile refuses ${label} inside an authorized root`, async () => {
       const result = await providers['openFile'](target);
 
       nothingLaunched();
@@ -291,7 +301,7 @@ describe('shell open providers - executable-type refusal (defect 2)', () => {
       expect(typeof result.error).toBe('string');
     });
 
-    it(`shell.openPath refuses ${label} inside an authorized root`, async () => {
+    it.skipIf(skip)(`shell.openPath refuses ${label} inside an authorized root`, async () => {
       const result = await providers['openPath']({ path: target });
 
       nothingLaunched();
@@ -351,21 +361,21 @@ describe('shell open providers - legitimate targets still work', () => {
 
 describe('shell open providers - symlink escape still fails closed', () => {
   it('shell.openFile refuses a path under an escaping symlink', async () => {
-    const result = await providers['openFile'](path.join(escapeSymlink, 'passwd'));
+    const result = await providers['openFile'](path.join(escapeSymlink, escapeTargetChild));
 
     expect(result).toEqual({ ok: false, error: 'path not allowed' });
     nothingLaunched();
   });
 
   it('shell.openPath refuses a path under an escaping symlink', async () => {
-    const result = await providers['openPath']({ path: path.join(escapeSymlink, 'passwd') });
+    const result = await providers['openPath']({ path: path.join(escapeSymlink, escapeTargetChild) });
 
     expect(result).toEqual({ ok: false, error: 'path not allowed' });
     nothingLaunched();
   });
 
   it('shell.showItemInFolder refuses a path under an escaping symlink', async () => {
-    const result = await providers['showItemInFolder'](path.join(escapeSymlink, 'passwd'));
+    const result = await providers['showItemInFolder'](path.join(escapeSymlink, escapeTargetChild));
 
     expect(result).toEqual({ ok: false, error: 'path not allowed' });
     expect(shellMock.showItemInFolder).not.toHaveBeenCalled();
