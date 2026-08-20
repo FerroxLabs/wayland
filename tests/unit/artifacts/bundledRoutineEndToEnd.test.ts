@@ -263,17 +263,26 @@ type Agent = (env: Record<string, string>, workspace: string) => Promise<void>;
 function makeHarness(workspace: string) {
   const guard = new CronBusyGuard();
   let agent: Agent = async () => {};
-  const task = {
+  // Mirrors the real seam exactly: `WCoreManager` is constructed FOR a
+  // conversation and passes its own `conversation_id` down, and `WCoreAgent`
+  // resolves the run's output directory from that id - not from the workspace.
+  // Keying this stand-in on the workspace instead would let the test pass while
+  // the product wrote nowhere, which is the whole defect P2-11 fixed.
+  const buildTask = (conversationId: string) => ({
     type: 'wcore',
     workspace,
     sendMessage: vi.fn(async () => {
-      const env = buildEngineSpawnEnv({ providerEnv: {}, workspace, outputDir: activeRunOutputDir(workspace) });
+      const env = buildEngineSpawnEnv({
+        providerEnv: {},
+        workspace,
+        outputDir: activeRunOutputDir(conversationId),
+      });
       await agent(env, workspace);
     }),
-  };
+  });
   const taskManager = {
     getTask: vi.fn(() => undefined),
-    getOrBuildTask: vi.fn(async () => task),
+    getOrBuildTask: vi.fn(async (conversationId: string) => buildTask(conversationId)),
     kill: vi.fn(),
     buildConversation: vi.fn(),
   };
@@ -291,7 +300,7 @@ function makeHarness(workspace: string) {
     return conversationId;
   }
 
-  return { run, task };
+  return { run };
 }
 
 describe('a bundled routine, seeded the way a real install seeds it, keeps a history', () => {
