@@ -635,6 +635,9 @@ export class WCoreAgent {
           providerEnv,
           toolKeys,
           waylandHome,
+          // P2-6: same value the child stands in (`cwd` below), so
+          // WAYLAND_OUTPUT_DIR and the agent's own `$PWD` can never disagree.
+          workspace,
           vaultPassphraseEnv: vaultDelivery?.env,
           spawnEnvDenylist,
           ambientEnvDenylist,
