@@ -148,7 +148,9 @@
     "jobNotFound": "Tarefa não encontrada: {{id}}",
     "conversationNotFound": "Conversa não encontrada",
     "scheduledTimePassed": "O horário agendado já passou",
-    "conversationBusy": "Conversa ocupada após {{count}} tentativas"
+    "conversationBusy": "Conversa ocupada após {{count}} tentativas",
+    "workspaceMissing": "A tarefa agendada \"{{name}}\" não foi executada: a pasta dela sumiu ({{path}}). Nada foi recriado. Abra a tarefa para recriá-la vazia, escolher outra pasta ou desligar a tarefa.",
+    "workspaceMismatch": "A tarefa agendada \"{{name}}\" não foi executada: a pasta em {{path}} não é mais o espaço de trabalho dela, então nada foi escrito ali. Abra a tarefa para recriá-la vazia, escolher outra pasta ou desligar a tarefa."
   },
   "propose": {
     "title": "Confirmação de agendamento",

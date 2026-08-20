@@ -27,6 +27,8 @@ import type { CronJob } from './CronStore';
 import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
+import { preflightJobWorkspace } from './durableTaskWorkspace';
+import i18n from '@process/services/i18n';
 import { AcpSkillManager } from '@process/task/AcpSkillManager';
 import { skillSuggestWatcher } from './SkillSuggestWatcher';
 
@@ -53,6 +55,22 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     preparedConversationId?: string,
     triggeredAt = Date.now()
   ): Promise<string | void> {
+    // P2-10: before ANYTHING else - before a conversation is built, before a
+    // task is acquired - check that the folder this job runs in is still the
+    // folder it was given. Deleted, or replaced by something else, both fail the
+    // run closed. Recreating it here would hide a workspace whose history is
+    // gone behind one that looks healthy, and writing into a folder whose marker
+    // does not match writes into whatever the user put there instead.
+    const workspaceProblem = await preflightJobWorkspace(job);
+    if (workspaceProblem) {
+      throw new Error(
+        i18n.t(workspaceProblem.status === 'missing' ? 'cron.error.workspaceMissing' : 'cron.error.workspaceMismatch', {
+          name: job.name,
+          path: workspaceProblem.workspace,
+        })
+      );
+    }
+
     let conversationId = preparedConversationId ?? job.metadata.conversationId;
 
     // Create a conversation when needed (skip if already prepared by runNow):

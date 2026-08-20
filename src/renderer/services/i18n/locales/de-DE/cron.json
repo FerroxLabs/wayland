@@ -148,7 +148,9 @@
     "jobNotFound": "Aufgabe nicht gefunden: {{id}}",
     "conversationNotFound": "Unterhaltung nicht gefunden",
     "scheduledTimePassed": "Die geplante Zeit ist bereits verstrichen",
-    "conversationBusy": "Unterhaltung nach {{count}} Versuchen weiterhin belegt"
+    "conversationBusy": "Unterhaltung nach {{count}} Versuchen weiterhin belegt",
+    "workspaceMissing": "Geplante Aufgabe „{{name}}“ wurde nicht ausgeführt: Ihr Ordner ist nicht mehr vorhanden ({{path}}). Es wurde nichts neu erstellt. Öffnen Sie die Aufgabe, um den Ordner leer neu zu erstellen, einen anderen Ordner zu wählen oder die Aufgabe zu deaktivieren.",
+    "workspaceMismatch": "Geplante Aufgabe „{{name}}“ wurde nicht ausgeführt: Der Ordner unter {{path}} ist nicht mehr ihr Arbeitsbereich, es wurde nichts hineingeschrieben. Öffnen Sie die Aufgabe, um den Ordner leer neu zu erstellen, einen anderen Ordner zu wählen oder die Aufgabe zu deaktivieren."
   },
   "propose": {
     "title": "Zeitplan bestätigen",

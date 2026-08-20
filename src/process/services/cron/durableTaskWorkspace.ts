@@ -25,6 +25,7 @@
  */
 
 import { allocateWorkspace } from '@process/services/projectWorkspace';
+import { checkWorkspaceIdentity, type WorkspaceIdentityStatus } from '@process/services/workspaceIdentity';
 import { CRON_ROUTINE_KIND, type CronJob } from './CronStore';
 
 /** True when this job is one of the Wayland-shipped bundled routines. */
@@ -66,4 +67,35 @@ export async function durableWorkspaceMetadataForJob(job: CronJob): Promise<Cron
       ...(allocated.marker ? { workspaceId: allocated.marker.workspaceId } : {}),
     },
   };
+}
+
+/** A workspace problem found before a run started. `null` means "safe to run". */
+export type JobWorkspaceProblem = Readonly<{
+  status: Exclude<WorkspaceIdentityStatus, 'ok'>;
+  workspace: string;
+}>;
+
+/**
+ * P2-10: stat the job's workspace before every run and compare its identity.
+ *
+ * `agentConfig.workspace` is validated nowhere and `WCoreManager` has no mkdir
+ * or existsSync at all, so a run against a deleted folder behaves however the
+ * engine happens to behave, and a run against a REPLACED folder writes into a
+ * stranger's directory. Both matter here because the folder is the user's, in
+ * their Documents, holding the reports the task exists to produce.
+ *
+ * Returns the problem, and deliberately does NOT fix it. Recreating the folder
+ * would make a workspace whose history was lost indistinguishable from a healthy
+ * one, and the three recoveries - recreate empty, pick another folder, turn the
+ * task off - are the user's to choose.
+ *
+ * A workspace with no recorded `workspaceId` (allocated before markers existed,
+ * or picked by the user) is only checked for existence: there is nothing to
+ * compare against and a comparison must not be invented.
+ */
+export async function preflightJobWorkspace(job: CronJob): Promise<JobWorkspaceProblem | null> {
+  const workspace = job.metadata.agentConfig?.workspace;
+  if (!workspace) return null;
+  const { status } = await checkWorkspaceIdentity(workspace, job.metadata.agentConfig?.workspaceId ?? null);
+  return status === 'ok' ? null : { status, workspace };
 }

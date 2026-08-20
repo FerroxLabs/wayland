@@ -149,7 +149,9 @@
     "jobNotFound": "未找到脚本: {{id}}",
     "conversationNotFound": "未找到会话",
     "scheduledTimePassed": "定时时间已过",
-    "conversationBusy": "会话繁忙，在 {{count}} 次尝试后跳过"
+    "conversationBusy": "会话繁忙，在 {{count}} 次尝试后跳过",
+    "workspaceMissing": "定时任务“{{name}}”未运行：它的文件夹已不存在（{{path}}），也没有被重新创建。请打开该任务，重新创建一个空文件夹、选择其他文件夹，或关闭该任务。",
+    "workspaceMismatch": "定时任务“{{name}}”未运行：{{path}} 处的文件夹已不再是它的工作区，因此没有写入任何内容。请打开该任务，重新创建一个空文件夹、选择其他文件夹，或关闭该任务。"
   },
   "propose": {
     "title": "计划确认",
