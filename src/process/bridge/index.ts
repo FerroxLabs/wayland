@@ -206,7 +206,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initStorageBridge();
   // P2-9: Open / Reveal / Save a copy, addressed by artifact id. Registered
   // beside the retention bridge because both read the same ledger.
-  initArtifactBridge();
+  initArtifactBridge(deps.channelRepo);
   initWorkspaceRetentionBridge({
     getWorkDir: () => getSystemDir().workDir,
     getInstallationId: () => getInstallUuid(),

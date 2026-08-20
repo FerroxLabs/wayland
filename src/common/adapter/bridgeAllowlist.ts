@@ -340,6 +340,17 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
  * the CDP config, control startup, or restart the process.
  */
 const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
+  // --- Artifact SEND (exfiltration). The `artifacts.` prefix above already
+  //     covers these, and they are named here ANYWAY. The prefix is a policy
+  //     about a namespace; these two keys are the only ones on it that put a
+  //     user's file on a WIRE, and a future refactor that narrows the prefix
+  //     (the pressure is real - `artifacts.list` is a read a remote WebUI could
+  //     plausibly want) must not silently take the send with it. Exact keys,
+  //     never a new prefix: `isAllowedOutboundToRemote` is DERIVED from this
+  //     rule, so a broad prefix here would also stop the matching emitters
+  //     reaching every paired device. ---
+  'artifacts.send-targets',
+  'artifacts.send-to',
   // --- Filesystem write / delete / rename / temp / raw-buffer reads ---
   'write-file',
   'remove-entry',
