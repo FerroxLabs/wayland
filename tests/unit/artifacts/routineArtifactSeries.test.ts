@@ -114,13 +114,16 @@ describe('a routine publishes into the series its own prompt already names', () 
   });
 });
 
-describe('the engine spawn site reads the open run', () => {
-  it('WCoreManager passes activeRunOutputDir into buildEngineSpawnEnv', () => {
-    // Source-level on purpose: WCoreManager.start() cannot be driven without a
-    // real engine binary, and the harness in morningBriefArtifactSeries mirrors
-    // this call. If the mirror ever stops matching the original, this fails.
-    const source = readFileSync(path.join(REPO_ROOT, 'src/process/agent/wcore/index.ts'), 'utf-8');
-    expect(source).toContain("import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';");
-    expect(source).toContain('outputDir: activeRunOutputDir(workspace),');
-  });
-});
+/**
+ * The spawn-site assertion that used to live here was a `readFileSync` +
+ * `toContain` grep over `wcore/index.ts`. It has been replaced by two tests
+ * that EXECUTE the path instead:
+ *
+ *   - `wcoreSpawnRunOutputDir.test.ts` drives the real `WCoreAgent.start()` and
+ *     reads `WAYLAND_OUTPUT_DIR` off the real `spawn` call;
+ *   - `wcoreManagerRunOutputHandoff.test.ts` drives the real
+ *     `WCoreManager.start()` and pins the conversation id it hands down.
+ *
+ * A source-text assertion cannot tell a working wiring from a plausible-looking
+ * one, and goes green again the moment the line it greps for is reformatted.
+ */

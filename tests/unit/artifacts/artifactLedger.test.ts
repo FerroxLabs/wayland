@@ -115,6 +115,33 @@ describe('a declaration that checks out becomes a record', () => {
     const { ledgerPath } = tmpWorkspace();
     expect(await readArtifactLedger(ledgerPath)).toEqual([]);
   });
+
+  /**
+   * The reader validates every row, not just the last one, because the ledger
+   * is an APPEND-ONLY FILE beside the workspace: anything with write access to
+   * the app's data directory can add a line, and a row is later handed to
+   * Open/Reveal affordances as a host-blessed location. Only the "torn trailing
+   * line" case was covered, so every one of these shapes was accepted.
+   */
+  it.each([
+    ['a relative path that traverses out', '{"version":1,"artifactId":"a1","workspace":"/ws","relativePath":"../../.ssh/id_rsa","sha256":"x","sizeBytes":1}'],
+    ['an absolute relative path', '{"version":1,"artifactId":"a2","workspace":"/ws","relativePath":"/etc/passwd","sha256":"x","sizeBytes":1}'],
+    ['a version this build does not know', '{"version":2,"artifactId":"a3","workspace":"/ws","relativePath":"brief.md","sha256":"x","sizeBytes":1}'],
+    ['a size that is not a whole number', '{"version":1,"artifactId":"a4","workspace":"/ws","relativePath":"brief.md","sha256":"x","sizeBytes":1.5}'],
+    ['a row that is not an object', '"not a record"'],
+  ])('drops %s while keeping the real records around it', async (_label, row) => {
+    const { workspace, runDir, ledgerPath } = tmpWorkspace();
+    writeFileSync(path.join(runDir, 'brief.html'), 'x', 'utf-8');
+    await registerArtifacts({ ledgerPath, workspace, runDir, ...RUN, declarations: [{ path: 'brief.html' }] });
+    // Known positive: the real record reads back before the bad row is added.
+    expect(await readArtifactLedger(ledgerPath)).toHaveLength(1);
+
+    appendFileSync(ledgerPath, `${row}\n`, 'utf-8');
+
+    const read = await readArtifactLedger(ledgerPath);
+    expect(read).toHaveLength(1);
+    expect(read[0].relativePath.endsWith('brief.html')).toBe(true);
+  });
 });
 
 describe('a declaration is a claim, not a proof', () => {

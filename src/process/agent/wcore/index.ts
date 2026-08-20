@@ -190,6 +190,12 @@ export type WCoreAgentOptions = {
    * config publication and spawn from silently dropping or crossing connectors.
    */
   waylandHome?: string;
+  /**
+   * The conversation this engine serves. Used only to look up whether a
+   * scheduled run is open on THIS conversation (P2-11); absent for any caller
+   * that has no conversation, which simply means no run is ever found.
+   */
+  conversationId?: string;
   onStreamEvent: StreamEventHandler;
   onProcessExit?: (code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null) => void;
   /** Unconditional child-lifecycle notification, including idle and post-turn exits. */
@@ -639,11 +645,13 @@ export class WCoreAgent {
           // P2-6: same value the child stands in (`cwd` below), so
           // WAYLAND_OUTPUT_DIR and the agent's own `$PWD` can never disagree.
           workspace,
-          // P2-11: when a scheduled run is open on this workspace, its staging
-          // directory is the destination - the run publishes by rename, so a
-          // crash leaves nothing where the user or the next run would read it.
-          // Undefined for an interactive chat, which keeps the series root.
-          outputDir: activeRunOutputDir(workspace),
+          // P2-11: when a scheduled run is open on THIS CONVERSATION, its
+          // staging directory is the destination - the run publishes by rename,
+          // so a crash leaves nothing where the user or the next run would read
+          // it. Undefined for an interactive chat, which keeps the series root,
+          // including an interactive chat opened in the task's own folder while
+          // a scheduled run of that task is in flight.
+          outputDir: activeRunOutputDir(this.options.conversationId),
           vaultPassphraseEnv: vaultDelivery?.env,
           spawnEnvDenylist,
           ambientEnvDenylist,

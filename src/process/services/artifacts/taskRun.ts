@@ -55,7 +55,18 @@ import {
   type ArtifactRejection,
   type ArtifactRecord,
 } from './artifactLedger';
-import { beginRun, commitRun, abandonRun, newRunId, seriesDateFor, type RunPublication } from './artifactSeries';
+import {
+  beginRun,
+  commitRun,
+  abandonRun,
+  isReservedSeriesEntry,
+  newRunId,
+  readAliasManifest,
+  reapStaleStagingRuns,
+  seriesDateFor,
+  writeAliasManifest,
+  type RunPublication,
+} from './artifactSeries';
 import { closeRunOutputDir, openRunOutputDir } from './runOutputDir';
 
 /** The workspace subdirectory every series lives under. Mirrors `WAYLAND_OUTPUT_DIR`. */
@@ -90,6 +101,17 @@ export interface TaskRunHandle {
   runId: string;
   stagingDir: string;
   startedAt: Date;
+  /**
+   * The conversation whose engine spawn this run owns, once the run path has
+   * resolved one. Absent at `beginTaskRun` time: in `new_conversation` mode the
+   * conversation does not exist yet, and it is the conversation - not the
+   * workspace - that identifies a spawn (see `runOutputDir`).
+   *
+   * While it is absent NO spawn is redirected, which is the safe direction: the
+   * run writes into the series root exactly as it did before this seam existed,
+   * rather than an unrelated chat being pulled into this run's staging tree.
+   */
+  conversationId?: string;
 }
 
 export type TaskRunOutcome =
@@ -108,9 +130,13 @@ export function seriesDirFor(workspace: string, series: string): string {
 }
 
 /**
- * Open a run: create its staging directory and make it the workspace's active
- * output directory, so the engine spawned for this run writes there instead of
- * straight into the series the user reads.
+ * Open a run: create its staging directory.
+ *
+ * It does NOT yet claim an output directory - `bindTaskRunOutput` does that,
+ * once the caller knows which conversation's engine belongs to this run.
+ *
+ * Opening a run is also the moment a series is known to be live, so it is where
+ * staging trees left by runs that never settled are reaped.
  */
 export async function beginTaskRun(input: {
   workspace: string;
@@ -123,7 +149,7 @@ export async function beginTaskRun(input: {
   const seriesDir = seriesDirFor(input.workspace, input.series);
   const runId = input.runId ?? newRunId(now);
   const stagingDir = await beginRun(seriesDir, runId);
-  openRunOutputDir(input.workspace, stagingDir);
+  await reapStaleStagingRuns(seriesDir, { keepRunId: runId, now });
   return {
     taskId: input.taskId,
     workspace: path.resolve(input.workspace),
@@ -136,11 +162,37 @@ export async function beginTaskRun(input: {
 }
 
 /**
+ * Bind this run to the conversation whose engine will produce it, so that
+ * conversation's next spawn writes into the run's staging directory.
+ *
+ * Must happen BEFORE the engine is spawned - `WAYLAND_OUTPUT_DIR` is read once,
+ * at spawn - and it is deliberately a separate step from `beginTaskRun` because
+ * a `new_conversation` run has no conversation until the run path creates one.
+ */
+export function bindTaskRunOutput(handle: TaskRunHandle, conversationId: string): void {
+  if (!conversationId) return;
+  if (handle.conversationId && handle.conversationId !== conversationId) {
+    closeRunOutputDir(handle.conversationId, handle.runId);
+  }
+  handle.conversationId = conversationId;
+  openRunOutputDir(conversationId, handle.runId, handle.stagingDir);
+}
+
+/**
+ * Release this run's claim on its conversation's output directory - and only
+ * this run's. A run that has already been superseded on that conversation
+ * leaves the newer run's claim standing.
+ */
+function closeTaskRunOutput(handle: TaskRunHandle): void {
+  if (handle.conversationId) closeRunOutputDir(handle.conversationId, handle.runId);
+}
+
+/**
  * Throw the run away. Nothing published, the previous run and the previous
  * `latest` untouched, the alias still pointing at the last run that worked.
  */
 export async function abandonTaskRun(handle: TaskRunHandle): Promise<void> {
-  closeRunOutputDir(handle.workspace);
+  closeTaskRunOutput(handle);
   await abandonRun(handle.seriesDir, handle.runId);
 }
 
@@ -155,7 +207,7 @@ export async function commitTaskRun(
   handle: TaskRunHandle,
   input: { ledgerPath: string; declaredBy: string; now?: Date; date?: string }
 ): Promise<TaskRunOutcome> {
-  closeRunOutputDir(handle.workspace);
+  closeTaskRunOutput(handle);
 
   const staged = await collectStagedPaths(handle.stagingDir);
   if (staged.length === 0) {
@@ -227,6 +279,21 @@ async function collectStagedPaths(stagingDir: string): Promise<string[]> {
  * Only files the ledger ACCEPTED are aliased, so the alias namespace can never
  * hold a symlink or anything that failed verification. Each alias lands by
  * copy-then-rename, so a reader mid-refresh sees the old file or the new one.
+ *
+ * A VALIDATED FILE IS NOT A SAFE NAME. The ledger proved the file; this decides
+ * where a name it does not control is allowed to land, so every alias name is
+ * put through `isReservedSeriesEntry` first. Without that a run could stage
+ * `.latest.json` and destroy the pointer to the newest run, or stage a
+ * `<date>/<run-id>/` tree and have `listRuns` report a run that never happened.
+ *
+ * THE ALIAS NAMESPACE MIRRORS THE NEWEST PUBLISHED RUN, AND NOTHING ELSE.
+ * Refreshing only what the run produced left the previous run's copy sitting at
+ * any fixed path this run did not write, and the next run would read it as
+ * "yesterday's" - a deliverable silently a day (or a week) stale, with nothing
+ * in the file to say so. So aliases this run did not produce are RETIRED. Which
+ * entries are aliases is not guessed from what is lying in the directory (that
+ * would eat a file the user put there): it is read from the manifest the last
+ * publication wrote, and reserved names are refused on that path too.
  */
 async function refreshSeriesAliases(
   seriesDir: string,
@@ -236,10 +303,13 @@ async function refreshSeriesAliases(
 ): Promise<string[]> {
   const runRelativeRoot = path.relative(workspace, runDir);
   const aliases: string[] = [];
+  const seriesRelative: string[] = [];
 
   for (const record of registered) {
     const relativeToRun = path.relative(runRelativeRoot, record.relativePath);
     if (!relativeToRun || relativeToRun.startsWith('..') || path.isAbsolute(relativeToRun)) continue;
+    const aliasName = relativeToRun.split(path.sep).join('/');
+    if (isReservedSeriesEntry(aliasName)) continue;
     const source = path.join(workspace, record.relativePath);
     const target = path.join(seriesDir, relativeToRun);
     const temporary = `${target}.tmp-${record.artifactId.slice(0, 8)}`;
@@ -251,11 +321,31 @@ async function refreshSeriesAliases(
       // eslint-disable-next-line no-await-in-loop -- see above
       await fs.rename(temporary, target);
       aliases.push(path.relative(workspace, target).split(path.sep).join('/'));
+      seriesRelative.push(aliasName);
     } catch {
       // eslint-disable-next-line no-await-in-loop -- see above
       await fs.rm(temporary, { force: true }).catch(() => {});
     }
   }
 
+  await retireStaleAliases(seriesDir, seriesRelative);
   return aliases;
+}
+
+/**
+ * Remove the aliases the LAST publication left that THIS one did not reproduce,
+ * then record the new set.
+ *
+ * `fs.rm` without `recursive` on purpose: an alias is a file, and a manifest
+ * entry that has somehow become a directory must not take a subtree with it.
+ */
+async function retireStaleAliases(seriesDir: string, current: readonly string[]): Promise<void> {
+  const previous = await readAliasManifest(seriesDir);
+  const keep = new Set(current);
+  for (const stale of previous) {
+    if (keep.has(stale) || isReservedSeriesEntry(stale)) continue;
+    // eslint-disable-next-line no-await-in-loop -- a handful of aliases at most
+    await fs.rm(path.join(seriesDir, ...stale.split('/')), { force: true }).catch(() => {});
+  }
+  await writeAliasManifest(seriesDir, current);
 }

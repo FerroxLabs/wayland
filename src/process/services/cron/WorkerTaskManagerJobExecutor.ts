@@ -30,7 +30,13 @@ import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
 import { assertNotPromoting } from '@process/services/promotion/promotionLock';
 import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
-import { abandonTaskRun, beginTaskRun, commitTaskRun, type TaskRunHandle } from '@process/services/artifacts/taskRun';
+import {
+  abandonTaskRun,
+  beginTaskRun,
+  bindTaskRunOutput,
+  commitTaskRun,
+  type TaskRunHandle,
+} from '@process/services/artifacts/taskRun';
 import { getDataPath } from '@process/utils';
 import i18n from '@process/services/i18n';
 import { AcpSkillManager } from '@process/task/AcpSkillManager';
@@ -42,9 +48,24 @@ async function getConversationService() {
   return mod.conversationServiceSingleton;
 }
 
+/**
+ * How many settled run ids the one-shot latch remembers. A settle races only
+ * its own idle callback and its own failure path, both within one run, so a few
+ * hundred is orders of magnitude more than the latch can ever need.
+ */
+const MAX_REMEMBERED_SETTLED_RUNS = 256;
+
 /** Executes cron jobs by delegating to WorkerTaskManager and tracking busy state via CronBusyGuard. */
 export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
-  /** Run ids already published or discarded. Keeps settle one-shot. */
+  /**
+   * Run ids already published or discarded. Keeps settle one-shot.
+   *
+   * BOUNDED. This executor is a process-lifetime singleton and a run id is
+   * never revisited once settled, so an unbounded set here grows for as long as
+   * the app runs - forever, on the always-on machine a daily routine implies.
+   * Insertion order is FIFO, so evicting the oldest evicts the run least likely
+   * to have a settle still in flight.
+   */
   private readonly settledRuns = new Set<string>();
 
   constructor(
@@ -122,6 +143,11 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
   private async settleArtifactRun(handle: TaskRunHandle, job: CronJob, publish: boolean): Promise<void> {
     if (this.settledRuns.has(handle.runId)) return;
     this.settledRuns.add(handle.runId);
+    while (this.settledRuns.size > MAX_REMEMBERED_SETTLED_RUNS) {
+      const oldest = this.settledRuns.values().next().value;
+      if (oldest === undefined) break;
+      this.settledRuns.delete(oldest);
+    }
 
     if (!publish) {
       await abandonTaskRun(handle).catch((err) => {
@@ -174,6 +200,15 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // that starts in that gap would otherwise still get a run written into the
     // workspace it is copying away from.
     assertNotPromoting(conversationId);
+
+    // P2-11: bind the open run to the conversation whose engine is about to be
+    // spawned. This is the earliest point the conversation is known and the
+    // last point before `getOrBuildTask` spawns, and `WAYLAND_OUTPUT_DIR` is
+    // read once at spawn. Deliberately keyed on the conversation and not the
+    // workspace: a task folder is an ordinary folder the user can have their
+    // own chats in, and keying on it redirected THEIR next spawn into this
+    // run's staging directory.
+    if (artifactRun && conversationId) bindTaskRunOutput(artifactRun, conversationId);
 
     // This run can be happening inside a chat the USER owns (see
     // isUserOwnedConversation). None of the job's settings may be persisted onto

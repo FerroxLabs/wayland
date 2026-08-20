@@ -7,7 +7,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, describe, expect, it } from 'vitest';
 import {
   RunAlreadyPublishedError,
   abandonRun,
@@ -70,10 +70,44 @@ describe('run ids are identity; dates are presentation', () => {
     }
   });
 
-  it('renders a local calendar date, not a UTC one', () => {
-    // 2026-08-20T02:30 local time is the 20th wherever the user is standing.
-    const local = new Date(2026, 7, 20, 2, 30, 0);
-    expect(seriesDateFor(local)).toBe('2026-08-20');
+  /**
+   * This assertion was VACUOUS as first written. It used 02:30 local, which is
+   * the same calendar day in UTC as it is locally, so the whole test passed
+   * against a `toISOString().slice(0,10)` implementation - the exact bug it
+   * names - on every CI runner, all of which run in UTC.
+   *
+   * A date only distinguishes the two implementations when the local wall clock
+   * and UTC are on DIFFERENT days, which needs both a real timezone offset and
+   * a time of day on the far side of it. So the timezone is pinned for this
+   * case, and the divergence is proved in the test rather than assumed.
+   */
+  describe('renders a local calendar date, not a UTC one', () => {
+    const realTz = process.env.TZ;
+    afterEach(() => {
+      if (realTz === undefined) delete process.env.TZ;
+      else process.env.TZ = realTz;
+    });
+
+    it('files an evening run under the day the user is living in', () => {
+      process.env.TZ = 'America/Los_Angeles';
+      // 8pm on the 20th in Los Angeles is already the 21st in UTC.
+      const evening = new Date(2026, 7, 20, 20, 0, 0);
+
+      // Known positive for the fixture itself: without it, a runner whose TZ
+      // change did not take would make the assertion below pass for the wrong
+      // reason.
+      expect(evening.toISOString().slice(0, 10)).toBe('2026-08-21');
+
+      expect(seriesDateFor(evening)).toBe('2026-08-20');
+    });
+
+    it('files an early-morning run east of UTC under the same local day', () => {
+      process.env.TZ = 'Asia/Tokyo';
+      // 7am on the 20th in Tokyo is still the 19th in UTC.
+      const morning = new Date(2026, 7, 20, 7, 0, 0);
+      expect(morning.toISOString().slice(0, 10)).toBe('2026-08-19');
+      expect(seriesDateFor(morning)).toBe('2026-08-20');
+    });
   });
 });
 
@@ -231,16 +265,40 @@ describe('a crash leaves the old state or the new state, never a half-written ru
     expect((await listRuns(series)).map((r) => r.runId)).toEqual([kept]);
   });
 
-  it('survives a torn latest record rather than taking the whole series down', async () => {
-    const series = tmpSeries();
-    const runId = newRunId();
-    writeFileSync(path.join(await beginRun(series, runId), 'brief.md'), 'x', 'utf-8');
-    await commitRun(series, runId, { now: new Date(2026, 7, 20, 7, 0, 0) });
+  /**
+   * The first version of this only fed `readLatest` UNPARSEABLE JSON, so every
+   * validation after `JSON.parse` was untested - a record that parses but says
+   * something impossible (an unknown version, a run id that is really a path)
+   * was accepted and handed to callers as if it named a real run. Each shape
+   * gets its own case, and the same series is proved readable in between so a
+   * null can never come from the directory being broken.
+   */
+  describe('survives a bad latest record rather than taking the whole series down', () => {
+    const publishedSeries = async () => {
+      const series = tmpSeries();
+      const runId = newRunId();
+      writeFileSync(path.join(await beginRun(series, runId), 'brief.md'), 'x', 'utf-8');
+      await commitRun(series, runId, { now: new Date(2026, 7, 20, 7, 0, 0) });
+      // Known positive: a healthy pointer reads back before anything is broken.
+      expect((await readLatest(series))?.runId).toBe(runId);
+      return { series, runId };
+    };
 
-    writeFileSync(path.join(series, '.latest.json'), '{"version":1,"runId":', 'utf-8');
+    for (const [label, body] of [
+      ['a truncated write', '{"version":1,"runId":'],
+      ['a version this build does not know', '{"version":2,"runId":"rabc","date":"2026-08-20","relativePath":"2026-08-20/rabc","publishedAt":"x"}'],
+      ['a run id that is really a path', '{"version":1,"runId":"../../etc","date":"2026-08-20","relativePath":"x","publishedAt":"x"}'],
+      ['a date that is not a date', '{"version":1,"runId":"rabc","date":"yesterday","relativePath":"x","publishedAt":"x"}'],
+      ['a record that is not an object at all', '"just a string"'],
+    ] as const) {
+      it(`reads null for ${label}, and the series still lists its runs`, async () => {
+        const { series, runId } = await publishedSeries();
+        writeFileSync(path.join(series, '.latest.json'), body, 'utf-8');
 
-    expect(await readLatest(series)).toBeNull();
-    expect((await listRuns(series)).map((r) => r.runId)).toEqual([runId]);
+        expect(await readLatest(series)).toBeNull();
+        expect((await listRuns(series)).map((r) => r.runId)).toEqual([runId]);
+      });
+    }
   });
 });
 
