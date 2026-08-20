@@ -103,33 +103,79 @@ const EXISTING_CSP_META = /<meta\b[^>]*http-equiv\s*=\s*["']?content-security-po
 const CSP_META_TAG = `<meta http-equiv="Content-Security-Policy" content="${UNTRUSTED_PREVIEW_CSP}">`;
 
 /**
- * Put our policy at the top of the document.
+ * H13. Where the policy can be written without the document being able to
+ * swallow it.
+ *
+ * The previous implementation anchored on the first regex match of `<head…>`
+ * in the raw bytes. Those bytes are a generated report quoting third-party
+ * data, so the attacker writes the anchor: `<!-- <head> -->` or
+ * `<html data-x="<head>">` both match, both put the injection inside a comment
+ * or inside an attribute VALUE, and the policy stops being markup at all. The
+ * real document then renders with no CSP.
+ *
+ * The fix is not a better `<head>` regex - the same trick beats every one of
+ * them. It is to stop looking for `<head>`. A `<meta>` written at the very top
+ * of the byte stream is hoisted into the head by the HTML parser's
+ * implied-tag handling ("before html" -> "before head" -> "in head"), so it
+ * lands FIRST in the real head no matter what the rest of the document says,
+ * and there is nothing in front of it that could capture it.
+ *
+ * The single thing that must still precede us is the DOCTYPE: a `<meta>` ahead
+ * of it makes the doctype a stray token and drops the page into QUIRKS mode,
+ * which silently re-lays-out every generated report. So this scans only the
+ * document PROLOGUE - whitespace, complete comments, then an optional doctype -
+ * which is the one region where the grammar is unambiguous, and returns the
+ * offset just past it.
+ *
+ * It fails SAFE, not open: any construct it cannot complete (an unterminated
+ * comment, an unterminated doctype) rewinds to the last proven-safe offset
+ * rather than guessing, so the policy is emitted earlier than ideal instead of
+ * somewhere inert.
+ */
+function policyInsertionPoint(html: string): number {
+  // A BOM belongs to the encoding, not the markup; stay behind it.
+  let cursor = html.charCodeAt(0) === 0xfeff ? 1 : 0;
+  // Only ever advanced past a construct we have seen END. Everything before it
+  // is provably outside any comment, tag or attribute.
+  let safe = cursor;
+
+  for (;;) {
+    while (cursor < html.length && /\s/.test(html[cursor])) cursor += 1;
+
+    if (html.startsWith('<!--', cursor)) {
+      const close = html.indexOf('-->', cursor + 4);
+      // Unterminated: per the HTML tokenizer the comment runs to EOF, so there
+      // is no later point that is markup. Emit at the last safe offset.
+      if (close < 0) return safe;
+      cursor = close + 3;
+      safe = cursor;
+      continue;
+    }
+
+    if (/^<!doctype/i.test(html.slice(cursor, cursor + 9))) {
+      const close = html.indexOf('>', cursor);
+      if (close < 0) return safe;
+      // Past the doctype is the ONLY place both properties hold: the doctype is
+      // still the first token (no quirks mode) and we are still ahead of every
+      // element in the document.
+      return close + 1;
+    }
+
+    return safe;
+  }
+}
+
+/**
+ * Put our policy where the parser will read it before anything else.
  *
  * A document-supplied CSP meta is REMOVED first. Not because it could loosen
  * ours - multiple policies intersect, so it could not - but because leaving it
  * makes the effective policy a function of attacker-controlled text, and the
  * next person reading the DOM cannot tell which one is enforcing. One policy,
  * ours, is the only auditable state.
- *
- * Injection is at the FRONT of `<head>`: CSP applies from the point it is
- * parsed, so a meta after a `<script>` would let that script run.
  */
 export function withPreviewCsp(html: string): string {
   const stripped = (html ?? '').replace(EXISTING_CSP_META, '');
-
-  const headOpen = /<head\b[^>]*>/i.exec(stripped);
-  if (headOpen) {
-    const at = headOpen.index + headOpen[0].length;
-    return `${stripped.slice(0, at)}${CSP_META_TAG}${stripped.slice(at)}`;
-  }
-
-  const htmlOpen = /<html\b[^>]*>/i.exec(stripped);
-  if (htmlOpen) {
-    const at = htmlOpen.index + htmlOpen[0].length;
-    return `${stripped.slice(0, at)}<head>${CSP_META_TAG}</head>${stripped.slice(at)}`;
-  }
-
-  // A bare fragment. Prepending a head is still parsed as one by the HTML
-  // parser's implied-tag handling, so the policy is in force for the rest.
-  return `<head>${CSP_META_TAG}</head>${stripped}`;
+  const at = policyInsertionPoint(stripped);
+  return `${stripped.slice(0, at)}${CSP_META_TAG}${stripped.slice(at)}`;
 }
