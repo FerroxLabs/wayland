@@ -35,6 +35,18 @@ const ipcMock = vi.hoisted(() => ({
   openTarget: vi.fn(),
 }));
 
+/**
+ * PREVIEW IS THE INTERNAL VIEWER; OPEN IS THE EXTERNAL TOOL. A history row
+ * previews the earlier run here rather than handing it to the OS, so the
+ * launcher is the seam that has to be observed - stubbed rather than driven,
+ * because a real one needs the whole preview provider tree and this file is
+ * testing the card.
+ */
+const launchPreview = vi.hoisted(() => vi.fn());
+vi.mock('@/renderer/hooks/file/usePreviewLauncher', () => ({
+  usePreviewLauncher: () => ({ launchPreview, loading: false }),
+}));
+
 vi.mock('@/common', () => ({
   ipcBridge: {
     artifacts: {
@@ -168,7 +180,7 @@ describe('the artifact card shows the run history', () => {
     expect(screen.queryByTestId('artifact-series-runs')).toBeNull();
   });
 
-  it('OPENS AN EARLIER RUN by that run\'s own artifact id, and sends no path', async () => {
+  it('PREVIEWS AN EARLIER RUN in the internal viewer, and never hands it to the OS', async () => {
     const first = await publishRun('monday.md', 'monday', new Date('2026-08-18T07:00:00Z'));
     await publishRun('tuesday.md', 'tuesday', new Date('2026-08-19T07:00:00Z'));
     const newest = await publishRun('wednesday.md', 'wednesday', new Date('2026-08-20T07:00:00Z'));
@@ -183,14 +195,19 @@ describe('the artifact card shows the run history', () => {
     const row = await screen.findByText('monday.md');
     fireEvent.click(row);
 
-    await waitFor(() => expect(ipcMock.open).toHaveBeenCalledTimes(1));
-    const payload = ipcMock.open.mock.calls[0][0];
-    // The EARLIER run's id, not the one on screen. This is the assertion that
-    // catches "open re-used the current artifact" - the bug that opens the
+    await waitFor(() => expect(launchPreview).toHaveBeenCalledTimes(1));
+    const options = launchPreview.mock.calls[0][0];
+    // The EARLIER run's file, not the one on screen. This is the assertion that
+    // catches "preview re-used the current artifact" - the bug that shows the
     // wrong day while looking completely correct.
-    expect(payload).toEqual({ artifactId: earlier.artifactId });
-    expect(payload.artifactId).not.toBe(artifact.artifactId);
-    expect(JSON.stringify(payload)).not.toContain('/');
+    expect(options.originalPath).toBe(earlier.canonicalPath);
+    expect(options.originalPath).not.toBe(artifact.canonicalPath);
+    expect(options.fileName).toBe('monday.md');
+    // A markdown deliverable opens in the RENDERED viewer, read-only.
+    expect(options.contentType).toBe('markdown');
+    expect(options.editable).toBe(false);
+    // And the external launcher is not involved at all.
+    expect(ipcMock.open).not.toHaveBeenCalled();
   });
 
   it('shows a FAILED run distinctly, and warns that the file on screen is not the newest', async () => {

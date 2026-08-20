@@ -38,6 +38,11 @@
 import { ipcBridge } from '@/common';
 import type { ArtifactSeriesRun, ArtifactSeriesView, ArtifactSummary } from '@/common/types/artifacts';
 import { AlertTriangle, ChevronDown, ChevronRight, ExternalLink, FileWarning, FolderOpen, Save } from 'lucide-react';
+import { usePreviewLauncher } from '@/renderer/hooks/file/usePreviewLauncher';
+import {
+  previewContentTypeForFileName,
+  previewIsEditable,
+} from '@/renderer/pages/conversation/Preview/previewContentType';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -67,6 +72,7 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
   const [applicationName, setApplicationName] = useState<string | null>(null);
   const [series, setSeries] = useState<ArtifactSeriesView | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const { launchPreview } = usePreviewLauncher();
 
   const artifactId = artifact.artifactId;
 
@@ -108,6 +114,35 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
       cancelled = true;
     };
   }, [artifactId]);
+
+  /**
+   * PREVIEW IS THE INTERNAL VIEWER; OPEN IS THE EXTERNAL TOOL.
+   *
+   * A history row used to LAUNCH the earlier run in the OS default application,
+   * which put "show me yesterday's as well" in a second external window - and
+   * made it hostage to whatever that application does with the format. This app
+   * already renders the deliverable; the row is a link inside the viewer, so it
+   * previews here and `Open in <app>` stays the one explicit hand-off outward.
+   *
+   * The path is the host's own `canonicalPath` off the summary, read through the
+   * same `fs.readFile` the workspace tree uses for any file it shows. Nothing
+   * new crosses the boundary and no launcher is involved, so none of the type
+   * gate's reasons for existing apply: this renders bytes, it does not ask the
+   * OS to execute anything.
+   */
+  const previewRun = useCallback(
+    (deliverable: ArtifactSummary) => {
+      const contentType = previewContentTypeForFileName(deliverable.fileName);
+      void launchPreview({
+        originalPath: deliverable.canonicalPath,
+        fileName: deliverable.fileName,
+        title: deliverable.fileName,
+        contentType,
+        editable: previewIsEditable(contentType),
+      });
+    },
+    [launchPreview]
+  );
 
   const openById = useCallback(
     async (id: string) => {
@@ -282,7 +317,7 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
                       className={linkClass}
                       disabled={busy}
                       title={deliverable.canonicalPath}
-                      onClick={() => void openById(deliverable.artifactId)}
+                      onClick={() => previewRun(deliverable)}
                     >
                       {deliverable.fileName}
                     </button>
