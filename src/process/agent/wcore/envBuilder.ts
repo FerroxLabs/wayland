@@ -491,6 +491,17 @@ export function buildSpawnConfig(
      */
     rawEngine?: boolean;
     /**
+     * Ask Core to accept `grant_path` from this host, by passing
+     * `--allow-host-path-grants`. Default OFF: a session with no folder grants
+     * to replay has no business holding the capability, and Core made this a
+     * launch FLAG rather than an env var precisely so "this session may, that
+     * one may not" is expressible. Absent, Core refuses every `grant_path` with
+     * an untyped `info` line and emits no policy receipt.
+     *
+     * It requires `--json-stream`, which both spawn arms already pass.
+     */
+    allowHostPathGrants?: boolean;
+    /**
      * True when a ChatGPT subscription's OAuth is available for keyless inference
      * (the caller resolved it from `~/.codex/auth.json` - the same store the
      * engine reads for `--provider openai-chatgpt`). Consumed ONLY by
@@ -558,6 +569,17 @@ export function buildSpawnConfig(
   // side). The `model` argument is intentionally unused here.
   if (options.rawEngine) {
     const args = ['--json-stream'];
+    // Passed in raw-engine mode too, and deliberately. The "only session-protocol
+    // args" rule exists to keep Desktop from overriding what the engine resolves
+    // from its OWN config.toml - provider, model, auth, token budget, security
+    // posture. This flag overrides none of that: it is host<->engine capability
+    // negotiation on the json-stream channel itself, the same category as
+    // `--json-stream`, and Core made it a flag rather than an env var so it
+    // CANNOT be resolved from config.toml at all. Withholding it here would make
+    // the user's persisted folder list silently inert for exactly the users who
+    // configured their engine most deliberately - a boundary that reads as
+    // configured and is not.
+    if (options.allowHostPathGrants) args.push('--allow-host-path-grants');
     if (options.resume) {
       args.push('--resume', options.resume);
     } else if (options.sessionId) {
@@ -605,6 +627,14 @@ export function buildSpawnConfig(
   }
   if (options.autoApprove) {
     args.push('--auto-approve');
+  }
+  // Default-deny, and NOT implied by `--auto-approve`. Auto-approve answers the
+  // prompting question ("must a human click?"); this answers the boundary
+  // question ("what may be reached at all"). Letting one imply the other would
+  // let a mode toggle widen the filesystem boundary without anyone consenting
+  // to a folder.
+  if (options.allowHostPathGrants) {
+    args.push('--allow-host-path-grants');
   }
 
   // --resume and --session-id are mutually exclusive
