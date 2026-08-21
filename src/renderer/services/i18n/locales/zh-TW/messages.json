@@ -75,7 +75,8 @@
     "grantFolderDeny": "不允許",
     "pathBoundaryTitle": "允許存取工作區以外的資料夾？",
     "pathBoundaryTargetLabel": "代理想要讀取",
-    "pathBoundaryRootLabel": "允許後將開放此資料夾"
+    "pathBoundaryRootLabel": "允許後將開放此資料夾",
+    "pathBoundaryGrantAria": "{{label}} — 按空白鍵授予對 {{folder}} 的唯讀存取權限，僅在本次工作階段內有效。"
   },
   "slash.customBadge": "Custom",
   "runaway": {

@@ -10,6 +10,19 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
+ * The ONLY key this card activates on. `KeyboardEvent.key` for the space bar is
+ * a single space character; `'Space'` is the physical `code`, which nothing here
+ * reads.
+ */
+const ACTIVATION_KEY = ' ';
+
+/** How that key is named to the user — in the badge and in `aria-keyshortcuts`. */
+const ACTIVATION_KEY_NAME = 'Space';
+
+/** Accessible name for the grant option. Carries the root and the live key. */
+const GRANT_ARIA_KEY = 'messages.confirmation.pathBoundaryGrantAria';
+
+/**
  * The folder-grant card for a Wayland Core `PathBoundary` escalation (#1099).
  *
  * Deliberately NOT the generic approval prompt. The generic prompt asks "allow
@@ -26,9 +39,20 @@ import { useTranslation } from 'react-i18next';
  *  - the scope in words: read-only, this session. There is no "allow once"
  *    button because Core cannot run the call under a one-shot grant.
  *
- * No keyboard shortcut is offered on any option here, and none is bound — see
- * the guard in ConversationChatConfirm's key handler. A grant of authority
- * outside the workspace is click-only.
+ * KEYBOARD. Enter and Y are NOT bound here, and must never be: Enter fires
+ * `options[0]` by INDEX in ConversationChatConfirm's key handler and
+ * `BaseAgentManager.addConfirmation` auto-confirms `options[0]` by index under
+ * yolo — on this card `options[0]` IS the grant, so either binding is a
+ * keystroke away from handing over filesystem authority. That guard stays.
+ *
+ * But click-only made the decision unreachable for a keyboard-only or
+ * screen-reader user, which is a worse defect than the one the guard prevents.
+ * So each option is a real control (`role='button'`, `tabIndex={0}`) activated
+ * by SPACE ALONE — the one key no auto-confirm path, no shortcut handler and no
+ * global listener in this app binds to any confirmation. Space is announced in
+ * the accessible name and shown as a badge, because a focusable control whose
+ * obvious key (Enter) deliberately does nothing is still unusable if the user
+ * is never told which key works.
  */
 const PathBoundaryConfirmCard: React.FC<{
   confirmation: IConfirmation<any>;
@@ -76,23 +100,52 @@ const PathBoundaryConfirmCard: React.FC<{
       </div>
 
       <div className='shrink-0'>
-        {confirmation.options.map((option, index) => (
-          <div
-            key={String(option.value)}
-            onClick={() => onConfirm(option)}
-            data-testid={option.value === PATH_BOUNDARY_GRANT_FOLDER ? 'path-boundary-grant' : 'path-boundary-deny'}
-            className={`b-1px b-solid min-h-30px rd-8px px-12px py-6px leading-snug cursor-pointer mt-10px flex flex-col color-[var(--text-primary)] ${
-              index === 0
-                ? 'b-[rgba(22,93,255,1)] hover:bg-[var(--bg-hover)]'
-                : 'b-[var(--border-base)] hover:bg-[var(--bg-hover)]'
-            }`}
-          >
-            <span>{t(option.label, option.params)}</span>
-            {option.description && (
-              <span className='text-12px color-[var(--text-secondary)] mt-2px'>{t(option.description)}</span>
-            )}
-          </div>
-        ))}
+        {confirmation.options.map((option, index) => {
+          const isGrant = option.value === PATH_BOUNDARY_GRANT_FOLDER;
+          const label = t(option.label, option.params);
+          // The accessible name names the FOLDER the grant opens, read from the
+          // same `pathBoundaryRootOf` accessor that the root line above renders
+          // and that WCoreManager grants — so what a screen reader announces
+          // cannot drift from what is handed over. It opens with the visible
+          // label so the name is a superset of it (WCAG 2.5.3, Label in Name).
+          const ariaLabel = isGrant && root ? t(GRANT_ARIA_KEY, { label, folder: root }) : undefined;
+          return (
+            <div
+              key={String(option.value)}
+              role='button'
+              tabIndex={0}
+              aria-label={ariaLabel}
+              aria-keyshortcuts={ACTIVATION_KEY_NAME}
+              onClick={() => onConfirm(option)}
+              onKeyDown={(event) => {
+                // SPACE ONLY. Not Enter, not Y — see the note at the top of this
+                // file. Anything else falls through untouched.
+                if (event.key !== ACTIVATION_KEY) return;
+                event.preventDefault(); // Space would otherwise scroll the page.
+                onConfirm(option);
+              }}
+              data-testid={isGrant ? 'path-boundary-grant' : 'path-boundary-deny'}
+              className={`b-1px b-solid min-h-30px rd-8px px-12px py-6px leading-snug cursor-pointer mt-10px flex items-start gap-8px color-[var(--text-primary)] ${
+                index === 0
+                  ? 'b-[rgba(22,93,255,1)] hover:bg-[var(--bg-hover)]'
+                  : 'b-[var(--border-base)] hover:bg-[var(--bg-hover)]'
+              }`}
+            >
+              <span
+                aria-hidden='true'
+                className='inline-flex items-center justify-center px-4px h-18px rd-4px bg-[var(--bg-2)] text-11px text-[var(--text-secondary)] font-mono shrink-0 mt-1px'
+              >
+                {ACTIVATION_KEY_NAME}
+              </span>
+              <span className='min-w-0'>
+                <span data-testid='path-boundary-option-label'>{label}</span>
+                {option.description && (
+                  <span className='block text-12px color-[var(--text-secondary)] mt-2px'>{t(option.description)}</span>
+                )}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

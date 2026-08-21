@@ -74,7 +74,8 @@
     "grantFolderDeny": "Не дозволяти",
     "pathBoundaryTitle": "Дозволити доступ до теки поза межами робочої області?",
     "pathBoundaryTargetLabel": "Агент хоче прочитати",
-    "pathBoundaryRootLabel": "Дозвіл відкриє цю теку"
+    "pathBoundaryRootLabel": "Дозвіл відкриє цю теку",
+    "pathBoundaryGrantAria": "{{label}} — натисніть пробіл, щоб надати доступ лише для читання до {{folder}} до кінця цього сеансу."
   },
   "copyLastOutput": {
     "empty": "Ще немає відповіді для копіювання"

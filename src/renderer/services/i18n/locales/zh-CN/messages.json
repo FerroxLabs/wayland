@@ -75,7 +75,8 @@
     "grantFolderDeny": "不允许",
     "pathBoundaryTitle": "允许访问工作区之外的文件夹？",
     "pathBoundaryTargetLabel": "智能体想要读取",
-    "pathBoundaryRootLabel": "允许后将开放此文件夹"
+    "pathBoundaryRootLabel": "允许后将开放此文件夹",
+    "pathBoundaryGrantAria": "{{label}} — 按空格键授予对 {{folder}} 的只读访问权限，仅在本次会话内有效。"
   },
   "slash.customBadge": "Custom",
   "runaway": {

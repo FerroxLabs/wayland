@@ -75,7 +75,8 @@
     "grantFolderDeny": "Não permitir",
     "pathBoundaryTitle": "Permitir acesso a uma pasta fora do seu espaço de trabalho?",
     "pathBoundaryTargetLabel": "O agente quer ler",
-    "pathBoundaryRootLabel": "Permitir abrirá esta pasta"
+    "pathBoundaryRootLabel": "Permitir abrirá esta pasta",
+    "pathBoundaryGrantAria": "{{label}} — pressione Espaço para conceder acesso somente leitura a {{folder}} pelo restante desta sessão."
   },
   "slash.customBadge": "Custom",
   "runaway": {

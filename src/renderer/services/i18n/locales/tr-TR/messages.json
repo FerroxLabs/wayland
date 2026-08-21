@@ -75,7 +75,8 @@
     "grantFolderDeny": "İzin verme",
     "pathBoundaryTitle": "Çalışma alanınızın dışındaki bir klasöre erişime izin verilsin mi?",
     "pathBoundaryTargetLabel": "Aracı şunu okumak istiyor",
-    "pathBoundaryRootLabel": "İzin vermek bu klasörü açar"
+    "pathBoundaryRootLabel": "İzin vermek bu klasörü açar",
+    "pathBoundaryGrantAria": "{{label}} — bu oturumun geri kalanı için {{folder}} klasörüne salt okunur erişim vermek üzere Boşluk tuşuna basın."
   },
   "slash.customBadge": "Custom",
   "runaway": {

@@ -79,7 +79,8 @@
     "grantFolderDeny": "Don't allow",
     "pathBoundaryTitle": "Allow access to a folder outside your workspace?",
     "pathBoundaryTargetLabel": "The agent wants to read",
-    "pathBoundaryRootLabel": "Allowing opens this folder"
+    "pathBoundaryRootLabel": "Allowing opens this folder",
+    "pathBoundaryGrantAria": "{{label}} — press Space to grant read-only access to {{folder}} for the rest of this session."
   },
   "slash.customBadge": "Custom",
   "doctor": {

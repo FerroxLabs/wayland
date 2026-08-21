@@ -72,7 +72,8 @@
     "grantFolderDeny": "Не разрешать",
     "pathBoundaryTitle": "Разрешить доступ к папке за пределами рабочей области?",
     "pathBoundaryTargetLabel": "Агент хочет прочитать",
-    "pathBoundaryRootLabel": "Разрешение откроет эту папку"
+    "pathBoundaryRootLabel": "Разрешение откроет эту папку",
+    "pathBoundaryGrantAria": "{{label}} — нажмите пробел, чтобы предоставить доступ только для чтения к {{folder}} до конца этого сеанса."
   },
   "atFile.hint": "Введите текст для поиска файлов",
   "atFile.menuLabel": "Упоминания файлов",

@@ -75,7 +75,8 @@
     "grantFolderDeny": "Nicht zulassen",
     "pathBoundaryTitle": "Zugriff auf einen Ordner außerhalb Ihres Arbeitsbereichs zulassen?",
     "pathBoundaryTargetLabel": "Der Agent möchte lesen",
-    "pathBoundaryRootLabel": "Zulassen öffnet diesen Ordner"
+    "pathBoundaryRootLabel": "Zulassen öffnet diesen Ordner",
+    "pathBoundaryGrantAria": "{{label}} — drücken Sie die Leertaste, um für den Rest dieser Sitzung Lesezugriff auf {{folder}} zu gewähren."
   },
   "slash.customBadge": "Custom",
   "runaway": {

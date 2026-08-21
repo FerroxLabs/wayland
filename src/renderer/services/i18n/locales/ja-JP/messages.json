@@ -75,7 +75,8 @@
     "grantFolderDeny": "許可しない",
     "pathBoundaryTitle": "ワークスペース外のフォルダーへのアクセスを許可しますか？",
     "pathBoundaryTargetLabel": "エージェントが読み取ろうとしている対象",
-    "pathBoundaryRootLabel": "許可すると開放されるフォルダー"
+    "pathBoundaryRootLabel": "許可すると開放されるフォルダー",
+    "pathBoundaryGrantAria": "{{label}} — スペースキーを押すと、このセッションの間だけ {{folder}} への読み取り専用アクセスを許可します。"
   },
   "slash.customBadge": "Custom",
   "runaway": {

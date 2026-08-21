@@ -1813,6 +1813,7 @@ export type I18nKey =
   | 'messages.confirmation.grantFolderAlwaysHint'
   | 'messages.confirmation.grantFolderDeny'
   | 'messages.confirmation.no'
+  | 'messages.confirmation.pathBoundaryGrantAria'
   | 'messages.confirmation.pathBoundaryRootLabel'
   | 'messages.confirmation.pathBoundaryTargetLabel'
   | 'messages.confirmation.pathBoundaryTitle'

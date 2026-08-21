@@ -75,7 +75,8 @@
     "grantFolderDeny": "No permitir",
     "pathBoundaryTitle": "¿Permitir el acceso a una carpeta fuera de tu espacio de trabajo?",
     "pathBoundaryTargetLabel": "El agente quiere leer",
-    "pathBoundaryRootLabel": "Permitirlo abrirá esta carpeta"
+    "pathBoundaryRootLabel": "Permitirlo abrirá esta carpeta",
+    "pathBoundaryGrantAria": "{{label}} — pulsa Espacio para conceder acceso de solo lectura a {{folder}} durante el resto de esta sesión."
   },
   "slash.customBadge": "Custom",
   "runaway": {

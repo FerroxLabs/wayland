@@ -75,7 +75,8 @@
     "grantFolderDeny": "Ne pas autoriser",
     "pathBoundaryTitle": "Autoriser l'accès à un dossier en dehors de votre espace de travail ?",
     "pathBoundaryTargetLabel": "L'agent souhaite lire",
-    "pathBoundaryRootLabel": "Autoriser ouvrira ce dossier"
+    "pathBoundaryRootLabel": "Autoriser ouvrira ce dossier",
+    "pathBoundaryGrantAria": "{{label}} — appuyez sur Espace pour accorder un accès en lecture seule à {{folder}} pour le reste de cette session."
   },
   "slash.customBadge": "Custom",
   "runaway": {

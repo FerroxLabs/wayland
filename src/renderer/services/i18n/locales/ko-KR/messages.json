@@ -75,7 +75,8 @@
     "grantFolderDeny": "허용 안 함",
     "pathBoundaryTitle": "작업 공간 밖의 폴더에 대한 접근을 허용할까요?",
     "pathBoundaryTargetLabel": "에이전트가 읽으려는 대상",
-    "pathBoundaryRootLabel": "허용하면 열리는 폴더"
+    "pathBoundaryRootLabel": "허용하면 열리는 폴더",
+    "pathBoundaryGrantAria": "{{label}} — 스페이스바를 누르면 이번 세션 동안 {{folder}}에 대한 읽기 전용 접근을 허용합니다."
   },
   "slash.customBadge": "Custom",
   "runaway": {
