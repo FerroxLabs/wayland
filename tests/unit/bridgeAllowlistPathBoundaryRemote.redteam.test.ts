@@ -74,6 +74,34 @@ describe('a remote peer cannot answer a path-boundary consent card', () => {
     }
   });
 
+  /**
+   * WHY LEGACY `cancel` IS STILL ALLOWED THROUGH THIS GATE, and where the veto
+   * is actually stopped.
+   *
+   * A second external audit found that a paired WebUI could call
+   * `confirmation.list`, take the pending `callId`, and post `cancel` - which
+   * this gate lets past, because on an ORDINARY card a remote decline is a
+   * feature. `WCoreManager` then honoured it on a boundary card: the desktop
+   * user's security prompt vanished and the call was denied. No authority was
+   * minted, but a remote peer must not get to answer the question either way.
+   *
+   * The gate cannot fix that. It is a pure predicate over (wire name, payload
+   * value) and has no idea which `callId` belongs to a boundary card, so
+   * denying `cancel` here would break every legitimate remote decline. The
+   * refusal belongs where the card is known, and that is
+   * `WCoreManager.confirm`, pinned by
+   * `wcoreManagerPathBoundary.test.ts > a remote cancel cannot dismiss a
+   * boundary card`. Fixing it there also covers the channels gateway, which
+   * this gate never sees at all.
+   */
+  it('is a VALUE predicate, so it cannot tell a boundary callId from an ordinary one', () => {
+    // Same callId, same wire key, two values: only the vocabulary decides. That
+    // is the limit this gate has, stated as an assertion rather than a comment
+    // so a later attempt to make it callId-aware has to come here first.
+    expect(isRemoteDeniedConfirmation('subscribe-confirmation.confirm', wire(PATH_BOUNDARY_GRANT_FOLDER))).toBe(true);
+    expect(isRemoteDeniedConfirmation('subscribe-confirmation.confirm', wire('cancel'))).toBe(false);
+  });
+
   it('CONTROL: the gate is keyed to the confirm wire name, not to any payload', () => {
     expect(isRemoteDeniedConfirmation('subscribe-something.else', wire(PATH_BOUNDARY_GRANT_FOLDER))).toBe(false);
   });

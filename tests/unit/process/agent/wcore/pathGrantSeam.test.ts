@@ -142,6 +142,37 @@ describe('grant_path / revoke_path wire shape', () => {
     void agent.revokePath('3f2a');
     expect(soleCommand(written)).toEqual({ type: 'revoke_path', grant_id: '3f2a' });
   });
+
+  /**
+   * The consent card's answer, through the PRODUCTION `approveTool` and the
+   * production `writeCommand`.
+   *
+   * `wcoreManagerPathBoundary.test.ts` used to assert this by calling
+   * `JSON.stringify` on a scope it had read off a FAKE agent, which tests
+   * `JSON.stringify` and nothing else - mutating `approveTool` to send
+   * `scope: 'once'` unconditionally left it green. Here the bytes come off the
+   * pipe, and `ApprovalScope` being EXTERNALLY tagged is the whole reason the
+   * object form has to survive intact: an internally-tagged shape would
+   * deserialize into Core as a different variant, or not at all.
+   */
+  it('serializes tool_approve with the externally-tagged always_path scope', () => {
+    const { agent, written } = makeAgent();
+    agent.approveTool('call-boundary', { always_path: { root: '/Users/me/reports', write: false } });
+    expect(soleCommand(written)).toEqual({
+      type: 'tool_approve',
+      call_id: 'call-boundary',
+      scope: { always_path: { root: '/Users/me/reports', write: false } },
+    });
+  });
+
+  it('CONTROL: an ordinary approval still writes the bare string scope', () => {
+    // Same command, same writer. If `always_path` above were being flattened to
+    // a string, or this one promoted to an object, one of the two would fail -
+    // which is what makes the pair a comparison rather than two restatements.
+    const { agent, written } = makeAgent();
+    agent.approveTool('call-plain', 'once');
+    expect(soleCommand(written)).toEqual({ type: 'tool_approve', call_id: 'call-plain', scope: 'once' });
+  });
 });
 
 // ── the receipt is what confirms a grant, not the absence of an error ──

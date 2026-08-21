@@ -16,81 +16,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { readWorkspaceMarker } from '@process/services/workspaceIdentity';
-import { defaultWorkspaceBaseDir } from '@process/services/projectWorkspace';
 import { listLivePathGrantSessions } from '@process/agent/wcore/pathGrantSessions';
-import { resolveFolderGrantWorkspaceId } from './folderGrantWorkspaceId';
+import { FOLDER_GRANT_PATH_KEY_PREFIX } from './folderGrantWorkspaceId';
 import { pathsEqual } from './folderGrantRoots';
-
-/** What one workspace key resolves to on disk right now. */
-export type WorkspaceDirectoryEntry = Readonly<{ workspaceId: string; dir: string; displayName: string }>;
-
-/**
- * The unmarked half of the key space, from `resolveFolderGrantWorkspaceId`.
- *
- * A `path:` key already CARRIES its folder, so it needs no scan - reading the
- * directory back out of the key is the inverse of the one production
- * derivation, not a second scheme. `marker:` keys carry a random UUID and can
- * only be resolved by finding the folder that holds it.
- */
-const PATH_KEY_PREFIX = 'path:';
-
-/**
- * The subfolders `allocateWorkspace` nests durable workspaces into, plus the
- * base itself for the flat allocations that predate that nesting.
- */
-const SCAN_SUBDIRS: readonly string[] = ['', 'Tasks', 'Projects'];
-
-/**
- * Map every marked workspace under the managed base to its id.
- *
- * A SCAN and not a lookup table, because nothing persists a workspaceId -> path
- * index: the marker lives in the folder precisely so it survives the user
- * moving or renaming it in Finder, which is the same reason a stored path
- * would be wrong. One level deep per subdir - that is where `allocateWorkspace`
- * puts them, and recursing further would read markers out of nested project
- * content.
- *
- * Never throws. An unreadable base directory means "nothing resolved", which
- * renders as grants whose workspace is unknown - still listed, still
- * removable.
- */
-export async function scanWorkspaceDirectory(): Promise<readonly WorkspaceDirectoryEntry[]> {
-  let base: string;
-  try {
-    base = await defaultWorkspaceBaseDir();
-  } catch {
-    return [];
-  }
-
-  const entries: WorkspaceDirectoryEntry[] = [];
-  for (const subdir of SCAN_SUBDIRS) {
-    const root = subdir ? path.join(base, subdir) : base;
-    let names: string[];
-    try {
-      names = await fs.readdir(root);
-    } catch {
-      continue;
-    }
-    for (const name of names) {
-      const dir = path.join(root, name);
-      const marker = await readWorkspaceMarker(dir);
-      if (!marker) continue;
-      // The key comes from the ONE production derivation, never from
-      // `marker.workspaceId` directly. The `marker:` / `path:` namespaces are
-      // disjoint on purpose - the marker file lives inside the workspace, which
-      // the agent can write, so an unprefixed id could be forged to name
-      // another workspace's path key and inherit its whole grant list.
-      const workspaceId = await resolveFolderGrantWorkspaceId(dir);
-      if (!workspaceId) continue;
-      // First writer wins: a folder duplicated by a plain copy carries the same
-      // id twice, and inventing a second row for it would show the user two
-      // identical workspaces neither of which they can tell apart.
-      if (entries.some((entry) => entry.workspaceId === workspaceId)) continue;
-      entries.push({ workspaceId, dir, displayName: marker.displayName });
-    }
-  }
-  return entries;
-}
 
 export type LiveRevokeOutcome = Readonly<{ revoked: number; failed: number }>;
 
@@ -145,39 +73,58 @@ export async function revokeFolderGrantInLiveSessions(
  * still be located.
  *
  * A key absent from the result is NOT an error: it is a workspace whose folder
- * has been moved or deleted. Its grants are still listed and still removable,
- * because an entry the user can no longer account for is exactly the one they
- * most need to revoke.
+ * has been moved or deleted, or a legacy `marker:` entry from before the key
+ * became the path. Its grants are still listed and still removable, because an
+ * entry the user can no longer account for is exactly the one they most need to
+ * revoke.
+ *
+ * A key CARRIES its folder, so this is the inverse of the one production
+ * derivation (`resolveFolderGrantWorkspaceId`) rather than a second scheme.
+ * There is no scan of the managed workspace tree any more: that scan existed
+ * only to find a folder by its identity marker, and the marker no longer
+ * selects anything.
  */
 export async function resolveFolderGrantWorkspaces(
-  workspaceIds: readonly string[],
-  scan: typeof scanWorkspaceDirectory = scanWorkspaceDirectory
+  workspaceIds: readonly string[]
 ): Promise<Map<string, { dir: string; displayName: string }>> {
+  const resolved = await Promise.all(workspaceIds.map(locateOne));
+
   const located = new Map<string, { dir: string; displayName: string }>();
-
-  const pathKeys = workspaceIds.filter((id) => typeof id === 'string' && id.startsWith(PATH_KEY_PREFIX));
-  for (const key of pathKeys) {
-    const dir = key.slice(PATH_KEY_PREFIX.length);
-    // A relative entry can only come from a hand-edited file. Refuse it rather
-    // than resolving it against whatever the process cwd happens to be.
-    if (!path.isAbsolute(dir)) continue;
-    try {
-      if (!(await fs.stat(dir)).isDirectory()) continue;
-    } catch {
-      continue;
-    }
-    located.set(key, { dir, displayName: path.basename(dir) || dir });
-  }
-
-  // The scan is the only way to find a `marker:` key, so skip it entirely when
-  // nothing needs one - a removal on an unmarked workspace should not walk the
-  // managed workspace tree.
-  if (pathKeys.length === workspaceIds.length) return located;
-
-  for (const entry of await scan()) {
-    if (!located.has(entry.workspaceId)) {
-      located.set(entry.workspaceId, { dir: entry.dir, displayName: entry.displayName });
-    }
+  for (const entry of resolved) {
+    if (entry) located.set(entry.key, { dir: entry.dir, displayName: entry.displayName });
   }
   return located;
+}
+
+/** One key, or null when it names nothing this surface may show. */
+async function locateOne(key: string): Promise<{ key: string; dir: string; displayName: string } | null> {
+  if (typeof key !== 'string' || !key.startsWith(FOLDER_GRANT_PATH_KEY_PREFIX)) return null;
+  const dir = key.slice(FOLDER_GRANT_PATH_KEY_PREFIX.length);
+  // A relative entry can only come from a hand-edited file. Refuse it rather
+  // than resolving it against whatever the process cwd happens to be.
+  if (!path.isAbsolute(dir)) return null;
+  try {
+    if (!(await fs.stat(dir)).isDirectory()) return null;
+  } catch {
+    return null;
+  }
+  return { key, dir, displayName: await displayNameFor(dir) };
+}
+
+/**
+ * A name for `dir` in the Settings list.
+ *
+ * The identity marker is read HERE and only here, as a LABEL. It is written by
+ * Wayland when it allocates a workspace and carries the name the user gave that
+ * task or project, which beats a generated folder basename. It is also a file
+ * inside the workspace, which the agent can write - so it may never do anything
+ * but decorate a row that the PATH already selected. Getting a forged
+ * `displayName` in front of the user is a cosmetic lie about a grant they can
+ * still see the real folder of; getting a forged key would have been theft of
+ * another workspace's authority.
+ */
+async function displayNameFor(dir: string): Promise<string> {
+  const marker = await readWorkspaceMarker(dir);
+  if (marker && typeof marker.displayName === 'string' && marker.displayName.length > 0) return marker.displayName;
+  return path.basename(dir) || dir;
 }

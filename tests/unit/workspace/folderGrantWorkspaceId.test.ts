@@ -5,14 +5,14 @@
  */
 
 /**
- * #1099 — the key a workspace's folder grants are filed under.
+ * #1099 - the key a workspace's folder grants are filed under.
  *
- * The property that matters is not "a marker wins". It is that the two id
- * spaces are DISJOINT. The marker file sits inside the workspace, which the
- * agent can write, so an agent that could author a marker whose id was another
- * workspace's key would make its own session inherit that workspace's grant
- * list. Prefixes make that unreachable by construction rather than by
- * validation, which is why the fixture below writes exactly that forgery.
+ * The property is that NOTHING THE AGENT CAN WRITE selects the bucket. The
+ * previous key consulted `.wayland-workspace.json`, a file inside the workspace
+ * the agent has write access to, and an external audit found two ways to abuse
+ * that. Both are reproduced below as named attacks, driven through the real
+ * production function against a real marker written by the real writer - a
+ * hand-built string would prove nothing about what the app actually reads.
  */
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
@@ -32,55 +32,93 @@ afterEach(async () => {
 });
 
 describe('resolveFolderGrantWorkspaceId', () => {
-  it('uses the marker id when the workspace carries one', async () => {
-    const marker = buildWorkspaceMarker({ ownerKind: 'task', ownerId: 'job-1', displayName: 'Reports' });
-    await writeWorkspaceMarker(tmp, marker);
-
-    expect(await resolveFolderGrantWorkspaceId(tmp)).toBe(`marker:${marker.workspaceId}`);
-  });
-
-  it('survives a rename, which is the whole reason the marker is preferred', async () => {
-    const marker = buildWorkspaceMarker({ ownerKind: 'task', ownerId: 'job-1', displayName: 'Reports' });
-    await writeWorkspaceMarker(tmp, marker);
-    const before = await resolveFolderGrantWorkspaceId(tmp);
-
-    const renamed = path.join(path.dirname(tmp), `${path.basename(tmp)}-renamed`);
-    await fs.rename(tmp, renamed);
-    try {
-      expect(await resolveFolderGrantWorkspaceId(renamed)).toBe(before);
-    } finally {
-      await fs.rename(renamed, tmp);
-    }
-  });
-
-  it('falls back to the resolved path when there is no marker', async () => {
-    // Most workspaces are in this branch: the marker is written only where
-    // Wayland ALLOCATES the folder, and a workspace the user picked in a file
-    // dialog never has one. Refusing here would make "remember this folder" a
-    // button that does nothing for the majority of chats.
+  it('keys an unmarked workspace on its resolved path', async () => {
     expect(await resolveFolderGrantWorkspaceId(tmp)).toBe(`path:${path.resolve(tmp)}`);
   });
 
-  it('keeps the marker space and the path space disjoint under a forged marker', async () => {
-    // A marker is a file INSIDE the workspace, so the agent can write it. This
-    // one claims another workspace's path key verbatim.
-    const victim = `path:${path.resolve(tmp)}`;
-    const forged = {
-      ...buildWorkspaceMarker({ ownerKind: 'task', ownerId: null, displayName: 'x' }),
-      workspaceId: victim,
+  it('keys a MARKED workspace on the same path, ignoring the marker entirely', async () => {
+    // The marker is written by the real writer, so this is the exact file the
+    // old key read. A marked workspace and an unmarked one at the same path
+    // must produce the same key, or the marker is still selecting something.
+    const before = await resolveFolderGrantWorkspaceId(tmp);
+    await writeWorkspaceMarker(
+      tmp,
+      buildWorkspaceMarker({ ownerKind: 'task', ownerId: 'job-1', displayName: 'Reports' })
+    );
+
+    const after = await resolveFolderGrantWorkspaceId(tmp);
+
+    expect(after).toBe(`path:${path.resolve(tmp)}`);
+    expect(after).toBe(before);
+    // CONTROL: the marker really is on disk and really is readable, so the
+    // equality above is the key ignoring it and not a write that never landed.
+    const written = JSON.parse(await fs.readFile(path.join(tmp, '.wayland-workspace.json'), 'utf8')) as {
+      workspaceId: string;
     };
-    await writeWorkspaceMarker(tmp, forged as never);
+    expect(written.workspaceId).toMatch(/[0-9a-f-]{36}/);
+    expect(after).not.toContain(written.workspaceId);
+  });
 
-    const resolved = await resolveFolderGrantWorkspaceId(tmp);
-    // The prefix is re-applied, so the forgery cannot land in the path space.
-    expect(resolved).toBe(`marker:${victim}`);
-    expect(resolved).not.toBe(victim);
-
-    // CONTROL: an unmarked directory really does produce the bare path key, so
-    // the inequality above is two distinct spaces and not a value nothing uses.
-    const other = await fs.mkdtemp(path.join(os.tmpdir(), 'wfa-grant-id-'));
+  /**
+   * ATTACK A - FORGED MARKER ID.
+   *
+   * The agent learns another workspace's marker id (a copied folder, a backup,
+   * an earlier session, the prompt) and writes it into its own marker file.
+   * Under the old key that made its session resolve to the victim's bucket and
+   * inherit every grant in it.
+   */
+  it('ATTACK A: a workspace whose marker carries the VICTIM id does not get the victim key', async () => {
+    const victim = await fs.mkdtemp(path.join(os.tmpdir(), 'wfa-grant-id-victim-'));
     try {
-      expect(await resolveFolderGrantWorkspaceId(other)).toBe(`path:${path.resolve(other)}`);
+      const victimMarker = buildWorkspaceMarker({ ownerKind: 'project', ownerId: 'p-1', displayName: 'Victim' });
+      await writeWorkspaceMarker(victim, victimMarker);
+      const victimKey = await resolveFolderGrantWorkspaceId(victim);
+
+      // The attack: the attacker's own marker claims the victim's workspace id.
+      await writeWorkspaceMarker(tmp, { ...victimMarker, displayName: 'Attacker' });
+      const attackerKey = await resolveFolderGrantWorkspaceId(tmp);
+
+      expect(attackerKey).not.toBe(victimKey);
+      expect(attackerKey).toBe(`path:${path.resolve(tmp)}`);
+      // Not merely "the two differ" - two different WRONG keys would satisfy
+      // that. Each names its own folder and neither names the other's.
+      expect(victimKey).toBe(`path:${path.resolve(victim)}`);
+      expect(attackerKey).not.toContain(path.resolve(victim));
+    } finally {
+      await fs.rm(victim, { recursive: true, force: true });
+    }
+  });
+
+  /**
+   * ATTACK B - DELETED MARKER, NO ID NEEDED.
+   *
+   * An unmarked workspace at a pathname accumulates grants. A marked workspace
+   * later occupies the same pathname. Under the old key the agent deleted its
+   * own marker, resolution fell back to the path, and it inherited the earlier
+   * workspace's grants. The fall-BACK is what made this reachable, so the fix
+   * is that there is no second branch to fall back from.
+   */
+  it('ATTACK B: deleting the marker changes nothing, so there is no bucket to fall back into', async () => {
+    const unmarkedKey = await resolveFolderGrantWorkspaceId(tmp);
+
+    await writeWorkspaceMarker(
+      tmp,
+      buildWorkspaceMarker({ ownerKind: 'project', ownerId: 'p-2', displayName: 'Replacement' })
+    );
+    const markedKey = await resolveFolderGrantWorkspaceId(tmp);
+
+    await fs.rm(path.join(tmp, '.wayland-workspace.json'));
+    const afterDeletionKey = await resolveFolderGrantWorkspaceId(tmp);
+
+    // The three states of the marker file - absent, present, deleted again -
+    // all name the same bucket, so removing it wins the agent nothing.
+    expect(markedKey).toBe(unmarkedKey);
+    expect(afterDeletionKey).toBe(unmarkedKey);
+    // CONTROL: a DIFFERENT folder really does get a different key, so the
+    // equalities above are not a function that returns one constant.
+    const other = await fs.mkdtemp(path.join(os.tmpdir(), 'wfa-grant-id-other-'));
+    try {
+      expect(await resolveFolderGrantWorkspaceId(other)).not.toBe(unmarkedKey);
     } finally {
       await fs.rm(other, { recursive: true, force: true });
     }
@@ -97,8 +135,16 @@ describe('resolveFolderGrantWorkspaceId', () => {
   it('resolves a non-existent absolute directory rather than throwing', async () => {
     // The workspace may have been deleted between the card and the click. A
     // throw here would surface as an unhandled rejection on a fire-and-forget
-    // persist; a key is fine, because the store still vets the ROOT.
+    // persist; a key is fine, because the root is vetted separately.
     const gone = path.join(tmp, 'no-such-dir');
     expect(await resolveFolderGrantWorkspaceId(gone)).toBe(`path:${gone}`);
+  });
+
+  it('normalises a path with a trailing separator and a dot segment to one key', async () => {
+    // Two spellings of one folder must not become two buckets: the second would
+    // silently hold no grants and the user would be asked again forever.
+    const resolved = `path:${path.resolve(tmp)}`;
+    expect(await resolveFolderGrantWorkspaceId(`${tmp}${path.sep}`)).toBe(resolved);
+    expect(await resolveFolderGrantWorkspaceId(path.join(tmp, '.'))).toBe(resolved);
   });
 });

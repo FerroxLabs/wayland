@@ -8,21 +8,35 @@
  * #1099 — the process half of the folder grant, end to end from an escalated
  * `tool_request` to the `ApprovalScope::AlwaysPath` command on the wire.
  *
- * Two properties are load-bearing and both are asserted with a positive
+ * Three properties are load-bearing and each is asserted with a positive
  * control in the same file:
  *   - a `path_boundary` escalation is NEVER auto-approved, in any mode. Every
  *     auto-approve path in this manager answers with `once`, and Core cannot
  *     run a boundary call under a one-shot grant — so an auto-approval is both
  *     a silent grant of authority outside the workspace AND a refused read.
+ *   - the root is CLASSIFIED HOST-SIDE on the live path, before anything is
+ *     sent, for BOTH grant buttons. Core's own refusals do not know about
+ *     Wayland's user-data directory, so a root Wayland refuses to persist must
+ *     be refused here or the engine will happily accept it.
  *   - granting sends `{ always_path: { root, write: false } }`, scoped to the
  *     CONTAINING FOLDER the engine suggested, never to the target file and
  *     never with write.
  *
+ * THE ROOTS BELOW ARE REAL DIRECTORIES. The vetting is production code running
+ * against a real filesystem here - `vetFolderGrantRoot` is NOT mocked - because
+ * a classifier proved against a stub tells you nothing about whether the call
+ * site reaches it.
+ *
  * Contract source: wayland-core main `56ec176e` (`ApprovalScope` in
  * `crates/wcore-protocol/src/commands.rs:587`). v0.13.4 is unpublished, so this
- * is a contract test — no live engine was involved.
+ * is a contract test — no live engine was involved. The bytes that scope
+ * serializes to are pinned against the production `writeCommand` in
+ * `tests/unit/process/agent/wcore/pathGrantSeam.test.ts`.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { describe, it, expect, vi, beforeEach, afterEach, afterAll } from 'vitest';
 
 // ── Hoisted mocks ──────────────────────────────────────────────────
 
@@ -38,6 +52,7 @@ const {
   mockGrantAdd,
   mockResolveWorkspaceId,
   mockAddMessage,
+  mockRootContext,
 } = vi.hoisted(() => ({
   emitResponseStream: vi.fn(),
   emitConfirmationAdd: vi.fn(),
@@ -57,6 +72,7 @@ const {
   mockGrantAdd: vi.fn(),
   mockResolveWorkspaceId: vi.fn(),
   mockAddMessage: vi.fn(),
+  mockRootContext: vi.fn(),
 }));
 
 // ── Module mocks ───────────────────────────────────────────────────
@@ -120,8 +136,13 @@ vi.mock('@process/utils/message', () => ({
   addOrUpdateMessage: vi.fn(),
 }));
 
+// The STORE is stubbed - this file is not about the durable file format. The
+// root CONTEXT is not: it is the only thing standing between the live grant and
+// Wayland's own credential storage, so it names real fixture directories and
+// the real `vetFolderGrantRoot` classifies against them.
 vi.mock('@process/services/workspace/folderGrantStore', () => ({
   defaultWorkspaceFolderGrantStore: () => ({ add: mockGrantAdd }),
+  defaultFolderGrantRootContext: mockRootContext,
 }));
 
 vi.mock('@process/services/workspace/folderGrantWorkspaceId', () => ({
@@ -192,11 +213,43 @@ import {
   PATH_BOUNDARY_ROOT_PARAM,
 } from '@/common/chat/pathBoundaryConsent';
 
+// ── Fixture filesystem ─────────────────────────────────────────────
+//
+// Real directories, because the host-side classifier canonicalises and stats
+// every root it is given. A string fixture would be refused as "not a
+// directory" and every grant assertion below would pass for the wrong reason.
+
+const FIXTURE = realpathSync(mkdtempSync(path.join(realpathSync(os.tmpdir()), 'wl-boundary-')));
+const HOME = path.join(FIXTURE, 'home');
+/** An ordinary folder outside the workspace: the grantable one. */
+const ROOT = path.join(HOME, 'Documents', 'reports');
+const TARGET = path.join(ROOT, 'q3.md');
+/** Wayland's own user-data tree. Core has never heard of it; the host has. */
+const WAYLAND_PRIVATE = path.join(FIXTURE, 'app-data');
+/** A folder INSIDE it - where `wayland-config.txt` and safeStorage material live. */
+const WAYLAND_CONFIG = path.join(WAYLAND_PRIVATE, 'config');
+/** A `$HOME`-relative credential store from Core's own list. */
+const CREDENTIAL_STORE = path.join(HOME, '.ssh');
+/** A symlink to the grantable root, for the canonicalisation assertion. */
+const ROOT_VIA_SYMLINK = path.join(HOME, 'reports-link');
+
+mkdirSync(ROOT, { recursive: true });
+writeFileSync(TARGET, '# Q3\n');
+mkdirSync(WAYLAND_CONFIG, { recursive: true });
+mkdirSync(CREDENTIAL_STORE, { recursive: true });
+symlinkSync(ROOT, ROOT_VIA_SYMLINK);
+
+afterAll(() => {
+  try {
+    rmSync(FIXTURE, { recursive: true, force: true });
+  } catch {
+    // Temp dirs are reaped by the OS.
+  }
+});
+
 // ── Helpers ────────────────────────────────────────────────────────
 
 const CONV_ID = 'conv-1099';
-const ROOT = '/Users/sean/Documents/reports';
-const TARGET = `${ROOT}/q3.md`;
 
 function createManager(conversationId = CONV_ID) {
   const data = {
@@ -216,7 +269,8 @@ function attachAgent(manager: WCoreManager): FakeAgent {
 }
 
 /** A `tool_group` frame carrying a `path_boundary` escalation, as the wcore adapter maps it. */
-function boundaryFrame(callId = 'call-boundary') {
+function boundaryFrame(callId = 'call-boundary', suggestedRoot = ROOT) {
+  const target = path.join(suggestedRoot, 'q3.md');
   return {
     type: 'tool_group',
     msg_id: 'turn-1',
@@ -224,14 +278,14 @@ function boundaryFrame(callId = 'call-boundary') {
       {
         callId,
         name: 'Read',
-        description: `Read ${TARGET}`,
+        description: `Read ${target}`,
         status: 'Confirming',
         renderOutputAsMarkdown: false,
         confirmationDetails: {
           type: 'path_boundary',
-          title: `Read ${TARGET}`,
-          target: TARGET,
-          suggestedRoot: ROOT,
+          title: `Read ${target}`,
+          target,
+          suggestedRoot,
           access: 'read',
         },
       },
@@ -261,6 +315,25 @@ function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
   (manager as any).emit('wcore.message', event);
 }
 
+/** What `defaultFolderGrantRootContext` returns for every test in this file. */
+const ROOT_CONTEXT = { homeDir: HOME, waylandPrivateRoots: [WAYLAND_PRIVATE] };
+
+/**
+ * The root that actually went out on `always_path`, or a throw.
+ *
+ * Never `approveTool.mock.calls[0]?.[1]?.always_path?.root`: an optional chain
+ * over a call that never happened collapses to `undefined`, and comparing two
+ * `undefined`s is how a guard that stopped running keeps a test green.
+ */
+function grantedRoot(agent: FakeAgent): string {
+  const calls = agent.approveTool.mock.calls;
+  if (calls.length !== 1) throw new Error(`expected exactly one approveTool, saw ${calls.length}`);
+  const scope = calls[0][1] as { always_path?: { root?: unknown } };
+  const root = scope?.always_path?.root;
+  if (typeof root !== 'string') throw new Error(`expected an always_path scope, got ${JSON.stringify(scope)}`);
+  return root;
+}
+
 // ── Tests ──────────────────────────────────────────────────────────
 
 describe('#1099 a path boundary is never auto-approved', () => {
@@ -269,6 +342,7 @@ describe('#1099 a path boundary is never auto-approved', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRootContext.mockResolvedValue(ROOT_CONTEXT);
     manager = createManager();
     agent = attachAgent(manager);
     vi.spyOn(manager as any, 'postMessagePromise').mockResolvedValue(undefined);
@@ -473,6 +547,7 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRootContext.mockResolvedValue(ROOT_CONTEXT);
     manager = createManager();
     agent = attachAgent(manager);
     vi.spyOn(manager as any, 'postMessagePromise').mockResolvedValue(undefined);
@@ -483,8 +558,9 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
     vi.restoreAllMocks();
   });
 
-  it('sends the folder root read-only, not the target file and never write', () => {
+  it('sends the folder root read-only, not the target file and never write', async () => {
     manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_GRANT_FOLDER);
+    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
     expect(agent.approveTool).toHaveBeenCalledTimes(1);
     const [callId, scope] = agent.approveTool.mock.calls[0];
@@ -496,15 +572,27 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
     expect(agent.denyTool).not.toHaveBeenCalled();
   });
 
-  it('serialises to the externally-tagged wire form wayland-core deserialises', () => {
-    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_GRANT_FOLDER);
+  /**
+   * The bytes that scope becomes are pinned where they are actually produced -
+   * `pathGrantSeam.test.ts`, against a real `WCoreAgent` writing to a fake
+   * stdin through the production `writeCommand`. This file used to assert the
+   * wire form by running `JSON.stringify` on a value it had just read off a
+   * FAKE agent, which is a test of `JSON.stringify`: mutating the production
+   * `approveTool` to send `scope: 'once'` unconditionally left it green.
+   */
+  it('grants the CANONICAL directory, so a symlink cannot drift from what was vetted', async () => {
+    // The card names a symlink. What is vetted is the directory it resolves to,
+    // and what is sent must be the same string - otherwise there is a window in
+    // which the host approved one place and the engine resolves another.
+    emitEvent(manager, boundaryFrame('call-link', ROOT_VIA_SYMLINK));
+    manager.confirm('call-link', 'call-link', PATH_BOUNDARY_GRANT_FOLDER);
+    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
-    const [, scope] = agent.approveTool.mock.calls[0];
-    expect(JSON.parse(JSON.stringify({ type: 'tool_approve', call_id: 'call-boundary', scope }))).toEqual({
-      type: 'tool_approve',
-      call_id: 'call-boundary',
-      scope: { always_path: { root: ROOT, write: false } },
-    });
+    expect(grantedRoot(agent)).toBe(ROOT);
+    // CONTROL: the card really did carry the symlink, so the equality above is
+    // canonicalisation and not a fixture that never differed.
+    expect(ROOT_VIA_SYMLINK).not.toBe(ROOT);
+    expect(realpathSync(ROOT_VIA_SYMLINK)).toBe(ROOT);
   });
 
   /**
@@ -519,7 +607,7 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
    * of authority and the folder could never be granted for the rest of the
    * session - the feature defeated from a chat window.
    */
-  it('refuses a foreign approval vocabulary on a boundary call and leaves the card standing', () => {
+  it('refuses a foreign approval vocabulary on a boundary call and leaves the card standing', async () => {
     for (const foreign of ['proceed_once', 'proceed_always', 'proceed_always_tool', 'proceed_always_server']) {
       vi.clearAllMocks();
       manager.confirm('call-boundary', 'call-boundary', foreign as never);
@@ -533,7 +621,7 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
     // refusals above are the guard deciding and not a dead fixture.
     vi.clearAllMocks();
     manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_GRANT_FOLDER);
-    expect(agent.approveTool).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalledTimes(1));
     expect(agent.approveTool.mock.calls[0][1]).toEqual({ always_path: { root: ROOT, write: false } });
   });
 
@@ -564,7 +652,7 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
  * the call the user is looking at.
  */
 describe('#1099 remembering a folder for the workspace', () => {
-  const WORKSPACE_ID = 'marker:11111111-2222-3333-4444-555555555555';
+  const WORKSPACE_ID = 'path:/test/workspace';
   let manager: WCoreManager;
   let agent: FakeAgent;
 
@@ -595,6 +683,7 @@ describe('#1099 remembering a folder for the workspace', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRootContext.mockResolvedValue(ROOT_CONTEXT);
     mockResolveWorkspaceId.mockResolvedValue(WORKSPACE_ID);
     mockGrantAdd.mockResolvedValue({
       ok: true,
@@ -621,28 +710,40 @@ describe('#1099 remembering a folder for the workspace', () => {
     expect(persistedGrant()).toEqual({ workspaceId: WORKSPACE_ID, root: ROOT, origin: 'consent_card' });
   });
 
-  it('persists the SAME root the card displayed, not the target file', async () => {
-    // Display and stored authority must not drift, so the assertion is against
-    // the root that actually went out on the card rather than against a literal
-    // this file happens to share with the fixture.
+  it('files the SAME root it handed the engine, and the card displayed', async () => {
+    // Three values that must be one folder: what the button SAID, what went out
+    // on the wire, and what was written down.
+    //
+    // The card names a SYMLINK deliberately. With a plain directory all three
+    // values are the same string no matter which of them the code passes
+    // around, so the test could not tell a divergence from an agreement -
+    // persisting the raw card string instead of the vetted root survived it.
+    // Through a symlink the displayed name and the canonical directory are
+    // different strings, and only one of them is the folder that was vetted.
+    vi.clearAllMocks();
+    emitEvent(manager, boundaryFrame('call-link', ROOT_VIA_SYMLINK));
     const card = emitConfirmationAdd.mock.calls[0][0] as {
       options: Array<{ value: string; params?: Record<string, string> }>;
     };
     const shown = card.options.find((o) => o.value === PATH_BOUNDARY_REMEMBER_FOLDER)?.params?.[
       PATH_BOUNDARY_ROOT_PARAM
     ];
+    expect(shown).toBe(ROOT_VIA_SYMLINK);
+    expect(shown).not.toBe(ROOT);
 
-    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
+    manager.confirm('call-link', 'call-link', PATH_BOUNDARY_REMEMBER_FOLDER);
     await settled();
+    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
-    expect(shown).toBeTruthy();
-    expect(persistedGrant().root).toBe(shown);
+    expect(persistedGrant().root).toBe(grantedRoot(agent));
+    expect(persistedGrant().root).toBe(realpathSync(shown!));
     expect(persistedGrant().root).not.toBe(TARGET);
   });
 
   it('also sends the in-band approval, so the call in front of the user proceeds', async () => {
     manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
     await settled();
+    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
     expect(agent.approveTool).toHaveBeenCalledTimes(1);
     expect(agent.approveTool.mock.calls[0][1]).toEqual({ always_path: { root: ROOT, write: false } });
@@ -690,8 +791,17 @@ describe('#1099 remembering a folder for the workspace', () => {
      * out anyway - while withdrawing it would mean a button advertised as doing
      * MORE quietly did LESS.
      */
+    //
+    // NOTE ON WHAT IS NOT IN THIS LIST. `credential_store` / `wayland_private`
+    // / `home_directory` / `root_of_filesystem` used to appear here as "the
+    // store refuses the root", asserting that the live approval went out
+    // ANYWAY. That assertion was the bug written down, and it is inverted in
+    // `the live grant is vetted host-side` below: those roots are now refused
+    // BEFORE anything is sent, by the same function the store calls, so a
+    // store that returned one of them would be describing a root that could
+    // not have reached it. What is left here is what can still honestly
+    // happen after a root has passed the gate.
     const cases: Array<[string, () => void]> = [
-      ['the store refuses the root', () => mockGrantAdd.mockResolvedValue({ ok: false, refusal: 'credential_store' })],
       ['the list is full', () => mockGrantAdd.mockResolvedValue({ ok: false, refusal: 'grant_cap_reached' })],
       ['the workspace has no identity', () => mockResolveWorkspaceId.mockResolvedValue(null)],
       ['the list cannot be written', () => mockGrantAdd.mockRejectedValue(new Error('EACCES'))],
@@ -703,6 +813,7 @@ describe('#1099 remembering a folder for the workspace', () => {
 
         manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
         await vi.waitFor(() => expect(notices()).toHaveLength(1));
+        await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
         // The call still proceeds under the session grant.
         expect(agent.approveTool).toHaveBeenCalledTimes(1);
@@ -756,5 +867,202 @@ describe('#1099 remembering a folder for the workspace', () => {
         expect(text, reason).toContain('could not remember it');
       }
     });
+  });
+});
+
+/**
+ * #1099 — the LIVE grant is classified host-side, before it is sent.
+ *
+ * The hole an external audit found: `confirm` sent `always_path` the instant
+ * the user clicked, and `classifyFolderGrantRoot` was reached only through
+ * `rememberFolderGrant`, which is fire-and-forget and documented not to gate
+ * the approval. So the SESSION button vetted nothing at all, and the DURABLE
+ * button had already sent the grant by the time the store refused it.
+ *
+ * CORE CANNOT COVER FOR US, which is why this must be a host check. Core's
+ * `workspace_policy` refuses `/`, `$HOME` or an ancestor of it, and a list of
+ * credential stores. It has never heard of Wayland's own user-data directory —
+ * a host-only concept that holds `wayland-config.txt` (the base64 provider
+ * config) and the Electron safeStorage material. An agent that asks to read a
+ * file in there raises an ordinary-looking boundary card, and Core accepts the
+ * grant.
+ *
+ * Every case below is driven through the REAL `vetFolderGrantRoot` against a
+ * real fixture tree, and every refusal carries an accepted root in the same
+ * test — a refusal-only assertion passes just as well when the whole route has
+ * stopped running.
+ */
+describe('#1099 the live grant is vetted host-side', () => {
+  let manager: WCoreManager;
+  let agent: FakeAgent;
+
+  const notices = () =>
+    emitResponseStream.mock.calls
+      .map((call) => call[0] as { type?: string; data?: { content?: string } })
+      .filter((frame) => frame?.type === 'tips')
+      .map((frame) => frame.data?.content ?? '');
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRootContext.mockResolvedValue(ROOT_CONTEXT);
+    mockResolveWorkspaceId.mockResolvedValue('path:/test/workspace');
+    mockGrantAdd.mockResolvedValue({
+      ok: true,
+      addition: {
+        grant: { grantId: 'g1', root: ROOT, access: 'read', grantedAtMs: 1, origin: 'consent_card' },
+        created: true,
+        superseded: [],
+      },
+    });
+    manager = createManager();
+    agent = attachAgent(manager);
+    vi.spyOn(manager as any, 'postMessagePromise').mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  /** Answer a boundary card on `root` with `value`, and wait for the route to settle. */
+  async function answer(callId: string, root: string, value: string) {
+    emitEvent(manager, boundaryFrame(callId, root));
+    manager.confirm(callId, callId, value);
+    await vi.waitFor(() => expect(agent.approveTool.mock.calls.length + agent.denyTool.mock.calls.length).toBe(1));
+  }
+
+  const refused: Array<[string, string]> = [
+    ["Wayland's own user-data tree", WAYLAND_CONFIG],
+    ['a credential store from Core’s list', CREDENTIAL_STORE],
+    ['the home directory itself', HOME],
+  ];
+
+  for (const [name, root] of refused) {
+    it(`denies the call on the SESSION button for ${name}`, async () => {
+      await answer('call-refused', root, PATH_BOUNDARY_GRANT_FOLDER);
+
+      expect(agent.approveTool).not.toHaveBeenCalled();
+      expect(agent.denyTool).toHaveBeenCalledTimes(1);
+      expect(agent.denyTool.mock.calls[0][0]).toBe('call-refused');
+      // And the user is told which folder, so the denial is not just a tool
+      // call that failed with the agent's own guess at why.
+      expect(notices()).toHaveLength(1);
+      expect(notices()[0]).toContain(root);
+
+      // CONTROL, same manager and same route: an ordinary folder IS granted, so
+      // the denial above is the classifier deciding and not a dead route.
+      vi.clearAllMocks();
+      await answer('call-ok', ROOT, PATH_BOUNDARY_GRANT_FOLDER);
+      expect(grantedRoot(agent)).toBe(ROOT);
+      expect(agent.denyTool).not.toHaveBeenCalled();
+    });
+
+    it(`denies the call AND writes nothing on the DURABLE button for ${name}`, async () => {
+      await answer('call-refused', root, PATH_BOUNDARY_REMEMBER_FOLDER);
+
+      expect(agent.approveTool).not.toHaveBeenCalled();
+      expect(agent.denyTool).toHaveBeenCalledTimes(1);
+      expect(mockGrantAdd).not.toHaveBeenCalled();
+
+      // CONTROL: the durable button DOES write for an acceptable folder, so the
+      // absence above is the refusal and not a store mock nothing ever calls.
+      vi.clearAllMocks();
+      await answer('call-ok', ROOT, PATH_BOUNDARY_REMEMBER_FOLDER);
+      await vi.waitFor(() => expect(mockGrantAdd).toHaveBeenCalled());
+      expect((mockGrantAdd.mock.calls[0][0] as { root: string }).root).toBe(ROOT);
+    });
+  }
+
+  it('fails CLOSED when Wayland cannot enumerate its own storage', async () => {
+    // Without the context we cannot show a root is NOT part of Wayland's own
+    // config tree. `resolveActiveConfigDir` really does throw when a named
+    // profile is broken, so this is a reachable state, not a hypothetical.
+    mockRootContext.mockRejectedValue(new Error('ProfileIsolationError'));
+
+    await answer('call-blind', ROOT, PATH_BOUNDARY_GRANT_FOLDER);
+
+    expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(agent.denyTool).toHaveBeenCalledTimes(1);
+
+    // CONTROL: the very same root is granted once the context resolves again.
+    vi.clearAllMocks();
+    mockRootContext.mockResolvedValue(ROOT_CONTEXT);
+    await answer('call-seeing', ROOT, PATH_BOUNDARY_GRANT_FOLDER);
+    expect(grantedRoot(agent)).toBe(ROOT);
+  });
+
+  it('refuses a root that vanished between the card and the click', async () => {
+    const doomed = path.join(HOME, 'Documents', 'temporary');
+    mkdirSync(doomed, { recursive: true });
+    emitEvent(manager, boundaryFrame('call-gone', doomed));
+    rmSync(doomed, { recursive: true, force: true });
+
+    manager.confirm('call-gone', 'call-gone', PATH_BOUNDARY_GRANT_FOLDER);
+    await vi.waitFor(() => expect(agent.denyTool).toHaveBeenCalled());
+
+    expect(agent.approveTool).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * #1099 / external audit — a remote peer cannot VETO the desktop's decision.
+ *
+ * `confirmation.list` gives a paired WebUI the pending `callId`, and the wire
+ * gate cannot deny legacy `cancel` outright: on an ordinary card a remote
+ * decline is a feature, and the gate is a pure value predicate with no idea
+ * which callId belongs to a boundary card. So the refusal lives here, where the
+ * card IS known. It mints no authority either way — but a remote peer making
+ * the security prompt in front of a local user disappear, and the call be
+ * denied, is not something "the desktop owns this decision" survives.
+ *
+ * No local surface can hit this: the desktop renders `PathBoundaryConfirmCard`,
+ * whose three buttons are this card's own values, and both remote surfaces that
+ * build option lists (`ActionExecutor`, `GeminiAgentManager`) return NO options
+ * for a `path_boundary`.
+ */
+describe('#1099 a remote cancel cannot dismiss a boundary card', () => {
+  let manager: WCoreManager;
+  let agent: FakeAgent;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRootContext.mockResolvedValue(ROOT_CONTEXT);
+    manager = createManager();
+    agent = attachAgent(manager);
+    vi.spyOn(manager as any, 'postMessagePromise').mockResolvedValue(undefined);
+    emitEvent(manager, boundaryFrame());
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('leaves the card standing and sends nothing', async () => {
+    manager.confirm('call-boundary', 'call-boundary', 'cancel');
+    // Given a chance to run: the route is async on the grant side, so an
+    // immediate assertion could pass before anything had happened at all.
+    await Promise.resolve();
+
+    expect(agent.denyTool, 'cancel must not deny a boundary call').not.toHaveBeenCalled();
+    expect(agent.approveTool, 'cancel must not approve one either').not.toHaveBeenCalled();
+    expect(emitConfirmationRemove, 'the desktop card must still be there').not.toHaveBeenCalled();
+
+    // CONTROL, same card and same manager: the card's OWN deny value does
+    // dismiss it and deny the call, so the refusal above is the guard and not a
+    // card that was already gone.
+    vi.clearAllMocks();
+    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_DENY);
+    expect(agent.denyTool).toHaveBeenCalledTimes(1);
+    expect(emitConfirmationRemove).toHaveBeenCalled();
+  });
+
+  it('CONTROL: cancel still denies an ORDINARY confirmation', async () => {
+    // The gate is specific to a boundary card. A remote peer answering an
+    // everyday tool prompt is a feature and must keep working.
+    vi.clearAllMocks();
+    emitEvent(manager, infoFrame());
+    manager.confirm('call-info', 'call-info', 'cancel');
+
+    expect(agent.denyTool).toHaveBeenCalledTimes(1);
+    expect(agent.denyTool.mock.calls[0][0]).toBe('call-info');
   });
 });
