@@ -54,6 +54,13 @@ vi.mock('@/common', () => ({
       reveal: { invoke: h.reveal },
       saveCopy: { invoke: h.saveCopy },
     },
+    // The page now hosts its own PreviewProvider so its in-app open button has
+    // something that actually RENDERS the preview. The provider subscribes to
+    // this stream on mount; unstubbed it is undefined and every case here dies
+    // in a passive effect with "Cannot read properties of undefined". A stub,
+    // not a relaxed assertion - no expectation in this file changed.
+    fileStream: { contentUpdate: { on: () => () => undefined } },
+    preview: { open: { on: () => () => undefined } },
   },
 }));
 

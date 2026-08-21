@@ -32,6 +32,7 @@ import { ipcBridge } from '@/common';
 import type { ArtifactDiskStatus, ArtifactSummary } from '@/common/types/artifacts';
 import PageShell from '@renderer/components/layout/PageShell';
 import { usePreviewLauncher } from '@renderer/hooks/file/usePreviewLauncher';
+import { PreviewPanel, PreviewProvider, usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import {
   previewContentTypeForFileName,
   previewIsEditable,
@@ -84,12 +85,15 @@ const STATUS_CLASS: Record<ArtifactDiskStatus, string> = {
   missing: 'text-danger',
 };
 
-const ArtifactsPage: React.FC = () => {
+const ArtifactsRail: React.FC = () => {
   const { t } = useTranslation();
   const [state, setState] = useState<LoadState>({ kind: 'loading' });
   const [busyId, setBusyId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const { launchPreview } = usePreviewLauncher();
+  // The rail hosts its own preview surface (see the provider below), so this
+  // reads the LOCAL panel's state, not the conversation's.
+  const { isOpen: previewOpen } = usePreviewContext();
 
   const load = useCallback(async (): Promise<void> => {
     try {
@@ -186,6 +190,8 @@ const ArtifactsPage: React.FC = () => {
       countTestId='artifacts-rail-count'
       testId='artifacts-rail'
     >
+      <div className='flex items-start gap-16px'>
+        <div className={previewOpen ? 'w-380px shrink-0 min-w-0' : 'flex-1 min-w-0'}>
       {notice ? (
         <div className='mb-12px text-12px text-t-secondary' role='status'>
           {notice}
@@ -295,8 +301,37 @@ const ArtifactsPage: React.FC = () => {
           </ul>
         </section>
       ))}
+        </div>
+        {previewOpen ? (
+          /* A definite height, deliberately. PageShell is a SCROLLING page
+             (min-height:100%, overflow-y:auto), not a fixed-height app shell,
+             so a fill-style child inside it resolves to zero - the same defect
+             that made the Workbench tree invisible. 80vh gives the viewer real
+             room without depending on an ancestor that has none to give. */
+          <div className='flex-1 min-w-0 sticky top-0' style={{ height: '80vh' }} data-testid='artifacts-rail-preview'>
+            <PreviewPanel />
+          </div>
+        ) : null}
+      </div>
     </PageShell>
   );
 };
+
+/**
+ * The rail owns its preview surface.
+ *
+ * `openPreview` only sets state; something must RENDER it. The global
+ * `PreviewProvider` is mounted app-wide but the only `PreviewPanel` lived
+ * inside the conversation layout, and `/artifacts` is routed bare - so the
+ * rail's own open button set state nobody drew and the click did nothing at
+ * all: no navigation, no panel, no console output, no IPC. A local provider
+ * also keeps the Sider's route-change `closePreview` from tearing it down.
+ * Same shape as ProjectFilesPanel, which solved this once already.
+ */
+const ArtifactsPage: React.FC = () => (
+  <PreviewProvider>
+    <ArtifactsRail />
+  </PreviewProvider>
+);
 
 export default ArtifactsPage;
