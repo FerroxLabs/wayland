@@ -221,7 +221,18 @@ import {
 // every root it is given. A string fixture would be refused as "not a
 // directory" and every grant assertion below would pass for the wrong reason.
 
-const FIXTURE = realpathSync(mkdtempSync(path.join(realpathSync(os.tmpdir()), 'wl-boundary-')));
+/**
+ * The canonical form of `p` as the OPERATING SYSTEM reports it.
+ *
+ * NOT `fs.realpathSync`, which is a JS reimplementation: on Windows it expands
+ * neither an 8.3 short name nor the on-disk case, so a fixture built with it
+ * disagrees with every root the store returns - the store canonicalises with
+ * `fs/promises.realpath`, which is the same OS call this one makes. On a GitHub
+ * Windows runner `os.tmpdir()` is `C:\\Users\\RUNNER~1\\AppData\\Local\\Temp`.
+ */
+const canonical = (p: string): string => realpathSync.native(p);
+
+const FIXTURE = canonical(mkdtempSync(path.join(canonical(os.tmpdir()), 'wl-boundary-')));
 const HOME = path.join(FIXTURE, 'home');
 /** An ordinary folder outside the workspace: the grantable one. */
 const ROOT = path.join(HOME, 'Documents', 'reports');
@@ -611,7 +622,7 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
     // CONTROL: the card really did carry the symlink, so the equality above is
     // canonicalisation and not a fixture that never differed.
     expect(ROOT_VIA_SYMLINK).not.toBe(ROOT);
-    expect(realpathSync(ROOT_VIA_SYMLINK)).toBe(ROOT);
+    expect(canonical(ROOT_VIA_SYMLINK)).toBe(ROOT);
   });
 
   /**
@@ -758,7 +769,7 @@ describe('#1099 remembering a folder for the workspace', () => {
     await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
     expect(persistedGrant().root).toBe(grantedRoot(agent));
-    expect(persistedGrant().root).toBe(realpathSync(shown!));
+    expect(persistedGrant().root).toBe(canonical(shown!));
     expect(persistedGrant().root).not.toBe(TARGET);
   });
 

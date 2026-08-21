@@ -33,6 +33,17 @@ vi.mock('@process/utils', () => ({
 import { WorkspaceFolderGrantStore } from '@process/services/workspace/folderGrantStore';
 import type { FolderGrantRootContext } from '@process/services/workspace/folderGrantRoots';
 
+/**
+ * The canonical form of `p` as the OPERATING SYSTEM reports it.
+ *
+ * NOT `fs.realpathSync`, which is a JS reimplementation: on Windows it expands
+ * neither an 8.3 short name nor the on-disk case, so a fixture built with it
+ * disagrees with every root the store returns - the store canonicalises with
+ * `fs/promises.realpath`, which is the same OS call this one makes. On a GitHub
+ * Windows runner `os.tmpdir()` is `C:\\Users\\RUNNER~1\\AppData\\Local\\Temp`.
+ */
+const canonical = (p: string): string => realpathSync.native(p);
+
 const roots: string[] = [];
 let store: WorkspaceFolderGrantStore;
 let allowedA: string;
@@ -49,7 +60,7 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  const root = mkdtempSync(path.join(realpathSync(os.tmpdir()), 'wl-grants-listall-'));
+  const root = mkdtempSync(path.join(canonical(os.tmpdir()), 'wl-grants-listall-'));
   roots.push(root);
   const home = path.join(root, 'home');
   allowedA = path.join(home, 'Reference');
