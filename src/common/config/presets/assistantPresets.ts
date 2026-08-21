@@ -1318,11 +1318,36 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
     ruleFiles: {
       'en-US': 'smart-trader.md',
     },
-    // Both names are filesystem directory names under
+    // Every name here is a filesystem directory name under
     // src/process/resources/skills/ - defaultEnabledSkills resolves by
     // directory name against the seeded builtin skills, not against the
     // skills-library index.
-    defaultEnabledSkills: ['tvcontrol-setup', 'market-open-report'],
+    //
+    // The chart/Pine/strategy skills below ship inside the TVControl connector
+    // package and are bundled from it, corrected where the connector's own
+    // copy named a script Wayland does not ship or an argument 2.3.0 renamed.
+    //
+    // `morning-prep` is bundled too but deliberately NOT enabled here. Its
+    // description claims "good morning" and "pre-open briefing", which are the
+    // exact phrases market-open-report is enabled to answer, and it routes
+    // through a chart the user may not have connected yet. market-open-report
+    // needs no chart at all, which is the whole reason it is this assistant's
+    // opener. Two skills competing for the flagship phrase is a routing
+    // coin-flip, not a wider capability.
+    defaultEnabledSkills: [
+      'tvcontrol-setup',
+      'market-open-report',
+      'chart-analysis',
+      'multi-symbol-scan',
+      'multi-pane-analysis',
+      'rebuild-from-screenshot',
+      'replay-practice',
+      'strategy-report',
+      'strategy-ab-test',
+      'learn-from-losses',
+      'pine-develop',
+      'porting-pine-versions',
+    ],
     nameI18n: {
       'en-US': 'Smart Trader',
     },
