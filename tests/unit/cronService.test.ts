@@ -94,6 +94,7 @@ function makeExecutor(overrides?: Partial<ICronJobExecutor>): ICronJobExecutor {
     executeJob: vi.fn(async () => {}),
     onceIdle: vi.fn(),
     setProcessing: vi.fn(),
+    whenRunPublished: vi.fn(async () => []),
     ...overrides,
   };
 }

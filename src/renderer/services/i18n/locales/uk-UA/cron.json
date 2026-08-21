@@ -49,7 +49,8 @@
     "taskComplete": "Завдання завершено",
     "scheduledTask": "Заплановане завдання",
     "scheduledTaskComplete": "{{title}} - Заплановане завдання завершено",
-    "taskDone": "Завдання виконано"
+    "taskDone": "Завдання виконано",
+    "deliverableReady": "{{file}} готовий"
   },
   "page": {
     "newTask": "Нове завдання",

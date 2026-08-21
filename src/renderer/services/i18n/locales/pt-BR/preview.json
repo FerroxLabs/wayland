@@ -139,5 +139,17 @@
     "installing": "Instalando o componente de pré-visualização...",
     "startFailed": "Falha ao iniciar a pré-visualização do PPT",
     "installHint": "Verifique se o officecli está instalado: npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "Artefatos",
+  "artifactsRailSubtitle": "Tudo o que seus chats e tarefas agendadas salvaram para você.",
+  "artifactsRailEmpty": "Ainda não há entregáveis",
+  "artifactsRailEmptyHint": "Quando um chat ou uma tarefa agendada salvar um arquivo para você, ele aparecerá aqui.",
+  "artifactsRailFailed": "Não foi possível ler seus entregáveis.",
+  "artifactsRailPartial": "{{count}} entradas salvas não puderam ser lidas e não estão sendo exibidas.",
+  "artifactStatusReady": "Pronto",
+  "artifactStatusEmpty": "Vazio",
+  "artifactStatusMissing": "Ausente",
+  "artifactMissingReason": "Este arquivo não está mais no disco. Ele pode ter sido movido ou excluído fora do Wayland.",
+  "artifactEmptyReason": "Este arquivo está no disco, mas não há nada nele.",
+  "artifactOpenHere": "Abrir aqui"
 }

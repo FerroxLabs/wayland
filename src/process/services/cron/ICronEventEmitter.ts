@@ -13,5 +13,11 @@ export interface ICronEventEmitter {
   emitJobUpdated(job: CronJob): void;
   emitJobExecuted(jobId: string, status: 'ok' | 'error' | 'skipped' | 'missed', error?: string): void;
   emitJobRemoved(jobId: string): void;
-  showNotification(params: { title: string; body: string; conversationId: string }): Promise<void>;
+  showNotification(params: {
+    title: string;
+    body: string;
+    conversationId: string;
+    /** The deliverable the banner announces. Clicking the banner opens it. */
+    artifactId?: string;
+  }): Promise<void>;
 }

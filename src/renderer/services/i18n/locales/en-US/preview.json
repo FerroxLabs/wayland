@@ -139,5 +139,17 @@
     "installing": "Installing preview component...",
     "startFailed": "Failed to start PPT preview",
     "installHint": "Make sure officecli is installed: npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "Artifacts",
+  "artifactsRailSubtitle": "Everything your chats and scheduled tasks have saved for you.",
+  "artifactsRailEmpty": "No deliverables yet",
+  "artifactsRailEmptyHint": "When a chat or a scheduled task saves a file for you, it appears here.",
+  "artifactsRailFailed": "Could not read your deliverables.",
+  "artifactsRailPartial": "{{count}} saved entries could not be read and are not shown.",
+  "artifactStatusReady": "Ready",
+  "artifactStatusEmpty": "Empty",
+  "artifactStatusMissing": "Missing",
+  "artifactMissingReason": "This file is no longer on disk. It may have been moved or deleted outside Wayland.",
+  "artifactEmptyReason": "This file is on disk but there is nothing in it.",
+  "artifactOpenHere": "Open here"
 }

@@ -139,5 +139,17 @@
     "installing": "Встановлення компонента перегляду...",
     "startFailed": "Не вдалося запустити перегляд PPT",
     "installHint": "Переконайтеся, що officecli встановлено: npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "Артефакти",
+  "artifactsRailSubtitle": "Усе, що ваші чати та заплановані завдання зберегли для вас.",
+  "artifactsRailEmpty": "Поки що немає результатів",
+  "artifactsRailEmptyHint": "Коли чат або заплановане завдання збереже для вас файл, він з'явиться тут.",
+  "artifactsRailFailed": "Не вдалося прочитати ваші результати.",
+  "artifactsRailPartial": "Не вдалося прочитати записів: {{count}}. Їх не показано.",
+  "artifactStatusReady": "Готово",
+  "artifactStatusEmpty": "Порожньо",
+  "artifactStatusMissing": "Відсутній",
+  "artifactMissingReason": "Цього файлу більше немає на диску. Можливо, його перемістили або видалили поза Wayland.",
+  "artifactEmptyReason": "Файл є на диску, але він порожній.",
+  "artifactOpenHere": "Відкрити тут"
 }

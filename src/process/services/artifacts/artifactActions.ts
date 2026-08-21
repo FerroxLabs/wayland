@@ -42,6 +42,8 @@ import path from 'path';
 
 import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
 import type {
+  ArtifactDiskStatus,
+  ArtifactListing,
   ArtifactOpenTarget,
   ArtifactRefreshResult,
   ArtifactSaveResult,
@@ -62,6 +64,15 @@ import { cachedDefaultApplicationName } from './defaultApplication';
  */
 export interface ArtifactHostEffects {
   readLedger(): Promise<ArtifactRecord[]>;
+  /**
+   * `readLedger`, plus the count of lines it had to discard.
+   *
+   * Optional so every existing caller and test fake keeps working with the
+   * plain reader; a fake serving an in-memory array genuinely has nothing
+   * unreadable to report. The rail supplies it because it is the one surface
+   * that tells the user the list may be short.
+   */
+  readLedgerEntries?(): Promise<{ records: ArtifactRecord[]; unreadableEntries: number }>;
   /** `confinePath`. Returns the confined absolute path, or null to refuse. */
   confine(target: string): Promise<string | null>;
   /** `shell.openPath` and friends, already reporting rather than throwing. */
@@ -161,6 +172,21 @@ export async function revealArtifact(artifactId: unknown, effects: ArtifactHostE
 export async function saveArtifactCopy(artifactId: unknown, effects: ArtifactHostEffects): Promise<ArtifactSaveResult> {
   const verified = await readVerifiedArtifact(artifactId, await effects.readLedger());
   if (!verified.ok) return verified;
+
+  // Confine the SOURCE, like `openArtifact` and `revealArtifact` already do.
+  // This was the only one of the four actions without it, which was unreachable
+  // only while the cron executor was the sole writer to the ledger: containment
+  // was proved by publication, and publication was the one thing that wrote a
+  // record. A SECOND writer whose workspace is whatever folder a conversation
+  // happens to point at removes that guarantee, and a record naming a workspace
+  // outside every authorized root would have had its bytes read and handed to
+  // the user with nothing in the way.
+  //
+  // The DESTINATION is deliberately NOT confined: the user picks it in an OS
+  // save dialog, it is their own act rather than a renderer-supplied path, and
+  // nothing is executed at the far end.
+  const confined = await effects.confine(verified.path);
+  if (!confined) return { ok: false, error: 'path not allowed' };
 
   // `path.basename` on the RECORDED relative path, which the ledger already
   // proved has no `..` and no separator tricks. The declared title is never
@@ -267,16 +293,60 @@ function chatDeliverableLocation(record: ArtifactRecord): { runDir: string; insi
  * re-verifies before it does anything.
  */
 export async function listArtifactSummaries(effects: ArtifactHostEffects): Promise<ArtifactSummary[]> {
-  const records = await effects.readLedger();
+  return (await listArtifacts(effects)).artifacts;
+}
+
+/**
+ * The listing plus what the ledger read could not account for.
+ *
+ * Same ordering, same cap and same per-row disk status as
+ * `listArtifactSummaries` - which is now a projection of this - so the rail and
+ * the preview panel can never disagree about what is in the list.
+ */
+export async function listArtifacts(effects: ArtifactHostEffects): Promise<ArtifactListing> {
+  const entries = effects.readLedgerEntries
+    ? await effects.readLedgerEntries()
+    : { records: await effects.readLedger(), unreadableEntries: 0 };
+  const records = entries.records;
   const listed = records
     .toSorted((left, right) => (right.runAt ?? '').localeCompare(left.runAt ?? ''))
     .slice(0, MAX_LISTED_ARTIFACTS);
   const newestRunPerSeries = newestRunBySeries(listed);
-  return listed.map((record) => {
-    const alias = seriesAliasPathFor(record);
-    const mirrored = alias !== null && newestRunPerSeries.get(alias.seriesKey) === record.runId;
-    return toArtifactSummary(record, mirrored ? [alias.aliasPath] : undefined);
-  });
+  const artifacts = await Promise.all(
+    listed.map(async (record) => {
+      const alias = seriesAliasPathFor(record);
+      const mirrored = alias !== null && newestRunPerSeries.get(alias.seriesKey) === record.runId;
+      const summary = toArtifactSummary(record, mirrored ? [alias.aliasPath] : undefined);
+      return { ...summary, diskStatus: await diskStatusOf(summary.canonicalPath) };
+    })
+  );
+  return { artifacts, unreadableEntries: entries.unreadableEntries };
+}
+
+/**
+ * What to SAY about a listed deliverable's file, established by one `lstat`.
+ *
+ * Deliberately NOT `readVerifiedArtifact`: that opens and sha256s the file, and
+ * doing it for up to 500 rows to render a list would hash hundreds of megabytes
+ * every time the page opens. This is a label, not a permission - nothing is
+ * opened, revealed or copied on the strength of it, and every action still
+ * re-verifies in full.
+ *
+ * `lstat`, not `stat`, so a dangling symlink reports `missing` rather than
+ * following through to whatever it points at.
+ *
+ * Anything that is not a plain readable regular file reports `missing`: from
+ * the user's side "it is a directory now" and "it is gone" are the same event -
+ * the file they were promised is not there.
+ */
+async function diskStatusOf(canonicalPath: string): Promise<ArtifactDiskStatus> {
+  try {
+    const stat = await fs.lstat(canonicalPath);
+    if (!stat.isFile()) return 'missing';
+    return stat.size === 0 ? 'empty' : 'ready';
+  } catch {
+    return 'missing';
+  }
 }
 
 /**

@@ -139,5 +139,17 @@
     "installing": "プレビューコンポーネントをインストール中...",
     "startFailed": "PPTプレビューの起動に失敗しました",
     "installHint": "officecliがインストールされていることを確認してください: npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "成果物",
+  "artifactsRailSubtitle": "チャットとスケジュールされたタスクが保存したすべてのファイル。",
+  "artifactsRailEmpty": "成果物はまだありません",
+  "artifactsRailEmptyHint": "チャットやスケジュールされたタスクがファイルを保存すると、ここに表示されます。",
+  "artifactsRailFailed": "成果物を読み取れませんでした。",
+  "artifactsRailPartial": "{{count}} 件の保存済みエントリを読み取れなかったため、表示されていません。",
+  "artifactStatusReady": "利用可能",
+  "artifactStatusEmpty": "空",
+  "artifactStatusMissing": "見つかりません",
+  "artifactMissingReason": "このファイルはディスク上にありません。Wayland の外部で移動または削除された可能性があります。",
+  "artifactEmptyReason": "このファイルはディスク上にありますが、中身がありません。",
+  "artifactOpenHere": "ここで開く"
 }

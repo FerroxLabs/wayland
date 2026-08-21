@@ -37,5 +37,6 @@
     "seeAllScheduled": "すべてのスケジュールを表示 →",
     "seeAllChats": "すべてのチャットを表示 →",
     "showMore": "さらに {{count}} 件を表示 →"
-  }
+  },
+  "artifacts": "成果物"
 }

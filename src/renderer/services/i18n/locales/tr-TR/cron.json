@@ -62,7 +62,8 @@
     "taskComplete": "Görev Tamamlandı",
     "scheduledTask": "Zamanlanmış Görev",
     "scheduledTaskComplete": "{{title}} - Zamanlanmış görev tamamlandı",
-    "taskDone": "Görev bitti"
+    "taskDone": "Görev bitti",
+    "deliverableReady": "{{file}} hazır"
   },
   "page": {
     "newTask": "Yeni görev",

@@ -139,5 +139,17 @@
     "installing": "正在安裝預覽元件...",
     "startFailed": "啟動 PPT 預覽失敗",
     "installHint": "請確認已安裝 officecli：npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "交付物",
+  "artifactsRailSubtitle": "你的對話和排程工作為你儲存的所有檔案。",
+  "artifactsRailEmpty": "還沒有交付物",
+  "artifactsRailEmptyHint": "當對話或排程工作為你儲存檔案時，它會出現在這裡。",
+  "artifactsRailFailed": "無法讀取你的交付物。",
+  "artifactsRailPartial": "有 {{count}} 筆已儲存的記錄無法讀取，未予顯示。",
+  "artifactStatusReady": "就緒",
+  "artifactStatusEmpty": "空檔案",
+  "artifactStatusMissing": "已遺失",
+  "artifactMissingReason": "該檔案已不在磁碟上。它可能已在 Wayland 之外被移動或刪除。",
+  "artifactEmptyReason": "該檔案在磁碟上，但內容為空。",
+  "artifactOpenHere": "在此開啟"
 }

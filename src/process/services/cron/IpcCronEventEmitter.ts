@@ -29,7 +29,12 @@ export class IpcCronEventEmitter implements ICronEventEmitter {
     ipcBridge.cron.onJobRemoved.emit({ jobId });
   }
 
-  async showNotification(params: { title: string; body: string; conversationId: string }): Promise<void> {
+  async showNotification(params: {
+    title: string;
+    body: string;
+    conversationId: string;
+    artifactId?: string;
+  }): Promise<void> {
     return showNotification(params);
   }
 }

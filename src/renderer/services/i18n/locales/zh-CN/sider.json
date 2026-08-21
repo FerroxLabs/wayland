@@ -37,5 +37,6 @@
     "seeAllScheduled": "查看所有任务 →",
     "seeAllChats": "查看所有对话 →",
     "showMore": "再显示 {{count}} 个 →"
-  }
+  },
+  "artifacts": "交付物"
 }

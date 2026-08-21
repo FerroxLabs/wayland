@@ -50,7 +50,8 @@
     "taskComplete": "任务完成",
     "scheduledTask": "定时任务",
     "scheduledTaskComplete": "{{title}}的定时任务完成",
-    "taskDone": "任务已完成"
+    "taskDone": "任务已完成",
+    "deliverableReady": "{{file}} 已就绪"
   },
   "page": {
     "newTask": "新建任务",

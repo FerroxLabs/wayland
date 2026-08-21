@@ -139,5 +139,17 @@
     "installing": "Installation du composant d'aperçu...",
     "startFailed": "Échec du démarrage de l'aperçu PPT",
     "installHint": "Assurez-vous qu'officecli est installé : npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "Artefacts",
+  "artifactsRailSubtitle": "Tout ce que vos conversations et tâches planifiées ont enregistré pour vous.",
+  "artifactsRailEmpty": "Aucun livrable pour l'instant",
+  "artifactsRailEmptyHint": "Dès qu'une conversation ou une tâche planifiée enregistre un fichier pour vous, il apparaît ici.",
+  "artifactsRailFailed": "Impossible de lire vos livrables.",
+  "artifactsRailPartial": "{{count}} entrées enregistrées n'ont pas pu être lues et ne sont pas affichées.",
+  "artifactStatusReady": "Prêt",
+  "artifactStatusEmpty": "Vide",
+  "artifactStatusMissing": "Introuvable",
+  "artifactMissingReason": "Ce fichier n'est plus sur le disque. Il a peut-être été déplacé ou supprimé en dehors de Wayland.",
+  "artifactEmptyReason": "Ce fichier est sur le disque mais ne contient rien.",
+  "artifactOpenHere": "Ouvrir ici"
 }

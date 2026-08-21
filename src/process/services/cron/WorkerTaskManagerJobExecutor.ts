@@ -31,7 +31,7 @@ import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorksp
 import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal';
 import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import { assertNotPromoting } from '@process/services/promotion/promotionLock';
-import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
+import { artifactLedgerPath, type ArtifactRecord } from '@process/services/artifacts/artifactLedger';
 import {
   abandonTaskRun,
   beginTaskRun,
@@ -90,6 +90,53 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    */
   _whenSettledForTests(): Promise<void> {
     return this.settleInFlight;
+  }
+
+  /**
+   * What the conversation's current run published, resolved once publication
+   * has actually finished.
+   *
+   * The idle callbacks are fired SYNCHRONOUSLY and in registration order by
+   * `CronBusyGuard.setProcessing`, and an `IdleCallback` returns `void` - so the
+   * guard cannot await the settle, and the notification callback (registered
+   * first, from `onAcquired`) would otherwise read the ledger before the run had
+   * been committed to it. This promise is created BEFORE `onAcquired` runs so
+   * that callback can find it, and is resolved by `settleArtifactRun`.
+   *
+   * Resolves to an empty list for a run that published nothing, that failed, or
+   * that never had an artifact run at all. It never rejects.
+   */
+  private runPublications = new Map<string, (records: ArtifactRecord[]) => void>();
+  private runPublicationPromises = new Map<string, Promise<ArtifactRecord[]>>();
+
+  whenRunPublished(conversationId: string): Promise<ArtifactRecord[]> {
+    return this.runPublicationPromises.get(conversationId) ?? Promise.resolve([]);
+  }
+
+  /**
+   * Arm the publication promise for this conversation's run.
+   *
+   * Any promise left over from a previous run of the same conversation is
+   * resolved empty rather than abandoned, so a caller still awaiting it is
+   * never stranded.
+   */
+  private armRunPublication(conversationId: string): void {
+    this.runPublications.get(conversationId)?.([]);
+    let resolve!: (records: ArtifactRecord[]) => void;
+    const promise = new Promise<ArtifactRecord[]>((r) => {
+      resolve = r;
+    });
+    this.runPublications.set(conversationId, resolve);
+    this.runPublicationPromises.set(conversationId, promise);
+  }
+
+  /** Settle the publication promise exactly once, then stop holding it. */
+  private resolveRunPublication(conversationId: string | undefined, records: ArtifactRecord[]): void {
+    if (!conversationId) return;
+    const resolve = this.runPublications.get(conversationId);
+    if (!resolve) return;
+    this.runPublications.delete(conversationId);
+    resolve(records);
   }
 
   constructor(
@@ -181,6 +228,8 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       this.settledRuns.delete(oldest);
     }
 
+    const conversationId = handle.conversationId;
+
     if (!publish) {
       // The run never reached its turn. `abandonTaskRun` removes the staging
       // tree, so after this nothing on disk says the run was attempted - which
@@ -191,6 +240,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       await abandonTaskRun(handle).catch((err) => {
         console.warn(`[CronExecutor] Failed to abandon run ${handle.runId} for job ${job.id}:`, err);
       });
+      this.resolveRunPublication(conversationId, []);
       return;
     }
 
@@ -204,6 +254,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // "It ran and made nothing" is a different problem from "it broke", and
         // both were previously indistinguishable from "it never ran".
         await this.journalRun(handle, job, 'no-output');
+        this.resolveRunPublication(conversationId, []);
         return;
       }
       console.info(
@@ -216,12 +267,14 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           `[CronExecutor] Job ${job.id} run ${handle.runId} refused ${JSON.stringify(rejection.path)}: ${rejection.reason}`
         );
       }
+      this.resolveRunPublication(conversationId, outcome.registered);
     } catch (err) {
       console.warn(`[CronExecutor] Failed to publish run ${handle.runId} for job ${job.id}:`, err);
       // A publication that throws leaves NO dated directory, so this is the
       // only place the failure can be recorded where a user will ever see it.
       await this.journalRun(handle, job, 'failed', err);
       await abandonTaskRun(handle).catch(() => {});
+      this.resolveRunPublication(conversationId, []);
     }
   }
 
@@ -350,6 +403,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // getOrBuildTask throws (conversation deleted), setProcessing(true) is never
     // called and no "busy" state leaks into subsequent runs.
     this.busyGuard.setProcessing(conversationId, true);
+    // Armed BEFORE onAcquired, because onAcquired is where the caller registers
+    // the completion notification - and that notification awaits this promise to
+    // learn what the run published. Armed ONLY when there is a run to publish:
+    // `settleArtifactRun` is the only thing that resolves it, so arming without
+    // one would leave the notification waiting for an event that never comes.
+    if (artifactRun) this.armRunPublication(conversationId);
     // Notify caller so it can register onceIdle callbacks while the conversation
     // is already marked busy (prevents premature idle fires).
     onAcquired?.();

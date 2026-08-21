@@ -27,6 +27,7 @@ import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICss
 import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
 import type {
+  ArtifactListing,
   ArtifactOpenTarget,
   ArtifactRefreshResult,
   ArtifactSaveResult,
@@ -161,8 +162,13 @@ export const shell = {
  * it: it is driven by a user clicking host chrome.
  */
 export const artifacts = {
-  /** The series, newest first, capped. Includes the host-resolved target. */
-  list: buildProvider<ArtifactSummary[], void>('artifacts.list'),
+  /**
+   * The series, newest first, capped. Includes the host-resolved target, each
+   * row's disk status at enumeration time, and how many ledger lines could not
+   * be read - so a surface can render what parsed and SAY the rest was dropped
+   * rather than presenting a short list as a complete one.
+   */
+  list: buildProvider<ArtifactListing, void>('artifacts.list'),
   /** Open in the OS default app. Type-gated - a `.command` is refused. */
   open: buildProvider<ShellOpenResult, { artifactId: string }>('artifacts.open'),
   /** Reveal in the OS file manager. Not type-gated: selecting never executes. */

@@ -49,10 +49,10 @@ export function useArtifactForPath(filePath: string | undefined): ArtifactSummar
     let cancelled = false;
     void ipcBridge.artifacts.list
       .invoke()
-      .then((summaries) => {
+      .then((listing) => {
         if (cancelled) return;
         setArtifact(
-          (summaries ?? []).find(
+          (listing?.artifacts ?? []).find(
             (entry) =>
               samePath(entry.canonicalPath, filePath) ||
               // The stable copy at the series root is the same deliverable under

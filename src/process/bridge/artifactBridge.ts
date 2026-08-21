@@ -24,22 +24,35 @@ import { ipcBridge } from '@/common';
 import { getDataPath } from '@process/utils';
 import {
   describeArtifactOpenTarget,
-  listArtifactSummaries,
+  listArtifacts,
   openArtifact,
   refreshChatArtifact,
   revealArtifact,
   saveArtifactCopy,
   type ArtifactHostEffects,
 } from '@process/services/artifacts/artifactActions';
-import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
+import {
+  artifactLedgerPath,
+  readArtifactLedger,
+  readArtifactLedgerEntries,
+} from '@process/services/artifacts/artifactLedger';
 import { buildArtifactSeriesView } from '@process/services/artifacts/artifactSeriesView';
 
 import { confinePath } from './pathConfinement';
 import { openPathReporting, revealPathReporting } from './shellBridge';
 
-function buildEffects(): ArtifactHostEffects {
+/**
+ * The four host effects the artifact actions need.
+ *
+ * Exported because the notification banner opens a deliverable from OUTSIDE the
+ * IPC providers - and it must do so through exactly these effects, so the
+ * confinement and the reporting-not-throwing shell are the same ones a click in
+ * the UI goes through.
+ */
+export function buildArtifactHostEffects(): ArtifactHostEffects {
   return {
     readLedger: () => readArtifactLedger(artifactLedgerPath(getDataPath())),
+    readLedgerEntries: () => readArtifactLedgerEntries(artifactLedgerPath(getDataPath())),
     confine: (target) => confinePath(target),
     launch: (target) => openPathReporting(target),
     reveal: (target) => revealPathReporting(target),
@@ -60,9 +73,9 @@ function buildEffects(): ArtifactHostEffects {
 }
 
 export function initArtifactBridge(): void {
-  const effects = buildEffects();
+  const effects = buildArtifactHostEffects();
 
-  ipcBridge.artifacts.list.provider(() => listArtifactSummaries(effects));
+  ipcBridge.artifacts.list.provider(() => listArtifacts(effects));
   ipcBridge.artifacts.open.provider(({ artifactId }) => openArtifact(artifactId, effects));
   ipcBridge.artifacts.reveal.provider(({ artifactId }) => revealArtifact(artifactId, effects));
   ipcBridge.artifacts.saveCopy.provider(({ artifactId }) => saveArtifactCopy(artifactId, effects));

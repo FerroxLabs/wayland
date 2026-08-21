@@ -14,6 +14,29 @@
  * It never travels back: every action is addressed by `artifactId`, and the
  * host re-resolves the path from the ledger each time.
  */
+/**
+ * The three states a listed deliverable's file can be in.
+ *
+ * `empty` is called out separately from `ready` because a zero-byte deliverable
+ * is the shape a failed run leaves behind, and showing it as ready sends the
+ * user to open a blank file and conclude the app lost their work.
+ */
+export type ArtifactDiskStatus = 'ready' | 'empty' | 'missing';
+
+/**
+ * What `artifacts.list` answers with.
+ *
+ * An envelope rather than a bare array so a partially-unreadable ledger can be
+ * SAID rather than silently shortened. A list that renders what parsed and
+ * warns about the rest is honest; one that renders what parsed and says nothing
+ * tells a user whose file is missing that it was never there.
+ */
+export interface ArtifactListing {
+  artifacts: ArtifactSummary[];
+  /** Ledger lines that could not be parsed or failed validation. */
+  unreadableEntries: number;
+}
+
 export interface ArtifactSummary {
   artifactId: string;
   taskId: string;
@@ -28,6 +51,18 @@ export interface ArtifactSummary {
   runAt: string;
   /** Skill/workflow name as declared. A LABEL, not an authenticated identity. */
   declaredBy: string;
+  /**
+   * What the filesystem says about `canonicalPath` at ENUMERATION time.
+   *
+   * A listing that dropped an artifact whose file had gone would answer the
+   * user's "where did my report go?" with silence, so a row is never removed -
+   * it is labelled. Advisory and already stale by the time it renders: every
+   * action re-verifies, and this is only what to SAY on the row.
+   *
+   * Absent on surfaces that do not stat (the series view), which read as
+   * "not established" rather than as `ready`.
+   */
+  diskStatus?: ArtifactDiskStatus;
   /**
    * Host-resolved absolute paths that are STABLE COPIES of `canonicalPath`,
    * present only on the newest run of a series.

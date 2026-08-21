@@ -62,7 +62,8 @@
     "taskComplete": "Task Complete",
     "scheduledTask": "Scheduled Task",
     "scheduledTaskComplete": "{{title}} - Scheduled task complete",
-    "taskDone": "Task done"
+    "taskDone": "Task done",
+    "deliverableReady": "{{file}} is ready"
   },
   "page": {
     "newTask": "New task",

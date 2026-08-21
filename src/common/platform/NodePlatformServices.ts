@@ -98,7 +98,9 @@ export class NodePlatformServices implements IPlatformServices {
   };
 
   notification = {
-    send: (_opts: { title: string; body: string; icon?: string }): void => {},
+    // Standalone has no banner, so `onClick` can never fire. Accepted and
+    // dropped deliberately - callers must already treat it as best-effort.
+    send: (_opts: { title: string; body: string; icon?: string; onClick?: () => void }): void => {},
   };
 
   network = {

@@ -139,5 +139,17 @@
     "installing": "Önizleme bileşeni yükleniyor...",
     "startFailed": "PPT önizlemesi başlatılamadı",
     "installHint": "officecli'nin yüklü olduğundan emin olun: npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "Çıktılar",
+  "artifactsRailSubtitle": "Sohbetlerinizin ve zamanlanmış görevlerinizin sizin için kaydettiği her şey.",
+  "artifactsRailEmpty": "Henüz çıktı yok",
+  "artifactsRailEmptyHint": "Bir sohbet veya zamanlanmış görev sizin için bir dosya kaydettiğinde burada görünür.",
+  "artifactsRailFailed": "Çıktılarınız okunamadı.",
+  "artifactsRailPartial": "Kaydedilmiş {{count}} kayıt okunamadı ve gösterilmiyor.",
+  "artifactStatusReady": "Hazır",
+  "artifactStatusEmpty": "Boş",
+  "artifactStatusMissing": "Eksik",
+  "artifactMissingReason": "Bu dosya artık diskte değil. Wayland dışında taşınmış veya silinmiş olabilir.",
+  "artifactEmptyReason": "Bu dosya diskte var ancak içeriği yok.",
+  "artifactOpenHere": "Burada aç"
 }
