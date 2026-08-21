@@ -106,6 +106,12 @@ describe('#1099 consent vocabulary', () => {
  * to be recognised by - so an exclusion keyed on the old value specifically
  * would fail here while the ordinary boundary-card tests all still passed.
  */
+/** The exact envelope the WebSocket adapter hands the remote-denial gate. */
+const wire = (value: unknown) => ({
+  id: 'req-1',
+  data: { conversation_id: 'c1', msg_id: 'call-1', callId: 'call-1', data: value },
+});
+
 describe('#1099 a new option value extends every exclusion by itself', () => {
   const rememberOnly = {
     options: [
@@ -136,10 +142,6 @@ describe('#1099 a new option value extends every exclusion by itself', () => {
   it('is refused to a remote peer by the bridge allowlist, unedited', () => {
     // `isRemoteDeniedConfirmation` keys on `isPathBoundaryOptionValue`, so this
     // denial came from widening the predicate and from nothing else.
-    const wire = (value: unknown) => ({
-      id: 'req-1',
-      data: { conversation_id: 'c1', msg_id: 'call-1', callId: 'call-1', data: value },
-    });
     expect(isRemoteDeniedConfirmation('subscribe-confirmation.confirm', wire(PATH_BOUNDARY_REMEMBER_FOLDER))).toBe(
       true
     );

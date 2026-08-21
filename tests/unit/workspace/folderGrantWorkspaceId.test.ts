@@ -84,9 +84,8 @@ describe('resolveFolderGrantWorkspaceId', () => {
   });
 
   it('refuses to invent a key for an absent or relative workspace path', async () => {
-    for (const bad of ['', undefined as never, null as never, 'relative/dir', './x']) {
-      expect(await resolveFolderGrantWorkspaceId(bad)).toBeNull();
-    }
+    const bad = ['', undefined as never, null as never, 'relative/dir', './x'];
+    expect(await Promise.all(bad.map((value) => resolveFolderGrantWorkspaceId(value)))).toEqual(bad.map(() => null));
     // CONTROL: a real absolute path in the same call still resolves, so the
     // nulls above are the guard and not a function that returns null always.
     expect(await resolveFolderGrantWorkspaceId(tmp)).toBeTruthy();
