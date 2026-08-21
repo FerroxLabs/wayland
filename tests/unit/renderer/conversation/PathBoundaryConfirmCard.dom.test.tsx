@@ -26,7 +26,7 @@
  * app's shortcut handlers bind. Commitment 3 is unchanged and re-asserted
  * below: Enter and Y still do nothing, from the window AND from the control.
  */
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -110,6 +110,25 @@ const boundaryConfirmation = {
     { label: 'messages.confirmation.grantFolderDeny', value: PATH_BOUNDARY_DENY },
   ],
 };
+
+/**
+ * Wait until the window-level key handler is actually installed.
+ *
+ * `findBy*` resolves as soon as the card is in the DOM, and testing-library
+ * resolves it from EITHER a MutationObserver microtask OR a 50ms real-timer
+ * macrotask - whichever fires first. React installs `ConversationChatConfirm`'s
+ * `keydown` listener in a PASSIVE effect, which React's scheduler flushes on a
+ * macrotask of its own. On the microtask path the listener is therefore not
+ * attached yet, and a key dispatched at `window` lands on nothing.
+ *
+ * That coin flip made the ordinary-card CONTROL below fail on one loaded ubuntu
+ * shard while passing on every other. The worse half is silent: it would make
+ * the two "binds no key" assertions pass VACUOUSLY, reporting a security
+ * exclusion that was never exercised. Flushing the pending passive effects
+ * makes every dispatch meet a live handler. Measured on this component: without
+ * this the microtask path sees 0 listeners and Enter does nothing; with it, 1.
+ */
+const keyHandlerInstalled = () => act(async () => {});
 
 const renderCard = () =>
   render(
@@ -208,6 +227,7 @@ describe('#1099 folder-grant card', () => {
   it('binds neither Enter nor Y nor A nor a number key', async () => {
     renderCard();
     await screen.findByTestId('path-boundary-card');
+    await keyHandlerInstalled();
 
     for (const key of ['Enter', 'y', 'Y', 'a', 'A', '1', '2']) {
       fireEvent.keyDown(window, { key });
@@ -464,6 +484,7 @@ describe('#1099 a durable-only card is excluded by the same three renderer guard
   it('binds no window-level key, so Enter cannot fire options[0]', async () => {
     renderCard();
     await screen.findByTestId('path-boundary-card');
+    await keyHandlerInstalled();
 
     for (const key of ['Enter', 'y', 'Y', 'a', 'A', '1', 'Escape', 'n']) {
       fireEvent.keyDown(window, { key });
@@ -509,6 +530,7 @@ describe('#1099 control — an ordinary approval card keeps every behaviour', ()
   it('CONTROL: Enter still confirms the first option on an ordinary card', async () => {
     renderCard();
     await screen.findByText('messages.confirmation.yesAllowOnce');
+    await keyHandlerInstalled();
 
     fireEvent.keyDown(window, { key: 'Enter' });
 
