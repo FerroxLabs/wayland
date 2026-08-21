@@ -50,7 +50,8 @@
     "taskComplete": "작업 완료",
     "scheduledTask": "예약 작업",
     "scheduledTaskComplete": "{{title}} - 예약 작업 완료",
-    "taskDone": "작업 완료"
+    "taskDone": "작업 완료",
+    "deliverableReady": "{{file}} 준비 완료"
   },
   "page": {
     "newTask": "새 작업",

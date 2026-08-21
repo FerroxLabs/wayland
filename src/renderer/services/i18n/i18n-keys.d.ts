@@ -953,6 +953,7 @@ export type I18nKey =
   | 'cron.message.badge'
   | 'cron.nextRun'
   | 'cron.noTasks'
+  | 'cron.notification.deliverableReady'
   | 'cron.notification.scheduledTask'
   | 'cron.notification.scheduledTaskComplete'
   | 'cron.notification.taskComplete'

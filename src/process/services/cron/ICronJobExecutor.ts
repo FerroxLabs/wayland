@@ -7,6 +7,7 @@
  */
 
 import type { CronJob } from './CronStore';
+import type { ArtifactRecord } from '@process/services/artifacts/artifactLedger';
 
 export interface ICronJobExecutor {
   /** Returns true if the conversation already has an active run in progress. */
@@ -26,6 +27,12 @@ export interface ICronJobExecutor {
   prepareConversation(job: CronJob): Promise<string>;
   /** Register a callback to fire once the conversation becomes idle. */
   onceIdle(conversationId: string, callback: () => Promise<void>): void;
+  /** What the conversation's current run published, once publication has
+   *  finished. The idle callbacks fire synchronously and cannot await the
+   *  publication, so a completion notification has to await this instead of
+   *  reading the ledger the moment the conversation goes idle. Resolves empty
+   *  for a run that published nothing; never rejects. */
+  whenRunPublished(conversationId: string): Promise<ArtifactRecord[]>;
   /** Mark the conversation as busy/not-busy. */
   setProcessing(conversationId: string, busy: boolean): void;
 }

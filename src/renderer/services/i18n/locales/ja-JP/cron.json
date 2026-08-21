@@ -62,7 +62,8 @@
     "taskComplete": "タスク完了",
     "scheduledTask": "スケジュールタスク",
     "scheduledTaskComplete": "{{title}}のスケジュールタスク完了",
-    "taskDone": "タスク完了"
+    "taskDone": "タスク完了",
+    "deliverableReady": "{{file}} の準備ができました"
   },
   "page": {
     "newTask": "新規タスク",

@@ -49,7 +49,8 @@
     "taskComplete": "Tâche terminée",
     "scheduledTask": "Tâche planifiée",
     "scheduledTaskComplete": "{{title}} - Tâche planifiée terminée",
-    "taskDone": "Tâche effectuée"
+    "taskDone": "Tâche effectuée",
+    "deliverableReady": "{{file}} est prêt"
   },
   "page": {
     "newTask": "Nouvelle tâche",

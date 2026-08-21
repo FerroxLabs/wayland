@@ -33,6 +33,29 @@ import {
   rollbackRestoredCronSkill,
   type ArchivedCronJob,
 } from './cronArchive';
+import type { ArtifactRecord } from '@process/services/artifacts/artifactLedger';
+
+/**
+ * How long the completion banner will wait for the run's publication to finish
+ * before giving up on naming the deliverable.
+ *
+ * Publication hashes every staged file, so it is not instant, but it happens on
+ * files that were just written. Ten seconds is far past the normal case and far
+ * short of the user noticing the banner is late.
+ */
+const NOTIFICATION_PUBLICATION_TIMEOUT_MS = 10_000;
+
+/**
+ * The file name to put in front of the user for a published deliverable.
+ *
+ * The RECORDED relative path, never the declared title: a title is
+ * model-authored text, and the ledger has already proved the relative path has
+ * no separator tricks in it.
+ */
+function artifactFileName(record: ArtifactRecord): string {
+  const segments = record.relativePath.split('/');
+  return segments[segments.length - 1] || record.relativePath;
+}
 
 /**
  * Parameters for creating a new cron job
@@ -924,7 +947,7 @@ export class CronService {
       const newConversationId = await this.executor.executeJob(
         job,
         () => {
-          this.registerCompletionNotification(job);
+          this.registerCompletionNotification(job, conversationId);
         },
         preparedConversationId,
         lastRunAtMs
@@ -982,10 +1005,13 @@ export class CronService {
   /**
    * Register a callback on executor to send notification when the agent finishes.
    * Must be called BEFORE sendMessage to avoid race conditions.
+   *
+   * The conversation id is passed in rather than read from `job.metadata`: in
+   * `new_conversation` mode the run happens in a conversation that did not exist
+   * when the job was stored, and a notification registered against the stale id
+   * would be waiting on a conversation that is not the one running.
    */
-  private registerCompletionNotification(job: CronJob): void {
-    const { conversationId } = job.metadata;
-
+  private registerCompletionNotification(job: CronJob, conversationId: string): void {
     this.executor.onceIdle(conversationId, async () => {
       // Check if cron notification is enabled
       const cronNotificationEnabled = await ProcessConfig.get('system.cronNotificationEnabled');
@@ -996,12 +1022,45 @@ export class CronService {
       const title = i18n.t('cron.notification.scheduledTaskComplete', {
         title: job.metadata.conversationTitle || job.name,
       });
-      const body = i18n.t('cron.notification.taskDone');
 
-      this.emitter.showNotification({ title, body, conversationId }).catch((err) => {
+      // "Task done" told the user nothing and gave them nothing to click. Name
+      // the deliverable instead, and carry its id so activating the banner opens
+      // it. Publication finishes AFTER the conversation goes idle, so this has
+      // to await it - see `whenRunPublished`. Bounded, because a banner that
+      // never appears is worse than one that cannot name the file.
+      const published = await this.publishedArtifactsForNotification(conversationId);
+      const primary = published[0];
+      const body = primary
+        ? i18n.t('cron.notification.deliverableReady', { file: artifactFileName(primary) })
+        : i18n.t('cron.notification.taskDone');
+
+      this.emitter.showNotification({ title, body, conversationId, artifactId: primary?.artifactId }).catch((err) => {
         console.warn('[CronService] Failed to show notification:', err);
       });
     });
+  }
+
+  /**
+   * What the run published, or an empty list if it takes too long to say.
+   *
+   * Never rejects and never blocks the banner indefinitely: a publication that
+   * hangs must cost the user the file NAME, not the notification.
+   */
+  private async publishedArtifactsForNotification(conversationId: string): Promise<ArtifactRecord[]> {
+    let timer: NodeJS.Timeout | undefined;
+    try {
+      return await Promise.race([
+        this.executor.whenRunPublished(conversationId),
+        new Promise<ArtifactRecord[]>((resolve) => {
+          timer = setTimeout(() => resolve([]), NOTIFICATION_PUBLICATION_TIMEOUT_MS);
+        }),
+      ]);
+    } catch (err) {
+      console.warn('[CronService] Could not read the run publication for the notification:', err);
+      return [];
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
 
   /**

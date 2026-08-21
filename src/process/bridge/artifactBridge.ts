@@ -36,7 +36,15 @@ import { buildArtifactSeriesView } from '@process/services/artifacts/artifactSer
 import { confinePath } from './pathConfinement';
 import { openPathReporting, revealPathReporting } from './shellBridge';
 
-function buildEffects(): ArtifactHostEffects {
+/**
+ * The four host effects the artifact actions need.
+ *
+ * Exported because the notification banner opens a deliverable from OUTSIDE the
+ * IPC providers - and it must do so through exactly these effects, so the
+ * confinement and the reporting-not-throwing shell are the same ones a click in
+ * the UI goes through.
+ */
+export function buildArtifactHostEffects(): ArtifactHostEffects {
   return {
     readLedger: () => readArtifactLedger(artifactLedgerPath(getDataPath())),
     confine: (target) => confinePath(target),
@@ -59,7 +67,7 @@ function buildEffects(): ArtifactHostEffects {
 }
 
 export function initArtifactBridge(): void {
-  const effects = buildEffects();
+  const effects = buildArtifactHostEffects();
 
   ipcBridge.artifacts.list.provider(() => listArtifactSummaries(effects));
   ipcBridge.artifacts.open.provider(({ artifactId }) => openArtifact(artifactId, effects));
