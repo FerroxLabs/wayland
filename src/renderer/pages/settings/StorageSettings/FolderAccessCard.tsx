@@ -84,7 +84,7 @@ const FolderAccessCard: React.FC = () => {
       // would leave this card loading forever with neither `catch` nor
       // `finally` running. Both halves of the union land on the same message.
       const result = await workspaceFolderGrants.list.invoke();
-      if (!result?.ok) {
+      if (result?.ok !== true) {
         setWorkspaces(null);
         setError(true);
         return;
@@ -109,7 +109,11 @@ const FolderAccessCard: React.FC = () => {
         // itself, so the folder granted is the one a human chose in an OS
         // dialog rather than a string this renderer supplied.
         const result = await workspaceFolderGrants.add.invoke({ workspaceId });
-        if (result?.ok) {
+        // `=== true` / `=== false`, never a truthiness test: this project does
+        // not enable `strictNullChecks`, so TypeScript will not narrow a
+        // boolean-literal discriminant through `if (result?.ok)` and the
+        // `reason` / `refusal` reads below fail to compile.
+        if (result?.ok === true) {
           Message.success(
             t('settings.storagePage.folderAccessAdded', {
               folder: basename(result.root),
@@ -119,12 +123,14 @@ const FolderAccessCard: React.FC = () => {
           await refresh();
           return;
         }
-        // Dismissing the picker is the most common ending and must stay silent.
-        if (result?.reason === 'cancelled') return;
-        if (result?.reason === 'refused') {
-          const label = REFUSAL_LABELS[result.refusal];
-          Message.error(t(label.key, label.fallback));
-          return;
+        if (result?.ok === false) {
+          // Dismissing the picker is the most common ending and must stay silent.
+          if (result.reason === 'cancelled') return;
+          if (result.reason === 'refused') {
+            const label = REFUSAL_LABELS[result.refusal];
+            Message.error(t(label.key, label.fallback));
+            return;
+          }
         }
         Message.error(t('settings.storagePage.folderAccessAddFailed', 'Could not add that folder.'));
       } catch {
@@ -146,7 +152,7 @@ const FolderAccessCard: React.FC = () => {
         workspaceId: target.workspaceId,
         grantId: target.grantId,
       });
-      if (!result?.ok) {
+      if (result?.ok !== true) {
         Message.error(t('settings.storagePage.folderAccessRemoveFailed', 'Could not remove that folder.'));
         return;
       }
