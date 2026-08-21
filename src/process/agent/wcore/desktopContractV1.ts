@@ -15,14 +15,17 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '4106b6a7' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '0ccaa90b' as const;
 
 /**
- * Pinned to Core `116f2d21` ("fix(protocol): announce a call that runs without
- * approval", 2026-08-12, on `lane/v0130-build`), the tree the 0.13.0 binary
- * `sha256:c55205d4b36cd5fd843c767c897e8edb30a4dd193e74da0a8fdad0dcdb24b229`
- * was built from. All four values below were read from that commit's manifest
- * and then confirmed identical to a real `ready` frame off the binary.
+ * Pinned to Core `0ccaa90b`, the `v0.13.4` release tag. Every value below was
+ * read from that tag's `manifest.json` and then confirmed identical to the
+ * `ready` fixture the same tag publishes - the frame a real engine sends.
+ *
+ * The corpus under `contracts/wayland-desktop-core/v1/` was re-imported in the
+ * same commit and verified file-by-file against the tag: 176 files, 176
+ * digest matches, with a deliberately-wrong comparison shown to report a
+ * mismatch so the check is known to discriminate.
  *
  * ⚠️ Identify an engine by sha256, NEVER by `--version`. The dev build that
  * used to sit in `resources/bundled-wayland-core/` self-reports `0.12.26` and
@@ -33,19 +36,35 @@ export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '4106b6a7' as const;
  * the pin, the corpus under `contracts/wayland-desktop-core/v1/` and the
  * shipped engine all move in ONE commit or every session dies on frame 1.
  *
- * Three distinct contract sets are live, all three verified by execution:
+ * Contract sets seen so far:
  *   published v0.12.26  minor 12 / gen-13 / schema `23fb3048…`
  *   C-1..C-5 dev build  minor 13 / gen-14 / schema `4971f456…`
- *   0.13.0              minor 14 / gen-14 / schema `306d83e1…`  <- pinned here
+ *   0.13.0              minor 14 / gen-14 / schema `306d83e1…`
+ *   v0.13.4             minor 16 / gen-16 / schema `2993aee1…`  <- pinned here
+ *
+ * What minor 16 adds, and why this re-pin is not optional: `path_grants_v1`,
+ * `path_boundary_prompt_v1` and `render_artifact_v1` in the capability map,
+ * and - the part that decides whether the folder-grant card works at all -
+ * `always_path` in the `tool_approve` scope schema. Under minor 14 that scope
+ * is REJECTED by our own `validateOutboundCommand`, so the grant button threw
+ * inside Desktop before a frame was ever written. Verified by execution with
+ * `once`, `always_prefix` and `tool_deny` as positive controls in the run.
+ *
+ * ⚠️ Still NOT in minor 16: `grant_path`, `revoke_path` and
+ * `grant_workspace_capability`. Core added the commands and documented them
+ * but shipped no command fixtures, and the command schema is generated from
+ * the fixture set over a closed `oneOf`, so all three are unsendable under a
+ * negotiated contract. Filed as `FerroxLabs/wayland-core#314`. Do not build
+ * spawn-time grant replay against this contract minor expecting it to work.
  */
 export const DESKTOP_CORE_V1_PIN = {
   name: 'wayland-desktop-core',
   major: 1,
-  minor: 14,
-  generator: 'wcore-desktop-contract-gen/14',
-  fixtureDigest: 'sha256:8dd56f9a7d3ec5883074b8809730ba85214559fda49d913bb99e228e3fa59248',
-  schemaDigest: 'sha256:306d83e19fa01a83c1d17d6365c9159efeb94373b8328259cbf842d783e00152',
-  sourceInputsDigest: 'sha256:6db45f83ca5d868554eea9595a9748474f2028a6297be69f865119caf8ed54bd',
+  minor: 16,
+  generator: 'wcore-desktop-contract-gen/16',
+  fixtureDigest: 'sha256:3d0d62863053a31046aec4f09338d911d5416b4a01fcdfcd574e20b70c1e0422',
+  schemaDigest: 'sha256:2993aee1129fc1659cdd06d0ed168770ede7ed89437f644021cb9e77ec5bed62',
+  sourceInputsDigest: 'sha256:7109269427740ec4c06abf2ee536b11ca6a465bfa5d12970ff84a32ca3342550',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
@@ -56,7 +75,10 @@ export const DESKTOP_CORE_V1_PIN = {
     effective_execution_policy_revisions: 'available',
     host_delegated_delivery: 'available',
     operator_tool_effect_resolution_v1: 'available',
+    path_boundary_prompt_v1: 'available',
+    path_grants_v1: 'available',
     plugin_events: 'shape_only',
+    render_artifact_v1: 'available',
     runtime_diagnostics_v1: 'available',
     runtime_mcp_lifecycle_v1: 'available',
     semantic_failover_receipts: 'available',
