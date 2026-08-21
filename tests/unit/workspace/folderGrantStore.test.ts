@@ -172,6 +172,45 @@ describe('WorkspaceFolderGrantStore.add - refusals', () => {
     expect((await addAllowed()).ok).toBe(true);
   });
 
+  /**
+   * The credential-store list is `$HOME`-RELATIVE. Core's `SECRET_DIR_SEGMENTS`
+   * are not - `is_secret_path_static` matches `/.ssh/` anywhere in the path,
+   * and `grantable_read_root_shape` applies it to the folder it is about to
+   * grant (`v0.13.4:crates/wcore-tools/src/workspace_policy.rs`).
+   *
+   * So a copy of `.ssh` outside `$HOME` was ACCEPTED here and REFUSED by the
+   * engine. No authority leaked - Core fails closed - but it produced the exact
+   * failure this mirror exists to prevent: an entry in Settings that quietly
+   * holds nothing, for a folder the card said had been opened.
+   */
+  it('refuses a credential directory that lives OUTSIDE the home directory', async () => {
+    const outside = path.join(fx.home, '..', 'opt', 'deploy', '.ssh', 'keys');
+    mkdirSync(outside, { recursive: true });
+    expect(await refusalOf(outside)).toBe('credential_store');
+
+    // Positive control in the same tree: a sibling under the same non-home
+    // parent IS grantable, so the refusal is the `.ssh` segment and not the
+    // location. Without this the assertion above would pass on a fixture that
+    // never reached the check.
+    const sibling = path.join(fx.home, '..', 'opt', 'deploy', 'config');
+    mkdirSync(sibling, { recursive: true });
+    expect(accepted(await addAllowed(sibling)).grant.root).toBe(realpathSync(sibling));
+  });
+
+  it('refuses a folder whose own name is a secret shape, and grants its sibling', async () => {
+    const cases = ['certs.pem', 'signing.KEY', 'id_rsa', 'service-account-prod.json', 'terraform.tfstate'];
+    for (const name of cases) {
+      const dir = path.join(fx.allowed, name);
+      mkdirSync(dir, { recursive: true });
+      expect([name, await refusalOf(dir)]).toEqual([name, 'credential_store']);
+    }
+    // Positive control, and the boundary Core draws: `monkey.json` is NOT a
+    // secret shape, so a folder named that is grantable.
+    const benign = path.join(fx.allowed, 'monkey.json');
+    mkdirSync(benign, { recursive: true });
+    expect(accepted(await addAllowed(benign)).grant.root).toBe(realpathSync(benign));
+  });
+
   it('refuses anything that is not an absolute path to a real directory', async () => {
     expect(await refusalOf('Projects')).toBe('not_an_absolute_directory');
     expect(await refusalOf(path.join(fx.home, 'no-such-folder'))).toBe('not_an_absolute_directory');

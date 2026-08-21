@@ -22,17 +22,35 @@
  * (`crates/wcore-tools/src/workspace_policy.rs` on wayland-core `main`):
  *
  *   canonicalise -> file becomes its containing directory -> filesystem root ->
- *   `$HOME` or anything containing it -> credential stores (both directions).
+ *   `$HOME` or anything containing it -> credential stores (both directions) ->
+ *   `is_secret_path_static`.
  *
  * The one deliberate ADDITION is {@link FolderGrantRootContext.waylandPrivateRoots}:
  * Wayland's own config tree holds the user's provider API keys and the engine's
  * memory database. Core has no reason to know about it; the host does.
  *
- * The one deliberate OMISSION is Core's `is_secret_path_static`, which matches
- * secret FILES (`*.pem`, `id_rsa`, `.env`). A grant is always a directory here -
- * a file is replaced by its parent before any check runs - and the directory
- * shapes that predicate would catch (`~/.ssh`, `~/.aws`) are already refused by
- * the credential-store check.
+ * ── The comment that used to stand here was WRONG ──────────────────────────
+ * It said `is_secret_path_static` was deliberately omitted because the shapes
+ * it catches (`~/.ssh`, `~/.aws`) are already refused by the credential-store
+ * check. That reasoning holds only for `$HOME`-RELATIVE copies. The host joins
+ * every `CREDENTIAL_STORES` entry to `$HOME`; Core's `SECRET_DIR_SEGMENTS`
+ * match `/.ssh/`, `/.gnupg/`, `/.aws/`, `/.azure/`, `/.gcloud/` ANYWHERE in the
+ * path, and `SECRET_EXTENSIONS` / `SECRET_BASENAMES` / `SECRET_SUFFIXES` match
+ * the folder's own name.
+ *
+ * So `/opt/deploy/.ssh/keys` was accepted here and refused by Core - verified
+ * against `v0.13.4:crates/wcore-tools/src/workspace_policy.rs`, where
+ * `grantable_read_root_shape` calls `is_secret_path_static(&dir)` and returns
+ * `PathGrantError::SecretPath`. No authority leaked, because Core fails closed.
+ * What it produced is the exact failure this mirror exists to prevent: a
+ * Settings entry that quietly holds nothing, and a card that told the user a
+ * folder was opened for a call the engine then refused.
+ *
+ * It is now mirrored, in {@link isSecretGrantPath}, EXACTLY - including where
+ * Core is narrower than one might write it fresh (`/opt/deploy/.ssh` with
+ * nothing under it does not match `/.ssh/` and is granted). Being stricter than
+ * the engine would swap a silent no-op for a refusal the engine would not have
+ * made, and this module's whole job is to give the same answer Core gives.
  *
  * ── Why spelling is not enough ─────────────────────────────────────────────
  * Every rule above is a LEXICAL comparison of pathnames after `realpath`, and a
@@ -100,6 +118,91 @@ export const USER_CREDENTIAL_STORES: readonly string[] = [
   '.config/op',
   '.config/doctl',
 ];
+
+/**
+ * Core's `SECRET_EXTENSIONS`, `SECRET_BASENAMES`, `SECRET_DIR_SEGMENTS` and
+ * `SECRET_SUFFIXES`, copied verbatim and in the same order so a future diff
+ * against `crates/wcore-tools/src/workspace_policy.rs` is readable.
+ *
+ * These are what `is_secret_path_static` matches, and `grantable_read_root_shape`
+ * applies it to the FOLDER it is about to grant - so they gate a directory
+ * grant here for exactly the same reason.
+ */
+const SECRET_EXTENSIONS: readonly string[] = ['pem', 'key', 'p12', 'pfx', 'tfstate'];
+const SECRET_BASENAMES: readonly string[] = ['id_rsa', 'id_ed25519', 'id_ecdsa', 'id_dsa'];
+const SECRET_DIR_SEGMENTS: readonly string[] = ['/.ssh/', '/.gnupg/', '/.aws/', '/.azure/', '/.gcloud/'];
+const SECRET_SUFFIXES: readonly string[] = [
+  '/.env',
+  '/.git/config',
+  '/.git-credentials',
+  '/.npmrc',
+  '/.pypirc',
+  '/.netrc',
+  '/.dockercfg',
+  '/.aws/credentials',
+  '/.kube/config',
+  '/.git/hooks/',
+  '/.docker/config.json',
+  '/gradle.properties',
+];
+
+/**
+ * Win32 strips trailing spaces and dots from a path component before opening
+ * it, so `.env `, `.env.` and `.env. ` all open `.env`. Stripped on every
+ * platform: this is a DENY list, and over-denying one pathological name is a
+ * visible refusal where under-denying hands over a credential.
+ */
+const withoutTrailingSpacesAndDots = (value: string): string => value.replace(/[ .]+$/, '');
+
+/**
+ * Core's `is_secret_path_static`, mirrored for the canonical folder a grant
+ * names.
+ *
+ * NOT `$HOME`-relative, and that is the whole point of it existing alongside
+ * the credential-store check: the segment rules match anywhere in the path, so
+ * `/opt/deploy/.ssh/keys` is caught here and nowhere else.
+ *
+ * Case is folded and backslashes are folded to `/` on EVERY rule and EVERY
+ * platform, as Core does - on macOS and Windows the filesystem is
+ * case-insensitive, so a case-sensitive denylist is bypassable by spelling.
+ */
+export function isSecretGrantPath(target: string): boolean {
+  const scoped = withoutTrailingSpacesAndDots(target.replace(/\\/g, '/').toLowerCase());
+
+  // Derived from the final component of the ORIGINAL path, then trimmed, then
+  // folded - the extension of `foo.key ` is `key `, which matches nothing, so
+  // it has to be re-derived from the TRIMMED name rather than taken as-is.
+  const name = withoutTrailingSpacesAndDots(path.basename(target)).toLowerCase();
+  if (name.length > 0) {
+    const lastDot = name.lastIndexOf('.');
+    if (lastDot >= 0 && SECRET_EXTENSIONS.includes(name.slice(lastDot + 1))) return true;
+    if (SECRET_BASENAMES.includes(name)) return true;
+    // `service-account*.json`, bare `key.json`, and separator-bounded
+    // `*-key.json` / `*_key.json`. Deliberately NOT `monkey.json`.
+    if (
+      name.endsWith('.json') &&
+      (name.startsWith('service-account') ||
+        name === 'key.json' ||
+        name.endsWith('-key.json') ||
+        name.endsWith('_key.json'))
+    ) {
+      return true;
+    }
+    // `terraform.tfstate` and `terraform.tfstate.backup` (compound extension).
+    if (name.includes('.tfstate')) return true;
+  }
+
+  if (SECRET_DIR_SEGMENTS.some((segment) => scoped.includes(segment))) return true;
+
+  return SECRET_SUFFIXES.some((fragment) => {
+    if (fragment.endsWith('/')) return scoped.includes(fragment);
+    const at = scoped.lastIndexOf(fragment);
+    if (at < 0) return false;
+    // Bounded, so `/.envoy` does not match `/.env`.
+    const after = scoped.slice(at + fragment.length);
+    return after.length === 0 || after.startsWith('.') || after.startsWith('/');
+  });
+}
 
 /** Core's `SYSTEM_CREDENTIAL_STORES`, per platform. */
 export function systemCredentialStores(): readonly string[] {
@@ -369,6 +472,13 @@ export async function classifyFolderGrantRoot(
 
   if (touches(prepared.wayland)) return refuse('wayland_private');
   if (touches(prepared.credentials)) return refuse('credential_store');
+
+  // Core's `is_secret_path_static`, which `grantable_read_root_shape` applies
+  // to the folder it is about to grant. Reported as `credential_store` rather
+  // than as a new refusal code: the two are one event to the person reading it
+  // ("that folder holds saved sign-in keys"), and Core's own `SecretPath` and
+  // `CredentialPath` both flatten to the same untyped string on the wire.
+  if (isSecretGrantPath(canonical)) return refuse('credential_store');
 
   // Everything above compared SPELLINGS. Ask the same questions again by
   // filesystem identity, so an alias that `realpath` does not collapse - a

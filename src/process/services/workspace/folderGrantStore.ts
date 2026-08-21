@@ -179,17 +179,23 @@ const EMPTY_FILE = (): GrantsFile => ({
 });
 
 /**
- * The two key namespaces `resolveFolderGrantWorkspaceId` derives, and the only
- * two this store will file an entry under.
+ * The key namespaces this store will file an entry under.
  *
  * The prefixes were until now "a call-site convention": every writer happened
  * to use them and nothing checked. A convention nothing enforces is not a
- * boundary - the whole point of the disjoint namespaces is that a marker file
- * the agent CAN write cannot name another workspace's path key, and that only
- * holds if an unprefixed key is impossible to store under.
+ * boundary, and an unprefixed key is a key nothing derives - so it is refused.
  *
  * `path:` must carry an absolute path, because a relative one would be resolved
  * against whatever the process cwd happened to be by whoever read it next.
+ *
+ * `marker:` is LEGACY. `resolveFolderGrantWorkspaceId` no longer derives it -
+ * the key is the canonical path and the workspace marker survives only as a
+ * display label - so nothing new can be filed under one. Buckets written before
+ * that change are still on disk, and they stay recognised here on purpose: a
+ * key this function rejects is a bucket every read reports as withheld, which
+ * is right for a hand-edited key and wrong for a decision the user actually
+ * made under the previous scheme. They remain listed, remain removable, and are
+ * never silently dropped.
  */
 const MARKER_KEY_PREFIX = 'marker:';
 const PATH_KEY_PREFIX = 'path:';
