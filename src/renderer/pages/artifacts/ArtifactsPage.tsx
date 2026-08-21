@@ -191,7 +191,7 @@ const ArtifactsRail: React.FC = () => {
       testId='artifacts-rail'
     >
       <div className='flex items-start gap-16px'>
-        <div className={previewOpen ? 'w-380px shrink-0 min-w-0' : 'flex-1 min-w-0'}>
+        <div className={previewOpen ? 'w-420px shrink-0 min-w-0' : 'flex-1 min-w-0'}>
       {notice ? (
         <div className='mb-12px text-12px text-t-secondary' role='status'>
           {notice}
@@ -235,12 +235,16 @@ const ArtifactsRail: React.FC = () => {
               return (
                 <li
                   key={artifact.artifactId}
-                  className='flex items-start gap-10px rd-8px px-10px py-8px bg-1 hover:bg-2 transition-colors'
+                  className='flex flex-wrap items-start gap-10px rd-8px px-10px py-8px bg-1 hover:bg-2 transition-colors'
                   data-testid='artifacts-rail-row'
                   data-disk-status={status}
                 >
                   <FileText size={16} className='mt-2px shrink-0 text-t-3' />
-                  <div className='min-w-0 flex-1'>
+                  {/* A floor, not min-w-0. At zero the four shrink-0 action
+                      buttons eat the whole row and the file name collapses to a
+                      single letter; with a floor the actions wrap onto their own
+                      line instead, which is what flex-wrap on the row is for. */}
+                  <div className='min-w-160px flex-1'>
                     <div className='flex items-center gap-8px min-w-0'>
                       <span className='truncate text-13px text-t-primary'>{artifact.fileName}</span>
                       <span
