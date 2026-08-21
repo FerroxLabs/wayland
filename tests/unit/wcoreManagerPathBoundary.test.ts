@@ -712,18 +712,26 @@ describe('#1099 remembering a folder for the workspace', () => {
 
   it('files the SAME root it handed the engine, and the card displayed', async () => {
     // Three values that must be one folder: what the button SAID, what went out
-    // on the wire, and what was written down. Comparing the store against a
-    // literal would miss a divergence between the first two; comparing it
-    // against the wire alone would miss a card that named something else.
+    // on the wire, and what was written down.
+    //
+    // The card names a SYMLINK deliberately. With a plain directory all three
+    // values are the same string no matter which of them the code passes
+    // around, so the test could not tell a divergence from an agreement -
+    // persisting the raw card string instead of the vetted root survived it.
+    // Through a symlink the displayed name and the canonical directory are
+    // different strings, and only one of them is the folder that was vetted.
+    vi.clearAllMocks();
+    emitEvent(manager, boundaryFrame('call-link', ROOT_VIA_SYMLINK));
     const card = emitConfirmationAdd.mock.calls[0][0] as {
       options: Array<{ value: string; params?: Record<string, string> }>;
     };
     const shown = card.options.find((o) => o.value === PATH_BOUNDARY_REMEMBER_FOLDER)?.params?.[
       PATH_BOUNDARY_ROOT_PARAM
     ];
-    expect(shown).toBeTruthy();
+    expect(shown).toBe(ROOT_VIA_SYMLINK);
+    expect(shown).not.toBe(ROOT);
 
-    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
+    manager.confirm('call-link', 'call-link', PATH_BOUNDARY_REMEMBER_FOLDER);
     await settled();
     await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
