@@ -39,9 +39,10 @@ const FOLDER_GRANT_KEYS = ['workspaceFolderGrants.list', 'workspaceFolderGrants.
 
 describe('REMOTE_DENIED_KEYS - the folder-grant channels are pinned by membership', () => {
   it.each(FOLDER_GRANT_KEYS)('%s is an EXACT denied key, not merely prefix-covered', (key) => {
-    expect(REMOTE_DENIED_KEYS.has(key), `${key} must be listed exactly, so narrowing the prefix cannot re-open it`).toBe(
-      true
-    );
+    expect(
+      REMOTE_DENIED_KEYS.has(key),
+      `${key} must be listed exactly, so narrowing the prefix cannot re-open it`
+    ).toBe(true);
   });
 
   /**

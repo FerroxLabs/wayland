@@ -360,9 +360,7 @@ describe('pinned v1 host-command corpus vs the path-grant commands', () => {
     expect(() =>
       consumer.validateOutboundCommand({ type: 'tool_approve', call_id: 'c1', scope: 'once' })
     ).not.toThrow();
-    expect(() =>
-      consumer.validateOutboundCommand({ type: 'tool_deny', call_id: 'c1', reason: 'no' })
-    ).not.toThrow();
+    expect(() => consumer.validateOutboundCommand({ type: 'tool_deny', call_id: 'c1', reason: 'no' })).not.toThrow();
     expect(() =>
       consumer.validateOutboundCommand({
         type: 'tool_approve',
