@@ -981,7 +981,7 @@ export const AWS_AUTHORITY_ENV_KEYS = [
  * destination handed to model-authored skill text, so the one place it is
  * produced is the right place to prove it cannot point out of the sandbox.
  */
-function resolveOutputDir(workspace: string, outputDir?: string, conversationId?: string): string {
+export function resolveOutputDir(workspace: string, outputDir?: string, conversationId?: string): string {
   const seriesRoot = path.join(workspace, 'artifacts');
   if (outputDir) {
     const resolvedWorkspace = path.resolve(workspace);
@@ -1013,6 +1013,44 @@ function usableConversationSegment(conversationId: string): string | null {
   if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(trimmed)) return null;
   if (/[.]$/.test(trimmed)) return null;
   return trimmed;
+}
+
+/**
+ * T2. TELL THE MODEL WHERE ITS DELIVERABLES GO.
+ *
+ * `WAYLAND_OUTPUT_DIR` has been set on every spawn since P2-6 and, until this,
+ * exactly ONE thing in the product read it: the bundled morning-report
+ * `SKILL.md`. A plain chat - no workflow, no skill - was never told the
+ * directory existed, so the artifacts rail would have shipped over an empty
+ * folder. `buildSpawnConfig` has forwarded `options.systemPrompt` to
+ * `--system-prompt` the whole time and nothing in `src/process` ever set it.
+ * This is that producer.
+ *
+ * VERIFIED AGAINST THE REAL ENGINE (wayland-core 0.13.0) by capturing the
+ * outgoing provider request, because the help text reads like an override and
+ * is not one:
+ *
+ *  - `--system-prompt` is APPENDED to the engine's composed system prompt. The
+ *    base prompt came back byte-for-byte identical with this text inserted
+ *    after it, so naming a directory here costs none of the engine's own
+ *    guidance.
+ *  - It is present on a `--resume` spawn as well. That is why it is the channel
+ *    and `presetRules` is not: `presetRules` ships as an `init_history` frame
+ *    that `WCoreAgent` skips whenever `resume` is set, so a directive sent that
+ *    way would be missing from every turn after an app restart.
+ *
+ * The wording is deliberately about DELIVERABLES rather than "output". The
+ * engine's own base prompt already tells the model to keep scratch out of the
+ * working tree; the failure this prevents is the opposite one - a report the
+ * user wanted, written somewhere nothing lists.
+ */
+export function buildOutputDirective(absoluteOutputDir: string): string {
+  return [
+    `Deliverables you want the user to keep go in ${absoluteOutputDir}. Create that directory if it does not exist.`,
+    'Use the workspace root for intermediate files, scratch analysis, scripts and drafts.',
+    `Only files in ${absoluteOutputDir} are shown to the user as deliverables.`,
+    `When you refer to a saved deliverable in your final message, name its path inside ${absoluteOutputDir}.`,
+  ].join(' ');
 }
 
 export function buildEngineSpawnEnv(opts: {
