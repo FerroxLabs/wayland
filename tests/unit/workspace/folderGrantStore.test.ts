@@ -29,7 +29,7 @@ import {
   statSync,
   writeFileSync,
 } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -54,11 +54,26 @@ import {
 } from '../../../src/process/services/workspace/folderGrantStore';
 import type { FolderGrantRootContext } from '../../../src/process/services/workspace/folderGrantRoots';
 
+/**
+ * The canonical form of `p` as the OPERATING SYSTEM reports it.
+ *
+ * NOT `fs.realpathSync`, which is a JS reimplementation: on Windows it neither
+ * expands an 8.3 short name nor corrects the on-disk case. The store
+ * canonicalises with `fs/promises.realpath`, the native binding, which does
+ * both - so a fixture built with the JS version disagrees with every root the
+ * store returns. Both forms were live on CI at once: `os.tmpdir()` is
+ * `C:\\Users\\RUNNER~1\\AppData\\Local\\Temp` on a GitHub Windows runner.
+ *
+ * `realpathSync.native` and `fs/promises.realpath` are the same OS call, so
+ * this is the filesystem's own answer and not a copy of the code under test.
+ */
+const canonical = (p: string): string => realpathSync.native(p);
+
 const tmpRoots: string[] = [];
 const WS = 'marker:ws-alpha';
 
 function tmpRoot(): string {
-  const root = mkdtempSync(path.join(realpathSync(os.tmpdir()), 'wl-grants-'));
+  const root = mkdtempSync(path.join(canonical(os.tmpdir()), 'wl-grants-'));
   tmpRoots.push(root);
   return root;
 }
@@ -149,7 +164,7 @@ describe('WorkspaceFolderGrantStore.add - refusals', () => {
     const benign = path.join(fx.home, 'shortcut');
     symlinkSync(fx.allowed, benign, 'dir');
     const ok = await fx.store.add({ workspaceId: WS, root: benign, origin: 'settings' });
-    expect(accepted(ok).grant.root).toBe(realpathSync(fx.allowed));
+    expect(accepted(ok).grant.root).toBe(canonical(fx.allowed));
   });
 
   it('refuses the home directory and anything containing it', async () => {
@@ -194,7 +209,7 @@ describe('WorkspaceFolderGrantStore.add - refusals', () => {
     // never reached the check.
     const sibling = path.join(fx.home, '..', 'opt', 'deploy', 'config');
     mkdirSync(sibling, { recursive: true });
-    expect(accepted(await addAllowed(sibling)).grant.root).toBe(realpathSync(sibling));
+    expect(accepted(await addAllowed(sibling)).grant.root).toBe(canonical(sibling));
   });
 
   it('refuses a folder whose own name is a secret shape, and grants its sibling', async () => {
@@ -208,7 +223,7 @@ describe('WorkspaceFolderGrantStore.add - refusals', () => {
     // secret shape, so a folder named that is grantable.
     const benign = path.join(fx.allowed, 'monkey.json');
     mkdirSync(benign, { recursive: true });
-    expect(accepted(await addAllowed(benign)).grant.root).toBe(realpathSync(benign));
+    expect(accepted(await addAllowed(benign)).grant.root).toBe(canonical(benign));
   });
 
   it('refuses anything that is not an absolute path to a real directory', async () => {
@@ -222,7 +237,7 @@ describe('WorkspaceFolderGrantStore.add - refusals', () => {
     const file = path.join(fx.allowed, 'notes.txt');
     writeFileSync(file, 'x');
     const outcome = await fx.store.add({ workspaceId: WS, root: file, origin: 'consent_card' });
-    expect(accepted(outcome).grant.root).toBe(realpathSync(fx.allowed));
+    expect(accepted(outcome).grant.root).toBe(canonical(fx.allowed));
   });
 
   it("fails closed when Wayland's private roots cannot be resolved", async () => {
@@ -400,7 +415,15 @@ describe('WorkspaceFolderGrantStore.add - Windows short names', () => {
   onWindows('expands an 8.3 short name before the root is stored', async () => {
     const long = path.join(fx.home, 'Quarterly Reports Archive');
     mkdirSync(long, { recursive: true });
-    const short = execFileSync('cmd', ['/d', '/c', `for %I in ("${long}") do @echo %~sI`], { encoding: 'utf8' }).trim();
+    // `execSync`, NOT `execFileSync('cmd', [...])`. Node escapes an argv entry
+    // containing a double quote the MSVCRT way (backslash-escaped), and cmd.exe
+    // does not read backslash escapes - so the argv form reaches cmd as
+    // `F:\\"F:\\...\\Quarterly Reports Archive\\"` and echoes that back. A `"` is
+    // illegal in a Windows filename, so the store refused it as
+    // `not_an_absolute_directory` and this test failed for a reason that had
+    // nothing to do with short names. `execSync` hands cmd.exe the string it
+    // already expects. Verified on a real Windows host, both forms side by side.
+    const short = execSync(`for %I in ("${long}") do @echo %~sI`, { encoding: 'utf8' }).trim();
 
     const outcome = await fx.store.add({ workspaceId: WS, root: short, origin: 'settings' });
 
@@ -442,7 +465,7 @@ describe('WorkspaceFolderGrantStore.add - containment and the cap', () => {
       [first.grant.grantId, second.grant.grantId].toSorted()
     );
     const remaining = (await fx.store.list(WS)).grants;
-    expect(remaining.map((g) => g.root)).toEqual([realpathSync(fx.allowed)]);
+    expect(remaining.map((g) => g.root)).toEqual([canonical(fx.allowed)]);
   });
 
   it('refuses the grant past the cap but still accepts a covered re-grant', async () => {
@@ -476,7 +499,7 @@ describe('WorkspaceFolderGrantStore - persistence and isolation', () => {
     const grants = (await reopened.list(WS)).grants;
     expect(grants).toHaveLength(1);
     expect(grants[0].grantId).toBe(created.grant.grantId);
-    expect(grants[0].root).toBe(realpathSync(fx.allowed));
+    expect(grants[0].root).toBe(canonical(fx.allowed));
     expect(grants[0].access).toBe('read');
   });
 
@@ -573,7 +596,7 @@ describe('defaultFolderGrantRootContext', () => {
       expect(context.homeDir).toBe(os.homedir());
       expect(context.waylandPrivateRoots).toContain(root);
       expect(context.waylandPrivateRoots).toContain(path.join(root, 'config'));
-      expect(context.waylandPrivateRoots).toContain(realpathSync(path.join(profiles, 'work')));
+      expect(context.waylandPrivateRoots).toContain(canonical(path.join(profiles, 'work')));
     } finally {
       delete process.env.WAYLAND_PROFILES_ROOT;
     }

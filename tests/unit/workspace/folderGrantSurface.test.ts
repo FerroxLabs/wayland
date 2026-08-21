@@ -33,6 +33,17 @@ import {
 } from '@process/services/workspace/folderGrantSurface';
 import { buildWorkspaceMarker, writeWorkspaceMarker } from '@process/services/workspaceIdentity';
 
+/**
+ * The canonical form of `p` as the OPERATING SYSTEM reports it.
+ *
+ * NOT `fs.realpathSync`, which is a JS reimplementation: on Windows it expands
+ * neither an 8.3 short name nor the on-disk case, so a fixture built with it
+ * disagrees with every root the store returns - the store canonicalises with
+ * `fs/promises.realpath`, which is the same OS call this one makes. On a GitHub
+ * Windows runner `os.tmpdir()` is `C:\\Users\\RUNNER~1\\AppData\\Local\\Temp`.
+ */
+const canonical = (p: string): string => realpathSync.native(p);
+
 const WORKSPACE = '/Users/x/Documents/Wayland/Projects/Ledger';
 const OTHER_WORKSPACE = '/Users/x/Documents/Wayland/Projects/Payroll';
 
@@ -159,7 +170,7 @@ describe('resolveFolderGrantWorkspaces - reading the folder back out of the key'
   });
 
   const tmpDir = (): string => {
-    const dir = mkdtempSync(path.join(realpathSync(os.tmpdir()), 'wl-grant-key-rel-'));
+    const dir = mkdtempSync(path.join(canonical(os.tmpdir()), 'wl-grant-key-rel-'));
     tmpDirs.push(dir);
     return dir;
   };
@@ -169,10 +180,33 @@ describe('resolveFolderGrantWorkspaces - reading the folder back out of the key'
     // whatever directory the app happens to be running in would attach a
     // stranger's folder to a workspace row and offer it for revoke.
     const absolute = tmpDir();
-    const relative = path.relative(process.cwd(), absolute);
-    expect(path.isAbsolute(relative)).toBe(false);
 
-    const located = await resolveFolderGrantWorkspaces([`path:${relative}`]);
+    // NOT `path.relative(process.cwd(), absolute)`. On Windows the cwd and the
+    // temp dir routinely sit on different drives - `D:\\a\\wayland\\wayland` and
+    // `C:\\Users\\...\\Temp` on CI - and `path.relative` cannot express that as a
+    // relative path, so it returns the ABSOLUTE target and the fixture stops
+    // being a relative key at all.
+    //
+    // Anchoring the cwd to the folder's own parent makes the relative form the
+    // basename on every platform, and makes it STRONGER: this relative key
+    // really does name this folder when resolved against the cwd, so a
+    // resolver that leaned on the cwd would find it and this test would go red.
+    // The cross-drive form could only ever have refused for the wrong reason.
+    // Safe to chdir: vitest 4 defaults to the isolated `forks` pool, so this
+    // file owns its process, and tests within a file run serially.
+    const previousCwd = process.cwd();
+    process.chdir(path.dirname(absolute));
+    let located: Awaited<ReturnType<typeof resolveFolderGrantWorkspaces>>;
+    try {
+      const relative = path.basename(absolute);
+      expect(path.isAbsolute(relative)).toBe(false);
+      // The fixture is honest: from here, the relative key DOES name the folder.
+      expect(canonical(path.resolve(relative))).toBe(canonical(absolute));
+
+      located = await resolveFolderGrantWorkspaces([`path:${relative}`]);
+    } finally {
+      process.chdir(previousCwd);
+    }
     expect(located.size).toBe(0);
 
     // Positive control: the SAME folder, named absolutely, does resolve - so

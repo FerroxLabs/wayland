@@ -55,6 +55,17 @@ import {
 import type { FolderGrantRootContext } from '@process/services/workspace/folderGrantRoots';
 import type { FolderGrant, FolderGrantWithheldReason } from '@/common/workspace/folderGrants';
 
+/**
+ * The canonical form of `p` as the OPERATING SYSTEM reports it.
+ *
+ * NOT `fs.realpathSync`, which is a JS reimplementation: on Windows it expands
+ * neither an 8.3 short name nor the on-disk case, so a fixture built with it
+ * disagrees with every root the store returns - the store canonicalises with
+ * `fs/promises.realpath`, which is the same OS call this one makes. On a GitHub
+ * Windows runner `os.tmpdir()` is `C:\\Users\\RUNNER~1\\AppData\\Local\\Temp`.
+ */
+const canonical = (p: string): string => realpathSync.native(p);
+
 const WS = 'marker:ws-alpha';
 const tmpRoots: string[] = [];
 
@@ -83,7 +94,7 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  const root = mkdtempSync(path.join(realpathSync(os.tmpdir()), 'wl-grants-reval-'));
+  const root = mkdtempSync(path.join(canonical(os.tmpdir()), 'wl-grants-reval-'));
   tmpRoots.push(root);
   const home = path.join(root, 'home');
   const waylandPrivate = path.join(root, 'app-data', 'config');
