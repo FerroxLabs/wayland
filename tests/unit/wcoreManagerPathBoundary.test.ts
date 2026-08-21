@@ -370,7 +370,10 @@ describe('#1099 a path boundary is never auto-approved', () => {
       callId: 'call-plain',
       title: 'Run',
       description: '',
-      options: [{ label: 'a', value: 'proceed_once' }, { label: 'c', value: 'cancel' }],
+      options: [
+        { label: 'a', value: 'proceed_once' },
+        { label: 'c', value: 'cancel' },
+      ],
     });
     await vi.advanceTimersByTimeAsync(100);
     expect(confirmSpy).toHaveBeenCalled();
@@ -551,7 +554,6 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
   });
 });
 
-
 /**
  * #1099 — the DURABLE answer: the same in-band grant, plus a record on this
  * workspace's folder-grant list.
@@ -596,7 +598,11 @@ describe('#1099 remembering a folder for the workspace', () => {
     mockResolveWorkspaceId.mockResolvedValue(WORKSPACE_ID);
     mockGrantAdd.mockResolvedValue({
       ok: true,
-      addition: { grant: { grantId: 'g1', root: ROOT, access: 'read', grantedAtMs: 1, origin: 'consent_card' }, created: true, superseded: [] },
+      addition: {
+        grant: { grantId: 'g1', root: ROOT, access: 'read', grantedAtMs: 1, origin: 'consent_card' },
+        created: true,
+        superseded: [],
+      },
     });
     manager = createManager();
     agent = attachAgent(manager);

@@ -66,9 +66,7 @@ export type PathBoundaryOptionValue =
 
 export function isPathBoundaryOptionValue(value: unknown): value is PathBoundaryOptionValue {
   return (
-    value === PATH_BOUNDARY_GRANT_FOLDER ||
-    value === PATH_BOUNDARY_REMEMBER_FOLDER ||
-    value === PATH_BOUNDARY_DENY
+    value === PATH_BOUNDARY_GRANT_FOLDER || value === PATH_BOUNDARY_REMEMBER_FOLDER || value === PATH_BOUNDARY_DENY
   );
 }
 

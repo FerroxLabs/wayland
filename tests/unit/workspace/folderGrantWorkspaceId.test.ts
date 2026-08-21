@@ -65,7 +65,10 @@ describe('resolveFolderGrantWorkspaceId', () => {
     // A marker is a file INSIDE the workspace, so the agent can write it. This
     // one claims another workspace's path key verbatim.
     const victim = `path:${path.resolve(tmp)}`;
-    const forged = { ...buildWorkspaceMarker({ ownerKind: 'task', ownerId: null, displayName: 'x' }), workspaceId: victim };
+    const forged = {
+      ...buildWorkspaceMarker({ ownerKind: 'task', ownerId: null, displayName: 'x' }),
+      workspaceId: victim,
+    };
     await writeWorkspaceMarker(tmp, forged as never);
 
     const resolved = await resolveFolderGrantWorkspaceId(tmp);
