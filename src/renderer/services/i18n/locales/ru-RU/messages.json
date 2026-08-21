@@ -66,7 +66,17 @@
     "yesAllowAlways": "Да, разрешить всегда",
     "yesAlwaysAllowTool": "Да, всегда разрешать инструмент \"{{toolName}}\" с сервера \"{{serverName}}\"",
     "yesAlwaysAllowServer": "Да, разрешать все инструменты с сервера \"{{serverName}}\"",
-    "no": "Нет (esc)"
+    "no": "Нет (esc)",
+    "grantFolderAlways": "Разрешить эту папку для этого чата: {{folder}}",
+    "grantFolderAlwaysHint": "Только чтение, до конца этого чата. Ничего другого за пределами рабочей области не открывается.",
+    "grantFolderRemember": "Всегда разрешать эту папку: {{folder}}",
+    "grantFolderRememberHint": "Только чтение; папка запоминается для этой рабочей области, пока вы её не удалите.",
+    "grantFolderDeny": "Не разрешать",
+    "pathBoundaryTitle": "Разрешить доступ к папке за пределами рабочей области?",
+    "pathBoundaryTargetLabel": "Агент хочет прочитать",
+    "pathBoundaryRootLabel": "Разрешение откроет эту папку",
+    "pathBoundaryGrantAria": "{{label}} — нажмите пробел, чтобы предоставить доступ только для чтения к {{folder}} до конца этого чата.",
+    "pathBoundaryRememberAria": "{{label}} — нажмите пробел, чтобы предоставить доступ только для чтения к {{folder}} и запомнить её для этой рабочей области, пока вы её не удалите."
   },
   "atFile.hint": "Введите текст для поиска файлов",
   "atFile.menuLabel": "Упоминания файлов",
@@ -77,5 +87,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "От агента",
+    "preview": "Просмотр",
+    "truncated": "Усечено — слишком велико для полного отображения."
   }
 }

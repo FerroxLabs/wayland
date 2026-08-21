@@ -1,0 +1,190 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * The shared vocabulary for "folders this workspace may reach" — Wayland's
+ * boundary axis, the equivalent of `codex --add-dir` / `claude --add-dir`.
+ *
+ * WHY A BOUNDARY AXIS AT ALL. Wayland already has a *prompting* axis (the
+ * folder-grant consent card, agent modes) and had no *boundary* axis: no way
+ * for the user to say "this folder is fine" IN ADVANCE. Unattended runs — cron,
+ * Autopilot — have nobody at the window to answer a card, so a read outside the
+ * workspace is a dead end there no matter how the prompting axis is set. A
+ * persisted list is what turns that dead end into a recoverable one, by prior
+ * consent rather than by widening anything at run time.
+ *
+ * WHY THE LIST NEVER LIVES IN THE WORKSPACE. The agent has write access to its
+ * own workspace. A grant list stored there would be a list the agent can edit,
+ * which is self-escalation with extra steps. The record belongs in app
+ * user-data, keyed by workspace, where only the app writes it.
+ *
+ * WHY THE HOST OWNS THE DURABLE RECORD. Core's grants are session-scoped by
+ * construction: `grant_path` takes a host-chosen `grant_id` and `revoke_path`
+ * takes it back, and nothing survives the process. The host replays the list at
+ * spawn. That is the right split — the user's list lives where the user can see
+ * and edit it, and the engine holds no authority the host did not just hand it.
+ */
+
+/**
+ * Read is the only grantable access.
+ *
+ * `write` exists on the wire (`PathGrantAccess::Write`) and Core REFUSES it
+ * rather than silently downgrading — deliberately, so a host that can express
+ * the request gets a legible refusal instead of shipping a button that promises
+ * more than it delivers. Wayland does not express it: there is no product
+ * question to which "write outside the workspace" is the answer.
+ */
+export type FolderGrantAccess = 'read';
+
+/**
+ * Where a grant came from. Persisted so a user can later explain every entry —
+ * a grant nobody can account for is a grant nobody can audit.
+ */
+export type FolderGrantOrigin =
+  /** Answered "always allow this folder" on a path-boundary consent card. */
+  | 'consent_card'
+  /** Added deliberately from Settings, with no pending tool call. */
+  | 'settings';
+
+/** One persisted folder grant. */
+export interface FolderGrant {
+  /**
+   * Host-chosen, stable for the life of the entry, and the ONLY revoke handle:
+   * it is echoed to `revoke_path` to withdraw this exact grant. Regenerating it
+   * on replay would strand whatever the engine is holding.
+   */
+  grantId: string;
+  /**
+   * The folder, exactly as it was shown to the user when they consented.
+   * Display and authority must not drift apart, so this is written from the
+   * same accessor the card rendered from (`pathBoundaryRootOf`).
+   */
+  root: string;
+  access: FolderGrantAccess;
+  /** Unix ms. When the user consented. */
+  grantedAtMs: number;
+  origin: FolderGrantOrigin;
+}
+
+declare const REVALIDATED: unique symbol;
+
+/**
+ * A grant whose root has been re-checked against the live filesystem by
+ * `WorkspaceFolderGrantStore`, and is therefore safe to hand to an engine.
+ *
+ * The brand exists because a persisted root is a STRING and the filesystem
+ * moves underneath it. A folder that was `/Volumes/reports` when the user
+ * consented can be renamed and replaced by a symlink, a junction or a mount
+ * pointing at Wayland's own config tree; the recorded string still reads
+ * `/Volumes/reports` and every later reader believes it. Core will not save us
+ * - its refusals cover `/`, `$HOME` and a credential list, but not Wayland's
+ * user-data directory, which is a host-only concept holding provider config
+ * and `safeStorage` material.
+ *
+ * So nothing but the store's revalidating readers may mint this type, and any
+ * replay must ask for it. A future implementation that reads the JSON file
+ * itself, or hands `FolderGrant` straight through, will not typecheck - which
+ * is the point: the safe read is the only convenient way to get roots out.
+ */
+export type LiveFolderGrant = FolderGrant & { readonly [REVALIDATED]: true };
+
+/**
+ * Why a persisted entry was not handed back as live.
+ *
+ * A SEPARATE type from {@link FolderGrantRefusal} on purpose. Refusals are what
+ * the consent card and the add flow report about a folder the user just picked;
+ * these are what a READ reports about a folder that was fine when it was
+ * recorded and is not fine now. The two overlap but are not the same event, and
+ * merging them would make every exhaustive switch over refusals silently absorb
+ * a case it was never written for.
+ */
+export type FolderGrantWithheldReason =
+  | FolderGrantRefusal
+  /**
+   * The root still resolves, and still passes every refusal, but it no longer
+   * resolves to ITSELF - it has been renamed, re-pointed, or replaced by a link
+   * to somewhere else since the user consented. The folder they agreed to is
+   * not the folder this path now names, so the consent does not transfer.
+   */
+  | 'root_changed'
+  /**
+   * The entry is filed under a workspace key that is not one this store would
+   * write. Only a hand-edited or tampered file produces one, and a key nothing
+   * derives is a key nothing should replay.
+   */
+  | 'unrecognised_workspace_key';
+
+/**
+ * A persisted entry that a read refused to certify.
+ *
+ * Reported rather than deleted. Silently trusting it would hand out authority
+ * nobody re-checked; silently deleting it would erase a user's decision with no
+ * trace and no explanation. It is shown, it is removable, and it is never
+ * replayed.
+ */
+export type WithheldFolderGrant = Readonly<{ grant: FolderGrant; reason: FolderGrantWithheldReason }>;
+
+/** The persisted per-workspace record, as returned by a revalidating read. */
+export interface WorkspaceFolderGrants {
+  /**
+   * The workspace this list belongs to. **Always produced by
+   * `resolveFolderGrantWorkspaceId`, never derived at the call site.**
+   *
+   * An earlier version of this comment said "from the workspace identity
+   * marker, never a path", and that was wrong in a way that would have made
+   * the feature dead for most chats. `.wayland-workspace.json` is written by
+   * exactly two call sites, `allocateProjectWorkspace` and
+   * `promoteConversationWorkspace` - both ALLOCATION paths. A workspace the
+   * user picked in a file dialog has no marker and never will.
+   *
+   * So the key is the marker id when one exists and the resolved path
+   * otherwise, in two PREFIXED, DISJOINT namespaces. The prefix is
+   * load-bearing, not cosmetic: the marker file sits inside the workspace,
+   * which the agent can write, so without it an agent could author a marker
+   * whose id is literally another workspace's path key and inherit that
+   * workspace's entire grant list.
+   */
+  workspaceId: string;
+  /** Re-validated against the live filesystem by this read. Safe to replay. */
+  grants: readonly LiveFolderGrant[];
+  /** Recorded, still on disk, and NOT certified by this read. Never replay these. */
+  withheld: readonly WithheldFolderGrant[];
+}
+
+/**
+ * Why a root cannot be granted. Returned instead of a bare boolean so the
+ * refusal can be shown to the user in the terms they will recognise.
+ *
+ * These are refused HOST-SIDE, before anything reaches the engine, and that is
+ * not belt-and-braces. Core's `emit_path_grant` reports a refusal as a plain
+ * `Info` message on the session output and emits no updated policy receipt —
+ * there is no typed error to catch — so a host that relied on the engine saying
+ * no would persist an entry that never took effect.
+ */
+export type FolderGrantRefusal =
+  /** Filesystem root, or a drive root on Windows. */
+  | 'root_of_filesystem'
+  /** The home directory itself. Granting it grants nearly everything. */
+  | 'home_directory'
+  /** Wayland's own config / credential storage. */
+  | 'wayland_private'
+  /**
+   * A user credential store - `~/.ssh`, `~/.aws`, `~/.config/gh` and the rest
+   * of Core's `CREDENTIAL_STORES` - or a folder that contains one. Refused in
+   * both directions, because granting a folder that holds `~/.ssh` is the same
+   * disclosure as granting `~/.ssh`.
+   */
+  | 'credential_store'
+  /**
+   * The workspace already holds the maximum number of grants the engine will
+   * accept. Core caps a session at `MAX_SESSION_READ_GRANTS = 64` and reports
+   * the overflow as an untyped `Info` string, so a durable list allowed to grow
+   * past the cap would show entries that quietly hold no authority. Refused at
+   * ADD time, while the user is still there to remove one.
+   */
+  | 'grant_cap_reached'
+  /** Not an absolute path, or not a real directory. */
+  | 'not_an_absolute_directory';

@@ -50,16 +50,19 @@ export class ProjectServiceImpl implements IProjectService {
     // so chats never silently fall back to a throwaway temp dir. Best-effort: if
     // allocation fails we still create the project (lazy migration will retry on
     // first chat), so a filesystem hiccup never blocks project creation.
+    // Minted before allocation so the workspace's identity marker (P2-0) can name
+    // the project that owns it.
+    const id = uuid();
     let workspace = params.workspace;
     if (!workspace) {
       try {
-        workspace = await allocateProjectWorkspace(name);
+        workspace = await allocateProjectWorkspace(name, { ownerKind: 'project', ownerId: id });
       } catch (err) {
         console.error('[ProjectService] Failed to allocate persistent workspace:', err);
       }
     }
     const project: IProject = {
-      id: uuid(),
+      id,
       name,
       description: params.description,
       workspace,

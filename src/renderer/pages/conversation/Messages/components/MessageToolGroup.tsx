@@ -106,6 +106,15 @@ const useConfirmationButtons = (
         // choices (see the `node` switch), so no inline buttons here.
         question = '';
         break;
+      case 'path_boundary':
+        // #1099: a filesystem boundary is answered by the dedicated folder-grant
+        // card (PathBoundaryConfirmCard), never here. Handled explicitly rather
+        // than left to fall through: `default` below IS the mcp case, and an
+        // unhandled boundary would be labelled as an MCP tool prompt and offered
+        // proceed_once / proceed_always — the exact vocabulary this card must
+        // never speak, on the one decision that widens filesystem authority.
+        question = '';
+        break;
       default: {
         const mcpProps = confirmationDetails;
         question = t('messages.confirmation.allowMCPTool', {

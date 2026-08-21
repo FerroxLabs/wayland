@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import path from 'path';
+
 import type { TProviderWithModel } from '@/common/config/storage';
 import { isLocalBaseUrl, isOpenAIHost } from '@/common/utils/urlValidation';
 import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from '@process/providers/catalog/chatgptSubscriptionModels';
@@ -489,6 +491,17 @@ export function buildSpawnConfig(
      */
     rawEngine?: boolean;
     /**
+     * Ask Core to accept `grant_path` from this host, by passing
+     * `--allow-host-path-grants`. Default OFF: a session with no folder grants
+     * to replay has no business holding the capability, and Core made this a
+     * launch FLAG rather than an env var precisely so "this session may, that
+     * one may not" is expressible. Absent, Core refuses every `grant_path` with
+     * an untyped `info` line and emits no policy receipt.
+     *
+     * It requires `--json-stream`, which both spawn arms already pass.
+     */
+    allowHostPathGrants?: boolean;
+    /**
      * True when a ChatGPT subscription's OAuth is available for keyless inference
      * (the caller resolved it from `~/.codex/auth.json` - the same store the
      * engine reads for `--provider openai-chatgpt`). Consumed ONLY by
@@ -556,6 +569,17 @@ export function buildSpawnConfig(
   // side). The `model` argument is intentionally unused here.
   if (options.rawEngine) {
     const args = ['--json-stream'];
+    // Passed in raw-engine mode too, and deliberately. The "only session-protocol
+    // args" rule exists to keep Desktop from overriding what the engine resolves
+    // from its OWN config.toml - provider, model, auth, token budget, security
+    // posture. This flag overrides none of that: it is host<->engine capability
+    // negotiation on the json-stream channel itself, the same category as
+    // `--json-stream`, and Core made it a flag rather than an env var so it
+    // CANNOT be resolved from config.toml at all. Withholding it here would make
+    // the user's persisted folder list silently inert for exactly the users who
+    // configured their engine most deliberately - a boundary that reads as
+    // configured and is not.
+    if (options.allowHostPathGrants) args.push('--allow-host-path-grants');
     if (options.resume) {
       args.push('--resume', options.resume);
     } else if (options.sessionId) {
@@ -603,6 +627,14 @@ export function buildSpawnConfig(
   }
   if (options.autoApprove) {
     args.push('--auto-approve');
+  }
+  // Default-deny, and NOT implied by `--auto-approve`. Auto-approve answers the
+  // prompting question ("must a human click?"); this answers the boundary
+  // question ("what may be reached at all"). Letting one imply the other would
+  // let a mode toggle widen the filesystem boundary without anyone consenting
+  // to a folder.
+  if (options.allowHostPathGrants) {
+    args.push('--allow-host-path-grants');
   }
 
   // --resume and --session-id are mutually exclusive
@@ -941,10 +973,36 @@ export const AWS_AUTHORITY_ENV_KEYS = [
  *     never diverge. Layered last so a stray `process.env.WAYLAND_HOME` can't
  *     override the resolved profile dir.
  */
+/**
+ * The run's staging directory when one is open and genuinely inside the
+ * workspace, otherwise the series root. Containment is re-checked HERE rather
+ * than trusted from the caller: this value becomes a host-blessed write
+ * destination handed to model-authored skill text, so the one place it is
+ * produced is the right place to prove it cannot point out of the sandbox.
+ */
+function resolveOutputDir(workspace: string, outputDir?: string): string {
+  const seriesRoot = path.join(workspace, 'artifacts');
+  if (!outputDir) return seriesRoot;
+  const resolvedWorkspace = path.resolve(workspace);
+  const resolved = path.resolve(outputDir);
+  const relative = path.relative(resolvedWorkspace, resolved);
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return seriesRoot;
+  return resolved;
+}
+
 export function buildEngineSpawnEnv(opts: {
   providerEnv: Record<string, string>;
   toolKeys?: Record<string, string>;
   waylandHome?: string;
+  workspace?: string;
+  /**
+   * P2-11: the OPEN RUN'S staging directory, when a scheduled run is in flight.
+   * Overrides the `<workspace>/artifacts` default so a crashed or half-finished
+   * run cannot leave partial output where the next run - or the user - reads it
+   * as a real deliverable. Ignored unless it resolves inside `workspace`: this
+   * is a hint from the run path, not a second way to choose a write root.
+   */
+  outputDir?: string;
   vaultPassphraseEnv?: Record<string, string>;
   spawnEnvDenylist?: readonly string[];
   ambientEnvDenylist?: readonly string[];
@@ -1048,6 +1106,28 @@ export function buildEngineSpawnEnv(opts: {
   // error instead of the opaque "unknown channel". Standalone/CLI engines (which
   // DO hand-author channel toml) never set this and are unaffected.
   out.WAYLAND_SEND_MESSAGE_HOST_DELEGATE = '1';
+
+  // P2-6: the deliverable destination, handed to the skill instead of guessed
+  // by it. The bundled morning-report SKILL.md named an app-owned absolute path
+  // (`~/wayland/outbox/market/`) while also stating that everything outside the
+  // workspace is refused; with nowhere legal to write, the agent wrote beside
+  // its own script inside `.wayland-core/skills/...`, a dot directory every
+  // workspace scanner skips, and the deliverable was invisible. A skill author
+  // cannot reproduce that if the destination is not theirs to choose: they pick
+  // a relative FILENAME and join it onto this.
+  //
+  // Set here, after the ambient allowlist filter and after both denylist
+  // sweeps, for the same reason WAYLAND_ALLOW_WIRE_FORCE is: a stale value in
+  // the user's shell must never win (it is not allowlisted, so it never enters
+  // `full`), and a denylist that revokes provider authority must not silently
+  // leave a skill with no output directory at all.
+  //
+  // Deliberately NOT created here. `<workspace>` may be gone - the user owns
+  // that folder - and an mkdir would silently resurrect a deleted workspace,
+  // which is exactly what P2-10 forbids. Bundled skills already `mkdir -p`.
+  if (opts.workspace) {
+    out.WAYLAND_OUTPUT_DIR = resolveOutputDir(opts.workspace, opts.outputDir);
+  }
 
   return out;
 }

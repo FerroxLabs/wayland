@@ -69,7 +69,17 @@
     "yesAllowAlways": "是，始终允许",
     "yesAlwaysAllowTool": "是，始终允许来自服务器 \"{{serverName}}\" 的工具 \"{{toolName}}\"",
     "yesAlwaysAllowServer": "是，始终允许来自服务器 \"{{serverName}}\" 的所有工具",
-    "no": "否 (esc)"
+    "no": "否 (esc)",
+    "grantFolderAlways": "仅本次对话允许此文件夹：{{folder}}",
+    "grantFolderAlwaysHint": "只读，直到本次对话结束。工作区之外的其他内容不会被开放。",
+    "grantFolderRemember": "始终允许此文件夹：{{folder}}",
+    "grantFolderRememberHint": "只读，并为此工作区记住，直到你将其移除。",
+    "grantFolderDeny": "不允许",
+    "pathBoundaryTitle": "允许访问工作区之外的文件夹？",
+    "pathBoundaryTargetLabel": "智能体想要读取",
+    "pathBoundaryRootLabel": "允许后将开放此文件夹",
+    "pathBoundaryGrantAria": "{{label}} — 按空格键授予对 {{folder}} 的只读访问权限，直到本次对话结束。",
+    "pathBoundaryRememberAria": "{{label}} — 按空格键授予对 {{folder}} 的只读访问权限，并为此工作区记住，直到你将其移除。"
   },
   "slash.customBadge": "Custom",
   "runaway": {
@@ -77,5 +87,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "来自智能体",
+    "preview": "预览",
+    "truncated": "已截断 —— 内容过大，无法完整显示。"
   }
 }

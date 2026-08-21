@@ -8,6 +8,7 @@
 
 import { ChevronDown, ChevronUp, Zap } from 'lucide-react';
 import { ipcBridge } from '@/common';
+import { unwrapCron } from '@renderer/pages/cron/cronBridgeResult';
 import { iconColors } from '@/renderer/styles/colors';
 import { Button, Message } from '@arco-design/web-react';
 import React, { useEffect, useState } from 'react';
@@ -44,7 +45,7 @@ const SkillSuggestCard: React.FC<SkillSuggestCardProps> = ({ suggestion, cronJob
   const handleSave = async () => {
     setSaving(true);
     try {
-      await ipcBridge.cron.saveSkill.invoke({ jobId: cronJobId, content: suggestion.content });
+      unwrapCron(await ipcBridge.cron.saveSkill.invoke({ jobId: cronJobId, content: suggestion.content }));
       setSaved(true);
       Message.success(t('cron.skill.saveSuccess'));
     } catch (err) {

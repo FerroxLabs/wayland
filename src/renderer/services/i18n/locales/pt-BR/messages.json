@@ -69,7 +69,17 @@
     "yesAllowAlways": "Sim, permitir sempre",
     "yesAlwaysAllowTool": "Sim, sempre permitir a ferramenta \"{{toolName}}\" do servidor \"{{serverName}}\"",
     "yesAlwaysAllowServer": "Sim, sempre permitir todas as ferramentas do servidor \"{{serverName}}\"",
-    "no": "Não (esc)"
+    "no": "Não (esc)",
+    "grantFolderAlways": "Permitir esta pasta nesta conversa: {{folder}}",
+    "grantFolderAlwaysHint": "Somente leitura, até esta conversa terminar. Nada mais fora do seu espaço de trabalho é aberto.",
+    "grantFolderRemember": "Sempre permitir esta pasta: {{folder}}",
+    "grantFolderRememberHint": "Somente leitura, e lembrada para este espaço de trabalho até você removê-la.",
+    "grantFolderDeny": "Não permitir",
+    "pathBoundaryTitle": "Permitir acesso a uma pasta fora do seu espaço de trabalho?",
+    "pathBoundaryTargetLabel": "O agente quer ler",
+    "pathBoundaryRootLabel": "Permitir abrirá esta pasta",
+    "pathBoundaryGrantAria": "{{label}} — pressione Espaço para conceder acesso somente leitura a {{folder}} até esta conversa terminar.",
+    "pathBoundaryRememberAria": "{{label}} — pressione Espaço para conceder acesso somente leitura a {{folder}} e lembrá-la para este espaço de trabalho até você removê-la."
   },
   "slash.customBadge": "Custom",
   "runaway": {
@@ -77,5 +87,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "Do agente",
+    "preview": "Pré-visualizar",
+    "truncated": "Truncado — grande demais para exibir por completo."
   }
 }

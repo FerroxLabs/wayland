@@ -10,6 +10,7 @@ import { Clock } from 'lucide-react';
 import { iconColors } from '@/renderer/styles/colors';
 import { ipcBridge } from '@/common';
 import type { ICronJob } from '@/common/adapter/ipcBridge';
+import { unwrapCron } from '../cronBridgeResult';
 import type { TMessage } from '@/common/chat/chatLib';
 import { Button, Popover, Tooltip } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -157,7 +158,7 @@ const CronJobManager: React.FC<CronJobManagerProps> = ({ conversationId, cronJob
     setDirectLoading(true);
     ipcBridge.cron.getJob
       .invoke({ jobId: cronJobId })
-      .then((job) => setDirectJob(job ?? null))
+      .then((job) => setDirectJob(unwrapCron(job) ?? null))
       .catch(() => setDirectJob(null))
       .finally(() => setDirectLoading(false));
   }, [cronJobId]);

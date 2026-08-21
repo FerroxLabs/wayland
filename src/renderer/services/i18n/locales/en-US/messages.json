@@ -73,7 +73,17 @@
     "yesAlwaysAllowTool": "Yes, always allow tool \"{{toolName}}\" from server \"{{serverName}}\"",
     "yesAlwaysAllowServer": "Yes, always allow all tools from server \"{{serverName}}\"",
     "no": "No (esc)",
-    "recommended": "Recommended"
+    "recommended": "Recommended",
+    "grantFolderAlways": "Allow this folder for this chat: {{folder}}",
+    "grantFolderAlwaysHint": "Read-only, until this chat ends. Nothing else outside your workspace is opened.",
+    "grantFolderRemember": "Always allow this folder: {{folder}}",
+    "grantFolderRememberHint": "Read-only, and remembered for this workspace until you remove it.",
+    "grantFolderDeny": "Don't allow",
+    "pathBoundaryTitle": "Allow access to a folder outside your workspace?",
+    "pathBoundaryTargetLabel": "The agent wants to read",
+    "pathBoundaryRootLabel": "Allowing opens this folder",
+    "pathBoundaryGrantAria": "{{label}} — press Space to grant read-only access to {{folder}} until this chat ends.",
+    "pathBoundaryRememberAria": "{{label}} — press Space to grant read-only access to {{folder}} and remember it for this workspace until you remove it."
   },
   "slash.customBadge": "Custom",
   "doctor": {
@@ -86,5 +96,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "From the agent",
+    "preview": "Preview",
+    "truncated": "Truncated — this is too large to show in full."
   }
 }

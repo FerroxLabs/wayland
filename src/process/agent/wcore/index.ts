@@ -32,6 +32,7 @@ import {
   planVaultPassphraseDelivery,
   type VaultPassphraseDelivery,
 } from './envBuilder';
+import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
 import { ProfileIsolationError, nativeConfigDir, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
@@ -40,7 +41,16 @@ import { vertexSpawnCredentialsForModel } from '@process/providers/vertexSpawnCr
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
-import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
+import type {
+  WCoreEvent,
+  WCoreCommand,
+  WCoreCapabilities,
+  ApprovalScope,
+  RenderMime,
+  PathGrantAccess,
+  WCoreWorkspacePolicy,
+} from './protocol';
+import { registerLivePathGrantSession } from './pathGrantSessions';
 import { parseQuestionTool } from './questionTool';
 import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { redactSecrets } from '@process/utils/secretRedaction';
@@ -72,7 +82,36 @@ const WCORE_PROJECT_CONFIG = '.wayland-core.toml';
 // opaque "exited with code N" (#484). Capped to bound memory on a chatty engine.
 const WCORE_STDERR_TAIL_MAX = 2048;
 
+/**
+ * #1098: the closed `render_artifact` mime vocabulary, mirrored from
+ * `wcore-protocol::events::RenderMime`. Held as a runtime set because the wire
+ * is untyped JSON — the compile-time union proves nothing about what actually
+ * arrives, and Core's rule is that an unknown kind is REFUSED, never coerced.
+ */
+/**
+ * Host-side caps for a `render_artifact`, mirroring the engine's own 1 MiB /
+ * 256-byte limits. Restated here because a host must not rely on the far side
+ * of a wire for its own safety, and because the failure mode is unrecoverable:
+ * the IPC bridge has no reject and no timeout, so an oversized payload hangs
+ * the renderer for the life of the process.
+ */
+const MAX_RENDER_ARTIFACT_CONTENT_CHARS = 1024 * 1024;
+const MAX_RENDER_ARTIFACT_TITLE_CHARS = 256;
+
+const RENDERABLE_ARTIFACT_MIMES: ReadonlySet<RenderMime> = new Set<RenderMime>([
+  'text/plain',
+  'text/markdown',
+  'text/html',
+]);
+
 type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string; subject?: string }) => void;
+
+/**
+ * How long to wait for the `workspace_policy` receipt that confirms a path
+ * grant. Core emits it synchronously on the same command loop iteration, so
+ * this is a liveness bound on a dead/wedged transport, not a latency budget.
+ */
+const WORKSPACE_POLICY_RECEIPT_TIMEOUT_MS = 5_000;
 
 /**
  * Sanitize an existing `.wayland-core.toml` body and merge in the app's own provider
@@ -189,6 +228,12 @@ export type WCoreAgentOptions = {
    * config publication and spawn from silently dropping or crossing connectors.
    */
   waylandHome?: string;
+  /**
+   * The conversation this engine serves. Used only to look up whether a
+   * scheduled run is open on THIS conversation (P2-11); absent for any caller
+   * that has no conversation, which simply means no run is ever found.
+   */
+  conversationId?: string;
   onStreamEvent: StreamEventHandler;
   onProcessExit?: (code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null) => void;
   /** Unconditional child-lifecycle notification, including idle and post-turn exits. */
@@ -251,6 +296,17 @@ export class WCoreAgent {
   private _onPong: WCoreAgentOptions['onPong'];
   private options: WCoreAgentOptions;
   private activeMsgId: string | null = null;
+  /**
+   * The last `workspace_policy` receipt Core emitted, or null before the first
+   * one arrives. Core re-emits this after EVERY change to the effective read
+   * boundary (startup, `grant_path`, `revoke_path`,
+   * `grant_workspace_capability`), and its `readable_roots` is the
+   * authoritative answer to "what can this chat actually reach". Nothing here
+   * is host-authored: this is stored exactly as received.
+   */
+  private lastWorkspacePolicy: WCoreWorkspacePolicy | null = null;
+  /** Resolvers waiting for the NEXT receipt. Drained and cleared on arrival. */
+  private workspacePolicyWaiters: Array<(policy: WCoreWorkspacePolicy) => void> = [];
   // #520 command visibility: the wire's `tool_running` / `tool_result` events
   // carry only `call_id` + `tool_name` - not the command/description. The engine
   // sends the humanized command (e.g. "Execute: ls") once, on the preceding
@@ -306,9 +362,22 @@ export class WCoreAgent {
   private stderrTail = '';
   private readonly desktopContract = new DesktopCoreV1Consumer();
   private readonly anvilMutationWatcher: AnvilPersistentMutationWatcher;
+  /**
+   * Withdraw this agent from the live-session registry. Held privately so the
+   * registry exposes only `{ workspace, revokePath }` and never the agent.
+   */
+  private readonly unpublishPathGrantSession: () => void;
 
   constructor(options: WCoreAgentOptions) {
     this.options = options;
+    // Published from construction rather than from a successful spawn: a
+    // Settings revoke that arrives while the engine is still booting must find
+    // this session, and `revokePath` on a transport that is not up yet is a
+    // no-op that resolves null rather than throwing.
+    this.unpublishPathGrantSession = registerLivePathGrantSession({
+      workspace: options.workspace,
+      revokePath: (grantId) => this.revokePath(grantId),
+    });
     this.anvilMutationWatcher = new AnvilPersistentMutationWatcher(options.workspace, (reason) => {
       const revoked = this.desktopContract.markWorkspaceMutated();
       if (revoked.length > 0) {
@@ -635,6 +704,16 @@ export class WCoreAgent {
           providerEnv,
           toolKeys,
           waylandHome,
+          // P2-6: same value the child stands in (`cwd` below), so
+          // WAYLAND_OUTPUT_DIR and the agent's own `$PWD` can never disagree.
+          workspace,
+          // P2-11: when a scheduled run is open on THIS CONVERSATION, its
+          // staging directory is the destination - the run publishes by rename,
+          // so a crash leaves nothing where the user or the next run would read
+          // it. Undefined for an interactive chat, which keeps the series root,
+          // including an interactive chat opened in the task's own folder while
+          // a scheduled run of that task is in flight.
+          outputDir: activeRunOutputDir(this.options.conversationId),
           vaultPassphraseEnv: vaultDelivery?.env,
           spawnEnvDenylist,
           ambientEnvDenylist,
@@ -1139,6 +1218,47 @@ export class WCoreAgent {
         this.resumeStallWatchdog(`tool:${event.call_id}`);
         break;
 
+      // #1098: the engine handed us CONTENT to display. No path is carried, so
+      // nothing downstream can offer the OS launcher a target — which is the
+      // whole point (#1102: `open` is unavailable under the macOS seatbelt, and
+      // granting `lsopen` would be an execution escape).
+      case 'render_artifact': {
+        // The mime vocabulary is CLOSED engine-side. Refuse anything outside it
+        // here, at the first boundary, rather than defaulting: a kind we cannot
+        // render must not reach the renderer disguised as one we can.
+        if (!RENDERABLE_ARTIFACT_MIMES.has(event.mime)) {
+          console.warn(`[WCoreAgent] dropped render_artifact with unrenderable mime: ${String(event.mime)}`);
+          break;
+        }
+        // The mime is validated above; `content` and `title` are not, and they
+        // arrive as untyped JSON. The engine caps them, but a host must not
+        // depend on the far side of a wire for its own safety - and the cost of
+        // being wrong here is not a bad render, it is a PERMANENT one: the IPC
+        // bridge can neither reject nor carry an oversized reply, so a single
+        // malformed frame wedges the renderer with no timeout to recover it.
+        // Non-strings are dropped like an unrenderable mime; oversize is clamped
+        // rather than dropped, and reuses the `truncated` flag the event already
+        // carries so the user is told the view is partial.
+        if (typeof event.content !== 'string' || typeof event.title !== 'string') {
+          console.warn('[WCoreAgent] dropped render_artifact with a non-string title or content');
+          break;
+        }
+        const clampedContent = event.content.slice(0, MAX_RENDER_ARTIFACT_CONTENT_CHARS);
+        const clampedTitle = event.title.slice(0, MAX_RENDER_ARTIFACT_TITLE_CHARS);
+        this.onStreamEvent({
+          type: 'render_artifact',
+          data: {
+            callId: event.call_id,
+            title: clampedTitle,
+            mime: event.mime,
+            content: clampedContent,
+            truncated: event.truncated || clampedContent.length < event.content.length,
+          },
+          msg_id: event.msg_id,
+        });
+        break;
+      }
+
       case 'stream_end': {
         const finishPayload: Record<string, unknown> = {};
         if (event.usage) Object.assign(finishPayload, event.usage);
@@ -1182,6 +1302,19 @@ export class WCoreAgent {
           data: event.capabilities,
           msg_id: '',
         });
+        break;
+
+      // #1099 boundary axis. This is the ONLY host-visible answer to "what can
+      // this chat actually reach", and the only structural confirmation that a
+      // `grant_path` landed: Core emits the updated receipt in the `Ok` arm of
+      // `emit_path_grant` and NOWHERE ELSE, flattening its typed
+      // `PathGrantError` into an untyped `info` string. Absence of a receipt is
+      // therefore the refusal signal - which only works if the host is actually
+      // listening for one, so this must not fall through to `default:`.
+      case 'workspace_policy':
+        this.lastWorkspacePolicy = event.policy;
+        this.resolveWorkspacePolicyWaiters(event.policy);
+        this.onStreamEvent({ type: 'workspace_policy', data: event.policy, msg_id: '' });
         break;
 
       // Contract-v1 authority/evidence is reduced before this switch. Forward
@@ -1572,6 +1705,22 @@ export class WCoreAgent {
   private mapConfirmationDetails(event: WCoreEvent & { type: 'tool_request' }) {
     const { tool } = event;
 
+    // #1099: the engine classified a filesystem boundary BEFORE running the
+    // call. Checked first, ahead of every category dispatch, because the
+    // escalation is orthogonal to category — a `Read` outside the workspace
+    // arrives as `info`, which is the branch Auto Edit auto-approves. Routing
+    // it here is what stops it being answered as an ordinary info prompt.
+    const escalation = tool.escalation;
+    if (escalation?.kind === 'path_boundary') {
+      return {
+        type: 'path_boundary' as const,
+        title: tool.description,
+        target: escalation.target,
+        suggestedRoot: escalation.suggested_root,
+        access: escalation.access,
+      };
+    }
+
     // #504: AskUserQuestion arrives as an `info`-category tool (the engine has
     // no `question` ToolCategory), with the question + choices inside args. It
     // used to fall through to the `info` branch and render an empty approval
@@ -1656,7 +1805,7 @@ export class WCoreAgent {
     this.sendCommand({ type: 'stop' });
   }
 
-  approveTool(callId: string, scope: 'once' | 'always' = 'once', answer?: string): void {
+  approveTool(callId: string, scope: ApprovalScope = 'once', answer?: string): void {
     // `answer` carries an AskUserQuestion choice back through the approval
     // channel (see WCoreCommand.tool_approve). Only attach when present so a
     // plain approval keeps its exact prior wire shape.
@@ -1665,6 +1814,93 @@ export class WCoreAgent {
 
   denyTool(callId: string, reason = ''): void {
     this.sendCommand({ type: 'tool_deny', call_id: callId, reason });
+  }
+
+  /**
+   * The last `workspace_policy` receipt, or null if none has arrived. Read it
+   * for display; use the value {@link grantPath} resolves with when the answer
+   * has to be "did THAT grant land".
+   */
+  get workspacePolicy(): WCoreWorkspacePolicy | null {
+    return this.lastWorkspacePolicy;
+  }
+
+  /**
+   * The roots Core last reported this session may READ. Empty before the first
+   * receipt - which is "not yet known", not "nothing is readable", so a caller
+   * must not render an empty array as a boundary.
+   */
+  get workspaceReadableRoots(): readonly string[] {
+    return this.lastWorkspacePolicy?.readable_roots ?? [];
+  }
+
+  /**
+   * Grant this session standing READ access to one folder outside the workspace.
+   *
+   * Resolves with the UPDATED policy receipt when Core accepts, and with `null`
+   * when no receipt arrives inside `timeoutMs`. `null` is the refusal signal and
+   * the whole reason this returns a promise instead of being fire-and-forget:
+   * Core answers a refusal with an untyped `info` string and NO receipt (see
+   * `emit_path_grant`), so "no error came back" is not evidence the grant took.
+   * A caller that treated this as void would be asserting a boundary it never
+   * confirmed.
+   *
+   * The waiter is armed BEFORE the command is written, so a receipt that lands
+   * on the very next line cannot be missed.
+   *
+   * Core refuses outright unless the engine was launched with
+   * `--allow-host-path-grants` (see `buildSpawnConfig`'s `allowHostPathGrants`).
+   */
+  grantPath(
+    grant: { grantId: string; root: string; access?: PathGrantAccess; expiresAtMs?: number },
+    timeoutMs = WORKSPACE_POLICY_RECEIPT_TIMEOUT_MS
+  ): Promise<WCoreWorkspacePolicy | null> {
+    const receipt = this.awaitNextWorkspacePolicy(timeoutMs);
+    this.sendCommand({
+      type: 'grant_path',
+      grant_id: grant.grantId,
+      root: grant.root,
+      ...(grant.access ? { access: grant.access } : {}),
+      ...(grant.expiresAtMs !== undefined ? { expires_at_ms: grant.expiresAtMs } : {}),
+    });
+    return receipt;
+  }
+
+  /**
+   * Withdraw the grant made under `grantId`. Idempotent: Core treats an unknown
+   * id as a no-op and re-emits the receipt either way, so unlike
+   * {@link grantPath} a `null` here means the HOST failed to get the command
+   * out, never that Core declined.
+   */
+  revokePath(grantId: string, timeoutMs = WORKSPACE_POLICY_RECEIPT_TIMEOUT_MS): Promise<WCoreWorkspacePolicy | null> {
+    const receipt = this.awaitNextWorkspacePolicy(timeoutMs);
+    this.sendCommand({ type: 'revoke_path', grant_id: grantId });
+    return receipt;
+  }
+
+  private awaitNextWorkspacePolicy(timeoutMs: number): Promise<WCoreWorkspacePolicy | null> {
+    return new Promise((resolve) => {
+      let settled = false;
+      const waiter = (policy: WCoreWorkspacePolicy): void => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(policy);
+      };
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        this.workspacePolicyWaiters = this.workspacePolicyWaiters.filter((entry) => entry !== waiter);
+        resolve(null);
+      }, timeoutMs);
+      this.workspacePolicyWaiters.push(waiter);
+    });
+  }
+
+  private resolveWorkspacePolicyWaiters(policy: WCoreWorkspacePolicy): void {
+    const waiters = this.workspacePolicyWaiters;
+    this.workspacePolicyWaiters = [];
+    for (const waiter of waiters) waiter(policy);
   }
 
   // W7 S4 HITL: resume a turn the engine suspended with `approval_required`.
@@ -1770,6 +2006,9 @@ export class WCoreAgent {
 
   async kill(): Promise<void> {
     this.disposed = true;
+    // Unpublish FIRST: everything below can yield or throw, and a session that
+    // is on its way out must not keep collecting revokes it can no longer send.
+    this.unpublishPathGrantSession();
     // #746: the agent is going away — a still-armed watchdog would otherwise fire on a
     // dead agent and emit a bogus stall error for a turn nobody is running.
     this.stopStallWatchdog();

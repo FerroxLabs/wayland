@@ -69,7 +69,17 @@
     "yesAllowAlways": "Oui, toujours autoriser",
     "yesAlwaysAllowTool": "Oui, toujours autoriser l'outil « {{toolName}} » du serveur « {{serverName}} »",
     "yesAlwaysAllowServer": "Oui, toujours autoriser tous les outils du serveur « {{serverName}} »",
-    "no": "Non (échap)"
+    "no": "Non (échap)",
+    "grantFolderAlways": "Autoriser ce dossier pour cette conversation : {{folder}}",
+    "grantFolderAlwaysHint": "Lecture seule, jusqu'à la fin de cette conversation. Rien d'autre en dehors de votre espace de travail n'est ouvert.",
+    "grantFolderRemember": "Toujours autoriser ce dossier : {{folder}}",
+    "grantFolderRememberHint": "Lecture seule, et mémorisé pour cet espace de travail jusqu'à ce que vous le retiriez.",
+    "grantFolderDeny": "Ne pas autoriser",
+    "pathBoundaryTitle": "Autoriser l'accès à un dossier en dehors de votre espace de travail ?",
+    "pathBoundaryTargetLabel": "L'agent souhaite lire",
+    "pathBoundaryRootLabel": "Autoriser ouvrira ce dossier",
+    "pathBoundaryGrantAria": "{{label}} — appuyez sur Espace pour accorder un accès en lecture seule à {{folder}} jusqu'à la fin de cette conversation.",
+    "pathBoundaryRememberAria": "{{label}} — appuyez sur Espace pour accorder un accès en lecture seule à {{folder}} et le mémoriser pour cet espace de travail jusqu'à ce que vous le retiriez."
   },
   "slash.customBadge": "Custom",
   "runaway": {
@@ -77,5 +87,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "De l'agent",
+    "preview": "Aperçu",
+    "truncated": "Tronqué — trop volumineux pour être affiché en entier."
   }
 }

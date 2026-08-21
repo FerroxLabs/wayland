@@ -686,6 +686,68 @@ describe('SystemModalContent', () => {
       expect(screen.queryByText('playwright')).not.toBeInTheDocument();
     });
 
+    /**
+     * Click the log-directory "open in file manager" button.
+     *
+     * The button carries only an icon, so it is located through the log path
+     * shown next to it inside the same `.aion-dir-input` row.
+     */
+    const clickOpenLogDir = async (): Promise<void> => {
+      const row = await waitFor(() => {
+        const found = screen
+          .getAllByText('/tmp/logs')
+          .map((node) => node.closest('.aion-dir-input'))
+          .find((el): el is HTMLElement => el instanceof HTMLElement);
+        expect(found).toBeTruthy();
+        return found!;
+      });
+      const button = row.querySelector('button');
+      expect(button).toBeTruthy();
+      await act(async () => {
+        fireEvent.click(button!);
+      });
+    };
+
+    // The IPC bridge is RESOLVE-ONLY: `shell.openFile` reports a refusal (the
+    // open-target gate, or a path outside every authorized root) as a RESOLVED
+    // `{ ok: false, error }`, never as a rejection. The button used to attach
+    // nothing at all, so a refusal was a completely silent dead click.
+    it('surfaces a RESOLVED open refusal for the log directory', async () => {
+      mockOpenFile.mockResolvedValue({ ok: false, error: 'path not allowed' });
+      const { Message } = await import('@arco-design/web-react');
+
+      render(<SystemModalContent />);
+      await clickOpenLogDir();
+
+      expect(mockOpenFile).toHaveBeenCalledWith('/tmp/logs');
+      await waitFor(() => {
+        expect(Message.error).toHaveBeenCalledWith('path not allowed');
+      });
+    });
+
+    it('falls back to a generic message when the log-dir open rejects outright', async () => {
+      mockOpenFile.mockRejectedValue(new Error('bridge died'));
+      const { Message } = await import('@arco-design/web-react');
+
+      render(<SystemModalContent />);
+      await clickOpenLogDir();
+
+      await waitFor(() => {
+        expect(Message.error).toHaveBeenCalledWith('settings.openLogDirFailed');
+      });
+    });
+
+    it('stays quiet when the log directory actually opens', async () => {
+      mockOpenFile.mockResolvedValue({ ok: true });
+      const { Message } = await import('@arco-design/web-react');
+
+      render(<SystemModalContent />);
+      await clickOpenLogDir();
+
+      expect(mockOpenFile).toHaveBeenCalledWith('/tmp/logs');
+      expect(Message.error).not.toHaveBeenCalled();
+    });
+
     it('should open CDP URL in browser', async () => {
       mockOpenExternal.mockResolvedValue(undefined);
 

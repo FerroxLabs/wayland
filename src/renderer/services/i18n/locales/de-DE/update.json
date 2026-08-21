@@ -29,6 +29,8 @@
   },
   "showInFolder": "Im Ordner anzeigen",
   "openFile": "Datei öffnen",
+  "openFileFailed": "Die heruntergeladene Datei konnte nicht geöffnet werden",
+  "showInFolderFailed": "Der Download konnte nicht im Dateimanager angezeigt werden",
   "errorTitle": "Update fehlgeschlagen",
   "errors": {
     "missingTag": "Dieses Update kann nicht verifiziert werden: Das Release-Tag fehlt. Bitte aktualisiere über die Releases-Seite.",

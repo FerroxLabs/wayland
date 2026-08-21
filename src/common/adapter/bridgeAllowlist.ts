@@ -30,6 +30,7 @@
  */
 
 import { bridge, storage } from '@office-ai/platform';
+import { isPathBoundaryOptionValue } from '@/common/chat/pathBoundaryConsent';
 
 /** Keys registered via `buildProvider` (main-process providers, renderer invokes). */
 const providerKeys = new Set<string>();
@@ -275,6 +276,13 @@ export function buildStorage<Refer = unknown>(
 const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // Shell execution / open-with handlers (cmd/explorer, open, xdg-open).
   'shell.',
+  // P2-9 artifact seam. `artifacts.open` reaches an OS launcher on the LOCAL
+  // machine and `artifacts.save-copy` writes a file there; both are the same
+  // class as `shell.` above. `artifacts.list` is denied with them rather than
+  // separately, because it enumerates the absolute paths of every workspace the
+  // user has - a reconnaissance aid, and the exact input a path-based attack
+  // would want. There is no remote artifact view, so the whole namespace goes.
+  'artifacts.',
   // Hub extension install/update/retry/uninstall - remote-reachable RCE chain.
   'hub.',
   // Cost observability (WS-D). There is no remote cost view today, so deny the
@@ -321,6 +329,18 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // channels move a credential-bearing file must not be one omission away from
   // being reachable.
   'engine-config-recovery.',
+  // The boundary axis - "folders this workspace may reach". `add` mints an AI
+  // agent STANDING READ ACCESS to a folder outside its workspace, `remove`
+  // withdraws it, and `list` discloses the absolute path of every folder the
+  // user has ever consented to. An external audit on the previous milestone
+  // found a paired WebUI could mint exactly this grant through the consent card
+  // with nobody at the desktop (#1099); the Settings surface must not reopen it
+  // from the other side. A PREFIX, for the reason stated on `waylandTransfer.`
+  // above: a namespace whose whole purpose is granting filesystem reach must
+  // not be one omitted enumeration away from being remotely reachable. The
+  // three shipped keys are ALSO listed in REMOTE_DENIED_KEYS below, so
+  // narrowing this prefix later cannot silently re-open them.
+  'workspaceFolderGrants.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
 // (e.g. `write-file`, `remove-entry`), so the dangerous fs surface is enumerated
@@ -332,7 +352,15 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
  * agent-install mutation, and the app.* providers that can write settings, change
  * the CDP config, control startup, or restart the process.
  */
-const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
+/**
+ * EXPORTED for tests only. Asserting `isRemoteDeniedProviderKey(key) === true`
+ * does NOT pin an entry here: every key below that also matches a
+ * `REMOTE_DENIED_PREFIXES` entry is SHADOWED by it, so the outcome is identical
+ * whether the exact key is present or absent. The exact keys exist precisely so
+ * that narrowing a prefix later cannot silently re-open them, and only set
+ * membership can hold that.
+ */
+export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   // --- Filesystem write / delete / rename / temp / raw-buffer reads ---
   'write-file',
   'remove-entry',
@@ -464,6 +492,24 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'cron.save-skill',
   'cron.confirm-proposal',
   'cron.restore-archived-job',
+  // --- P2-4 workspace promotion. `promote` copies the chat's files into the
+  //     user's Documents, pauses and re-arms the schedule, and repoints the
+  //     conversation; `preview` enumerates local workspace paths and the names
+  //     of every file earlier runs left behind. A paired-device token proves a
+  //     remote browser, not the local trusted user, so the whole namespace is
+  //     denied rather than just the write.
+  //
+  //     EXACT keys, not a prefix: this Set is matched with `.has(key)`, so the
+  //     bare string `'promotion.'` that used to sit here matched no provider at
+  //     all and the namespace stayed remote-reachable. The prefix list is not
+  //     the answer either - `isAllowedOutboundToRemote` is DERIVED from this
+  //     rule, so a namespace prefix silences every emitter under it too. Every
+  //     promotion key that exists is named here, and
+  //     `tests/unit/promotionRemoteDenied.test.ts` enumerates the LIVE provider
+  //     registry rather than a hand list, so a future `promotion.*` provider
+  //     cannot slip past this the way the first one did. ---
+  'promotion.preview',
+  'promotion.promote',
   // --- In-app engine updater. `install` downloads + stages a native binary the
   //     next engine spawn executes; a remote caller reaching it is an RCE chain.
   //     `check` hits the network + discloses the engine version. HUMAN-only. ---
@@ -676,6 +722,15 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     `terminal.` prefix, so this is defense-in-depth against enabling the
   //     capability surface, matching app.set-* / storage:* setting denials. ---
   'system-settings:set-terminal-enabled',
+  // --- Boundary axis (folder grants). SHADOWED by the
+  //     `workspaceFolderGrants.` prefix above and enumerated here anyway, for
+  //     the reason this Set exists: the prefix is the general rule and these
+  //     three are the specific channels that must survive it being narrowed.
+  //     `add` grants an agent standing read access outside its workspace,
+  //     `remove` withdraws it, `list` enumerates every granted absolute path. ---
+  'workspaceFolderGrants.list',
+  'workspaceFolderGrants.remove',
+  'workspaceFolderGrants.add',
 ]);
 
 /**
@@ -782,6 +837,32 @@ export function isRemoteDeniedConfigWrite(name: string, data: unknown): boolean 
     if (targetKey.startsWith(prefix)) return true;
   }
   return false;
+}
+
+/** The generic confirmation-answer wire key. Legitimately remote-invokable. */
+const CONFIRMATION_CONFIRM_KEY = 'confirmation.confirm';
+
+/**
+ * True iff a remote peer is answering a card only the LOCAL user may answer.
+ *
+ * `confirmation.confirm` stays remote-allowed on purpose: a paired WebUI
+ * answering an ordinary tool prompt is a feature. But a `path_boundary` card is
+ * not an ordinary prompt - it GRANTS AN AI AGENT STANDING READ ACCESS TO A
+ * FOLDER OUTSIDE ITS WORKSPACE, and it is answered by clicking (or pressing
+ * Space on) a control in the desktop window. A WebSocket token proves a paired
+ * BROWSER, not the human at that window.
+ *
+ * Without this gate a token-holding client that has seen a `confirmation.add`
+ * (or called `confirmation.list`) can post the card's own grant value straight
+ * to `task.confirm` and mint the grant with nobody touching the desktop card.
+ * Value-gated at the wire rather than key-denied, exactly like
+ * {@link isRemoteDeniedConfigWrite} above: the key is legitimate, the VALUE is
+ * what must never arrive from a remote peer.
+ */
+export function isRemoteDeniedConfirmation(name: string, data: unknown): boolean {
+  if (typeof name !== 'string' || name !== `subscribe-${CONFIRMATION_CONFIRM_KEY}`) return false;
+  const payload = (data as { data?: { data?: unknown } } | null | undefined)?.data;
+  return isPathBoundaryOptionValue((payload as { data?: unknown } | undefined)?.data);
 }
 
 /**

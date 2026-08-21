@@ -29,16 +29,21 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 import { logger } from '@office-ai/platform';
 import type { AgentBackend } from '@/common/types/acpTypes';
+import { buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
 import type { CronService } from './CronService';
-import type { CronJob, CronSchedule } from './CronStore';
+import { CRON_ROUTINE_KIND, type CronJob, type CronSchedule } from './CronStore';
 
 /** Backend used for seeded routines. wcore is the bundled Wayland Core engine, always present. */
 const ROUTINE_BACKEND: AgentBackend = 'wcore';
 
-/** Tag written into agentConfig.configOptions so routine crons are identifiable. */
-const ROUTINE_KIND = 'routine';
+/**
+ * Tag written into agentConfig.configOptions so routine crons are identifiable.
+ * Shared with `durableTaskWorkspace`, which uses it to keep seeding from
+ * allocating a durable folder for a routine nobody has enabled (P2-2).
+ */
+const ROUTINE_KIND = CRON_ROUTINE_KIND;
 
-type RoutineDef = {
+export type RoutineDef = {
   id: string;
   name: string;
   description: string;
@@ -50,25 +55,40 @@ type RoutineDef = {
 
 /**
  * Resolve the directory holding `routines.json` + `index.json`.
- * Mirrors SkillLibrary.resolveBundledWorkflowsDir's dev / packaged / standalone
- * probe order so the seeder reads from the same place workflows are read from.
+ *
+ * Delegates to {@link buildResourceDirCandidates} - the SAME probe order
+ * SkillLibrary uses - instead of a hand-copied list. The copy this replaced had
+ * drifted: it was a snapshot of the PRE-#22 candidate order, anchored only on
+ * `__filename`, and it had no `process.resourcesPath` candidate at all. Because
+ * `bundled-workflows` ships through electron-builder `extraResources` (beside
+ * `app.asar`, never inside it and never under `app.asar.unpacked`), every
+ * candidate missed in a real install and the loop fell through to
+ * `<Resources>/app.asar.unpacked/resources/bundled-workflows`, which does not
+ * exist - so NO routine was ever seeded in any packaged build. Only the dev
+ * source-tree candidate ever hit, which is why dev-mode testing never saw it.
+ *
+ * The shared builder is a strict superset of the old list: all four former
+ * candidates are still probed, after `resourcesPath` and the three-levels-up
+ * extraResources path, so dev, packaged main, packaged subprocess and the
+ * standalone payload layout all resolve.
  */
-function resolveBundledWorkflowsDir(): string {
-  const myDir = path.dirname(__filename);
-  const baseDir = path.basename(myDir) === 'chunks' ? path.dirname(myDir) : myDir;
-  const baseDirUnpacked = baseDir.replace('app.asar', 'app.asar.unpacked');
-
-  const candidates = [
-    path.resolve(baseDirUnpacked, '../../resources/bundled-workflows'),
-    path.resolve(baseDir, '../../src/process/resources/bundled-workflows'),
-    path.resolve(baseDir, '../../resources/bundled-workflows'),
-    path.resolve(baseDir, '../resources/bundled-workflows'),
-  ];
-
+export function resolveBundledWorkflowsDir(
+  bundleDir: string = path.dirname(__filename),
+  resourcesPath: string | undefined = process.resourcesPath
+): string {
+  const candidates = buildResourceDirCandidates(bundleDir, resourcesPath, 'bundled-workflows');
   for (const candidate of candidates) {
     if (existsSync(path.join(candidate, 'routines.json'))) return candidate;
   }
   return candidates[0];
+}
+
+/** The bundled routine definitions, or undefined when they cannot be read. */
+export async function loadBundledRoutines(
+  dir: string = resolveBundledWorkflowsDir()
+): Promise<RoutineDef[] | undefined> {
+  const routines = await readJson<RoutineDef[]>(path.join(dir, 'routines.json'));
+  return Array.isArray(routines) ? routines : undefined;
 }
 
 /** Read and JSON-parse a file, returning undefined on any failure. */
@@ -100,7 +120,59 @@ async function loadWorkflowNames(dir: string): Promise<Set<string>> {
  * resolve inputs from disk first, fall back to connectors, and skip rather than
  * fabricate when no data is reachable.
  */
-function buildRoutinePrompt(routine: RoutineDef): string {
+/**
+ * The `artifacts/<series>/` folder this routine's runs publish into.
+ *
+ * Taken from the routine's OWN declared artifact paths rather than invented:
+ * `weekday-morning-report` writes `artifacts/market/` and
+ * `weekly-competitor-watch` reads `artifacts/marketing/last-competitor-scan.md`,
+ * and those prompts are baked at seed time, so the series the run publishes
+ * into has to be the one the prompt already names or the routine reads a folder
+ * nothing ever writes - the bug this milestone exists to close, in its
+ * input-side form. A routine that declares no artifact path gets its own id.
+ */
+export function seriesForRoutine(routine: RoutineDef): string {
+  for (const value of Object.values(routine.inputs ?? {})) {
+    const segments = value.split('/').filter(Boolean);
+    if (segments[0] === 'artifacts' && segments[1] && !segments[1].startsWith('.')) return segments[1];
+  }
+  return routine.id;
+}
+
+/** First line of a seeder-generated prompt. Also the migration's fingerprint. */
+export function routinePromptHeader(workflow: string): string {
+  return `Run the "${workflow}" workflow now as a scheduled, unattended routine.`;
+}
+
+/**
+ * Where a scheduled run must write.
+ *
+ * Without this the routine prompt named no destination at all, so a run wrote
+ * wherever the workflow body happened to say - and only ONE of the 71 bundled
+ * bodies says anything. Everything the run leaves in `WAYLAND_OUTPUT_DIR` is
+ * what gets published; a run that writes elsewhere stages nothing, is abandoned
+ * as empty, and leaves the four routines that read a PRIOR run's deliverable
+ * (`artifacts/ops/last-weekly-review.md` and friends) reading a path nothing
+ * ever writes.
+ */
+export const ROUTINE_OUTPUT_DIR_SENTENCE =
+  "Write every file this run produces into the directory named by the WAYLAND_OUTPUT_DIR environment variable. It is an absolute path inside the workspace, and it is the only place this run's output is collected from - a file written anywhere else is not published and the next run cannot read it. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.";
+
+/** Closing rule, unchanged since the first seeded routine. */
+export const ROUTINE_NO_ATTACHMENT_SENTENCE =
+  'This run has no attached file. Resolve each input from disk first; if a path is missing, fall back to the connected MCP connector for that domain. If no data source is reachable, skip the run and report "no data" rather than guessing or fabricating output.';
+
+/**
+ * Every whole-line sentence the seeder has ever emitted. The migration uses
+ * this to tell a prompt IT wrote from one the user has edited: an unrecognised
+ * line means hands off.
+ */
+export const ROUTINE_GENERATED_SENTENCES: readonly string[] = [
+  ROUTINE_OUTPUT_DIR_SENTENCE,
+  ROUTINE_NO_ATTACHMENT_SENTENCE,
+];
+
+export function buildRoutinePrompt(routine: RoutineDef): string {
   const inputLines = routine.inputs
     ? Object.entries(routine.inputs)
         .map(([k, v]) => `- ${k}: ${v}`)
@@ -108,11 +180,13 @@ function buildRoutinePrompt(routine: RoutineDef): string {
     : '';
 
   return [
-    `Run the "${routine.workflow}" workflow now as a scheduled, unattended routine.`,
+    routinePromptHeader(routine.workflow),
     '',
     inputLines ? `Inputs:\n${inputLines}` : '',
     '',
-    'This run has no attached file. Resolve each input from disk first; if a path is missing, fall back to the connected MCP connector for that domain. If no data source is reachable, skip the run and report "no data" rather than guessing or fabricating output.',
+    ROUTINE_OUTPUT_DIR_SENTENCE,
+    '',
+    ROUTINE_NO_ATTACHMENT_SENTENCE,
   ]
     .filter((line) => line !== '')
     .join('\n');
@@ -178,7 +252,7 @@ export async function seedBuiltinRoutines(cronService: CronService): Promise<voi
       backend: ROUTINE_BACKEND,
       name: routine.name,
       mode: 'bypassPermissions',
-      configOptions: { kind: ROUTINE_KIND, routineId: routine.id },
+      configOptions: { kind: ROUTINE_KIND, routineId: routine.id, artifactSeries: seriesForRoutine(routine) },
     };
 
     try {

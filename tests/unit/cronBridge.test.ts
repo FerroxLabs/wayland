@@ -316,12 +316,29 @@ describe('cronBridge', () => {
       expect(mockWriteRawCronSkillFile).toHaveBeenCalledWith('job-1', '---\nname: test\n---\nContent');
     });
 
-    it('should propagate errors from writeRawCronSkillFile', async () => {
+    /**
+     * H1 - this case used to assert `rejects.toThrow('Invalid SKILL.md')`, and
+     * that assertion was pinning the bug rather than the behaviour.
+     *
+     * `buildProvider(...).invoke` is `new Promise(function(resolve){...})`: no
+     * reject, no timeout, and the provider half has no `.catch`. A provider
+     * that rejects therefore produces a promise the renderer NEVER sees settle
+     * - `SkillSuggestCard.handleSave` sets `saving(true)` and neither its catch
+     * nor its finally ever runs. "Propagates" was true of the main process and
+     * false of everything the user can see.
+     *
+     * The error still has to reach the user; it now does so as a value.
+     */
+    it('reports a writeRawCronSkillFile failure as a resolved, classified payload', async () => {
       mockWriteRawCronSkillFile.mockRejectedValue(new Error('Invalid SKILL.md'));
 
       const handler = providerMap.get('cron.saveSkill');
 
-      await expect(handler!({ jobId: 'job-1', content: 'invalid' })).rejects.toThrow('Invalid SKILL.md');
+      await expect(handler!({ jobId: 'job-1', content: 'invalid' })).resolves.toEqual({
+        ok: false,
+        errorCode: 'cron_operation_failed',
+        message: 'Invalid SKILL.md',
+      });
     });
   });
 

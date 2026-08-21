@@ -7,7 +7,12 @@
 import type { TChatConversation } from '@/common/config/storage';
 import type { IProject } from '@/common/types/project';
 import type { CronJob } from './cron/CronStore';
+import type { ArtifactRecord } from './artifacts/artifactLedger';
 import type { ManagedWorkspaceProvenanceLoad } from './managedWorkspaceProvenance';
+import {
+  DEFAULT_WORKSPACE_RETENTION_WINDOW_DAYS,
+  retentionWindowMsFor,
+} from '@/common/types/workspaceRetentionSettings';
 import {
   collectManagedWorkspaceInventory,
   type ManagedWorkspaceInventoryReport,
@@ -16,7 +21,11 @@ import {
   type WorkspaceAuthoritySource,
 } from './managedWorkspaceInventory';
 
-export const DEFAULT_MANAGED_WORKSPACE_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+/**
+ * The tier-2 review window used when no caller supplies one. Derived from the
+ * single shared setting so there is exactly one default in the tree.
+ */
+export const DEFAULT_MANAGED_WORKSPACE_RETENTION_MS = retentionWindowMsFor(DEFAULT_WORKSPACE_RETENTION_WINDOW_DAYS);
 
 export type ActiveWorkspaceProcess = {
   id: string;
@@ -34,6 +43,12 @@ export type DesktopManagedWorkspaceAuthoritySources = {
   listSchedules: () => Promise<CronJob[]>;
   listActiveProcesses: () => ActiveWorkspaceProcess[] | Promise<ActiveWorkspaceProcess[]>;
   loadProvenance: () => Promise<ManagedWorkspaceProvenanceLoad>;
+  /**
+   * The artifact ledger (P2-7). OPTIONAL on purpose: a caller that has not
+   * wired one keeps the previous `artifact: 'unavailable'` posture rather than
+   * silently reporting a zero it cannot prove.
+   */
+  listArtifacts?: () => ArtifactRecord[] | Promise<ArtifactRecord[]>;
 };
 
 export type CollectDesktopManagedWorkspaceInventoryInput = {
@@ -44,7 +59,10 @@ export type CollectDesktopManagedWorkspaceInventoryInput = {
   nowMs?: number;
 };
 
-type AuthorityLoad<T> = { state: 'complete'; value: T[] } | { state: 'error'; value: T[]; error: string };
+type AuthorityLoad<T> =
+  | { state: 'complete'; value: T[] }
+  | { state: 'error'; value: T[]; error: string }
+  | { state: 'unavailable'; value: T[] };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -75,20 +93,27 @@ async function loadAuthority<T>(
  * Join Desktop's current workspace authorities and project them through the
  * fail-closed filesystem classifier.
  *
- * Artifact and receipt authority is deliberately `unavailable`: Desktop does
- * not yet have a canonical ledger that proves every generated output/receipt
- * and its owning workspace. Filesystem contents still preserve non-empty
- * directories, but no production directory can become a review candidate
- * until both ledgers exist and report complete inventories.
+ * Artifact authority comes from the artifact ledger when the caller wires one
+ * (`sources.listArtifacts`); without it the previous `unavailable` posture is
+ * kept, because a producer that does not exist cannot prove a zero.
+ *
+ * Receipt authority remains `unavailable`: Desktop has no canonical ledger of
+ * generated receipts. Filesystem contents still preserve non-empty
+ * directories, and no production directory can become a review candidate until
+ * that ledger exists too.
  */
 export async function collectDesktopManagedWorkspaceInventory(
   input: CollectDesktopManagedWorkspaceInventoryInput
 ): Promise<ManagedWorkspaceInventoryReport> {
-  const [conversationLoad, projectLoad, scheduleLoad, processLoad, provenanceLoad] = await Promise.all([
+  const listArtifacts = input.sources.listArtifacts;
+  const [conversationLoad, projectLoad, scheduleLoad, processLoad, artifactLoad, provenanceLoad] = await Promise.all([
     loadAuthority('conversation', input.sources.listConversations),
     loadAuthority('project', input.sources.listProjects),
     loadAuthority('schedule', input.sources.listSchedules),
     loadAuthority('active-process', input.sources.listActiveProcesses),
+    listArtifacts
+      ? loadAuthority('artifact', listArtifacts)
+      : Promise.resolve<AuthorityLoad<ArtifactRecord>>({ state: 'unavailable', value: [] }),
     input.sources.loadProvenance().catch(
       (error): ManagedWorkspaceProvenanceLoad => ({
         state: 'error',
@@ -102,7 +127,7 @@ export async function collectDesktopManagedWorkspaceInventory(
     conversation: conversationLoad.state,
     project: projectLoad.state,
     schedule: scheduleLoad.state,
-    artifact: 'unavailable',
+    artifact: artifactLoad.state,
     receipt: 'unavailable',
     'active-process': processLoad.state,
     provenance: provenanceLoad.state,
@@ -179,6 +204,26 @@ export async function collectDesktopManagedWorkspaceInventory(
       continue;
     }
     references.push({ source: 'schedule', id: schedule.id, workspace });
+  }
+
+  // An artifact record is produced by `registerArtifacts`, which has already
+  // verified the claim against the filesystem. Re-validate the SHAPE anyway:
+  // this collector reads a file on disk that a future writer, a partial
+  // upgrade, or a user with a text editor could leave malformed, and a
+  // malformed record must degrade authority to `error` rather than silently
+  // vanish into a zero the classifier would read as "no artifacts".
+  for (const artifact of artifactLoad.value) {
+    if (
+      !isRecord(artifact) ||
+      typeof artifact.artifactId !== 'string' ||
+      !artifact.artifactId.trim() ||
+      typeof artifact.workspace !== 'string' ||
+      !artifact.workspace.trim()
+    ) {
+      authorityCompleteness.artifact = 'error';
+      continue;
+    }
+    references.push({ source: 'artifact', id: artifact.artifactId.trim(), workspace: artifact.workspace.trim() });
   }
 
   for (const process of processLoad.value) {

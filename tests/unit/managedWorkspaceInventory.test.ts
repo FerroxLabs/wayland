@@ -141,6 +141,31 @@ describe('collectManagedWorkspaceInventory', () => {
     expect(entry.references).toHaveLength(6);
   });
 
+  it('counts a schedule reference as explicit user promotion', async () => {
+    const candidate = await makeCandidate();
+    const report = await collect([{ source: 'schedule', id: 'cron-1', workspace: candidate }]);
+
+    // P2-11: scheduling a workspace IS promoting it. Without this the only
+    // evidence of the user's choice is the schedule row, and a deleter would
+    // read the workspace as unreferenced.
+    expect(report.entries[0].evidence.userPromoted).toBe(true);
+    expect(report.entries[0].decision).toMatchObject({
+      disposition: 'preserve',
+      classifications: ['scheduled', 'user-promoted'],
+    });
+  });
+
+  it('keeps a schedule-only workspace promoted at any age', async () => {
+    const candidate = await makeCandidate('wcore-temp-1736900000003', 4000);
+    const report = await collect([{ source: 'schedule', id: 'cron-1', workspace: candidate }], {
+      retentionWindowMs: 0,
+    });
+
+    expect(report.entries[0].evidence.userPromoted).toBe(true);
+    expect(report.entries[0].decision.disposition).toBe('preserve');
+    expect(report.entries[0].decision.classifications).not.toContain('empty-abandoned');
+  });
+
   it('preserves content-bearing workspaces even when no authority references them', async () => {
     const candidate = await makeCandidate();
     await fs.writeFile(path.join(candidate, 'report.md'), '# user report');

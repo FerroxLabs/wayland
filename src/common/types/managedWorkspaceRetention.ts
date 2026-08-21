@@ -478,3 +478,53 @@ export function parseManagedWorkspaceInventoryReport(value: unknown): ManagedWor
   if (report.complete !== expectedComplete) return null;
   return report;
 }
+
+/**
+ * The wire result of `workspaceRetention.preview`.
+ *
+ * The provider may not THROW. `buildProvider(...).invoke` in
+ * @office-ai/platform is `new Promise(function (resolve) { ... })` with no
+ * reject and no timeout, and the provider half calls `handler(data).then(cb)`
+ * with no `.catch` - measured against the installed package. A rejection
+ * therefore never settles, and the settings card that awaits it spins forever
+ * with neither its `catch` nor its `finally` running.
+ *
+ * So every refusal is a VALUE, classified enough for the surface to render and
+ * narrow enough to leak nothing: an error code, never a path, an authority id,
+ * or a partial report.
+ */
+export const WORKSPACE_RETENTION_PREVIEW_ERROR_CODES = [
+  /** The renderer supplied request fields. This provider accepts none. */
+  'invalid-request',
+  /** An authority or the work root could not be read at all. */
+  'inventory-unavailable',
+  /**
+   * The inventory was produced but does not survive the phase-1 wire gate -
+   * most importantly, it carried a review candidate. Emptiness is not provable
+   * while the snapshot and receipt authorities have no producer, so an
+   * actionable candidate is refused rather than handed to a future deleter.
+   */
+  'inventory-unprovable',
+] as const;
+
+export type WorkspaceRetentionPreviewErrorCode = (typeof WORKSPACE_RETENTION_PREVIEW_ERROR_CODES)[number];
+
+export type WorkspaceRetentionPreviewResult =
+  | { ok: true; report: ManagedWorkspaceInventoryReport }
+  | { ok: false; errorCode: WorkspaceRetentionPreviewErrorCode };
+
+/** Reject malformed or expanded IPC results before renderer state admission. */
+export function parseWorkspaceRetentionPreviewResult(value: unknown): WorkspaceRetentionPreviewResult | null {
+  if (exactObject(value, ['ok', 'errorCode'])) {
+    if (value.ok !== false) return null;
+    return WORKSPACE_RETENTION_PREVIEW_ERROR_CODES.includes(value.errorCode as WorkspaceRetentionPreviewErrorCode)
+      ? { ok: false, errorCode: value.errorCode as WorkspaceRetentionPreviewErrorCode }
+      : null;
+  }
+  if (exactObject(value, ['ok', 'report'])) {
+    if (value.ok !== true) return null;
+    const report = parseManagedWorkspaceInventoryReport(value.report);
+    return report ? { ok: true, report } : null;
+  }
+  return null;
+}

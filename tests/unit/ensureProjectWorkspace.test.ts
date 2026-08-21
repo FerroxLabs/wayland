@@ -61,7 +61,9 @@ describe('ensureProjectWorkspace (#455 lazy migration)', () => {
     const allocate = vi.fn(async (name: string) => `/Docs/Wayland/${name}`);
     const result = await ensureProjectWorkspace('p1', allocate);
     expect(result).toBe('/Docs/Wayland/My Notes');
-    expect(allocate).toHaveBeenCalledWith('My Notes');
+    // P2-0: the owner travels with the allocation so the folder's identity
+    // marker names the project.
+    expect(allocate).toHaveBeenCalledWith('My Notes', { ownerKind: 'project', ownerId: 'p1' });
     expect(mockUpdateProject).toHaveBeenCalledWith('p1', { workspace: '/Docs/Wayland/My Notes' });
     expect(mockBootstrap).toHaveBeenCalledWith('/Docs/Wayland/My Notes', 'My Notes', 'd');
   });

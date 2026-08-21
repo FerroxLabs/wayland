@@ -8,7 +8,6 @@ import type { TMessage } from '@/common/chat/chatLib';
 import { selectCanonicalRunSnapshot, type ExecutionBackend, type ExecutionSeed } from '@/common/execution';
 import { useBackendExecutionSnapshot } from '@/renderer/hooks/execution';
 import { useMessageList } from '@/renderer/pages/conversation/Messages/messageListContext';
-import { Tag, Typography } from '@arco-design/web-react';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkbenchSection, type WorkbenchSectionRegistration } from '../WorkbenchHost';
@@ -35,12 +34,27 @@ function isScheduledConversation(messages: readonly TMessage[]): boolean {
   );
 }
 
-const statusColor = (status: string): 'green' | 'red' | 'orange' | 'blue' | 'gray' => {
-  if (status === 'completed' || status === 'authoritative') return 'green';
-  if (status === 'failed' || status === 'mismatch') return 'red';
-  if (status === 'waiting' || status === 'blocked' || status === 'paused') return 'orange';
-  if (status === 'running') return 'blue';
-  return 'gray';
+/**
+ * THE LIVE STATUS LINE'S DOT.
+ *
+ * The line used to lead with a filled Arco `Tag`, which put a BLUE block at the
+ * top of an interface whose accent is orange, and gave the row a second box to
+ * be misaligned inside. A dot states the same thing in a tenth of the space and
+ * sits on the text baseline, so the row reads as one line instead of a chip
+ * with a caption next to it.
+ *
+ * Running takes the BRAND colour, because the thing that is happening is the
+ * thing the eye should land on, and it PULSES - which is what separates it from
+ * `waiting` rather than a second orange-ish hue nobody can tell apart on a dark
+ * ground. Waiting keeps warning amber because it usually means waiting on the
+ * user. The pulse is dropped under `prefers-reduced-motion`.
+ */
+const statusDotClass = (status: string): string => {
+  if (status === 'completed' || status === 'authoritative') return 'bg-success';
+  if (status === 'failed' || status === 'mismatch') return 'bg-danger';
+  if (status === 'waiting' || status === 'blocked' || status === 'paused') return 'bg-warning';
+  if (status === 'running') return 'bg-primary animate-pulse motion-reduce:animate-none';
+  return 'bg-t-tertiary';
 };
 
 const ExecutionSpine: React.FC<{
@@ -162,20 +176,44 @@ const ExecutionSpine: React.FC<{
     <>
       <div className='flex flex-1 min-h-0' data-testid='execution-spine' data-run-id={run.identity.runId}>
         <section className='flex flex-col flex-1 min-w-0'>
+          {/*
+              ONE ROW, ONE BASELINE.
+
+              This card never actually rendered: `border border-1` sets a border
+              WIDTH and a border COLOUR and no border STYLE, and the initial
+              style is `none` - so the container was invisible and its contents
+              read as a stray chip with some text floating beside it. The colour
+              was wrong even so; `border-1` resolves to `--bg-1`, a BACKGROUND
+              token, which is the same value as the surface it sat on.
+              The colour is bound to `--border-light` directly, because the numeric
+              border tokens (`b-border-2`, `b-border-3`) both resolve to the same
+              #222 as `bg-fill-1` on this theme - a border the same colour as the
+              card it outlines. Measured in the running app, not assumed.
+
+              The label is a plain span rather than `Typography.Text`, whose
+              bottom margin was what pushed the text off the dot's centre line.
+              Truncation is `truncate`, which needs the `min-w-0` beside it to
+              survive a flex parent.
+          */}
           {!settled && (
             <div
-              className='mx-20px mt-8px px-12px py-8px rounded-8px bg-fill-1 border border-1 flex items-center gap-10px'
+              className='mx-20px mt-8px flex items-center gap-10px rd-8px bg-fill-1 b-1 b-solid b-[var(--border-light)] px-12px py-8px'
               data-testid='execution-thread-summary'
               data-run-id={run.identity.runId}
               data-lifecycle={run.lifecycle}
             >
-              <Tag size='small' color={statusColor(run.lifecycle)}>
+              <span className='flex shrink-0 items-center gap-6px text-12px font-medium text-t-secondary'>
+                <span
+                  className={`inline-block size-6px shrink-0 rd-full ${statusDotClass(run.lifecycle)}`}
+                  data-testid='execution-thread-status-dot'
+                  aria-hidden='true'
+                />
                 {lifecycleLabel}
-              </Tag>
-              <Typography.Text ellipsis className='min-w-0 text-t-secondary'>
-                {activityLabel}
-              </Typography.Text>
-              {run.progress.total > 0 && <span className='ml-auto text-12px text-t-secondary'>{progressLabel}</span>}
+              </span>
+              <span className='min-w-0 flex-1 truncate text-t-secondary'>{activityLabel}</span>
+              {run.progress.total > 0 && (
+                <span className='shrink-0 text-12px text-t-tertiary tabular-nums'>{progressLabel}</span>
+              )}
             </div>
           )}
           <div className='flex flex-1 min-h-0'>{children}</div>

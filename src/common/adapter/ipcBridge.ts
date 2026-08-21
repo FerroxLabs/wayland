@@ -26,6 +26,7 @@ import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/wor
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
+import type { ArtifactOpenTarget, ArtifactSaveResult, ArtifactSeriesView, ArtifactSummary } from '../types/artifacts';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
 import type { IjfwErrorReason, IjfwInvokeResult, IjfwRuntimeModePublic } from '../types/ijfw';
 import type {
@@ -128,12 +129,55 @@ export const shell = {
   showItemInFolder: buildProvider<ShellOpenResult, string>('show-item-in-folder'), // Open folder
   openExternal: buildProvider<void, string>('open-external'), // Open external link with the system default program
   checkToolInstalled: buildProvider<boolean, { tool: string }>('shell.check-tool-installed'), // Check whether a tool is installed
-  openFolderWith: buildProvider<void, { folderPath: string; tool: 'vscode' | 'terminal' | 'explorer' }>(
+  /** Open a folder with the specified tool. Confined to the authorized roots and
+   *  type-gated like the other open providers, so a refusal is reported through
+   *  `ShellOpenResult` instead of being swallowed into an unconfined retry. */
+  openFolderWith: buildProvider<ShellOpenResult, { folderPath: string; tool: 'vscode' | 'terminal' | 'explorer' }>(
     'shell.open-folder-with'
-  ), // Open a folder with the specified tool
+  ),
   /** Open a filesystem path (file or directory) via the OS default handler.
    *  Only `~`-expansion is applied - no `..` traversal is allowed. */
   openPath: buildProvider<{ ok: boolean; error?: string }, { path: string }>('shell.open-path'),
+};
+
+/**
+ * P2-9. Deliverables, addressed by ARTIFACT ID.
+ *
+ * Every one of these takes an id and NEVER a path. The host resolves the path
+ * from the ledger, re-validates the artifact's identity immediately before
+ * acting - ancestor symlinks, file type, digest - and only then reaches an OS
+ * launcher. A path arriving from the renderer would be attacker input the
+ * moment the renderer is compromised, and no amount of validation turns it back
+ * into a trustworthy one; `canonicalPath` therefore travels main -> renderer
+ * only, so the controls can show the user what will actually open.
+ *
+ * This is not, and must never become, a generic `open`. The engine cannot reach
+ * it: it is driven by a user clicking host chrome.
+ */
+export const artifacts = {
+  /** The series, newest first, capped. Includes the host-resolved target. */
+  list: buildProvider<ArtifactSummary[], void>('artifacts.list'),
+  /** Open in the OS default app. Type-gated - a `.command` is refused. */
+  open: buildProvider<ShellOpenResult, { artifactId: string }>('artifacts.open'),
+  /** Reveal in the OS file manager. Not type-gated: selecting never executes. */
+  reveal: buildProvider<ShellOpenResult, { artifactId: string }>('artifacts.reveal'),
+  /** Copy the VERIFIED bytes somewhere the user chooses (mail, Desktop, share). */
+  saveCopy: buildProvider<ArtifactSaveResult, { artifactId: string }>('artifacts.save-copy'),
+  /**
+   * The run history of the series this deliverable belongs to - newest first,
+   * capped, every run carrying its own artifact IDS. The series is derived from
+   * the requested artifact's own ledger record, never from the caller, and
+   * opening an earlier run goes back through `open` with an id like any other.
+   * Null when the id is unknown or the artifact is not filed in a series.
+   */
+  series: buildProvider<ArtifactSeriesView | null, { artifactId: string }>('artifacts.series'),
+  /**
+   * What the OS would open this deliverable with, so the button can say
+   * "Open in Preview" instead of "Open". A LABEL, never a capability: the type
+   * gate still decides what may be launched, and `applicationName` is null
+   * whenever the answer cannot be established honestly.
+   */
+  openTarget: buildProvider<ArtifactOpenTarget, { artifactId: string }>('artifacts.open-target'),
 };
 
 // #466 Computer-Use macOS permission onboarding. getStatus uses non-prompting
@@ -1482,28 +1526,82 @@ export const webui = {
   >('webui.activity-log'),
 };
 
+/**
+ * H1 - a cron provider must never REJECT.
+ *
+ * `buildProvider(...).invoke` is `new Promise(function(resolve){...})`: it has
+ * no reject and no timeout, and the provider half calls `handler(data).then(cb)`
+ * with no `.catch`. A throw inside a provider body therefore does not surface as
+ * an error the renderer can show - it is a promise that never settles, so the
+ * caller's `catch` AND its `finally` never run and the button spins forever.
+ *
+ * The three cron providers that can hit a real workspace problem (P2-2
+ * allocation, P2-10 preflight) return this instead. `message` is the same
+ * user-facing sentence the throw used to carry, already localized by the main
+ * process; `errorCode` is what the renderer can actually branch on.
+ */
+export type ICronBridgeErrorCode =
+  | 'workspace_missing'
+  | 'workspace_mismatch'
+  | 'workspace_alloc_failed'
+  /** Catch-all so no future throw can reach the un-catchable `invoke`. */
+  | 'cron_operation_failed';
+
+export type ICronBridgeFailure = Readonly<{
+  ok: false;
+  errorCode: ICronBridgeErrorCode;
+  /** The folder the failure is about, when the failure names one. */
+  path?: string;
+  /** Already-localized, user-facing sentence. Safe to render as-is. */
+  message: string;
+}>;
+
+/**
+ * Narrow a cron provider result to the failure arm.
+ *
+ * Deliberately structural rather than a `'ok' in value` check: `ICronJob` has
+ * no `ok` field, so the discriminator is unambiguous, and the renderer gets one
+ * import instead of a hand-written type guard per call site.
+ */
+export function isCronBridgeFailure(value: unknown): value is ICronBridgeFailure {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as { ok?: unknown; errorCode?: unknown };
+  return candidate.ok === false && typeof candidate.errorCode === 'string';
+}
+
 // Cron job management API
 export const cron = {
   // Query
-  listJobs: buildProvider<ICronJob[], void>('cron.list-jobs'),
-  listArchivedJobs: buildProvider<IArchivedCronJob[], void>('cron.list-archived-jobs'),
-  listJobsByConversation: buildProvider<ICronJob[], { conversationId: string }>('cron.list-jobs-by-conversation'),
-  getJob: buildProvider<ICronJob | null, { jobId: string }>('cron.get-job'),
-  // CRUD
-  addJob: buildProvider<ICronJob, ICreateCronJobParams>('cron.add-job'),
-  updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }>(
-    'cron.update-job'
+  // H1: every cron provider carries the failure arm, not only the three that
+  // can hit a workspace problem. A read that rejects hangs a spinner exactly
+  // as permanently as a write that rejects - `TaskDetailPage.fetchJob` has the
+  // same never-runs `finally` as `handleRunNow`.
+  listJobs: buildProvider<ICronJob[] | ICronBridgeFailure, void>('cron.list-jobs'),
+  listArchivedJobs: buildProvider<IArchivedCronJob[] | ICronBridgeFailure, void>('cron.list-archived-jobs'),
+  listJobsByConversation: buildProvider<ICronJob[] | ICronBridgeFailure, { conversationId: string }>(
+    'cron.list-jobs-by-conversation'
   ),
-  removeJob: buildProvider<IArchivedCronJob, { jobId: string }>('cron.remove-job'),
-  restoreArchivedJob: buildProvider<ICronJob, { archiveId: string }>('cron.restore-archived-job'),
-  runNow: buildProvider<{ conversationId: string }, { jobId: string }>('cron.run-now'),
-  saveSkill: buildProvider<void, { jobId: string; content: string }>('cron.save-skill'),
-  hasSkill: buildProvider<boolean, { jobId: string }>('cron.has-skill'),
+  getJob: buildProvider<ICronJob | null | ICronBridgeFailure, { jobId: string }>('cron.get-job'),
+  // CRUD
+  // H1: the success arm is the unchanged `ICronJob`; the failure arm is a
+  // RESOLVED payload, because a rejection cannot cross this bridge at all.
+  addJob: buildProvider<ICronJob | ICronBridgeFailure, ICreateCronJobParams>('cron.add-job'),
+  updateJob: buildProvider<
+    ICronJob | ICronBridgeFailure,
+    { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }
+  >('cron.update-job'),
+  removeJob: buildProvider<IArchivedCronJob | ICronBridgeFailure, { jobId: string }>('cron.remove-job'),
+  restoreArchivedJob: buildProvider<ICronJob | ICronBridgeFailure, { archiveId: string }>('cron.restore-archived-job'),
+  runNow: buildProvider<{ conversationId: string } | ICronBridgeFailure, { jobId: string }>('cron.run-now'),
+  saveSkill: buildProvider<void | ICronBridgeFailure, { jobId: string; content: string }>('cron.save-skill'),
+  hasSkill: buildProvider<boolean | ICronBridgeFailure, { jobId: string }>('cron.has-skill'),
   // v0.6.2.6 - confirm or dismiss an inline CronProposeCard (rendered when
   // the agent emits [CRON_PROPOSE] in a chat). Status transitions are
   // guarded server-side to prevent double-fire from rapid clicks.
   confirmProposal: buildProvider<
-    { ok: true; jobId?: string; editPayload?: ICronProposeEditPayload } | { ok: false; reason: string },
+    | { ok: true; jobId?: string; editPayload?: ICronProposeEditPayload }
+    | { ok: false; reason: string }
+    | ICronBridgeFailure,
     { conversationId: string; msgId: string; action: 'accept' | 'edit' | 'cancel' }
   >('cron.confirm-proposal'),
   // Events
@@ -1514,6 +1612,74 @@ export const cron = {
     'cron.job-executed'
   ),
 };
+
+/**
+ * P2-4 - promotion of a recurring chat's throwaway workspace to a durable one.
+ *
+ * Everything crossing this boundary is an ID. The renderer never names a
+ * filesystem path: the source workspaces are resolved in main from the
+ * conversations the job owns, and the destination is the promotion's own
+ * result. Both providers are remote-denied - promotion copies user data and
+ * writes into the user's Documents, which a paired browser token must not do.
+ */
+export const promotion = {
+  /** What to show BEFORE the user accepts. Touches nothing. */
+  preview: buildProvider<IPromotionOffer, { conversationId: string; jobId: string }>('promotion.preview'),
+  /** Accept the offer, optionally bringing forward chosen earlier-run files. */
+  promote: buildProvider<
+    IPromotionResult,
+    { conversationId: string; jobId: string; keep?: Array<{ conversationId: string; relPath: string }> }
+  >('promotion.promote'),
+};
+
+export type IPromotionRefusal =
+  | 'job-missing'
+  | 'job-owns-workspace'
+  | 'conversation-missing'
+  | 'no-workspace'
+  | 'already-durable'
+  | 'user-chosen-workspace'
+  | 'promotion-in-progress'
+  | 'run-in-flight'
+  /**
+   * H4: the catch-all. Neither promotion provider had a try/catch, and this
+   * bridge cannot transport a rejection, so an unexpected throw used to hang
+   * the caller forever. It arrives as a refusal now.
+   */
+  | 'promotion-failed';
+
+/** A file an earlier run left behind, offered for the user to keep or ignore. */
+export interface IEarlierRunDeliverable {
+  conversationId: string;
+  sourceWorkspace: string;
+  relPath: string;
+  size: number;
+  modifiedAtMs: number;
+  declared: boolean;
+  hidden: boolean;
+}
+
+export interface IPromotionOffer {
+  eligible: boolean;
+  refusal?: IPromotionRefusal;
+  sourceWorkspace?: string;
+  targetName?: string;
+  earlierRuns: IEarlierRunDeliverable[];
+  earlierRunsTruncated: boolean;
+}
+
+export interface IPromotionResult {
+  ok: boolean;
+  refusal?: IPromotionRefusal;
+  workspace?: string;
+  alreadyPromoted?: boolean;
+  skipped: Array<{ relPath: string; reason: 'symlink' | 'non-regular' }>;
+  imported: Array<{ relPath: string; sha256: string; sourceWorkspace: string }>;
+  importFailed: Array<{
+    relPath: string;
+    reason: 'outside-workspace' | 'not-a-file' | 'copy-failed' | 'not-offered';
+  }>;
+}
 
 /**
  * Concierge Phase 2b - confirm or dismiss an inline ConciergeConfigCard (rendered
@@ -1606,6 +1772,16 @@ export interface ICronAgentConfig {
   modelId?: string;
   configOptions?: Record<string, string>;
   workspace?: string;
+  /**
+   * P2-0 identity of `workspace`: the id in that folder's own
+   * `.wayland-workspace.json`. A pathname is not identity - the user can
+   * replace the folder - so the preflight compares this, not the path.
+   *
+   * H6: it was missing from this renderer-facing type while the store type
+   * had it, which is part of why the Create Task dialog dropped it on every
+   * edit without anything complaining.
+   */
+  workspaceId?: string;
 }
 
 export interface ICreateCronJobParams {
@@ -2978,8 +3154,38 @@ export const storage = {
  * callers, so the provider is remote-denied in bridgeAllowlist.ts.
  */
 export const workspaceRetention = {
-  preview: buildProvider<import('@/common/types/managedWorkspaceRetention').ManagedWorkspaceInventoryReport, void>(
+  preview: buildProvider<import('@/common/types/managedWorkspaceRetention').WorkspaceRetentionPreviewResult, void>(
     'workspaceRetention.preview'
+  ),
+};
+
+/**
+ * The boundary axis in Settings: "Folders this workspace may reach".
+ *
+ * SECURITY: every key is namespaced `workspaceFolderGrants.*` so bridgeAllowlist's
+ * `workspaceFolderGrants.` REMOTE_DENIED_PREFIXES entry blocks a paired WebSocket
+ * peer from reaching ANY of them, and each shipped key is ALSO listed exactly in
+ * REMOTE_DENIED_KEYS so narrowing that prefix later cannot silently re-open it.
+ * `add` mints an AI agent standing read access to a folder outside its workspace
+ * and `remove` withdraws it; `list` discloses the absolute path of every folder
+ * the user has ever consented to. A WebSocket token proves a paired BROWSER, not
+ * the human at the desktop window - which is the same finding that closed the
+ * `confirmation.confirm` path-boundary hole (#1099). This is a LOCAL control only.
+ *
+ * `add` takes NO path. The renderer names a workspace; the main process opens the
+ * native directory picker itself and grants what the human chose there, so there
+ * is no renderer-supplied path for an XSS to substitute.
+ */
+export const workspaceFolderGrants = {
+  list: buildProvider<import('@/common/workspace/folderGrantsIpc').FolderGrantListResult, void>(
+    'workspaceFolderGrants.list'
+  ),
+  remove: buildProvider<
+    import('@/common/workspace/folderGrantsIpc').FolderGrantRemoveResult,
+    { workspaceId: string; grantId: string }
+  >('workspaceFolderGrants.remove'),
+  add: buildProvider<import('@/common/workspace/folderGrantsIpc').FolderGrantPickResult, { workspaceId: string }>(
+    'workspaceFolderGrants.add'
   ),
 };
 

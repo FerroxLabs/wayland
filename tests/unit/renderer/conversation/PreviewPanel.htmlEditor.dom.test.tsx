@@ -108,7 +108,15 @@ vi.mock('@/renderer/hooks/ui/useResizableSplit', () => ({
   useResizableSplit: () => ({ splitRatio: 50, createDragHandle: () => null }),
 }));
 
-vi.mock('@/common', () => ({ ipcBridge: { shell: { openFile: { invoke: vi.fn() } } } }));
+// `artifacts.list` is here because PreviewPanel now asks, for every previewed
+// file, whether it is a registered deliverable (P2-9). An empty list is the
+// "not a deliverable" answer, which is what these cases are.
+vi.mock('@/common', () => ({
+  ipcBridge: {
+    shell: { openFile: { invoke: vi.fn() } },
+    artifacts: { list: { invoke: vi.fn().mockResolvedValue([]) } },
+  },
+}));
 vi.mock('@/renderer/utils/file/download', () => ({
   downloadFileFromPath: vi.fn(),
   downloadTextContent: vi.fn(),

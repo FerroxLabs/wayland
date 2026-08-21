@@ -34,7 +34,8 @@ afterAll(async () => {
 describe('#455 allocateProjectWorkspace (real fs)', () => {
   it('creates a real, discoverable dir under <documents>/Wayland', async () => {
     const ws = await allocateProjectWorkspace('My Notes');
-    expect(ws).toBe(path.join(tmpBase, 'Wayland', 'My Notes'));
+    // P2-1: new allocations nest by owner kind. A project defaults to Projects/.
+    expect(ws).toBe(path.join(tmpBase, 'Wayland', 'Projects', 'My Notes'));
     expect(existsSync(ws)).toBe(true);
     // It is NOT a throwaway temp workspace.
     expect(/-temp-\d+$/.test(ws)).toBe(false);

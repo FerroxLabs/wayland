@@ -29,6 +29,8 @@
   },
   "showInFolder": "Show in folder",
   "openFile": "Open file",
+  "openFileFailed": "Could not open the downloaded file",
+  "showInFolderFailed": "Could not show the download in your file manager",
   "errorTitle": "Update failed",
   "errors": {
     "missingTag": "Cannot verify this update: the release tag is missing. Please update from the Releases page.",

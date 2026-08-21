@@ -70,7 +70,7 @@ describe('TVControl catalog connector', () => {
     // so `npx @ferroxlabs/tvcontrol` answered an MCP initialize with
     // "Usage: tv <command>" and the connector could never connect. A substring
     // match cannot tell a working spec from an unrunnable one.
-    expect(transport.args).toEqual(['@ferroxlabs/tvcontrol@2.2.2']);
+    expect(transport.args).toEqual(['@ferroxlabs/tvcontrol@2.3.0']);
   });
 
   it('pins a version whose published bin is the MCP server, not the CLI', () => {
@@ -80,7 +80,48 @@ describe('TVControl catalog connector', () => {
     // bin map move underneath this entry with every test still green.
     const pkg = entry.packages[0];
     expect(pkg.version, 'must be pinned; "latest" cannot be verified').toMatch(/^\d+\.\d+\.\d+$/);
-    expect(pkg.version).toBe('2.2.2');
+    expect(pkg.version).toBe('2.3.0');
+  });
+
+  /**
+   * THE PIN LIVES IN THREE PLACES AND ONLY ONE OF THEM IS THIS FILE.
+   *
+   * `tvcontrol-setup/SKILL.md` carries the version inside the proposal block
+   * the assistant emits - `args: @ferroxlabs/tvcontrol@<version>` - which is
+   * what actually gets installed when the user clicks Apply. The catalog entry
+   * carries it twice more. Nothing tied them together, so bumping the catalog
+   * and forgetting the skill would install one version through the library card
+   * and a different one through the assistant, with every test still green.
+   *
+   * The catalog entry is the source of truth here because it is what
+   * `entryToServerData` builds argv from; the skill has to agree with it.
+   */
+  it('the setup skill proposes the SAME version the catalog entry pins', () => {
+    const skill = readFileSync(
+      join(__dirname, '../../../../src/process/resources/skills/tvcontrol-setup/SKILL.md'),
+      'utf-8'
+    );
+    const proposed = skill.match(/^args:\s*@ferroxlabs\/tvcontrol@(\S+)$/m)?.[1];
+    expect(proposed, 'the skill must still emit an args: line for the connector').toBeTruthy();
+    expect(proposed).toBe(entry.packages[0].version);
+    // Both catalog fields, too: `version` is what the library card shows and
+    // `packages[0].version` is what is installed, and they are separate keys.
+    expect(entry.version).toBe(entry.packages[0].version);
+  });
+
+  /**
+   * The skill's own prose forbids proposing a floating tag. That instruction is
+   * the reason the pin holds at all, so it is asserted rather than trusted.
+   */
+  it('the setup skill still refuses to propose a floating tag', () => {
+    const skill = readFileSync(
+      join(__dirname, '../../../../src/process/resources/skills/tvcontrol-setup/SKILL.md'),
+      'utf-8'
+    );
+    expect(skill).toMatch(/Do not propose `@latest`/);
+    // Positive control for the scan above: the file really does contain the
+    // proposal block this pair of tests reads, so neither can pass vacuously.
+    expect(skill).toMatch(/\[CONCIERGE_PROPOSE\]/);
   });
 
   it('declares no auth, so the install card does not demand a token', () => {
