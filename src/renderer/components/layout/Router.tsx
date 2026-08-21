@@ -57,6 +57,7 @@ const MemoryPage = React.lazy(() => import('@renderer/pages/memory/MemoryPage'))
 const ProjectsListPage = React.lazy(() => import('@renderer/pages/projects/ProjectsListPage'));
 const ProjectWorkspacePage = React.lazy(() => import('@renderer/pages/projects/ProjectWorkspacePage'));
 const ConversationsListPage = React.lazy(() => import('@renderer/pages/conversations/ConversationsListPage'));
+const ArtifactsPage = React.lazy(() => import('@renderer/pages/artifacts/ArtifactsPage'));
 const IjfwSettingsPanel = React.lazy(() => import('@renderer/pages/settings/IjfwSettingsPanel'));
 const WikiHomePage = React.lazy(() =>
   import('@renderer/pages/wiki/WikiHomePage').then((m) => ({ default: m.WikiHomePage }))
@@ -111,6 +112,25 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route
               path='/conversation/:id'
               element={<ErrorBoundary>{withRouteFallback(Conversation)}</ErrorBoundary>}
+            />
+            {/* ARTIFACTS - the deliverables rail.
+
+              DESKTOP ONLY, gated exactly like `/settings/wcore-config` below.
+              The whole `artifacts.` namespace is remote-denied in
+              bridgeAllowlist.ts (list enumerates the absolute paths of every
+              workspace the user has; open reaches an OS launcher on the LOCAL
+              machine; save-copy writes a file there), so on a paired WebUI
+              every call this page makes REJECTS and the page can only ever
+              render its own failure state. A route that cannot work is worse
+              than no route: it puts a dead end in front of a remote user.
+
+              This gate is CLIENT-SIDE and is therefore attack-surface and UX
+              reduction, NOT a security boundary - the allowlist is applied
+              again server-side in src/process/webserver/adapter.ts, and that
+              is what actually refuses. Nothing here widens it. */}
+            <Route
+              path='/artifacts'
+              element={isElectronDesktop() ? withRouteFallback(ArtifactsPage) : <Navigate to='/guid' replace />}
             />
             {/* WORKSPACE */}
             <Route path='/settings/assistants' element={withRouteFallback(AssistantSettings)} />

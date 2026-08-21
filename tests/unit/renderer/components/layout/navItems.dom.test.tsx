@@ -47,6 +47,7 @@ describe('SIDER_NAV_ITEMS registry (#118)', () => {
       'workflows',
       'scheduled',
       'teams',
+      'artifacts',
       'memory',
       'mission-control',
     ]);
@@ -76,6 +77,9 @@ describe('registry render wiring preserves bespoke behavior (#118)', () => {
     // Memory is active for both /memory and /wiki.
     expect(propsOf('memory', makeCtx({ pathname: '/wiki/page' })).isActive).toBe(true);
     expect(propsOf('memory', makeCtx({ pathname: '/memory' })).isActive).toBe(true);
+    // The deliverables rail.
+    expect(propsOf('artifacts', makeCtx({ pathname: '/artifacts' })).isActive).toBe(true);
+    expect(propsOf('artifacts', makeCtx({ pathname: '/guid' })).isActive).toBe(false);
   });
 
   it('routes top-zone clicks through onTopZoneNav with the right target', () => {
@@ -84,6 +88,8 @@ describe('registry render wiring preserves bespoke behavior (#118)', () => {
     expect(ctx.onTopZoneNav).toHaveBeenCalledWith('/teams');
     (propsOf('workflows', ctx).onClick as () => void)();
     expect(ctx.onTopZoneNav).toHaveBeenCalledWith('/workflows');
+    (propsOf('artifacts', ctx).onClick as () => void)();
+    expect(ctx.onTopZoneNav).toHaveBeenCalledWith('/artifacts');
   });
 
   it('wires the assistants entry to its bespoke handler', () => {

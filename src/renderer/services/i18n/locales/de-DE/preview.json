@@ -139,5 +139,17 @@
     "installing": "Vorschaukomponente wird installiert...",
     "startFailed": "PPT-Vorschau konnte nicht gestartet werden",
     "installHint": "Stellen Sie sicher, dass officecli installiert ist: npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "Artefakte",
+  "artifactsRailSubtitle": "Alles, was deine Chats und geplanten Aufgaben für dich gespeichert haben.",
+  "artifactsRailEmpty": "Noch keine Ergebnisse",
+  "artifactsRailEmptyHint": "Sobald ein Chat oder eine geplante Aufgabe eine Datei für dich speichert, erscheint sie hier.",
+  "artifactsRailFailed": "Deine Ergebnisse konnten nicht gelesen werden.",
+  "artifactsRailPartial": "{{count}} gespeicherte Einträge konnten nicht gelesen werden und werden nicht angezeigt.",
+  "artifactStatusReady": "Bereit",
+  "artifactStatusEmpty": "Leer",
+  "artifactStatusMissing": "Fehlt",
+  "artifactMissingReason": "Diese Datei liegt nicht mehr auf der Festplatte. Sie wurde möglicherweise außerhalb von Wayland verschoben oder gelöscht.",
+  "artifactEmptyReason": "Diese Datei liegt auf der Festplatte, ist aber leer.",
+  "artifactOpenHere": "Hier öffnen"
 }

@@ -24,13 +24,17 @@ import { ipcBridge } from '@/common';
 import { getDataPath } from '@process/utils';
 import {
   describeArtifactOpenTarget,
-  listArtifactSummaries,
+  listArtifacts,
   openArtifact,
   revealArtifact,
   saveArtifactCopy,
   type ArtifactHostEffects,
 } from '@process/services/artifacts/artifactActions';
-import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
+import {
+  artifactLedgerPath,
+  readArtifactLedger,
+  readArtifactLedgerEntries,
+} from '@process/services/artifacts/artifactLedger';
 import { buildArtifactSeriesView } from '@process/services/artifacts/artifactSeriesView';
 
 import { confinePath } from './pathConfinement';
@@ -47,6 +51,7 @@ import { openPathReporting, revealPathReporting } from './shellBridge';
 export function buildArtifactHostEffects(): ArtifactHostEffects {
   return {
     readLedger: () => readArtifactLedger(artifactLedgerPath(getDataPath())),
+    readLedgerEntries: () => readArtifactLedgerEntries(artifactLedgerPath(getDataPath())),
     confine: (target) => confinePath(target),
     launch: (target) => openPathReporting(target),
     reveal: (target) => revealPathReporting(target),
@@ -69,7 +74,7 @@ export function buildArtifactHostEffects(): ArtifactHostEffects {
 export function initArtifactBridge(): void {
   const effects = buildArtifactHostEffects();
 
-  ipcBridge.artifacts.list.provider(() => listArtifactSummaries(effects));
+  ipcBridge.artifacts.list.provider(() => listArtifacts(effects));
   ipcBridge.artifacts.open.provider(({ artifactId }) => openArtifact(artifactId, effects));
   ipcBridge.artifacts.reveal.provider(({ artifactId }) => revealArtifact(artifactId, effects));
   ipcBridge.artifacts.saveCopy.provider(({ artifactId }) => saveArtifactCopy(artifactId, effects));

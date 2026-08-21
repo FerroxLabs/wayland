@@ -139,5 +139,17 @@
     "installing": "Установка компонента предпросмотра...",
     "startFailed": "Не удалось запустить предпросмотр PPT",
     "installHint": "Убедитесь, что officecli установлен: npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "Артефакты",
+  "artifactsRailSubtitle": "Всё, что сохранили для вас чаты и запланированные задачи.",
+  "artifactsRailEmpty": "Пока нет результатов",
+  "artifactsRailEmptyHint": "Когда чат или запланированная задача сохранит для вас файл, он появится здесь.",
+  "artifactsRailFailed": "Не удалось прочитать ваши результаты.",
+  "artifactsRailPartial": "Не удалось прочитать записей: {{count}}. Они не показаны.",
+  "artifactStatusReady": "Готово",
+  "artifactStatusEmpty": "Пусто",
+  "artifactStatusMissing": "Отсутствует",
+  "artifactMissingReason": "Этого файла больше нет на диске. Возможно, он был перемещён или удалён вне Wayland.",
+  "artifactEmptyReason": "Файл есть на диске, но он пустой.",
+  "artifactOpenHere": "Открыть здесь"
 }

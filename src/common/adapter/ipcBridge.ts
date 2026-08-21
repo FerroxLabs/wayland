@@ -26,7 +26,13 @@ import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/wor
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
-import type { ArtifactOpenTarget, ArtifactSaveResult, ArtifactSeriesView, ArtifactSummary } from '../types/artifacts';
+import type {
+  ArtifactListing,
+  ArtifactOpenTarget,
+  ArtifactSaveResult,
+  ArtifactSeriesView,
+  ArtifactSummary,
+} from '../types/artifacts';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
 import type { IjfwErrorReason, IjfwInvokeResult, IjfwRuntimeModePublic } from '../types/ijfw';
 import type {
@@ -155,8 +161,13 @@ export const shell = {
  * it: it is driven by a user clicking host chrome.
  */
 export const artifacts = {
-  /** The series, newest first, capped. Includes the host-resolved target. */
-  list: buildProvider<ArtifactSummary[], void>('artifacts.list'),
+  /**
+   * The series, newest first, capped. Includes the host-resolved target, each
+   * row's disk status at enumeration time, and how many ledger lines could not
+   * be read - so a surface can render what parsed and SAY the rest was dropped
+   * rather than presenting a short list as a complete one.
+   */
+  list: buildProvider<ArtifactListing, void>('artifacts.list'),
   /** Open in the OS default app. Type-gated - a `.command` is refused. */
   open: buildProvider<ShellOpenResult, { artifactId: string }>('artifacts.open'),
   /** Reveal in the OS file manager. Not type-gated: selecting never executes. */

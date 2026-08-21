@@ -139,5 +139,17 @@
     "installing": "Instalando el componente de vista previa...",
     "startFailed": "No se pudo iniciar la vista previa de PPT",
     "installHint": "Asegúrate de que officecli esté instalado: npm run postinstall"
-  }
+  },
+  "artifactsRailTitle": "Artefactos",
+  "artifactsRailSubtitle": "Todo lo que tus chats y tareas programadas han guardado para ti.",
+  "artifactsRailEmpty": "Aún no hay entregables",
+  "artifactsRailEmptyHint": "Cuando un chat o una tarea programada guarde un archivo para ti, aparecerá aquí.",
+  "artifactsRailFailed": "No se pudieron leer tus entregables.",
+  "artifactsRailPartial": "No se pudieron leer {{count}} entradas guardadas y no se muestran.",
+  "artifactStatusReady": "Listo",
+  "artifactStatusEmpty": "Vacío",
+  "artifactStatusMissing": "Falta",
+  "artifactMissingReason": "Este archivo ya no está en el disco. Puede que se haya movido o eliminado fuera de Wayland.",
+  "artifactEmptyReason": "Este archivo está en el disco pero no tiene contenido.",
+  "artifactOpenHere": "Abrir aquí"
 }

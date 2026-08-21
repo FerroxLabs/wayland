@@ -336,13 +336,30 @@ export async function registerArtifacts(input: RegisterArtifactsInput): Promise<
  * Storage or the series UI down with it.
  */
 export async function readArtifactLedger(ledgerPath: string): Promise<ArtifactRecord[]> {
+  return (await readArtifactLedgerEntries(ledgerPath)).records;
+}
+
+/**
+ * The same read, plus how many lines it had to throw away.
+ *
+ * Dropping a bad line is the right behaviour - the ledger is a convenience over
+ * the filesystem and one corrupt entry must not take a whole surface down - but
+ * dropping it SILENTLY means a user whose deliverable is missing from the list
+ * is shown a list that looks complete. The count is what lets a surface say
+ * "some entries could not be read" instead of quietly lying.
+ */
+export async function readArtifactLedgerEntries(
+  ledgerPath: string
+): Promise<{ records: ArtifactRecord[]; unreadableEntries: number }> {
   let raw: string;
   try {
     raw = await fs.readFile(ledgerPath, 'utf-8');
   } catch {
-    return [];
+    // No ledger at all is "nothing published yet", not corruption.
+    return { records: [], unreadableEntries: 0 };
   }
 
+  let unreadableEntries = 0;
   const byId = new Map<string, ArtifactRecord>();
   for (const line of raw.split('\n')) {
     if (!line.trim()) continue;
@@ -350,6 +367,7 @@ export async function readArtifactLedger(ledgerPath: string): Promise<ArtifactRe
     try {
       parsed = JSON.parse(line);
     } catch {
+      unreadableEntries += 1;
       continue;
     }
     const record = parsed as ArtifactRecord;
@@ -363,9 +381,10 @@ export async function readArtifactLedger(ledgerPath: string): Promise<ArtifactRe
       typeof record.sha256 !== 'string' ||
       !Number.isSafeInteger(record.sizeBytes)
     ) {
+      unreadableEntries += 1;
       continue;
     }
     byId.set(record.artifactId, record);
   }
-  return [...byId.values()];
+  return { records: [...byId.values()], unreadableEntries };
 }
