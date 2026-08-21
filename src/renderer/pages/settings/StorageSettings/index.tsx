@@ -9,6 +9,7 @@ import BackupCard from './BackupCard';
 import SyncCard from './SyncCard';
 import ManagedWorkspacesCard from './ManagedWorkspacesCard';
 import FolderAccessCard from './FolderAccessCard';
+import { FOLDER_GRANT_REPLAY_AVAILABLE } from '@/common/chat/pathBoundaryConsent';
 import TransferCard from './TransferCard';
 
 const StorageSettings: React.FC = () => {
@@ -23,7 +24,11 @@ const StorageSettings: React.FC = () => {
     >
       <UsageCard />
       <ManagedWorkspacesCard />
-      <FolderAccessCard />
+      {/* Hidden while a remembered folder is not re-applied at session start:
+          the list would only ever be empty, and an empty list of folders the
+          user believes they granted is its own false statement. One constant
+          brings the card and the consent button back together. */}
+      {FOLDER_GRANT_REPLAY_AVAILABLE ? <FolderAccessCard /> : null}
       <DirectoriesCard />
       <TransferCard />
       <BackupCard />

@@ -208,6 +208,8 @@ vi.mock('@process/agent/wcore', () => ({
 import { WCoreManager, folderGrantNotRememberedText } from '@/process/task/WCoreManager';
 import {
   PATH_BOUNDARY_DENY,
+  FOLDER_GRANT_REPLAY_AVAILABLE,
+  pathBoundaryRootOf,
   PATH_BOUNDARY_GRANT_FOLDER,
   PATH_BOUNDARY_REMEMBER_FOLDER,
   PATH_BOUNDARY_ROOT_PARAM,
@@ -463,9 +465,13 @@ describe('#1099 a path boundary is never auto-approved', () => {
       options: Array<{ value: string; params?: Record<string, string> }>;
     };
 
+    // Derived from the gate, not hard-coded: the durable option is offered only
+    // when a remembered folder is actually re-applied at session start. Written
+    // this way so the assertion keeps its meaning on the day the gate flips,
+    // rather than becoming a test somebody has to remember to rewrite.
     expect(card.options.map((o) => o.value)).toEqual([
       PATH_BOUNDARY_GRANT_FOLDER,
-      PATH_BOUNDARY_REMEMBER_FOLDER,
+      ...(FOLDER_GRANT_REPLAY_AVAILABLE ? [PATH_BOUNDARY_REMEMBER_FOLDER] : []),
       PATH_BOUNDARY_DENY,
     ]);
     // The grant is options[0] because it is the PRIMARY action: Core cannot
@@ -494,9 +500,12 @@ describe('#1099 a path boundary is never auto-approved', () => {
     const card = emitConfirmationAdd.mock.calls[0][0] as { options: Array<{ value: string }> };
     expect(card.options[0].value).toBe(PATH_BOUNDARY_GRANT_FOLDER);
     expect(card.options[0].value).not.toBe(PATH_BOUNDARY_REMEMBER_FOLDER);
-    // ...and the durable grant is still ON the card, so this is an ordering
-    // assertion and not an accidental assertion that the option is missing.
-    expect(card.options.map((o) => o.value)).toContain(PATH_BOUNDARY_REMEMBER_FOLDER);
+    // ...and when the durable grant is offered at all it is still ON the card,
+    // so this stays an ordering assertion rather than quietly becoming an
+    // assertion that the option went missing.
+    expect(card.options.map((o) => o.value).includes(PATH_BOUNDARY_REMEMBER_FOLDER)).toBe(
+      FOLDER_GRANT_REPLAY_AVAILABLE
+    );
   });
 
   it('builds both grant options from ONE suggestedRoot, so they cannot name different folders', () => {
@@ -509,7 +518,10 @@ describe('#1099 a path boundary is never auto-approved', () => {
       .filter((o) => o.value === PATH_BOUNDARY_GRANT_FOLDER || o.value === PATH_BOUNDARY_REMEMBER_FOLDER)
       .map((o) => o.params?.[PATH_BOUNDARY_ROOT_PARAM]);
 
-    expect(roots).toHaveLength(2);
+    // However many grant options are offered, they all name ONE folder, and it
+    // is the folder the card was built from. The count follows the gate; the
+    // agreement does not.
+    expect(roots).toHaveLength(FOLDER_GRANT_REPLAY_AVAILABLE ? 2 : 1);
     expect(new Set(roots).size).toBe(1);
     expect(roots[0]).toBe(ROOT);
   });
@@ -526,10 +538,17 @@ describe('#1099 a path boundary is never auto-approved', () => {
     const session = card.options.find((o) => o.value === PATH_BOUNDARY_GRANT_FOLDER);
     const durable = card.options.find((o) => o.value === PATH_BOUNDARY_REMEMBER_FOLDER);
 
+    // The session hint is asserted unconditionally - it is the button that is
+    // always offered, and a card with no hint at all would otherwise slip past
+    // everything below.
     expect(session?.description).toBeTruthy();
-    expect(durable?.description).toBeTruthy();
-    expect(durable?.description).not.toBe(session?.description);
-    expect(durable?.label).not.toBe(session?.label);
+    if (FOLDER_GRANT_REPLAY_AVAILABLE) {
+      expect(durable?.description).toBeTruthy();
+      expect(durable?.description).not.toBe(session?.description);
+      expect(durable?.label).not.toBe(session?.label);
+    } else {
+      expect(durable).toBeUndefined();
+    }
   });
 
   it('CONTROL: an ordinary card still gets proceed_once / proceed_always / cancel and an action', () => {
@@ -725,9 +744,12 @@ describe('#1099 remembering a folder for the workspace', () => {
     const card = emitConfirmationAdd.mock.calls[0][0] as {
       options: Array<{ value: string; params?: Record<string, string> }>;
     };
-    const shown = card.options.find((o) => o.value === PATH_BOUNDARY_REMEMBER_FOLDER)?.params?.[
-      PATH_BOUNDARY_ROOT_PARAM
-    ];
+    // Read through the PRODUCTION accessor rather than off a chosen option.
+    // `pathBoundaryRootOf` is the one accessor the card renders from, the route
+    // grants from and the store files from, so asking it what the card shows is
+    // asking the same question the product asks - and it does not care which
+    // grant options happen to be offered.
+    const shown = pathBoundaryRootOf(card);
     expect(shown).toBe(ROOT_VIA_SYMLINK);
     expect(shown).not.toBe(ROOT);
 

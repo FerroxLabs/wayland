@@ -13,6 +13,7 @@ import { transformMessage } from '@/common/chat/chatLib';
 import {
   PATH_BOUNDARY_DENY,
   PATH_BOUNDARY_GRANT_FOLDER,
+  FOLDER_GRANT_REPLAY_AVAILABLE,
   PATH_BOUNDARY_REMEMBER_FOLDER,
   PATH_BOUNDARY_ROOT_PARAM,
   isPathBoundaryConfirmation,
@@ -373,6 +374,55 @@ export function folderGrantRefusedText(root: string, refusal: FolderGrantRefusal
       return `${refused} That folder could not be opened.`;
   }
 }
+
+
+/**
+ * The folder-grant card's options, in the order the card renders them.
+ *
+ * Exported so the tests exercise THIS function rather than a copy of it. A test
+ * file on the previous milestone reimplemented the thing it claimed to be
+ * testing, and passed while production was broken; the fix is that there is one
+ * definition and everyone reads it.
+ */
+export function buildPathBoundaryOptions(suggestedRoot: string) {
+  return [
+    {
+      label: 'messages.confirmation.grantFolderAlways',
+      value: PATH_BOUNDARY_GRANT_FOLDER,
+      params: { [PATH_BOUNDARY_ROOT_PARAM]: suggestedRoot },
+      description: 'messages.confirmation.grantFolderAlwaysHint',
+    },
+    // The same grant, also written to this workspace's durable list.
+    // SECOND, not first: `options[0]` is what both index-keyed
+    // auto-confirm paths pick, and while both exclude this card, the
+    // ordering decides the blast radius if either exclusion regresses.
+    // The narrower grant is the one that sits in that slot.
+    //
+    // Built from the SAME `suggestedRoot` as the option above -
+    // one value, read back by one accessor (`pathBoundaryRootOf`), so
+    // the two buttons cannot come to name different folders.
+    //
+    // OFFERED ONLY WHEN A REMEMBERED FOLDER IS ACTUALLY RE-APPLIED.
+    // Its label promises the folder is still open next time; until
+    // `grant_path` is sendable that promise is false, and a false
+    // promise on a consent surface is worse than a missing button.
+    // See `FOLDER_GRANT_REPLAY_AVAILABLE` for what has to land.
+    ...(FOLDER_GRANT_REPLAY_AVAILABLE
+      ? [
+          {
+            label: 'messages.confirmation.grantFolderRemember',
+            value: PATH_BOUNDARY_REMEMBER_FOLDER,
+            params: { [PATH_BOUNDARY_ROOT_PARAM]: suggestedRoot },
+            description: 'messages.confirmation.grantFolderRememberHint',
+          },
+        ]
+      : []),
+    { label: 'messages.confirmation.grantFolderDeny', value: PATH_BOUNDARY_DENY },
+  ];
+}
+
+/** Test alias, kept explicit so the export's purpose is legible at the call site. */
+export const buildPathBoundaryOptionsForTest = buildPathBoundaryOptions;
 
 export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   workspace: string;
@@ -1121,30 +1171,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // interpolates — so the folder named on the button and the folder the
         // grant opens are one value and cannot drift apart.
         details?.type === 'path_boundary'
-          ? [
-              {
-                label: 'messages.confirmation.grantFolderAlways',
-                value: PATH_BOUNDARY_GRANT_FOLDER,
-                params: { [PATH_BOUNDARY_ROOT_PARAM]: details.suggestedRoot },
-                description: 'messages.confirmation.grantFolderAlwaysHint',
-              },
-              // The same grant, also written to this workspace's durable list.
-              // SECOND, not first: `options[0]` is what both index-keyed
-              // auto-confirm paths pick, and while both exclude this card, the
-              // ordering decides the blast radius if either exclusion regresses.
-              // The narrower grant is the one that sits in that slot.
-              //
-              // Built from the SAME `details.suggestedRoot` as the option above -
-              // one value, read back by one accessor (`pathBoundaryRootOf`), so
-              // the two buttons cannot come to name different folders.
-              {
-                label: 'messages.confirmation.grantFolderRemember',
-                value: PATH_BOUNDARY_REMEMBER_FOLDER,
-                params: { [PATH_BOUNDARY_ROOT_PARAM]: details.suggestedRoot },
-                description: 'messages.confirmation.grantFolderRememberHint',
-              },
-              { label: 'messages.confirmation.grantFolderDeny', value: PATH_BOUNDARY_DENY },
-            ]
+          ? buildPathBoundaryOptions(details.suggestedRoot)
           : details?.type === 'question'
             ? [
                 ...details.choices.map((choice) => ({
