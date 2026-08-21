@@ -6,42 +6,40 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
+import { getConfirmationOptions } from '@process/channels/gateway/ActionExecutor';
 import { describe, expect, it } from 'vitest';
 
 /**
- * Pure function tests for ActionExecutor helpers
- * Inline implementations avoid module mocking conflicts
+ * Pure-function tests for ActionExecutor helpers.
+ *
+ * These used to define their own INLINE copy of `getConfirmationOptions`, so
+ * all 31 assertions passed against a duplicate that production never ran - the
+ * copy did not even contain the `path_boundary` arm, and deleting that arm from
+ * production left every test green. They import the real function now.
  */
 describe('ActionExecutor pure functions', () => {
   describe('getConfirmationOptions', () => {
-    function getConfirmationOptions(type: string): Array<{ label: string; value: string }> {
-      switch (type) {
-        case 'edit':
-          return [
-            { label: '✅ Allow Once', value: 'proceed_once' },
-            { label: '✅ Always Allow', value: 'proceed_always' },
-            { label: '❌ Cancel', value: 'cancel' },
-          ];
-        case 'exec':
-          return [
-            { label: '✅ Allow Execution', value: 'proceed_once' },
-            { label: '✅ Always Allow', value: 'proceed_always' },
-            { label: '❌ Cancel', value: 'cancel' },
-          ];
-        case 'mcp':
-          return [
-            { label: '✅ Allow Once', value: 'proceed_once' },
-            { label: '✅ Always Allow Tool', value: 'proceed_always_tool' },
-            { label: '✅ Always Allow Server', value: 'proceed_always_server' },
-            { label: '❌ Cancel', value: 'cancel' },
-          ];
-        default:
-          return [
-            { label: '✅ Confirm', value: 'proceed_once' },
-            { label: '❌ Cancel', value: 'cancel' },
-          ];
+    /**
+     * The one case the inline copy never had. `default:` in this switch IS the
+     * generic Confirm/Cancel arm carrying `proceed_once`, which is not a folder
+     * grant's vocabulary - and this is a REMOTE surface, so a boundary rendered
+     * here is a filesystem decision offered to a paired chat client under a
+     * prompt that names no folder.
+     */
+    it('offers a path boundary NO options at all', () => {
+      expect(getConfirmationOptions('path_boundary')).toEqual([]);
+    });
+
+    it('never lets a path boundary speak the auto-approved vocabulary', () => {
+      const values = getConfirmationOptions('path_boundary').map((o) => o.value);
+      for (const forbidden of ['proceed_once', 'proceed_always', 'proceed_always_tool', 'proceed_always_server']) {
+        expect(values, forbidden).not.toContain(forbidden);
       }
-    }
+      // CONTROL: an unknown type DOES fall to the generic arm, so the empty
+      // result above is the boundary case and not a broken call.
+      expect(getConfirmationOptions('some-unknown-type').map((o) => o.value)).toContain('proceed_once');
+    });
+
 
     it('returns edit confirmation options', () => {
       const options = getConfirmationOptions('edit');

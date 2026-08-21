@@ -174,7 +174,7 @@ function buildRejectedChannelSendNotices(
 /**
  * Get confirmation options based on type
  */
-function getConfirmationOptions(type: string): Array<{ label: string; value: string }> {
+export function getConfirmationOptions(type: string): Array<{ label: string; value: string }> {
   switch (type) {
     case 'edit':
       return [
