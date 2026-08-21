@@ -50,6 +50,20 @@ export interface WorkbenchSectionRegistration {
   testId?: string;
   /** Optional header glyph. Falls back to an id-keyed default, then a generic. */
   icon?: React.ReactNode;
+  /**
+   * True when this section's content is written to FILL its pane rather than to
+   * size itself from its own content.
+   *
+   * The stack sizes every card from its content, which is right for a card that
+   * is a list of rows. It is fatal for content built the other way round: the
+   * Workspace tree is `flex-1 min-h-0` inside an absolutely-positioned scroll
+   * container, and `flex-basis: 0%` in an auto-height column resolves to zero,
+   * so the file tree rendered at `height: 0px` - present in the DOM, invisible,
+   * with no disclosure triangle to click and react-virtuoso logging
+   * "Zero-sized element" on repeat. Opting in here gives that content a pane
+   * with a real height to fill.
+   */
+  fill?: boolean;
 }
 
 type PersistedWorkbenchState = {
@@ -517,7 +531,13 @@ const WorkbenchHost: React.FC<{
                 return (
                   <section
                     key={section.id}
-                    className={classNames('workbench-host__section flex flex-col shrink-0', styles.section)}
+                    className={classNames(
+                      'workbench-host__section flex flex-col',
+                      // A fill section claims the stack's leftover height; every
+                      // other card stays sized by its own content.
+                      section.fill && expanded ? 'flex-1 min-h-0' : 'shrink-0',
+                      styles.section
+                    )}
                     data-section-id={section.id}
                     data-expanded={expanded ? 'true' : 'false'}
                   >
@@ -554,7 +574,10 @@ const WorkbenchHost: React.FC<{
                     </h3>
                     {mounted && (
                       <div
-                        className='workbench-host__section-body overflow-auto'
+                        className={classNames(
+                          'workbench-host__section-body overflow-auto',
+                          section.fill && expanded && 'flex flex-col flex-1 min-h-0'
+                        )}
                         style={{ padding: `0 ${SP.md}px ${SP.md}px` }}
                         data-testid={section.testId}
                         hidden={!expanded}

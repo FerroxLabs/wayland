@@ -189,6 +189,9 @@ const ChatLayout: React.FC<{
         onActivate: () => setRightSiderCollapsed(false),
         onDismiss: () => setRightSiderCollapsed(true),
         testId: 'workbench-workspace',
+        // The tree fills its pane instead of sizing itself; without this the
+        // stack gives it a zero-height card and the files are invisible.
+        fill: true,
         content: (
           <div className='flex flex-1 min-h-0 flex-col'>
             {workspacePath && (
