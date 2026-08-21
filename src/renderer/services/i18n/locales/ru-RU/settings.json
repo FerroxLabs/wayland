@@ -2182,7 +2182,16 @@
     "folderAccessRefusalWaylandPrivate": "В этой папке хранятся собственные настройки Wayland и сохранённые ключи.",
     "folderAccessRefusalCredentialStore": "В этой папке хранятся сохранённые ключи входа, например .ssh или .aws.",
     "folderAccessRefusalCapReached": "В этом рабочем пространстве уже максимум — 64 папки. Сначала удалите одну.",
-    "folderAccessRefusalNotADirectory": "Это не папка, к которой Wayland может обратиться."
+    "folderAccessRefusalNotADirectory": "Это не папка, к которой Wayland может обратиться.",
+    "folderAccessNeedsAttention": "Не действует",
+    "folderAccessWithheldRootChanged": "Этот путь теперь ведёт не в ту папку, которую вы разрешили, поэтому он не читается.",
+    "folderAccessWithheldMissing": "Этой папки больше нет, поэтому она не читается.",
+    "folderAccessWithheldRoot": "Этот путь теперь ведёт на весь диск, поэтому он не читается.",
+    "folderAccessWithheldHome": "Этот путь теперь ведёт в вашу домашнюю папку, поэтому он не читается.",
+    "folderAccessWithheldWaylandPrivate": "Этот путь теперь ведёт к собственным настройкам Wayland и сохранённым ключам, поэтому он не читается.",
+    "folderAccessWithheldCredentialStore": "Этот путь теперь ведёт к сохранённым ключам входа, поэтому он не читается.",
+    "folderAccessWithheldCapReached": "В этом рабочем пространстве превышен предел в 64 папки, поэтому эта не читается.",
+    "folderAccessWithheldUnknownKey": "Эта запись привязана к рабочему пространству, которое Wayland не распознаёт, поэтому она не читается."
   },
   "editorPage": {
     "title": "Редактор",

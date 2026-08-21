@@ -2207,7 +2207,16 @@
     "folderAccessRefusalWaylandPrivate": "Essa pasta guarda as configurações e as chaves salvas do próprio Wayland.",
     "folderAccessRefusalCredentialStore": "Essa pasta guarda chaves de login salvas, como .ssh ou .aws.",
     "folderAccessRefusalCapReached": "Este espaço de trabalho já tem o máximo de 64 pastas. Remova uma primeiro.",
-    "folderAccessRefusalNotADirectory": "Essa não é uma pasta que o Wayland consiga acessar."
+    "folderAccessRefusalNotADirectory": "Essa não é uma pasta que o Wayland consiga acessar.",
+    "folderAccessNeedsAttention": "Sem efeito",
+    "folderAccessWithheldRootChanged": "Este caminho agora leva a outro lugar, e não à pasta que você permitiu, por isso não está sendo lido.",
+    "folderAccessWithheldMissing": "Esta pasta não existe mais, por isso não está sendo lida.",
+    "folderAccessWithheldRoot": "Este caminho agora leva a uma unidade inteira, por isso não está sendo lido.",
+    "folderAccessWithheldHome": "Este caminho agora leva à sua pasta pessoal, por isso não está sendo lido.",
+    "folderAccessWithheldWaylandPrivate": "Este caminho agora leva às configurações e chaves salvas do próprio Wayland, por isso não está sendo lido.",
+    "folderAccessWithheldCredentialStore": "Este caminho agora leva a chaves de login salvas, por isso não está sendo lido.",
+    "folderAccessWithheldCapReached": "Este espaço de trabalho passou do limite de 64 pastas, por isso esta não está sendo lida.",
+    "folderAccessWithheldUnknownKey": "Esta entrada está registrada em um espaço de trabalho que o Wayland não reconhece, por isso não está sendo lida."
   },
   "editorPage": {
     "title": "Editor",

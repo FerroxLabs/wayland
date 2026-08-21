@@ -2182,7 +2182,16 @@
     "folderAccessRefusalWaylandPrivate": "해당 폴더에는 Wayland 자체 설정과 저장된 키가 들어 있습니다.",
     "folderAccessRefusalCredentialStore": "해당 폴더에는 .ssh나 .aws 같은 저장된 로그인 키가 들어 있습니다.",
     "folderAccessRefusalCapReached": "이 작업 공간은 이미 최대 64개 폴더에 도달했습니다. 먼저 하나를 제거하세요.",
-    "folderAccessRefusalNotADirectory": "Wayland가 접근할 수 있는 폴더가 아닙니다."
+    "folderAccessRefusalNotADirectory": "Wayland가 접근할 수 있는 폴더가 아닙니다.",
+    "folderAccessNeedsAttention": "적용되지 않음",
+    "folderAccessWithheldRootChanged": "이 경로는 이제 허용한 폴더가 아닌 다른 곳을 가리키므로 읽지 않습니다.",
+    "folderAccessWithheldMissing": "이 폴더가 더 이상 없으므로 읽지 않습니다.",
+    "folderAccessWithheldRoot": "이 경로는 이제 드라이브 전체를 가리키므로 읽지 않습니다.",
+    "folderAccessWithheldHome": "이 경로는 이제 홈 폴더를 가리키므로 읽지 않습니다.",
+    "folderAccessWithheldWaylandPrivate": "이 경로는 이제 Wayland 자체 설정과 저장된 키를 가리키므로 읽지 않습니다.",
+    "folderAccessWithheldCredentialStore": "이 경로는 이제 저장된 로그인 키를 가리키므로 읽지 않습니다.",
+    "folderAccessWithheldCapReached": "이 워크스페이스는 폴더 64개 제한을 넘었으므로 이 항목은 읽지 않습니다.",
+    "folderAccessWithheldUnknownKey": "이 항목은 Wayland가 인식하지 못하는 워크스페이스에 등록되어 있어 읽지 않습니다."
   },
   "editorPage": {
     "title": "편집기",

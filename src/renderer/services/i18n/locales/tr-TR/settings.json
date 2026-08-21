@@ -2180,7 +2180,16 @@
     "folderAccessRefusalWaylandPrivate": "Bu klasörde Wayland’in kendi ayarları ve kayıtlı anahtarları var.",
     "folderAccessRefusalCredentialStore": "Bu klasörde .ssh veya .aws gibi kayıtlı oturum açma anahtarları var.",
     "folderAccessRefusalCapReached": "Bu çalışma alanı zaten en fazla 64 klasöre ulaştı. Önce birini kaldırın.",
-    "folderAccessRefusalNotADirectory": "Bu, Wayland’in erişebileceği bir klasör değil."
+    "folderAccessRefusalNotADirectory": "Bu, Wayland’in erişebileceği bir klasör değil.",
+    "folderAccessNeedsAttention": "Etkin değil",
+    "folderAccessWithheldRootChanged": "Bu yol artık izin verdiğiniz klasöre değil başka bir yere gidiyor, bu yüzden okunmuyor.",
+    "folderAccessWithheldMissing": "Bu klasör artık yok, bu yüzden okunmuyor.",
+    "folderAccessWithheldRoot": "Bu yol artık bir sürücünün tamamına gidiyor, bu yüzden okunmuyor.",
+    "folderAccessWithheldHome": "Bu yol artık ana klasörünüze gidiyor, bu yüzden okunmuyor.",
+    "folderAccessWithheldWaylandPrivate": "Bu yol artık Wayland'in kendi ayarlarına ve kayıtlı anahtarlarına gidiyor, bu yüzden okunmuyor.",
+    "folderAccessWithheldCredentialStore": "Bu yol artık kayıtlı oturum açma anahtarlarına gidiyor, bu yüzden okunmuyor.",
+    "folderAccessWithheldCapReached": "Bu çalışma alanı 64 klasör sınırını aştı, bu yüzden bu klasör okunmuyor.",
+    "folderAccessWithheldUnknownKey": "Bu kayıt, Wayland'in tanımadığı bir çalışma alanına kayıtlı, bu yüzden okunmuyor."
   },
   "editorPage": {
     "title": "Düzenleyici",

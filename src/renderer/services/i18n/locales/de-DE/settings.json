@@ -2207,7 +2207,16 @@
     "folderAccessRefusalWaylandPrivate": "Dieser Ordner enthält Waylands eigene Einstellungen und gespeicherte Schlüssel.",
     "folderAccessRefusalCredentialStore": "Dieser Ordner enthält gespeicherte Anmeldeschlüssel, etwa .ssh oder .aws.",
     "folderAccessRefusalCapReached": "Dieser Arbeitsbereich hat bereits die Höchstzahl von 64 Ordnern. Entfernen Sie zuerst einen.",
-    "folderAccessRefusalNotADirectory": "Das ist kein Ordner, den Wayland erreichen kann."
+    "folderAccessRefusalNotADirectory": "Das ist kein Ordner, den Wayland erreichen kann.",
+    "folderAccessNeedsAttention": "Nicht aktiv",
+    "folderAccessWithheldRootChanged": "Dieser Pfad führt jetzt woandershin als zu dem Ordner, den Sie erlaubt haben, und wird deshalb nicht gelesen.",
+    "folderAccessWithheldMissing": "Diesen Ordner gibt es nicht mehr, er wird deshalb nicht gelesen.",
+    "folderAccessWithheldRoot": "Dieser Pfad führt jetzt auf ein ganzes Laufwerk und wird deshalb nicht gelesen.",
+    "folderAccessWithheldHome": "Dieser Pfad führt jetzt in Ihren persönlichen Ordner und wird deshalb nicht gelesen.",
+    "folderAccessWithheldWaylandPrivate": "Dieser Pfad führt jetzt zu Waylands eigenen Einstellungen und gespeicherten Schlüsseln und wird deshalb nicht gelesen.",
+    "folderAccessWithheldCredentialStore": "Dieser Pfad führt jetzt zu gespeicherten Anmeldeschlüsseln und wird deshalb nicht gelesen.",
+    "folderAccessWithheldCapReached": "Dieser Arbeitsbereich liegt über der Grenze von 64 Ordnern, dieser wird deshalb nicht gelesen.",
+    "folderAccessWithheldUnknownKey": "Dieser Eintrag ist einem Arbeitsbereich zugeordnet, den Wayland nicht kennt, und wird deshalb nicht gelesen."
   },
   "editorPage": {
     "title": "Editor",

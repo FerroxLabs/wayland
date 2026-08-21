@@ -2147,7 +2147,16 @@
     "folderAccessRefusalWaylandPrivate": "У цій теці зберігаються власні налаштування Wayland і збережені ключі.",
     "folderAccessRefusalCredentialStore": "У цій теці зберігаються ключі входу, наприклад .ssh або .aws.",
     "folderAccessRefusalCapReached": "Цей робочий простір уже має максимум — 64 теки. Спершу вилучіть одну.",
-    "folderAccessRefusalNotADirectory": "Це не тека, до якої Wayland може звернутися."
+    "folderAccessRefusalNotADirectory": "Це не тека, до якої Wayland може звернутися.",
+    "folderAccessNeedsAttention": "Не діє",
+    "folderAccessWithheldRootChanged": "Цей шлях тепер веде не до тієї теки, яку ви дозволили, тому він не читається.",
+    "folderAccessWithheldMissing": "Цієї теки більше немає, тому вона не читається.",
+    "folderAccessWithheldRoot": "Цей шлях тепер веде на весь диск, тому він не читається.",
+    "folderAccessWithheldHome": "Цей шлях тепер веде до вашої домашньої теки, тому він не читається.",
+    "folderAccessWithheldWaylandPrivate": "Цей шлях тепер веде до власних налаштувань Wayland і збережених ключів, тому він не читається.",
+    "folderAccessWithheldCredentialStore": "Цей шлях тепер веде до збережених ключів входу, тому він не читається.",
+    "folderAccessWithheldCapReached": "У цьому робочому просторі перевищено межу в 64 теки, тому ця не читається.",
+    "folderAccessWithheldUnknownKey": "Цей запис віднесено до робочого простору, який Wayland не розпізнає, тому він не читається."
   },
   "editorPage": {
     "title": "Редактор",

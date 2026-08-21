@@ -2207,7 +2207,16 @@
     "folderAccessRefusalWaylandPrivate": "Ce dossier contient les réglages et les clés enregistrées de Wayland lui-même.",
     "folderAccessRefusalCredentialStore": "Ce dossier contient des clés de connexion enregistrées, comme .ssh ou .aws.",
     "folderAccessRefusalCapReached": "Cet espace de travail a déjà le maximum de 64 dossiers. Retirez-en un d'abord.",
-    "folderAccessRefusalNotADirectory": "Ce n'est pas un dossier que Wayland peut atteindre."
+    "folderAccessRefusalNotADirectory": "Ce n'est pas un dossier que Wayland peut atteindre.",
+    "folderAccessNeedsAttention": "Sans effet",
+    "folderAccessWithheldRootChanged": "Ce chemin mène maintenant ailleurs que vers le dossier que vous aviez autorisé, il n'est donc pas lu.",
+    "folderAccessWithheldMissing": "Ce dossier n'existe plus, il n'est donc pas lu.",
+    "folderAccessWithheldRoot": "Ce chemin mène maintenant à un disque entier, il n'est donc pas lu.",
+    "folderAccessWithheldHome": "Ce chemin mène maintenant à votre dossier personnel, il n'est donc pas lu.",
+    "folderAccessWithheldWaylandPrivate": "Ce chemin mène maintenant aux réglages et aux clés enregistrées de Wayland, il n'est donc pas lu.",
+    "folderAccessWithheldCredentialStore": "Ce chemin mène maintenant à des clés de connexion enregistrées, il n'est donc pas lu.",
+    "folderAccessWithheldCapReached": "Cet espace de travail dépasse la limite de 64 dossiers, celui-ci n'est donc pas lu.",
+    "folderAccessWithheldUnknownKey": "Cette entrée est classée sous un espace de travail que Wayland ne reconnaît pas, elle n'est donc pas lue."
   },
   "editorPage": {
     "title": "Éditeur",

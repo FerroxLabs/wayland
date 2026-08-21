@@ -2182,7 +2182,16 @@
     "folderAccessRefusalWaylandPrivate": "該資料夾存放 Wayland 自身的設定與已儲存的金鑰。",
     "folderAccessRefusalCredentialStore": "該資料夾存放已儲存的登入金鑰，例如 .ssh 或 .aws。",
     "folderAccessRefusalCapReached": "此工作區已達到 64 個資料夾的上限。請先移除一個。",
-    "folderAccessRefusalNotADirectory": "這不是 Wayland 能存取的資料夾。"
+    "folderAccessRefusalNotADirectory": "這不是 Wayland 能存取的資料夾。",
+    "folderAccessNeedsAttention": "未生效",
+    "folderAccessWithheldRootChanged": "這個路徑現在指向的不是你允許的資料夾，因此沒有被讀取。",
+    "folderAccessWithheldMissing": "這個資料夾已經不存在，因此沒有被讀取。",
+    "folderAccessWithheldRoot": "這個路徑現在指向整個磁碟機，因此沒有被讀取。",
+    "folderAccessWithheldHome": "這個路徑現在指向你的個人資料夾，因此沒有被讀取。",
+    "folderAccessWithheldWaylandPrivate": "這個路徑現在指向 Wayland 自己的設定和已儲存的金鑰，因此沒有被讀取。",
+    "folderAccessWithheldCredentialStore": "這個路徑現在指向已儲存的登入金鑰，因此沒有被讀取。",
+    "folderAccessWithheldCapReached": "這個工作區已超過 64 個資料夾的上限，因此這個沒有被讀取。",
+    "folderAccessWithheldUnknownKey": "這個項目歸屬於 Wayland 無法辨識的工作區，因此沒有被讀取。"
   },
   "editorPage": {
     "title": "編輯器",

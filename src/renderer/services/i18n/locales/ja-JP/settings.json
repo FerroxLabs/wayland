@@ -2182,7 +2182,16 @@
     "folderAccessRefusalWaylandPrivate": "そのフォルダには Wayland 自身の設定と保存された鍵が入っています。",
     "folderAccessRefusalCredentialStore": "そのフォルダには .ssh や .aws など、保存されたサインイン鍵が入っています。",
     "folderAccessRefusalCapReached": "このワークスペースはすでに上限の 64 フォルダに達しています。先に 1 つ削除してください。",
-    "folderAccessRefusalNotADirectory": "それは Wayland がアクセスできるフォルダではありません。"
+    "folderAccessRefusalNotADirectory": "それは Wayland がアクセスできるフォルダではありません。",
+    "folderAccessNeedsAttention": "無効",
+    "folderAccessWithheldRootChanged": "このパスは許可したフォルダーとは別の場所を指すようになったため、読み取っていません。",
+    "folderAccessWithheldMissing": "このフォルダーはもうないため、読み取っていません。",
+    "folderAccessWithheldRoot": "このパスはドライブ全体を指すようになったため、読み取っていません。",
+    "folderAccessWithheldHome": "このパスはホームフォルダーを指すようになったため、読み取っていません。",
+    "folderAccessWithheldWaylandPrivate": "このパスは Wayland 自身の設定と保存された鍵を指すようになったため、読み取っていません。",
+    "folderAccessWithheldCredentialStore": "このパスは保存されたサインイン鍵を指すようになったため、読み取っていません。",
+    "folderAccessWithheldCapReached": "このワークスペースはフォルダー 64 個の上限を超えているため、これは読み取っていません。",
+    "folderAccessWithheldUnknownKey": "この項目は Wayland が認識しないワークスペースに登録されているため、読み取っていません。"
   },
   "editorPage": {
     "title": "エディター",
