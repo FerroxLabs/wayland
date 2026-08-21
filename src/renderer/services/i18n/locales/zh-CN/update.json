@@ -29,6 +29,8 @@
   },
   "showInFolder": "在文件夹中显示",
   "openFile": "打开文件",
+  "openFileFailed": "无法打开已下载的文件",
+  "showInFolderFailed": "无法在文件管理器中显示下载内容",
   "errorTitle": "更新失败",
   "errors": {
     "missingTag": "无法验证此更新：缺少发布标签。请从 Releases 页面更新。",

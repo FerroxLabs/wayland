@@ -149,7 +149,10 @@
     "jobNotFound": "未找到腳本: {{id}}",
     "conversationNotFound": "未找到對話",
     "scheduledTimePassed": "定時時間已過",
-    "conversationBusy": "對話繁忙，在 {{count}} 次嘗試後跳過"
+    "conversationBusy": "對話繁忙，在 {{count}} 次嘗試後跳過",
+    "workspaceMissing": "排程工作「{{name}}」未執行：它的資料夾已不存在（{{path}}），也沒有被重新建立。請開啟該工作，重新建立一個空資料夾、選擇其他資料夾，或關閉該工作。",
+    "workspaceMismatch": "排程工作「{{name}}」未執行：{{path}} 的資料夾已不再是它的工作區，因此沒有寫入任何內容。請開啟該工作，重新建立一個空資料夾、選擇其他資料夾，或關閉該工作。",
+    "workspaceAllocFailed": "排程工作「{{name}}」無法開啟：Wayland 無法建立它的資料夾（{{detail}}）。該工作仍然是關閉的。請確認 Wayland 有權使用該位置，然後再試一次。"
   },
   "propose": {
     "title": "排程確認",

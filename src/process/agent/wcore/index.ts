@@ -32,6 +32,7 @@ import {
   planVaultPassphraseDelivery,
   type VaultPassphraseDelivery,
 } from './envBuilder';
+import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
 import { ProfileIsolationError, nativeConfigDir, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
@@ -40,7 +41,7 @@ import { vertexSpawnCredentialsForModel } from '@process/providers/vertexSpawnCr
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
-import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
+import type { WCoreEvent, WCoreCommand, WCoreCapabilities, ApprovalScope, RenderMime } from './protocol';
 import { parseQuestionTool } from './questionTool';
 import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { redactSecrets } from '@process/utils/secretRedaction';
@@ -71,6 +72,28 @@ const WCORE_PROJECT_CONFIG = '.wayland-core.toml';
 // engine's real bail reason (e.g. a keyless model, bad config) instead of an
 // opaque "exited with code N" (#484). Capped to bound memory on a chatty engine.
 const WCORE_STDERR_TAIL_MAX = 2048;
+
+/**
+ * #1098: the closed `render_artifact` mime vocabulary, mirrored from
+ * `wcore-protocol::events::RenderMime`. Held as a runtime set because the wire
+ * is untyped JSON — the compile-time union proves nothing about what actually
+ * arrives, and Core's rule is that an unknown kind is REFUSED, never coerced.
+ */
+/**
+ * Host-side caps for a `render_artifact`, mirroring the engine's own 1 MiB /
+ * 256-byte limits. Restated here because a host must not rely on the far side
+ * of a wire for its own safety, and because the failure mode is unrecoverable:
+ * the IPC bridge has no reject and no timeout, so an oversized payload hangs
+ * the renderer for the life of the process.
+ */
+const MAX_RENDER_ARTIFACT_CONTENT_CHARS = 1024 * 1024;
+const MAX_RENDER_ARTIFACT_TITLE_CHARS = 256;
+
+const RENDERABLE_ARTIFACT_MIMES: ReadonlySet<RenderMime> = new Set<RenderMime>([
+  'text/plain',
+  'text/markdown',
+  'text/html',
+]);
 
 type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string; subject?: string }) => void;
 
@@ -189,6 +212,12 @@ export type WCoreAgentOptions = {
    * config publication and spawn from silently dropping or crossing connectors.
    */
   waylandHome?: string;
+  /**
+   * The conversation this engine serves. Used only to look up whether a
+   * scheduled run is open on THIS conversation (P2-11); absent for any caller
+   * that has no conversation, which simply means no run is ever found.
+   */
+  conversationId?: string;
   onStreamEvent: StreamEventHandler;
   onProcessExit?: (code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null) => void;
   /** Unconditional child-lifecycle notification, including idle and post-turn exits. */
@@ -635,6 +664,16 @@ export class WCoreAgent {
           providerEnv,
           toolKeys,
           waylandHome,
+          // P2-6: same value the child stands in (`cwd` below), so
+          // WAYLAND_OUTPUT_DIR and the agent's own `$PWD` can never disagree.
+          workspace,
+          // P2-11: when a scheduled run is open on THIS CONVERSATION, its
+          // staging directory is the destination - the run publishes by rename,
+          // so a crash leaves nothing where the user or the next run would read
+          // it. Undefined for an interactive chat, which keeps the series root,
+          // including an interactive chat opened in the task's own folder while
+          // a scheduled run of that task is in flight.
+          outputDir: activeRunOutputDir(this.options.conversationId),
           vaultPassphraseEnv: vaultDelivery?.env,
           spawnEnvDenylist,
           ambientEnvDenylist,
@@ -1139,6 +1178,47 @@ export class WCoreAgent {
         this.resumeStallWatchdog(`tool:${event.call_id}`);
         break;
 
+      // #1098: the engine handed us CONTENT to display. No path is carried, so
+      // nothing downstream can offer the OS launcher a target — which is the
+      // whole point (#1102: `open` is unavailable under the macOS seatbelt, and
+      // granting `lsopen` would be an execution escape).
+      case 'render_artifact': {
+        // The mime vocabulary is CLOSED engine-side. Refuse anything outside it
+        // here, at the first boundary, rather than defaulting: a kind we cannot
+        // render must not reach the renderer disguised as one we can.
+        if (!RENDERABLE_ARTIFACT_MIMES.has(event.mime)) {
+          console.warn(`[WCoreAgent] dropped render_artifact with unrenderable mime: ${String(event.mime)}`);
+          break;
+        }
+        // The mime is validated above; `content` and `title` are not, and they
+        // arrive as untyped JSON. The engine caps them, but a host must not
+        // depend on the far side of a wire for its own safety - and the cost of
+        // being wrong here is not a bad render, it is a PERMANENT one: the IPC
+        // bridge can neither reject nor carry an oversized reply, so a single
+        // malformed frame wedges the renderer with no timeout to recover it.
+        // Non-strings are dropped like an unrenderable mime; oversize is clamped
+        // rather than dropped, and reuses the `truncated` flag the event already
+        // carries so the user is told the view is partial.
+        if (typeof event.content !== 'string' || typeof event.title !== 'string') {
+          console.warn('[WCoreAgent] dropped render_artifact with a non-string title or content');
+          break;
+        }
+        const clampedContent = event.content.slice(0, MAX_RENDER_ARTIFACT_CONTENT_CHARS);
+        const clampedTitle = event.title.slice(0, MAX_RENDER_ARTIFACT_TITLE_CHARS);
+        this.onStreamEvent({
+          type: 'render_artifact',
+          data: {
+            callId: event.call_id,
+            title: clampedTitle,
+            mime: event.mime,
+            content: clampedContent,
+            truncated: event.truncated || clampedContent.length < event.content.length,
+          },
+          msg_id: event.msg_id,
+        });
+        break;
+      }
+
       case 'stream_end': {
         const finishPayload: Record<string, unknown> = {};
         if (event.usage) Object.assign(finishPayload, event.usage);
@@ -1572,6 +1652,22 @@ export class WCoreAgent {
   private mapConfirmationDetails(event: WCoreEvent & { type: 'tool_request' }) {
     const { tool } = event;
 
+    // #1099: the engine classified a filesystem boundary BEFORE running the
+    // call. Checked first, ahead of every category dispatch, because the
+    // escalation is orthogonal to category — a `Read` outside the workspace
+    // arrives as `info`, which is the branch Auto Edit auto-approves. Routing
+    // it here is what stops it being answered as an ordinary info prompt.
+    const escalation = tool.escalation;
+    if (escalation?.kind === 'path_boundary') {
+      return {
+        type: 'path_boundary' as const,
+        title: tool.description,
+        target: escalation.target,
+        suggestedRoot: escalation.suggested_root,
+        access: escalation.access,
+      };
+    }
+
     // #504: AskUserQuestion arrives as an `info`-category tool (the engine has
     // no `question` ToolCategory), with the question + choices inside args. It
     // used to fall through to the `info` branch and render an empty approval
@@ -1656,7 +1752,7 @@ export class WCoreAgent {
     this.sendCommand({ type: 'stop' });
   }
 
-  approveTool(callId: string, scope: 'once' | 'always' = 'once', answer?: string): void {
+  approveTool(callId: string, scope: ApprovalScope = 'once', answer?: string): void {
     // `answer` carries an AskUserQuestion choice back through the approval
     // channel (see WCoreCommand.tool_approve). Only attach when present so a
     // plain approval keeps its exact prior wire shape.

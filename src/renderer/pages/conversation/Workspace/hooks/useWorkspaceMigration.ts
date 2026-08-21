@@ -58,7 +58,12 @@ export function useWorkspaceMigration({
 
   const handleOpenWorkspaceRoot = useCallback(async () => {
     try {
-      await ipcBridge.shell.showItemInFolder.invoke(workspace);
+      // Resolve-only bridge: a refusal is a RESOLVED { ok: false }, never a
+      // rejection, so the catch below never saw one and the button no-op'd.
+      const res = await ipcBridge.shell.showItemInFolder.invoke(workspace);
+      if (!res?.ok) {
+        messageApi.error(t('conversation.workspace.contextMenu.revealFailed'));
+      }
     } catch (_error) {
       messageApi.error(t('conversation.workspace.contextMenu.revealFailed'));
     }

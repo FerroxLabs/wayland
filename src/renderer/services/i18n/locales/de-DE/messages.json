@@ -69,7 +69,14 @@
     "yesAllowAlways": "Ja, immer erlauben",
     "yesAlwaysAllowTool": "Ja, Tool \"{{toolName}}\" vom Server \"{{serverName}}\" immer erlauben",
     "yesAlwaysAllowServer": "Ja, alle Tools vom Server \"{{serverName}}\" immer erlauben",
-    "no": "Nein (Esc)"
+    "no": "Nein (Esc)",
+    "grantFolderAlways": "Diesen Ordner immer zulassen: {{folder}}",
+    "grantFolderAlwaysHint": "Nur Lesezugriff, für den Rest dieser Sitzung. Nichts anderes außerhalb Ihres Arbeitsbereichs wird geöffnet.",
+    "grantFolderDeny": "Nicht zulassen",
+    "pathBoundaryTitle": "Zugriff auf einen Ordner außerhalb Ihres Arbeitsbereichs zulassen?",
+    "pathBoundaryTargetLabel": "Der Agent möchte lesen",
+    "pathBoundaryRootLabel": "Zulassen öffnet diesen Ordner",
+    "pathBoundaryGrantAria": "{{label}} — drücken Sie die Leertaste, um für den Rest dieser Sitzung Lesezugriff auf {{folder}} zu gewähren."
   },
   "slash.customBadge": "Custom",
   "runaway": {
@@ -77,5 +84,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "Vom Agenten",
+    "preview": "Vorschau",
+    "truncated": "Gekürzt – zu groß, um vollständig angezeigt zu werden."
   }
 }

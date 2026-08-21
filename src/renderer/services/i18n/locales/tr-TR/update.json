@@ -29,6 +29,8 @@
   },
   "showInFolder": "Klasörde göster",
   "openFile": "Dosyayı aç",
+  "openFileFailed": "İndirilen dosya açılamadı",
+  "showInFolderFailed": "İndirilen dosya, dosya yöneticisinde gösterilemedi",
   "errorTitle": "Güncelleme başarısız",
   "errors": {
     "missingTag": "Bu güncelleme doğrulanamıyor: sürüm etiketi eksik. Lütfen Releases sayfasından güncelleyin.",

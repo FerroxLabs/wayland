@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 
 import { ipcBridge } from '@/common';
+import { isCronBridgeFailure } from '@/common/adapter/ipcBridge';
 import type { IMessageCronPropose } from '@/common/chat/chatLib';
 import { emitter } from '@/renderer/utils/emitter';
 
@@ -96,6 +97,14 @@ const CronProposeCard: React.FC<CronProposeCardProps> = ({ message }) => {
         msgId: message.msg_id ?? message.id,
         action,
       });
+      // H1: an unexpected throw inside the provider now arrives as a resolved
+      // failure carrying its own sentence, rather than never arriving at all.
+      // It has no `reason`, so it must be handled before the reason lookup.
+      if (isCronBridgeFailure(result)) {
+        Message.error(result.message || t('cron.propose.error.unknown'));
+        setResolving(false);
+        return;
+      }
       if (result.ok === false) {
         // Bridge rejected - surface to user via toast + re-enable so retry
         // is possible. Reason strings are stable + map to i18n keys when

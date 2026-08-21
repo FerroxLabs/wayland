@@ -24,6 +24,7 @@ import { initChannelBridge } from './channelBridge';
 import { initCockpitPreviewBridge } from './cockpitPreviewBridge';
 import { initConversationBridge } from './conversationBridge';
 import { initCronBridge } from './cronBridge';
+import { initPromotionBridge } from './promotionBridge';
 import { initConciergeConfigBridge } from './conciergeConfigBridge';
 import { initProjectBridge } from './projectBridge';
 import { initDatabaseBridge } from './databaseBridge';
@@ -77,6 +78,7 @@ import { initHubBridge } from './hubBridge';
 import { initTeamBridge } from './teamBridge';
 import { initMissionControlBridge } from './missionControlBridge';
 import { initStorageBridge } from '@process/storage/storageIpc';
+import { initArtifactBridge } from './artifactBridge';
 import { initNicknamesBridge } from '@process/storage/nicknamesIpc';
 import { initSyncIpc } from '@process/sync/syncIpc';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
@@ -96,8 +98,10 @@ import { getInstallUuid } from '@process/services/kickoff/installUuid';
 import { initWaylandTransferBridge } from './waylandTransferBridge';
 import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
 import { cronService } from '@process/services/cron/cronServiceSingleton';
-import { getSystemDir } from '@process/utils/initStorage';
+import { getSystemDir, ProcessConfig } from '@process/utils/initStorage';
+import { loadRetentionWindowMs } from '@/common/types/workspaceRetentionSettings';
 import { getDataPath } from '@process/utils';
+import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
 import { buildWaylandTransferInventoryPreflight } from '@process/services/transfer/inventory/transferPreflight';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
 import { getReleaseTrack } from '@/common/releaseTrack';
@@ -150,6 +154,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initDatabaseBridge(deps.conversationRepo);
   initExtensionsBridge(deps.conversationRepo, deps.workerTaskManager);
   initCronBridge();
+  initPromotionBridge();
   initConciergeConfigBridge();
   initProjectBridge();
   initKickoffBridge();
@@ -199,9 +204,13 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initWcoreUpdateBridge();
   initPendingSendBridge();
   initStorageBridge();
+  // P2-9: Open / Reveal / Save a copy, addressed by artifact id. Registered
+  // beside the retention bridge because both read the same ledger.
+  initArtifactBridge();
   initWorkspaceRetentionBridge({
     getWorkDir: () => getSystemDir().workDir,
     getInstallationId: () => getInstallUuid(),
+    getRetentionWindowMs: () => loadRetentionWindowMs(() => ProcessConfig.get('workspace.retention')),
     loadProvenance: async () => loadManagedWorkspaceProvenance(getDataPath(), await getInstallUuid()),
     sources: {
       listConversations: () => deps.conversationRepo.listAllConversations(),
@@ -209,6 +218,10 @@ export function initAllBridges(deps: BridgeDependencies): void {
       listSchedules: () => cronService.listJobs(),
       listActiveProcesses: () =>
         deps.workerTaskManager.listWorkspaceAuthorities().map(({ id, workspace }) => ({ id, workspace })),
+      // P2-7: the artifact ledger is what lets a workspace holding a real
+      // deliverable classify as `artifact-bearing`. Without it the authority
+      // stayed `unavailable` and that classification was unreachable.
+      listArtifacts: () => readArtifactLedger(artifactLedgerPath(getDataPath())),
     },
   });
   initWaylandTransferBridge(async (request) => {
@@ -273,6 +286,7 @@ export {
   initCockpitPreviewBridge,
   initConversationBridge,
   initCronBridge,
+  initPromotionBridge,
   initConciergeConfigBridge,
   initProjectBridge,
   initDatabaseBridge,

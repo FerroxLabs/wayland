@@ -999,6 +999,21 @@ export class GeminiAgentManager extends BaseAgentManager<
           );
         }
         break;
+      case 'path_boundary':
+        {
+          // #1099: a filesystem-boundary escalation is a wcore engine
+          // classification, so Gemini never emits one; this arm exists for
+          // confirmationDetails-union exhaustiveness, like `question` above.
+          // Explicit rather than fall-through: `default` below IS the mcp case,
+          // and an unhandled boundary would be labelled an MCP tool prompt and
+          // offered proceed_once / proceed_always — the vocabulary a folder
+          // grant must never speak. No options: this surface cannot express a
+          // folder grant, and the dedicated card (PathBoundaryConfirmCard) is
+          // the only place that can.
+          question = confirmationDetails.title;
+          description = confirmationDetails.target;
+        }
+        break;
       default: {
         const mcpProps = confirmationDetails;
         question = t('messages.confirmation.allowMCPTool', {
@@ -1489,11 +1504,18 @@ export class GeminiAgentManager extends BaseAgentManager<
    *
    * Unlike ACP agents, Gemini mode affects approval behavior at the manager layer,
    * not via a protocol-level session/set_mode call.
+   *
+   * @param options.persist - false applies the mode to the LIVE session only and
+   *   leaves the conversation's stored `sessionMode` alone (cron runs borrowing
+   *   a chat the user owns).
    */
-  async setMode(mode: string): Promise<{ success: boolean; msg?: string; data?: { mode: string } }> {
+  async setMode(
+    mode: string,
+    options?: { persist?: boolean }
+  ): Promise<{ success: boolean; msg?: string; data?: { mode: string } }> {
     const prev = this.currentMode;
     this.currentMode = mode;
-    this.saveSessionMode(mode);
+    if (options?.persist !== false) this.saveSessionMode(mode);
 
     // Sync legacy yoloMode config: when leaving yolo mode, clear the old
     // SecurityModalContent setting to prevent it from re-activating on next session.

@@ -174,7 +174,7 @@ function buildRejectedChannelSendNotices(
 /**
  * Get confirmation options based on type
  */
-function getConfirmationOptions(type: string): Array<{ label: string; value: string }> {
+export function getConfirmationOptions(type: string): Array<{ label: string; value: string }> {
   switch (type) {
     case 'edit':
       return [
@@ -195,6 +195,21 @@ function getConfirmationOptions(type: string): Array<{ label: string; value: str
         { label: '✅ Always Allow Server', value: 'proceed_always_server' },
         { label: '❌ Cancel', value: 'cancel' },
       ];
+    case 'path_boundary':
+      // A filesystem boundary is answered on the DESKTOP only, so this offers
+      // no buttons at all. Two reasons, and the first is the serious one.
+      //
+      // The generic arm below carries `proceed_once`, which is not this card's
+      // vocabulary. `WCoreManager.confirm` now refuses foreign values on a
+      // boundary callId, but before it did, answering here cleared the desktop
+      // user's card and approved the tool WITHOUT the grant - the read failed
+      // anyway and the folder became ungrantable for the session.
+      //
+      // Second, this surface cannot describe the decision. `getConfirmationPrompt`
+      // has no idea which folder is at stake, so a remote user would be granting
+      // standing filesystem access outside the workspace from a message that
+      // says only "Please confirm the operation".
+      return [];
     default:
       return [
         { label: '✅ Confirm', value: 'proceed_once' },
@@ -230,6 +245,11 @@ function getConfirmationPrompt(details: { type: string; title?: string; [key: st
         : '';
       return `❓ <b>${escapeHtml(details.question || details.title || 'Question')}</b>\n${choiceLines}`;
     }
+    case 'path_boundary':
+      // Named explicitly rather than left to the generic string, so the remote
+      // user is told what is happening and where to answer it, instead of being
+      // shown an unanswerable prompt with no buttons.
+      return `🔒 <b>Folder access requested</b>\nWayland needs access to a folder outside this workspace.\n\nAnswer this on the desktop app - it cannot be granted from chat.`;
     default:
       return 'Please confirm the operation';
   }

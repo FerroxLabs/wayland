@@ -81,20 +81,21 @@
  *
  *   MARKET_OPEN_REPORT_LIST       watchlist CSV     (default: ../package/exports/TC-MASTER-WATCHLIST.csv)
  *   MARKET_OPEN_REPORT_POSITIONS  positions CSV     (default: ../package/exports/positions.csv)
- *   MARKET_OPEN_REPORT_CACHE      Yahoo cache dir   (default: ~/.cache/market-open-report/yahoo-cache)
+ *   MARKET_OPEN_REPORT_CACHE      Yahoo cache dir   (no fixed default - probed, see below)
+ *
+ * There is no fixed cache default: `~/.cache` is unreachable under the agent
+ * sandbox, so with MARKET_OPEN_REPORT_CACHE unset `report.mjs` probes, in
+ * order, `~/.cache/market-open-report/yahoo-cache`, then
+ * `<cwd>/.market-open-report-cache/yahoo-cache`, then
+ * `<tmpdir>/market-open-report/yahoo-cache`, and keeps the first it can
+ * create. In the sandbox the first fails EPERM and the second is used.
  *
  * The output path is --json, as in the Python.
  */
 
 import { basename } from 'node:path';
 
-import {
-  DEFAULT_CACHE_DIR,
-  DEFAULT_LIST,
-  DEFAULT_POSITIONS,
-  main,
-  writeJson,
-} from './report.mjs';
+import { DEFAULT_CACHE_DIR, DEFAULT_LIST, DEFAULT_POSITIONS, main, writeJson } from './report.mjs';
 
 const PROG = basename(process.argv[1] || 'morning-report.mjs');
 
@@ -125,9 +126,7 @@ function parseArgs(argv) {
    */
   const pyInt = (s, opt) => {
     if (!/^[+-]?\d+$/.test(String(s).trim())) {
-      throw new ArgparseError(
-        `argument ${opt}: invalid int value: '${s}'`
-      );
+      throw new ArgparseError(`argument ${opt}: invalid int value: '${s}'`);
     }
     return Number.parseInt(String(s).trim(), 10);
   };
@@ -148,9 +147,7 @@ function parseArgs(argv) {
       a.tier = pyInt(need(i, '--tier'), '--tier');
       i++;
       if (a.tier !== 1 && a.tier !== 2) {
-        throw new ArgparseError(
-          `argument --tier: invalid choice: ${a.tier} (choose from 1, 2)`
-        );
+        throw new ArgparseError(`argument --tier: invalid choice: ${a.tier} (choose from 1, 2)`);
       }
     } else if (arg === '--slots') {
       a.slots = pyInt(need(i, '--slots'), '--slots');

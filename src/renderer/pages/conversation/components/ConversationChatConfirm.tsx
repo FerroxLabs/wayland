@@ -1,5 +1,7 @@
 import { ipcBridge } from '@/common';
 import type { IConfirmation } from '@/common/chat/chatLib';
+import { isPathBoundaryConfirmation } from '@/common/chat/pathBoundaryConsent';
+import PathBoundaryConfirmCard from './PathBoundaryConfirmCard';
 import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { Divider, Typography } from '@arco-design/web-react';
@@ -32,6 +34,13 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
   // Keys are parsed in backend (single source of truth)
   const checkAndAutoConfirm = useCallback(
     async (confirmation: StoredConfirmation): Promise<boolean> => {
+      // #1099: a filesystem-boundary card is never auto-confirmed. The stored
+      // "always allow" memory below is category-keyed and cannot describe WHICH
+      // folder was approved, so replaying it here would grant a root the user
+      // never agreed to. Excluded explicitly rather than relying on the value
+      // match further down failing to find `proceed_*`.
+      if (isPathBoundaryConfirmation(confirmation)) return false;
+
       // Only check agent types that have approval store
       if (agentType !== 'gemini' && agentType !== 'wcore') return false;
 
@@ -149,6 +158,13 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      // #1099: a folder grant binds NO key. Enter fires `options[0]` by index,
+      // which on a boundary card is the grant itself — a keystroke away from
+      // handing the session standing read access outside the workspace, and one
+      // a user could hit while meaning to send a message. Y and A are excluded
+      // for the same reason. The grant is click-only, deliberately.
+      if (isPathBoundaryConfirmation(confirmation)) return;
+
       // Skip if user is typing in an input
       const target = event.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
@@ -253,6 +269,30 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
   // Keep children in a stable tree position to prevent unmount/remount when confirmation state changes.
   // Previously, switching between <>{children}</> and <div>...<div className='hidden'>{children}</div></div>
   // caused React to unmount and remount children (e.g., AcpSendBox), which triggered duplicate message sends.
+  const confirmOptionAndDismiss = (option: (typeof confirmation.options)[number]) => {
+    if (!confirmation) return;
+    setConfirmations((prev) => prev.filter((p) => p.id !== confirmation.id));
+    void ipcBridge.conversation.confirmation.confirm.invoke({
+      conversation_id: confirmation.conversation_id,
+      callId: confirmation.callId,
+      msg_id: confirmation.id,
+      data: option.value,
+      answer: option.answer, // #504: the picked AskUserQuestion choice
+    });
+  };
+
+  // #1099: a filesystem-boundary escalation gets its own card. It asks a folder
+  // question with a folder answer, which the generic allow/deny prompt below
+  // cannot express — see PathBoundaryConfirmCard.
+  if (hasConfirmation && confirmation && isPathBoundaryConfirmation(confirmation)) {
+    return (
+      <>
+        <PathBoundaryConfirmCard confirmation={confirmation} onConfirm={confirmOptionAndDismiss} />
+        <div className='hidden'>{children}</div>
+      </>
+    );
+  }
+
   return (
     <>
       {hasConfirmation && confirmation && (

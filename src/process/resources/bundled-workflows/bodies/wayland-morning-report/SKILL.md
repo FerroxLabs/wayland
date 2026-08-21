@@ -2,8 +2,9 @@
 name: wayland-morning-report
 description: >-
   Run the pre-open market brief: scan the watchlist with the bundled
-  market-open-report script, render a standalone HTML brief into an app-owned
-  folder, then present it and state plainly whether the run was complete,
+  market-open-report script, render a standalone HTML brief into
+  $WAYLAND_OUTPUT_DIR (the run's own folder inside the workspace's artifacts/
+  tree), then present it and state plainly whether the run was complete,
   partial, or empty.
 
   Use when the user wants the morning report, the daily brief, or a pre-open
@@ -28,7 +29,7 @@ metadata:
 **Estimated time:** about 60 seconds
 
 This workflow runs the bundled `market-open-report` scanner, writes its output
-to an app-owned folder, and presents the brief. It is not interactive: run every
+to `$WAYLAND_OUTPUT_DIR`, and presents the brief. It is not interactive: run every
 step in order, then report the outcome.
 
 It needs no chart, no browser, no broker connection and no API key. Prices come
@@ -36,11 +37,25 @@ from Yahoo daily closes and the strategy is computed locally by the script.
 
 ## Ground rules
 
-- **Never write into a git repository.** All output goes to the app-owned
-  output directory given in the inputs (default `~/wayland/outbox/market/`).
-  Create it if it does not exist. If the resolved output directory contains a
-  `.git` folder, or sits inside one, stop and ask for a different path rather
-  than dirtying somebody's repo on a schedule.
+- **Write everything to `$WAYLAND_OUTPUT_DIR`, and never outside the
+  workspace** — everything outside the workspace is refused by the sandbox.
+  Wayland exports `WAYLAND_OUTPUT_DIR` into every run as an ABSOLUTE path
+  inside the workspace, and it is the destination: on a scheduled run it is
+  that run's own staging directory, so the brief is filed under this task's
+  dated history and yesterday's brief is still readable beside it. Writing
+  anywhere else means the run publishes nothing at all. Only when it is unset
+  (an ad-hoc run of an older engine) fall back to the output directory given in
+  the inputs (default `artifacts/market/`), **which resolves against the
+  WORKSPACE ROOT, never against the scanner's own directory** — `artifacts/market/`
+  means `<workspace>/artifacts/market/` and nothing else. Because running the
+  scanner requires a `cd` into it, pin the output directory to an absolute path
+  (`OUT="${WAYLAND_OUTPUT_DIR:-$PWD/artifacts/market}"`) BEFORE that `cd`, while
+  you are still in the workspace root. Resolve it afterwards and the brief lands
+  under `.wayland-core/skills/…/artifacts/` — a hidden engine directory the
+  Workbench does not show, so the report exists and the user never sees it.
+  Create the output directory if it does not exist. If the resolved output
+  directory contains a `.git` folder, or sits inside one, stop and ask for a
+  different path rather than dirtying somebody's repo on a schedule.
 - **Never fabricate numbers.** Every figure you present must come from the
   script's own output. If the script produced nothing, say so.
 - **Never claim success you did not verify.** A scheduled run is marked
@@ -72,23 +87,39 @@ trace rather than print a friendly error. If it is missing, stop and tell the
 user plainly which path you looked at and that a watchlist CSV needs to be
 placed there. Do not run the scan without it.
 
-- Input: watchlist path, positions path, cache dir, output dir
+- Input: watchlist path, positions path, output dir
 - Output: confirmed scanner path and confirmed watchlist path
 - Key focus: fail with a clear sentence, never with a stack trace
 
 **Step 2: Run the scan** (uses: market-open-report)
 
-Create the output directory, then run both commands from the scanner's own
-directory, exporting the paths from the inputs:
+Both commands have to run from the scanner's own directory. Resolve the output
+directory to an absolute path FIRST — `$WAYLAND_OUTPUT_DIR` is already absolute,
+and the `$PWD` fallback is the workspace root because that is where you start —
+and only then `cd`:
 
 ```bash
 export MARKET_OPEN_REPORT_LIST=<watchlist_path>
 export MARKET_OPEN_REPORT_POSITIONS=<positions_path>
-export MARKET_OPEN_REPORT_CACHE=<cache_dir>
 
-node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
-node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
+OUT="${WAYLAND_OUTPUT_DIR:-$PWD/<output_dir>}"; mkdir -p "$OUT"
+cd .wayland-core/skills/market-open-report
+node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
+node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
+
+Both halves are resolved on that line, before the `cd`, which is what makes them
+survive it. Let `<output_dir>` resolve after the `cd` instead and the brief lands
+inside `.wayland-core/`, where the Workbench will never show it. Drop
+`$WAYLAND_OUTPUT_DIR` and a scheduled run stages nothing, so nothing is
+published and tomorrow's run has no yesterday to compare against.
+
+Do **not** export `MARKET_OPEN_REPORT_CACHE` unless the user gave you a cache
+directory they know is writable. That variable overrides the scanner's own
+probe for a writable cache location, and if it points anywhere the sandbox
+refuses — anywhere outside the workspace, including under the home directory —
+`mkdir` fails `EPERM`, every symbol comes back "NO DATA", and the run still
+exits 0. Left unset, the scanner finds a writable cache by itself.
 
 A missing positions CSV is valid; the report simply shows no holdings. Keep the
 scanner's full stdout, its exit code, and the path of the HTML brief.
@@ -145,8 +176,13 @@ message:
    not live signals. Do not describe them as live.
 4. **Say where the files are**, so the user can reopen them.
 
-Finally, prune the cache directory if it has grown large. The cache key includes
-the end date, so it gains roughly one file per symbol per day.
+Finally, prune the Yahoo cache if it has grown large. Its location is not fixed
+and the routine no longer names one: with `MARKET_OPEN_REPORT_CACHE` unset — the
+guidance above — the scanner probes `~/.cache/market-open-report/yahoo-cache`,
+then `<cwd>/.market-open-report-cache/yahoo-cache`, then the OS temp directory,
+and keeps the first it can create. Inside the sandbox the home candidate fails
+`EPERM`, so it is normally the second. The cache key includes the end date, so it
+gains roughly one file per symbol per day.
 
 - Input: HTML brief path, bar date, outcome classification
 - Output: the brief presented, plus an explicit statement of bar date and

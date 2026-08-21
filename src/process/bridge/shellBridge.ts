@@ -11,6 +11,7 @@ import { ipcBridge } from '@/common';
 import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
 import { isAllowedExternalUrl } from '@/common/utils/urlValidation';
 import { confinePath } from './pathConfinement';
+import { refuseUnsafeOpenTarget } from './shellOpenSafety';
 import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 import * as fs from 'fs';
@@ -92,6 +93,69 @@ async function isVSCodeInstalled(): Promise<boolean> {
 }
 
 /**
+ * Characters cmd.exe or PowerShell treat as command separators, redirections,
+ * escapes or substitutions.
+ *
+ * `confinePath` bounds a path's LOCATION and rejects NUL/UNC/device/ADS forms;
+ * it says nothing about shell metacharacters, and a directory named
+ * `proj & calc.exe` is a perfectly legal, confinable folder inside a workspace.
+ *
+ * This is the UNION of the two shells' operator sets, because the two guarded
+ * branches reach different shells and the set must cover whichever one runs:
+ *
+ *  - cmd.exe (the `vscode` `.cmd` fallback): `& | < > ^ "` and `%`. `%` is not
+ *    an operator, it is variable expansion - but cmd.exe expands `%FOO%` while
+ *    PARSING, before the line is tokenised into operators, so the expansion's
+ *    contents are themselves read as command syntax. It belongs in the same set.
+ *  - PowerShell (the `terminal` branch): additionally `;` (statement separator),
+ *    `` ` `` (escape), `$` and `(` `)` (subexpression), `{` `}` (script block),
+ *    `'` (quote) and `,` (array operator). None of those is a cmd.exe operator,
+ *    so a cmd.exe-only filter passed `proj;calc` straight through - and `$(...)`
+ *    survives double quoting, so quoting the argument would not have helped
+ *    either.
+ *
+ * The friction this buys is real and was weighed, not overlooked. A win32 folder
+ * named `Report (v2)`, `Bob's Project` (apostrophe - a PowerShell quote), `Q3,
+ * Q4` (comma - the array operator) or `100% Done` (percent - cmd.exe expansion)
+ * cannot be opened in VS Code or a terminal. Every one of those is a plausible
+ * real folder name, and the apostrophe is the most likely to be hit. They are
+ * refused anyway: this is the deliberate fail-closed trade the module makes
+ * elsewhere, the refusal is REPORTED to the renderer rather than being a dead
+ * click, and the `explorer` branch - which never builds a command line - still
+ * opens all of them.
+ */
+const WIN32_SHELL_METACHARACTERS = /[;,&|<>^"'`$(){}%]/;
+
+/**
+ * Refuse a win32 folder path that would reach a shell command line.
+ *
+ * Two branches of `openFolderWithTool` build one on Windows: `terminal` spawns
+ * PowerShell, and `vscode` falls back to `spawn(codePath, [folderPath], { shell: true })`
+ * because a `.cmd`/`.bat` launcher cannot be started without one - and Node does
+ * NOT quote arguments under `shell: true`, so cmd.exe splits the line on `&`.
+ * The terminal branch already guarded itself, but only by logging and returning,
+ * which is a silent dead click; checking here lets the provider REPORT the
+ * refusal. `explorer` needs no guard - it goes to `shell.openPath`, never a shell.
+ *
+ * This is the second layer, not the only one: the `terminal` branch no longer
+ * puts the path into PowerShell command text at all (see `openFolderWithTool`),
+ * so a character this filter ever misses is still not parseable as script there.
+ * The `vscode` `.cmd` fallback has no such structural escape - `shell: true` is
+ * the only way to start a `.cmd` - so for that branch this filter IS the defence.
+ *
+ * @returns A structured refusal, or `null` when the path is safe to dispatch.
+ */
+function refuseWindowsShellMetacharacters(
+  folderPath: string,
+  tool: 'vscode' | 'terminal' | 'explorer'
+): { ok: false; error: string } | null {
+  if (process.platform !== 'win32') return null;
+  if (tool !== 'vscode' && tool !== 'terminal') return null;
+  if (!WIN32_SHELL_METACHARACTERS.test(folderPath)) return null;
+  return { ok: false, error: 'folder path contains forbidden characters' };
+}
+
+/**
  * Open folder with specified tool
  */
 async function openFolderWithTool(folderPath: string, tool: 'vscode' | 'terminal' | 'explorer'): Promise<void> {
@@ -120,9 +184,9 @@ async function openFolderWithTool(folderPath: string, tool: 'vscode' | 'terminal
 
     case 'terminal': {
       if (platform === 'win32') {
-        // Windows: spawn PowerShell directly with arg-array semantics - no cmd.exe shell
-        // interpolation. Validate folderPath first to reject metacharacters and ensure
-        // the target is an existing directory (defense-in-depth against command injection).
+        // Windows: spawn PowerShell directly - no cmd.exe involved. Validate the
+        // target is an existing directory first (the launcher would otherwise
+        // fail opaquely).
         let stat: fs.Stats;
         try {
           stat = fs.statSync(folderPath);
@@ -134,16 +198,28 @@ async function openFolderWithTool(folderPath: string, tool: 'vscode' | 'terminal
           console.error('[shellBridge] terminal: folderPath is not a directory:', folderPath);
           return;
         }
-        if (/[&|<>"^]/.test(folderPath)) {
+        if (WIN32_SHELL_METACHARACTERS.test(folderPath)) {
           console.error('[shellBridge] terminal: folderPath contains forbidden characters:', folderPath);
           return;
         }
+        // An arg array is NOT a safe boundary here: PowerShell parses everything
+        // after `-Command` as SCRIPT, so the path lands in command text however
+        // it is passed, and `;` / `$(...)` / backtick execute there (quoting does
+        // not help - `"$(calc)"` still expands). Hand the value over out-of-band
+        // in the environment instead and reference it as a variable: PowerShell
+        // expands `$env:...` to a single string argument and never re-parses the
+        // contents as code, so no folder name can become a statement.
         const child = spawn(
           'powershell.exe',
-          ['-NoProfile', '-Command', 'Start-Process', '-FilePath', 'powershell.exe', '-WorkingDirectory', folderPath],
+          [
+            '-NoProfile',
+            '-Command',
+            'Start-Process -FilePath powershell.exe -WorkingDirectory $env:WAYLAND_TERMINAL_CWD',
+          ],
           {
             detached: true,
             windowsHide: false,
+            env: { ...process.env, WAYLAND_TERMINAL_CWD: folderPath },
           }
         );
         child.on('error', (err) => {
@@ -272,7 +348,7 @@ function spawnXdgOpen(target: string): Promise<ShellOpenResult> {
  * result and, on Linux, retry with an explicit `xdg-open` spawn whose ENOENT we
  * can detect and report.
  */
-async function openPathReporting(target: string): Promise<ShellOpenResult> {
+export async function openPathReporting(target: string): Promise<ShellOpenResult> {
   try {
     if (process.platform === 'linux') {
       // Race shell.openPath against a timeout: it can hang forever when the
@@ -338,9 +414,57 @@ async function confineShellPath(inputPath: unknown): Promise<{ ok: false; error:
   return { path: resolved };
 }
 
+/**
+ * Confine a renderer-supplied path AND gate its type, for the providers that
+ * hand the result to an OS *launcher*.
+ *
+ * Confinement bounds the location only: a workspace is an authorized root, so
+ * an agent-written `report.command` / `payload.desktop` / `Evil.app` inside it
+ * passes `confinePath` and is then EXECUTED by the OS handler. `refuseUnsafeOpenTarget`
+ * adds the missing type check. Reveal (`showItemInFolder`) deliberately skips
+ * it - selecting a file in the file manager never runs it.
+ *
+ * @returns The confined absolute path, or a failure result to return verbatim.
+ */
+async function confineAndGateOpenTarget(inputPath: unknown): Promise<{ ok: false; error: string } | { path: string }> {
+  const confined = await confineShellPath(inputPath);
+  if ('ok' in confined) return confined;
+  const refusal = await refuseUnsafeOpenTarget(confined.path);
+  if (refusal) return refusal;
+  return confined;
+}
+
+/**
+ * Reveal a path in the OS file manager and report the outcome.
+ *
+ * Extracted from the `showItemInFolder` provider so the artifact seam (P2-9)
+ * reveals through the SAME code rather than a second copy of it - the Linux
+ * fallback below is exactly the kind of hard-won detail a fork loses.
+ *
+ * macOS (`open -R`) and Windows (`explorer /select`) reveal reliably through
+ * Electron. On Linux, `shell.showItemInFolder` depends on a freedesktop file
+ * manager over D-Bus and silently no-ops when none is available (#616), so fall
+ * back to opening the containing directory via `xdg-open` and report failure
+ * instead of a silent no-op.
+ *
+ * Deliberately NOT type-gated: selecting a file in a file manager never
+ * executes it, so gating Reveal would only break a safe action.
+ */
+export async function revealPathReporting(target: string): Promise<ShellOpenResult> {
+  if (process.platform === 'linux') {
+    return openPathReporting(path.dirname(target));
+  }
+  try {
+    shell.showItemInFolder(target);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: (error as Error).message };
+  }
+}
+
 export function initShellBridge(): void {
   ipcBridge.shell.openFile.provider(async (filePath) => {
-    const confined = await confineShellPath(filePath);
+    const confined = await confineAndGateOpenTarget(filePath);
     if ('ok' in confined) return confined;
     return openPathReporting(confined.path);
   });
@@ -348,20 +472,7 @@ export function initShellBridge(): void {
   ipcBridge.shell.showItemInFolder.provider(async (filePath) => {
     const confined = await confineShellPath(filePath);
     if ('ok' in confined) return confined;
-    // macOS (`open -R`) and Windows (`explorer /select`) reveal reliably through
-    // Electron. On Linux, `shell.showItemInFolder` depends on a freedesktop file
-    // manager over D-Bus and silently no-ops when none is available (#616), so
-    // fall back to opening the containing directory via `xdg-open` and report
-    // failure instead of a silent no-op.
-    if (process.platform === 'linux') {
-      return openPathReporting(path.dirname(confined.path));
-    }
-    try {
-      shell.showItemInFolder(confined.path);
-      return { ok: true };
-    } catch (error) {
-      return { ok: false, error: (error as Error).message };
-    }
+    return revealPathReporting(confined.path);
   });
 
   ipcBridge.shell.openExternal.provider(async (url) => {
@@ -400,14 +511,32 @@ export function initShellBridge(): void {
     }
   });
 
-  // Open folder with specified tool
+  // Open folder with specified tool.
+  //
+  // `openFolderWithTool` reaches `spawn('open'|'xdg-open'|'code', [folderPath])`
+  // and `shell.openPath`, so an unconfined argument here was "launch any path
+  // the OS user can reach" - on macOS, arbitrary application launch. The bridge
+  // allowlist validates the IPC event name only, never the arguments, so this
+  // takes the same confinement the other open providers use, plus the open-target
+  // type gate (a workspace named `Evil.app` is a launchable bundle, not a folder).
+  //
+  // The former `catch` fell back to a second, likewise-unconfined
+  // `shell.openPath(folderPath)`; it is gone. Failure is now reported through the
+  // structured result instead of being swallowed into an unchecked retry.
   ipcBridge.shell.openFolderWith.provider(async ({ folderPath, tool }) => {
+    const confined = await confineAndGateOpenTarget(folderPath);
+    if ('ok' in confined) return confined;
+    // Location and type are settled; on Windows the vscode/terminal branches
+    // still build a shell command line out of this path, so reject the
+    // separators before dispatch - and report it rather than no-op.
+    const injection = refuseWindowsShellMetacharacters(confined.path, tool);
+    if (injection) return injection;
     try {
-      await openFolderWithTool(folderPath, tool);
+      await openFolderWithTool(confined.path, tool);
+      return { ok: true };
     } catch (error) {
       console.error(`[shellBridge] Failed to open folder with ${tool}:`, error);
-      // Fallback to default shell open
-      await shell.openPath(folderPath);
+      return { ok: false, error: (error as Error).message };
     }
   });
 
@@ -436,6 +565,11 @@ export function initShellBridge(): void {
     if (resolved === null) {
       return { ok: false, error: 'path not allowed' };
     }
+    // Confinement bounds the location, never the type: an agent-authored
+    // `.command`/`.desktop`/`.exe`/`.app` inside an authorized root would be
+    // EXECUTED here. Gate the type before handing it to the OS handler.
+    const refusal = await refuseUnsafeOpenTarget(resolved);
+    if (refusal) return refusal;
     try {
       const errorMessage = await shell.openPath(resolved);
       if (errorMessage) {

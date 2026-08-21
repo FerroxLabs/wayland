@@ -62,6 +62,10 @@ buildProvider('conversation.get-list-684-test');
 // #819: the shared config setter — wire-allowed (the paired WebUI writes config),
 // value-gated so a remote peer cannot write `webui.desktop.*` and arm LAN exposure.
 buildProvider('agent.config.storage.set');
+// #1099: the confirmation answer key — wire-allowed (a paired WebUI answering an
+// ordinary prompt is a feature), value-gated so a remote peer cannot answer a
+// path-boundary card and mint a folder grant with nobody at the desktop window.
+buildProvider('confirmation.confirm');
 
 function makeWs(): { send: ReturnType<typeof vi.fn> } {
   return { send: vi.fn() };
@@ -88,6 +92,41 @@ describe('webserver adapter - rejected bridge invocations settle the caller (#68
     const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
     expect(payload.name).toBe(`subscribe.callback-project.generate-knowledge-draft${id}`);
     expect(payload.data).toEqual({ error: 'failed', detail: 'remote-forbidden' });
+  });
+
+  /**
+   * The WIRING, not the predicate. `isRemoteDeniedConfirmation` is unit-tested
+   * on its own, but deleting its CALL SITE in the adapter broke no test at all —
+   * the same mutation-surviving shape this project keeps producing. This drives
+   * the real dispatch handler.
+   */
+  it('refuses a remote answer to a path-boundary card and never dispatches it', () => {
+    const ws = makeWs();
+    const id = 'confirmation.confirm0a1b2c3d';
+    capturedHandler.fn!(
+      'subscribe-confirmation.confirm',
+      { id, data: { conversation_id: 'c1', msg_id: 'call-1', callId: 'call-1', data: 'path_boundary_grant_folder' } },
+      ws
+    );
+
+    expect(registryMocks.emitter.emit).not.toHaveBeenCalled();
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.data).toEqual({ error: 'failed', detail: 'remote-forbidden' });
+  });
+
+  it('CONTROL: an ORDINARY remote confirmation is dispatched normally', () => {
+    const ws = makeWs();
+    const id = 'confirmation.confirm0a1b2c3e';
+    capturedHandler.fn!(
+      'subscribe-confirmation.confirm',
+      { id, data: { conversation_id: 'c1', msg_id: 'call-1', callId: 'call-1', data: 'proceed_once' } },
+      ws
+    );
+
+    // Dispatched, and NOT settled as a rejection - so the refusal above is the
+    // value gate deciding, not the whole key being denied to remote peers.
+    expect(registryMocks.emitter.emit).toHaveBeenCalledTimes(1);
+    expect(ws.send).not.toHaveBeenCalled();
   });
 
   it('replies with an error-shaped subscribe.callback for a non-allowlisted invocation', () => {

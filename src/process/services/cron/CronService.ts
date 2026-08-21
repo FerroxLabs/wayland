@@ -18,6 +18,8 @@ import i18n, { i18nReady } from '@process/services/i18n';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 import { ProcessConfig } from '@process/utils/initStorage';
 import type { CronJob, CronSchedule } from './CronStore';
+import { durableWorkspaceMetadataForJob, isBundledRoutineJob, jobNeedsDurableWorkspace } from './durableTaskWorkspace';
+import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import type { ICronRepository } from './ICronRepository';
 import type { ICronEventEmitter } from './ICronEventEmitter';
 import type { ICronJobExecutor } from './ICronJobExecutor';
@@ -300,6 +302,19 @@ export class CronService {
       },
     };
 
+    // P2-2: a `new_conversation` job with no workspace mints a throwaway temp dir
+    // on every fire, so it can never see its own history. Give it a durable task
+    // root before it is ever armed.
+    //
+    // Bundled routines are exempt HERE and only here: the seeder creates them
+    // through this method (which always creates enabled) and disables them a
+    // moment later, so allocating now would seed a folder for each of a dozen
+    // routines nobody enabled. They allocate on the enable transition instead.
+    if (job.enabled && !isBundledRoutineJob(job)) {
+      const metadata = await this.allocateDurableWorkspaceMetadata(job);
+      if (metadata) job.metadata = metadata;
+    }
+
     // Calculate next run time
     this.updateNextRunTime(job);
 
@@ -356,11 +371,23 @@ export class CronService {
       throw new Error(i18n.t('cron.error.highFreqNewConversation'));
     }
 
+    // P2-2: first enable is when a recurring task earns a durable workspace.
+    // Allocated BEFORE the write and merged INTO it, so the workspace and the
+    // enable land together - two writes would let a crash arm a job that still
+    // has no workspace, which is the bug this fixes. An allocation failure
+    // propagates and the job stays disabled.
+    let effectiveUpdates = updates;
+    if (updates.enabled === true && !existing.enabled) {
+      const merged = { ...existing, ...updates, metadata: updates.metadata ?? existing.metadata } as CronJob;
+      const metadata = await this.allocateDurableWorkspaceMetadata(merged);
+      if (metadata) effectiveUpdates = { ...updates, metadata };
+    }
+
     // Stop existing timer
     this.stopTimer(jobId);
 
     // Update in database
-    await this.repo.update(jobId, updates);
+    await this.repo.update(jobId, effectiveUpdates);
 
     // Get updated job
     const updated = (await this.repo.getById(jobId))!;
@@ -382,6 +409,34 @@ export class CronService {
     this.emitter.emitJobUpdated(updated);
 
     return updated;
+  }
+
+  /**
+   * H1 - allocation failure has to be CLASSIFIED, because it crosses the bridge.
+   *
+   * `durableWorkspaceMetadataForJob` throws on purpose: an armed routine with no
+   * durable workspace is the bug P2-2 exists to fix, so the enable is aborted
+   * rather than completed dishonestly. But on macOS the task root lives under a
+   * TCC-protected Documents path, so a missing grant makes this the ORDINARY
+   * outcome of flipping the toggle - and a bare throw crossing `cron.update-job`
+   * is a promise the renderer never sees settle. The toggle spun forever with
+   * the job silently left off.
+   *
+   * The refusal is unchanged; only its shape is. The underlying cause travels in
+   * `{{detail}}` so the user is told what actually stopped it.
+   */
+  private async allocateDurableWorkspaceMetadata(job: CronJob): Promise<CronJob['metadata'] | null> {
+    try {
+      return await durableWorkspaceMetadataForJob(job);
+    } catch (error) {
+      throw new CronWorkspaceError(
+        'workspace_alloc_failed',
+        i18n.t('cron.error.workspaceAllocFailed', {
+          name: job.name,
+          detail: error instanceof Error ? error.message : String(error),
+        })
+      );
+    }
   }
 
   private async detachArchivedJobConversations(job: CronJob): Promise<void> {
@@ -566,6 +621,10 @@ export class CronService {
     if (!job) {
       throw new Error(`Job not found: ${jobId}`);
     }
+    // BEFORE prepareConversation: that call is what mints the conversation and
+    // its workspace, so a back-fill after it would arrive one temp directory
+    // too late.
+    await this.backfillDurableWorkspace(job);
     const conversationId = await this.executor.prepareConversation(job);
     // Fire-and-forget: execute in background, pass the prepared conversationId to skip re-creation
     void this.executeJob(job, conversationId);
@@ -756,9 +815,62 @@ export class CronService {
     }
     this.runningJobs.add(job.id);
     try {
+      await this.backfillDurableWorkspace(job);
       await this.executeJobInner(job, preparedConversationId);
     } finally {
       this.runningJobs.delete(job.id);
+    }
+  }
+
+  /**
+   * P2-2 BACK-FILL: give a durable task root to a job that was already ENABLED
+   * when durable workspaces shipped.
+   *
+   * `durableWorkspaceMetadataForJob` is reached from exactly two places -
+   * `addJob` and the disabled-to-enabled transition in `updateJob`. A job armed
+   * before either existed passes through neither, so every fire mints a fresh
+   * `wcore-temp-<ts>` and the task can never see its own history. Nothing in
+   * the product would ever have repaired it: the user would have to toggle the
+   * task off and on again, and there is nothing telling them to.
+   *
+   * DELIBERATELY LAZY, AND DELIBERATELY NOT A BOOT SWEEP. Allocating at startup
+   * would create a folder in the user's Documents for every routine they ever
+   * enabled and forgot, on an upgrade they did not ask for. Allocating HERE
+   * creates one only for a task that is about to run and write a report into
+   * it, which is what the enable was supposed to do in the first place.
+   *
+   * An allocation failure is swallowed on purpose - unlike the enable path,
+   * which aborts. There the user is standing in front of the UI and a failed
+   * enable is honest feedback; here the run is already happening unattended and
+   * the pre-P2-2 behaviour (a throwaway workspace) is strictly better than not
+   * running at all.
+   *
+   * IT DOES NOT MATTER WHETHER THE JOB IS ENABLED. It used to: enabling was
+   * treated as the opt-in that earned a folder in the user's Documents, so a
+   * one-off Run-now on a switched-off routine kept the throwaway workspace and
+   * left nothing behind. Verified against the real app, that rule was backwards.
+   * All twelve bundled routines SEED PAUSED, and pressing Run-now on one is how
+   * a person tries it - so the single most common first encounter with a routine
+   * wrote its brief into `wcore-temp-<ts>` and let the cleaner take it, which is
+   * the exact defect P2-2 exists to fix.
+   *
+   * Both call sites already mean "this job is about to run and write a report",
+   * which is the condition that earns the folder. `enabled` was never the
+   * question.
+   */
+  private async backfillDurableWorkspace(job: CronJob): Promise<void> {
+    if (!jobNeedsDurableWorkspace(job)) return;
+    try {
+      const metadata = await durableWorkspaceMetadataForJob(job);
+      if (!metadata) return;
+      await this.repo.update(job.id, { metadata });
+      // The timer holds this same object and hands it to the next fire, so the
+      // in-memory copy has to move with the stored one or the next run
+      // re-allocates.
+      job.metadata = metadata;
+      console.info(`[CronService] Allocated a durable workspace for already-enabled job ${job.id} at first fire.`);
+    } catch (err) {
+      console.warn(`[CronService] Could not back-fill a durable workspace for job ${job.id}:`, err);
     }
   }
 

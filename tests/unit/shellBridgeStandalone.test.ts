@@ -17,6 +17,7 @@ const {
   execFileMock,
   existsSyncMock,
   confinePathMock,
+  refuseUnsafeOpenTargetMock,
 } = vi.hoisted(() => ({
   openFileProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
   showItemInFolderProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
@@ -24,6 +25,7 @@ const {
   execFileMock: vi.fn(),
   existsSyncMock: vi.fn(() => true),
   confinePathMock: vi.fn(async (p: string) => p),
+  refuseUnsafeOpenTargetMock: vi.fn(async (_target: string) => null as { ok: false; error: string } | null),
 }));
 
 vi.mock('@/common', () => ({
@@ -59,6 +61,21 @@ vi.mock('node:fs', () => ({
 // openFile/showItemInFolder now route the path through confinePath (RT-R4-02).
 // Default to identity so the pre-existing opener assertions below still exercise
 // the opener; the confinement suite at the bottom drives the mock directly.
+// The open providers also type-gate the CONFINED path before handing it to an OS
+// launcher (an agent-written `.command`/`.desktop`/`.exe`/`.app` inside an
+// authorized root would otherwise be EXECUTED). The default is permissive so the
+// opener fixtures above stay focused on the opener - but it is a CONTROLLABLE
+// mock, because a hard-coded `async () => null` made this file green with the
+// gate deleted from `shellBridgeStandalone.ts` entirely. Mutation-proven: with
+// `const refusal = await refuseUnsafeOpenTarget(...)` replaced by `null`, all 16
+// tests still passed. `shellBridge.openTargetSafety.test.ts` covers the Electron
+// bridge and the gate's own rules; nothing covered THIS transport, which is the
+// one an authenticated remote WebUI client shares.
+vi.mock('../../src/process/bridge/shellOpenSafety', () => ({
+  refuseUnsafeOpenTarget: (...args: any[]) => refuseUnsafeOpenTargetMock(...(args as [string])),
+  registerAppProducedOpenTarget: () => {},
+}));
+
 vi.mock('../../src/process/bridge/pathConfinement', () => ({
   confinePath: (...args: any[]) => confinePathMock(...args),
 }));
@@ -79,6 +96,7 @@ async function loadStandaloneForPlatform(platform: NodeJS.Platform): Promise<voi
   openExternalProvider.fn = undefined;
 
   confinePathMock.mockImplementation(async (p: string) => p);
+  refuseUnsafeOpenTargetMock.mockImplementation(async () => null);
 
   Object.defineProperty(process, 'platform', { value: platform, configurable: true });
 
@@ -261,6 +279,71 @@ describe('shellBridgeStandalone', () => {
 
       expect(result).toEqual({ ok: false, error: 'path not allowed' });
       expect(execFileMock).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * The open-target TYPE gate, on the transport a remote WebUI client shares.
+   *
+   * Confinement bounds the LOCATION of a path, never its TYPE. A workspace is an
+   * authorized root, so `confinePath` happily accepts `<workspace>/report.command`
+   * - and `open`/`xdg-open`/`cmd start` then EXECUTES it. The gate is the only
+   * thing between an agent-authored file and an OS launcher here.
+   *
+   * These cases exist because the gate had NO coverage on this file at all:
+   * deleting `refuseUnsafeOpenTarget` from `shellBridgeStandalone.ts` left this
+   * suite 16/16 green.
+   */
+  describe('open-target type gate (WebUI transport)', () => {
+    beforeEach(async () => {
+      await loadStandaloneForPlatform('darwin');
+      initShellBridgeStandalone();
+    });
+
+    it('openFile refuses a gated target and never reaches the OS launcher', async () => {
+      confinePathMock.mockResolvedValue('/Users/me/workspace/report.command');
+      refuseUnsafeOpenTargetMock.mockResolvedValue({
+        ok: false,
+        error: 'refusing to open ".command": not an openable document type',
+      });
+
+      const result = await openFileProvider.fn!('/Users/me/workspace/report.command');
+
+      expect(result).toEqual({
+        ok: false,
+        error: 'refusing to open ".command": not an openable document type',
+      });
+      expect(execFileMock).not.toHaveBeenCalled();
+    });
+
+    it('openFile gates the CONFINED path, not the renderer-supplied one', async () => {
+      confinePathMock.mockResolvedValue('/Users/me/workspace/report.command');
+      refuseUnsafeOpenTargetMock.mockResolvedValue({ ok: false, error: 'refusing to launch a ".app" bundle' });
+
+      await openFileProvider.fn!('/Users/me/workspace/./sub/../report.command');
+
+      expect(refuseUnsafeOpenTargetMock).toHaveBeenCalledWith('/Users/me/workspace/report.command');
+    });
+
+    it('openFile still opens a target the gate allows', async () => {
+      confinePathMock.mockResolvedValue('/Users/me/workspace/brief.html');
+      refuseUnsafeOpenTargetMock.mockResolvedValue(null);
+
+      const result = await openFileProvider.fn!('/Users/me/workspace/brief.html');
+
+      expect(result).toEqual({ ok: true });
+      expect(execFileMock).toHaveBeenCalledWith('open', ['/Users/me/workspace/brief.html'], expect.any(Function));
+    });
+
+    it('showItemInFolder is deliberately NOT gated - revealing never executes', async () => {
+      confinePathMock.mockResolvedValue('/Users/me/workspace/report.command');
+      refuseUnsafeOpenTargetMock.mockResolvedValue({ ok: false, error: 'must not be consulted for reveal' });
+
+      const result = await showItemInFolderProvider.fn!('/Users/me/workspace/report.command');
+
+      expect(result).toEqual({ ok: true });
+      expect(refuseUnsafeOpenTargetMock).not.toHaveBeenCalled();
+      expect(execFileMock).toHaveBeenCalledWith('open', ['/Users/me/workspace'], expect.any(Function));
     });
   });
 });

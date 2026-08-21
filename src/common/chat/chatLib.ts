@@ -96,6 +96,7 @@ type TMessageType =
   | 'concierge_propose'
   | 'sub_agent'
   | 'activity'
+  | 'render_artifact'
   | 'execution_evidence';
 
 interface IMessage<T extends TMessageType, Content extends Record<string, any>> {
@@ -269,6 +270,23 @@ export type IMessageToolGroup = IMessage<
             question: string;
             header?: string;
             choices: Array<{ label: string; description?: string }>;
+          }
+        >
+      // #1099: the engine classified this call as crossing a filesystem
+      // boundary BEFORE running it, so the user answers a folder question
+      // instead of reading a path out of a refusal. Deliberately its own
+      // variant rather than an `info` with prose: `info` is auto-approved by
+      // Auto Edit (WCoreManager.tryAutoApprove), which for a boundary would be
+      // both a silent grant of authority outside the workspace and useless —
+      // it approves with `once`, which cannot resolve a boundary.
+      | IMessageToolGroupConfirmationDetailsBase<
+          'path_boundary',
+          {
+            /** The path the call named. Shown for context; NOT what is granted. */
+            target: string;
+            /** The containing folder a grant actually opens. */
+            suggestedRoot: string;
+            access: 'read' | 'write';
           }
         >;
   }>
@@ -594,6 +612,28 @@ export type IMessageExecutionEvidence = IMessage<
 >;
 
 /**
+ * #1098 - content the engine handed the host to DISPLAY, carrying no path.
+ *
+ * This is what replaces shelling out to the OS `open`. Because there is no
+ * path, the card that renders it can only offer Preview (the internal viewer);
+ * Open and Reveal have nothing to hand the system launcher and must never
+ * appear on it. `content` is untrusted — model-authored or read out of the
+ * workspace — so `text/html` is rendered only through the sandboxed HTML
+ * surface, never injected into the app's own DOM.
+ */
+export type IMessageRenderArtifact = IMessage<
+  'render_artifact',
+  {
+    callId: string;
+    title: string;
+    mime: 'text/plain' | 'text/markdown' | 'text/html';
+    content: string;
+    /** The engine truncated at its 1 MiB cap; the card badges this. */
+    truncated: boolean;
+  }
+>;
+
+/**
  * #252 - the activity card's merge key. Namespaced off the turn's stream
  * msg_id so it never collides with the assistant text message that shares that
  * same id (which would fragment streamed text into duplicate bubbles).
@@ -620,6 +660,7 @@ export type TMessage =
   | IMessageConciergeConfig
   | IMessageSubAgent
   | IMessageActivity
+  | IMessageRenderArtifact
   | IMessageExecutionEvidence;
 
 // Unified type for all user-interaction confirmation prompts
@@ -792,6 +833,16 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         msg_id: message.msg_id,
         conversation_id: message.conversation_id,
         content: message.data as any,
+      };
+    }
+    case 'render_artifact': {
+      return {
+        id: uuid(),
+        type: 'render_artifact',
+        msg_id: message.msg_id,
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content: message.data as IMessageRenderArtifact['content'],
       };
     }
     case 'agent_status': {

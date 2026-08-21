@@ -69,7 +69,14 @@
     "yesAllowAlways": "Evet, her zaman izin ver",
     "yesAlwaysAllowTool": "Evet, \"{{serverName}}\" sunucusundan \"{{toolName}}\" aracına her zaman izin ver",
     "yesAlwaysAllowServer": "Evet, \"{{serverName}}\" sunucusundaki tüm araçlara her zaman izin ver",
-    "no": "Hayır (esc)"
+    "no": "Hayır (esc)",
+    "grantFolderAlways": "Bu klasöre her zaman izin ver: {{folder}}",
+    "grantFolderAlwaysHint": "Salt okunur, bu oturumun geri kalanı için. Çalışma alanınızın dışında başka hiçbir şey açılmaz.",
+    "grantFolderDeny": "İzin verme",
+    "pathBoundaryTitle": "Çalışma alanınızın dışındaki bir klasöre erişime izin verilsin mi?",
+    "pathBoundaryTargetLabel": "Aracı şunu okumak istiyor",
+    "pathBoundaryRootLabel": "İzin vermek bu klasörü açar",
+    "pathBoundaryGrantAria": "{{label}} — bu oturumun geri kalanı için {{folder}} klasörüne salt okunur erişim vermek üzere Boşluk tuşuna basın."
   },
   "slash.customBadge": "Custom",
   "runaway": {
@@ -77,5 +84,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "Aracıdan",
+    "preview": "Önizleme",
+    "truncated": "Kısaltıldı — tamamını göstermek için fazla büyük."
   }
 }

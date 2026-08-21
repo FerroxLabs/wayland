@@ -59,6 +59,16 @@ vi.mock('child_process', () => ({
 
 vi.mock('fs', () => ({ existsSync: vi.fn(), statSync: vi.fn(() => ({ isDirectory: () => true })) }));
 
+// The open providers now also type-gate the CONFINED path before handing it to
+// an OS launcher (an agent-written `.command`/`.desktop`/`.exe`/`.app` inside an
+// authorized root would otherwise be EXECUTED). These fixtures use fictitious
+// paths, so a permissive mock keeps them focused on the opener; the gate itself
+// is covered by tests/unit/shellBridge.openTargetSafety.test.ts.
+vi.mock('../../src/process/bridge/shellOpenSafety', () => ({
+  refuseUnsafeOpenTarget: async () => null,
+  registerAppProducedOpenTarget: () => {},
+}));
+
 vi.mock('../../src/process/bridge/pathConfinement', () => ({
   confinePath: confinePathMock,
 }));

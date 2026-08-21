@@ -29,6 +29,8 @@
   },
   "showInFolder": "フォルダーで表示",
   "openFile": "ファイルを開く",
+  "openFileFailed": "ダウンロードしたファイルを開けませんでした",
+  "showInFolderFailed": "ダウンロードをファイルマネージャーで表示できませんでした",
   "errorTitle": "更新に失敗しました",
   "errors": {
     "missingTag": "この更新を検証できません: リリースタグがありません。Releases ページから更新してください。",

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isAllowedForRemote, isAllowedOutboundToRemote } from '@/common/adapter/bridgeAllowlist';
+import { isAllowedForRemote, isAllowedOutboundToRemote, REMOTE_DENIED_KEYS } from '@/common/adapter/bridgeAllowlist';
 
 /**
  * WS-D / R4: cost observability has no remote (paired-device WebSocket) view
@@ -79,5 +79,43 @@ describe('isAllowedOutboundToRemote - cost.* never broadcast to remote peers (#9
     expect(isAllowedOutboundToRemote('chat.response.stream')).toBe(true);
     expect(isAllowedOutboundToRemote('conversation.list-changed')).toBe(true);
     expect(isAllowedOutboundToRemote('project.changed')).toBe(true);
+  });
+});
+
+/**
+ * The exact `cost.*` entries in REMOTE_DENIED_KEYS are defence-in-depth: the
+ * `cost.` PREFIX already denies the whole namespace, so every assertion above
+ * passes whether or not those exact entries exist. That makes the suite above
+ * blind to the one change it should catch - somebody deleting the exact keys
+ * while narrowing the prefix (the pressure is real: a remote cost view is a
+ * plausible feature, and `cost.summary` is the read it would want first).
+ *
+ * Only SET MEMBERSHIP can hold that, which is why REMOTE_DENIED_KEYS is
+ * exported. The mutations are the ones that must never be one prefix edit away
+ * from remotely reachable.
+ */
+describe('REMOTE_DENIED_KEYS - the shadowed cost.* entries are pinned by membership', () => {
+  const exactDeniedKeys: ReadonlyArray<string> = [
+    'cost.byConversation',
+    'cost.series',
+    'cost.upsertBudget',
+    'cost.deleteBudget',
+    'cost.listBudgets',
+  ];
+
+  it.each(exactDeniedKeys)('keeps %s as an EXACT denied key, not only prefix-covered', (key) => {
+    expect(REMOTE_DENIED_KEYS.has(key), `${key} must be an EXACT denied key, not only prefix-covered`).toBe(true);
+  });
+
+  /**
+   * Known-positive control for the assertions above, and the demonstration of
+   * why they exist. `cost.summary` IS denied to remote callers - by the prefix
+   * alone - yet it is absent from the exact set. So `.has()` discriminates here
+   * while the outcome predicate cannot: a membership assertion that passed for
+   * every cost key would be measuring nothing.
+   */
+  it('discriminates: cost.summary is prefix-denied yet NOT an exact entry', () => {
+    expect(isAllowedForRemote('subscribe-cost.summary')).toBe(false);
+    expect(REMOTE_DENIED_KEYS.has('cost.summary')).toBe(false);
   });
 });
