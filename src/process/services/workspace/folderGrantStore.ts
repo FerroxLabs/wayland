@@ -70,7 +70,8 @@ import type {
   FolderGrantRefusal,
   WorkspaceFolderGrants,
 } from '@/common/workspace/folderGrants';
-import { classifyFolderGrantRoot, isWithin, type FolderGrantRootContext } from './folderGrantRoots';
+import { isWithin, type FolderGrantRootContext } from './folderGrantRoots';
+import { vetFolderGrantRoot } from './folderGrantAuthority';
 
 export const FOLDER_GRANTS_FILE = 'workspace-folder-grants.json';
 
@@ -227,16 +228,13 @@ export class WorkspaceFolderGrantStore {
       throw new TypeError('a folder grant needs a workspace id');
     }
 
-    let context: FolderGrantRootContext;
-    try {
-      context = await this.resolveContext();
-    } catch {
-      // Fail CLOSED. We could not enumerate Wayland's own storage, so we cannot
-      // show this root is not part of it.
-      return { ok: false, refusal: 'wayland_private' };
-    }
-
-    const check = await classifyFolderGrantRoot(input.root, context);
+    // The SAME gate the live consent path uses. Shared as one function on
+    // purpose: "a root Wayland refuses to persist must also be a root Wayland
+    // refuses to grant" is a property held by construction here, not by two
+    // call sites agreeing to stay in step. It fails CLOSED when Wayland's own
+    // storage cannot be enumerated, because then we cannot show this root is
+    // not part of it.
+    const check = await vetFolderGrantRoot(input.root, () => this.resolveContext());
     // `=== false`, not `!check.ok`: this project does not enable
     // `strictNullChecks`, and without it TypeScript will not narrow a
     // boolean-literal discriminant through a truthiness test. Consumers of
