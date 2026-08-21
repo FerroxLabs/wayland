@@ -142,8 +142,8 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('4106b6a7');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 14 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('0ccaa90b');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 16 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
@@ -172,11 +172,25 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // - the same shape of failure as the `contract_minor_mismatch` (pin 14 vs
     // engine 12) that preceded the v0.13.0 move.
     //
-    // If the pin is ever NOT 14 this whole assertion is stale and the coupling
+    // v0.13.3 -> v0.13.4 is the first move since v0.13.0 that changes the
+    // corpus SHAPE, not just its stamp: minor 14 -> 16, gen/14 -> gen/16, a new
+    // `render_artifact` event, three new capabilities, and `always_path` added
+    // to the `tool_approve` scope schema. Re-derived from the released
+    // manifest and cross-checked against the SIGNED release asset
+    // `wayland-core-v0.13.4-desktop-contract-v1.tar.gz`: 176 files, 176 digest
+    // matches, with a deliberately wrong comparison shown to report a mismatch.
+    //
+    // Note what did NOT move: commands 23 -> 23. Core added `grant_path`,
+    // `revoke_path` and `grant_workspace_capability` to the protocol but
+    // shipped no command fixtures, and the command schema is generated from the
+    // fixture set over a closed `oneOf`, so all three stay unsendable under a
+    // negotiated contract (FerroxLabs/wayland-core#314).
+    //
+    // If the pin is ever NOT 16 this whole assertion is stale and the coupling
     // must be re-derived from the released manifest, not patched.
-    expect(DESKTOP_CORE_V1_PIN.minor).toBe(14);
+    expect(DESKTOP_CORE_V1_PIN.minor).toBe(16);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.3'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.4'"
     );
   });
 
@@ -218,8 +232,8 @@ describe('Wayland Core Desktop v1 producer pin', () => {
   // are now declared, so the corpus finally describes the whole wire. 59 -> 60
   // is 0.13.0's `call_announced`, the frame for a call that dispatches without
   // passing an approval gate.
-  it('contains exactly the advertised 23 commands, 60 events, and 169 fixtures', () => {
-    expect(manifest.counts).toEqual({ child_types: 3, commands: 23, events: 60, fixtures: 169 });
+  it('contains exactly the advertised 23 commands, 61 events, and 171 fixtures', () => {
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 23, events: 61, fixtures: 171 });
     // The inventory and the declared count must agree - a corpus that ships a
     // fixture it does not list, or lists one it does not ship, is the exact
     // class of drift C-1 was.
