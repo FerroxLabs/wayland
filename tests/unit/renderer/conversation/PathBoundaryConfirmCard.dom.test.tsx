@@ -233,6 +233,37 @@ describe('#1099 folder-grant card', () => {
     expect(confirmInvoke).not.toHaveBeenCalled();
   });
 
+  it('FOCUSES the refusal when it appears, so the key it advertises actually works', async () => {
+    // Found by driving the real app, not by reading code: the card was
+    // focusable and Space-activatable, and `document.activeElement` was BODY,
+    // so the advertised shortcut did nothing until the user tabbed onto a
+    // button. Every existing keyboard test here focuses a control by hand
+    // first, which is exactly why none of them could see it.
+    renderCard();
+    const deny = await screen.findByTestId('path-boundary-deny');
+
+    await waitFor(() => expect(document.activeElement).toBe(deny));
+  });
+
+  it('focuses the REFUSAL, never the grant, so a stray Space cannot hand over a folder', async () => {
+    // The mechanism, not the outcome. "Something is focused" would pass just as
+    // happily on a card that focuses the grant - which is the one arrangement
+    // that turns the single bound key into an accidental grant, and undoes the
+    // reason Enter and Y are unbound at all.
+    renderCard();
+    const deny = await screen.findByTestId('path-boundary-deny');
+    const grant = await screen.findByTestId('path-boundary-grant');
+
+    await waitFor(() => expect(document.activeElement).toBe(deny));
+    expect(document.activeElement).not.toBe(grant);
+
+    // And the focused control really is live: the advertised key works on it
+    // with no Tab first. Without this the two assertions above are satisfied by
+    // focusing an inert div.
+    fireEvent.keyDown(document.activeElement as Element, { key: ' ' });
+    expect(confirmInvoke).toHaveBeenCalled();
+  });
+
   it('advertises only the key it actually binds', async () => {
     renderCard();
     const card = await screen.findByTestId('path-boundary-card');

@@ -11,7 +11,7 @@ import {
   isPathBoundaryGrantValue,
   pathBoundaryRootOf,
 } from '@/common/chat/pathBoundaryConsent';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -83,6 +83,31 @@ const PathBoundaryConfirmCard: React.FC<{
   const root = pathBoundaryRootOf(confirmation);
   const target = confirmation.description;
 
+  /**
+   * FOCUS THE REFUSAL WHEN THE CARD APPEARS.
+   *
+   * Found by driving the real app: the card renders with `role='button'`,
+   * `tabIndex={0}` and `aria-keyshortcuts='Space'`, and nothing ever focused
+   * it - `document.activeElement` was `BODY`. So the Space these buttons
+   * advertise did nothing at all until the user happened to Tab onto one. The
+   * unit tests proved Space activates a FOCUSED option; no test asked whether
+   * anything focuses the card, and only a live run could tell us.
+   *
+   * WHY THE REFUSAL AND NOT THE GRANT. The reason Enter and Y are left unbound
+   * is that a stray keypress must not hand over a folder. Focusing the grant
+   * would reintroduce exactly that through the one key we DO bind. With the
+   * refusal focused the advertised shortcut works immediately, and a stray
+   * Space DENIES - which costs a retry, where the other way costs authority.
+   * The grant is one Tab away, which is the deliberate act it should be.
+   */
+  const refuseRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    refuseRef.current?.focus();
+    // Keyed on the call, not on mount: the card is reused for the next boundary
+    // in the same conversation, and a second prompt that never takes focus is
+    // the same bug wearing a different hat.
+  }, [confirmation.callId]);
+
   return (
     <div
       data-testid='path-boundary-card'
@@ -134,6 +159,7 @@ const PathBoundaryConfirmCard: React.FC<{
           return (
             <div
               key={String(option.value)}
+              ref={isGrant ? undefined : refuseRef}
               role='button'
               tabIndex={0}
               aria-label={ariaLabel}
