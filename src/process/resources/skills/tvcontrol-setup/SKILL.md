@@ -229,6 +229,15 @@ Then load it, either way:
    failure is wrong and is the easiest mistake to make here — say which ones came out, and name
    the `not_found` ones as "not in the list" rather than as errors.
 
+   ⚠ **More generally on this connector, `success: false` does not mean nothing happened.**
+   Verified live in two different tools on the same chart: `watchlist_remove_bulk` above, and
+   `chart_set_timeframe`, which returned
+   `success: false, "Chart did not finish loading timeframe 60"` while `chart_get_state`
+   immediately after showed the chart **already on 60** — the switch applied, and only the data
+   that follows it never arrived. Both directions of the round trip behaved the same way. So
+   before reporting a failure, read the state back and say what is actually true now. Telling
+   someone their timeframe did not change when it did is worse than saying nothing.
+
 3. **`dry_run` on `replace` does NOT show what would be deleted.** It reports only
    `would_add` and `would_skip`. The destructive half of the operation is invisible in the
    preview, so a dry run is *not* a safety check for `replace`. Treat `replace` as

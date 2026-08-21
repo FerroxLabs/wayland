@@ -53,7 +53,13 @@ Use drawing tools to mark up the chart:
    `tv_health_check` first and treat a `datafeed.state` of `disconnected` as "every price on
    this chart is stale". For a price that does not depend on the chart's connection, use
    `quote_batch`, which goes to TradingView's scanner API instead.
-4. `symbol_info` — get symbol metadata (exchange, type, session)
+4. `symbol_info` — symbol metadata (exchange, type, session). It fails on a chart whose data
+   session has dropped, because the metadata never resolved, and the error it returns says the
+   TradingView API "returned an unexpected shape" and invites you to file an issue. **Do not
+   file anything and do not tell the user the connector is broken.** Verified on a live chart:
+   the series and its 307 bars were both present while the symbol metadata was still null, and
+   `chart_get_state` was answering normally throughout. Read `tv_health_check` and report the
+   data connection, which is the actual finding.
 
 ## Step 6: Report
 
