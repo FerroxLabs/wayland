@@ -375,7 +375,6 @@ export function folderGrantRefusedText(root: string, refusal: FolderGrantRefusal
   }
 }
 
-
 /**
  * The folder-grant card's options, in the order the card renders them.
  *

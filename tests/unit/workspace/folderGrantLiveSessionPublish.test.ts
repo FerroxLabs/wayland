@@ -18,10 +18,7 @@
 
 import { describe, expect, it, afterEach, vi } from 'vitest';
 import { WCoreAgent, type WCoreAgentOptions } from '@process/agent/wcore';
-import {
-  clearLivePathGrantSessionsForTest,
-  listLivePathGrantSessions,
-} from '@process/agent/wcore/pathGrantSessions';
+import { clearLivePathGrantSessionsForTest, listLivePathGrantSessions } from '@process/agent/wcore/pathGrantSessions';
 
 const WORKSPACE = '/tmp/wcore-folder-grant-publish';
 
@@ -58,10 +55,11 @@ describe('a wcore session publishes itself for revoke', () => {
   it('publishes the workspace it was actually spawned in', () => {
     makeAgent('/tmp/wcore-alpha');
     makeAgent('/tmp/wcore-beta');
-    expect(listLivePathGrantSessions().map((s) => s.workspace).sort()).toEqual([
-      '/tmp/wcore-alpha',
-      '/tmp/wcore-beta',
-    ]);
+    expect(
+      listLivePathGrantSessions()
+        .map((s) => s.workspace)
+        .sort()
+    ).toEqual(['/tmp/wcore-alpha', '/tmp/wcore-beta']);
   });
 
   it('the published revokePath drives the agent it came from', async () => {

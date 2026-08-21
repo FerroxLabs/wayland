@@ -73,7 +73,10 @@ describe('revokeFolderGrantInLiveSessions', () => {
     // `revokePath` resolves null when the host could not get the command out.
     // Counting that as a success is exactly the lie this whole surface exists
     // to avoid: the user would be told the folder is no longer readable.
-    const dead = session(WORKSPACE, vi.fn(async () => null as unknown));
+    const dead = session(
+      WORKSPACE,
+      vi.fn(async () => null as unknown)
+    );
     const live = session(WORKSPACE);
 
     const outcome = await revokeFolderGrantInLiveSessions(WORKSPACE, 'g-1', [dead, live]);
