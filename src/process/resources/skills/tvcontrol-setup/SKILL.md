@@ -35,7 +35,7 @@ command to look for it, and do not guess from a failed call.
 kind: add_mcp
 name: com.ferroxlabs-tvcontrol
 command: npx
-args: @ferroxlabs/tvcontrol@2.2.2
+args: @ferroxlabs/tvcontrol@2.3.0
 [/CONCIERGE_PROPOSE]
 ```
 
@@ -66,6 +66,9 @@ invisible to it. Any TradingView plan works, including the free one.
 - **Read the `message`, not the `category`.** The category is `TV_NOT_RUNNING` for both
   "not installed" and "installed but no control port". Only the message text tells them
   apart.
+- **A control port that is already open returns `action: "already_running"` with
+  `launched: false`.** That is a success, not a no-op to retry — TradingView is answering and
+  nothing was started. Do not call again with `kill_existing` to "make sure".
 
 **If the message says it cannot find TradingView**, it is not installed. Point them at
 [tradingview.com/desktop](https://www.tradingview.com/desktop/) and wait.
@@ -110,8 +113,9 @@ TradingView running; quitting it or restarting it normally takes the tools offli
 **Default to TradingView's own import. Do not add the symbols yourself.**
 
 TradingView takes the `.txt` export directly — the user picks Import from the watchlist menu,
-chooses the file, and it is done in one step. That is faster than anything this connector can
-do, and it does not carry the three defects documented below.
+chooses the file, and it is done in one step. It takes the raw `.txt`, it keeps the `###`
+section structure exactly as written, and it needs no conversion — none of which is true of
+the connector's own import.
 
 1. Tell them where the file is, and that it imports as-is with no conversion.
 2. Walk them to it: **the watchlist panel, the three-dot menu at its top, then "Import
@@ -119,11 +123,17 @@ do, and it does not carry the three defects documented below.
 3. **Then verify, and this part is yours to do**: `watchlist_get`, compare the count against
    the file, and name anything missing. That is the half they cannot easily check themselves.
 
-It is worth being clear about why this is not the agent doing less. Adding seventy symbols
-through the connector takes minutes, reports success for tickers that do not exist, and
-**cannot be undone** — so a mistake lands permanently in the list they use every day. Handing
-them a one-click native import and then checking the result honestly is the better outcome,
-not the lazier one.
+It is worth being clear about why this is not the agent doing less. The connector needs the
+file converted first, it posts an exchange-prefixed ticker that does not exist without
+complaint (see below), and the list it writes to is the one the user sees in every layout they
+own. Handing them a one-click native import and then checking the result honestly is the better
+outcome, not the lazier one.
+
+TVControl 2.3.0 did make the connector path materially safer than it was — the adds and
+removals go through TradingView's own symbols API now instead of driving the UI, they are
+verified from a fresh read, and a removal that did not happen throws instead of reporting
+success. It is no longer slow and it is no longer one-way. It is still the second choice,
+because the native import is one click and preserves their sections.
 
 **Use the connector's own import only when they ask you to do it for them**, or for topping up
 a handful of symbols later. If you do, everything below applies.
@@ -135,11 +145,17 @@ a handful of symbols later. If you do, everything below applies.
 **The export file will not import as-is through the CONNECTOR.** This is the trap — note it
 does not apply to TradingView's native import above, which takes the raw `.txt`.
 
-`watchlist_import` wants a JSON file in the shape `watchlist_export` writes:
+`watchlist_import` wants a JSON file with a `schema_version` of 1 or 2 and a `symbols` array:
 
 ```json
 { "schema_version": 1, "symbols": [{ "symbol": "NASDAQ:AAPL" }] }
 ```
+
+That is the shape `scripts/parse-watchlist.mjs` writes, and it is accepted. `watchlist_export`
+itself now writes **schema 2**, which adds an `entries` array holding the stored list verbatim
+with the `###` section headers in place. Import prefers `entries` when it is present, so an
+export/import round-trip keeps the user's sections; the converter's schema-1 file carries the
+symbols only, so importing it does not recreate section structure.
 
 What the user has is TradingView's own UI export — one line, a `###` section header, then
 comma-separated tickers:
@@ -178,36 +194,43 @@ Then load it, either way:
 - **`watchlist_add_bulk`** with the symbol list. **Maximum 100 symbols per call**; the
   converter's stderr line tells you how many calls that is.
 
-### Three things that are not true of this API, and will burn you
+### Three things about this API, and what changed in 2.3.0
 
-All three verified by running them against TradingView Desktop 3.3.0.
+1. **An exchange-prefixed symbol that does not exist still lands as a dead row.**
+   `watchlist_add_bulk` resolves a *bare* ticker through symbol search now and refuses it with
+   `SYMBOL_UNKNOWN` when it does not resolve, so `"AAPL"` becomes `NASDAQ:AAPL` or errors. But
+   anything already carrying a colon is posted verbatim, and the verification only asks whether
+   that literal string came back — so `NASDAQ:NOTREAL` verifies as added.
 
-1. **`watchlist_add_bulk` reports success for symbols that DO NOT EXIST.** A deliberately
-   invalid ticker came back in `added`, with `error_count: 0`, and then sat in the watchlist
-   as a dead row. **Reading the per-symbol results is not enough.** Confirm with
-   `watchlist_get` and treat a row whose `last` is null as one that did not resolve.
+   Read `not_added` and the per-symbol `results[].added` (there is **no** `error_count` on this
+   call; that field is on `watchlist_import`). Then confirm with `watchlist_get`.
 
-   Careful with that check: immediately after TradingView launches, **every** row reports
-   null until the datafeed populates. Null means "unresolved" only on a list that has
-   already settled — so read it twice if the app has just started.
+   ⚠ **`watchlist_get` no longer carries a per-row `last` price.** Membership comes from the
+   symbols API and is complete even with the panel closed, but prices are best effort: rows get
+   a `cells` array **only when the watchlist panel is open**. Check `quotes_available` first. If
+   it is false, you cannot tell a resolved row from an unresolved one from this call — say so
+   rather than implying you checked. If it is true, a row with no `cells` is the one that did
+   not resolve, and immediately after launch **every** row is priceless until the datafeed
+   populates, so read it twice if the app has just started.
 
-2. **Removal is broken.** `watchlist_remove` and `watchlist_remove_bulk` both report
-   `Remove reported a click but "<symbol>" is still in the watchlist`, and the symbol really
-   does survive. **So an add is not undoable from here.** Never tell the user you can put
-   their watchlist back the way it was; if something lands that should not have, say plainly
-   that they need to right-click the row and remove it themselves.
+2. **Removal works now, and it is verified.** `watchlist_remove` and `watchlist_remove_bulk` go
+   through the symbols API rather than a UI right-click, read the list back, and throw if the
+   symbol survived. `watchlist_remove_bulk` reports `removed_count`, `not_found` (never there)
+   and `survived` (there, and still there) as separate outcomes. **So an add IS undoable from
+   here** — but only tell the user something was removed when the call came back clean, and
+   never on the strength of having asked.
 
 3. **`dry_run` on `replace` does NOT show what would be deleted.** It reports only
    `would_add` and `would_skip`. The destructive half of the operation is invisible in the
    preview, so a dry run is *not* a safety check for `replace`. Treat `replace` as
-   unpreviewable and only run it on an explicit, informed request.
+   unpreviewable and only run it on an explicit, informed request. `replace` also removes
+   section headers that are not in the file, and `import` can only append, so restored headers
+   land at the end of the list unless the watchlist started empty — the result carries an
+   `order_note` saying so when that happens.
 
-**Be honest about the result.** Adds are driven through the TradingView UI one symbol at a
-time, so seventy-plus symbols is slow — warn them it will take a few minutes.
-
-Never say "imported all 74". Say how many landed, name the ones that did not, and offer to
-retry just those. Confirm with `watchlist_get` and compare the count against what the
-converter reported.
+**Be honest about the result.** Never say "imported all 74". Say how many landed, name the ones
+that did not, and offer to retry just those. Confirm with `watchlist_get` and compare the count
+against what the converter reported.
 
 ---
 
@@ -264,6 +287,13 @@ on the strength of it.
 **Check:** `chart_get_state` lists TC-TIDE among the indicators. If it does not, the chart
 does not have it, whatever the add call returned.
 
+⚠ **Present in the list is not the same as healthy.** A study that never finished registering
+with the server is reported with `id: null` and `addressable_by: "name"`, and it kills the
+pane's data session on every reconnect. `chart_get_state` carries a `chart_health` block when
+the pane it describes is broken. If TC-TIDE comes back that way, do not report the setup as
+done: run `tv_chart_health`, then `tv_repair_chart`, then add it again with
+`indicator_add_from_search`.
+
 ---
 
 ## Step 5 — the chart, and the save only they can do
@@ -289,6 +319,7 @@ of what you asked for:
 
 - symbol and timeframe the chart is actually on
 - the indicators actually listed, and whether TC-TIDE is among them
+- whether `chart_get_state` returned a `chart_health` block saying the pane is broken
 - the watchlist count from `watchlist_get`
 
 If any of it is short, say which part and why, and offer the specific next action. A setup
