@@ -93,5 +93,20 @@ export type FolderGrantRefusal =
   | 'home_directory'
   /** Wayland's own config / credential storage. */
   | 'wayland_private'
+  /**
+   * A user credential store - `~/.ssh`, `~/.aws`, `~/.config/gh` and the rest
+   * of Core's `CREDENTIAL_STORES` - or a folder that contains one. Refused in
+   * both directions, because granting a folder that holds `~/.ssh` is the same
+   * disclosure as granting `~/.ssh`.
+   */
+  | 'credential_store'
+  /**
+   * The workspace already holds the maximum number of grants the engine will
+   * accept. Core caps a session at `MAX_SESSION_READ_GRANTS = 64` and reports
+   * the overflow as an untyped `Info` string, so a durable list allowed to grow
+   * past the cap would show entries that quietly hold no authority. Refused at
+   * ADD time, while the user is still there to remove one.
+   */
+  | 'grant_cap_reached'
   /** Not an absolute path, or not a real directory. */
   | 'not_an_absolute_directory';
