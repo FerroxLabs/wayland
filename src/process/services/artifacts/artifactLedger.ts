@@ -340,6 +340,39 @@ export async function readArtifactLedger(ledgerPath: string): Promise<ArtifactRe
 }
 
 /**
+ * Is this a workspace root the reader is willing to resolve a path against?
+ *
+ * `relativePath` was validated from the beginning and `workspace` was not - it
+ * was checked for `typeof === 'string'` and nothing else - even though the two
+ * are joined together to produce the absolute path every action then acts on. A
+ * clean relative path resolved against a hostile root is a hostile path.
+ *
+ * That gap was unreachable while the cron executor was the only writer, because
+ * `registerArtifacts` always records `realpath(resolve(workspace))`. A second
+ * writer, whose workspace is whatever folder a conversation points at, is
+ * exactly the change that makes it reachable.
+ *
+ * Structural checks only, deliberately. Whether a root is AUTHORIZED is a
+ * question about host state that this module has no access to and must not
+ * import - `effects.confine` answers it, at every one of the four actions.
+ * What is enforced here is that the value is a single, absolute, already
+ * canonical path, so nothing downstream is normalizing a surprise.
+ */
+function isCanonicalWorkspace(workspace: unknown): workspace is string {
+  if (typeof workspace !== 'string' || workspace.length === 0) return false;
+  // A NUL truncates the path at the syscall boundary, so the path that gets
+  // opened is not the path that was validated.
+  if (workspace.includes('\0')) return false;
+  if (!path.isAbsolute(workspace)) return false;
+  const segments = workspace.split(/[\\/]/);
+  if (segments.includes('..') || segments.includes('.')) return false;
+  // Already canonical: refuse rather than silently normalize, so a record that
+  // does not round-trip is dropped instead of being quietly rewritten into a
+  // different path than the one that was published.
+  return path.resolve(workspace) === workspace;
+}
+
+/**
  * The same read, plus how many lines it had to throw away.
  *
  * Dropping a bad line is the right behaviour - the ledger is a convenience over
@@ -374,7 +407,7 @@ export async function readArtifactLedgerEntries(
     if (
       record?.version !== 1 ||
       typeof record.artifactId !== 'string' ||
-      typeof record.workspace !== 'string' ||
+      !isCanonicalWorkspace(record.workspace) ||
       typeof record.relativePath !== 'string' ||
       record.relativePath.startsWith('/') ||
       record.relativePath.split('/').includes('..') ||

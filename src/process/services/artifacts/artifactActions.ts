@@ -172,6 +172,21 @@ export async function saveArtifactCopy(artifactId: unknown, effects: ArtifactHos
   const verified = await readVerifiedArtifact(artifactId, await effects.readLedger());
   if (!verified.ok) return verified;
 
+  // Confine the SOURCE, like `openArtifact` and `revealArtifact` already do.
+  // This was the only one of the four actions without it, which was unreachable
+  // only while the cron executor was the sole writer to the ledger: containment
+  // was proved by publication, and publication was the one thing that wrote a
+  // record. A SECOND writer whose workspace is whatever folder a conversation
+  // happens to point at removes that guarantee, and a record naming a workspace
+  // outside every authorized root would have had its bytes read and handed to
+  // the user with nothing in the way.
+  //
+  // The DESTINATION is deliberately NOT confined: the user picks it in an OS
+  // save dialog, it is their own act rather than a renderer-supplied path, and
+  // nothing is executed at the far end.
+  const confined = await effects.confine(verified.path);
+  if (!confined) return { ok: false, error: 'path not allowed' };
+
   // `path.basename` on the RECORDED relative path, which the ledger already
   // proved has no `..` and no separator tricks. The declared title is never
   // used as a filename: it is model-authored text.
