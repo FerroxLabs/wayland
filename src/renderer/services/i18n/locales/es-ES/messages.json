@@ -70,13 +70,16 @@
     "yesAlwaysAllowTool": "Sí, permitir siempre la herramienta \"{{toolName}}\" del servidor \"{{serverName}}\"",
     "yesAlwaysAllowServer": "Sí, permitir siempre todas las herramientas del servidor \"{{serverName}}\"",
     "no": "No (esc)",
-    "grantFolderAlways": "Permitir siempre esta carpeta: {{folder}}",
-    "grantFolderAlwaysHint": "Solo lectura, durante el resto de esta sesión. No se abre nada más fuera de tu espacio de trabajo.",
+    "grantFolderAlways": "Permitir esta carpeta en este chat: {{folder}}",
+    "grantFolderAlwaysHint": "Solo lectura, hasta que termine este chat. No se abre nada más fuera de tu espacio de trabajo.",
+    "grantFolderRemember": "Permitir siempre esta carpeta: {{folder}}",
+    "grantFolderRememberHint": "Solo lectura, y recordada para este espacio de trabajo hasta que la quites.",
     "grantFolderDeny": "No permitir",
     "pathBoundaryTitle": "¿Permitir el acceso a una carpeta fuera de tu espacio de trabajo?",
     "pathBoundaryTargetLabel": "El agente quiere leer",
     "pathBoundaryRootLabel": "Permitirlo abrirá esta carpeta",
-    "pathBoundaryGrantAria": "{{label}} — pulsa Espacio para conceder acceso de solo lectura a {{folder}} durante el resto de esta sesión."
+    "pathBoundaryGrantAria": "{{label}} — pulsa Espacio para conceder acceso de solo lectura a {{folder}} hasta que termine este chat.",
+    "pathBoundaryRememberAria": "{{label}} — pulsa Espacio para conceder acceso de solo lectura a {{folder}} y recordarla para este espacio de trabajo hasta que la quites."
   },
   "slash.customBadge": "Custom",
   "runaway": {

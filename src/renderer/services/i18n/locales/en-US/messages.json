@@ -74,13 +74,16 @@
     "yesAlwaysAllowServer": "Yes, always allow all tools from server \"{{serverName}}\"",
     "no": "No (esc)",
     "recommended": "Recommended",
-    "grantFolderAlways": "Always allow this folder: {{folder}}",
-    "grantFolderAlwaysHint": "Read-only, for the rest of this session. Nothing else outside your workspace is opened.",
+    "grantFolderAlways": "Allow this folder for this chat: {{folder}}",
+    "grantFolderAlwaysHint": "Read-only, until this chat ends. Nothing else outside your workspace is opened.",
+    "grantFolderRemember": "Always allow this folder: {{folder}}",
+    "grantFolderRememberHint": "Read-only, and remembered for this workspace until you remove it.",
     "grantFolderDeny": "Don't allow",
     "pathBoundaryTitle": "Allow access to a folder outside your workspace?",
     "pathBoundaryTargetLabel": "The agent wants to read",
     "pathBoundaryRootLabel": "Allowing opens this folder",
-    "pathBoundaryGrantAria": "{{label}} — press Space to grant read-only access to {{folder}} for the rest of this session."
+    "pathBoundaryGrantAria": "{{label}} — press Space to grant read-only access to {{folder}} until this chat ends.",
+    "pathBoundaryRememberAria": "{{label}} — press Space to grant read-only access to {{folder}} and remember it for this workspace until you remove it."
   },
   "slash.customBadge": "Custom",
   "doctor": {

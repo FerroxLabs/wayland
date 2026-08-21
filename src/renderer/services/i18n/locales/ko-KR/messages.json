@@ -70,13 +70,16 @@
     "yesAlwaysAllowTool": "예, 서버 \"{{serverName}}\"의 도구 \"{{toolName}}\" 항상 허용",
     "yesAlwaysAllowServer": "예, 서버 \"{{serverName}}\"의 모든 도구 항상 허용",
     "no": "아니요 (esc)",
-    "grantFolderAlways": "이 폴더를 항상 허용: {{folder}}",
-    "grantFolderAlwaysHint": "읽기 전용이며 이번 세션 동안만 유효합니다. 작업 공간 밖의 다른 위치는 열리지 않습니다.",
+    "grantFolderAlways": "이 채팅에서만 이 폴더를 허용: {{folder}}",
+    "grantFolderAlwaysHint": "읽기 전용이며 이 채팅이 끝날 때까지 유효합니다. 작업 공간 밖의 다른 위치는 열리지 않습니다.",
+    "grantFolderRemember": "이 폴더를 항상 허용: {{folder}}",
+    "grantFolderRememberHint": "읽기 전용이며, 삭제할 때까지 이 작업 공간에 기억됩니다.",
     "grantFolderDeny": "허용 안 함",
     "pathBoundaryTitle": "작업 공간 밖의 폴더에 대한 접근을 허용할까요?",
     "pathBoundaryTargetLabel": "에이전트가 읽으려는 대상",
     "pathBoundaryRootLabel": "허용하면 열리는 폴더",
-    "pathBoundaryGrantAria": "{{label}} — 스페이스바를 누르면 이번 세션 동안 {{folder}}에 대한 읽기 전용 접근을 허용합니다."
+    "pathBoundaryGrantAria": "{{label}} — 스페이스바를 누르면 이 채팅이 끝날 때까지 {{folder}}에 대한 읽기 전용 접근을 허용합니다.",
+    "pathBoundaryRememberAria": "{{label}} — 스페이스바를 누르면 {{folder}}에 대한 읽기 전용 접근을 허용하고, 삭제할 때까지 이 작업 공간에 기억합니다."
   },
   "slash.customBadge": "Custom",
   "runaway": {

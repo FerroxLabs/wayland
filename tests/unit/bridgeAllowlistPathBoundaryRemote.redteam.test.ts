@@ -21,7 +21,11 @@
  * only refused FOREIGN vocabulary, so the card's OWN value walked through.
  */
 import { isAllowedForRemote, isRemoteDeniedConfirmation } from '@/common/adapter/bridgeAllowlist';
-import { PATH_BOUNDARY_DENY, PATH_BOUNDARY_GRANT_FOLDER } from '@/common/chat/pathBoundaryConsent';
+import {
+  PATH_BOUNDARY_DENY,
+  PATH_BOUNDARY_GRANT_FOLDER,
+  PATH_BOUNDARY_REMEMBER_FOLDER,
+} from '@/common/chat/pathBoundaryConsent';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -44,6 +48,20 @@ describe('a remote peer cannot answer a path-boundary consent card', () => {
 
   it('refuses a remote GRANT', () => {
     expect(isRemoteDeniedConfirmation('subscribe-confirmation.confirm', wire(PATH_BOUNDARY_GRANT_FOLDER))).toBe(true);
+  });
+
+  it('refuses a remote DURABLE grant', () => {
+    // The stakes here are strictly higher than the session grant above: this
+    // value writes the folder to the workspace's persisted list, so a remote
+    // peer that got it through would open that folder to every FUTURE session
+    // as well, including unattended cron runs with nobody at the window at all.
+    //
+    // The gate needed no edit to cover it. It reads `isPathBoundaryOptionValue`,
+    // so widening that predicate is what extended this denial - which is the
+    // property this assertion exists to hold in place, not the denial alone.
+    expect(isRemoteDeniedConfirmation('subscribe-confirmation.confirm', wire(PATH_BOUNDARY_REMEMBER_FOLDER))).toBe(
+      true
+    );
   });
 
   it('refuses a remote DENY too - the desktop owns the whole decision', () => {

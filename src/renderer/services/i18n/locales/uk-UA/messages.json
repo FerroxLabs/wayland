@@ -69,13 +69,16 @@
     "yesAlwaysAllowTool": "Так, завжди дозволяти інструмент «{{toolName}}» із сервера «{{serverName}}»",
     "yesAlwaysAllowServer": "Так, завжди дозволяти всі інструменти із сервера «{{serverName}}»",
     "no": "Ні (esc)",
-    "grantFolderAlways": "Завжди дозволяти цю теку: {{folder}}",
-    "grantFolderAlwaysHint": "Лише читання, до кінця цього сеансу. Нічого іншого поза межами робочої області не відкривається.",
+    "grantFolderAlways": "Дозволити цю теку для цього чату: {{folder}}",
+    "grantFolderAlwaysHint": "Лише читання, до кінця цього чату. Нічого іншого поза межами робочої області не відкривається.",
+    "grantFolderRemember": "Завжди дозволяти цю теку: {{folder}}",
+    "grantFolderRememberHint": "Лише читання; теку запам’ятано для цієї робочої області, доки ви її не приберете.",
     "grantFolderDeny": "Не дозволяти",
     "pathBoundaryTitle": "Дозволити доступ до теки поза межами робочої області?",
     "pathBoundaryTargetLabel": "Агент хоче прочитати",
     "pathBoundaryRootLabel": "Дозвіл відкриє цю теку",
-    "pathBoundaryGrantAria": "{{label}} — натисніть пробіл, щоб надати доступ лише для читання до {{folder}} до кінця цього сеансу."
+    "pathBoundaryGrantAria": "{{label}} — натисніть пробіл, щоб надати доступ лише для читання до {{folder}} до кінця цього чату.",
+    "pathBoundaryRememberAria": "{{label}} — натисніть пробіл, щоб надати доступ лише для читання до {{folder}} і запам’ятати її для цієї робочої області, доки ви її не приберете."
   },
   "copyLastOutput": {
     "empty": "Ще немає відповіді для копіювання"
