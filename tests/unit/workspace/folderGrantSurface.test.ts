@@ -18,13 +18,19 @@
  * suite stays green.
  */
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import {
   clearLivePathGrantSessionsForTest,
   listLivePathGrantSessions,
   registerLivePathGrantSession,
 } from '@process/agent/wcore/pathGrantSessions';
-import { revokeFolderGrantInLiveSessions } from '@process/services/workspace/folderGrantSurface';
+import {
+  resolveFolderGrantWorkspaces,
+  revokeFolderGrantInLiveSessions,
+} from '@process/services/workspace/folderGrantSurface';
 
 const WORKSPACE = '/Users/x/Documents/Wayland/Projects/Ledger';
 const OTHER_WORKSPACE = '/Users/x/Documents/Wayland/Projects/Payroll';
@@ -132,5 +138,63 @@ describe('the live-session registry', () => {
     registerLivePathGrantSession(session(WORKSPACE));
     expect(snapshot).toHaveLength(1);
     expect(listLivePathGrantSessions()).toHaveLength(2);
+  });
+});
+
+describe('resolveFolderGrantWorkspaces - the path: half of the key space', () => {
+  const tmpDirs: string[] = [];
+
+  afterAll(() => {
+    for (const dir of tmpDirs) {
+      try {
+        rmSync(dir, { recursive: true, force: true });
+      } catch {
+        // Temp dirs are reaped by the OS.
+      }
+    }
+  });
+
+  const tmpDir = (): string => {
+    const dir = mkdtempSync(path.join(realpathSync(os.tmpdir()), 'wl-grant-key-rel-'));
+    tmpDirs.push(dir);
+    return dir;
+  };
+
+  /** Never scanned in these cases: a `path:` key carries its own folder. */
+  const neverScanned = async () => {
+    throw new Error('a path: key must not need the managed-workspace scan');
+  };
+
+  it('refuses a RELATIVE key rather than resolving it against the process cwd', async () => {
+    // Only a hand-edited grants file can produce one. Resolving it against
+    // whatever directory the app happens to be running in would attach a
+    // stranger's folder to a workspace row and offer it for revoke.
+    const absolute = tmpDir();
+    const relative = path.relative(process.cwd(), absolute);
+    expect(path.isAbsolute(relative)).toBe(false);
+
+    const located = await resolveFolderGrantWorkspaces([`path:${relative}`], neverScanned as never);
+    expect(located.size).toBe(0);
+
+    // Positive control: the SAME folder, named absolutely, does resolve - so
+    // the refusal above is the absoluteness check and not a dead resolver.
+    const ok = await resolveFolderGrantWorkspaces([`path:${absolute}`], neverScanned as never);
+    expect(ok.get(`path:${absolute}`)?.dir).toBe(absolute);
+  });
+
+  it('locates nothing for a folder that is not there', async () => {
+    const gone = path.join(tmpDir(), 'deleted');
+    expect((await resolveFolderGrantWorkspaces([`path:${gone}`], neverScanned as never)).size).toBe(0);
+  });
+
+  it('locates nothing when the path names a FILE rather than a folder', async () => {
+    const dir = tmpDir();
+    const file = path.join(dir, 'note.txt');
+    writeFileSync(file, 'x');
+    expect((await resolveFolderGrantWorkspaces([`path:${file}`], neverScanned as never)).size).toBe(0);
+    // Positive control: its parent directory resolves.
+    expect((await resolveFolderGrantWorkspaces([`path:${dir}`], neverScanned as never)).get(`path:${dir}`)?.dir).toBe(
+      dir
+    );
   });
 });
