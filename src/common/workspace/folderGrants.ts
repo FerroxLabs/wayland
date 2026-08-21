@@ -69,7 +69,65 @@ export interface FolderGrant {
   origin: FolderGrantOrigin;
 }
 
-/** The persisted per-workspace record. */
+declare const REVALIDATED: unique symbol;
+
+/**
+ * A grant whose root has been re-checked against the live filesystem by
+ * `WorkspaceFolderGrantStore`, and is therefore safe to hand to an engine.
+ *
+ * The brand exists because a persisted root is a STRING and the filesystem
+ * moves underneath it. A folder that was `/Volumes/reports` when the user
+ * consented can be renamed and replaced by a symlink, a junction or a mount
+ * pointing at Wayland's own config tree; the recorded string still reads
+ * `/Volumes/reports` and every later reader believes it. Core will not save us
+ * - its refusals cover `/`, `$HOME` and a credential list, but not Wayland's
+ * user-data directory, which is a host-only concept holding provider config
+ * and `safeStorage` material.
+ *
+ * So nothing but the store's revalidating readers may mint this type, and any
+ * replay must ask for it. A future implementation that reads the JSON file
+ * itself, or hands `FolderGrant` straight through, will not typecheck - which
+ * is the point: the safe read is the only convenient way to get roots out.
+ */
+export type LiveFolderGrant = FolderGrant & { readonly [REVALIDATED]: true };
+
+/**
+ * Why a persisted entry was not handed back as live.
+ *
+ * A SEPARATE type from {@link FolderGrantRefusal} on purpose. Refusals are what
+ * the consent card and the add flow report about a folder the user just picked;
+ * these are what a READ reports about a folder that was fine when it was
+ * recorded and is not fine now. The two overlap but are not the same event, and
+ * merging them would make every exhaustive switch over refusals silently absorb
+ * a case it was never written for.
+ */
+export type FolderGrantWithheldReason =
+  | FolderGrantRefusal
+  /**
+   * The root still resolves, and still passes every refusal, but it no longer
+   * resolves to ITSELF - it has been renamed, re-pointed, or replaced by a link
+   * to somewhere else since the user consented. The folder they agreed to is
+   * not the folder this path now names, so the consent does not transfer.
+   */
+  | 'root_changed'
+  /**
+   * The entry is filed under a workspace key that is not one this store would
+   * write. Only a hand-edited or tampered file produces one, and a key nothing
+   * derives is a key nothing should replay.
+   */
+  | 'unrecognised_workspace_key';
+
+/**
+ * A persisted entry that a read refused to certify.
+ *
+ * Reported rather than deleted. Silently trusting it would hand out authority
+ * nobody re-checked; silently deleting it would erase a user's decision with no
+ * trace and no explanation. It is shown, it is removable, and it is never
+ * replayed.
+ */
+export type WithheldFolderGrant = Readonly<{ grant: FolderGrant; reason: FolderGrantWithheldReason }>;
+
+/** The persisted per-workspace record, as returned by a revalidating read. */
 export interface WorkspaceFolderGrants {
   /**
    * The workspace this list belongs to. **Always produced by
@@ -90,7 +148,10 @@ export interface WorkspaceFolderGrants {
    * workspace's entire grant list.
    */
   workspaceId: string;
-  grants: FolderGrant[];
+  /** Re-validated against the live filesystem by this read. Safe to replay. */
+  grants: readonly LiveFolderGrant[];
+  /** Recorded, still on disk, and NOT certified by this read. Never replay these. */
+  withheld: readonly WithheldFolderGrant[];
 }
 
 /**

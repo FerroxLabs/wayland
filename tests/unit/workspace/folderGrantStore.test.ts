@@ -17,7 +17,18 @@
  * fixture never reached the code at all.
  */
 
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  renameSync,
+  rmSync,
+  symlinkSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -43,7 +54,7 @@ import {
 import type { FolderGrantRootContext } from '../../../src/process/services/workspace/folderGrantRoots';
 
 const tmpRoots: string[] = [];
-const WS = 'ws-alpha';
+const WS = 'marker:ws-alpha';
 
 function tmpRoot(): string {
   const root = mkdtempSync(path.join(realpathSync(os.tmpdir()), 'wl-grants-'));
@@ -186,6 +197,107 @@ describe('WorkspaceFolderGrantStore.add - refusals', () => {
   });
 });
 
+/**
+ * Aliases `realpath` does NOT collapse.
+ *
+ * Every refusal above compares PATHNAMES, and a pathname is not an identity.
+ * On macOS the Data-volume firmlink gives a second real spelling of any path
+ * under `/` - `realpath` returns each unchanged and reveals nothing - so the
+ * home, credential-store and Wayland-private refusals were all bypassable by
+ * spelling on the platform Wayland ships to. The Linux (`mount --bind`) and
+ * Windows (`mountvol`) shapes are the same defect through a different door.
+ *
+ * These are darwin-only because a bind mount needs root and Windows volume
+ * mount points need a spare volume, while the firmlink is present on every Mac
+ * since 10.15 and needs no privileges at all.
+ */
+describe('WorkspaceFolderGrantStore.add - aliases realpath does not collapse', () => {
+  /** Every path under `/` has a second real spelling beneath this. */
+  const DATA_VOLUME = '/System/Volumes/Data';
+  const onMac = process.platform === 'darwin' ? it : it.skip;
+
+  /** The alias is only evidence if it really is the same directory, unresolved. */
+  const assertIsAnUncollapsedAlias = (alias: string, real: string): void => {
+    const aliasStat = statSync(alias, { bigint: true });
+    const realStat = statSync(real, { bigint: true });
+    expect(`${aliasStat.dev}:${aliasStat.ino}`).toBe(`${realStat.dev}:${realStat.ino}`);
+    expect(realpathSync.native(alias)).not.toBe(real);
+  };
+
+  onMac('refuses the home directory reached through a firmlink alias', async () => {
+    const alias = DATA_VOLUME + fx.home;
+    assertIsAnUncollapsedAlias(alias, fx.home);
+
+    expect(await refusalOf(alias)).toBe('home_directory');
+
+    // Positive control AND the mechanism: the SAME alias prefix over a folder
+    // that is not protected is still accepted, and is stored under the aliased
+    // spelling. So the refusal above is the identity of the target directory,
+    // not a blanket ban on the prefix.
+    const permitted = DATA_VOLUME + fx.allowed;
+    expect(accepted(await fx.store.add({ workspaceId: WS, root: permitted, origin: 'settings' })).grant.root).toBe(
+      permitted
+    );
+  });
+
+  onMac('refuses a credential store, and a folder inside one, reached through a firmlink alias', async () => {
+    const store = path.join(fx.home, '.ssh');
+    assertIsAnUncollapsedAlias(DATA_VOLUME + store, store);
+    expect(await refusalOf(DATA_VOLUME + store)).toBe('credential_store');
+
+    // The ancestor direction: the alias itself is not a credential store, but
+    // it lives under one.
+    const inside = path.join(store, 'keys');
+    mkdirSync(inside, { recursive: true });
+    expect(await refusalOf(DATA_VOLUME + inside)).toBe('credential_store');
+
+    expect((await addAllowed()).ok).toBe(true);
+  });
+
+  onMac("refuses Wayland's own storage in both directions through a firmlink alias", async () => {
+    assertIsAnUncollapsedAlias(DATA_VOLUME + fx.waylandPrivate, fx.waylandPrivate);
+    expect(await refusalOf(DATA_VOLUME + fx.waylandPrivate)).toBe('wayland_private');
+    expect(await refusalOf(DATA_VOLUME + path.join(fx.waylandPrivate, 'nested'))).toBe('wayland_private');
+    // The contains direction: an alias of the folder that HOLDS Wayland's
+    // config discloses it just as completely.
+    expect(await refusalOf(DATA_VOLUME + path.dirname(fx.waylandPrivate))).toBe('wayland_private');
+
+    expect((await addAllowed()).ok).toBe(true);
+  });
+});
+
+/**
+ * Windows 8.3 short names.
+ *
+ * `fs/promises.realpath` calls the native binding and expands them;
+ * `fs.realpathSync` is a JS reimplementation and does NOT, which is how a short
+ * name has slipped past a path check in this repo before. Nothing pinned which
+ * one the classifier uses, so the correct behaviour was unguarded.
+ *
+ * Only meaningful on Windows, and only when the volume still generates 8.3
+ * names - `fsutil 8dot3name` can turn that off per volume. When it is off the
+ * test asserts the weaker thing that is still true rather than failing for a
+ * reason that has nothing to do with the code.
+ */
+describe('WorkspaceFolderGrantStore.add - Windows short names', () => {
+  const onWindows = process.platform === 'win32' ? it : it.skip;
+
+  onWindows('expands an 8.3 short name before the root is stored', async () => {
+    const long = path.join(fx.home, 'Quarterly Reports Archive');
+    mkdirSync(long, { recursive: true });
+    const short = execFileSync('cmd', ['/d', '/c', `for %I in ("${long}") do @echo %~sI`], { encoding: 'utf8' }).trim();
+
+    const outcome = await fx.store.add({ workspaceId: WS, root: short, origin: 'settings' });
+
+    // Either way the stored root is the LONG canonical form. When the volume
+    // still makes short names this is the real regression pin; when it does not
+    // (`short === long`) it degrades to the ordinary canonicalisation check
+    // rather than to a false pass on an untested path.
+    expect(accepted(outcome).grant.root).toBe(long);
+    expect(short.length > 0).toBe(true);
+  });
+});
+
 describe('WorkspaceFolderGrantStore.add - containment and the cap', () => {
   it('returns the covering grant unchanged when the folder is already covered', async () => {
     const first = accepted(await addAllowed());
@@ -256,9 +368,9 @@ describe('WorkspaceFolderGrantStore - persistence and isolation', () => {
   it('never leaks a grant from one workspace into another', async () => {
     const grantId = accepted(await addAllowed()).grant.grantId;
 
-    expect((await fx.store.list('ws-beta')).grants).toEqual([]);
+    expect((await fx.store.list('marker:ws-beta')).grants).toEqual([]);
     // MECHANISM: the other workspace cannot even reach the entry by its id.
-    expect(await fx.store.remove('ws-beta', grantId)).toBeNull();
+    expect(await fx.store.remove('marker:ws-beta', grantId)).toBeNull();
     expect((await fx.store.list(WS)).grants).toHaveLength(1);
 
     // Positive control: the OWNING workspace can remove it, so the null above
@@ -267,20 +379,64 @@ describe('WorkspaceFolderGrantStore - persistence and isolation', () => {
     expect((await fx.store.list(WS)).grants).toEqual([]);
   });
 
-  it('refuses to record a grant with no workspace id', async () => {
-    await expect(fx.store.add({ workspaceId: '', root: fx.allowed, origin: 'settings' })).rejects.toThrow(
-      /workspace id/
-    );
-    // Positive control: the same root under a real id is recorded, so the
-    // rejection above is the missing key and not the fixture.
+  /**
+   * The prefixes were until now only a call-site convention: every writer
+   * happened to use them and NOTHING checked. That is the whole load-bearing
+   * property - `marker:` and `path:` are disjoint so a marker file the agent
+   * can write cannot name another workspace's path key - and a convention
+   * nothing enforces is not a boundary.
+   */
+  it('refuses to record a grant under any key outside the two derived namespaces', async () => {
+    for (const key of ['', 'ws-alpha', 'marker:', 'path:', 'path:relative/dir', 'marker:ok\0extra', 'Marker:x']) {
+      await expect(fx.store.add({ workspaceId: key, root: fx.allowed, origin: 'settings' })).rejects.toThrow(
+        /workspace id/
+      );
+    }
+    // Positive control, one per namespace: the same root under a key the
+    // production derivation actually produces IS recorded, so the rejections
+    // above are the key contract and not the fixture.
     expect(accepted(await addAllowed()).created).toBe(true);
+    const byPath = await fx.store.add({
+      workspaceId: `path:${fx.allowed}`,
+      root: fx.allowed,
+      origin: 'settings',
+    });
+    expect(accepted(byPath).created).toBe(true);
   });
 
-  it('cannot have its prototype polluted by a workspace id', async () => {
-    accepted(await fx.store.add({ workspaceId: '__proto__', root: fx.allowed, origin: 'settings' }));
-    expect((await fx.store.list('__proto__')).grants).toHaveLength(1);
-    expect((await fx.store.list('ws-unrelated')).grants).toEqual([]);
+  /**
+   * The `__proto__` case moved to the LOAD path when `add` became strict about
+   * keys: `__proto__` is not a key `add` will now accept, so the only way one
+   * reaches the store is a hand-edited file - which is exactly the case
+   * `Object.create(null)` was written for.
+   */
+  it('cannot have its prototype polluted by a hand-edited workspace key', async () => {
+    accepted(await addAllowed());
+    // Spliced into the TEXT, not assigned as a property: `raw.__proto__ = x` on
+    // a JSON.parse'd object reassigns the prototype and `JSON.stringify` then
+    // emits nothing, so the doctored fixture would never reach the store and
+    // this test would pass having proved nothing.
+    const original = readFileSync(fx.file, 'utf8');
+    const doctored = original.replace(
+      '"workspaces": {',
+      `"workspaces": {\n    "__proto__": [{"grantId":"g-proto","root":${JSON.stringify(fx.allowed)},"access":"read","grantedAtMs":1,"origin":"settings"}],`
+    );
+    expect(doctored).not.toBe(original);
+    writeFileSync(fx.file, doctored);
+
+    const all = await fx.store.listAll();
+
+    // MECHANISM: the bucket landed as an ORDINARY OWN PROPERTY of a
+    // null-prototype object, not as a reassigned prototype.
     expect(({} as Record<string, unknown>).grants).toBeUndefined();
+    expect((await fx.store.list('marker:ws-unrelated')).grants).toEqual([]);
+    // And it is reported, not trusted: a key nothing derives is never live.
+    const polluted = all.find((entry) => entry.workspaceId === '__proto__');
+    expect(polluted?.grants).toEqual([]);
+    expect(polluted?.withheld.map((entry) => entry.reason)).toEqual(['unrecognised_workspace_key']);
+    // Positive control: the legitimately keyed workspace in the same file is
+    // still live, so the withholding above is the key and not a dead read.
+    expect(all.find((entry) => entry.workspaceId === WS)?.grants).toHaveLength(1);
   });
 });
 
