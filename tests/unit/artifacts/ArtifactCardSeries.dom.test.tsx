@@ -33,10 +33,6 @@ const ipcMock = vi.hoisted(() => ({
   list: vi.fn(),
   series: vi.fn(),
   openTarget: vi.fn(),
-  // The card also asks what connectors are configured. Answered as "none" in
-  // this file, which keeps it about the run history and nothing else.
-  sendTargets: vi.fn(),
-  sendTo: vi.fn(),
 }));
 
 /**
@@ -60,8 +56,6 @@ vi.mock('@/common', () => ({
       list: { invoke: ipcMock.list },
       series: { invoke: ipcMock.series },
       openTarget: { invoke: ipcMock.openTarget },
-      sendTargets: { invoke: ipcMock.sendTargets },
-      sendTo: { invoke: ipcMock.sendTo },
     },
   },
 }));
@@ -114,7 +108,6 @@ beforeEach(async () => {
   ipcMock.reveal.mockResolvedValue({ ok: true });
   ipcMock.saveCopy.mockResolvedValue({ ok: true });
   ipcMock.openTarget.mockResolvedValue({ applicationName: null });
-  ipcMock.sendTargets.mockResolvedValue([]);
   ipcMock.series.mockResolvedValue(null);
 
   root = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-card-series-'));

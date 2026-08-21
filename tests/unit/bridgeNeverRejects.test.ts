@@ -17,17 +17,10 @@
  * button spins forever and the carefully written three-option workspace message
  * is shown to nobody. The product has already shipped three hangs this way.
  *
- * The rule this file pins is therefore blunt: EVERY registered cron, promotion
- * and artifact-SEND provider resolves, whatever its dependencies do. The
- * generic suite makes every dependency throw and asserts nothing rejects; the
- * classified suites assert the user-facing payload is specific enough to
- * render.
- *
- * The artifact SEND pair is here because it has more ways to fail than any of
- * the others: a database that will not answer, a native confirmation dialog
- * that cannot be raised, and a connector on the far end of a network. Any one
- * of those throwing used to be the difference between an error toast and a
- * card wedged on "Sending...".
+ * The rule this file pins is therefore blunt: EVERY registered cron and
+ * promotion provider resolves, whatever its dependencies do. The generic suite
+ * makes every dependency throw and asserts nothing rejects; the classified
+ * suites assert the user-facing payload is specific enough to render.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -66,16 +59,6 @@ vi.mock('@/common', () => ({
     promotion: {
       preview: h.provider('promotion.preview'),
       promote: h.provider('promotion.promote'),
-    },
-    artifacts: {
-      list: h.provider('artifacts.list'),
-      open: h.provider('artifacts.open'),
-      reveal: h.provider('artifacts.reveal'),
-      saveCopy: h.provider('artifacts.save-copy'),
-      series: h.provider('artifacts.series'),
-      openTarget: h.provider('artifacts.open-target'),
-      sendTargets: h.provider('artifacts.send-targets'),
-      sendTo: h.provider('artifacts.send-to'),
     },
     conversation: {
       responseStream: { emit: vi.fn() },
@@ -121,53 +104,6 @@ vi.mock('@process/services/promotion/promotionService', () => ({
   runPromotion: svc.runPromotion,
 }));
 
-/*
- * The artifact seam's host effects, every one of them hostile.
- *
- * `artifactSend` itself is NOT mocked - it is the code under test. What is
- * replaced is the last inch on each side: the save dialog, the OS launcher, the
- * native confirmation, the channel repository and the live connector. Each is
- * made to throw so the assertion is about the TRANSPORT, not about any happy
- * path.
- */
-vi.mock('electron', () => ({
-  dialog: {
-    showSaveDialog: vi.fn(async () => svc.boom()),
-    showMessageBox: vi.fn(async () => svc.boom()),
-  },
-  BrowserWindow: { getFocusedWindow: () => null, getAllWindows: () => [] },
-}));
-vi.mock('@process/utils', () => ({ getDataPath: () => '/tmp/wayland-never-rejects' }));
-vi.mock('@process/services/artifacts/artifactLedger', () => ({
-  artifactLedgerPath: () => '/tmp/wayland-never-rejects/ledger.jsonl',
-  readArtifactLedger: vi.fn(async () => svc.boom()),
-}));
-vi.mock('@process/bridge/pathConfinement', () => ({ confinePath: vi.fn(async () => svc.boom()) }));
-vi.mock('@process/bridge/shellBridge', () => ({
-  openPathReporting: vi.fn(async () => svc.boom()),
-  revealPathReporting: vi.fn(async () => svc.boom()),
-}));
-vi.mock('@process/bridge/webuiDirectAuth', () => ({
-  requireConfirmation: vi.fn(async () => svc.boom()),
-}));
-vi.mock('@process/channels/core/ChannelManager', () => ({
-  getChannelManager: () => ({
-    getRunningPlugin: () => {
-      throw new Error('channel manager exploded');
-    },
-  }),
-}));
-
-/** A channel repository that refuses to answer at all. */
-const hostileChannelRepo = {
-  getChannelPlugins: vi.fn(async () => svc.boom()),
-  getChannelUsers: vi.fn(async () => svc.boom()),
-  getPendingPairingRequests: vi.fn(async () => svc.boom()),
-  deleteChannelUser: vi.fn(async () => svc.boom()),
-  getChannelSessions: vi.fn(async () => svc.boom()),
-} as never;
-
-import { initArtifactBridge } from '@/process/bridge/artifactBridge';
 import { initCronBridge } from '@/process/bridge/cronBridge';
 import { initPromotionBridge } from '@/process/bridge/promotionBridge';
 import { CronWorkspaceError } from '@/process/bridge/cronWorkspaceError';
@@ -175,7 +111,6 @@ import { isCronBridgeFailure } from '@/common/adapter/ipcBridge';
 
 initCronBridge();
 initPromotionBridge();
-initArtifactBridge(hostileChannelRepo);
 
 /**
  * One payload that satisfies every provider's destructuring at once. Passing
@@ -196,18 +131,10 @@ const ANY_PAYLOAD = {
 };
 
 describe('H1 the provider registry is actually populated (control)', () => {
-  it('registered every cron, promotion and artifact provider', () => {
+  it('registered every cron and promotion provider', () => {
     // A zero here, or a missing key, would make every case below vacuous.
     expect([...h.handlers.keys()].toSorted()).toEqual(
       [
-        'artifacts.list',
-        'artifacts.open',
-        'artifacts.open-target',
-        'artifacts.reveal',
-        'artifacts.save-copy',
-        'artifacts.send-targets',
-        'artifacts.send-to',
-        'artifacts.series',
         'cron.add-job',
         'cron.confirm-proposal',
         'cron.get-job',
@@ -243,8 +170,6 @@ describe('H1/H4 no provider rejects, whatever its dependencies do', () => {
     'cron.confirm-proposal',
     'promotion.preview',
     'promotion.promote',
-    'artifacts.send-targets',
-    'artifacts.send-to',
   ]) {
     it(`${key} resolves instead of rejecting`, async () => {
       const handler = h.handlers.get(key);
@@ -328,37 +253,6 @@ describe('H1 the workspace failure arrives classified and renderable', () => {
   it('a successful run-now still returns the conversation id', async () => {
     svc.cronService.runNow.mockImplementationOnce(async () => 'conv-created' as never);
     expect(await h.handlers.get('cron.run-now')!(ANY_PAYLOAD)).toEqual({ conversationId: 'conv-created' });
-  });
-});
-
-describe('the artifact SEND pair fails classified, never by rejecting', () => {
-  /**
-   * Every dependency above throws, so these exercise the worst case the
-   * feature has: no database, no dialog, no connector.
-   */
-  it('send-targets reports NO connectors rather than rejecting', async () => {
-    // An unreadable channel registry is indistinguishable, from the card's
-    // point of view, from a user who has configured nothing - and "no button"
-    // is the honest rendering of both.
-    await expect(h.handlers.get('artifacts.send-targets')!(ANY_PAYLOAD)).resolves.toEqual([]);
-  });
-
-  it('send-to refuses with a code the card can render', async () => {
-    const result = await h.handlers.get('artifacts.send-to')!({
-      artifactId: 'a'.repeat(32),
-      targetId: 'plugin-email-1',
-      destinationId: 'team@example.com',
-    });
-    // The connector list could not be built, so the requested target is not in
-    // it. A code, never a hang, and never a bare `undefined`.
-    expect(result).toEqual({ ok: false, errorCode: 'unknown_target' });
-  });
-
-  it('send-to refuses a malformed request without touching a dependency', async () => {
-    expect(await h.handlers.get('artifacts.send-to')!(undefined)).toEqual({
-      ok: false,
-      errorCode: 'invalid_request',
-    });
   });
 });
 

@@ -26,14 +26,7 @@ import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/wor
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
-import type {
-  ArtifactOpenTarget,
-  ArtifactSaveResult,
-  ArtifactSendResult,
-  ArtifactSendTarget,
-  ArtifactSeriesView,
-  ArtifactSummary,
-} from '../types/artifacts';
+import type { ArtifactOpenTarget, ArtifactSaveResult, ArtifactSeriesView, ArtifactSummary } from '../types/artifacts';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
 import type { IjfwErrorReason, IjfwInvokeResult, IjfwRuntimeModePublic } from '../types/ijfw';
 import type {
@@ -185,33 +178,6 @@ export const artifacts = {
    * whenever the answer cannot be established honestly.
    */
   openTarget: buildProvider<ArtifactOpenTarget, { artifactId: string }>('artifacts.open-target'),
-  /**
-   * The connectors this deliverable could be sent to, right now.
-   *
-   * Only what the user has actually configured in Settings -> Channels, and
-   * only recipients they have already authorized there. An EMPTY ARRAY is a
-   * real answer and the card renders no button for it - a "Send to..." that
-   * opens an empty menu is a dead click, and this product already ships one.
-   *
-   * Takes no artifact: the answer does not depend on WHICH deliverable is on
-   * screen, and a parameter that is accepted and ignored is a lie about the
-   * interface. If a connector ever accepts only some types, that is the point
-   * to give this one - not before.
-   */
-  sendTargets: buildProvider<ArtifactSendTarget[], void>('artifacts.send-targets'),
-  /**
-   * Hand this deliverable to a configured connector.
-   *
-   * The only IPC on this seam that puts bytes on a WIRE rather than on this
-   * machine, so it is the only one gated by a host-chrome confirmation the
-   * agent cannot answer (deliberately NOT an IConfirmation - see artifactSend).
-   * Addressed by ids throughout: the artifact, the connector and the recipient
-   * are all re-resolved in main, and a path or an address from the renderer
-   * reaches nothing.
-   */
-  sendTo: buildProvider<ArtifactSendResult, { artifactId: string; targetId: string; destinationId: string }>(
-    'artifacts.send-to'
-  ),
 };
 
 // #466 Computer-Use macOS permission onboarding. getStatus uses non-prompting

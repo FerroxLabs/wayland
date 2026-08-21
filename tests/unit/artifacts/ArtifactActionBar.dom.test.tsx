@@ -26,10 +26,6 @@ const ipcMock = vi.hoisted(() => ({
   // report a refusal, unchanged by anything the history strip does.
   series: vi.fn(),
   openTarget: vi.fn(),
-  // The card now also asks what connectors are configured. Answered as "none"
-  // here, which is what keeps this file about the THREE local actions.
-  sendTargets: vi.fn(),
-  sendTo: vi.fn(),
 }));
 
 /**
@@ -51,8 +47,6 @@ vi.mock('@/common', () => ({
       list: { invoke: ipcMock.list },
       series: { invoke: ipcMock.series },
       openTarget: { invoke: ipcMock.openTarget },
-      sendTargets: { invoke: ipcMock.sendTargets },
-      sendTo: { invoke: ipcMock.sendTo },
     },
   },
 }));
@@ -84,7 +78,6 @@ beforeEach(() => {
   ipcMock.saveCopy.mockResolvedValue({ ok: true, savedTo: '/Users/sean/Desktop/brief.html' });
   ipcMock.series.mockResolvedValue(null);
   ipcMock.openTarget.mockResolvedValue({ applicationName: null });
-  ipcMock.sendTargets.mockResolvedValue([]);
 });
 
 describe('ArtifactActionBar', () => {

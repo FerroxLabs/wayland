@@ -12,7 +12,6 @@ import { getChannelMessageService } from '../agent/ChannelMessageService';
 import { getChannelDefaultModel } from '../actions/SystemActions';
 import { ActionExecutor } from '../gateway/ActionExecutor';
 import { PluginManager, registerPlugin } from '../gateway/PluginManager';
-import type { BasePlugin } from '../plugins/BasePlugin';
 import { PairingService } from '../pairing/PairingService';
 import { DingTalkPlugin } from '../plugins/dingtalk/DingTalkPlugin';
 import { LarkPlugin } from '../plugins/lark/LarkPlugin';
@@ -594,20 +593,6 @@ export class ChannelManager {
     } catch (error: any) {
       return { success: false, error: error.message };
     }
-  }
-
-  /**
-   * The RUNNING plugin instance for `pluginId`, or undefined.
-   *
-   * Narrow on purpose: the artifact "Send to..." path needs to hand a
-   * configured connector a file, and it must do that through the same live
-   * instance the channel system is already driving rather than constructing a
-   * second one. `undefined` is the honest answer for a plugin that is
-   * configured but not currently connected, and the caller reports that as a
-   * classified failure instead of silently starting anything.
-   */
-  getRunningPlugin(pluginId: string): BasePlugin | undefined {
-    return this.pluginManager?.getPlugin(pluginId);
   }
 
   /**
