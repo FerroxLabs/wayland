@@ -49,13 +49,7 @@
 import { promises as fs, type Dirent } from 'fs';
 import path from 'path';
 
-import {
-  isChatNamespace,
-  MAX_DECLARATIONS_PER_RUN,
-  registerArtifacts,
-  type ArtifactRejection,
-  type ArtifactRecord,
-} from './artifactLedger';
+import { isChatNamespace, registerArtifacts, type ArtifactRejection, type ArtifactRecord } from './artifactLedger';
 import {
   beginRun,
   commitRun,
@@ -233,7 +227,12 @@ export async function commitTaskRun(
     taskId: handle.taskId,
     runId: handle.runId,
     declaredBy: input.declaredBy,
-    declarations: staged.slice(0, MAX_DECLARATIONS_PER_RUN).map((relative) => ({ path: relative })),
+    // EVERY staged path, not the first MAX_DECLARATIONS_PER_RUN of them. The
+    // cap belongs to `registerArtifacts`, which enforces it by REJECTING the
+    // overflow with `too-many` - a reason the run can show the user. Slicing
+    // here applied the same rule silently and one step earlier, so files past
+    // the cap disappeared with the run reporting no rejections at all.
+    declarations: staged.map((relative) => ({ path: relative })),
     now,
   });
 

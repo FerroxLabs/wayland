@@ -45,6 +45,9 @@ import { sendWorkflowAdvanceDirective } from '@process/services/workflow/workflo
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { agentRegistry } from '@process/agent/AgentRegistry';
+import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
+import { onChatTurnCompleted } from '@process/services/artifacts/chatRun';
+import { getDataPath } from '@process/utils';
 import { resolveDefaultLaunchTarget } from '@process/utils/workflowLaunchTargetResolver';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { app } from 'electron';
@@ -426,6 +429,23 @@ void getDatabase()
         return null;
       }
     };
+    // T3. The turn ended: register whatever the chat left in its reserved
+    // namespace, so the deliverable is a real, verifiable artifact before the
+    // card that names it is ever drawn. A THIRD registration on this event
+    // alongside the two workflow listeners above, deliberately independent of
+    // both - a chat that produced a report has nothing to do with a workflow
+    // step, and coupling them would make one failure eat the other.
+    //
+    // The handler swallows its own failures (see `onChatTurnCompleted`): this
+    // fires on the completion of every turn in the product, and a ledger the
+    // app cannot write must never surface as a broken conversation.
+    ipcBridge.conversation?.turnCompleted?.on?.((event) => {
+      void onChatTurnCompleted(event, {
+        ledgerPath: artifactLedgerPath(getDataPath()),
+        onError: (error) => console.warn('[initBridge] chat artifact sweep failed:', error),
+      });
+    });
+
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {
       void handleParentWorkflowTurn(event, {
         service: workflowService,
