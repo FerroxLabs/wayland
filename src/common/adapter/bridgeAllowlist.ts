@@ -329,6 +329,18 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // channels move a credential-bearing file must not be one omission away from
   // being reachable.
   'engine-config-recovery.',
+  // The boundary axis - "folders this workspace may reach". `add` mints an AI
+  // agent STANDING READ ACCESS to a folder outside its workspace, `remove`
+  // withdraws it, and `list` discloses the absolute path of every folder the
+  // user has ever consented to. An external audit on the previous milestone
+  // found a paired WebUI could mint exactly this grant through the consent card
+  // with nobody at the desktop (#1099); the Settings surface must not reopen it
+  // from the other side. A PREFIX, for the reason stated on `waylandTransfer.`
+  // above: a namespace whose whole purpose is granting filesystem reach must
+  // not be one omitted enumeration away from being remotely reachable. The
+  // three shipped keys are ALSO listed in REMOTE_DENIED_KEYS below, so
+  // narrowing this prefix later cannot silently re-open them.
+  'workspaceFolderGrants.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
 // (e.g. `write-file`, `remove-entry`), so the dangerous fs surface is enumerated
@@ -710,6 +722,15 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     `terminal.` prefix, so this is defense-in-depth against enabling the
   //     capability surface, matching app.set-* / storage:* setting denials. ---
   'system-settings:set-terminal-enabled',
+  // --- Boundary axis (folder grants). SHADOWED by the
+  //     `workspaceFolderGrants.` prefix above and enumerated here anyway, for
+  //     the reason this Set exists: the prefix is the general rule and these
+  //     three are the specific channels that must survive it being narrowed.
+  //     `add` grants an agent standing read access outside its workspace,
+  //     `remove` withdraws it, `list` enumerates every granted absolute path. ---
+  'workspaceFolderGrants.list',
+  'workspaceFolderGrants.remove',
+  'workspaceFolderGrants.add',
 ]);
 
 /**

@@ -3160,6 +3160,36 @@ export const workspaceRetention = {
 };
 
 /**
+ * The boundary axis in Settings: "Folders this workspace may reach".
+ *
+ * SECURITY: every key is namespaced `workspaceFolderGrants.*` so bridgeAllowlist's
+ * `workspaceFolderGrants.` REMOTE_DENIED_PREFIXES entry blocks a paired WebSocket
+ * peer from reaching ANY of them, and each shipped key is ALSO listed exactly in
+ * REMOTE_DENIED_KEYS so narrowing that prefix later cannot silently re-open it.
+ * `add` mints an AI agent standing read access to a folder outside its workspace
+ * and `remove` withdraws it; `list` discloses the absolute path of every folder
+ * the user has ever consented to. A WebSocket token proves a paired BROWSER, not
+ * the human at the desktop window - which is the same finding that closed the
+ * `confirmation.confirm` path-boundary hole (#1099). This is a LOCAL control only.
+ *
+ * `add` takes NO path. The renderer names a workspace; the main process opens the
+ * native directory picker itself and grants what the human chose there, so there
+ * is no renderer-supplied path for an XSS to substitute.
+ */
+export const workspaceFolderGrants = {
+  list: buildProvider<import('@/common/workspace/folderGrantsIpc').FolderGrantListResult, void>(
+    'workspaceFolderGrants.list'
+  ),
+  remove: buildProvider<
+    import('@/common/workspace/folderGrantsIpc').FolderGrantRemoveResult,
+    { workspaceId: string; grantId: string }
+  >('workspaceFolderGrants.remove'),
+  add: buildProvider<import('@/common/workspace/folderGrantsIpc').FolderGrantPickResult, { workspaceId: string }>(
+    'workspaceFolderGrants.add'
+  ),
+};
+
+/**
  * Local-human Wayland instance transfer surface. The first shipped operation
  * is deliberately read-only: it inventories what a future encrypted transfer
  * can include and reports every blocker before an export is offered.

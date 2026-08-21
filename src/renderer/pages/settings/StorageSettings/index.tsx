@@ -8,6 +8,7 @@ import DirectoriesCard from './DirectoriesCard';
 import BackupCard from './BackupCard';
 import SyncCard from './SyncCard';
 import ManagedWorkspacesCard from './ManagedWorkspacesCard';
+import FolderAccessCard from './FolderAccessCard';
 import TransferCard from './TransferCard';
 
 const StorageSettings: React.FC = () => {
@@ -22,6 +23,7 @@ const StorageSettings: React.FC = () => {
     >
       <UsageCard />
       <ManagedWorkspacesCard />
+      <FolderAccessCard />
       <DirectoriesCard />
       <TransferCard />
       <BackupCard />

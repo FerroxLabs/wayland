@@ -205,6 +205,21 @@ export class WorkspaceFolderGrantStore {
     return { workspaceId, grants: file.workspaces[workspaceId] ?? [] };
   }
 
+  /**
+   * Every workspace that holds at least one grant.
+   *
+   * Keyed by id and NOT cross-checked against what exists on disk, because the
+   * entries a user most needs to see are the ones whose workspace they can no
+   * longer find. Filtering those out would hide standing authority behind a
+   * missing folder.
+   */
+  async listAll(): Promise<readonly WorkspaceFolderGrants[]> {
+    const file = await this.load();
+    return Object.entries(file.workspaces)
+      .filter(([, grants]) => grants.length > 0)
+      .map(([workspaceId, grants]) => ({ workspaceId, grants }));
+  }
+
   async add(input: { workspaceId: string; root: string; origin: FolderGrantOrigin }): Promise<FolderGrantAddResult> {
     // A caller bug, not a user decision - there is no honest refusal code for
     // it, and an empty key would silently create a bucket no workspace can read.
