@@ -2330,12 +2330,23 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // is gone, leaving the folder ungrantable for the rest of the session.
       // Refuse instead, and leave the card standing for the surface that owns
       // the decision.
-      // `Cancel` is honoured as a decline so no path strands it.
-      const isCancel = data === ToolConfirmationOutcome.Cancel;
-      if (!isPathBoundaryOptionValue(data) && !isCancel) return;
+      //
+      // LEGACY `cancel` IS FOREIGN VOCABULARY TOO, and used to be honoured here
+      // as a decline. No local surface produces it on this card - the desktop
+      // renders `PathBoundaryConfirmCard`, whose three buttons are this card's
+      // own values, and both remote surfaces that build option lists
+      // (`ActionExecutor`, `GeminiAgentManager`) return NO options for a
+      // `path_boundary`. The only caller that could send it is a paired WebUI
+      // posting `confirmation.confirm` by hand, and the wire gate does not
+      // block `cancel` because on an ORDINARY card a remote decline is a
+      // feature. Honouring it here let a remote peer make the desktop user's
+      // security prompt vanish and the call be denied - it minted no authority,
+      // but "the desktop owns this decision" has to mean the whole decision,
+      // including the No. Treated as foreign now: the card stays up.
+      if (!isPathBoundaryOptionValue(data)) return;
       const root = pathBoundaryRootOf(boundaryConfirmation);
       super.confirm(id, callId, data);
-      if (isPathBoundaryGrantValue(data) && !isCancel && root) {
+      if (isPathBoundaryGrantValue(data) && root) {
         void this.grantFolderRoot(callId, root, data === PATH_BOUNDARY_REMEMBER_FOLDER);
       } else {
         this.agent?.denyTool(callId, 'User declined access to the folder');

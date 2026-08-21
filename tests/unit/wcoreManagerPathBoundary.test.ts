@@ -994,3 +994,67 @@ describe('#1099 the live grant is vetted host-side', () => {
     expect(agent.approveTool).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * #1099 / external audit — a remote peer cannot VETO the desktop's decision.
+ *
+ * `confirmation.list` gives a paired WebUI the pending `callId`, and the wire
+ * gate cannot deny legacy `cancel` outright: on an ordinary card a remote
+ * decline is a feature, and the gate is a pure value predicate with no idea
+ * which callId belongs to a boundary card. So the refusal lives here, where the
+ * card IS known. It mints no authority either way — but a remote peer making
+ * the security prompt in front of a local user disappear, and the call be
+ * denied, is not something "the desktop owns this decision" survives.
+ *
+ * No local surface can hit this: the desktop renders `PathBoundaryConfirmCard`,
+ * whose three buttons are this card's own values, and both remote surfaces that
+ * build option lists (`ActionExecutor`, `GeminiAgentManager`) return NO options
+ * for a `path_boundary`.
+ */
+describe('#1099 a remote cancel cannot dismiss a boundary card', () => {
+  let manager: WCoreManager;
+  let agent: FakeAgent;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRootContext.mockResolvedValue(ROOT_CONTEXT);
+    manager = createManager();
+    agent = attachAgent(manager);
+    vi.spyOn(manager as any, 'postMessagePromise').mockResolvedValue(undefined);
+    emitEvent(manager, boundaryFrame());
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('leaves the card standing and sends nothing', async () => {
+    manager.confirm('call-boundary', 'call-boundary', 'cancel');
+    // Given a chance to run: the route is async on the grant side, so an
+    // immediate assertion could pass before anything had happened at all.
+    await Promise.resolve();
+
+    expect(agent.denyTool, 'cancel must not deny a boundary call').not.toHaveBeenCalled();
+    expect(agent.approveTool, 'cancel must not approve one either').not.toHaveBeenCalled();
+    expect(emitConfirmationRemove, 'the desktop card must still be there').not.toHaveBeenCalled();
+
+    // CONTROL, same card and same manager: the card's OWN deny value does
+    // dismiss it and deny the call, so the refusal above is the guard and not a
+    // card that was already gone.
+    vi.clearAllMocks();
+    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_DENY);
+    expect(agent.denyTool).toHaveBeenCalledTimes(1);
+    expect(emitConfirmationRemove).toHaveBeenCalled();
+  });
+
+  it('CONTROL: cancel still denies an ORDINARY confirmation', async () => {
+    // The gate is specific to a boundary card. A remote peer answering an
+    // everyday tool prompt is a feature and must keep working.
+    vi.clearAllMocks();
+    emitEvent(manager, infoFrame());
+    manager.confirm('call-info', 'call-info', 'cancel');
+
+    expect(agent.denyTool).toHaveBeenCalledTimes(1);
+    expect(agent.denyTool.mock.calls[0][0]).toBe('call-info');
+  });
+});
