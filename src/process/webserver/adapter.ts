@@ -13,6 +13,7 @@ import {
   isAllowedForRemote,
   isAllowedOutboundToRemote,
   isRemoteDeniedConfigWrite,
+  isRemoteDeniedConfirmation,
 } from '@/common/adapter/bridgeAllowlist';
 import { WebSocketManager } from './websocket/WebSocketManager';
 
@@ -90,6 +91,15 @@ export function initWebAdapter(wss: WebSocketServer): void {
     // legitimate config), so gate the DANGEROUS VALUES here - a remote peer must
     // not write `webui.desktop.*` and arm LAN exposure without ever hitting
     // `webui.start`. The pref is the consent record; deny forging it.
+    // #1099: same shape as the config gate below - `confirmation.confirm` is a
+    // legitimate remote key (a paired WebUI answering an ordinary prompt), but a
+    // path-boundary GRANT is a decision only the human at the desktop window may
+    // make. A WebSocket token proves a paired browser, not that person.
+    if (isRemoteDeniedConfirmation(name, data)) {
+      console.error('[adapter] Rejected remote answer to a path-boundary consent card:', name);
+      settleRejectedInvoke(ws, name, data, 'remote-forbidden');
+      return;
+    }
     if (isRemoteDeniedConfigWrite(name, data)) {
       console.error('[adapter] Rejected remote config write to a protected key:', name);
       settleRejectedInvoke(ws, name, data, 'remote-forbidden');

@@ -30,6 +30,7 @@
  */
 
 import { bridge, storage } from '@office-ai/platform';
+import { isPathBoundaryOptionValue } from '@/common/chat/pathBoundaryConsent';
 
 /** Keys registered via `buildProvider` (main-process providers, renderer invokes). */
 const providerKeys = new Set<string>();
@@ -815,6 +816,32 @@ export function isRemoteDeniedConfigWrite(name: string, data: unknown): boolean 
     if (targetKey.startsWith(prefix)) return true;
   }
   return false;
+}
+
+/** The generic confirmation-answer wire key. Legitimately remote-invokable. */
+const CONFIRMATION_CONFIRM_KEY = 'confirmation.confirm';
+
+/**
+ * True iff a remote peer is answering a card only the LOCAL user may answer.
+ *
+ * `confirmation.confirm` stays remote-allowed on purpose: a paired WebUI
+ * answering an ordinary tool prompt is a feature. But a `path_boundary` card is
+ * not an ordinary prompt - it GRANTS AN AI AGENT STANDING READ ACCESS TO A
+ * FOLDER OUTSIDE ITS WORKSPACE, and it is answered by clicking (or pressing
+ * Space on) a control in the desktop window. A WebSocket token proves a paired
+ * BROWSER, not the human at that window.
+ *
+ * Without this gate a token-holding client that has seen a `confirmation.add`
+ * (or called `confirmation.list`) can post the card's own grant value straight
+ * to `task.confirm` and mint the grant with nobody touching the desktop card.
+ * Value-gated at the wire rather than key-denied, exactly like
+ * {@link isRemoteDeniedConfigWrite} above: the key is legitimate, the VALUE is
+ * what must never arrive from a remote peer.
+ */
+export function isRemoteDeniedConfirmation(name: string, data: unknown): boolean {
+  if (typeof name !== 'string' || name !== `subscribe-${CONFIRMATION_CONFIRM_KEY}`) return false;
+  const payload = (data as { data?: { data?: unknown } } | null | undefined)?.data;
+  return isPathBoundaryOptionValue((payload as { data?: unknown } | undefined)?.data);
 }
 
 /**
