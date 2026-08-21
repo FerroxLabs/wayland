@@ -18,10 +18,21 @@ import path from 'node:path';
 import { readWorkspaceMarker } from '@process/services/workspaceIdentity';
 import { defaultWorkspaceBaseDir } from '@process/services/projectWorkspace';
 import { listLivePathGrantSessions } from '@process/agent/wcore/pathGrantSessions';
+import { resolveFolderGrantWorkspaceId } from './folderGrantWorkspaceId';
 import { pathsEqual } from './folderGrantRoots';
 
-/** What one workspace id resolves to on disk right now. */
+/** What one workspace key resolves to on disk right now. */
 export type WorkspaceDirectoryEntry = Readonly<{ workspaceId: string; dir: string; displayName: string }>;
+
+/**
+ * The unmarked half of the key space, from `resolveFolderGrantWorkspaceId`.
+ *
+ * A `path:` key already CARRIES its folder, so it needs no scan - reading the
+ * directory back out of the key is the inverse of the one production
+ * derivation, not a second scheme. `marker:` keys carry a random UUID and can
+ * only be resolved by finding the folder that holds it.
+ */
+const PATH_KEY_PREFIX = 'path:';
 
 /**
  * The subfolders `allocateWorkspace` nests durable workspaces into, plus the
@@ -64,11 +75,18 @@ export async function scanWorkspaceDirectory(): Promise<readonly WorkspaceDirect
       const dir = path.join(root, name);
       const marker = await readWorkspaceMarker(dir);
       if (!marker) continue;
+      // The key comes from the ONE production derivation, never from
+      // `marker.workspaceId` directly. The `marker:` / `path:` namespaces are
+      // disjoint on purpose - the marker file lives inside the workspace, which
+      // the agent can write, so an unprefixed id could be forged to name
+      // another workspace's path key and inherit its whole grant list.
+      const workspaceId = await resolveFolderGrantWorkspaceId(dir);
+      if (!workspaceId) continue;
       // First writer wins: a folder duplicated by a plain copy carries the same
       // id twice, and inventing a second row for it would show the user two
       // identical workspaces neither of which they can tell apart.
-      if (entries.some((entry) => entry.workspaceId === marker.workspaceId)) continue;
-      entries.push({ workspaceId: marker.workspaceId, dir, displayName: marker.displayName });
+      if (entries.some((entry) => entry.workspaceId === workspaceId)) continue;
+      entries.push({ workspaceId, dir, displayName: marker.displayName });
     }
   }
   return entries;
@@ -120,4 +138,46 @@ export async function revokeFolderGrantInLiveSessions(
     revoked: results.filter(Boolean).length,
     failed: results.filter((ok) => !ok).length,
   };
+}
+
+/**
+ * Where each of `workspaceIds` lives on disk right now, for the keys that can
+ * still be located.
+ *
+ * A key absent from the result is NOT an error: it is a workspace whose folder
+ * has been moved or deleted. Its grants are still listed and still removable,
+ * because an entry the user can no longer account for is exactly the one they
+ * most need to revoke.
+ */
+export async function resolveFolderGrantWorkspaces(
+  workspaceIds: readonly string[],
+  scan: typeof scanWorkspaceDirectory = scanWorkspaceDirectory
+): Promise<Map<string, { dir: string; displayName: string }>> {
+  const located = new Map<string, { dir: string; displayName: string }>();
+
+  const pathKeys = workspaceIds.filter((id) => typeof id === 'string' && id.startsWith(PATH_KEY_PREFIX));
+  for (const key of pathKeys) {
+    const dir = key.slice(PATH_KEY_PREFIX.length);
+    // A relative entry can only come from a hand-edited file. Refuse it rather
+    // than resolving it against whatever the process cwd happens to be.
+    if (!path.isAbsolute(dir)) continue;
+    try {
+      if (!(await fs.stat(dir)).isDirectory()) continue;
+    } catch {
+      continue;
+    }
+    located.set(key, { dir, displayName: path.basename(dir) || dir });
+  }
+
+  // The scan is the only way to find a `marker:` key, so skip it entirely when
+  // nothing needs one - a removal on an unmarked workspace should not walk the
+  // managed workspace tree.
+  if (pathKeys.length === workspaceIds.length) return located;
+
+  for (const entry of await scan()) {
+    if (!located.has(entry.workspaceId)) {
+      located.set(entry.workspaceId, { dir: entry.dir, displayName: entry.displayName });
+    }
+  }
+  return located;
 }
