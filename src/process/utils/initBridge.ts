@@ -46,7 +46,12 @@ import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { agentRegistry } from '@process/agent/AgentRegistry';
 import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
+import {
+  buildChatArtifactCardContent,
+  buildChatArtifactCardMessage,
+} from '@process/services/artifacts/chatArtifactCard';
 import { onChatTurnCompleted } from '@process/services/artifacts/chatRun';
+import { addMessage } from '@process/utils/message';
 import { getDataPath } from '@process/utils';
 import { resolveDefaultLaunchTarget } from '@process/utils/workflowLaunchTargetResolver';
 import type { TProviderWithModel } from '@/common/config/storage';
@@ -442,6 +447,22 @@ void getDatabase()
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {
       void onChatTurnCompleted(event, {
         ledgerPath: artifactLedgerPath(getDataPath()),
+        onSwept: (result) => {
+          const content = buildChatArtifactCardContent(result);
+          if (!content) return;
+          const conversationId = event.sessionId;
+          const message = buildChatArtifactCardMessage(conversationId, content);
+          // Persist FIRST, then emit. A card the user can see but that is gone
+          // after a restart is worse than one that arrives a beat late, and
+          // "finds it again tomorrow" is the goal this milestone is measured on.
+          addMessage(conversationId, message);
+          ipcBridge.conversation.responseStream.emit({
+            type: 'artifact_card',
+            conversation_id: conversationId,
+            msg_id: message.msg_id,
+            data: content,
+          });
+        },
         onError: (error) => console.warn('[initBridge] chat artifact sweep failed:', error),
       });
     });

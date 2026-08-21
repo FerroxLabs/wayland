@@ -669,5 +669,18 @@
       "revealFailed": "Wayland could not open the folder. Reason: {{reason}}"
     },
     "notText": "Wayland cannot read this file as text — some of its bytes are not valid UTF-8, which the settings format requires. Nothing has been changed."
+  },
+  "artifactCard": {
+    "title": "Saved to your workspace",
+    "openHere": "Open here",
+    "openInApp": "Open in {{app}} app",
+    "openExternally": "Open in the default app",
+    "reveal": "Show in folder",
+    "saveCopy": "Save a copy",
+    "changed": "This file changed since it was saved.",
+    "update": "Update",
+    "rejected": "{{count}} file was not saved as a deliverable: {{detail}}.",
+    "rejected_other": "{{count}} files were not saved as deliverables: {{detail}}.",
+    "unknownError": "That did not work. The file may have moved."
   }
 }

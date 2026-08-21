@@ -114,4 +114,10 @@ export interface ArtifactOpenTarget {
  * symbolic link" and "the file is gone" ask the user for different things, and
  * collapsing them into "could not refresh" makes both unactionable.
  */
-export type ArtifactRefreshResult = { ok: true; artifact: ArtifactSummary } | { ok: false; error: string };
+export interface ArtifactRefreshResult {
+  ok: boolean;
+  /** Present only on a refusal, and it names WHICH refusal. */
+  error?: string;
+  /** The re-verified record, carrying the SAME artifact id it had before. */
+  artifact?: ArtifactSummary;
+}
