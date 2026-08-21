@@ -27,10 +27,7 @@ import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-const SCRIPTS = path.resolve(
-  __dirname,
-  '../../src/process/resources/skills/market-open-report/scripts',
-);
+const SCRIPTS = path.resolve(__dirname, '../../src/process/resources/skills/market-open-report/scripts');
 
 /**
  * The decoy is the trap: a monster winner that sorts to `held[0]` and so is
