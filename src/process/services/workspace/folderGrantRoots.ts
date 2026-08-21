@@ -33,6 +33,39 @@
  * a file is replaced by its parent before any check runs - and the directory
  * shapes that predicate would catch (`~/.ssh`, `~/.aws`) are already refused by
  * the credential-store check.
+ *
+ * ── Why spelling is not enough ─────────────────────────────────────────────
+ * Every rule above is a LEXICAL comparison of pathnames after `realpath`, and a
+ * pathname is not an identity. Two different spellings can name one directory
+ * without either being a symlink, so `realpath` collapses neither:
+ *
+ *   - macOS FIRMLINKS. `/System/Volumes/Data/Users/<you>` and `/Users/<you>` are
+ *     the same directory on every Mac since 10.15. `realpath` returns each
+ *     unchanged, so the home-directory refusal was bypassable by spelling on the
+ *     platform Wayland ships to. This was measured on this machine, not inferred.
+ *   - Linux BIND MOUNTS. `mount --bind / /tmp/innocent` leaves
+ *     `realpath("/tmp/innocent")` as `/tmp/innocent`.
+ *   - Windows VOLUME MOUNT POINTS, the same shape via `mountvol`.
+ *
+ * So each refusal is also asked by IDENTITY - `dev` + `ino` from `fs.stat`,
+ * read as BigInt because APFS inode numbers exceed `Number.MAX_SAFE_INTEGER`
+ * and a lossy compare would produce FALSE matches. Identity answers "is this the
+ * same directory as X"; it cannot answer "does this CONTAIN X", so the lexical
+ * pass stays and does that half.
+ *
+ * WHAT THIS STILL DOES NOT CATCH, stated rather than hidden: a candidate that
+ * CONTAINS a protected root only through an alias. `/System/Volumes/Data` is a
+ * real example - it holds the home firmlink but is not identical to any
+ * protected root or to any ancestor of one, so it is accepted. Closing it would
+ * mean re-deriving every protected root under every candidate prefix, which is
+ * a stat storm at read time for a case that needs a deliberately odd pick in a
+ * native folder dialog. Left open on purpose.
+ *
+ * WHERE IDENTITY IS UNAVAILABLE the checks degrade to exactly today's lexical
+ * behaviour rather than to a wrong answer: a `dev` or `ino` of zero is treated
+ * as "no identity reported" and skipped, because a platform that reports zero
+ * for everything would otherwise make every directory equal to every protected
+ * root and refuse the entire feature.
  */
 
 import { promises as fs } from 'node:fs';
@@ -155,6 +188,118 @@ export type FolderGrantRootCheck =
 const refuse = (refusal: FolderGrantRefusal): FolderGrantRootCheck => ({ ok: false, refusal });
 
 /**
+ * A directory's filesystem identity as `dev:ino`, or null when there is not an
+ * honest one to report.
+ *
+ * BigInt, not the default number stat: an APFS inode is routinely larger than
+ * `Number.MAX_SAFE_INTEGER` (`/System/Volumes/Data` reads
+ * `1152921500311879682`, which rounds to `…700` as a double). Two distinct
+ * directories rounding to the same double would make this over-refuse.
+ *
+ * A zero `dev` or `ino` means the platform did not report one. Null, not
+ * `"0:0"` - otherwise every unidentified directory would compare equal to every
+ * other and the whole feature would refuse itself.
+ */
+async function directoryIdentity(dir: string): Promise<string | null> {
+  try {
+    const stat = await fs.stat(dir, { bigint: true });
+    // Stringified rather than compared as BigInt: this project targets below
+    // ES2020, so a `0n` literal does not compile.
+    const dev = stat.dev.toString();
+    const ino = stat.ino.toString();
+    if (dev === '0' || ino === '0') return null;
+    return `${dev}:${ino}`;
+  } catch {
+    return null;
+  }
+}
+
+/** `dir`, then its parent, and so on up to the filesystem root. */
+function ancestorChain(dir: string): string[] {
+  const chain: string[] = [];
+  let current = path.resolve(dir);
+  for (;;) {
+    chain.push(current);
+    const parent = path.dirname(current);
+    if (parent === current) return chain;
+    current = parent;
+  }
+}
+
+/**
+ * The protected roots for one context, canonicalised once and indexed by
+ * identity as well as by spelling.
+ *
+ * `sameAs` and `under` are NOT one map, because the two lexical directions are
+ * not symmetric and collapsing them would break the feature:
+ *
+ *   - `sameAs` is compared against the CANDIDATE ONLY. It holds every protected
+ *     root AND every ancestor of one, mirroring "the candidate contains a
+ *     protected root".
+ *   - `under` is compared against the candidate AND each of its ancestors,
+ *     mirroring "the candidate is inside a protected root". The home directory
+ *     is deliberately absent from it: `~/Projects` is inside `$HOME` and is
+ *     exactly what this feature exists to allow.
+ */
+type PreparedFolderGrantRoots = Readonly<{
+  home: string;
+  wayland: readonly string[];
+  credentials: readonly string[];
+  sameAs: ReadonlyMap<string, FolderGrantRefusal>;
+  under: ReadonlyMap<string, FolderGrantRefusal>;
+}>;
+
+/**
+ * Keyed by the context OBJECT, which every caller builds fresh per operation
+ * (`defaultFolderGrantRootContext` returns a new one each call). So this is a
+ * within-one-operation memo and never a cross-session cache - revalidating a
+ * full 64-entry list would otherwise re-canonicalise and re-stat ~30 protected
+ * roots 64 times over.
+ */
+const preparedRoots = new WeakMap<FolderGrantRootContext, Promise<PreparedFolderGrantRoots>>();
+
+async function prepare(context: FolderGrantRootContext): Promise<PreparedFolderGrantRoots> {
+  const home = await canonicaliseForScope(context.homeDir);
+  const wayland = await Promise.all(context.waylandPrivateRoots.map(canonicaliseForScope));
+  const credentials = await Promise.all([
+    ...USER_CREDENTIAL_STORES.map((relative) => canonicaliseForScope(path.join(home, relative))),
+    ...systemCredentialStores().map(canonicaliseForScope),
+  ]);
+
+  const sameAs = new Map<string, FolderGrantRefusal>();
+  const under = new Map<string, FolderGrantRefusal>();
+
+  // Built in REVERSE of the lexical refusal order, so a directory that belongs
+  // to two classes at once (`$HOME` is an ancestor of `~/.ssh`) is reported the
+  // way the lexical pass above it reports the same directory.
+  const index = async (roots: readonly string[], refusal: FolderGrantRefusal, alsoUnder: boolean): Promise<void> => {
+    for (const root of roots) {
+      for (const ancestor of ancestorChain(root)) {
+        const identity = await directoryIdentity(ancestor);
+        if (identity) sameAs.set(identity, refusal);
+      }
+      if (!alsoUnder) continue;
+      const identity = await directoryIdentity(root);
+      if (identity) under.set(identity, refusal);
+    }
+  };
+  await index(credentials, 'credential_store', true);
+  await index(wayland, 'wayland_private', true);
+  await index([home], 'home_directory', false);
+
+  return { home, wayland, credentials, sameAs, under };
+}
+
+function prepareFolderGrantRoots(context: FolderGrantRootContext): Promise<PreparedFolderGrantRoots> {
+  let pending = preparedRoots.get(context);
+  if (!pending) {
+    pending = prepare(context);
+    preparedRoots.set(context, pending);
+  }
+  return pending;
+}
+
+/**
  * Decide whether `input` may be persisted as a grant, and return the canonical
  * directory that would be.
  *
@@ -211,24 +356,41 @@ export async function classifyFolderGrantRoot(
   // past the pre-check above, which only ever saw the link's own name.
   if (isFilesystemRoot(canonical)) return refuse('root_of_filesystem');
 
-  const home = await canonicaliseForScope(context.homeDir);
+  const prepared = await prepareFolderGrantRoots(context);
+
   // Core's `home.starts_with(&dir)`: the home directory itself, and anything
   // that contains it, reach effectively everything.
-  if (isWithin(home, canonical)) return refuse('home_directory');
+  if (isWithin(prepared.home, canonical)) return refuse('home_directory');
 
   // Both directions on every protected root: a grant INSIDE one discloses it,
   // and a grant CONTAINING one discloses it just as completely.
   const touches = (protectedRoots: readonly string[]): boolean =>
     protectedRoots.some((other) => isWithin(canonical, other) || isWithin(other, canonical));
 
-  const waylandRoots = await Promise.all(context.waylandPrivateRoots.map(canonicaliseForScope));
-  if (touches(waylandRoots)) return refuse('wayland_private');
+  if (touches(prepared.wayland)) return refuse('wayland_private');
+  if (touches(prepared.credentials)) return refuse('credential_store');
 
-  const credentialStores = await Promise.all([
-    ...USER_CREDENTIAL_STORES.map((relative) => canonicaliseForScope(path.join(home, relative))),
-    ...systemCredentialStores().map(canonicaliseForScope),
-  ]);
-  if (touches(credentialStores)) return refuse('credential_store');
+  // Everything above compared SPELLINGS. Ask the same questions again by
+  // filesystem identity, so an alias that `realpath` does not collapse - a
+  // macOS firmlink, a Linux bind mount, a Windows volume mount point - cannot
+  // launder a protected root past a pathname comparison. See the module header
+  // for what this covers and what it deliberately does not.
+  const identity = await directoryIdentity(canonical);
+  if (identity === null) return { ok: true, root: canonical };
+
+  if (identity === (await directoryIdentity(path.parse(canonical).root))) return refuse('root_of_filesystem');
+
+  const sameAs = prepared.sameAs.get(identity);
+  if (sameAs) return refuse(sameAs);
+
+  // `slice(1)`: the candidate itself is already answered by `sameAs`, which
+  // holds every key `under` does.
+  for (const ancestor of ancestorChain(canonical).slice(1)) {
+    const ancestorIdentity = await directoryIdentity(ancestor);
+    if (ancestorIdentity === null) continue;
+    const under = prepared.under.get(ancestorIdentity);
+    if (under) return refuse(under);
+  }
 
   return { ok: true, root: canonical };
 }
