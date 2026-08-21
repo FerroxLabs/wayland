@@ -76,7 +76,11 @@ vi.mock('@arco-design/web-react', () => ({
 }));
 
 import ConversationChatConfirm from '@/renderer/pages/conversation/components/ConversationChatConfirm';
-import { PATH_BOUNDARY_DENY, PATH_BOUNDARY_GRANT_FOLDER } from '@/common/chat/pathBoundaryConsent';
+import {
+  PATH_BOUNDARY_DENY,
+  PATH_BOUNDARY_GRANT_FOLDER,
+  PATH_BOUNDARY_REMEMBER_FOLDER,
+} from '@/common/chat/pathBoundaryConsent';
 
 const CONVERSATION_ID = 'conv-1099';
 const ROOT = '/Users/sean/Documents/reports';
@@ -96,6 +100,12 @@ const boundaryConfirmation = {
       value: PATH_BOUNDARY_GRANT_FOLDER,
       params: { folder: ROOT },
       description: 'messages.confirmation.grantFolderAlwaysHint',
+    },
+    {
+      label: 'messages.confirmation.grantFolderRemember',
+      value: PATH_BOUNDARY_REMEMBER_FOLDER,
+      params: { folder: ROOT },
+      description: 'messages.confirmation.grantFolderRememberHint',
     },
     { label: 'messages.confirmation.grantFolderDeny', value: PATH_BOUNDARY_DENY },
   ],
@@ -134,7 +144,7 @@ describe('#1099 folder-grant card', () => {
     await screen.findByTestId('path-boundary-card');
 
     const values = boundaryConfirmation.options.map((o) => o.value);
-    expect(values).toEqual([PATH_BOUNDARY_GRANT_FOLDER, PATH_BOUNDARY_DENY]);
+    expect(values).toEqual([PATH_BOUNDARY_GRANT_FOLDER, PATH_BOUNDARY_REMEMBER_FOLDER, PATH_BOUNDARY_DENY]);
     expect(values).not.toContain('proceed_once');
     expect(values).not.toContain('proceed_always');
     expect(values).not.toContain('cancel');
@@ -247,7 +257,7 @@ describe('#1099 folder-grant card', () => {
     renderCard();
     await screen.findByTestId('path-boundary-card');
 
-    for (const testId of ['path-boundary-grant', 'path-boundary-deny']) {
+    for (const testId of ['path-boundary-grant', 'path-boundary-remember', 'path-boundary-deny']) {
       const el = screen.getByTestId(testId);
       expect(el.getAttribute('role')).toBe('button');
       expect(el.getAttribute('tabindex')).toBe('0');
@@ -311,6 +321,81 @@ describe('#1099 folder-grant card', () => {
     expect(name).toContain(visible);
   });
 
+  // ── THE DURABLE GRANT ────────────────────────────────────────────────
+  it('renders a second grant option, distinct from the session one', async () => {
+    renderCard();
+    await screen.findByTestId('path-boundary-card');
+
+    const session = screen.getByTestId('path-boundary-grant');
+    const remember = screen.getByTestId('path-boundary-remember');
+    expect(session).not.toBe(remember);
+    // The two buttons differ ONLY in how long the grant lasts, so identical
+    // visible text would make the card impossible to answer correctly.
+    const sessionText = within(session).getByTestId('path-boundary-option-label').textContent;
+    const rememberText = within(remember).getByTestId('path-boundary-option-label').textContent;
+    expect(sessionText).toBeTruthy();
+    expect(rememberText).toBeTruthy();
+    expect(rememberText).not.toBe(sessionText);
+    // ...and the hint under each states its own duration.
+    expect(session.textContent).not.toBe(remember.textContent);
+  });
+
+  it('remembers on a Space keydown, sending its own durable value', async () => {
+    renderCard();
+    const remember = await screen.findByTestId('path-boundary-remember');
+    remember.focus();
+
+    fireEvent.keyDown(remember, { key: ' ' });
+
+    await waitFor(() => expect(confirmInvoke).toHaveBeenCalled());
+    expect(confirmInvoke.mock.calls[0][0]).toMatchObject({
+      callId: 'call-boundary',
+      data: PATH_BOUNDARY_REMEMBER_FOLDER,
+    });
+  });
+
+  it('binds neither Enter nor Y on the durable option either', async () => {
+    // The durable grant is the higher-stakes of the two - it keeps the folder
+    // open to every future session of this workspace - so commitment 3 has to
+    // hold on it at least as hard as on the session grant.
+    renderCard();
+    const remember = await screen.findByTestId('path-boundary-remember');
+    remember.focus();
+
+    for (const key of ['Enter', 'y', 'Y', 'a', 'A', '1', '2', '3', 'Escape', 'n']) {
+      fireEvent.keyDown(remember, { key });
+    }
+    expect(confirmInvoke).not.toHaveBeenCalled();
+
+    // CONTROL, same element: Space still works, so the silence above is the
+    // handler refusing those keys and not a control that answers nothing.
+    fireEvent.keyDown(remember, { key: ' ' });
+    await waitFor(() => expect(confirmInvoke).toHaveBeenCalledTimes(1));
+  });
+
+  it('gives the durable option its OWN accessible name, naming the same folder', async () => {
+    renderCard();
+    await screen.findByTestId('path-boundary-card');
+
+    const sessionName = screen.getByTestId('path-boundary-grant').getAttribute('aria-label') ?? '';
+    const rememberName = screen.getByTestId('path-boundary-remember').getAttribute('aria-label') ?? '';
+
+    // Both name the folder the grant opens...
+    expect(sessionName).toContain(ROOT);
+    expect(rememberName).toContain(ROOT);
+    expect(rememberName).not.toContain(TARGET);
+    // ...and they are not the same sentence, because a screen-reader user hears
+    // the difference between the two buttons ONLY here: the hint text under the
+    // label is not part of the accessible name.
+    expect(rememberName).not.toBe(sessionName);
+    // WCAG 2.5.3 (Label in Name), same rule as the session grant.
+    const visible = within(screen.getByTestId('path-boundary-remember')).getByTestId(
+      'path-boundary-option-label'
+    ).textContent;
+    expect(visible).toBeTruthy();
+    expect(rememberName).toContain(visible);
+  });
+
   it('leaves the deny option named by its own visible text, never by the grant folder', async () => {
     renderCard();
     await screen.findByTestId('path-boundary-card');
@@ -318,6 +403,74 @@ describe('#1099 folder-grant card', () => {
     const deny = screen.getByTestId('path-boundary-deny');
     expect(deny.getAttribute('aria-label')).toBeNull();
     expect(deny.textContent).not.toContain(ROOT);
+  });
+});
+
+/**
+ * The renderer's three exclusions, pinned with a card that carries the DURABLE
+ * grant value and nothing else from the vocabulary.
+ *
+ * All three read `isPathBoundaryConfirmation`, so a new option value extends
+ * them by itself. That is the claim; this is the fixture that can falsify it.
+ * Every other test in this file would still pass if an exclusion were keyed on
+ * `PATH_BOUNDARY_GRANT_FOLDER` specifically, because every other fixture
+ * carries that value too.
+ */
+describe('#1099 a durable-only card is excluded by the same three renderer guards', () => {
+  const rememberOnly = {
+    ...boundaryConfirmation,
+    options: [
+      {
+        label: 'messages.confirmation.grantFolderRemember',
+        value: PATH_BOUNDARY_REMEMBER_FOLDER,
+        params: { folder: ROOT },
+        description: 'messages.confirmation.grantFolderRememberHint',
+      },
+      { label: 'messages.confirmation.grantFolderDeny', value: PATH_BOUNDARY_DENY },
+    ],
+  };
+
+  beforeEach(() => {
+    confirmInvoke.mockClear();
+    checkInvoke.mockReset();
+    // The store saying "approved" is the exact condition that auto-confirms an
+    // ordinary card, and an `action` is what lets the replay reach a value match.
+    checkInvoke.mockResolvedValue(true);
+    listInvoke.mockReset();
+    listInvoke.mockResolvedValue([{ ...rememberOnly, action: 'info' }]);
+  });
+
+  it('routes to the dedicated card, not the generic allow/deny prompt', async () => {
+    renderCard();
+    expect(await screen.findByTestId('path-boundary-card')).toBeTruthy();
+    expect(screen.getByTestId('path-boundary-remember')).toBeTruthy();
+    expect(screen.queryByTestId('path-boundary-grant')).toBeNull();
+  });
+
+  it('is never auto-confirmed by the stored-approval replay', async () => {
+    renderCard();
+    await screen.findByTestId('path-boundary-card');
+
+    expect(confirmInvoke).not.toHaveBeenCalled();
+    expect(checkInvoke).not.toHaveBeenCalled();
+  });
+
+  it('binds no window-level key, so Enter cannot fire options[0]', async () => {
+    renderCard();
+    await screen.findByTestId('path-boundary-card');
+
+    for (const key of ['Enter', 'y', 'Y', 'a', 'A', '1', 'Escape', 'n']) {
+      fireEvent.keyDown(window, { key });
+    }
+    expect(confirmInvoke).not.toHaveBeenCalled();
+
+    // CONTROL, same card: Space on the control still answers it, so the card is
+    // live and the silence above is the exclusions deciding.
+    const remember = screen.getByTestId('path-boundary-remember');
+    remember.focus();
+    fireEvent.keyDown(remember, { key: ' ' });
+    await waitFor(() => expect(confirmInvoke).toHaveBeenCalledTimes(1));
+    expect(confirmInvoke.mock.calls[0][0]).toMatchObject({ data: PATH_BOUNDARY_REMEMBER_FOLDER });
   });
 });
 
