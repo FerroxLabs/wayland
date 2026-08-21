@@ -550,5 +550,18 @@
       "revealFailed": "Wayland konnte den Ordner nicht öffnen. Grund: {{reason}}"
     },
     "notText": "Wayland kann diese Datei nicht als Text lesen – einige ihrer Bytes sind kein gültiges UTF-8, das das Einstellungsformat verlangt. Es wurde nichts geändert."
+  },
+  "artifactCard": {
+    "title": "In deinem Arbeitsbereich gespeichert",
+    "openHere": "Hier öffnen",
+    "openInApp": "In {{app}} öffnen",
+    "openExternally": "In der Standard-App öffnen",
+    "reveal": "Im Ordner anzeigen",
+    "saveCopy": "Kopie speichern",
+    "changed": "Diese Datei wurde seit dem Speichern geändert.",
+    "update": "Aktualisieren",
+    "rejected": "{{count}} Datei wurde nicht als Ergebnis gespeichert: {{detail}}.",
+    "rejected_other": "{{count}} Dateien wurden nicht als Ergebnisse gespeichert: {{detail}}.",
+    "unknownError": "Das hat nicht funktioniert. Die Datei wurde möglicherweise verschoben."
   }
 }

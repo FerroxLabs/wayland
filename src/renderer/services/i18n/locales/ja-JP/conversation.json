@@ -550,5 +550,18 @@
       "revealFailed": "Wayland はフォルダーを開けませんでした。理由: {{reason}}"
     },
     "notText": "このファイルはテキストとして読み取れません。設定ファイルの形式が求める UTF-8 として無効なバイトが含まれています。何も変更していません。"
+  },
+  "artifactCard": {
+    "title": "ワークスペースに保存しました",
+    "openHere": "ここで開く",
+    "openInApp": "{{app}} で開く",
+    "openExternally": "既定のアプリで開く",
+    "reveal": "フォルダーに表示",
+    "saveCopy": "コピーを保存",
+    "changed": "このファイルは保存後に変更されています。",
+    "update": "更新",
+    "rejected": "{{count}} 件のファイルは成果物として保存されませんでした: {{detail}}。",
+    "rejected_other": "{{count}} 件のファイルは成果物として保存されませんでした: {{detail}}。",
+    "unknownError": "うまくいきませんでした。ファイルが移動された可能性があります。"
   }
 }

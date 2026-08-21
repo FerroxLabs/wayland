@@ -552,5 +552,18 @@
       "revealFailed": "Wayland klasörü açamadı. Neden: {{reason}}"
     },
     "notText": "Wayland bu dosyayı metin olarak okuyamıyor — bazı baytları, ayar biçiminin gerektirdiği geçerli UTF-8 değil. Hiçbir şey değiştirilmedi."
+  },
+  "artifactCard": {
+    "title": "Çalışma alanınıza kaydedildi",
+    "openHere": "Burada aç",
+    "openInApp": "{{app}} ile aç",
+    "openExternally": "Varsayılan uygulamada aç",
+    "reveal": "Klasörde göster",
+    "saveCopy": "Kopya kaydet",
+    "changed": "Bu dosya kaydedildikten sonra değişti.",
+    "update": "Güncelle",
+    "rejected": "{{count}} dosya çıktı olarak kaydedilmedi: {{detail}}.",
+    "rejected_other": "{{count}} dosya çıktı olarak kaydedilmedi: {{detail}}.",
+    "unknownError": "Bu işe yaramadı. Dosya taşınmış olabilir."
   }
 }

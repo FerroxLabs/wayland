@@ -550,5 +550,18 @@
       "revealFailed": "O Wayland não conseguiu abrir a pasta. Motivo: {{reason}}"
     },
     "notText": "O Wayland não consegue ler este arquivo como texto — alguns de seus bytes não são UTF-8 válido, que é o que o formato de configurações exige. Nada foi alterado."
+  },
+  "artifactCard": {
+    "title": "Salvo no seu espaço de trabalho",
+    "openHere": "Abrir aqui",
+    "openInApp": "Abrir no {{app}}",
+    "openExternally": "Abrir no app padrão",
+    "reveal": "Mostrar na pasta",
+    "saveCopy": "Salvar uma cópia",
+    "changed": "Este arquivo mudou desde que foi salvo.",
+    "update": "Atualizar",
+    "rejected": "{{count}} arquivo não foi salvo como entregável: {{detail}}.",
+    "rejected_other": "{{count}} arquivos não foram salvos como entregáveis: {{detail}}.",
+    "unknownError": "Isso não funcionou. O arquivo pode ter sido movido."
   }
 }
