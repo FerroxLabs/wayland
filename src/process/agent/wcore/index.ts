@@ -41,7 +41,15 @@ import { vertexSpawnCredentialsForModel } from '@process/providers/vertexSpawnCr
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
-import type { WCoreEvent, WCoreCommand, WCoreCapabilities, ApprovalScope, RenderMime } from './protocol';
+import type {
+  WCoreEvent,
+  WCoreCommand,
+  WCoreCapabilities,
+  ApprovalScope,
+  RenderMime,
+  PathGrantAccess,
+  WCoreWorkspacePolicy,
+} from './protocol';
 import { parseQuestionTool } from './questionTool';
 import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { redactSecrets } from '@process/utils/secretRedaction';
@@ -96,6 +104,13 @@ const RENDERABLE_ARTIFACT_MIMES: ReadonlySet<RenderMime> = new Set<RenderMime>([
 ]);
 
 type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string; subject?: string }) => void;
+
+/**
+ * How long to wait for the `workspace_policy` receipt that confirms a path
+ * grant. Core emits it synchronously on the same command loop iteration, so
+ * this is a liveness bound on a dead/wedged transport, not a latency budget.
+ */
+const WORKSPACE_POLICY_RECEIPT_TIMEOUT_MS = 5_000;
 
 /**
  * Sanitize an existing `.wayland-core.toml` body and merge in the app's own provider
@@ -280,6 +295,17 @@ export class WCoreAgent {
   private _onPong: WCoreAgentOptions['onPong'];
   private options: WCoreAgentOptions;
   private activeMsgId: string | null = null;
+  /**
+   * The last `workspace_policy` receipt Core emitted, or null before the first
+   * one arrives. Core re-emits this after EVERY change to the effective read
+   * boundary (startup, `grant_path`, `revoke_path`,
+   * `grant_workspace_capability`), and its `readable_roots` is the
+   * authoritative answer to "what can this chat actually reach". Nothing here
+   * is host-authored: this is stored exactly as received.
+   */
+  private lastWorkspacePolicy: WCoreWorkspacePolicy | null = null;
+  /** Resolvers waiting for the NEXT receipt. Drained and cleared on arrival. */
+  private workspacePolicyWaiters: Array<(policy: WCoreWorkspacePolicy) => void> = [];
   // #520 command visibility: the wire's `tool_running` / `tool_result` events
   // carry only `call_id` + `tool_name` - not the command/description. The engine
   // sends the humanized command (e.g. "Execute: ls") once, on the preceding
@@ -1264,6 +1290,19 @@ export class WCoreAgent {
         });
         break;
 
+      // #1099 boundary axis. This is the ONLY host-visible answer to "what can
+      // this chat actually reach", and the only structural confirmation that a
+      // `grant_path` landed: Core emits the updated receipt in the `Ok` arm of
+      // `emit_path_grant` and NOWHERE ELSE, flattening its typed
+      // `PathGrantError` into an untyped `info` string. Absence of a receipt is
+      // therefore the refusal signal - which only works if the host is actually
+      // listening for one, so this must not fall through to `default:`.
+      case 'workspace_policy':
+        this.lastWorkspacePolicy = event.policy;
+        this.resolveWorkspacePolicyWaiters(event.policy);
+        this.onStreamEvent({ type: 'workspace_policy', data: event.policy, msg_id: '' });
+        break;
+
       // Contract-v1 authority/evidence is reduced before this switch. Forward
       // the accepted snapshot/evidence as typed stream data for Cockpit
       // consumers; no UI may infer or manufacture these values.
@@ -1761,6 +1800,93 @@ export class WCoreAgent {
 
   denyTool(callId: string, reason = ''): void {
     this.sendCommand({ type: 'tool_deny', call_id: callId, reason });
+  }
+
+  /**
+   * The last `workspace_policy` receipt, or null if none has arrived. Read it
+   * for display; use the value {@link grantPath} resolves with when the answer
+   * has to be "did THAT grant land".
+   */
+  get workspacePolicy(): WCoreWorkspacePolicy | null {
+    return this.lastWorkspacePolicy;
+  }
+
+  /**
+   * The roots Core last reported this session may READ. Empty before the first
+   * receipt - which is "not yet known", not "nothing is readable", so a caller
+   * must not render an empty array as a boundary.
+   */
+  get workspaceReadableRoots(): readonly string[] {
+    return this.lastWorkspacePolicy?.readable_roots ?? [];
+  }
+
+  /**
+   * Grant this session standing READ access to one folder outside the workspace.
+   *
+   * Resolves with the UPDATED policy receipt when Core accepts, and with `null`
+   * when no receipt arrives inside `timeoutMs`. `null` is the refusal signal and
+   * the whole reason this returns a promise instead of being fire-and-forget:
+   * Core answers a refusal with an untyped `info` string and NO receipt (see
+   * `emit_path_grant`), so "no error came back" is not evidence the grant took.
+   * A caller that treated this as void would be asserting a boundary it never
+   * confirmed.
+   *
+   * The waiter is armed BEFORE the command is written, so a receipt that lands
+   * on the very next line cannot be missed.
+   *
+   * Core refuses outright unless the engine was launched with
+   * `--allow-host-path-grants` (see `buildSpawnConfig`'s `allowHostPathGrants`).
+   */
+  grantPath(
+    grant: { grantId: string; root: string; access?: PathGrantAccess; expiresAtMs?: number },
+    timeoutMs = WORKSPACE_POLICY_RECEIPT_TIMEOUT_MS
+  ): Promise<WCoreWorkspacePolicy | null> {
+    const receipt = this.awaitNextWorkspacePolicy(timeoutMs);
+    this.sendCommand({
+      type: 'grant_path',
+      grant_id: grant.grantId,
+      root: grant.root,
+      ...(grant.access ? { access: grant.access } : {}),
+      ...(grant.expiresAtMs !== undefined ? { expires_at_ms: grant.expiresAtMs } : {}),
+    });
+    return receipt;
+  }
+
+  /**
+   * Withdraw the grant made under `grantId`. Idempotent: Core treats an unknown
+   * id as a no-op and re-emits the receipt either way, so unlike
+   * {@link grantPath} a `null` here means the HOST failed to get the command
+   * out, never that Core declined.
+   */
+  revokePath(grantId: string, timeoutMs = WORKSPACE_POLICY_RECEIPT_TIMEOUT_MS): Promise<WCoreWorkspacePolicy | null> {
+    const receipt = this.awaitNextWorkspacePolicy(timeoutMs);
+    this.sendCommand({ type: 'revoke_path', grant_id: grantId });
+    return receipt;
+  }
+
+  private awaitNextWorkspacePolicy(timeoutMs: number): Promise<WCoreWorkspacePolicy | null> {
+    return new Promise((resolve) => {
+      let settled = false;
+      const waiter = (policy: WCoreWorkspacePolicy): void => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(policy);
+      };
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        this.workspacePolicyWaiters = this.workspacePolicyWaiters.filter((entry) => entry !== waiter);
+        resolve(null);
+      }, timeoutMs);
+      this.workspacePolicyWaiters.push(waiter);
+    });
+  }
+
+  private resolveWorkspacePolicyWaiters(policy: WCoreWorkspacePolicy): void {
+    const waiters = this.workspacePolicyWaiters;
+    this.workspacePolicyWaiters = [];
+    for (const waiter of waiters) waiter(policy);
   }
 
   // W7 S4 HITL: resume a turn the engine suspended with `approval_required`.
