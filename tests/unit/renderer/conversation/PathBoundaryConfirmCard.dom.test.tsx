@@ -384,10 +384,16 @@ describe('#1099 folder-grant card', () => {
     expect(sessionName).toContain(ROOT);
     expect(rememberName).toContain(ROOT);
     expect(rememberName).not.toContain(TARGET);
-    // ...and they are not the same sentence, because a screen-reader user hears
-    // the difference between the two buttons ONLY here: the hint text under the
-    // label is not part of the accessible name.
-    expect(rememberName).not.toBe(sessionName);
+    // ...and each is built from its OWN template, which is the mechanism.
+    //
+    // Asserting only `rememberName !== sessionName` proved nothing: the names
+    // interpolate their own visible LABEL, and the labels already differ, so a
+    // card that fed both buttons the session template still produced two
+    // different strings and the assertion passed. It would have shipped a
+    // durable button whose screen-reader name says "until this chat ends".
+    // The `t` mock echoes the key it was given, so the key is checkable here.
+    expect(sessionName.startsWith('messages.confirmation.pathBoundaryGrantAria')).toBe(true);
+    expect(rememberName.startsWith('messages.confirmation.pathBoundaryRememberAria')).toBe(true);
     // WCAG 2.5.3 (Label in Name), same rule as the session grant.
     const visible = within(screen.getByTestId('path-boundary-remember')).getByTestId(
       'path-boundary-option-label'
