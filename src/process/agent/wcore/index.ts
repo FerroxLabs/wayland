@@ -50,6 +50,7 @@ import type {
   PathGrantAccess,
   WCoreWorkspacePolicy,
 } from './protocol';
+import { registerLivePathGrantSession } from './pathGrantSessions';
 import { parseQuestionTool } from './questionTool';
 import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { redactSecrets } from '@process/utils/secretRedaction';
@@ -361,9 +362,22 @@ export class WCoreAgent {
   private stderrTail = '';
   private readonly desktopContract = new DesktopCoreV1Consumer();
   private readonly anvilMutationWatcher: AnvilPersistentMutationWatcher;
+  /**
+   * Withdraw this agent from the live-session registry. Held privately so the
+   * registry exposes only `{ workspace, revokePath }` and never the agent.
+   */
+  private readonly unpublishPathGrantSession: () => void;
 
   constructor(options: WCoreAgentOptions) {
     this.options = options;
+    // Published from construction rather than from a successful spawn: a
+    // Settings revoke that arrives while the engine is still booting must find
+    // this session, and `revokePath` on a transport that is not up yet is a
+    // no-op that resolves null rather than throwing.
+    this.unpublishPathGrantSession = registerLivePathGrantSession({
+      workspace: options.workspace,
+      revokePath: (grantId) => this.revokePath(grantId),
+    });
     this.anvilMutationWatcher = new AnvilPersistentMutationWatcher(options.workspace, (reason) => {
       const revoked = this.desktopContract.markWorkspaceMutated();
       if (revoked.length > 0) {
@@ -1992,6 +2006,9 @@ export class WCoreAgent {
 
   async kill(): Promise<void> {
     this.disposed = true;
+    // Unpublish FIRST: everything below can yield or throw, and a session that
+    // is on its way out must not keep collecting revokes it can no longer send.
+    this.unpublishPathGrantSession();
     // #746: the agent is going away — a still-armed watchdog would otherwise fire on a
     // dead agent and emit a bogus stall error for a turn nobody is running.
     this.stopStallWatchdog();

@@ -59,6 +59,7 @@ import { startWikiAutoSync } from '@process/services/wiki/wikiAutoSync';
 import { initImportBridge } from './importBridge';
 import { initMigrationBridge } from './migrationBridge';
 import { initWorkspaceTrustBridge } from './workspaceTrustBridge';
+import { initWorkspaceFolderGrantsBridge } from './workspaceFolderGrantsBridge';
 import { initSystemSettingsBridge } from './systemSettingsBridge';
 import { initTerminalBridge } from '@process/terminal/terminalBridge';
 import { initFluxConnectorBridge } from './fluxConnectorBridge';
@@ -171,6 +172,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initImportBridge();
   initMigrationBridge();
   initWorkspaceTrustBridge();
+  initWorkspaceFolderGrantsBridge();
   initAmbientBridge();
   initNotificationBridge();
   initTaskCompletionNotifier({
@@ -330,6 +332,7 @@ export {
   initImportBridge,
   initMigrationBridge,
   initWorkspaceTrustBridge,
+  initWorkspaceFolderGrantsBridge,
   initDoctorBridge,
   initEngineConfigRecoveryBridge,
 };
