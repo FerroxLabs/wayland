@@ -35,6 +35,9 @@ const {
   mockTeamEventBusEmit,
   mockChannelEmitAgentMessage,
   mockNotifyPotentialCompletion,
+  mockGrantAdd,
+  mockResolveWorkspaceId,
+  mockAddMessage,
 } = vi.hoisted(() => ({
   emitResponseStream: vi.fn(),
   emitConfirmationAdd: vi.fn(),
@@ -51,6 +54,9 @@ const {
   mockTeamEventBusEmit: vi.fn(),
   mockChannelEmitAgentMessage: vi.fn(),
   mockNotifyPotentialCompletion: vi.fn().mockResolvedValue(undefined),
+  mockGrantAdd: vi.fn(),
+  mockResolveWorkspaceId: vi.fn(),
+  mockAddMessage: vi.fn(),
 }));
 
 // ── Module mocks ───────────────────────────────────────────────────
@@ -110,8 +116,16 @@ vi.mock('@process/utils/initStorage', () => ({
 }));
 
 vi.mock('@process/utils/message', () => ({
-  addMessage: vi.fn(),
+  addMessage: mockAddMessage,
   addOrUpdateMessage: vi.fn(),
+}));
+
+vi.mock('@process/services/workspace/folderGrantStore', () => ({
+  defaultWorkspaceFolderGrantStore: () => ({ add: mockGrantAdd }),
+}));
+
+vi.mock('@process/services/workspace/folderGrantWorkspaceId', () => ({
+  resolveFolderGrantWorkspaceId: mockResolveWorkspaceId,
 }));
 
 vi.mock('@/common/utils', () => {
@@ -170,8 +184,13 @@ vi.mock('@process/agent/wcore', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { WCoreManager } from '@/process/task/WCoreManager';
-import { PATH_BOUNDARY_DENY, PATH_BOUNDARY_GRANT_FOLDER } from '@/common/chat/pathBoundaryConsent';
+import { WCoreManager, folderGrantNotRememberedText } from '@/process/task/WCoreManager';
+import {
+  PATH_BOUNDARY_DENY,
+  PATH_BOUNDARY_GRANT_FOLDER,
+  PATH_BOUNDARY_REMEMBER_FOLDER,
+  PATH_BOUNDARY_ROOT_PARAM,
+} from '@/common/chat/pathBoundaryConsent';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -314,6 +333,54 @@ describe('#1099 a path boundary is never auto-approved', () => {
     vi.useRealTimers();
   });
 
+  /**
+   * Pins the CALL SITE with a card that carries the durable value and nothing
+   * else from the vocabulary. `BaseAgentManager.addConfirmation`'s yolo gate is
+   * INDEX-keyed - it would pick `options[0]`, here the durable grant itself -
+   * and it is excluded via `isPathBoundaryConfirmation`. If that exclusion were
+   * ever keyed on the session-grant value instead of the predicate, every other
+   * boundary test in this file would still pass and this one would auto-confirm
+   * a permanent filesystem grant with nobody at the window.
+   */
+  it('excludes a card whose ONLY grant option is the durable one from the yolo gate', async () => {
+    vi.useFakeTimers();
+    (manager as any).yoloMode = true;
+    const confirmSpy = vi.spyOn(manager, 'confirm').mockImplementation(() => undefined as never);
+
+    (manager as any).addConfirmation({
+      id: 'call-remember-only',
+      callId: 'call-remember-only',
+      title: 'Read q3.md',
+      description: TARGET,
+      options: [
+        { label: 'l', value: PATH_BOUNDARY_REMEMBER_FOLDER, params: { [PATH_BOUNDARY_ROOT_PARAM]: ROOT } },
+        { label: 'd', value: PATH_BOUNDARY_DENY },
+      ],
+    });
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
+
+    // CONTROL, same gate and same manager: an ordinary card IS auto-confirmed
+    // by index, so the exclusion above is the guard and not a dead yoloMode.
+    vi.clearAllMocks();
+    (manager as any).addConfirmation({
+      id: 'call-plain',
+      callId: 'call-plain',
+      title: 'Run',
+      description: '',
+      options: [
+        { label: 'a', value: 'proceed_once' },
+        { label: 'c', value: 'cancel' },
+      ],
+    });
+    await vi.advanceTimersByTimeAsync(100);
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(confirmSpy.mock.calls[0][2]).toBe('proceed_once');
+    vi.useRealTimers();
+  });
+
   it('builds the card with its own option values, the grant first, and no allow-once', () => {
     emitEvent(manager, boundaryFrame());
 
@@ -322,9 +389,15 @@ describe('#1099 a path boundary is never auto-approved', () => {
       options: Array<{ value: string; params?: Record<string, string> }>;
     };
 
-    expect(card.options.map((o) => o.value)).toEqual([PATH_BOUNDARY_GRANT_FOLDER, PATH_BOUNDARY_DENY]);
+    expect(card.options.map((o) => o.value)).toEqual([
+      PATH_BOUNDARY_GRANT_FOLDER,
+      PATH_BOUNDARY_REMEMBER_FOLDER,
+      PATH_BOUNDARY_DENY,
+    ]);
     // The grant is options[0] because it is the PRIMARY action: Core cannot
     // resolve a boundary with a one-shot approval, so there is no allow-once.
+    // It is the SESSION grant and not the durable one on purpose - see the
+    // dedicated assertion below for why that ordering is load-bearing.
     expect(card.options[0].value).toBe(PATH_BOUNDARY_GRANT_FOLDER);
     expect(card.options.map((o) => o.value)).not.toContain('proceed_once');
     expect(card.options.map((o) => o.value)).not.toContain('proceed_always');
@@ -333,6 +406,56 @@ describe('#1099 a path boundary is never auto-approved', () => {
     expect(card.action).toBeUndefined();
     // The button carries the root it opens, so the label and the grant are one value.
     expect(card.options[0].params?.folder).toBe(ROOT);
+  });
+
+  it('puts the NARROWER grant in the index-picked slot', () => {
+    // Both auto-confirm paths that pick by INDEX (BaseAgentManager's yolo gate,
+    // ConversationChatConfirm's Enter binding) exclude this card - so this
+    // ordering never fires today. It is the blast radius if either exclusion is
+    // ever regressed, and the difference between the two grants is not cosmetic:
+    // the durable one keeps the folder open to every future session of this
+    // workspace, including unattended cron runs with nobody at the window.
+    emitEvent(manager, boundaryFrame());
+
+    const card = emitConfirmationAdd.mock.calls[0][0] as { options: Array<{ value: string }> };
+    expect(card.options[0].value).toBe(PATH_BOUNDARY_GRANT_FOLDER);
+    expect(card.options[0].value).not.toBe(PATH_BOUNDARY_REMEMBER_FOLDER);
+    // ...and the durable grant is still ON the card, so this is an ordering
+    // assertion and not an accidental assertion that the option is missing.
+    expect(card.options.map((o) => o.value)).toContain(PATH_BOUNDARY_REMEMBER_FOLDER);
+  });
+
+  it('builds both grant options from ONE suggestedRoot, so they cannot name different folders', () => {
+    emitEvent(manager, boundaryFrame());
+
+    const card = emitConfirmationAdd.mock.calls[0][0] as {
+      options: Array<{ value: string; params?: Record<string, string> }>;
+    };
+    const roots = card.options
+      .filter((o) => o.value === PATH_BOUNDARY_GRANT_FOLDER || o.value === PATH_BOUNDARY_REMEMBER_FOLDER)
+      .map((o) => o.params?.[PATH_BOUNDARY_ROOT_PARAM]);
+
+    expect(roots).toHaveLength(2);
+    expect(new Set(roots).size).toBe(1);
+    expect(roots[0]).toBe(ROOT);
+  });
+
+  it('gives each grant option its own hint key, so neither button can misstate how long it lasts', () => {
+    // The two buttons differ ONLY in duration. Sharing one hint string is how
+    // "Read-only, for the rest of this session" ends up printed under a button
+    // that writes a permanent record.
+    emitEvent(manager, boundaryFrame());
+
+    const card = emitConfirmationAdd.mock.calls[0][0] as {
+      options: Array<{ value: string; label: string; description?: string }>;
+    };
+    const session = card.options.find((o) => o.value === PATH_BOUNDARY_GRANT_FOLDER);
+    const durable = card.options.find((o) => o.value === PATH_BOUNDARY_REMEMBER_FOLDER);
+
+    expect(session?.description).toBeTruthy();
+    expect(durable?.description).toBeTruthy();
+    expect(durable?.description).not.toBe(session?.description);
+    expect(durable?.label).not.toBe(session?.label);
   });
 
   it('CONTROL: an ordinary card still gets proceed_once / proceed_always / cancel and an action', () => {
@@ -428,5 +551,210 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
     manager.confirm('call-info', 'call-info', 'proceed_once');
 
     expect(agent.approveTool).toHaveBeenCalledWith('call-info', 'once', undefined);
+  });
+});
+
+/**
+ * #1099 — the DURABLE answer: the same in-band grant, plus a record on this
+ * workspace's folder-grant list.
+ *
+ * Two independent effects, and the file asserts they stay independent in both
+ * directions: the record must not be written by the session-only button, and a
+ * refusal to write it must not withdraw the approval that already unblocked
+ * the call the user is looking at.
+ */
+describe('#1099 remembering a folder for the workspace', () => {
+  const WORKSPACE_ID = 'marker:11111111-2222-3333-4444-555555555555';
+  let manager: WCoreManager;
+  let agent: FakeAgent;
+
+  /**
+   * The single `add` payload, or a throw.
+   *
+   * Never `expect(mockGrantAdd.mock.calls[0]?.[0]?.root).toBe(...)`: an
+   * optional chain over a call that never happened collapses to `undefined`,
+   * and `undefined === undefined` is how a guard that stopped running keeps
+   * passing. This raises instead.
+   */
+  function persistedGrant(): { workspaceId: string; root: string; origin: string } {
+    const calls = mockGrantAdd.mock.calls;
+    if (calls.length !== 1) throw new Error(`expected exactly one store add, saw ${calls.length}`);
+    return calls[0][0] as { workspaceId: string; root: string; origin: string };
+  }
+
+  /** The `tips` notices this manager emitted, as their prose. */
+  function notices(): string[] {
+    return emitResponseStream.mock.calls
+      .map((call) => call[0] as { type?: string; data?: { content?: string } })
+      .filter((frame) => frame?.type === 'tips')
+      .map((frame) => frame.data?.content ?? '');
+  }
+
+  /** Wait for the fire-and-forget persist to settle. */
+  const settled = () => vi.waitFor(() => expect(mockResolveWorkspaceId).toHaveBeenCalled());
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockResolveWorkspaceId.mockResolvedValue(WORKSPACE_ID);
+    mockGrantAdd.mockResolvedValue({
+      ok: true,
+      addition: {
+        grant: { grantId: 'g1', root: ROOT, access: 'read', grantedAtMs: 1, origin: 'consent_card' },
+        created: true,
+        superseded: [],
+      },
+    });
+    manager = createManager();
+    agent = attachAgent(manager);
+    vi.spyOn(manager as any, 'postMessagePromise').mockResolvedValue(undefined);
+    emitEvent(manager, boundaryFrame());
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('writes the grant to this workspace, attributed to the consent card', async () => {
+    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
+    await settled();
+
+    expect(persistedGrant()).toEqual({ workspaceId: WORKSPACE_ID, root: ROOT, origin: 'consent_card' });
+  });
+
+  it('persists the SAME root the card displayed, not the target file', async () => {
+    // Display and stored authority must not drift, so the assertion is against
+    // the root that actually went out on the card rather than against a literal
+    // this file happens to share with the fixture.
+    const card = emitConfirmationAdd.mock.calls[0][0] as {
+      options: Array<{ value: string; params?: Record<string, string> }>;
+    };
+    const shown = card.options.find((o) => o.value === PATH_BOUNDARY_REMEMBER_FOLDER)?.params?.[
+      PATH_BOUNDARY_ROOT_PARAM
+    ];
+
+    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
+    await settled();
+
+    expect(shown).toBeTruthy();
+    expect(persistedGrant().root).toBe(shown);
+    expect(persistedGrant().root).not.toBe(TARGET);
+  });
+
+  it('also sends the in-band approval, so the call in front of the user proceeds', async () => {
+    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
+    await settled();
+
+    expect(agent.approveTool).toHaveBeenCalledTimes(1);
+    expect(agent.approveTool.mock.calls[0][1]).toEqual({ always_path: { root: ROOT, write: false } });
+    expect(agent.denyTool).not.toHaveBeenCalled();
+  });
+
+  it('the SESSION grant writes nothing durable', async () => {
+    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_GRANT_FOLDER);
+    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
+
+    expect(mockGrantAdd).not.toHaveBeenCalled();
+    expect(mockResolveWorkspaceId).not.toHaveBeenCalled();
+
+    // CONTROL, same manager and same card: the durable value DOES write, so the
+    // absence above is the route discriminating and not a dead store mock.
+    vi.clearAllMocks();
+    emitEvent(manager, boundaryFrame('call-boundary-2'));
+    manager.confirm('call-boundary-2', 'call-boundary-2', PATH_BOUNDARY_REMEMBER_FOLDER);
+    await settled();
+    expect(persistedGrant().root).toBe(ROOT);
+  });
+
+  it('DENY writes nothing durable and denies the call', async () => {
+    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_DENY);
+    await vi.waitFor(() => expect(agent.denyTool).toHaveBeenCalled());
+
+    expect(mockGrantAdd).not.toHaveBeenCalled();
+    expect(agent.approveTool).not.toHaveBeenCalled();
+  });
+
+  it('says nothing in the thread when the grant was remembered', async () => {
+    manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
+    await settled();
+    await vi.waitFor(() => expect(mockGrantAdd).toHaveBeenCalled());
+
+    expect(notices()).toEqual([]);
+    expect(mockAddMessage).not.toHaveBeenCalled();
+  });
+
+  describe('when the folder cannot be remembered', () => {
+    /**
+     * The refusal must not cost the user the read. The in-band approval sent
+     * here is byte-identical to the one the session-only button sends, so
+     * keeping it hands out no authority the other button would not have handed
+     * out anyway - while withdrawing it would mean a button advertised as doing
+     * MORE quietly did LESS.
+     */
+    const cases: Array<[string, () => void]> = [
+      ['the store refuses the root', () => mockGrantAdd.mockResolvedValue({ ok: false, refusal: 'credential_store' })],
+      ['the list is full', () => mockGrantAdd.mockResolvedValue({ ok: false, refusal: 'grant_cap_reached' })],
+      ['the workspace has no identity', () => mockResolveWorkspaceId.mockResolvedValue(null)],
+      ['the list cannot be written', () => mockGrantAdd.mockRejectedValue(new Error('EACCES'))],
+    ];
+
+    for (const [name, arrange] of cases) {
+      it(`still approves the call and TELLS the user when ${name}`, async () => {
+        arrange();
+
+        manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
+        await vi.waitFor(() => expect(notices()).toHaveLength(1));
+
+        // The call still proceeds under the session grant.
+        expect(agent.approveTool).toHaveBeenCalledTimes(1);
+        expect(agent.approveTool.mock.calls[0][1]).toEqual({ always_path: { root: ROOT, write: false } });
+        expect(agent.denyTool).not.toHaveBeenCalled();
+
+        // And the user is told, naming the folder, in the thread AND on the
+        // stream - a row alone renders only after a reload, an emit alone
+        // reaches only whoever is subscribed at that instant.
+        expect(notices()[0]).toContain(ROOT);
+        expect(mockAddMessage).toHaveBeenCalledTimes(1);
+        expect((mockAddMessage.mock.calls[0][1] as { content: { content: string } }).content.content).toBe(
+          notices()[0]
+        );
+      });
+    }
+
+    it('names the cap, and the fix, when the list is full', async () => {
+      // The only refusal the user can act on. A generic "could not remember"
+      // would leave them with no idea that removing an entry fixes it.
+      mockGrantAdd.mockResolvedValue({ ok: false, refusal: 'grant_cap_reached' });
+
+      manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_REMEMBER_FOLDER);
+      await vi.waitFor(() => expect(notices()).toHaveLength(1));
+
+      expect(notices()[0]).toBe(folderGrantNotRememberedText(ROOT, 'grant_cap_reached'));
+      expect(notices()[0]).toContain('Remove one');
+      // CONTROL: the cap text is genuinely distinct, so the assertion above is
+      // not satisfied by whatever string the default arm happens to produce.
+      expect(folderGrantNotRememberedText(ROOT, 'write_failed')).not.toContain('Remove one');
+    });
+
+    it('every refusal reason says the folder IS open for this chat', () => {
+      // Whatever went wrong, the first thing the user needs is whether the call
+      // they are watching succeeded. Asserted over the whole reason vocabulary
+      // so a reason added later cannot quietly drop it.
+      const reasons = [
+        'root_of_filesystem',
+        'home_directory',
+        'wayland_private',
+        'credential_store',
+        'grant_cap_reached',
+        'not_an_absolute_directory',
+        'no_workspace_identity',
+        'write_failed',
+      ] as const;
+      for (const reason of reasons) {
+        const text = folderGrantNotRememberedText(ROOT, reason);
+        expect(text, reason).toContain(ROOT);
+        expect(text, reason).toContain('opened');
+        expect(text, reason).toContain('could not remember it');
+      }
+    });
   });
 });

@@ -5,7 +5,12 @@
  */
 
 import type { IConfirmation } from '@/common/chat/chatLib';
-import { PATH_BOUNDARY_GRANT_FOLDER, pathBoundaryRootOf } from '@/common/chat/pathBoundaryConsent';
+import {
+  PATH_BOUNDARY_GRANT_FOLDER,
+  PATH_BOUNDARY_REMEMBER_FOLDER,
+  isPathBoundaryGrantValue,
+  pathBoundaryRootOf,
+} from '@/common/chat/pathBoundaryConsent';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -19,8 +24,16 @@ const ACTIVATION_KEY = ' ';
 /** How that key is named to the user — in the badge and in `aria-keyshortcuts`. */
 const ACTIVATION_KEY_NAME = 'Space';
 
-/** Accessible name for the grant option. Carries the root and the live key. */
-const GRANT_ARIA_KEY = 'messages.confirmation.pathBoundaryGrantAria';
+/**
+ * Accessible names for the two grant options. Each carries the root and the
+ * live key, and each states its OWN duration - a screen-reader user hears the
+ * difference between the two buttons only here, because the visible labels
+ * differ by a few words and the hint text below them is not part of the name.
+ */
+const GRANT_ARIA_KEY: Readonly<Record<string, string>> = {
+  [PATH_BOUNDARY_GRANT_FOLDER]: 'messages.confirmation.pathBoundaryGrantAria',
+  [PATH_BOUNDARY_REMEMBER_FOLDER]: 'messages.confirmation.pathBoundaryRememberAria',
+};
 
 /**
  * The folder-grant card for a Wayland Core `PathBoundary` escalation (#1099).
@@ -36,14 +49,22 @@ const GRANT_ARIA_KEY = 'messages.confirmation.pathBoundaryGrantAria';
  *    paths (the root is the containing directory), and a card that showed only
  *    one of them would either hide what was asked for or misstate what is
  *    handed over.
- *  - the scope in words: read-only, this session. There is no "allow once"
- *    button because Core cannot run the call under a one-shot grant.
+ *  - the scope in words: read-only, and how long it lasts. There is no "allow
+ *    once" button because Core cannot run the call under a one-shot grant.
+ *
+ * TWO GRANTS, ONE FOLDER. The second grant option adds a durable record on the
+ * workspace's folder-grant list; it opens exactly the same root, read from the
+ * same `pathBoundaryRootOf` accessor, and differs only in how long it lasts.
+ * Each button's hint and accessible name state its own duration, because the
+ * only thing separating them is that duration and a card that let a user
+ * mistake one for the other would be worse than a card with one button.
  *
  * KEYBOARD. Enter and Y are NOT bound here, and must never be: Enter fires
  * `options[0]` by INDEX in ConversationChatConfirm's key handler and
  * `BaseAgentManager.addConfirmation` auto-confirms `options[0]` by index under
- * yolo — on this card `options[0]` IS the grant, so either binding is a
- * keystroke away from handing over filesystem authority. That guard stays.
+ * yolo — on this card `options[0]` IS a grant, so either binding is a
+ * keystroke away from handing over filesystem authority. That guard stays, and
+ * `options[0]` is deliberately the NARROWER of the two grants.
  *
  * But click-only made the decision unreachable for a keyboard-only or
  * screen-reader user, which is a worse defect than the one the guard prevents.
@@ -101,14 +122,15 @@ const PathBoundaryConfirmCard: React.FC<{
 
       <div className='shrink-0'>
         {confirmation.options.map((option, index) => {
-          const isGrant = option.value === PATH_BOUNDARY_GRANT_FOLDER;
+          const isGrant = isPathBoundaryGrantValue(option.value);
           const label = t(option.label, option.params);
           // The accessible name names the FOLDER the grant opens, read from the
           // same `pathBoundaryRootOf` accessor that the root line above renders
           // and that WCoreManager grants — so what a screen reader announces
           // cannot drift from what is handed over. It opens with the visible
           // label so the name is a superset of it (WCAG 2.5.3, Label in Name).
-          const ariaLabel = isGrant && root ? t(GRANT_ARIA_KEY, { label, folder: root }) : undefined;
+          const ariaKey = GRANT_ARIA_KEY[String(option.value)];
+          const ariaLabel = isGrant && root && ariaKey ? t(ariaKey, { label, folder: root }) : undefined;
           return (
             <div
               key={String(option.value)}
@@ -124,7 +146,13 @@ const PathBoundaryConfirmCard: React.FC<{
                 event.preventDefault(); // Space would otherwise scroll the page.
                 onConfirm(option);
               }}
-              data-testid={isGrant ? 'path-boundary-grant' : 'path-boundary-deny'}
+              data-testid={
+                option.value === PATH_BOUNDARY_REMEMBER_FOLDER
+                  ? 'path-boundary-remember'
+                  : isGrant
+                    ? 'path-boundary-grant'
+                    : 'path-boundary-deny'
+              }
               className={`b-1px b-solid min-h-30px rd-8px px-12px py-6px leading-snug cursor-pointer mt-10px flex items-start gap-8px color-[var(--text-primary)] ${
                 index === 0
                   ? 'b-[rgba(22,93,255,1)] hover:bg-[var(--bg-hover)]'

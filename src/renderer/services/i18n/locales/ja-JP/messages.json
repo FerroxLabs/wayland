@@ -70,13 +70,16 @@
     "yesAlwaysAllowTool": "はい、サーバー \"{{serverName}}\" のツール \"{{toolName}}\" を常に許可",
     "yesAlwaysAllowServer": "はい、サーバー \"{{serverName}}\" のすべてのツールを常に許可",
     "no": "いいえ (esc)",
-    "grantFolderAlways": "このフォルダーを常に許可: {{folder}}",
-    "grantFolderAlwaysHint": "読み取り専用で、このセッションの間だけ有効です。ワークスペース外のほかの場所は開放されません。",
+    "grantFolderAlways": "このチャットの間だけこのフォルダーを許可: {{folder}}",
+    "grantFolderAlwaysHint": "読み取り専用で、このチャットが終わるまで有効です。ワークスペース外のほかの場所は開放されません。",
+    "grantFolderRemember": "このフォルダーを常に許可: {{folder}}",
+    "grantFolderRememberHint": "読み取り専用で、削除するまでこのワークスペースに記憶されます。",
     "grantFolderDeny": "許可しない",
     "pathBoundaryTitle": "ワークスペース外のフォルダーへのアクセスを許可しますか？",
     "pathBoundaryTargetLabel": "エージェントが読み取ろうとしている対象",
     "pathBoundaryRootLabel": "許可すると開放されるフォルダー",
-    "pathBoundaryGrantAria": "{{label}} — スペースキーを押すと、このセッションの間だけ {{folder}} への読み取り専用アクセスを許可します。"
+    "pathBoundaryGrantAria": "{{label}} — スペースキーを押すと、このチャットが終わるまで {{folder}} への読み取り専用アクセスを許可します。",
+    "pathBoundaryRememberAria": "{{label}} — スペースキーを押すと、{{folder}} への読み取り専用アクセスを許可し、削除するまでこのワークスペースに記憶します。"
   },
   "slash.customBadge": "Custom",
   "runaway": {

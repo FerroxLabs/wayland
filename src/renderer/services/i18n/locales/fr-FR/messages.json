@@ -70,13 +70,16 @@
     "yesAlwaysAllowTool": "Oui, toujours autoriser l'outil « {{toolName}} » du serveur « {{serverName}} »",
     "yesAlwaysAllowServer": "Oui, toujours autoriser tous les outils du serveur « {{serverName}} »",
     "no": "Non (échap)",
-    "grantFolderAlways": "Toujours autoriser ce dossier : {{folder}}",
-    "grantFolderAlwaysHint": "Lecture seule, pour le reste de cette session. Rien d'autre en dehors de votre espace de travail n'est ouvert.",
+    "grantFolderAlways": "Autoriser ce dossier pour cette conversation : {{folder}}",
+    "grantFolderAlwaysHint": "Lecture seule, jusqu'à la fin de cette conversation. Rien d'autre en dehors de votre espace de travail n'est ouvert.",
+    "grantFolderRemember": "Toujours autoriser ce dossier : {{folder}}",
+    "grantFolderRememberHint": "Lecture seule, et mémorisé pour cet espace de travail jusqu'à ce que vous le retiriez.",
     "grantFolderDeny": "Ne pas autoriser",
     "pathBoundaryTitle": "Autoriser l'accès à un dossier en dehors de votre espace de travail ?",
     "pathBoundaryTargetLabel": "L'agent souhaite lire",
     "pathBoundaryRootLabel": "Autoriser ouvrira ce dossier",
-    "pathBoundaryGrantAria": "{{label}} — appuyez sur Espace pour accorder un accès en lecture seule à {{folder}} pour le reste de cette session."
+    "pathBoundaryGrantAria": "{{label}} — appuyez sur Espace pour accorder un accès en lecture seule à {{folder}} jusqu'à la fin de cette conversation.",
+    "pathBoundaryRememberAria": "{{label}} — appuyez sur Espace pour accorder un accès en lecture seule à {{folder}} et le mémoriser pour cet espace de travail jusqu'à ce que vous le retiriez."
   },
   "slash.customBadge": "Custom",
   "runaway": {

@@ -70,13 +70,16 @@
     "yesAlwaysAllowTool": "是，始終允許來自伺服器 \"{{serverName}}\" 的工具 \"{{toolName}}\"",
     "yesAlwaysAllowServer": "是，始終允許來自伺服器 \"{{serverName}}\" 的所有工具",
     "no": "否 (esc)",
-    "grantFolderAlways": "一律允許此資料夾：{{folder}}",
-    "grantFolderAlwaysHint": "唯讀，僅在本次工作階段內有效。工作區以外的其他內容不會被開放。",
+    "grantFolderAlways": "僅本次對話允許此資料夾：{{folder}}",
+    "grantFolderAlwaysHint": "唯讀，直到本次對話結束。工作區以外的其他內容不會被開放。",
+    "grantFolderRemember": "一律允許此資料夾：{{folder}}",
+    "grantFolderRememberHint": "唯讀，並為此工作區記住，直到你將其移除。",
     "grantFolderDeny": "不允許",
     "pathBoundaryTitle": "允許存取工作區以外的資料夾？",
     "pathBoundaryTargetLabel": "代理想要讀取",
     "pathBoundaryRootLabel": "允許後將開放此資料夾",
-    "pathBoundaryGrantAria": "{{label}} — 按空白鍵授予對 {{folder}} 的唯讀存取權限，僅在本次工作階段內有效。"
+    "pathBoundaryGrantAria": "{{label}} — 按空白鍵授予對 {{folder}} 的唯讀存取權限，直到本次對話結束。",
+    "pathBoundaryRememberAria": "{{label}} — 按空白鍵授予對 {{folder}} 的唯讀存取權限，並為此工作區記住，直到你將其移除。"
   },
   "slash.customBadge": "Custom",
   "runaway": {
