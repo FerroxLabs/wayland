@@ -341,16 +341,27 @@ describe('pinned v1 host-command corpus vs the path-grant commands', () => {
   });
 
   /**
-   * NOT this lane's code, recorded here because the same re-import fixes it and
-   * nothing else in the suite says it out loud: the `always_path` approval scope
-   * that answers a `path_boundary` escalation card is ALSO absent from the
-   * pinned schema, so today that card's "always allow this folder" answer throws
-   * at the contract boundary instead of reaching Core.
+   * This was a TRIPWIRE that asserted `always_path` was REJECTED, with an
+   * instruction to delete it the day it went red. It went red when the v0.13.4
+   * corpus was re-imported, which is exactly what it was watching for, so it is
+   * inverted here rather than removed - the claim is now the one that matters.
+   *
+   * Why it matters: the folder-grant card answers a `path_boundary` escalation
+   * with this scope, and under the previous pin the answer threw at Desktop's
+   * OWN contract boundary before a frame was ever written. The card could not
+   * have worked on any engine we had pinned, and no amount of live testing
+   * would have said so, because the failure was on our side of the wire.
    */
-  it('still rejects the always_path approval scope the escalation card sends', () => {
+  it('accepts the always_path scope the escalation card sends, now that the corpus carries it', () => {
     const consumer = negotiated();
+    // Controls first: a scope that was always fine, and a command that was
+    // always fine. Without them this passes just as well on a consumer that
+    // stopped validating anything at all.
     expect(() =>
       consumer.validateOutboundCommand({ type: 'tool_approve', call_id: 'c1', scope: 'once' })
+    ).not.toThrow();
+    expect(() =>
+      consumer.validateOutboundCommand({ type: 'tool_deny', call_id: 'c1', reason: 'no' })
     ).not.toThrow();
     expect(() =>
       consumer.validateOutboundCommand({
@@ -358,6 +369,6 @@ describe('pinned v1 host-command corpus vs the path-grant commands', () => {
         call_id: 'c1',
         scope: { always_path: { root: '/tmp/reports', write: false } },
       })
-    ).toThrow(/pinned schema/);
+    ).not.toThrow();
   });
 });
