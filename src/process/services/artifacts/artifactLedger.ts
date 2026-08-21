@@ -75,6 +75,38 @@ export const ARTIFACT_LEDGER_FILE = 'artifact-ledger.jsonl';
 export const artifactLedgerPath = (authorityRoot: string): string =>
   path.join(path.resolve(authorityRoot), ARTIFACT_LEDGER_FILE);
 
+/**
+ * THE ONE NAME UNDER `artifacts/` THAT IS NOT A SERIES.
+ *
+ * `<workspace>/artifacts/` was already occupied when chat became the second
+ * writer: it is the cron SERIES ROOT, holding `.latest.json`, `.aliases.json`
+ * and `.staging/`, and series membership is decided by PATH SHAPE ALONE - five
+ * segments beginning with `artifacts` IS a series deliverable, because nothing
+ * anywhere records that it is one. So a chat writing `artifacts/a/b/c/d.md`
+ * fabricates a Series row for a series called `a`, and if a scheduled task ever
+ * publishes into a series of that name, `retireStaleAliases` will `fs.rm` the
+ * chat's file as a stale alias.
+ *
+ * This segment is therefore reserved in BOTH directions, and one half alone is
+ * not a guard:
+ *
+ *  - READ: `seriesAliasPathFor` and `locateInSeries` refuse to read a series
+ *    out of it, so a chat deliverable never grows a phantom Series row.
+ *  - WRITE: `seriesDirFor` and `sanitizeSeriesName` refuse to produce it, so
+ *    the publishing path that deletes stale aliases can never be aimed at the
+ *    namespace at all.
+ *
+ * Compared case-INSENSITIVELY everywhere it is enforced: macOS and Windows fold
+ * case, so a series called `Chat` would land on the same directory as `chat`
+ * and a case-sensitive guard would be a guard only on Linux.
+ */
+export const CHAT_NAMESPACE = 'chat';
+
+/** True when `segment` is the reserved chat namespace on ANY filesystem. */
+export function isChatNamespace(segment: string | undefined): boolean {
+  return typeof segment === 'string' && segment.toLowerCase() === CHAT_NAMESPACE;
+}
+
 /** Refuse to hash anything larger. A deliverable is a report, not a disk image. */
 export const MAX_ARTIFACT_BYTES = 64 * 1024 * 1024;
 

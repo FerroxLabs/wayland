@@ -44,10 +44,28 @@ describe('artifact seam remote boundary', () => {
       'artifacts.list',
       'artifacts.open',
       'artifacts.open-target',
+      // T4. Re-registers a local file as a verified deliverable, and the record
+      // it appends is what a later `artifacts.open` turns into a path handed to
+      // an OS launcher. Boundary re-examined when it was added, per this test's
+      // whole reason for existing: it stays denied, by the same prefix.
+      'artifacts.refresh',
       'artifacts.reveal',
       'artifacts.save-copy',
       'artifacts.series',
     ]);
+  });
+
+  /**
+   * The two tests above both iterate REGISTERED keys, so neither can see the
+   * `artifacts.` PREFIX being swapped for an exact-key list: every shipped
+   * channel would stay denied and go on passing, while the NEXT channel anyone
+   * adds would be silently remote-reachable until this file was edited again.
+   *
+   * A key that does not exist can only be denied by the prefix, so it is the
+   * one probe that pins the prefix itself.
+   */
+  it('denies an artifacts.* name that is not registered, which is what pins the PREFIX', () => {
+    expect(isAllowedForRemote('subscribe-artifacts.a-channel-that-does-not-exist-yet')).toBe(false);
   });
 
   it('still allows an unrelated read so the denial is not vacuous', () => {

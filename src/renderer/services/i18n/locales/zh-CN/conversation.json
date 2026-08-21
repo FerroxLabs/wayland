@@ -550,5 +550,18 @@
       "revealFailed": "Wayland 无法打开该文件夹。原因：{{reason}}"
     },
     "notText": "Wayland 无法把这个文件当作文本读取——它有些字节不是有效的 UTF-8，而设置文件格式要求 UTF-8。什么都没有被改动。"
+  },
+  "artifactCard": {
+    "title": "已保存到你的工作区",
+    "openHere": "在此打开",
+    "openInApp": "在 {{app}} 中打开",
+    "openExternally": "用默认应用打开",
+    "reveal": "在文件夹中显示",
+    "saveCopy": "另存副本",
+    "changed": "该文件在保存后已被修改。",
+    "update": "更新",
+    "rejected": "有 {{count}} 个文件未保存为交付物：{{detail}}。",
+    "rejected_other": "有 {{count}} 个文件未保存为交付物：{{detail}}。",
+    "unknownError": "操作未成功。该文件可能已被移动。"
   }
 }

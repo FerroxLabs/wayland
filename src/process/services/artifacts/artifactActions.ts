@@ -41,13 +41,18 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
-import type { ArtifactOpenTarget, ArtifactSaveResult, ArtifactSummary } from '@/common/types/artifacts';
+import type {
+  ArtifactOpenTarget,
+  ArtifactRefreshResult,
+  ArtifactSaveResult,
+  ArtifactSummary,
+} from '@/common/types/artifacts';
 import { refuseUnsafeOpenTarget } from '@process/bridge/shellOpenSafety';
 
 import { isReservedSeriesEntry } from './artifactSeries';
 import { ARTIFACTS_DIR_NAME } from './taskRun';
 
-import type { ArtifactRecord } from './artifactLedger';
+import { isChatNamespace, registerArtifacts, type ArtifactRecord } from './artifactLedger';
 import { readVerifiedArtifact, resolveArtifactTarget } from './artifactTarget';
 import { cachedDefaultApplicationName } from './defaultApplication';
 
@@ -175,6 +180,84 @@ export async function saveArtifactCopy(artifactId: unknown, effects: ArtifactHos
 }
 
 /**
+ * Re-register a chat deliverable the user has since edited.
+ *
+ * -------------------------------------------------------------------------
+ * THIS IS NOT A RELAXATION, AND THE DIFFERENCE IS THE WHOLE POINT.
+ * -------------------------------------------------------------------------
+ * `openVerified` refuses a size mismatch and a digest mismatch, and that
+ * refusal gates Open, Reveal AND Save-a-copy. It is what proves the bytes about
+ * to be handed to an OS launcher are the bytes the host actually verified, so
+ * it stays byte-exact and untouched. What was missing was not tolerance - it
+ * was a way to say "yes, I edited it, record what it is NOW".
+ *
+ * So the repair re-runs `registerArtifacts`: the FULL path, applying
+ * containment, symlink refusal, non-regular-file refusal, the size cap, and the
+ * device/inode re-check to the new bytes exactly as the first registration did.
+ * Nothing is skipped, nothing is trusted from the old record except its
+ * IDENTITY - the run id and relative path, which is what keeps the artifact id
+ * stable so the card already on the user's screen survives the repair.
+ *
+ * CHAT DELIVERABLES ONLY. A published series run is the record of what a
+ * scheduled task produced on a given day. A change there is not an edit, it is
+ * tampering, and re-registering it would launder that into a fresh valid
+ * record. The namespace check is the guard, and it is the same one T1 reserved.
+ */
+export async function refreshChatArtifact(
+  artifactId: unknown,
+  effects: ArtifactHostEffects,
+  ledgerPath: string
+): Promise<ArtifactRefreshResult> {
+  if (typeof artifactId !== 'string' || !artifactId) return { ok: false, error: 'unknown artifact' };
+  const record = (await effects.readLedger()).find((entry) => entry.artifactId === artifactId);
+  if (!record) return { ok: false, error: 'unknown artifact' };
+
+  const location = chatDeliverableLocation(record);
+  if (!location) return { ok: false, error: 'only a chat deliverable can be refreshed' };
+
+  const { registered, rejected } = await registerArtifacts({
+    ledgerPath,
+    workspace: record.workspace,
+    runDir: location.runDir,
+    taskId: record.taskId,
+    // IDENTITY IS PRESERVED, DELIBERATELY. `artifactIdFor` is deterministic on
+    // (workspace, runId, relativePath), so reusing the run id re-appends the
+    // SAME id and the reader collapses it to one current row - which is why the
+    // card the user is looking at keeps working instead of being replaced.
+    runId: record.runId,
+    declaredBy: record.declaredBy,
+    declarations: [{ path: location.insideRunDir }],
+  });
+
+  const refreshed = registered[0];
+  if (!refreshed) {
+    // The verification refused it - a symlink, a directory, a file now gone,
+    // one over the cap. Report the reason; never fall back to the old record.
+    return { ok: false, error: `artifact could not be refreshed: ${rejected[0]?.reason ?? 'unknown'}` };
+  }
+  return { ok: true, artifact: toArtifactSummary(refreshed) };
+}
+
+/**
+ * Where a record sits inside the chat namespace, or null when it is not a chat
+ * deliverable at all.
+ *
+ * The path is taken apart the same way the series classifiers take it apart, so
+ * "is this a chat deliverable" cannot drift away from "is this a series one".
+ */
+function chatDeliverableLocation(record: ArtifactRecord): { runDir: string; insideRunDir: string } | null {
+  const segments = record.relativePath.split('/').filter((segment) => segment.length > 0);
+  // artifacts / chat / <conversationId> / <one or more segments>
+  if (segments.length < 4) return null;
+  if (segments[0] !== ARTIFACTS_DIR_NAME) return null;
+  if (!isChatNamespace(segments[1])) return null;
+  return {
+    runDir: path.resolve(record.workspace, ...segments.slice(0, 3)),
+    insideRunDir: segments.slice(3).join('/'),
+  };
+}
+
+/**
  * The series, newest first, with the canonical target the controls must show.
  *
  * Records are NOT filesystem-verified here. Verification opens and hashes every
@@ -219,6 +302,10 @@ function seriesAliasPathFor(record: ArtifactRecord): { seriesKey: string; aliasP
   // artifacts / <series> / <date> / <run-id> / <one or more segments>
   if (segments.length < 5) return null;
   if (segments[0] !== ARTIFACTS_DIR_NAME) return null;
+  // T1: `artifacts/chat/<conversationId>/sub/file.md` has the series SHAPE and
+  // is not one. Without this a chat deliverable grows a phantom alias at the
+  // series root, and a real series of that name would then retire it.
+  if (isChatNamespace(segments[1])) return null;
   const insideRunDir = segments.slice(4).join('/');
   if (isReservedSeriesEntry(insideRunDir)) return null;
   return {

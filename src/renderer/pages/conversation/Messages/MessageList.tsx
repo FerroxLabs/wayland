@@ -34,6 +34,7 @@ import MessagePlan from './components/MessagePlan';
 import MessageTips from './components/MessageTips';
 import MessageToolCall from './components/MessageToolCall';
 import MessageToolGroup from './components/MessageToolGroup';
+import MessageArtifactCard from './components/MessageArtifactCard';
 import MessageRenderArtifact from './components/MessageRenderArtifact';
 import ActivityTimeline from '@/renderer/components/chat/observability/ActivityTimeline';
 import OrbitThinking from '@/renderer/components/chat/observability/OrbitThinking';
@@ -185,6 +186,10 @@ const MessageItem: React.FC<{
           // #1098: content the engine handed us to display. Preview only — the
           // frame carries no path, so there is nothing to Open or Reveal.
           return <MessageRenderArtifact message={message} />;
+        case 'artifact_card':
+          // T5: Desktop-authored, never an engine frame. Carries artifact IDS
+          // only; every control re-resolves and re-verifies host-side.
+          return <MessageArtifactCard message={message} />;
         case 'execution_evidence':
           // Durable authority evidence is consumed by the contextual workbench,
           // never rendered as a chat bubble.

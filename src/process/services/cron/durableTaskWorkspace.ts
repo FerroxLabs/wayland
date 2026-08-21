@@ -24,6 +24,7 @@
  * writes would let a crash arm a job that is still stateless.
  */
 
+import { isChatNamespace } from '@process/services/artifacts/artifactLedger';
 import { allocateWorkspace } from '@process/services/projectWorkspace';
 import { checkWorkspaceIdentity, type WorkspaceIdentityStatus } from '@process/services/workspaceIdentity';
 import { CRON_ROUTINE_KIND, type CronJob } from './CronStore';
@@ -129,5 +130,10 @@ export function sanitizeSeriesName(raw: string | undefined): string | null {
     .replace(/^[^A-Za-z0-9]+/, '')
     .slice(0, 64)
     .replace(/[-.]+$/, '');
-  return cleaned.length > 0 ? cleaned : null;
+  if (cleaned.length === 0) return null;
+  // T1: `artifacts/chat/` is the interactive-chat namespace. A job whose id or
+  // declared series sanitises down to it would publish into - and retire stale
+  // aliases inside - a directory holding the user's own chat deliverables.
+  if (isChatNamespace(cleaned)) return null;
+  return cleaned;
 }

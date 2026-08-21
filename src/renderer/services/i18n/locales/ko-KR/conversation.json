@@ -550,5 +550,18 @@
       "revealFailed": "Wayland가 폴더를 열 수 없었습니다. 이유: {{reason}}"
     },
     "notText": "Wayland가 이 파일을 텍스트로 읽을 수 없습니다. 설정 파일 형식이 요구하는 UTF-8로 유효하지 않은 바이트가 들어 있습니다. 아무것도 변경하지 않았습니다."
+  },
+  "artifactCard": {
+    "title": "워크스페이스에 저장됨",
+    "openHere": "여기서 열기",
+    "openInApp": "{{app}}에서 열기",
+    "openExternally": "기본 앱에서 열기",
+    "reveal": "폴더에서 보기",
+    "saveCopy": "사본 저장",
+    "changed": "이 파일은 저장된 후에 변경되었습니다.",
+    "update": "업데이트",
+    "rejected": "파일 {{count}}개가 결과물로 저장되지 않았습니다: {{detail}}.",
+    "rejected_other": "파일 {{count}}개가 결과물로 저장되지 않았습니다: {{detail}}.",
+    "unknownError": "실행하지 못했습니다. 파일이 이동되었을 수 있습니다."
   }
 }

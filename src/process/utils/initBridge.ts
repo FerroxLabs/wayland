@@ -45,6 +45,14 @@ import { sendWorkflowAdvanceDirective } from '@process/services/workflow/workflo
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { agentRegistry } from '@process/agent/AgentRegistry';
+import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
+import {
+  buildChatArtifactCardContent,
+  buildChatArtifactCardMessage,
+} from '@process/services/artifacts/chatArtifactCard';
+import { onChatTurnCompleted } from '@process/services/artifacts/chatRun';
+import { addMessage } from '@process/utils/message';
+import { getDataPath } from '@process/utils';
 import { resolveDefaultLaunchTarget } from '@process/utils/workflowLaunchTargetResolver';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { app } from 'electron';
@@ -426,6 +434,39 @@ void getDatabase()
         return null;
       }
     };
+    // T3. The turn ended: register whatever the chat left in its reserved
+    // namespace, so the deliverable is a real, verifiable artifact before the
+    // card that names it is ever drawn. A THIRD registration on this event
+    // alongside the two workflow listeners above, deliberately independent of
+    // both - a chat that produced a report has nothing to do with a workflow
+    // step, and coupling them would make one failure eat the other.
+    //
+    // The handler swallows its own failures (see `onChatTurnCompleted`): this
+    // fires on the completion of every turn in the product, and a ledger the
+    // app cannot write must never surface as a broken conversation.
+    ipcBridge.conversation?.turnCompleted?.on?.((event) => {
+      void onChatTurnCompleted(event, {
+        ledgerPath: artifactLedgerPath(getDataPath()),
+        onSwept: (result) => {
+          const content = buildChatArtifactCardContent(result);
+          if (!content) return;
+          const conversationId = event.sessionId;
+          const message = buildChatArtifactCardMessage(conversationId, content);
+          // Persist FIRST, then emit. A card the user can see but that is gone
+          // after a restart is worse than one that arrives a beat late, and
+          // "finds it again tomorrow" is the goal this milestone is measured on.
+          addMessage(conversationId, message);
+          ipcBridge.conversation.responseStream.emit({
+            type: 'artifact_card',
+            conversation_id: conversationId,
+            msg_id: message.msg_id,
+            data: content,
+          });
+        },
+        onError: (error) => console.warn('[initBridge] chat artifact sweep failed:', error),
+      });
+    });
+
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {
       void handleParentWorkflowTurn(event, {
         service: workflowService,

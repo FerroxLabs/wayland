@@ -43,7 +43,7 @@ import type {
 } from '@/common/types/artifacts';
 
 import { toArtifactSummary } from './artifactActions';
-import type { ArtifactRecord } from './artifactLedger';
+import { isChatNamespace, type ArtifactRecord } from './artifactLedger';
 import { readRunJournal } from './artifactRunJournal';
 import { listRuns } from './artifactSeries';
 import { ARTIFACTS_DIR_NAME, seriesDirFor } from './taskRun';
@@ -79,6 +79,10 @@ function locateInSeries(record: ArtifactRecord): { series: string; runId: string
   if (segments.length < 5 || segments[0] !== ARTIFACTS_DIR_NAME) return null;
   const [, series, , runId] = segments;
   if (!series || !runId) return null;
+  // T1: the chat namespace has the series shape and is not a series. A chat
+  // deliverable has no run history, and reporting one would invent runs out of
+  // whatever directories the conversation happened to create.
+  if (isChatNamespace(series)) return null;
   return { series, runId, prefix: `${ARTIFACTS_DIR_NAME}/${series}/` };
 }
 

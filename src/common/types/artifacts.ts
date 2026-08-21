@@ -106,3 +106,18 @@ export interface ArtifactSeriesView {
 export interface ArtifactOpenTarget {
   applicationName: string | null;
 }
+
+/**
+ * The outcome of re-registering a deliverable the user has since edited.
+ *
+ * A failure carries the REASON rather than a boolean: "the file is now a
+ * symbolic link" and "the file is gone" ask the user for different things, and
+ * collapsing them into "could not refresh" makes both unactionable.
+ */
+export interface ArtifactRefreshResult {
+  ok: boolean;
+  /** Present only on a refusal, and it names WHICH refusal. */
+  error?: string;
+  /** The re-verified record, carrying the SAME artifact id it had before. */
+  artifact?: ArtifactSummary;
+}

@@ -27,6 +27,7 @@ import type {
   PlanUpdate,
   ToolCallUpdate,
 } from '@/common/types/acpTypes';
+import type { ArtifactSummary } from '../types/artifacts';
 import type { IResponseMessage } from '../adapter/ipcBridge';
 import { uuid } from '../utils';
 import { addOrUpdateNode, emptyActivityContent, mergeActivityContent, mergeNodeList } from './activityTree';
@@ -97,6 +98,7 @@ type TMessageType =
   | 'sub_agent'
   | 'activity'
   | 'render_artifact'
+  | 'artifact_card'
   | 'execution_evidence';
 
 interface IMessage<T extends TMessageType, Content extends Record<string, any>> {
@@ -634,6 +636,39 @@ export type IMessageRenderArtifact = IMessage<
 >;
 
 /**
+ * T5. THE CARD THAT APPEARS UNDER THE ASSISTANT'S LAST MESSAGE.
+ *
+ * DESKTOP-AUTHORED, NOT ENGINE-AUTHORED, and the distinction is the whole
+ * design. `render_artifact` next door is a CORE frame, pinned by the contract
+ * corpus at `contracts/wayland-desktop-core/v1/compat/events/` and replayed by
+ * `desktopContractV1.test.ts`; extending it with a path would be an engine
+ * change plus a corpus re-import plus a contract pin bump, and its own comment
+ * says it "needs ZERO filesystem authority at the host". So this is a separate
+ * message the host writes for itself after the turn-end sweep.
+ *
+ * IT CARRIES IDS, NEVER PATHS. Every control on the card sends an
+ * `artifactId`, and the host re-resolves it through the ledger and
+ * re-verifies identity, containment and digest on every single click. A
+ * persisted card holding a stale summary therefore cannot make the host act on
+ * a file of the renderer's choosing - the worst it can do is name something
+ * the host will then refuse.
+ *
+ * `rejected` is on the card DELIBERATELY. A deliverable the ledger refused -
+ * too large, unreadable, a symlink - used to be silently absent, which reads
+ * to the user as "the agent never wrote it". A card that says why beats a row
+ * that is not there.
+ */
+export type IMessageArtifactCard = IMessage<
+  'artifact_card',
+  {
+    /** Newest-first, and always at least one - an empty card is never written. */
+    artifacts: ArtifactSummary[];
+    /** One line per refusal reason, already counted. May be empty. */
+    rejected?: Array<{ reason: string; count: number }>;
+  }
+>;
+
+/**
  * #252 - the activity card's merge key. Namespaced off the turn's stream
  * msg_id so it never collides with the assistant text message that shares that
  * same id (which would fragment streamed text into duplicate bubbles).
@@ -661,6 +696,7 @@ export type TMessage =
   | IMessageSubAgent
   | IMessageActivity
   | IMessageRenderArtifact
+  | IMessageArtifactCard
   | IMessageExecutionEvidence;
 
 // Unified type for all user-interaction confirmation prompts
@@ -843,6 +879,16 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         position: 'left',
         conversation_id: message.conversation_id,
         content: message.data as IMessageRenderArtifact['content'],
+      };
+    }
+    case 'artifact_card': {
+      return {
+        id: uuid(),
+        type: 'artifact_card',
+        msg_id: message.msg_id,
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content: message.data as IMessageArtifactCard['content'],
       };
     }
     case 'agent_status': {

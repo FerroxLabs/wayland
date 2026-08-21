@@ -56,6 +56,23 @@ const SCHEDULED_CHAT = 'conv-scheduled-run';
 const USER_CHAT = 'conv-the-user-opened-here';
 const RUN_ID = 'r-run-under-test';
 
+/**
+ * T1 moved the RUNLESS destination. A spawn that carries a conversation and has
+ * no run open used to be handed `<workspace>/artifacts` - the SERIES ROOT, the
+ * cron control plane holding `.latest.json`, `.aliases.json` and `.staging/`.
+ * Anything written there is classified as a series by path shape alone and can
+ * be deleted by the next publication's `retireStaleAliases`. It is now handed
+ * its own reserved `artifacts/chat/<conversationId>/`.
+ *
+ * Nothing this file was protecting has been given up: every case below still
+ * asserts the run-open destination, still asserts a chat is never redirected
+ * into another conversation's staging tree, and still asserts an out-of-
+ * workspace hint is refused - and each now also asserts the runless spawn stays
+ * OUT of the series root, which it previously landed in.
+ */
+const chatNamespaceFor = (conversationId: string) => path.join(workspace, 'artifacts', 'chat', conversationId);
+const seriesRoot = () => path.join(workspace, 'artifacts');
+
 let workspace = '';
 let staging = '';
 
@@ -91,10 +108,14 @@ describe('the engine spawn reads the run open on ITS OWN conversation', () => {
     vi.clearAllMocks();
   });
 
-  it('hands the scheduled run its staging directory, not the series root', async () => {
+  it('hands the scheduled run its staging directory, not its chat namespace', async () => {
     // Known negative, from the same spawn path: with no run open the engine
-    // gets the series root, so the positive below is not "any env at all".
-    expect((await spawnEnvFor(SCHEDULED_CHAT)).WAYLAND_OUTPUT_DIR).toBe(path.join(workspace, 'artifacts'));
+    // gets that conversation's chat namespace, so the positive below is not
+    // "any env at all". It is NOT the series root - see the T1 note above.
+    const runless = (await spawnEnvFor(SCHEDULED_CHAT)).WAYLAND_OUTPUT_DIR;
+    expect(runless).toBe(chatNamespaceFor(SCHEDULED_CHAT));
+    expect(runless).not.toBe(staging);
+    expect(runless).not.toBe(seriesRoot());
 
     openRunOutputDir(SCHEDULED_CHAT, RUN_ID, staging);
     const env = await spawnEnvFor(SCHEDULED_CHAT);
@@ -104,7 +125,7 @@ describe('the engine spawn reads the run open on ITS OWN conversation', () => {
     expect(env.WAYLAND_OUTPUT_DIR).toBe(activeRunOutputDir(SCHEDULED_CHAT));
   });
 
-  it('leaves the user own chat in the task folder on the series root', async () => {
+  it('leaves the user own chat in the task folder in its own chat namespace', async () => {
     openRunOutputDir(SCHEDULED_CHAT, RUN_ID, staging);
 
     // Same workspace, different conversation: the user opened a chat in the
@@ -112,8 +133,11 @@ describe('the engine spawn reads the run open on ITS OWN conversation', () => {
     // workspace, this spawn was silently redirected into the run's staging
     // directory and its output was published as the run's deliverable.
     const env = await spawnEnvFor(USER_CHAT);
-    expect(env.WAYLAND_OUTPUT_DIR).toBe(path.join(workspace, 'artifacts'));
+    expect(env.WAYLAND_OUTPUT_DIR).toBe(chatNamespaceFor(USER_CHAT));
     expect(env.WAYLAND_OUTPUT_DIR).not.toBe(staging);
+    expect(env.WAYLAND_OUTPUT_DIR).not.toBe(seriesRoot());
+    // ...and not the OTHER conversation's namespace either.
+    expect(env.WAYLAND_OUTPUT_DIR).not.toBe(chatNamespaceFor(SCHEDULED_CHAT));
 
     // Control, in the same run: the run IS open, and the chat that owns it
     // still gets it.
@@ -134,7 +158,9 @@ describe('the engine spawn reads the run open on ITS OWN conversation', () => {
     expect(activeRunOutputDir(SCHEDULED_CHAT)).toBe(outside);
 
     const env = await spawnEnvFor(SCHEDULED_CHAT);
-    expect(env.WAYLAND_OUTPUT_DIR).toBe(path.join(workspace, 'artifacts'));
+    expect(env.WAYLAND_OUTPUT_DIR).not.toBe(outside);
+    expect(env.WAYLAND_OUTPUT_DIR.startsWith(workspace + path.sep)).toBe(true);
+    expect(env.WAYLAND_OUTPUT_DIR).toBe(chatNamespaceFor(SCHEDULED_CHAT));
   });
 
   it('stands the engine in the same directory it names as the output root', async () => {

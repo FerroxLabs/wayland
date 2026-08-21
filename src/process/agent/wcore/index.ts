@@ -22,7 +22,9 @@ import { describeSpawnError, describeExitReason } from './execFailureReason';
 import { describeContractRejection, profileStripHedge } from './startFailureReason';
 import {
   buildEngineSpawnEnv,
+  buildOutputDirective,
   buildSpawnConfig,
+  resolveOutputDir,
   appendDesktopMcpProfile,
   WCORE_DESKTOP_HOST_ASSISTANT,
   WCORE_DESKTOP_MCP_PROFILE,
@@ -573,6 +575,14 @@ export class WCoreAgent {
       }
     }
 
+    // T2: resolved ONCE, here, and threaded into BOTH the `--system-prompt`
+    // directive and the spawn env. Deriving it twice would let the two disagree
+    // if a run closed between them, and a directive naming a directory the
+    // engine was not given is worse than no directive at all.
+    const engineOutputDir = workspace
+      ? resolveOutputDir(workspace, activeRunOutputDir(this.options.conversationId), this.options.conversationId)
+      : undefined;
+
     const {
       args,
       env,
@@ -590,6 +600,10 @@ export class WCoreAgent {
       sessionId: this.options.sessionId,
       resume: this.options.resume,
       rawEngine: this.options.rawEngineMode,
+      // T2. Ignored in raw-engine mode by `buildSpawnConfig`, deliberately: the
+      // engine runs on its own config.toml there and Desktop overrides nothing
+      // on the prompt side.
+      systemPrompt: engineOutputDir ? buildOutputDirective(engineOutputDir) : undefined,
       chatGptSubscriptionAvailable,
       openAiApiKey,
     });
@@ -713,7 +727,16 @@ export class WCoreAgent {
           // it. Undefined for an interactive chat, which keeps the series root,
           // including an interactive chat opened in the task's own folder while
           // a scheduled run of that task is in flight.
-          outputDir: activeRunOutputDir(this.options.conversationId),
+          // T2: the SAME value the `--system-prompt` directive named. Passing
+          // the already-resolved directory (rather than re-reading the run
+          // registry) is what makes "the env and the directive agree" a
+          // structural fact instead of a timing one. It is still re-checked for
+          // containment inside `buildEngineSpawnEnv`.
+          outputDir: engineOutputDir,
+          // T1: with no run open this selects `artifacts/chat/<conversationId>`
+          // instead of the series root, so an interactive chat's deliverables
+          // are never classified as a cron series - nor retired by one.
+          conversationId: this.options.conversationId,
           vaultPassphraseEnv: vaultDelivery?.env,
           spawnEnvDenylist,
           ambientEnvDenylist,
