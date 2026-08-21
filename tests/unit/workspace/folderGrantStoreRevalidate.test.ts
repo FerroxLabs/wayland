@@ -253,20 +253,34 @@ describe('a read re-decides every recorded root against the filesystem as it is 
     expect(record.grants.map((grant) => grant.grantId).toSorted()).toEqual([ids.target, ids.untouched].toSorted());
   });
 
-  it('never lets a withheld root reach an engine through the ADD path either', async () => {
+  /**
+   * A read never writes, so "a read does not delete" is true by construction.
+   * The rewrite an ADD performs is where a withheld entry could actually be
+   * lost - it rebuilds the whole bucket - and losing it there would be exactly
+   * the silent deletion the withholding design exists to avoid.
+   */
+  it('keeps withheld entries on disk through the rewrite an ADD performs', async () => {
     const ids = await grantBoth();
-    const nested = path.join(fx.target, 'inner');
-    mkdirSync(nested, { recursive: true });
     rmSync(fx.target, { recursive: true, force: true });
     symlinkSync(fx.waylandPrivate, fx.target, 'dir');
+    const third = path.join(fx.home, 'Third');
+    mkdirSync(third, { recursive: true });
 
-    // Asking for a folder underneath the poisoned root must NOT be answered
-    // with "you are already covered by that entry".
-    const outcome = await reopen().add({ workspaceId: WS, root: fx.untouched, origin: 'settings' });
+    const outcome = await reopen().add({ workspaceId: WS, root: third, origin: 'settings' });
 
-    // MECHANISM: it is answered by the UNTOUCHED grant, whose id is the one
-    // recorded for that folder - not by the entry whose root was re-pointed.
-    expect(outcome.ok === false ? `REFUSED ${outcome.refusal}` : outcome.addition.grant.grantId).toBe(ids.untouched);
+    expect(outcome.ok === false ? `REFUSED ${outcome.refusal}` : outcome.addition.created).toBe(true);
+    const onDisk: FolderGrant[] = JSON.parse(readFileSync(fx.file, 'utf8')).workspaces[WS];
+    // MECHANISM: the withheld entry is still recorded, by its id, alongside the
+    // live one and the new one. It is the user's to remove, not this write's.
+    expect(onDisk.map((grant) => grant.grantId)).toContain(ids.target);
+    expect(onDisk).toHaveLength(3);
+    // Positive control: it is still withheld on the way back out, so the entry
+    // that survived is the withheld one and not one that quietly went live.
+    const record = await reopen().list(WS);
+    expect(record.withheld.map((entry) => entry.grant.grantId)).toEqual([ids.target]);
+    expect(record.grants.map((grant) => grant.grantId).toSorted()).toEqual(
+      [ids.untouched, outcome.ok === true ? outcome.addition.grant.grantId : 'MISSING'].toSorted()
+    );
   });
 });
 
@@ -339,6 +353,54 @@ describe('a read refuses to certify what the production writer never wrote', () 
       'grant_cap_reached',
       'grant_cap_reached',
     ]);
+  });
+
+  /**
+   * The reachable case where containment decided against RAW records and
+   * containment decided against RE-VALIDATED ones differ. An entry past the cap
+   * is recorded, still names a perfectly good folder, and would be offered as
+   * "you are already covered by this" - handing the caller a certified grant
+   * for a root the engine is never going to accept.
+   */
+  it('never offers an entry the read would not certify as the grant that already covers a request', async () => {
+    const roots: string[] = [];
+    for (let i = 0; i <= MAX_FOLDER_GRANTS_PER_WORKSPACE; i += 1) {
+      const dir = path.join(fx.home, 'many', `folder-${i}`);
+      mkdirSync(dir, { recursive: true });
+      roots.push(dir);
+    }
+    writeFileSync(
+      fx.file,
+      JSON.stringify({
+        schemaVersion: 1,
+        workspaces: {
+          [WS]: roots.map((root, index) => ({
+            grantId: `g-${index}`,
+            root,
+            access: 'read',
+            grantedAtMs: 1_700_000_000_000 + index,
+            origin: 'settings',
+          })),
+        },
+      })
+    );
+    const overflow = roots[MAX_FOLDER_GRANTS_PER_WORKSPACE];
+    const insideOverflow = path.join(overflow, 'inside');
+    mkdirSync(insideOverflow, { recursive: true });
+
+    const outcome = await reopen().add({ workspaceId: WS, root: insideOverflow, origin: 'settings' });
+
+    expect(outcome.ok === false ? outcome.refusal : `COVERED BY ${outcome.addition.grant.grantId}`).toBe(
+      'grant_cap_reached'
+    );
+
+    // Positive control, and the ordering Core uses: a folder inside an entry
+    // that IS live is still a successful no-op against a full list, because
+    // coverage is checked before the cap.
+    const insideLive = path.join(roots[0], 'inside');
+    mkdirSync(insideLive, { recursive: true });
+    const redundant = await reopen().add({ workspaceId: WS, root: insideLive, origin: 'settings' });
+    expect(redundant.ok === false ? `REFUSED ${redundant.refusal}` : redundant.addition.grant.grantId).toBe('g-0');
   });
 
   it('withholds everything when Wayland own storage cannot be enumerated', async () => {
