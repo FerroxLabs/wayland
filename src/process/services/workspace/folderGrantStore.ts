@@ -308,18 +308,9 @@ export class WorkspaceFolderGrantStore {
 
     const live: LiveFolderGrant[] = [];
     for (const grant of recorded) {
-      const check = await classifyFolderGrantRoot(grant.root, context);
-      // `=== false`, not `!check.ok`: no `strictNullChecks` in this project.
-      if (check.ok === false) {
-        withhold(grant, check.refusal);
-        continue;
-      }
-      // The classifier accepted the path, but a path is only the same authority
-      // if it still canonicalises to ITSELF. When it does not, this root now
-      // names a different directory than the one the user consented to - even
-      // when that directory happens to be a permitted one.
-      if (!pathsEqual(check.root, grant.root)) {
-        withhold(grant, 'root_changed');
+      const rechecked = await this.recheck(grant, context);
+      if (rechecked.live === null) {
+        withhold(grant, rechecked.reason);
         continue;
       }
       // Core stops accepting at MAX_SESSION_READ_GRANTS and reports the
@@ -329,10 +320,46 @@ export class WorkspaceFolderGrantStore {
         withhold(grant, 'grant_cap_reached');
         continue;
       }
-      live.push(certify(grant));
+      live.push(rechecked.live);
     }
 
     return { workspaceId, grants: live, withheld };
+  }
+
+  /**
+   * Re-check ONE recorded entry against the filesystem as it is now.
+   *
+   * Split out so `add` can re-check only the handful of entries its containment
+   * decision actually depends on. Re-checking the whole list there would be
+   * O(n) filesystem work per add on a list capped at 64, which is O(n²) to fill
+   * one and showed up as a test timing out rather than as a slow app.
+   */
+  private async recheck(
+    grant: FolderGrant,
+    context: FolderGrantRootContext
+  ): Promise<{ live: LiveFolderGrant; reason: null } | { live: null; reason: FolderGrantWithheldReason }> {
+    const check = await classifyFolderGrantRoot(grant.root, context);
+    // `=== false`, not `!check.ok`: no `strictNullChecks` in this project.
+    if (check.ok === false) return { live: null, reason: check.refusal };
+    // The classifier accepted the path, but a path is only the same authority
+    // if it still canonicalises to ITSELF. When it does not, this root now
+    // names a different directory than the one the user consented to - even
+    // when that directory happens to be a permitted one.
+    if (!pathsEqual(check.root, grant.root)) return { live: null, reason: 'root_changed' };
+    return { live: certify(grant), reason: null };
+  }
+
+  /** The entries of `candidates` that still re-check, in their recorded order. */
+  private async stillLive(
+    candidates: readonly FolderGrant[],
+    context: FolderGrantRootContext
+  ): Promise<LiveFolderGrant[]> {
+    const live: LiveFolderGrant[] = [];
+    for (const grant of candidates) {
+      const rechecked = await this.recheck(grant, context);
+      if (rechecked.live !== null) live.push(rechecked.live);
+    }
+    return live;
   }
 
   /** Resolve the root context, or null when it cannot be enumerated. */
@@ -404,15 +431,27 @@ export class WorkspaceFolderGrantStore {
 
     return this.transact(async (file) => {
       const existing = file.workspaces[input.workspaceId] ?? [];
-      // Containment is decided against entries that still validate TODAY. An
-      // entry whose root has been re-pointed since it was written must never be
-      // handed back as "this already covers you": that would answer a request
-      // for a safe folder with a stale grant nobody re-checked.
-      const live = (await this.revalidate(input.workspaceId, existing, context)).grants;
 
       // Core's `grant_capacity` -> `Ok(true)`: already covered, so this is a
       // successful no-op and the original grantId survives.
-      const covering = live.find((grant) => isWithin(root, grant.root));
+      //
+      // Containment is decided against entries that still validate TODAY. An
+      // entry whose root has been re-pointed since it was written must never be
+      // handed back as "this already covers you": that would answer a request
+      // for a safe folder with a stale grant nobody re-checked, and hand the
+      // caller a CERTIFIED grant for it.
+      //
+      // A LEXICAL prefilter decides whether any of this is worth doing. Almost
+      // every add has no covering candidate at all, and re-checking a 64-entry
+      // list on each of 64 adds is O(n²) filesystem work to fill one workspace.
+      // When there IS a candidate the full re-validation runs, because "is this
+      // entry live" includes "is it within the engine's cap", and that is a
+      // property of the entries BEFORE it rather than of the entry itself.
+      const covering = existing.some((grant) => isWithin(root, grant.root))
+        ? (await this.revalidate(input.workspaceId, existing, context)).grants.find((grant) =>
+            isWithin(root, grant.root)
+          )
+        : undefined;
       if (covering) {
         return {
           result: { ok: true, addition: { grant: covering, created: false, superseded: [] } } as FolderGrantAddResult,
@@ -420,7 +459,10 @@ export class WorkspaceFolderGrantStore {
         };
       }
 
-      const superseded = live.filter((grant) => isWithin(grant.root, root));
+      const superseded = await this.stillLive(
+        existing.filter((grant) => isWithin(grant.root, root)),
+        context
+      );
       // Filtered out of the RECORDED list, not out of the live one: a withheld
       // entry stays exactly where it is on disk. It is the user's decision to
       // delete, not this write's side effect.

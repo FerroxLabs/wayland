@@ -440,7 +440,18 @@ describe('the revalidating read is the only way roots leave the store', () => {
       .filter((name) => !name.startsWith('_'))
       .toSorted();
 
-    expect(surface).toEqual(['add', 'contextOrNull', 'list', 'listAll', 'load', 'remove', 'revalidate', 'transact']);
+    expect(surface).toEqual([
+      'add',
+      'contextOrNull',
+      'list',
+      'listAll',
+      'load',
+      'recheck',
+      'remove',
+      'revalidate',
+      'stillLive',
+      'transact',
+    ]);
   });
 
   it('reports a workspace whose entries were ALL withheld, rather than hiding the row', async () => {
