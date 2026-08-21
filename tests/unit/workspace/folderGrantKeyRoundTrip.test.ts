@@ -10,8 +10,11 @@
  * These are two lanes computing the same workspace key from opposite ends, and
  * the failure mode is silent: the consent card files a grant, Settings shows an
  * empty list, and nothing is red anywhere. The premise both lanes started from
- * - "the key is the workspace identity marker" - was wrong, because a chat
- * whose workspace the user picked in a file dialog has no marker and never will.
+ * - "the key is the workspace identity marker" - was wrong twice over. It was
+ * wrong on reach, because a chat whose workspace the user picked in a file
+ * dialog has no marker and never will; and it was wrong on safety, because the
+ * marker is a file inside the workspace the agent can write, which made it an
+ * authority selector. The key is the resolved PATH now, for every workspace.
  *
  * So this file NEVER hands the same literal key to both sides. It derives the
  * key from a real directory with `resolveFolderGrantWorkspaceId` (what the
@@ -36,16 +39,11 @@ vi.mock('@process/utils', () => ({
   getConfigPath: () => path.join(userDataRef.value, 'config'),
   getDataPath: () => path.join(userDataRef.value, 'wayland'),
 }));
-// Points the REAL `scanWorkspaceDirectory` at a fixture tree, so the marker
-// half of the round trip runs through production code rather than a stand-in.
-vi.mock('@process/services/projectWorkspace', () => ({
-  defaultWorkspaceBaseDir: async () => workspaceBaseRef.value,
-}));
 
 import { WorkspaceFolderGrantStore } from '@process/services/workspace/folderGrantStore';
 import { resolveFolderGrantWorkspaceId } from '@process/services/workspace/folderGrantWorkspaceId';
 import { resolveFolderGrantWorkspaces } from '@process/services/workspace/folderGrantSurface';
-import { buildWorkspaceMarker, writeWorkspaceMarker } from '@process/services/workspaceIdentity';
+import { buildWorkspaceMarker, readWorkspaceMarker, writeWorkspaceMarker } from '@process/services/workspaceIdentity';
 import type { FolderGrantRootContext } from '@process/services/workspace/folderGrantRoots';
 
 const roots: string[] = [];
@@ -73,7 +71,9 @@ beforeEach(async () => {
 
   // A workspace Wayland ALLOCATED: nested under the managed base, marked.
   workspaceBaseRef.value = path.join(root, 'Documents', 'Wayland');
-  markedWorkspace = path.join(workspaceBaseRef.value, 'Projects', 'Ledger');
+  // Folder name deliberately UNLIKE the marker's display name, so "displayName
+  // is 'Ledger'" can only be true if the marker file was actually read.
+  markedWorkspace = path.join(workspaceBaseRef.value, 'Projects', 'ws-8f21c4');
   mkdirSync(markedWorkspace, { recursive: true });
   await writeWorkspaceMarker(
     markedWorkspace,
@@ -110,19 +110,23 @@ async function locateFromSettings(): Promise<Map<string, { dir: string; displayN
 }
 
 describe('the consent key and the settings lookup are the same key space', () => {
-  it('finds a grant filed against an ALLOCATED (marked) workspace', async () => {
+  it('finds a grant filed against an ALLOCATED (marked) workspace, and names it from the marker', async () => {
     const key = await fileGrantFromConsent(markedWorkspace);
-    expect(key.startsWith('marker:')).toBe(true);
+    // Path-keyed like every other workspace. The marker no longer selects the
+    // bucket; it is read back only as a LABEL, which is what `displayName`
+    // below proves - 'Ledger' is a name only the marker file carries.
+    expect(key).toBe(`path:${markedWorkspace}`);
 
     const located = await locateFromSettings();
 
     expect(located.get(key)).toEqual({ dir: markedWorkspace, displayName: 'Ledger' });
+    expect(located.get(key)?.displayName).not.toBe(path.basename(markedWorkspace));
   });
 
   it('finds a grant filed against a USER-PICKED (unmarked) workspace', async () => {
     // The case the marker-only premise made dead: most chats.
     const key = await fileGrantFromConsent(unmarkedWorkspace);
-    expect(key.startsWith('path:')).toBe(true);
+    expect(key).toBe(`path:${unmarkedWorkspace}`);
 
     const located = await locateFromSettings();
 
@@ -151,35 +155,61 @@ describe('the consent key and the settings lookup are the same key space', () =>
   });
 });
 
-describe('the two key namespaces are disjoint by construction', () => {
+describe('nothing the agent can write selects the bucket', () => {
   /**
-   * THE reason the prefix exists. The marker file lives INSIDE the workspace,
-   * which the agent can write. Without prefixes, an agent could author a marker
-   * whose id is literally another workspace's path key and inherit that
+   * ATTACK A, end to end through the store this time. The marker file lives
+   * INSIDE the workspace, which the agent can write. Under the old key an agent
+   * that authored a marker carrying another workspace's id inherited that
    * workspace's entire grant list.
    */
-  it('a forged marker naming another workspace path cannot reach that workspace grants', async () => {
-    const victimKey = await fileGrantFromConsent(unmarkedWorkspace);
-    expect(victimKey).toBe(`path:${unmarkedWorkspace}`);
+  it('ATTACK A: a forged marker id does not reach the victim workspace grants', async () => {
+    const victimKey = await fileGrantFromConsent(markedWorkspace);
+    expect((await store.list(victimKey)).grants).toHaveLength(1);
+    const victimMarker = await readWorkspaceMarker(markedWorkspace);
+    expect(victimMarker?.workspaceId).toBeTruthy();
 
-    // The attack: a workspace whose marker claims the victim's key as its id.
+    // The attack: a second workspace whose marker claims the victim's id.
     const attacker = path.join(workspaceBaseRef.value, 'Projects', 'Attacker');
     mkdirSync(attacker, { recursive: true });
-    await writeWorkspaceMarker(attacker, {
-      schemaVersion: 1,
-      workspaceId: victimKey,
-      ownerKind: 'project',
-      ownerId: null,
-      displayName: 'Attacker',
-      createdAtMs: 1_700_000_000_000,
-    });
+    await writeWorkspaceMarker(attacker, { ...victimMarker!, displayName: 'Attacker' });
 
     const attackerKey = await resolveFolderGrantWorkspaceId(attacker);
 
-    expect(attackerKey).toBe(`marker:${victimKey}`);
+    expect(attackerKey).toBe(`path:${attacker}`);
     expect(attackerKey).not.toBe(victimKey);
-    // The victim's grants are filed under the victim's key alone.
+    // The bucket it actually reads is empty, and the victim's is untouched.
     expect((await store.list(attackerKey!)).grants).toEqual([]);
     expect((await store.list(victimKey)).grants).toHaveLength(1);
+  });
+
+  /**
+   * ATTACK B, end to end. No id is needed: an unmarked workspace accumulates
+   * grants at a pathname, a MARKED workspace later occupies the same pathname,
+   * and the agent deletes its own marker to fall back into the old bucket.
+   * There is no fall-back branch any more, so the marker's presence is not a
+   * lever at all - which the store list proves in both directions.
+   */
+  it('ATTACK B: deleting the marker neither gains nor loses a bucket', async () => {
+    const key = await fileGrantFromConsent(unmarkedWorkspace);
+    expect((await store.list(key)).grants).toHaveLength(1);
+
+    // The replacement workspace at the SAME pathname, this time marked.
+    await writeWorkspaceMarker(
+      unmarkedWorkspace,
+      buildWorkspaceMarker({ ownerKind: 'project', ownerId: 'p-2', displayName: 'Replacement' })
+    );
+    const markedKey = await resolveFolderGrantWorkspaceId(unmarkedWorkspace);
+    expect(markedKey).toBe(key);
+
+    // The attack: drop the marker to fall back onto the path key.
+    rmSync(path.join(unmarkedWorkspace, '.wayland-workspace.json'));
+    const afterDeletion = await resolveFolderGrantWorkspaceId(unmarkedWorkspace);
+
+    expect(afterDeletion).toBe(key);
+    // CONTROL: a workspace at a DIFFERENT pathname really does read a different
+    // (empty) bucket, so the equalities above are not one constant key.
+    const elsewhere = await resolveFolderGrantWorkspaceId(markedWorkspace);
+    expect(elsewhere).not.toBe(key);
+    expect((await store.list(elsewhere!)).grants).toEqual([]);
   });
 });

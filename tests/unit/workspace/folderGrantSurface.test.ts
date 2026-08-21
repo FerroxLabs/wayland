@@ -31,6 +31,7 @@ import {
   resolveFolderGrantWorkspaces,
   revokeFolderGrantInLiveSessions,
 } from '@process/services/workspace/folderGrantSurface';
+import { buildWorkspaceMarker, writeWorkspaceMarker } from '@process/services/workspaceIdentity';
 
 const WORKSPACE = '/Users/x/Documents/Wayland/Projects/Ledger';
 const OTHER_WORKSPACE = '/Users/x/Documents/Wayland/Projects/Payroll';
@@ -141,7 +142,7 @@ describe('the live-session registry', () => {
   });
 });
 
-describe('resolveFolderGrantWorkspaces - the path: half of the key space', () => {
+describe('resolveFolderGrantWorkspaces - reading the folder back out of the key', () => {
   const tmpDirs: string[] = [];
 
   afterAll(() => {
@@ -160,11 +161,6 @@ describe('resolveFolderGrantWorkspaces - the path: half of the key space', () =>
     return dir;
   };
 
-  /** Never scanned in these cases: a `path:` key carries its own folder. */
-  const neverScanned = async () => {
-    throw new Error('a path: key must not need the managed-workspace scan');
-  };
-
   it('refuses a RELATIVE key rather than resolving it against the process cwd', async () => {
     // Only a hand-edited grants file can produce one. Resolving it against
     // whatever directory the app happens to be running in would attach a
@@ -173,28 +169,62 @@ describe('resolveFolderGrantWorkspaces - the path: half of the key space', () =>
     const relative = path.relative(process.cwd(), absolute);
     expect(path.isAbsolute(relative)).toBe(false);
 
-    const located = await resolveFolderGrantWorkspaces([`path:${relative}`], neverScanned as never);
+    const located = await resolveFolderGrantWorkspaces([`path:${relative}`]);
     expect(located.size).toBe(0);
 
     // Positive control: the SAME folder, named absolutely, does resolve - so
     // the refusal above is the absoluteness check and not a dead resolver.
-    const ok = await resolveFolderGrantWorkspaces([`path:${absolute}`], neverScanned as never);
+    const ok = await resolveFolderGrantWorkspaces([`path:${absolute}`]);
     expect(ok.get(`path:${absolute}`)?.dir).toBe(absolute);
   });
 
   it('locates nothing for a folder that is not there', async () => {
     const gone = path.join(tmpDir(), 'deleted');
-    expect((await resolveFolderGrantWorkspaces([`path:${gone}`], neverScanned as never)).size).toBe(0);
+    expect((await resolveFolderGrantWorkspaces([`path:${gone}`])).size).toBe(0);
   });
 
   it('locates nothing when the path names a FILE rather than a folder', async () => {
     const dir = tmpDir();
     const file = path.join(dir, 'note.txt');
     writeFileSync(file, 'x');
-    expect((await resolveFolderGrantWorkspaces([`path:${file}`], neverScanned as never)).size).toBe(0);
+    expect((await resolveFolderGrantWorkspaces([`path:${file}`])).size).toBe(0);
     // Positive control: its parent directory resolves.
-    expect((await resolveFolderGrantWorkspaces([`path:${dir}`], neverScanned as never)).get(`path:${dir}`)?.dir).toBe(
-      dir
+    expect((await resolveFolderGrantWorkspaces([`path:${dir}`])).get(`path:${dir}`)?.dir).toBe(dir);
+  });
+
+  it('locates nothing for a legacy marker: key, which no longer names anything', async () => {
+    // Keys of that shape can still sit in a grants file written before the key
+    // became the path. They must resolve to no folder - the entry stays listed
+    // and revokable, but it may never be attached to a directory by guesswork.
+    const dir = tmpDir();
+    const legacy = 'marker:11111111-2222-3333-4444-555555555555';
+    expect((await resolveFolderGrantWorkspaces([legacy])).size).toBe(0);
+    // Positive control in the SAME call: a real key alongside it still resolves.
+    const mixed = await resolveFolderGrantWorkspaces([legacy, `path:${dir}`]);
+    expect(mixed.has(legacy)).toBe(false);
+    expect(mixed.get(`path:${dir}`)?.dir).toBe(dir);
+  });
+
+  it('names a workspace from its identity marker, and falls back to the folder name', async () => {
+    // The marker is a LABEL here and only a label - it cannot select a bucket,
+    // because the key was already computed from the path. The fixture folder is
+    // named unlike the marker so the display name can only come from the file.
+    const dir = tmpDir();
+    await writeWorkspaceMarker(
+      dir,
+      buildWorkspaceMarker({ ownerKind: 'project', ownerId: 'p-1', displayName: 'Quarterly Ledger' })
     );
+    expect((await resolveFolderGrantWorkspaces([`path:${dir}`])).get(`path:${dir}`)).toEqual({
+      dir,
+      displayName: 'Quarterly Ledger',
+    });
+
+    // CONTROL: with the marker gone the SAME folder falls back to its basename,
+    // so the name above came from the file and not from the path.
+    rmSync(path.join(dir, '.wayland-workspace.json'));
+    expect((await resolveFolderGrantWorkspaces([`path:${dir}`])).get(`path:${dir}`)).toEqual({
+      dir,
+      displayName: path.basename(dir),
+    });
   });
 });

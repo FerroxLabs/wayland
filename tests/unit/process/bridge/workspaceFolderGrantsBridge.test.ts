@@ -61,9 +61,12 @@ vi.mock('electron', () => ({
 
 import { initWorkspaceFolderGrantsBridge } from '@process/bridge/workspaceFolderGrantsBridge';
 
-const WS_ON_DISK = 'ws-on-disk';
-const WS_GONE = 'ws-gone';
 const DIR_ON_DISK = '/Users/x/Documents/Wayland/Projects/Ledger';
+// The production key shape: `resolveFolderGrantWorkspaceId` files every
+// workspace under its resolved PATH, so a fixture key of any other shape would
+// be testing a bucket the app can no longer create.
+const WS_ON_DISK = `path:${DIR_ON_DISK}`;
+const WS_GONE = 'path:/Users/x/Documents/Wayland/Projects/Payroll';
 
 const grant = (over: Partial<{ grantId: string; root: string; grantedAtMs: number; origin: string }> = {}) => ({
   grantId: over.grantId ?? 'g-1',
@@ -79,7 +82,7 @@ type Harness = {
     remove: ReturnType<typeof vi.fn>;
     add: ReturnType<typeof vi.fn>;
   };
-  scanDirectory: ReturnType<typeof vi.fn>;
+  resolveWorkspaces: ReturnType<typeof vi.fn>;
   revokeLive: ReturnType<typeof vi.fn>;
   pickDirectory: ReturnType<typeof vi.fn>;
   /** Every call in the order it happened, so ORDER can be asserted, not inferred. */
@@ -106,9 +109,10 @@ beforeEach(() => {
         return { ok: true, addition: { grant: grant({ root: input.root }), created: true, superseded: [] } };
       }),
     },
-    scanDirectory: vi.fn(async () => [
-      { workspaceId: WS_ON_DISK, dir: DIR_ON_DISK, displayName: 'Ledger' },
-    ]),
+    // The Settings resolver, stubbed at the seam the bridge actually calls.
+    // `WS_GONE` is deliberately absent: a key that resolves to no folder is
+    // still listed and still removable.
+    resolveWorkspaces: vi.fn(async () => new Map([[WS_ON_DISK, { dir: DIR_ON_DISK, displayName: 'Ledger' }]])),
     revokeLive: vi.fn(async (dir: string | null, grantId: string) => {
       calls.push(`revokeLive:${dir}:${grantId}`);
       return { revoked: 1, failed: 0 };
@@ -124,7 +128,7 @@ beforeEach(() => {
   providers.add.handler = null;
   initWorkspaceFolderGrantsBridge({
     store: h.store as never,
-    scanDirectory: h.scanDirectory as never,
+    resolveWorkspaces: h.resolveWorkspaces as never,
     revokeLive: h.revokeLive as never,
     pickDirectory: h.pickDirectory as never,
   });

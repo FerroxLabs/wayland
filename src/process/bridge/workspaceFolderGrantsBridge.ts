@@ -44,12 +44,12 @@ import {
 import {
   resolveFolderGrantWorkspaces,
   revokeFolderGrantInLiveSessions,
-  scanWorkspaceDirectory,
 } from '@process/services/workspace/folderGrantSurface';
 
 export type WorkspaceFolderGrantsBridgeDependencies = {
   store?: WorkspaceFolderGrantStore;
-  scanDirectory?: typeof scanWorkspaceDirectory;
+  /** Maps a workspace key back to the folder it names. */
+  resolveWorkspaces?: typeof resolveFolderGrantWorkspaces;
   revokeLive?: typeof revokeFolderGrantInLiveSessions;
   /** Resolves the folder the human chose, or null when they dismissed the picker. */
   pickDirectory?: () => Promise<string | null>;
@@ -65,17 +65,14 @@ async function pickDirectoryWithNativeDialog(): Promise<string | null> {
 
 export function initWorkspaceFolderGrantsBridge(deps: WorkspaceFolderGrantsBridgeDependencies = {}): void {
   const store = deps.store ?? defaultWorkspaceFolderGrantStore();
-  const scanDirectory = deps.scanDirectory ?? scanWorkspaceDirectory;
+  const resolveWorkspaces = deps.resolveWorkspaces ?? resolveFolderGrantWorkspaces;
   const revokeLive = deps.revokeLive ?? revokeFolderGrantInLiveSessions;
   const pickDirectory = deps.pickDirectory ?? pickDirectoryWithNativeDialog;
 
   ipcBridge.workspaceFolderGrants.list.provider(async (): Promise<FolderGrantListResult> => {
     try {
       const records = await store.listAll();
-      const dirs = await resolveFolderGrantWorkspaces(
-        records.map((record) => record.workspaceId),
-        scanDirectory
-      );
+      const dirs = await resolveWorkspaces(records.map((record) => record.workspaceId));
       const workspaces: FolderGrantWorkspaceView[] = records.map((record) => {
         const resolvedDir = dirs.get(record.workspaceId);
         return {
@@ -107,7 +104,7 @@ export function initWorkspaceFolderGrantsBridge(deps: WorkspaceFolderGrantsBridg
       const removed = await store.remove(workspaceId, grantId);
       if (!removed) return { ok: true, removed: false, liveSessionsRevoked: 0, liveSessionsFailed: 0 };
 
-      const dirs = await resolveFolderGrantWorkspaces([workspaceId], scanDirectory);
+      const dirs = await resolveWorkspaces([workspaceId]);
       const live = await revokeLive(dirs.get(workspaceId)?.dir ?? null, grantId);
       return { ok: true, removed: true, liveSessionsRevoked: live.revoked, liveSessionsFailed: live.failed };
     } catch {
@@ -123,7 +120,7 @@ export function initWorkspaceFolderGrantsBridge(deps: WorkspaceFolderGrantsBridg
       // Only a workspace this surface can actually SHOW may be added to. A
       // renderer naming an id that resolves to nothing would otherwise create a
       // grant bucket no card can display and no human can later revoke.
-      const dirs = await resolveFolderGrantWorkspaces([workspaceId], scanDirectory);
+      const dirs = await resolveWorkspaces([workspaceId]);
       if (!dirs.has(workspaceId)) return { ok: false, reason: 'unavailable' };
 
       const root = await pickDirectory();
