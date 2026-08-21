@@ -71,7 +71,24 @@ export interface FolderGrant {
 
 /** The persisted per-workspace record. */
 export interface WorkspaceFolderGrants {
-  /** Workspace identity, from the workspace identity marker. Never a path. */
+  /**
+   * The workspace this list belongs to. **Always produced by
+   * `resolveFolderGrantWorkspaceId`, never derived at the call site.**
+   *
+   * An earlier version of this comment said "from the workspace identity
+   * marker, never a path", and that was wrong in a way that would have made
+   * the feature dead for most chats. `.wayland-workspace.json` is written by
+   * exactly two call sites, `allocateProjectWorkspace` and
+   * `promoteConversationWorkspace` - both ALLOCATION paths. A workspace the
+   * user picked in a file dialog has no marker and never will.
+   *
+   * So the key is the marker id when one exists and the resolved path
+   * otherwise, in two PREFIXED, DISJOINT namespaces. The prefix is
+   * load-bearing, not cosmetic: the marker file sits inside the workspace,
+   * which the agent can write, so without it an agent could author a marker
+   * whose id is literally another workspace's path key and inherit that
+   * workspace's entire grant list.
+   */
   workspaceId: string;
   grants: FolderGrant[];
 }
