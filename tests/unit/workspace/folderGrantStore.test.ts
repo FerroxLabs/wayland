@@ -20,6 +20,7 @@
 import {
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   realpathSync,
   renameSync,
@@ -211,6 +212,44 @@ describe('WorkspaceFolderGrantStore.add - refusals', () => {
  * mount points need a spare volume, while the firmlink is present on every Mac
  * since 10.15 and needs no privileges at all.
  */
+/**
+ * Two directories on the same device whose inode numbers are DISTINCT but
+ * collapse to the same double, or null when this machine has no such pair.
+ *
+ * Searched rather than hard-coded: which directories collide depends on the
+ * volume, not on the OS version.
+ */
+function findLossyInodePair(): [string, string] | null {
+  if (process.platform !== 'darwin') return null;
+  const seen = new Map<string, { dir: string; ino: bigint }>();
+  for (const base of ['/System/Volumes', '/System/Applications', '/System/Library']) {
+    let names: string[];
+    try {
+      names = readdirSync(base);
+    } catch {
+      continue;
+    }
+    for (const name of names) {
+      const dir = path.join(base, name);
+      let stat: ReturnType<typeof statSync>;
+      try {
+        stat = statSync(dir, { bigint: true }) as never;
+      } catch {
+        continue;
+      }
+      const big = stat as unknown as { dev: bigint; ino: bigint; isDirectory(): boolean };
+      if (!big.isDirectory()) continue;
+      const asDouble = `${big.dev}:${Number(big.ino)}`;
+      const prior = seen.get(asDouble);
+      if (prior && prior.ino !== big.ino) return [prior.dir, dir];
+      if (!prior) seen.set(asDouble, { dir, ino: big.ino });
+    }
+  }
+  return null;
+}
+
+const lossyInodePair = findLossyInodePair();
+
 describe('WorkspaceFolderGrantStore.add - aliases realpath does not collapse', () => {
   /** Every path under `/` has a second real spelling beneath this. */
   const DATA_VOLUME = '/System/Volumes/Data';
@@ -253,6 +292,43 @@ describe('WorkspaceFolderGrantStore.add - aliases realpath does not collapse', (
 
     expect((await addAllowed()).ok).toBe(true);
   });
+
+  /**
+   * Identity has to be read EXACTLY, or it over-refuses.
+   *
+   * APFS inode numbers routinely exceed `Number.MAX_SAFE_INTEGER` - the ones
+   * under `/System` sit around 1.15e18, where the gap between adjacent doubles
+   * is 256 - so sibling directories created moments apart round to the same
+   * double. A default `fs.stat` would report two DISTINCT directories as the
+   * same one and refuse a folder the user is entitled to grant.
+   *
+   * The pair is discovered at run time rather than hard-coded, because which
+   * directories collide is a property of the machine, not of macOS.
+   */
+  (lossyInodePair ? onMac : it.skip)(
+    'keeps two directories distinct when their inode numbers round to the same double',
+    async () => {
+      const [first, second] = lossyInodePair!;
+      // Precondition: really distinct, and really indistinguishable as doubles.
+      expect(statSync(first, { bigint: true }).ino === statSync(second, { bigint: true }).ino).toBe(false);
+      expect(Number(statSync(first, { bigint: true }).ino)).toBe(Number(statSync(second, { bigint: true }).ino));
+
+      const store = new WorkspaceFolderGrantStore(fx.file, async () => ({
+        homeDir: fx.home,
+        waylandPrivateRoots: [first],
+      }));
+
+      // `second` is a different directory, so it stays grantable.
+      const outcome = await store.add({ workspaceId: WS, root: second, origin: 'settings' });
+      expect(outcome.ok === false ? `REFUSED ${outcome.refusal}` : outcome.addition.grant.root).toBe(second);
+
+      // Positive control: `first` really is off limits through this store, so
+      // the acceptance above is the precision of the compare and not a store
+      // that would have accepted anything.
+      const refused = await store.add({ workspaceId: WS, root: first, origin: 'settings' });
+      expect(refused.ok === false ? refused.refusal : 'UNEXPECTEDLY ACCEPTED').toBe('wayland_private');
+    }
+  );
 
   onMac("refuses Wayland's own storage in both directions through a firmlink alias", async () => {
     assertIsAnUncollapsedAlias(DATA_VOLUME + fx.waylandPrivate, fx.waylandPrivate);
