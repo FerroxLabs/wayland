@@ -83,7 +83,19 @@ export type ToolInfo = {
  * `once` leaves the read refused, because the authority plumbing cannot run the
  * call under a one-shot grant.
  */
-export type ApprovalScope = 'once' | 'always' | { always_path: { root: string; write: boolean } };
+export type ApprovalScope =
+  | 'once'
+  | 'always'
+  /**
+   * Prefix-scoped always-allow. NARROWS an authority the session already has:
+   * only commands in the same category whose normalized head matches `prefix`
+   * are auto-approved (`{"always_prefix":{"prefix":"cargo "}}`). Desktop does
+   * not send it today; it is here because this file is a mirror of
+   * `wcore-protocol::commands::ApprovalScope` and a mirror with a hole in it
+   * is how a host ends up mis-decoding the variant it never enumerated.
+   */
+  | { always_prefix: { prefix: string } }
+  | { always_path: { root: string; write: boolean } };
 
 /**
  * The CLOSED media-type vocabulary a `render_artifact` frame may carry.
@@ -193,6 +205,56 @@ export type WCoreExecutionPolicy = {
   };
 };
 
+/**
+ * The read/write boundary Core is ACTUALLY enforcing, as Core reports it.
+ *
+ * Mirrors `wcore-types::workspace_trust::WorkspacePolicyReceipt`. Note the
+ * nesting: unlike `execution_policy`, which the engine emits with
+ * `#[serde(flatten)]`, this one is a plain named field, so the receipt arrives
+ * under `policy` and NOT at the top level of the frame.
+ *
+ * Output-only. Echoing any field of it back to the engine cannot mint trust or
+ * authority - it is a receipt, not a request.
+ *
+ * WHY THE HOST CARES. `readable_roots` is the authoritative answer to "what can
+ * this chat actually reach", and Core's own protocol doc says to prefer it over
+ * tracking grants host-side. It is also the ONLY structural confirmation a
+ * `grant_path` landed: `emit_path_grant` flattens its typed `PathGrantError`
+ * (`FilesystemRoot`, `RequiresLocalOperator`, `WriteNotGrantable`, `NoParent`,
+ * `CapReached`) into an untyped `info` string and emits this receipt only in
+ * the `Ok` arm. There is no typed refusal to catch.
+ *
+ * CAVEAT ON `readable_roots` AS A CONTAINMENT CLAIM: these are the roots Core
+ * applies to its OWN file tools and hands to the OS sandbox. Whether the OS
+ * then stops a shell child from leaving them is a property of `backend` - the
+ * Windows default (`windows_job_object`) does not confine the filesystem. A
+ * host must qualify any "the workspace is a boundary" wording by `backend`.
+ */
+export type WCoreWorkspacePolicy = {
+  trust: {
+    level: 'untrusted' | 'trusted';
+    source:
+      | 'default'
+      | 'managed'
+      | 'user'
+      | 'local_session'
+      | 'project'
+      | 'skill'
+      | 'hook'
+      | 'mcp'
+      | 'remote'
+      | 'child';
+    fingerprint: string;
+    explanation: string;
+  };
+  profile: 'strict' | 'trusted_local_smart';
+  /** e.g. `sandbox-exec`, `bubblewrap`, `windows_job_object`. Free text by design. */
+  backend: string;
+  writable_roots: string[];
+  readable_roots: string[];
+  capabilities: Array<{ name: string; executable: string; read_only_roots: string[] }>;
+};
+
 export type WCoreEvent =
   | {
       type: 'ready';
@@ -204,6 +266,7 @@ export type WCoreEvent =
       execution_policy?: WCoreExecutionPolicy;
     }
   | ({ type: 'execution_policy' } & WCoreExecutionPolicy)
+  | { type: 'workspace_policy'; policy: WCoreWorkspacePolicy }
   | { type: 'stream_start'; msg_id: string }
   | { type: 'text_delta'; text: string; msg_id: string }
   | { type: 'thinking'; text: string; msg_id: string; subject?: string }
@@ -516,6 +579,30 @@ export type WCoreCommand =
   // form an older engine never sees because an older host never sends it.
   | { type: 'tool_approve'; call_id: string; scope: ApprovalScope; answer?: string }
   | { type: 'tool_deny'; call_id: string; reason?: string }
+  // #1099 boundary axis. `grant_path` gives this session standing READ access to
+  // a folder outside the workspace; it is a sibling of `grant_workspace_capability`,
+  // NOT of `tool_approve`, because the user-initiated flow (operator picks a
+  // folder in a picker) has no pending `call_id` to hang a scope on.
+  //
+  // Core REFUSES it unless the launcher opted in with `--allow-host-path-grants`
+  // (which itself requires `--json-stream`). The refusal arrives as an untyped
+  // `info` string with NO updated `workspace_policy` receipt - so the receipt,
+  // not the absence of an error, is what tells a host the grant landed.
+  | {
+      type: 'grant_path';
+      /** Host-chosen and stable: the ONLY handle `revoke_path` accepts. */
+      grant_id: string;
+      /** May be a file - Core grants the containing directory. */
+      root: string;
+      /** Omitted = `read`. `write` is expressible and REFUSED, never downgraded. */
+      access?: PathGrantAccess;
+      /** Unix ms deadline, evaluated at USE time. Omitted = process lifetime. */
+      expires_at_ms?: number;
+    }
+  // Deliberately NOT gated on the launcher opt-in: taking authority away is
+  // always permitted, and an unknown id is a no-op, so revoking is idempotent
+  // and a host that crashed mid-flow can clean up without knowing what landed.
+  | { type: 'revoke_path'; grant_id: string }
   // W7 S4 HITL: resume a suspended turn waiting on an `approval_required`.
   // Engine-side resolve is idempotent — a stale/duplicate token is ignored.
   | { type: 'approval_resume'; resume_token: string; approved: boolean }
