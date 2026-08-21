@@ -40,7 +40,6 @@ describe('ActionExecutor pure functions', () => {
       expect(getConfirmationOptions('some-unknown-type').map((o) => o.value)).toContain('proceed_once');
     });
 
-
     it('returns edit confirmation options', () => {
       const options = getConfirmationOptions('edit');
       expect(options).toHaveLength(3);
