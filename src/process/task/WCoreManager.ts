@@ -2347,7 +2347,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       const root = pathBoundaryRootOf(boundaryConfirmation);
       super.confirm(id, callId, data);
       if (isPathBoundaryGrantValue(data) && root) {
-        void this.grantFolderRoot(callId, root, data === PATH_BOUNDARY_REMEMBER_FOLDER);
+        // `.catch` and not a bare `void`: the answer is asynchronous now, and
+        // `writeCommand` throws when the transport dies mid-answer. Before, that
+        // throw propagated to `conversationBridge`, which already swallows it;
+        // from inside a detached promise it would be an unhandled rejection.
+        void this.grantFolderRoot(callId, root, data === PATH_BOUNDARY_REMEMBER_FOLDER).catch((error: unknown) => {
+          mainWarn('[WCoreManager]', 'the folder-grant answer was not delivered', error);
+        });
       } else {
         this.agent?.denyTool(callId, 'User declined access to the folder');
       }
