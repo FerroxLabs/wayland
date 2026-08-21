@@ -9,7 +9,7 @@ import { FolderKey } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { workspaceFolderGrants } from '@/common/adapter/ipcBridge';
-import type { FolderGrantRefusal } from '@/common/workspace/folderGrants';
+import type { FolderGrantRefusal, FolderGrantWithheldReason } from '@/common/workspace/folderGrants';
 import type { FolderGrantWorkspaceView } from '@/common/workspace/folderGrantsIpc';
 import { Card, ConfirmDialog } from '@renderer/components/settings/shared';
 import { isElectronDesktop } from '@renderer/utils/platform';
@@ -54,6 +54,51 @@ const REFUSAL_LABELS: Record<FolderGrantRefusal, Label> = {
   not_an_absolute_directory: {
     key: 'settings.storagePage.folderAccessRefusalNotADirectory',
     fallback: 'That is not a folder Wayland can reach.',
+  },
+};
+
+/**
+ * Why an entry that IS on record is not in effect.
+ *
+ * Every read re-checks each recorded folder against the filesystem as it is
+ * now, because a folder can be renamed and replaced by a link to somewhere else
+ * long after it was allowed. An entry that no longer checks out is shown here
+ * rather than quietly trusted or quietly deleted - the first would hand out
+ * access nobody re-checked, the second would erase a decision the user made and
+ * leave nothing to explain the gap.
+ */
+const WITHHELD_LABELS: Record<FolderGrantWithheldReason, Label> = {
+  root_changed: {
+    key: 'settings.storagePage.folderAccessWithheldRootChanged',
+    fallback: 'This path now leads somewhere else than the folder you allowed, so it is not being read.',
+  },
+  not_an_absolute_directory: {
+    key: 'settings.storagePage.folderAccessWithheldMissing',
+    fallback: 'This folder is no longer there, so it is not being read.',
+  },
+  root_of_filesystem: {
+    key: 'settings.storagePage.folderAccessWithheldRoot',
+    fallback: 'This path now leads to a whole drive, so it is not being read.',
+  },
+  home_directory: {
+    key: 'settings.storagePage.folderAccessWithheldHome',
+    fallback: 'This path now leads to your home folder, so it is not being read.',
+  },
+  wayland_private: {
+    key: 'settings.storagePage.folderAccessWithheldWaylandPrivate',
+    fallback: "This path now leads to Wayland's own settings and saved keys, so it is not being read.",
+  },
+  credential_store: {
+    key: 'settings.storagePage.folderAccessWithheldCredentialStore',
+    fallback: 'This path now leads to saved sign-in keys, so it is not being read.',
+  },
+  grant_cap_reached: {
+    key: 'settings.storagePage.folderAccessWithheldCapReached',
+    fallback: 'This workspace is over the limit of 64 folders, so this one is not being read.',
+  },
+  unrecognised_workspace_key: {
+    key: 'settings.storagePage.folderAccessWithheldUnknownKey',
+    fallback: 'This entry is filed under a workspace Wayland does not recognise, so it is not being read.',
   },
 };
 
@@ -231,12 +276,7 @@ const FolderAccessCard: React.FC = () => {
                   t('settings.storagePage.folderAccessUnknownWorkspace', 'Workspace no longer on disk')}
               </span>
               {workspace.workspaceDir && (
-                <Button
-                  size='mini'
-                  type='text'
-                  disabled={busy}
-                  onClick={() => void addFolder(workspace.workspaceId)}
-                >
+                <Button size='mini' type='text' disabled={busy} onClick={() => void addFolder(workspace.workspaceId)}>
                   {t('settings.storagePage.folderAccessAdd', 'Add folder')}
                 </Button>
               )}
@@ -259,6 +299,44 @@ const FolderAccessCard: React.FC = () => {
                 <div className='flex shrink-0 items-center gap-6px'>
                   <Tag size='small' color='blue'>
                     {t('settings.storagePage.folderAccessReadOnly', 'Read only')}
+                  </Tag>
+                  <Button
+                    size='mini'
+                    status='danger'
+                    disabled={busy}
+                    onClick={() =>
+                      setPendingRemoval({
+                        workspaceId: workspace.workspaceId,
+                        grantId: grant.grantId,
+                        root: grant.root,
+                      })
+                    }
+                  >
+                    {t('settings.storagePage.folderAccessRemove', 'Remove')}
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {workspace.withheld.map(({ grant, reason }) => (
+              <div
+                key={grant.grantId}
+                className='flex items-center gap-8px rounded-6px px-2px py-4px'
+                data-testid='folder-access-withheld'
+              >
+                <div className='min-w-0 flex-1'>
+                  <div
+                    className='truncate text-12px font-medium text-[var(--color-text-3)] line-through'
+                    title={grant.root}
+                  >
+                    {grant.root}
+                  </div>
+                  <div className='text-11px text-[var(--color-warning-6,var(--color-text-2))]'>
+                    {t(WITHHELD_LABELS[reason].key, WITHHELD_LABELS[reason].fallback)}
+                  </div>
+                </div>
+                <div className='flex shrink-0 items-center gap-6px'>
+                  <Tag size='small' color='orange'>
+                    {t('settings.storagePage.folderAccessNeedsAttention', 'Not in effect')}
                   </Tag>
                   <Button
                     size='mini'

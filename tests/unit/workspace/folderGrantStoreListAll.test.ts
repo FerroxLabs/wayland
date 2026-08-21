@@ -65,16 +65,16 @@ beforeEach(() => {
 
 describe('WorkspaceFolderGrantStore.listAll', () => {
   it('reports every workspace holding a grant, keyed by id', async () => {
-    const a = await store.add({ workspaceId: 'ws-a', root: allowedA, origin: 'consent_card' });
-    const b = await store.add({ workspaceId: 'ws-b', root: allowedB, origin: 'settings' });
+    const a = await store.add({ workspaceId: 'marker:ws-a', root: allowedA, origin: 'consent_card' });
+    const b = await store.add({ workspaceId: 'marker:ws-b', root: allowedB, origin: 'settings' });
     // Positive control: both adds were accepted, so an empty result below would
     // be a real defect rather than a fixture that never reached the store.
     expect(a.ok && b.ok).toBe(true);
 
     const all = await store.listAll();
 
-    expect(all.map((entry) => entry.workspaceId).sort()).toEqual(['ws-a', 'ws-b']);
-    expect(all.find((entry) => entry.workspaceId === 'ws-a')!.grants[0]).toMatchObject({
+    expect(all.map((entry) => entry.workspaceId).sort()).toEqual(['marker:ws-a', 'marker:ws-b']);
+    expect(all.find((entry) => entry.workspaceId === 'marker:ws-a')!.grants[0]).toMatchObject({
       root: allowedA,
       origin: 'consent_card',
       access: 'read',
@@ -82,16 +82,16 @@ describe('WorkspaceFolderGrantStore.listAll', () => {
   });
 
   it('omits a workspace whose last grant was removed, rather than showing an empty row', async () => {
-    const added = await store.add({ workspaceId: 'ws-a', root: allowedA, origin: 'settings' });
+    const added = await store.add({ workspaceId: 'marker:ws-a', root: allowedA, origin: 'settings' });
     // `=== false`, never `!added.ok`: without strictNullChecks a truthiness
     // test will not narrow a boolean-literal discriminant.
     if (added.ok === false) throw new Error(`fixture add refused: ${added.refusal}`);
-    await store.add({ workspaceId: 'ws-b', root: allowedB, origin: 'settings' });
+    await store.add({ workspaceId: 'marker:ws-b', root: allowedB, origin: 'settings' });
 
-    await store.remove('ws-a', added.addition.grant.grantId);
+    await store.remove('marker:ws-a', added.addition.grant.grantId);
 
     const all = await store.listAll();
-    expect(all.map((entry) => entry.workspaceId)).toEqual(['ws-b']);
+    expect(all.map((entry) => entry.workspaceId)).toEqual(['marker:ws-b']);
   });
 
   it('is empty before anyone has consented to anything', async () => {

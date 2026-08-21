@@ -41,6 +41,27 @@
  * budget. They are removed and reported as `superseded`. This can only ever
  * shrink the recorded authority, never widen it.
  *
+ * ── Revalidation on read ───────────────────────────────────────────────────
+ * What is persisted is a canonical STRING, and a string does not stay attached
+ * to the directory it named. A safe `/Volumes/reports` can be renamed and
+ * replaced by a symlink, junction or mount pointing at Wayland's own config
+ * tree, and the recorded root still spells the folder the user agreed to. Core
+ * cannot save us: its refusals cover `/`, `$HOME`-or-an-ancestor and a
+ * credential list, but NOT Wayland's user-data directory, which is a host-only
+ * concept holding provider config and `safeStorage` material.
+ *
+ * So every read re-decides, through `classifyFolderGrantRoot` - the same
+ * production classifier the write path uses, called and never re-implemented.
+ * `list` and `listAll` return `{ grants, withheld }`: certified entries, and
+ * entries this read refused to certify with the reason why. Withheld entries
+ * are left on disk and stay removable. Neither silent trust nor silent
+ * deletion is on the menu.
+ *
+ * `load` is private and there is no other accessor, so a revalidating read is
+ * the only way roots leave this module - and what leaves is `LiveFolderGrant`,
+ * which nothing outside this file can mint. A future replay that reads the
+ * JSON itself, or accepts a bare `FolderGrant`, does not typecheck.
+ *
  * ── The cap ────────────────────────────────────────────────────────────────
  * Core caps a session at `MAX_SESSION_READ_GRANTS = 64` and reports the
  * overflow the same untyped way it reports every other refusal. A durable list
@@ -68,9 +89,12 @@ import type {
   FolderGrant,
   FolderGrantOrigin,
   FolderGrantRefusal,
+  FolderGrantWithheldReason,
+  LiveFolderGrant,
+  WithheldFolderGrant,
   WorkspaceFolderGrants,
 } from '@/common/workspace/folderGrants';
-import { isWithin, type FolderGrantRootContext } from './folderGrantRoots';
+import { classifyFolderGrantRoot, isWithin, pathsEqual, type FolderGrantRootContext } from './folderGrantRoots';
 import { vetFolderGrantRoot } from './folderGrantAuthority';
 
 export const FOLDER_GRANTS_FILE = 'workspace-folder-grants.json';
@@ -83,8 +107,12 @@ export const FOLDER_GRANTS_FILE = 'workspace-folder-grants.json';
 export const MAX_FOLDER_GRANTS_PER_WORKSPACE = 64;
 
 export type FolderGrantAddition = Readonly<{
-  /** The live grant for this root - newly created, or the one that covered it. */
-  grant: FolderGrant;
+  /**
+   * The live grant for this root - newly created, or the one that covered it.
+   * Certified either way: a new entry was just classified against the live
+   * filesystem, and a covering entry was re-validated before it was matched.
+   */
+  grant: LiveFolderGrant;
   /** False when an existing grant already covered the request. */
   created: boolean;
   /** Entries this grant subsumed and that were removed. Revoke each by `grantId`. */
@@ -151,6 +179,41 @@ const EMPTY_FILE = (): GrantsFile => ({
   workspaces: Object.create(null) as Record<string, FolderGrant[]>,
 });
 
+/**
+ * The key namespaces this store will file an entry under.
+ *
+ * The prefixes were until now "a call-site convention": every writer happened
+ * to use them and nothing checked. A convention nothing enforces is not a
+ * boundary, and an unprefixed key is a key nothing derives - so it is refused.
+ *
+ * `path:` must carry an absolute path, because a relative one would be resolved
+ * against whatever the process cwd happened to be by whoever read it next.
+ *
+ * `marker:` is LEGACY. `resolveFolderGrantWorkspaceId` no longer derives it -
+ * the key is the canonical path and the workspace marker survives only as a
+ * display label - so nothing new can be filed under one. Buckets written before
+ * that change are still on disk, and they stay recognised here on purpose: a
+ * key this function rejects is a bucket every read reports as withheld, which
+ * is right for a hand-edited key and wrong for a decision the user actually
+ * made under the previous scheme. They remain listed, remain removable, and are
+ * never silently dropped.
+ */
+const MARKER_KEY_PREFIX = 'marker:';
+const PATH_KEY_PREFIX = 'path:';
+
+export function isFolderGrantWorkspaceKey(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0 || value.includes('\0')) return false;
+  if (value.startsWith(MARKER_KEY_PREFIX)) return value.length > MARKER_KEY_PREFIX.length;
+  if (value.startsWith(PATH_KEY_PREFIX)) return path.isAbsolute(value.slice(PATH_KEY_PREFIX.length));
+  return false;
+}
+
+/**
+ * Mint a {@link LiveFolderGrant}. The ONE place in the codebase that may, and
+ * it is unexported: everything else has to go through a revalidating read.
+ */
+const certify = (grant: FolderGrant): LiveFolderGrant => grant as LiveFolderGrant;
+
 export class WorkspaceFolderGrantStore {
   private tail: Promise<unknown> = Promise.resolve();
 
@@ -201,45 +264,184 @@ export class WorkspaceFolderGrantStore {
     return run;
   }
 
-  async list(workspaceId: string): Promise<WorkspaceFolderGrants> {
-    const file = await this.load();
-    return { workspaceId, grants: file.workspaces[workspaceId] ?? [] };
+  /**
+   * Re-decide one workspace's recorded entries against the filesystem AS IT IS
+   * NOW, through the same production classifier the write path uses.
+   *
+   * WHY A READ RE-DECIDES AT ALL. What is persisted is a canonical STRING, and
+   * a string does not stay attached to the directory it named. Rename the
+   * granted folder and put a symlink, junction or mount in its place - pointed
+   * at Wayland's config tree, at a credential store, at anything - and the
+   * recorded root still spells the folder the user agreed to. Every later
+   * reader would believe it. This is not "replay is not built yet": the moment
+   * an entry is written, the next thing to consume it is entitled to a root
+   * that was checked, and the entire purpose of this store is that something
+   * will consume it.
+   *
+   * The classifier is CALLED, never re-implemented. A second copy of the rules
+   * here would be a copy that drifts, and the drift would be silent.
+   *
+   * An entry that no longer validates is WITHHELD: reported with its reason,
+   * left on disk, still removable, and never certified. Not silently trusted -
+   * that hands out authority nobody re-checked. Not silently deleted either -
+   * that erases a decision the user made with no trace and nothing to explain
+   * the gap next time they look.
+   */
+  private async revalidate(
+    workspaceId: string,
+    recorded: readonly FolderGrant[],
+    context: FolderGrantRootContext | null
+  ): Promise<WorkspaceFolderGrants> {
+    const withheld: WithheldFolderGrant[] = [];
+    const withhold = (grant: FolderGrant, reason: FolderGrantWithheldReason): void => {
+      withheld.push({ grant, reason });
+    };
+
+    // A key nothing derives is a key nothing may replay. Still listed, with
+    // every entry named, so a tampered file is VISIBLE rather than quietly
+    // dropped - and `remove` stays permissive about the key so the user can
+    // clear it.
+    if (!isFolderGrantWorkspaceKey(workspaceId)) {
+      for (const grant of recorded) withhold(grant, 'unrecognised_workspace_key');
+      return { workspaceId, grants: [], withheld };
+    }
+
+    // Fail CLOSED, exactly as `add` does: without Wayland's own storage roots
+    // we cannot show an entry is not part of it, so nothing is certified.
+    if (context === null) {
+      for (const grant of recorded) withhold(grant, 'wayland_private');
+      return { workspaceId, grants: [], withheld };
+    }
+
+    const live: LiveFolderGrant[] = [];
+    for (const grant of recorded) {
+      const rechecked = await this.recheck(grant, context);
+      if (rechecked.live === null) {
+        withhold(grant, rechecked.reason);
+        continue;
+      }
+      // Core stops accepting at MAX_SESSION_READ_GRANTS and reports the
+      // overflow as an untyped string, so entries past the cap in a hand-edited
+      // file would take no effect while looking exactly like the ones that do.
+      if (live.length >= MAX_FOLDER_GRANTS_PER_WORKSPACE) {
+        withhold(grant, 'grant_cap_reached');
+        continue;
+      }
+      live.push(rechecked.live);
+    }
+
+    return { workspaceId, grants: live, withheld };
   }
 
   /**
-   * Every workspace that holds at least one grant.
+   * Re-check ONE recorded entry against the filesystem as it is now.
+   *
+   * Split out so `add` can re-check only the handful of entries its containment
+   * decision actually depends on. Re-checking the whole list there would be
+   * O(n) filesystem work per add on a list capped at 64, which is O(n²) to fill
+   * one and showed up as a test timing out rather than as a slow app.
+   */
+  private async recheck(
+    grant: FolderGrant,
+    context: FolderGrantRootContext
+  ): Promise<{ live: LiveFolderGrant; reason: null } | { live: null; reason: FolderGrantWithheldReason }> {
+    const check = await classifyFolderGrantRoot(grant.root, context);
+    // `=== false`, not `!check.ok`: no `strictNullChecks` in this project.
+    if (check.ok === false) return { live: null, reason: check.refusal };
+    // The classifier accepted the path, but a path is only the same authority
+    // if it still canonicalises to ITSELF. When it does not, this root now
+    // names a different directory than the one the user consented to - even
+    // when that directory happens to be a permitted one.
+    if (!pathsEqual(check.root, grant.root)) return { live: null, reason: 'root_changed' };
+    return { live: certify(grant), reason: null };
+  }
+
+  /** The entries of `candidates` that still re-check, in their recorded order. */
+  private async stillLive(
+    candidates: readonly FolderGrant[],
+    context: FolderGrantRootContext
+  ): Promise<LiveFolderGrant[]> {
+    const live: LiveFolderGrant[] = [];
+    for (const grant of candidates) {
+      const rechecked = await this.recheck(grant, context);
+      if (rechecked.live !== null) live.push(rechecked.live);
+    }
+    return live;
+  }
+
+  /** Resolve the root context, or null when it cannot be enumerated. */
+  private async contextOrNull(): Promise<FolderGrantRootContext | null> {
+    try {
+      return await this.resolveContext();
+    } catch {
+      return null;
+    }
+  }
+
+  async list(workspaceId: string): Promise<WorkspaceFolderGrants> {
+    const file = await this.load();
+    return this.revalidate(workspaceId, file.workspaces[workspaceId] ?? [], await this.contextOrNull());
+  }
+
+  /**
+   * Every workspace that holds at least one recorded entry, each re-validated.
    *
    * Keyed by id and NOT cross-checked against what exists on disk, because the
    * entries a user most needs to see are the ones whose workspace they can no
    * longer find. Filtering those out would hide standing authority behind a
-   * missing folder.
+   * missing folder. For the same reason a workspace whose entries were ALL
+   * withheld is still reported: an entry that stopped validating is the one a
+   * user most needs to be shown.
+   *
+   * ONE context object is resolved for the whole sweep, so the ~30 protected
+   * roots are canonicalised once rather than once per entry.
    */
   async listAll(): Promise<readonly WorkspaceFolderGrants[]> {
     const file = await this.load();
-    return Object.entries(file.workspaces)
-      .filter(([, grants]) => grants.length > 0)
-      .map(([workspaceId, grants]) => ({ workspaceId, grants }));
+    const context = await this.contextOrNull();
+    const records: WorkspaceFolderGrants[] = [];
+    for (const [workspaceId, grants] of Object.entries(file.workspaces)) {
+      if (grants.length === 0) continue;
+      records.push(await this.revalidate(workspaceId, grants, context));
+    }
+    return records;
   }
 
   async add(input: { workspaceId: string; root: string; origin: FolderGrantOrigin }): Promise<FolderGrantAddResult> {
     // A caller bug, not a user decision - there is no honest refusal code for
-    // it, and an empty key would silently create a bucket no workspace can read.
-    if (typeof input.workspaceId !== 'string' || input.workspaceId.length === 0) {
-      throw new TypeError('a folder grant needs a workspace id');
+    // it, and a key outside the two derived namespaces would create a bucket
+    // nothing can read back and nothing should ever replay. Enforced here and
+    // not merely conventional at the call sites: the disjointness of `marker:`
+    // and `path:` is what stops an agent-written marker file from naming
+    // another workspace's grant list, and a convention nothing checks is not a
+    // boundary.
+    if (!isFolderGrantWorkspaceKey(input.workspaceId)) {
+      throw new TypeError('a folder grant needs a marker: or path: workspace id');
     }
 
-    // The SAME gate the live consent path uses. Shared as one function on
-    // purpose: "a root Wayland refuses to persist must also be a root Wayland
-    // refuses to grant" is a property held by construction here, not by two
-    // call sites agreeing to stay in step. It fails CLOSED when Wayland's own
-    // storage cannot be enumerated, because then we cannot show this root is
-    // not part of it.
+    // Through `vetFolderGrantRoot`, NOT an inlined resolve-then-classify. That
+    // function is also what the live grant path calls before it hands a root to
+    // the engine, and routing both through one call is what makes "a root
+    // Wayland refuses to PERSIST is a root Wayland refuses to GRANT" true by
+    // construction rather than by two copies of the same logic agreeing. It
+    // fails closed to `wayland_private` when Wayland's own storage cannot be
+    // enumerated, which is the behaviour this used to spell out inline.
+    //
+    // `revalidate` deliberately does NOT come through here: it resolves the
+    // context ONCE for a whole sweep and calls the same classifier per entry,
+    // because a per-entry vet would rebuild the ~30 protected roots every time.
+    // Same classifier, same fail-closed answer, one pass instead of n.
     const check = await vetFolderGrantRoot(input.root, () => this.resolveContext());
+    if (check.ok === false) return { ok: false, refusal: check.refusal };
+
+    // The vet just resolved the context successfully, so this cannot be the
+    // fail-closed case; it is resolved once here and threaded through the
+    // coverage sweep below rather than rebuilt per candidate.
+    const context = await this.resolveContext();
     // `=== false`, not `!check.ok`: this project does not enable
     // `strictNullChecks`, and without it TypeScript will not narrow a
     // boolean-literal discriminant through a truthiness test. Consumers of
     // `FolderGrantAddResult` need the same spelling.
-    if (check.ok === false) return { ok: false, refusal: check.refusal };
     const root = check.root;
 
     return this.transact(async (file) => {
@@ -247,7 +449,24 @@ export class WorkspaceFolderGrantStore {
 
       // Core's `grant_capacity` -> `Ok(true)`: already covered, so this is a
       // successful no-op and the original grantId survives.
-      const covering = existing.find((grant) => isWithin(root, grant.root));
+      //
+      // Containment is decided against entries that still validate TODAY. An
+      // entry whose root has been re-pointed since it was written must never be
+      // handed back as "this already covers you": that would answer a request
+      // for a safe folder with a stale grant nobody re-checked, and hand the
+      // caller a CERTIFIED grant for it.
+      //
+      // A LEXICAL prefilter decides whether any of this is worth doing. Almost
+      // every add has no covering candidate at all, and re-checking a 64-entry
+      // list on each of 64 adds is O(n²) filesystem work to fill one workspace.
+      // When there IS a candidate the full re-validation runs, because "is this
+      // entry live" includes "is it within the engine's cap", and that is a
+      // property of the entries BEFORE it rather than of the entry itself.
+      const covering = existing.some((grant) => isWithin(root, grant.root))
+        ? (await this.revalidate(input.workspaceId, existing, context)).grants.find((grant) =>
+            isWithin(root, grant.root)
+          )
+        : undefined;
       if (covering) {
         return {
           result: { ok: true, addition: { grant: covering, created: false, superseded: [] } } as FolderGrantAddResult,
@@ -255,11 +474,20 @@ export class WorkspaceFolderGrantStore {
         };
       }
 
-      const superseded = existing.filter((grant) => isWithin(grant.root, root));
-      const kept = existing.filter((grant) => !superseded.includes(grant));
+      const superseded = await this.stillLive(
+        existing.filter((grant) => isWithin(grant.root, root)),
+        context
+      );
+      // Filtered out of the RECORDED list, not out of the live one: a withheld
+      // entry stays exactly where it is on disk. It is the user's decision to
+      // delete, not this write's side effect.
+      const kept = existing.filter((grant) => !superseded.some((gone) => gone.grantId === grant.grantId));
 
       // Checked AFTER the covered test, exactly as `grant_capacity` does, so a
-      // redundant re-grant still succeeds against a full list.
+      // redundant re-grant still succeeds against a full list. Counted over
+      // what is RECORDED rather than what currently validates, because a
+      // withheld entry can start validating again and the file must never hold
+      // more than the engine will accept.
       if (kept.length >= MAX_FOLDER_GRANTS_PER_WORKSPACE) {
         return { result: { ok: false, refusal: 'grant_cap_reached' } as FolderGrantAddResult, persist: false };
       }
@@ -273,13 +501,26 @@ export class WorkspaceFolderGrantStore {
       };
       file.workspaces[input.workspaceId] = [...kept, grant];
       return {
-        result: { ok: true, addition: { grant, created: true, superseded } } as FolderGrantAddResult,
+        // `certify` is honest here and only here on the write path: `root` came
+        // out of `classifyFolderGrantRoot` a few lines above, against the
+        // filesystem as it is right now.
+        result: { ok: true, addition: { grant: certify(grant), created: true, superseded } } as FolderGrantAddResult,
         persist: true,
       };
     });
   }
 
-  /** Remove one grant. Returns the removed entry so the caller can revoke it. */
+  /**
+   * Remove one grant. Returns the removed entry so the caller can revoke it.
+   *
+   * Deliberately PERMISSIVE about `workspaceId` where `add` is strict. A key
+   * that `add` would now refuse can still be sitting in a file written before
+   * this check existed, or hand-edited into one; those entries are reported by
+   * `list` / `listAll` as withheld precisely so a human can clear them, and a
+   * strict key check here would show the user a Remove button that does
+   * nothing. The returned entry is a plain `FolderGrant`, never certified: it
+   * is a revoke handle, not an authority to read anything.
+   */
   async remove(workspaceId: string, grantId: string): Promise<FolderGrant | null> {
     return this.transact(async (file) => {
       const existing = file.workspaces[workspaceId];

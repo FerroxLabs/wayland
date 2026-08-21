@@ -82,6 +82,12 @@ export function initWorkspaceFolderGrantsBridge(deps: WorkspaceFolderGrantsBridg
           // Newest first: the entry a user is least able to account for is
           // almost always the one added most recently.
           grants: [...record.grants].sort((a, b) => b.grantedAtMs - a.grantedAtMs),
+          // Passed through UNFILTERED. The store re-checks every recorded root
+          // against the live filesystem on each read; an entry it would not
+          // certify is not shown as if it were in effect, and is not hidden
+          // either. Dropping these here would put the surface back to showing
+          // a list that cannot be acted on.
+          withheld: [...record.withheld].sort((a, b) => b.grant.grantedAtMs - a.grant.grantedAtMs),
         };
       });
       return { ok: true, workspaces };

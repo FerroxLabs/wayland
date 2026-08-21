@@ -20,7 +20,7 @@
  * `workspaceRetentionBridge` returns `{ ok: false, errorCode }`.
  */
 
-import type { FolderGrant, FolderGrantRefusal } from './folderGrants';
+import type { FolderGrant, FolderGrantRefusal, WithheldFolderGrant } from './folderGrants';
 
 /**
  * One workspace's row in "Folders this workspace may reach".
@@ -36,7 +36,16 @@ export interface FolderGrantWorkspaceView {
   workspaceId: string;
   displayName: string | null;
   workspaceDir: string | null;
+  /** Re-validated by the read that produced this view. These are in effect. */
   grants: readonly FolderGrant[];
+  /**
+   * Recorded entries the read refused to certify - the folder was renamed,
+   * deleted, re-pointed at somewhere protected, or the entry is past the
+   * engine's cap. Surfaced rather than dropped: an entry that stopped meaning
+   * what the user agreed to is the one they most need to see, and deleting it
+   * for them would leave a hole nothing explains.
+   */
+  withheld: readonly WithheldFolderGrant[];
 }
 
 export type FolderGrantListResult =

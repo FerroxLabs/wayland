@@ -2357,7 +2357,16 @@
     "folderAccessRefusalWaylandPrivate": "That folder holds Wayland's own settings and saved keys.",
     "folderAccessRefusalCredentialStore": "That folder holds saved sign-in keys, such as .ssh or .aws.",
     "folderAccessRefusalCapReached": "This workspace already has the maximum of 64 folders. Remove one first.",
-    "folderAccessRefusalNotADirectory": "That is not a folder Wayland can reach."
+    "folderAccessRefusalNotADirectory": "That is not a folder Wayland can reach.",
+    "folderAccessNeedsAttention": "Not in effect",
+    "folderAccessWithheldRootChanged": "This path now leads somewhere else than the folder you allowed, so it is not being read.",
+    "folderAccessWithheldMissing": "This folder is no longer there, so it is not being read.",
+    "folderAccessWithheldRoot": "This path now leads to a whole drive, so it is not being read.",
+    "folderAccessWithheldHome": "This path now leads to your home folder, so it is not being read.",
+    "folderAccessWithheldWaylandPrivate": "This path now leads to Wayland's own settings and saved keys, so it is not being read.",
+    "folderAccessWithheldCredentialStore": "This path now leads to saved sign-in keys, so it is not being read.",
+    "folderAccessWithheldCapReached": "This workspace is over the limit of 64 folders, so this one is not being read.",
+    "folderAccessWithheldUnknownKey": "This entry is filed under a workspace Wayland does not recognise, so it is not being read."
   },
   "navigationPage": {
     "subtitle": "Choose which entries appear in the sidebar and titlebar.",

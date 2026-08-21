@@ -61,12 +61,9 @@ vi.mock('electron', () => ({
 
 import { initWorkspaceFolderGrantsBridge } from '@process/bridge/workspaceFolderGrantsBridge';
 
+const WS_ON_DISK = 'ws-on-disk';
+const WS_GONE = 'ws-gone';
 const DIR_ON_DISK = '/Users/x/Documents/Wayland/Projects/Ledger';
-// The production key shape: `resolveFolderGrantWorkspaceId` files every
-// workspace under its resolved PATH, so a fixture key of any other shape would
-// be testing a bucket the app can no longer create.
-const WS_ON_DISK = `path:${DIR_ON_DISK}`;
-const WS_GONE = 'path:/Users/x/Documents/Wayland/Projects/Payroll';
 
 const grant = (over: Partial<{ grantId: string; root: string; grantedAtMs: number; origin: string }> = {}) => ({
   grantId: over.grantId ?? 'g-1',
@@ -97,8 +94,19 @@ beforeEach(() => {
     calls,
     store: {
       listAll: vi.fn(async () => [
-        { workspaceId: WS_ON_DISK, grants: [grant()] },
-        { workspaceId: WS_GONE, grants: [grant({ grantId: 'g-2', root: '/Users/x/Old', origin: 'settings' })] },
+        {
+          workspaceId: WS_ON_DISK,
+          grants: [grant()],
+          // The store re-checks every recorded root on each read and hands back
+          // the ones it would not certify separately. A workspace with nothing
+          // withheld still carries the field.
+          withheld: [],
+        },
+        {
+          workspaceId: WS_GONE,
+          grants: [grant({ grantId: 'g-2', root: '/Users/x/Old', origin: 'settings' })],
+          withheld: [{ grant: grant({ grantId: 'g-3', root: '/Users/x/Reports' }), reason: 'root_changed' as const }],
+        },
       ]),
       remove: vi.fn(async (_workspaceId: string, grantId: string) => {
         calls.push(`store.remove:${grantId}`);
@@ -178,6 +186,30 @@ describe('workspaceFolderGrants.list', () => {
     expect((result.workspaces as { workspaceId: string }[]).map((w) => w.workspaceId)).toContain(WS_ON_DISK);
   });
 
+  /**
+   * An entry the store would no longer certify - its folder was renamed and
+   * re-pointed since the user allowed it - must reach the card. Dropping it
+   * here would put the surface back to showing a list nobody can act on: the
+   * record is still on disk, still replayable by anything that skips the check,
+   * and the one entry the user most needs to remove.
+   */
+  it('carries WITHHELD entries through with their reason, and does not mix them into the live list', async () => {
+    const result = accepted((await providers.list.handler!()) as { ok: boolean; workspaces: unknown[] });
+    const rows = result.workspaces as {
+      workspaceId: string;
+      grants: { grantId: string }[];
+      withheld: { grant: { grantId: string }; reason: string }[];
+    }[];
+
+    const gone = rows.find((row) => row.workspaceId === WS_GONE)!;
+    expect(gone.withheld).toEqual([expect.objectContaining({ reason: 'root_changed' })]);
+    // MECHANISM: it is NOT in `grants`, which is the half the engine is handed.
+    expect(gone.grants.map((entry) => entry.grantId)).toEqual(['g-2']);
+    // Positive control: a workspace with nothing withheld reports an empty
+    // list, so the assertion above is the projection and not a shared object.
+    expect(rows.find((row) => row.workspaceId === WS_ON_DISK)!.withheld).toEqual([]);
+  });
+
   it('resolves a classified failure instead of rejecting when the store is unreadable', async () => {
     h.store.listAll.mockRejectedValueOnce(new Error('disk on fire'));
     // If this ever rejects, the Storage card hangs forever with no message.
@@ -226,8 +258,9 @@ describe('workspaceFolderGrants.remove', () => {
     });
     expect(await providers.remove.handler!(undefined)).toEqual({ ok: false, errorCode: 'invalid-request' });
     // Positive control: the refusals above are a decision, not a dead provider.
-    expect(accepted((await providers.remove.handler!({ workspaceId: WS_ON_DISK, grantId: 'g-1' })) as { ok: boolean }))
-      .toBeTruthy();
+    expect(
+      accepted((await providers.remove.handler!({ workspaceId: WS_ON_DISK, grantId: 'g-1' })) as { ok: boolean })
+    ).toBeTruthy();
     // And nothing was removed or revoked on the refused calls.
     expect(h.store.remove).toHaveBeenCalledTimes(1);
   });
@@ -259,7 +292,11 @@ describe('workspaceFolderGrants.add', () => {
   it('takes no path from the caller - the folder comes from the native picker', async () => {
     await providers.add.handler!({ workspaceId: WS_ON_DISK, root: '/etc' } as never);
     // The smuggled `root` is ignored; what gets granted is what the picker returned.
-    expect(h.store.add).toHaveBeenCalledWith({ workspaceId: WS_ON_DISK, root: '/Users/x/Reference', origin: 'settings' });
+    expect(h.store.add).toHaveBeenCalledWith({
+      workspaceId: WS_ON_DISK,
+      root: '/Users/x/Reference',
+      origin: 'settings',
+    });
   });
 
   it('refuses a workspace that resolves to nothing on disk, without opening the picker', async () => {
