@@ -50,6 +50,7 @@ import { promises as fs, type Dirent } from 'fs';
 import path from 'path';
 
 import {
+  isChatNamespace,
   MAX_DECLARATIONS_PER_RUN,
   registerArtifacts,
   type ArtifactRejection,
@@ -126,6 +127,10 @@ export type TaskRunOutcome =
 
 export function seriesDirFor(workspace: string, series: string): string {
   if (!SERIES_PATTERN.test(series)) throw new InvalidSeriesNameError(series);
+  // T1: `artifacts/chat/` belongs to interactive chats. A series addressed here
+  // would publish, alias and - through `retireStaleAliases` - DELETE inside a
+  // directory the user's own chat output lives in.
+  if (isChatNamespace(series)) throw new InvalidSeriesNameError(series);
   return path.join(path.resolve(workspace), ARTIFACTS_DIR_NAME, series);
 }
 

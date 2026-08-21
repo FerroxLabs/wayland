@@ -13,6 +13,7 @@ import { loadBaselineProviderCatalog } from '@process/providers/catalog/provider
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 import type { ProviderId } from '@process/providers/types';
 import { VAULT_PASSPHRASE_CHILD_FD } from '@process/secrets';
+import { CHAT_NAMESPACE } from '@process/services/artifacts/artifactLedger';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 
 /**
@@ -980,14 +981,38 @@ export const AWS_AUTHORITY_ENV_KEYS = [
  * destination handed to model-authored skill text, so the one place it is
  * produced is the right place to prove it cannot point out of the sandbox.
  */
-function resolveOutputDir(workspace: string, outputDir?: string): string {
+function resolveOutputDir(workspace: string, outputDir?: string, conversationId?: string): string {
   const seriesRoot = path.join(workspace, 'artifacts');
-  if (!outputDir) return seriesRoot;
-  const resolvedWorkspace = path.resolve(workspace);
-  const resolved = path.resolve(outputDir);
-  const relative = path.relative(resolvedWorkspace, resolved);
-  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return seriesRoot;
-  return resolved;
+  if (outputDir) {
+    const resolvedWorkspace = path.resolve(workspace);
+    const resolved = path.resolve(outputDir);
+    const relative = path.relative(resolvedWorkspace, resolved);
+    if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) return resolved;
+  }
+  // No run open. A conversation is an interactive chat, and its deliverables
+  // must NOT land in the series root - see CHAT_NAMESPACE. Falling back to the
+  // namespace ROOT (rather than to the series root) when the id is unusable as
+  // a path segment keeps even that case out of series classification, which a
+  // fall-through to `seriesRoot` would not.
+  if (!conversationId) return seriesRoot;
+  const chatRoot = path.join(seriesRoot, CHAT_NAMESPACE);
+  const segment = usableConversationSegment(conversationId);
+  return segment ? path.join(chatRoot, segment) : chatRoot;
+}
+
+/**
+ * A conversation id is only allowed to become a directory name when it is
+ * already one safe segment. Ids are generated hex/UUID, so this rejects
+ * nothing real - it exists because this value is joined into a host-blessed
+ * write destination handed to model-authored text, and "the caller only ever
+ * passes good input" is the assumption every traversal starts from.
+ */
+function usableConversationSegment(conversationId: string): string | null {
+  const trimmed = conversationId.trim();
+  if (!trimmed || trimmed.length > 128) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(trimmed)) return null;
+  if (/[.]$/.test(trimmed)) return null;
+  return trimmed;
 }
 
 export function buildEngineSpawnEnv(opts: {
@@ -1003,6 +1028,14 @@ export function buildEngineSpawnEnv(opts: {
    * is a hint from the run path, not a second way to choose a write root.
    */
   outputDir?: string;
+  /**
+   * T1: the conversation this spawn belongs to. With no run open it selects the
+   * chat namespace `<workspace>/artifacts/chat/<conversationId>` instead of the
+   * series root, so an interactive chat's deliverables can never be classified
+   * as - or deleted by - a cron series. Absent (a spawn with no conversation)
+   * keeps the pre-T1 series root.
+   */
+  conversationId?: string;
   vaultPassphraseEnv?: Record<string, string>;
   spawnEnvDenylist?: readonly string[];
   ambientEnvDenylist?: readonly string[];
@@ -1126,7 +1159,7 @@ export function buildEngineSpawnEnv(opts: {
   // that folder - and an mkdir would silently resurrect a deleted workspace,
   // which is exactly what P2-10 forbids. Bundled skills already `mkdir -p`.
   if (opts.workspace) {
-    out.WAYLAND_OUTPUT_DIR = resolveOutputDir(opts.workspace, opts.outputDir);
+    out.WAYLAND_OUTPUT_DIR = resolveOutputDir(opts.workspace, opts.outputDir, opts.conversationId);
   }
 
   return out;

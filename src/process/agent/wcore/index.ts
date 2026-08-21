@@ -714,6 +714,10 @@ export class WCoreAgent {
           // including an interactive chat opened in the task's own folder while
           // a scheduled run of that task is in flight.
           outputDir: activeRunOutputDir(this.options.conversationId),
+          // T1: with no run open this selects `artifacts/chat/<conversationId>`
+          // instead of the series root, so an interactive chat's deliverables
+          // are never classified as a cron series - nor retired by one.
+          conversationId: this.options.conversationId,
           vaultPassphraseEnv: vaultDelivery?.env,
           spawnEnvDenylist,
           ambientEnvDenylist,

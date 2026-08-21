@@ -47,7 +47,7 @@ import { refuseUnsafeOpenTarget } from '@process/bridge/shellOpenSafety';
 import { isReservedSeriesEntry } from './artifactSeries';
 import { ARTIFACTS_DIR_NAME } from './taskRun';
 
-import type { ArtifactRecord } from './artifactLedger';
+import { isChatNamespace, type ArtifactRecord } from './artifactLedger';
 import { readVerifiedArtifact, resolveArtifactTarget } from './artifactTarget';
 import { cachedDefaultApplicationName } from './defaultApplication';
 
@@ -219,6 +219,10 @@ function seriesAliasPathFor(record: ArtifactRecord): { seriesKey: string; aliasP
   // artifacts / <series> / <date> / <run-id> / <one or more segments>
   if (segments.length < 5) return null;
   if (segments[0] !== ARTIFACTS_DIR_NAME) return null;
+  // T1: `artifacts/chat/<conversationId>/sub/file.md` has the series SHAPE and
+  // is not one. Without this a chat deliverable grows a phantom alias at the
+  // series root, and a real series of that name would then retire it.
+  if (isChatNamespace(segments[1])) return null;
   const insideRunDir = segments.slice(4).join('/');
   if (isReservedSeriesEntry(insideRunDir)) return null;
   return {
