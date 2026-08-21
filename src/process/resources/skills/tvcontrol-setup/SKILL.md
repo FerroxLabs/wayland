@@ -220,6 +220,15 @@ Then load it, either way:
    here** — but only tell the user something was removed when the call came back clean, and
    never on the strength of having asked.
 
+   ⚠ **Read `survived`, not `success`, to decide whether removal worked.** `success` is
+   `every symbol removed`, so asking for one name that was never in the list turns it `false`
+   (and `verified` with it) even when every symbol that WAS there came out correctly. Verified
+   live: removing three present symbols plus one that never existed returned
+   `success: false, removed_count: 3, not_found: ["…"], survived: []`, and the three were
+   genuinely gone. **`survived: []` means nothing failed to remove.** Reporting that call as a
+   failure is wrong and is the easiest mistake to make here — say which ones came out, and name
+   the `not_found` ones as "not in the list" rather than as errors.
+
 3. **`dry_run` on `replace` does NOT show what would be deleted.** It reports only
    `would_add` and `would_skip`. The destructive half of the operation is invisible in the
    preview, so a dry run is *not* a safety check for `replace`. Treat `replace` as

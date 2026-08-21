@@ -38,7 +38,11 @@ Pick the 5 most-relevant symbols (user's main instruments, e.g., `ES1!`, `NQ1!`,
 
 1. `chart_set_symbol` — switch the chart
 2. `data_get_ohlcv` with `summary: true` — compact stats (overnight high/low, range, change%)
-3. `quote_get` — live price snapshot
+3. `quote_get` — the price held by the chart you just switched to. It is only as fresh as the
+   chart's data connection and reports `success: true` on a stale bar, so check
+   `tv_health_check` once before the loop and say so plainly if `datafeed.state` is
+   `disconnected` rather than reading out prices that look current. `quote_batch` takes all
+   five symbols in one call, does not touch the chart, and does not depend on that connection.
 
 Keep OHLCV summary-only to avoid context bloat.
 

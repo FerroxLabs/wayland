@@ -43,7 +43,13 @@ Either set each pane's timeframe via `pane_set_symbol` (if it accepts tf) or loo
 
 ## Step 4: Stream or Poll
 
-Poll: `pane_list` to enumerate panes, then per-pane `quote_get` + `data_get_ohlcv` with `summary: true`.
+Poll: `pane_list` to enumerate panes, then `quote_batch` with every pane's symbol in one call,
+plus per-pane `data_get_ohlcv` with `summary: true`.
+
+Use `quote_batch` here, not a `quote_get` per pane. `quote_get` for a symbol that is not the
+active chart symbol **briefly switches the chart and switches it back**, so polling it per pane
+visibly thrashes the user's layout on a timer. `quote_batch` reads the scanner API, touches
+nothing, and is unaffected by a dropped chart data connection.
 
 There is no push/stream tool on this connector, so re-poll on a timer for live monitoring rather than waiting for updates that will never arrive.
 
@@ -51,7 +57,8 @@ There is no push/stream tool on this connector, so re-poll on a timer for live m
 
 For each pane, pull:
 
-- `quote_get` — current price + change%
+- `quote_batch` — current price + change% for every pane symbol at once (see Step 4 for why
+  this is not a per-pane `quote_get`)
 - `data_get_ohlcv` with `summary: true, count: 20` — recent range
 
 Compute normalized % moves since session open (or since any anchor bar). The **leader** is the one with the largest % change in the dominant direction; the **laggard** is the smallest; **divergence** is when one pane goes opposite the rest.

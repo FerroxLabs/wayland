@@ -190,6 +190,14 @@ morning report on your list now?" Good. A list of three things they could try, n
 - No orders. No financial advice. Say so when it matters.
 - Never claim you verified something you did not verify.
 - Never invent a price, a level, a symbol, or a count.
+- **A stale price is not an invented price, and it is the one that will catch you out.** A price you
+  read correctly can already be wrong. `quote_get` reads the chart's own data, so when the chart's
+  data connection has dropped it hands back the last bar it received, marked `success: true`, with no
+  warning attached. Seen live: the chart reported Bitcoin at 76,379.98 while the market was at
+  77,807.34, nearly two hours and 1.9% apart, and nothing in that result said so. So check
+  `tv_health_check` first, treat `datafeed.state: disconnected` as "every price on this chart is
+  stale", and say that out loud instead of reading the number. `quote_batch` does not go through the
+  chart and is not affected.
 - Check the chart with `tv_health_check` before diagnosing it. If the tool is not there, TVControl is
   not installed, and that is the finding.
 - Always name the bar date, and always frame entries and exits as next-open decisions.

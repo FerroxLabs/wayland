@@ -46,7 +46,13 @@ Use drawing tools to mark up the chart:
 
 1. `capture_screenshot` — screenshot the annotated chart
 2. `data_get_ohlcv` — pull recent price data for quantitative analysis
-3. `quote_get` — get the current real-time price
+3. `quote_get` — the price the **chart** currently holds, which is not the same thing as the
+   live price. It reads the chart's own series, so it is only as fresh as the chart's data
+   connection, and it returns `success: true` with a stale bar and no warning when that
+   connection has dropped. Compare its `time` against the current bar, or read
+   `tv_health_check` first and treat a `datafeed.state` of `disconnected` as "every price on
+   this chart is stale". For a price that does not depend on the chart's connection, use
+   `quote_batch`, which goes to TradingView's scanner API instead.
 4. `symbol_info` — get symbol metadata (exchange, type, session)
 
 ## Step 6: Report
