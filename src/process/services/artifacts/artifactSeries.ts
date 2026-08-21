@@ -255,7 +255,15 @@ export async function reapStaleStagingRuns(
       // eslint-disable-next-line no-await-in-loop -- a handful of leftovers at most, and each rm must finish before the next stat
       const stat = await fs.lstat(target);
       if (!stat.isDirectory()) continue;
-      if (now - stat.mtime.getTime() < maxAgeMs) continue;
+      // Clamp at zero: a FUTURE mtime means "brand new", never "infinitely
+      // young". Filesystem timestamps and `Date.now()` are not read from the
+      // same clock, and on Windows the system timer granularity is 15.6ms by
+      // default, so a directory created microseconds ago routinely stats a few
+      // milliseconds AHEAD of `now`. Unclamped, such an entry is younger than
+      // every threshold and can never be reaped at all - which is how staging
+      // trees accumulate silently on a machine with any clock skew.
+      const ageMs = Math.max(0, now - stat.mtime.getTime());
+      if (ageMs < maxAgeMs) continue;
       // eslint-disable-next-line no-await-in-loop -- see above
       await fs.rm(target, { recursive: true, force: true });
       reaped.push(name);

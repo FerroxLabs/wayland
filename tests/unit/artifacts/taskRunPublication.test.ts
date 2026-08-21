@@ -299,6 +299,35 @@ describe('staging left by a run that never settled is reaped', () => {
     expect(await fs.readdir(stagingRoot)).toEqual([live.runId]);
   });
 
+  /**
+   * A staging tree whose mtime is in the FUTURE.
+   *
+   * Not hypothetical: filesystem timestamps and `Date.now()` are not read from
+   * the same clock, and Windows' default system timer granularity is 15.6ms, so
+   * a directory created microseconds ago routinely stats a few milliseconds
+   * ahead of `now`. Unclamped, `now - mtime` is negative, the entry is younger
+   * than EVERY threshold, and it can never be reaped at all - staging
+   * accumulates forever on any machine with clock skew.
+   *
+   * Clamped, a future mtime simply means "brand new": kept under a real window,
+   * reaped when the caller forces it.
+   */
+  it('treats a FUTURE mtime as brand new rather than as unreapable', async () => {
+    const dead = await openRun();
+    const stagingRoot = path.join(seriesDir, STAGING_DIR_NAME);
+    const future = new Date(Date.now() + 60 * 60 * 1000);
+    await fs.utimes(dead.stagingDir, future, future);
+
+    // Kept under a real window - it is "new", which is the honest reading.
+    expect(await reapStaleStagingRuns(seriesDir, { maxAgeMs: 60 * 1000 })).toEqual([]);
+    expect(await fs.readdir(stagingRoot)).toEqual([dead.runId]);
+
+    // ...and still reapable when the caller forces it. Unclamped this returns
+    // [] instead, because a negative age is below every threshold.
+    expect(await reapStaleStagingRuns(seriesDir, { maxAgeMs: 0 })).toEqual([dead.runId]);
+    expect(await fs.readdir(stagingRoot)).toEqual([]);
+  });
+
   it('never reaps a fresh tree, nor the run doing the asking', async () => {
     const recent = await openRun();
     const asking = await openRun();
@@ -311,7 +340,13 @@ describe('staging left by a run that never settled is reaped', () => {
 
     // Control: the reaper DOES find something when the age rule is met, so the
     // empty result above is a decision and not a broken scan.
-    const forced = await reapStaleStagingRuns(seriesDir, { keepRunId: asking.runId, maxAgeMs: -1 });
+    // NEGATIVE_INFINITY, not -1. The intent is "no age is too young"; -1 was a
+    // ONE-MILLISECOND margin against a clock that moves in 15.6ms steps on a
+    // Windows CI runner, which red-lit this shard twice in eight runs.
+    const forced = await reapStaleStagingRuns(seriesDir, {
+      keepRunId: asking.runId,
+      maxAgeMs: Number.NEGATIVE_INFINITY,
+    });
     expect(forced).toEqual([recent.runId]);
   });
 });
