@@ -163,6 +163,29 @@ describe('workspace_policy is consumed, not dropped', () => {
     expect(emitted.filter((e) => e.type === 'workspace_policy')).toHaveLength(1);
   });
 
+  it('reads the roots out of the REAL pinned corpus frame, not a hand-written shape', () => {
+    // The receipt nests under `policy` while `execution_policy` is flattened,
+    // and `readable_roots` is snake_case - exactly the details a guessed mirror
+    // gets wrong, and getting them wrong yields an empty root list rather than
+    // an error. So decode the corpus's own bytes through the production v1
+    // consumer and feed the result to the production dispatcher.
+    const corpus = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    const consumer = new DesktopCoreV1Consumer();
+    expect(consumer.consumeLine(readFileSync(path.join(corpus, 'events/ready.json'), 'utf8').trimEnd())).toMatchObject({
+      kind: 'event',
+      contract: 'v1',
+    });
+    const decoded = consumer.consumeLine(
+      readFileSync(path.join(corpus, 'events/workspace_policy.json'), 'utf8').trimEnd()
+    ) as { kind: string; event: WCoreEvent };
+    expect(decoded.kind).toBe('event');
+
+    const { agent, feed } = makeAgent();
+    feed(decoded.event);
+    expect(agent.workspaceReadableRoots).toEqual(['/workspace', '/usr/share']);
+    expect(agent.workspacePolicy?.backend).toBe('bwrap');
+  });
+
   it('leaves the host with no policy when an unrelated frame arrives', () => {
     // Control for the test above: proves the recording is keyed on the frame
     // type and not on "any frame at all".
