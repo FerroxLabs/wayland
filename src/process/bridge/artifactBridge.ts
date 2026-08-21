@@ -26,6 +26,7 @@ import {
   describeArtifactOpenTarget,
   listArtifactSummaries,
   openArtifact,
+  refreshChatArtifact,
   revealArtifact,
   saveArtifactCopy,
   type ArtifactHostEffects,
@@ -67,4 +68,7 @@ export function initArtifactBridge(): void {
   ipcBridge.artifacts.saveCopy.provider(({ artifactId }) => saveArtifactCopy(artifactId, effects));
   ipcBridge.artifacts.series.provider(({ artifactId }) => buildArtifactSeriesView(artifactId, effects));
   ipcBridge.artifacts.openTarget.provider(({ artifactId }) => describeArtifactOpenTarget(artifactId, effects));
+  ipcBridge.artifacts.refresh.provider(({ artifactId }) =>
+    refreshChatArtifact(artifactId, effects, artifactLedgerPath(getDataPath()))
+  );
 }

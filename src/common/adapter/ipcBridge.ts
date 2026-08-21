@@ -26,7 +26,13 @@ import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/wor
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
-import type { ArtifactOpenTarget, ArtifactSaveResult, ArtifactSeriesView, ArtifactSummary } from '../types/artifacts';
+import type {
+  ArtifactOpenTarget,
+  ArtifactRefreshResult,
+  ArtifactSaveResult,
+  ArtifactSeriesView,
+  ArtifactSummary,
+} from '../types/artifacts';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
 import type { IjfwErrorReason, IjfwInvokeResult, IjfwRuntimeModePublic } from '../types/ijfw';
 import type {
@@ -178,6 +184,17 @@ export const artifacts = {
    * whenever the answer cannot be established honestly.
    */
   openTarget: buildProvider<ArtifactOpenTarget, { artifactId: string }>('artifacts.open-target'),
+  /**
+   * T4. The user edited their own deliverable, so record what it is NOW.
+   *
+   * NOT a way to bypass verification - it RE-RUNS registration, applying
+   * containment, symlink refusal, non-regular-file refusal, the size cap and
+   * the device/inode re-check to the new bytes. Chat deliverables only: a
+   * published series run is immutable, and a change there is tampering.
+   *
+   * Remote-denied by the `artifacts.` prefix, like every other channel here.
+   */
+  refresh: buildProvider<ArtifactRefreshResult, { artifactId: string }>('artifacts.refresh'),
 };
 
 // #466 Computer-Use macOS permission onboarding. getStatus uses non-prompting
