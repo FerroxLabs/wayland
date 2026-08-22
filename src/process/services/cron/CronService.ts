@@ -1027,6 +1027,12 @@ export class CronService {
    */
   private registerCompletionNotification(job: CronJob, conversationId: string): void {
     this.executor.onceIdle(conversationId, async () => {
+      // ONE bounded wait for the publication, shared by both jobs below.
+      // Awaiting it twice would double the ceiling, and the whole rule for this
+      // wait is that a publication which HANGS costs the user the file name and
+      // never the banner.
+      const published = await this.publishedArtifactsForNotification(conversationId);
+
       // FIRST, and before the notification preference is even read: a run that
       // published nothing must not leave the task reporting `ok`. `last_status`
       // was written when the turn was SENT, so it can only ever have said "the
@@ -1049,7 +1055,6 @@ export class CronService {
       // it. Publication finishes AFTER the conversation goes idle, so this has
       // to await it - see `whenRunPublished`. Bounded, because a banner that
       // never appears is worse than one that cannot name the file.
-      const published = await this.publishedArtifactsForNotification(conversationId);
       const primary = published[0];
       const body = primary
         ? i18n.t('cron.notification.deliverableReady', { file: artifactFileName(primary) })
@@ -1071,9 +1076,9 @@ export class CronService {
    */
   private async reconcileRunStatus(job: CronJob, conversationId: string): Promise<void> {
     try {
-      // Await the publication first: the settlement does not exist until the
-      // executor's own idle callback has committed or abandoned the run.
-      await this.publishedArtifactsForNotification(conversationId);
+      // The caller has already awaited the publication - the settlement does not
+      // exist until the executor's own idle callback has committed or abandoned
+      // the run, and that wait is bounded and shared, never taken twice.
       const settled = this.executor.lastRunSettlement?.(conversationId);
       if (!settled || settled.published) return;
 

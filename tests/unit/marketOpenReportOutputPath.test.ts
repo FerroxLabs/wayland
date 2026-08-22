@@ -31,6 +31,23 @@ export const toPosixSeparators = (value: string): string => value.replace(/\\/g,
 
 const repoRelPosix = (file: string): string => toPosixSeparators(path.relative(REPO_ROOT, file));
 
+const SHELL_FENCE = /^(bash|sh|shell|zsh|console|terminal)$/i;
+
+/** Line numbers (1-based) of every line that sits inside a shell fence. */
+function shellFenceLines(markdown: string): Array<{ line: number; text: string }> {
+  const out: Array<{ line: number; text: string }> = [];
+  let inShell = false;
+  markdown.split('\n').forEach((raw, i) => {
+    const fence = raw.match(/^\s*```(\S*)/);
+    if (fence) {
+      inShell = inShell ? false : SHELL_FENCE.test(fence[1]);
+      return;
+    }
+    if (inShell) out.push({ line: i + 1, text: raw });
+  });
+  return out;
+}
+
 /** Extract the output-directory default declared as "... (default `PATH`)". */
 function extractDeclaredDefault(markdown: string): string {
   const match = markdown.match(/default\s+`([^`]+)`/);
@@ -38,6 +55,38 @@ function extractDeclaredDefault(markdown: string): string {
     throw new Error('No output-directory default declared as "(default `PATH`)" was found');
   }
   return match[1];
+}
+
+/**
+ * The placeholder a document uses for "the absolute deliverables directory your
+ * run instructions name".
+ *
+ * A document may legally declare NO default path of its own. That is not the
+ * old defect wearing a disguise - it is the opposite of it. The old defect was
+ * a document COMPUTING its destination (`$PWD/artifacts/market`, or an env var
+ * the engine does not forward), which is how the brief landed where nothing
+ * collected it. A document that takes the absolute directory it is handed
+ * cannot compute the wrong one. What still has to be proven is that the
+ * substitute really is declared ABSOLUTE, because a relative placeholder would
+ * resolve after the `cd` exactly as the original did.
+ */
+const DELIVERABLES_PLACEHOLDER = '<deliverables_dir>';
+
+function assertTakesAbsoluteDeliverablesDir(markdown: string): void {
+  expect(markdown).toContain(DELIVERABLES_PLACEHOLDER);
+  // Declared absolute, in prose, in the same document.
+  expect(markdown).toMatch(/absolute deliverables directory/i);
+
+  // And the EXECUTED text computes nothing. Asserted on the shell blocks only:
+  // the prose deliberately names `WAYLAND_OUTPUT_DIR` in order to refuse it,
+  // and deleting that refusal would leave a model's prior unchallenged.
+  const shell = shellFenceLines(markdown)
+    .map((l) => l.text)
+    .join('\n');
+  expect(shell).not.toContain('WAYLAND_OUTPUT_DIR');
+  expect(shell).not.toContain('$PWD');
+  // KNOWN-POSITIVE CONTROL: the predicate bites on the shape that shipped.
+  expect('OUT="${WAYLAND_OUTPUT_DIR:-$PWD/artifacts/market}"').toContain('WAYLAND_OUTPUT_DIR');
 }
 
 /**
@@ -56,12 +105,16 @@ function assertWorkspaceSafeArtifactPath(declaredPath: string): void {
 }
 
 describe('bundled market-report deliverables stay inside <workspace>/artifacts/', () => {
-  it('wayland-morning-report SKILL.md declares an in-workspace artifacts/ default', () => {
+  it('wayland-morning-report SKILL.md takes an absolute deliverables directory rather than computing one', () => {
     const md = readFileSync(
       path.join(REPO_ROOT, 'src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md'),
       'utf-8'
     );
-    assertWorkspaceSafeArtifactPath(extractDeclaredDefault(md));
+    assertTakesAbsoluteDeliverablesDir(md);
+
+    // The routine still declares the SERIES the run publishes into, and that is
+    // still held to the original rule - workspace-relative, under artifacts/,
+    // no dot segment. See the `weekday-morning-report` case below.
   });
 
   it('market-open-report SKILL.md declares an in-workspace artifacts/ default', () => {
@@ -209,8 +262,10 @@ describe('no bundled content sends a deliverable outside the workspace', () => {
     'month-end-review.data_dirs',
     'monthly-investor-update.data_dir',
     'friday-pipeline-review.pipeline_dir',
-    'weekday-morning-report.watchlist_path',
-    'weekday-morning-report.positions_path',
+    // `weekday-morning-report.watchlist_path` / `.positions_path` were RETIRED,
+    // not moved: they named `~/wayland/market/*.csv`, which has never existed on
+    // any machine, and exporting the first as MARKET_OPEN_REPORT_LIST overrode
+    // the watchlist the scanner ships with. They must not reappear here.
     'weekly-support-review.tickets_dir',
     'weekly-support-review.sla_targets_path',
   ]);
@@ -283,23 +338,6 @@ describe('no bundled content sends a deliverable outside the workspace', () => {
  * ---------------------------------------------------------------------------
  */
 
-const SHELL_FENCE = /^(bash|sh|shell|zsh|console|terminal)$/i;
-
-/** Line numbers (1-based) of every line that sits inside a shell fence. */
-function shellFenceLines(markdown: string): Array<{ line: number; text: string }> {
-  const out: Array<{ line: number; text: string }> = [];
-  let inShell = false;
-  markdown.split('\n').forEach((raw, i) => {
-    const fence = raw.match(/^\s*```(\S*)/);
-    if (fence) {
-      inShell = inShell ? false : SHELL_FENCE.test(fence[1]);
-      return;
-    }
-    if (inShell) out.push({ line: i + 1, text: raw });
-  });
-  return out;
-}
-
 /**
  * `tvcontrol-setup` is exempt for the same reason it is exempt from the
  * "app-owned" rule: TradingView's `watchlist_import` validator refuses any path
@@ -331,7 +369,23 @@ describe('a documented output directory resolves against the workspace root, not
       // The anchor must be IN the command block, not merely described in prose:
       // prose cannot be executed, and a block that lost its anchor while the
       // prose survived is exactly the regression this guards.
-      const anchors = shell.filter((l) => /\bOUT="?\$\{?(?:WAYLAND_OUTPUT_DIR\b|PWD\}?\/)/.test(l.text));
+      //
+      // A THIRD ANCHOR IS LEGAL, and the test is widened - not relaxed - to
+      // accept it. The invariant has never been "$PWD appears"; it is "the
+      // resolved output directory does not depend on the cwd at the moment OUT
+      // is USED". `$PWD/` satisfies that by anchoring at the workspace root
+      // before the `cd`. So does an ABSOLUTE path the document is HANDED, which
+      // is what `OUT="<deliverables_dir>"` is - and it is strictly safer than
+      // the two computed forms, because the document computes nothing at all.
+      // `$WAYLAND_OUTPUT_DIR` in particular turned out never to reach a shell
+      // command: the engine runs Bash tool calls through a 19-name env allowlist
+      // that excludes it, so every `${WAYLAND_OUTPUT_DIR:-...}` silently took
+      // its fallback. It stays accepted here only for documents that still use
+      // it. What is still REFUSED is what always was: a bare-relative OUT, an
+      // OUT anchored after the `cd`, and a `${VAR:-relative}` fallback.
+      const anchors = shell.filter((l) =>
+        /\bOUT="?(?:\$\{?(?:WAYLAND_OUTPUT_DIR\b|PWD\}?\/)|<deliverables_dir>|\/)/.test(l.text)
+      );
 
       if (anchors.length === 0) {
         offenders.push(
