@@ -229,6 +229,16 @@ describe('the scanner CLI names the cause on stdout', () => {
       // The distinction the user needs, in the run's own words.
       expect(stdout).toContain('This is NOT "no data"');
 
+      // AND THE REMEDY IT NAMES MUST BE THE ONE THE PRODUCT ACTUALLY HAS.
+      // This block used to end "a routine that needs live prices needs a
+      // connector granted to it" - advice from before the host prefetch
+      // existed, and now advice for a door the shipped morning routine
+      // deliberately does not open. An accurate diagnosis with an impossible
+      // remedy is the B6 failure shape: it sends the user somewhere that does
+      // not work, which is worse than saying nothing.
+      expect(stdout).not.toContain('needs a connector granted to it');
+      expect(stdout).toContain('the app fetches these bars before the run starts');
+
       // AND THE THREAD MUST LEARN IT. The workflow body is the only thing that
       // tells the model what to do with this stdout; a refusal the run prints
       // and the body never mentions is a refusal the user never sees. Couple

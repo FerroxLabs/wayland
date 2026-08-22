@@ -248,8 +248,10 @@ async function cli() {
         `${refusal.consecutiveSymbols} consecutive symbols, first at ${refusal.symbol}`,
       '  effect:  every symbol not already cached was SKIPPED, not fetched and not answered.',
       '  This is NOT "no data" and it is NOT a quiet market: nothing was asked and',
-      '  nothing answered. A scheduled run has no network, so a routine that needs',
-      '  live prices needs a connector granted to it, not a retry.',
+      '  nothing answered. A scheduled run has no network of its own, so retrying',
+      '  fails identically - the app fetches these bars before the run starts and',
+      '  leaves them in the cache directory this run was told to read. Reaching',
+      '  none of them means that pre-fetch did not happen or wrote somewhere else.',
       '',
     ];
     process.stdout.write(lines.join('\n'));
