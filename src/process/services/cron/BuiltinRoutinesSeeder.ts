@@ -51,6 +51,15 @@ export type RoutineDef = {
   schedule: string;
   timezone?: string;
   workflow: string;
+  /**
+   * Name of a host-side data fetch this routine needs BEFORE its run starts.
+   *
+   * Metadata, NOT an input. An input would join the declared key set
+   * `isSeederGeneratedPrompt` matches a stored prompt against, and every
+   * already-seeded job would start reading as user-edited - so the definition
+   * migration would refuse to touch exactly the rows a new key was added for.
+   */
+  prefetch?: string;
   inputs?: Record<string, string>;
 };
 
@@ -232,6 +241,25 @@ function isSingleSkillSegment(name: string): boolean {
  * where on a machine with Desktop & Documents sync turned on it becomes a
  * third-party upload.
  */
+/**
+ * The prefetch a routine declares, read LIVE from the bundled definition.
+ *
+ * Deliberately keyed on the routine id the stored job already carries, and
+ * deliberately not copied onto the job at seed time: `seedBuiltinRoutines`
+ * skips any routine already present, and `routineDefinitionMigration` copies no
+ * new configOptions onto an existing job. A field stored at seed time would
+ * therefore reach fresh installs only - and never the job on the machine this
+ * milestone exists for.
+ */
+export async function resolveRoutinePrefetch(
+  routineId: string | undefined,
+  dir: string = resolveBundledWorkflowsDir()
+): Promise<string | undefined> {
+  if (!routineId) return undefined;
+  const routines = await loadBundledRoutines(dir);
+  return routines?.find((r) => r?.id === routineId)?.prefetch;
+}
+
 export async function resolveRoutineSkillDirs(routineId: string | undefined): Promise<string[]> {
   if (!routineId) return [];
   const dir = resolveBundledWorkflowsDir();
