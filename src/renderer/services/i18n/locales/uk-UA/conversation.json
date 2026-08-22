@@ -562,6 +562,18 @@
     "update": "Оновити",
     "rejected": "{{count}} файл не збережено як результат: {{detail}}.",
     "rejected_other": "Файлів не збережено як результати: {{count}} ({{detail}}).",
-    "unknownError": "Не вдалося. Можливо, файл перемістили."
+    "unknownError": "Не вдалося. Можливо, файл перемістили.",
+    "rejectedOutsideFolder": "{{count}} збережено поза текою цього чату",
+    "rejectedOutsideFolder_other": "{{count}} збережено поза текою цього чату",
+    "rejectedNotAFile": "{{count}} не був звичайним файлом",
+    "rejectedNotAFile_other": "{{count}} не були звичайними файлами",
+    "rejectedTooBig": "{{count}} завеликий для збереження",
+    "rejectedTooBig_other": "{{count}} завеликі для збереження",
+    "rejectedTooMany": "{{count}} понад ліміт цього ходу",
+    "rejectedTooMany_other": "{{count}} понад ліміт цього ходу",
+    "rejectedUnreadable": "{{count}} не вдалося прочитати",
+    "rejectedUnreadable_other": "{{count}} не вдалося прочитати",
+    "more": "та ще {{count}} у розділі «Артефакти»",
+    "more_other": "та ще {{count}} у розділі «Артефакти»"
   }
 }

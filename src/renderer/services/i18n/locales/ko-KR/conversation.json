@@ -562,6 +562,18 @@
     "update": "업데이트",
     "rejected": "파일 {{count}}개가 결과물로 저장되지 않았습니다: {{detail}}.",
     "rejected_other": "파일 {{count}}개가 결과물로 저장되지 않았습니다: {{detail}}.",
-    "unknownError": "실행하지 못했습니다. 파일이 이동되었을 수 있습니다."
+    "unknownError": "실행하지 못했습니다. 파일이 이동되었을 수 있습니다.",
+    "rejectedOutsideFolder": "{{count}}개가 이 대화의 폴더 밖에 저장되었습니다",
+    "rejectedOutsideFolder_other": "{{count}}개가 이 대화의 폴더 밖에 저장되었습니다",
+    "rejectedNotAFile": "{{count}}개가 일반 파일이 아니었습니다",
+    "rejectedNotAFile_other": "{{count}}개가 일반 파일이 아니었습니다",
+    "rejectedTooBig": "{{count}}개가 너무 커서 저장하지 못했습니다",
+    "rejectedTooBig_other": "{{count}}개가 너무 커서 저장하지 못했습니다",
+    "rejectedTooMany": "{{count}}개가 이번 턴의 한도를 넘었습니다",
+    "rejectedTooMany_other": "{{count}}개가 이번 턴의 한도를 넘었습니다",
+    "rejectedUnreadable": "{{count}}개를 읽을 수 없었습니다",
+    "rejectedUnreadable_other": "{{count}}개를 읽을 수 없었습니다",
+    "more": "외 {{count}}개는 산출물에 있습니다",
+    "more_other": "외 {{count}}개는 산출물에 있습니다"
   }
 }

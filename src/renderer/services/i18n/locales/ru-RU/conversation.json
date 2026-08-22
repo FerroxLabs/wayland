@@ -562,6 +562,18 @@
     "update": "Обновить",
     "rejected": "{{count}} файл не сохранён как результат: {{detail}}.",
     "rejected_other": "Файлов не сохранено как результаты: {{count}} ({{detail}}).",
-    "unknownError": "Не получилось. Возможно, файл был перемещён."
+    "unknownError": "Не получилось. Возможно, файл был перемещён.",
+    "rejectedOutsideFolder": "{{count}} сохранён вне папки этого чата",
+    "rejectedOutsideFolder_other": "{{count}} сохранены вне папки этого чата",
+    "rejectedNotAFile": "{{count}} не был обычным файлом",
+    "rejectedNotAFile_other": "{{count}} не были обычными файлами",
+    "rejectedTooBig": "{{count}} слишком велик для сохранения",
+    "rejectedTooBig_other": "{{count}} слишком велики для сохранения",
+    "rejectedTooMany": "{{count}} сверх лимита этого хода",
+    "rejectedTooMany_other": "{{count}} сверх лимита этого хода",
+    "rejectedUnreadable": "{{count}} не удалось прочитать",
+    "rejectedUnreadable_other": "{{count}} не удалось прочитать",
+    "more": "и ещё {{count}} в разделе «Артефакты»",
+    "more_other": "и ещё {{count}} в разделе «Артефакты»"
   }
 }

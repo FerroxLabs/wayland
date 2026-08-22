@@ -562,6 +562,18 @@
     "update": "Actualizar",
     "rejected": "{{count}} archivo no se guardó como entregable: {{detail}}.",
     "rejected_other": "{{count}} archivos no se guardaron como entregables: {{detail}}.",
-    "unknownError": "Eso no funcionó. Es posible que el archivo se haya movido."
+    "unknownError": "Eso no funcionó. Es posible que el archivo se haya movido.",
+    "rejectedOutsideFolder": "{{count}} guardado fuera de la carpeta de este chat",
+    "rejectedOutsideFolder_other": "{{count}} guardados fuera de la carpeta de este chat",
+    "rejectedNotAFile": "{{count}} no era un archivo normal",
+    "rejectedNotAFile_other": "{{count}} no eran archivos normales",
+    "rejectedTooBig": "{{count}} era demasiado grande para guardarlo",
+    "rejectedTooBig_other": "{{count}} eran demasiado grandes para guardarlos",
+    "rejectedTooMany": "{{count}} por encima del límite de este turno",
+    "rejectedTooMany_other": "{{count}} por encima del límite de este turno",
+    "rejectedUnreadable": "{{count}} no se pudo leer",
+    "rejectedUnreadable_other": "{{count}} no se pudieron leer",
+    "more": "y {{count}} más en Artefactos",
+    "more_other": "y {{count}} más en Artefactos"
   }
 }

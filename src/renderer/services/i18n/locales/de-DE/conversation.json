@@ -562,6 +562,18 @@
     "update": "Aktualisieren",
     "rejected": "{{count}} Datei wurde nicht als Ergebnis gespeichert: {{detail}}.",
     "rejected_other": "{{count}} Dateien wurden nicht als Ergebnisse gespeichert: {{detail}}.",
-    "unknownError": "Das hat nicht funktioniert. Die Datei wurde möglicherweise verschoben."
+    "unknownError": "Das hat nicht funktioniert. Die Datei wurde möglicherweise verschoben.",
+    "rejectedOutsideFolder": "{{count}} außerhalb des Ordners dieses Chats gespeichert",
+    "rejectedOutsideFolder_other": "{{count}} außerhalb des Ordners dieses Chats gespeichert",
+    "rejectedNotAFile": "{{count}} war keine reguläre Datei",
+    "rejectedNotAFile_other": "{{count}} waren keine regulären Dateien",
+    "rejectedTooBig": "{{count}} war zu groß zum Speichern",
+    "rejectedTooBig_other": "{{count}} waren zu groß zum Speichern",
+    "rejectedTooMany": "{{count}} über dem Limit dieser Runde",
+    "rejectedTooMany_other": "{{count}} über dem Limit dieser Runde",
+    "rejectedUnreadable": "{{count}} konnte nicht gelesen werden",
+    "rejectedUnreadable_other": "{{count}} konnten nicht gelesen werden",
+    "more": "und {{count}} weitere unter Artefakte",
+    "more_other": "und {{count}} weitere unter Artefakte"
   }
 }

@@ -564,6 +564,18 @@
     "update": "Güncelle",
     "rejected": "{{count}} dosya çıktı olarak kaydedilmedi: {{detail}}.",
     "rejected_other": "{{count}} dosya çıktı olarak kaydedilmedi: {{detail}}.",
-    "unknownError": "Bu işe yaramadı. Dosya taşınmış olabilir."
+    "unknownError": "Bu işe yaramadı. Dosya taşınmış olabilir.",
+    "rejectedOutsideFolder": "{{count}} tanesi bu sohbetin klasörünün dışına kaydedildi",
+    "rejectedOutsideFolder_other": "{{count}} tanesi bu sohbetin klasörünün dışına kaydedildi",
+    "rejectedNotAFile": "{{count}} tanesi normal bir dosya değildi",
+    "rejectedNotAFile_other": "{{count}} tanesi normal dosya değildi",
+    "rejectedTooBig": "{{count}} tanesi kaydedilemeyecek kadar büyüktü",
+    "rejectedTooBig_other": "{{count}} tanesi kaydedilemeyecek kadar büyüktü",
+    "rejectedTooMany": "{{count}} tanesi bu turun sınırını aştı",
+    "rejectedTooMany_other": "{{count}} tanesi bu turun sınırını aştı",
+    "rejectedUnreadable": "{{count}} tanesi okunamadı",
+    "rejectedUnreadable_other": "{{count}} tanesi okunamadı",
+    "more": "ve Çıktılar bölümünde {{count}} tane daha",
+    "more_other": "ve Çıktılar bölümünde {{count}} tane daha"
   }
 }

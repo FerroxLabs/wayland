@@ -40,6 +40,11 @@ const ipcMock = vi.hoisted(() => ({
   saveCopy: vi.fn(),
   refresh: vi.fn(),
   openTarget: vi.fn(),
+  // MOCK EXTENSION, not a test change. The card now reads a few VERIFIED bytes
+  // for its preview band, so the partial bridge this file stubs has to carry
+  // the fifth artifact channel or the component cannot mount at all. Every
+  // assertion that existed before this line still asserts exactly what it did.
+  preview: vi.fn(),
 }));
 
 const previewMock = vi.hoisted(() => ({ launchPreview: vi.fn() }));
@@ -56,6 +61,7 @@ vi.mock('@/common', () => ({
       saveCopy: { invoke: ipcMock.saveCopy },
       refresh: { invoke: ipcMock.refresh },
       openTarget: { invoke: ipcMock.openTarget },
+      preview: { invoke: ipcMock.preview },
     },
   },
 }));
@@ -98,6 +104,8 @@ import { clearChatSweepMemo, sweepChatRun } from '@process/services/artifacts/ch
 import MessageArtifactCard from '@renderer/pages/conversation/Messages/components/MessageArtifactCard';
 import type { IMessageArtifactCard } from '@/common/chat/chatLib';
 import { DEFAULT_LANGUAGE } from '@/common/config/i18n';
+import type { ArtifactRejectionReason } from '@/common/types/artifacts';
+import { formatArtifactSize } from '@/common/types/artifacts';
 
 const CONVERSATION = 'convcard0001';
 
@@ -130,6 +138,7 @@ beforeEach(async () => {
   ipcMock.reveal.mockResolvedValue({ ok: true });
   ipcMock.saveCopy.mockResolvedValue({ ok: true });
   ipcMock.refresh.mockResolvedValue({ ok: true });
+  ipcMock.preview.mockResolvedValue({ kind: 'text', text: '# what wayland is\n', truncated: false });
   root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'wl-card-')));
   workspace = path.join(root, 'workspace');
   await fs.mkdir(workspace, { recursive: true });
@@ -201,7 +210,12 @@ describe('T5 - the card in the conversation', () => {
     render(<MessageArtifactCard message={message} />);
     fireEvent.click(screen.getByTestId('artifact-card-open-here'));
 
-    expect(previewMock.launchPreview).toHaveBeenCalledTimes(1);
+    // ASYNC NOW, AND ONLY ASYNC. "Open here" awaits a verified read before it
+    // launches (see C4) - it used to hand `canonicalPath` straight to the
+    // renderer's viewer with no ledger involved at all, which is why clicking
+    // it on an edited file could never raise the changed state. The claim is
+    // byte-identical: exactly one launch, and the OS launcher untouched.
+    await waitFor(() => expect(previewMock.launchPreview).toHaveBeenCalledTimes(1));
     // The whole point of "stays in Wayland": no `artifacts.open`, so no
     // `shell.openPath`, so nothing is handed to the OS to execute.
     expect(ipcMock.open).not.toHaveBeenCalled();
@@ -257,7 +271,18 @@ describe('T5 - the card in the conversation', () => {
     render(<MessageArtifactCard message={message} />);
 
     const line = screen.getByTestId('artifact-card-rejected').textContent ?? '';
-    expect(line).toContain('symlink');
+    // ---------------------------------------------------------------------
+    // THIS ASSERTION IS INVERTED DELIBERATELY AND IT IS THE POINT OF C2.
+    // It used to read `expect(line).toContain('symlink')`, which PINNED the
+    // defect: the card was printing the host's internal kebab-case vocabulary
+    // straight to a non-technical person at the exact moment their report did
+    // not arrive. The reason is now folded into one of five translated
+    // buckets, so the raw slug reaching the screen is the failure and is
+    // asserted as one. The count assertion is kept unchanged.
+    // ---------------------------------------------------------------------
+    expect(line).toContain('was not a regular file');
+    expect(line).not.toContain('symlink');
+    expect(line).not.toContain('not-regular-file');
     expect(line).toContain('1');
     // ...and the good file is still on the card. A rejection must not hide the
     // deliverable that DID work.
@@ -284,6 +309,333 @@ describe('T5 - the card in the conversation', () => {
    * BOTH hold: the fallback really is en-US, and en-US really has every key the
    * component asks for.
    */
+  /**
+   * ---------------------------------------------------------------------
+   * THE REBUILT CARD. Three bands, one accent, real bytes.
+   * ---------------------------------------------------------------------
+   * What shipped first was a 1px outline around four identical text links and
+   * it was rejected on sight. These are the mechanical halves of the design
+   * that a screenshot cannot check on every run.
+   */
+  describe('the three-band card', () => {
+    it('draws at most three rows and reads the preview exactly ONCE, however many deliverables there are', async () => {
+      const message = await produceCard({
+        'a.md': '# a\n',
+        'b.md': '# b\n',
+        'c.md': '# c\n',
+        'd.md': '# d\n',
+        'e.md': '# e\n',
+        'f.md': '# f\n',
+        'g.md': '# g\n',
+      });
+      expect(message.content.artifacts.length).toBe(7);
+
+      render(<MessageArtifactCard message={message} />);
+
+      expect(screen.getAllByTestId('artifact-card-row').length).toBe(3);
+      // ONE preview read per card, ever. Seven 104px bands is a 900px card and
+      // seven verified reads per render; this is the whole reason there is no
+      // batch provider, no lazy loader and no concurrency budget.
+      await waitFor(() => expect(ipcMock.preview).toHaveBeenCalledTimes(1));
+      expect(screen.getAllByTestId('artifact-card-preview').length).toBe(1);
+      expect(screen.getByTestId('artifact-card-more').textContent).toContain('4');
+    });
+
+    it('gives the newest deliverable a band and the other rows none', async () => {
+      const message = await produceCard({ 'a.md': '# a\n', 'b.md': '# b\n' });
+
+      render(<MessageArtifactCard message={message} />);
+
+      expect(screen.getAllByTestId('artifact-card-row').length).toBe(2);
+      expect(screen.getAllByTestId('artifact-card-preview').length).toBe(1);
+      expect(screen.queryByTestId('artifact-card-more')).toBeNull();
+      await waitFor(() => expect(ipcMock.preview).toHaveBeenCalledTimes(1));
+    });
+
+    /**
+     * THE SECURITY PROPERTY, ASSERTED RATHER THAN REVIEWED. Preview bytes are
+     * attacker-influenced: a model wrote them. They enter a `<pre>` and
+     * nothing else, so an HTML deliverable previews as its SOURCE.
+     */
+    it('puts text bytes in a <pre> as TEXT, never as markup', async () => {
+      ipcMock.preview.mockResolvedValue({
+        kind: 'text',
+        text: '<script>window.__pwned = 1</script><img src=x onerror=alert(1)>',
+        truncated: true,
+      });
+      const message = await produceCard({ 'page.html': '<h1>hi</h1>\n' });
+
+      const { container } = render(<MessageArtifactCard message={message} />);
+
+      const band = await screen.findByTestId('artifact-card-preview-text');
+      expect(band.tagName).toBe('PRE');
+      expect(band.textContent).toContain('<script>window.__pwned = 1</script>');
+      // The bytes are on screen and NOTHING was parsed out of them.
+      expect(container.querySelector('script')).toBeNull();
+      expect(container.querySelector('iframe')).toBeNull();
+      expect(container.querySelectorAll('img').length).toBe(0);
+      expect((window as unknown as Record<string, unknown>).__pwned).toBeUndefined();
+    });
+
+    it('puts image bytes in an <img> and nothing else', async () => {
+      const dataUrl = 'data:image/png;base64,iVBORw0KGgo=';
+      ipcMock.preview.mockResolvedValue({ kind: 'image', dataUrl });
+      const message = await produceCard({ 'shot.png': 'not really a png\n' });
+
+      render(<MessageArtifactCard message={message} />);
+
+      const image = await screen.findByTestId('artifact-card-preview-image');
+      expect(image.tagName).toBe('IMG');
+      expect(image.getAttribute('src')).toBe(dataUrl);
+      expect(screen.queryByTestId('artifact-card-preview-text')).toBeNull();
+    });
+
+    it('shows the file glyph, never an empty box, when the host refuses the bytes', async () => {
+      ipcMock.preview.mockResolvedValue({ kind: 'none', reason: 'binary' });
+      const message = await produceCard({ 'report.pdf': '%PDF-1.4\n' });
+
+      render(<MessageArtifactCard message={message} />);
+
+      expect(await screen.findByTestId('artifact-card-preview-glyph')).toBeTruthy();
+      expect(screen.queryByTestId('artifact-card-preview-text')).toBeNull();
+      // A refused preview must not disable the file. The internal viewer has
+      // its own PDF renderer and Open here still works.
+      expect(screen.getByTestId('artifact-card-open-here')).toBeTruthy();
+    });
+
+    /**
+     * THE REMOTE VIEWER. `artifacts.` is remote-denied by PREFIX, so on a
+     * paired WebUI the client throws rather than resolving. Every other
+     * control on this card is click-triggered and only fails when touched; a
+     * mount-time read is the one that would fail unprompted on every render.
+     */
+    it('falls back to the glyph when the bridge refuses the channel outright', async () => {
+      ipcMock.preview.mockRejectedValue(new Error('bridge provider artifacts.preview is unavailable'));
+      const message = await produceCard({ 'summary.md': '# x\n' });
+
+      render(<MessageArtifactCard message={message} />);
+
+      const glyph = await screen.findByTestId('artifact-card-preview-glyph');
+      // The glyph is ALSO the pre-settle placeholder - deliberately, so the
+      // band is never an empty box for a frame. Its presence therefore proves
+      // nothing on its own. What proves the rejection was CAUGHT and turned
+      // into a refusal is the settled tint: an unsettled band is muted, a
+      // settled one takes the file type's colour.
+      await waitFor(() =>
+        expect(glyph.querySelector('svg')?.getAttribute('class') ?? '').toContain('text-warning')
+      );
+      expect(screen.getByTestId('artifact-card')).toBeTruthy();
+      expect(screen.queryByTestId('artifact-card-error')).toBeNull();
+    });
+
+    /**
+     * THE REPAIR HAS A TRIGGER THAT ACTUALLY FIRES. There is no filesystem
+     * watcher, so a hand-edit surfaces on the NEXT mount - and before this the
+     * only path to the changed state was clicking one of the three host
+     * actions, which is not what a user does after editing their own file.
+     */
+    it('raises the changed state on mount, with no click at all, when the digest moved', async () => {
+      ipcMock.preview.mockResolvedValue({ kind: 'none', reason: 'changed' });
+      const message = await produceCard({ 'brief.md': '# brief\n' });
+
+      render(<MessageArtifactCard message={message} />);
+
+      expect(await screen.findByTestId('artifact-card-changed')).toBeTruthy();
+      const update = screen.getByTestId('artifact-card-update');
+      // ...and Update takes the accent. Open here demotes: the file on disk is
+      // not the file this card is about, so opening it is the wrong first move.
+      expect(update.className).toContain('bg-brand');
+      expect(screen.getByTestId('artifact-card-open-here').className).not.toContain('bg-brand');
+    });
+
+    it('refuses to launch the viewer on a file that changed under the card', async () => {
+      const message = await produceCard({ 'brief.md': '# brief\n' });
+      render(<MessageArtifactCard message={message} />);
+      await waitFor(() => expect(ipcMock.preview).toHaveBeenCalled());
+
+      ipcMock.preview.mockResolvedValue({ kind: 'none', reason: 'changed' });
+      fireEvent.click(screen.getByTestId('artifact-card-open-here'));
+
+      expect(await screen.findByTestId('artifact-card-changed')).toBeTruthy();
+      expect(previewMock.launchPreview).not.toHaveBeenCalled();
+    });
+
+    it('keeps opening the viewer for every refusal that is NOT a digest refusal', async () => {
+      ipcMock.preview.mockResolvedValue({ kind: 'none', reason: 'too-large' });
+      const message = await produceCard({ 'big.md': '# big\n' });
+
+      render(<MessageArtifactCard message={message} />);
+      fireEvent.click(screen.getByTestId('artifact-card-open-here'));
+
+      await waitFor(() => expect(previewMock.launchPreview).toHaveBeenCalledTimes(1));
+      expect(screen.queryByTestId('artifact-card-changed')).toBeNull();
+    });
+
+    /**
+     * EXACTLY ONE PER CARD, NOT PER ROW - which is a defect found by looking at
+     * a three-deliverable card in the running app rather than at this file. The
+     * accent was on every row's primary, so a card with three deliverables drew
+     * three orange buttons and the hierarchy was gone again.
+     */
+    it('fills exactly one button with the accent even on a card of many deliverables', async () => {
+      const message = await produceCard({ 'a.md': '# a\n', 'b.md': '# b\n', 'c.md': '# c\n' });
+
+      const { container } = render(<MessageArtifactCard message={message} />);
+      await waitFor(() => expect(ipcMock.preview).toHaveBeenCalled());
+
+      expect(screen.getAllByTestId('artifact-card-row').length).toBe(3);
+      const accented = [...container.querySelectorAll('button')].filter((button) =>
+        button.className.split(/\s+/).includes('bg-brand')
+      );
+      expect(accented.length).toBe(1);
+      // ...and it belongs to the NEWEST deliverable, the one with the band.
+      const firstRow = screen.getAllByTestId('artifact-card-row')[0];
+      expect(firstRow.contains(accented[0])).toBe(true);
+    });
+
+    /**
+     * FOUND ON SCREEN, NOT IN A TEST. After a repair the band re-read and
+     * showed the new bytes while the meta line above it still said the OLD
+     * size, so the card contradicted itself about one file. `artifacts.refresh`
+     * returns the re-verified record and it was being discarded.
+     */
+    it('re-describes the file after a repair instead of keeping the stale size', async () => {
+      ipcMock.preview.mockResolvedValue({ kind: 'none', reason: 'changed' });
+      const message = await produceCard({ 'brief.md': '# brief\n' });
+      const before = message.content.artifacts[0];
+
+      render(<MessageArtifactCard message={message} />);
+      await screen.findByTestId('artifact-card-changed');
+      expect(screen.getByTestId('artifact-card-meta').textContent).toContain(formatArtifactSize(before.sizeBytes));
+
+      ipcMock.refresh.mockResolvedValue({
+        ok: true,
+        artifact: { ...before, sizeBytes: before.sizeBytes + 4096 },
+      });
+      ipcMock.preview.mockResolvedValue({ kind: 'text', text: '# brief, revised\n', truncated: false });
+      fireEvent.click(screen.getByTestId('artifact-card-update'));
+
+      await waitFor(() =>
+        expect(screen.getByTestId('artifact-card-meta').textContent).toContain(
+          formatArtifactSize(before.sizeBytes + 4096)
+        )
+      );
+      // ...and the band now holds the bytes that size describes.
+      expect((await screen.findByTestId('artifact-card-preview-text')).textContent).toContain('revised');
+      expect(screen.queryByTestId('artifact-card-changed')).toBeNull();
+    });
+
+    /** EXACTLY ONE. Four equal-weight controls is the thing being fixed. */
+    it('fills exactly one button with the accent', async () => {
+      const message = await produceCard({ 'summary.md': '# x\n' });
+
+      const { container } = render(<MessageArtifactCard message={message} />);
+      await waitFor(() => expect(ipcMock.preview).toHaveBeenCalled());
+
+      const accented = [...container.querySelectorAll('button')].filter((button) =>
+        button.className.split(/\s+/).includes('bg-brand')
+      );
+      expect(accented.length).toBe(1);
+      expect(accented[0].getAttribute('data-testid')).toBe('artifact-card-open-here');
+    });
+
+    /**
+     * THE META LINE. Format proper noun, shared byte formatter, clock time -
+     * and no translatable "File"/"just now" invention, which is why none of
+     * these needed a new key.
+     */
+    it('names the format, the size and a clock time under the filename', async () => {
+      const message = await produceCard({ 'summary.md': '# what wayland is\n' });
+
+      render(<MessageArtifactCard message={message} />);
+
+      const meta = screen.getByTestId('artifact-card-meta').textContent ?? '';
+      expect(meta).toContain('Markdown');
+      expect(meta).toContain(formatArtifactSize(message.content.artifacts[0].sizeBytes));
+      expect(meta).toMatch(/\d{1,2}[:.]\d{2}/);
+      // The filename is a separate, louder line - not folded into the meta.
+      expect(screen.getByTestId('artifact-card-name').textContent).toBe('summary.md');
+    });
+
+    it('falls back to the uppercased extension rather than inventing a translatable noun', async () => {
+      const message = await produceCard({ 'sheet.tsv': 'a\tb\n' });
+
+      render(<MessageArtifactCard message={message} />);
+
+      const meta = screen.getByTestId('artifact-card-meta').textContent ?? '';
+      expect(meta).toContain('TSV');
+      expect(meta).not.toContain('File');
+    });
+
+    /**
+     * THE FIVE BUCKETS. `rejectionBucketFor` is the host's own table, so this
+     * asserts the renderer actually goes through it rather than that the table
+     * is right - which the host's exhaustive test already pins.
+     */
+    it('folds every rejection reason into a sentence, never a kebab-case slug', () => {
+      const reasons: ArtifactRejectionReason[] = [
+        'not-an-object',
+        'not-a-string',
+        'empty',
+        'absolute',
+        'home-relative',
+        'traversal',
+        'unsafe-form',
+        'escapes-workspace',
+        'symlink',
+        'not-regular-file',
+        'missing',
+        'too-large',
+        'too-many',
+        'unreadable',
+      ];
+      for (const reason of reasons) {
+        const message = {
+          id: 'x',
+          msg_id: 'x',
+          type: 'artifact_card',
+          position: 'left',
+          conversation_id: CONVERSATION,
+          content: { artifacts: [], rejected: [{ reason, count: 1 }] },
+        } as unknown as IMessageArtifactCard;
+        const view = render(<MessageArtifactCard message={message} />);
+        const line = screen.getByTestId('artifact-card-rejected').textContent ?? '';
+        expect(line).not.toContain(reason);
+        expect(line).not.toMatch(/[a-z]+-[a-z]+/);
+        expect(line.length).toBeGreaterThan(reason.length);
+        view.unmount();
+      }
+    });
+
+    it('sums two reasons that share a bucket into one phrase', () => {
+      const message = {
+        id: 'x',
+        msg_id: 'x',
+        type: 'artifact_card',
+        position: 'left',
+        conversation_id: CONVERSATION,
+        content: {
+          artifacts: [],
+          rejected: [
+            { reason: 'escapes-workspace', count: 2 },
+            { reason: 'traversal', count: 1 },
+            { reason: 'unreadable', count: 1 },
+          ],
+        },
+      } as unknown as IMessageArtifactCard;
+
+      render(<MessageArtifactCard message={message} />);
+
+      const line = screen.getByTestId('artifact-card-rejected').textContent ?? '';
+      // Three reasons, TWO sentences: the two path refusals are the same
+      // sentence to a person and differ only in which validator line caught
+      // them.
+      expect(line).toContain("3 saved outside this chat's folder");
+      expect(line).toContain('1 could not be read');
+      expect(line).toContain('4 files');
+    });
+  });
+
   it('renders English, not a raw key, in the eleven locales it was not translated into', () => {
     expect(DEFAULT_LANGUAGE).toBe('en-US');
 
