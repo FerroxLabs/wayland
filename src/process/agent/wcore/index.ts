@@ -269,6 +269,60 @@ export function resolveTurnStallTimeoutMs(env: NodeJS.ProcessEnv = process.env):
   return Math.min(Math.max(parsed, MIN_TURN_STALL_TIMEOUT_MS), MAX_TIMER_MS);
 }
 
+/**
+ * Core's approval reaper denies an UNANSWERED gate with this EXACT literal
+ * (`crates/wcore-protocol/src/lib.rs:266`). The TTL is 300s and the reaper
+ * sweeps on a 30s interval (`DEFAULT_APPROVAL_TTL` / `DEFAULT_REAP_INTERVAL`,
+ * `:27` and `:32`), so the wait is 300-330s. Measured live on 2026-08-22
+ * against engine v0.13.4: 323s from card to denial.
+ *
+ * The reason travels verbatim into `ToolCancelled.reason`
+ * (`wcore-agent/src/orchestration/mod.rs:1191`) and Desktop rendered it as the
+ * tool_group node's `description` with an EMPTY `name`, so the transcript read
+ * `Tool: approval timed out (no host response)` - untitled engine jargon after
+ * five and a half minutes of silence. Screenshotted live before this change.
+ */
+const CORE_APPROVAL_REAPED_REASON = 'approval timed out (no host response)';
+
+/**
+ * The collapsed tool row clamps `name: description` to this many characters and
+ * appends an ellipsis. MEASURED in the running app, twice, on two different
+ * drafts: both came back cut at exactly 75. Exported so the mapping's own test
+ * can hold the line rather than trusting a comment.
+ */
+export const CANCELLATION_LABEL_MAX_CHARS = 75;
+
+/**
+ * Give the ONE reason a person cannot be expected to parse a title and a
+ * sentence. Every other reason passes through unchanged - a denial, a
+ * ForgeFlow decline and a Crucible cancel all carry information the user
+ * needs, and rewriting them would bury it.
+ *
+ * ⚠️ DELIBERATELY UNTRANSLATED ENGLISH, IN ALL 12 LOCALES. `MessageToolGroup`
+ * renders the node `name` RAW (`MessageToolGroup.tsx:610`), so a translation
+ * key placed here would print the key itself to the user. That is strictly
+ * worse than English. This is still a strict improvement over today, where the
+ * raw engine reason is equally untranslated AND has no title. Translating it
+ * needs a renderer change and is a named follow-up.
+ */
+export function describeToolCancellation(reason: string): { name: string; description: string } {
+  if (reason === CORE_APPROVAL_REAPED_REASON) {
+    return {
+      name: 'Approval timed out',
+      // LENGTH IS LOAD-BEARING, and the limit is characters, not pixels. The
+      // collapsed tool row renders `name: description` and CLAMPS THE STRING
+      // ITSELF at exactly 75 characters plus an ellipsis - not CSS overflow,
+      // the DOM textContent is already cut. Measured twice in the running app:
+      // two different drafts both came back cut at exactly 75 characters, with
+      // the span 540px wide inside a 726px box, so pixel width is not the gate.
+      // Keep `name` + ': ' + `description` at or under 75 or the user reads
+      // half a sentence. See CANCELLATION_LABEL_MAX_CHARS.
+      description: 'Waited 5 minutes. Nothing was read or changed.',
+    };
+  }
+  return { name: '', description: reason };
+}
+
 export class WCoreAgent {
   private childProcess: ChildProcess | null = null;
   /** Root stdio transport liveness is separate from retained tree-proof
@@ -1221,14 +1275,17 @@ export class WCoreAgent {
         this.resumeStallWatchdog(`tool:${event.call_id}`);
         break;
 
-      case 'tool_cancelled':
+      case 'tool_cancelled': {
+        // A3 - one reason, and one only, gets plain English. Everything else
+        // passes through byte-for-byte.
+        const cancelled = describeToolCancellation(event.reason);
         this.onStreamEvent({
           type: 'tool_group',
           data: [
             {
               callId: event.call_id,
-              name: '',
-              description: event.reason,
+              name: cancelled.name,
+              description: cancelled.description,
               status: 'Canceled',
               renderOutputAsMarkdown: false,
             },
@@ -1240,6 +1297,7 @@ export class WCoreAgent {
         // #746: tool window closed — the agent owes us progress again.
         this.resumeStallWatchdog(`tool:${event.call_id}`);
         break;
+      }
 
       // #1098: the engine handed us CONTENT to display. No path is carried, so
       // nothing downstream can offer the OS launcher a target — which is the

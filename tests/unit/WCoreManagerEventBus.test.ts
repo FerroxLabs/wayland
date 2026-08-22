@@ -768,4 +768,102 @@ describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
       expect(finishEmissions.length).toBeGreaterThanOrEqual(1);
     });
   });
+
+  // ── A2: the engine's SYNTHESIZED companion frame is demoted by callId ──
+  //
+  // wayland-core v0.13.4's GatingProtocolWriter emits an `ApprovalRequired`
+  // with an EMPTY resume_token after EVERY gated `ToolRequest`. On the wire
+  // that frame is indistinguishable from a genuine un-resumable HITL suspend,
+  // so the `#264` branch above shouted `turn may wedge` at ERROR on a turn
+  // that was never wedged - 23 occurrences in one live log, every one of them
+  // answered by the ordinary tool_group path 60-200ms later.
+  //
+  // The discriminator the engine did not give us: the companion always FOLLOWS
+  // a `tool_request` for the SAME call_id, and Desktop has already seen that
+  // call_id come through the Confirming gate. A genuinely un-actionable
+  // tokenless approval has no such predecessor and stays LOUD.
+
+  describe('A2: tokenless auto-mode approval_required is demoted only when a gate owns its callId', () => {
+    function confirming(m: WCoreManager, callId: string) {
+      emitEvent(m, {
+        type: 'tool_group',
+        data: [{ name: 'Read', status: 'Confirming', callId, description: 'read a file' }],
+        msg_id: 'msg-1',
+      });
+    }
+
+    function tokenlessApproval(m: WCoreManager, callId: string) {
+      emitEvent(m, {
+        type: 'approval_required',
+        data: { callId, reason: 'destructive_operation' },
+        msg_id: 'msg-1',
+      });
+    }
+
+    function loudCalls() {
+      return mockMainError.mock.calls.filter(
+        ([, msg]: [unknown, unknown]) => typeof msg === 'string' && msg.includes('turn may wedge')
+      );
+    }
+
+    function demotedCalls() {
+      return mockMainLog.mock.calls.filter(
+        ([, msg]: [unknown, unknown]) =>
+          typeof msg === 'string' && msg.includes('tool_group approval gate already owns this call_id')
+      );
+    }
+
+    it('correlated: a Confirming gate for the SAME callId demotes it to an info line', () => {
+      (manager as unknown as { currentMode: string }).currentMode = 'yolo';
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      confirming(manager, 'c1');
+      tokenlessApproval(manager, 'c1');
+
+      expect(loudCalls()).toHaveLength(0);
+      const demoted = demotedCalls();
+      expect(demoted).toHaveLength(1);
+      expect(demoted[0][1]).toContain("reason='destructive_operation'");
+      expect(demoted[0][1]).toContain('c1');
+      // The payload preview is kept: it is the only greppable evidence of the
+      // mode divergence, and #714 requires the PREVIEW, never the raw payload.
+      expect(demoted[0]).toHaveLength(3);
+    });
+
+    it('UNCORRELATED: a gate on a DIFFERENT callId does not demote (the known positive is the test above)', () => {
+      (manager as unknown as { currentMode: string }).currentMode = 'yolo';
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      confirming(manager, 'c1');
+      tokenlessApproval(manager, 'c2');
+
+      expect(demotedCalls()).toHaveLength(0);
+      expect(loudCalls()).toHaveLength(1);
+    });
+
+    it('the correlation set does not leak across turns, so a later turn goes loud again', () => {
+      (manager as unknown as { currentMode: string }).currentMode = 'yolo';
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      confirming(manager, 'c1');
+      emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
+
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-2' });
+      tokenlessApproval(manager, 'c1');
+
+      expect(demotedCalls()).toHaveLength(0);
+      expect(loudCalls()).toHaveLength(1);
+    });
+
+    it('interactive (non-auto) mode is untouched: still the quiet #390 line, never demoted or loud', () => {
+      (manager as unknown as { currentMode: string }).currentMode = 'default';
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      confirming(manager, 'c1');
+      tokenlessApproval(manager, 'c1');
+
+      expect(loudCalls()).toHaveLength(0);
+      expect(demotedCalls()).toHaveLength(0);
+      const quiet = mockMainLog.mock.calls.find(
+        ([, msg]: [unknown, unknown]) => typeof msg === 'string' && msg.includes('renderer confirmation gate')
+      );
+      expect(quiet).toBeDefined();
+    });
+  });
 });
