@@ -37,7 +37,17 @@
 
 import { ipcBridge } from '@/common';
 import type { ArtifactSeriesRun, ArtifactSeriesView, ArtifactSummary } from '@/common/types/artifacts';
-import { AlertTriangle, ChevronDown, ChevronRight, ExternalLink, FileWarning, FolderOpen, Save } from 'lucide-react';
+import { ARTIFACT_CHANGED_ERROR } from '@/common/types/artifacts';
+import {
+  AlertTriangle,
+  ChevronDown,
+  ChevronRight,
+  ExternalLink,
+  FileWarning,
+  FolderOpen,
+  RefreshCw,
+  Save,
+} from 'lucide-react';
 import { usePreviewLauncher } from '@/renderer/hooks/file/usePreviewLauncher';
 import {
   previewContentTypeForFileName,
@@ -56,9 +66,47 @@ const buttonClass =
   'flex shrink-0 items-center gap-4px whitespace-nowrap px-8px py-4px rd-6px cursor-pointer border-none bg-transparent ' +
   'text-12px text-t-secondary hover:bg-3 hover:text-t-primary transition-colors disabled:opacity-50';
 
+/**
+ * The one accent-filled control in this bar. Reserved for the repair, which is
+ * the only action here that is a RECOMMENDATION rather than a choice: when the
+ * record is stale, updating it is what the user wants next. `#1a0d06` is a
+ * literal on purpose - there is no token for text ON the brand colour, and the
+ * brand orange is the same value in both themes.
+ */
+const primaryButtonClass =
+  'flex shrink-0 items-center gap-4px whitespace-nowrap px-10px py-4px rd-6px cursor-pointer border-none ' +
+  'bg-brand text-12px font-600 text-[#1a0d06] hover:opacity-90 transition-opacity disabled:opacity-50';
+
 const linkClass =
   'px-6px py-2px rd-4px cursor-pointer border-none bg-transparent text-12px text-t-secondary ' +
   'hover:bg-3 hover:text-t-primary transition-colors disabled:opacity-50 truncate max-w-200px';
+
+/**
+ * The task-id namespace a chat's deliverables are filed under. Mirrors
+ * `chatTaskIdFor` in the host's `chatRun.ts`; both sides derive it from the same
+ * conversation id at registration time.
+ */
+const CHAT_TASK_PREFIX = 'chat:';
+
+/**
+ * Would the host actually honour an Update on this deliverable?
+ *
+ * `refreshChatArtifact` refuses a published series run BY DESIGN: re-registering
+ * one would launder a tampered file into a fresh valid record, and the record of
+ * what a scheduled task produced on a given day is the whole point of a series.
+ * So an Update button on a series run is a button that always fails, which is
+ * worse than no button - it promises a repair and then blames the user.
+ *
+ * The host gates on the record's `relativePath` (`artifacts/chat/<id>/...`),
+ * which the renderer never sees; the summary carries `taskId`. Both are written
+ * by the same `sweepChatRun` call from the same conversation id, so they agree -
+ * and `artifactRepairEligibility.test.ts` proves it by running the real
+ * registration paths and comparing this predicate against what
+ * `refreshChatArtifact` ACTUALLY returns, so the two cannot drift apart quietly.
+ */
+export function canRepairArtifact(artifact: Pick<ArtifactSummary, 'taskId'>): boolean {
+  return typeof artifact.taskId === 'string' && artifact.taskId.startsWith(CHAT_TASK_PREFIX);
+}
 
 /** Local date and time. A run is a moment in the user's day, not a UTC string. */
 function formatRunTime(iso: string): string {
@@ -72,14 +120,25 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
   const [applicationName, setApplicationName] = useState<string | null>(null);
   const [series, setSeries] = useState<ArtifactSeriesView | null>(null);
   const [expanded, setExpanded] = useState(false);
+  /**
+   * The file on disk no longer matches what the ledger recorded.
+   *
+   * Sticky, and deliberately not a toast: a toast for this said the one thing
+   * the user could not act on and then took itself away. It is set from a host
+   * REFUSAL rather than from a watcher - there is no filesystem watcher here -
+   * so it appears on the first action after the edit and stays until a repair
+   * clears it.
+   */
+  const [changed, setChanged] = useState(false);
   const { launchPreview } = usePreviewLauncher();
 
   const artifactId = artifact.artifactId;
 
   useEffect(() => {
     // Reset first: a card switching artifacts must never show the previous
-    // file's app name or history for even one frame.
+    // file's app name, history, or changed-file banner for even one frame.
     setApplicationName(null);
+    setChanged(false);
     let cancelled = false;
     void ipcBridge.artifacts.openTarget
       .invoke({ artifactId })
@@ -144,6 +203,28 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
     [launchPreview]
   );
 
+  /**
+   * ONE REFUSAL IS NOT LIKE THE OTHERS, SO IT DOES NOT GET THE SAME TREATMENT.
+   *
+   * Every other host refusal is a sentence a person can read - "not an openable
+   * document type", "is no longer on disk" - and interpolating it is honest.
+   * The changed-file refusal is not: `artifact has changed since it was
+   * recorded` is an internal literal about a digest check, it told the user
+   * nothing they could act on, and it was the DEAD END this bar had. So that one
+   * string is intercepted by value and turned into a state with a repair
+   * attached. Every other error keeps its existing interpolation, unchanged.
+   */
+  const reportRefusal = useCallback(
+    (error: string | undefined, key: string) => {
+      if (error === ARTIFACT_CHANGED_ERROR) {
+        setChanged(true);
+        return;
+      }
+      onMessage('error', t(key, { error: error ?? '' }));
+    },
+    [onMessage, t]
+  );
+
   const openById = useCallback(
     async (id: string) => {
       setBusy(true);
@@ -152,13 +233,36 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
         // The bridge has no rejection channel, so a refusal arrives as a
         // resolved `{ ok: false }`. Reporting it is the difference between a
         // refusal and a dead button - the failure mode #616 had to fix once.
-        if (!result?.ok) onMessage('error', t('preview.artifactOpenFailed', { error: result?.error ?? '' }));
+        if (!result?.ok) reportRefusal(result?.error, 'preview.artifactOpenFailed');
       } finally {
         setBusy(false);
       }
     },
-    [onMessage, t]
+    [reportRefusal]
   );
+
+  /**
+   * "Yes, I edited it - record what it is NOW."
+   *
+   * This is the host's `artifacts.refresh`, which re-runs the FULL registration
+   * (containment, symlink refusal, size cap, device/inode re-check, fresh
+   * sha256) and keeps the artifact id stable. Nothing about verification is
+   * relaxed; the repair is a RE-REGISTRATION, which is why it is safe to offer.
+   */
+  const repair = useCallback(async () => {
+    setBusy(true);
+    try {
+      const result = await ipcBridge.artifacts.refresh.invoke({ artifactId });
+      if (result?.ok) {
+        setChanged(false);
+        onMessage('success', t('preview.artifactUpdated'));
+        return;
+      }
+      onMessage('error', t('preview.artifactUpdateFailed', { error: result?.error ?? '' }));
+    } finally {
+      setBusy(false);
+    }
+  }, [artifactId, onMessage, t]);
 
   const run = useCallback(
     async (action: 'open' | 'reveal' | 'saveCopy') => {
@@ -170,12 +274,12 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
       try {
         if (action === 'reveal') {
           const result = await ipcBridge.artifacts.reveal.invoke({ artifactId });
-          if (!result?.ok) onMessage('error', t('preview.artifactRevealFailed', { error: result?.error ?? '' }));
+          if (!result?.ok) reportRefusal(result?.error, 'preview.artifactRevealFailed');
           return;
         }
         const result = await ipcBridge.artifacts.saveCopy.invoke({ artifactId });
         if (!result?.ok) {
-          onMessage('error', t('preview.artifactSaveFailed', { error: result?.error ?? '' }));
+          reportRefusal(result?.error, 'preview.artifactSaveFailed');
           return;
         }
         // No `savedTo` means the user cancelled the dialog, which is not an
@@ -185,7 +289,7 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
         setBusy(false);
       }
     },
-    [artifactId, onMessage, openById, t]
+    [artifactId, onMessage, openById, reportRefusal, t]
   );
 
   // `preview.openWithApp` already says "Open in {{app}}" in all twelve locales
@@ -256,6 +360,47 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
           </button>
         </div>
       </div>
+
+      {/*
+        THE CHANGED-FILE BANNER, AND THE ONE REPAIR THAT IS NOT A LIE.
+
+        Sits between the actions and the history because it changes what those
+        actions MEAN: the file the buttons address is not the file the ledger
+        describes. Amber, not red - nothing is broken and nothing is lost, the
+        record is simply out of date.
+
+        A CHAT deliverable gets an Update button, which re-registers the file
+        through the full verification path and keeps the same artifact id, so
+        the card already on screen survives the repair. A published SERIES run
+        gets a SENTENCE instead, because `refreshChatArtifact` refuses one on
+        purpose and an Update there would fail every single time.
+      */}
+      {changed && (
+        <div
+          className='flex flex-wrap items-center gap-8px b-t-1px b-t-solid b-t-[var(--border-light)] bg-[var(--warning-soft-bg)] px-12px py-6px text-warning'
+          role='status'
+          data-testid='artifact-bar-changed'
+        >
+          <AlertTriangle className='size-14px shrink-0' />
+          <span className='min-w-0 flex-1'>{t('preview.artifactChanged')}</span>
+          {canRepairArtifact(artifact) ? (
+            <button
+              type='button'
+              className={primaryButtonClass}
+              disabled={busy}
+              onClick={() => void repair()}
+              data-testid='artifact-bar-update'
+            >
+              <RefreshCw className='size-14px' />
+              {t('preview.artifactUpdate')}
+            </button>
+          ) : (
+            <span className='text-t-secondary' data-testid='artifact-bar-changed-series'>
+              {t('preview.artifactChangedSeries')}
+            </span>
+          )}
+        </div>
+      )}
 
       {series && series.runs.length > 0 && (
         <div className='flex flex-col px-12px pb-6px' data-testid='artifact-series'>

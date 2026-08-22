@@ -151,5 +151,18 @@
   "artifactStatusMissing": "Ausente",
   "artifactMissingReason": "Este arquivo não está mais no disco. Ele pode ter sido movido ou excluído fora do Wayland.",
   "artifactEmptyReason": "Este arquivo está no disco, mas não há nada nele.",
-  "artifactOpenHere": "Abrir aqui"
+  "artifactOpenHere": "Abrir aqui",
+  "artifactChanged": "Este arquivo mudou no disco desde que o Wayland o registrou.",
+  "artifactChangedSeries": "Esta é uma execução publicada, então o Wayland a mantém exatamente como foi produzida.",
+  "artifactUpdate": "Atualizar",
+  "artifactUpdated": "Atualizado. O Wayland registrou o arquivo como ele está agora.",
+  "artifactUpdateFailed": "Não foi possível atualizar este entregável: {{error}}",
+  "artifactForget": "Remover da lista",
+  "artifactForgetHint": "Remove esta linha da lista. Seu arquivo não é excluído.",
+  "artifactForgetTitle": "Remover isto da lista?",
+  "artifactForgetMessage": "Isso remove apenas a linha. O arquivo continua exatamente onde está no disco, e a linha volta se ele for salvo novamente.",
+  "artifactForgetConfirm": "Remover da lista",
+  "artifactForgetFailed": "Não foi possível remover isto da lista: {{error}}",
+  "artifactForgotten": "Removido da lista. Seu arquivo está intacto.",
+  "artifactsRailTruncated": "Mostrando os {{shown}} entregáveis mais recentes. Os mais antigos não estão listados."
 }

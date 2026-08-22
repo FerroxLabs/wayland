@@ -151,5 +151,18 @@
   "artifactStatusMissing": "見つかりません",
   "artifactMissingReason": "このファイルはディスク上にありません。Wayland の外部で移動または削除された可能性があります。",
   "artifactEmptyReason": "このファイルはディスク上にありますが、中身がありません。",
-  "artifactOpenHere": "ここで開く"
+  "artifactOpenHere": "ここで開く",
+  "artifactChanged": "Wayland が記録してから、このファイルはディスク上で変更されています。",
+  "artifactChangedSeries": "これは公開済みの実行結果のため、Wayland は生成されたままの状態で保持します。",
+  "artifactUpdate": "更新",
+  "artifactUpdated": "更新しました。Wayland は現在のファイルの状態を記録しました。",
+  "artifactUpdateFailed": "この成果物を更新できませんでした: {{error}}",
+  "artifactForget": "リストから削除",
+  "artifactForgetHint": "この行をリストから削除します。ファイル自体は削除されません。",
+  "artifactForgetTitle": "これをリストから削除しますか?",
+  "artifactForgetMessage": "削除されるのは行だけです。ファイルはディスク上にそのまま残り、再び保存されれば行も戻ります。",
+  "artifactForgetConfirm": "リストから削除",
+  "artifactForgetFailed": "これをリストから削除できませんでした: {{error}}",
+  "artifactForgotten": "リストから削除しました。ファイルはそのままです。",
+  "artifactsRailTruncated": "最新の {{shown}} 件の成果物を表示しています。それより古いものは表示されません。"
 }

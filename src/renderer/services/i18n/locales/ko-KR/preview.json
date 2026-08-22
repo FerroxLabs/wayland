@@ -151,5 +151,18 @@
   "artifactStatusMissing": "없음",
   "artifactMissingReason": "이 파일이 더 이상 디스크에 없습니다. Wayland 외부에서 이동되었거나 삭제되었을 수 있습니다.",
   "artifactEmptyReason": "이 파일은 디스크에 있지만 내용이 없습니다.",
-  "artifactOpenHere": "여기서 열기"
+  "artifactOpenHere": "여기서 열기",
+  "artifactChanged": "Wayland이 기록한 이후 이 파일이 디스크에서 변경되었습니다.",
+  "artifactChangedSeries": "게시된 실행 결과이므로 Wayland이 생성된 상태 그대로 보관합니다.",
+  "artifactUpdate": "업데이트",
+  "artifactUpdated": "업데이트했습니다. Wayland이 현재 파일 상태를 기록했습니다.",
+  "artifactUpdateFailed": "이 산출물을 업데이트할 수 없습니다: {{error}}",
+  "artifactForget": "목록에서 제거",
+  "artifactForgetHint": "이 행을 목록에서 제거합니다. 파일은 삭제되지 않습니다.",
+  "artifactForgetTitle": "이 항목을 목록에서 제거할까요?",
+  "artifactForgetMessage": "행만 제거됩니다. 파일은 디스크에 그대로 남아 있으며, 다시 저장되면 행도 돌아옵니다.",
+  "artifactForgetConfirm": "목록에서 제거",
+  "artifactForgetFailed": "이 항목을 목록에서 제거할 수 없습니다: {{error}}",
+  "artifactForgotten": "목록에서 제거했습니다. 파일은 그대로입니다.",
+  "artifactsRailTruncated": "최신 산출물 {{shown}}개를 표시하고 있습니다. 이전 항목은 표시되지 않습니다."
 }

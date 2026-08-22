@@ -151,5 +151,18 @@
   "artifactStatusMissing": "Missing",
   "artifactMissingReason": "This file is no longer on disk. It may have been moved or deleted outside Wayland.",
   "artifactEmptyReason": "This file is on disk but there is nothing in it.",
-  "artifactOpenHere": "Open here"
+  "artifactOpenHere": "Open here",
+  "artifactChanged": "This file has changed on disk since Wayland recorded it.",
+  "artifactChangedSeries": "This is a published run, so Wayland keeps it exactly as it was produced.",
+  "artifactUpdate": "Update",
+  "artifactUpdated": "Updated. Wayland has recorded the file as it is now.",
+  "artifactUpdateFailed": "Could not update this deliverable: {{error}}",
+  "artifactForget": "Remove from list",
+  "artifactForgetHint": "Removes this row from the list. Your file is not deleted.",
+  "artifactForgetTitle": "Remove this from the list?",
+  "artifactForgetMessage": "This removes the row only. The file stays exactly where it is on disk, and the row comes back if it is saved again.",
+  "artifactForgetConfirm": "Remove from list",
+  "artifactForgetFailed": "Could not remove this from the list: {{error}}",
+  "artifactForgotten": "Removed from the list. Your file is untouched.",
+  "artifactsRailTruncated": "Showing the newest {{shown}} deliverables. Older ones are not listed."
 }

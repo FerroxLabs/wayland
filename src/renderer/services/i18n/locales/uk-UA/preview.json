@@ -151,5 +151,18 @@
   "artifactStatusMissing": "Відсутній",
   "artifactMissingReason": "Цього файлу більше немає на диску. Можливо, його перемістили або видалили поза Wayland.",
   "artifactEmptyReason": "Файл є на диску, але він порожній.",
-  "artifactOpenHere": "Відкрити тут"
+  "artifactOpenHere": "Відкрити тут",
+  "artifactChanged": "Цей файл змінився на диску відтоді, як Wayland його записав.",
+  "artifactChangedSeries": "Це опублікований запуск, тому Wayland зберігає його точно таким, яким його було створено.",
+  "artifactUpdate": "Оновити",
+  "artifactUpdated": "Оновлено. Wayland записав файл у його теперішньому вигляді.",
+  "artifactUpdateFailed": "Не вдалося оновити цей результат: {{error}}",
+  "artifactForget": "Прибрати зі списку",
+  "artifactForgetHint": "Прибирає цей рядок зі списку. Ваш файл не видаляється.",
+  "artifactForgetTitle": "Прибрати це зі списку?",
+  "artifactForgetMessage": "Прибирається лише рядок. Файл залишається точно там само на диску, і рядок повернеться, якщо його буде збережено знову.",
+  "artifactForgetConfirm": "Прибрати зі списку",
+  "artifactForgetFailed": "Не вдалося прибрати це зі списку: {{error}}",
+  "artifactForgotten": "Прибрано зі списку. Ваш файл не змінено.",
+  "artifactsRailTruncated": "Показано {{shown}} найновіших результатів. Старіші не перелічено."
 }

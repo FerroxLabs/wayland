@@ -151,5 +151,18 @@
   "artifactStatusMissing": "Introuvable",
   "artifactMissingReason": "Ce fichier n'est plus sur le disque. Il a peut-être été déplacé ou supprimé en dehors de Wayland.",
   "artifactEmptyReason": "Ce fichier est sur le disque mais ne contient rien.",
-  "artifactOpenHere": "Ouvrir ici"
+  "artifactOpenHere": "Ouvrir ici",
+  "artifactChanged": "Ce fichier a changé sur le disque depuis que Wayland l’a enregistré.",
+  "artifactChangedSeries": "Il s’agit d’une exécution publiée : Wayland la conserve exactement telle qu’elle a été produite.",
+  "artifactUpdate": "Mettre à jour",
+  "artifactUpdated": "Mis à jour. Wayland a enregistré le fichier tel qu’il est maintenant.",
+  "artifactUpdateFailed": "Impossible de mettre à jour ce livrable : {{error}}",
+  "artifactForget": "Retirer de la liste",
+  "artifactForgetHint": "Retire cette ligne de la liste. Votre fichier n’est pas supprimé.",
+  "artifactForgetTitle": "Retirer cet élément de la liste ?",
+  "artifactForgetMessage": "Cela retire uniquement la ligne. Le fichier reste exactement où il est sur le disque, et la ligne réapparaît s’il est enregistré à nouveau.",
+  "artifactForgetConfirm": "Retirer de la liste",
+  "artifactForgetFailed": "Impossible de retirer cet élément de la liste : {{error}}",
+  "artifactForgotten": "Retiré de la liste. Votre fichier est intact.",
+  "artifactsRailTruncated": "Affichage des {{shown}} livrables les plus récents. Les plus anciens ne sont pas listés."
 }
