@@ -444,6 +444,35 @@ describe('a scheduled run is told its deliverables directory in text it can actu
     expect(await fsp.readFile(journal, 'utf8')).toMatch(/"status":"failed"/);
   });
 
+  it('a task that reports no workspace at all is left exactly as it behaves today', async () => {
+    // Without a workspace there is nothing to resolve against, so refusing here
+    // would be a guess rather than a reproduction of the spawn. Such a run keeps
+    // its existing behaviour - it sends, and settles however it settles.
+    const job = await enable('weekday-morning-report');
+    const guard = new CronBusyGuard();
+    const sent: string[] = [];
+    const executor = new WorkerTaskManagerJobExecutor(
+      {
+        getTask: vi.fn(() => undefined),
+        getOrBuildTask: vi.fn(async () => ({
+          type: 'wcore',
+          // no `workspace` key at all
+          sendMessage: vi.fn(async (p: { content?: string }) => {
+            sent.push(p?.content ?? '');
+          }),
+        })),
+        kill: vi.fn(),
+        buildConversation: vi.fn(),
+      } as any,
+      guard
+    );
+    const conversationId = await executor.prepareConversation(job);
+    await expect(executor.executeJob(job, undefined, conversationId)).resolves.not.toThrow();
+    expect(sent).toHaveLength(1);
+    guard.setProcessing(conversationId, false);
+    await executor._whenSettledForTests();
+  });
+
   it('KNOWN-POSITIVE CONTROL: the same run with its cell intact is NOT refused', async () => {
     // Without this, a guard that refused every run would pass the test above.
     const job = await enable('weekday-morning-report');

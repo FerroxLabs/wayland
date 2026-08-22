@@ -60,13 +60,15 @@ async function getConversationService() {
  */
 const MAX_REMEMBERED_SETTLED_RUNS = 256;
 
+/** How a job's most recent run ended, once publication has actually settled. */
+export type RunSettlement =
+  | { published: true; reason?: undefined }
+  | { published: false; reason: 'no-output' | 'failed' };
+
 /**
  * The one thing a scheduled run has to be told at run time that a seed-time
  * prompt cannot say. No path: see `appendOutputDirCorrection`.
  */
-/** How a job's most recent run ended, once publication has actually settled. */
-export type RunSettlement = { published: true; reason?: undefined } | { published: false; reason: 'no-output' | 'failed' };
-
 const RUN_OUTPUT_DIR_CORRECTION =
   'Write every file the user should keep into the absolute deliverables directory named in your run instructions. ' +
   'WAYLAND_OUTPUT_DIR is not visible to shell commands and resolves empty - ignore any instruction to read it, ' +
@@ -510,10 +512,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // deliverable that is never staged and never published, and the run settles
     // as `no-output` with nothing anywhere naming the cause. Refuse instead, so
     // the reason lands in the run journal and in `last_error`.
-    if (artifactRun && conversationId) {
-      const engineOutputDir = workspace
-        ? resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId)
-        : undefined;
+    //
+    // Gated on the task reporting a workspace. Without one there is nothing to
+    // resolve against, so a refusal here would be a guess rather than a
+    // reproduction - such a run keeps exactly the behaviour it has today.
+    if (artifactRun && conversationId && workspace) {
+      const engineOutputDir = resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId);
       const expected = path.resolve(artifactRun.stagingDir);
       if (engineOutputDir !== expected) {
         // Mirrors the sendMessage failure path: tear the half-started task down
@@ -525,7 +529,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         }
         throw new Error(
           `Run ${artifactRun.runId} cannot publish: the engine's deliverables directory ` +
-            `(${engineOutputDir ?? 'none'}) is not this run's staging directory (${expected}).`
+            `(${engineOutputDir}) is not this run's staging directory (${expected}).`
         );
       }
     }
