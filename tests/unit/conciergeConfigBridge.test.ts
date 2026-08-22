@@ -71,6 +71,18 @@ vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({ connectModelRegistry
 vi.mock('@process/providers/types', () => ({}));
 vi.mock('@process/bridge/fsBridge', () => ({ writeAssistantRules: writeRulesSpy }));
 vi.mock('@/common/utils', () => ({ uuid: () => 'mcp-uuid-1' }));
+// B3: `add_mcp` now finishes the install (probe -> publish -> commit enabled)
+// instead of returning a green receipt over an unpublished declaration. Stub
+// the probe so this file stays a deterministic unit test of the APPLY bridge:
+// a silent probe is the outcome under test here (the enable/receipt behaviour
+// is guarded in tests/unit/concierge/conciergeAddMcpEnables.test.ts).
+vi.mock('@process/services/mcpServices/McpService', () => ({
+  mcpService: {
+    testMcpConnection: vi.fn(async () => ({ success: false as const, error: 'no agent available' })),
+    syncMcpToAgents: vi.fn(async () => ({ success: false, results: [] })),
+  },
+}));
+vi.mock('@process/agent/AgentRegistry', () => ({ agentRegistry: { getDetectedAgents: () => [] } }));
 
 import { initConciergeConfigBridge } from '@process/bridge/conciergeConfigBridge';
 
@@ -203,7 +215,9 @@ describe('conciergeConfigBridge apply', () => {
     setMsg({ kind: 'add_mcp', name: 'fs', command: 'npx', args: ['-y', 'srv'], status: 'pending' });
     const ok = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
     expect(ok.ok).toBe(true);
-    expect(mcpUpdateSpy).toHaveBeenCalledTimes(1);
+    // Two authority writes: the disabled declaration, then the probe outcome
+    // recorded onto that same row (B3). Still exactly one append.
+    expect(mcpUpdateSpy).toHaveBeenCalledTimes(2);
     expect(state.mcpServers).toEqual(expect.arrayContaining([expect.objectContaining({ name: 'fs' })]));
 
     // Now a duplicate
