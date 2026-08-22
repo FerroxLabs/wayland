@@ -838,17 +838,22 @@ function markFloats(p) {
     hi: F(m.hi), lo: F(m.lo), spark: m.spark.map(F),
   }));
   out.market_summary = p.market_summary;
-  out.pressure = {
-    ...p.pressure,
-    score: F(p.pressure.score),
-    components: p.pressure.components.map((c) => ({
-      ...c,
-      v:
-        (c.k === 'Momentum' || c.k === 'Dollar') && (c.v === 0 || c.v === 100)
-          ? c.v // pinned by max()/min(), so an int on the Python side
-          : F(c.v),
-    })),
-  };
+  // B11. `MO.pressure()` returns null when it measured nothing, and null
+  // survives to the payload unchanged - `{...null}` would silently become `{}`,
+  // which is a different thing from an absence and reads as one to nobody.
+  out.pressure = p.pressure
+    ? {
+        ...p.pressure,
+        score: F(p.pressure.score),
+        components: p.pressure.components.map((c) => ({
+          ...c,
+          v:
+            (c.k === 'Momentum' || c.k === 'Dollar') && (c.v === 0 || c.v === 100)
+              ? c.v // pinned by max()/min(), so an int on the Python side
+              : F(c.v),
+        })),
+      }
+    : null;
   out.demo = p.demo && {
     ...p.demo,
     entry: F(p.demo.entry), close: F(p.demo.close), unreal: F(p.demo.unreal),
