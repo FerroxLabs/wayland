@@ -257,6 +257,32 @@ export function rejectionBucketFor(reason: ArtifactRejectionReason): ArtifactRej
 }
 
 /**
+ * What the host could not confirm about a file the assistant SAID it saved.
+ *
+ * A CLOSED UNION, exactly as `ArtifactRejectionReason` is, and for the same
+ * reason: a bare `string` here is what let `1 escapes-workspace` reach a user's
+ * screen. A third verdict added later must fail to COMPILE at the renderer
+ * rather than render as a raw slug under someone's missing report.
+ *
+ *  - `absent`    - nothing of that name anywhere under the workspace. This is B5.
+ *  - `elsewhere` - the file is real, but outside the namespace this chat
+ *                  collects from, so the user is told WHERE it actually is.
+ *
+ * There is deliberately no `supported` member: a confirmed file produces no
+ * entry at all, so a verdict existing here always means something to say.
+ */
+export type UnsupportedClaimVerdict = 'absent' | 'elsewhere';
+
+/** One file the assistant named that the host could not vouch for. */
+export interface UnsupportedSavedFileClaim {
+  /** The basename the model used, which is the name the user will recognise. */
+  fileName: string;
+  verdict: UnsupportedClaimVerdict;
+  /** Workspace-relative, and present only when the verdict is `elsewhere`. */
+  actualPath?: string;
+}
+
+/**
  * Why a deliverable has no preview.
  *
  * Distinct values because they say different things to the user, and because

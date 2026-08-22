@@ -448,6 +448,12 @@ void getDatabase()
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {
       void onChatTurnCompleted(event, {
         ledgerPath: artifactLedgerPath(getDataPath()),
+        // WHAT THE MODEL JUST SAID, handed to the half that knows what is
+        // actually on disk. B5 was a turn that made zero tool calls and still
+        // told the user it had saved a file; the host held both facts at this
+        // exact instant and had never compared them. Same reader the workflow
+        // driver already uses - no second notion of "the final assistant text".
+        lastAgentText: getLastAgentText,
         onSwept: async (result) => {
           const content = buildChatArtifactCardContent(result);
           if (!content) return;

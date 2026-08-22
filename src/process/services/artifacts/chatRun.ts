@@ -69,6 +69,12 @@ import {
   type ArtifactRejection,
   type RegistrationResult,
 } from './artifactLedger';
+import {
+  extractSavedFileClaims,
+  reconcileSavedFileClaims,
+  type SavedFileClaim,
+  type UnsupportedSavedFileClaim,
+} from './savedFileClaims';
 
 /** Stop walking this deep. A chat's deliverables are reports, not a source tree. */
 const MAX_CHAT_DEPTH = 8;
@@ -97,6 +103,12 @@ export interface ChatSweepResult {
   registered: ArtifactRecord[];
   /** Files the ledger refused, with the reason. Never swallowed. */
   rejected: ArtifactRejection[];
+  /**
+   * Files the assistant SAID it saved on this turn that the walk cannot account
+   * for. Empty on every ordinary turn, and absent entirely when no assistant
+   * text was available to check.
+   */
+  unsupported?: UnsupportedSavedFileClaim[];
 }
 
 /**
@@ -202,6 +214,13 @@ export async function onChatTurnCompleted(
   event: ChatTurnEvent,
   deps: {
     ledgerPath: string;
+    /**
+     * The turn's final assistant text, fetched lazily so this module never
+     * learns what a database is. `initBridge` already reads exactly this for the
+     * workflow driver; the read is one indexed query for five rows and it runs
+     * once per terminal turn.
+     */
+    lastAgentText?: (conversationId: string) => Promise<string | null>;
     onSwept?: (result: ChatSweepResult, event: ChatTurnEvent) => void | Promise<void>;
     onError?: (error: unknown) => void;
   }
@@ -213,15 +232,118 @@ export async function onChatTurnCompleted(
 
   try {
     const result = await sweepChatRun({ conversationId, workspace, ledgerPath: deps.ledgerPath });
+
+    // WHAT THE MODEL JUST SAID, AGAINST WHAT IS ACTUALLY THERE.
+    //
+    // This is the only place in the product holding both at once. A save claim
+    // the walk cannot account for is B5, and the failure it describes is silent
+    // by nature, so the host has to be the one that notices.
+    const unsupported = await reconcileTurnClaims(result, conversationId, workspace, deps.lastAgentText);
+    if (unsupported.length > 0) result.unsupported = unsupported;
+
     // Nothing produced is the common case - most turns are conversation - and
-    // it must not reach the card path at all.
-    if (result.registered.length === 0 && result.rejected.length === 0) return result;
+    // it must not reach the card path at all. It yields to an unsupported claim
+    // and to NOTHING else: an empty card is still never drawn.
+    if (result.registered.length === 0 && result.rejected.length === 0 && unsupported.length === 0) return result;
     await deps.onSwept?.(result, event);
     return result;
   } catch (error) {
     deps.onError?.(error);
     return null;
   }
+}
+
+/**
+ * Turn the assistant's last words into a verdict, or into nothing.
+ *
+ * BEST-EFFORT LIKE EVERYTHING ELSE ON THIS PATH. No text available, no claim
+ * made, or a workspace that cannot be read - all three answer "nothing to say",
+ * because a check that fails must never become an accusation.
+ */
+async function reconcileTurnClaims(
+  result: ChatSweepResult,
+  conversationId: string,
+  workspace: string,
+  lastAgentText?: (conversationId: string) => Promise<string | null>
+): Promise<UnsupportedSavedFileClaim[]> {
+  if (!lastAgentText) return [];
+  let text: string | null = null;
+  try {
+    text = await lastAgentText(conversationId);
+  } catch {
+    return [];
+  }
+  if (!text) return [];
+
+  const claims = extractSavedFileClaims(text);
+  if (claims.length === 0) return [];
+
+  // Only the names the ledger cannot vouch for are worth a disk search, and on
+  // an ordinary turn there are none.
+  const registeredNames = new Set(result.registered.map((record) => record.relativePath.split('/').pop() ?? ''));
+  const unaccounted = claims.filter((claim) => !registeredNames.has(claim.fileName));
+  const elsewhere: ReadonlyMap<string, string> =
+    unaccounted.length > 0
+      ? await findElsewhereInWorkspace(workspace, result.outputDir, unaccounted)
+      : new Map<string, string>();
+
+  return reconcileSavedFileClaims(claims, { registered: result.registered, elsewhere });
+}
+
+/** Stop the elsewhere search this deep. A deliverable is not buried in a source tree. */
+const MAX_ELSEWHERE_DEPTH = 6;
+
+/** Stop the elsewhere search after this many directories, whatever it has found. */
+const MAX_ELSEWHERE_DIRS = 400;
+
+/**
+ * Is a file of this name anywhere ELSE under the workspace?
+ *
+ * The C-2 defect wrote a real brief to `artifacts/market` from a chat that only
+ * ever collects from `artifacts/chat/<id>`, and the honest thing to tell the
+ * user is where their file actually is - not that it does not exist.
+ *
+ * Bounded hard, because this runs on a turn end: depth, directory count, dot
+ * directories and the usual dependency mounds are all refused, and the
+ * deliverables namespace itself is skipped because a hit there would already
+ * have been a ledger record.
+ */
+const SKIPPED_DIRS: ReadonlySet<string> = new Set(['node_modules', 'venv', 'target', 'dist', 'build', 'vendor']);
+
+async function findElsewhereInWorkspace(
+  workspace: string,
+  outputDir: string,
+  claims: readonly SavedFileClaim[]
+): Promise<Map<string, string>> {
+  const wanted = new Set(claims.map((claim) => claim.fileName));
+  const found = new Map<string, string>();
+  let visited = 0;
+
+  async function walk(dir: string, prefix: string, depth: number): Promise<void> {
+    if (depth > MAX_ELSEWHERE_DEPTH || visited >= MAX_ELSEWHERE_DIRS || found.size === wanted.size) return;
+    visited += 1;
+    let entries: Dirent[];
+    try {
+      entries = await fs.readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (found.size === wanted.size) return;
+      if (entry.name.startsWith('.') || SKIPPED_DIRS.has(entry.name)) continue;
+      const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        if (path.join(dir, entry.name) === outputDir) continue;
+        // eslint-disable-next-line no-await-in-loop -- depth-first, bounded walk; opening the whole tree at once buys nothing on a turn end
+        await walk(path.join(dir, entry.name), relative, depth + 1);
+      } else if (entry.isFile() && wanted.has(entry.name) && !found.has(entry.name)) {
+        found.set(entry.name, relative);
+      }
+    }
+  }
+
+  await walk(workspace, '', 0);
+  return found;
 }
 
 /**

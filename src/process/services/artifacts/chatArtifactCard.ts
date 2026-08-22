@@ -27,7 +27,7 @@
  */
 
 import type { TMessage } from '@/common/chat/chatLib';
-import type { ArtifactRejectionReason, ArtifactSummary } from '@/common/types/artifacts';
+import type { ArtifactRejectionReason, ArtifactSummary, UnsupportedSavedFileClaim } from '@/common/types/artifacts';
 
 import { toArtifactSummary } from './artifactActions';
 import type { ChatSweepResult } from './chatRun';
@@ -52,6 +52,17 @@ export interface ChatArtifactCardContent {
    * COMPILE rather than reaching a screen as a raw slug.
    */
   rejected?: Array<{ reason: ArtifactRejectionReason; count: number }>;
+  /**
+   * Files the assistant SAID it saved on this turn that the host cannot account
+   * for. `verdict` is the closed `UnsupportedClaimVerdict` union for the same
+   * reason `rejected.reason` is closed: a third verdict added later must fail to
+   * COMPILE at the renderer, not arrive on a screen as a raw slug.
+   *
+   * A card carrying only this - no artifacts, no rejections - is the B5 case,
+   * and it is the one shape of card that is written with nothing in the
+   * namespace at all.
+   */
+  unsupported?: UnsupportedSavedFileClaim[];
 }
 
 /**
@@ -70,10 +81,19 @@ export function buildChatArtifactCardContent(result: ChatSweepResult): ChatArtif
     .map(([reason, count]) => ({ reason, count }))
     .toSorted((left, right) => right.count - left.count || left.reason.localeCompare(right.reason));
 
+  const unsupported = result.unsupported ?? [];
+
   // An empty card is never written. A turn that produced nothing - which is
-  // most turns - must leave no trace in the conversation at all.
-  if (artifacts.length === 0 && rejected.length === 0) return null;
-  return rejected.length > 0 ? { artifacts, rejected } : { artifacts };
+  // most turns - must leave no trace in the conversation at all. An unsupported
+  // claim is not nothing: it is the one thing the user needs told when the
+  // namespace is empty, so it is the one case that draws a card with no file on
+  // it.
+  if (artifacts.length === 0 && rejected.length === 0 && unsupported.length === 0) return null;
+
+  const content: ChatArtifactCardContent = { artifacts };
+  if (rejected.length > 0) content.rejected = rejected;
+  if (unsupported.length > 0) content.unsupported = [...unsupported];
+  return content;
 }
 
 /** The persisted message for a card, ready for `addMessage`. */

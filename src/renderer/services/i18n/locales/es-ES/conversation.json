@@ -559,6 +559,8 @@
     "reveal": "Mostrar en la carpeta",
     "saveCopy": "Guardar una copia",
     "changed": "Este archivo ha cambiado desde que se guardó.",
+    "claimedButAbsent": "Esta respuesta menciona {{fileName}}. No se escribió ningún archivo con ese nombre.",
+    "claimedElsewhere": "{{fileName}} se escribió en {{actualPath}}, no en los archivos de esta conversación.",
     "update": "Actualizar",
     "rejected": "{{count}} archivo no se guardó como entregable: {{detail}}.",
     "rejected_other": "{{count}} archivos no se guardaron como entregables: {{detail}}.",

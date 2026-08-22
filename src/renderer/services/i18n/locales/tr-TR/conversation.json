@@ -561,6 +561,8 @@
     "reveal": "Klasörde göster",
     "saveCopy": "Kopya kaydet",
     "changed": "Bu dosya kaydedildikten sonra değişti.",
+    "claimedButAbsent": "Bu yanıt {{fileName}} dosyasından söz etti. Böyle bir dosya yazılmadı.",
+    "claimedElsewhere": "{{fileName}} {{actualPath}} konumuna yazıldı, bu konuşmanın dosyalarına değil.",
     "update": "Güncelle",
     "rejected": "{{count}} dosya çıktı olarak kaydedilmedi: {{detail}}.",
     "rejected_other": "{{count}} dosya çıktı olarak kaydedilmedi: {{detail}}.",

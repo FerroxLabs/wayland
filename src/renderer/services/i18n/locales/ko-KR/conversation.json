@@ -559,6 +559,8 @@
     "reveal": "폴더에서 보기",
     "saveCopy": "사본 저장",
     "changed": "이 파일은 저장된 후에 변경되었습니다.",
+    "claimedButAbsent": "이 답변은 {{fileName}}을(를) 언급했지만 해당 파일은 생성되지 않았습니다.",
+    "claimedElsewhere": "{{fileName}}은(는) {{actualPath}}에 저장되었으며 이 대화의 파일이 아닙니다.",
     "update": "업데이트",
     "rejected": "파일 {{count}}개가 결과물로 저장되지 않았습니다: {{detail}}.",
     "rejected_other": "파일 {{count}}개가 결과물로 저장되지 않았습니다: {{detail}}.",
