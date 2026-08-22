@@ -139,8 +139,6 @@
     "timezone": "local",
     "workflow": "wayland-morning-report",
     "inputs": {
-      "watchlist_path": "~/wayland/market/watchlist.csv",
-      "positions_path": "~/wayland/market/positions.csv",
       "output_dir": "artifacts/market/"
     }
   },
