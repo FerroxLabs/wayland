@@ -89,13 +89,40 @@ const SAVE_VERB = /(?<![A-Za-z-])(?:saved|wrote|written|created|exported)(?![A-Z
 /**
  * A path- or filename-shaped token ending in a deliverable extension.
  *
- * Backticks, parentheses and quotes are not in the character class, so they act
- * as boundaries and a token wrapped in any of them comes out clean.
+ * ANCHORED, AND TESTED AGAINST ONE TOKEN AT A TIME. The first version of this
+ * was one unanchored global regex swept across the whole line, and because the
+ * character class contains `.` it backtracked quadratically: 80,000 characters
+ * of "a.a.a.a..." took SIXTY-EIGHT SECONDS in the main process and returned
+ * nothing. This runs at the end of every turn in the product, so that is a
+ * hang on the path the user experiences as "I finished talking to the
+ * assistant". A model pasting a long version string, a dotted identifier list
+ * or a stack trace is completely ordinary; nothing in the captured corpus looks
+ * like it, which is why it had to be MEASURED and not reasoned about.
+ *
+ * Anchored at both ends, each candidate is examined exactly once. THE ANCHORS
+ * ARE THE FIX AND THAT WAS MEASURED, NOT ASSUMED: a 512-character token cap was
+ * tried first and the adversarial cases still passed without it, while removing
+ * the anchors and sweeping the line again put them back at 21s, 23s and 61s.
+ * The cap was therefore dropped rather than kept as a talisman.
  */
-const FILE_TOKEN = new RegExp(
-  String.raw`(?:~?\/)?(?:[A-Za-z0-9._~-]+\/)*[A-Za-z0-9._~-]+\.(?:${DELIVERABLE_EXTENSIONS.join('|')})(?![A-Za-z0-9])`,
-  'g'
+const CLAIMED_PATH = new RegExp(
+  String.raw`^(?:~?\/)?(?:[A-Za-z0-9._~-]+\/)*[A-Za-z0-9._~-]+\.(?:${DELIVERABLE_EXTENSIONS.join('|')})$`
 );
+
+/**
+ * Characters that cannot appear inside a path token, so they end one.
+ *
+ * This is what the old regex's character class was doing implicitly, made
+ * explicit so the split is a linear scan rather than a backtracking search.
+ * Backticks, brackets, quotes and the em/en dashes a model uses as separators
+ * are all here, which is why a path wrapped in any of them comes out clean.
+ */
+const TOKEN_BOUNDARY: ReadonlySet<string> = new Set([
+  ' ', '\t', '\r', '`', '"', "'", '(', ')', '[', ']', '{', '}', '<', '>', ',', ';', '|', '*', '\u2014', '\u2013',
+]);
+
+/** Sentence punctuation a model glues onto the end of a path. */
+const TRAILING_PUNCTUATION: ReadonlySet<string> = new Set(['.', ',', ':', ';', '!', '?']);
 
 /**
  * How far apart the verb and the name may sit, in characters, on one line.
@@ -164,6 +191,8 @@ export function extractSavedFileClaims(text: string): SavedFileClaim[] {
   for (const line of text.split('\n')) {
     if (claims.length >= MAX_CLAIMS) break;
 
+    // Verb first: a line with no completed-tense save verb cannot carry a claim,
+    // and most lines are that, so they cost one regex sweep and nothing else.
     SAVE_VERB.lastIndex = 0;
     const verbs: number[] = [];
     for (let match = SAVE_VERB.exec(line); match !== null; match = SAVE_VERB.exec(line)) {
@@ -171,25 +200,57 @@ export function extractSavedFileClaims(text: string): SavedFileClaim[] {
     }
     if (verbs.length === 0) continue;
 
-    FILE_TOKEN.lastIndex = 0;
-    for (let match = FILE_TOKEN.exec(line); match !== null; match = FILE_TOKEN.exec(line)) {
+    for (const token of pathTokens(line)) {
       if (claims.length >= MAX_CLAIMS) break;
-      const start = match.index;
-      const end = start + match[0].length;
+      if (!CLAIMED_PATH.test(token.text)) continue;
       // The window looks BOTH ways: "Done. `wayland-verify.md` created with
       // WAYLAND_OK." is a real turn whose verb follows the name.
-      const near = verbs.some((at) => (at < start ? start - at : at - end) <= CLAIM_WINDOW);
-      if (!near) continue;
+      if (!hasVerbNear(verbs, token.start, token.end)) continue;
 
-      const claimedPath = match[0];
-      const fileName = basenameOf(claimedPath);
+      const fileName = basenameOf(token.text);
       if (!fileName || seen.has(fileName)) continue;
       seen.add(fileName);
-      claims.push({ claimedPath, fileName });
+      claims.push({ claimedPath: token.text, fileName });
     }
   }
 
   return claims;
+}
+
+/** One linear pass, splitting a line into candidate tokens with their offsets. */
+function* pathTokens(line: string): Generator<{ text: string; start: number; end: number }> {
+  let cursor = 0;
+  while (cursor < line.length) {
+    while (cursor < line.length && TOKEN_BOUNDARY.has(line[cursor])) cursor += 1;
+    const start = cursor;
+    while (cursor < line.length && !TOKEN_BOUNDARY.has(line[cursor])) cursor += 1;
+    if (cursor === start) break;
+    let end = cursor;
+    while (end > start && TRAILING_PUNCTUATION.has(line[end - 1])) end -= 1;
+    if (end > start) yield { text: line.slice(start, end), start, end };
+  }
+}
+
+/**
+ * Is a save verb within the window of [start, end)?
+ *
+ * `verbs` comes out of a left-to-right scan, so it is sorted, and a binary
+ * search keeps a line carrying many verbs AND many tokens linear rather than
+ * quadratic. `some()` over every verb for every token is the shape that turns
+ * one pathological message into a stalled turn.
+ */
+function hasVerbNear(verbs: readonly number[], start: number, end: number): boolean {
+  let low = 0;
+  let high = verbs.length;
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    if (verbs[mid] < start) low = mid + 1;
+    else high = mid;
+  }
+  // `low` is the first verb at or after `start`; the one before it is the last
+  // verb that precedes the token.
+  if (low < verbs.length && verbs[low] - end <= CLAIM_WINDOW) return true;
+  return low > 0 && start - verbs[low - 1] <= CLAIM_WINDOW;
 }
 
 /**

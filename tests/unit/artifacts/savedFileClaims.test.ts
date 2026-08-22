@@ -134,6 +134,45 @@ describe('extractSavedFileClaims: what the model actually claimed', () => {
   });
 });
 
+/**
+ * THIS RUNS AT THE END OF EVERY TURN IN THE PRODUCT, IN THE MAIN PROCESS.
+ *
+ * The first implementation scanned each line with one unanchored global regex
+ * whose character class contained `.`, so an assistant message of dotted tokens
+ * backtracked quadratically: 80,000 characters of "a.a.a.a..." took SIXTY-EIGHT
+ * SECONDS and produced zero claims. Nothing in the corpus looks like that, which
+ * is exactly why it had to be measured rather than reasoned about - a model
+ * pasting a long version string, a stack trace or a dotted identifier list is
+ * ordinary, and the cost lands on the path the user experiences as "I finished
+ * talking to the assistant".
+ *
+ * The scanner is now tokenise-then-anchor: each candidate is tested once, at
+ * position zero, against an anchored pattern.
+ */
+describe('adversarial assistant text cannot stall the turn', () => {
+  const cases: ReadonlyArray<readonly [string, string]> = [
+    // The one that took 68s. No valid extension anywhere, so the answer is zero
+    // and every character is wasted work.
+    ['dotted tokens with no deliverable extension', `saved ${'a.'.repeat(40_000)}x`],
+    ['a very deep path that never resolves', `saved ${'a/'.repeat(40_000)}b.zz`],
+    ['one line, twenty thousand save verbs', `${'saved '.repeat(20_000)}report.md`],
+    ['five thousand lines of prose', `wrote something ${'x'.repeat(200)}\n`.repeat(5_000)],
+    ['twenty thousand real claims', 'saved a.md\n'.repeat(20_000)],
+  ];
+
+  for (const [label, text] of cases) {
+    it(label, () => {
+      const started = Date.now();
+      const claims = extractSavedFileClaims(text);
+      const elapsed = Date.now() - started;
+      // Generous by two orders of magnitude against the 68s that was measured;
+      // the point is the shape of the curve, not a millisecond budget.
+      expect(elapsed, `${text.length} chars took ${elapsed}ms`).toBeLessThan(1000);
+      expect(claims.length).toBeLessThanOrEqual(8);
+    });
+  }
+});
+
 describe('reconcileSavedFileClaims: three verdicts, and only two of them speak', () => {
   const claims = extractSavedFileClaims(turn('b5Absent'));
 
