@@ -493,6 +493,38 @@ describe('T5 - the card in the conversation', () => {
       expect(firstRow.contains(accented[0])).toBe(true);
     });
 
+    /**
+     * FOUND ON SCREEN, NOT IN A TEST. After a repair the band re-read and
+     * showed the new bytes while the meta line above it still said the OLD
+     * size, so the card contradicted itself about one file. `artifacts.refresh`
+     * returns the re-verified record and it was being discarded.
+     */
+    it('re-describes the file after a repair instead of keeping the stale size', async () => {
+      ipcMock.preview.mockResolvedValue({ kind: 'none', reason: 'changed' });
+      const message = await produceCard({ 'brief.md': '# brief\n' });
+      const before = message.content.artifacts[0];
+
+      render(<MessageArtifactCard message={message} />);
+      await screen.findByTestId('artifact-card-changed');
+      expect(screen.getByTestId('artifact-card-meta').textContent).toContain(formatArtifactSize(before.sizeBytes));
+
+      ipcMock.refresh.mockResolvedValue({
+        ok: true,
+        artifact: { ...before, sizeBytes: before.sizeBytes + 4096 },
+      });
+      ipcMock.preview.mockResolvedValue({ kind: 'text', text: '# brief, revised\n', truncated: false });
+      fireEvent.click(screen.getByTestId('artifact-card-update'));
+
+      await waitFor(() =>
+        expect(screen.getByTestId('artifact-card-meta').textContent).toContain(
+          formatArtifactSize(before.sizeBytes + 4096)
+        )
+      );
+      // ...and the band now holds the bytes that size describes.
+      expect((await screen.findByTestId('artifact-card-preview-text')).textContent).toContain('revised');
+      expect(screen.queryByTestId('artifact-card-changed')).toBeNull();
+    });
+
     /** EXACTLY ONE. Four equal-weight controls is the thing being fixed. */
     it('fills exactly one button with the accent', async () => {
       const message = await produceCard({ 'summary.md': '# x\n' });

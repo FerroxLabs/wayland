@@ -225,8 +225,26 @@ interface ArtifactRowProps {
   accent: boolean;
 }
 
-const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact, withPreview, divided, accent }) => {
+const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact: recorded, withPreview, divided, accent }) => {
   const { t } = useTranslation();
+  /**
+   * The summary the row is CURRENTLY describing.
+   *
+   * It starts as the one persisted on the card and is replaced by the one
+   * `artifacts.refresh` hands back. Without this the meta line kept saying
+   * "387 B" after a repair that had just re-registered the file at 422 B - the
+   * preview band had the new bytes and the line above it had the old size,
+   * which is the card contradicting itself about the same file. Seen on screen,
+   * not in a test.
+   */
+  const [summary, setSummary] = useState<ArtifactSummary>(recorded);
+  /**
+   * Derived, NOT reset in an effect. A row handed a different artifact falls
+   * back to the persisted summary on the very same render - no effect, no
+   * frame of the previous file's size - and an effect keyed on the prop would
+   * also throw away a repair every time the parent re-rendered.
+   */
+  const artifact = summary.artifactId === recorded.artifactId ? summary : recorded;
   const [busy, setBusy] = useState(false);
   const [applicationName, setApplicationName] = useState<string | null>(null);
   const [changed, setChanged] = useState(false);
@@ -396,6 +414,10 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact, withPreview, divide
       if (result?.ok) {
         setChanged(false);
         setError(null);
+        // The re-verified record, so the size and time above the band describe
+        // the bytes now IN it. Discarding this is what made the card contradict
+        // itself after a repair.
+        if (result.artifact) setSummary(result.artifact);
         // The band was showing a digest refusal. Re-read it so the repair is
         // visible rather than merely claimed.
         if (withPreview) {
