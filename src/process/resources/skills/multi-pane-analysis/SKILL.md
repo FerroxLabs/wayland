@@ -20,7 +20,8 @@ Example — index complex: `pane_set_layout({ layout: "2x2" })`.
 
 ## Step 2: Assign Symbols
 
-Use `pane_set_symbol` once per pane. Common correlated baskets:
+Use `pane_set_symbol` once per pane. The pane argument is `index` (0-based), not `pane`.
+Common correlated baskets:
 
 - **US Index complex**: `ES1!` (SP500), `NQ1!` (Nasdaq), `YM1!` (Dow), `RTY1!` (Russell)
 - **Energy**: `CL1!` (WTI), `BZ1!` (Brent), `NG1!` (Nat Gas), `XLE`
@@ -29,17 +30,17 @@ Use `pane_set_symbol` once per pane. Common correlated baskets:
 - **Risk-on/off**: `SPY`, `TLT`, `DXY`, `VIX`
 
 ```
-pane_set_symbol({ pane: 0, symbol: "ES1!" })
-pane_set_symbol({ pane: 1, symbol: "NQ1!" })
-pane_set_symbol({ pane: 2, symbol: "YM1!" })
-pane_set_symbol({ pane: 3, symbol: "RTY1!" })
+pane_set_symbol({ index: 0, symbol: "ES1!" })
+pane_set_symbol({ index: 1, symbol: "NQ1!" })
+pane_set_symbol({ index: 2, symbol: "YM1!" })
+pane_set_symbol({ index: 3, symbol: "RTY1!" })
 ```
 
 If a pane errors with `CHART_LOADING`, wait ~2s before querying that pane.
 
 ## Step 3: Align Timeframes
 
-Either set each pane's timeframe via `pane_set_symbol` (if it accepts tf) or loop through panes calling `chart_set_timeframe` after `pane_focus`. All panes should match (e.g., all 15m) for valid comparison.
+`pane_set_symbol` takes only `index` and `symbol`, so it cannot set a timeframe. Loop through the panes calling `chart_set_timeframe` after `pane_focus`. All panes should match (e.g., all 15m) for valid comparison.
 
 ## Step 4: Stream or Poll
 

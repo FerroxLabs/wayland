@@ -20,27 +20,30 @@ If the strategy tester isn't open: `ui_open_panel` with `panel: "strategy-tester
 1. `chart_get_state` — confirm symbol/timeframe match the strategy run
 2. Optionally `state_snapshot` the current chart state with `name` `pre-review` so you can restore cleanly at the end
 3. Add context indicators if missing (e.g., EMA200 for trend, ATR for volatility):
-   - `chart_manage_indicator` add "Moving Average Exponential" (length 200)
-   - `chart_manage_indicator` add "Average True Range"
+   - `chart_manage_indicator({ action: "add", indicator: "Moving Average Exponential" })`, then set
+     length 200 with `indicator_set_inputs({ entity_id, inputs: '{"length": 200}' })`
+   - `chart_manage_indicator({ action: "add", indicator: "Average True Range" })`
 
 ## Step 3: Walk Each Loss
 
 For each losing trade (limit to top 10 by size to stay focused):
 
 1. `chart_scroll_to_date` — jump to the entry bar (ISO date from the trade record)
-2. `chart_set_visible_range` — zoom to ~50 bars around the entry for context
-3. `draw_shape` with `horizontal_line` at entry price (label "E")
-4. `draw_shape` with `horizontal_line` at stop price (label "SL")
-5. `draw_shape` with `horizontal_line` at exit price (label "X")
+2. `chart_set_visible_range({ from, to })` — both are unix timestamps in SECONDS and both are
+   required; take ~50 bars either side of the entry bar
+3. `draw_shape` with `shape: "horizontal_line"` at entry price (label "E"). `point.time` is required
+   even for a horizontal line — use the entry bar time
+4. `draw_shape` with `shape: "horizontal_line"` at stop price (label "SL")
+5. `draw_shape` with `shape: "horizontal_line"` at exit price (label "X")
 6. `capture_screenshot` — save the annotated context
 
 Example — reviewing a $ES1!` long that stopped out:
 
 ```
 chart_scroll_to_date({ date: "2025-03-14T09:45:00" })
-chart_set_visible_range({ ... ~50 bars ... })
-draw_shape({ type: "horizontal_line", point: { price: 5812.50 }, text: "E" })
-draw_shape({ type: "horizontal_line", point: { price: 5805.00 }, text: "SL" })
+chart_set_visible_range({ from: 1741937400, to: 1741989600 })
+draw_shape({ shape: "horizontal_line", point: { time: 1741962300, price: 5812.50 }, text: "E" })
+draw_shape({ shape: "horizontal_line", point: { time: 1741962300, price: 5805.00 }, text: "SL" })
 capture_screenshot()
 ```
 

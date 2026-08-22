@@ -1,0 +1,134 @@
+#!/usr/bin/env node
+/**
+ * Generate tests/fixtures/tvcontrol-<version>-tools.json from the REAL connector.
+ *
+ * Nothing in the output is hand-written. This packs the package exactly as `npm publish`
+ * would, installs the tarball, spawns the real stdio MCP server, completes `initialize`,
+ * calls `tools/list`, and writes the `inputSchema` objects verbatim.
+ *
+ * That matters because the defect this fixture guards is invisible to any hand-built
+ * shape: zod STRIPS an unknown key like `name` on chart_manage_indicator rather than
+ * rejecting it, so a wrong argument name reaches the handler and dies at runtime with
+ * "indicator is required for add action". Only the server's own advertised schema can
+ * tell a correct call site from a plausible one.
+ *
+ * CI cannot pack on every run, so the fixture is committed and the test pins its header
+ * version to the catalog's pinned version — a future pin bump then fails loudly instead
+ * of quietly validating skills against a stale schema.
+ *
+ * Usage:
+ *   node scripts/gen-tvcontrol-schema-fixture.mjs                     # from the registry
+ *   node scripts/gen-tvcontrol-schema-fixture.mjs --from-dir <path>   # from a local tree
+ */
+import { spawn, execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const argv = process.argv.slice(2);
+const fromDirIdx = argv.indexOf('--from-dir');
+const fromDir = fromDirIdx >= 0 ? path.resolve(argv[fromDirIdx + 1]) : null;
+
+function pinnedVersion() {
+  const entry = JSON.parse(
+    fs.readFileSync(path.join(REPO, 'src/renderer/mcp-catalog/entries/com.ferroxlabs-tvcontrol.json'), 'utf8')
+  );
+  return entry.packages[0].version;
+}
+
+async function handshake(cmd, args, cwd) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(cmd, args, { cwd, stdio: ['pipe', 'pipe', 'inherit'] });
+    let buf = '';
+    const timer = setTimeout(() => { child.kill('SIGKILL'); reject(new Error('timeout')); }, 60000);
+    child.stdout.on('data', (d) => {
+      buf += d.toString();
+      let nl;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl);
+        buf = buf.slice(nl + 1);
+        if (!line.trim()) continue;
+        let msg;
+        try { msg = JSON.parse(line); } catch { continue; }
+        if (msg.id === 1) {
+          child.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n');
+          child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }) + '\n');
+        } else if (msg.id === 2) {
+          clearTimeout(timer);
+          child.kill('SIGKILL');
+          resolve(msg.result.tools);
+        }
+      }
+    });
+    child.on('error', reject);
+    child.stdin.write(JSON.stringify({
+      jsonrpc: '2.0', id: 1, method: 'initialize',
+      params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'fixture-gen', version: '0' } },
+    }) + '\n');
+  });
+}
+
+const version = pinnedVersion();
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'tvfixture-'));
+try {
+  fs.writeFileSync(path.join(tmp, 'package.json'), JSON.stringify({ name: 'fixture-host', private: true, version: '0.0.0' }));
+
+  let installArg;
+  let source;
+  if (fromDir) {
+    const localVersion = JSON.parse(fs.readFileSync(path.join(fromDir, 'package.json'), 'utf8')).version;
+    if (localVersion !== version) {
+      throw new Error(`--from-dir is version ${localVersion} but the catalog pins ${version}`);
+    }
+    const tar = execFileSync('npm', ['pack', '--pack-destination', tmp], { cwd: fromDir, encoding: 'utf8' }).trim().split('\n').pop();
+    installArg = path.join(tmp, tar);
+    source = `local:${fromDir}`;
+  } else {
+    installArg = `@ferroxlabs/tvcontrol@${version}`;
+    source = 'registry';
+  }
+
+  execFileSync('npm', ['install', '--omit=dev', '--no-audit', '--no-fund', '--cache', path.join(tmp, '.npmcache'), installArg],
+    { cwd: tmp, stdio: 'inherit' });
+
+  const installed = path.join(tmp, 'node_modules', '@ferroxlabs', 'tvcontrol');
+  const installedPkg = JSON.parse(fs.readFileSync(path.join(installed, 'package.json'), 'utf8'));
+  if (installedPkg.version !== version) throw new Error(`installed ${installedPkg.version}, expected ${version}`);
+
+  // Spawn the INSTALLED bin shim — the same thing `bun x --bun` resolves — so a fixture
+  // can never be generated from a build whose real spawn does not run.
+  const shim = path.join(tmp, 'node_modules', '.bin', 'tvcontrol');
+  const tools = await handshake(shim, [], tmp);
+
+  const tarballSha = installArg.endsWith('.tgz')
+    ? createHash('sha256').update(fs.readFileSync(installArg)).digest('hex')
+    : null;
+
+  const out = {
+    _header: {
+      note: 'GENERATED by scripts/gen-tvcontrol-schema-fixture.mjs. Do not hand-edit.',
+      package: '@ferroxlabs/tvcontrol',
+      version,
+      source,
+      tarballSha256: tarballSha,
+      toolCount: tools.length,
+      generatedFrom: 'a real stdio initialize + tools/list against the installed bin shim',
+    },
+    tools: Object.fromEntries(
+      tools
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((t) => [t.name, { inputSchema: t.inputSchema }])
+    ),
+  };
+
+  const dest = path.join(REPO, 'tests/fixtures', `tvcontrol-${version}-tools.json`);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, JSON.stringify(out, null, 2) + '\n');
+  console.log(`wrote ${dest} (${tools.length} tools, source ${source})`);
+} finally {
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
