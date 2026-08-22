@@ -171,3 +171,76 @@ describe('the engine spawn reads the run open on ITS OWN conversation', () => {
     expect(call.env.WAYLAND_OUTPUT_DIR.startsWith(workspace)).toBe(true);
   });
 });
+
+
+/**
+ * A3 - THE 330s REAP, IN WORDS A PERSON CAN READ.
+ *
+ * Core parks a gated tool call on `ToolApprovalManager` with a 300s TTL and
+ * sweeps every 30s (`DEFAULT_APPROVAL_TTL` / `DEFAULT_REAP_INTERVAL`,
+ * `wcore-protocol/src/lib.rs:27,32`), so an unanswered gate is denied between
+ * 300s and 330s with the EXACT literal at `:266`. That reason flows verbatim
+ * into `ProtocolEvent::ToolCancelled.reason`
+ * (`wcore-agent/src/orchestration/mod.rs:1191`), and Desktop rendered it as the
+ * tool_group node's `description` with an EMPTY `name` - so after five and a
+ * half minutes of silence the transcript said, with no title:
+ *
+ *     approval timed out (no host response)
+ *
+ * These tests drive the REAL `WCoreAgent.handleEvent` and read the REAL
+ * emitted node. Nothing is mocked but the spawn, which never happens here.
+ */
+describe('A3: the engine cancel reason a person actually reads', () => {
+  /** Byte-for-byte Core's literal. If Core changes it, case 1 goes red. */
+  const CORE_REAP_REASON = 'approval timed out (no host response)';
+
+  function nodeFor(reason: string) {
+    const events: Array<{ type: string; data: unknown; msg_id: string }> = [];
+    const agent = new WCoreAgent({
+      workspace: os.tmpdir(),
+      rawEngineMode: true,
+      model: { name: 'm', useModel: 'm', platform: 'openai', baseUrl: '' } as never,
+      onStreamEvent: (e: { type: string; data: unknown; msg_id: string }) => events.push(e),
+    });
+    (agent as unknown as { handleEvent: (e: unknown) => void }).handleEvent({
+      type: 'tool_cancelled',
+      msg_id: 'm-1',
+      call_id: 'call-42',
+      reason,
+    });
+    const group = events.find((e) => e.type === 'tool_group');
+    expect(group).toBeDefined();
+    return (group!.data as Array<Record<string, unknown>>)[0];
+  }
+
+  it('names the reap and says it in plain English, and the raw engine string never reaches the user', () => {
+    const node = nodeFor(CORE_REAP_REASON);
+    expect(node.callId).toBe('call-42');
+    expect(node.status).toBe('Canceled');
+    // The defect: an untitled node. A name is the whole point.
+    expect(node.name).toBeTruthy();
+    expect(String(node.name)).not.toBe('');
+    expect(String(node.description)).not.toContain('no host response');
+    expect(String(node.name) + ' ' + String(node.description)).toMatch(/5 minutes/);
+    expect(String(node.description).length).toBeGreaterThan(20);
+  });
+
+  it('KNOWN NEGATIVE: every other cancel reason still passes through untouched', () => {
+    // Without this the first test would pass against a function that rewrote
+    // EVERY cancellation, which would bury the reason the user needs on a
+    // denial, a ForgeFlow decline or a Crucible cancel.
+    for (const reason of ['ForgeFlow declined', 'Crucible declined - no spend.', 'Tool denied: not allowed']) {
+      const node = nodeFor(reason);
+      expect(node.name).toBe('');
+      expect(node.description).toBe(reason);
+      expect(node.status).toBe('Canceled');
+      expect(node.callId).toBe('call-42');
+    }
+  });
+
+  it('matches Core\'s literal exactly - a near miss is NOT rewritten', () => {
+    const node = nodeFor('approval timed out');
+    expect(node.name).toBe('');
+    expect(node.description).toBe('approval timed out');
+  });
+});
