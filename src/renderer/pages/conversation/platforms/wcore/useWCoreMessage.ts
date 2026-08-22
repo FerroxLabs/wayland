@@ -384,7 +384,26 @@ export const useWCoreMessage = (
             // engine logged stream_end, and navigating away and back cleared it —
             // proving the DURABLE state was already correct and only the mounted
             // view was wrong. A plain turn in the same session settled normally.
-            const AFTER_TURN_FRAMES = ['activity_turn_end', 'content_replace', 'cron_propose', 'concierge_propose'];
+            //
+            // `artifact_card` is the FOURTH frame on this path. `initBridge`
+            // emits it after the chat artifact sweep has persisted the card,
+            // which is strictly after `finish` — measured 30-38ms after, so the
+            // effect that syncs `streamRunningRef` has always already landed and
+            // the re-arm fired on EVERY deliverable turn, not intermittently.
+            // Live signature: engine logs stream_end with finish_reason `stop`,
+            // the file is on disk, the card renders with real bytes, and the
+            // composer still shows Stop with a running counter at 472s. It only
+            // wedges when the sweep actually registers something under
+            // `artifacts/chat/<id>/` — a write outside that namespace returns
+            // before `onSwept` (chatRun.ts), emits no frame, and settles fine,
+            // which is why the bug looked like it depended on the tool used.
+            const AFTER_TURN_FRAMES = [
+              'activity_turn_end',
+              'content_replace',
+              'cron_propose',
+              'concierge_propose',
+              'artifact_card',
+            ];
             const isTurnOutput = Boolean(message.msg_id) && !AFTER_TURN_FRAMES.includes(message.type);
             // Mark that current turn has content output (exclude error type)
             hasContentInTurnRef.current = true;
