@@ -27,7 +27,7 @@ import type {
   PlanUpdate,
   ToolCallUpdate,
 } from '@/common/types/acpTypes';
-import type { ArtifactSummary } from '../types/artifacts';
+import type { ArtifactRejectionReason, ArtifactSummary } from '../types/artifacts';
 import type { IResponseMessage } from '../adapter/ipcBridge';
 import { uuid } from '../utils';
 import { addOrUpdateNode, emptyActivityContent, mergeActivityContent, mergeNodeList } from './activityTree';
@@ -663,8 +663,16 @@ export type IMessageArtifactCard = IMessage<
   {
     /** Newest-first, and always at least one - an empty card is never written. */
     artifacts: ArtifactSummary[];
-    /** One line per refusal reason, already counted. May be empty. */
-    rejected?: Array<{ reason: string; count: number }>;
+    /**
+     * One line per refusal reason, already counted. May be empty.
+     *
+     * TYPED, not `string`. A bare string here is what let the card render
+     * `1 escapes-workspace` to a non-technical person at the exact moment their
+     * report did not arrive. With the closed union the renderer folds each
+     * reason into a translatable bucket, and a fourteenth reason added to the
+     * host fails to COMPILE rather than reaching a screen as a raw slug.
+     */
+    rejected?: Array<{ reason: ArtifactRejectionReason; count: number }>;
   }
 >;
 
@@ -1353,6 +1361,33 @@ export const composeMessage = (
     }
     return pushMessage(message);
     // If no existing plan found, add new one
+  }
+
+  /**
+   * artifact_card: the deliverable card follows the conversation to the bottom.
+   *
+   * NOT A COPY OF THE `plan` BRANCH ABOVE, because that one merges IN PLACE and
+   * would leave the card pinned under whichever turn first produced a file. And
+   * NOT the tail's behaviour either: the tail pushes whenever the last message
+   * has a different msg_id, so on this path a re-emitted card was APPENDED as a
+   * duplicate rather than replacing the one already in the transcript.
+   *
+   * The card's msg_id is derived from the CONVERSATION, so turn 5's card
+   * carries turn 3's id. Move it: splice the old one out, push the new one on
+   * the end, and keep the persisted row's id so this reports as an UPDATE and
+   * not as a second row in the database.
+   */
+  if (message.type === 'artifact_card' && message.msg_id) {
+    for (let i = 0, len = list.length; i < len; i++) {
+      const existing = list[i];
+      if (existing.type !== 'artifact_card' || existing.msg_id !== message.msg_id) continue;
+      message.id = existing.id;
+      list.splice(i, 1);
+      list.push(message);
+      messageHandler('update', message);
+      return list.slice();
+    }
+    return pushMessage(message);
   }
 
   // Handle thinking message merging - append streaming content by msg_id
