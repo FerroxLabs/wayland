@@ -436,6 +436,36 @@ describe('the artifacts rail: the row', () => {
     for (const button of buttons) expect(button.className).toContain('b-1px');
   });
 
+  /**
+   * A LIVE DEFECT, PINNED SO IT CANNOT COME BACK.
+   *
+   * With the preview panel open the rail's list column is a fixed 420px. The
+   * actions container was `shrink-0`, so even after wrapping onto its own line
+   * it kept its full 512px single-line width and overflowed the 418px content
+   * box by ~105px: "Remove from list" was CLIPPED OFF THE ROW with no way to
+   * reach it. Measured in the running app with getBoundingClientRect, not
+   * reasoned about, and re-measured after the fix at 470/420/380px - two button
+   * lines, every button inside the row, filename never truncated.
+   *
+   * jsdom does no layout, so the widths cannot be re-measured here. What CAN be
+   * pinned is the cause: the container must be allowed to shrink, and the
+   * buttons must not be, so no label squashes.
+   */
+  it('lets the actions container shrink, so a narrow column wraps instead of clipping', async () => {
+    await oneReadyRow();
+    const row = screen.getByTestId('artifacts-rail-row');
+    const actions = row.children[row.children.length - 1] as HTMLElement;
+    // Known positive: this really is the actions block.
+    expect(actions.querySelectorAll('button').length).toBeGreaterThan(1);
+
+    expect(actions.className).toContain('flex-wrap');
+    expect(actions.className).not.toMatch(/\bshrink-0\b/);
+    // The BUTTONS stay shrink-0 so a wrapped row never squashes a label.
+    for (const button of actions.querySelectorAll('button')) {
+      expect(button.className).toContain('shrink-0');
+    }
+  });
+
   it('tints the tile by type from the SOFT tokens, never the raw semantic colour', async () => {
     await oneReadyRow();
     const row = screen.getByTestId('artifacts-rail-row');

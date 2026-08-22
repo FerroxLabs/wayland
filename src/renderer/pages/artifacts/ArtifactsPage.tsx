@@ -479,8 +479,19 @@ const ArtifactsRail: React.FC = () => {
                   {/* ONE accent button per row, and it is the one that shows
                       the user their file. Four equal-weight controls is what
                       made this row read as a list of links rather than as a
-                      thing with a primary action. */}
-                  <div className='flex shrink-0 flex-wrap items-center gap-6px'>
+                      thing with a primary action.
+
+                      NOT `shrink-0` ON THIS CONTAINER, and that is load-bearing.
+                      With the preview panel open the list column is a fixed
+                      420px; a shrink-0 actions block keeps its full 512px
+                      single-line width even after wrapping onto its own row, so
+                      it overflowed by ~105px and Remove from list was CLIPPED
+                      OFF THE ROW with no way to reach it. Measured in the
+                      running app, not reasoned about. Letting the container
+                      shrink lets its own flex-wrap break the buttons across
+                      lines instead; the BUTTONS stay shrink-0 so no label ever
+                      squashes. */}
+                  <div className='flex min-w-0 flex-wrap items-center justify-end gap-6px'>
                     {/* A missing file has nothing to open or copy. Reveal still
                         works: showing the user the folder their file is NOT in
                         is exactly how they find out what happened to it. */}
