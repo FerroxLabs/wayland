@@ -38,16 +38,30 @@ describe('SIDER_NAV_ITEMS registry (#118)', () => {
     expect(SIDER_NAV_ITEMS[SIDER_NAV_ITEMS.length - 1].id).toBe('mission-control');
   });
 
+  /**
+   * THIS ASSERTION CHANGED, AND THE ORDER IT PINNED IS THE THING THAT CHANGED.
+   *
+   * `artifacts` moved from index 7 (between `teams` and `memory`) to index 1,
+   * directly under `sessions`/Chats, because the shelf is filled by chats and
+   * eight entries down is where a feature goes to not be found. That is the
+   * requested change, so the list that pinned the old position has to move with
+   * it; there is no way to both make the change and keep this line.
+   *
+   * EVERY ENTRY IS KEPT. The same ten ids, none dropped, none added - only the
+   * position of one of them differs, and `toEqual` on the full array still
+   * fails if anything is lost or duplicated. The negative this test carried
+   * (that the registry is exactly these ten, in a fixed order) is intact.
+   */
   it('has the expected entries in order', () => {
     expect(SIDER_NAV_ITEMS.map((i) => i.id)).toEqual([
       'sessions',
+      'artifacts',
       'search',
       'projects',
       'assistants',
       'workflows',
       'scheduled',
       'teams',
-      'artifacts',
       'memory',
       'mission-control',
     ]);
