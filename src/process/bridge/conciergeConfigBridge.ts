@@ -29,8 +29,6 @@ import { connectModelRegistryProvider } from '@process/providers/ipc/modelRegist
 import type { ProviderId } from '@process/providers/types';
 import { writeAssistantRules } from './fsBridge';
 import { updateMcpConfig } from '@process/services/mcpServices/mcpConfigAuthority';
-import { mcpService } from '@process/services/mcpServices/McpService';
-import { agentRegistry } from '@process/agent/AgentRegistry';
 import type { McpConnectionTestResult } from '@process/services/mcpServices/McpProtocol';
 import { uuid } from '@/common/utils';
 import type { TMessage } from '@/common/chat/chatLib';
@@ -101,6 +99,13 @@ function probeReachedThisDeclaration(server: IMcpServer, probe: McpConnectionTes
  * other way: a green tick over a connector that cannot spawn.
  */
 async function probeAndPublishAddedMcp(server: IMcpServer): Promise<string> {
+  // Imported here, not at module top level. `McpService` and `AgentRegistry`
+  // each pull a large main-process graph (the aioncli-core OAuth chain, every
+  // agent adapter, every detector); the same file already documents why that
+  // graph must stay off the module-load path. This bridge is initialised
+  // during app startup, so a static import would put all of it there.
+  const { mcpService } = await import('@process/services/mcpServices/McpService');
+
   let probe: McpConnectionTestResult;
   try {
     probe = await mcpService.testMcpConnection(server);
@@ -139,6 +144,7 @@ async function probeAndPublishAddedMcp(server: IMcpServer): Promise<string> {
   // claims to be on while no agent carries it.
   let publicationError: string | undefined;
   try {
+    const { agentRegistry } = await import('@process/agent/AgentRegistry');
     const agents = agentRegistry.getDetectedAgents().map((agent) => ({
       backend: agent.backend,
       name: agent.name,
