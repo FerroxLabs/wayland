@@ -579,7 +579,23 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     const workspaceFiles = workspace ? await copyFilesToDirectory(workspace, [], false) : [];
 
     const hasSkill = await hasCronSkillFile(job.id);
-    const needsSkillSuggest = job.target.executionMode === 'new_conversation' && !!workspace && !hasSkill;
+    // B15a. A SEEDED ROUTINE ALREADY HAS ITS INSTRUCTIONS AND MUST NOT BE ASKED
+    // TO INVENT THEM.
+    //
+    // `hasCronSkillFile` checks `getCronSkillsDir()/<jobId>/SKILL.md` - the file
+    // the USER saves with "Turn into skill". A builtin routine never has one,
+    // because its body arrives by a different mechanism entirely
+    // (`resolveRoutineSkillDirs(configOptions.routineId)`, a few lines below).
+    // So a routine with a fully authored workflow body was being asked to write
+    // itself a skill file, the safe-write guard correctly refused, and the
+    // refusal landed in the user's morning report as noise.
+    //
+    // The discriminator is `routineId`, which is already on the job. NOT
+    // widening `hasCronSkillFile` to look in the routine dirs: those are two
+    // different files, and conflating them would break "Turn into skill".
+    const isSeededRoutine = !!job.metadata.agentConfig?.configOptions?.routineId;
+    const needsSkillSuggest =
+      job.target.executionMode === 'new_conversation' && !!workspace && !hasSkill && !isSeededRoutine;
     const isGeminiLike =
       job.metadata.agentConfig?.backend === 'gemini' || job.metadata.agentConfig?.backend === 'wcore';
 
