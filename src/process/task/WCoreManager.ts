@@ -466,6 +466,27 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   // interactive tool_group approvals never hit the redirect and cannot double-drive.
   private readonly pendingApprovalTokens = new Map<string, string>();
 
+  /**
+   * A2 - callIds this turn has already put through the `Confirming` tool_group
+   * gate. Populated in `handleConformationMessage` BEFORE `tryAutoApprove`, so
+   * an auto-approved request registers too; cleared at turn end.
+   *
+   * WHY IT EXISTS. wayland-core v0.13.4's `GatingProtocolWriter::emit`
+   * synthesizes an `ApprovalRequired` with an EMPTY `resume_token` after EVERY
+   * gated `ToolRequest`. On the wire that is byte-indistinguishable from a
+   * genuine bridge-backed HITL suspend that we can neither resume nor escalate,
+   * so the diagnostic below shouted "turn may wedge" at ERROR on turns that
+   * were never wedged - 23 occurrences in one live log, every one of them
+   * answered by the ordinary tool_group path 60-200ms later.
+   *
+   * The engine gave us no discriminator, but the companion always FOLLOWS a
+   * `tool_request` for the SAME call_id, and that call_id has already come
+   * through here. So: known call_id -> the tool_group gate owns it, log at
+   * info. Unknown call_id -> genuinely un-actionable, stays a loud error.
+   * See `A4` in the plan for the Core-side ask that would let us delete this.
+   */
+  private readonly gatedToolCallIds = new Set<string>();
+
   // Heartbeat state
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
   private readonly heartbeatIntervalMs = 30_000;
@@ -1131,6 +1152,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     const confirmingTools = message.content.filter((c) => c.status === 'Confirming');
 
     for (const content of confirmingTools) {
+      // A2 - register BEFORE the auto-approve check: an auto-approved request
+      // is still a call the tool_group gate owns, and the engine synthesizes
+      // its companion `approval_required` for it just the same.
+      if (content.callId) this.gatedToolCallIds.add(content.callId);
+
       // Check mode-based auto-approval
       if (this.tryAutoApprove(content)) continue;
 
@@ -1934,11 +1960,28 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           if (autoMode && !appr.resumeToken) {
             // Preview, not the raw payload: `context` is engine-supplied
             // free-form text and this persists to the on-disk log (#714).
-            mainError(
-              '[WCoreManager]',
-              `approval_required reason='${appr.reason}' in auto mode has no resume token and no HITL UI; turn may wedge`,
-              toSafeInfoLogPreview(data.data)
-            );
+            const callId = appr.callId ?? '';
+            if (callId && this.gatedToolCallIds.has(callId)) {
+              // A2 - the engine's synthesized companion, not a wedge. The
+              // `Confirming` tool_group for this exact call_id already went
+              // through the approval gate above, so the turn has a way home.
+              // Kept at info (not dropped) because this line and its payload
+              // preview are the only greppable evidence that Desktop's mode and
+              // Core's posture disagree.
+              mainLog(
+                '[WCoreManager]',
+                `approval_required reason='${appr.reason}' callId=${callId} has no resume token, but the ` +
+                  `tool_group approval gate already owns this call_id: this is engine v0.13.4's synthesized ` +
+                  `companion to its own tool_request, not a wedge`,
+                toSafeInfoLogPreview(data.data)
+              );
+            } else {
+              mainError(
+                '[WCoreManager]',
+                `approval_required reason='${appr.reason}' in auto mode has no resume token and no HITL UI; turn may wedge`,
+                toSafeInfoLogPreview(data.data)
+              );
+            }
           } else {
             mainLog(
               '[WCoreManager]',
@@ -2004,6 +2047,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.currentMsgContent = '';
         // A new turn starts clean: last turn's failure must not condemn this one.
         this._turnSawError = false;
+        // A2 - and last turn's gated call_ids must not demote this turn's
+        // diagnostics. Cleared HERE as well as at turn end because the case
+        // this whole branch exists for is a turn that never finishes.
+        this.gatedToolCallIds.clear();
 
         // Reset thinking state on new turn
         if (this.thinkingMsgId) {
@@ -2206,6 +2253,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     const settled = outcome === 'failed' || this._turnSawError ? 'failed' : 'done';
     this.settleTurnActivityCard(settled);
     this._turnSawError = false;
+    // A2 - the turn's approval gates are closed; drop their call_ids so a later
+    // tokenless approval cannot be demoted by a gate that is no longer open.
+    this.gatedToolCallIds.clear();
 
     // Finalize thinking if still active
     if (this.thinkingMsgId) {
