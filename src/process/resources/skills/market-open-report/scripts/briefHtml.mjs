@@ -215,10 +215,38 @@ function pyFloorDivFloat(vx, wx) {
 
 const p2 = (n) => String(n).padStart(2, '0');
 
-/** datetime.now().strftime('%Y-%m-%d %H:%M') in local time, zero-padded. */
+/**
+ * B14. THE STAMP NAMES ITS OWN CLOCK.
+ *
+ * This ran as `datetime.now().strftime('%Y-%m-%d %H:%M')` - the LOCAL time of
+ * whatever process renders, with nothing saying which local that is. It renders
+ * inside the engine's sandbox, which runs UTC; the main process that names the
+ * series directory runs the user's zone. Same instant, two calendar days:
+ *
+ *     closes through ?, generated 2026-08-22 22:31     (TZ=UTC)
+ *     closes through ?, generated 2026-08-23 05:31     (TZ=Asia/Bangkok)
+ *
+ * Both were correct and neither could be told from the other. It is not fixable
+ * by exporting TZ - the engine's env allowlist does not forward it, the same
+ * allowlist that ate WAYLAND_OUTPUT_DIR - so the instant is LABELLED rather
+ * than moved. The offset is read off the runtime (`getTimezoneOffset`), never
+ * assumed: a hard-coded suffix would make the stamp confidently wrong instead
+ * of quietly ambiguous.
+ */
+function zoneSuffix(dt) {
+  // getTimezoneOffset is minutes to ADD to local to reach UTC, so its sign is
+  // inverted from the way an offset is written.
+  const mins = -dt.getTimezoneOffset();
+  if (mins === 0) return 'UTC';
+  const sign = mins < 0 ? '-' : '+';
+  const abs = Math.abs(mins);
+  return `${sign}${p2(Math.floor(abs / 60))}:${p2(abs % 60)}`;
+}
+
+/** `YYYY-MM-DD HH:MM <zone>` on the clock of whatever process renders this. */
 function nowStamp(dt) {
   return `${dt.getFullYear()}-${p2(dt.getMonth() + 1)}-${p2(dt.getDate())} `
-    + `${p2(dt.getHours())}:${p2(dt.getMinutes())}`;
+    + `${p2(dt.getHours())}:${p2(dt.getMinutes())} ${zoneSuffix(dt)}`;
 }
 
 /** `sorted(xs, key=...)` for a single scalar key. Stable in both languages;

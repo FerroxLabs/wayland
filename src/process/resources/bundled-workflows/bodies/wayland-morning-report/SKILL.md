@@ -212,6 +212,14 @@ in the same message:
    <timestamp>`. Both name the same bar. Use it, and state it alongside the
    generation time, because those two are routinely different days.
 
+   Quote the generation stamp **exactly as the brief prints it, including its
+   zone** — it ends in `UTC` or an offset like `+07:00`. Do not restate it in
+   your own words, do not drop the zone and do not convert it: you are **not
+   running on the same clock as the app**. Your shell is UTC and the app names
+   this task's dated folder on the user's local calendar, so the same instant is
+   routinely two different dates. The zone is the only thing that reconciles
+   them.
+
    The scanner has no market-calendar awareness, so a run on a Saturday, a
    holiday, or before the previous session has settled will happily reprint the
    last bar it has, and a stale price reads exactly like a fresh one. If the bar
