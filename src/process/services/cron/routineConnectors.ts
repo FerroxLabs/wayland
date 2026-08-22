@@ -24,10 +24,22 @@
  *     $ ...same command on the host: http=429   <- known-positive control
  *
  * and raw-IP TCP and 127.0.0.1:9222 are refused from inside the same sandbox
- * too, so it is a whole-network deny, not a DNS one. The only remaining route
- * to market data is a connector, and a connector is exactly what the narrowing
- * removes. The morning brief that exists today exists only because a proof
- * agent hand-placed 328 cache files from outside the sandbox.
+ * too, so it is a whole-network deny, not a DNS one.
+ *
+ * WHAT THIS IS NOT. It is NOT the morning report's data route, and nothing
+ * shipped uses it. That report's bars come from `routinePrefetch` /
+ * `prefetchDailyBars`, which fetch in the MAIN process - outside the seatbelt -
+ * into the cache the scanner already reads. Proven from a cold workspace: 82
+ * written in 16.8 s, then the real scanner inside the real sandbox printing
+ * "74 names scanned, 56 currently long, bar 2026-08-21". A connector could not
+ * have done it anyway: `data_get_ohlcv` takes no symbol parameter and caps at
+ * 500 bars, against a scanner that discards anything under 300 daily bars for
+ * each of 74 names.
+ *
+ * So this module is the mechanism for a routine that genuinely has no other
+ * way, and today NO shipped routine declares anything. Every path through it
+ * returns `[]` for the corpus as it stands, which is the same fail-closed
+ * default that existed before it.
  *
  * THE GRANT. A routine may NAME the connectors its workflow needs. Nothing is
  * inherited: an undeclared routine, a user-created cron, and a routine whose
