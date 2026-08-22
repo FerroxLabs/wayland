@@ -92,6 +92,19 @@ describe('preset rule seeding rewrites only LEADING skills/ segments', () => {
     }
   });
 
+  it('names the remedy when the cd fails, instead of just declaring the skill missing', () => {
+    // After the anchoring fix a failed `cd` really does mean the skill is not placed in
+    // this workspace, so the instruction is finally true - but "say so" left the user with
+    // a dead end. The seeded text has to name the one action that fixes it.
+    const seeded = smartTrader!.after;
+    const idx = seeded.indexOf('not enabled');
+    expect(idx, 'the failure instruction must still exist').toBeGreaterThan(-1);
+    // Same paragraph, so the remedy is read together with the diagnosis.
+    const paragraph = seeded.slice(0, idx).split('\n\n').pop()! + seeded.slice(idx).split('\n\n')[0];
+    expect(paragraph).toMatch(/Settings → Skills & Tools/);
+    expect(paragraph).toMatch(/market-open-report/);
+  });
+
   it('KNOWN-POSITIVE CONTROL: star-office-helper still gets every leading skills/ absolutized', () => {
     // If this control is not green the test is not exercising the rewrite at all and the
     // assertion above means nothing.
