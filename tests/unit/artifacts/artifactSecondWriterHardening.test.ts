@@ -35,6 +35,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   openArtifact,
+  previewArtifact,
   revealArtifact,
   saveArtifactCopy,
   listArtifactSummaries,
@@ -114,7 +115,7 @@ describe('readArtifactLedger validates the workspace root, not just the relative
     expect(records.map((entry) => entry.artifactId)).toContain(good.artifactId);
   });
 
-  it('refuses an out-of-root record at every one of the four actions', async () => {
+  it('refuses an out-of-root record at every one of the five actions', async () => {
     await registerOne('artifacts/brief.html', '<p>hi</p>');
     const [good] = await readArtifactLedger(ledgerPath);
     await fs.appendFile(
@@ -135,8 +136,48 @@ describe('readArtifactLedger validates the workspace root, not just the relative
     expect((await openArtifact('hostile-id', effects)).ok).toBe(false);
     expect((await revealArtifact('hostile-id', effects)).ok).toBe(false);
     expect((await saveArtifactCopy('hostile-id', effects)).ok).toBe(false);
+    // PREVIEW IS THE FIFTH ACTION. Enumerative extension, not a relaxation:
+    // every assertion above is unchanged and this one is added, because a
+    // channel that reads a file's BYTES must be in the same list as the ones
+    // that launch it. Refused as `unavailable`, which is what every "the ledger
+    // does not vouch for this" answer looks like on this channel.
+    expect(await previewArtifact('hostile-id', effects)).toEqual({ kind: 'none', reason: 'unavailable' });
     const listed = await listArtifactSummaries(effects);
     expect(listed.map((entry) => entry.artifactId)).not.toContain('hostile-id');
+  });
+});
+
+describe('previewArtifact confines the source like the other four actions', () => {
+  it('refuses when confinement refuses, and reads nothing', async () => {
+    const record = await registerOne('artifacts/brief.html', '<p>hi</p>');
+    const confine = vi.fn(async () => null);
+    const effects: ArtifactHostEffects = {
+      readLedger: () => readArtifactLedger(ledgerPath),
+      confine,
+      launch: async () => ({ ok: true }),
+      reveal: async () => ({ ok: true }),
+      chooseSaveDestination: async () => null,
+    };
+
+    expect(await previewArtifact(record.artifactId, effects)).toEqual({ kind: 'none', reason: 'unavailable' });
+    expect(confine).toHaveBeenCalledWith(path.resolve(workspace, 'artifacts', 'brief.html'));
+  });
+
+  it('still previews when confinement allows - the check is a gate, not a wall', async () => {
+    const record = await registerOne('artifacts/brief.html', '<p>hi</p>');
+    const effects: ArtifactHostEffects = {
+      readLedger: () => readArtifactLedger(ledgerPath),
+      confine: async (target: string) => target,
+      launch: async () => ({ ok: true }),
+      reveal: async () => ({ ok: true }),
+      chooseSaveDestination: async () => null,
+    };
+
+    expect(await previewArtifact(record.artifactId, effects)).toEqual({
+      kind: 'text',
+      text: '<p>hi</p>',
+      truncated: false,
+    });
   });
 });
 

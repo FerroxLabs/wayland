@@ -41,9 +41,18 @@ describe('artifact seam remote boundary', () => {
       .filter((key) => key.startsWith('artifacts.'))
       .toSorted();
     expect(capabilities).toEqual([
+      // Removes a LEDGER ROW, never a file - but the row it removes is the
+      // record of where a deliverable is, and a remote caller able to erase
+      // rows could quietly hide an artifact from the local user. Boundary
+      // re-examined when it was added: it stays denied, by the same prefix.
+      'artifacts.forget',
       'artifacts.list',
       'artifacts.open',
       'artifacts.open-target',
+      // Reads the BYTES of a local file and returns them to the caller. The
+      // single most obviously remote-dangerous channel in the namespace, and
+      // the reason this enumeration exists at all. Denied by the same prefix.
+      'artifacts.preview',
       // T4. Re-registers a local file as a verified deliverable, and the record
       // it appends is what a later `artifacts.open` turns into a path handed to
       // an OS launcher. Boundary re-examined when it was added, per this test's

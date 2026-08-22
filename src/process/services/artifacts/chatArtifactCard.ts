@@ -27,7 +27,7 @@
  */
 
 import type { TMessage } from '@/common/chat/chatLib';
-import type { ArtifactSummary } from '@/common/types/artifacts';
+import type { ArtifactRejectionReason, ArtifactSummary } from '@/common/types/artifacts';
 
 import { toArtifactSummary } from './artifactActions';
 import type { ChatSweepResult } from './chatRun';
@@ -43,7 +43,15 @@ export const chatArtifactCardMsgId = (conversationId: string): string => `artifa
 
 export interface ChatArtifactCardContent {
   artifacts: ArtifactSummary[];
-  rejected?: Array<{ reason: string; count: number }>;
+  /**
+   * Narrowed from `string` to the closed union ON PURPOSE.
+   *
+   * A `string` here is what let the card render `1 escapes-workspace` straight
+   * to the user. With the union, the renderer folds each reason into one of
+   * five translatable buckets, and a fourteenth reason added later fails to
+   * COMPILE rather than reaching a screen as a raw slug.
+   */
+  rejected?: Array<{ reason: ArtifactRejectionReason; count: number }>;
 }
 
 /**
@@ -56,7 +64,7 @@ export function buildChatArtifactCardContent(result: ChatSweepResult): ChatArtif
     .map((record) => toArtifactSummary(record))
     .toSorted((left, right) => right.runAt.localeCompare(left.runAt) || left.fileName.localeCompare(right.fileName));
 
-  const counts = new Map<string, number>();
+  const counts = new Map<ArtifactRejectionReason, number>();
   for (const rejection of result.rejected) counts.set(rejection.reason, (counts.get(rejection.reason) ?? 0) + 1);
   const rejected = [...counts]
     .map(([reason, count]) => ({ reason, count }))
@@ -85,4 +93,54 @@ export function buildChatArtifactCardMessage(
     createdAt: now,
     status: 'finish',
   };
+}
+
+/**
+ * The three host capabilities persisting a card needs, injected so the ORDER -
+ * which is the part that is easy to get wrong - can be tested without a
+ * database, and so the database half can be tested without Electron.
+ */
+export interface ChatArtifactCardPersistence {
+  /** Await every write already queued for this conversation. */
+  flush(conversationId: string): Promise<void>;
+  /** Remove one message row by id. A clean no-op on an id that is not there. */
+  deleteMessage(messageId: string): void;
+  /** Queue the message for insertion, exactly as any other message is queued. */
+  addMessage(conversationId: string, message: TMessage): void;
+}
+
+/**
+ * Write the card, replacing the one already there.
+ *
+ * -------------------------------------------------------------------------
+ * WHY THIS IS NOT JUST `addMessage`, WHICH IS WHAT IT USED TO BE.
+ * -------------------------------------------------------------------------
+ * `messages.id` is UNIQUE and the card's id is derived from the conversation
+ * id, so turn 2's card collides with turn 1's. `insertMessage` catches the
+ * violation and returns `{ success: false }`, and the queue in `message.ts`
+ * discards that boolean - so every card after the first was lost IN COMPLETE
+ * SILENCE, and reopening the conversation showed turn 1's stale card forever.
+ * There is no exception anywhere in that path, which is exactly why it went
+ * unnoticed.
+ *
+ * THE DRAIN IS FIRST AND IT IS NOT COSMETIC. `addMessage` is QUEUED behind a
+ * debounce. A delete racing a queued insert deletes the row the queue is about
+ * to write, and the card is lost a second way. Draining empties the queue
+ * first, so the delete acts on a settled row.
+ *
+ * KNOWN GAP, STATED RATHER THAN GUARDED: `drain()` bails while the queue is
+ * `!initialized`, so in the cold-start window a queued insert could still land
+ * after the delete. That window is a brand-new conversation before its first
+ * flush, and a chat that has just produced a deliverable is past it. Losing one
+ * card there costs the next turn recreating it - strictly better than today,
+ * where every card after the first is lost unconditionally.
+ */
+export async function persistChatArtifactCard(
+  conversationId: string,
+  message: TMessage,
+  persistence: ChatArtifactCardPersistence
+): Promise<void> {
+  await persistence.flush(conversationId);
+  persistence.deleteMessage(chatArtifactCardMsgId(conversationId));
+  persistence.addMessage(conversationId, message);
 }

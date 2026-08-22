@@ -28,6 +28,10 @@ describe('artifacts namespace remote denial', () => {
     'artifacts.save-copy',
     'artifacts.series',
     'artifacts.open-target',
+    // Returns the bytes of a local file.
+    'artifacts.preview',
+    // Erases a ledger row, which is how a deliverable stops being findable.
+    'artifacts.forget',
   ])('denies %s to a remote caller', (key) => {
     expect(isRemoteDeniedProviderKey(key)).toBe(true);
   });

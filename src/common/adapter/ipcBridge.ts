@@ -27,8 +27,10 @@ import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICss
 import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
 import type {
+  ArtifactForgetResult,
   ArtifactListing,
   ArtifactOpenTarget,
+  ArtifactPreview,
   ArtifactRefreshResult,
   ArtifactSaveResult,
   ArtifactSeriesView,
@@ -201,6 +203,43 @@ export const artifacts = {
    * Remote-denied by the `artifacts.` prefix, like every other channel here.
    */
   refresh: buildProvider<ArtifactRefreshResult, { artifactId: string }>('artifacts.refresh'),
+  /**
+   * A few VERIFIED bytes of the deliverable, so a card can show what is in the
+   * file instead of an icon and a filename.
+   *
+   * The fifth action, gated exactly like the other four: the id is resolved
+   * through the ledger, the ancestor chain is walked for symlinks, the digest
+   * is re-checked, and `confine` decides whether the workspace is an authorized
+   * root - BEFORE any byte is read. The size cap and the type gate run on the
+   * ledger record first, so an over-cap or non-previewable file is refused
+   * without opening it at all.
+   *
+   * Returns TEXT or a typed refusal, never raw bytes for the renderer to sniff.
+   * The binary sniff happens host-side so the renderer never has to guess, and
+   * there is no `html` arm: markup previews as source.
+   *
+   * Remote-denied by the `artifacts.` prefix, like every other channel here.
+   */
+  preview: buildProvider<ArtifactPreview, { artifactId: string }>('artifacts.preview'),
+  /**
+   * Remove a deliverable from the LIST. Does NOT delete the file.
+   *
+   * Deleting a user's real report off disk on a mis-click is unrecoverable and
+   * nobody asked for it; Finder already does that. What was unreachable was
+   * dismissing a row - deleting the file in Finder converts the row to a red
+   * Missing one that can never be got rid of, and renaming it mints a fresh
+   * artifact id and orphans the old row forever.
+   *
+   * Implemented as a TOMBSTONE appended to the append-only ledger, filtered out
+   * in `readArtifactLedger` - the one chokepoint every surface and every action
+   * already reads through - so a forgotten row disappears everywhere at once
+   * and cannot resurface inside a run-history block. A later sweep that
+   * re-registers the same file brings the row back, which is correct: the
+   * deliverable exists again.
+   *
+   * Remote-denied by the `artifacts.` prefix, like every other channel here.
+   */
+  forget: buildProvider<ArtifactForgetResult, { artifactId: string }>('artifacts.forget'),
 };
 
 // #466 Computer-Use macOS permission onboarding. getStatus uses non-prompting

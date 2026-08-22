@@ -16,6 +16,12 @@ import {
   readArtifactLedger,
   registerArtifacts,
 } from '../../../src/process/services/artifacts/artifactLedger';
+import {
+  formatArtifactSize,
+  rejectionBucketFor,
+  type ArtifactRejectionBucket,
+  type ArtifactRejectionReason,
+} from '../../../src/common/types/artifacts';
 
 /**
  * P2-7. A metadata ledger, NOT a store.
@@ -323,5 +329,115 @@ describe('a declaration is a claim, not a proof', () => {
     });
     expect(result).toEqual({ registered: [], rejected: [] });
     expect(await readArtifactLedger(ledgerPath)).toEqual([]);
+  });
+});
+
+/**
+ * THE RENDERER MUST NEVER SEE A RAW SLUG.
+ *
+ * The card used to print `2 files were not saved as deliverables: 1
+ * escapes-workspace, 1 not-regular-file.` to a non-technical person at the
+ * exact moment their report did not arrive. The bucket mapping is what ends
+ * that, and this is the test that stops a fourteenth reason quietly reopening
+ * it: the reasons are enumerated from the SHIPPED validator's own vocabulary,
+ * so a new member with no bucket shows up here as well as at the compiler.
+ */
+describe('rejectionBucketFor folds the host vocabulary into what a person can read', () => {
+  const ALL_REASONS: ArtifactRejectionReason[] = [
+    'not-an-object',
+    'not-a-string',
+    'empty',
+    'absolute',
+    'home-relative',
+    'traversal',
+    'unsafe-form',
+    'escapes-workspace',
+    'symlink',
+    'not-regular-file',
+    'missing',
+    'too-large',
+    'too-many',
+    'unreadable',
+  ];
+
+  it('maps every reason in the union to one of the five buckets', () => {
+    const buckets: ArtifactRejectionBucket[] = [
+      'outside-folder',
+      'not-a-file',
+      'too-big',
+      'too-many',
+      'unreadable',
+    ];
+    for (const reason of ALL_REASONS) {
+      expect(buckets, `${reason} has no bucket`).toContain(rejectionBucketFor(reason));
+    }
+  });
+
+  it('is not a constant: the buckets actually discriminate', () => {
+    // Without this the test above would pass against a function that returned
+    // 'unreadable' for everything, which is the shape the whole fix is against.
+    expect(rejectionBucketFor('escapes-workspace')).toBe('outside-folder');
+    expect(rejectionBucketFor('symlink')).toBe('not-a-file');
+    expect(rejectionBucketFor('too-large')).toBe('too-big');
+    expect(rejectionBucketFor('too-many')).toBe('too-many');
+    expect(rejectionBucketFor('unsafe-form')).toBe('unreadable');
+    expect(new Set(ALL_REASONS.map(rejectionBucketFor)).size).toBe(5);
+  });
+
+  /**
+   * The list above is hand-written, so it could drift from the union it claims
+   * to enumerate. This proves it does not: every reason the REAL validator can
+   * emit for a malformed declaration is in the list.
+   */
+  it('enumerates the same reasons the shipped validator actually produces', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'wl-buckets-'));
+    const result = await registerArtifacts({
+      ledgerPath: path.join(dir, 'ledger.jsonl'),
+      workspace: dir,
+      runDir: dir,
+      ...RUN,
+      declarations: [
+        42,
+        { path: 7 },
+        { path: '   ' },
+        { path: '/etc/passwd' },
+        { path: '~/secrets' },
+        { path: '../escape.md' },
+        { path: 'stream.md:ads' },
+        { path: 'gone.md' },
+      ],
+    });
+    rmSync(dir, { recursive: true, force: true });
+    expect(result.registered).toEqual([]);
+    const produced = result.rejected.map((entry) => entry.reason);
+    // Eight DISTINCT reasons, so this cannot pass on eight copies of one of
+    // them - which is what it would degrade to if a validator branch merged.
+    expect(produced).toEqual([
+      'not-an-object',
+      'not-a-string',
+      'empty',
+      'absolute',
+      'home-relative',
+      'traversal',
+      'unsafe-form',
+      'missing',
+    ]);
+    for (const reason of produced) expect(ALL_REASONS).toContain(reason);
+  });
+});
+
+describe('formatArtifactSize', () => {
+  it('names the unit a person expects at each scale', () => {
+    expect(formatArtifactSize(350)).toBe('350 B');
+    expect(formatArtifactSize(0)).toBe('0 B');
+    expect(formatArtifactSize(1023)).toBe('1023 B');
+    expect(formatArtifactSize(1024)).toBe('1.0 KB');
+    expect(formatArtifactSize(12_698)).toBe('12.4 KB');
+    expect(formatArtifactSize(3 * 1024 * 1024)).toBe('3.0 MB');
+  });
+
+  it('does not emit NaN for a size the ledger could not establish', () => {
+    expect(formatArtifactSize(Number.NaN)).toBe('0 B');
+    expect(formatArtifactSize(-1)).toBe('0 B');
   });
 });

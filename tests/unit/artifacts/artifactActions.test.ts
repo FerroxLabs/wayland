@@ -18,7 +18,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { registerArtifacts, type ArtifactRecord } from '@process/services/artifacts/artifactLedger';
 import {
+  MAX_LISTED_ARTIFACTS,
   describeArtifactOpenTarget,
+  listArtifacts,
   listArtifactSummaries,
   openArtifact,
   revealArtifact,
@@ -223,6 +225,40 @@ describe('listArtifactSummaries', () => {
     await register('artifacts/seed.html', 'x');
     const summaries = await listArtifactSummaries(effects);
     expect(summaries.length).toBeLessThanOrEqual(500);
+  });
+});
+
+/**
+ * THE CAP HAS TO BE SAID, NOT JUST APPLIED.
+ *
+ * The rail's own copy promises that a row is never removed - it is labelled -
+ * and row 501 contradicts that silently. `truncated` is what lets the surface
+ * keep the promise honest.
+ */
+describe('listArtifacts reports when the cap dropped rows', () => {
+  const ledgerOf = (count: number) => async () =>
+    Array.from({ length: count }, (_unused, index) => ({
+      ...records[0],
+      artifactId: index.toString(16).padStart(32, '0'),
+      workspace,
+      relativePath: `artifacts/f${index}.html`,
+      runAt: new Date(2026, 0, 1, 0, 0, index).toISOString(),
+    })) as ArtifactRecord[];
+
+  it('says truncated when the ledger held more than the cap', async () => {
+    await register('artifacts/seed.html', 'x');
+    const { effects } = buildEffects({ readLedger: ledgerOf(MAX_LISTED_ARTIFACTS + 1) });
+    const listing = await listArtifacts(effects);
+    expect(listing.artifacts).toHaveLength(MAX_LISTED_ARTIFACTS);
+    expect(listing.truncated).toBe(true);
+  });
+
+  it('says NOT truncated at exactly the cap, so the flag is not a blanket true', async () => {
+    await register('artifacts/seed.html', 'x');
+    const { effects } = buildEffects({ readLedger: ledgerOf(MAX_LISTED_ARTIFACTS) });
+    const listing = await listArtifacts(effects);
+    expect(listing.artifacts).toHaveLength(MAX_LISTED_ARTIFACTS);
+    expect(listing.truncated).toBe(false);
   });
 });
 

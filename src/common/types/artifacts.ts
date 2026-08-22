@@ -35,6 +35,16 @@ export interface ArtifactListing {
   artifacts: ArtifactSummary[];
   /** Ledger lines that could not be parsed or failed validation. */
   unreadableEntries: number;
+  /**
+   * True when the ledger held more rows than the listing cap and the oldest
+   * were dropped.
+   *
+   * The page's own promise is that a row is never removed - it is labelled -
+   * and a silent cap contradicts that for row 501. A surface that cannot SAY
+   * the list is short tells a user whose deliverable fell off the end that it
+   * was never there.
+   */
+  truncated: boolean;
 }
 
 export interface ArtifactSummary {
@@ -155,4 +165,147 @@ export interface ArtifactRefreshResult {
   error?: string;
   /** The re-verified record, carrying the SAME artifact id it had before. */
   artifact?: ArtifactSummary;
+}
+
+/**
+ * The exact wording the host produces when verification refuses because the
+ * bytes on disk no longer match the ledger.
+ *
+ * -------------------------------------------------------------------------
+ * THIS IS A RENDERER-SIDE COMPARISON CONSTANT. IT IS NOT THE HOST'S SOURCE.
+ * -------------------------------------------------------------------------
+ * `artifactTarget.ts` still holds the two literals it throws, and its own test
+ * still pins them; nothing here changes what the host says. This exists so a
+ * surface that receives `{ ok: false, error }` can recognise THAT refusal and
+ * show a sentence a person can act on ("you edited this file - update it?")
+ * instead of interpolating a host string into a toast.
+ *
+ * If the host wording ever changes, the surfaces silently fall back to their
+ * generic failure text - which is exactly today's behaviour, so a drift here
+ * costs a nicer message, never a missed refusal.
+ */
+export const ARTIFACT_CHANGED_ERROR = 'artifact has changed since it was recorded';
+
+/**
+ * Why the sweep refused to record a file a run claimed it produced.
+ *
+ * Lives HERE rather than beside the registrar because the renderer has to
+ * translate it. It was a host-private vocabulary right up until the card began
+ * rendering `1 escapes-workspace` to a non-technical person at the exact moment
+ * their report did not arrive.
+ */
+export type ArtifactRejectionReason =
+  | 'not-an-object'
+  | 'not-a-string'
+  | 'empty'
+  | 'absolute'
+  | 'home-relative'
+  | 'traversal'
+  | 'unsafe-form'
+  | 'escapes-workspace'
+  | 'symlink'
+  | 'not-regular-file'
+  | 'missing'
+  | 'too-large'
+  | 'too-many'
+  | 'unreadable';
+
+/**
+ * The five things a person can actually be told, and act on.
+ *
+ * Thirteen reasons is a debugging vocabulary: `home-relative` and
+ * `escapes-workspace` are the same sentence to a user ("it tried to save
+ * somewhere outside this chat's folder") and differ only in which line of the
+ * validator caught it. Five buckets is also 5x12 locale strings instead of
+ * 13x12 for a line most people read once.
+ */
+export type ArtifactRejectionBucket = 'outside-folder' | 'not-a-file' | 'too-big' | 'too-many' | 'unreadable';
+
+/**
+ * The mapping, written as an exhaustive table ON PURPOSE.
+ *
+ * `satisfies Record<ArtifactRejectionReason, ...>` is the guard: adding a
+ * fourteenth reason to the union fails to COMPILE here rather than reaching a
+ * user as a raw kebab-case slug, which is the failure this whole bucket exists
+ * to end.
+ */
+const REJECTION_BUCKETS = {
+  // Where it tried to write.
+  'escapes-workspace': 'outside-folder',
+  absolute: 'outside-folder',
+  'home-relative': 'outside-folder',
+  traversal: 'outside-folder',
+  // What it turned out to be.
+  'not-regular-file': 'not-a-file',
+  symlink: 'not-a-file',
+  missing: 'not-a-file',
+  // Caps.
+  'too-large': 'too-big',
+  'too-many': 'too-many',
+  // Everything a person cannot distinguish or act on: a malformed claim reads
+  // the same as an unreadable file from the outside.
+  unreadable: 'unreadable',
+  'not-an-object': 'unreadable',
+  'not-a-string': 'unreadable',
+  empty: 'unreadable',
+  'unsafe-form': 'unreadable',
+} satisfies Record<ArtifactRejectionReason, ArtifactRejectionBucket>;
+
+/** Fold a host rejection reason into the bucket a surface can translate. */
+export function rejectionBucketFor(reason: ArtifactRejectionReason): ArtifactRejectionBucket {
+  return REJECTION_BUCKETS[reason];
+}
+
+/**
+ * Why a deliverable has no preview.
+ *
+ * Distinct values because they say different things to the user, and because
+ * `binary` and `too-large` are the two the host REFUSED to read rather than
+ * failed to: collapsing them into "unavailable" would make a deliberate refusal
+ * look like a broken file.
+ */
+export type ArtifactPreviewRefusal = 'too-large' | 'binary' | 'unsupported-type' | 'changed' | 'unavailable';
+
+/**
+ * A few bytes of a deliverable, for the card and the rail.
+ *
+ * The bytes are VERIFIED before they get here - same resolution, same ancestor
+ * symlink walk, same digest check, same confinement gate as Open, Reveal and
+ * Save a copy. Preview is the FIFTH action on an artifact, not a shortcut past
+ * the other four.
+ *
+ * `text` is plain text, already truncated host-side, and the renderer must put
+ * it in a `<pre>` and nothing else. `image` is a data URL for an `<img>`. There
+ * is deliberately no `html` arm: an HTML deliverable previews as its SOURCE.
+ */
+export type ArtifactPreview =
+  | { kind: 'text'; text: string; truncated: boolean }
+  | { kind: 'image'; dataUrl: string }
+  | { kind: 'none'; reason: ArtifactPreviewRefusal };
+
+/**
+ * Outcome of removing a deliverable from the list.
+ *
+ * REMOVES THE ROW, NOT THE FILE. See `forgetArtifact`.
+ */
+export interface ArtifactForgetResult {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * One byte formatter, shared, because there were four private copies and they
+ * disagreed.
+ *
+ * Deliberately not locale-aware: a size is a technical aside on a quiet meta
+ * line, and `Intl.NumberFormat` per row per render buys a decimal separator
+ * nobody is reading. Caps at MB because the registrar refuses anything over
+ * 64 MB, so GB is unreachable by construction.
+ */
+export function formatArtifactSize(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes < 0) return '0 B';
+  if (bytes < 1024) return `${Math.round(bytes)} B`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb.toFixed(1)} KB`;
+  return `${(kb / 1024).toFixed(1)} MB`;
 }
