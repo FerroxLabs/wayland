@@ -45,8 +45,9 @@ import {
   previewContentTypeForFileName,
   previewIsEditable,
 } from '@renderer/pages/conversation/Preview/previewContentType';
+import { formatArtifactSize } from '@/common/types/artifacts';
 import { Modal } from '@arco-design/web-react';
-import { AlertTriangle, FileText, FolderOpen, Package, Save, Trash2 } from 'lucide-react';
+import { AlertTriangle, Braces, File, FileCode, FileText, FolderOpen, Package, Save, Table2, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -55,9 +56,94 @@ type LoadState =
   | { kind: 'failed' }
   | { kind: 'loaded'; artifacts: ArtifactSummary[]; unreadableEntries: number; truncated: boolean };
 
-const buttonClass =
-  'flex shrink-0 items-center gap-4px whitespace-nowrap px-8px py-4px rd-6px cursor-pointer border-none bg-transparent ' +
-  'text-12px text-t-secondary hover:bg-3 hover:text-t-primary transition-colors disabled:opacity-50';
+/*
+  THE SHELF SPEAKS THE CARD'S LANGUAGE.
+
+  A row here and the in-chat card are the same object seen twice, so they use
+  the same tile tints, the same type/size/time meta line, the same button
+  shapes and the same one-accent-button rule. Four identical flat text links -
+  what this row used to be - is precisely the treatment that was rejected.
+
+  BORDERS ARE WRITTEN AS ARBITRARY VALUES, DELIBERATELY. `b-border` emits
+  NOTHING in this repo's UnoCSS config (verified by running the generator with
+  `bg-1` as a known positive first) and `b-base` resolves to the PAGE
+  background, which would paint #0a0a0a onto a #222222 panel. Only
+  `b-[var(--border-base)]` reaches the rule colour. The same probe found
+  `text-t-3` - which this page used in three places, including the Ready label
+  and the whole meta line - emits nothing at all, so that text had no colour
+  rule and simply inherited. The real key is `t-tertiary`.
+*/
+const buttonBase =
+  'flex shrink-0 items-center gap-6px whitespace-nowrap rd-7px px-10px py-5px cursor-pointer ' +
+  'b-1px b-solid text-12px font-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+
+/** The one accent-filled control per row. `#1a0d06` is a literal because no
+ *  token exists for text ON the brand colour, and the brand is theme-stable. */
+const primaryButtonClass = `${buttonBase} bg-brand b-[var(--brand)] text-[#1a0d06] font-600 hover:bg-[var(--brand-hover)]`;
+
+const secondaryButtonClass = `${buttonBase} bg-3 b-[var(--border-base)] text-t-primary hover:bg-2`;
+
+/** Quiet by design: removal must not compete with the actions that open things. */
+const quietButtonClass = `${buttonBase} bg-transparent b-[var(--border-light)] text-t-secondary hover:bg-2 hover:text-t-primary`;
+
+/**
+ * The tile's look, by extension.
+ *
+ * Tints come from the SOFT token pairs, never the raw semantic colours: light
+ * `--success` is #047857 and light `--warning` is #a8500a, deliberate WCAG
+ * flips rather than the same family, so a tile filled with the raw colour is a
+ * different object in the two themes.
+ *
+ * Kept in step with the in-chat card by hand. The two tables live in different
+ * files because they belong to different lanes of this change; folding them
+ * into one shared module is a named follow-up, not a thing to do at the same
+ * time as the restyle they both describe.
+ */
+interface TypeLook {
+  Icon: typeof FileText;
+  tile: string;
+  icon: string;
+}
+
+const NEUTRAL_LOOK: TypeLook = { Icon: File, tile: 'bg-3 b-[var(--border-base)]', icon: 'text-t-secondary' };
+
+const TYPE_LOOKS: Record<string, TypeLook> = {
+  html: { Icon: FileCode, tile: 'bg-[var(--brand-soft-bg)] b-[var(--brand-soft-border)]', icon: 'text-brand' },
+  htm: { Icon: FileCode, tile: 'bg-[var(--brand-soft-bg)] b-[var(--brand-soft-border)]', icon: 'text-brand' },
+  md: { Icon: FileText, tile: 'bg-[var(--warning-soft-bg)] b-[var(--warning-soft-border)]', icon: 'text-warning' },
+  markdown: {
+    Icon: FileText,
+    tile: 'bg-[var(--warning-soft-bg)] b-[var(--warning-soft-border)]',
+    icon: 'text-warning',
+  },
+  json: { Icon: Braces, tile: 'bg-[var(--success-soft-bg)] b-[var(--success-soft-border)]', icon: 'text-success' },
+  csv: { Icon: Table2, tile: 'bg-[var(--success-soft-bg)] b-[var(--success-soft-border)]', icon: 'text-success' },
+};
+
+/** Format proper nouns are NOT translated; anything unknown is its uppercased
+ *  extension, and a file with no extension contributes no segment at all. */
+const FORMAT_NAMES: Record<string, string> = {
+  md: 'Markdown',
+  markdown: 'Markdown',
+  htm: 'HTML',
+  html: 'HTML',
+  jpg: 'JPEG',
+  jpeg: 'JPEG',
+  webp: 'WebP',
+  yml: 'YAML',
+  yaml: 'YAML',
+};
+
+const extensionOf = (fileName: string): string => {
+  const dot = fileName.lastIndexOf('.');
+  return dot > 0 ? fileName.slice(dot + 1).toLowerCase() : '';
+};
+
+const formatLabel = (fileName: string): string => {
+  const extension = extensionOf(fileName);
+  if (!extension) return '';
+  return FORMAT_NAMES[extension] ?? extension.toUpperCase();
+};
 
 /**
  * The day a deliverable belongs to, as a stable key AND a printable heading.
@@ -76,10 +162,20 @@ function dayOf(iso: string): { key: string; label: string } {
   };
 }
 
-/** Local time of day, for the per-row timestamp. */
+/**
+ * Local clock time for the per-row timestamp, to the minute.
+ *
+ * `toLocaleTimeString()` printed seconds, which is noise on a shelf grouped by
+ * day and does not match the card. Same `Intl` options as the card uses.
+ */
 function timeOf(iso: string): string {
   const parsed = new Date(iso);
-  return Number.isNaN(parsed.getTime()) ? '' : parsed.toLocaleTimeString();
+  if (Number.isNaN(parsed.getTime())) return '';
+  try {
+    return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(parsed);
+  } catch {
+    return '';
+  }
 }
 
 const STATUS_KEY: Record<ArtifactDiskStatus, string> = {
@@ -89,7 +185,9 @@ const STATUS_KEY: Record<ArtifactDiskStatus, string> = {
 };
 
 const STATUS_CLASS: Record<ArtifactDiskStatus, string> = {
-  ready: 'text-t-3',
+  // `text-t-3` was not a real utility - it emitted no rule at all, so the Ready
+  // label had no colour and simply inherited. `t-tertiary` is the actual key.
+  ready: 'text-t-tertiary',
   empty: 'text-warning',
   missing: 'text-danger',
 };
@@ -315,21 +413,48 @@ const ArtifactsRail: React.FC = () => {
             {group.rows.map((artifact) => {
               const status: ArtifactDiskStatus = artifact.diskStatus ?? 'ready';
               const reachable = status === 'ready';
+              const look = TYPE_LOOKS[extensionOf(artifact.fileName)] ?? NEUTRAL_LOOK;
+              const TileIcon = look.Icon;
+              // TYPE - SIZE - TIME - WHO. Empty segments are dropped rather
+              // than printed as a run of separators.
+              const meta = [
+                formatLabel(artifact.fileName),
+                formatArtifactSize(artifact.sizeBytes),
+                timeOf(artifact.runAt),
+                artifact.declaredBy,
+              ]
+                .filter(Boolean)
+                .join(' · ');
               return (
                 <li
                   key={artifact.artifactId}
-                  className='flex flex-wrap items-start gap-10px rd-8px px-10px py-8px bg-1 hover:bg-2 transition-colors'
+                  className='flex flex-wrap items-center gap-12px rd-10px b-1px b-solid b-[var(--border-base)]
+                    bg-1 px-12px py-10px hover:bg-2 transition-colors'
                   data-testid='artifacts-rail-row'
                   data-disk-status={status}
                 >
-                  <FileText size={16} className='mt-2px shrink-0 text-t-3' />
-                  {/* A floor, not min-w-0. At zero the four shrink-0 action
-                      buttons eat the whole row and the file name collapses to a
-                      single letter; with a floor the actions wrap onto their own
-                      line instead, which is what flex-wrap on the row is for. */}
+                  <div
+                    className={`grid size-36px shrink-0 place-items-center rd-9px b-1px b-solid ${look.tile}`}
+                    aria-hidden
+                  >
+                    <TileIcon className={`size-16px ${look.icon}`} />
+                  </div>
+                  {/* A floor, not min-w-0. At zero the shrink-0 action buttons
+                      eat the whole row and the file name collapses to a single
+                      letter; with a floor the actions wrap onto their own line
+                      instead, which is what flex-wrap on the row is for. */}
                   <div className='min-w-160px flex-1'>
                     <div className='flex items-center gap-8px min-w-0'>
-                      <span className='truncate text-13px text-t-primary'>{artifact.fileName}</span>
+                      {/* The filename is the strong line. It is what the user
+                          is looking for; everything else on the row is context
+                          for it. */}
+                      <span
+                        className='truncate text-13px font-500 text-t-primary'
+                        title={artifact.canonicalPath}
+                        data-testid='artifacts-rail-name'
+                      >
+                        {artifact.fileName}
+                      </span>
                       <span
                         className={`shrink-0 text-11px ${STATUS_CLASS[status]}`}
                         data-testid='artifacts-rail-status'
@@ -337,8 +462,8 @@ const ArtifactsRail: React.FC = () => {
                         {t(STATUS_KEY[status])}
                       </span>
                     </div>
-                    <div className='mt-2px truncate text-11px text-t-3'>
-                      {timeOf(artifact.runAt)} · {artifact.declaredBy}
+                    <div className='mt-2px truncate text-11px font-mono text-t-tertiary' data-testid='artifacts-rail-meta'>
+                      {meta}
                     </div>
                     {status === 'missing' ? (
                       <div className='mt-4px text-11px text-t-secondary' data-testid='artifacts-rail-reason'>
@@ -351,34 +476,40 @@ const ArtifactsRail: React.FC = () => {
                       </div>
                     ) : null}
                   </div>
-                  <div className='flex shrink-0 items-center gap-2px'>
+                  {/* ONE accent button per row, and it is the one that shows
+                      the user their file. Four equal-weight controls is what
+                      made this row read as a list of links rather than as a
+                      thing with a primary action. */}
+                  <div className='flex shrink-0 flex-wrap items-center gap-6px'>
                     {/* A missing file has nothing to open or copy. Reveal still
                         works: showing the user the folder their file is NOT in
                         is exactly how they find out what happened to it. */}
                     <button
                       type='button'
-                      className={buttonClass}
+                      className={primaryButtonClass}
                       disabled={!reachable || busyId === artifact.artifactId}
                       onClick={() => openHere(artifact)}
+                      data-testid='artifacts-rail-open-here'
                     >
+                      <FileText className='size-14px' />
                       {t('preview.artifactOpenHere')}
                     </button>
                     <button
                       type='button'
-                      className={buttonClass}
+                      className={secondaryButtonClass}
                       disabled={busyId === artifact.artifactId}
                       onClick={() => void runAction(artifact.artifactId, 'reveal')}
                     >
-                      <FolderOpen size={13} />
+                      <FolderOpen className='size-14px' />
                       {t('preview.artifactReveal')}
                     </button>
                     <button
                       type='button'
-                      className={buttonClass}
+                      className={secondaryButtonClass}
                       disabled={!reachable || busyId === artifact.artifactId}
                       onClick={() => void runAction(artifact.artifactId, 'saveCopy')}
                     >
-                      <Save size={13} />
+                      <Save className='size-14px' />
                       {t('preview.artifactSaveCopy')}
                     </button>
                     {/* Enabled on EVERY status, including missing. The row that
@@ -387,13 +518,13 @@ const ArtifactsRail: React.FC = () => {
                         complaint unfixed. */}
                     <button
                       type='button'
-                      className={buttonClass}
+                      className={quietButtonClass}
                       disabled={busyId === artifact.artifactId}
                       title={t('preview.artifactForgetHint')}
                       onClick={() => setPendingForget(artifact)}
                       data-testid='artifacts-rail-forget'
                     >
-                      <Trash2 size={13} />
+                      <Trash2 className='size-14px' />
                       {t('preview.artifactForget')}
                     </button>
                   </div>

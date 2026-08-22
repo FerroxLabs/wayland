@@ -41,6 +41,8 @@ import {
 import { beginTaskRun, commitTaskRun } from '@process/services/artifacts/taskRun';
 import { ARTIFACT_CHANGED_ERROR, type ArtifactListing } from '@/common/types/artifacts';
 
+import ArtifactsPage from '@renderer/pages/artifacts/ArtifactsPage';
+
 const h = vi.hoisted(() => ({
   list: vi.fn(),
   reveal: vi.fn(),
@@ -129,10 +131,24 @@ afterEach(async () => {
   await fs.rm(root, { recursive: true, force: true });
 });
 
-/** Render the page over a listing the PRODUCTION lister built. */
+/**
+ * Render the page over a listing the PRODUCTION lister built.
+ *
+ * THE PAGE IS IMPORTED AT THE TOP OF THIS FILE, NOT HERE. It used to be an
+ * `await import()` inside this helper, which meant the FIRST test paid for
+ * loading the whole page tree - PageShell, the preview stack, Arco - inside its
+ * own 10s budget. Measured: that test took 4492ms idle, timed out under load,
+ * and its abandoned continuation then rendered into the NEXT test, which failed
+ * with "found multiple elements" while pointing at code that was fine. One slow
+ * test, two red ones, and the second one lying about where the problem was.
+ *
+ * Hoisting moves that cost into the file's import phase, which no test's
+ * timeout is charged for. Same measurement afterwards: 173ms. `vi.mock` is
+ * hoisted above static imports by Vitest, so every mock in this file still
+ * applies - all of these tests depend on that and all of them pass.
+ */
 async function renderRail(listing: ArtifactListing) {
   h.list.mockResolvedValue(listing);
-  const { default: ArtifactsPage } = await import('@renderer/pages/artifacts/ArtifactsPage');
   render(React.createElement(ArtifactsPage));
 }
 
@@ -193,7 +209,6 @@ describe('the artifacts rail', () => {
   it('reports a refused listing instead of rendering a blank page', async () => {
     // `artifacts.` is remote-denied, so on a paired WebUI the invoke REJECTS.
     h.list.mockRejectedValue(new Error('remote-forbidden'));
-    const { default: ArtifactsPage } = await import('@renderer/pages/artifacts/ArtifactsPage');
     render(React.createElement(ArtifactsPage));
 
     await waitFor(() => expect(screen.getByTestId('artifacts-rail-failed')).toBeInTheDocument());
@@ -344,5 +359,92 @@ describe('the artifacts rail: remove from list', () => {
     // Still listed: a refused removal that removed the row anyway would be the
     // worst of both, a row gone from the page and still in the ledger.
     expect(screen.getByText('vanished.md')).toBeInTheDocument();
+  });
+});
+
+/**
+ * THE ROW READS AS THE SAME OBJECT AS THE CARD.
+ *
+ * These assert the STRUCTURE and the utility classes rather than computed
+ * colour, because jsdom has no UnoCSS pass - there is no stylesheet, so
+ * `getComputedStyle().borderColor` here would be the jsdom default for every
+ * row no matter what the class said, and a test that cannot fail is worse than
+ * no test. What CAN be established here is that the row asks for the utilities
+ * that were proven to emit, and never for the two that do not.
+ *
+ * The tokens themselves were checked by running this repo's own UnoCSS
+ * generator with `bg-1` as a known positive first; `b-border` and `text-t-3`
+ * emit nothing at all, which is why they are named as forbidden below. The
+ * RESOLVED colour is a live-run check, recorded separately.
+ */
+describe('the artifacts rail: the row', () => {
+  async function oneReadyRow(): Promise<HTMLElement> {
+    await publishRun('kept', { 'brief.html': '<p>hi</p>' }, new Date('2026-08-20T09:00:00.000Z'));
+    const listing = await listArtifacts(effects());
+    await renderRail(listing);
+    await waitFor(() => expect(screen.getByText('brief.html')).toBeInTheDocument());
+    return screen.getByTestId('artifacts-rail-row');
+  }
+
+  it('asks for a real border token, never one that emits nothing', async () => {
+    const row = await oneReadyRow();
+    const cls = row.className;
+    expect(cls).toContain('b-[var(--border-base)]');
+    expect(cls).toContain('b-1px');
+    expect(cls).toContain('b-solid');
+    // The two that emit NO rule at all in this repo's config.
+    expect(cls).not.toMatch(/\bb-border\b/);
+    expect(cls).not.toMatch(/\bb-base\b/);
+  });
+
+  it('never uses text-t-3 anywhere on the page - it is not a utility', async () => {
+    await oneReadyRow();
+    // Known positive first: the real key must be present somewhere, otherwise
+    // an empty page would satisfy the negative below.
+    expect(document.body.innerHTML).toContain('text-t-tertiary');
+    expect(document.body.innerHTML).not.toContain('text-t-3');
+  });
+
+  it('makes the filename the strong line and gives it a size and a clock time', async () => {
+    const row = await oneReadyRow();
+    const name = screen.getByTestId('artifacts-rail-name');
+    expect(name.textContent).toBe('brief.html');
+    expect(name.className).toContain('font-500');
+    expect(name.className).toContain('text-t-primary');
+
+    const meta = screen.getByTestId('artifacts-rail-meta').textContent ?? '';
+    // TYPE, from the untranslated proper-noun table.
+    expect(meta).toContain('HTML');
+    // SIZE, from the host contract's shared formatter - the row showed none at all before.
+    expect(meta).toContain('B');
+    // WHO. The publisher label the ledger recorded.
+    expect(meta).toContain('Rail Test');
+    // Clock time to the MINUTE, not seconds: the old `toLocaleTimeString()`
+    // printed hh:mm:ss, which is noise on a shelf grouped by day.
+    expect(meta).not.toMatch(/\d{1,2}:\d{2}:\d{2}/);
+    expect(row.textContent).toContain('brief.html');
+  });
+
+  it('gives the row exactly ONE accent-filled button', async () => {
+    await oneReadyRow();
+    const buttons = [...screen.getByTestId('artifacts-rail-row').querySelectorAll('button')];
+    const accent = buttons.filter((button) => button.className.includes('bg-brand'));
+    expect(accent).toHaveLength(1);
+    expect(accent[0].getAttribute('data-testid')).toBe('artifacts-rail-open-here');
+    // And the rest are real buttons, not flat transparent text links.
+    expect(buttons.length).toBeGreaterThan(1);
+    for (const button of buttons) expect(button.className).toContain('b-1px');
+  });
+
+  it('tints the tile by type from the SOFT tokens, never the raw semantic colour', async () => {
+    await oneReadyRow();
+    const row = screen.getByTestId('artifacts-rail-row');
+    const tile = row.querySelector('[aria-hidden]');
+    expect(tile, 'the row must carry a type tile').not.toBeNull();
+    // .html is the brand-tinted case.
+    expect((tile as HTMLElement).className).toContain('bg-[var(--brand-soft-bg)]');
+    expect((tile as HTMLElement).className).toContain('b-[var(--brand-soft-border)]');
+    // The raw token would be a different object in the two themes.
+    expect((tile as HTMLElement).className).not.toContain('bg-brand ');
   });
 });
