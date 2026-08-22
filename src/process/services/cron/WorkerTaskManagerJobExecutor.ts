@@ -64,6 +64,9 @@ const MAX_REMEMBERED_SETTLED_RUNS = 256;
  * The one thing a scheduled run has to be told at run time that a seed-time
  * prompt cannot say. No path: see `appendOutputDirCorrection`.
  */
+/** How a job's most recent run ended, once publication has actually settled. */
+export type RunSettlement = { published: true; reason?: undefined } | { published: false; reason: 'no-output' | 'failed' };
+
 const RUN_OUTPUT_DIR_CORRECTION =
   'Write every file the user should keep into the absolute deliverables directory named in your run instructions. ' +
   'WAYLAND_OUTPUT_DIR is not visible to shell commands and resolves empty - ignore any instruction to read it, ' +
@@ -93,6 +96,33 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * a flake.
    */
   private settleInFlight: Promise<void> = Promise.resolve();
+
+  /**
+   * How each job's most recent run actually SETTLED.
+   *
+   * `CronService` writes `last_status` the moment `executeJob` returns, which is
+   * when the turn was SENT - publication happens later, from the idle callback.
+   * So a job whose run published nothing still read `last_status='ok'` while its
+   * own `.runs.jsonl` read `no-output`, in every profile. The job ledger and the
+   * artifact journal disagreed, and nothing in the scheduled-tasks UI could tell
+   * the user the routine had never once produced a report. This is the cell that
+   * lets the two be reconciled.
+   */
+  private runSettlements = new Map<string, RunSettlement>();
+
+  /** How this job's most recent run settled, if one has. */
+  lastRunSettlement(jobId: string): RunSettlement | undefined {
+    return this.runSettlements.get(jobId);
+  }
+
+  private recordRunSettlement(jobId: string, settlement: RunSettlement): void {
+    this.runSettlements.set(jobId, settlement);
+    while (this.runSettlements.size > MAX_REMEMBERED_SETTLED_RUNS) {
+      const oldest = this.runSettlements.keys().next().value;
+      if (oldest === undefined) break;
+      this.runSettlements.delete(oldest);
+    }
+  }
 
   /**
    * Await the publication started by the last turn, if any.
@@ -249,6 +279,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       // console.warn was the only record this ever had, and the user does not
       // read the console: they read a series whose newest entry is yesterday's.
       await this.journalRun(handle, job, 'failed', failure);
+      this.recordRunSettlement(job.id, { published: false, reason: 'failed' });
       await abandonTaskRun(handle).catch((err) => {
         console.warn(`[CronExecutor] Failed to abandon run ${handle.runId} for job ${job.id}:`, err);
       });
@@ -266,6 +297,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // "It ran and made nothing" is a different problem from "it broke", and
         // both were previously indistinguishable from "it never ran".
         await this.journalRun(handle, job, 'no-output');
+        this.recordRunSettlement(job.id, { published: false, reason: 'no-output' });
         this.resolveRunPublication(conversationId, []);
         return;
       }
@@ -279,12 +311,14 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           `[CronExecutor] Job ${job.id} run ${handle.runId} refused ${JSON.stringify(rejection.path)}: ${rejection.reason}`
         );
       }
+      this.recordRunSettlement(job.id, { published: true });
       this.resolveRunPublication(conversationId, outcome.registered);
     } catch (err) {
       console.warn(`[CronExecutor] Failed to publish run ${handle.runId} for job ${job.id}:`, err);
       // A publication that throws leaves NO dated directory, so this is the
       // only place the failure can be recorded where a user will ever see it.
       await this.journalRun(handle, job, 'failed', err);
+      this.recordRunSettlement(job.id, { published: false, reason: 'failed' });
       await abandonTaskRun(handle).catch(() => {});
       this.resolveRunPublication(conversationId, []);
     }
