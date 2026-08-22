@@ -141,10 +141,7 @@
     "prefetch": "market-daily-bars",
     "inputs": {
       "output_dir": "artifacts/market/"
-    },
-    "connectors": [
-      "com.ferroxlabs/tvcontrol"
-    ]
+    }
   },
   {
     "id": "weekly-support-review",

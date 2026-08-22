@@ -373,27 +373,56 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
     expect(buildWCoreSessionMcpServers([userServer], undefined).map((s) => s.name)).toEqual(['tvcontrol']);
   });
 
-  it('grants the ONE connector the shipped morning routine names, and nothing else', async () => {
-    // B9. The run's shell has no network at all - measured on the pinned
-    // v0.13.4 engine, where `sandbox exec` answers `curl: (6) Could not resolve
-    // host` for Yahoo, refuses raw-IP TCP, and refuses 127.0.0.1:9222, while
-    // the identical curl on the host returns http=429. So the morning brief has
-    // no data route unless a connector is granted. This is that grant, read out
-    // of the SHIPPED routines.json rather than a fixture.
+  it('NO shipped routine names a connector - the morning report gets its data from the host prefetch', async () => {
+    // RETARGETED, and strictly stronger than what stood here. This assertion
+    // used to read `morning?.connectors === ['com.ferroxlabs/tvcontrol']`,
+    // because at the time the run's shell had no network (still true: `sandbox
+    // exec` answers `curl: (6) Could not resolve host` while the identical curl
+    // on the host returns http=429) and a connector looked like the only route
+    // left. It was not the route, and it was an expensive one.
+    //
+    // NOT THE ROUTE. Read off the connector's own tool schema, not off prose:
+    // `data_get_ohlcv` takes NO symbol parameter and caps `count` at 500. The
+    // scanner discards any symbol with fewer than 300 DAILY bars and reads 74
+    // of them - AAPL alone comes back with 6,951. Sourcing that through
+    // tvcontrol means 74 `chart_set_symbol` mutations against the user's live
+    // chart at 07:00. It cannot supply the data and it should not try.
+    //
+    // EXPENSIVE. There is no per-tool narrowing on this path (`toWCoreConfig`
+    // emits no tool key; the engine's curation is `off | top_k`, a ranking),
+    // so naming tvcontrol hands an unattended auto-approve run its WHOLE
+    // 105-tool inventory - `watchlist_remove_bulk`, `alert_delete`,
+    // `draw_clear`, `pine_save`, `tv_launch` - against a real trading account,
+    // with model behaviour as the only thing in between.
+    //
+    // THE ROUTE THAT WORKS is `prefetch`, which fetches the bars in the MAIN
+    // process, outside the seatbelt, into the cache the scanner already reads.
+    // Proven from a COLD workspace: 82 written / 0 cached / 0 failed in 16.8 s,
+    // then the real scanner INSIDE the sandbox printing "74 names scanned, 56
+    // currently long, bar 2026-08-21".
+    //
+    // The GRANT MECHANISM is untouched and still fully covered by
+    // `routineConnectorAllowlist.test.ts`; what changed is that nothing shipped
+    // opts into it.
     const routines = (await loadBundledRoutines()) ?? [];
     const morning = routines.find((r) => r.id === MORNING_ROUTINE_ID);
-    expect(morning?.connectors).toEqual(['com.ferroxlabs/tvcontrol']);
+    expect(morning, 'the morning routine must still ship').toBeTruthy();
 
-    // ...and it is the ONLY routine that names anything. A grant that spread to
-    // the other twelve would re-create the posture the narrowing removed.
-    expect(routines.filter((r) => Array.isArray(r.connectors) && r.connectors.length > 0).map((r) => r.id)).toEqual([
-      MORNING_ROUTINE_ID,
-    ]);
+    // Known positive: this corpus read really can see the routine's fields.
+    expect(morning?.prefetch).toBe('market-daily-bars');
+
+    expect(morning?.connectors ?? []).toEqual([]);
+    expect(routines.filter((r) => Array.isArray(r.connectors) && r.connectors.length > 0).map((r) => r.id)).toEqual([]);
   });
 
-  it('hands the declared connector to the run, through the REAL executor', async () => {
-    // End to end: the shipped routines.json declaration, the real seeder, the
-    // real `buildConversationForJob`, and the real wcore launch selector.
+  it('hands the shipped morning run NOTHING, through the REAL executor, with tvcontrol installed', async () => {
+    // RETARGETED alongside the corpus assertion above, to the safety property
+    // rather than the grant. Same end-to-end chain - the shipped routines.json,
+    // the real seeder, the real `buildConversationForJob`, the real wcore
+    // launch selector - and the same two installed connectors. What changed is
+    // that the shipped routine declares none, so an unattended 07:00 run gets
+    // neither of them. The grant path itself keeps its coverage in
+    // `routineConnectorAllowlist.test.ts`, over a fixture declaration.
     mcpConfigRef.value = [
       {
         id: 'srv-tv',
@@ -427,11 +456,18 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
     const conversationId = await executor.prepareConversation(job);
     const conv = conversationStore.get(conversationId);
 
-    expect(conv.extra.activeMcpServers).toEqual(['srv-tv']);
+    expect(conv.extra.activeMcpServers).toEqual([]);
     const selected = buildWCoreSessionMcpServers(mcpConfigRef.value as IMcpServer[], conv.extra.activeMcpServers);
-    expect(selected.map((s) => s.name)).toEqual(['tvcontrol']);
-    // Slack is enabled, connected and installed, and the run must NOT get it.
-    expect(selected.map((s) => s.name)).not.toContain('slack');
+    expect(selected.map((s) => s.name)).toEqual([]);
+
+    // KNOWN-POSITIVE CONTROL, and the reason the empty array above means
+    // something: the SAME selector over the SAME two installed connectors, with
+    // no selection - which is what a cron bag sent before this narrowing - hands
+    // the engine both of them.
+    expect(buildWCoreSessionMcpServers(mcpConfigRef.value as IMcpServer[], undefined).map((s) => s.name)).toEqual([
+      'tvcontrol',
+      'slack',
+    ]);
   });
 
   it('grants nothing to a routine that names no connector, even with tvcontrol installed', async () => {
