@@ -17,6 +17,7 @@ import {
   FolderKanban,
   Library,
   MessagesSquare,
+  Package,
   Plug,
   Plus,
   Search,
@@ -66,6 +67,7 @@ const PRIMARY_ENTRIES: NavEntry[] = [
     <MessagesSquare size={17} />,
     (pathname) => pathname.startsWith('/conversation') || pathname.startsWith('/conversations')
   ),
+  navEntry('artifacts', <Package size={17} />, (pathname) => pathname.startsWith('/artifacts')),
   navEntry('projects', <FolderKanban size={17} />, (pathname) => pathname.startsWith('/project')),
   navEntry('automations', <CalendarClock size={17} />, (pathname) => pathname.startsWith('/scheduled')),
   navEntry('activity', <Activity size={17} />, (pathname) => pathname.startsWith('/mission-control')),
