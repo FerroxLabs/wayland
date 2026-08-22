@@ -31,8 +31,11 @@ This workflow runs the bundled `market-open-report` scanner, writes its output
 to the deliverables directory your run instructions name, and reports the brief.
 It is not interactive: run every step in order, then report the outcome.
 
-It needs no chart, no browser, no broker connection and no API key. Prices come
-from Yahoo daily closes and the strategy is computed locally by the script.
+It needs no chart, no browser, no broker connection and no API key. Prices are
+**Yahoo daily closes**, pre-fetched by the app before this run started because
+the run itself has no network, and the strategy is computed locally by the
+script. They are not TradingView data and they are not live quotes — say so
+when you present them.
 
 ## Ground rules
 
@@ -104,6 +107,7 @@ instructions name:
 ```bash
 OUT="<deliverables_dir>"; mkdir -p "$OUT"
 cd .wayland-core/skills/market-open-report
+export MARKET_OPEN_REPORT_CACHE=.market-open-report-cache/yahoo-cache
 node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
 node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
@@ -121,12 +125,23 @@ export MARKET_OPEN_REPORT_LIST=/absolute/path/the/user/gave/you.csv
 export MARKET_OPEN_REPORT_POSITIONS=/absolute/path/the/user/gave/you.csv
 ```
 
-Do **not** export `MARKET_OPEN_REPORT_CACHE` unless the user gave you a cache
-directory they know is writable. That variable overrides the scanner's own
-probe for a writable cache location, and if it points anywhere the sandbox
-refuses — anywhere outside the workspace, including under the home directory —
-`mkdir` fails `EPERM`, every symbol comes back "NO DATA", and the run still
-exits 0. Left unset, the scanner finds a writable cache by itself.
+`MARKET_OPEN_REPORT_CACHE` in the block above is not optional and is not a
+tuning knob. **This run has no internet.** The engine's sandbox refuses DNS, so
+every Yahoo request from inside it fails and every symbol comes back "NO DATA"
+while the run still exits 0 and the brief still looks well-formed. The app
+pre-fetches the daily bars into that exact directory BEFORE this run starts,
+and pointing the scanner at it is the only reason the report has any data at
+all.
+
+Keep it RELATIVE, exactly as written. The scanner resolves it against its own
+directory, which is where the app left the bars, and it is also the scanner's
+own second probe candidate - so the two agree by construction. Replacing it
+with an absolute path of your own breaks that agreement, and nothing will tell
+you: the report comes out complete-looking and empty.
+
+Do not point that variable anywhere else. Anywhere outside the workspace —
+including under the home directory — `mkdir` fails `EPERM`, and you are back to
+an empty report that reads like a quiet market.
 
 A missing positions CSV is valid; the report simply shows no holdings. Keep the
 scanner's full stdout, its exit code, and the path of the HTML brief.
@@ -205,13 +220,11 @@ in the same message:
 4. **Name the brief's full path** inside the deliverables directory, so the
    user can reopen it even if they miss the card.
 
-Finally, prune the Yahoo cache if it has grown large. Its location is not fixed
-and the routine no longer names one: with `MARKET_OPEN_REPORT_CACHE` unset — the
-guidance above — the scanner probes `~/.cache/market-open-report/yahoo-cache`,
-then `<cwd>/.market-open-report-cache/yahoo-cache`, then the OS temp directory,
-and keeps the first it can create. Inside the sandbox the home candidate fails
-`EPERM`, so it is normally the second. The cache key includes the end date, so it
-gains roughly one file per symbol per day.
+Finally, prune the Yahoo cache if it has grown large. It is the directory Step 2
+exports as `MARKET_OPEN_REPORT_CACHE`, inside the workspace. The cache key
+includes the end date, so it gains roughly one file per symbol per day, and the
+app writes a `.prefetch-manifest.json` beside the bars recording when they were
+fetched — quote that time when you state how fresh the report's numbers are.
 
 - Input: HTML brief path, bar date, outcome classification
 - Output: the brief presented, plus an explicit statement of bar date and

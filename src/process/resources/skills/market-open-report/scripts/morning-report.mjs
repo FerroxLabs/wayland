@@ -94,6 +94,7 @@
  */
 
 import { basename } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { DEFAULT_CACHE_DIR, DEFAULT_LIST, DEFAULT_POSITIONS, main, writeJson } from './report.mjs';
 import { dataSourceRefusal } from './yahooData.mjs';
@@ -172,9 +173,20 @@ function parseArgs(argv) {
 /**
  * `dt.datetime.now(dt.UTC).strftime('%Y%m%d')`. UTC, not local — which is what
  * makes the local-timezone bug in _epoch observable.
+ *
+ * EXPORTED, and takes the instant as an argument, because this value is half of
+ * the Yahoo cache key (`<SYM>_<start>_<end>.json`) and the app pre-warms that
+ * cache from OUTSIDE the sandbox. Two implementations of "today" is one bug: on
+ * a UTC+07 machine the local date is a day ahead of the UTC date for seven
+ * hours of every day, so a prefetch keyed on the local date writes files this
+ * scanner never asks for — every lookup misses, the sandboxed run has no
+ * network, and the result is a confident, totally empty report. The parameter
+ * is what lets a test pin both sides to the same instant and see them agree.
+ *
+ * @param {Date} [now=new Date()]
+ * @returns {string} YYYYMMDD in UTC
  */
-function utcToday() {
-  const now = new Date();
+export function utcToday(now = new Date()) {
   return (
     String(now.getUTCFullYear()) +
     String(now.getUTCMonth() + 1).padStart(2, '0') +
@@ -257,8 +269,18 @@ async function cli() {
   }
 }
 
-cli().catch((e) => {
-  // An unhandled exception is a traceback and exit 1 in Python.
-  process.stderr.write((e && e.stack ? e.stack : String(e)) + '\n');
-  process.exit(1);
-});
+/**
+ * RUN ONLY WHEN RUN. Same guard `marketOverview.mjs` already uses.
+ *
+ * Without it, `import`ing this module for its `utcToday` executed the whole CLI
+ * as a side effect: a test that only wanted the date function performed a live
+ * 74-symbol Yahoo sweep and printed a report. Anything that imports a scanner
+ * to check one exported value must not thereby run the scan.
+ */
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  cli().catch((e) => {
+    // An unhandled exception is a traceback and exit 1 in Python.
+    process.stderr.write((e && e.stack ? e.stack : String(e)) + '\n');
+    process.exit(1);
+  });
+}

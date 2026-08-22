@@ -27,8 +27,10 @@ import type { CronJob } from './CronStore';
 import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
-import { resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
+import { resolveRoutinePrefetch, resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
 import { resolveRoutineConnectorIds } from './routineConnectors';
+import { runRoutinePrefetch } from './routinePrefetch';
+import { utcCacheEndDate } from '@process/services/marketData/prefetchDailyBars';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
 import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
 import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
@@ -539,6 +541,37 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         throw new Error(
           `Run ${artifactRun.runId} cannot publish: the engine's deliverables directory ` +
             `(${engineOutputDir}) is not this run's staging directory (${expected}).`
+        );
+      }
+    }
+
+    // HAND THE RUN ITS DATA BEFORE THE RUN STARTS.
+    //
+    // A scheduled run's shell tools execute under Core's seatbelt, which
+    // refuses DNS - a `curl` from inside a run exits 6. Any routine whose work
+    // needs the internet therefore cannot fetch it, and the alternative
+    // (widening the sandbox for unattended auto-approve runs) is a security
+    // decision this milestone deliberately does not take. So the host fetches
+    // first, into a directory inside the workspace the run is told to read.
+    //
+    // AWAITED, and before `sendMessage`: bars that arrive after the scanner has
+    // already looked are bars that were never there. Bounded and non-throwing,
+    // because a prefetch outage must degrade the report - which then says
+    // exactly what it could not reach - and never abort the run.
+    //
+    // The end date is computed HERE, once, and is the same value the scanner
+    // derives from `utcToday()`. Two derivations of "today" is a real bug on
+    // any machine east of UTC: for seven hours a day the local date is a day
+    // ahead, every cache key misses, and the run prints a confident, entirely
+    // empty report.
+    const prefetchName = await resolveRoutinePrefetch(job.metadata.agentConfig?.configOptions?.routineId);
+    if (prefetchName && workspace) {
+      const outcome = await runRoutinePrefetch(prefetchName, { workspace, end: utcCacheEndDate() });
+      if (outcome) {
+        console.log(
+          `[CronExecutor] prefetch ${prefetchName} for job ${job.id}: ` +
+            `${outcome.written} written, ${outcome.cached} cached, ${outcome.failed.length} failed, ` +
+            `${outcome.rejected.length} rejected${outcome.timedOut ? ', BUDGET EXHAUSTED' : ''}`
         );
       }
     }
