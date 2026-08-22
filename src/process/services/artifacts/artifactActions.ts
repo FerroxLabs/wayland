@@ -45,10 +45,12 @@ import type {
   ArtifactDiskStatus,
   ArtifactListing,
   ArtifactOpenTarget,
+  ArtifactPreview,
   ArtifactRefreshResult,
   ArtifactSaveResult,
   ArtifactSummary,
 } from '@/common/types/artifacts';
+import { ARTIFACT_CHANGED_ERROR } from '@/common/types/artifacts';
 import { refuseUnsafeOpenTarget } from '@process/bridge/shellOpenSafety';
 
 import { isReservedSeriesEntry } from './artifactSeries';
@@ -203,6 +205,176 @@ export async function saveArtifactCopy(artifactId: unknown, effects: ArtifactHos
   } catch (error) {
     return { ok: false, error: (error as Error).message };
   }
+}
+
+/**
+ * How much of a deliverable the host will even consider previewing.
+ *
+ * `MAX_ARTIFACT_BYTES` is 64 MB and the IPC bridge can neither reject nor carry
+ * a reply that size, so a cap that lives only at the ledger is not a cap for
+ * this channel. Both are applied to `record.sizeBytes` BEFORE the file is
+ * opened, so an over-cap deliverable costs one ledger lookup rather than a
+ * 64 MB read into the main process.
+ */
+const MAX_PREVIEW_SOURCE_BYTES = 4 * 1024 * 1024;
+
+/**
+ * Tighter, because an image is sent whole and base64 inflates it by a third.
+ * A 4 MB PNG would cross the bridge as a 5.5 MB string.
+ */
+const MAX_PREVIEW_IMAGE_BYTES = 1024 * 1024;
+
+/** How much text the card can use. The rest is a scroll bar nobody drags. */
+const PREVIEW_TEXT_BYTES = 4096;
+
+/** How much of the head the binary sniff looks at. */
+const PREVIEW_SNIFF_BYTES = 1024;
+
+/**
+ * The CLOSED set of extensions that may be sent as an image, and the MIME each
+ * one is labelled with.
+ *
+ * Closed, and mapped rather than derived, because the alternative is handing
+ * the renderer a `data:` URL whose type came from a filename a model chose.
+ */
+const PREVIEW_IMAGE_TYPES: Readonly<Record<string, string>> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+};
+
+/**
+ * Extensions that are NEITHER an image nor a useful text preview.
+ *
+ * An SVG is a picture to the user and markup to the machine. Rendering it as an
+ * `<img>` would put attacker-influenced markup into a document-shaped element,
+ * and rendering its source in the hero band of a card would show a person who
+ * asked for a diagram a wall of XML. The file glyph is the honest answer, and
+ * Open here still opens it.
+ *
+ * DELIVERABLE DEVIATION FROM THE PLAN, STATED LOUDLY: the plan's prose listed
+ * `xhtml`, `mhtml` and `htm` here as well, while its own test list and the card
+ * spec both say an HTML deliverable previews as its SOURCE. Those three are
+ * treated as TEXT, which is what the card was specified to show. Only `svg` and
+ * `svgz` - the two that are pictures to a person - are refused outright.
+ */
+const PREVIEW_REFUSED_TYPES: ReadonlySet<string> = new Set(['svg', 'svgz']);
+
+/** Lower-cased extension with no dot, or '' when there is none. */
+function extensionOf(relativePath: string): string {
+  return path.extname(relativePath).replace(/^\./, '').toLowerCase();
+}
+
+/**
+ * A few VERIFIED bytes of a deliverable, so a card can show what is in the file.
+ *
+ * -------------------------------------------------------------------------
+ * THE ORDER IS THE SECURITY. Half the value of each gate is in what it stops
+ * from being READ AT ALL.
+ * -------------------------------------------------------------------------
+ *  1. ledger identity     - an id the ledger does not know resolves to nothing
+ *  2. type gate           - a closed extension map, on the RECORDED path
+ *  3. size gate           - on `record.sizeBytes`, so nothing is opened
+ *  4. host confinement    - `effects.confine`, THE authorized-root question
+ *  5. full verification   - `readVerifiedArtifact`: ancestor symlink walk,
+ *                           regular-file check, dev/ino re-check, sha256
+ *  6. binary sniff        - host-side, so the renderer never has to guess
+ *  7. head only           - never the whole file, never a split codepoint
+ *
+ * Step 4 is the one that was easy to miss. `readVerifiedArtifact` proves only
+ * that the file sits inside `record.workspace`; `isCanonicalWorkspace` accepts
+ * ANY well-formed absolute path, so the ledger is NOT the authorized-root gate.
+ * Chat is exactly the second writer the comment above `saveArtifactCopy` warns
+ * about, and a record naming `/etc` or a home directory as its workspace would
+ * otherwise have had its bytes read and handed to the renderer.
+ *
+ * Steps 2 and 3 run in that order rather than the reverse because the image cap
+ * is tighter than the source cap, so the size question cannot be answered until
+ * the type is known. Both are pure string and integer work on the record, which
+ * is the property that matters: neither opens anything.
+ *
+ * Every refusal is a TYPED verdict, never raw bytes and never a host error
+ * string. The renderer gets `{ kind: 'none', reason }` and translates it.
+ */
+export async function previewArtifact(artifactId: unknown, effects: ArtifactHostEffects): Promise<ArtifactPreview> {
+  const records = await effects.readLedger();
+  const record = typeof artifactId === 'string' ? records.find((entry) => entry.artifactId === artifactId) : undefined;
+  // "Not in the ledger" and "forgotten" and "malformed id" are one answer on
+  // purpose: a preview must not become an oracle for which ids exist.
+  if (!record) return { kind: 'none', reason: 'unavailable' };
+
+  const extension = extensionOf(record.relativePath);
+  if (PREVIEW_REFUSED_TYPES.has(extension)) return { kind: 'none', reason: 'unsupported-type' };
+  const imageMime = PREVIEW_IMAGE_TYPES[extension];
+
+  const cap = imageMime ? MAX_PREVIEW_IMAGE_BYTES : MAX_PREVIEW_SOURCE_BYTES;
+  if (!Number.isSafeInteger(record.sizeBytes) || record.sizeBytes > cap) {
+    return { kind: 'none', reason: 'too-large' };
+  }
+
+  // The SAME expression the summary uses, so the path handed to confinement is
+  // the path every other surface calls canonical. A second derivation here is
+  // how a gate ends up guarding a different file than the one that opens.
+  const target = toArtifactSummary(record).canonicalPath;
+  const confined = await effects.confine(target);
+  if (!confined) return { kind: 'none', reason: 'unavailable' };
+
+  const verified = await readVerifiedArtifact(artifactId, records);
+  // `=== false` rather than `!verified.ok`: the success arm of
+  // `VerifiedArtifactOutcome` is an INTERSECTION, and TypeScript does not
+  // narrow that union through the negation - it does through the explicit
+  // comparison. Simplifying this back breaks the build, not just the style.
+  if (verified.ok === false) {
+    // Only the digest/size refusal is actionable by the user ("you edited it").
+    // Everything else - gone, a symlink now, a directory now - is unavailable.
+    return { kind: 'none', reason: verified.error === ARTIFACT_CHANGED_ERROR ? 'changed' : 'unavailable' };
+  }
+
+  if (imageMime) {
+    return { kind: 'image', dataUrl: `data:${imageMime};base64,${verified.contents.toString('base64')}` };
+  }
+
+  if (looksBinary(verified.contents)) return { kind: 'none', reason: 'binary' };
+
+  return {
+    kind: 'text',
+    text: decodeWholeCodepoints(verified.contents.subarray(0, PREVIEW_TEXT_BYTES)),
+    truncated: verified.contents.length > PREVIEW_TEXT_BYTES,
+  };
+}
+
+/**
+ * Is this a file whose head should never be shown as text?
+ *
+ * Two signals over the first kilobyte, because either alone is porous. A NUL
+ * byte catches the compiled and container formats; a strict UTF-8 decode
+ * catches the ones that are dense high bytes with no NUL - a JPEG, a zip, most
+ * of Office. Together they are what stops `%PDF-1.7 %âãÏÓ` appearing in the
+ * hero band of a card.
+ *
+ * `stream: true` is load-bearing: it makes the decoder HOLD BACK an incomplete
+ * trailing sequence instead of emitting U+FFFD for it, so a UTF-8 file that
+ * merely happens to have a multi-byte character straddling byte 1024 is not
+ * misread as binary.
+ */
+function looksBinary(contents: Buffer): boolean {
+  const head = contents.subarray(0, PREVIEW_SNIFF_BYTES);
+  if (head.includes(0)) return true;
+  return new TextDecoder('utf-8').decode(head, { stream: true }).includes('\uFFFD');
+}
+
+/**
+ * Decode a byte slice, dropping a trailing partial character rather than
+ * emitting the replacement glyph for it.
+ *
+ * Cutting a preview at a fixed byte count lands mid-character often enough to
+ * notice, and `\uFFFD` at the end of every truncated preview reads as a
+ * corrupted file. Same `stream: true` trick as the sniff.
+ */
+function decodeWholeCodepoints(slice: Buffer): string {
+  return new TextDecoder('utf-8').decode(slice, { stream: true });
 }
 
 /**
