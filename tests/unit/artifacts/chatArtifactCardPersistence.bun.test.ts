@@ -47,7 +47,6 @@ mock.module('electron', () => ({
   ipcMain: { handle: () => {}, on: () => {} },
   shell: {},
   dialog: {},
-  BrowserWindow: class {},
 }));
 
 const { WaylandUIDatabase } = await import('../../../src/process/services/database/index');
