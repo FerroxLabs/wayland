@@ -7,7 +7,7 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve as resolvePath } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { Writable } from 'node:stream';
 import { parse, stringify } from 'smol-toml';
@@ -633,9 +633,17 @@ export class WCoreAgent {
     // directive and the spawn env. Deriving it twice would let the two disagree
     // if a run closed between them, and a directive naming a directory the
     // engine was not given is worse than no directive at all.
+    const openRunOutputDir = workspace ? activeRunOutputDir(this.options.conversationId) : undefined;
     const engineOutputDir = workspace
-      ? resolveOutputDir(workspace, activeRunOutputDir(this.options.conversationId), this.options.conversationId)
+      ? resolveOutputDir(workspace, openRunOutputDir, this.options.conversationId)
       : undefined;
+
+    // B13. Whether the directive may tell the model to PRINT that directory.
+    // Only when the resolver actually accepted the open run's staging tree -
+    // `resolveOutputDir` rejects one that is not inside the workspace and falls
+    // back to the chat namespace, which is permanent and keeps the old clause.
+    const outputDirIsEphemeral =
+      !!openRunOutputDir && !!engineOutputDir && engineOutputDir === resolvePath(openRunOutputDir);
 
     const {
       args,
@@ -657,7 +665,9 @@ export class WCoreAgent {
       // T2. Ignored in raw-engine mode by `buildSpawnConfig`, deliberately: the
       // engine runs on its own config.toml there and Desktop overrides nothing
       // on the prompt side.
-      systemPrompt: engineOutputDir ? buildOutputDirective(engineOutputDir) : undefined,
+      systemPrompt: engineOutputDir
+        ? buildOutputDirective(engineOutputDir, { ephemeral: outputDirIsEphemeral })
+        : undefined,
       chatGptSubscriptionAvailable,
       openAiApiKey,
     });

@@ -46,6 +46,11 @@ when you present them.
   run's own staging directory, so the brief is filed under this task's dated
   history and yesterday's brief is still readable beside it. Writing anywhere
   else means the run publishes nothing at all.
+- **That directory is a destination, not an address.** On a scheduled run it is
+  a staging directory and it is **deleted the moment the run publishes** — the
+  app publishes by renaming it, so the path you wrote to stops existing at that
+  instant. Write to it and never quote it back to the user. Naming a file is
+  fine; naming its directory is telling the user to go somewhere that is gone.
 - **Do not read `WAYLAND_OUTPUT_DIR`.** It is set on the engine process and the
   engine does not forward it to shell commands, so it always resolves EMPTY and
   every `${WAYLAND_OUTPUT_DIR:-…}` fallback silently wins. That one habit is
@@ -217,14 +222,22 @@ in the same message:
 3. **Describe entries and exits correctly.** They happen at the CLOSE of the
    bar that signalled them, so they are decisions to act on at the next open,
    not live signals. Do not describe them as live.
-4. **Name the brief's full path** inside the deliverables directory, so the
-   user can reopen it even if they miss the card.
+4. **Do not print the deliverables directory.** On a scheduled run it is a
+   staging directory that is deleted the moment the run publishes, so a path you
+   print here leads nowhere by the time anyone follows it — and you cannot print
+   the real one, because publication happens after your turn ends and the
+   permanent path does not exist yet. Name the **file** — `morning-brief.html` —
+   and say it is attached below as a card. The app writes the real, permanent
+   path onto that card after publication; you do not have it and must not guess
+   it.
+5. **Say how fresh the bars are.** The app writes a `.prefetch-manifest.json`
+   beside the cached bars recording when it fetched them. Read it and quote that
+   time alongside the bar date. If it is not there, say the fetch time is
+   unknown rather than implying the numbers are from this morning.
 
-Finally, prune the Yahoo cache if it has grown large. It is the directory Step 2
-exports as `MARKET_OPEN_REPORT_CACHE`, inside the workspace. The cache key
-includes the end date, so it gains roughly one file per symbol per day, and the
-app writes a `.prefetch-manifest.json` beside the bars recording when they were
-fetched — quote that time when you state how fresh the report's numbers are.
+Then stop. Do not prune the cache, do not tidy the workspace, and do not write a
+skill file — the app manages all three. An errand you invent at the end of a run
+can only fail in the user's report.
 
 - Input: HTML brief path, bar date, outcome classification
 - Output: the brief presented, plus an explicit statement of bar date and
