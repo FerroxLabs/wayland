@@ -208,7 +208,12 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
             args.push('-s', 'user');
 
             try {
-              await safeExecFile('gemini', args, { timeout: 5000, ...getExecEnv() });
+              // `this.timeout` (30 s), NOT a hard-coded 5 s. RC1 measured this
+              // exact call at 4,399 ms and 5,009 ms on the same machine 600 ms
+              // apart: a 5 s wall below the measured cost of the call it
+              // guards is a coin flip, and it decided whether the user's
+              // connector turned on (#B4a).
+              await safeExecFile('gemini', args, { timeout: this.timeout, ...getExecEnv() });
               console.log(`[GeminiMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
               console.warn(`Failed to add MCP ${server.name} to Gemini:`, error);
@@ -231,7 +236,7 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
             const args = ['mcp', 'add', server.name, server.transport.url, '--transport', transportFlag, '-s', 'user'];
 
             try {
-              await safeExecFile('gemini', args, { timeout: 5000, ...getExecEnv() });
+              await safeExecFile('gemini', args, { timeout: this.timeout, ...getExecEnv() });
               console.log(`[GeminiMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
               console.warn(`Failed to add MCP ${server.name} to Gemini:`, error);

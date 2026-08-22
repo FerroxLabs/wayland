@@ -17,13 +17,66 @@ import { WaylandMcpAgent } from './agents/WaylandMcpAgent';
 import { CodexMcpAgent } from './agents/CodexMcpAgent';
 import { OpencodeMcpAgent } from './agents/OpencodeMcpAgent';
 import { WCoreMcpAgent } from './agents/WCoreMcpAgent';
-import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncResult, McpSource } from './McpProtocol';
+import type {
+  IMcpProtocol,
+  DetectedMcpServer,
+  McpConnectionTestResult,
+  McpOperationResult,
+  McpSyncResult,
+  McpSource,
+} from './McpProtocol';
 import { mcpAgentOperationSucceeded } from './McpProtocol';
 import { validateMcpServer, sanitizeMcpServerName } from './validateMcpServer';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 import { applyBuiltinMcpRuntime } from '@process/services/mcpServices/builtinMcpRuntime';
 import { mcpServerCollisionKey } from '@/common/mcp';
 import { bindMcpPrepublicationProbeTruth } from './mcpSessionTruthGate';
+
+/**
+ * How long one agent CLI gets to accept a publication before the fan-out stops
+ * waiting on it. Matches the agents' own class-level command budget.
+ */
+export const MCP_AGENT_PUBLICATION_DEADLINE_MS = 45_000;
+
+/**
+ * Bound ONE agent's publication.
+ *
+ * The fan-out below is a `Promise.all`, so before this existed a single agent
+ * CLI that never returned hung the entire publication forever - and the
+ * renderer publishes BEFORE committing `enabled: true`, so that hang meant no
+ * commit, no rollback, no toast and no change to `updatedAt` (#B4c).
+ *
+ * The deadline is PER AGENT and it RESOLVES rather than rejecting: an
+ * aggregate deadline would still let one starving agent consume the whole
+ * budget for everyone, and a rejection here would be indistinguishable from a
+ * CLI that answered with a real error.
+ */
+function withAgentPublicationDeadline(
+  agentName: string,
+  publication: Promise<McpOperationResult>,
+  deadlineMs: number = MCP_AGENT_PUBLICATION_DEADLINE_MS
+): Promise<McpOperationResult> {
+  return new Promise<McpOperationResult>((resolve) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      console.warn(`[McpService] MCP publication to "${agentName}" exceeded ${deadlineMs}ms; continuing without it`);
+      resolve({ success: false, error: `publication timed out after ${deadlineMs}ms` });
+    }, deadlineMs);
+    // An unref'd timer must not keep the process alive on its own.
+    timer.unref?.();
+    const finish = (result: McpOperationResult): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(result);
+    };
+    publication.then(finish, (error: unknown) =>
+      finish({ success: false, error: error instanceof Error ? error.message : String(error) })
+    );
+  });
+}
 
 /**
  * MCP service - coordinates the MCP operation protocol across agents
@@ -357,7 +410,10 @@ export class McpService {
             };
           }
 
-          const result = await agentInstance.installMcpServers(authedServers);
+          const result = await withAgentPublicationDeadline(
+            agent.name,
+            agentInstance.installMcpServers(authedServers)
+          );
           return {
             agent: agent.name,
             success: result.success,
