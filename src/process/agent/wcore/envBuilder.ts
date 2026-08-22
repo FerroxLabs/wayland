@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { realpathSync } from 'fs';
 import path from 'path';
 
 import type { TProviderWithModel } from '@/common/config/storage';
@@ -981,13 +982,50 @@ export const AWS_AUTHORITY_ENV_KEYS = [
  * destination handed to model-authored skill text, so the one place it is
  * produced is the right place to prove it cannot point out of the sandbox.
  */
+/**
+ * The physical path this spelling names, for a path that may not exist yet.
+ *
+ * `realpathSync` throws on a missing leaf, and this is called BEFORE a run's
+ * directory necessarily exists - so the deepest ancestor that does exist is
+ * canonicalized and the missing tail re-appended. That keeps a not-yet-created
+ * destination comparable with a realpathed workspace instead of falling back to
+ * the lexical spelling and reintroducing the divergence for exactly the case
+ * the caller is about to create.
+ */
+function canonicalizePath(target: string): string {
+  let current = path.resolve(target);
+  const tail: string[] = [];
+  for (;;) {
+    try {
+      return path.join(realpathSync(current), ...tail);
+    } catch {
+      const parent = path.dirname(current);
+      if (parent === current) return path.resolve(target);
+      tail.unshift(path.basename(current));
+      current = parent;
+    }
+  }
+}
+
 export function resolveOutputDir(workspace: string, outputDir?: string, conversationId?: string): string {
   const seriesRoot = path.join(workspace, 'artifacts');
   if (outputDir) {
-    const resolvedWorkspace = path.resolve(workspace);
-    const resolved = path.resolve(outputDir);
+    // BOTH SIDES CANONICALIZED BEFORE COMPARING.
+    //
+    // The workspace reaches the non-raw spawn already realpathed (the project
+    // config lease hands `WCoreAgent` a canonical path), while the run's
+    // staging directory is stored lexically. `~/.wayland` is a real symlink on
+    // macOS, so every managed workspace has two spellings, they compared as
+    // "outside", and a scheduled run's deliverable was silently redirected into
+    // the CHAT namespace - never staged, never published.
+    //
+    // This is also strictly NARROWER than the lexical check it replaces: a
+    // symlink planted inside the workspace that points out used to pass, because
+    // `path.relative` sees a child path and never looks at what it is.
+    const resolvedWorkspace = canonicalizePath(workspace);
+    const resolved = canonicalizePath(outputDir);
     const relative = path.relative(resolvedWorkspace, resolved);
-    if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) return resolved;
+    if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) return path.resolve(outputDir);
   }
   // No run open. A conversation is an interactive chat, and its deliverables
   // must NOT land in the series root - see CHAT_NAMESPACE. Falling back to the

@@ -73,6 +73,8 @@ import type { ICronJobExecutor } from '@process/services/cron/ICronJobExecutor';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 import { artifactSeriesForJob } from '@process/services/cron/durableTaskWorkspace';
 import {
+  buildRoutinePrompt,
+  LEGACY_ROUTINE_OUTPUT_DIR_SENTENCE,
   ROUTINE_NO_ATTACHMENT_SENTENCE,
   ROUTINE_OUTPUT_DIR_SENTENCE,
   type RoutineDef,
@@ -212,6 +214,95 @@ describe('an already-seeded routine is brought up to the shipped definition', ()
     ]);
     expect(jobs[0].target.payload.text).toContain('- prior_review_path: artifacts/ops/last-weekly-review.md');
     expect(jobs[0].target.payload.text).not.toContain('outbox');
+  });
+
+  it("repoints the morning report off a watchlist path that has never existed on any machine", async () => {
+    // `~/wayland/market/watchlist.csv` was never written by anything. Step 2
+    // exported it as MARKET_OPEN_REPORT_LIST, which OVERRODE the watchlist the
+    // scanner actually ships with - turning a run that would have worked into
+    // an ENOENT stack trace. The 2026-08-20 routine migration repointed four
+    // other routines' `~/wayland/...` inputs and missed this one.
+    const def = routine('weekday-morning-report');
+    const jobs = [
+      legacyJob({
+        id: 'cron_4d3c2198',
+        routineId: 'weekday-morning-report',
+        workflow: def.workflow,
+        // The values shipped before this change, verbatim.
+        inputs: {
+          watchlist_path: '~/wayland/market/watchlist.csv',
+          positions_path: '~/wayland/market/positions.csv',
+          output_dir: 'artifacts/market/',
+        },
+      }),
+    ];
+    // THE BROKEN STATE, asserted first so the move below is real.
+    expect(jobs[0].target.payload.text).toContain('~/wayland/market/watchlist.csv');
+
+    const service = makeService(jobs);
+    const migrated = await migrateSeededRoutines(service, ROUTINES);
+
+    expect(migrated.map((m) => m.routineId)).toContain('weekday-morning-report');
+    expect(jobs[0].target.payload.text).not.toContain('~/wayland/market/');
+    expect(jobs[0].target.payload.text).not.toContain('watchlist_path');
+    expect(jobs[0].target.payload.text).not.toContain('positions_path');
+    // The one input that survives still names the series the run publishes into.
+    expect(jobs[0].target.payload.text).toContain('- output_dir: artifacts/market/');
+    // ...and the original is recoverable from the job itself.
+    expect(jobs[0].metadata.agentConfig!.configOptions![PROMPT_BACKUP_KEY]).toContain('~/wayland/market/');
+  });
+
+  it('still recognises a prompt carrying the RETIRED output-directory sentence', async () => {
+    // This is the exact prompt shape on Sean's machine: seeded by the shipped
+    // build, so it carries the "read WAYLAND_OUTPUT_DIR" sentence AND the two
+    // retired inputs. Retire that sentence out of ROUTINE_GENERATED_SENTENCES
+    // and this prompt stops parsing as seeder output, so the migration refuses
+    // to touch the one row it exists to repair - silently, on every boot.
+    const def = routine('weekday-morning-report');
+    const shipped = [
+      `Run the "${def.workflow}" workflow now as a scheduled, unattended routine.`,
+      'Inputs:\n- watchlist_path: ~/wayland/market/watchlist.csv\n- positions_path: ~/wayland/market/positions.csv\n- output_dir: artifacts/market/',
+      LEGACY_ROUTINE_OUTPUT_DIR_SENTENCE,
+      ROUTINE_NO_ATTACHMENT_SENTENCE,
+    ].join('\n');
+
+    expect(isSeederGeneratedPrompt(shipped, def)).toBe(true);
+
+    const jobs = [
+      legacyJob({
+        id: 'cron_4d3c2198',
+        routineId: def.id,
+        workflow: def.workflow,
+        inputs: def.inputs!,
+        prompt: shipped,
+      }),
+    ];
+    const migrated = await migrateSeededRoutines(makeService(jobs), ROUTINES);
+    expect(migrated.map((m) => m.routineId)).toContain(def.id);
+    expect(jobs[0].target.payload.text).toBe(buildRoutinePrompt(def));
+    expect(jobs[0].target.payload.text).not.toContain(LEGACY_ROUTINE_OUTPUT_DIR_SENTENCE);
+  });
+
+  it('the morning report names no ~/wayland/... path, and the remaining ones may only shrink', () => {
+    const offenders: string[] = [];
+    for (const def of ROUTINES) {
+      for (const [key, value] of Object.entries(def.inputs ?? {})) {
+        if (value.startsWith('~/wayland/')) offenders.push(`${def.id}.${key}`);
+      }
+    }
+
+    // The one routine that was executed end to end and PROVEN broken by it.
+    expect(offenders.filter((o) => o.startsWith('weekday-morning-report.'))).toEqual([]);
+
+    // A RATCHET, not a clean bill of health. Nine other routines still read
+    // `~/wayland/...` inputs that nothing has ever written; only this one was
+    // verified, and shipping an unproven repoint of nine more is worse than
+    // shipping one proven repoint. The count may fall, never rise.
+    expect(offenders.length).toBeLessThanOrEqual(18);
+
+    // Floor + KNOWN-POSITIVE CONTROL: the corpus is real and the predicate bites.
+    expect(ROUTINES.length).toBeGreaterThanOrEqual(10);
+    expect(['~/wayland/market/watchlist.csv'].filter((v) => v.startsWith('~/wayland/'))).toHaveLength(1);
   });
 
   it('gives the prompt the write destination it never named, so the run stages something', async () => {
@@ -370,8 +461,30 @@ describe('the seeder-generated fingerprint', () => {
     ).toBe(true);
   });
 
+  it('accepts a RETIRED input key, and only the ones actually retired', () => {
+    // Retiring an input otherwise makes every prompt already on disk fail the
+    // fingerprint, so the migration refuses to touch the rows the retirement
+    // was for. `watchlist_path`/`positions_path` are the retired pair.
+    const withRetired = legacyPrompt(def.workflow, {
+      watchlist_path: '~/wayland/market/watchlist.csv',
+      positions_path: '~/wayland/market/positions.csv',
+      ...def.inputs!,
+    });
+    expect(isSeederGeneratedPrompt(withRetired, def)).toBe(true);
+
+    // KNOWN-NEGATIVE CONTROL: a key that was never ours is still a user edit.
+    const withInvented = legacyPrompt(def.workflow, { ...def.inputs!, slack_channel: '#ops' });
+    expect(isSeederGeneratedPrompt(withInvented, def)).toBe(false);
+
+    // ...and a retired key on a DIFFERENT routine is not accepted either.
+    const other = routine('friday-weekly-review');
+    expect(
+      isSeederGeneratedPrompt(legacyPrompt(other.workflow, { ...other.inputs!, watchlist_path: 'x' }), other)
+    ).toBe(false);
+  });
+
   it('rejects a prompt for a different workflow, an added line, a dropped input and an added one', () => {
-    const { watchlist_path: _dropped, ...fewer } = def.inputs!;
+    const { output_dir: _dropped, ...fewer } = def.inputs!;
 
     expect(isSeederGeneratedPrompt(legacyPrompt('some-other-workflow', def.inputs!), def)).toBe(false);
     expect(isSeederGeneratedPrompt(`${legacyPrompt(def.workflow, def.inputs!)}\nand email it`, def)).toBe(false);

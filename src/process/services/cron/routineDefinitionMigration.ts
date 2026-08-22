@@ -76,6 +76,27 @@ export type RoutineMigration = {
 const GENERATED = new Set<string>(ROUTINE_GENERATED_SENTENCES);
 
 /**
+ * Input keys a routine used to declare and no longer does.
+ *
+ * `isSeederGeneratedPrompt` matches the prompt's input keys against the CURRENT
+ * declared set, which is what stops it rewriting a prompt the user has edited.
+ * That rule has one blind spot: RETIRING an input makes every prompt already on
+ * disk fail the match, so the migration refuses to touch exactly the rows the
+ * retirement was for. Naming the retired key here is how a removal reaches an
+ * existing install; it widens nothing else, because every currently declared key
+ * must still be present and no unknown key is accepted.
+ *
+ * `weekday-morning-report` retired both of its data paths. They named
+ * `~/wayland/market/*.csv`, which has never existed on any machine, and Step 2
+ * exported the watchlist one as `MARKET_OPEN_REPORT_LIST` - OVERRIDING the
+ * watchlist the scanner ships with, so a run that would have worked died on an
+ * ENOENT stack trace instead.
+ */
+export const RETIRED_ROUTINE_INPUT_KEYS: Readonly<Record<string, readonly string[]>> = {
+  'weekday-morning-report': ['watchlist_path', 'positions_path'],
+};
+
+/**
  * True when `prompt` is byte-for-byte something this seeder could have written
  * for `routine`, at any version. Deliberately structural rather than a
  * comparison against a remembered old string: the previous definitions are not
@@ -87,6 +108,8 @@ export function isSeederGeneratedPrompt(prompt: string, routine: RoutineDef): bo
   if (lines[0] !== routinePromptHeader(routine.workflow)) return false;
 
   const declaredKeys = Object.keys(routine.inputs ?? {});
+  const retiredKeys = RETIRED_ROUTINE_INPUT_KEYS[routine.id] ?? [];
+  const acceptableKeys = new Set([...declaredKeys, ...retiredKeys]);
   const seenKeys: string[] = [];
   const seenSentences = new Set<string>();
   let sawInputsHeader = false;
@@ -100,6 +123,8 @@ export function isSeederGeneratedPrompt(prompt: string, routine: RoutineDef): bo
     const input = line.match(/^- ([^:]+): (.*)$/);
     if (input) {
       if (!sawInputsHeader) return false;
+      // An unknown key is still a user edit and still stops the migration.
+      if (!acceptableKeys.has(input[1])) return false;
       seenKeys.push(input[1]);
       continue;
     }
@@ -112,8 +137,13 @@ export function isSeederGeneratedPrompt(prompt: string, routine: RoutineDef): bo
     return false;
   }
 
-  if (sawInputsHeader !== declaredKeys.length > 0) return false;
-  return seenKeys.toSorted().join(' ') === declaredKeys.toSorted().join(' ');
+  if (sawInputsHeader !== seenKeys.length > 0) return false;
+  // Every CURRENTLY declared key must be present, exactly once each. Retired
+  // keys are tolerated on top of that and nothing else is - so a prompt written
+  // by any version of this seeder matches, and a prompt with a key the user
+  // added, renamed or deleted still does not.
+  if (new Set(seenKeys).size !== seenKeys.length) return false;
+  return declaredKeys.every((key) => seenKeys.includes(key));
 }
 
 /** The routine a job was seeded from, or undefined when it is not one of ours. */

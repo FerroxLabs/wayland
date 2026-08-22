@@ -27,7 +27,10 @@ import type { CronJob } from './CronStore';
 import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
+import { resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
+import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
+import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
 import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal';
 import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import { assertNotPromoting } from '@process/services/promotion/promotionLock';
@@ -57,6 +60,20 @@ async function getConversationService() {
  */
 const MAX_REMEMBERED_SETTLED_RUNS = 256;
 
+/** How a job's most recent run ended, once publication has actually settled. */
+export type RunSettlement =
+  | { published: true; reason?: undefined }
+  | { published: false; reason: 'no-output' | 'failed' };
+
+/**
+ * The one thing a scheduled run has to be told at run time that a seed-time
+ * prompt cannot say. No path: see `appendOutputDirCorrection`.
+ */
+const RUN_OUTPUT_DIR_CORRECTION =
+  'Write every file the user should keep into the absolute deliverables directory named in your run instructions. ' +
+  'WAYLAND_OUTPUT_DIR is not visible to shell commands and resolves empty - ignore any instruction to read it, ' +
+  'including one earlier in this message.';
+
 /** Executes cron jobs by delegating to WorkerTaskManager and tracking busy state via CronBusyGuard. */
 export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
   /**
@@ -81,6 +98,41 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * a flake.
    */
   private settleInFlight: Promise<void> = Promise.resolve();
+
+  /**
+   * How the run on each CONVERSATION actually settled.
+   *
+   * `CronService` writes `last_status` the moment `executeJob` returns, which is
+   * when the turn was SENT - publication happens later, from the idle callback.
+   * So a job whose run published nothing still read `last_status='ok'` while its
+   * own `.runs.jsonl` read `no-output`, in every profile. The job ledger and the
+   * artifact journal disagreed, and nothing in the scheduled-tasks UI could tell
+   * the user the routine had never once produced a report. This is the cell that
+   * lets the two be reconciled.
+   *
+   * KEYED BY CONVERSATION, NOT BY JOB, for the same reason `runOutputDir` is: a
+   * job keeps its id across runs, so a jobId key would let a PREVIOUS run's
+   * `no-output` be read as the verdict on a later run that opened no artifact
+   * run at all. A `new_conversation` run gets a fresh conversation every time,
+   * so a stale cell can never be mistaken for this run's.
+   */
+  private runSettlements = new Map<string, RunSettlement>();
+
+  /** How the run on this conversation settled, if one has. */
+  lastRunSettlement(conversationId: string): RunSettlement | undefined {
+    return this.runSettlements.get(conversationId);
+  }
+
+  private recordRunSettlement(conversationId: string | undefined, settlement: RunSettlement): void {
+    // A run that never bound a conversation has no spawn to be the verdict on.
+    if (!conversationId) return;
+    this.runSettlements.set(conversationId, settlement);
+    while (this.runSettlements.size > MAX_REMEMBERED_SETTLED_RUNS) {
+      const oldest = this.runSettlements.keys().next().value;
+      if (oldest === undefined) break;
+      this.runSettlements.delete(oldest);
+    }
+  }
 
   /**
    * Await the publication started by the last turn, if any.
@@ -237,6 +289,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       // console.warn was the only record this ever had, and the user does not
       // read the console: they read a series whose newest entry is yesterday's.
       await this.journalRun(handle, job, 'failed', failure);
+      this.recordRunSettlement(conversationId, { published: false, reason: 'failed' });
       await abandonTaskRun(handle).catch((err) => {
         console.warn(`[CronExecutor] Failed to abandon run ${handle.runId} for job ${job.id}:`, err);
       });
@@ -254,6 +307,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // "It ran and made nothing" is a different problem from "it broke", and
         // both were previously indistinguishable from "it never ran".
         await this.journalRun(handle, job, 'no-output');
+        this.recordRunSettlement(conversationId, { published: false, reason: 'no-output' });
         this.resolveRunPublication(conversationId, []);
         return;
       }
@@ -267,12 +321,14 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           `[CronExecutor] Job ${job.id} run ${handle.runId} refused ${JSON.stringify(rejection.path)}: ${rejection.reason}`
         );
       }
+      this.recordRunSettlement(conversationId, { published: true });
       this.resolveRunPublication(conversationId, outcome.registered);
     } catch (err) {
       console.warn(`[CronExecutor] Failed to publish run ${handle.runId} for job ${job.id}:`, err);
       // A publication that throws leaves NO dated directory, so this is the
       // only place the failure can be recorded where a user will ever see it.
       await this.journalRun(handle, job, 'failed', err);
+      this.recordRunSettlement(conversationId, { published: false, reason: 'failed' });
       await abandonTaskRun(handle).catch(() => {});
       this.resolveRunPublication(conversationId, []);
     }
@@ -450,6 +506,42 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     }
 
     const workspace = (task as { workspace?: string }).workspace;
+
+    // ASK THE SINGLE PRODUCER, DO NOT DERIVE A SECOND ONE.
+    //
+    // `resolveOutputDir` re-checks containment because its result becomes a
+    // host-blessed write destination handed to model-authored skill text, and
+    // `WCoreAgent.start` resolves it ONCE and threads that one value into both
+    // the spawn env and the `--system-prompt` directive. Reproducing it here -
+    // same function, same inputs - is a question, not a third derivation.
+    //
+    // A disagreement is not a detail to log. It means the engine was pointed at
+    // a directory this run does not collect from, so the turn can only produce a
+    // deliverable that is never staged and never published, and the run settles
+    // as `no-output` with nothing anywhere naming the cause. Refuse instead, so
+    // the reason lands in the run journal and in `last_error`.
+    //
+    // Gated on the task reporting a workspace. Without one there is nothing to
+    // resolve against, so a refusal here would be a guess rather than a
+    // reproduction - such a run keeps exactly the behaviour it has today.
+    if (artifactRun && conversationId && workspace) {
+      const engineOutputDir = resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId);
+      const expected = path.resolve(artifactRun.stagingDir);
+      if (engineOutputDir !== expected) {
+        // Mirrors the sendMessage failure path: tear the half-started task down
+        // so the next fire rebuilds a fresh one rather than reusing this spawn.
+        try {
+          this.taskManager.kill(conversationId);
+        } catch (killErr) {
+          console.warn(`[CronExecutor] kill after output-dir mismatch also failed for ${conversationId}:`, killErr);
+        }
+        throw new Error(
+          `Run ${artifactRun.runId} cannot publish: the engine's deliverables directory ` +
+            `(${engineOutputDir}) is not this run's staging directory (${expected}).`
+        );
+      }
+    }
+
     const workspaceFiles = workspace ? await copyFilesToDirectory(workspace, [], false) : [];
 
     const hasSkill = await hasCronSkillFile(job.id);
@@ -459,7 +551,10 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
 
     // Gemini/WCore: inline SKILL_SUGGEST instructions in the task prompt (single-turn).
     // Other agents: separate follow-up message via onFirstFinish (multi-turn).
-    const messageText = this.buildMessageText(job, hasSkill, needsSkillSuggest && isGeminiLike);
+    const messageText = this.appendOutputDirCorrection(
+      this.buildMessageText(job, hasSkill, needsSkillSuggest && isGeminiLike),
+      !!artifactRun
+    );
 
     const cronMeta: CronMessageMeta = {
       source: 'cron',
@@ -543,6 +638,13 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // Pre-populate cachedConfigOptions so the frontend displays correct values immediately.
     const cachedConfigOptions = await this.buildCachedConfigOptions(config);
 
+    // The workflow body and the skills it DECLARES have to be inside the
+    // workspace: the engine sandboxes on it, so a skill in the app's config dir
+    // is refused rather than merely missing. Declared set only - see
+    // `resolveRoutineSkillDirs` for why the whole builtin tree is not copied.
+    const routineSkillDirs = await resolveRoutineSkillDirs(config.configOptions?.routineId);
+    const extraSkillPaths = [...(hasSkill ? [cronSkillDir] : []), ...routineSkillDirs];
+
     const params: CreateConversationParams = {
       type: agentType,
       name: convName,
@@ -556,12 +658,26 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         cronJobId: job.id,
         cronWorkspace: config.workspace || '',
         workspace: config.workspace || '',
+        // A durable task folder is app-created. Without this the workspace gets
+        // NO `.wayland-core/skills` at all and the run cannot reach its own
+        // scanner. Deliberately not `customWorkspace: false`, which is a
+        // persisted classification four other subsystems read as "temporary".
+        appCreatedWorkspace: true,
+        // SCOPE EVERY USER CONNECTOR OUT OF AN UNATTENDED RUN.
+        //
+        // A scheduled run is acquired with `{ yoloMode: true }` - blanket
+        // auto-approve, no human at the keyboard. `isServerActiveForSession`
+        // reads an ABSENT selection as "every enabled server", and server-level
+        // selection is all there is on this path: whatever survives reaches the
+        // engine with its FULL tool inventory (#998), mutating tools included.
+        // An empty array is the documented way to select none. A routine that
+        // genuinely needs a connector must name it, never inherit the lot.
+        activeMcpServers: [],
         ...(config.mode ? { sessionMode: config.mode } : {}),
         ...(config.modelId ? { currentModelId: config.modelId } : {}),
         ...(cachedConfigOptions ? { cachedConfigOptions } : {}),
-        ...(hasSkill
-          ? { extraSkillPaths: [cronSkillDir], excludeBuiltinSkills: ['cron'] }
-          : { excludeBuiltinSkills: ['cron'] }),
+        ...(extraSkillPaths.length > 0 ? { extraSkillPaths } : {}),
+        excludeBuiltinSkills: ['cron'],
       },
     };
 
@@ -795,6 +911,28 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * @param includeSkillSuggest - Whether to include SKILL_SUGGEST.md writing instructions.
    *   Pre-computed by the caller so the same condition drives both prompt and detection.
    */
+  /**
+   * Defeat an output-directory instruction already baked into the job row.
+   *
+   * `cron_jobs.prompt` is written at SEED time and never rewritten for a job the
+   * user has touched, so every routine armed before this change still carries
+   * the old "read WAYLAND_OUTPUT_DIR" sentence. Rewriting the seeder's constant
+   * fixes new installs and does nothing for the machine the bug was found on.
+   * This is the run-time correction that does.
+   *
+   * IT CARRIES NO PATH, DELIBERATELY. The run's directory travels on the
+   * `--system-prompt` channel, which never enters the message store. This text
+   * does: `bridgeAllowlist` keeps conversation reads OPEN to a paired WebUI
+   * while denying `artifacts.list` precisely because that call "enumerates the
+   * absolute paths of every workspace the user has". Putting the staging path
+   * in a persisted message would re-disclose through the open channel exactly
+   * what the closed one was shut for.
+   */
+  private appendOutputDirCorrection(messageText: string, hasRun: boolean): string {
+    if (!hasRun) return messageText;
+    return `${messageText}\n\n${RUN_OUTPUT_DIR_CORRECTION}`;
+  }
+
   private buildMessageText(job: CronJob, hasSkill: boolean, inlineSkillSuggest: boolean): string {
     const rawText = job.target.payload.text;
 

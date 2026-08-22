@@ -30,6 +30,7 @@ import path from 'path';
 import { logger } from '@office-ai/platform';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
+import { getBuiltinSkillsCopyDir } from '@process/utils/initStorage';
 import type { CronService } from './CronService';
 import { CRON_ROUTINE_KIND, type CronJob, type CronSchedule } from './CronStore';
 
@@ -145,18 +146,37 @@ export function routinePromptHeader(workflow: string): string {
 }
 
 /**
- * Where a scheduled run must write.
+ * THE SENTENCE THAT SENT EVERY SCHEDULED RUN AT AN ENVIRONMENT VARIABLE IT
+ * CANNOT SEE.
  *
- * Without this the routine prompt named no destination at all, so a run wrote
- * wherever the workflow body happened to say - and only ONE of the 71 bundled
- * bodies says anything. Everything the run leaves in `WAYLAND_OUTPUT_DIR` is
- * what gets published; a run that writes elsewhere stages nothing, is abandoned
- * as empty, and leaves the four routines that read a PRIOR run's deliverable
- * (`artifacts/ops/last-weekly-review.md` and friends) reading a path nothing
- * ever writes.
+ * `WAYLAND_OUTPUT_DIR` is set on the ENGINE process, and the engine runs every
+ * Bash tool call through a fixed 19-name env allowlist that does not include
+ * it - proven by executing `wayland-core sandbox exec` on both the shipped
+ * v0.13.3 and the pinned v0.13.4, which printed an empty value for it while
+ * `WAYLAND_HOME` came back populated as the known-positive control. So a run
+ * following this sentence resolved an empty variable, wrote to its fallback,
+ * staged nothing, and settled as `no-output`.
+ *
+ * KEPT, NOT DELETED. `isSeederGeneratedPrompt` tells a prompt the seeder wrote
+ * from one the user has edited by matching whole lines against
+ * {@link ROUTINE_GENERATED_SENTENCES}. Drop this literal from that set and every
+ * already-seeded job's prompt starts reading as user-edited, and the migration
+ * refuses to touch the very rows it exists to repair.
+ */
+export const LEGACY_ROUTINE_OUTPUT_DIR_SENTENCE =
+  "Write every file this run produces into the directory named by the WAYLAND_OUTPUT_DIR environment variable. It is an absolute path inside the workspace, and it is the only place this run's output is collected from - a file written anywhere else is not published and the next run cannot read it. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.";
+
+/**
+ * Where a scheduled run must write, named as TEXT rather than as a variable.
+ *
+ * The absolute path itself is NOT in this sentence and must not be: this string
+ * is baked into `cron_jobs.prompt` at SEED time, months before any run exists,
+ * and a stale absolute path is worse than none. The run's own directory arrives
+ * at spawn time on the `--system-prompt` channel (`buildOutputDirective`), which
+ * is appended to the engine's composed prompt and survives a `--resume`.
  */
 export const ROUTINE_OUTPUT_DIR_SENTENCE =
-  "Write every file this run produces into the directory named by the WAYLAND_OUTPUT_DIR environment variable. It is an absolute path inside the workspace, and it is the only place this run's output is collected from - a file written anywhere else is not published and the next run cannot read it. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.";
+  "Write every file this run produces into the absolute deliverables directory named in your run instructions. That is the only place this run's output is collected from - a file written anywhere else is not published and the next run cannot read it. Do not read WAYLAND_OUTPUT_DIR: it is not visible to shell commands and resolves empty. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.";
 
 /** Closing rule, unchanged since the first seeded routine. */
 export const ROUTINE_NO_ATTACHMENT_SENTENCE =
@@ -169,8 +189,76 @@ export const ROUTINE_NO_ATTACHMENT_SENTENCE =
  */
 export const ROUTINE_GENERATED_SENTENCES: readonly string[] = [
   ROUTINE_OUTPUT_DIR_SENTENCE,
+  // EVERY sentence the seeder has EVER emitted, superseded ones included. A
+  // retired literal that is dropped from this list makes every prompt already
+  // on disk read as user-edited, and the migration then refuses to repair the
+  // rows it was written for.
+  LEGACY_ROUTINE_OUTPUT_DIR_SENTENCE,
   ROUTINE_NO_ATTACHMENT_SENTENCE,
 ];
+
+/**
+ * ONE path segment, or nothing.
+ *
+ * These names are joined onto `getBuiltinSkillsCopyDir()` and onto the bundled
+ * workflows directory to produce directories that are then COPIED into the
+ * user's task folder. `routines.json` and `index.json` are trusted app
+ * resources today, but `skills.import.folder` / `.git` / `.zip` are real local
+ * channels, so a future user-authored routine must not be able to walk out of
+ * the tree its name is joined onto.
+ */
+function isSingleSkillSegment(name: string): boolean {
+  if (!name || name.length > 64) return false;
+  if (name !== path.basename(name)) return false;
+  return /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) && !name.endsWith('.');
+}
+
+/**
+ * The skill directories a seeded routine's run needs INSIDE its workspace.
+ *
+ * The engine sandboxes on the workspace, so a skill that lives in the app's
+ * config directory is not merely inconvenient to reach - it is refused
+ * (`Glob refused: path ... is outside sandbox root`). Two things have to travel:
+ *
+ *  1. the WORKFLOW BODY (`bodies/<workflow>/`), which is the only place the run
+ *     instructions' steps exist at all; and
+ *  2. every skill the workflow DECLARES in its `metadata.depends`, because a
+ *     bundled skill like `market-open-report` is not in the `_builtin` auto set
+ *     and is otherwise placed only when the user has enabled or pinned it.
+ *
+ * Deliberately the declared set and nothing wider. The alternative - copying
+ * the whole builtin-skills tree - would put ~4.7M of unrelated skills, plus
+ * whatever the user has globally pinned, into `~/Documents` on a schedule,
+ * where on a machine with Desktop & Documents sync turned on it becomes a
+ * third-party upload.
+ */
+export async function resolveRoutineSkillDirs(routineId: string | undefined): Promise<string[]> {
+  if (!routineId) return [];
+  const dir = resolveBundledWorkflowsDir();
+  const routines = await loadBundledRoutines(dir);
+  const routine = routines?.find((r) => r?.id === routineId);
+  const workflow = routine?.workflow;
+  if (!workflow || !isSingleSkillSegment(workflow)) return [];
+
+  const out: string[] = [];
+  const bodyDir = path.join(dir, 'bodies', workflow);
+  if (existsSync(path.join(bodyDir, 'SKILL.md'))) out.push(bodyDir);
+
+  const entries = await readJson<Array<{ name?: string; metadata?: { depends?: string } }>>(
+    path.join(dir, 'index.json')
+  );
+  const declared = entries?.find((e) => e?.name === workflow)?.metadata?.depends ?? '';
+  const builtinRoot = getBuiltinSkillsCopyDir();
+  for (const name of declared.split(/[\s,]+/).filter(Boolean)) {
+    if (!isSingleSkillSegment(name)) {
+      logger.warn(`[BuiltinRoutines] Routine "${routineId}" declares an unusable skill name ${JSON.stringify(name)}`);
+      continue;
+    }
+    const candidate = path.join(builtinRoot, name);
+    if (existsSync(candidate)) out.push(candidate);
+  }
+  return out;
+}
 
 export function buildRoutinePrompt(routine: RoutineDef): string {
   const inputLines = routine.inputs

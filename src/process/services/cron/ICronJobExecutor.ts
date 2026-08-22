@@ -8,6 +8,7 @@
 
 import type { CronJob } from './CronStore';
 import type { ArtifactRecord } from '@process/services/artifacts/artifactLedger';
+import type { RunSettlement } from './WorkerTaskManagerJobExecutor';
 
 export interface ICronJobExecutor {
   /** Returns true if the conversation already has an active run in progress. */
@@ -35,4 +36,14 @@ export interface ICronJobExecutor {
   whenRunPublished(conversationId: string): Promise<ArtifactRecord[]>;
   /** Mark the conversation as busy/not-busy. */
   setProcessing(conversationId: string, busy: boolean): void;
+  /**
+   * How the run on this CONVERSATION settled, once publication has finished.
+   *
+   * `last_status` is written when `executeJob` returns - i.e. when the turn was
+   * SENT - and publication happens later, from the idle callback. So a run that
+   * published nothing still reported `ok` while its own `.runs.jsonl` said
+   * `no-output`. Optional so an executor that does not publish (and every test
+   * double) needs no stub.
+   */
+  lastRunSettlement?(conversationId: string): RunSettlement | undefined;
 }

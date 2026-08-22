@@ -46,6 +46,20 @@ import type { ArtifactRecord } from '@process/services/artifacts/artifactLedger'
 const NOTIFICATION_PUBLICATION_TIMEOUT_MS = 10_000;
 
 /**
+ * `last_error` for a run that finished cleanly and produced nothing.
+ *
+ * Deliberately a plain sentence and NOT a locale key: `last_error` already
+ * carries raw executor messages verbatim on the throw path, so this is the same
+ * channel, and inventing a user-facing string here would need all twelve
+ * locales for one field that is already half English.
+ */
+function runProducedNothingError(reason: 'no-output' | 'failed'): string {
+  return reason === 'no-output'
+    ? 'The run finished but produced no deliverable, so nothing was published.'
+    : 'The run did not complete, so nothing was published.';
+}
+
+/**
  * The file name to put in front of the user for a published deliverable.
  *
  * The RECORDED relative path, never the declared title: a title is
@@ -1013,6 +1027,19 @@ export class CronService {
    */
   private registerCompletionNotification(job: CronJob, conversationId: string): void {
     this.executor.onceIdle(conversationId, async () => {
+      // ONE bounded wait for the publication, shared by both jobs below.
+      // Awaiting it twice would double the ceiling, and the whole rule for this
+      // wait is that a publication which HANGS costs the user the file name and
+      // never the banner.
+      const published = await this.publishedArtifactsForNotification(conversationId);
+
+      // FIRST, and before the notification preference is even read: a run that
+      // published nothing must not leave the task reporting `ok`. `last_status`
+      // was written when the turn was SENT, so it can only ever have said "the
+      // turn went out" - and it said `ok` over a routine that had never once
+      // produced a report, in every profile, for a day.
+      await this.reconcileRunStatus(job, conversationId);
+
       // Check if cron notification is enabled
       const cronNotificationEnabled = await ProcessConfig.get('system.cronNotificationEnabled');
       if (!cronNotificationEnabled) return;
@@ -1028,7 +1055,6 @@ export class CronService {
       // it. Publication finishes AFTER the conversation goes idle, so this has
       // to await it - see `whenRunPublished`. Bounded, because a banner that
       // never appears is worse than one that cannot name the file.
-      const published = await this.publishedArtifactsForNotification(conversationId);
       const primary = published[0];
       const body = primary
         ? i18n.t('cron.notification.deliverableReady', { file: artifactFileName(primary) })
@@ -1038,6 +1064,35 @@ export class CronService {
         console.warn('[CronService] Failed to show notification:', err);
       });
     });
+  }
+
+  /**
+   * Bring `last_status` into line with what the run actually settled as.
+   *
+   * Only ever DOWNGRADES an `ok`: a run the executor already recorded as failed,
+   * a skip, a busy-conversation refusal and a user's own later edit are all left
+   * exactly as they are. Best-effort - a job whose epitaph cannot be written
+   * must not take the notification down with it.
+   */
+  private async reconcileRunStatus(job: CronJob, conversationId: string): Promise<void> {
+    try {
+      // The caller has already awaited the publication - the settlement does not
+      // exist until the executor's own idle callback has committed or abandoned
+      // the run, and that wait is bounded and shared, never taken twice.
+      const settled = this.executor.lastRunSettlement?.(conversationId);
+      if (!settled || settled.published) return;
+
+      const fresh = await this.repo.getById(job.id);
+      if (!fresh || fresh.state.lastStatus !== 'ok') return;
+
+      const state = { ...fresh.state, lastStatus: 'error' as const, lastError: runProducedNothingError(settled.reason) };
+      await this.repo.update(job.id, { state });
+      const updated = await this.repo.getById(job.id);
+      if (updated) this.emitter.emitJobUpdated(updated);
+      this.emitter.emitJobExecuted(job.id, 'error', state.lastError);
+    } catch (err) {
+      console.warn('[CronService] Could not reconcile the run status:', err);
+    }
   }
 
   /**

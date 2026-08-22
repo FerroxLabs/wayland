@@ -1939,6 +1939,19 @@ export interface ICreateConversationParams {
     /** Builtin skill names to exclude from auto-injection (e.g. 'cron' for cron-spawned conversations) */
     excludeBuiltinSkills?: string[];
     /**
+     * This workspace was created BY THE APP for a durable scheduled task, not
+     * picked by the user for a one-off chat.
+     *
+     * A setup-time signal only, and deliberately NOT `customWorkspace: false`:
+     * that flag is persisted and four other subsystems read it as "temporary
+     * folder" (Doctor's workspace check, the concierge diagnostics server, the
+     * managed-workspace inventory, and `desc`). This one only decides whether
+     * the workspace gets its `.wayland-core/skills` laid down - which a
+     * scheduled run cannot function without, because the engine sandboxes on
+     * the workspace and a skill outside it is refused, not merely absent.
+     */
+    appCreatedWorkspace?: boolean;
+    /**
      * Skills staged in the composer "+" menu before the conversation existed.
      * Persisted to the new conversation so consumePendingSessionSkills injects
      * their bodies on the first turn (same field skills.add-to-conversation writes).

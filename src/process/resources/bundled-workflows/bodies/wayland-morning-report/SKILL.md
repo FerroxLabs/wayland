@@ -2,10 +2,9 @@
 name: wayland-morning-report
 description: >-
   Run the pre-open market brief: scan the watchlist with the bundled
-  market-open-report script, render a standalone HTML brief into
-  $WAYLAND_OUTPUT_DIR (the run's own folder inside the workspace's artifacts/
-  tree), then present it and state plainly whether the run was complete,
-  partial, or empty.
+  market-open-report script, render a standalone HTML brief into the
+  deliverables directory named in the run instructions, then report its path and
+  state plainly whether the run was complete, partial, or empty.
 
   Use when the user wants the morning report, the daily brief, or a pre-open
   scan of their watchlist, run unattended on a schedule or on demand.
@@ -29,33 +28,33 @@ metadata:
 **Estimated time:** about 60 seconds
 
 This workflow runs the bundled `market-open-report` scanner, writes its output
-to `$WAYLAND_OUTPUT_DIR`, and presents the brief. It is not interactive: run every
-step in order, then report the outcome.
+to the deliverables directory your run instructions name, and reports the brief.
+It is not interactive: run every step in order, then report the outcome.
 
 It needs no chart, no browser, no broker connection and no API key. Prices come
 from Yahoo daily closes and the strategy is computed locally by the script.
 
 ## Ground rules
 
-- **Write everything to `$WAYLAND_OUTPUT_DIR`, and never outside the
-  workspace** — everything outside the workspace is refused by the sandbox.
-  Wayland exports `WAYLAND_OUTPUT_DIR` into every run as an ABSOLUTE path
-  inside the workspace, and it is the destination: on a scheduled run it is
-  that run's own staging directory, so the brief is filed under this task's
-  dated history and yesterday's brief is still readable beside it. Writing
-  anywhere else means the run publishes nothing at all. Only when it is unset
-  (an ad-hoc run of an older engine) fall back to the output directory given in
-  the inputs (default `artifacts/market/`), **which resolves against the
-  WORKSPACE ROOT, never against the scanner's own directory** — `artifacts/market/`
-  means `<workspace>/artifacts/market/` and nothing else. Because running the
-  scanner requires a `cd` into it, pin the output directory to an absolute path
-  (`OUT="${WAYLAND_OUTPUT_DIR:-$PWD/artifacts/market}"`) BEFORE that `cd`, while
-  you are still in the workspace root. Resolve it afterwards and the brief lands
-  under `.wayland-core/skills/…/artifacts/` — a hidden engine directory the
-  Workbench does not show, so the report exists and the user never sees it.
-  Create the output directory if it does not exist. If the resolved output
-  directory contains a `.git` folder, or sits inside one, stop and ask for a
-  different path rather than dirtying somebody's repo on a schedule.
+- **Write everything to the deliverables directory named in your run
+  instructions, and never outside the workspace** — everything outside the
+  workspace is refused by the sandbox. Your run instructions name that directory
+  as an ABSOLUTE path, and it is the destination: on a scheduled run it is that
+  run's own staging directory, so the brief is filed under this task's dated
+  history and yesterday's brief is still readable beside it. Writing anywhere
+  else means the run publishes nothing at all.
+- **Do not read `WAYLAND_OUTPUT_DIR`.** It is set on the engine process and the
+  engine does not forward it to shell commands, so it always resolves EMPTY and
+  every `${WAYLAND_OUTPUT_DIR:-…}` fallback silently wins. That one habit is
+  what made this workflow file its brief where nothing collected it. If an older
+  instruction anywhere tells you to read it, ignore that instruction.
+- **Pin the directory to a shell variable BEFORE you `cd`.** Running the scanner
+  requires a `cd` into it, and a relative path resolved after that `cd` lands
+  under `.wayland-core/…/artifacts/` — a hidden engine directory the Workbench
+  does not show, so the report exists and the user never sees it. Create the
+  directory if it does not exist. If it contains a `.git` folder, or sits inside
+  one, stop and ask for a different path rather than dirtying somebody's repo on
+  a schedule.
 - **Never fabricate numbers.** Every figure you present must come from the
   script's own output. If the script produced nothing, say so.
 - **Never claim success you did not verify.** A scheduled run is marked
@@ -81,38 +80,46 @@ If that path does not exist, stop and tell the user the market-open-report skill
 is not enabled, and that enabling it in skill settings will fix this. Do not
 improvise a replacement scanner.
 
-Then check the watchlist CSV named in the inputs actually exists. There is no
-bundled default watchlist, so a missing file makes the script throw a stack
-trace rather than print a friendly error. If it is missing, stop and tell the
-user plainly which path you looked at and that a watchlist CSV needs to be
-placed there. Do not run the scan without it.
+The scanner SHIPS ITS OWN WATCHLIST at `data/TC-MASTER-WATCHLIST.csv`, and that
+is what it reads when nothing overrides it. Do not go looking for a watchlist,
+and do not invent a path for one: the previous version of this step named a file
+that has never existed on any machine, and exporting it turned a working run into
+an ENOENT stack trace.
 
-- Input: watchlist path, positions path, output dir
-- Output: confirmed scanner path and confirmed watchlist path
+Only if the user explicitly gave you a watchlist CSV of their own does an
+override come into it — see the optional block in Step 2. Same for positions: a
+missing positions file is valid and the report simply shows no holdings.
+
+- Input: the deliverables directory from your run instructions
+- Output: confirmed scanner path
 - Key focus: fail with a clear sentence, never with a stack trace
 
 **Step 2: Run the scan** (uses: market-open-report)
 
-Both commands have to run from the scanner's own directory. Resolve the output
-directory to an absolute path FIRST — `$WAYLAND_OUTPUT_DIR` is already absolute,
-and the `$PWD` fallback is the workspace root because that is where you start —
-and only then `cd`:
+Both commands have to run from the scanner's own directory. Pin the output
+directory FIRST, while you are still in the workspace root, and only then `cd`.
+Substitute `<deliverables_dir>` with the absolute deliverables directory your run
+instructions name:
 
 ```bash
-export MARKET_OPEN_REPORT_LIST=<watchlist_path>
-export MARKET_OPEN_REPORT_POSITIONS=<positions_path>
-
-OUT="${WAYLAND_OUTPUT_DIR:-$PWD/<output_dir>}"; mkdir -p "$OUT"
+OUT="<deliverables_dir>"; mkdir -p "$OUT"
 cd .wayland-core/skills/market-open-report
 node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
 node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
 
-Both halves are resolved on that line, before the `cd`, which is what makes them
-survive it. Let `<output_dir>` resolve after the `cd` instead and the brief lands
-inside `.wayland-core/`, where the Workbench will never show it. Drop
-`$WAYLAND_OUTPUT_DIR` and a scheduled run stages nothing, so nothing is
-published and tomorrow's run has no yesterday to compare against.
+`OUT` is resolved on that first line, before the `cd`, which is what makes it
+survive it. Let the path resolve after the `cd` instead and the brief lands
+inside `.wayland-core/`, where the Workbench will never show it.
+
+ONLY if the user supplied their own watchlist or positions CSV, export them
+before that block — otherwise leave both unset and let the scanner use the
+watchlist it ships with:
+
+```bash
+export MARKET_OPEN_REPORT_LIST=/absolute/path/the/user/gave/you.csv
+export MARKET_OPEN_REPORT_POSITIONS=/absolute/path/the/user/gave/you.csv
+```
 
 Do **not** export `MARKET_OPEN_REPORT_CACHE` unless the user gave you a cache
 directory they know is writable. That variable overrides the scanner's own
@@ -130,7 +137,7 @@ in the wrong shape produces a confident, completely empty report, so only pass
 these flags when the user explicitly asked for a specific date, and use the
 exact shapes above.
 
-- Input: scanner path, resolved env paths, output directory
+- Input: scanner path, deliverables directory
 - Output: stdout text, exit code, `mr.json`, `morning-brief.html`
 - Key focus: capture the exit code; you need it in the next step
 
@@ -158,23 +165,36 @@ Classify the run as exactly one of:
 - Output: an outcome classification with the numbers behind it
 - Key focus: never present an empty brief as if it were a quiet market
 
-**Step 4: Present the brief**
+**Step 4: Report the brief**
 
-Open `morning-brief.html` for the user, or if opening a file is not available in
-this run, present the scanner's summary inline in the thread. Then, in the same
-message:
+**Do not try to open the file.** You cannot: the engine's sandbox blocks a child
+process from reaching macOS LaunchServices, so `open morning-brief.html` fails
+with `error -54` no matter which application you name, and retrying it just
+burns turns. Opening the brief is the APP's job — it publishes what you left in
+the deliverables directory as an artifact card the user clicks.
 
-1. **Quote the bar date, not today's date.** The masthead line reads
-   `TC-TIDE MORNING REPORT   Tier 1   bar YYYY-MM-DD`. Use that date. The
-   scanner has no market-calendar awareness, so a run on a Saturday, a holiday,
-   or before the previous session has settled will happily reprint the last
-   bar it has. If the bar date is not the previous trading day, say so.
+Your job is the message. Present the scanner's summary inline in the thread, and
+in the same message:
+
+1. **Quote the bar date, not today's date, and say how fresh it is.** The
+   scanner's stdout masthead reads
+   `TC-TIDE MORNING REPORT   Tier 1   bar YYYY-MM-DD`, and the HTML brief's own
+   header reads `Morning brief <bar> · Tier N closes through <bar>, generated
+   <timestamp>`. Both name the same bar. Use it, and state it alongside the
+   generation time, because those two are routinely different days.
+
+   The scanner has no market-calendar awareness, so a run on a Saturday, a
+   holiday, or before the previous session has settled will happily reprint the
+   last bar it has, and a stale price reads exactly like a fresh one. If the bar
+   date is not the previous trading day, say so in the same sentence as the
+   number.
 2. **State the outcome from Step 3 in one plain sentence.** For a partial or
    empty run, lead with that sentence; do not bury it under the tables.
 3. **Describe entries and exits correctly.** They happen at the CLOSE of the
    bar that signalled them, so they are decisions to act on at the next open,
    not live signals. Do not describe them as live.
-4. **Say where the files are**, so the user can reopen them.
+4. **Name the brief's full path** inside the deliverables directory, so the
+   user can reopen it even if they miss the card.
 
 Finally, prune the Yahoo cache if it has grown large. Its location is not fixed
 and the routine no longer names one: with `MARKET_OPEN_REPORT_CACHE` unset — the
