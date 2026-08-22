@@ -70,6 +70,12 @@ vi.mock('@/common', () => {
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { get: vi.fn(async () => undefined) },
   getCronSkillsDir: vi.fn(() => '/mock/cronSkills'),
+  // The executor resolves the routine's declared skill directories from here so
+  // it can copy them INTO the workspace (the engine sandboxes on the workspace,
+  // so a skill outside it is refused). Nothing exists under this path, so
+  // `resolveRoutineSkillDirs` finds no depends and this test is unaffected -
+  // but the export has to be present or the module mock shadows it away.
+  getBuiltinSkillsCopyDir: vi.fn(() => '/mock/builtinSkills'),
 }));
 vi.mock('@/process/services/cron/cronSkillFile', () => ({
   writeCronSkillFile: vi.fn(async () => '/mock/cronSkills/job/SKILL.md'),
