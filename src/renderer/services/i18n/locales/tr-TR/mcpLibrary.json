@@ -188,6 +188,8 @@
     "removeTitle": "Remove connector?",
     "removeBody": "This removes {{name}} and its config from your agents. You can re-add it any time.",
     "removeStaleTitle": "Clear leftover server?",
-    "removeStaleBody": "{{name}} is still installed in your agents but is no longer in your config. Clearing it stops its stale tools from being sent."
+    "removeStaleBody": "{{name}} is still installed in your agents but is no longer in your config. Clearing it stops its stale tools from being sent.",
+    "enable": "Etkinleştir",
+    "probeFailed": "Bağlantı denemesi başarısız: {{error}}"
   }
 }

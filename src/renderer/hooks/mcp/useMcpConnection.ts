@@ -145,11 +145,19 @@ export const useMcpConnection = (
 
   // Connection test function
   const handleTestMcpConnection = useCallback(
-    async (server: IMcpServer) => {
+    /**
+     * `preserveEnabled` marks a probe the USER just asked for by turning the
+     * connector on (Enable / Reconnect on the MCP connections page). For those,
+     * a failed probe is evidence about reachability, not an instruction to undo
+     * what the user just did (#B4d). Every other caller keeps the original
+     * fail-closed behaviour: revoke the publication and persist disabled.
+     */
+    async (server: IMcpServer, options?: { preserveEnabled?: boolean }) => {
       // A probe cannot reconcile a partially-mutated external publication. The
       // explicit reconnect path must first republish the declaration and pass
       // the exact committed revision back here.
       if (hasPublicationDivergence(server)) return;
+      const preserveEnabled = options?.preserveEnabled === true;
 
       setTestingServers((prev) => ({ ...prev, [server.id]: true }));
 
@@ -317,6 +325,31 @@ export const useMcpConnection = (
       };
 
       const recordProbeFailure = async (errorMsg: string): Promise<void> => {
+        // On a probe the user asked for by enabling the connector, nothing is
+        // published or revoked: the adapters still carry exactly what they
+        // carried before, so storage and adapters stay in agreement while the
+        // row keeps the state the user chose and explains why it is failing.
+        if (preserveEnabled) {
+          const preservedUpdate = await updateServerStatus('error', { lastError: errorMsg });
+          if (preservedUpdate.outcome !== 'applied') {
+            let preservedWinner = preservedUpdate.winner;
+            if (preservedUpdate.outcome === 'error') {
+              const current = await readMcpServers();
+              preservedWinner =
+                current.find((candidate) => candidate.id === server.id) ??
+                current.find(
+                  (candidate) => mcpServerCollisionKey(candidate.name) === mcpServerCollisionKey(server.name)
+                );
+            }
+            await reconcileLostProbeFailureCas(preservedWinner, server.enabled ? 'published-original' : 'revoked');
+            return;
+          }
+          await globalMessageQueue.add(() => {
+            message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
+          });
+          return;
+        }
+
         let publicationRevoked = !server.enabled;
         let adapterState: 'revoked' | 'published-original' | 'unknown' = server.enabled ? 'unknown' : 'revoked';
         let surfacedError = errorMsg;

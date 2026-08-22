@@ -27,7 +27,7 @@ export function ConnectedPage() {
   const navigate = useNavigate();
   const [message, contextHolder] = Message.useMessage();
   const [showArchived, setShowArchived] = useState(false);
-  const { rows, stale, refreshing, refresh, refreshMcpServers, disconnect, reconnect, remove, removeStale } =
+  const { rows, stale, refreshing, refresh, refreshMcpServers, enable, disconnect, reconnect, remove, removeStale } =
     useConnectedMcps(message);
 
   const confirmRemove = useCallback(
@@ -111,6 +111,7 @@ export function ConnectedPage() {
                 <ConnectedMcpRow
                   key={row.server.id}
                   row={row}
+                  onEnable={() => void enable(row.server)}
                   onReconnect={() => void reconnect(row.server)}
                   onDisconnect={() => disconnect(row.server.id)}
                   onRemove={() => confirmRemove(row.server.id, row.server.name)}

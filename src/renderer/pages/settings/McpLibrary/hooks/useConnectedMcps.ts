@@ -158,20 +158,32 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
   );
 
   // Disable = disable + tear the config out of every agent (no live socket to
-  // close; agents reconnect lazily). Reconnect = enable + re-probe. Remove =
-  // delete from config + agents.
+  // close; agents reconnect lazily). Remove = delete from config + agents.
   const disconnect = useCallback((serverId: string): void => void crud.handleToggleMcpServer(serverId, false), [crud]);
-  const reconnect = useCallback(
+  /**
+   * Publish the declaration, then probe the exact revision that publication
+   * committed. This is one operation the row exposes under two honest labels:
+   * `Enable` on a connector that is off, `Reconnect` on one that is on and not
+   * answering (#B4e — the row previously offered only `Reconnect`, on the very
+   * page a fresh concierge install lands on).
+   *
+   * `preserveEnabled` is what makes the label true: a probe that then fails no
+   * longer revokes the publication and writes `enabled: false`, so the state
+   * the user just asked for survives and the row shows why it is failing
+   * (#B4d). Reconnect is an explicit reconciliation action even when local
+   * truth remained enabled after an incomplete rollback, so it republishes
+   * first rather than probing possibly-stale truth.
+   */
+  const publishAndProbe = useCallback(
     async (server: IMcpServer) => {
-      // Reconnect is an explicit reconciliation action, even when local truth
-      // remained enabled after an incomplete rollback. Republish first, then
-      // probe only the exact revision returned by that publication commit.
       const publishedServer = await crud.handleToggleMcpServer(server.id, true);
       if (!publishedServer) return;
-      await conn.handleTestMcpConnection(publishedServer);
+      await conn.handleTestMcpConnection(publishedServer, { preserveEnabled: true });
     },
     [crud, conn]
   );
+  const enable = publishAndProbe;
+  const reconnect = publishAndProbe;
   const remove = useCallback((serverId: string): void => void crud.handleDeleteMcpServer(serverId), [crud]);
   const removeStale = useCallback(
     async (name: string) => {
@@ -181,5 +193,5 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     [removeMcpFromAgents, computeStale]
   );
 
-  return { rows, stale, refreshing, refresh, refreshMcpServers, disconnect, reconnect, remove, removeStale };
+  return { rows, stale, refreshing, refresh, refreshMcpServers, enable, disconnect, reconnect, remove, removeStale };
 }
