@@ -30,6 +30,7 @@ import path from 'path';
 import { logger } from '@office-ai/platform';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
+import { getBuiltinSkillsCopyDir } from '@process/utils/initStorage';
 import type { CronService } from './CronService';
 import { CRON_ROUTINE_KIND, type CronJob, type CronSchedule } from './CronStore';
 
@@ -171,6 +172,69 @@ export const ROUTINE_GENERATED_SENTENCES: readonly string[] = [
   ROUTINE_OUTPUT_DIR_SENTENCE,
   ROUTINE_NO_ATTACHMENT_SENTENCE,
 ];
+
+/**
+ * ONE path segment, or nothing.
+ *
+ * These names are joined onto `getBuiltinSkillsCopyDir()` and onto the bundled
+ * workflows directory to produce directories that are then COPIED into the
+ * user's task folder. `routines.json` and `index.json` are trusted app
+ * resources today, but `skills.import.folder` / `.git` / `.zip` are real local
+ * channels, so a future user-authored routine must not be able to walk out of
+ * the tree its name is joined onto.
+ */
+function isSingleSkillSegment(name: string): boolean {
+  if (!name || name.length > 64) return false;
+  if (name !== path.basename(name)) return false;
+  return /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) && !name.endsWith('.');
+}
+
+/**
+ * The skill directories a seeded routine's run needs INSIDE its workspace.
+ *
+ * The engine sandboxes on the workspace, so a skill that lives in the app's
+ * config directory is not merely inconvenient to reach - it is refused
+ * (`Glob refused: path ... is outside sandbox root`). Two things have to travel:
+ *
+ *  1. the WORKFLOW BODY (`bodies/<workflow>/`), which is the only place the run
+ *     instructions' steps exist at all; and
+ *  2. every skill the workflow DECLARES in its `metadata.depends`, because a
+ *     bundled skill like `market-open-report` is not in the `_builtin` auto set
+ *     and is otherwise placed only when the user has enabled or pinned it.
+ *
+ * Deliberately the declared set and nothing wider. The alternative - copying
+ * the whole builtin-skills tree - would put ~4.7M of unrelated skills, plus
+ * whatever the user has globally pinned, into `~/Documents` on a schedule,
+ * where on a machine with Desktop & Documents sync turned on it becomes a
+ * third-party upload.
+ */
+export async function resolveRoutineSkillDirs(routineId: string | undefined): Promise<string[]> {
+  if (!routineId) return [];
+  const dir = resolveBundledWorkflowsDir();
+  const routines = await loadBundledRoutines(dir);
+  const routine = routines?.find((r) => r?.id === routineId);
+  const workflow = routine?.workflow;
+  if (!workflow || !isSingleSkillSegment(workflow)) return [];
+
+  const out: string[] = [];
+  const bodyDir = path.join(dir, 'bodies', workflow);
+  if (existsSync(path.join(bodyDir, 'SKILL.md'))) out.push(bodyDir);
+
+  const entries = await readJson<Array<{ name?: string; metadata?: { depends?: string } }>>(
+    path.join(dir, 'index.json')
+  );
+  const declared = entries?.find((e) => e?.name === workflow)?.metadata?.depends ?? '';
+  const builtinRoot = getBuiltinSkillsCopyDir();
+  for (const name of declared.split(/[\s,]+/).filter(Boolean)) {
+    if (!isSingleSkillSegment(name)) {
+      logger.warn(`[BuiltinRoutines] Routine "${routineId}" declares an unusable skill name ${JSON.stringify(name)}`);
+      continue;
+    }
+    const candidate = path.join(builtinRoot, name);
+    if (existsSync(candidate)) out.push(candidate);
+  }
+  return out;
+}
 
 export function buildRoutinePrompt(routine: RoutineDef): string {
   const inputLines = routine.inputs

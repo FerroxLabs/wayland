@@ -27,6 +27,7 @@ import type { CronJob } from './CronStore';
 import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
+import { resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
 import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal';
 import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
@@ -543,6 +544,13 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // Pre-populate cachedConfigOptions so the frontend displays correct values immediately.
     const cachedConfigOptions = await this.buildCachedConfigOptions(config);
 
+    // The workflow body and the skills it DECLARES have to be inside the
+    // workspace: the engine sandboxes on it, so a skill in the app's config dir
+    // is refused rather than merely missing. Declared set only - see
+    // `resolveRoutineSkillDirs` for why the whole builtin tree is not copied.
+    const routineSkillDirs = await resolveRoutineSkillDirs(config.configOptions?.routineId);
+    const extraSkillPaths = [...(hasSkill ? [cronSkillDir] : []), ...routineSkillDirs];
+
     const params: CreateConversationParams = {
       type: agentType,
       name: convName,
@@ -556,12 +564,26 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         cronJobId: job.id,
         cronWorkspace: config.workspace || '',
         workspace: config.workspace || '',
+        // A durable task folder is app-created. Without this the workspace gets
+        // NO `.wayland-core/skills` at all and the run cannot reach its own
+        // scanner. Deliberately not `customWorkspace: false`, which is a
+        // persisted classification four other subsystems read as "temporary".
+        appCreatedWorkspace: true,
+        // SCOPE EVERY USER CONNECTOR OUT OF AN UNATTENDED RUN.
+        //
+        // A scheduled run is acquired with `{ yoloMode: true }` - blanket
+        // auto-approve, no human at the keyboard. `isServerActiveForSession`
+        // reads an ABSENT selection as "every enabled server", and server-level
+        // selection is all there is on this path: whatever survives reaches the
+        // engine with its FULL tool inventory (#998), mutating tools included.
+        // An empty array is the documented way to select none. A routine that
+        // genuinely needs a connector must name it, never inherit the lot.
+        activeMcpServers: [],
         ...(config.mode ? { sessionMode: config.mode } : {}),
         ...(config.modelId ? { currentModelId: config.modelId } : {}),
         ...(cachedConfigOptions ? { cachedConfigOptions } : {}),
-        ...(hasSkill
-          ? { extraSkillPaths: [cronSkillDir], excludeBuiltinSkills: ['cron'] }
-          : { excludeBuiltinSkills: ['cron'] }),
+        ...(extraSkillPaths.length > 0 ? { extraSkillPaths } : {}),
+        excludeBuiltinSkills: ['cron'],
       },
     };
 
