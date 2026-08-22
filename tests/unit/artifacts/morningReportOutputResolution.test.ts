@@ -177,6 +177,38 @@ describe('the bundled morning-report skill writes where the run can publish from
     expect(cdLine).toBeGreaterThan(outLine);
   });
 
+  it('quotes mastheads the shipped scripts actually emit', () => {
+    // A model told to look for a line that does not exist either floods the
+    // thread with a hunt or invents the date. Both mastheads the skill quotes
+    // are checked against the template in the shipped script that prints them.
+    const markdown = readFileSync(SKILL, 'utf-8');
+    const scanner = readFileSync(
+      path.join(REPO_ROOT, 'src/process/resources/skills/market-open-report/scripts/report.mjs'),
+      'utf-8'
+    );
+    const html = readFileSync(
+      path.join(REPO_ROOT, 'src/process/resources/skills/market-open-report/scripts/briefHtml.mjs'),
+      'utf-8'
+    );
+
+    expect(markdown).toContain('TC-TIDE MORNING REPORT   Tier 1   bar YYYY-MM-DD');
+    expect(scanner).toContain('TC-TIDE MORNING REPORT   Tier ${tier}   bar ${bar}');
+
+    // The HTML brief carries its own, differently worded header - and it is the
+    // one that states FRESHNESS, which is the whole reason the skill has to
+    // name it: a stale close reads exactly like a live quote.
+    expect(markdown).toContain('closes through');
+    expect(markdown).toContain('generated');
+    expect(html).toContain('closes through ');
+    expect(html).toContain(', generated ');
+
+    // KNOWN-POSITIVE CONTROL: these files are the real ones and the predicate
+    // bites - a masthead the scripts do NOT emit is not found.
+    expect(scanner).not.toContain('TC-TIDE EVENING REPORT');
+    expect(scanner.length).toBeGreaterThan(1000);
+    expect(html.length).toBeGreaterThan(1000);
+  });
+
   it('no longer reads WAYLAND_OUTPUT_DIR and has no $PWD fallback', () => {
     const block = scanCommandBlock();
     expect(block).not.toContain('WAYLAND_OUTPUT_DIR');

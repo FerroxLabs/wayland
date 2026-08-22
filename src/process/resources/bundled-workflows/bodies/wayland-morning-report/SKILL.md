@@ -176,11 +176,18 @@ the deliverables directory as an artifact card the user clicks.
 Your job is the message. Present the scanner's summary inline in the thread, and
 in the same message:
 
-1. **Quote the bar date, not today's date.** The masthead line reads
-   `TC-TIDE MORNING REPORT   Tier 1   bar YYYY-MM-DD`. Use that date. The
-   scanner has no market-calendar awareness, so a run on a Saturday, a holiday,
-   or before the previous session has settled will happily reprint the last
-   bar it has. If the bar date is not the previous trading day, say so.
+1. **Quote the bar date, not today's date, and say how fresh it is.** The
+   scanner's stdout masthead reads
+   `TC-TIDE MORNING REPORT   Tier 1   bar YYYY-MM-DD`, and the HTML brief's own
+   header reads `Morning brief <bar> · Tier N closes through <bar>, generated
+   <timestamp>`. Both name the same bar. Use it, and state it alongside the
+   generation time, because those two are routinely different days.
+
+   The scanner has no market-calendar awareness, so a run on a Saturday, a
+   holiday, or before the previous session has settled will happily reprint the
+   last bar it has, and a stale price reads exactly like a fresh one. If the bar
+   date is not the previous trading day, say so in the same sentence as the
+   number.
 2. **State the outcome from Step 3 in one plain sentence.** For a partial or
    empty run, lead with that sentence; do not bury it under the tables.
 3. **Describe entries and exits correctly.** They happen at the CLOSE of the
