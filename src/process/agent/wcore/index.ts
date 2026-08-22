@@ -301,8 +301,11 @@ export function describeToolCancellation(reason: string): { name: string; descri
   if (reason === CORE_APPROVAL_REAPED_REASON) {
     return {
       name: 'Approval timed out',
-      description:
-        'Wayland stopped waiting for your approval after 5 minutes. Nothing was read or changed. Ask again to retry.',
+      // Length is load-bearing: the tool row is `name: description` on ONE
+      // nowrap line with an ellipsis. Measured live in the running app at the
+      // real font (13.5px Sora): the row had 726px, this whole line renders at
+      // 648px, and the first draft at 874px was visibly cut off mid-word.
+      description: 'Wayland waited 5 minutes for your approval. Nothing was read or changed.',
     };
   }
   return { name: '', description: reason };
