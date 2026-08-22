@@ -562,6 +562,18 @@
     "update": "更新",
     "rejected": "{{count}} 件のファイルは成果物として保存されませんでした: {{detail}}。",
     "rejected_other": "{{count}} 件のファイルは成果物として保存されませんでした: {{detail}}。",
-    "unknownError": "うまくいきませんでした。ファイルが移動された可能性があります。"
+    "unknownError": "うまくいきませんでした。ファイルが移動された可能性があります。",
+    "rejectedOutsideFolder": "{{count}} 件はこのチャットのフォルダーの外に保存されました",
+    "rejectedOutsideFolder_other": "{{count}} 件はこのチャットのフォルダーの外に保存されました",
+    "rejectedNotAFile": "{{count}} 件は通常のファイルではありませんでした",
+    "rejectedNotAFile_other": "{{count}} 件は通常のファイルではありませんでした",
+    "rejectedTooBig": "{{count}} 件は大きすぎて保存できませんでした",
+    "rejectedTooBig_other": "{{count}} 件は大きすぎて保存できませんでした",
+    "rejectedTooMany": "{{count}} 件はこのターンの上限を超えました",
+    "rejectedTooMany_other": "{{count}} 件はこのターンの上限を超えました",
+    "rejectedUnreadable": "{{count}} 件は読み取れませんでした",
+    "rejectedUnreadable_other": "{{count}} 件は読み取れませんでした",
+    "more": "ほか {{count}} 件は成果物にあります",
+    "more_other": "ほか {{count}} 件は成果物にあります"
   }
 }

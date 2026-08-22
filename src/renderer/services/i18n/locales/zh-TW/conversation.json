@@ -562,6 +562,18 @@
     "update": "更新",
     "rejected": "有 {{count}} 個檔案未儲存為交付物：{{detail}}。",
     "rejected_other": "有 {{count}} 個檔案未儲存為交付物：{{detail}}。",
-    "unknownError": "操作未成功。該檔案可能已被移動。"
+    "unknownError": "操作未成功。該檔案可能已被移動。",
+    "rejectedOutsideFolder": "{{count}} 個儲存在此對話的資料夾之外",
+    "rejectedOutsideFolder_other": "{{count}} 個儲存在此對話的資料夾之外",
+    "rejectedNotAFile": "{{count}} 個不是一般檔案",
+    "rejectedNotAFile_other": "{{count}} 個不是一般檔案",
+    "rejectedTooBig": "{{count}} 個太大，無法儲存",
+    "rejectedTooBig_other": "{{count}} 個太大，無法儲存",
+    "rejectedTooMany": "{{count}} 個超出本輪上限",
+    "rejectedTooMany_other": "{{count}} 個超出本輪上限",
+    "rejectedUnreadable": "{{count}} 個無法讀取",
+    "rejectedUnreadable_other": "{{count}} 個無法讀取",
+    "more": "另有 {{count}} 個在「交付物」中",
+    "more_other": "另有 {{count}} 個在「交付物」中"
   }
 }

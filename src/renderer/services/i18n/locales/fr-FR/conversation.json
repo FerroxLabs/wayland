@@ -562,6 +562,18 @@
     "update": "Mettre à jour",
     "rejected": "{{count}} fichier n'a pas été enregistré comme livrable : {{detail}}.",
     "rejected_other": "{{count}} fichiers n'ont pas été enregistrés comme livrables : {{detail}}.",
-    "unknownError": "Cela n'a pas fonctionné. Le fichier a peut-être été déplacé."
+    "unknownError": "Cela n'a pas fonctionné. Le fichier a peut-être été déplacé.",
+    "rejectedOutsideFolder": "{{count}} enregistré hors du dossier de cette discussion",
+    "rejectedOutsideFolder_other": "{{count}} enregistrés hors du dossier de cette discussion",
+    "rejectedNotAFile": "{{count}} n'était pas un fichier ordinaire",
+    "rejectedNotAFile_other": "{{count}} n'étaient pas des fichiers ordinaires",
+    "rejectedTooBig": "{{count}} était trop volumineux pour être enregistré",
+    "rejectedTooBig_other": "{{count}} étaient trop volumineux pour être enregistrés",
+    "rejectedTooMany": "{{count}} au-delà de la limite de ce tour",
+    "rejectedTooMany_other": "{{count}} au-delà de la limite de ce tour",
+    "rejectedUnreadable": "{{count}} n'a pas pu être lu",
+    "rejectedUnreadable_other": "{{count}} n'ont pas pu être lus",
+    "more": "et {{count}} de plus dans Artefacts",
+    "more_other": "et {{count}} de plus dans Artefacts"
   }
 }

@@ -681,6 +681,18 @@
     "update": "Update",
     "rejected": "{{count}} file was not saved as a deliverable: {{detail}}.",
     "rejected_other": "{{count}} files were not saved as deliverables: {{detail}}.",
-    "unknownError": "That did not work. The file may have moved."
+    "unknownError": "That did not work. The file may have moved.",
+    "rejectedOutsideFolder": "{{count}} saved outside this chat's folder",
+    "rejectedOutsideFolder_other": "{{count}} saved outside this chat's folder",
+    "rejectedNotAFile": "{{count}} was not a regular file",
+    "rejectedNotAFile_other": "{{count}} were not regular files",
+    "rejectedTooBig": "{{count}} was too large to save",
+    "rejectedTooBig_other": "{{count}} were too large to save",
+    "rejectedTooMany": "{{count}} over this turn's limit",
+    "rejectedTooMany_other": "{{count}} over this turn's limit",
+    "rejectedUnreadable": "{{count}} could not be read",
+    "rejectedUnreadable_other": "{{count}} could not be read",
+    "more": "and {{count}} more in Artifacts",
+    "more_other": "and {{count}} more in Artifacts"
   }
 }
