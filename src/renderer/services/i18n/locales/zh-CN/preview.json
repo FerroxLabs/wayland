@@ -151,5 +151,18 @@
   "artifactStatusMissing": "已丢失",
   "artifactMissingReason": "该文件已不在磁盘上。它可能已在 Wayland 之外被移动或删除。",
   "artifactEmptyReason": "该文件在磁盘上，但内容为空。",
-  "artifactOpenHere": "在此打开"
+  "artifactOpenHere": "在此打开",
+  "artifactChanged": "自 Wayland 记录以来，此文件在磁盘上已发生更改。",
+  "artifactChangedSeries": "这是一次已发布的运行，因此 Wayland 会原样保留它生成时的内容。",
+  "artifactUpdate": "更新",
+  "artifactUpdated": "已更新。Wayland 已按文件当前的样子完成记录。",
+  "artifactUpdateFailed": "无法更新此交付物：{{error}}",
+  "artifactForget": "从列表中移除",
+  "artifactForgetHint": "将此行从列表中移除。不会删除你的文件。",
+  "artifactForgetTitle": "要从列表中移除它吗？",
+  "artifactForgetMessage": "这只会移除该行。文件仍会原样留在磁盘上，如果再次保存，该行会重新出现。",
+  "artifactForgetConfirm": "从列表中移除",
+  "artifactForgetFailed": "无法从列表中移除它：{{error}}",
+  "artifactForgotten": "已从列表中移除。你的文件未受影响。",
+  "artifactsRailTruncated": "正在显示最新的 {{shown}} 个交付物。更早的未列出。"
 }

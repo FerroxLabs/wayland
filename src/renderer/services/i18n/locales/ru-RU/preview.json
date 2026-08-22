@@ -151,5 +151,18 @@
   "artifactStatusMissing": "Отсутствует",
   "artifactMissingReason": "Этого файла больше нет на диске. Возможно, он был перемещён или удалён вне Wayland.",
   "artifactEmptyReason": "Файл есть на диске, но он пустой.",
-  "artifactOpenHere": "Открыть здесь"
+  "artifactOpenHere": "Открыть здесь",
+  "artifactChanged": "Этот файл изменился на диске с тех пор, как Wayland его записал.",
+  "artifactChangedSeries": "Это опубликованный запуск, поэтому Wayland сохраняет его точно таким, каким он был создан.",
+  "artifactUpdate": "Обновить",
+  "artifactUpdated": "Обновлено. Wayland записал файл в его текущем виде.",
+  "artifactUpdateFailed": "Не удалось обновить этот результат: {{error}}",
+  "artifactForget": "Убрать из списка",
+  "artifactForgetHint": "Убирает эту строку из списка. Ваш файл не удаляется.",
+  "artifactForgetTitle": "Убрать это из списка?",
+  "artifactForgetMessage": "Убирается только строка. Файл остаётся точно там же на диске, и строка вернётся, если он будет сохранён снова.",
+  "artifactForgetConfirm": "Убрать из списка",
+  "artifactForgetFailed": "Не удалось убрать это из списка: {{error}}",
+  "artifactForgotten": "Убрано из списка. Ваш файл не тронут.",
+  "artifactsRailTruncated": "Показаны {{shown}} самых новых результатов. Более старые не перечислены."
 }

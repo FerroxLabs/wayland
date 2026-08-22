@@ -151,5 +151,18 @@
   "artifactStatusMissing": "Fehlt",
   "artifactMissingReason": "Diese Datei liegt nicht mehr auf der Festplatte. Sie wurde möglicherweise außerhalb von Wayland verschoben oder gelöscht.",
   "artifactEmptyReason": "Diese Datei liegt auf der Festplatte, ist aber leer.",
-  "artifactOpenHere": "Hier öffnen"
+  "artifactOpenHere": "Hier öffnen",
+  "artifactChanged": "Diese Datei hat sich auf der Festplatte geändert, seit Wayland sie erfasst hat.",
+  "artifactChangedSeries": "Dies ist ein veröffentlichter Lauf, daher bewahrt Wayland ihn genau so auf, wie er erzeugt wurde.",
+  "artifactUpdate": "Aktualisieren",
+  "artifactUpdated": "Aktualisiert. Wayland hat die Datei in ihrem jetzigen Zustand erfasst.",
+  "artifactUpdateFailed": "Dieses Ergebnis konnte nicht aktualisiert werden: {{error}}",
+  "artifactForget": "Aus der Liste entfernen",
+  "artifactForgetHint": "Entfernt diesen Eintrag aus der Liste. Ihre Datei wird nicht gelöscht.",
+  "artifactForgetTitle": "Diesen Eintrag aus der Liste entfernen?",
+  "artifactForgetMessage": "Dies entfernt nur den Eintrag. Die Datei bleibt genau dort, wo sie ist, und der Eintrag kehrt zurück, wenn sie erneut gespeichert wird.",
+  "artifactForgetConfirm": "Aus der Liste entfernen",
+  "artifactForgetFailed": "Der Eintrag konnte nicht aus der Liste entfernt werden: {{error}}",
+  "artifactForgotten": "Aus der Liste entfernt. Ihre Datei ist unverändert.",
+  "artifactsRailTruncated": "Es werden die neuesten {{shown}} Ergebnisse angezeigt. Ältere sind nicht aufgeführt."
 }
