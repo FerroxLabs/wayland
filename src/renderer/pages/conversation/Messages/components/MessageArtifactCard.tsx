@@ -214,9 +214,18 @@ interface ArtifactRowProps {
   withPreview: boolean;
   /** Rows after the first are separated by a rule rather than by a gap. */
   divided: boolean;
+  /**
+   * THE ACCENT BELONGS TO THE CARD, NOT TO THE ROW.
+   *
+   * Found by looking at a three-deliverable card in the running app: with the
+   * accent on every row it drew THREE orange buttons and the hierarchy this
+   * whole redesign exists to restore was gone again. The newest deliverable
+   * owns the one filled button; the rows under it are entirely secondary.
+   */
+  accent: boolean;
 }
 
-const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact, withPreview, divided }) => {
+const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact, withPreview, divided, accent }) => {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [applicationName, setApplicationName] = useState<string | null>(null);
@@ -501,7 +510,7 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact, withPreview, divide
         {changed && (
           <button
             type='button'
-            className={primaryButtonClass}
+            className={accent ? primaryButtonClass : secondaryButtonClass}
             disabled={busy}
             onClick={() => void update()}
             data-testid='artifact-card-update'
@@ -512,7 +521,7 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact, withPreview, divide
         )}
         <button
           type='button'
-          className={changed ? secondaryButtonClass : primaryButtonClass}
+          className={accent && !changed ? primaryButtonClass : secondaryButtonClass}
           disabled={busy}
           onClick={() => void openHere()}
           data-testid='artifact-card-open-here'
@@ -530,15 +539,25 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact, withPreview, divide
           <ExternalLink className='size-14px' />
           {externalLabel}
         </button>
+        {/*
+          ICON ONLY, exactly as the mockup draws it, and it is a WIDTH decision
+          measured in the running app rather than a taste one. The shell is
+          520px and these labels are long ("Open in Hearth app" alone is
+          ~185px); with four full labels the strip wrapped onto a second line
+          and the footer stopped reading as one band. The folder glyph is the
+          most self-evident of the four, so it is the one that loses its text -
+          and it keeps the label as its tooltip and its accessible name.
+        */}
         <button
           type='button'
-          className={secondaryButtonClass}
+          className={`${secondaryButtonClass} px-9px`}
           disabled={busy}
           onClick={() => void reveal()}
+          title={t('conversation.artifactCard.reveal')}
+          aria-label={t('conversation.artifactCard.reveal')}
           data-testid='artifact-card-reveal'
         >
           <FolderOpen className='size-14px' />
-          {t('conversation.artifactCard.reveal')}
         </button>
         <button
           type='button'
@@ -586,7 +605,13 @@ const MessageArtifactCard: React.FC<{ message: IMessageArtifactCard }> = ({ mess
 
   return (
     <div
-      className='my-6px max-w-520px of-hidden rd-14px b-1px b-solid b-[var(--border-base)] bg-1'
+      // `!` IS LOAD-BEARING AND WAS FOUND BY MEASURING THE RUNNING APP. The
+      // message bubble that hosts this card carries `[&>div]:max-w-full`, whose
+      // generated `.…max-w-full > div` selector outranks a plain utility - so the
+      // card rendered 578px wide instead of the 520px the design specifies, as a
+      // full-bleed block rather than an object. getComputedStyle said maxWidth
+      // 100%; the class was present and generated the whole time.
+      className='my-6px !max-w-520px of-hidden rd-14px b-1px b-solid b-[var(--border-base)] bg-1'
       data-testid='artifact-card'
     >
       {shown.map((artifact, position) => (
@@ -595,6 +620,7 @@ const MessageArtifactCard: React.FC<{ message: IMessageArtifactCard }> = ({ mess
           artifact={artifact}
           withPreview={position === 0}
           divided={position > 0}
+          accent={position === 0}
         />
       ))}
 

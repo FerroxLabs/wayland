@@ -471,6 +471,28 @@ describe('T5 - the card in the conversation', () => {
       expect(screen.queryByTestId('artifact-card-changed')).toBeNull();
     });
 
+    /**
+     * EXACTLY ONE PER CARD, NOT PER ROW - which is a defect found by looking at
+     * a three-deliverable card in the running app rather than at this file. The
+     * accent was on every row's primary, so a card with three deliverables drew
+     * three orange buttons and the hierarchy was gone again.
+     */
+    it('fills exactly one button with the accent even on a card of many deliverables', async () => {
+      const message = await produceCard({ 'a.md': '# a\n', 'b.md': '# b\n', 'c.md': '# c\n' });
+
+      const { container } = render(<MessageArtifactCard message={message} />);
+      await waitFor(() => expect(ipcMock.preview).toHaveBeenCalled());
+
+      expect(screen.getAllByTestId('artifact-card-row').length).toBe(3);
+      const accented = [...container.querySelectorAll('button')].filter((button) =>
+        button.className.split(/\s+/).includes('bg-brand')
+      );
+      expect(accented.length).toBe(1);
+      // ...and it belongs to the NEWEST deliverable, the one with the band.
+      const firstRow = screen.getAllByTestId('artifact-card-row')[0];
+      expect(firstRow.contains(accented[0])).toBe(true);
+    });
+
     /** EXACTLY ONE. Four equal-weight controls is the thing being fixed. */
     it('fills exactly one button with the accent', async () => {
       const message = await produceCard({ 'summary.md': '# x\n' });
