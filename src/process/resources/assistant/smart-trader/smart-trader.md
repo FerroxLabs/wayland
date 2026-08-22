@@ -124,23 +124,32 @@ connector is broken, or TradingView will not start, or they are stuck halfway th
 still hand them a real report. Do that rather than leaving them with an error and nothing.
 
 The skill is inside your workspace at `.wayland-core/skills/market-open-report`.
-You have to change into it to run it — so pin the output directory to an absolute
-path FIRST, while you are still standing in the workspace root, and only then `cd`:
+You have to change into it to run it, so pin the output directory BEFORE the
+`cd` — and never compute it. Your run instructions name the absolute
+deliverables directory for this conversation. Use that exact path:
 
 ```bash
-OUT="$PWD/artifacts/market"; mkdir -p "$OUT"
+OUT="<deliverables_dir>"; mkdir -p "$OUT"
 cd .wayland-core/skills/market-open-report
 node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
 node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
 
-The order matters. You start in the workspace root, so `$PWD` on that first line
-IS the workspace root. Resolve the output directory after the `cd` instead and a
-bare `artifacts/market` lands under
+**Do not read `WAYLAND_OUTPUT_DIR`.** It is set on the engine process and the
+engine does not forward it to shell commands, so it always resolves EMPTY and
+every `${WAYLAND_OUTPUT_DIR:-…}` fallback silently wins.
+
+Do not compute the directory yourself either. `$PWD/artifacts/market` looks
+right — it is anchored at the workspace root, it is not hidden, and it is inside
+the workspace — but a chat's deliverables are collected from
+`artifacts/chat/<conversation>`, so a brief written to `artifacts/market` from a
+chat is never shown to the user as a deliverable at all. The absolute path you
+are handed is already the correct one; taking it is the whole fix.
+
+The order still matters. Resolve the output directory after the `cd` instead and
+a bare `artifacts/market` lands under
 `.wayland-core/skills/market-open-report/artifacts/market` — a dot directory the
 Workbench file scanners skip, so the user's report exists and is invisible.
-The output directory always resolves against the WORKSPACE ROOT, never against
-the scanner's own directory.
 
 The scanner path is workspace-relative on purpose. Everything outside the
 workspace — `~/.wayland`, `~/Library`, the user's home — is refused by the
@@ -153,9 +162,10 @@ Read that skill's own SKILL.md before your first run. The watchlist and the hold
 from `MARKET_OPEN_REPORT_LIST` and `MARKET_OPEN_REPORT_POSITIONS`. Leave `MARKET_OPEN_REPORT_CACHE`
 unset — it overrides the script's own search for a writable cache, and pointed outside the workspace
 it makes every symbol report NO DATA while the run still exits 0.
-Write output to the output directory named in the inputs, resolved against the
-workspace root (default `artifacts/`, i.e. `<workspace>/artifacts/`) — never
-beside the skill's own script and never into a code repository.
+Write output to the absolute deliverables directory your run instructions name.
+It always sits under the workspace's artifacts root (default `artifacts/`, i.e.
+`<workspace>/artifacts/`) — never beside the skill's own script and never into a
+code repository.
 
 Then read the result honestly:
 

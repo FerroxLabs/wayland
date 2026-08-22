@@ -898,20 +898,6 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
   }
 
   /**
-   * Build the message text for a cron job execution.
-   *
-   * - Has dedicated skill: remind the agent to follow its workspace skill instructions.
-   * - No dedicated skill: inject full execution context with SKILL_SUGGEST guidance.
-   * - existing mode: return raw payload (conversation history provides context).
-   */
-  /**
-   * Build the message text for a cron job execution.
-   *
-   * @param job - The cron job to build the message for.
-   * @param includeSkillSuggest - Whether to include SKILL_SUGGEST.md writing instructions.
-   *   Pre-computed by the caller so the same condition drives both prompt and detection.
-   */
-  /**
    * Defeat an output-directory instruction already baked into the job row.
    *
    * `cron_jobs.prompt` is written at SEED time and never rewritten for a job the
@@ -933,6 +919,20 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     return `${messageText}\n\n${RUN_OUTPUT_DIR_CORRECTION}`;
   }
 
+  /**
+   * Build the message text for a cron job execution.
+   *
+   * - Has dedicated skill: remind the agent to follow its workspace skill instructions.
+   * - No dedicated skill: inject full execution context with SKILL_SUGGEST guidance.
+   * - existing mode: return raw payload (conversation history provides context).
+   */
+  /**
+   * Build the message text for a cron job execution.
+   *
+   * @param job - The cron job to build the message for.
+   * @param includeSkillSuggest - Whether to include SKILL_SUGGEST.md writing instructions.
+   *   Pre-computed by the caller so the same condition drives both prompt and detection.
+   */
   private buildMessageText(job: CronJob, hasSkill: boolean, inlineSkillSuggest: boolean): string {
     const rawText = job.target.payload.text;
 

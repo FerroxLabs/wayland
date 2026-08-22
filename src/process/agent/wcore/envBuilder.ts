@@ -976,13 +976,6 @@ export const AWS_AUTHORITY_ENV_KEYS = [
  *     override the resolved profile dir.
  */
 /**
- * The run's staging directory when one is open and genuinely inside the
- * workspace, otherwise the series root. Containment is re-checked HERE rather
- * than trusted from the caller: this value becomes a host-blessed write
- * destination handed to model-authored skill text, so the one place it is
- * produced is the right place to prove it cannot point out of the sandbox.
- */
-/**
  * The physical path this spelling names, for a path that may not exist yet.
  *
  * `realpathSync` throws on a missing leaf, and this is called BEFORE a run's
@@ -1007,6 +1000,13 @@ function canonicalizePath(target: string): string {
   }
 }
 
+/**
+ * The run's staging directory when one is open and genuinely inside the
+ * workspace, otherwise the series root. Containment is re-checked HERE rather
+ * than trusted from the caller: this value becomes a host-blessed write
+ * destination handed to model-authored skill text, so the one place it is
+ * produced is the right place to prove it cannot point out of the sandbox.
+ */
 export function resolveOutputDir(workspace: string, outputDir?: string, conversationId?: string): string {
   const seriesRoot = path.join(workspace, 'artifacts');
   if (outputDir) {
