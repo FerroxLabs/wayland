@@ -28,6 +28,7 @@ import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
 import { resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
+import { resolveRoutineConnectorIds } from './routineConnectors';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
 import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
 import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
@@ -645,6 +646,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     const routineSkillDirs = await resolveRoutineSkillDirs(config.configOptions?.routineId);
     const extraSkillPaths = [...(hasSkill ? [cronSkillDir] : []), ...routineSkillDirs];
 
+    // The connectors THIS routine named, resolved against what is installed.
+    // `[]` for a user cron, an undeclared routine, and any declaration that
+    // resolves to nothing - so the fail-closed default is unchanged for every
+    // job that does not opt in. See `routineConnectors.ts`.
+    const routineConnectorIds = await resolveRoutineConnectorIds(config.configOptions?.routineId);
+
     const params: CreateConversationParams = {
       type: agentType,
       name: convName,
@@ -671,8 +678,13 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // selection is all there is on this path: whatever survives reaches the
         // engine with its FULL tool inventory (#998), mutating tools included.
         // An empty array is the documented way to select none. A routine that
-        // genuinely needs a connector must name it, never inherit the lot.
-        activeMcpServers: [],
+        // genuinely needs a connector must name it, never inherit the lot -
+        // `resolveRoutineConnectorIds` reads that declaration and returns `[]`
+        // for everything that did not opt in, so the default is unchanged.
+        //
+        // A named connector arrives with its WHOLE tool inventory: per-tool
+        // narrowing is not reachable on this path (see `routineConnectors.ts`).
+        activeMcpServers: routineConnectorIds,
         ...(config.mode ? { sessionMode: config.mode } : {}),
         ...(config.modelId ? { currentModelId: config.modelId } : {}),
         ...(cachedConfigOptions ? { cachedConfigOptions } : {}),

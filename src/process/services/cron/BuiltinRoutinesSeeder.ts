@@ -35,7 +35,7 @@ import type { CronService } from './CronService';
 import { CRON_ROUTINE_KIND, type CronJob, type CronSchedule } from './CronStore';
 
 /** Backend used for seeded routines. wcore is the bundled Wayland Core engine, always present. */
-const ROUTINE_BACKEND: AgentBackend = 'wcore';
+export const ROUTINE_BACKEND: AgentBackend = 'wcore';
 
 /**
  * Tag written into agentConfig.configOptions so routine crons are identifiable.
@@ -52,6 +52,14 @@ export type RoutineDef = {
   timezone?: string;
   workflow: string;
   inputs?: Record<string, string>;
+  /**
+   * MCP Library entry names (`com.ferroxlabs/tvcontrol`) this routine's
+   * unattended runs may use. ABSENT means none, which is the default and the
+   * fail-closed posture: a scheduled run inherits no connector. See
+   * `routineConnectors.ts` for the grant rule and for why the grant is
+   * server-level rather than per-tool.
+   */
+  connectors?: string[];
 };
 
 /**

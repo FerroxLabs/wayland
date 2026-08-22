@@ -154,10 +154,19 @@ looks fine. Check both signals:
    stdout. A partial failure still exits zero, so the count is the only way to
    see it.
 
+3. **A `REFUSED` block in the scanner's stdout.** This one outranks the other
+   two. It means the price source could not be reached AT ALL from this run —
+   nothing was asked and nothing answered — and it names the cause. That is a
+   different fact from "no data", which means the source answered and had
+   nothing. Never report a refusal as a quiet market.
+
 Classify the run as exactly one of:
 
 - **Complete** — no `NO DATA` line, and the names-scanned count is non-zero.
 - **Partial** — some symbols under `NO DATA`. Say how many out of how many.
+- **Refused** — the stdout carries a `REFUSED` block. Lead with it, and quote
+  the cause line verbatim. Do not retry: a scheduled run has no network of its
+  own, so a second attempt fails identically.
 - **Empty** — non-zero exit, or "0 names scanned", or every symbol under
   `NO DATA`. The report is not usable. Say that first, before anything else.
 

@@ -45,6 +45,95 @@ import { join } from 'node:path';
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)';
 
+/* ===========================================================================
+ * B10 — SLOW UNREACHABILITY WAS A HANG, NOT A REFUSAL.  ADDED, NOT PORTED.
+ * ===========================================================================
+ * A scheduled run's shell has NO NETWORK. Measured on the pinned v0.13.4
+ * engine, from inside the agent's own sandbox:
+ *
+ *     curl: (6) Could not resolve host: query1.finance.yahoo.com
+ *     (the identical curl on the host: http=429  <- known-positive control)
+ *
+ * The reported mechanism was `AbortSignal.timeout(60000)` per symbol, i.e.
+ * "74 symbols ~= 74 minutes". THAT IS NOT WHAT HAPPENS. A refused DNS lookup
+ * fails in milliseconds; the deadline below is never reached. What costs the
+ * time is the backoff on line ~137, which sleeps 2s + 4s + 6s per symbol even
+ * on the last attempt. Measured, through this exact function, inside the
+ * sandbox: 12,159 ms for ONE symbol, and 96,211 ms for the real 8-symbol
+ * `marketOverview.read()` sweep. The morning routine fetches 74 watchlist
+ * names + 8 index tiles = 82, so ~16.4 minutes — and the agent's 10-minute
+ * no-progress watchdog kills the turn at roughly symbol 49. The user saw two
+ * 0-byte files and "The agent stopped making progress", with no named cause.
+ *
+ * THE FIX IS A LATCH, NOT A SHORTER TIMEOUT. Once N symbols in a row have
+ * exhausted every attempt with a NETWORK-class error, the source is not
+ * reachable from this process and the remaining 80 lookups cannot change that.
+ * The latch records WHY and every later call returns immediately, so the sweep
+ * ends in ~24s with a named refusal the run can print instead of dying silently.
+ *
+ * NETWORK-CLASS ONLY, and that distinction is load-bearing. An HTTP 404 (an
+ * unknown ticker) or an HTTP 429 (rate limiting) is NOT the network: the
+ * existing fast honest-empty path — three bogus symbols, "NO DATA (3)", no
+ * fabricated price — must keep working exactly as it does, and it does, because
+ * `HTTP 404` never sets a network cause and never advances the latch.
+ *
+ * THE CACHE STILL WINS. The latch is checked AFTER the cache read, so a symbol
+ * whose bars are already on disk is still served offline. A partly-warm cache
+ * therefore still produces a partial report rather than a blanket refusal.
+ */
+
+/** Error codes that mean "this process cannot reach the network", not "the server said no". */
+const NETWORK_ERROR_CODES = new Set([
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'EHOSTUNREACH',
+  'ENETUNREACH',
+  'ENETDOWN',
+  'EPIPE',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_SOCKET',
+  'UND_ERR_HEADERS_TIMEOUT',
+]);
+
+/**
+ * Consecutive fully-exhausted symbols before the source is declared
+ * unreachable. TWO, not one: a single symbol can fail transiently on a working
+ * network, and poisoning a whole run on one bad lookup would be a worse defect
+ * than the one this fixes. Two costs ~24s and is a strong signal.
+ */
+export const OFFLINE_TRIP_THRESHOLD = 2;
+
+let refusal = null;
+let consecutiveNetworkFailures = 0;
+
+/**
+ * The named refusal, or null. `{ reason, code, detail, symbol, attempts }`.
+ * Callers print this INSTEAD of "no data" so the user learns what actually
+ * happened. `reason` is a stable machine token; `detail` is the platform's own
+ * error text.
+ */
+export function dataSourceRefusal() {
+  return refusal;
+}
+
+/** Clear the latch. For tests and for a caller that has restored connectivity. */
+export function resetDataSourceRefusal() {
+  refusal = null;
+  consecutiveNetworkFailures = 0;
+}
+
+/** The network-class error code behind `err`, or null when it is not one. */
+export function networkErrorCode(err) {
+  for (let e = err, hops = 0; e && hops < 5; e = e.cause, hops++) {
+    const code = e && typeof e.code === 'string' ? e.code : null;
+    if (code && NETWORK_ERROR_CODES.has(code)) return code;
+    if (e && e.name === 'TimeoutError') return 'FETCH_DEADLINE';
+  }
+  return null;
+}
+
 /**
  * Port of `_epoch(datestr)`.
  *
@@ -110,9 +199,20 @@ export async function yahooDaily(symbol, start = '20090101', end = '20260805', r
     // json.load throws on a corrupt cache file in Python; JSON.parse throws too.
     return JSON.parse(readFileSync(p, 'utf8'));
   }
+  // ADDED (B10). After the cache, before the network: a latched refusal means
+  // the remaining symbols cannot be fetched, so return now rather than burning
+  // 12s each until the run's watchdog kills the turn with no named cause.
+  if (refusal !== null) {
+    return [];
+  }
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}` +
     `?period1=${_epoch(start)}&period2=${_epoch(end)}&interval=1d&events=split`;
   let raw = null;
+  // ADDED (B10). Counted so a symbol that failed on the NETWORK can be told
+  // from one the server answered with a 404 or a 429.
+  let networkFailures = 0;
+  let lastNetworkCode = null;
+  let lastNetworkDetail = '';
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       const r = await fetch(url, {
@@ -126,7 +226,15 @@ export async function yahooDaily(symbol, start = '20090101', end = '20260805', r
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       raw = JSON.parse(await r.text());
       break;
-    } catch {
+    } catch (err) {
+      // ADDED (B10). Classify before backing off. `catch {}` became
+      // `catch (err)`; nothing else in this block changed.
+      const code = networkErrorCode(err);
+      if (code) {
+        networkFailures += 1;
+        lastNetworkCode = code;
+        lastNetworkDetail = err && err.cause && err.cause.message ? String(err.cause.message) : String(err);
+      }
       // Yahoo rate limits under a sweep. Back off rather than silently
       // dropping the symbol, which is the exact bug the 472 handling in
       // signal_engine was written to avoid.
@@ -138,8 +246,28 @@ export async function yahooDaily(symbol, start = '20090101', end = '20260805', r
     }
   }
   if (raw === null) {
+    // ADDED (B10). Every attempt failed on the network => one more consecutive
+    // unreachable symbol. Anything else (HTTP 404 / 429 / a parse failure) is
+    // the server answering, so it RESETS the run rather than advancing it.
+    if (networkFailures === retries) {
+      consecutiveNetworkFailures += 1;
+      if (consecutiveNetworkFailures >= OFFLINE_TRIP_THRESHOLD && refusal === null) {
+        refusal = {
+          reason: 'price-source-unreachable',
+          code: lastNetworkCode,
+          detail: lastNetworkDetail,
+          symbol,
+          attempts: retries,
+          consecutiveSymbols: consecutiveNetworkFailures,
+        };
+      }
+    } else {
+      consecutiveNetworkFailures = 0;
+    }
     return [];
   }
+  // ADDED (B10). A symbol that answered proves the source is reachable.
+  consecutiveNetworkFailures = 0;
   let res, ts, q;
   try {
     // Python catches (KeyError, TypeError, IndexError) here and returns [].

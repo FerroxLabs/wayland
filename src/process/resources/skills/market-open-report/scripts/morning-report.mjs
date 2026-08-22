@@ -96,6 +96,7 @@
 import { basename } from 'node:path';
 
 import { DEFAULT_CACHE_DIR, DEFAULT_LIST, DEFAULT_POSITIONS, main, writeJson } from './report.mjs';
+import { dataSourceRefusal } from './yahooData.mjs';
 
 const PROG = basename(process.argv[1] || 'morning-report.mjs');
 
@@ -210,6 +211,38 @@ async function cli() {
   if (r.jsonout) {
     writeJson(r.jsonout, r.payload);
     process.stdout.write('\n' + 'wrote' + ' ' + r.jsonout + '\n'); // print('\nwrote', ...)
+  }
+
+  // ADDED (B10). A NAMED REFUSAL, NOT A HANG.
+  //
+  // Before this, a run with no network burned ~12s per symbol (measured:
+  // 12,159 ms for one, 96,211 ms for the real 8-symbol overview sweep) until
+  // the agent's 10-minute no-progress watchdog killed the turn. The user got
+  // two 0-byte files and "The agent stopped making progress" — no cause named
+  // anywhere. `yahooData.mjs` now latches after two consecutive symbols
+  // exhaust every attempt on a NETWORK-class error, so the sweep ends in ~24s
+  // and this prints WHY.
+  //
+  // On STDOUT as well as STDERR on purpose: the workflow body tells the run to
+  // read the scanner's stdout and its exit code, and stdout is what actually
+  // reaches the thread.
+  const refusal = dataSourceRefusal();
+  if (refusal) {
+    const lines = [
+      '',
+      `${PROG}: REFUSED — the price source was unreachable from this run.`,
+      `  cause:   ${refusal.detail || refusal.code} (${refusal.code})`,
+      `  refused: after ${refusal.attempts} attempts on each of ` +
+        `${refusal.consecutiveSymbols} consecutive symbols, first at ${refusal.symbol}`,
+      '  effect:  every symbol not already cached was SKIPPED, not fetched and not answered.',
+      '  This is NOT "no data" and it is NOT a quiet market: nothing was asked and',
+      '  nothing answered. A scheduled run has no network, so a routine that needs',
+      '  live prices needs a connector granted to it, not a retry.',
+      '',
+    ];
+    process.stdout.write(lines.join('\n'));
+    process.stderr.write(lines.join('\n'));
+    process.exitCode = 1;
   }
 
   // ADDED (see header). Everything above this line is the Python's behaviour.
