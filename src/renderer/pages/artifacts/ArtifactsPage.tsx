@@ -23,12 +23,20 @@
  *    click, so a stale or mismatched row cannot make the host act on a file of
  *    the renderer's choosing.
  *
- * DELETE IS DELIBERATELY ABSENT. The ledger is append-only with no tombstone,
- * so a "remove from list" verb is a change to a security-audited store, not a
- * button. The accepted consequence is that a Missing row cannot be dismissed.
+ * REMOVE FROM LIST IS NOT DELETE. The ledger gained an append-only TOMBSTONE,
+ * so a row can now be dismissed - and that is all it does. No path is resolved,
+ * no bytes are touched, and re-publication brings the row straight back. The
+ * complaint it closes is exact: deleting a deliverable in Finder turned its row
+ * into a red Missing one the app gave you no way to get rid of.
+ *
+ * It still ASKS FIRST. Not because the file is at risk - it is not - but
+ * because a button called "remove" next to a report the user cares about must
+ * not be a one-click surprise, and the confirm is the only place there is room
+ * to say plainly that the file survives.
  */
 
 import { ipcBridge } from '@/common';
+import { ARTIFACT_CHANGED_ERROR } from '@/common/types/artifacts';
 import type { ArtifactDiskStatus, ArtifactSummary } from '@/common/types/artifacts';
 import PageShell from '@renderer/components/layout/PageShell';
 import { usePreviewLauncher } from '@renderer/hooks/file/usePreviewLauncher';
@@ -37,14 +45,15 @@ import {
   previewContentTypeForFileName,
   previewIsEditable,
 } from '@renderer/pages/conversation/Preview/previewContentType';
-import { AlertTriangle, FileText, FolderOpen, Package, Save } from 'lucide-react';
+import { Modal } from '@arco-design/web-react';
+import { AlertTriangle, FileText, FolderOpen, Package, Save, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type LoadState =
   | { kind: 'loading' }
   | { kind: 'failed' }
-  | { kind: 'loaded'; artifacts: ArtifactSummary[]; unreadableEntries: number };
+  | { kind: 'loaded'; artifacts: ArtifactSummary[]; unreadableEntries: number; truncated: boolean };
 
 const buttonClass =
   'flex shrink-0 items-center gap-4px whitespace-nowrap px-8px py-4px rd-6px cursor-pointer border-none bg-transparent ' +
@@ -90,6 +99,8 @@ const ArtifactsRail: React.FC = () => {
   const [state, setState] = useState<LoadState>({ kind: 'loading' });
   const [busyId, setBusyId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  /** The row awaiting a confirmed Remove, or null. Never a boolean plus an id. */
+  const [pendingForget, setPendingForget] = useState<ArtifactSummary | null>(null);
   const { launchPreview } = usePreviewLauncher();
   // The rail hosts its own preview surface (see the provider below), so this
   // reads the LOCAL panel's state, not the conversation's.
@@ -110,6 +121,12 @@ const ArtifactsRail: React.FC = () => {
         kind: 'loaded',
         artifacts: listing.artifacts,
         unreadableEntries: Number.isSafeInteger(listing.unreadableEntries) ? listing.unreadableEntries : 0,
+        // The host caps the listing at MAX_LISTED_ARTIFACTS. Until now row 501
+        // simply vanished, which contradicts this page's own first promise that
+        // a row is never removed. `=== true` rather than truthiness: an older
+        // host that predates the field must read as "not truncated", not as
+        // "unknown, so say something alarming".
+        truncated: listing.truncated === true,
       });
     } catch {
       // `artifacts.` is remote-denied, so on a paired WebUI this call REJECTS
@@ -151,6 +168,27 @@ const ArtifactsRail: React.FC = () => {
     [launchPreview]
   );
 
+  /**
+   * ONE HOST REFUSAL IS NOT A SENTENCE, SO IT DOES NOT GET INTERPOLATED.
+   *
+   * `artifact has changed since it was recorded` is an internal literal about a
+   * digest check. Printed into "Could not show this deliverable: {{error}}" it
+   * told a non-technical person nothing they could act on, at the exact moment
+   * their file was in fact perfectly fine. It is intercepted BY VALUE against
+   * the shared contract constant and replaced with a sentence; every other
+   * refusal keeps its interpolation, because the others do read.
+   *
+   * The rail says what happened and stops there. The REPAIR lives in the action
+   * bar, which this page already renders in its own preview panel - opening the
+   * row is how you get the Update button, and duplicating it per row would put
+   * a second, differently-worded repair on the same file.
+   */
+  const refusalText = useCallback(
+    (error: string | undefined, key: string): string =>
+      error === ARTIFACT_CHANGED_ERROR ? t('preview.artifactChanged') : t(key, { error: error ?? '' }),
+    [t]
+  );
+
   const runAction = useCallback(
     async (artifactId: string, action: 'reveal' | 'saveCopy'): Promise<void> => {
       setBusyId(artifactId);
@@ -160,12 +198,12 @@ const ArtifactsRail: React.FC = () => {
           const result = await ipcBridge.artifacts.reveal.invoke({ artifactId });
           // Resolve-only: a refusal arrives as `{ ok: false }`, never as a
           // rejection, so an unchecked await is a dead button.
-          if (!result?.ok) setNotice(t('preview.artifactRevealFailed', { error: result?.error ?? '' }));
+          if (!result?.ok) setNotice(refusalText(result?.error, 'preview.artifactRevealFailed'));
           return;
         }
         const result = await ipcBridge.artifacts.saveCopy.invoke({ artifactId });
         if (!result?.ok) {
-          setNotice(t('preview.artifactSaveFailed', { error: result?.error ?? '' }));
+          setNotice(refusalText(result?.error, 'preview.artifactSaveFailed'));
           return;
         }
         // No `savedTo` means the user cancelled the dialog. Not a failure.
@@ -176,8 +214,40 @@ const ArtifactsRail: React.FC = () => {
         setBusyId(null);
       }
     },
-    [t]
+    [refusalText, t]
   );
+
+  /**
+   * Confirmed removal. Optimistic on purpose: the host has already appended the
+   * tombstone by the time this resolves, and re-reading the whole listing to
+   * drop one row would repaint a 500-row page for a change we already know the
+   * shape of. On a refusal nothing is dropped and the reason is said out loud.
+   */
+  const confirmForget = useCallback(async (): Promise<void> => {
+    const target = pendingForget;
+    if (!target) return;
+    setPendingForget(null);
+    setBusyId(target.artifactId);
+    setNotice(null);
+    try {
+      const result = await ipcBridge.artifacts.forget.invoke({ artifactId: target.artifactId });
+      if (!result?.ok) {
+        setNotice(t('preview.artifactForgetFailed', { error: result?.error ?? '' }));
+        return;
+      }
+      setState((current) =>
+        current.kind === 'loaded'
+          ? { ...current, artifacts: current.artifacts.filter((entry) => entry.artifactId !== target.artifactId) }
+          : current
+      );
+      setNotice(t('preview.artifactForgotten'));
+    } catch {
+      // Remote-denied on a paired WebUI, like every other artifacts call here.
+      setNotice(t('preview.artifactsRailFailed'));
+    } finally {
+      setBusyId(null);
+    }
+  }, [pendingForget, t]);
 
   const total = state.kind === 'loaded' ? state.artifacts.length : 0;
 
@@ -220,6 +290,19 @@ const ArtifactsRail: React.FC = () => {
         <div className='py-40px text-center' data-testid='artifacts-rail-empty'>
           <div className='text-14px text-t-primary'>{t('preview.artifactsRailEmpty')}</div>
           <div className='mt-4px text-12px text-t-secondary'>{t('preview.artifactsRailEmptyHint')}</div>
+        </div>
+      ) : null}
+
+      {state.kind === 'loaded' && state.truncated ? (
+        /* Under the warning and ABOVE the list: it is a fact about the list, so
+           it belongs where the list starts, not buried at the bottom where a
+           500-row page means nobody reads it. */
+        <div
+          className='mb-12px text-12px text-t-secondary'
+          role='status'
+          data-testid='artifacts-rail-truncated'
+        >
+          {t('preview.artifactsRailTruncated', { shown: total })}
         </div>
       ) : null}
 
@@ -298,6 +381,21 @@ const ArtifactsRail: React.FC = () => {
                       <Save size={13} />
                       {t('preview.artifactSaveCopy')}
                     </button>
+                    {/* Enabled on EVERY status, including missing. The row that
+                        most needs removing is the red one whose file is gone -
+                        gating this on `reachable` would leave the actual
+                        complaint unfixed. */}
+                    <button
+                      type='button'
+                      className={buttonClass}
+                      disabled={busyId === artifact.artifactId}
+                      title={t('preview.artifactForgetHint')}
+                      onClick={() => setPendingForget(artifact)}
+                      data-testid='artifacts-rail-forget'
+                    >
+                      <Trash2 size={13} />
+                      {t('preview.artifactForget')}
+                    </button>
                   </div>
                 </li>
               );
@@ -317,6 +415,38 @@ const ArtifactsRail: React.FC = () => {
           </div>
         ) : null}
       </div>
+
+      {/*
+        ASK FIRST. Same shape as the preview panel's external-open confirm, so
+        the app has one dialog idiom rather than two. Cancel is the default: the
+        modal's own dismissal paths (Escape, backdrop, the X) all land on
+        `onCancel`, so nothing but a deliberate click removes the row.
+
+        The body says the file survives, because that is the one thing a person
+        needs to know before pressing a button called Remove, and it is the
+        thing the word "remove" does not tell them.
+      */}
+      <Modal
+        visible={pendingForget !== null}
+        title={t('preview.artifactForgetTitle')}
+        onCancel={() => setPendingForget(null)}
+        onOk={() => void confirmForget()}
+        okText={t('preview.artifactForgetConfirm')}
+        cancelText={t('common.cancel')}
+        okButtonProps={{ status: 'warning' }}
+        style={{ borderRadius: '12px' }}
+        alignCenter
+        // The dialog LEAVES when it is dismissed. Arco keeps a closed modal
+        // mounted by default, which means a hidden confirm for a row the user
+        // decided to keep stays in the tree with its Ok handler still bound to
+        // that row's id.
+        unmountOnExit
+        getPopupContainer={() => document.body}
+      >
+        <div className='text-14px text-t-secondary' data-testid='artifacts-rail-forget-confirm'>
+          {t('preview.artifactForgetMessage')}
+        </div>
+      </Modal>
     </PageShell>
   );
 };
