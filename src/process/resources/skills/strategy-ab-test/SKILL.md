@@ -35,7 +35,9 @@ Default: report all four, pick winner by **Sharpe**, break ties by **lower max d
    read the buffer with `pine_get_source` and keep a copy before you confirm
 2. `pine_smart_compile` — auto-detect type, compile, surface errors
 3. If errors: iterate via the `pine-develop` loop until clean
-4. `strategy_sweep` — parameter sweep with cooldown + resume. Pass the param grid (e.g., `{ ema_len: [20, 50, 100], atr_mult: [1.5, 2.0, 2.5] }`)
+4. `strategy_sweep` — parameter sweep with cooldown + resume. `symbols`, `timeframes` and `entity_id`
+   are all REQUIRED; the param grid rides in `inputs` (e.g., `inputs: { ema_len: [20, 50, 100], atr_mult: [1.5, 2.0, 2.5] }`).
+   Get `entity_id` from `chart_get_state` after the strategy compiles — it is the study's id, not its name
 5. Collect results — `strategy_sweep` returns per-combination `{net_profit, sharpe, max_dd, profit_factor, trades}`
 
 Example — strategy A (trend-follow):
@@ -43,7 +45,13 @@ Example — strategy A (trend-follow):
 ```
 pine_set_source(<A source>)
 pine_smart_compile()
-strategy_sweep({ grid: { ema_len: [50, 100, 200], atr_mult: [1.5, 2.0] } })
+chart_get_state()   // read the compiled strategy's entity_id
+strategy_sweep({
+  entity_id: "<A entity_id>",
+  symbols: ["ES1!"],
+  timeframes: ["60"],
+  inputs: { ema_len: [50, 100, 200], atr_mult: [1.5, 2.0] }
+})
 ```
 
 Pick A's best row by the chosen metric. Record it.
@@ -53,7 +61,8 @@ Pick A's best row by the chosen metric. Record it.
 1. `state_restore` with `name` `abtest-baseline` — wipe A off the chart. It is DESTRUCTIVE by design here: it makes the chart match the snapshot, which is exactly what removes A
 2. Load B's source: `pine_set_source` (with `confirm_overwrite: true`, since A is in the buffer)
    + `pine_smart_compile`
-3. `strategy_sweep` over B's param grid
+3. `strategy_sweep` over B's param grid, in `inputs`, with B's own `entity_id` from `chart_get_state`
+   (the restore wiped A, so A's id is gone)
 4. Pick B's best row
 
 Example — strategy B (mean-reversion):
@@ -62,7 +71,13 @@ Example — strategy B (mean-reversion):
 state_restore({ name: "abtest-baseline" })
 pine_set_source(<B source>)
 pine_smart_compile()
-strategy_sweep({ grid: { rsi_len: [7, 14, 21], rsi_ob: [70, 75, 80] } })
+chart_get_state()   // read the compiled strategy's entity_id
+strategy_sweep({
+  entity_id: "<B entity_id>",
+  symbols: ["ES1!"],
+  timeframes: ["60"],
+  inputs: { rsi_len: [7, 14, 21], rsi_ob: [70, 75, 80] }
+})
 ```
 
 If `strategy_sweep` pauses mid-sweep due to cooldown, it will auto-resume — just wait.

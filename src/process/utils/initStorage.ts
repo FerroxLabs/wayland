@@ -42,6 +42,7 @@ import {
 } from './utils';
 import { writeFileAtomic } from './atomicWrite';
 import { planPresetLocaleFileCopies } from './presetLocaleFiles';
+import { absolutizeSkillPaths } from './presetRulePaths';
 import { getOsUserName } from './osUserName';
 import { resolveFluxImageDefault } from './fluxImageDefault';
 import { readConnectedFluxKey } from '../connectors/fluxKey';
@@ -707,8 +708,10 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
 
           // Always overwrite builtin assistant rule files to ensure users get the latest version
           let content = await fs.readFile(sourceRulesPath, 'utf-8');
-          // Replace relative paths with absolute paths so AI can find scripts correctly
-          content = content.replace(/skills\//g, userSkillsDir + '/');
+          // Replace relative paths with absolute paths so AI can find scripts correctly.
+          // Anchored: see absolutizeSkillPaths for why an unanchored rewrite corrupted
+          // `.wayland-core/skills/...` into an un-`cd`-able path.
+          content = absolutizeSkillPaths(content, userSkillsDir);
           await fs.writeFile(targetPath, content, 'utf-8');
         } catch (error) {
           // Ignore missing locale files
@@ -750,8 +753,10 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
 
           // Always overwrite builtin assistant skill files to ensure users get the latest version
           let content = await fs.readFile(sourceSkillsPath, 'utf-8');
-          // Replace relative paths with absolute paths so AI can find scripts correctly
-          content = content.replace(/skills\//g, userSkillsDir + '/');
+          // Replace relative paths with absolute paths so AI can find scripts correctly.
+          // Anchored: see absolutizeSkillPaths for why an unanchored rewrite corrupted
+          // `.wayland-core/skills/...` into an un-`cd`-able path.
+          content = absolutizeSkillPaths(content, userSkillsDir);
           await fs.writeFile(targetPath, content, 'utf-8');
         } catch (error) {
           // Ignore missing skill files

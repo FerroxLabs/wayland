@@ -35,7 +35,7 @@ command to look for it, and do not guess from a failed call.
 kind: add_mcp
 name: com.ferroxlabs-tvcontrol
 command: npx
-args: @ferroxlabs/tvcontrol@2.3.0
+args: @ferroxlabs/tvcontrol@2.3.1
 [/CONCIERGE_PROPOSE]
 ```
 

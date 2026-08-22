@@ -144,8 +144,10 @@ the scanner's own directory.
 
 The scanner path is workspace-relative on purpose. Everything outside the
 workspace — `~/.wayland`, `~/Library`, the user's home — is refused by the
-sandbox, so do not go looking there. If the `cd` fails, the skill is genuinely
-not enabled; say so instead of hunting the filesystem for it.
+sandbox, so do not go looking there. If the `cd` fails, `market-open-report` is
+not enabled for this workspace. Say exactly that, and tell them to turn it on in
+**Settings → Skills & Tools** — that is the whole fix. Do not hunt the filesystem
+for it, and do not offer a workaround.
 
 Read that skill's own SKILL.md before your first run. The watchlist and the holdings file come
 from `MARKET_OPEN_REPORT_LIST` and `MARKET_OPEN_REPORT_POSITIONS`. Leave `MARKET_OPEN_REPORT_CACHE`

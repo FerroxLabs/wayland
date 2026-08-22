@@ -40,12 +40,16 @@ Execute in this order to minimize reflows:
 1. `chart_set_symbol` (e.g., `"NASDAQ:TSLA"`)
 2. `chart_set_timeframe` (e.g., `"60"`)
 3. `chart_set_type` if needed (e.g., `"HeikinAshi"`)
-4. For each missing indicator: `chart_manage_indicator` with action `"add"` and the **full name** ("Moving Average Exponential", not "EMA")
-5. `indicator_set_inputs` to match params (e.g., EMA length 200)
+4. For each missing indicator: `chart_manage_indicator` with `action: "add"` and `indicator:` set to the
+   **full name** ("Moving Average Exponential", not "EMA"). The key is `indicator`, not `name` —
+   an unknown key is silently dropped and the call then fails with "indicator is required for add action"
+5. `indicator_set_inputs` to match params. It needs `entity_id` (from `chart_get_state`) and `inputs`
+   as a JSON **string**, e.g. `inputs: '{"length": 200}'`
 6. For each drawing:
-   - Horizontal level → `draw_shape` with `horizontal_line` at the price from the screenshot
-   - Trend line → `draw_shape` with `trend_line` + two `{time, price}` points
-   - Text → `draw_shape` with `text`
+   - Horizontal level → `draw_shape` with `shape: "horizontal_line"` and `point: { time, price }`.
+     `time` is required even for a horizontal line — use the last bar time from `chart_get_visible_range`
+   - Trend line → `draw_shape` with `shape: "trend_line"` + `point` and `point2`, both `{ time, price }`
+   - Text → `draw_shape` with `shape: "text"` and a `text` string
 7. If leftover studies/drawings don't belong: `chart_manage_indicator` remove + `draw_remove_one` by id
 
 Concrete example — rebuilding a TSLA 1H chart with EMA(20)/EMA(200) and a horizontal at 250.00:
@@ -53,11 +57,13 @@ Concrete example — rebuilding a TSLA 1H chart with EMA(20)/EMA(200) and a hori
 ```
 chart_set_symbol("NASDAQ:TSLA")
 chart_set_timeframe("60")
-chart_manage_indicator({ action: "add", name: "Moving Average Exponential" })
-indicator_set_inputs({ length: 20 })
-chart_manage_indicator({ action: "add", name: "Moving Average Exponential" })
-indicator_set_inputs({ length: 200 })
-draw_shape({ type: "horizontal_line", point: { price: 250.00 } })
+chart_manage_indicator({ action: "add", indicator: "Moving Average Exponential" })
+chart_manage_indicator({ action: "add", indicator: "Moving Average Exponential" })
+chart_get_state()                 // read both entity_ids back
+indicator_set_inputs({ entity_id: "<ema1 entity_id>", inputs: '{"length": 20}' })
+indicator_set_inputs({ entity_id: "<ema2 entity_id>", inputs: '{"length": 200}' })
+chart_get_visible_range()         // bars_range.to is the last bar time
+draw_shape({ shape: "horizontal_line", point: { time: 1741964700, price: 250.00 } })
 ```
 
 ## Step 5: Verify
