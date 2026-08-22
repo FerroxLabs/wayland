@@ -479,11 +479,26 @@ export const useMcpConnection = (
       const force = options?.force ?? false;
       const STALE_MS = 5 * 60 * 1000;
       const now = Date.now();
+      /**
+       * Has this row already been probed inside the staleness window?
+       *
+       * A CONNECTED row records when it answered, in `lastConnected`. A FAILED
+       * row records no such timestamp - but the write that persisted the
+       * failure bumped `updatedAt`, so that IS the time of its last probe
+       * outcome. Without this second branch a failed probe never earned the
+       * skip, so an enabled connector that can never answer was re-probed on
+       * every pass, spawning a process each time (#B4b).
+       */
+      const probedInsideStaleWindow = (s: IMcpServer): boolean => {
+        if (s.status === 'connected') return typeof s.lastConnected === 'number' && now - s.lastConnected <= STALE_MS;
+        if (s.status === 'error') return now - s.updatedAt <= STALE_MS;
+        return false;
+      };
       const targets = servers.filter(
         (s) =>
           s.enabled === true &&
           !(s.status === 'error' && hasPublicationDivergence(s)) &&
-          (force || s.status !== 'connected' || typeof s.lastConnected !== 'number' || now - s.lastConnected > STALE_MS)
+          (force || !probedInsideStaleWindow(s))
       );
       if (targets.length === 0) {
         return;

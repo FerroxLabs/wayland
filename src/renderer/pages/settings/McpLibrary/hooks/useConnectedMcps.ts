@@ -116,6 +116,23 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     }
   }, [mcpServers]);
 
+  /**
+   * The CONTENT of the configured set, not the array that happens to be
+   * carrying it. Every write to MCP storage hands this page a fresh array with
+   * identical contents; keying the effect below on that array's identity made
+   * each write trigger a full re-resolution, which wrote again (#B4b). With one
+   * enabled connector that can never answer, RC1 measured 1,201
+   * `getAgentMcpConfigs` calls at a sustained 18-30/sec.
+   */
+  const configuredSignature = useMemo(
+    () =>
+      mcpServers
+        .map((server) => `${server.id}:${server.updatedAt}:${server.enabled ? 1 : 0}`)
+        .toSorted()
+        .join('|'),
+    [mcpServers]
+  );
+
   // On mount + whenever the configured set changes: refresh standalone probe
   // status/tool inventory. This is not active-chat readiness.
   // (non-destructive), refresh per-agent install status, and recompute leftovers.
@@ -128,9 +145,10 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     void checkAgentInstallStatus(mcpServers);
     void computeStale();
     // refreshServerStatuses/checkAgentInstallStatus are stable callbacks; keyed on
-    // the configured set so a newly added/removed server re-resolves.
+    // the CONTENT of the configured set so a newly added/removed/edited server
+    // re-resolves but a fresh array carrying the same servers does not.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mcpServers]);
+  }, [configuredSignature]);
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
