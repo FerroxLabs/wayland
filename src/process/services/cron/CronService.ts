@@ -1074,7 +1074,7 @@ export class CronService {
       // Await the publication first: the settlement does not exist until the
       // executor's own idle callback has committed or abandoned the run.
       await this.publishedArtifactsForNotification(conversationId);
-      const settled = this.executor.lastRunSettlement?.(job.id);
+      const settled = this.executor.lastRunSettlement?.(conversationId);
       if (!settled || settled.published) return;
 
       const fresh = await this.repo.getById(job.id);

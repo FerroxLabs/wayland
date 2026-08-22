@@ -37,7 +37,7 @@ export interface ICronJobExecutor {
   /** Mark the conversation as busy/not-busy. */
   setProcessing(conversationId: string, busy: boolean): void;
   /**
-   * How this job's most recent run SETTLED, once publication has finished.
+   * How the run on this CONVERSATION settled, once publication has finished.
    *
    * `last_status` is written when `executeJob` returns - i.e. when the turn was
    * SENT - and publication happens later, from the idle callback. So a run that
@@ -45,5 +45,5 @@ export interface ICronJobExecutor {
    * `no-output`. Optional so an executor that does not publish (and every test
    * double) needs no stub.
    */
-  lastRunSettlement?(jobId: string): RunSettlement | undefined;
+  lastRunSettlement?(conversationId: string): RunSettlement | undefined;
 }

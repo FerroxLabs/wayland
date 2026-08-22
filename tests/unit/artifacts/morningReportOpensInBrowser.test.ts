@@ -495,9 +495,9 @@ describe('the brief a scheduled run produces can actually be opened', () => {
     installScannerStubs(workspace, false);
 
     const h = makeHarness(workspace);
-    await h.run(job, runShippedBlock('2026-08-21'));
+    const conversationId = await h.run(job, runShippedBlock('2026-08-21'));
 
-    const settled = await h.executor.lastRunSettlement(job.id);
+    const settled = h.executor.lastRunSettlement(conversationId);
     expect(settled).toBeDefined();
     expect(settled!.published).toBe(false);
     expect(settled!.reason).toBe('no-output');
@@ -550,11 +550,22 @@ describe('the brief a scheduled run produces can actually be opened', () => {
     installScannerStubs(workspace, true);
 
     const h = makeHarness(workspace);
-    await h.run(job, runShippedBlock('2026-08-21'));
+    const conversationId = await h.run(job, runShippedBlock('2026-08-21'));
 
-    const settled = await h.executor.lastRunSettlement(job.id);
+    const settled = h.executor.lastRunSettlement(conversationId);
     expect(settled).toBeDefined();
     expect(settled!.published).toBe(true);
     expect(settled!.reason).toBeUndefined();
+
+    // ...and a SECOND run of the same job, in its own conversation, gets its own
+    // verdict without overwriting or inheriting the first. A jobId key would
+    // collapse these two into one cell and let a previous run's `no-output` be
+    // read as this run's outcome - the whole reason this is keyed by
+    // conversation, exactly as `runOutputDir` is.
+    installScannerStubs(workspace, false);
+    const second = await h.run(job, runShippedBlock('2026-08-21'));
+    expect(second).not.toBe(conversationId);
+    expect(h.executor.lastRunSettlement(second)).toEqual({ published: false, reason: 'no-output' });
+    expect(h.executor.lastRunSettlement(conversationId)).toEqual({ published: true });
   });
 });

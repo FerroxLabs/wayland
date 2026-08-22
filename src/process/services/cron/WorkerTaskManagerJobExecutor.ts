@@ -100,7 +100,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
   private settleInFlight: Promise<void> = Promise.resolve();
 
   /**
-   * How each job's most recent run actually SETTLED.
+   * How the run on each CONVERSATION actually settled.
    *
    * `CronService` writes `last_status` the moment `executeJob` returns, which is
    * when the turn was SENT - publication happens later, from the idle callback.
@@ -109,16 +109,24 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * artifact journal disagreed, and nothing in the scheduled-tasks UI could tell
    * the user the routine had never once produced a report. This is the cell that
    * lets the two be reconciled.
+   *
+   * KEYED BY CONVERSATION, NOT BY JOB, for the same reason `runOutputDir` is: a
+   * job keeps its id across runs, so a jobId key would let a PREVIOUS run's
+   * `no-output` be read as the verdict on a later run that opened no artifact
+   * run at all. A `new_conversation` run gets a fresh conversation every time,
+   * so a stale cell can never be mistaken for this run's.
    */
   private runSettlements = new Map<string, RunSettlement>();
 
-  /** How this job's most recent run settled, if one has. */
-  lastRunSettlement(jobId: string): RunSettlement | undefined {
-    return this.runSettlements.get(jobId);
+  /** How the run on this conversation settled, if one has. */
+  lastRunSettlement(conversationId: string): RunSettlement | undefined {
+    return this.runSettlements.get(conversationId);
   }
 
-  private recordRunSettlement(jobId: string, settlement: RunSettlement): void {
-    this.runSettlements.set(jobId, settlement);
+  private recordRunSettlement(conversationId: string | undefined, settlement: RunSettlement): void {
+    // A run that never bound a conversation has no spawn to be the verdict on.
+    if (!conversationId) return;
+    this.runSettlements.set(conversationId, settlement);
     while (this.runSettlements.size > MAX_REMEMBERED_SETTLED_RUNS) {
       const oldest = this.runSettlements.keys().next().value;
       if (oldest === undefined) break;
@@ -281,7 +289,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       // console.warn was the only record this ever had, and the user does not
       // read the console: they read a series whose newest entry is yesterday's.
       await this.journalRun(handle, job, 'failed', failure);
-      this.recordRunSettlement(job.id, { published: false, reason: 'failed' });
+      this.recordRunSettlement(conversationId, { published: false, reason: 'failed' });
       await abandonTaskRun(handle).catch((err) => {
         console.warn(`[CronExecutor] Failed to abandon run ${handle.runId} for job ${job.id}:`, err);
       });
@@ -299,7 +307,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // "It ran and made nothing" is a different problem from "it broke", and
         // both were previously indistinguishable from "it never ran".
         await this.journalRun(handle, job, 'no-output');
-        this.recordRunSettlement(job.id, { published: false, reason: 'no-output' });
+        this.recordRunSettlement(conversationId, { published: false, reason: 'no-output' });
         this.resolveRunPublication(conversationId, []);
         return;
       }
@@ -313,14 +321,14 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           `[CronExecutor] Job ${job.id} run ${handle.runId} refused ${JSON.stringify(rejection.path)}: ${rejection.reason}`
         );
       }
-      this.recordRunSettlement(job.id, { published: true });
+      this.recordRunSettlement(conversationId, { published: true });
       this.resolveRunPublication(conversationId, outcome.registered);
     } catch (err) {
       console.warn(`[CronExecutor] Failed to publish run ${handle.runId} for job ${job.id}:`, err);
       // A publication that throws leaves NO dated directory, so this is the
       // only place the failure can be recorded where a user will ever see it.
       await this.journalRun(handle, job, 'failed', err);
-      this.recordRunSettlement(job.id, { published: false, reason: 'failed' });
+      this.recordRunSettlement(conversationId, { published: false, reason: 'failed' });
       await abandonTaskRun(handle).catch(() => {});
       this.resolveRunPublication(conversationId, []);
     }
