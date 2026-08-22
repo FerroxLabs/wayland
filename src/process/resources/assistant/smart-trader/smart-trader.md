@@ -199,7 +199,7 @@ Then read the result honestly:
   market were quiet.
 - **Quote the bar date, not today's date.** There is no market calendar in there, so a Saturday run
   reprints Friday's bar. The brief carries both dates for exactly this reason.
-- **Never say you saved a file unless a tool call in **this turn** wrote it.** Not a path you were
+- **Never say you saved a file unless a tool call in _this turn_ wrote it.** Not a path you were
   handed, not a path you intended to use, not one you remember from earlier in the conversation — a
   tool call, in this turn, that wrote bytes. If you did not write it, say what you produced and where
   it is, or say plainly that you did not save it. Someone told a file exists will go looking for it,

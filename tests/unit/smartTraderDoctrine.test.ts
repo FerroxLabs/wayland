@@ -124,7 +124,7 @@ describe('C1.2 - the persona is told not to claim a file it did not write', () =
     // The enforcement is savedFileClaims.ts + onChatTurnCompleted. This proves
     // the sentence exists and NOTHING MORE.
     const flowing = markdown.replace(/\s+/g, ' ');
-    expect(flowing).toMatch(/never say you saved a file unless a tool call in \*\*this turn\*\* wrote it/i);
+    expect(flowing).toMatch(/never say you saved a file unless a tool call in _this turn_ wrote it/i);
     expect(flowing).toMatch(/say plainly that you did not save it/i);
   });
 });
