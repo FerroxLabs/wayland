@@ -179,14 +179,20 @@ vi.mock('@/renderer/hooks/chat/useSendBoxFiles', async (importOriginal) => {
 
 // ── Platform plumbing the composer does not own ──────────────────────────────
 
+// T-B1c: the harness hardcodes an idle, never-queueing conversation, so a
+// spoken turn sent MID-TURN was unreachable and therefore untested.
+let mockVoiceShouldEnqueue = false;
+let mockVoiceRunning = false;
+const mockVoiceEnqueue = vi.fn();
+
 vi.mock('@/renderer/pages/conversation/platforms/useConversationCommandQueue', () => ({
-  shouldEnqueueConversationCommand: () => false,
+  shouldEnqueueConversationCommand: () => mockVoiceShouldEnqueue,
   useConversationCommandQueue: () => ({
     items: [],
     isPaused: false,
     isInteractionLocked: false,
     hasPendingCommands: false,
-    enqueue: vi.fn(),
+    enqueue: mockVoiceEnqueue,
     update: vi.fn(),
     remove: vi.fn(),
     clear: vi.fn(),
@@ -205,7 +211,7 @@ vi.mock('@/renderer/pages/conversation/platforms/assertBridgeSuccess', () => ({
 
 const platformMessageHook = () => ({
   thought: { subject: '', description: '' },
-  running: false,
+  running: mockVoiceRunning,
   hasHydratedRunningState: true,
   tokenUsage: 0,
   contextLimit: 0,
@@ -835,6 +841,25 @@ describe('V16: a staged attachment defers the spoken turn to the draft', () => {
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
 
     expect(mockClearFilesSpy).toHaveBeenCalled();
+  });
+
+  // T-B1c: the worst form of this bug. A sentence you SPEAK during a busy wcore
+  // turn was destroyed outright - no composer to fall back into, and
+  // voiceTurnBridge told the voice surface `accepted: true` while doing it.
+  it('queues a spoken turn sent mid-turn instead of destroying it', async () => {
+    mockVoiceShouldEnqueue = true;
+    mockVoiceRunning = true;
+    mockVoiceEnqueue.mockClear();
+    try {
+      renderComposer('wcore');
+      await speakOneTurn();
+      await waitFor(() =>
+        expect(mockVoiceEnqueue).toHaveBeenCalledWith({ input: 'the transcript', files: [] })
+      );
+    } finally {
+      mockVoiceShouldEnqueue = false;
+      mockVoiceRunning = false;
+    }
   });
 
   it('appends to a draft the user already typed rather than destroying it', async () => {

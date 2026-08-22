@@ -392,11 +392,6 @@ const WCoreSendBox: React.FC<{
   }, [conversation_id, executeCommand]);
 
   const onSendHandler = async (message: string) => {
-    if (!teamId && isBusy) {
-      Message.warning(t('messages.conversationInProgress'));
-      return;
-    }
-
     const filesToSend = collectSelectedFiles(uploadFile, atPath);
     clearFiles();
     emitter.emit('wcore.selected.file.clear');

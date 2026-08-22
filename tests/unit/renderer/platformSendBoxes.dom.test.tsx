@@ -688,6 +688,13 @@ describe('platform send box queue integration', () => {
     ['openclaw', <OpenClawSendBox conversation_id='conv-openclaw' />],
   ])('enqueues commands for %s when the current turn is still busy', async (_name, element) => {
     mockShouldEnqueueConversationCommand.mockReturnValue(true);
+    // The turn must ACTUALLY be busy. Without these four lines the test name is a
+    // lie: `isBusy` is false in every send box, so WCore's mid-turn refusal never
+    // fires and this stayed green through the whole life of the bug.
+    mockConversationStatus = 'running';
+    mockAcpRunning = true;
+    mockGeminiRunning = true;
+    mockWCoreRunning = true;
 
     render(element);
 
@@ -699,6 +706,35 @@ describe('platform send box queue integration', () => {
         files: [],
       });
     });
+    expect(mockArcoWarning).not.toHaveBeenCalledWith('messages.conversationInProgress');
+  });
+
+  // T-B1b: a mid-turn send must carry the STAGED ATTACHMENTS into the queued
+  // command, not just the words. A text-only fix would silently eat the photo.
+  it('carries the staged attachments into a wcore command queued mid-turn', async () => {
+    mockShouldEnqueueConversationCommand.mockReturnValue(true);
+    mockWCoreRunning = true;
+    mockDraftData.uploadFile = ['C:/workspace/uploads/photo.png'];
+
+    render(
+      <WCoreSendBox
+        conversation_id='conv-wcore'
+        modelSelection={{
+          currentModel: { useModel: 'wcore-1' },
+          getDisplayModelName: (modelId: string) => modelId,
+        }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'trigger-send' }));
+
+    await waitFor(() => {
+      expect(queueSpies.enqueue).toHaveBeenCalledWith({
+        input: 'queued command',
+        files: ['C:/workspace/uploads/photo.png'],
+      });
+    });
+    expect(mockArcoWarning).not.toHaveBeenCalledWith('messages.conversationInProgress');
   });
 
   it.each([
