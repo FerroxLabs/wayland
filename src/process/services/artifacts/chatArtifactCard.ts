@@ -27,7 +27,7 @@
  */
 
 import type { TMessage } from '@/common/chat/chatLib';
-import type { ArtifactSummary } from '@/common/types/artifacts';
+import type { ArtifactRejectionReason, ArtifactSummary } from '@/common/types/artifacts';
 
 import { toArtifactSummary } from './artifactActions';
 import type { ChatSweepResult } from './chatRun';
@@ -43,7 +43,15 @@ export const chatArtifactCardMsgId = (conversationId: string): string => `artifa
 
 export interface ChatArtifactCardContent {
   artifacts: ArtifactSummary[];
-  rejected?: Array<{ reason: string; count: number }>;
+  /**
+   * Narrowed from `string` to the closed union ON PURPOSE.
+   *
+   * A `string` here is what let the card render `1 escapes-workspace` straight
+   * to the user. With the union, the renderer folds each reason into one of
+   * five translatable buckets, and a fourteenth reason added later fails to
+   * COMPILE rather than reaching a screen as a raw slug.
+   */
+  rejected?: Array<{ reason: ArtifactRejectionReason; count: number }>;
 }
 
 /**
@@ -56,7 +64,7 @@ export function buildChatArtifactCardContent(result: ChatSweepResult): ChatArtif
     .map((record) => toArtifactSummary(record))
     .toSorted((left, right) => right.runAt.localeCompare(left.runAt) || left.fileName.localeCompare(right.fileName));
 
-  const counts = new Map<string, number>();
+  const counts = new Map<ArtifactRejectionReason, number>();
   for (const rejection of result.rejected) counts.set(rejection.reason, (counts.get(rejection.reason) ?? 0) + 1);
   const rejected = [...counts]
     .map(([reason, count]) => ({ reason, count }))

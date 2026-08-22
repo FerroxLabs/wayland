@@ -64,6 +64,8 @@ import { createHash } from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
 
+import type { ArtifactRejectionReason } from '@/common/types/artifacts';
+
 /**
  * The ledger file, app-owned, beside the workspace provenance ledger. NOT
  * inside a workspace: a workspace the user deletes or moves must not take the
@@ -113,21 +115,17 @@ export const MAX_ARTIFACT_BYTES = 64 * 1024 * 1024;
 /** Refuse to record more than this from a single run. */
 export const MAX_DECLARATIONS_PER_RUN = 64;
 
-export type ArtifactRejectionReason =
-  | 'not-an-object'
-  | 'not-a-string'
-  | 'empty'
-  | 'absolute'
-  | 'home-relative'
-  | 'traversal'
-  | 'unsafe-form'
-  | 'escapes-workspace'
-  | 'symlink'
-  | 'not-regular-file'
-  | 'missing'
-  | 'too-large'
-  | 'too-many'
-  | 'unreadable';
+/**
+ * The rejection vocabulary now lives in `common/types/artifacts` and is
+ * re-exported here so every existing importer keeps its import.
+ *
+ * It moved because the CARD renders it. A host-private debugging vocabulary was
+ * fine while nothing but a log read it; the moment a non-technical user is
+ * shown `1 escapes-workspace` at the exact moment their report did not arrive,
+ * the renderer needs the union to translate it - and the renderer cannot import
+ * from `@process`.
+ */
+export type { ArtifactRejectionReason };
 
 /** What a skill claims it produced. Every field is untrusted. */
 export interface ArtifactDeclaration {

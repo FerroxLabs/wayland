@@ -308,9 +308,13 @@ export async function listArtifacts(effects: ArtifactHostEffects): Promise<Artif
     ? await effects.readLedgerEntries()
     : { records: await effects.readLedger(), unreadableEntries: 0 };
   const records = entries.records;
-  const listed = records
-    .toSorted((left, right) => (right.runAt ?? '').localeCompare(left.runAt ?? ''))
-    .slice(0, MAX_LISTED_ARTIFACTS);
+  const sorted = records.toSorted((left, right) => (right.runAt ?? '').localeCompare(left.runAt ?? ''));
+  const listed = sorted.slice(0, MAX_LISTED_ARTIFACTS);
+  // Measured on what the ledger HELD, not on what survived the slice: at
+  // exactly the cap nothing was dropped, and reporting `length === cap` as
+  // truncated would put a permanent "older rows are hidden" line under a list
+  // that is complete.
+  const truncated = sorted.length > MAX_LISTED_ARTIFACTS;
   const newestRunPerSeries = newestRunBySeries(listed);
   const artifacts = await Promise.all(
     listed.map(async (record) => {
@@ -320,7 +324,7 @@ export async function listArtifacts(effects: ArtifactHostEffects): Promise<Artif
       return { ...summary, diskStatus: await diskStatusOf(summary.canonicalPath) };
     })
   );
-  return { artifacts, unreadableEntries: entries.unreadableEntries };
+  return { artifacts, unreadableEntries: entries.unreadableEntries, truncated };
 }
 
 /**
