@@ -36,7 +36,7 @@
  *     redirects are refused, so a crafted watchlist entry cannot rewrite the
  *     query, the fragment, or the host that is eventually contacted.
  */
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
 
 /** `report.mjs:334` - `yahooDaily(tkr, '19990101', end, …)`. */
@@ -84,6 +84,40 @@ export function utcCacheEndDate(now: Date = new Date()): string {
     String(now.getUTCMonth() + 1).padStart(2, '0') +
     String(now.getUTCDate()).padStart(2, '0')
   );
+}
+
+/**
+ * Delete every cache file keyed to a DIFFERENT end date.
+ *
+ * The key ends with the run date, so an unpruned cache gains one file per
+ * symbol per day - measured at 51 MB for a single 82-symbol run. This cache
+ * lives inside the task workspace, under `~/Documents`, so on a machine with
+ * Desktop & Documents sync turned on that is a 51 MB/day upload of files nobody
+ * will ever read again. Keeping only the current date is what makes it bounded.
+ *
+ * Matches ONLY the filenames this module writes (`<SYM>_<START>_<END>.json` for
+ * one of the two known start dates). A file that does not fit that shape was
+ * put there by something else and is left alone - a prune that deletes by
+ * directory rather than by pattern is a data-loss bug waiting for the day
+ * somebody points this at the wrong path.
+ */
+function pruneStaleCache(cacheDir: string, end: string): void {
+  const keep = new RegExp(`_(?:${YAHOO_SCAN_START}|${YAHOO_OVERVIEW_START})_(\\d{8})\\.json$`);
+  let entries: string[];
+  try {
+    entries = readdirSync(cacheDir);
+  } catch {
+    return;
+  }
+  for (const name of entries) {
+    const m = keep.exec(name);
+    if (!m || m[1] === end) continue;
+    try {
+      rmSync(path.join(cacheDir, name), { force: true });
+    } catch {
+      /* a file we cannot remove is not worth failing a run over */
+    }
+  }
 }
 
 export type PrefetchResult = {
@@ -181,6 +215,10 @@ export async function prefetchDailyBars(options: PrefetchOptions): Promise<Prefe
     result.failed = jobs.map((j) => j.symbol);
     return result;
   }
+
+  // BEFORE fetching, not after: a run that then fails still leaves the cache
+  // bounded, and the disk the new files need is freed first.
+  pruneStaleCache(options.cacheDir, options.end);
 
   for (const { symbol, start } of jobs) {
     if (!isPrefetchableSymbol(symbol)) {

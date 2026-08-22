@@ -239,6 +239,39 @@ describe('prefetchDailyBars', () => {
     }
   });
 
+  it('PRUNES yesterday\'s cache, because this cache lives in the user\'s Documents folder', async () => {
+    // The cache key ends with the run date, so an unpruned cache gains ONE FILE
+    // PER SYMBOL PER DAY. Measured on a real run: 82 symbols came to 51 MB, and
+    // it sits inside `~/Documents/Wayland/Tasks/<task>/` - which on a machine
+    // with Desktop & Documents sync turned on is a 51 MB/day upload. Keeping
+    // only the current end date is what makes the cache bounded.
+    const dir = tempCache();
+    try {
+      const stale = path.join(dir, `AAPL_${YAHOO_SCAN_START}_20260801.json`);
+      const staleOverview = path.join(dir, `^VIX_${YAHOO_OVERVIEW_START}_20260801.json`);
+      const notOurs = path.join(dir, 'somebody-elses-file.txt');
+      writeFileSync(stale, JSON.stringify(BARS));
+      writeFileSync(staleOverview, JSON.stringify(BARS));
+      writeFileSync(notOurs, 'keep me');
+
+      await prefetchDailyBars({
+        cacheDir: dir,
+        scanSymbols: ['AAPL'],
+        overviewSymbols: [],
+        end: '20260822',
+        fetchImpl: async () => new Response(yahooChartBody(BARS), { status: 200 }),
+      });
+
+      expect(existsSync(stale)).toBe(false);
+      expect(existsSync(staleOverview)).toBe(false);
+      // Today's file is kept, and a file this module did not write is never touched.
+      expect(existsSync(path.join(dir, `AAPL_${YAHOO_SCAN_START}_20260822.json`))).toBe(true);
+      expect(existsSync(notOurs)).toBe(true);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('records provenance beside the cache so a brief can say where its bars came from', async () => {
     const dir = tempCache();
     try {
