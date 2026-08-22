@@ -359,6 +359,44 @@ export async function registerArtifacts(input: RegisterArtifactsInput): Promise<
 }
 
 /**
+ * A line that RETIRES a row. The append-only answer to "remove this from my
+ * list".
+ *
+ * Not a rewrite of the file: rewriting an append-only ledger is a
+ * read-modify-write, which is the exact thing the format was chosen to avoid -
+ * two runs registering at once could then lose each other's records, and a
+ * crash mid-rewrite could lose the lot. One extra line costs nothing and cannot
+ * corrupt anything.
+ *
+ * It carries no path, no workspace and no digest, so a tombstone can never be
+ * mistaken for a record: `readArtifactLedgerEntries` keys on `kind` before it
+ * looks at anything else.
+ */
+export interface ArtifactForgetLine {
+  kind: 'forget';
+  artifactId: string;
+  forgottenAt: string;
+}
+
+/**
+ * Retire one row.
+ *
+ * Order in the file is the semantics. A tombstone drops the id; a record line
+ * AFTER it puts the id back. That is what makes re-registration restore a
+ * forgotten deliverable, which is the correct behaviour - the file exists
+ * again, so the row should too.
+ */
+export async function appendArtifactTombstone(
+  ledgerPath: string,
+  artifactId: string,
+  now: Date = new Date()
+): Promise<void> {
+  const line: ArtifactForgetLine = { kind: 'forget', artifactId, forgottenAt: now.toISOString() };
+  await fs.mkdir(path.dirname(ledgerPath), { recursive: true });
+  await fs.appendFile(ledgerPath, `${JSON.stringify(line)}\n`, 'utf-8');
+}
+
+/**
  * Every record in the ledger, later entries superseding earlier ones with the
  * same id. A truncated final line (the only shape a crash can leave) and any
  * line that fails validation are dropped rather than thrown: the ledger is a
@@ -411,6 +449,20 @@ function isCanonicalWorkspace(workspace: unknown): workspace is string {
  * is shown a list that looks complete. The count is what lets a surface say
  * "some entries could not be read" instead of quietly lying.
  */
+/**
+ * Is this line a tombstone rather than a record?
+ *
+ * Strict on the id: a malformed tombstone must NOT silently retire nothing and
+ * be forgotten about. It falls through to the record validation, which counts
+ * it as an unreadable entry - so a surface can say the list may be short
+ * instead of quietly presenting it as complete.
+ */
+function isForgetLine(parsed: unknown): parsed is ArtifactForgetLine {
+  if (typeof parsed !== 'object' || parsed === null) return false;
+  const line = parsed as Partial<ArtifactForgetLine>;
+  return line.kind === 'forget' && typeof line.artifactId === 'string' && line.artifactId.length > 0;
+}
+
 export async function readArtifactLedgerEntries(
   ledgerPath: string
 ): Promise<{ records: ArtifactRecord[]; unreadableEntries: number }> {
@@ -431,6 +483,18 @@ export async function readArtifactLedgerEntries(
       parsed = JSON.parse(line);
     } catch {
       unreadableEntries += 1;
+      continue;
+    }
+    // THE ONE CHOKEPOINT. Every surface and every action reads through this
+    // function, so dropping the id here removes the row from the rail, the
+    // card, the series view and all five actions at once - and it cannot
+    // resurface inside a run-history block, which a per-surface filter would
+    // have missed.
+    //
+    // Checked BEFORE the record validation below, because a tombstone has no
+    // `version` and would otherwise be counted as a corrupt line.
+    if (isForgetLine(parsed)) {
+      byId.delete(parsed.artifactId);
       continue;
     }
     const record = parsed as ArtifactRecord;

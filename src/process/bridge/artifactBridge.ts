@@ -24,6 +24,7 @@ import { ipcBridge } from '@/common';
 import { getDataPath } from '@process/utils';
 import {
   describeArtifactOpenTarget,
+  forgetArtifact,
   listArtifacts,
   openArtifact,
   previewArtifact,
@@ -86,4 +87,7 @@ export function initArtifactBridge(): void {
     refreshChatArtifact(artifactId, effects, artifactLedgerPath(getDataPath()))
   );
   ipcBridge.artifacts.preview.provider(({ artifactId }) => previewArtifact(artifactId, effects));
+  ipcBridge.artifacts.forget.provider(({ artifactId }) =>
+    forgetArtifact(artifactId, effects, artifactLedgerPath(getDataPath()))
+  );
 }

@@ -43,6 +43,7 @@ import path from 'path';
 import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
 import type {
   ArtifactDiskStatus,
+  ArtifactForgetResult,
   ArtifactListing,
   ArtifactOpenTarget,
   ArtifactPreview,
@@ -56,8 +57,13 @@ import { refuseUnsafeOpenTarget } from '@process/bridge/shellOpenSafety';
 import { isReservedSeriesEntry } from './artifactSeries';
 import { ARTIFACTS_DIR_NAME } from './taskRun';
 
-import { isChatNamespace, registerArtifacts, type ArtifactRecord } from './artifactLedger';
-import { readVerifiedArtifact, resolveArtifactTarget } from './artifactTarget';
+import {
+  appendArtifactTombstone,
+  isChatNamespace,
+  registerArtifacts,
+  type ArtifactRecord,
+} from './artifactLedger';
+import { isArtifactId, readVerifiedArtifact, resolveArtifactTarget } from './artifactTarget';
 import { cachedDefaultApplicationName } from './defaultApplication';
 
 /**
@@ -434,6 +440,56 @@ export async function refreshChatArtifact(
     return { ok: false, error: `artifact could not be refreshed: ${rejected[0]?.reason ?? 'unknown'}` };
   }
   return { ok: true, artifact: toArtifactSummary(refreshed) };
+}
+
+/**
+ * Remove a deliverable from the LIST. Does NOT delete the file.
+ *
+ * -------------------------------------------------------------------------
+ * THE SCOPE IS THE DECISION, SO IT IS STATED HERE RATHER THAN IMPLIED.
+ * -------------------------------------------------------------------------
+ * This removes a ledger ROW. The bytes on disk are untouched and no path is
+ * ever resolved, opened, or handed to anything. Deleting a user's real report
+ * off disk on a mis-click is unrecoverable, nobody asked for it, and Finder
+ * already does it. The complaint this closes is narrower and completely real:
+ * deleting a deliverable in Finder converts its row into a red Missing row that
+ * the app gives you no way to dismiss, and renaming it in Finder mints a fresh
+ * deterministic id and orphans the old row FOREVER.
+ *
+ * BECAUSE NO BYTES ARE REMOVED, THIS IS NOT NAMESPACE-GATED THE WAY REFRESH IS.
+ * `refreshChatArtifact` refuses a published series run because re-registering
+ * one would launder a tampered file into a fresh valid record - it changes what
+ * the ledger CLAIMS about a file. Forgetting claims nothing; it stops listing.
+ * The row that most needs removing is a red Missing one from a series whose
+ * task is long gone, so gating this to chat would leave the actual complaint
+ * unfixed. Re-publication brings the row straight back.
+ *
+ * No confinement call, deliberately: there is no path in this operation. The
+ * only file touched is the app-owned ledger.
+ */
+export async function forgetArtifact(
+  artifactId: unknown,
+  effects: ArtifactHostEffects,
+  ledgerPath: string
+): Promise<ArtifactForgetResult> {
+  // Shape-checked before anything is written. The tombstone is a line in a file
+  // the host reads back and trusts, so the id that goes into it is held to the
+  // same 32-hex form every lookup already requires.
+  if (!isArtifactId(artifactId)) return { ok: false, error: 'unknown artifact' };
+
+  // An id that is not currently listed needs no tombstone. That keeps repeated
+  // clicks - and a forget of an already-forgotten row - from growing the ledger
+  // without bound, and makes the operation idempotent rather than merely
+  // repeatable.
+  const known = (await effects.readLedger()).some((entry) => entry.artifactId === artifactId);
+  if (!known) return { ok: true };
+
+  try {
+    await appendArtifactTombstone(ledgerPath, artifactId);
+  } catch (error) {
+    return { ok: false, error: (error as Error).message };
+  }
+  return { ok: true };
 }
 
 /**
