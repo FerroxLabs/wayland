@@ -29,6 +29,8 @@ import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
 import { resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
+import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
+import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
 import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal';
 import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import { assertNotPromoting } from '@process/services/promotion/promotionLock';
@@ -57,6 +59,15 @@ async function getConversationService() {
  * hundred is orders of magnitude more than the latch can ever need.
  */
 const MAX_REMEMBERED_SETTLED_RUNS = 256;
+
+/**
+ * The one thing a scheduled run has to be told at run time that a seed-time
+ * prompt cannot say. No path: see `appendOutputDirCorrection`.
+ */
+const RUN_OUTPUT_DIR_CORRECTION =
+  'Write every file the user should keep into the absolute deliverables directory named in your run instructions. ' +
+  'WAYLAND_OUTPUT_DIR is not visible to shell commands and resolves empty - ignore any instruction to read it, ' +
+  'including one earlier in this message.';
 
 /** Executes cron jobs by delegating to WorkerTaskManager and tracking busy state via CronBusyGuard. */
 export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
@@ -451,6 +462,40 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     }
 
     const workspace = (task as { workspace?: string }).workspace;
+
+    // ASK THE SINGLE PRODUCER, DO NOT DERIVE A SECOND ONE.
+    //
+    // `resolveOutputDir` re-checks containment because its result becomes a
+    // host-blessed write destination handed to model-authored skill text, and
+    // `WCoreAgent.start` resolves it ONCE and threads that one value into both
+    // the spawn env and the `--system-prompt` directive. Reproducing it here -
+    // same function, same inputs - is a question, not a third derivation.
+    //
+    // A disagreement is not a detail to log. It means the engine was pointed at
+    // a directory this run does not collect from, so the turn can only produce a
+    // deliverable that is never staged and never published, and the run settles
+    // as `no-output` with nothing anywhere naming the cause. Refuse instead, so
+    // the reason lands in the run journal and in `last_error`.
+    if (artifactRun && conversationId) {
+      const engineOutputDir = workspace
+        ? resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId)
+        : undefined;
+      const expected = path.resolve(artifactRun.stagingDir);
+      if (engineOutputDir !== expected) {
+        // Mirrors the sendMessage failure path: tear the half-started task down
+        // so the next fire rebuilds a fresh one rather than reusing this spawn.
+        try {
+          this.taskManager.kill(conversationId);
+        } catch (killErr) {
+          console.warn(`[CronExecutor] kill after output-dir mismatch also failed for ${conversationId}:`, killErr);
+        }
+        throw new Error(
+          `Run ${artifactRun.runId} cannot publish: the engine's deliverables directory ` +
+            `(${engineOutputDir ?? 'none'}) is not this run's staging directory (${expected}).`
+        );
+      }
+    }
+
     const workspaceFiles = workspace ? await copyFilesToDirectory(workspace, [], false) : [];
 
     const hasSkill = await hasCronSkillFile(job.id);
@@ -460,7 +505,10 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
 
     // Gemini/WCore: inline SKILL_SUGGEST instructions in the task prompt (single-turn).
     // Other agents: separate follow-up message via onFirstFinish (multi-turn).
-    const messageText = this.buildMessageText(job, hasSkill, needsSkillSuggest && isGeminiLike);
+    const messageText = this.appendOutputDirCorrection(
+      this.buildMessageText(job, hasSkill, needsSkillSuggest && isGeminiLike),
+      !!artifactRun
+    );
 
     const cronMeta: CronMessageMeta = {
       source: 'cron',
@@ -817,6 +865,28 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * @param includeSkillSuggest - Whether to include SKILL_SUGGEST.md writing instructions.
    *   Pre-computed by the caller so the same condition drives both prompt and detection.
    */
+  /**
+   * Defeat an output-directory instruction already baked into the job row.
+   *
+   * `cron_jobs.prompt` is written at SEED time and never rewritten for a job the
+   * user has touched, so every routine armed before this change still carries
+   * the old "read WAYLAND_OUTPUT_DIR" sentence. Rewriting the seeder's constant
+   * fixes new installs and does nothing for the machine the bug was found on.
+   * This is the run-time correction that does.
+   *
+   * IT CARRIES NO PATH, DELIBERATELY. The run's directory travels on the
+   * `--system-prompt` channel, which never enters the message store. This text
+   * does: `bridgeAllowlist` keeps conversation reads OPEN to a paired WebUI
+   * while denying `artifacts.list` precisely because that call "enumerates the
+   * absolute paths of every workspace the user has". Putting the staging path
+   * in a persisted message would re-disclose through the open channel exactly
+   * what the closed one was shut for.
+   */
+  private appendOutputDirCorrection(messageText: string, hasRun: boolean): string {
+    if (!hasRun) return messageText;
+    return `${messageText}\n\n${RUN_OUTPUT_DIR_CORRECTION}`;
+  }
+
   private buildMessageText(job: CronJob, hasSkill: boolean, inlineSkillSuggest: boolean): string {
     const rawText = job.target.payload.text;
 

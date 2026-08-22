@@ -158,7 +158,7 @@ import type { ICronEventEmitter } from '@/process/services/cron/ICronEventEmitte
 import type { ICronJobExecutor } from '@/process/services/cron/ICronJobExecutor';
 import type { IConversationRepository } from '@/process/services/database/IConversationRepository';
 import { seedBuiltinRoutines } from '@process/services/cron/BuiltinRoutinesSeeder';
-import { buildEngineSpawnEnv } from '@process/agent/wcore/envBuilder';
+import { buildEngineSpawnEnv, buildOutputDirective, resolveOutputDir } from '@process/agent/wcore/envBuilder';
 import { listRuns, readLatest } from '@process/services/artifacts/artifactSeries';
 import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
 import { activeRunOutputDir, clearRunOutputDirs } from '@process/services/artifacts/runOutputDir';
@@ -175,9 +175,20 @@ function scanCommandBlock(): string {
   const markdown = readFileSync(SKILL_MD, 'utf-8');
   const block = [...markdown.matchAll(/```(?:bash|sh|shell|zsh)\n([\s\S]*?)```/g)]
     .map((m) => m[1])
-    .find((b) => b.includes('MARKET_OPEN_REPORT_LIST'));
+    .find((b) => b.includes('morning-report.mjs'));
   if (!block) throw new Error('the morning-report SKILL.md no longer contains a scan command block');
   return block;
+}
+
+/**
+ * The absolute deliverables directory the run's own `--system-prompt` directive
+ * names. This is the ONLY channel the agent has for it: `WAYLAND_OUTPUT_DIR` is
+ * set on the engine process and never reaches a Bash tool call.
+ */
+function deliverablesDirFromDirective(directive: string): string {
+  const m = directive.match(/Deliverables you want the user to keep go in (.+?)\. Create that directory/);
+  if (!m) throw new Error(`buildOutputDirective no longer names a directory: ${directive}`);
+  return m[1];
 }
 
 /** `- key: value` lines out of the SEEDED prompt - the agent's only input list. */
@@ -264,7 +275,7 @@ function makeService(jobs: CronJob[]): CronService {
 }
 
 /** What the stand-in agent does once the engine env for the run exists. */
-type Agent = (env: Record<string, string>, workspace: string) => Promise<void>;
+type Agent = (env: Record<string, string>, workspace: string, directive: string) => Promise<void>;
 
 function makeHarness(workspace: string) {
   const guard = new CronBusyGuard();
@@ -283,7 +294,12 @@ function makeHarness(workspace: string) {
         workspace,
         outputDir: activeRunOutputDir(conversationId),
       });
-      await agent(env, workspace);
+      // Mirrors `WCoreAgent.start`: ONE `resolveOutputDir` call feeds BOTH the
+      // spawn env and the `--system-prompt` directive. Deriving it twice would
+      // let the two channels disagree, which is the defect this rail exists to
+      // prevent.
+      const engineOutputDir = resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId);
+      await agent(env, workspace, buildOutputDirective(engineOutputDir));
     }),
   });
   const taskManager = {
@@ -364,15 +380,24 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
     installScannerStubs(workspace);
 
     const seriesDir = pathMod.join(workspace, 'artifacts', 'market');
-    const block = substitute(scanCommandBlock(), promptInputs(job.target.payload.text));
     const h = makeHarness(workspace);
 
-    /** The agent: run the skill's own commands, in the workspace, with the run's env. */
+    /**
+     * The agent: run the skill's own commands, in the workspace, resolving its
+     * one placeholder the only way the product lets it - out of the directive.
+     *
+     * The engine's env is deliberately NOT spread into the child. The engine
+     * runs Bash tool calls through a 19-name allowlist that excludes
+     * `WAYLAND_OUTPUT_DIR`, so a stand-in that forwarded it would be testing a
+     * channel the product does not have.
+     */
     const runSkill = (bar: string): Agent => {
-      return async (env, ws) => {
+      return async (_env, ws, directive) => {
+        const block = scanCommandBlock().split('<deliverables_dir>').join(deliverablesDirFromDirective(directive));
+        expect(block).not.toContain('<');
         execFileSync('bash', ['-c', block], {
           cwd: ws,
-          env: { ...process.env, ...env, FAKE_BAR: bar } as NodeJS.ProcessEnv,
+          env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined, FAKE_BAR: bar } as NodeJS.ProcessEnv,
           stdio: 'pipe',
         });
       };
@@ -399,9 +424,9 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
 
     // Day 2, in a brand new conversation, reading day 1 before it writes.
     let priorSeenByDay2 = '';
-    await h.run(job, async (env, ws) => {
+    await h.run(job, async (env, ws, directive) => {
       priorSeenByDay2 = await fsp.readFile(pathMod.join(ws, 'artifacts', 'market', 'morning-brief.html'), 'utf8');
-      await runSkill('2026-08-20')(env, ws);
+      await runSkill('2026-08-20')(env, ws, directive);
     });
 
     expect(priorSeenByDay2).toContain('bar 2026-08-19');

@@ -146,18 +146,37 @@ export function routinePromptHeader(workflow: string): string {
 }
 
 /**
- * Where a scheduled run must write.
+ * THE SENTENCE THAT SENT EVERY SCHEDULED RUN AT AN ENVIRONMENT VARIABLE IT
+ * CANNOT SEE.
  *
- * Without this the routine prompt named no destination at all, so a run wrote
- * wherever the workflow body happened to say - and only ONE of the 71 bundled
- * bodies says anything. Everything the run leaves in `WAYLAND_OUTPUT_DIR` is
- * what gets published; a run that writes elsewhere stages nothing, is abandoned
- * as empty, and leaves the four routines that read a PRIOR run's deliverable
- * (`artifacts/ops/last-weekly-review.md` and friends) reading a path nothing
- * ever writes.
+ * `WAYLAND_OUTPUT_DIR` is set on the ENGINE process, and the engine runs every
+ * Bash tool call through a fixed 19-name env allowlist that does not include
+ * it - proven by executing `wayland-core sandbox exec` on both the shipped
+ * v0.13.3 and the pinned v0.13.4, which printed an empty value for it while
+ * `WAYLAND_HOME` came back populated as the known-positive control. So a run
+ * following this sentence resolved an empty variable, wrote to its fallback,
+ * staged nothing, and settled as `no-output`.
+ *
+ * KEPT, NOT DELETED. `isSeederGeneratedPrompt` tells a prompt the seeder wrote
+ * from one the user has edited by matching whole lines against
+ * {@link ROUTINE_GENERATED_SENTENCES}. Drop this literal from that set and every
+ * already-seeded job's prompt starts reading as user-edited, and the migration
+ * refuses to touch the very rows it exists to repair.
+ */
+export const LEGACY_ROUTINE_OUTPUT_DIR_SENTENCE =
+  "Write every file this run produces into the directory named by the WAYLAND_OUTPUT_DIR environment variable. It is an absolute path inside the workspace, and it is the only place this run's output is collected from - a file written anywhere else is not published and the next run cannot read it. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.";
+
+/**
+ * Where a scheduled run must write, named as TEXT rather than as a variable.
+ *
+ * The absolute path itself is NOT in this sentence and must not be: this string
+ * is baked into `cron_jobs.prompt` at SEED time, months before any run exists,
+ * and a stale absolute path is worse than none. The run's own directory arrives
+ * at spawn time on the `--system-prompt` channel (`buildOutputDirective`), which
+ * is appended to the engine's composed prompt and survives a `--resume`.
  */
 export const ROUTINE_OUTPUT_DIR_SENTENCE =
-  "Write every file this run produces into the directory named by the WAYLAND_OUTPUT_DIR environment variable. It is an absolute path inside the workspace, and it is the only place this run's output is collected from - a file written anywhere else is not published and the next run cannot read it. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.";
+  "Write every file this run produces into the absolute deliverables directory named in your run instructions. That is the only place this run's output is collected from - a file written anywhere else is not published and the next run cannot read it. Do not read WAYLAND_OUTPUT_DIR: it is not visible to shell commands and resolves empty. A relative path in the inputs above is workspace-relative and is somewhere to READ from, never a write target.";
 
 /** Closing rule, unchanged since the first seeded routine. */
 export const ROUTINE_NO_ATTACHMENT_SENTENCE =
@@ -170,6 +189,11 @@ export const ROUTINE_NO_ATTACHMENT_SENTENCE =
  */
 export const ROUTINE_GENERATED_SENTENCES: readonly string[] = [
   ROUTINE_OUTPUT_DIR_SENTENCE,
+  // EVERY sentence the seeder has EVER emitted, superseded ones included. A
+  // retired literal that is dropped from this list makes every prompt already
+  // on disk read as user-edited, and the migration then refuses to repair the
+  // rows it was written for.
+  LEGACY_ROUTINE_OUTPUT_DIR_SENTENCE,
   ROUTINE_NO_ATTACHMENT_SENTENCE,
 ];
 
