@@ -36,7 +36,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -228,6 +228,24 @@ describe('the scanner CLI names the cause on stdout', () => {
       expect(stdout).toContain('ENOTFOUND');
       // The distinction the user needs, in the run's own words.
       expect(stdout).toContain('This is NOT "no data"');
+
+      // AND THE THREAD MUST LEARN IT. The workflow body is the only thing that
+      // tells the model what to do with this stdout; a refusal the run prints
+      // and the body never mentions is a refusal the user never sees. Couple
+      // the two to the token the CLI ACTUALLY emitted just now, not to a
+      // literal copied out of either source.
+      const token = (stdout.match(/\bREFUSED\b/) ?? [])[0];
+      expect(token).toBe('REFUSED');
+      const body = readFileSync(
+        path.resolve(
+          __dirname,
+          '../../src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md'
+        ),
+        'utf8'
+      );
+      expect(body).toContain(token);
+      expect(body).toContain('Refused');
+      expect(body).toContain('Do not retry');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
