@@ -49,9 +49,10 @@ import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
 import {
   buildChatArtifactCardContent,
   buildChatArtifactCardMessage,
+  persistChatArtifactCard,
 } from '@process/services/artifacts/chatArtifactCard';
 import { onChatTurnCompleted } from '@process/services/artifacts/chatRun';
-import { addMessage } from '@process/utils/message';
+import { addMessage, flushConversationMessages } from '@process/utils/message';
 import { getDataPath } from '@process/utils';
 import { resolveDefaultLaunchTarget } from '@process/utils/workflowLaunchTargetResolver';
 import type { TProviderWithModel } from '@/common/config/storage';
@@ -447,7 +448,7 @@ void getDatabase()
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {
       void onChatTurnCompleted(event, {
         ledgerPath: artifactLedgerPath(getDataPath()),
-        onSwept: (result) => {
+        onSwept: async (result) => {
           const content = buildChatArtifactCardContent(result);
           if (!content) return;
           const conversationId = event.sessionId;
@@ -455,7 +456,23 @@ void getDatabase()
           // Persist FIRST, then emit. A card the user can see but that is gone
           // after a restart is worse than one that arrives a beat late, and
           // "finds it again tomorrow" is the goal this milestone is measured on.
-          addMessage(conversationId, message);
+          //
+          // REPLACE, not insert. The card's id is derived from the conversation
+          // id, and `messages.id` is UNIQUE - so a plain `addMessage` on turn 2
+          // hit a constraint that `insertMessage` catches and returns as
+          // `{ success: false }`, which the write queue discarded. Every card
+          // after the first was lost in silence and the conversation reopened
+          // showing turn 1's stale card. The drain is part of it: `addMessage`
+          // is queued, so a delete racing a queued insert loses the card a
+          // second way.
+          const db = await getDatabase();
+          await persistChatArtifactCard(conversationId, message, {
+            flush: flushConversationMessages,
+            deleteMessage: (messageId) => {
+              db.deleteMessage(messageId);
+            },
+            addMessage,
+          });
           ipcBridge.conversation.responseStream.emit({
             type: 'artifact_card',
             conversation_id: conversationId,

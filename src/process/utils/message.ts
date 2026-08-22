@@ -96,7 +96,14 @@ class ConversationManageWithDB {
       let messageList = messages.data.toReversed();
       for (const [type, msg] of stack) {
         if (type === 'insert') {
-          db.insertMessage(msg);
+          // `insertMessage` CATCHES its own failures and returns a boolean.
+          // Discarding it is why a card colliding on the UNIQUE `messages.id`
+          // was lost silently on every turn after the first, for the whole life
+          // of the feature, with no exception anywhere to notice.
+          const inserted = db.insertMessage(msg);
+          if (!inserted.success) {
+            console.error(`[Message] insert failed for ${msg.id} (${msg.type}):`, inserted.error);
+          }
           messageList.push(msg);
         } else {
           messageList = composeMessage(msg, messageList, (opType, message) => {
