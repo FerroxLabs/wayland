@@ -140,7 +140,10 @@
     "workflow": "wayland-morning-report",
     "inputs": {
       "output_dir": "artifacts/market/"
-    }
+    },
+    "connectors": [
+      "com.ferroxlabs/tvcontrol"
+    ]
   },
   {
     "id": "weekly-support-review",
