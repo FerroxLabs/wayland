@@ -92,17 +92,32 @@ describe('preset rule seeding rewrites only LEADING skills/ segments', () => {
     }
   });
 
+  /**
+   * REWRITTEN, AND THE REWRITE IS THE POINT - see B6 in the readiness report.
+   *
+   * This assertion used to require the seeded text to say "Settings → Skills &
+   * Tools". That remedy was invented: the page it names states, in the product,
+   * "You don't switch skills on and off", and a skill missing from a workspace
+   * is a fact about that workspace, not a toggle. The user followed the
+   * instruction and arrived somewhere that could not help them.
+   *
+   * The claim this test makes is unchanged - a failed `cd` must not leave the
+   * user at a dead end - and it is still checked in the same paragraph, with the
+   * same anti-vacuous guard on the anchor. What changed is that the honest
+   * answer to "the skill is not here" is "say so and stop", so the assertion is
+   * now that the paragraph SAYS there is nowhere to send them, and that no
+   * Settings path survives anywhere in the seeded file.
+   */
   it('names the remedy when the cd fails, instead of just declaring the skill missing', () => {
-    // After the anchoring fix a failed `cd` really does mean the skill is not placed in
-    // this workspace, so the instruction is finally true - but "say so" left the user with
-    // a dead end. The seeded text has to name the one action that fixes it.
     const seeded = smartTrader!.after;
-    const idx = seeded.indexOf('not enabled');
+    const idx = seeded.indexOf('not in this workspace');
     expect(idx, 'the failure instruction must still exist').toBeGreaterThan(-1);
     // Same paragraph, so the remedy is read together with the diagnosis.
     const paragraph = seeded.slice(0, idx).split('\n\n').pop()! + seeded.slice(idx).split('\n\n')[0];
-    expect(paragraph).toMatch(/Settings → Skills & Tools/);
     expect(paragraph).toMatch(/market-open-report/);
+    expect(paragraph.replace(/\s+/g, ' ')).toMatch(/no page anywhere in the app that adds it/i);
+    // And the invented affordance is gone from the whole seeded document.
+    expect(seeded).not.toMatch(/Settings\s*(?:→|->)/);
   });
 
   it('KNOWN-POSITIVE CONTROL: star-office-helper still gets every leading skills/ absolutized', () => {
