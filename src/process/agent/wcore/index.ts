@@ -285,6 +285,14 @@ export function resolveTurnStallTimeoutMs(env: NodeJS.ProcessEnv = process.env):
 const CORE_APPROVAL_REAPED_REASON = 'approval timed out (no host response)';
 
 /**
+ * The collapsed tool row clamps `name: description` to this many characters and
+ * appends an ellipsis. MEASURED in the running app, twice, on two different
+ * drafts: both came back cut at exactly 75. Exported so the mapping's own test
+ * can hold the line rather than trusting a comment.
+ */
+export const CANCELLATION_LABEL_MAX_CHARS = 75;
+
+/**
  * Give the ONE reason a person cannot be expected to parse a title and a
  * sentence. Every other reason passes through unchanged - a denial, a
  * ForgeFlow decline and a Crucible cancel all carry information the user
@@ -301,11 +309,15 @@ export function describeToolCancellation(reason: string): { name: string; descri
   if (reason === CORE_APPROVAL_REAPED_REASON) {
     return {
       name: 'Approval timed out',
-      // Length is load-bearing: the tool row is `name: description` on ONE
-      // nowrap line with an ellipsis. Measured live in the running app at the
-      // real font (13.5px Sora): the row had 726px, this whole line renders at
-      // 648px, and the first draft at 874px was visibly cut off mid-word.
-      description: 'Wayland waited 5 minutes for your approval. Nothing was read or changed.',
+      // LENGTH IS LOAD-BEARING, and the limit is characters, not pixels. The
+      // collapsed tool row renders `name: description` and CLAMPS THE STRING
+      // ITSELF at exactly 75 characters plus an ellipsis - not CSS overflow,
+      // the DOM textContent is already cut. Measured twice in the running app:
+      // two different drafts both came back cut at exactly 75 characters, with
+      // the span 540px wide inside a 726px box, so pixel width is not the gate.
+      // Keep `name` + ': ' + `description` at or under 75 or the user reads
+      // half a sentence. See CANCELLATION_LABEL_MAX_CHARS.
+      description: 'Waited 5 minutes. Nothing was read or changed.',
     };
   }
   return { name: '', description: reason };

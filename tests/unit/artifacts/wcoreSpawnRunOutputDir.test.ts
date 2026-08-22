@@ -49,7 +49,7 @@ import os from 'os';
 import path from 'path';
 import { mkdtempSync, rmSync } from 'fs';
 
-import { WCoreAgent } from '@process/agent/wcore';
+import { CANCELLATION_LABEL_MAX_CHARS, WCoreAgent } from '@process/agent/wcore';
 import { activeRunOutputDir, clearRunOutputDirs, openRunOutputDir } from '@process/services/artifacts/runOutputDir';
 
 const SCHEDULED_CHAT = 'conv-scheduled-run';
@@ -223,6 +223,18 @@ describe('A3: the engine cancel reason a person actually reads', () => {
     expect(String(node.description)).not.toContain('no host response');
     expect(String(node.name) + ' ' + String(node.description)).toMatch(/5 minutes/);
     expect(String(node.description).length).toBeGreaterThan(20);
+  });
+
+  it('fits the row: the collapsed label clamps at 75 chars and cuts mid-sentence past it', () => {
+    // Not a style nit. The first two drafts of this sentence were BOTH cut at
+    // exactly 75 characters in the running app - "...after 5 minut..." and
+    // "...Nothing was..." - so the user read half of it. The clamp is on the
+    // string, not on pixels: the span measured 540px inside a 726px box.
+    const node = nodeFor(CORE_REAP_REASON);
+    const label = `${String(node.name)}: ${String(node.description)}`;
+    expect(label.length).toBeLessThanOrEqual(CANCELLATION_LABEL_MAX_CHARS);
+    // ...and it is a whole sentence, not a fragment that happens to be short.
+    expect(String(node.description).trim().endsWith('.')).toBe(true);
   });
 
   it('KNOWN NEGATIVE: every other cancel reason still passes through untouched', () => {
