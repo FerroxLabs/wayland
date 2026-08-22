@@ -42,8 +42,8 @@ describe('the sider nav order', () => {
     // The full roster as shipped. Reordering is the change under review;
     // LOSING one would silently remove a page from the sider AND from the
     // Settings > Navigation visibility list, which is not order-only.
-    expect([...ids].sort()).toEqual(
-      [
+    expect(new Set(ids)).toEqual(
+      new Set([
         'artifacts',
         'assistants',
         'memory',
@@ -54,7 +54,7 @@ describe('the sider nav order', () => {
         'sessions',
         'teams',
         'workflows',
-      ].sort()
+      ])
     );
     expect(new Set(ids).size).toBe(ids.length);
   });
