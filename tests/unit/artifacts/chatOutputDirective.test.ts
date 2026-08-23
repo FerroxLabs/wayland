@@ -73,7 +73,12 @@ async function spawnOnce(opts: { conversationId?: string; rawEngineMode?: boolea
     workspace,
     conversationId: opts.conversationId,
     rawEngineMode: opts.rawEngineMode ?? true,
-    model: { name: 'm', useModel: 'm', platform: 'openai', baseUrl: '' } as never,
+    // An explicit key, because `WCoreAgent.start()` throws MissingApiKeyError
+    // BEFORE spawning unless one is present or `engineInheritsShellKey` finds
+    // `OPENAI_API_KEY` in the ambient environment. Relying on the ambient one
+    // meant these three assertions never executed the directive path on a
+    // machine without a provider key exported - proven by A/B/A on Windows.
+    model: { name: 'm', useModel: 'm', platform: 'openai', baseUrl: '', apiKey: 'test-key' } as never,
     onStreamEvent: () => {},
   });
   await expect(agent.start()).rejects.toThrow('STOP_AFTER_SPAWN');
