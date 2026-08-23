@@ -574,6 +574,19 @@ export const useMcpConnection = (
               : s;
           })
         );
+      } catch (error) {
+        // Persisting probe STATUS is best-effort. This runs from a mount effect
+        // (useConnectedMcps, McpLibrary/DetailPage) as a bare `void` call with no
+        // rejection handler, so letting this escape is an unhandled renderer
+        // rejection on page load - the error-envelope hazard bridgeAllowlist's
+        // own docblock warns about, where a refusal arrives as a non-null object
+        // and the root ErrorBoundary blanks the app.
+        //
+        // Reachable since N2 denied `mcp.compare-and-set-config` to remote: on a
+        // paired browser every server's probe fails, the failure branch patches
+        // `status:'error'`, and the resulting save is refused. A status column
+        // that cannot be written is not a reason to take the page down.
+        console.warn('[useMcpConnection] could not persist probe status:', error);
       } finally {
         setTestingServers((prev) => {
           const next = { ...prev };

@@ -145,3 +145,38 @@ describe('useMcpServers durable mutation queue', () => {
     expect(hook.result.current.mcpServers.map(({ id }) => id)).toEqual(['main-process', 'renderer']);
   });
 });
+
+/**
+ * N2 fallout guard. Denying `mcp.compare-and-set-config` to a paired browser
+ * made a pre-existing renderer bug reachable: the one-time `source` migration
+ * runs on the READ path, and when it fired, the hook published the list ONLY
+ * via the write's snapshot. A refused write therefore left the connector list
+ * EMPTY - and the mount effect's own `.catch` swallowed the throw, so it was
+ * silent. `useMcpServers` also backs the chat composer's add menu, not just
+ * Settings, so an empty array there is not a one-page problem.
+ *
+ * A profile whose servers all already carry `source` never reproduces it, which
+ * is why this needs a server WITHOUT one: any modern dev profile is a false
+ * negative.
+ */
+describe('N2 - a refused migration write must not blank the connector list', () => {
+  it('still exposes servers when the source-migration write fails', async () => {
+    // A pre-Library server: no `source`, so `migrateExistingServers` must tag it
+    // and the write path is taken. This is the control for the whole test - with
+    // `source` already set, nothing writes and the assertion proves nothing.
+    const legacy = { ...server('legacy-fs', 10) } as Partial<IMcpServer>;
+    delete legacy.source;
+    mocks.persisted = [legacy as IMcpServer];
+    mocks.failNextWrite = true;
+
+    const { result } = renderHook(() => useMcpServers());
+
+    await waitFor(() => {
+      expect(result.current.mcpServers).toHaveLength(1);
+    });
+    expect(result.current.mcpServers[0]).toMatchObject({ id: 'legacy-fs', source: 'custom' });
+    // The write really was attempted and really did fail - otherwise this test
+    // passes for the wrong reason.
+    expect(mocks.compareAndSet).toHaveBeenCalled();
+  });
+});

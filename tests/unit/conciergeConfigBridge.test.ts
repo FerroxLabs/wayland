@@ -215,9 +215,12 @@ describe('conciergeConfigBridge apply', () => {
     setMsg({ kind: 'add_mcp', name: 'fs', command: 'npx', args: ['-y', 'srv'], status: 'pending' });
     const ok = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
     expect(ok.ok).toBe(true);
-    // Two authority writes: the disabled declaration, then the probe outcome
-    // recorded onto that same row (B3). Still exactly one append.
-    expect(mcpUpdateSpy).toHaveBeenCalledTimes(2);
+    // Exactly ONE authority write: the disabled declaration. There used to be a
+    // second, recording a probe outcome onto that same row (B3) - but that probe
+    // spawned the model-authored command (N2), so it is gone and with it the
+    // write it produced. The "still exactly one append" intent is unchanged and
+    // now holds literally.
+    expect(mcpUpdateSpy).toHaveBeenCalledTimes(1);
     expect(state.mcpServers).toEqual(expect.arrayContaining([expect.objectContaining({ name: 'fs' })]));
 
     // Now a duplicate
