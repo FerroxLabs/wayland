@@ -124,7 +124,9 @@ function producerRepo(contents: string): { repoRoot: string; commit: string; con
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, contents, 'utf8');
   git('add', '--', SOURCE_PATH);
-  git('commit', '--quiet', '--no-gpg-sign', '-m', 'producer');
+  // --no-verify: a global core.hooksPath or init.templateDir would otherwise
+  // run this repo's real pre-commit hooks inside a throwaway fixture.
+  git('commit', '--quiet', '--no-gpg-sign', '--no-verify', '-m', 'producer');
   const commit = git('rev-parse', 'HEAD').trim();
   return { repoRoot, commit, contentSha256: sha256Prefixed(Buffer.from(contents, 'utf8')) };
 }
