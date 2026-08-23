@@ -15,6 +15,7 @@ import {
   isRemoteDeniedConfigWrite,
   isRemoteDeniedConfirmation,
 } from '@/common/adapter/bridgeAllowlist';
+import { redactForRemote } from '@/common/adapter/remoteRedaction';
 import { WebSocketManager } from './websocket/WebSocketManager';
 
 /**
@@ -66,8 +67,15 @@ export function initWebAdapter(wss: WebSocketServer): void {
   // #645: filter the outbound stream so a paired peer never receives a
   // local-only emitter (terminal.output/exit carry the live PTY stream).
   unregisterBroadcaster = registerWebSocketBroadcaster((name, data) => {
+    // WS-OUTBOUND-REDACTION: the inbound gates above decide WHO may call what.
+    // They cannot help with what a permitted READ returns. mcp.get-config-snapshot,
+    // mcp.get-agent-configs and agent.config.storage.get all stay remote-allowed
+    // because the paired WebUI needs the connector list to render at all - but
+    // their payload carries `transport.env` and `transport.headers` verbatim, so
+    // a token proving a paired BROWSER could read every connector credential on
+    // the machine. Redact on the way out; the shape survives, the secret does not.
     if (!isAllowedOutboundToRemote(name)) return;
-    wsManager.broadcast(name, data);
+    wsManager.broadcast(name, redactForRemote(name, data));
   });
 
   // Setup WebSocket message handler to forward messages to bridge emitter.
