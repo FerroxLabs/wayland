@@ -74,6 +74,7 @@
     "fluxDesktop": "Flux Desktop · 데몬 :7878"
   },
   "flow": {
+    "back": "뒤로",
     "personas": {
       "content": "Content & creative",
       "sales": "Sales & growth",

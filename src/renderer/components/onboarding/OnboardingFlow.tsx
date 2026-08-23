@@ -5,6 +5,7 @@
  */
 
 import {
+  ArrowLeft,
   ArrowRight,
   Building2,
   Check,
@@ -369,6 +370,22 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
     [t]
   );
 
+  /**
+   * Step back one screen. The previous screen is derived from ALL_SCREENS, which
+   * is the same order the forward transitions walk, so there is no second
+   * transition table to drift out of sync.
+   *
+   * Nothing is rolled back on the way out. Every forward step writes an
+   * idempotent record of a decision the user actually made (display name, a
+   * provider pin, the launchpad order, the shell choice), so returning and
+   * continuing simply rewrites the same values; un-writing them would be the
+   * surprising behaviour, not the safe one.
+   */
+  const goBack = useCallback(() => {
+    const i = ALL_SCREENS.indexOf(screen);
+    if (i > 0) setScreen(ALL_SCREENS[i - 1]);
+  }, [screen]);
+
   const togglePick = useCallback((id: FocusPersonaId) => {
     setPicks((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }, []);
@@ -499,13 +516,26 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
     return out;
   }, [wiredProviders, detection.ollama.models.length, hasOllama, fluxConnected, addedProviders, t]);
 
+  // Back lives here because the header is the one thing every screen renders.
+  // It shares the trailing group with the dots, so appearing from the second
+  // screen onward shifts neither the wordmark nor the dots. Disabled rather
+  // than hidden while `busy` is set: nobody may navigate out of an in-flight
+  // provider connection, and hiding it would move the dots.
   const Header: React.FC<{ step: 0 | 1 | 2 }> = ({ step }) => (
     <div className={styles.top}>
       <img className={styles.wordmark} src={wordmark} alt={t('onboarding.flow.logoAlt.wordmark')} />
-      <div className={styles.dots}>
-        {[0, 1, 2].map((i) => (
-          <span key={i} className={`${styles.dot} ${i === step ? styles.dotOn : i < step ? styles.dotDone : ''}`} />
-        ))}
+      <div className={styles.topEnd}>
+        {ALL_SCREENS.indexOf(screen) > 0 && (
+          <button type='button' className={styles.back} onClick={goBack} disabled={busy !== null}>
+            <ArrowLeft size={14} aria-hidden focusable='false' />
+            {t('onboarding.flow.back')}
+          </button>
+        )}
+        <div className={styles.dots}>
+          {[0, 1, 2].map((i) => (
+            <span key={i} className={`${styles.dot} ${i === step ? styles.dotOn : i < step ? styles.dotDone : ''}`} />
+          ))}
+        </div>
       </div>
     </div>
   );

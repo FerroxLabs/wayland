@@ -2040,6 +2040,7 @@ export type I18nKey =
   | 'onboarding.flow.allset.go'
   | 'onboarding.flow.allset.headline'
   | 'onboarding.flow.allset.sub'
+  | 'onboarding.flow.back'
   | 'onboarding.flow.chips.claudePro'
   | 'onboarding.flow.chips.envKey'
   | 'onboarding.flow.chips.flux'
