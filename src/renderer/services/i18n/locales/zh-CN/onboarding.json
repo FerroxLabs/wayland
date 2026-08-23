@@ -74,6 +74,7 @@
     "fluxDesktop": "Flux Desktop · 守护进程 :7878"
   },
   "flow": {
+    "back": "返回",
     "personas": {
       "content": "Content & creative",
       "sales": "Sales & growth",
