@@ -68,6 +68,17 @@ const MODEL_CONTEXT_LIMITS: Record<string, number> = {
   'claude-3-sonnet': 200_000,
   'claude-3-haiku': 200_000,
 
+  // Flux Router routing tiers. These are the ids the Router itself serves, and
+  // they do not exist in models.dev, so the catalog cannot enrich them - see
+  // FLUX_TIER_CONTEXT_WINDOW. Verified live against
+  // GET https://api.fluxrouter.ai/v1/models (2026-08-23): each reports
+  // max_input_tokens 1000000. Without these rows a Flux tier shows the 200K
+  // DEFAULT_CONTEXT_LIMIT whenever the registry has not resolved yet.
+  'flux-auto': 1_000_000,
+  'flux-reasoning': 1_000_000,
+  'flux-standard': 1_000_000,
+  'flux-fast': 1_000_000,
+
   // Claude Code ACP "slot" aliases. The claude backend has no session/set_model
   // and only honors the three ANTHROPIC_MODEL aliases, so it reports its current
   // model as a bare SLOT (`opus`/`sonnet`/`haiku`) rather than a catalog id - see

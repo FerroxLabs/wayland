@@ -15,6 +15,22 @@ export const FLUX_MODEL_IDS = ['flux-auto', 'flux-reasoning', 'flux-standard', '
 
 export type FluxModelId = (typeof FLUX_MODEL_IDS)[number];
 
+/**
+ * Context window the Flux Router advertises for its four routing tiers.
+ *
+ * VERIFIED LIVE against GET https://api.fluxrouter.ai/v1/models (2026-08-23):
+ * flux-auto, flux-reasoning, flux-standard and flux-fast each report
+ * `max_input_tokens: 1000000`.
+ *
+ * Flux publishes this as `max_input_tokens`, NOT as `context_length` or
+ * `context_window`. Nothing in this app reads `max_input_tokens`, and the Flux
+ * tiers do not exist in models.dev, so `CatalogAssembler` never matched them
+ * and never set a `contextWindow`. Every Flux tier therefore fell through to
+ * `DEFAULT_CONTEXT_LIMIT` (200K) and the usage meter told users they had a
+ * fifth of the context they had actually paid for.
+ */
+export const FLUX_TIER_CONTEXT_WINDOW = 1_000_000;
+
 /** Human labels for the picker (English; rendered via i18n key when in UI chrome). */
 export const FLUX_MODEL_DISPLAY: Record<FluxModelId, string> = {
   'flux-auto': 'Flux Auto',
