@@ -3,26 +3,34 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * B3 guard. Concierge "Apply" on an `add_mcp` proposal used to persist a
- * DISABLED declaration and answer `Added MCP server "X".` — an affirmative
- * claim of success over a connector nothing can reach. Only `enabled: true`
- * servers are published to the engine, so the user got a green receipt for an
- * install that did nothing.
+ * B3 guard, re-pointed by N2. Formerly `conciergeAddMcpEnables.test.ts`.
  *
- * The invariant this file guards is NOT "always enable". It is: the receipt
- * may only say what the host actually checked.
- *   - probe answered  -> enabled: true, and the receipt carries the tool count
- *   - probe silent    -> enabled stays false, and the receipt SAYS SO
+ * B3's invariant is NOT "always enable". It is: THE RECEIPT MAY ONLY SAY WHAT
+ * THE HOST ACTUALLY CHECKED. What B3 killed was the affirmative lie
+ * `Added MCP server "X".` over a connector nothing had reached.
+ *
+ * B3 satisfied that invariant by making the host CHECK - probe the declaration,
+ * then report what the probe found. That probe was arbitrary command execution:
+ * `command`/`args`/`env` in a [CONCIERGE_PROPOSE] block are MODEL OUTPUT, and
+ * `testMcpConnection` spawns them. Proven end to end through the production
+ * path - `/usr/bin/touch <marker>` in a real proposal created the marker, with a
+ * control asserting it absent immediately before - while the receipt said the
+ * server "did not answer". See conciergeAddMcpDoesNotSpawn.test.ts.
+ *
+ * So the host now checks NOTHING, and satisfies the identical invariant by
+ * CLAIMING nothing. The two assertions that changed are the two that depended on
+ * a probe having run; every assertion here that guards the invariant itself is
+ * kept and strengthened. The previous version of this file mocked
+ * `testMcpConnection`, which is precisely why it could assert a spawning code
+ * path as correct without ever observing a process start.
  *
  * Fixtures are produced by production code, never hand-written: the proposal
  * comes out of the real `detectConciergeProposals` over a real
- * `[CONCIERGE_PROPOSE]` block, and the probe result comes out of the real
- * `bindMcpPrepublicationProbeTruth` in mcpSessionTruthGate.
+ * `[CONCIERGE_PROPOSE]` block.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ConciergeConfirmParams, ConciergeConfirmResult } from '@/common/chat/conciergeConfig';
 import type { IMcpServer } from '@/common/config/storage';
-import type { McpConnectionTestResult } from '@process/services/mcpServices/McpProtocol';
 
 const { state, emitSpy, setSpy, getSpy, mcpUpdateSpy, probeSpy, syncSpy, detectedAgentsSpy, updateSpy } = vi.hoisted(
   () => {
@@ -88,7 +96,6 @@ vi.mock('@process/agent/AgentRegistry', () => ({
 
 import { initConciergeConfigBridge } from '@process/bridge/conciergeConfigBridge';
 import { detectConciergeProposals } from '@process/task/ConciergeProposeDetector';
-import { bindMcpPrepublicationProbeTruth } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 /**
  * Production path for the proposal: the real detector over a real assistant
@@ -118,25 +125,6 @@ function storeDetectedProposal(): void {
   };
 }
 
-/** A stub stdio MCP server that answers `initialize` and advertises two tools. */
-function probeAnswered(server: IMcpServer): McpConnectionTestResult {
-  return bindMcpPrepublicationProbeTruth(server, {
-    success: true,
-    tools: [
-      { name: 'chart_get_state', description: 'read the chart' },
-      { name: 'quote_get', description: 'read a quote' },
-    ],
-  });
-}
-
-/** The same production authoring path for a server that never answered. */
-function probeSilent(server: IMcpServer): McpConnectionTestResult {
-  return bindMcpPrepublicationProbeTruth(server, {
-    success: false,
-    error: 'spawn ["bunx","--bun","@ferroxlabs/tvcontrol@2.3.1"] code=-32000',
-  });
-}
-
 initConciergeConfigBridge();
 
 beforeEach(() => {
@@ -149,33 +137,44 @@ beforeEach(() => {
 });
 
 describe('concierge add_mcp Apply', () => {
-  it('enables the server and reports the tool count when the probe answers', async () => {
+  it('persists the declaration, publishes nothing, and claims nothing', async () => {
     storeDetectedProposal();
-    probeSpy.mockImplementation(async (server: IMcpServer) => probeAnswered(server));
 
     const result = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
 
     expect(result.ok).toBe(true);
-    expect(probeSpy).toHaveBeenCalledTimes(1);
+    // The declaration IS saved - the feature still does its one honest job.
     expect(state.mcpServers).toHaveLength(1);
-    expect(state.mcpServers[0]).toMatchObject({ name: 'tvcontrol', enabled: true, status: 'connected' });
-    expect(state.mcpServers[0].tools?.map((tool) => tool.name)).toEqual(['chart_get_state', 'quote_get']);
-    // The receipt may only say what the host checked: it checked two tools.
-    expect(String((result as { summary?: string }).summary)).toContain('2 tools');
+    expect(state.mcpServers[0]).toMatchObject({ name: 'tvcontrol', enabled: false, status: 'disconnected' });
+    expect(state.mcpServers[0].transport).toMatchObject({ command: 'bunx' });
+
+    // Nothing was probed, so nothing may be published: only `enabled` servers
+    // reach an agent, and this one is off. This is the assertion B3 added to
+    // stop a false-green row, and it holds unchanged.
+    expect(syncSpy).not.toHaveBeenCalled();
+    expect(probeSpy).not.toHaveBeenCalled();
+
+    // THE B3 INVARIANT. The host checked nothing, so the receipt asserts
+    // nothing about reachability - no tool count, no "answered", and equally no
+    // "did not answer", which would itself be a claim about a probe that never
+    // ran. It states a persist (true) and an instruction (true).
+    const summary = String((result as { summary?: string }).summary);
+    expect(summary).toContain('tvcontrol');
+    expect(summary).toContain('MCP Library');
+    for (const unchecked of ['tools', 'did not answer', 'connected', 'it answered']) {
+      expect(summary.toLowerCase()).not.toContain(unchecked);
+    }
   });
 
-  it('leaves the server disabled and SAYS SO when the probe never answers', async () => {
+  it('still refuses a duplicate name without touching the stored list', async () => {
+    // Control that the pre-accept validation path survived the change: this is
+    // the one check that legitimately runs before any write.
+    getSpy.mockResolvedValue([{ name: 'tvcontrol' }]);
     storeDetectedProposal();
-    probeSpy.mockImplementation(async (server: IMcpServer) => probeSilent(server));
 
     const result = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
 
-    expect(result.ok).toBe(true);
-    expect(state.mcpServers).toHaveLength(1);
-    expect(state.mcpServers[0]).toMatchObject({ name: 'tvcontrol', enabled: false });
-    expect(state.mcpServers[0].lastError).toBeTruthy();
-    // Never publish a connector that did not answer.
-    expect(syncSpy).not.toHaveBeenCalled();
-    expect(String((result as { summary?: string }).summary)).toContain('did not answer');
+    expect(result).toMatchObject({ ok: false, reason: 'mcp_name_exists' });
+    expect(state.mcpServers).toHaveLength(0);
   });
 });

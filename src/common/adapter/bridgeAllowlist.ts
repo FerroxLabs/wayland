@@ -341,6 +341,24 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // three shipped keys are ALSO listed in REMOTE_DENIED_KEYS below, so
   // narrowing this prefix later cannot silently re-open them.
   'workspaceFolderGrants.',
+  // N2. The concierge APPLY namespace. `confirm-proposal` with `action:'accept'`
+  // is the one path in the feature that mutates config: it connects a provider
+  // with the user's API key, rewrites an assistant's instructions, sets the
+  // default model, and persists a model-authored MCP stdio declaration. Every
+  // field of that declaration - `command`, `args`, `env` - is MODEL OUTPUT, so a
+  // prompt-injected page or a poisoned tool result steers it directly.
+  //
+  // This file already denies `cron.confirm-proposal` because "the cron proposal
+  // creates a real job". A concierge accept is strictly stronger than that: it
+  // writes credentials and connector specs. Leaving it reachable while denying
+  // the weaker sibling was an inconsistency, not a policy.
+  //
+  // A PREFIX, for the reason stated on `waylandTransfer.` above: a namespace
+  // whose entire purpose is applying model-authored config mutations must not be
+  // one omitted enumeration away from remote reach. `confirm-proposal` is ALSO
+  // listed in REMOTE_DENIED_KEYS below, the same belt-and-braces pair
+  // `workspaceFolderGrants.` uses, so narrowing this prefix cannot re-open it.
+  'conciergeConfig.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
 // (e.g. `write-file`, `remove-entry`), so the dangerous fs surface is enumerated
@@ -491,6 +509,10 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'cron.run-now',
   'cron.save-skill',
   'cron.confirm-proposal',
+  // N2. Shadowed by the `conciergeConfig.` prefix above; present so that
+  // narrowing that prefix later cannot silently re-open the apply path. Listed
+  // beside the cron sibling whose reasoning it inherits.
+  'conciergeConfig.confirm-proposal',
   'cron.restore-archived-job',
   // --- P2-4 workspace promotion. `promote` copies the chat's files into the
   //     user's Documents, pauses and re-arms the schedule, and repoints the
@@ -665,6 +687,43 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'mcp.cancel-oauth',
   'mcp.logout-oauth',
   'mcp.set-byo-oauth-credentials',
+  //     N2. `test-connection` and `compare-and-set-config` are the two halves of
+  //     a remote code-execution chain, and they were the only two steps of the
+  //     MCP install flow still reachable from a paired browser.
+  //
+  //     `mcp.test-connection` SPAWNS: it hands the stored declaration's
+  //     `command`/`args`/`env` to a StdioClientTransport, which starts a real
+  //     process on the host, as the user. `mcp.compare-and-set-config` persists
+  //     the WHOLE `IMcpServer[]`, so it is what decides which argv the spawn
+  //     uses. Either one alone is bad; together they are "write an arbitrary
+  //     stdio spec, then run it" in two remote calls.
+  //
+  //     This block is an INCOMPLETE ENUMERATION, not a deliberate carve-out.
+  //     Where this file does mean to leave a gap it says so and pins it with a
+  //     test (`wcoreConfig.getOutputBudget`, #990, above); there is no such note
+  //     here. Every terminal operation of the same flow - sync-to-agents,
+  //     remove-from-agents, archive/restore, all four OAuth keys - is already
+  //     denied directly above, so a paired browser could never finish an MCP
+  //     install anyway. These two close the steps that could still execute.
+  //     Local Electron IPC never passes through this gate.
+  'mcp.test-connection',
+  'mcp.compare-and-set-config',
+  //     N2, same class, different namespace. `acp.test-custom-agent` takes
+  //     `{command, acpArgs, env}` STRAIGHT FROM THE CALLER and spawns it
+  //     (testCustomAgentConnection -> spawnGenericBackend -> spawn). The only
+  //     check upstream is an execFileSync(which, [firstToken]) existence probe,
+  //     which `/bin/sh -c '<anything>'` passes trivially. Worse, that customEnv
+  //     is applied AFTER backendSpawnEnvHardening, so a remote caller's env
+  //     OVERRIDES the #756 hardening.
+  //
+  //     Proven by execution against this tree: a call carrying
+  //     `{command:'/bin/sh', acpArgs:['-c','/usr/bin/touch <marker>; sleep 1']}`
+  //     created the marker (control asserted it absent immediately before) while
+  //     the receipt returned `{success:false, msg:'ACP initialize failed...'}` -
+  //     the caller is told it FAILED after the command has already run.
+  //     This is a strictly worse duplicate of the concierge hole, so closing
+  //     that one without this one would just move the door.
+  'acp.test-custom-agent',
   // --- Memory mutation (#414 edit/delete of the user's local memory files) ---
   //     The memory.* namespace is intentionally open to the paired WebUI for
   //     READS (list/get/projects/tags/stats). These two providers perform a
@@ -811,6 +870,14 @@ const REMOTE_DENIED_CONFIG_KEY_PREFIXES: readonly string[] = [
   // persisted key so the generic storage setter cannot become the side door the
   // typed path closed. The matching READ stays remote-reachable by design (#990).
   'wcore.outputBudget',
+  // N2, and the exact #671 lesson one paragraph up. `mcp.config` is the
+  // `IMcpServer[]` - every connector's stdio `command`, `args` and `env` - and
+  // it lives in this same ProcessConfig store. Denying the typed
+  // `mcp.compare-and-set-config` provider while the generic setter can still
+  // write `mcp.config` would leave precisely the side door #671 describes: a
+  // paired peer plants an arbitrary stdio spec through the declarative path,
+  // then any later local connect runs it. Guard the persisted key too.
+  'mcp.config',
 ];
 
 /**
