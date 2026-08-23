@@ -115,27 +115,12 @@
 }
 
 .cardLogo {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  background: var(--color-fill-2);
   border: 1px solid var(--color-border-2);
-  overflow: hidden;
-}
-
-.cardLogo img {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-}
-
-.cardLogoLetter {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--color-text-2);
+  --connector-glyph-size: 20px;
+  --connector-glyph-letter-size: 15px;
 }
 
 .cardMeta {
