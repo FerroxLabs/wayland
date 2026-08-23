@@ -338,10 +338,10 @@ describe('ConstitutionRevisionAuthority', () => {
       thrown = error;
     }
 
-    // Bounded: eight attempts, 1125 ms of waiting, then it gives up.
-    expect(attempts).toBe(8);
-    expect(slept).toEqual([25, 50, 100, 200, 250, 250, 250]);
-    expect(slept.reduce((total, value) => total + value, 0)).toBe(1125);
+    // Bounded: eleven attempts, 2775 ms of waiting, then it gives up.
+    expect(attempts).toBe(11);
+    expect(slept).toEqual([25, 50, 100, 200, 400, 400, 400, 400, 400, 400]);
+    expect(slept.reduce((total, value) => total + value, 0)).toBe(2775);
     // Unmasked: the caller gets the original errno error, not a retry wrapper
     // and not a relabelled constitution code.
     expect((thrown as NodeJS.ErrnoException).code).toBe('EACCES');

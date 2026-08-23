@@ -277,15 +277,22 @@ function writeTemporary(authorityPath: string, encrypted: string): string {
 
 /**
  * Backoff schedule for the publication rename, in milliseconds between
- * attempts. Eight attempts, 1125 ms of waiting in the worst case.
+ * attempts. Eleven attempts, 2775 ms of waiting in the worst case.
  *
  * The first retry is deliberately short: this is a synchronous rename on the
  * Electron main thread, so the schedule front-loads the case that clears
  * immediately and only lengthens once it is clear something is really holding
  * the file. The repo's async prior art (`retryOnEbusy` in `ijfwSystemService`)
  * can afford a flat 100 ms first sleep because it does not block anything.
+ *
+ * The total was set by measurement, not taste. Against the reproduction below
+ * (8 runs of `recoveryPointBuilder.test.ts` under eight concurrent filesystem
+ * scanners) an unretried rename failed 24 times; a 1125 ms budget left 3
+ * failures in 14 loaded runs, so the tail outlives a one-second wait. Rotation
+ * is a rare, deliberate operation that already does synchronous crypto and
+ * fsync, and the alternative to waiting is failing it outright.
  */
-const PUBLICATION_RETRY_BACKOFF_MS: readonly number[] = [25, 50, 100, 200, 250, 250, 250];
+const PUBLICATION_RETRY_BACKOFF_MS: readonly number[] = [25, 50, 100, 200, 400, 400, 400, 400, 400, 400];
 
 /** Errno codes a transient third-party handle produces on a Windows rename. */
 function isTransientPublicationError(error: unknown): boolean {
@@ -326,7 +333,7 @@ function sleepSync(milliseconds: number): void {
  * THE BUDGET IS BOUNDED and the original error is rethrown unmodified, so a
  * genuine permission failure - an unwritable constitution directory - still
  * surfaces to the caller with its own `code` and `message`, just up to
- * 1125 ms later. It is never swallowed and never retried indefinitely.
+ * 2775 ms later. It is never swallowed and never retried indefinitely.
  *
  * The retry is not gated on `process.platform`. The hazard is Windows-only,
  * but a POSIX EACCES here is an already-fatal once-per-rotation condition
