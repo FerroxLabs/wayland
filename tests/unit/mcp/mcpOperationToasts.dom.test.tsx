@@ -57,12 +57,16 @@ const server: IMcpServer = {
   updatedAt: 2,
 };
 
-type Toast = { level: 'info' | 'success' | 'warning' | 'error'; content: string };
+type Toast = { level: 'info' | 'success' | 'warning' | 'error'; content: string; id?: string };
 
 function harness() {
   const toasts: Toast[] = [];
   const record = (level: Toast['level']) => (arg: unknown) =>
-    toasts.push({ level, content: typeof arg === 'string' ? arg : String((arg as { content: string }).content) });
+    toasts.push({
+      level,
+      content: typeof arg === 'string' ? arg : String((arg as { content: string }).content),
+      id: typeof arg === 'string' ? undefined : (arg as { id?: string }).id,
+    });
   const message = {
     info: record('info'),
     success: record('success'),
@@ -197,5 +201,77 @@ describe('the toast tells the truth about what happened', () => {
     const last = toasts[toasts.length - 1];
     expect(last.level).toBe('success');
     expect(last.content).toContain('"total":1');
+  });
+});
+
+/**
+ * WORKING, BUT CLUMSY.
+ *
+ * The publish SUCCEEDED - it just looked broken while it did. A warning carries
+ * `duration: 8000`, so it stays on screen for eight seconds. Toggle the
+ * connector again inside that window and the NEXT operation's "contacting N
+ * agents to remove this connector..." appears while the PREVIOUS operation's
+ * warning is still sitting above it. Read together they say the app is removing
+ * something you just asked it to enable, and the warning is never retracted
+ * once it stops being true.
+ *
+ * Arco keys a message by `id` and REPLACES a live one that shares it. One slot
+ * per connector means each message supersedes the one it corrects, so the
+ * screen only ever holds the CURRENT state of a connector.
+ *
+ * These assertions go through the real hook. Nothing here constructs a message
+ * by hand - the ids are whatever the production path actually emitted.
+ */
+describe('one message slot per connector, so nothing stale outlives the truth', () => {
+  it('a publish that partly times out and is then toggled off never stacks two operations', async () => {
+    syncInvoke.mockResolvedValue({
+      success: true,
+      data: {
+        results: [
+          { agent: 'Claude Code', success: true, outcome: 'applied' },
+          { agent: 'Qwen Code', success: false, outcome: 'timed-out' },
+        ],
+      },
+    });
+    removeInvoke.mockResolvedValue({
+      success: true,
+      data: {
+        results: [
+          { agent: 'Claude Code', success: true, outcome: 'applied' },
+          { agent: 'Qwen Code', success: true, outcome: 'applied' },
+        ],
+      },
+    });
+
+    const { toasts, ops } = harness();
+    await ops.syncMcpToAgents(server).catch(() => undefined);
+    await ops.removeMcpFromAgents(server.name).catch(() => undefined);
+
+    // The sequence the user actually saw: start, timeout warning, start, outcome.
+    expect(toasts.length).toBeGreaterThanOrEqual(4);
+    expect(toasts.some((entry) => entry.content.includes('settings.mcpAgentsRetryNeeded'))).toBe(true);
+    expect(toasts.some((entry) => entry.content.includes('settings.mcpRemoveStarted'))).toBe(true);
+
+    // EVERY message about this connector claims the same slot, so the remove
+    // spinner replaces the publish warning instead of appearing underneath it.
+    const ids = toasts.map((entry) => entry.id);
+    expect(ids.every((id) => typeof id === 'string' && id.length > 0)).toBe(true);
+    expect(new Set(ids).size).toBe(1);
+  });
+
+  it('two different connectors keep their own slots and do not overwrite each other', async () => {
+    const other: IMcpServer = { ...server, id: 'mcp-other', name: 'com-example-other' };
+    syncInvoke.mockResolvedValue({
+      success: true,
+      data: { results: [{ agent: 'Claude Code', success: true, outcome: 'applied' }] },
+    });
+
+    const { toasts, ops } = harness();
+    await ops.syncMcpToAgents(server).catch(() => undefined);
+    await ops.syncMcpToAgents(other).catch(() => undefined);
+
+    // A shared slot for everything would be the opposite bug: one connector's
+    // result silently erasing another's.
+    expect(new Set(toasts.map((entry) => entry.id)).size).toBe(2);
   });
 });
