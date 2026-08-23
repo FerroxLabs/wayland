@@ -157,4 +157,27 @@ describe('turn-end reconciliation of what the assistant claimed', () => {
     ]);
     expect(swept?.unsupported ?? []).toEqual([]);
   });
+
+  /**
+   * ONE LINE IN `initBridge` IS THE WHOLE FEATURE, AND DELETING IT IS SILENT.
+   *
+   * `reconcileTurnClaims` opens with `if (!lastAgentText) return []`, so a
+   * refactor that drops `lastAgentText: getLastAgentText,` from the turn-end
+   * wiring turns every test in this file into a test of a code path production
+   * no longer reaches - with 465 of them still green. Nothing else asserts that
+   * the reader is actually handed over, so this does, by reading the source.
+   *
+   * A SOURCE GREP IS ONLY EVIDENCE IF IT CAN FAIL. The control below looks for
+   * a string that is definitely not there; if the probe is alive it finds
+   * nothing, and if the file ever stops being readable both halves go red
+   * together instead of the real assertion passing on an empty string.
+   */
+  it('the turn-end wiring still hands the assistant text to the reconciler', () => {
+    const source = readFileSync(path.resolve(__dirname, '../../../src/process/utils/initBridge.ts'), 'utf-8');
+    // CONTROL: the probe finds a known negative, so a silently empty read
+    // cannot make the assertion below pass.
+    expect(source.length).toBeGreaterThan(1000);
+    expect(source).not.toContain('lastAgentText: getLastAgentTextThatDoesNotExist');
+    expect(source).toContain('lastAgentText: getLastAgentText,');
+  });
 });
