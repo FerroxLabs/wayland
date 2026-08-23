@@ -36,7 +36,19 @@
  *     redirects are refused, so a crafted watchlist entry cannot rewrite the
  *     query, the fragment, or the host that is eventually contacted.
  */
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'fs';
+import { randomBytes } from 'crypto';
+import {
+  closeSync,
+  constants as fsConstants,
+  lstatSync,
+  mkdirSync,
+  openSync,
+  readdirSync,
+  realpathSync,
+  renameSync,
+  unlinkSync,
+  writeSync,
+} from 'fs';
 import path from 'path';
 
 /** `report.mjs:334` - `yahooDaily(tkr, '19990101', end, …)`. */
@@ -87,6 +99,196 @@ export function utcCacheEndDate(now: Date = new Date()): string {
 }
 
 /**
+ * CONTAINMENT IS DECIDED ON THE REAL PATH, NEVER ON THE STRING.
+ * ------------------------------------------------------------
+ * Everything below exists because of one asymmetry: this module runs OUTSIDE
+ * the seatbelt, and every path it writes to is derived from the task
+ * workspace, which the sandboxed run can write to. `mkdir`, `open`, `write`
+ * and `unlink` all FOLLOW symbolic links. A run that has been prompt-injected
+ * cannot leave its jail itself, but it can drop a link inside the workspace
+ * and let the host walk into it on the next fire. A lexical prefix comparison
+ * agrees that `<workspace>/…/yahoo-cache` is inside the workspace no matter
+ * where that name actually points.
+ *
+ * On Windows the same escape costs nothing: a directory JUNCTION needs no
+ * privilege, and `O_NOFOLLOW` is not implemented there at all. So `O_NOFOLLOW`
+ * is used where it exists - it is the only thing that closes the window
+ * between the check and the open - but it is NEVER the only defence. The
+ * `lstat` refusal is, and Node reports a junction as a symbolic link.
+ *
+ * A path that cannot be resolved is REFUSED, not assumed safe.
+ *
+ * AND PATH CONTAINMENT IS NOT ENOUGH ON ITS OWN. A HARDLINK is not a link the
+ * kernel resolves - it is a SECOND DIRECTORY ENTRY for the same inode, sitting
+ * legitimately inside the workspace. Against one, every path answer above is
+ * correct and useless: the relative check passes, `realpathSync` resolves
+ * inside the root, and `isSymbolicLink()` is FALSE. The damage happens through
+ * the inode - `O_TRUNC` on that entry empties a file outside the workspace.
+ *
+ * So there is a second axis, and it is about the INODE, not the path:
+ *  - a file this module wrote has exactly ONE link, so `nlink !== 1` is a
+ *    refusal ({@link leafKind}); and
+ *  - this module never writes THROUGH an existing entry at all. Every write
+ *    creates a fresh private name with `O_EXCL` and RENAMES it into place,
+ *    which replaces the directory entry and never touches the inode any other
+ *    entry still points at ({@link writeConfinedFile}).
+ */
+const O_NOFOLLOW = typeof fsConstants.O_NOFOLLOW === 'number' ? fsConstants.O_NOFOLLOW : 0;
+
+function isInside(realRoot: string, candidate: string): boolean {
+  if (candidate === realRoot) return true;
+  return candidate.startsWith(realRoot.endsWith(path.sep) ? realRoot : realRoot + path.sep);
+}
+
+/**
+ * Resolve the confinement root ONCE, from the kernel.
+ *
+ * The root is host-created (the task workspace), so its own real path is the
+ * trusted anchor every later decision is made against. An unresolvable root is
+ * a total prefetch outage, which is a correct outcome; assuming it is fine is
+ * not.
+ */
+function resolveRoot(root: string): string | null {
+  try {
+    const real = realpathSync(path.resolve(root));
+    return lstatSync(real).isDirectory() ? real : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Create `dir` beneath `realRoot`, ONE SEGMENT AT A TIME, refusing to traverse
+ * or create through anything that is not a real directory.
+ *
+ * Walking from the resolved root rather than resolving the whole candidate is
+ * what makes this work on macOS, where `/var` is itself a link to
+ * `/private/var`: the segments are taken from the LEXICAL relationship between
+ * the two caller-supplied strings and then re-walked against the REAL root, so
+ * a legitimate caller is never refused for the platform's own symlinks while
+ * an attacker-planted one still is.
+ *
+ * Returns the resolved real directory, or null when the path may not be used.
+ */
+function realiseConfinedDir(realRoot: string, lexicalRoot: string, dir: string): string | null {
+  const rel = path.relative(path.resolve(lexicalRoot), path.resolve(dir));
+  if (path.isAbsolute(rel)) return null;
+  const segments = rel === '' ? [] : rel.split(path.sep);
+  let cursor = realRoot;
+  for (const segment of segments) {
+    if (!isPlainFileName(segment)) return null;
+    const next = path.join(cursor, segment);
+    let st;
+    try {
+      st = lstatSync(next);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code !== 'ENOENT') return null;
+      try {
+        mkdirSync(next);
+      } catch {
+        return null;
+      }
+      // Re-stat what is ACTUALLY there. `mkdirSync` succeeding is not proof
+      // that what we now hold is the directory we asked for.
+      try {
+        st = lstatSync(next);
+      } catch {
+        return null;
+      }
+    }
+    if (st.isSymbolicLink() || !st.isDirectory()) return null;
+    cursor = next;
+  }
+  // The kernel's answer, not our own bookkeeping.
+  try {
+    const real = realpathSync(cursor);
+    return isInside(realRoot, real) ? real : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Refuse a name that is anything other than a single path component. */
+function isPlainFileName(name: string): boolean {
+  if (name === '' || name === '.' || name === '..') return false;
+  if (name.includes('\0')) return false;
+  return path.basename(name) === name && !path.isAbsolute(name);
+}
+
+/**
+ * Write a file INTO an already-resolved directory, refusing to follow a link
+ * planted at the leaf.
+ *
+ * `existsSync` was the original hole twice over: it says false for a DANGLING
+ * link, so the write went ahead and landed on the link target, and it says
+ * true for a link onto an existing victim file, so that file was reported as
+ * a valid cache hit and read back into the engine as bars.
+ */
+function writeConfinedFile(realDir: string, name: string, data: string): boolean {
+  if (!isPlainFileName(name)) return false;
+  const target = path.join(realDir, name);
+  if (leafKind(target) === 'other') return false;
+
+  // A PRIVATE NAME NOTHING ELSE CAN BE HOLDING. `O_EXCL` fails if the name
+  // exists at all - link, hardlink, directory, anything - so the bytes can only
+  // ever land in an inode this call created. Then `rename` swaps the DIRECTORY
+  // ENTRY, which is why a victim reachable through some other entry keeps its
+  // contents even if the check above were somehow raced.
+  const staging = path.join(realDir, `.prefetch-tmp-${randomBytes(8).toString('hex')}`);
+  let fd: number | undefined;
+  try {
+    fd = openSync(staging, fsConstants.O_WRONLY | fsConstants.O_CREAT | fsConstants.O_EXCL | O_NOFOLLOW);
+    writeSync(fd, data);
+    closeSync(fd);
+    fd = undefined;
+    renameSync(staging, target);
+    return true;
+  } catch {
+    return false;
+  } finally {
+    if (fd !== undefined) {
+      try {
+        closeSync(fd);
+      } catch {
+        /* already closed or never opened cleanly */
+      }
+    }
+    // A staging file still present means the rename did not happen. Leaving it
+    // would grow the cache this module exists to keep bounded.
+    try {
+      if (leafKind(staging) === 'file') unlinkSync(staging);
+    } catch {
+      /* best effort */
+    }
+  }
+}
+
+/**
+ * `absent` | `file` | `other`.
+ *
+ * `file` means "a real regular file that this module could have written": a
+ * regular file, not a link, and with exactly ONE directory entry. A second
+ * entry (`nlink > 1`) means somebody else's inode is reachable through this
+ * name, and this module has never produced such a file - so it is `other`, and
+ * `other` is always a refusal. That is what stops a hardlinked victim being
+ * truncated by a write, unlinked by the prune, or - the quiet one - counted as
+ * a cache HIT and read back into the engine as bars.
+ *
+ * Anything undecidable is refused rather than assumed absent; only ENOENT is
+ * `absent`.
+ */
+function leafKind(target: string): 'absent' | 'file' | 'other' {
+  let st;
+  try {
+    st = lstatSync(target);
+  } catch (error) {
+    return (error as NodeJS.ErrnoException)?.code === 'ENOENT' ? 'absent' : 'other';
+  }
+  if (st.isSymbolicLink() || !st.isFile()) return 'other';
+  return st.nlink === 1 ? 'file' : 'other';
+}
+
+/**
  * Delete every cache file keyed to a DIFFERENT end date.
  *
  * The key ends with the run date, so an unpruned cache gains one file per
@@ -101,19 +303,26 @@ export function utcCacheEndDate(now: Date = new Date()): string {
  * directory rather than by pattern is a data-loss bug waiting for the day
  * somebody points this at the wrong path.
  */
-function pruneStaleCache(cacheDir: string, end: string): void {
+function pruneStaleCache(realCacheDir: string, end: string): void {
   const keep = new RegExp(`_(?:${YAHOO_SCAN_START}|${YAHOO_OVERVIEW_START})_(\\d{8})\\.json$`);
   let entries: string[];
   try {
-    entries = readdirSync(cacheDir);
+    entries = readdirSync(realCacheDir);
   } catch {
     return;
   }
   for (const name of entries) {
     const m = keep.exec(name);
     if (!m || m[1] === end) continue;
+    if (!isPlainFileName(name)) continue;
+    const victim = path.join(realCacheDir, name);
+    // Only ever a real regular file. `realCacheDir` is already resolved, so
+    // this cannot be a listing of somebody else's directory - but a link
+    // planted at the leaf is still a name we did not write, and the rule this
+    // prune has always had is that it deletes only what this module writes.
+    if (leafKind(victim) !== 'file') continue;
     try {
-      rmSync(path.join(cacheDir, name), { force: true });
+      unlinkSync(victim);
     } catch {
       /* a file we cannot remove is not worth failing a run over */
     }
@@ -134,6 +343,16 @@ export type PrefetchResult = {
 };
 
 export type PrefetchOptions = {
+  /**
+   * The boundary. Every mkdir, write and unlink this function performs is
+   * REFUSED unless its resolved real path lands inside this directory's
+   * resolved real path.
+   *
+   * Required, and deliberately not defaulted: the caller is the only party
+   * that knows which directory the sandboxed run is confined to, and a default
+   * here would be a guess that silently reads as "safe".
+   */
+  confineTo: string;
   cacheDir: string;
   /** Watchlist tickers - the deep-history shape. */
   scanSymbols: readonly string[];
@@ -162,8 +381,7 @@ function epochSeconds(yyyymmdd: string): number {
 function parseBars(raw: unknown): Array<Record<string, number | string>> {
   const chart = (raw as { chart?: { result?: unknown[] } })?.chart;
   const res = chart?.result?.[0] as
-    | { timestamp?: unknown; indicators?: { quote?: Array<Record<string, unknown[]>> } }
-    | undefined;
+    { timestamp?: unknown; indicators?: { quote?: Array<Record<string, unknown[]>> } } | undefined;
   if (!res || !Array.isArray(res.timestamp)) return [];
   const q = res.indicators?.quote?.[0];
   if (!q) return [];
@@ -208,31 +426,46 @@ export async function prefetchDailyBars(options: PrefetchOptions): Promise<Prefe
     ...options.overviewSymbols.map((symbol) => ({ symbol, start: YAHOO_OVERVIEW_START })),
   ];
 
-  try {
-    mkdirSync(options.cacheDir, { recursive: true });
-  } catch {
-    // An unwritable cache directory is a total prefetch outage, not a crash.
+  // THE ONE CONTAINMENT DECISION, MADE ON RESOLVED PATHS, BEFORE ANY MUTATION.
+  //
+  // An unresolvable root, a cache directory that is not reachable from it
+  // without traversing a link, or a directory we cannot create without going
+  // through one, are all the same answer: a total prefetch outage. The run
+  // then finds an empty cache and produces the honest empty report. That is a
+  // correct outcome; writing outside the jail is not.
+  const realRoot = resolveRoot(options.confineTo);
+  const realCacheDir = realRoot === null ? null : realiseConfinedDir(realRoot, options.confineTo, options.cacheDir);
+  if (realCacheDir === null) {
     result.failed = jobs.map((j) => j.symbol);
     return result;
   }
 
   // BEFORE fetching, not after: a run that then fails still leaves the cache
   // bounded, and the disk the new files need is freed first.
-  pruneStaleCache(options.cacheDir, options.end);
+  pruneStaleCache(realCacheDir, options.end);
 
   for (const { symbol, start } of jobs) {
     if (!isPrefetchableSymbol(symbol)) {
       result.rejected.push(symbol);
       continue;
     }
-    const target = path.join(options.cacheDir, `${symbol}_${start}_${options.end}.json`);
+    const fileName = `${symbol}_${start}_${options.end}.json`;
     // Belt and braces on top of the grammar: the file must land in the cache
-    // directory itself, not in a child of it and not beside it.
-    if (path.dirname(path.resolve(target)) !== path.resolve(options.cacheDir)) {
+    // directory ITSELF, not in a child of it and not beside it.
+    if (!isPlainFileName(fileName)) {
       result.rejected.push(symbol);
       continue;
     }
-    if (existsSync(target)) {
+    const target = path.join(realCacheDir, fileName);
+    const kind = leafKind(target);
+    if (kind === 'other') {
+      // A link, or something that is not a regular file, sitting on a name this
+      // module owns. It was not put there by this module. Refuse the symbol
+      // outright rather than write through it or read it back as bars.
+      result.rejected.push(symbol);
+      continue;
+    }
+    if (kind === 'file') {
       result.cached += 1;
       continue;
     }
@@ -263,38 +496,36 @@ export async function prefetchDailyBars(options: PrefetchOptions): Promise<Prefe
       result.failed.push(symbol);
       continue;
     }
-    try {
-      writeFileSync(target, JSON.stringify(bars));
+    if (writeConfinedFile(realCacheDir, fileName, JSON.stringify(bars))) {
       result.written += 1;
-    } catch {
+    } else {
       result.failed.push(symbol);
     }
   }
 
   // Provenance, so the brief can say where its bars came from and how old they
   // are. Best effort: a manifest that cannot be written must not fail the run.
-  try {
-    writeFileSync(
-      path.join(options.cacheDir, '.prefetch-manifest.json'),
-      JSON.stringify(
-        {
-          source: 'yahoo-daily',
-          host: 'query1.finance.yahoo.com',
-          end: options.end,
-          fetchedAt: new Date().toISOString(),
-          written: result.written,
-          cached: result.cached,
-          failed: result.failed.length,
-          rejected: result.rejected.length,
-          timedOut: result.timedOut,
-        },
-        null,
-        2
-      )
-    );
-  } catch {
-    /* provenance is not load-bearing */
-  }
+  // Guarded exactly like a cache file: provenance is not load-bearing, but a
+  // best-effort write is still a write, and this one was unguarded.
+  writeConfinedFile(
+    realCacheDir,
+    '.prefetch-manifest.json',
+    JSON.stringify(
+      {
+        source: 'yahoo-daily',
+        host: 'query1.finance.yahoo.com',
+        end: options.end,
+        fetchedAt: new Date().toISOString(),
+        written: result.written,
+        cached: result.cached,
+        failed: result.failed.length,
+        rejected: result.rejected.length,
+        timedOut: result.timedOut,
+      },
+      null,
+      2
+    )
+  );
 
   return result;
 }

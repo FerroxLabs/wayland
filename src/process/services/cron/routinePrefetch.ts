@@ -112,6 +112,13 @@ export async function runRoutinePrefetch(
     const [scanSymbols, overview] = await Promise.all([watchlistTickers(skillDir), overviewSymbols(skillDir)]);
     if (scanSymbols.length === 0 && overview.length === 0) return null;
     return await prefetchDailyBars({
+      // THE BOUNDARY IS THE WORKSPACE, not the cache directory.
+      //
+      // Every segment below the workspace is writable by the sandboxed run, so
+      // any of them can be a symlink or a Windows junction the run left there
+      // on a previous fire. The workspace itself is host-created, which is why
+      // it - and only it - can anchor the decision.
+      confineTo: ctx.workspace,
       cacheDir: routineCacheDir(ctx.workspace),
       scanSymbols,
       overviewSymbols: overview,
