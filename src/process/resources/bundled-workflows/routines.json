@@ -138,6 +138,7 @@
     "schedule": "0 7 * * 1-5",
     "timezone": "local",
     "workflow": "wayland-morning-report",
+    "prefetch": "market-daily-bars",
     "inputs": {
       "output_dir": "artifacts/market/"
     }

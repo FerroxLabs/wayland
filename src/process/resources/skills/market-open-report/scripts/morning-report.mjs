@@ -94,8 +94,10 @@
  */
 
 import { basename } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { DEFAULT_CACHE_DIR, DEFAULT_LIST, DEFAULT_POSITIONS, main, writeJson } from './report.mjs';
+import { dataSourceRefusal } from './yahooData.mjs';
 
 const PROG = basename(process.argv[1] || 'morning-report.mjs');
 
@@ -171,9 +173,20 @@ function parseArgs(argv) {
 /**
  * `dt.datetime.now(dt.UTC).strftime('%Y%m%d')`. UTC, not local — which is what
  * makes the local-timezone bug in _epoch observable.
+ *
+ * EXPORTED, and takes the instant as an argument, because this value is half of
+ * the Yahoo cache key (`<SYM>_<start>_<end>.json`) and the app pre-warms that
+ * cache from OUTSIDE the sandbox. Two implementations of "today" is one bug: on
+ * a UTC+07 machine the local date is a day ahead of the UTC date for seven
+ * hours of every day, so a prefetch keyed on the local date writes files this
+ * scanner never asks for — every lookup misses, the sandboxed run has no
+ * network, and the result is a confident, totally empty report. The parameter
+ * is what lets a test pin both sides to the same instant and see them agree.
+ *
+ * @param {Date} [now=new Date()]
+ * @returns {string} YYYYMMDD in UTC
  */
-function utcToday() {
-  const now = new Date();
+export function utcToday(now = new Date()) {
   return (
     String(now.getUTCFullYear()) +
     String(now.getUTCMonth() + 1).padStart(2, '0') +
@@ -212,6 +225,40 @@ async function cli() {
     process.stdout.write('\n' + 'wrote' + ' ' + r.jsonout + '\n'); // print('\nwrote', ...)
   }
 
+  // ADDED (B10). A NAMED REFUSAL, NOT A HANG.
+  //
+  // Before this, a run with no network burned ~12s per symbol (measured:
+  // 12,159 ms for one, 96,211 ms for the real 8-symbol overview sweep) until
+  // the agent's 10-minute no-progress watchdog killed the turn. The user got
+  // two 0-byte files and "The agent stopped making progress" — no cause named
+  // anywhere. `yahooData.mjs` now latches after two consecutive symbols
+  // exhaust every attempt on a NETWORK-class error, so the sweep ends in ~24s
+  // and this prints WHY.
+  //
+  // On STDOUT as well as STDERR on purpose: the workflow body tells the run to
+  // read the scanner's stdout and its exit code, and stdout is what actually
+  // reaches the thread.
+  const refusal = dataSourceRefusal();
+  if (refusal) {
+    const lines = [
+      '',
+      `${PROG}: REFUSED — the price source was unreachable from this run.`,
+      `  cause:   ${refusal.detail || refusal.code} (${refusal.code})`,
+      `  refused: after ${refusal.attempts} attempts on each of ` +
+        `${refusal.consecutiveSymbols} consecutive symbols, first at ${refusal.symbol}`,
+      '  effect:  every symbol not already cached was SKIPPED, not fetched and not answered.',
+      '  This is NOT "no data" and it is NOT a quiet market: nothing was asked and',
+      '  nothing answered. A scheduled run has no network of its own, so retrying',
+      '  fails identically - the app fetches these bars before the run starts and',
+      '  leaves them in the cache directory this run was told to read. Reaching',
+      '  none of them means that pre-fetch did not happen or wrote somewhere else.',
+      '',
+    ];
+    process.stdout.write(lines.join('\n'));
+    process.stderr.write(lines.join('\n'));
+    process.exitCode = 1;
+  }
+
   // ADDED (see header). Everything above this line is the Python's behaviour.
   // The guard on `scanned` matters: an empty watchlist scans nothing and fails
   // nothing, and calling that a total outage would be a second defect.
@@ -224,8 +271,18 @@ async function cli() {
   }
 }
 
-cli().catch((e) => {
-  // An unhandled exception is a traceback and exit 1 in Python.
-  process.stderr.write((e && e.stack ? e.stack : String(e)) + '\n');
-  process.exit(1);
-});
+/**
+ * RUN ONLY WHEN RUN. Same guard `marketOverview.mjs` already uses.
+ *
+ * Without it, `import`ing this module for its `utcToday` executed the whole CLI
+ * as a side effect: a test that only wanted the date function performed a live
+ * 74-symbol Yahoo sweep and printed a report. Anything that imports a scanner
+ * to check one exported value must not thereby run the scan.
+ */
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  cli().catch((e) => {
+    // An unhandled exception is a traceback and exit 1 in Python.
+    process.stderr.write((e && e.stack ? e.stack : String(e)) + '\n');
+    process.exit(1);
+  });
+}

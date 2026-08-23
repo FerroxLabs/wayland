@@ -31,8 +31,11 @@ This workflow runs the bundled `market-open-report` scanner, writes its output
 to the deliverables directory your run instructions name, and reports the brief.
 It is not interactive: run every step in order, then report the outcome.
 
-It needs no chart, no browser, no broker connection and no API key. Prices come
-from Yahoo daily closes and the strategy is computed locally by the script.
+It needs no chart, no browser, no broker connection and no API key. Prices are
+**Yahoo daily closes**, pre-fetched by the app before this run started because
+the run itself has no network, and the strategy is computed locally by the
+script. They are not TradingView data and they are not live quotes — say so
+when you present them.
 
 ## Ground rules
 
@@ -43,6 +46,11 @@ from Yahoo daily closes and the strategy is computed locally by the script.
   run's own staging directory, so the brief is filed under this task's dated
   history and yesterday's brief is still readable beside it. Writing anywhere
   else means the run publishes nothing at all.
+- **That directory is a destination, not an address.** On a scheduled run it is
+  a staging directory and it is **deleted the moment the run publishes** — the
+  app publishes by renaming it, so the path you wrote to stops existing at that
+  instant. Write to it and never quote it back to the user. Naming a file is
+  fine; naming its directory is telling the user to go somewhere that is gone.
 - **Do not read `WAYLAND_OUTPUT_DIR`.** It is set on the engine process and the
   engine does not forward it to shell commands, so it always resolves EMPTY and
   every `${WAYLAND_OUTPUT_DIR:-…}` fallback silently wins. That one habit is
@@ -104,6 +112,7 @@ instructions name:
 ```bash
 OUT="<deliverables_dir>"; mkdir -p "$OUT"
 cd .wayland-core/skills/market-open-report
+export MARKET_OPEN_REPORT_CACHE=.market-open-report-cache/yahoo-cache
 node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
 node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
@@ -121,12 +130,23 @@ export MARKET_OPEN_REPORT_LIST=/absolute/path/the/user/gave/you.csv
 export MARKET_OPEN_REPORT_POSITIONS=/absolute/path/the/user/gave/you.csv
 ```
 
-Do **not** export `MARKET_OPEN_REPORT_CACHE` unless the user gave you a cache
-directory they know is writable. That variable overrides the scanner's own
-probe for a writable cache location, and if it points anywhere the sandbox
-refuses — anywhere outside the workspace, including under the home directory —
-`mkdir` fails `EPERM`, every symbol comes back "NO DATA", and the run still
-exits 0. Left unset, the scanner finds a writable cache by itself.
+`MARKET_OPEN_REPORT_CACHE` in the block above is not optional and is not a
+tuning knob. **This run has no internet.** The engine's sandbox refuses DNS, so
+every Yahoo request from inside it fails and every symbol comes back "NO DATA"
+while the run still exits 0 and the brief still looks well-formed. The app
+pre-fetches the daily bars into that exact directory BEFORE this run starts,
+and pointing the scanner at it is the only reason the report has any data at
+all.
+
+Keep it RELATIVE, exactly as written. The scanner resolves it against its own
+directory, which is where the app left the bars, and it is also the scanner's
+own second probe candidate - so the two agree by construction. Replacing it
+with an absolute path of your own breaks that agreement, and nothing will tell
+you: the report comes out complete-looking and empty.
+
+Do not point that variable anywhere else. Anywhere outside the workspace —
+including under the home directory — `mkdir` fails `EPERM`, and you are back to
+an empty report that reads like a quiet market.
 
 A missing positions CSV is valid; the report simply shows no holdings. Keep the
 scanner's full stdout, its exit code, and the path of the HTML brief.
@@ -154,10 +174,19 @@ looks fine. Check both signals:
    stdout. A partial failure still exits zero, so the count is the only way to
    see it.
 
+3. **A `REFUSED` block in the scanner's stdout.** This one outranks the other
+   two. It means the price source could not be reached AT ALL from this run —
+   nothing was asked and nothing answered — and it names the cause. That is a
+   different fact from "no data", which means the source answered and had
+   nothing. Never report a refusal as a quiet market.
+
 Classify the run as exactly one of:
 
 - **Complete** — no `NO DATA` line, and the names-scanned count is non-zero.
 - **Partial** — some symbols under `NO DATA`. Say how many out of how many.
+- **Refused** — the stdout carries a `REFUSED` block. Lead with it, and quote
+  the cause line verbatim. Do not retry: a scheduled run has no network of its
+  own, so a second attempt fails identically.
 - **Empty** — non-zero exit, or "0 names scanned", or every symbol under
   `NO DATA`. The report is not usable. Say that first, before anything else.
 
@@ -183,6 +212,14 @@ in the same message:
    <timestamp>`. Both name the same bar. Use it, and state it alongside the
    generation time, because those two are routinely different days.
 
+   Quote the generation stamp **exactly as the brief prints it, including its
+   zone** — it ends in `UTC` or an offset like `+07:00`. Do not restate it in
+   your own words, do not drop the zone and do not convert it: you are **not
+   running on the same clock as the app**. Your shell is UTC and the app names
+   this task's dated folder on the user's local calendar, so the same instant is
+   routinely two different dates. The zone is the only thing that reconciles
+   them.
+
    The scanner has no market-calendar awareness, so a run on a Saturday, a
    holiday, or before the previous session has settled will happily reprint the
    last bar it has, and a stale price reads exactly like a fresh one. If the bar
@@ -193,16 +230,22 @@ in the same message:
 3. **Describe entries and exits correctly.** They happen at the CLOSE of the
    bar that signalled them, so they are decisions to act on at the next open,
    not live signals. Do not describe them as live.
-4. **Name the brief's full path** inside the deliverables directory, so the
-   user can reopen it even if they miss the card.
+4. **Do not print the deliverables directory.** On a scheduled run it is a
+   staging directory that is deleted the moment the run publishes, so a path you
+   print here leads nowhere by the time anyone follows it — and you cannot print
+   the real one, because publication happens after your turn ends and the
+   permanent path does not exist yet. Name the **file** — `morning-brief.html` —
+   and say it is attached below as a card. The app writes the real, permanent
+   path onto that card after publication; you do not have it and must not guess
+   it.
+5. **Say how fresh the bars are.** The app writes a `.prefetch-manifest.json`
+   beside the cached bars recording when it fetched them. Read it and quote that
+   time alongside the bar date. If it is not there, say the fetch time is
+   unknown rather than implying the numbers are from this morning.
 
-Finally, prune the Yahoo cache if it has grown large. Its location is not fixed
-and the routine no longer names one: with `MARKET_OPEN_REPORT_CACHE` unset — the
-guidance above — the scanner probes `~/.cache/market-open-report/yahoo-cache`,
-then `<cwd>/.market-open-report-cache/yahoo-cache`, then the OS temp directory,
-and keeps the first it can create. Inside the sandbox the home candidate fails
-`EPERM`, so it is normally the second. The cache key includes the end date, so it
-gains roughly one file per symbol per day.
+Then stop. Do not prune the cache, do not tidy the workspace, and do not write a
+skill file — the app manages all three. An errand you invent at the end of a run
+can only fail in the user's report.
 
 - Input: HTML brief path, bar date, outcome classification
 - Output: the brief presented, plus an explicit statement of bar date and

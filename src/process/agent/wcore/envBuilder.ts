@@ -1082,12 +1082,34 @@ function usableConversationSegment(conversationId: string): string | null {
  * working tree; the failure this prevents is the opposite one - a report the
  * user wanted, written somewhere nothing lists.
  */
-export function buildOutputDirective(absoluteOutputDir: string): string {
+/**
+ * B13. `ephemeral` marks a directory that STOPS EXISTING when the turn ends.
+ *
+ * A scheduled run's directory is its staging tree, and publication is a
+ * `fs.rename` of that tree onto the dated run directory (`artifactSeries`); a
+ * run that staged nothing is `abandonRun`'d, which removes it outright. Either
+ * way the address is dead by the time anyone reads the message - and the model
+ * cannot do better, because publication happens on the idle callback AFTER the
+ * turn, so the published path does not exist yet while the message is being
+ * written. Asking for "the path" there can only ever produce the doomed one,
+ * which is exactly what shipped: both complete runs printed
+ * `artifacts/market/.staging/<runId>/morning-brief.html`.
+ *
+ * A CHAT's directory (`artifacts/chat/<conversationId>`) is permanent, so it
+ * keeps the original clause. The distinction is the whole point: this is not a
+ * blanket removal of a useful instruction.
+ */
+export function buildOutputDirective(absoluteOutputDir: string, opts?: { ephemeral?: boolean }): string {
+  const reference = opts?.ephemeral
+    ? 'That directory is this run\'s staging area and the app deletes it the moment the run publishes, ' +
+      'so do NOT print it: name the file by name and say it is attached below as a card. ' +
+      'The app writes the real, permanent path onto that card after this turn ends; you do not have it and must not guess it.'
+    : `When you refer to a saved deliverable in your final message, name its path inside ${absoluteOutputDir}.`;
   return [
     `Deliverables you want the user to keep go in ${absoluteOutputDir}. Create that directory if it does not exist.`,
     'Use the workspace root for intermediate files, scratch analysis, scripts and drafts.',
     `Only files in ${absoluteOutputDir} are shown to the user as deliverables.`,
-    `When you refer to a saved deliverable in your final message, name its path inside ${absoluteOutputDir}.`,
+    reference,
   ].join(' ');
 }
 

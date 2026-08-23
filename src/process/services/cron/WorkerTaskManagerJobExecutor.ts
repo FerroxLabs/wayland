@@ -27,7 +27,10 @@ import type { CronJob } from './CronStore';
 import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
-import { resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
+import { resolveRoutinePrefetch, resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
+import { resolveRoutineConnectorIds } from './routineConnectors';
+import { runRoutinePrefetch } from './routinePrefetch';
+import { utcCacheEndDate } from '@process/services/marketData/prefetchDailyBars';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
 import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
 import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
@@ -542,10 +545,57 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       }
     }
 
+    // HAND THE RUN ITS DATA BEFORE THE RUN STARTS.
+    //
+    // A scheduled run's shell tools execute under Core's seatbelt, which
+    // refuses DNS - a `curl` from inside a run exits 6. Any routine whose work
+    // needs the internet therefore cannot fetch it, and the alternative
+    // (widening the sandbox for unattended auto-approve runs) is a security
+    // decision this milestone deliberately does not take. So the host fetches
+    // first, into a directory inside the workspace the run is told to read.
+    //
+    // AWAITED, and before `sendMessage`: bars that arrive after the scanner has
+    // already looked are bars that were never there. Bounded and non-throwing,
+    // because a prefetch outage must degrade the report - which then says
+    // exactly what it could not reach - and never abort the run.
+    //
+    // The end date is computed HERE, once, and is the same value the scanner
+    // derives from `utcToday()`. Two derivations of "today" is a real bug on
+    // any machine east of UTC: for seven hours a day the local date is a day
+    // ahead, every cache key misses, and the run prints a confident, entirely
+    // empty report.
+    const prefetchName = await resolveRoutinePrefetch(job.metadata.agentConfig?.configOptions?.routineId);
+    if (prefetchName && workspace) {
+      const outcome = await runRoutinePrefetch(prefetchName, { workspace, end: utcCacheEndDate() });
+      if (outcome) {
+        console.log(
+          `[CronExecutor] prefetch ${prefetchName} for job ${job.id}: ` +
+            `${outcome.written} written, ${outcome.cached} cached, ${outcome.failed.length} failed, ` +
+            `${outcome.rejected.length} rejected${outcome.timedOut ? ', BUDGET EXHAUSTED' : ''}`
+        );
+      }
+    }
+
     const workspaceFiles = workspace ? await copyFilesToDirectory(workspace, [], false) : [];
 
     const hasSkill = await hasCronSkillFile(job.id);
-    const needsSkillSuggest = job.target.executionMode === 'new_conversation' && !!workspace && !hasSkill;
+    // B15a. A SEEDED ROUTINE ALREADY HAS ITS INSTRUCTIONS AND MUST NOT BE ASKED
+    // TO INVENT THEM.
+    //
+    // `hasCronSkillFile` checks `getCronSkillsDir()/<jobId>/SKILL.md` - the file
+    // the USER saves with "Turn into skill". A builtin routine never has one,
+    // because its body arrives by a different mechanism entirely
+    // (`resolveRoutineSkillDirs(configOptions.routineId)`, a few lines below).
+    // So a routine with a fully authored workflow body was being asked to write
+    // itself a skill file, the safe-write guard correctly refused, and the
+    // refusal landed in the user's morning report as noise.
+    //
+    // The discriminator is `routineId`, which is already on the job. NOT
+    // widening `hasCronSkillFile` to look in the routine dirs: those are two
+    // different files, and conflating them would break "Turn into skill".
+    const isSeededRoutine = !!job.metadata.agentConfig?.configOptions?.routineId;
+    const needsSkillSuggest =
+      job.target.executionMode === 'new_conversation' && !!workspace && !hasSkill && !isSeededRoutine;
     const isGeminiLike =
       job.metadata.agentConfig?.backend === 'gemini' || job.metadata.agentConfig?.backend === 'wcore';
 
@@ -645,6 +695,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     const routineSkillDirs = await resolveRoutineSkillDirs(config.configOptions?.routineId);
     const extraSkillPaths = [...(hasSkill ? [cronSkillDir] : []), ...routineSkillDirs];
 
+    // The connectors THIS routine named, resolved against what is installed.
+    // `[]` for a user cron, an undeclared routine, and any declaration that
+    // resolves to nothing - so the fail-closed default is unchanged for every
+    // job that does not opt in. See `routineConnectors.ts`.
+    const routineConnectorIds = await resolveRoutineConnectorIds(config.configOptions?.routineId);
+
     const params: CreateConversationParams = {
       type: agentType,
       name: convName,
@@ -671,8 +727,13 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // selection is all there is on this path: whatever survives reaches the
         // engine with its FULL tool inventory (#998), mutating tools included.
         // An empty array is the documented way to select none. A routine that
-        // genuinely needs a connector must name it, never inherit the lot.
-        activeMcpServers: [],
+        // genuinely needs a connector must name it, never inherit the lot -
+        // `resolveRoutineConnectorIds` reads that declaration and returns `[]`
+        // for everything that did not opt in, so the default is unchanged.
+        //
+        // A named connector arrives with its WHOLE tool inventory: per-tool
+        // narrowing is not reachable on this path (see `routineConnectors.ts`).
+        activeMcpServers: routineConnectorIds,
         ...(config.mode ? { sessionMode: config.mode } : {}),
         ...(config.modelId ? { currentModelId: config.modelId } : {}),
         ...(cachedConfigOptions ? { cachedConfigOptions } : {}),

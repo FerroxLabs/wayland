@@ -104,12 +104,19 @@ const roots = vi.hoisted(() => {
   return { base, builtin, auto, user, system, cronSkills };
 });
 
+/**
+ * The connectors "installed" on this machine, as `mcp.config` really holds
+ * them. Mutable so one test can prove the grant lands and another can prove a
+ * disabled connector is refused, without either hand-writing an `extra` bag.
+ */
+const mcpConfigRef = vi.hoisted(() => ({ value: undefined as unknown }));
+
 vi.mock('@process/utils/initStorage', () => ({
   getSkillsDir: () => roots.user,
   getBuiltinSkillsCopyDir: () => roots.builtin,
   getAutoSkillsDir: () => roots.auto,
   getSystemDir: () => ({ workDir: roots.system }),
-  ProcessConfig: { get: vi.fn(async () => undefined) },
+  ProcessConfig: { get: vi.fn(async (key: string) => (key === 'mcp.config' ? mcpConfigRef.value : undefined)) },
   getCronSkillsDir: vi.fn(() => roots.cronSkills),
 }));
 vi.mock('@process/utils/openclawUtils', () => ({ computeOpenClawIdentityHash: async () => 'mock-hash' }));
@@ -188,7 +195,7 @@ import type { ICronRepository } from '@/process/services/cron/ICronRepository';
 import type { ICronEventEmitter } from '@/process/services/cron/ICronEventEmitter';
 import type { ICronJobExecutor } from '@/process/services/cron/ICronJobExecutor';
 import type { IConversationRepository } from '@/process/services/database/IConversationRepository';
-import { seedBuiltinRoutines } from '@process/services/cron/BuiltinRoutinesSeeder';
+import { loadBundledRoutines, seedBuiltinRoutines } from '@process/services/cron/BuiltinRoutinesSeeder';
 import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import type { IMcpServer } from '@/common/mcp';
 
@@ -263,6 +270,7 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
   beforeEach(async () => {
     capturedParams.length = 0;
     conversationStore.clear();
+    mcpConfigRef.value = undefined;
     workspace = await fsp.mkdtemp(path.join(os.tmpdir(), 'wl-taskroot-'));
     dataDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'wl-data-'));
     dataPathRef.value = dataDir;
@@ -363,5 +371,163 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
     // - which is what the cron bag sends today - DOES hand it to the engine. If
     // this ever goes red the assertion above is measuring nothing.
     expect(buildWCoreSessionMcpServers([userServer], undefined).map((s) => s.name)).toEqual(['tvcontrol']);
+  });
+
+  it('NO shipped routine names a connector - the morning report gets its data from the host prefetch', async () => {
+    // RETARGETED, and strictly stronger than what stood here. This assertion
+    // used to read `morning?.connectors === ['com.ferroxlabs/tvcontrol']`,
+    // because at the time the run's shell had no network (still true: `sandbox
+    // exec` answers `curl: (6) Could not resolve host` while the identical curl
+    // on the host returns http=429) and a connector looked like the only route
+    // left. It was not the route, and it was an expensive one.
+    //
+    // NOT THE ROUTE. Read off the connector's own tool schema, not off prose:
+    // `data_get_ohlcv` takes NO symbol parameter and caps `count` at 500. The
+    // scanner discards any symbol with fewer than 300 DAILY bars and reads 74
+    // of them - AAPL alone comes back with 6,951. Sourcing that through
+    // tvcontrol means 74 `chart_set_symbol` mutations against the user's live
+    // chart at 07:00. It cannot supply the data and it should not try.
+    //
+    // EXPENSIVE. There is no per-tool narrowing on this path (`toWCoreConfig`
+    // emits no tool key; the engine's curation is `off | top_k`, a ranking),
+    // so naming tvcontrol hands an unattended auto-approve run its WHOLE
+    // 105-tool inventory - `watchlist_remove_bulk`, `alert_delete`,
+    // `draw_clear`, `pine_save`, `tv_launch` - against a real trading account,
+    // with model behaviour as the only thing in between.
+    //
+    // THE ROUTE THAT WORKS is `prefetch`, which fetches the bars in the MAIN
+    // process, outside the seatbelt, into the cache the scanner already reads.
+    // Proven from a COLD workspace: 82 written / 0 cached / 0 failed in 16.8 s,
+    // then the real scanner INSIDE the sandbox printing "74 names scanned, 56
+    // currently long, bar 2026-08-21".
+    //
+    // The GRANT MECHANISM is untouched and still fully covered by
+    // `routineConnectorAllowlist.test.ts`; what changed is that nothing shipped
+    // opts into it.
+    const routines = (await loadBundledRoutines()) ?? [];
+    const morning = routines.find((r) => r.id === MORNING_ROUTINE_ID);
+    expect(morning, 'the morning routine must still ship').toBeTruthy();
+
+    // Known positive: this corpus read really can see the routine's fields.
+    expect(morning?.prefetch).toBe('market-daily-bars');
+
+    expect(morning?.connectors ?? []).toEqual([]);
+    expect(routines.filter((r) => Array.isArray(r.connectors) && r.connectors.length > 0).map((r) => r.id)).toEqual([]);
+  });
+
+  it('hands the shipped morning run NOTHING, through the REAL executor, with tvcontrol installed', async () => {
+    // RETARGETED alongside the corpus assertion above, to the safety property
+    // rather than the grant. Same end-to-end chain - the shipped routines.json,
+    // the real seeder, the real `buildConversationForJob`, the real wcore
+    // launch selector - and the same two installed connectors. What changed is
+    // that the shipped routine declares none, so an unattended 07:00 run gets
+    // neither of them. The grant path itself keeps its coverage in
+    // `routineConnectorAllowlist.test.ts`, over a fixture declaration.
+    mcpConfigRef.value = [
+      {
+        id: 'srv-tv',
+        name: 'tvcontrol',
+        enabled: true,
+        status: 'connected',
+        libraryEntryId: 'com.ferroxlabs/tvcontrol',
+        transport: { type: 'stdio', command: 'bun', args: ['x', '@ferroxlabs/tvcontrol@2.3.1'] },
+        createdAt: 0,
+        updatedAt: 0,
+        originalJson: '{}',
+      },
+      {
+        id: 'srv-slack',
+        name: 'slack',
+        enabled: true,
+        status: 'connected',
+        libraryEntryId: 'com.slack/slack-mcp',
+        transport: { type: 'stdio', command: 'bun', args: [] },
+        createdAt: 0,
+        updatedAt: 0,
+        originalJson: '{}',
+      },
+    ];
+
+    const job = await seededMorningJob(workspace);
+    const executor = new WorkerTaskManagerJobExecutor(
+      { getTask: vi.fn(), getOrBuildTask: vi.fn(), kill: vi.fn(), buildConversation: vi.fn() } as any,
+      new CronBusyGuard()
+    );
+    const conversationId = await executor.prepareConversation(job);
+    const conv = conversationStore.get(conversationId);
+
+    expect(conv.extra.activeMcpServers).toEqual([]);
+    const selected = buildWCoreSessionMcpServers(mcpConfigRef.value as IMcpServer[], conv.extra.activeMcpServers);
+    expect(selected.map((s) => s.name)).toEqual([]);
+
+    // KNOWN-POSITIVE CONTROL, and the reason the empty array above means
+    // something: the SAME selector over the SAME two installed connectors, with
+    // no selection - which is what a cron bag sent before this narrowing - hands
+    // the engine both of them.
+    expect(buildWCoreSessionMcpServers(mcpConfigRef.value as IMcpServer[], undefined).map((s) => s.name)).toEqual([
+      'tvcontrol',
+      'slack',
+    ]);
+  });
+
+  it('grants nothing to a routine that names no connector, even with tvcontrol installed', async () => {
+    // The default is unchanged for the other twelve routines. Same installed
+    // connectors, a routine that declares none, and the run still gets `[]`.
+    mcpConfigRef.value = [
+      {
+        id: 'srv-tv',
+        name: 'tvcontrol',
+        enabled: true,
+        status: 'connected',
+        libraryEntryId: 'com.ferroxlabs/tvcontrol',
+        transport: { type: 'stdio', command: 'bun', args: [] },
+        createdAt: 0,
+        updatedAt: 0,
+        originalJson: '{}',
+      },
+    ];
+
+    const jobs: CronJob[] = [];
+    const service = makeService(jobs);
+    await seedBuiltinRoutines(service);
+    const other = jobs.find((j) => j.metadata.agentConfig?.configOptions?.routineId === 'weekly-support-review');
+    if (!other) throw new Error('weekly-support-review was not seeded from the shipped routines.json');
+    other.metadata.agentConfig!.workspace = workspace;
+
+    const executor = new WorkerTaskManagerJobExecutor(
+      { getTask: vi.fn(), getOrBuildTask: vi.fn(), kill: vi.fn(), buildConversation: vi.fn() } as any,
+      new CronBusyGuard()
+    );
+    const conversationId = await executor.prepareConversation(other);
+    const conv = conversationStore.get(conversationId);
+
+    expect(conv.extra.activeMcpServers).toEqual([]);
+    expect(
+      buildWCoreSessionMcpServers(mcpConfigRef.value as IMcpServer[], conv.extra.activeMcpServers).map((s) => s.name)
+    ).toEqual([]);
+  });
+
+  it('refuses the grant when the declared connector is installed but DISABLED', async () => {
+    mcpConfigRef.value = [
+      {
+        id: 'srv-tv',
+        name: 'tvcontrol',
+        enabled: false,
+        status: 'connected',
+        libraryEntryId: 'com.ferroxlabs/tvcontrol',
+        transport: { type: 'stdio', command: 'bun', args: [] },
+        createdAt: 0,
+        updatedAt: 0,
+        originalJson: '{}',
+      },
+    ];
+
+    const job = await seededMorningJob(workspace);
+    const executor = new WorkerTaskManagerJobExecutor(
+      { getTask: vi.fn(), getOrBuildTask: vi.fn(), kill: vi.fn(), buildConversation: vi.fn() } as any,
+      new CronBusyGuard()
+    );
+    const conversationId = await executor.prepareConversation(job);
+    expect(conversationStore.get(conversationId).extra.activeMcpServers).toEqual([]);
   });
 });

@@ -261,9 +261,15 @@ export function pressure(rows) {
       label: `dollar ${pyFormat(d.chg5, 1, true)}% over five days` });
   }
 
-  // The guard is the Python's: without it an empty comp divides by zero, which
-  // raises there and yields NaN here.
-  const score = comp.length ? pySum(comp.map((c) => c.v)) / comp.length : 50.0;
+  // B11. The Python guarded the divide-by-zero with a DEFAULT, and a default is
+  // how a brief that reached nothing came to print `50 /100  MIXED` under a
+  // full-height needle, with `aria-label="Market pressure 50 out of 100,
+  // Mixed"`, on the same page as "No market data available for this session."
+  // A composite of zero measurements is not a reading. Return the absence and
+  // let every caller decide what to do with it - which for the renderer is to
+  // draw nothing at all.
+  if (comp.length === 0) return null;
+  const score = pySum(comp.map((c) => c.v)) / comp.length;
   const band = (score >= 70 ? 'Risk on' : score >= 55 ? 'Leaning risk on'
     : score >= 45 ? 'Mixed' : score >= 30 ? 'Leaning risk off'
     : 'Risk off');
@@ -340,9 +346,15 @@ export async function main(cacheDir = process.argv[2]) {
   console.log(summarise(rows));
   const pr = pressure(rows);
   console.log('');
-  console.log(`PRESSURE ${pyFormat(pr.score, 0)}/100  ${pr.band}`);
-  for (const c of pr.components) {
-    console.log('  ' + c.k.padEnd(11) + pyFormat(c.v, 0).padStart(5) + '  ' + c.label);
+  // B11. `pressure()` now returns null when nothing was measured; say that
+  // rather than printing a score for it.
+  if (pr === null) {
+    console.log('PRESSURE  not measured - no market rows were read this session');
+  } else {
+    console.log(`PRESSURE ${pyFormat(pr.score, 0)}/100  ${pr.band}`);
+    for (const c of pr.components) {
+      console.log('  ' + c.k.padEnd(11) + pyFormat(c.v, 0).padStart(5) + '  ' + c.label);
+    }
   }
 }
 
