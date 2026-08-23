@@ -142,7 +142,7 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('0ccaa90b');
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('addb4f48');
     expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 16 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
@@ -172,6 +172,18 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // - the same shape of failure as the `contract_minor_mismatch` (pin 14 vs
     // engine 12) that preceded the v0.13.0 move.
     //
+    // v0.13.4 -> v0.13.5 is the SAME SHAPE as v0.13.0 -> v0.13.2, and that is
+    // the reason it is safe: the released manifest carries an IDENTICAL
+    // schema_digest (2993aee1...), the same gen/16 generator, minor 16, and a
+    // byte-identical set of twenty capability statuses - verified field by field
+    // against Core's own v0.13.5 `events/ready.json` before anything was
+    // re-vendored. Only `fixture_digest` and `source_inputs_digest` moved, and
+    // exactly seven of the 176 vendored files carry that stamp; the other 169
+    // are byte-identical. So the contract SHAPE did not move and the pin's
+    // `minor` did not need to, which is what separates this from the
+    // v0.13.3 -> v0.13.4 move below. The corpus was still re-vendored, because
+    // assertDescriptor fails closed on both stamped digests.
+    //
     // v0.13.3 -> v0.13.4 is the first move since v0.13.0 that changes the
     // corpus SHAPE, not just its stamp: minor 14 -> 16, gen/14 -> gen/16, a new
     // `render_artifact` event, three new capabilities, and `always_path` added
@@ -190,7 +202,7 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // must be re-derived from the released manifest, not patched.
     expect(DESKTOP_CORE_V1_PIN.minor).toBe(16);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.4'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.5'"
     );
   });
 
