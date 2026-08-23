@@ -310,12 +310,21 @@ function sleepSync(milliseconds: number): void {
  *
  * POSIX `rename(2)` succeeds while other processes hold the destination open.
  * Windows has no such guarantee: `MoveFileEx` fails outright, with EPERM (and
- * sometimes EBUSY/EACCES), for as long as any other process holds a handle to
- * either file without FILE_SHARE_DELETE. A freshly written file in `%TEMP%` is
- * exactly what an on-access scanner or the Search Indexer opens, so a rotation
- * that is correct in every respect still fails at random. Measured on the
- * Windows box: 2 failures in 6 runs of `recoveryPointBuilder.test.ts` on an
- * idle machine, 13 in 6 under eight concurrent filesystem scanners.
+ * sometimes EBUSY/EACCES), for as long as something else holds either file
+ * without FILE_SHARE_DELETE - which is exactly what an on-access scanner does
+ * to a file just created in `%TEMP%`. So a rotation that is correct in every
+ * respect fails at random, on Windows only. Measured by interleaving this
+ * commit's parent with this commit, six rounds each, under eight concurrent
+ * filesystem scanners: 19 EPERM failures in 6 of 6 unretried rounds, 0 in 6 of
+ * 6 retried ones.
+ *
+ * The holding process is NOT named here because it was not identified. Polling
+ * `handle64.exe` throughout eight reproduced failures never caught a user-mode
+ * holder, and the method is sound - it names a deliberately planted holder in a
+ * control, and enumerates SearchIndexer.exe and explorer.exe fine. The one
+ * suspect it cannot rule out is Defender's `MsMpEng.exe`, which is a protected
+ * process and answers `<unable to open process>` even elevated. Blaming it
+ * would be a guess, so this comment does not.
  *
  * ATOMICITY IS UNCHANGED. Every attempt is the same single rename syscall that
  * was here before - no unlink-then-rename, no copy, no truncate. At every
