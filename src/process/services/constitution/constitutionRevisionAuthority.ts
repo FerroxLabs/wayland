@@ -44,6 +44,14 @@ export type ConstitutionRevisionAuthorityDependencies = Readonly<{
   syncPublication?: (authorityPath: string) => void;
   isProcessAlive?: (pid: number) => boolean;
   unlinkRotationLock?: (lockPath: string) => void;
+  /**
+   * The publication rename itself. Defaults to `renameSync`; a test injects
+   * here to simulate the third-party handle described on
+   * {@link replacePublicationWithRetry}, which cannot be produced from Node.
+   */
+  replacePublication?: (from: string, to: string) => void;
+  /** The blocking backoff, so a test does not spend the real wall-clock budget. */
+  sleep?: (milliseconds: number) => void;
 }>;
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -265,6 +273,99 @@ function writeTemporary(authorityPath: string, encrypted: string): string {
     closeSync(fd);
   }
   return temporary;
+}
+
+/**
+ * Backoff schedule for the publication rename, in milliseconds between
+ * attempts. Eleven attempts, 2775 ms of waiting in the worst case.
+ *
+ * The first retry is deliberately short: this is a synchronous rename on the
+ * Electron main thread, so the schedule front-loads the case that clears
+ * immediately and only lengthens once it is clear something is really holding
+ * the file. The repo's async prior art (`retryOnEbusy` in `ijfwSystemService`)
+ * can afford a flat 100 ms first sleep because it does not block anything.
+ *
+ * The total was set by measurement, not taste. Against the reproduction below
+ * (8 runs of `recoveryPointBuilder.test.ts` under eight concurrent filesystem
+ * scanners) an unretried rename failed 24 times; a 1125 ms budget left 3
+ * failures in 14 loaded runs, so the tail outlives a one-second wait. Rotation
+ * is a rare, deliberate operation that already does synchronous crypto and
+ * fsync, and the alternative to waiting is failing it outright.
+ */
+const PUBLICATION_RETRY_BACKOFF_MS: readonly number[] = [25, 50, 100, 200, 400, 400, 400, 400, 400, 400];
+
+/** Errno codes a transient third-party handle produces on a Windows rename. */
+function isTransientPublicationError(error: unknown): boolean {
+  const code = (error as NodeJS.ErrnoException | null)?.code;
+  return code === 'EPERM' || code === 'EBUSY' || code === 'EACCES';
+}
+
+/** Block the calling thread. `renameSync` is synchronous, so the backoff must be too. */
+function sleepSync(milliseconds: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+/**
+ * Publish `temporary` over `authorityPath`, retrying a transient failure.
+ *
+ * POSIX `rename(2)` succeeds while other processes hold the destination open.
+ * Windows has no such guarantee: `MoveFileEx` fails outright, with EPERM (and
+ * sometimes EBUSY/EACCES), for as long as something else holds either file
+ * without FILE_SHARE_DELETE - which is exactly what an on-access scanner does
+ * to a file just created in `%TEMP%`. So a rotation that is correct in every
+ * respect fails at random, on Windows only. Measured by interleaving this
+ * commit's parent with this commit, six rounds each, under eight concurrent
+ * filesystem scanners: 19 EPERM failures in 6 of 6 unretried rounds, 0 in 6 of
+ * 6 retried ones.
+ *
+ * The holding process is NOT named here because it was not identified. Polling
+ * `handle64.exe` throughout eight reproduced failures never caught a user-mode
+ * holder, and the method is sound - it names a deliberately planted holder in a
+ * control, and enumerates SearchIndexer.exe and explorer.exe fine. The one
+ * suspect it cannot rule out is Defender's `MsMpEng.exe`, which is a protected
+ * process and answers `<unable to open process>` even elevated. Blaming it
+ * would be a guess, so this comment does not.
+ *
+ * ATOMICITY IS UNCHANGED. Every attempt is the same single rename syscall that
+ * was here before - no unlink-then-rename, no copy, no truncate. At every
+ * instant, including between attempts, `authorityPath` holds either the
+ * complete previous authority or the complete next one, and `temporary` still
+ * holds the complete next ciphertext. The retry re-issues the publication; it
+ * never opens a window in which the authority is absent or partial.
+ *
+ * CRASH RECOVERY IS UNCHANGED. `acquireRotationLock` classifies an interrupted
+ * rotation by whether the *published* authority already carries the lock
+ * record's `receiptId`. Waiting between attempts adds no third state: a crash
+ * mid-backoff is indistinguishable from a crash before the rename, which is
+ * the branch that discards the lock and rotates again from scratch.
+ *
+ * THE BUDGET IS BOUNDED and the original error is rethrown unmodified, so a
+ * genuine permission failure - an unwritable constitution directory - still
+ * surfaces to the caller with its own `code` and `message`, just up to
+ * 2775 ms later. It is never swallowed and never retried indefinitely.
+ *
+ * The retry is not gated on `process.platform`. The hazard is Windows-only,
+ * but a POSIX EACCES here is an already-fatal once-per-rotation condition
+ * where a bounded delay costs nothing, and running the identical code on all
+ * three platforms is what keeps the guard from silently not existing on two of
+ * them.
+ */
+function replacePublicationWithRetry(
+  temporary: string,
+  authorityPath: string,
+  dependencies: ConstitutionRevisionAuthorityDependencies
+): void {
+  const rename = dependencies.replacePublication ?? renameSync;
+  const wait = dependencies.sleep ?? sleepSync;
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      rename(temporary, authorityPath);
+      return;
+    } catch (error) {
+      if (attempt >= PUBLICATION_RETRY_BACKOFF_MS.length || !isTransientPublicationError(error)) throw error;
+      wait(PUBLICATION_RETRY_BACKOFF_MS[attempt]!);
+    }
+  }
 }
 
 export function constitutionRevisionDurabilitySyncPath(
@@ -574,7 +675,7 @@ export class ConstitutionRevisionAuthority {
       nextKey.fill(0);
       const temporary = writeTemporary(this.authorityPath, this.backend.encryptString(JSON.stringify(next)));
       try {
-        renameSync(temporary, this.authorityPath);
+        replacePublicationWithRetry(temporary, this.authorityPath, this.dependencies);
         fsyncParent(this.authorityPath);
       } catch (error) {
         try {
