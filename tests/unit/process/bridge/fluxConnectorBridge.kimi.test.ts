@@ -23,7 +23,12 @@ import type { FluxConnectorReport } from '@/common/types/fluxConnector';
 const OPENAI_SURFACE = 'https://openai-surface.test/v1';
 const RESPONSES_SURFACE = 'https://responses-surface.test/v1';
 
-vi.mock('@/common/config/flux', () => ({
+// Spread the real module rather than hand-listing exports: this mock only needs
+// to redirect FLUX_SURFACE at test hosts, and a hand-written export set silently
+// breaks every test in this file the moment anything in the module graph imports
+// a NEW flux constant (it did, for FLUX_TIER_CONTEXT_WINDOW).
+vi.mock('@/common/config/flux', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/common/config/flux')>()),
   FLUX_PROVIDER_ID: 'flux-router',
   FLUX_SURFACE: {
     openai: OPENAI_SURFACE,
