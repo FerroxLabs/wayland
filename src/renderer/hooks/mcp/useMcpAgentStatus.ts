@@ -10,6 +10,11 @@ import { mcpServerCollisionKey } from '@/common/mcp';
  */
 export const useMcpAgentStatus = () => {
   const [agentInstallStatus, setAgentInstallStatus] = useState<Record<string, string[]>>({});
+  // False until the persisted status has been read back. Callers must not
+  // render "not published anywhere" off the empty initial value - that claim
+  // would contradict a publish that is still in flight, or one that already
+  // happened and simply has not been read yet.
+  const [statusLoaded, setStatusLoaded] = useState(false);
   const [loadingServers, setLoadingServers] = useState<Set<string>>(new Set());
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastCheckTimeRef = useRef<number>(0);
@@ -25,6 +30,9 @@ export const useMcpAgentStatus = () => {
       })
       .catch(() => {
         // Handle loading error silently
+      })
+      .finally(() => {
+        setStatusLoaded(true);
       });
   }, []);
 
@@ -241,6 +249,7 @@ export const useMcpAgentStatus = () => {
   return {
     agentInstallStatus,
     setAgentInstallStatus,
+    statusLoaded,
     loadingServers,
     isServerLoading,
     checkAgentInstallStatus,
