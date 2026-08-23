@@ -43,8 +43,25 @@ function server(over: Partial<IMcpServer> & { id: string }): IMcpServer {
   } as IMcpServer;
 }
 
-const TV = server({ id: 'srv-tv', name: 'tvcontrol', libraryEntryId: 'com.ferroxlabs/tvcontrol' });
-const SLACK = server({ id: 'srv-slack', name: 'slack', libraryEntryId: 'com.slack/slack-mcp' });
+/**
+ * A record the way the ONLY writer of one builds it (`entryToServerData`): the
+ * three install-written statements - `source`, `libraryEntryId` and the
+ * `originalJson` provenance stamp - all derived from the same catalog entry.
+ * The grant keys on all three agreeing, so a fixture carrying only
+ * `libraryEntryId` would be an impostor and would prove the opposite of what
+ * these tests claim.
+ */
+function libraryInstall(entry: string, over: Partial<IMcpServer> & { id: string }): IMcpServer {
+  return server({
+    ...over,
+    source: 'library',
+    libraryEntryId: entry,
+    originalJson: JSON.stringify({ source: 'library', entry }),
+  });
+}
+
+const TV = libraryInstall('com.ferroxlabs/tvcontrol', { id: 'srv-tv', name: 'tvcontrol' });
+const SLACK = libraryInstall('com.slack/slack-mcp', { id: 'srv-slack', name: 'slack' });
 
 describe('a routine grants ONLY the connectors it names', () => {
   it('grants the declared connector', () => {
@@ -63,7 +80,8 @@ describe('a routine grants ONLY the connectors it names', () => {
   });
 
   it('does not grant a declared connector that is installed but DISABLED', () => {
-    const off = server({ id: 'srv-tv', name: 'tvcontrol', libraryEntryId: 'com.ferroxlabs/tvcontrol', enabled: false });
+    // A GENUINE install, so the refusal below can only be the DISABLED rule.
+    const off = libraryInstall('com.ferroxlabs/tvcontrol', { id: 'srv-tv', name: 'tvcontrol', enabled: false });
     expect(selectRoutineConnectorIds(['com.ferroxlabs/tvcontrol'], [off])).toEqual([]);
   });
 
@@ -85,7 +103,8 @@ describe('a routine grants ONLY the connectors it names', () => {
   });
 
   it('never grants a builtin, which bypasses session scoping anyway', () => {
-    const builtin = server({ id: 'builtin-image-gen', libraryEntryId: 'com.ferroxlabs/tvcontrol', builtin: true });
+    // A GENUINE install too, so the refusal can only be the BUILTIN rule.
+    const builtin = libraryInstall('com.ferroxlabs/tvcontrol', { id: 'builtin-image-gen', builtin: true });
     expect(selectRoutineConnectorIds(['com.ferroxlabs/tvcontrol'], [builtin])).toEqual([]);
   });
 
@@ -101,7 +120,7 @@ describe('a routine grants ONLY the connectors it names', () => {
 
   it('caps how many connectors one routine may name', () => {
     const names = Array.from({ length: ROUTINE_CONNECTOR_CAP + 1 }, (_, i) => `vendor/c${i}`);
-    const servers = names.map((n, i) => server({ id: `srv-${i}`, libraryEntryId: n }));
+    const servers = names.map((n, i) => libraryInstall(n, { id: `srv-${i}` }));
     const granted = selectRoutineConnectorIds(names, servers);
     expect(granted).toHaveLength(ROUTINE_CONNECTOR_CAP);
     expect(granted).not.toContain(`srv-${ROUTINE_CONNECTOR_CAP}`);

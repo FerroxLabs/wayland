@@ -43,12 +43,32 @@
  *
  * THE GRANT. A routine may NAME the connectors its workflow needs. Nothing is
  * inherited: an undeclared routine, a user-created cron, and a routine whose
- * declared connector is not installed all still resolve to `[]`. The grant is
- * keyed on `IMcpServer.libraryEntryId` — the catalog identity written at
- * install — and NOT on `name`, because a name is user-editable and
- * collision-prone: a hand-added custom server called `tvcontrol`, or an
- * external definition mirrored in from another tool's settings, must not be
- * able to capture a grant the routine wrote for the catalog connector.
+ * declared connector is not installed all still resolve to `[]`.
+ *
+ * THE KEY IS THE INSTALL, NOT A STRING NAMED AFTER IT. `libraryEntryId` alone
+ * is not a consent boundary. It is an ordinary optional field on an ordinary
+ * record in `mcp.config`, so anything that can add a server can set it to any
+ * value - including the exact id a routine declares. Keying on it alone means
+ * a hand-added custom server, or an external definition mirrored in from
+ * another tool's settings, captures the grant by copying one string, and what
+ * it captures is a connector reaching an unattended `{ yoloMode: true }` run
+ * where every `approval_required` is answered `true`.
+ *
+ * So the key is PROVENANCE AS A PAIR, the pattern this repo already uses for
+ * the same problem (`isOwnBuiltinWaylandMcpScript`, #1015 F2): the MCP Library
+ * install (`entryToServerData`) is the only writer of `source: 'library'`,
+ * `libraryEntryId: <entry>` and the `originalJson` stamp
+ * `{"source":"library","entry":"<entry>"}`, and it writes all three in ONE
+ * record from ONE catalog entry. A record that contradicts itself across them
+ * is not the entry it claims to be. `name` is not consulted at all - it is
+ * user-editable and collision-prone.
+ *
+ * WHAT THIS CANNOT DO. No field inside `mcp.config` can defend against a
+ * caller that rewrites `mcp.config` wholesale. That is why
+ * `mcp.compare-and-set-config` - which persists a caller-supplied
+ * `IMcpServer[]` verbatim - is remote-denied in `bridgeAllowlist.ts`. This
+ * check is the local half; that denial is the remote half. Neither is
+ * sufficient alone.
  *
  * SERVER-LEVEL, AND SAYING SO. There is no per-tool narrowing available on
  * this path and this module does not pretend otherwise. Proven by executing
@@ -85,15 +105,45 @@ export function isDeclarableConnectorId(value: unknown): value is string {
 }
 
 /**
+ * The catalog entry a server record can PROVE it was installed from, or null.
+ *
+ * Three statements, all written by the MCP Library install and only by it, all
+ * derived from the same `entry.name`. They must agree. A record missing any of
+ * them, or disagreeing across them, resolves to null and can never match a
+ * declaration - which is the fail-closed `[]` the default already sends.
+ *
+ * `originalJson` is parsed defensively: it is a free-form string on the record,
+ * so a non-object, an array, `null`, or unparseable text is a REFUSAL and not a
+ * reason to fall back to the weaker field.
+ */
+function installedCatalogEntryId(server: Pick<IMcpServer, 'source' | 'libraryEntryId' | 'originalJson'>): string | null {
+  const entry = server.libraryEntryId;
+  if (!isDeclarableConnectorId(entry)) return null;
+  if (server.source !== 'library') return null;
+  if (typeof server.originalJson !== 'string') return null;
+  let stamp: unknown;
+  try {
+    stamp = JSON.parse(server.originalJson);
+  } catch {
+    return null;
+  }
+  if (typeof stamp !== 'object' || stamp === null || Array.isArray(stamp)) return null;
+  const claimed = stamp as { source?: unknown; entry?: unknown };
+  if (claimed.source !== 'library' || claimed.entry !== entry) return null;
+  return entry;
+}
+
+/**
  * The `activeMcpServers` selection for a routine, given what it declared and
  * what is installed. PURE — the caller does the I/O — so the grant rule is
  * testable without a storage layer.
  *
  * Fail-closed at every step: a malformed name, a name over the cap, a
  * connector that is not installed, one that is installed but DISABLED, a
- * builtin, and a server whose `libraryEntryId` does not match all contribute
- * nothing. An empty result is the same `[]` the default already sends, so the
- * worst case of a bad declaration is the behaviour before this module existed.
+ * builtin, and a server that cannot PROVE it was installed from the catalog
+ * entry it names ({@link installedCatalogEntryId}) all contribute nothing. An
+ * empty result is the same `[]` the default already sends, so the worst case of
+ * a bad declaration is the behaviour before this module existed.
  */
 export function selectRoutineConnectorIds(
   declared: readonly unknown[] | undefined,
@@ -122,7 +172,8 @@ export function selectRoutineConnectorIds(
     // returns true for them regardless), so naming one would be theatre.
     if (server.builtin === true) continue;
     if (server.enabled !== true) continue;
-    if (typeof server.libraryEntryId !== 'string' || !wanted.has(server.libraryEntryId)) continue;
+    const installed = installedCatalogEntryId(server);
+    if (installed === null || !wanted.has(installed)) continue;
     if (typeof server.id !== 'string' || server.id === '') continue;
     if (!ids.includes(server.id)) ids.push(server.id);
   }

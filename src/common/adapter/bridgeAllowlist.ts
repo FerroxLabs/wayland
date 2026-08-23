@@ -679,6 +679,19 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'cost.deleteBudget',
   'cost.listBudgets',
   // --- MCP mutation (agent install/remove, OAuth login/logout, credential set) ---
+  //     `compare-and-set-config` is the WIDEST of these and was the one omitted.
+  //     It takes `nextServers: IMcpServer[]` and, on a revision match, persists
+  //     that array verbatim - `compareAndSetMcpConfig` checks the revision
+  //     string and that it received an array, and nothing about the contents.
+  //     One remote call therefore chooses the `transport.command` and `args`
+  //     the host will spawn, AND writes the `source` / `libraryEntryId` /
+  //     `originalJson` provenance that the per-routine connector grant reads to
+  //     decide which connector an unattended auto-approve run may reach. There
+  //     is no `mcp.` prefix entry (the namespace is deliberately part-readable
+  //     for the paired WebUI), so membership in this set is the ONLY thing that
+  //     denies it. The narrower mutations below were being enforced around an
+  //     open door.
+  'mcp.compare-and-set-config',
   'mcp.sync-to-agents',
   'mcp.remove-from-agents',
   'mcp.archive-configured-server',
