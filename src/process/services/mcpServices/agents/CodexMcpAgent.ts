@@ -16,15 +16,27 @@ import {
   isBuiltinImageGenName,
   isBuiltinImageGenTransport,
 } from '@process/resources/builtinMcp/constants';
-import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { safeExecFile, execErrorDetail } from '@process/utils/safeExec';
 import { cliSafeMcpServerName } from '../validateMcpServer';
 import { validateMcpEnvEntry } from '../validateMcpServer';
+import {
+  aggregatePublicationFailures,
+  aggregateRemovalSignals,
+  agentCliEnv,
+  agentCliFailureDetail,
+  isAgentCliTimeout,
+  runAgentCli,
+  type RemovalScopeReport,
+} from './agentCliExec';
 
-/** Env options for exec calls - ensures CLI is found from Finder/launchd launches */
-const getExecEnv = () => ({
-  env: { ...getEnhancedEnv(), NODE_OPTIONS: '', TERM: 'dumb', NO_COLOR: '1' } as NodeJS.ProcessEnv,
-});
+/**
+ * Env options for exec calls - ensures the CLI is found from Finder/launchd
+ * launches, and redirects `CODEX_HOME` when an agent-config sandbox is in
+ * force. `codex` refuses a `CODEX_HOME` that does not exist ("points to
+ * <path>, but that path does not exist"), which is why `agentConfigCliEnv`
+ * creates the sub-directories before handing the env over.
+ */
+const getExecEnv = () => ({ env: agentCliEnv() });
 
 interface CodexMcpListEntry {
   name: string;
@@ -263,9 +275,10 @@ export class CodexMcpAgent extends AbstractMcpAgent {
    * Install MCP servers into the Codex CLI
    */
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
-    const installOperation = async () => {
+    const installOperation = async (): Promise<McpOperationResult> => {
       try {
         const failures: string[] = [];
+        let timedOut = false;
         for (const server of mcpServers) {
           const unsupportedReason = codexGlobalPublicationUnsupportedReason(server);
           if (unsupportedReason) {
@@ -290,17 +303,18 @@ export class CodexMcpAgent extends AbstractMcpAgent {
           }
 
           try {
-            await safeExecFile('codex', args, { timeout: 5000, ...execOptions });
+            await runAgentCli('codex', args, { ...execOptions });
             console.log(`[CodexMcpAgent] Added MCP server: ${server.name}`);
           } catch (error) {
-            const detail = execErrorDetail(error);
+            const detail = agentCliFailureDetail(error);
+            if (isAgentCliTimeout(error)) timedOut = true;
             console.warn(`Failed to add MCP ${server.name} to Codex: ${detail}`);
             failures.push(`${server.name}: ${detail}`);
           }
         }
-        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
+        return aggregatePublicationFailures('Codex CLI', failures, timedOut);
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return { success: false, outcome: 'failed', error: error instanceof Error ? error.message : String(error) };
       }
     };
 
@@ -312,59 +326,83 @@ export class CodexMcpAgent extends AbstractMcpAgent {
    * Remove an MCP server from the Codex CLI
    */
   removeMcpServer(mcpServerName: string): Promise<McpOperationResult> {
-    const removeOperation = async () => {
-      try {
-        const candidateNames = Array.from(
-          new Set(
-            isBuiltinImageGenName(mcpServerName)
-              ? [mcpServerName, BUILTIN_IMAGE_GEN_NAME, ...BUILTIN_IMAGE_GEN_LEGACY_NAMES]
-              : [mcpServerName]
-          )
-        );
+    const removeOperation = async (): Promise<McpOperationResult> => {
+      const candidateNames = Array.from(
+        new Set(
+          isBuiltinImageGenName(mcpServerName)
+            ? [mcpServerName, BUILTIN_IMAGE_GEN_NAME, ...BUILTIN_IMAGE_GEN_LEGACY_NAMES]
+            : [mcpServerName]
+        )
+      );
+      const reports: RemovalScopeReport[] = [];
 
-        for (const candidateName of candidateNames) {
-          try {
-            const result = await safeExecFile('codex', ['mcp', 'remove', cliSafeMcpServerName(candidateName)], {
-              timeout: 5000,
-              ...getExecEnv(),
-            });
+      for (const candidateName of candidateNames) {
+        try {
+          const result = await runAgentCli('codex', ['mcp', 'remove', cliSafeMcpServerName(candidateName)], {
+            ...getExecEnv(),
+          });
+          const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
 
-            // Check output to confirm successful removal
-            if (result.stdout && (result.stdout.includes('removed') || result.stdout.includes('Removed'))) {
-              console.log(`[CodexMcpAgent] Removed MCP server: ${candidateName}`);
-              return { success: true };
-            }
-
-            if (result.stdout && (result.stdout.includes('not found') || result.stdout.includes('No such server'))) {
-              continue;
-            }
-
-            // Other cases: treat as success (backward compatibility)
-            return { success: true };
-          } catch (cmdError) {
-            const errorText = [
-              cmdError instanceof Error ? cmdError.message : String(cmdError),
-              (cmdError as { stdout?: string }).stdout || '',
-              (cmdError as { stderr?: string }).stderr || '',
-            ].join('\n');
-
-            if (
-              errorText.includes('not found') ||
-              errorText.includes('does not exist') ||
-              errorText.includes('No MCP server named')
-            ) {
-              continue;
-            }
-
-            return { success: false, error: cmdError instanceof Error ? cmdError.message : String(cmdError) };
+          if (output.includes('removed') || output.includes('Removed')) {
+            console.log(`[CodexMcpAgent] Removed MCP server: ${candidateName}`);
+            reports.push({ scope: candidateName, signal: 'removed' });
+            break;
           }
-        }
 
-        console.log(`[CodexMcpAgent] MCP server '${mcpServerName}' not found, nothing to remove`);
-        return { success: true };
-      } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+          // `codex mcp remove <absent>` EXITS 0 and prints
+          // "No MCP server named '<name>' found." - which matches neither of
+          // the two phrases this branch used to look for, so an absent server
+          // fell through to the take-it-at-its-word branch and was reported as
+          // `applied`. Observed against the real binary.
+          if (
+            output.includes('not found') ||
+            output.includes('No such server') ||
+            output.includes('No MCP server named')
+          ) {
+            reports.push({ scope: candidateName, signal: 'absent' });
+            continue;
+          }
+
+          // Exit 0 with nothing recognisable to say: take the CLI at its word.
+          reports.push({ scope: candidateName, signal: 'removed' });
+          break;
+        } catch (cmdError) {
+          const detail = execErrorDetail(cmdError);
+
+          // A killed child is an unknown, and an unknown removal must stay
+          // retryable. Previously ANY rejection that did not literally contain
+          // "not found" returned a hard failure and aborted the remaining
+          // candidate names.
+          // STOP at the first unreachable scope. If the CLI will not answer
+          // for this scope it will not answer for the next one, and trying
+          // anyway multiplies the wall time by the number of scopes: measured
+          // live, `gemini mcp remove` spent 61,433 ms on one removal (15 s +
+          // retry, twice), blowing through the 45 s per-agent deadline. One
+          // unknown scope already makes the whole agent's removal unproven and
+          // retryable, so there is nothing more to learn by continuing.
+          if (isAgentCliTimeout(cmdError)) {
+            reports.push({ scope: candidateName, signal: 'unknown', detail });
+            return aggregateRemovalSignals('Codex CLI', reports);
+          }
+
+          if (
+            detail.includes('not found') ||
+            detail.includes('does not exist') ||
+            detail.includes('No MCP server named') ||
+            // `codex mcp remove <absent>` EXITS NON-ZERO with this on stderr.
+            // The stdout branch above already knew the phrase; the rejection
+            // branch did not, so an absent server read as a hard failure.
+            detail.includes('No such server')
+          ) {
+            reports.push({ scope: candidateName, signal: 'absent' });
+            continue;
+          }
+
+          reports.push({ scope: candidateName, signal: 'error', detail });
+        }
       }
+
+      return aggregateRemovalSignals('Codex CLI', reports);
     };
 
     Object.defineProperty(removeOperation, 'name', { value: 'removeMcpServer' });

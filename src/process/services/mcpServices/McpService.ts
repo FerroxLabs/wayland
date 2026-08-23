@@ -7,6 +7,14 @@
  */
 
 import { execSync } from 'child_process';
+// `os.homedir()` survives in this file at TWO call sites, and only those two,
+// both handing the USER's OWN home to `normalizeMcpServerForSpawn`. That
+// function expands a leading `~` inside an MCP server's own allowed-directory
+// arguments - the filesystem connector's `~/Documents` means the customer's
+// Documents folder. It is NOT a third-party agent config root, and routing it
+// through `agentConfigRoot()` would silently point a customer's filesystem
+// server at a test sandbox. Every path that names another product's config
+// goes through `./agentConfigRoot`.
 import * as os from 'node:os';
 import type { IMcpServer } from '@/common/config/storage';
 import { ClaudeMcpAgent } from './agents/ClaudeMcpAgent';
@@ -25,7 +33,8 @@ import type {
   McpSyncResult,
   McpSource,
 } from './McpProtocol';
-import { mcpAgentOperationSucceeded } from './McpProtocol';
+import { isRetryableMcpOutcome, mcpAgentOperationSucceeded } from './McpProtocol';
+import type { McpAgentOutcome } from './McpProtocol';
 import { validateMcpServer, sanitizeMcpServerName } from './validateMcpServer';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 import { applyBuiltinMcpRuntime } from '@process/services/mcpServices/builtinMcpRuntime';
@@ -61,8 +70,12 @@ function withAgentPublicationDeadline(
     const timer = setTimeout(() => {
       if (settled) return;
       settled = true;
-      console.warn(`[McpService] MCP publication to "${agentName}" exceeded ${deadlineMs}ms; continuing without it`);
-      resolve({ success: false, error: `publication timed out after ${deadlineMs}ms` });
+      console.warn(`[McpService] MCP operation on "${agentName}" exceeded ${deadlineMs}ms; continuing without it`);
+      resolve({
+        success: false,
+        outcome: 'timed-out',
+        error: `${agentName} did not answer within ${deadlineMs}ms, so its config was left unchanged and unverified. Retry.`,
+      });
     }, deadlineMs);
     // An unref'd timer must not keep the process alive on its own.
     timer.unref?.();
@@ -406,6 +419,7 @@ export class McpService {
               agent: agent.name,
               success: false,
               unsupported: true,
+              outcome: 'unsupported' as McpAgentOutcome,
               error: `MCP publication is not supported for backend "${agent.backend}"`,
             };
           }
@@ -414,15 +428,20 @@ export class McpService {
             agent.name,
             agentInstance.installMcpServers(authedServers)
           );
+          const outcome: McpAgentOutcome = result.outcome ?? (result.success ? 'applied' : 'failed');
           return {
             agent: agent.name,
             success: result.success,
             error: result.error,
+            outcome,
+            retryable: isRetryableMcpOutcome(outcome),
           };
         } catch (error) {
           return {
             agent: agent.name,
             success: false,
+            outcome: 'failed' as McpAgentOutcome,
+            retryable: false,
             error: error instanceof Error ? error.message : String(error),
           };
         }
@@ -511,7 +530,12 @@ export class McpService {
       // Ensure native Gemini CLI is also in the removal list
       const allAgents = this.addNativeGeminiIfNeeded(agents);
 
-      // Run MCP removal across all agents concurrently
+      // Run MCP removal across all agents concurrently.
+      //
+      // The agent is named by its DISPLAY NAME only, matching the publication
+      // path. This path used to label it `${agent.backend}:${agent.name}`,
+      // which is how the user's banner opened with the stutter
+      // "claude:Claude Code: user/com.ferroxlabs-tvcontrol: failed: ...".
       const promises = allAgents.map(async (agent) => {
         try {
           // Use getAgentForConfig to correctly distinguish fork Gemini from native Gemini
@@ -519,23 +543,34 @@ export class McpService {
           if (!agentInstance) {
             console.warn(`[McpService] Skipping MCP removal for unsupported backend: ${agent.backend}`);
             return {
-              agent: `${agent.backend}:${agent.name}`,
+              agent: agent.name,
               success: false,
               unsupported: true,
+              outcome: 'unsupported' as McpAgentOutcome,
               error: `MCP removal is not supported for backend "${agent.backend}"`,
             };
           }
 
-          const result = await agentInstance.removeMcpServer(safeName);
+          // The SAME per-agent deadline the publication path has carried since
+          // #B4c. It was never applied here, so one agent CLI that never
+          // returned hung a REMOVAL forever - and removal is the rollback half
+          // of publication, so that hang stranded the connector mid-rollback
+          // with no toast and no way forward.
+          const result = await withAgentPublicationDeadline(agent.name, agentInstance.removeMcpServer(safeName));
+          const outcome: McpAgentOutcome = result.outcome ?? (result.success ? 'applied' : 'failed');
           return {
-            agent: `${agent.backend}:${agent.name}`,
+            agent: agent.name,
             success: result.success,
             error: result.error,
+            outcome,
+            retryable: isRetryableMcpOutcome(outcome),
           };
         } catch (error) {
           return {
-            agent: `${agent.backend}:${agent.name}`,
+            agent: agent.name,
             success: false,
+            outcome: 'failed' as McpAgentOutcome,
+            retryable: false,
             error: error instanceof Error ? error.message : String(error),
           };
         }

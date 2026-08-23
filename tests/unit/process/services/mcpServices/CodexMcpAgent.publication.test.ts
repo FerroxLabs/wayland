@@ -64,7 +64,10 @@ describe('Codex MCP publication truth', () => {
       headers: { Authorization: 'Bearer secret' },
     });
 
-    await expect(new CodexMcpAgent().installMcpServers([hosted])).resolves.toEqual({ success: true });
+    await expect(new CodexMcpAgent().installMcpServers([hosted])).resolves.toEqual({
+      success: true,
+      outcome: 'applied',
+    });
     expect(safeExecFile).toHaveBeenCalledOnce();
     expect(safeExecFile.mock.calls[0]?.[1]).toContain('--bearer-token-env-var');
   });
@@ -75,6 +78,7 @@ describe('Codex MCP publication truth', () => {
 
     await expect(new CodexMcpAgent().installMcpServers([stdio])).resolves.toEqual({
       success: false,
+      outcome: 'failed',
       error: 'Local: codex add failed',
     });
   });
@@ -84,6 +88,7 @@ describe('Codex MCP publication truth', () => {
 
     await expect(new CodexMcpAgent().installMcpServers([legacy])).resolves.toEqual({
       success: false,
+      outcome: 'failed',
       error: 'Legacy SSE: Codex CLI does not support sse transport type',
     });
     expect(safeExecFile).not.toHaveBeenCalled();

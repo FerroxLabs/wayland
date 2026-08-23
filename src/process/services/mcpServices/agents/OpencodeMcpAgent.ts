@@ -7,12 +7,12 @@
  */
 
 import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
 import stripJsonComments from 'strip-json-comments';
 import type { IMcpServer, IMcpServerTransport } from '@/common/config/storage';
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
+import { agentConfigPath } from '../agentConfigRoot';
+import { writeAtomic } from '@process/services/ijfw/atomicFile';
 
 type OpencodeToolConfig = Record<string, boolean | undefined>;
 
@@ -145,8 +145,9 @@ function resolveToolDisabled(name: string, tools: OpencodeToolConfig | undefined
 }
 
 function getDefaultConfigPath(): string {
-  const configRoot = path.join(os.homedir(), '.config', 'opencode');
-  return path.join(configRoot, 'opencode.json');
+  // Through the ONE agent-config seam, never `os.homedir()`. This is a file
+  // OpenCode owns and reads on startup; see agentConfigRoot.ts.
+  return agentConfigPath('.config', 'opencode', 'opencode.json');
 }
 
 export function resolveOpencodeConfigPath(): string {
@@ -216,10 +217,58 @@ export class OpencodeMcpAgent extends AbstractMcpAgent {
     }
   }
 
-  private writeConfig(config: OpencodeConfig): void {
+  /**
+   * Write OpenCode's config the only way it is safe to write a file another
+   * product reads on startup.
+   *
+   * THREE GUARANTEES, and how each is obtained:
+   *
+   * 1. NEVER LEFT INVALID. The serialized text is parsed back before anything
+   *    touches the real path. If our own output would not survive
+   *    `parseOpencodeConfig`, we throw with the user's file untouched. Same
+   *    posture the Kimi connector takes ("Refusing to write ...: the result
+   *    would not be valid TOML").
+   * 2. NEVER DROPS A SIBLING. Callers pass a spread of the parsed config, so
+   *    every top-level key OpenCode or the user put there is carried through,
+   *    and only the `mcp` map is edited. A read that FAILED (unparseable file,
+   *    EACCES) returns null, and writing a fresh `{ mcp: ... }` over that would
+   *    silently delete the whole file - so an unreadable-but-present config is
+   *    refused instead.
+   * 3. SAFE IF THE PROCESS DIES MID-WRITE. `writeAtomic` writes a temp sibling,
+   *    fdatasyncs it, then renames over the target. A rename within one
+   *    filesystem is atomic, so at every instant the path holds either the
+   *    complete old file or the complete new one - never a truncated prefix.
+   *    A crash before the rename leaves only an orphan dotfile.
+   */
+  private async writeConfig(config: OpencodeConfig): Promise<void> {
     const configPath = resolveOpencodeConfigPath();
-    fs.mkdirSync(path.dirname(configPath), { recursive: true });
-    fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, 'utf-8');
+    const serialized = `${JSON.stringify(config, null, 2)}\n`;
+
+    try {
+      parseOpencodeConfig(serialized);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Refusing to write ${configPath}: the result would not be valid JSON (${message})`, {
+        cause: error,
+      });
+    }
+
+    await writeAtomic(configPath, serialized);
+  }
+
+  /**
+   * Read the config, distinguishing "no config" from "config we could not
+   * read". The difference decides whether a write is allowed at all: an
+   * absent file may be created, a present-but-unreadable one must never be
+   * overwritten, because doing so discards everything the customer had.
+   */
+  private readConfigForWrite(): { config: OpencodeConfig; existed: boolean } {
+    const configPath = resolveOpencodeConfigPath();
+    if (!fs.existsSync(configPath)) {
+      return { config: {}, existed: false };
+    }
+    const content = fs.readFileSync(configPath, 'utf-8');
+    return { config: parseOpencodeConfig(content), existed: true };
   }
 
   detectMcpServers(_cliPath?: string): Promise<IMcpServer[]> {
@@ -280,9 +329,13 @@ export class OpencodeMcpAgent extends AbstractMcpAgent {
   }
 
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
-    const installOperation = async () => {
+    const installOperation = async (): Promise<McpOperationResult> => {
       try {
-        const config = this.readConfig() || {};
+        // Deliberately NOT `this.readConfig() || {}`. That swallowed a parse
+        // or permission error into an empty object and then wrote it back,
+        // erasing every provider, model and key the customer had in
+        // opencode.json. An unreadable config must abort the publication.
+        const { config } = this.readConfigForWrite();
         const existingMcp = isRecord(config.mcp) ? { ...config.mcp } : {};
 
         for (const server of mcpServers) {
@@ -295,14 +348,14 @@ export class OpencodeMcpAgent extends AbstractMcpAgent {
           existingMcp[server.name] = entry;
         }
 
-        this.writeConfig({
+        await this.writeConfig({
           ...config,
           mcp: existingMcp,
         });
 
-        return { success: true };
+        return { success: true, outcome: 'applied' };
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return { success: false, outcome: 'failed', error: error instanceof Error ? error.message : String(error) };
       }
     };
 
@@ -311,24 +364,25 @@ export class OpencodeMcpAgent extends AbstractMcpAgent {
   }
 
   removeMcpServer(mcpServerName: string): Promise<McpOperationResult> {
-    const removeOperation = async () => {
+    const removeOperation = async (): Promise<McpOperationResult> => {
       try {
-        const config = this.readConfig();
-        if (!config?.mcp || !isRecord(config.mcp) || !config.mcp[mcpServerName]) {
-          return { success: true };
+        const { config, existed } = this.readConfigForWrite();
+        if (!existed || !isRecord(config.mcp) || !config.mcp[mcpServerName]) {
+          // Nothing to remove. That is the goal state, not a failure.
+          return { success: true, outcome: 'already-absent' };
         }
 
         const nextMcp = { ...config.mcp };
         delete nextMcp[mcpServerName];
 
-        this.writeConfig({
+        await this.writeConfig({
           ...config,
           mcp: nextMcp,
         });
 
-        return { success: true };
+        return { success: true, outcome: 'applied' };
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return { success: false, outcome: 'failed', error: error instanceof Error ? error.message : String(error) };
       }
     };
 

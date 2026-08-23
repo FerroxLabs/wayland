@@ -47,6 +47,12 @@ describe('McpService.syncMcpToAgents publication truth', () => {
         // published, so the operation genuinely failed. Kept as toEqual so a
         // non-target cannot quietly acquire other fields.
         unsupported: true,
+        // The strict toEqual is deliberate, so this list is the whole shape a
+        // non-target carries. It gained `outcome` on purpose: the renderer now
+        // routes on the typed state rather than re-deriving it from flags.
+        // `retryable` is absent because a non-target is not something a retry
+        // can convert into a target.
+        outcome: 'unsupported',
         error: 'MCP publication is not supported for backend "unknown-backend"',
       },
     ]);

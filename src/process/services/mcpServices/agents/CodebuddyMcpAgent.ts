@@ -7,13 +7,21 @@
  */
 
 import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
 import type { IMcpServer } from '@/common/config/storage';
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
-import { safeExecFile } from '@process/utils/safeExec';
 import { validateMcpEnvEntry } from '../validateMcpServer';
+import { agentConfigPath } from '../agentConfigRoot';
+import { execErrorDetail } from '@process/utils/safeExec';
+import {
+  aggregatePublicationFailures,
+  aggregateRemovalSignals,
+  agentCliEnv,
+  agentCliFailureDetail,
+  isAgentCliTimeout,
+  runAgentCli,
+  type RemovalScopeReport,
+} from './agentCliExec';
 
 /**
  * CodeBuddy MCP server entry in ~/.codebuddy/mcp.json
@@ -59,7 +67,9 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
    * Get CodeBuddy mcp.json path
    */
   private getMcpConfigPath(): string {
-    return path.join(os.homedir(), '.codebuddy', 'mcp.json');
+    // Resolved through the ONE agent-config seam, never `os.homedir()` -
+    // see agentConfigRoot.ts for why that mattered.
+    return agentConfigPath('.codebuddy', 'mcp.json');
   }
 
   /**
@@ -180,9 +190,10 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
    * Install MCP servers via `codebuddy mcp add` CLI
    */
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
-    const installOperation = async () => {
+    const installOperation = async (): Promise<McpOperationResult> => {
       try {
         const failures: string[] = [];
+        let timedOut = false;
         for (const server of mcpServers) {
           try {
             if (server.transport.type === 'stdio') {
@@ -203,10 +214,7 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
                 args.push('-e', `${key}=${value}`);
               }
 
-              await safeExecFile('codebuddy', args, {
-                timeout: 5000,
-                env: { ...process.env, NODE_OPTIONS: '', TERM: 'dumb', NO_COLOR: '1' },
-              });
+              await runAgentCli('codebuddy', args, { env: agentCliEnv() });
             } else if ('url' in server.transport && server.transport.url) {
               // For HTTP-based transports, use add-json to preserve full config
               const config: Record<string, unknown> = {
@@ -218,9 +226,8 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
               }
 
               const jsonStr = JSON.stringify(config);
-              await safeExecFile('codebuddy', ['mcp', 'add-json', '-s', 'user', server.name, jsonStr], {
-                timeout: 5000,
-                env: { ...process.env, NODE_OPTIONS: '', TERM: 'dumb', NO_COLOR: '1' },
+              await runAgentCli('codebuddy', ['mcp', 'add-json', '-s', 'user', server.name, jsonStr], {
+                env: agentCliEnv(),
               });
             } else {
               failures.push(`${server.name}: CodeBuddy does not support ${server.transport.type} transport type`);
@@ -228,13 +235,18 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
             }
             console.log(`[CodebuddyMcpAgent] Added MCP server: ${server.name}`);
           } catch (error) {
-            console.warn(`Failed to add MCP ${server.name} to CodeBuddy:`, error);
-            failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
+            // `execErrorDetail`, not `error.message`: safeExecFile fixes the
+            // message to "Command failed with exit code 1" and carries the
+            // CLI's own words on stderr/stdout.
+            const detail = agentCliFailureDetail(error);
+            if (isAgentCliTimeout(error)) timedOut = true;
+            console.warn(`Failed to add MCP ${server.name} to CodeBuddy: ${detail}`);
+            failures.push(`${server.name}: ${detail}`);
           }
         }
-        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
+        return aggregatePublicationFailures('CodeBuddy', failures, timedOut);
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return { success: false, outcome: 'failed', error: error instanceof Error ? error.message : String(error) };
       }
     };
 
@@ -246,37 +258,53 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
    * Remove MCP server via `codebuddy mcp remove` CLI
    */
   removeMcpServer(mcpServerName: string): Promise<McpOperationResult> {
-    const removeOperation = async () => {
+    const removeOperation = async (): Promise<McpOperationResult> => {
       try {
         const scopes = ['user', 'local', 'project'] as const;
-        const failures: string[] = [];
+        const reports: RemovalScopeReport[] = [];
 
         for (const scope of scopes) {
           try {
-            const result = await safeExecFile('codebuddy', ['mcp', 'remove', '-s', scope, mcpServerName], {
-              timeout: 5000,
-              env: { ...process.env, NODE_OPTIONS: '', TERM: 'dumb', NO_COLOR: '1' },
+            const result = await runAgentCli('codebuddy', ['mcp', 'remove', '-s', scope, mcpServerName], {
+              env: agentCliEnv(),
             });
 
             if (result.stdout && result.stdout.includes('removed')) {
               console.log(`[CodebuddyMcpAgent] Removed MCP server from ${scope} scope: ${mcpServerName}`);
-              return { success: true };
+              reports.push({ scope, signal: 'removed' });
+              break;
             }
+            // Exit 0 with no "removed" line: CodeBuddy had nothing there.
+            reports.push({ scope, signal: 'absent' });
           } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            if (errorMessage.includes('not found') || errorMessage.includes('does not exist')) {
+            // Classify on the CLI's OWN OUTPUT. `error.message` is the fixed
+            // string "Command failed with exit code 1" - matching 'not found'
+            // against it could never fire, so an absent server read as a hard
+            // failure on every scope.
+            const detail = execErrorDetail(error);
+          // STOP at the first unreachable scope. If the CLI will not answer
+          // for this scope it will not answer for the next one, and trying
+          // anyway multiplies the wall time by the number of scopes: measured
+          // live, `gemini mcp remove` spent 61,433 ms on one removal (15 s +
+          // retry, twice), blowing through the 45 s per-agent deadline. One
+          // unknown scope already makes the whole agent's removal unproven and
+          // retryable, so there is nothing more to learn by continuing.
+            if (isAgentCliTimeout(error)) {
+              reports.push({ scope, signal: 'unknown', detail });
+              return aggregateRemovalSignals('CodeBuddy', reports);
+            }
+            if (detail.includes('not found') || detail.includes('does not exist')) {
+              reports.push({ scope, signal: 'absent' });
               continue;
             }
-            console.warn(`[CodebuddyMcpAgent] Failed to remove from ${scope} scope:`, errorMessage);
-            failures.push(`${scope}: ${errorMessage}`);
+            console.warn(`[CodebuddyMcpAgent] Failed to remove from ${scope} scope: ${detail}`);
+            reports.push({ scope, signal: 'error', detail });
           }
         }
 
-        if (failures.length > 0) return { success: false, error: failures.join('; ') };
-        console.log(`[CodebuddyMcpAgent] MCP server ${mcpServerName} not found in any scope (may already be removed)`);
-        return { success: true };
+        return aggregateRemovalSignals('CodeBuddy', reports);
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return { success: false, outcome: 'failed', error: error instanceof Error ? error.message : String(error) };
       }
     };
 

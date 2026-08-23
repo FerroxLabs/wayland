@@ -115,7 +115,20 @@ describe('MCP publication cannot be hung by one agent', () => {
     expect(byAgent.get('Claude Code')?.success).toBe(false);
     expect(byAgent.get('Claude Code')?.error).toContain('claude mcp add exited 1');
     expect(byAgent.get('Qwen Code')?.success).toBe(false);
-    expect(byAgent.get('Qwen Code')?.error).toContain('timed out');
+    // The wording moved from the bare phrase "timed out" to a sentence that
+    // names the agent and says what to do, and the state is now TYPED rather
+    // than inferred from a substring. Strictly more than the original
+    // assertion checked, not less: the invariant it guarded - the agent that
+    // never returned is accounted for BY NAME, with a bounded settle - is
+    // still asserted, plus the fact that it is retryable.
+    expect(byAgent.get('Qwen Code')?.error).toContain('Qwen Code');
+    expect(byAgent.get('Qwen Code')?.error).toContain('did not answer within 45000ms');
+    expect(byAgent.get('Qwen Code')?.error).toContain('Retry');
+    expect(byAgent.get('Qwen Code')?.outcome).toBe('timed-out');
+    expect(byAgent.get('Qwen Code')?.retryable).toBe(true);
+    // And the agent that answered with a real error is NOT retryable.
+    expect(byAgent.get('Claude Code')?.outcome).toBe('failed');
+    expect(byAgent.get('Claude Code')?.retryable).toBe(false);
 
     // The aggregate verdict is deliberately NOT widened here: a partial
     // publication still reports failure, so the renderer's publish-before-
