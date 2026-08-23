@@ -28,6 +28,15 @@ const secretBackend: ConstitutionArchiveSecretBackend = {
   decryptString: (ciphertext) => Buffer.from(ciphertext.slice('fenc:v1:'.length), 'base64').toString('utf8'),
 };
 
+/** The errno error a Windows rename raises while another process holds a file. */
+function publicationFailure(code: string): NodeJS.ErrnoException {
+  const error = new Error(
+    `${code}: operation not permitted, rename 'revision.enc.tmp' -> 'revision.enc'`
+  ) as NodeJS.ErrnoException;
+  error.code = code;
+  return error;
+}
+
 describe('ConstitutionRevisionAuthority', () => {
   it('keeps a cold noncreating load side-effect free and preserves one active key across restart', () => {
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-revision-authority-'));
@@ -267,14 +276,6 @@ describe('ConstitutionRevisionAuthority', () => {
   // for it. The simulation only decides WHEN the rename is allowed to proceed;
   // when it does proceed it calls the real `renameSync`, and rotate()'s own
   // read-back of the published file is what proves the publication happened.
-  const publicationFailure = (code: string): NodeJS.ErrnoException => {
-    const error = new Error(
-      `${code}: operation not permitted, rename 'revision.enc.tmp' -> 'revision.enc'`
-    ) as NodeJS.ErrnoException;
-    error.code = code;
-    return error;
-  };
-
   it('retries the publication rename through a transient handle without sleeping on the happy path', () => {
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-revision-publication-transient-'));
     const authorityPath = path.join(root, 'revision.enc');
