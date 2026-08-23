@@ -22,6 +22,7 @@ const {
   mockWorkerTaskManager,
   mockRemoveFromMessageCache,
   mockListJobsByConversation,
+  mockChannelManager,
 } = vi.hoisted(() => {
   const handlers: Record<string, Provider> = {};
 
@@ -77,8 +78,30 @@ const {
       createWithMigration: vi.fn(async () => ({ id: 'conv-migrated', source: 'wayland' })),
     },
     mockWorkerTaskManager: workerTaskManager,
+    mockChannelManager: {
+      isInitialized: vi.fn(() => false),
+      cleanupConversation: vi.fn(async () => true),
+    },
   };
 });
+
+// conversation.remove dynamically imports the real ChannelManager after a
+// successful delete. That module pulls in the whole channel-plugin subsystem:
+// measured at 4292ms of module transform on an idle box, charged to the FIRST
+// test's timeout (once warmed, the same provider call took 1ms). Under
+// full-suite parallelism that inflated past the 10s testTimeout to 10011ms,
+// which is why this test failed stably on a 96-core Linux box while passing on a
+// lower-core Mac - it was never a load flake. Vitest sizes its worker pool from
+// the CPU count, so more cores means more concurrent transform pipelines and a
+// LONGER wall clock for any single one.
+//
+// The stub reproduces the exact path the real manager took here: isInitialized()
+// was already false in this suite, so cleanupConversation never ran. The removal
+// test asserts the manager is still consulted, so the stub cannot hide the
+// production code dropping the channel-cleanup step.
+vi.mock('@process/channels/core/ChannelManager', () => ({
+  getChannelManager: () => mockChannelManager,
+}));
 
 vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   cronService: {
@@ -206,6 +229,9 @@ describe('conversationBridge tray sync', () => {
     expect(mockConversationService.deleteConversation).toHaveBeenCalledWith('conv-1');
     expect(mockRemoveFromMessageCache).toHaveBeenCalledWith('conv-1');
     expect(mockRefreshTrayMenu).toHaveBeenCalledOnce();
+    // Channel cleanup is consulted after the durable delete commits.
+    expect(mockChannelManager.isInitialized).toHaveBeenCalled();
+    expect(mockChannelManager.cleanupConversation).not.toHaveBeenCalled();
   });
 
   it('preserves a chat when scheduled tasks still reference it', async () => {

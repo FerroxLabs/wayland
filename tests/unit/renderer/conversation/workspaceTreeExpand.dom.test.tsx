@@ -29,7 +29,7 @@
  */
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import React from 'react';
 
 const h = vi.hoisted(() => ({
@@ -122,6 +122,23 @@ const workspaceTree = () => [
 ];
 
 describe('Workbench tree expansion', () => {
+  // The only test in this file dynamically imports the whole Workspace page
+  // graph. Vitest charges that first transform to the test body, which is 1682ms
+  // idle and blew the 10s timeout in one of two full-suite runs on a 96-core box
+  // - the same defect as conversationBridge.tray / autoUpdate / i18n.index.dom,
+  // and the same reason: the worker pool is sized from the CPU count, so more
+  // cores means more concurrent transform pipelines and a longer wall clock for
+  // any single one. Pay it before the test is timed; the assertions below are
+  // untouched and still run against a freshly rendered component.
+  beforeAll(async () => {
+    try {
+      await import('@/renderer/pages/conversation/Workspace');
+    } catch {
+      // Not a verdict: the test imports the same module itself and will report
+      // the real error against a real assertion.
+    }
+  }, 120_000);
+
   beforeEach(() => {
     vi.clearAllMocks();
     h.getWorkspace.mockResolvedValue(workspaceTree());

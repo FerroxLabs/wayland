@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import {
   chmodSync,
   cpSync,
@@ -109,9 +109,35 @@ type HistoricalFixtureManifest = {
 
 let historicalProducerEvidenceVerified = false;
 
+/**
+ * The producer commit is reachable from NO ref on origin - 0 of 151 remote
+ * branches and 0 of 48 tags contain it, while a control commit on main is
+ * contained in 59 - so a clone, a `git fetch` and a `git fetch --tags` all leave
+ * it absent and every derivation below fails with a bare `git rev-parse ...
+ * unknown revision` that names no remedy.
+ *
+ * This precondition never skips: the evidence check below is a supply-chain
+ * authenticity assertion on the vendored corpus, and turning a missing producer
+ * into a silent no-op would retire the assertion while still reporting green. It
+ * fails loudly instead, and names the one command that fixes the clone.
+ */
+function requireProducerCommit(commit: string): void {
+  if (spawnSync('git', ['cat-file', '-e', `${commit}^{commit}`], { stdio: 'ignore' }).status === 0) return;
+  throw new Error(
+    [
+      `Constitution fixture provenance cannot be verified: producer commit ${commit} is not in this clone.`,
+      'It is reachable from no ref on origin, so cloning and fetching do not carry it; it must be fetched by SHA.',
+      'Run:  node scripts/ensureConstitutionProducerCommit.js',
+      `(or:  git fetch --depth=1 --no-tags origin ${commit})`,
+      'This assertion authenticates tests/fixtures/constitution-fs against real history and is never skipped.',
+    ].join('\n')
+  );
+}
+
 function assertHistoricalProducerEvidence(fixture: string, manifest: HistoricalFixtureManifest): void {
   if (historicalProducerEvidenceVerified) return;
   const commit = manifest.producerCommit;
+  requireProducerCommit(commit);
   const producerTree = execFileSync('git', ['rev-parse', `${commit}^{tree}`], { encoding: 'utf8' }).trim();
   expect(producerTree).toBe(manifest.generation.producerTree);
   const archive = execFileSync('git', ['archive', '--format=tar', commit], { maxBuffer: 256 * 1024 * 1024 });

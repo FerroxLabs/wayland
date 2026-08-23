@@ -184,6 +184,34 @@ function installBridgeDeps() {
   }
 }
 
+/**
+ * Make sure this clone carries the Constitution fixture's producer commit.
+ *
+ * constitutionFsService.test.ts re-derives that commit's tree and archive digest
+ * from git to authenticate the vendored fixture corpus. The commit is reachable
+ * from no ref on origin, so `git clone` does not carry it and both provenance
+ * tests fail on a fresh checkout with a bare `git rev-parse` fatal.
+ *
+ * Non-fatal and a no-op once the object is present: an offline install still
+ * succeeds, and the test still fails RED (never skipped) with the remedy named.
+ */
+function ensureConstitutionProducerCommit() {
+  try {
+    const ensure = require('./ensureConstitutionProducerCommit');
+    const result = ensure();
+    if (result.fetched && result.present) {
+      console.log(`[postinstall] Fetched Constitution fixture producer commit ${result.commit}`);
+    } else if (!result.present) {
+      console.warn(
+        `[postinstall] Could not fetch Constitution fixture producer commit ${result.commit} (non-fatal). ` +
+          'The two constitutionFsService provenance tests will fail until `node scripts/ensureConstitutionProducerCommit.js` succeeds.'
+      );
+    }
+  } catch (e) {
+    console.warn('[postinstall] Constitution producer commit check skipped (non-fatal):', e.message);
+  }
+}
+
 function runPostInstall() {
   // Bun can retain removed packages during an in-place upgrade. Prune the
   // fixed obsolete-runtime denylist before inspecting or packaging node_modules.
@@ -194,6 +222,9 @@ function runPostInstall() {
   // as-is into the packaged app via electron-builder extraResources and forks at
   // runtime - without its own node_modules/ the `import` statements throw.
   installBridgeDeps();
+  // Heal a fresh clone that does not carry the Constitution fixture's producer
+  // commit. No-op when it is already present; never fatal.
+  ensureConstitutionProducerCommit();
   try {
     // Check if we're in a CI environment
     const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
@@ -231,3 +262,4 @@ if (require.main === module) {
 module.exports = runPostInstall;
 module.exports.OBSOLETE_RUNTIME_PACKAGES = OBSOLETE_RUNTIME_PACKAGES;
 module.exports.pruneObsoleteRuntimePackages = pruneObsoleteRuntimePackages;
+module.exports.ensureConstitutionProducerCommit = ensureConstitutionProducerCommit;
