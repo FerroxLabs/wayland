@@ -20,7 +20,7 @@
  * must not be able to read every connector credential on the machine.
  */
 import { describe, it, expect } from 'vitest';
-import { redactForRemote, redactSecrets, isSecretBearingCallback, REDACTED } from '@/common/adapter/remoteRedaction';
+import { redactForRemote, redactSecretFields, isSecretBearingCallback, REDACTED } from '@/common/adapter/remoteRedaction';
 
 const snapshotName = 'subscribe.callback-mcp.get-config-snapshot1a2b3c4d';
 
@@ -100,11 +100,11 @@ describe('a paired browser never receives connector credentials', () => {
     // This runs on every outbound message; it must never be able to wedge the socket.
     const cyclic: Record<string, unknown> = { name: 'a' };
     cyclic.self = cyclic;
-    expect(() => redactSecrets(cyclic)).not.toThrow();
+    expect(() => redactSecretFields(cyclic)).not.toThrow();
   });
 
   it('redacts a scalar secret field too, not only the map-shaped ones', () => {
-    const out = redactSecrets({ apiKey: realSecret, token: realSecret, nested: { password: realSecret } });
+    const out = redactSecretFields({ apiKey: realSecret, token: realSecret, nested: { password: realSecret } });
     expect(JSON.stringify(out)).not.toContain(realSecret);
   });
 });

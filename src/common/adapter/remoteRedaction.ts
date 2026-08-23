@@ -71,6 +71,13 @@ const SECRET_FIELDS = new Set(['env', 'headers', 'apiKey', 'apikey', 'token', 'a
 /**
  * Deep-clone `value`, replacing every secret-bearing field.
  *
+ * NOT named `redactSecrets`, deliberately. `src/process/utils/secretRedaction.ts`
+ * owns that name for scrubbing secrets out of TEXT, and a guard test asserts it
+ * is declared in exactly one module - precisely so a second implementation
+ * cannot drift from the canonical one. This does a different job (masking the
+ * VALUES of named fields in an object graph), so it takes a different name
+ * rather than weakening the guard.
+ *
  * For `env`/`headers` the KEY NAMES are kept and only the values replaced, so the
  * remote UI can still count and name them. For scalar secret fields the whole
  * value is replaced.
@@ -79,17 +86,17 @@ const SECRET_FIELDS = new Set(['env', 'headers', 'apiKey', 'apikey', 'token', 'a
  * '[cycle]' rather than recursing forever, because this runs on every outbound
  * message and must never be able to hang the socket.
  */
-export function redactSecrets(value: unknown, seen: WeakSet<object> = new WeakSet()): unknown {
+export function redactSecretFields(value: unknown, seen: WeakSet<object> = new WeakSet()): unknown {
   if (value === null || typeof value !== 'object') return value;
   if (seen.has(value as object)) return '[cycle]';
   seen.add(value as object);
 
-  if (Array.isArray(value)) return value.map((entry) => redactSecrets(entry, seen));
+  if (Array.isArray(value)) return value.map((entry) => redactSecretFields(entry, seen));
 
   const out: Record<string, unknown> = {};
   for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
     if (!SECRET_FIELDS.has(key)) {
-      out[key] = redactSecrets(entry, seen);
+      out[key] = redactSecretFields(entry, seen);
       continue;
     }
     if (entry !== null && typeof entry === 'object' && !Array.isArray(entry)) {
@@ -110,5 +117,5 @@ export function redactSecrets(value: unknown, seen: WeakSet<object> = new WeakSe
  */
 export function redactForRemote(name: unknown, data: unknown): unknown {
   if (!isSecretBearingCallback(name)) return data;
-  return redactSecrets(data);
+  return redactSecretFields(data);
 }
