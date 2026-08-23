@@ -60,6 +60,7 @@ describe('prefetchDailyBars', () => {
     try {
       const end = '20260822';
       const res = await prefetchDailyBars({
+        confineTo: dir,
         cacheDir: dir,
         scanSymbols: ['AAPL'],
         overviewSymbols: [],
@@ -96,6 +97,7 @@ describe('prefetchDailyBars', () => {
     try {
       const end = '20260822';
       await prefetchDailyBars({
+        confineTo: dir,
         cacheDir: dir,
         scanSymbols: [],
         overviewSymbols: ['^VIX'],
@@ -150,6 +152,7 @@ describe('prefetchDailyBars', () => {
       const before = new Set(readdirSync(parent));
       let fetched = 0;
       const res = await prefetchDailyBars({
+        confineTo: root,
         cacheDir: dir,
         scanSymbols: ['../../evil', 'a/b', 'AAPL'],
         overviewSymbols: [],
@@ -178,6 +181,7 @@ describe('prefetchDailyBars', () => {
     try {
       const seen: Array<{ url: string; init?: RequestInit }> = [];
       await prefetchDailyBars({
+        confineTo: dir,
         cacheDir: dir,
         scanSymbols: ['BRK.B'],
         overviewSymbols: [],
@@ -200,6 +204,7 @@ describe('prefetchDailyBars', () => {
     const dir = tempCache();
     try {
       const res = await prefetchDailyBars({
+        confineTo: dir,
         cacheDir: dir,
         scanSymbols: ['AAPL'],
         overviewSymbols: [],
@@ -223,6 +228,7 @@ describe('prefetchDailyBars', () => {
       writeFileSync(path.join(dir, `AAPL_${YAHOO_SCAN_START}_${end}.json`), JSON.stringify(BARS));
       let fetched = 0;
       const res = await prefetchDailyBars({
+        confineTo: dir,
         cacheDir: dir,
         scanSymbols: ['AAPL'],
         overviewSymbols: [],
@@ -255,6 +261,7 @@ describe('prefetchDailyBars', () => {
       writeFileSync(notOurs, 'keep me');
 
       await prefetchDailyBars({
+        confineTo: dir,
         cacheDir: dir,
         scanSymbols: ['AAPL'],
         overviewSymbols: [],
@@ -276,6 +283,7 @@ describe('prefetchDailyBars', () => {
     const dir = tempCache();
     try {
       const res = await prefetchDailyBars({
+        confineTo: dir,
         cacheDir: dir,
         scanSymbols: ['AAPL'],
         overviewSymbols: [],
