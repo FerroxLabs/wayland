@@ -54,6 +54,20 @@ interface McpOperationResponse {
 }
 
 /**
+ * One message slot per connector.
+ *
+ * Arco keys messages by `id` and REPLACES a live one that shares it, so every
+ * message about a single connector - "contacting N agents...", the outcome,
+ * the error - lands in the same slot and supersedes whatever it is correcting.
+ *
+ * Without this, a warning sits for its full 8s `duration` while the NEXT
+ * operation's "contacting N agents to remove..." appears beneath it. Nothing
+ * was doing the opposite of what the user asked; two operations were on screen
+ * at once, and the earlier one was never retracted once it stopped being true.
+ */
+const mcpOpMessageId = (connector: string): string => `mcp-op-${connector}`;
+
+/**
  * MCP operations management hook.
  * Handles sync and remove operations between MCP servers and agents.
  */
@@ -69,7 +83,8 @@ export const useMcpOperations = (
       response: McpOperationResponse,
       operation: 'sync' | 'remove',
       successMessage?: string,
-      skipRecheck = false
+      skipRecheck = false,
+      messageId?: string
     ) => {
       if (response.success && response.data) {
         const { results } = response.data;
@@ -95,6 +110,7 @@ export const useMcpOperations = (
           // Not "failed". We do not know. Say so, and say what to do.
           await globalMessageQueue.add(() => {
             message.warning({
+              id: messageId,
               content: t('settings.mcpAgentsRetryNeeded', {
                 names: nameList(retryable),
                 applied: applied.length,
@@ -110,6 +126,7 @@ export const useMcpOperations = (
           );
           await globalMessageQueue.add(() => {
             message.warning({
+              id: messageId,
               content: t('settings.mcpAgentsFailed', {
                 names: nameList(failed),
                 applied: applied.length,
@@ -124,7 +141,7 @@ export const useMcpOperations = (
           // not failed. This is the case that produced a red banner on a
           // healthy, reachable server with 105 tools.
           await globalMessageQueue.add(() => {
-            message.success(t('settings.mcpRemoveNothingToDo'));
+            message.success({ id: messageId, content: t('settings.mcpRemoveNothingToDo') });
           });
         } else {
           // Success, stated with the number that is actually true - the toast
@@ -132,9 +149,11 @@ export const useMcpOperations = (
           // and nothing ever corrected it downward.
           const outcomeKey = operation === 'sync' ? 'mcpSyncOutcome' : 'mcpRemoveOutcome';
           await globalMessageQueue.add(() => {
-            message.success(
-              successMessage ?? t(`settings.${outcomeKey}`, { applied: applied.length, total: targets.length })
-            );
+            message.success({
+              id: messageId,
+              content:
+                successMessage ?? t(`settings.${outcomeKey}`, { applied: applied.length, total: targets.length }),
+            });
           });
         }
 
@@ -154,7 +173,7 @@ export const useMcpOperations = (
         const failedKey = operation === 'sync' ? 'mcpSyncFailed' : 'mcpRemoveFailed';
         const errorMsg = truncateErrorMessage(response.msg || t('settings.unknownError'));
         await globalMessageQueue.add(() => {
-          message.error({ content: t(`settings.${failedKey}`, { error: errorMsg }), duration: 6000 });
+          message.error({ id: messageId, content: t(`settings.${failedKey}`, { error: errorMsg }), duration: 6000 });
         });
       }
     },
@@ -173,7 +192,11 @@ export const useMcpOperations = (
 
         // Show remove-started message (via queue)
         await globalMessageQueue.add(() => {
-          message.info({ content: t('settings.mcpRemoveStarted', { count: compatibleCount }), icon: progressIcon() });
+          message.info({
+            id: mcpOpMessageId(serverName),
+            content: t('settings.mcpRemoveStarted', { count: compatibleCount }),
+            icon: progressIcon(),
+          });
         });
 
         // Desktop -> Electron IPC; hosted WebUI -> token-authed + CSRF'd write-only
@@ -184,7 +207,13 @@ export const useMcpOperations = (
               agents: agentsResponse.data,
             })
           : await removeMcpFromAgentsHttp(serverName);
-        await handleMcpOperationResult(removeResponse, 'remove', successMessage, true); // Skip re-detection
+        await handleMcpOperationResult(
+          removeResponse,
+          'remove',
+          successMessage,
+          true, // Skip re-detection
+          mcpOpMessageId(serverName)
+        );
         // Same non-target exclusion as the publication path above. This one is
         // the rollback half: treating unsupported backends as failed removals
         // turned every rolled-back publication into an "incomplete rollback",
@@ -218,7 +247,11 @@ export const useMcpOperations = (
 
         // Show sync-started message (via queue)
         await globalMessageQueue.add(() => {
-          message.info({ content: t('settings.mcpSyncStarted', { count: compatibleCount }), icon: progressIcon() });
+          message.info({
+            id: mcpOpMessageId(server.name),
+            content: t('settings.mcpSyncStarted', { count: compatibleCount }),
+            icon: progressIcon(),
+          });
         });
 
         // Desktop -> Electron IPC; hosted WebUI -> token-authed + CSRF'd write-only
@@ -230,7 +263,7 @@ export const useMcpOperations = (
             })
           : await syncMcpToAgentsHttp(server.id);
 
-        await handleMcpOperationResult(syncResponse, 'sync', undefined, skipRecheck);
+        await handleMcpOperationResult(syncResponse, 'sync', undefined, skipRecheck, mcpOpMessageId(server.name));
         // A detected backend with no MCP implementation is a non-target, not a
         // failed publication. Counting those made this throw on every toggle:
         // a typical install detects a dozen of them, so publication "failed"
