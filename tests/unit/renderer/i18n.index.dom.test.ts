@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockOnLanguageChanged = vi.hoisted(() => ({
   handler: undefined as ((payload: { language: string }) => Promise<void>) | undefined,
@@ -60,6 +60,27 @@ vi.mock('@/common', () => ({
 }));
 
 describe('renderer i18n localStorage guards', () => {
+  // The module under test statically imports all 12 locale bundles. Transforming
+  // that graph the first time in a worker was measured at 1552ms of the failing
+  // test's 1556ms; every later import in the same worker costs ~250ms because the
+  // transform cache survives vi.resetModules() even though the registry does not.
+  // Charging that one-off transform to the first test's timeout is what made this
+  // the only test in the file to fail, and only on a 96-core Linux box where
+  // parallel transform contention multiplies it - a 30s per-test timeout had
+  // already been tried here and was still blown at 30004ms.
+  //
+  // Pay the transform once, before any test is timed. beforeEach still calls
+  // vi.resetModules(), so every test still gets a freshly evaluated module.
+  beforeAll(async () => {
+    try {
+      await import('@/renderer/services/i18n');
+    } catch {
+      // A warm-up failure is not a verdict: the tests below import the same
+      // module themselves and will report the real error against a real
+      // assertion. Swallowing here only avoids a hook error that hides it.
+    }
+  }, 120_000);
+
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
