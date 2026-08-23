@@ -463,7 +463,7 @@ void getDatabase()
     // fires on the completion of every turn in the product, and a ledger the
     // app cannot write must never surface as a broken conversation.
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {
-      void onChatTurnCompleted(event, {
+      void onChatTurnCompleted({ ...event, hasTask: event.runtime?.hasTask }, {
         ledgerPath: artifactLedgerPath(getDataPath()),
         // WHAT THE MODEL JUST SAID, handed to the half that knows what is
         // actually on disk. B5 was a turn that made zero tool calls and still

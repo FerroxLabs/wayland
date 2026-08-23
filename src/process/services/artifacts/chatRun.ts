@@ -195,6 +195,13 @@ export interface ChatTurnEvent {
   sessionId?: string;
   state?: string;
   workspace?: string;
+  /**
+   * Does this turn belong to a scheduled task? Straight off the real event's
+   * `runtime.hasTask`, which `ConversationTurnCompletionService` sets from
+   * `Boolean(extra.cronJobId)`. Optional because a caller that cannot tell
+   * should get the CHAT behaviour, which is the one with the claim check.
+   */
+  hasTask?: boolean;
 }
 
 /**
@@ -238,7 +245,20 @@ export async function onChatTurnCompleted(
     // This is the only place in the product holding both at once. A save claim
     // the walk cannot account for is B5, and the failure it describes is silent
     // by nature, so the host has to be the one that notices.
-    const unsupported = await reconcileTurnClaims(result, conversationId, workspace, deps.lastAgentText);
+    //
+    // ONLY WHERE THE HOST KNOWS WHERE THE FILE WAS SUPPOSED TO GO. A scheduled
+    // run's deliverables never enter the chat namespace this sweep walks: they
+    // go to a staging tree that `commitTaskRun` publishes by rename, AFTER the
+    // turn ends. Meanwhile the shipped morning-report body (Step 4 item 4)
+    // instructs the model to name `morning-brief.html` in that final message.
+    // Comparing the two produced a correction on a run that had delivered
+    // perfectly - `absent` before publication (the elsewhere walk skips dot
+    // directories, and the staging tree is `.staging`), `elsewhere` after it.
+    // A false accusation is worse than the silence, so the check declines the
+    // turns whose filing rules it does not model.
+    const unsupported = event.hasTask
+      ? []
+      : await reconcileTurnClaims(result, conversationId, workspace, deps.lastAgentText);
     if (unsupported.length > 0) result.unsupported = unsupported;
 
     // Nothing produced is the common case - most turns are conversation - and
