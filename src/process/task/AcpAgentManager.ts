@@ -93,7 +93,7 @@ import { composePrompt } from '@process/services/constitution/composePrompt';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability.ts';
 import { extractTextFromMessage, processCronInMessage } from './MessageMiddleware';
 import { ConversationTurnCompletionService } from './ConversationTurnCompletionService';
-import { resolveFluxRouting, type FluxRoutingResult, type RoutingDecision } from '@process/task/fluxRouting';
+import { needsRespawnForFluxTier, resolveFluxRouting, type FluxRoutingResult, type RoutingDecision } from '@process/task/fluxRouting';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 import {
   NANO_KNOWN_PROVIDER_IDS,
@@ -807,6 +807,11 @@ ${collectedResponses.join('\n')}`;
     // surface; codex/codebuddy route separately).
     const decision = await this.computeFluxRouting(data.backend, data.currentModelId ?? undefined);
     this.lastRouting = decision.routing;
+    // The Flux tier the RUNNING agent was spawned with. Every Flux surface picks
+    // its model at spawn time (env for claude/qwen/goose, a config file for
+    // codex/hermes), so a later tier switch is only real if it re-spawns -
+    // `setModel` compares against this to decide.
+    this.lastFluxModelId = decision.fluxModelId;
     if (decision.routing === 'flux') {
       for (const k of decision.stripKeys) delete mergedEnv[k];
       Object.assign(mergedEnv, decision.env);
@@ -829,7 +834,8 @@ ${collectedResponses.join('\n')}`;
               selectedServers: codexMcp?.selectedServers,
               managedServerNames: codexMcp?.managedServerNames,
               preserveUnmanagedUserServers: data.activeMcpServers === undefined,
-            }
+            },
+            decision.fluxModelId
           );
           mergedEnv.CODEX_HOME = codexHome;
         } catch (err) {
@@ -874,7 +880,9 @@ ${collectedResponses.join('\n')}`;
           // writes the connected flux key inline into the scoped config.
           mergedEnv.HERMES_HOME = await materializeFluxHermesHome(
             app.getPath('userData'),
-            decision.env.FLUX_API_KEY ?? ''
+            decision.env.FLUX_API_KEY ?? '',
+            undefined,
+            decision.fluxModelId
           );
         } catch (err) {
           mainWarn('[AcpAgentManager]', 'materializeFluxHermesHome failed', err);
@@ -1026,6 +1034,14 @@ ${collectedResponses.join('\n')}`;
 
   /** Routing decision for the most recent spawn - surfaced on request_trace (badge). */
   private lastRouting: RoutingDecision = 'unknown';
+
+  /**
+   * The Flux tier (`flux-auto` | `flux-reasoning` | ...) the currently-running
+   * agent was SPAWNED with, or undefined when this agent is not flux-routed.
+   * Read only by `setModel` to detect a same-routing tier switch, which needs a
+   * re-spawn because no Flux surface can change its model in place.
+   */
+  private lastFluxModelId: string | undefined;
 
   /**
    * Compute the Flux routing decision for a given backend + selected model using
@@ -2548,6 +2564,18 @@ ${collectedResponses.join('\n')}`;
     // (ANTHROPIC_MODEL/OPENAI_MODEL=flux-auto). The claude bridge rejects an
     // unlisted id via set_model, so persist + skip the in-place call.
     if (isFluxModelId(modelId)) {
+      // Switching BETWEEN Flux tiers does not cross the native<->flux boundary, so
+      // the check above lets it through - but every Flux surface selects its model
+      // at SPAWN time (ANTHROPIC_MODEL/OPENAI_MODEL in env; `model =` in the scoped
+      // CODEX_HOME / HERMES_HOME), and the in-place set_model below is deliberately
+      // skipped for Flux ids because the backend's native catalog never lists them.
+      // Without a re-spawn the pick was therefore persisted and shown in the picker
+      // while the live agent kept running the tier it was spawned with - and Flux
+      // bills on the tier that actually arrives, so a customer who moved to Flux
+      // Fast ($1/$4) went on paying the old tier's rate.
+      if (needsRespawnForFluxTier(this.lastRouting, this.lastFluxModelId, modelId)) {
+        return persist ? this.respawnForRoutingChange(modelId) : this.respawnForRoutingChange(modelId, false);
+      }
       this.persistedModelId = modelId;
       if (persist) await this.saveModelId(modelId);
       return this.getModelInfo();

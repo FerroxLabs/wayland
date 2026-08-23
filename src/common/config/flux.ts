@@ -31,6 +31,21 @@ export type FluxModelId = (typeof FLUX_MODEL_IDS)[number];
  */
 export const FLUX_TIER_CONTEXT_WINDOW = 1_000_000;
 
+/**
+ * Token count at which a Flux-routed CLI should compact its own history.
+ *
+ * This is NOT a cosmetic fraction of the window - it is pinned BELOW the point
+ * where the Flux Router trims for us. `forge_hook.py` drops messages once the
+ * request exceeds `window * HEADROOM_THRESHOLD` (0.85), i.e. 850,000 against the
+ * 1M window above, and that trim is blind: it deletes turns with no summary and
+ * no signal to the user. A CLI that compacts FIRST replaces those turns with a
+ * summary instead of losing them, so this must stay strictly under 850,000.
+ *
+ * 800,000 leaves 50,000 tokens of margin for the difference between the CLI's
+ * own token estimate and the router's authoritative count.
+ */
+export const FLUX_TIER_AUTO_COMPACT_TOKENS = 800_000;
+
 /** Human labels for the picker (English; rendered via i18n key when in UI chrome). */
 export const FLUX_MODEL_DISPLAY: Record<FluxModelId, string> = {
   'flux-auto': 'Flux Auto',

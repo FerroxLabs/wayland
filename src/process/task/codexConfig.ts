@@ -7,7 +7,15 @@
  */
 
 import { isCodexNoSandboxMode } from '@/common/types/codex/codexModes';
-import { FLUX_AUTO_MODEL, FLUX_MODEL_DISPLAY, FLUX_MODEL_IDS, FLUX_SURFACE } from '@/common/config/flux';
+import {
+  FLUX_AUTO_MODEL,
+  FLUX_MODEL_DISPLAY,
+  FLUX_MODEL_IDS,
+  FLUX_SURFACE,
+  FLUX_TIER_AUTO_COMPACT_TOKENS,
+  FLUX_TIER_CONTEXT_WINDOW,
+  isFluxModelId,
+} from '@/common/config/flux';
 import type { IMcpServer } from '@/common/config/storage';
 import {
   canonicalMcpServerName,
@@ -331,8 +339,20 @@ async function buildScopedCodexMcpTable(
   return { ...unmanaged, ...buildCodexMcpServerTable(options.selectedServers ?? []) };
 }
 
-const FLUX_CONTEXT_WINDOW = 200000;
-const FLUX_AUTO_COMPACT_TOKEN_LIMIT = 180000;
+/**
+ * Codex sizes its own history from these two numbers, so they must agree with
+ * what the rest of Wayland tells the user about a Flux tier.
+ *
+ * They used to be a local 200000 / 180000 -- a third number, disagreeing with
+ * BOTH the usage meter (1M, `FLUX_TIER_CONTEXT_WINDOW`) and the engine. The
+ * Flux Router advertises 1,000,000 for all four tiers, so codex was compacting
+ * at 180K on a window five times that size and the connector looked weak for no
+ * reason. They are now the shared constants; see `common/config/flux.ts` for why
+ * the compaction trigger sits BELOW the router's own blind trim point rather
+ * than at a round fraction of the window.
+ */
+const FLUX_CONTEXT_WINDOW = FLUX_TIER_CONTEXT_WINDOW;
+const FLUX_AUTO_COMPACT_TOKEN_LIMIT = FLUX_TIER_AUTO_COMPACT_TOKENS;
 
 /**
  * Build the codex model catalog for the flux model ids (#68). Codex 0.135 warns
@@ -394,7 +414,15 @@ export async function materializeFluxCodexHome(
   userConfigPath: string = getCodexConfigPath(),
   /** Per-conversation reasoning effort. When set, written as `model_reasoning_effort`. */
   effort?: 'low' | 'medium' | 'high',
-  mcpOptions?: CodexMcpMaterializationOptions
+  mcpOptions?: CodexMcpMaterializationOptions,
+  /**
+   * The Flux tier this spawn must run, from `resolveFluxRouting().fluxModelId`.
+   * codex picks its model from THIS FILE, not from env, so a hardcoded default
+   * here silently discarded the user's tier pick (and mis-billed it: Flux bills
+   * per requested alias, and flux-auto bills at STANDARD rates). Defaults to
+   * flux-auto only for a caller that genuinely has no pick.
+   */
+  fluxModelId: string = FLUX_AUTO_MODEL
 ): Promise<string> {
   const codexHomeDir = scopedCodexHome(userDataDir, 'flux-codex-home', mcpOptions?.sessionId);
   const configPath = join(codexHomeDir, 'config.toml');
@@ -403,7 +431,7 @@ export async function materializeFluxCodexHome(
     '# Wayland-managed CODEX_HOME for Flux-routed codex spawns.',
     "# Selects Flux globally within this scoped home; the user's real ~/.codex",
     '# config is never modified. Regenerated on each Flux-routed spawn.',
-    `model = "${FLUX_AUTO_MODEL}"`,
+    `model = "${isFluxModelId(fluxModelId) ? fluxModelId : FLUX_AUTO_MODEL}"`,
     'model_provider = "flux"',
     `model_context_window = ${FLUX_CONTEXT_WINDOW}`,
     // #68: register the flux models so codex stops warning "Model metadata not
