@@ -28,7 +28,7 @@
  */
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { promises as fs } from 'fs';
+import { promises as fs, readdirSync, readFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import React from 'react';
@@ -672,7 +672,29 @@ describe('T5 - the card in the conversation', () => {
 
       const band = screen.getByTestId('artifact-card-unsupported');
       expect(band.textContent).toContain('chart-brief.md');
-      expect(band.textContent).toContain('No such file was written');
+      /*
+       * "COULD NOT VERIFY", NOT "NO SUCH FILE WAS WRITTEN", AND THE DIFFERENCE
+       * IS THE WHOLE POINT.
+       *
+       * The host's evidence for this line is a bounded directory walk that
+       * SKIPS DOT-DIRECTORIES (`findElsewhereInWorkspace` in `chatRun.ts`
+       * refuses every entry whose name starts with a dot), and the product's own
+       * skill output lands in `.wayland-core/`.
+       *
+       * Re-measured by running that same walk over Sean's real task workspaces:
+       * "MRPROVE weekday morning report" holds 355 deliverable files, the walk
+       * sees 15, and 337 of the 340 it misses are inside `.wayland-core/`.
+       * "LANEB weekday morning report" holds 17 and the walk sees 5. Neither run
+       * came near the depth cap of 6 or the 400-directory cap - 8 and 5
+       * directories visited - so the dot-directory skip alone does it.
+       *
+       * A universal negative - "No such file was written" - is a claim the walk
+       * cannot support, so a model that told the truth got called a liar in
+       * writing. The host now says what it actually did: it looked, and it could
+       * not confirm.
+       */
+      expect(band.textContent).toContain('could not verify');
+      expect(band.textContent).not.toContain('No such file was written');
       // Not a raw verdict slug, the way `1 escapes-workspace` once was.
       expect(band.textContent).not.toContain('absent');
       // The card exists even though the namespace is empty.
@@ -690,7 +712,31 @@ describe('T5 - the card in the conversation', () => {
       const band = screen.getByTestId('artifact-card-unsupported');
       expect(band.textContent).toContain('morning-brief.html');
       expect(band.textContent).toContain('artifacts/market/morning-brief.html');
+      expect(band.textContent).toContain('was written to');
       expect(band.textContent).not.toContain('elsewhere');
+    });
+
+    /**
+     * THE STRING THAT REFUTED ITSELF.
+     *
+     * `chatRun` builds the elsewhere lookup with an EMPTY prefix, so a file
+     * sitting in the workspace folder itself comes back with
+     * `actualPath === fileName` and the sentence collapsed to "handoff.md was
+     * written to handoff.md, not to this conversation's files." Seen on two of
+     * Sean's real conversations, each with the file still on disk. The
+     * workspace root is not an edge case - it is where a chat writes when it is
+     * not writing into its own namespace, and it is what a stage demo hits.
+     */
+    it('a file at the WORKSPACE ROOT is not told it was written to itself', async () => {
+      const message = await produceCorrectionCard([
+        { fileName: 'handoff.md', verdict: 'elsewhere', actualPath: 'handoff.md' },
+      ]);
+
+      render(<MessageArtifactCard message={message} />);
+
+      const band = screen.getByTestId('artifact-card-unsupported');
+      expect(band.textContent).toContain('handoff.md is in the workspace folder');
+      expect(band.textContent).not.toContain('was written to handoff.md');
     });
 
     it('sits ABOVE the file it is correcting, not buried under the buttons', async () => {
@@ -734,11 +780,58 @@ describe('T5 - the card in the conversation', () => {
       'unknownError',
       'claimedButAbsent',
       'claimedElsewhere',
+      'claimedElsewhereInWorkspace',
     ];
     const bundle = (enConversation as Record<string, any>).artifactCard ?? {};
     for (const key of used) {
       expect(typeof bundle[key]).toBe('string');
       expect(bundle[key].length).toBeGreaterThan(0);
     }
+  });
+
+  /**
+   * ALL TWELVE LOCALES, READ OFF DISK, ONE FILE AT A TIME.
+   *
+   * The test above reads en-US and only en-US. A correction band that falls back
+   * to English is a shipped bug in eleven languages, and the classic way this
+   * gate passes for the wrong reason is by reading the reference bundle twice -
+   * so every file is read by path here and the CONTROL asserts the twelve
+   * strings are not all identical.
+   */
+  it('the three correction strings exist, translated, in every locale that ships', () => {
+    const localesDir = path.resolve(__dirname, '../../../src/renderer/services/i18n/locales');
+    const locales = readdirSync(localesDir)
+      .filter((name) => /^[a-z]{2}-[A-Z]{2}$/.test(name))
+      .toSorted();
+    expect(locales).toHaveLength(12);
+    expect(locales).toContain(DEFAULT_LANGUAGE);
+
+    const keys = ['claimedButAbsent', 'claimedElsewhere', 'claimedElsewhereInWorkspace'] as const;
+    const seen: Record<string, Set<string>> = {
+      claimedButAbsent: new Set(),
+      claimedElsewhere: new Set(),
+      claimedElsewhereInWorkspace: new Set(),
+    };
+
+    for (const locale of locales) {
+      const file = path.join(localesDir, locale, 'conversation.json');
+      const bundle = JSON.parse(readFileSync(file, 'utf-8')).artifactCard ?? {};
+      for (const key of keys) {
+        expect(typeof bundle[key], `${locale}/${key}`).toBe('string');
+        expect(bundle[key].length, `${locale}/${key}`).toBeGreaterThan(0);
+        // Every one of these strings names the file, in every language.
+        expect(bundle[key], `${locale}/${key}`).toContain('{{fileName}}');
+        seen[key].add(bundle[key]);
+      }
+      expect(bundle.claimedElsewhere, `${locale}/claimedElsewhere`).toContain('{{actualPath}}');
+      // The workspace-root string exists precisely BECAUSE the path is useless
+      // there; interpolating it would rebuild the sentence that refuted itself.
+      const workspaceKey = `${locale}/claimedElsewhereInWorkspace`;
+      expect(bundle.claimedElsewhereInWorkspace, workspaceKey).not.toContain('{{actualPath}}');
+    }
+
+    // CONTROL: if this loop were reading one bundle twelve times, or eleven
+    // locales were carrying the English text, these sets would collapse.
+    for (const key of keys) expect(seen[key].size, key).toBeGreaterThanOrEqual(11);
   });
 });

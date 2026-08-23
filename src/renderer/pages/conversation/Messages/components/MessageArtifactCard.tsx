@@ -81,6 +81,7 @@ import type {
   ArtifactRejectionBucket,
   ArtifactSummary,
   UnsupportedClaimVerdict,
+  UnsupportedSavedFileClaim,
 } from '@/common/types/artifacts';
 import {
   ARTIFACT_CHANGED_ERROR,
@@ -176,6 +177,24 @@ const UNSUPPORTED_KEYS = {
   absent: 'conversation.artifactCard.claimedButAbsent',
   elsewhere: 'conversation.artifactCard.claimedElsewhere',
 } satisfies Record<UnsupportedClaimVerdict, string>;
+
+/**
+ * THE `elsewhere` STRING REFUTED ITSELF WHENEVER THE FILE SAT AT THE ROOT.
+ *
+ * `chatRun` builds the elsewhere lookup with an empty prefix, so a file in the
+ * workspace folder itself gets `actualPath === fileName` and the card read
+ * "handoff.md was written to handoff.md, not to this conversation's files."
+ * Observed on two of Sean's real conversations with the file still on disk, and
+ * the workspace root is the common case - it is where a chat writes when it is
+ * not writing into its own namespace. A path with no separator in it is that
+ * case, and it gets a sentence that says something.
+ */
+const CLAIMED_IN_WORKSPACE_KEY = 'conversation.artifactCard.claimedElsewhereInWorkspace';
+
+const unsupportedKeyFor = (claim: UnsupportedSavedFileClaim): string =>
+  claim.verdict === 'elsewhere' && claim.actualPath !== undefined && !claim.actualPath.includes('/')
+    ? CLAIMED_IN_WORKSPACE_KEY
+    : UNSUPPORTED_KEYS[claim.verdict];
 
 const REJECTION_KEYS = {
   'outside-folder': 'conversation.artifactCard.rejectedOutsideFolder',
@@ -670,7 +689,7 @@ const MessageArtifactCard: React.FC<{ message: IMessageArtifactCard }> = ({ mess
         >
           {unsupported.map((claim) => (
             <div key={`${claim.verdict}:${claim.fileName}`} className='truncate'>
-              {t(UNSUPPORTED_KEYS[claim.verdict], {
+              {t(unsupportedKeyFor(claim), {
                 fileName: claim.fileName,
                 actualPath: claim.actualPath ?? '',
               })}
