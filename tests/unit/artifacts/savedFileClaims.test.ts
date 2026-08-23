@@ -67,12 +67,17 @@ describe('extractSavedFileClaims: what the model actually claimed', () => {
     // A fixture file that silently emptied would make every negative control
     // below pass for the wrong reason.
     const entries = Object.values(corpus.messages);
-    expect(entries.length).toBeGreaterThanOrEqual(11);
+    expect(entries.length).toBeGreaterThanOrEqual(17);
     for (const entry of entries) {
       expect(entry.messageId).toMatch(/^[0-9a-f-]{6,}$/);
-      expect(entry.profile).toMatch(/^Wayland/);
+      expect(entry.profile).toMatch(/^(Wayland|ClaudeCode)/);
       expect(entry.text.length).toBeGreaterThan(0);
     }
+    // BOTH readers, asserted. The negation controls come out of session
+    // transcripts and the save claims out of `messages`; a capture run that
+    // silently lost one reader would leave half this file testing nothing.
+    expect(entries.some((entry) => entry.profile.startsWith('Wayland'))).toBe(true);
+    expect(entries.filter((entry) => entry.profile === 'ClaudeCode').length).toBeGreaterThanOrEqual(5);
   });
 
   it('B5: the fabricated save is extracted, verbatim, from the turn that shipped it', () => {
@@ -135,6 +140,153 @@ describe('extractSavedFileClaims: what the model actually claimed', () => {
 });
 
 /**
+ * B5-AS-SHIPPED: THE FEATURE ACCUSED HONEST TURNS MORE OFTEN THAN IT CAUGHT LIARS.
+ *
+ * The extractor above asks only "is there a completed-tense save verb near a
+ * deliverable name". A model that says it did NOT write the file says it in
+ * exactly that shape, and so does a model talking about what SOMEBODY ELSE
+ * wrote. Measured over 196,248 real assistant turns lifted out of this machine's
+ * own session transcripts and Wayland message databases, 334 of the 3,909
+ * extracted claims - one in twelve - were a turn saying the opposite of a save.
+ *
+ * ONE OF THEM IS A REAL TURN OUT OF SEAN'S OWN DATABASE: `youWroteItFromMemory`
+ * below is a report that the sweep was fabricated - "You wrote this from
+ * memory" - and the shipped extractor reads it as a claim to have written
+ * `ai-news.md`.
+ *
+ * THE FIXTURES BELOW ARE CAPTURED, NOT INVENTED, for the reason the header of
+ * this file gives. Four of them come from Claude Code session transcripts rather
+ * than from `messages`, which is why the capture script grew a second reader;
+ * each carries the session file and the message uuid it was lifted from.
+ */
+describe('a turn that says it did NOT save is not a save claim', () => {
+  describe('NEGATION AND ATTRIBUTION - captured turns that must extract nothing', () => {
+    it('THE REAL FALSE ACCUSATION: "You wrote this from memory" is about the USER, not a save', () => {
+      /*
+       * Wayland/`7a12df6a`/`13b9f3f7`, captured out of Sean's own profile. The
+       * distance from `wrote` to `ai-news.md` is 63 characters, inside the
+       * 120-character window, so the shipped extractor claims the file.
+       *
+       * NO CARD WAS EVER DRAWN FOR THIS TURN - it is from 2026-07-03 and the
+       * feature did not exist yet - and it is not hypothetical either. It is
+       * stored with `position` `left`, and `getLastAgentText` takes any `text`
+       * row that is not `right`, so the checker cannot tell this critique from
+       * an assistant reply. Read the row, not the label: this is the shape the
+       * feature is now live for.
+       */
+      expect(turn('youWroteItFromMemory')).toContain('wrote');
+      expect(names(turn('youWroteItFromMemory'))).toEqual([]);
+    });
+
+    it('three files named in one breath as NOT written by this plan', () => {
+      expect(turn('notWrittenByThisPlan')).toContain('not written');
+      expect(names(turn('notWrittenByThisPlan'))).toEqual([]);
+    });
+  });
+
+  describe('THE OTHER DIRECTION - a truthful save in the same sentence as a negation', () => {
+    it('names the file it DID write and drops the ones the same sentence says it did not', () => {
+      // "Written: .../ROADMAP.md (ROADMAP.md only; PROJECT.md, REQUIREMENTS.md,
+      // STATE.md untouched; no phase dirs created)." One real turn carrying both
+      // directions: a guard that only ever suppresses would lose ROADMAP.md.
+      const claimed = names(turn('writtenOnlyOne'));
+      expect(claimed[0]).toBe('ROADMAP.md');
+      // `no phase dirs created` no longer vouches for the two names near it.
+      expect(claimed).not.toContain('REQUIREMENTS.md');
+      expect(claimed).not.toContain('STATE.md');
+      /*
+       * PROJECT.md IS STILL CLAIMED, AND THAT IS NOT THIS GUARD'S DOING.
+       *
+       * It sits 103 characters from the leading `Written:` - inside the
+       * pre-existing 120-character CLAIM_WINDOW - so the verb it is attached to
+       * was never cancelled and never could be by a negation rule. Narrowing
+       * the window is a recall change measured against a different corpus
+       * (the widest real positive is 74) and is not taken here. Asserted rather
+       * than hidden, so the next person sees the real edge instead of a test
+       * shaped to look clean.
+       */
+      expect(claimed).toContain('PROJECT.md');
+    });
+
+    it('a spaced dash ends the clause, so "No observation needed - X created" is a claim', () => {
+      expect(turn('dashClauseCreated')).toContain('No observation needed');
+      expect(names(turn('dashClauseCreated'))).toEqual(['STATE.md']);
+    });
+
+    it('an em dash ends the clause, so a quoted "no ..." does not reach the verb', () => {
+      // "...the editorial gate—a hard constraint from the CONTEXT stating "no em
+      // dashes or en dashes, digits not words"—has caught violations in newly
+      // written planning prose. Two files contain em dashes: CONTEXT.md..."
+      // The `no` is inside the quoted constraint, between two em dashes. Without
+      // the dash rule the sentence reads as one clause and both files go quiet.
+      expect(turn('emDashQuotedNegation')).toContain('no em dashes');
+      expect(names(turn('emDashQuotedNegation'))).toContain('CONTEXT.md');
+    });
+
+    it('a first-person subject after the negation means the negation was the last clause', () => {
+      // "...not the 52KB ctx.md we just created" - `we` sits between `not` and
+      // the verb, so the `not` belongs to the phrase before it.
+      expect(turn('firstPersonAfterNegation')).toContain('not the');
+      expect(names(turn('firstPersonAfterNegation'))).toEqual(['ctx.md']);
+    });
+  });
+
+  /**
+   * THE FOUR SHAPES A MODEL USES TO SAY IT DID NOT WRITE SOMETHING.
+   *
+   * These four are written HERE rather than captured, and they are the only
+   * strings in this file that are: each is the class the captured fixtures above
+   * are one instance of, and the live step in the ship plan types the third one
+   * into the running app by hand. Every one of them is a real class in the
+   * corpus - `not` 129 times, `no` 63, `never` 56, `you`/`user`/`they` 14.
+   */
+  const CANCELLED: ReadonlyArray<readonly [string, string]> = [
+    ['a plain negation', 'I have not saved anything to report.md.'],
+    ['a contraction, with the apostrophe a model actually types', 'I haven’t created report.pdf yet.'],
+    ['the live-step sentence', 'I have not saved anything. No file named chart-brief.md was created.'],
+    ['somebody else did it', 'The deps you created in package.json look right to me.'],
+    ['a conditional', 'If I had written config.md it would be in the repo.'],
+    ['a bare "nothing" AFTER the verb', 'I wrote nothing to summary.md.'],
+  ];
+  for (const [label, text] of CANCELLED) {
+    it(`extracts nothing: ${label}`, () => {
+      expect(extractSavedFileClaims(text)).toEqual([]);
+    });
+  }
+
+  /**
+   * AND THE ONES THE GUARD MUST NOT TOUCH. If any of these goes quiet the
+   * feature is dead and the suite still passes, which is the failure mode a
+   * precision fix invites.
+   */
+  const KEPT: ReadonlyArray<readonly [string, string, string]> = [
+    ['B5 itself', 'File saved to artifacts/chat/42d0fd61/chart-brief.md.', 'chart-brief.md'],
+    ['a dash-separated apology', 'No problem — I saved the summary to report.md.', 'report.md'],
+    [
+      'a negation in the PREVIOUS clause',
+      'There were no errors and I saved the brief to chart-brief.md.',
+      'chart-brief.md',
+    ],
+    ['a request restated before the claim', 'You asked me to and I saved report.md', 'report.md'],
+    ['an outcome word that is not a negation', 'I skipped the extras and saved report.md.', 'report.md'],
+  ];
+  for (const [label, text, expected] of KEPT) {
+    it(`still extracts ${expected}: ${label}`, () => {
+      expect(names(text)).toEqual([expected]);
+    });
+  }
+
+  it('SHOUTED filenames do not escape the check', () => {
+    // A model that types the name in caps was invisible to the extractor,
+    // because the extension pattern was case-sensitive. Measured over 196,320
+    // real turns, the `i` flag alone suppresses nothing and adds exactly TWO
+    // claims - both in turns from the session that wrote this change, quoting
+    // the line below back at itself.
+    expect(names('File saved to artifacts/chat/42d0fd61/CHART-BRIEF.MD.')).toEqual(['CHART-BRIEF.MD']);
+  });
+});
+
+/**
  * THIS RUNS AT THE END OF EVERY TURN IN THE PRODUCT, IN THE MAIN PROCESS.
  *
  * The first implementation scanned each line with one unanchored global regex
@@ -158,6 +310,12 @@ describe('adversarial assistant text cannot stall the turn', () => {
     ['one line, twenty thousand save verbs', `${'saved '.repeat(20_000)}report.md`],
     ['five thousand lines of prose', `wrote something ${'x'.repeat(200)}\n`.repeat(5_000)],
     ['twenty thousand real claims', 'saved a.md\n'.repeat(20_000)],
+    // THE CUE WINDOW IS BOUNDED AND THIS IS THE TEST THAT SAYS SO. Scanning
+    // back to the clause start instead of a fixed 96 characters takes this line
+    // from 22 ms to 58,969 ms as this suite measures it - the file's own
+    // quadratic defect, rebuilt inside the negation guard, on the path the user
+    // experiences as "I finished talking to the assistant".
+    ['ten thousand verbs, each with prose in front of it', `${'the report was saved '.repeat(10_000)}report.md`],
   ];
 
   for (const [label, text] of cases) {

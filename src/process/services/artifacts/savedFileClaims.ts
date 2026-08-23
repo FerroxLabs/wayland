@@ -106,7 +106,15 @@ const SAVE_VERB = /(?<![A-Za-z-])(?:saved|wrote|written|created|exported)(?![A-Z
  * The cap was therefore dropped rather than kept as a talisman.
  */
 const CLAIMED_PATH = new RegExp(
-  String.raw`^(?:~?\/)?(?:[A-Za-z0-9._~-]+\/)*[A-Za-z0-9._~-]+\.(?:${DELIVERABLE_EXTENSIONS.join('|')})$`
+  String.raw`^(?:~?\/)?(?:[A-Za-z0-9._~-]+\/)*[A-Za-z0-9._~-]+\.(?:${DELIVERABLE_EXTENSIONS.join('|')})$`,
+  // A model that shouts the name - `CHART-BRIEF.MD` - was invisible to a
+  // case-sensitive extension test. This is the ONE recall change taken here,
+  // and it was measured before it was taken. Over 196,320 real assistant turns
+  // this flag ALONE - no other change - suppresses nothing and adds exactly TWO
+  // claims, and both are turns from the session that wrote this change, quoting
+  // `CHART-BRIEF.MD` out of the test below. On text nobody wrote about the flag,
+  // it produces nothing the case-sensitive pattern did not already produce.
+  'i'
 );
 
 /**
@@ -140,6 +148,258 @@ const CLAIM_WINDOW = 120;
  * is not the failure mode this was built for.
  */
 const MAX_CLAIMS = 8;
+
+/* -------------------------------------------------------------------------
+ * B5-AS-SHIPPED: THE FEATURE ACCUSED HONEST TURNS.
+ * -------------------------------------------------------------------------
+ * "A save verb near a deliverable name" is also the exact shape of a model
+ * saying it did NOT write the file, and of a model saying somebody ELSE wrote
+ * it. Measured over 196,248 real assistant turns lifted out of this machine's
+ * own session transcripts and Wayland message databases, the rules above
+ * extracted 3,909 claims and 334 of them - one in twelve - were a turn saying
+ * the opposite of a save.
+ *
+ * ONE IS A REAL TURN OUT OF SEAN'S OWN PROFILE. Wayland conversation
+ * `7a12df6a`: "They're fabricated. You wrote this from memory" reads as a claim
+ * to have written `ai-news.md`, 63 characters away. No card was ever drawn for
+ * it - that conversation is from 2026-07-03 and this feature did not exist yet
+ * - but it is not hypothetical either: `getLastAgentText` accepts any `text`
+ * row whose `position` is not `right` (`initBridge.ts`), and that critique is
+ * stored at `left` exactly like an assistant reply, so the checker cannot tell
+ * them apart. It is the shape the feature is now live for.
+ *
+ * So the verb list is filtered before the token scan. THE GUARD ONLY EVER
+ * REMOVES CLAIMS, which is the safe direction: its worst failure is silence.
+ *
+ * All 334 suppressions were classified by the cue that cancelled them, and
+ * every one whose line could be read as a first-person save - 28 of them - was
+ * read in full. Zero were a genuine save claim.
+ * The two rules below that are NOT plain negation - the clause-ending dash and
+ * the first-person override - exist because a naive version lost six real
+ * claims that the corpus proves are true, including this one, which carries
+ * both directions in a single sentence:
+ *
+ *   "Written: .../ROADMAP.md (ROADMAP.md only; PROJECT.md, REQUIREMENTS.md,
+ *    STATE.md untouched; no phase dirs created)."
+ *
+ * ROADMAP.md must still be claimed. The other three must not.
+ *
+ * WHAT IT STILL GETS WRONG, NAMED RATHER THAN IMPLIED. This REDUCES false
+ * accusations; it does not end them, and the card's wording is the half that
+ * covers the rest. Measured residuals over the same corpus:
+ *  - The cue sets are ENGLISH. Twelve locales ship. A German or Japanese turn
+ *    saying it wrote nothing is not seen at all.
+ *  - A question is not a cue: "Want me to turn this into a written decision doc
+ *    (a keepable `FORK-EVALUATION.md`)?" still reads as a claim. Of the 3,374
+ *    lines this guard still claims from, 22 contain a question mark at all, and
+ *    most of those are genuine claims that merely mention one. No rule was built
+ *    on a class that small - a rule with a handful of instances behind it is a
+ *    rule that has not been tested.
+ *  - A negation in the PREVIOUS SENTENCE does not reach: that is the clause
+ *    scoping working as designed, and widening it is what re-breaks the
+ *    genuine claims above.
+ *  - A quoted log line, and a negation further than 24 characters after the
+ *    verb, are both still missed.
+ * That is why `claimedButAbsent` now says the host COULD NOT VERIFY the file
+ * rather than that no such file was written: the guard makes the accusation
+ * rarer, and the wording makes the residue honest instead of wrong.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Words that, standing before a save verb in its own clause, mean the save did
+ * not happen.
+ *
+ * MEASURED, NOT IMAGINED. Counted as the cue that actually cancelled a verb
+ * across the corpus: `not` 159, `never` 88, `no` 79, `haven't` 14, `nothing`
+ * 12, `cannot` 3, `hadn't` 2, and one each of `hasn't`, `weren't`, `neither`
+ * and `none`. The rest of the contraction family is unattested spelling of an
+ * attested class, which is a different thing from a guess.
+ *
+ * `without`, `unable`, `failed`, `refused` and `skipped` were in the first
+ * version of this set and are deliberately NOT here. They are not idle - added
+ * back they cancel 69 verbs across 195,888 turns - but they change the claim
+ * count by EXACTLY ZERO, so all they can ever do is find a new way to be wrong
+ * about a truthful model: "I skipped the extras and saved report.md" is a
+ * genuine claim that `skipped` silently ate.
+ */
+const NEGATOR: ReadonlySet<string> = new Set([
+  'not', 'no', 'never', 'nothing', 'none', 'neither', 'nor',
+  "didn't", "don't", "doesn't", "hasn't", "haven't", "hadn't", "wasn't", "weren't",
+  "isn't", "aren't", "can't", 'cannot', "couldn't", "won't", "wouldn't", "shouldn't",
+]);
+
+/**
+ * Subjects that make the verb somebody ELSE's action.
+ *
+ * `your` is deliberately absent: it killed a genuine claim, "also saved to your
+ * Desktop as wayland-agents-mock.html". A possessive is not a subject.
+ */
+const OTHER_SUBJECT: ReadonlySet<string> = new Set([
+  'you', "you've", 'user', 'they', "they've", 'someone', 'somebody',
+]);
+
+/**
+ * Modals and complementizers that put the whole clause in the hypothetical.
+ *
+ * Unlike a negator these are NOT overridden by a first-person subject: "If I
+ * had written config.md" is conditional precisely because `if` scopes over its
+ * own subject.
+ */
+const CONDITIONAL: ReadonlySet<string> = new Set([
+  'if', 'whether', 'unless', 'would', 'could', 'might', 'should',
+]);
+
+/**
+ * A first-person subject ENDS the backward scan.
+ *
+ * "...not the 52KB ctx.md we just created" and "There were no errors and I
+ * saved the brief" both put a negation in front of a verb it does not govern.
+ * The nearest subject is the one the verb belongs to, so a `we`/`I` between the
+ * cue and the verb means the cue was the previous clause's.
+ */
+const FIRST_PERSON: ReadonlySet<string> = new Set(['i', "i've", 'we', "we've"]);
+
+/** How many words either side of the verb carry a cue. */
+const CUE_LOOKBACK_WORDS = 6;
+const CUE_LOOKAHEAD_WORDS = 2;
+
+/**
+ * How many CHARACTERS either side the guard may look. BOUNDED, AND THE BOUND IS
+ * THE WHOLE POINT.
+ *
+ * Scanning back to the true clause start is O(line) per verb, and this file has
+ * already shipped one quadratic scan that took 68 SECONDS in the main process.
+ * Measured again, here, on one 210,000-character line carrying 10,000 save
+ * verbs: bounded 77 ms, unbounded 83,210 ms - and on the 20,000-verb line the
+ * suite already carries, 49 ms against 131,543 ms. A reviewer who "simplifies"
+ * this to a clause scan ships the hang back; the suite proves it, at 62,411 ms
+ * against a 1000 ms budget. 96 covers the widest real cue distance in the
+ * corpus - "No file named chart-brief.md was created" is 33.
+ */
+const CUE_LOOKBACK_CHARS = 96;
+const CUE_LOOKAHEAD_CHARS = 24;
+
+/**
+ * CHARACTER TESTS, NOT REGEXES, AND THE REASON IS THE BUDGET ABOVE.
+ *
+ * The cue scan touches up to 96 characters per save verb, so a `/\s/.test()`
+ * per character is 3.8 MILLION regex calls on the 20,000-verb line the
+ * adversarial suite already carries. Measured on that line: regex character
+ * tests 114 ms, these 22 ms, against a 1000 ms budget shared with the tests
+ * that predate this guard. The 114 ms passed on an idle machine and went over
+ * a second under load, which is a flaky suite rather than a fast one.
+ *
+ * `\s` is a fixed set, so this is an equality, not an approximation: the ASCII
+ * codes are inline and everything above 127 falls through to the same regex.
+ * Proven equal to the regex spelling over all 196,248 real turns in the corpus
+ * - identical claims, every turn - before it was taken.
+ */
+const NON_ASCII_SPACE = /\s/;
+
+function isSpace(code: number): boolean {
+  if (code === 32 || (code >= 9 && code <= 13)) return true;
+  return code > 127 && NON_ASCII_SPACE.test(String.fromCharCode(code));
+}
+
+/** `[A-Za-z0-9'"\`]` - the characters a cue word may begin or end with. */
+function isCueCharacter(code: number): boolean {
+  return (
+    (code >= 97 && code <= 122) || // a-z, and the segment is lower-cased first
+    (code >= 65 && code <= 90) ||
+    (code >= 48 && code <= 57) ||
+    code === 39 || // '
+    code === 34 || // "
+    code === 96 // `
+  );
+}
+
+/**
+ * Does the character at `index` end a clause?
+ *
+ * Sentence punctuation only counts when whitespace follows it, because the dot
+ * inside `chart-brief.md` is not a clause end and treating it as one is what
+ * let "No file named chart-brief.md was created" read as a claim. An em or en
+ * dash always counts - it cannot occur inside a path token, which is why it is
+ * already a TOKEN_BOUNDARY. A plain hyphen counts ONLY when spaced on both
+ * sides, so `chart-brief` stays one word while "No observation needed - the
+ * session created 31-14-SUMMARY.md" reads as the two clauses it is.
+ */
+function breaksClause(line: string, index: number): boolean {
+  const code = line.charCodeAt(index);
+  // An em or en dash. Both are already TOKEN_BOUNDARY characters.
+  if (code === 0x2014 || code === 0x2013) return true;
+  const isPunctuation =
+    code === 46 || code === 59 || code === 58 || code === 33 || code === 63 || code === 44; // . ; : ! ? ,
+  // The overwhelmingly common case, and it costs one comparison chain.
+  if (!isPunctuation && code !== 45) return false;
+  const endsWord = index + 1 >= line.length || isSpace(line.charCodeAt(index + 1));
+  if (code === 45) return endsWord && index > 0 && isSpace(line.charCodeAt(index - 1)); // -
+  return endsWord;
+}
+
+/**
+ * Whitespace-separated words, decoration stripped, curly apostrophes folded.
+ *
+ * A filename stays ONE word, which is the point: "No file named chart-brief.md
+ * was created" must keep `no` inside the six-word window rather than pushing it
+ * out on the dots and dashes. The fold is not cosmetic - "I haven’t created
+ * report.pdf yet." extracted a claim while the ASCII spelling did not, and it
+ * happens BEFORE the edges are stripped so a folded apostrophe survives them.
+ */
+function cueWords(segment: string): string[] {
+  const text = segment.replace(/\u2019/g, "'").toLowerCase();
+  const words: string[] = [];
+  let cursor = 0;
+  while (cursor < text.length) {
+    while (cursor < text.length && isSpace(text.charCodeAt(cursor))) cursor += 1;
+    const wordStart = cursor;
+    while (cursor < text.length && !isSpace(text.charCodeAt(cursor))) cursor += 1;
+    let start = wordStart;
+    let end = cursor;
+    while (start < end && !isCueCharacter(text.charCodeAt(start))) start += 1;
+    while (end > start && !isCueCharacter(text.charCodeAt(end - 1))) end -= 1;
+    if (end > start) words.push(text.slice(start, end));
+  }
+  return words;
+}
+
+/** Is the save verb at `index` cancelled by a negation, an attribution or a conditional? */
+function verbIsCancelled(line: string, index: number, verbLength: number): boolean {
+  let start = Math.max(0, index - CUE_LOOKBACK_CHARS);
+  for (let i = index - 1; i >= start; i -= 1) {
+    if (breaksClause(line, i)) {
+      start = i + 1;
+      break;
+    }
+  }
+  const before = cueWords(line.slice(start, index)).slice(-CUE_LOOKBACK_WORDS);
+
+  // Nearest cue wins, and a first-person subject ends the search.
+  for (let i = before.length - 1; i >= 0; i -= 1) {
+    const word = before[i];
+    if (FIRST_PERSON.has(word)) break;
+    if (NEGATOR.has(word) || OTHER_SUBJECT.has(word)) return true;
+  }
+  // A conditional is not overridden by the subject it scopes over.
+  for (const word of before) {
+    if (CONDITIONAL.has(word)) return true;
+  }
+
+  // "I wrote nothing to summary.md." - the cancelling word can follow the verb.
+  const from = index + verbLength;
+  let end = Math.min(line.length, from + CUE_LOOKAHEAD_CHARS);
+  for (let i = from; i < end; i += 1) {
+    if (breaksClause(line, i)) {
+      end = i;
+      break;
+    }
+  }
+  for (const word of cueWords(line.slice(from, end)).slice(0, CUE_LOOKAHEAD_WORDS)) {
+    if (word === 'nothing' || word === 'none') return true;
+  }
+
+  return false;
+}
 
 export interface SavedFileClaim {
   /** The token exactly as the model wrote it, decoration stripped. */
@@ -196,6 +456,9 @@ export function extractSavedFileClaims(text: string): SavedFileClaim[] {
     SAVE_VERB.lastIndex = 0;
     const verbs: number[] = [];
     for (let match = SAVE_VERB.exec(line); match !== null; match = SAVE_VERB.exec(line)) {
+      // A turn that says it did NOT save is not a save claim, and neither is a
+      // turn about what somebody else wrote. See the block above `NEGATOR`.
+      if (verbIsCancelled(line, match.index, match[0].length)) continue;
       verbs.push(match.index);
     }
     if (verbs.length === 0) continue;
