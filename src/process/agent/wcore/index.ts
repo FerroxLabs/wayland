@@ -17,7 +17,13 @@ import { VAULT_PASSPHRASE_CHILD_FD, resolveSpawnVaultPassphrase } from '@process
 // start/reset/pause/resume/stop timer and is already the proven watchdog behind
 // AcpSession's prompt timeout.
 import { PromptTimer } from '@process/acp/session/PromptTimer';
-import { resolveWCoreBinary } from './binaryResolver';
+import { resolveWCoreBinary, userDataOverrideDir } from './binaryResolver';
+import {
+  describeQuarantine,
+  isIncompatibleEngineCode,
+  isOverrideBinary,
+  quarantineOverride,
+} from './overrideQuarantine';
 import { describeSpawnError, describeExitReason } from './execFailureReason';
 import { describeContractRejection, profileStripHedge } from './startFailureReason';
 import {
@@ -324,6 +330,7 @@ export function describeToolCancellation(reason: string): { name: string; descri
 }
 
 export class WCoreAgent {
+  private resolvedBinaryPath: string | null = null;
   private childProcess: ChildProcess | null = null;
   /** Root stdio transport liveness is separate from retained tree-proof
    * identity. A root may exit while `childProcess` must remain captured so its
@@ -562,6 +569,9 @@ export class WCoreAgent {
     canonicalConfigDir?: string
   ): Promise<void> {
     const binaryPath = resolveWCoreBinary();
+    // Retained so a contract failure can tell whether the engine that failed was
+    // the in-app override or the bundled binary - see overrideQuarantine.
+    this.resolvedBinaryPath = binaryPath;
     if (!binaryPath) {
       throw new Error('wcore binary not found');
     }
@@ -842,7 +852,26 @@ export class WCoreAgent {
         // #DIA-01: surface the engine's own stderr reason instead of only this
         // JS-side parser's complaint, when the engine left one behind.
         const stderrDetail = redactSecrets(stripAnsi(this.stderrTail).trim());
-        this.readyReject(new Error(describeContractRejection(stderrDetail, detail)));
+        const rejection = describeContractRejection(stderrDetail, detail);
+        // A NEWER ENGINE MUST NOT PERMANENTLY BREAK AN OLDER DESKTOP.
+        // resolveWCoreBinary checks the in-app override BEFORE the bundled
+        // binary, so an engine update this build cannot talk to shadows the
+        // bundled one that it can, and every turn dies with a message naming no
+        // way out. Reported from the field on Desktop v0.12.0 (pins contract
+        // minor 14) after the in-app update installed Core v0.13.5 (minor 16).
+        // The bundled binary always matches the pin, so an override that fails
+        // the descriptor is strictly worse than none: move it aside and the next
+        // launch recovers by itself.
+        if (isIncompatibleEngineCode(code)) {
+          const overrideDir = userDataOverrideDir();
+          if (isOverrideBinary(this.resolvedBinaryPath, overrideDir)) {
+            const outcome = quarantineOverride(overrideDir, String(Date.now()));
+            console.error('[WCoreAgent] incompatible engine override quarantined', { code, outcome });
+            this.readyReject(new Error(describeQuarantine(outcome, rejection)));
+            return;
+          }
+        }
+        this.readyReject(new Error(rejection));
       } else {
         this.onStreamEvent({
           type: 'error',
