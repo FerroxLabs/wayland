@@ -9,13 +9,23 @@
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
-import { getEnhancedEnv } from '@process/utils/shellEnv';
-import { safeExec, safeExecFile } from '@process/utils/safeExec';
+import { safeExec, execErrorDetail } from '@process/utils/safeExec';
+import {
+  aggregatePublicationFailures,
+  aggregateRemovalSignals,
+  agentCliEnv,
+  agentCliFailureDetail,
+  isAgentCliTimeout,
+  runAgentCli,
+  type RemovalScopeReport,
+} from './agentCliExec';
 
-/** Env options for exec calls - ensures CLI is found from Finder/launchd launches */
-const getExecEnv = () => ({
-  env: { ...getEnhancedEnv(), NODE_OPTIONS: '', TERM: 'dumb', NO_COLOR: '1' } as NodeJS.ProcessEnv,
-});
+/**
+ * Env options for exec calls - ensures the CLI is found from Finder/launchd
+ * launches, and redirects HOME (which `gemini` resolves
+ * `~/.gemini/settings.json` against) when an agent-config sandbox is in force.
+ */
+const getExecEnv = () => ({ env: agentCliEnv() });
 
 /**
  * Google Gemini CLI MCP agent implementation
@@ -184,9 +194,10 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
    * Install MCP servers into the Google Gemini CLI
    */
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
-    const installOperation = async () => {
+    const installOperation = async (): Promise<McpOperationResult> => {
       try {
         const failures: string[] = [];
+        let timedOut = false;
         for (const server of mcpServers) {
           if (server.transport.type === 'stdio') {
             if (Object.keys(server.transport.env ?? {}).length > 0) {
@@ -213,11 +224,13 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
               // apart: a 5 s wall below the measured cost of the call it
               // guards is a coin flip, and it decided whether the user's
               // connector turned on (#B4a).
-              await safeExecFile('gemini', args, { timeout: this.timeout, ...getExecEnv() });
+              await runAgentCli('gemini', args, { ...getExecEnv() });
               console.log(`[GeminiMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
-              console.warn(`Failed to add MCP ${server.name} to Gemini:`, error);
-              failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
+              const detail = agentCliFailureDetail(error);
+              if (isAgentCliTimeout(error)) timedOut = true;
+              console.warn(`Failed to add MCP ${server.name} to Gemini: ${detail}`);
+              failures.push(`${server.name}: ${detail}`);
             }
           } else if (
             server.transport.type === 'sse' ||
@@ -236,11 +249,13 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
             const args = ['mcp', 'add', server.name, server.transport.url, '--transport', transportFlag, '-s', 'user'];
 
             try {
-              await safeExecFile('gemini', args, { timeout: this.timeout, ...getExecEnv() });
+              await runAgentCli('gemini', args, { ...getExecEnv() });
               console.log(`[GeminiMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
-              console.warn(`Failed to add MCP ${server.name} to Gemini:`, error);
-              failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
+              const detail = agentCliFailureDetail(error);
+              if (isAgentCliTimeout(error)) timedOut = true;
+              console.warn(`Failed to add MCP ${server.name} to Gemini: ${detail}`);
+              failures.push(`${server.name}: ${detail}`);
             }
           } else {
             failures.push(
@@ -248,9 +263,9 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
             );
           }
         }
-        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
+        return aggregatePublicationFailures('Gemini CLI', failures, timedOut);
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return { success: false, outcome: 'failed', error: error instanceof Error ? error.message : String(error) };
       }
     };
 
@@ -262,55 +277,48 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
    * Remove an MCP server from the Google Gemini CLI
    */
   removeMcpServer(mcpServerName: string): Promise<McpOperationResult> {
-    const removeOperation = async () => {
-      try {
-        // Use Gemini CLI to remove an MCP server
-        // First try user scope
+    const removeOperation = async (): Promise<McpOperationResult> => {
+      // Per-scope classification, same rule as every other adapter: absence is
+      // a success, a killed child is an unknown, and only a real answer from
+      // the CLI is a failure. The previous shape demanded the literal words
+      // "not found" in BOTH scope messages before it would call the removal
+      // idempotent, so a single slow scope reported the whole thing failed.
+      const scopes = ['user', 'project'] as const;
+      const reports: RemovalScopeReport[] = [];
+
+      for (const scope of scopes) {
         try {
-          const result = await safeExecFile('gemini', ['mcp', 'remove', mcpServerName, '-s', 'user'], {
-            timeout: 5000,
+          const result = await runAgentCli('gemini', ['mcp', 'remove', mcpServerName, '-s', scope], {
             ...getExecEnv(),
           });
+          const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
 
-          if (result.stdout && result.stdout.includes('removed')) {
-            console.log(`[GeminiMcpAgent] Removed MCP server: ${mcpServerName}`);
-            return { success: true };
-          } else if (result.stdout && result.stdout.includes('not found')) {
-            // Try project scope
-            throw new Error('Server not found in user scope');
-          } else {
-            return { success: true };
+          if (output.includes('removed')) {
+            console.log(`[GeminiMcpAgent] Removed MCP server from ${scope} scope: ${mcpServerName}`);
+            reports.push({ scope, signal: 'removed' });
+            break;
           }
-        } catch (userError) {
-          // Try project scope
-          try {
-            const result = await safeExecFile('gemini', ['mcp', 'remove', mcpServerName, '-s', 'project'], {
-              timeout: 5000,
-              ...getExecEnv(),
-            });
-
-            if (result.stdout && result.stdout.includes('removed')) {
-              console.log(`[GeminiMcpAgent] Removed MCP server from project: ${mcpServerName}`);
-              return { success: true };
-            } else {
-              // Server does not exist; still treat as success
-              return { success: true };
-            }
-          } catch (projectError) {
-            const userMessage = userError instanceof Error ? userError.message : String(userError);
-            const projectMessage = projectError instanceof Error ? projectError.message : String(projectError);
-            // Idempotence requires explicit absence from both scopes. A
-            // permission, parse, spawn, or config error in either scope is not
-            // proof of removal and must keep Wayland's archived definition live.
-            if (userMessage.includes('not found') && projectMessage.includes('not found')) {
-              return { success: true };
-            }
-            return { success: false, error: `user: ${userMessage}; project: ${projectMessage}` };
+          if (output.includes('not found')) {
+            reports.push({ scope, signal: 'absent' });
+            continue;
           }
+          reports.push({ scope, signal: 'removed' });
+          break;
+        } catch (error) {
+          const detail = execErrorDetail(error);
+          if (isAgentCliTimeout(error)) {
+            reports.push({ scope, signal: 'unknown', detail });
+            continue;
+          }
+          if (detail.includes('not found') || detail.includes('does not exist')) {
+            reports.push({ scope, signal: 'absent' });
+            continue;
+          }
+          reports.push({ scope, signal: 'error', detail });
         }
-      } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
       }
+
+      return aggregateRemovalSignals('Gemini CLI', reports);
     };
 
     Object.defineProperty(removeOperation, 'name', { value: 'removeMcpServer' });

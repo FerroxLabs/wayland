@@ -24,11 +24,43 @@ import { resolveBuiltinMcpRuntimeSpawn } from './builtinMcpRuntime';
 export type McpSource = AcpBackendAll | 'gemini' | 'wayland' | 'wcore';
 
 /**
+ * What actually happened to ONE agent's config.
+ *
+ * A bare `success: boolean` cannot express the three states a user has to be
+ * able to tell apart, and collapsing them is what produced the banner
+ * "MCP configuration removal partially failed: claude:Claude Code:
+ * user/com.ferroxlabs-tvcontrol: failed: Command timed out after 5000ms,
+ * qwen:Qwen Code: user: Comma... Server not found in project settings" -
+ * one sentence concatenating a state we do not know with a state that is a
+ * success.
+ *
+ * - `applied`         the agent's config was changed and now matches the request.
+ * - `already-absent`  REMOVAL only: it was not there. Nothing to undo. A SUCCESS,
+ *                     never a failure. "Remove a thing that is gone" is done.
+ * - `unsupported`     a detected backend with no MCP implementation. Non-target.
+ * - `timed-out`       the CLI was killed mid-flight. We DO NOT KNOW whether it
+ *                     wrote. Retryable, and must be worded as unknown - not failed.
+ * - `failed`          the agent answered with a real error. Not retryable on its own.
+ */
+export type McpAgentOutcome = 'applied' | 'already-absent' | 'unsupported' | 'timed-out' | 'failed';
+
+/** True for the outcomes a later retry can converge on. */
+export function isRetryableMcpOutcome(outcome: McpAgentOutcome | undefined): boolean {
+  return outcome === 'timed-out';
+}
+
+/**
  * MCP operation result interface
  */
 export interface McpOperationResult {
   success: boolean;
   error?: string;
+  /**
+   * Which of the states above this agent ended in. Optional so an
+   * implementation that has nothing more to say stays valid; callers that need
+   * the distinction fall back to `success ? 'applied' : 'failed'`.
+   */
+  outcome?: McpAgentOutcome;
 }
 
 /**
@@ -155,6 +187,14 @@ export interface McpSyncResult {
      * operation failed.
      */
     unsupported?: boolean;
+    /**
+     * Per-agent state, so the user can be told WHICH agents are in WHICH
+     * state instead of reading one concatenated sentence. See
+     * {@link McpAgentOutcome}.
+     */
+    outcome?: McpAgentOutcome;
+    /** Convenience mirror of {@link isRetryableMcpOutcome} for the renderer. */
+    retryable?: boolean;
   }>;
 }
 

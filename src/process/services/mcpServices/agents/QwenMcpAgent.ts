@@ -9,14 +9,24 @@
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
-import { getEnhancedEnv } from '@process/utils/shellEnv';
-import { safeExec, safeExecFile } from '@process/utils/safeExec';
+import { safeExec, execErrorDetail } from '@process/utils/safeExec';
 import { validateMcpEnvEntry } from '../validateMcpServer';
+import {
+  aggregatePublicationFailures,
+  aggregateRemovalSignals,
+  agentCliEnv,
+  agentCliFailureDetail,
+  isAgentCliTimeout,
+  runAgentCli,
+  type RemovalScopeReport,
+} from './agentCliExec';
 
-/** Env options for exec calls - ensures CLI is found from Finder/launchd launches */
-const getExecEnv = () => ({
-  env: { ...getEnhancedEnv(), NODE_OPTIONS: '', TERM: 'dumb', NO_COLOR: '1' } as NodeJS.ProcessEnv,
-});
+/**
+ * Env options for exec calls - ensures the CLI is found from Finder/launchd
+ * launches, and redirects HOME (which `qwen` resolves `~/.qwen/settings.json`
+ * against) when an agent-config sandbox is in force.
+ */
+const getExecEnv = () => ({ env: agentCliEnv() });
 
 /**
  * Qwen Code MCP agent implementation
@@ -146,9 +156,10 @@ export class QwenMcpAgent extends AbstractMcpAgent {
    * Install MCP servers into the Qwen Code agent
    */
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
-    const installOperation = async () => {
+    const installOperation = async (): Promise<McpOperationResult> => {
       try {
         const failures: string[] = [];
+        let timedOut = false;
         for (const server of mcpServers) {
           if (server.transport.type === 'stdio') {
             // Use Qwen CLI to add an MCP server
@@ -170,10 +181,12 @@ export class QwenMcpAgent extends AbstractMcpAgent {
             args.push('-s', 'user');
 
             try {
-              await safeExecFile('qwen', args, { timeout: 5000, ...getExecEnv() });
+              await runAgentCli('qwen', args, { ...getExecEnv() });
             } catch (error) {
-              console.warn(`Failed to add MCP ${server.name} to Qwen Code:`, error);
-              failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
+              const detail = agentCliFailureDetail(error);
+              if (isAgentCliTimeout(error)) timedOut = true;
+              console.warn(`Failed to add MCP ${server.name} to Qwen Code: ${detail}`);
+              failures.push(`${server.name}: ${detail}`);
             }
           } else if (
             server.transport.type === 'sse' ||
@@ -197,10 +210,12 @@ export class QwenMcpAgent extends AbstractMcpAgent {
             args.push('-s', 'user');
 
             try {
-              await safeExecFile('qwen', args, { timeout: 5000, ...getExecEnv() });
+              await runAgentCli('qwen', args, { ...getExecEnv() });
             } catch (error) {
-              console.warn(`Failed to add MCP ${server.name} to Qwen Code:`, error);
-              failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
+              const detail = agentCliFailureDetail(error);
+              if (isAgentCliTimeout(error)) timedOut = true;
+              console.warn(`Failed to add MCP ${server.name} to Qwen Code: ${detail}`);
+              failures.push(`${server.name}: ${detail}`);
             }
           } else {
             failures.push(
@@ -208,9 +223,9 @@ export class QwenMcpAgent extends AbstractMcpAgent {
             );
           }
         }
-        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
+        return aggregatePublicationFailures('Qwen Code', failures, timedOut);
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return { success: false, outcome: 'failed', error: error instanceof Error ? error.message : String(error) };
       }
     };
 
@@ -222,63 +237,59 @@ export class QwenMcpAgent extends AbstractMcpAgent {
    * Remove an MCP server from the Qwen Code agent
    */
   removeMcpServer(mcpServerName: string): Promise<McpOperationResult> {
-    const removeOperation = async () => {
-      try {
-        // Use Qwen CLI to remove an MCP server (try different scopes)
-        // First try user scope (matches install), then try project scope
+    const removeOperation = async (): Promise<McpOperationResult> => {
+      // Never rewrite Qwen's user-owned config file behind the CLI's back. An
+      // earlier fallback did, with a non-atomic write that even returned
+      // success when parsing or writing failed - letting Wayland erase its own
+      // connector definition while Qwen still retained stale tools.
+      //
+      // This produced the user's banner verbatim:
+      //   "qwen:Qwen Code: user: Comma... Server not found in project settings"
+      // `user` had TIMED OUT (unknown) and `project` had reported ABSENCE (a
+      // success). The old code demanded the literal words "not found" in BOTH
+      // messages before it would call the removal idempotent, so one unknown
+      // scope turned a nothing-to-do removal into a red partial failure with
+      // two unrelated sentences glued together. Classification is now per
+      // scope, and the aggregate knows the difference between "not there",
+      // "did not answer" and "answered with an error".
+      const scopes = ['user', 'project'] as const;
+      const reports: RemovalScopeReport[] = [];
+
+      for (const scope of scopes) {
         try {
-          const result = await safeExecFile('qwen', ['mcp', 'remove', mcpServerName, '-s', 'user'], {
-            timeout: 5000,
+          const result = await runAgentCli('qwen', ['mcp', 'remove', mcpServerName, '-s', scope], {
             ...getExecEnv(),
           });
+          const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
 
-          // Check output to determine real successful removal
-          if (result.stdout && result.stdout.includes('removed from user settings')) {
-            return { success: true };
-          } else if (result.stdout && result.stdout.includes('not found in user')) {
-            // Server not in user scope; try project scope
-            throw new Error('Server not found in user settings');
-          } else {
-            // Other cases: treat as success (backward compatibility)
-            return { success: true };
+          if (output.includes('removed')) {
+            reports.push({ scope, signal: 'removed' });
+            break;
           }
-        } catch (userError) {
-          // user scope failed; try project scope
-          try {
-            const result = await safeExecFile('qwen', ['mcp', 'remove', mcpServerName, '-s', 'project'], {
-              timeout: 5000,
-              ...getExecEnv(),
-            });
-
-            // Check output to determine real successful removal
-            if (result.stdout && result.stdout.includes('removed from project settings')) {
-              return { success: true };
-            } else if (result.stdout && result.stdout.includes('not found in project')) {
-              // Server not in project scope; fall back to config file
-              throw new Error('Server not found in project settings', { cause: userError });
-            } else {
-              // Other cases: treat as success (backward compatibility)
-              return { success: true };
-            }
-          } catch (projectError) {
-            // Never rewrite Qwen's user-owned config file behind the CLI's back.
-            // The prior fallback used a non-atomic write and even returned
-            // success when parsing/writing failed, allowing Wayland to erase its
-            // only connector definition while Qwen still retained stale tools.
-            // An explicit "not found" result is idempotent; every other failure
-            // must remain visible so the archive transaction retains the active
-            // definition and can be retried safely.
-            const userMessage = userError instanceof Error ? userError.message : String(userError);
-            const projectMessage = projectError instanceof Error ? projectError.message : String(projectError);
-            const bothNotFound = userMessage.includes('not found') && projectMessage.includes('not found');
-            return bothNotFound
-              ? { success: true }
-              : { success: false, error: `user: ${userMessage}; project: ${projectMessage}` };
+          if (output.includes('not found')) {
+            reports.push({ scope, signal: 'absent' });
+            continue;
           }
+          // Exit 0 with nothing recognisable to say: the CLI reported success,
+          // and second-guessing it here is how the previous code invented
+          // failures. Take it at its word.
+          reports.push({ scope, signal: 'removed' });
+          break;
+        } catch (error) {
+          const detail = execErrorDetail(error);
+          if (isAgentCliTimeout(error)) {
+            reports.push({ scope, signal: 'unknown', detail });
+            continue;
+          }
+          if (detail.includes('not found') || detail.includes('does not exist')) {
+            reports.push({ scope, signal: 'absent' });
+            continue;
+          }
+          reports.push({ scope, signal: 'error', detail });
         }
-      } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
       }
+
+      return aggregateRemovalSignals('Qwen Code', reports);
     };
 
     Object.defineProperty(removeOperation, 'name', { value: 'removeMcpServer' });

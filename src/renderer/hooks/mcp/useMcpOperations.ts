@@ -37,7 +37,13 @@ interface McpOperationResult {
    * See the field doc on `McpSyncResult` in McpProtocol.ts.
    */
   unsupported?: boolean;
+  /** See `McpAgentOutcome` in McpProtocol.ts. */
+  outcome?: 'applied' | 'already-absent' | 'unsupported' | 'timed-out' | 'failed';
+  retryable?: boolean;
 }
+
+/** Comma-joined agent display names, for a sentence the user can act on. */
+const nameList = (results: McpOperationResult[]): string => results.map((r) => r.agent).join(', ');
 
 interface McpOperationResponse {
   success: boolean;
@@ -70,28 +76,66 @@ export const useMcpOperations = (
         // Non-targets are not partial failures. Without this exclusion a normal
         // operation toasts "partially failed: Grok Build: not supported, Goose:
         // not supported, ..." on every machine that has such a backend.
-        const failedAgents = results.filter((r: McpOperationResult) => !r.success && !r.unsupported);
+        const targets = results.filter((r: McpOperationResult) => !r.unsupported);
 
-        // Show operation-start message immediately, then trigger state update
-        if (failedAgents.length > 0) {
-          const failedNames = failedAgents
-            .map((r: McpOperationResult) => `${r.agent}: ${truncateErrorMessage(r.error || '')}`)
-            .join(', ');
-          const truncatedErrors = truncateErrorMessage(failedNames, 200);
-          const partialFailedKey = operation === 'sync' ? 'mcpSyncPartialFailed' : 'mcpRemovePartialFailed';
+        // THE THREE STATES, KEPT APART.
+        //
+        // The banner the user was shown glued two of them together:
+        //   "removal partially failed: claude:Claude Code: ...: failed: Command
+        //    timed out after 5000ms, qwen:Qwen Code: user: Comma... Server not
+        //    found in project settings"
+        // - a state we did not know, and a state that was a SUCCESS, both
+        // reported as failure, in one sentence with no next step.
+        const retryable = targets.filter((r: McpOperationResult) => !r.success && r.outcome === 'timed-out');
+        const failed = targets.filter((r: McpOperationResult) => !r.success && r.outcome !== 'timed-out');
+        const applied = targets.filter((r: McpOperationResult) => r.success && r.outcome === 'applied');
+        const alreadyAbsent = targets.filter((r: McpOperationResult) => r.success && r.outcome === 'already-absent');
+
+        if (retryable.length > 0) {
+          // Not "failed". We do not know. Say so, and say what to do.
           await globalMessageQueue.add(() => {
             message.warning({
-              content: t(`settings.${partialFailedKey}`, { errors: truncatedErrors }),
-              duration: 6000,
+              content: t('settings.mcpAgentsRetryNeeded', {
+                names: nameList(retryable),
+                applied: applied.length,
+                total: targets.length,
+              }),
+              duration: 8000,
             });
           });
-        } else {
-          if (successMessage) {
-            await globalMessageQueue.add(() => {
-              message.success(successMessage);
+        } else if (failed.length > 0) {
+          const errors = truncateErrorMessage(
+            failed.map((r: McpOperationResult) => `${r.agent}: ${truncateErrorMessage(r.error || '')}`).join(', '),
+            200
+          );
+          await globalMessageQueue.add(() => {
+            message.warning({
+              content: t('settings.mcpAgentsFailed', {
+                names: nameList(failed),
+                applied: applied.length,
+                total: targets.length,
+                errors,
+              }),
+              duration: 8000,
             });
-          }
-          // No longer show the "operation started" message; it was already shown at the start
+          });
+        } else if (operation === 'remove' && applied.length === 0 && alreadyAbsent.length > 0) {
+          // A removal whose every target reported "it was not there" is DONE,
+          // not failed. This is the case that produced a red banner on a
+          // healthy, reachable server with 105 tools.
+          await globalMessageQueue.add(() => {
+            message.success(t('settings.mcpRemoveNothingToDo'));
+          });
+        } else {
+          // Success, stated with the number that is actually true - the toast
+          // shown at the START is a count of agents we were about to CONTACT,
+          // and nothing ever corrected it downward.
+          const outcomeKey = operation === 'sync' ? 'mcpSyncOutcome' : 'mcpRemoveOutcome';
+          await globalMessageQueue.add(() => {
+            message.success(
+              successMessage ?? t(`settings.${outcomeKey}`, { applied: applied.length, total: targets.length })
+            );
+          });
         }
 
         // Then update UI state
