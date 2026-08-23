@@ -51,8 +51,17 @@ describe('agent config root seam', () => {
     expect(isAgentConfigRootOverridden()).toBe(true);
     expect(agentConfigRoot()).toBe(sandbox);
     expect(agentConfigPath('.codebuddy', 'mcp.json')).toBe(path.join(sandbox, '.codebuddy', 'mcp.json'));
-    // The point of the whole exercise: nothing under the real home.
-    expect(agentConfigPath('.codebuddy', 'mcp.json').startsWith(os.homedir())).toBe(false);
+    // The point of the whole exercise: the override moved the file OFF the
+    // production location. This holds on every platform.
+    expect(agentConfigPath('.codebuddy', 'mcp.json')).not.toBe(path.join(os.homedir(), '.codebuddy', 'mcp.json'));
+    // Wherever the sandbox genuinely sits outside the home tree - every POSIX
+    // box - keep the stronger prefix rule unchanged. It cannot hold on Windows,
+    // where os.tmpdir() lives INSIDE os.homedir()
+    // (C:\Users\<user>\AppData\Local\Temp), so there the prefix describes
+    // where mkdtemp put the sandbox, not whether the seam redirected anything.
+    if (!sandbox.startsWith(os.homedir())) {
+      expect(agentConfigPath('.codebuddy', 'mcp.json').startsWith(os.homedir())).toBe(false);
+    }
   });
 
   it('is read live, not captured at module load', () => {
