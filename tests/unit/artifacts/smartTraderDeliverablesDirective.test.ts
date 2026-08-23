@@ -32,7 +32,7 @@
  */
 
 import { execFileSync } from 'child_process';
-import { mkdtempSync, readFileSync, realpathSync, rmSync } from 'fs';
+import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -66,6 +66,26 @@ function shellFenceLines(markdown: string): string[] {
 }
 
 /**
+ * The POSIX shell that will actually run the shipped line. On Windows there is
+ * no `/bin/bash`, so an absolute POSIX path makes this guard un-runnable there -
+ * and a guard that cannot execute is a guard that silently does not guard.
+ * It THROWS rather than skipping: this control is the only thing in the file
+ * that exercises the shell at all, so skipping it would leave the suite green
+ * while measuring nothing.
+ */
+function posixBash(): string {
+  if (process.platform !== 'win32') return '/bin/bash';
+  const candidates = ['C:\\Program Files\\Git\\bin\\bash.exe', 'C:\\Program Files (x86)\\Git\\bin\\bash.exe'];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  throw new Error(
+    'No POSIX bash found to evaluate the shipped SKILL.md command line. ' +
+      'This guard cannot be skipped silently - install Git for Windows.'
+  );
+}
+
+/**
  * What the line ACTUALLY resolves to, by running it. `null` means the document
  * computed nothing - it is taking the absolute directory it was handed, which
  * is the only shape that cannot resolve somewhere the host does not collect.
@@ -76,8 +96,21 @@ function shellFenceLines(markdown: string): string[] {
  */
 function resolvedDestination(outLine: string, workspace: string): string | null {
   if (outLine.includes(DELIVERABLES_PLACEHOLDER)) return null;
-  const script = `${outLine.replace(/mkdir[^;]*/g, 'true')}\nprintf %s "$OUT"`;
-  return execFileSync('/bin/bash', ['-c', script], { cwd: workspace, encoding: 'utf-8' });
+  // `$PWD` is asked for alongside `$OUT` because a POSIX shell on Windows is
+  // Git Bash, which reports its own MSYS mount (`/tmp/...`) rather than the
+  // Windows spelling Node built the workspace path with. Same directory, two
+  // spellings. Re-anchoring on the shell's OWN idea of cwd makes the comparison
+  // spelling-independent without weakening it: a destination that resolves
+  // OUTSIDE the workspace is still returned verbatim, so it cannot accidentally
+  // equal an expected in-workspace path and must fail loudly.
+  const script = `${outLine.replace(/mkdir[^;]*/g, 'true')}\nprintf '%s\\n%s' "$OUT" "$PWD"`;
+  const [out, pwd] = execFileSync(posixBash(), ['-c', script], {
+    cwd: workspace,
+    encoding: 'utf-8',
+  }).split('\n');
+  if (out === pwd) return workspace;
+  if (!out.startsWith(`${pwd}/`)) return out;
+  return path.join(workspace, out.slice(pwd.length + 1));
 }
 
 describe('C-2: the Smart Trader persona files its brief where the CHAT collects from', () => {
