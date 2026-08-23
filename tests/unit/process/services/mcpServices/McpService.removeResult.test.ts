@@ -82,11 +82,14 @@ describe('McpService.removeMcpFromAgents (S12)', () => {
     expect(result.success).toBe(false);
     expect(result.results).toEqual([
       {
-        agent: 'unknown-backend:Unknown',
+        // Plain display name, matching the publication path. The removal path
+        // used to prefix the backend id, producing "claude:Claude Code".
+        agent: 'Unknown',
         success: false,
         // See the note in McpService.syncResult.test.ts -- non-target marker,
         // and `success: false` above still holds because nothing was removed.
         unsupported: true,
+        outcome: 'unsupported',
         error: 'MCP removal is not supported for backend "unknown-backend"',
       },
     ]);

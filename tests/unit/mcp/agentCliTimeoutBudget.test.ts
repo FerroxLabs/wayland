@@ -26,10 +26,12 @@ vi.mock('@process/utils/safeExec', async (importOriginal) => {
 vi.mock('@process/utils/shellEnv', () => ({ getEnhancedEnv: () => ({ PATH: '/usr/bin' }) }));
 
 import {
+  MCP_AGENT_CLI_RETRY_BACKOFF_MS,
   MCP_AGENT_CLI_TIMEOUT_MS,
   isAgentCliTimeout,
   runAgentCli,
 } from '@process/services/mcpServices/agents/agentCliExec';
+import { MCP_AGENT_PUBLICATION_DEADLINE_MS } from '@process/services/mcpServices/McpService';
 import { ClaudeMcpAgent } from '@process/services/mcpServices/agents/ClaudeMcpAgent';
 import { QwenMcpAgent } from '@process/services/mcpServices/agents/QwenMcpAgent';
 import { GeminiMcpAgent } from '@process/services/mcpServices/agents/GeminiMcpAgent';
@@ -64,11 +66,28 @@ describe('the CLI budget covers the calls it guards', () => {
     expect(MCP_AGENT_CLI_TIMEOUT_MS).toBeGreaterThan(OLD_WALL_MS);
   });
 
-  it('leaves room for the one retry inside the per-agent publication deadline', async () => {
-    const { MCP_AGENT_PUBLICATION_DEADLINE_MS } = await import('@process/services/mcpServices/McpService');
+  it('leaves room for the one retry inside the per-agent publication deadline', () => {
     // Two attempts plus the backoff must still settle before the fan-out gives
     // up on this agent, or the retry is dead code.
-    expect(MCP_AGENT_CLI_TIMEOUT_MS * 2 + 500).toBeLessThanOrEqual(MCP_AGENT_PUBLICATION_DEADLINE_MS);
+    //
+    // This is the WHOLE agent operation's worst case, not one call's, and only
+    // because the multi-scope removal loops now STOP at the first unreachable
+    // scope. Without that, a three-scope removal costs 3 x (timeout + retry)
+    // and blows the deadline - which is exactly what a live run showed:
+    // `gemini mcp remove` spent 61,433 ms before the loop was cut short.
+    expect(MCP_AGENT_CLI_TIMEOUT_MS * 2 + MCP_AGENT_CLI_RETRY_BACKOFF_MS).toBeLessThanOrEqual(
+      MCP_AGENT_PUBLICATION_DEADLINE_MS
+    );
+  });
+
+  it('a multi-scope removal makes at most one unreachable-CLI attempt sequence', async () => {
+    // Claude checks three scopes. If the CLI is not answering, it must be
+    // asked ONCE (plus the single retry), not once per scope.
+    execFileSpy.mockRejectedValue(timeoutRejection(MCP_AGENT_CLI_TIMEOUT_MS));
+    const result = await new ClaudeMcpAgent().removeMcpServer('com-ferroxlabs-tvcontrol');
+
+    expect(result.outcome).toBe('timed-out');
+    expect(execFileSpy).toHaveBeenCalledTimes(2); // first attempt + one retry
   });
 
   it.each([

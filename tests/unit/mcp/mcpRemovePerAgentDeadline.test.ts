@@ -85,10 +85,14 @@ describe('MCP removal cannot be hung by one agent', () => {
     const byAgent = new Map(result.results.map((entry) => [entry.agent, entry]));
 
     // Plain display names on BOTH paths - no "claude:Claude Code" stutter.
-    // "Google Gemini CLI" is appended by `addNativeGeminiIfNeeded`: the
-    // service fans out to MORE targets than the renderer counted, which is
-    // part of why the toast's agent count never matched the panel.
-    expect([...byAgent.keys()].sort()).toEqual(['Claude Code', 'Google Gemini CLI', 'Qwen Code', 'Wayland Core']);
+    // Asserted as a PROPERTY of every key, not as an exact list: the service
+    // appends a native Gemini target via `addNativeGeminiIfNeeded` only when a
+    // `gemini` binary is on PATH, so the exact set differs between a developer
+    // Mac and a CI box. (That extra target is itself part of why the toast's
+    // agent count never matched the panel: the service fans out to more
+    // targets than the renderer counted.)
+    for (const name of byAgent.keys()) expect(name).not.toContain(':');
+    expect([...byAgent.keys()]).toEqual(expect.arrayContaining(['Claude Code', 'Qwen Code', 'Wayland Core']));
 
     expect(byAgent.get('Wayland Core')?.success).toBe(true);
     expect(byAgent.get('Wayland Core')?.outcome).toBe('applied');

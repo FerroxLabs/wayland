@@ -349,7 +349,16 @@ export class CodexMcpAgent extends AbstractMcpAgent {
             break;
           }
 
-          if (output.includes('not found') || output.includes('No such server')) {
+          // `codex mcp remove <absent>` EXITS 0 and prints
+          // "No MCP server named '<name>' found." - which matches neither of
+          // the two phrases this branch used to look for, so an absent server
+          // fell through to the take-it-at-its-word branch and was reported as
+          // `applied`. Observed against the real binary.
+          if (
+            output.includes('not found') ||
+            output.includes('No such server') ||
+            output.includes('No MCP server named')
+          ) {
             reports.push({ scope: candidateName, signal: 'absent' });
             continue;
           }
@@ -364,9 +373,16 @@ export class CodexMcpAgent extends AbstractMcpAgent {
           // retryable. Previously ANY rejection that did not literally contain
           // "not found" returned a hard failure and aborted the remaining
           // candidate names.
+          // STOP at the first unreachable scope. If the CLI will not answer
+          // for this scope it will not answer for the next one, and trying
+          // anyway multiplies the wall time by the number of scopes: measured
+          // live, `gemini mcp remove` spent 61,433 ms on one removal (15 s +
+          // retry, twice), blowing through the 45 s per-agent deadline. One
+          // unknown scope already makes the whole agent's removal unproven and
+          // retryable, so there is nothing more to learn by continuing.
           if (isAgentCliTimeout(cmdError)) {
             reports.push({ scope: candidateName, signal: 'unknown', detail });
-            continue;
+            return aggregateRemovalSignals('Codex CLI', reports);
           }
 
           if (

@@ -50,6 +50,9 @@ describe('CLI MCP adapter publication truth', () => {
 
     await expect(createAgent().installMcpServers([stdio('Broken')])).resolves.toEqual({
       success: false,
+      // A publication that the CLI ANSWERED and refused is `failed`, and must
+      // never be reported as the retryable `timed-out`.
+      outcome: 'failed',
       error: 'Broken: add failed',
     });
   });
@@ -66,6 +69,7 @@ describe('CLI MCP adapter publication truth', () => {
 
     await expect(new GeminiMcpAgent().installMcpServers([server])).resolves.toEqual({
       success: false,
+      outcome: 'failed',
       error: 'n8n: Gemini CLI publication cannot preserve HTTP headers in this adapter',
     });
     expect(execMocks.safeExecFile).not.toHaveBeenCalled();
@@ -92,6 +96,10 @@ describe('CLI MCP adapter publication truth', () => {
     ['CodeBuddy', () => new CodebuddyMcpAgent()],
   ])('%s treats explicit absence in every checked scope as idempotent removal', async (_name, createAgent) => {
     execMocks.safeExecFile.mockRejectedValue(new Error('not found'));
-    await expect(createAgent().removeMcpServer('missing-tools')).resolves.toEqual({ success: true });
+    // Still a success, and now says WHY it is one: the entry was not there.
+    await expect(createAgent().removeMcpServer('missing-tools')).resolves.toEqual({
+      success: true,
+      outcome: 'already-absent',
+    });
   });
 });

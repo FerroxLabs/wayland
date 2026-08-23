@@ -200,7 +200,7 @@ describe('OpencodeMcpAgent', () => {
     ];
 
     const agent = new OpencodeMcpAgent();
-    await expect(agent.installMcpServers(servers)).resolves.toEqual({ success: true });
+    await expect(agent.installMcpServers(servers)).resolves.toEqual({ success: true, outcome: 'applied' });
 
     expect(readJsonFile(configPath)).toEqual({
       $schema: 'https://opencode.ai/config.json',
@@ -252,8 +252,12 @@ describe('OpencodeMcpAgent', () => {
 
     const agent = new OpencodeMcpAgent();
 
-    await expect(agent.removeMcpServer('remove')).resolves.toEqual({ success: true });
-    await expect(agent.removeMcpServer('missing')).resolves.toEqual({ success: true });
+    await expect(agent.removeMcpServer('remove')).resolves.toEqual({ success: true, outcome: 'applied' });
+    // "missing" was never there: still a success, now distinguishable from one.
+    await expect(agent.removeMcpServer('missing')).resolves.toEqual({
+      success: true,
+      outcome: 'already-absent',
+    });
 
     expect(readJsonFile(configPath)).toEqual({
       mcp: {

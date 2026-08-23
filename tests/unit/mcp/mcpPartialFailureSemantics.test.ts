@@ -79,6 +79,49 @@ describe('a removal that fails because the thing was already gone is a SUCCESS',
   });
 });
 
+/**
+ * The exact strings these CLIs print, captured from the real binaries on
+ * 2026-08-23 in a redirected home. Both of these were misclassified until a
+ * live run exposed them - reading the code could not have found either, because
+ * the code looked entirely reasonable.
+ */
+describe('the CLIs are matched on what they actually print', () => {
+  it('Claude prints "Removed" with a CAPITAL R, and that is a removal', async () => {
+    // Verbatim: `Removed MCP server w4a-out from user config`
+    execFileSpy.mockResolvedValue({
+      stdout: 'Removed MCP server com-ferroxlabs-tvcontrol from user config',
+      stderr: '',
+    });
+    const result = await new ClaudeMcpAgent().removeMcpServer('com-ferroxlabs-tvcontrol');
+    expect(result.success).toBe(true);
+    // Before the fix this reported `already-absent` for an entry it had just
+    // deleted - the file changed and the report said nothing had been there.
+    expect(result.outcome).toBe('applied');
+  });
+
+  it('Codex prints "No MCP server named ... found." and EXITS ZERO when it is absent', async () => {
+    // Verbatim: `No MCP server named 'w4a-not-there' found.` with rc=0.
+    execFileSpy.mockResolvedValue({ stdout: "No MCP server named 'com-ferroxlabs-tvcontrol' found.", stderr: '' });
+    const result = await new CodexMcpAgent().removeMcpServer('com-ferroxlabs-tvcontrol');
+    expect(result.success).toBe(true);
+    // Before the fix the phrase matched none of the absence patterns, so the
+    // exit code was taken at face value and a no-op was reported as `applied`.
+    expect(result.outcome).toBe('already-absent');
+  });
+
+  it('Qwen and Gemini print lowercase "removed from user settings"', async () => {
+    execFileSpy.mockResolvedValue({ stdout: 'Server "com-ferroxlabs-tvcontrol" removed from user settings.', stderr: '' });
+    await expect(new QwenMcpAgent().removeMcpServer('com-ferroxlabs-tvcontrol')).resolves.toMatchObject({
+      success: true,
+      outcome: 'applied',
+    });
+    await expect(new GeminiMcpAgent().removeMcpServer('com-ferroxlabs-tvcontrol')).resolves.toMatchObject({
+      success: true,
+      outcome: 'applied',
+    });
+  });
+});
+
 describe('a timeout is an UNKNOWN, and is worded as one', () => {
   it('Claude Code reports timed-out, not failed, and says what to do', async () => {
     execFileSpy.mockRejectedValue(timeoutRejection(MCP_AGENT_CLI_TIMEOUT_MS));

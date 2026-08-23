@@ -332,7 +332,14 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
                 { ...getExecEnv() }
               );
 
-              if (result.stdout && result.stdout.includes('removed')) {
+              // Case-insensitive, and over stdout AND stderr. `claude mcp
+              // remove` prints "Removed MCP server <name> from user config" -
+              // capital R - so a lowercase `includes('removed')` never matched
+              // a removal it had just performed, and the scope was recorded as
+              // absent. Caught by driving the real binary, not by reading the
+              // code: the entry left `.claude.json` while the adapter said it
+              // had never been there.
+              if (/removed/i.test(`${result.stdout ?? ''}\n${result.stderr ?? ''}`)) {
                 console.log(`[ClaudeMcpAgent] Removed MCP server from ${scope} scope: ${candidateName}`);
                 reports.push({ scope, signal: 'removed' });
                 return aggregateRemovalSignals('Claude Code', reports);
@@ -345,9 +352,17 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
               // refusal. This is the exact state the user was shown as
               // "failed: Command timed out after 5000ms" - a sentence that
               // asserts more than we knew.
+              // STOP at the first unreachable scope. If the CLI would not
+              // answer for this scope it will not answer for the next one, and
+              // trying anyway multiplies the wall time by the number of
+              // scopes: measured live, `gemini mcp remove` spent 61,433 ms on
+              // one removal (15 s + retry, twice) and blew straight through
+              // the 45 s per-agent deadline. One unknown scope is already
+              // enough to make the whole agent's removal unproven and
+              // retryable, so there is nothing more to learn by continuing.
               if (isAgentCliTimeout(error)) {
                 reports.push({ scope, signal: 'unknown', detail });
-                continue;
+                return aggregateRemovalSignals('Claude Code', reports);
               }
 
               if (isClaudeMcpAbsentDetail(detail)) {
