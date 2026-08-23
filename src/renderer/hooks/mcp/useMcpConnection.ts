@@ -145,11 +145,19 @@ export const useMcpConnection = (
 
   // Connection test function
   const handleTestMcpConnection = useCallback(
-    async (server: IMcpServer) => {
+    /**
+     * `preserveEnabled` marks a probe the USER just asked for by turning the
+     * connector on (Enable / Reconnect on the MCP connections page). For those,
+     * a failed probe is evidence about reachability, not an instruction to undo
+     * what the user just did (#B4d). Every other caller keeps the original
+     * fail-closed behaviour: revoke the publication and persist disabled.
+     */
+    async (server: IMcpServer, options?: { preserveEnabled?: boolean }) => {
       // A probe cannot reconcile a partially-mutated external publication. The
       // explicit reconnect path must first republish the declaration and pass
       // the exact committed revision back here.
       if (hasPublicationDivergence(server)) return;
+      const preserveEnabled = options?.preserveEnabled === true;
 
       setTestingServers((prev) => ({ ...prev, [server.id]: true }));
 
@@ -317,6 +325,31 @@ export const useMcpConnection = (
       };
 
       const recordProbeFailure = async (errorMsg: string): Promise<void> => {
+        // On a probe the user asked for by enabling the connector, nothing is
+        // published or revoked: the adapters still carry exactly what they
+        // carried before, so storage and adapters stay in agreement while the
+        // row keeps the state the user chose and explains why it is failing.
+        if (preserveEnabled) {
+          const preservedUpdate = await updateServerStatus('error', { lastError: errorMsg });
+          if (preservedUpdate.outcome !== 'applied') {
+            let preservedWinner = preservedUpdate.winner;
+            if (preservedUpdate.outcome === 'error') {
+              const current = await readMcpServers();
+              preservedWinner =
+                current.find((candidate) => candidate.id === server.id) ??
+                current.find(
+                  (candidate) => mcpServerCollisionKey(candidate.name) === mcpServerCollisionKey(server.name)
+                );
+            }
+            await reconcileLostProbeFailureCas(preservedWinner, server.enabled ? 'published-original' : 'revoked');
+            return;
+          }
+          await globalMessageQueue.add(() => {
+            message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
+          });
+          return;
+        }
+
         let publicationRevoked = !server.enabled;
         let adapterState: 'revoked' | 'published-original' | 'unknown' = server.enabled ? 'unknown' : 'revoked';
         let surfacedError = errorMsg;
@@ -446,11 +479,26 @@ export const useMcpConnection = (
       const force = options?.force ?? false;
       const STALE_MS = 5 * 60 * 1000;
       const now = Date.now();
+      /**
+       * Has this row already been probed inside the staleness window?
+       *
+       * A CONNECTED row records when it answered, in `lastConnected`. A FAILED
+       * row records no such timestamp - but the write that persisted the
+       * failure bumped `updatedAt`, so that IS the time of its last probe
+       * outcome. Without this second branch a failed probe never earned the
+       * skip, so an enabled connector that can never answer was re-probed on
+       * every pass, spawning a process each time (#B4b).
+       */
+      const probedInsideStaleWindow = (s: IMcpServer): boolean => {
+        if (s.status === 'connected') return typeof s.lastConnected === 'number' && now - s.lastConnected <= STALE_MS;
+        if (s.status === 'error') return now - s.updatedAt <= STALE_MS;
+        return false;
+      };
       const targets = servers.filter(
         (s) =>
           s.enabled === true &&
           !(s.status === 'error' && hasPublicationDivergence(s)) &&
-          (force || s.status !== 'connected' || typeof s.lastConnected !== 'number' || now - s.lastConnected > STALE_MS)
+          (force || !probedInsideStaleWindow(s))
       );
       if (targets.length === 0) {
         return;

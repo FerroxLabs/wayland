@@ -29,6 +29,7 @@ import { connectModelRegistryProvider } from '@process/providers/ipc/modelRegist
 import type { ProviderId } from '@process/providers/types';
 import { writeAssistantRules } from './fsBridge';
 import { updateMcpConfig } from '@process/services/mcpServices/mcpConfigAuthority';
+import type { McpConnectionTestResult } from '@process/services/mcpServices/McpProtocol';
 import { uuid } from '@/common/utils';
 import type { TMessage } from '@/common/chat/chatLib';
 import type { IMcpServer } from '@/common/config/storage';
@@ -50,6 +51,129 @@ import {
  * providers we honor ONLY a base URL the USER explicitly typed into the card.
  */
 const SELF_HOSTED_PROVIDER_IDS: ReadonlySet<ProviderId> = new Set<ProviderId>(['openai-compatible', 'ollama-local']);
+
+/** Keep a spawn error readable in a chat receipt and in the row's lastError. */
+const MCP_PROBE_ERROR_MAX_LENGTH = 150;
+function shortenProbeError(error: string): string {
+  const trimmed = error.trim();
+  return trimmed.length <= MCP_PROBE_ERROR_MAX_LENGTH
+    ? trimmed
+    : `${trimmed.slice(0, MCP_PROBE_ERROR_MAX_LENGTH)}...`;
+}
+
+/**
+ * Did THIS probe reach THIS exact saved declaration and succeed?
+ *
+ * `McpService.testMcpConnection` authors correlated pre-publication truth
+ * (`bindMcpPrepublicationProbeTruth`). We are calling it in-process, so we do
+ * not re-run the renderer's staleness reader - but we DO re-check the binding,
+ * because the only thing that may turn a connector on is evidence about the
+ * declaration we just persisted, not evidence about some other row.
+ */
+function probeReachedThisDeclaration(server: IMcpServer, probe: McpConnectionTestResult): boolean {
+  const truth = probe.prepublication;
+  return (
+    probe.success === true &&
+    truth !== undefined &&
+    truth.state === 'probed' &&
+    truth.serverId === server.id &&
+    truth.serverName === server.name &&
+    truth.serverUpdatedAt === server.updatedAt &&
+    Array.isArray(probe.tools) &&
+    truth.toolCount === probe.tools.length
+  );
+}
+
+/**
+ * Finish a concierge MCP install the way the MCP Library's `saveAndConnect`
+ * does, and answer with a receipt that can only say what was checked.
+ *
+ * The declaration has already been persisted DISABLED - that stays, because a
+ * failed probe must never be able to leave a false-green row (the same reason
+ * `useMcpServerCRUD.handleAddMcpServer` saves disabled). What was missing is
+ * the second half of the sequence: probe -> publish -> commit `enabled: true`.
+ * Without it, Apply answered `Added MCP server "X".` over a connector that
+ * nothing ever reached, because only `enabled` servers are published (#B3).
+ *
+ * Blindly writing `enabled: true` instead would be the same lie pointing the
+ * other way: a green tick over a connector that cannot spawn.
+ */
+async function probeAndPublishAddedMcp(server: IMcpServer): Promise<string> {
+  // Imported here, not at module top level. `McpService` and `AgentRegistry`
+  // each pull a large main-process graph (the aioncli-core OAuth chain, every
+  // agent adapter, every detector); the same file already documents why that
+  // graph must stay off the module-load path. This bridge is initialised
+  // during app startup, so a static import would put all of it there.
+  const { mcpService } = await import('@process/services/mcpServices/McpService');
+
+  let probe: McpConnectionTestResult;
+  try {
+    probe = await mcpService.testMcpConnection(server);
+  } catch (error) {
+    probe = { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
+
+  if (!probeReachedThisDeclaration(server, probe)) {
+    const reason = shortenProbeError(probe.error || 'no response');
+    // Record WHY on the row itself so the Settings page can explain the state
+    // the receipt just described. The declaration stays disabled/disconnected.
+    await updateMcpConfig((current) =>
+      current.map((candidate) => (candidate.id === server.id ? { ...candidate, lastError: reason } : candidate))
+    );
+    return `Added "${server.name}" but it did not answer (${reason}) - turn it on from Settings -> MCP Library.`;
+  }
+
+  const tools = (probe.tools ?? []).map((tool) => ({
+    name: tool.name,
+    ...(tool.description === undefined ? {} : { description: tool.description }),
+    ...(tool._meta === undefined ? {} : { _meta: tool._meta }),
+  }));
+  const probedAt = Date.now();
+  const publishable: IMcpServer = {
+    ...server,
+    enabled: true,
+    status: 'connected',
+    tools,
+    lastConnected: probedAt,
+    lastError: undefined,
+    updatedAt: Math.max(probedAt, server.updatedAt + 1),
+  };
+
+  // Publish BEFORE committing the enabled state, exactly like
+  // `handleToggleMcpServer`: a failed publication must not leave a row that
+  // claims to be on while no agent carries it.
+  let publicationError: string | undefined;
+  try {
+    const { agentRegistry } = await import('@process/agent/AgentRegistry');
+    const agents = agentRegistry.getDetectedAgents().map((agent) => ({
+      backend: agent.backend,
+      name: agent.name,
+      cliPath: 'cliPath' in agent ? (agent.cliPath as string | undefined) : undefined,
+    }));
+    const sync = await mcpService.syncMcpToAgents([publishable], agents);
+    if (!sync.success) {
+      publicationError = sync.results
+        .filter((result) => !result.success && !result.unsupported)
+        .map((result) => `${result.agent}: ${result.error || 'publication failed'}`)
+        .join(', ');
+    }
+  } catch (error) {
+    publicationError = error instanceof Error ? error.message : String(error);
+  }
+
+  if (publicationError) {
+    const reason = shortenProbeError(publicationError);
+    await updateMcpConfig((current) =>
+      current.map((candidate) => (candidate.id === server.id ? { ...candidate, lastError: reason } : candidate))
+    );
+    return `Added "${server.name}" and it answered, but publishing it to your agents failed (${reason}) - turn it on from Settings -> MCP Library.`;
+  }
+
+  await updateMcpConfig((current) =>
+    current.map((candidate) => (candidate.id === server.id ? publishable : candidate))
+  );
+  return `Added MCP server "${server.name}" (${tools.length} tools).`;
+}
 
 /**
  * Apply a confirmed proposal via the real MAIN-process write paths. Returns a
@@ -125,7 +249,7 @@ async function applyProposal(
         }
         return [...current, server];
       });
-      return `Added MCP server "${content.name}".`;
+      return await probeAndPublishAddedMcp(server);
     }
     case 'edit_assistant': {
       const ok = await writeAssistantRules(content.assistantId, content.rules, 'en-US');

@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Button } from '@arco-design/web-react';
-import { Plug, RefreshCw, Trash2, Wrench, Cpu } from 'lucide-react';
+import { Plug, Power, RefreshCw, Trash2, Wrench, Cpu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import StatusChip from './StatusChip';
 import type { ConnectedServerRow } from '../hooks/useConnectedMcps';
@@ -16,6 +16,8 @@ const ICON = 13;
 
 export type ConnectedMcpRowProps = {
   row: ConnectedServerRow;
+  /** Turn a disabled connector ON. Distinct from re-probing one already on. */
+  onEnable: () => void;
   onReconnect: () => void;
   onDisconnect: () => void;
   onRemove: () => void;
@@ -26,13 +28,17 @@ export type ConnectedMcpRowProps = {
  * which agents it reaches, plus the lifecycle actions. Extension-contributed
  * servers are read-only (no disconnect/remove) — they are owned by the extension.
  */
-const ConnectedMcpRow: React.FC<ConnectedMcpRowProps> = ({ row, onReconnect, onDisconnect, onRemove }) => {
+const ConnectedMcpRow: React.FC<ConnectedMcpRowProps> = ({ row, onEnable, onReconnect, onDisconnect, onRemove }) => {
   const { t } = useTranslation();
   const { server, status, toolCount, agents, testing } = row;
   // Extension-contributed servers carry a runtime `_source` tag (set in useMcpServers)
   // that isn't part of the persisted IMcpServer shape.
   const isExtension = (server as { _source?: string })._source === 'extension';
   const isReachable = status === 'reachable';
+  // Three states, three verbs. The row used to carry only `isReachable ?
+  // Disable : Reconnect`, so a DISABLED connector - the state a fresh install
+  // lands in - had no control that says "turn this on" (#B4e).
+  const isEnabled = server.enabled === true;
 
   return (
     <div className={styles.row} data-testid={`connected-mcp-${server.id}`}>
@@ -61,16 +67,26 @@ const ConnectedMcpRow: React.FC<ConnectedMcpRowProps> = ({ row, onReconnect, onD
             </span>
           )}
         </div>
-        {status === 'error' && server.lastError && <div className={styles.error}>{server.lastError}</div>}
+        {status === 'error' && server.lastError && (
+          <div className={styles.error}>
+            {t('mcpLibrary.connected.probeFailed', 'Probe failed: {{error}}', { error: server.lastError })}
+          </div>
+        )}
       </div>
 
       {!isExtension && (
         <div className={styles.actions}>
-          {isReachable ? (
+          {isReachable && (
             <Button size='small' icon={<Plug size={ICON} />} onClick={onDisconnect}>
               {t('mcpLibrary.connected.disable', 'Disable')}
             </Button>
-          ) : (
+          )}
+          {!isEnabled && (
+            <Button size='small' loading={testing} icon={<Power size={ICON} />} onClick={onEnable}>
+              {t('mcpLibrary.connected.enable', 'Enable')}
+            </Button>
+          )}
+          {isEnabled && !isReachable && (
             <Button size='small' loading={testing} icon={<RefreshCw size={ICON} />} onClick={onReconnect}>
               {t('mcpLibrary.connected.reconnect', 'Reconnect')}
             </Button>

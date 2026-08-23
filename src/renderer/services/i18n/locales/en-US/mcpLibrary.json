@@ -31,6 +31,7 @@
     "extensionUnverified": "Declared by extension · tools verified per chat",
     "disconnect": "Disable",
     "disable": "Disable",
+    "enable": "Enable",
     "reconnect": "Reconnect",
     "remove": "Archive",
     "clear": "Clear",
@@ -39,7 +40,8 @@
     "removeTitle": "Archive connector?",
     "removeBody": "This archives {{name}} and removes its config from your agents. You can restore the complete definition later.",
     "removeStaleTitle": "Clear leftover server?",
-    "removeStaleBody": "{{name}} is still installed in your agents but is no longer in your config. Clearing it stops its stale tools from being sent."
+    "removeStaleBody": "{{name}} is still installed in your agents but is no longer in your config. Clearing it stops its stale tools from being sent.",
+    "probeFailed": "Probe failed: {{error}}"
   },
   "card": {
     "install": "Install",
