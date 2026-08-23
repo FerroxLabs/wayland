@@ -27,7 +27,7 @@ import type {
   PlanUpdate,
   ToolCallUpdate,
 } from '@/common/types/acpTypes';
-import type { ArtifactRejectionReason, ArtifactSummary } from '../types/artifacts';
+import type { ArtifactRejectionReason, ArtifactSummary, UnsupportedSavedFileClaim } from '../types/artifacts';
 import type { IResponseMessage } from '../adapter/ipcBridge';
 import { uuid } from '../utils';
 import { addOrUpdateNode, emptyActivityContent, mergeActivityContent, mergeNodeList } from './activityTree';
@@ -673,6 +673,16 @@ export type IMessageArtifactCard = IMessage<
      * host fails to COMPILE rather than reaching a screen as a raw slug.
      */
     rejected?: Array<{ reason: ArtifactRejectionReason; count: number }>;
+    /**
+     * Files the assistant SAID it saved on this turn that the host could not
+     * account for. May be empty; when it is not, this is the ONE case in which
+     * a card is written with no artifacts on it at all.
+     *
+     * TYPED for the same reason `rejected` is: `verdict` is a closed union, so
+     * a third verdict added to the host fails to COMPILE at the renderer rather
+     * than arriving on a screen as the raw word `absent`.
+     */
+    unsupported?: UnsupportedSavedFileClaim[];
   }
 >;
 

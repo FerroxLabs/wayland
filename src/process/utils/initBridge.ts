@@ -422,6 +422,23 @@ void getDatabase()
     // question and park AUTO instead of force-advancing past it (#123).
     const getLastAgentText = async (conversationId: string): Promise<string | null> => {
       try {
+        // DRAIN BEFORE READING, OR YOU GET THE PREVIOUS TURN.
+        //
+        // Streamed assistant text is queued as an `accumulate` behind a 2000 ms
+        // debounce in `message.ts`, whose own header says anything reading the
+        // row DIRECTLY from the database is racing it - and this reads it
+        // directly. A turn ending inside that window hands the caller the LAST
+        // turn's reply. For the claim check that means comparing this turn's
+        // files against last turn's words, which can contradict a model that
+        // told the truth; for the workflow driver it means detecting a
+        // clarification question one turn late. Proved against the real queue
+        // and a real database in `lastAgentTextRacesTheQueue.bun.test.ts`.
+        //
+        // Not a guarantee: `drain()` bails while the queue is `!initialized`,
+        // which is a brand-new conversation before its first flush. A
+        // conversation whose agent has just streamed a reply is past that, and
+        // getting nothing back is the safe direction - no text, no claim.
+        await flushConversationMessages(conversationId);
         const db = await getDatabase();
         const result = db.getConversationMessages(conversationId, 0, 5, 'DESC');
         for (const msg of result.data ?? []) {
@@ -448,6 +465,12 @@ void getDatabase()
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {
       void onChatTurnCompleted(event, {
         ledgerPath: artifactLedgerPath(getDataPath()),
+        // WHAT THE MODEL JUST SAID, handed to the half that knows what is
+        // actually on disk. B5 was a turn that made zero tool calls and still
+        // told the user it had saved a file; the host held both facts at this
+        // exact instant and had never compared them. Same reader the workflow
+        // driver already uses - no second notion of "the final assistant text".
+        lastAgentText: getLastAgentText,
         onSwept: async (result) => {
           const content = buildChatArtifactCardContent(result);
           if (!content) return;

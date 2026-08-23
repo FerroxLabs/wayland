@@ -559,6 +559,8 @@
     "reveal": "Afficher dans le dossier",
     "saveCopy": "Enregistrer une copie",
     "changed": "Ce fichier a changé depuis son enregistrement.",
+    "claimedButAbsent": "Cette réponse mentionne {{fileName}}. Aucun fichier de ce nom n’a été écrit.",
+    "claimedElsewhere": "{{fileName}} a été écrit dans {{actualPath}}, et non dans les fichiers de cette conversation.",
     "update": "Mettre à jour",
     "rejected": "{{count}} fichier n'a pas été enregistré comme livrable : {{detail}}.",
     "rejected_other": "{{count}} fichiers n'ont pas été enregistrés comme livrables : {{detail}}.",

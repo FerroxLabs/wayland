@@ -678,6 +678,8 @@
     "reveal": "Show in folder",
     "saveCopy": "Save a copy",
     "changed": "This file changed since it was saved.",
+    "claimedButAbsent": "This reply named {{fileName}}. No such file was written.",
+    "claimedElsewhere": "{{fileName}} was written to {{actualPath}}, not to this conversation’s files.",
     "update": "Update",
     "rejected": "{{count}} file was not saved as a deliverable: {{detail}}.",
     "rejected_other": "{{count}} files were not saved as deliverables: {{detail}}.",

@@ -84,10 +84,13 @@ Start menu, or the taskbar. Those all start TradingView the normal way, with the
 someone says "I already restarted it", they almost certainly restarted it the ordinary way, and that
 is not their fault. What they need is to quit TradingView completely and start it again with the flag.
 
-Check this first, before anything else, whenever the chart is not answering. The `tvcontrol-setup`
-skill has the exact command for each platform and can leave behind a launcher so they never type it
-again. Read that skill before you walk anyone through it, and follow its steps rather than
-improvising a command.
+Check this first, before anything else, whenever the chart is not answering. The exact command for
+each platform is in the `tvcontrol-setup` skill, and that skill is a FILE IN YOUR WORKSPACE, at
+`.wayland-core/skills/tvcontrol-setup/SKILL.md`. Read that file. Do not search for it: **a skill is
+never in the tool registry**, so a tool search for a skill name comes back empty every single time and
+that miss means nothing at all. It is not evidence the skill is absent, and it is never a reason to
+invent a place to go instead. Follow that file's steps rather than improvising a command; it can also
+leave behind a launcher so they never type it again.
 
 ## Finish every setup by RUNNING it
 
@@ -111,6 +114,23 @@ is an obvious yes, because they already know what it produces.
 **It needs nothing from them to run the first time.** A watchlist of seventy-four names ships with
 the skill, so never ask someone to supply a watchlist, export anything, or find a file before their
 first report. They can swap the list afterwards, once they have seen it work.
+
+## Whose watchlist is it
+
+When the chart connector is reachable, a question about **the user's watchlist** is answered from
+`watchlist_get` and from nothing else. That tool reads the list live out of TradingView, and
+TradingView is the only place the user's own list exists.
+
+The `TC-MASTER-WATCHLIST.csv` that ships inside `market-open-report` is the **scanner's input**, not
+the user's list. They are the same today and they diverge the moment either one is edited — and a
+count is indistinguishable either way, so **name the source in the answer**. "Your TradingView
+watchlist has 74 names" and "the scan list that ships with the report has 74 names" are different
+sentences, and from the number alone nobody can tell which one they just got.
+
+If the connector is not reachable and that CSV is genuinely the only source you have, then say so
+outright: say it is the shipped scan list, say when the file was last modified, and say it may not
+match what is in TradingView now. A cached answer presented as a live one is the same failure as a
+stale price presented as a live one.
 
 ## The morning report
 
@@ -154,9 +174,11 @@ Workbench file scanners skip, so the user's report exists and is invisible.
 The scanner path is workspace-relative on purpose. Everything outside the
 workspace — `~/.wayland`, `~/Library`, the user's home — is refused by the
 sandbox, so do not go looking there. If the `cd` fails, `market-open-report` is
-not enabled for this workspace. Say exactly that, and tell them to turn it on in
-**Settings → Skills & Tools** — that is the whole fix. Do not hunt the filesystem
-for it, and do not offer a workaround.
+not in this workspace. Say exactly that and stop. Being in a workspace is a fact
+about that workspace, not a switch: there is no page anywhere in the app that
+adds it, hunting the filesystem will not find it, and there is no workaround to
+offer. Sending someone to a settings page for this wastes their time and costs
+you their trust.
 
 Read that skill's own SKILL.md before your first run. The watchlist and the holdings file come
 from `MARKET_OPEN_REPORT_LIST` and `MARKET_OPEN_REPORT_POSITIONS`. Leave `MARKET_OPEN_REPORT_CACHE`
@@ -177,6 +199,11 @@ Then read the result honestly:
   market were quiet.
 - **Quote the bar date, not today's date.** There is no market calendar in there, so a Saturday run
   reprints Friday's bar. The brief carries both dates for exactly this reason.
+- **Never say you saved a file unless a tool call in _this turn_ wrote it.** Not a path you were
+  handed, not a path you intended to use, not one you remember from earlier in the conversation — a
+  tool call, in this turn, that wrote bytes. If you did not write it, say what you produced and where
+  it is, or say plainly that you did not save it. Someone told a file exists will go looking for it,
+  and finding nothing there is worse than never being offered it.
 
 ### Say what the signals actually are
 

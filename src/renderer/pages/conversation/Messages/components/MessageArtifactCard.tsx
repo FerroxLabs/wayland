@@ -80,6 +80,7 @@ import type {
   ArtifactPreview,
   ArtifactRejectionBucket,
   ArtifactSummary,
+  UnsupportedClaimVerdict,
 } from '@/common/types/artifacts';
 import {
   ARTIFACT_CHANGED_ERROR,
@@ -163,6 +164,19 @@ const TYPE_LOOKS: Record<string, TypeLook> = {
  * added to the host contract fails to COMPILE here rather than rendering as
  * `undefined` under a user's report that did not arrive.
  */
+/**
+ * The two verdicts, as an exhaustive table.
+ *
+ * `satisfies Record<UnsupportedClaimVerdict, ...>` is the same guard the
+ * rejection buckets carry: a third verdict added to the host contract fails to
+ * COMPILE here rather than rendering as `undefined` - or as the raw word
+ * `absent` - under a user's missing report.
+ */
+const UNSUPPORTED_KEYS = {
+  absent: 'conversation.artifactCard.claimedButAbsent',
+  elsewhere: 'conversation.artifactCard.claimedElsewhere',
+} satisfies Record<UnsupportedClaimVerdict, string>;
+
 const REJECTION_KEYS = {
   'outside-folder': 'conversation.artifactCard.rejectedOutsideFolder',
   'not-a-file': 'conversation.artifactCard.rejectedNotAFile',
@@ -600,6 +614,7 @@ const MessageArtifactCard: React.FC<{ message: IMessageArtifactCard }> = ({ mess
   const { t } = useTranslation();
   const artifacts = message.content?.artifacts ?? [];
   const rejected = message.content?.rejected ?? [];
+  const unsupported = message.content?.unsupported ?? [];
 
   /**
    * Fold the host's thirteen reasons into the five a person can act on.
@@ -620,7 +635,7 @@ const MessageArtifactCard: React.FC<{ message: IMessageArtifactCard }> = ({ mess
 
   // A card with nothing on it is never written by the host, but a persisted
   // conversation from a future/older shape must not render an empty box.
-  if (artifacts.length === 0 && rejected.length === 0) return null;
+  if (artifacts.length === 0 && rejected.length === 0 && unsupported.length === 0) return null;
 
   const shown = artifacts.slice(0, MAX_ROWS);
   const overflow = artifacts.length - shown.length;
@@ -636,6 +651,34 @@ const MessageArtifactCard: React.FC<{ message: IMessageArtifactCard }> = ({ mess
       className='my-6px !max-w-520px of-hidden rd-14px b-1px b-solid b-[var(--border-base)] bg-1'
       data-testid='artifact-card'
     >
+      {/*
+        B5. THE CORRECTION, ABOVE THE FILES IT IS CORRECTING.
+        -------------------------------------------------------------------
+        The assistant said it saved a file and the host, holding the directory
+        walk and the assistant's own words at the same instant, could not find
+        it. It is stated QUIETLY and FACTUALLY: no red banner, no toast, no
+        modal, and nothing about the model. The host says what it checked.
+        The failure being fixed is silent wrongness, and the remedy for silent
+        wrongness is a visible fact in the place the user goes looking for
+        files - not an alarm they learn to dismiss. It rides the persisted card
+        rather than a transient notification so it is still there tomorrow.
+      */}
+      {unsupported.length > 0 && (
+        <div
+          className='b-b-1px b-b-solid b-b-[var(--border-light)] px-15px py-11px text-12px text-t-secondary'
+          data-testid='artifact-card-unsupported'
+        >
+          {unsupported.map((claim) => (
+            <div key={`${claim.verdict}:${claim.fileName}`} className='truncate'>
+              {t(UNSUPPORTED_KEYS[claim.verdict], {
+                fileName: claim.fileName,
+                actualPath: claim.actualPath ?? '',
+              })}
+            </div>
+          ))}
+        </div>
+      )}
+
       {shown.map((artifact, position) => (
         <ArtifactRow
           key={artifact.artifactId}

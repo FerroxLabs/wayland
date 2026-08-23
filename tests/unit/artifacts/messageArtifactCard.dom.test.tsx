@@ -104,7 +104,7 @@ import { clearChatSweepMemo, sweepChatRun } from '@process/services/artifacts/ch
 import MessageArtifactCard from '@renderer/pages/conversation/Messages/components/MessageArtifactCard';
 import type { IMessageArtifactCard } from '@/common/chat/chatLib';
 import { DEFAULT_LANGUAGE } from '@/common/config/i18n';
-import type { ArtifactRejectionReason } from '@/common/types/artifacts';
+import type { ArtifactRejectionReason, UnsupportedSavedFileClaim } from '@/common/types/artifacts';
 import { formatArtifactSize } from '@/common/types/artifacts';
 
 const CONVERSATION = 'convcard0001';
@@ -636,6 +636,88 @@ describe('T5 - the card in the conversation', () => {
     });
   });
 
+  /**
+   * B5. THE CORRECTION BAND.
+   *
+   * The assistant told the user it had saved a file, on a turn that made zero
+   * tool calls, and the file did not exist. The host caught it at turn end; this
+   * is the only surface the user ever sees that on.
+   *
+   * WHAT IT MUST NOT BE, asserted rather than left to taste: not a red error
+   * band, not an alarm, and not a characterisation of the model. The host states
+   * what it checked. The failure mode is silent wrongness and the remedy for
+   * silent wrongness is a visible fact where the user already looks for files.
+   */
+  describe('a file the assistant named that the host cannot account for', () => {
+    /** Content built by the PRODUCTION builder from a real sweep of an empty namespace. */
+    async function produceCorrectionCard(unsupported: UnsupportedSavedFileClaim[], files: Record<string, string> = {}) {
+      const outputDir = resolveOutputDir(workspace, undefined, CONVERSATION);
+      for (const [relative, body] of Object.entries(files)) {
+        const target = path.join(outputDir, ...relative.split('/'));
+        // eslint-disable-next-line no-await-in-loop -- deterministic fixture ordering
+        await fs.mkdir(path.dirname(target), { recursive: true });
+        // eslint-disable-next-line no-await-in-loop -- see above
+        await fs.writeFile(target, body, 'utf8');
+      }
+      const result = await sweepChatRun({ conversationId: CONVERSATION, workspace, ledgerPath, declaredBy: 'Chat' });
+      const content = buildChatArtifactCardContent({ ...result, unsupported });
+      if (!content) throw new Error('the builder refused to draw the correction');
+      return buildChatArtifactCardMessage(CONVERSATION, content) as IMessageArtifactCard;
+    }
+
+    it('B5: an absent file is named, on a card with no artifacts at all', async () => {
+      const message = await produceCorrectionCard([{ fileName: 'chart-brief.md', verdict: 'absent' }]);
+
+      render(<MessageArtifactCard message={message} />);
+
+      const band = screen.getByTestId('artifact-card-unsupported');
+      expect(band.textContent).toContain('chart-brief.md');
+      expect(band.textContent).toContain('No such file was written');
+      // Not a raw verdict slug, the way `1 escapes-workspace` once was.
+      expect(band.textContent).not.toContain('absent');
+      // The card exists even though the namespace is empty.
+      expect(screen.getByTestId('artifact-card')).toBeTruthy();
+      expect(screen.queryAllByTestId('artifact-card-row')).toHaveLength(0);
+    });
+
+    it('the C-2 shape says WHERE the file actually is', async () => {
+      const message = await produceCorrectionCard([
+        { fileName: 'morning-brief.html', verdict: 'elsewhere', actualPath: 'artifacts/market/morning-brief.html' },
+      ]);
+
+      render(<MessageArtifactCard message={message} />);
+
+      const band = screen.getByTestId('artifact-card-unsupported');
+      expect(band.textContent).toContain('morning-brief.html');
+      expect(band.textContent).toContain('artifacts/market/morning-brief.html');
+      expect(band.textContent).not.toContain('elsewhere');
+    });
+
+    it('sits ABOVE the file it is correcting, not buried under the buttons', async () => {
+      const message = await produceCorrectionCard([{ fileName: 'chart-brief.md', verdict: 'absent' }], {
+        'summary.md': '# what wayland is\n',
+      });
+
+      render(<MessageArtifactCard message={message} />);
+
+      const card = screen.getByTestId('artifact-card');
+      const band = screen.getByTestId('artifact-card-unsupported');
+      const row = screen.getAllByTestId('artifact-card-row')[0];
+      expect(card.contains(band)).toBe(true);
+      // eslint-disable-next-line no-bitwise -- DOCUMENT_POSITION_FOLLOWING is a bitmask by contract
+      expect(band.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('says NOTHING on an ordinary card', async () => {
+      const message = await produceCard({ 'summary.md': '# what wayland is\n' });
+
+      render(<MessageArtifactCard message={message} />);
+
+      expect(await screen.findByText('summary.md')).toBeTruthy();
+      expect(screen.queryByTestId('artifact-card-unsupported')).toBeNull();
+    });
+  });
+
   it('renders English, not a raw key, in the eleven locales it was not translated into', () => {
     expect(DEFAULT_LANGUAGE).toBe('en-US');
 
@@ -650,6 +732,8 @@ describe('T5 - the card in the conversation', () => {
       'update',
       'rejected',
       'unknownError',
+      'claimedButAbsent',
+      'claimedElsewhere',
     ];
     const bundle = (enConversation as Record<string, any>).artifactCard ?? {};
     for (const key of used) {

@@ -134,6 +134,62 @@ describe('the shipped defect, established against a real database', () => {
   });
 });
 
+/**
+ * B5. THE CORRECTION HAS TO BE THERE TOMORROW.
+ *
+ * The whole reason the "this reply named a file that was never written" line
+ * rides the PERSISTED card rather than a toast is that the failure it describes
+ * is silent: the user finds out by going looking for their file, which may be
+ * hours later and is certainly after a restart. A correction that only exists
+ * in a live renderer would be gone by then.
+ *
+ * This is the same real SQLite file with the real schema as everything above,
+ * so it is the round trip, not a claim about it.
+ */
+describe('a card that carries only a correction', () => {
+  const b5Card = (fileName: string, now: number): TMessage =>
+    buildChatArtifactCardMessage(CONVERSATION, { artifacts: [], unsupported: [{ fileName, verdict: 'absent' }] }, now);
+
+  it('survives the round trip through the database with the correction intact', () => {
+    expect(db.insertMessage(b5Card('chart-brief.md', 1000)).success).toBe(true);
+
+    const rows = cardRows();
+    expect(rows.length).toBe(1);
+    const content = rows[0].content as { artifacts: unknown[]; unsupported?: { fileName: string; verdict: string }[] };
+    // The one card shape that is written with nothing in the namespace at all.
+    expect(content.artifacts).toEqual([]);
+    expect(content.unsupported).toEqual([{ fileName: 'chart-brief.md', verdict: 'absent' }]);
+  });
+
+  it('is replaced in place by the next turn, exactly as a file card is', async () => {
+    await persistChatArtifactCard(CONVERSATION, b5Card('chart-brief.md', 1000), {
+      flush: async () => {},
+      deleteMessage: (id) => {
+        db.deleteMessage(id);
+      },
+      addMessage: (_conversationId, message) => {
+        db.insertMessage(message);
+      },
+    });
+    await persistChatArtifactCard(CONVERSATION, cardAt('v1.md', 100, 2000), {
+      flush: async () => {},
+      deleteMessage: (id) => {
+        db.deleteMessage(id);
+      },
+      addMessage: (_conversationId, message) => {
+        db.insertMessage(message);
+      },
+    });
+
+    const rows = cardRows();
+    expect(rows.length).toBe(1);
+    // The turn that really produced a file clears the correction, because the
+    // card is the CURRENT state of this conversation's deliverables.
+    expect((rows[0].content as { unsupported?: unknown }).unsupported).toBeUndefined();
+    expect(fileNameOf(rows[0])).toBe('v1.md');
+  });
+});
+
 describe('the real helper against the real database', () => {
   const persistence = (): ChatArtifactCardPersistence => ({
     flush: async () => {},

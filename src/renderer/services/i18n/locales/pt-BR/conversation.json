@@ -559,6 +559,8 @@
     "reveal": "Mostrar na pasta",
     "saveCopy": "Salvar uma cópia",
     "changed": "Este arquivo mudou desde que foi salvo.",
+    "claimedButAbsent": "Esta resposta mencionou {{fileName}}. Nenhum arquivo com esse nome foi gravado.",
+    "claimedElsewhere": "{{fileName}} foi gravado em {{actualPath}}, e não nos arquivos desta conversa.",
     "update": "Atualizar",
     "rejected": "{{count}} arquivo não foi salvo como entregável: {{detail}}.",
     "rejected_other": "{{count}} arquivos não foram salvos como entregáveis: {{detail}}.",
