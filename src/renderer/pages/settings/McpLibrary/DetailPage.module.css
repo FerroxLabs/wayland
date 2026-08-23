@@ -9,9 +9,25 @@
    action card + tabbed body + sticky Connection/Available-to/Links side rail. */
 
 .page {
+  /* `margin: 0 auto` opts this flex item out of cross-axis stretch, so the width
+     has to be stated. With `container-type` below the box no longer sizes to its
+     content, and without this it collapses to its own padding. */
+  box-sizing: border-box;
+  width: 100%;
   max-width: 1120px;
   margin: 0 auto;
   padding: 24px 40px 64px;
+  /* This page is a child of a COLUMN flex container, so its automatic minimum
+     size is its min-content width (1165px, set by the 300px action card and the
+     280px side rail). That silently beat `max-width` and pushed the whole right
+     edge - status pill, transport, Links - past the settings pane, which clips
+     with overflow-x:hidden. `min-width: 0` lets the page shrink to the pane. */
+  min-width: 0;
+  /* Breakpoints below key off THIS box, not the window. The settings pane is
+     ~290px narrower than the viewport, so a viewport media query fires far too
+     late (at a 1209px window the pane is already only 920px wide). */
+  container-type: inline-size;
+  container-name: connector-page;
 }
 
 .back {
@@ -45,23 +61,8 @@
   width: 60px;
   height: 60px;
   border-radius: 14px;
-  background: var(--color-bg-5);
   border: 1px solid var(--color-border-2);
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.logo img {
-  width: 34px;
-  height: 34px;
-}
-
-.logoFallback {
-  font-size: var(--type-24);
-  font-weight: 700;
-  color: var(--color-text-2);
+  --connector-glyph-size: 34px;
 }
 
 .heroMeta {
@@ -298,7 +299,10 @@
 /* body: tabs + two-col */
 .tabs {
   display: flex;
-  gap: 24px;
+  /* Four fixed-gap tabs are wider than a narrow settings pane, and a longer
+     locale makes that worse. Wrap instead of pushing the page out. */
+  flex-wrap: wrap;
+  gap: 0 24px;
   margin: 22px 0 0;
   border-bottom: 1px solid var(--color-border-1);
 }
@@ -350,6 +354,12 @@
 .colMain {
   flex: 1;
   min-width: 0;
+  /* `.cols` aligns to flex-start, so once it stacks this column is NOT stretched
+     and sizes to its content instead. The setup guide embeds markdown in a
+     shadow root whose <pre> blocks report a 699px min-content, which dragged the
+     column - and the whole page - past the settings pane. Stating the width
+     hands the <pre> a box to scroll inside, which is what it already asks for. */
+  width: 100%;
 }
 
 .colSide {
@@ -610,7 +620,11 @@
   font-size: var(--type-14);
 }
 
-@media (max-width: 900px) {
+/* Stack below the width where the two columns still fit: the side rail is 280px
+   and the action card 300px, so ~700px of content box is the floor. This is the
+   PAGE's own width, not the window's - the old 900px media query was measuring
+   the wrong box entirely. */
+@container connector-page (max-width: 700px) {
   .hero {
     flex-direction: column;
   }

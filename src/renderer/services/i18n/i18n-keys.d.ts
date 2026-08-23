@@ -1328,6 +1328,7 @@ export type I18nKey =
   | 'mcpLibrary.detail.account'
   | 'mcpLibrary.detail.addToken'
   | 'mcpLibrary.detail.auth'
+  | 'mcpLibrary.detail.availableChecking'
   | 'mcpLibrary.detail.availableEmpty'
   | 'mcpLibrary.detail.availableNote'
   | 'mcpLibrary.detail.availableTo'

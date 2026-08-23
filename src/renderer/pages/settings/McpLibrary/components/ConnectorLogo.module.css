@@ -1,0 +1,50 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* Shared connector logo plate. The surface using it supplies size, radius and
+   border through its own class; everything here is about the glyph reading
+   against whatever sits behind it. */
+
+.plate {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  /* Default plate + ink. Both flip with the theme, so the fallback pair clears
+     the non-text contrast floor on light AND dark. An entry whose declared
+     brand pair is trustworthy overrides these inline. */
+  background: var(--color-bg-5);
+  --connector-glyph-ink: var(--color-text-1);
+}
+
+.glyph,
+.tinted {
+  width: var(--connector-glyph-size, 60%);
+  height: var(--connector-glyph-size, 60%);
+  object-fit: contain;
+}
+
+/* A glyph with no colour of its own is painted here rather than shipped as an
+   <img>: an <img>-embedded SVG cannot inherit `color`, so `currentColor`
+   resolves to black on every theme. Masking a single-colour glyph is lossless. */
+.tinted {
+  display: block;
+  background-color: var(--connector-glyph-ink);
+  -webkit-mask-image: var(--connector-glyph-mask);
+  mask-image: var(--connector-glyph-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.letter {
+  font-size: var(--connector-glyph-letter-size, var(--type-24));
+  font-weight: 700;
+  color: var(--color-text-2);
+}
