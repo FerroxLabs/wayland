@@ -404,6 +404,7 @@ export type I18nKey =
   | 'conversation.artifactCard.changed'
   | 'conversation.artifactCard.claimedButAbsent'
   | 'conversation.artifactCard.claimedElsewhere'
+  | 'conversation.artifactCard.claimedElsewhereInWorkspace'
   | 'conversation.artifactCard.more'
   | 'conversation.artifactCard.more_other'
   | 'conversation.artifactCard.openExternally'
