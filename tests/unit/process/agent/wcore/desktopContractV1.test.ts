@@ -142,7 +142,7 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('addb4f48');
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('92ee5374');
     expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 16 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
@@ -171,6 +171,17 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // would have handed users a build that dies at the handshake on every turn
     // - the same shape of failure as the `contract_minor_mismatch` (pin 14 vs
     // engine 12) that preceded the v0.13.0 move.
+    //
+    // v0.13.5 -> v0.13.6 is that same shape again, and was established the same
+    // way: field by field against the released manifest, not by reading. The
+    // schema_digest is byte-identical (2993aee1...), the generator is still
+    // gen/16, the contract is still minor 16, and capabilities, commands,
+    // events, child types, subcontracts and counts all compare EQUAL - the whole
+    // manifest compares equal once its own self-describing digests are excluded.
+    // Counts stay at 23 commands, 61 events, 3 child types, 171 fixtures. Seven
+    // vendored files moved and every one moved only because it embeds
+    // fixture_digest / source_inputs_digest. So the two digests below moved and
+    // nothing else did, and no Desktop handling had to change with them.
     //
     // v0.13.4 -> v0.13.5 is the SAME SHAPE as v0.13.0 -> v0.13.2, and that is
     // the reason it is safe: the released manifest carries an IDENTICAL
@@ -202,7 +213,7 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // must be re-derived from the released manifest, not patched.
     expect(DESKTOP_CORE_V1_PIN.minor).toBe(16);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.5'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.6'"
     );
   });
 

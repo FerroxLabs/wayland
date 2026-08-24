@@ -15,10 +15,10 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = 'addb4f48' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '92ee5374' as const;
 
 /**
- * Pinned to Core `0ccaa90b`, the `v0.13.4` release tag. Every value below was
+ * Pinned to Core `92ee5374`, the `v0.13.6` release tag. Every value below was
  * read from that tag's `manifest.json` and then confirmed identical to the
  * `ready` fixture the same tag publishes - the frame a real engine sends.
  *
@@ -40,8 +40,12 @@ export const DESKTOP_CORE_V1_PRODUCER_COMMIT = 'addb4f48' as const;
  *   published v0.12.26  minor 12 / gen-13 / schema `23fb3048…`
  *   C-1..C-5 dev build  minor 13 / gen-14 / schema `4971f456…`
  *   0.13.0              minor 14 / gen-14 / schema `306d83e1…`
- *   v0.13.5             minor 16 / gen-16 / schema `2993aee1…`  <- pinned here (schema UNCHANGED
- *                       from v0.13.4; only the fixture and source-inputs digests moved)
+ *   v0.13.5             minor 16 / gen-16 / schema `2993aee1…`
+ *   v0.13.6             minor 16 / gen-16 / schema `2993aee1…`  <- pinned here (SHAPE-IDENTICAL
+ *                       to v0.13.5: capabilities, commands, events, child types, counts and the
+ *                       schema digest all compare equal; only the fixture and source-inputs
+ *                       digests moved, so the seven files that changed changed only because they
+ *                       embed those digests)
  *
  * What minor 16 adds, and why this re-pin is not optional: `path_grants_v1`,
  * `path_boundary_prompt_v1` and `render_artifact_v1` in the capability map,
@@ -63,9 +67,9 @@ export const DESKTOP_CORE_V1_PIN = {
   major: 1,
   minor: 16,
   generator: 'wcore-desktop-contract-gen/16',
-  fixtureDigest: 'sha256:79c7f1215cd6705ef897ec8628c11f7d98e20683bf65efcf27bc69721dbd9b20',
+  fixtureDigest: 'sha256:1f41da5fa0c193081eb895cf79b07b19ee5335ce07aa27fd8c754384ffd1bcc4',
   schemaDigest: 'sha256:2993aee1129fc1659cdd06d0ed168770ede7ed89437f644021cb9e77ec5bed62',
-  sourceInputsDigest: 'sha256:4c59bb69331e3c2678b8cc1401740486d1e32f53dc4a63647cdd24b504d087b0',
+  sourceInputsDigest: 'sha256:97a3336208aa63ede996d135a0408d18abb79e620a5f3c8a9fe55109d688b4e2',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',

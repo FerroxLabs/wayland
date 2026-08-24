@@ -1,13 +1,22 @@
 # Desktop validation pin
 
 This corpus is a byte-for-byte mechanical import from Wayland Core commit
-`0ccaa90b17bea8eee606a79859e4a2be6ca05f12`, which is the **`v0.13.4` release tag**.
+`92ee53743fab1a0ce234ce3e82ebb8091d7d8ecc`, which is the **`v0.13.6` release tag**.
 
 - contract: `wayland-desktop-core` `1.16`
 - generator: `wcore-desktop-contract-gen/16`
-- fixtures: `sha256:3d0d62863053a31046aec4f09338d911d5416b4a01fcdfcd574e20b70c1e0422`
+- fixtures: `sha256:1f41da5fa0c193081eb895cf79b07b19ee5335ce07aa27fd8c754384ffd1bcc4`
 - schemas: `sha256:2993aee1129fc1659cdd06d0ed168770ede7ed89437f644021cb9e77ec5bed62`
-- source inputs: `sha256:7109269427740ec4c06abf2ee536b11ca6a465bfa5d12970ff84a32ca3342550`
+- source inputs: `sha256:97a3336208aa63ede996d135a0408d18abb79e620a5f3c8a9fe55109d688b4e2`
+
+**v0.13.6 is SHAPE-IDENTICAL to the v0.13.5 pin.** The re-import was compared
+manifest field by manifest field, not by reading: capabilities, commands,
+events, child types, subcontracts, counts and the SCHEMA DIGEST all compare
+equal, and the whole manifest compares equal once its own self-describing
+digests are excluded. Counts are unchanged at 23 commands, 61 events, 3 child
+types, 171 fixtures. Seven files moved and every one of them moved only because
+it embeds `fixture_digest` / `source_inputs_digest`. No capability was added,
+removed or re-graded, so nothing in Desktop's handling had to change with it.
 
 Verified by execution, not by reading. The import was compared **file by file**
 against the tag: 176 files, 176 digest matches, and a deliberately-wrong
