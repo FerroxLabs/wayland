@@ -121,8 +121,16 @@ export interface ChatSweepResult {
  * observed at the last successful registration, and the record it stands in for
  * is read back from the ledger - so a skip can never invent a record, only
  * avoid recomputing one.
+ *
+ * `hashedAtMs` is what makes (size, mtime) safe to trust. Equal size and equal
+ * mtime do NOT prove equal bytes when the clock is coarser than the gap between
+ * two writes: on Windows the timer granularity is ~15ms, so a same-size rewrite
+ * moments after the hash keeps the SAME mtime and the sweep would report the
+ * stale digest - a deliverable the user edited, still described by its old
+ * hash. Recording when we hashed lets the read side refuse a memo it cannot
+ * distinguish. Same idea as git's "racily clean" index entries.
  */
-const sweepMemo = new Map<string, { sizeBytes: number; mtimeMs: number; artifactId: string }>();
+const sweepMemo = new Map<string, { sizeBytes: number; mtimeMs: number; hashedAtMs: number; artifactId: string }>();
 
 const memoKey = (workspace: string, conversationId: string, relative: string): string =>
   `${workspace}\0${conversationId}\0${relative}`;
@@ -372,7 +380,9 @@ async function findElsewhereInWorkspace(
  *
  * A file is only skipped when BOTH halves agree: the memo says the bytes are
  * unchanged, and the ledger still has the record the memo points at. Losing
- * either one re-registers, which costs a hash and is always correct.
+ * either one re-registers, which costs a hash and is always correct. The memo
+ * half additionally requires the file to have settled BEFORE we hashed it, so a
+ * rewrite inside one clock tick is never mistaken for no rewrite at all.
  */
 async function partitionByChange(
   input: ChatSweepInput,
@@ -396,7 +406,12 @@ async function partitionByChange(
       }
       try {
         const stat = await fs.lstat(path.join(outputDir, ...relative.split('/')));
-        if (stat.isFile() && stat.size === memo.sizeBytes && stat.mtimeMs === memo.mtimeMs) {
+        // STRICTLY older than the moment we hashed. If the file's mtime is at
+        // or after that, a write could have landed inside the same clock tick
+        // and (size, mtime) cannot tell us whether the bytes moved - so re-hash
+        // rather than vouch for a digest we did not verify.
+        const settled = stat.mtimeMs < memo.hashedAtMs;
+        if (stat.isFile() && settled && stat.size === memo.sizeBytes && stat.mtimeMs === memo.mtimeMs) {
           unchanged.push(record);
           return;
         }
@@ -429,6 +444,7 @@ async function rememberRegistered(
         sweepMemo.set(memoKey(input.workspace, input.conversationId, relative.split(path.sep).join('/')), {
           sizeBytes: stat.size,
           mtimeMs: stat.mtimeMs,
+          hashedAtMs: Date.now(),
           artifactId: record.artifactId,
         });
       } catch {

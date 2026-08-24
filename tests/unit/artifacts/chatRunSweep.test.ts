@@ -132,6 +132,39 @@ describe('T3 - the turn-end sweep registers what the chat produced', () => {
     expect(ledger[0].sha256).toBe(second.registered[0].sha256);
   });
 
+  it('re-hashes when the file did not settle before we hashed it (coarse-clock rewrite)', async () => {
+    // THE WINDOWS CASE, MADE DETERMINISTIC. The sweep memo skips re-hashing when
+    // size AND mtime both match. That is only sound if the file stopped changing
+    // BEFORE we hashed it. Where the clock is coarser than the gap between two
+    // writes - ~15ms on Windows - a same-size rewrite keeps the SAME mtime, and
+    // the skip would hand back the previous digest for bytes that moved. CI
+    // caught exactly that; macOS never reproduces it because its mtime is finer.
+    //
+    // Rather than race the clock, pin the file's mtime AT a moment the sweep
+    // cannot have hashed after. Same size, same mtime, different bytes: the memo
+    // is indistinguishable from "unchanged" and must therefore be refused.
+    const target = path.join(outputDir(), 'summary.md');
+    const pinned = new Date(Date.now() + 60_000);
+
+    await agentWrites('summary.md', 'AAAAAAAA\n');
+    await fs.utimes(target, pinned, pinned);
+    const first = await sweep();
+
+    await agentWrites('summary.md', 'BBBBBBBB\n');
+    await fs.utimes(target, pinned, pinned); // the clock "did not tick"
+    const second = await sweep();
+
+    const stat = await fs.stat(target);
+    // Within a millisecond, not exactly: utimes round-trips through nanosecond
+    // precision, so a whole-ms input reads back as e.g. ...540.999.
+    expect(Math.abs(stat.mtimeMs - pinned.getTime())).toBeLessThan(2); // simulation held
+    expect(second.registered[0].sizeBytes).toBe(first.registered[0].sizeBytes);
+    expect(second.registered[0].sha256).not.toBe(first.registered[0].sha256);
+    const ledger = await readArtifactLedger(ledgerPath);
+    expect(ledger).toHaveLength(1);
+    expect(ledger[0].sha256).toBe(second.registered[0].sha256);
+  });
+
   it('still reports an unchanged file as a live deliverable on a later turn', async () => {
     await agentWrites('summary.md', '# unchanged\n');
     const first = await sweep();
