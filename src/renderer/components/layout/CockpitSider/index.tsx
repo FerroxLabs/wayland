@@ -7,23 +7,7 @@
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Tooltip } from '@arco-design/web-react';
 import classNames from 'classnames';
-import {
-  Activity,
-  Bot,
-  Brain,
-  CalendarClock,
-  ChevronDown,
-  ChevronRight,
-  FolderKanban,
-  Library,
-  MessagesSquare,
-  Plug,
-  Plus,
-  Search,
-  Sparkles,
-  Users,
-  Workflow,
-} from 'lucide-react';
+import { Activity, Bot, Brain, CalendarClock, ChevronDown, ChevronRight, FolderKanban, Library, MessagesSquare, Package, Plug, Plus, Search, Sparkles, Users, Workflow } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { COCKPIT_NAVIGATION_DESTINATIONS } from '@/common/navigation';
 import { useAuth } from '@renderer/hooks/context/AuthContext';
@@ -66,6 +50,9 @@ const PRIMARY_ENTRIES: NavEntry[] = [
     <MessagesSquare size={17} />,
     (pathname) => pathname.startsWith('/conversation') || pathname.startsWith('/conversations')
   ),
+  // Sits directly under Chats, the same place the classic sider puts it: a
+  // deliverable belongs next to the conversation that produced it.
+  navEntry('artifacts', <Package size={17} />, (pathname) => pathname.startsWith('/artifacts')),
   navEntry('projects', <FolderKanban size={17} />, (pathname) => pathname.startsWith('/project')),
   navEntry('automations', <CalendarClock size={17} />, (pathname) => pathname.startsWith('/scheduled')),
   navEntry('activity', <Activity size={17} />, (pathname) => pathname.startsWith('/mission-control')),
