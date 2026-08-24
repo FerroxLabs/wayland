@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "목록에서 제거",
   "artifactForgetFailed": "이 항목을 목록에서 제거할 수 없습니다: {{error}}",
   "artifactForgotten": "목록에서 제거했습니다. 파일은 그대로입니다.",
-  "artifactsRailTruncated": "최신 산출물 {{shown}}개를 표시하고 있습니다. 이전 항목은 표시되지 않습니다."
+  "artifactsRailTruncated": "최신 산출물 {{shown}}개를 표시하고 있습니다. 이전 항목은 표시되지 않습니다.",
+  "awayTitle": "미리보기가 별도 창에 있습니다",
+  "awayBringBack": "다시 가져오기",
+  "awayNewCount": "해당 창의 새 항목: {{count}}"
 }

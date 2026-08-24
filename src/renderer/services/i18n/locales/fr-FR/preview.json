@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "Retirer de la liste",
   "artifactForgetFailed": "Impossible de retirer cet élément de la liste : {{error}}",
   "artifactForgotten": "Retiré de la liste. Votre fichier est intact.",
-  "artifactsRailTruncated": "Affichage des {{shown}} livrables les plus récents. Les plus anciens ne sont pas listés."
+  "artifactsRailTruncated": "Affichage des {{shown}} livrables les plus récents. Les plus anciens ne sont pas listés.",
+  "awayTitle": "L'aperçu est dans sa propre fenêtre",
+  "awayBringBack": "Le rattacher",
+  "awayNewCount": "Nouveaux dans cette fenêtre : {{count}}"
 }

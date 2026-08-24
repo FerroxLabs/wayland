@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "リストから削除",
   "artifactForgetFailed": "これをリストから削除できませんでした: {{error}}",
   "artifactForgotten": "リストから削除しました。ファイルはそのままです。",
-  "artifactsRailTruncated": "最新の {{shown}} 件の成果物を表示しています。それより古いものは表示されません。"
+  "artifactsRailTruncated": "最新の {{shown}} 件の成果物を表示しています。それより古いものは表示されません。",
+  "awayTitle": "プレビューは別ウィンドウで開いています",
+  "awayBringBack": "元に戻す",
+  "awayNewCount": "そのウィンドウの新着: {{count}}"
 }

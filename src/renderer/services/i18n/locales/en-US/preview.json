@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "Remove from list",
   "artifactForgetFailed": "Could not remove this from the list: {{error}}",
   "artifactForgotten": "Removed from the list. Your file is untouched.",
-  "artifactsRailTruncated": "Showing the newest {{shown}} deliverables. Older ones are not listed."
+  "artifactsRailTruncated": "Showing the newest {{shown}} deliverables. Older ones are not listed.",
+  "awayTitle": "Preview is in its own window",
+  "awayBringBack": "Bring it back",
+  "awayNewCount": "New in that window: {{count}}"
 }

@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "Aus der Liste entfernen",
   "artifactForgetFailed": "Der Eintrag konnte nicht aus der Liste entfernt werden: {{error}}",
   "artifactForgotten": "Aus der Liste entfernt. Ihre Datei ist unverändert.",
-  "artifactsRailTruncated": "Es werden die neuesten {{shown}} Ergebnisse angezeigt. Ältere sind nicht aufgeführt."
+  "artifactsRailTruncated": "Es werden die neuesten {{shown}} Ergebnisse angezeigt. Ältere sind nicht aufgeführt.",
+  "awayTitle": "Die Vorschau ist in einem eigenen Fenster",
+  "awayBringBack": "Zurückholen",
+  "awayNewCount": "Neu in diesem Fenster: {{count}}"
 }

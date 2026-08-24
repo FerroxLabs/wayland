@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "Прибрати зі списку",
   "artifactForgetFailed": "Не вдалося прибрати це зі списку: {{error}}",
   "artifactForgotten": "Прибрано зі списку. Ваш файл не змінено.",
-  "artifactsRailTruncated": "Показано {{shown}} найновіших результатів. Старіші не перелічено."
+  "artifactsRailTruncated": "Показано {{shown}} найновіших результатів. Старіші не перелічено.",
+  "awayTitle": "Попередній перегляд відкрито в окремому вікні",
+  "awayBringBack": "Повернути на місце",
+  "awayNewCount": "Нових у тому вікні: {{count}}"
 }

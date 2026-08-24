@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "從清單中移除",
   "artifactForgetFailed": "無法從清單中移除它：{{error}}",
   "artifactForgotten": "已從清單中移除。你的檔案未受影響。",
-  "artifactsRailTruncated": "正在顯示最新的 {{shown}} 個交付物。更早的未列出。"
+  "artifactsRailTruncated": "正在顯示最新的 {{shown}} 個交付物。更早的未列出。",
+  "awayTitle": "預覽已在獨立視窗中開啟",
+  "awayBringBack": "取回預覽",
+  "awayNewCount": "該視窗中的新內容：{{count}}"
 }

@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "Listeden kaldır",
   "artifactForgetFailed": "Bu listeden kaldırılamadı: {{error}}",
   "artifactForgotten": "Listeden kaldırıldı. Dosyanıza dokunulmadı.",
-  "artifactsRailTruncated": "En yeni {{shown}} çıktı gösteriliyor. Daha eskiler listelenmiyor."
+  "artifactsRailTruncated": "En yeni {{shown}} çıktı gösteriliyor. Daha eskiler listelenmiyor.",
+  "awayTitle": "Önizleme ayrı bir pencerede",
+  "awayBringBack": "Geri getir",
+  "awayNewCount": "O penceredeki yeni: {{count}}"
 }

@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "Quitar de la lista",
   "artifactForgetFailed": "No se pudo quitar esto de la lista: {{error}}",
   "artifactForgotten": "Quitado de la lista. Tu archivo no se ha tocado.",
-  "artifactsRailTruncated": "Mostrando los {{shown}} entregables más recientes. Los más antiguos no aparecen."
+  "artifactsRailTruncated": "Mostrando los {{shown}} entregables más recientes. Los más antiguos no aparecen.",
+  "awayTitle": "La vista previa está en su propia ventana",
+  "awayBringBack": "Traerla de vuelta",
+  "awayNewCount": "Nuevos en esa ventana: {{count}}"
 }

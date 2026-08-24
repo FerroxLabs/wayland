@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "Убрать из списка",
   "artifactForgetFailed": "Не удалось убрать это из списка: {{error}}",
   "artifactForgotten": "Убрано из списка. Ваш файл не тронут.",
-  "artifactsRailTruncated": "Показаны {{shown}} самых новых результатов. Более старые не перечислены."
+  "artifactsRailTruncated": "Показаны {{shown}} самых новых результатов. Более старые не перечислены.",
+  "awayTitle": "Предпросмотр открыт в отдельном окне",
+  "awayBringBack": "Вернуть на место",
+  "awayNewCount": "Новых в том окне: {{count}}"
 }

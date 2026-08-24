@@ -164,5 +164,8 @@
   "artifactForgetConfirm": "Remover da lista",
   "artifactForgetFailed": "Não foi possível remover isto da lista: {{error}}",
   "artifactForgotten": "Removido da lista. Seu arquivo está intacto.",
-  "artifactsRailTruncated": "Mostrando os {{shown}} entregáveis mais recentes. Os mais antigos não estão listados."
+  "artifactsRailTruncated": "Mostrando os {{shown}} entregáveis mais recentes. Os mais antigos não estão listados.",
+  "awayTitle": "A pré-visualização está em uma janela separada",
+  "awayBringBack": "Trazer de volta",
+  "awayNewCount": "Novos nessa janela: {{count}}"
 }
