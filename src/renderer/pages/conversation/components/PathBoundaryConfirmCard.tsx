@@ -11,7 +11,7 @@ import {
   isPathBoundaryGrantValue,
   pathBoundaryRootOf,
 } from '@/common/chat/pathBoundaryConsent';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -34,6 +34,25 @@ const GRANT_ARIA_KEY: Readonly<Record<string, string>> = {
   [PATH_BOUNDARY_GRANT_FOLDER]: 'messages.confirmation.pathBoundaryGrantAria',
   [PATH_BOUNDARY_REMEMBER_FOLDER]: 'messages.confirmation.pathBoundaryRememberAria',
 };
+
+/**
+ * Whether a pointer release at (`x`,`y`) is still ON the control it pressed.
+ *
+ * Press-then-drag-away-then-release means "I changed my mind", and a consent
+ * surface must keep that escape hatch. The card claims the pointer on press
+ * (see `onPointerDown`), so the release is delivered here even when the pointer
+ * has left the control — which is what makes this check load-bearing rather
+ * than something the browser would have done for us.
+ *
+ * A zero-sized rect means the environment does not lay out at all (jsdom, and
+ * any headless render). Treat that as a hit: swallowing the answer there would
+ * make the control untestable, and there is no drag to cancel without layout.
+ */
+function releasedOnControl(element: Element, x: number, y: number): boolean {
+  const rect = element.getBoundingClientRect();
+  if (rect.width === 0 && rect.height === 0) return true;
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
 
 /**
  * The folder-grant card for a Wayland Core `PathBoundary` escalation (#1099).
@@ -73,7 +92,14 @@ const GRANT_ARIA_KEY: Readonly<Record<string, string>> = {
  * global listener in this app binds to any confirmation. Space is announced in
  * the accessible name and shown as a badge, because a focusable control whose
  * obvious key (Enter) deliberately does nothing is still unusable if the user
- * is never told which key works.
+ * is never told which key works. That badge is shown on the FOCUSED row only —
+ * it is the only row the key reaches, and on any other row it would be
+ * advertising a key that denies. See `focusedValue`.
+ *
+ * POINTING. A press is answered on the pointer RELEASE over the same row, with
+ * the pointer captured on press, not left to the browser's `click` — see
+ * `onPointerDown`. Every path funnels through `answer`, so one press produces
+ * exactly one answer.
  */
 const PathBoundaryConfirmCard: React.FC<{
   confirmation: IConfirmation<any>;
@@ -101,12 +127,51 @@ const PathBoundaryConfirmCard: React.FC<{
    * The grant is one Tab away, which is the deliberate act it should be.
    */
   const refuseRef = useRef<HTMLDivElement | null>(null);
+
+  /**
+   * The option that HAS FOCUS, and therefore the ONE option the advertised key
+   * would actually answer. `null` when focus is somewhere else entirely, which
+   * is when the key answers nothing.
+   *
+   * Found by driving the real app: every row rendered the same `Space` badge,
+   * while the handler that reads that key is per-row and only ever reaches the
+   * FOCUSED row — the refusal, by design. So the badge on the grant row was a
+   * false statement: a user who read "Space" beside "Allow this folder" and
+   * pressed it got a DENIAL. Two rows advertising one key cannot both be
+   * telling the truth, and the badge now follows the focus that decides it.
+   */
+  const [focusedValue, setFocusedValue] = useState<string | null>(null);
+
+  /**
+   * One answer per card. The press path below answers on the pointer RELEASE,
+   * and the browser still dispatches its own `click` afterwards; without this
+   * the card would answer twice for one deliberate press.
+   */
+  const answeredRef = useRef(false);
+
+  /** The option a pointer press went down on, so the release can match it. */
+  const pressedValueRef = useRef<string | null>(null);
+
   useEffect(() => {
+    answeredRef.current = false;
+    pressedValueRef.current = null;
     refuseRef.current?.focus();
     // Keyed on the call, not on mount: the card is reused for the next boundary
     // in the same conversation, and a second prompt that never takes focus is
     // the same bug wearing a different hat.
   }, [confirmation.callId]);
+
+  /**
+   * Answer the card, at most once.
+   *
+   * Every path — pointer release, `click`, Space — funnels through here, so the
+   * three cannot disagree about WHICH option was chosen or answer twice.
+   */
+  const answer = (option: (typeof confirmation.options)[number]) => {
+    if (answeredRef.current) return;
+    answeredRef.current = true;
+    onConfirm(option);
+  };
 
   return (
     <div
@@ -156,6 +221,8 @@ const PathBoundaryConfirmCard: React.FC<{
           // label so the name is a superset of it (WCAG 2.5.3, Label in Name).
           const ariaKey = GRANT_ARIA_KEY[String(option.value)];
           const ariaLabel = isGrant && root && ariaKey ? t(ariaKey, { label, folder: root }) : undefined;
+          const value = String(option.value);
+          const isFocused = focusedValue === value;
           return (
             <div
               key={String(option.value)}
@@ -164,13 +231,38 @@ const PathBoundaryConfirmCard: React.FC<{
               tabIndex={0}
               aria-label={ariaLabel}
               aria-keyshortcuts={ACTIVATION_KEY_NAME}
-              onClick={() => onConfirm(option)}
+              onFocus={() => setFocusedValue(value)}
+              onBlur={() => setFocusedValue((current) => (current === value ? null : current))}
+              onPointerDown={(event) => {
+                pressedValueRef.current = value;
+                // CLAIM THE POINTER. Found by driving the real app: pressing
+                // this row moved focus to it and answered nothing. A `click` is
+                // only dispatched to the control when the press AND the release
+                // resolve to it, and this card re-renders on every engine frame
+                // while the call is pending — so a row that moves under the
+                // pointer sends `click` to an ancestor that has no handler, and
+                // a deliberate press becomes silence. With the pointer captured
+                // the release is delivered here whatever the layout does.
+                try {
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                } catch {
+                  // Pointer capture is not universal (older webviews, some test
+                  // environments). The `click` path below still answers there.
+                }
+              }}
+              onPointerUp={(event) => {
+                if (pressedValueRef.current !== value) return;
+                pressedValueRef.current = null;
+                if (!releasedOnControl(event.currentTarget, event.clientX, event.clientY)) return;
+                answer(option);
+              }}
+              onClick={() => answer(option)}
               onKeyDown={(event) => {
                 // SPACE ONLY. Not Enter, not Y — see the note at the top of this
                 // file. Anything else falls through untouched.
                 if (event.key !== ACTIVATION_KEY) return;
                 event.preventDefault(); // Space would otherwise scroll the page.
-                onConfirm(option);
+                answer(option);
               }}
               data-testid={
                 option.value === PATH_BOUNDARY_REMEMBER_FOLDER
@@ -185,11 +277,18 @@ const PathBoundaryConfirmCard: React.FC<{
                   : 'b-[var(--border-base)] hover:bg-[var(--bg-hover)]'
               }`}
             >
+              {/* The key badge belongs to the FOCUSED row and to no other: the
+                  handler that reads it is per-row, so on every other row the
+                  same badge would be advertising a key that denies instead.
+                  The slot keeps its width either way, so moving focus does not
+                  shift the rows under the user's pointer. */}
               <span
                 aria-hidden='true'
-                className='inline-flex items-center justify-center px-4px h-18px rd-4px bg-[var(--bg-2)] text-11px text-[var(--text-secondary)] font-mono shrink-0 mt-1px'
+                className={`inline-flex items-center justify-center px-4px min-w-38px h-18px rd-4px text-11px text-[var(--text-secondary)] font-mono shrink-0 mt-1px ${
+                  isFocused ? 'bg-[var(--bg-2)]' : ''
+                }`}
               >
-                {ACTIVATION_KEY_NAME}
+                {isFocused ? ACTIVATION_KEY_NAME : ''}
               </span>
               <span className='min-w-0'>
                 <span data-testid='path-boundary-option-label'>{label}</span>
