@@ -123,13 +123,24 @@ export interface ChatSweepResult {
  * avoid recomputing one.
  *
  * `hashedAtMs` is what makes (size, mtime) safe to trust. Equal size and equal
- * mtime do NOT prove equal bytes when the clock is coarser than the gap between
- * two writes: on Windows the timer granularity is ~15ms, so a same-size rewrite
- * moments after the hash keeps the SAME mtime and the sweep would report the
- * stale digest - a deliverable the user edited, still described by its old
- * hash. Recording when we hashed lets the read side refuse a memo it cannot
- * distinguish. Same idea as git's "racily clean" index entries.
+ * mtime do NOT prove equal bytes: file mtime is COARSE (NTFS buckets around
+ * 15ms, FAT a full 2s) while the wall clock is not, so a same-size rewrite can
+ * land in the SAME mtime bucket as the write we hashed and leave the stat
+ * identical. The sweep would then report the stale digest - a deliverable the
+ * user edited, still described by its old hash.
+ *
+ * The memo is therefore only trusted when the file had ALREADY been quiet for
+ * longer than that granularity at the moment we hashed it
+ * (`hashedAtMs - mtimeMs > MTIME_GRANULARITY_MS`). Given that, any write after
+ * our hash necessarily lands in a later bucket and shows up as a changed mtime.
+ * A file written and swept in the same turn is simply re-hashed next turn,
+ * which costs one sha256 and is always correct; the long-chat case the memo
+ * exists for - a file written turns ago and untouched since - still skips.
+ *
+ * Same shape as git's "racily clean" index entries, and the same 2s slop rsync
+ * and make use for filesystems whose timestamps are coarse.
  */
+const MTIME_GRANULARITY_MS = 2_000;
 const sweepMemo = new Map<string, { sizeBytes: number; mtimeMs: number; hashedAtMs: number; artifactId: string }>();
 
 const memoKey = (workspace: string, conversationId: string, relative: string): string =>
@@ -406,11 +417,11 @@ async function partitionByChange(
       }
       try {
         const stat = await fs.lstat(path.join(outputDir, ...relative.split('/')));
-        // STRICTLY older than the moment we hashed. If the file's mtime is at
-        // or after that, a write could have landed inside the same clock tick
-        // and (size, mtime) cannot tell us whether the bytes moved - so re-hash
-        // rather than vouch for a digest we did not verify.
-        const settled = stat.mtimeMs < memo.hashedAtMs;
+        // Had the file already been quiet longer than the timestamp
+        // granularity when we hashed it? If not, a later write can reuse the
+        // same mtime bucket and (size, mtime) cannot tell us whether the bytes
+        // moved - so re-hash rather than vouch for a digest we did not verify.
+        const settled = memo.hashedAtMs - memo.mtimeMs > MTIME_GRANULARITY_MS;
         if (stat.isFile() && settled && stat.size === memo.sizeBytes && stat.mtimeMs === memo.mtimeMs) {
           unchanged.push(record);
           return;

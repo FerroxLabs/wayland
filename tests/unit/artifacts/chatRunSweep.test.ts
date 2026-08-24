@@ -133,25 +133,31 @@ describe('T3 - the turn-end sweep registers what the chat produced', () => {
   });
 
   it('re-hashes when the file did not settle before we hashed it (coarse-clock rewrite)', async () => {
-    // THE WINDOWS CASE, MADE DETERMINISTIC. The sweep memo skips re-hashing when
-    // size AND mtime both match. That is only sound if the file stopped changing
-    // BEFORE we hashed it. Where the clock is coarser than the gap between two
-    // writes - ~15ms on Windows - a same-size rewrite keeps the SAME mtime, and
-    // the skip would hand back the previous digest for bytes that moved. CI
-    // caught exactly that; macOS never reproduces it because its mtime is finer.
+    // THE WINDOWS CASE, MADE DETERMINISTIC. The memo skips re-hashing when size
+    // AND mtime both match. File mtime is COARSE - NTFS buckets around 15ms,
+    // FAT a full 2s - so a same-size rewrite can land in the SAME bucket as the
+    // write we hashed and leave the stat identical. The skip would then return
+    // the previous digest for bytes that moved. CI caught exactly that; macOS
+    // never reproduces it because its mtime is fine grained.
     //
-    // Rather than race the clock, pin the file's mtime AT a moment the sweep
-    // cannot have hashed after. Same size, same mtime, different bytes: the memo
-    // is indistinguishable from "unchanged" and must therefore be refused.
+    // Rather than race the clock, pin the mtime to a moment only just before the
+    // sweep - inside the granularity window - and pin it again after the
+    // rewrite. Same size, same mtime, different bytes: indistinguishable from
+    // "unchanged", so the memo must be refused.
+    //
+    // Note this is deliberately a RECENT time, not a future one. A future mtime
+    // would also be refused by a naive "mtime < hashedAt" rule, so it would not
+    // catch the real defect - the file being quiet for LESS than the timestamp
+    // granularity when we hashed it.
     const target = path.join(outputDir(), 'summary.md');
-    const pinned = new Date(Date.now() + 60_000);
+    const pinned = new Date(Date.now() - 100);
 
     await agentWrites('summary.md', 'AAAAAAAA\n');
     await fs.utimes(target, pinned, pinned);
     const first = await sweep();
 
     await agentWrites('summary.md', 'BBBBBBBB\n');
-    await fs.utimes(target, pinned, pinned); // the clock "did not tick"
+    await fs.utimes(target, pinned, pinned); // the bucket "did not move"
     const second = await sweep();
 
     const stat = await fs.stat(target);
