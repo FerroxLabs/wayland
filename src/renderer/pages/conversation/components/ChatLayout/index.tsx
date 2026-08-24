@@ -216,6 +216,14 @@ const ChatLayout: React.FC<{
         activationKey: isPreviewOpen ? 'open' : 'closed',
         onDismiss: closePreview,
         testId: 'workbench-preview',
+        // Same reason the workspace tree above needs it, and the reason a
+        // deliverable would not open: PreviewPanel renders a <webview> that
+        // sizes to its pane rather than to its own content, so without `fill`
+        // the stack hands it a shrink-0, content-sized card, the flex-1 wrapper
+        // inside resolves to height 0, and the webview is 0px tall. Measured
+        // live on a real Smart Trader report: webview 298x0 inside a parent
+        // whose `h-full` computed to 0.
+        fill: true,
         content: <PreviewPanel />,
       },
     ],
