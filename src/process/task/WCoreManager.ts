@@ -248,8 +248,15 @@ type WCoreManagerData = {
  *  - `incoming` extends `prev` exactly (prefix)  -> the part past `prev`
  *  - `incoming` already contained in `prev`      -> '' (stale/shorter restate)
  *  - `incoming` shares a long head with `prev`   -> a (possibly divergent) restate:
- *      append only the positional tail past what we already have, never the whole
- *      thing, so the thought can't double
+ *      append only the tail past the COMMON PREFIX, never the whole thing, so the
+ *      thought can't double. Slicing by `prev.length` instead looks equivalent and
+ *      is not: once a restate diverges, `common < prev.length`, so a positional cut
+ *      lands PAST the divergence and silently eats `incoming[common..prev.length]`.
+ *      That is what shredded long reasoning into "what make moneyney with AI now" -
+ *      the damage grew with the thought, because `prev.length - common` does.
+ *      Cutting at `common` re-states the diverged span instead of deleting it:
+ *      slightly redundant, never lossy. For a restate that did NOT diverge the two
+ *      are the same cut, so the well-behaved path is byte-identical.
  *  - otherwise (a genuine incremental delta)     -> `incoming` unchanged
  *
  * A real incremental delta is a short continuation that shares ~no common prefix
@@ -263,7 +270,7 @@ export function dedupeThinkingDelta(prev: string, incoming: string): string {
   const max = Math.min(prev.length, incoming.length);
   while (common < max && prev[common] === incoming[common]) common++;
   const isRestate = common >= 10 || (prev.length > 0 && common >= prev.length * 0.5);
-  if (isRestate) return incoming.length > prev.length ? incoming.slice(prev.length) : '';
+  if (isRestate) return incoming.slice(common);
   return incoming;
 }
 
