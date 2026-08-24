@@ -233,8 +233,11 @@ const formatRunTime = (runAt: string): string => {
 };
 
 const buttonBase =
-  'flex shrink-0 items-center gap-6px whitespace-nowrap rd-7px px-12px py-6px cursor-pointer ' +
+  'flex min-w-0 items-center gap-6px whitespace-nowrap rd-7px px-12px py-6px cursor-pointer ' +
   'b-1px b-solid text-12px font-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+
+/** Glyphs never squash; only the label beside them gives ground. */
+const buttonIconClass = 'size-14px shrink-0';
 
 /** ONE of these on the card. Four equal buttons is the thing being fixed. */
 const primaryButtonClass = `${buttonBase} bg-brand b-[var(--brand)] text-[#1a0d06] font-600 hover:bg-[var(--brand-hover)]`;
@@ -556,9 +559,23 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact: recorded, withPrevi
         </div>
       )}
 
-      {/* (c) ACTIONS. Its own ground, and exactly one accent-filled button. */}
+      {/*
+        (c) ACTIONS. Its own ground, and exactly one accent-filled button.
+
+        ONE ROW, AND IT SHRINKS RATHER THAN WRAPS - designed against 348px, NOT
+        520px. `!max-w-520px` on the card below is a MAX, not a width: the card
+        gets min(520, column), and 520 is no longer what it gets. With the
+        workbench docked, the narrowest column the shell will ever hand this card
+        is WORKBENCH_DOCK_MIN_WIDTH 740 (components/ChatLayout/index.tsx) less
+        WorkbenchHost's 340px panel and its 36px rail, less MessageList's
+        px-8px - about 348px. `flex-wrap` broke "Save a copy" onto a second line
+        there and the footer stopped reading as one band, so the row does not
+        wrap at all now: every labelled button carries `min-w-0`, every label
+        `truncate`, every glyph `shrink-0`, and flexbox takes the squeeze out of
+        the longest label first.
+      */}
       <div
-        className='flex flex-wrap items-center gap-7px b-t-1px b-t-solid b-t-[var(--border-light)] bg-2 px-15px
+        className='flex flex-nowrap items-center gap-7px b-t-1px b-t-solid b-t-[var(--border-light)] bg-2 px-15px
           py-12px'
         data-testid='artifact-card-actions'
       >
@@ -570,8 +587,8 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact: recorded, withPrevi
             onClick={() => void update()}
             data-testid='artifact-card-update'
           >
-            <RefreshCw className='size-14px' />
-            {t('conversation.artifactCard.update')}
+            <RefreshCw className={buttonIconClass} />
+            <span className='truncate'>{t('conversation.artifactCard.update')}</span>
           </button>
         )}
         <button
@@ -581,8 +598,8 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact: recorded, withPrevi
           onClick={() => void openHere()}
           data-testid='artifact-card-open-here'
         >
-          <FileText className='size-14px' />
-          {t('conversation.artifactCard.openHere')}
+          <FileText className={buttonIconClass} />
+          <span className='truncate'>{t('conversation.artifactCard.openHere')}</span>
         </button>
         <button
           type='button'
@@ -591,21 +608,23 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact: recorded, withPrevi
           onClick={() => void openExternally()}
           data-testid='artifact-card-open-external'
         >
-          <ExternalLink className='size-14px' />
-          {externalLabel}
+          <ExternalLink className={buttonIconClass} />
+          <span className='truncate'>{externalLabel}</span>
         </button>
         {/*
           ICON ONLY, exactly as the mockup draws it, and it is a WIDTH decision
-          measured in the running app rather than a taste one. The shell is
-          520px and these labels are long ("Open in Hearth app" alone is
-          ~185px); with four full labels the strip wrapped onto a second line
-          and the footer stopped reading as one band. The folder glyph is the
-          most self-evident of the four, so it is the one that loses its text -
-          and it keeps the label as its tooltip and its accessible name.
+          measured in the running app rather than a taste one. These labels are
+          long ("Open in Hearth app" alone measured ~185px), and at the ~348px
+          the strip above is designed against, 30px of card padding plus 21px of
+          gaps plus this 34px button leaves ~263px for the other three - so this
+          one giving up its text is necessary even with truncation doing the
+          rest. The folder glyph is the most self-evident of the four, so it is
+          the one that loses it, and it keeps the label as its tooltip and its
+          accessible name. `shrink-0` because there is nothing left to give.
         */}
         <button
           type='button'
-          className={`${secondaryButtonClass} px-9px`}
+          className={`${secondaryButtonClass} shrink-0 px-9px`}
           disabled={busy}
           onClick={() => void reveal()}
           title={t('conversation.artifactCard.reveal')}
@@ -621,8 +640,8 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact: recorded, withPrevi
           onClick={() => void saveCopy()}
           data-testid='artifact-card-save-copy'
         >
-          <Save className='size-14px' />
-          {t('conversation.artifactCard.saveCopy')}
+          <Save className={buttonIconClass} />
+          <span className='truncate'>{t('conversation.artifactCard.saveCopy')}</span>
         </button>
       </div>
     </div>
