@@ -64,6 +64,20 @@ export interface WorkbenchSectionRegistration {
    * with a real height to fill.
    */
   fill?: boolean;
+  /**
+   * True when this section renders a DOCUMENT rather than a rail of controls.
+   * A document has a width it needs before it will lay out properly - the
+   * morning brief reaches its full layout at 900px and drops the market grid to
+   * 2-up below 820 - so the panel opens at `documentPaneDefaultWidth()` instead
+   * of the 340px rail default. Only the DEFAULT: a width the user dragged wins.
+   */
+  prefersDocumentWidth?: boolean;
+  /**
+   * Controls rendered beside this section's disclosure row. They sit OUTSIDE
+   * the disclosure button - a button inside a button is invalid, and a click on
+   * a nested control would toggle the section under it.
+   */
+  headerActions?: React.ReactNode;
 }
 
 type PersistedWorkbenchState = {
@@ -72,6 +86,12 @@ type PersistedWorkbenchState = {
   /** Sections the user expanded by hand, against their provider's wishes. */
   expandedIds?: string[];
   width?: number;
+  /**
+   * True only when a drag produced this width. Without it the width is
+   * indistinguishable from the one every mount wrote, and a document section
+   * could never be given a default of its own.
+   */
+  widthSetByUser?: boolean;
 };
 
 type WorkbenchRegistryContextValue = {
@@ -91,6 +111,32 @@ const MIN_WIDTH = 260;
  * chat from being squeezed out entirely; the useful width is the user's to pick.
  */
 const MAX_WIDTH = 1200;
+
+/**
+ * The width the flagship HTML deliverable needs for its full layout: 4-up
+ * market grid AND a two-column trade panel. Read from the document's own media
+ * queries, not from impressions. Above it the document's container caps and the
+ * extra width is only margin, so there is nothing to buy by opening wider.
+ */
+export const PREVIEW_PANE_MAX = 900;
+/**
+ * A real floor for the conversation column, not advice. Below it the artifact
+ * card's action strip starts wrapping. Enforced as a `min-width` on the primary
+ * column so shrink lands on the panel instead of collapsing the chat: the
+ * primary is `flex-1` with `flex-basis: 0`, so without this every pixel of
+ * shrink came out of the chat and it could resolve to zero.
+ */
+export const CHAT_MIN_WIDTH = 560;
+/** The existing left nav, which is outside this host but inside the window. */
+export const NAV_RAIL_WIDTH = 168;
+
+/**
+ * Default width for a pane showing a document, given the window it opens in.
+ * 1440 (a laptop) resolves to 712; 1920 resolves to the 900 cap. Never a
+ * ceiling on the drag - `MAX_WIDTH` still is - only where the pane STARTS.
+ */
+export const documentPaneDefaultWidth = (windowWidth: number): number =>
+  Math.max(MIN_WIDTH, Math.min(PREVIEW_PANE_MAX, windowWidth - NAV_RAIL_WIDTH - CHAT_MIN_WIDTH));
 
 /**
  * Spacing scale for the workbench card. Kept as a tiny local scale rather than
@@ -143,13 +189,22 @@ const loadState = (conversationId?: string): PersistedWorkbenchState => {
     const raw = localStorage.getItem(storageKeyFor(conversationId));
     if (!raw) return {};
     const parsed = JSON.parse(raw) as PersistedWorkbenchState;
+    // The width is re-validated against the SAME bounds the drag writes it
+    // under. That is deliberate and load-bearing: raising the drag ceiling
+    // without the loader agreeing would let a user drag to the new maximum and
+    // then find the panel silently back at the default on the next mount.
+    const width =
+      typeof parsed.width === 'number' && parsed.width >= MIN_WIDTH && parsed.width <= MAX_WIDTH
+        ? parsed.width
+        : undefined;
     return {
       collapsedIds: stringArray(parsed.collapsedIds),
       expandedIds: stringArray(parsed.expandedIds),
-      width:
-        typeof parsed.width === 'number' && parsed.width >= MIN_WIDTH && parsed.width <= MAX_WIDTH
-          ? parsed.width
-          : undefined,
+      width,
+      // Rows written before `widthSetByUser` existed recorded the width on
+      // EVERY mount, so a stored 340 proves nothing about intent. Any other
+      // width is one only a drag could have produced, so it is honoured.
+      widthSetByUser: parsed.widthSetByUser === true || (width !== undefined && width !== DEFAULT_WIDTH),
     };
   } catch {
     return {};
@@ -214,6 +269,11 @@ const WorkbenchHost: React.FC<{
    */
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set(persisted.expandedIds));
   const [width, setWidth] = useState(persisted.width ?? DEFAULT_WIDTH);
+  /**
+   * Whether `width` is the user's own choice. A dragged width outranks any
+   * default a section would like, for as long as the conversation lives.
+   */
+  const [widthSetByUser, setWidthSetByUser] = useState(persisted.widthSetByUser === true);
   const priorRequests = useRef<Record<string, string | number | boolean | undefined>>({});
   const handledRequest = useRef<string | undefined>(undefined);
   /**
@@ -228,6 +288,7 @@ const WorkbenchHost: React.FC<{
     setCollapsedIds(new Set(next.collapsedIds));
     setExpandedIds(new Set(next.expandedIds));
     setWidth(next.width ?? DEFAULT_WIDTH);
+    setWidthSetByUser(next.widthSetByUser === true);
     setMountedIds(new Set());
     priorRequests.current = {};
     handledRequest.current = undefined;
@@ -393,13 +454,16 @@ const WorkbenchHost: React.FC<{
         JSON.stringify({
           collapsedIds: [...collapsedIds],
           expandedIds: [...expandedIds],
-          width,
+          // Only a width the user picked is worth carrying forward. Persisting
+          // the default too would make every reload look like an explicit
+          // choice and permanently suppress a section's own default width.
+          ...(widthSetByUser ? { width, widthSetByUser: true } : {}),
         } satisfies PersistedWorkbenchState)
       );
     } catch {
       // Storage is an enhancement; presentation still works when it is denied.
     }
-  }, [collapsedIds, conversationId, expandedIds, width]);
+  }, [collapsedIds, conversationId, expandedIds, width, widthSetByUser]);
 
   const visibleSections = useMemo(() => allSections.filter(isExpanded), [allSections, isExpanded]);
   const panelOpen = visibleSections.length > 0;
@@ -420,6 +484,22 @@ const WorkbenchHost: React.FC<{
       return next;
     });
   }, [visibleSections]);
+
+  /**
+   * A document section that has just become visible sets the pane's DEFAULT
+   * width, once, and only while the user has not chosen one of their own. The
+   * window - not the container - is the input: the formula already subtracts
+   * the nav rail and the chat floor from it.
+   */
+  const documentSectionVisible = useMemo(
+    () => visibleSections.some((section) => section.prefersDocumentWidth),
+    [visibleSections]
+  );
+
+  useEffect(() => {
+    if (!documentSectionVisible || widthSetByUser) return;
+    setWidth(documentPaneDefaultWidth(typeof window === 'undefined' ? 0 : window.innerWidth));
+  }, [documentSectionVisible, widthSetByUser]);
 
   /** Collapse every section at once - the card's own dismiss. */
   const closePanel = useCallback(() => {
@@ -451,6 +531,7 @@ const WorkbenchHost: React.FC<{
       const startX = event.clientX;
       const startWidth = width;
       const onMove = (moveEvent: PointerEvent) => {
+        setWidthSetByUser(true);
         setWidth(Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, startWidth + startX - moveEvent.clientX)));
       };
       const finish = () => {
@@ -468,7 +549,18 @@ const WorkbenchHost: React.FC<{
   return (
     <WorkbenchRegistryContext.Provider value={contextValue}>
       <div className='workbench-host flex flex-1 min-w-0 min-h-0 relative' data-testid='workbench-host'>
-        <div className='workbench-host__primary flex flex-1 min-w-0 min-h-0'>{children}</div>
+        {/* `min-w-0` is what let the chat collapse: `flex-1` gives the column
+            `flex-basis: 0`, so with no floor EVERY pixel of shrink came out of
+            the conversation and it could resolve to zero beside a wide pane.
+            The floor only applies while a pane is actually docked beside it -
+            an overlay panel is absolutely positioned and takes no flow width,
+            and on a narrow window a 560px floor would only force a scrollbar. */}
+        <div
+          className='workbench-host__primary flex flex-1 min-w-0 min-h-0'
+          style={panelOpen && !overlay ? { minWidth: `${CHAT_MIN_WIDTH}px` } : undefined}
+        >
+          {children}
+        </div>
 
         {/* Collapsed rail. Labels once rendered with `[writing-mode:vertical-rl]`,
             which stacked "Workspace Core Observability" sideways down the window
@@ -498,6 +590,11 @@ const WorkbenchHost: React.FC<{
             )}
             style={{
               width: overlay ? `min(${width}px, calc(100% - ${CARD_INSET * 2}px))` : `${width}px`,
+              // The counterpart to the chat floor: a flex item's automatic
+              // minimum is its CONTENT, so without this the pane could refuse
+              // to give width back and the floor above would only overflow the
+              // container instead of moving the shrink here.
+              minWidth: 0,
               margin: `${CARD_INSET}px`,
               // Border and elevation are set here rather than as utilities: the
               // `border` and `shadow-*` classes both compiled to nothing in this
@@ -567,37 +664,50 @@ const WorkbenchHost: React.FC<{
                     data-section-id={section.id}
                     data-expanded={expanded ? 'true' : 'false'}
                   >
-                    <h3 className='m-0'>
-                      <button
-                        type='button'
-                        className={classNames(
-                          'workbench-host__section-header w-full flex items-center gap-6px border-0 bg-transparent cursor-pointer text-left',
-                          styles.sectionHeader,
-                          expanded ? 'text-t-primary' : 'text-t-secondary'
-                        )}
-                        style={{ padding: `${SP.sm}px ${SP.md}px` }}
-                        aria-expanded={expanded}
-                        data-testid={
-                          section.id === primarySection.id ? 'workbench-panel-title' : `workbench-section-${section.id}`
-                        }
-                        onClick={() => (expanded ? collapse(section.id) : expand(section.id))}
-                      >
-                        <span className='shrink-0 flex items-center text-t-tertiary' aria-hidden='true'>
-                          {iconFor(section)}
-                        </span>
-                        <span className={classNames('min-w-0 truncate', styles.sectionLabel)}>{section.label}</span>
-                        {/* Beside the title, not banished to the right edge. The
+                    <div className='flex items-center gap-4px'>
+                      <h3 className='m-0 flex-1 min-w-0'>
+                        <button
+                          type='button'
+                          className={classNames(
+                            'workbench-host__section-header w-full flex items-center gap-6px border-0 bg-transparent cursor-pointer text-left',
+                            styles.sectionHeader,
+                            expanded ? 'text-t-primary' : 'text-t-secondary'
+                          )}
+                          style={{ padding: `${SP.sm}px ${SP.md}px` }}
+                          aria-expanded={expanded}
+                          data-testid={
+                            section.id === primarySection.id
+                              ? 'workbench-panel-title'
+                              : `workbench-section-${section.id}`
+                          }
+                          onClick={() => (expanded ? collapse(section.id) : expand(section.id))}
+                        >
+                          <span className='shrink-0 flex items-center text-t-tertiary' aria-hidden='true'>
+                            {iconFor(section)}
+                          </span>
+                          <span className={classNames('min-w-0 truncate', styles.sectionLabel)}>{section.label}</span>
+                          {/* Beside the title, not banished to the right edge. The
                             chevron belongs to the words it discloses; a
                             far-right chevron reads as an unrelated control and
                             leaves a dead gap across every row. */}
-                        <ChevronDown
-                          size={14}
-                          aria-hidden='true'
-                          className={classNames('shrink-0', styles.chev, expanded && styles.chevOpen)}
-                        />
-                        <span className='flex-1' />
-                      </button>
-                    </h3>
+                          <ChevronDown
+                            size={14}
+                            aria-hidden='true'
+                            className={classNames('shrink-0', styles.chev, expanded && styles.chevOpen)}
+                          />
+                          <span className='flex-1' />
+                        </button>
+                      </h3>
+                      {section.headerActions ? (
+                        <div
+                          className='shrink-0 flex items-center gap-2px'
+                          style={{ paddingRight: `${SP.sm}px` }}
+                          data-testid={`workbench-section-actions-${section.id}`}
+                        >
+                          {section.headerActions}
+                        </div>
+                      ) : null}
+                    </div>
                     {mounted && (
                       <div
                         className={classNames(
