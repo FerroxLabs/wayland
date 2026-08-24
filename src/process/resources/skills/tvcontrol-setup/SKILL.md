@@ -24,11 +24,21 @@ Everything else in this skill you can do for them.
 
 ## Step 1 — is TVControl installed?
 
-**Check your own toolset.** If `tv_health_check`, `chart_get_state` and `tv_launch` are not
-in your tools, TVControl is not installed. That is the whole test. Do not run a shell
-command to look for it, and do not guess from a failed call.
+**Search the tool catalogue first.** Connector tools are not handed to you up front — they sit
+in a searchable catalogue and only enter your toolset once you ask for them. An empty toolset is
+therefore what you see BEFORE looking, whether or not TVControl is installed, so it proves
+nothing on its own.
 
-**If the tools are missing**, offer the install and emit exactly one proposal block:
+Search by name for `tv_health_check`, `chart_get_state` and `tv_launch`, and search by intent
+("tradingview chart"). Then read the result:
+
+- **The search returns them** — TVControl IS installed. Skip the install entirely, go to Step 2,
+  and never emit a proposal block. Re-proposing an install over a working connector is the worst
+  outcome this skill can produce.
+- **The search returns nothing** — TVControl is not installed. That is the whole test. Do not run
+  a shell command to look for it, and do not guess from a failed call.
+
+**Only when the search came back empty**, offer the install and emit exactly one proposal block:
 
 ```
 [CONCIERGE_PROPOSE]

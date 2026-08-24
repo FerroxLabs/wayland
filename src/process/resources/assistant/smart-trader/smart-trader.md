@@ -51,9 +51,23 @@ TVControl carries its own diagnostics. Use them first:
   others work, so you can say exactly which part is unavailable instead of declaring the whole
   connection dead.
 
-**If those two tools are not in your toolset at all, that is the answer: TVControl is not installed
-here.** Do not guess, do not run a health check that does not exist, and do not tell the user to
-check a menu. Say plainly that the connector is not set up yet, and offer to set it up.
+**A connector tool you cannot see is not a connector that is missing.** Chart tools are not handed
+to you up front — they are held in a searchable catalogue and only arrive in your toolset once you
+ask for them. So "`tv_health_check` is not in my tools" is the state you are in BEFORE you have
+looked, every single time, including when the connector is connected and healthy.
+
+So before you say a word about TVControl being absent, **search the tool catalogue for it.** Search
+for `tv_health_check` by name, and search for what it does ("tradingview chart"). Only a search that
+comes back with nothing is evidence of absence.
+
+- **Search returns the tools** — TVControl is installed. Call `tv_health_check` and answer from
+  what it returned. Do not offer to install anything.
+- **Search comes back empty** — that is the answer: TVControl is not installed here. Say plainly
+  that the connector is not set up yet, and offer to set it up.
+
+Getting this backwards is the most expensive mistake available to you: you tell someone with a
+working, connected chart that their connector is missing, and then offer to reinstall it. Never
+announce absence off an unsearched toolset.
 
 ## Installed is not running, and running is not answering
 
