@@ -302,12 +302,32 @@ const WorkbenchHost: React.FC<{
 
   const collapse = useCallback((id: WorkbenchSectionId) => {
     const section = byIdRef.current[id];
-    setCollapsedIds((current) => {
-      if (current.has(id)) return current;
-      const next = new Set(current);
-      next.add(id);
-      return next;
-    });
+    // A DISMISSIBLE section keeps its own closed-state; `collapsedIds` would be
+    // a second copy of it, and the copy outlives the original.
+    //
+    // `preview` is `available: isPreviewOpen`, so dismissing it removes it from
+    // `allSections` entirely. The reveal effect only walks THAT list, so
+    // `priorRequests['preview']` is never advanced past the 'open' it held when
+    // the section was last seen. The next deliverable asks to open it, the
+    // signal equals the stale prior, no reveal fires — and `collapsedIds` still
+    // holds 'preview' from the manual collapse, so `isExpanded` is false.
+    //
+    // The result was that collapsing the Preview card ONCE made every
+    // subsequent deliverable open invisibly: present, requested, and rendered
+    // collapsed with nothing to say so.
+    //
+    // So a section that dismisses on collapse is not also recorded as
+    // collapsed. Its dismissal already suppresses it — `preview` through
+    // `available`, `workspace` through `requestedOpen` — and when it comes back
+    // it comes back open, which is what asking for it means.
+    if (!section?.onDismiss) {
+      setCollapsedIds((current) => {
+        if (current.has(id)) return current;
+        const next = new Set(current);
+        next.add(id);
+        return next;
+      });
+    }
     // Collapsing retracts the user's open intent, otherwise a dormant section
     // would spring back open on the next render.
     setExpandedIds((current) => {
