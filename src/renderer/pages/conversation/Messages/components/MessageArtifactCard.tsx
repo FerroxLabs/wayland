@@ -209,6 +209,30 @@ const extensionOf = (fileName: string): string => {
   return dot > 0 ? fileName.slice(dot + 1).toLowerCase() : '';
 };
 
+/**
+ * THE DELIVERABLE LEADS.
+ *
+ * `withPreview` and `accent` are both `position === 0`, so ORDER decides which
+ * file gets the preview and the one accent button. Left in write order, a
+ * morning report put its machine-readable `mr.json` first and the actual brief
+ * second - the JSON got the preview and the orange button while the document a
+ * person came to read got a plain row and no preview. That is backwards.
+ *
+ * Rank is by what the file IS to a reader, not by size or write order:
+ * something you read, then something you look at, then the data behind it.
+ * Ties keep their original order, so this only ever moves a document ahead of
+ * its own data.
+ */
+const READABLE_DOCUMENT = new Set(['html', 'htm', 'md', 'markdown', 'pdf', 'docx', 'rtf']);
+const VIEWABLE_IMAGE = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif']);
+
+const deliverableRank = (fileName: string): number => {
+  const extension = extensionOf(fileName);
+  if (READABLE_DOCUMENT.has(extension)) return 0;
+  if (VIEWABLE_IMAGE.has(extension)) return 1;
+  return 2;
+};
+
 const formatLabel = (fileName: string): string => {
   const extension = extensionOf(fileName);
   if (!extension) return '';
@@ -562,9 +586,10 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact: recorded, withPrevi
       {/*
         (c) ACTIONS. Its own ground, and exactly one accent-filled button.
 
-        ONE ROW, AND IT SHRINKS RATHER THAN WRAPS - designed against 348px, NOT
-        520px. `!max-w-520px` on the card below is a MAX, not a width: the card
-        gets min(520, column), and 520 is no longer what it gets. With the
+        ONE ROW, AND IT SHRINKS RATHER THAN WRAPS - designed against 348px. The
+        card no longer caps at 520px (it takes the message column), so the wide
+        case has more room than this row needs; the narrow case is what it is
+        designed for and is unchanged. With the
         workbench docked, the narrowest column the shell will ever hand this card
         is WORKBENCH_DOCK_MIN_WIDTH 740 (components/ChatLayout/index.tsx) less
         WorkbenchHost's 340px panel and its 36px rail, less MessageList's
@@ -675,8 +700,13 @@ const MessageArtifactCard: React.FC<{ message: IMessageArtifactCard }> = ({ mess
   // conversation from a future/older shape must not render an empty box.
   if (artifacts.length === 0 && rejected.length === 0 && unsupported.length === 0) return null;
 
-  const shown = artifacts.slice(0, MAX_ROWS);
-  const overflow = artifacts.length - shown.length;
+  // Stable: `sort` is stable in every engine we ship on, and equal ranks compare
+  // 0, so files of the same kind keep the order the host recorded them in.
+  const ordered = [...artifacts].sort(
+    (left, right) => deliverableRank(left.fileName) - deliverableRank(right.fileName)
+  );
+  const shown = ordered.slice(0, MAX_ROWS);
+  const overflow = ordered.length - shown.length;
 
   return (
     <div

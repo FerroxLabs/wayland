@@ -121,6 +121,82 @@ beforeEach(() => {
   ipcMock.preview.mockResolvedValue({ kind: 'text', text: '# summary\n', truncated: false });
 });
 
+/** Two files, recorded data-first - exactly how a morning report writes them. */
+const twoFileMessage = {
+  ...message,
+  content: {
+    artifacts: [
+      {
+        artifactId: 'art-json',
+        taskId: 'task-0001',
+        runId: 'run-0001',
+        fileName: 'mr.json',
+        canonicalPath: '/tmp/mr.json',
+        sizeBytes: 51_700,
+        runAt: new Date(1_700_000_000_000).toISOString(),
+        declaredBy: 'Chat',
+      },
+      {
+        artifactId: 'art-brief',
+        taskId: 'task-0001',
+        runId: 'run-0001',
+        fileName: 'morning-brief.html',
+        canonicalPath: '/tmp/morning-brief.html',
+        sizeBytes: 77_200,
+        runAt: new Date(1_700_000_000_000).toISOString(),
+        declaredBy: 'Chat',
+      },
+    ],
+    rejected: [],
+    unsupported: [],
+  },
+} as unknown as IMessageArtifactCard;
+
+describe('artifact card - the deliverable leads', () => {
+  /**
+   * `withPreview` and `accent` are both `position === 0`, so ORDER decides which
+   * file gets the preview and the single accent button. Left in write order a
+   * morning report put `mr.json` first, so the machine data took the orange
+   * button and the inline preview while the brief the reader actually came for
+   * got a plain row - seen in the running app.
+   */
+  it('puts the readable document ahead of the data written beside it', async () => {
+    render(<MessageArtifactCard message={twoFileMessage} />);
+
+    const card = await screen.findByTestId('artifact-card');
+    const text = card.textContent ?? '';
+    expect(text).toContain('morning-brief.html');
+    expect(text).toContain('mr.json');
+    expect(text.indexOf('morning-brief.html')).toBeLessThan(text.indexOf('mr.json'));
+  });
+
+  it('spends its one accent button on that document, not on the data', async () => {
+    render(<MessageArtifactCard message={twoFileMessage} />);
+    await screen.findByTestId('artifact-card');
+
+    /**
+     * Bound to the FILENAME, not to DOM position. Asserting
+     * `getAllByTestId(...)[0]` would pass no matter which file led - it only
+     * restates that the first row is the first row - so it would stay green with
+     * the ordering ripped out. Walk up from the name to the row that owns
+     * exactly one open button, and ask THAT button.
+     */
+    const openButtonFor = (fileName: string): HTMLElement => {
+      let node: HTMLElement | null = screen.getByText(fileName);
+      while (node) {
+        const found = node.querySelectorAll('[data-testid="artifact-card-open-here"]');
+        if (found.length === 1) return found[0] as HTMLElement;
+        node = node.parentElement;
+      }
+      throw new Error(`no row owning a single open button for ${fileName}`);
+    };
+
+    expect(screen.getAllByTestId('artifact-card-open-here')).toHaveLength(2);
+    expect(openButtonFor('morning-brief.html').className).toContain('bg-brand');
+    expect(openButtonFor('mr.json').className).not.toContain('bg-brand');
+  });
+});
+
 describe('artifact card action strip - holds one row at the docked-workbench width', () => {
   it('never wraps the strip onto a second line', async () => {
     render(<MessageArtifactCard message={message} />);
