@@ -680,13 +680,25 @@ const MessageArtifactCard: React.FC<{ message: IMessageArtifactCard }> = ({ mess
 
   return (
     <div
-      // `!` IS LOAD-BEARING AND WAS FOUND BY MEASURING THE RUNNING APP. The
-      // message bubble that hosts this card carries `[&>div]:max-w-full`, whose
-      // generated `.…max-w-full > div` selector outranks a plain utility - so the
-      // card rendered 578px wide instead of the 520px the design specifies, as a
-      // full-bleed block rather than an object. getComputedStyle said maxWidth
-      // 100%; the class was present and generated the whole time.
-      className='my-6px !max-w-520px of-hidden rd-14px b-1px b-solid b-[var(--border-base)] bg-1'
+      // THE CARD TAKES THE MESSAGE COLUMN, and the `!` is still load-bearing.
+      //
+      // It used to cap at 520px. Live, that made the card visibly narrower than
+      // the prose directly above it - the answer text ran past the card's right
+      // edge - so it read as a different, smaller object rather than part of the
+      // same reply. It also cost nothing but legibility: the action row shrinks
+      // rather than wraps, so the squeeze came straight out of the labels and
+      // "Open here" / "Save a copy" rendered as "Open h…" / "Save a co…" on a
+      // column with room to spare. A card that lists N files wants that width.
+      //
+      // The `!` stays because the hosting bubble carries `[&>div]:max-w-full`,
+      // whose generated `.…max-w-full > div` selector outranks a plain utility -
+      // measured in the running app, where getComputedStyle reported maxWidth
+      // 100% while the class was present and generated the whole time.
+      //
+      // The narrow case is unchanged and still real: with the workbench docked
+      // the shell can hand this card ~348px, which is what the action row below
+      // is designed against.
+      className='my-6px !max-w-full of-hidden rd-14px b-1px b-solid b-[var(--border-base)] bg-1'
       data-testid='artifact-card'
     >
       {/*
