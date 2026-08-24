@@ -64,6 +64,38 @@ vi.mock('react-i18next', () => ({
 }));
 
 import ArtifactActionBar from '@renderer/pages/conversation/Preview/components/PreviewPanel/ArtifactActionBar';
+import { useArtifactActions } from '@renderer/pages/conversation/Preview/hooks/useArtifactActions';
+
+/**
+ * THE ACTIONS MOVED TO THE TOOLBAR; THE CLAIMS DID NOT MOVE WITH THEM.
+ *
+ * `ArtifactActionBar` used to own Open / Show in folder / Save a copy. They now
+ * live in the toolbar and their logic in `useArtifactActions`, because the bar
+ * sat directly under a toolbar offering the same two labels via a RAW PATH
+ * (`shell.openFile(metadata.filePath)`) while these send an id and nothing else.
+ * The id-only boundary is the whole point of this file, so the tests follow the
+ * behaviour rather than the buttons.
+ *
+ * This harness is deliberately the REAL hook wired to the REAL bar - the same
+ * shape PreviewPanel builds. One `useArtifactActions` instance feeds both the
+ * triggers and the banner, which is exactly the coupling that matters: `changed`
+ * is discovered by ATTEMPTING an action, so a second instance would leave the
+ * banner permanently blind.
+ */
+const Harness: React.FC<{
+  artifact: ArtifactSummary;
+  onMessage: (kind: 'success' | 'error', text: string) => void;
+}> = ({ artifact: target, onMessage }) => {
+  const actions = useArtifactActions(target, onMessage);
+  return (
+    <>
+      <button type='button' data-testid='artifact-open' onClick={() => void actions.open()} />
+      <button type='button' data-testid='artifact-reveal' onClick={() => void actions.reveal()} />
+      <button type='button' data-testid='artifact-save-copy' onClick={() => void actions.saveCopy()} />
+      <ArtifactActionBar artifact={target} onMessage={onMessage} actions={actions} />
+    </>
+  );
+};
 
 const artifact: ArtifactSummary = {
   artifactId: 'a'.repeat(32),
@@ -89,19 +121,19 @@ beforeEach(() => {
 
 describe('ArtifactActionBar', () => {
   it('shows the host-resolved canonical target, not a document-chosen name', () => {
-    render(<ArtifactActionBar artifact={artifact} onMessage={vi.fn()} />);
+    render(<Harness artifact={artifact} onMessage={vi.fn()} />);
     expect(screen.getByTestId('artifact-canonical-path').textContent).toBe(artifact.canonicalPath);
   });
 
   it('sends ONLY an artifact id for every action - no path crosses the boundary', async () => {
     const onMessage = vi.fn();
-    render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
+    render(<Harness artifact={artifact} onMessage={onMessage} />);
 
     fireEvent.click(screen.getByTestId('artifact-open'));
     await waitFor(() => expect(ipcMock.open).toHaveBeenCalledTimes(1));
-    fireEvent.click(screen.getByText('preview.artifactReveal'));
+    fireEvent.click(screen.getByTestId('artifact-reveal'));
     await waitFor(() => expect(ipcMock.reveal).toHaveBeenCalledTimes(1));
-    fireEvent.click(screen.getByText('preview.artifactSaveCopy'));
+    fireEvent.click(screen.getByTestId('artifact-save-copy'));
     await waitFor(() => expect(ipcMock.saveCopy).toHaveBeenCalledTimes(1));
 
     for (const call of [ipcMock.open, ipcMock.reveal, ipcMock.saveCopy]) {
@@ -114,7 +146,7 @@ describe('ArtifactActionBar', () => {
   it('surfaces a host REFUSAL instead of leaving a dead button', async () => {
     ipcMock.open.mockResolvedValue({ ok: false, error: 'refusing to open ".command": not an openable document type' });
     const onMessage = vi.fn();
-    render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
+    render(<Harness artifact={artifact} onMessage={onMessage} />);
 
     fireEvent.click(screen.getByTestId('artifact-open'));
     await waitFor(() => expect(onMessage).toHaveBeenCalledTimes(1));
@@ -133,9 +165,9 @@ describe('ArtifactActionBar', () => {
   it('surfaces a REVEAL refusal instead of leaving a dead button', async () => {
     ipcMock.reveal.mockResolvedValue({ ok: false, error: 'artifact is no longer on disk' });
     const onMessage = vi.fn();
-    render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
+    render(<Harness artifact={artifact} onMessage={onMessage} />);
 
-    fireEvent.click(screen.getByText('preview.artifactReveal'));
+    fireEvent.click(screen.getByTestId('artifact-reveal'));
     await waitFor(() => expect(onMessage).toHaveBeenCalledTimes(1));
     expect(onMessage.mock.calls[0][0]).toBe('error');
     expect(onMessage.mock.calls[0][1]).toContain('no longer on disk');
@@ -144,9 +176,9 @@ describe('ArtifactActionBar', () => {
   it('surfaces a SAVE-A-COPY refusal, and never claims a save that did not happen', async () => {
     ipcMock.saveCopy.mockResolvedValue({ ok: false, error: 'destination is outside every allowed root' });
     const onMessage = vi.fn();
-    render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
+    render(<Harness artifact={artifact} onMessage={onMessage} />);
 
-    fireEvent.click(screen.getByText('preview.artifactSaveCopy'));
+    fireEvent.click(screen.getByTestId('artifact-save-copy'));
     await waitFor(() => expect(onMessage).toHaveBeenCalledTimes(1));
     expect(onMessage.mock.calls[0][0]).toBe('error');
     expect(onMessage.mock.calls[0][1]).toContain('outside every allowed root');
@@ -157,18 +189,18 @@ describe('ArtifactActionBar', () => {
   it('says nothing when the user cancels the save dialog', async () => {
     ipcMock.saveCopy.mockResolvedValue({ ok: true });
     const onMessage = vi.fn();
-    render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
+    render(<Harness artifact={artifact} onMessage={onMessage} />);
 
-    fireEvent.click(screen.getByText('preview.artifactSaveCopy'));
+    fireEvent.click(screen.getByTestId('artifact-save-copy'));
     await waitFor(() => expect(ipcMock.saveCopy).toHaveBeenCalled());
     expect(onMessage).not.toHaveBeenCalled();
   });
 
   it('confirms a completed save with the destination', async () => {
     const onMessage = vi.fn();
-    render(<ArtifactActionBar artifact={artifact} onMessage={onMessage} />);
+    render(<Harness artifact={artifact} onMessage={onMessage} />);
 
-    fireEvent.click(screen.getByText('preview.artifactSaveCopy'));
+    fireEvent.click(screen.getByTestId('artifact-save-copy'));
     await waitFor(() => expect(onMessage).toHaveBeenCalledTimes(1));
     expect(onMessage.mock.calls[0][0]).toBe('success');
     expect(onMessage.mock.calls[0][1]).toContain('/Users/sean/Desktop/brief.html');
@@ -193,7 +225,7 @@ describe('ArtifactActionBar: the changed-file repair', () => {
   it('turns the changed-file refusal into a state, not a raw literal in a toast', async () => {
     ipcMock.open.mockResolvedValue({ ok: false, error: ARTIFACT_CHANGED_ERROR });
     const onMessage = vi.fn();
-    render(<ArtifactActionBar artifact={chatArtifact} onMessage={onMessage} />);
+    render(<Harness artifact={chatArtifact} onMessage={onMessage} />);
 
     fireEvent.click(screen.getByTestId('artifact-open'));
     await waitFor(() => expect(screen.getByTestId('artifact-bar-changed')).toBeInTheDocument());
@@ -205,21 +237,21 @@ describe('ArtifactActionBar: the changed-file repair', () => {
 
   it('reaches the same state from Show in folder and from Save a copy', async () => {
     ipcMock.reveal.mockResolvedValue({ ok: false, error: ARTIFACT_CHANGED_ERROR });
-    const { unmount } = render(<ArtifactActionBar artifact={chatArtifact} onMessage={vi.fn()} />);
-    fireEvent.click(screen.getByText('preview.artifactReveal'));
+    const { unmount } = render(<Harness artifact={chatArtifact} onMessage={vi.fn()} />);
+    fireEvent.click(screen.getByTestId('artifact-reveal'));
     await waitFor(() => expect(screen.getByTestId('artifact-bar-changed')).toBeInTheDocument());
     unmount();
 
     ipcMock.saveCopy.mockResolvedValue({ ok: false, error: ARTIFACT_CHANGED_ERROR });
-    render(<ArtifactActionBar artifact={chatArtifact} onMessage={vi.fn()} />);
-    fireEvent.click(screen.getByText('preview.artifactSaveCopy'));
+    render(<Harness artifact={chatArtifact} onMessage={vi.fn()} />);
+    fireEvent.click(screen.getByTestId('artifact-save-copy'));
     await waitFor(() => expect(screen.getByTestId('artifact-bar-changed')).toBeInTheDocument());
   });
 
   it('offers Update on a CHAT deliverable, and the repair sends only the id', async () => {
     ipcMock.open.mockResolvedValue({ ok: false, error: ARTIFACT_CHANGED_ERROR });
     const onMessage = vi.fn();
-    render(<ArtifactActionBar artifact={chatArtifact} onMessage={onMessage} />);
+    render(<Harness artifact={chatArtifact} onMessage={onMessage} />);
 
     fireEvent.click(screen.getByTestId('artifact-open'));
     await waitFor(() => expect(screen.getByTestId('artifact-bar-update')).toBeInTheDocument());
@@ -239,7 +271,7 @@ describe('ArtifactActionBar: the changed-file repair', () => {
   it('does NOT offer Update on a published series run - it would always fail', async () => {
     // `artifact` is the module fixture: taskId 'morning-brief', a cron series.
     ipcMock.open.mockResolvedValue({ ok: false, error: ARTIFACT_CHANGED_ERROR });
-    render(<ArtifactActionBar artifact={artifact} onMessage={vi.fn()} />);
+    render(<Harness artifact={artifact} onMessage={vi.fn()} />);
 
     fireEvent.click(screen.getByTestId('artifact-open'));
     await waitFor(() => expect(screen.getByTestId('artifact-bar-changed')).toBeInTheDocument());
@@ -253,7 +285,7 @@ describe('ArtifactActionBar: the changed-file repair', () => {
     ipcMock.open.mockResolvedValue({ ok: false, error: ARTIFACT_CHANGED_ERROR });
     ipcMock.refresh.mockResolvedValue({ ok: false, error: 'artifact could not be refreshed: symlink' });
     const onMessage = vi.fn();
-    render(<ArtifactActionBar artifact={chatArtifact} onMessage={onMessage} />);
+    render(<Harness artifact={chatArtifact} onMessage={onMessage} />);
 
     fireEvent.click(screen.getByTestId('artifact-open'));
     await waitFor(() => expect(screen.getByTestId('artifact-bar-update')).toBeInTheDocument());
@@ -268,18 +300,16 @@ describe('ArtifactActionBar: the changed-file repair', () => {
 
   it('does not show a stale banner when the bar switches to another artifact', async () => {
     ipcMock.open.mockResolvedValue({ ok: false, error: ARTIFACT_CHANGED_ERROR });
-    const { rerender } = render(<ArtifactActionBar artifact={chatArtifact} onMessage={vi.fn()} />);
+    const { rerender } = render(<Harness artifact={chatArtifact} onMessage={vi.fn()} />);
     fireEvent.click(screen.getByTestId('artifact-open'));
     await waitFor(() => expect(screen.getByTestId('artifact-bar-changed')).toBeInTheDocument());
 
-    rerender(
-      <ArtifactActionBar artifact={{ ...chatArtifact, artifactId: 'b'.repeat(32) }} onMessage={vi.fn()} />
-    );
+    rerender(<Harness artifact={{ ...chatArtifact, artifactId: 'b'.repeat(32) }} onMessage={vi.fn()} />);
     await waitFor(() => expect(screen.queryByTestId('artifact-bar-changed')).not.toBeInTheDocument());
   });
 
   it('shows nothing at all until something actually refuses', () => {
-    render(<ArtifactActionBar artifact={chatArtifact} onMessage={vi.fn()} />);
+    render(<Harness artifact={chatArtifact} onMessage={vi.fn()} />);
     expect(screen.queryByTestId('artifact-bar-changed')).not.toBeInTheDocument();
   });
 });

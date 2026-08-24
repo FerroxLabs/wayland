@@ -73,6 +73,26 @@ import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal
 import { buildArtifactSeriesView } from '@process/services/artifacts/artifactSeriesView';
 import { beginTaskRun, commitTaskRun } from '@process/services/artifacts/taskRun';
 import ArtifactActionBar from '@renderer/pages/conversation/Preview/components/PreviewPanel/ArtifactActionBar';
+import { useArtifactActions } from '@renderer/pages/conversation/Preview/hooks/useArtifactActions';
+
+/**
+ * The REAL hook wired to the REAL bar - the shape PreviewPanel builds. The three
+ * actions moved to the toolbar (they duplicated its labels while crossing a
+ * stricter, id-only boundary), so the triggers live here and the bar keeps what
+ * this file is about: the run history.
+ */
+const Harness: React.FC<{ artifact: ArtifactSummary; onMessage: (k: 'success' | 'error', t: string) => void }> = ({
+  artifact: target,
+  onMessage,
+}) => {
+  const actions = useArtifactActions(target, onMessage);
+  return (
+    <>
+      <button type='button' data-testid='artifact-open' onClick={() => void actions.open()} />
+      <ArtifactActionBar artifact={target} onMessage={onMessage} actions={actions} />
+    </>
+  );
+};
 
 const SERIES = 'market';
 const TASK = 'cron_morning_brief';
@@ -122,38 +142,19 @@ afterEach(async () => {
 });
 
 describe('the artifact card names the app it will open with', () => {
-  it('renders "Open" immediately and UPGRADES to the app name when the host answers', async () => {
-    const runId = await publishRun('brief.md', 'day one', new Date('2026-08-20T07:00:00Z'));
-    const artifact = await summaryForRun(runId);
-    let resolveName: (value: { applicationName: string }) => void = () => {};
-    ipcMock.openTarget.mockReturnValue(new Promise((resolve) => (resolveName = resolve)));
-
-    render(<ArtifactActionBar artifact={artifact} onMessage={vi.fn()} />);
-
-    // Before the host answers: the plain label, and NOT a spinner in the
-    // primary action. The card is fully usable while the name is in flight.
-    expect(screen.getByTestId('artifact-open').textContent).toContain('preview.artifactOpen');
-    expect(screen.getByTestId('artifact-open')).not.toBeDisabled();
-
-    resolveName({ applicationName: 'Preview' });
-    await waitFor(() =>
-      expect(screen.getByTestId('artifact-open').textContent).toContain('preview.openWithApp:{"app":"Preview"}')
-    );
-  });
-
-  it('keeps the plain "Open" when the host cannot name an app honestly', async () => {
-    const runId = await publishRun('brief.md', 'day one', new Date('2026-08-20T07:00:00Z'));
-    render(<ArtifactActionBar artifact={await summaryForRun(runId)} onMessage={vi.fn()} />);
-
-    await waitFor(() => expect(ipcMock.openTarget).toHaveBeenCalled());
-    expect(screen.getByTestId('artifact-open').textContent).toContain('preview.artifactOpen');
-    expect(screen.getByTestId('artifact-open').textContent).not.toContain('openWithApp');
-  });
+  /**
+   * The "Open" label and its upgrade to the app name MOVED WITH THE BUTTON.
+   *
+   * That control now lives in the toolbar - it duplicated the toolbar's own
+   * label while crossing a stricter, id-only boundary - so the label claim is
+   * asserted where the label is, in tests/unit/previewToolbarSplit.dom.test.tsx.
+   * The hook still resolves the app name; this file keeps the run history.
+   */
 
   it('asks about the artifact by ID, never by path', async () => {
     const runId = await publishRun('brief.md', 'day one', new Date('2026-08-20T07:00:00Z'));
     const artifact = await summaryForRun(runId);
-    render(<ArtifactActionBar artifact={artifact} onMessage={vi.fn()} />);
+    render(<Harness artifact={artifact} onMessage={vi.fn()} />);
 
     await waitFor(() => expect(ipcMock.openTarget).toHaveBeenCalled());
     for (const call of [ipcMock.openTarget, ipcMock.series]) {
@@ -171,7 +172,7 @@ describe('the artifact card shows the run history', () => {
     const artifact = await summaryForRun(newest);
     ipcMock.series.mockResolvedValue(await realView(artifact.artifactId));
 
-    render(<ArtifactActionBar artifact={artifact} onMessage={vi.fn()} />);
+    render(<Harness artifact={artifact} onMessage={vi.fn()} />);
 
     await waitFor(() => expect(screen.getByTestId('artifact-series')).toBeTruthy());
     expect(screen.getByTestId('artifact-series-position').textContent).toContain('preview.artifactRunNewest');
@@ -188,7 +189,7 @@ describe('the artifact card shows the run history', () => {
     const earlier = await summaryForRun(first);
     ipcMock.series.mockResolvedValue(await realView(artifact.artifactId));
 
-    render(<ArtifactActionBar artifact={artifact} onMessage={vi.fn()} />);
+    render(<Harness artifact={artifact} onMessage={vi.fn()} />);
     await waitFor(() => expect(screen.getByTestId('artifact-series-toggle')).toBeTruthy());
     fireEvent.click(screen.getByTestId('artifact-series-toggle'));
 
@@ -222,7 +223,7 @@ describe('the artifact card shows the run history', () => {
     const artifact = await summaryForRun(good);
     ipcMock.series.mockResolvedValue(await realView(artifact.artifactId));
 
-    render(<ArtifactActionBar artifact={artifact} onMessage={vi.fn()} />);
+    render(<Harness artifact={artifact} onMessage={vi.fn()} />);
 
     await waitFor(() => expect(screen.getByTestId('artifact-series-alert')).toBeTruthy());
     expect(screen.getByTestId('artifact-series-alert').textContent).toContain('preview.artifactNewestRunFailed');
@@ -250,7 +251,7 @@ describe('the artifact card shows the run history', () => {
     const artifact = await summaryForRun(good);
     ipcMock.series.mockResolvedValue(await realView(artifact.artifactId));
 
-    render(<ArtifactActionBar artifact={artifact} onMessage={vi.fn()} />);
+    render(<Harness artifact={artifact} onMessage={vi.fn()} />);
     await waitFor(() => expect(screen.getByTestId('artifact-series-toggle')).toBeTruthy());
     fireEvent.click(screen.getByTestId('artifact-series-toggle'));
 
@@ -266,7 +267,7 @@ describe('the artifact card shows the run history', () => {
     const artifact = await summaryForRun(only);
     ipcMock.series.mockResolvedValue(await realView(artifact.artifactId));
 
-    render(<ArtifactActionBar artifact={artifact} onMessage={vi.fn()} />);
+    render(<Harness artifact={artifact} onMessage={vi.fn()} />);
 
     await waitFor(() => expect(screen.getByTestId('artifact-series-only')).toBeTruthy());
     expect(screen.getByTestId('artifact-series-only').textContent).toBe('preview.artifactOnlyRun');
@@ -278,7 +279,7 @@ describe('the artifact card shows the run history', () => {
     const runId = await publishRun('brief.md', 'day one', new Date('2026-08-20T07:00:00Z'));
     ipcMock.series.mockResolvedValue(null);
 
-    render(<ArtifactActionBar artifact={await summaryForRun(runId)} onMessage={vi.fn()} />);
+    render(<Harness artifact={await summaryForRun(runId)} onMessage={vi.fn()} />);
 
     await waitFor(() => expect(ipcMock.series).toHaveBeenCalled());
     expect(screen.queryByTestId('artifact-series')).toBeNull();

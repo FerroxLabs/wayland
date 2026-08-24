@@ -7,7 +7,7 @@
 /// <reference types="@testing-library/jest-dom/vitest" />
 
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('react-i18next', () => ({
@@ -107,5 +107,46 @@ describe('preview toolbar: Source / Preview / Split', () => {
 
     expect(await screen.findByTestId('preview-split-toggle')).toBeInTheDocument();
     expect(onSplitScreenToggle).not.toHaveBeenCalled();
+  });
+});
+
+describe('PreviewToolbar - artifact-backed previews', () => {
+  /**
+   * These claims MOVED HERE with the buttons.
+   *
+   * Open / Show in folder / Save a copy used to sit in the deliverable bar
+   * directly under this toolbar, which offered the same two labels - but the
+   * toolbar handed `metadata.filePath`, a RAW PATH, to `shell.openFile`, while
+   * the bar's controls sent an artifact id and nothing else. Deleting the
+   * id-based row to remove the duplication would have quietly downgraded that
+   * boundary, so the actions moved up and the panel now routes them through
+   * `useArtifactActions` whenever an artifact exists. The label behaviour came
+   * with them: naming the app is the difference between a promise and a guess.
+   */
+  it('says "Open in system app" until the host can name the application', () => {
+    renderToolbar({ leftExtra: <span>tabs</span>, showOpenInSystemButton: true, openWithAppName: null });
+    expect(screen.getByText('preview.openInSystemApp')).toBeInTheDocument();
+  });
+
+  it('UPGRADES the label to the named application once the host answers', () => {
+    renderToolbar({ leftExtra: <span>tabs</span>, showOpenInSystemButton: true, openWithAppName: 'Preview' });
+    expect(screen.getByText('preview.openWithApp')).toBeInTheDocument();
+    expect(screen.queryByText('preview.openInSystemApp')).not.toBeInTheDocument();
+  });
+
+  it('offers a folder control only when an artifact stands behind the preview, and calls it', async () => {
+    const onRevealInFolder = vi.fn();
+    renderToolbar({ leftExtra: <span>tabs</span>, showRevealButton: true, onRevealInFolder });
+
+    const reveal = await screen.findByTestId('preview-reveal-in-folder');
+    // Icon-only, so the accessible name is the only name it has.
+    expect(reveal).toHaveAttribute('aria-label');
+    fireEvent.click(reveal);
+    expect(onRevealInFolder).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers no folder control when nothing is recorded behind the preview', () => {
+    renderToolbar({ leftExtra: <span>tabs</span>, showRevealButton: false, onRevealInFolder: vi.fn() });
+    expect(screen.queryByTestId('preview-reveal-in-folder')).not.toBeInTheDocument();
   });
 });

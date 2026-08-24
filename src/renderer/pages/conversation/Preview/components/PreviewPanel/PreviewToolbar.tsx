@@ -75,6 +75,21 @@ interface PreviewToolbarProps {
    * Whether to show "Open in System" button
    */
   showOpenInSystemButton: boolean;
+  /**
+   * Whether the host has an ARTIFACT behind this preview - the only case with a
+   * canonical file to reveal, and the case where Open and Download route through
+   * `artifacts.*` by id instead of handing a raw path to the shell.
+   */
+  /**
+   * The app the OS would open this artifact with, once the host has named it.
+   * The label upgrades from "Open in system app" to "Open in <app>" - it came
+   * with the actions from the deliverable bar and is not worth losing: naming
+   * the app is the difference between a promise and a guess.
+   */
+  openWithAppName?: string | null;
+  showRevealButton?: boolean;
+  /** Reveal the deliverable in the OS file manager. Id-based, like its siblings. */
+  onRevealInFolder?: () => void;
 
   /**
    * History target
@@ -174,6 +189,9 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
   isSplitScreenEnabled,
   fileName,
   showOpenInSystemButton,
+  openWithAppName = null,
+  showRevealButton = false,
+  onRevealInFolder,
   historyTarget,
   snapshotSaving,
   onViewModeChange,
@@ -355,7 +373,39 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <polyline points='15 3 21 3 21 9' />
                 <line x1='10' y1='14' x2='21' y2='3' />
               </svg>
-              <span>{t('preview.openInSystemApp')}</span>
+              <span>
+                {openWithAppName
+                  ? t('preview.openWithApp', { app: openWithAppName })
+                  : t('preview.openInSystemApp')}
+              </span>
+            </div>
+          )}
+
+          {/*
+            SHOW IN FOLDER, moved up from the deliverable bar - the ONE action
+            down there this row did not already offer. Icon-only: the label is
+            the tooltip, and this row shrinks rather than wraps.
+          */}
+          {preferActionButtonsInFront && showRevealButton && onRevealInFolder && (
+            <div
+              className={toolbarBtn}
+              onClick={onRevealInFolder}
+              title={t('preview.artifactReveal')}
+              aria-label={t('preview.artifactReveal')}
+              role='button'
+              data-testid='preview-reveal-in-folder'
+            >
+              <svg
+                width={toolbarIconSize}
+                height={toolbarIconSize}
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                className='text-t-secondary'
+              >
+                <path d='M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.5l-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z' />
+              </svg>
             </div>
           )}
           {preferActionButtonsInFront && (

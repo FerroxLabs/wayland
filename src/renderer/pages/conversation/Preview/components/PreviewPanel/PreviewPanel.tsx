@@ -43,6 +43,7 @@ import { DEFAULT_SPLIT_RATIO, FILE_TYPES_WITH_BUILTIN_OPEN, MAX_SPLIT_WIDTH, MIN
 import { resolveOpenInSystemToast } from '../../fileUtils';
 import { externalOpenNeedsWarning } from '../../previewDocument';
 import ArtifactActionBar from './ArtifactActionBar';
+import { useArtifactActions } from '@/renderer/pages/conversation/Preview/hooks/useArtifactActions';
 import { useArtifactForPath } from '../../hooks/useArtifactForPath';
 import {
   usePreviewHistory,
@@ -365,6 +366,19 @@ const PreviewPanel: React.FC = () => {
     [messageApi]
   );
 
+  /**
+   * ONE instance of the artifact actions, owned here and shared.
+   *
+   * The controls live in the toolbar; the changed-file banner and its repair live
+   * in ArtifactActionBar below. `changed` is discovered by ATTEMPTING an action -
+   * the host refuses with the changed-file error - so a second instance would
+   * give the bar a `changed` the toolbar's refusal never sets, and the banner
+   * would never appear.
+   */
+  const artifactActions = useArtifactActions(artifact, handleArtifactMessage);
+
+
+
   // Don't render if preview panel is not open
   if (!isOpen || !activeTab) return null;
 
@@ -501,6 +515,31 @@ const PreviewPanel: React.FC = () => {
     }
     void performOpenInSystem();
   }, [contentType, performOpenInSystem]);
+
+  /**
+   * ARTIFACT-BACKED PREVIEWS TAKE THE ID PATH.
+   *
+   * `handleOpenInSystem` and `handleDownload` work from `metadata.filePath` and
+   * hand a RAW PATH to `shell.openFile`. When the host has an artifact for this
+   * file there is a stricter route - `artifacts.open` / `artifacts.saveCopy`,
+   * which take an id and nothing else - and that is the boundary `artifacts.*`
+   * exists to keep. The same two toolbar buttons therefore resolve to the id
+   * calls whenever an artifact exists; the path calls remain only for a preview
+   * with nothing recorded behind it.
+   */
+  const openFromToolbar = useCallback(() => {
+    if (artifact) void artifactActions.open();
+    else void handleOpenInSystem();
+  }, [artifact, artifactActions, handleOpenInSystem]);
+
+  const downloadFromToolbar = useCallback(() => {
+    if (artifact) void artifactActions.saveCopy();
+    else void handleDownload();
+  }, [artifact, artifactActions, handleDownload]);
+
+  const revealFromToolbar = useCallback(() => {
+    void artifactActions.reveal();
+  }, [artifactActions]);
 
   const handleConfirmExternalOpen = useCallback(() => {
     setShowExternalOpenConfirm(false);
@@ -859,8 +898,11 @@ const PreviewPanel: React.FC = () => {
             onSaveSnapshot={handleSaveSnapshot}
             onRefreshHistory={refreshHistory}
             renderHistoryDropdown={renderHistoryDropdown}
-            onOpenInSystem={handleOpenInSystem}
-            onDownload={handleDownload}
+            onOpenInSystem={openFromToolbar}
+            onDownload={downloadFromToolbar}
+            openWithAppName={artifactActions.applicationName}
+            showRevealButton={Boolean(artifact)}
+            onRevealInFolder={revealFromToolbar}
             onClose={closePreview}
             inspectMode={inspectMode}
             onInspectModeToggle={() => setInspectMode(!inspectMode)}
@@ -872,7 +914,9 @@ const PreviewPanel: React.FC = () => {
         {/* P2-9: the deliverable's identity strip. Host chrome, outside the
             previewed document, showing the canonical target the host resolved -
             so a filename a model chose cannot misrepresent what will open. */}
-        {artifact && <ArtifactActionBar artifact={artifact} onMessage={handleArtifactMessage} />}
+        {artifact && (
+          <ArtifactActionBar artifact={artifact} onMessage={handleArtifactMessage} actions={artifactActions} />
+        )}
 
         {/* Preview content — contained in its own boundary so a viewer crash
             (e.g. a syntax-highlighter dynamic-import / "module" error on a

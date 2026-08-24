@@ -37,7 +37,7 @@
 
 import { ipcBridge } from '@/common';
 import type { ArtifactSeriesRun, ArtifactSeriesView, ArtifactSummary } from '@/common/types/artifacts';
-import { ARTIFACT_CHANGED_ERROR } from '@/common/types/artifacts';
+import type { ArtifactActions } from '@/renderer/pages/conversation/Preview/hooks/useArtifactActions';
 import {
   AlertTriangle,
   ChevronDown,
@@ -60,6 +60,16 @@ interface ArtifactActionBarProps {
   artifact: ArtifactSummary;
   /** Toast sink. Kept as a prop so the panel's message context owns the surface. */
   onMessage: (kind: 'success' | 'error', text: string) => void;
+  /**
+   * The SHARED action state, owned by the panel.
+   *
+   * `changed` is discovered by ATTEMPTING an action - the host refuses with
+   * `ARTIFACT_CHANGED_ERROR` - and the controls that attempt it now live in the
+   * toolbar above. A second `useArtifactActions` here would give this bar its own
+   * `changed`, which the toolbar's refusal would never set, and the banner would
+   * never appear. One instance, passed in.
+   */
+  actions: ArtifactActions;
 }
 
 const buttonClass =
@@ -114,46 +124,14 @@ function formatRunTime(iso: string): string {
   return Number.isNaN(parsed.getTime()) ? iso : parsed.toLocaleString();
 }
 
-const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessage }) => {
+const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessage, actions }) => {
+  const { busy, changed, repair } = actions;
   const { t } = useTranslation();
-  const [busy, setBusy] = useState(false);
-  const [applicationName, setApplicationName] = useState<string | null>(null);
   const [series, setSeries] = useState<ArtifactSeriesView | null>(null);
   const [expanded, setExpanded] = useState(false);
-  /**
-   * The file on disk no longer matches what the ledger recorded.
-   *
-   * Sticky, and deliberately not a toast: a toast for this said the one thing
-   * the user could not act on and then took itself away. It is set from a host
-   * REFUSAL rather than from a watcher - there is no filesystem watcher here -
-   * so it appears on the first action after the edit and stays until a repair
-   * clears it.
-   */
-  const [changed, setChanged] = useState(false);
   const { launchPreview } = usePreviewLauncher();
 
   const artifactId = artifact.artifactId;
-
-  useEffect(() => {
-    // Reset first: a card switching artifacts must never show the previous
-    // file's app name, history, or changed-file banner for even one frame.
-    setApplicationName(null);
-    setChanged(false);
-    let cancelled = false;
-    void ipcBridge.artifacts.openTarget
-      .invoke({ artifactId })
-      .then((result) => {
-        if (!cancelled) setApplicationName(result?.applicationName ?? null);
-      })
-      .catch(() => {
-        // An unresolvable app name is the normal case on Windows and on any
-        // type the OS has no handler for. The button keeps saying "Open".
-        if (!cancelled) setApplicationName(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [artifactId]);
 
   useEffect(() => {
     setSeries(null);
@@ -203,100 +181,9 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
     [launchPreview]
   );
 
-  /**
-   * ONE REFUSAL IS NOT LIKE THE OTHERS, SO IT DOES NOT GET THE SAME TREATMENT.
-   *
-   * Every other host refusal is a sentence a person can read - "not an openable
-   * document type", "is no longer on disk" - and interpolating it is honest.
-   * The changed-file refusal is not: `artifact has changed since it was
-   * recorded` is an internal literal about a digest check, it told the user
-   * nothing they could act on, and it was the DEAD END this bar had. So that one
-   * string is intercepted by value and turned into a state with a repair
-   * attached. Every other error keeps its existing interpolation, unchanged.
-   */
-  const reportRefusal = useCallback(
-    (error: string | undefined, key: string) => {
-      if (error === ARTIFACT_CHANGED_ERROR) {
-        setChanged(true);
-        return;
-      }
-      onMessage('error', t(key, { error: error ?? '' }));
-    },
-    [onMessage, t]
-  );
-
-  const openById = useCallback(
-    async (id: string) => {
-      setBusy(true);
-      try {
-        const result = await ipcBridge.artifacts.open.invoke({ artifactId: id });
-        // The bridge has no rejection channel, so a refusal arrives as a
-        // resolved `{ ok: false }`. Reporting it is the difference between a
-        // refusal and a dead button - the failure mode #616 had to fix once.
-        if (!result?.ok) reportRefusal(result?.error, 'preview.artifactOpenFailed');
-      } finally {
-        setBusy(false);
-      }
-    },
-    [reportRefusal]
-  );
-
-  /**
-   * "Yes, I edited it - record what it is NOW."
-   *
-   * This is the host's `artifacts.refresh`, which re-runs the FULL registration
-   * (containment, symlink refusal, size cap, device/inode re-check, fresh
-   * sha256) and keeps the artifact id stable. Nothing about verification is
-   * relaxed; the repair is a RE-REGISTRATION, which is why it is safe to offer.
-   */
-  const repair = useCallback(async () => {
-    setBusy(true);
-    try {
-      const result = await ipcBridge.artifacts.refresh.invoke({ artifactId });
-      if (result?.ok) {
-        setChanged(false);
-        onMessage('success', t('preview.artifactUpdated'));
-        return;
-      }
-      onMessage('error', t('preview.artifactUpdateFailed', { error: result?.error ?? '' }));
-    } finally {
-      setBusy(false);
-    }
-  }, [artifactId, onMessage, t]);
-
-  const run = useCallback(
-    async (action: 'open' | 'reveal' | 'saveCopy') => {
-      if (action === 'open') {
-        await openById(artifactId);
-        return;
-      }
-      setBusy(true);
-      try {
-        if (action === 'reveal') {
-          const result = await ipcBridge.artifacts.reveal.invoke({ artifactId });
-          if (!result?.ok) reportRefusal(result?.error, 'preview.artifactRevealFailed');
-          return;
-        }
-        const result = await ipcBridge.artifacts.saveCopy.invoke({ artifactId });
-        if (!result?.ok) {
-          reportRefusal(result?.error, 'preview.artifactSaveFailed');
-          return;
-        }
-        // No `savedTo` means the user cancelled the dialog, which is not an
-        // outcome that deserves a toast in either direction.
-        if (result.savedTo) onMessage('success', t('preview.artifactSaved', { path: result.savedTo }));
-      } finally {
-        setBusy(false);
-      }
-    },
-    [artifactId, onMessage, openById, reportRefusal, t]
-  );
-
-  // `preview.openWithApp` already says "Open in {{app}}" in all twelve locales
-  // and is what the system-app control next door uses. A second key with the
-  // same sentence is how two buttons that do the same thing start reading
-  // differently.
-  const openLabel = applicationName ? t('preview.openWithApp', { app: applicationName }) : t('preview.artifactOpen');
+  // reportRefusal / openById / repair / run / openLabel all moved into
+  // `useArtifactActions`, because the controls that call them moved to the
+  // toolbar and `changed` has to be ONE state shared with this banner.
 
   const newestRun: ArtifactSeriesRun | undefined = series?.runs[0];
   const currentRun = useMemo(() => series?.runs.find((entry) => entry.current), [series]);
@@ -338,27 +225,23 @@ const ArtifactActionBar: React.FC<ArtifactActionBarProps> = ({ artifact, onMessa
             {artifact.canonicalPath}
           </span>
         </div>
-        {/* Still wraps: two labelled actions fit a 296px panel, three do not. */}
-        <div className='flex flex-wrap items-center justify-end gap-8px'>
-          <button
-            type='button'
-            className={buttonClass}
-            disabled={busy}
-            onClick={() => void run('open')}
-            data-testid='artifact-open'
-          >
-            <ExternalLink className='size-14px' />
-            {openLabel}
-          </button>
-          <button type='button' className={buttonClass} disabled={busy} onClick={() => void run('reveal')}>
-            <FolderOpen className='size-14px' />
-            {t('preview.artifactReveal')}
-          </button>
-          <button type='button' className={buttonClass} disabled={busy} onClick={() => void run('saveCopy')}>
-            <Save className='size-14px' />
-            {t('preview.artifactSaveCopy')}
-          </button>
-        </div>
+        {/*
+          THE ACTION ROW MOVED TO THE TOOLBAR - it is not gone.
+
+          It carried Open with <app>, Show in folder and Save a copy, directly
+          under a toolbar already offering Open in system app and Download. To a
+          reader that was the same row twice. It was NOT the same thing twice:
+          the toolbar's controls handed `metadata.filePath` - a RAW PATH - to
+          `shell.openFile`, while these sent an artifact id and nothing else.
+          Deleting the id-based row would have quietly downgraded that boundary,
+          so the ACTIONS moved up and took their id-only calls with them: the
+          toolbar routes through `useArtifactActions` whenever the preview is
+          artifact-backed.
+
+          What stays here is what is duplicated nowhere - the canonical path this
+          preview resolves to, the changed-file banner with its one honest
+          repair, and the run history.
+        */}
       </div>
 
       {/*
