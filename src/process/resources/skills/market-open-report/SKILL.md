@@ -85,5 +85,5 @@ If the report says "0 names scanned", something is broken. Say so plainly.
 ## Scheduling it
 
 This is a good candidate for a daily routine. It needs no chart, no browser and
-no credentials, so it runs unattended. Offer it; do not enable it without
+no API key or login, so it runs unattended. Offer it; do not enable it without
 asking.

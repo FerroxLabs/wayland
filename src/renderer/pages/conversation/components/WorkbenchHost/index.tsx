@@ -84,7 +84,13 @@ const WorkbenchRegistryContext = createContext<WorkbenchRegistryContextValue | n
 
 const DEFAULT_WIDTH = 340;
 const MIN_WIDTH = 260;
-const MAX_WIDTH = 620;
+/**
+ * 620 was a rail ceiling: enough for a file tree, not for a document. A rendered
+ * HTML deliverable at 620px on a wide display is unreadable, and the drag
+ * handle stopped before the width that would fix it. The cap now just keeps the
+ * chat from being squeezed out entirely; the useful width is the user's to pick.
+ */
+const MAX_WIDTH = 1200;
 
 /**
  * Spacing scale for the workbench card. Kept as a tiny local scale rather than
