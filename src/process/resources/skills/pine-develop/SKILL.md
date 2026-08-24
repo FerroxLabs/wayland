@@ -27,6 +27,26 @@ If creating new: start from scratch. Note that `pine_new` does NOT create a new 
 it replaces the editor buffer with a blank template, and a following `pine_save` or
 `pine_compile` persists that overwrite to the cloud. Read the buffer first.
 
+**The editor buffer is bound to one of the user's SAVED scripts, and compiling saves over it.**
+There is no untitled scratch buffer. So writing a new script into a buffer that already holds
+something replaces that saved script in the user's TradingView account, under its id, and the
+old source only survives in TradingView's own version history.
+
+Seen live: asked for "a simple EMA indicator", this loop read a buffer holding the user's
+`TC-DIPRA`, overwrote it, compiled, and left that saved script renamed to "EMA 20 Background".
+The user never mentioned TC-DIPRA and was told after the fact.
+
+So when the user asked for a NEW script and the buffer holds real content that is not it:
+
+1. `pine_get_source` and `pine_list_scripts` to find out **which saved script** is loaded.
+2. **Stop and ask, naming it.** "The Pine editor has your `TC-DIPRA` open. Writing this new
+   indicator there would save over it. Want me to use it, or would you rather open a different
+   script first?" One question, then wait.
+3. Only after they answer do you write anything.
+
+Never answer that question yourself. Keeping a copy in your notes is not a substitute: your
+notes disappear at the end of the turn, and the user's script does not come back with them.
+
 ## Step 3: Write the Pine Script
 
 Write the complete script to a working file of your own. Every script MUST include:
@@ -45,8 +65,10 @@ For strategies, include:
 1. `pine_check` — compile server-side first. It does not touch the editor or the chart, so a
    syntax error costs nothing.
 2. `pine_set_source` — inject the code into the Pine Editor. **It refuses to overwrite a buffer
-   that holds real content unless you pass `confirm_overwrite: true`.** That refusal is the
-   feature: read the buffer with `pine_get_source` first, keep the copy, and only then confirm.
+   that holds real content unless you pass `confirm_overwrite: true`.** That refusal is a
+   question for the USER, not a flag for you to set on their behalf. Read the buffer with
+   `pine_get_source`, and if it holds a saved script the user did not ask you to change, go back
+   to Step 2 and ask them before you confirm anything.
 3. `pine_smart_compile` — compile and report study changes. Like `pine_compile` it SAVES the
    buffer to the bound saved script first, so it is not a dry run.
 

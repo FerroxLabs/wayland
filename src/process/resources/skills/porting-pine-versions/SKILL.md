@@ -89,7 +89,9 @@ Don't push to the editor until `pine_check` is clean — saves round-trips.
 1. `pine_set_source` — inject the clean v6 source. It **refuses to overwrite a buffer holding
    real content unless you pass `confirm_overwrite: true`**, which on this workflow it always
    does: the v4/v5 original is sitting in it. Read it with `pine_get_source` and keep the copy
-   before you confirm
+   before you confirm. Compiling SAVES over the bound saved script, so the v4/v5 source stops
+   existing anywhere except TradingView's own version history for that script — say that to the
+   user in the same breath as reporting the port, and name the script you replaced.
 2. `pine_smart_compile` — final in-editor compile (catches anything `pine_check` missed)
 3. `pine_get_errors` — confirm zero
 4. `capture_screenshot` — visual sanity check that plots still render as expected
