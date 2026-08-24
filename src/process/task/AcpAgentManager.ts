@@ -93,7 +93,12 @@ import { composePrompt } from '@process/services/constitution/composePrompt';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability.ts';
 import { extractTextFromMessage, processCronInMessage } from './MessageMiddleware';
 import { ConversationTurnCompletionService } from './ConversationTurnCompletionService';
-import { needsRespawnForFluxTier, resolveFluxRouting, type FluxRoutingResult, type RoutingDecision } from '@process/task/fluxRouting';
+import {
+  needsRespawnForFluxTier,
+  resolveFluxRouting,
+  type FluxRoutingResult,
+  type RoutingDecision,
+} from '@process/task/fluxRouting';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 import {
   NANO_KNOWN_PROVIDER_IDS,

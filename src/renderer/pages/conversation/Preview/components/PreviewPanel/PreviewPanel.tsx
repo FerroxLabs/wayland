@@ -377,8 +377,6 @@ const PreviewPanel: React.FC = () => {
    */
   const artifactActions = useArtifactActions(artifact, handleArtifactMessage);
 
-
-
   // Don't render if preview panel is not open
   if (!isOpen || !activeTab) return null;
 

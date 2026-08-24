@@ -245,7 +245,7 @@ describe('prefetchDailyBars', () => {
     }
   });
 
-  it('PRUNES yesterday\'s cache, because this cache lives in the user\'s Documents folder', async () => {
+  it("PRUNES yesterday's cache, because this cache lives in the user's Documents folder", async () => {
     // The cache key ends with the run date, so an unpruned cache gains ONE FILE
     // PER SYMBOL PER DAY. Measured on a real run: 82 symbols came to 51 MB, and
     // it sits inside `~/Documents/Wayland/Tasks/<task>/` - which on a machine

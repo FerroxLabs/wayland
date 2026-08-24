@@ -216,7 +216,7 @@ describe('an already-seeded routine is brought up to the shipped definition', ()
     expect(jobs[0].target.payload.text).not.toContain('outbox');
   });
 
-  it("repoints the morning report off a watchlist path that has never existed on any machine", async () => {
+  it('repoints the morning report off a watchlist path that has never existed on any machine', async () => {
     // `~/wayland/market/watchlist.csv` was never written by anything. Step 2
     // exported it as MARKET_OPEN_REPORT_LIST, which OVERRODE the watchlist the
     // scanner actually ships with - turning a run that would have worked into

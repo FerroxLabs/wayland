@@ -405,11 +405,9 @@ const ChatLayout: React.FC<{
   const layoutTree = (
     <ArcoLayout
       className='size-full'
-      style={
-        {
-          // fontFamily: `cursive,"anthropicSans","anthropicSans Fallback",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif`,
-        }
-      }
+      style={{
+        // fontFamily: `cursive,"anthropicSans","anthropicSans Fallback",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif`,
+      }}
     >
       {isInRouter ? <RouterWorkbenchRequestBridge onRequest={setWorkbenchRequest} /> : null}
       {/* Column: header + tabs sit ABOVE the workbench dock. The dock's

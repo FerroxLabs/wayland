@@ -424,10 +424,7 @@ export class McpService {
             };
           }
 
-          const result = await withAgentPublicationDeadline(
-            agent.name,
-            agentInstance.installMcpServers(authedServers)
-          );
+          const result = await withAgentPublicationDeadline(agent.name, agentInstance.installMcpServers(authedServers));
           const outcome: McpAgentOutcome = result.outcome ?? (result.success ? 'applied' : 'failed');
           return {
             agent: agent.name,

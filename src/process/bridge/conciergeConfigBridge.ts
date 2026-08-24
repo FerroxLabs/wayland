@@ -51,7 +51,6 @@ import {
  */
 const SELF_HOSTED_PROVIDER_IDS: ReadonlySet<ProviderId> = new Set<ProviderId>(['openai-compatible', 'ollama-local']);
 
-
 /**
  * Apply a confirmed proposal via the real MAIN-process write paths. Returns a
  * human-readable result summary, or throws on failure (the caller reverts the

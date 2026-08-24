@@ -32,7 +32,10 @@ describe('the selected Flux tier reaches every Flux surface', () => {
   // therefore charged that customer double. These assert the wire value, per tier.
   it('anthropic surface (claude) sends the picked tier, not flux-auto', () => {
     const got = Object.fromEntries(
-      FLUX_MODEL_IDS.map((t) => [t, resolveFluxRouting({ ...base, backend: 'claude', selectedModelId: t }).env.ANTHROPIC_MODEL])
+      FLUX_MODEL_IDS.map((t) => [
+        t,
+        resolveFluxRouting({ ...base, backend: 'claude', selectedModelId: t }).env.ANTHROPIC_MODEL,
+      ])
     );
     expect(got).toEqual({
       'flux-auto': 'flux-auto',
@@ -44,7 +47,10 @@ describe('the selected Flux tier reaches every Flux surface', () => {
 
   it('openai surface (qwen) sends the picked tier, not flux-auto', () => {
     const got = Object.fromEntries(
-      FLUX_MODEL_IDS.map((t) => [t, resolveFluxRouting({ ...base, backend: 'qwen', selectedModelId: t }).env.OPENAI_MODEL])
+      FLUX_MODEL_IDS.map((t) => [
+        t,
+        resolveFluxRouting({ ...base, backend: 'qwen', selectedModelId: t }).env.OPENAI_MODEL,
+      ])
     );
     expect(got).toEqual({
       'flux-auto': 'flux-auto',
@@ -61,12 +67,24 @@ describe('the selected Flux tier reaches every Flux surface', () => {
   });
 
   it('the resolved tier is exposed once, for the config-file surfaces', () => {
-    expect(resolveFluxRouting({ ...base, backend: 'codex', selectedModelId: 'flux-reasoning' }).fluxModelId).toBe('flux-reasoning');
-    expect(resolveFluxRouting({ ...base, backend: 'hermes', selectedModelId: 'flux-fast' }).fluxModelId).toBe('flux-fast');
+    expect(resolveFluxRouting({ ...base, backend: 'codex', selectedModelId: 'flux-reasoning' }).fluxModelId).toBe(
+      'flux-reasoning'
+    );
+    expect(resolveFluxRouting({ ...base, backend: 'hermes', selectedModelId: 'flux-fast' }).fluxModelId).toBe(
+      'flux-fast'
+    );
   });
 
   it('codex CODEX_HOME selects the picked tier', async () => {
-    const dir = await materializeFluxCodexHome(userData(), 'read-only', undefined, undefined, undefined, undefined, 'flux-reasoning');
+    const dir = await materializeFluxCodexHome(
+      userData(),
+      'read-only',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'flux-reasoning'
+    );
     const toml = await readFile(join(dir, 'config.toml'), 'utf8');
     expect(toml).toContain('model = "flux-reasoning"');
     expect(toml).not.toContain('model = "flux-auto"');
@@ -98,7 +116,13 @@ describe('guards that must not silently rot', () => {
   });
 
   it('a native RESOLVED model still pins the spawn native even with the toggle on', () => {
-    const r = resolveFluxRouting({ ...base, backend: 'codex', selectedModelId: undefined, resolvedModelId: 'gpt-5.6-sol', routeThroughFlux: true });
+    const r = resolveFluxRouting({
+      ...base,
+      backend: 'codex',
+      selectedModelId: undefined,
+      resolvedModelId: 'gpt-5.6-sol',
+      routeThroughFlux: true,
+    });
     expect(r.routing).toBe('native');
   });
 

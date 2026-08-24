@@ -100,9 +100,7 @@ describe('C2/B6+B7 - the persona never sends anyone somewhere that does not exis
   });
 
   it('gives a workspace path for every skill it names', () => {
-    const missing = skillsNamedInPersona().filter(
-      (name) => !markdown.includes(`.wayland-core/skills/${name}`)
-    );
+    const missing = skillsNamedInPersona().filter((name) => !markdown.includes(`.wayland-core/skills/${name}`));
     // "Read that skill" with no path is what sent the model to the tool
     // registry in the first place.
     expect(missing).toEqual([]);
@@ -159,7 +157,9 @@ describe('C3/B8 - a watchlist question is answered from TradingView, and says so
     // A doctrine sentence naming a tool that does not exist is worse than no
     // sentence: it sends the model looking for something it cannot call.
     const named = [...markdown.matchAll(/`([a-z][a-z0-9]*(?:_[a-z0-9]+)+)`/g)].map((match) => match[1]);
-    const connectorish = named.filter((name) => /^(watchlist|quote|chart|tv|data|draw|pine|alert|indicator)_/.test(name));
+    const connectorish = named.filter((name) =>
+      /^(watchlist|quote|chart|tv|data|draw|pine|alert|indicator)_/.test(name)
+    );
     expect(connectorish.length).toBeGreaterThan(0);
     const unknown = connectorish.filter((name) => !(name in connectorTools.tools));
     expect(unknown).toEqual([]);

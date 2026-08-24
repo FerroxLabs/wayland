@@ -421,9 +421,7 @@ describe('T5 - the card in the conversation', () => {
       // nothing on its own. What proves the rejection was CAUGHT and turned
       // into a refusal is the settled tint: an unsettled band is muted, a
       // settled one takes the file type's colour.
-      await waitFor(() =>
-        expect(glyph.querySelector('svg')?.getAttribute('class') ?? '').toContain('text-warning')
-      );
+      await waitFor(() => expect(glyph.querySelector('svg')?.getAttribute('class') ?? '').toContain('text-warning'));
       expect(screen.getByTestId('artifact-card')).toBeTruthy();
       expect(screen.queryByTestId('artifact-card-error')).toBeNull();
     });

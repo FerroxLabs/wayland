@@ -192,7 +192,8 @@ describe('#1099 the folder-grant card answers a deliberate press', () => {
     const grant = await screen.findByTestId('path-boundary-grant');
     // A real rect, so the release below is measurably outside it. jsdom lays
     // nothing out, and a zero-sized rect is deliberately treated as a hit.
-    grant.getBoundingClientRect = () => ({ left: 0, top: 0, right: 200, bottom: 40, width: 200, height: 40 }) as DOMRect;
+    grant.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, right: 200, bottom: 40, width: 200, height: 40 }) as DOMRect;
 
     fireEvent.pointerDown(grant, { pointerId: 1, button: 0, clientX: 10, clientY: 10 });
     fireEvent.pointerUp(grant, { pointerId: 1, button: 0, clientX: 10, clientY: 900 });

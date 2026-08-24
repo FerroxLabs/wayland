@@ -58,7 +58,10 @@ describe('a removal that fails because the thing was already gone is a SUCCESS',
   });
 
   it('Qwen Code: "Server not found in project settings" is not a failure', async () => {
-    execFileSpy.mockResolvedValue({ stdout: 'Server "com-ferroxlabs-tvcontrol" not found in user settings', stderr: '' });
+    execFileSpy.mockResolvedValue({
+      stdout: 'Server "com-ferroxlabs-tvcontrol" not found in user settings',
+      stderr: '',
+    });
     const result = await new QwenMcpAgent().removeMcpServer('com-ferroxlabs-tvcontrol');
     expect(result.success).toBe(true);
     expect(result.outcome).toBe('already-absent');
@@ -110,7 +113,10 @@ describe('the CLIs are matched on what they actually print', () => {
   });
 
   it('Qwen and Gemini print lowercase "removed from user settings"', async () => {
-    execFileSpy.mockResolvedValue({ stdout: 'Server "com-ferroxlabs-tvcontrol" removed from user settings.', stderr: '' });
+    execFileSpy.mockResolvedValue({
+      stdout: 'Server "com-ferroxlabs-tvcontrol" removed from user settings.',
+      stderr: '',
+    });
     await expect(new QwenMcpAgent().removeMcpServer('com-ferroxlabs-tvcontrol')).resolves.toMatchObject({
       success: true,
       outcome: 'applied',

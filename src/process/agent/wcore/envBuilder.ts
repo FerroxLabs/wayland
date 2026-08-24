@@ -1101,7 +1101,7 @@ function usableConversationSegment(conversationId: string): string | null {
  */
 export function buildOutputDirective(absoluteOutputDir: string, opts?: { ephemeral?: boolean }): string {
   const reference = opts?.ephemeral
-    ? 'That directory is this run\'s staging area and the app deletes it the moment the run publishes, ' +
+    ? "That directory is this run's staging area and the app deletes it the moment the run publishes, " +
       'so do NOT print it: name the file by name and say it is attached below as a card. ' +
       'The app writes the real, permanent path onto that card after this turn ends; you do not have it and must not guess it.'
     : `When you refer to a saved deliverable in your final message, name its path inside ${absoluteOutputDir}.`;

@@ -168,7 +168,6 @@ import { confinePath, registerAuthorizedRoot } from '@process/bridge/pathConfine
 import { readRunJournal } from '@process/services/artifacts/artifactRunJournal';
 import type { ArtifactHostEffects } from '@process/services/artifacts/artifactActions';
 
-
 const REPO_ROOT = pathMod.resolve(__dirname, '../../..');
 const SCANNER_REL = '.wayland-core/skills/market-open-report';
 
@@ -214,8 +213,6 @@ function makeService(jobs: CronJob[], executor?: ICronJobExecutor): CronService 
     } as unknown as IConversationRepository
   );
 }
-
-
 
 /** What the stand-in agent does once the run's engine channels exist. */
 type Agent = (directive: string, workspace: string) => Promise<void>;
@@ -314,7 +311,7 @@ function installScannerStubs(workspace: string, reachable: boolean): void {
       'writeFileSync(',
       '  process.argv[3],',
       '  `<!doctype html><html><body><h1>TC-TIDE MORNING REPORT   Tier 1   bar ${data.bar}</h1>` +',
-      "    `<table><tr><td>${data.rows[0][0]}</td><td>${data.rows[0][1]}</td></tr></table></body></html>`",
+      '    `<table><tr><td>${data.rows[0][0]}</td><td>${data.rows[0][1]}</td></tr></table></body></html>`',
       ');',
     ].join('\n'),
     'utf-8'

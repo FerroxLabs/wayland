@@ -57,12 +57,7 @@ import { refuseUnsafeOpenTarget } from '@process/bridge/shellOpenSafety';
 import { isReservedSeriesEntry } from './artifactSeries';
 import { ARTIFACTS_DIR_NAME } from './taskRun';
 
-import {
-  appendArtifactTombstone,
-  isChatNamespace,
-  registerArtifacts,
-  type ArtifactRecord,
-} from './artifactLedger';
+import { appendArtifactTombstone, isChatNamespace, registerArtifacts, type ArtifactRecord } from './artifactLedger';
 import { isArtifactId, readVerifiedArtifact, resolveArtifactTarget } from './artifactTarget';
 import { cachedDefaultApplicationName } from './defaultApplication';
 

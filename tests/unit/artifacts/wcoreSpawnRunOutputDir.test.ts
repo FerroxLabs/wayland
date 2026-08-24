@@ -172,7 +172,6 @@ describe('the engine spawn reads the run open on ITS OWN conversation', () => {
   });
 });
 
-
 /**
  * A3 - THE 330s REAP, IN WORDS A PERSON CAN READ.
  *
@@ -250,7 +249,7 @@ describe('A3: the engine cancel reason a person actually reads', () => {
     }
   });
 
-  it('matches Core\'s literal exactly - a near miss is NOT rewritten', () => {
+  it("matches Core's literal exactly - a near miss is NOT rewritten", () => {
     const node = nodeFor('approval timed out');
     expect(node.name).toBe('');
     expect(node.description).toBe('approval timed out');

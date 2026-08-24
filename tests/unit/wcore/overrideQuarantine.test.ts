@@ -68,7 +68,9 @@ describe('an engine this build cannot talk to is undone, not endured', () => {
     const overrideBin = join(overrideDir, 'darwin-arm64', 'wayland-core');
     expect(isOverrideBinary(overrideBin, overrideDir)).toBe(true);
     // The bundled binary must NEVER be quarantined - it is the thing we fall back to.
-    expect(isOverrideBinary('/Applications/Wayland.app/Contents/Resources/bundled-wayland-core/x/wayland-core', overrideDir)).toBe(false);
+    expect(
+      isOverrideBinary('/Applications/Wayland.app/Contents/Resources/bundled-wayland-core/x/wayland-core', overrideDir)
+    ).toBe(false);
     expect(isOverrideBinary('/usr/local/bin/wayland-core', overrideDir)).toBe(false);
     expect(isOverrideBinary(null, overrideDir)).toBe(false);
   });

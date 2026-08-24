@@ -124,10 +124,7 @@ describe('the brief says which clock its generation stamp is on', () => {
 
   it('the routine body tells the run to quote that stamp verbatim, zone and all', () => {
     const body = readFileSync(
-      path.resolve(
-        __dirname,
-        '../../src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md'
-      ),
+      path.resolve(__dirname, '../../src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md'),
       'utf8'
     );
     // Emphasis markers and line wrapping are formatting, not meaning: flatten

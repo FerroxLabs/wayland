@@ -116,7 +116,9 @@ export function isDeclarableConnectorId(value: unknown): value is string {
  * so a non-object, an array, `null`, or unparseable text is a REFUSAL and not a
  * reason to fall back to the weaker field.
  */
-function installedCatalogEntryId(server: Pick<IMcpServer, 'source' | 'libraryEntryId' | 'originalJson'>): string | null {
+function installedCatalogEntryId(
+  server: Pick<IMcpServer, 'source' | 'libraryEntryId' | 'originalJson'>
+): string | null {
   const entry = server.libraryEntryId;
   if (!isDeclarableConnectorId(entry)) return null;
   if (server.source !== 'library') return null;
@@ -159,7 +161,9 @@ export function selectRoutineConnectorIds(
       continue;
     }
     if (wanted.size >= ROUTINE_CONNECTOR_CAP) {
-      logger.warn(`[RoutineConnectors] Routine "${routineId}" declares more than ${ROUTINE_CONNECTOR_CAP} connectors; ignoring "${entry}"`);
+      logger.warn(
+        `[RoutineConnectors] Routine "${routineId}" declares more than ${ROUTINE_CONNECTOR_CAP} connectors; ignoring "${entry}"`
+      );
       continue;
     }
     wanted.add(entry);

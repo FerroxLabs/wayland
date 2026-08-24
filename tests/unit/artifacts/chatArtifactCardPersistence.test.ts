@@ -91,7 +91,6 @@ describe('persistChatArtifactCard drains, deletes, then inserts', () => {
   });
 });
 
-
 describe('the message it persists is the one the card renders', () => {
   it('carries the stable card id, the artifact_card type and the new content', async () => {
     let captured: TMessage | null = null;

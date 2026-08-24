@@ -83,11 +83,7 @@ import type {
   UnsupportedClaimVerdict,
   UnsupportedSavedFileClaim,
 } from '@/common/types/artifacts';
-import {
-  ARTIFACT_CHANGED_ERROR,
-  formatArtifactSize,
-  rejectionBucketFor,
-} from '@/common/types/artifacts';
+import { ARTIFACT_CHANGED_ERROR, formatArtifactSize, rejectionBucketFor } from '@/common/types/artifacts';
 import { usePreviewLauncher } from '@/renderer/hooks/file/usePreviewLauncher';
 import {
   previewContentTypeForFileName,
@@ -419,7 +415,9 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact: recorded, withPrevi
   const openHere = useCallback(async () => {
     setBusy(true);
     try {
-      const verified = await ipcBridge.artifacts.preview.invoke({ artifactId }).catch((): ArtifactPreview | null => null);
+      const verified = await ipcBridge.artifacts.preview
+        .invoke({ artifactId })
+        .catch((): ArtifactPreview | null => null);
       if (verified?.kind === 'none' && verified.reason === 'changed') {
         setPreview(verified);
         setChanged(true);
@@ -481,7 +479,9 @@ const ArtifactRow: React.FC<ArtifactRowProps> = ({ artifact: recorded, withPrevi
         // The band was showing a digest refusal. Re-read it so the repair is
         // visible rather than merely claimed.
         if (withPreview) {
-          const refreshed = await ipcBridge.artifacts.preview.invoke({ artifactId }).catch((): ArtifactPreview | null => null);
+          const refreshed = await ipcBridge.artifacts.preview
+            .invoke({ artifactId })
+            .catch((): ArtifactPreview | null => null);
           setPreview(refreshed ?? { kind: 'none', reason: 'unavailable' });
         }
         return;

@@ -143,9 +143,7 @@ describe('wcore turn end — frames that arrive after `finish`', () => {
     // deliberately not the turn's - so `Boolean(message.msg_id)` is true and it
     // reached the re-arm exactly like a content frame. See the recipe block
     // below for the same frame built by the production sweep.
-    emit(
-      frame('artifact_card', { artifacts: [{ fileName: 'sea-notes.md' }] }, `artifact-card:${CONV}`)
-    );
+    emit(frame('artifact_card', { artifacts: [{ fileName: 'sea-notes.md' }] }, `artifact-card:${CONV}`));
 
     expect(screen.getByTestId('running').textContent).toBe('false');
   });
@@ -289,7 +287,11 @@ describe('wcore turn end — the deliverable recipe that wedged the composer', (
     // below would be vacuous — which is exactly how a fabricated-shape test
     // stays green through a live bug.
     expect(cardFrame).not.toBeNull();
-    const card = cardFrame as unknown as { type: string; msg_id: string; data: { artifacts: Array<{ fileName: string; sizeBytes: number }> } };
+    const card = cardFrame as unknown as {
+      type: string;
+      msg_id: string;
+      data: { artifacts: Array<{ fileName: string; sizeBytes: number }> };
+    };
     // A LITERAL, deliberately not `chatArtifactCardMsgId(RECIPE_CONV)`. Calling
     // the production helper on both sides of this assertion made it tautological:
     // mutating the helper mutated the expectation with it and the mutant lived.

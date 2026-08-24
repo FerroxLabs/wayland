@@ -216,9 +216,9 @@ describe('historical transaction corpus verifier', () => {
     const producer = producerRepo('export const TRANSACTION_PROTOCOL = 1;\n');
     const candidate = clone(manifest);
     candidate.source.contentSha256 = `sha256:${'0'.repeat(64)}`;
-    expect(() =>
-      verifyProvenance(candidate, { provider: memoryProvider(), git: true, gitSource: producer })
-    ).toThrow(/reconstruction/);
+    expect(() => verifyProvenance(candidate, { provider: memoryProvider(), git: true, gitSource: producer })).toThrow(
+      /reconstruction/
+    );
   });
 
   it('KNOWN-POSITIVE CONTROL: the same re-derivation ACCEPTS the matching digest', () => {

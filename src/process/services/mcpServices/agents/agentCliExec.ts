@@ -30,7 +30,7 @@ type ExecResult = { stdout: string; stderr: string };
  *     codex-add        8     118     224     884
  *     codex-remove     8     111     140     911
  *     gemini-add       8    1375    1834    2798
- *     gemini-remove    8    1455    1649    7524   <- 
+ *     gemini-remove    8    1455    1649    7524   <-
  *     qwen-add         8     894    1021    2218
  *     qwen-remove      8     855    1049    1777
  *     ALL             64     111     965    7524   p95 1927

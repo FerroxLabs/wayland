@@ -50,9 +50,8 @@ mock.module('electron', () => ({
 }));
 
 const { WaylandUIDatabase } = await import('../../../src/process/services/database/index');
-const { buildChatArtifactCardMessage, chatArtifactCardMsgId, persistChatArtifactCard } = await import(
-  '../../../src/process/services/artifacts/chatArtifactCard'
-);
+const { buildChatArtifactCardMessage, chatArtifactCardMsgId, persistChatArtifactCard } =
+  await import('../../../src/process/services/artifacts/chatArtifactCard');
 type ChatArtifactCardPersistence =
   import('../../../src/process/services/artifacts/chatArtifactCard').ChatArtifactCardPersistence;
 type WaylandUIDatabaseType = InstanceType<typeof WaylandUIDatabase>;

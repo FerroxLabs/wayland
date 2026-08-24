@@ -1085,7 +1085,11 @@ export class CronService {
       const fresh = await this.repo.getById(job.id);
       if (!fresh || fresh.state.lastStatus !== 'ok') return;
 
-      const state = { ...fresh.state, lastStatus: 'error' as const, lastError: runProducedNothingError(settled.reason) };
+      const state = {
+        ...fresh.state,
+        lastStatus: 'error' as const,
+        lastError: runProducedNothingError(settled.reason),
+      };
       await this.repo.update(job.id, { state });
       const updated = await this.repo.getById(job.id);
       if (updated) this.emitter.emitJobUpdated(updated);

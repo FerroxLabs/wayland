@@ -65,7 +65,9 @@ afterEach(() => {
 
 /** Every env a shell-out adapter handed to the child, across all its calls. */
 function envsPassedToChildren(): NodeJS.ProcessEnv[] {
-  return execFileSpy.mock.calls.map((call) => (call as unknown as [string, string[], { env: NodeJS.ProcessEnv }])[2].env);
+  return execFileSpy.mock.calls.map(
+    (call) => (call as unknown as [string, string[], { env: NodeJS.ProcessEnv }])[2].env
+  );
 }
 
 /**

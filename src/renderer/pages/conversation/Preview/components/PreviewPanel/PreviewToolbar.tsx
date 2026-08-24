@@ -374,9 +374,7 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <line x1='10' y1='14' x2='21' y2='3' />
               </svg>
               <span>
-                {openWithAppName
-                  ? t('preview.openWithApp', { app: openWithAppName })
-                  : t('preview.openInSystemApp')}
+                {openWithAppName ? t('preview.openWithApp', { app: openWithAppName }) : t('preview.openInSystemApp')}
               </span>
             </div>
           )}

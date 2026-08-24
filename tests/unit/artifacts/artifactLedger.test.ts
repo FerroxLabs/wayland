@@ -361,13 +361,7 @@ describe('rejectionBucketFor folds the host vocabulary into what a person can re
   ];
 
   it('maps every reason in the union to one of the five buckets', () => {
-    const buckets: ArtifactRejectionBucket[] = [
-      'outside-folder',
-      'not-a-file',
-      'too-big',
-      'too-many',
-      'unreadable',
-    ];
+    const buckets: ArtifactRejectionBucket[] = ['outside-folder', 'not-a-file', 'too-big', 'too-many', 'unreadable'];
     for (const reason of ALL_REASONS) {
       expect(buckets, `${reason} has no bucket`).toContain(rejectionBucketFor(reason));
     }

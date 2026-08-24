@@ -146,10 +146,7 @@ const PreviewPopoutShell: React.FC = () => {
         <span className='text-13px text-t-primary font-medium truncate' data-testid='preview-popout-title'>
           {heading}
         </span>
-        <div
-          className='flex items-center gap-8px'
-          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-        >
+        <div className='flex items-center gap-8px' style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
           {notice ? (
             <span className='text-12px text-t-secondary' data-testid='preview-popout-notice'>
               {notice}

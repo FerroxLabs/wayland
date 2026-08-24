@@ -271,7 +271,6 @@ async function seededMorningJob(workspace: string): Promise<CronJob> {
   return job;
 }
 
-
 /** The task the executor sends into, capturing the prompt verbatim. */
 function capturingTaskManager(sent: string[], workspace: string) {
   const task = {
@@ -342,7 +341,7 @@ describe('a seeded routine is never asked to write its own SKILL_SUGGEST', () =>
     await fsp.rm(dataDir, { recursive: true, force: true });
   });
 
-  it('does not put SKILL_SUGGEST.md in the shipped morning routine\'s prompt', async () => {
+  it("does not put SKILL_SUGGEST.md in the shipped morning routine's prompt", async () => {
     const job = await seededMorningJob(workspace);
     const sent: string[] = [];
     const { manager } = capturingTaskManager(sent, workspace);

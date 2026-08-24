@@ -129,8 +129,11 @@ describe('C-2: the Smart Trader persona files its brief where the CHAT collects 
   });
 
   it('KNOWN-POSITIVE CONTROL: the predicate bites on the line that shipped', () => {
-    const chatDir = buildEngineSpawnEnv({ providerEnv: {}, workspace, conversationId: CONVERSATION })
-      .WAYLAND_OUTPUT_DIR;
+    const chatDir = buildEngineSpawnEnv({
+      providerEnv: {},
+      workspace,
+      conversationId: CONVERSATION,
+    }).WAYLAND_OUTPUT_DIR;
     // The control resolves to a real, workspace-visible, correctly-anchored
     // directory - and it is still the WRONG one, which is the whole point.
     const resolved = resolvedDestination(SHIPPED_DEFECT_LINE, workspace);
@@ -141,8 +144,11 @@ describe('C-2: the Smart Trader persona files its brief where the CHAT collects 
   it('the chat namespace really is where a chat deliverable is collected', () => {
     // Read off the production env builder, then off the production directive.
     // Neither half is rebuilt by this test; the assertion is that they AGREE.
-    const chatDir = buildEngineSpawnEnv({ providerEnv: {}, workspace, conversationId: CONVERSATION })
-      .WAYLAND_OUTPUT_DIR;
+    const chatDir = buildEngineSpawnEnv({
+      providerEnv: {},
+      workspace,
+      conversationId: CONVERSATION,
+    }).WAYLAND_OUTPUT_DIR;
     expect(chatDir).toBe(path.join(workspace, 'artifacts', 'chat', CONVERSATION));
     expect(buildOutputDirective(chatDir)).toContain(chatDir);
   });
@@ -154,8 +160,11 @@ describe('C-2: the Smart Trader persona files its brief where the CHAT collects 
     // must fail rather than quietly assert nothing.
     expect(anchors.length).toBeGreaterThanOrEqual(1);
 
-    const chatDir = buildEngineSpawnEnv({ providerEnv: {}, workspace, conversationId: CONVERSATION })
-      .WAYLAND_OUTPUT_DIR;
+    const chatDir = buildEngineSpawnEnv({
+      providerEnv: {},
+      workspace,
+      conversationId: CONVERSATION,
+    }).WAYLAND_OUTPUT_DIR;
 
     const offenders: string[] = [];
     for (const anchor of anchors) {

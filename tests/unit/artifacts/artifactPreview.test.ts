@@ -86,8 +86,7 @@ afterEach(async () => {
 });
 
 /** Opens of the artifact itself, ignoring whatever registration already did. */
-const opensOf = (target: string): number =>
-  openSpy.mock.calls.filter((call) => String(call[0]) === target).length;
+const opensOf = (target: string): number => openSpy.mock.calls.filter((call) => String(call[0]) === target).length;
 
 describe('previewArtifact returns real bytes for a real deliverable', () => {
   it('reads the head of a text deliverable and says it truncated', async () => {
@@ -251,11 +250,14 @@ describe('previewArtifact keeps verification, it does not work around it', () =>
 });
 
 describe('previewArtifact never lets markup or binary reach the preview band', () => {
-  it.each(['diagram.svg', 'DIAGRAM.SVG', 'archive.svgz'])('refuses %s as unsupported, never as an image', async (name) => {
-    const record = await registerOne(`artifacts/chat/c1/${name}`, '<svg xmlns="http://www.w3.org/2000/svg"/>');
-    const preview = await previewArtifact(record.artifactId, effectsWith());
-    expect(preview).toEqual({ kind: 'none', reason: 'unsupported-type' });
-  });
+  it.each(['diagram.svg', 'DIAGRAM.SVG', 'archive.svgz'])(
+    'refuses %s as unsupported, never as an image',
+    async (name) => {
+      const record = await registerOne(`artifacts/chat/c1/${name}`, '<svg xmlns="http://www.w3.org/2000/svg"/>');
+      const preview = await previewArtifact(record.artifactId, effectsWith());
+      expect(preview).toEqual({ kind: 'none', reason: 'unsupported-type' });
+    }
+  );
 
   it('shows an HTML deliverable as its SOURCE, in the text arm', async () => {
     // The other half of the same decision: markup is never rendered, but a

@@ -53,8 +53,7 @@ afterEach(() => {
 });
 
 const write = (obj: unknown) => writeFileSync(join(root, 'smart-trader-settings.json'), JSON.stringify(obj));
-const resolve = (env: NodeJS.ProcessEnv = {}) =>
-  mod.resolvePaths({ defaultList, defaultPositions, env, root });
+const resolve = (env: NodeJS.ProcessEnv = {}) => mod.resolvePaths({ defaultList, defaultPositions, env, root });
 
 describe('market-open-report settings (memory between sessions)', () => {
   it('falls back to the shipped list when nothing is configured', () => {

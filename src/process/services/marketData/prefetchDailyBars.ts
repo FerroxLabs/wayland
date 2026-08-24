@@ -381,7 +381,8 @@ function epochSeconds(yyyymmdd: string): number {
 function parseBars(raw: unknown): Array<Record<string, number | string>> {
   const chart = (raw as { chart?: { result?: unknown[] } })?.chart;
   const res = chart?.result?.[0] as
-    { timestamp?: unknown; indicators?: { quote?: Array<Record<string, unknown[]>> } } | undefined;
+    | { timestamp?: unknown; indicators?: { quote?: Array<Record<string, unknown[]>> } }
+    | undefined;
   if (!res || !Array.isArray(res.timestamp)) return [];
   const q = res.indicators?.quote?.[0];
   if (!q) return [];

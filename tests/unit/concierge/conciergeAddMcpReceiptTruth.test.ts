@@ -48,10 +48,12 @@ const { state, emitSpy, setSpy, getSpy, mcpUpdateSpy, probeSpy, syncSpy, detecte
         hoistedState.mcpServers = structuredClone(await mutator(structuredClone(hoistedState.mcpServers)));
         return { revision: '0'.repeat(64), servers: structuredClone(hoistedState.mcpServers) };
       }),
-      probeSpy: vi.fn(async (_server: IMcpServer): Promise<McpConnectionTestResult> => ({
-        success: false,
-        error: 'not configured',
-      })),
+      probeSpy: vi.fn(
+        async (_server: IMcpServer): Promise<McpConnectionTestResult> => ({
+          success: false,
+          error: 'not configured',
+        })
+      ),
       syncSpy: vi.fn(async () => ({ success: true, results: [{ agent: 'Wayland Core', success: true }] })),
       detectedAgentsSpy: vi.fn(() => [{ backend: 'wcore', name: 'Wayland Core', kind: 'acp' }]),
       updateSpy: vi.fn((_id: string, m: Record<string, unknown>) => {

@@ -173,7 +173,8 @@ if (byUuid.size > 0) {
       byUuid.delete(record.uuid);
     }
   }
-  for (const [uuid, want] of byUuid) console.error(`MISSING ${want.key} (${uuid}) - no transcript on this machine holds it`);
+  for (const [uuid, want] of byUuid)
+    console.error(`MISSING ${want.key} (${uuid}) - no transcript on this machine holds it`);
 }
 
 for (const [key, messageId, why] of WANTED) {

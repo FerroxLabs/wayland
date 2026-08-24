@@ -76,9 +76,8 @@ mock.module('../../../src/process/utils/initStorage', () => ({
   ProcessChat: { get: async () => [] },
 }));
 
-const { addOrUpdateMessage, flushConversationMessages, removeFromMessageCache } = await import(
-  '../../../src/process/utils/message'
-);
+const { addOrUpdateMessage, flushConversationMessages, removeFromMessageCache } =
+  await import('../../../src/process/utils/message');
 
 const CONVERSATION = 'c-lastagent';
 

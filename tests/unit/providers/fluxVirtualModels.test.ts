@@ -39,8 +39,24 @@ describe('Flux tiers carry the context window the Router actually advertises', (
     // skipped for them. A fix that only touched the virtuals would have
     // changed nothing the user could see.
     const upstream = [
-      { id: 'flux-auto', providerId: 'flux-router', displayName: 'Flux Auto', family: 'flux-auto', kind: 'text', enriched: false, tags: [] },
-      { id: 'flux-fast', providerId: 'flux-router', displayName: 'Flux Fast', family: 'flux-fast', kind: 'text', enriched: false, tags: [] },
+      {
+        id: 'flux-auto',
+        providerId: 'flux-router',
+        displayName: 'Flux Auto',
+        family: 'flux-auto',
+        kind: 'text',
+        enriched: false,
+        tags: [],
+      },
+      {
+        id: 'flux-fast',
+        providerId: 'flux-router',
+        displayName: 'Flux Fast',
+        family: 'flux-fast',
+        kind: 'text',
+        enriched: false,
+        tags: [],
+      },
     ] as never;
 
     const out = injectFluxVirtualModels(upstream);
@@ -51,7 +67,16 @@ describe('Flux tiers carry the context window the Router actually advertises', (
 
   it('does not clobber a real window the catalog already resolved', () => {
     const upstream = [
-      { id: 'flux-auto', providerId: 'flux-router', displayName: 'Flux Auto', family: 'flux-auto', kind: 'text', enriched: true, contextWindow: 2_000_000, tags: [] },
+      {
+        id: 'flux-auto',
+        providerId: 'flux-router',
+        displayName: 'Flux Auto',
+        family: 'flux-auto',
+        kind: 'text',
+        enriched: true,
+        contextWindow: 2_000_000,
+        tags: [],
+      },
     ] as never;
     expect(injectFluxVirtualModels(upstream).find((m) => m.id === 'flux-auto')?.contextWindow).toBe(2_000_000);
   });

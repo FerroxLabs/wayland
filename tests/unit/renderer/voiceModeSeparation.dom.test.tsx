@@ -853,9 +853,7 @@ describe('V16: a staged attachment defers the spoken turn to the draft', () => {
     try {
       renderComposer('wcore');
       await speakOneTurn();
-      await waitFor(() =>
-        expect(mockVoiceEnqueue).toHaveBeenCalledWith({ input: 'the transcript', files: [] })
-      );
+      await waitFor(() => expect(mockVoiceEnqueue).toHaveBeenCalledWith({ input: 'the transcript', files: [] }));
     } finally {
       mockVoiceShouldEnqueue = false;
       mockVoiceRunning = false;

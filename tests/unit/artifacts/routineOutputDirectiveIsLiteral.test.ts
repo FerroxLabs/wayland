@@ -170,7 +170,6 @@ import {
   LEGACY_ROUTINE_OUTPUT_DIR_SENTENCE,
 } from '@process/services/cron/BuiltinRoutinesSeeder';
 
-
 const REPO_ROOT = pathMod.resolve(__dirname, '../../..');
 const SCANNER_REL = '.wayland-core/skills/market-open-report';
 
@@ -240,7 +239,6 @@ function makeService(jobs: CronJob[]): CronService {
     } as unknown as IConversationRepository
   );
 }
-
 
 /** What the stand-in agent does once the run's engine channels exist. */
 type Agent = (channels: { env: Record<string, string>; directive: string }, workspace: string) => Promise<void>;
@@ -317,10 +315,7 @@ function bundledShellBlocks(): Array<{ body: string; block: string }> {
 
 /** The scanner-running block out of the shipped morning-report body, verbatim. */
 function scanCommandBlock(): string {
-  const markdown = readFileSync(
-    pathMod.join(BODIES_DIR, 'wayland-morning-report/SKILL.md'),
-    'utf-8'
-  );
+  const markdown = readFileSync(pathMod.join(BODIES_DIR, 'wayland-morning-report/SKILL.md'), 'utf-8');
   const block = [...markdown.matchAll(/```(?:bash|sh|shell|zsh)\n([\s\S]*?)```/g)]
     .map((m) => m[1])
     .find((b) => b.includes('MARKET_OPEN_REPORT_LIST') || b.includes('morning-report.mjs'));

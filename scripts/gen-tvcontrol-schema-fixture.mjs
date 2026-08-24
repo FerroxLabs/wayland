@@ -43,7 +43,10 @@ async function handshake(cmd, args, cwd) {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, { cwd, stdio: ['pipe', 'pipe', 'inherit'] });
     let buf = '';
-    const timer = setTimeout(() => { child.kill('SIGKILL'); reject(new Error('timeout')); }, 60000);
+    const timer = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error('timeout'));
+    }, 60000);
     child.stdout.on('data', (d) => {
       buf += d.toString();
       let nl;
@@ -52,7 +55,11 @@ async function handshake(cmd, args, cwd) {
         buf = buf.slice(nl + 1);
         if (!line.trim()) continue;
         let msg;
-        try { msg = JSON.parse(line); } catch { continue; }
+        try {
+          msg = JSON.parse(line);
+        } catch {
+          continue;
+        }
         if (msg.id === 1) {
           child.stdin.write(JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n');
           child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }) + '\n');
@@ -64,17 +71,24 @@ async function handshake(cmd, args, cwd) {
       }
     });
     child.on('error', reject);
-    child.stdin.write(JSON.stringify({
-      jsonrpc: '2.0', id: 1, method: 'initialize',
-      params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'fixture-gen', version: '0' } },
-    }) + '\n');
+    child.stdin.write(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'initialize',
+        params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'fixture-gen', version: '0' } },
+      }) + '\n'
+    );
   });
 }
 
 const version = pinnedVersion();
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'tvfixture-'));
 try {
-  fs.writeFileSync(path.join(tmp, 'package.json'), JSON.stringify({ name: 'fixture-host', private: true, version: '0.0.0' }));
+  fs.writeFileSync(
+    path.join(tmp, 'package.json'),
+    JSON.stringify({ name: 'fixture-host', private: true, version: '0.0.0' })
+  );
 
   let installArg;
   let source;
@@ -83,7 +97,10 @@ try {
     if (localVersion !== version) {
       throw new Error(`--from-dir is version ${localVersion} but the catalog pins ${version}`);
     }
-    const tar = execFileSync('npm', ['pack', '--pack-destination', tmp], { cwd: fromDir, encoding: 'utf8' }).trim().split('\n').pop();
+    const tar = execFileSync('npm', ['pack', '--pack-destination', tmp], { cwd: fromDir, encoding: 'utf8' })
+      .trim()
+      .split('\n')
+      .pop();
     installArg = path.join(tmp, tar);
     source = `local:${fromDir}`;
   } else {
@@ -91,8 +108,11 @@ try {
     source = 'registry';
   }
 
-  execFileSync('npm', ['install', '--omit=dev', '--no-audit', '--no-fund', '--cache', path.join(tmp, '.npmcache'), installArg],
-    { cwd: tmp, stdio: 'inherit' });
+  execFileSync(
+    'npm',
+    ['install', '--omit=dev', '--no-audit', '--no-fund', '--cache', path.join(tmp, '.npmcache'), installArg],
+    { cwd: tmp, stdio: 'inherit' }
+  );
 
   const installed = path.join(tmp, 'node_modules', '@ferroxlabs', 'tvcontrol');
   const installedPkg = JSON.parse(fs.readFileSync(path.join(installed, 'package.json'), 'utf8'));

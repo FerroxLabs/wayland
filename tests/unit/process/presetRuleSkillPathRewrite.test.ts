@@ -133,7 +133,7 @@ describe('preset rule seeding rewrites only LEADING skills/ segments', () => {
   it('ANTI-SHRINK FLOOR: the corpus-wide rewrite count cannot silently drop to zero', () => {
     // A helper that rewrites nothing would satisfy the smart-trader assertion perfectly.
     const rewrites = corpus.reduce(
-      (n, c) => n + ((c.after.match(new RegExp(USER_SKILLS_DIR.replace(/\//g, '\\/'), 'g')) ?? []).length),
+      (n, c) => n + (c.after.match(new RegExp(USER_SKILLS_DIR.replace(/\//g, '\\/'), 'g')) ?? []).length,
       0
     );
     expect(rewrites).toBeGreaterThanOrEqual(3);

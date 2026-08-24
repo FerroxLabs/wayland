@@ -61,7 +61,9 @@ vi.mock('@process/services/mcpServices/agents/QwenMcpAgent', () => ({ QwenMcpAge
 vi.mock('@process/services/mcpServices/agents/GeminiMcpAgent', () => ({ GeminiMcpAgent: stubAgent(installs.other) }));
 vi.mock('@process/services/mcpServices/agents/WaylandMcpAgent', () => ({ WaylandMcpAgent: stubAgent(installs.other) }));
 vi.mock('@process/services/mcpServices/agents/CodexMcpAgent', () => ({ CodexMcpAgent: stubAgent(installs.other) }));
-vi.mock('@process/services/mcpServices/agents/OpencodeMcpAgent', () => ({ OpencodeMcpAgent: stubAgent(installs.other) }));
+vi.mock('@process/services/mcpServices/agents/OpencodeMcpAgent', () => ({
+  OpencodeMcpAgent: stubAgent(installs.other),
+}));
 vi.mock('@process/services/mcpServices/agents/CodebuddyMcpAgent', () => ({
   CodebuddyMcpAgent: stubAgent(installs.other),
 }));

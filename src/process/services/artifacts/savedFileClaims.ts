@@ -126,7 +126,26 @@ const CLAIMED_PATH = new RegExp(
  * are all here, which is why a path wrapped in any of them comes out clean.
  */
 const TOKEN_BOUNDARY: ReadonlySet<string> = new Set([
-  ' ', '\t', '\r', '`', '"', "'", '(', ')', '[', ']', '{', '}', '<', '>', ',', ';', '|', '*', '\u2014', '\u2013',
+  ' ',
+  '\t',
+  '\r',
+  '`',
+  '"',
+  "'",
+  '(',
+  ')',
+  '[',
+  ']',
+  '{',
+  '}',
+  '<',
+  '>',
+  ',',
+  ';',
+  '|',
+  '*',
+  '\u2014',
+  '\u2013',
 ]);
 
 /** Sentence punctuation a model glues onto the end of a path. */
@@ -223,9 +242,29 @@ const MAX_CLAIMS = 8;
  * genuine claim that `skipped` silently ate.
  */
 const NEGATOR: ReadonlySet<string> = new Set([
-  'not', 'no', 'never', 'nothing', 'none', 'neither', 'nor',
-  "didn't", "don't", "doesn't", "hasn't", "haven't", "hadn't", "wasn't", "weren't",
-  "isn't", "aren't", "can't", 'cannot', "couldn't", "won't", "wouldn't", "shouldn't",
+  'not',
+  'no',
+  'never',
+  'nothing',
+  'none',
+  'neither',
+  'nor',
+  "didn't",
+  "don't",
+  "doesn't",
+  "hasn't",
+  "haven't",
+  "hadn't",
+  "wasn't",
+  "weren't",
+  "isn't",
+  "aren't",
+  "can't",
+  'cannot',
+  "couldn't",
+  "won't",
+  "wouldn't",
+  "shouldn't",
 ]);
 
 /**
@@ -234,9 +273,7 @@ const NEGATOR: ReadonlySet<string> = new Set([
  * `your` is deliberately absent: it killed a genuine claim, "also saved to your
  * Desktop as wayland-agents-mock.html". A possessive is not a subject.
  */
-const OTHER_SUBJECT: ReadonlySet<string> = new Set([
-  'you', "you've", 'user', 'they', "they've", 'someone', 'somebody',
-]);
+const OTHER_SUBJECT: ReadonlySet<string> = new Set(['you', "you've", 'user', 'they', "they've", 'someone', 'somebody']);
 
 /**
  * Modals and complementizers that put the whole clause in the hypothetical.
@@ -245,9 +282,7 @@ const OTHER_SUBJECT: ReadonlySet<string> = new Set([
  * had written config.md" is conditional precisely because `if` scopes over its
  * own subject.
  */
-const CONDITIONAL: ReadonlySet<string> = new Set([
-  'if', 'whether', 'unless', 'would', 'could', 'might', 'should',
-]);
+const CONDITIONAL: ReadonlySet<string> = new Set(['if', 'whether', 'unless', 'would', 'could', 'might', 'should']);
 
 /**
  * A first-person subject ENDS the backward scan.
@@ -328,8 +363,7 @@ function breaksClause(line: string, index: number): boolean {
   const code = line.charCodeAt(index);
   // An em or en dash. Both are already TOKEN_BOUNDARY characters.
   if (code === 0x2014 || code === 0x2013) return true;
-  const isPunctuation =
-    code === 46 || code === 59 || code === 58 || code === 33 || code === 63 || code === 44; // . ; : ! ? ,
+  const isPunctuation = code === 46 || code === 59 || code === 58 || code === 33 || code === 63 || code === 44; // . ; : ! ? ,
   // The overwhelmingly common case, and it costs one comparison chain.
   if (!isPunctuation && code !== 45) return false;
   const endsWord = index + 1 >= line.length || isSpace(line.charCodeAt(index + 1));

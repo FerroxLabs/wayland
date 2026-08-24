@@ -7,7 +7,24 @@
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Tooltip } from '@arco-design/web-react';
 import classNames from 'classnames';
-import { Activity, Bot, Brain, CalendarClock, ChevronDown, ChevronRight, FolderKanban, Library, MessagesSquare, Package, Plug, Plus, Search, Sparkles, Users, Workflow } from 'lucide-react';
+import {
+  Activity,
+  Bot,
+  Brain,
+  CalendarClock,
+  ChevronDown,
+  ChevronRight,
+  FolderKanban,
+  Library,
+  MessagesSquare,
+  Package,
+  Plug,
+  Plus,
+  Search,
+  Sparkles,
+  Users,
+  Workflow,
+} from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { COCKPIT_NAVIGATION_DESTINATIONS } from '@/common/navigation';
 import { useAuth } from '@renderer/hooks/context/AuthContext';

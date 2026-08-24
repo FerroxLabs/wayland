@@ -463,48 +463,51 @@ void getDatabase()
     // fires on the completion of every turn in the product, and a ledger the
     // app cannot write must never surface as a broken conversation.
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {
-      void onChatTurnCompleted({ ...event, hasTask: event.runtime?.hasTask }, {
-        ledgerPath: artifactLedgerPath(getDataPath()),
-        // WHAT THE MODEL JUST SAID, handed to the half that knows what is
-        // actually on disk. B5 was a turn that made zero tool calls and still
-        // told the user it had saved a file; the host held both facts at this
-        // exact instant and had never compared them. Same reader the workflow
-        // driver already uses - no second notion of "the final assistant text".
-        lastAgentText: getLastAgentText,
-        onSwept: async (result) => {
-          const content = buildChatArtifactCardContent(result);
-          if (!content) return;
-          const conversationId = event.sessionId;
-          const message = buildChatArtifactCardMessage(conversationId, content);
-          // Persist FIRST, then emit. A card the user can see but that is gone
-          // after a restart is worse than one that arrives a beat late, and
-          // "finds it again tomorrow" is the goal this milestone is measured on.
-          //
-          // REPLACE, not insert. The card's id is derived from the conversation
-          // id, and `messages.id` is UNIQUE - so a plain `addMessage` on turn 2
-          // hit a constraint that `insertMessage` catches and returns as
-          // `{ success: false }`, which the write queue discarded. Every card
-          // after the first was lost in silence and the conversation reopened
-          // showing turn 1's stale card. The drain is part of it: `addMessage`
-          // is queued, so a delete racing a queued insert loses the card a
-          // second way.
-          const db = await getDatabase();
-          await persistChatArtifactCard(conversationId, message, {
-            flush: flushConversationMessages,
-            deleteMessage: (messageId) => {
-              db.deleteMessage(messageId);
-            },
-            addMessage,
-          });
-          ipcBridge.conversation.responseStream.emit({
-            type: 'artifact_card',
-            conversation_id: conversationId,
-            msg_id: message.msg_id,
-            data: content,
-          });
-        },
-        onError: (error) => console.warn('[initBridge] chat artifact sweep failed:', error),
-      });
+      void onChatTurnCompleted(
+        { ...event, hasTask: event.runtime?.hasTask },
+        {
+          ledgerPath: artifactLedgerPath(getDataPath()),
+          // WHAT THE MODEL JUST SAID, handed to the half that knows what is
+          // actually on disk. B5 was a turn that made zero tool calls and still
+          // told the user it had saved a file; the host held both facts at this
+          // exact instant and had never compared them. Same reader the workflow
+          // driver already uses - no second notion of "the final assistant text".
+          lastAgentText: getLastAgentText,
+          onSwept: async (result) => {
+            const content = buildChatArtifactCardContent(result);
+            if (!content) return;
+            const conversationId = event.sessionId;
+            const message = buildChatArtifactCardMessage(conversationId, content);
+            // Persist FIRST, then emit. A card the user can see but that is gone
+            // after a restart is worse than one that arrives a beat late, and
+            // "finds it again tomorrow" is the goal this milestone is measured on.
+            //
+            // REPLACE, not insert. The card's id is derived from the conversation
+            // id, and `messages.id` is UNIQUE - so a plain `addMessage` on turn 2
+            // hit a constraint that `insertMessage` catches and returns as
+            // `{ success: false }`, which the write queue discarded. Every card
+            // after the first was lost in silence and the conversation reopened
+            // showing turn 1's stale card. The drain is part of it: `addMessage`
+            // is queued, so a delete racing a queued insert loses the card a
+            // second way.
+            const db = await getDatabase();
+            await persistChatArtifactCard(conversationId, message, {
+              flush: flushConversationMessages,
+              deleteMessage: (messageId) => {
+                db.deleteMessage(messageId);
+              },
+              addMessage,
+            });
+            ipcBridge.conversation.responseStream.emit({
+              type: 'artifact_card',
+              conversation_id: conversationId,
+              msg_id: message.msg_id,
+              data: content,
+            });
+          },
+          onError: (error) => console.warn('[initBridge] chat artifact sweep failed:', error),
+        }
+      );
     });
 
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {

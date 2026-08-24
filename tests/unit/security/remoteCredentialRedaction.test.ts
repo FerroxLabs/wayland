@@ -20,7 +20,12 @@
  * must not be able to read every connector credential on the machine.
  */
 import { describe, it, expect } from 'vitest';
-import { redactForRemote, redactSecretFields, isSecretBearingCallback, REDACTED } from '@/common/adapter/remoteRedaction';
+import {
+  redactForRemote,
+  redactSecretFields,
+  isSecretBearingCallback,
+  REDACTED,
+} from '@/common/adapter/remoteRedaction';
 
 const snapshotName = 'subscribe.callback-mcp.get-config-snapshot1a2b3c4d';
 
