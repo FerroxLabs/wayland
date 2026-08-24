@@ -58,6 +58,19 @@ const ProjectsListPage = React.lazy(() => import('@renderer/pages/projects/Proje
 const ProjectWorkspacePage = React.lazy(() => import('@renderer/pages/projects/ProjectWorkspacePage'));
 const ConversationsListPage = React.lazy(() => import('@renderer/pages/conversations/ConversationsListPage'));
 const ArtifactsPage = React.lazy(() => import('@renderer/pages/artifacts/ArtifactsPage'));
+const PreviewPopoutPage = React.lazy(() => import('@renderer/pages/preview/PreviewPopoutPage'));
+/**
+ * A preview pop-out window is BORN on `#/preview?mode=popout`, and the handoff
+ * that seeds it is emitted from that window's `did-finish-load`. The page's
+ * module-scope listener can only latch a handoff that arrives after its chunk
+ * has evaluated, so start fetching the chunk here - at module scope, the
+ * earliest point in this renderer - rather than waiting for the first render to
+ * ask for it. Only in a window that is already on the route, so the main
+ * window's startup is untouched.
+ */
+if (typeof window !== 'undefined' && window.location.hash.startsWith('#/preview')) {
+  void import('@renderer/pages/preview/PreviewPopoutPage');
+}
 const IjfwSettingsPanel = React.lazy(() => import('@renderer/pages/settings/IjfwSettingsPanel'));
 const WikiHomePage = React.lazy(() =>
   import('@renderer/pages/wiki/WikiHomePage').then((m) => ({ default: m.WikiHomePage }))
@@ -106,6 +119,21 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             path='/login'
             element={status === 'authenticated' ? <Navigate to='/guid' replace /> : withRouteFallback(LoginPage)}
           />
+          {/* PREVIEW POP-OUT - a whole window holding one deliverable.
+
+              ROUTED BARE, OUTSIDE ProtectedLayout, deliberately. Everything
+              ProtectedLayout brings would follow the deliverable into its own
+              window: the Sider's route-change `closePreview` (which tore the
+              panel down last time and is why ArtifactsPage hosts its own
+              provider), OnboardingOverlay and ShellChoiceOverlay, and a second
+              auth round-trip that can bounce a preview window to /login while
+              the main window is signed in.
+
+              This is NOT a security decision and removes no gate: the page
+              reads one tab handed to it over `preview.handoff` and offers one
+              control that closes its own window. Every provider it can reach is
+              allowlisted and re-checked in the main process exactly as before. */}
+          <Route path='/preview' element={withRouteFallback(PreviewPopoutPage)} />
           <Route element={<ProtectedLayout layout={layout} />}>
             <Route index element={<Navigate to='/guid' replace />} />
             <Route path='/guid' element={withRouteFallback(Guid)} />
