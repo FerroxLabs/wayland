@@ -37,5 +37,6 @@
     "seeAllScheduled": "Alle geplanten anzeigen →",
     "seeAllChats": "Alle Chats anzeigen →",
     "showMore": "{{count}} weitere anzeigen →"
-  }
+  },
+  "artifacts": "Artefakte"
 }

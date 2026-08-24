@@ -550,5 +550,33 @@
       "revealFailed": "Wayland はフォルダーを開けませんでした。理由: {{reason}}"
     },
     "notText": "このファイルはテキストとして読み取れません。設定ファイルの形式が求める UTF-8 として無効なバイトが含まれています。何も変更していません。"
+  },
+  "artifactCard": {
+    "title": "ワークスペースに保存しました",
+    "openHere": "ここで開く",
+    "openInApp": "{{app}} で開く",
+    "openExternally": "既定のアプリで開く",
+    "reveal": "フォルダーに表示",
+    "saveCopy": "コピーを保存",
+    "changed": "このファイルは保存後に変更されています。",
+    "claimedButAbsent": "{{fileName}} が書き込まれたことを Wayland は確認できませんでした。",
+    "claimedElsewhere": "{{fileName}} は {{actualPath}} に保存されており、この会話のファイルではありません。",
+    "claimedElsewhereInWorkspace": "{{fileName}} はワークスペースフォルダーにあり、この会話のファイルではありません。",
+    "update": "更新",
+    "rejected": "{{count}} 件のファイルは成果物として保存されませんでした: {{detail}}。",
+    "rejected_other": "{{count}} 件のファイルは成果物として保存されませんでした: {{detail}}。",
+    "unknownError": "うまくいきませんでした。ファイルが移動された可能性があります。",
+    "rejectedOutsideFolder": "{{count}} 件はこのチャットのフォルダーの外に保存されました",
+    "rejectedOutsideFolder_other": "{{count}} 件はこのチャットのフォルダーの外に保存されました",
+    "rejectedNotAFile": "{{count}} 件は通常のファイルではありませんでした",
+    "rejectedNotAFile_other": "{{count}} 件は通常のファイルではありませんでした",
+    "rejectedTooBig": "{{count}} 件は大きすぎて保存できませんでした",
+    "rejectedTooBig_other": "{{count}} 件は大きすぎて保存できませんでした",
+    "rejectedTooMany": "{{count}} 件はこのターンの上限を超えました",
+    "rejectedTooMany_other": "{{count}} 件はこのターンの上限を超えました",
+    "rejectedUnreadable": "{{count}} 件は読み取れませんでした",
+    "rejectedUnreadable_other": "{{count}} 件は読み取れませんでした",
+    "more": "ほか {{count}} 件は成果物にあります",
+    "more_other": "ほか {{count}} 件は成果物にあります"
   }
 }

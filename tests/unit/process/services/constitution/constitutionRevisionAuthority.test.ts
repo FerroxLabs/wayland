@@ -1,4 +1,13 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -18,6 +27,15 @@ const secretBackend: ConstitutionArchiveSecretBackend = {
   encryptString: (plaintext) => `fenc:v1:${Buffer.from(plaintext).toString('base64')}`,
   decryptString: (ciphertext) => Buffer.from(ciphertext.slice('fenc:v1:'.length), 'base64').toString('utf8'),
 };
+
+/** The errno error a Windows rename raises while another process holds a file. */
+function publicationFailure(code: string): NodeJS.ErrnoException {
+  const error = new Error(
+    `${code}: operation not permitted, rename 'revision.enc.tmp' -> 'revision.enc'`
+  ) as NodeJS.ErrnoException;
+  error.code = code;
+  return error;
+}
 
 describe('ConstitutionRevisionAuthority', () => {
   it('keeps a cold noncreating load side-effect free and preserves one active key across restart', () => {
@@ -242,5 +260,118 @@ describe('ConstitutionRevisionAuthority', () => {
 
     const ciphertext = readFileSync(authorityPath, 'utf8');
     expect(ciphertext).not.toContain('keyBase64');
+  });
+  // --- Publication rename under a third-party handle (Windows) -------------
+  //
+  // POSIX rename(2) succeeds while other processes hold the destination open.
+  // Windows MoveFileEx does not: it fails, usually EPERM, for as long as any
+  // other process holds either file without FILE_SHARE_DELETE - which an
+  // on-access scanner or the Search Indexer routinely does to a file just
+  // created in %TEMP%. `recoveryPointBuilder.test.ts` rotates a real authority
+  // in its shared fixture and so failed at random on the Windows box: 2 of 6
+  // runs idle, 13 of 6 under eight concurrent filesystem scanners, the failure
+  // landing on a different test each time.
+  //
+  // That handle cannot be produced from Node, so `replacePublication` stands in
+  // for it. The simulation only decides WHEN the rename is allowed to proceed;
+  // when it does proceed it calls the real `renameSync`, and rotate()'s own
+  // read-back of the published file is what proves the publication happened.
+  it('retries the publication rename through a transient handle without sleeping on the happy path', () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-revision-publication-transient-'));
+    const authorityPath = path.join(root, 'revision.enc');
+    const created = ConstitutionRevisionAuthority.loadOrCreate(authorityPath, secretBackend);
+
+    const slept: number[] = [];
+    let holds = 0;
+    const authority = ConstitutionRevisionAuthority.load(authorityPath, secretBackend, {
+      replacePublication: (from, to) => {
+        if (holds > 0) {
+          holds -= 1;
+          throw publicationFailure('EPERM');
+        }
+        renameSync(from, to);
+      },
+      sleep: (milliseconds) => slept.push(milliseconds),
+    })!;
+
+    // An unobstructed rotation must cost exactly what it did before: one
+    // rename, no backoff at all.
+    const uncontended = authority.rotate();
+    expect(uncontended.previousKeyId).toBe(created.keyId());
+    expect(slept).toEqual([]);
+
+    // Now the holder wins the first three attempts. The fourth publishes.
+    const contendedFrom = authority.keyId();
+    holds = 3;
+    const contended = authority.rotate();
+
+    expect(holds).toBe(0);
+    expect(slept).toEqual([25, 50, 100]);
+    expect(contended.previousKeyId).toBe(contendedFrom);
+    // Read the authority back off disk through a fresh instance: the retried
+    // rename really published, it did not merely stop throwing.
+    const persisted = ConstitutionRevisionAuthority.load(authorityPath, secretBackend)!;
+    expect(persisted.keyId()).toBe(authority.keyId());
+    expect(persisted.rotationReceipts()).toEqual([uncontended, contended]);
+    expect(readdirSync(root).filter((entry) => entry.endsWith('.tmp'))).toEqual([]);
+    expect(existsSync(`${authorityPath}.rotation.lock`)).toBe(false);
+  });
+
+  it('surfaces a permanent publication permission failure unmasked once the bounded budget is spent', () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-revision-publication-permanent-'));
+    const authorityPath = path.join(root, 'revision.enc');
+    const created = ConstitutionRevisionAuthority.loadOrCreate(authorityPath, secretBackend);
+
+    const slept: number[] = [];
+    let attempts = 0;
+    const authority = ConstitutionRevisionAuthority.load(authorityPath, secretBackend, {
+      replacePublication: () => {
+        attempts += 1;
+        throw publicationFailure('EACCES');
+      },
+      sleep: (milliseconds) => slept.push(milliseconds),
+    })!;
+
+    let thrown: unknown;
+    try {
+      authority.rotate();
+    } catch (error) {
+      thrown = error;
+    }
+
+    // Bounded: eleven attempts, 2775 ms of waiting, then it gives up.
+    expect(attempts).toBe(11);
+    expect(slept).toEqual([25, 50, 100, 200, 400, 400, 400, 400, 400, 400]);
+    expect(slept.reduce((total, value) => total + value, 0)).toBe(2775);
+    // Unmasked: the caller gets the original errno error, not a retry wrapper
+    // and not a relabelled constitution code.
+    expect((thrown as NodeJS.ErrnoException).code).toBe('EACCES');
+    expect((thrown as Error).message).toContain('EACCES');
+    expect((thrown as Error).message).not.toContain('CONSTITUTION_FS_REVISION_AUTHORITY');
+    // Nothing was published and nothing was left behind: the previous
+    // authority is still the one on disk and the temporary is gone.
+    expect(ConstitutionRevisionAuthority.load(authorityPath, secretBackend)!.keyId()).toBe(created.keyId());
+    expect(readdirSync(root).filter((entry) => entry.endsWith('.tmp'))).toEqual([]);
+    expect(existsSync(`${authorityPath}.rotation.lock`)).toBe(false);
+  });
+
+  it('does not retry a publication failure that is not a transient handle conflict', () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-revision-publication-fatal-'));
+    const authorityPath = path.join(root, 'revision.enc');
+    ConstitutionRevisionAuthority.loadOrCreate(authorityPath, secretBackend);
+
+    const slept: number[] = [];
+    let attempts = 0;
+    const authority = ConstitutionRevisionAuthority.load(authorityPath, secretBackend, {
+      replacePublication: () => {
+        attempts += 1;
+        throw publicationFailure('ENOSPC');
+      },
+      sleep: (milliseconds) => slept.push(milliseconds),
+    })!;
+
+    expect(() => authority.rotate()).toThrow('ENOSPC');
+    expect(attempts).toBe(1);
+    expect(slept).toEqual([]);
   });
 });

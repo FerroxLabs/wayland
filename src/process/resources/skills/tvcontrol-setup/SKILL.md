@@ -24,18 +24,28 @@ Everything else in this skill you can do for them.
 
 ## Step 1 — is TVControl installed?
 
-**Check your own toolset.** If `tv_health_check`, `chart_get_state` and `tv_launch` are not
-in your tools, TVControl is not installed. That is the whole test. Do not run a shell
-command to look for it, and do not guess from a failed call.
+**Search the tool catalogue first.** Connector tools are not handed to you up front — they sit
+in a searchable catalogue and only enter your toolset once you ask for them. An empty toolset is
+therefore what you see BEFORE looking, whether or not TVControl is installed, so it proves
+nothing on its own.
 
-**If the tools are missing**, offer the install and emit exactly one proposal block:
+Search by name for `tv_health_check`, `chart_get_state` and `tv_launch`, and search by intent
+("tradingview chart"). Then read the result:
+
+- **The search returns them** — TVControl IS installed. Skip the install entirely, go to Step 2,
+  and never emit a proposal block. Re-proposing an install over a working connector is the worst
+  outcome this skill can produce.
+- **The search returns nothing** — TVControl is not installed. That is the whole test. Do not run
+  a shell command to look for it, and do not guess from a failed call.
+
+**Only when the search came back empty**, offer the install and emit exactly one proposal block:
 
 ```
 [CONCIERGE_PROPOSE]
 kind: add_mcp
 name: com.ferroxlabs-tvcontrol
 command: npx
-args: @ferroxlabs/tvcontrol@2.2.2
+args: @ferroxlabs/tvcontrol@2.3.1
 [/CONCIERGE_PROPOSE]
 ```
 
@@ -66,6 +76,9 @@ invisible to it. Any TradingView plan works, including the free one.
 - **Read the `message`, not the `category`.** The category is `TV_NOT_RUNNING` for both
   "not installed" and "installed but no control port". Only the message text tells them
   apart.
+- **A control port that is already open returns `action: "already_running"` with
+  `launched: false`.** That is a success, not a no-op to retry — TradingView is answering and
+  nothing was started. Do not call again with `kill_existing` to "make sure".
 
 **If the message says it cannot find TradingView**, it is not installed. Point them at
 [tradingview.com/desktop](https://www.tradingview.com/desktop/) and wait.
@@ -110,8 +123,9 @@ TradingView running; quitting it or restarting it normally takes the tools offli
 **Default to TradingView's own import. Do not add the symbols yourself.**
 
 TradingView takes the `.txt` export directly — the user picks Import from the watchlist menu,
-chooses the file, and it is done in one step. That is faster than anything this connector can
-do, and it does not carry the three defects documented below.
+chooses the file, and it is done in one step. It takes the raw `.txt`, it keeps the `###`
+section structure exactly as written, and it needs no conversion — none of which is true of
+the connector's own import.
 
 1. Tell them where the file is, and that it imports as-is with no conversion.
 2. Walk them to it: **the watchlist panel, the three-dot menu at its top, then "Import
@@ -119,11 +133,17 @@ do, and it does not carry the three defects documented below.
 3. **Then verify, and this part is yours to do**: `watchlist_get`, compare the count against
    the file, and name anything missing. That is the half they cannot easily check themselves.
 
-It is worth being clear about why this is not the agent doing less. Adding seventy symbols
-through the connector takes minutes, reports success for tickers that do not exist, and
-**cannot be undone** — so a mistake lands permanently in the list they use every day. Handing
-them a one-click native import and then checking the result honestly is the better outcome,
-not the lazier one.
+It is worth being clear about why this is not the agent doing less. The connector needs the
+file converted first, it posts an exchange-prefixed ticker that does not exist without
+complaint (see below), and the list it writes to is the one the user sees in every layout they
+own. Handing them a one-click native import and then checking the result honestly is the better
+outcome, not the lazier one.
+
+TVControl 2.3.0 did make the connector path materially safer than it was — the adds and
+removals go through TradingView's own symbols API now instead of driving the UI, they are
+verified from a fresh read, and a removal that did not happen throws instead of reporting
+success. It is no longer slow and it is no longer one-way. It is still the second choice,
+because the native import is one click and preserves their sections.
 
 **Use the connector's own import only when they ask you to do it for them**, or for topping up
 a handful of symbols later. If you do, everything below applies.
@@ -135,11 +155,17 @@ a handful of symbols later. If you do, everything below applies.
 **The export file will not import as-is through the CONNECTOR.** This is the trap — note it
 does not apply to TradingView's native import above, which takes the raw `.txt`.
 
-`watchlist_import` wants a JSON file in the shape `watchlist_export` writes:
+`watchlist_import` wants a JSON file with a `schema_version` of 1 or 2 and a `symbols` array:
 
 ```json
 { "schema_version": 1, "symbols": [{ "symbol": "NASDAQ:AAPL" }] }
 ```
+
+That is the shape `scripts/parse-watchlist.mjs` writes, and it is accepted. `watchlist_export`
+itself now writes **schema 2**, which adds an `entries` array holding the stored list verbatim
+with the `###` section headers in place. Import prefers `entries` when it is present, so an
+export/import round-trip keeps the user's sections; the converter's schema-1 file carries the
+symbols only, so importing it does not recreate section structure.
 
 What the user has is TradingView's own UI export — one line, a `###` section header, then
 comma-separated tickers:
@@ -178,36 +204,61 @@ Then load it, either way:
 - **`watchlist_add_bulk`** with the symbol list. **Maximum 100 symbols per call**; the
   converter's stderr line tells you how many calls that is.
 
-### Three things that are not true of this API, and will burn you
+### Three things about this API, and what changed in 2.3.0
 
-All three verified by running them against TradingView Desktop 3.3.0.
+1. **An exchange-prefixed symbol that does not exist still lands as a dead row.**
+   `watchlist_add_bulk` resolves a *bare* ticker through symbol search now and refuses it with
+   `SYMBOL_UNKNOWN` when it does not resolve, so `"AAPL"` becomes `NASDAQ:AAPL` or errors. But
+   anything already carrying a colon is posted verbatim, and the verification only asks whether
+   that literal string came back — so `NASDAQ:NOTREAL` verifies as added.
 
-1. **`watchlist_add_bulk` reports success for symbols that DO NOT EXIST.** A deliberately
-   invalid ticker came back in `added`, with `error_count: 0`, and then sat in the watchlist
-   as a dead row. **Reading the per-symbol results is not enough.** Confirm with
-   `watchlist_get` and treat a row whose `last` is null as one that did not resolve.
+   Read `not_added` and the per-symbol `results[].added` (there is **no** `error_count` on this
+   call; that field is on `watchlist_import`). Then confirm with `watchlist_get`.
 
-   Careful with that check: immediately after TradingView launches, **every** row reports
-   null until the datafeed populates. Null means "unresolved" only on a list that has
-   already settled — so read it twice if the app has just started.
+   ⚠ **`watchlist_get` no longer carries a per-row `last` price.** Membership comes from the
+   symbols API and is complete even with the panel closed, but prices are best effort: rows get
+   a `cells` array **only when the watchlist panel is open**. Check `quotes_available` first. If
+   it is false, you cannot tell a resolved row from an unresolved one from this call — say so
+   rather than implying you checked. If it is true, a row with no `cells` is the one that did
+   not resolve, and immediately after launch **every** row is priceless until the datafeed
+   populates, so read it twice if the app has just started.
 
-2. **Removal is broken.** `watchlist_remove` and `watchlist_remove_bulk` both report
-   `Remove reported a click but "<symbol>" is still in the watchlist`, and the symbol really
-   does survive. **So an add is not undoable from here.** Never tell the user you can put
-   their watchlist back the way it was; if something lands that should not have, say plainly
-   that they need to right-click the row and remove it themselves.
+2. **Removal works now, and it is verified.** `watchlist_remove` and `watchlist_remove_bulk` go
+   through the symbols API rather than a UI right-click, read the list back, and throw if the
+   symbol survived. `watchlist_remove_bulk` reports `removed_count`, `not_found` (never there)
+   and `survived` (there, and still there) as separate outcomes. **So an add IS undoable from
+   here** — but only tell the user something was removed when the call came back clean, and
+   never on the strength of having asked.
+
+   ⚠ **Read `survived`, not `success`, to decide whether removal worked.** `success` is
+   `every symbol removed`, so asking for one name that was never in the list turns it `false`
+   (and `verified` with it) even when every symbol that WAS there came out correctly. Verified
+   live: removing three present symbols plus one that never existed returned
+   `success: false, removed_count: 3, not_found: ["…"], survived: []`, and the three were
+   genuinely gone. **`survived: []` means nothing failed to remove.** Reporting that call as a
+   failure is wrong and is the easiest mistake to make here — say which ones came out, and name
+   the `not_found` ones as "not in the list" rather than as errors.
+
+   ⚠ **More generally on this connector, `success: false` does not mean nothing happened.**
+   Verified live in two different tools on the same chart: `watchlist_remove_bulk` above, and
+   `chart_set_timeframe`, which returned
+   `success: false, "Chart did not finish loading timeframe 60"` while `chart_get_state`
+   immediately after showed the chart **already on 60** — the switch applied, and only the data
+   that follows it never arrived. Both directions of the round trip behaved the same way. So
+   before reporting a failure, read the state back and say what is actually true now. Telling
+   someone their timeframe did not change when it did is worse than saying nothing.
 
 3. **`dry_run` on `replace` does NOT show what would be deleted.** It reports only
    `would_add` and `would_skip`. The destructive half of the operation is invisible in the
    preview, so a dry run is *not* a safety check for `replace`. Treat `replace` as
-   unpreviewable and only run it on an explicit, informed request.
+   unpreviewable and only run it on an explicit, informed request. `replace` also removes
+   section headers that are not in the file, and `import` can only append, so restored headers
+   land at the end of the list unless the watchlist started empty — the result carries an
+   `order_note` saying so when that happens.
 
-**Be honest about the result.** Adds are driven through the TradingView UI one symbol at a
-time, so seventy-plus symbols is slow — warn them it will take a few minutes.
-
-Never say "imported all 74". Say how many landed, name the ones that did not, and offer to
-retry just those. Confirm with `watchlist_get` and compare the count against what the
-converter reported.
+**Be honest about the result.** Never say "imported all 74". Say how many landed, name the ones
+that did not, and offer to retry just those. Confirm with `watchlist_get` and compare the count
+against what the converter reported.
 
 ---
 
@@ -264,6 +315,13 @@ on the strength of it.
 **Check:** `chart_get_state` lists TC-TIDE among the indicators. If it does not, the chart
 does not have it, whatever the add call returned.
 
+⚠ **Present in the list is not the same as healthy.** A study that never finished registering
+with the server is reported with `id: null` and `addressable_by: "name"`, and it kills the
+pane's data session on every reconnect. `chart_get_state` carries a `chart_health` block when
+the pane it describes is broken. If TC-TIDE comes back that way, do not report the setup as
+done: run `tv_chart_health`, then `tv_repair_chart`, then add it again with
+`indicator_add_from_search`.
+
 ---
 
 ## Step 5 — the chart, and the save only they can do
@@ -289,6 +347,7 @@ of what you asked for:
 
 - symbol and timeframe the chart is actually on
 - the indicators actually listed, and whether TC-TIDE is among them
+- whether `chart_get_state` returned a `chart_health` block saying the pane is broken
 - the watchlist count from `watchlist_get`
 
 If any of it is short, say which part and why, and offer the specific next action. A setup
@@ -297,14 +356,62 @@ said so.
 
 ---
 
-## Step 7 — run it, so they SEE it work
+## Step 7 — remember it, or they do this again tomorrow
+
+Everything above is now true of THIS session and nothing else. Nothing has recorded which
+watchlist is theirs or which layout carries TC-TIDE, so the next morning report falls back to the
+seventy-four names that ship inside the skill — and a symbol count cannot tell those two apart, so
+nobody would notice.
+
+Save both, with the skill's own tool. Do not hand-write the JSON or the CSV: two file formats
+written by hand are two places for a typo to land, and both fail the same quiet way — a malformed
+settings file reverts to the shipped list, a malformed CSV scans zero symbols and still exits 0.
+
+```bash
+# 1. export their live TradingView list  ->  watchlist_export  (file_path: watchlist-export.json)
+# 2. turn it into a saved scan list and record the layout, in one step:
+node .wayland-core/skills/market-open-report/scripts/settings.mjs \
+  --import-watchlist watchlist-export.json \
+  --name "<the watchlist name they use>" \
+  --chart-layout "<the layout name from layout_list>"
+```
+
+For the layout name, call `layout_list`. If exactly one is obviously the chart they just saved in
+Step 5, use it and **say which one you picked**. If it is ambiguous, ask — one question, naming the
+candidates. Guessing here is worse than asking, because a wrong layout sends every later chart read
+to the wrong chart and nothing about the answer looks wrong.
+
+Then read it back with `--show` and report from THAT, not from what you meant to save:
+
+```bash
+node .wayland-core/skills/market-open-report/scripts/settings.mjs --show
+```
+
+### ⚠️ It only persists if this chat has a real folder
+
+The settings file lives at the **workspace root**, and that is the only place it can live: the
+skill's own folder is wiped and re-copied every time the app starts, and everything outside the
+workspace is behind the sandbox.
+
+A chat with no folder of its own gets a throwaway workspace that is gone next time. So if `--show`
+reports a path under `wcore-temp-`, **say so plainly**: it is saved for this conversation and will
+not survive. Then offer the daily schedule — a recurring task gets its own durable folder
+(`~/Documents/Wayland/Tasks/…`), which is exactly the home these settings need. That is the honest
+version of "we're set up", and it is a better reason to say yes to the schedule than the schedule
+itself.
+
+---
+
+## Step 8 — run it, so they SEE it work
 
 **Do not stop at "you are set up."** Nobody believes a green tick. Run the morning report now
 with the `market-open-report` skill and put the result in front of them: how many names it
 scanned, the bar date, and the brief itself.
 
-It needs no chart and no watchlist of their own — a default list of seventy-four names ships
-with that skill — so this works even when part of the setup above did NOT. If TradingView
+The report reads the list you just saved, and prints a `[source]` line naming it and when it was
+exported — quote that line rather than the symbol count, so "your list" and "the shipped list" stay
+tellable apart. If Step 7 did not happen, it falls back to a default list of seventy-four names that
+ships with the skill, which is also why this works even when part of the setup above did NOT. If TradingView
 would not start, or the connector is still broken, **run the report anyway**. Ending with a
 real brief plus one honest sentence about what is still unfinished beats ending with an error
 and nothing to show for the last ten minutes.

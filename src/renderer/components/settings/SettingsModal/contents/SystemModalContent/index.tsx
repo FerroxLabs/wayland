@@ -516,7 +516,15 @@ const SystemModalContent: React.FC = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         if (systemInfo?.logDir) {
-                          void ipcBridge.shell.openFile.invoke(systemInfo.logDir);
+                          // Resolve-only bridge: a refusal comes back as a
+                          // RESOLVED { ok: false }, so an unchecked invoke left
+                          // this button doing nothing with no explanation.
+                          void ipcBridge.shell.openFile
+                            .invoke(systemInfo.logDir)
+                            .then((res) => {
+                              if (!res?.ok) Message.error(res?.error || t('settings.openLogDirFailed'));
+                            })
+                            .catch(() => Message.error(t('settings.openLogDirFailed')));
                         }
                       }}
                     />

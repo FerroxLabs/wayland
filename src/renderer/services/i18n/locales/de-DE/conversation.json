@@ -550,5 +550,33 @@
       "revealFailed": "Wayland konnte den Ordner nicht öffnen. Grund: {{reason}}"
     },
     "notText": "Wayland kann diese Datei nicht als Text lesen – einige ihrer Bytes sind kein gültiges UTF-8, das das Einstellungsformat verlangt. Es wurde nichts geändert."
+  },
+  "artifactCard": {
+    "title": "In deinem Arbeitsbereich gespeichert",
+    "openHere": "Hier öffnen",
+    "openInApp": "In {{app}} öffnen",
+    "openExternally": "In der Standard-App öffnen",
+    "reveal": "Im Ordner anzeigen",
+    "saveCopy": "Kopie speichern",
+    "changed": "Diese Datei wurde seit dem Speichern geändert.",
+    "claimedButAbsent": "Wayland konnte nicht bestätigen, dass {{fileName}} geschrieben wurde.",
+    "claimedElsewhere": "{{fileName}} wurde nach {{actualPath}} geschrieben, nicht in die Dateien dieser Unterhaltung.",
+    "claimedElsewhereInWorkspace": "{{fileName}} liegt im Arbeitsbereichsordner, nicht in den Dateien dieser Unterhaltung.",
+    "update": "Aktualisieren",
+    "rejected": "{{count}} Datei wurde nicht als Ergebnis gespeichert: {{detail}}.",
+    "rejected_other": "{{count}} Dateien wurden nicht als Ergebnisse gespeichert: {{detail}}.",
+    "unknownError": "Das hat nicht funktioniert. Die Datei wurde möglicherweise verschoben.",
+    "rejectedOutsideFolder": "{{count}} außerhalb des Ordners dieses Chats gespeichert",
+    "rejectedOutsideFolder_other": "{{count}} außerhalb des Ordners dieses Chats gespeichert",
+    "rejectedNotAFile": "{{count}} war keine reguläre Datei",
+    "rejectedNotAFile_other": "{{count}} waren keine regulären Dateien",
+    "rejectedTooBig": "{{count}} war zu groß zum Speichern",
+    "rejectedTooBig_other": "{{count}} waren zu groß zum Speichern",
+    "rejectedTooMany": "{{count}} über dem Limit dieser Runde",
+    "rejectedTooMany_other": "{{count}} über dem Limit dieser Runde",
+    "rejectedUnreadable": "{{count}} konnte nicht gelesen werden",
+    "rejectedUnreadable_other": "{{count}} konnten nicht gelesen werden",
+    "more": "und {{count}} weitere unter Artefakte",
+    "more_other": "und {{count}} weitere unter Artefakte"
   }
 }

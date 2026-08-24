@@ -18,6 +18,8 @@ import i18n, { i18nReady } from '@process/services/i18n';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 import { ProcessConfig } from '@process/utils/initStorage';
 import type { CronJob, CronSchedule } from './CronStore';
+import { durableWorkspaceMetadataForJob, isBundledRoutineJob, jobNeedsDurableWorkspace } from './durableTaskWorkspace';
+import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import type { ICronRepository } from './ICronRepository';
 import type { ICronEventEmitter } from './ICronEventEmitter';
 import type { ICronJobExecutor } from './ICronJobExecutor';
@@ -31,6 +33,43 @@ import {
   rollbackRestoredCronSkill,
   type ArchivedCronJob,
 } from './cronArchive';
+import type { ArtifactRecord } from '@process/services/artifacts/artifactLedger';
+
+/**
+ * How long the completion banner will wait for the run's publication to finish
+ * before giving up on naming the deliverable.
+ *
+ * Publication hashes every staged file, so it is not instant, but it happens on
+ * files that were just written. Ten seconds is far past the normal case and far
+ * short of the user noticing the banner is late.
+ */
+const NOTIFICATION_PUBLICATION_TIMEOUT_MS = 10_000;
+
+/**
+ * `last_error` for a run that finished cleanly and produced nothing.
+ *
+ * Deliberately a plain sentence and NOT a locale key: `last_error` already
+ * carries raw executor messages verbatim on the throw path, so this is the same
+ * channel, and inventing a user-facing string here would need all twelve
+ * locales for one field that is already half English.
+ */
+function runProducedNothingError(reason: 'no-output' | 'failed'): string {
+  return reason === 'no-output'
+    ? 'The run finished but produced no deliverable, so nothing was published.'
+    : 'The run did not complete, so nothing was published.';
+}
+
+/**
+ * The file name to put in front of the user for a published deliverable.
+ *
+ * The RECORDED relative path, never the declared title: a title is
+ * model-authored text, and the ledger has already proved the relative path has
+ * no separator tricks in it.
+ */
+function artifactFileName(record: ArtifactRecord): string {
+  const segments = record.relativePath.split('/');
+  return segments[segments.length - 1] || record.relativePath;
+}
 
 /**
  * Parameters for creating a new cron job
@@ -300,6 +339,19 @@ export class CronService {
       },
     };
 
+    // P2-2: a `new_conversation` job with no workspace mints a throwaway temp dir
+    // on every fire, so it can never see its own history. Give it a durable task
+    // root before it is ever armed.
+    //
+    // Bundled routines are exempt HERE and only here: the seeder creates them
+    // through this method (which always creates enabled) and disables them a
+    // moment later, so allocating now would seed a folder for each of a dozen
+    // routines nobody enabled. They allocate on the enable transition instead.
+    if (job.enabled && !isBundledRoutineJob(job)) {
+      const metadata = await this.allocateDurableWorkspaceMetadata(job);
+      if (metadata) job.metadata = metadata;
+    }
+
     // Calculate next run time
     this.updateNextRunTime(job);
 
@@ -356,11 +408,23 @@ export class CronService {
       throw new Error(i18n.t('cron.error.highFreqNewConversation'));
     }
 
+    // P2-2: first enable is when a recurring task earns a durable workspace.
+    // Allocated BEFORE the write and merged INTO it, so the workspace and the
+    // enable land together - two writes would let a crash arm a job that still
+    // has no workspace, which is the bug this fixes. An allocation failure
+    // propagates and the job stays disabled.
+    let effectiveUpdates = updates;
+    if (updates.enabled === true && !existing.enabled) {
+      const merged = { ...existing, ...updates, metadata: updates.metadata ?? existing.metadata } as CronJob;
+      const metadata = await this.allocateDurableWorkspaceMetadata(merged);
+      if (metadata) effectiveUpdates = { ...updates, metadata };
+    }
+
     // Stop existing timer
     this.stopTimer(jobId);
 
     // Update in database
-    await this.repo.update(jobId, updates);
+    await this.repo.update(jobId, effectiveUpdates);
 
     // Get updated job
     const updated = (await this.repo.getById(jobId))!;
@@ -382,6 +446,34 @@ export class CronService {
     this.emitter.emitJobUpdated(updated);
 
     return updated;
+  }
+
+  /**
+   * H1 - allocation failure has to be CLASSIFIED, because it crosses the bridge.
+   *
+   * `durableWorkspaceMetadataForJob` throws on purpose: an armed routine with no
+   * durable workspace is the bug P2-2 exists to fix, so the enable is aborted
+   * rather than completed dishonestly. But on macOS the task root lives under a
+   * TCC-protected Documents path, so a missing grant makes this the ORDINARY
+   * outcome of flipping the toggle - and a bare throw crossing `cron.update-job`
+   * is a promise the renderer never sees settle. The toggle spun forever with
+   * the job silently left off.
+   *
+   * The refusal is unchanged; only its shape is. The underlying cause travels in
+   * `{{detail}}` so the user is told what actually stopped it.
+   */
+  private async allocateDurableWorkspaceMetadata(job: CronJob): Promise<CronJob['metadata'] | null> {
+    try {
+      return await durableWorkspaceMetadataForJob(job);
+    } catch (error) {
+      throw new CronWorkspaceError(
+        'workspace_alloc_failed',
+        i18n.t('cron.error.workspaceAllocFailed', {
+          name: job.name,
+          detail: error instanceof Error ? error.message : String(error),
+        })
+      );
+    }
   }
 
   private async detachArchivedJobConversations(job: CronJob): Promise<void> {
@@ -566,6 +658,10 @@ export class CronService {
     if (!job) {
       throw new Error(`Job not found: ${jobId}`);
     }
+    // BEFORE prepareConversation: that call is what mints the conversation and
+    // its workspace, so a back-fill after it would arrive one temp directory
+    // too late.
+    await this.backfillDurableWorkspace(job);
     const conversationId = await this.executor.prepareConversation(job);
     // Fire-and-forget: execute in background, pass the prepared conversationId to skip re-creation
     void this.executeJob(job, conversationId);
@@ -756,9 +852,62 @@ export class CronService {
     }
     this.runningJobs.add(job.id);
     try {
+      await this.backfillDurableWorkspace(job);
       await this.executeJobInner(job, preparedConversationId);
     } finally {
       this.runningJobs.delete(job.id);
+    }
+  }
+
+  /**
+   * P2-2 BACK-FILL: give a durable task root to a job that was already ENABLED
+   * when durable workspaces shipped.
+   *
+   * `durableWorkspaceMetadataForJob` is reached from exactly two places -
+   * `addJob` and the disabled-to-enabled transition in `updateJob`. A job armed
+   * before either existed passes through neither, so every fire mints a fresh
+   * `wcore-temp-<ts>` and the task can never see its own history. Nothing in
+   * the product would ever have repaired it: the user would have to toggle the
+   * task off and on again, and there is nothing telling them to.
+   *
+   * DELIBERATELY LAZY, AND DELIBERATELY NOT A BOOT SWEEP. Allocating at startup
+   * would create a folder in the user's Documents for every routine they ever
+   * enabled and forgot, on an upgrade they did not ask for. Allocating HERE
+   * creates one only for a task that is about to run and write a report into
+   * it, which is what the enable was supposed to do in the first place.
+   *
+   * An allocation failure is swallowed on purpose - unlike the enable path,
+   * which aborts. There the user is standing in front of the UI and a failed
+   * enable is honest feedback; here the run is already happening unattended and
+   * the pre-P2-2 behaviour (a throwaway workspace) is strictly better than not
+   * running at all.
+   *
+   * IT DOES NOT MATTER WHETHER THE JOB IS ENABLED. It used to: enabling was
+   * treated as the opt-in that earned a folder in the user's Documents, so a
+   * one-off Run-now on a switched-off routine kept the throwaway workspace and
+   * left nothing behind. Verified against the real app, that rule was backwards.
+   * All twelve bundled routines SEED PAUSED, and pressing Run-now on one is how
+   * a person tries it - so the single most common first encounter with a routine
+   * wrote its brief into `wcore-temp-<ts>` and let the cleaner take it, which is
+   * the exact defect P2-2 exists to fix.
+   *
+   * Both call sites already mean "this job is about to run and write a report",
+   * which is the condition that earns the folder. `enabled` was never the
+   * question.
+   */
+  private async backfillDurableWorkspace(job: CronJob): Promise<void> {
+    if (!jobNeedsDurableWorkspace(job)) return;
+    try {
+      const metadata = await durableWorkspaceMetadataForJob(job);
+      if (!metadata) return;
+      await this.repo.update(job.id, { metadata });
+      // The timer holds this same object and hands it to the next fire, so the
+      // in-memory copy has to move with the stored one or the next run
+      // re-allocates.
+      job.metadata = metadata;
+      console.info(`[CronService] Allocated a durable workspace for already-enabled job ${job.id} at first fire.`);
+    } catch (err) {
+      console.warn(`[CronService] Could not back-fill a durable workspace for job ${job.id}:`, err);
     }
   }
 
@@ -812,7 +961,7 @@ export class CronService {
       const newConversationId = await this.executor.executeJob(
         job,
         () => {
-          this.registerCompletionNotification(job);
+          this.registerCompletionNotification(job, conversationId);
         },
         preparedConversationId,
         lastRunAtMs
@@ -870,11 +1019,27 @@ export class CronService {
   /**
    * Register a callback on executor to send notification when the agent finishes.
    * Must be called BEFORE sendMessage to avoid race conditions.
+   *
+   * The conversation id is passed in rather than read from `job.metadata`: in
+   * `new_conversation` mode the run happens in a conversation that did not exist
+   * when the job was stored, and a notification registered against the stale id
+   * would be waiting on a conversation that is not the one running.
    */
-  private registerCompletionNotification(job: CronJob): void {
-    const { conversationId } = job.metadata;
-
+  private registerCompletionNotification(job: CronJob, conversationId: string): void {
     this.executor.onceIdle(conversationId, async () => {
+      // ONE bounded wait for the publication, shared by both jobs below.
+      // Awaiting it twice would double the ceiling, and the whole rule for this
+      // wait is that a publication which HANGS costs the user the file name and
+      // never the banner.
+      const published = await this.publishedArtifactsForNotification(conversationId);
+
+      // FIRST, and before the notification preference is even read: a run that
+      // published nothing must not leave the task reporting `ok`. `last_status`
+      // was written when the turn was SENT, so it can only ever have said "the
+      // turn went out" - and it said `ok` over a routine that had never once
+      // produced a report, in every profile, for a day.
+      await this.reconcileRunStatus(job, conversationId);
+
       // Check if cron notification is enabled
       const cronNotificationEnabled = await ProcessConfig.get('system.cronNotificationEnabled');
       if (!cronNotificationEnabled) return;
@@ -884,12 +1049,77 @@ export class CronService {
       const title = i18n.t('cron.notification.scheduledTaskComplete', {
         title: job.metadata.conversationTitle || job.name,
       });
-      const body = i18n.t('cron.notification.taskDone');
 
-      this.emitter.showNotification({ title, body, conversationId }).catch((err) => {
+      // "Task done" told the user nothing and gave them nothing to click. Name
+      // the deliverable instead, and carry its id so activating the banner opens
+      // it. Publication finishes AFTER the conversation goes idle, so this has
+      // to await it - see `whenRunPublished`. Bounded, because a banner that
+      // never appears is worse than one that cannot name the file.
+      const primary = published[0];
+      const body = primary
+        ? i18n.t('cron.notification.deliverableReady', { file: artifactFileName(primary) })
+        : i18n.t('cron.notification.taskDone');
+
+      this.emitter.showNotification({ title, body, conversationId, artifactId: primary?.artifactId }).catch((err) => {
         console.warn('[CronService] Failed to show notification:', err);
       });
     });
+  }
+
+  /**
+   * Bring `last_status` into line with what the run actually settled as.
+   *
+   * Only ever DOWNGRADES an `ok`: a run the executor already recorded as failed,
+   * a skip, a busy-conversation refusal and a user's own later edit are all left
+   * exactly as they are. Best-effort - a job whose epitaph cannot be written
+   * must not take the notification down with it.
+   */
+  private async reconcileRunStatus(job: CronJob, conversationId: string): Promise<void> {
+    try {
+      // The caller has already awaited the publication - the settlement does not
+      // exist until the executor's own idle callback has committed or abandoned
+      // the run, and that wait is bounded and shared, never taken twice.
+      const settled = this.executor.lastRunSettlement?.(conversationId);
+      if (!settled || settled.published) return;
+
+      const fresh = await this.repo.getById(job.id);
+      if (!fresh || fresh.state.lastStatus !== 'ok') return;
+
+      const state = {
+        ...fresh.state,
+        lastStatus: 'error' as const,
+        lastError: runProducedNothingError(settled.reason),
+      };
+      await this.repo.update(job.id, { state });
+      const updated = await this.repo.getById(job.id);
+      if (updated) this.emitter.emitJobUpdated(updated);
+      this.emitter.emitJobExecuted(job.id, 'error', state.lastError);
+    } catch (err) {
+      console.warn('[CronService] Could not reconcile the run status:', err);
+    }
+  }
+
+  /**
+   * What the run published, or an empty list if it takes too long to say.
+   *
+   * Never rejects and never blocks the banner indefinitely: a publication that
+   * hangs must cost the user the file NAME, not the notification.
+   */
+  private async publishedArtifactsForNotification(conversationId: string): Promise<ArtifactRecord[]> {
+    let timer: NodeJS.Timeout | undefined;
+    try {
+      return await Promise.race([
+        this.executor.whenRunPublished(conversationId),
+        new Promise<ArtifactRecord[]>((resolve) => {
+          timer = setTimeout(() => resolve([]), NOTIFICATION_PUBLICATION_TIMEOUT_MS);
+        }),
+      ]);
+    } catch (err) {
+      console.warn('[CronService] Could not read the run publication for the notification:', err);
+      return [];
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
 
   /**

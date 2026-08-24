@@ -162,6 +162,15 @@ export type FluxRoutingResult = {
   routing: RoutingDecision;
   env: Record<string, string>;
   stripKeys: string[];
+  /**
+   * The Flux tier this spawn must actually run, resolved ONCE here so every
+   * consumer agrees: the OPENAI_MODEL/ANTHROPIC_MODEL env below, and the scoped
+   * CODEX_HOME / HERMES_HOME configs that select their model from a file rather
+   * than from env. Only set when `routing === 'flux'` and a surface that names a
+   * model applies; `undefined` otherwise (native/unknown, or the wnano file
+   * handoff, which does its own per-provider routing).
+   */
+  fluxModelId?: string;
 };
 
 const NATIVE = (): FluxRoutingResult => ({ routing: 'native', env: {}, stripKeys: [] });
@@ -225,6 +234,18 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
   const wantsFlux = isFluxModelId(effectiveModelId) || (ctx.routeThroughFlux && !effectiveModelId);
   if (!wantsFlux) return NATIVE();
 
+  // The tier the spawn must RUN. Previously every surface below hardcoded
+  // `FLUX_AUTO_MODEL`, so picking Flux Reasoning / Standard / Fast still sent
+  // `flux-auto` on the wire - and because Flux bills per tier (fast $1/$4,
+  // standard $2/$8, reasoning $4/$15, and auto bills at STANDARD rates) that
+  // silently overcharged every Flux Fast user 2x and under-served every Flux
+  // Reasoning user. `wantsFlux` above is true in exactly two shapes, so this is
+  // total: a flux id (use it), or no model at all under the global toggle
+  // (flux-auto is the correct default). A native model id can never reach here -
+  // it returns NATIVE() one line up - so this can never put a non-Flux id on the
+  // Flux surface, which is the 400 the old constant was protecting against.
+  const fluxModelId = isFluxModelId(effectiveModelId) ? (effectiveModelId as string) : FLUX_AUTO_MODEL;
+
   if (isScopedHome) {
     // Scoped-HOME backends (hermes): the Flux base_url, provider selection AND
     // the key all live in a Wayland-scoped config HOME (materialized + injected
@@ -237,6 +258,7 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
       routing: 'flux',
       env: { FLUX_API_KEY: ctx.fluxKey },
       stripKeys: [...NATIVE_PROVIDER_KEY_VARS],
+      fluxModelId,
     };
   }
 
@@ -250,6 +272,7 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
       routing: 'flux',
       env: { FLUX_API_KEY: ctx.fluxKey },
       stripKeys: [...NATIVE_PROVIDER_KEY_VARS, ...NATIVE_CODEX_KEY_VARS],
+      fluxModelId,
     };
   }
 
@@ -269,9 +292,10 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
         // headers, so pinning both to the Flux key makes auth bulletproof and
         // ensures a cc-switch key can never win.
         ANTHROPIC_API_KEY: ctx.fluxKey,
-        ANTHROPIC_MODEL: FLUX_AUTO_MODEL,
+        ANTHROPIC_MODEL: fluxModelId,
       },
       stripKeys: [...NATIVE_PROVIDER_KEY_VARS, ...NATIVE_ANTHROPIC_KEY_VARS],
+      fluxModelId,
     };
   }
 
@@ -281,9 +305,42 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
     env: {
       OPENAI_BASE_URL: FLUX_SURFACE.openai,
       OPENAI_API_KEY: ctx.fluxKey,
-      OPENAI_MODEL: FLUX_AUTO_MODEL,
+      OPENAI_MODEL: fluxModelId,
       ...backendEnv,
+      // A backend whose extra env names the model too (goose: GOOSE_MODEL) must
+      // carry the SAME tier, or the CLI's own key wins over OPENAI_MODEL and the
+      // pick is lost again on exactly the backends BACKEND_FLUX_ENV exists for.
+      ...(backendEnv.GOOSE_MODEL ? { GOOSE_MODEL: fluxModelId } : {}),
     },
     stripKeys: [...NATIVE_PROVIDER_KEY_VARS, 'OPENAI_BASE_URL', 'OPENAI_MODEL', ...Object.keys(backendEnv)],
+    fluxModelId,
   };
+}
+
+/**
+ * Does a switch to `nextModelId` need the agent RE-SPAWNED?
+ *
+ * Every Flux surface picks its model at spawn time - `ANTHROPIC_MODEL` /
+ * `OPENAI_MODEL` in the injected env, `model =` in the scoped CODEX_HOME, and
+ * `model.default` in the scoped HERMES_HOME - and the in-place ACP `set_model`
+ * is deliberately skipped for Flux ids (the backend's native catalog never
+ * lists them, so the claude bridge rejects them). A tier switch therefore has
+ * no in-place route: without a re-spawn the new tier is persisted and shown in
+ * the picker while the live agent keeps running the old one, and Flux bills on
+ * the tier that actually arrives.
+ *
+ * Only a flux->flux TIER change is handled here. A native<->flux crossing is a
+ * routing-boundary change and is caught earlier by the caller.
+ */
+export function needsRespawnForFluxTier(
+  lastRouting: RoutingDecision,
+  lastFluxModelId: string | undefined,
+  nextModelId: string
+): boolean {
+  if (lastRouting !== 'flux') return false;
+  if (!isFluxModelId(nextModelId)) return false;
+  // Unknown live tier (nothing spawned yet, or a surface that names no model):
+  // there is no stale env to correct, and the next spawn reads the fresh pick.
+  if (lastFluxModelId === undefined) return false;
+  return lastFluxModelId !== nextModelId;
 }

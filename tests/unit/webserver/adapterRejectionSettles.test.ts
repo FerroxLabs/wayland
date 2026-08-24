@@ -62,6 +62,15 @@ buildProvider('conversation.get-list-684-test');
 // #819: the shared config setter — wire-allowed (the paired WebUI writes config),
 // value-gated so a remote peer cannot write `webui.desktop.*` and arm LAN exposure.
 buildProvider('agent.config.storage.set');
+// #1099: the confirmation answer key — wire-allowed (a paired WebUI answering an
+// ordinary prompt is a feature), value-gated so a remote peer cannot answer a
+// path-boundary card and mint a folder grant with nobody at the desktop window.
+buildProvider('confirmation.confirm');
+// Boundary axis: reading the folder-grant list discloses every granted absolute
+// path and `remove`/`add` change what an agent may reach. Registered here so the
+// dispatch handler below drives the REAL inbound path for them.
+buildProvider('workspaceFolderGrants.list');
+buildProvider('workspaceFolderGrants.remove');
 
 function makeWs(): { send: ReturnType<typeof vi.fn> } {
   return { send: vi.fn() };
@@ -88,6 +97,41 @@ describe('webserver adapter - rejected bridge invocations settle the caller (#68
     const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
     expect(payload.name).toBe(`subscribe.callback-project.generate-knowledge-draft${id}`);
     expect(payload.data).toEqual({ error: 'failed', detail: 'remote-forbidden' });
+  });
+
+  /**
+   * The WIRING, not the predicate. `isRemoteDeniedConfirmation` is unit-tested
+   * on its own, but deleting its CALL SITE in the adapter broke no test at all —
+   * the same mutation-surviving shape this project keeps producing. This drives
+   * the real dispatch handler.
+   */
+  it('refuses a remote answer to a path-boundary card and never dispatches it', () => {
+    const ws = makeWs();
+    const id = 'confirmation.confirm0a1b2c3d';
+    capturedHandler.fn!(
+      'subscribe-confirmation.confirm',
+      { id, data: { conversation_id: 'c1', msg_id: 'call-1', callId: 'call-1', data: 'path_boundary_grant_folder' } },
+      ws
+    );
+
+    expect(registryMocks.emitter.emit).not.toHaveBeenCalled();
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.data).toEqual({ error: 'failed', detail: 'remote-forbidden' });
+  });
+
+  it('CONTROL: an ORDINARY remote confirmation is dispatched normally', () => {
+    const ws = makeWs();
+    const id = 'confirmation.confirm0a1b2c3e';
+    capturedHandler.fn!(
+      'subscribe-confirmation.confirm',
+      { id, data: { conversation_id: 'c1', msg_id: 'call-1', callId: 'call-1', data: 'proceed_once' } },
+      ws
+    );
+
+    // Dispatched, and NOT settled as a rejection - so the refusal above is the
+    // value gate deciding, not the whole key being denied to remote peers.
+    expect(registryMocks.emitter.emit).toHaveBeenCalledTimes(1);
+    expect(ws.send).not.toHaveBeenCalled();
   });
 
   it('replies with an error-shaped subscribe.callback for a non-allowlisted invocation', () => {
@@ -178,6 +222,58 @@ describe('webserver adapter - remote peer cannot arm LAN exposure via a config w
     capturedHandler.fn!(NAME, message, ws);
 
     expect(registryMocks.emitter.emit).toHaveBeenCalledWith(NAME, message);
+    expect(ws.send).not.toHaveBeenCalled();
+  });
+});
+
+describe('webserver adapter - a paired peer cannot reach the folder-grant list', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    capturedHandler.fn = null;
+    initWebAdapter({} as never);
+    expect(capturedHandler.fn).toBeTypeOf('function');
+  });
+
+  /**
+   * The WIRING, not the denylist. `REMOTE_DENIED_KEYS` membership is pinned in
+   * `bridgeAllowlistFolderGrants.redteam.test.ts`, but a denylist nothing
+   * consults is decoration: deleting the adapter's `isAllowedForRemote` call
+   * would leave that file entirely green. This drives the real dispatch handler,
+   * so the entry and the call site both have to exist.
+   */
+  it('never dispatches a remote read of the folder-grant list, and settles the caller', () => {
+    const ws = makeWs();
+    const id = 'workspaceFolderGrants.listdeadbeef';
+    capturedHandler.fn!('subscribe-workspaceFolderGrants.list', { id, data: {} }, ws);
+
+    expect(registryMocks.emitter.emit).not.toHaveBeenCalled();
+    expect(ws.send).toHaveBeenCalledTimes(1);
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.name).toBe(`subscribe.callback-workspaceFolderGrants.list${id}`);
+    expect(payload.data).toEqual({ error: 'failed', detail: 'remote-forbidden' });
+  });
+
+  it('never dispatches a remote removal of a folder grant', () => {
+    const ws = makeWs();
+    capturedHandler.fn!(
+      'subscribe-workspaceFolderGrants.remove',
+      { id: 'workspaceFolderGrants.removecafebabe', data: { workspaceId: 'ws-1', grantId: 'g-1' } },
+      ws
+    );
+
+    expect(registryMocks.emitter.emit).not.toHaveBeenCalled();
+    const payload = JSON.parse(ws.send.mock.calls[0][0] as string);
+    expect(payload.data).toEqual({ error: 'failed', detail: 'remote-forbidden' });
+  });
+
+  it('CONTROL: the refusal is the remote denylist, not a dead dispatcher', () => {
+    // Without this, the two tests above would pass if the handler dispatched
+    // nothing at all.
+    const ws = makeWs();
+    const message = { id: 'conversation.get-list-684-testfeedface', data: {} };
+    capturedHandler.fn!('subscribe-conversation.get-list-684-test', message, ws);
+
+    expect(registryMocks.emitter.emit).toHaveBeenCalledTimes(1);
     expect(ws.send).not.toHaveBeenCalled();
   });
 });

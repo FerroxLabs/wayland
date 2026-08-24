@@ -16,6 +16,7 @@ export type CockpitNavigationDestination = {
 
 export const COCKPIT_NAVIGATION_DESTINATIONS = [
   { id: 'chats', label: 'Chats', path: '/conversations', zone: 'primary', deliberateSteps: 1 },
+  { id: 'artifacts', label: 'Artifacts', path: '/artifacts', zone: 'primary', deliberateSteps: 1 },
   { id: 'projects', label: 'Projects', path: '/projects', zone: 'primary', deliberateSteps: 1 },
   { id: 'assistants', label: 'Assistants', path: '/assistants', zone: 'library', deliberateSteps: 2 },
   { id: 'workflows', label: 'Workflows', path: '/workflows', zone: 'library', deliberateSteps: 2 },

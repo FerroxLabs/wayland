@@ -37,5 +37,6 @@
     "seeAllScheduled": "Voir toutes les tâches planifiées →",
     "seeAllChats": "Voir toutes les discussions →",
     "showMore": "Afficher {{count}} de plus →"
-  }
+  },
+  "artifacts": "Artefacts"
 }

@@ -13,6 +13,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Message, Switch, Popconfirm, Spin, Empty } from '@arco-design/web-react';
 import { ipcBridge } from '@/common';
 import type { ICronJob } from '@/common/adapter/ipcBridge';
+import { isCronBridgeFailure } from '@/common/adapter/ipcBridge';
+import { unwrapCron } from '@renderer/pages/cron/cronBridgeResult';
 import { getAgentLogo } from '@renderer/utils/model/agentLogo';
 import CronStatusTag from './CronStatusTag';
 import CreateTaskDialog from './CreateTaskDialog';
@@ -41,7 +43,7 @@ const TaskDetailPage: React.FC = () => {
       const silent = opts?.silent === true;
       if (!silent) setLoading(true);
       try {
-        const found = await ipcBridge.cron.getJob.invoke({ jobId });
+        const found = unwrapCron(await ipcBridge.cron.getJob.invoke({ jobId }));
         setJob(found ?? null);
       } catch (err) {
         console.error('[TaskDetailPage] Failed to fetch job:', err);
@@ -99,7 +101,16 @@ const TaskDetailPage: React.FC = () => {
   const handleToggleEnabled = useCallback(async () => {
     if (!job) return;
     try {
-      await ipcBridge.cron.updateJob.invoke({ jobId: job.id, updates: { enabled: !job.enabled } });
+      const result = await ipcBridge.cron.updateJob.invoke({ jobId: job.id, updates: { enabled: !job.enabled } });
+      // H1: main can no longer throw across this seam, so the failure arrives
+      // as a value. Enabling is where P2-2 allocates the durable task folder,
+      // and that allocation is what fails on a TCC-protected Documents path -
+      // the toggle used to hang here with the job silently left disabled.
+      if (isCronBridgeFailure(result)) {
+        Message.error(result.message);
+        await fetchJob();
+        return;
+      }
       Message.success(job.enabled ? t('cron.pauseSuccess') : t('cron.resumeSuccess'));
       await fetchJob();
     } catch (err) {
@@ -112,6 +123,14 @@ const TaskDetailPage: React.FC = () => {
     setRunningNow(true);
     try {
       const result = await ipcBridge.cron.runNow.invoke({ jobId: job.id });
+      // H1: the P2-10 refusal (folder renamed or replaced in Finder) arrives
+      // here as a resolved value carrying the three-option sentence. It used to
+      // be a throw that never settled, so this button spun forever and the
+      // message was shown to nobody.
+      if (isCronBridgeFailure(result)) {
+        Message.error(result.message);
+        return;
+      }
       Message.success(t('cron.runNowSuccess'));
       if (result?.conversationId) {
         navigate(`/conversation/${result.conversationId}`);
@@ -126,7 +145,7 @@ const TaskDetailPage: React.FC = () => {
   const handleArchive = useCallback(async () => {
     if (!job) return;
     try {
-      await ipcBridge.cron.removeJob.invoke({ jobId: job.id });
+      unwrapCron(await ipcBridge.cron.removeJob.invoke({ jobId: job.id }));
       Message.success(t('cron.archiveSuccess'));
       navigate('/scheduled');
     } catch (err) {

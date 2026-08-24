@@ -550,5 +550,33 @@
       "revealFailed": "Wayland n’a pas pu ouvrir le dossier. Raison : {{reason}}"
     },
     "notText": "Wayland ne peut pas lire ce fichier comme du texte : certains de ses octets ne sont pas de l’UTF-8 valide, ce qu’exige le format des réglages. Rien n’a été modifié."
+  },
+  "artifactCard": {
+    "title": "Enregistré dans votre espace de travail",
+    "openHere": "Ouvrir ici",
+    "openInApp": "Ouvrir dans {{app}}",
+    "openExternally": "Ouvrir dans l'app par défaut",
+    "reveal": "Afficher dans le dossier",
+    "saveCopy": "Enregistrer une copie",
+    "changed": "Ce fichier a changé depuis son enregistrement.",
+    "claimedButAbsent": "Wayland n’a pas pu vérifier que {{fileName}} a été écrit.",
+    "claimedElsewhere": "{{fileName}} a été écrit dans {{actualPath}}, et non dans les fichiers de cette conversation.",
+    "claimedElsewhereInWorkspace": "{{fileName}} se trouve dans le dossier de l’espace de travail, et non dans les fichiers de cette conversation.",
+    "update": "Mettre à jour",
+    "rejected": "{{count}} fichier n'a pas été enregistré comme livrable : {{detail}}.",
+    "rejected_other": "{{count}} fichiers n'ont pas été enregistrés comme livrables : {{detail}}.",
+    "unknownError": "Cela n'a pas fonctionné. Le fichier a peut-être été déplacé.",
+    "rejectedOutsideFolder": "{{count}} enregistré hors du dossier de cette discussion",
+    "rejectedOutsideFolder_other": "{{count}} enregistrés hors du dossier de cette discussion",
+    "rejectedNotAFile": "{{count}} n'était pas un fichier ordinaire",
+    "rejectedNotAFile_other": "{{count}} n'étaient pas des fichiers ordinaires",
+    "rejectedTooBig": "{{count}} était trop volumineux pour être enregistré",
+    "rejectedTooBig_other": "{{count}} étaient trop volumineux pour être enregistrés",
+    "rejectedTooMany": "{{count}} au-delà de la limite de ce tour",
+    "rejectedTooMany_other": "{{count}} au-delà de la limite de ce tour",
+    "rejectedUnreadable": "{{count}} n'a pas pu être lu",
+    "rejectedUnreadable_other": "{{count}} n'ont pas pu être lus",
+    "more": "et {{count}} de plus dans Artefacts",
+    "more_other": "et {{count}} de plus dans Artefacts"
   }
 }

@@ -34,6 +34,16 @@ vi.mock('child_process', () => ({
 // Identity mock keeps these opener-behaviour tests focused on the opener; the
 // confinement contract itself is covered by
 // tests/unit/shellBridge.openFile.confinement.test.ts.
+// The open providers now also type-gate the CONFINED path before handing it to
+// an OS launcher (an agent-written `.command`/`.desktop`/`.exe`/`.app` inside an
+// authorized root would otherwise be EXECUTED). These fixtures use fictitious
+// paths, so a permissive mock keeps them focused on the opener; the gate itself
+// is covered by tests/unit/shellBridge.openTargetSafety.test.ts.
+vi.mock('../../src/process/bridge/shellOpenSafety', () => ({
+  refuseUnsafeOpenTarget: async () => null,
+  registerAppProducedOpenTarget: () => {},
+}));
+
 vi.mock('../../src/process/bridge/pathConfinement', () => ({
   confinePath: async (p: string) => p,
 }));
@@ -364,15 +374,24 @@ describe('shellBridge with actual providers', () => {
 
       await registeredProviders['openFolderWith']({ folderPath: 'C:\\Projects', tool: 'terminal' });
 
-      // L5: direct powershell.exe spawn with arg-array (no cmd.exe shell interpolation).
+      // L5: direct powershell.exe spawn, no cmd.exe shell interpolation - and the
+      // folder path is handed over in the ENVIRONMENT, never inside the
+      // `-Command` script text PowerShell parses.
       expect(spawn).toHaveBeenCalledWith(
         'powershell.exe',
-        ['-NoProfile', '-Command', 'Start-Process', '-FilePath', 'powershell.exe', '-WorkingDirectory', 'C:\\Projects'],
-        {
+        [
+          '-NoProfile',
+          '-Command',
+          'Start-Process -FilePath powershell.exe -WorkingDirectory $env:WAYLAND_TERMINAL_CWD',
+        ],
+        expect.objectContaining({
           detached: true,
           windowsHide: false,
-        }
+          env: expect.objectContaining({ WAYLAND_TERMINAL_CWD: 'C:\\Projects' }),
+        })
       );
+      const psCall = vi.mocked(spawn).mock.calls.find((call) => call[0] === 'powershell.exe');
+      expect(JSON.stringify(psCall?.[1])).not.toContain('C:\\Projects');
     });
 
     it('opens folder with explorer on macOS using open command', async () => {

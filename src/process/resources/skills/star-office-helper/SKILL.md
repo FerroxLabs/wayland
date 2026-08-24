@@ -107,7 +107,7 @@ You MUST execute every step yourself. Each step should include a short progress 
 
 1. **Checking environment** - Run `bash skills/star-office-helper/scripts/star_office_doctor.sh`, report findings.
 2. **Installing / repairing** - Run `bash skills/star-office-helper/scripts/star_office_setup.sh`, report success or failure.
-3. **Starting service** - Execute these commands yourself (do NOT tell the user to run them):
+3. **Starting service** - Execute these commands yourself (run them for the user, rather than asking them to):
    - Backend: `cd ~/Star-Office-UI/backend && nohup ../.venv/bin/python app.py > /dev/null 2>&1 &`
    - Frontend: `cd ~/Star-Office-UI/frontend && npm install && nohup npm run dev > /dev/null 2>&1 &`
    - Wait a few seconds, then verify both processes are running.

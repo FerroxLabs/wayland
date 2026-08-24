@@ -82,10 +82,24 @@ describe('resolveFluxRouting', () => {
     expect(out.stripKeys).toContain('OPENROUTER_API_KEY'); // native keys stripped for mutual exclusivity
     expect(out.stripKeys).toContain('OPENAI_MODEL');
   });
-  it('coerces the model to flux-auto so a non-auto flux tier id is never sent to Flux', () => {
+  // REPLACES 'coerces the model to flux-auto so a non-auto flux tier id is never
+  // sent to Flux'. That test asserted a FALSE invariant: it carried no rationale
+  // (every sibling here does), and the premise was refuted by execution against
+  // the live Router on 2026-08-23 - flux-auto, flux-fast, flux-standard and
+  // flux-reasoning each returned HTTP 200 with real content on
+  // POST /v1/chat/completions, echoing the requested id back in `model`. The
+  // coercion was not protecting a rejection; it was silently overriding the
+  // customer's pick, and Flux bills on the alias that arrives (flux-auto bills at
+  // STANDARD rates, so a Flux Fast pick was charged $2/$8 instead of $1/$4).
+  //
+  // The invariant that IS real - a NATIVE model id must never reach the Flux
+  // surface, because Flux 400s an id it does not serve - is unchanged and is
+  // covered by the 'keeps an explicit native model native' tests below.
+  it('sends the Flux tier the customer actually picked', () => {
     const out = resolveFluxRouting(ctx({ selectedModelId: 'flux-fast' }));
     expect(out.routing).toBe('flux');
-    expect(out.env.OPENAI_MODEL).toBe('flux-auto');
+    expect(out.env.OPENAI_MODEL).toBe('flux-fast');
+    expect(out.fluxModelId).toBe('flux-fast');
   });
   it('keeps an explicit native model native even with the toggle on (openai backend: qwen)', () => {
     // R5 rule 1: an explicit per-chat pick wins over the global toggle.

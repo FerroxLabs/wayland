@@ -49,6 +49,38 @@
   height: 22px;
   opacity: 0.96;
 }
+/* Back + dots share the trailing end of the header, so the dots stay pinned to
+   the right edge and the back control grows leftward into empty space - adding
+   it moves nothing that was already on screen. */
+.topEnd {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  padding: 6px;
+  color: var(--ob-meta);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+.back:hover:not(:disabled) {
+  color: var(--ob-text);
+}
+.back:focus-visible {
+  outline: 2px solid var(--ob-accent);
+  outline-offset: 2px;
+}
+.back:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
 .dots {
   display: flex;
   gap: 7px;

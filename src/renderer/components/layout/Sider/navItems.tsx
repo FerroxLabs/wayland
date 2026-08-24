@@ -16,10 +16,22 @@
  */
 
 import React from 'react';
-import { Brain, Clock, FolderKanban, Gauge, LayoutGrid, MessagesSquare, Search, Users, Workflow } from 'lucide-react';
+import {
+  Brain,
+  Clock,
+  FolderKanban,
+  Gauge,
+  LayoutGrid,
+  MessagesSquare,
+  Package,
+  Search,
+  Users,
+  Workflow,
+} from 'lucide-react';
 
 import type { SiderTooltipProps } from '@renderer/utils/ui/siderTooltip';
 import {
+  SiderArtifactsEntry,
   SiderAssistantsEntry,
   SiderMemoryEntry,
   SiderMissionControlEntry,
@@ -80,6 +92,22 @@ export const SIDER_NAV_ITEMS: SiderNavItem[] = [
         collapsed={ctx.collapsed}
         siderTooltipProps={ctx.siderTooltipProps}
         onClick={() => ctx.onTopZoneNav('/conversations')}
+      />
+    ),
+  },
+  {
+    id: 'artifacts',
+    labelKey: 'sider.artifacts',
+    defaultLabel: 'Artifacts',
+    icon: <Package size={16} />,
+    render: (ctx) => (
+      <SiderArtifactsEntry
+        key='artifacts'
+        isMobile={ctx.isMobile}
+        isActive={ctx.pathname.startsWith('/artifacts')}
+        collapsed={ctx.collapsed}
+        siderTooltipProps={ctx.siderTooltipProps}
+        onClick={() => ctx.onTopZoneNav('/artifacts')}
       />
     ),
   },

@@ -27,6 +27,7 @@ import type {
   PlanUpdate,
   ToolCallUpdate,
 } from '@/common/types/acpTypes';
+import type { ArtifactRejectionReason, ArtifactSummary, UnsupportedSavedFileClaim } from '../types/artifacts';
 import type { IResponseMessage } from '../adapter/ipcBridge';
 import { uuid } from '../utils';
 import { addOrUpdateNode, emptyActivityContent, mergeActivityContent, mergeNodeList } from './activityTree';
@@ -96,6 +97,8 @@ type TMessageType =
   | 'concierge_propose'
   | 'sub_agent'
   | 'activity'
+  | 'render_artifact'
+  | 'artifact_card'
   | 'execution_evidence';
 
 interface IMessage<T extends TMessageType, Content extends Record<string, any>> {
@@ -269,6 +272,23 @@ export type IMessageToolGroup = IMessage<
             question: string;
             header?: string;
             choices: Array<{ label: string; description?: string }>;
+          }
+        >
+      // #1099: the engine classified this call as crossing a filesystem
+      // boundary BEFORE running it, so the user answers a folder question
+      // instead of reading a path out of a refusal. Deliberately its own
+      // variant rather than an `info` with prose: `info` is auto-approved by
+      // Auto Edit (WCoreManager.tryAutoApprove), which for a boundary would be
+      // both a silent grant of authority outside the workspace and useless —
+      // it approves with `once`, which cannot resolve a boundary.
+      | IMessageToolGroupConfirmationDetailsBase<
+          'path_boundary',
+          {
+            /** The path the call named. Shown for context; NOT what is granted. */
+            target: string;
+            /** The containing folder a grant actually opens. */
+            suggestedRoot: string;
+            access: 'read' | 'write';
           }
         >;
   }>
@@ -594,6 +614,79 @@ export type IMessageExecutionEvidence = IMessage<
 >;
 
 /**
+ * #1098 - content the engine handed the host to DISPLAY, carrying no path.
+ *
+ * This is what replaces shelling out to the OS `open`. Because there is no
+ * path, the card that renders it can only offer Preview (the internal viewer);
+ * Open and Reveal have nothing to hand the system launcher and must never
+ * appear on it. `content` is untrusted — model-authored or read out of the
+ * workspace — so `text/html` is rendered only through the sandboxed HTML
+ * surface, never injected into the app's own DOM.
+ */
+export type IMessageRenderArtifact = IMessage<
+  'render_artifact',
+  {
+    callId: string;
+    title: string;
+    mime: 'text/plain' | 'text/markdown' | 'text/html';
+    content: string;
+    /** The engine truncated at its 1 MiB cap; the card badges this. */
+    truncated: boolean;
+  }
+>;
+
+/**
+ * T5. THE CARD THAT APPEARS UNDER THE ASSISTANT'S LAST MESSAGE.
+ *
+ * DESKTOP-AUTHORED, NOT ENGINE-AUTHORED, and the distinction is the whole
+ * design. `render_artifact` next door is a CORE frame, pinned by the contract
+ * corpus at `contracts/wayland-desktop-core/v1/compat/events/` and replayed by
+ * `desktopContractV1.test.ts`; extending it with a path would be an engine
+ * change plus a corpus re-import plus a contract pin bump, and its own comment
+ * says it "needs ZERO filesystem authority at the host". So this is a separate
+ * message the host writes for itself after the turn-end sweep.
+ *
+ * IT CARRIES IDS, NEVER PATHS. Every control on the card sends an
+ * `artifactId`, and the host re-resolves it through the ledger and
+ * re-verifies identity, containment and digest on every single click. A
+ * persisted card holding a stale summary therefore cannot make the host act on
+ * a file of the renderer's choosing - the worst it can do is name something
+ * the host will then refuse.
+ *
+ * `rejected` is on the card DELIBERATELY. A deliverable the ledger refused -
+ * too large, unreadable, a symlink - used to be silently absent, which reads
+ * to the user as "the agent never wrote it". A card that says why beats a row
+ * that is not there.
+ */
+export type IMessageArtifactCard = IMessage<
+  'artifact_card',
+  {
+    /** Newest-first, and always at least one - an empty card is never written. */
+    artifacts: ArtifactSummary[];
+    /**
+     * One line per refusal reason, already counted. May be empty.
+     *
+     * TYPED, not `string`. A bare string here is what let the card render
+     * `1 escapes-workspace` to a non-technical person at the exact moment their
+     * report did not arrive. With the closed union the renderer folds each
+     * reason into a translatable bucket, and a fourteenth reason added to the
+     * host fails to COMPILE rather than reaching a screen as a raw slug.
+     */
+    rejected?: Array<{ reason: ArtifactRejectionReason; count: number }>;
+    /**
+     * Files the assistant SAID it saved on this turn that the host could not
+     * account for. May be empty; when it is not, this is the ONE case in which
+     * a card is written with no artifacts on it at all.
+     *
+     * TYPED for the same reason `rejected` is: `verdict` is a closed union, so
+     * a third verdict added to the host fails to COMPILE at the renderer rather
+     * than arriving on a screen as the raw word `absent`.
+     */
+    unsupported?: UnsupportedSavedFileClaim[];
+  }
+>;
+
+/**
  * #252 - the activity card's merge key. Namespaced off the turn's stream
  * msg_id so it never collides with the assistant text message that shares that
  * same id (which would fragment streamed text into duplicate bubbles).
@@ -620,6 +713,8 @@ export type TMessage =
   | IMessageConciergeConfig
   | IMessageSubAgent
   | IMessageActivity
+  | IMessageRenderArtifact
+  | IMessageArtifactCard
   | IMessageExecutionEvidence;
 
 // Unified type for all user-interaction confirmation prompts
@@ -792,6 +887,26 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         msg_id: message.msg_id,
         conversation_id: message.conversation_id,
         content: message.data as any,
+      };
+    }
+    case 'render_artifact': {
+      return {
+        id: uuid(),
+        type: 'render_artifact',
+        msg_id: message.msg_id,
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content: message.data as IMessageRenderArtifact['content'],
+      };
+    }
+    case 'artifact_card': {
+      return {
+        id: uuid(),
+        type: 'artifact_card',
+        msg_id: message.msg_id,
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content: message.data as IMessageArtifactCard['content'],
       };
     }
     case 'agent_status': {
@@ -1256,6 +1371,33 @@ export const composeMessage = (
     }
     return pushMessage(message);
     // If no existing plan found, add new one
+  }
+
+  /**
+   * artifact_card: the deliverable card follows the conversation to the bottom.
+   *
+   * NOT A COPY OF THE `plan` BRANCH ABOVE, because that one merges IN PLACE and
+   * would leave the card pinned under whichever turn first produced a file. And
+   * NOT the tail's behaviour either: the tail pushes whenever the last message
+   * has a different msg_id, so on this path a re-emitted card was APPENDED as a
+   * duplicate rather than replacing the one already in the transcript.
+   *
+   * The card's msg_id is derived from the CONVERSATION, so turn 5's card
+   * carries turn 3's id. Move it: splice the old one out, push the new one on
+   * the end, and keep the persisted row's id so this reports as an UPDATE and
+   * not as a second row in the database.
+   */
+  if (message.type === 'artifact_card' && message.msg_id) {
+    for (let i = 0, len = list.length; i < len; i++) {
+      const existing = list[i];
+      if (existing.type !== 'artifact_card' || existing.msg_id !== message.msg_id) continue;
+      message.id = existing.id;
+      list.splice(i, 1);
+      list.push(message);
+      messageHandler('update', message);
+      return list.slice();
+    }
+    return pushMessage(message);
   }
 
   // Handle thinking message merging - append streaming content by msg_id

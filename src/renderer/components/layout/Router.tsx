@@ -57,6 +57,22 @@ const MemoryPage = React.lazy(() => import('@renderer/pages/memory/MemoryPage'))
 const ProjectsListPage = React.lazy(() => import('@renderer/pages/projects/ProjectsListPage'));
 const ProjectWorkspacePage = React.lazy(() => import('@renderer/pages/projects/ProjectWorkspacePage'));
 const ConversationsListPage = React.lazy(() => import('@renderer/pages/conversations/ConversationsListPage'));
+const ArtifactsPage = React.lazy(() => import('@renderer/pages/artifacts/ArtifactsPage'));
+const PreviewPopoutPage = React.lazy(() => import('@renderer/pages/preview/PreviewPopoutPage'));
+/**
+ * A preview pop-out window is BORN on `#/preview?mode=popout`, and the handoff
+ * that seeds it is emitted from that window's `did-finish-load`. The page above
+ * is LAZY, so its chunk resolves strictly after that moment and a listener
+ * registered in it would miss the tab outright - the platform emitter has no
+ * replay, so an event with no subscriber is dropped, not queued. Observed live:
+ * the popped window came up blank.
+ *
+ * So the listener is imported STATICALLY here, in a module the renderer
+ * evaluates at startup. It subscribes and latches; the page reads the latch
+ * whenever its chunk finally arrives. Importing it in the main window too is
+ * harmless - it latches a value nothing there reads.
+ */
+import '@renderer/pages/preview/previewHandoffLatch';
 const IjfwSettingsPanel = React.lazy(() => import('@renderer/pages/settings/IjfwSettingsPanel'));
 const WikiHomePage = React.lazy(() =>
   import('@renderer/pages/wiki/WikiHomePage').then((m) => ({ default: m.WikiHomePage }))
@@ -105,12 +121,46 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             path='/login'
             element={status === 'authenticated' ? <Navigate to='/guid' replace /> : withRouteFallback(LoginPage)}
           />
+          {/* PREVIEW POP-OUT - a whole window holding one deliverable.
+
+              ROUTED BARE, OUTSIDE ProtectedLayout, deliberately. Everything
+              ProtectedLayout brings would follow the deliverable into its own
+              window: the Sider's route-change `closePreview` (which tore the
+              panel down last time and is why ArtifactsPage hosts its own
+              provider), OnboardingOverlay and ShellChoiceOverlay, and a second
+              auth round-trip that can bounce a preview window to /login while
+              the main window is signed in.
+
+              This is NOT a security decision and removes no gate: the page
+              reads one tab handed to it over `preview.handoff` and offers one
+              control that closes its own window. Every provider it can reach is
+              allowlisted and re-checked in the main process exactly as before. */}
+          <Route path='/preview' element={withRouteFallback(PreviewPopoutPage)} />
           <Route element={<ProtectedLayout layout={layout} />}>
             <Route index element={<Navigate to='/guid' replace />} />
             <Route path='/guid' element={withRouteFallback(Guid)} />
             <Route
               path='/conversation/:id'
               element={<ErrorBoundary>{withRouteFallback(Conversation)}</ErrorBoundary>}
+            />
+            {/* ARTIFACTS - the deliverables rail.
+
+              DESKTOP ONLY, gated exactly like `/settings/wcore-config` below.
+              The whole `artifacts.` namespace is remote-denied in
+              bridgeAllowlist.ts (list enumerates the absolute paths of every
+              workspace the user has; open reaches an OS launcher on the LOCAL
+              machine; save-copy writes a file there), so on a paired WebUI
+              every call this page makes REJECTS and the page can only ever
+              render its own failure state. A route that cannot work is worse
+              than no route: it puts a dead end in front of a remote user.
+
+              This gate is CLIENT-SIDE and is therefore attack-surface and UX
+              reduction, NOT a security boundary - the allowlist is applied
+              again server-side in src/process/webserver/adapter.ts, and that
+              is what actually refuses. Nothing here widens it. */}
+            <Route
+              path='/artifacts'
+              element={isElectronDesktop() ? withRouteFallback(ArtifactsPage) : <Navigate to='/guid' replace />}
             />
             {/* WORKSPACE */}
             <Route path='/settings/assistants' element={withRouteFallback(AssistantSettings)} />

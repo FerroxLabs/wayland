@@ -32,10 +32,10 @@ function makeUserData(): string {
 }
 
 describe('materializeFluxHermesHome', () => {
-  it('returns <userData>/flux-hermes-home and writes config.yaml there', async () => {
+  it('returns <userData>/flux-hermes-home/<tier> and writes config.yaml there', async () => {
     const userData = makeUserData();
     const dir = await materializeFluxHermesHome(userData, TEST_KEY);
-    expect(dir).toBe(join(userData, 'flux-hermes-home'));
+    expect(dir).toBe(join(userData, 'flux-hermes-home', 'flux-auto'));
     expect(existsSync(join(dir, 'config.yaml'))).toBe(true);
   });
 

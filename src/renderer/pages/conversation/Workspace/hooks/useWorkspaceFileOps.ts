@@ -7,6 +7,10 @@
  */
 
 import { ipcBridge } from '@/common';
+import {
+  previewContentTypeForFileName,
+  previewExtensionOf,
+} from '@/renderer/pages/conversation/Preview/previewContentType';
 import { downloadFileFromPath } from '@/renderer/utils/file/download';
 import type { IDirOrFile } from '@/common/adapter/ipcBridge';
 import type { PreviewContentType } from '@/common/types/preview';
@@ -343,83 +347,14 @@ export function useWorkspaceFileOps(options: UseWorkspaceFileOpsOptions) {
       try {
         closeContextMenu();
 
-        // Determine content type based on file extension
-        const ext = nodeData.name.toLowerCase().split('.').pop() || '';
-
-        // List of supported image formats
-        const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg', 'ico', 'tif', 'tiff', 'avif'];
-
-        let contentType: PreviewContentType = 'code';
+        // Determine content type based on file extension. The mapping lives in
+        // `previewContentType` because the deliverable card's run history opens
+        // an earlier run through the same internal viewer, and two copies of it
+        // is how the two surfaces start disagreeing about what a `.md` is.
+        const ext = previewExtensionOf(nodeData.name);
+        const contentType: PreviewContentType = previewContentTypeForFileName(nodeData.name);
         let content = '';
         let isLargeTextTruncated = false;
-
-        // Determine file type based on extension
-        if (ext === 'md' || ext === 'markdown') {
-          contentType = 'markdown';
-        } else if (ext === 'diff' || ext === 'patch') {
-          contentType = 'diff';
-        } else if (ext === 'pdf') {
-          contentType = 'pdf';
-        } else if (['ppt', 'pptx', 'odp'].includes(ext)) {
-          contentType = 'ppt';
-        } else if (['doc', 'docx', 'odt'].includes(ext)) {
-          contentType = 'word';
-        } else if (['xls', 'xlsx', 'ods', 'csv'].includes(ext)) {
-          contentType = 'excel';
-        } else if (['html', 'htm'].includes(ext)) {
-          contentType = 'html';
-        } else if (imageExtensions.includes(ext)) {
-          contentType = 'image';
-        } else if (
-          [
-            'js',
-            'ts',
-            'tsx',
-            'jsx',
-            'py',
-            'java',
-            'go',
-            'rs',
-            'c',
-            'cpp',
-            'h',
-            'hpp',
-            'css',
-            'scss',
-            'json',
-            'xml',
-            'yaml',
-            'yml',
-            'txt',
-            'log',
-            'sh',
-            'bash',
-            'zsh',
-            'fish',
-            'sql',
-            'rb',
-            'php',
-            'swift',
-            'kt',
-            'scala',
-            'r',
-            'lua',
-            'vim',
-            'toml',
-            'ini',
-            'cfg',
-            'conf',
-            'env',
-            'gitignore',
-            'dockerignore',
-            'editorconfig',
-          ].includes(ext)
-        ) {
-          contentType = 'code';
-        } else {
-          // Unknown extensions also default to code type, try to read as text
-          contentType = 'code';
-        }
 
         // Read content based on file type
         if (contentType === 'pdf' || contentType === 'word' || contentType === 'excel' || contentType === 'ppt') {

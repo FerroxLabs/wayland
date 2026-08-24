@@ -6,7 +6,7 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 
 // Mock @office-ai/platform at module level (before any imports)
 vi.mock('@office-ai/platform', () => ({
@@ -77,6 +77,24 @@ vi.mock('electron-log', () => ({
 }));
 
 describe('Auto-Update IPC Bridge Integration', () => {
+  // Every test here re-imports the bridge after vi.resetModules(). The first
+  // import in the worker also TRANSFORMS that module graph, and vitest charges
+  // that to whichever test body reaches it first - 1264ms idle, 5775ms under
+  // Linux full-suite load, and past the 10s timeout on the Windows box. The
+  // transform cache survives vi.resetModules() even though the module registry
+  // does not, so paying it once here leaves every test its full budget for
+  // behaviour while keeping the per-test re-evaluation that isolates them.
+  beforeAll(async () => {
+    try {
+      await import('@process/bridge/updateBridge');
+      await import('@/process/services/autoUpdaterService');
+      await import('@/common');
+    } catch {
+      // Not a verdict: every test imports these itself and will report the real
+      // error against a real assertion rather than as an opaque hook failure.
+    }
+  }, 120_000);
+
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -167,6 +185,23 @@ describe('Auto-Update IPC Bridge Integration', () => {
       const { initUpdateBridge } = await import('@process/bridge/updateBridge');
       const { autoUpdaterService } = await import('@/process/services/autoUpdaterService');
       const { ipcBridge } = await import('@/common');
+      const { autoUpdater } = await import('electron-updater');
+
+      // The bare vi.fn() above resolved undefined, which electron-updater's real
+      // checkForUpdates() never does - it resolves an UpdateCheckResult. That
+      // drove the service into its "check returned null" branch, whose only job
+      // is to localise a message: `await import('./i18n')` loads the 12-locale
+      // main-process i18n graph, measured at 1694ms of module transform charged
+      // to this test's 10s timeout, for a string this test never asserts. Under
+      // full-suite parallelism that inflated to 10011ms, which is why this one
+      // test in the file failed stably on a 96-core Linux box.
+      //
+      // Return what the real API returns. The allowPrerelease assertion below is
+      // unchanged, and it is still read off the service after the handler ran.
+      vi.mocked(autoUpdater.checkForUpdates).mockResolvedValue({
+        isUpdateAvailable: false,
+        updateInfo: { version: '1.0.0' },
+      } as unknown as Awaited<ReturnType<typeof autoUpdater.checkForUpdates>>);
 
       autoUpdaterService.resetForTest();
       initUpdateBridge();

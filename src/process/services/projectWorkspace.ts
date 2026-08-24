@@ -10,6 +10,12 @@ import path from 'path';
 import { SqliteProjectRepository } from '@process/services/database/SqliteProjectRepository';
 import { bootstrapProjectKnowledge } from '@process/services/projectKnowledge/bootstrap';
 import { resolveProjectWorkspacePath } from '@process/utils/workspaceLocation';
+import {
+  buildWorkspaceMarker,
+  writeWorkspaceMarker,
+  type WorkspaceMarker,
+  type WorkspaceOwnerKind,
+} from '@process/services/workspaceIdentity';
 
 /**
  * #30 NO-DRIFT: a chat created inside a project (extra.projectId) must always
@@ -81,31 +87,80 @@ export async function defaultWorkspaceBaseDir(): Promise<string> {
   return _baseDirPromise;
 }
 
+/** Subfolder of the managed base each owner kind allocates into (P2-1). */
+const OWNER_KIND_DIR: Record<WorkspaceOwnerKind, string> = {
+  task: 'Tasks',
+  project: 'Projects',
+};
+
+/** Who a newly allocated workspace belongs to. Defaults to a project (the pre-P2-1 caller). */
+export type AllocateWorkspaceOptions = {
+  ownerKind?: WorkspaceOwnerKind;
+  ownerId?: string | null;
+};
+
+/** Result of an allocation: where it landed, and the identity stamped into it. */
+export type AllocatedWorkspace = { dir: string; marker: WorkspaceMarker | null };
+
 /**
- * Allocate a fresh, collision-free persistent workspace dir for a project and
- * create it on disk. Default location is `~/Documents/Wayland/<project-name>`;
- * the path logic (sanitize + de-dupe) lives in workspaceLocation.ts.
+ * Allocate a fresh, collision-free persistent workspace dir and create it on
+ * disk, stamped with a `.wayland-workspace.json` identity marker.
+ *
+ * P2-1: NEW allocations nest by owner kind -
+ * `~/Documents/Wayland/Tasks/<name>` and `~/Documents/Wayland/Projects/<name>`.
+ * Flat made the `(2)` suffix an accidental type system in which a Task and a
+ * Project of the same name are indistinguishable, so deleting the wrong one
+ * destroys history. Nesting is a NEW-allocation rule only: nothing relocates an
+ * existing workspace, because the allocated path is persisted by the caller and
+ * `ensureProjectWorkspace` returns an existing one untouched.
+ *
+ * The name is DISPLAY, the marker id is IDENTITY. Two tasks called "Morning
+ * Brief" get `Morning Brief` and `Morning Brief (2)` with distinct ids; renaming
+ * a task moves nothing, which is why callers must persist the path they were
+ * given and never re-derive it from the current name.
  */
 /** Paths chosen by an in-flight allocateProjectWorkspace but not yet created on disk. */
 const allocatingPaths = new Set<string>();
 
-export async function allocateProjectWorkspace(projectName: string): Promise<string> {
-  const base = await defaultWorkspaceBaseDir();
+export async function allocateWorkspace(
+  displayName: string,
+  options: AllocateWorkspaceOptions = {}
+): Promise<AllocatedWorkspace> {
+  const ownerKind: WorkspaceOwnerKind = options.ownerKind ?? 'project';
+  const base = path.join(await defaultWorkspaceBaseDir(), OWNER_KIND_DIR[ownerKind]);
   await fs.mkdir(base, { recursive: true });
   // Resolve + reserve in ONE synchronous step so two concurrent allocations whose
   // names sanitize to the SAME folder (different projects -> the per-projectId
   // lock doesn't help) can't both pick the same dir before either is created on
   // disk. A path counts as taken if it exists OR another in-flight allocation
   // already claimed it, so the second caller falls through to the (2)/(3) suffix.
-  const dir = resolveProjectWorkspacePath(base, projectName, (p) => existsSync(p) || allocatingPaths.has(p));
+  const dir = resolveProjectWorkspacePath(base, displayName, (p) => existsSync(p) || allocatingPaths.has(p));
   allocatingPaths.add(dir);
   try {
     await fs.mkdir(dir, { recursive: true });
-    return dir;
+    const marker = buildWorkspaceMarker({ ownerKind, ownerId: options.ownerId ?? null, displayName });
+    try {
+      await writeWorkspaceMarker(dir, marker);
+      return { dir, marker };
+    } catch (err) {
+      // An unmarkable workspace is still a usable workspace - it just cannot
+      // prove its identity later, which degrades P2-10 to "missing only". Never
+      // fail the allocation over it.
+      console.error('[projectWorkspace] failed to write workspace identity marker:', err);
+      return { dir, marker: null };
+    }
   } finally {
     // Once created, existsSync(dir) keeps it "taken"; safe to drop the reservation.
     allocatingPaths.delete(dir);
   }
+}
+
+/** Path-only wrapper kept for the callers that persist nothing but the path. */
+export async function allocateProjectWorkspace(
+  projectName: string,
+  options: AllocateWorkspaceOptions = {}
+): Promise<string> {
+  return (await allocateWorkspace(projectName, options)).dir;
 }
 
 /**
@@ -121,7 +176,7 @@ export async function allocateProjectWorkspace(projectName: string): Promise<str
  */
 export async function ensureProjectWorkspace(
   projectId: string | undefined,
-  allocate: (projectName: string) => Promise<string> = allocateProjectWorkspace
+  allocate: (projectName: string, options?: AllocateWorkspaceOptions) => Promise<string> = allocateProjectWorkspace
 ): Promise<string | null> {
   if (!projectId) return null;
   // Serialize concurrent first-chat allocations for the SAME project. Without
@@ -145,7 +200,7 @@ const ensureLocks = new Map<string, Promise<string | null>>();
 
 async function ensureProjectWorkspaceUnlocked(
   projectId: string,
-  allocate: (projectName: string) => Promise<string>
+  allocate: (projectName: string, options?: AllocateWorkspaceOptions) => Promise<string>
 ): Promise<string | null> {
   try {
     const repo = new SqliteProjectRepository();
@@ -154,7 +209,7 @@ async function ensureProjectWorkspaceUnlocked(
     const existing = typeof project.workspace === 'string' ? project.workspace.trim() : '';
     if (existing) return existing;
 
-    const workspace = await allocate(project.name);
+    const workspace = await allocate(project.name, { ownerKind: 'project', ownerId: projectId });
     await repo.updateProject(projectId, { workspace });
     // Best-effort: a filesystem hiccup bootstrapping knowledge must not undo the
     // allocation (the workspace is already persisted and usable).

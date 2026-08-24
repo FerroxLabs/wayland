@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import { Dropdown, Menu, Switch } from '@arco-design/web-react';
@@ -13,6 +13,7 @@ import type { CatalogIndexEntry } from '../types';
 import type { UIStatus } from '../status';
 import { needsAttention } from '../status';
 import { useMcpCardActions } from './McpCardActions';
+import ConnectorLogo from './ConnectorLogo';
 import styles from '../McpLibrary.module.css';
 
 type Props = {
@@ -48,7 +49,6 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
   const { t } = useTranslation();
   const actions = useMcpCardActions();
   const server = installed ? actions?.serverFor(entry.id) : undefined;
-  const [iconBroken, setIconBroken] = useState(false);
   // An installed connector that is broken or wants a sign-in is surfaced right
   // on the card so the user can spot it at a glance instead of hunting Installed.
   const attention = installed && status !== undefined && needsAttention(status);
@@ -196,13 +196,7 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
       }}
     >
       <div className={styles.cardTop}>
-        <span className={styles.cardLogo}>
-          {iconBroken ? (
-            <span className={styles.cardLogoLetter}>{entry.name[0]}</span>
-          ) : (
-            <img src={entry.iconUrl} alt='' onError={() => setIconBroken(true)} />
-          )}
-        </span>
+        <ConnectorLogo className={styles.cardLogo} entryId={entry.id} iconUrl={entry.iconUrl} title={entry.name} />
         <div className={styles.cardMeta}>
           <div className={styles.cardName}>
             <span>{entry.name}</span>

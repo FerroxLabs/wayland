@@ -1,7 +1,9 @@
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
 const harness =
@@ -19,6 +21,7 @@ const {
   classifyLedgerTransactions,
   runHistoricalTransactionCorpusVerification,
   sha256Prefixed,
+  SOURCE_PATH,
 } = harness;
 
 type CorpusProvider = {
@@ -32,7 +35,14 @@ interface HistoricalCorpusHarness {
   PRODUCER_COMMIT: string;
   loadManifest: () => any;
   verifyManifestIntegrity: (manifest: any) => string;
-  verifyProvenance: (manifest: any, opts: { provider: CorpusProvider; git?: boolean }) => unknown;
+  verifyProvenance: (
+    manifest: any,
+    opts: { provider: CorpusProvider; git?: boolean; gitSource?: { repoRoot: string; commit: string } }
+  ) => {
+    sourceBlobReDerived: boolean;
+    sourceBlobReDerivationSkipped: string | null;
+  };
+  SOURCE_PATH: string;
   verifyInventory: (manifest: any, provider: CorpusProvider) => { fileCount: number };
   verifyBaseReplay: (base: any, provider: CorpusProvider) => unknown;
   parseLedgerChain: (text: string) => Array<Record<string, unknown>>;
@@ -76,6 +86,51 @@ function memoryProvider(): CorpusProvider & { store: Map<string, Buffer> } {
   };
 }
 
+const tempDirs: string[] = [];
+afterEach(() => {
+  for (const dir of tempDirs.splice(0)) fs.rmSync(dir, { recursive: true, force: true });
+});
+
+/**
+ * A REAL one-commit git repository carrying `SOURCE_PATH`, built here so the
+ * blob re-derivation can be exercised on a machine whose clone does not carry
+ * `PRODUCER_COMMIT`.
+ *
+ * It has to be built rather than borrowed. `PRODUCER_COMMIT` is on no remote
+ * branch at all (`git branch -r --contains 991c502e...` names nothing), so it
+ * is absent from every fresh clone and present only where a local branch or an
+ * incidental pack happens to carry it. The Windows checkout answers
+ * `fatal: could not get object info`; the author's Mac answers `commit`; the
+ * Linux box answered BOTH, forty minutes apart, because another lane's fetch
+ * dropped the dangling object into the shared pack. The verifier swallowed the
+ * unreachable case and passed, so this guard was off wherever the object was
+ * missing - and flipped state on its own where it was not.
+ *
+ * Content is written LF-only and the repo pins `core.autocrlf=false`, so the
+ * committed blob bytes are identical on all three platforms and the expected
+ * sha256 can be computed from the bytes we wrote rather than read back from the
+ * thing under test.
+ */
+function producerRepo(contents: string): { repoRoot: string; commit: string; contentSha256: string } {
+  const repoRoot = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'wl-producer-')));
+  tempDirs.push(repoRoot);
+  const git = (...args: string[]) =>
+    execFileSync('git', ['-C', repoRoot, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  git('init', '--quiet');
+  git('config', 'core.autocrlf', 'false');
+  git('config', 'user.email', 'corpus-test@ferroxlabs.invalid');
+  git('config', 'user.name', 'Corpus Test');
+  const file = path.join(repoRoot, ...SOURCE_PATH.split('/'));
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, contents, 'utf8');
+  git('add', '--', SOURCE_PATH);
+  // --no-verify: a global core.hooksPath or init.templateDir would otherwise
+  // run this repo's real pre-commit hooks inside a throwaway fixture.
+  git('commit', '--quiet', '--no-gpg-sign', '--no-verify', '-m', 'producer');
+  const commit = git('rev-parse', 'HEAD').trim();
+  return { repoRoot, commit, contentSha256: sha256Prefixed(Buffer.from(contents, 'utf8')) };
+}
+
 const PENDING_TX = '55555555-5555-4555-8555-555555555555';
 const COMMITTED_LEDGER = 'base-991c502-committed/archives/constitution-history/transaction-ledger.jsonl';
 const PENDING_LEDGER = 'base-991c502-pending-ledger-only/archives/constitution-history/transaction-ledger.jsonl';
@@ -102,9 +157,17 @@ describe('historical transaction corpus verifier', () => {
     });
   });
 
-  it('re-derives the exact producer source blob through git', () => {
-    // git is available in the worktree; the source blob digest must match.
-    expect(() => verifyProvenance(manifest, { provider: memoryProvider(), git: true })).not.toThrow();
+  it('re-derives the exact producer source blob through git, or SAYS it could not', () => {
+    // This used to be a bare `.not.toThrow()`, which a verifier that silently
+    // skipped the whole leg satisfied trivially. Assert on the reported outcome
+    // instead: where the producer object is in the object database the digest
+    // must match, and where it is not the report must SAY the leg did not run.
+    const provenance = verifyProvenance(manifest, { provider: memoryProvider(), git: true });
+    if (provenance.sourceBlobReDerived) {
+      expect(provenance.sourceBlobReDerivationSkipped).toBeNull();
+    } else {
+      expect(provenance.sourceBlobReDerivationSkipped).toMatch(/producer blob unreachable in git/);
+    }
   });
 
   // ── Provenance / reconstruction / cross-release ────────────────────────────
@@ -150,10 +213,43 @@ describe('historical transaction corpus verifier', () => {
   });
 
   it('rejects a source blob digest that does not match the producer commit', () => {
+    const producer = producerRepo('export const TRANSACTION_PROTOCOL = 1;\n');
     const candidate = clone(manifest);
     candidate.source.contentSha256 = `sha256:${'0'.repeat(64)}`;
-    // git:true re-derives the real blob and detects the substitution.
-    expect(() => verifyProvenance(candidate, { provider: memoryProvider(), git: true })).toThrow(/reconstruction/);
+    expect(() => verifyProvenance(candidate, { provider: memoryProvider(), git: true, gitSource: producer })).toThrow(
+      /reconstruction/
+    );
+  });
+
+  it('KNOWN-POSITIVE CONTROL: the same re-derivation ACCEPTS the matching digest', () => {
+    // Without this the test above cannot tell "the digest was rejected" from
+    // "git blew up and everything is rejected". Same repo, same code path, only
+    // the declared digest differs.
+    const producer = producerRepo('export const TRANSACTION_PROTOCOL = 1;\n');
+    const candidate = clone(manifest);
+    candidate.source.contentSha256 = producer.contentSha256;
+    const provenance = verifyProvenance(candidate, {
+      provider: memoryProvider(),
+      git: true,
+      gitSource: producer,
+    });
+    expect(provenance.sourceBlobReDerived).toBe(true);
+    expect(provenance.sourceBlobReDerivationSkipped).toBeNull();
+  });
+
+  it('reports - rather than swallows - a producer blob git cannot reach', () => {
+    // The fail-open that made this whole leg dead off macOS: an unreachable
+    // object must not read as a passed check.
+    const unreachable = { repoRoot: producerRepo('x\n').repoRoot, commit: '0'.repeat(40) };
+    const candidate = clone(manifest);
+    candidate.source.contentSha256 = `sha256:${'0'.repeat(64)}`;
+    const provenance = verifyProvenance(candidate, {
+      provider: memoryProvider(),
+      git: true,
+      gitSource: unreachable,
+    });
+    expect(provenance.sourceBlobReDerived).toBe(false);
+    expect(provenance.sourceBlobReDerivationSkipped).toMatch(/producer blob unreachable in git/);
   });
 
   it('rejects a harness patch that mutates the transaction region', () => {

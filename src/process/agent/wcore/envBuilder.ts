@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { realpathSync } from 'fs';
+import path from 'path';
+
 import type { TProviderWithModel } from '@/common/config/storage';
 import { isLocalBaseUrl, isOpenAIHost } from '@/common/utils/urlValidation';
 import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from '@process/providers/catalog/chatgptSubscriptionModels';
@@ -11,6 +14,7 @@ import { loadBaselineProviderCatalog } from '@process/providers/catalog/provider
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 import type { ProviderId } from '@process/providers/types';
 import { VAULT_PASSPHRASE_CHILD_FD } from '@process/secrets';
+import { CHAT_NAMESPACE } from '@process/services/artifacts/artifactLedger';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 
 /**
@@ -489,6 +493,17 @@ export function buildSpawnConfig(
      */
     rawEngine?: boolean;
     /**
+     * Ask Core to accept `grant_path` from this host, by passing
+     * `--allow-host-path-grants`. Default OFF: a session with no folder grants
+     * to replay has no business holding the capability, and Core made this a
+     * launch FLAG rather than an env var precisely so "this session may, that
+     * one may not" is expressible. Absent, Core refuses every `grant_path` with
+     * an untyped `info` line and emits no policy receipt.
+     *
+     * It requires `--json-stream`, which both spawn arms already pass.
+     */
+    allowHostPathGrants?: boolean;
+    /**
      * True when a ChatGPT subscription's OAuth is available for keyless inference
      * (the caller resolved it from `~/.codex/auth.json` - the same store the
      * engine reads for `--provider openai-chatgpt`). Consumed ONLY by
@@ -556,6 +571,17 @@ export function buildSpawnConfig(
   // side). The `model` argument is intentionally unused here.
   if (options.rawEngine) {
     const args = ['--json-stream'];
+    // Passed in raw-engine mode too, and deliberately. The "only session-protocol
+    // args" rule exists to keep Desktop from overriding what the engine resolves
+    // from its OWN config.toml - provider, model, auth, token budget, security
+    // posture. This flag overrides none of that: it is host<->engine capability
+    // negotiation on the json-stream channel itself, the same category as
+    // `--json-stream`, and Core made it a flag rather than an env var so it
+    // CANNOT be resolved from config.toml at all. Withholding it here would make
+    // the user's persisted folder list silently inert for exactly the users who
+    // configured their engine most deliberately - a boundary that reads as
+    // configured and is not.
+    if (options.allowHostPathGrants) args.push('--allow-host-path-grants');
     if (options.resume) {
       args.push('--resume', options.resume);
     } else if (options.sessionId) {
@@ -603,6 +629,14 @@ export function buildSpawnConfig(
   }
   if (options.autoApprove) {
     args.push('--auto-approve');
+  }
+  // Default-deny, and NOT implied by `--auto-approve`. Auto-approve answers the
+  // prompting question ("must a human click?"); this answers the boundary
+  // question ("what may be reached at all"). Letting one imply the other would
+  // let a mode toggle widen the filesystem boundary without anyone consenting
+  // to a folder.
+  if (options.allowHostPathGrants) {
+    args.push('--allow-host-path-grants');
   }
 
   // --resume and --session-id are mutually exclusive
@@ -941,10 +975,165 @@ export const AWS_AUTHORITY_ENV_KEYS = [
  *     never diverge. Layered last so a stray `process.env.WAYLAND_HOME` can't
  *     override the resolved profile dir.
  */
+/**
+ * The physical path this spelling names, for a path that may not exist yet.
+ *
+ * `realpathSync` throws on a missing leaf, and this is called BEFORE a run's
+ * directory necessarily exists - so the deepest ancestor that does exist is
+ * canonicalized and the missing tail re-appended. That keeps a not-yet-created
+ * destination comparable with a realpathed workspace instead of falling back to
+ * the lexical spelling and reintroducing the divergence for exactly the case
+ * the caller is about to create.
+ */
+function canonicalizePath(target: string): string {
+  let current = path.resolve(target);
+  const tail: string[] = [];
+  for (;;) {
+    try {
+      return path.join(realpathSync(current), ...tail);
+    } catch {
+      const parent = path.dirname(current);
+      if (parent === current) return path.resolve(target);
+      tail.unshift(path.basename(current));
+      current = parent;
+    }
+  }
+}
+
+/**
+ * The run's staging directory when one is open and genuinely inside the
+ * workspace, otherwise the series root. Containment is re-checked HERE rather
+ * than trusted from the caller: this value becomes a host-blessed write
+ * destination handed to model-authored skill text, so the one place it is
+ * produced is the right place to prove it cannot point out of the sandbox.
+ */
+export function resolveOutputDir(workspace: string, outputDir?: string, conversationId?: string): string {
+  const seriesRoot = path.join(workspace, 'artifacts');
+  if (outputDir) {
+    // BOTH SIDES CANONICALIZED BEFORE COMPARING.
+    //
+    // The workspace reaches the non-raw spawn already realpathed (the project
+    // config lease hands `WCoreAgent` a canonical path), while the run's
+    // staging directory is stored lexically. `~/.wayland` is a real symlink on
+    // macOS, so every managed workspace has two spellings, they compared as
+    // "outside", and a scheduled run's deliverable was silently redirected into
+    // the CHAT namespace - never staged, never published.
+    //
+    // This is also strictly NARROWER than the lexical check it replaces: a
+    // symlink planted inside the workspace that points out used to pass, because
+    // `path.relative` sees a child path and never looks at what it is.
+    const resolvedWorkspace = canonicalizePath(workspace);
+    const resolved = canonicalizePath(outputDir);
+    const relative = path.relative(resolvedWorkspace, resolved);
+    if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) return path.resolve(outputDir);
+  }
+  // No run open. A conversation is an interactive chat, and its deliverables
+  // must NOT land in the series root - see CHAT_NAMESPACE. Falling back to the
+  // namespace ROOT (rather than to the series root) when the id is unusable as
+  // a path segment keeps even that case out of series classification, which a
+  // fall-through to `seriesRoot` would not.
+  if (!conversationId) return seriesRoot;
+  const chatRoot = path.join(seriesRoot, CHAT_NAMESPACE);
+  const segment = usableConversationSegment(conversationId);
+  return segment ? path.join(chatRoot, segment) : chatRoot;
+}
+
+/**
+ * A conversation id is only allowed to become a directory name when it is
+ * already one safe segment. Ids are generated hex/UUID, so this rejects
+ * nothing real - it exists because this value is joined into a host-blessed
+ * write destination handed to model-authored text, and "the caller only ever
+ * passes good input" is the assumption every traversal starts from.
+ */
+function usableConversationSegment(conversationId: string): string | null {
+  const trimmed = conversationId.trim();
+  if (!trimmed || trimmed.length > 128) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(trimmed)) return null;
+  if (/[.]$/.test(trimmed)) return null;
+  return trimmed;
+}
+
+/**
+ * T2. TELL THE MODEL WHERE ITS DELIVERABLES GO.
+ *
+ * `WAYLAND_OUTPUT_DIR` has been set on every spawn since P2-6 and, until this,
+ * exactly ONE thing in the product read it: the bundled morning-report
+ * `SKILL.md`. A plain chat - no workflow, no skill - was never told the
+ * directory existed, so the artifacts rail would have shipped over an empty
+ * folder. `buildSpawnConfig` has forwarded `options.systemPrompt` to
+ * `--system-prompt` the whole time and nothing in `src/process` ever set it.
+ * This is that producer.
+ *
+ * VERIFIED AGAINST THE REAL ENGINE (wayland-core 0.13.0) by capturing the
+ * outgoing provider request, because the help text reads like an override and
+ * is not one:
+ *
+ *  - `--system-prompt` is APPENDED to the engine's composed system prompt. The
+ *    base prompt came back byte-for-byte identical with this text inserted
+ *    after it, so naming a directory here costs none of the engine's own
+ *    guidance.
+ *  - It is present on a `--resume` spawn as well. That is why it is the channel
+ *    and `presetRules` is not: `presetRules` ships as an `init_history` frame
+ *    that `WCoreAgent` skips whenever `resume` is set, so a directive sent that
+ *    way would be missing from every turn after an app restart.
+ *
+ * The wording is deliberately about DELIVERABLES rather than "output". The
+ * engine's own base prompt already tells the model to keep scratch out of the
+ * working tree; the failure this prevents is the opposite one - a report the
+ * user wanted, written somewhere nothing lists.
+ */
+/**
+ * B13. `ephemeral` marks a directory that STOPS EXISTING when the turn ends.
+ *
+ * A scheduled run's directory is its staging tree, and publication is a
+ * `fs.rename` of that tree onto the dated run directory (`artifactSeries`); a
+ * run that staged nothing is `abandonRun`'d, which removes it outright. Either
+ * way the address is dead by the time anyone reads the message - and the model
+ * cannot do better, because publication happens on the idle callback AFTER the
+ * turn, so the published path does not exist yet while the message is being
+ * written. Asking for "the path" there can only ever produce the doomed one,
+ * which is exactly what shipped: both complete runs printed
+ * `artifacts/market/.staging/<runId>/morning-brief.html`.
+ *
+ * A CHAT's directory (`artifacts/chat/<conversationId>`) is permanent, so it
+ * keeps the original clause. The distinction is the whole point: this is not a
+ * blanket removal of a useful instruction.
+ */
+export function buildOutputDirective(absoluteOutputDir: string, opts?: { ephemeral?: boolean }): string {
+  const reference = opts?.ephemeral
+    ? "That directory is this run's staging area and the app deletes it the moment the run publishes, " +
+      'so do NOT print it: name the file by name and say it is attached below as a card. ' +
+      'The app writes the real, permanent path onto that card after this turn ends; you do not have it and must not guess it.'
+    : `When you refer to a saved deliverable in your final message, name its path inside ${absoluteOutputDir}.`;
+  return [
+    `Deliverables you want the user to keep go in ${absoluteOutputDir}. Create that directory if it does not exist.`,
+    'Use the workspace root for intermediate files, scratch analysis, scripts and drafts.',
+    `Only files in ${absoluteOutputDir} are shown to the user as deliverables.`,
+    reference,
+  ].join(' ');
+}
+
 export function buildEngineSpawnEnv(opts: {
   providerEnv: Record<string, string>;
   toolKeys?: Record<string, string>;
   waylandHome?: string;
+  workspace?: string;
+  /**
+   * P2-11: the OPEN RUN'S staging directory, when a scheduled run is in flight.
+   * Overrides the `<workspace>/artifacts` default so a crashed or half-finished
+   * run cannot leave partial output where the next run - or the user - reads it
+   * as a real deliverable. Ignored unless it resolves inside `workspace`: this
+   * is a hint from the run path, not a second way to choose a write root.
+   */
+  outputDir?: string;
+  /**
+   * T1: the conversation this spawn belongs to. With no run open it selects the
+   * chat namespace `<workspace>/artifacts/chat/<conversationId>` instead of the
+   * series root, so an interactive chat's deliverables can never be classified
+   * as - or deleted by - a cron series. Absent (a spawn with no conversation)
+   * keeps the pre-T1 series root.
+   */
+  conversationId?: string;
   vaultPassphraseEnv?: Record<string, string>;
   spawnEnvDenylist?: readonly string[];
   ambientEnvDenylist?: readonly string[];
@@ -1048,6 +1237,28 @@ export function buildEngineSpawnEnv(opts: {
   // error instead of the opaque "unknown channel". Standalone/CLI engines (which
   // DO hand-author channel toml) never set this and are unaffected.
   out.WAYLAND_SEND_MESSAGE_HOST_DELEGATE = '1';
+
+  // P2-6: the deliverable destination, handed to the skill instead of guessed
+  // by it. The bundled morning-report SKILL.md named an app-owned absolute path
+  // (`~/wayland/outbox/market/`) while also stating that everything outside the
+  // workspace is refused; with nowhere legal to write, the agent wrote beside
+  // its own script inside `.wayland-core/skills/...`, a dot directory every
+  // workspace scanner skips, and the deliverable was invisible. A skill author
+  // cannot reproduce that if the destination is not theirs to choose: they pick
+  // a relative FILENAME and join it onto this.
+  //
+  // Set here, after the ambient allowlist filter and after both denylist
+  // sweeps, for the same reason WAYLAND_ALLOW_WIRE_FORCE is: a stale value in
+  // the user's shell must never win (it is not allowlisted, so it never enters
+  // `full`), and a denylist that revokes provider authority must not silently
+  // leave a skill with no output directory at all.
+  //
+  // Deliberately NOT created here. `<workspace>` may be gone - the user owns
+  // that folder - and an mkdir would silently resurrect a deleted workspace,
+  // which is exactly what P2-10 forbids. Bundled skills already `mkdir -p`.
+  if (opts.workspace) {
+    out.WAYLAND_OUTPUT_DIR = resolveOutputDir(opts.workspace, opts.outputDir, opts.conversationId);
+  }
 
   return out;
 }

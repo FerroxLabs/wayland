@@ -85,10 +85,21 @@ export const useMcpServers = () => {
     // groups pre-library installs under "Custom".
     const migrated = migrateExistingServers(data);
     const changed = migrated.some((server, idx) => server !== data[idx]);
+    // Render what we READ, always, before attempting any write. The migration is
+    // a cosmetic grouping tag; persisting it is best-effort and must never
+    // decide whether the user can see their connectors.
+    //
+    // This used to `setMcpServers` only on the `else` branch, so a failing
+    // migration write left the list EMPTY - the mount effect's catch swallowed
+    // the throw and nothing ever published a snapshot. That is reachable
+    // whenever the write cannot complete: a CAS conflict, a disk error, or - now
+    // that `mcp.compare-and-set-config` is remote-denied (N2) - any paired
+    // browser whose profile still carries a pre-Library server without `source`.
+    // The connector list backs the chat composer's add menu as well as Settings,
+    // so the blast radius of that empty array is not just one page.
+    setMcpServers(migrated);
     if (changed) {
       await enqueueMcpConfigWrite((persisted) => migrateExistingServers(persisted));
-    } else {
-      setMcpServers(migrated);
     }
   }, []);
 

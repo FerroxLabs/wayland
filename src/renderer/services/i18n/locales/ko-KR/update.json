@@ -29,6 +29,8 @@
   },
   "showInFolder": "폴더에서 보기",
   "openFile": "파일 열기",
+  "openFileFailed": "다운로드한 파일을 열 수 없습니다",
+  "showInFolderFailed": "파일 관리자에서 다운로드를 표시할 수 없습니다",
   "errorTitle": "업데이트 실패",
   "errors": {
     "missingTag": "이 업데이트를 검증할 수 없습니다: 릴리스 태그가 없습니다. Releases 페이지에서 업데이트하세요.",

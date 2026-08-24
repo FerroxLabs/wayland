@@ -133,7 +133,28 @@ export async function openPopoutWindow(conversationId: string): Promise<{ ok: bo
  * Mission Control), reusing the conversation pop-out window infrastructure
  * (#157). Rejects any route not on the allowlist - `route` is renderer-supplied.
  */
-export async function openRoutePopoutWindow(route: string): Promise<{ ok: boolean; alreadyOpen: boolean }> {
+export async function openRoutePopoutWindow(
+  route: string,
+  opts?: {
+    /**
+     * Fixed window size. When supplied the SHARED persisted geometry
+     * (`conversation.popoutBounds`) is neither read nor written, so a route
+     * pop-out with its own required size cannot inherit - or corrupt - the
+     * conversation pop-out's remembered bounds.
+     */
+    size?: { width: number; height: number };
+    /**
+     * Fired once the pop-out's renderer has finished loading (or immediately
+     * when an already-loaded window was focused instead). This is the earliest
+     * moment a `buildEmitter` broadcast can reach that window: `did-finish-load`
+     * is strictly after the renderer's module scripts have evaluated, so a
+     * listener registered at module scope in the popped page is already live.
+     */
+    onReady?: () => void;
+    /** Fired after the window closes by ANY path (dock-back, OS close, quit). */
+    onClosed?: () => void;
+  }
+): Promise<{ ok: boolean; alreadyOpen: boolean }> {
   if (!isAllowedPopoutRoute(route)) {
     console.warn('[Popout] Rejected non-allowlisted route pop-out:', route);
     return { ok: false, alreadyOpen: false };
@@ -142,6 +163,9 @@ export async function openRoutePopoutWindow(route: string): Promise<{ ok: boolea
     key: routePopoutKey(route),
     deepLink: routePopoutHash(route),
     loadFileHash: routePopoutLoadFileHash(route),
+    size: opts?.size,
+    onReady: opts?.onReady,
+    onClosed: opts?.onClosed,
   });
 }
 
@@ -155,23 +179,34 @@ async function openPopout(opts: {
   key: string;
   deepLink: string;
   loadFileHash: string;
+  size?: { width: number; height: number };
+  onReady?: () => void;
   onClosed?: () => void;
 }): Promise<{ ok: boolean; alreadyOpen: boolean }> {
-  const { key, deepLink, loadFileHash, onClosed } = opts;
+  const { key, deepLink, loadFileHash, size, onReady, onClosed } = opts;
   if (resolvePopoutAction(popouts, key) === 'focus') {
     const existing = popouts.get(key)!;
     if (existing.isMinimized()) existing.restore();
     existing.show();
     existing.focus();
+    // A second pop-out request for a live window still has a payload to hand
+    // over (e.g. a new deliverable while the preview is already popped), so the
+    // ready hook must still fire - immediately when the window has already
+    // loaded, otherwise on its pending load.
+    if (onReady) {
+      if (existing.webContents.isLoading()) existing.webContents.once('did-finish-load', onReady);
+      else onReady();
+    }
     return { ok: true, alreadyOpen: true };
   }
 
-  const persisted = await readPersistedBounds();
-  const { x, y, width, height } = resolvePopoutBounds(
-    persisted,
-    screen.getAllDisplays().map((d) => ({ id: d.id, workArea: d.workArea })),
-    screen.getPrimaryDisplay().workArea
-  );
+  const { x, y, width, height } = size
+    ? resolveFixedPopoutBounds(size, screen.getPrimaryDisplay().workArea)
+    : resolvePopoutBounds(
+        await readPersistedBounds(),
+        screen.getAllDisplays().map((d) => ({ id: d.id, workArea: d.workArea })),
+        screen.getPrimaryDisplay().workArea
+      );
 
   let devIcon: Electron.NativeImage | undefined;
   if (!app.isPackaged && process.platform !== 'darwin') {
@@ -255,8 +290,16 @@ async function openPopout(opts: {
     if (!win.isDestroyed() && !win.isVisible()) win.show();
   }, 5000);
 
-  win.on('resize', () => schedulePersistBounds(win));
-  win.on('move', () => schedulePersistBounds(win));
+  // Fired strictly after the renderer's module scripts have evaluated.
+  if (onReady) win.webContents.once('did-finish-load', onReady);
+
+  // A fixed-size pop-out neither reads nor writes the shared persisted geometry
+  // (see `size` above), so its resizes must not overwrite the conversation
+  // pop-out's remembered bounds.
+  if (!size) {
+    win.on('resize', () => schedulePersistBounds(win));
+    win.on('move', () => schedulePersistBounds(win));
+  }
 
   win.on('closed', () => {
     popouts.delete(key);
@@ -267,6 +310,24 @@ async function openPopout(opts: {
   loadPopoutContent(win, deepLink, loadFileHash);
 
   return { ok: true, alreadyOpen: false };
+}
+
+/**
+ * Centre a fixed-size pop-out on the primary display, clamped to its work area
+ * so an oversized request cannot land partly off-screen on a small laptop.
+ */
+function resolveFixedPopoutBounds(
+  size: { width: number; height: number },
+  primaryWorkArea: { x: number; y: number; width: number; height: number }
+): { x: number; y: number; width: number; height: number } {
+  const width = Math.min(size.width, primaryWorkArea.width);
+  const height = Math.min(size.height, primaryWorkArea.height);
+  return {
+    width,
+    height,
+    x: Math.round(primaryWorkArea.x + (primaryWorkArea.width - width) / 2),
+    y: Math.round(primaryWorkArea.y + (primaryWorkArea.height - height) / 2),
+  };
 }
 
 function loadPopoutContent(win: BrowserWindow, deepLink: string, loadFileHash: string): void {
@@ -284,14 +345,20 @@ function loadPopoutContent(win: BrowserWindow, deepLink: string, loadFileHash: s
 }
 
 /**
- * Close the pop-out for a conversation (dock it back into the main window). The
- * `closed` handler emits `popoutClosed`, which the main window uses to restore
- * the tab. Returns `ok:false` when there was no live pop-out.
+ * Close the pop-out registered under `key` (dock it back into the main window).
+ *
+ * `key` is a raw conversation id for conversation pop-outs and
+ * `routePopoutKey(route)` for route pop-outs - the same key space
+ * `openPopout` inserts under. Closing runs that window's `closed` handler,
+ * which is the ONE place a dock-back is announced, so the OS close button and
+ * an in-app dock-back control are literally the same action.
+ *
+ * Returns `ok:false` when there was no live pop-out under that key.
  */
-export function closePopoutWindow(conversationId: string): { ok: boolean } {
-  const win = popouts.get(conversationId);
+export function closePopoutWindow(key: string): { ok: boolean } {
+  const win = popouts.get(key);
   if (!win || win.isDestroyed()) {
-    popouts.delete(conversationId);
+    popouts.delete(key);
     return { ok: false };
   }
   win.close();

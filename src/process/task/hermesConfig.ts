@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { FLUX_AUTO_MODEL, FLUX_SURFACE } from '@/common/config/flux';
+import { FLUX_AUTO_MODEL, FLUX_SURFACE, isFluxModelId } from '@/common/config/flux';
 import { chmod, mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -37,9 +37,22 @@ import { join } from 'path';
 export async function materializeFluxHermesHome(
   userDataDir: string,
   fluxKey: string,
-  baseURL: string = FLUX_SURFACE.openai
+  baseURL: string = FLUX_SURFACE.openai,
+  /**
+   * The Flux tier this spawn must run, from `resolveFluxRouting().fluxModelId`.
+   * hermes selects its model from THIS FILE, not from env, so a hardcoded
+   * default silently discarded the user's tier pick.
+   */
+  fluxModelId: string = FLUX_AUTO_MODEL
 ): Promise<string> {
-  const hermesHomeDir = join(userDataDir, 'flux-hermes-home');
+  // Scoped PER TIER, not one shared dir. hermes reads its model from this file
+  // at process start, so once the file's contents vary by tier a second spawn on
+  // a different tier could overwrite it in the window before the first hermes
+  // reads it - and that spawn would silently run the other conversation's tier.
+  // codex already solves this with a per-session home; per-tier is the same
+  // guarantee here and stays bounded at four directories.
+  const tier = isFluxModelId(fluxModelId) ? fluxModelId : FLUX_AUTO_MODEL;
+  const hermesHomeDir = join(userDataDir, 'flux-hermes-home', tier);
   const configPath = join(hermesHomeDir, 'config.yaml');
   const content = [
     '# Wayland-managed HERMES_HOME for Flux-routed hermes spawns.',
@@ -47,7 +60,7 @@ export async function materializeFluxHermesHome(
     '# never modified. Regenerated on each Flux-routed spawn. The key is written',
     '# inline because hermes ignores key_env for a custom provider (see source).',
     'model:',
-    `  default: ${FLUX_AUTO_MODEL}`,
+    `  default: ${tier}`,
     '  provider: custom',
     `  base_url: ${baseURL}`,
     '  api_mode: chat_completions',

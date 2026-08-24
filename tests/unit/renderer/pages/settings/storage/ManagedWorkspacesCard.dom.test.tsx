@@ -37,6 +37,18 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
   shell: { showItemInFolder: { invoke: (...args: unknown[]) => showItemInFolder(...args) } },
 }));
 
+const configStore = new Map<string, unknown>();
+const configSet = vi.fn(async (key: string, value: unknown) => {
+  configStore.set(key, value);
+  return value;
+});
+vi.mock('@/common/config/storage', () => ({
+  ConfigStorage: {
+    get: async (key: string) => configStore.get(key),
+    set: (key: string, value: unknown) => configSet(key, value),
+  },
+}));
+
 import ManagedWorkspacesCard from '@renderer/pages/settings/StorageSettings/ManagedWorkspacesCard';
 
 const REPORT = {
@@ -94,12 +106,20 @@ const REPORT = {
   ],
 };
 
+/**
+ * The provider's success half. `workspaceRetention.preview` resolves a
+ * discriminated `{ ok, ... }` result because the IPC bridge cannot carry a
+ * rejection - see `workspaceRetentionBridge.ts`.
+ */
+const resolvePreview = (report: unknown) => preview.mockResolvedValue({ ok: true, report });
+
 describe('ManagedWorkspacesCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     runtime.desktop = true;
-    preview.mockResolvedValue(REPORT);
+    resolvePreview(REPORT);
     showItemInFolder.mockResolvedValue({ ok: true });
+    configStore.clear();
   });
 
   it('shows the protection contract, incompleteness, and no destructive action', async () => {
@@ -138,8 +158,39 @@ describe('ManagedWorkspacesCard', () => {
     expect(preview).not.toHaveBeenCalled();
   });
 
-  it('fails closed visibly when the inventory provider rejects', async () => {
-    preview.mockRejectedValue(new Error('inventory unavailable'));
+  /**
+   * This case used to mock a REJECTION. That was vacuous: the real bridge has
+   * no reject path at all (`invoke` is `new Promise(function (resolve) {...})`,
+   * no reject, no timeout), so a rejecting mock tested a code path production
+   * can never take, while the path production DOES take - a provider throw -
+   * hangs this component forever. The provider now answers a classified value,
+   * and that is what is asserted.
+   */
+  it.each(['inventory-unavailable', 'inventory-unprovable', 'invalid-request'])(
+    'fails closed visibly, and stops loading, when the provider refuses with %s',
+    async (errorCode) => {
+      preview.mockResolvedValue({ ok: false, errorCode });
+      render(<ManagedWorkspacesCard />);
+      expect(
+        await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+      ).toBeTruthy();
+      // The spinner is gone and the recovery affordance is reachable: this is
+      // exactly what a never-settling promise took away.
+      expect(screen.queryByLabelText('Loading')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Try again' })).toBeTruthy();
+    }
+  );
+
+  it('fails closed visibly when the provider answers an unknown error code', async () => {
+    preview.mockResolvedValue({ ok: false, errorCode: 'not-a-real-code' });
+    render(<ManagedWorkspacesCard />);
+    expect(
+      await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+    ).toBeTruthy();
+  });
+
+  it('fails closed visibly when the provider answers a bare report with no result envelope', async () => {
+    preview.mockResolvedValue(REPORT);
     render(<ManagedWorkspacesCard />);
     expect(
       await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
@@ -147,7 +198,7 @@ describe('ManagedWorkspacesCard', () => {
   });
 
   it('fails closed visibly when the process returns a malformed expanded report', async () => {
-    preview.mockResolvedValue({ ...REPORT, unexpectedAuthority: true });
+    resolvePreview({ ...REPORT, unexpectedAuthority: true });
     render(<ManagedWorkspacesCard />);
     expect(
       await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
@@ -155,7 +206,7 @@ describe('ManagedWorkspacesCard', () => {
   });
 
   it('renders active work in human language', async () => {
-    preview.mockResolvedValue({
+    resolvePreview({
       ...REPORT,
       entries: [
         {
@@ -181,7 +232,7 @@ describe('ManagedWorkspacesCard', () => {
   });
 
   it('rejects a fabricated complete snapshot and review candidate in phase one', async () => {
-    preview.mockResolvedValue({
+    resolvePreview({
       ...REPORT,
       complete: true,
       authorityCompleteness: {
@@ -232,7 +283,7 @@ describe('ManagedWorkspacesCard', () => {
   });
 
   it('rejects an unproven review candidate even when its shape is valid', async () => {
-    preview.mockResolvedValue({
+    resolvePreview({
       ...REPORT,
       summary: { discovered: 1, preserved: 0, reviewCandidate: 1, unknown: 0 },
       entries: [
@@ -254,7 +305,7 @@ describe('ManagedWorkspacesCard', () => {
   });
 
   it('rejects summary counts that do not exactly match the entries', async () => {
-    preview.mockResolvedValue({
+    resolvePreview({
       ...REPORT,
       summary: { discovered: 999, preserved: 999, reviewCandidate: 0, unknown: 0 },
     });
@@ -262,5 +313,31 @@ describe('ManagedWorkspacesCard', () => {
     expect(
       await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
     ).toBeTruthy();
+  });
+
+  it('offers the four locked review windows and defaults to 60 days', async () => {
+    render(<ManagedWorkspacesCard />);
+
+    const select = (await screen.findByLabelText('Offer folders with files for review after')) as HTMLSelectElement;
+    expect([...select.options].map((option) => option.value)).toEqual(['30', '60', '90', 'never']);
+    expect(select.value).toBe('60');
+  });
+
+  it('persists a chosen review window through the shared config key', async () => {
+    render(<ManagedWorkspacesCard />);
+    const select = await screen.findByLabelText('Offer folders with files for review after');
+
+    fireEvent.change(select, { target: { value: 'never' } });
+
+    await waitFor(() => expect(configSet).toHaveBeenCalledWith('workspace.retention', { windowDays: 'never' }));
+    await waitFor(() => expect(preview).toHaveBeenCalledTimes(2));
+  });
+
+  it('reads back a stored window instead of assuming the default', async () => {
+    configStore.set('workspace.retention', { windowDays: 90 });
+    render(<ManagedWorkspacesCard />);
+
+    const select = (await screen.findByLabelText('Offer folders with files for review after')) as HTMLSelectElement;
+    await waitFor(() => expect(select.value).toBe('90'));
   });
 });

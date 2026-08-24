@@ -37,5 +37,6 @@
     "seeAllScheduled": "Усі заплановані →",
     "seeAllChats": "Усі чати →",
     "showMore": "Показати ще {{count}} →"
-  }
+  },
+  "artifacts": "Артефакти"
 }

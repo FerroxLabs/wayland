@@ -15,6 +15,7 @@ import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { TChatConversation, TProviderWithModel } from '@/common/config/storage';
 import type { AcpBackendAll, AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
+import { getConversationTypeForBackend } from '@/common/utils/buildAgentConversationParams';
 import type BaseAgentManager from '@process/task/BaseAgentManager';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { copyFilesToDirectory } from '@process/utils';
@@ -26,6 +27,26 @@ import type { CronJob } from './CronStore';
 import type { ICronJobExecutor } from './ICronJobExecutor';
 import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
+import { resolveRoutinePrefetch, resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
+import { resolveRoutineConnectorIds } from './routineConnectors';
+import { runRoutinePrefetch } from './routinePrefetch';
+import { utcCacheEndDate } from '@process/services/marketData/prefetchDailyBars';
+import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
+import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
+import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
+import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal';
+import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
+import { assertNotPromoting } from '@process/services/promotion/promotionLock';
+import { artifactLedgerPath, type ArtifactRecord } from '@process/services/artifacts/artifactLedger';
+import {
+  abandonTaskRun,
+  beginTaskRun,
+  bindTaskRunOutput,
+  commitTaskRun,
+  type TaskRunHandle,
+} from '@process/services/artifacts/taskRun';
+import { getDataPath } from '@process/utils';
+import i18n from '@process/services/i18n';
 import { AcpSkillManager } from '@process/task/AcpSkillManager';
 import { skillSuggestWatcher } from './SkillSuggestWatcher';
 
@@ -35,8 +56,144 @@ async function getConversationService() {
   return mod.conversationServiceSingleton;
 }
 
+/**
+ * How many settled run ids the one-shot latch remembers. A settle races only
+ * its own idle callback and its own failure path, both within one run, so a few
+ * hundred is orders of magnitude more than the latch can ever need.
+ */
+const MAX_REMEMBERED_SETTLED_RUNS = 256;
+
+/** How a job's most recent run ended, once publication has actually settled. */
+export type RunSettlement =
+  | { published: true; reason?: undefined }
+  | { published: false; reason: 'no-output' | 'failed' };
+
+/**
+ * The one thing a scheduled run has to be told at run time that a seed-time
+ * prompt cannot say. No path: see `appendOutputDirCorrection`.
+ */
+const RUN_OUTPUT_DIR_CORRECTION =
+  'Write every file the user should keep into the absolute deliverables directory named in your run instructions. ' +
+  'WAYLAND_OUTPUT_DIR is not visible to shell commands and resolves empty - ignore any instruction to read it, ' +
+  'including one earlier in this message.';
+
 /** Executes cron jobs by delegating to WorkerTaskManager and tracking busy state via CronBusyGuard. */
 export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
+  /**
+   * Run ids already published or discarded. Keeps settle one-shot.
+   *
+   * BOUNDED. This executor is a process-lifetime singleton and a run id is
+   * never revisited once settled, so an unbounded set here grows for as long as
+   * the app runs - forever, on the always-on machine a daily routine implies.
+   * Insertion order is FIFO, so evicting the oldest evicts the run least likely
+   * to have a settle still in flight.
+   */
+  private readonly settledRuns = new Set<string>();
+
+  /**
+   * The publication currently in flight.
+   *
+   * The idle hook that starts a settle is a CALLBACK: it cannot await, so the
+   * publication runs detached and "the conversation went idle" is NOT "the run
+   * is published". Nothing in production needs to know the difference. A test
+   * does, and the only thing it had was a fixed sleep - which passes on an idle
+   * machine, fails under a loaded one, and turns a real ordering question into
+   * a flake.
+   */
+  private settleInFlight: Promise<void> = Promise.resolve();
+
+  /**
+   * How the run on each CONVERSATION actually settled.
+   *
+   * `CronService` writes `last_status` the moment `executeJob` returns, which is
+   * when the turn was SENT - publication happens later, from the idle callback.
+   * So a job whose run published nothing still read `last_status='ok'` while its
+   * own `.runs.jsonl` read `no-output`, in every profile. The job ledger and the
+   * artifact journal disagreed, and nothing in the scheduled-tasks UI could tell
+   * the user the routine had never once produced a report. This is the cell that
+   * lets the two be reconciled.
+   *
+   * KEYED BY CONVERSATION, NOT BY JOB, for the same reason `runOutputDir` is: a
+   * job keeps its id across runs, so a jobId key would let a PREVIOUS run's
+   * `no-output` be read as the verdict on a later run that opened no artifact
+   * run at all. A `new_conversation` run gets a fresh conversation every time,
+   * so a stale cell can never be mistaken for this run's.
+   */
+  private runSettlements = new Map<string, RunSettlement>();
+
+  /** How the run on this conversation settled, if one has. */
+  lastRunSettlement(conversationId: string): RunSettlement | undefined {
+    return this.runSettlements.get(conversationId);
+  }
+
+  private recordRunSettlement(conversationId: string | undefined, settlement: RunSettlement): void {
+    // A run that never bound a conversation has no spawn to be the verdict on.
+    if (!conversationId) return;
+    this.runSettlements.set(conversationId, settlement);
+    while (this.runSettlements.size > MAX_REMEMBERED_SETTLED_RUNS) {
+      const oldest = this.runSettlements.keys().next().value;
+      if (oldest === undefined) break;
+      this.runSettlements.delete(oldest);
+    }
+  }
+
+  /**
+   * Await the publication started by the last turn, if any.
+   *
+   * @internal Ordering seam for tests. Never resolves to a value and never
+   * rejects: `settleArtifactRun` reports its own failures.
+   */
+  _whenSettledForTests(): Promise<void> {
+    return this.settleInFlight;
+  }
+
+  /**
+   * What the conversation's current run published, resolved once publication
+   * has actually finished.
+   *
+   * The idle callbacks are fired SYNCHRONOUSLY and in registration order by
+   * `CronBusyGuard.setProcessing`, and an `IdleCallback` returns `void` - so the
+   * guard cannot await the settle, and the notification callback (registered
+   * first, from `onAcquired`) would otherwise read the ledger before the run had
+   * been committed to it. This promise is created BEFORE `onAcquired` runs so
+   * that callback can find it, and is resolved by `settleArtifactRun`.
+   *
+   * Resolves to an empty list for a run that published nothing, that failed, or
+   * that never had an artifact run at all. It never rejects.
+   */
+  private runPublications = new Map<string, (records: ArtifactRecord[]) => void>();
+  private runPublicationPromises = new Map<string, Promise<ArtifactRecord[]>>();
+
+  whenRunPublished(conversationId: string): Promise<ArtifactRecord[]> {
+    return this.runPublicationPromises.get(conversationId) ?? Promise.resolve([]);
+  }
+
+  /**
+   * Arm the publication promise for this conversation's run.
+   *
+   * Any promise left over from a previous run of the same conversation is
+   * resolved empty rather than abandoned, so a caller still awaiting it is
+   * never stranded.
+   */
+  private armRunPublication(conversationId: string): void {
+    this.runPublications.get(conversationId)?.([]);
+    let resolve!: (records: ArtifactRecord[]) => void;
+    const promise = new Promise<ArtifactRecord[]>((r) => {
+      resolve = r;
+    });
+    this.runPublications.set(conversationId, resolve);
+    this.runPublicationPromises.set(conversationId, promise);
+  }
+
+  /** Settle the publication promise exactly once, then stop holding it. */
+  private resolveRunPublication(conversationId: string | undefined, records: ArtifactRecord[]): void {
+    if (!conversationId) return;
+    const resolve = this.runPublications.get(conversationId);
+    if (!resolve) return;
+    this.runPublications.delete(conversationId);
+    resolve(records);
+  }
+
   constructor(
     private readonly taskManager: IWorkerTaskManager,
     private readonly busyGuard: CronBusyGuard
@@ -46,8 +203,163 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     return this.busyGuard.isProcessing(conversationId);
   }
 
+  /**
+   * P2-11: one scheduled run, wrapped in one artifact publication.
+   *
+   * The run opens BEFORE the task is acquired, because acquiring the task is
+   * what spawns the engine and the engine reads `WAYLAND_OUTPUT_DIR` once, at
+   * spawn. It closes on the conversation going idle - `sendMessage` returns as
+   * soon as the turn is sent, so returning from here does not mean the agent
+   * has finished writing.
+   *
+   * Anything that throws on the way to the turn abandons the run: no dated
+   * directory appears, `latest` does not move, and the stable alias still holds
+   * the last run that actually worked.
+   */
   async executeJob(
     job: CronJob,
+    onAcquired?: () => void,
+    preparedConversationId?: string,
+    triggeredAt = Date.now()
+  ): Promise<string | void> {
+    await this.assertWorkspaceUsable(job);
+    const artifactRun = await this.openArtifactRun(job);
+    try {
+      return await this.runJobTurn(job, artifactRun, onAcquired, preparedConversationId, triggeredAt);
+    } catch (error) {
+      if (artifactRun) {
+        this.settleInFlight = this.settleArtifactRun(artifactRun, job, false, error);
+        await this.settleInFlight;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Open this run's staging directory and make it the workspace's live output
+   * directory. Returns null when the job has no durable workspace to publish
+   * into - a job running in a chat the user owns, or one armed before P2-2 -
+   * which runs exactly as it did before rather than failing.
+   */
+  private async openArtifactRun(job: CronJob): Promise<TaskRunHandle | null> {
+    // `new_conversation` only, which is every bundled routine and every job
+    // that P2-2 gives a durable task root. An `existing`-mode job runs inside a
+    // chat the USER owns, whose workspace they may have pointed several chats
+    // at; opening a run there would redirect an unrelated chat's next engine
+    // spawn into this run's staging directory. Those jobs keep writing into the
+    // series root exactly as before.
+    if (job.target.executionMode !== 'new_conversation') return null;
+    const workspace = job.metadata.agentConfig?.workspace;
+    if (!workspace) return null;
+    try {
+      return await beginTaskRun({ workspace, taskId: job.id, series: artifactSeriesForJob(job) });
+    } catch (err) {
+      // A run that cannot stage still has to run: the user asked for the task,
+      // not for the filing. It writes into the series root as before.
+      console.warn(`[CronExecutor] Could not open an artifact run for job ${job.id}:`, err);
+      return null;
+    }
+  }
+
+  /**
+   * Publish or discard the run, exactly once.
+   *
+   * Both the idle callback and the failure path can reach this - a send that
+   * throws after the conversation was marked busy fires both - so the run id is
+   * latched. A commit that itself fails abandons rather than leaving a staging
+   * directory claiming the workspace's output.
+   */
+  private async settleArtifactRun(
+    handle: TaskRunHandle,
+    job: CronJob,
+    publish: boolean,
+    failure?: unknown
+  ): Promise<void> {
+    if (this.settledRuns.has(handle.runId)) return;
+    this.settledRuns.add(handle.runId);
+    while (this.settledRuns.size > MAX_REMEMBERED_SETTLED_RUNS) {
+      const oldest = this.settledRuns.values().next().value;
+      if (oldest === undefined) break;
+      this.settledRuns.delete(oldest);
+    }
+
+    const conversationId = handle.conversationId;
+
+    if (!publish) {
+      // The run never reached its turn. `abandonTaskRun` removes the staging
+      // tree, so after this nothing on disk says the run was attempted - which
+      // is why the journal entry is written FIRST and unconditionally. A
+      // console.warn was the only record this ever had, and the user does not
+      // read the console: they read a series whose newest entry is yesterday's.
+      await this.journalRun(handle, job, 'failed', failure);
+      this.recordRunSettlement(conversationId, { published: false, reason: 'failed' });
+      await abandonTaskRun(handle).catch((err) => {
+        console.warn(`[CronExecutor] Failed to abandon run ${handle.runId} for job ${job.id}:`, err);
+      });
+      this.resolveRunPublication(conversationId, []);
+      return;
+    }
+
+    try {
+      const outcome = await commitTaskRun(handle, {
+        ledgerPath: artifactLedgerPath(getDataPath()),
+        declaredBy: job.name,
+      });
+      if (!outcome.published) {
+        console.info(`[CronExecutor] Job ${job.id} run ${handle.runId} produced no output; nothing published.`);
+        // "It ran and made nothing" is a different problem from "it broke", and
+        // both were previously indistinguishable from "it never ran".
+        await this.journalRun(handle, job, 'no-output');
+        this.recordRunSettlement(conversationId, { published: false, reason: 'no-output' });
+        this.resolveRunPublication(conversationId, []);
+        return;
+      }
+      console.info(
+        `[CronExecutor] Job ${job.id} published ${outcome.registered.length} artifact(s) at ${outcome.publication.relativePath}`
+      );
+      // A rejected declaration is a real deliverable the user will not see, so
+      // it is never swallowed. The good ones in the same run still landed.
+      for (const rejection of outcome.rejected) {
+        console.warn(
+          `[CronExecutor] Job ${job.id} run ${handle.runId} refused ${JSON.stringify(rejection.path)}: ${rejection.reason}`
+        );
+      }
+      this.recordRunSettlement(conversationId, { published: true });
+      this.resolveRunPublication(conversationId, outcome.registered);
+    } catch (err) {
+      console.warn(`[CronExecutor] Failed to publish run ${handle.runId} for job ${job.id}:`, err);
+      // A publication that throws leaves NO dated directory, so this is the
+      // only place the failure can be recorded where a user will ever see it.
+      await this.journalRun(handle, job, 'failed', err);
+      this.recordRunSettlement(conversationId, { published: false, reason: 'failed' });
+      await abandonTaskRun(handle).catch(() => {});
+      this.resolveRunPublication(conversationId, []);
+    }
+  }
+
+  /**
+   * Leave a durable record that this run settled without publishing.
+   *
+   * Best effort by construction - `recordRunOutcome` never throws - because a
+   * run that already failed must not fail a second time over its own epitaph.
+   */
+  private async journalRun(
+    handle: TaskRunHandle,
+    job: CronJob,
+    status: 'failed' | 'no-output',
+    failure?: unknown
+  ): Promise<void> {
+    await recordRunOutcome(handle.seriesDir, {
+      runId: handle.runId,
+      taskId: job.id,
+      status,
+      message: failure instanceof Error ? failure.message : failure === undefined ? undefined : String(failure),
+    });
+  }
+
+  private async runJobTurn(
+    job: CronJob,
+    artifactRun: TaskRunHandle | null,
     onAcquired?: () => void,
     preparedConversationId?: string,
     triggeredAt = Date.now()
@@ -59,13 +371,48 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       conversationId = await this.resolveConversationForJob(job);
     }
 
+    // Promotion rule 3, checked again here because `runNow` prepares the
+    // conversation up front and hands the id back before this call: a promotion
+    // that starts in that gap would otherwise still get a run written into the
+    // workspace it is copying away from.
+    assertNotPromoting(conversationId);
+
+    // P2-11: bind the open run to the conversation whose engine is about to be
+    // spawned. This is the earliest point the conversation is known and the
+    // last point before `getOrBuildTask` spawns, and `WAYLAND_OUTPUT_DIR` is
+    // read once at spawn. Deliberately keyed on the conversation and not the
+    // workspace: a task folder is an ordinary folder the user can have their
+    // own chats in, and keying on it redirected THEIR next spawn into this
+    // run's staging directory.
+    if (artifactRun && conversationId) bindTaskRunOutput(artifactRun, conversationId);
+
+    // This run can be happening inside a chat the USER owns (see
+    // isUserOwnedConversation). None of the job's settings may be persisted onto
+    // that chat - not its model, and above all not its full-auto mode - and the
+    // live session it borrows has to be handed back when the run finishes.
+    //
+    // Resolved for EVERY path, not just 'existing' + agentConfig: a "make this
+    // daily" job accepted from chat carries no agentConfig until
+    // CronService.init() backfills one, so it skips resolveConversationForJob
+    // entirely and runs straight in the source chat - which is exactly the case
+    // that must be protected. A cron-created conversation always carries
+    // extra.cronWorkspace, so this stays false for new_conversation mode and for
+    // the job's own children.
+    let runsInUserOwnedChat = false;
+    let sourceConversation: TChatConversation | undefined;
+    if (conversationId) {
+      const convService = await getConversationService();
+      sourceConversation = (await convService.getConversation(conversationId)) ?? undefined;
+      runsInUserOwnedChat = !!sourceConversation && this.isUserOwnedConversation(sourceConversation);
+    }
+
     // For existing mode, ensure the reused conversation uses the correct model.
     // If the job specifies a modelId, use that; otherwise fall back to the user's
     // preferred model so it doesn't stay on whatever it was originally created with.
     if (job.target.executionMode === 'existing' && conversationId && job.metadata.agentConfig) {
       const convService = await getConversationService();
-      const conv = await convService.getConversation(conversationId);
-      if (conv) {
+      const conv = sourceConversation;
+      if (conv && !runsInUserOwnedChat) {
         const baseModel = await this.resolveModelForBackend(job.metadata.agentConfig.backend);
         const currentModel = job.metadata.agentConfig.modelId
           ? { ...baseModel, useModel: job.metadata.agentConfig.modelId }
@@ -115,9 +462,24 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // getOrBuildTask throws (conversation deleted), setProcessing(true) is never
     // called and no "busy" state leaks into subsequent runs.
     this.busyGuard.setProcessing(conversationId, true);
+    // Armed BEFORE onAcquired, because onAcquired is where the caller registers
+    // the completion notification - and that notification awaits this promise to
+    // learn what the run published. Armed ONLY when there is a run to publish:
+    // `settleArtifactRun` is the only thing that resolves it, so arming without
+    // one would leave the notification waiting for an event that never comes.
+    if (artifactRun) this.armRunPublication(conversationId);
     // Notify caller so it can register onceIdle callbacks while the conversation
     // is already marked busy (prevents premature idle fires).
     onAcquired?.();
+
+    // Registered while the conversation is already busy, so it cannot fire
+    // before the turn has even been sent. `sendMessage` returning is not the
+    // end of the run; the conversation going idle is.
+    if (artifactRun) {
+      this.busyGuard.onceIdle(conversationId, () => {
+        this.settleInFlight = this.settleArtifactRun(artifactRun, job, true);
+      });
+    }
 
     // Apply mode and config options if configured (must succeed before sendMessage).
     // If the task's agent is stale/disconnected, settings may fail - kill and retry
@@ -127,26 +489,122 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       job.metadata.agentConfig?.configOptions ||
       job.metadata.agentConfig?.modelId
     ) {
-      const ok = await this.applyAgentSettings(task, job);
+      const persistSettings = !runsInUserOwnedChat;
+      const ok = await this.applyAgentSettings(task, job, persistSettings);
       if (!ok) {
         console.warn(`[CronExecutor] Agent settings failed for job ${job.id}, recreating task and retrying`);
         this.taskManager.kill(conversationId);
         task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true });
-        await this.applyAgentSettings(task, job);
+        await this.applyAgentSettings(task, job, persistSettings);
       }
     }
 
+    // Registered AFTER the settings retry above, so it releases the task the run
+    // actually used rather than one that was already replaced. The conversation
+    // is still marked busy at this point - neither WCoreManager.kill() nor
+    // AcpAgentManager.kill() touches the busy guard (only stop() does), so the
+    // retry's kill cannot make onceIdle fire before the run has even sent.
+    if (runsInUserOwnedChat) {
+      this.releaseBorrowedTaskWhenIdle(conversationId, task);
+    }
+
     const workspace = (task as { workspace?: string }).workspace;
+
+    // ASK THE SINGLE PRODUCER, DO NOT DERIVE A SECOND ONE.
+    //
+    // `resolveOutputDir` re-checks containment because its result becomes a
+    // host-blessed write destination handed to model-authored skill text, and
+    // `WCoreAgent.start` resolves it ONCE and threads that one value into both
+    // the spawn env and the `--system-prompt` directive. Reproducing it here -
+    // same function, same inputs - is a question, not a third derivation.
+    //
+    // A disagreement is not a detail to log. It means the engine was pointed at
+    // a directory this run does not collect from, so the turn can only produce a
+    // deliverable that is never staged and never published, and the run settles
+    // as `no-output` with nothing anywhere naming the cause. Refuse instead, so
+    // the reason lands in the run journal and in `last_error`.
+    //
+    // Gated on the task reporting a workspace. Without one there is nothing to
+    // resolve against, so a refusal here would be a guess rather than a
+    // reproduction - such a run keeps exactly the behaviour it has today.
+    if (artifactRun && conversationId && workspace) {
+      const engineOutputDir = resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId);
+      const expected = path.resolve(artifactRun.stagingDir);
+      if (engineOutputDir !== expected) {
+        // Mirrors the sendMessage failure path: tear the half-started task down
+        // so the next fire rebuilds a fresh one rather than reusing this spawn.
+        try {
+          this.taskManager.kill(conversationId);
+        } catch (killErr) {
+          console.warn(`[CronExecutor] kill after output-dir mismatch also failed for ${conversationId}:`, killErr);
+        }
+        throw new Error(
+          `Run ${artifactRun.runId} cannot publish: the engine's deliverables directory ` +
+            `(${engineOutputDir}) is not this run's staging directory (${expected}).`
+        );
+      }
+    }
+
+    // HAND THE RUN ITS DATA BEFORE THE RUN STARTS.
+    //
+    // A scheduled run's shell tools execute under Core's seatbelt, which
+    // refuses DNS - a `curl` from inside a run exits 6. Any routine whose work
+    // needs the internet therefore cannot fetch it, and the alternative
+    // (widening the sandbox for unattended auto-approve runs) is a security
+    // decision this milestone deliberately does not take. So the host fetches
+    // first, into a directory inside the workspace the run is told to read.
+    //
+    // AWAITED, and before `sendMessage`: bars that arrive after the scanner has
+    // already looked are bars that were never there. Bounded and non-throwing,
+    // because a prefetch outage must degrade the report - which then says
+    // exactly what it could not reach - and never abort the run.
+    //
+    // The end date is computed HERE, once, and is the same value the scanner
+    // derives from `utcToday()`. Two derivations of "today" is a real bug on
+    // any machine east of UTC: for seven hours a day the local date is a day
+    // ahead, every cache key misses, and the run prints a confident, entirely
+    // empty report.
+    const prefetchName = await resolveRoutinePrefetch(job.metadata.agentConfig?.configOptions?.routineId);
+    if (prefetchName && workspace) {
+      const outcome = await runRoutinePrefetch(prefetchName, { workspace, end: utcCacheEndDate() });
+      if (outcome) {
+        console.log(
+          `[CronExecutor] prefetch ${prefetchName} for job ${job.id}: ` +
+            `${outcome.written} written, ${outcome.cached} cached, ${outcome.failed.length} failed, ` +
+            `${outcome.rejected.length} rejected${outcome.timedOut ? ', BUDGET EXHAUSTED' : ''}`
+        );
+      }
+    }
+
     const workspaceFiles = workspace ? await copyFilesToDirectory(workspace, [], false) : [];
 
     const hasSkill = await hasCronSkillFile(job.id);
-    const needsSkillSuggest = job.target.executionMode === 'new_conversation' && !!workspace && !hasSkill;
+    // B15a. A SEEDED ROUTINE ALREADY HAS ITS INSTRUCTIONS AND MUST NOT BE ASKED
+    // TO INVENT THEM.
+    //
+    // `hasCronSkillFile` checks `getCronSkillsDir()/<jobId>/SKILL.md` - the file
+    // the USER saves with "Turn into skill". A builtin routine never has one,
+    // because its body arrives by a different mechanism entirely
+    // (`resolveRoutineSkillDirs(configOptions.routineId)`, a few lines below).
+    // So a routine with a fully authored workflow body was being asked to write
+    // itself a skill file, the safe-write guard correctly refused, and the
+    // refusal landed in the user's morning report as noise.
+    //
+    // The discriminator is `routineId`, which is already on the job. NOT
+    // widening `hasCronSkillFile` to look in the routine dirs: those are two
+    // different files, and conflating them would break "Turn into skill".
+    const isSeededRoutine = !!job.metadata.agentConfig?.configOptions?.routineId;
+    const needsSkillSuggest =
+      job.target.executionMode === 'new_conversation' && !!workspace && !hasSkill && !isSeededRoutine;
     const isGeminiLike =
       job.metadata.agentConfig?.backend === 'gemini' || job.metadata.agentConfig?.backend === 'wcore';
 
     // Gemini/WCore: inline SKILL_SUGGEST instructions in the task prompt (single-turn).
     // Other agents: separate follow-up message via onFirstFinish (multi-turn).
-    const messageText = this.buildMessageText(job, hasSkill, needsSkillSuggest && isGeminiLike);
+    const messageText = this.appendOutputDirCorrection(
+      this.buildMessageText(job, hasSkill, needsSkillSuggest && isGeminiLike),
+      !!artifactRun
+    );
 
     const cronMeta: CronMessageMeta = {
       source: 'cron',
@@ -230,6 +688,19 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // Pre-populate cachedConfigOptions so the frontend displays correct values immediately.
     const cachedConfigOptions = await this.buildCachedConfigOptions(config);
 
+    // The workflow body and the skills it DECLARES have to be inside the
+    // workspace: the engine sandboxes on it, so a skill in the app's config dir
+    // is refused rather than merely missing. Declared set only - see
+    // `resolveRoutineSkillDirs` for why the whole builtin tree is not copied.
+    const routineSkillDirs = await resolveRoutineSkillDirs(config.configOptions?.routineId);
+    const extraSkillPaths = [...(hasSkill ? [cronSkillDir] : []), ...routineSkillDirs];
+
+    // The connectors THIS routine named, resolved against what is installed.
+    // `[]` for a user cron, an undeclared routine, and any declaration that
+    // resolves to nothing - so the fail-closed default is unchanged for every
+    // job that does not opt in. See `routineConnectors.ts`.
+    const routineConnectorIds = await resolveRoutineConnectorIds(config.configOptions?.routineId);
+
     const params: CreateConversationParams = {
       type: agentType,
       name: convName,
@@ -243,12 +714,31 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         cronJobId: job.id,
         cronWorkspace: config.workspace || '',
         workspace: config.workspace || '',
+        // A durable task folder is app-created. Without this the workspace gets
+        // NO `.wayland-core/skills` at all and the run cannot reach its own
+        // scanner. Deliberately not `customWorkspace: false`, which is a
+        // persisted classification four other subsystems read as "temporary".
+        appCreatedWorkspace: true,
+        // SCOPE EVERY USER CONNECTOR OUT OF AN UNATTENDED RUN.
+        //
+        // A scheduled run is acquired with `{ yoloMode: true }` - blanket
+        // auto-approve, no human at the keyboard. `isServerActiveForSession`
+        // reads an ABSENT selection as "every enabled server", and server-level
+        // selection is all there is on this path: whatever survives reaches the
+        // engine with its FULL tool inventory (#998), mutating tools included.
+        // An empty array is the documented way to select none. A routine that
+        // genuinely needs a connector must name it, never inherit the lot -
+        // `resolveRoutineConnectorIds` reads that declaration and returns `[]`
+        // for everything that did not opt in, so the default is unchanged.
+        //
+        // A named connector arrives with its WHOLE tool inventory: per-tool
+        // narrowing is not reachable on this path (see `routineConnectors.ts`).
+        activeMcpServers: routineConnectorIds,
         ...(config.mode ? { sessionMode: config.mode } : {}),
         ...(config.modelId ? { currentModelId: config.modelId } : {}),
         ...(cachedConfigOptions ? { cachedConfigOptions } : {}),
-        ...(hasSkill
-          ? { extraSkillPaths: [cronSkillDir], excludeBuiltinSkills: ['cron'] }
-          : { excludeBuiltinSkills: ['cron'] }),
+        ...(extraSkillPaths.length > 0 ? { extraSkillPaths } : {}),
+        excludeBuiltinSkills: ['cron'],
       },
     };
 
@@ -469,6 +959,28 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
   }
 
   /**
+   * Defeat an output-directory instruction already baked into the job row.
+   *
+   * `cron_jobs.prompt` is written at SEED time and never rewritten for a job the
+   * user has touched, so every routine armed before this change still carries
+   * the old "read WAYLAND_OUTPUT_DIR" sentence. Rewriting the seeder's constant
+   * fixes new installs and does nothing for the machine the bug was found on.
+   * This is the run-time correction that does.
+   *
+   * IT CARRIES NO PATH, DELIBERATELY. The run's directory travels on the
+   * `--system-prompt` channel, which never enters the message store. This text
+   * does: `bridgeAllowlist` keeps conversation reads OPEN to a paired WebUI
+   * while denying `artifacts.list` precisely because that call "enumerates the
+   * absolute paths of every workspace the user has". Putting the staging path
+   * in a persisted message would re-disclose through the open channel exactly
+   * what the closed one was shut for.
+   */
+  private appendOutputDirCorrection(messageText: string, hasRun: boolean): string {
+    if (!hasRun) return messageText;
+    return `${messageText}\n\n${RUN_OUTPUT_DIR_CORRECTION}`;
+  }
+
+  /**
    * Build the message text for a cron job execution.
    *
    * - Has dedicated skill: remind the agent to follow its workspace skill instructions.
@@ -500,7 +1012,43 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     return buildNewConvPrompt(job.name, job.schedule.description, rawText);
   }
 
+  /**
+   * P2-10: refuse to go anywhere near a workspace that is gone, or that is no
+   * longer the one this job was given.
+   *
+   * Called before a conversation is built and again before a task is acquired.
+   * Both, because `runNow` calls `prepareConversation` first and hands its
+   * conversation id straight back to the renderer, then fires `executeJob` in
+   * the background - guarding only the second would leave an orphan chat behind
+   * and report the failure to nobody.
+   *
+   * Deliberately no auto-repair. A recreated folder is indistinguishable from
+   * one whose history was lost, and writing into a folder whose marker does not
+   * match writes into whatever the user put there instead.
+   */
+  private async assertWorkspaceUsable(job: CronJob): Promise<void> {
+    const problem = await preflightJobWorkspace(job);
+    if (!problem) return;
+    // H1: CLASSIFIED, not a bare Error. `runNow` reaches here from the cron
+    // bridge, which cannot transport a rejection - it has to hand the renderer
+    // a resolved `{ ok: false, errorCode, path }`. A localized sentence alone
+    // would collapse to the catch-all code, and "the folder is gone" versus
+    // "the folder is no longer yours" is the whole distinction the three-option
+    // message is written around.
+    const missing = problem.status === 'missing';
+    throw new CronWorkspaceError(
+      missing ? 'workspace_missing' : 'workspace_mismatch',
+      i18n.t(missing ? 'cron.error.workspaceMissing' : 'cron.error.workspaceMismatch', {
+        name: job.name,
+        path: problem.workspace,
+      }),
+      problem.workspace
+    );
+  }
+
   async prepareConversation(job: CronJob): Promise<string> {
+    assertNotPromoting(job.metadata.conversationId);
+    await this.assertWorkspaceUsable(job);
     if (!job.metadata.agentConfig) {
       return job.metadata.conversationId;
     }
@@ -516,6 +1064,18 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
    * Mode and configOptions changes do NOT require a new conversation.
    */
   private async resolveConversationForJob(job: CronJob): Promise<string> {
+    // Promotion rule 3: the fence has to be read HERE, at the moment a run
+    // picks its conversation, not from a busy counter sampled earlier. A fire
+    // croner has scheduled but not yet dispatched reads as zero activity, so a
+    // counter says "idle" while this run is about to write a report into the
+    // workspace promotion has already digested and is about to leave behind.
+    assertNotPromoting(job.metadata.conversationId);
+    const resolved = await this.resolveConversationForJobUnfenced(job);
+    assertNotPromoting(resolved);
+    return resolved;
+  }
+
+  private async resolveConversationForJobUnfenced(job: CronJob): Promise<string> {
     // new_conversation mode: always create
     if (job.target.executionMode === 'new_conversation') {
       const conv = await this.buildConversationForJob(job);
@@ -536,15 +1096,44 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           const config = job.metadata.agentConfig!;
           const extra = latestConv.extra as Record<string, unknown> | undefined;
           const convBackend = extra?.backend as string | undefined;
-          const configWorkspace = config.workspace || '';
+          // P2-3: the CONVERSATION is the source of truth for the workspace. The
+          // job's copy is authoritative only when it actually names one.
+          //
+          // `config.workspace || ''` used to turn "this job expresses no opinion"
+          // into "the workspace is now empty", which read as a change and rehomed
+          // the run into a fresh conversation with `workspace: ''` - i.e. a new
+          // `wcore-temp-<ts>` that cannot see any previous run. That is the
+          // `extra.backend` defect one field over: `backfillCronJobIdOnConversations`
+          // synthesises an agentConfig carrying a backend and NO workspace, so it
+          // only ever bit after a restart, and it would throw away exactly the
+          // durable workspace P2-2 allocates.
+          const configWorkspace = config.workspace;
           // Compare against cronWorkspace (what was configured), not workspace
           // (which may be overwritten by agent runtime, e.g. codex temp dir).
           const prevCronWorkspace = (extra?.cronWorkspace as string | undefined) ?? '';
-          const agentChanged = convBackend !== config.backend;
-          const workspaceChanged = prevCronWorkspace !== configWorkspace;
+          // `extra.backend` is only persisted by the conversation factories that
+          // need it to pick a CLI - acp and openclaw-gateway. The wcore, gemini,
+          // nanobot and remote factories carry that identity in `type` instead
+          // and their extra whitelists drop `backend` outright. So a missing
+          // `extra.backend` means "this conversation type does not record one",
+          // never "the agent changed": read it through `type` in that case.
+          //
+          // Getting this wrong silently relocated every chat-propose schedule.
+          // Those jobs are created with no `metadata.agentConfig`, so
+          // `prepareConversation` early-returns and they behave all session.
+          // On the next launch `CronService.init()` backfills an agentConfig
+          // (backend only, no workspace) - the early return disappears, the
+          // comparison lands here, `undefined !== 'wcore'` reads as an agent
+          // change, and the job is rehomed into a brand-new conversation with
+          // `workspace: ''`, i.e. an empty `wcore-temp-<ts>` dir that cannot
+          // see any of the configured chat's files.
+          const agentChanged = convBackend
+            ? convBackend !== config.backend
+            : latestConv.type !== getConversationTypeForBackend(config.backend);
+          const workspaceChanged = configWorkspace !== undefined && prevCronWorkspace !== configWorkspace;
 
           console.log(
-            `[CronExecutor] resolveConversation: convBackend=${convBackend}, configBackend=${config.backend}, agentChanged=${agentChanged}, prevCronWorkspace=${prevCronWorkspace}, configWorkspace=${configWorkspace}, workspaceChanged=${workspaceChanged}`
+            `[CronExecutor] resolveConversation: convBackend=${convBackend}, convType=${latestConv.type}, configBackend=${config.backend}, agentChanged=${agentChanged}, prevCronWorkspace=${prevCronWorkspace}, configWorkspace=${configWorkspace}, workspaceChanged=${workspaceChanged}`
           );
 
           if (agentChanged || workspaceChanged) {
@@ -555,20 +1144,33 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // Sync extra fields so the frontend reads correct values immediately.
           const extraUpdates: Record<string, unknown> = {};
 
-          // Backfill workspace for old conversations created before this field was always set
-          if (extra?.workspace === undefined || extra?.workspace === null) {
-            extraUpdates.workspace = config.workspace || '';
+          // ...but only onto a conversation this job owns. When the reuse target
+          // is the user's OWN chat, writing the job's settings there silently
+          // reconfigures an interactive session: a UI-created job carries
+          // `mode: getFullAutoMode(backend)` (='yolo' for wcore), and once that
+          // lands in `extra.sessionMode` the next WCoreManager built for the chat
+          // starts in yolo and auto-approves every tool call with no dialog,
+          // permanently. The workspace backfill below is exempt - it only fills a
+          // field the chat already has.
+          const userOwnedChat = this.isUserOwnedConversation(latestConv);
+
+          // Backfill workspace for old conversations created before this field was
+          // always set - but only from a workspace the job actually names. Writing
+          // `''` here would copy the job's non-answer into the conversation store
+          // and make the two disagree about which one holds the truth (P2-3).
+          if ((extra?.workspace === undefined || extra?.workspace === null) && configWorkspace) {
+            extraUpdates.workspace = configWorkspace;
           }
 
-          if (config.mode && extra?.sessionMode !== config.mode) {
+          if (!userOwnedChat && config.mode && extra?.sessionMode !== config.mode) {
             extraUpdates.sessionMode = config.mode;
           }
 
-          if (config.modelId && extra?.currentModelId !== config.modelId) {
+          if (!userOwnedChat && config.modelId && extra?.currentModelId !== config.modelId) {
             extraUpdates.currentModelId = config.modelId;
           }
 
-          if (config.configOptions && Object.keys(config.configOptions).length > 0) {
+          if (!userOwnedChat && config.configOptions && Object.keys(config.configOptions).length > 0) {
             // Prefer patching existing conversation cache; fall back to global cache
             const existing = Array.isArray(extra?.cachedConfigOptions) ? extra.cachedConfigOptions : undefined;
             if (existing && existing.length > 0) {
@@ -602,29 +1204,114 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
   }
 
   /**
+   * True when `conv` is a chat the USER owns rather than one this cron job
+   * created for itself.
+   *
+   * `buildConversationForJob` stamps every cron-created conversation with
+   * `extra.cronWorkspace` (always a string, `''` when the job has no workspace),
+   * and no conversation factory consumes that key, so
+   * `ConversationServiceImpl.createConversation` merges it through for every
+   * backend. A source chat only ever receives `extra.cronJobId`, written by
+   * `CronService.addJob` / `backfillCronJobIdOnConversations`, so it is the one
+   * member of `getConversationsByCronJob(job.id)` with no `cronWorkspace`.
+   *
+   * Deliberately NOT `conv.id === job.metadata.conversationId`: for 'existing'
+   * mode `CronService.executeJobInner` rewrites `metadata.conversationId` to the
+   * child it just created, so from the second run that test matches the cron
+   * child and would suppress the job's own settings instead.
+   */
+  private isUserOwnedConversation(conv: TChatConversation): boolean {
+    const extra = conv.extra as Record<string, unknown> | undefined;
+    return extra?.cronWorkspace === undefined;
+  }
+
+  /**
+   * Hand a borrowed session back to the user once the scheduled run goes idle.
+   *
+   * Suppressing the PERSISTED writes is not enough on its own. Every scheduled
+   * run reconfigures the LIVE agent it borrows, and that agent stays in
+   * `WorkerTaskManager` keyed by the conversation, so the user's next
+   * interactive turn in that chat runs on the reconfigured one:
+   *
+   *   - `WCoreManager` inherits `BaseAgentManager.ensureYoloMode()` (returns
+   *     `false`), so the executor kills the user's task and rebuilds it with
+   *     `yoloMode: true`; `applyAgentSettings` then sets `currentMode = 'yolo'`.
+   *     `tryAutoApprove` auto-approves every tool call from that mode, and the
+   *     `this.yoloMode` branch of the `approval_required` handler auto-resumes
+   *     what would otherwise reach the user's confirmation gate.
+   *   - `AcpAgentManager.ensureYoloMode()` sets `options.yoloMode = true` and
+   *     calls `agent.enableYoloMode()` on the live ACP session.
+   *
+   * Nothing put any of that back, so the downgrade lasted until the app
+   * restarted. Restoring each field individually would need an inverse for
+   * `setMode`, `setModel`, `setConfigOption` AND the `yoloMode` constructor flag
+   * across every manager; killing the task restores all of them at once, and
+   * the next turn rebuilds it from the conversation row - which round 2
+   * guarantees still holds the user's own settings. This is an ordinary
+   * lifecycle event, not a new hazard: `WorkerTaskManager.killIdleCliAgents()`
+   * already tears down idle acp/wcore agents on a timer, and both resume their
+   * session from the persisted markers.
+   */
+  private releaseBorrowedTaskWhenIdle(conversationId: string, borrowed: unknown): void {
+    this.busyGuard.onceIdle(conversationId, () => {
+      // `onceIdle` fires SYNCHRONOUSLY from inside `setProcessing(false)`, and the
+      // managers call that at the TOP of turn teardown and then keep working -
+      // `WCoreManager.handleTurnEnd` goes on to flush buffered stream text, settle
+      // the activity card, notify turn completion, and can even start a follow-up
+      // turn. Killing there would tear the manager down mid-teardown. Defer one
+      // macrotask and re-check, exactly as `CronBusyGuard.fireGlobalIdleIfIdle`
+      // does for the app-wide case; if work resumed, wait for the next real idle.
+      setImmediate(() => {
+        if (this.busyGuard.isProcessing(conversationId)) {
+          this.releaseBorrowedTaskWhenIdle(conversationId, borrowed);
+          return;
+        }
+        // Already replaced or torn down - killing a successor would end a session
+        // this run never touched.
+        if ((this.taskManager.getTask(conversationId) as unknown) !== borrowed) return;
+        void Promise.resolve(this.taskManager.kill(conversationId)).catch((err) => {
+          console.warn(`[CronExecutor] failed to release borrowed task ${conversationId}:`, err);
+        });
+      });
+    });
+  }
+
+  /**
    * Apply mode and config options from the job's agentConfig onto the task.
    * Returns true if all settings were applied successfully, false if any failed
    * (indicating the agent may be stale and needs recreation).
+   *
+   * @param persistSettings - false when the run is happening inside a chat the
+   *   user owns. Every setting still reaches the LIVE session (an unattended run
+   *   has nobody to answer a tool confirmation, and for wcore auto-approval is
+   *   driven by `currentMode`), but the agent managers' conversation-row writes -
+   *   `saveSessionMode`, `saveModelId`, `saveConfigOptions` - are suppressed so
+   *   the user's chat keeps its own mode, model and config options. The live
+   *   session itself is handed back by `releaseBorrowedTaskWhenIdle`.
    */
   private async applyAgentSettings(
     task: { type: string; sendMessage: (data: unknown) => Promise<void> },
-    job: CronJob
+    job: CronJob,
+    persistSettings = true
   ): Promise<boolean> {
     type SetModeResult = { success?: boolean; msg?: string };
     const hasSetMode =
-      'setMode' in task && typeof (task as { setMode?: (mode: string) => Promise<unknown> }).setMode === 'function';
+      'setMode' in task &&
+      typeof (task as { setMode?: (mode: string, options?: { persist?: boolean }) => Promise<unknown> }).setMode ===
+        'function';
     const hasSetConfigOption =
       'setConfigOption' in task &&
-      typeof (task as { setConfigOption?: (id: string, val: string) => Promise<unknown> }).setConfigOption ===
-        'function';
+      typeof (
+        task as { setConfigOption?: (id: string, val: string, options?: { persist?: boolean }) => Promise<unknown> }
+      ).setConfigOption === 'function';
 
     // Apply mode
     if (job.metadata.agentConfig?.mode && hasSetMode) {
       const desiredMode = job.metadata.agentConfig.mode;
       try {
-        const result = (await (task as { setMode: (mode: string) => Promise<unknown> }).setMode(
-          desiredMode
-        )) as SetModeResult;
+        const result = (await (
+          task as { setMode: (mode: string, options?: { persist?: boolean }) => Promise<unknown> }
+        ).setMode(desiredMode, { persist: persistSettings })) as SetModeResult;
         if (result && result.success === false) {
           console.warn(`[CronExecutor] setMode("${desiredMode}") failed for job ${job.id}: ${result.msg ?? 'unknown'}`);
           return false;
@@ -639,10 +1326,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     if (job.metadata.agentConfig?.configOptions && hasSetConfigOption) {
       for (const [configId, value] of Object.entries(job.metadata.agentConfig.configOptions)) {
         try {
-          await (task as { setConfigOption: (id: string, val: string) => Promise<unknown> }).setConfigOption(
-            configId,
-            value
-          );
+          await (
+            task as { setConfigOption: (id: string, val: string, options?: { persist?: boolean }) => Promise<unknown> }
+          ).setConfigOption(configId, value, { persist: persistSettings });
         } catch (err) {
           console.warn(`[CronExecutor] setConfigOption("${configId}", "${value}") threw for job ${job.id}:`, err);
           return false;
@@ -654,11 +1340,15 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     if (job.metadata.agentConfig?.modelId) {
       const hasSetModel =
         'setModel' in task &&
-        typeof (task as { setModel?: (modelId: string) => Promise<unknown> }).setModel === 'function';
+        typeof (task as { setModel?: (modelId: string, options?: { persist?: boolean }) => Promise<unknown> })
+          .setModel === 'function';
       if (hasSetModel) {
         const desiredModel = job.metadata.agentConfig.modelId;
         try {
-          await (task as { setModel: (modelId: string) => Promise<unknown> }).setModel(desiredModel);
+          await (task as { setModel: (modelId: string, options?: { persist?: boolean }) => Promise<unknown> }).setModel(
+            desiredModel,
+            { persist: persistSettings }
+          );
         } catch (err) {
           console.warn(`[CronExecutor] setModel("${desiredModel}") threw for job ${job.id}:`, err);
           return false;

@@ -46,9 +46,11 @@ import { TOOL_ALLOWLIST_ENFORCING_BACKENDS } from '@/common/mcp';
 import { useMcpLibrary } from './hooks/useMcpLibrary';
 import { SetupGuide } from './components/SetupGuide';
 import StatusChip from './components/StatusChip';
+import ConnectorLogo from './components/ConnectorLogo';
 import { ByoCredentialsModal, type ByoVendorHint } from './components/ByoCredentialsModal';
 import { deriveStatus, type UIStatus } from './status';
 import { entryToServerData } from './entryToServerData';
+import { agentPublicationIsUnknown } from './agentPublication';
 import styles from './DetailPage.module.css';
 
 type Tab = 'overview' | 'tools' | 'setup-guide' | 'permissions';
@@ -129,7 +131,8 @@ export function DetailPage() {
 
   const [message, contextHolder] = Message.useMessage();
   const { mcpServers, saveMcpServers, readMcpServers, refreshMcpServers } = useMcpServers();
-  const { agentInstallStatus, setAgentInstallStatus, checkSingleServerInstallStatus } = useMcpAgentStatus();
+  const { agentInstallStatus, setAgentInstallStatus, checkSingleServerInstallStatus, statusLoaded, isServerLoading } =
+    useMcpAgentStatus();
   const { syncMcpToAgents, removeMcpFromAgents } = useMcpOperations(mcpServers, message);
   const { login, cancel: cancelMcpOAuthIpc, loggingIn, oauthStatus, setByoCredentials } = useMcpOAuth();
   const crud = useMcpServerCRUD(
@@ -637,6 +640,11 @@ export function DetailPage() {
   const syncedAt = formatRelativeTime(installedServer?.lastConnected);
   const account = w.auth.providerName ?? '—';
   const syncedAgents = installedServer ? (agentInstallStatus[installedServer.name] ?? []) : [];
+  const syncStateUnknown = agentPublicationIsUnknown({
+    installing,
+    statusLoaded,
+    serverLoading: installedServer ? isServerLoading(installedServer.name) : false,
+  });
 
   const estMinutes = guide?.estimatedMinutes ?? w.setupGuide?.estimatedMinutes;
 
@@ -890,26 +898,7 @@ export function DetailPage() {
 
       {/* HERO */}
       <div className={styles.hero}>
-        <div className={styles.logo}>
-          {safeUrl(w.iconUrl) ? (
-            <img
-              src={safeUrl(w.iconUrl)}
-              alt=''
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).style.display = 'none';
-                const parent = e.currentTarget.parentElement;
-                if (parent && !parent.querySelector(`.${styles.logoFallback}`)) {
-                  const span = document.createElement('span');
-                  span.className = styles.logoFallback;
-                  span.textContent = entry.title.charAt(0).toUpperCase();
-                  parent.appendChild(span);
-                }
-              }}
-            />
-          ) : (
-            <span className={styles.logoFallback}>{entry.title.charAt(0).toUpperCase()}</span>
-          )}
-        </div>
+        <ConnectorLogo className={styles.logo} entryId={entry.name} iconUrl={safeUrl(w.iconUrl)} title={entry.title} />
         <div className={styles.heroMeta}>
           <h1 className={styles.heroTitle}>
             {entry.title}
@@ -1134,6 +1123,10 @@ export function DetailPage() {
                     );
                   })}
                 </div>
+              ) : syncStateUnknown ? (
+                <p className={styles.availableEmpty}>
+                  {t('mcpLibrary.detail.availableChecking', 'Checking which agent configs have it…')}
+                </p>
               ) : (
                 <p className={styles.availableEmpty}>
                   {t('mcpLibrary.detail.availableEmpty', 'Not published to any agent config yet.')}

@@ -33,7 +33,7 @@ function withPlatformExt(name: string): string {
  * when Electron's `app` is unavailable (e.g. unit tests). Lazily `require`d so
  * importing this module outside Electron (test runner) never throws.
  */
-function userDataOverrideDir(): string | null {
+export function userDataOverrideDir(): string | null {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports, global-require
     const electron = require('electron') as { app?: { getPath?: (n: string) => string } };

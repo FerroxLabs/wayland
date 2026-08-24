@@ -135,6 +135,15 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
     popoutClosed: { on: () => () => {} },
   },
   voiceSynth: { speak: { invoke: (...args: unknown[]) => mockSpeak(...args) } },
+  // ChatLayout now mounts `usePreviewAway`, which subscribes to the preview
+  // break-out broadcast on mount. The real bridge always has this namespace
+  // (`bridgeAllowlist` registers every provider/emitter key at module load), so
+  // a mock without it is a mock that does not match production.
+  preview: {
+    handoff: { on: () => () => undefined },
+    popout: { invoke: vi.fn(async () => ({ ok: true, alreadyOpen: false })) },
+    dockBack: { invoke: vi.fn(async () => undefined) },
+  },
   // Pulled in by the header path (conversation history -> projects). Present so
   // the hideHeader=false control exercises the real header rather than dying in
   // an unrelated dependency.

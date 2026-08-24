@@ -215,10 +215,38 @@ function pyFloorDivFloat(vx, wx) {
 
 const p2 = (n) => String(n).padStart(2, '0');
 
-/** datetime.now().strftime('%Y-%m-%d %H:%M') in local time, zero-padded. */
+/**
+ * B14. THE STAMP NAMES ITS OWN CLOCK.
+ *
+ * This ran as `datetime.now().strftime('%Y-%m-%d %H:%M')` - the LOCAL time of
+ * whatever process renders, with nothing saying which local that is. It renders
+ * inside the engine's sandbox, which runs UTC; the main process that names the
+ * series directory runs the user's zone. Same instant, two calendar days:
+ *
+ *     closes through ?, generated 2026-08-22 22:31     (TZ=UTC)
+ *     closes through ?, generated 2026-08-23 05:31     (TZ=Asia/Bangkok)
+ *
+ * Both were correct and neither could be told from the other. It is not fixable
+ * by exporting TZ - the engine's env allowlist does not forward it, the same
+ * allowlist that ate WAYLAND_OUTPUT_DIR - so the instant is LABELLED rather
+ * than moved. The offset is read off the runtime (`getTimezoneOffset`), never
+ * assumed: a hard-coded suffix would make the stamp confidently wrong instead
+ * of quietly ambiguous.
+ */
+function zoneSuffix(dt) {
+  // getTimezoneOffset is minutes to ADD to local to reach UTC, so its sign is
+  // inverted from the way an offset is written.
+  const mins = -dt.getTimezoneOffset();
+  if (mins === 0) return 'UTC';
+  const sign = mins < 0 ? '-' : '+';
+  const abs = Math.abs(mins);
+  return `${sign}${p2(Math.floor(abs / 60))}:${p2(abs % 60)}`;
+}
+
+/** `YYYY-MM-DD HH:MM <zone>` on the clock of whatever process renders this. */
 function nowStamp(dt) {
   return `${dt.getFullYear()}-${p2(dt.getMonth() + 1)}-${p2(dt.getDate())} `
-    + `${p2(dt.getHours())}:${p2(dt.getMinutes())}`;
+    + `${p2(dt.getHours())}:${p2(dt.getMinutes())} ${zoneSuffix(dt)}`;
 }
 
 /** `sorted(xs, key=...)` for a single scalar key. Stable in both languages;
@@ -381,9 +409,24 @@ export function build(d, account = 10000.0) {
   P.push('</section>');
 
   // ---------------- one worked trade, end to end ----------------
-  const demo = new_.length ? new_[0] : (held.length ? held[0] : null);
+  // `d.demo` IS the pick, and re-deriving one here is how the 2026-08-07 defect
+  // came back. report.mjs `demo_payload` chooses the most recent OPEN position
+  // precisely so the entry, all four rungs and the current price share one
+  // readable range, and it is the only thing that carries `bars`. Picking
+  // `held[0]` here instead — the biggest unrealised winner — put MU's name,
+  // entry and ladder around SMCI's chart: a table reading "entry 102.25, now
+  // 974.33" above an unrelated stretch of tape, which is verbatim the failure
+  // report.mjs documents having already fixed on its own side.
+  //
+  // So the JSON's pick wins whenever it is there. The local fallback stays for
+  // a `mr.json` written before `demo` existed, and in that case there are no
+  // bars to disagree with.
+  const demo = pyTruthy(d.demo) ? d.demo
+    : (new_.length ? new_[0] : (held.length ? held[0] : null));
   if (pyTruthy(demo)) {
-    const live = Boolean(new_.length);
+    const live = pyTruthy(d.demo)
+      ? pyTruthy(pyGet(d.demo, 'live', false))
+      : Boolean(new_.length);
     const px = live ? demo.close : demo.entry;
     const per_slot = account / slots;
     const sh = px ? Math.trunc(pyFloorDivFloat(per_slot, px)) : 0;
@@ -412,7 +455,7 @@ export function build(d, account = 10000.0) {
       + (live ? '<span class="pill">Live entry</span>'
         : '<span class="pill demo">Worked example</span>')
       + '</div>');
-    const dm = d.demo || {};
+    const dm = d.demo || demo || {};
     if (pyTruthy(dm.bars)) {
       P.push('<div style="padding:6px 14px 0">'
         + trade_chart(dm.bars, dm.entry || px, pyGet(dm, 'entry_date', null),

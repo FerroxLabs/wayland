@@ -1,4 +1,4 @@
-import { PanelRightClose, PanelRightOpen, PictureInPicture2 } from 'lucide-react';
+import { ExternalLink, PanelRightClose, PanelRightOpen, PictureInPicture2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
@@ -11,7 +11,9 @@ import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import ConversationTabs from '@/renderer/pages/conversation/components/ConversationTabs';
 import ChatTitleEditor from '@/renderer/pages/conversation/components/ChatTitleEditor';
 import ConversationTitleMinimap from '@/renderer/pages/conversation/components/ConversationTitleMinimap';
+import PreviewAwayStrip from './PreviewAwayStrip';
 import WorkspacePanelHeader from './WorkspacePanelHeader';
+import { usePreviewAway } from './usePreviewAway';
 import WorkbenchHost, { type WorkbenchSectionRegistration } from '../WorkbenchHost';
 import { useConversationTabs } from '@/renderer/pages/conversation/hooks/ConversationTabsContext';
 import { useContainerWidth } from '@/renderer/pages/conversation/hooks/useContainerWidth';
@@ -45,12 +47,26 @@ function parseWorkbenchRequest(state: unknown): WorkbenchNavigationRequest | und
 
 /** Keeps ChatLayout usable in standalone/popout/test mounts without a Router. */
 /**
- * Narrowest conversation column that still docks the workbench panel beside the
- * messages instead of floating it over them. WorkbenchHost's default panel is
- * 340px and its rail is 36px, so this leaves roughly 360px of conversation -
- * about the point where message text stops being comfortable.
+ * Narrowest conversation column that can still DOCK the workbench panel beside
+ * the messages instead of floating it over them.
+ *
+ * Not a taste number - the sum of the three floors the docked layout is made
+ * of, all of them in WorkbenchHost:
+ *
+ *   CHAT_MIN_WIDTH   560  the conversation column's own floor. Below it the
+ *                         artifact card's action strip starts wrapping.
+ *   MIN_WIDTH        260  the pane's drag floor.
+ *   CARD_INSET * 2    24  the pane card's 12px margin on each side.
+ *   ------------------------------------------------------------------
+ *                    844
+ *
+ * It was 740, from a comment describing a 340px panel plus a 36px rail - the
+ * rail is gone and the chat had no floor at all then, so 740 permitted a docked
+ * layout that could not fit and every missing pixel came out of the
+ * conversation. The pane now absorbs the deficit instead, which is the right
+ * direction, but the honest fix is refusing to dock below the sum.
  */
-const WORKBENCH_DOCK_MIN_WIDTH = 740;
+const WORKBENCH_DOCK_MIN_WIDTH = 844;
 
 const RouterWorkbenchRequestBridge: React.FC<{
   onRequest: (request: WorkbenchNavigationRequest | undefined) => void;
@@ -96,6 +112,11 @@ const ChatLayout: React.FC<{
    * and prevents auto-collapse / global-default pollution. See useWorkspaceCollapse.
    */
   stepsRailSider?: boolean;
+  /**
+   * Break the preview out into its own window. Defaults to a no-op so the
+   * control is inert - never broken - until the pop-out transport is wired.
+   */
+  onPreviewPopOut?: () => void;
 }> = (props) => {
   const { conversationId, workspacePath } = props;
   const { backend, presetAssistant, agentName } = props;
@@ -117,7 +138,46 @@ const ChatLayout: React.FC<{
   const isMobile = Boolean(layout?.isMobile);
 
   // Preview panel state
-  const { isOpen: isPreviewOpen, closePreview } = usePreviewContext();
+  const { isOpen: isPreviewOpen, closePreview, activeTab } = usePreviewContext();
+  /**
+   * `PreviewTab.title` is already the extracted file name (PreviewContext
+   * derives it from metadata.fileName, then metadata.title). Naming the file in
+   * the section header is what makes a COLLAPSED preview card still an answer:
+   * "Preview" alone says a deliverable exists, not which one.
+   */
+  const previewFileName = activeTab?.title?.trim() || undefined;
+  const callerPopOut = props.onPreviewPopOut;
+
+  /**
+   * The break-out lifecycle, seen from this window: whether the preview is
+   * away, how many deliverables have landed in the other window since, and the
+   * two gestures. `away` is driven by the `preview.handoff` broadcast, never by
+   * the click - see usePreviewAway.
+   */
+  const previewAway = usePreviewAway(activeTab?.id ?? null);
+  const { away: previewIsAway, popOut: popOutPreview, bringBack: bringPreviewBack } = previewAway;
+
+  /**
+   * Lane A added the control and left it calling a prop. Nothing in the tree
+   * supplies that prop, so without this the button is a dead control - the
+   * exact failure §3 calls out for "Send selection to chat". A caller-supplied
+   * handler still wins.
+   */
+  const handlePreviewPopOut = React.useCallback(() => {
+    if (callerPopOut) {
+      callerPopOut();
+      return;
+    }
+    popOutPreview(activeTab);
+  }, [activeTab, callerPopOut, popOutPreview]);
+
+  /**
+   * While the preview is away the section is UNAVAILABLE, not merely collapsed:
+   * the pane goes, the chat reflows to full width, and a deliverable arriving
+   * meanwhile cannot pull the rail back open under the reader. It counts on the
+   * strip instead.
+   */
+  const previewDocked = isPreviewOpen && !previewIsAway;
 
   // --- Hook A: workspace collapse ---
   const { rightSiderCollapsed, setRightSiderCollapsed } = useWorkspaceCollapse({
@@ -189,6 +249,9 @@ const ChatLayout: React.FC<{
         onActivate: () => setRightSiderCollapsed(false),
         onDismiss: () => setRightSiderCollapsed(true),
         testId: 'workbench-workspace',
+        // The tree fills its pane instead of sizing itself; without this the
+        // stack gives it a zero-height card and the files are invisible.
+        fill: true,
         content: (
           <div className='flex flex-1 min-h-0 flex-col'>
             {workspacePath && (
@@ -206,20 +269,46 @@ const ChatLayout: React.FC<{
       },
       {
         id: 'preview',
-        label: t('conversation.preview.title', { defaultValue: 'Preview' }),
+        label: previewFileName
+          ? `${t('conversation.preview.title', { defaultValue: 'Preview' })} · ${previewFileName}`
+          : t('conversation.preview.title', { defaultValue: 'Preview' }),
         priority: 70,
-        available: isPreviewOpen,
-        requestedOpen: isPreviewOpen,
-        activationKey: isPreviewOpen ? 'open' : 'closed',
+        available: previewDocked,
+        requestedOpen: previewDocked,
+        activationKey: previewDocked ? 'open' : 'closed',
         onDismiss: closePreview,
         testId: 'workbench-preview',
+        // Same reason the workspace tree above needs it, and the reason a
+        // deliverable would not open: PreviewPanel renders a <webview> that
+        // sizes to its pane rather than to its own content, so without `fill`
+        // the stack hands it a shrink-0, content-sized card, the flex-1 wrapper
+        // inside resolves to height 0, and the webview is 0px tall. Measured
+        // live on a real Smart Trader report: webview 298x0 inside a parent
+        // whose `h-full` computed to 0.
+        fill: true,
+        // A rendered deliverable needs a document's width, not a rail's.
+        prefersDocumentWidth: true,
+        headerActions: (
+          <button
+            type='button'
+            className='workbench-host__icon-btn w-24px h-24px rounded-6px border-0 bg-transparent cursor-pointer text-t-secondary flex items-center justify-center'
+            aria-label={t('preview.popOut', { defaultValue: 'Open in a new window' })}
+            title={t('preview.popOut', { defaultValue: 'Open in a new window' })}
+            data-testid='preview-pop-out'
+            onClick={handlePreviewPopOut}
+          >
+            <ExternalLink size={14} />
+          </button>
+        ),
         content: <PreviewPanel />,
       },
     ],
     [
       closePreview,
       conversationId,
-      isPreviewOpen,
+      handlePreviewPopOut,
+      previewDocked,
+      previewFileName,
       props.sider,
       props.stepsRailSider,
       resolvedSiderTitle,
@@ -345,6 +434,18 @@ const ChatLayout: React.FC<{
                 {props.hideHeader && props.projectId && (
                   <div className='shrink-0 px-16px pt-8px'>
                     <ProjectContextBadge projectId={props.projectId} />
+                  </div>
+                )}
+                {/* A marker, not a hole. It sits in the conversation where the
+                    artifact card's preview would have opened, so the popped
+                    window is never a deliverable you have to ask for again. */}
+                {previewIsAway && (
+                  <div className='shrink-0 px-16px pt-8px'>
+                    <PreviewAwayStrip
+                      arrivals={previewAway.arrivals}
+                      pulseToken={previewAway.pulseToken}
+                      onBringBack={bringPreviewBack}
+                    />
                   </div>
                 )}
                 {props.children}

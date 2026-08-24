@@ -15,14 +15,27 @@ import {
   isBuiltinImageGenName,
   isBuiltinImageGenTransport,
 } from '@process/resources/builtinMcp/constants';
-import { getEnhancedEnv } from '@process/utils/shellEnv';
-import { safeExec, safeExecFile, execErrorDetail } from '@process/utils/safeExec';
+import { safeExec, execErrorDetail } from '@process/utils/safeExec';
 import { cliSafeMcpServerName } from '../validateMcpServer';
+import {
+  aggregatePublicationFailures,
+  aggregateRemovalSignals,
+  agentCliEnv,
+  agentCliFailureDetail,
+  isAgentCliTimeout,
+  runAgentCli,
+  type RemovalScopeReport,
+} from './agentCliExec';
 
-/** Env options for exec calls - ensures CLI is found from Finder/launchd launches */
-const getExecEnv = () => ({
-  env: { ...getEnhancedEnv(), NODE_OPTIONS: '', TERM: 'dumb', NO_COLOR: '1' } as NodeJS.ProcessEnv,
-});
+/**
+ * Env options for exec calls - ensures the CLI is found from Finder/launchd
+ * launches, and redirects every home-ish variable when an agent-config sandbox
+ * is in force. `claude` resolves its config from `CLAUDE_CONFIG_DIR`, which
+ * `agentCliEnv` sets: measured on 2026-08-23, `claude mcp add-json` under the
+ * override wrote `<root>/.claude/.claude.json` and left the real
+ * `~/.claude.json` byte-identical.
+ */
+const getExecEnv = () => ({ env: agentCliEnv() });
 
 export function buildClaudeStdioJsonConfig(server: IMcpServer): string {
   if (server.transport.type !== 'stdio') {
@@ -204,17 +217,17 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
    * Install MCP servers into the Claude Code agent
    */
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
-    const installOperation = async () => {
+    const installOperation = async (): Promise<McpOperationResult> => {
       try {
         const failures: string[] = [];
+        let timedOut = false;
         for (const server of mcpServers) {
           // Claude CLI rejects dots in names; use the CLI-safe form everywhere
           // (add + remove) so the keys match and removal stays clean.
           const cliName = cliSafeMcpServerName(server.name);
           if (server.transport.type === 'stdio') {
             const addJson = () =>
-              safeExecFile('claude', ['mcp', 'add-json', '-s', 'user', cliName, buildClaudeStdioJsonConfig(server)], {
-                timeout: 5000,
+              runAgentCli('claude', ['mcp', 'add-json', '-s', 'user', cliName, buildClaudeStdioJsonConfig(server)], {
                 ...getExecEnv(),
               });
             try {
@@ -228,20 +241,21 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
               // agent writes, so a user's own project/local entry is untouched.
               if (isClaudeMcpNameTakenDetail(detail)) {
                 try {
-                  await safeExecFile('claude', ['mcp', 'remove', '-s', 'user', cliName], {
-                    timeout: 5000,
+                  await runAgentCli('claude', ['mcp', 'remove', '-s', 'user', cliName], {
                     ...getExecEnv(),
                   });
                   await addJson();
                   console.log(`[ClaudeMcpAgent] Replaced existing MCP server: ${server.name}`);
                   continue;
                 } catch (replaceError) {
-                  const replaceDetail = execErrorDetail(replaceError);
+                  const replaceDetail = agentCliFailureDetail(replaceError);
+                  if (isAgentCliTimeout(replaceError)) timedOut = true;
                   console.warn(`Failed to replace MCP ${server.name} in Claude Code: ${replaceDetail}`);
                   failures.push(`${server.name}: ${replaceDetail}`);
                   continue;
                 }
               }
+              if (isAgentCliTimeout(error)) timedOut = true;
               console.warn(`Failed to add MCP ${server.name} to Claude Code: ${detail}`);
               failures.push(`${server.name}: ${detail}`);
             }
@@ -266,13 +280,11 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
             }
 
             try {
-              await safeExecFile('claude', args, {
-                timeout: 5000,
-                ...getExecEnv(),
-              });
+              await runAgentCli('claude', args, { ...getExecEnv() });
               console.log(`[ClaudeMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
-              const detail = execErrorDetail(error);
+              const detail = agentCliFailureDetail(error);
+              if (isAgentCliTimeout(error)) timedOut = true;
               console.warn(`Failed to add MCP ${server.name} to Claude Code: ${detail}`);
               failures.push(`${server.name}: ${detail}`);
             }
@@ -282,9 +294,9 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
             );
           }
         }
-        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
+        return aggregatePublicationFailures('Claude Code', failures, timedOut);
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return { success: false, outcome: 'failed', error: error instanceof Error ? error.message : String(error) };
       }
     };
 
@@ -296,7 +308,7 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
    * Remove an MCP server from the Claude Code agent
    */
   removeMcpServer(mcpServerName: string): Promise<McpOperationResult> {
-    const removeOperation = async () => {
+    const removeOperation = async (): Promise<McpOperationResult> => {
       try {
         // Use Claude CLI command to remove MCP server (try different scopes)
         // Order: user (Wayland default) -> local -> project
@@ -309,43 +321,64 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
               : [mcpServerName]
           )
         );
-        const failures: string[] = [];
+        const reports: RemovalScopeReport[] = [];
 
         for (const scope of scopes) {
           for (const candidateName of candidateNames) {
             try {
-              const result = await safeExecFile(
+              const result = await runAgentCli(
                 'claude',
                 ['mcp', 'remove', '-s', scope, cliSafeMcpServerName(candidateName)],
-                {
-                  timeout: 5000,
-                  ...getExecEnv(),
-                }
+                { ...getExecEnv() }
               );
 
-              if (result.stdout && result.stdout.includes('removed')) {
+              // Case-insensitive, and over stdout AND stderr. `claude mcp
+              // remove` prints "Removed MCP server <name> from user config" -
+              // capital R - so a lowercase `includes('removed')` never matched
+              // a removal it had just performed, and the scope was recorded as
+              // absent. Caught by driving the real binary, not by reading the
+              // code: the entry left `.claude.json` while the adapter said it
+              // had never been there.
+              if (/removed/i.test(`${result.stdout ?? ''}\n${result.stderr ?? ''}`)) {
                 console.log(`[ClaudeMcpAgent] Removed MCP server from ${scope} scope: ${candidateName}`);
-                return { success: true };
+                reports.push({ scope, signal: 'removed' });
+                return aggregateRemovalSignals('Claude Code', reports);
               }
+              reports.push({ scope, signal: 'absent' });
             } catch (error) {
               const detail = execErrorDetail(error);
 
+              // A killed child is an UNKNOWN, not an absence and not a
+              // refusal. This is the exact state the user was shown as
+              // "failed: Command timed out after 5000ms" - a sentence that
+              // asserts more than we knew.
+              // STOP at the first unreachable scope. If the CLI would not
+              // answer for this scope it will not answer for the next one, and
+              // trying anyway multiplies the wall time by the number of
+              // scopes: measured live, `gemini mcp remove` spent 61,433 ms on
+              // one removal (15 s + retry, twice) and blew straight through
+              // the 45 s per-agent deadline. One unknown scope is already
+              // enough to make the whole agent's removal unproven and
+              // retryable, so there is nothing more to learn by continuing.
+              if (isAgentCliTimeout(error)) {
+                reports.push({ scope, signal: 'unknown', detail });
+                return aggregateRemovalSignals('Claude Code', reports);
+              }
+
               if (isClaudeMcpAbsentDetail(detail)) {
+                reports.push({ scope, signal: 'absent' });
                 continue;
               }
 
               console.warn(`[ClaudeMcpAgent] Failed to remove from ${scope} scope: ${detail}`);
-              failures.push(`${scope}/${candidateName}: ${detail}`);
+              reports.push({ scope: `${scope}/${candidateName}`, signal: 'error', detail });
             }
           }
         }
 
-        if (failures.length > 0) return { success: false, error: failures.join('; ') };
-        // Every scope explicitly reported absence.
-        console.log(`[ClaudeMcpAgent] MCP server ${mcpServerName} not found in any scope (may already be removed)`);
-        return { success: true };
+        return aggregateRemovalSignals('Claude Code', reports);
       } catch (error) {
-        return { success: false, error: error instanceof Error ? error.message : String(error) };
+        return { success: false, outcome: 'failed', error: error instanceof Error ? error.message : String(error) };
       }
     };
 

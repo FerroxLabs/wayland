@@ -32,6 +32,14 @@ vi.mock('@process/agent/wcore/envBuilder', () => ({
   // puts `undefined` in argv and spawn throws before a single production
   // listener is attached - which surfaces as 33 unrelated-looking failures.
   WCORE_DESKTOP_HOST_ASSISTANT: 'wayland-desktop',
+  // T2: the spawn site resolves the deliverable directory and turns it into the
+  // `--system-prompt` directive, so both of these are now read from this module
+  // BEFORE any listener is attached. Same trap as the two above - unstubbed,
+  // `resolveOutputDir` is `undefined`, calling it throws inside `start()`, and
+  // all 35 cases fail as "did not finish attaching its production listeners".
+  // Stubs only; nothing here is asserted on.
+  resolveOutputDir: (workspace: string) => `${workspace}/artifacts`,
+  buildOutputDirective: (dir: string) => `deliverables go in ${dir}`,
 }));
 // #710: vault provisioning is out of scope here - resolve "no unlock material"
 // so the spawn takes the legacy three-slot stdio path (and never touches the

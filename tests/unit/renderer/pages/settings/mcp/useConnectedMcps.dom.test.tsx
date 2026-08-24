@@ -73,6 +73,10 @@ vi.mock('@renderer/hooks/mcp/useMcpConnection', () => ({
 
 import { useConnectedMcps } from '@renderer/pages/settings/McpLibrary/hooks/useConnectedMcps';
 
+// `preserveEnabled` is part of the reconnect contract, not decoration: without
+// it a probe that fails after the republish revokes the publication it just
+// made and writes `enabled: false` (#B4d), so Reconnect could never leave a
+// connector on. The row's `Enable` is the same operation under its true label.
 describe('useConnectedMcps reconnect truth', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -87,7 +91,7 @@ describe('useConnectedMcps reconnect truth', () => {
     await act(async () => result.current.reconnect(state.disabled));
 
     expect(toggle).toHaveBeenCalledWith(state.disabled.id, true);
-    expect(probe).toHaveBeenCalledWith(state.published);
+    expect(probe).toHaveBeenCalledWith(state.published, { preserveEnabled: true });
   });
 
   it('republishes before probing when local enabled truth carries an unresolved divergence', async () => {
@@ -103,7 +107,7 @@ describe('useConnectedMcps reconnect truth', () => {
     await act(async () => result.current.reconnect(divergent));
 
     expect(toggle).toHaveBeenCalledWith(divergent.id, true);
-    expect(probe).toHaveBeenCalledWith(state.published);
+    expect(probe).toHaveBeenCalledWith(state.published, { preserveEnabled: true });
   });
 
   it('does not probe a durable revision that superseded the exact reconnect publication', async () => {
@@ -116,6 +120,6 @@ describe('useConnectedMcps reconnect truth', () => {
     await act(async () => result.current.reconnect(state.disabled));
 
     expect(toggle).toHaveBeenCalledWith(state.disabled.id, true);
-    expect(probe).toHaveBeenCalledWith(state.published);
+    expect(probe).toHaveBeenCalledWith(state.published, { preserveEnabled: true });
   });
 });

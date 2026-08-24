@@ -72,6 +72,35 @@ describe('dedupeThinkingDelta (wcore cumulative-restate reasoning)', () => {
     expect(out.split('The user wants a giveaway app').length - 1).toBe(1);
   });
 
+  it('never DELETES text when a cumulative restate diverges (the long-reasoning shredder)', () => {
+    // Same live shape as the test above, but asserting the other half: the restate's
+    // own words must all survive. Slicing the restate at `prev.length` instead of at
+    // the common prefix cut past the divergence and dropped "to make mo", leaving the
+    // corrupt "…what make moneyney with AI now" on screen. The gap is
+    // `prev.length - common`, so the longer the thought, the more it ate - which is
+    // why short thoughts looked fine and a strategy review came out unreadable.
+    const chunks = [
+      'The user wants a giveaway app.',
+      ' The core problem: what make money',
+      'The user wants a giveaway app. The core problem: what to make money with AI now',
+    ];
+    const out = accumulate(chunks);
+    expect(out).toContain('to make money with AI now');
+    expect(out).not.toContain('moneyney');
+  });
+
+  it('cuts a divergent restate at the common prefix, not at the accumulated length', () => {
+    // prev diverges from incoming at index 10. A positional cut at prev.length (16)
+    // would return 'PQR' and silently drop 'XY'.
+    expect(dedupeThinkingDelta('abcdefghijKLMNOP', 'abcdefghijXYPQR')).toBe('XYPQR');
+  });
+
+  it('keeps net-new text from a SHORTER divergent restate instead of dropping it', () => {
+    // incoming is shorter than prev but is not contained in it, so it still carries
+    // text we have never shown. Returning '' because it is shorter loses that text.
+    expect(dedupeThinkingDelta('abcdefghijKLMNOPQRST', 'abcdefghijXY')).toBe('XY');
+  });
+
   it('treats a short incremental continuation as a delta, not a restate', () => {
     // Low common prefix with prev -> appended whole (not misread as a restate).
     expect(dedupeThinkingDelta('The user wants to build', ' a giveaway app')).toBe(' a giveaway app');

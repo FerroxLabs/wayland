@@ -132,19 +132,56 @@ export function verifyManifestIntegrity(manifest) {
 
 // ── Provenance ───────────────────────────────────────────────────────────────
 
-/** Optional git-backed re-derivation of the exact source blob. */
-function gitBlobSha256(commit, sourcePath) {
+/**
+ * Git-backed re-derivation of the exact source blob.
+ *
+ * IT RETURNS WHETHER IT COULD LOOK, SEPARATELY FROM WHAT IT SAW. It used to
+ * collapse both into `null`, and the caller's `if (derived && ...)` then turned
+ * "git could not reach the producer object" into "the digest is fine" - a
+ * security check that fails OPEN and says nothing about it.
+ *
+ * It is reachable far less often than it looks. `PRODUCER_COMMIT` is on NO
+ * REMOTE BRANCH - `git ls-remote ferrox refs/heads/codex/desktop-constitution-production`
+ * is empty and `git branch -r --contains 991c502e...` names nothing - so it
+ * survives only as a local branch in the author's own clone. Executed:
+ *   Windows D:\wl-desktop  git cat-file -t 991c502e... -> could not get object info
+ *   author's Mac           git cat-file -t 991c502e... -> commit
+ * The Linux box answered `could not get object info` at 01:19 and `commit` at
+ * 01:26, because an unrelated fetch by another lane happened to drop the
+ * dangling object into the shared pack in between. So whether this leg runs is
+ * a property of what a clone incidentally holds, and it CHANGES UNDER YOU.
+ *
+ * That, not line endings and not path normalisation, is why the leg was dead
+ * off macOS: `.gitattributes` pins `* text=auto eol=lf`, and wherever the
+ * object is present the blob is byte-identical (48907 bytes, matching
+ * `source.size`) on all three platforms. Suspicion refuted by execution.
+ */
+function gitBlobSha256(commit, sourcePath, repoRoot = REPO_ROOT) {
   try {
-    const bytes = execFileSync('git', ['-C', REPO_ROOT, 'cat-file', 'blob', `${commit}:${sourcePath}`], {
+    const bytes = execFileSync('git', ['-C', repoRoot, 'cat-file', 'blob', `${commit}:${sourcePath}`], {
       maxBuffer: 8 * 1024 * 1024,
+      // stderr is CAPTURED, not inherited: git's `fatal:` line is the reason
+      // this leg could not run and belongs in the report, not sprayed over the
+      // CLI's output where a reader takes it for a verification failure.
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
-    return sha256Prefixed(bytes);
-  } catch {
-    return null;
+    return { available: true, digest: sha256Prefixed(bytes) };
+  } catch (error) {
+    const detail = String(error?.stderr ?? '').trim() || String(error?.message ?? error).trim();
+    return { available: false, reason: detail.split('\n')[0] };
   }
 }
 
-export function verifyProvenance(manifest, { provider, git = true } = {}) {
+/**
+ * `gitSource` is a test seam, defaulted to the real producer. It exists so the
+ * mismatch branch below can be exercised against a git repository the test
+ * BUILDS, on a platform whose clone does not carry `PRODUCER_COMMIT` - which is
+ * every platform but the author's.
+ */
+export function verifyProvenance(
+  manifest,
+  { provider, git = true, gitSource = { repoRoot: REPO_ROOT, commit: PRODUCER_COMMIT } } = {}
+) {
   const { producer, source, harnessPatch, classificationCounts, bases } = manifest;
 
   if (producer.commit !== PRODUCER_COMMIT) {
@@ -174,10 +211,21 @@ export function verifyProvenance(manifest, { provider, git = true } = {}) {
   if (source.path !== SOURCE_PATH) {
     throw new Error('Historical corpus manifest binds an unexpected transaction source path.');
   }
+  let sourceBlobReDerived = false;
+  let sourceBlobReDerivationSkipped = git ? null : 'git re-derivation not requested';
   if (git) {
-    const derived = gitBlobSha256(PRODUCER_COMMIT, SOURCE_PATH);
-    if (derived && derived !== source.contentSha256) {
-      throw new Error('Bound transaction source blob does not match the producer commit (reconstruction).');
+    const derived = gitBlobSha256(gitSource.commit, SOURCE_PATH, gitSource.repoRoot);
+    if (derived.available) {
+      sourceBlobReDerived = true;
+      if (derived.digest !== source.contentSha256) {
+        throw new Error('Bound transaction source blob does not match the producer commit (reconstruction).');
+      }
+    } else {
+      // NOT fatal - a clone that never fetched the producer branch is normal,
+      // and refusing every such clone would make the CLI unusable. But it is
+      // no longer SILENT: the report states that this leg did not run, so a
+      // reader cannot mistake an unperformed check for a passed one.
+      sourceBlobReDerivationSkipped = `producer blob unreachable in git: ${derived.reason}`;
     }
   }
 
@@ -199,7 +247,13 @@ export function verifyProvenance(manifest, { provider, git = true } = {}) {
     throw new Error('Contract harness-only.patch drifted from the sealed digest.');
   }
 
-  return { producerCommit: producer.commit, sourceContentSha256: source.contentSha256, patchDigest };
+  return {
+    producerCommit: producer.commit,
+    sourceContentSha256: source.contentSha256,
+    patchDigest,
+    sourceBlobReDerived,
+    sourceBlobReDerivationSkipped,
+  };
 }
 
 // ── Whole-directory inventory ────────────────────────────────────────────────
@@ -403,6 +457,8 @@ export function runHistoricalTransactionCorpusVerification({ manifest = loadMani
     ok: true,
     manifestDigest,
     producerCommit: provenance.producerCommit,
+    sourceBlobReDerived: provenance.sourceBlobReDerived,
+    sourceBlobReDerivationSkipped: provenance.sourceBlobReDerivationSkipped,
     fileCount: inventory.fileCount,
     capturedBases: manifest.classificationCounts.capturedBases,
     syntheticFiles: manifest.classificationCounts.syntheticFiles,

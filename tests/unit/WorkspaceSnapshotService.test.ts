@@ -24,7 +24,12 @@ describe('WorkspaceSnapshotService', () => {
 
   afterEach(async () => {
     await service.disposeAll().catch(() => {});
-    await fs.rm(tmpDir, { recursive: true, force: true });
+    // `maxRetries` is not decoration on Windows: `force` suppresses ENOENT but
+    // NOT the EBUSY this directory raises while a `git` child that touched it
+    // is still finishing its exit. Without the retries the cleanup failed and
+    // reported a SECOND error against a test that had already reported one, so
+    // one slow test read as two broken ones.
+    await fs.rm(tmpDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
   });
 
   describe('snapshot mode (no .git)', () => {
@@ -467,7 +472,19 @@ describe('WorkspaceSnapshotService', () => {
     });
   });
 
-  describe('maxBuffer handling (ELECTRON-G4)', () => {
+  /**
+   * These two do REAL work: 200 real file writes, then real `git` subprocesses
+   * over all of them. Measured at ~1.7s each on an idle Windows host, but a
+   * GitHub windows-2022 runner has four cores, real-time antivirus on every
+   * write, and roughly ten vitest forks competing - and both blew the 10s
+   * default there while passing on macOS and ubuntu.
+   *
+   * The budget is stated on the describe rather than inherited from the global
+   * default. Nothing about what either test asserts changes, and a genuine hang
+   * has no end and still fails. Verified by setting it to 1ms: both named tests
+   * fail, so the option is genuinely read and not silently ignored.
+   */
+  describe('maxBuffer handling (ELECTRON-G4)', { timeout: 60_000 }, () => {
     it('snapshot init handles workspace with many files without maxBuffer error', async () => {
       // Create many files to exercise the git add . path with substantial output
       const subdir = path.join(tmpDir, 'deep', 'nested', 'dir');

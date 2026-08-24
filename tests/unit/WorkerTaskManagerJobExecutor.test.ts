@@ -3,6 +3,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.mock('electron', () => ({ app: { isPackaged: false, getPath: vi.fn(() => '/tmp') } }));
 vi.mock('@/common/utils', () => ({ uuid: vi.fn(() => 'test-uuid') }));
 vi.mock('@process/utils', () => ({ copyFilesToDirectory: vi.fn(async () => []) }));
+// The executor resolves the run's conversation on EVERY path now, to tell a chat
+// the user owns from one the cron job created for itself. These jobs have no
+// seeded conversation, so the lookup misses and the run is treated as
+// cron-owned - exactly as before. Mocked because the real singleton loads
+// better-sqlite3.
+vi.mock('@process/services/conversationServiceSingleton', () => ({
+  conversationServiceSingleton: {
+    getConversation: vi.fn(async () => undefined),
+    createConversation: vi.fn(),
+    updateConversation: vi.fn(),
+    getConversationsByCronJob: vi.fn(async () => []),
+  },
+}));
 vi.mock('@process/utils/initStorage', () => ({
   getCronSkillsDir: vi.fn(() => '/mock/cronSkills'),
   ProcessConfig: { get: vi.fn(async () => false) },

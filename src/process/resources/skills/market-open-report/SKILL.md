@@ -5,6 +5,36 @@ description: Produce the TC-TIDE morning report — scan the watchlist for trend
 
 # Morning report
 
+## Which list it scans
+
+The run prints a `[source]` line before anything else, naming where the watchlist came from:
+
+```
+[source] watchlist: your saved list "TC-MASTER-WATCHLIST", exported 2026-08-24T02:46:48.582Z
+[source] watchlist: the scan list that ships with the report, not your TradingView watchlist
+```
+
+**Quote that line. Never infer the source from the symbol count** — the saved list and the shipped
+list can hold the same number of names, and presenting one as the other is the same failure as
+presenting a stale price as a live one.
+
+Resolution order is: the `MARKET_OPEN_REPORT_LIST` environment variable, then
+`smart-trader-settings.json` at the workspace root, then the CSV shipped inside this skill. A
+recorded path that no longer exists is discarded and the run says so on stderr, because a missing
+CSV scans zero symbols and still produces a complete, well-formed, entirely empty report.
+
+To save or inspect the choice, use the skill's own tool rather than editing either file by hand:
+
+```bash
+node scripts/settings.mjs --show
+node scripts/settings.mjs --import-watchlist <watchlist_export.json> --name "<name>" --chart-layout "<layout>"
+```
+
+`tvcontrol-setup` Step 7 does this as part of getting someone set up. It only persists if the chat
+has a real workspace folder — in a throwaway `wcore-temp-` workspace it is gone next session, and
+`--show` prints the path so you can tell which one you are in.
+
+
 Runs a daily scan over the watchlist and produces two things: a plain-text
 report and a standalone HTML brief.
 
@@ -16,12 +46,21 @@ reloads, and every one of those is a place the UI can fail silently.
 
 ## Running it
 
-From the skill directory:
+Both commands run from this skill's own directory, but the output directory is
+relative to the WORKSPACE ROOT — **not** to this directory. So pin it to an
+absolute path FIRST, while you are still standing in the workspace root, and
+only then change into the skill directory:
 
 ```bash
-node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
-node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
+OUT="$PWD/artifacts"; mkdir -p "$OUT"     # $PWD here is the workspace root
+cd <this skill's directory>               # e.g. .wayland-core/skills/market-open-report
+node scripts/morning-report.mjs --tier 1 --slots 20 --json "$OUT"/mr.json
+node scripts/briefHtml.mjs "$OUT"/mr.json "$OUT"/morning-brief.html
 ```
+
+Resolve the output directory after that `cd` and a bare `artifacts` lands beside
+this script instead — under a hidden engine directory the Workbench does not
+show, so the brief exists and the user never sees it.
 
 Node only. No dependencies, no install step, no Python.
 
@@ -34,18 +73,23 @@ a watchlist before running it once.
 Override any of it through the environment, so nothing is written where it does
 not belong:
 
-| variable | meaning |
-|---|---|
-| `MARKET_OPEN_REPORT_LIST` | watchlist CSV (defaults to the bundled one) |
-| `MARKET_OPEN_REPORT_POSITIONS` | the user's holdings CSV (absent is valid) |
-| `MARKET_OPEN_REPORT_CACHE` | Yahoo cache directory |
+| variable                       | meaning                                                                                                                                                                                                                                                                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `MARKET_OPEN_REPORT_LIST`      | watchlist CSV (defaults to the bundled one)                                                                                                                                                                                                                                                                        |
+| `MARKET_OPEN_REPORT_POSITIONS` | the user's holdings CSV (absent is valid)                                                                                                                                                                                                                                                                          |
+| `MARKET_OPEN_REPORT_CACHE`     | Yahoo cache directory. **Leave it unset** unless you have a writable path: it overrides the script's own probe for a writable cache, and if it points anywhere the sandbox refuses (anywhere outside the workspace, home included) `mkdir` fails `EPERM`, every symbol reports NO DATA, and the run still exits 0. |
 
-Write output to an app-owned directory. Never write into a git repository.
+Write `--json` and the HTML brief to the output directory, resolved against the
+workspace root (default `artifacts/`, i.e. `<workspace>/artifacts/`) — never
+against this skill's own directory. Never write beside this skill's own script:
+`.wayland-core/skills/` is a hidden engine directory the Workbench does not show,
+so a brief written there exists and is invisible. Never write into a git
+repository.
 
 ## Reading the result — this part matters
 
 **Check the exit code, and check the NO DATA line.** A run where Yahoo rate
-limits or blocks produces a *complete, well-formed, entirely empty* report:
+limits or blocks produces a _complete, well-formed, entirely empty_ report:
 every symbol listed under NO DATA, every table empty, and it looks fine. The
 Python original returned success in exactly that case. This version exits
 non-zero when every scanned symbol failed — but a partial failure still exits
@@ -71,5 +115,5 @@ If the report says "0 names scanned", something is broken. Say so plainly.
 ## Scheduling it
 
 This is a good candidate for a daily routine. It needs no chart, no browser and
-no credentials, so it runs unattended. Offer it; do not enable it without
+no API key or login, so it runs unattended. Offer it; do not enable it without
 asking.

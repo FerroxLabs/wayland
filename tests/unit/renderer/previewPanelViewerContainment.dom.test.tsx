@@ -34,11 +34,9 @@ vi.mock('react-i18next', () => ({
 }));
 
 // CSS side-effect import — no-op under jsdom.
-vi.mock(
-  '@/renderer/pages/conversation/Preview/components/PreviewPanel/preview.css',
-  () => ({}),
-  { virtual: true } as never
-);
+vi.mock('@/renderer/pages/conversation/Preview/components/PreviewPanel/preview.css', () => ({}), {
+  virtual: true,
+} as never);
 
 // The active tab is a `code` tab, so renderContent() mounts CodeViewer.
 const activeTab = {
@@ -127,7 +125,15 @@ vi.mock('@/renderer/hooks/context/LayoutContext', () => ({
 vi.mock('@/renderer/hooks/ui/useResizableSplit', () => ({
   useResizableSplit: () => ({ splitRatio: 50, createDragHandle: () => null }),
 }));
-vi.mock('@/common', () => ({ ipcBridge: { shell: { openFile: { invoke: vi.fn() } } } }));
+// `artifacts.list` is here because PreviewPanel now asks, for every previewed
+// file, whether it is a registered deliverable (P2-9). An empty list is the
+// "not a deliverable" answer, which is what these cases are.
+vi.mock('@/common', () => ({
+  ipcBridge: {
+    shell: { openFile: { invoke: vi.fn() } },
+    artifacts: { list: { invoke: vi.fn().mockResolvedValue([]) } },
+  },
+}));
 vi.mock('@/renderer/utils/file/download', () => ({
   downloadFileFromPath: vi.fn(),
   downloadTextContent: vi.fn(),

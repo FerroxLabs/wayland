@@ -550,5 +550,33 @@
       "revealFailed": "Wayland не смог открыть папку. Причина: {{reason}}"
     },
     "notText": "Wayland не может прочитать этот файл как текст — часть его байтов не является корректным UTF-8, который требуется формату настроек. Ничего не изменено."
+  },
+  "artifactCard": {
+    "title": "Сохранено в вашем рабочем пространстве",
+    "openHere": "Открыть здесь",
+    "openInApp": "Открыть в {{app}}",
+    "openExternally": "Открыть в приложении по умолчанию",
+    "reveal": "Показать в папке",
+    "saveCopy": "Сохранить копию",
+    "changed": "Этот файл изменился после сохранения.",
+    "claimedButAbsent": "Wayland не удалось подтвердить, что файл {{fileName}} был записан.",
+    "claimedElsewhere": "{{fileName}} записан в {{actualPath}}, а не в файлы этого разговора.",
+    "claimedElsewhereInWorkspace": "{{fileName}} находится в папке рабочей области, а не в файлах этого разговора.",
+    "update": "Обновить",
+    "rejected": "{{count}} файл не сохранён как результат: {{detail}}.",
+    "rejected_other": "Файлов не сохранено как результаты: {{count}} ({{detail}}).",
+    "unknownError": "Не получилось. Возможно, файл был перемещён.",
+    "rejectedOutsideFolder": "{{count}} сохранён вне папки этого чата",
+    "rejectedOutsideFolder_other": "{{count}} сохранены вне папки этого чата",
+    "rejectedNotAFile": "{{count}} не был обычным файлом",
+    "rejectedNotAFile_other": "{{count}} не были обычными файлами",
+    "rejectedTooBig": "{{count}} слишком велик для сохранения",
+    "rejectedTooBig_other": "{{count}} слишком велики для сохранения",
+    "rejectedTooMany": "{{count}} сверх лимита этого хода",
+    "rejectedTooMany_other": "{{count}} сверх лимита этого хода",
+    "rejectedUnreadable": "{{count}} не удалось прочитать",
+    "rejectedUnreadable_other": "{{count}} не удалось прочитать",
+    "more": "и ещё {{count}} в разделе «Артефакты»",
+    "more_other": "и ещё {{count}} в разделе «Артефакты»"
   }
 }

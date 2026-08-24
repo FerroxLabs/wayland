@@ -24,6 +24,7 @@ import { join } from 'node:path';
 import yaml from 'js-yaml';
 import { describe, it, expect } from 'vitest';
 
+import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 import { entryToServerData } from '@/renderer/pages/settings/McpLibrary/entryToServerData';
 import type { CatalogEntry } from '@/renderer/pages/settings/McpLibrary/types';
 import tvcontrolEntry from '@/renderer/mcp-catalog/entries/com.ferroxlabs-tvcontrol.json';
@@ -70,7 +71,7 @@ describe('TVControl catalog connector', () => {
     // so `npx @ferroxlabs/tvcontrol` answered an MCP initialize with
     // "Usage: tv <command>" and the connector could never connect. A substring
     // match cannot tell a working spec from an unrunnable one.
-    expect(transport.args).toEqual(['@ferroxlabs/tvcontrol@2.2.2']);
+    expect(transport.args).toEqual(['@ferroxlabs/tvcontrol@2.3.1']);
   });
 
   it('pins a version whose published bin is the MCP server, not the CLI', () => {
@@ -80,7 +81,91 @@ describe('TVControl catalog connector', () => {
     // bin map move underneath this entry with every test still green.
     const pkg = entry.packages[0];
     expect(pkg.version, 'must be pinned; "latest" cannot be verified').toMatch(/^\d+\.\d+\.\d+$/);
-    expect(pkg.version).toBe('2.2.2');
+    expect(pkg.version).toBe('2.3.1');
+  });
+
+  /**
+   * THE PIN LIVES IN THREE PLACES AND ONLY ONE OF THEM IS THIS FILE.
+   *
+   * `tvcontrol-setup/SKILL.md` carries the version inside the proposal block
+   * the assistant emits - `args: @ferroxlabs/tvcontrol@<version>` - which is
+   * what actually gets installed when the user clicks Apply. The catalog entry
+   * carries it twice more. Nothing tied them together, so bumping the catalog
+   * and forgetting the skill would install one version through the library card
+   * and a different one through the assistant, with every test still green.
+   *
+   * The catalog entry is the source of truth here because it is what
+   * `entryToServerData` builds argv from; the skill has to agree with it.
+   */
+  it('the setup skill proposes the SAME version the catalog entry pins', () => {
+    const skill = readFileSync(
+      join(__dirname, '../../../../src/process/resources/skills/tvcontrol-setup/SKILL.md'),
+      'utf-8'
+    );
+    const proposed = skill.match(/^args:\s*@ferroxlabs\/tvcontrol@(\S+)$/m)?.[1];
+    expect(proposed, 'the skill must still emit an args: line for the connector').toBeTruthy();
+    expect(proposed).toBe(entry.packages[0].version);
+    // Both catalog fields, too: `version` is what the library card shows and
+    // `packages[0].version` is what is installed, and they are separate keys.
+    expect(entry.version).toBe(entry.packages[0].version);
+  });
+
+  /**
+   * The skill's own prose forbids proposing a floating tag. That instruction is
+   * the reason the pin holds at all, so it is asserted rather than trusted.
+   */
+  it('the setup skill still refuses to propose a floating tag', () => {
+    const skill = readFileSync(
+      join(__dirname, '../../../../src/process/resources/skills/tvcontrol-setup/SKILL.md'),
+      'utf-8'
+    );
+    expect(skill).toMatch(/Do not propose `@latest`/);
+    // Positive control for the scan above: the file really does contain the
+    // proposal block this pair of tests reads, so neither can pass vacuously.
+    expect(skill).toMatch(/\[CONCIERGE_PROPOSE\]/);
+  });
+
+  /**
+   * PIN COHERENCE, END TO END, AGAINST A CONSTANT.
+   *
+   * The three pin sites (catalog `version`, catalog `packages[0].version`, and the
+   * setup skill's [CONCIERGE_PROPOSE] `args:` line) are checked against each other
+   * above. That is necessary and not sufficient: all three can agree on a version
+   * whose published bin is not the MCP server, which is exactly what shipped in
+   * `008aa213f`.
+   *
+   * So this case runs the entry through the SAME two production transforms the
+   * live spawn uses - entryToServerData, then resolveMcpStdioSpawn's npx -> bundled
+   * Bun rewrite - and compares the resulting package spec to a constant written
+   * HERE. Reading the version out of the entry and comparing it to itself passes on
+   * any value; the constant is where the RED comes from.
+   */
+  it('the catalog, the skill and the bundled-Bun spawn all resolve one pinned version', () => {
+    // The version whose published `tvcontrol` bin is src/server.js WITH a shebang,
+    // so `bun x --bun <spec>` answers `initialize` instead of printing `Usage: tv`.
+    // 2.3.0's bin pointed at the human CLI. Bump this deliberately, never to match.
+    const EXPECTED_SPEC = '@ferroxlabs/tvcontrol@2.3.1';
+
+    const data = entryToServerData(entry, {});
+    const transport = data.transport as { command: string; args: string[] };
+
+    // Production transform #2: what Core/ACP actually spawn. `bun` is stubbed so
+    // the assertion holds on a machine with no bundled runtime on disk.
+    const resolved = resolveMcpStdioSpawn(transport.command, transport.args, () => '/stub/bun', 'darwin');
+    expect(resolved.args.slice(0, 2)).toEqual(['x', '--bun']);
+
+    const spec = resolved.args.find((a) => a.startsWith('@ferroxlabs/tvcontrol@'));
+    expect(spec, 'the bundled-Bun argv must still carry the pinned package spec').toBeTruthy();
+    expect(spec).toBe(EXPECTED_SPEC);
+
+    // And the assistant's proposal has to name the same one, or clicking Apply in a
+    // chat installs a different version from the one the library card installs.
+    const skill = readFileSync(
+      join(__dirname, '../../../../src/process/resources/skills/tvcontrol-setup/SKILL.md'),
+      'utf-8'
+    );
+    const proposed = skill.match(/^args:\s*(@ferroxlabs\/tvcontrol@\S+)$/m)?.[1];
+    expect(proposed).toBe(EXPECTED_SPEC);
   });
 
   it('declares no auth, so the install card does not demand a token', () => {

@@ -103,8 +103,9 @@
     "noPermissions": "No special permissions requested.",
     "connectionPanel": "Connection",
     "availableTo": "Available to",
-    "availableEmpty": "Not synced to any agent yet.",
-    "availableNote": "Connectors are available to all your agents while enabled.",
+    "availableChecking": "Checking which agent configs have it…",
+    "availableEmpty": "Not published to any agent config yet.",
+    "availableNote": "Publication does not prove an open chat has loaded the tools. Start a new chat to verify availability.",
     "links": "Links",
     "linkWebsite": "Website",
     "linkSource": "Source repository",
@@ -188,6 +189,8 @@
     "removeTitle": "Remove connector?",
     "removeBody": "This removes {{name}} and its config from your agents. You can re-add it any time.",
     "removeStaleTitle": "Clear leftover server?",
-    "removeStaleBody": "{{name}} is still installed in your agents but is no longer in your config. Clearing it stops its stale tools from being sent."
+    "removeStaleBody": "{{name}} is still installed in your agents but is no longer in your config. Clearing it stops its stale tools from being sent.",
+    "enable": "启用",
+    "probeFailed": "探测失败：{{error}}"
   }
 }

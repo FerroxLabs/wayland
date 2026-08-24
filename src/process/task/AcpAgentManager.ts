@@ -93,7 +93,12 @@ import { composePrompt } from '@process/services/constitution/composePrompt';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability.ts';
 import { extractTextFromMessage, processCronInMessage } from './MessageMiddleware';
 import { ConversationTurnCompletionService } from './ConversationTurnCompletionService';
-import { resolveFluxRouting, type FluxRoutingResult, type RoutingDecision } from '@process/task/fluxRouting';
+import {
+  needsRespawnForFluxTier,
+  resolveFluxRouting,
+  type FluxRoutingResult,
+  type RoutingDecision,
+} from '@process/task/fluxRouting';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 import {
   NANO_KNOWN_PROVIDER_IDS,
@@ -196,6 +201,20 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
   options: AcpAgentManagerData;
   private currentMode: string = 'default';
   private persistedModelId: string | null = null;
+  /**
+   * Set the moment a `persist: false` call mutates the live session, and never
+   * cleared for the life of this manager.
+   *
+   * The backend echoes an in-place `set_model` / `set_config_option` back as a
+   * `config_option_update` notification, which the ACP agent re-emits as an
+   * `acp_model_info` STREAM FRAME. That frame's handler persists
+   * `extra.cachedConfigOptions` on its own, so the echo walked straight past
+   * the `persist: false` gates and durably overwrote the config options of the
+   * chat a scheduled run had only borrowed. The echo is asynchronous and can
+   * land long after the gated call resolved, so the suppression has to live on
+   * the instance rather than around the call.
+   */
+  private suppressConfigOptionPersist: boolean = false;
   /**
    * Latest cumulative USD cost gauge from acp_context_usage this turn.
    * ACP's used field is current context occupancy, not cumulative processed or
@@ -793,6 +812,11 @@ ${collectedResponses.join('\n')}`;
     // surface; codex/codebuddy route separately).
     const decision = await this.computeFluxRouting(data.backend, data.currentModelId ?? undefined);
     this.lastRouting = decision.routing;
+    // The Flux tier the RUNNING agent was spawned with. Every Flux surface picks
+    // its model at spawn time (env for claude/qwen/goose, a config file for
+    // codex/hermes), so a later tier switch is only real if it re-spawns -
+    // `setModel` compares against this to decide.
+    this.lastFluxModelId = decision.fluxModelId;
     if (decision.routing === 'flux') {
       for (const k of decision.stripKeys) delete mergedEnv[k];
       Object.assign(mergedEnv, decision.env);
@@ -815,7 +839,8 @@ ${collectedResponses.join('\n')}`;
               selectedServers: codexMcp?.selectedServers,
               managedServerNames: codexMcp?.managedServerNames,
               preserveUnmanagedUserServers: data.activeMcpServers === undefined,
-            }
+            },
+            decision.fluxModelId
           );
           mergedEnv.CODEX_HOME = codexHome;
         } catch (err) {
@@ -860,7 +885,9 @@ ${collectedResponses.join('\n')}`;
           // writes the connected flux key inline into the scoped config.
           mergedEnv.HERMES_HOME = await materializeFluxHermesHome(
             app.getPath('userData'),
-            decision.env.FLUX_API_KEY ?? ''
+            decision.env.FLUX_API_KEY ?? '',
+            undefined,
+            decision.fluxModelId
           );
         } catch (err) {
           mainWarn('[AcpAgentManager]', 'materializeFluxHermesHome failed', err);
@@ -1012,6 +1039,14 @@ ${collectedResponses.join('\n')}`;
 
   /** Routing decision for the most recent spawn - surfaced on request_trace (badge). */
   private lastRouting: RoutingDecision = 'unknown';
+
+  /**
+   * The Flux tier (`flux-auto` | `flux-reasoning` | ...) the currently-running
+   * agent was SPAWNED with, or undefined when this agent is not flux-routed.
+   * Read only by `setModel` to detect a same-routing tier switch, which needs a
+   * re-spawn because no Flux surface can change its model in place.
+   */
+  private lastFluxModelId: string | undefined;
 
   /**
    * Compute the Flux routing decision for a given backend + selected model using
@@ -1466,8 +1501,10 @@ ${collectedResponses.join('\n')}`;
       });
     }
 
-    // Persist config options to DB so AcpConfigSelector can render from cache
-    if (message.type === 'acp_model_info') {
+    // Persist config options to DB so AcpConfigSelector can render from cache.
+    // Skipped once the live session has been mutated for a borrowed run - this
+    // frame is the echo of that mutation and must not land on the user's row.
+    if (message.type === 'acp_model_info' && !this.suppressConfigOptionPersist) {
       const configOptions = this.getConfigOptions();
       if (configOptions.length > 0) {
         void this.saveConfigOptions(configOptions);
@@ -2458,8 +2495,23 @@ ${collectedResponses.join('\n')}`;
    * case we re-spawn the agent so `resolveAgentCliConfig` re-injects the correct
    * env. Same-routing switches (flux-auto->flux-reasoning, sonnet->opus) keep the
    * cheap in-place path.
+   *
+   * @param options.persist - false switches the LIVE session only and leaves the
+   *   conversation's stored `currentModelId` alone. Used by the cron executor
+   *   when a scheduled run borrows a chat the user owns: the run needs its own
+   *   model, but the user's chat must keep theirs. `resolveConversationForJob`
+   *   gates that exact field, so without this the job wrote it back through here.
+   *   Skipping the write also skips `saveModelId`'s `emitModelInfoUpdate`, which
+   *   is correct: that emit exists to keep the context meter in step with the
+   *   AUTHORITATIVE row (#801), and the row deliberately is not moving.
    */
-  async setModel(modelId: string): Promise<AcpModelInfo | null> {
+  async setModel(modelId: string, options?: { persist?: boolean }): Promise<AcpModelInfo | null> {
+    const persist = options?.persist !== false;
+    // An in-place set_model also makes the backend send config_option_update,
+    // which comes back as an acp_model_info frame; that frame's handler writes
+    // cachedConfigOptions. Latch the suppression so the echo cannot land the
+    // borrowed run's options on the user's row.
+    if (!persist) this.suppressConfigOptionPersist = true;
     // Durable-first for codex and the generic ACP CLIs: persist the user's
     // REQUESTED model id to the conversation record BEFORE the live init /
     // set_model round-trip, so the pick survives a disconnected or unspawnable
@@ -2472,7 +2524,7 @@ ${collectedResponses.join('\n')}`;
     if (earlyPersistEligible) {
       this.persistedModelId = modelId;
       this.options.currentModelId = modelId;
-      await this.saveModelId(modelId);
+      if (persist) await this.saveModelId(modelId);
     }
 
     if (!this.agent) {
@@ -2506,7 +2558,10 @@ ${collectedResponses.join('\n')}`;
     const nativeClaudeSlotChange = claudeSlot !== undefined;
 
     if (crossesRoutingBoundary || nativeClaudeSlotChange) {
-      return this.respawnForRoutingChange(claudeSlot ?? modelId);
+      const target = claudeSlot ?? modelId;
+      // Called with one argument on the persisting path so the user-driven
+      // signature stays exactly as it was.
+      return persist ? this.respawnForRoutingChange(target) : this.respawnForRoutingChange(target, false);
     }
 
     // Same-routing switch TO a Flux id (e.g. the chat is already flux-routed and
@@ -2514,8 +2569,20 @@ ${collectedResponses.join('\n')}`;
     // (ANTHROPIC_MODEL/OPENAI_MODEL=flux-auto). The claude bridge rejects an
     // unlisted id via set_model, so persist + skip the in-place call.
     if (isFluxModelId(modelId)) {
+      // Switching BETWEEN Flux tiers does not cross the native<->flux boundary, so
+      // the check above lets it through - but every Flux surface selects its model
+      // at SPAWN time (ANTHROPIC_MODEL/OPENAI_MODEL in env; `model =` in the scoped
+      // CODEX_HOME / HERMES_HOME), and the in-place set_model below is deliberately
+      // skipped for Flux ids because the backend's native catalog never lists them.
+      // Without a re-spawn the pick was therefore persisted and shown in the picker
+      // while the live agent kept running the tier it was spawned with - and Flux
+      // bills on the tier that actually arrives, so a customer who moved to Flux
+      // Fast ($1/$4) went on paying the old tier's rate.
+      if (needsRespawnForFluxTier(this.lastRouting, this.lastFluxModelId, modelId)) {
+        return persist ? this.respawnForRoutingChange(modelId) : this.respawnForRoutingChange(modelId, false);
+      }
       this.persistedModelId = modelId;
-      await this.saveModelId(modelId);
+      if (persist) await this.saveModelId(modelId);
       return this.getModelInfo();
     }
 
@@ -2531,7 +2598,7 @@ ${collectedResponses.join('\n')}`;
       // S6: await (was fire-and-forget) so a persist failure can't surface as an
       // unhandled rejection and the selected model is actually persisted before
       // returning (matters for resume).
-      await this.saveModelId(confirmedId);
+      if (persist) await this.saveModelId(confirmedId);
       // Update cached models so Guid page defaults to the newly selected model
       if (result.availableModels?.length > 0) {
         void this.cacheModelList(result);
@@ -2550,11 +2617,13 @@ ${collectedResponses.join('\n')}`;
    * path). The new model is persisted BEFORE re-spawn so initAgent's
    * `this.persistedModelId` carries it into `agentConfig.extra.currentModelId`.
    */
-  private async respawnForRoutingChange(modelId: string): Promise<AcpModelInfo | null> {
-    // Persist the new model first so the re-spawn picks it up.
+  private async respawnForRoutingChange(modelId: string, persist = true): Promise<AcpModelInfo | null> {
+    // Carry the new model into the re-spawn. `this.options.currentModelId` is what
+    // initAgent reads, so a non-persisting caller still gets the correct spawn env -
+    // only the conversation row is left alone.
     this.persistedModelId = modelId;
     this.options.currentModelId = modelId;
-    await this.saveModelId(modelId);
+    if (persist) await this.saveModelId(modelId);
 
     // Reload the latest resume markers so the fresh spawn resumes this session
     // (these are written async by saveAcpSessionId during the prior session).
@@ -2602,7 +2671,17 @@ ${collectedResponses.join('\n')}`;
    * Set a config option value on the underlying ACP agent.
    * Used for reasoning effort and other non-model config options.
    */
-  async setConfigOption(configId: string, value: string): Promise<AcpSessionConfigOption[]> {
+  async setConfigOption(
+    configId: string,
+    value: string,
+    options?: { persist?: boolean }
+  ): Promise<AcpSessionConfigOption[]> {
+    // persist: false applies to the LIVE session only - a scheduled run borrowing
+    // a chat the user owns must not leave its reasoning effort (or any other
+    // option) cached on that chat's row. Latch first: the spawn below and the
+    // backend's config_option_update echo both emit acp_model_info frames, and
+    // those can land while this call is still in flight.
+    if (options?.persist === false) this.suppressConfigOptionPersist = true;
     if (!this.agent) {
       try {
         await this.initAgent(this.options);
@@ -2612,7 +2691,7 @@ ${collectedResponses.join('\n')}`;
     }
     if (!this.agent) return [];
     const updated = await this.agent.setConfigOption(configId, value);
-    if (updated.length > 0) {
+    if (updated.length > 0 && options?.persist !== false) {
       void this.saveConfigOptions(updated);
     }
     return updated;
@@ -2625,9 +2704,15 @@ ${collectedResponses.join('\n')}`;
    * before mode switching is possible, as we need an active ACP session.
    *
    * @param mode - The mode ID to set
+   * @param options.persist - false applies the mode to the LIVE session only and
+   *   leaves the conversation's stored `sessionMode` alone (cron runs borrowing
+   *   a chat the user owns).
    * @returns Promise that resolves with success status and current mode
    */
-  async setMode(mode: string): Promise<{ success: boolean; msg?: string; data?: { mode: string } }> {
+  async setMode(
+    mode: string,
+    options?: { persist?: boolean }
+  ): Promise<{ success: boolean; msg?: string; data?: { mode: string } }> {
     // Codex (via codex-acp bridge) does not support ACP session/set_mode - it uses MCP
     // and manages approval at the Manager layer. Update local state only to avoid
     // "Invalid params" JSON-RPC error from the bridge.
@@ -2640,7 +2725,7 @@ ${collectedResponses.join('\n')}`;
       // longer write the user's ~/.codex/config.toml. codex-acp has no live
       // set_mode, so the change applies on the next spawn regardless.
       this.options.sandboxMode = getCodexSandboxModeForSessionMode(mode, this.options.sandboxMode);
-      this.saveSessionMode(mode);
+      if (options?.persist !== false) this.saveSessionMode(mode);
 
       if (this.isYoloMode(prev) && !this.isYoloMode(mode)) {
         void this.clearLegacyYoloConfig();
@@ -2654,7 +2739,7 @@ ${collectedResponses.join('\n')}`;
       const prev = this.currentMode;
       this.currentMode = mode;
       this.yoloMode = this.isYoloMode(mode);
-      this.saveSessionMode(mode);
+      if (options?.persist !== false) this.saveSessionMode(mode);
 
       if (this.isYoloMode(prev) && !this.isYoloMode(mode)) {
         void this.clearLegacyYoloConfig();
@@ -2685,7 +2770,7 @@ ${collectedResponses.join('\n')}`;
       const prev = this.currentMode;
       this.currentMode = mode;
       this.yoloMode = this.isYoloMode(mode);
-      this.saveSessionMode(mode);
+      if (options?.persist !== false) this.saveSessionMode(mode);
 
       // Sync legacy yoloMode config: when leaving yolo mode, clear the old
       // SecurityModalContent setting to prevent it from re-activating on next session.

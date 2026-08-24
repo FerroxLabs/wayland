@@ -8,6 +8,7 @@
 
 import { ForkTask } from '@process/worker/fork/ForkTask';
 import type { IConfirmation } from '@/common/chat/chatLib';
+import { isPathBoundaryConfirmation } from '@/common/chat/pathBoundaryConsent';
 import type { AgentType, AgentStatus } from './agentTypes';
 import type { IAgentEventEmitter } from './IAgentEventEmitter';
 import type { IAgentManager } from './IAgentManager';
@@ -80,8 +81,15 @@ class BaseAgentManager<Data, ConfirmationOption extends any = any>
     super.init();
   }
   protected addConfirmation(data: IConfirmation<ConfirmationOption>) {
+    // #1099: a filesystem-boundary card is NEVER auto-confirmed, in any mode.
+    // This gate picks `options[0]` by INDEX, so giving the boundary card its own
+    // option values does not protect it here — under Autopilot it would silently
+    // grant the session standing read access to a folder OUTSIDE the workspace,
+    // with no human in the loop. It is also pointless: the grant is a decision
+    // only a person can make, and Core cannot resolve a boundary any other way.
+    const isPathBoundary = isPathBoundaryConfirmation(data);
     // If yoloMode is active, attempt to auto-confirm instead of adding
-    if (this.yoloMode && data.options && data.options.length > 0) {
+    if (this.yoloMode && !isPathBoundary && data.options && data.options.length > 0) {
       // Select the first "allow" option (usually proceed_once or similar)
       // Most agents put the positive confirmation as the first option
       const autoOption = data.options[0];

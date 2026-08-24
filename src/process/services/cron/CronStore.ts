@@ -20,6 +20,13 @@ export type CronSchedule =
 /**
  * Cron job definition
  */
+/**
+ * `agentConfig.configOptions.kind` tag written by {@link seedBuiltinRoutines}.
+ * Lives here rather than in the seeder so consumers can identify a bundled
+ * routine without importing the seeder (and its CronService dependency).
+ */
+export const CRON_ROUTINE_KIND = 'routine';
+
 export type CronJob = {
   id: string;
   name: string;
@@ -48,6 +55,12 @@ export type CronJob = {
       modelId?: string;
       configOptions?: Record<string, string>;
       workspace?: string;
+      /**
+       * P2-0 identity of `workspace`: the id in that folder's
+       * `.wayland-workspace.json`. A pathname is not identity - the user can
+       * replace the folder - so the preflight compares this, not the path.
+       */
+      workspaceId?: string;
     };
   };
   state: {

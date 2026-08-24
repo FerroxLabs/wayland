@@ -12,6 +12,15 @@ import { iconColors } from '@/renderer/styles/colors';
 import { Dropdown } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useContainerWidth } from '@/renderer/pages/conversation/hooks/useContainerWidth';
+
+/**
+ * Narrowest pane that can carry a side-by-side view. Below it each half is
+ * under 320px, which is narrower than the compact breakpoint of the documents
+ * this panel renders - there is nothing left to split, so the option is not
+ * offered rather than offered and useless.
+ */
+export const PREVIEW_SPLIT_MIN_WIDTH = 640;
 
 /**
  * PreviewToolbar component props
@@ -66,6 +75,21 @@ interface PreviewToolbarProps {
    * Whether to show "Open in System" button
    */
   showOpenInSystemButton: boolean;
+  /**
+   * Whether the host has an ARTIFACT behind this preview - the only case with a
+   * canonical file to reveal, and the case where Open and Download route through
+   * `artifacts.*` by id instead of handing a raw path to the shell.
+   */
+  /**
+   * The app the OS would open this artifact with, once the host has named it.
+   * The label upgrades from "Open in system app" to "Open in <app>" - it came
+   * with the actions from the deliverable bar and is not worth losing: naming
+   * the app is the difference between a promise and a guess.
+   */
+  openWithAppName?: string | null;
+  showRevealButton?: boolean;
+  /** Reveal the deliverable in the OS file manager. Id-based, like its siblings. */
+  onRevealInFolder?: () => void;
 
   /**
    * History target
@@ -165,6 +189,9 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
   isSplitScreenEnabled,
   fileName,
   showOpenInSystemButton,
+  openWithAppName = null,
+  showRevealButton = false,
+  onRevealInFolder,
   historyTarget,
   snapshotSaving,
   onViewModeChange,
@@ -184,6 +211,18 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
 }) => {
   const { t } = useTranslation();
   const isDiff = contentType === 'diff';
+  // The toolbar spans the pane, so its own width IS the pane width. Measuring
+  // here keeps the rule with the control it gates instead of threading a width
+  // down from the panel.
+  const { containerRef, containerWidth } = useContainerWidth();
+  const canSplit = containerWidth >= PREVIEW_SPLIT_MIN_WIDTH;
+
+  // Losing the control while it is ON would strand the pane in a split it has
+  // no room for and no way out of, so a pane that narrows past the threshold
+  // leaves split too.
+  React.useEffect(() => {
+    if (!canSplit && isSplitScreenEnabled) onSplitScreenToggle();
+  }, [canSplit, isSplitScreenEnabled, onSplitScreenToggle]);
   const preferActionButtonsInFront = Boolean(leftExtra);
 
   const toolbarBtn =
@@ -192,7 +231,10 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
   const toolbarIconSize = 12;
 
   return (
-    <div className='flex items-center justify-between h-32px px-10px bg-2 flex-shrink-0 border-b border-1 overflow-x-auto'>
+    <div
+      ref={containerRef}
+      className='flex items-center justify-between h-32px px-10px bg-2 flex-shrink-0 border-b border-1 overflow-x-auto'
+    >
       <div className='flex items-center justify-between gap-8px w-full' style={{ minWidth: 'max-content' }}>
         {/* Left: Tabs (Markdown/HTML) + Filename */}
         <div className='flex items-center h-full gap-8px'>
@@ -238,9 +280,10 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                   {t('preview.preview')}
                 </div>
               </div>
-              {!isDiff && (
+              {!isDiff && canSplit && (
                 <div
-                  className={`flex items-center px-8px py-3px rd-4px cursor-pointer transition-colors duration-150 ${isSplitScreenEnabled ? toolbarBtnActive : 'text-t-secondary hover:bg-3'}`}
+                  className={`${toolbarBtn} ${isSplitScreenEnabled ? toolbarBtnActive : ''}`}
+                  data-testid='preview-split-toggle'
                   onClick={() => {
                     try {
                       onSplitScreenToggle();
@@ -261,6 +304,7 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                     <rect x='3' y='3' width='18' height='18' rx='2' />
                     <line x1='12' y1='3' x2='12' y2='21' />
                   </svg>
+                  <span>{t('preview.split', { defaultValue: 'Split' })}</span>
                 </div>
               )}
             </>
@@ -329,7 +373,37 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                 <polyline points='15 3 21 3 21 9' />
                 <line x1='10' y1='14' x2='21' y2='3' />
               </svg>
-              <span>{t('preview.openInSystemApp')}</span>
+              <span>
+                {openWithAppName ? t('preview.openWithApp', { app: openWithAppName }) : t('preview.openInSystemApp')}
+              </span>
+            </div>
+          )}
+
+          {/*
+            SHOW IN FOLDER, moved up from the deliverable bar - the ONE action
+            down there this row did not already offer. Icon-only: the label is
+            the tooltip, and this row shrinks rather than wraps.
+          */}
+          {preferActionButtonsInFront && showRevealButton && onRevealInFolder && (
+            <div
+              className={toolbarBtn}
+              onClick={onRevealInFolder}
+              title={t('preview.artifactReveal')}
+              aria-label={t('preview.artifactReveal')}
+              role='button'
+              data-testid='preview-reveal-in-folder'
+            >
+              <svg
+                width={toolbarIconSize}
+                height={toolbarIconSize}
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                className='text-t-secondary'
+              >
+                <path d='M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.5l-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z' />
+              </svg>
             </div>
           )}
           {preferActionButtonsInFront && (

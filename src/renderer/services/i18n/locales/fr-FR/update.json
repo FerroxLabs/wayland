@@ -29,6 +29,8 @@
   },
   "showInFolder": "Afficher dans le dossier",
   "openFile": "Ouvrir le fichier",
+  "openFileFailed": "Impossible d'ouvrir le fichier téléchargé",
+  "showInFolderFailed": "Impossible d'afficher le téléchargement dans le gestionnaire de fichiers",
   "errorTitle": "Échec de la mise à jour",
   "errors": {
     "missingTag": "Impossible de vérifier cette mise à jour : le tag de version est manquant. Veuillez effectuer la mise à jour depuis la page Releases.",

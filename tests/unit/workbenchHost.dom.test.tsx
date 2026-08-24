@@ -10,9 +10,22 @@ import React, { useEffect, useMemo } from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import WorkbenchHost, {
+  CHAT_MIN_WIDTH,
+  documentPaneDefaultWidth,
+  PREVIEW_PANE_MAX,
   type WorkbenchSectionRegistration,
   useWorkbenchSection,
 } from '@/renderer/pages/conversation/components/WorkbenchHost';
+
+/**
+ * jsdom performs NO layout - every box measures 0x0 - so none of these tests
+ * can observe a resolved column width. They assert the concrete contract that
+ * produces it instead: the width the panel is given, and the `min-width` the
+ * conversation column carries.
+ */
+const withWindowWidth = (width: number) => {
+  Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: width });
+};
 
 const section = (
   id: string,
@@ -30,6 +43,71 @@ const section = (
 });
 
 describe('WorkbenchHost hostile presentation boundaries', () => {
+  /**
+   * The preview is `available: isPreviewOpen`, so dismissing it drops it out of
+   * the section list the reveal effect walks. Its `priorRequests` entry then
+   * never advances past the 'open' it held when the section was last seen, so
+   * the next deliverable's request equals the stale prior and no reveal fires -
+   * while `collapsedIds` still holds it from the manual collapse.
+   *
+   * Live consequence: collapsing the Preview card ONCE made every deliverable
+   * after it open invisibly.
+   */
+  it('reopens a dismissible section that comes back, instead of stranding it collapsed', async () => {
+    const Harness = () => {
+      const [open, setOpen] = React.useState(true);
+      const sections = useMemo(
+        () => [
+          section('preview', open, <div data-testid='preview-content'>preview</div>, {
+            available: open,
+            activationKey: 'open',
+            onDismiss: () => setOpen(false),
+          }),
+        ],
+        [open]
+      );
+      return (
+        <WorkbenchHost conversationId='dismiss-return' sections={sections}>
+          <div>chat</div>
+          <button type='button' data-testid='new-deliverable' onClick={() => setOpen(true)}>
+            deliver
+          </button>
+        </WorkbenchHost>
+      );
+    };
+
+    render(<Harness />);
+    expect(await screen.findByTestId('preview-content')).toBeInTheDocument();
+
+    // The user collapses the card. onDismiss closes the preview, so the section
+    // leaves the list entirely.
+    fireEvent.click(screen.getByRole('button', { name: /preview/i }));
+    await waitFor(() => expect(screen.queryByTestId('preview-content')).not.toBeInTheDocument());
+
+    // A new deliverable asks for it again, with the SAME activation key - the
+    // shape the live preview actually has.
+    fireEvent.click(screen.getByTestId('new-deliverable'));
+
+    expect(await screen.findByTestId('preview-content')).toBeInTheDocument();
+  });
+
+  /**
+   * The other half: a section with no `onDismiss` has nowhere else to record a
+   * collapse, so `collapsedIds` must still hold it. Without this, the fix above
+   * would silently make every ordinary section un-collapsible.
+   */
+  it('still remembers a collapse on a section that has no dismissal of its own', async () => {
+    render(
+      <WorkbenchHost conversationId='plain-collapse' sections={[section('workspace', true)]}>
+        <div>chat</div>
+      </WorkbenchHost>
+    );
+    expect(await screen.findByTestId('workspace-content')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /workspace/i }));
+    await waitFor(() => expect(screen.queryByTestId('workspace-content')).not.toBeInTheDocument());
+  });
+
   beforeEach(() => localStorage.clear());
   afterEach(() => cleanup());
 
@@ -73,6 +151,64 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
       // expanded sets when the panel stopped having one active section.
       expect(JSON.parse(localStorage.getItem('wayland.workbench.resize.v2') || '{}').width).toBe(460);
     });
+  });
+
+  /**
+   * The documented drag range is the ONLY thing that bounds the panel. The
+   * clamp in `beginResize` is pure arithmetic over the pointer delta - no
+   * container width, no flex basis, no re-applied persisted width sits in that
+   * path - so both ends are genuinely reachable by a drag. Pinned at the
+   * boundary because the ceiling exists for one reason: 620px was a rail width,
+   * and a rendered HTML deliverable is unreadable in it. A later "just cap it
+   * to the container" change would put that back without failing anything else.
+   */
+  it('clamps a drag past either end to exactly the documented bound', async () => {
+    render(
+      <WorkbenchHost conversationId='bounds' sections={[section('workspace', true)]}>
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    const panel = await screen.findByTestId('workbench-panel');
+    const separator = screen.getByRole('separator', { name: 'Resize workbench' });
+
+    // Drag far LEFT (widening) well past the maximum: lands exactly on it.
+    fireEvent.pointerDown(separator, { button: 0, pointerType: 'mouse', clientX: 900 });
+    fireEvent.pointerMove(window, { clientX: -5000 });
+    fireEvent.pointerUp(window);
+    expect(panel).toHaveStyle({ width: '1200px' });
+
+    // Drag far RIGHT (narrowing) well past the minimum: lands exactly on it.
+    fireEvent.pointerDown(separator, { button: 0, pointerType: 'mouse', clientX: 100 });
+    fireEvent.pointerMove(window, { clientX: 5000 });
+    fireEvent.pointerUp(window);
+    expect(panel).toHaveStyle({ width: '260px' });
+
+    await waitFor(() => {
+      expect(JSON.parse(localStorage.getItem('wayland.workbench.bounds.v2') || '{}').width).toBe(260);
+    });
+  });
+
+  /**
+   * The loader re-validates a persisted width against the SAME bounds it writes
+   * them under, so a width the drag can reach has to survive a reload. This is
+   * the half of the ceiling change that is easy to miss: raising MAX_WIDTH
+   * without the loader agreeing would let a user drag to 1200 and then find the
+   * panel silently back at the 340px default on the next mount.
+   */
+  it('restores a persisted width sitting exactly on the maximum', async () => {
+    localStorage.setItem(
+      'wayland.workbench.reload.v2',
+      JSON.stringify({ collapsedIds: [], expandedIds: [], width: 1200 })
+    );
+
+    render(
+      <WorkbenchHost conversationId='reload' sections={[section('workspace', true)]}>
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    expect(await screen.findByTestId('workbench-panel')).toHaveStyle({ width: '1200px' });
   });
 
   it('persists close and supports an explicit reopen without destroying content', async () => {
@@ -317,5 +453,246 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     // Closing must retract the open intent - otherwise a dormant section would
     // spring back open on the next render.
     await waitFor(() => expect(screen.queryByTestId('workbench-panel')).not.toBeInTheDocument());
+  });
+});
+
+describe('preview pane default width and the conversation floor', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => {
+    cleanup();
+    withWindowWidth(1024);
+  });
+
+  /**
+   * The numbers are read from the flagship deliverable's own media queries: it
+   * reaches its full layout (4-up market grid AND a two-column trade panel) at
+   * 900, and above 1180 its container caps so extra width is only margin. The
+   * formula spends whatever the window has left after the nav rail and the
+   * chat floor, up to that 900.
+   */
+  it('resolves the documented default width for the windows that matter', () => {
+    expect(documentPaneDefaultWidth(1440)).toBe(712);
+    expect(documentPaneDefaultWidth(1920)).toBe(PREVIEW_PANE_MAX);
+    // A window too small to give the pane anything still cannot produce a
+    // sub-minimum pane; it takes the floor and the chat overflows instead.
+    expect(documentPaneDefaultWidth(900)).toBe(260);
+  });
+
+  /**
+   * MEASURED WIDTH BEATS THE GUESSED RAIL.
+   *
+   * `NAV_RAIL_WIDTH` describes furniture outside this component, and live it
+   * was wrong: the rail resolved to 281px, not 168. Asking for more room than
+   * exists does not fail loudly - the layout pins the chat to its `min-width`
+   * floor and the pane silently opens narrower than the number this function
+   * returned. Measured in the running app on a 1209px window: host 928, pane
+   * 344, chat exactly 560, while the window-only formula claimed 481.
+   *
+   * Given the host's real width there is nothing left to guess.
+   */
+  it('spends the host width it was given rather than guessing past the nav rail', () => {
+    // The live case: a 1209px window whose host really has 928.
+    expect(documentPaneDefaultWidth(1209, 928)).toBe(368);
+    // The guess would have over-asked by the width of the rail it got wrong.
+    expect(documentPaneDefaultWidth(1209)).toBe(481);
+    // A host wide enough still stops at the documented cap.
+    expect(documentPaneDefaultWidth(1920, 1639)).toBe(PREVIEW_PANE_MAX);
+    // Unmeasured (first paint, and jsdom always) falls back to the window path.
+    expect(documentPaneDefaultWidth(1440, 0)).toBe(712);
+  });
+
+  it('opens a document section at 712 on a 1440 laptop, not at the 340px rail default', async () => {
+    withWindowWidth(1440);
+    render(
+      <WorkbenchHost
+        conversationId='doc-1440'
+        sections={[section('preview', true, undefined, { prefersDocumentWidth: true })]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    await waitFor(() => expect(screen.getByTestId('workbench-panel')).toHaveStyle({ width: '712px' }));
+  });
+
+  it('caps the default at 900 on a 1920 display, where the document stops growing', async () => {
+    withWindowWidth(1920);
+    render(
+      <WorkbenchHost
+        conversationId='doc-1920'
+        sections={[section('preview', true, undefined, { prefersDocumentWidth: true })]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    await waitFor(() => expect(screen.getByTestId('workbench-panel')).toHaveStyle({ width: '900px' }));
+  });
+
+  /** A rail of controls is not a document and must keep the rail default. */
+  it('leaves a section that is not a document at the rail default', async () => {
+    withWindowWidth(1920);
+    render(
+      <WorkbenchHost conversationId='doc-none' sections={[section('workspace', true)]}>
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    expect(await screen.findByTestId('workbench-panel')).toHaveStyle({ width: '340px' });
+  });
+
+  /**
+   * The floor is the prerequisite for raising the pane at all. The primary
+   * column is `flex-1`, i.e. `flex-basis: 0` with `min-width: 0`, so every
+   * pixel of shrink came out of the conversation and it could resolve to zero
+   * beside a wide pane.
+   */
+  it('gives the conversation column a real 560px floor while a pane is docked', async () => {
+    withWindowWidth(1440);
+    render(
+      <WorkbenchHost
+        conversationId='floor'
+        sections={[section('preview', true, undefined, { prefersDocumentWidth: true })]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    await screen.findByTestId('workbench-panel');
+    expect(CHAT_MIN_WIDTH).toBe(560);
+    expect(document.querySelector('.workbench-host__primary')).toHaveStyle({ minWidth: '560px' });
+    // The other half: the pane has to be ABLE to give the width back. A flex
+    // item's automatic minimum is its content, so without an explicit 0 the
+    // floor would only overflow the container.
+    expect(screen.getByTestId('workbench-panel')).toHaveStyle({ minWidth: '0px' });
+  });
+
+  it('does not floor the conversation when the panel overlays it or is closed', async () => {
+    withWindowWidth(1440);
+    const overlayed = render(
+      <WorkbenchHost
+        conversationId='floor-overlay'
+        overlay
+        sections={[section('preview', true, undefined, { prefersDocumentWidth: true })]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+    await screen.findByTestId('workbench-panel');
+    expect(document.querySelector('.workbench-host__primary')).not.toHaveStyle({ minWidth: '560px' });
+    overlayed.unmount();
+
+    render(
+      <WorkbenchHost conversationId='floor-closed' sections={[section('preview', false)]}>
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+    expect(screen.queryByTestId('workbench-panel')).not.toBeInTheDocument();
+    expect(document.querySelector('.workbench-host__primary')).not.toHaveStyle({ minWidth: '560px' });
+  });
+
+  /**
+   * The default is a DEFAULT. A width the user dragged outranks it, persists
+   * per conversation, and survives a remount into a window whose default would
+   * be something else entirely.
+   */
+  it('lets a dragged width beat the document default and round-trip at the 900 bound', async () => {
+    withWindowWidth(1440);
+    const registration = section('preview', true, undefined, { prefersDocumentWidth: true });
+    const first = render(
+      <WorkbenchHost conversationId='dragged' sections={[registration]}>
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    const panel = await screen.findByTestId('workbench-panel');
+    await waitFor(() => expect(panel).toHaveStyle({ width: '712px' }));
+
+    const separator = screen.getByRole('separator', { name: 'Resize workbench' });
+    fireEvent.pointerDown(separator, { button: 0, pointerType: 'mouse', clientX: 500 });
+    fireEvent.pointerMove(window, { clientX: 312 });
+    fireEvent.pointerUp(window);
+    expect(panel).toHaveStyle({ width: '900px' });
+
+    await waitFor(() => {
+      const stored = JSON.parse(localStorage.getItem('wayland.workbench.dragged.v2') || '{}');
+      expect(stored.width).toBe(900);
+      expect(stored.widthSetByUser).toBe(true);
+    });
+
+    first.unmount();
+    // A DIFFERENT window, whose own default would be 472. The user's choice
+    // still wins - this is the half that a naive "always apply the formula"
+    // implementation silently loses.
+    withWindowWidth(1200);
+    render(
+      <WorkbenchHost conversationId='dragged' sections={[registration]}>
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+    await waitFor(() => expect(screen.getByTestId('workbench-panel')).toHaveStyle({ width: '900px' }));
+  });
+
+  /**
+   * Every mount used to write the width back, so a stored 340 says nothing
+   * about intent and must not be mistaken for a choice - otherwise no document
+   * section could ever apply a default to an existing conversation.
+   */
+  it('does not mistake the rail default written by a previous mount for a user choice', async () => {
+    localStorage.setItem(
+      'wayland.workbench.legacy.v2',
+      JSON.stringify({ collapsedIds: [], expandedIds: [], width: 340 })
+    );
+    withWindowWidth(1440);
+    render(
+      <WorkbenchHost
+        conversationId='legacy'
+        sections={[section('preview', true, undefined, { prefersDocumentWidth: true })]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+    await waitFor(() => expect(screen.getByTestId('workbench-panel')).toHaveStyle({ width: '712px' }));
+  });
+
+  /**
+   * The pop-out control lives in the section header, beside the file name, so a
+   * collapsed card still offers it. It must sit OUTSIDE the disclosure button:
+   * nested buttons are invalid, and a click would otherwise toggle the section
+   * underneath the control.
+   */
+  it('renders header actions beside the disclosure row without nesting them inside it', async () => {
+    const onPopOut = vi.fn();
+    render(
+      <WorkbenchHost
+        conversationId='header-actions'
+        sections={[
+          section('preview', true, undefined, {
+            label: 'Preview · morning-brief.html',
+            headerActions: (
+              <button type='button' aria-label='Open in a new window' onClick={onPopOut}>
+                pop
+              </button>
+            ),
+          }),
+        ]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    await screen.findByTestId('workbench-panel');
+    expect(screen.getByRole('button', { name: 'Preview · morning-brief.html' })).toBeInTheDocument();
+
+    const popOut = screen.getByRole('button', { name: 'Open in a new window' });
+    expect(popOut.closest('button[aria-expanded]')).toBeNull();
+
+    fireEvent.click(popOut);
+    expect(onPopOut).toHaveBeenCalledOnce();
+    // The click did not also collapse the section it sits on.
+    expect(screen.getByTestId('workbench-panel').querySelector('[data-section-id="preview"]')).toHaveAttribute(
+      'data-expanded',
+      'true'
+    );
   });
 });

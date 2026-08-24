@@ -58,7 +58,12 @@ describe('ProjectServiceImpl.createProject persistent workspace (#455)', () => {
 
     const project = await svc.createProject({ name: 'My Notes' });
 
-    expect(mockAllocate).toHaveBeenCalledWith('My Notes');
+    // P2-0: the allocation names the project that owns the workspace, so the
+    // identity marker written into the folder can carry it.
+    expect(mockAllocate).toHaveBeenCalledWith('My Notes', {
+      ownerKind: 'project',
+      ownerId: expect.any(String),
+    });
     expect(project.workspace).toBe('/Docs/Wayland/My Notes');
     expect(repo.createProject).toHaveBeenCalledWith(expect.objectContaining({ workspace: '/Docs/Wayland/My Notes' }));
     // Knowledge folder bootstrapped at the new workspace.

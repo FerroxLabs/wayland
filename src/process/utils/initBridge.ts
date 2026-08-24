@@ -45,6 +45,15 @@ import { sendWorkflowAdvanceDirective } from '@process/services/workflow/workflo
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { agentRegistry } from '@process/agent/AgentRegistry';
+import { artifactLedgerPath } from '@process/services/artifacts/artifactLedger';
+import {
+  buildChatArtifactCardContent,
+  buildChatArtifactCardMessage,
+  persistChatArtifactCard,
+} from '@process/services/artifacts/chatArtifactCard';
+import { onChatTurnCompleted } from '@process/services/artifacts/chatRun';
+import { addMessage, flushConversationMessages } from '@process/utils/message';
+import { getDataPath } from '@process/utils';
 import { resolveDefaultLaunchTarget } from '@process/utils/workflowLaunchTargetResolver';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { app } from 'electron';
@@ -144,6 +153,19 @@ const cronReadyPromise = cronService
       await seedBuiltinRoutines(cronService);
     } catch (error) {
       console.warn('[initBridge] Built-in routine seeding skipped:', error);
+    }
+    // Seeding is first-write-wins, so it reaches a FRESH install only. An
+    // install that already holds these routines keeps whatever definition it
+    // was seeded with - including input paths that point at a directory nothing
+    // writes, and a prompt that names no output directory at all. This brings
+    // those up to the shipped definition, and only where the stored prompt is
+    // provably still ours. Never throws; a routine left on its old definition
+    // is the state we are already in.
+    try {
+      const { migrateSeededRoutines } = await import('@process/services/cron/routineDefinitionMigration');
+      await migrateSeededRoutines(cronService);
+    } catch (error) {
+      console.warn('[initBridge] Seeded routine migration skipped:', error);
     }
     try {
       const jobs = await cronService.listJobs();
@@ -400,6 +422,23 @@ void getDatabase()
     // question and park AUTO instead of force-advancing past it (#123).
     const getLastAgentText = async (conversationId: string): Promise<string | null> => {
       try {
+        // DRAIN BEFORE READING, OR YOU GET THE PREVIOUS TURN.
+        //
+        // Streamed assistant text is queued as an `accumulate` behind a 2000 ms
+        // debounce in `message.ts`, whose own header says anything reading the
+        // row DIRECTLY from the database is racing it - and this reads it
+        // directly. A turn ending inside that window hands the caller the LAST
+        // turn's reply. For the claim check that means comparing this turn's
+        // files against last turn's words, which can contradict a model that
+        // told the truth; for the workflow driver it means detecting a
+        // clarification question one turn late. Proved against the real queue
+        // and a real database in `lastAgentTextRacesTheQueue.bun.test.ts`.
+        //
+        // Not a guarantee: `drain()` bails while the queue is `!initialized`,
+        // which is a brand-new conversation before its first flush. A
+        // conversation whose agent has just streamed a reply is past that, and
+        // getting nothing back is the safe direction - no text, no claim.
+        await flushConversationMessages(conversationId);
         const db = await getDatabase();
         const result = db.getConversationMessages(conversationId, 0, 5, 'DESC');
         for (const msg of result.data ?? []) {
@@ -413,6 +452,64 @@ void getDatabase()
         return null;
       }
     };
+    // T3. The turn ended: register whatever the chat left in its reserved
+    // namespace, so the deliverable is a real, verifiable artifact before the
+    // card that names it is ever drawn. A THIRD registration on this event
+    // alongside the two workflow listeners above, deliberately independent of
+    // both - a chat that produced a report has nothing to do with a workflow
+    // step, and coupling them would make one failure eat the other.
+    //
+    // The handler swallows its own failures (see `onChatTurnCompleted`): this
+    // fires on the completion of every turn in the product, and a ledger the
+    // app cannot write must never surface as a broken conversation.
+    ipcBridge.conversation?.turnCompleted?.on?.((event) => {
+      void onChatTurnCompleted(
+        { ...event, hasTask: event.runtime?.hasTask },
+        {
+          ledgerPath: artifactLedgerPath(getDataPath()),
+          // WHAT THE MODEL JUST SAID, handed to the half that knows what is
+          // actually on disk. B5 was a turn that made zero tool calls and still
+          // told the user it had saved a file; the host held both facts at this
+          // exact instant and had never compared them. Same reader the workflow
+          // driver already uses - no second notion of "the final assistant text".
+          lastAgentText: getLastAgentText,
+          onSwept: async (result) => {
+            const content = buildChatArtifactCardContent(result);
+            if (!content) return;
+            const conversationId = event.sessionId;
+            const message = buildChatArtifactCardMessage(conversationId, content);
+            // Persist FIRST, then emit. A card the user can see but that is gone
+            // after a restart is worse than one that arrives a beat late, and
+            // "finds it again tomorrow" is the goal this milestone is measured on.
+            //
+            // REPLACE, not insert. The card's id is derived from the conversation
+            // id, and `messages.id` is UNIQUE - so a plain `addMessage` on turn 2
+            // hit a constraint that `insertMessage` catches and returns as
+            // `{ success: false }`, which the write queue discarded. Every card
+            // after the first was lost in silence and the conversation reopened
+            // showing turn 1's stale card. The drain is part of it: `addMessage`
+            // is queued, so a delete racing a queued insert loses the card a
+            // second way.
+            const db = await getDatabase();
+            await persistChatArtifactCard(conversationId, message, {
+              flush: flushConversationMessages,
+              deleteMessage: (messageId) => {
+                db.deleteMessage(messageId);
+              },
+              addMessage,
+            });
+            ipcBridge.conversation.responseStream.emit({
+              type: 'artifact_card',
+              conversation_id: conversationId,
+              msg_id: message.msg_id,
+              data: content,
+            });
+          },
+          onError: (error) => console.warn('[initBridge] chat artifact sweep failed:', error),
+        }
+      );
+    });
+
     ipcBridge.conversation?.turnCompleted?.on?.((event) => {
       void handleParentWorkflowTurn(event, {
         service: workflowService,

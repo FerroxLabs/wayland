@@ -550,5 +550,33 @@
       "revealFailed": "O Wayland não conseguiu abrir a pasta. Motivo: {{reason}}"
     },
     "notText": "O Wayland não consegue ler este arquivo como texto — alguns de seus bytes não são UTF-8 válido, que é o que o formato de configurações exige. Nada foi alterado."
+  },
+  "artifactCard": {
+    "title": "Salvo no seu espaço de trabalho",
+    "openHere": "Abrir aqui",
+    "openInApp": "Abrir no {{app}}",
+    "openExternally": "Abrir no app padrão",
+    "reveal": "Mostrar na pasta",
+    "saveCopy": "Salvar uma cópia",
+    "changed": "Este arquivo mudou desde que foi salvo.",
+    "claimedButAbsent": "O Wayland não conseguiu verificar se {{fileName}} foi gravado.",
+    "claimedElsewhere": "{{fileName}} foi gravado em {{actualPath}}, e não nos arquivos desta conversa.",
+    "claimedElsewhereInWorkspace": "{{fileName}} está na pasta do espaço de trabalho, e não nos arquivos desta conversa.",
+    "update": "Atualizar",
+    "rejected": "{{count}} arquivo não foi salvo como entregável: {{detail}}.",
+    "rejected_other": "{{count}} arquivos não foram salvos como entregáveis: {{detail}}.",
+    "unknownError": "Isso não funcionou. O arquivo pode ter sido movido.",
+    "rejectedOutsideFolder": "{{count}} salvo fora da pasta desta conversa",
+    "rejectedOutsideFolder_other": "{{count}} salvos fora da pasta desta conversa",
+    "rejectedNotAFile": "{{count}} não era um arquivo comum",
+    "rejectedNotAFile_other": "{{count}} não eram arquivos comuns",
+    "rejectedTooBig": "{{count}} era grande demais para salvar",
+    "rejectedTooBig_other": "{{count}} eram grandes demais para salvar",
+    "rejectedTooMany": "{{count}} acima do limite deste turno",
+    "rejectedTooMany_other": "{{count}} acima do limite deste turno",
+    "rejectedUnreadable": "{{count}} não pôde ser lido",
+    "rejectedUnreadable_other": "{{count}} não puderam ser lidos",
+    "more": "e mais {{count}} em Artefatos",
+    "more_other": "e mais {{count}} em Artefatos"
   }
 }

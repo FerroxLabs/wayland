@@ -49,7 +49,8 @@
     "taskComplete": "Tarea completada",
     "scheduledTask": "Tarea programada",
     "scheduledTaskComplete": "{{title}} - Tarea programada completada",
-    "taskDone": "Tarea finalizada"
+    "taskDone": "Tarea finalizada",
+    "deliverableReady": "{{file}} está listo"
   },
   "page": {
     "newTask": "Nueva tarea",
@@ -148,7 +149,10 @@
     "jobNotFound": "Tarea no encontrada: {{id}}",
     "conversationNotFound": "Conversación no encontrada",
     "scheduledTimePassed": "La hora programada ya ha pasado",
-    "conversationBusy": "Conversación ocupada tras {{count}} reintentos"
+    "conversationBusy": "Conversación ocupada tras {{count}} reintentos",
+    "workspaceMissing": "La tarea programada «{{name}}» no se ejecutó: su carpeta ya no existe ({{path}}). No se recreó nada. Abre la tarea para recrearla vacía, elegir otra carpeta o desactivar la tarea.",
+    "workspaceMismatch": "La tarea programada «{{name}}» no se ejecutó: la carpeta en {{path}} ya no es su espacio de trabajo, así que no se escribió nada en ella. Abre la tarea para recrearla vacía, elegir otra carpeta o desactivar la tarea.",
+    "workspaceAllocFailed": "La tarea programada «{{name}}» no se pudo activar: Wayland no pudo crear su carpeta ({{detail}}). La tarea sigue desactivada. Comprueba que Wayland puede usar esa ubicación y vuelve a intentarlo."
   },
   "propose": {
     "title": "Confirmación de programación",

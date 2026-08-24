@@ -94,12 +94,23 @@ export interface IPowerManager {
  * System notification. Replaces Electron Notification class.
  *
  * In standalone mode: silent no-op (intentional degradation).
- * Notification lifecycle events (click, failed, close) are Electron-only
- * and are NOT modelled here.
+ * `failed` and `close` remain Electron-only and are NOT modelled here.
+ *
+ * `onClick` IS modelled, because a banner announcing a finished deliverable
+ * that cannot be clicked through to it is the whole notification wasted. It is
+ * best-effort by contract: a runtime with no clickable banner simply never
+ * calls it, so no caller may treat it as a delivery guarantee.
  */
 export interface INotificationService {
   /** `silent: true` suppresses the OS notification sound; the banner still shows. */
-  send(options: { title: string; body: string; icon?: string; silent?: boolean }): void;
+  send(options: {
+    title: string;
+    body: string;
+    icon?: string;
+    silent?: boolean;
+    /** Invoked if the user activates the banner. Never invoked in standalone mode. */
+    onClick?: () => void;
+  }): void;
 }
 
 /**

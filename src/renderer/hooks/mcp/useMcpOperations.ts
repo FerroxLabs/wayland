@@ -37,7 +37,13 @@ interface McpOperationResult {
    * See the field doc on `McpSyncResult` in McpProtocol.ts.
    */
   unsupported?: boolean;
+  /** See `McpAgentOutcome` in McpProtocol.ts. */
+  outcome?: 'applied' | 'already-absent' | 'unsupported' | 'timed-out' | 'failed';
+  retryable?: boolean;
 }
+
+/** Comma-joined agent display names, for a sentence the user can act on. */
+const nameList = (results: McpOperationResult[]): string => results.map((r) => r.agent).join(', ');
 
 interface McpOperationResponse {
   success: boolean;
@@ -46,6 +52,20 @@ interface McpOperationResponse {
   };
   msg?: string;
 }
+
+/**
+ * One message slot per connector.
+ *
+ * Arco keys messages by `id` and REPLACES a live one that shares it, so every
+ * message about a single connector - "contacting N agents...", the outcome,
+ * the error - lands in the same slot and supersedes whatever it is correcting.
+ *
+ * Without this, a warning sits for its full 8s `duration` while the NEXT
+ * operation's "contacting N agents to remove..." appears beneath it. Nothing
+ * was doing the opposite of what the user asked; two operations were on screen
+ * at once, and the earlier one was never retracted once it stopped being true.
+ */
+const mcpOpMessageId = (connector: string): string => `mcp-op-${connector}`;
 
 /**
  * MCP operations management hook.
@@ -63,35 +83,78 @@ export const useMcpOperations = (
       response: McpOperationResponse,
       operation: 'sync' | 'remove',
       successMessage?: string,
-      skipRecheck = false
+      skipRecheck = false,
+      messageId?: string
     ) => {
       if (response.success && response.data) {
         const { results } = response.data;
         // Non-targets are not partial failures. Without this exclusion a normal
         // operation toasts "partially failed: Grok Build: not supported, Goose:
         // not supported, ..." on every machine that has such a backend.
-        const failedAgents = results.filter((r: McpOperationResult) => !r.success && !r.unsupported);
+        const targets = results.filter((r: McpOperationResult) => !r.unsupported);
 
-        // Show operation-start message immediately, then trigger state update
-        if (failedAgents.length > 0) {
-          const failedNames = failedAgents
-            .map((r: McpOperationResult) => `${r.agent}: ${truncateErrorMessage(r.error || '')}`)
-            .join(', ');
-          const truncatedErrors = truncateErrorMessage(failedNames, 200);
-          const partialFailedKey = operation === 'sync' ? 'mcpSyncPartialFailed' : 'mcpRemovePartialFailed';
+        // THE THREE STATES, KEPT APART.
+        //
+        // The banner the user was shown glued two of them together:
+        //   "removal partially failed: claude:Claude Code: ...: failed: Command
+        //    timed out after 5000ms, qwen:Qwen Code: user: Comma... Server not
+        //    found in project settings"
+        // - a state we did not know, and a state that was a SUCCESS, both
+        // reported as failure, in one sentence with no next step.
+        const retryable = targets.filter((r: McpOperationResult) => !r.success && r.outcome === 'timed-out');
+        const failed = targets.filter((r: McpOperationResult) => !r.success && r.outcome !== 'timed-out');
+        const applied = targets.filter((r: McpOperationResult) => r.success && r.outcome === 'applied');
+        const alreadyAbsent = targets.filter((r: McpOperationResult) => r.success && r.outcome === 'already-absent');
+
+        if (retryable.length > 0) {
+          // Not "failed". We do not know. Say so, and say what to do.
           await globalMessageQueue.add(() => {
             message.warning({
-              content: t(`settings.${partialFailedKey}`, { errors: truncatedErrors }),
-              duration: 6000,
+              id: messageId,
+              content: t('settings.mcpAgentsRetryNeeded', {
+                names: nameList(retryable),
+                applied: applied.length,
+                total: targets.length,
+              }),
+              duration: 8000,
             });
           });
-        } else {
-          if (successMessage) {
-            await globalMessageQueue.add(() => {
-              message.success(successMessage);
+        } else if (failed.length > 0) {
+          const errors = truncateErrorMessage(
+            failed.map((r: McpOperationResult) => `${r.agent}: ${truncateErrorMessage(r.error || '')}`).join(', '),
+            200
+          );
+          await globalMessageQueue.add(() => {
+            message.warning({
+              id: messageId,
+              content: t('settings.mcpAgentsFailed', {
+                names: nameList(failed),
+                applied: applied.length,
+                total: targets.length,
+                errors,
+              }),
+              duration: 8000,
             });
-          }
-          // No longer show the "operation started" message; it was already shown at the start
+          });
+        } else if (operation === 'remove' && applied.length === 0 && alreadyAbsent.length > 0) {
+          // A removal whose every target reported "it was not there" is DONE,
+          // not failed. This is the case that produced a red banner on a
+          // healthy, reachable server with 105 tools.
+          await globalMessageQueue.add(() => {
+            message.success({ id: messageId, content: t('settings.mcpRemoveNothingToDo') });
+          });
+        } else {
+          // Success, stated with the number that is actually true - the toast
+          // shown at the START is a count of agents we were about to CONTACT,
+          // and nothing ever corrected it downward.
+          const outcomeKey = operation === 'sync' ? 'mcpSyncOutcome' : 'mcpRemoveOutcome';
+          await globalMessageQueue.add(() => {
+            message.success({
+              id: messageId,
+              content:
+                successMessage ?? t(`settings.${outcomeKey}`, { applied: applied.length, total: targets.length }),
+            });
+          });
         }
 
         // Then update UI state
@@ -110,7 +173,7 @@ export const useMcpOperations = (
         const failedKey = operation === 'sync' ? 'mcpSyncFailed' : 'mcpRemoveFailed';
         const errorMsg = truncateErrorMessage(response.msg || t('settings.unknownError'));
         await globalMessageQueue.add(() => {
-          message.error({ content: t(`settings.${failedKey}`, { error: errorMsg }), duration: 6000 });
+          message.error({ id: messageId, content: t(`settings.${failedKey}`, { error: errorMsg }), duration: 6000 });
         });
       }
     },
@@ -129,7 +192,11 @@ export const useMcpOperations = (
 
         // Show remove-started message (via queue)
         await globalMessageQueue.add(() => {
-          message.info({ content: t('settings.mcpRemoveStarted', { count: compatibleCount }), icon: progressIcon() });
+          message.info({
+            id: mcpOpMessageId(serverName),
+            content: t('settings.mcpRemoveStarted', { count: compatibleCount }),
+            icon: progressIcon(),
+          });
         });
 
         // Desktop -> Electron IPC; hosted WebUI -> token-authed + CSRF'd write-only
@@ -140,7 +207,13 @@ export const useMcpOperations = (
               agents: agentsResponse.data,
             })
           : await removeMcpFromAgentsHttp(serverName);
-        await handleMcpOperationResult(removeResponse, 'remove', successMessage, true); // Skip re-detection
+        await handleMcpOperationResult(
+          removeResponse,
+          'remove',
+          successMessage,
+          true, // Skip re-detection
+          mcpOpMessageId(serverName)
+        );
         // Same non-target exclusion as the publication path above. This one is
         // the rollback half: treating unsupported backends as failed removals
         // turned every rolled-back publication into an "incomplete rollback",
@@ -174,7 +247,11 @@ export const useMcpOperations = (
 
         // Show sync-started message (via queue)
         await globalMessageQueue.add(() => {
-          message.info({ content: t('settings.mcpSyncStarted', { count: compatibleCount }), icon: progressIcon() });
+          message.info({
+            id: mcpOpMessageId(server.name),
+            content: t('settings.mcpSyncStarted', { count: compatibleCount }),
+            icon: progressIcon(),
+          });
         });
 
         // Desktop -> Electron IPC; hosted WebUI -> token-authed + CSRF'd write-only
@@ -186,7 +263,7 @@ export const useMcpOperations = (
             })
           : await syncMcpToAgentsHttp(server.id);
 
-        await handleMcpOperationResult(syncResponse, 'sync', undefined, skipRecheck);
+        await handleMcpOperationResult(syncResponse, 'sync', undefined, skipRecheck, mcpOpMessageId(server.name));
         // A detected backend with no MCP implementation is a non-target, not a
         // failed publication. Counting those made this throw on every toggle:
         // a typical install detects a dozen of them, so publication "failed"

@@ -29,6 +29,8 @@
   },
   "showInFolder": "Mostrar en la carpeta",
   "openFile": "Abrir archivo",
+  "openFileFailed": "No se pudo abrir el archivo descargado",
+  "showInFolderFailed": "No se pudo mostrar la descarga en el explorador de archivos",
   "errorTitle": "Error en la actualización",
   "errors": {
     "missingTag": "No se puede verificar esta actualización: falta la etiqueta de la versión. Actualiza desde la página de Releases.",

@@ -29,6 +29,8 @@
   },
   "showInFolder": "Mostrar na pasta",
   "openFile": "Abrir arquivo",
+  "openFileFailed": "Não foi possível abrir o arquivo baixado",
+  "showInFolderFailed": "Não foi possível mostrar o download no gerenciador de arquivos",
   "errorTitle": "Falha na atualização",
   "errors": {
     "missingTag": "Não é possível verificar esta atualização: a tag da versão está ausente. Atualize pela página de Releases.",

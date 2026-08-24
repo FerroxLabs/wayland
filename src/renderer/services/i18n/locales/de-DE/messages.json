@@ -69,7 +69,17 @@
     "yesAllowAlways": "Ja, immer erlauben",
     "yesAlwaysAllowTool": "Ja, Tool \"{{toolName}}\" vom Server \"{{serverName}}\" immer erlauben",
     "yesAlwaysAllowServer": "Ja, alle Tools vom Server \"{{serverName}}\" immer erlauben",
-    "no": "Nein (Esc)"
+    "no": "Nein (Esc)",
+    "grantFolderAlways": "Diesen Ordner für diesen Chat zulassen: {{folder}}",
+    "grantFolderAlwaysHint": "Nur Lesezugriff, bis dieser Chat endet. Nichts anderes außerhalb Ihres Arbeitsbereichs wird geöffnet.",
+    "grantFolderRemember": "Diesen Ordner immer zulassen: {{folder}}",
+    "grantFolderRememberHint": "Nur Lesezugriff, für diesen Arbeitsbereich gespeichert, bis Sie ihn entfernen.",
+    "grantFolderDeny": "Nicht zulassen",
+    "pathBoundaryTitle": "Zugriff auf einen Ordner außerhalb Ihres Arbeitsbereichs zulassen?",
+    "pathBoundaryTargetLabel": "Der Agent möchte lesen",
+    "pathBoundaryRootLabel": "Zulassen öffnet diesen Ordner",
+    "pathBoundaryGrantAria": "{{label}} — drücken Sie die Leertaste, um bis zum Ende dieses Chats Lesezugriff auf {{folder}} zu gewähren.",
+    "pathBoundaryRememberAria": "{{label}} — drücken Sie die Leertaste, um Lesezugriff auf {{folder}} zu gewähren und ihn für diesen Arbeitsbereich zu speichern, bis Sie ihn entfernen."
   },
   "slash.customBadge": "Custom",
   "runaway": {
@@ -77,5 +87,10 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
+  },
+  "renderArtifact": {
+    "label": "Vom Agenten",
+    "preview": "Vorschau",
+    "truncated": "Gekürzt – zu groß, um vollständig angezeigt zu werden."
   }
 }

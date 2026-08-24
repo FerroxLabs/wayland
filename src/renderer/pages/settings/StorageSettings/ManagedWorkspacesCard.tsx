@@ -9,11 +9,18 @@ import { FolderOpen, Shield } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { shell, workspaceRetention } from '@/common/adapter/ipcBridge';
+import { ConfigStorage } from '@/common/config/storage';
 import {
-  parseManagedWorkspaceInventoryReport,
+  parseWorkspaceRetentionPreviewResult,
   type ManagedWorkspaceClassification,
   type ManagedWorkspaceInventoryReport,
 } from '@/common/types/managedWorkspaceRetention';
+import {
+  DEFAULT_WORKSPACE_RETENTION_WINDOW_DAYS,
+  WORKSPACE_RETENTION_WINDOW_CHOICES,
+  parseWorkspaceRetentionSettings,
+  type WorkspaceRetentionWindow,
+} from '@/common/types/workspaceRetentionSettings';
 import { Card } from '@renderer/components/settings/shared';
 import { isElectronDesktop } from '@renderer/utils/platform';
 
@@ -41,6 +48,13 @@ const CLASSIFICATION_LABELS: Record<ManagedWorkspaceClassification, Label> = {
   unknown: { key: 'settings.storagePage.classificationUnknown', fallback: 'Protected by default' },
 };
 
+const WINDOW_LABELS: Record<string, Label> = {
+  '30': { key: 'settings.storagePage.retentionWindow30', fallback: '30 days' },
+  '60': { key: 'settings.storagePage.retentionWindow60', fallback: '60 days' },
+  '90': { key: 'settings.storagePage.retentionWindow90', fallback: '90 days' },
+  never: { key: 'settings.storagePage.retentionWindowNever', fallback: 'Never' },
+};
+
 function basename(value: string): string {
   const normalized = value.replace(/[\\/]+$/, '');
   const separator = Math.max(normalized.lastIndexOf('/'), normalized.lastIndexOf('\\'));
@@ -53,15 +67,25 @@ const ManagedWorkspacesCard: React.FC = () => {
   const [report, setReport] = React.useState<ManagedWorkspaceInventoryReport | null>(null);
   const [loading, setLoading] = React.useState(desktop);
   const [error, setError] = React.useState(false);
+  const [windowDays, setWindowDays] = React.useState<WorkspaceRetentionWindow>(DEFAULT_WORKSPACE_RETENTION_WINDOW_DAYS);
 
   const refresh = React.useCallback(async () => {
     if (!desktop) return;
     setLoading(true);
     setError(false);
     try {
-      const next = parseManagedWorkspaceInventoryReport(await workspaceRetention.preview.invoke());
-      if (!next) throw new Error('workspace retention returned a malformed report');
-      setReport(next);
+      // The provider RESOLVES a classified refusal rather than rejecting: the
+      // IPC bridge has no reject and no timeout, so a throw on the process side
+      // would leave this component loading forever with neither `catch` nor
+      // `finally` running. Both halves of the union fail closed to the same
+      // protective message.
+      const result = parseWorkspaceRetentionPreviewResult(await workspaceRetention.preview.invoke());
+      if (!result?.ok) {
+        setReport(null);
+        setError(true);
+        return;
+      }
+      setReport(result.report);
     } catch {
       setError(true);
     } finally {
@@ -72,6 +96,43 @@ const ManagedWorkspacesCard: React.FC = () => {
   React.useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const stored = parseWorkspaceRetentionSettings(await ConfigStorage.get('workspace.retention'));
+        if (!cancelled) setWindowDays(stored.windowDays);
+      } catch {
+        // A failed read keeps the default. Never surface a window we cannot prove.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const chooseWindow = React.useCallback(
+    async (raw: string) => {
+      const next = (WORKSPACE_RETENTION_WINDOW_CHOICES as readonly unknown[]).includes(Number(raw))
+        ? (Number(raw) as WorkspaceRetentionWindow)
+        : raw === 'never'
+          ? ('never' as const)
+          : null;
+      if (next === null) return;
+      setWindowDays(next);
+      try {
+        await ConfigStorage.set('workspace.retention', { windowDays: next });
+      } catch {
+        Message.error(t('settings.storagePage.retentionWindowSaveFailed', 'Could not save the review window.'));
+        return;
+      }
+      // The window is evidence the classifier reads, so re-project immediately
+      // rather than showing a decision made against the previous value.
+      await refresh();
+    },
+    [refresh, t]
+  );
 
   const incompleteAuthorities = report
     ? Object.entries(report.authorityCompleteness).filter(([, state]) => state !== 'complete')
@@ -141,6 +202,21 @@ const ManagedWorkspacesCard: React.FC = () => {
               </span>
             </div>
           </div>
+
+          <label className='flex items-center justify-between gap-8px text-12px text-[var(--color-text-2)]'>
+            <span>{t('settings.storagePage.retentionWindowLabel', 'Offer folders with files for review after')}</span>
+            <select
+              className='rounded-6px border border-[var(--color-border-2)] bg-transparent px-8px py-4px text-12px text-[var(--color-text-1)]'
+              value={String(windowDays)}
+              onChange={(event) => void chooseWindow(event.target.value)}
+            >
+              {WORKSPACE_RETENTION_WINDOW_CHOICES.map((choice) => (
+                <option key={String(choice)} value={String(choice)}>
+                  {t(WINDOW_LABELS[String(choice)].key, WINDOW_LABELS[String(choice)].fallback)}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <div
             className='grid grid-cols-3 gap-8px'

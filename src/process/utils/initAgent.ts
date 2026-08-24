@@ -232,14 +232,32 @@ export async function setupAssistantWorkspace(
  *   `.gitignore` so the skill dot-dirs stay out of the user's git.
  * - A non-project custom workspace the user picked for a one-off chat is left
  *   untouched (never pollute a dir the app didn't create for a project).
+ * - An APP-CREATED workspace that is neither temp nor project - the durable
+ *   task folder a scheduled routine owns - is set up too. It reads as "custom"
+ *   only because `buildWorkspaceWidthFiles` infers that flag from "a workspace
+ *   was supplied", and a routine always supplies one. Without this a scheduled
+ *   run cannot reach a single one of its declared skills: the engine sandboxes
+ *   on the workspace, so the bundled scanner is refused rather than merely
+ *   missing.
+ *
+ * `appCreatedWorkspace` is a separate signal ON PURPOSE. The tempting fix is to
+ * pass `customWorkspace: false` from the cron executor, but that flag is
+ * persisted onto the conversation and read by four other subsystems: Doctor
+ * (`workspaceChecks.ts:151`) and the concierge diagnostics server
+ * (`conciergeDiagServer.ts:1020`) both treat `false` as the app's own
+ * authoritative "this is a temporary folder" and would WARN the user that a
+ * folder in their Documents is temporary, and `createWCoreAgent` would blank
+ * the conversation's `desc`. Skill placement must not be bought with a lie
+ * about what the folder is.
  */
 async function setupWorkspaceSkills(
   workspace: string,
   customWorkspace: boolean,
   isProjectWorkspace: boolean,
-  options: Parameters<typeof setupAssistantWorkspace>[1]
+  options: Parameters<typeof setupAssistantWorkspace>[1],
+  appCreatedWorkspace = false
 ): Promise<void> {
-  if (customWorkspace && !isProjectWorkspace) return;
+  if (customWorkspace && !isProjectWorkspace && !appCreatedWorkspace) return;
   await setupAssistantWorkspace(workspace, options);
   if (isProjectWorkspace) await writeWorkspaceGitignore(workspace);
 }
@@ -521,12 +539,18 @@ export const createWCoreAgent = async (options: ICreateConversationParams): Prom
   // the 'wcore' agentType key is mapped to that directory in NON_ACP_SKILLS_DIRS
   // so the symlinks land where the engine reads. Project workspaces (#455) get
   // them too — with a managed .gitignore — so project chats can resolve skills.
-  await setupWorkspaceSkills(workspace, customWorkspace, !!extra.projectId, {
-    agentType: 'wcore',
-    enabledSkills: extra.enabledSkills,
-    extraSkillPaths: extra.extraSkillPaths,
-    excludeBuiltinSkills: extra.excludeBuiltinSkills,
-  });
+  await setupWorkspaceSkills(
+    workspace,
+    customWorkspace,
+    !!extra.projectId,
+    {
+      agentType: 'wcore',
+      enabledSkills: extra.enabledSkills,
+      extraSkillPaths: extra.extraSkillPaths,
+      excludeBuiltinSkills: extra.excludeBuiltinSkills,
+    },
+    extra.appCreatedWorkspace === true
+  );
 
   return {
     // 'wcore' is the canonical conversation type.

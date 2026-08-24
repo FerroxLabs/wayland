@@ -21,6 +21,7 @@ import * as fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { confinePath } from './pathConfinement';
+import { refuseUnsafeOpenTarget } from './shellOpenSafety';
 
 const isWindows = process.platform === 'win32';
 
@@ -106,6 +107,12 @@ export function initShellBridgeStandalone(): void {
   ipcBridge.shell.openFile.provider(async (filePath) => {
     const confined = await confineShellPath(filePath);
     if ('ok' in confined) return confined;
+    // Confinement bounds the location only. A workspace is an authorized root,
+    // so an agent-written `.command`/`.desktop`/`.exe` inside it would be
+    // EXECUTED by `open`/`xdg-open`/`cmd start`. Same type gate the Electron
+    // bridge applies. Reveal below deliberately skips it - it never executes.
+    const refusal = await refuseUnsafeOpenTarget(confined.path);
+    if (refusal) return refusal;
     return openReporting(confined.path);
   });
 

@@ -74,6 +74,7 @@
     "fluxDesktop": "Flux Desktop · Daemon :7878"
   },
   "flow": {
+    "back": "Zurück",
     "personas": {
       "content": "Content & creative",
       "sales": "Sales & growth",

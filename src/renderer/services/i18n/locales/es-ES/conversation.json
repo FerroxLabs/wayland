@@ -550,5 +550,33 @@
       "revealFailed": "Wayland no ha podido abrir la carpeta. Motivo: {{reason}}"
     },
     "notText": "Wayland no puede leer este archivo como texto: algunos de sus bytes no son UTF-8 válido, que es lo que requiere el formato de ajustes. No se ha cambiado nada."
+  },
+  "artifactCard": {
+    "title": "Guardado en tu espacio de trabajo",
+    "openHere": "Abrir aquí",
+    "openInApp": "Abrir en {{app}}",
+    "openExternally": "Abrir en la app predeterminada",
+    "reveal": "Mostrar en la carpeta",
+    "saveCopy": "Guardar una copia",
+    "changed": "Este archivo ha cambiado desde que se guardó.",
+    "claimedButAbsent": "Wayland no pudo verificar que se escribiera {{fileName}}.",
+    "claimedElsewhere": "{{fileName}} se escribió en {{actualPath}}, no en los archivos de esta conversación.",
+    "claimedElsewhereInWorkspace": "{{fileName}} está en la carpeta del espacio de trabajo, no en los archivos de esta conversación.",
+    "update": "Actualizar",
+    "rejected": "{{count}} archivo no se guardó como entregable: {{detail}}.",
+    "rejected_other": "{{count}} archivos no se guardaron como entregables: {{detail}}.",
+    "unknownError": "Eso no funcionó. Es posible que el archivo se haya movido.",
+    "rejectedOutsideFolder": "{{count}} guardado fuera de la carpeta de este chat",
+    "rejectedOutsideFolder_other": "{{count}} guardados fuera de la carpeta de este chat",
+    "rejectedNotAFile": "{{count}} no era un archivo normal",
+    "rejectedNotAFile_other": "{{count}} no eran archivos normales",
+    "rejectedTooBig": "{{count}} era demasiado grande para guardarlo",
+    "rejectedTooBig_other": "{{count}} eran demasiado grandes para guardarlos",
+    "rejectedTooMany": "{{count}} por encima del límite de este turno",
+    "rejectedTooMany_other": "{{count}} por encima del límite de este turno",
+    "rejectedUnreadable": "{{count}} no se pudo leer",
+    "rejectedUnreadable_other": "{{count}} no se pudieron leer",
+    "more": "y {{count}} más en Artefactos",
+    "more_other": "y {{count}} más en Artefactos"
   }
 }

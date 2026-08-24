@@ -97,8 +97,24 @@ export class ElectronPlatformServices implements IPlatformServices {
   notification = {
     // `icon` was accepted and then dropped on the floor: notificationBridge resolves
     // an app-icon path and passed it in, but it never reached the Notification.
-    send: ({ title, body, icon, silent }: { title: string; body: string; icon?: string; silent?: boolean }): void => {
-      new Notification({ title, body, icon, silent }).show();
+    send: ({
+      title,
+      body,
+      icon,
+      silent,
+      onClick,
+    }: {
+      title: string;
+      body: string;
+      icon?: string;
+      silent?: boolean;
+      onClick?: () => void;
+    }): void => {
+      const notification = new Notification({ title, body, icon, silent });
+      // Subscribed BEFORE show(): on a fast click the OS can deliver the
+      // activation before a post-show subscription would exist.
+      if (onClick) notification.on('click', onClick);
+      notification.show();
     },
   };
 

@@ -240,7 +240,7 @@ function verifyArchiveChecksum(archivePath, expectedHex, assetName, tag) {
 // directory, and it gets tagged only once that verification passes. So this
 // branch is NOT shippable, the tag below stays where it is until then, and
 // `desktopContractV1.test.ts` holds the tripwire that says so.
-const DEFAULT_WCORE_VERSION = 'v0.13.3';
+const DEFAULT_WCORE_VERSION = 'v0.13.6';
 
 function getVersion() {
   return (process.env.WCORE_VERSION || DEFAULT_WCORE_VERSION).trim();

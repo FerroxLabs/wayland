@@ -16,7 +16,7 @@
  */
 
 /** Top-level routes that may be popped out into their own window. */
-export const POPOUT_ALLOWED_ROUTES = ['mission-control'] as const;
+export const POPOUT_ALLOWED_ROUTES = ['mission-control', 'preview'] as const;
 
 export type PopoutRoute = (typeof POPOUT_ALLOWED_ROUTES)[number];
 
@@ -46,3 +46,14 @@ export function routePopoutHash(route: PopoutRoute): string {
 export function routePopoutLoadFileHash(route: PopoutRoute): string {
   return `/${route}?mode=popout`;
 }
+
+/**
+ * Default OS-window size for the preview pop-out (SPEC-PREVIEW-PANE §1).
+ *
+ * 1240 x 900 = the brief's 1180px container cap plus window chrome, at the 900px
+ * height where its full layout (4-up market grid + two-column trade panel) is on
+ * screen. Deliberately NOT the shared `conversation.popoutBounds` geometry: that
+ * key is written by conversation pop-outs, so reusing it would open the preview
+ * at whatever size a chat window was last left at.
+ */
+export const PREVIEW_POPOUT_SIZE = { width: 1240, height: 900 } as const;

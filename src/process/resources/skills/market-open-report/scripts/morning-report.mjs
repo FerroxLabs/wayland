@@ -81,20 +81,35 @@
  *
  *   MARKET_OPEN_REPORT_LIST       watchlist CSV     (default: ../package/exports/TC-MASTER-WATCHLIST.csv)
  *   MARKET_OPEN_REPORT_POSITIONS  positions CSV     (default: ../package/exports/positions.csv)
- *   MARKET_OPEN_REPORT_CACHE      Yahoo cache dir   (default: ~/.cache/market-open-report/yahoo-cache)
+ *   MARKET_OPEN_REPORT_CACHE      Yahoo cache dir   (no fixed default - probed, see below)
+ *
+ * Between the environment and the shipped defaults sits the saved choice in
+ * `<workspace>/smart-trader-settings.json` - see `settings.mjs` for why the
+ * workspace is the only place that can hold it. An env var still wins, so an
+ * operator override behaves exactly as it did before that file existed.
+ *
+ * The run prints one `[source]` line naming where the watchlist came from and,
+ * for a saved list, when it was exported. A symbol count cannot distinguish
+ * "your TradingView list" from "the list that ships with the report", and
+ * presenting one as the other is the same failure as presenting a stale price
+ * as a live one.
+ *
+ * There is no fixed cache default: `~/.cache` is unreachable under the agent
+ * sandbox, so with MARKET_OPEN_REPORT_CACHE unset `report.mjs` probes, in
+ * order, `~/.cache/market-open-report/yahoo-cache`, then
+ * `<cwd>/.market-open-report-cache/yahoo-cache`, then
+ * `<tmpdir>/market-open-report/yahoo-cache`, and keeps the first it can
+ * create. In the sandbox the first fails EPERM and the second is used.
  *
  * The output path is --json, as in the Python.
  */
 
 import { basename } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-import {
-  DEFAULT_CACHE_DIR,
-  DEFAULT_LIST,
-  DEFAULT_POSITIONS,
-  main,
-  writeJson,
-} from './report.mjs';
+import { DEFAULT_CACHE_DIR, DEFAULT_LIST, DEFAULT_POSITIONS, main, writeJson } from './report.mjs';
+import { provenanceLine, resolvePaths } from './settings.mjs';
+import { dataSourceRefusal } from './yahooData.mjs';
 
 const PROG = basename(process.argv[1] || 'morning-report.mjs');
 
@@ -125,9 +140,7 @@ function parseArgs(argv) {
    */
   const pyInt = (s, opt) => {
     if (!/^[+-]?\d+$/.test(String(s).trim())) {
-      throw new ArgparseError(
-        `argument ${opt}: invalid int value: '${s}'`
-      );
+      throw new ArgparseError(`argument ${opt}: invalid int value: '${s}'`);
     }
     return Number.parseInt(String(s).trim(), 10);
   };
@@ -148,9 +161,7 @@ function parseArgs(argv) {
       a.tier = pyInt(need(i, '--tier'), '--tier');
       i++;
       if (a.tier !== 1 && a.tier !== 2) {
-        throw new ArgparseError(
-          `argument --tier: invalid choice: ${a.tier} (choose from 1, 2)`
-        );
+        throw new ArgparseError(`argument --tier: invalid choice: ${a.tier} (choose from 1, 2)`);
       }
     } else if (arg === '--slots') {
       a.slots = pyInt(need(i, '--slots'), '--slots');
@@ -174,9 +185,20 @@ function parseArgs(argv) {
 /**
  * `dt.datetime.now(dt.UTC).strftime('%Y%m%d')`. UTC, not local — which is what
  * makes the local-timezone bug in _epoch observable.
+ *
+ * EXPORTED, and takes the instant as an argument, because this value is half of
+ * the Yahoo cache key (`<SYM>_<start>_<end>.json`) and the app pre-warms that
+ * cache from OUTSIDE the sandbox. Two implementations of "today" is one bug: on
+ * a UTC+07 machine the local date is a day ahead of the UTC date for seven
+ * hours of every day, so a prefetch keyed on the local date writes files this
+ * scanner never asks for — every lookup misses, the sandboxed run has no
+ * network, and the result is a confident, totally empty report. The parameter
+ * is what lets a test pin both sides to the same instant and see them agree.
+ *
+ * @param {Date} [now=new Date()]
+ * @returns {string} YYYYMMDD in UTC
  */
-function utcToday() {
-  const now = new Date();
+export function utcToday(now = new Date()) {
   return (
     String(now.getUTCFullYear()) +
     String(now.getUTCMonth() + 1).padStart(2, '0') +
@@ -200,19 +222,63 @@ async function cli() {
   // the header for why there is deliberately no shape check on this line.
   const end = a.end || utcToday();
 
+  const { listPath, positionsPath, provenance } = resolvePaths({
+    defaultList: DEFAULT_LIST,
+    defaultPositions: DEFAULT_POSITIONS,
+  });
+
   const r = await main(
     { tier: a.tier, slots: a.slots, start: a.start, end: end, jsonout: a.jsonout },
     {
-      listPath: process.env.MARKET_OPEN_REPORT_LIST || DEFAULT_LIST,
+      listPath,
       cacheDir: process.env.MARKET_OPEN_REPORT_CACHE || DEFAULT_CACHE_DIR,
-      positionsPath: process.env.MARKET_OPEN_REPORT_POSITIONS || DEFAULT_POSITIONS,
+      positionsPath,
     }
   );
 
+  // Printed BEFORE the report so it survives a truncated read of the output.
+  process.stdout.write('[source] ' + provenanceLine(provenance) + '\n');
+  if (provenance.chartLayout) {
+    process.stdout.write('[source] chart layout for TC-TIDE: ' + provenance.chartLayout + '\n');
+  }
   process.stdout.write(r.text + '\n'); // print()
   if (r.jsonout) {
     writeJson(r.jsonout, r.payload);
     process.stdout.write('\n' + 'wrote' + ' ' + r.jsonout + '\n'); // print('\nwrote', ...)
+  }
+
+  // ADDED (B10). A NAMED REFUSAL, NOT A HANG.
+  //
+  // Before this, a run with no network burned ~12s per symbol (measured:
+  // 12,159 ms for one, 96,211 ms for the real 8-symbol overview sweep) until
+  // the agent's 10-minute no-progress watchdog killed the turn. The user got
+  // two 0-byte files and "The agent stopped making progress" — no cause named
+  // anywhere. `yahooData.mjs` now latches after two consecutive symbols
+  // exhaust every attempt on a NETWORK-class error, so the sweep ends in ~24s
+  // and this prints WHY.
+  //
+  // On STDOUT as well as STDERR on purpose: the workflow body tells the run to
+  // read the scanner's stdout and its exit code, and stdout is what actually
+  // reaches the thread.
+  const refusal = dataSourceRefusal();
+  if (refusal) {
+    const lines = [
+      '',
+      `${PROG}: REFUSED — the price source was unreachable from this run.`,
+      `  cause:   ${refusal.detail || refusal.code} (${refusal.code})`,
+      `  refused: after ${refusal.attempts} attempts on each of ` +
+        `${refusal.consecutiveSymbols} consecutive symbols, first at ${refusal.symbol}`,
+      '  effect:  every symbol not already cached was SKIPPED, not fetched and not answered.',
+      '  This is NOT "no data" and it is NOT a quiet market: nothing was asked and',
+      '  nothing answered. A scheduled run has no network of its own, so retrying',
+      '  fails identically - the app fetches these bars before the run starts and',
+      '  leaves them in the cache directory this run was told to read. Reaching',
+      '  none of them means that pre-fetch did not happen or wrote somewhere else.',
+      '',
+    ];
+    process.stdout.write(lines.join('\n'));
+    process.stderr.write(lines.join('\n'));
+    process.exitCode = 1;
   }
 
   // ADDED (see header). Everything above this line is the Python's behaviour.
@@ -227,8 +293,18 @@ async function cli() {
   }
 }
 
-cli().catch((e) => {
-  // An unhandled exception is a traceback and exit 1 in Python.
-  process.stderr.write((e && e.stack ? e.stack : String(e)) + '\n');
-  process.exit(1);
-});
+/**
+ * RUN ONLY WHEN RUN. Same guard `marketOverview.mjs` already uses.
+ *
+ * Without it, `import`ing this module for its `utcToday` executed the whole CLI
+ * as a side effect: a test that only wanted the date function performed a live
+ * 74-symbol Yahoo sweep and printed a report. Anything that imports a scanner
+ * to check one exported value must not thereby run the scan.
+ */
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  cli().catch((e) => {
+    // An unhandled exception is a traceback and exit 1 in Python.
+    process.stderr.write((e && e.stack ? e.stack : String(e)) + '\n');
+    process.exit(1);
+  });
+}

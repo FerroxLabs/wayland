@@ -125,7 +125,31 @@ async function applyProposal(
         }
         return [...current, server];
       });
-      return `Added MCP server "${content.name}".`;
+      // N2: the declaration is persisted and NOTHING is executed.
+      //
+      // `command`, `args` and `env` here are MODEL OUTPUT. A prompt-injected
+      // page or a poisoned tool result can put any argv it likes in a
+      // [CONCIERGE_PROPOSE] block, so probing this declaration - which spawns it
+      // - made Accept arbitrary command execution, reachable from a paired
+      // browser through `conciergeConfig.confirm-proposal`. The probe ran BEFORE
+      // its own declaration validation could throw, so no amount of validation
+      // downstream of the spawn helps.
+      //
+      // This is the same call the sibling `install_agent` case already makes:
+      // it treats its `npmPackage` as ADVISORY, because trusting that field
+      // would let a prompt-injected block install an arbitrary npm package.
+      //
+      // A command allowlist is NOT the alternative. Any list containing
+      // `npx`/`uvx`/`node` is arbitrary code execution by construction, and any
+      // list excluding them makes the feature useless. There is no safe subset
+      // of "arbitrary executable + argv".
+      //
+      // B3's invariant survives intact. B3 killed the affirmative lie
+      // `Added MCP server "X".` over a connector nothing had reached; its rule
+      // is that the receipt may only say what the host actually CHECKED. A host
+      // that checks nothing satisfies that rule by claiming nothing. The string
+      // below claims a persist (true) and gives an instruction (true).
+      return `Added "${server.name}" to your MCP Library - open Settings -> MCP Library to connect it.`;
     }
     case 'edit_assistant': {
       const ok = await writeAssistantRules(content.assistantId, content.rules, 'en-US');

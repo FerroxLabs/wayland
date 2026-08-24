@@ -37,5 +37,6 @@
     "seeAllScheduled": "모든 예약 작업 보기 →",
     "seeAllChats": "모든 채팅 보기 →",
     "showMore": "{{count}}개 더 보기 →"
-  }
+  },
+  "artifacts": "산출물"
 }

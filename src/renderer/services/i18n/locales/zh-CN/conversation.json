@@ -550,5 +550,33 @@
       "revealFailed": "Wayland 无法打开该文件夹。原因：{{reason}}"
     },
     "notText": "Wayland 无法把这个文件当作文本读取——它有些字节不是有效的 UTF-8，而设置文件格式要求 UTF-8。什么都没有被改动。"
+  },
+  "artifactCard": {
+    "title": "已保存到你的工作区",
+    "openHere": "在此打开",
+    "openInApp": "在 {{app}} 中打开",
+    "openExternally": "用默认应用打开",
+    "reveal": "在文件夹中显示",
+    "saveCopy": "另存副本",
+    "changed": "该文件在保存后已被修改。",
+    "claimedButAbsent": "Wayland 无法确认 {{fileName}} 已写入。",
+    "claimedElsewhere": "{{fileName}} 已写入 {{actualPath}}，而不是本会话的文件。",
+    "claimedElsewhereInWorkspace": "{{fileName}} 位于工作区文件夹中，而不是本会话的文件。",
+    "update": "更新",
+    "rejected": "有 {{count}} 个文件未保存为交付物：{{detail}}。",
+    "rejected_other": "有 {{count}} 个文件未保存为交付物：{{detail}}。",
+    "unknownError": "操作未成功。该文件可能已被移动。",
+    "rejectedOutsideFolder": "{{count}} 个保存在此对话的文件夹之外",
+    "rejectedOutsideFolder_other": "{{count}} 个保存在此对话的文件夹之外",
+    "rejectedNotAFile": "{{count}} 个不是常规文件",
+    "rejectedNotAFile_other": "{{count}} 个不是常规文件",
+    "rejectedTooBig": "{{count}} 个太大，无法保存",
+    "rejectedTooBig_other": "{{count}} 个太大，无法保存",
+    "rejectedTooMany": "{{count}} 个超出本轮上限",
+    "rejectedTooMany_other": "{{count}} 个超出本轮上限",
+    "rejectedUnreadable": "{{count}} 个无法读取",
+    "rejectedUnreadable_other": "{{count}} 个无法读取",
+    "more": "另有 {{count}} 个在“交付物”中",
+    "more_other": "另有 {{count}} 个在“交付物”中"
   }
 }

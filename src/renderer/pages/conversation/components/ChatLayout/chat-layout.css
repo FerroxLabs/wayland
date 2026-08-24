@@ -108,3 +108,51 @@
     margin-right: 4px;
   }
 }
+
+/* The preview away strip (SPEC-PREVIEW-PANE §4 Lane D). Sits where the
+   deliverable's pane would have opened, so the popped window is never a hole. */
+.preview-away {
+  border: 1px solid var(--bg-3);
+  background: color-mix(in srgb, var(--bg-2) 70%, transparent);
+}
+
+.preview-away__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--bg-1);
+  background: var(--color-primary, #f97316);
+}
+
+/* ONE pulse, not a heartbeat. A deliverable arriving is worth a glance, not a
+   control that keeps twitching while you read something else. The suppression
+   under `prefers-reduced-motion` is done in JS (see PreviewAwayStrip) so the
+   count itself stays visible; this block is the belt to that braces. */
+.preview-away__count--pulse {
+  animation: preview-away-pulse 600ms ease-out 1;
+}
+
+@keyframes preview-away-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-away__count--pulse {
+    animation: none;
+  }
+}
