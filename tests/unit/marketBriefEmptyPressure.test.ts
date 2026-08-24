@@ -32,6 +32,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { execFileSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { mkdtempSync, writeFileSync, readFileSync, rmSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -51,12 +52,11 @@ const INDEX_SYMBOLS = ['ES=F', 'NQ=F', 'YM=F', 'RTY=F', 'CL=F', 'GC=F', '^VIX', 
  */
 function notFoundPreload(dir: string): string {
   const p = path.join(dir, 'notfound.mjs');
-  writeFileSync(
-    p,
-    ['globalThis.fetch = async () => new Response("not found", { status: 404 });'].join('\n'),
-    'utf8'
-  );
-  return p;
+  writeFileSync(p, ['globalThis.fetch = async () => new Response("not found", { status: 404 });'].join('\n'), 'utf8');
+  // `--import` takes a module SPECIFIER, not a path. A Windows path like
+  // C:\... is not a valid one, so node exits before the scanner runs and the
+  // assertion sees empty output rather than the refusal it is checking for.
+  return pathToFileURL(p).href;
 }
 
 /** 260 daily bars on a gentle uptrend - enough for the 1-year percentile and the SMAs. */
@@ -95,21 +95,17 @@ function runReport(dir: string, opts: { warm: boolean }): { json: string; html: 
   const list = path.join(dir, 'list.csv');
   // Three names that do not exist. The scanner gets a 404 for each, which is
   // the server answering, so this is an empty run and not a refused one.
-  writeFileSync(list, 'symbol,ticker,exchange\nNASDAQ:ZZZQQQ1,ZZZQQQ1,NASDAQ\nNASDAQ:ZZZQQQ2,ZZZQQQ2,NASDAQ\nNASDAQ:ZZZQQQ3,ZZZQQQ3,NASDAQ\n', 'utf8');
+  writeFileSync(
+    list,
+    'symbol,ticker,exchange\nNASDAQ:ZZZQQQ1,ZZZQQQ1,NASDAQ\nNASDAQ:ZZZQQQ2,ZZZQQQ2,NASDAQ\nNASDAQ:ZZZQQQ3,ZZZQQQ3,NASDAQ\n',
+    'utf8'
+  );
 
   const jsonOut = path.join(dir, 'mr.json');
   try {
     execFileSync(
       process.execPath,
-      [
-        '--import',
-        notFoundPreload(dir),
-        path.join(SCRIPTS, 'morning-report.mjs'),
-        '--end',
-        END,
-        '--json',
-        jsonOut,
-      ],
+      ['--import', notFoundPreload(dir), path.join(SCRIPTS, 'morning-report.mjs'), '--end', END, '--json', jsonOut],
       {
         encoding: 'utf8',
         env: {

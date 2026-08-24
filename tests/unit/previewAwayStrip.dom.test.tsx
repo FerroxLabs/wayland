@@ -31,7 +31,12 @@ const bridge = vi.hoisted(() => {
     popoutInvoke: vi.fn(async () => ({ ok: true, alreadyOpen: false })),
     dockBackInvoke: vi.fn(async () => ({ ok: true, tab: { id: 'tab-brief' } })),
     emit(payload: unknown) {
-      for (const listener of [...listeners]) listener(payload);
+      // Iterate a COPY. `on()` hands back an unsubscribe that splices this same
+      // array, so a listener whose effect cleans up mid-emit would otherwise
+      // shift the array under the loop and skip its neighbour. slice() rather
+      // than a spread because oxlint's no-useless-spread is error-level here and
+      // cannot see the mutation this guards against.
+      for (const listener of listeners.slice()) listener(payload);
     },
   };
 });

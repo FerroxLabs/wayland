@@ -45,7 +45,12 @@ describe('routine prefetch', () => {
     // two other guards, because computing the DELIVERABLES path that way is
     // what once filed the brief inside `.wayland-core/`, where the Workbench
     // never showed it.
-    const ws = '/tmp/example-workspace';
+    // Absolute ON THIS PLATFORM. A bare '/tmp/...' is rootless on Windows, so
+    // `path.join` keeps it rootless while `path.resolve` below anchors it to
+    // the cwd's drive - the two then differ by a drive letter alone and the
+    // check fails for a reason that cannot happen in production, where the
+    // workspace is always a real absolute directory.
+    const ws = path.resolve('/tmp/example-workspace');
     const hostPath = routineCacheDir(ws);
     const body = readFileSync(ROUTINE_BODY, 'utf8');
     const match = body.match(/export MARKET_OPEN_REPORT_CACHE=(\S+)/);
@@ -64,7 +69,7 @@ describe('routine prefetch', () => {
     expect(routineCacheDir(ws)).toBe(path.join(cwdDuringRun, '.market-open-report-cache', 'yahoo-cache'));
   });
 
-  it('prefetches the scanner\'s OWN watchlist plus the overview symbols, and never throws', async () => {
+  it("prefetches the scanner's OWN watchlist plus the overview symbols, and never throws", async () => {
     const ws = tempWorkspace();
     try {
       // Place the skill the way the cron path does, so the watchlist the

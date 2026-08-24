@@ -50,6 +50,14 @@ import path from 'node:path';
 import { beginTaskRun, commitTaskRun } from '@process/services/artifacts/taskRun';
 import { buildOutputDirective, resolveOutputDir } from '@process/agent/wcore/envBuilder';
 
+// The two EXECUTED cases below parse the body with a real POSIX shell. Windows
+// has none, so they are gated on the interpreter EXISTING rather than on the
+// platform - the subject (the routine body) is platform-independent and stays
+// fully checked on the Linux and macOS legs of every CI run, which is where a
+// broken block would be caught. This gates on a missing tool; it does not
+// weaken what the assertions demand where the tool is present.
+const HAS_POSIX_SH = existsSync('/bin/sh');
+
 const BODY = path.resolve(
   __dirname,
   '../../src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md'
@@ -158,7 +166,7 @@ describe('CORPUS + EXECUTION: the body never asks for a command this machine can
     expect(md).toContain('mkdir -p');
   });
 
-  it('EXECUTED: every shell command block in the body parses under /bin/sh', () => {
+  it.skipIf(!HAS_POSIX_SH)('EXECUTED: every shell command block in the body parses under /bin/sh', () => {
     const md = body();
     const blocks = [...md.matchAll(/```(?:bash|sh|shell|zsh)\n([\s\S]*?)```/g)].map((m) => m[1]);
     expect(blocks.length).toBeGreaterThan(0); // known positive
@@ -173,7 +181,7 @@ describe('CORPUS + EXECUTION: the body never asks for a command this machine can
     }
   });
 
-  it('EXECUTED: no errand is asked for without a command that runs on this machine', () => {
+  it.skipIf(!HAS_POSIX_SH)('EXECUTED: no errand is asked for without a command that runs on this machine', () => {
     const md = body();
     // An ASK, not a prohibition: "Do not prune the cache" is the fix, not the
     // bug, so a negated line is excluded. The bug is an imperative with no

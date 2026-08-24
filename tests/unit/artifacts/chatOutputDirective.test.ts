@@ -101,7 +101,14 @@ describe('T2 - the spawn tells the model where its deliverables go', () => {
     // workspace, so `/var/...` becomes `/private/var/...` on macOS. A test
     // holding the lexical spelling would compare two different strings for the
     // same directory and read a working spawn as a broken one.
-    workspace = realpathSync(mkdtempSync(path.join(os.tmpdir(), 'wl-directive-ws-')));
+    // `.native` because the PRODUCT canonicalises with `fs/promises.realpath`,
+    // the OS-level call. On Windows that expands an 8.3 short name, so a CI
+    // runner whose TMP is C:\Users\RUNNER~1\... hands the spawn
+    // C:\Users\runneradmin\... while the JS `realpathSync` here kept the short
+    // spelling - two spellings of one directory, and every path assertion below
+    // compares them as strings. On macOS/Linux this resolves identically to
+    // before (/var -> /private/var), which is what the note above is about.
+    workspace = realpathSync.native(mkdtempSync(path.join(os.tmpdir(), 'wl-directive-ws-')));
   });
 
   afterEach(() => {

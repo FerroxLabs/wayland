@@ -36,6 +36,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { execFileSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { mkdtempSync, writeFileSync, readFileSync, rmSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -206,7 +207,10 @@ describe('the scanner CLI names the cause on stdout', () => {
       try {
         stdout = execFileSync(
           process.execPath,
-          ['--import', preload, path.join(SCRIPTS, 'morning-report.mjs'), '--end', '20260822'],
+          // `--import` takes a module SPECIFIER. A bare Windows path is not a
+          // valid one, so node would exit before the scanner ran and stdout
+          // would be empty rather than carrying the REFUSED block.
+          ['--import', pathToFileURL(preload).href, path.join(SCRIPTS, 'morning-report.mjs'), '--end', '20260822'],
           {
             encoding: 'utf8',
             env: {
@@ -247,10 +251,7 @@ describe('the scanner CLI names the cause on stdout', () => {
       const token = (stdout.match(/\bREFUSED\b/) ?? [])[0];
       expect(token).toBe('REFUSED');
       const body = readFileSync(
-        path.resolve(
-          __dirname,
-          '../../src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md'
-        ),
+        path.resolve(__dirname, '../../src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md'),
         'utf8'
       );
       expect(body).toContain(token);
