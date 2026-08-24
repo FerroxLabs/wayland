@@ -61,16 +61,18 @@ const ArtifactsPage = React.lazy(() => import('@renderer/pages/artifacts/Artifac
 const PreviewPopoutPage = React.lazy(() => import('@renderer/pages/preview/PreviewPopoutPage'));
 /**
  * A preview pop-out window is BORN on `#/preview?mode=popout`, and the handoff
- * that seeds it is emitted from that window's `did-finish-load`. The page's
- * module-scope listener can only latch a handoff that arrives after its chunk
- * has evaluated, so start fetching the chunk here - at module scope, the
- * earliest point in this renderer - rather than waiting for the first render to
- * ask for it. Only in a window that is already on the route, so the main
- * window's startup is untouched.
+ * that seeds it is emitted from that window's `did-finish-load`. The page above
+ * is LAZY, so its chunk resolves strictly after that moment and a listener
+ * registered in it would miss the tab outright - the platform emitter has no
+ * replay, so an event with no subscriber is dropped, not queued. Observed live:
+ * the popped window came up blank.
+ *
+ * So the listener is imported STATICALLY here, in a module the renderer
+ * evaluates at startup. It subscribes and latches; the page reads the latch
+ * whenever its chunk finally arrives. Importing it in the main window too is
+ * harmless - it latches a value nothing there reads.
  */
-if (typeof window !== 'undefined' && window.location.hash.startsWith('#/preview')) {
-  void import('@renderer/pages/preview/PreviewPopoutPage');
-}
+import '@renderer/pages/preview/previewHandoffLatch';
 const IjfwSettingsPanel = React.lazy(() => import('@renderer/pages/settings/IjfwSettingsPanel'));
 const WikiHomePage = React.lazy(() =>
   import('@renderer/pages/wiki/WikiHomePage').then((m) => ({ default: m.WikiHomePage }))

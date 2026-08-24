@@ -88,7 +88,11 @@ vi.mock('@/renderer/pages/conversation/Preview', async (importOriginal) => {
   return { ...actual, PreviewPanel: Probe };
 });
 
-import PreviewPopoutPage, { __previewHandoffLatch } from '@renderer/pages/preview/PreviewPopoutPage';
+import PreviewPopoutPage from '@renderer/pages/preview/PreviewPopoutPage';
+// The latch is deliberately NOT in the page module: the page is lazy-routed and
+// its chunk resolves after the handoff is emitted. Importing it from its own
+// eager module here is the same thing the router does.
+import { __previewHandoffLatch } from '@renderer/pages/preview/previewHandoffLatch';
 
 const BRIEF = '<h1>Morning Brief</h1>';
 
@@ -237,6 +241,42 @@ describe('PreviewPopoutPage', () => {
 
     await screen.findByTestId('preview-panel');
     expect(screen.getByTestId('preview-popout-title')).toHaveTextContent('morning-brief.html');
+  });
+
+  /**
+   * THE BLANK POP-OUT, caught live and reproduced here.
+   *
+   * A pop-out shares its origin - and therefore localStorage - with the main
+   * window, so `PreviewProvider` rehydrates whatever tab was last persisted
+   * there even though nothing was handed to this window. Rehydration forces
+   * `isOpen: false`, so `PreviewPanel` returns null and the window renders its
+   * header over an empty body: a correct-looking title above nothing at all.
+   *
+   * Measured in the real app before the fix: the content wrapper was
+   * 1240x855 with ZERO children.
+   *
+   * A tab this window was never handed must therefore NOT be presented as one
+   * that arrived.
+   */
+  it('does not present a tab it was never handed, even one left in shared storage', async () => {
+    localStorage.setItem(
+      'wayland_preview_tabs',
+      JSON.stringify([
+        {
+          id: 'stale-tab',
+          content: '<h1>Stale</h1>',
+          contentType: 'html',
+          title: 'morning-brief.html',
+          metadata: { fileName: 'morning-brief.html' },
+        },
+      ])
+    );
+
+    render(<PreviewPopoutPage />);
+
+    // The honest empty state, not a blank panel under a plausible title.
+    expect(await screen.findByTestId('preview-popout-empty')).toBeInTheDocument();
+    expect(screen.queryByTestId('preview-panel')).not.toBeInTheDocument();
   });
 
   /** A malformed frame must not take the window down. */

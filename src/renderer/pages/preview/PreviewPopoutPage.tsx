@@ -27,6 +27,9 @@
 
 import { ipcBridge } from '@/common';
 import type { PreviewPopoutTab } from '@/common/adapter/ipcBridge';
+// The latch lives in its own EAGER module: this page is lazy, and its chunk
+// resolves after `did-finish-load` - the exact moment the handoff is emitted.
+import { onPreviewSeed, peekLatchedTab } from './previewHandoffLatch';
 import WindowControls from '@renderer/components/layout/WindowControls';
 import { PreviewPanel, PreviewProvider, usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { copyText } from '@renderer/utils/ui/clipboard';
@@ -37,50 +40,19 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@renderer/components/layout/Titlebar/titlebar.css';
 
-type PreviewHandoffPayload = { tab: PreviewPopoutTab; direction: 'popout' | 'dock-back' };
-
-/**
- * THE SEEDING RACE, and why this listener is not in a `useEffect`.
- *
- * `initMainAdapterWithWindow` registers the popped window with the bridge
- * before its renderer exists, and the platform emitter has NO REPLAY: an event
- * with no subscriber at the moment it arrives is dropped, not queued. The
- * handoff is emitted from the window's `did-finish-load`, which is strictly
- * after this module's script has evaluated but can be before React has flushed
- * its first effects. A listener created inside a `useEffect` therefore misses
- * the handoff outright and the window renders empty - the exact "the brief
- * vanishes in the new window" failure this feature exists to prevent.
- *
- * So: subscribe at MODULE SCOPE and LATCH the payload. The component reads the
- * latch on mount and subscribes for the ones that arrive later (a second
- * deliverable while the window is already open re-fires the ready hook).
- */
-let latchedTab: PreviewPopoutTab | null = null;
-const seedSubscribers = new Set<(tab: PreviewPopoutTab) => void>();
-
-const acceptHandoff = (payload: PreviewHandoffPayload): void => {
-  // Only the OUTBOUND leg seeds this window. The same channel carries
-  // `direction: 'dock-back'` when this window is closing and the tab is going
-  // home; acting on that here would re-seed a window that is going away.
-  if (!payload || payload.direction !== 'popout' || !payload.tab) return;
-  latchedTab = payload.tab;
-  seedSubscribers.forEach((notify) => notify(payload.tab));
-};
-
-ipcBridge.preview.handoff.on(acceptHandoff);
-
-/** Test seam for the module-scope latch. Never called by the app. */
-export const __previewHandoffLatch = {
-  peek: (): PreviewPopoutTab | null => latchedTab,
-  reset: (): void => {
-    latchedTab = null;
-  },
-};
-
 const PreviewPopoutShell: React.FC = () => {
   const { t } = useTranslation();
   const { tabs, activeTab, openPreview, setSendBoxHandler } = usePreviewContext();
   const [docking, setDocking] = useState(false);
+  /**
+   * A pop-out shares its ORIGIN, and therefore localStorage, with the main
+   * window, so `PreviewProvider` rehydrates whatever tab was last persisted
+   * there. That tab was never handed to this window and its `isOpen` is forced
+   * `false` on rehydration, so rendering the panel for it draws an empty box
+   * under a correct-looking title - which is exactly how the blank pop-out
+   * presented live. Only a tab this window was actually HANDED counts.
+   */
+  const [seeded, setSeeded] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const mac = useMemo(() => isMacOS(), []);
 
@@ -90,6 +62,7 @@ const PreviewPopoutShell: React.FC = () => {
   // for the same deliverable updates that tab instead of stacking duplicates.
   useEffect(() => {
     const seed = (tab: PreviewPopoutTab) => {
+      setSeeded(true);
       openPreview(tab.content, tab.contentType, {
         ...tab.metadata,
         title: tab.metadata?.title ?? tab.title,
@@ -102,11 +75,9 @@ const PreviewPopoutShell: React.FC = () => {
         editable: false,
       });
     };
-    if (latchedTab) seed(latchedTab);
-    seedSubscribers.add(seed);
-    return () => {
-      seedSubscribers.delete(seed);
-    };
+    const latched = peekLatchedTab();
+    if (latched) seed(latched);
+    return onPreviewSeed(seed);
   }, [openPreview]);
 
   /**
@@ -203,7 +174,7 @@ const PreviewPopoutShell: React.FC = () => {
       </header>
 
       <div className='flex-1 min-h-0 overflow-hidden'>
-        {tabs.length > 0 ? (
+        {seeded && tabs.length > 0 ? (
           <PreviewPanel />
         ) : (
           /* `/preview` is reachable through `app.popoutRoute` with no handoff
