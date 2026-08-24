@@ -73,7 +73,20 @@ vi.mock('@/renderer/pages/conversation/Preview', () => ({
 
 // Peripheral deps we do not exercise here.
 vi.mock('swr', () => ({ default: () => ({ data: undefined }) }));
-vi.mock('@/common', () => ({ ipcBridge: { conversation: { dockBack: { invoke: vi.fn() } } } }));
+vi.mock('@/common', () => ({
+  ipcBridge: {
+    conversation: { dockBack: { invoke: vi.fn() } },
+    // ChatLayout now mounts `usePreviewAway`, which subscribes to the preview
+    // break-out broadcast on mount. The real bridge always has this namespace
+    // (`bridgeAllowlist` registers every provider/emitter key at module load), so
+    // a mock without it is a mock that does not match production.
+    preview: {
+      handoff: { on: () => () => undefined },
+      popout: { invoke: vi.fn(async () => ({ ok: true, alreadyOpen: false })) },
+      dockBack: { invoke: vi.fn(async () => undefined) },
+    },
+  },
+}));
 // `get` resolves rather than returning undefined: the real API is always async,
 // and ChatLayout now mounts the voice session (which reads stored consent on
 // mount) around the whole layout instead of inside its header.
