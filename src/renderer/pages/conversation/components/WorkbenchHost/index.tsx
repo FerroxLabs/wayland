@@ -131,12 +131,25 @@ export const CHAT_MIN_WIDTH = 560;
 export const NAV_RAIL_WIDTH = 168;
 
 /**
- * Default width for a pane showing a document, given the window it opens in.
- * 1440 (a laptop) resolves to 712; 1920 resolves to the 900 cap. Never a
- * ceiling on the drag - `MAX_WIDTH` still is - only where the pane STARTS.
+ * Default width for a pane showing a document.
+ *
+ * PREFER THE HOST'S OWN WIDTH. `NAV_RAIL_WIDTH` is a guess about furniture that
+ * lives outside this component, and measured live it was WRONG: the rail
+ * resolved to 281px, not 168. Subtracting the smaller constant asks for more
+ * width than exists, and the layout absorbs the difference by pinning the chat
+ * to its `min-width` floor - so on a 1209px window the pane opened at 344px
+ * while this function claimed 481, and the chat sat at exactly 560.
+ *
+ * Given the host's real width there is nothing to guess: the pane gets what is
+ * left after the chat's floor, capped. The window path stays as a fallback for
+ * the first paint, before the host has been measured.
+ *
+ * Never a ceiling on the drag - `MAX_WIDTH` still is - only where the pane STARTS.
  */
-export const documentPaneDefaultWidth = (windowWidth: number): number =>
-  Math.max(MIN_WIDTH, Math.min(PREVIEW_PANE_MAX, windowWidth - NAV_RAIL_WIDTH - CHAT_MIN_WIDTH));
+export const documentPaneDefaultWidth = (windowWidth: number, hostWidth?: number): number => {
+  const available = hostWidth && hostWidth > 0 ? hostWidth : windowWidth - NAV_RAIL_WIDTH;
+  return Math.max(MIN_WIDTH, Math.min(PREVIEW_PANE_MAX, available - CHAT_MIN_WIDTH));
+};
 
 /**
  * Spacing scale for the workbench card. Kept as a tiny local scale rather than
@@ -276,6 +289,8 @@ const WorkbenchHost: React.FC<{
   const [widthSetByUser, setWidthSetByUser] = useState(persisted.widthSetByUser === true);
   const priorRequests = useRef<Record<string, string | number | boolean | undefined>>({});
   const handledRequest = useRef<string | undefined>(undefined);
+  /** The host's own box - the only honest source for how much room there is. */
+  const hostRef = useRef<HTMLDivElement | null>(null);
   /**
    * Sections that have been expanded at least once keep their content mounted
    * (hidden) when collapsed, so collapsing and re-expanding never remounts an
@@ -498,7 +513,10 @@ const WorkbenchHost: React.FC<{
 
   useEffect(() => {
     if (!documentSectionVisible || widthSetByUser) return;
-    setWidth(documentPaneDefaultWidth(typeof window === 'undefined' ? 0 : window.innerWidth));
+    // `clientWidth` is 0 under jsdom (no layout) and on the very first paint;
+    // the helper falls back to the window path for exactly that case.
+    const hostWidth = hostRef.current?.clientWidth ?? 0;
+    setWidth(documentPaneDefaultWidth(typeof window === 'undefined' ? 0 : window.innerWidth, hostWidth));
   }, [documentSectionVisible, widthSetByUser]);
 
   /** Collapse every section at once - the card's own dismiss. */
@@ -548,7 +566,7 @@ const WorkbenchHost: React.FC<{
 
   return (
     <WorkbenchRegistryContext.Provider value={contextValue}>
-      <div className='workbench-host flex flex-1 min-w-0 min-h-0 relative' data-testid='workbench-host'>
+      <div ref={hostRef} className='workbench-host flex flex-1 min-w-0 min-h-0 relative' data-testid='workbench-host'>
         {/* `min-w-0` is what let the chat collapse: `flex-1` gives the column
             `flex-basis: 0`, so with no floor EVERY pixel of shrink came out of
             the conversation and it could resolve to zero beside a wide pane.

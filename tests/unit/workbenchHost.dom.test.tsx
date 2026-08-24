@@ -478,6 +478,29 @@ describe('preview pane default width and the conversation floor', () => {
     expect(documentPaneDefaultWidth(900)).toBe(260);
   });
 
+  /**
+   * MEASURED WIDTH BEATS THE GUESSED RAIL.
+   *
+   * `NAV_RAIL_WIDTH` describes furniture outside this component, and live it
+   * was wrong: the rail resolved to 281px, not 168. Asking for more room than
+   * exists does not fail loudly - the layout pins the chat to its `min-width`
+   * floor and the pane silently opens narrower than the number this function
+   * returned. Measured in the running app on a 1209px window: host 928, pane
+   * 344, chat exactly 560, while the window-only formula claimed 481.
+   *
+   * Given the host's real width there is nothing left to guess.
+   */
+  it('spends the host width it was given rather than guessing past the nav rail', () => {
+    // The live case: a 1209px window whose host really has 928.
+    expect(documentPaneDefaultWidth(1209, 928)).toBe(368);
+    // The guess would have over-asked by the width of the rail it got wrong.
+    expect(documentPaneDefaultWidth(1209)).toBe(481);
+    // A host wide enough still stops at the documented cap.
+    expect(documentPaneDefaultWidth(1920, 1639)).toBe(PREVIEW_PANE_MAX);
+    // Unmeasured (first paint, and jsdom always) falls back to the window path.
+    expect(documentPaneDefaultWidth(1440, 0)).toBe(712);
+  });
+
   it('opens a document section at 712 on a 1440 laptop, not at the 340px rail default', async () => {
     withWindowWidth(1440);
     render(
