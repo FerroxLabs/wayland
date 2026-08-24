@@ -105,8 +105,19 @@ function collectReferences(): Reference[] {
  *  - anything else is relative to the skill's own directory, which is the cwd
  *    the SKILL.md tells the agent to `cd` into.
  */
+/** The engine stages every enabled skill under `<workspace>/.wayland-core/skills/<id>/`. */
+const WORKSPACE_SKILLS_PREFIX = '.wayland-core/skills/';
+
 function resolveReference(ref: Reference): string {
   if (ref.token.startsWith('skills/')) return path.join(RESOURCES, ref.token);
+  // A CROSS-SKILL reference: one skill running a script that ships inside
+  // another, named by the path the engine actually stages it at. Resolved
+  // against the skills root rather than the naming skill's own directory,
+  // which is why this is not an exemption - it checks a reference the old
+  // resolver could only ever have reported as missing.
+  if (ref.token.startsWith(WORKSPACE_SKILLS_PREFIX)) {
+    return path.join(SKILLS, ref.token.slice(WORKSPACE_SKILLS_PREFIX.length));
+  }
   return path.join(SKILLS, ref.skill, ref.token);
 }
 

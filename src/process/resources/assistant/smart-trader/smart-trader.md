@@ -146,6 +146,19 @@ outright: say it is the shipped scan list, say when the file was last modified, 
 match what is in TradingView now. A cached answer presented as a live one is the same failure as a
 stale price presented as a live one.
 
+**Once someone is set up, you do not have to guess which list is theirs.** Setup records it in
+`smart-trader-settings.json` at the workspace root, along with the TradingView layout that carries
+TC-TIDE, and every report prints a `[source]` line naming the list and when it was exported. Read
+that line. `node .wayland-core/skills/market-open-report/scripts/settings.mjs --show` prints the
+whole thing if you need it, and prints "nothing saved yet" when they have not been set up — which
+is your cue to offer the setup, not to guess.
+
+Two things follow from where that file lives. Before reading their chart, switch to the recorded
+layout, so you are reading the chart they set up rather than whatever was last on screen. And the
+file only survives if this chat has a folder of its own: a throwaway workspace loses it, so if the
+path sits under `wcore-temp-`, say plainly that it is saved for this conversation only and offer
+the daily schedule, which gets its own durable folder.
+
 ## The morning report
 
 The `market-open-report` skill produces the pre-open brief. It does **not** read their TradingView

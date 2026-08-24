@@ -5,6 +5,36 @@ description: Produce the TC-TIDE morning report — scan the watchlist for trend
 
 # Morning report
 
+## Which list it scans
+
+The run prints a `[source]` line before anything else, naming where the watchlist came from:
+
+```
+[source] watchlist: your saved list "TC-MASTER-WATCHLIST", exported 2026-08-24T02:46:48.582Z
+[source] watchlist: the scan list that ships with the report, not your TradingView watchlist
+```
+
+**Quote that line. Never infer the source from the symbol count** — the saved list and the shipped
+list can hold the same number of names, and presenting one as the other is the same failure as
+presenting a stale price as a live one.
+
+Resolution order is: the `MARKET_OPEN_REPORT_LIST` environment variable, then
+`smart-trader-settings.json` at the workspace root, then the CSV shipped inside this skill. A
+recorded path that no longer exists is discarded and the run says so on stderr, because a missing
+CSV scans zero symbols and still produces a complete, well-formed, entirely empty report.
+
+To save or inspect the choice, use the skill's own tool rather than editing either file by hand:
+
+```bash
+node scripts/settings.mjs --show
+node scripts/settings.mjs --import-watchlist <watchlist_export.json> --name "<name>" --chart-layout "<layout>"
+```
+
+`tvcontrol-setup` Step 7 does this as part of getting someone set up. It only persists if the chat
+has a real workspace folder — in a throwaway `wcore-temp-` workspace it is gone next session, and
+`--show` prints the path so you can tell which one you are in.
+
+
 Runs a daily scan over the watchlist and produces two things: a plain-text
 report and a standalone HTML brief.
 

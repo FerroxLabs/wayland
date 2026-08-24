@@ -83,6 +83,17 @@
  *   MARKET_OPEN_REPORT_POSITIONS  positions CSV     (default: ../package/exports/positions.csv)
  *   MARKET_OPEN_REPORT_CACHE      Yahoo cache dir   (no fixed default - probed, see below)
  *
+ * Between the environment and the shipped defaults sits the saved choice in
+ * `<workspace>/smart-trader-settings.json` - see `settings.mjs` for why the
+ * workspace is the only place that can hold it. An env var still wins, so an
+ * operator override behaves exactly as it did before that file existed.
+ *
+ * The run prints one `[source]` line naming where the watchlist came from and,
+ * for a saved list, when it was exported. A symbol count cannot distinguish
+ * "your TradingView list" from "the list that ships with the report", and
+ * presenting one as the other is the same failure as presenting a stale price
+ * as a live one.
+ *
  * There is no fixed cache default: `~/.cache` is unreachable under the agent
  * sandbox, so with MARKET_OPEN_REPORT_CACHE unset `report.mjs` probes, in
  * order, `~/.cache/market-open-report/yahoo-cache`, then
@@ -97,6 +108,7 @@ import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { DEFAULT_CACHE_DIR, DEFAULT_LIST, DEFAULT_POSITIONS, main, writeJson } from './report.mjs';
+import { provenanceLine, resolvePaths } from './settings.mjs';
 import { dataSourceRefusal } from './yahooData.mjs';
 
 const PROG = basename(process.argv[1] || 'morning-report.mjs');
@@ -210,15 +222,25 @@ async function cli() {
   // the header for why there is deliberately no shape check on this line.
   const end = a.end || utcToday();
 
+  const { listPath, positionsPath, provenance } = resolvePaths({
+    defaultList: DEFAULT_LIST,
+    defaultPositions: DEFAULT_POSITIONS,
+  });
+
   const r = await main(
     { tier: a.tier, slots: a.slots, start: a.start, end: end, jsonout: a.jsonout },
     {
-      listPath: process.env.MARKET_OPEN_REPORT_LIST || DEFAULT_LIST,
+      listPath,
       cacheDir: process.env.MARKET_OPEN_REPORT_CACHE || DEFAULT_CACHE_DIR,
-      positionsPath: process.env.MARKET_OPEN_REPORT_POSITIONS || DEFAULT_POSITIONS,
+      positionsPath,
     }
   );
 
+  // Printed BEFORE the report so it survives a truncated read of the output.
+  process.stdout.write('[source] ' + provenanceLine(provenance) + '\n');
+  if (provenance.chartLayout) {
+    process.stdout.write('[source] chart layout for TC-TIDE: ' + provenance.chartLayout + '\n');
+  }
   process.stdout.write(r.text + '\n'); // print()
   if (r.jsonout) {
     writeJson(r.jsonout, r.payload);

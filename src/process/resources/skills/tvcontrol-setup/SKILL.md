@@ -356,14 +356,62 @@ said so.
 
 ---
 
-## Step 7 — run it, so they SEE it work
+## Step 7 — remember it, or they do this again tomorrow
+
+Everything above is now true of THIS session and nothing else. Nothing has recorded which
+watchlist is theirs or which layout carries TC-TIDE, so the next morning report falls back to the
+seventy-four names that ship inside the skill — and a symbol count cannot tell those two apart, so
+nobody would notice.
+
+Save both, with the skill's own tool. Do not hand-write the JSON or the CSV: two file formats
+written by hand are two places for a typo to land, and both fail the same quiet way — a malformed
+settings file reverts to the shipped list, a malformed CSV scans zero symbols and still exits 0.
+
+```bash
+# 1. export their live TradingView list  ->  watchlist_export  (file_path: watchlist-export.json)
+# 2. turn it into a saved scan list and record the layout, in one step:
+node .wayland-core/skills/market-open-report/scripts/settings.mjs \
+  --import-watchlist watchlist-export.json \
+  --name "<the watchlist name they use>" \
+  --chart-layout "<the layout name from layout_list>"
+```
+
+For the layout name, call `layout_list`. If exactly one is obviously the chart they just saved in
+Step 5, use it and **say which one you picked**. If it is ambiguous, ask — one question, naming the
+candidates. Guessing here is worse than asking, because a wrong layout sends every later chart read
+to the wrong chart and nothing about the answer looks wrong.
+
+Then read it back with `--show` and report from THAT, not from what you meant to save:
+
+```bash
+node .wayland-core/skills/market-open-report/scripts/settings.mjs --show
+```
+
+### ⚠️ It only persists if this chat has a real folder
+
+The settings file lives at the **workspace root**, and that is the only place it can live: the
+skill's own folder is wiped and re-copied every time the app starts, and everything outside the
+workspace is behind the sandbox.
+
+A chat with no folder of its own gets a throwaway workspace that is gone next time. So if `--show`
+reports a path under `wcore-temp-`, **say so plainly**: it is saved for this conversation and will
+not survive. Then offer the daily schedule — a recurring task gets its own durable folder
+(`~/Documents/Wayland/Tasks/…`), which is exactly the home these settings need. That is the honest
+version of "we're set up", and it is a better reason to say yes to the schedule than the schedule
+itself.
+
+---
+
+## Step 8 — run it, so they SEE it work
 
 **Do not stop at "you are set up."** Nobody believes a green tick. Run the morning report now
 with the `market-open-report` skill and put the result in front of them: how many names it
 scanned, the bar date, and the brief itself.
 
-It needs no chart and no watchlist of their own — a default list of seventy-four names ships
-with that skill — so this works even when part of the setup above did NOT. If TradingView
+The report reads the list you just saved, and prints a `[source]` line naming it and when it was
+exported — quote that line rather than the symbol count, so "your list" and "the shipped list" stay
+tellable apart. If Step 7 did not happen, it falls back to a default list of seventy-four names that
+ships with the skill, which is also why this works even when part of the setup above did NOT. If TradingView
 would not start, or the connector is still broken, **run the report anyway**. Ending with a
 real brief plus one honest sentence about what is still unfinished beats ending with an error
 and nothing to show for the last ten minutes.
