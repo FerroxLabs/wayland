@@ -1297,6 +1297,35 @@ export const previewHistory = {
   >('preview-history.get-content'),
 };
 
+/**
+ * A preview tab as it crosses a process boundary (SPEC-PREVIEW-PANE §3/§4).
+ *
+ * Structurally identical to `PreviewTab` in
+ * `@renderer/pages/conversation/Preview/context/PreviewContext` - that remains
+ * the source of truth. It is mirrored here rather than imported because nothing
+ * else in `common/` imports from `renderer/`, and
+ * `tests/unit/previewHandoffTransport.test.ts` holds a compile-time
+ * assignability assertion in BOTH directions so the mirror cannot drift.
+ */
+export interface PreviewPopoutTab {
+  id: string;
+  content: string;
+  contentType: import('../types/preview').PreviewContentType;
+  metadata?: {
+    language?: string;
+    title?: string;
+    diff?: string;
+    fileName?: string;
+    filePath?: string;
+    workspace?: string;
+    editable?: boolean;
+  };
+  title: string;
+  isDirty?: boolean;
+  originalContent?: string;
+  isStreaming?: boolean;
+}
+
 // Preview panel API
 export const preview = {
   // Agent triggers open preview (e.g., chrome-devtools navigates to URL)
@@ -1308,6 +1337,43 @@ export const preview = {
       fileName?: string;
     };
   }>('preview.open'),
+
+  // -- Break-out window (SPEC-PREVIEW-PANE §4 Lane B) ------------------------
+  //
+  // STORAGE IS NOT THE TRANSPORT. `PreviewProvider` is per-renderer React
+  // state, and its localStorage path drops any tab over 80,000 chars
+  // (`sanitizeTabsForPersistence`) - the flagship deliverable is a 77 KB HTML
+  // brief that is still growing. The whole tab therefore travels ON THE WIRE:
+  // in as a `preview.popout` provider param, back out as a `preview.handoff`
+  // broadcast. Both legs are plain JSON strings end to end (preload
+  // `JSON.stringify` -> `ipcMain.handle`'s `JSON.parse`; main-adapter
+  // `JSON.stringify` -> `webContents.send` -> browser-adapter `JSON.parse`), so
+  // there is no structured-clone step and the only ceiling is the main
+  // adapter's 50 MB payload guard.
+  //
+  // `preview.dock-back` is deliberately NOT `conversation.dock-back`: that one
+  // keys the pop-out registry by raw conversation id. This one is keyed by
+  // `routePopoutKey('preview')`.
+  popout: buildProvider<{ ok: boolean; alreadyOpen: boolean }, { tab: PreviewPopoutTab }>('preview.popout'),
+  /**
+   * Hands a whole tab across a window boundary, in either direction:
+   *  - `direction: 'popout'`   - main -> the popped window, seeding its own
+   *    `PreviewProvider`. Emitted once the popped renderer has finished loading.
+   *  - `direction: 'dock-back'` - the popped window closed by ANY path (its
+   *    Dock back control, the OS close button, app quit) and the tab is coming
+   *    home. Emitted exactly once per window, from the window's `closed`
+   *    handler, which is what makes red-button and Dock back the same action.
+   */
+  handoff: buildEmitter<{ tab: PreviewPopoutTab; direction: 'popout' | 'dock-back' }>('preview.handoff'),
+  /**
+   * Close the preview pop-out and dock the tab back.
+   *
+   * The dock itself is driven by the `direction: 'dock-back'` handoff above,
+   * because that is the only path the OS close button also travels. `tab` is
+   * returned here for a caller that wants a direct answer - apply ONE of the
+   * two, never both, or the tab docks twice.
+   */
+  dockBack: buildProvider<{ ok: boolean; tab: PreviewPopoutTab | null }, void>('preview.dock-back'),
 };
 
 export const document = {

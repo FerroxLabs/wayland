@@ -12,6 +12,15 @@ import { iconColors } from '@/renderer/styles/colors';
 import { Dropdown } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useContainerWidth } from '@/renderer/pages/conversation/hooks/useContainerWidth';
+
+/**
+ * Narrowest pane that can carry a side-by-side view. Below it each half is
+ * under 320px, which is narrower than the compact breakpoint of the documents
+ * this panel renders - there is nothing left to split, so the option is not
+ * offered rather than offered and useless.
+ */
+export const PREVIEW_SPLIT_MIN_WIDTH = 640;
 
 /**
  * PreviewToolbar component props
@@ -184,6 +193,18 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
 }) => {
   const { t } = useTranslation();
   const isDiff = contentType === 'diff';
+  // The toolbar spans the pane, so its own width IS the pane width. Measuring
+  // here keeps the rule with the control it gates instead of threading a width
+  // down from the panel.
+  const { containerRef, containerWidth } = useContainerWidth();
+  const canSplit = containerWidth >= PREVIEW_SPLIT_MIN_WIDTH;
+
+  // Losing the control while it is ON would strand the pane in a split it has
+  // no room for and no way out of, so a pane that narrows past the threshold
+  // leaves split too.
+  React.useEffect(() => {
+    if (!canSplit && isSplitScreenEnabled) onSplitScreenToggle();
+  }, [canSplit, isSplitScreenEnabled, onSplitScreenToggle]);
   const preferActionButtonsInFront = Boolean(leftExtra);
 
   const toolbarBtn =
@@ -192,7 +213,10 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
   const toolbarIconSize = 12;
 
   return (
-    <div className='flex items-center justify-between h-32px px-10px bg-2 flex-shrink-0 border-b border-1 overflow-x-auto'>
+    <div
+      ref={containerRef}
+      className='flex items-center justify-between h-32px px-10px bg-2 flex-shrink-0 border-b border-1 overflow-x-auto'
+    >
       <div className='flex items-center justify-between gap-8px w-full' style={{ minWidth: 'max-content' }}>
         {/* Left: Tabs (Markdown/HTML) + Filename */}
         <div className='flex items-center h-full gap-8px'>
@@ -238,9 +262,10 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                   {t('preview.preview')}
                 </div>
               </div>
-              {!isDiff && (
+              {!isDiff && canSplit && (
                 <div
-                  className={`flex items-center px-8px py-3px rd-4px cursor-pointer transition-colors duration-150 ${isSplitScreenEnabled ? toolbarBtnActive : 'text-t-secondary hover:bg-3'}`}
+                  className={`${toolbarBtn} ${isSplitScreenEnabled ? toolbarBtnActive : ''}`}
+                  data-testid='preview-split-toggle'
                   onClick={() => {
                     try {
                       onSplitScreenToggle();
@@ -261,6 +286,7 @@ const PreviewToolbar: React.FC<PreviewToolbarProps> = ({
                     <rect x='3' y='3' width='18' height='18' rx='2' />
                     <line x1='12' y1='3' x2='12' y2='21' />
                   </svg>
+                  <span>{t('preview.split', { defaultValue: 'Split' })}</span>
                 </div>
               )}
             </>
