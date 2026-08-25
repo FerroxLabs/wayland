@@ -176,4 +176,81 @@ describe('prepareConstitutionFs', () => {
     expect(manifest.binary.sha256).toBe(`sha256:${onDisk}`);
     fs.rmSync(root, { recursive: true, force: true });
   });
+
+  // The packaged gate needs the signing identifier to bind the helper's
+  // Developer ID signature to the bytes it was minted for (#1036). WHERE that
+  // identifier is allowed to live is the whole point of this test:
+  //
+  //   * not manifest.json - parseManifest's assertExactKeys throws
+  //     CONSTITUTION_FS_MANIFEST_INVALID on any unexpected field, so a signed,
+  //     notarized app would refuse to launch on every platform;
+  //   * not the authority compiled into app.asar - nothing in the main process
+  //     reads it, so rollup constant-folds it away and it never arrives;
+  //   * package-authority.json, which is read by the release gate and by
+  //     nothing else.
+  it.skipIf(process.platform !== 'darwin')(
+    'returns the signing identifier for package authority without putting it in the manifest or the embedded authority',
+    () => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'constitution-identifier-'));
+      const prebuilt = path.join(root, 'wayland-constitution-fs');
+      fs.writeFileSync(prebuilt, 'unsigned-bytes');
+      const unsignedSha256 = createHash('sha256').update('unsigned-bytes').digest('hex');
+      const outputRoot = path.join(root, 'out');
+      const generated = path.join(root, 'authority.generated.ts');
+      const execFileSync = vi.fn((command: string, args: string[]) => {
+        if (command === '/usr/bin/codesign' && args.includes('--sign'))
+          fs.writeFileSync(args[args.length - 1], 'signed');
+        return '';
+      });
+
+      const authority = prepareConstitutionFs({
+        platform: 'darwin',
+        arch: process.arch,
+        root,
+        outputRoot,
+        generated,
+        prebuiltBinary: prebuilt,
+        execFileSync,
+        signIdentity: 'Developer ID Application: Ferrox Labs, LLC (PX6SP9GPWJ)',
+      }) as { darwinSignatureIdentifier?: string | null };
+
+      expect(authority.darwinSignatureIdentifier).toBe(`wayland-constitution-fs.${unsignedSha256}`);
+      expect(fs.readFileSync(generated, 'utf8')).not.toContain('darwinSignatureIdentifier');
+
+      const manifest = JSON.parse(
+        fs.readFileSync(path.join(outputRoot, `darwin-${process.arch}`, 'manifest.json'), 'utf8')
+      ) as Record<string, unknown>;
+      expect(Object.keys(manifest).toSorted()).toEqual([
+        'arch',
+        'binary',
+        'platform',
+        'protocolVersion',
+        'schemaVersion',
+      ]);
+      expect(Object.keys(manifest.binary as Record<string, unknown>).toSorted()).toEqual([
+        'fileName',
+        'sha256',
+        'size',
+      ]);
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  );
+
+  // A build with no identity stages the helper unsigned on purpose. Claiming an
+  // identifier anyway would make the packaged gate demand a signature the
+  // artifact deliberately does not carry.
+  it.runIf(process.platform === 'darwin' || process.platform === 'linux')(
+    'claims no signing identifier when the build had no Developer ID identity',
+    () => {
+      const input = fixture();
+      const authority = prepareConstitutionFs({
+        ...input,
+        platform: process.platform,
+        arch: process.arch,
+        execFileSync: vi.fn(() => Buffer.alloc(0)),
+        signIdentity: null,
+      }) as { darwinSignatureIdentifier?: string | null };
+      expect(authority.darwinSignatureIdentifier).toBe(null);
+    }
+  );
 });
