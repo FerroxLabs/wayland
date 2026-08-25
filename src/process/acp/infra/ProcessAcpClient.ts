@@ -39,6 +39,7 @@ import type {
   AgentLifecycleSnapshot,
   DisconnectInfo,
 } from '@process/acp/infra/IAcpClient';
+import { createAcpStderrReader } from '@process/acp/acpStderrLog';
 import { NdjsonTransport } from '@process/acp/infra/NdjsonTransport';
 import { gracefulShutdown, waitForExit, waitForSpawn } from '@process/acp/infra/processUtils';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
@@ -433,12 +434,37 @@ export class ProcessAcpClient implements AcpClient {
 
   // ─── Internals: Stderr capture ────────────────────────────
 
+  /**
+   * Attach the two INDEPENDENT stderr consumers.
+   *
+   * They are independent on purpose and must stay that way (#1062):
+   *
+   *  - `appendStderr` grows the diagnostic RING, raw. Its doc comment records two
+   *    measured HIGH regressions from the last attempt to scrub at this site, and
+   *    `clearBunxCacheIfNeeded` regexes that ring to recover a corrupted bun cache.
+   *  - the log reader owns its OWN line buffer and its own resync flag, scrubs each
+   *    WHOLE line, classifies it, and writes it at that level. It DISCARDS on
+   *    overflow, which the ring may never do.
+   *
+   * The chunk went to `console.error` verbatim before this. That is both halves of
+   * this lane's work: raw because `configureConsoleLog`'s file hook is handed a
+   * CHUNK (a credential split across two writes has its anchor masked in one write
+   * and its body left whole in the next) and the console transport is not scrubbed
+   * at all; and `error` because every chunk was, so routine bridge notices were
+   * tagged `[error]` in the log and a bug report read as a wall of failures (#1041).
+   */
   private setupStderrCapture(child: ChildProcess): void {
+    const reader = createAcpStderrReader((line, level) => {
+      console[level](`[ACP ${this.options.backend} STDERR]:`, line);
+    });
     child.stderr?.on('data', (data: Buffer) => {
       const chunk = data.toString();
-      console.error(`[ACP ${this.options.backend} STDERR]:`, chunk);
+      reader.push(chunk);
       this.appendStderr(chunk);
     });
+    // A bridge whose LAST line has no trailing newline still has to be logged.
+    child.stderr?.on('end', () => reader.flush());
+    child.stderr?.on('close', () => reader.flush());
   }
 
   /**

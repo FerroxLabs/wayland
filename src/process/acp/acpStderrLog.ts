@@ -28,6 +28,14 @@ import { redactSecrets } from '@process/utils/secretRedaction';
 export type AcpStderrLevel = 'debug' | 'info' | 'warn' | 'error';
 
 /**
+ * Node's own process-warning shape, `(node:12345) [DEP0040] DeprecationWarning: ...`.
+ * Without it the `Warning:` rule anchors on a line start the warning never occupies
+ * and every deprecation and experimental-flag notice falls through to the info
+ * default.
+ */
+const NODE_WARNING_RE = /^\s*(?:\(node:\d+\)\s*)?(?:\[[^\]]*\]\s*)?(?:[A-Z][A-Za-z0-9_]*)?Warning:/;
+
+/**
  * Classify one ACP bridge stderr line.
  *
  * THE DEFAULT IS `info`, and that is the whole reason this is not
@@ -60,11 +68,7 @@ export function acpStderrLevel(line: string): AcpStderrLevel {
     return 'error';
   }
 
-  if (
-    /^\s*[[(]?\s*(?:WARN|WARNING)\b/i.test(text) ||
-    /^\s*npm WARN/.test(text) ||
-    /^\s*(?:[A-Z][A-Za-z0-9_]*)?Warning:/.test(text)
-  ) {
+  if (/^\s*[[(]?\s*(?:WARN|WARNING)\b/i.test(text) || /^\s*npm WARN/.test(text) || NODE_WARNING_RE.test(text)) {
     return 'warn';
   }
 
