@@ -39,6 +39,28 @@ let resolverOverride: (() => Promise<string>) | null = null;
  * every directory on PATH that could host a Node install (covers the Node MSI,
  * nvm-windows, fnm, volta, scoop and Chocolatey layouts) in addition to the
  * well-known fixed install locations.
+ *
+ * On POSIX the same sweep applies (#1043). It did not, and the omission was
+ * total for the feature on Linux: the branch never read the `env` argument it is
+ * handed, leaving `/usr/local/lib/node_modules` as the ONE live candidate there
+ * (`/opt/homebrew` is macOS-only, and the `libnode` entry named a directory that
+ * exists nowhere in this repo). apt, NodeSource, nvm, fnm and Linuxbrew were all
+ * unreachable, so IJFW could never self-install or update on a typical Linux box
+ * (#1021: "Could not resolve trusted npm (platform=linux)").
+ *
+ * A POSIX `npm` on PATH lives at `<prefix>/bin/npm`, so its CLI is derived by
+ * going UP one level from the PATH directory. Two shapes cover the field:
+ *   - `<prefix>/lib/node_modules/npm/bin/npm-cli.js` - NodeSource, nvm, fnm,
+ *     volta, n, Homebrew, Linuxbrew, /usr/local, and the official tarball;
+ *   - `<prefix>/share/nodejs/npm/bin/npm-cli.js` - the Debian/Ubuntu `npm` .deb.
+ *
+ * This widens where the resolver is willing to LOOK. It does not widen what it
+ * will ACCEPT: `defaultResolveTrustedNpm` still realpaths each candidate and
+ * still applies the POSIX ownership / world-writable checks in
+ * `__isAcceptableNpmStat`, so a candidate planted on PATH by another user is
+ * rejected exactly as before. This is still not a bare PATH lookup of an
+ * arbitrary `npm` binary (SEC-007) - only a named `npm-cli.js` under a
+ * Node-install-shaped prefix is ever considered.
  */
 export function __buildNpmCliCandidates(platform: NodeJS.Platform, env: NodeJS.ProcessEnv, execPath: string): string[] {
   if (platform === 'win32') {
@@ -71,11 +93,22 @@ export function __buildNpmCliCandidates(platform: NodeJS.Platform, env: NodeJS.P
     return [...new Set(candidates)];
   }
 
-  return [
-    path.join(path.dirname(execPath), '..', 'libnode', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'),
+  // Use path.posix explicitly so candidate construction is correct (and unit
+  // testable) regardless of the host OS the resolver/test runs on.
+  const posix = path.posix;
+  const candidates: string[] = [
     '/usr/local/lib/node_modules/npm/bin/npm-cli.js',
     '/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js',
   ];
+
+  for (const dir of (env['PATH'] ?? '').split(posix.delimiter).filter(Boolean)) {
+    const prefix = posix.dirname(dir);
+    candidates.push(posix.join(prefix, 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'));
+    candidates.push(posix.join(prefix, 'share', 'nodejs', 'npm', 'bin', 'npm-cli.js'));
+  }
+
+  // De-duplicate while preserving order.
+  return [...new Set(candidates)];
 }
 
 /**
