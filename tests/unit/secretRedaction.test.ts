@@ -7,7 +7,12 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { LABELLED_SECRET_LABELS, PASSPHRASE_SECRET_LABELS, redactSecrets } from '@process/utils/secretRedaction';
+import {
+  CAMEL_SECRET_LABELS,
+  LABELLED_SECRET_LABELS,
+  PASSPHRASE_SECRET_LABELS,
+  redactSecrets,
+} from '@process/utils/secretRedaction';
 import { CLEAN_CORPUS, SECRET_CORPUS } from '../fixtures/secretCorpus';
 
 describe('redactSecrets (canonical)', () => {
@@ -559,13 +564,28 @@ describe('the labelled-assignment shapes that still leak, pinned rather than cla
     expect(redactSecrets(counters)).toBe(counters);
   });
 
-  it('a bare `*_SECRET` with no `key` leaks: there is no bare `secret` core', () => {
-    // Deliberate: a bare `secret` core would also mask `secret_name=` and
-    // `secretRef=` in a Kubernetes or Vault diagnostic.
-    for (const name of ['JWT_SECRET', 'APP_SECRET', 'WEBHOOK_SECRET']) {
+  /**
+   * INVERTED by #1037, under the rule this describe block states: closing one of
+   * these gaps must fail here and bring the module's KNOWN GAPS list with it. It
+   * did, and it has - the `secret[_-]?key` comment and the KNOWN GAPS entry in
+   * `secretRedaction.ts` were rewritten in the same commit as this inversion.
+   *
+   * The refusal that stood here was argued on `secret_name=`/`secretRef=` in a
+   * Kubernetes or Vault diagnostic. Measured, half of that is false and the
+   * other half is a cost already accepted elsewhere in the same rule, so the
+   * `secretRef=` control below is kept as an assertion rather than deleted: it is
+   * the half of the old argument that is TRUE, and it must stay true.
+   */
+  it('a bare `*_SECRET` with no `key` is masked (#1037), and `secretRef=` still is not', () => {
+    for (const name of ['JWT_SECRET', 'APP_SECRET', 'WEBHOOK_SECRET', 'SESSION_SECRET', 'COOKIE_SECRET']) {
+      expect(redactSecrets(`${name}=${VALUE}`), name).toBe(`${name}=[redacted]`);
+    }
+    // The bare core ends at `secret` and the separator cannot match a letter, so
+    // the camel-spelled Kubernetes/Vault metadata names are untouched.
+    for (const name of ['secretRef', 'secretName']) {
       expect(redactSecrets(`${name}=${VALUE}`), name).toBe(`${name}=${VALUE}`);
     }
-    // Control: the two `secret` cores that DO exist still fire.
+    // Control: the two `secret` cores that predate it still fire.
     expect(redactSecrets(`CLIENT_SECRET=${VALUE}`)).toBe('CLIENT_SECRET=[redacted]');
     expect(redactSecrets(`SECRET_KEY=${VALUE}`)).toBe('SECRET_KEY=[redacted]');
   });
@@ -826,5 +846,48 @@ describe('token-shape pattern banks are registered, not accidental', () => {
       expect(existsSync(resolve(process.cwd(), file)), `${file} is registered but missing`).toBe(true);
       expect(reason.length, `${file} needs a real reason, not a placeholder`).toBeGreaterThan(40);
     }
+  });
+});
+
+/**
+ * #1037: the camel label list is an EXACT MIRROR of the snake one, asserted by
+ * execution rather than by the comment that says so.
+ *
+ * Two directions, and both matter. A snake core with no camel spelling leaks
+ * `myNewSecret=` while masking `NEW_SECRET=`; a camel label with no snake core
+ * masks `myPrivateKey=` while leaking `PRIVATE_KEY=`. Either way the bank covers
+ * a name in one spelling and not the other, which reads as covered when it is
+ * not - the precise shape of every defect this module has shipped.
+ */
+describe('the camelCase label list mirrors the snake one exactly', () => {
+  /** `secret[_-]?access[_-]?key` -> `SecretAccessKey`. */
+  const camelize = (core: string): string =>
+    core
+      .split('[_-]?')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+  /** `secret[_-]?access[_-]?key` -> `secretaccesskey`, the separator-free run. */
+  const flatten = (core: string): string => core.replaceAll('[_-]?', '');
+
+  it('the helpers produce real spellings (control against a vacuous comparison)', () => {
+    expect(camelize('secret[_-]?access[_-]?key')).toBe('SecretAccessKey');
+    expect(camelize('token')).toBe('Token');
+    expect(flatten('pass[_-]?phrase')).toBe('passphrase');
+  });
+
+  it('every snake core has a camel spelling', () => {
+    const missing = LABELLED_SECRET_LABELS.filter((core) => !CAMEL_SECRET_LABELS.includes(camelize(core)));
+    expect(missing).toEqual([]);
+  });
+
+  it('every camel label is the spelling of a snake core, and nothing else', () => {
+    const cores = new Set(LABELLED_SECRET_LABELS.map((core) => flatten(core).toLowerCase()));
+    const orphans = CAMEL_SECRET_LABELS.filter((label) => !cores.has(label.toLowerCase()));
+    expect(orphans).toEqual([]);
+  });
+
+  it('both lists are non-empty, so neither assertion above can pass vacuously', () => {
+    expect(LABELLED_SECRET_LABELS.length).toBeGreaterThan(5);
+    expect(CAMEL_SECRET_LABELS.length).toBeGreaterThan(5);
   });
 });

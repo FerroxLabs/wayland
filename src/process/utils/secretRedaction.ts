@@ -163,14 +163,31 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
   // does not share one, and alternation backtracks through every branch anyway.
   'secret[_-]?access[_-]?key',
   // `SECRET_KEY` / `SECRET_KEY_BASE` (#1037). `secret[_-]?access[_-]?key` does
-  // NOT match it - `access` sits between the two words - and no other label
-  // core does either, so the whole assignment survived. Kept as its own core
-  // rather than widening to a bare `secret`, which would also swallow
-  // `secret_name=`/`secretRef=` in a Kubernetes or Vault diagnostic. That
-  // narrowness is a KNOWN gap, not an oversight: `JWT_SECRET=`,
-  // `APP_SECRET=` and `WEBHOOK_SECRET=` are still unmasked. See the trade
-  // note on LABELLED_SECRET_ASSIGNMENT.
+  // NOT match it - `access` sits between the two words - so this core exists to
+  // catch the UNSEPARATED spelling `secretkey=`, which the bare core below
+  // cannot reach (the separator has to follow the label, and `k` is not one).
   'secret[_-]?key',
+  // A BARE `secret` core (#1037, second pass). An earlier version of this file
+  // refused it and recorded `JWT_SECRET=`, `APP_SECRET=` and `WEBHOOK_SECRET=`
+  // as a deliberate KNOWN GAP, on the argument that a bare core would also
+  // swallow `secret_name=`/`secretRef=` in a Kubernetes or Vault diagnostic.
+  // That argument was measured and half of it is false: `secretRef=` does NOT
+  // match, because the suffix `(?:[_-][A-Za-z0-9]+)*` cannot start on `R` and
+  // the separator cannot match one either, so the label ends at `secret` and
+  // the next character is a letter. Only the `[_-]`-separated metadata spellings
+  // (`secret_name=`, `secret_id=`, `secret_ref=`, `secret_version=`) newly mask,
+  // and those are the SAME over-mask class already accepted for `api_key_id=`
+  // and `secret_key_ref=` in trade note 2 on LABELLED_SECRET_ASSIGNMENT: a field
+  // name ABOUT a credential, not the credential.
+  //
+  // The gap it closes is not exotic: `JWT_SECRET`, `SESSION_SECRET`,
+  // `COOKIE_SECRET` and `SIGNING_SECRET` are ordinary application config, and
+  // the whole assignment reached the output verbatim. Enumerating the four by
+  // name instead would have been whack-a-mole - `APP_SECRET`, `WEBHOOK_SECRET`
+  // and the next framework's spelling are the same shape - and the lookbehind
+  // already permits an arbitrary `_`-separated prefix, so one core covers every
+  // vendor exactly as the bare `token` core above does.
+  'secret',
   'client[_-]?secret',
   'password',
   'passwd',
@@ -328,7 +345,13 @@ export const LABELLED_SECRET_LABELS: readonly string[] = [
  *     the value ships. Recorded here and pinned in the suite rather than closed,
  *     because closing it for every label is the wide-value-matcher decision this
  *     change deliberately took only for the password cores.
- *   - `JWT_SECRET=` / `APP_SECRET=` / `WEBHOOK_SECRET=` - no bare `secret` core.
+ *   - a label glued to a lowercase CAMEL prefix (`awsSecretAccessKey=`,
+ *     `openaiApiKey=`). The lookbehind refuses to match inside an alphanumeric
+ *     run, and it cannot be taught the lower->upper seam: this rule carries `i`,
+ *     and under `i` the `[a-z]`/`[A-Z]` classes collapse into each other, so a
+ *     seam lookbehind here would degrade to no lookbehind at all - which is the
+ *     `notmyapikey=` bypass the anchor exists to refuse. Closed by
+ *     {@link CAMEL_LABELLED_SECRET_ASSIGNMENT}, a separate CASE-SENSITIVE rule.
  *   - a URL query `?api_key=<v>&x=1` IS masked, but `&` is not excluded from the
  *     value class so `&x=1` is swallowed into the marker. Over-mask, not a leak.
  */
@@ -336,6 +359,77 @@ const LABELLED_SECRET_ASSIGNMENT = new RegExp(
   `(?<![A-Za-z0-9])((?:${LABELLED_SECRET_LABELS.join('|')})(?:[_-][A-Za-z0-9]+)*)` +
     `(["']?\\s*[:=]\\s*)(["']?)[^\\s"',}]{8,}(["']?)`,
   'gi'
+);
+
+/**
+ * The camelCase spelling of a secret label, glued to a lowercase prefix:
+ * `awsSecretAccessKey=`, `openaiApiKey=`, `myClientSecret=`. #1037 measured
+ * `AwsSecretAccessKey=<value>` still leaking whole after every fix above.
+ *
+ * {@link LABELLED_SECRET_ASSIGNMENT} cannot reach these and cannot be widened to.
+ * Its `(?<![A-Za-z0-9])` anchor refuses to match inside an alphanumeric run, and
+ * the boundary here IS inside one - the seam is the lower->upper transition. The
+ * obvious repair, adding `(?<=[a-z0-9])(?=[A-Z])` as a second anchor, does not
+ * work in that rule: it carries the `i` flag so the whole alternation can match
+ * `API_KEY` and `api_key` alike, and under `i` JavaScript case-folds the classes,
+ * so `[a-z]` and `[A-Z]` both match either case and the seam evaporates. The
+ * anchor would silently degrade to "any alphanumeric before the label", which is
+ * exactly the `notmyapikey=` bypass documented above.
+ *
+ * So this is a SEPARATE rule with NO `i` flag, and the labels are spelled in
+ * their Capitalized compound forms. Not a novel construct here either:
+ * `@common/utils/redactCommandSecrets` carries `CAMEL_KEY_VALUE_REGEX` for this
+ * exact reason with the same case-sensitivity note (#610). This module is the
+ * canonical bank and did not have it.
+ *
+ * The suffix is `(?:[A-Z][a-z0-9]+)*` - the camel mirror of the `[_-]`-separated
+ * suffix above, and disjoint for the same reason: each iteration consumes exactly
+ * one uppercase letter followed by one or more NON-uppercase characters, so the
+ * partition of any input is unique and there is nothing to backtrack through. The
+ * ambiguous spelling `(?:[A-Z][A-Za-z0-9]*)*` would be the nested-quantifier
+ * blowup that shape is famous for.
+ *
+ * Same trade as the snake rule, in the same direction, and the plural still
+ * saves the LLM counters by construction: `maxTokens=12345678` is not masked
+ * because `s` is neither a separator nor the start of a camel suffix, so the
+ * separator group cannot match. `mySecretPath=/some/long/path` IS masked, which
+ * is the accepted metadata over-mask, not a new class of one.
+ *
+ * Exported so the suite can ENUMERATE the labels rather than spot-check two of
+ * them, for the reason given on {@link LABELLED_SECRET_LABELS}.
+ */
+export const CAMEL_SECRET_LABELS: readonly string[] = [
+  // Longest-first where one core is a prefix of another, so the captured label
+  // reads as the whole name in the diagnostic. The suffix would consume the tail
+  // either way, so this ordering is readability, not correctness.
+  //
+  // This list is an EXACT MIRROR of {@link LABELLED_SECRET_LABELS} - every core
+  // there, camel-spelled, and nothing else. Deliberately not `PrivateKey` or
+  // `AccessKey`, however tempting: a camel label with no snake counterpart would
+  // mask `myPrivateKey=` while leaving `PRIVATE_KEY=` untouched, and a bank that
+  // covers a name in one spelling and not the other reads as covered when it is
+  // not. Adding one is a decision about the LABEL SET, taken in that array. The
+  // mirror is asserted by execution in `tests/unit/secretRedaction.test.ts`, so a
+  // core added there without a camel spelling fails rather than silently leaks.
+  'SecretAccessKey',
+  'SecretKey',
+  'ClientSecret',
+  'AccessToken',
+  'RefreshToken',
+  'AuthToken',
+  'ApiKey',
+  'Passphrase',
+  'PassPhrase',
+  'Password',
+  'Passwd',
+  'Secret',
+  'Token',
+];
+
+const CAMEL_LABELLED_SECRET_ASSIGNMENT = new RegExp(
+  `(?<=[a-z0-9])((?:${CAMEL_SECRET_LABELS.join('|')})(?:[A-Z][a-z0-9]+)*)` +
+    `(["']?\\s*[:=]\\s*)(["']?)[^\\s"',}]{8,}(["']?)`,
+  'g'
 );
 
 /**
@@ -547,6 +641,14 @@ export function redactSecrets(text: string): string {
   // Label preserved, value masked, so the diagnostic still reads sensibly.
   out = out.replace(
     LABELLED_SECRET_ASSIGNMENT,
+    (_match, label: string, separator: string, openQuote: string, closeQuote: string) =>
+      `${label}${separator}${openQuote}[redacted]${closeQuote}`
+  );
+  // The camelCase seam, which the case-insensitive rule above structurally
+  // cannot see. Runs after it so a snake-spelled label is reported by the rule
+  // that names it; the two cannot both match the same span.
+  out = out.replace(
+    CAMEL_LABELLED_SECRET_ASSIGNMENT,
     (_match, label: string, separator: string, openQuote: string, closeQuote: string) =>
       `${label}${separator}${openQuote}[redacted]${closeQuote}`
   );

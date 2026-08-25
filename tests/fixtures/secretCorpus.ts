@@ -267,6 +267,37 @@ export const SECRET_CORPUS: readonly SecretCase[] = [
     text: 'gh auth failed: GITHUB_TOKEN=ghtoken-not-a-real-value-012',
     secret: 'ghtoken-not-a-real-value-012',
   },
+  {
+    // #1037c. The bare `SECRET` core. `secret[_-]?key` needs a `KEY` that never
+    // comes and `secret[_-]?access[_-]?key` needs an `ACCESS` that never comes,
+    // so the whole assignment survived - for ordinary application config, not
+    // some exotic spelling.
+    label: 'JWT_SECRET assignment',
+    text: 'boot failed: JWT_SECRET=jwtsecret-not-a-real-value-0',
+    secret: 'jwtsecret-not-a-real-value-0',
+  },
+  {
+    // The value deliberately shares no 4-character window with the surrounding
+    // text: the suite's window oracle reports a leak when any window of the
+    // secret survives, and a value that starts `sess` collides with the word
+    // `session` in its own log line.
+    label: 'SESSION_SECRET assignment',
+    text: 'session store refused: SESSION_SECRET=ss3cr3t-not-a-real-value-01',
+    secret: 'ss3cr3t-not-a-real-value-01',
+  },
+  {
+    // #1037c, camel half. The label rule's leading anchor refuses to match
+    // inside an alphanumeric run, and a camelCase name has no non-alphanumeric
+    // character anywhere in it, so EVERY label was unreachable in this spelling.
+    label: 'camelCase AwsSecretAccessKey assignment',
+    text: 'credentials rejected: AwsSecretAccessKey=camel-not-a-real-value-012',
+    secret: 'camel-not-a-real-value-012',
+  },
+  {
+    label: 'camelCase openaiApiKey JSON field',
+    text: 'upstream 400: {"openaiApiKey":"camel-json-not-a-real-value"}',
+    secret: 'camel-json-not-a-real-value',
+  },
 ];
 
 /** Lines that must pass through redaction completely untouched. */
