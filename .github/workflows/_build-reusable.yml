@@ -232,7 +232,29 @@ jobs:
       - name: Setup bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          # PINNED, and it must stay pinned. The tree that SHIPS as
+          # resources/whatsapp-bridge is built by prepareWhatsAppBridgeResources in
+          # scripts/build-with-builder.js: it deletes the bridge's node_modules and
+          # reinstalls it clean with `bun install --frozen-lockfile --os <platform>
+          # --cpu <arch>`, invoking whatever `bun` this step put on PATH. The
+          # protected observers then re-derive that tree with their OWN `bun install`
+          # and require a byte-identical inventory (verifySourceMirror). That only
+          # holds while both sides run the SAME bun.
+          #
+          # On Windows bun writes node_modules/.bin/* as real .exe launcher stubs,
+          # which sourceInventory hashes; on macOS and Linux they are symlinks,
+          # recorded as `link:<name>:<target>` with no bytes. So a bun version skew
+          # is invisible on POSIX and fails EVERY Windows leg.
+          #
+          # Measured on windows-2022, same tree, same lockfile: 1.3.14 twice is
+          # byte-identical; 1.3.14 vs 1.4.0 differs in exactly 16 files, all of them
+          # .bin/*.exe stubs (15872 -> 8192 bytes), nothing added or removed.
+          #
+          # `latest` is what broke v0.12.2: it resolved to 1.3.14 on 2026-08-19 and
+          # all six legs passed, then to 1.4.0 on 2026-08-24 and both Windows legs
+          # failed on an unchanged tree. The observers pin '1.3.14'; so does
+          # release-acceptance-trust-root.yml and the bundled-bun authority. Match them.
+          bun-version: '1.3.14'
 
       - name: Setup Python
         uses: actions/setup-python@v5
