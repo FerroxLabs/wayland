@@ -158,9 +158,14 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
         return t('settings.wcoreConfig.overview.update.phaseDownloading', { defaultValue: 'Downloading…' });
     }
   };
-  const showUpdateCard = !!updateInfo?.updateAvailable || installing || !!installedVersion || !!installError;
   // Error state owns the card only when nothing newer has superseded it.
   const showError = !!installError && !installing && !installedVersion;
+  // #1108: the check withheld a newer engine because its Desktop contract does
+  // not match this build's pin. Say so instead of showing nothing - the user can
+  // see a newer engine exists elsewhere, and silence reads as a broken updater.
+  const contractBlocked = !!updateInfo?.incompatible && !installing && !installedVersion && !showError;
+  const showUpdateCard =
+    !!updateInfo?.updateAvailable || contractBlocked || installing || !!installedVersion || !!installError;
 
   const goDesktop = (route: string): void => {
     void navigate(`/settings/${route}`, { replace: true });
@@ -304,7 +309,7 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
             <span className={styles.updateIcon}>
               {installedVersion ? (
                 <CheckCircle2 size={18} />
-              ) : showError ? (
+              ) : showError || contractBlocked ? (
                 <AlertTriangle size={18} />
               ) : (
                 <Download size={18} />
@@ -345,6 +350,21 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
                     })}
                   </div>
                   <div className={styles.updateError}>{installError}</div>
+                </>
+              ) : contractBlocked ? (
+                <>
+                  <div className={styles.updateTitle}>
+                    {t('settings.wcoreConfig.overview.update.incompatibleTitle', {
+                      defaultValue: 'Wayland Core {{version}} needs a newer Wayland',
+                      version: updateInfo?.latest ?? '',
+                    })}
+                  </div>
+                  <div className={styles.updateBody}>
+                    {t('settings.wcoreConfig.overview.update.incompatibleBody', {
+                      defaultValue:
+                        'This engine speaks a protocol this version of the app does not. Update Wayland itself to move to it — your current engine keeps working.',
+                    })}
+                  </div>
                 </>
               ) : (
                 <>
