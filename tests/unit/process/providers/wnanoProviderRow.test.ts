@@ -5,25 +5,28 @@
  */
 
 /**
- * #1002 (assessment) - pins what wnano's provider resolution ACTUALLY is today,
- * because the shape of the gap is not what it looks like from the outside.
+ * #1002 - wnano's provider resolution, and why it is NOT a vendor-locked row.
  *
- * wnano is NOT "forced into a single-provider row". It has no row at all:
- * `ACP_BACKEND_UNDERLYING_PROVIDER` (the vendor-locked map: grok->xai,
- * kimi->moonshot, ...) has no `wnano` key, and `resolveBackendCandidateProviders`
- * therefore returns an EMPTY candidate list. In `modelRegistryIpc.curatedForAgent`
- * that empty list is the `return []` fall-through, so a wnano chat's model picker
- * offers Flux Auto and nothing else.
+ * The obvious reading of the gap is "wnano is forced into a single-provider
+ * row". It is not, and it must not be. `ACP_BACKEND_UNDERLYING_PROVIDER` is the
+ * VENDOR-LOCKED map (grok->xai, kimi->moonshot, ...): one provider each, because
+ * those CLIs can only ever run their own vendor's models. Wayland Nano is
+ * first-party and multi-provider - its backend entry says so
+ * (`authRequired: false`, "Draws on the providers connected in Wayland; no own
+ * login") and every spawn is handed `WAYLAND_NANO_PROVIDERS` carrying each
+ * CONNECTED provider from {@link NANO_KNOWN_PROVIDER_IDS}. Giving it a row here
+ * would pin it to one vendor and make the mismatch worse.
  *
- * Meanwhile the SPAWN side already advertises the full multi-provider set: every
- * connected provider in {@link NANO_KNOWN_PROVIDER_IDS} is serialized into
- * `WAYLAND_NANO_PROVIDERS` (AcpAgentManager.buildWnanoProvidersEnv). So Nano is
- * told it can run 17 providers' models while Desktop's picker exposes none of
- * them.
+ * So the absence of a wnano row is correct, and these assertions freeze it
+ * against a well-meaning "fix" that adds one. What was wrong lived one layer up:
+ * `curatedForAgent` fell through to `return []` for wnano, so the picker offered
+ * Flux Auto and nothing else while Nano was being advertised 17 providers'
+ * models. That half is fixed and pinned in
+ * `tests/unit/process/providers/modelRegistryIpc.test.ts`
+ * ("curatedForAgent wnano provider parity (#1002)").
  *
- * These assertions freeze both halves so the asymmetry is a fact in the suite,
- * not a claim in a report. Each half carries a positive control, so a rename or a
- * moved map cannot turn this into a vacuous pass.
+ * Each half below carries a positive control, so a rename or a moved map cannot
+ * turn this into a vacuous pass.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -42,12 +45,12 @@ describe('#1002 wnano provider resolution', () => {
     expect(CLI_UNDERLYING_PROVIDER.claude).toBe('anthropic');
   });
 
-  it('has NO row for wnano, so its picker candidate list is empty', () => {
+  it('has NO vendor-locked row for wnano, so it resolves no single default provider', () => {
     expect(Object.keys(ACP_BACKEND_UNDERLYING_PROVIDER)).not.toContain('wnano');
     expect(resolveBackendCandidateProviders('wnano')).toEqual([]);
   });
 
-  it('yet the spawn payload advertises the full multi-provider set to Nano', () => {
+  it('and the spawn payload advertises the full multi-provider set to Nano', () => {
     expect(NANO_KNOWN_PROVIDER_IDS.length).toBeGreaterThan(1);
     for (const providerId of ['flux-router', 'anthropic', 'openai', 'moonshot', 'xai'] as const) {
       expect(NANO_KNOWN_PROVIDER_IDS).toContain(providerId);
