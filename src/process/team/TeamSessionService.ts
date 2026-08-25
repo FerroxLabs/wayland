@@ -731,6 +731,12 @@ export class TeamSessionService {
     agent: Omit<TeamAgent, 'slotId'> | TeamAgent;
     agents: TeamAgent[];
     inheritedSessionMode?: string;
+    /**
+     * #999 - the team's project, stamped onto every member conversation so the
+     * spawn-time knowledge refresh has a key to read. Undefined for a team that
+     * belongs to no project; the field is then absent, not empty.
+     */
+    projectId?: string;
     /** When true, workspace was inherited (not user-specified) - setupAssistantWorkspace should still run */
     isInheritedWorkspace?: boolean;
   }): Promise<{
@@ -739,7 +745,8 @@ export class TeamSessionService {
     model: TProviderWithModel;
     extra: Record<string, unknown>;
   }> {
-    const { teamId, teamName, workspace, agent, agents, inheritedSessionMode, isInheritedWorkspace } = params;
+    const { teamId, teamName, workspace, agent, agents, inheritedSessionMode, projectId, isInheritedWorkspace } =
+      params;
     const backend = this.resolveBackend(agent.agentType, agents) as AgentBackend;
     // remote agents use customAgentId as remoteAgentId, not as a preset indicator
     const isPreset = Boolean(agent.customAgentId) && backend !== 'remote';
@@ -810,6 +817,9 @@ export class TeamSessionService {
       currentModelId: preferredModelId,
       extra: {
         teamId,
+        // #999: only when there IS one. A `projectId: undefined` key would still
+        // be an own property on `extra`, and the refresh reads the key.
+        ...(projectId ? { projectId } : {}),
       },
     }) as {
       type: AgentType;
@@ -952,6 +962,34 @@ export class TeamSessionService {
     return repairedTeam;
   }
 
+  /**
+   * #999 - the project a new team belongs to when the caller did not name one.
+   *
+   * Read off the conversation the leader is being ADOPTED from, which is the
+   * only place the fact exists: "make a team out of this chat" is how a project
+   * chat becomes a team, and the chat already carries `extra.projectId`.
+   *
+   * Only the leader's conversation is consulted. A teammate slot never arrives
+   * with a pre-existing conversation on this path, and reading one would let
+   * whichever member happened to be first decide the whole team's project.
+   *
+   * Best-effort: a lookup that fails yields undefined, which is exactly the
+   * shape of "no project" and costs a team its knowledge rather than its
+   * creation.
+   */
+  private async resolveInheritedProjectId(agents: readonly TeamAgent[]): Promise<string | undefined> {
+    const leader = agents.find((agent) => agent.role === 'leader');
+    if (!leader?.conversationId) return undefined;
+    try {
+      const conversation = await this.conversationService.getConversation(leader.conversationId);
+      const extra = conversation?.extra as Record<string, unknown> | undefined;
+      return typeof extra?.projectId === 'string' && extra.projectId.length > 0 ? extra.projectId : undefined;
+    } catch (error) {
+      console.warn('[TeamSessionService] #999 could not read the leader conversation\'s project:', error);
+      return undefined;
+    }
+  }
+
   async createTeam(params: {
     userId: string;
     name: string;
@@ -960,10 +998,20 @@ export class TeamSessionService {
     agents: TeamAgent[];
     sessionMode?: string;
     sourceLauncherId?: string;
+    /**
+     * #999 - the project this team belongs to. When omitted it is inherited
+     * from the conversation the leader is adopted from, so a project chat that
+     * becomes a team does not leave its own teammates outside the project.
+     */
+    projectId?: string;
   }): Promise<TTeam> {
     const now = Date.now();
     const teamId = uuid(36);
     let workspace = this.resolveWorkspace(params.workspace);
+    // #999: resolved BEFORE the roster is built, because every member
+    // conversation is stamped with it as it is created - including the ones
+    // created alongside the leader whose conversation supplied it.
+    const projectId = params.projectId ?? (await this.resolveInheritedProjectId(params.agents));
 
     // Create a real conversation for each agent (or reuse an existing one for the leader)
     const agentsWithConversations = await Promise.all(
@@ -982,6 +1030,10 @@ export class TeamSessionService {
             if (workspace) {
               extraUpdate.workspace = workspace;
             }
+            // #999: the adopted conversation may be the one that HELD the
+            // project, in which case this is a no-op; when the project came
+            // from the caller instead, this is what puts it there.
+            if (projectId) extraUpdate.projectId = projectId;
             await this.conversationService.updateConversation(
               agent.conversationId,
               { extra: extraUpdate } as any,
@@ -999,12 +1051,18 @@ export class TeamSessionService {
           agent,
           agents: params.agents,
           inheritedSessionMode: params.sessionMode,
+          projectId,
           isInheritedWorkspace: !params.workspace,
         });
         const conversation = await this.conversationService.createConversation(conversationParams);
         // Ensure teamId is in extra regardless of which factory function was used
         // (some factories like createCodexAgent/createGeminiAgent drop unknown extra fields)
-        await this.conversationService.updateConversation(conversation.id, { extra: { teamId } } as any, true);
+        // - #999 rides on the same repair for the same reason.
+        await this.conversationService.updateConversation(
+          conversation.id,
+          { extra: { teamId, ...(projectId ? { projectId } : {}) } } as any,
+          true
+        );
         return { ...agent, slotId, conversationId: conversation.id };
       })
     );
@@ -1041,6 +1099,7 @@ export class TeamSessionService {
       workspaceMode: params.workspaceMode,
       leaderAgentId: leadAgent.slotId,
       agents: agentsWithConversations,
+      projectId,
       sessionMode: params.sessionMode,
       sourceLauncherId: params.sourceLauncherId,
       promotedToStanding: isStandingByBundle ? true : undefined,
@@ -1228,11 +1287,18 @@ export class TeamSessionService {
       agent,
       agents: team.agents,
       inheritedSessionMode,
+      // #999: a member spawned at runtime inherits the same project as the
+      // founding roster - the team is where that fact lives.
+      projectId: team.projectId,
       isInheritedWorkspace: true,
     });
     const conversation = await this.conversationService.createConversation(conversationParams);
     // Ensure teamId is in extra regardless of which factory function was used
-    await this.conversationService.updateConversation(conversation.id, { extra: { teamId } } as any, true);
+    await this.conversationService.updateConversation(
+      conversation.id,
+      { extra: { teamId, ...(team.projectId ? { projectId: team.projectId } : {}) } } as any,
+      true
+    );
 
     const newAgent: TeamAgent = {
       ...agent,

@@ -77,6 +77,21 @@ export type TTeam = {
   workspaceMode: WorkspaceMode;
   leaderAgentId: string;
   agents: TeamAgent[];
+  /**
+   * #999 - the project this team belongs to, or undefined for a team created
+   * outside one.
+   *
+   * A team's members are ordinary conversations, and project knowledge reaches a
+   * conversation exactly one way: `extra.projectId`, re-read and re-injected at
+   * every agent spawn (`refreshProjectKnowledge`). Without this field a team had
+   * no project to pass down, so every teammate ran with no project knowledge at
+   * all - and editing CONTEXT.md changed nothing, because nothing was ever
+   * keyed to read it.
+   *
+   * Recorded on the TEAM rather than left to each conversation so a member
+   * spawned later inherits the same project as the founding roster.
+   */
+  projectId?: string;
   /** Bundle launcher id this team was spawned from. Used to resolve rituals/Standing badge after rename. */
   sourceLauncherId?: string;
   /** Current session permission mode (e.g. 'plan', 'auto'). Persisted so newly spawned agents inherit it. */
