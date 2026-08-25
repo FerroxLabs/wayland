@@ -263,6 +263,44 @@ function waitForExit(child, timeoutMs, label = 'native app') {
   });
 }
 
+/**
+ * The Authenticode subject this project actually ships under.
+ *
+ * The previous pattern was `CN\s*=\s*Ferrox Labs(?:,|$)` and it could never
+ * match, because the real certificate subject quotes a CN that itself contains a
+ * comma. Read off the shipped v0.11.18 installer:
+ *
+ *   Status  : Valid   (signature verified, Microsoft RSA timestamp present)
+ *   Subject : CN="Ferrox Labs, LLC", O="Ferrox Labs, LLC", STREET=..., C=US
+ *
+ * After `CN=` comes a double quote, not `F`, so the assertion rejected a
+ * perfectly valid Ferrox Labs signature. It went unnoticed because, as the
+ * comment below it says, no Windows leg had ever reached this check before -
+ * every earlier release failed further upstream.
+ *
+ * The quotes and the `, LLC` are both optional so a future unquoted or
+ * re-issued subject still passes, and anything else - a different CN, or a
+ * lookalike such as `CN="Ferrox Labs Evil, LLC"` - is still rejected.
+ */
+const FERROX_LABS_CN = /(?:^|,\s*)CN\s*=\s*"?Ferrox Labs(?:, LLC)?"?\s*(?:,|$)/;
+
+/**
+ * A build that predates a shutdown fix cannot be re-released to satisfy a gate.
+ *
+ * The journey boots three runtimes: the pinned `initial` and `rollback` assets,
+ * which are ALREADY-SHIPPED releases (v0.11.18 and v0.11.8), and the candidate
+ * itself. Every previously shipped build leaks the AcpDetector CLI probes past
+ * quit - the very bug this release fixes - so on a slow runner those old builds
+ * can exceed a 10s exit budget through no fault of the candidate. Holding a July
+ * binary to a standard only the new binary meets is a deadlock, not a gate.
+ *
+ * So the historical runtimes get a wider budget and the CANDIDATE keeps the
+ * strict one. Nothing is relaxed for the thing actually being released: it must
+ * still exit inside 10s with code 0 and no signal.
+ */
+const CANDIDATE_EXIT_TIMEOUT_MS = 10_000;
+const SHIPPED_RUNTIME_EXIT_TIMEOUT_MS = 45_000;
+
 export async function bootInstalledRuntime(input, dependencies = {}) {
   const port = await (dependencies.findFreePort || findFreePort)();
   const launch = (dependencies.launchCommand || launchCommand)(
@@ -327,7 +365,11 @@ export async function bootInstalledRuntime(input, dependencies = {}) {
     if (input.platform === 'darwin' && child.exitCode === null && child.signalCode === null) {
       child.kill('SIGTERM');
     }
-    const shutdown = await waitForExit(child, 10000, `${input.label || 'native app'} (${input.platform})`);
+    const shutdown = await waitForExit(
+      child,
+      input.exitTimeoutMs || CANDIDATE_EXIT_TIMEOUT_MS,
+      `${input.label || 'native app'} (${input.platform})`
+    );
     const descendants = monitor.stop();
     if (shutdown.code !== 0 || shutdown.signal !== null) fail('native app did not shut down cleanly');
     return {
@@ -646,11 +688,7 @@ export function verifyPublisherEvidence(target, role, prepared, dependencies = {
           `(exit ${result.status}; stdout ${stdout || '<empty>'}; stderr ${stderr || '<empty>'})`
       );
     }
-    if (
-      result.status !== 0 ||
-      evidence.Status !== 'Valid' ||
-      !/(?:^|,\s*)CN\s*=\s*Ferrox Labs(?:,|$)/.test(evidence.Subject)
-    ) {
+    if (result.status !== 0 || evidence.Status !== 'Valid' || !FERROX_LABS_CN.test(evidence.Subject)) {
       fail(`${role} Windows Authenticode publisher verification failed`);
     }
     return { gate: 'windows-authenticode-ferrox-labs', verified: true, verifierExitCode: 0, identity: 'Ferrox Labs' };
@@ -779,6 +817,7 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
         platform: request.platform,
         userDataRoot: liveState,
         label: 'initial boot',
+        exitTimeoutMs: SHIPPED_RUNTIME_EXIT_TIMEOUT_MS,
       },
       dependencies
     );
@@ -853,6 +892,7 @@ export async function produceNativeUpdaterObservation(input, dependencies = {}) 
         platform: request.platform,
         userDataRoot: rollbackState,
         label: 'rollback boot',
+        exitTimeoutMs: SHIPPED_RUNTIME_EXIT_TIMEOUT_MS,
       },
       dependencies
     );
