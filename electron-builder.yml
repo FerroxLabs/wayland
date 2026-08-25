@@ -248,6 +248,7 @@ win:
   # needs the new name.
   signExts:
     - '!\bundled-bun\win32-x64\bun.exe'
+    - '!\bundled-bun\win32-x64-baseline\bun.exe'
     - '!\bundled-bun\win32-arm64\bun.exe'
     - '!\bundled-officecli\win32-x64\officecli.exe'
     - '!\bundled-officecli\win32-arm64\officecli.exe'

@@ -987,8 +987,12 @@ function verifySkillPack(packDir) {
 
 function verifyBunBundle(bundleDir, targetPlatform, targetArch, authority = bundledBunBinaries) {
   const version = '1.3.14';
+  // Mirrors prepareBundledBun.needsBaselineVariant: every x64 target stages an
+  // AVX2-free baseline runtime alongside the default one (#438, and #1017 for
+  // win32). The directory set below is compared EXACTLY, so this list and the
+  // staging predicate have to move together or the build fails closed.
   const requiredRuntimeKeys = [`${targetPlatform}-${targetArch}`];
-  if (targetArch === 'x64' && ['darwin', 'linux'].includes(targetPlatform)) {
+  if (targetArch === 'x64' && ['darwin', 'linux', 'win32'].includes(targetPlatform)) {
     requiredRuntimeKeys.push(`${targetPlatform}-${targetArch}-baseline`);
   }
   const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
