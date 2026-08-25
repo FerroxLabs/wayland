@@ -158,17 +158,17 @@ async function fetchText(url: string): Promise<string> {
  * They cannot fight: this refuses on exactly the descriptor fields
  * `assertDescriptor` fails the `ready` frame on, so anything this rejects the
  * frame check would also have rejected.
+ *
+ * Returns the user-facing refusal message, or `null` when the release's
+ * descriptor matches the pin.
  */
-export async function verifyReleaseContract(tag: string): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function verifyReleaseContract(tag: string): Promise<string | null> {
   // Lazily imported: this module is loaded on the pre-`initializeProcess`
   // bootstrap path for `applyPendingWCoreUpdate`, and the contract module pulls
   // in the Ajv-compiled v1 schemas. Only check/install need them.
   const contract = await import('./wcoreUpdateContract');
   const assetName = contract.contractAssetNameFor(tag);
-  const refuse = (detail: string): { ok: false; error: string } => ({
-    ok: false,
-    error: contract.engineIncompatibleMessage(tag, detail),
-  });
+  const refuse = (detail: string): string => contract.engineIncompatibleMessage(tag, detail);
   try {
     const res = await fetch(`${DOWNLOAD_BASE}/${tag}/${assetName}`, { headers: { 'User-Agent': UA } });
     if (!res.ok) return refuse(`its contract asset ${assetName} could not be fetched (HTTP ${res.status})`);
@@ -183,8 +183,12 @@ export async function verifyReleaseContract(tag: string): Promise<{ ok: true } |
     const manifest = contract.readContractManifest(bytes);
     if (manifest === null) return refuse(`${assetName} carries no readable desktop/v1/manifest.json`);
     const compared = contract.compareContractManifest(manifest);
-    if (!compared.ok) return refuse(compared.detail);
-    return { ok: true };
+    // `=== false`, not `!compared.ok`: this project compiles with
+    // `strictNullChecks` off, and under that setting TypeScript narrows a
+    // boolean-literal discriminant on an explicit equality test but NOT on a
+    // truthiness test - `compared.detail` does not exist on the union.
+    if (compared.ok === false) return refuse(compared.detail);
+    return null;
   } catch (err) {
     return refuse(`its contract could not be verified: ${err instanceof Error ? err.message : String(err)}`);
   }
@@ -205,9 +209,9 @@ export async function checkForWCoreUpdate(): Promise<WCoreUpdateCheck> {
       // install path will refuse is a button that only ever fails; withholding
       // it (with the reason) is the honest state. Run whether or not this build
       // is behind, so an incompatible latest release is named either way.
-      const contract = await verifyReleaseContract(tag);
-      if (!contract.ok) {
-        return { current, latest, tag, htmlUrl, updateAvailable: false, incompatible: true, error: contract.error };
+      const contractError = await verifyReleaseContract(tag);
+      if (contractError) {
+        return { current, latest, tag, htmlUrl, updateAvailable: false, incompatible: true, error: contractError };
       }
     }
     return { current, latest, tag, htmlUrl, updateAvailable };
@@ -350,8 +354,8 @@ export async function installWCoreUpdate(
     //    Windows `.pending` staging that `applyPendingWCoreUpdate` installs on
     //    the next boot - an engine this build cannot talk to must never reach
     //    the override dir the resolver prefers over the bundled binary.
-    const contract = await verifyReleaseContract(tag);
-    if (!contract.ok) return { ok: false, error: contract.error };
+    const contractError = await verifyReleaseContract(tag);
+    if (contractError) return { ok: false, error: contractError };
 
     // 4. Extract + locate the binary.
     onProgress?.({ phase: 'extracting' });
