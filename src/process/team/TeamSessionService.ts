@@ -30,6 +30,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { resolveLocaleKey } from '@/common/utils';
 import { hasGeminiOauthCreds } from './googleAuthCheck';
+import { hasSpecificModelCapability } from '@/common/utils/modelCapabilities';
 import { buildTeamExport, serializeTeamExport, type RitualsResolver } from './importExport/exportTeam';
 import { BUILTIN_ID_PREFIX, getBuiltinCatalogAssistants } from '@process/utils/builtinCatalog';
 import type { RitualScheduler } from './ritualScheduler';
@@ -213,12 +214,61 @@ export class TeamSessionService {
     } as TProviderWithModel;
   }
 
+  /**
+   * The keyless ChatGPT-subscription registry row.
+   *
+   * #983 - a Gemini teammate must never be DEFAULTED onto it. That row carries
+   * no API key (it authenticates by OAuth through ~/.codex/auth.json, which only
+   * the wcore engine can drive), so a Gemini-CLI teammate bound to it dies in
+   * bootstrap with "OpenAI API key is required" - and the team's report was
+   * exactly a bootstrap that never returned, leaving every member in Processing
+   * with no error. `preferSubscriptionForOwnedModel` already documents the same
+   * invariant from the other direction, and `getTeamAvailableModels` already
+   * hides the row from the Gemini picker (#555). The default resolver is the
+   * last place that still handed it out.
+   */
+  private static isChatGptSubscriptionRow(provider: IProvider): boolean {
+    return (
+      (provider as unknown as Record<string, unknown>).__waylandModelRegistryBridge ===
+      `v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}`
+    );
+  }
+
+  /**
+   * Would the Team model picker OFFER `modelId` on `provider` for a Gemini
+   * teammate? Same two constraints `getTeamAvailableModels` applies: the user
+   * has not switched the model off, and it passes the capability filter.
+   *
+   * #983 - the default resolver used to test `provider.model.includes(id)` only,
+   * so a model the user had deliberately disabled (the reported
+   * `kimi-k2.7-code`) could still arrive as the default of a brand-new teammate,
+   * naming a model that is not in the list the UI then shows. A Gemini teammate
+   * legitimately runs ANY ordinary provider's enabled model - the picker merges
+   * them all - so this narrows by usability, never by vendor.
+   */
+  private static geminiTeamModelUsable(provider: IProvider, modelId: string | undefined): boolean {
+    if (!modelId) return false;
+    if (provider.modelEnabled?.[modelId] === false) return false;
+    if (hasSpecificModelCapability(provider, modelId, 'function_calling') === false) return false;
+    if (hasSpecificModelCapability(provider, modelId, 'excludeFromPrimary') === true) return false;
+    return true;
+  }
+
   private async resolveDefaultGeminiModel(): Promise<TProviderWithModel> {
     const savedGeminiModel = await ProcessConfig.get('gemini.defaultModel');
     const configuredProviders = await ProcessConfig.get('model.config');
+    // #983: `gemini.defaultModel` is state SHARED with plain Gemini chats, and
+    // every fallback below walks `model.config` in configuration order. Both
+    // reach providers that have nothing to do with the selected backend, so the
+    // candidate pool is filtered to what a Gemini teammate can actually run
+    // BEFORE any of them look at it.
     const providers = Array.isArray(configuredProviders)
-      ? configuredProviders.filter((provider) => provider.enabled !== false)
+      ? configuredProviders.filter(
+          (provider) => provider.enabled !== false && !TeamSessionService.isChatGptSubscriptionRow(provider)
+        )
       : [];
+    const usable = (provider: IProvider, modelId: string | undefined): boolean =>
+      TeamSessionService.geminiTeamModelUsable(provider, modelId);
 
     const buildProviderModel = (provider: (typeof providers)[number], useModel: string): TProviderWithModel => {
       return {
@@ -238,7 +288,10 @@ export class TeamSessionService {
       }
 
       const matchedProvider = providers.find(
-        (provider) => provider.id === savedGeminiModel.id && provider.model?.includes(savedGeminiModel.useModel)
+        (provider) =>
+          provider.id === savedGeminiModel.id &&
+          provider.model?.includes(savedGeminiModel.useModel) &&
+          usable(provider, savedGeminiModel.useModel)
       );
       if (matchedProvider) {
         return buildProviderModel(matchedProvider, savedGeminiModel.useModel);
@@ -246,16 +299,23 @@ export class TeamSessionService {
     }
 
     if (typeof savedGeminiModel === 'string') {
-      const matchedProvider = providers.find((provider) => provider.model?.includes(savedGeminiModel));
+      const matchedProvider = providers.find(
+        (provider) => provider.model?.includes(savedGeminiModel) && usable(provider, savedGeminiModel)
+      );
       if (matchedProvider) {
         return buildProviderModel(matchedProvider, savedGeminiModel);
       }
     }
 
-    const geminiProvider = providers.find((provider) => provider.platform === 'gemini' && provider.model?.length);
+    // `|| provider.model[0]` used to close each of the two scans below, which
+    // re-admitted the very model the scan had just rejected. A provider with no
+    // usable model is skipped entirely instead (#983).
+    const geminiProvider = providers.find(
+      (provider) => provider.platform === 'gemini' && provider.model?.some((model) => usable(provider, model))
+    );
     if (geminiProvider) {
-      const enabledModel = geminiProvider.model.find((model) => geminiProvider.modelEnabled?.[model] !== false);
-      return buildProviderModel(geminiProvider, enabledModel || geminiProvider.model[0]);
+      const enabledModel = geminiProvider.model.find((model) => usable(geminiProvider, model));
+      if (enabledModel) return buildProviderModel(geminiProvider, enabledModel);
     }
 
     if (await hasGeminiOauthCreds()) {
@@ -268,10 +328,10 @@ export class TeamSessionService {
       return this.createGoogleAuthGeminiModel(oauthModel);
     }
 
-    const fallbackProvider = providers.find((provider) => provider.model?.length);
+    const fallbackProvider = providers.find((provider) => provider.model?.some((model) => usable(provider, model)));
     if (fallbackProvider) {
-      const enabledModel = fallbackProvider.model.find((model) => fallbackProvider.modelEnabled?.[model] !== false);
-      return buildProviderModel(fallbackProvider, enabledModel || fallbackProvider.model[0]);
+      const enabledModel = fallbackProvider.model.find((model) => usable(fallbackProvider, model));
+      if (enabledModel) return buildProviderModel(fallbackProvider, enabledModel);
     }
 
     return this.createGoogleAuthGeminiModel('gemini-2.0-flash');
