@@ -161,7 +161,7 @@ describe('ijfw/safeSpawn', () => {
       expect(candidates).toContain(`${nodeDir}\\node_modules\\npm\\bin\\npm-cli.js`);
     });
 
-    it('returns POSIX candidates unchanged on non-Windows', () => {
+    it('returns the fixed POSIX install locations on non-Windows', () => {
       const candidates = __buildNpmCliCandidates(
         'darwin',
         { PATH: '/usr/bin' },
@@ -169,6 +169,69 @@ describe('ijfw/safeSpawn', () => {
       );
       expect(candidates).toContain('/usr/local/lib/node_modules/npm/bin/npm-cli.js');
       expect(candidates).toContain('/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js');
+    });
+  });
+
+  /**
+   * #1043 - the POSIX half of #261. The win32 branch sweeps PATH to cover nvm,
+   * fnm and volta; the POSIX branch never read the `env` argument it is handed,
+   * so its effective Linux candidate list was ONE path,
+   * /usr/local/lib/node_modules. apt, NodeSource, nvm, fnm and Linuxbrew - which
+   * between them are how essentially everyone installs Node on Linux - all
+   * missed, and IJFW could never self-install or update there.
+   *
+   * Driven with SYNTHETIC layouts rather than the host's, deliberately: a
+   * resolver test on a machine whose /usr/local is populated passes regardless
+   * of the bug (the Hetzner gate is exactly such a machine - its npm is
+   * /usr/local/bin/npm -> ../lib/node_modules/npm/bin/npm-cli.js).
+   */
+  describe('__buildNpmCliCandidates on POSIX (#1043)', () => {
+    const NVM_BIN = '/home/me/.nvm/versions/node/v22.21.1/bin';
+    const FNM_BIN = '/home/me/.local/share/fnm/node-versions/v20.11.0/installation/bin';
+    const linuxCandidates = (pathVar: string): string[] =>
+      __buildNpmCliCandidates('linux', { PATH: pathVar }, '/opt/Wayland/wayland');
+
+    it('derives npm-cli.js from every Node dir on PATH (nvm, fnm, NodeSource, Linuxbrew)', () => {
+      const candidates = linuxCandidates(
+        `/usr/bin:${NVM_BIN}:${FNM_BIN}:/home/linuxbrew/.linuxbrew/bin`
+      );
+      // NodeSource / any prefix-style install rooted at the PATH dir's parent.
+      expect(candidates).toContain('/usr/lib/node_modules/npm/bin/npm-cli.js');
+      expect(candidates).toContain(`${NVM_BIN.replace(/\/bin$/, '')}/lib/node_modules/npm/bin/npm-cli.js`);
+      expect(candidates).toContain(`${FNM_BIN.replace(/\/bin$/, '')}/lib/node_modules/npm/bin/npm-cli.js`);
+      expect(candidates).toContain(
+        '/home/linuxbrew/.linuxbrew/lib/node_modules/npm/bin/npm-cli.js'
+      );
+    });
+
+    it("covers Debian/Ubuntu's apt layout, which is not under lib/node_modules", () => {
+      // The `npm` .deb installs to /usr/share/nodejs/npm, symlinked from /usr/bin/npm.
+      expect(linuxCandidates('/usr/bin')).toContain('/usr/share/nodejs/npm/bin/npm-cli.js');
+    });
+
+    it('reads the env argument it is handed: no PATH means no PATH-derived candidates', () => {
+      const withPath = linuxCandidates('/usr/bin');
+      const withoutPath = linuxCandidates('');
+      // Known positive for the comparison: the populated call really did add
+      // entries, so the empty call returning fewer is the env being read.
+      expect(withPath.length).toBeGreaterThan(withoutPath.length);
+      expect(withoutPath.some((c) => c.startsWith('/usr/lib/'))).toBe(false);
+      // The fixed, always-probed locations survive an empty PATH.
+      expect(withoutPath).toContain('/usr/local/lib/node_modules/npm/bin/npm-cli.js');
+      expect(withoutPath).toContain('/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js');
+    });
+
+    it('drops the dead libnode candidate (that directory exists nowhere in this repo)', () => {
+      expect(linuxCandidates('/usr/bin').some((c) => c.includes('libnode'))).toBe(false);
+      expect(
+        __buildNpmCliCandidates('darwin', { PATH: '/usr/bin' }, '/Applications/Wayland.app/Contents/MacOS/Wayland')
+          .some((c) => c.includes('libnode'))
+      ).toBe(false);
+    });
+
+    it('never emits duplicates when PATH repeats a Node dir', () => {
+      const candidates = linuxCandidates(`${NVM_BIN}:${NVM_BIN}:/usr/bin`);
+      expect(new Set(candidates).size).toBe(candidates.length);
     });
   });
 
