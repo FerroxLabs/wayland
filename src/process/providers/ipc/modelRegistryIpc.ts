@@ -75,6 +75,10 @@ import { ProviderCatalogStore, loadBaselineProviderCatalog } from '../catalog/pr
 import { PROVIDER_ENDPOINTS } from '../detection/providerEndpoints';
 import type { CatalogProviderEntry } from '../catalog/catalogProvider';
 import { FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
+// The providers Wayland Nano's vendored catalog table knows - the canonical set
+// its spawn payload is built from. Imported (never re-listed) so the picker and
+// `WAYLAND_NANO_PROVIDERS` cannot drift apart. Pure module: no fs, no Electron.
+import { NANO_KNOWN_PROVIDER_IDS } from '@process/task/wnano/providersPayload';
 import { emitModelRegistryChanged } from '../modelRegistryEvents';
 import { injectFluxVirtualModels } from '../catalog/fluxVirtualModels';
 import {
@@ -1272,6 +1276,33 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
             }
           }
           return all;
+        }
+
+        // Wayland Nano is multi-provider like wcore, but it can only route the
+        // providers its own vendored catalog table knows - the exact set
+        // `WAYLAND_NANO_PROVIDERS` carries to the spawn. Offering anything else
+        // (a local Ollama daemon, a cloud provider) would be offering a model
+        // that cannot answer, so the union is intersected with that set.
+        //
+        // Without this arm `curatedForAgent('wnano')` returned [], the home
+        // picker never rendered, and a user could neither SEE which connected
+        // provider Nano was about to spend nor change it before the first turn
+        // (#1039). Ids are namespaced `<provider>:<model>` exactly as Nano
+        // advertises and echoes them, so the pick names a provider
+        // unambiguously all the way to the spawn env. Flux ids stay bare: Nano
+        // owns the live Flux catalog itself and routes those unprefixed.
+        if (agentKey === 'wnano') {
+          const connected = new Set(repo.listRegistryProviders().map((p) => p.providerId));
+          const out: CuratedModel[] = [];
+          for (const providerId of NANO_KNOWN_PROVIDER_IDS) {
+            if (!connected.has(providerId)) continue;
+            for (const model of curatedWithCustom(providerId)) {
+              out.push(
+                providerId === FLUX_PROVIDER_ID ? model : { ...model, id: `${providerId}:${model.id}` }
+              );
+            }
+          }
+          return out;
         }
 
         // Synthesize a provider's curated catalog from the persisted registry

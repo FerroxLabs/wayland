@@ -109,6 +109,7 @@ import {
   buildWaylandNanoProvidersPayload,
   buildWnanoOAuthBearerEnv,
   cleanupWnanoFluxKeyFile,
+  wnanoDirectedProviderId,
   writeWnanoFluxKeyFile,
   type WnanoOAuthBearerSource,
   type WnanoProviderEntry,
@@ -796,7 +797,7 @@ ${collectedResponses.join('\n')}`;
     // Bridge connected-provider API keys (from the in-app model registry) into
     // the spawned agent's env. A custom agent's explicit env wins over the
     // auto-injected keys, which in turn win over the inherited shell env.
-    const providerEnv = await this.buildConnectedProviderEnv();
+    const providerEnv = await this.buildConnectedProviderEnv(data.backend, data.currentModelId ?? undefined);
     const mergedEnv: Record<string, string> = { ...providerEnv, ...resolved.customEnv };
     const codexMcp = data.backend === 'codex' ? await this.loadCodexSessionMcpServers(data) : undefined;
 
@@ -905,7 +906,12 @@ ${collectedResponses.join('\n')}`;
     // the same point as buildConnectedProviderEnv; an explicit custom-agent
     // env var still wins over the auto-injected values.
     if (data.backend === 'wnano') {
-      const wnanoEnv = await this.buildWnanoProvidersEnv();
+      // The provider this spawn was scoped to spend on (#1039). Recorded so
+      // `setModel` can tell a same-routing model switch that CROSSES providers
+      // from one that does not: the credential env is fixed at spawn, so a
+      // cross-provider switch is only real if the agent re-spawns.
+      this.lastWnanoProviderId = wnanoDirectedProviderId(data.currentModelId ?? undefined);
+      const wnanoEnv = await this.buildWnanoProvidersEnv(this.lastWnanoProviderId);
       for (const [key, value] of Object.entries(wnanoEnv)) {
         if (!(key in mergedEnv)) mergedEnv[key] = value;
       }
@@ -973,14 +979,29 @@ ${collectedResponses.join('\n')}`;
    */
   private injectedProviderKeys: Array<{ providerId: ProviderId; envVars: readonly string[] }> = [];
 
-  private async buildConnectedProviderEnv(): Promise<Record<string, string>> {
+  private async buildConnectedProviderEnv(
+    backend?: string,
+    selectedModelId?: string
+  ): Promise<Record<string, string>> {
     const env: Record<string, string> = {};
     this.injectedProviderKeys = [];
+    const nanoDirected = backend === 'wnano' ? wnanoDirectedProviderId(selectedModelId) : undefined;
     try {
       const db = await getDatabase();
       const repo = new ProviderRepository(db.getDriver());
       for (const provider of repo.listRegistryProviders()) {
         if (provider.state !== 'connected') continue;
+        // #1039 (money): every OTHER backend runs exactly one vendor, so its own
+        // key is the only one it can spend and the broad injection above is
+        // harmless. Nano is the exception - it routes across providers and picks
+        // by its own internal priority, so a user who connected an Anthropic key
+        // for Claude Code found Nano spending it. A Nano spawn therefore gets
+        // credentials ONLY for the provider the user directed at it: the one
+        // named by this chat's selected `<provider>:<model>` id. No pick (or a
+        // Flux pick) means no third-party key at all - Nano runs on the Flux key
+        // it is handed by file, and a user with no Flux connection is told it
+        // has no provider instead of being quietly billed for one.
+        if (backend === 'wnano' && provider.providerId !== nanoDirected) continue;
         const envVars = PROVIDER_ENV_VARS[provider.providerId];
         if (!envVars || envVars.length === 0) continue;
         const stored = repo.getRegistryProviderCreds(provider.providerId);
@@ -1092,6 +1113,14 @@ ${collectedResponses.join('\n')}`;
   private lastFluxModelId: string | undefined;
 
   /**
+   * The provider a RUNNING wnano agent was spawned scoped to (#1039), or
+   * undefined when this agent is not wnano / was spawned with no provider
+   * direction. Read only by `setModel`: Nano's credentials live in the spawn
+   * env, so a switch to another provider's model needs a re-spawn to be real.
+   */
+  private lastWnanoProviderId: string | undefined;
+
+  /**
    * Compute the Flux routing decision for a given backend + selected model using
    * the SAME inputs the spawn path (`resolveAgentCliConfig`) uses. Centralizing
    * this keeps the spawn-time env and the model-change boundary check in lockstep:
@@ -1174,7 +1203,7 @@ ${collectedResponses.join('\n')}`;
    * when nothing is connected - Nano then falls back to Flux-only
    * advertisement. Never throws; never logs credential material.
    */
-  private async buildWnanoProvidersEnv(): Promise<Record<string, string>> {
+  private async buildWnanoProvidersEnv(directedProviderId?: string): Promise<Record<string, string>> {
     const env: Record<string, string> = {};
     try {
       const db = await getDatabase();
@@ -1194,7 +1223,15 @@ ${collectedResponses.join('\n')}`;
         // buildConnectedProviderEnv); for OAuth-connected xAI this is the
         // current access token. `hasKey` is advisory UX metadata only.
         const key = stored.status === 'ok' ? stored.creds.key : undefined;
-        const hasKey = typeof key === 'string' && key.length > 0;
+        // `hasKey` must describe THIS spawn, not the registry. Since #1039 only
+        // the directed provider's key is injected, so advertising `hasKey: true`
+        // for any other provider would send Nano at a credential that is not in
+        // its environment. The provider stays advertised (the user can still
+        // pick its models; the switch re-spawns and re-scopes) - it is simply
+        // advertised honestly as having no key here. flux-router is exempt: its
+        // credential arrives as FLUX_API_KEY_FILE, not a provider env var.
+        const scopedForSpawn = providerId === FLUX_PROVIDER_ID || providerId === directedProviderId;
+        const hasKey = scopedForSpawn && typeof key === 'string' && key.length > 0;
         // flux-router's model set is Desktop's fixed tier list; Nano owns the
         // live Flux catalog itself. Every other provider advertises its
         // persisted registry catalog plus any user-added custom model ids.
@@ -2600,7 +2637,16 @@ ${collectedResponses.join('\n')}`;
       this.options.backend === 'claude' && nextRouting !== 'flux' ? claudeSlotForModelId(modelId) : undefined;
     const nativeClaudeSlotChange = claudeSlot !== undefined;
 
-    if (crossesRoutingBoundary || nativeClaudeSlotChange) {
+    // A wnano switch to another provider's model does NOT cross the native<->flux
+    // boundary (a Nano spawn is flux-routed whenever a Flux key exists, whatever
+    // model it runs), so the check above lets it through - but since #1039 the
+    // spawn carries credentials for ONE provider, chosen from the model it was
+    // spawned with. Without a re-spawn Nano would be told to run a model whose
+    // key is not in its environment, and the pick would fail rather than switch.
+    const crossesWnanoProvider =
+      this.options.backend === 'wnano' && wnanoDirectedProviderId(modelId) !== this.lastWnanoProviderId;
+
+    if (crossesRoutingBoundary || nativeClaudeSlotChange || crossesWnanoProvider) {
       const target = claudeSlot ?? modelId;
       // Called with one argument on the persisting path so the user-driven
       // signature stays exactly as it was.
