@@ -1468,6 +1468,9 @@ module.exports = {
   resolvePackagedTarget,
   snapshotPackagedTargets,
   verifyPackagedResources,
+  // Exported so the win32-x64-baseline requirement (#1017) can be driven with a
+  // staged fixture on any host, rather than only inside a real Windows package.
+  verifyBunBundle,
   verifySignalBundle,
   verifySourceMirror,
   verifyWhatsAppDarwinSignIgnoreInventory,
