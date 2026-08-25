@@ -28,6 +28,7 @@ import {
 } from '@process/services/workspace/folderGrantStore';
 import { vetFolderGrantRoot } from '@process/services/workspace/folderGrantAuthority';
 import { resolveFolderGrantWorkspaceId } from '@process/services/workspace/folderGrantWorkspaceId';
+import { resolveReplayableGrantRoot } from '@process/services/workspace/folderGrantReplay';
 import { composeResetSeed, type ResumeSeedOptions } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
@@ -1219,6 +1220,19 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
                 { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
                 { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
               ];
+
+      // #982: the durable list is a decision the user already made. If it covers
+      // this root, answer the card with it instead of asking again.
+      //
+      // AFTER `addConfirmation`, not before, and deliberately: the check touches
+      // the filesystem, and deferring the card behind it would put disk I/O
+      // between the engine's escalation and the user's screen. The card is drawn
+      // now and withdrawn a moment later if the replay applies - and if the user
+      // is faster than the disk, `replayFolderGrant` finds the card already
+      // answered and does nothing.
+      if (details?.type === 'path_boundary') {
+        void this.replayFolderGrant(content.callId, details.suggestedRoot);
+      }
 
       this.addConfirmation({
         title: (details?.type === 'question' ? details.question : details?.title) || content.name || '',
@@ -2464,6 +2478,45 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.agent.approveTool(callId, scope, answer);
       }
     }
+  }
+
+  /**
+   * Answer this boundary card from the workspace's DURABLE grant list, if the
+   * list covers it (#982).
+   *
+   * WHY THIS IS NOT AN AUTO-APPROVAL. `tryAutoApprove` refuses every
+   * `path_boundary` in every mode, and that is unchanged: a MODE must never
+   * decide to widen filesystem authority, because the user never saw the folder
+   * named. This is the opposite direction - the user named the folder, wrote it
+   * down, and can see and revoke it in Settings. `resolveReplayableGrantRoot`
+   * re-checks that record against the live filesystem AND against the same
+   * host-side authority gate a click passes, and returns null on any doubt, so
+   * nothing here can hand out a root the user did not record.
+   *
+   * ONLY WHILE THE CARD IS STILL STANDING. The check is asynchronous, so a fast
+   * click can resolve the call first; answering again would send a second
+   * approval for a call that is already settled. The pending-confirmation lookup
+   * is the same list `confirm` clears, so it is exactly the "still unanswered"
+   * test.
+   *
+   * Fire-and-forget, like `grantFolderRoot`: nothing the user is looking at may
+   * wait on a disk read.
+   */
+  private async replayFolderGrant(callId: string, suggestedRoot: unknown): Promise<void> {
+    let root: string | null = null;
+    try {
+      root = await resolveReplayableGrantRoot(this.workspace, suggestedRoot);
+    } catch (error) {
+      mainWarn('[WCoreManager]', 'the folder-grant replay check failed', error);
+      return;
+    }
+    if (!root) return;
+    const pending = this.confirmations.find((c) => c.callId === callId && isPathBoundaryConfirmation(c));
+    if (!pending) return;
+    super.confirm(callId, callId, PATH_BOUNDARY_GRANT_FOLDER);
+    // The vetted canonical root goes out, exactly as it does from a click, so
+    // the folder the record names and the folder the engine resolves are one.
+    this.agent?.approveTool(callId, { always_path: { root, write: false } });
   }
 
   /**
