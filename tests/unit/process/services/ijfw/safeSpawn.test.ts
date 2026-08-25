@@ -265,3 +265,70 @@ describe('ijfw/safeSpawn', () => {
     });
   });
 });
+
+/**
+ * #928 - Windows AV lock on %TEMP%.
+ *
+ * In a packaged Windows build the IJFW child is `bun.exe npm-cli.js ...`.
+ * Windows Defender actively scans %TEMP%, so bun's rename of its staged files
+ * fails with EPERM (NtSetInformationFile) - the same failure the ACP connector
+ * already fixed by redirecting the whole bun file-operation chain into userData
+ * (see `acpConnectors.ts`, BUN_INSTALL_CACHE_DIR / BUN_TMPDIR / TMP / TEMP).
+ * `safeSpawn` is the second bun spawn site and never got that redirect.
+ */
+describe('ijfw/safeSpawn bun temp redirect (#928)', () => {
+  const originalPlatform = process.platform;
+  let dir: string;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-bunenv-'));
+    __setTrustedNpmCliResolver(async () => path.join(dir, 'npm-cli.js'));
+    (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockReset();
+    (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => makeFakeChild());
+  });
+
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
+    __setTrustedNpmCliResolver(null);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  function childEnv(): NodeJS.ProcessEnv {
+    const calls = (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mock.calls;
+    return (calls[0][2] as { env: NodeJS.ProcessEnv }).env;
+  }
+
+  it('points bun cache and temp at real directories outside the OS temp dir', async () => {
+    await safeSpawn({ cmd: 'node', args: ['x'] });
+    const env = childEnv();
+    expect(env.BUN_INSTALL_CACHE_DIR).toMatch(/bun-cache$/);
+    expect(env.BUN_TMPDIR).toMatch(/bun-tmp$/);
+    // A redirect to a directory that does not exist is worse than no redirect:
+    // npm's own os.tmpdir() staging would ENOENT. Both must exist on return.
+    expect(fs.existsSync(env.BUN_INSTALL_CACHE_DIR!)).toBe(true);
+    expect(fs.existsSync(env.BUN_TMPDIR!)).toBe(true);
+  });
+
+  it('overrides TMP/TEMP on win32 so bunx stages outside %TEMP%', async () => {
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    await safeSpawn({ cmd: 'node', args: ['x'] });
+    const env = childEnv();
+    expect(env.TMP).toBe(env.BUN_TMPDIR);
+    expect(env.TEMP).toBe(env.BUN_TMPDIR);
+  });
+
+  it('leaves TMP/TEMP alone off win32 (the AV lock is Windows-only)', async () => {
+    Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
+    process.env.TMPDIR = '/tmp/posix';
+    await safeSpawn({ cmd: 'node', args: ['x'] });
+    const env = childEnv();
+    expect(env.TMP).not.toBe(env.BUN_TMPDIR);
+    expect(env.TEMP).not.toBe(env.BUN_TMPDIR);
+    delete process.env.TMPDIR;
+  });
+
+  it('lets an explicit extraEnv override the redirect', async () => {
+    await safeSpawn({ cmd: 'node', args: ['x'], extraEnv: { BUN_TMPDIR: '/custom/tmp' } });
+    expect(childEnv().BUN_TMPDIR).toBe('/custom/tmp');
+  });
+});
