@@ -898,3 +898,53 @@ describe('the camelCase label list mirrors the snake one exactly', () => {
     expect(CAMEL_SECRET_LABELS.length).toBeGreaterThan(5);
   });
 });
+
+/**
+ * #1065's drift guard, and the reason it is worth a test of its own.
+ *
+ * The PEM rule is the ONLY multi-line rule in the bank, and every consumer that
+ * scrubs a single line at a time is therefore blind to it - which is precisely
+ * how a private key reached the log file and the feedback bundle. That defect was
+ * fixed in the wcore stderr READER, by holding a block whole, and NOT in this
+ * array. A second multi-line rule added here would re-open the same hole for
+ * whatever shape it matches, silently, because no line-at-a-time caller would
+ * change and no existing test would fail.
+ *
+ * So the count is pinned. A new multi-line rule must fail here and be forced to
+ * answer the question: which caller assembles a whole block for it?
+ */
+describe('PEM is the only multi-line rule, so line-at-a-time callers stay safe (#1065)', () => {
+  const source = readFileSync(resolve(process.cwd(), 'src/process/utils/secretRedaction.ts'), 'utf-8');
+  const arrayStart = source.indexOf('const SECRET_PATTERNS');
+  const block = source.slice(arrayStart, source.indexOf('];', arrayStart));
+  const literals = block
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('/') && !line.startsWith('//'));
+
+  it('found the rule array at all (control against a silently empty scan)', () => {
+    expect(literals.length).toBeGreaterThan(15);
+  });
+
+  it('exactly one rule can match across a newline', () => {
+    // `[\s\S]` and the `m`/`s` flags are the three ways a rule reaches past a
+    // line. Any of them is the question this guard exists to force.
+    // Flags are parsed rather than sliced at the last `/`: several rules carry a
+    // trailing comment that contains one.
+    const flagsOf = (literal: string): string => /^\/.*\/([a-z]*),/.exec(literal)?.[1] ?? '';
+    const multiline = literals.filter((literal) => literal.includes('[\\s\\S]') || /[ms]/.test(flagsOf(literal)));
+    expect(multiline).toHaveLength(1);
+    expect(multiline[0]).toContain('PRIVATE KEY');
+  });
+
+  it('the PEM rule still needs its BEGIN anchor, which is what keeps a truncated fragment invisible', () => {
+    // Not an accident and not a gap: `acpStderrRingTruncationLeak.test.ts` pins
+    // that a PEM body which has lost its BEGIN line is invisible here, because a
+    // rule that could match the tail alone would mask arbitrary text after any
+    // stray `-----END` line. The fix for #1065 is in the reader for that reason.
+    const body = 'MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj';
+    const whole = `-----BEGIN PRIVATE KEY-----\n${body}\n-----END PRIVATE KEY-----`;
+    expect(redactSecrets(whole)).not.toContain(body);
+    expect(redactSecrets(`${body}\n-----END PRIVATE KEY-----`)).toContain(body);
+  });
+});
