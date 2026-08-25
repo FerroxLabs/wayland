@@ -139,6 +139,57 @@ async function fetchText(url: string): Promise<string> {
   return res.text();
 }
 
+/**
+ * #1108: check a release's Desktop contract against this build's pin BEFORE the
+ * engine can be offered or staged.
+ *
+ * Every Core release publishes a `wayland-core-<tag>-desktop-contract-v1.tar.gz`
+ * asset carrying `desktop/v1/manifest.json`, and that asset is listed in the
+ * release's `wayland-core-checksums.txt` - the SAME signed-release trust anchor
+ * the engine archive is verified against. So the descriptor can be read and
+ * compared without ever running the incoming binary.
+ *
+ * FAILS CLOSED. A missing asset, an unreachable one, a missing or failing
+ * checksum, an unreadable archive and a mismatching descriptor are ALL refusals:
+ * "could not prove it is compatible" is never "it is compatible".
+ *
+ * This is the EARLY gate. `wcore/index.ts` quarantines an incompatible override
+ * at launch, which is the late one and costs the customer a broken launch first.
+ * They cannot fight: this refuses on exactly the descriptor fields
+ * `assertDescriptor` fails the `ready` frame on, so anything this rejects the
+ * frame check would also have rejected.
+ */
+export async function verifyReleaseContract(tag: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  // Lazily imported: this module is loaded on the pre-`initializeProcess`
+  // bootstrap path for `applyPendingWCoreUpdate`, and the contract module pulls
+  // in the Ajv-compiled v1 schemas. Only check/install need them.
+  const contract = await import('./wcoreUpdateContract');
+  const assetName = contract.contractAssetNameFor(tag);
+  const refuse = (detail: string): { ok: false; error: string } => ({
+    ok: false,
+    error: contract.engineIncompatibleMessage(tag, detail),
+  });
+  try {
+    const res = await fetch(`${DOWNLOAD_BASE}/${tag}/${assetName}`, { headers: { 'User-Agent': UA } });
+    if (!res.ok) return refuse(`its contract asset ${assetName} could not be fetched (HTTP ${res.status})`);
+    const bytes = Buffer.from(await res.arrayBuffer());
+    const checksums = await fetchText(`${DOWNLOAD_BASE}/${tag}/${CHECKSUMS_ASSET}`);
+    const expected = parseChecksum(checksums, assetName);
+    if (!expected) return refuse(`the release publishes no checksum for ${assetName}`);
+    const actual = contract.sha256Buffer(bytes);
+    if (actual !== expected) {
+      return refuse(`${assetName} failed its checksum: expected sha256 ${expected}, got ${actual}`);
+    }
+    const manifest = contract.readContractManifest(bytes);
+    if (manifest === null) return refuse(`${assetName} carries no readable desktop/v1/manifest.json`);
+    const compared = contract.compareContractManifest(manifest);
+    if (!compared.ok) return refuse(compared.detail);
+    return { ok: true };
+  } catch (err) {
+    return refuse(`its contract could not be verified: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
 /** Check the latest engine release against the installed binary. */
 export async function checkForWCoreUpdate(): Promise<WCoreUpdateCheck> {
   const current = normalizeVersion(detectWCore().version);
@@ -147,13 +198,19 @@ export async function checkForWCoreUpdate(): Promise<WCoreUpdateCheck> {
     const release = JSON.parse(body) as { tag_name?: string; html_url?: string };
     const tag = typeof release.tag_name === 'string' ? release.tag_name : null;
     const latest = normalizeVersion(tag ?? undefined);
-    return {
-      current,
-      latest,
-      tag,
-      htmlUrl: release.html_url ?? null,
-      updateAvailable: !!(latest && current && isNewerVersion(latest, current)),
-    };
+    const htmlUrl = release.html_url ?? null;
+    const updateAvailable = !!(latest && current && isNewerVersion(latest, current));
+    if (tag && isValidReleaseTag(tag)) {
+      // #1108: gate the OFFER, not just the install. Surfacing an update the
+      // install path will refuse is a button that only ever fails; withholding
+      // it (with the reason) is the honest state. Run whether or not this build
+      // is behind, so an incompatible latest release is named either way.
+      const contract = await verifyReleaseContract(tag);
+      if (!contract.ok) {
+        return { current, latest, tag, htmlUrl, updateAvailable: false, incompatible: true, error: contract.error };
+      }
+    }
+    return { current, latest, tag, htmlUrl, updateAvailable };
   } catch (err) {
     return {
       current,
@@ -287,13 +344,22 @@ export async function installWCoreUpdate(
       };
     }
 
-    // 3. Extract + locate the binary.
+    // 3. #1108 contract gate. Checked AGAIN here, not only at discovery: a
+    //    release published between the check and this call would otherwise walk
+    //    straight through. It runs BEFORE extraction and therefore before the
+    //    Windows `.pending` staging that `applyPendingWCoreUpdate` installs on
+    //    the next boot - an engine this build cannot talk to must never reach
+    //    the override dir the resolver prefers over the bundled binary.
+    const contract = await verifyReleaseContract(tag);
+    if (!contract.ok) return { ok: false, error: contract.error };
+
+    // 4. Extract + locate the binary.
     onProgress?.({ phase: 'extracting' });
     extractArchive(archivePath, extractDir);
     const extracted = await findBinary(extractDir, binaryName);
     if (!extracted) return { ok: false, error: `binary ${binaryName} not found in archive` };
 
-    // 4. Install atomically into <override>/<runtimeKey>/ (copy to a temp name in
+    // 5. Install atomically into <override>/<runtimeKey>/ (copy to a temp name in
     //    the SAME dir, chmod, then rename over the final path).
     onProgress?.({ phase: 'installing' });
     const destDir = join(overrideDir(), runtimeKey());

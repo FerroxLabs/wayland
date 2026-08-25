@@ -438,7 +438,7 @@
   "routingBadge": {
     "flux": "Routing via Flux",
     "native": "Native connection",
-    "unknown": "Using this tool's own login",
+    "unknown": "Routing unknown",
     "fluxError": "Flux unavailable",
     "fluxErrorNotice": "Flux routing failed for this turn. Check your Flux connection or switch models."
   },

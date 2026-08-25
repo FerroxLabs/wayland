@@ -363,7 +363,7 @@
   "routingBadge": {
     "flux": "Roteando via Flux",
     "native": "Conexao nativa",
-    "unknown": "Usando o login proprio desta ferramenta",
+    "unknown": "Roteamento desconhecido",
     "fluxError": "Flux indisponivel",
     "fluxErrorNotice": "O roteamento via Flux falhou neste turno. Verifique sua conexao com o Flux ou troque de modelo."
   },
