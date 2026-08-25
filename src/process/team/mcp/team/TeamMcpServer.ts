@@ -23,6 +23,7 @@ import { resolveLocaleKey } from '@/common/utils';
 import { handleListModels } from '../modelListHandler.ts';
 import { notifyMcpReady } from '../../mcpReadiness.ts';
 import { writeTcpMessage, createTcpMessageReader, resolveMcpScriptDir } from '../tcpHelpers.ts';
+import { withReconciledClaims } from '../../artifactClaims';
 import { assertCapGranted } from '../../sandbox/capabilityCheck.ts';
 
 type SpawnAgentFn = (
@@ -329,6 +330,25 @@ export class TeamMcpServer {
 
   // ── Tool handlers (logic preserved from original registerTools) ─────────────
 
+  /**
+   * #980 - reconcile a teammate's deliverable claim against the team workspace
+   * BEFORE the leader is told.
+   *
+   * This message is the only thing the leader ever learns about a file: the
+   * mailbox carries no artifact record and the task board has no deliverable
+   * field, so an unchecked "I wrote report.md" becomes the leader's fact. The
+   * claim is compared with the disk here, at the seam where that belief is
+   * formed, and a correction rides alongside the teammate's own words.
+   *
+   * ANNOTATED, NEVER REFUSED. A teammate whose file landed one directory off has
+   * still done the work; dropping the report would cost more than the wrong
+   * path. And the check never throws - see `withReconciledClaims`, where every
+   * failure answers "nothing to correct".
+   */
+  private async reconciled(message: string): Promise<string> {
+    return withReconciledClaims(message, this.params.getTeam?.()?.workspace);
+  }
+
   private async handleSendMessage(args: Record<string, unknown>, callerSlotId?: string): Promise<string> {
     const { teamId, getAgents, mailbox } = this.params;
     const to = String(args.to ?? '');
@@ -345,6 +365,9 @@ export class TeamMcpServer {
 
     if (to === '*') {
       const recipients: string[] = [];
+      // Reconciled ONCE for the whole broadcast: it is one claim, and the walk
+      // it may trigger is the expensive half.
+      const broadcastContent = await this.reconciled(message);
       await Promise.all(
         agents
           .filter((agent) => agent.slotId !== fromSlotId)
@@ -354,7 +377,7 @@ export class TeamMcpServer {
                 teamId,
                 toAgentId: agent.slotId,
                 fromAgentId: fromSlotId,
-                content: message,
+                content: broadcastContent,
                 summary,
               })
               .then(() => {
@@ -413,7 +436,7 @@ export class TeamMcpServer {
       teamId,
       toAgentId: targetSlotId,
       fromAgentId: fromSlotId,
-      content: message,
+      content: await this.reconciled(message),
       summary,
     });
     this.safeWake(targetSlotId, `send_message to ${to}`);
