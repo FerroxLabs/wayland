@@ -18,9 +18,15 @@ import { getPackagedExecutableName } from '@/common/releaseTrack';
  * Every caller used to carry its own copy of that answer, and each copy was
  * wrong in a different way: the cockpit smoke fell back from `out-preview` to
  * `out` (certifying stable while claiming preview), and `packaged-launch.mjs`
- * and `tests/e2e/fixtures.ts` only ever tried the candidate names `wayland` and
- * `Wayland`, which cannot find the preview launcher now that electron-builder
- * writes `Wayland Preview` verbatim - with the space.
+ * only ever tried the candidate names `wayland` and `Wayland`, which cannot
+ * find the preview launcher now that electron-builder writes `Wayland Preview`
+ * verbatim - with the space. Both now resolve through this module.
+ *
+ * `tests/e2e/fixtures.ts` still carries a fourth copy, deliberately left alone:
+ * it reads `out/` and nothing else, so it cannot substitute one track for the
+ * other - the defect there is the missing preview capability, not a false pass -
+ * and it sits outside both this suite and `tsc --noEmit`'s include, so a change
+ * to it could not be verified here. Tracked on #1034.
  *
  * Platform is injected rather than read from `process.platform`, so the mac,
  * Windows and Linux layouts are all asserted on every shard instead of only on
