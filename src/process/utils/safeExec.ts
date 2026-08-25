@@ -18,6 +18,7 @@
 
 import type { ChildProcess } from 'child_process';
 import { spawn, execFile } from 'child_process';
+import { trackAgentChild } from '@process/agent/agentChildRegistry';
 
 type ExecResult = { stdout: string; stderr: string };
 
@@ -90,6 +91,14 @@ export function safeExec(command: string, options: SafeExecOptions = {}): Promis
       windowsHide: true,
     });
 
+    // `killAllAgentChildren` is the final before-quit step and can only kill what
+    // it knows about. Without this, AcpDetector's per-agent `where` and
+    // `powershell -Command Get-Command` probes were invisible to it and outlived
+    // the app - the "left descendant processes alive" failure that cost v0.12.3
+    // two release legs. The registry drops the child on exit/error/close, so a
+    // probe that finishes normally costs one Map entry for a few milliseconds.
+    trackAgentChild(child, !isWindows);
+
     let stdout = '';
     let stderr = '';
     let settled = false;
@@ -158,6 +167,14 @@ export function safeExecFile(file: string, args: string[], options: SafeExecOpti
       env: options.env,
       windowsHide: true,
     });
+
+    // `killAllAgentChildren` is the final before-quit step and can only kill what
+    // it knows about. Without this, AcpDetector's per-agent `where` and
+    // `powershell -Command Get-Command` probes were invisible to it and outlived
+    // the app - the "left descendant processes alive" failure that cost v0.12.3
+    // two release legs. The registry drops the child on exit/error/close, so a
+    // probe that finishes normally costs one Map entry for a few milliseconds.
+    trackAgentChild(child, !isWindows);
 
     let stdout = '';
     let stderr = '';
