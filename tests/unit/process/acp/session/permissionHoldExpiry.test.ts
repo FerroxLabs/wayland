@@ -179,3 +179,36 @@ describe('#1045 unattended permission holds expire into a denial', () => {
     });
   });
 });
+
+/**
+ * `toAgentConfig` is a hand-listed literal with no spread - its own comment says
+ * so - which means a field that is not named there is silently dropped however
+ * well it is typed at both ends. The deadline crosses exactly that seam.
+ */
+describe('#1045 the deadline survives the compat layer', () => {
+  it('carries unattendedHoldDeadlineMs from extra onto the AgentConfig', async () => {
+    const { toAgentConfig } = await import('@process/acp/compat/typeBridge');
+    const config = toAgentConfig({
+      id: 'conv-1',
+      backend: 'claude',
+      workingDir: '/workspace',
+      extra: { backend: 'claude', workspace: '/workspace', unattendedHoldDeadlineMs: 900_000 },
+      onStreamEvent: () => {},
+    } as unknown as Parameters<typeof toAgentConfig>[0]);
+
+    expect(config.unattendedHoldDeadlineMs).toBe(900_000);
+  });
+
+  it('leaves it undefined for an attended spawn, which is what keeps that prompt indefinite', async () => {
+    const { toAgentConfig } = await import('@process/acp/compat/typeBridge');
+    const config = toAgentConfig({
+      id: 'conv-1',
+      backend: 'claude',
+      workingDir: '/workspace',
+      extra: { backend: 'claude', workspace: '/workspace' },
+      onStreamEvent: () => {},
+    } as unknown as Parameters<typeof toAgentConfig>[0]);
+
+    expect(config.unattendedHoldDeadlineMs).toBeUndefined();
+  });
+});

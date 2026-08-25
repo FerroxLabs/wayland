@@ -137,6 +137,12 @@ interface AcpAgentManagerData {
   excludeBuiltinSkills?: string[];
   /** Force yolo mode (auto-approve) - used by CronService for scheduled tasks */
   yoloMode?: boolean;
+  /**
+   * #1045: ms a HELD tool call may wait before it is denied. Set by the
+   * scheduled-run executor only; absent means an attended session, whose prompt
+   * is deliberately indefinite.
+   */
+  unattendedHoldDeadlineMs?: number;
   /** ACP session ID for resume support */
   acpSessionId?: string;
   /** Last update time of ACP session */
@@ -1898,6 +1904,10 @@ ${collectedResponses.join('\n')}`;
           customArgs: customArgs,
           customEnv: customEnv,
           yoloMode: yoloMode,
+          // #1045: unrelated to yoloMode above and NOT cleared with it. A
+          // guarded-auto run has the blanket flag stripped precisely so its
+          // requests DO reach the UI - which is exactly the run that can hang.
+          unattendedHoldDeadlineMs: data.unattendedHoldDeadlineMs,
           agentName: data.agentName,
           acpSessionId: data.acpSessionId,
           acpSessionUpdatedAt: data.acpSessionUpdatedAt,
@@ -2374,6 +2384,19 @@ ${collectedResponses.join('\n')}`;
    * If already enabled, returns true immediately.
    * If not, enables yoloMode on the active ACP session dynamically.
    */
+  /**
+   * Adopt an unattended hold deadline, including on an already-running agent
+   * (#1045).
+   *
+   * The scheduled-run executor reuses a live task whenever `ensureYoloMode()`
+   * succeeds, and that path never rebuilds the session - so without this only a
+   * job's first run after a spawn would ever be bounded.
+   */
+  setUnattendedHoldDeadlineMs(ms: number | undefined): void {
+    this.options.unattendedHoldDeadlineMs = ms;
+    this.agent?.setUnattendedHoldDeadlineMs?.(ms);
+  }
+
   async ensureYoloMode(): Promise<boolean> {
     // A guarded-auto session is already in its full-auto state; blanket
     // auto-approve is deliberately NOT part of it. Report success so the cron

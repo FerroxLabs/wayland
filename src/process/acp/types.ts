@@ -75,6 +75,12 @@ export type AgentConfig = {
 
   // Miscellaneous
   yoloMode?: boolean;
+  /**
+   * #1045: ms a HELD tool call may wait before it is denied. Set only for
+   * UNATTENDED (scheduled) runs; absent means an attended session, which still
+   * prompts indefinitely. See `unattendedHold.ts`.
+   */
+  unattendedHoldDeadlineMs?: number;
 };
 
 // ─── Session Status (7-state FSM, D1) ──────────────────────────

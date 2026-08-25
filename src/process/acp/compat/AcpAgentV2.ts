@@ -363,6 +363,7 @@ export class AcpAgentV2 {
       maxStartRetries: 3,
       maxResumeRetries: 2,
       initialDesired: this.agentConfig.initialDesired,
+      onPermissionHoldExpired: (info) => this.reportHoldExpired(info),
     };
 
     this.session = new AcpSession(this.agentConfig, clientFactory, callbacks, sessionOptions);
@@ -381,6 +382,45 @@ export class AcpAgentV2 {
     }
 
     return this.session;
+  }
+
+  /**
+   * Put an expired unattended hold in the transcript (#1045).
+   *
+   * A denial the user cannot distinguish from an ordinary failure leaves most of
+   * the problem in place: their automation stopped because it was waiting on
+   * them, and nothing says so. Emitted as a `tips` frame - the same out-of-band
+   * in-thread notice a missed scheduled run uses - so it is persisted and
+   * rendered rather than being a log line nobody reads.
+   *
+   * The tool's TITLE is included because "which call was held" is the question
+   * the user will actually have. Titles are already rendered verbatim in the
+   * permission dialog this replaces, so nothing new crosses the boundary.
+   */
+  private reportHoldExpired(info: { callId: string; title: string; deadlineMs: number }): void {
+    const minutes = Math.max(1, Math.round(info.deadlineMs / 60_000));
+    this.onStreamEvent({
+      type: 'tips',
+      conversation_id: this.conversationId,
+      msg_id: `hold_expired_${info.callId}`,
+      data: {
+        type: 'warning',
+        content:
+          `This scheduled run was held waiting for you to approve "${info.title || 'a tool call'}". ` +
+          `Nobody answered within ${minutes} minute${minutes === 1 ? '' : 's'}, so it was DENIED and the run continued. ` +
+          `Run this conversation yourself to approve it.`,
+      },
+    } as unknown as IResponseMessage);
+  }
+
+  /**
+   * Adopt an unattended hold deadline on an already-running session (#1045).
+   * No-op before the session exists: `ensureSession` reads the value off
+   * `agentConfig` when it builds one.
+   */
+  setUnattendedHoldDeadlineMs(ms: number | undefined): void {
+    (this.agentConfig as { unattendedHoldDeadlineMs?: number }).unattendedHoldDeadlineMs = ms;
+    this.session?.setUnattendedHoldDeadlineMs(ms);
   }
 
   /**

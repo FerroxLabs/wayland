@@ -21,6 +21,7 @@ import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { copyFilesToDirectory } from '@process/utils';
 import type { CreateConversationParams } from '@process/services/IConversationService';
 import type { AgentType } from '@process/task/agentTypes';
+import { resolveUnattendedHoldMs } from '@process/acp/session/unattendedHold';
 import { ProcessConfig } from '@process/utils/initStorage';
 import type { CronBusyGuard } from './CronBusyGuard';
 import type { CronJob } from './CronStore';
@@ -433,6 +434,16 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
 
     const msgId = uuid();
 
+    // #1045: this run is UNATTENDED, so a held tool call must not be able to wait
+    // forever. The deadline is computed from this job's own next fire, so one
+    // hold can never eat the run that follows it; the hold is DENIED when it
+    // expires, never approved. Interactive spawns pass no deadline at all and
+    // keep prompting indefinitely.
+    const unattendedHoldDeadlineMs = resolveUnattendedHoldMs({
+      nowMs: Date.now(),
+      nextRunAtMs: job.state.nextRunAtMs,
+    });
+
     // Reuse existing task if possible; ensure yoloMode is active for scheduled runs.
     const existingTask = this.taskManager.getTask(conversationId);
     let task;
@@ -444,10 +455,10 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         } else {
           // Cannot enable yoloMode dynamically - kill and recreate.
           this.taskManager.kill(conversationId);
-          task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true });
+          task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true, unattendedHoldDeadlineMs });
         }
       } else {
-        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true });
+        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true, unattendedHoldDeadlineMs });
       }
     } catch (err) {
       // Conversation may have been deleted between scheduling and execution.
@@ -457,6 +468,14 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         { cause: err }
       );
     }
+
+    // #1045: the REUSE branch above never rebuilds the session, so the deadline
+    // has to be pushed onto the live agent rather than only handed to a spawn.
+    // Optional by design: a backend without the method has no PermissionResolver
+    // hold to bound.
+    (
+      task as { setUnattendedHoldDeadlineMs?: (ms: number | undefined) => void }
+    ).setUnattendedHoldDeadlineMs?.(unattendedHoldDeadlineMs);
 
     // Mark busy only after task acquisition succeeds. This ensures that if
     // getOrBuildTask throws (conversation deleted), setProcessing(true) is never
@@ -494,7 +513,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       if (!ok) {
         console.warn(`[CronExecutor] Agent settings failed for job ${job.id}, recreating task and retrying`);
         this.taskManager.kill(conversationId);
-        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true });
+        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true, unattendedHoldDeadlineMs });
         await this.applyAgentSettings(task, job, persistSettings);
       }
     }

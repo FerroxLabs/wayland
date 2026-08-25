@@ -54,6 +54,8 @@ export type OldAcpAgentConfig = {
     pendingConfigOptions?: Record<string, string>;
     /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
     activeMcpServers?: string[];
+    /** #1045: ms a held tool call may wait in an UNATTENDED run before it is denied. */
+    unattendedHoldDeadlineMs?: number;
   };
   onStreamEvent: (data: unknown) => void;
   onSignalEvent?: (data: unknown) => void;
@@ -124,6 +126,9 @@ export function toAgentConfig(old: OldAcpAgentConfig): AgentConfig {
     initialDesired: hasInitialDesired ? initialDesired : undefined,
 
     yoloMode: old.extra?.yoloMode,
+    // #1045: absent for an attended session, which is what keeps its prompt
+    // indefinite. This literal has no spread, so an unlisted field is dropped.
+    unattendedHoldDeadlineMs: old.extra?.unattendedHoldDeadlineMs,
   };
 }
 
