@@ -22,6 +22,14 @@ export type WCoreUpdateCheck = {
   updateAvailable: boolean;
   /** Release page URL, for a "what's new" link. */
   htmlUrl: string | null;
+  /**
+   * #1108: set when the latest release was WITHHELD because its Desktop
+   * contract descriptor does not match this build's pin (or could not be
+   * proven to). `updateAvailable` is forced `false` alongside it - offering an
+   * install the gate will refuse is just a broken button - and `error` carries
+   * the reason to show the user.
+   */
+  incompatible?: boolean;
   /** Populated when the check could not complete. */
   error?: string;
 };
