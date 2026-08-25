@@ -106,9 +106,9 @@ export type AcpStderrReader = {
  * only matches a WHOLE credential, so scrubbing a raw CHUNK is unsafe in both
  * directions: a chunk can end mid-token (the anchor is masked, the continuation in
  * the next chunk is anchorless and invisible to every later scrub) and a chunk can
- * begin mid-token (no anchor at all). A LINE cannot be either, because a chunk
- * boundary is not a line boundary - every credential shape in the bank sits within
- * one line.
+ * begin mid-token (no anchor at all). A LINE cannot be either: a chunk boundary
+ * falls wherever the pipe happened to flush, while every credential shape in the
+ * bank sits inside a single line, so a whole line is always whole credentials.
  *
  * Except one. The PEM rule is the bank's only multi-line rule, and handed a single
  * line it matches nothing but `-----BEGIN` and masks that header to end of line,
