@@ -84,7 +84,7 @@ vi.mock('fs', async (importOriginal) => {
 // world back through the mocked one would make the harness fight itself.
 const realFs = await vi.importActual<typeof import('fs')>('fs');
 const { backupExport } = await import('../../../../src/process/storage/backupExport');
-const { backupImport } = await import('../../../../src/process/storage/backupImport');
+const { backupImport, preservedRollbackPath } = await import('../../../../src/process/storage/backupImport');
 
 function write(root: string, relativePath: string, contents: string): void {
   const full = path.join(root, relativePath);
@@ -213,5 +213,41 @@ describe('backupImport rollback survivability (#1050)', () => {
     // BACKUP_FAILED, so the message is all a support case has to go on.
     expect((failure as Error).message).toContain('EPERM');
     expect((failure as Error).message).not.toContain('EBUSY');
+  });
+
+  // A preserved copy nobody is told about is indistinguishable from a deleted
+  // one. When the unwind cannot put an original back, the tree holding it stays
+  // on disk - and the caller has to be able to name where, or the user has no
+  // way to reach their own bytes.
+  it('names where it kept an original that could not be put back', async () => {
+    write(restore, 'conversations/c.json', 'ORIGINAL-chat');
+    write(restore, 'attachments/a.txt', 'ORIGINAL-attachment');
+    write(restore, 'config/settings.json', '{"theme":"ORIGINAL"}');
+
+    write(src, 'conversations/c.json', 'ARCHIVE-chat');
+    write(src, 'attachments/a.txt', 'ARCHIVE-attachment');
+    write(src, 'config/settings.json', '{"theme":"ARCHIVE"}');
+    await backupExport({ userData: src, destPath: zipPath, includeKeys: false });
+
+    // Unlike the one-shot fault above, this path never clears, so `attachments`
+    // can never go home and its original can only survive in the rollback tree.
+    inject.failConfigInstall = true;
+    inject.rmAttachmentsFailures = Number.MAX_SAFE_INTEGER;
+
+    const failure = await backupImport({ userData: restore, srcPath: zipPath }).then(
+      () => null,
+      (error: unknown) => error
+    );
+
+    const preserved = preservedRollbackPath(failure);
+    expect(preserved, 'a kept rollback tree must be named to the caller').toBeTypeOf('string');
+    expect(realFs.readFileSync(path.join(preserved as string, 'attachments', 'a.txt'), 'utf-8')).toBe(
+      'ORIGINAL-attachment'
+    );
+
+    // What COULD go back did, and is not left duplicated in the kept tree.
+    expect(readTree(restore)['conversations/c.json']).toBe('ORIGINAL-chat');
+    expect(readTree(restore)['config/settings.json']).toBe('{"theme":"ORIGINAL"}');
+    expect(realFs.existsSync(path.join(preserved as string, 'conversations'))).toBe(false);
   });
 });
