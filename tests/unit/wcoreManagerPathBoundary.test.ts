@@ -50,6 +50,7 @@ const {
   mockChannelEmitAgentMessage,
   mockNotifyPotentialCompletion,
   mockGrantAdd,
+  mockGrantList,
   mockResolveWorkspaceId,
   mockAddMessage,
   mockRootContext,
@@ -70,6 +71,10 @@ const {
   mockChannelEmitAgentMessage: vi.fn(),
   mockNotifyPotentialCompletion: vi.fn().mockResolvedValue(undefined),
   mockGrantAdd: vi.fn(),
+  // #982 - the revalidating read the spawn-time replay consults. Empty by
+  // default, so every describe that is not ABOUT replay keeps the behaviour it
+  // pinned: nothing is ever replayed and the card is always drawn.
+  mockGrantList: vi.fn(async () => ({ workspaceId: '', grants: [], withheld: [] })),
   mockResolveWorkspaceId: vi.fn(),
   mockAddMessage: vi.fn(),
   mockRootContext: vi.fn(),
@@ -141,7 +146,7 @@ vi.mock('@process/utils/message', () => ({
 // Wayland's own credential storage, so it names real fixture directories and
 // the real `vetFolderGrantRoot` classifies against them.
 vi.mock('@process/services/workspace/folderGrantStore', () => ({
-  defaultWorkspaceFolderGrantStore: () => ({ add: mockGrantAdd }),
+  defaultWorkspaceFolderGrantStore: () => ({ add: mockGrantAdd, list: mockGrantList }),
   defaultFolderGrantRootContext: mockRootContext,
 }));
 
@@ -1097,5 +1102,137 @@ describe('#1099 a remote cancel cannot dismiss a boundary card', () => {
 
     expect(agent.denyTool).toHaveBeenCalledTimes(1);
     expect(agent.denyTool.mock.calls[0][0]).toBe('call-info');
+  });
+});
+
+/**
+ * #982 - the durable list is REPLAYED, so a folder the user already opened does
+ * not stop an unattended run.
+ *
+ * The prompting axis and the boundary axis are different things: a grant the
+ * user recorded is a decision already made, and re-asking for it is what turned
+ * "persistent scoped trust" into a button that promised something nothing
+ * delivered. Core's `grant_path` is still unsendable against the pinned corpus
+ * (`FerroxLabs/wayland-core#314`), so the replay answers the card the engine
+ * raises, with `tool_approve` + `always_path` - the same command, carrying the
+ * same root, that the user's own click sends.
+ *
+ * IT REPLAYS, IT DOES NOT DECIDE. The root has to come back live from the
+ * revalidating read AND pass `vetFolderGrantRoot`. There is no mode, no
+ * setting and no engine frame that can make this hand over a folder the user
+ * never recorded - which is why it does not touch `tryAutoApprove`, whose
+ * refusal of every path boundary is unchanged.
+ */
+describe('#982 a recorded folder grant answers the card without asking again', () => {
+  let manager: WCoreManager;
+  let agent: FakeAgent;
+
+  const listing = (grants: Array<{ root: string }>) => ({
+    workspaceId: `path:/test/workspace`,
+    grants: grants.map((g, i) => ({
+      grantId: `g-${i}`,
+      root: g.root,
+      access: 'read',
+      grantedAtMs: 1,
+      origin: 'consent_card',
+    })),
+    withheld: [],
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRootContext.mockResolvedValue(ROOT_CONTEXT);
+    mockResolveWorkspaceId.mockResolvedValue('path:/test/workspace');
+    mockGrantList.mockResolvedValue(listing([]) as never);
+    manager = createManager();
+    agent = attachAgent(manager);
+    vi.spyOn(manager as any, 'postMessagePromise').mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('grants the recorded root and clears the card the user never has to see', async () => {
+    mockGrantList.mockResolvedValue(listing([{ root: ROOT }]) as never);
+
+    emitEvent(manager, boundaryFrame('call-replay', ROOT));
+    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
+
+    expect(agent.approveTool).toHaveBeenCalledWith('call-replay', {
+      always_path: { root: ROOT, write: false },
+    });
+    expect(agent.denyTool).not.toHaveBeenCalled();
+    await vi.waitFor(() => expect(emitConfirmationRemove).toHaveBeenCalled());
+  });
+
+  it('answers with the RECORDED folder even when the engine asked about a sub-folder', async () => {
+    mockGrantList.mockResolvedValue(listing([{ root: ROOT }]) as never);
+    const inside = path.join(ROOT, 'q3');
+    mkdirSync(inside, { recursive: true });
+
+    emitEvent(manager, boundaryFrame('call-inside', inside));
+    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
+
+    expect(agent.approveTool.mock.calls[0][1]).toEqual({ always_path: { root: ROOT, write: false } });
+  });
+
+  it('leaves the card standing for a folder nobody recorded', async () => {
+    mockGrantList.mockResolvedValue(listing([{ root: ROOT }]) as never);
+    const other = path.join(HOME, 'Documents', 'invoices');
+    mkdirSync(other, { recursive: true });
+
+    emitEvent(manager, boundaryFrame('call-other', other));
+    // Give the detached replay check every chance to fire before asserting it did not.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(agent.denyTool).not.toHaveBeenCalled();
+    expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves the card standing when the list holds nothing at all', async () => {
+    emitEvent(manager, boundaryFrame('call-empty', ROOT));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
+  });
+
+  it('never replays a root the host authority gate refuses', async () => {
+    // A hand-edited grants file naming Wayland's own storage must not become
+    // authority just because it is on the list.
+    mockGrantList.mockResolvedValue(listing([{ root: WAYLAND_CONFIG }]) as never);
+
+    emitEvent(manager, boundaryFrame('call-private', WAYLAND_CONFIG));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not answer a card the user already answered', async () => {
+    // The check is asynchronous, so a fast click can land first. Answering
+    // again would send a second approval for a call that is already resolved.
+    mockGrantList.mockResolvedValue(
+      new Promise((resolve) => setTimeout(() => resolve(listing([{ root: ROOT }]) as never), 30)) as never
+    );
+
+    emitEvent(manager, boundaryFrame('call-race', ROOT));
+    manager.confirm('call-race', 'call-race', PATH_BOUNDARY_DENY);
+    await new Promise((resolve) => setTimeout(resolve, 80));
+
+    expect(agent.denyTool).toHaveBeenCalledTimes(1);
+    expect(agent.approveTool).not.toHaveBeenCalled();
+  });
+
+  it('CONTROL: an ordinary confirmation is never touched by the replay', async () => {
+    mockGrantList.mockResolvedValue(listing([{ root: ROOT }]) as never);
+
+    emitEvent(manager, infoFrame('call-ordinary'));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
   });
 });

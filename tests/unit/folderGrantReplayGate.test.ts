@@ -32,6 +32,14 @@ describe('the durable folder-grant option is gated on replay actually working', 
     expect(values.includes(PATH_BOUNDARY_REMEMBER_FOLDER)).toBe(FOLDER_GRANT_REPLAY_AVAILABLE);
   });
 
+  it('the gate is OPEN: a recorded folder really is re-applied (#982)', () => {
+    // The biconditional above keeps meaning something whichever way the gate is
+    // set, which is exactly why it cannot notice the gate being closed again.
+    // This is the claim about the PRODUCT: a folder the user remembered is
+    // answered without asking, so the button's label is true.
+    expect(FOLDER_GRANT_REPLAY_AVAILABLE).toBe(true);
+  });
+
   it('still offers the session grant and the refusal either way', () => {
     // The positive control. Without it the test above passes just as happily on
     // a card that lost every option, or on no card at all.
