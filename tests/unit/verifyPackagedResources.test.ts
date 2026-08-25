@@ -152,6 +152,7 @@ const TEST_OFFICE_AUTHORITY = {
 
 function testConstitutionAuthority(arch: 'arm64' | 'x64') {
   const bytes = machExecutableBytes(arch);
+  const digest = crypto.createHash('sha256').update(bytes).digest('hex');
   return {
     supported: true,
     protocolVersion: 2,
@@ -159,7 +160,12 @@ function testConstitutionAuthority(arch: 'arm64' | 'x64') {
     arch,
     fileName: 'wayland-constitution-fs',
     size: bytes.length,
-    sha256: `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`,
+    sha256: `sha256:${digest}`,
+    // prepareConstitutionFs mints this at STAGE time from the pre-signature
+    // bytes and codesign writes it inside the signature, so it cannot be
+    // changed without the signing key. The fixture helper is never signed, so
+    // its pre-signature digest is simply its digest.
+    darwinSignatureIdentifier: `wayland-constitution-fs.${digest}`,
   };
 }
 
@@ -886,6 +892,82 @@ describe('packaged resource release gate', () => {
     manifest.protocolVersion = 1;
     fs.writeFileSync(manifestPath, JSON.stringify(manifest));
     expect(() => verify(out)).toThrow(/CRITICAL resource/);
+  });
+
+  // #1033. The two JSON files beside the helper ship INSIDE the same directory as
+  // the helper, so anything able to rewrite the binary can rewrite them too. The
+  // only authority that is not in the tamperer's reach is the one compiled into
+  // app.asar - which is also the one the app re-hashes the helper against at every
+  // launch. Until the gate reads that, a consistent three-file substitution walks
+  // straight through and the build ships a helper nobody authorised.
+  itAcceptedSweep('rejects a helper substitution that also rewrites its adjacent manifest and package authority', () => {
+    const out = createPackagedResources(true);
+    expect(verify(out)).toMatchObject({ warnings: 3 });
+
+    const runtimeRoot = path.join(packagedResourcesPath(out), 'bundled-constitution-fs', 'darwin-arm64');
+    const substituted = Buffer.concat([machExecutableBytes('arm64'), Buffer.from('substituted-helper')]);
+    const sha256 = `sha256:${crypto.createHash('sha256').update(substituted).digest('hex')}`;
+    fs.writeFileSync(path.join(runtimeRoot, 'wayland-constitution-fs'), substituted, { mode: 0o755 });
+    fs.writeFileSync(
+      path.join(runtimeRoot, 'manifest.json'),
+      JSON.stringify({
+        schemaVersion: 1,
+        protocolVersion: 2,
+        platform: 'darwin',
+        arch: 'arm64',
+        binary: { fileName: 'wayland-constitution-fs', sha256, size: substituted.length },
+      })
+    );
+    fs.writeFileSync(
+      path.join(runtimeRoot, 'package-authority.json'),
+      JSON.stringify({ ...testConstitutionAuthority('arm64'), sha256, size: substituted.length })
+    );
+
+    expect(() => verify(out)).toThrow(/CRITICAL resource/);
+  });
+
+  // #1036. A Developer ID signature proves only "Ferrox Labs signed something".
+  // prepareConstitutionFs puts the pre-signature digest in the code-signing
+  // IDENTIFIER precisely so the signature names the bytes it was minted for, and
+  // wcore/wnano already require that identifier. The Constitution helper asked for
+  // no identifier at all, so any other helper we ever signed satisfied its check.
+  itAcceptedSweep('binds the Constitution signature check to the identifier minted for those exact bytes', () => {
+    const out = createPackagedResources(true);
+    const identifiers: unknown[] = [];
+    expect(
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        argv: [...verifyArgs(out, 'darwin-arm64', 'darwin-arm64'), '--require-darwin-signature'],
+        darwinSignedCheck: () => true,
+        verifyConstitutionFsDarwinSignature: (_binaryPath: string, identifier: unknown) => {
+          identifiers.push(identifier);
+        },
+      })
+    ).toMatchObject({ warnings: 3 });
+    expect(identifiers).toEqual([testConstitutionAuthority('arm64').darwinSignatureIdentifier]);
+    expect(identifiers[0]).toMatch(/^wayland-constitution-fs\.[0-9a-f]{64}$/);
+  });
+
+  // A signed release whose package authority carries no digest-bound identifier
+  // cannot be checked against one, so it must be refused rather than fall back to
+  // "any Ferrox Labs signature will do".
+  itAcceptedSweep('refuses a signed Constitution helper whose package authority names no signing identifier', () => {
+    const out = createPackagedResources(true);
+    const authorityPath = path.join(
+      packagedResourcesPath(out),
+      'bundled-constitution-fs',
+      'darwin-arm64',
+      'package-authority.json'
+    );
+    const authority = JSON.parse(fs.readFileSync(authorityPath, 'utf8')) as Record<string, unknown>;
+    delete authority.darwinSignatureIdentifier;
+    fs.writeFileSync(authorityPath, JSON.stringify(authority));
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        argv: [...verifyArgs(out, 'darwin-arm64', 'darwin-arm64'), '--require-darwin-signature'],
+        darwinSignedCheck: () => true,
+        verifyConstitutionFsDarwinSignature: () => undefined,
+      })
+    ).toThrow(/CRITICAL resource/);
   });
 
   itAcceptedSweep('uses the package-sealed Constitution authority instead of mutable tracked authority', () => {
