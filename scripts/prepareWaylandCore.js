@@ -783,6 +783,9 @@ prepareWaylandCore.getAssetName = getAssetName;
 prepareWaylandCore.loadExpectedProvenance = loadExpectedProvenance;
 prepareWaylandCore.normalizeExactReleaseTag = normalizeExactReleaseTag;
 prepareWaylandCore.pruneRuntimeDirectory = pruneRuntimeDirectory;
+// Exported so the extractor choice (#1058) can be driven directly instead of only
+// through a real release download.
+prepareWaylandCore.extractArchive = extractArchive;
 
 // Allow standalone invocation: `node scripts/prepareWaylandCore.js`.
 // build-with-builder.js requires the module and calls the function directly;
