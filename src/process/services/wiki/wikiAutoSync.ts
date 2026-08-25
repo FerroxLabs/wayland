@@ -99,17 +99,21 @@ export async function runSynthesisSweep(): Promise<number> {
   let projectPath: string;
   try {
     const projects = await svc.getProjects();
-    if (projects.length === 0) {
-      // A scheduled sweep without an active project has no persistence
+    // Deterministic selection of the most recently active real project. `real`
+    // is doing the work here: the index also carries the global memory store
+    // (#1064) and whatever `~/.ijfw/registry.md` happens to name, which can be
+    // an OS-protected install root (#1106: `EPERM ... mkdir 'C:\Program
+    // Files\Wayland\.ijfw\wiki-state'`). Neither is a write destination.
+    const selected = selectWikiProjectPath(projects);
+    if (selected === null) {
+      // A scheduled sweep without an authorized project has no persistence
       // authority. The application launch/process working directory is launch
       // context, not user-authorized project context — falling back to it can
       // create an unexpected `.ijfw` tree in the install dir or test checkout.
-      log.info('[wiki-auto-sync] skipped: no active project');
+      log.info('[wiki-auto-sync] skipped: no writable project destination');
       return 0;
     }
-    // Deterministic selection of the most recently active real project.
-    const sorted = projects.toSorted((a, b) => b.lastActive - a.lastActive);
-    projectPath = sorted[0].path;
+    projectPath = selected;
   } catch (err) {
     log.warn('[wiki-auto-sync] could not resolve project path', { err });
     return 0;

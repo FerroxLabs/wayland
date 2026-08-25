@@ -149,3 +149,31 @@ describe('#1106 the wiki never writes into an OS-protected install root', () => 
     expect(mockBuildWikiState).not.toHaveBeenCalled();
   });
 });
+
+describe('#1106 isProtectedWriteRoot', () => {
+  it('refuses the volume root, which is never a project', async () => {
+    const { isProtectedWriteRoot } = await import('@process/services/wiki/wikiWriteDestination');
+    expect(isProtectedWriteRoot(path.parse(process.cwd()).root)).toBe(true);
+  });
+
+  it('refuses a relative path, which can only be launch context', async () => {
+    const { isProtectedWriteRoot } = await import('@process/services/wiki/wikiWriteDestination');
+    expect(isProtectedWriteRoot('some/project')).toBe(true);
+    expect(isProtectedWriteRoot('')).toBe(true);
+  });
+
+  it('refuses a SUBdirectory of a protected root, not just the root itself', async () => {
+    // The reported path is `C:\Program Files\Wayland`, one level inside
+    // `C:\Program Files`. Exact-equality would have missed it entirely.
+    const { isProtectedWriteRoot } = await import('@process/services/wiki/wikiWriteDestination');
+    expect(isProtectedWriteRoot(path.join(PROTECTED_ROOT, 'nested', 'deeper'))).toBe(true);
+  });
+
+  it('KNOWN POSITIVE: allows an ordinary absolute project directory', async () => {
+    const { isProtectedWriteRoot } = await import('@process/services/wiki/wikiWriteDestination');
+    expect(isProtectedWriteRoot(path.join(os.homedir(), 'dev', 'wayland'))).toBe(false);
+    // The temp root too: it is writable, and refusing it would refuse every
+    // scratch project - `/var/folders/...` is macOS's `os.tmpdir()`.
+    expect(isProtectedWriteRoot(path.join(os.tmpdir(), 'scratch-project'))).toBe(false);
+  });
+});
