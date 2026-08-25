@@ -257,6 +257,82 @@ describe('ijfw/safeSpawn', () => {
     });
   });
 
+  /**
+   * #1043 acceptance, executed end to end: a real npm-cli.js on a real disk,
+   * resolved through the real realpath + trust-stat path, for the layouts that
+   * were unreachable before.
+   *
+   * `realpath` is confined to the fixture root on purpose. Without that the
+   * always-probed /usr/local candidate wins on any machine that has a system npm
+   * - which the Hetzner gate does (/usr/local/bin/npm ->
+   * ../lib/node_modules/npm/bin/npm-cli.js) - and the test would pass no matter
+   * which layout the resolver could actually reach. The negative control at the
+   * end proves the confinement really bites.
+   */
+  describe.skipIf(process.platform === 'win32')('defaultResolveTrustedNpm on real POSIX layouts (#1043)', () => {
+    let root: string;
+    let realpathSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+    /** Create `<prefix>/<cliRelative>` and return the PATH bin dir for that prefix. */
+    const layout = (prefix: string, cliRelative: string): string => {
+      const prefixDir = path.join(root, prefix);
+      const cli = path.join(prefixDir, cliRelative);
+      fs.mkdirSync(path.dirname(cli), { recursive: true });
+      fs.writeFileSync(cli, '// npm-cli', { mode: 0o644 });
+      const bin = path.join(prefixDir, 'bin');
+      fs.mkdirSync(bin, { recursive: true });
+      return bin;
+    };
+
+    beforeEach(() => {
+      root = fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-npm-layouts-'));
+      const realRealpath = fs.promises.realpath.bind(fs.promises);
+      realpathSpy = vi.spyOn(fs.promises, 'realpath').mockImplementation(async (target: never) => {
+        const p = String(target);
+        if (!p.startsWith(root)) throw Object.assign(new Error(`ENOENT: confined away ${p}`), { code: 'ENOENT' });
+        return realRealpath(p) as never;
+      });
+      __setTrustedNpmCliResolver(null);
+    });
+
+    afterEach(() => {
+      realpathSpy?.mockRestore();
+      realpathSpy = null;
+      fs.rmSync(root, { recursive: true, force: true });
+    });
+
+    it('resolves an nvm/fnm-style versioned prefix', async () => {
+      const bin = layout('nvm/versions/node/v22.21.1', 'lib/node_modules/npm/bin/npm-cli.js');
+      process.env.PATH = bin;
+      await expect(defaultResolveTrustedNpm()).resolves.toBe(
+        path.join(root, 'nvm/versions/node/v22.21.1/lib/node_modules/npm/bin/npm-cli.js')
+      );
+    });
+
+    it('resolves the NodeSource / prefix-style layout', async () => {
+      const bin = layout('usr', 'lib/node_modules/npm/bin/npm-cli.js');
+      process.env.PATH = `/nonexistent/first:${bin}`;
+      await expect(defaultResolveTrustedNpm()).resolves.toBe(
+        path.join(root, 'usr/lib/node_modules/npm/bin/npm-cli.js')
+      );
+    });
+
+    it("resolves Debian/Ubuntu's apt layout under share/nodejs", async () => {
+      const bin = layout('debian-usr', 'share/nodejs/npm/bin/npm-cli.js');
+      process.env.PATH = bin;
+      await expect(defaultResolveTrustedNpm()).resolves.toBe(
+        path.join(root, 'debian-usr/share/nodejs/npm/bin/npm-cli.js')
+      );
+    });
+
+    it('KNOWN NEGATIVE: a PATH dir with no npm install still fails, confinement intact', async () => {
+      const bare = path.join(root, 'empty', 'bin');
+      fs.mkdirSync(bare, { recursive: true });
+      process.env.PATH = bare;
+      await expect(defaultResolveTrustedNpm()).rejects.toThrow(/Could not resolve trusted npm/);
+    });
+  });
+
   describe('defaultResolveTrustedNpm diagnostics (#261)', () => {
     it('throws an enumerated diagnostic listing every tried candidate when none resolve', async () => {
       // Force every candidate to fail to resolve. This must be hermetic across
