@@ -144,6 +144,42 @@ async function resolveTrustedNpmCli(): Promise<string> {
   return resolved;
 }
 
+/**
+ * Keep the bundled Bun's whole file-operation chain out of the OS temp dir
+ * (#928).
+ *
+ * In a packaged Windows build the IJFW child is `bun.exe npm-cli.js ...`.
+ * Windows Defender actively scans %TEMP%, so bun's rename of its staged files
+ * fails with EPERM (NtSetInformationFile). `acpConnectors.ts` already fixed
+ * this for the ACP spawn site by redirecting BUN_INSTALL_CACHE_DIR, BUN_TMPDIR
+ * and - because bunx builds its working directory under the OS TMP/TEMP, so the
+ * SOURCE of the move is otherwise still scanned - TMP/TEMP as well. `safeSpawn`
+ * is the second bun spawn site and never got that redirect.
+ *
+ * TMP/TEMP are overridden on win32 only: the AV lock is Windows-only, and on
+ * POSIX repointing them would change npm's staging for no benefit.
+ *
+ * A redirect to a directory that does not exist is WORSE than no redirect -
+ * npm's own `os.tmpdir()` staging would then ENOENT - so the directories are
+ * created first and the whole redirect is dropped if creation fails.
+ */
+export function __buildBunSandboxEnv(platform: NodeJS.Platform, baseDir: string): Record<string, string> {
+  const cacheDir = path.join(baseDir, 'bun-cache');
+  const tmpDir = path.join(baseDir, 'bun-tmp');
+  try {
+    fs.mkdirSync(cacheDir, { recursive: true });
+    fs.mkdirSync(tmpDir, { recursive: true });
+  } catch {
+    return {};
+  }
+  const env: Record<string, string> = { BUN_INSTALL_CACHE_DIR: cacheDir, BUN_TMPDIR: tmpDir };
+  if (platform === 'win32') {
+    env.TMP = tmpDir;
+    env.TEMP = tmpDir;
+  }
+  return env;
+}
+
 export async function safeSpawn(opts: SafeSpawnOptions): Promise<ChildProcess> {
   let argv0: string;
   let argv: string[];
@@ -169,7 +205,14 @@ export async function safeSpawn(opts: SafeSpawnOptions): Promise<ChildProcess> {
     argv = [npxCli, ...opts.args];
   }
 
-  const env = buildChildEnv({ ...opts.extraEnv, ...runtime.env });
+  // The bun sandbox always lives under userData, even when the caller pinned a
+  // different cwd - it is where the runtime writes, not where the command runs.
+  const userDataDir = resolveSafeSpawnCwd();
+  const env = buildChildEnv({
+    ...__buildBunSandboxEnv(process.platform, userDataDir),
+    ...opts.extraEnv,
+    ...runtime.env,
+  });
 
   return spawn(argv0, argv, {
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -177,7 +220,7 @@ export async function safeSpawn(opts: SafeSpawnOptions): Promise<ChildProcess> {
     // app.asar.unpacked, and npm/npx treat cwd as a project root (package.json
     // discovery, potential node_modules writes) which must never point inside
     // the signed bundle.
-    cwd: opts.cwd ?? resolveSafeSpawnCwd(),
+    cwd: opts.cwd ?? userDataDir,
     env,
   });
 }

@@ -278,11 +278,15 @@ describe('ijfw/safeSpawn', () => {
  */
 describe('ijfw/safeSpawn bun temp redirect (#928)', () => {
   const originalPlatform = process.platform;
+  const originalTmp = process.env.TMP;
+  const originalTemp = process.env.TEMP;
   let dir: string;
 
   beforeEach(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-bunenv-'));
     __setTrustedNpmCliResolver(async () => path.join(dir, 'npm-cli.js'));
+    process.env.TMP = '/os/temp';
+    process.env.TEMP = '/os/temp';
     (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockReset();
     (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => makeFakeChild());
   });
@@ -290,6 +294,10 @@ describe('ijfw/safeSpawn bun temp redirect (#928)', () => {
   afterEach(() => {
     Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
     __setTrustedNpmCliResolver(null);
+    if (originalTmp === undefined) delete process.env.TMP;
+    else process.env.TMP = originalTmp;
+    if (originalTemp === undefined) delete process.env.TEMP;
+    else process.env.TEMP = originalTemp;
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
@@ -313,18 +321,18 @@ describe('ijfw/safeSpawn bun temp redirect (#928)', () => {
     Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
     await safeSpawn({ cmd: 'node', args: ['x'] });
     const env = childEnv();
+    expect(env.BUN_TMPDIR).toMatch(/bun-tmp$/);
     expect(env.TMP).toBe(env.BUN_TMPDIR);
     expect(env.TEMP).toBe(env.BUN_TMPDIR);
   });
 
   it('leaves TMP/TEMP alone off win32 (the AV lock is Windows-only)', async () => {
     Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
-    process.env.TMPDIR = '/tmp/posix';
     await safeSpawn({ cmd: 'node', args: ['x'] });
     const env = childEnv();
-    expect(env.TMP).not.toBe(env.BUN_TMPDIR);
-    expect(env.TEMP).not.toBe(env.BUN_TMPDIR);
-    delete process.env.TMPDIR;
+    expect(env.BUN_TMPDIR).toMatch(/bun-tmp$/);
+    expect(env.TMP).toBe('/os/temp');
+    expect(env.TEMP).toBe('/os/temp');
   });
 
   it('lets an explicit extraEnv override the redirect', async () => {
