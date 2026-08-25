@@ -98,6 +98,50 @@ export function initMissionControlBridge(
         detail: 'Core turn runtimes are visible; child sub-agent/workflow progress is not retained by Desktop',
       };
     },
+    // #1060: without this reader the `approvals` source stayed optional, so the
+    // ledger permanently reported it unavailable and a pending approval could
+    // never reach "Needs you". Every live agent manager owns the authoritative
+    // pending set for its conversation.
+    listPendingApprovals: async () => {
+      const tasks = workerTaskManager.listTasks();
+      const observations: ActivityObservation[] = [];
+      let unresolved = 0;
+      for (const task of tasks) {
+        // getConfirmations() hands back the manager's live array. Read it,
+        // never sort or splice it - that is the queue the renderer answers.
+        const confirmations = workerTaskManager.getTask(task.id)?.getConfirmations() ?? [];
+        if (confirmations.length === 0) continue;
+        const conversation = await conversationService.getConversation(task.id);
+        if (!conversation) {
+          unresolved += confirmations.length;
+          continue;
+        }
+        const provenance: ActivityObservation['provenance'] =
+          task.type === 'wcore' ? { origin: 'core', kind: 'approval' } : { origin: 'desktop', kind: 'approval' };
+        for (const confirmation of confirmations) {
+          observations.push({
+            sourceId: `${task.id}:${confirmation.callId}`,
+            provenance,
+            title: confirmation.title ?? confirmation.action ?? 'Approval required',
+            status: 'pending',
+            needsHuman: true,
+            action: { kind: 'navigate', path: `/conversation/${task.id}`, label: 'Answer approval' },
+            context: conversation.name,
+            detail: confirmation.description,
+            startedAt: conversation.createTime,
+            updatedAt: conversation.modifyTime,
+          });
+        }
+      }
+      if (unresolved > 0) {
+        return {
+          observations,
+          status: 'partial',
+          detail: `${unresolved} pending approval(s) belong to a conversation Desktop can no longer read`,
+        };
+      }
+      return { observations, status: 'ok' };
+    },
   });
 
   ipcBridge.missionControl.snapshot.provider(async ({ userId }): Promise<MissionControlSnapshot> => {
