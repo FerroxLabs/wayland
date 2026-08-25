@@ -52,12 +52,17 @@ vi.mock('electron', () => ({ app: { getPath: () => '/tmp/wayland-test-userdata' 
 vi.mock('@process/agent/acp/AcpDetector', () => ({ acpDetector: { isCliAvailable: mockIsCliAvailable } }));
 vi.mock('@process/agent/wnano/binaryResolver', () => ({ resolveWNanoBinary: mockResolveWNanoBinary }));
 vi.mock('@process/connectors/fluxKey', () => ({ readConnectedFluxKey: mockReadConnectedFluxKey }));
-vi.mock('@process/task/claudeConfig', () => ({
-  materializeFluxClaudeConfigDir: mockMaterializeFluxClaudeConfigDir,
-  readDroppedUserHookEvents: mockReadDroppedUserHookEvents,
-  buildDroppedUserHooksNotice: (events: readonly string[]) =>
-    `Your user-level Claude Code hooks (${events.join(', ')}) do not run on a Flux-routed turn.`,
-}));
+// Only the two functions that touch the real filesystem are stubbed - the
+// notice builder stays REAL, so this file asserts the sentence the user
+// actually sees rather than one invented here.
+vi.mock('@process/task/claudeConfig', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    materializeFluxClaudeConfigDir: mockMaterializeFluxClaudeConfigDir,
+    readDroppedUserHookEvents: mockReadDroppedUserHookEvents,
+  };
+});
 vi.mock('@process/task/codexConfig', () => ({
   getCodexSandboxModeForSessionMode: vi.fn(() => 'workspace-write'),
   materializeFluxCodexHome: vi.fn(async () => '/tmp/codex-home'),

@@ -66,7 +66,11 @@ import {
   normalizeCodexSandboxMode,
   type CodexSandboxMode,
 } from '@process/task/codexConfig';
-import { materializeFluxClaudeConfigDir } from '@process/task/claudeConfig';
+import {
+  buildDroppedUserHooksNotice,
+  materializeFluxClaudeConfigDir,
+  readDroppedUserHookEvents,
+} from '@process/task/claudeConfig';
 import { materializeFluxHermesHome } from '@process/task/hermesConfig';
 import { app } from 'electron';
 import BaseAgentManager from './BaseAgentManager';
@@ -865,6 +869,7 @@ ${collectedResponses.join('\n')}`;
         } catch (err) {
           mainWarn('[AcpAgentManager]', 'materializeFluxClaudeConfigDir failed', err);
         }
+        await this.announceDroppedUserHooks();
       }
 
       // hermes selects its provider from <HERMES_HOME>/config.yaml, not from env.
@@ -1039,6 +1044,44 @@ ${collectedResponses.join('\n')}`;
 
   /** Routing decision for the most recent spawn - surfaced on request_trace (badge). */
   private lastRouting: RoutingDecision = 'unknown';
+
+  /** True once this conversation has been told its user-level hooks were dropped. */
+  private droppedHooksAnnounced = false;
+
+  /**
+   * Tell the user, in the chat, which of their OWN Claude Code hook events a
+   * Flux-routed turn will not run (#1027).
+   *
+   * The scoped CLAUDE_CONFIG_DIR deliberately omits `hooks` (see claudeConfig.ts
+   * - the claude binary would otherwise execute every user hook command on each
+   * Flux turn). Silence was the defect: the same hook fires on a native turn, so
+   * a user reading only the chat sees intermittent enforcement of their own
+   * policy rather than a routing consequence.
+   *
+   * Persisted like every other reason the user needs to see, so it survives a
+   * reload and shows up in a bug report. Once per conversation, and only when
+   * the user actually has user-level hooks - a user with none is told nothing.
+   * Best-effort: never blocks or fails a spawn.
+   */
+  private async announceDroppedUserHooks(): Promise<void> {
+    if (this.droppedHooksAnnounced) return;
+    try {
+      const events = await readDroppedUserHookEvents();
+      const notice = buildDroppedUserHooksNotice(events);
+      if (!notice) return;
+      this.droppedHooksAnnounced = true;
+      addMessage(this.conversation_id, {
+        id: uuid(),
+        conversation_id: this.conversation_id,
+        type: 'tips',
+        position: 'center',
+        createdAt: Date.now(),
+        content: { content: notice, type: 'error' },
+      } as TMessage);
+    } catch (err) {
+      mainWarn('[AcpAgentManager]', 'announceDroppedUserHooks failed', err);
+    }
+  }
 
   /**
    * The Flux tier (`flux-auto` | `flux-reasoning` | ...) the currently-running
