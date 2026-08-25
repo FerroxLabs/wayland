@@ -46,8 +46,13 @@ const resolveBacklinkSchema = z.object({ wikilinkText: z.string().min(1).max(512
 async function getCurrentProjectPath(): Promise<string> {
   const svc = getIjfwArchiveService();
   const projects = await svc.getProjects();
-  if (projects.length > 0) {
-    const sorted = projects.toSorted((a, b) => b.lastActive - a.lastActive);
+  // #1064: the global memory store rides in this index (see #137) and is
+  // usually the most recently active root, because every chat in every project
+  // appends to it. It is the user's home directory, not a workspace - resolving
+  // to it scatters `.ijfw/wiki` and `.ijfw/wiki-state` across $HOME.
+  const workspaces = projects.filter((p) => p.isGlobalStore !== true);
+  if (workspaces.length > 0) {
+    const sorted = workspaces.toSorted((a, b) => b.lastActive - a.lastActive);
     return sorted[0].path;
   }
   // The application launch directory is not a workspace. Falling back to cwd
