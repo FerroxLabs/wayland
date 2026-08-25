@@ -88,7 +88,7 @@ function writeStoredZip(target: string, entryName: string, contents: Buffer): vo
   central.writeUInt16LE(0, 32); // comment
   central.writeUInt16LE(0, 34); // disk
   central.writeUInt16LE(0, 36); // internal attrs
-  central.writeUInt32LE(0o100644 << 16, 38); // external attrs
+  central.writeUInt32LE(((0o100644 << 16) >>> 0) as number, 38); // external attrs (unix mode, high 16 bits)
   central.writeUInt32LE(0, 42); // local header offset
 
   const centralSize = central.length + name.length;
