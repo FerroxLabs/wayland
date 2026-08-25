@@ -4441,6 +4441,7 @@ export type I18nKey =
   | 'settings.storagePage.restoreNotOperator'
   | 'settings.storagePage.restoreNothingApplied'
   | 'settings.storagePage.restoreNothingAppliedOutOfScope'
+  | 'settings.storagePage.restoreOriginalsPreserved'
   | 'settings.storagePage.restorePassphraseHint'
   | 'settings.storagePage.restorePassphraseLabel'
   | 'settings.storagePage.restorePasswordHint'

@@ -4,7 +4,7 @@ import { ipcBridge } from '@/common';
 import { publicBackupErrorCode } from '@/common/types/storageBackup';
 import { computeUsage, invalidateUsageCache } from './computeUsage';
 import { backupExport } from './backupExport';
-import { backupImport } from './backupImport';
+import { backupImport, preservedRollbackPath } from './backupImport';
 import { createLegacySafetyExport } from './legacySafetyExport';
 import { resetAll } from './resetAll';
 import { clearStorageDir, getLogsDir, getStorageDirs, getUserDataDir } from './storageLocations';
@@ -103,7 +103,17 @@ export function initStorageBridge(): void {
       // them, so the usage cache is stale either way.
       invalidateUsageCache();
       console.error('[storage] Legacy file restore failed:', error);
-      return { ok: false, failed: true, errorCode: publicBackupErrorCode(error) };
+      // If the restore could not put every displaced original back it kept the
+      // tree holding them instead of deleting it. Forward where, or the user is
+      // told their restore failed and nothing else - which reads exactly like
+      // the data loss this replaced (#1050).
+      const preservedPath = preservedRollbackPath(error);
+      return {
+        ok: false,
+        failed: true,
+        errorCode: publicBackupErrorCode(error),
+        ...(preservedPath && { preservedPath }),
+      };
     }
   });
 

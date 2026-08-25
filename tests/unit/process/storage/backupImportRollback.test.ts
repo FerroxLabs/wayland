@@ -98,7 +98,9 @@ function readTree(dir: string, base = dir, out: Record<string, string> = {}): Re
   for (const entry of realFs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) readTree(full, base, out);
-    else if (entry.isFile()) out[path.relative(base, full).split(path.sep).join('/')] = realFs.readFileSync(full, 'utf-8');
+    else if (entry.isFile()) {
+      out[path.relative(base, full).split(path.sep).join('/')] = realFs.readFileSync(full, 'utf-8');
+    }
   }
   return out;
 }

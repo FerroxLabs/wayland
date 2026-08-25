@@ -148,6 +148,30 @@ function validateLegacyManifest(value: unknown): void {
 }
 
 /**
+ * Property carrying the rollback tree a failed restore deliberately KEPT.
+ *
+ * It rides on the original error rather than replacing it, because the caller
+ * still has to receive the failure that actually caused the restore to fail
+ * (#1050). Read it with `preservedRollbackPath`.
+ */
+const PRESERVED_ROLLBACK_KEY = 'waylandPreservedRollbackPath';
+
+/**
+ * Where a failed restore kept the user's displaced originals, if it kept any.
+ *
+ * A preserved copy nobody is told about is indistinguishable from a deleted
+ * one, and on the no-passphrase path this tree can be the only copy of the
+ * user's legacy `keys.json` on the machine. This is an application-generated
+ * temp path, not error text: unlike a raw message it cannot carry archive
+ * content or a passphrase fragment, which is why it may cross to the user while
+ * the underlying error may not.
+ */
+export function preservedRollbackPath(error: unknown): string | undefined {
+  const value = (error as Record<string, unknown> | null | undefined)?.[PRESERVED_ROLLBACK_KEY];
+  return typeof value === 'string' ? value : undefined;
+}
+
+/**
  * True while the rollback tree still holds a displaced original that was not
  * put back.
  *
@@ -227,6 +251,12 @@ function replaceFromStaging(root: string, stagingRoot: string): string[] {
       }
     }
     keepRollback = rollbackStillHoldsOriginals(rollbackRoot, displaced);
+    // Name the kept tree on the way out. A non-Error throw cannot carry it, but
+    // nothing below the fs calls above produces one, and the bytes are on disk
+    // either way - this only decides whether the user can be told where.
+    if (keepRollback && error instanceof Error) {
+      Object.assign(error, { [PRESERVED_ROLLBACK_KEY]: rollbackRoot });
+    }
     throw error;
   } finally {
     // On the success path the displaced originals were replaced deliberately and
