@@ -154,6 +154,8 @@ describe('#1045 unattended permission holds expire into a denial', () => {
     const held = watch(resolver.evaluate(makeRequest('bash', 'c1', { kind: 'execute' }), vi.fn()));
     await vi.advanceTimersByTimeAsync(500);
     resolver.resolve('c1', 'allow');
+    // `resolve` settles the promise; the `.then` that records it is a microtask.
+    await vi.advanceTimersByTimeAsync(0);
     expect(held.settled()).toEqual({ outcome: { outcome: 'selected', optionId: 'allow' } });
 
     await vi.advanceTimersByTimeAsync(10_000);

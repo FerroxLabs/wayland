@@ -12,6 +12,7 @@ import path from 'node:path';
 import log from 'electron-log';
 import { ipcBridge } from '@/common';
 import { getIjfwArchiveService } from '@process/services/memory/ijfwArchiveService';
+import { selectWikiProjectPath } from './wikiWriteDestination';
 import { buildWikiState } from './wikiIndex';
 import { synthesizeMany } from './wikiSynthesizer';
 import type { WikiState } from '@/common/types/memory';

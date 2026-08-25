@@ -441,7 +441,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // keep prompting indefinitely.
     const unattendedHoldDeadlineMs = resolveUnattendedHoldMs({
       nowMs: Date.now(),
-      nextRunAtMs: job.state.nextRunAtMs,
+      nextRunAtMs: job.state?.nextRunAtMs,
     });
 
     // Reuse existing task if possible; ensure yoloMode is active for scheduled runs.
