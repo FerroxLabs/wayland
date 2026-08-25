@@ -119,10 +119,10 @@ describe('#980 team_send_message reconciles a deliverable claim before the leade
 
   const send = (message: string) =>
     tcpRequest(server.getPort(), {
-      token,
+      auth_token: token,
       tool: 'team_send_message',
       args: { to: 'Leader', message },
-      fromSlotId: 'slot-1',
+      from_slot_id: 'slot-1',
     });
 
   it('annotates a claim the workspace does not support', async () => {

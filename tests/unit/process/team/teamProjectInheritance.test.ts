@@ -45,16 +45,52 @@ vi.mock('@process/utils/initStorage', () => ({
   getAssistantsDir: () => '/assistants',
 }));
 
-import { CURRENT_DB_VERSION, initSchema } from '@process/services/database/schema';
-import { runMigrations } from '@process/services/database/migrations';
-import { BetterSqlite3Driver } from '@process/services/database/drivers/BetterSqlite3Driver';
-import { SqliteTeamRepository } from '@process/team/repository/SqliteTeamRepository';
+import { ALL_MIGRATIONS } from '@process/services/database/migrations';
+import { CURRENT_DB_VERSION } from '@process/services/database/schema';
 import { TeamSessionService } from '@process/team/TeamSessionService';
 import type { IConversationService } from '@process/services/IConversationService';
+import type { ITeamRepository } from '@process/team/repository/ITeamRepository';
 import type { TeamAgent, TTeam } from '@process/team/types';
-import { describeNativeSqlite } from '../../helpers/nativeSqlite';
 
 const PROJECT = 'proj-7';
+
+/**
+ * An in-memory stand-in for the persistence layer.
+ *
+ * NOT `SqliteTeamRepository`: the native better-sqlite3 addon is compiled for
+ * ONE ABI, and on a machine where that is the Electron ABI `describeNativeSqlite`
+ * SKIPS the suite - a skipped test proves nothing about the field this issue is
+ * about. The COLUMN is pinned against a real database in
+ * `src/process/services/database/migration_v57.bun.test.ts`; what belongs here
+ * is the service behaviour, which needs only a repository that stores what it
+ * is given.
+ */
+function makeRepo(): ITeamRepository {
+  const teams = new Map<string, TTeam>();
+  return {
+    create: async (team: TTeam) => {
+      teams.set(team.id, { ...team });
+      return team;
+    },
+    findById: async (id: string) => (teams.has(id) ? { ...(teams.get(id) as TTeam) } : null),
+    findAll: async () => [...teams.values()],
+    update: async (id: string, updates: Partial<TTeam>) => {
+      const merged = { ...(teams.get(id) as TTeam), ...updates };
+      teams.set(id, merged);
+      return merged;
+    },
+    updateAgentStatuses: async (id: string) => teams.get(id) ?? null,
+    delete: async (id: string) => {
+      teams.delete(id);
+    },
+    deleteMailboxByTeam: async () => {},
+    deleteTasksByTeam: async () => {},
+    findTasksByTeam: async () => [],
+    findTasksByOwner: async () => [],
+    appendEvent: async () => undefined,
+    findEventsByTeam: async () => [],
+  } as unknown as ITeamRepository;
+}
 
 const agents = (): TeamAgent[] => [
   {
@@ -77,48 +113,35 @@ const agents = (): TeamAgent[] => [
   },
 ];
 
-describeNativeSqlite('#999 a Team carries the project its members inherit knowledge from', () => {
-  let driver: BetterSqlite3Driver;
-  let repo: SqliteTeamRepository;
+describe('#999 a Team carries the project its members inherit knowledge from', () => {
+  let repo: ITeamRepository;
   const services: TeamSessionService[] = [];
 
   beforeEach(() => {
     vi.clearAllMocks();
-    driver = new BetterSqlite3Driver(':memory:');
-    initSchema(driver);
-    runMigrations(driver, 0, CURRENT_DB_VERSION);
-    driver
-      .prepare(`INSERT INTO users (id, username, password_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`)
-      .run('user-1', 'testuser', 'hash', 1000, 1000);
-    repo = new SqliteTeamRepository(driver);
+    repo = makeRepo();
   });
 
   afterEach(async () => {
     await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
-    driver.close();
   });
 
   type Recorder = {
-    created: Array<{ extra: Record<string, unknown> }>;
-    updated: Array<[string, { extra?: Record<string, unknown> }]>;
     conversations: Map<string, { id: string; extra: Record<string, unknown> }>;
   };
 
   function newService(): { svc: TeamSessionService; rec: Recorder } {
-    const rec: Recorder = { created: [], updated: [], conversations: new Map() };
+    const rec: Recorder = { conversations: new Map() };
     let next = 0;
     const conversationService = {
       createConversation: vi.fn(async (params: { extra?: Record<string, unknown> }) => {
         next += 1;
-        const id = `conv-${next}`;
-        rec.created.push({ extra: { ...(params.extra ?? {}) } });
-        const conversation = { id, extra: { ...(params.extra ?? {}) } };
-        rec.conversations.set(id, conversation);
+        const conversation = { id: `conv-${next}`, extra: { ...(params.extra ?? {}) } };
+        rec.conversations.set(conversation.id, conversation);
         return conversation;
       }),
       deleteConversation: vi.fn(),
       updateConversation: vi.fn(async (id: string, patch: { extra?: Record<string, unknown> }) => {
-        rec.updated.push([id, patch]);
         const existing = rec.conversations.get(id);
         if (existing) Object.assign(existing.extra, patch.extra ?? {});
       }),
@@ -134,7 +157,17 @@ describeNativeSqlite('#999 a Team carries the project its members inherit knowle
   const projectIdsOf = (rec: Recorder): unknown[] =>
     [...rec.conversations.values()].map((conversation) => conversation.extra.projectId);
 
-  it('persists the project on the team row and hands it back on read', async () => {
+  type CreateParams = Parameters<TeamSessionService['createTeam']>[0] & { projectId?: string };
+
+  it('has a schema column to persist it in, at a version the app will actually migrate to', () => {
+    // The service can only hand back what the row can hold, and a migration
+    // that CURRENT_DB_VERSION never reaches is a column that exists on nobody's
+    // machine.
+    expect(ALL_MIGRATIONS.some((m) => m.version === 57)).toBe(true);
+    expect(CURRENT_DB_VERSION).toBeGreaterThanOrEqual(57);
+  });
+
+  it('records the project on the team and hands it back on read', async () => {
     const { svc } = newService();
 
     const team = await svc.createTeam({
@@ -144,11 +177,10 @@ describeNativeSqlite('#999 a Team carries the project its members inherit knowle
       workspaceMode: 'shared',
       agents: agents(),
       projectId: PROJECT,
-    } as Parameters<TeamSessionService['createTeam']>[0]);
+    } as CreateParams);
 
     expect(team.projectId).toBe(PROJECT);
-    const reloaded = (await repo.findById(team.id)) as TTeam;
-    expect(reloaded.projectId).toBe(PROJECT);
+    expect((await repo.findById(team.id))?.projectId).toBe(PROJECT);
   });
 
   it('stamps every member conversation with the project, so the spawn-time refresh has a key to read', async () => {
@@ -161,7 +193,7 @@ describeNativeSqlite('#999 a Team carries the project its members inherit knowle
       workspaceMode: 'shared',
       agents: agents(),
       projectId: PROJECT,
-    } as Parameters<TeamSessionService['createTeam']>[0]);
+    } as CreateParams);
 
     expect(rec.conversations.size).toBe(2);
     expect(projectIdsOf(rec)).toEqual([PROJECT, PROJECT]);
@@ -202,7 +234,7 @@ describeNativeSqlite('#999 a Team carries the project its members inherit knowle
       workspaceMode: 'shared',
       agents: agents(),
       projectId: PROJECT,
-    } as Parameters<TeamSessionService['createTeam']>[0]);
+    } as CreateParams);
 
     await svc.addAgent(team.id, {
       role: 'teammate',
@@ -217,8 +249,8 @@ describeNativeSqlite('#999 a Team carries the project its members inherit knowle
   });
 
   it('stamps NOTHING when the team belongs to no project', async () => {
-    // The positive control for every assertion above: the field only appears
-    // because a project was named, never because the code always writes one.
+    // The positive control for every assertion above: the field appears because
+    // a project was named, never because the code always writes one.
     const { svc, rec } = newService();
 
     const team = await svc.createTeam({
