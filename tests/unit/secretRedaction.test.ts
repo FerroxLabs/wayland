@@ -126,20 +126,27 @@ describe('the limits of single-pass span merging, pinned rather than claimed', (
   const JWT = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dBjftJeZ4CVPmB92K27uhbUJU1p1r_wW1gFWFOEjXk';
 
   /**
-   * Sequential masking caught this JWT, and it did so by ACCIDENT: it injected
-   * `[redacted]`, `]` is a non-word character, and the JWT's leading `\b` then
-   * matched a boundary the pristine string does not contain. Only the two
-   * FIXED-LENGTH rules can stop mid-run and supply that boundary, so this is the
-   * whole shape, not a sample of a large class.
+   * INVERTED by #1048, exactly as this test demanded: "if anyone closes this - by
+   * looping to a fixed point, or by fixing the anchors - this test fails and the
+   * doc comment has to be brought with it". The anchors were the mechanism, not
+   * the merging. Sequential masking caught this JWT by ACCIDENT - it injected
+   * `[redacted]`, `]` is a non-word character, and the JWT's leading `\b` matched
+   * a boundary the pristine string does not contain. With no leading `\b` on any
+   * rule, the JWT matches the glued shape on the pristine text and both spans
+   * merge into one marker. The `maskPatternMatches` doc comment was rewritten in
+   * the same commit.
    *
-   * `toBe` on the exact string, deliberately. If anyone closes this - by looping
-   * to a fixed point, or by fixing the anchors in #1037 - this test fails and the
-   * doc comment has to be brought with it, which is the point.
+   * `toBe` on the exact string, still deliberately: `not.toContain` is the oracle
+   * that cannot tell a whole mask from a partial one.
    */
-  it('a credential glued to an AWS key id with NO separator keeps its own coverage only if it has an anchor', () => {
+  it('a credential glued to an AWS key id with NO separator is masked too (#1048)', () => {
     const out = redactSecrets(`err ${AWS_ACCESS_KEY_ID}${JWT} done`);
     expect(out, 'the AWS key id itself must still be masked').not.toContain(AWS_ACCESS_KEY_ID);
-    expect(out).toBe(`err [redacted]${JWT} done`);
+    expect(out).toBe('err [redacted] done');
+    // Control, and the reason this is one marker and not two: the spans touch,
+    // so they merge. Separated by anything at all they stay two markers - that is
+    // the case below, and it must not have changed.
+    expect(out).not.toContain(JWT.slice(0, 8));
   });
 
   it('the same two credentials separated by a single space are BOTH masked (the shape that actually occurs)', () => {

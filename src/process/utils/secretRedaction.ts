@@ -60,15 +60,76 @@
 // was the defect - the raw stderr line WAS logged verbatim, putting a live
 // credential on disk and into the renderer DevTools stream regardless of the
 // redaction applied to the user-facing error. Every emission is now redacted.
+//
+// #1048: NO RULE BELOW MAY OPEN WITH `\b`, and that is the whole point of the
+// array's current shape. A leading word boundary needs a word/non-word
+// transition immediately before the prefix, and there is none after a letter, a
+// digit or an `_` - so a credential GLUED to preceding characters never matched
+// and passed through whole, while the identical token at any safe delimiter
+// masked. Measured on 25 families x 3 word characters: 72 of 75 glued shapes
+// leaked (the only survivor was `1//`, the one rule that never had an anchor),
+// against 0 of 125 for the five safe delimiters. That asymmetry is exactly why
+// no suite noticed for as long as the anchors were there.
+//
+// The issue's own suggested fix - swap `\b` for `(?<![A-Za-z0-9])` - was measured
+// and REJECTED: for a pattern that opens with a word character the two are
+// equivalent except for `_`, so it closes the underscore row and nothing else.
+// 48 of 75 still leaked. The instrument that works is removing the anchor.
+//
+// Pinned structurally, not by hope: `tests/unit/secretRedaction.gluedVendorPrefix.test.ts`
+// reads this array as SOURCE and fails on any leading `\b`, so a rule added later
+// cannot re-open #1048 for its own family without a row in the matrix.
 const SECRET_PATTERNS: RegExp[] = [
-  // No trailing `\b`, for CONSISTENCY with the patterns below - not because this
-  // one was escaping. Its class `[A-Za-z0-9_-]` already contains every word
-  // character, so the match always ran through any following word chars and the
-  // boundary always held; unlike `xox`/`gh*_`/`AKIA`, this pattern was never
-  // defective. Dropping the anchor is harmless and keeps one rule for the whole
-  // list. The floor here IS a deliberate widening: 16 -> 8, from the deleted
-  // webserver copy.
-  /\b(?:sk|pk|rk)-[A-Za-z0-9_-]{8,}/g, // OpenAI / Anthropic / Stripe style
+  // ── The one family that is TWO rules (#1048). Read both before touching either.
+  //
+  // `sk`, `pk` and `rk` plus a hyphen is two letters and a delimiter, and it is
+  // also the tail of ordinary hyphenated English. This family is the SOLE source
+  // of every false positive the anchor removal costs: with one anchorless rule at
+  // the 8-character floor, `network-interface-eth0`, `risk-assessment-2024-q3`,
+  // `disk-usage-report`, `work-in-progress` and `park-and-retry` are all masked
+  // mid-word (7 of 37 innocuous lines, and every one of the 7 came from here).
+  //
+  // So the family splits by CONFIDENCE rather than by anchor:
+  //
+  //  1. At a real boundary, keep the wide 8-character floor exactly as it was.
+  //     The anchor is `(?<![A-Za-z0-9])` rather than `\b`, which is a strict
+  //     widening - every position where `\b` held had a non-word character
+  //     before it, and `_` now counts as a boundary too, so `_sk-ABCDEFGH` masks.
+  //  2. GLUED to a word character, require the body to carry a 16-character
+  //     unbroken alphanumeric run. Ordinary English does not: the longest run in
+  //     `risk-assessment-2024-q3` is `assessment`, 10. Real keys do, by
+  //     construction. This closes 73 of the 75 glued shapes.
+  //
+  // No trailing `\b` on either, for CONSISTENCY with the patterns below - not
+  // because this one was escaping. Its class `[A-Za-z0-9_-]` already contains
+  // every word character, so the match always ran through any following word
+  // chars and the boundary always held; unlike `xox`/`gh*_`/`AKIA`, this pattern
+  // was never defective. The floor here IS a deliberate widening: 16 -> 8, from
+  // the deleted webserver copy.
+  //
+  // KNOWN GAP, pinned in the suite rather than claimed away: an 8-character body
+  // GLUED to a letter or a digit (`TOKENsk-ABCDEFGH`) is still not masked. The
+  // only way to reach it is to let rule 2 accept an 8-character run, which IS
+  // rule 1 without its anchor - the five false positives above.
+  /(?<![A-Za-z0-9])(?:sk|pk|rk)-[A-Za-z0-9_-]{8,}/g, // OpenAI / Anthropic / Stripe style
+  // The glued twin. The leading segments are `(?:[A-Za-z0-9]{1,15}[_-]){0,4}` and
+  // every part of that is load-bearing, so do not "simplify" it to
+  // `[A-Za-z0-9_-]*`: that spelling OVERLAPS the `{16,}` run that follows it, so
+  // a failing match has an ambiguous partition to backtrack through. Measured, on
+  // 90 KB of `sk-` repeated: 6347 ms for the overlapping spelling against 2.7 ms
+  // for this one, and subprocess stderr is untrusted input. Here the classes are
+  // disjoint (each iteration ends on exactly one `[_-]`, which the alnum class
+  // excludes), so the partition is unique, and the `{0,4}` bound keeps the work
+  // per starting position constant - `sk-ant-api03-` is the deepest real prefix.
+  //
+  // What rule 2 costs, stated rather than claimed as zero: a hyphenated word
+  // ending in `sk`/`pk`/`rk` followed by a 16-character id IS masked mid-word -
+  // `task-4f2b8c1e9a7d6e5f` and `disk-2b7c9e1f4a6d8b0c` were the only two of 37
+  // innocuous lines to go. That is an over-mask of an identifier, never a leak,
+  // and it is the same trade the labelled-assignment rule already takes for
+  // `api_key_id=`: an unreadable id costs one round trip, a glued live
+  // credential costs the credential. Both are pinned in the suite.
+  /(?:sk|pk|rk)-(?:[A-Za-z0-9]{1,15}[_-]){0,4}[A-Za-z0-9]{16,}[A-Za-z0-9_-]*/g,
   // Bearer <token>. Two properties here are load-bearing and BOTH were got wrong
   // on the first pass at #992, so do not "tidy" them:
   //  - the class carries base64 padding (`+/=`); without it the tail of a raw
@@ -76,29 +137,29 @@ const SECRET_PATTERNS: RegExp[] = [
   //  - the quantifier is `{1,}`, matching the deleted webserver pattern's `+`.
   //    A `{8,}` floor left `Bearer x` and `bearer abcdef` UNMASKED on the
   //    remote-facing routes, which is a weakening, not a widening.
-  /\bBearer\s+[A-Za-z0-9._\-+/=]{1,}/gi,
+  /Bearer\s+[A-Za-z0-9._\-+/=]{1,}/gi,
   // Stripe-style UNDERSCORE keys. The hyphen pattern above does not see these:
   // `sk_live_...` is a live Stripe secret key and was masked by the command
   // renderer's bank and by nothing here.
-  /\b(?:sk|rk|pk)_(?:live|test)_[A-Za-z0-9]{8,}/g,
+  /(?:sk|rk|pk)_(?:live|test)_[A-Za-z0-9]{8,}/g,
   // `Basic <base64>` carries base64(user:password). Requires a base64-SHAPED
   // value so the ordinary English word "basic" followed by a word is not masked.
-  /\bBasic\s+[A-Za-z0-9+/]{16,}={0,2}/gi,
+  /Basic\s+[A-Za-z0-9+/]{16,}={0,2}/gi,
   // No trailing `\b`: class omits `_`, so `ghp_<token>_backup` escaped ENTIRELY.
-  /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}/g, // GitHub tokens
-  /\bgithub_pat_[A-Za-z0-9_]{20,}/g, // GitHub fine-grained PAT
-  /\bglpat-[A-Za-z0-9_-]{8,}/g, // GitLab PAT
-  /\bgsk_[A-Za-z0-9]{20,}/g, // Groq
+  /(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}/g, // GitHub tokens
+  /github_pat_[A-Za-z0-9_]{20,}/g, // GitHub fine-grained PAT
+  /glpat-[A-Za-z0-9_-]{8,}/g, // GitLab PAT
+  /gsk_[A-Za-z0-9]{20,}/g, // Groq
   // npm automation/publish token and Hugging Face user access token. Both carry
   // an underscore INSIDE the prefix, and the `{20,}` floor over a class that
   // omits `_` is what keeps them off ordinary npm env vars: `npm_config_cache`
   // and `npm_lifecycle_script` have no 20-character unbroken alphanumeric run,
   // so they cannot reach the floor. No trailing `\b`, per the rule above.
-  /\bnpm_[A-Za-z0-9]{20,}/g, // npm access token
-  /\bhf_[A-Za-z0-9]{20,}/g, // Hugging Face access token
-  /\br8_[A-Za-z0-9]{20,}/g, // Replicate
-  /\bdop_v1_[A-Za-z0-9]{20,}/g, // DigitalOcean
-  /\bya29\.[A-Za-z0-9_.-]{8,}/g, // Google OAuth access token
+  /npm_[A-Za-z0-9]{20,}/g, // npm access token
+  /hf_[A-Za-z0-9]{20,}/g, // Hugging Face access token
+  /r8_[A-Za-z0-9]{20,}/g, // Replicate
+  /dop_v1_[A-Za-z0-9]{20,}/g, // DigitalOcean
+  /ya29\.[A-Za-z0-9_.-]{8,}/g, // Google OAuth access token
   /1\/\/[A-Za-z0-9_.-]{8,}/g, // Google OAuth refresh token
   // NO trailing `\b` on these two. The `xox` class excludes `_`, so a token
   // followed by `_` cannot satisfy a trailing boundary; backtracking then
@@ -106,24 +167,24 @@ const SECRET_PATTERNS: RegExp[] = [
   // (`xoxb-ABCDEFGHIJKLMNOPQRSTUVWX_tail` survived intact), or matches only up
   // to an internal hyphen and leaks the tail. The deleted webserver copy had no
   // trailing boundary for exactly this reason.
-  /\bxox[baprs]-[A-Za-z0-9-]{8,}/g, // Slack tokens
-  /\bxai-[A-Za-z0-9_-]{8,}/g, // xAI tokens
+  /xox[baprs]-[A-Za-z0-9-]{8,}/g, // Slack tokens
+  /xai-[A-Za-z0-9_-]{8,}/g, // xAI tokens
   // No trailing `\b`: class omits `_` and lowercase, and the length is FIXED, so
   // there is not even any backtracking to fall back on - `AKIA...EXAMPLE_x`
   // escaped entirely.
-  /\b(?:AKIA|ASIA)[0-9A-Z]{16}/g, // AWS access key id / STS temporary key
-  /\bAIza[A-Za-z0-9_-]{35}/g, // Google API key (fixed length: same anchor trap as AKIA)
+  /(?:AKIA|ASIA)[0-9A-Z]{16}/g, // AWS access key id / STS temporary key
+  /AIza[A-Za-z0-9_-]{35}/g, // Google API key (fixed length: same anchor trap as AKIA)
   // JWT: three base64url segments. The `eyJ` prefix (a `{"` header) makes this
   // specific enough not to swallow ordinary dotted identifiers.
-  /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,
+  /eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,
   // `Authorization:` carrying a raw token with no `Bearer` scheme.
-  /\bAuthorization\s*:\s*(?!Bearer\b)[A-Za-z0-9._~+/-]{16,}=*/gi,
+  /Authorization\s*:\s*(?!Bearer\b)[A-Za-z0-9._~+/-]{16,}=*/gi,
   // A whole PEM private key block. Multi-line, so nothing keyed on a single
   // token run sees it - and a stack trace or a config dump in the log bundle can
   // carry one end to end. Unterminated blocks match to end-of-input on purpose.
   /-----BEGIN (?:[A-Z0-9]+ )?PRIVATE KEY-----[\s\S]*?(?:-----END (?:[A-Z0-9]+ )?PRIVATE KEY-----|$)/gi,
   // A Slack incoming-webhook URL is itself the credential.
-  /\bhttps:\/\/hooks\.slack\.com\/services\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+/gi,
+  /https:\/\/hooks\.slack\.com\/services\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+/gi,
 ];
 
 /**
@@ -578,21 +639,18 @@ const URL_USERINFO_PASSWORD = /(\b[a-z][a-z0-9+.-]*:\/\/[^\s:@/]+:)([^\s@/]+)(@)
  * set under seven separators found none, against both sequential masking and
  * `main`, and the 4200-case labelled-assignment corpus is likewise unchanged.
  *
- * Two credentials concatenated with NO separator between them are the exception,
- * and there sequential masking had coverage this loses. It had it by ACCIDENT:
- * injecting `[redacted]` put a non-word character into the text, and a later
- * `\b`-anchored rule then matched at a boundary that does not exist in the
- * pristine string. Only the two FIXED-LENGTH rules can stop mid-run and hand a
- * following rule that boundary (`AKIA`/`ASIA`, `AIza`); every other class is
- * greedy over `[A-Za-z0-9]` and eats the following letters instead. The rules
- * that lose out are the later `\b`-anchored ones: `AIza`, the JWT, the
- * `Authorization:` header and the Slack webhook. Nine ordered pairs and 295
- * ordered triples of the pattern set behave this way, against 1442 triples this
- * masks and sequential masking leaked, so even the no-separator shape is a large
- * net improvement. `AKIAIOSFODNN7EXAMPLE` immediately followed by a JWT is
- * pinned in the suite so the boundary is recorded rather than assumed, and two
- * distinct high-entropy credentials glued together with no delimiter is not a
- * shape subprocess stderr produces.
+ * Two credentials concatenated with NO separator between them USED to be the
+ * exception, and #1048 removed the mechanism. The loss was never about merging:
+ * it was that a later rule carried a leading `\b`, sequential masking injected
+ * `[redacted]` whose `]` is a non-word character, and the rule then matched a
+ * boundary the pristine string does not contain. Only the two FIXED-LENGTH rules
+ * (`AKIA`/`ASIA`, `AIza`) can stop mid-run and hand a following rule that
+ * accidental boundary; the rules that lost out were the later `\b`-anchored ones
+ * (`AIza`, the JWT, the `Authorization:` header, the Slack webhook). No rule
+ * carries a leading `\b` any more, so all four match the glued shape on the
+ * pristine text and the accident is not needed: `AKIAIOSFODNN7EXAMPLE`
+ * immediately followed by a JWT now masks BOTH, as one merged span. That case is
+ * pinned in the suite, inverted in the same commit as the anchor removal.
  *
  * Every pattern must carry `/g`. That was already required - a non-global
  * pattern under the old `replace` would have masked only the FIRST occurrence
