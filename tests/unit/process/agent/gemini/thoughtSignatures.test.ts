@@ -221,6 +221,27 @@ describe('repairMissingThoughtSignatures model gate', () => {
     expect(client.setHistory).not.toHaveBeenCalled();
   });
 
+  it('converges - a second turn does not rewrite history again', () => {
+    // The repair persists into stored history, so the sentinel is written once
+    // and later turns are no-ops. This is what keeps setHistory (and the
+    // forceFullIdeContext it flips) off the hot path.
+    let stored = brokenHistory();
+    const client = {
+      isInitialized: () => true,
+      getHistory: () => stored,
+      setHistory: vi.fn((h: TestContent[]) => {
+        stored = h;
+      }),
+    };
+
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+    expect(client.setHistory).toHaveBeenCalledTimes(1);
+
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+    expect(client.setHistory).toHaveBeenCalledTimes(1);
+  });
+
   it('does nothing when the client is not initialized', () => {
     const client = { ...clientWith(brokenHistory()), isInitialized: () => false };
     repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
