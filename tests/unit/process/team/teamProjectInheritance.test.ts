@@ -149,7 +149,7 @@ describe('#999 a Team carries the project its members inherit knowledge from', (
     const conversationService = {
       createConversation: vi.fn(async (params: { extra?: Record<string, unknown> }) => {
         next += 1;
-        const conversation = { id: `conv-${next}`, extra: { ...(params.extra ?? {}) } };
+        const conversation = { id: `conv-${next}`, extra: { ...params.extra } };
         rec.conversations.set(conversation.id, conversation);
         return conversation;
       }),

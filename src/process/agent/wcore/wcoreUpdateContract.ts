@@ -81,7 +81,7 @@ export function readTarEntry(tar: Buffer, wanted: string): Buffer | null {
     const name = headerString(header.subarray(0, 100));
     const prefix = headerString(header.subarray(345, 500));
     const path = prefix ? `${prefix}/${name}` : name;
-    const sizeField = header.subarray(124, 136).toString('utf8').replace(/\u0000/g, ' ').trim();
+    const sizeField = header.subarray(124, 136).toString('utf8').replaceAll('\u0000', ' ').trim();
     const size = Number.parseInt(sizeField, 8);
     if (!Number.isSafeInteger(size) || size < 0) return null;
     const body = offset + 512;
