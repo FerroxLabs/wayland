@@ -3078,7 +3078,10 @@ describe('modelRegistry IPC - curatedForAgent wnano provider parity (#1002)', ()
 
     const curated = await h.curatedForAgent({ agentKey: 'wnano' });
 
-    expect(curated.map((m) => m.id).toSorted()).toEqual(['claude-3-5', 'gpt-4o']);
+    // Ids are namespaced `<provider>:<model>` (#1039) so the pick names a provider
+    // unambiguously all the way to the spawn env. Written on a lane where wnano ids
+    // were still bare; namespaced is the stronger contract and both lanes share it.
+    expect(curated.map((m) => m.id).toSorted()).toEqual(['anthropic:claude-3-5', 'openai:gpt-4o']);
   });
 
   it('withholds a connected provider Nano is never advertised and cannot route', async () => {
@@ -3107,7 +3110,7 @@ describe('modelRegistry IPC - curatedForAgent wnano provider parity (#1002)', ()
     // exclusion is Nano's known-set rule, not an empty catalog.
     const forWcore = await h.curatedForAgent({ agentKey: 'wcore' });
 
-    expect(forNano.map((m) => m.id)).toEqual(['gpt-4o']);
+    expect(forNano.map((m) => m.id)).toEqual(['openai:gpt-4o']);
     expect(forWcore.map((m) => m.id).toSorted()).toEqual(['gpt-4o', 'gpt-5-codex']);
   });
 

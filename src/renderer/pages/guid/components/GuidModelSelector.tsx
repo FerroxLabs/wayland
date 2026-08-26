@@ -25,6 +25,7 @@ import FluxRouterMark from '@/renderer/components/icons/FluxRouterMark';
 import { getModelDisplayLabel } from '@/renderer/utils/model/agentLogo';
 import { sortModelsNewestFirst } from '@/renderer/utils/model/modelOrder';
 import { formatAcpModelDisplayLabel, getAcpModelSourceLabel } from '@/renderer/utils/model/modelSource';
+import { buildChatStartBinding } from '../hooks/chatStartBinding';
 import type { AcpModelInfo } from '../types';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -240,20 +241,16 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
       // at dispatch (`hydrateModelForSpawn`). A previous-curated lookup in
       // `modelList` remains as a last-resort fallback for richer non-secret
       // fields (e.g. an existing `modelProtocols` block on a `new-api` row).
+      //
+      // That lookup is FUZZY and must stay additive-only: `buildChatStartBinding`
+      // takes identity and credentials from the handle and refuses to inherit the
+      // legacy row's `__waylandModelRegistryBridge` tag, which `hydrateModelForSpawn`
+      // reads ahead of `id` and could otherwise bind the pick to a different
+      // provider's registry row entirely (#1124).
       const legacyMatch =
         modelList.find((p) => p.platform === provider.platform && p.model?.includes(model.id)) ||
         modelList.find((p) => p.model?.includes(model.id));
-      const next: TProviderWithModel = {
-        ...legacyMatch,
-        id: provider.id,
-        platform: provider.platform,
-        name: provider.name,
-        baseUrl: provider.baseUrl,
-        // Handle only - no plaintext key crosses IPC; resolved in main at spawn.
-        apiKey: '',
-        useModel: provider.modelId,
-        accountId: provider.accountId,
-      } as TProviderWithModel;
+      const next: TProviderWithModel = buildChatStartBinding(provider, legacyMatch);
 
       setCurrentModel(next).catch((error) => {
         console.error('Failed to set current model:', error);

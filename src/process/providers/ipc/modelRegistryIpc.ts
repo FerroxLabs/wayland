@@ -75,6 +75,10 @@ import { ProviderCatalogStore, loadBaselineProviderCatalog } from '../catalog/pr
 import { PROVIDER_ENDPOINTS } from '../detection/providerEndpoints';
 import type { CatalogProviderEntry } from '../catalog/catalogProvider';
 import { FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
+// The providers Wayland Nano's vendored catalog table knows - the canonical set
+// its spawn payload is built from. Imported (never re-listed) so the picker and
+// `WAYLAND_NANO_PROVIDERS` cannot drift apart. Pure module: no fs, no Electron.
+import { NANO_KNOWN_PROVIDER_IDS } from '@process/task/wnano/providersPayload';
 import { emitModelRegistryChanged } from '../modelRegistryEvents';
 import { injectFluxVirtualModels } from '../catalog/fluxVirtualModels';
 import {
@@ -1275,29 +1279,40 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           return all;
         }
 
-        // #1002: Wayland Nano is multi-provider too, but NOT over the same set
-        // as wcore. Every Nano spawn is handed `WAYLAND_NANO_PROVIDERS` listing
-        // each CONNECTED provider that appears in `NANO_KNOWN_PROVIDER_IDS`
-        // (AcpAgentManager.buildWnanoProvidersEnv); Nano's vendored catalog
-        // table knows no other id, and `buildWaylandNanoProvidersPayload` drops
-        // anything outside it before Nano ever sees the payload. wnano used to
-        // fall through to the `return []` at the end of this handler, so a Nano
-        // chat's picker offered Flux Auto and nothing else while Nano was being
-        // told it could run every one of those providers' models. Unioning EVERY
-        // connected provider (the wcore rule) would overshoot the other way and
-        // offer models Nano is never advertised and cannot route - so this is
-        // exactly the intersection the spawn payload uses, in the same known-set
-        // order, deduped by `(providerId, id)` like the wcore union above.
+        // #1002 + #1039 - two lanes fixed this arm independently; this is the
+        // union of the strictly stronger half of each, not a pick between them.
+        //
+        // Nano is multi-provider, but NOT over the same set as wcore. Every Nano
+        // spawn is handed `WAYLAND_NANO_PROVIDERS` listing each CONNECTED
+        // provider in `NANO_KNOWN_PROVIDER_IDS` (AcpAgentManager.buildWnanoProvidersEnv),
+        // and `buildWaylandNanoProvidersPayload` drops anything outside that set
+        // before Nano sees it. Without an arm here `curatedForAgent('wnano')`
+        // returned [], so the picker offered Flux Auto and nothing else while
+        // Nano was told it could run every one of those providers' models.
+        //
+        // From #1039: ids are namespaced `<provider>:<model>` so the pick names a
+        // provider unambiguously all the way to the spawn env - the user can SEE
+        // and CHANGE which provider Nano is about to spend before the first turn.
+        // Flux ids stay bare: Nano owns the live Flux catalog and routes those
+        // unprefixed.
+        //
+        // From #1002: membership is `state === 'connected'`, NOT mere presence in
+        // the registry. `listRegistryProviders` returns every row whatever its
+        // state, so presence alone would offer a model from a DISCONNECTED
+        // provider - a model that cannot answer. This mirrors the spawn builder's
+        // own filter, so picker and spawn agree.
         if (agentKey === 'wnano') {
           const advertised: CuratedModel[] = [];
           const seenForNano = new Set<string>();
           for (const providerId of NANO_KNOWN_PROVIDER_IDS) {
             if (repo.getRegistryProvider(providerId)?.state !== 'connected') continue;
             for (const model of curatedWithCustom(providerId)) {
-              const dedupKey = `${model.providerId}\u0000${model.id}`;
+              const namespaced =
+                providerId === FLUX_PROVIDER_ID ? model : { ...model, id: `${providerId}:${model.id}` };
+              const dedupKey = `${namespaced.providerId}\u0000${namespaced.id}`;
               if (seenForNano.has(dedupKey)) continue;
               seenForNano.add(dedupKey);
-              advertised.push(model);
+              advertised.push(namespaced);
             }
           }
           return advertised;

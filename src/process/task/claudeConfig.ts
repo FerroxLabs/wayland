@@ -49,6 +49,11 @@ export async function materializeFluxClaudeConfigDir(
   // otherwise run all the user's hooks and load every MCP server on each Flux
   // turn). `model` is deliberately NOT carried: ANTHROPIC_MODEL=flux-auto drives
   // selection. Missing or malformed files are ignored (the bridge does the same).
+  //
+  // Dropping `hooks` is deliberate and stays that way, but it is no longer
+  // SILENT: see `readDroppedUserHookEvents` below, which AcpAgentManager uses to
+  // tell the user in the chat which of their own hook events this turn will not
+  // run (#1027). Silent non-enforcement of a user's own policy was the defect.
   let real: Record<string, unknown> = {};
   try {
     const raw = await readFile(join(realClaudeDir, 'settings.json'), 'utf8');
@@ -72,4 +77,53 @@ export async function materializeFluxClaudeConfigDir(
   await mkdir(configDir, { recursive: true });
   await writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf8');
   return configDir;
+}
+
+/**
+ * The hook EVENT names the user configured at user level (`~/.claude/
+ * settings.json` -> `hooks`), which a Flux-routed claude turn does NOT run.
+ *
+ * `materializeFluxClaudeConfigDir` deliberately omits `hooks` from the scoped
+ * settings it seeds, and that omission stays: the claude binary reads the whole
+ * settings.json from `CLAUDE_CONFIG_DIR`, so seeding them would execute the
+ * user's arbitrary hook commands on every Flux turn. What was wrong is that the
+ * drop was SILENT (#1027) - a user who wrote a `PreToolUse` hook to enforce
+ * their own policy got non-enforcement with nothing saying so, and the same
+ * hook still fired on a native turn, so the behaviour read as intermittent
+ * rather than routed.
+ *
+ * Only user-level hooks are affected; project- and local-level hooks reach the
+ * agent through the bridge's other setting sources and still fire.
+ *
+ * Never throws: a missing, unreadable or malformed settings.json means "nothing
+ * was dropped", because nothing was configured that we could drop.
+ */
+export async function readDroppedUserHookEvents(
+  realClaudeDir: string = join(homedir(), '.claude')
+): Promise<string[]> {
+  try {
+    const raw = await readFile(join(realClaudeDir, 'settings.json'), 'utf8');
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return [];
+    const hooks = (parsed as Record<string, unknown>).hooks;
+    if (!hooks || typeof hooks !== 'object' || Array.isArray(hooks)) return [];
+    return Object.keys(hooks as Record<string, unknown>);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * The sentence shown in the chat when a Flux-routed claude turn drops the
+ * user's own hooks. Empty string when nothing was dropped, so the caller can
+ * splice it in unconditionally and a user with no hooks is never told anything.
+ */
+export function buildDroppedUserHooksNotice(events: readonly string[]): string {
+  if (events.length === 0) return '';
+  return (
+    `This chat is routed through Flux, and your user-level Claude Code hooks ` +
+    `(${events.join(', ')}) do not run on a Flux-routed turn. ` +
+    `Project-level and local-level hooks are unaffected. ` +
+    `Pick a native Claude model for this chat if you need those hooks enforced.`
+  );
 }

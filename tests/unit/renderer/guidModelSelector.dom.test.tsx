@@ -585,3 +585,119 @@ describe('GuidModelSelector home picker', () => {
     expect(arg.baseUrl).toBe('https://api.openai.com/v1');
   });
 });
+
+// ---------------------------------------------------------------------------
+// #1124 - the binding must name the provider the user picked
+// ---------------------------------------------------------------------------
+
+describe('GuidModelSelector - picked-provider binding (#1124)', () => {
+  const OLLAMA_LOCAL_URL = 'http://127.0.0.1:11434/v1';
+
+  /**
+   * A legacy `model.config` row for a DIFFERENT provider that happens to list
+   * the same model id. Every Ollama tag is shared by the local daemon and
+   * Ollama Cloud, so this is the ordinary case, not a contrived one. The row
+   * carries its own `v2:` bridge tag - the field `hydrateModelForSpawn` reads
+   * BEFORE `id` when it decides whose credentials to resolve.
+   */
+  const foreignLegacyRow = {
+    id: 'b1c5cb99-a-different-provider',
+    name: 'Ollama Cloud',
+    platform: 'openai-compatible',
+    baseUrl: 'https://ollama.com/v1',
+    apiKey: 'sk-someone-elses-key',
+    model: ['llama3:latest'],
+    __waylandModelRegistryBridge: 'v2:ollama-cloud',
+  } as never;
+
+  it('binds a local Ollama pick to ollama-local, not to a look-alike legacy row', async () => {
+    // Inheriting `v2:ollama-cloud` here sent spawn-time credential resolution at
+    // a provider that is not connected. That fails CLOSED, wiping apiKey AND
+    // baseUrl, and the OpenAI-compatible runtime then throws
+    // `OpenAI API key is required` about a daemon on loopback that needs none.
+    mockCuratedForAgent.mockResolvedValue([
+      curated({
+        id: 'llama3:latest',
+        providerId: 'ollama-local' as never,
+        displayName: 'llama3:latest',
+        family: 'llama3',
+      }),
+    ]);
+    mockResolveForChatStart.mockResolvedValue({
+      ok: true,
+      provider: {
+        id: 'ollama-local',
+        providerId: 'ollama-local',
+        name: 'Ollama (Local)',
+        platform: 'openai-compatible',
+        modelId: 'llama3:latest',
+        baseUrl: OLLAMA_LOCAL_URL,
+        accountId: 'default',
+      },
+    });
+    const fireEventClick = (await import('@testing-library/react')).fireEvent.click;
+    const setCurrentModel = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <GuidModelSelector
+        {...baseProps}
+        agentKey='gemini'
+        modelList={[foreignLegacyRow]}
+        setCurrentModel={setCurrentModel}
+      />
+    );
+
+    const row = await screen.findByText('llama3:latest');
+    await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
+    setCurrentModel.mockClear();
+    fireEventClick(row);
+
+    await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
+    const arg = setCurrentModel.mock.calls[0][0];
+    expect(arg.__waylandModelRegistryBridge).toBe('v2:ollama-local');
+    expect(arg.baseUrl).toBe(OLLAMA_LOCAL_URL);
+    expect(arg.apiKey).toBe('');
+    expect(arg.id).toBe('ollama-local');
+    expect(arg.useModel).toBe('llama3:latest');
+  });
+
+  it('never carries a credential or endpoint over from the legacy row', async () => {
+    mockCuratedForAgent.mockResolvedValue([
+      curated({ id: 'llama3:latest', providerId: 'ollama-local' as never, displayName: 'llama3:latest' }),
+    ]);
+    mockResolveForChatStart.mockResolvedValue({
+      ok: true,
+      provider: {
+        id: 'ollama-local',
+        providerId: 'ollama-local',
+        name: 'Ollama (Local)',
+        platform: 'openai-compatible',
+        modelId: 'llama3:latest',
+        baseUrl: OLLAMA_LOCAL_URL,
+        accountId: 'default',
+      },
+    });
+    const fireEventClick = (await import('@testing-library/react')).fireEvent.click;
+    const setCurrentModel = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <GuidModelSelector
+        {...baseProps}
+        agentKey='gemini'
+        modelList={[foreignLegacyRow]}
+        setCurrentModel={setCurrentModel}
+      />
+    );
+
+    const row = await screen.findByText('llama3:latest');
+    await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
+    setCurrentModel.mockClear();
+    fireEventClick(row);
+
+    await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
+    const arg = setCurrentModel.mock.calls[0][0];
+    expect(arg.apiKey).not.toBe('sk-someone-elses-key');
+    expect(arg.baseUrl).not.toBe('https://ollama.com/v1');
+    expect(arg.name).toBe('Ollama (Local)');
+  });
+});
