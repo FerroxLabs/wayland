@@ -7,6 +7,13 @@
 //   drop-on-prompt  answer `initialize` + `session/new`, then end stdout on
 //                   `session/prompt` and STAY ALIVE - the customer shape of
 //                   #1020, and the shape the disconnect-ordering proof needs
+//   silent-on-prompt answer `initialize` + `session/new`, then answer NOTHING on
+//                   `session/prompt` and STAY ALIVE with stdout still OPEN. This
+//                   is the Windows shape of #1061: no pipe event can ever fire,
+//                   so only a silence watchdog can notice. Reachable on every
+//                   platform, which is what lets it be tested off Windows.
+//   chatty-on-prompt like silent-on-prompt, but keeps emitting notifications. The
+//                   transport is demonstrably ALIVE, so the watchdog must NOT fire.
 //   stay (default)  answer everything and stay alive
 //
 // Any other request carrying an `id` is answered with an empty result, so a
@@ -69,6 +76,22 @@ function handle(msg) {
     case 'session/prompt':
       if (MODE === 'drop-on-prompt') {
         dropTransport();
+        return;
+      }
+      if (MODE === 'silent-on-prompt') {
+        // Never answer. stdout stays open, the process stays alive.
+        stayAlive();
+        return;
+      }
+      if (MODE === 'chatty-on-prompt') {
+        // Never answer, but keep the pipe demonstrably moving. An unknown-method
+        // NOTIFICATION carries no id, so JSON-RPC requires no reply and nothing
+        // downstream can error on it.
+        const beat = setInterval(() => {
+          process.stdout.write(JSON.stringify({ jsonrpc: '2.0', method: '_wayland/heartbeat', params: {} }) + '\n');
+        }, 25);
+        beat.unref?.();
+        stayAlive();
         return;
       }
       send(msg.id, { stopReason: 'end_turn' });

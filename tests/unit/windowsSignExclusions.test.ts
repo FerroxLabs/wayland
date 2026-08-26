@@ -36,6 +36,10 @@ describe('windows signing exclusions', () => {
     const signExts = readWinSignExts();
     const pinned = [
       `${UNPACKED}\\resources\\bundled-bun\\win32-x64\\bun.exe`,
+      // #1017: the AVX2-free baseline runtime for non-AVX2 win32-x64 CPUs is a
+      // SEPARATE directory, so the win32-x64 exclusion above does not cover it
+      // (electron-builder matches with endsWith against the full path).
+      `${UNPACKED}\\resources\\bundled-bun\\win32-x64-baseline\\bun.exe`,
       `${UNPACKED}\\resources\\bundled-bun\\win32-arm64\\bun.exe`,
       `${UNPACKED}\\resources\\bundled-officecli\\win32-x64\\officecli.exe`,
       `${UNPACKED}\\resources\\bundled-officecli\\win32-arm64\\officecli.exe`,
