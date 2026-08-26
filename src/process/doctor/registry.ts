@@ -31,6 +31,7 @@ import { DESKTOP_CORE_V1_PIN } from '@process/agent/wcore/desktopContractV1';
 import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
 import { getConfigPath } from '@process/utils/utils';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
+import { getConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { ProcessConfig } from '@process/utils/initStorage';
 import type { IMcpServer } from '@/common/config/storage';
@@ -59,6 +60,7 @@ import { checkBackends } from './checks/backendChecks';
 import { checkWorkspaceDrift, checkWorkspaceConfigured } from './checks/workspaceChecks';
 import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from './checks/configChecks';
 import { checkAppArchitecture } from './checks/platformChecks';
+import { checkConstitutionActive, type ConstitutionCapability } from './checks/constitutionChecks';
 import { probeEngineConfig } from './engineConfigProbe';
 import { collectConfiguredWorkspaces, collectWorkspaceConfigEntries } from './workspaceInventory';
 import type { WorkspaceInventoryDeps } from './workspaceInventory';
@@ -272,6 +274,30 @@ export function buildDoctorChecks(): DoctorCheck[] {
           arch: process.arch,
           // Undefined on Linux (the property is darwin/win32 only).
           runningUnderARM64Translation: app.runningUnderARM64Translation === true,
+        }),
+    },
+    {
+      // #1040: on win32 the Constitution FS helper does not ship, so both the
+      // Constitution and the specialist overlay are silently dropped from every
+      // system prompt. Doctor is where a user - and a support thread - can find
+      // that out.
+      id: 'config.constitution',
+      titleKey: 'settings.doctor.checks.constitution',
+      category: 'config',
+      run: () =>
+        checkConstitutionActive({
+          platform: process.platform,
+          // The service is initialised during bootstrap. Reading it defensively
+          // keeps a Doctor run that happens before (or after a failed) bootstrap
+          // reporting "could not read" rather than dying into the runner's
+          // catch-all as an opaque `fail`.
+          capability: ((): ConstitutionCapability | null => {
+            try {
+              return getConstitutionFsService().capability();
+            } catch {
+              return null;
+            }
+          })(),
         }),
     },
     {

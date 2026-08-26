@@ -2746,7 +2746,8 @@
       "backends": "Detected backends",
       "workspaceDrift": "Workspace paths",
       "secretStorage": "Secret storage",
-      "engineConfig": "Engine config integrity"
+      "engineConfig": "Engine config integrity",
+      "constitution": "Constitution active"
     }
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",

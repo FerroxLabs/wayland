@@ -23,11 +23,17 @@ const SHARED_OPTIONS = {
   bundle: true,
   platform: 'node',
   format: 'cjs',
-  // `bun:sqlite` is a Bun built-in that Node cannot resolve. The search-skills
-  // subprocess transitively imports the database driver registry, but never
-  // executes the bun-specific code path; marking it external leaves the
-  // require unresolved in the bundle (the registry picks a different driver
-  // at runtime under Node).
+  // `bun:sqlite` is a Bun built-in that Node cannot resolve. Marking it external
+  // leaves the require unresolved in the bundle, which is what makes ONE bundle
+  // runnable on both runtimes:
+  //  - search-skills transitively imports the database driver registry but never
+  //    executes the bun-specific branch (the registry picks a different driver
+  //    under Node);
+  //  - concierge-diag DOES call it (#1018). In a packaged build it is spawned
+  //    through the bundled Bun, where better-sqlite3 throws ERR_DLOPEN_FAILED on
+  //    open, so its three sqlite-backed sections read through bun:sqlite there
+  //    and through better-sqlite3 under Node. The require is guarded by
+  //    `process.versions.bun`, so Node never reaches it.
   external: ['electron', 'bun:sqlite'],
   tsconfig: path.join(ROOT, 'tsconfig.json'),
   loader: { '.wasm': 'empty' },

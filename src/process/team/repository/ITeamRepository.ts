@@ -17,21 +17,40 @@ export interface ITeamCrudRepository {
    * rename, backend swap or session-mode change survives. Unknown slotIds are
    * ignored. Returns null when the team no longer exists.
    *
-   * SCOPE, precisely: this closes the race FOR THIS WRITER, not for the system.
-   * `teams.agents[].status` is live data, and these whole-row `update` callers
-   * still re-write the entire blob from a snapshot taken earlier, so each can
-   * still revert a status committed in between:
-   *   - TeamSessionService.spawnAgent / renameAgent / changeAgentBackend /
-   *     removeAgent
-   *   - TeamSession's rename + roster persistence
-   * `restartAgent` was moved onto this method because it changes nothing but
-   * status. The rest need a field-scoped roster writer; until they have one, do
-   * NOT read the surrounding commentary as "the lost update is gone".
+   * SCOPE: status, and only status. Every OTHER roster change - spawn, rename,
+   * backend swap, removal - goes through {@link ITeamCrudRepository.mutateAgents}
+   * (#1057), which is the same transactional read-merge-write generalised to the
+   * whole `agents` column. Between the two, no roster writer re-writes the blob
+   * from a caller snapshot any more, so the lost update this method was created
+   * for is closed for the system and not merely for this one writer.
    */
   updateAgentStatuses(
     id: string,
     statuses: Array<{ slotId: string; status: TeamAgent['status'] }>
   ): Promise<TTeam | null>;
+  /**
+   * #1057 - the field-scoped roster writer.
+   *
+   * Reads the LIVE `agents` blob, hands it to `mutate`, and writes the result
+   * back inside ONE transaction, touching only the `agents` and `updated_at`
+   * columns. `update` cannot do this: it re-writes every column from a
+   * `{...current, ...updates}` merge, so a caller that only wanted to add,
+   * rename, retype or drop one slot still stamps `name`, `workspace`,
+   * `session_mode` and - critically - every teammate's `status` from ITS
+   * snapshot. `TeammateManager.setStatus` persists on every transition, so a
+   * status committed between the caller's read and its write was reverted. The
+   * stale value then met `reconcilePersistedStatuses` on the next session load
+   * and became `pending`: a wrong right-rail dot for a member that is actually
+   * idle, plus a full role prompt re-sent on its next wake. A clobbered `failed`
+   * lost the durable failure record outright.
+   *
+   * `mutate` MUST derive its result from the roster it is HANDED, never from a
+   * snapshot captured earlier - that is the whole point. Returning the same
+   * array, or `null`, writes nothing.
+   *
+   * Returns the committed team, or `null` when the team no longer exists.
+   */
+  mutateAgents(id: string, mutate: (agents: TeamAgent[]) => TeamAgent[] | null): Promise<TTeam | null>;
   delete(id: string): Promise<void>;
   deleteMailboxByTeam(teamId: string): Promise<void>;
   deleteTasksByTeam(teamId: string): Promise<void>;

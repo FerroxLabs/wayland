@@ -1,4 +1,5 @@
 import { emitConstitutionReclaimNotice } from './constitutionReclaimNotice';
+import { emitConstitutionUnsupportedNotice } from './constitutionUnsupportedNotice';
 import { getConstitutionFsService } from './constitutionFsService';
 
 export interface ComposePromptOptions {
@@ -28,7 +29,15 @@ export interface ComposedPrompt {
   anthropicCacheControl: { type: 'ephemeral' };
   /** True if a per-specialist overlay file was found and included. */
   hadOverlay: boolean;
-  /** False only when this packaged platform has no Constitution authority. */
+  /**
+   * False only when this packaged platform has no Constitution authority - i.e.
+   * neither the Constitution nor the specialist overlay is in `text`.
+   *
+   * #1040: this used to be computed and discarded (zero call sites read it),
+   * which is how a Windows user came to get a materially different agent with
+   * nothing anywhere saying so. It now drives the one-time per-conversation
+   * disclosure below; Doctor's `config.constitution` check is the durable copy.
+   */
   constitutionSupported: boolean;
 }
 
@@ -71,11 +80,16 @@ export function composePrompt(opts?: ComposePromptOptions): ComposedPrompt {
   const parts = [constitution, overlay ?? '', basePrompt].filter((p) => p && p.length > 0);
   const text = parts.join('\n\n---\n\n');
   const approxTokens = Math.ceil(text.length / 4);
-  return {
+  const composed: ComposedPrompt = {
     text,
     approxTokens,
     anthropicCacheControl: cacheControl,
     hadOverlay: overlay !== null,
     constitutionSupported: capability.supported,
   };
+  // #1040: the flag stops being dead here. Silence was the defect - the user
+  // could not find out that the identity and behaviour rules they read about are
+  // not in this agent's prompt.
+  if (!composed.constitutionSupported) emitConstitutionUnsupportedNotice(opts?.conversationId);
+  return composed;
 }

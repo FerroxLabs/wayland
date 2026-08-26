@@ -39,9 +39,10 @@ vi.mock('fs/promises', () => ({
 }));
 
 import { TeamSessionService } from '../../../src/process/team/TeamSessionService';
+import { withTeamRepoDoubleDefaults } from '../helpers/teamRepoDouble';
 
 function makeRepo(overrides: Partial<ITeamRepository> = {}): ITeamRepository {
-  return {
+  return withTeamRepoDoubleDefaults({
     create: vi.fn(),
     findById: vi.fn(),
     findAll: vi.fn(),
@@ -63,7 +64,7 @@ function makeRepo(overrides: Partial<ITeamRepository> = {}): ITeamRepository {
     appendToBlocks: vi.fn(),
     removeFromBlockedBy: vi.fn(),
     ...overrides,
-  };
+  } as Partial<ITeamRepository>);
 }
 
 function makeConversationService(overrides: Partial<IConversationService> = {}): IConversationService {

@@ -54,7 +54,12 @@ type TeammateManagerParams = {
    */
   getTeamSnapshot?: () => Promise<TTeam | null>;
   /** Called after an agent is removed from in-memory list, so the caller can persist the change (e.g. update DB) */
-  onAgentRemoved?: (teamId: string, agents: TeamAgent[]) => void;
+  /**
+   * #1057: the removed slot is passed alongside the surviving roster. The
+   * persistence layer needs the SLOT, not the roster - writing this array back
+   * would re-stamp every survivor's status from the manager's in-memory copy.
+   */
+  onAgentRemoved?: (teamId: string, agents: TeamAgent[], removedSlotId: string) => void;
   /**
    * #980 - called with the slots whose STATUS changed, so the owner can write
    * just that back. Deliberately not the whole roster: this manager only ever
@@ -111,7 +116,7 @@ export class TeammateManager extends EventEmitter {
   private agents: TeamAgent[];
   private readonly mailbox: Mailbox;
   private readonly workerTaskManager: IWorkerTaskManager;
-  private readonly onAgentRemovedFn?: (teamId: string, agents: TeamAgent[]) => void;
+  private readonly onAgentRemovedFn?: (teamId: string, agents: TeamAgent[], removedSlotId: string) => void;
   /** #980 - persists STATUS-ONLY roster changes (transitions, reconciliation). */
   private readonly onAgentStatusesChangedFn?: (
     teamId: string,
@@ -1335,7 +1340,7 @@ export class TeammateManager extends EventEmitter {
     ipcBridge.team.agentRemoved.emit({ teamId: this.teamId, slotId });
 
     // Notify upper layer to persist the removal (e.g. update DB)
-    this.onAgentRemovedFn?.(this.teamId, this.agents);
+    this.onAgentRemovedFn?.(this.teamId, this.agents, slotId);
   }
 
   /** Normalize agent name for case-insensitive comparison. */
