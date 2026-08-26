@@ -29,6 +29,7 @@ import type { AcpSessionMcpServer } from './mcpSessionConfig';
 import path from 'path';
 import { connectClaude, connectCodebuddy, connectCodex, spawnGenericBackend } from './acpConnectors';
 import type { SpawnResult } from './acpConnectors';
+import { createAcpStderrReader } from '@process/acp/acpStderrLog';
 import { killChild, readTextFile, writeJsonRpcMessage, writeTextFile } from './utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
 // W4 audit CRIT-1 (2026-05-19): route ACP fs ops through the imported-team
@@ -305,25 +306,44 @@ export class AcpConnection {
     // Keep both head and tail so we capture the actual error message even when
     // minified source code lines fill up the middle (Node.js prints the
     // offending source line before the error type/message).
+    //
+    // #1062: both were built from the RAW chunk and cut at an arbitrary CHARACTER,
+    // then handed to `buildStartupErrorMessage` - which has no redaction of any
+    // kind and whose output is the error the USER is shown. The TAIL is the
+    // dangerous direction: keeping the last 1536 characters eats the ANCHOR
+    // (`api_key = `, `Authorization: `) and keeps the VALUE, and `redactSecrets`
+    // only matches a WHOLE credential, so an anchorless value is invisible to that
+    // scrub and to every scrub downstream of it.
+    //
+    // So the scrub runs BEFORE the cap, never after: the reader emits whole
+    // SCRUBBED lines, and both buffers are capped by dropping whole LINES. A line
+    // boundary never lands inside a credential. The same reader classifies each
+    // line, which is the other half of this lane - every chunk used to go to
+    // console.error, so routine startup chatter was tagged `[error]` (#1041).
     const STDERR_HEAD_MAX = 512;
     const STDERR_TAIL_MAX = 1536;
-    let stderrHead = '';
-    let stderrTail = '';
-    child.stderr?.on('data', (data: Buffer) => {
-      const chunk = data.toString();
-      console.error(`[ACP ${backend} STDERR]:`, chunk);
-      if (stderrHead.length < STDERR_HEAD_MAX) {
-        stderrHead += chunk;
-        if (stderrHead.length > STDERR_HEAD_MAX) {
-          stderrHead = stderrHead.slice(0, STDERR_HEAD_MAX);
-        }
+    const headLines: string[] = [];
+    let headLength = 0;
+    const tailLines: string[] = [];
+    let tailLength = 0;
+    const stderrReader = createAcpStderrReader((line, level) => {
+      console[level](`[ACP ${backend} STDERR]:`, line);
+      if (headLength < STDERR_HEAD_MAX) {
+        headLines.push(line);
+        headLength += line.length + 1;
       }
-      // Always keep the latest tail content so the error message is preserved
-      stderrTail += chunk;
-      if (stderrTail.length > STDERR_TAIL_MAX) {
-        stderrTail = stderrTail.slice(-STDERR_TAIL_MAX);
+      tailLines.push(line);
+      tailLength += line.length + 1;
+      // Drop WHOLE lines off the front. Eviction stops at one line rather than
+      // emptying the tail: a startup error carrying no stderr at all is worse than
+      // an over-budget one, and trimming a single over-long line is exactly the cut
+      // this fix removes. A line is bounded by `ACP_STDERR_LINE_MAX` regardless.
+      while (tailLines.length > 1 && tailLength > STDERR_TAIL_MAX) {
+        tailLength -= tailLines.shift()!.length + 1;
       }
     });
+    child.stderr?.on('data', (data: Buffer) => stderrReader.push(data.toString()));
+    child.stderr?.on('end', () => stderrReader.flush());
 
     child.on('error', (error) => {
       // Provide a friendlier message when the CLI binary is not found (ENOENT)
@@ -354,7 +374,12 @@ export class AcpConnection {
         // Startup phase - set error for initial check.
         // Include stderr in spawnError so callers can detect specific failures
         // (e.g., npm "notarget" for stale cache recovery).
+        // Flush first: a bridge whose last line carries no trailing newline must
+        // still reach the message, and 'exit' can arrive before stderr 'end'.
         // Combine head + tail, deduplicating any overlap
+        stderrReader.flush();
+        const stderrHead = headLines.join('\n');
+        const stderrTail = tailLines.join('\n');
         const stderrCombined =
           stderrHead + (stderrTail && !stderrHead.endsWith(stderrTail) ? '\n…\n' + stderrTail : '');
         const errMsg = buildStartupErrorMessage(
