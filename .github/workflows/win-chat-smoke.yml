@@ -1,0 +1,129 @@
+# Windows packaged CHAT verification.
+#
+# `_build-reusable.yml` already proves a Windows installer installs, boots,
+# reports its capabilities and shuts down cleanly. It does NOT prove a chat turn
+# completes, because that needs a live provider credential. So the Windows chat
+# seam has historically only ever been verified by hand on a physical box, and
+# when that box is unavailable the gate silently becomes "verified to boot".
+#
+# This closes that gap without any physical machine. It reuses the installer a
+# build-manual run already produced - the exact artifact users receive - rather
+# than rebuilding, so what is smoked is what ships.
+#
+# Dispatch-only. It creates no tag and publishes nothing.
+name: 'Windows chat smoke'
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to check out (must match the branch the installers were built from)'
+        required: true
+        type: string
+      run_id:
+        description: 'build-manual run id holding the windows-build-x64-* installer artifact'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  chat:
+    name: Windows packaged chat
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.11'
+
+      - name: Install dependencies
+        shell: pwsh
+        env:
+          # The smoke drives an ALREADY-PACKAGED app over CDP; it needs
+          # playwright's client, never a downloaded browser. Skipping the
+          # puppeteer/whatsapp-bridge browser fetch keeps this job minutes
+          # rather than tens of minutes, and a half-populated puppeteer cache
+          # is a known Windows build killer.
+          PUPPETEER_SKIP_DOWNLOAD: '1'
+        run: bun install --frozen-lockfile
+
+      - name: Download the installer this run will smoke
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Force -Path installer | Out-Null
+          $name = (gh api "repos/${{ github.repository }}/actions/runs/${{ inputs.run_id }}/artifacts" `
+            --jq '.artifacts[] | select(.name | startswith("windows-build-x64")) | .name' | Select-Object -First 1)
+          if (-not $name) { throw "run ${{ inputs.run_id }} has no windows-build-x64 artifact" }
+          Write-Host "artifact: $name"
+          gh run download ${{ inputs.run_id }} --repo ${{ github.repository }} -n $name -D installer
+          Get-ChildItem installer -Recurse -Filter *.exe | Select-Object FullName,Length | Format-Table -AutoSize
+
+      - name: Silent-install the packaged app
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem installer -Recurse -Filter '*.exe' |
+                  Where-Object { $_.Name -notlike '*elevate*' } |
+                  Sort-Object Length -Descending | Select-Object -First 1)
+          if (-not $exe) { throw 'no installer .exe in the artifact' }
+          $root = Join-Path $env:RUNNER_TEMP 'wayland-install'
+          Write-Host "installing $($exe.FullName) -> $root"
+          $p = Start-Process -FilePath $exe.FullName -ArgumentList '/S', "/D=$root" -PassThru -Wait
+          Write-Host "installer exit = $($p.ExitCode)"
+          $app = Join-Path $root 'Wayland.exe'
+          if (-not (Test-Path $app)) {
+            Get-ChildItem $root -Recurse -Depth 2 -ErrorAction SilentlyContinue | Select-Object FullName | Format-Table -AutoSize
+            throw "Wayland.exe not found under $root"
+          }
+          # The engine identity is the thing a chat turn actually exercises, so
+          # record it here rather than trusting the build log.
+          $eng = Join-Path $root 'resources\bundled-wayland-core\win32-x64\wayland-core.exe'
+          if (Test-Path $eng) {
+            Write-Host "ENGINE_SHA256=$((Get-FileHash $eng -Algorithm SHA256).Hash.ToLower())"
+          } else {
+            Write-Host 'ENGINE_SHA256=MISSING'
+          }
+          "WAYLAND_APP=$app" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Run the packaged cockpit chat smoke
+        shell: pwsh
+        env:
+          WAYLAND_SMOKE_FLUX_KEY: ${{ secrets.WAYLAND_SMOKE_FLUX_KEY }}
+        run: |
+          if (-not $env:WAYLAND_SMOKE_FLUX_KEY) {
+            throw 'secret WAYLAND_SMOKE_FLUX_KEY is not set; the chat leg cannot run without a provider credential'
+          }
+          $keyDir = Join-Path $env:RUNNER_TEMP 'smoke-key'
+          New-Item -ItemType Directory -Force -Path $keyDir | Out-Null
+          $keyFile = Join-Path $keyDir 'flux-test-key'
+          # -NoNewline: the harness trims, but a trailing CRLF in a credential
+          # file is exactly the kind of thing that fails as an opaque 401.
+          [IO.File]::WriteAllText($keyFile, $env:WAYLAND_SMOKE_FLUX_KEY)
+          node scripts/packaged-cockpit-smoke.mjs --app "$env:WAYLAND_APP" --key-file $keyFile --report-dir smoke-report
+          Remove-Item -Force $keyFile
+
+      - name: Report verdict
+        if: always()
+        shell: pwsh
+        run: |
+          $r = 'smoke-report/report.json'
+          if (-not (Test-Path $r)) { Write-Host 'no report.json produced'; exit 0 }
+          $j = Get-Content $r -Raw | ConvertFrom-Json
+          Write-Host "passed=$($j.passed) chatOk=$($j.chat.ok) answerVerifiedInDom=$($j.chat.answerVerifiedInDom) messageBlocks=$($j.chat.messageBlocks)"
+          if ($j.chat.error) { Write-Host "chatError=$($j.chat.error)" }
+          if ($j.chat.stallCapture) { Write-Host "STALL CAPTURED - see the uploaded report" }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-chat-smoke-report
+          path: smoke-report
+          if-no-files-found: warn
