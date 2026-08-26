@@ -45,7 +45,7 @@ const {
     platform: string,
     arch: string,
     authority?: unknown,
-    verifyDarwinSignature?: (binaryPath: string) => void,
+    verifyDarwinSignature?: (binaryPath: string, identifier?: string) => void,
     requireDarwinSignature?: boolean
   ) => boolean;
   verifyPackagedResources: (options: Record<string, unknown>) => { resourceDirs: string[]; warnings: number };
@@ -152,6 +152,7 @@ const TEST_OFFICE_AUTHORITY = {
 
 function testConstitutionAuthority(arch: 'arm64' | 'x64') {
   const bytes = machExecutableBytes(arch);
+  const digest = crypto.createHash('sha256').update(bytes).digest('hex');
   return {
     supported: true,
     protocolVersion: 2,
@@ -159,7 +160,12 @@ function testConstitutionAuthority(arch: 'arm64' | 'x64') {
     arch,
     fileName: 'wayland-constitution-fs',
     size: bytes.length,
-    sha256: `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`,
+    sha256: `sha256:${digest}`,
+    // prepareConstitutionFs mints this at STAGE time from the pre-signature
+    // bytes and codesign writes it inside the signature, so it cannot be
+    // changed without the signing key. The fixture helper is never signed, so
+    // its pre-signature digest is simply its digest.
+    darwinSignatureIdentifier: `wayland-constitution-fs.${digest}`,
   };
 }
 
@@ -271,6 +277,32 @@ function writeBunBundle(resources: string, arch: 'arm64' | 'x64'): void {
   }
 }
 
+// The gate reads the Constitution authority the app itself launches against out
+// of app.asar, by scanning the packed bytes for the object literal rollup emits
+// for PACKAGED_CONSTITUTION_FS_AUTHORITY. Reproducing that literal is the whole
+// contract, so the fixture writes exactly it, surrounded by other bundle bytes.
+//
+// Only the five byte-pinning fields appear here, and that is not a shortcut: the
+// shipped 0.12.4 app.asar carries only those five, because rollup constant-folds
+// away every authority property the main process never reads.
+function writeConstitutionAuthorityAsar(
+  resources: string,
+  authority: ReturnType<typeof testConstitutionAuthority>
+): void {
+  const embedded = {
+    platform: authority.platform,
+    arch: authority.arch,
+    fileName: authority.fileName,
+    sha256: authority.sha256,
+    size: authority.size,
+  };
+  fs.mkdirSync(resources, { recursive: true });
+  fs.writeFileSync(
+    path.join(resources, 'app.asar'),
+    `packed-main-bundle\nconst PACKAGED_CONSTITUTION_FS_AUTHORITY = ${JSON.stringify(embedded, null, 2)};\nmore-packed-bundle\n`
+  );
+}
+
 function addPackagedApp(
   root: string,
   arch: 'arm64' | 'x64',
@@ -318,6 +350,7 @@ function addPackagedApp(
     })
   );
   fs.writeFileSync(path.join(constitutionRuntime, 'package-authority.json'), JSON.stringify(constitutionAuthority));
+  writeConstitutionAuthorityAsar(resources, constitutionAuthority);
   if (includeOfficeCli) {
     const officeBinary = path.join(
       resources,
@@ -788,6 +821,9 @@ describe('packaged resource release gate', () => {
         fileName: 'wayland-constitution-fs',
         size: bytes.length,
         sha256,
+        // A signed build must name the identifier its signature was minted with,
+        // or the gate has nothing to bind the signature to and refuses outright.
+        darwinSignatureIdentifier: `wayland-constitution-fs.${sha256.slice('sha256:'.length)}`,
       };
       fs.writeFileSync(
         path.join(runtimeRoot, 'manifest.json'),
@@ -888,7 +924,104 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out)).toThrow(/CRITICAL resource/);
   });
 
-  itAcceptedSweep('uses the package-sealed Constitution authority instead of mutable tracked authority', () => {
+  // Fail closed, loudly, rather than fall back to letting the package vouch for
+  // itself. Both of these are build-breaking states, and a silent downgrade to
+  // self-validation is exactly the bug #1033 describes.
+  itAcceptedSweep('refuses to verify a package whose app.asar is missing or ambiguous', () => {
+    const missing = createPackagedResources(true);
+    fs.rmSync(path.join(packagedResourcesPath(missing), 'app.asar'));
+    expect(() => verify(missing)).toThrow(/app\.asar is missing/);
+
+    const ambiguous = createPackagedResources(true);
+    const asarPath = path.join(packagedResourcesPath(ambiguous), 'app.asar');
+    fs.appendFileSync(asarPath, fs.readFileSync(asarPath));
+    expect(() => verify(ambiguous)).toThrow(/expected exactly one PACKAGED_CONSTITUTION_FS_AUTHORITY definition/);
+  });
+
+  // #1033. The two JSON files beside the helper ship INSIDE the same directory as
+  // the helper, so anything able to rewrite the binary can rewrite them too. The
+  // only authority that is not in the tamperer's reach is the one compiled into
+  // app.asar - which is also the one the app re-hashes the helper against at every
+  // launch. Until the gate reads that, a consistent three-file substitution walks
+  // straight through and the build ships a helper nobody authorised.
+  itAcceptedSweep(
+    'rejects a helper substitution that also rewrites its adjacent manifest and package authority',
+    () => {
+      const out = createPackagedResources(true);
+      expect(verify(out)).toMatchObject({ warnings: 3 });
+
+      const runtimeRoot = path.join(packagedResourcesPath(out), 'bundled-constitution-fs', 'darwin-arm64');
+      const substituted = Buffer.concat([machExecutableBytes('arm64'), Buffer.from('substituted-helper')]);
+      const sha256 = `sha256:${crypto.createHash('sha256').update(substituted).digest('hex')}`;
+      fs.writeFileSync(path.join(runtimeRoot, 'wayland-constitution-fs'), substituted, { mode: 0o755 });
+      fs.writeFileSync(
+        path.join(runtimeRoot, 'manifest.json'),
+        JSON.stringify({
+          schemaVersion: 1,
+          protocolVersion: 2,
+          platform: 'darwin',
+          arch: 'arm64',
+          binary: { fileName: 'wayland-constitution-fs', sha256, size: substituted.length },
+        })
+      );
+      fs.writeFileSync(
+        path.join(runtimeRoot, 'package-authority.json'),
+        JSON.stringify({ ...testConstitutionAuthority('arm64'), sha256, size: substituted.length })
+      );
+
+      expect(() => verify(out)).toThrow(/CRITICAL resource/);
+    }
+  );
+
+  // #1036. A Developer ID signature proves only "Ferrox Labs signed something".
+  // prepareConstitutionFs puts the pre-signature digest in the code-signing
+  // IDENTIFIER precisely so the signature names the bytes it was minted for, and
+  // wcore/wnano already require that identifier. The Constitution helper asked for
+  // no identifier at all, so any other helper we ever signed satisfied its check.
+  itAcceptedSweep('binds the Constitution signature check to the identifier minted for those exact bytes', () => {
+    const out = createPackagedResources(true);
+    const identifiers: unknown[] = [];
+    expect(
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        argv: [...verifyArgs(out, 'darwin-arm64', 'darwin-arm64'), '--require-darwin-signature'],
+        darwinSignedCheck: () => true,
+        verifyConstitutionFsDarwinSignature: (_binaryPath: string, identifier: unknown) => {
+          identifiers.push(identifier);
+        },
+      })
+    ).toMatchObject({ warnings: 3 });
+    expect(identifiers).toEqual([testConstitutionAuthority('arm64').darwinSignatureIdentifier]);
+    expect(identifiers[0]).toMatch(/^wayland-constitution-fs\.[0-9a-f]{64}$/);
+  });
+
+  // A signed release whose package authority carries no digest-bound identifier
+  // cannot be checked against one, so it must be refused rather than fall back to
+  // "any Ferrox Labs signature will do".
+  itAcceptedSweep('refuses a signed Constitution helper whose package authority names no signing identifier', () => {
+    const out = createPackagedResources(true);
+    const authorityPath = path.join(
+      packagedResourcesPath(out),
+      'bundled-constitution-fs',
+      'darwin-arm64',
+      'package-authority.json'
+    );
+    const authority = JSON.parse(fs.readFileSync(authorityPath, 'utf8')) as Record<string, unknown>;
+    delete authority.darwinSignatureIdentifier;
+    fs.writeFileSync(authorityPath, JSON.stringify(authority));
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        argv: [...verifyArgs(out, 'darwin-arm64', 'darwin-arm64'), '--require-darwin-signature'],
+        darwinSignedCheck: () => true,
+        verifyConstitutionFsDarwinSignature: () => undefined,
+      })
+    ).toThrow(/CRITICAL resource/);
+  });
+
+  // Title was "uses the package-sealed Constitution authority instead of mutable
+  // tracked authority", which sanctioned the #1033 hole: the package IS the
+  // tamperer's reach. The authority now comes from app.asar, and an injected one
+  // that disagrees with the staged bytes still has to fail.
+  itAcceptedSweep('refuses a Constitution authority that disagrees with the staged helper bytes', () => {
     const out = createPackagedResources(true);
     expect(verify(out)).toMatchObject({ warnings: 3 });
     expect(() =>

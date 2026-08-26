@@ -159,13 +159,121 @@ function inspectExecutable(filePath) {
   return null;
 }
 
-function loadConstitutionFsAuthority() {
-  const authoritySource = fs.readFileSync(
-    path.resolve(__dirname, '..', 'src', 'process', 'services', 'constitution', 'constitutionFsAuthority.generated.ts'),
-    'utf8'
-  );
-  const match = authoritySource.match(/^\/\/ constitution-fs-authority-json:(\{[^\r\n]+\})$/m);
-  return match ? JSON.parse(match[1]) : null;
+// The only Constitution authority in a packaged tree that is out of reach of
+// whoever can rewrite `bundled-constitution-fs/**`.
+//
+// constitutionFsBinary.ts re-hashes the helper at EVERY launch against
+// PACKAGED_CONSTITUTION_FS_AUTHORITY, which is compiled into app.asar - a
+// different artifact from the helper's own bundle directory, and one covered by
+// the app's Developer ID signature that this gate verifies before reading it.
+// The manifest and package-authority.json beside the helper are not: a
+// substitution that rewrites all three files agrees with itself perfectly.
+//
+// It is read out of the packaged app.asar and NEVER out of the working tree.
+// The release observers verify an installed app from a checkout of the trust
+// branch, where the tracked constitutionFsAuthority.generated.ts is stale
+// placeholder residue describing no shipped build; loading it there reds every
+// observer leg while proving nothing.
+//
+// Rollup emits the generated module's object literal verbatim EXCEPT for the
+// properties the main process never reads - it constant-folds `supported`,
+// `schemaVersion` and `protocolVersion` away, as the shipped 0.12.4 app.asar
+// shows. The five fields that survive are exactly the five that pin the
+// helper's bytes, so nothing is lost; but it does mean this authority can only
+// ever be compared field-wise, and that a property added purely for the gate
+// would silently vanish from app.asar.
+const CONSTITUTION_FS_AUTHORITY_MARKER = 'PACKAGED_CONSTITUTION_FS_AUTHORITY = {';
+const CONSTITUTION_FS_ASAR_FIELDS = ['platform', 'arch', 'fileName', 'sha256', 'size'];
+const CONSTITUTION_FS_SIGNATURE_IDENTIFIER = /^wayland-constitution-fs\.[0-9a-f]{64}$/;
+
+/** Every byte offset of `marker` in a file too large to hold in one Buffer. */
+function findMarkerOffsets(filePath, marker) {
+  const needle = Buffer.from(marker, 'utf8');
+  const fd = fs.openSync(filePath, 'r');
+  try {
+    const size = fs.fstatSync(fd).size;
+    const window = 4 * 1024 * 1024;
+    const buffer = Buffer.alloc(window + needle.length);
+    const offsets = new Set();
+    for (let position = 0; position < size; position += window) {
+      const read = fs.readSync(fd, buffer, 0, Math.min(buffer.length, size - position), position);
+      if (read <= 0) break;
+      let index = buffer.indexOf(needle, 0);
+      while (index !== -1 && index + needle.length <= read) {
+        offsets.add(position + index);
+        index = buffer.indexOf(needle, index + 1);
+      }
+    }
+    return [...offsets].sort((a, b) => a - b);
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
+/** The brace-balanced object literal that starts at the first `{` after `offset`. */
+function readObjectLiteralAt(filePath, offset) {
+  const fd = fs.openSync(filePath, 'r');
+  try {
+    const length = Math.min(8192, fs.fstatSync(fd).size - offset);
+    const buffer = Buffer.alloc(length);
+    fs.readSync(fd, buffer, 0, length, offset);
+    const text = buffer.toString('utf8');
+    const start = text.indexOf('{');
+    if (start === -1) return null;
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    for (let index = start; index < text.length; index += 1) {
+      const character = text[index];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (character === '\\') escaped = true;
+        else if (character === '"') inString = false;
+        continue;
+      }
+      if (character === '"') inString = true;
+      else if (character === '{') depth += 1;
+      else if (character === '}') {
+        depth -= 1;
+        if (depth === 0) return text.slice(start, index + 1);
+      }
+    }
+    return null;
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
+function readPackagedConstitutionFsAuthority(resourceDir) {
+  const asarPath = path.join(resourceDir, 'app.asar');
+  if (!fs.existsSync(asarPath)) {
+    throw new Error(
+      `${TAG} app.asar is missing from ${resourceDir}, so the Constitution authority the app launches against cannot be read`
+    );
+  }
+  const offsets = findMarkerOffsets(asarPath, CONSTITUTION_FS_AUTHORITY_MARKER);
+  if (offsets.length !== 1) {
+    throw new Error(
+      `${TAG} expected exactly one PACKAGED_CONSTITUTION_FS_AUTHORITY definition inside ${asarPath}, found ${offsets.length}`
+    );
+  }
+  const literal = readObjectLiteralAt(asarPath, offsets[0]);
+  let authority = null;
+  try {
+    authority = literal === null ? null : JSON.parse(literal);
+  } catch {
+    authority = null;
+  }
+  if (!authority || typeof authority !== 'object') {
+    throw new Error(`${TAG} the PACKAGED_CONSTITUTION_FS_AUTHORITY compiled into ${asarPath} could not be parsed`);
+  }
+  const missing = CONSTITUTION_FS_ASAR_FIELDS.filter((field) => authority[field] === undefined);
+  if (missing.length > 0) {
+    throw new Error(
+      `${TAG} the PACKAGED_CONSTITUTION_FS_AUTHORITY compiled into ${asarPath} is missing ${missing.join(', ')}`
+    );
+  }
+  return authority;
 }
 
 function verifyConstitutionFsBundle(
@@ -173,10 +281,13 @@ function verifyConstitutionFsBundle(
   targetPlatform,
   targetArch,
   authority,
-  verifyDarwinSignature = (binaryPath) => assertDarwinDeveloperIdSigned(binaryPath),
+  verifyDarwinSignature = (binaryPath, identifier) => assertDarwinDeveloperIdSigned(binaryPath, { identifier }),
   requireDarwinSignature = false
 ) {
   if (targetPlatform === 'win32') return !fs.existsSync(bundleRoot);
+  // `authority` is the one compiled into app.asar. Without it there is nothing
+  // to check this bundle against except the bundle itself, so fail closed.
+  if (!authority) return false;
   const runtime = `${targetPlatform}-${targetArch}`;
   const entries = fs.readdirSync(bundleRoot, { withFileTypes: true });
   if (entries.length !== 1 || !entries[0].isDirectory() || entries[0].name !== runtime) return false;
@@ -186,9 +297,6 @@ function verifyConstitutionFsBundle(
   const binaryPath = path.join(runtimeRoot, 'wayland-constitution-fs');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   const packageAuthority = JSON.parse(fs.readFileSync(packageAuthorityPath, 'utf8'));
-  if (authority && JSON.stringify(authority) !== JSON.stringify(packageAuthority)) return false;
-  authority = packageAuthority;
-  if (!authority) return false;
   const bytes = fs.readFileSync(binaryPath);
   const digest = `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`;
   if (
@@ -201,13 +309,21 @@ function verifyConstitutionFsBundle(
     manifest.binary.fileName !== 'wayland-constitution-fs' ||
     manifest.binary.sha256 !== digest ||
     manifest.binary.size !== bytes.length ||
-    authority.supported !== true ||
-    authority.protocolVersion !== 2 ||
+    // The app.asar authority is what the app re-hashes against at launch, and
+    // is the only one here a bundle-directory tamperer cannot rewrite. Every
+    // byte-pinning field has to agree with it, not merely with the package.
     authority.platform !== targetPlatform ||
     authority.arch !== targetArch ||
+    authority.fileName !== 'wayland-constitution-fs' ||
     authority.sha256 !== digest ||
     authority.size !== bytes.length ||
-    authority.fileName !== manifest.binary.fileName
+    packageAuthority.supported !== true ||
+    packageAuthority.protocolVersion !== 2 ||
+    packageAuthority.platform !== targetPlatform ||
+    packageAuthority.arch !== targetArch ||
+    packageAuthority.sha256 !== digest ||
+    packageAuthority.size !== bytes.length ||
+    packageAuthority.fileName !== manifest.binary.fileName
   )
     return false;
   const identity = inspectExecutable(binaryPath);
@@ -224,7 +340,22 @@ function verifyConstitutionFsBundle(
   // which is what actually authenticates them, since package-authority.json
   // ships inside the package alongside the manifest.
   if (targetPlatform === 'darwin' && requireDarwinSignature) {
-    verifyDarwinSignature(binaryPath);
+    // Bind the signature to the bytes it was minted for, the way wcore and wnano
+    // already do. prepareConstitutionFs signs with
+    // `--identifier wayland-constitution-fs.<pre-signature sha256>`, so the
+    // identifier lives INSIDE the signature and cannot be changed without the
+    // signing key. Checking only "is this Developer ID signed" accepted any
+    // helper Ferrox Labs ever signed, including an older vulnerable one.
+    //
+    // The identifier is read from package-authority.json rather than app.asar
+    // because rollup drops any authority property the main process never reads,
+    // so it could not survive into app.asar. That is safe here and nowhere else:
+    // control only reaches this line once the helper's bytes already matched the
+    // app.asar digest, so the binary is provably the one this build produced and
+    // an attacker never gets to choose which identifier is demanded.
+    const identifier = packageAuthority.darwinSignatureIdentifier;
+    if (typeof identifier !== 'string' || !CONSTITUTION_FS_SIGNATURE_IDENTIFIER.test(identifier)) return false;
+    verifyDarwinSignature(binaryPath, identifier);
   }
   return true;
 }
@@ -1312,7 +1443,6 @@ function verifyPackagedResources(options = {}) {
   const verifyOfficeCliDarwinSignature =
     options.verifyOfficeCliDarwinSignature ||
     ((binaryPath) => officeCliAuthority.verifyDarwinPublisherSignature(binaryPath));
-  const constitutionFsAuthority = options.constitutionFsAuthority;
   const verifyConstitutionFsDarwinSignature = options.verifyConstitutionFsDarwinSignature;
   const darwinSignedCheck = options.darwinSignedCheck || isDarwinDeveloperIdSigned;
   // Release builds must ship Developer ID signed nested binaries; an unsigned
@@ -1386,6 +1516,19 @@ function verifyPackagedResources(options = {}) {
   const resourceDirs = [packagedTarget.resourceDir];
 
   if (targetPlatform === 'darwin') verifyDarwinPackageSignature(packagedTarget.appDir);
+
+  // Deliberately AFTER the package signature check, and read out of the packaged
+  // artifact rather than the working tree. On darwin the app's Developer ID
+  // signature covers Contents/Resources/app.asar, so by this point the authority
+  // below is signed evidence; and the release observers run this file from a
+  // trust-branch checkout whose tracked generated authority is stale residue.
+  // Windows packages no helper at all, so there is nothing to bind there.
+  const constitutionFsAuthority =
+    options.constitutionFsAuthority !== undefined
+      ? options.constitutionFsAuthority
+      : targetPlatform === 'win32'
+        ? null
+        : readPackagedConstitutionFsAuthority(packagedTarget.resourceDir);
 
   if (resourceDirs.length === 0) {
     throw new Error(
@@ -1522,6 +1665,7 @@ module.exports = {
   // Exported so the win32-x64-baseline requirement (#1017) can be driven with a
   // staged fixture on any host, rather than only inside a real Windows package.
   verifyBunBundle,
+  readPackagedConstitutionFsAuthority,
   verifySignalBundle,
   verifySourceMirror,
   verifyWhatsAppDarwinSignIgnoreInventory,
