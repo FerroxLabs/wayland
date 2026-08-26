@@ -243,7 +243,9 @@ export function wrapSpawnWithToolFilter(
   const scriptPath = (deps.scriptPath ?? getMcpScriptPath)(TOOL_FILTER_SCRIPT);
   return {
     command: runtime.command,
-    args: [scriptPath, '--allow', [...allowedTools].join(','), '--', spawn.command, ...spawn.args],
+    // One `--allow` per tool. A comma-joined list would be fail-OPEN: a tool
+    // name containing a comma would split into entries that were never allowed.
+    args: [scriptPath, ...allowedTools.flatMap((name) => ['--allow', name]), '--', spawn.command, ...spawn.args],
     // Runtime env first so the server's own values win a collision - the server
     // is the one whose process actually needs them.
     env: { ...runtime.env, ...spawn.env },

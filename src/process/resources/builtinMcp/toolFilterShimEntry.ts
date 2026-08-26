@@ -9,7 +9,7 @@
  *
  * Spawned in the real MCP server's place. Invoked as:
  *
- *   node builtin-mcp-tool-filter.js --allow alpha,beta -- <command> [args...]
+ *   node builtin-mcp-tool-filter.js --allow alpha --allow beta -- <command> [args...]
  *
  * The engine talks to THIS process over stdio; this process talks to the real
  * server over its own stdio. Everything relays untouched except the two
@@ -36,7 +36,12 @@ import { createToolFilter, type JsonRpcMessage } from './toolFilterShim';
 export type ShimArgv = { allowed: string[]; command: string; args: string[] };
 
 /**
- * Parse `--allow a,b -- cmd args...`.
+ * Parse `--allow <tool> [--allow <tool> ...] -- cmd args...`.
+ *
+ * One tool per flag, NOT a delimited list. A comma-joined list would be a
+ * fail-OPEN bug: MCP does not forbid a comma in a tool name, and a tool called
+ * `a,b` would split into two entries, admitting `a` and `b` when neither was
+ * ever allowed. There is no delimiter here to corrupt.
  *
  * The `--` separator is load-bearing: everything after it is the upstream argv
  * and is never re-interpreted. Spawning uses an argv array with no shell, so a
@@ -52,12 +57,16 @@ export function parseShimArgv(argv: readonly string[]): ShimArgv | null {
   const tail = argv.slice(sep + 1);
   if (tail.length === 0) return null;
 
-  const allowIndex = head.indexOf('--allow');
-  if (allowIndex === -1 || allowIndex + 1 >= head.length) return null;
-  const allowed = head[allowIndex + 1]
-    .split(',')
-    .map((name) => name.trim())
-    .filter((name) => name.length > 0);
+  const allowed: string[] = [];
+  for (let i = 0; i < head.length; i += 1) {
+    if (head[i] !== '--allow') continue;
+    const name = head[i + 1];
+    // A trailing `--allow` with no value is a malformed invocation, not an
+    // empty entry to skip over.
+    if (name === undefined) return null;
+    if (name.length > 0) allowed.push(name);
+    i += 1;
+  }
   // An empty allowlist is a caller bug - the app withholds the connector
   // entirely in that case, so the shim should never be spawned for it.
   if (allowed.length === 0) return null;
@@ -100,7 +109,7 @@ export function main(argv: readonly string[] = process.argv.slice(2)): void {
   const parsed = parseShimArgv(argv);
   if (!parsed) {
     process.stderr.write(
-      '[wayland-tool-filter] usage: --allow <tool,tool> -- <command> [args...]\n' +
+      '[wayland-tool-filter] usage: --allow <tool> [--allow <tool> ...] -- <command> [args...]\n' +
         '[wayland-tool-filter] refusing to start; running unfiltered would expose tools the user switched off\n'
     );
     process.exit(2);

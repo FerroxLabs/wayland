@@ -186,14 +186,20 @@ describe('createToolFilter - #998 strict per-tool subset', () => {
  * half-parsed line, exposes tools the user switched off.
  */
 describe('parseShimArgv - #998', () => {
-  it('parses an allowlist and the upstream argv after the separator', () => {
-    const parsed = parseShimArgv(['--allow', 'alpha,beta', '--', 'npx', '-y', 'some-server']);
+  it('parses repeated --allow flags and the upstream argv after the separator', () => {
+    const parsed = parseShimArgv(['--allow', 'alpha', '--allow', 'beta', '--', 'npx', '-y', 'some-server']);
     expect(parsed).toEqual({ allowed: ['alpha', 'beta'], command: 'npx', args: ['-y', 'some-server'] });
   });
 
-  it('trims names and drops empties rather than allowing an empty-string tool', () => {
-    const parsed = parseShimArgv(['--allow', ' alpha , ,beta ', '--', 'server']);
-    expect(parsed?.allowed).toEqual(['alpha', 'beta']);
+  it('treats a tool name containing a comma as ONE tool, never two', () => {
+    // A comma-joined allowlist would be fail-OPEN here: `a,b` would split into
+    // two entries and admit `a` and `b`, neither of which was ever allowed.
+    const parsed = parseShimArgv(['--allow', 'weird,name', '--', 'server']);
+    expect(parsed?.allowed).toEqual(['weird,name']);
+  });
+
+  it('refuses a trailing --allow with no value rather than ignoring it', () => {
+    expect(parseShimArgv(['--allow', 'alpha', '--allow', '--', 'server'])).toBeNull();
   });
 
   it('refuses when the separator is missing', () => {
@@ -210,7 +216,6 @@ describe('parseShimArgv - #998', () => {
 
   it('refuses an empty allowlist rather than treating it as allow-all', () => {
     expect(parseShimArgv(['--allow', '', '--', 'server'])).toBeNull();
-    expect(parseShimArgv(['--allow', ' , ', '--', 'server'])).toBeNull();
   });
 
   it('does not re-interpret upstream args that look like its own flags', () => {

@@ -51,8 +51,9 @@ describe('#998 strict subset reaches the engines through the filtering shim', ()
     const args = (descriptor as { args: string[] }).args;
 
     expect(isShim(args)).toBe(true);
-    expect(args).toContain('--allow');
-    expect(args[args.indexOf('--allow') + 1]).toBe('read,search');
+    // One flag per tool - no delimiter that a tool name could corrupt.
+    const allowed = args.flatMap((a, i) => (a === '--allow' ? [args[i + 1]] : []));
+    expect(allowed).toEqual(['read', 'search']);
     // Everything after `--` is the real server, untouched.
     const sep = args.indexOf('--');
     expect(sep).toBeGreaterThan(-1);
@@ -64,7 +65,7 @@ describe('#998 strict subset reaches the engines through the filtering shim', ()
     const args = (descriptor as { args: string[] }).args;
 
     expect(isShim(args)).toBe(true);
-    expect(args[args.indexOf('--allow') + 1]).toBe('read');
+    expect(args.flatMap((a, i) => (a === '--allow' ? [args[i + 1]] : []))).toEqual(['read']);
   });
 
   it('no selection means no shim - an unscoped connector is spawned directly', () => {
