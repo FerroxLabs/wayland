@@ -196,3 +196,56 @@ export function applyBuiltinMcpRuntime<
     },
   };
 }
+
+/** Bundled filename of the per-tool filtering shim (#998). */
+export const TOOL_FILTER_SCRIPT = 'builtin-mcp-tool-filter.js';
+
+/**
+ * True when the user has declared an explicit per-tool selection for a server.
+ *
+ * `undefined` means "no restriction" - every tool. `[]` means the connector
+ * contributes nothing and is withheld entirely before reaching here (see
+ * `contributesTools`). Anything else is an explicit list, and an explicit list
+ * is exactly what the engines cannot be told about, so it needs the shim.
+ *
+ * A list that happens to name every tool the server has is still wrapped. We do
+ * not know the server's full tool set at descriptor-build time - only the shim,
+ * which has spoken to the server, does - and wrapping is a no-op in that case.
+ * Guessing here in order to skip the shim would be guessing in the fail-OPEN
+ * direction.
+ */
+export function hasExplicitToolSelection(server: Pick<IMcpServer, 'allowedTools'>): boolean {
+  return Array.isArray(server.allowedTools) && server.allowedTools.length > 0;
+}
+
+/**
+ * Re-point a resolved stdio spawn at the filtering shim (#998).
+ *
+ * The engine connects to the shim; the shim spawns the ALREADY-RESOLVED upstream
+ * tuple. Resolution happens first so the shim inherits every fix that path
+ * carries - `npx`→bundled Bun (#827) and Wayland's own bundled servers→resolved
+ * JS runtime (#1008) - rather than re-deriving them and drifting.
+ *
+ * The upstream's env is merged into the shim's, because the shim spawns its
+ * child with inherited environment: the variables the real server needs have to
+ * be present in OUR process for it to receive them.
+ *
+ * Everything after `--` is the upstream argv and is never re-parsed, and the
+ * child is spawned with an argv array and no shell, so a server command
+ * containing shell metacharacters is inert.
+ */
+export function wrapSpawnWithToolFilter(
+  spawn: McpStdioSpawnTuple,
+  allowedTools: readonly string[],
+  deps: BuiltinMcpRuntimeDeps = {}
+): McpStdioSpawnTuple {
+  const runtime = (deps.resolveRuntime ?? resolveJsRuntime)();
+  const scriptPath = (deps.scriptPath ?? getMcpScriptPath)(TOOL_FILTER_SCRIPT);
+  return {
+    command: runtime.command,
+    args: [scriptPath, '--allow', [...allowedTools].join(','), '--', spawn.command, ...spawn.args],
+    // Runtime env first so the server's own values win a collision - the server
+    // is the one whose process actually needs them.
+    env: { ...runtime.env, ...spawn.env },
+  };
+}

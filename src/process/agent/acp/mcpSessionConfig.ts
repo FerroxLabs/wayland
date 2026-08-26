@@ -10,7 +10,12 @@ import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import { BUILTIN_CONCIERGE_DIAG_ID } from '@process/resources/builtinMcp/constants';
 import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
-import { mergeMcpSpawnEnv, resolveSessionMcpStdioSpawn } from '@process/services/mcpServices/builtinMcpRuntime';
+import {
+  hasExplicitToolSelection,
+  mergeMcpSpawnEnv,
+  resolveSessionMcpStdioSpawn,
+  wrapSpawnWithToolFilter,
+} from '@process/services/mcpServices/builtinMcpRuntime';
 import { sanitizeMcpServerName } from '@process/services/mcpServices/validateMcpServer';
 
 export interface AcpSessionMcpNameValue {
@@ -172,9 +177,19 @@ export function buildAcpSessionMcpServers(
             // bundled MCP servers→resolved JS runtime (#1008). The runtime env
             // (`ELECTRON_RUN_AS_NODE` in dev) is load-bearing — without it the
             // child boots a second Electron app instead of the MCP server.
-            const spawn = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? [], {
+            const resolved = resolveSessionMcpStdioSpawn(server.transport.command, server.transport.args ?? [], {
               libraryEntryId: server.libraryEntryId,
             });
+            // #998: an explicit per-tool selection cannot be expressed on this
+            // wire, so the engine is pointed at our filtering shim instead of at
+            // the server. The shim spawns the RESOLVED tuple, so it inherits the
+            // npx and bundled-runtime fixes rather than re-deriving them. The
+            // subset stops being state the engine is asked to respect and
+            // becomes a boundary it cannot cross: it never holds the real
+            // server's descriptor.
+            const spawn = hasExplicitToolSelection(server)
+              ? wrapSpawnWithToolFilter(resolved, server.allowedTools ?? [])
+              : resolved;
             return {
               type: 'stdio',
               name: server.name,
@@ -261,13 +276,19 @@ export function buildWCoreUserStdioMcpServers(
     .map((server): AcpSessionMcpServerStdio => {
       const transport = server.transport as Extract<IMcpServer['transport'], { type: 'stdio' }>;
       // #827: resolve `npx`→bundled Bun so the engine spawns a real command.
-      const spawn = resolveMcpStdioSpawn(transport.command, transport.args ?? []);
+      const resolved = resolveMcpStdioSpawn(transport.command, transport.args ?? []);
+      // #998: same interposition as the ACP path - Core's `add_mcp_server`
+      // carries no per-tool field, so a strict subset reaches the engine only by
+      // the engine talking to our shim instead of to the server.
+      const spawn = hasExplicitToolSelection(server)
+        ? wrapSpawnWithToolFilter({ ...resolved, env: {} }, server.allowedTools ?? [])
+        : { ...resolved, env: {} as Record<string, string> };
       return {
         type: 'stdio',
         name: sanitizeMcpServerName(server.name),
         command: spawn.command,
         args: spawn.args,
-        env: toNameValueEntries(transport.env) ?? [],
+        env: toNameValueEntries(mergeMcpSpawnEnv(transport.env, spawn.env)) ?? [],
       };
     })
     .filter((server) => !excludeNames?.has(server.name));

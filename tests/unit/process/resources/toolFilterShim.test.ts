@@ -35,6 +35,10 @@
 import { describe, expect, it } from 'vitest';
 
 import { createToolFilter } from '../../../../src/process/resources/builtinMcp/toolFilterShim';
+import {
+  createLineReader,
+  parseShimArgv,
+} from '../../../../src/process/resources/builtinMcp/toolFilterShimEntry';
 
 type Msg = Record<string, unknown>;
 
@@ -173,5 +177,76 @@ describe('createToolFilter - #998 strict per-tool subset', () => {
     h.filter.fromUpstream(listResult(1, ['alpha', 'beta']));
     const result = h.toEngine.at(-1)?.result as { tools: { name: string }[] };
     expect(result.tools).toEqual([]);
+  });
+});
+
+/**
+ * Argv and framing. Both are places where a lenient implementation would fail
+ * OPEN - a shim that starts without a usable allowlist, or that forwards a
+ * half-parsed line, exposes tools the user switched off.
+ */
+describe('parseShimArgv - #998', () => {
+  it('parses an allowlist and the upstream argv after the separator', () => {
+    const parsed = parseShimArgv(['--allow', 'alpha,beta', '--', 'npx', '-y', 'some-server']);
+    expect(parsed).toEqual({ allowed: ['alpha', 'beta'], command: 'npx', args: ['-y', 'some-server'] });
+  });
+
+  it('trims names and drops empties rather than allowing an empty-string tool', () => {
+    const parsed = parseShimArgv(['--allow', ' alpha , ,beta ', '--', 'server']);
+    expect(parsed?.allowed).toEqual(['alpha', 'beta']);
+  });
+
+  it('refuses when the separator is missing', () => {
+    expect(parseShimArgv(['--allow', 'alpha', 'server'])).toBeNull();
+  });
+
+  it('refuses when no upstream command follows the separator', () => {
+    expect(parseShimArgv(['--allow', 'alpha', '--'])).toBeNull();
+  });
+
+  it('refuses when the allowlist is absent - never starts unfiltered', () => {
+    expect(parseShimArgv(['--', 'server'])).toBeNull();
+  });
+
+  it('refuses an empty allowlist rather than treating it as allow-all', () => {
+    expect(parseShimArgv(['--allow', '', '--', 'server'])).toBeNull();
+    expect(parseShimArgv(['--allow', ' , ', '--', 'server'])).toBeNull();
+  });
+
+  it('does not re-interpret upstream args that look like its own flags', () => {
+    const parsed = parseShimArgv(['--allow', 'alpha', '--', 'server', '--allow', 'evil']);
+    expect(parsed?.args).toEqual(['--allow', 'evil']);
+    expect(parsed?.allowed).toEqual(['alpha']);
+  });
+});
+
+describe('createLineReader - #998 stdio framing', () => {
+  it('emits one message per newline-delimited frame', () => {
+    const seen: Record<string, unknown>[] = [];
+    const read = createLineReader((m) => seen.push(m));
+    read('{"jsonrpc":"2.0","id":1}\n{"jsonrpc":"2.0","id":2}\n');
+    expect(seen.map((m) => m.id)).toEqual([1, 2]);
+  });
+
+  it('reassembles a frame split across chunks', () => {
+    const seen: Record<string, unknown>[] = [];
+    const read = createLineReader((m) => seen.push(m));
+    read('{"jsonrpc":"2.0",');
+    read('"id":7}\n');
+    expect(seen.map((m) => m.id)).toEqual([7]);
+  });
+
+  it('drops an unparseable line instead of relaying a half frame', () => {
+    const seen: Record<string, unknown>[] = [];
+    const read = createLineReader((m) => seen.push(m));
+    read('not json at all\n{"jsonrpc":"2.0","id":3}\n');
+    expect(seen.map((m) => m.id)).toEqual([3]);
+  });
+
+  it('ignores a bare JSON array or scalar - only objects are messages', () => {
+    const seen: Record<string, unknown>[] = [];
+    const read = createLineReader((m) => seen.push(m));
+    read('[1,2,3]\n"hello"\n{"id":4}\n');
+    expect(seen.map((m) => m.id)).toEqual([4]);
   });
 });

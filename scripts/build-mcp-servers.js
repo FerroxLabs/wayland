@@ -260,6 +260,16 @@ async function main() {
     }),
     esbuild.build({
       ...SHARED_OPTIONS,
+      // #998 the per-tool filtering shim. Not an MCP server in its own right: it
+      // is spawned in a real server's place so a strict per-tool subset reaches
+      // engines whose wire has no per-tool field. It must be a self-contained
+      // bundle like its siblings, because a packaged build runs it from
+      // app.asar.unpacked where require() has no ASAR patching.
+      entryPoints: [path.join(ROOT, 'src/process/resources/builtinMcp/toolFilterShimEntry.ts')],
+      outfile: path.join(ROOT, 'out/main/builtin-mcp-tool-filter.js'),
+    }),
+    esbuild.build({
+      ...SHARED_OPTIONS,
       // `better-sqlite3` is a NATIVE module. esbuild can inline its JS but NOT
       // its `.node` binding; the inlined `bindings` loader then resolves
       // relative to out/main (which has no build/Release) and throws
