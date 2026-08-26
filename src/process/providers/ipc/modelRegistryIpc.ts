@@ -84,6 +84,7 @@ import {
   fetchLiveChatGptSubscriptionCatalog,
 } from '../catalog/chatgptSubscriptionModels';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
+import { NANO_KNOWN_PROVIDER_IDS } from '@process/task/wnano/providersPayload';
 import { ConnectionTester } from '../detection/ConnectionTester';
 import { KeyDiscovery } from '../detection/KeyDiscovery';
 import { ModelsDevClient } from '../enrichment/ModelsDevClient';
@@ -1272,6 +1273,34 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
             }
           }
           return all;
+        }
+
+        // #1002: Wayland Nano is multi-provider too, but NOT over the same set
+        // as wcore. Every Nano spawn is handed `WAYLAND_NANO_PROVIDERS` listing
+        // each CONNECTED provider that appears in `NANO_KNOWN_PROVIDER_IDS`
+        // (AcpAgentManager.buildWnanoProvidersEnv); Nano's vendored catalog
+        // table knows no other id, and `buildWaylandNanoProvidersPayload` drops
+        // anything outside it before Nano ever sees the payload. wnano used to
+        // fall through to the `return []` at the end of this handler, so a Nano
+        // chat's picker offered Flux Auto and nothing else while Nano was being
+        // told it could run every one of those providers' models. Unioning EVERY
+        // connected provider (the wcore rule) would overshoot the other way and
+        // offer models Nano is never advertised and cannot route - so this is
+        // exactly the intersection the spawn payload uses, in the same known-set
+        // order, deduped by `(providerId, id)` like the wcore union above.
+        if (agentKey === 'wnano') {
+          const advertised: CuratedModel[] = [];
+          const seenForNano = new Set<string>();
+          for (const providerId of NANO_KNOWN_PROVIDER_IDS) {
+            if (repo.getRegistryProvider(providerId)?.state !== 'connected') continue;
+            for (const model of curatedWithCustom(providerId)) {
+              const dedupKey = `${model.providerId}\u0000${model.id}`;
+              if (seenForNano.has(dedupKey)) continue;
+              seenForNano.add(dedupKey);
+              advertised.push(model);
+            }
+          }
+          return advertised;
         }
 
         // Synthesize a provider's curated catalog from the persisted registry

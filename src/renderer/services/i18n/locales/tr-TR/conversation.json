@@ -365,7 +365,7 @@
   "routingBadge": {
     "flux": "Flux uzerinden yonlendirme",
     "native": "Yerel baglanti",
-    "unknown": "Bu aracin kendi girisi kullaniliyor",
+    "unknown": "Yonlendirme bilinmiyor",
     "fluxError": "Flux kullanilamiyor",
     "fluxErrorNotice": "Bu tur icin Flux yonlendirmesi basarisiz oldu. Flux baglantinizi kontrol edin veya model degistirin."
   },

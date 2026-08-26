@@ -363,7 +363,7 @@
   "routingBadge": {
     "flux": "Enrutando via Flux",
     "native": "Conexion nativa",
-    "unknown": "Usando el acceso propio de esta herramienta",
+    "unknown": "Enrutamiento desconocido",
     "fluxError": "Flux no disponible",
     "fluxErrorNotice": "El enrutamiento por Flux fallo en este turno. Comprueba tu conexion con Flux o cambia de modelo."
   },

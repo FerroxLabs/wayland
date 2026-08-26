@@ -363,7 +363,7 @@
   "routingBadge": {
     "flux": "通过 Flux 路由",
     "native": "原生连接",
-    "unknown": "使用此工具自身的登录",
+    "unknown": "路由未知",
     "fluxError": "Flux 不可用",
     "fluxErrorNotice": "本轮 Flux 路由失败。请检查 Flux 连接或切换模型。"
   },
