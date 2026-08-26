@@ -1053,4 +1053,97 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(err.message).toContain('[redacted]');
     expect(err.message).not.toContain('sk-abcdef0123456789ABCDEF');
   });
+
+  /**
+   * #1065. A PEM private key on engine stderr reaches BOTH sinks, by two
+   * different mechanisms, about twenty lines apart in the production file.
+   *
+   * The PEM rule in `secretRedaction` is the only multi-line rule in the bank,
+   * and neither sink ever hands it a multi-line string:
+   *
+   *  (a) THE LOG. The reader scrubs per readline LINE, so the rule can only ever
+   *      match its `-----BEGIN` header - and its end-of-input alternative masks
+   *      that header to end of line, DESTROYING the anchor. Every body line after
+   *      it is anchorless and invisible to this scrub and to the whole-file scrub
+   *      the feedback bundle runs later.
+   *  (b) THE USER-FACING ERROR. `stderrTail` keeps only the last 2048 bytes. A
+   *      4096-bit RSA key body is longer than that, so the `-----BEGIN` anchor is
+   *      EVICTED and the tail that reaches `readyReject` has no anchor left for
+   *      the blob scrub to match - the key body lands in the string a user pastes
+   *      into a bug report.
+   *
+   * The fix belongs in the reader, not the regex: an END-anchored rule would make
+   * an anchorless PEM fragment matchable, which is exactly what
+   * `acpStderrRingTruncationLeak.test.ts` pins as invisible.
+   */
+  const PEM_BODY_LINE = 'MIIEowIBAAKCAQEAx7Vv9QsQ2mJmZ0kZ0aVQq3zJmQ8k1nZ2bXcVvQwErTyUiOpAs';
+  const pemBlock = (lines: number): string =>
+    `-----BEGIN RSA PRIVATE KEY-----\n${`${PEM_BODY_LINE}\n`.repeat(lines)}-----END RSA PRIVATE KEY-----\n`;
+
+  it('#1065a: a PEM block on stderr never reaches the log, and the lines around it still do', async () => {
+    const levels = {
+      debug: vi.spyOn(console, 'debug').mockImplementation(() => {}),
+      info: vi.spyOn(console, 'info').mockImplementation(() => {}),
+      warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
+      error: vi.spyOn(console, 'error').mockImplementation(() => {}),
+    };
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+    await flushUntilSpawned(child);
+
+    child.stderr.write('2026-08-25T10:00:00.000000Z  INFO engine starting\n');
+    child.stderr.write('2026-08-25T10:00:01.000000Z ERROR failed to load signing material:\n');
+    child.stderr.write(pemBlock(6));
+    child.stderr.write('2026-08-25T10:00:02.000000Z ERROR giving up REAL-DIAGNOSTIC\n');
+    await Promise.resolve();
+    child.emit('exit', 1);
+    await result;
+
+    const logged = Object.values(levels).flatMap((spy) =>
+      spy.mock.calls.map((call) => call.map(String).join(' '))
+    );
+    const all = logged.join('\n');
+    // KNOWN POSITIVE, in the same block: the reader is running and the lines on
+    // either side of the block still reach the log. Without this the assertion
+    // below passes just as well against a reader that logs nothing at all.
+    expect(all, 'the line before the block').toContain('failed to load signing material');
+    expect(all, 'the line after the block').toContain('REAL-DIAGNOSTIC');
+    // The defect: the key body, line by line.
+    expect(all, 'the key body reached the log').not.toContain(PEM_BODY_LINE);
+    // And the severity classification the reader exists for is untouched: the
+    // engine's own INFO stays info, its ERROR stays error (#717).
+    expect(levels.info.mock.calls.map((call) => call.map(String).join(' ')).join('\n')).toContain('engine starting');
+    expect(levels.error.mock.calls.map((call) => call.map(String).join(' ')).join('\n')).toContain('REAL-DIAGNOSTIC');
+  });
+
+  it('#1065b: a PEM block longer than the stderr tail never reaches the user-facing error', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+    await flushUntilSpawned(child);
+
+    // 50 lines of body is ~3.2 KB, so the 2048-byte tail cannot hold the
+    // `-----BEGIN` line by the time the engine exits. That eviction is the whole
+    // mechanism: with the anchor gone there is nothing for the blob scrub to
+    // match, and the tail is what `readyReject` puts in the message.
+    const block = pemBlock(50);
+    expect(block.length, 'the block must be longer than the tail window').toBeGreaterThan(2048);
+    child.stderr.write('2026-08-25T10:00:01.000000Z ERROR failed to load signing material:\n');
+    child.stderr.write(block);
+    child.stderr.write('2026-08-25T10:00:02.000000Z ERROR giving up REAL-DIAGNOSTIC\n');
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    // KNOWN POSITIVE: the engine's real reason still reaches the user, which is
+    // the entire purpose of surfacing the tail (#484).
+    expect(err.message).toContain('REAL-DIAGNOSTIC');
+    expect(err.message, 'the key body reached the user-facing error').not.toContain(PEM_BODY_LINE);
+    expect(err.message, 'the END line is a fragment of the same block').not.toContain('-----END RSA PRIVATE KEY-----');
+  });
 });
