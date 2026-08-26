@@ -7,23 +7,19 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
 
-const {
-  readPeCertificateTable,
-  inspectAuthenticode,
-  isAuthenticodeSigned,
-  describeAuthenticode,
-} = require('../../../scripts/peAuthenticode.js') as {
-  readPeCertificateTable(filePath: string): { offset: number; size: number };
-  inspectAuthenticode(filePath: string): {
-    certificateTableOffset: number;
-    certificateTableSize: number;
-    certificateLength: number;
-    revision: number;
-    certificateType: number;
+const { readPeCertificateTable, inspectAuthenticode, isAuthenticodeSigned, describeAuthenticode } =
+  require('../../../scripts/peAuthenticode.js') as {
+    readPeCertificateTable(filePath: string): { offset: number; size: number };
+    inspectAuthenticode(filePath: string): {
+      certificateTableOffset: number;
+      certificateTableSize: number;
+      certificateLength: number;
+      revision: number;
+      certificateType: number;
+    };
+    isAuthenticodeSigned(filePath: string): boolean;
+    describeAuthenticode(filePath: string): string;
   };
-  isAuthenticodeSigned(filePath: string): boolean;
-  describeAuthenticode(filePath: string): string;
-};
 
 const { verifyWCoreRuntime, verifyWNanoRuntime } = require('../../../scripts/verify-packaged-resources.js') as {
   verifyWCoreRuntime(bundleDir: string, runtimeKey: string, authority: unknown): boolean;
@@ -40,20 +36,19 @@ const prepareWaylandNano = require('../../../scripts/prepareWaylandNano.js') as 
   BUNDLE_CONTRACT: string;
   BUNDLE_GENERATOR: string;
 };
-const { selectPolicy, CONTRACT: PUBLISHER_CONTRACT } = require(
-  '../../../scripts/supply-chain/verifyPublisherAttestation.js'
-) as {
-  selectPolicy(releaseTag: string): {
-    id: string;
-    repository: string;
-    signerWorkflow: string;
-    sourceRef: string;
-    sourceDigest: string;
-    predicateType: string;
-    runner: string;
+const { selectPolicy, CONTRACT: PUBLISHER_CONTRACT } =
+  require('../../../scripts/supply-chain/verifyPublisherAttestation.js') as {
+    selectPolicy(releaseTag: string): {
+      id: string;
+      repository: string;
+      signerWorkflow: string;
+      sourceRef: string;
+      sourceDigest: string;
+      predicateType: string;
+      runner: string;
+    };
+    CONTRACT: string;
   };
-  CONTRACT: string;
-};
 
 const roots: string[] = [];
 
@@ -165,9 +160,9 @@ describe('PE certificate table reader', () => {
 
   it('reads a PE32 image as well as PE32+', () => {
     const dir = tempDir();
-    expect(isAuthenticodeSigned(writePe(dir, 'pe32.exe', { magic: MAGIC_PE32, certificatePayload: SIGNED_PAYLOAD }))).toBe(
-      true
-    );
+    expect(
+      isAuthenticodeSigned(writePe(dir, 'pe32.exe', { magic: MAGIC_PE32, certificatePayload: SIGNED_PAYLOAD }))
+    ).toBe(true);
     expect(isAuthenticodeSigned(writePe(dir, 'pe32-unsigned.exe', { magic: MAGIC_PE32 }))).toBe(false);
   });
 
@@ -177,16 +172,22 @@ describe('PE certificate table reader', () => {
       ['missing.exe', Buffer.alloc(0)],
       ['truncated.exe', buildPe({ certificatePayload: SIGNED_PAYLOAD }).subarray(0, 32)],
       ['not-a-pe.exe', Buffer.from('#!/bin/sh\necho hello\n')],
-      ['mz-without-pe.exe', (() => {
-        const bytes = buildPe({ certificatePayload: SIGNED_PAYLOAD });
-        bytes.writeUInt32LE(0, PE_HEADER_OFFSET); // clobber the PE signature
-        return bytes;
-      })()],
-      ['bad-magic.exe', (() => {
-        const bytes = buildPe({ certificatePayload: SIGNED_PAYLOAD });
-        bytes.writeUInt16LE(0x1234, PE_HEADER_OFFSET + 4 + COFF_HEADER_SIZE);
-        return bytes;
-      })()],
+      [
+        'mz-without-pe.exe',
+        (() => {
+          const bytes = buildPe({ certificatePayload: SIGNED_PAYLOAD });
+          bytes.writeUInt32LE(0, PE_HEADER_OFFSET); // clobber the PE signature
+          return bytes;
+        })(),
+      ],
+      [
+        'bad-magic.exe',
+        (() => {
+          const bytes = buildPe({ certificatePayload: SIGNED_PAYLOAD });
+          bytes.writeUInt16LE(0x1234, PE_HEADER_OFFSET + 4 + COFF_HEADER_SIZE);
+          return bytes;
+        })(),
+      ],
     ];
     for (const [name, bytes] of cases) {
       const target = path.join(dir, name);

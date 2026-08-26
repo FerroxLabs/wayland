@@ -104,8 +104,7 @@ function readPeCertificateTable(filePath, image) {
   }
 
   const directoriesOffset = DATA_DIRECTORY_OFFSET[magic];
-  const minimumOptionalHeaderSize =
-    directoriesOffset + (CERTIFICATE_DIRECTORY_INDEX + 1) * DATA_DIRECTORY_ENTRY_SIZE;
+  const minimumOptionalHeaderSize = directoriesOffset + (CERTIFICATE_DIRECTORY_INDEX + 1) * DATA_DIRECTORY_ENTRY_SIZE;
   if (sizeOfOptionalHeader < minimumOptionalHeaderSize) {
     throw new PeParseError(
       `${filePath}: optional header is ${sizeOfOptionalHeader} bytes, too small to hold a certificate data directory`
@@ -121,7 +120,8 @@ function readPeCertificateTable(filePath, image) {
     );
   }
 
-  const entryOffset = optionalHeaderOffset + directoriesOffset + CERTIFICATE_DIRECTORY_INDEX * DATA_DIRECTORY_ENTRY_SIZE;
+  const entryOffset =
+    optionalHeaderOffset + directoriesOffset + CERTIFICATE_DIRECTORY_INDEX * DATA_DIRECTORY_ENTRY_SIZE;
   need(entryOffset + DATA_DIRECTORY_ENTRY_SIZE, 'certificate data directory entry');
   return { offset: bytes.readUInt32LE(entryOffset), size: bytes.readUInt32LE(entryOffset + 4) };
 }
