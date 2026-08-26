@@ -210,6 +210,19 @@ export type EngineConfigRecoveryDeps = {
    */
   removeFile: (path: string) => Promise<void>;
   now: () => Date;
+  /**
+   * #1052: how long {@link readFileBytes} may take before the call is abandoned.
+   * A `config.toml` that is a FIFO blocks the raw byte read FOREVER - executed,
+   * not assumed: the inspect call did not return within 10 s and the recovery
+   * panel therefore rendered nothing at all, on the one surface a user only
+   * reaches when they are already broken.
+   *
+   * Abandoning the wait does not cancel the underlying read - nothing can, once
+   * `open(2)` has blocked on a FIFO with no writer - so the fd leaks until the
+   * process exits. That is the correct trade against a permanently dead panel,
+   * and it is one fd on a path the user has to have constructed deliberately.
+   */
+  readTimeoutMs?: number;
 };
 
 /** Hard cap on the repair loop: a file needing more than this is not "one line". */
@@ -258,6 +271,40 @@ const MAX_REPAIR_MILLIS = 250;
 const MAX_REPAIR_LINE_BYTES = 4096;
 const MAX_BREAK_CANDIDATES = 128;
 const MAX_REPAIR_SOURCE_BYTES = 512 * 1024;
+
+/**
+ * #1052 - THE bound on {@link inspectEngineConfig}'s own parse.
+ *
+ * Everything downstream of the inspection is budgeted (see
+ * {@link MAX_REPAIR_PARSE_BYTES}), but the inspection itself parses the whole
+ * document ONCE before the planner ever runs, and the budget's deadline is only
+ * checked BETWEEN parses - it cannot interrupt one that has started. That first
+ * parse was therefore unbounded by construction, on the Electron MAIN thread, in
+ * a channel that auto-fires when the recovery panel mounts.
+ *
+ * Bounding the BYTES fed to the parser is what bounds the freeze, because the
+ * cost is monotonic in document size. Measured on the Hetzner build box with
+ * smol-toml 1.6.1, ONE parse of ONE document, worst shape found at each size:
+ *
+ *     64 KB  ->   ~8 ms      512 KB / bare table headers -> 213 ms
+ *    128 KB  ->  144 ms      512 KB / inline tables      -> 300 ms
+ *    256 KB  ->  113 ms
+ *
+ * That box is roughly 6-8x faster than the laptop #1052 was measured on, which
+ * is where its reported 1.5-2 s comes from. 64 KB keeps the worst case in the
+ * same order as {@link MAX_REPAIR_MILLIS}, and is still about 6x larger than any
+ * engine `config.toml` observed - the file holds providers, credentials and
+ * memory/skills settings, not data.
+ *
+ * Past it the honest answer is that the document was never parsed, so the result
+ * is `unreadable` rather than `ok` or `invalid`: both of those are claims about
+ * its TOML validity. The panel already renders `unreadable` with the reason, the
+ * resolved path, and the unconditional "Show me the file" escape hatch.
+ */
+const MAX_INSPECT_PARSE_BYTES = 64 * 1024;
+
+/** Default for {@link EngineConfigRecoveryDeps.readTimeoutMs}. */
+const DEFAULT_READ_TIMEOUT_MS = 5_000;
 
 /**
  * The running cost of one {@link planLineBreakRepair} call. `remaining` is in
@@ -896,12 +943,56 @@ const backupFailureResult = (error: unknown): EngineConfigRecoveryResult => ({
   ...backupPathOf(error),
 });
 
+/**
+ * Thrown by {@link readBytesWithTimeout}. Its own class so the two callers can
+ * report "could not read" rather than mislabelling it as a write failure.
+ */
+class EngineConfigReadTimeoutError extends Error {
+  constructor(ms: number) {
+    super(`Timed out after ${ms}ms reading the engine config`);
+    this.name = 'EngineConfigReadTimeoutError';
+  }
+}
+
+/**
+ * {@link EngineConfigRecoveryDeps.readFileBytes} with a hard wall-clock bound.
+ *
+ * `Promise.race`, not cancellation: a blocked `open(2)` on a FIFO cannot be
+ * cancelled. The timer is cleared on BOTH outcomes so a fast read never leaves a
+ * pending timer holding the event loop open, and the losing read's rejection is
+ * swallowed so it cannot surface later as an unhandled rejection.
+ */
+async function readBytesWithTimeout(path: string, deps: EngineConfigRecoveryDeps): Promise<Buffer> {
+  const ms = deps.readTimeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const read = deps.readFileBytes(path);
+  read.catch(() => {
+    /* the race below reports it; a loser must not become an unhandled rejection */
+  });
+  try {
+    return await Promise.race([
+      read,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new EngineConfigReadTimeoutError(ms)), ms);
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+}
+
 /** Read the config's raw bytes, mapping a missing file onto a typed result. */
 async function readConfigBytes(
   path: string,
   deps: EngineConfigRecoveryDeps
 ): Promise<{ bytes: Buffer } | { failure: EngineConfigRecoveryResult }> {
   try {
+    // Deliberately NOT `readBytesWithTimeout`: this helper's failure vocabulary
+    // has no read-side code, so a timeout here would be reported as
+    // `write-failed`, whose UI text is "nothing was changed" about a write that
+    // never started. It is also unreachable for the FIFO case #1052 names -
+    // `inspectEngineConfig` refuses that file first, and both write actions are
+    // only offered once the inspection said `invalid`.
     return { bytes: await deps.readFileBytes(path) };
   } catch (error) {
     const missing = (error as { code?: string } | null)?.code === 'ENOENT';
@@ -942,10 +1033,24 @@ export async function inspectEngineConfig(
 
   let bytes: Buffer;
   try {
-    bytes = await deps.readFileBytes(path);
+    bytes = await readBytesWithTimeout(path, deps);
   } catch (error) {
     if ((error as { code?: string } | null)?.code === 'ENOENT') return { status: 'missing', path };
     return { status: 'unreadable', path, reason: summarizeReason(error) };
+  }
+
+  // #1052: refuse BEFORE the decode and the parse, not after. Everything below
+  // this line is synchronous work on the Electron main thread, and the parse it
+  // ends in is the one thing in this module that was never bounded. The size is
+  // safe to report - it is a property of the file, not of its content.
+  if (bytes.byteLength > MAX_INSPECT_PARSE_BYTES) {
+    return {
+      status: 'unreadable',
+      path,
+      reason:
+        `config.toml is ${Math.round(bytes.byteLength / 1024)} KB, past the ` +
+        `${MAX_INSPECT_PARSE_BYTES / 1024} KB Wayland will parse in-app. Open it to inspect it.`,
+    };
   }
 
   // A TOML document MUST be valid UTF-8, so bytes that do not decode losslessly

@@ -75,6 +75,8 @@ type PendingPermission = {
   resolve: (response: RequestPermissionResponse) => void;
   reject: (error: Error) => void;
   createdAt: number;
+  /** #1045: armed only when this resolver has an unattended deadline. */
+  expiryTimer?: ReturnType<typeof setTimeout>;
 };
 
 type PermissionResolverConfig = {
@@ -90,6 +92,26 @@ type PermissionResolverConfig = {
    */
   hydrate?: () => Promise<Iterable<[string, string]>>;
   persist?: (cacheKey: string, optionId: string) => void;
+  /**
+   * #1045: bound how long an UNATTENDED run may sit on a held tool call, in ms.
+   *
+   * ABSENT for an attended session, and that absence is the feature: a person in
+   * front of the app is the thing being waited on, so their prompt still waits
+   * indefinitely. Only the scheduled-run path supplies a value (see
+   * `resolveUnattendedHoldMs`, which also keeps it strictly under the time to
+   * that conversation's next scheduled run).
+   *
+   * On expiry the hold resolves as a DENIAL - never an approval, never cached,
+   * never persisted. See {@link PermissionResolver.expire}.
+   */
+  holdDeadlineMs?: number;
+  /**
+   * Fired when a hold expired, so the run is distinguishable from an ordinary
+   * failure. A denial the user cannot tell apart from a normal error leaves most
+   * of #1045 in place: they still cannot see that their automation stopped
+   * because it was waiting on them.
+   */
+  onHoldExpired?: (info: { callId: string; title: string; deadlineMs: number }) => void;
 };
 
 type PendingPermissionWithContext = PendingPermission & {
@@ -102,6 +124,9 @@ export class PermissionResolver {
   private readonly pending = new Map<string, PendingPermissionWithContext>();
   private readonly hydrateFn?: () => Promise<Iterable<[string, string]>>;
   private readonly persistFn?: (cacheKey: string, optionId: string) => void;
+  private readonly onHoldExpired?: (info: { callId: string; title: string; deadlineMs: number }) => void;
+  /** #1045: ms an unattended hold may last, or undefined for an attended run. */
+  private holdDeadlineMs?: number;
   /** Memoized one-shot rehydration of persisted approvals (#672). */
   private hydration?: Promise<void>;
 
@@ -110,6 +135,22 @@ export class PermissionResolver {
     this.cache = new ApprovalCache(config.cacheMaxSize ?? 500);
     this.hydrateFn = config.hydrate;
     this.persistFn = config.persist;
+    this.holdDeadlineMs = config.holdDeadlineMs;
+    this.onHoldExpired = config.onHoldExpired;
+  }
+
+  /**
+   * Adopt an unattended deadline on a resolver that is already live (#1045).
+   *
+   * The scheduled-run executor REUSES a running agent when it can, so the second
+   * and later runs of a job never rebuild the session and would otherwise keep
+   * the attended (indefinite) behaviour the first spawn was constructed with.
+   * Only holds armed AFTER this call are bounded; an already-pending one keeps
+   * whatever deadline it was armed with, because retro-arming a request the user
+   * may be looking at right now would deny it out from under them.
+   */
+  setHoldDeadlineMs(ms: number | undefined): void {
+    this.holdDeadlineMs = ms;
   }
 
   get hasPending(): boolean {
@@ -172,7 +213,25 @@ export class PermissionResolver {
     const { toolCall } = request;
     const callId = toolCall.toolCallId;
     return new Promise<RequestPermissionResponse>((resolve, reject) => {
-      this.pending.set(callId, { callId, resolve, reject, createdAt: Date.now(), cacheKey });
+      const entry: PendingPermissionWithContext = { callId, resolve, reject, createdAt: Date.now(), cacheKey };
+      this.pending.set(callId, entry);
+      // #1045: arm the deadline BEFORE the UI callback. `uiCallback` is
+      // synchronous today, but arming after it would make the bound depend on
+      // that staying true.
+      const deadlineMs = this.holdDeadlineMs;
+      if (deadlineMs !== undefined && deadlineMs > 0) {
+        // Resolved here, from THIS request's own options, rather than at expiry:
+        // the request is what says how this agent spells "no".
+        const denyOptionId = request.options.find((o) => o.kind.startsWith('reject'))?.optionId;
+        const timer = setTimeout(() => {
+          this.expire(callId, denyOptionId, toolCall.title ?? '', deadlineMs);
+        }, deadlineMs);
+        // Unref'd: it still fires for as long as the process is running, which
+        // is the whole life of any hold, but it must never be the thing that
+        // keeps a quitting main process alive.
+        (timer as { unref?: () => void }).unref?.();
+        entry.expiryTimer = timer;
+      }
       uiCallback({
         callId,
         title: toolCall.title ?? '',
@@ -192,10 +251,43 @@ export class PermissionResolver {
     });
   }
 
+  /**
+   * The unattended deadline elapsed (#1045). DENY.
+   *
+   * Three properties, in the order they matter:
+   *  1. It NEVER selects an allow option. When the request offered no reject
+   *     option there is nothing to select, so the answer is `cancelled` - "no
+   *     decision" - rather than the allow option that happens to be on offer.
+   *  2. It never touches the cache and never calls `persistFn`. `resolve()`
+   *     already refuses to cache a deny; an expiry is not even a deny the user
+   *     made, so it must be at least as strict. A cached expiry would silently
+   *     answer every future matching call.
+   *  3. It resolves the SAME pending promise a user decision resolves, so
+   *     everything downstream - the ACP response, the turn, the busy guard -
+   *     behaves exactly as it does for a real denial.
+   */
+  private expire(callId: string, denyOptionId: string | undefined, title: string, deadlineMs: number): void {
+    const entry = this.pending.get(callId);
+    if (!entry) return;
+    this.pending.delete(callId);
+    if (entry.expiryTimer) clearTimeout(entry.expiryTimer);
+
+    entry.resolve(
+      denyOptionId !== undefined
+        ? { outcome: { outcome: 'selected', optionId: denyOptionId } }
+        : { outcome: { outcome: 'cancelled' } }
+    );
+    this.onHoldExpired?.({ callId, title, deadlineMs });
+  }
+
   resolve(callId: string, optionId: string): void {
     const entry = this.pending.get(callId);
     if (!entry) return;
     this.pending.delete(callId);
+    // A decision arrived, so the deadline is moot. Without this the timer still
+    // fires and `expire` finds nothing pending - correct, but it would keep an
+    // unattended run's timer alive for its full deadline after every answer.
+    if (entry.expiryTimer) clearTimeout(entry.expiryTimer);
 
     // Cache "allow always" decisions for future auto-approval (never cache deny)
     if (optionId.startsWith('allow_') && optionId.includes('always')) {
@@ -211,6 +303,7 @@ export class PermissionResolver {
 
   rejectAll(error: Error): void {
     for (const entry of this.pending.values()) {
+      if (entry.expiryTimer) clearTimeout(entry.expiryTimer);
       entry.reject(error);
     }
     this.pending.clear();

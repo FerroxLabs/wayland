@@ -12,6 +12,7 @@ import path from 'node:path';
 import log from 'electron-log';
 import { ipcBridge } from '@/common';
 import { getIjfwArchiveService } from '@process/services/memory/ijfwArchiveService';
+import { selectWikiProjectPath } from './wikiWriteDestination';
 import { buildWikiState } from './wikiIndex';
 import { synthesizeMany } from './wikiSynthesizer';
 import type { WikiState } from '@/common/types/memory';
@@ -99,22 +100,21 @@ export async function runSynthesisSweep(): Promise<number> {
   let projectPath: string;
   try {
     const projects = await svc.getProjects();
-    // #1064: the global memory store rides in this index (see #137) and is
-    // usually the most recently active root, because every chat in every
-    // project appends to it. It is the user's home directory, not a workspace -
-    // sweeping it writes `.ijfw/wiki-state` and concept files into $HOME.
-    const workspaces = projects.filter((p) => p.isGlobalStore !== true);
-    if (workspaces.length === 0) {
-      // A scheduled sweep without an active project has no persistence
+    // Deterministic selection of the most recently active real project. `real`
+    // is doing the work here: the index also carries the global memory store
+    // (#1064) and whatever `~/.ijfw/registry.md` happens to name, which can be
+    // an OS-protected install root (#1106: `EPERM ... mkdir 'C:\Program
+    // Files\Wayland\.ijfw\wiki-state'`). Neither is a write destination.
+    const selected = selectWikiProjectPath(projects);
+    if (selected === null) {
+      // A scheduled sweep without an authorized project has no persistence
       // authority. The application launch/process working directory is launch
       // context, not user-authorized project context — falling back to it can
       // create an unexpected `.ijfw` tree in the install dir or test checkout.
-      log.info('[wiki-auto-sync] skipped: no active project');
+      log.info('[wiki-auto-sync] skipped: no writable project destination');
       return 0;
     }
-    // Deterministic selection of the most recently active real project.
-    const sorted = workspaces.toSorted((a, b) => b.lastActive - a.lastActive);
-    projectPath = sorted[0].path;
+    projectPath = selected;
   } catch (err) {
     log.warn('[wiki-auto-sync] could not resolve project path', { err });
     return 0;

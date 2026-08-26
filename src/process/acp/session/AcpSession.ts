@@ -37,6 +37,13 @@ export type SessionOptions = {
   approvalCacheMaxSize?: number;
   /** User selections made before session creation (e.g., from the Guid page). */
   initialDesired?: InitialDesiredConfig;
+  /**
+   * #1045: called when an unattended hold hit its deadline and was denied. The
+   * compat layer turns it into an in-thread notice, so a scheduled run that
+   * stopped because nobody answered is distinguishable from one that merely
+   * failed.
+   */
+  onPermissionHoldExpired?: (info: { callId: string; title: string; deadlineMs: number }) => void;
 };
 
 const VALID_TRANSITIONS: Record<SessionStatus, SessionStatus[]> = {
@@ -190,6 +197,10 @@ export class AcpSession {
       persist: (cacheKey, optionId) => {
         void saveWorkspaceApproval(agentConfig.cwd, cacheKey, optionId);
       },
+      // #1045: present only for an UNATTENDED (scheduled) run. An attended
+      // session leaves it undefined and keeps prompting indefinitely.
+      holdDeadlineMs: agentConfig.unattendedHoldDeadlineMs,
+      onHoldExpired: options?.onPermissionHoldExpired,
     });
 
     this.lifecycle = new SessionLifecycle(
@@ -366,6 +377,17 @@ export class AcpSession {
 
   confirmPermission(callId: string, optionId: string): void {
     this.permissionResolver.resolve(callId, optionId);
+  }
+
+  /**
+   * Adopt an unattended hold deadline on an ALREADY-RUNNING session (#1045).
+   *
+   * The scheduled-run executor reuses a live agent whenever it can, so without
+   * this only the first run of a job after a spawn would be bounded and every
+   * later one would keep the attended (indefinite) behaviour.
+   */
+  setUnattendedHoldDeadlineMs(ms: number | undefined): void {
+    this.permissionResolver.setHoldDeadlineMs(ms);
   }
 
   // ─── Path validation ────────────────────────────────────────
