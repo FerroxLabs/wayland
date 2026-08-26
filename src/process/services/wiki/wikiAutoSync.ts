@@ -99,7 +99,12 @@ export async function runSynthesisSweep(): Promise<number> {
   let projectPath: string;
   try {
     const projects = await svc.getProjects();
-    if (projects.length === 0) {
+    // #1064: the global memory store rides in this index (see #137) and is
+    // usually the most recently active root, because every chat in every
+    // project appends to it. It is the user's home directory, not a workspace -
+    // sweeping it writes `.ijfw/wiki-state` and concept files into $HOME.
+    const workspaces = projects.filter((p) => p.isGlobalStore !== true);
+    if (workspaces.length === 0) {
       // A scheduled sweep without an active project has no persistence
       // authority. The application launch/process working directory is launch
       // context, not user-authorized project context — falling back to it can
@@ -108,7 +113,7 @@ export async function runSynthesisSweep(): Promise<number> {
       return 0;
     }
     // Deterministic selection of the most recently active real project.
-    const sorted = projects.toSorted((a, b) => b.lastActive - a.lastActive);
+    const sorted = workspaces.toSorted((a, b) => b.lastActive - a.lastActive);
     projectPath = sorted[0].path;
   } catch (err) {
     log.warn('[wiki-auto-sync] could not resolve project path', { err });
