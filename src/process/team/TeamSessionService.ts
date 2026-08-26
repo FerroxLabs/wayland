@@ -30,6 +30,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { resolveLocaleKey } from '@/common/utils';
 import { hasGeminiOauthCreds } from './googleAuthCheck';
+import { hasSpecificModelCapability } from '@/common/utils/modelCapabilities';
 import { buildTeamExport, serializeTeamExport, type RitualsResolver } from './importExport/exportTeam';
 import { BUILTIN_ID_PREFIX, getBuiltinCatalogAssistants } from '@process/utils/builtinCatalog';
 import type { RitualScheduler } from './ritualScheduler';
@@ -213,12 +214,61 @@ export class TeamSessionService {
     } as TProviderWithModel;
   }
 
+  /**
+   * The keyless ChatGPT-subscription registry row.
+   *
+   * #983 - a Gemini teammate must never be DEFAULTED onto it. That row carries
+   * no API key (it authenticates by OAuth through ~/.codex/auth.json, which only
+   * the wcore engine can drive), so a Gemini-CLI teammate bound to it dies in
+   * bootstrap with "OpenAI API key is required" - and the team's report was
+   * exactly a bootstrap that never returned, leaving every member in Processing
+   * with no error. `preferSubscriptionForOwnedModel` already documents the same
+   * invariant from the other direction, and `getTeamAvailableModels` already
+   * hides the row from the Gemini picker (#555). The default resolver is the
+   * last place that still handed it out.
+   */
+  private static isChatGptSubscriptionRow(provider: IProvider): boolean {
+    return (
+      (provider as unknown as Record<string, unknown>).__waylandModelRegistryBridge ===
+      `v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}`
+    );
+  }
+
+  /**
+   * Would the Team model picker OFFER `modelId` on `provider` for a Gemini
+   * teammate? Same two constraints `getTeamAvailableModels` applies: the user
+   * has not switched the model off, and it passes the capability filter.
+   *
+   * #983 - the default resolver used to test `provider.model.includes(id)` only,
+   * so a model the user had deliberately disabled (the reported
+   * `kimi-k2.7-code`) could still arrive as the default of a brand-new teammate,
+   * naming a model that is not in the list the UI then shows. A Gemini teammate
+   * legitimately runs ANY ordinary provider's enabled model - the picker merges
+   * them all - so this narrows by usability, never by vendor.
+   */
+  private static geminiTeamModelUsable(provider: IProvider, modelId: string | undefined): boolean {
+    if (!modelId) return false;
+    if (provider.modelEnabled?.[modelId] === false) return false;
+    if (hasSpecificModelCapability(provider, modelId, 'function_calling') === false) return false;
+    if (hasSpecificModelCapability(provider, modelId, 'excludeFromPrimary') === true) return false;
+    return true;
+  }
+
   private async resolveDefaultGeminiModel(): Promise<TProviderWithModel> {
     const savedGeminiModel = await ProcessConfig.get('gemini.defaultModel');
     const configuredProviders = await ProcessConfig.get('model.config');
+    // #983: `gemini.defaultModel` is state SHARED with plain Gemini chats, and
+    // every fallback below walks `model.config` in configuration order. Both
+    // reach providers that have nothing to do with the selected backend, so the
+    // candidate pool is filtered to what a Gemini teammate can actually run
+    // BEFORE any of them look at it.
     const providers = Array.isArray(configuredProviders)
-      ? configuredProviders.filter((provider) => provider.enabled !== false)
+      ? configuredProviders.filter(
+          (provider) => provider.enabled !== false && !TeamSessionService.isChatGptSubscriptionRow(provider)
+        )
       : [];
+    const usable = (provider: IProvider, modelId: string | undefined): boolean =>
+      TeamSessionService.geminiTeamModelUsable(provider, modelId);
 
     const buildProviderModel = (provider: (typeof providers)[number], useModel: string): TProviderWithModel => {
       return {
@@ -238,7 +288,10 @@ export class TeamSessionService {
       }
 
       const matchedProvider = providers.find(
-        (provider) => provider.id === savedGeminiModel.id && provider.model?.includes(savedGeminiModel.useModel)
+        (provider) =>
+          provider.id === savedGeminiModel.id &&
+          provider.model?.includes(savedGeminiModel.useModel) &&
+          usable(provider, savedGeminiModel.useModel)
       );
       if (matchedProvider) {
         return buildProviderModel(matchedProvider, savedGeminiModel.useModel);
@@ -246,16 +299,23 @@ export class TeamSessionService {
     }
 
     if (typeof savedGeminiModel === 'string') {
-      const matchedProvider = providers.find((provider) => provider.model?.includes(savedGeminiModel));
+      const matchedProvider = providers.find(
+        (provider) => provider.model?.includes(savedGeminiModel) && usable(provider, savedGeminiModel)
+      );
       if (matchedProvider) {
         return buildProviderModel(matchedProvider, savedGeminiModel);
       }
     }
 
-    const geminiProvider = providers.find((provider) => provider.platform === 'gemini' && provider.model?.length);
+    // `|| provider.model[0]` used to close each of the two scans below, which
+    // re-admitted the very model the scan had just rejected. A provider with no
+    // usable model is skipped entirely instead (#983).
+    const geminiProvider = providers.find(
+      (provider) => provider.platform === 'gemini' && provider.model?.some((model) => usable(provider, model))
+    );
     if (geminiProvider) {
-      const enabledModel = geminiProvider.model.find((model) => geminiProvider.modelEnabled?.[model] !== false);
-      return buildProviderModel(geminiProvider, enabledModel || geminiProvider.model[0]);
+      const enabledModel = geminiProvider.model.find((model) => usable(geminiProvider, model));
+      if (enabledModel) return buildProviderModel(geminiProvider, enabledModel);
     }
 
     if (await hasGeminiOauthCreds()) {
@@ -268,10 +328,10 @@ export class TeamSessionService {
       return this.createGoogleAuthGeminiModel(oauthModel);
     }
 
-    const fallbackProvider = providers.find((provider) => provider.model?.length);
+    const fallbackProvider = providers.find((provider) => provider.model?.some((model) => usable(provider, model)));
     if (fallbackProvider) {
-      const enabledModel = fallbackProvider.model.find((model) => fallbackProvider.modelEnabled?.[model] !== false);
-      return buildProviderModel(fallbackProvider, enabledModel || fallbackProvider.model[0]);
+      const enabledModel = fallbackProvider.model.find((model) => usable(fallbackProvider, model));
+      if (enabledModel) return buildProviderModel(fallbackProvider, enabledModel);
     }
 
     return this.createGoogleAuthGeminiModel('gemini-2.0-flash');
@@ -671,6 +731,12 @@ export class TeamSessionService {
     agent: Omit<TeamAgent, 'slotId'> | TeamAgent;
     agents: TeamAgent[];
     inheritedSessionMode?: string;
+    /**
+     * #999 - the team's project, stamped onto every member conversation so the
+     * spawn-time knowledge refresh has a key to read. Undefined for a team that
+     * belongs to no project; the field is then absent, not empty.
+     */
+    projectId?: string;
     /** When true, workspace was inherited (not user-specified) - setupAssistantWorkspace should still run */
     isInheritedWorkspace?: boolean;
   }): Promise<{
@@ -679,7 +745,8 @@ export class TeamSessionService {
     model: TProviderWithModel;
     extra: Record<string, unknown>;
   }> {
-    const { teamId, teamName, workspace, agent, agents, inheritedSessionMode, isInheritedWorkspace } = params;
+    const { teamId, teamName, workspace, agent, agents, inheritedSessionMode, projectId, isInheritedWorkspace } =
+      params;
     const backend = this.resolveBackend(agent.agentType, agents) as AgentBackend;
     // remote agents use customAgentId as remoteAgentId, not as a preset indicator
     const isPreset = Boolean(agent.customAgentId) && backend !== 'remote';
@@ -750,6 +817,9 @@ export class TeamSessionService {
       currentModelId: preferredModelId,
       extra: {
         teamId,
+        // #999: only when there IS one. A `projectId: undefined` key would still
+        // be an own property on `extra`, and the refresh reads the key.
+        ...(projectId ? { projectId } : {}),
       },
     }) as {
       type: AgentType;
@@ -892,6 +962,34 @@ export class TeamSessionService {
     return repairedTeam;
   }
 
+  /**
+   * #999 - the project a new team belongs to when the caller did not name one.
+   *
+   * Read off the conversation the leader is being ADOPTED from, which is the
+   * only place the fact exists: "make a team out of this chat" is how a project
+   * chat becomes a team, and the chat already carries `extra.projectId`.
+   *
+   * Only the leader's conversation is consulted. A teammate slot never arrives
+   * with a pre-existing conversation on this path, and reading one would let
+   * whichever member happened to be first decide the whole team's project.
+   *
+   * Best-effort: a lookup that fails yields undefined, which is exactly the
+   * shape of "no project" and costs a team its knowledge rather than its
+   * creation.
+   */
+  private async resolveInheritedProjectId(agents: readonly TeamAgent[]): Promise<string | undefined> {
+    const leader = agents.find((agent) => agent.role === 'leader');
+    if (!leader?.conversationId) return undefined;
+    try {
+      const conversation = await this.conversationService.getConversation(leader.conversationId);
+      const extra = conversation?.extra as Record<string, unknown> | undefined;
+      return typeof extra?.projectId === 'string' && extra.projectId.length > 0 ? extra.projectId : undefined;
+    } catch (error) {
+      console.warn('[TeamSessionService] #999 could not read the leader conversation\'s project:', error);
+      return undefined;
+    }
+  }
+
   async createTeam(params: {
     userId: string;
     name: string;
@@ -900,10 +998,20 @@ export class TeamSessionService {
     agents: TeamAgent[];
     sessionMode?: string;
     sourceLauncherId?: string;
+    /**
+     * #999 - the project this team belongs to. When omitted it is inherited
+     * from the conversation the leader is adopted from, so a project chat that
+     * becomes a team does not leave its own teammates outside the project.
+     */
+    projectId?: string;
   }): Promise<TTeam> {
     const now = Date.now();
     const teamId = uuid(36);
     let workspace = this.resolveWorkspace(params.workspace);
+    // #999: resolved BEFORE the roster is built, because every member
+    // conversation is stamped with it as it is created - including the ones
+    // created alongside the leader whose conversation supplied it.
+    const projectId = params.projectId ?? (await this.resolveInheritedProjectId(params.agents));
 
     // Create a real conversation for each agent (or reuse an existing one for the leader)
     const agentsWithConversations = await Promise.all(
@@ -922,6 +1030,10 @@ export class TeamSessionService {
             if (workspace) {
               extraUpdate.workspace = workspace;
             }
+            // #999: the adopted conversation may be the one that HELD the
+            // project, in which case this is a no-op; when the project came
+            // from the caller instead, this is what puts it there.
+            if (projectId) extraUpdate.projectId = projectId;
             await this.conversationService.updateConversation(
               agent.conversationId,
               { extra: extraUpdate } as any,
@@ -939,12 +1051,18 @@ export class TeamSessionService {
           agent,
           agents: params.agents,
           inheritedSessionMode: params.sessionMode,
+          projectId,
           isInheritedWorkspace: !params.workspace,
         });
         const conversation = await this.conversationService.createConversation(conversationParams);
         // Ensure teamId is in extra regardless of which factory function was used
         // (some factories like createCodexAgent/createGeminiAgent drop unknown extra fields)
-        await this.conversationService.updateConversation(conversation.id, { extra: { teamId } } as any, true);
+        // - #999 rides on the same repair for the same reason.
+        await this.conversationService.updateConversation(
+          conversation.id,
+          { extra: { teamId, ...(projectId ? { projectId } : {}) } } as any,
+          true
+        );
         return { ...agent, slotId, conversationId: conversation.id };
       })
     );
@@ -981,6 +1099,7 @@ export class TeamSessionService {
       workspaceMode: params.workspaceMode,
       leaderAgentId: leadAgent.slotId,
       agents: agentsWithConversations,
+      projectId,
       sessionMode: params.sessionMode,
       sourceLauncherId: params.sourceLauncherId,
       promotedToStanding: isStandingByBundle ? true : undefined,
@@ -1168,11 +1287,18 @@ export class TeamSessionService {
       agent,
       agents: team.agents,
       inheritedSessionMode,
+      // #999: a member spawned at runtime inherits the same project as the
+      // founding roster - the team is where that fact lives.
+      projectId: team.projectId,
       isInheritedWorkspace: true,
     });
     const conversation = await this.conversationService.createConversation(conversationParams);
     // Ensure teamId is in extra regardless of which factory function was used
-    await this.conversationService.updateConversation(conversation.id, { extra: { teamId } } as any, true);
+    await this.conversationService.updateConversation(
+      conversation.id,
+      { extra: { teamId, ...(team.projectId ? { projectId: team.projectId } : {}) } } as any,
+      true
+    );
 
     const newAgent: TeamAgent = {
       ...agent,

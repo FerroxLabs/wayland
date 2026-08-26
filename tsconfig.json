@@ -47,6 +47,7 @@
     "src/process/services/database/migration_v53.bun.test.ts",
     "src/process/services/database/migration_v54.bun.test.ts",
     "src/process/services/database/migration_v56.bun.test.ts",
+    "src/process/services/database/migration_v57.bun.test.ts",
     "src/process/services/recovery/startupCompatibility.bun.test.ts",
     "src/process/services/cost/ModelPricing.bun.test.ts",
     "src/process/services/cost/CostRecorder.bun.test.ts",

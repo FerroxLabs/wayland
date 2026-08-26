@@ -24,6 +24,7 @@ type TeamRow = {
   lead_agent_id: string;
   agents: string;
   session_mode: string | null;
+  project_id: string | null;
   source_launcher_id: string | null;
   promoted_to_standing: number;
   session_count: number;
@@ -94,6 +95,9 @@ function rowToTeam(row: TeamRow): TTeam {
     leaderAgentId: row.lead_agent_id,
     agents: JSON.parse(row.agents) as TeamAgent[],
     sessionMode: row.session_mode ?? undefined,
+    // #999 - NULL means "this team belongs to no project", which is a real
+    // answer: the spawn-time knowledge refresh does nothing without a key.
+    projectId: row.project_id ?? undefined,
     sourceLauncherId: row.source_launcher_id ?? undefined,
     promotedToStanding: row.promoted_to_standing === 1,
     sessionCount: row.session_count,
@@ -191,11 +195,11 @@ export class SqliteTeamRepository implements ITeamRepository {
     db.prepare(
       `INSERT INTO teams (
          id, user_id, name, workspace, workspace_mode, lead_agent_id, agents,
-         session_mode, source_launcher_id, promoted_to_standing, session_count, first_active_at,
+         session_mode, project_id, source_launcher_id, promoted_to_standing, session_count, first_active_at,
          imported_from, imported_at, imported_signature_status, import_capability_grants, is_sandboxed,
          verification_policy, created_at, updated_at
        )
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       team.id,
       team.userId,
@@ -205,6 +209,7 @@ export class SqliteTeamRepository implements ITeamRepository {
       team.leaderAgentId,
       JSON.stringify(team.agents),
       team.sessionMode ?? null,
+      team.projectId ?? null,
       team.sourceLauncherId ?? null,
       team.promotedToStanding ? 1 : 0,
       team.sessionCount ?? 0,
@@ -241,7 +246,7 @@ export class SqliteTeamRepository implements ITeamRepository {
     db.prepare(
       `UPDATE teams
        SET name = ?, workspace = ?, workspace_mode = ?, lead_agent_id = ?, agents = ?,
-           session_mode = ?, source_launcher_id = ?, promoted_to_standing = ?, session_count = ?, first_active_at = ?,
+           session_mode = ?, project_id = ?, source_launcher_id = ?, promoted_to_standing = ?, session_count = ?, first_active_at = ?,
            imported_from = ?, imported_at = ?, imported_signature_status = ?, import_capability_grants = ?, is_sandboxed = ?,
            verification_policy = ?,
            updated_at = ?
@@ -253,6 +258,7 @@ export class SqliteTeamRepository implements ITeamRepository {
       merged.leaderAgentId,
       JSON.stringify(merged.agents),
       merged.sessionMode ?? null,
+      merged.projectId ?? null,
       merged.sourceLauncherId ?? null,
       merged.promotedToStanding ? 1 : 0,
       merged.sessionCount ?? 0,

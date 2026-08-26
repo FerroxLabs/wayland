@@ -346,10 +346,17 @@ const MAX_ELSEWHERE_DIRS = 400;
  * directories and the usual dependency mounds are all refused, and the
  * deliverables namespace itself is skipped because a hit there would already
  * have been a ledger record.
+ *
+ * Exported for the team layer (#980), which asks the same question about a
+ * teammate's claim against the TEAM workspace. Reused rather than re-written so
+ * the two cannot come to disagree about what "somewhere else" means, and so the
+ * bounds are shared: an unbounded walk on a message write is the same stall it
+ * would be on a turn end. That caller has no deliverables namespace to skip and
+ * passes an empty `outputDir`, which matches no directory.
  */
 const SKIPPED_DIRS: ReadonlySet<string> = new Set(['node_modules', 'venv', 'target', 'dist', 'build', 'vendor']);
 
-async function findElsewhereInWorkspace(
+export async function findElsewhereInWorkspace(
   workspace: string,
   outputDir: string,
   claims: readonly SavedFileClaim[]
