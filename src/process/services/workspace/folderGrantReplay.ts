@@ -73,38 +73,89 @@ const productionDeps = (): FolderGrantReplayDeps => ({
 });
 
 /**
- * The recorded root that covers `requestedRoot` for `workspaceDir`, ready to
- * hand to the engine - or null when nothing does.
+ * The canonical, vetted roots this workspace's durable list authorises - the
+ * SNAPSHOT a session replays from.
+ *
+ * Read ONCE, at spawn, deliberately. Two reasons, and the second is the one
+ * that matters:
+ *
+ *  - COST AND COUPLING. A store read per boundary escalation would put disk I/O
+ *    on the path between the engine's question and the user's screen, on every
+ *    card, forever, to answer a question whose answer does not change.
+ *  - LIFETIME. What this produces is a SESSION grant (`always_path`), which Core
+ *    holds for the life of the session once given. Vetting once per session is
+ *    therefore exactly as often as the authority is minted - re-vetting later
+ *    would not shorten anything already handed over.
+ *
+ * A grant the user adds or revokes mid-session lands on the next spawn.
+ *
+ * STATED PLAINLY, because it is the weak edge: what this mints is the SAME
+ * `always_path` session grant the consent card's own button mints, and Core
+ * keys that grant itself - there is no host-chosen id on it. So
+ * `revokeFolderGrantInLiveSessions` cannot withdraw it, both because the
+ * durable `grantId` does not name it and because `revoke_path` is unsendable
+ * against the pinned corpus for the same reason `grant_path` is
+ * (`FerroxLabs/wayland-core#314`). A revoke therefore takes effect at the next
+ * spawn, exactly as it does for a folder the user allowed by clicking. This
+ * replay does not widen that gap; closing it needs the same engine change.
+ *
+ * Every failure yields an EMPTY list. Fail closed: no key, no list, no context,
+ * nothing replayed.
+ */
+export async function loadReplayableGrantRoots(
+  workspaceDir: string,
+  deps: FolderGrantReplayDeps = productionDeps()
+): Promise<readonly string[]> {
+  if (typeof workspaceDir !== 'string' || workspaceDir.length === 0) return [];
+  try {
+    const workspaceId = await deps.resolveWorkspaceId(workspaceDir);
+    if (!workspaceId) return [];
+
+    // `grants` is the certified half of the revalidating read. `withheld` is
+    // deliberately not consulted: an entry the read refused is an entry no
+    // caller may replay.
+    const record = await deps.listGrants(workspaceId);
+    const roots: string[] = [];
+    for (const grant of record.grants) {
+      // eslint-disable-next-line no-await-in-loop -- capped at MAX_FOLDER_GRANTS_PER_WORKSPACE (64), once per spawn
+      const check = await vetFolderGrantRoot(grant.root, deps.resolveContext);
+      // `=== false`, not `!check.ok`: without `strictNullChecks` TypeScript will
+      // not narrow a boolean-literal discriminant through truthiness.
+      if (check.ok === false) continue;
+      // The gate's CANONICAL root is what is kept, so what is later handed to
+      // the engine is the directory that was vetted rather than the string that
+      // was recorded.
+      roots.push(check.root);
+    }
+    return roots;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * The snapshotted root that covers `requestedRoot`, or null when none does.
+ *
+ * Pure and synchronous, so the boundary handler can answer without yielding.
+ *
+ * Containment, never string prefix: `isWithin` compares resolved paths
+ * component-wise, so a grant on `/x/reports` does not cover `/x/reports-archive`.
  *
  * The GRANTED root is returned, not the narrower folder the engine named: that
  * is the decision the user actually made, and returning the narrower one would
  * re-raise a card for every sibling inside a folder they already opened.
  */
+export function replayableGrantRootFor(roots: readonly string[], requestedRoot: unknown): string | null {
+  if (typeof requestedRoot !== 'string' || requestedRoot.length === 0 || !path.isAbsolute(requestedRoot)) return null;
+  return roots.find((root) => isWithin(requestedRoot, root)) ?? null;
+}
+
+/** Both halves in one call. The unit of behaviour, for callers that hold neither. */
 export async function resolveReplayableGrantRoot(
   workspaceDir: string,
   requestedRoot: unknown,
   deps: FolderGrantReplayDeps = productionDeps()
 ): Promise<string | null> {
   if (typeof requestedRoot !== 'string' || requestedRoot.length === 0 || !path.isAbsolute(requestedRoot)) return null;
-  if (typeof workspaceDir !== 'string' || workspaceDir.length === 0) return null;
-
-  try {
-    const workspaceId = await deps.resolveWorkspaceId(workspaceDir);
-    if (!workspaceId) return null;
-
-    const record = await deps.listGrants(workspaceId);
-    // `grants` is the certified half. `withheld` is deliberately not consulted:
-    // an entry the read refused is an entry no caller may replay.
-    const covering = record.grants.find((grant) => isWithin(requestedRoot, grant.root));
-    if (!covering) return null;
-
-    const check = await vetFolderGrantRoot(covering.root, deps.resolveContext);
-    // `=== false`, not `!check.ok`: without `strictNullChecks` TypeScript will
-    // not narrow a boolean-literal discriminant through truthiness.
-    if (check.ok === false) return null;
-    return check.root;
-  } catch {
-    // A replay that cannot be justified is a replay that does not happen.
-    return null;
-  }
+  return replayableGrantRootFor(await loadReplayableGrantRoots(workspaceDir, deps), requestedRoot);
 }

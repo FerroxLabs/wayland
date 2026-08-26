@@ -1117,27 +1117,35 @@ describe('#1099 a remote cancel cannot dismiss a boundary card', () => {
  * raises, with `tool_approve` + `always_path` - the same command, carrying the
  * same root, that the user's own click sends.
  *
- * IT REPLAYS, IT DOES NOT DECIDE. The root has to come back live from the
- * revalidating read AND pass `vetFolderGrantRoot`. There is no mode, no
- * setting and no engine frame that can make this hand over a folder the user
- * never recorded - which is why it does not touch `tryAutoApprove`, whose
- * refusal of every path boundary is unchanged.
+ * IT REPLAYS, IT DOES NOT DECIDE. The roots are snapshotted at spawn from the
+ * store's REVALIDATING read and each one has passed `vetFolderGrantRoot`. There
+ * is no mode, no setting and no engine frame that can make this hand over a
+ * folder the user never recorded - which is why it does not touch
+ * `tryAutoApprove`, whose refusal of every path boundary is unchanged.
+ *
+ * The snapshot is loaded by `start()` in production. These drive that same
+ * private loader directly, because `start()` also spawns an engine, negotiates a
+ * contract and acquires a profile lease - none of which this behaviour depends
+ * on, and all of which would make the test about something else.
  */
 describe('#982 a recorded folder grant answers the card without asking again', () => {
   let manager: WCoreManager;
   let agent: FakeAgent;
 
-  const listing = (grants: Array<{ root: string }>) => ({
-    workspaceId: `path:/test/workspace`,
-    grants: grants.map((g, i) => ({
+  const listing = (roots: string[]) => ({
+    workspaceId: 'path:/test/workspace',
+    grants: roots.map((root, i) => ({
       grantId: `g-${i}`,
-      root: g.root,
+      root,
       access: 'read',
       grantedAtMs: 1,
       origin: 'consent_card',
     })),
     withheld: [],
   });
+
+  /** Take the spawn-time snapshot the production `start()` takes. */
+  const snapshot = () => (manager as any).loadReplayableGrants() as Promise<void>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -1153,38 +1161,39 @@ describe('#982 a recorded folder grant answers the card without asking again', (
     vi.restoreAllMocks();
   });
 
-  it('grants the recorded root and clears the card the user never has to see', async () => {
-    mockGrantList.mockResolvedValue(listing([{ root: ROOT }]) as never);
+  it('answers with the recorded root and never draws the card', async () => {
+    mockGrantList.mockResolvedValue(listing([ROOT]) as never);
+    await snapshot();
 
     emitEvent(manager, boundaryFrame('call-replay', ROOT));
-    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
     expect(agent.approveTool).toHaveBeenCalledWith('call-replay', {
       always_path: { root: ROOT, write: false },
     });
     expect(agent.denyTool).not.toHaveBeenCalled();
-    await vi.waitFor(() => expect(emitConfirmationRemove).toHaveBeenCalled());
+    // Never drawn, rather than drawn and withdrawn: a security prompt that
+    // vanishes under the cursor is worse than one that never appeared.
+    expect(emitConfirmationAdd).not.toHaveBeenCalled();
   });
 
   it('answers with the RECORDED folder even when the engine asked about a sub-folder', async () => {
-    mockGrantList.mockResolvedValue(listing([{ root: ROOT }]) as never);
+    mockGrantList.mockResolvedValue(listing([ROOT]) as never);
+    await snapshot();
     const inside = path.join(ROOT, 'q3');
     mkdirSync(inside, { recursive: true });
 
     emitEvent(manager, boundaryFrame('call-inside', inside));
-    await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
     expect(agent.approveTool.mock.calls[0][1]).toEqual({ always_path: { root: ROOT, write: false } });
   });
 
   it('leaves the card standing for a folder nobody recorded', async () => {
-    mockGrantList.mockResolvedValue(listing([{ root: ROOT }]) as never);
+    mockGrantList.mockResolvedValue(listing([ROOT]) as never);
+    await snapshot();
     const other = path.join(HOME, 'Documents', 'invoices');
     mkdirSync(other, { recursive: true });
 
     emitEvent(manager, boundaryFrame('call-other', other));
-    // Give the detached replay check every chance to fire before asserting it did not.
-    await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(agent.approveTool).not.toHaveBeenCalled();
     expect(agent.denyTool).not.toHaveBeenCalled();
@@ -1192,8 +1201,9 @@ describe('#982 a recorded folder grant answers the card without asking again', (
   });
 
   it('leaves the card standing when the list holds nothing at all', async () => {
+    await snapshot();
+
     emitEvent(manager, boundaryFrame('call-empty', ROOT));
-    await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(agent.approveTool).not.toHaveBeenCalled();
     expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
@@ -1202,35 +1212,32 @@ describe('#982 a recorded folder grant answers the card without asking again', (
   it('never replays a root the host authority gate refuses', async () => {
     // A hand-edited grants file naming Wayland's own storage must not become
     // authority just because it is on the list.
-    mockGrantList.mockResolvedValue(listing([{ root: WAYLAND_CONFIG }]) as never);
+    mockGrantList.mockResolvedValue(listing([WAYLAND_CONFIG]) as never);
+    await snapshot();
 
     emitEvent(manager, boundaryFrame('call-private', WAYLAND_CONFIG));
-    await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(agent.approveTool).not.toHaveBeenCalled();
     expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
   });
 
-  it('does not answer a card the user already answered', async () => {
-    // The check is asynchronous, so a fast click can land first. Answering
-    // again would send a second approval for a call that is already resolved.
-    mockGrantList.mockResolvedValue(
-      new Promise((resolve) => setTimeout(() => resolve(listing([{ root: ROOT }]) as never), 30)) as never
-    );
+  it('replays nothing at all on a manager that never started', async () => {
+    // The snapshot is the ONLY source. Without it - a manager whose start()
+    // failed, or one built for something else - the card is drawn exactly as it
+    // always was, even though the store would have said yes.
+    mockGrantList.mockResolvedValue(listing([ROOT]) as never);
 
-    emitEvent(manager, boundaryFrame('call-race', ROOT));
-    manager.confirm('call-race', 'call-race', PATH_BOUNDARY_DENY);
-    await new Promise((resolve) => setTimeout(resolve, 80));
+    emitEvent(manager, boundaryFrame('call-nostart', ROOT));
 
-    expect(agent.denyTool).toHaveBeenCalledTimes(1);
     expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
   });
 
   it('CONTROL: an ordinary confirmation is never touched by the replay', async () => {
-    mockGrantList.mockResolvedValue(listing([{ root: ROOT }]) as never);
+    mockGrantList.mockResolvedValue(listing([ROOT]) as never);
+    await snapshot();
 
     emitEvent(manager, infoFrame('call-ordinary'));
-    await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(agent.approveTool).not.toHaveBeenCalled();
     expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);

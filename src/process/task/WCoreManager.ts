@@ -28,7 +28,7 @@ import {
 } from '@process/services/workspace/folderGrantStore';
 import { vetFolderGrantRoot } from '@process/services/workspace/folderGrantAuthority';
 import { resolveFolderGrantWorkspaceId } from '@process/services/workspace/folderGrantWorkspaceId';
-import { resolveReplayableGrantRoot } from '@process/services/workspace/folderGrantReplay';
+import { loadReplayableGrantRoots, replayableGrantRootFor } from '@process/services/workspace/folderGrantReplay';
 import { composeResetSeed, type ResumeSeedOptions } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
@@ -466,6 +466,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    */
   private _turnSawError = false;
 
+  /**
+   * #982 - the canonical, vetted roots this workspace's durable folder-grant
+   * list authorises, snapshotted at spawn.
+   *
+   * Empty until `start()` loads it, and empty forever if that read fails, so a
+   * manager that never started replays nothing.
+   */
+  private replayableGrantRoots: readonly string[] = [];
+
   // #264 - an auto-mode `approval_required` the engine could not self-resolve is
   // escalated through the existing Confirming gate (see the approval_required
   // handler). That card is resumed by resume_token, but the renderer only routes
@@ -685,8 +694,29 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * If the conversation already has messages in the DB, pass --resume;
    * otherwise pass --session-id for a new session.
    */
+  /**
+   * #982 - snapshot this workspace's replayable folder grants for the session.
+   *
+   * Own method so the failure is contained: a grants file the app cannot read
+   * must cost the user their remembered folders, never their chat. An empty
+   * snapshot is the fail-closed answer and is also the answer for a workspace
+   * that has no grants, which is almost all of them.
+   */
+  private async loadReplayableGrants(): Promise<void> {
+    try {
+      this.replayableGrantRoots = await loadReplayableGrantRoots(this.workspace);
+    } catch (error) {
+      this.replayableGrantRoots = [];
+      mainWarn('[WCoreManager]', 'could not load this workspace\'s remembered folders', error);
+    }
+  }
+
   override async start() {
     if (this.disposed) throw new Error('Wayland Core manager was stopped before bootstrap');
+    // #982: before the engine can raise its first boundary. Awaited rather than
+    // detached so a card cannot arrive while the snapshot is still in flight and
+    // be prompted for a folder the user already recorded.
+    await this.loadReplayableGrants();
     let sessionArgs: { resume?: string; sessionId?: string };
     try {
       const db = await getDatabase();
@@ -1221,17 +1251,17 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
                 { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
               ];
 
-      // #982: the durable list is a decision the user already made. If it covers
-      // this root, answer the card with it instead of asking again.
+      // #982: the durable list is a decision the user already made. When it
+      // covers this root the card is never drawn at all - the recorded root is
+      // sent as the answer and the escalation ends here.
       //
-      // AFTER `addConfirmation`, not before, and deliberately: the check touches
-      // the filesystem, and deferring the card behind it would put disk I/O
-      // between the engine's escalation and the user's screen. The card is drawn
-      // now and withdrawn a moment later if the replay applies - and if the user
-      // is faster than the disk, `replayFolderGrant` finds the card already
-      // answered and does nothing.
-      if (details?.type === 'path_boundary') {
-        void this.replayFolderGrant(content.callId, details.suggestedRoot);
+      // Synchronous by construction: the list was read, revalidated and vetted
+      // once at spawn (`loadReplayableGrantRoots`), so this is a containment
+      // test over strings. No disk I/O sits between the engine's escalation and
+      // the user's screen, and there is no window in which the user could answer
+      // a card the host was about to answer for them.
+      if (details?.type === 'path_boundary' && this.replayFolderGrant(content.callId, details.suggestedRoot)) {
+        continue;
       }
 
       this.addConfirmation({
@@ -2493,30 +2523,24 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * host-side authority gate a click passes, and returns null on any doubt, so
    * nothing here can hand out a root the user did not record.
    *
-   * ONLY WHILE THE CARD IS STILL STANDING. The check is asynchronous, so a fast
-   * click can resolve the call first; answering again would send a second
-   * approval for a call that is already settled. The pending-confirmation lookup
-   * is the same list `confirm` clears, so it is exactly the "still unanswered"
-   * test.
+   * NO CARD IS DRAWN when this returns true. The alternative - draw it, then
+   * withdraw it a moment later - shows the user a security prompt that vanishes
+   * under their cursor, and opens a window in which their click and the host's
+   * answer race for the same call id. Answering before the card exists closes
+   * both.
    *
-   * Fire-and-forget, like `grantFolderRoot`: nothing the user is looking at may
-   * wait on a disk read.
+   * Synchronous, and that is what makes the above possible: every filesystem
+   * question was asked once at spawn.
+   *
+   * @returns true when the boundary was answered from the record.
    */
-  private async replayFolderGrant(callId: string, suggestedRoot: unknown): Promise<void> {
-    let root: string | null = null;
-    try {
-      root = await resolveReplayableGrantRoot(this.workspace, suggestedRoot);
-    } catch (error) {
-      mainWarn('[WCoreManager]', 'the folder-grant replay check failed', error);
-      return;
-    }
-    if (!root) return;
-    const pending = this.confirmations.find((c) => c.callId === callId && isPathBoundaryConfirmation(c));
-    if (!pending) return;
-    super.confirm(callId, callId, PATH_BOUNDARY_GRANT_FOLDER);
-    // The vetted canonical root goes out, exactly as it does from a click, so
-    // the folder the record names and the folder the engine resolves are one.
+  private replayFolderGrant(callId: string, suggestedRoot: unknown): boolean {
+    const root = replayableGrantRootFor(this.replayableGrantRoots, suggestedRoot);
+    if (!root) return false;
+    // The vetted canonical root goes out, byte-identical to what a click sends,
+    // so the folder the record names and the folder the engine resolves are one.
     this.agent?.approveTool(callId, { always_path: { root, write: false } });
+    return true;
   }
 
   /**
