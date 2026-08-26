@@ -68,9 +68,7 @@ const ALLOW_EXACT_WIN32 = new Set<string>([
  * On POSIX they are two different variables, so that platform keeps the exact
  * match and never sees the Windows-only names at all.
  */
-const ALLOW_LOWER_WIN32 = new Set<string>(
-  [...ALLOW_EXACT, ...ALLOW_EXACT_WIN32].map((key) => key.toLowerCase())
-);
+const ALLOW_LOWER_WIN32 = new Set<string>([...ALLOW_EXACT, ...ALLOW_EXACT_WIN32].map((key) => key.toLowerCase()));
 
 const EXTRA_KEY_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 
