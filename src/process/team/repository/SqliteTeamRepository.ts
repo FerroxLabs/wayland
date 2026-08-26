@@ -270,6 +270,33 @@ export class SqliteTeamRepository implements ITeamRepository {
   }
 
   /**
+   * #1057 - the field-scoped roster writer: read the LIVE agents blob, let the
+   * caller transform it, write it back, all inside ONE transaction and touching
+   * only the `agents` and `updated_at` columns.
+   *
+   * Every roster change that is not a pure status flip goes through here. See
+   * `ITeamRepository.mutateAgents` for why `update` cannot be used for this.
+   *
+   * `mutate` runs INSIDE the transaction and is handed the persisted roster, so
+   * a caller physically cannot write back a snapshot it took earlier. Returning
+   * the same array reference, or `null`, commits nothing.
+   */
+  async mutateAgents(id: string, mutate: (agents: TeamAgent[]) => TeamAgent[] | null): Promise<TTeam | null> {
+    const db = await this.getDb();
+    const run = db.transaction((): TTeam | null => {
+      const row = db.prepare('SELECT * FROM teams WHERE id = ?').get(id) as TeamRow | undefined;
+      if (!row) return null;
+      const agents = JSON.parse(row.agents) as TeamAgent[];
+      const next = mutate(agents);
+      if (!next || next === agents) return rowToTeam(row);
+      const updatedAt = Date.now();
+      db.prepare('UPDATE teams SET agents = ?, updated_at = ? WHERE id = ?').run(JSON.stringify(next), updatedAt, id);
+      return { ...rowToTeam(row), agents: next, updatedAt };
+    });
+    return run();
+  }
+
+  /**
    * #980 - apply teammate STATUS changes only, atomically.
    *
    * `update` above is a whole-row read-modify-write: it re-writes every column

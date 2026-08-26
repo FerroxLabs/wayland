@@ -1180,8 +1180,11 @@ export class TeamSessionService {
       slotId: `slot-${uuid(8)}`,
       conversationId: conversation.id,
     };
-    const updatedAgents = [...team.agents, newAgent];
-    await this.repo.update(teamId, { agents: updatedAgents, updatedAt: Date.now() });
+    // #1057: append to the LIVE roster inside the repository transaction. The
+    // `team` snapshot above is minutes old by the time the conversation has been
+    // created, and re-writing the whole blob from it reverted any teammate
+    // status persisted in between.
+    await this.repo.mutateAgents(teamId, (agents) => [...agents, newAgent]);
     this.sessions.get(teamId)?.addAgent(newAgent);
 
     // W1e: log spawn AFTER the agent is durably persisted to the team roster.
@@ -1231,11 +1234,14 @@ export class TeamSessionService {
       session.renameAgent(slotId, newName);
       return; // TeamSession.renameAgent already persists
     }
-    // No active session - update DB directly
+    // No active session - update DB directly. #1057: scoped to the one slot's
+    // name, merged onto the live roster, so a concurrent status write survives.
     const team = await this.repo.findById(teamId);
     if (!team) throw new Error(`Team "${teamId}" not found`);
-    const updatedAgents = team.agents.map((a) => (a.slotId === slotId ? { ...a, agentName: newName.trim() } : a));
-    await this.repo.update(teamId, { agents: updatedAgents, updatedAt: Date.now() });
+    const trimmed = newName.trim();
+    await this.repo.mutateAgents(teamId, (agents) =>
+      agents.map((a) => (a.slotId === slotId ? { ...a, agentName: trimmed } : a))
+    );
   }
 
   async renameTeam(id: string, name: string): Promise<void> {
@@ -1373,16 +1379,13 @@ export class TeamSessionService {
     // Kill residual worker + clear ACP context + wake state.
     session?.killAgentProcess(slotId);
 
-    const updatedAgents = team.agents.map((a) =>
-      a.slotId === slotId
-        ? {
-            ...a,
-            agentType: newBackend,
-            status: 'pending' as const,
-          }
-        : a
+    // #1057: the backend swap and its `pending` are the only two fields this
+    // call owns. Merging them onto the live roster keeps a status another writer
+    // committed since the `team` snapshot above - killAgentProcess just fired an
+    // un-awaited setStatus, which is exactly that writer.
+    await this.repo.mutateAgents(teamId, (agents) =>
+      agents.map((a) => (a.slotId === slotId ? { ...a, agentType: newBackend, status: 'pending' as const } : a))
     );
-    await this.repo.update(teamId, { agents: updatedAgents, updatedAt: Date.now() });
 
     // The conversation row carries the live model; the agent record
     // does not. Update the conversation's model when a new one is
@@ -1654,9 +1657,9 @@ export class TeamSessionService {
     if (session) {
       session.removeAgent(slotId);
     } else {
-      // No active session - update DB directly
-      const updatedAgents = team.agents.filter((a) => a.slotId !== slotId);
-      await this.repo.update(teamId, { agents: updatedAgents, updatedAt: Date.now() });
+      // No active session - update DB directly. #1057: drop the one slot from the
+      // live roster rather than re-writing the blob from `team`.
+      await this.repo.mutateAgents(teamId, (agents) => agents.filter((a) => a.slotId !== slotId));
     }
     // Notify renderer so SWR caches (useTeamList, useSiderTeamBadges) revalidate
     ipcBridge.team.listChanged.emit({ teamId, action: 'agent_removed' });
