@@ -475,6 +475,20 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    */
   private replayableGrantRoots: readonly string[] = [];
 
+  /**
+   * Bumped by every `stop()`. `start()` captures it on entry and refuses to arm
+   * the heartbeat if it has moved, because a bootstrap that finishes AFTER the
+   * user stopped the chat would otherwise leave a live interval pinging an agent
+   * nobody is listening to - `stop()` cleared the timer before `start()` created
+   * it, so nothing else ever clears it.
+   *
+   * Latent before #982 and reachable now: loading this workspace's remembered
+   * folders puts a real file read in front of the bootstrap, which widens the
+   * window a stop can land in. Guarded rather than reordered - the window was
+   * always there, and any await in `start()` can open it again.
+   */
+  private stopEpoch = 0;
+
   // #264 - an auto-mode `approval_required` the engine could not self-resolve is
   // escalated through the existing Confirming gate (see the approval_required
   // handler). That card is resumed by resume_token, but the renderer only routes
@@ -713,6 +727,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   override async start() {
     if (this.disposed) throw new Error('Wayland Core manager was stopped before bootstrap');
+    const startedAtEpoch = this.stopEpoch;
     // #982: before the engine can raise its first boundary. Awaited rather than
     // detached so a card cannot arrive while the snapshot is still in flight and
     // be prompted for a folder the user already recorded.
@@ -969,7 +984,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     if (this.data.data.maxTokens === undefined && agent.resolvedMaxTokens !== undefined) {
       this.data.data.maxTokens = agent.resolvedMaxTokens;
     }
-    this.startHeartbeat();
+    // Not if the chat was stopped while this bootstrap was in flight: `stop()`
+    // already cleared the heartbeat, and arming it now creates a timer nothing
+    // will ever clear. See `stopEpoch`.
+    if (this.stopEpoch === startedAtEpoch) this.startHeartbeat();
 
     if (this.data.data.teamMcpStdioConfig) {
       const { notifyMcpReady } = await import('@process/team/mcpReadiness');
@@ -1009,6 +1027,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   async stop() {
+    this.stopEpoch += 1;
     this.stopHeartbeat();
     this.flushAllBufferedStreamTexts();
     cronBusyGuard.setProcessing(this.conversation_id, false);

@@ -650,6 +650,24 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
       expect((manager as Record<string, unknown>)['heartbeatInterval']).toBeNull();
     });
 
+    it('does not arm the heartbeat when the chat was stopped mid-bootstrap', async () => {
+      // The production sequence, not a poke at internals: the constructor puts
+      // start() in flight, the user stops the chat, and the bootstrap then runs
+      // to completion. stop() has already cleared the timer, so a start() that
+      // arms one afterwards creates an interval nothing will ever clear - it
+      // pings an agent nobody is listening to for the life of the process.
+      //
+      // The test above catches this only by accident of how long a bootstrap
+      // happens to take. This one does not depend on that.
+      const lateManager = createManager('conv-stop-during-bootstrap');
+      const bootstrap = (lateManager as Record<string, unknown>)['agentReady'] as Promise<void>;
+
+      await lateManager.stop();
+      await bootstrap;
+
+      expect((lateManager as Record<string, unknown>)['heartbeatInterval']).toBeNull();
+    });
+
     it('resets heartbeat state on stop', async () => {
       (manager as Record<string, unknown>)['heartbeatActive'] = true;
       (manager as Record<string, unknown>)['heartbeatMissedCount'] = 2;
