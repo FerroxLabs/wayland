@@ -56,7 +56,8 @@ if (!tag || !/^v\d+\.\d+\.\d+$/.test(tag)) {
   process.exit(2);
 }
 
-const sh = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const sh = (cmd, args, env) =>
+  execFileSync(cmd, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, env: { ...process.env, ...env } });
 const say = (m) => console.log(m);
 const fail = (m) => {
   console.error(`bump-core-engine: ${m}`);
@@ -67,7 +68,7 @@ const fail = (m) => {
 say(`\n=== 1-3. engine pin + checksums + installer (${tag}) ===`);
 const stageArgs = [path.join(__dirname, 'stage-wcore-bump.mjs'), tag];
 if (write) stageArgs.push('--write');
-say(sh('node', stageArgs).trim());
+say(sh('node', stageArgs, { WCORE_BUMP_NESTED: '1' }).trim());
 
 // ── 4: corpus re-import from the SIGNED asset ─────────────────────────────
 say(`\n=== 4. contract corpus + pin ===`);

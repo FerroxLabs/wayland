@@ -205,8 +205,18 @@ if (alreadyPinned)
   console.log(`\nNote: ${tag} already has a block in bundled-wcore-shasums.json - it will be overwritten.`);
 
 if (!write) {
-  console.log('\nDRY RUN - no files changed. Re-run with --write to apply:');
-  console.log(`  node scripts/stage-wcore-bump.mjs ${tag} --write\n`);
+  // When bump-core-engine.mjs runs this as its first step, pointing the operator
+  // back at THIS script would apply 3 of the 5 coupled edits and leave the
+  // contract corpus, its pin and the attestation policy behind - a Desktop that
+  // dies at the handshake on every turn. Name the wrapper instead.
+  if (process.env.WCORE_BUMP_NESTED === '1') {
+    console.log('\nDRY RUN - no files changed (edits 1-3 of 5).');
+  } else {
+    console.log('\nDRY RUN - no files changed. Re-run with --write to apply:');
+    console.log(`  node scripts/stage-wcore-bump.mjs ${tag} --write`);
+    console.log('  NOTE: this script owns 3 of the 5 coupled edits an engine bump needs.');
+    console.log(`  For the full bump use: node scripts/bump-core-engine.mjs ${tag} --write\n`);
+  }
   process.exit(0);
 }
 
