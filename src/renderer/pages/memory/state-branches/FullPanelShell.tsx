@@ -571,6 +571,18 @@ const FullPanelShell: React.FC = () => {
         </div>
       </header>
 
+      {/* ---- Scope label ----
+           Unconditional and state-neutral on purpose. The counts above are the
+           user's OWN notes; the engine's long-term memory is a separate store
+           this page does not read. Naming that here is what stops "134 Memories"
+           being read as a claim about what the assistant recalls. */}
+      <p className={styles.scopeLabel} data-testid='memory-scope-label'>
+        {t(
+          'archive.scopeLabel',
+          "These are your own notes. Wayland Core's long-term memory is separate and is managed in Settings."
+        )}
+      </p>
+
       {/* ---- Setup-status health strip (#414) ---- */}
       <section
         className={styles.healthStrip}

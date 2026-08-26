@@ -16,6 +16,25 @@
   overflow: hidden;
 }
 
+/* ---- Scope label ----
+   Says what this archive IS. "134 Memories" on its own reads as "my assistant
+   remembers 134 things about me", which is a different system entirely: these
+   are the user's own notes, while the engine's long-term memory lives in
+   Wayland Core. Deliberately unconditional - Desktop cannot read the whole gate
+   that decides whether engine memory is active (`memory.enabled ||
+   observability.skills_lifecycle`, and `skills_lifecycle` is not in
+   `readableSections`), so any state claim here would be false on some profiles. */
+.scopeLabel {
+  padding: 6px 16px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-3);
+  border-bottom: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+  flex-shrink: 0;
+}
+
 /* ---- Setup-status health strip (#414) ---- */
 .healthStrip {
   border-bottom: 1px solid var(--color-border-2);

@@ -24,9 +24,13 @@ vi.mock('@process/services/constitution/constitutionFsService', () => ({
   }),
 }));
 
-import { composePrompt } from '@process/services/constitution/composePrompt';
+import { composePrompt, HONESTY_FLOOR } from '@process/services/constitution/composePrompt';
 
 const SEP = '\n\n---\n\n';
+// The honesty floor is composed FIRST on every call, so every expected string
+// below carries it. Imported rather than copied so the test cannot drift from
+// the shipped wording.
+const FLOOR = HONESTY_FLOOR;
 
 describe('composePrompt', () => {
   beforeEach(() => {
@@ -41,9 +45,9 @@ describe('composePrompt', () => {
 
     const result = composePrompt();
 
-    expect(result.text).toBe(constitution);
+    expect(result.text).toBe(`${FLOOR}${SEP}${constitution}`);
     expect(result.hadOverlay).toBe(false);
-    expect(result.approxTokens).toBe(Math.ceil(constitution.length / 4));
+    expect(result.approxTokens).toBe(Math.ceil(result.text.length / 4));
     expect(result.anthropicCacheControl).toEqual({ type: 'ephemeral' });
     expect(mockBridge).toHaveBeenCalledWith(undefined);
   });
@@ -54,9 +58,9 @@ describe('composePrompt', () => {
 
     const result = composePrompt({ assistantId: 'builtin-word-creator' });
 
-    expect(result.text).toBe(constitution);
+    expect(result.text).toBe(`${FLOOR}${SEP}${constitution}`);
     expect(result.hadOverlay).toBe(false);
-    expect(result.approxTokens).toBe(Math.ceil(constitution.length / 4));
+    expect(result.approxTokens).toBe(Math.ceil(result.text.length / 4));
     expect(mockBridge).toHaveBeenCalledWith('builtin-word-creator');
   });
 
@@ -67,7 +71,7 @@ describe('composePrompt', () => {
 
     const result = composePrompt({ assistantId: 'spark' });
 
-    expect(result.text).toBe(`${constitution}${SEP}${overlay}`);
+    expect(result.text).toBe(`${FLOOR}${SEP}${constitution}${SEP}${overlay}`);
     expect(result.hadOverlay).toBe(true);
     expect(result.approxTokens).toBe(Math.ceil(result.text.length / 4));
   });
@@ -80,7 +84,7 @@ describe('composePrompt', () => {
 
     const result = composePrompt({ assistantId: 'copy', basePrompt });
 
-    expect(result.text).toBe(`${constitution}${SEP}${overlay}${SEP}${basePrompt}`);
+    expect(result.text).toBe(`${FLOOR}${SEP}${constitution}${SEP}${overlay}${SEP}${basePrompt}`);
     expect(result.hadOverlay).toBe(true);
     // approxTokens always derived from final composed text
     expect(result.approxTokens).toBe(Math.ceil(result.text.length / 4));
@@ -92,8 +96,8 @@ describe('composePrompt', () => {
 
     const result = composePrompt({ basePrompt });
 
-    expect(result.text).toBe(basePrompt);
-    expect(result.approxTokens).toBe(Math.ceil(basePrompt.length / 4));
+    expect(result.text).toBe(`${FLOOR}${SEP}${basePrompt}`);
+    expect(result.approxTokens).toBe(Math.ceil(result.text.length / 4));
     expect(result.hadOverlay).toBe(false);
   });
 
@@ -127,7 +131,7 @@ describe('composePrompt', () => {
       mockBridge.mockReturnValueOnce({ constitution: c.constitution, overlay: c.overlay });
       const result = composePrompt({ assistantId: c.assistantId, basePrompt: c.basePrompt });
 
-      const parts = [c.constitution, c.overlay ?? '', c.basePrompt ?? ''].filter((p) => p && p.length > 0);
+      const parts = [FLOOR, c.constitution, c.overlay ?? '', c.basePrompt ?? ''].filter((p) => p && p.length > 0);
       const expectedText = parts.join(SEP);
       const expectedTokens = Math.ceil(expectedText.length / 4);
 
@@ -153,16 +157,18 @@ describe('composePrompt', () => {
     });
 
     const empty = composePrompt({ basePrompt: '' });
-    expect(empty.text).toBe('');
-    expect(empty.approxTokens).toBe(0);
+    // The floor survives an unsupported-Constitution platform - that is the whole
+    // point of composing it first. Previously this was the empty string.
+    expect(empty.text).toBe(FLOOR);
+    expect(empty.approxTokens).toBe(Math.ceil(FLOOR.length / 4));
     expect(empty.hadOverlay).toBe(false);
     expect(empty.constitutionSupported).toBe(false);
     expect(empty.anthropicCacheControl).toEqual({ type: 'ephemeral' });
 
     // basePrompt populated → text === basePrompt
     const withBase = composePrompt({ basePrompt: 'FALLBACK' });
-    expect(withBase.text).toBe('FALLBACK');
-    expect(withBase.approxTokens).toBe(Math.ceil('FALLBACK'.length / 4));
+    expect(withBase.text).toBe(`${FLOOR}${SEP}FALLBACK`);
+    expect(withBase.approxTokens).toBe(Math.ceil(withBase.text.length / 4));
     expect(withBase.hadOverlay).toBe(false);
     expect(withBase.constitutionSupported).toBe(false);
     expect(withBase.anthropicCacheControl).toEqual({ type: 'ephemeral' });
