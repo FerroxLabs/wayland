@@ -50,22 +50,38 @@ has `[memory] enabled = false` AND `[observability] skills_lifecycle = false`,
 both written values, not defaults. That is why "Saved to memory" saved nothing
 there.
 
-Pick one and write the choice here:
+**DECISION MADE 2026-08-26: memory is ON for the demo.**
 
-- **Memory ON for the demo** — flip both flags, then run the proof below. Do not
-  skip it: if recall still fails after the flip, the model now gets a genuine
-  `assert_fact` success receipt and still cannot recall, which is strictly worse
-  than today.
-- **Memory OFF for the demo** — no flip, no proof needed, and **the demo must not
-  include a cross-chat recall beat.**
+`~/Library/Application Support/wayland-core/config.toml` line 193 flipped
+`[memory] enabled = false` -> `true`. Backup kept alongside it as
+`config.toml.bak-memory-on-20260826-144443`. Exactly one line changed, verified
+by diff, and the first three bytes re-checked for a BOM (`91 100 101`, not
+`239 187 191`) because a BOM here silently breaks TOML parsing and takes the
+whole chat down with a profile-splice error.
 
-**Proof (only if ON):** in a fresh chat, state a distinctive fact. Fully quit the
-app. Relaunch. In a NEW chat, ask for the fact back. It must come back.
+**Proof executed, not assumed.** On the packaged 0.13.7 build: stated the fact in
+a fresh chat, fully quit the app, relaunched, asked in a NEW chat, and got back
+"Trading account: Ferrox-Alpha. Per-trade risk cap: 2.75%." The engine store went
+from `facts = 0` to `facts = 3`. Before the flip the identical script returned
+"I don't have any prior knowledge or memory of the user."
 
-Known-positive control for the flags actually being read: with memory ON, ask
-something that should trigger a memory write and confirm a tool call appears in
-the turn (`assert_fact` or `record_episode`). No tool call means the gate is
-still closed regardless of what the file says.
+`[observability] skills_lifecycle` was deliberately left `false`. `want_memory`
+is the OR of the two, so flipping `memory.enabled` alone is sufficient, and it is
+the switch the Settings UI actually drives. Minimal change.
+
+### What was deliberately NOT done: no fleet-wide auto-repair
+
+New installs already default memory ON, so nothing needs changing for them. The
+population at risk is users whose config was rewritten by an OLDER Core, whose
+typed re-serialize stamped the then-current `false` into their file permanently.
+
+Do NOT silently flip those profiles to `true` on upgrade. Settings -> Wayland
+Core -> Memory has a real user-facing toggle (`MemoryPane.tsx:132`), so an
+`enabled = false` on disk can equally be a DELIBERATE privacy choice, and there
+is no way to tell the two apart from the file. Silently re-enabling a privacy
+feature a user switched off would be a worse trust defect than the one this
+release fixes. The Memory page's new scope line points at Settings; that is the
+honest remedy, and a real migration is its own project with its own consent step.
 
 ## 4. Verify the honesty floor is actually in the prompt.
 
