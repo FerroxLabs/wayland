@@ -111,7 +111,14 @@ export type AutoUpdateStatusType =
   | 'cancelled';
 
 /** Why an update could not be applied, carried on an 'install-failed' status. */
-export type AutoUpdateInstallFailedReason = 'silent-noop' | 'not-in-applications';
+export type AutoUpdateInstallFailedReason =
+  | 'silent-noop'
+  | 'not-in-applications'
+  // Windows installs per-machine, so applying an update writes to
+  // %ProgramFiles% and needs administrator rights. On a standard account UAC
+  // raises a credential prompt the user cannot satisfy, so the install can
+  // never succeed - say so instead of re-offering it forever (#492).
+  | 'needs-admin';
 
 export interface AutoUpdateProgress {
   bytesPerSecond: number;
