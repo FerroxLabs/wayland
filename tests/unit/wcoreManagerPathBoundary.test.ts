@@ -713,8 +713,18 @@ describe('#1099 remembering a folder for the workspace', () => {
       .map((frame) => frame.data?.content ?? '');
   }
 
-  /** Wait for the fire-and-forget persist to settle. */
-  const settled = () => vi.waitFor(() => expect(mockResolveWorkspaceId).toHaveBeenCalled());
+  /**
+   * Wait for the fire-and-forget persist to settle.
+   *
+   * Probes the STORE WRITE, not the workspace-key lookup it happens to do
+   * first. #982 gave that lookup a second caller - the spawn-time snapshot of
+   * this workspace's remembered folders, taken once per manager in `start()` -
+   * so "the key was resolved" stopped meaning "the persist ran", and every
+   * assertion that waited on it began reading the store before anything had
+   * been written to it. Every caller below answers with the durable button on
+   * an acceptable folder, so `add` is exactly what they are waiting for.
+   */
+  const settled = () => vi.waitFor(() => expect(mockGrantAdd).toHaveBeenCalled());
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -789,11 +799,17 @@ describe('#1099 remembering a folder for the workspace', () => {
   });
 
   it('the SESSION grant writes nothing durable', async () => {
+    // The key lookup has a second, unrelated caller since #982 - the spawn-time
+    // snapshot of this workspace's remembered folders - so the claim is that
+    // ANSWERING adds no lookup of its own, not that none has ever happened. A
+    // bare `not.toHaveBeenCalled()` would now fail on a route that is behaving
+    // perfectly, and "relax it to pass" would have thrown away the probe.
+    const lookupsBeforeTheClick = mockResolveWorkspaceId.mock.calls.length;
     manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_GRANT_FOLDER);
     await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalled());
 
     expect(mockGrantAdd).not.toHaveBeenCalled();
-    expect(mockResolveWorkspaceId).not.toHaveBeenCalled();
+    expect(mockResolveWorkspaceId.mock.calls.length).toBe(lookupsBeforeTheClick);
 
     // CONTROL, same manager and same card: the durable value DOES write, so the
     // absence above is the route discriminating and not a dead store mock.
