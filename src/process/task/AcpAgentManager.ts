@@ -35,6 +35,7 @@ import { FLUX_MODEL_IDS, FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config
 import { ExtensionRegistry } from '@process/extensions';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
+import { Curator } from '@process/providers/catalog/Curator';
 import { emitModelRegistryChanged } from '@process/providers/modelRegistryEvents';
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 import type { ProviderId } from '@process/providers/types';
@@ -968,6 +969,43 @@ ${collectedResponses.join('\n')}`;
    */
   private injectedProviderKeys: Array<{ providerId: ProviderId; envVars: readonly string[] }> = [];
 
+  /**
+   * True when the user has switched a provider OFF on the Models page, so its
+   * key must NOT reach the spawn (#685).
+   *
+   * The provider switch writes per-model `enabled: false` overrides; it does
+   * NOT change `provider.state`, which stays `connected`. Without this gate a
+   * user on a Claude Code SUBSCRIPTION who turned Anthropic off still got
+   * `ANTHROPIC_API_KEY` injected, and the CLI prefers an API key over a
+   * subscription - a real customer drained her API quota in two days.
+   *
+   * "Off" is the same notion the Models page renders: at least one explicit
+   * override AND nothing effectively enabled. The override requirement is
+   * load-bearing - the overrides table records ONLY models the user toggled, so
+   * an EMPTY table means "the curated defaults apply", not "nothing is enabled".
+   * Skipping on an empty table (`[].every()` is `true`) would strip the key from
+   * every freshly connected provider and break authentication for everyone.
+   */
+  private isProviderSwitchedOff(repo: ProviderRepository, providerId: ProviderId): boolean {
+    const overrides = repo.listRegistryOverrides(providerId);
+    if (overrides.length === 0) return false;
+    const byId = new Map(overrides.map((o) => [o.modelId, o.enabled]));
+    const catalog = repo.getRegistryCatalog(providerId);
+    // A catalog model with no override keeps its curated default, so a refresh
+    // that publishes a new flagship turns the provider back on by itself.
+    for (const model of new Curator().curate(catalog)) {
+      const override = byId.get(model.id);
+      if (override === undefined ? model.enabled : override) return false;
+    }
+    // A user-typed custom id never appears in the fetched catalog and is enabled
+    // by default, so only an explicit `false` override turns one off.
+    const catalogIds = new Set(catalog.map((model) => model.id));
+    for (const id of repo.listCustomModels(providerId)) {
+      if (!catalogIds.has(id) && byId.get(id) !== false) return false;
+    }
+    return true;
+  }
+
   private async buildConnectedProviderEnv(): Promise<Record<string, string>> {
     const env: Record<string, string> = {};
     this.injectedProviderKeys = [];
@@ -978,6 +1016,7 @@ ${collectedResponses.join('\n')}`;
         if (provider.state !== 'connected') continue;
         const envVars = PROVIDER_ENV_VARS[provider.providerId];
         if (!envVars || envVars.length === 0) continue;
+        if (this.isProviderSwitchedOff(repo, provider.providerId)) continue;
         const stored = repo.getRegistryProviderCreds(provider.providerId);
         if (stored.status !== 'ok') continue;
         // Stored API-key creds carry the key under `key` (see
