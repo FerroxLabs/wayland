@@ -59,6 +59,11 @@ export const MCP_STDIO_SCRIPT_NAMES = [
   'builtin-mcp-image-gen.js',
   'builtin-mcp-search-skills.js',
   'builtin-mcp-concierge-diag.js',
+  // #998 not a server: spawned in a real server's place to filter its tool list
+  // down to the user's per-tool selection. Listed here for the same reason as
+  // the others - it must be unpacked from the asar and present on disk, or a
+  // scoped connector cannot start at all.
+  'builtin-mcp-tool-filter.js',
 ] as const;
 
 /**

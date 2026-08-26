@@ -35,6 +35,25 @@
  * IF THIS FILE EVER GOES RED because the wcore serializer started emitting a
  * tool key, that is good news and `routineConnectors.ts` should be revisited to
  * narrow the grant.
+ *
+ * IT WENT RED, AND THIS IS THAT GOOD NEWS (#998). The wire is still exactly as
+ * described above - no engine grew a tool key, and the strings evidence still
+ * holds. What changed is that Desktop stopped asking the engine to respect the
+ * subset and started enforcing it itself: a connector with an explicit tool
+ * selection is now handed to the engine as a descriptor pointing at Wayland's
+ * filtering shim, which holds the real server and re-exports only the allowed
+ * tools. So the tool names DO now appear in the session descriptors - as the
+ * shim's own arguments, not as an engine field.
+ *
+ * THE MITIGATION IS THEREFORE AVAILABLE, AND `routineConnectors.ts` STILL HANDS
+ * AN UNATTENDED RUN A WHOLE CONNECTOR. Narrowing that grant is a deliberate
+ * change to what routines may do and is NOT made here; this file now proves
+ * only that the mechanism exists to make it.
+ *
+ * STILL A GAP, asserted below so it cannot be mistaken for coverage:
+ * `toWCoreConfig` - the startup `config.toml` serializer - is NOT wrapped. That
+ * path rewrites the command for restart-safety, and interposing there risks
+ * persisting a stale runtime path.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -82,13 +101,27 @@ describe('per-tool scoping is not reachable on the backend routines run on', () 
     expect(JSON.stringify(config)).not.toContain('quote_batch');
   });
 
-  it('neither wcore session injector carries it either', () => {
+  it('both wcore and ACP session injectors now carry the subset, via the shim', () => {
     const [wcore] = buildWCoreUserStdioMcpServers([TV], ['srv-tv']);
-    expect(JSON.stringify(wcore)).not.toContain('quote_batch');
+    expect(JSON.stringify(wcore)).toContain('quote_batch');
+    expect(JSON.stringify(wcore)).toContain('builtin-mcp-tool-filter');
+    // Still no ENGINE tool field - the engine gained nothing. The names travel
+    // as the shim's arguments.
     expect(Object.keys(wcore).filter((k) => /tool/i.test(k))).toEqual([]);
+    // The tool the user did NOT allow is absent from the descriptor entirely.
+    expect(JSON.stringify(wcore)).not.toContain('alert_delete');
 
     const [acp] = buildAcpSessionMcpServers([TV], { stdio: true, http: true, sse: true }, ['srv-tv']);
-    expect(JSON.stringify(acp)).not.toContain('quote_batch');
+    expect(JSON.stringify(acp)).toContain('quote_batch');
+    expect(JSON.stringify(acp)).toContain('builtin-mcp-tool-filter');
     expect(Object.keys(acp).filter((k) => /tool/i.test(k))).toEqual([]);
+  });
+
+  it('the startup config.toml serializer is STILL unwrapped - the known gap', () => {
+    // Recorded as an assertion rather than prose so closing it later turns this
+    // red on purpose, exactly as the wcore gap above did.
+    const config = toWCoreConfig(TV);
+    expect(JSON.stringify(config)).not.toContain('quote_batch');
+    expect(JSON.stringify(config)).not.toContain('builtin-mcp-tool-filter');
   });
 });

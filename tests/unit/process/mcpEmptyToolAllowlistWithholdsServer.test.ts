@@ -24,10 +24,15 @@
  * tools live on Claude, Codex-over-ACP and Wayland Core - the switch was not
  * "unenforceable" there, it was unread.
  *
- * `undefined` (never scoped) and a strict subset both still inject the whole
- * server: the first because it means "all tools", the second because the engine
- * has nowhere to put the list and withholding the connector outright would take
- * away tools the user deliberately left ON.
+ * `undefined` (never scoped) and a strict subset both still INJECT the connector:
+ * the first because it means "all tools", the second because withholding it
+ * outright would take away tools the user deliberately left ON.
+ *
+ * UPDATE: a strict subset is no longer unenforced. The wire still has no
+ * per-tool field, but the descriptor now points at Wayland's filtering shim,
+ * which holds the real server and re-exports only the allowed tools. These
+ * assertions are unchanged and still correct - the connector IS injected - and
+ * the routing is covered by `mcpStrictSubsetReachesEngines`.
  */
 
 import { describe, expect, it } from 'vitest';
