@@ -21,7 +21,17 @@
  */
 
 import { createHash } from 'node:crypto';
-import { chmodSync, createReadStream, createWriteStream, existsSync, mkdirSync, renameSync, rmSync } from 'node:fs';
+import {
+  chmodSync,
+  createReadStream,
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { chmod, copyFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -31,6 +41,11 @@ import { pipeline } from 'node:stream/promises';
 import type { WCoreInstallResult, WCoreUpdateCheck, WCoreUpdateProgress } from '@/common/update/wcoreUpdateTypes';
 import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { WCORE_OVERRIDE_SUBDIR, detectWCore } from './binaryResolver';
+// The contract corpus this build was generated against. A plain JSON import:
+// unlike `desktopContractV1`, it pulls in no Ajv, so the synchronous bootstrap
+// path can read it. DESKTOP_CORE_V1_PIN is transcribed from this same file, and
+// an engine bump already re-imports it, so there is no extra file to keep in sync.
+import localContractManifest from '../../../../contracts/wayland-desktop-core/v1/manifest.json';
 
 export type { WCoreInstallResult, WCoreUpdateCheck, WCoreUpdateProgress };
 
@@ -391,6 +406,9 @@ export async function installWCoreUpdate(
         try {
           rmSync(pendingPath, { force: true });
           renameSync(stagePath, pendingPath);
+          // #1108: record the pin this engine was just gated against, so the
+          // boot-time swap can refuse it if Desktop's pin moves before then.
+          writePendingContractRecord(pendingPath);
         } catch (stageErr) {
           try {
             rmSync(stagePath, { force: true });
@@ -446,7 +464,7 @@ export function applyPendingWCoreUpdate(): { applied: boolean } {
     // Electron/userData unavailable this early or off — best-effort no-op.
     return { applied: false };
   }
-  return applyPendingSwap(finalPath);
+  return applyPendingSwapGuarded(finalPath);
 }
 
 /**
@@ -456,6 +474,117 @@ export function applyPendingWCoreUpdate(): { applied: boolean } {
  * file is a no-op; any failure returns `{ applied: false }` and leaves the pending
  * file for the next boot.
  */
+/** Suffix of the contract record staged beside a `<binary>.pending`. */
+const PENDING_CONTRACT_SUFFIX = '.contract';
+
+/** The pin identity a staged engine must still match when it is finally applied. */
+export type PendingContractRecord = {
+  name: string;
+  major: number;
+  minor: number;
+  generator: string;
+  fixtureDigest: string;
+  schemaDigest: string;
+  sourceInputsDigest: string;
+};
+
+/**
+ * The contract identity THIS build pins, read through to the contract corpus so
+ * an engine bump carries it automatically. These are exactly the five fields
+ * `compareContractManifest` checks a release against, so a pending that matches
+ * this record is one the online gate would also have accepted.
+ */
+export function pendingContractRecordFor(): PendingContractRecord {
+  const manifest = localContractManifest as unknown as {
+    contract: { name: string; major: number; minor: number };
+    generator: string;
+    fixture_digest: string;
+    schema_digest: string;
+    source_inputs_digest: string;
+  };
+  return {
+    name: manifest.contract.name,
+    major: manifest.contract.major,
+    minor: manifest.contract.minor,
+    generator: manifest.generator,
+    fixtureDigest: manifest.fixture_digest,
+    schemaDigest: manifest.schema_digest,
+    sourceInputsDigest: manifest.source_inputs_digest,
+  };
+}
+
+/**
+ * Record, beside a freshly staged `.pending`, the pin it was gated against.
+ * Best-effort by design: if this write fails the record is absent, and an absent
+ * record is a REFUSAL at apply time, so a failure here loses the update rather
+ * than letting an unproven engine through.
+ */
+export function writePendingContractRecord(pendingPath: string): void {
+  try {
+    writeFileSync(`${pendingPath}${PENDING_CONTRACT_SUFFIX}`, JSON.stringify(pendingContractRecordFor()));
+  } catch {
+    // Best-effort: a missing record fails closed at apply time.
+  }
+}
+
+/**
+ * #1108: apply a staged engine ONLY while it still matches this build's pin.
+ *
+ * `installWCoreUpdate` gates a release before staging, so a `.pending` matched
+ * the pin AT STAGING TIME. The pin belongs to Desktop though, and Desktop can
+ * update itself before the pending is ever applied - at which point the staged
+ * engine is one this build cannot talk to, sitting in the override dir that
+ * `resolveWCoreBinary` prefers over the bundled binary that works.
+ *
+ * The re-check is LOCAL: a network call is impossible here, because this runs
+ * synchronously in the main-process bootstrap ahead of `initializeProcess()`.
+ *
+ * FAILS CLOSED. A missing record (including one staged by a Desktop that
+ * predates this gate), an unreadable record and a mismatching record are all
+ * refusals, and the refused pending is cleared so it cannot retry every boot.
+ * Losing an update is recoverable - the customer re-runs one that IS gated.
+ * Applying an engine we cannot vouch for is what cost a customer every chat.
+ */
+export function applyPendingSwapGuarded(finalPath: string): { applied: boolean } {
+  const pendingPath = `${finalPath}.pending`;
+  const recordPath = `${pendingPath}${PENDING_CONTRACT_SUFFIX}`;
+  if (!existsSync(pendingPath)) return { applied: false };
+
+  const discard = (): { applied: boolean } => {
+    for (const p of [pendingPath, recordPath]) {
+      try {
+        rmSync(p, { force: true });
+      } catch {
+        // best-effort; a surviving pending is refused again next boot
+      }
+    }
+    return { applied: false };
+  };
+
+  let recorded: Partial<PendingContractRecord>;
+  try {
+    recorded = JSON.parse(readFileSync(recordPath, 'utf8')) as Partial<PendingContractRecord>;
+  } catch {
+    // Absent or unparseable: we cannot prove compatibility, so we refuse.
+    return discard();
+  }
+  if (typeof recorded !== 'object' || recorded === null || Array.isArray(recorded)) return discard();
+
+  const pinned = pendingContractRecordFor();
+  for (const key of Object.keys(pinned) as (keyof PendingContractRecord)[]) {
+    if (recorded[key] !== pinned[key]) return discard();
+  }
+
+  const result = applyPendingSwap(finalPath);
+  // The record describes the pending; it goes when the pending goes.
+  try {
+    rmSync(recordPath, { force: true });
+  } catch {
+    // best-effort
+  }
+  return result;
+}
+
 export function applyPendingSwap(finalPath: string): { applied: boolean } {
   const pendingPath = `${finalPath}.pending`;
   if (!existsSync(pendingPath)) return { applied: false };
