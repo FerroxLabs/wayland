@@ -36,7 +36,7 @@
  */
 
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
 import net from 'node:net';
@@ -429,7 +429,78 @@ async function dismissShellChoicePrompt(page) {
   return !stillOpen;
 }
 
-async function runChat(page, reportDir) {
+/**
+ * Auto-capture for the intermittent turn-stall (2026-08-26).
+ *
+ * Twice in four runs a packaged turn was accepted and then produced NO
+ * `stream_start`, no error and no timeout for five minutes. It is intermittent
+ * and appears to favour the first launches after a reboot, so it cannot be
+ * scheduled and a human is never watching when it fires. This arms the harness
+ * to diagnose it ITSELF the next time it happens.
+ *
+ * Trigger: the send landed, and STALL_SAMPLE_AFTER_MS elapsed with no
+ * `stream_start` in the app's own stdout. That is the exact boundary the
+ * failures sat on - the engine had the message and had not reached the provider.
+ *
+ * Best effort by construction: a capture that throws must never turn a chat
+ * failure into a harness crash, because the chat result is the thing being
+ * reported. Every outcome is recorded in the report either way, so a run that
+ * captured NOTHING says so rather than looking like a run that did not stall.
+ */
+const STALL_SAMPLE_AFTER_MS = 30_000;
+
+function findEnginePids() {
+  // `pgrep -f` matches its own command line; ps + an explicit grep of our own
+  // does not. Match the packaged path so a dev-mode engine is never sampled.
+  try {
+    const out = execFileSync('ps', ['-eo', 'pid=,args='], { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
+    return out
+      .split('\n')
+      .filter((line) => line.includes('bundled-wayland-core') && !line.includes('ps -eo'))
+      .map((line) => Number.parseInt(line.trim().split(/\s+/)[0], 10))
+      .filter((pid) => Number.isInteger(pid) && pid > 0);
+  } catch {
+    return [];
+  }
+}
+
+function captureTurnStall(reportDir, appOutput) {
+  const capture = { firedAt: new Date().toISOString(), platform: process.platform, pids: [], files: [], skipped: null };
+  try {
+    fs.writeFileSync(
+      path.join(reportDir, 'stall-app-output.log'),
+      Array.isArray(appOutput) ? appOutput.join('') : String(appOutput ?? '')
+    );
+    capture.files.push('stall-app-output.log');
+  } catch (error) {
+    capture.skipped = `app-output snapshot failed: ${String(error).slice(0, 120)}`;
+  }
+  const pids = findEnginePids();
+  capture.pids = pids;
+  if (pids.length === 0) {
+    // A stall with NO engine process is itself the finding - the engine died
+    // rather than hung, which is a different bug and must not be recorded as
+    // "sampling was unavailable".
+    capture.skipped = 'no bundled-wayland-core process found while stalled (engine gone, not hung?)';
+    return capture;
+  }
+  if (process.platform !== 'darwin') {
+    capture.skipped = `no stack sampler wired for ${process.platform}; pids recorded only`;
+    return capture;
+  }
+  for (const pid of pids) {
+    const file = path.join(reportDir, `engine-stall-sample-${pid}.txt`);
+    try {
+      execFileSync('sample', [String(pid), '5', '-file', file], { encoding: 'utf8', timeout: 60_000 });
+      capture.files.push(path.basename(file));
+    } catch (error) {
+      capture.skipped = `sample ${pid} failed: ${String(error).slice(0, 160)}`;
+    }
+  }
+  return capture;
+}
+
+async function runChat(page, reportDir, appOutput = []) {
   const result = {
     ok: false,
     selectedModel: null,
@@ -569,12 +640,31 @@ async function runChat(page, reportDir) {
         .catch(() => ({ rightHasNonce: false, leftCount: 0, answer: null }));
 
     result.sendLanded = false;
+    result.stallCapture = null;
+    const sendAt = Date.now();
+    const sawStreamStart = () => (Array.isArray(appOutput) ? appOutput.join('') : '').includes('stream_start');
     // Flux Auto answers as an agent and reasons first, so allow ~5 minutes.
     for (let attempt = 0; attempt < 150; attempt += 1) {
       await sleep(2_000);
       const probe = await findAnswer();
       if (probe.rightHasNonce) result.sendLanded = true;
       result.messageBlocks = probe.leftCount;
+      // Fire ONCE, and only for the stall we are hunting: the send landed and
+      // the engine has still not reached the provider. A slow-but-streaming
+      // answer must not be sampled, or every agentic turn pays for it.
+      if (
+        result.stallCapture === null &&
+        result.sendLanded &&
+        Date.now() - sendAt >= STALL_SAMPLE_AFTER_MS &&
+        !sawStreamStart()
+      ) {
+        result.stallCapture = captureTurnStall(reportDir, appOutput);
+        console.log(
+          `${TAG} turn stalled ${Math.round((Date.now() - sendAt) / 1000)}s with no stream_start - captured ` +
+            `${result.stallCapture.files.length} file(s), pids=[${result.stallCapture.pids.join(',')}]` +
+            (result.stallCapture.skipped ? ` (${result.stallCapture.skipped})` : '')
+        );
+      }
       if (result.sendLanded && probe.answer) {
         result.ok = true;
         result.reply = probe.answer;
@@ -873,7 +963,7 @@ async function main() {
 
   const findings = options.surfaces ? await walkSurfaces(page, consoleErrors, reportDir) : [];
   if (!options.surfaces) log('surfaces: SKIPPED (--no-surfaces) — this run cannot certify the cockpit');
-  const chat = options.chat ? await runChat(page, reportDir) : { ok: null, skipped: true };
+  const chat = options.chat ? await runChat(page, reportDir, appOutput) : { ok: null, skipped: true };
   if (options.chat) log(`chat: ${chat.ok ? `replied (${chat.sendMethod})` : `NO REPLY — ${chat.error}`}`);
 
   const failures = findings.filter((finding) =>
