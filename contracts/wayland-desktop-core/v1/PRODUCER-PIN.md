@@ -1,39 +1,28 @@
 # Desktop validation pin
 
 This corpus is a byte-for-byte mechanical import from Wayland Core commit
-`92ee53743fab1a0ce234ce3e82ebb8091d7d8ecc`, which is the **`v0.13.6` release tag**.
+`d1f55f0b49b32600b2d253c5aee57649bd3109ea`, which is the **`v0.13.7` release tag**.
 
-- contract: `wayland-desktop-core` `1.16`
-- generator: `wcore-desktop-contract-gen/16`
-- fixtures: `sha256:1f41da5fa0c193081eb895cf79b07b19ee5335ce07aa27fd8c754384ffd1bcc4`
-- schemas: `sha256:2993aee1129fc1659cdd06d0ed168770ede7ed89437f644021cb9e77ec5bed62`
-- source inputs: `sha256:97a3336208aa63ede996d135a0408d18abb79e620a5f3c8a9fe55109d688b4e2`
-
-**v0.13.6 is SHAPE-IDENTICAL to the v0.13.5 pin.** The re-import was compared
-manifest field by manifest field, not by reading: capabilities, commands,
-events, child types, subcontracts, counts and the SCHEMA DIGEST all compare
-equal, and the whole manifest compares equal once its own self-describing
-digests are excluded. Counts are unchanged at 23 commands, 61 events, 3 child
-types, 171 fixtures. Seven files moved and every one of them moved only because
-it embeds `fixture_digest` / `source_inputs_digest`. No capability was added,
-removed or re-graded, so nothing in Desktop's handling had to change with it.
+- contract: `wayland-desktop-core` `1.19`
+- generator: `wcore-desktop-contract-gen/19`
+- fixtures: `sha256:ab097223f29050c769e7055aa6d4eeb67efead69478c7c96413b63ca860c6cbc`
+- schemas: `sha256:9e594e4eda55d6cb52efca39092529e3a2ee2dac24ca69b7b3e1a0200d141de2`
+- source inputs: `sha256:379e4ed842c4422f1380cb1ccd9232a83cca212af298123852f9c851ac928d75`
 
 Verified by execution, not by reading. The import was compared **file by file**
-against the tag: 176 files, 176 digest matches, and a deliberately-wrong
-comparison (the `v0.13.3` manifest against the `v0.13.4` one) was shown to
+against the signed release asset `wayland-core-v0.13.7-desktop-contract-v1.tar.gz`:
+179 files, 179 digest matches, and a deliberately-wrong comparison was shown to
 report a mismatch, so the check is known to discriminate rather than to be
 vacuously green. The five values above were read from the tag's `manifest.json`
-and then confirmed identical to the `contract` block of the `ready` fixture the
-same tag publishes — the frame a real engine sends on line one.
+and then confirmed identical, field by field including the whole capability map,
+to the `contract` block of the `ready` fixture the same tag publishes — the frame
+a real engine sends on line one.
 
 ## Why this pin moved
 
-The previous pin was `1.14` / `gen-14`, taken from the 0.13.0 tree. It is the
-same descriptor `v0.13.2` and `v0.13.3` advertise, so it was correct for the
-engine Desktop bundled. `v0.13.4` advertises `1.16` / `gen-16`.
-
-The descriptor check is **exact-match on every field**. Feeding Core's real
-`v0.13.4` `ready.json` to the pre-move consumer throws
+The previous pin was `1.16` / `gen-16`, taken from the `v0.13.6` tree. The
+descriptor check is **exact-match on every field**, so feeding Core's real
+`v0.13.7` `ready.json` to the pre-move consumer throws
 `Core contract minor differs from the pin` and puts the session in `failed`,
 which is terminal — every later frame fails closed. So the corpus, the pin and
 the bundled engine move in **one commit**, or 100% of conversations die on frame
@@ -41,50 +30,35 @@ one. That is why this file, `DESKTOP_CORE_V1_PIN`, `DEFAULT_WCORE_VERSION`,
 `bundled-wcore-shasums.json` and `installer/scripts/postinstall.mjs` are a
 single coupled edit and not five independent ones.
 
-⚠️ **This pin is ahead of `v0.13.3` and is NOT backward-safe.** The old note said
-pinning ahead was safe in one direction, but that was only true against
-`v0.12.25`, which advertises no descriptor at all and therefore negotiates as
-legacy without ever reaching `assertDescriptor`. `v0.13.2` and `v0.13.3` DO
-advertise one (`1.14`), so a Desktop pinned here refuses them outright.
+## Uptake from 1.16, measured against the released corpus
 
-## Uptake from 1.14, measured against the released corpus
+Purely additive. No event, command, capability or shape was removed or re-graded:
 
-Purely additive. No event, command or shape was removed or altered:
+- **commands 23 → 26** — see below, this is the one that matters.
+- events 61 → 61. Unchanged.
+- fixtures 171 → 174, child types 3, subcontracts 8.
+- capabilities gain `turn_abandon_v1`, `path_write_grants_v1` and
+  `inline_reasoning_split_v1`.
+- the manifest gains a `wire_shapes` section (0 → 88 entries) describing each
+  command and event's on-the-wire file.
 
-- events 60 → 61. The one addition is `render_artifact`.
-- **commands 23 → 23. Nothing was added.**
-- fixtures → 171, child types 3.
-- capabilities gain `path_boundary_prompt_v1`, `path_grants_v1` and
-  `render_artifact_v1`.
-- the `tool_approve` `scope` schema gains `always_path`.
+## wayland-core#314 is CLOSED by this import
 
-That last line is the one that matters for behaviour. Under `1.14` the scope
-`oneOf` admitted only `once`, `always` and `always_prefix`, so a folder grant
-was **rejected by Desktop's own `validateOutboundCommand`** and threw before the
-frame was written. Verified by execution with `once`, `always_prefix` and
-`tool_deny` as positive controls in the same run. The folder-grant card could
-never have worked on any engine we had pinned; this import is what makes it
-reach Core at all.
-
-## What is still missing, and is not ours to fix
-
-`commands 23 → 23` is not an oversight in this note. Core added `grant_path`,
+`commands 23 → 26` is the headline. Core had already added `grant_path`,
 `revoke_path` and `grant_workspace_capability` to `ProtocolCommand` and
-documented them in `docs/json-stream-protocol.md`, but shipped **no command
-fixtures** for them. The command schema is generated from the fixture set over a
-**closed `oneOf`**, so none of the three is representable in the published
-schema, and a host that has negotiated the contract cannot send them: it fails
-its own outbound validation.
+documented them, but shipped **no command fixtures** for them. The command schema
+is generated from the fixture set over a **closed `oneOf`**, so none of the three
+was representable in the published schema, and a host that had negotiated the
+contract could not send any of them: it failed its own outbound validation before
+the frame was written.
 
-Filed as **`FerroxLabs/wayland-core#314`**. Until it lands, do not build
-spawn-time path-grant replay against this contract minor expecting it to work.
+`v0.13.7` ships all three fixtures. The three new files are the entire file-level
+delta of this import. Spawn-time path-grant replay is now buildable against this
+contract minor — it was not, at any minor we have ever pinned.
 
 ## What this pin does and does not authorize
 
-This file is contract authority for Desktop's v1 consumer. It does not by itself
-change the packaged Wayland Core binary — but unlike the previous move, it
-**cannot be landed without it**. See the warning above.
-
-Core states the constraint plainly in `.planning/CONTRACT-REGEN.md`: a Desktop
-pinned to one digest refuses to start against a Core built from a different
-commit, and vice versa — **the two must ship on the same release train.**
+This file is contract authority for Desktop's v1 consumer. It **cannot be landed
+without the matching engine bump**: a Desktop pinned to one digest refuses to
+start against a Core built from a different commit, and vice versa — the two must
+ship on the same release train.

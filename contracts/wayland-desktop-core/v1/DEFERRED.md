@@ -42,11 +42,17 @@ cannot be fooled by the producer-side `PRODUCER_EVENT_TYPES` constant.
 `generated_artifacts()` now refuses to build a corpus whose `EVENT_SPECS` and
 `PRODUCER_EVENT_TYPES` disagree, so this hole cannot reopen silently.
 
-STILL OPEN, same class, command direction: `grant_workspace_capability` is in
-`PRODUCER_COMMAND_TYPES` and absent from `manifest.json`'s `commands`. The blast
-radius is different — commands travel host to Core, so an undeclared command
-does not hard error a host — and the generator parity check deliberately covers
-events only. It is not closed.
+CLOSED, same class, command direction (#314): `grant_workspace_capability`,
+`grant_path` and `revoke_path` were in `PRODUCER_COMMAND_TYPES` and absent from
+`manifest.json`'s `commands`. The blast radius was different — commands travel
+host to Core, so an undeclared command does not hard error a host — but a host
+that derives its emitter or its conformance check from the published union
+cannot send a command that union does not contain, and that failure reads as
+"folder grants do not persist" rather than as a contract gap. All three now
+carry a `WireSpec`, a fixture generated from the real deserializer, and a branch
+in `host-command.schema.json`, and `generated_artifacts()` refuses to build a
+corpus whose `COMMAND_SPECS` and `PRODUCER_COMMAND_TYPES` disagree — the parity
+gate the event direction already had, which previously covered events only.
 
 Malformed command fixtures and the current unknown-type behavior are proved by
 `desktop_contract_adversarial.rs`. Browser, CUA, and plugin event fixtures are
