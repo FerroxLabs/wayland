@@ -82,8 +82,15 @@ const MemoryPane: React.FC = () => {
       // who deliberately switches memory OFF here would be met by an offer to
       // switch it back on, which is nagging someone out of a privacy decision.
       // Only on success: a failed write is not a choice.
+      //
+      // Deliberately NOT awaited. This is best-effort bookkeeping and it must
+      // never sit between the user's click and the switch updating - awaiting it
+      // meant a slow or hanging config write left the toggle looking like it had
+      // not taken. `markMemoryOfferAnswered` catches its own errors and writes
+      // the synchronous local marker first, so nothing is lost by letting it
+      // finish on its own.
       if (!failure && patch.section === 'memory' && patch.field === 'enabled') {
-        await markMemoryOfferAnswered();
+        void markMemoryOfferAnswered();
       }
       if (mounted.current && writeVersion.current === version) {
         await refresh(false);
