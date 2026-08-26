@@ -44,6 +44,7 @@ const modelsDevSnapshotPin = require('./modelsdev-snapshot-pin.json');
 const whatsappBridgeSource = require('./whatsapp-bridge-source.json');
 const { verifyCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
 const { CONTRACT: PUBLISHER_CONTRACT, selectPolicy } = require('./supply-chain/verifyPublisherAttestation');
+const { isAuthenticodeSigned, describeAuthenticode } = require('./peAuthenticode');
 
 const TAG = '[verify-packaged-resources]';
 
@@ -445,6 +446,19 @@ function verifyWCoreRuntime(
     metadata.source?.url === expectedUrl &&
     metadata.source?.asset === assetName &&
     manifestArchiveSha256 === expected.archiveSha256 &&
+    // #914: wayland-nano v0.1.1 shipped a win32-x64 executable whose PE
+    // certificate table was EMPTY. Every digest pin matched, the installer
+    // around it was signed, and nothing in the build ever looked at the
+    // executable's own signature - so an unsigned binary went out inside a
+    // signed installer and Defender blocked it on users' machines.
+    //
+    // We do not, and must not, sign this binary ourselves: Authenticode
+    // signing rewrites the file and would break the binarySha256 pinned above,
+    // which is exactly why electron-builder.yml excludes it with a negative
+    // signExts pattern. The only correct check is that the UPSTREAM signature
+    // survived into the package. Fails closed - an executable that cannot be
+    // parsed as a signed PE is treated as unsigned.
+    (platform !== 'win32' || isAuthenticodeSigned(binaryPath)) &&
     metadata.binary?.name === binaryName &&
     manifestBinarySha256 === expected.binarySha256 &&
     // Byte identity is never traded for signer identity: the shipped bytes must
@@ -565,6 +579,19 @@ function verifyWNanoRuntime(
     metadata.source?.url === expectedUrl &&
     metadata.source?.asset === assetName &&
     manifestArchiveSha256 === expected.archiveSha256 &&
+    // #914: wayland-nano v0.1.1 shipped a win32-x64 executable whose PE
+    // certificate table was EMPTY. Every digest pin matched, the installer
+    // around it was signed, and nothing in the build ever looked at the
+    // executable's own signature - so an unsigned binary went out inside a
+    // signed installer and Defender blocked it on users' machines.
+    //
+    // We do not, and must not, sign this binary ourselves: Authenticode
+    // signing rewrites the file and would break the binarySha256 pinned above,
+    // which is exactly why electron-builder.yml excludes it with a negative
+    // signExts pattern. The only correct check is that the UPSTREAM signature
+    // survived into the package. Fails closed - an executable that cannot be
+    // parsed as a signed PE is treated as unsigned.
+    (platform !== 'win32' || isAuthenticodeSigned(binaryPath)) &&
     metadata.binary?.name === binaryName &&
     manifestBinarySha256 === expected.binarySha256 &&
     // Same contract as wayland-core: exact bytes against the staged digest, and
@@ -1438,6 +1465,13 @@ function verifyPackagedResources(options = {}) {
         // in the verdict but not here.
         logger.error(`${TAG}        path: ${target}`);
         logger.error(`${TAG}        ${describeTargetForDiagnostics(target)}`);
+        // A bare boolean also cannot say "the upstream Authenticode signature is
+        // gone", which is the one failure this gate was added for. Name it.
+        if (targetPlatform === 'win32' && (req.kind === 'wcore-bundle' || req.kind === 'wnano-bundle')) {
+          const product = req.kind === 'wcore-bundle' ? 'wayland-core' : 'wayland-nano';
+          const exe = path.join(target, `${targetPlatform}-${targetArch}`, `${product}.exe`);
+          logger.error(`${TAG}        ${describeAuthenticode(exe)}`);
+        }
         criticalFailures += 1;
         criticalFailureRels.push(req.rel);
       } else {
@@ -1452,6 +1486,19 @@ function verifyPackagedResources(options = {}) {
       `${TAG} ${criticalFailures} CRITICAL resource(s) missing or invalid in the packaged app: ` +
         `${criticalFailureRels.join(', ')}. Refusing to ship a broken build.`
     );
+  }
+
+  // A check that quietly does not run reads exactly like a check that passed.
+  // #914 stayed invisible for a whole release because nothing ever said either
+  // way, so the Authenticode gate reports itself on every target - including
+  // the non-Windows ones, where it legitimately does not apply.
+  const authenticodeRuntimes = [...requiredWCoreRuntimes, ...requiredWNanoRuntimes].filter((runtime) =>
+    runtime.startsWith('win32-')
+  );
+  if (authenticodeRuntimes.length > 0) {
+    logger.log(`${TAG}   OK   upstream Authenticode signature present on ${authenticodeRuntimes.join(', ')}`);
+  } else {
+    logger.log(`${TAG}   SKIP upstream Authenticode signature check (${expectedRuntime} bundles no Windows binary)`);
   }
 
   logger.log(
