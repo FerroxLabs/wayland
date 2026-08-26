@@ -53,13 +53,12 @@ vi.mock('@process/utils/initStorage', () => ({
 
 import { CURRENT_DB_VERSION, initSchema } from '@process/services/database/schema';
 import { runMigrations } from '@process/services/database/migrations';
-import { BetterSqlite3Driver } from '@process/services/database/drivers/BetterSqlite3Driver';
 import { SqliteTeamRepository } from '@process/team/repository/SqliteTeamRepository';
 import { TeamSession } from '@process/team/TeamSession';
 import { TeamSessionService } from '@process/team/TeamSessionService';
 import type { IConversationService } from '@process/services/IConversationService';
 import type { TeamAgent, TTeam } from '@process/team/types';
-import { describeNativeSqlite } from '../../helpers/nativeSqlite';
+import { NodeSqliteDriver } from '../../helpers/nodeSqliteDriver';
 
 function makeTeam(): TTeam {
   return {
@@ -94,14 +93,14 @@ function makeTeam(): TTeam {
   };
 }
 
-describeNativeSqlite('whole-row agents writers preserve concurrent status writes (#1057)', () => {
-  let driver: BetterSqlite3Driver;
+describe('whole-row agents writers preserve concurrent status writes (#1057)', () => {
+  let driver: NodeSqliteDriver;
   let repo: SqliteTeamRepository;
   const services: TeamSessionService[] = [];
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    driver = new BetterSqlite3Driver(':memory:');
+    driver = new NodeSqliteDriver();
     initSchema(driver);
     runMigrations(driver, 0, CURRENT_DB_VERSION);
     driver
