@@ -15,6 +15,10 @@ import type {
   ToolCallRequestInfo,
 } from '@office-ai/aioncli-core';
 import { GeminiEventType as ServerGeminiEventType } from '@office-ai/aioncli-core';
+// These two are not re-exported from the package entry, but the deep modules
+// ship their own .d.ts so the subpath imports are fully typed.
+import { supportsModernFeatures } from '@office-ai/aioncli-core/dist/src/config/models.js';
+import { SYNTHETIC_THOUGHT_SIGNATURE } from '@office-ai/aioncli-core/dist/src/core/geminiChat.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - executeToolCall is not re-exported from main entry but exists in subpath
 import { executeToolCall } from '@office-ai/aioncli-core/dist/src/core/nonInteractiveToolExecutor.js';
@@ -668,3 +672,81 @@ export const startNewPrompt = () => {
 export const getPromptCount = () => {
   return promptCount;
 };
+
+/**
+ * Derived from the client rather than imported from `@google/genai`: aioncli-core
+ * carries its own nested copy of that package, and the two `Part` types are not
+ * assignable to each other. Reading the shape off `getHistory()` keeps us in step
+ * with whichever copy the client actually returns.
+ */
+type GeminiContent = ReturnType<GeminiClient['getHistory']>[number];
+type GeminiPart = NonNullable<GeminiContent['parts']>[number];
+
+/**
+ * Gemini 3.x signs every `functionCall` part it emits with a `thoughtSignature`,
+ * and requires each of those parts to still carry a signature when the history is
+ * replayed on the next request. A part that comes back unsigned rejects the whole
+ * call with "Function call is missing a thought_signature in functionCall parts"
+ * (#748).
+ *
+ * The vendored aioncli-core has its own filler,
+ * `GeminiChat.ensureActiveLoopHasThoughtSignatures`, but it signs only the FIRST
+ * functionCall of each model turn and only walks forward from the last user TEXT
+ * turn. Parallel tool calls after the first, and any model turn in earlier
+ * history, stay unsigned - which is the 400 the reporter hit on this backend.
+ *
+ * This fills only MISSING signatures on model `functionCall` parts, reusing the
+ * same synthetic sentinel upstream uses. A real signature is never overwritten,
+ * and no part Gemini does not sign (text, functionResponse, user turns) ever
+ * receives one.
+ *
+ * Returns the input array itself when there is nothing to repair, so callers can
+ * skip a needless `setHistory()`. Never mutates the input.
+ */
+export function ensureAllFunctionCallsHaveSignatures(contents: GeminiContent[]): GeminiContent[] {
+  let repairedContents: GeminiContent[] | undefined;
+
+  for (let i = 0; i < contents.length; i++) {
+    const content = contents[i];
+    if (content?.role !== 'model' || !Array.isArray(content.parts)) continue;
+
+    let repairedParts: GeminiPart[] | undefined;
+    for (let j = 0; j < content.parts.length; j++) {
+      const part = content.parts[j] as (GeminiPart & { thoughtSignature?: string }) | null | undefined;
+      if (!part?.functionCall || part.thoughtSignature) continue;
+      repairedParts ??= content.parts.slice();
+      repairedParts[j] = { ...part, thoughtSignature: SYNTHETIC_THOUGHT_SIGNATURE };
+    }
+    if (!repairedParts) continue;
+
+    repairedContents ??= contents.slice();
+    repairedContents[i] = { ...content, parts: repairedParts };
+  }
+
+  return repairedContents ?? contents;
+}
+
+/**
+ * Apply {@link ensureAllFunctionCallsHaveSignatures} to the live chat history
+ * immediately before a request goes out.
+ *
+ * Gated on `supportsModernFeatures` exactly as upstream gates its own filler:
+ * only Gemini 3.x and custom models sign thoughts, so signing history for a
+ * Gemini 2.x conversation would add a field that model never emitted.
+ *
+ * Best-effort - a history repair must never break the send path.
+ */
+export function repairMissingThoughtSignatures(geminiClient: GeminiClient, model: string): void {
+  try {
+    if (!geminiClient.isInitialized()) return;
+    if (!supportsModernFeatures(model)) return;
+
+    const history = geminiClient.getHistory();
+    const repaired = ensureAllFunctionCallsHaveSignatures(history);
+    if (repaired === history) return;
+
+    geminiClient.setHistory(repaired);
+  } catch {
+    // Never throw out of repair logic.
+  }
+}
