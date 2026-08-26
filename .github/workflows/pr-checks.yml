@@ -1029,3 +1029,50 @@ jobs:
       - name: Validate script output
         shell: bash
         run: bash scripts/verify-release-assets.sh release-assets
+
+  # Job 7: cross-repo issue references in the PR description (#1001).
+  #
+  # Wayland and wayland-core are one product in two repositories, and GitHub
+  # mishandles references between them in two SILENT ways: a bare `#N` always
+  # resolves against the current repo, and a closing keyword only auto-closes
+  # issues in the PR's OWN repo — it ignores a cross-repo one and reports
+  # nothing. That second one is not hypothetical: of seven wayland issues named
+  # by a closing keyword in a merged wayland-core PR, two were still open six
+  # weeks later. Nothing in this repo's 21 workflows checked for either.
+  #
+  # NOT gated on docs_only: a docs-only PR has a description too, and this job
+  # reads only that description. It is also deliberately cheap (no bun install,
+  # no build) so it can run on every PR event including `edited`, which is what
+  # makes the fix loop "edit the description, check goes green".
+  #
+  # Authority: scripts/lint-cross-repo-refs.mjs, exercised by
+  # tests/unit/scripts/lintCrossRepoRefs.test.ts.
+  cross-repo-refs:
+    name: Cross-Repo Ref Check
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint issue references in the PR description
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Numbers and the repo slug only. The PR BODY is untrusted author text
+          # and never becomes a `${{ }}` interpolation in a run: step — it is
+          # fetched to a file and handed to the linter by path.
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+          REPO_SLUG: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No pull request in this context; nothing to lint."
+            exit 0
+          fi
+          gh api "repos/$REPO_SLUG/pulls/$PR_NUMBER" > pr.json
+          node scripts/lint-cross-repo-refs.mjs \
+            --owner "${REPO_SLUG%%/*}" \
+            --repo "${REPO_SLUG##*/}" \
+            --pr-json pr.json
