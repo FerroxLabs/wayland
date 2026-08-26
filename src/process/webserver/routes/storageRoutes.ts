@@ -14,7 +14,7 @@ import { requireDestructive } from './configWriteGuards';
 import { computeUsage, invalidateUsageCache } from '@process/storage/computeUsage';
 import { clearStorageDir, getLogsDir, getStorageDirs } from '@process/storage/storageLocations';
 import { backupExport } from '@process/storage/backupExport';
-import { backupImport } from '@process/storage/backupImport';
+import { backupImport, preservedRollbackPath } from '@process/storage/backupImport';
 import { createLegacySafetyExport } from '@process/storage/legacySafetyExport';
 import { publicBackupErrorCode } from '@/common/types/storageBackup';
 
@@ -173,7 +173,13 @@ export function registerStorageRoutes(app: Express, validateApiAccess: RequestHa
         // ends up in a browser the operator may not be the only reader of. The
         // code also lets the client name a mistyped passphrase, which is the
         // everyday failure here and which the desktop surface already names.
-        res.status(500).json({ success: false, msg: publicBackupErrorCode(error) });
+        // `preservedPath` is the one exception to "a code, not the text": it is
+        // an application-generated temp path, never error text, and it is where
+        // a failed restore kept the operator's own displaced files (#1050).
+        const preservedPath = preservedRollbackPath(error);
+        res
+          .status(500)
+          .json({ success: false, msg: publicBackupErrorCode(error), ...(preservedPath && { preservedPath }) });
       }
     }
   );

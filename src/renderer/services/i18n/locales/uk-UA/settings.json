@@ -2115,6 +2115,7 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreOriginalsPreserved": "Ваші початкові файли не видалено. Wayland відклав їх перед відновленням і зберіг у {{path}}. Скопіюйте цю теку в безпечне місце, перш ніж спробувати ще раз.",
     "restoreBadPassphrase": "Ця парольна фраза резервної копії неправильна, тому зашифровані ключі з архіву не вдалося розшифрувати. На цьому пристрої нічого не змінилося. Перевірте парольну фразу та спробуйте ще раз.",
     "restoreApplied": "Відновлення завершено. Відновлено: {{items}}.",
     "restoreAppliedWithSafety": "Відновлення завершено. Відновлено: {{items}}. Резервну копію файлів перед відновленням збережено в {{path}}.",

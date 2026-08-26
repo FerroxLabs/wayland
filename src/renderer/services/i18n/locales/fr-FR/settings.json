@@ -2175,6 +2175,7 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreOriginalsPreserved": "Vos fichiers d'origine n'ont pas été supprimés. Wayland les a mis de côté avant la restauration et les a conservés dans {{path}}. Copiez ce dossier en lieu sûr avant de réessayer.",
     "restoreBadPassphrase": "Cette phrase secrète de sauvegarde est incorrecte, les clés chiffrées de l'archive n'ont donc pas pu être déverrouillées. Rien n'a été modifié sur cet appareil. Vérifiez la phrase secrète et réessayez.",
     "restoreApplied": "Restauration terminée. Restauré : {{items}}.",
     "restoreAppliedWithSafety": "Restauration terminée. Restauré : {{items}}. Votre copie de récupération antérieure à la restauration se trouve dans {{path}}.",

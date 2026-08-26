@@ -2150,6 +2150,7 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreOriginalsPreserved": "원본 파일은 삭제되지 않았습니다. Wayland가 복원 전에 파일을 옮겨 두어 {{path}}에 보관하고 있습니다. 다시 시도하기 전에 해당 폴더를 안전한 곳에 복사하세요.",
     "restoreBadPassphrase": "백업 암호가 올바르지 않아 아카이브에 있는 암호화된 키를 열 수 없었습니다. 이 기기에서는 아무것도 변경되지 않았습니다. 암호를 확인한 뒤 다시 시도하세요.",
     "restoreApplied": "복원이 완료되었습니다. 복원된 항목: {{items}}.",
     "restoreAppliedWithSafety": "복원이 완료되었습니다. 복원된 항목: {{items}}. 복원 전 파일 복구 사본은 {{path}}에 있습니다.",

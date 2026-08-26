@@ -2150,6 +2150,7 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreOriginalsPreserved": "您的原始檔案並未被刪除。Wayland 在還原前已將它們移到一旁，並保存在 {{path}}。請先把該資料夾複製到安全的位置，再重試一次。",
     "restoreBadPassphrase": "該備份密語不正確，因此無法解鎖封存檔中的加密金鑰。此裝置上的內容沒有任何變動。請檢查密語後重試。",
     "restoreApplied": "還原完成。已還原：{{items}}。",
     "restoreAppliedWithSafety": "還原完成。已還原：{{items}}。還原前的檔案備份副本位於 {{path}}。",

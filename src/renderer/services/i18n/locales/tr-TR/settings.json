@@ -2148,6 +2148,7 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreOriginalsPreserved": "Özgün dosyalarınız silinmedi. Wayland bunları geri yüklemeden önce bir kenara aldı ve {{path}} konumunda sakladı. Yeniden denemeden önce bu klasörü güvenli bir yere kopyalayın.",
     "restoreBadPassphrase": "Bu yedek parolası doğru değil, bu yüzden arşivdeki şifreli anahtarların kilidi açılamadı. Bu cihazda hiçbir şey değişmedi. Parolayı kontrol edip yeniden deneyin.",
     "restoreApplied": "Geri yükleme tamamlandı. Geri yüklenenler: {{items}}.",
     "restoreAppliedWithSafety": "Geri yükleme tamamlandı. Geri yüklenenler: {{items}}. Geri yükleme öncesi dosya kurtarma kopyanız {{path}} konumunda.",
