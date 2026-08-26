@@ -51,6 +51,7 @@ import { useTranslation } from 'react-i18next';
 import MemoryList from '../components/MemoryList';
 import RightDrawer from '../components/RightDrawer';
 import TopbarChips from '../components/TopbarChips';
+import MemoryEnableOffer from '@renderer/components/memory/MemoryEnableOffer';
 import StreakPill from '../components/StreakPill';
 import ProjectDropdown from '../components/ProjectDropdown';
 import TimeDropdown from '../components/TimeDropdown';
@@ -582,6 +583,11 @@ const FullPanelShell: React.FC = () => {
           "These are your own notes. Wayland Core's long-term memory is separate and is managed in Settings."
         )}
       </p>
+
+      {/* One-time offer to repair a profile left memory-less by an older Core.
+           Sits directly under the scope line that names the two stores, because
+           this is the one a user cannot see is switched off. */}
+      <MemoryEnableOffer source='memory-page' />
 
       {/* ---- Setup-status health strip (#414) ---- */}
       <section

@@ -88,7 +88,6 @@ import {
   fetchLiveChatGptSubscriptionCatalog,
 } from '../catalog/chatgptSubscriptionModels';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
-import { NANO_KNOWN_PROVIDER_IDS } from '@process/task/wnano/providersPayload';
 import { ConnectionTester } from '../detection/ConnectionTester';
 import { KeyDiscovery } from '../detection/KeyDiscovery';
 import { ModelsDevClient } from '../enrichment/ModelsDevClient';
