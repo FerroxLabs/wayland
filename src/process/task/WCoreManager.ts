@@ -728,10 +728,17 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   override async start() {
     if (this.disposed) throw new Error('Wayland Core manager was stopped before bootstrap');
     const startedAtEpoch = this.stopEpoch;
-    // #982: before the engine can raise its first boundary. Awaited rather than
-    // detached so a card cannot arrive while the snapshot is still in flight and
-    // be prompted for a folder the user already recorded.
-    await this.loadReplayableGrants();
+    // Decide resume-vs-new BEFORE anything else is awaited.
+    //
+    // This read is a race against the renderer persisting the turn's own user
+    // message, and every await placed ahead of it widens the window. #982 put
+    // the grant snapshot here first, which was enough: on a FIRST turn the
+    // message landed during that await, `hasMessages` flipped true, and Desktop
+    // asked a freshly spawned engine to resume a session it had never created.
+    // The engine answers `Session not found` BEFORE the ready handshake, the
+    // contract gate fails closed on `ready_required`, and the fallback to a new
+    // session cannot rescue it because the contract consumer has already
+    // latched. The packaged chat then never replies - green unit suite, dead app.
     let sessionArgs: { resume?: string; sessionId?: string };
     try {
       const db = await getDatabase();
@@ -742,6 +749,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // Fallback: start as new session if DB check fails
       sessionArgs = { sessionId: this.conversation_id };
     }
+    // #982: must complete before the engine can raise its first boundary, and
+    // the engine has not spawned yet here. Awaited rather than detached so a
+    // card cannot arrive while the snapshot is still in flight and be prompted
+    // for a folder the user already recorded. Ordering relative to the read
+    // above is load-bearing; do not move it back.
+    await this.loadReplayableGrants();
 
     const mergedData = { ...this.data.data, ...sessionArgs };
 
