@@ -23,7 +23,8 @@
  *
  * Usage:
  *   node scripts/packaged-cockpit-smoke.mjs [--app <path-to-.app-or-exe>]
- *                                           [--out-dir <dir>]        # default: out-preview, then out
+ *                                           [--out-dir <dir>]        # default: the requested track's output dir
+ *                                           [--release-track stable|preview]  # default: $WAYLAND_RELEASE_TRACK, else stable
  *                                           [--key-file <path>]      # default: ~/.config/wayland-smoke/flux-test-key
  *                                           [--report-dir <dir>]     # default: .smoke/<timestamp>
  *                                           [--no-chat] [--keep-open] [--timeout <ms>]
@@ -42,6 +43,8 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
+
+import { resolveTrackedPackagedApp } from './lib/packagedAppResolver.mjs';
 
 const TAG = '[packaged-smoke]';
 const log = (message) => console.log(`${TAG} ${message}`);
@@ -70,6 +73,7 @@ function parseArgs(argv) {
   const options = {
     app: null,
     outDir: null,
+    releaseTrack: null,
     keyFile: path.join(os.homedir(), '.config', 'wayland-smoke', 'flux-test-key'),
     reportDir: null,
     chat: true,
@@ -90,6 +94,7 @@ function parseArgs(argv) {
     };
     if (arg === '--app') options.app = next();
     else if (arg === '--out-dir') options.outDir = next();
+    else if (arg === '--release-track') options.releaseTrack = next();
     else if (arg === '--key-file') options.keyFile = next();
     else if (arg === '--report-dir') options.reportDir = next();
     else if (arg === '--no-chat') options.chat = false;
@@ -103,49 +108,6 @@ function parseArgs(argv) {
     } else throw new Error(`${TAG} unknown argument: ${arg}`);
   }
   return options;
-}
-
-/**
- * Locate the packaged executable inside an electron-builder output directory.
- * Mirrors `packaged-launch.mjs`, but tolerates any product name (the preview
- * build ships as "Wayland Preview") and any of the usual arch directories.
- */
-function resolvePackagedApp(outRoot) {
-  if (!fs.existsSync(outRoot)) return null;
-
-  if (process.platform === 'darwin') {
-    for (const dir of ['mac-arm64', 'mac-x64', 'mac', 'mac-universal']) {
-      const macDir = path.join(outRoot, dir);
-      if (!fs.existsSync(macDir)) continue;
-      const bundle = fs.readdirSync(macDir).find((entry) => entry.endsWith('.app'));
-      if (!bundle) continue;
-      const macOsDir = path.join(macDir, bundle, 'Contents', 'MacOS');
-      if (!fs.existsSync(macOsDir)) continue;
-      const [binary] = fs.readdirSync(macOsDir);
-      if (binary) return path.join(macOsDir, binary);
-    }
-    return null;
-  }
-
-  if (process.platform === 'win32') {
-    for (const dir of ['win-unpacked', 'win-x64-unpacked', 'win-arm64-unpacked']) {
-      const unpacked = path.join(outRoot, dir);
-      if (!fs.existsSync(unpacked)) continue;
-      const exe = fs.readdirSync(unpacked).find((entry) => entry.toLowerCase().endsWith('.exe'));
-      if (exe) return path.join(unpacked, exe);
-    }
-    return null;
-  }
-
-  for (const dir of ['linux-unpacked', 'linux-x64-unpacked', 'linux-arm64-unpacked']) {
-    const unpacked = path.join(outRoot, dir);
-    if (!fs.existsSync(unpacked)) continue;
-    for (const name of ['wayland', 'Wayland']) {
-      const binary = path.join(unpacked, name);
-      if (fs.existsSync(binary)) return binary;
-    }
-  }
-  return null;
 }
 
 /**
@@ -723,19 +685,28 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   const projectRoot = process.cwd();
 
-  const executable =
-    options.app ??
-    (options.outDir
-      ? resolvePackagedApp(path.resolve(projectRoot, options.outDir))
-      : (resolvePackagedApp(path.join(projectRoot, 'out-preview')) ??
-        resolvePackagedApp(path.join(projectRoot, 'out'))));
-  if (!executable || !fs.existsSync(executable)) {
-    console.error(
-      `${TAG} no packaged app found under out-preview/ or out/. Build one first, e.g.\n` +
-        `        WAYLAND_RELEASE_TRACK=preview node scripts/build-with-builder.js arm64 --mac --arm64 --pack-only`
-    );
-    return 1;
+  // #1034: resolve exactly the requested track, or fail naming the directory
+  // that should have held it. The previous `out-preview ?? out` chain meant a
+  // preview smoke with no preview package silently certified the STABLE app.
+  // An unknown track throws here rather than degrading to stable.
+  let executable;
+  let track = 'stable';
+  if (options.app) {
+    executable = options.app;
+    if (!fs.existsSync(executable)) {
+      console.error(`${TAG} --app ${executable} does not exist`);
+      return 1;
+    }
+  } else {
+    const resolved = resolveTrackedPackagedApp({
+      projectRoot,
+      track: options.releaseTrack ?? process.env.WAYLAND_RELEASE_TRACK ?? null,
+      outDir: options.outDir,
+    });
+    executable = resolved.executablePath;
+    track = resolved.track;
   }
+  log(`release track: ${track}`);
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const reportDir = path.resolve(projectRoot, options.reportDir ?? path.join('.smoke', stamp));
