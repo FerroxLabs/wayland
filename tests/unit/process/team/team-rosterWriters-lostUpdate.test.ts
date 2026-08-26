@@ -139,19 +139,43 @@ describe('whole-row agents writers preserve concurrent status writes (#1057)', (
   }
 
   /**
-   * Take the caller's snapshot, then commit a teammate status write on ANOTHER
-   * slot. Returns once the status is durably `idle` - asserted here so a probe
-   * that silently wrote nothing cannot make the tests below pass.
+   * Open the real window.
+   *
+   * Every one of these writers reads the team itself (`repo.findById`) and then
+   * writes later in the same call, so the losable interleaving is a status
+   * committed BETWEEN those two points - not before the call. This wraps the
+   * repository so the very next `findById` returns its snapshot and a teammate
+   * status write commits immediately afterwards, which is precisely what
+   * `TeammateManager.setStatus` does from another turn.
    */
-  async function snapshotThenCommitIdleOnLeader(): Promise<TTeam> {
-    const snapshot = (await repo.findById('team-1'))!;
-    await repo.updateAgentStatuses('team-1', [{ slotId: 'slot-leader', status: 'idle' }]);
-    expect(await statusOf('slot-leader')).toBe('idle');
-    return snapshot;
+  function commitStatusAfterNextRead(slotId: string, status: TeamAgent['status']): void {
+    const read = repo.findById.bind(repo);
+    let fired = false;
+    vi.spyOn(repo, 'findById').mockImplementation(async (id: string) => {
+      // Materialise the caller's snapshot FIRST; it is stale from here on.
+      const snapshot = await read(id);
+      if (!fired) {
+        fired = true;
+        await repo.updateAgentStatuses(id, [{ slotId, status }]);
+      }
+      return snapshot;
+    });
+  }
+
+  /**
+   * KNOWN POSITIVE for the probe: the interleaved write really did commit, so a
+   * test below cannot pass because nothing was ever written.
+   */
+  async function expectCommitted(slotId: string, status: string): Promise<void> {
+    const spy = repo.findById as unknown as { mockRestore?: () => void };
+    spy.mockRestore?.();
+    expect(await statusOf(slotId)).toBe(status);
   }
 
   it('KNOWN POSITIVE: the whole-row update path really does revert that write', async () => {
-    const snapshot = await snapshotThenCommitIdleOnLeader();
+    const snapshot = (await repo.findById('team-1'))!;
+    await repo.updateAgentStatuses('team-1', [{ slotId: 'slot-leader', status: 'idle' }]);
+    expect(await statusOf('slot-leader')).toBe('idle');
     await repo.update('team-1', { agents: snapshot.agents, updatedAt: Date.now() });
     // Proves the interleaving used by every test below is a real window.
     expect(await statusOf('slot-leader')).toBe('active');
@@ -159,7 +183,7 @@ describe('whole-row agents writers preserve concurrent status writes (#1057)', (
 
   it('spawnAgent keeps a status committed after its snapshot', async () => {
     const svc = newService();
-    await snapshotThenCommitIdleOnLeader();
+    commitStatusAfterNextRead('slot-leader', 'idle');
 
     await svc.addAgent('team-1', {
       conversationId: '',
@@ -173,52 +197,48 @@ describe('whole-row agents writers preserve concurrent status writes (#1057)', (
     // The spawn landed...
     expect((await agentsOf()).map((a) => a.agentName)).toContain('Newcomer');
     // ...and did not revert the concurrent status write.
-    expect(await statusOf('slot-leader')).toBe('idle');
+    await expectCommitted('slot-leader', 'idle');
   });
 
   it('renameAgent keeps a status committed after its snapshot', async () => {
     const svc = newService();
-    await snapshotThenCommitIdleOnLeader();
+    commitStatusAfterNextRead('slot-leader', 'idle');
 
     await svc.renameAgent('team-1', 'slot-1', 'Renamed');
 
     expect((await agentsOf()).find((a) => a.slotId === 'slot-1')?.agentName).toBe('Renamed');
-    expect(await statusOf('slot-leader')).toBe('idle');
+    await expectCommitted('slot-leader', 'idle');
   });
 
   it('changeAgentBackend keeps a status committed after its snapshot', async () => {
     const svc = newService();
-    await snapshotThenCommitIdleOnLeader();
+    commitStatusAfterNextRead('slot-leader', 'idle');
 
     await svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'codex' });
 
     expect((await agentsOf()).find((a) => a.slotId === 'slot-1')?.agentType).toBe('codex');
     expect(await statusOf('slot-1')).toBe('pending');
-    expect(await statusOf('slot-leader')).toBe('idle');
+    await expectCommitted('slot-leader', 'idle');
   });
 
   it('removeAgent keeps a status committed after its snapshot', async () => {
     const svc = newService();
-    await snapshotThenCommitIdleOnLeader();
+    commitStatusAfterNextRead('slot-leader', 'idle');
 
     await svc.removeAgent('team-1', 'slot-1');
 
     expect((await agentsOf()).map((a) => a.slotId)).toEqual(['slot-leader']);
-    expect(await statusOf('slot-leader')).toBe('idle');
+    await expectCommitted('slot-leader', 'idle');
   });
 
   it('a roster writer does not revert a durable failed either', async () => {
     const svc = newService();
-    await repo.updateAgentStatuses('team-1', [{ slotId: 'slot-leader', status: 'failed' }]);
-    expect(await statusOf('slot-leader')).toBe('failed');
-    // A snapshot taken BEFORE the failure is what the writer would otherwise
-    // stamp back over it.
-    const stale = makeTeam().agents;
-    expect(stale.find((a) => a.slotId === 'slot-leader')?.status).toBe('active');
+    commitStatusAfterNextRead('slot-leader', 'failed');
 
     await svc.renameAgent('team-1', 'slot-1', 'Renamed again');
 
-    expect(await statusOf('slot-leader')).toBe('failed');
+    // A clobbered `failed` loses the durable failure record outright.
+    await expectCommitted('slot-leader', 'failed');
   });
 
   it('a roster writer still preserves team columns it does not own', async () => {
