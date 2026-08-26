@@ -175,6 +175,91 @@ describe('strict bundled wayland-nano provenance', () => {
     expect(builder).toContain("'/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$'");
   });
 
+  /**
+   * THE THREE-FILE LOCKSTEP (#914).
+   *
+   * Re-pinning the bundled nano is not one edit, it is three that must agree:
+   * DEFAULT_WNANO_VERSION in scripts/prepareWaylandNano.js, the tag block in
+   * scripts/bundled-wnano-shasums.json, and the release entry in
+   * scripts/supply-chain/publisher-attestations.json. A PARTIAL re-pin is worse
+   * than none: prepare resolves the new tag, then either fails closed at download
+   * time on a missing manifest entry, or - if only the attestation is stale -
+   * ships bytes whose publisher provenance points at a different release.
+   *
+   * These assertions read the PINNED tag rather than a hardcoded one, so they
+   * keep holding across future bumps instead of needing an edit each time.
+   */
+  it('pins a tag that carries complete provenance for every supported asset', () => {
+    const tag = prepareWaylandNano.DEFAULT_WNANO_VERSION;
+    const shasums = JSON.parse(
+      fs.readFileSync(path.resolve('scripts/bundled-wnano-shasums.json'), 'utf8')
+    ) as Record<string, Record<string, { archiveSha256?: string; binarySha256?: string }>>;
+
+    expect(Object.keys(shasums), `${tag} has no block in bundled-wnano-shasums.json`).toContain(tag);
+
+    // Every runtime the bundle supports, resolved through getAssetName so a new
+    // platform cannot be added without this test noticing it is unpinned.
+    const runtimes: Array<[string, string]> = [
+      ['darwin', 'arm64'],
+      ['darwin', 'x64'],
+      ['linux', 'arm64'],
+      ['linux', 'x64'],
+      ['win32', 'x64'],
+    ];
+    for (const [platform, arch] of runtimes) {
+      const asset = prepareWaylandNano.getAssetName(platform, arch, tag);
+      expect(asset, `${platform}-${arch} resolves to no asset name at ${tag}`).toBeTruthy();
+      const pinned = prepareWaylandNano.loadExpectedProvenance(tag, asset as string, {
+        requireBinary: true,
+      });
+      expect(pinned.archiveSha256, `${asset} archive pin`).toMatch(/^[0-9a-f]{64}$/);
+      expect(pinned.binarySha256, `${asset} binary pin`).toMatch(/^[0-9a-f]{64}$/);
+      // The archive and the executable inside it are different bytes. A copied
+      // digest means someone filled the manifest by hand from one value.
+      expect(pinned.binarySha256, `${asset} archive and binary pins are identical`).not.toBe(
+        pinned.archiveSha256
+      );
+    }
+  });
+
+  it('carries an active publisher attestation for the pinned tag', () => {
+    const tag = prepareWaylandNano.DEFAULT_WNANO_VERSION;
+    const attestations = JSON.parse(
+      fs.readFileSync(path.resolve('scripts/supply-chain/publisher-attestations.json'), 'utf8')
+    ) as { policies: Array<Record<string, string>> };
+
+    const entry = attestations.policies.find(
+      (policy) => policy.repository === 'FerroxLabs/wayland-nano' && policy.releaseTag === tag
+    );
+    expect(entry, `no publisher attestation for wayland-nano ${tag}`).toBeTruthy();
+    expect(entry?.status).toBe('active');
+    expect(entry?.sourceRef).toBe(`refs/tags/${tag}`);
+    // A tag-object sha is not a commit sha. The attestation must name the commit
+    // the annotated tag resolves to, which is what the provenance predicate binds.
+    expect(entry?.sourceDigest, `${tag} sourceDigest`).toMatch(/^[0-9a-f]{40}$/);
+    expect(entry?.signerWorkflow).toContain('FerroxLabs/wayland-nano/.github/workflows/');
+  });
+
+  /**
+   * Upstream signs the Windows nano binary itself as of wayland-nano v0.2.0
+   * ("ci: Authenticode-sign the Windows nano binary before it is digested").
+   * Authenticode signing REWRITES the file, so if electron-builder re-signed it
+   * during packaging the shipped bytes would no longer match binarySha256 and the
+   * packaged-resource check would fail closed. The negative signExts patterns are
+   * therefore load-bearing for the pin, not an oversight - exactly as they already
+   * are for wayland-core, which is signed by its own release workflow too.
+   */
+  it('leaves the upstream-signed windows binaries out of electron-builder signing', () => {
+    const builder = fs.readFileSync(path.resolve('electron-builder.yml'), 'utf8');
+    for (const excluded of [
+      String.raw`'!\bundled-wayland-nano\win32-x64\wayland-nano.exe'`,
+      String.raw`'!\bundled-wayland-nano\win32-arm64\wayland-nano.exe'`,
+      String.raw`'!\bundled-wayland-core\win32-x64\wayland-core.exe'`,
+    ]) {
+      expect(builder, `signExts no longer excludes ${excluded}`).toContain(excluded);
+    }
+  });
+
   it('keeps the bundle receipt contract bound to binary pins and publisher attestation', () => {
     const prepare = fs.readFileSync(path.resolve('scripts/prepareWaylandNano.js'), 'utf8');
     expect(prepareWaylandNano.BUNDLE_CONTRACT).toBe('wayland-nano-bundle/1.0');
