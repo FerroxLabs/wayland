@@ -80,6 +80,19 @@ function makeRepo(): ITeamRepository {
       return merged;
     },
     updateAgentStatuses: async (id: string) => teams.get(id) ?? null,
+    // #1057 replaced five whole-blob roster rewrites with this field-scoped
+    // writer, so the service now reaches the roster through it rather than
+    // through `update`. Mirrors SqliteTeamRepository: a null return from the
+    // mutator means "no change", and the stored team is left untouched.
+    mutateAgents: async (id: string, mutate: (a: TeamAgent[]) => TeamAgent[] | null) => {
+      const team = teams.get(id);
+      if (!team) return null;
+      const next = mutate([...(team.agents ?? [])]);
+      if (next === null) return { ...team };
+      const merged = { ...team, agents: next };
+      teams.set(id, merged);
+      return merged;
+    },
     delete: async (id: string) => {
       teams.delete(id);
     },

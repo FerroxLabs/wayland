@@ -3136,7 +3136,7 @@ describe('modelRegistry IPC - curatedForAgent wnano provider parity (#1002)', ()
 
     // `buildWnanoProvidersEnv` advertises only `state === 'connected'` rows, so
     // an errored provider is not in Nano's payload and must not be in its picker.
-    expect(curated.map((m) => m.id)).toEqual(['gpt-4o']);
+    expect(curated.map((m) => m.id)).toEqual(['openai:gpt-4o']);
   });
 
   it('still returns [] when nothing Nano knows is connected', async () => {
