@@ -52,8 +52,9 @@ function platformName(platform: NodeJS.Platform): string {
 
 export async function checkConstitutionActive(info: ConstitutionCapabilityInfo): Promise<DoctorCheckOutcome> {
   const os = platformName(info.platform);
+  const capability = info.capability;
 
-  if (info.capability === null) {
+  if (capability === null) {
     return {
       status: 'warn',
       detail: `Wayland could not read whether the Constitution is active on this install (${os}), because the Constitution service is not running in this process.`,
@@ -62,7 +63,7 @@ export async function checkConstitutionActive(info: ConstitutionCapabilityInfo):
     };
   }
 
-  if (info.capability.supported) {
+  if (capability.supported) {
     return {
       status: 'pass',
       detail: `The Constitution and any specialist overlay are applied to every chat on this platform (${os}).`,
@@ -73,7 +74,7 @@ export async function checkConstitutionActive(info: ConstitutionCapabilityInfo):
     status: 'warn',
     // Both halves are named on purpose: a reader who only sees "Constitution"
     // will not connect it to a specialist behaving like a generic assistant.
-    detail: `The Constitution and the specialist overlay are NOT applied on ${os}, so agents here run without Wayland's identity and behaviour rules and a specialist gets no per-specialist instructions. Everything else works normally. Reported reason: ${info.capability.reason}`,
+    detail: `The Constitution and the specialist overlay are NOT applied on ${os}, so agents here run without Wayland's identity and behaviour rules and a specialist gets no per-specialist instructions. Everything else works normally. Reported reason: ${capability.reason}`,
     remediation: `This is a platform limitation, not a setting you got wrong - the component that supplies them ships for macOS and Linux only. Quote this line in any bug report about how an agent behaved on ${os}.`,
   };
 }
