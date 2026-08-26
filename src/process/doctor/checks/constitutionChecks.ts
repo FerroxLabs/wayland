@@ -63,18 +63,22 @@ export async function checkConstitutionActive(info: ConstitutionCapabilityInfo):
     };
   }
 
-  if (capability.supported) {
+  // `=== false`, not `!capability.supported`: this project compiles without
+  // strictNullChecks, where truthiness alone does not narrow the discriminant
+  // and `capability.reason` is then unreachable. `composePrompt` writes the same
+  // comparison for the same reason.
+  if (capability.supported === false) {
     return {
-      status: 'pass',
-      detail: `The Constitution and any specialist overlay are applied to every chat on this platform (${os}).`,
+      status: 'warn',
+      // Both halves are named on purpose: a reader who only sees "Constitution"
+      // will not connect it to a specialist behaving like a generic assistant.
+      detail: `The Constitution and the specialist overlay are NOT applied on ${os}, so agents here run without Wayland's identity and behaviour rules and a specialist gets no per-specialist instructions. Everything else works normally. Reported reason: ${capability.reason}`,
+      remediation: `This is a platform limitation, not a setting you got wrong - the component that supplies them ships for macOS and Linux only. Quote this line in any bug report about how an agent behaved on ${os}.`,
     };
   }
 
   return {
-    status: 'warn',
-    // Both halves are named on purpose: a reader who only sees "Constitution"
-    // will not connect it to a specialist behaving like a generic assistant.
-    detail: `The Constitution and the specialist overlay are NOT applied on ${os}, so agents here run without Wayland's identity and behaviour rules and a specialist gets no per-specialist instructions. Everything else works normally. Reported reason: ${capability.reason}`,
-    remediation: `This is a platform limitation, not a setting you got wrong - the component that supplies them ships for macOS and Linux only. Quote this line in any bug report about how an agent behaved on ${os}.`,
+    status: 'pass',
+    detail: `The Constitution and any specialist overlay are applied to every chat on this platform (${os}).`,
   };
 }
