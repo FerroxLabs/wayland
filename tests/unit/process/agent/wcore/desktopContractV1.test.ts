@@ -142,7 +142,7 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('d1f55f0b');
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('7066118a');
     expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 19 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
@@ -217,11 +217,30 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // generated closed-`oneOf` command schema and a negotiated host can send
     // them without failing its own outbound validation.
     //
+    // v0.13.7 -> v0.13.8 is the STAMP-ONLY shape again, and was established the
+    // same way: field by field against the released manifest, never by reading.
+    // `name`, `major`, `minor` (19), `generator` (gen/19) and `schema_digest`
+    // (9e594e4e...) are byte-identical, and the capability set compares EQUAL as
+    // a set - nothing added, nothing removed, nothing re-graded. Counts hold at
+    // 26 commands, 61 events, 3 child types, 174 fixtures. Only `fixture_digest`
+    // and `source_inputs_digest` moved, and exactly SIX of the 174 vendored
+    // fixtures carry that stamp; with the manifest that is seven changed files
+    // out of the whole corpus and every other byte is unchanged. Cross-checked
+    // against the signed asset `wayland-core-v0.13.8-desktop-contract-v1.tar.gz`
+    // (checksum 3e21f826b08038a2...), imported byte-for-byte, with the release's
+    // publisher attestation verified to producer 7066118a on refs/heads/main.
+    //
+    // Because the SHAPE did not move, `minor` did not need to - but the corpus
+    // still had to be re-vendored, because assertDescriptor fails closed on both
+    // stamped digests. A 0.13.7-pinned Desktop handed a 0.13.8 engine dies at
+    // the handshake on every turn, and vice versa; that is not a theoretical
+    // risk, it is what these two digests changing MEANS.
+    //
     // If the pin is ever NOT 19 this whole assertion is stale and the coupling
     // must be re-derived from the released manifest, not patched.
     expect(DESKTOP_CORE_V1_PIN.minor).toBe(19);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.7'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.8'"
     );
   });
 

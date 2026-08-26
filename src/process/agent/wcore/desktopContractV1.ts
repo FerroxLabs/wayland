@@ -15,7 +15,7 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = 'd1f55f0b' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '7066118a' as const;
 
 /**
  * Pinned to Core `d1f55f0b`, the `v0.13.7` release tag. Every value below was
@@ -67,9 +67,9 @@ export const DESKTOP_CORE_V1_PIN = {
   major: 1,
   minor: 19,
   generator: 'wcore-desktop-contract-gen/19',
-  fixtureDigest: 'sha256:ab097223f29050c769e7055aa6d4eeb67efead69478c7c96413b63ca860c6cbc',
+  fixtureDigest: 'sha256:f71f73765225e6b2412155a4442a6f45590a0186d25e95976a0f2001d8241860',
   schemaDigest: 'sha256:9e594e4eda55d6cb52efca39092529e3a2ee2dac24ca69b7b3e1a0200d141de2',
-  sourceInputsDigest: 'sha256:379e4ed842c4422f1380cb1ccd9232a83cca212af298123852f9c851ac928d75',
+  sourceInputsDigest: 'sha256:ac7c0a48b25ccb5c49a58bb8360fb0111cb6b0f7f978f17c6401c8ab7aa1efdf',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',

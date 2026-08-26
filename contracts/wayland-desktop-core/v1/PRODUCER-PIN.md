@@ -1,22 +1,42 @@
 # Desktop validation pin
 
 This corpus is a byte-for-byte mechanical import from Wayland Core commit
-`d1f55f0b49b32600b2d253c5aee57649bd3109ea`, which is the **`v0.13.7` release tag**.
+`7066118a2835f6ec5d6932ffa525a6aff2e30100`, which is the **`v0.13.8` release tag**.
 
 - contract: `wayland-desktop-core` `1.19`
 - generator: `wcore-desktop-contract-gen/19`
-- fixtures: `sha256:ab097223f29050c769e7055aa6d4eeb67efead69478c7c96413b63ca860c6cbc`
+- fixtures: `sha256:f71f73765225e6b2412155a4442a6f45590a0186d25e95976a0f2001d8241860`
 - schemas: `sha256:9e594e4eda55d6cb52efca39092529e3a2ee2dac24ca69b7b3e1a0200d141de2`
-- source inputs: `sha256:379e4ed842c4422f1380cb1ccd9232a83cca212af298123852f9c851ac928d75`
+- source inputs: `sha256:ac7c0a48b25ccb5c49a58bb8360fb0111cb6b0f7f978f17c6401c8ab7aa1efdf`
 
 Verified by execution, not by reading. The import was compared **file by file**
-against the signed release asset `wayland-core-v0.13.7-desktop-contract-v1.tar.gz`:
-179 files, 179 digest matches, and a deliberately-wrong comparison was shown to
-report a mismatch, so the check is known to discriminate rather than to be
-vacuously green. The five values above were read from the tag's `manifest.json`
+against the signed release asset `wayland-core-v0.13.8-desktop-contract-v1.tar.gz`
+(`sha256:3e21f826b08038a200a116b443da38ff2af85d08742a72a6ab069eae43d8d6ac`):
+179 files, 179 digest matches, 0 mismatches, and a deliberately-wrong comparison
+was shown to report a mismatch, so the check is known to discriminate rather than
+to be vacuously green. The release's publisher attestation was verified to the
+same producer commit on `refs/heads/main`. The five values above were read from the tag's `manifest.json`
 and then confirmed identical, field by field including the whole capability map,
 to the `contract` block of the `ready` fixture the same tag publishes — the frame
 a real engine sends on line one.
+
+## v0.13.7 -> v0.13.8: the stamp moved, the shape did not
+
+This move changes **only** `fixture_digest` and `source_inputs_digest`. Compared
+field by field against the released manifest, `name`, `major`, `minor` (19),
+`generator` (`gen/19`) and `schema_digest` are byte-identical, and the capability
+map compares EQUAL as a set: nothing added, nothing removed, nothing re-graded.
+Counts hold at **26 commands, 61 events, 3 child types, 174 fixtures**.
+
+Exactly **six** of the 174 vendored fixtures carry the descriptor stamp, and with
+`manifest.json` that is seven changed files in the whole corpus; every other byte
+is unchanged. That is why `DESKTOP_CORE_V1_PIN.minor` did not move.
+
+It is also why the corpus still had to be re-vendored. `assertDescriptor` is
+exact-match on **both** stamped digests, so a Desktop pinned to `v0.13.7` handed a
+`v0.13.8` engine dies at the handshake on every turn, and a `v0.13.8`-pinned
+Desktop refuses a `v0.13.7` engine the same way. A stamp-only move is not a
+cosmetic move.
 
 ## Why this pin moved
 
