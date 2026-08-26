@@ -7,7 +7,6 @@
  */
 
 import { DEFAULT_IMAGE_EXTENSION, MIME_TO_EXT_MAP } from '@/common/config/constants';
-import type { Content, Part } from '@google/genai';
 import type {
   CompletedToolCall,
   Config,
@@ -675,6 +674,15 @@ export const getPromptCount = () => {
 };
 
 /**
+ * Derived from the client rather than imported from `@google/genai`: aioncli-core
+ * carries its own nested copy of that package, and the two `Part` types are not
+ * assignable to each other. Reading the shape off `getHistory()` keeps us in step
+ * with whichever copy the client actually returns.
+ */
+type GeminiContent = ReturnType<GeminiClient['getHistory']>[number];
+type GeminiPart = NonNullable<GeminiContent['parts']>[number];
+
+/**
  * Gemini 3.x signs every `functionCall` part it emits with a `thoughtSignature`,
  * and requires each of those parts to still carry a signature when the history is
  * replayed on the next request. A part that comes back unsigned rejects the whole
@@ -695,16 +703,16 @@ export const getPromptCount = () => {
  * Returns the input array itself when there is nothing to repair, so callers can
  * skip a needless `setHistory()`. Never mutates the input.
  */
-export function ensureAllFunctionCallsHaveSignatures(contents: Content[]): Content[] {
-  let repairedContents: Content[] | undefined;
+export function ensureAllFunctionCallsHaveSignatures(contents: GeminiContent[]): GeminiContent[] {
+  let repairedContents: GeminiContent[] | undefined;
 
   for (let i = 0; i < contents.length; i++) {
     const content = contents[i];
     if (content?.role !== 'model' || !Array.isArray(content.parts)) continue;
 
-    let repairedParts: Part[] | undefined;
+    let repairedParts: GeminiPart[] | undefined;
     for (let j = 0; j < content.parts.length; j++) {
-      const part = content.parts[j] as (Part & { thoughtSignature?: string }) | null | undefined;
+      const part = content.parts[j] as (GeminiPart & { thoughtSignature?: string }) | null | undefined;
       if (!part?.functionCall || part.thoughtSignature) continue;
       repairedParts ??= content.parts.slice();
       repairedParts[j] = { ...part, thoughtSignature: SYNTHETIC_THOUGHT_SIGNATURE };
