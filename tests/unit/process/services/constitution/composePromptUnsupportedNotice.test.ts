@@ -20,7 +20,7 @@
  * the same call the sibling reclaim notice makes.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { mockBridge, mockCapability, mockAddMessage, mockEmit } = vi.hoisted(() => ({
   mockBridge: vi.fn(),
@@ -59,11 +59,20 @@ const UNSUPPORTED = {
 };
 
 describe('composePrompt discloses an unsupported Constitution platform (#1040)', () => {
+  const realPlatform = process.platform;
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     resetConstitutionUnsupportedNotices();
     mockBridge.mockReturnValue({ constitution: 'C', overlay: null });
+    // The only platform that actually ships without the authority today.
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+    vi.restoreAllMocks();
   });
 
   it('posts a notice into the conversation naming what is missing', () => {

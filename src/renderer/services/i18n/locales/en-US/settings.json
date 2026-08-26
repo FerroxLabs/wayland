@@ -2912,7 +2912,8 @@
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity",
       "configPaths": "Config locations",
-      "appArchitecture": "App architecture"
+      "appArchitecture": "App architecture",
+      "constitution": "Constitution active"
     }
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
