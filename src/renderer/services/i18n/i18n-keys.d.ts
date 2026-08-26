@@ -3529,6 +3529,7 @@ export type I18nKey =
   | 'settings.doctor.checks.backends'
   | 'settings.doctor.checks.bootstrap'
   | 'settings.doctor.checks.configPaths'
+  | 'settings.doctor.checks.constitution'
   | 'settings.doctor.checks.engineConfig'
   | 'settings.doctor.checks.engineContractPin'
   | 'settings.doctor.checks.engineReachable'
