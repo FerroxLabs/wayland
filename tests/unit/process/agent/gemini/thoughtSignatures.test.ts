@@ -23,9 +23,9 @@
  * signs (text parts, functionResponse parts, user turns) ever gets an invented one.
  */
 
-import { SYNTHETIC_THOUGHT_SIGNATURE } from '@office-ai/aioncli-core';
-import { describe, expect, it } from 'vitest';
-import { ensureAllFunctionCallsHaveSignatures } from '@process/agent/gemini/utils';
+import { GeminiChat, SYNTHETIC_THOUGHT_SIGNATURE } from '@office-ai/aioncli-core/dist/src/core/geminiChat.js';
+import { describe, expect, it, vi } from 'vitest';
+import { ensureAllFunctionCallsHaveSignatures, repairMissingThoughtSignatures } from '@process/agent/gemini/utils';
 
 type TestPart = {
   text?: string;
@@ -181,9 +181,68 @@ describe('ensureAllFunctionCallsHaveSignatures (#748)', () => {
   });
 });
 
+describe('repairMissingThoughtSignatures model gate', () => {
+  const brokenHistory = (): TestContent[] => [
+    { role: 'user', parts: [{ text: 'go' }] },
+    { role: 'model', parts: [call('default_api:ToolSearch')] },
+  ];
+
+  const clientWith = (history: TestContent[]) => ({
+    isInitialized: () => true,
+    getHistory: vi.fn(() => history),
+    setHistory: vi.fn(),
+  });
+
+  it('repairs history for a Gemini 3.x model - the reporter configuration', () => {
+    const client = clientWith(brokenHistory());
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+
+    expect(client.setHistory).toHaveBeenCalledTimes(1);
+    const written = client.setHistory.mock.calls[0][0] as unknown as TestContent[];
+    expect(written[1].parts[0].thoughtSignature).toBe(SYNTHETIC_THOUGHT_SIGNATURE);
+  });
+
+  it('leaves a Gemini 2.x conversation completely untouched', () => {
+    // 2.x never emits thought signatures and never demands them back; signing
+    // its history would add a field the model never produced.
+    const client = clientWith(brokenHistory());
+    repairMissingThoughtSignatures(client as never, 'gemini-2.5-flash');
+
+    expect(client.setHistory).not.toHaveBeenCalled();
+  });
+
+  it('does not call setHistory when every signature is already present', () => {
+    const client = clientWith([
+      { role: 'user', parts: [{ text: 'go' }] },
+      { role: 'model', parts: [call('default_api:ToolSearch', 'real-sig')] },
+    ]);
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+
+    expect(client.setHistory).not.toHaveBeenCalled();
+  });
+
+  it('does nothing when the client is not initialized', () => {
+    const client = { ...clientWith(brokenHistory()), isInitialized: () => false };
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+
+    expect(client.setHistory).not.toHaveBeenCalled();
+  });
+
+  it('never throws out of the send path when the client misbehaves', () => {
+    const client = {
+      isInitialized: () => true,
+      getHistory: () => {
+        throw new Error('history unavailable');
+      },
+      setHistory: vi.fn(),
+    };
+
+    expect(() => repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash')).not.toThrow();
+  });
+});
+
 describe('vendored aioncli-core filler leaves #748 unsigned (characterization)', () => {
-  it('proves the upstream gap this fix exists to close', async () => {
-    const { GeminiChat } = await import('@office-ai/aioncli-core/dist/src/core/geminiChat.js');
+  it('proves the upstream gap this fix exists to close', () => {
     const upstream = (
       GeminiChat.prototype as unknown as {
         ensureActiveLoopHasThoughtSignatures: (c: TestContent[]) => TestContent[];
