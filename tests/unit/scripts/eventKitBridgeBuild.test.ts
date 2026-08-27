@@ -79,7 +79,13 @@ describe('#1013 EventKit bridge is built, not merely hoped for', () => {
     expect(calls[0]!.output).toBe(path.join(src, 'dist', 'eventkit-bridge'));
     const installed = path.join(outMain, 'eventkit-bridge');
     expect(fs.readFileSync(installed, 'utf-8')).toBe('MACH-O');
-    expect(fs.statSync(installed).mode & 0o777).toBe(0o755);
+    // NTFS has no POSIX mode bits: Node reports 0o666 for any file there
+    // regardless of what chmod asked for, so this asserts the runner's
+    // filesystem rather than the build step. The exec-bit only has to be real
+    // where the bridge actually runs, which is darwin.
+    if (process.platform !== 'win32') {
+      expect(fs.statSync(installed).mode & 0o777).toBe(0o755);
+    }
     expect(warn).not.toHaveBeenCalled();
   });
 

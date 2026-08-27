@@ -144,7 +144,12 @@ describe('ijfw/envAllowlist on Windows (#928)', () => {
   });
 });
 
-describe('ijfw/envAllowlist stays case-SENSITIVE off Windows', () => {
+// Windows cannot host this assertion: `process.env` is case-INSENSITIVE there,
+// so setting both `PATH` and `path` collapses to one entry and the darwin
+// behaviour under test literally cannot be observed. Running it on win32 tests
+// the runner, not the code. Same precedent as the POSIX-layout block in
+// safeSpawn.test.ts.
+describe.skipIf(process.platform === 'win32')('ijfw/envAllowlist stays case-SENSITIVE off Windows', () => {
   beforeEach(() => {
     setPlatform('darwin');
   });

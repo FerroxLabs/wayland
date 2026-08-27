@@ -285,7 +285,13 @@ describe('ijfw/safeSpawn', () => {
     };
 
     beforeEach(() => {
-      root = fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-npm-layouts-'));
+      // realpath the root: on macOS os.tmpdir() is /var/folders/... which is a
+      // SYMLINK to /private/var/folders/..., and the resolver under test
+      // realpaths by design (that is the confinement). Comparing its resolved
+      // answer against an unresolved root fails for a reason that has nothing
+      // to do with npm resolution. Resolving here also makes the mock's own
+      // startsWith(root) confinement check compare like with like.
+      root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-npm-layouts-')));
       const realRealpath = fs.promises.realpath.bind(fs.promises);
       realpathSpy = vi.spyOn(fs.promises, 'realpath').mockImplementation(async (target: never) => {
         const p = String(target);
@@ -419,11 +425,23 @@ describe('ijfw/safeSpawn bun temp redirect (#928)', () => {
   const originalPlatform = process.platform;
   const originalTmp = process.env.TMP;
   const originalTemp = process.env.TEMP;
+  const originalTmpdir = process.env.TMPDIR;
   let dir: string;
 
   beforeEach(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-bunenv-'));
     __setTrustedNpmCliResolver(async () => path.join(dir, 'npm-cli.js'));
+    // TMP/TEMP below are SENTINELS, asserted to survive untouched off win32.
+    // But on POSIX `os.tmpdir()` reads TMPDIR, then TMP, then TEMP - so the
+    // sentinel also becomes the last-resort base dir that
+    // `resolveSafeSpawnCwd()` falls back to, and `__buildBunSandboxEnv` DROPS
+    // the whole redirect when it cannot create its dirs there. Creating
+    // `/os/temp/...` succeeds as root and fails as a normal user, so the
+    // sentinel made this suite pass on a root box and fail on real CI.
+    // TMPDIR takes precedence on POSIX: point it at the real temp dir so the
+    // fallback is writable while the sentinel still proves what it exists to
+    // prove.
+    process.env.TMPDIR = dir;
     process.env.TMP = '/os/temp';
     process.env.TEMP = '/os/temp';
     (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockReset();
@@ -437,6 +455,8 @@ describe('ijfw/safeSpawn bun temp redirect (#928)', () => {
     else process.env.TMP = originalTmp;
     if (originalTemp === undefined) delete process.env.TEMP;
     else process.env.TEMP = originalTemp;
+    if (originalTmpdir === undefined) delete process.env.TMPDIR;
+    else process.env.TMPDIR = originalTmpdir;
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
