@@ -363,7 +363,7 @@
   "routingBadge": {
     "flux": "Flux 経由でルーティング",
     "native": "ネイティブ接続",
-    "unknown": "このツール自身のログインを使用",
+    "unknown": "ルーティング不明",
     "fluxError": "Flux 利用不可",
     "fluxErrorNotice": "このターンで Flux ルーティングに失敗しました。Flux 接続を確認するか、モデルを切り替えてください。"
   },

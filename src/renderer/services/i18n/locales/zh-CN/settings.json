@@ -2149,6 +2149,7 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreOriginalsPreserved": "您的原始文件没有被删除。Wayland 在恢复前已将它们移到一旁，并保存在 {{path}}。请先把该文件夹复制到安全位置，然后再重试。",
     "restoreBadPassphrase": "该备份口令不正确，因此无法解锁归档中的加密密钥。此设备上的内容没有任何改动。请检查口令后重试。",
     "restoreApplied": "恢复完成。已恢复：{{items}}。",
     "restoreAppliedWithSafety": "恢复完成。已恢复：{{items}}。恢复前的文件备份副本位于 {{path}}。",
@@ -2745,7 +2746,8 @@
       "backends": "Detected backends",
       "workspaceDrift": "Workspace paths",
       "secretStorage": "Secret storage",
-      "engineConfig": "Engine config integrity"
+      "engineConfig": "Engine config integrity",
+      "constitution": "Constitution active"
     }
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",

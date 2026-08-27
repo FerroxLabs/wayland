@@ -2150,6 +2150,7 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreOriginalsPreserved": "元のファイルは削除されていません。Wayland は復元前にそれらを退避し、{{path}} に保管しています。もう一度試す前に、このフォルダを安全な場所にコピーしてください。",
     "restoreBadPassphrase": "そのバックアップパスフレーズが正しくないため、アーカイブ内の暗号化されたキーを解除できませんでした。このデバイスでは何も変更されていません。パスフレーズを確認して、もう一度お試しください。",
     "restoreApplied": "復元が完了しました。復元された項目: {{items}}。",
     "restoreAppliedWithSafety": "復元が完了しました。復元された項目: {{items}}。復元前のファイル復旧コピーは {{path}} にあります。",
@@ -2746,7 +2747,8 @@
       "backends": "Detected backends",
       "workspaceDrift": "Workspace paths",
       "secretStorage": "Secret storage",
-      "engineConfig": "Engine config integrity"
+      "engineConfig": "Engine config integrity",
+      "constitution": "Constitution active"
     }
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",

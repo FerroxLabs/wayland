@@ -52,6 +52,7 @@ import {
   getPromptCount,
   handleCompletedTools,
   processGeminiStreamEvents,
+  repairMissingThoughtSignatures,
   startNewPrompt,
 } from './utils';
 import path from 'path';
@@ -777,6 +778,11 @@ export class GeminiAgent {
       if (!options?.isContinuation) {
         startNewPrompt();
       }
+
+      // Gemini 3.x rejects a replayed history whose functionCall parts lost their
+      // thoughtSignature. The vendored filler misses parallel calls and anything
+      // before the active loop, so close those gaps here (#748).
+      repairMissingThoughtSignatures(this.geminiClient, this.config.getModel());
 
       const stream = this.geminiClient.sendMessageStream(query, abortController.signal, prompt_id);
 

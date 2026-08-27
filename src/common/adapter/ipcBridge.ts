@@ -3279,6 +3279,11 @@ export const storage = {
       failed?: boolean;
       errorCode?: LegacyBackupErrorCode;
       safetyBackupPath?: string;
+      // Where a FAILED restore kept the user's displaced originals, when the
+      // unwind could not put them all back (#1050). An application-generated
+      // temp path, not error text - it cannot carry archive content or a
+      // passphrase fragment - and without it the kept bytes are unreachable.
+      preservedPath?: string;
       applied?: string[];
       outOfScope?: string[];
       keysSkippedNoPassphrase?: boolean;

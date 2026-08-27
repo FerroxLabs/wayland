@@ -62,6 +62,18 @@
       "runner": "github-hosted"
     },
     {
+      "id": "wayland-nano-v0.2.0-release",
+      "status": "active",
+      "releaseTag": "v0.2.0",
+      "repository": "FerroxLabs/wayland-nano",
+      "signerWorkflow": "FerroxLabs/wayland-nano/.github/workflows/release.yml",
+      "sourceRef": "refs/tags/v0.2.0",
+      "sourceDigest": "cd393f69c5b1ddfd3d8d23ab8234278bc36c5b7b",
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "oidcIssuer": "https://token.actions.githubusercontent.com",
+      "runner": "github-hosted"
+    },
+    {
       "id": "wayland-core-v0.13.3-release",
       "status": "superseded",
       "releaseTag": "v0.13.3",
@@ -99,12 +111,36 @@
     },
     {
       "id": "wayland-core-v0.13.6-release",
-      "status": "active",
+      "status": "superseded",
       "releaseTag": "v0.13.6",
       "repository": "FerroxLabs/wayland-core",
       "signerWorkflow": "FerroxLabs/wayland-core/.github/workflows/release.yml",
       "sourceRef": "refs/heads/main",
       "sourceDigest": "92ee53743fab1a0ce234ce3e82ebb8091d7d8ecc",
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "oidcIssuer": "https://token.actions.githubusercontent.com",
+      "runner": "github-hosted"
+    },
+    {
+      "id": "wayland-core-v0.13.7-release",
+      "status": "superseded",
+      "releaseTag": "v0.13.7",
+      "repository": "FerroxLabs/wayland-core",
+      "signerWorkflow": "FerroxLabs/wayland-core/.github/workflows/release.yml",
+      "sourceRef": "refs/heads/main",
+      "sourceDigest": "d1f55f0b49b32600b2d253c5aee57649bd3109ea",
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "oidcIssuer": "https://token.actions.githubusercontent.com",
+      "runner": "github-hosted"
+    },
+    {
+      "id": "wayland-core-v0.13.8-release",
+      "status": "active",
+      "releaseTag": "v0.13.8",
+      "repository": "FerroxLabs/wayland-core",
+      "signerWorkflow": "FerroxLabs/wayland-core/.github/workflows/release.yml",
+      "sourceRef": "refs/heads/main",
+      "sourceDigest": "7066118a2835f6ec5d6932ffa525a6aff2e30100",
       "predicateType": "https://slsa.dev/provenance/v1",
       "oidcIssuer": "https://token.actions.githubusercontent.com",
       "runner": "github-hosted"

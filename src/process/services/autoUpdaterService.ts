@@ -18,6 +18,11 @@ import * as path from 'node:path';
 import { writeFileSyncAtomic } from '@process/utils/atomicWrite';
 import type { AutoUpdateInstallFailedReason } from '@/common/update/updateTypes';
 import { getReleaseTrack, getReleaseUpdateChannel, type WaylandReleaseTrack } from '@/common/releaseTrack';
+import {
+  assessWindowsElevation,
+  defaultWindowsElevationIO,
+  type WindowsElevationCapability,
+} from './windowsUpdateElevation';
 
 /**
  * Redact the user's home-directory prefix from a path/string so diagnostic logs
@@ -182,6 +187,14 @@ class AutoUpdaterService extends EventEmitter {
    * install never re-arms the loop. Set by {@link disableInstallOnQuit}.
    */
   private _installOnQuitBlocked = false;
+  /**
+   * Cached Windows elevation verdict for this session (#492). Computed lazily
+   * because the probe writes a real file into the install directory - `fs.access`
+   * ignores ACLs on Windows and would call %ProgramFiles% writable - and cached
+   * because the answer cannot change while the app is running. `null` means
+   * "not yet asked".
+   */
+  private _windowsElevation: WindowsElevationCapability | null = null;
 
   constructor() {
     super();
@@ -259,6 +272,7 @@ class AutoUpdaterService extends EventEmitter {
     this._lastDownloadedVersion = null;
     this._failedInstallVersion = null;
     this._installOnQuitBlocked = false;
+    this._windowsElevation = null;
     // Remove listeners from this EventEmitter instance
     this.removeAllListeners();
     // Remove each registered handler from autoUpdater to prevent
@@ -325,7 +339,7 @@ class AutoUpdaterService extends EventEmitter {
       // macOS can't apply an in-place update when the app runs outside
       // /Applications (App Translocation / quarantined read-only path): ShipIt
       // silently no-ops. Surface guidance instead of offering a doomed install (#286).
-      const blockReason = this.macUpdateBlockReason();
+      const blockReason = this.updateBlockReason();
       if (blockReason) {
         log.warn(
           `[autoUpdater] Update ${info.version} cannot be applied in place (${blockReason}); surfacing guidance.`
@@ -523,6 +537,15 @@ class AutoUpdaterService extends EventEmitter {
       log.warn('[autoUpdater] Skipping on-quit install: update is not safely applicable (#575/#286 guard).');
       return false;
     }
+    // An on-quit apply is unattended by definition: the windows are gone and the
+    // user has moved on. Handing elevate.exe a per-machine installer here would
+    // raise a UAC credential prompt a standard account can never satisfy, so the
+    // install no-ops and the staged update is simply lost. Keep it staged and let
+    // the user apply it deliberately instead (#492).
+    if (this.windowsUpdateBlockReason()) {
+      log.warn('[autoUpdater] Skipping on-quit install: this account cannot complete the Windows elevation (#492).');
+      return false;
+    }
     log.info(`[autoUpdater] Applying staged update ${this._lastDownloadedVersion} on quit (post-cleanup).`);
     // Persist the pending-install marker so the next launch can verify the apply
     // actually advanced the version (#286), same as the manual path.
@@ -691,6 +714,42 @@ class AutoUpdaterService extends EventEmitter {
    * update, else null. macOS only: App Translocation / a quarantined read-only
    * path outside /Applications makes ShipIt silently no-op (#286).
    */
+  /**
+   * The Windows elevation verdict for this session, computed once (#492).
+   */
+  private windowsElevationCapability(): WindowsElevationCapability {
+    if (this._windowsElevation === null) {
+      this._windowsElevation = assessWindowsElevation(defaultWindowsElevationIO());
+      log.info(`[autoUpdater] Windows update elevation capability: ${this._windowsElevation}`);
+    }
+    return this._windowsElevation;
+  }
+
+  /**
+   * Returns 'needs-admin' when this Windows account cannot complete the
+   * elevation an in-place update requires, else null.
+   *
+   * Wayland installs per-machine (UPD-04), so applying an update writes to
+   * %ProgramFiles%. electron-updater launches the installer through elevate.exe,
+   * which raises UAC: an administrator gets a consent prompt they can approve, a
+   * standard account gets a credential prompt it can never satisfy. Only the
+   * second case is blocked here - and only when the probe positively says so, so
+   * an undeterminable verdict behaves exactly as before.
+   */
+  private windowsUpdateBlockReason(): AutoUpdateInstallFailedReason | null {
+    if (process.platform !== 'win32') return null;
+    return this.windowsElevationCapability() === 'unavailable' ? 'needs-admin' : null;
+  }
+
+  /**
+   * The reason this process cannot apply an in-place update, else null. Both
+   * platform guards are shaped the same way: refuse to offer an update we can
+   * already prove will not install, and say why.
+   */
+  private updateBlockReason(): AutoUpdateInstallFailedReason | null {
+    return this.macUpdateBlockReason() ?? this.windowsUpdateBlockReason();
+  }
+
   private macUpdateBlockReason(): AutoUpdateInstallFailedReason | null {
     if (process.platform !== 'darwin') return null;
     try {
@@ -735,22 +794,31 @@ class AutoUpdaterService extends EventEmitter {
   private broadcastInstallFailed(reason: AutoUpdateInstallFailedReason, version?: string): void {
     const subject = version ? `Wayland ${version}` : 'The update';
     const message =
-      reason === 'not-in-applications'
-        ? `${subject} can't be installed because Wayland is running from outside your Applications folder ` +
-          `(macOS blocks in-place updates from temporary or read-only locations). Move Wayland to ` +
-          `/Applications, reopen it, and try again.`
-        : process.platform === 'win32'
-          ? // Windows installs are per-machine (UPD-04), so applying an update
-            // writes to %ProgramFiles% and needs administrator approval; the most
-            // common cause of a silent no-op is an elevation (UAC) prompt that was
-            // declined, dismissed, or never completed (#492).
-            `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
-            `previous version). Wayland is installed for all users, so updating needs administrator approval — ` +
-            `this usually means the elevation (UAC) prompt was declined or couldn't be completed. Please ` +
-            `download the installer manually from the Releases page and approve the administrator prompt ` +
-            `when it appears.`
-          : `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
-            `previous version). Please download and install it manually from the Releases page.`;
+      reason === 'needs-admin'
+        ? // A standard Windows account was never offered a prompt it could
+          // approve, so do not imply the user declined one. Name the requirement
+          // and the two routes that actually work.
+          `${subject} can't be installed on this account. Wayland is installed for all users (under Program ` +
+          `Files), so updating it requires administrator rights, and Windows will ask for an administrator's ` +
+          `password rather than a simple yes. Ask an administrator to install the update - they can download ` +
+          `the installer from the Releases page and run it - or have them reinstall Wayland just for you, ` +
+          `which lets future updates apply on their own.`
+        : reason === 'not-in-applications'
+          ? `${subject} can't be installed because Wayland is running from outside your Applications folder ` +
+            `(macOS blocks in-place updates from temporary or read-only locations). Move Wayland to ` +
+            `/Applications, reopen it, and try again.`
+          : process.platform === 'win32'
+            ? // Windows installs are per-machine (UPD-04), so applying an update
+              // writes to %ProgramFiles% and needs administrator approval; the most
+              // common cause of a silent no-op is an elevation (UAC) prompt that was
+              // declined, dismissed, or never completed (#492).
+              `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
+              `previous version). Wayland is installed for all users, so updating needs administrator approval — ` +
+              `this usually means the elevation (UAC) prompt was declined or couldn't be completed. Please ` +
+              `download the installer manually from the Releases page and approve the administrator prompt ` +
+              `when it appears.`
+            : `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
+              `previous version). Please download and install it manually from the Releases page.`;
     this.broadcastStatus({ status: 'install-failed', reason, version, error: message });
   }
 

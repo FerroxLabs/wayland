@@ -142,8 +142,8 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('92ee5374');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 16 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('7066118a');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 19 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
@@ -203,17 +203,44 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // `wayland-core-v0.13.4-desktop-contract-v1.tar.gz`: 176 files, 176 digest
     // matches, with a deliberately wrong comparison shown to report a mismatch.
     //
-    // Note what did NOT move: commands 23 -> 23. Core added `grant_path`,
-    // `revoke_path` and `grant_workspace_capability` to the protocol but
-    // shipped no command fixtures, and the command schema is generated from the
-    // fixture set over a closed `oneOf`, so all three stay unsendable under a
-    // negotiated contract (FerroxLabs/wayland-core#314).
+    // v0.13.6 -> v0.13.7 moves minor 16 -> 19, gen/16 -> gen/19. Purely
+    // additive and re-derived from the released manifest, cross-checked against
+    // the signed asset `wayland-core-v0.13.7-desktop-contract-v1.tar.gz`: 179
+    // files, 179 digest matches, with a deliberately wrong comparison shown to
+    // report a mismatch. Events stay at 61 and no capability was removed or
+    // re-graded; three are added - `turn_abandon_v1`, `path_write_grants_v1`
+    // and `inline_reasoning_split_v1`.
     //
-    // If the pin is ever NOT 16 this whole assertion is stale and the coupling
+    // And commands finally move, 23 -> 26: v0.13.7 ships the three fixtures
+    // whose absence was FerroxLabs/wayland-core#314, so `grant_path`,
+    // `revoke_path` and `grant_workspace_capability` are representable in the
+    // generated closed-`oneOf` command schema and a negotiated host can send
+    // them without failing its own outbound validation.
+    //
+    // v0.13.7 -> v0.13.8 is the STAMP-ONLY shape again, and was established the
+    // same way: field by field against the released manifest, never by reading.
+    // `name`, `major`, `minor` (19), `generator` (gen/19) and `schema_digest`
+    // (9e594e4e...) are byte-identical, and the capability set compares EQUAL as
+    // a set - nothing added, nothing removed, nothing re-graded. Counts hold at
+    // 26 commands, 61 events, 3 child types, 174 fixtures. Only `fixture_digest`
+    // and `source_inputs_digest` moved, and exactly SIX of the 174 vendored
+    // fixtures carry that stamp; with the manifest that is seven changed files
+    // out of the whole corpus and every other byte is unchanged. Cross-checked
+    // against the signed asset `wayland-core-v0.13.8-desktop-contract-v1.tar.gz`
+    // (checksum 3e21f826b08038a2...), imported byte-for-byte, with the release's
+    // publisher attestation verified to producer 7066118a on refs/heads/main.
+    //
+    // Because the SHAPE did not move, `minor` did not need to - but the corpus
+    // still had to be re-vendored, because assertDescriptor fails closed on both
+    // stamped digests. A 0.13.7-pinned Desktop handed a 0.13.8 engine dies at
+    // the handshake on every turn, and vice versa; that is not a theoretical
+    // risk, it is what these two digests changing MEANS.
+    //
+    // If the pin is ever NOT 19 this whole assertion is stale and the coupling
     // must be re-derived from the released manifest, not patched.
-    expect(DESKTOP_CORE_V1_PIN.minor).toBe(16);
+    expect(DESKTOP_CORE_V1_PIN.minor).toBe(19);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.6'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.8'"
     );
   });
 
@@ -255,8 +282,15 @@ describe('Wayland Core Desktop v1 producer pin', () => {
   // are now declared, so the corpus finally describes the whole wire. 59 -> 60
   // is 0.13.0's `call_announced`, the frame for a call that dispatches without
   // passing an approval gate.
-  it('contains exactly the advertised 23 commands, 61 events, and 171 fixtures', () => {
-    expect(manifest.counts).toEqual({ child_types: 3, commands: 23, events: 61, fixtures: 171 });
+  // 23 -> 26 commands is v0.13.7 closing wayland-core#314: `grant_path`,
+  // `revoke_path` and `grant_workspace_capability` were in `ProtocolCommand`
+  // and documented, but shipped no fixtures - and the command schema is
+  // generated from the fixture set over a CLOSED `oneOf`, so a host that had
+  // negotiated the contract could not send any of them without failing its own
+  // outbound validation. The three fixtures are the whole delta, and the
+  // fixture count moves by exactly the same three.
+  it('contains exactly the advertised 26 commands, 61 events, and 174 fixtures', () => {
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 26, events: 61, fixtures: 174 });
     // The inventory and the declared count must agree - a corpus that ships a
     // fixture it does not list, or lists one it does not ship, is the exact
     // class of drift C-1 was.

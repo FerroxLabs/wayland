@@ -101,6 +101,7 @@ import {
   buildSystemInstructionsWithSkillsIndex,
   prepareFirstMessageWithSkillsIndex,
 } from '@process/task/agentUtils';
+import { HONESTY_FLOOR } from '@process/services/constitution/composePrompt';
 
 const SENTINEL = 'WORKFLOW_PROTOCOL_SENTINEL_BODY';
 
@@ -115,26 +116,32 @@ describe('agentUtils - WORKFLOW_PROTOCOL injection (SPEC §7.3)', () => {
   // 1. No workflowSessionId - existing behaviour unchanged
   // -------------------------------------------------------------------------
 
-  it('buildSystemInstructions: returns undefined when nothing is configured and no workflowSessionId', async () => {
+  it('buildSystemInstructions: returns the honesty floor alone when nothing else is configured', async () => {
+    // Previously undefined. The floor is composed for every assistant on every
+    // backend, so "nothing configured" is no longer "no instructions" - and this
+    // bare profile is exactly the one that used to get no rules whatsoever.
     const result = await buildSystemInstructions({});
-    expect(result).toBeUndefined();
+    expect(result).toBe(HONESTY_FLOOR);
   });
 
   it('buildSystemInstructions: does NOT append the protocol when workflowSessionId is undefined', async () => {
     const result = await buildSystemInstructions({ presetContext: 'PRESET_BODY' });
-    expect(result).toBe('PRESET_BODY');
+    expect(result).toContain('PRESET_BODY');
+    expect(result).toContain(HONESTY_FLOOR);
     expect(result).not.toContain(SENTINEL);
   });
 
   it('buildSystemInstructionsWithSkillsIndex: does NOT append the protocol when workflowSessionId is undefined', async () => {
     const result = await buildSystemInstructionsWithSkillsIndex({ presetContext: 'PRESET_BODY' });
-    expect(result).toBe('PRESET_BODY');
+    expect(result).toContain('PRESET_BODY');
+    expect(result).toContain(HONESTY_FLOOR);
     expect(result).not.toContain(SENTINEL);
   });
 
   it('prepareFirstMessageWithSkillsIndex: does NOT append the protocol when workflowSessionId is undefined', async () => {
     const result = await prepareFirstMessageWithSkillsIndex('hello agent', {});
-    expect(result.content).toBe('hello agent');
+    expect(result.content).toContain('hello agent');
+    expect(result.content).toContain(HONESTY_FLOOR);
     expect(result.content).not.toContain(SENTINEL);
   });
 
@@ -211,7 +218,8 @@ describe('agentUtils - WORKFLOW_PROTOCOL injection (SPEC §7.3)', () => {
       workflowSessionId: 'wf-cold',
     });
 
-    expect(result).toBe('PRESET_BODY');
+    expect(result).toContain('PRESET_BODY');
+    expect(result).toContain(HONESTY_FLOOR);
     expect(result).not.toContain(SENTINEL);
   });
 
@@ -225,7 +233,8 @@ describe('agentUtils - WORKFLOW_PROTOCOL injection (SPEC §7.3)', () => {
       workflowSessionId: 'wf-missing',
     });
 
-    expect(result).toBe('PRESET_BODY');
+    expect(result).toContain('PRESET_BODY');
+    expect(result).toContain(HONESTY_FLOOR);
     expect(result).not.toContain(SENTINEL);
   });
 
@@ -240,7 +249,8 @@ describe('agentUtils - WORKFLOW_PROTOCOL injection (SPEC §7.3)', () => {
       workflowSessionId: 'wf-boom',
     });
 
-    expect(result).toBe('PRESET_BODY');
+    expect(result).toContain('PRESET_BODY');
+    expect(result).toContain(HONESTY_FLOOR);
     expect(result).not.toContain(SENTINEL);
     expect(warnSpy).toHaveBeenCalled();
     warnSpy.mockRestore();

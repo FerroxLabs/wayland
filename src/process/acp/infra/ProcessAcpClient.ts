@@ -39,6 +39,7 @@ import type {
   AgentLifecycleSnapshot,
   DisconnectInfo,
 } from '@process/acp/infra/IAcpClient';
+import { createAcpStderrReader } from '@process/acp/acpStderrLog';
 import { NdjsonTransport } from '@process/acp/infra/NdjsonTransport';
 import { gracefulShutdown, waitForExit, waitForSpawn } from '@process/acp/infra/processUtils';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
@@ -79,6 +80,25 @@ const STDERR_PENDING_MAX = 32768;
 const MISSED_EXIT_REPLAY_MS = 250;
 
 /**
+ * How long a prompt may run with ZERO bytes read off the agent's stdout before the
+ * transport is declared gone (#1061).
+ *
+ * Only consulted on win32, where the pipe signals cannot fire for a live child (see
+ * {@link ProcessAcpClient.attachLifecycleObservers}). It has to sit well above the
+ * longest legitimate silence a working agent produces mid-prompt - a single long
+ * tool call, e.g. a multi-minute build, during which the agent emits nothing - and
+ * it only has to beat "never", which is what Windows had. Ten minutes clears the
+ * longest tool call we have measured by a wide margin, and the alternative it
+ * replaces is a prompt that hangs until the user gives up.
+ */
+const TRANSPORT_SILENCE_MS = 600_000;
+
+/** Poll interval for the silence watchdog. Fine enough to be testable, cheap enough to ignore. */
+function transportWatchdogTickMs(silenceMs: number): number {
+  return Math.max(50, Math.floor(silenceMs / 4));
+}
+
+/**
  * Resolve `target` to a real filesystem path, symlinks included.
  *
  * bun names the REAL path of the module it could not resolve. On macOS that is
@@ -109,6 +129,15 @@ export type ProcessAcpClientOptions = {
   backend: string;
   handlers: ProtocolHandlers;
   gracePeriodMs?: number;
+  /**
+   * Platform the lifecycle detection should assume. Defaults to `process.platform`.
+   * Passed explicitly by the #1061 tests so the win32-only transport-silence
+   * watchdog is pinned from any host - the local box is not CI, and a darwin-only
+   * proof would prove nothing about the platform the watchdog exists for.
+   */
+  platform?: NodeJS.Platform;
+  /** Override {@link TRANSPORT_SILENCE_MS}. Tests only; production uses the default. */
+  transportSilenceMs?: number;
 };
 
 export class ProcessAcpClient implements AcpClient {
@@ -132,6 +161,13 @@ export class ProcessAcpClient implements AcpClient {
   private _lastExit: AgentExitInfo | null = null;
   private disconnectHandler: ((info: DisconnectInfo) => void) | null = null;
   private hasActivePrompt = false;
+
+  // Transport-silence watchdog (#1061). `lastStdoutBytes` is the last value read
+  // off the child's stdout socket, NOT a copy of its data - the data path is
+  // owned by NdjsonTransport and must not be touched.
+  private transportWatchdog: NodeJS.Timeout | null = null;
+  private lastStdoutBytes = 0;
+  private lastStdoutChangeAt = 0;
 
   // Learned capability: set to true once the agent rejects session/set_model
   // with -32601 (Method not found), so we stop re-sending it (#298).
@@ -277,10 +313,12 @@ export class ProcessAcpClient implements AcpClient {
 
   async prompt(sessionId: string, content: PromptContent): Promise<PromptResponse> {
     this.hasActivePrompt = true;
+    this.armTransportWatchdog();
     try {
       return await this.runConnectionRequest(() => this.conn.prompt({ sessionId, prompt: content }));
     } finally {
       this.hasActivePrompt = false;
+      this.disarmTransportWatchdog();
     }
   }
 
@@ -340,6 +378,7 @@ export class ProcessAcpClient implements AcpClient {
 
   async close(): Promise<void> {
     this.closing = true;
+    this.disarmTransportWatchdog();
     if (this.child) {
       await gracefulShutdown(this.child, this.options.gracePeriodMs ?? 100);
       this.child = null;
@@ -433,12 +472,37 @@ export class ProcessAcpClient implements AcpClient {
 
   // ─── Internals: Stderr capture ────────────────────────────
 
+  /**
+   * Attach the two INDEPENDENT stderr consumers.
+   *
+   * They are independent on purpose and must stay that way (#1062):
+   *
+   *  - `appendStderr` grows the diagnostic RING, raw. Its doc comment records two
+   *    measured HIGH regressions from the last attempt to scrub at this site, and
+   *    `clearBunxCacheIfNeeded` regexes that ring to recover a corrupted bun cache.
+   *  - the log reader owns its OWN line buffer and its own resync flag, scrubs each
+   *    WHOLE line, classifies it, and writes it at that level. It DISCARDS on
+   *    overflow, which the ring may never do.
+   *
+   * The chunk went to `console.error` verbatim before this. That is both halves of
+   * this lane's work: raw because `configureConsoleLog`'s file hook is handed a
+   * CHUNK (a credential split across two writes has its anchor masked in one write
+   * and its body left whole in the next) and the console transport is not scrubbed
+   * at all; and `error` because every chunk was, so routine bridge notices were
+   * tagged `[error]` in the log and a bug report read as a wall of failures (#1041).
+   */
   private setupStderrCapture(child: ChildProcess): void {
+    const reader = createAcpStderrReader((line, level) => {
+      console[level](`[ACP ${this.options.backend} STDERR]:`, line);
+    });
     child.stderr?.on('data', (data: Buffer) => {
       const chunk = data.toString();
-      console.error(`[ACP ${this.options.backend} STDERR]:`, chunk);
+      reader.push(chunk);
       this.appendStderr(chunk);
     });
+    // A bridge whose LAST line has no trailing newline still has to be logged.
+    child.stderr?.on('end', () => reader.flush());
+    child.stderr?.on('close', () => reader.flush());
   }
 
   /**
@@ -536,12 +600,12 @@ export class ProcessAcpClient implements AcpClient {
   // ─── Internals: 4-signal lifecycle detection ───────────────
 
   /**
-   * KNOWN PRODUCT LIMITATION, WINDOWS: a live agent whose transport dies is NOT
-   * detected here (#1020 follow-up).
+   * Four PIPE signals plus, on Windows only, a fifth that does not come from the pipe
+   * at all (#1061).
    *
-   * Three of the four signals below are transport signals - `pipe_close` fires on the
-   * child's stdout 'close', and `connection_close` (attached in start()) fires when the
-   * SDK aborts on that readable's 'end'. On win32 neither ever fires while the child is
+   * Three of the four below are transport signals - `pipe_close` fires on the child's
+   * stdout 'close', and `connection_close` (attached in start()) fires when the SDK
+   * aborts on that readable's 'end'. On win32 neither ever fires while the child is
    * still running. Executed on a real Windows box, with a known positive in the same
    * run:
    *
@@ -552,25 +616,27 @@ export class ProcessAcpClient implements AcpClient {
    *
    * The same probe on darwin reports stdout 'end' + 'close' with the child still alive
    * for both of the first two cases, so this is a platform difference, not a bug in the
-   * probe.
+   * probe. A genuinely crashed or killed agent IS still reported on Windows through
+   * the control above, because process death closes the pipe; what had no signal at
+   * all was an agent process that lives on while its transport goes away - the #1020
+   * customer shape - and that prompt simply hung until the caller gave up.
    *
-   * What still works on Windows: a genuinely crashed or killed agent IS reported,
-   * because process death closes the pipe (the control above). What does not: an agent
-   * process that lives on but stops speaking ACP - the #1020 customer shape - produces
-   * no disconnect at all on win32, so the session neither drops the client nor shows the
-   * transport-close banner, and the in-flight prompt hangs until the caller gives up.
-   * Detecting it needs a signal that does not depend on the pipe (an ACP-level
-   * request/heartbeat timeout); a failing write does not help, because the parent writes
-   * to the child's STDIN, which is still open.
+   * {@link armTransportWatchdog} closes that gap with the one measurement that does
+   * not depend on the pipe's EVENT stream: how many bytes have actually been READ off
+   * the child's stdout socket. A failing write is no help here (the parent writes to
+   * the child's STDIN, which is still open), and neither is an ACP-level "did it
+   * answer" timer, which would fire on any agent that is merely slow.
    *
-   * Two effects on Windows even when the child DOES die: `connection_close` reliably
-   * wins the first-write-wins race below, so `exitCode` and `signal` reach
+   * One Windows effect remains even when the child DOES die: `connection_close`
+   * reliably wins the first-write-wins race below, so `exitCode` and `signal` reach
    * `buildCrashMessage` as null and the banner never carries an exit code from this
-   * path; the CRLF stderr ring is preserved either way.
+   * path. The CRLF stderr ring is preserved either way.
    *
-   * The tests that drive the live-child shape are `skipIf(win32)` for this reason -
-   * `tests/unit/acpDisconnectTransport.test.ts` and
-   * `tests/integration/process/acp/session/AcpSession.disconnectBanner.test.ts`.
+   * The live-child tests in `tests/unit/acpDisconnectTransport.test.ts` and
+   * `tests/integration/process/acp/session/AcpSession.disconnectBanner.test.ts` stay
+   * `skipIf(win32)`: they assert the IMMEDIATE pipe route, which is still unreachable
+   * on Windows. The watchdog route is covered cross-platform in
+   * `tests/unit/acpTransportSilenceWatchdog.test.ts`.
    */
   private attachLifecycleObservers(child: ChildProcess): void {
     child.once('exit', (code, signal) => {
@@ -583,6 +649,84 @@ export class ProcessAcpClient implements AcpClient {
       this.recordAgentExit('pipe_close', child.exitCode ?? null, child.signalCode ?? null);
     });
     // connection_close is attached after ClientSideConnection is created (in start())
+  }
+
+  /**
+   * Bytes read so far off the child's stdout, or null when that cannot be measured.
+   *
+   * `child.stdout` is a `net.Socket` for a piped stdio, and `bytesRead` is a plain
+   * counter on it. Reading it is passive: it does not consume, pause, or resume the
+   * stream, which matters because the data path belongs to `NdjsonTransport` via
+   * `Readable.toWeb()` and a second consumer would steal frames from the SDK.
+   */
+  private stdoutBytesRead(): number | null {
+    const bytes = (this.child?.stdout as { bytesRead?: unknown } | null | undefined)?.bytesRead;
+    return typeof bytes === 'number' ? bytes : null;
+  }
+
+  /**
+   * Arm the win32 transport-silence watchdog for the duration of one prompt (#1061).
+   *
+   * Scoped deliberately narrowly, because a false "the agent disconnected" banner
+   * would be worse than the bug it replaces:
+   *   - win32 only. Everywhere else the pipe signals are EXACT and fire in
+   *     milliseconds, so a timer could only ever add false positives.
+   *   - during a prompt only. An idle, connected agent is silent by definition.
+   *   - bytes, not answers. Any inbound frame - a session/update chunk, a permission
+   *     request, an unknown-method notification - moves `bytesRead` and resets the
+   *     clock, so an agent that is working but slow to ANSWER is never accused. Only
+   *     an agent that has sent literally nothing for the whole window is.
+   *
+   * Reported as `connection_close` rather than a new reason: that is exactly what has
+   * been concluded - the transport is gone, and nothing about a process exit is known -
+   * and it reuses the honest banner that already says so.
+   */
+  private armTransportWatchdog(): void {
+    this.disarmTransportWatchdog();
+    if ((this.options.platform ?? process.platform) !== 'win32') return;
+    const silenceMs = this.options.transportSilenceMs ?? TRANSPORT_SILENCE_MS;
+    if (!(silenceMs > 0)) return;
+    const bytes = this.stdoutBytesRead();
+    if (bytes === null) return;
+
+    this.lastStdoutBytes = bytes;
+    this.lastStdoutChangeAt = Date.now();
+    this.transportWatchdog = setInterval(
+      () => this.checkTransportSilence(silenceMs),
+      transportWatchdogTickMs(silenceMs)
+    );
+    this.transportWatchdog.unref?.();
+  }
+
+  private disarmTransportWatchdog(): void {
+    if (!this.transportWatchdog) return;
+    clearInterval(this.transportWatchdog);
+    this.transportWatchdog = null;
+  }
+
+  private checkTransportSilence(silenceMs: number): void {
+    if (this._lastExit || !this.hasActivePrompt || this.closing) {
+      this.disarmTransportWatchdog();
+      return;
+    }
+    const bytes = this.stdoutBytesRead();
+    if (bytes === null) {
+      this.disarmTransportWatchdog();
+      return;
+    }
+    if (bytes !== this.lastStdoutBytes) {
+      this.lastStdoutBytes = bytes;
+      this.lastStdoutChangeAt = Date.now();
+      return;
+    }
+    if (Date.now() - this.lastStdoutChangeAt < silenceMs) return;
+
+    this.disarmTransportWatchdog();
+    console.warn(
+      `[ACP ${this.options.backend}] No bytes from the agent for ${silenceMs}ms during a prompt; ` +
+        'treating the transport as dropped (#1061).'
+    );
+    this.recordAgentExit('connection_close', this.child?.exitCode ?? null, this.child?.signalCode ?? null);
   }
 
   /**

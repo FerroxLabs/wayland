@@ -28,6 +28,7 @@ import {
 } from '@process/services/workspace/folderGrantStore';
 import { vetFolderGrantRoot } from '@process/services/workspace/folderGrantAuthority';
 import { resolveFolderGrantWorkspaceId } from '@process/services/workspace/folderGrantWorkspaceId';
+import { loadReplayableGrantRoots, replayableGrantRootFor } from '@process/services/workspace/folderGrantReplay';
 import { composeResetSeed, type ResumeSeedOptions } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
@@ -465,6 +466,29 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    */
   private _turnSawError = false;
 
+  /**
+   * #982 - the canonical, vetted roots this workspace's durable folder-grant
+   * list authorises, snapshotted at spawn.
+   *
+   * Empty until `start()` loads it, and empty forever if that read fails, so a
+   * manager that never started replays nothing.
+   */
+  private replayableGrantRoots: readonly string[] = [];
+
+  /**
+   * Bumped by every `stop()`. `start()` captures it on entry and refuses to arm
+   * the heartbeat if it has moved, because a bootstrap that finishes AFTER the
+   * user stopped the chat would otherwise leave a live interval pinging an agent
+   * nobody is listening to - `stop()` cleared the timer before `start()` created
+   * it, so nothing else ever clears it.
+   *
+   * Latent before #982 and reachable now: loading this workspace's remembered
+   * folders puts a real file read in front of the bootstrap, which widens the
+   * window a stop can land in. Guarded rather than reordered - the window was
+   * always there, and any await in `start()` can open it again.
+   */
+  private stopEpoch = 0;
+
   // #264 - an auto-mode `approval_required` the engine could not self-resolve is
   // escalated through the existing Confirming gate (see the approval_required
   // handler). That card is resumed by resume_token, but the renderer only routes
@@ -684,8 +708,37 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * If the conversation already has messages in the DB, pass --resume;
    * otherwise pass --session-id for a new session.
    */
+  /**
+   * #982 - snapshot this workspace's replayable folder grants for the session.
+   *
+   * Own method so the failure is contained: a grants file the app cannot read
+   * must cost the user their remembered folders, never their chat. An empty
+   * snapshot is the fail-closed answer and is also the answer for a workspace
+   * that has no grants, which is almost all of them.
+   */
+  private async loadReplayableGrants(): Promise<void> {
+    try {
+      this.replayableGrantRoots = await loadReplayableGrantRoots(this.workspace);
+    } catch (error) {
+      this.replayableGrantRoots = [];
+      mainWarn('[WCoreManager]', "could not load this workspace's remembered folders", error);
+    }
+  }
+
   override async start() {
     if (this.disposed) throw new Error('Wayland Core manager was stopped before bootstrap');
+    const startedAtEpoch = this.stopEpoch;
+    // Decide resume-vs-new BEFORE anything else is awaited.
+    //
+    // This read is a race against the renderer persisting the turn's own user
+    // message, and every await placed ahead of it widens the window. #982 put
+    // the grant snapshot here first, which was enough: on a FIRST turn the
+    // message landed during that await, `hasMessages` flipped true, and Desktop
+    // asked a freshly spawned engine to resume a session it had never created.
+    // The engine answers `Session not found` BEFORE the ready handshake, the
+    // contract gate fails closed on `ready_required`, and the fallback to a new
+    // session cannot rescue it because the contract consumer has already
+    // latched. The packaged chat then never replies - green unit suite, dead app.
     let sessionArgs: { resume?: string; sessionId?: string };
     try {
       const db = await getDatabase();
@@ -696,6 +749,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // Fallback: start as new session if DB check fails
       sessionArgs = { sessionId: this.conversation_id };
     }
+    // #982: must complete before the engine can raise its first boundary, and
+    // the engine has not spawned yet here. Awaited rather than detached so a
+    // card cannot arrive while the snapshot is still in flight and be prompted
+    // for a folder the user already recorded. Ordering relative to the read
+    // above is load-bearing; do not move it back.
+    await this.loadReplayableGrants();
 
     const mergedData = { ...this.data.data, ...sessionArgs };
 
@@ -938,7 +997,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     if (this.data.data.maxTokens === undefined && agent.resolvedMaxTokens !== undefined) {
       this.data.data.maxTokens = agent.resolvedMaxTokens;
     }
-    this.startHeartbeat();
+    // Not if the chat was stopped while this bootstrap was in flight: `stop()`
+    // already cleared the heartbeat, and arming it now creates a timer nothing
+    // will ever clear. See `stopEpoch`.
+    if (this.stopEpoch === startedAtEpoch) this.startHeartbeat();
 
     if (this.data.data.teamMcpStdioConfig) {
       const { notifyMcpReady } = await import('@process/team/mcpReadiness');
@@ -978,6 +1040,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   async stop() {
+    this.stopEpoch += 1;
     this.stopHeartbeat();
     this.flushAllBufferedStreamTexts();
     cronBusyGuard.setProcessing(this.conversation_id, false);
@@ -1219,6 +1282,19 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
                 { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
                 { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
               ];
+
+      // #982: the durable list is a decision the user already made. When it
+      // covers this root the card is never drawn at all - the recorded root is
+      // sent as the answer and the escalation ends here.
+      //
+      // Synchronous by construction: the list was read, revalidated and vetted
+      // once at spawn (`loadReplayableGrantRoots`), so this is a containment
+      // test over strings. No disk I/O sits between the engine's escalation and
+      // the user's screen, and there is no window in which the user could answer
+      // a card the host was about to answer for them.
+      if (details?.type === 'path_boundary' && this.replayFolderGrant(content.callId, details.suggestedRoot)) {
+        continue;
+      }
 
       this.addConfirmation({
         title: (details?.type === 'question' ? details.question : details?.title) || content.name || '',
@@ -2464,6 +2540,39 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.agent.approveTool(callId, scope, answer);
       }
     }
+  }
+
+  /**
+   * Answer this boundary card from the workspace's DURABLE grant list, if the
+   * list covers it (#982).
+   *
+   * WHY THIS IS NOT AN AUTO-APPROVAL. `tryAutoApprove` refuses every
+   * `path_boundary` in every mode, and that is unchanged: a MODE must never
+   * decide to widen filesystem authority, because the user never saw the folder
+   * named. This is the opposite direction - the user named the folder, wrote it
+   * down, and can see and revoke it in Settings. `resolveReplayableGrantRoot`
+   * re-checks that record against the live filesystem AND against the same
+   * host-side authority gate a click passes, and returns null on any doubt, so
+   * nothing here can hand out a root the user did not record.
+   *
+   * NO CARD IS DRAWN when this returns true. The alternative - draw it, then
+   * withdraw it a moment later - shows the user a security prompt that vanishes
+   * under their cursor, and opens a window in which their click and the host's
+   * answer race for the same call id. Answering before the card exists closes
+   * both.
+   *
+   * Synchronous, and that is what makes the above possible: every filesystem
+   * question was asked once at spawn.
+   *
+   * @returns true when the boundary was answered from the record.
+   */
+  private replayFolderGrant(callId: string, suggestedRoot: unknown): boolean {
+    const root = replayableGrantRootFor(this.replayableGrantRoots, suggestedRoot);
+    if (!root) return false;
+    // The vetted canonical root goes out, byte-identical to what a click sends,
+    // so the folder the record names and the folder the engine resolves are one.
+    this.agent?.approveTool(callId, { always_path: { root, write: false } });
+    return true;
   }
 
   /**

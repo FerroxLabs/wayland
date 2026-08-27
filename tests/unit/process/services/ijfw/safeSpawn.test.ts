@@ -161,7 +161,7 @@ describe('ijfw/safeSpawn', () => {
       expect(candidates).toContain(`${nodeDir}\\node_modules\\npm\\bin\\npm-cli.js`);
     });
 
-    it('returns POSIX candidates unchanged on non-Windows', () => {
+    it('returns the fixed POSIX install locations on non-Windows', () => {
       const candidates = __buildNpmCliCandidates(
         'darwin',
         { PATH: '/usr/bin' },
@@ -169,6 +169,68 @@ describe('ijfw/safeSpawn', () => {
       );
       expect(candidates).toContain('/usr/local/lib/node_modules/npm/bin/npm-cli.js');
       expect(candidates).toContain('/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js');
+    });
+  });
+
+  /**
+   * #1043 - the POSIX half of #261. The win32 branch sweeps PATH to cover nvm,
+   * fnm and volta; the POSIX branch never read the `env` argument it is handed,
+   * so its effective Linux candidate list was ONE path,
+   * /usr/local/lib/node_modules. apt, NodeSource, nvm, fnm and Linuxbrew - which
+   * between them are how essentially everyone installs Node on Linux - all
+   * missed, and IJFW could never self-install or update there.
+   *
+   * Driven with SYNTHETIC layouts rather than the host's, deliberately: a
+   * resolver test on a machine whose /usr/local is populated passes regardless
+   * of the bug (the Hetzner gate is exactly such a machine - its npm is
+   * /usr/local/bin/npm -> ../lib/node_modules/npm/bin/npm-cli.js).
+   */
+  describe('__buildNpmCliCandidates on POSIX (#1043)', () => {
+    const NVM_BIN = '/home/me/.nvm/versions/node/v22.21.1/bin';
+    const FNM_BIN = '/home/me/.local/share/fnm/node-versions/v20.11.0/installation/bin';
+    const linuxCandidates = (pathVar: string): string[] =>
+      __buildNpmCliCandidates('linux', { PATH: pathVar }, '/opt/Wayland/wayland');
+
+    it('derives npm-cli.js from every Node dir on PATH (nvm, fnm, NodeSource, Linuxbrew)', () => {
+      const candidates = linuxCandidates(`/usr/bin:${NVM_BIN}:${FNM_BIN}:/home/linuxbrew/.linuxbrew/bin`);
+      // NodeSource / any prefix-style install rooted at the PATH dir's parent.
+      expect(candidates).toContain('/usr/lib/node_modules/npm/bin/npm-cli.js');
+      expect(candidates).toContain(`${NVM_BIN.replace(/\/bin$/, '')}/lib/node_modules/npm/bin/npm-cli.js`);
+      expect(candidates).toContain(`${FNM_BIN.replace(/\/bin$/, '')}/lib/node_modules/npm/bin/npm-cli.js`);
+      expect(candidates).toContain('/home/linuxbrew/.linuxbrew/lib/node_modules/npm/bin/npm-cli.js');
+    });
+
+    it("covers Debian/Ubuntu's apt layout, which is not under lib/node_modules", () => {
+      // The `npm` .deb installs to /usr/share/nodejs/npm, symlinked from /usr/bin/npm.
+      expect(linuxCandidates('/usr/bin')).toContain('/usr/share/nodejs/npm/bin/npm-cli.js');
+    });
+
+    it('reads the env argument it is handed: no PATH means no PATH-derived candidates', () => {
+      const withPath = linuxCandidates('/usr/bin');
+      const withoutPath = linuxCandidates('');
+      // Known positive for the comparison: the populated call really did add
+      // entries, so the empty call returning fewer is the env being read.
+      expect(withPath.length).toBeGreaterThan(withoutPath.length);
+      expect(withoutPath.some((c) => c.startsWith('/usr/lib/'))).toBe(false);
+      // The fixed, always-probed locations survive an empty PATH.
+      expect(withoutPath).toContain('/usr/local/lib/node_modules/npm/bin/npm-cli.js');
+      expect(withoutPath).toContain('/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js');
+    });
+
+    it('drops the dead libnode candidate (that directory exists nowhere in this repo)', () => {
+      expect(linuxCandidates('/usr/bin').some((c) => c.includes('libnode'))).toBe(false);
+      expect(
+        __buildNpmCliCandidates(
+          'darwin',
+          { PATH: '/usr/bin' },
+          '/Applications/Wayland.app/Contents/MacOS/Wayland'
+        ).some((c) => c.includes('libnode'))
+      ).toBe(false);
+    });
+
+    it('never emits duplicates when PATH repeats a Node dir', () => {
+      const candidates = linuxCandidates(`${NVM_BIN}:${NVM_BIN}:/usr/bin`);
+      expect(new Set(candidates).size).toBe(candidates.length);
     });
   });
 
@@ -191,6 +253,88 @@ describe('ijfw/safeSpawn', () => {
     it('accepts a non-world-writable npm owned by self or root on POSIX', () => {
       expect(__isAcceptableNpmStat({ mode: 0o755, uid: 501 }, 'darwin', 501)).toBe(true);
       expect(__isAcceptableNpmStat({ mode: 0o755, uid: 0 }, 'darwin', 501)).toBe(true);
+    });
+  });
+
+  /**
+   * #1043 acceptance, executed end to end: a real npm-cli.js on a real disk,
+   * resolved through the real realpath + trust-stat path, for the layouts that
+   * were unreachable before.
+   *
+   * `realpath` is confined to the fixture root on purpose. Without that the
+   * always-probed /usr/local candidate wins on any machine that has a system npm
+   * - which the Hetzner gate does (/usr/local/bin/npm ->
+   * ../lib/node_modules/npm/bin/npm-cli.js) - and the test would pass no matter
+   * which layout the resolver could actually reach. The negative control at the
+   * end proves the confinement really bites.
+   */
+  describe.skipIf(process.platform === 'win32')('defaultResolveTrustedNpm on real POSIX layouts (#1043)', () => {
+    let root: string;
+    let realpathSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+    /** Create `<prefix>/<cliRelative>` and return the PATH bin dir for that prefix. */
+    const layout = (prefix: string, cliRelative: string): string => {
+      const prefixDir = path.join(root, prefix);
+      const cli = path.join(prefixDir, cliRelative);
+      fs.mkdirSync(path.dirname(cli), { recursive: true });
+      fs.writeFileSync(cli, '// npm-cli', { mode: 0o644 });
+      const bin = path.join(prefixDir, 'bin');
+      fs.mkdirSync(bin, { recursive: true });
+      return bin;
+    };
+
+    beforeEach(() => {
+      // realpath the root: on macOS os.tmpdir() is /var/folders/... which is a
+      // SYMLINK to /private/var/folders/..., and the resolver under test
+      // realpaths by design (that is the confinement). Comparing its resolved
+      // answer against an unresolved root fails for a reason that has nothing
+      // to do with npm resolution. Resolving here also makes the mock's own
+      // startsWith(root) confinement check compare like with like.
+      root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-npm-layouts-')));
+      const realRealpath = fs.promises.realpath.bind(fs.promises);
+      realpathSpy = vi.spyOn(fs.promises, 'realpath').mockImplementation(async (target: never) => {
+        const p = String(target);
+        if (!p.startsWith(root)) throw Object.assign(new Error(`ENOENT: confined away ${p}`), { code: 'ENOENT' });
+        return realRealpath(p) as never;
+      });
+      __setTrustedNpmCliResolver(null);
+    });
+
+    afterEach(() => {
+      realpathSpy?.mockRestore();
+      realpathSpy = null;
+      fs.rmSync(root, { recursive: true, force: true });
+    });
+
+    it('resolves an nvm/fnm-style versioned prefix', async () => {
+      const bin = layout('nvm/versions/node/v22.21.1', 'lib/node_modules/npm/bin/npm-cli.js');
+      process.env.PATH = bin;
+      await expect(defaultResolveTrustedNpm()).resolves.toBe(
+        path.join(root, 'nvm/versions/node/v22.21.1/lib/node_modules/npm/bin/npm-cli.js')
+      );
+    });
+
+    it('resolves the NodeSource / prefix-style layout', async () => {
+      const bin = layout('usr', 'lib/node_modules/npm/bin/npm-cli.js');
+      process.env.PATH = `/nonexistent/first:${bin}`;
+      await expect(defaultResolveTrustedNpm()).resolves.toBe(
+        path.join(root, 'usr/lib/node_modules/npm/bin/npm-cli.js')
+      );
+    });
+
+    it("resolves Debian/Ubuntu's apt layout under share/nodejs", async () => {
+      const bin = layout('debian-usr', 'share/nodejs/npm/bin/npm-cli.js');
+      process.env.PATH = bin;
+      await expect(defaultResolveTrustedNpm()).resolves.toBe(
+        path.join(root, 'debian-usr/share/nodejs/npm/bin/npm-cli.js')
+      );
+    });
+
+    it('KNOWN NEGATIVE: a PATH dir with no npm install still fails, confinement intact', async () => {
+      const bare = path.join(root, 'empty', 'bin');
+      fs.mkdirSync(bare, { recursive: true });
+      process.env.PATH = bare;
+      await expect(defaultResolveTrustedNpm()).rejects.toThrow(/Could not resolve trusted npm/);
     });
   });
 
@@ -263,5 +407,94 @@ describe('ijfw/safeSpawn', () => {
       expect(argv0).toBe(process.platform === 'win32' ? 'node.exe' : 'node');
       expect(argv0).not.toBe(process.execPath);
     });
+  });
+});
+
+/**
+ * #928 - Windows AV lock on %TEMP%.
+ *
+ * In a packaged Windows build the IJFW child is `bun.exe npm-cli.js ...`.
+ * Windows Defender actively scans %TEMP%, so bun's rename of its staged files
+ * fails with EPERM (NtSetInformationFile) - the same failure the ACP connector
+ * already fixed by redirecting the whole bun file-operation chain into userData
+ * (see `acpConnectors.ts`, BUN_INSTALL_CACHE_DIR / BUN_TMPDIR / TMP / TEMP).
+ * `safeSpawn` is the second bun spawn site and never got that redirect.
+ */
+describe('ijfw/safeSpawn bun temp redirect (#928)', () => {
+  const originalPlatform = process.platform;
+  const originalTmp = process.env.TMP;
+  const originalTemp = process.env.TEMP;
+  const originalTmpdir = process.env.TMPDIR;
+  let dir: string;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-bunenv-'));
+    __setTrustedNpmCliResolver(async () => path.join(dir, 'npm-cli.js'));
+    // TMP/TEMP below are SENTINELS, asserted to survive untouched off win32.
+    // But on POSIX `os.tmpdir()` reads TMPDIR, then TMP, then TEMP - so the
+    // sentinel also becomes the last-resort base dir that
+    // `resolveSafeSpawnCwd()` falls back to, and `__buildBunSandboxEnv` DROPS
+    // the whole redirect when it cannot create its dirs there. Creating
+    // `/os/temp/...` succeeds as root and fails as a normal user, so the
+    // sentinel made this suite pass on a root box and fail on real CI.
+    // TMPDIR takes precedence on POSIX: point it at the real temp dir so the
+    // fallback is writable while the sentinel still proves what it exists to
+    // prove.
+    process.env.TMPDIR = dir;
+    process.env.TMP = '/os/temp';
+    process.env.TEMP = '/os/temp';
+    (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockReset();
+    (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => makeFakeChild());
+  });
+
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
+    __setTrustedNpmCliResolver(null);
+    if (originalTmp === undefined) delete process.env.TMP;
+    else process.env.TMP = originalTmp;
+    if (originalTemp === undefined) delete process.env.TEMP;
+    else process.env.TEMP = originalTemp;
+    if (originalTmpdir === undefined) delete process.env.TMPDIR;
+    else process.env.TMPDIR = originalTmpdir;
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  function childEnv(): NodeJS.ProcessEnv {
+    const calls = (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mock.calls;
+    return (calls[0][2] as { env: NodeJS.ProcessEnv }).env;
+  }
+
+  it('points bun cache and temp at real directories outside the OS temp dir', async () => {
+    await safeSpawn({ cmd: 'node', args: ['x'] });
+    const env = childEnv();
+    expect(env.BUN_INSTALL_CACHE_DIR).toMatch(/bun-cache$/);
+    expect(env.BUN_TMPDIR).toMatch(/bun-tmp$/);
+    // A redirect to a directory that does not exist is worse than no redirect:
+    // npm's own os.tmpdir() staging would ENOENT. Both must exist on return.
+    expect(fs.existsSync(env.BUN_INSTALL_CACHE_DIR!)).toBe(true);
+    expect(fs.existsSync(env.BUN_TMPDIR!)).toBe(true);
+  });
+
+  it('overrides TMP/TEMP on win32 so bunx stages outside %TEMP%', async () => {
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    await safeSpawn({ cmd: 'node', args: ['x'] });
+    const env = childEnv();
+    expect(env.BUN_TMPDIR).toMatch(/bun-tmp$/);
+    expect(env.TMP).toBe(env.BUN_TMPDIR);
+    expect(env.TEMP).toBe(env.BUN_TMPDIR);
+  });
+
+  it('leaves TMP/TEMP alone off win32 (the AV lock is Windows-only)', async () => {
+    Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
+    await safeSpawn({ cmd: 'node', args: ['x'] });
+    const env = childEnv();
+    expect(env.BUN_TMPDIR).toMatch(/bun-tmp$/);
+    expect(env.TMP).toBe('/os/temp');
+    expect(env.TEMP).toBe('/os/temp');
+  });
+
+  it('lets an explicit extraEnv override the redirect', async () => {
+    await safeSpawn({ cmd: 'node', args: ['x'], extraEnv: { BUN_TMPDIR: '/custom/tmp' } });
+    expect(childEnv().BUN_TMPDIR).toBe('/custom/tmp');
   });
 });

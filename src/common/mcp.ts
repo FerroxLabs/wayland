@@ -216,9 +216,16 @@ export function resolveModelToolCap(providerId?: string, modelId?: string): Mode
  * `mcp_servers = [...]` with no tool dimension (`appendDesktopMcpProfile`, and
  * Core's `ProfileConfig` / `McpServerConfig` have no per-tool field), and the
  * ACP `session/new` `mcpServers` array has no per-tool field in the protocol.
- * On those the switch is UI state plus a desktop candidate-pool filter, NOT an
- * engine constraint — so the MCP Library says exactly that instead of implying
- * a restriction that is not there.
+ * On those a STRICT SUBSET is UI state plus a desktop candidate-pool filter, NOT
+ * an engine constraint — so the MCP Library says exactly that instead of
+ * implying a restriction that is not there.
+ *
+ * The "Disable all" setting is the exception, and it is enforced on EVERY
+ * backend: `allowedTools: []` needs no per-tool field, because it is a
+ * server-level statement, so the ACP and Wayland Core builders withhold the
+ * connector entirely (`contributesTools` in `mcpSessionConfig.ts`), which is
+ * what gemini already did. This list is still exactly the backends that can
+ * carry a SUBSET, because that is the claim the Library's banner makes.
  *
  * Adding a backend to this list without ALSO emitting its tool list re-creates
  * the #998 lying control; `tests/unit/process/mcpToolAllowlistEnforcement.test.ts`

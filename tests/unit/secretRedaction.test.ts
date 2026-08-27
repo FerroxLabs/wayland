@@ -7,7 +7,12 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { LABELLED_SECRET_LABELS, PASSPHRASE_SECRET_LABELS, redactSecrets } from '@process/utils/secretRedaction';
+import {
+  CAMEL_SECRET_LABELS,
+  LABELLED_SECRET_LABELS,
+  PASSPHRASE_SECRET_LABELS,
+  redactSecrets,
+} from '@process/utils/secretRedaction';
 import { CLEAN_CORPUS, SECRET_CORPUS } from '../fixtures/secretCorpus';
 
 describe('redactSecrets (canonical)', () => {
@@ -121,20 +126,27 @@ describe('the limits of single-pass span merging, pinned rather than claimed', (
   const JWT = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dBjftJeZ4CVPmB92K27uhbUJU1p1r_wW1gFWFOEjXk';
 
   /**
-   * Sequential masking caught this JWT, and it did so by ACCIDENT: it injected
-   * `[redacted]`, `]` is a non-word character, and the JWT's leading `\b` then
-   * matched a boundary the pristine string does not contain. Only the two
-   * FIXED-LENGTH rules can stop mid-run and supply that boundary, so this is the
-   * whole shape, not a sample of a large class.
+   * INVERTED by #1048, exactly as this test demanded: "if anyone closes this - by
+   * looping to a fixed point, or by fixing the anchors - this test fails and the
+   * doc comment has to be brought with it". The anchors were the mechanism, not
+   * the merging. Sequential masking caught this JWT by ACCIDENT - it injected
+   * `[redacted]`, `]` is a non-word character, and the JWT's leading `\b` matched
+   * a boundary the pristine string does not contain. With no leading `\b` on any
+   * rule, the JWT matches the glued shape on the pristine text and both spans
+   * merge into one marker. The `maskPatternMatches` doc comment was rewritten in
+   * the same commit.
    *
-   * `toBe` on the exact string, deliberately. If anyone closes this - by looping
-   * to a fixed point, or by fixing the anchors in #1037 - this test fails and the
-   * doc comment has to be brought with it, which is the point.
+   * `toBe` on the exact string, still deliberately: `not.toContain` is the oracle
+   * that cannot tell a whole mask from a partial one.
    */
-  it('a credential glued to an AWS key id with NO separator keeps its own coverage only if it has an anchor', () => {
+  it('a credential glued to an AWS key id with NO separator is masked too (#1048)', () => {
     const out = redactSecrets(`err ${AWS_ACCESS_KEY_ID}${JWT} done`);
     expect(out, 'the AWS key id itself must still be masked').not.toContain(AWS_ACCESS_KEY_ID);
-    expect(out).toBe(`err [redacted]${JWT} done`);
+    expect(out).toBe('err [redacted] done');
+    // Control, and the reason this is one marker and not two: the spans touch,
+    // so they merge. Separated by anything at all they stay two markers - that is
+    // the case below, and it must not have changed.
+    expect(out).not.toContain(JWT.slice(0, 8));
   });
 
   it('the same two credentials separated by a single space are BOTH masked (the shape that actually occurs)', () => {
@@ -559,13 +571,28 @@ describe('the labelled-assignment shapes that still leak, pinned rather than cla
     expect(redactSecrets(counters)).toBe(counters);
   });
 
-  it('a bare `*_SECRET` with no `key` leaks: there is no bare `secret` core', () => {
-    // Deliberate: a bare `secret` core would also mask `secret_name=` and
-    // `secretRef=` in a Kubernetes or Vault diagnostic.
-    for (const name of ['JWT_SECRET', 'APP_SECRET', 'WEBHOOK_SECRET']) {
+  /**
+   * INVERTED by #1037, under the rule this describe block states: closing one of
+   * these gaps must fail here and bring the module's KNOWN GAPS list with it. It
+   * did, and it has - the `secret[_-]?key` comment and the KNOWN GAPS entry in
+   * `secretRedaction.ts` were rewritten in the same commit as this inversion.
+   *
+   * The refusal that stood here was argued on `secret_name=`/`secretRef=` in a
+   * Kubernetes or Vault diagnostic. Measured, half of that is false and the
+   * other half is a cost already accepted elsewhere in the same rule, so the
+   * `secretRef=` control below is kept as an assertion rather than deleted: it is
+   * the half of the old argument that is TRUE, and it must stay true.
+   */
+  it('a bare `*_SECRET` with no `key` is masked (#1037), and `secretRef=` still is not', () => {
+    for (const name of ['JWT_SECRET', 'APP_SECRET', 'WEBHOOK_SECRET', 'SESSION_SECRET', 'COOKIE_SECRET']) {
+      expect(redactSecrets(`${name}=${VALUE}`), name).toBe(`${name}=[redacted]`);
+    }
+    // The bare core ends at `secret` and the separator cannot match a letter, so
+    // the camel-spelled Kubernetes/Vault metadata names are untouched.
+    for (const name of ['secretRef', 'secretName']) {
       expect(redactSecrets(`${name}=${VALUE}`), name).toBe(`${name}=${VALUE}`);
     }
-    // Control: the two `secret` cores that DO exist still fire.
+    // Control: the two `secret` cores that predate it still fire.
     expect(redactSecrets(`CLIENT_SECRET=${VALUE}`)).toBe('CLIENT_SECRET=[redacted]');
     expect(redactSecrets(`SECRET_KEY=${VALUE}`)).toBe('SECRET_KEY=[redacted]');
   });
@@ -826,5 +853,98 @@ describe('token-shape pattern banks are registered, not accidental', () => {
       expect(existsSync(resolve(process.cwd(), file)), `${file} is registered but missing`).toBe(true);
       expect(reason.length, `${file} needs a real reason, not a placeholder`).toBeGreaterThan(40);
     }
+  });
+});
+
+/**
+ * #1037: the camel label list is an EXACT MIRROR of the snake one, asserted by
+ * execution rather than by the comment that says so.
+ *
+ * Two directions, and both matter. A snake core with no camel spelling leaks
+ * `myNewSecret=` while masking `NEW_SECRET=`; a camel label with no snake core
+ * masks `myPrivateKey=` while leaking `PRIVATE_KEY=`. Either way the bank covers
+ * a name in one spelling and not the other, which reads as covered when it is
+ * not - the precise shape of every defect this module has shipped.
+ */
+describe('the camelCase label list mirrors the snake one exactly', () => {
+  /** `secret[_-]?access[_-]?key` -> `SecretAccessKey`. */
+  const camelize = (core: string): string =>
+    core
+      .split('[_-]?')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+  /** `secret[_-]?access[_-]?key` -> `secretaccesskey`, the separator-free run. */
+  const flatten = (core: string): string => core.replaceAll('[_-]?', '');
+
+  it('the helpers produce real spellings (control against a vacuous comparison)', () => {
+    expect(camelize('secret[_-]?access[_-]?key')).toBe('SecretAccessKey');
+    expect(camelize('token')).toBe('Token');
+    expect(flatten('pass[_-]?phrase')).toBe('passphrase');
+  });
+
+  it('every snake core has a camel spelling', () => {
+    const missing = LABELLED_SECRET_LABELS.filter((core) => !CAMEL_SECRET_LABELS.includes(camelize(core)));
+    expect(missing).toEqual([]);
+  });
+
+  it('every camel label is the spelling of a snake core, and nothing else', () => {
+    const cores = new Set(LABELLED_SECRET_LABELS.map((core) => flatten(core).toLowerCase()));
+    const orphans = CAMEL_SECRET_LABELS.filter((label) => !cores.has(label.toLowerCase()));
+    expect(orphans).toEqual([]);
+  });
+
+  it('both lists are non-empty, so neither assertion above can pass vacuously', () => {
+    expect(LABELLED_SECRET_LABELS.length).toBeGreaterThan(5);
+    expect(CAMEL_SECRET_LABELS.length).toBeGreaterThan(5);
+  });
+});
+
+/**
+ * #1065's drift guard, and the reason it is worth a test of its own.
+ *
+ * The PEM rule is the ONLY multi-line rule in the bank, and every consumer that
+ * scrubs a single line at a time is therefore blind to it - which is precisely
+ * how a private key reached the log file and the feedback bundle. That defect was
+ * fixed in the wcore stderr READER, by holding a block whole, and NOT in this
+ * array. A second multi-line rule added here would re-open the same hole for
+ * whatever shape it matches, silently, because no line-at-a-time caller would
+ * change and no existing test would fail.
+ *
+ * So the count is pinned. A new multi-line rule must fail here and be forced to
+ * answer the question: which caller assembles a whole block for it?
+ */
+describe('PEM is the only multi-line rule, so line-at-a-time callers stay safe (#1065)', () => {
+  const source = readFileSync(resolve(process.cwd(), 'src/process/utils/secretRedaction.ts'), 'utf-8');
+  const arrayStart = source.indexOf('const SECRET_PATTERNS');
+  const block = source.slice(arrayStart, source.indexOf('];', arrayStart));
+  const literals = block
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('/') && !line.startsWith('//'));
+
+  it('found the rule array at all (control against a silently empty scan)', () => {
+    expect(literals.length).toBeGreaterThan(15);
+  });
+
+  it('exactly one rule can match across a newline', () => {
+    // `[\s\S]` and the `m`/`s` flags are the three ways a rule reaches past a
+    // line. Any of them is the question this guard exists to force.
+    // Flags are parsed rather than sliced at the last `/`: several rules carry a
+    // trailing comment that contains one.
+    const flagsOf = (literal: string): string => /^\/.*\/([a-z]*),/.exec(literal)?.[1] ?? '';
+    const multiline = literals.filter((literal) => literal.includes('[\\s\\S]') || /[ms]/.test(flagsOf(literal)));
+    expect(multiline).toHaveLength(1);
+    expect(multiline[0]).toContain('PRIVATE KEY');
+  });
+
+  it('the PEM rule still needs its BEGIN anchor, which is what keeps a truncated fragment invisible', () => {
+    // Not an accident and not a gap: `acpStderrRingTruncationLeak.test.ts` pins
+    // that a PEM body which has lost its BEGIN line is invisible here, because a
+    // rule that could match the tail alone would mask arbitrary text after any
+    // stray `-----END` line. The fix for #1065 is in the reader for that reason.
+    const body = 'MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj';
+    const whole = `-----BEGIN PRIVATE KEY-----\n${body}\n-----END PRIVATE KEY-----`;
+    expect(redactSecrets(whole)).not.toContain(body);
+    expect(redactSecrets(`${body}\n-----END PRIVATE KEY-----`)).toContain(body);
   });
 });

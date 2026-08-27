@@ -38,6 +38,7 @@ agentFactory.register('acp', (conv, opts) => {
     ...c.extra,
     conversation_id: c.id,
     yoloMode: opts?.yoloMode,
+    unattendedHoldDeadlineMs: opts?.unattendedHoldDeadlineMs,
     // Only gemini ACP conversations use conversation.model as a backend-aligned model
     // fallback. Other ACP backends persist their own CLI model IDs in extra.currentModelId.
     currentModelId: c.extra?.currentModelId ?? (c.extra?.backend === 'gemini' ? c.model?.useModel : undefined),

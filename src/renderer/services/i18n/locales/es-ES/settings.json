@@ -2175,6 +2175,7 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreOriginalsPreserved": "Tus archivos originales no se han eliminado. Wayland los apartó antes de la restauración y los ha conservado en {{path}}. Copia esa carpeta a un lugar seguro antes de volver a intentarlo.",
     "restoreBadPassphrase": "Esa contraseña de la copia de seguridad no es correcta, así que no se pudieron desbloquear las claves cifradas del archivo. No se cambió nada en este dispositivo. Comprueba la contraseña e inténtalo de nuevo.",
     "restoreApplied": "Restauración completada. Restaurado: {{items}}.",
     "restoreAppliedWithSafety": "Restauración completada. Restaurado: {{items}}. Tu copia de seguridad previa a la restauración está en {{path}}.",
@@ -2745,7 +2746,8 @@
       "backends": "Detected backends",
       "workspaceDrift": "Workspace paths",
       "secretStorage": "Secret storage",
-      "engineConfig": "Engine config integrity"
+      "engineConfig": "Engine config integrity",
+      "constitution": "Constitution active"
     }
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",

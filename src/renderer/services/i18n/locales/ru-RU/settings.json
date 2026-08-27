@@ -2150,6 +2150,7 @@
     "restoreBadPassword": "Password is incorrect",
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
+    "restoreOriginalsPreserved": "Ваши исходные файлы не удалены. Wayland отложил их перед восстановлением и сохранил в {{path}}. Скопируйте эту папку в безопасное место, прежде чем повторять попытку.",
     "restoreBadPassphrase": "Эта парольная фраза резервной копии неверна, поэтому зашифрованные ключи из архива не удалось расшифровать. На этом устройстве ничего не изменилось. Проверьте парольную фразу и попробуйте снова.",
     "restoreApplied": "Восстановление завершено. Восстановлено: {{items}}.",
     "restoreAppliedWithSafety": "Восстановление завершено. Восстановлено: {{items}}. Резервная копия файлов до восстановления находится в {{path}}.",
@@ -2746,7 +2747,8 @@
       "backends": "Detected backends",
       "workspaceDrift": "Workspace paths",
       "secretStorage": "Secret storage",
-      "engineConfig": "Engine config integrity"
+      "engineConfig": "Engine config integrity",
+      "constitution": "Constitution active"
     }
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",

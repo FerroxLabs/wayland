@@ -50,32 +50,45 @@ export const PATH_BOUNDARY_GRANT_FOLDER = 'path_boundary_grant_folder';
 export const PATH_BOUNDARY_REMEMBER_FOLDER = 'path_boundary_remember_folder';
 
 /**
- * Whether a REMEMBERED folder is actually re-applied when a new session starts.
+ * Whether a REMEMBERED folder is actually re-applied in a later session.
  *
- * **Currently `false`, and that is not a preference — it is the truth.**
+ * **`true`, and that is a statement about the mechanism, not a preference.**
  *
- * A durable grant is replayed by `ProtocolCommand::GrantPath`. Core added that
- * command to its protocol and documented it, but shipped **no command fixture**
- * for it, and the desktop contract's command schema is generated from the
- * fixture set over a closed `oneOf`. So `grant_path` is not representable in the
- * schema shipped at `v0.13.4`, and Desktop's own `validateOutboundCommand`
- * throws on it before a frame is written. Verified by execution against the
- * released corpus, with `once`, `always_prefix` and `tool_deny` as positive
- * controls in the same run. Filed as `FerroxLabs/wayland-core#314`.
+ * IT WAS FALSE, AND WHY. Replay was designed around
+ * `ProtocolCommand::GrantPath`. Core added that command and documented it but
+ * shipped **no command fixture** for it, and the desktop contract's command
+ * schema is generated from the fixture set over a closed `oneOf` — so
+ * `grant_path` is not representable in the pinned schema and Desktop's own
+ * `validateOutboundCommand` throws on it before a frame is written. Verified by
+ * execution against the released corpus, with `once`, `always_prefix` and
+ * `tool_deny` as positive controls. Filed as `FerroxLabs/wayland-core#314`, and
+ * **still open** — `pathGrantSeam.test.ts` pins that rejection, and that pin is
+ * still green.
  *
- * The consequence is specific: the store, the vetting, Settings and the in-band
- * grant all work. What does not work is the ONE thing the "remember" button's
- * label promises — that the folder is still open next time. Offering a button
- * that says "remembered for this workspace until you remove it" while nothing
- * re-applies it is a false statement on a consent surface, which is worse than
- * not offering it.
+ * WHAT CHANGED IS THE COMMAND, NOT THE CONTRACT. `tool_approve` carrying
+ * `scope: { always_path: { root, write } }` IS representable — the v0.13.4
+ * corpus import added it, and `pathGrantSeam.test.ts` pins that it validates.
+ * It is the same command this card's own grant button sends. So the replay is
+ * not a spawn-time push at all: when the engine raises a boundary for a folder
+ * the workspace's durable list already covers, the HOST answers that card from
+ * the record instead of asking the user again
+ * (`WCoreManager.replayFolderGrant` → `resolveReplayableGrantRoot`). The
+ * button's promise — the folder is still open next time, including in an
+ * unattended run with nobody at the window — is now true.
  *
- * **To flip it:** Core ships the `grant_path` / `revoke_path` command fixtures,
- * Desktop re-imports the corpus, `WCoreAgent.grantPath` stops being rejected by
- * the contract, and spawn-time replay exists. Not before. `pathGrantSeam`'s
- * tripwire tests go red when the first of those lands, which is the signal.
+ * WHAT IT DOES NOT MEAN. Nothing is granted before the engine asks; the
+ * authority still starts at a real boundary escalation. The recorded root must
+ * come back live from the store's revalidating read and pass the same host-side
+ * gate a click passes, so a moved, re-pointed or newly-refused folder is not
+ * replayed. And under Autopilot Core suppresses the classifier outright, so no
+ * card is raised and nothing is replayed there either — see the ⚠️ note in
+ * `WCoreManager.tryAutoApprove`.
+ *
+ * **What would flip it back:** the `always_path` scope ceasing to validate
+ * against the pinned corpus, or the replay path being removed. Both are pinned
+ * by tests; do not edit this constant without one of them going red first.
  */
-export const FOLDER_GRANT_REPLAY_AVAILABLE = false;
+export const FOLDER_GRANT_REPLAY_AVAILABLE = true;
 
 /** Refuse the crossing. The tool call is denied. */
 export const PATH_BOUNDARY_DENY = 'path_boundary_deny';

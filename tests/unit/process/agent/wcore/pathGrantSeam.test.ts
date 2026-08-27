@@ -316,28 +316,46 @@ describe('pinned v1 host-command corpus vs the path-grant commands', () => {
   }
 
   /**
-   * DELIBERATE TRIPWIRE - this test is written to go RED when the gap closes.
+   * This was a TRIPWIRE asserting the path-grant commands were REJECTED, with
+   * an instruction to delete it the day it went red. It went red on the v0.13.7
+   * re-import, which is exactly what it was watching for, so it is inverted
+   * here rather than removed - same treatment as the `always_path` tripwire
+   * below, and for the same reason: the claim that matters now is the positive
+   * one.
    *
-   * `contracts/wayland-desktop-core/v1` is a byte-for-byte mechanical import
-   * from a pinned Core commit, so it must not be hand-edited to add these
-   * commands; its digests are pinned in `desktopContractV1.test.ts`. The corpus
-   * is at contract 1.14 and `grant_path` / `revoke_path` exist only on Core
-   * `main`, so `validateOutboundCommand` rejects them today.
-   *
-   * That resolves itself: `assertDescriptor` is exact-match on the contract
-   * minor, so the first Core release carrying these commands CANNOT negotiate
-   * against this corpus at all - it forces the re-import that adds them. When
-   * that lands, delete this test.
+   * Why it matters: `grant_path` and `revoke_path` were in Core's
+   * `ProtocolCommand` and documented from v0.13.4, but shipped no command
+   * FIXTURES. The host-command schema is generated from the fixture set over a
+   * CLOSED `oneOf`, so neither was representable, and a host that had
+   * negotiated the contract rejected them at its OWN outbound boundary before a
+   * frame was ever written. No amount of live testing would have found it - the
+   * failure was on our side of the wire. v0.13.7 ships the three fixtures
+   * (FerroxLabs/wayland-core#314), and this is the first pin on which the seam
+   * is sendable at all.
    */
-  it('still rejects grant_path and revoke_path, so the seam is unsendable until the corpus is re-imported', () => {
+  it('accepts grant_path and revoke_path now that the corpus carries their fixtures', () => {
     const consumer = negotiated();
-    // Positive control FIRST: prove this validator accepts something, or a
-    // rejection below could just mean the fixture never reached the schema.
+    // Controls FIRST: a command that was always fine, and a command that is
+    // still not in the schema. Without both, this passes just as well on a
+    // consumer that quietly stopped validating anything at all.
     expect(() => consumer.validateOutboundCommand({ type: 'tool_deny', call_id: 'c1', reason: 'no' })).not.toThrow();
-    expect(() => consumer.validateOutboundCommand({ type: 'grant_path', grant_id: 'g1', root: '/tmp/x' })).toThrow(
-      /pinned schema/
-    );
-    expect(() => consumer.validateOutboundCommand({ type: 'revoke_path', grant_id: 'g1' })).toThrow(/pinned schema/);
+    expect(() => consumer.validateOutboundCommand({ type: 'not_a_real_command' })).toThrow(/pinned schema/);
+
+    expect(() =>
+      consumer.validateOutboundCommand({
+        type: 'grant_path',
+        grant_id: 'grant-001',
+        root: '/srv/reports',
+        access: 'read',
+        expires_at_ms: 1767225600000,
+      })
+    ).not.toThrow();
+    expect(() => consumer.validateOutboundCommand({ type: 'revoke_path', grant_id: 'grant-001' })).not.toThrow();
+    // The third command the same release unblocked, asserted here so a partial
+    // re-import that dropped one of the three cannot pass.
+    expect(() =>
+      consumer.validateOutboundCommand({ type: 'grant_workspace_capability', executable: 'cargo' })
+    ).not.toThrow();
   });
 
   /**

@@ -188,11 +188,20 @@ function getPlatformAsset(platform, arch, variant = 'default') {
 
 function needsBaselineVariant(platform, arch) {
   // x64 builds need an AVX2-free "baseline" bun for older CPUs (the standard
-  // build SIGILLs without AVX2). This applies to macOS Intel too: the runtime
-  // (shellEnv.getBundledBunDir) requests `darwin-x64-baseline` on a non-AVX2
-  // Intel chip, but only linux-x64 was ever staged — so those Macs got no
-  // usable bun and every npx-based local MCP server died with -32000 (#438).
-  return arch === 'x64' && (platform === 'linux' || platform === 'darwin');
+  // build SIGILLs without AVX2). The runtime probe that asks for it —
+  // shellEnv.getBundledBunDir — is `arch === 'x64' && !detectAvx2()` and has
+  // never been platform-gated, so EVERY x64 target needs the variant staged.
+  //
+  // Staging only linux-x64 left non-AVX2 Intel Macs with no usable bun, and every
+  // npx-based local MCP server died with -32000 (#438). Adding darwin fixed those
+  // and left win32 with the same hole: on a non-AVX2 win32-x64 box
+  // getBundledBunDir() returned null, resolveJsRuntime() fell back to `node.exe`,
+  // and on a machine with no Node on PATH that ENOENTs — surfacing as "Enabled but
+  // exposes 0 tools" (#1017).
+  //
+  // arm64 is excluded because it has no AVX2 concept (and bun publishes no
+  // win32-arm64 build at all).
+  return arch === 'x64' && (platform === 'linux' || platform === 'darwin' || platform === 'win32');
 }
 
 function getDownloadUrl(assetName, version) {

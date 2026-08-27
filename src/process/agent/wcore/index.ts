@@ -60,7 +60,7 @@ import type {
 } from './protocol';
 import { registerLivePathGrantSession } from './pathGrantSessions';
 import { parseQuestionTool } from './questionTool';
-import { stripAnsi, wcoreStderrLevel } from './stderrLog';
+import { createPemBlockHold, stripAnsi } from './stderrLog';
 import { redactSecrets } from '@process/utils/secretRedaction';
 import { handleHostSendMessageRequest, defaultHostSendDeps } from './hostSendMessage';
 import { DesktopCoreContractError, DesktopCoreV1Consumer } from './desktopContractV1';
@@ -906,29 +906,52 @@ export class WCoreAgent {
       }
     });
 
-    // Retain the raw stderr tail for failure surfacing (#484).
-    this.childProcess.stderr?.on('data', (chunk: Buffer) => {
-      this.stderrTail = (this.stderrTail + chunk.toString()).slice(-WCORE_STDERR_TAIL_MAX);
-    });
-
-    // Log each stderr line at the engine's own severity instead of blanket
-    // [error] (#717): the engine self-labels lines (tracing format), and
-    // routine INFO chatter re-tagged as host errors drowned real errors.
+    // ONE reader for both stderr sinks (#1065). The log and the failure tail used
+    // to be fed independently - the tail from raw chunks, the log from readline -
+    // and a PEM private key defeated both, by two different mechanisms:
+    //
+    //  - the log scrubbed per LINE, and the multi-line PEM rule handed a single
+    //    line can only match its `-----BEGIN` header. Masking that header
+    //    destroys the anchor, so every body line was invisible to that scrub AND
+    //    to the whole-file scrub the feedback bundle runs later.
+    //  - the tail is a 2048-byte WINDOW over raw bytes, so a 4096-bit key body
+    //    (~3.2 KB) simply pushes the `-----BEGIN` line out of it. With the anchor
+    //    evicted there is nothing for the blob scrub at the reject sites to
+    //    match, and the key body reached the user-facing startup error.
+    //
+    // Neither is fixable in the regex: an `-----END`-anchored rule would make an
+    // anchorless PEM fragment matchable, and `acpStderrRingTruncationLeak.test.ts`
+    // pins that invisibility as the property that makes a truncated ring safe.
+    //
+    // So the READER holds the block whole and emits one marker, and both sinks
+    // are fed from that one already-held stream. The tail is therefore complete
+    // LINES rather than raw bytes; a final line with no newline reaches it when
+    // readline flushes at stream end, which is every case where the engine exits.
+    //
+    // Severity is still per line and still the engine's own (#717): routine INFO
+    // chatter re-tagged as host errors drowned real errors, and the hold carries
+    // each line's level through rather than blanket-tagging anything.
+    //
+    // K-02/K-03 cross-audit (Codex 5.6 Sol and Kimi K3, independently): the log
+    // line was once written verbatim. Every OTHER stderr consumer redacts, but
+    // this one wrote raw engine output straight to the log file and, through
+    // `mainLogger`, to the renderer DevTools stream - so an engine that echoes
+    // `Authorization: Bearer <key>` or `api_key=<key>` before failing put a live
+    // credential on disk regardless of the redaction applied to the user-facing
+    // error. Classification runs on the unredacted line (the engine's own level
+    // tag is never a secret); only what is written out is redacted.
+    //
     // ANSI colour codes are stripped so the log file stays plain text.
+    const stderrHold = createPemBlockHold();
     const stderrLines = createInterface({ input: this.childProcess.stderr! });
     stderrLines.on('line', (rawLine) => {
-      const line = stripAnsi(rawLine);
-      if (!line.trim()) return;
-      // K-02/K-03 cross-audit (Codex 5.6 Sol and Kimi K3, independently): this
-      // line was logged verbatim. Every OTHER stderr consumer redacts, but this
-      // one wrote raw engine output straight to the log file and, through
-      // `mainLogger`, to the renderer DevTools stream - so an engine that echoes
-      // `Authorization: Bearer <key>` or `api_key=<key>` before failing put a
-      // live credential on disk regardless of the redaction applied to the
-      // user-facing error. Severity classification runs on the unredacted line
-      // (the engine's own level tag is never a secret); only what is written out
-      // is redacted.
-      console[wcoreStderrLevel(line)]('[wcore]', redactSecrets(line));
+      for (const emission of stderrHold.push(stripAnsi(rawLine))) {
+        // Retained unredacted and scrubbed at read time (#484), the same
+        // contract as before - what changed is that a PEM body never enters it.
+        this.stderrTail = (this.stderrTail + emission.text + '\n').slice(-WCORE_STDERR_TAIL_MAX);
+        if (!emission.text.trim()) continue;
+        console[emission.level]('[wcore]', redactSecrets(emission.text));
+      }
     });
 
     // Capture the exact child whose listeners are being installed. Exit is a

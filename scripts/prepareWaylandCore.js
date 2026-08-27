@@ -240,7 +240,7 @@ function verifyArchiveChecksum(archivePath, expectedHex, assetName, tag) {
 // directory, and it gets tagged only once that verification passes. So this
 // branch is NOT shippable, the tag below stays where it is until then, and
 // `desktopContractV1.test.ts` holds the tripwire that says so.
-const DEFAULT_WCORE_VERSION = 'v0.13.6';
+const DEFAULT_WCORE_VERSION = 'v0.13.8';
 
 function getVersion() {
   return (process.env.WCORE_VERSION || DEFAULT_WCORE_VERSION).trim();
@@ -374,17 +374,39 @@ function downloadFile(url, outputPath) {
   }
 }
 
-function extractArchive(archivePath, outputDir, platform) {
+/**
+ * Which extractor to run. The TARGET platform decides only whether the archive is
+ * a zip (win32 releases ship .zip, the rest .tar.gz); the HOST decides what tool
+ * can actually open it (#1058).
+ *
+ * Keying the tool off the target made a win32 target select PowerShell's
+ * Expand-Archive on a macOS or Linux build host, where powershell does not exist:
+ *
+ *   Release build cannot prepare a verified wayland-core for win32-arm64
+ *   (tag v0.13.0): spawnSync powershell ENOENT
+ *
+ * `downloadFile` above already keys on `process.platform` for exactly this reason.
+ * In CI this is a no-op, because Windows builds run on Windows runners.
+ */
+function __extractorFor(targetPlatform, hostPlatform, archivePath) {
+  const isZip = targetPlatform === 'win32' || archivePath.endsWith('.zip');
+  if (!isZip) return 'tar';
+  return hostPlatform === 'win32' ? 'powershell' : 'unzip';
+}
+
+function extractArchive(archivePath, outputDir, targetPlatform, hostPlatform = process.platform) {
   ensureDirectory(outputDir);
-  if (platform === 'win32' || archivePath.endsWith('.zip')) {
-    if (platform === 'win32') {
+  switch (__extractorFor(targetPlatform, hostPlatform, archivePath)) {
+    case 'powershell': {
       const ps = `Expand-Archive -LiteralPath '${archivePath.replace(/'/g, "''")}' -DestinationPath '${outputDir.replace(/'/g, "''")}' -Force`;
       execFileSync('powershell', ['-NoProfile', '-NonInteractive', '-Command', ps]);
-    } else {
-      execFileSync('unzip', ['-o', archivePath, '-d', outputDir]);
+      return;
     }
-  } else {
-    execFileSync('tar', ['-xzf', archivePath, '-C', outputDir]);
+    case 'unzip':
+      execFileSync('unzip', ['-o', archivePath, '-d', outputDir]);
+      return;
+    default:
+      execFileSync('tar', ['-xzf', archivePath, '-C', outputDir]);
   }
 }
 
@@ -783,6 +805,10 @@ prepareWaylandCore.getAssetName = getAssetName;
 prepareWaylandCore.loadExpectedProvenance = loadExpectedProvenance;
 prepareWaylandCore.normalizeExactReleaseTag = normalizeExactReleaseTag;
 prepareWaylandCore.pruneRuntimeDirectory = pruneRuntimeDirectory;
+// Exported so the extractor choice (#1058) can be driven directly instead of only
+// through a real release download.
+prepareWaylandCore.extractArchive = extractArchive;
+prepareWaylandCore.__extractorFor = __extractorFor;
 
 // Allow standalone invocation: `node scripts/prepareWaylandCore.js`.
 // build-with-builder.js requires the module and calls the function directly;

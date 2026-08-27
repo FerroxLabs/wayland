@@ -2466,6 +2466,35 @@ const migration_v56: IMigration = {
 };
 
 /**
+ * Migration v56 -> v57: the project a team belongs to.
+ *
+ * #999 - project knowledge is composed from `.wayland/` and re-injected at every
+ * agent spawn, keyed on the conversation's `extra.projectId`. A team had no
+ * project, so no teammate conversation ever carried that key and no team member
+ * ever saw a word of its project's knowledge.
+ *
+ * Nullable with a NULL default: a team created outside any project has no
+ * project, and that is a real answer rather than a missing one. Guarded on
+ * `table_info` so a re-run is a no-op, matching v38/v46.
+ */
+const migration_v57: IMigration = {
+  version: 57,
+  name: 'Add project_id column to teams',
+  up: (db) => {
+    const cols = new Set((db.pragma('table_info(teams)') as Array<{ name: string }>).map((c) => c.name));
+    if (!cols.has('project_id')) {
+      db.exec('ALTER TABLE teams ADD COLUMN project_id TEXT');
+    }
+    console.log('[Migration v57] Added project_id column to teams');
+  },
+  down: (_db) => {
+    // SQLite cannot DROP COLUMN cleanly without a table rebuild; the column is a
+    // nullable link by value only and safe to leave. Matches v46.
+    console.log('[Migration v57] No-op rollback (project_id is a nullable link only)');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -2479,7 +2508,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v37, migration_v38, migration_v39, migration_v40, migration_v41, migration_v42,
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
   migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
-  migration_v53, migration_v54, migration_v55, migration_v56,
+  migration_v53, migration_v54, migration_v55, migration_v56, migration_v57,
 ];
 
 /**

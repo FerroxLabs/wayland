@@ -363,7 +363,7 @@
   "routingBadge": {
     "flux": "Acheminement via Flux",
     "native": "Connexion native",
-    "unknown": "Utilisation de la session propre de cet outil",
+    "unknown": "Acheminement inconnu",
     "fluxError": "Flux indisponible",
     "fluxErrorNotice": "L'acheminement via Flux a echoue pour ce tour. Verifiez votre connexion Flux ou changez de modele."
   },

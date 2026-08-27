@@ -21,5 +21,27 @@
       "archiveSha256": "sha256:2326ab956b3c06dc6e6eba40ca54c7153fa95696f4fb645f9537607fbb4a763d",
       "binarySha256": "sha256:bb3854ce7ec7918ebb44297618ab87d2d91d2f0eea6b3fad65ae9b874ba5b5be"
     }
+  },
+  "v0.2.0": {
+    "wayland-nano-0.2.0-darwin-arm64.zip": {
+      "archiveSha256": "sha256:50a2297bd6799df278ff555228a342167fed9a35510fdc69bf172c0071c4070e",
+      "binarySha256": "sha256:f2159cf65eaa0e9e00c53e09f8e9423a3eddf4bc05e4aa75aa6e47218ab68068"
+    },
+    "wayland-nano-0.2.0-darwin-x64.zip": {
+      "archiveSha256": "sha256:d62e70af4fc21c991c8098bb8999ed4f329a06cdc07e33771a428e3ef3ca6166",
+      "binarySha256": "sha256:4fc6ae3e0bdcf8502c2cc5b3e696aa4920c7570f8d2bdd12ded1d279c4747ded"
+    },
+    "wayland-nano-0.2.0-linux-arm64.zip": {
+      "archiveSha256": "sha256:61c3ecf62e3738939ed558235b75568a5cd29371c65aa31e0345ac5e6e00d0e9",
+      "binarySha256": "sha256:a3144de646312462dc06ef215ef6f30be3387d984ce7f1b8e397233576d15302"
+    },
+    "wayland-nano-0.2.0-linux-x64.zip": {
+      "archiveSha256": "sha256:02bb53e890ace2d6c0874c9a764a80f0d34f10869d278560e1f10b78a70d7391",
+      "binarySha256": "sha256:0ce8df735cfe33b6f98b0ca027933927941845b46b6c843d6b2b75dc16a26464"
+    },
+    "wayland-nano-0.2.0-win32-x64.zip": {
+      "archiveSha256": "sha256:b713cf4c64ba26719400ede21e214a014c9043ea5a2bb4c9882f8a2ac25eb3f8",
+      "binarySha256": "sha256:234210aab4ce800999b67315ceccda678c9fe2746452e5fd15408ad84844ad4f"
+    }
   }
 }

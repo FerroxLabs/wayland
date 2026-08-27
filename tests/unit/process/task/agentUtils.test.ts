@@ -84,6 +84,7 @@ vi.mock('@process/team/prompts/teamGuideAssistant.ts', () => ({
 }));
 
 import { prepareFirstMessageWithSkillsIndex } from '@process/task/agentUtils';
+import { HONESTY_FLOOR } from '@process/services/constitution/composePrompt';
 
 const mockBridge = mockConstitutionRead;
 
@@ -94,13 +95,20 @@ describe('prepareFirstMessageWithSkillsIndex - Constitution wiring', () => {
     skillsState.index = [];
   });
 
-  it('returns original content (no [Assistant Rules] wrapper) when no Constitution and no skills/rules', async () => {
+  it('still wraps with the honesty floor when there is no Constitution and no skills/rules', async () => {
+    // This case used to return the message unwrapped. It no longer can: the
+    // honesty floor is composed for every assistant on every backend, and the
+    // "no Constitution, no skills" profile is precisely the one that previously
+    // got NO rules at all - which is where an assistant is most likely to claim
+    // an action it never took.
     mockBridge.mockReturnValue({ constitution: '', overlay: null });
 
     const original = 'hello agent';
     const result = await prepareFirstMessageWithSkillsIndex(original, {});
 
-    expect(result.content).toBe(original);
+    expect(result.content).toBe(
+      `[Assistant Rules - You MUST follow these instructions]\n${HONESTY_FLOOR}\n\n[User Request]\n${original}`
+    );
     expect(result.loadedSkills).toEqual([]);
   });
 
@@ -112,7 +120,7 @@ describe('prepareFirstMessageWithSkillsIndex - Constitution wiring', () => {
     const result = await prepareFirstMessageWithSkillsIndex(original, {});
 
     expect(result.content).toBe(
-      `[Assistant Rules - You MUST follow these instructions]\n${constitution}\n\n[User Request]\n${original}`
+      `[Assistant Rules - You MUST follow these instructions]\n${HONESTY_FLOOR}\n\n---\n\n${constitution}\n\n[User Request]\n${original}`
     );
     // Constitution-only ⇒ no skills loaded.
     expect(result.loadedSkills).toEqual([]);
@@ -127,7 +135,7 @@ describe('prepareFirstMessageWithSkillsIndex - Constitution wiring', () => {
     });
 
     // Composer order: Constitution + \n\n---\n\n + Overlay
-    const expectedBody = 'C\n\n---\n\nOVERLAY';
+    const expectedBody = `${HONESTY_FLOOR}\n\n---\n\nC\n\n---\n\nOVERLAY`;
     expect(result.content).toBe(
       `[Assistant Rules - You MUST follow these instructions]\n${expectedBody}\n\n[User Request]\n${original}`
     );

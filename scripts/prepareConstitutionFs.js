@@ -75,6 +75,7 @@ function prepareConstitutionFs(options = {}) {
   fs.copyFileSync(source, destination);
   fs.chmodSync(destination, 0o755);
 
+  let darwinSignatureIdentifier = null;
   if (platform === 'darwin') {
     // Sign BEFORE the digest below is taken. The manifest, the authority
     // embedded in app.asar and the packaged gate all pin these exact bytes, and
@@ -85,12 +86,17 @@ function prepareConstitutionFs(options = {}) {
     // Bind the signature to the bytes we just built, so the signature cannot be
     // reused to bless a different helper.
     const unsignedSha256 = crypto.createHash('sha256').update(fs.readFileSync(destination)).digest('hex');
-    signDarwinStagedBinary(destination, {
+    const identifier = darwinSigningIdentifier(fileName, unsignedSha256);
+    const signed = signDarwinStagedBinary(destination, {
       execFileSync: execute,
       identity: signIdentity,
-      identifier: darwinSigningIdentifier(fileName, unsignedSha256),
+      identifier,
       label: `constitution-fs ${platform}-${arch}`,
     });
+    // Only a build that actually signed may claim an identifier. A build with no
+    // identity stages the helper unsigned on purpose, and naming one here would
+    // make the packaged gate demand a signature this artifact does not carry.
+    darwinSignatureIdentifier = signed ? identifier : null;
   }
 
   const bytes = fs.readFileSync(destination);
@@ -121,7 +127,20 @@ function prepareConstitutionFs(options = {}) {
   );
   writeGenerated(authority, generated);
   console.log(`[constitution-fs] staged ${platform}-${arch} ${sha256}`);
-  return authority;
+  // The signing identifier rides on the RETURNED authority only, so it reaches
+  // package-authority.json and nothing else.
+  //
+  // Not the manifest: parseManifest's assertExactKeys throws
+  // CONSTITUTION_FS_MANIFEST_INVALID on any unexpected field, which would brick
+  // every launch on every platform of a signed, notarized app.
+  //
+  // Not the generated authority either: nothing in the main process reads this
+  // field, so rollup drops it and it never reaches app.asar anyway.
+  //
+  // package-authority.json is read by scripts/verify-packaged-resources.js and
+  // by nothing else - constitutionFsBinary.ts reads manifest.json and the
+  // authority compiled into app.asar - so the extra field is inert at runtime.
+  return { ...authority, darwinSignatureIdentifier };
 }
 
 module.exports = prepareConstitutionFs;

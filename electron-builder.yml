@@ -248,6 +248,7 @@ win:
   # needs the new name.
   signExts:
     - '!\bundled-bun\win32-x64\bun.exe'
+    - '!\bundled-bun\win32-x64-baseline\bun.exe'
     - '!\bundled-bun\win32-arm64\bun.exe'
     - '!\bundled-officecli\win32-x64\officecli.exe'
     - '!\bundled-officecli\win32-arm64\officecli.exe'
@@ -420,6 +421,7 @@ asarUnpack:
   - 'out/main/builtin-mcp-image-gen.js'
   - 'out/main/builtin-mcp-search-skills.js'
   - 'out/main/builtin-mcp-concierge-diag.js'
+  - 'out/main/builtin-mcp-tool-filter.js'
   - 'out/main/team-mcp-stdio.js'
   - 'out/main/team-guide-mcp-stdio.js'
   # Bundled @wayland MCP servers (ship with installer, no npm publish)

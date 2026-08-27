@@ -79,13 +79,22 @@ const HARD_KILL_EXIT: RealExit =
  * alive for BOTH A and B, so this is a platform difference and not a fixture bug.
  *
  * Consequence: neither `pipe_close` (the child's stdout 'close') nor `connection_close`
- * (the SDK aborting on that readable's 'end') can fire for a LIVE child on win32. The
- * PRODUCT limitation that follows is recorded next to the detection code in
- * `ProcessAcpClient.attachLifecycleObservers` - read that before treating these skips as
- * a test-only problem. A genuinely CRASHED agent is still detected on Windows, because
- * process death closes the pipe (case C above); only the live-child-with-a-dead-transport
- * half is skipped, and the `DisconnectInfo` shape for `pipe_close`/`process_close` stays
- * covered on win32 by the drive-the-recorder test further down.
+ * (the SDK aborting on that readable's 'end') can fire for a LIVE child on win32. That
+ * is a PLATFORM fact and it has not changed - these tests assert the IMMEDIATE pipe
+ * route, so they stay skipped there.
+ *
+ * What HAS changed is the product gap that used to follow from it. #1061 added a
+ * win32-only transport-silence watchdog (`ProcessAcpClient.armTransportWatchdog`): a
+ * prompt whose agent sends zero bytes for the whole silence window is reported as
+ * `connection_close`, so the banner these tests cover IS now reachable on Windows -
+ * after a delay rather than in milliseconds. That route is covered cross-platform in
+ * `tests/unit/acpTransportSilenceWatchdog.test.ts`; do not read these skips as the
+ * feature being absent on Windows.
+ *
+ * A genuinely CRASHED agent was always detected on Windows, because process death
+ * closes the pipe (case C above), and the `DisconnectInfo` shape for
+ * `pipe_close`/`process_close` stays covered on win32 by the drive-the-recorder test
+ * further down.
  */
 const itLiveChildDrop = it.skipIf(process.platform === 'win32');
 

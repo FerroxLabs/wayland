@@ -21,6 +21,7 @@ export {
   type NanoKnownProviderId,
   type WnanoProviderEntry,
 } from './providersPayload';
+export { wnanoDirectedProviderId } from './providerScope';
 export { cleanupWnanoFluxKeyFile, wnanoFluxKeyFilePath, writeWnanoFluxKeyFile } from './fluxKeyFile';
 export {
   WNANO_OAUTH_REFRESH_THRESHOLD_SECS,

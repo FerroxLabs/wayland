@@ -363,7 +363,7 @@
   "routingBadge": {
     "flux": "Weiterleitung uber Flux",
     "native": "Native Verbindung",
-    "unknown": "Verwendet eigene Anmeldung dieses Tools",
+    "unknown": "Weiterleitung unbekannt",
     "fluxError": "Flux nicht verfugbar",
     "fluxErrorNotice": "Flux-Routing fur diese Anfrage fehlgeschlagen. Prüfe deine Flux-Verbindung oder wechsle das Modell."
   },

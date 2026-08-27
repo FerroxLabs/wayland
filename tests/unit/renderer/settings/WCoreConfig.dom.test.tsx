@@ -19,6 +19,7 @@ const {
   mockGetBrowserPolicy,
   mockSetBrowserPolicy,
   mockWcoreProfiles,
+  mockWcoreUpdateCheck,
 } = vi.hoisted(() => ({
   mockNavigate: vi.fn(),
   mockGetAvailableAgents: vi.fn(),
@@ -30,6 +31,7 @@ const {
   mockGetBrowserPolicy: vi.fn(),
   mockSetBrowserPolicy: vi.fn(() => Promise.resolve({ ok: true })),
   mockWcoreProfiles: vi.fn(),
+  mockWcoreUpdateCheck: vi.fn(),
 }));
 
 vi.mock('react-router-dom', () => ({
@@ -112,7 +114,7 @@ vi.mock('../../../../src/common', () => ({
     },
     // In-app engine updater (Overview pane "update available" card).
     wcoreUpdate: {
-      check: { invoke: () => Promise.resolve(null) },
+      check: { invoke: () => mockWcoreUpdateCheck() },
       install: { invoke: () => Promise.resolve({ ok: true }) },
       progress: { on: () => () => {} },
     },
@@ -174,6 +176,9 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
       success: true,
       data: [{ backend: 'wcore', name: 'Wayland Core', cliPath: '/usr/local/bin/wcore' }],
     });
+    // Default: the updater check resolves null, exactly as this suite's inline
+    // stub did before it became configurable. Only the #1108 cases override it.
+    mockWcoreUpdateCheck.mockResolvedValue(null);
   });
 
   it('renders the seven engine rail sections (no Constitution — engine has none)', () => {
@@ -593,5 +598,66 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     mockGetAvailableAgents.mockResolvedValue({ success: true, data: [] });
     render(<WCoreConfig />);
     await waitFor(() => expect(screen.getByText('engine stopped')).toBeTruthy());
+  });
+
+  // ── #1108: an engine release this build's contract pin rejects ────────────
+  //
+  // `checkForWCoreUpdate` now runs the contract gate and, on a mismatch,
+  // returns `incompatible: true` with `updateAvailable: false` and the refusal
+  // as `error`. The Overview card is where that reaches the customer. Before
+  // this, `showUpdateCard` keyed off `updateAvailable` alone, so a withheld
+  // release rendered NOTHING - the user sees a newer engine announced elsewhere
+  // and an app that silently offers no update, which reads as a broken updater.
+
+  it('names a withheld engine release instead of showing nothing (#1108)', async () => {
+    mockWcoreUpdateCheck.mockResolvedValue({
+      current: '0.13.2',
+      latest: '0.14.0',
+      tag: 'v0.14.0',
+      htmlUrl: 'https://example.invalid/v0.14.0',
+      updateAvailable: false,
+      incompatible: true,
+      error:
+        'Wayland Core v0.14.0 is not compatible with this app version: it speaks contract 1.17 and this app speaks 1.16. Update Wayland itself to move to this engine.',
+    });
+
+    render(<WCoreConfig />);
+
+    expect(await screen.findByText('Wayland Core 0.14.0 needs a newer Wayland')).toBeTruthy();
+    expect(
+      screen.getByText(
+        'This engine speaks a protocol this version of the app does not. Update Wayland itself to move to it — your current engine keeps working.'
+      )
+    ).toBeTruthy();
+    // No install button: the install path would refuse this same release, and a
+    // button that only ever fails is worse than no button.
+    expect(screen.queryByRole('button', { name: 'Update now' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+  });
+
+  it('positive control: a compatible release still offers the install button', async () => {
+    // Same harness, same pane - proves the assertions above fail on the WITHHELD
+    // state specifically, not because this suite can never render an update card.
+    mockWcoreUpdateCheck.mockResolvedValue({
+      current: '0.13.2',
+      latest: '0.13.6',
+      tag: 'v0.13.6',
+      htmlUrl: 'https://example.invalid/v0.13.6',
+      updateAvailable: true,
+    });
+
+    render(<WCoreConfig />);
+
+    expect(await screen.findByText('Wayland Core 0.13.6 is available')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Update now' })).toBeTruthy();
+    expect(screen.queryByText('Wayland Core 0.13.6 needs a newer Wayland')).toBeNull();
+  });
+
+  it('shows no update card at all when the check returns nothing', async () => {
+    render(<WCoreConfig />);
+
+    await waitFor(() => expect(screen.getByText('Allocated by Wayland Desktop')).toBeTruthy());
+    expect(screen.queryByRole('button', { name: 'Update now' })).toBeNull();
+    expect(screen.queryByText(/needs a newer Wayland/)).toBeNull();
   });
 });

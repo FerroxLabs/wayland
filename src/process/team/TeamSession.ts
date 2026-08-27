@@ -80,8 +80,11 @@ export class TeamSession extends EventEmitter {
       // ACP file-op gate can resolve per-cap grants for sandboxed agents.
       isImported: team.importedFrom != null,
       getTeamSnapshot: () => this.repo.findById(team.id),
-      onAgentRemoved: (teamId, agents) => {
-        void this.repo.update(teamId, { agents, updatedAt: Date.now() });
+      // #1057: persist the REMOVAL, not the manager's roster. Writing the whole
+      // blob back re-stamped every surviving teammate's status from the
+      // in-memory copy, reverting anything another writer had committed since.
+      onAgentRemoved: (teamId, _agents, removedSlotId) => {
+        void this.repo.mutateAgents(teamId, (live) => live.filter((a) => a.slotId !== removedSlotId));
       },
       // #980: teammate status is a persisted field of `teams.agents`. Without
       // this the DB copy went stale the moment an agent changed state, so the
@@ -129,7 +132,7 @@ export class TeamSession extends EventEmitter {
       spawnAgent,
       renameAgent: (slotId: string, newName: string) => {
         this.teammateManager.renameAgent(slotId, newName);
-        void this.repo.update(team.id, { agents: this.teammateManager.getAgents(), updatedAt: Date.now() });
+        void this.persistAgentName(slotId);
       },
       removeAgent: (slotId: string) => {
         // removeAgent already persists via onAgentRemoved callback
@@ -264,7 +267,23 @@ export class TeamSession extends EventEmitter {
   /** Rename an agent and persist to DB */
   renameAgent(slotId: string, newName: string): void {
     this.teammateManager.renameAgent(slotId, newName);
-    void this.repo.update(this.teamId, { agents: this.teammateManager.getAgents(), updatedAt: Date.now() });
+    void this.persistAgentName(slotId);
+  }
+
+  /**
+   * #1057 - persist ONE slot's name onto the live roster.
+   *
+   * Both rename seams used to write `teammateManager.getAgents()` back as the
+   * whole `agents` blob. `agentName` is the only field a rename owns; the rest
+   * of that array is the manager's in-memory copy, and re-stamping it reverted
+   * any teammate status (or backend swap) committed since the session was built.
+   */
+  private persistAgentName(slotId: string): Promise<unknown> {
+    const renamed = this.teammateManager.getAgents().find((a) => a.slotId === slotId);
+    if (!renamed) return Promise.resolve(null);
+    return this.repo.mutateAgents(this.teamId, (live) =>
+      live.map((a) => (a.slotId === slotId ? { ...a, agentName: renamed.agentName } : a))
+    );
   }
 
   /** Add a new agent to the team at runtime */

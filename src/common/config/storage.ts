@@ -215,6 +215,24 @@ export interface IConfigStorageRefer {
    * Set when the chooser is answered or dismissed, never on the shell write.
    */
   'ui.shellChoicePrompted'?: boolean;
+  /**
+   * Whether the user has ANSWERED the long-term-memory offer.
+   *
+   * Needed because `[memory] enabled = false` in the engine config cannot say
+   * WHY it is false. Core defaults memory ON (F-091), but an older Core's
+   * `patch_config_file_at` re-serialized the whole typed config on any
+   * single-field write and stamped the then-current `false` in permanently - so
+   * a profile can be silently memory-less without the user ever choosing that.
+   * A deliberate opt-out through Settings looks byte-identical on disk.
+   *
+   * Set when the offer is accepted OR declined, and ALSO whenever the user
+   * flips the Settings toggle either way - because someone who has just used
+   * the real control has answered the question by definition and must never be
+   * asked again. Without that second write, turning memory off in Settings
+   * would summon an offer to turn it back on, which is nagging a user out of a
+   * privacy decision.
+   */
+  'memory.enableOffered'?: boolean;
   /** Auto-enable WebUI in desktop mode */
   'webui.desktop.enabled'?: boolean;
   /** Allow remote access in desktop mode */

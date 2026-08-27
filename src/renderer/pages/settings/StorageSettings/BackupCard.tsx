@@ -7,7 +7,7 @@ import { storage } from '@/common/adapter/ipcBridge';
 import type { LegacyBackupErrorCode } from '@/common/types/storageBackup';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { exportBackupHttp, restoreBackupHttp } from '@renderer/services/StorageService';
-import type { RestoreReport } from '@renderer/services/StorageService';
+import type { RestoreFailure, RestoreReport } from '@renderer/services/StorageService';
 
 /**
  * The desktop backup providers cannot reject - the IPC bridge has no error
@@ -174,6 +174,25 @@ const BackupCard: React.FC = () => {
     );
   };
 
+  /**
+   * A failed restore that could not put every displaced original back KEEPS the
+   * tree holding them instead of deleting it (#1050). That tree can be the only
+   * copy of the user's legacy API keys on the machine, so where it is has to
+   * reach the person looking at the failure: a preserved copy nobody is told
+   * about is indistinguishable from a deleted one.
+   *
+   * It is a second message rather than one composed sentence so the error keeps
+   * saying what failed while this says where the data is, and so the good news
+   * survives translation as its own string.
+   */
+  const reportPreservedOriginals = (preservedPath?: string) => {
+    if (!preservedPath) return;
+    Message.warning({
+      content: t('settings.storagePage.restoreOriginalsPreserved', { path: preservedPath }),
+      duration: 30000,
+    });
+  };
+
   const submitRestore = async () => {
     if (isDesktop) {
       setRestoring(true);
@@ -186,6 +205,7 @@ const BackupCard: React.FC = () => {
           // saying nothing is what left a mistyped passphrase looking like a
           // frozen panel.
           if (result.failed) Message.error(t(`settings.storagePage.${restoreErrorKey(result.errorCode)}`));
+          reportPreservedOriginals(result.preservedPath);
           // A wrong passphrase is retryable, so leave the dialog open with what
           // they typed. Closing it and clearing the field is a poor answer to a
           // typo. Anything else is not retryable from here.
@@ -229,6 +249,7 @@ const BackupCard: React.FC = () => {
                 ? 'restoreBadPassphrase'
                 : 'restoreFailed';
       Message.error(t(`settings.storagePage.${key}`));
+      reportPreservedOriginals((error as RestoreFailure)?.preservedPath);
     } finally {
       setRestoring(false);
     }

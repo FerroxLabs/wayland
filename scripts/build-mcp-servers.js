@@ -12,6 +12,7 @@
  */
 
 const esbuild = require('esbuild');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -22,11 +23,17 @@ const SHARED_OPTIONS = {
   bundle: true,
   platform: 'node',
   format: 'cjs',
-  // `bun:sqlite` is a Bun built-in that Node cannot resolve. The search-skills
-  // subprocess transitively imports the database driver registry, but never
-  // executes the bun-specific code path; marking it external leaves the
-  // require unresolved in the bundle (the registry picks a different driver
-  // at runtime under Node).
+  // `bun:sqlite` is a Bun built-in that Node cannot resolve. Marking it external
+  // leaves the require unresolved in the bundle, which is what makes ONE bundle
+  // runnable on both runtimes:
+  //  - search-skills transitively imports the database driver registry but never
+  //    executes the bun-specific branch (the registry picks a different driver
+  //    under Node);
+  //  - concierge-diag DOES call it (#1018). In a packaged build it is spawned
+  //    through the bundled Bun, where better-sqlite3 throws ERR_DLOPEN_FAILED on
+  //    open, so its three sqlite-backed sections read through bun:sqlite there
+  //    and through better-sqlite3 under Node. The require is guarded by
+  //    `process.versions.bun`, so Node never reaches it.
   external: ['electron', 'bun:sqlite'],
   tsconfig: path.join(ROOT, 'tsconfig.json'),
   loader: { '.wasm': 'empty' },
@@ -101,31 +108,74 @@ function mcpSourceCandidates(pkgName, env = process.env) {
 }
 
 /**
- * Copy the Swift EventKit bridge binary alongside the apple-mcp JS bundle.
- *
- * Extracted from an inline callback so it is reachable from a unit test: both
- * branches are log-only behaviour that nothing could otherwise pin, and the
- * `return` below is load-bearing in the direction that is easy to miss - drop it
- * and EVERY macOS build that DOES have the bridge also emits the "will fail at
- * runtime" warning, a control lying the opposite way.
+ * Compile the apple-mcp Swift EventKit helper with the toolchain the package's
+ * own `build:native` script uses. Kept as a default so tests can inject a
+ * compiler and exercise every branch on shards where swiftc does not exist.
  */
-async function copyEventKitBridge(src, outMain = OUT_MAIN) {
+function compileEventKitBridge({ source, output }) {
+  const result = spawnSync('swiftc', [source, '-o', output, '-framework', 'EventKit', '-framework', 'Foundation'], {
+    encoding: 'utf-8',
+  });
+  if (result.error) return { status: 1, stderr: String(result.error.message) };
+  return { status: result.status, stderr: result.stderr || '' };
+}
+
+/**
+ * Install the apple-mcp Swift EventKit helper next to the JS bundle, BUILDING
+ * it when it is not already there.
+ *
+ * #1013: this used to copy-if-present only, and waylandmcp gitignores `dist/`,
+ * so a plain CI checkout never had the binary and the connector shipped anyway.
+ * 9 of its tools route through this helper - Calendar listEvents/createEvent/
+ * updateEvent/deleteEvent/findFreeSlot and Reminders listReminders/
+ * createReminder/completeReminder/deleteReminder - so they were dead on arrival
+ * while the Library still offered them. Notes, Mail, Maps and Photos go via
+ * AppleScript and were unaffected. #940 made the silence a warning; a warning
+ * still ships a card advertising controls that cannot work.
+ *
+ * The SOURCE is committed (`native/EventKitBridge.swift`), so a checkout has
+ * everything needed - nothing ever ran swiftc. Now the darwin legs do, and a
+ * compile that fails (or that reports success while producing nothing) is FATAL
+ * rather than a warning, so this cannot regress back to shipping green.
+ *
+ * Off darwin there is no EventKit to link against, so the pre-existing warning
+ * stands: the helper is macOS-only and the connector is not cross-shipped.
+ */
+async function copyEventKitBridge(src, outMain = OUT_MAIN, options = {}) {
+  const platform = options.platform ?? process.platform;
+  const compile = options.compile ?? compileEventKitBridge;
   const bridge = path.join(src, 'dist', 'eventkit-bridge');
+  const swiftSource = path.join(src, 'native', 'EventKitBridge.swift');
+
+  if (!fs.existsSync(bridge) && platform === 'darwin' && fs.existsSync(swiftSource)) {
+    fs.mkdirSync(path.dirname(bridge), { recursive: true });
+    const { status, stderr } = compile({ source: swiftSource, output: bridge });
+    if (status !== 0) {
+      throw new Error(
+        `[build-mcp-servers] #1013 swiftc failed to build the apple-mcp EventKit bridge ` +
+          `from ${swiftSource}: ${String(stderr).trim() || `exit ${String(status)}`}`
+      );
+    }
+    // A zero exit with no artifact is the same shipping-green failure by another
+    // route, so it gets the same fatal treatment rather than falling through to
+    // the warning below.
+    if (!fs.existsSync(bridge)) {
+      throw new Error(
+        `[build-mcp-servers] #1013 swiftc reported success but produced no ${bridge} ` +
+          `for the apple-mcp EventKit bridge`
+      );
+    }
+  }
+
   if (fs.existsSync(bridge)) {
     fs.copyFileSync(bridge, path.join(outMain, 'eventkit-bridge'));
     fs.chmodSync(path.join(outMain, 'eventkit-bridge'), 0o755);
     return;
   }
-  // #940: this used to be a silent no-op, and silence is the bug. The
-  // binary is built by `bun run build:native` (swiftc) into dist/, which
-  // waylandmcp gitignores, so a plain CI checkout never has it. Without it
-  // the apple connector still ships and still advertises 9 tools that
-  // cannot work: Calendar listEvents/createEvent/updateEvent/deleteEvent/
-  // findFreeSlot and Reminders listReminders/createReminder/
-  // completeReminder/deleteReminder all route through it. Notes, Mail,
-  // Maps and Photos use AppleScript and are unaffected. A card that offers
-  // a control which cannot work is the failure #940 is about, so say it
-  // loudly enough to find in a CI log. Tracked for a real fix in #1013.
+
+  // Nothing to install and nothing buildable here: off darwin (no EventKit to
+  // link), or a source tree that does not carry the Swift file. Say it loudly
+  // enough to find in a CI log - #940 is about exactly the silence.
   console.warn(
     `::warning::[build-mcp-servers] @wayland/apple-mcp was bundled WITHOUT its Swift EventKit ` +
       `bridge (no ${bridge}). On macOS its 5 Calendar and 4 Reminders tools will fail at runtime ` +
@@ -208,6 +258,16 @@ async function main() {
     }),
     esbuild.build({
       ...SHARED_OPTIONS,
+      // #998 the per-tool filtering shim. Not an MCP server in its own right: it
+      // is spawned in a real server's place so a strict per-tool subset reaches
+      // engines whose wire has no per-tool field. It must be a self-contained
+      // bundle like its siblings, because a packaged build runs it from
+      // app.asar.unpacked where require() has no ASAR patching.
+      entryPoints: [path.join(ROOT, 'src/process/resources/builtinMcp/toolFilterShimEntry.ts')],
+      outfile: path.join(ROOT, 'out/main/builtin-mcp-tool-filter.js'),
+    }),
+    esbuild.build({
+      ...SHARED_OPTIONS,
       // `better-sqlite3` is a NATIVE module. esbuild can inline its JS but NOT
       // its `.node` binding; the inlined `bindings` loader then resolves
       // relative to out/main (which has no build/Release) and throws
@@ -249,6 +309,7 @@ if (require.main === module) {
 module.exports = {
   ALLOW_MISSING_ENV,
   bundleWaylandMcp,
+  compileEventKitBridge,
   copyEventKitBridge,
   mcpSourceCandidates,
   optionalMcpBypassEnabled,

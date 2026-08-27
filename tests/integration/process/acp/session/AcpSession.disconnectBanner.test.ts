@@ -34,8 +34,8 @@ import type { AgentConfig, SessionCallbacks } from '@process/acp/types';
 const FIXTURE = path.resolve(__dirname, '../../../../fixtures/acp/fakeAcpAgent.cjs');
 
 /**
- * The mid-prompt drop this test drives cannot happen on Windows, so there is nothing for
- * it to observe there.
+ * The IMMEDIATE, pipe-driven drop this test measures cannot happen on Windows, so there
+ * is nothing for it to observe there in the time it allows.
  *
  * Executed on the win32 box: a child that closes stdout (via `process.stdout.end()` AND
  * via the definitive `fs.closeSync(1)`) while STAYING ALIVE produces no 'end' and no
@@ -44,10 +44,13 @@ const FIXTURE = path.resolve(__dirname, '../../../../fixtures/acp/fakeAcpAgent.c
  * control fires and the negative is a platform fact, not a dead fixture. The same probe
  * on darwin reports `[stdout:end, stdout:close]` with the child still alive.
  *
- * The PRODUCT limitation is recorded next to the detection code in
- * `ProcessAcpClient.attachLifecycleObservers`: on Windows this banner is reachable only
- * when the agent's process actually dies, never for a live agent whose transport went
- * away. Tracked as a #1020 follow-up - do not read this skip as "the test was flaky".
+ * The product gap that used to follow is CLOSED (#1061): a win32-only transport-silence
+ * watchdog in `ProcessAcpClient.armTransportWatchdog` reports a prompt whose agent has
+ * sent zero bytes for the whole silence window, so this banner is now reachable on
+ * Windows for a live agent too - after that window rather than instantly. The watchdog
+ * route is proven cross-platform in `tests/unit/acpTransportSilenceWatchdog.test.ts`.
+ * Do not read this skip as "the banner does not work on Windows", and do not read it as
+ * "the test was flaky".
  */
 const itLiveChildDrop = it.skipIf(process.platform === 'win32');
 

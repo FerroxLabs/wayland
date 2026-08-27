@@ -147,12 +147,50 @@ function validateLegacyManifest(value: unknown): void {
   }
 }
 
+/**
+ * Property carrying the rollback tree a failed restore deliberately KEPT.
+ *
+ * It rides on the original error rather than replacing it, because the caller
+ * still has to receive the failure that actually caused the restore to fail
+ * (#1050). Read it with `preservedRollbackPath`.
+ */
+const PRESERVED_ROLLBACK_KEY = 'waylandPreservedRollbackPath';
+
+/**
+ * Where a failed restore kept the user's displaced originals, if it kept any.
+ *
+ * A preserved copy nobody is told about is indistinguishable from a deleted
+ * one, and on the no-passphrase path this tree can be the only copy of the
+ * user's legacy `keys.json` on the machine. This is an application-generated
+ * temp path, not error text: unlike a raw message it cannot carry archive
+ * content or a passphrase fragment, which is why it may cross to the user while
+ * the underlying error may not.
+ */
+export function preservedRollbackPath(error: unknown): string | undefined {
+  const value = (error as Record<string, unknown> | null | undefined)?.[PRESERVED_ROLLBACK_KEY];
+  return typeof value === 'string' ? value : undefined;
+}
+
+/**
+ * True while the rollback tree still holds a displaced original that was not
+ * put back.
+ *
+ * This is the ONLY question that decides whether the rollback tree may be
+ * removed after a failed restore, and it is asked of the disk rather than of a
+ * success flag, because a flag can only record what the unwind BELIEVES it did.
+ * A path is safe to forget exactly when its bytes are no longer here.
+ */
+function rollbackStillHoldsOriginals(rollbackRoot: string, displaced: string[]): boolean {
+  return displaced.some((relativePath) => fs.existsSync(path.join(rollbackRoot, relativePath)));
+}
+
 function replaceFromStaging(root: string, stagingRoot: string): string[] {
   const parent = path.dirname(root);
   const rollbackRoot = fs.mkdtempSync(path.join(parent, '.wayland-legacy-rollback-'));
   const relativeTargets = ['conversations', 'attachments', 'config', 'keys.json'];
   const installed: string[] = [];
   const displaced: string[] = [];
+  let keepRollback = false;
 
   try {
     for (const relativePath of relativeTargets) {
@@ -170,20 +208,61 @@ function replaceFromStaging(root: string, stagingRoot: string): string[] {
       installed.push(relativePath);
     }
   } catch (error) {
-    for (const relativePath of installed.reverse()) {
-      fs.rmSync(path.join(root, relativePath), { recursive: true, force: true });
+    // EVERY ITERATION OF BOTH SWEEPS IS GUARDED, AND THE CLEANUP IS CONDITIONAL
+    // (#1050).
+    //
+    // Neither sweep used to be guarded, so one failure aborted the whole unwind
+    // - and a failure here is ordinary, not exotic: an EBUSY or EPERM from a
+    // handle another process still holds is the everyday Windows case. Executed
+    // at the tag, a single injected EBUSY in the first sweep meant the SECOND
+    // sweep never ran at all, and the unconditional `finally` below then deleted
+    // the rollback tree with all three displaced originals still inside it. On
+    // the no-passphrase path that tree is genuinely the only copy of the user's
+    // `keys.json` on the machine, because legacySafetyExport omits keys when no
+    // passphrase was given. This is the RECOVERY path: it runs precisely when
+    // something has already gone wrong, so it is the last place that may lose
+    // data. Losing a temp directory is nothing; losing the user's only copy is
+    // the bug.
+    //
+    // That same escaping throw also meant `throw error` never ran, so the caller
+    // was handed the rollback's error instead of the failure that actually
+    // caused the restore to fail. Guarding the sweeps restores the original.
+    for (const relativePath of [...installed].reverse()) {
+      try {
+        fs.rmSync(path.join(root, relativePath), { recursive: true, force: true });
+      } catch {
+        // Keep sweeping. A path we cannot clear is put back by the loop below.
+      }
     }
-    for (const relativePath of displaced.reverse()) {
-      const rollback = path.join(rollbackRoot, relativePath);
-      const target = path.join(root, relativePath);
-      if (fs.existsSync(rollback)) {
+    for (const relativePath of [...displaced].reverse()) {
+      try {
+        const rollback = path.join(rollbackRoot, relativePath);
+        if (!fs.existsSync(rollback)) continue;
+        const target = path.join(root, relativePath);
+        // The sweep above may have failed to clear the archive copy it just
+        // installed at this exact path, and the original cannot go back on top
+        // of it. This is part of putting the original back, not a retry of the
+        // temp-tree cleanup, which stays strictly best-effort.
+        if (fs.existsSync(target)) fs.rmSync(target, { recursive: true, force: true });
         fs.mkdirSync(path.dirname(target), { recursive: true });
         fs.renameSync(rollback, target);
+      } catch {
+        // Keep sweeping. Whatever is left in the rollback tree keeps the tree.
       }
+    }
+    keepRollback = rollbackStillHoldsOriginals(rollbackRoot, displaced);
+    // Name the kept tree on the way out. A non-Error throw cannot carry it, but
+    // nothing below the fs calls above produces one, and the bytes are on disk
+    // either way - this only decides whether the user can be told where.
+    if (keepRollback && error instanceof Error) {
+      Object.assign(error, { [PRESERVED_ROLLBACK_KEY]: rollbackRoot });
     }
     throw error;
   } finally {
-    removeTempTree(rollbackRoot);
+    // On the success path the displaced originals were replaced deliberately and
+    // the tree is scratch, so it always goes. After a failure it goes only once
+    // every displaced original is verifiably back.
+    if (!keepRollback) removeTempTree(rollbackRoot);
   }
   return installed;
 }

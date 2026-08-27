@@ -18,6 +18,7 @@ import { synthesize } from '@process/services/wiki/wikiSynthesizer';
 import { runSynthesisSweep } from '@process/services/wiki/wikiAutoSync';
 import { resolveWikilink } from '@process/services/wiki/wikilinkResolver';
 import { getIjfwArchiveService } from '@process/services/memory/ijfwArchiveService';
+import { selectWikiProjectPath } from '@process/services/wiki/wikiWriteDestination';
 import type { WikiConcept, WikiTopicTag, WikiFreshness } from '@/common/types/memory';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -46,12 +47,13 @@ const resolveBacklinkSchema = z.object({ wikilinkText: z.string().min(1).max(512
 async function getCurrentProjectPath(): Promise<string> {
   const svc = getIjfwArchiveService();
   const projects = await svc.getProjects();
-  if (projects.length > 0) {
-    const sorted = projects.toSorted((a, b) => b.lastActive - a.lastActive);
-    return sorted[0].path;
-  }
-  // The application launch directory is not a workspace. Falling back to cwd
-  // can write `.ijfw/wiki-state` into the installed application or source
+  // Most recently active project the wiki may WRITE into. The index also carries
+  // the global memory store (#1064) and any `~/.ijfw/registry.md` row, which can
+  // name an OS-protected install root (#1106); neither is a destination.
+  const selected = selectWikiProjectPath(projects);
+  if (selected !== null) return selected;
+  // The application launch directory is not a workspace either. Falling back to
+  // cwd can write `.ijfw/wiki-state` into the installed application or source
   // checkout when no project is active. Callers already fail closed to their
   // empty/error projections, so preserve that boundary explicitly.
   throw new Error('WIKI_NO_ACTIVE_PROJECT');

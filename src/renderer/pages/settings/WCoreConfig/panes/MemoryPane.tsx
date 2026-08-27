@@ -9,6 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { useWcoreConfig } from '@renderer/hooks/useWcoreConfig';
 import WcSwitch from '../components/WcSwitch';
 import ScopeLabel from '../components/ScopeLabel';
+import MemoryEnableOffer from '@renderer/components/memory/MemoryEnableOffer';
+import { markMemoryOfferAnswered } from '@renderer/utils/memory/memoryEnableOffer';
 import styles from './Panes.module.css';
 
 type MemorySection = {
@@ -75,6 +77,21 @@ const MemoryPane: React.FC = () => {
       } catch (writeError) {
         failure = writeError instanceof Error ? writeError.message : String(writeError);
       }
+      // Working the real toggle - in EITHER direction - answers the
+      // "should we offer memory?" question by definition. Without this, a user
+      // who deliberately switches memory OFF here would be met by an offer to
+      // switch it back on, which is nagging someone out of a privacy decision.
+      // Only on success: a failed write is not a choice.
+      //
+      // Deliberately NOT awaited. This is best-effort bookkeeping and it must
+      // never sit between the user's click and the switch updating - awaiting it
+      // meant a slow or hanging config write left the toggle looking like it had
+      // not taken. `markMemoryOfferAnswered` catches its own errors and writes
+      // the synchronous local marker first, so nothing is lost by letting it
+      // finish on its own.
+      if (!failure && patch.section === 'memory' && patch.field === 'enabled') {
+        void markMemoryOfferAnswered();
+      }
       if (mounted.current && writeVersion.current === version) {
         await refresh(false);
         if (failure && mounted.current && writeVersion.current === version) setError(failure);
@@ -88,6 +105,7 @@ const MemoryPane: React.FC = () => {
 
   return (
     <div className={styles.pane}>
+      <MemoryEnableOffer source='settings' />
       <div className={styles.head}>
         <div className={styles.eyebrow}>Wayland Core</div>
         <h1 className={styles.title}>{t('settings.wcoreConfig.rail.memory', { defaultValue: 'Memory' })}</h1>

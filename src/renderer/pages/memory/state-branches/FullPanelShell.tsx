@@ -51,6 +51,7 @@ import { useTranslation } from 'react-i18next';
 import MemoryList from '../components/MemoryList';
 import RightDrawer from '../components/RightDrawer';
 import TopbarChips from '../components/TopbarChips';
+import MemoryEnableOffer from '@renderer/components/memory/MemoryEnableOffer';
 import StreakPill from '../components/StreakPill';
 import ProjectDropdown from '../components/ProjectDropdown';
 import TimeDropdown from '../components/TimeDropdown';
@@ -570,6 +571,23 @@ const FullPanelShell: React.FC = () => {
           />
         </div>
       </header>
+
+      {/* ---- Scope label ----
+           Unconditional and state-neutral on purpose. The counts above are the
+           user's OWN notes; the engine's long-term memory is a separate store
+           this page does not read. Naming that here is what stops "134 Memories"
+           being read as a claim about what the assistant recalls. */}
+      <p className={styles.scopeLabel} data-testid='memory-scope-label'>
+        {t(
+          'archive.scopeLabel',
+          "These are your own notes. Wayland Core's long-term memory is separate and is managed in Settings."
+        )}
+      </p>
+
+      {/* One-time offer to repair a profile left memory-less by an older Core.
+           Sits directly under the scope line that names the two stores, because
+           this is the one a user cannot see is switched off. */}
+      <MemoryEnableOffer source='memory-page' />
 
       {/* ---- Setup-status health strip (#414) ---- */}
       <section

@@ -15,10 +15,10 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '92ee5374' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '7066118a' as const;
 
 /**
- * Pinned to Core `92ee5374`, the `v0.13.6` release tag. Every value below was
+ * Pinned to Core `d1f55f0b`, the `v0.13.7` release tag. Every value below was
  * read from that tag's `manifest.json` and then confirmed identical to the
  * `ready` fixture the same tag publishes - the frame a real engine sends.
  *
@@ -65,11 +65,11 @@ export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '92ee5374' as const;
 export const DESKTOP_CORE_V1_PIN = {
   name: 'wayland-desktop-core',
   major: 1,
-  minor: 16,
-  generator: 'wcore-desktop-contract-gen/16',
-  fixtureDigest: 'sha256:1f41da5fa0c193081eb895cf79b07b19ee5335ce07aa27fd8c754384ffd1bcc4',
-  schemaDigest: 'sha256:2993aee1129fc1659cdd06d0ed168770ede7ed89437f644021cb9e77ec5bed62',
-  sourceInputsDigest: 'sha256:97a3336208aa63ede996d135a0408d18abb79e620a5f3c8a9fe55109d688b4e2',
+  minor: 19,
+  generator: 'wcore-desktop-contract-gen/19',
+  fixtureDigest: 'sha256:f71f73765225e6b2412155a4442a6f45590a0186d25e95976a0f2001d8241860',
+  schemaDigest: 'sha256:9e594e4eda55d6cb52efca39092529e3a2ee2dac24ca69b7b3e1a0200d141de2',
+  sourceInputsDigest: 'sha256:ac7c0a48b25ccb5c49a58bb8360fb0111cb6b0f7f978f17c6401c8ab7aa1efdf',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
@@ -79,9 +79,11 @@ export const DESKTOP_CORE_V1_PIN = {
     durable_goals_v1: 'available',
     effective_execution_policy_revisions: 'available',
     host_delegated_delivery: 'available',
+    inline_reasoning_split_v1: 'available',
     operator_tool_effect_resolution_v1: 'available',
     path_boundary_prompt_v1: 'available',
     path_grants_v1: 'available',
+    path_write_grants_v1: 'available',
     plugin_events: 'shape_only',
     render_artifact_v1: 'available',
     runtime_diagnostics_v1: 'available',
@@ -89,6 +91,7 @@ export const DESKTOP_CORE_V1_PIN = {
     semantic_failover_receipts: 'available',
     session_persistence_v1: 'available',
     session_persistence_v2: 'available',
+    turn_abandon_v1: 'available',
     turn_recovery_v1: 'available',
     workflow_lifecycle_v1: 'available',
   },

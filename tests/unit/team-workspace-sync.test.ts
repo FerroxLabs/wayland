@@ -66,13 +66,14 @@ import type { ITeamRepository } from '@process/team/repository/ITeamRepository';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import type { IConversationService } from '@process/services/IConversationService';
 import type { TTeam, TeamAgent } from '@process/team/types';
+import { withTeamRepoDoubleDefaults } from './helpers/teamRepoDouble';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function makeRepo(overrides: Partial<ITeamRepository> = {}): ITeamRepository {
-  return {
+  return withTeamRepoDoubleDefaults({
     create: vi.fn(async (team) => team),
     findById: vi.fn(),
     findAll: vi.fn(),
@@ -94,7 +95,7 @@ function makeRepo(overrides: Partial<ITeamRepository> = {}): ITeamRepository {
     appendToBlocks: vi.fn(),
     removeFromBlockedBy: vi.fn(),
     ...overrides,
-  } as unknown as ITeamRepository;
+  } as unknown as Partial<ITeamRepository>);
 }
 
 function makeWorkerTaskManager(): IWorkerTaskManager {
@@ -556,10 +557,15 @@ describe('Case 4: Concurrent addAgent - mutex serializes writes', () => {
       ...team,
       agents: latestAgents,
     }));
-    (repo.update as ReturnType<typeof vi.fn>).mockImplementation(async (_id: string, updates: Partial<TTeam>) => {
-      if (updates.agents) latestAgents = updates.agents;
-      return updates;
-    });
+    // #1057: addAgent appends through the field-scoped roster writer, which is
+    // handed the LIVE roster and commits what the mutator returns.
+    (repo.mutateAgents as ReturnType<typeof vi.fn>).mockImplementation(
+      async (_id: string, mutate: (agents: TeamAgent[]) => TeamAgent[] | null) => {
+        const next = mutate(latestAgents);
+        if (next) latestAgents = next;
+        return null;
+      }
+    );
 
     // Spawn 4 agents concurrently (simulates leader calling team_spawn_agent 4 times)
     const names = ['Affirmative', 'Opposition', 'Judge', 'Moderator'];

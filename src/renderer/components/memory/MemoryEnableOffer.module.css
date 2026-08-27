@@ -1,0 +1,44 @@
+.offer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border: 1px solid var(--color-warning-light-3, var(--color-border-2));
+  border-radius: 8px;
+  background: var(--color-warning-light-1, var(--color-bg-2));
+  margin: 12px 16px;
+  flex-shrink: 0;
+}
+
+.body {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  margin-bottom: 4px;
+}
+
+.desc {
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--color-text-3);
+}
+
+.error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--color-danger-6, #f53f3f);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}

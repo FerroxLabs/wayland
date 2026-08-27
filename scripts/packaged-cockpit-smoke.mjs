@@ -23,7 +23,8 @@
  *
  * Usage:
  *   node scripts/packaged-cockpit-smoke.mjs [--app <path-to-.app-or-exe>]
- *                                           [--out-dir <dir>]        # default: out-preview, then out
+ *                                           [--out-dir <dir>]        # default: the requested track's output dir
+ *                                           [--release-track stable|preview]  # default: $WAYLAND_RELEASE_TRACK, else stable
  *                                           [--key-file <path>]      # default: ~/.config/wayland-smoke/flux-test-key
  *                                           [--report-dir <dir>]     # default: .smoke/<timestamp>
  *                                           [--no-chat] [--keep-open] [--timeout <ms>]
@@ -35,13 +36,15 @@
  */
 
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
+
+import { resolveTrackedPackagedApp } from './lib/packagedAppResolver.mjs';
 
 const TAG = '[packaged-smoke]';
 const log = (message) => console.log(`${TAG} ${message}`);
@@ -70,6 +73,7 @@ function parseArgs(argv) {
   const options = {
     app: null,
     outDir: null,
+    releaseTrack: null,
     keyFile: path.join(os.homedir(), '.config', 'wayland-smoke', 'flux-test-key'),
     reportDir: null,
     chat: true,
@@ -90,6 +94,7 @@ function parseArgs(argv) {
     };
     if (arg === '--app') options.app = next();
     else if (arg === '--out-dir') options.outDir = next();
+    else if (arg === '--release-track') options.releaseTrack = next();
     else if (arg === '--key-file') options.keyFile = next();
     else if (arg === '--report-dir') options.reportDir = next();
     else if (arg === '--no-chat') options.chat = false;
@@ -103,49 +108,6 @@ function parseArgs(argv) {
     } else throw new Error(`${TAG} unknown argument: ${arg}`);
   }
   return options;
-}
-
-/**
- * Locate the packaged executable inside an electron-builder output directory.
- * Mirrors `packaged-launch.mjs`, but tolerates any product name (the preview
- * build ships as "Wayland Preview") and any of the usual arch directories.
- */
-function resolvePackagedApp(outRoot) {
-  if (!fs.existsSync(outRoot)) return null;
-
-  if (process.platform === 'darwin') {
-    for (const dir of ['mac-arm64', 'mac-x64', 'mac', 'mac-universal']) {
-      const macDir = path.join(outRoot, dir);
-      if (!fs.existsSync(macDir)) continue;
-      const bundle = fs.readdirSync(macDir).find((entry) => entry.endsWith('.app'));
-      if (!bundle) continue;
-      const macOsDir = path.join(macDir, bundle, 'Contents', 'MacOS');
-      if (!fs.existsSync(macOsDir)) continue;
-      const [binary] = fs.readdirSync(macOsDir);
-      if (binary) return path.join(macOsDir, binary);
-    }
-    return null;
-  }
-
-  if (process.platform === 'win32') {
-    for (const dir of ['win-unpacked', 'win-x64-unpacked', 'win-arm64-unpacked']) {
-      const unpacked = path.join(outRoot, dir);
-      if (!fs.existsSync(unpacked)) continue;
-      const exe = fs.readdirSync(unpacked).find((entry) => entry.toLowerCase().endsWith('.exe'));
-      if (exe) return path.join(unpacked, exe);
-    }
-    return null;
-  }
-
-  for (const dir of ['linux-unpacked', 'linux-x64-unpacked', 'linux-arm64-unpacked']) {
-    const unpacked = path.join(outRoot, dir);
-    if (!fs.existsSync(unpacked)) continue;
-    for (const name of ['wayland', 'Wayland']) {
-      const binary = path.join(unpacked, name);
-      if (fs.existsSync(binary)) return binary;
-    }
-  }
-  return null;
 }
 
 /**
@@ -467,7 +429,78 @@ async function dismissShellChoicePrompt(page) {
   return !stillOpen;
 }
 
-async function runChat(page, reportDir) {
+/**
+ * Auto-capture for the intermittent turn-stall (2026-08-26).
+ *
+ * Twice in four runs a packaged turn was accepted and then produced NO
+ * `stream_start`, no error and no timeout for five minutes. It is intermittent
+ * and appears to favour the first launches after a reboot, so it cannot be
+ * scheduled and a human is never watching when it fires. This arms the harness
+ * to diagnose it ITSELF the next time it happens.
+ *
+ * Trigger: the send landed, and STALL_SAMPLE_AFTER_MS elapsed with no
+ * `stream_start` in the app's own stdout. That is the exact boundary the
+ * failures sat on - the engine had the message and had not reached the provider.
+ *
+ * Best effort by construction: a capture that throws must never turn a chat
+ * failure into a harness crash, because the chat result is the thing being
+ * reported. Every outcome is recorded in the report either way, so a run that
+ * captured NOTHING says so rather than looking like a run that did not stall.
+ */
+const STALL_SAMPLE_AFTER_MS = 30_000;
+
+function findEnginePids() {
+  // `pgrep -f` matches its own command line; ps + an explicit grep of our own
+  // does not. Match the packaged path so a dev-mode engine is never sampled.
+  try {
+    const out = execFileSync('ps', ['-eo', 'pid=,args='], { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
+    return out
+      .split('\n')
+      .filter((line) => line.includes('bundled-wayland-core') && !line.includes('ps -eo'))
+      .map((line) => Number.parseInt(line.trim().split(/\s+/)[0], 10))
+      .filter((pid) => Number.isInteger(pid) && pid > 0);
+  } catch {
+    return [];
+  }
+}
+
+function captureTurnStall(reportDir, appOutput) {
+  const capture = { firedAt: new Date().toISOString(), platform: process.platform, pids: [], files: [], skipped: null };
+  try {
+    fs.writeFileSync(
+      path.join(reportDir, 'stall-app-output.log'),
+      Array.isArray(appOutput) ? appOutput.join('') : String(appOutput ?? '')
+    );
+    capture.files.push('stall-app-output.log');
+  } catch (error) {
+    capture.skipped = `app-output snapshot failed: ${String(error).slice(0, 120)}`;
+  }
+  const pids = findEnginePids();
+  capture.pids = pids;
+  if (pids.length === 0) {
+    // A stall with NO engine process is itself the finding - the engine died
+    // rather than hung, which is a different bug and must not be recorded as
+    // "sampling was unavailable".
+    capture.skipped = 'no bundled-wayland-core process found while stalled (engine gone, not hung?)';
+    return capture;
+  }
+  if (process.platform !== 'darwin') {
+    capture.skipped = `no stack sampler wired for ${process.platform}; pids recorded only`;
+    return capture;
+  }
+  for (const pid of pids) {
+    const file = path.join(reportDir, `engine-stall-sample-${pid}.txt`);
+    try {
+      execFileSync('sample', [String(pid), '5', '-file', file], { encoding: 'utf8', timeout: 60_000 });
+      capture.files.push(path.basename(file));
+    } catch (error) {
+      capture.skipped = `sample ${pid} failed: ${String(error).slice(0, 160)}`;
+    }
+  }
+  return capture;
+}
+
+async function runChat(page, reportDir, appOutput = []) {
   const result = {
     ok: false,
     selectedModel: null,
@@ -607,12 +640,31 @@ async function runChat(page, reportDir) {
         .catch(() => ({ rightHasNonce: false, leftCount: 0, answer: null }));
 
     result.sendLanded = false;
+    result.stallCapture = null;
+    const sendAt = Date.now();
+    const sawStreamStart = () => (Array.isArray(appOutput) ? appOutput.join('') : '').includes('stream_start');
     // Flux Auto answers as an agent and reasons first, so allow ~5 minutes.
     for (let attempt = 0; attempt < 150; attempt += 1) {
       await sleep(2_000);
       const probe = await findAnswer();
       if (probe.rightHasNonce) result.sendLanded = true;
       result.messageBlocks = probe.leftCount;
+      // Fire ONCE, and only for the stall we are hunting: the send landed and
+      // the engine has still not reached the provider. A slow-but-streaming
+      // answer must not be sampled, or every agentic turn pays for it.
+      if (
+        result.stallCapture === null &&
+        result.sendLanded &&
+        Date.now() - sendAt >= STALL_SAMPLE_AFTER_MS &&
+        !sawStreamStart()
+      ) {
+        result.stallCapture = captureTurnStall(reportDir, appOutput);
+        console.log(
+          `${TAG} turn stalled ${Math.round((Date.now() - sendAt) / 1000)}s with no stream_start - captured ` +
+            `${result.stallCapture.files.length} file(s), pids=[${result.stallCapture.pids.join(',')}]` +
+            (result.stallCapture.skipped ? ` (${result.stallCapture.skipped})` : '')
+        );
+      }
       if (result.sendLanded && probe.answer) {
         result.ok = true;
         result.reply = probe.answer;
@@ -723,19 +775,28 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   const projectRoot = process.cwd();
 
-  const executable =
-    options.app ??
-    (options.outDir
-      ? resolvePackagedApp(path.resolve(projectRoot, options.outDir))
-      : (resolvePackagedApp(path.join(projectRoot, 'out-preview')) ??
-        resolvePackagedApp(path.join(projectRoot, 'out'))));
-  if (!executable || !fs.existsSync(executable)) {
-    console.error(
-      `${TAG} no packaged app found under out-preview/ or out/. Build one first, e.g.\n` +
-        `        WAYLAND_RELEASE_TRACK=preview node scripts/build-with-builder.js arm64 --mac --arm64 --pack-only`
-    );
-    return 1;
+  // #1034: resolve exactly the requested track, or fail naming the directory
+  // that should have held it. The previous `out-preview ?? out` chain meant a
+  // preview smoke with no preview package silently certified the STABLE app.
+  // An unknown track throws here rather than degrading to stable.
+  let executable;
+  let track = 'stable';
+  if (options.app) {
+    executable = options.app;
+    if (!fs.existsSync(executable)) {
+      console.error(`${TAG} --app ${executable} does not exist`);
+      return 1;
+    }
+  } else {
+    const resolved = resolveTrackedPackagedApp({
+      projectRoot,
+      track: options.releaseTrack ?? process.env.WAYLAND_RELEASE_TRACK ?? null,
+      outDir: options.outDir,
+    });
+    executable = resolved.executablePath;
+    track = resolved.track;
   }
+  log(`release track: ${track}`);
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const reportDir = path.resolve(projectRoot, options.reportDir ?? path.join('.smoke', stamp));
@@ -902,7 +963,7 @@ async function main() {
 
   const findings = options.surfaces ? await walkSurfaces(page, consoleErrors, reportDir) : [];
   if (!options.surfaces) log('surfaces: SKIPPED (--no-surfaces) — this run cannot certify the cockpit');
-  const chat = options.chat ? await runChat(page, reportDir) : { ok: null, skipped: true };
+  const chat = options.chat ? await runChat(page, reportDir, appOutput) : { ok: null, skipped: true };
   if (options.chat) log(`chat: ${chat.ok ? `replied (${chat.sendMethod})` : `NO REPLY — ${chat.error}`}`);
 
   const failures = findings.filter((finding) =>

@@ -92,6 +92,24 @@ export type RestoreReport = {
 };
 
 /**
+ * A restore failure that may name where the server kept the operator's own
+ * displaced files.
+ *
+ * When the unwind cannot put every original back, the server keeps the tree
+ * holding them rather than deleting it (#1050) - and a preserved copy nobody is
+ * told about is indistinguishable from a deleted one. The message stays the
+ * classified code the caller already switches on, so the path rides alongside
+ * it rather than replacing it.
+ */
+export type RestoreFailure = Error & { preservedPath?: string };
+
+const restoreFailure = (code: string, preservedPath?: string): RestoreFailure => {
+  const error: RestoreFailure = new Error(code);
+  if (preservedPath) error.preservedPath = preservedPath;
+  return error;
+};
+
+/**
  * Restore from an uploaded backup zip. Requires the step-up password; the
  * server also enforces operator provenance. Returns the safety-backup path the
  * server created before applying the restore, plus what the restore applied.
@@ -116,6 +134,7 @@ export async function restoreBackupHttp(opts: {
   const json = (await res.json().catch(() => ({}))) as {
     success?: boolean;
     msg?: string;
+    preservedPath?: string;
     data?: RestoreReport;
   };
   // Both codes mean the SAME thing here: the request was denied before it ever
@@ -126,6 +145,6 @@ export async function restoreBackupHttp(opts: {
   // reachable the moment the middleware started (correctly) answering 401.
   if (res.status === 401 || res.status === 403) throw new Error(json.msg || 'RESTORE_NOT_OPERATOR');
   if (res.status === 413) throw new Error('FILE_TOO_LARGE');
-  if (!res.ok || !json.success) throw new Error(json.msg || 'RESTORE_FAILED');
+  if (!res.ok || !json.success) throw restoreFailure(json.msg || 'RESTORE_FAILED', json.preservedPath);
   return json.data ?? {};
 }

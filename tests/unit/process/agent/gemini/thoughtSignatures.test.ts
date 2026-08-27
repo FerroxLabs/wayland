@@ -1,0 +1,294 @@
+/**
+ * Regression cover for #748 - the LEGACY gemini backend (src/process/agent/gemini),
+ * not the wcore backend.
+ *
+ * Gemini 3.x attaches a `thoughtSignature` to every `functionCall` part it emits.
+ * On the next request each of those parts must carry a signature or the API
+ * rejects the whole call with:
+ *
+ *   API error 400: Function call is missing a thought_signature in functionCall
+ *   parts. ... Additional data, function call `default_api:ToolSearch`, position 33.
+ *
+ * The vendored @office-ai/aioncli-core ships its own filler,
+ * GeminiChat.ensureActiveLoopHasThoughtSignatures, but it has two holes that the
+ * reporter fell through:
+ *
+ *   1. it `break`s after the FIRST functionCall in a model turn, so parallel
+ *      tool calls after the first stay unsigned;
+ *   2. it only walks forward from the last user TEXT turn, so any model turn in
+ *      earlier history stays unsigned.
+ *
+ * `ensureAllFunctionCallsHaveSignatures` closes both. It fills only MISSING
+ * signatures - a real signature is never overwritten, and nothing Gemini never
+ * signs (text parts, functionResponse parts, user turns) ever gets an invented one.
+ */
+
+import { GeminiChat, SYNTHETIC_THOUGHT_SIGNATURE } from '@office-ai/aioncli-core/dist/src/core/geminiChat.js';
+import { describe, expect, it, vi } from 'vitest';
+import { ensureAllFunctionCallsHaveSignatures, repairMissingThoughtSignatures } from '@process/agent/gemini/utils';
+
+type TestPart = {
+  text?: string;
+  functionCall?: { name: string; args: Record<string, unknown> };
+  functionResponse?: { name: string; response: Record<string, unknown> };
+  thoughtSignature?: string;
+};
+type TestContent = { role: string; parts: TestPart[] };
+
+const call = (name: string, thoughtSignature?: string): TestPart => ({
+  functionCall: { name, args: {} },
+  ...(thoughtSignature === undefined ? {} : { thoughtSignature }),
+});
+
+const response = (name: string): TestPart => ({
+  functionResponse: { name, response: { ok: true } },
+});
+
+/** Every functionCall part that would go on the wire, flattened. */
+const wireFunctionCalls = (contents: TestContent[]) =>
+  contents.flatMap((c) =>
+    (c.parts ?? [])
+      .filter((p) => p.functionCall)
+      .map((p) => ({
+        role: c.role,
+        name: p.functionCall!.name,
+        thoughtSignature: p.thoughtSignature,
+      }))
+  );
+
+describe('ensureAllFunctionCallsHaveSignatures (#748)', () => {
+  it('signs step 2 first functionCall that lost its signature - the reported shape', () => {
+    // A multi-step function-call round trip. Step 1 came back signed; step 2's
+    // first functionCall lost its signature on the way back into history.
+    const history: TestContent[] = [
+      { role: 'user', parts: [{ text: 'look at this image' }] },
+      { role: 'model', parts: [call('default_api:ToolSearch', 'sig-step-1')] },
+      { role: 'user', parts: [response('default_api:ToolSearch')] },
+      { role: 'model', parts: [call('default_api:ToolSearch')] }, // step 2, signature lost
+      { role: 'user', parts: [response('default_api:ToolSearch')] },
+    ];
+
+    const wire = ensureAllFunctionCallsHaveSignatures(history as never) as unknown as TestContent[];
+
+    expect(wireFunctionCalls(wire)).toEqual([
+      { role: 'model', name: 'default_api:ToolSearch', thoughtSignature: 'sig-step-1' },
+      { role: 'model', name: 'default_api:ToolSearch', thoughtSignature: SYNTHETIC_THOUGHT_SIGNATURE },
+    ]);
+    // Nothing on the wire may still be missing a signature.
+    expect(wireFunctionCalls(wire).filter((c) => !c.thoughtSignature)).toEqual([]);
+  });
+
+  it('signs EVERY parallel functionCall in a model turn, not just the first', () => {
+    const history: TestContent[] = [
+      { role: 'user', parts: [{ text: 'look at this image' }] },
+      {
+        role: 'model',
+        parts: [call('default_api:ToolSearch'), call('default_api:ToolSearch'), call('default_api:ReadFile')],
+      },
+    ];
+
+    const wire = ensureAllFunctionCallsHaveSignatures(history as never) as unknown as TestContent[];
+
+    expect(wire[1].parts.map((p) => p.thoughtSignature)).toEqual([
+      SYNTHETIC_THOUGHT_SIGNATURE,
+      SYNTHETIC_THOUGHT_SIGNATURE,
+      SYNTHETIC_THOUGHT_SIGNATURE,
+    ]);
+  });
+
+  it('signs model turns that sit BEFORE the last user text turn', () => {
+    const history: TestContent[] = [
+      { role: 'user', parts: [{ text: 'turn 1' }] },
+      { role: 'model', parts: [call('default_api:ToolSearch')] }, // before the active loop
+      { role: 'user', parts: [response('default_api:ToolSearch')] },
+      { role: 'user', parts: [{ text: 'turn 2' }] },
+      { role: 'model', parts: [call('default_api:ReadFile')] },
+    ];
+
+    const wire = ensureAllFunctionCallsHaveSignatures(history as never) as unknown as TestContent[];
+
+    expect(wireFunctionCalls(wire).filter((c) => !c.thoughtSignature)).toEqual([]);
+  });
+
+  it('never overwrites a real signature', () => {
+    const history: TestContent[] = [
+      { role: 'user', parts: [{ text: 'go' }] },
+      { role: 'model', parts: [call('default_api:ToolSearch', 'real-signature-from-gemini')] },
+    ];
+
+    const wire = ensureAllFunctionCallsHaveSignatures(history as never) as unknown as TestContent[];
+
+    expect(wire[1].parts[0].thoughtSignature).toBe('real-signature-from-gemini');
+  });
+
+  it('never invents a signature for parts Gemini does not sign', () => {
+    const history: TestContent[] = [
+      { role: 'user', parts: [{ text: 'go' }] },
+      { role: 'model', parts: [{ text: 'thinking out loud' }] },
+      { role: 'user', parts: [response('default_api:ToolSearch')] },
+    ];
+
+    const wire = ensureAllFunctionCallsHaveSignatures(history as never) as unknown as TestContent[];
+
+    for (const content of wire) {
+      for (const part of content.parts) {
+        expect(part.thoughtSignature).toBeUndefined();
+      }
+    }
+  });
+
+  it('does not sign a functionCall sitting on a user turn', () => {
+    // Defensive: only role === 'model' parts carry model thought signatures.
+    const history: TestContent[] = [{ role: 'user', parts: [call('default_api:ToolSearch')] }];
+
+    const wire = ensureAllFunctionCallsHaveSignatures(history as never) as unknown as TestContent[];
+
+    expect(wire[0].parts[0].thoughtSignature).toBeUndefined();
+  });
+
+  it('returns the SAME array when there is nothing to repair', () => {
+    // The caller uses referential identity to skip a needless setHistory().
+    const history: TestContent[] = [
+      { role: 'user', parts: [{ text: 'go' }] },
+      { role: 'model', parts: [call('default_api:ToolSearch', 'sig')] },
+    ];
+
+    expect(ensureAllFunctionCallsHaveSignatures(history as never)).toBe(history);
+  });
+
+  it('does not mutate the input history', () => {
+    const history: TestContent[] = [
+      { role: 'user', parts: [{ text: 'go' }] },
+      { role: 'model', parts: [call('default_api:ToolSearch')] },
+    ];
+
+    ensureAllFunctionCallsHaveSignatures(history as never);
+
+    expect(history[1].parts[0].thoughtSignature).toBeUndefined();
+  });
+
+  it('tolerates malformed history without throwing', () => {
+    const history = [
+      { role: 'model' }, // no parts
+      { role: 'model', parts: null },
+      null,
+      { role: 'model', parts: [null, call('default_api:ToolSearch')] },
+    ];
+
+    const wire = ensureAllFunctionCallsHaveSignatures(history as never) as unknown as TestContent[];
+
+    expect(wire[3].parts[1].thoughtSignature).toBe(SYNTHETIC_THOUGHT_SIGNATURE);
+  });
+});
+
+describe('repairMissingThoughtSignatures model gate', () => {
+  const brokenHistory = (): TestContent[] => [
+    { role: 'user', parts: [{ text: 'go' }] },
+    { role: 'model', parts: [call('default_api:ToolSearch')] },
+  ];
+
+  const clientWith = (history: TestContent[]) => ({
+    isInitialized: () => true,
+    getHistory: vi.fn(() => history),
+    setHistory: vi.fn(),
+  });
+
+  it('repairs history for a Gemini 3.x model - the reporter configuration', () => {
+    const client = clientWith(brokenHistory());
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+
+    expect(client.setHistory).toHaveBeenCalledTimes(1);
+    const written = client.setHistory.mock.calls[0][0] as unknown as TestContent[];
+    expect(written[1].parts[0].thoughtSignature).toBe(SYNTHETIC_THOUGHT_SIGNATURE);
+  });
+
+  it('leaves a Gemini 2.x conversation completely untouched', () => {
+    // 2.x never emits thought signatures and never demands them back; signing
+    // its history would add a field the model never produced.
+    const client = clientWith(brokenHistory());
+    repairMissingThoughtSignatures(client as never, 'gemini-2.5-flash');
+
+    expect(client.setHistory).not.toHaveBeenCalled();
+  });
+
+  it('does not call setHistory when every signature is already present', () => {
+    const client = clientWith([
+      { role: 'user', parts: [{ text: 'go' }] },
+      { role: 'model', parts: [call('default_api:ToolSearch', 'real-sig')] },
+    ]);
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+
+    expect(client.setHistory).not.toHaveBeenCalled();
+  });
+
+  it('converges - a second turn does not rewrite history again', () => {
+    // The repair persists into stored history, so the sentinel is written once
+    // and later turns are no-ops. This is what keeps setHistory (and the
+    // forceFullIdeContext it flips) off the hot path.
+    let stored = brokenHistory();
+    const client = {
+      isInitialized: () => true,
+      getHistory: () => stored,
+      setHistory: vi.fn((h: TestContent[]) => {
+        stored = h;
+      }),
+    };
+
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+    expect(client.setHistory).toHaveBeenCalledTimes(1);
+
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+    expect(client.setHistory).toHaveBeenCalledTimes(1);
+  });
+
+  it('does nothing when the client is not initialized', () => {
+    const client = { ...clientWith(brokenHistory()), isInitialized: () => false };
+    repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash');
+
+    expect(client.setHistory).not.toHaveBeenCalled();
+  });
+
+  it('never throws out of the send path when the client misbehaves', () => {
+    const client = {
+      isInitialized: () => true,
+      getHistory: () => {
+        throw new Error('history unavailable');
+      },
+      setHistory: vi.fn(),
+    };
+
+    expect(() => repairMissingThoughtSignatures(client as never, 'gemini-3.5-flash')).not.toThrow();
+  });
+});
+
+describe('vendored aioncli-core filler leaves #748 unsigned (characterization)', () => {
+  it('proves the upstream gap this fix exists to close', () => {
+    const upstream = (
+      GeminiChat.prototype as unknown as {
+        ensureActiveLoopHasThoughtSignatures: (c: TestContent[]) => TestContent[];
+      }
+    ).ensureActiveLoopHasThoughtSignatures;
+
+    const history: TestContent[] = [
+      { role: 'user', parts: [{ text: 'turn 1' }] },
+      { role: 'model', parts: [call('default_api:ToolSearch')] }, // before the active loop
+      { role: 'user', parts: [response('default_api:ToolSearch')] },
+      { role: 'user', parts: [{ text: 'turn 2' }] },
+      {
+        role: 'model',
+        parts: [call('default_api:ToolSearch'), call('default_api:ToolSearch')], // parallel
+      },
+    ];
+
+    const upstreamWire = upstream.call({} as never, history);
+
+    // Upstream leaves two functionCall parts unsigned: the pre-loop one and the
+    // second parallel one. Those are exactly the 400s in #748.
+    expect(wireFunctionCalls(upstreamWire).filter((c) => !c.thoughtSignature)).toHaveLength(2);
+
+    // Ours leaves none.
+    const ourWire = ensureAllFunctionCallsHaveSignatures(history as never) as unknown as TestContent[];
+    expect(wireFunctionCalls(ourWire).filter((c) => !c.thoughtSignature)).toHaveLength(0);
+  });
+});

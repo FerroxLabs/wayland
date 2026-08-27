@@ -41,6 +41,7 @@ import { TeamSessionService } from '@process/team/TeamSessionService';
 import type { ITeamRepository } from '@process/team/repository/ITeamRepository';
 import type { IConversationService } from '@process/services/IConversationService';
 import type { TeamAgent, TTeam } from '@/common/types/teamTypes';
+import { withTeamRepoDoubleDefaults } from '../../helpers/teamRepoDouble';
 
 function makeAgent(overrides: Partial<TeamAgent> = {}): TeamAgent {
   return {
@@ -74,7 +75,7 @@ function makeTeam(overrides: Partial<TTeam> = {}): TTeam {
 }
 
 function makeRepo(overrides: Partial<ITeamRepository> = {}): ITeamRepository {
-  return {
+  return withTeamRepoDoubleDefaults({
     create: vi.fn(),
     findById: vi.fn(),
     findAll: vi.fn(),
@@ -98,7 +99,7 @@ function makeRepo(overrides: Partial<ITeamRepository> = {}): ITeamRepository {
     appendEvent: vi.fn().mockResolvedValue(undefined),
     listEvents: vi.fn().mockResolvedValue([]),
     ...overrides,
-  } as ITeamRepository;
+  } as Partial<ITeamRepository>);
 }
 
 function makeConversationService(overrides: Partial<IConversationService> = {}): IConversationService {
@@ -166,6 +167,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
     await svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'claude' });
 
     expect(update).not.toHaveBeenCalled();
+    expect(repo.mutateAgents).not.toHaveBeenCalled();
     expect(appendEvent).not.toHaveBeenCalled();
     expect(mockIpcBridge.team.agentStatusChanged.emit).not.toHaveBeenCalled();
   });
@@ -189,6 +191,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
       svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-gem', newBackend: 'claude' })
     ).rejects.toThrow(/not supported in place/i);
     expect(repo.update).not.toHaveBeenCalled();
+    expect(repo.mutateAgents).not.toHaveBeenCalled();
   });
 
   it('refuses an in-place swap to "wayland-core" (the WCore engine alias) instead of corrupting an acp conversation (#204)', async () => {
@@ -205,6 +208,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
       svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wayland-core' })
     ).rejects.toThrow(/not supported in place/i);
     expect(repo.update).not.toHaveBeenCalled();
+    expect(repo.mutateAgents).not.toHaveBeenCalled();
 
     // Parity: the canonical id 'wcore' was already rejected; 'wayland-core' must
     // behave identically now that both resolve to the 'wcore' conversation type.
@@ -212,6 +216,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
       /not supported in place/i
     );
     expect(repo.update).not.toHaveBeenCalled();
+    expect(repo.mutateAgents).not.toHaveBeenCalled();
   });
 
   it('refuses to swap while a wake is in progress', async () => {
@@ -231,6 +236,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
     );
     expect(killAgentProcess).not.toHaveBeenCalled();
     expect(repo.update).not.toHaveBeenCalled();
+    expect(repo.mutateAgents).not.toHaveBeenCalled();
   });
 
   it('on success: persists new backend + pending status, kills worker, emits IPC, logs decision', async () => {
@@ -252,11 +258,15 @@ describe('TeamSessionService.changeAgentBackend', () => {
     // Worker tear-down
     expect(killAgentProcess).toHaveBeenCalledWith('slot-1');
 
-    // Persisted agent record swapped backend + flipped to pending
-    expect(update).toHaveBeenCalledTimes(1);
-    const updateArgs = update.mock.calls[0];
-    expect(updateArgs[0]).toBe('team-1');
-    const persistedAgents = (updateArgs[1] as { agents: TeamAgent[] }).agents;
+    // Persisted agent record swapped backend + flipped to pending. #1057: the
+    // write is field-scoped now, so the roster it commits is what the mutator
+    // returns when handed the LIVE roster - not a whole-row snapshot.
+    expect(update).not.toHaveBeenCalled();
+    const mutateAgents = repo.mutateAgents as unknown as ReturnType<typeof vi.fn>;
+    expect(mutateAgents).toHaveBeenCalledTimes(1);
+    const mutateArgs = mutateAgents.mock.calls[0];
+    expect(mutateArgs[0]).toBe('team-1');
+    const persistedAgents = (mutateArgs[1] as (agents: TeamAgent[]) => TeamAgent[])(team.agents);
     const swapped = persistedAgents.find((a) => a.slotId === 'slot-1');
     expect(swapped?.agentType).toBe('codex');
     expect(swapped?.status).toBe('pending');

@@ -34,7 +34,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import BetterSqlite3 from 'better-sqlite3';
-import type Database from 'better-sqlite3';
 // Relative, and from the deliberately dependency-free constants module: this file
 // is esbuild-bundled into a standalone stdio server, so an alias or a module with
 // side effects would be a build/runtime hazard here.
@@ -60,6 +59,12 @@ export type ConciergeDiagDeps = {
   configPath?: string;
   /** Path to the SQLite DB holding the `cron_jobs` table. */
   cronDbPath?: string;
+  /**
+   * #1018 - `bun:sqlite`'s `Database`, injected. At runtime this is resolved
+   * from the Bun built-in and is `null` under Node; a test supplies its own so
+   * the Bun path is reachable without a Bun runtime.
+   */
+  bunSqliteDatabase?: BunSqliteDatabaseCtor;
   /** Path to the SQLite DB holding `model_registry_providers`. */
   providerDbPath?: string;
   /**
@@ -469,12 +474,75 @@ function sanitize<T>(value: T): T {
 // On-disk readers (each degrades gracefully — never throws)
 // ---------------------------------------------------------------------------
 
+/**
+ * The whole read-only surface the three sqlite-backed sections need: run one
+ * statement, take every row, close. Narrow on purpose - it is the only shape
+ * that both `better-sqlite3` and `bun:sqlite` can satisfy without a shim per
+ * call site.
+ */
+type ReadonlyDbHandle = {
+  all(sql: string): Array<Record<string, unknown>>;
+  close(): void;
+};
+
+/** The slice of `bun:sqlite`'s `Database` this file uses. */
+type BunSqliteDatabaseCtor = new (
+  path: string,
+  options: { readonly: true; create: false }
+) => {
+  query(sql: string): { all(): Array<Record<string, unknown>> };
+  close(): void;
+};
+
+/**
+ * #1018 - `bun:sqlite`, but ONLY under Bun.
+ *
+ * In a packaged build this server is spawned through the resolved JS runtime,
+ * which is the bundled Bun (`builtinMcpRuntime` rewrites the stored `node`
+ * command). Under Bun, `better-sqlite3` resolves but throws
+ * `ERR_DLOPEN_FAILED: "better-sqlite3" is not yet supported in Bun` the moment a
+ * database is opened, so all three sqlite-backed sections degraded to
+ * "db unavailable" while the report still came back looking complete.
+ *
+ * The require is lazy and guarded because this same bundle also runs under Node
+ * (dev, and any packaged build with no bundled Bun), where `bun:sqlite` does not
+ * exist. esbuild is told to leave it external, so the call survives bundling
+ * unresolved and is only ever reached on a runtime that has it.
+ */
+function loadBunSqliteDatabase(): BunSqliteDatabaseCtor | null {
+  if (typeof process.versions.bun !== 'string') return null;
+  try {
+    return (require('bun:sqlite') as { Database: BunSqliteDatabaseCtor }).Database;
+  } catch {
+    // A Bun that cannot produce bun:sqlite is not a runtime we can read from;
+    // the better-sqlite3 attempt below reports the real failure.
+    return null;
+  }
+}
+
 /** Open a SQLite DB read-only, or null when missing/unopenable. */
-function openReadonlyDb(dbPath: string | undefined): Database.Database | null {
+function openReadonlyDb(
+  dbPath: string | undefined,
+  bunDatabase: BunSqliteDatabaseCtor | null
+): ReadonlyDbHandle | null {
   // Unset / absent path is the legitimate "no DB here" case — stay silent.
   if (!dbPath || !fs.existsSync(dbPath)) return null;
+  if (bunDatabase) {
+    try {
+      const db = new bunDatabase(dbPath, { readonly: true, create: false });
+      return { all: (sql) => db.query(sql).all(), close: () => db.close() };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[concierge-diag] failed to open sqlite db via bun:sqlite: ${redact(scrubHome(message))}`);
+      return null;
+    }
+  }
   try {
-    return new BetterSqlite3(dbPath, { readonly: true, fileMustExist: false });
+    const db = new BetterSqlite3(dbPath, { readonly: true, fileMustExist: false });
+    return {
+      all: (sql) => db.prepare(sql).all() as Array<Record<string, unknown>>,
+      close: () => db.close(),
+    };
   } catch (error) {
     // The file exists but could not be opened (native driver failed to load,
     // corrupt file, permission denied). Surface it — redacted + home-scrubbed —
@@ -747,10 +815,13 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
   const arm64Translated = deps.runningUnderARM64Translation ?? process.env.WAYLAND_ARM64_TRANSLATED === '1';
   const voiceModelsDir = deps.voiceModelsDir ?? process.env.WAYLAND_VOICE_MODELS_DIR;
   const agentInstallRoot = deps.agentInstallRoot ?? process.env.WAYLAND_AGENT_INSTALL_ROOT;
+  // Resolved once: under the bundled Bun this is bun:sqlite, under Node it is
+  // null and every open falls through to better-sqlite3.
+  const bunDatabase = deps.bunSqliteDatabase ?? loadBunSqliteDatabase();
 
   /** Scheduled-task health from the cron store (`cron_jobs`). */
   const readScheduledTasks = (): DiagSection<ScheduledTaskHealth> => {
-    const db = openReadonlyDb(cronDbPath);
+    const db = openReadonlyDb(cronDbPath, bunDatabase);
     if (!db) {
       return {
         available: false,
@@ -759,9 +830,9 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
       };
     }
     try {
-      const rows = db
-        .prepare('SELECT name, enabled, next_run_at, last_run_at, last_error FROM cron_jobs ORDER BY name ASC')
-        .all() as Array<Record<string, unknown>>;
+      const rows = db.all(
+        'SELECT name, enabled, next_run_at, last_run_at, last_error FROM cron_jobs ORDER BY name ASC'
+      );
       const items: ScheduledTaskHealth[] = rows.map((r) => {
         const enabled = Number(r.enabled) === 1;
         const nextRunAtMs = asNullableNumber(r.next_run_at);
@@ -842,7 +913,7 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
    * safeStorage in a subprocess).
    */
   const readProviders = (): DiagSection<ProviderHealth> => {
-    const db = openReadonlyDb(providerDbPath);
+    const db = openReadonlyDb(providerDbPath, bunDatabase);
     if (!db) {
       return {
         available: false,
@@ -851,9 +922,7 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
       };
     }
     try {
-      const rows = db
-        .prepare('SELECT provider_id, state, error FROM model_registry_providers ORDER BY provider_id ASC')
-        .all() as Array<Record<string, unknown>>;
+      const rows = db.all('SELECT provider_id, state, error FROM model_registry_providers ORDER BY provider_id ASC');
       const items: ProviderHealth[] = rows.map((r) => {
         const state = typeof r.state === 'string' ? r.state : 'unknown';
         const error = asNullableString(r.error);
@@ -958,7 +1027,7 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
    * "Concierge looked in a temporary workspace" / "my file went nowhere".
    */
   const readWorkspaceHealth = (): DiagSection<WorkspaceHealth> => {
-    const db = openReadonlyDb(workspaceDbPath);
+    const db = openReadonlyDb(workspaceDbPath, bunDatabase);
     if (!db) {
       return {
         available: false,
@@ -980,9 +1049,7 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
     try {
       const items: WorkspaceHealth[] = [];
       try {
-        const projects = db.prepare('SELECT name, workspace FROM projects ORDER BY name ASC').all() as Array<
-          Record<string, unknown>
-        >;
+        const projects = db.all('SELECT name, workspace FROM projects ORDER BY name ASC');
         for (const r of projects) {
           const workspace = asNullableString(r.workspace);
           const temp = isTempPath(workspace);
@@ -1000,9 +1067,7 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
         /* projects table may be absent on older DBs - skip */
       }
       try {
-        const convs = db
-          .prepare('SELECT name, extra FROM conversations ORDER BY updated_at DESC LIMIT 50')
-          .all() as Array<Record<string, unknown>>;
+        const convs = db.all('SELECT name, extra FROM conversations ORDER BY updated_at DESC LIMIT 50');
         for (const r of convs) {
           let workspace: string | null = null;
           let customWorkspace: boolean | null = null;
