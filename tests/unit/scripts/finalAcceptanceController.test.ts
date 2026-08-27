@@ -514,9 +514,9 @@ describe('M8-A final acceptance controller', () => {
 // the existing suite - which injects its own fixtures where production reads real
 // files - could not see any of them. These tests read the real files instead.
 describe('release acceptance gate invariants', () => {
-  const policy = JSON.parse(
-    readFileSync('scripts/supply-chain/publisher-attestations.json', 'utf8')
-  ) as { policies: Array<{ status: string; repository: string; releaseTag: string }> };
+  const policy = JSON.parse(readFileSync('scripts/supply-chain/publisher-attestations.json', 'utf8')) as {
+    policies: Array<{ status: string; repository: string; releaseTag: string }>;
+  };
   const CORE = 'FerroxLabs/wayland-core';
   const trustRoot = readFileSync('.github/workflows/release-acceptance-trust-root.yml', 'utf8');
 
@@ -550,9 +550,11 @@ describe('release acceptance gate invariants', () => {
   // Every step invoking the capability-seal code must supply the trust root, or it
   // throws before doing any work.
   it('gives every capability-seal and acceptance step the trust root', () => {
-    const steps = trustRoot.split(/^      - name: /m).filter((s) =>
-      /verifyCandidateCapabilitySeal|produceProtectedAcceptanceEvidence|verifyFinalAcceptance\.js/.test(s)
-    );
+    const steps = trustRoot
+      .split(/^      - name: /m)
+      .filter((s) =>
+        /verifyCandidateCapabilitySeal|produceProtectedAcceptanceEvidence|verifyFinalAcceptance\.js/.test(s)
+      );
     expect(steps.length).toBeGreaterThanOrEqual(3);
     for (const step of steps) expect(step).toContain('WAYLAND_RELEASE_TRUST_ROOT_SHA');
   });
