@@ -38,6 +38,33 @@ import {
   type ConciergeConfirmResult,
   CONCIERGE_RULES_MAX_CHARS,
 } from '@/common/chat/conciergeConfig';
+import path from 'path';
+import { mkdir, rm } from 'fs/promises';
+import {
+  downloadAndVerify,
+  extractPack,
+  scanPack,
+  installExtractedPack,
+  stagingRoot,
+} from '@process/services/skills/installSkillPack';
+import {
+  enableSkillForAssistant,
+  SMART_TRADER_ASSISTANT_ID,
+} from '@process/services/skills/enableSkillForAssistant';
+
+
+/**
+ * Read the `reason` off a failed `{ok:false, reason}` result.
+ *
+ * This project's tsconfig does not enable `strictNullChecks`, and without it
+ * TypeScript will not narrow a discriminated union through `if (!result.ok)` -
+ * so `result.reason` is an error on the union even inside the failure branch.
+ * Taking the widened shape both variants satisfy keeps that fact in one place
+ * instead of putting a cast at every call site.
+ */
+function failureReason(result: { ok: boolean; reason?: string }, fallback: string): string {
+  return result.reason ?? fallback;
+}
 
 /**
  * Self-hosted / "bring your own endpoint" providers: these have NO fixed
@@ -155,6 +182,53 @@ async function applyProposal(
       const ok = await writeAssistantRules(content.assistantId, content.rules, 'en-US');
       if (!ok) throw new Error(`Could not update ${content.label} instructions`);
       return `Updated ${content.label} instructions.`;
+    }
+    case 'install_skill': {
+      // Download -> verify hash -> extract -> scan -> install, every step a
+      // REFUSAL on failure rather than a repair. A pack that fails any gate is
+      // not installed at all and the card says why.
+      //
+      // A `review` verdict is treated as `blocked` here, DELIBERATELY, and
+      // unlike the Settings importer. That importer can afford a middle verdict
+      // because it holds the skill UNREGISTERED and makes the user re-confirm
+      // against the exact contentHash they were shown. This card has no second
+      // step - Accept is one irreversible click - so there is nowhere safe to
+      // park a flagged pack, and "install it but warn" is a warning the user has
+      // already clicked past. Recorded so it is not softened by accident.
+      const download = await downloadAndVerify(content.url, content.sha256);
+      if (!download.ok) throw new Error(failureReason(download, 'The download could not be verified.'));
+
+      const staging = path.join(stagingRoot(), `pack-${uuid()}`);
+      try {
+        await mkdir(staging, { recursive: true });
+
+        const extracted = await extractPack(download.bytes, staging);
+        if (!extracted.ok) throw new Error(failureReason(extracted, 'The pack could not be unpacked.'));
+
+        const scan = await scanPack(staging);
+        if (scan.verdict !== 'clean') {
+          const flagged = scan.reports
+            .filter((r) => r.report.verdict !== 'clean')
+            .map((r) => r.file)
+            .join(', ');
+          throw new Error(
+            `The pack did not pass the safety scan (${scan.verdict}${flagged ? `: ${flagged}` : ''}), so nothing was installed.`
+          );
+        }
+
+        const installed = await installExtractedPack(staging, content.name);
+        if (!installed.ok) throw new Error(failureReason(installed, 'The pack could not be installed.'));
+
+        // Enabling is best-effort and reported honestly: the skill IS installed
+        // at this point, so failing the whole apply would tell the user nothing
+        // happened when something did.
+        const enabled = await enableSkillForAssistant(SMART_TRADER_ASSISTANT_ID, content.name);
+        return enabled
+          ? `Installed "${content.name}" and switched it on for Smart Trader.`
+          : `Installed "${content.name}" - switch it on under Assistants to use it.`;
+      } finally {
+        await rm(staging, { recursive: true, force: true });
+      }
     }
     case 'file_bug_report': {
       // Non-mutating (#464): the renderer card runs the capture → clipboard → open

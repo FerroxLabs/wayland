@@ -27,13 +27,19 @@
  * Block format (documented for the model in the concierge SKILL.md):
  *   [CONCIERGE_PROPOSE]
  *   kind: provider_connect | set_default_model | add_mcp | edit_assistant
- *         | file_bug_report | install_agent | enable_routine
+ *         | file_bug_report | install_agent | enable_routine | install_skill
  *   <kind-specific key: value lines>
  *   [/CONCIERGE_PROPOSE]
  *
  * Block keys per kind (the detector reads exactly these):
  *   install_agent  → agent: <id>  package: <npm name>  version: <exact>  [label: <text>]
  *   enable_routine → routine: <routineId>  [label: <text>]
+ *   install_skill  → name: <dir>  url: <https URL>  sha256: <64 hex>  [label: <text>]
+ *
+ * `install_skill` carries a SHA256 because the URL alone is advisory: a
+ * [CONCIERGE_PROPOSE] block can be prompt-injected, and a skill is instructions
+ * the model later obeys. The hash is what makes ANY host safe, which is also why
+ * no host is hard-coded anywhere in this path.
  */
 
 /**
