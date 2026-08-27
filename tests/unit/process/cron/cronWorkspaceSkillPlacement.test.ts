@@ -95,6 +95,15 @@ const roots = vi.hoisted(() => {
   // NOT travel into ~/Documents on a schedule.
   fs.mkdirSync(p.join(builtin, 'star-office-helper'), { recursive: true });
   fs.writeFileSync(p.join(builtin, 'star-office-helper', 'SKILL.md'), '# undeclared\n');
+  // The skill the morning routine ACTUALLY declares (`depends: morning-prep`),
+  // seeded exactly as it ships: one SKILL.md, no `scripts/`, no `data/`.
+  fs.mkdirSync(p.join(builtin, 'morning-prep'), { recursive: true });
+  fs.writeFileSync(p.join(builtin, 'morning-prep', 'SKILL.md'), '# morning-prep\n');
+  // The DELETED Yahoo scanner, seeded here ON PURPOSE even though it no longer
+  // ships. Leaving it on disk is what makes "the scanner does not travel" a real
+  // assertion instead of a vacuous one: the copy step can SEE it and must still
+  // not take it, because the routine no longer declares it. If someone ever
+  // re-adds `market-open-report` to `depends`, this test fails loudly.
   fs.mkdirSync(p.join(builtin, 'market-open-report', 'scripts'), { recursive: true });
   fs.mkdirSync(p.join(builtin, 'market-open-report', 'data'), { recursive: true });
   fs.writeFileSync(p.join(builtin, 'market-open-report', 'SKILL.md'), '# market-open-report\n');
@@ -282,7 +291,20 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
     await fsp.rm(dataDir, { recursive: true, force: true });
   });
 
-  it("places the workflow's declared scanner inside the task workspace", async () => {
+  it("places the workflow's declared skill inside the task workspace", async () => {
+    // COVERAGE CHANGE, stated plainly: this used to assert that an executable
+    // scanner (`market-open-report/scripts/morning-report.mjs`) and its data
+    // file (`data/TC-MASTER-WATCHLIST.csv`) landed here. That skill is DELETED -
+    // the routine now reads the user's own chart over MCP instead of running a
+    // bundled Yahoo scanner - so "a scheduled run carries an executable plus its
+    // data" is a capability that no longer exists and can no longer be covered.
+    //
+    // What survives is the capability that actually matters and is still live:
+    // the workflow's DECLARED skill (`depends: morning-prep`) is placed into the
+    // task workspace, the workflow BODY travels with it, and NOTHING WIDER is
+    // copied. That last assertion is a privacy guard, not a tidiness one - see
+    // the comment below - and it is the reason this test is repointed rather
+    // than deleted.
     const job = await seededMorningJob(workspace);
     const executor = new WorkerTaskManagerJobExecutor(
       { getTask: vi.fn(), getOrBuildTask: vi.fn(), kill: vi.fn(), buildConversation: vi.fn() } as any,
@@ -292,12 +314,15 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
     await executor.prepareConversation(job);
 
     const skillsDir = path.join(workspace, '.wayland-core', 'skills');
-    const scanner = path.join(skillsDir, 'market-open-report', 'scripts', 'morning-report.mjs');
-    const watchlist = path.join(skillsDir, 'market-open-report', 'data', 'TC-MASTER-WATCHLIST.csv');
+    // `depends: morning-prep` in bundled-workflows/index.json. morning-prep
+    // ships exactly one file, so its SKILL.md IS the whole declared skill.
+    const declaredSkill = path.join(skillsDir, 'morning-prep', 'SKILL.md');
 
     expect(await exists(skillsDir)).toBe(true);
-    expect(await exists(scanner)).toBe(true);
-    expect(await exists(watchlist)).toBe(true);
+    expect(await exists(declaredSkill)).toBe(true);
+    // The deleted scanner must NOT reappear: if a stale copy is ever vendored
+    // back in, the run would silently prefer a Yahoo scan over the real chart.
+    expect(await exists(path.join(skillsDir, 'market-open-report'))).toBe(false);
     // The workflow BODY travels too: it is the only place the run instructions'
     // steps exist, and it lives in `bundled-workflows/`, outside every workspace.
     expect(await exists(path.join(skillsDir, 'wayland-morning-report', 'SKILL.md'))).toBe(true);
@@ -306,7 +331,7 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
     // so a scheduled job that copied the whole builtin-skills tree (or the
     // user's globally pinned skills) would be uploading them to a third party.
     expect((await fsp.readdir(skillsDir)).toSorted()).toEqual([
-      'market-open-report',
+      'morning-prep',
       'office-cli',
       'skill-creator',
       'wayland-morning-report',
@@ -373,43 +398,51 @@ describe('a scheduled routine gets the skills its workflow declares', () => {
     expect(buildWCoreSessionMcpServers([userServer], undefined).map((s) => s.name)).toEqual(['tvcontrol']);
   });
 
-  it('NO shipped routine names a connector - the morning report gets its data from the host prefetch', async () => {
-    // RETARGETED, and strictly stronger than what stood here. This assertion
-    // used to read `morning?.connectors === ['com.ferroxlabs/tvcontrol']`,
-    // because at the time the run's shell had no network (still true: `sandbox
-    // exec` answers `curl: (6) Could not resolve host` while the identical curl
-    // on the host returns http=429) and a connector looked like the only route
-    // left. It was not the route, and it was an expensive one.
+  it('NO shipped routine names a connector, so an unattended run is granted nothing', async () => {
+    // POLICY ASSERTION - and the policy CHANGED under it, so read this before
+    // touching it. It has now been retargeted twice and both moves are recorded
+    // here deliberately, because a reader who assumes the current shape was
+    // always the shape will "fix" it back into a hole.
     //
-    // NOT THE ROUTE. Read off the connector's own tool schema, not off prose:
-    // `data_get_ohlcv` takes NO symbol parameter and caps `count` at 500. The
-    // scanner discards any symbol with fewer than 300 DAILY bars and reads 74
-    // of them - AAPL alone comes back with 6,951. Sourcing that through
-    // tvcontrol means 74 `chart_set_symbol` mutations against the user's live
-    // chart at 07:00. It cannot supply the data and it should not try.
+    // ROUND 1 (historical): this asserted `connectors === ['com.ferroxlabs/tvcontrol']`.
+    // It was retargeted to `[]` in favour of a host-side `prefetch` that pulled
+    // daily bars in the MAIN process, outside the seatbelt, for a bundled Yahoo
+    // scanner to read.
     //
-    // EXPENSIVE. There is no per-tool narrowing on this path (`toWCoreConfig`
-    // emits no tool key; the engine's curation is `off | top_k`, a ranking),
-    // so naming tvcontrol hands an unattended auto-approve run its WHOLE
-    // 105-tool inventory - `watchlist_remove_bulk`, `alert_delete`,
-    // `draw_clear`, `pine_save`, `tv_launch` - against a real trading account,
+    // ROUND 2 (this change): THAT SCANNER AND THAT PREFETCH ARE BOTH DELETED.
+    // The routine now reads the user's OWN chart over MCP instead of scraping
+    // Yahoo, so there is no prefetch left to point at - which is why the old
+    // known-positive control (`prefetch === 'market-daily-bars'`) had to be
+    // replaced rather than kept.
+    //
+    // WHY THE ANSWER IS STILL `[]`, even though the routine now genuinely wants
+    // chart access: the grant is SERVER-level, not per-tool. `toWCoreConfig`
+    // emits no tool key and the engine's curation is `off | top_k`, a ranking -
+    // so naming tvcontrol hands an unattended `{yoloMode:true}` 07:00 run its
+    // WHOLE tool inventory, including `watchlist_remove_bulk`, `alert_delete`,
+    // `draw_clear`, `pine_save` and `tv_launch`, against a real trading account,
     // with model behaviour as the only thing in between.
     //
-    // THE ROUTE THAT WORKS is `prefetch`, which fetches the bars in the MAIN
-    // process, outside the seatbelt, into the cache the scanner already reads.
-    // Proven from a COLD workspace: 82 written / 0 cached / 0 failed in 16.8 s,
-    // then the real scanner INSIDE the sandbox printing "74 names scanned, 56
-    // currently long, bar 2026-08-21".
+    // Shipping the grant now and mitigating it later is backwards, so this lands
+    // with the grant ABSENT. The connector is added back only in the SAME change
+    // that gives TVControl a read-only mode, and at that point this assertion is
+    // rewritten a third time to demand the read-only entry SPECIFICALLY. Until
+    // then, the honest state is that a scheduled run cannot read a chart.
     //
-    // The GRANT MECHANISM is untouched and still fully covered by
-    // `routineConnectorAllowlist.test.ts`; what changed is that nothing shipped
-    // opts into it.
+    // The grant MECHANISM is untouched and still fully covered by
+    // `routineConnectorAllowlist.test.ts` over a fixture declaration; what is
+    // asserted here is only that nothing SHIPPED opts into it.
     const routines = (await loadBundledRoutines()) ?? [];
     const morning = routines.find((r) => r.id === MORNING_ROUTINE_ID);
     expect(morning, 'the morning routine must still ship').toBeTruthy();
 
-    // Known positive: this corpus read really can see the routine's fields.
-    expect(morning?.prefetch).toBe('market-daily-bars');
+    // KNOWN POSITIVE, and it has to be here: every assertion below passes
+    // vacuously against `undefined`, so a typo'd id or a corpus that failed to
+    // load would read as "no routine names a connector" - the exact false green
+    // this control exists to refuse. These two fields are the routine's
+    // identity, so they cannot rot the way `prefetch` did.
+    expect(morning?.workflow).toBe('wayland-morning-report');
+    expect(morning?.schedule).toBe('0 7 * * 1-5');
 
     expect(morning?.connectors ?? []).toEqual([]);
     expect(routines.filter((r) => Array.isArray(r.connectors) && r.connectors.length > 0).map((r) => r.id)).toEqual([]);

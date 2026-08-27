@@ -1,5 +1,20 @@
 [
   {
+    "name": "wayland-morning-report",
+    "title": "Morning Report",
+    "description": "Run the pre-open brief off your own TradingView chart: load your morning layout, read what your indicators show across your watchlist, render a standalone HTML brief into the workspace's artifacts/ folder, then present it and state plainly whether the run was complete, partial, or empty.\nUse when the user wants the morning report, the daily brief, or a pre-open scan of their watchlist, run unattended on a schedule or on demand.\nDo NOT use for intraday signals, for placing orders, or for any request that needs a broker.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-morning-report/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "2.0.0",
+      "tags": "market watchlist morning-report pre-open chart",
+      "category": "finance",
+      "depends": "morning-prep"
+    }
+  },
+  {
     "name": "business-ops-monthly-review",
     "title": "Monthly Review",
     "description": "Pull the month's metrics from the provided data sources and draft a monthly business review, with trend continuity from the prior monthly review when available.\nUse when the user wants an automated monthly business review assembled from the month's data sources.\nDo NOT use for weekly or quarterly reviews, or when there is no underlying data to pull metrics from.",
@@ -14,7 +29,13 @@
       "depends": "ops-report"
     },
     "category": "business-operations",
-    "tags": ["business-ops", "monthly-review", "metrics", "reporting", "deterministic"],
+    "tags": [
+      "business-ops",
+      "monthly-review",
+      "metrics",
+      "reporting",
+      "deterministic"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -38,7 +59,13 @@
       "depends": "ops-handbook"
     },
     "category": "business-operations",
-    "tags": ["business-ops", "handbook", "operations", "decision-rights", "step-by-step"],
+    "tags": [
+      "business-ops",
+      "handbook",
+      "operations",
+      "decision-rights",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -62,7 +89,13 @@
       "depends": "ops-process-doc"
     },
     "category": "business-operations",
-    "tags": ["business-ops", "runbook", "incident", "rollback", "step-by-step"],
+    "tags": [
+      "business-ops",
+      "runbook",
+      "incident",
+      "rollback",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -86,7 +119,13 @@
       "depends": "ops-process-doc ops-sop ops-checklist"
     },
     "category": "business-operations",
-    "tags": ["business-ops", "sop", "process", "documentation", "step-by-step"],
+    "tags": [
+      "business-ops",
+      "sop",
+      "process",
+      "documentation",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -110,7 +149,13 @@
       "depends": "ops-report"
     },
     "category": "business-operations",
-    "tags": ["business-ops", "weekly-review", "metrics", "reporting", "deterministic"],
+    "tags": [
+      "business-ops",
+      "weekly-review",
+      "metrics",
+      "reporting",
+      "deterministic"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -134,7 +179,14 @@
       "depends": "commerce-abandoned-cart"
     },
     "category": "content-creation",
-    "tags": ["commerce", "ecommerce", "email", "retention", "cart-recovery", "step-by-step"],
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "email",
+      "retention",
+      "cart-recovery",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -158,7 +210,14 @@
       "depends": "finance-report pitch-investor-email"
     },
     "category": "content-creation",
-    "tags": ["pitch", "investor-update", "reporting", "metrics", "batch", "deterministic"],
+    "tags": [
+      "pitch",
+      "investor-update",
+      "reporting",
+      "metrics",
+      "batch",
+      "deterministic"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -182,7 +241,14 @@
       "depends": "sales-icp content-blog content-humanize content-repurpose"
     },
     "category": "content-creation",
-    "tags": ["marketing", "content", "blogging", "repurpose", "step-by-step", "publishing"],
+    "tags": [
+      "marketing",
+      "content",
+      "blogging",
+      "repurpose",
+      "step-by-step",
+      "publishing"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -206,7 +272,14 @@
       "depends": "market-brand market-audit"
     },
     "category": "content-creation",
-    "tags": ["marketing", "brand", "audit", "positioning", "voice", "step-by-step"],
+    "tags": [
+      "marketing",
+      "brand",
+      "audit",
+      "positioning",
+      "voice",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -230,7 +303,13 @@
       "depends": "finance-budget finance-report"
     },
     "category": "business-operations",
-    "tags": ["business-finance", "budget", "planning", "step-by-step", "cfo"],
+    "tags": [
+      "business-finance",
+      "budget",
+      "planning",
+      "step-by-step",
+      "cfo"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -254,7 +333,13 @@
       "depends": "finance-cashflow finance-budget finance-report"
     },
     "category": "business-operations",
-    "tags": ["business-finance", "budget", "variance", "deterministic", "cfo"],
+    "tags": [
+      "business-finance",
+      "budget",
+      "variance",
+      "deterministic",
+      "cfo"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -278,7 +363,15 @@
       "depends": "pitch-fin-model finance-pl finance-cashflow finance-balance-sheet"
     },
     "category": "business-operations",
-    "tags": ["finance", "modeling", "fundraising", "projections", "sensitivity", "step-by-step", "planning"],
+    "tags": [
+      "finance",
+      "modeling",
+      "fundraising",
+      "projections",
+      "sensitivity",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -302,7 +395,15 @@
       "depends": "pitch-deck"
     },
     "category": "content-creation",
-    "tags": ["pitch", "fundraising", "deck", "investor", "narrative", "step-by-step", "planning"],
+    "tags": [
+      "pitch",
+      "fundraising",
+      "deck",
+      "investor",
+      "narrative",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -326,7 +427,14 @@
       "depends": "convert-bullshit-filter convert-voice"
     },
     "category": "content-creation",
-    "tags": ["marketing", "conversion", "copywriting", "bullshit-filter", "voice", "cleanup"],
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "bullshit-filter",
+      "voice",
+      "cleanup"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -350,7 +458,15 @@
       "depends": "content-audit convert-bullshit-filter convert-voice"
     },
     "category": "content-creation",
-    "tags": ["marketing", "conversion", "copywriting", "bullshit-filter", "voice", "cleanup", "batch"],
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "bullshit-filter",
+      "voice",
+      "cleanup",
+      "batch"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -374,7 +490,14 @@
       "depends": "market-copy market-launch"
     },
     "category": "content-creation",
-    "tags": ["marketing", "campaign", "brief", "creative", "launch", "step-by-step"],
+    "tags": [
+      "marketing",
+      "campaign",
+      "brief",
+      "creative",
+      "launch",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -398,7 +521,14 @@
       "depends": "content-case-study content-humanize content-repurpose"
     },
     "category": "content-creation",
-    "tags": ["marketing", "content", "case-study", "repurpose", "step-by-step", "proof"],
+    "tags": [
+      "marketing",
+      "content",
+      "case-study",
+      "repurpose",
+      "step-by-step",
+      "proof"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -422,7 +552,13 @@
       "depends": "finance-cashflow finance-forecast finance-report"
     },
     "category": "business-operations",
-    "tags": ["business-finance", "cashflow", "status", "deterministic", "cfo"],
+    "tags": [
+      "business-finance",
+      "cashflow",
+      "status",
+      "deterministic",
+      "cfo"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -446,7 +582,13 @@
       "depends": "finance-cashflow finance-forecast finance-report"
     },
     "category": "business-operations",
-    "tags": ["business-finance", "cashflow", "forecast", "step-by-step", "cfo"],
+    "tags": [
+      "business-finance",
+      "cashflow",
+      "forecast",
+      "step-by-step",
+      "cfo"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -470,7 +612,14 @@
       "depends": "convert-temperature market-funnel market-launch"
     },
     "category": "content-creation",
-    "tags": ["marketing", "channels", "cac", "budget", "funnel", "step-by-step"],
+    "tags": [
+      "marketing",
+      "channels",
+      "cac",
+      "budget",
+      "funnel",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -494,7 +643,14 @@
       "depends": "convert-temperature convert-audit convert-close"
     },
     "category": "content-creation",
-    "tags": ["marketing", "conversion", "copywriting", "close", "cascade-close", "step-by-step"],
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "close",
+      "cascade-close",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -518,7 +674,13 @@
       "depends": "market-competitors market-audit"
     },
     "category": "content-creation",
-    "tags": ["marketing", "competitors", "research", "positioning", "step-by-step"],
+    "tags": [
+      "marketing",
+      "competitors",
+      "research",
+      "positioning",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -542,7 +704,14 @@
       "depends": "market-competitors market-report"
     },
     "category": "content-creation",
-    "tags": ["marketing", "competitors", "monitoring", "scan", "brief", "deterministic"],
+    "tags": [
+      "marketing",
+      "competitors",
+      "monitoring",
+      "scan",
+      "brief",
+      "deterministic"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -566,7 +735,14 @@
       "depends": "content-audit content-blog content-humanize content-repurpose"
     },
     "category": "content-creation",
-    "tags": ["marketing", "content", "batch", "repurpose", "deterministic", "automation"],
+    "tags": [
+      "marketing",
+      "content",
+      "batch",
+      "repurpose",
+      "deterministic",
+      "automation"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -590,7 +766,14 @@
       "depends": "content-audit content-calendar content-repurpose"
     },
     "category": "content-creation",
-    "tags": ["marketing", "content", "calendar", "planning", "funnel", "step-by-step"],
+    "tags": [
+      "marketing",
+      "content",
+      "calendar",
+      "planning",
+      "funnel",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -614,7 +797,15 @@
       "depends": ""
     },
     "category": "business-operations",
-    "tags": ["legal", "contract", "review", "red-line", "counsel", "step-by-step", "business-legal"],
+    "tags": [
+      "legal",
+      "contract",
+      "review",
+      "red-line",
+      "counsel",
+      "step-by-step",
+      "business-legal"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -638,7 +829,14 @@
       "depends": "convert-four-questions convert-temperature convert-audit convert-bullshit-filter convert-voice"
     },
     "category": "content-creation",
-    "tags": ["marketing", "conversion", "copywriting", "audit", "donahoe-method", "step-by-step"],
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "audit",
+      "donahoe-method",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -662,7 +860,14 @@
       "depends": "sales-icp funnels-offer-pricing content-course-outline content-slide-deck content-leadmagnet-ebook"
     },
     "category": "content-creation",
-    "tags": ["education", "content", "course", "curriculum", "step-by-step", "planning"],
+    "tags": [
+      "education",
+      "content",
+      "course",
+      "curriculum",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -686,7 +891,13 @@
       "depends": "sales-coach sales-qualify sales-objections sales-followup"
     },
     "category": "business-operations",
-    "tags": ["sales", "deal-diagnosis", "objections", "forensics", "step-by-step"],
+    "tags": [
+      "sales",
+      "deal-diagnosis",
+      "objections",
+      "forensics",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -710,7 +921,14 @@
       "depends": "sales-coach sales-research sales-icp sales-prep sales-qualify"
     },
     "category": "business-operations",
-    "tags": ["sales", "discovery", "call-prep", "research", "qualification", "step-by-step"],
+    "tags": [
+      "sales",
+      "discovery",
+      "call-prep",
+      "research",
+      "qualification",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -734,7 +952,14 @@
       "depends": "pitch-investor-email finance-report"
     },
     "category": "content-creation",
-    "tags": ["pitch", "investor-update", "reporting", "metrics", "fundraising", "step-by-step"],
+    "tags": [
+      "pitch",
+      "investor-update",
+      "reporting",
+      "metrics",
+      "fundraising",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -758,7 +983,15 @@
       "depends": ""
     },
     "category": "business-operations",
-    "tags": ["legal", "employment", "offer", "ip-assignment", "non-compete", "step-by-step", "business-legal"],
+    "tags": [
+      "legal",
+      "employment",
+      "offer",
+      "ip-assignment",
+      "non-compete",
+      "step-by-step",
+      "business-legal"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -782,7 +1015,14 @@
       "depends": "funnels-evergreen funnels-cart-cycle-launch funnels-daily-pivot funnels-story-drip"
     },
     "category": "content-creation",
-    "tags": ["marketing", "funnels", "evergreen", "automation", "step-by-step", "scarcity"],
+    "tags": [
+      "marketing",
+      "funnels",
+      "evergreen",
+      "automation",
+      "step-by-step",
+      "scarcity"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -806,7 +1046,13 @@
       "depends": "finance-forecast finance-budget"
     },
     "category": "business-operations",
-    "tags": ["business-finance", "forecast", "planning", "step-by-step", "cfo"],
+    "tags": [
+      "business-finance",
+      "forecast",
+      "planning",
+      "step-by-step",
+      "cfo"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -830,7 +1076,14 @@
       "depends": "sales-icp market-funnel funnels-offer-pricing funnels-lead-magnet funnels-tripwire funnels-offer funnels-continuity funnels-ascension-ladder"
     },
     "category": "content-creation",
-    "tags": ["marketing", "funnels", "architecture", "ascension-ladder", "step-by-step", "direct-response"],
+    "tags": [
+      "marketing",
+      "funnels",
+      "architecture",
+      "ascension-ladder",
+      "step-by-step",
+      "direct-response"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -854,7 +1107,14 @@
       "depends": "launch market-audit funnels-offer funnels-cart-cycle-launch convert-package content-calendar sales-followup market-ads market-launch"
     },
     "category": "content-creation",
-    "tags": ["marketing", "launch", "step-by-step", "planning", "campaign", "funnel"],
+    "tags": [
+      "marketing",
+      "launch",
+      "step-by-step",
+      "planning",
+      "campaign",
+      "funnel"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -878,7 +1138,14 @@
       "depends": "convert-temperature convert-four-questions convert-three-locks convert-open convert-package convert-close convert-bullshit-filter"
     },
     "category": "content-creation",
-    "tags": ["marketing", "conversion", "copywriting", "sales-letter", "donahoe-method", "step-by-step"],
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "sales-letter",
+      "donahoe-method",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -902,7 +1169,14 @@
       "depends": "funnels-architecture-audit funnels-offer-audit"
     },
     "category": "content-creation",
-    "tags": ["marketing", "funnels", "audit", "diagnostics", "step-by-step", "optimization"],
+    "tags": [
+      "marketing",
+      "funnels",
+      "audit",
+      "diagnostics",
+      "step-by-step",
+      "optimization"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -926,7 +1200,14 @@
       "depends": "convert-temperature convert-above-fold"
     },
     "category": "content-creation",
-    "tags": ["marketing", "conversion", "copywriting", "headlines", "above-fold", "step-by-step"],
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "headlines",
+      "above-fold",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -950,7 +1231,14 @@
       "depends": "hr-comp-band"
     },
     "category": "business-operations",
-    "tags": ["hr", "compensation", "comp-band", "hiring", "step-by-step", "planning"],
+    "tags": [
+      "hr",
+      "compensation",
+      "comp-band",
+      "hiring",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -974,7 +1262,14 @@
       "depends": "hr-handbook"
     },
     "category": "business-operations",
-    "tags": ["hr", "handbook", "policy", "compliance", "step-by-step", "planning"],
+    "tags": [
+      "hr",
+      "handbook",
+      "policy",
+      "compliance",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -998,7 +1293,15 @@
       "depends": "hr-comp-band hr-job-description hr-interview-questions hr-offer-letter"
     },
     "category": "business-operations",
-    "tags": ["hr", "hiring", "recruiting", "interview", "job-description", "step-by-step", "planning"],
+    "tags": [
+      "hr",
+      "hiring",
+      "recruiting",
+      "interview",
+      "job-description",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1022,7 +1325,14 @@
       "depends": "hr-onboard"
     },
     "category": "business-operations",
-    "tags": ["hr", "onboarding", "new-hire", "30-60-90", "step-by-step", "planning"],
+    "tags": [
+      "hr",
+      "onboarding",
+      "new-hire",
+      "30-60-90",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1046,7 +1356,14 @@
       "depends": "hr-review hr-1on1"
     },
     "category": "business-operations",
-    "tags": ["hr", "performance-review", "development-plan", "feedback", "step-by-step", "planning"],
+    "tags": [
+      "hr",
+      "performance-review",
+      "development-plan",
+      "feedback",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1070,7 +1387,14 @@
       "depends": "sales-coach sales-icp sales-qualify"
     },
     "category": "business-operations",
-    "tags": ["sales", "icp", "customer-profile", "segmentation", "qualification", "step-by-step"],
+    "tags": [
+      "sales",
+      "icp",
+      "customer-profile",
+      "segmentation",
+      "qualification",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1094,7 +1418,14 @@
       "depends": "launch"
     },
     "category": "content-creation",
-    "tags": ["marketing", "launch", "audit", "readiness", "step-by-step", "go-no-go"],
+    "tags": [
+      "marketing",
+      "launch",
+      "audit",
+      "readiness",
+      "step-by-step",
+      "go-no-go"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1118,7 +1449,14 @@
       "depends": "launch"
     },
     "category": "content-creation",
-    "tags": ["marketing", "launch", "metrics", "standup", "deterministic", "reporting"],
+    "tags": [
+      "marketing",
+      "launch",
+      "metrics",
+      "standup",
+      "deterministic",
+      "reporting"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1142,7 +1480,14 @@
       "depends": "commerce-listing commerce-description"
     },
     "category": "content-creation",
-    "tags": ["commerce", "ecommerce", "listing", "audit", "triage", "deterministic"],
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "listing",
+      "audit",
+      "triage",
+      "deterministic"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1166,31 +1511,15 @@
       "depends": "commerce-listing commerce-description"
     },
     "category": "content-creation",
-    "tags": ["commerce", "ecommerce", "listing", "optimization", "conversion", "ab-test", "step-by-step"],
-    "security": {
-      "verdict": "unscanned",
-      "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
-      "llmScanned": false
-    }
-  },
-  {
-    "name": "wayland-morning-report",
-    "title": "Morning Report",
-    "description": "Run the pre-open market brief: scan the watchlist with the bundled market-open-report script, render a standalone HTML brief into the workspace's artifacts/ folder, then present it and state plainly whether the run was complete, partial, or empty.\nUse when the user wants the morning report, the daily brief, or a pre-open scan of their watchlist, run unattended on a schedule or on demand.\nDo NOT use for reading a live TradingView chart, for intraday signals, or for any request that needs a broker or market-data API; this workflow uses only the bundled offline scanner.",
-    "type": "workflow",
-    "source": "wayland-library",
-    "path": "bodies/wayland-morning-report/SKILL.md",
-    "metadata": {
-      "author": "wayland",
-      "version": "1.0.0",
-      "tags": "market watchlist morning-report pre-open deterministic",
-      "category": "business-operations",
-      "depends": "market-open-report"
-    },
-    "category": "business-operations",
-    "tags": ["market", "watchlist", "morning-report", "pre-open", "deterministic"],
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "listing",
+      "optimization",
+      "conversion",
+      "ab-test",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1214,7 +1543,15 @@
       "depends": ""
     },
     "category": "business-operations",
-    "tags": ["legal", "nda", "confidentiality", "mutual", "unilateral", "step-by-step", "business-legal"],
+    "tags": [
+      "legal",
+      "nda",
+      "confidentiality",
+      "mutual",
+      "unilateral",
+      "step-by-step",
+      "business-legal"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1238,7 +1575,14 @@
       "depends": "sales-coach sales-objections convert-three-locks"
     },
     "category": "business-operations",
-    "tags": ["sales", "objections", "three-locks", "templates", "buyer-types", "step-by-step"],
+    "tags": [
+      "sales",
+      "objections",
+      "three-locks",
+      "templates",
+      "buyer-types",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1262,7 +1606,14 @@
       "depends": "sales-icp market-funnel convert-temperature funnels-offer convert-three-locks funnels-offer-stack funnels-offer-pricing funnels-offer-guarantee"
     },
     "category": "content-creation",
-    "tags": ["marketing", "funnels", "offer", "pricing", "step-by-step", "donahoe-method"],
+    "tags": [
+      "marketing",
+      "funnels",
+      "offer",
+      "pricing",
+      "step-by-step",
+      "donahoe-method"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1286,7 +1637,14 @@
       "depends": "sales-coach sales-outreach sales-followup"
     },
     "category": "business-operations",
-    "tags": ["sales", "outreach", "cold-email", "cadence", "follow-up", "step-by-step"],
+    "tags": [
+      "sales",
+      "outreach",
+      "cold-email",
+      "cadence",
+      "follow-up",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1310,7 +1668,14 @@
       "depends": "sales-report sales-objections"
     },
     "category": "business-operations",
-    "tags": ["sales", "pipeline-review", "batch", "stuck-deals", "forensics", "reporting"],
+    "tags": [
+      "sales",
+      "pipeline-review",
+      "batch",
+      "stuck-deals",
+      "forensics",
+      "reporting"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1334,7 +1699,17 @@
       "depends": ""
     },
     "category": "business-operations",
-    "tags": ["legal", "tos", "privacy", "refund", "eula", "cookie", "compliance", "step-by-step", "business-legal"],
+    "tags": [
+      "legal",
+      "tos",
+      "privacy",
+      "refund",
+      "eula",
+      "cookie",
+      "compliance",
+      "step-by-step",
+      "business-legal"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1358,7 +1733,14 @@
       "depends": "market-competitors market-brand market-audit market-copy"
     },
     "category": "content-creation",
-    "tags": ["marketing", "positioning", "messaging", "competitors", "brand", "step-by-step"],
+    "tags": [
+      "marketing",
+      "positioning",
+      "messaging",
+      "competitors",
+      "brand",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1382,7 +1764,15 @@
       "depends": "pitch-dd-prep"
     },
     "category": "content-creation",
-    "tags": ["pitch", "fundraising", "due-diligence", "data-room", "investor", "step-by-step", "planning"],
+    "tags": [
+      "pitch",
+      "fundraising",
+      "due-diligence",
+      "data-room",
+      "investor",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1406,7 +1796,13 @@
       "depends": "finance-pricing-review finance-forecast"
     },
     "category": "business-operations",
-    "tags": ["business-finance", "pricing", "scenarios", "step-by-step", "cfo"],
+    "tags": [
+      "business-finance",
+      "pricing",
+      "scenarios",
+      "step-by-step",
+      "cfo"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1430,7 +1826,14 @@
       "depends": "launch"
     },
     "category": "content-creation",
-    "tags": ["marketing", "launch", "relaunch", "debrief", "step-by-step", "planning"],
+    "tags": [
+      "marketing",
+      "launch",
+      "relaunch",
+      "debrief",
+      "step-by-step",
+      "planning"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1454,7 +1857,13 @@
       "depends": "finance-forecast finance-cashflow finance-report"
     },
     "category": "business-operations",
-    "tags": ["business-finance", "runway", "cashflow", "step-by-step", "cfo"],
+    "tags": [
+      "business-finance",
+      "runway",
+      "cashflow",
+      "step-by-step",
+      "cfo"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1478,7 +1887,15 @@
       "depends": "funnels-offer-pricing commerce-listing commerce-description commerce-postpurchase-thankyou commerce-upsell-flow"
     },
     "category": "content-creation",
-    "tags": ["commerce", "ecommerce", "sku-launch", "pricing", "listing", "upsell", "step-by-step"],
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "sku-launch",
+      "pricing",
+      "listing",
+      "upsell",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1502,7 +1919,14 @@
       "depends": "support-churn-investigate support-nps-analysis"
     },
     "category": "business-operations",
-    "tags": ["support", "churn", "retention", "root-cause", "action-plan", "step-by-step"],
+    "tags": [
+      "support",
+      "churn",
+      "retention",
+      "root-cause",
+      "action-plan",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1526,7 +1950,14 @@
       "depends": "support-kb-article"
     },
     "category": "business-operations",
-    "tags": ["support", "knowledge-base", "kb-article", "troubleshooting", "self-serve", "step-by-step"],
+    "tags": [
+      "support",
+      "knowledge-base",
+      "kb-article",
+      "troubleshooting",
+      "self-serve",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1550,7 +1981,14 @@
       "depends": "support-faq support-reply"
     },
     "category": "business-operations",
-    "tags": ["support", "macros", "templates", "faq", "category-index", "step-by-step"],
+    "tags": [
+      "support",
+      "macros",
+      "templates",
+      "faq",
+      "category-index",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1574,7 +2012,14 @@
       "depends": "support-reply support-escalation"
     },
     "category": "business-operations",
-    "tags": ["support", "triage", "ticket", "reply", "escalation", "step-by-step"],
+    "tags": [
+      "support",
+      "triage",
+      "ticket",
+      "reply",
+      "escalation",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1598,7 +2043,15 @@
       "depends": "support-report support-sla-review support-faq"
     },
     "category": "business-operations",
-    "tags": ["support", "weekly", "metrics", "sla", "pattern-detection", "batch", "deterministic"],
+    "tags": [
+      "support",
+      "weekly",
+      "metrics",
+      "sla",
+      "pattern-detection",
+      "batch",
+      "deterministic"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1622,7 +2075,14 @@
       "depends": "content-voice-profile content-thought-leadership-post"
     },
     "category": "content-creation",
-    "tags": ["content", "voice", "writing", "onboarding", "step-by-step", "profile"],
+    "tags": [
+      "content",
+      "voice",
+      "writing",
+      "onboarding",
+      "step-by-step",
+      "profile"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1646,7 +2106,14 @@
       "depends": "convert-temperature convert-three-locks convert-vsl convert-vsl-page convert-thank-you-page convert-bullshit-filter"
     },
     "category": "content-creation",
-    "tags": ["marketing", "conversion", "copywriting", "vsl", "video-sales-letter", "step-by-step"],
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "vsl",
+      "video-sales-letter",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1670,7 +2137,14 @@
       "depends": "sales-icp funnels-conviction-webinar convert-webinar-reg-page funnels-story-drip funnels-cart-cycle-launch"
     },
     "category": "content-creation",
-    "tags": ["marketing", "funnels", "webinar", "conviction", "step-by-step", "high-ticket"],
+    "tags": [
+      "marketing",
+      "funnels",
+      "webinar",
+      "conviction",
+      "step-by-step",
+      "high-ticket"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],
@@ -1694,7 +2168,15 @@
       "depends": "commerce-winback funnels-offer"
     },
     "category": "content-creation",
-    "tags": ["commerce", "ecommerce", "retention", "winback", "email", "segmentation", "step-by-step"],
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "retention",
+      "winback",
+      "email",
+      "segmentation",
+      "step-by-step"
+    ],
     "security": {
       "verdict": "unscanned",
       "findings": [],

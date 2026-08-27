@@ -26,8 +26,44 @@ import { SkillLibrary } from './SkillLibrary';
 import { SkillQuarantine, type SkillQuarantineIo } from './SkillQuarantine';
 import type { LlmScanCall } from './skillGuardLlmScan';
 import { makeOneShotLlmScanCall } from './skillGuardLlmCall';
+import { getSkillsDir } from '@process/utils/initStorage';
 
-export const IMPORTED_DIR = path.join(homedir(), '.wayland', 'skills', 'imported');
+/**
+ * Where an imported skill lands.
+ *
+ * THIS MOVED, and the move IS the bug fix. It used to be
+ * `~/.wayland/skills/imported`, a directory NOTHING in the main process ever
+ * read: not the assistant skill picker, not `enabledSkills` resolution, not the
+ * workspace stager in `initAgent`, and nothing at boot. `registerSource` is an
+ * in-memory array, so an import survived exactly until the next launch. That is
+ * why the Skills page reports "Imported 0" on a fresh start no matter how many
+ * imports succeeded - the counter was honest and the import was not.
+ *
+ * `getSkillsDir()` (`<userData>/config/skills`) is the one directory that is
+ * actually read: `fsBridge.listAvailableSkills` enumerates it from DISK on every
+ * call as `custom`, and `initAgent` stages it into the sandboxed workspace. One
+ * destination means "it imported" and "the agent can use it" stop being
+ * different facts.
+ */
+export function importedSkillsDir(): string {
+  return getSkillsDir();
+}
+
+/** Retained only so an older install can still be found and migrated. */
+export const LEGACY_IMPORTED_DIR = path.join(homedir(), '.wayland', 'skills', 'imported');
+
+/**
+ * Extensions an import refuses outright.
+ *
+ * SkillGuard reasons about prompt text. Anything here would reach the skills
+ * directory unscanned, and `initAgent` stages that directory into the workspace
+ * the agent can run commands in.
+ */
+export const REFUSED_IMPORT_EXTENSIONS = [
+  '.mjs', '.cjs', '.js', '.ts', '.py', '.rb', '.pl', '.php',
+  '.sh', '.bash', '.zsh', '.fish', '.ps1', '.bat', '.cmd',
+  '.exe', '.dll', '.dylib', '.so', '.command', '.app', '.scpt',
+];
 
 // ---------------------------------------------------------------------------
 // IO seam - injected for tests; defaults to real Node.js ops
@@ -217,10 +253,27 @@ export class SkillImport {
    */
   private readonly llmCall: LlmScanCall;
 
-  constructor(io: SkillImportIo = defaultSkillImportIo, quarantineIo?: SkillQuarantineIo, llmCall?: LlmScanCall) {
+  /**
+   * Resolver for the install destination.
+   *
+   * INJECTED, not called at module scope, and that is deliberate:
+   * `getSkillsDir()` reads `cacheDir`, which only exists after app init. Calling
+   * it eagerly bolts this service - otherwise a pure unit with an injectable IO
+   * seam - to electron startup, and every test of it then needs a booted app.
+   * A resolver keeps the seam and keeps the default correct in production.
+   */
+  private resolveSkillsDir: () => string;
+
+  constructor(
+    io: SkillImportIo = defaultSkillImportIo,
+    quarantineIo?: SkillQuarantineIo,
+    llmCall?: LlmScanCall,
+    resolveSkillsDir: () => string = importedSkillsDir
+  ) {
     this.io = io;
     this.quarantineIo = quarantineIo;
     this.llmCall = llmCall ?? makeOneShotLlmScanCall();
+    this.resolveSkillsDir = resolveSkillsDir;
   }
 
   // -------------------------------------------------------------------------
@@ -313,21 +366,47 @@ export class SkillImport {
         if (totalBytes > MAX_ZIP_TOTAL_BYTES) {
           throw new Error('Rejected: zip total decompressed size exceeds cap');
         }
-        // Strip non-.md files (don't write them).
-        if (!entry.path.endsWith('.md')) {
+        // A pack is a TREE, and it is installed as one.
+        //
+        // This used to `continue` on EVERY non-`.md` entry and then flatten what
+        // survived to `path.basename`, so a zip holding `watchlists/list.txt`
+        // installed as a lone SKILL.md whose own relative links pointed at
+        // nothing. The user picked a pack, was told it imported, and got a husk.
+        //
+        // The original decision that executables never ride in through a zip is
+        // KEPT - see the sibling `warns (does not reject)` case. What changes is
+        // that it now applies to executables specifically instead of to
+        // everything that is not markdown. A `.txt` watchlist or a `.csv` is
+        // data the skill reads; a `.sh` is not, and SkillGuard reasons about
+        // prompt text so it could never have vouched for one.
+        const ext = path.extname(entry.path).toLowerCase();
+        if (REFUSED_IMPORT_EXTENSIONS.includes(ext)) {
+          warnings.push(`Skipped ${entry.path}: executable files are not imported`);
           continue;
         }
-        // Warn on executable-ref patterns in SKILL.md bodies.
-        const body = entry.data.toString('utf-8');
-        if (EXECUTABLE_REF_RE.test(body)) {
-          warnings.push(`Warning: ${entry.path} references a relative executable path`);
+        // Warn on executable-ref patterns in markdown bodies.
+        if (entry.path.endsWith('.md')) {
+          const body = entry.data.toString('utf-8');
+          if (EXECUTABLE_REF_RE.test(body)) {
+            warnings.push(`Warning: ${entry.path} references a relative executable path`);
+          }
         }
-        // Write only .md files to tmpDir, flattening to the basename. Safe
-        // now because the multi-SKILL.md guard above rejects ambiguous zips.
-        const destFile = path.join(tmpDir, path.basename(entry.path));
+        // Write at the entry's own RELATIVE path, not its basename, so the tree
+        // survives. `resolveContainedEntry` above already proved this path stays
+        // inside tmpDir under both separator conventions.
+        const destFile = resolveContainedEntry(tmpDir, entry.path)!;
+        await this.io.mkdir(path.dirname(destFile), { recursive: true });
         await this.io.writeFile(destFile, entry.data);
       }
-      const result = await this._copyAndScan(tmpDir);
+      // A zip almost always wraps its contents in one folder - `zip -r pack.zip
+      // my-skill` produces `my-skill/SKILL.md`, and so does every Finder and
+      // Explorer "Compress" action. Without this, `_copyAndScan` names the skill
+      // after the TEMP DIRECTORY (`wayland-zip-import-PGBPzU`) and nests the real
+      // folder one level below it, so the pack installs under a garbage name and
+      // the agent never finds it. Descend when there is exactly one directory and
+      // no SKILL.md beside it; anything else keeps its shape.
+      const root = await this._unwrapSingleFolder(tmpDir);
+      const result = await this._copyAndScan(root);
       return { ...result, warnings: [...result.warnings, ...warnings] };
     } finally {
       await this.io.rmdir(tmpDir).catch(() => {});
@@ -347,7 +426,7 @@ export class SkillImport {
       throw new Error(`Rejected: source path is a symlink - ${srcPath}`);
     }
     const skillName = path.basename(path.dirname(srcPath));
-    const destDir = path.join(IMPORTED_DIR, skillName);
+    const destDir = path.join(this.resolveSkillsDir(), skillName);
     await this.io.mkdir(destDir, { recursive: true });
     const destFile = path.join(destDir, 'SKILL.md');
     await this.io.copyFile(srcPath, destFile);
@@ -363,31 +442,73 @@ export class SkillImport {
   /** Copy srcDir into IMPORTED_DIR/<basename> and run scan+register. */
   private async _copyAndScan(srcDir: string): Promise<ImportResult> {
     const basename = path.basename(srcDir);
-    const destDir = path.join(IMPORTED_DIR, basename);
+    const destDir = path.join(this.resolveSkillsDir(), basename);
     await this.io.mkdir(destDir, { recursive: true });
 
-    const files = await this.io.readdir(srcDir);
-    let body = '';
-    for (const file of files) {
-      const srcFile = path.join(srcDir, file);
-      const destFile = path.join(destDir, file);
-      // Only copy .md files (SKILL.md + any supporting docs).
-      if (!file.endsWith('.md')) continue;
-      // H6: per-child lstat. importFolder lstats the root only; without
-      // this check a folder containing `SKILL.md -> /etc/passwd` (or any
-      // other attacker-pointed symlink) would have its target read and
-      // copied into the user's skills directory.
-      const childStat = await this.io.lstat(srcFile);
-      if (childStat.isSymbolicLink()) {
-        throw new Error(`Rejected: source folder contains a symlink - ${srcFile}`);
-      }
-      await this.io.copyFile(srcFile, destFile);
-      if (file === 'SKILL.md') {
-        body = (await this.io.readFile(srcFile)).toString('utf-8');
-      }
-    }
+    // Copy the WHOLE tree. The previous version walked one level and copied
+    // `.md` only, which is why a pack's `watchlists/` or `reference/` folder
+    // vanished on import while the import still reported success.
+    const body = await this._copyTree(srcDir, destDir);
 
     return this._scanAndRegister([{ name: basename, body, destDir }]);
+  }
+
+  /**
+   * Copy `src` into `dest` recursively, returning the root SKILL.md body.
+   *
+   * Every child is lstat'd. A symlink anywhere in the tree is refused rather
+   * than followed: a pack has no legitimate reason to ship one, and following
+   * it turns a copy into an exfiltration of whatever it points at.
+   */
+  /**
+   * If `dir` holds exactly one directory and no SKILL.md, return that directory.
+   * Otherwise return `dir` unchanged.
+   */
+  private async _unwrapSingleFolder(dir: string): Promise<string> {
+    const names = await this.io.readdir(dir);
+    if (names.includes('SKILL.md')) return dir;
+    if (names.length !== 1) return dir;
+    const only = path.join(dir, names[0]);
+    const st = await this.io.lstat(only);
+    if (st.isSymbolicLink() || !st.isDirectory()) return dir;
+    return only;
+  }
+
+  private skippedExecutables: string[] = [];
+  private copyRoot = '';
+
+  private async _copyTree(src: string, dest: string, depth = 0): Promise<string> {
+    if (depth === 0) {
+      this.skippedExecutables = [];
+      this.copyRoot = src;
+    }
+    if (depth > 8) throw new Error('Rejected: skill folder nests too deeply');
+    let body = '';
+    await this.io.mkdir(dest, { recursive: true });
+    for (const file of await this.io.readdir(src)) {
+      const from = path.join(src, file);
+      const to = path.join(dest, file);
+      const st = await this.io.lstat(from);
+      if (st.isSymbolicLink()) {
+        throw new Error(`Rejected: source folder contains a symlink - ${from}`);
+      }
+      if (st.isDirectory()) {
+        const nested = await this._copyTree(from, to, depth + 1);
+        if (!body) body = nested;
+        continue;
+      }
+      const ext = path.extname(file).toLowerCase();
+      if (REFUSED_IMPORT_EXTENSIONS.includes(ext)) {
+        // Skipped, not fatal: one stray script must not cost the user the pack.
+        this.skippedExecutables.push(path.join(path.relative(this.copyRoot, src), file));
+        continue;
+      }
+      await this.io.copyFile(from, to);
+      if (depth === 0 && file === 'SKILL.md') {
+        body = (await this.io.readFile(from)).toString('utf-8');
+      }
+    }
+    return body;
   }
 
   /**

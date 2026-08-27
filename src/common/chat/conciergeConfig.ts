@@ -42,6 +42,7 @@
  * diagnostics) when the diag/flow surfaces a serious problem.
  */
 export type ConciergeProposalKind =
+  | 'install_skill'
   | 'provider_connect'
   | 'set_default_model'
   | 'add_mcp'
@@ -129,6 +130,31 @@ export type ConciergeProposal =
       label?: string;
     }
   | {
+      kind: 'install_skill';
+      /**
+       * Directory name the skill installs under (`<userData>/config/skills/<name>`),
+       * so it is held to the same closed alphabet as an agent id. It must also
+       * match the pack's own `SKILL.md` frontmatter `name:` - the apply handler
+       * refuses a mismatch rather than trusting either side alone.
+       */
+      name: string;
+      /**
+       * HTTPS URL of the pack archive.
+       *
+       * ADVISORY ON ITS OWN. A [CONCIERGE_PROPOSE] block can be prompt-injected,
+       * and a skill is INSTRUCTIONS THE MODEL LATER OBEYS, so a URL by itself is
+       * not a sufficient authorisation. `sha256` is what pins the bytes: the
+       * apply handler hashes what it downloaded and refuses on any mismatch, so
+       * a hijacked host or a swapped archive cannot change what the user
+       * consented to on the card.
+       */
+      url: string;
+      /** Lowercase hex SHA-256 of the archive. REQUIRED - see `url`. */
+      sha256: string;
+      /** Human label for the card, e.g. `TC-TIDE Morning Brief`. Falls back to `name`. */
+      label?: string;
+    }
+  | {
       kind: 'enable_routine';
       /**
        * Id of a SEEDED built-in routine (`routines.json`), e.g.
@@ -200,6 +226,7 @@ export const CONCIERGE_PROPOSAL_KINDS: readonly ConciergeProposalKind[] = [
   'file_bug_report',
   'install_agent',
   'enable_routine',
+  'install_skill',
 ];
 
 /** Hard cap on the rules body an `edit_assistant` proposal may carry. */
@@ -256,6 +283,42 @@ export function validateInstallAgentProposal(
   return label
     ? { kind: 'install_agent', agentId, npmPackage, version, label }
     : { kind: 'install_agent', agentId, npmPackage, version };
+}
+
+/** A skill name becomes a path segment, so it uses the same closed alphabet as an agent id. */
+export const CONCIERGE_SKILL_NAME_PATTERN = /^[a-z0-9-]+$/;
+/** Lowercase hex SHA-256, exactly 64 chars. */
+export const CONCIERGE_SHA256_PATTERN = /^[0-9a-f]{64}$/;
+
+/**
+ * Validate an `install_skill` block's fields into a proposal, or null when the
+ * block is malformed.
+ *
+ * Every rule here is a REFUSAL, never a repair. A block that names a plausible
+ * pack but carries a bad hash, a plain-http URL, or a name that would escape the
+ * skills directory is not a typo to be corrected - it is the shape an attack
+ * takes, and correcting it would install something the user never saw.
+ */
+export function validateInstallSkillProposal(
+  raw: RawFields
+): Extract<ConciergeProposal, { kind: 'install_skill' }> | null {
+  const name = str(raw.name);
+  const url = str(raw.url);
+  const sha256 = str(raw.sha256);
+  if (!name || !url || !sha256) return null;
+  if (name.length > 64 || !CONCIERGE_SKILL_NAME_PATTERN.test(name)) return null;
+  if (!CONCIERGE_SHA256_PATTERN.test(sha256)) return null;
+  // https only: the hash pins the bytes, but plain http leaks which pack a
+  // customer bought and invites a downgrade attempt on the download itself.
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== 'https:') return null;
+  const label = str(raw.label);
+  return label ? { kind: 'install_skill', name, url, sha256, label } : { kind: 'install_skill', name, url, sha256 };
 }
 
 /**
@@ -318,6 +381,8 @@ export function summarizeProposal(p: ConciergeProposal): string {
       return p.summary ? `File a bug report: ${p.summary}` : 'File a bug report';
     case 'install_agent':
       return `Install ${p.label ?? p.agentId} (${p.npmPackage}@${p.version})`;
+    case 'install_skill':
+      return `Install skill ${p.label || p.name}`;
     case 'enable_routine':
       return `Enable routine "${p.label ?? p.routineId}"`;
   }

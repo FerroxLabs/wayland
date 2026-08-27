@@ -1327,16 +1327,31 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
     // package and are bundled from it, corrected where the connector's own
     // copy named a script Wayland does not ship or an argument 2.3.0 renamed.
     //
-    // `morning-prep` is bundled too but deliberately NOT enabled here. Its
-    // description claims "good morning" and "pre-open briefing", which are the
-    // exact phrases market-open-report is enabled to answer, and it routes
-    // through a chart the user may not have connected yet. market-open-report
-    // needs no chart at all, which is the whole reason it is this assistant's
-    // opener. Two skills competing for the flagship phrase is a routing
-    // coin-flip, not a wider capability.
+    // `morning-prep` is this assistant's opener. It owns the flagship phrase
+    // family - its description claims "good morning", "morning prep" and
+    // "pre-open briefing" - and nothing else enabled here contains "morning",
+    // "pre-open" or "daily report", so there is exactly one candidate and no
+    // routing coin-flip.
+    //
+    // It replaced a bundled scanner that shipped a hard-coded watchlist and
+    // computed its own indicators from daily closes. That scanner could answer
+    // before the connector was ever set up, which reads like an advantage and
+    // is not: it named a strategy it never read, so its output was
+    // indistinguishable from the real thing while being unrelated to it.
+    // `morning-prep` reads what is actually on the user's chart and computes
+    // nothing, which makes a connected, running, datafeed-healthy chart a hard
+    // precondition rather than a nicety. That is deliberate, and it is why
+    // there is no chartless fallback anywhere in this preset.
+    //
+    // A strategy-specific brief is NOT bundled. It ships as an importable
+    // packet that the user installs and assigns to this assistant themselves,
+    // which keeps the strategy out of the public build and keeps this preset
+    // useful to someone who does not have that strategy. When such a packet is
+    // installed it supersedes `morning-prep` for the brief; the persona
+    // document says so and defers to the packet's own instructions.
     defaultEnabledSkills: [
       'tvcontrol-setup',
-      'market-open-report',
+      'morning-prep',
       'chart-analysis',
       'multi-symbol-scan',
       'multi-pane-analysis',
@@ -1359,7 +1374,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
       'en-US': [
         'Connect Wayland to my TradingView chart',
         'Is my chart connection actually working?',
-        'Run my morning report before the open',
+        'Run my TIDE morning brief before the open',
         'What is on my chart right now?',
       ],
     },

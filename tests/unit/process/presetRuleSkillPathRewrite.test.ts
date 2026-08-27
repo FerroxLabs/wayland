@@ -10,11 +10,15 @@
  * at both copy sites in initStorage.ts, and it corrupted the ONE preset whose `skills/`
  * occurrences are not at the start of a path.
  *
- * `smart-trader.md` says `cd .wayland-core/skills/market-open-report`. The unanchored
- * rewrite seeded `cd .wayland-core//Users/<user>/.wayland-config/skills/market-open-report`
- * onto real machines. The same file then tells the model that a failed `cd` means the
- * skill is not enabled, so Smart Trader's flagship opener reports the morning report as
- * missing instead of running it.
+ * `smart-trader.md` carries workspace-relative paths like
+ * `.wayland-core/skills/tvcontrol-setup/SKILL.md`. The unanchored rewrite seeded
+ * `.wayland-core//Users/<user>/.wayland-config/skills/...` onto real machines. The same file
+ * then tells the model that a failed lookup means the skill is not in the workspace, so
+ * Smart Trader reports its own bundled skills as missing instead of reading them.
+ *
+ * The anchor moved from `tide-morning-brief` to `tvcontrol-setup` when the strategy brief
+ * became an importable packet rather than a bundled skill. The transform, the corpus and the
+ * assertions are unchanged - only the name of the surviving bundled skill the fixture pins to.
  *
  * SCOPE OF THE FIXTURE, stated rather than implied. The transform under test is the real
  * exported `absolutizeSkillPaths`. Its INPUT is the real bundled resource bytes on disk,
@@ -78,17 +82,25 @@ describe('preset rule seeding rewrites only LEADING skills/ segments', () => {
 
   it('leaves smart-trader`s workspace-relative .wayland-core/skills path intact', () => {
     // Precondition on the INPUT, so a resource edit cannot make this pass vacuously.
-    expect(smartTrader!.before).toContain('.wayland-core/skills/market-open-report');
+    expect(smartTrader!.before).toContain('.wayland-core/skills/tvcontrol-setup');
     expect(smartTrader!.before).not.toContain('//');
 
-    expect(smartTrader!.after).toContain('.wayland-core/skills/market-open-report');
+    expect(smartTrader!.after).toContain('.wayland-core/skills/tvcontrol-setup');
     // The exact shape that shipped: an absolute path spliced into the middle of a
     // relative one, which is always recognisable by the doubled separator.
     expect(smartTrader!.after).not.toContain('//');
     expect(smartTrader!.after).not.toContain(`.wayland-core/${USER_SKILLS_DIR}`);
-    // Every `cd` in the seeded file must still be a relative path.
-    for (const line of smartTrader!.after.split('\n').filter((l) => l.trimStart().startsWith('cd '))) {
-      expect(line, `seeded cd line must stay workspace-relative: ${line}`).not.toContain(USER_SKILLS_DIR);
+    // STRENGTHENED, not relaxed. This used to iterate lines starting with `cd `, which the
+    // file no longer contains now that the opener ships no scripts - so the loop would have
+    // passed over zero lines and asserted nothing. It now iterates the thing the transform
+    // actually operates on, every `.wayland-core/skills/` occurrence, with a count guard so it
+    // can never go vacuous again.
+    const workspaceSkillRefs = smartTrader!.after
+      .split('\n')
+      .filter((l) => l.includes('.wayland-core/skills/'));
+    expect(workspaceSkillRefs.length, 'fixture must still exercise the mid-string case').toBeGreaterThan(0);
+    for (const line of workspaceSkillRefs) {
+      expect(line, `workspace-relative skill path must stay relative: ${line}`).not.toContain(USER_SKILLS_DIR);
     }
   });
 
@@ -114,7 +126,7 @@ describe('preset rule seeding rewrites only LEADING skills/ segments', () => {
     expect(idx, 'the failure instruction must still exist').toBeGreaterThan(-1);
     // Same paragraph, so the remedy is read together with the diagnosis.
     const paragraph = seeded.slice(0, idx).split('\n\n').pop()! + seeded.slice(idx).split('\n\n')[0];
-    expect(paragraph).toMatch(/market-open-report/);
+    expect(paragraph).toMatch(/not in this workspace/);
     expect(paragraph.replace(/\s+/g, ' ')).toMatch(/no page anywhere in the app that adds it/i);
     // And the invented affordance is gone from the whole seeded document.
     expect(seeded).not.toMatch(/Settings\s*(?:→|->)/);

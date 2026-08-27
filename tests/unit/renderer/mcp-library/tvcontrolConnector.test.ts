@@ -71,7 +71,7 @@ describe('TVControl catalog connector', () => {
     // so `npx @ferroxlabs/tvcontrol` answered an MCP initialize with
     // "Usage: tv <command>" and the connector could never connect. A substring
     // match cannot tell a working spec from an unrunnable one.
-    expect(transport.args).toEqual(['@ferroxlabs/tvcontrol@2.3.1']);
+    expect(transport.args).toEqual(['@ferroxlabs/tvcontrol@2.4.0']);
   });
 
   it('pins a version whose published bin is the MCP server, not the CLI', () => {
@@ -81,7 +81,7 @@ describe('TVControl catalog connector', () => {
     // bin map move underneath this entry with every test still green.
     const pkg = entry.packages[0];
     expect(pkg.version, 'must be pinned; "latest" cannot be verified').toMatch(/^\d+\.\d+\.\d+$/);
-    expect(pkg.version).toBe('2.3.1');
+    expect(pkg.version).toBe('2.4.0');
   });
 
   /**
@@ -144,7 +144,7 @@ describe('TVControl catalog connector', () => {
     // The version whose published `tvcontrol` bin is src/server.js WITH a shebang,
     // so `bun x --bun <spec>` answers `initialize` instead of printing `Usage: tv`.
     // 2.3.0's bin pointed at the human CLI. Bump this deliberately, never to match.
-    const EXPECTED_SPEC = '@ferroxlabs/tvcontrol@2.3.1';
+    const EXPECTED_SPEC = '@ferroxlabs/tvcontrol@2.4.0';
 
     const data = entryToServerData(entry, {});
     const transport = data.transport as { command: string; args: string[] };
