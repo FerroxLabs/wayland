@@ -1498,7 +1498,7 @@ const initStorage = async () => {
 
     // 5.2.2 Check whether migration is needed: add default enabled skills for builtin assistants
     // Check if migration needed: add default enabled skills for builtin assistants
-    const BUILTIN_SKILLS_MIGRATION_KEY = 'migration.builtinDefaultSkillsAdded_v2';
+    const BUILTIN_SKILLS_MIGRATION_KEY = 'migration.builtinDefaultSkillsAdded_v3';
     const builtinSkillsMigrationDone = await configFile.get(BUILTIN_SKILLS_MIGRATION_KEY).catch(() => false);
     const needsBuiltinSkillsMigration = !builtinSkillsMigrationDone;
 
@@ -1580,13 +1580,24 @@ const initStorage = async () => {
 
         // For builtin assistants with defaultEnabledSkills, add default skills (only on migration, when user has not set enabledSkills)
         // Add default enabled skills for builtin assistants with defaultEnabledSkills (only during migration and if user hasn't set enabledSkills)
+        // Union, not replace, and NOT only-when-empty. The previous condition
+        // backfilled only when the user had zero enabled skills, so any skill added
+        // to a preset after a user's config was first written was stranded forever:
+        // Smart Trader shipped twelve skills and existing installs kept showing the
+        // two it launched with. Union keeps everything the user added; the migration
+        // key is versioned so this runs once per bump rather than on every start,
+        // which is also why a skill the user deliberately removed can come back once.
         let resolvedEnabledSkills = existing.enabledSkills;
-        const needsSkillsMigration =
-          needsBuiltinSkillsMigration &&
-          builtin.enabledSkills &&
-          (!existing.enabledSkills || existing.enabledSkills.length === 0);
-        if (needsSkillsMigration) {
-          resolvedEnabledSkills = builtin.enabledSkills;
+        let needsSkillsMigration = false;
+        if (needsBuiltinSkillsMigration && builtin.enabledSkills?.length) {
+          const merged = [...(existing.enabledSkills ?? [])];
+          for (const skill of builtin.enabledSkills) {
+            if (!merged.includes(skill)) merged.push(skill);
+          }
+          if (merged.length !== (existing.enabledSkills?.length ?? 0)) {
+            resolvedEnabledSkills = merged;
+            needsSkillsMigration = true;
+          }
         }
 
         if (

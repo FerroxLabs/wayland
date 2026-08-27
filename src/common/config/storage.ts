@@ -304,7 +304,15 @@ export interface IConfigStorageRefer {
   /** @deprecated Use migration.builtinDefaultSkillsAdded_v2 instead */
   'migration.coworkDefaultSkillsAdded'?: boolean;
   // Migration flag: add default enabled skills for all builtin assistants
+  /** @deprecated Use migration.builtinDefaultSkillsAdded_v3 instead */
   'migration.builtinDefaultSkillsAdded_v2'?: boolean;
+  /**
+   * v3 re-runs the builtin default-skills backfill because v2 only applied when
+   * a user had NO enabled skills, which permanently stranded any skill added to
+   * a preset after their config was first written (Smart Trader shipped twelve
+   * and existing installs kept showing two). v3 unions instead of replacing.
+   */
+  'migration.builtinDefaultSkillsAdded_v3'?: boolean;
   // Migration flag: add promptsI18n for all builtin assistants
   'migration.promptsI18nAdded'?: boolean;
   /** Migration flag: split 'assistants' into presets-only + 'acp.customAgents' (user-defined customs). */

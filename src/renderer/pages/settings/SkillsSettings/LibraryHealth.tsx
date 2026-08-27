@@ -33,6 +33,12 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
 
   // Skill Guard headline + breakdown
   const guardClean = verified === 0 && flagged === 0;
+  // Anything neither clean nor flagged has simply not been scanned yet - the
+  // boot sweep is fire-and-forget across the whole library, so this is normally
+  // a progress number. It has to be shown: without it the card reads
+  // "1,966 verified safe" against a 2,054 total and silently implies the
+  // remaining 88 are unsafe, when nothing has judged them at all.
+  const unscanned = Math.max(0, total - verified - flagged);
 
   return (
     <div className='grid grid-cols-2 md:grid-cols-4 gap-12px'>
@@ -47,10 +53,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
         >
           {total.toLocaleString()}
         </div>
-        <div
-          className='text-12px mt-7px'
-          style={{ color: 'var(--text-primary)', fontWeight: 550 }}
-        >
+        <div className='text-12px mt-7px' style={{ color: 'var(--text-primary)', fontWeight: 550 }}>
           {t('stats.total', 'Skills ready')}
         </div>
         <div className='text-11px mt-3px' style={{ color: 'var(--color-text-3)' }}>
@@ -69,10 +72,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
         >
           {pinned}
         </div>
-        <div
-          className='text-12px mt-7px'
-          style={{ color: 'var(--text-primary)', fontWeight: 550 }}
-        >
+        <div className='text-12px mt-7px' style={{ color: 'var(--text-primary)', fontWeight: 550 }}>
           {t('stats.pinned', 'Pinned always-on')}
         </div>
         <div className='text-11px mt-3px' style={{ color: 'var(--color-text-3)' }}>
@@ -91,28 +91,27 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
         >
           {sourceCount}
         </div>
-        <div
-          className='text-12px mt-7px'
-          style={{ color: 'var(--text-primary)', fontWeight: 550 }}
-        >
+        <div className='text-12px mt-7px' style={{ color: 'var(--text-primary)', fontWeight: 550 }}>
           {t('stats.sources', 'Sources, unified')}
         </div>
         <div className='flex gap-4px mt-6px flex-wrap'>
-          {Object.keys(bySource).slice(0, 4).map((src) => (
-            <span
-              key={src}
-              className='text-10px px-6px py-1px rd-4px border font-medium'
-              style={{
-                background: 'rgba(var(--primary-6),0.08)',
-                color: 'rgb(var(--primary-6))',
-                borderColor: 'rgba(var(--primary-6),0.2)',
-                textTransform: 'capitalize',
-              }}
-              title={`${bySource[src]} skills from ${src}`}
-            >
-              {src.replace('-', ' ')}
-            </span>
-          ))}
+          {Object.keys(bySource)
+            .slice(0, 4)
+            .map((src) => (
+              <span
+                key={src}
+                className='text-10px px-6px py-1px rd-4px border font-medium'
+                style={{
+                  background: 'rgba(var(--primary-6),0.08)',
+                  color: 'rgb(var(--primary-6))',
+                  borderColor: 'rgba(var(--primary-6),0.2)',
+                  textTransform: 'capitalize',
+                }}
+                title={`${bySource[src]} skills from ${src}`}
+              >
+                {src.replace('-', ' ')}
+              </span>
+            ))}
         </div>
       </div>
 
@@ -132,10 +131,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
           ) : (
             <ShieldAlert size={20} style={{ color: 'var(--warning, #e9a40e)' }} />
           )}
-          <div
-            className='text-14px'
-            style={{ color: 'var(--text-primary)', fontWeight: 600 }}
-          >
+          <div className='text-14px' style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
             {t('stats.guard', 'Skill Guard')}
           </div>
         </div>
@@ -146,7 +142,15 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
           {verified.toLocaleString()}
         </div>
         <div className='text-11px mt-3px' style={{ color: 'var(--color-text-3)' }}>
-          {t('stats.guardSubtitle', 'verified safe')}
+          {t('stats.guardSubtitle', 'scanned, no red flags')}
+          {unscanned > 0 ? (
+            <>
+              {' · '}
+              <span style={{ color: 'var(--color-text-3)' }}>
+                {unscanned.toLocaleString()} {t('stats.guardUnscanned', 'not yet scanned')}
+              </span>
+            </>
+          ) : null}
           {flagged > 0 ? (
             <>
               {' · '}
