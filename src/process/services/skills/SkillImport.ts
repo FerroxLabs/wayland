@@ -72,6 +72,12 @@ export const REFUSED_IMPORT_EXTENSIONS = [
 export type SkillImportIo = {
   /** Lstat a path (needed to detect symlinks without following them). */
   lstat: (p: string) => Promise<{ isSymbolicLink(): boolean; isDirectory(): boolean }>;
+  /**
+   * Does a path exist? Its own capability rather than a try/catch around
+   * `lstat`, so an import cannot silently overwrite an installed skill just
+   * because a stubbed `lstat` resolves for every path.
+   */
+  exists: (p: string) => Promise<boolean>;
   /** Read a directory, returning filenames. */
   readdir: (p: string) => Promise<string[]>;
   /** Read a file as a Buffer. */
@@ -110,6 +116,14 @@ const execAsync = promisify(exec);
 
 export const defaultSkillImportIo: SkillImportIo = {
   lstat,
+  exists: async (p) => {
+    try {
+      await lstat(p);
+      return true;
+    } catch {
+      return false;
+    }
+  },
   readdir,
   readFile,
   copyFile,
@@ -439,10 +453,26 @@ export class SkillImport {
   // Internal helpers
   // -------------------------------------------------------------------------
 
-  /** Copy srcDir into IMPORTED_DIR/<basename> and run scan+register. */
+  /** Copy srcDir into the skills dir under <basename> and run scan+register. */
   private async _copyAndScan(srcDir: string): Promise<ImportResult> {
     const basename = path.basename(srcDir);
     const destDir = path.join(this.resolveSkillsDir(), basename);
+
+    // REFUSE A NAME COLLISION rather than merging into it. `mkdir` is recursive
+    // (a no-op on an existing directory) and `copyFile` overwrites, so importing
+    // anything whose folder name matches an installed skill used to overwrite
+    // that skill's files IN PLACE - before the new content had been scanned, and
+    // leaving any file the new tree did not happen to contain behind as a
+    // mixture of the two. If the scan then blocked the result, quarantine moved
+    // the MERGED directory away, taking the user's original with it.
+    //
+    // The purchased-pack path already refuses collisions; this is the same rule.
+    if (await this.io.exists(destDir)) {
+      throw new Error(
+        `Rejected: a skill named "${basename}" is already installed. Remove it first, or rename the folder you are importing.`
+      );
+    }
+
     await this.io.mkdir(destDir, { recursive: true });
 
     // Copy the WHOLE tree. The previous version walked one level and copied
@@ -452,6 +482,7 @@ export class SkillImport {
 
     return this._scanAndRegister([{ name: basename, body, destDir }]);
   }
+
 
   /**
    * Copy `src` into `dest` recursively, returning the root SKILL.md body.

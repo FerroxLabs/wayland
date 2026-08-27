@@ -105,6 +105,23 @@ async function copyDirectory(src: string, dest: string) {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
 
+    // REFUSE SYMLINKS. `entry.isDirectory()` is FALSE for a symlink-to-file, so
+    // without this the entry fell through to `fs.copyFile`, which DEREFERENCES:
+    // the destination becomes a real file holding the target's CONTENT. Proved
+    // by execution - a link to a private key copied the key's bytes to a path
+    // with no sensitive segment left in it, which is why `confinePath`
+    // realpath-collapsing on READ does not help. The copy has already happened.
+    //
+    // This matters more since the five external skill roots became authorized:
+    // those directories belong to OTHER agent tools, so anything on the machine
+    // can drop a link into them and this copier is what would carry it across.
+    // `SkillImport._copyTree` has always refused symlinks; this is the same rule
+    // on the path that lacked it.
+    if (entry.isSymbolicLink()) {
+      console.warn(`[fsBridge] Refusing to copy symlink out of a skill directory: ${srcPath}`);
+      continue;
+    }
+
     if (entry.isDirectory()) {
       await copyDirectory(srcPath, destPath);
     } else {

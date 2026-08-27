@@ -63,6 +63,10 @@ function makeFakeIo(overrides: FakeIoOverrides = {}): SkillImportIo {
       isSymbolicLink: () => false,
       isDirectory: () => path.extname(p) === '',
     })),
+    // Nothing is installed by default. The collision refusal is proved by the
+    // dedicated test that overrides this to true, so the guard cannot be
+    // satisfied incidentally by a stub that resolves for every path.
+    exists: vi.fn(async () => false),
     readdir: vi.fn(async (p: string) => (path.extname(p) === '' ? ['SKILL.md'] : [])),
     readFile: vi.fn(async (_p: string) => Buffer.from('# Test Skill\n\nA harmless skill.')),
     copyFile: vi.fn(async () => {}),
@@ -593,5 +597,32 @@ describe('a ZIP pack installs as a TREE, into the directory that is actually rea
     expect(dirs.length).toBeGreaterThan(0);
     expect(dirs).toContain(path.join(TEST_SKILLS_DIR, 'my-skill'));
     expect(dirs.some((d) => d.includes(path.join('.wayland', 'skills', 'imported')))).toBe(false);
+  });
+});
+
+describe('an import must not overwrite an installed skill', () => {
+  it('REFUSES when a skill of the same folder name already exists', async () => {
+    // `mkdir` is recursive (no-op on an existing dir) and `copyFile` overwrites,
+    // so this used to merge the new tree INTO the installed one - before the new
+    // content had been scanned, and leaving files the new tree lacked behind as
+    // a mixture. If the scan then blocked it, quarantine moved the merged
+    // directory away, taking the user's original skill with it.
+    const io = makeFakeIo({ exists: vi.fn(async () => true) });
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
+
+    await expect(importer.importFolder('/some/my-skill')).rejects.toThrow(/already installed/i);
+    // Nothing was written: the refusal happens before any copy.
+    expect(io.copyFile).not.toHaveBeenCalled();
+    expect(io.mkdir).not.toHaveBeenCalled();
+  });
+
+  it('KNOWN-POSITIVE CONTROL: the same import succeeds when the name is free', async () => {
+    // Without this the refusal above would pass even if importFolder threw for
+    // every input.
+    const io = makeFakeIo({ exists: vi.fn(async () => false) });
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
+
+    await expect(importer.importFolder('/some/my-skill')).resolves.toBeDefined();
+    expect(io.copyFile).toHaveBeenCalled();
   });
 });

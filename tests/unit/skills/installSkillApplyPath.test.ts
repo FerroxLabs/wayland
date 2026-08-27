@@ -5,199 +5,145 @@
  */
 
 /**
- * The `install_skill` APPLY path - the orchestration, not the parts.
+ * The `install_skill` chain - driven through the REAL function the bridge calls.
  *
- * `installSkillPack.test.ts` already covers download/extract/scan/install
- * individually. What is asserted here is the thing no unit of those can see:
- * that the bridge chains them in the right order and REFUSES at each gate, so a
- * pack that fails one step cannot reach the next.
+ * The previous version of this file re-implemented the chain over mocked modules
+ * and then tried to compensate with regex assertions over the bridge's source.
+ * Two independent audits broke it: `if (false && scan.verdict !== 'clean')` still
+ * satisfied the regex, and swapping `downloadAndVerify(sha256, url)` changed
+ * nothing the harness could see. Both left the suite fully green while the real
+ * product was broken.
  *
- * The gate that matters most is `review`. It is treated as `blocked` here, and
- * that is a deliberate product decision, not an oversight: the Settings importer
- * can afford a middle verdict because it holds the skill unregistered and makes
- * the user re-confirm against the contentHash they were shown, whereas this
- * card's Accept is ONE irreversible click with no second step. If someone later
- * "fixes" this to install-with-a-warning, this test is what stops it.
+ * So there is no harness any more. `runInstallSkillChain` IS the shipped chain;
+ * the bridge injects production dependencies, this file injects fakes, and a
+ * mutation to the chain has nowhere to hide.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { readFileSync } from 'fs';
-import path from 'path';
-
-const downloadSpy = vi.hoisted(() => vi.fn());
-const extractSpy = vi.hoisted(() => vi.fn());
-const scanSpy = vi.hoisted(() => vi.fn());
-const installSpy = vi.hoisted(() => vi.fn());
-const enableSpy = vi.hoisted(() => vi.fn());
-
-vi.mock('@process/services/skills/installSkillPack', () => ({
-  downloadAndVerify: downloadSpy,
-  extractPack: extractSpy,
-  scanPack: scanSpy,
-  installExtractedPack: installSpy,
-  stagingRoot: () => '/tmp/wl-test-staging',
-}));
-vi.mock('@process/services/skills/enableSkillForAssistant', () => ({
-  enableSkillForAssistant: enableSpy,
-  SMART_TRADER_ASSISTANT_ID: 'builtin-smart-trader',
-}));
+import { runInstallSkillChain, type InstallSkillDeps } from '@process/services/skills/installSkillPack';
 
 const PROPOSAL = {
-  kind: 'install_skill' as const,
   name: 'tide-morning-brief',
   url: 'https://example.test/pack.zip',
   sha256: 'a'.repeat(64),
 };
 
-/**
- * Re-implements the bridge's chain over the SAME mocked modules the bridge
- * imports. The bridge's own `applyProposal` is not exported and reaching it
- * needs the full electron/database harness; this keeps the assertions on the
- * ordering and refusal logic, which is what actually went wrong historically.
- */
-async function applyInstallSkill(content: typeof PROPOSAL): Promise<string> {
-  const mod = await import('@process/services/skills/installSkillPack');
-  const en = await import('@process/services/skills/enableSkillForAssistant');
-
-  const download = await mod.downloadAndVerify(content.url, content.sha256);
-  if (!download.ok) throw new Error(download.reason);
-  const staging = `${mod.stagingRoot()}/pack-1`;
-  const extracted = await mod.extractPack(download.bytes, staging);
-  if (!extracted.ok) throw new Error(extracted.reason);
-  const scan = await mod.scanPack(staging);
-  if (scan.verdict !== 'clean') {
-    const flagged = scan.reports
-      .filter((r: { report: { verdict: string } }) => r.report.verdict !== 'clean')
-      .map((r: { file: string }) => r.file)
-      .join(', ');
-    throw new Error(
-      `The pack did not pass the safety scan (${scan.verdict}${flagged ? `: ${flagged}` : ''}), so nothing was installed.`
-    );
-  }
-  const installed = await mod.installExtractedPack(staging, content.name);
-  if (!installed.ok) throw new Error(installed.reason);
-  const enabled = await en.enableSkillForAssistant(en.SMART_TRADER_ASSISTANT_ID, content.name);
-  return enabled
-    ? `Installed "${content.name}" and switched it on for Smart Trader.`
-    : `Installed "${content.name}" - switch it on under Assistants to use it.`;
-}
+let deps: InstallSkillDeps;
+let order: string[];
 
 beforeEach(() => {
-  downloadSpy.mockReset().mockResolvedValue({ ok: true, bytes: new Uint8Array([1]) });
-  extractSpy.mockReset().mockResolvedValue({ ok: true, files: 5 });
-  scanSpy.mockReset().mockResolvedValue({ verdict: 'clean', reports: [] });
-  installSpy.mockReset().mockResolvedValue({ ok: true, name: 'tide-morning-brief', installedTo: '/x', files: 5 });
-  enableSpy.mockReset().mockResolvedValue(true);
+  order = [];
+  deps = {
+    download: vi.fn(async (url: string, sha: string) => {
+      order.push(`download(${url},${sha.slice(0, 4)})`);
+      return { ok: true as const, bytes: new Uint8Array([1]) };
+    }),
+    extract: vi.fn(async () => {
+      order.push('extract');
+      return { ok: true as const, files: 5 };
+    }),
+    scan: vi.fn(async () => {
+      order.push('scan');
+      return { verdict: 'clean' as const, reports: [] };
+    }),
+    install: vi.fn(async () => {
+      order.push('install');
+      return { ok: true as const, name: 'tide-morning-brief', installedTo: '/x', files: 5 };
+    }),
+    enable: vi.fn(async () => {
+      order.push('enable');
+      return true;
+    }),
+    stagingDir: () => '/tmp/wl-test-staging/pack-1',
+    cleanup: vi.fn(async () => {
+      order.push('cleanup');
+    }),
+  };
 });
 
-describe('install_skill apply path', () => {
+describe('runInstallSkillChain', () => {
   it('installs and switches on when every gate passes', async () => {
-    await expect(applyInstallSkill(PROPOSAL)).resolves.toBe(
+    await expect(runInstallSkillChain(PROPOSAL, deps)).resolves.toBe(
       'Installed "tide-morning-brief" and switched it on for Smart Trader.'
     );
-    expect(enableSpy).toHaveBeenCalledWith('builtin-smart-trader', 'tide-morning-brief');
+    expect(order).toEqual([`download(${PROPOSAL.url},aaaa)`, 'extract', 'scan', 'install', 'enable', 'cleanup']);
+  });
+
+  it('passes the URL and hash in the RIGHT ORDER', async () => {
+    // A swapped argument order was one of the mutations that survived the old
+    // harness: it downloaded from the hash and verified against the URL.
+    await runInstallSkillChain(PROPOSAL, deps);
+    expect(deps.download).toHaveBeenCalledWith(PROPOSAL.url, PROPOSAL.sha256);
   });
 
   it('a REVIEW verdict refuses the install, exactly like blocked', async () => {
-    scanSpy.mockResolvedValue({
-      verdict: 'review',
-      reports: [{ file: 'SKILL.md', report: { verdict: 'review' } }],
-    });
-    await expect(applyInstallSkill(PROPOSAL)).rejects.toThrow(/did not pass the safety scan \(review: SKILL\.md\)/);
-    expect(installSpy).not.toHaveBeenCalled();
-    expect(enableSpy).not.toHaveBeenCalled();
+    deps.scan = vi.fn(async () => ({
+      verdict: 'review' as const,
+      reports: [{ file: 'SKILL.md', report: { verdict: 'review' } as never }],
+    }));
+    await expect(runInstallSkillChain(PROPOSAL, deps)).rejects.toThrow(
+      /did not pass the safety scan \(review: SKILL\.md\)/
+    );
+    expect(deps.install).not.toHaveBeenCalled();
+    expect(deps.enable).not.toHaveBeenCalled();
   });
 
   it('a BLOCKED verdict refuses the install', async () => {
-    scanSpy.mockResolvedValue({ verdict: 'blocked', reports: [{ file: 'a.md', report: { verdict: 'blocked' } }] });
-    await expect(applyInstallSkill(PROPOSAL)).rejects.toThrow(/blocked/);
-    expect(installSpy).not.toHaveBeenCalled();
+    deps.scan = vi.fn(async () => ({
+      verdict: 'blocked' as const,
+      reports: [{ file: 'a.md', report: { verdict: 'blocked' } as never }],
+    }));
+    await expect(runInstallSkillChain(PROPOSAL, deps)).rejects.toThrow(/blocked/);
+    expect(deps.install).not.toHaveBeenCalled();
   });
 
   it('a bad hash stops before anything is unpacked', async () => {
-    downloadSpy.mockResolvedValue({ ok: false, reason: 'The download did not match the expected checksum.' });
-    await expect(applyInstallSkill(PROPOSAL)).rejects.toThrow(/checksum/);
-    expect(extractSpy).not.toHaveBeenCalled();
-    expect(scanSpy).not.toHaveBeenCalled();
-    expect(installSpy).not.toHaveBeenCalled();
+    deps.download = vi.fn(async () => ({ ok: false as const, reason: 'The download did not match the expected checksum.' }));
+    await expect(runInstallSkillChain(PROPOSAL, deps)).rejects.toThrow(/checksum/);
+    expect(deps.extract).not.toHaveBeenCalled();
+    expect(deps.scan).not.toHaveBeenCalled();
+    expect(deps.install).not.toHaveBeenCalled();
   });
 
   it('a failed extract stops before the scan', async () => {
-    extractSpy.mockResolvedValue({ ok: false, reason: 'The archive could not be read.' });
-    await expect(applyInstallSkill(PROPOSAL)).rejects.toThrow(/could not be read/);
-    expect(scanSpy).not.toHaveBeenCalled();
-    expect(installSpy).not.toHaveBeenCalled();
+    deps.extract = vi.fn(async () => ({ ok: false as const, reason: 'The archive could not be read.' }));
+    await expect(runInstallSkillChain(PROPOSAL, deps)).rejects.toThrow(/could not be read/);
+    expect(deps.scan).not.toHaveBeenCalled();
+    expect(deps.install).not.toHaveBeenCalled();
   });
 
-  it('the SCAN runs before the install, never after', async () => {
-    // Ordering, asserted directly: scanning after installing would mean a
-    // hostile pack had already landed in the skills directory.
-    const order: string[] = [];
-    scanSpy.mockImplementation(async () => {
-      order.push('scan');
-      return { verdict: 'clean', reports: [] };
-    });
-    installSpy.mockImplementation(async () => {
-      order.push('install');
-      return { ok: true, name: 'x', installedTo: '/x', files: 1 };
-    });
-    await applyInstallSkill(PROPOSAL);
-    expect(order).toEqual(['scan', 'install']);
+  it('a failed install does not switch anything on', async () => {
+    deps.install = vi.fn(async () => ({ ok: false as const, reason: 'A skill named X is already installed.' }));
+    await expect(runInstallSkillChain(PROPOSAL, deps)).rejects.toThrow(/already installed/);
+    expect(deps.enable).not.toHaveBeenCalled();
+  });
+
+  it('always cleans up the staging directory, including on refusal', async () => {
+    deps.scan = vi.fn(async () => ({ verdict: 'blocked' as const, reports: [] }));
+    await expect(runInstallSkillChain(PROPOSAL, deps)).rejects.toThrow();
+    expect(deps.cleanup).toHaveBeenCalledWith('/tmp/wl-test-staging/pack-1');
   });
 
   it('reports honestly when the pack installs but could not be switched on', async () => {
-    // The skill IS on disk at this point, so claiming failure would tell the
-    // user nothing happened when something did.
-    enableSpy.mockResolvedValue(false);
-    await expect(applyInstallSkill(PROPOSAL)).resolves.toBe(
+    deps.enable = vi.fn(async () => false);
+    await expect(runInstallSkillChain(PROPOSAL, deps)).resolves.toBe(
       'Installed "tide-morning-brief" - switch it on under Assistants to use it.'
     );
   });
 });
 
-/**
- * The harness above runs a COPY of the bridge's chain over the same mocked
- * modules, which is enough to pin the ordering and refusal semantics but is NOT
- * enough on its own: a copy passes happily while the original drifts. That is
- * precisely the shape of vacuous test this codebase has been bitten by twice.
- *
- * So these assertions read the REAL bridge source and check the two properties
- * that would silently change the product's behaviour if someone edited them.
- */
-describe('the shipped bridge really implements what the harness models', () => {
-  const source = readFileSync(
-    path.resolve(__dirname, '../../../src/process/bridge/conciergeConfigBridge.ts'),
-    'utf-8'
-  );
-  const caseBody = source.slice(source.indexOf("case 'install_skill': {"), source.indexOf("case 'file_bug_report': {"));
-
-  it('has an install_skill case at all', () => {
-    expect(caseBody.length).toBeGreaterThan(200);
-  });
-
-  it("gates on verdict !== 'clean', so review is refused alongside blocked", () => {
-    // If this becomes `=== 'blocked'`, a REVIEW pack installs on one
-    // irreversible click. That is the decision this line encodes.
-    expect(caseBody).toMatch(/verdict\s*!==\s*'clean'/);
-    expect(caseBody).not.toMatch(/verdict\s*===\s*'blocked'/);
-  });
-
-  it('scans BEFORE it installs', () => {
-    const scanAt = caseBody.indexOf('scanPack(');
-    const installAt = caseBody.indexOf('installExtractedPack(');
-    expect(scanAt).toBeGreaterThan(-1);
-    expect(installAt).toBeGreaterThan(-1);
-    expect(scanAt).toBeLessThan(installAt);
-  });
-
-  it('verifies the download before unpacking it', () => {
-    const dlAt = caseBody.indexOf('downloadAndVerify(');
-    const exAt = caseBody.indexOf('extractPack(');
-    expect(dlAt).toBeGreaterThan(-1);
-    expect(exAt).toBeGreaterThan(dlAt);
-  });
-
-  it('always cleans up the staging directory', () => {
-    expect(caseBody).toMatch(/finally\s*\{[\s\S]*rm\(staging/);
+describe('the bridge really delegates to the shared chain', () => {
+  it('no longer re-implements the chain inline', async () => {
+    // Cheap structural guard on the ONE thing the injection cannot prove: that
+    // the bridge calls this function rather than growing a second copy.
+    const { readFileSync } = await import('fs');
+    const path = await import('path');
+    const src = readFileSync(
+      path.resolve(__dirname, '../../../src/process/bridge/conciergeConfigBridge.ts'),
+      'utf-8'
+    );
+    const body = src.slice(src.indexOf("case 'install_skill': {"), src.indexOf("case 'file_bug_report': {"));
+    expect(body).toContain('runInstallSkillChain');
+    expect(body, 'the gate must live in the shared chain, not be re-inlined here').not.toContain("verdict !== 'clean'");
   });
 });

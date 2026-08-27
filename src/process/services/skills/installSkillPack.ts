@@ -56,33 +56,65 @@ import { getSkillsDir } from '@process/utils/initStorage';
 export const MAX_PACK_BYTES = 8 * 1024 * 1024;
 
 /**
- * Extensions a pack may not carry.
+ * Cap on the EXPANDED size of an archive, and on how many entries it may hold.
  *
- * SkillGuard reasons about prompt text, so a `.mjs` in a pack would reach
- * `<userData>/config/skills/<name>` having been scanned by nothing - and from
- * there `initAgent` stages it into the sandboxed workspace where the agent can
- * run it. Refusing the extension is honest; carrying it and calling the install
- * "scanned" is not. A pack that needs to DO something should drive MCP tools,
- * which are themselves consented to, rather than shipping code.
+ * `MAX_PACK_BYTES` bounds the download; it says nothing about what the download
+ * expands to. Measured: a 17,461-byte archive expands to 17,825,792 bytes, so a
+ * file comfortably under the 8 MiB download cap can expand to gigabytes and
+ * exhaust the main process before anything else in this module runs.
  */
-export const REFUSED_PACK_EXTENSIONS = [
-  '.mjs', '.cjs', '.js', '.ts', '.py', '.rb', '.pl', '.php',
-  '.sh', '.bash', '.zsh', '.fish', '.ps1', '.bat', '.cmd',
-  '.exe', '.dll', '.dylib', '.so', '.command', '.app', '.scpt',
+export const MAX_UNCOMPRESSED_BYTES = 32 * 1024 * 1024;
+export const MAX_PACK_ENTRIES = 2_000;
+
+/**
+ * The ONLY file types a pack may carry.
+ *
+ * This is an ALLOWLIST, and it replaced a denylist for a reason worth keeping:
+ * a denylist of executable extensions was demonstrably incomplete. A file named
+ * `helper` with no extension at all produced `path.extname() === ''` and passed;
+ * so did `run.sh.` (trailing dot) and `run.sh ` (trailing space), which macOS
+ * tolerates. `.jar`, `.vbs`, `.wsf`, `.lua`, `.applescript`, `.desktop`,
+ * `.msi`, `.scr`, `.com`, `.node` and `.wasm` were all simply missing.
+ *
+ * The attack a denylist could not stop: a pack ships `helper` containing
+ * `#!/bin/sh`, plus a SKILL.md that says "run `bash helper`". Nothing refuses
+ * it, SkillGuard never reads it (it scans `.md` only), and `initAgent` stages
+ * the whole directory into the workspace the agent runs shell in. Execute bits
+ * are irrelevant - `bash f` and `java -jar f` do not need them.
+ *
+ * A pack is documentation and data. Anything that needs to DO something should
+ * drive MCP tools, which are separately consented to.
+ */
+export const ALLOWED_PACK_EXTENSIONS = [
+  '.md', '.markdown', '.txt', '.csv', '.tsv', '.json', '.yaml', '.yml',
+  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg',
 ];
 
-/** First refused file in the tree, or null. */
-export async function findExecutable(dir: string, prefix = ''): Promise<string | null> {
+/**
+ * Normalise an entry name the way the filesystem would, so a trailing dot or
+ * space cannot smuggle a disallowed type past `path.extname`.
+ */
+function normalisedExtension(name: string): string {
+  return path.extname(name.replace(/[. ]+$/, '')).toLowerCase();
+}
+
+/**
+ * First file in the tree that a pack is not allowed to carry, or null.
+ *
+ * Symlinks are refused outright: a pack has no legitimate reason to ship one,
+ * and a copier that dereferences it turns the link into a real copy of whatever
+ * it pointed at.
+ */
+export async function findDisallowedFile(dir: string, prefix = ''): Promise<string | null> {
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
     const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isSymbolicLink()) return rel; // a pack has no legitimate reason to ship one
+    if (entry.isSymbolicLink()) return rel;
     if (entry.isDirectory()) {
-      const hit = await findExecutable(path.join(dir, entry.name), rel);
+      const hit = await findDisallowedFile(path.join(dir, entry.name), rel);
       if (hit) return hit;
       continue;
     }
-    const ext = path.extname(entry.name).toLowerCase();
-    if (REFUSED_PACK_EXTENSIONS.includes(ext)) return rel;
+    if (!ALLOWED_PACK_EXTENSIONS.includes(normalisedExtension(entry.name))) return rel;
   }
   return null;
 }
@@ -120,6 +152,53 @@ export function frontmatterName(skillMd: string): string | null {
  * a rule nobody re-checks.
  */
 /**
+ * Repair a swap that a crash interrupted.
+ *
+ * The swap is `target -> .previous`, then `.incoming -> target`, then delete
+ * `.previous`. A process death BETWEEN the first two renames leaves the skill
+ * INVISIBLE - `target` is gone and the user's only copy is sitting in
+ * `.previous` under a name nothing looks at. Worse, the next install of the same
+ * pack sees `target` absent, takes the no-previous branch, and then deletes that
+ * `.previous` at the end: the crash loses the skill and the retry destroys the
+ * backup.
+ *
+ * So: before any install, restore a `.previous` whose target is missing, and
+ * clear `.incoming` left from an interrupted copy. Exported and called at the
+ * top of {@link installExtractedPack} so recovery happens on the path that would
+ * otherwise do the damage.
+ */
+export async function recoverInterruptedInstalls(skillsDir: string): Promise<string[]> {
+  let entries: string[];
+  try {
+    entries = await fs.readdir(skillsDir);
+  } catch {
+    return [];
+  }
+
+  const recovered: string[] = [];
+  for (const name of entries) {
+    if (name.endsWith('.incoming')) {
+      await fs.rm(path.join(skillsDir, name), { recursive: true, force: true });
+      continue;
+    }
+    if (!name.endsWith('.previous')) continue;
+
+    const backup = path.join(skillsDir, name);
+    const target = path.join(skillsDir, name.slice(0, -'.previous'.length));
+    try {
+      await fs.access(target);
+      // The target survived, so the backup is genuinely spent.
+      await fs.rm(backup, { recursive: true, force: true });
+    } catch {
+      // The target is missing: this backup is the user's only copy.
+      await fs.rename(backup, target);
+      recovered.push(path.basename(target));
+    }
+  }
+  return recovered;
+}
+
+/**
  * If `dir` holds exactly one directory and no SKILL.md, return that directory.
  * Otherwise return `dir` unchanged.
  */
@@ -140,17 +219,22 @@ export async function installExtractedPack(
 ): Promise<InstallSkillPackResult> {
   const skillsDir = opts.skillsDir ?? getSkillsDir();
 
+  // Heal a swap a crash interrupted BEFORE deciding whether this name is taken -
+  // otherwise the collision check below reads a half-state as "free" and the
+  // final cleanup deletes the user's only surviving copy.
+  await recoverInterruptedInstalls(skillsDir);
+
   // A zip almost always wraps its contents in one folder - `zip -r`, Finder
   // Compress and Explorer all do. Without this the pack installs under the temp
   // directory's name with the real folder nested below it. Same fix, and same
   // reason, as `SkillImport._unwrapSingleFolder`.
   extractedDir = await unwrapSingleFolder(extractedDir);
 
-  const executable = await findExecutable(extractedDir);
+  const executable = await findDisallowedFile(extractedDir);
   if (executable !== null) {
     return {
       ok: false,
-      reason: `The pack contains a file that cannot be safety-checked (${executable}), so it was not installed.`,
+      reason: `The pack contains a file type that cannot be safety-checked (${executable}), so it was not installed.`,
     };
   }
 
@@ -268,12 +352,20 @@ export async function extractPack(archive: Uint8Array, destDir: string): Promise
   const entries = Object.values(zip.files);
   if (entries.length === 0) return { ok: false, reason: 'The archive is empty.' };
 
+  if (entries.length > MAX_PACK_ENTRIES) {
+    return { ok: false, reason: `The archive holds too many files (${entries.length}).` };
+  }
+
   let files = 0;
+  let expanded = 0;
   for (const entry of entries) {
     // Strip a single wrapping directory so both `pack.zip/SKILL.md` and
     // `pack.zip/tide-morning-brief/SKILL.md` install the same way. Anything
     // deeper keeps its shape.
-    const rel = entry.name.replace(/^\/+/, '');
+    // A ZIP may legitimately use `\` as its separator. On macOS that becomes a
+    // literal backslash in a FILENAME rather than a directory, so normalise it
+    // before confinement - otherwise the same archive installs two shapes.
+    const rel = entry.name.replace(/\\/g, '/').replace(/^\/+/, '');
     if (!rel || rel === './') continue;
     const abs = safeEntryPath(root, rel);
     if (abs === null) {
@@ -284,7 +376,12 @@ export async function extractPack(archive: Uint8Array, destDir: string): Promise
       continue;
     }
     await fs.mkdir(path.dirname(abs), { recursive: true });
-    await fs.writeFile(abs, Buffer.from(await entry.async('uint8array')));
+    const bytes = await entry.async('uint8array');
+    expanded += bytes.length;
+    if (expanded > MAX_UNCOMPRESSED_BYTES) {
+      return { ok: false, reason: 'The archive expands to more data than a skill pack is allowed to contain.' };
+    }
+    await fs.writeFile(abs, Buffer.from(bytes));
     files += 1;
   }
   return { ok: true, files };
@@ -414,4 +511,78 @@ export async function scanPack(dir: string, opts: { llmCall?: LlmScanCall } = {}
       ? 'review'
       : 'clean';
   return { verdict, reports: paired };
+}
+
+/**
+ * Read `reason` off a failed `{ok:false, reason}` result.
+ *
+ * This project's tsconfig does not enable `strictNullChecks`, and without it
+ * TypeScript will not narrow a discriminated union through `if (!r.ok)`.
+ */
+export function failureReason(result: { ok: boolean; reason?: string }, fallback: string): string {
+  return result.reason ?? fallback;
+}
+
+/** The four steps the install chain drives, injectable so a test can drive the REAL chain. */
+export type InstallSkillDeps = {
+  download: (url: string, sha256: string) => Promise<{ ok: true; bytes: Uint8Array } | { ok: false; reason: string }>;
+  extract: (bytes: Uint8Array, dir: string) => Promise<{ ok: true; files: number } | { ok: false; reason: string }>;
+  scan: (dir: string) => Promise<PackScanResult>;
+  install: (dir: string, name: string) => Promise<InstallSkillPackResult>;
+  enable: (name: string) => Promise<boolean>;
+  stagingDir: () => string;
+  cleanup: (dir: string) => Promise<void>;
+};
+
+/**
+ * The whole `install_skill` chain, in ONE place.
+ *
+ * It lives here rather than inline in the bridge because a test that
+ * re-implements the chain over mocks is not a test of the chain. Two independent
+ * audits demonstrated that: with the logic duplicated, `if (false && verdict !==
+ * 'clean')` and a swapped `download(sha256, url)` argument order BOTH left the
+ * suite fully green, because the test was exercising its own copy. The bridge
+ * and the test now call this function, so a mutation here has nowhere to hide.
+ *
+ * Ordering is the security property: verify before unpacking, scan before
+ * installing, and never install anything a scan did not pass.
+ *
+ * `review` is treated as `blocked` deliberately. The Settings importer can hold
+ * a flagged skill unregistered and re-confirm it against the hash the user saw;
+ * this card's Accept is ONE irreversible click with no second step, so there is
+ * nowhere safe to park a flagged pack.
+ */
+export async function runInstallSkillChain(
+  content: { name: string; url: string; sha256: string },
+  deps: InstallSkillDeps
+): Promise<string> {
+  const download = await deps.download(content.url, content.sha256);
+  if (!download.ok) throw new Error(failureReason(download, 'The download could not be verified.'));
+
+  const staging = deps.stagingDir();
+  try {
+    const extracted = await deps.extract(download.bytes, staging);
+    if (!extracted.ok) throw new Error(failureReason(extracted, 'The pack could not be unpacked.'));
+
+    const scan = await deps.scan(staging);
+    if (scan.verdict !== 'clean') {
+      const flagged = scan.reports
+        .filter((r) => r.report.verdict !== 'clean')
+        .map((r) => r.file)
+        .join(', ');
+      throw new Error(
+        `The pack did not pass the safety scan (${scan.verdict}${flagged ? `: ${flagged}` : ''}), so nothing was installed.`
+      );
+    }
+
+    const installed = await deps.install(staging, content.name);
+    if (!installed.ok) throw new Error(failureReason(installed, 'The pack could not be installed.'));
+
+    const enabled = await deps.enable(content.name);
+    return enabled
+      ? `Installed "${content.name}" and switched it on for Smart Trader.`
+      : `Installed "${content.name}" - switch it on under Assistants to use it.`;
+  } finally {
+    await deps.cleanup(staging);
+  }
 }

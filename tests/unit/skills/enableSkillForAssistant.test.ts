@@ -23,14 +23,22 @@ import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
 
 type Rec = { id?: string; name?: string; enabledSkills?: string[]; [k: string]: unknown };
 
+/**
+ * Models `ProcessConfig.update`: the mutator runs against the CURRENT state
+ * inside the critical section, and a returned array identical to the input
+ * counts as "no write". Deliberately not a get/set pair - that shape is what
+ * allowed a stale snapshot to overwrite a concurrent edit.
+ */
 function io(seed: Rec[]): EnableSkillIo & { written: Rec[][]; state: () => Rec[] } {
   let state = seed;
   const written: Rec[][] = [];
   return {
-    getAssistants: async () => state as never,
-    setAssistants: async (next) => {
-      written.push(next as Rec[]);
-      state = next as Rec[];
+    update: async (mutator) => {
+      const next = mutator(state as never) as unknown as Rec[];
+      if (next !== state) {
+        written.push(next);
+        state = next;
+      }
     },
     written,
     state: () => state,
@@ -88,6 +96,31 @@ describe('enableSkillForAssistant', () => {
     expect(await enableSkillForAssistant('nope', 'x', h)).toBe(false);
     expect(h.written).toHaveLength(0);
     expect(h.state()).toEqual([{ id: 'a1', name: 'A', enabledSkills: [] }]);
+  });
+
+
+  it('a concurrent edit made between read and write is NOT clobbered', async () => {
+    // The defect this replaced: a get/set PAIR read `[A,B]`, the user changed
+    // Settings to `[A,C]` during the IPC round trip, and the installer then
+    // wrote its stale `[A+skill,B]` back - deleting C and resurrecting B.
+    // Because the mutator now runs against CURRENT state inside the critical
+    // section, the interleaving cannot lose the edit.
+    let state: Rec[] = [
+      { id: 'builtin-smart-trader', name: 'Smart Trader', enabledSkills: [] },
+      { id: 'b', name: 'B' },
+    ];
+    const h: EnableSkillIo = {
+      update: async (mutator) => {
+        // The concurrent edit lands BEFORE our mutator runs, exactly as it
+        // would when the queue serialises the two writers.
+        state = [state[0], { id: 'c', name: 'C' }];
+        state = mutator(state as never) as unknown as Rec[];
+      },
+    };
+
+    expect(await enableSkillForAssistant('builtin-smart-trader', 'tide-morning-brief', h)).toBe(true);
+    expect(state.map((a) => a.id)).toEqual(['builtin-smart-trader', 'c']);
+    expect(state.find((a) => a.id === 'builtin-smart-trader')!.enabledSkills).toEqual(['tide-morning-brief']);
   });
 
   it('the shipped constant matches a REAL preset, under the real builtin- prefix', async () => {

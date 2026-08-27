@@ -29,9 +29,10 @@
  * directory side - so the caller must pass the installed directory name, which
  * is what `installExtractedPack` returns.
  *
- * Storage is a read-modify-write of the WHOLE `assistants` array, so callers
- * must not run these concurrently (`skillsBridge.ts:186-188` documents the same
- * constraint for the import batch).
+ * Storage is a read-modify-write of the WHOLE `assistants` array, so it runs
+ * inside `ProcessConfig.update` - the read and the write share one critical
+ * section. The earlier get/set pair could lose a concurrent edit made in
+ * Settings, because its read happened before the queue.
  */
 
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -59,14 +60,23 @@ export const SMART_TRADER_ASSISTANT_ID = 'builtin-smart-trader';
 type AssistantRecord = AcpBackendConfig;
 
 export type EnableSkillIo = {
-  getAssistants: () => Promise<AssistantRecord[]>;
-  setAssistants: (next: AssistantRecord[]) => Promise<void>;
+  /**
+   * Read-modify-write the `assistants` array ATOMICALLY.
+   *
+   * The seam is an `update(fn)` rather than a get/set PAIR on purpose. A pair
+   * lets the read happen outside the persistence queue, and the whole array is
+   * then written back from a snapshot that may already be stale - so an install
+   * that starts while the user is editing assistants in Settings writes its old
+   * copy over their change and silently deletes an assistant. Serialising the
+   * WRITES does not fix that; the READ has to be inside the same critical
+   * section, which is what `ProcessConfig.update` gives us.
+   */
+  update: (mutator: (assistants: AssistantRecord[]) => AssistantRecord[]) => Promise<void>;
 };
 
 const defaultIo: EnableSkillIo = {
-  getAssistants: async () => ((await ProcessConfig.get('assistants')) ?? []) as AssistantRecord[],
-  setAssistants: async (next) => {
-    await ProcessConfig.set('assistants', next);
+  update: async (mutator) => {
+    await ProcessConfig.update('assistants', async (current) => mutator((current ?? []) as AssistantRecord[]));
   },
 };
 
@@ -79,14 +89,16 @@ export async function enableSkillForAssistant(
   skillDirName: string,
   io: EnableSkillIo = defaultIo
 ): Promise<boolean> {
-  const assistants = await io.getAssistants();
-  const index = assistants.findIndex((a) => a?.id === assistantId);
-  if (index < 0) return false;
+  let found = false;
+  await io.update((assistants) => {
+    const index = assistants.findIndex((a) => a?.id === assistantId);
+    if (index < 0) return assistants;
+    found = true;
 
-  const current = assistants[index].enabledSkills ?? [];
-  if (current.includes(skillDirName)) return true;
+    const current = assistants[index].enabledSkills ?? [];
+    if (current.includes(skillDirName)) return assistants;
 
-  const next = assistants.map((a, i) => (i === index ? { ...a, enabledSkills: [...current, skillDirName] } : a));
-  await io.setAssistants(next);
-  return true;
+    return assistants.map((a, i) => (i === index ? { ...a, enabledSkills: [...current, skillDirName] } : a));
+  });
+  return found;
 }

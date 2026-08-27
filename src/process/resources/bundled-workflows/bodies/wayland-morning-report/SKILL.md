@@ -63,14 +63,27 @@ find it on screen.
 
 **Step 1: Prove the chart is answering** (uses: morning-prep)
 
-This run holds the TVControl connector because the routine declares it. Search
-your tool catalogue for `tv_health_check` and call it. Only an empty search is
-evidence of absence.
+Do NOT assume you hold the TVControl connector - find out. Search your tool
+catalogue for `tv_health_check` and call it. Only an empty search is evidence of
+absence.
+
+Whether the tools are there depends on how this run started, and the difference
+matters when you report the outcome:
+
+- Run **on demand**, in a chat where the user has TVControl connected, you hold
+  the chart tools.
+- Run **on a schedule**, you currently hold NO MCP connectors at all. Every user
+  connector is deliberately scoped out of an unattended run, so an empty
+  catalogue on a 07:00 run is the expected state, not a fault.
 
 Three outcomes, and each has one honest answer:
 
-- **The tools are not there.** TVControl is not installed. Write a brief that
-  says exactly that and stop. Produce no market content.
+- **The tools are not there.** Say which case you are in: on a scheduled run,
+  that scheduled runs do not currently receive the chart connector, so no brief
+  can be produced and the user should run it on demand instead; on an on-demand
+  run, that TVControl is not installed or not connected. Either way write that
+  and stop. Produce no market content, and do not describe this as a chart or
+  TradingView failure - it is neither.
 - **`datafeed.state` is `disconnected`.** Every number on that chart may be
   stale, the indicators included, because they are computed off the same bars.
   Write that, and read no figures.

@@ -317,6 +317,27 @@ function makeHarness(workspace: string) {
   return { run };
 }
 
+
+/**
+ * Execute the shipped block with its placeholder substituted, then have the
+ * shell report the directory the block actually pinned in `$OUT`.
+ *
+ * Capturing `$OUT` is what ties this test to the body's real CONTENT. Without
+ * it the block can be replaced by anything - including a decoy path - and every
+ * assertion below still passes, because they would only look where the TEST
+ * decided the output goes. A mutation run proved exactly that failure.
+ */
+function runShippedBlockAndReportPinnedDir(rawBlock: string, deliverablesDir: string, ws: string): string {
+  const block = rawBlock.split('<deliverables_dir>').join(deliverablesDir);
+  expect(block).not.toContain('<');
+  const stdout = execFileSync('bash', ['-c', `${block}\nprintf %s "$OUT"`], {
+    cwd: ws,
+    env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined } as NodeJS.ProcessEnv,
+    encoding: 'utf-8',
+  });
+  return stdout.trim();
+}
+
 describe('a bundled routine, seeded the way a real install seeds it, keeps a history', () => {
   let documentsDir: string;
   let dataDir: string;
@@ -381,18 +402,15 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
     const runSkill = (bar: string): Agent => {
       return async (_env, ws, directive) => {
         const dir = deliverablesDirFromDirective(directive);
-        const block = stagingDirBlock().split('<deliverables_dir>').join(dir);
-        expect(block).not.toContain('<');
-        execFileSync('bash', ['-c', block], {
-          cwd: ws,
-          env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined } as NodeJS.ProcessEnv,
-          stdio: 'pipe',
-        });
+        // Write where the BLOCK pinned, not where this test decided - otherwise
+        // the block's content is unasserted and a decoy path passes.
+        const pinned = runShippedBlockAndReportPinnedDir(stagingDirBlock(), dir, ws);
+        expect(pinned, 'the shipped block must pin the directory the directive names').toBe(dir);
         // What the model does after the block: write the brief into the pinned
         // staging directory. One file - the intermediate `mr.json` the deleted
         // scanner used to leave behind has no counterpart in a chart-driven run.
         writeFileSync(
-          pathMod.join(dir, 'morning-brief.html'),
+          pathMod.join(pinned, 'morning-brief.html'),
           `<html>Morning brief bar ${bar}</html>`,
           'utf-8'
         );

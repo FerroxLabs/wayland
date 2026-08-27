@@ -8,11 +8,12 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import JSZip from 'jszip';
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { validateInstallSkillProposal } from '@/common/chat/conciergeConfig';
-import { frontmatterName, installExtractedPack, sha256Hex } from '@process/services/skills/installSkillPack';
+import { MAX_PACK_BYTES, MAX_UNCOMPRESSED_BYTES, extractPack, findDisallowedFile, frontmatterName, installExtractedPack, recoverInterruptedInstalls, sha256Hex } from '@process/services/skills/installSkillPack';
 
 const GOOD_SHA = 'a'.repeat(64);
 
@@ -271,5 +272,153 @@ describe('installExtractedPack survives a wrapping folder and a failed overwrite
     expect((await installExtractedPack(src, 'p', { skillsDir, overwrite: true })).ok).toBe(true);
     const left = await fs.readdir(skillsDir);
     expect(left).toEqual(['p']);
+  });
+});
+
+/**
+ * The bypasses a DENYLIST could not stop.
+ *
+ * Every case below was found by an independent audit against the previous
+ * denylist of executable extensions, and every one of them passed it. They are
+ * pinned here so the allowlist cannot quietly regress into a denylist again.
+ */
+describe('pack file-type policy refuses what a denylist missed', () => {
+  let dir: string;
+  beforeEach(async () => {
+    dir = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-policy-'));
+    await fs.writeFile(path.join(dir, 'SKILL.md'), '---\nname: x\ndescription: y\n---\nbody\n', 'utf-8');
+  });
+  afterEach(async () => {
+    await fs.rm(dir, { recursive: true, force: true });
+  });
+
+  it('refuses a file with NO extension (the shell-script-called-helper case)', async () => {
+    // `path.extname('helper')` is '', which a denylist never matched. The pack
+    // then says "run `bash helper`" and nothing has scanned or refused it.
+    await fs.writeFile(path.join(dir, 'helper'), '#!/bin/sh\necho hi\n', 'utf-8');
+    expect(await findDisallowedFile(dir)).toBe('helper');
+  });
+
+  it('refuses a trailing-dot and a trailing-space filename', async () => {
+    await fs.writeFile(path.join(dir, 'run.sh.'), 'x', 'utf-8');
+    expect(await findDisallowedFile(dir)).toBe('run.sh.');
+    await fs.rm(path.join(dir, 'run.sh.'));
+
+    await fs.writeFile(path.join(dir, 'run.sh '), 'x', 'utf-8');
+    expect(await findDisallowedFile(dir)).toBe('run.sh ');
+  });
+
+  it('refuses formats the old denylist never named', async () => {
+    for (const name of ['payload.jar', 'x.vbs', 'x.wsf', 'x.lua', 'x.applescript', 'x.desktop', 'x.msi', 'x.scr', 'x.node', 'x.wasm']) {
+      await fs.writeFile(path.join(dir, name), 'x', 'utf-8');
+      expect(await findDisallowedFile(dir), `${name} must be refused`).toBe(name);
+      await fs.rm(path.join(dir, name));
+    }
+  });
+
+  it('KNOWN-POSITIVE CONTROL: the file types a real pack ships are allowed', async () => {
+    // Without this the test above would pass even if the allowlist refused
+    // everything, which would break every legitimate pack.
+    await fs.mkdir(path.join(dir, 'watchlists'), { recursive: true });
+    for (const name of ['notes.md', 'watchlists/list.txt', 'data.csv', 'conf.json', 'img.png']) {
+      await fs.writeFile(path.join(dir, name), 'x', 'utf-8');
+    }
+    expect(await findDisallowedFile(dir)).toBeNull();
+  });
+
+  it('refuses a symlink outright', async () => {
+    await fs.symlink('/etc/hosts', path.join(dir, 'link.md'));
+    expect(await findDisallowedFile(dir)).toBe('link.md');
+  });
+});
+
+describe('extractPack bounds what an archive EXPANDS to, not just its download size', () => {
+  it('refuses an archive whose expanded size exceeds the cap', async () => {
+    // A tiny archive can expand enormously: measured 17,461 bytes -> 17,825,792.
+    // MAX_PACK_BYTES bounds the download and says nothing about the expansion.
+    const zip = new JSZip();
+    zip.file('SKILL.md', 'a'.repeat(MAX_UNCOMPRESSED_BYTES + 1024));
+    const bytes = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
+    expect(bytes.length).toBeLessThan(MAX_PACK_BYTES);
+
+    const dest = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-bomb-'));
+    try {
+      const r = await extractPack(bytes, dest);
+      expect(r.ok).toBe(false);
+      expect((r as { reason: string }).reason).toMatch(/expands to more data/i);
+    } finally {
+      await fs.rm(dest, { recursive: true, force: true });
+    }
+  });
+
+  it('KNOWN-POSITIVE CONTROL: a normal-sized archive still extracts', async () => {
+    const zip = new JSZip();
+    zip.file('SKILL.md', '---\nname: x\ndescription: y\n---\nbody\n');
+    const bytes = await zip.generateAsync({ type: 'uint8array' });
+    const dest = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-ok-'));
+    try {
+      expect((await extractPack(bytes, dest)).ok).toBe(true);
+    } finally {
+      await fs.rm(dest, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('a crash mid-swap does not lose the user’s skill', () => {
+  it('restores a .previous whose target is missing, instead of deleting it', async () => {
+    // The exact interruption: `target -> .previous` succeeded, the process died
+    // before `.incoming -> target`. Without recovery the skill is invisible AND
+    // the next install deletes the only copy at the end of its own swap.
+    const skills = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-crash-'));
+    try {
+      await fs.mkdir(path.join(skills, 'victim.previous'), { recursive: true });
+      await fs.writeFile(path.join(skills, 'victim.previous', 'SKILL.md'), 'the only copy', 'utf-8');
+      await fs.mkdir(path.join(skills, 'victim.incoming'), { recursive: true });
+
+      const recovered = await recoverInterruptedInstalls(skills);
+
+      expect(recovered).toEqual(['victim']);
+      expect(await fs.readFile(path.join(skills, 'victim', 'SKILL.md'), 'utf-8')).toBe('the only copy');
+      expect(await fs.readdir(skills)).toEqual(['victim']);
+    } finally {
+      await fs.rm(skills, { recursive: true, force: true });
+    }
+  });
+
+  it('KNOWN-POSITIVE CONTROL: a spent .previous is cleared when the target survived', async () => {
+    // Without this the function could simply never delete anything and the test
+    // above would still pass.
+    const skills = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-crash2-'));
+    try {
+      await fs.mkdir(path.join(skills, 'ok'), { recursive: true });
+      await fs.writeFile(path.join(skills, 'ok', 'SKILL.md'), 'current', 'utf-8');
+      await fs.mkdir(path.join(skills, 'ok.previous'), { recursive: true });
+      await fs.writeFile(path.join(skills, 'ok.previous', 'SKILL.md'), 'stale', 'utf-8');
+
+      expect(await recoverInterruptedInstalls(skills)).toEqual([]);
+      expect(await fs.readdir(skills)).toEqual(['ok']);
+      expect(await fs.readFile(path.join(skills, 'ok', 'SKILL.md'), 'utf-8')).toBe('current');
+    } finally {
+      await fs.rm(skills, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('every skill-mutating IPC channel is denied to a remote peer', () => {
+  it('denies the symlink import/export channels alongside their siblings', async () => {
+    // Found as denylist DRIFT: these two are real channels (ipcBridge.ts:611,619)
+    // and were never denied, while `import-skill` and `delete-skill` were.
+    // `export-skill-with-symlink` creates a symlink from caller-supplied paths.
+    const { isRemoteDeniedProviderKey } = await import('@/common/adapter/bridgeAllowlist');
+    expect(isRemoteDeniedProviderKey('import-skill-with-symlink')).toBe(true);
+    expect(isRemoteDeniedProviderKey('export-skill-with-symlink')).toBe(true);
+
+    // Sibling control: the ones that were already denied still are.
+    expect(isRemoteDeniedProviderKey('import-skill')).toBe(true);
+    expect(isRemoteDeniedProviderKey('delete-skill')).toBe(true);
+
+    // KNOWN-NEGATIVE CONTROL: the predicate really can say "not denied", so the
+    // assertions above are not passing because everything returns true.
+    expect(isRemoteDeniedProviderKey('definitely-not-a-real-channel')).toBe(false);
   });
 });

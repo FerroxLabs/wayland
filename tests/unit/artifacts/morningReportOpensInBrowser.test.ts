@@ -291,6 +291,31 @@ function deliverablesDirFromDirective(directive: string): string {
   return m[1];
 }
 
+
+/**
+ * Execute the shipped block with its one placeholder substituted, then have the
+ * shell report the directory the block actually pinned in `$OUT`.
+ *
+ * Capturing `$OUT` from the block is the whole point: it is what ties the test
+ * to the body's real content. Without it the block can be replaced by anything -
+ * including a decoy path - and every assertion downstream still passes, because
+ * they only ever look where the TEST decided the output should be.
+ *
+ * The engine's env is deliberately NOT forwarded: the engine runs Bash tool
+ * calls through a 19-name allowlist that excludes `WAYLAND_OUTPUT_DIR`, so a
+ * stand-in that passed it through would exercise a channel the product lacks.
+ */
+function runShippedBlockAndReportPinnedDir(rawBlock: string, deliverablesDir: string, ws: string): string {
+  const block = rawBlock.split('<deliverables_dir>').join(deliverablesDir);
+  expect(block).not.toContain('<');
+  const stdout = execFileSync('bash', ['-c', `${block}\nprintf %s "$OUT"`], {
+    cwd: ws,
+    env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined } as NodeJS.ProcessEnv,
+    encoding: 'utf-8',
+  });
+  return stdout.trim();
+}
+
 /**
  * The agent stand-in.
  *
@@ -310,16 +335,17 @@ function deliverablesDirFromDirective(directive: string): string {
 function modelRun(bar: string | null): Agent {
   return async (directive, ws) => {
     const dir = deliverablesDirFromDirective(directive);
-    const block = stagingDirBlock().split('<deliverables_dir>').join(dir);
-    expect(block).not.toContain('<');
-    execFileSync('bash', ['-c', block], {
-      cwd: ws,
-      env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined } as NodeJS.ProcessEnv,
-      stdio: 'pipe',
-    });
+    // Run the shipped block and ask IT where it pinned the output, then write
+    // there. Writing to `dir` instead would make the block's CONTENT unasserted:
+    // a mutation run proved exactly that - pointing the shipped block at a decoy
+    // directory left all 17 tests green, because the stand-in was writing where
+    // the TEST had decided rather than where the BLOCK said. The model in
+    // production follows the block, so the test must too.
+    const pinned = runShippedBlockAndReportPinnedDir(stagingDirBlock(), dir, ws);
+    expect(pinned, 'the shipped block must pin the directory the directive names').toBe(dir);
     if (bar === null) return;
     writeFileSync(
-      pathMod.join(dir, 'morning-brief.html'),
+      pathMod.join(pinned, 'morning-brief.html'),
       `<!doctype html><html><body><h1>Morning brief   bar ${bar}</h1>` +
         '<table><tr><td>SPY</td><td>512.3</td></tr></table></body></html>',
       'utf-8'

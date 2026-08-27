@@ -145,7 +145,7 @@ vi.mock('electron', () => ({
 }));
 
 import { execFileSync } from 'child_process';
-import {readFileSync, writeFileSync} from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import fsp from 'fs/promises';
 import os from 'os';
 import pathMod from 'path';
@@ -315,6 +315,27 @@ function deliverablesDirFromDirective(directive: string): string {
   return m[1];
 }
 
+
+/**
+ * Execute the shipped block with its placeholder substituted, then have the
+ * shell report the directory the block actually pinned in `$OUT`.
+ *
+ * Capturing `$OUT` is what ties this test to the body's real CONTENT. Without
+ * it the block can be replaced by anything - including a decoy path - and every
+ * assertion below still passes, because they would only look where the TEST
+ * decided the output goes. A mutation run proved exactly that failure.
+ */
+function runShippedBlockAndReportPinnedDir(rawBlock: string, deliverablesDir: string, ws: string): string {
+  const block = rawBlock.split('<deliverables_dir>').join(deliverablesDir);
+  expect(block).not.toContain('<');
+  const stdout = execFileSync('bash', ['-c', `${block}\nprintf %s "$OUT"`], {
+    cwd: ws,
+    env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined } as NodeJS.ProcessEnv,
+    encoding: 'utf-8',
+  });
+  return stdout.trim();
+}
+
 describe('a scheduled run is told its deliverables directory in text it can actually read', () => {
   let documentsDir: string;
   let dataDir: string;
@@ -479,20 +500,20 @@ describe('a scheduled run is told its deliverables directory in text it can actu
     const h = makeHarness(workspace);
 
     let staging = '';
+    let decoy = '';
     await h.run(job, async (channels, ws) => {
       staging = deliverablesDirFromDirective(channels.directive);
-      const block = stagingDirBlock().split('<deliverables_dir>').join(staging);
-      expect(block).not.toContain('<');
-      execFileSync('bash', ['-c', block], {
-        cwd: ws,
-        // The engine's Bash tool does NOT forward WAYLAND_OUTPUT_DIR, so the
-        // stand-in must not either. Passing it would test a channel the product
-        // does not have.
-        env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined } as NodeJS.ProcessEnv,
-        stdio: 'pipe',
-      });
-      writeFileSync(pathMod.join(staging, 'morning-brief.html'), '<html>Morning brief bar 2026-08-21</html>', 'utf-8');
+      // The block must PIN the directive's directory. Capturing $OUT from the
+      // block itself is the only thing that asserts its content: writing to
+      // `staging` directly left a decoy-path mutation completely green.
+      const pinned = runShippedBlockAndReportPinnedDir(stagingDirBlock(), staging, ws);
+      expect(pinned, 'the shipped block pinned a different directory than the directive named').toBe(staging);
+      // Restores the decoy guard that left with morningReportOutputResolution:
+      // a sibling the block must never create or write into.
+      decoy = pathMod.join(pathMod.dirname(staging), 'DECOY');
+      writeFileSync(pathMod.join(pinned, 'morning-brief.html'), '<html>Morning brief bar 2026-08-21</html>', 'utf-8');
     });
+    expect(existsSync(decoy), 'the shipped block must not create a sibling directory').toBe(false);
 
     const runs = await listRuns(pathMod.join(workspace, 'artifacts', 'market'));
     expect(runs).toHaveLength(1);
