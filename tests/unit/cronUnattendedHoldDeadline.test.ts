@@ -203,9 +203,10 @@ describe('#1045 the scheduled-run executor supplies the deadline', () => {
     };
     const { executor } = makeHarness(live);
 
-    const failure = await executor
-      .executeJob(makeJob(Date.now() + 60 * 60_000), undefined, CONVERSATION_ID)
-      .then(() => null, (error: unknown) => String(error));
+    const failure = await executor.executeJob(makeJob(Date.now() + 60 * 60_000), undefined, CONVERSATION_ID).then(
+      () => null,
+      (error: unknown) => String(error)
+    );
 
     // The run may still fail further down for unrelated reasons; what must never
     // happen is failing BECAUSE the backend has no such method.

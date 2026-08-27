@@ -66,7 +66,13 @@ describe('runSynthesisSweep global-store exclusion', () => {
     mockGetProjects.mockReset().mockResolvedValue([
       // The global store is the most recently active root, exactly as it is on
       // a real machine - every chat in every project appends to it.
-      { path: globalStoreRoot, basename: path.basename(globalStoreRoot), count: 40, lastActive: 2_000, isGlobalStore: true },
+      {
+        path: globalStoreRoot,
+        basename: path.basename(globalStoreRoot),
+        count: 40,
+        lastActive: 2_000,
+        isGlobalStore: true,
+      },
       { path: projectRoot, basename: path.basename(projectRoot), count: 3, lastActive: 1_000 },
     ]);
   });
@@ -87,7 +93,13 @@ describe('runSynthesisSweep global-store exclusion', () => {
 
   it('skips the sweep when the global store is the only indexed root', async () => {
     mockGetProjects.mockResolvedValue([
-      { path: globalStoreRoot, basename: path.basename(globalStoreRoot), count: 40, lastActive: 2_000, isGlobalStore: true },
+      {
+        path: globalStoreRoot,
+        basename: path.basename(globalStoreRoot),
+        count: 40,
+        lastActive: 2_000,
+        isGlobalStore: true,
+      },
     ]);
 
     await expect(runSynthesisSweep()).resolves.toBe(0);

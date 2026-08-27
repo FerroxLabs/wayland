@@ -985,7 +985,7 @@ export class TeamSessionService {
       const extra = conversation?.extra as Record<string, unknown> | undefined;
       return typeof extra?.projectId === 'string' && extra.projectId.length > 0 ? extra.projectId : undefined;
     } catch (error) {
-      console.warn('[TeamSessionService] #999 could not read the leader conversation\'s project:', error);
+      console.warn("[TeamSessionService] #999 could not read the leader conversation's project:", error);
       return undefined;
     }
   }

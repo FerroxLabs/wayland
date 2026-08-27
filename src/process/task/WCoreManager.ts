@@ -721,7 +721,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       this.replayableGrantRoots = await loadReplayableGrantRoots(this.workspace);
     } catch (error) {
       this.replayableGrantRoots = [];
-      mainWarn('[WCoreManager]', 'could not load this workspace\'s remembered folders', error);
+      mainWarn('[WCoreManager]', "could not load this workspace's remembered folders", error);
     }
   }
 

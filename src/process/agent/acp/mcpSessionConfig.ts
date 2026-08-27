@@ -266,32 +266,34 @@ export function buildWCoreUserStdioMcpServers(
   if (!Array.isArray(mcpServers) || mcpServers.length === 0) {
     return [];
   }
-  return mcpServers
-    .filter(shouldInjectSessionMcpServer)
-    .filter((server) => server.builtin !== true)
-    .filter((server) => isServerActiveForSession(server, activeServerIds))
-    // #998: "Disable all" withholds the connector - see `contributesTools`.
-    .filter(contributesTools)
-    .filter((server) => server.transport.type === 'stdio')
-    .map((server): AcpSessionMcpServerStdio => {
-      const transport = server.transport as Extract<IMcpServer['transport'], { type: 'stdio' }>;
-      // #827: resolve `npx`→bundled Bun so the engine spawns a real command.
-      const resolved = resolveMcpStdioSpawn(transport.command, transport.args ?? []);
-      // #998: same interposition as the ACP path - Core's `add_mcp_server`
-      // carries no per-tool field, so a strict subset reaches the engine only by
-      // the engine talking to our shim instead of to the server.
-      const spawn = hasExplicitToolSelection(server)
-        ? wrapSpawnWithToolFilter({ ...resolved, env: {} }, server.allowedTools ?? [])
-        : { ...resolved, env: {} as Record<string, string> };
-      return {
-        type: 'stdio',
-        name: sanitizeMcpServerName(server.name),
-        command: spawn.command,
-        args: spawn.args,
-        env: toNameValueEntries(mergeMcpSpawnEnv(transport.env, spawn.env)) ?? [],
-      };
-    })
-    .filter((server) => !excludeNames?.has(server.name));
+  return (
+    mcpServers
+      .filter(shouldInjectSessionMcpServer)
+      .filter((server) => server.builtin !== true)
+      .filter((server) => isServerActiveForSession(server, activeServerIds))
+      // #998: "Disable all" withholds the connector - see `contributesTools`.
+      .filter(contributesTools)
+      .filter((server) => server.transport.type === 'stdio')
+      .map((server): AcpSessionMcpServerStdio => {
+        const transport = server.transport as Extract<IMcpServer['transport'], { type: 'stdio' }>;
+        // #827: resolve `npx`→bundled Bun so the engine spawns a real command.
+        const resolved = resolveMcpStdioSpawn(transport.command, transport.args ?? []);
+        // #998: same interposition as the ACP path - Core's `add_mcp_server`
+        // carries no per-tool field, so a strict subset reaches the engine only by
+        // the engine talking to our shim instead of to the server.
+        const spawn = hasExplicitToolSelection(server)
+          ? wrapSpawnWithToolFilter({ ...resolved, env: {} }, server.allowedTools ?? [])
+          : { ...resolved, env: {} as Record<string, string> };
+        return {
+          type: 'stdio',
+          name: sanitizeMcpServerName(server.name),
+          command: spawn.command,
+          args: spawn.args,
+          env: toNameValueEntries(mergeMcpSpawnEnv(transport.env, spawn.env)) ?? [],
+        };
+      })
+      .filter((server) => !excludeNames?.has(server.name))
+  );
 }
 
 /**
@@ -309,13 +311,15 @@ export function buildWCoreSessionMcpServers(
   activeServerIds?: readonly string[]
 ): IMcpServer[] {
   if (!Array.isArray(mcpServers)) return [];
-  return mcpServers
-    .filter(shouldInjectSessionMcpServer)
-    .filter((server) => server.builtin !== true)
-    .filter((server) => isServerActiveForSession(server, activeServerIds))
-    // #998: "Disable all" withholds the connector - see `contributesTools`.
-    .filter(contributesTools)
-    .map((server) => ({ ...server, name: sanitizeMcpServerName(server.name) }));
+  return (
+    mcpServers
+      .filter(shouldInjectSessionMcpServer)
+      .filter((server) => server.builtin !== true)
+      .filter((server) => isServerActiveForSession(server, activeServerIds))
+      // #998: "Disable all" withholds the connector - see `contributesTools`.
+      .filter(contributesTools)
+      .map((server) => ({ ...server, name: sanitizeMcpServerName(server.name) }))
+  );
 }
 
 /** Config shape passed from TeamSessionService to AgentManagers */

@@ -113,11 +113,9 @@ function mcpSourceCandidates(pkgName, env = process.env) {
  * compiler and exercise every branch on shards where swiftc does not exist.
  */
 function compileEventKitBridge({ source, output }) {
-  const result = spawnSync(
-    'swiftc',
-    [source, '-o', output, '-framework', 'EventKit', '-framework', 'Foundation'],
-    { encoding: 'utf-8' }
-  );
+  const result = spawnSync('swiftc', [source, '-o', output, '-framework', 'EventKit', '-framework', 'Foundation'], {
+    encoding: 'utf-8',
+  });
   if (result.error) return { status: 1, stderr: String(result.error.message) };
   return { status: result.status, stderr: result.stderr || '' };
 }

@@ -617,7 +617,8 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
       htmlUrl: 'https://example.invalid/v0.14.0',
       updateAvailable: false,
       incompatible: true,
-      error: 'Wayland Core v0.14.0 is not compatible with this app version: it speaks contract 1.17 and this app speaks 1.16. Update Wayland itself to move to this engine.',
+      error:
+        'Wayland Core v0.14.0 is not compatible with this app version: it speaks contract 1.17 and this app speaks 1.16. Update Wayland itself to move to this engine.',
     });
 
     render(<WCoreConfig />);

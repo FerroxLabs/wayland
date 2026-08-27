@@ -174,7 +174,8 @@ function config(opts: { modelConfig?: unknown; geminiDefault?: unknown }) {
 
 const geminiDefault = () => makeService().resolveConversationModel({ backend: 'gemini', isPreset: false });
 
-const bridgeOf = (m: TProviderWithModel): unknown => (m as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
+const bridgeOf = (m: TProviderWithModel): unknown =>
+  (m as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
 
 afterEach(async () => {
   await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
@@ -222,7 +223,14 @@ describe('TeamSessionService gemini default model is constrained by the backend 
 
   it('does not let a switched-off model reach the last-resort fallback', async () => {
     config({
-      modelConfig: [makeProvider({ id: 'moonshot', platform: 'openai-compatible', model: ['kimi-k2.7-code'], modelEnabled: { 'kimi-k2.7-code': false } })],
+      modelConfig: [
+        makeProvider({
+          id: 'moonshot',
+          platform: 'openai-compatible',
+          model: ['kimi-k2.7-code'],
+          modelEnabled: { 'kimi-k2.7-code': false },
+        }),
+      ],
       geminiDefault: undefined,
     });
     const model = await geminiDefault();

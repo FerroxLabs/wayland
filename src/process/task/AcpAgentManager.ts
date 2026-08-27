@@ -1023,10 +1023,7 @@ ${collectedResponses.join('\n')}`;
     return true;
   }
 
-  private async buildConnectedProviderEnv(
-    backend?: string,
-    selectedModelId?: string
-  ): Promise<Record<string, string>> {
+  private async buildConnectedProviderEnv(backend?: string, selectedModelId?: string): Promise<Record<string, string>> {
     const env: Record<string, string> = {};
     this.injectedProviderKeys = [];
     const nanoDirected = backend === 'wnano' ? wnanoDirectedProviderId(selectedModelId) : undefined;

@@ -85,7 +85,10 @@ const assetSha = crypto.createHash('sha256').update(fs.readFileSync(assetPath)).
 // one - a false alarm that looks exactly like a real supply-chain refusal.
 sh('gh', ['release', 'download', tag, '-R', REPO, '-p', 'wayland-core-checksums.txt', '-D', work, '--clobber']);
 const checksums = fs.readFileSync(path.join(work, 'wayland-core-checksums.txt'), 'utf8');
-const expected = checksums.split('\n').map((l) => l.trim().split(/\s+/)).find((p) => p[1]?.replace(/^\*/, '') === asset)?.[0];
+const expected = checksums
+  .split('\n')
+  .map((l) => l.trim().split(/\s+/))
+  .find((p) => p[1]?.replace(/^\*/, '') === asset)?.[0];
 if (!expected) fail(`the release publishes no checksum for ${asset}`);
 if (expected !== assetSha) fail(`${asset} failed its checksum: expected ${expected}, got ${assetSha}`);
 say(`  ${asset} checksum OK (${assetSha.slice(0, 16)}…)`);
@@ -128,8 +131,8 @@ const findContract = (o) => {
 };
 const rc = findContract(ready);
 if (!rc) fail('the ready fixture carries no contract block');
-const mismatched = ['minor', 'generator', 'fixture_digest', 'schema_digest', 'source_inputs_digest'].filter(
-  (k) => (k === 'minor' ? rc.minor !== manifest.contract.minor : rc[k] !== manifest[k])
+const mismatched = ['minor', 'generator', 'fixture_digest', 'schema_digest', 'source_inputs_digest'].filter((k) =>
+  k === 'minor' ? rc.minor !== manifest.contract.minor : rc[k] !== manifest[k]
 );
 if (mismatched.length) fail(`ready fixture disagrees with manifest on ${mismatched.join(', ')} - refusing to pin`);
 if (JSON.stringify(rc.capabilities) !== JSON.stringify(manifest.capabilities)) {
@@ -171,8 +174,14 @@ const walk = (dir, rel = '') => {
     const r = path.join(rel, e.name);
     if (e.isDirectory()) walk(path.join(dir, e.name), r);
     else {
-      const a = crypto.createHash('sha256').update(fs.readFileSync(path.join(src, r))).digest('hex');
-      const b = crypto.createHash('sha256').update(fs.readFileSync(path.join(CORPUS, r))).digest('hex');
+      const a = crypto
+        .createHash('sha256')
+        .update(fs.readFileSync(path.join(src, r)))
+        .digest('hex');
+      const b = crypto
+        .createHash('sha256')
+        .update(fs.readFileSync(path.join(CORPUS, r)))
+        .digest('hex');
       if (a !== b) {
         mismatches += 1;
         console.error(`  MISMATCH ${r}`);
@@ -187,18 +196,24 @@ say(`  corpus imported byte-for-byte`);
 // Apply 4b: the pin constant + producer commit.
 let pinSrc = fs.readFileSync(PIN_FILE, 'utf8');
 const shortSha = policy.sourceDigest.slice(0, 8);
-pinSrc = pinSrc.replace(/export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '[0-9a-f]+' as const;/,
-  `export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '${shortSha}' as const;`);
-const caps = Object.entries(manifest.capabilities).sort(([a], [b]) => (a < b ? -1 : 1))
-  .map(([k, v]) => `    ${k}: '${v}',\n`).join('');
+pinSrc = pinSrc.replace(
+  /export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '[0-9a-f]+' as const;/,
+  `export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '${shortSha}' as const;`
+);
+const caps = Object.entries(manifest.capabilities)
+  .sort(([a], [b]) => (a < b ? -1 : 1))
+  .map(([k, v]) => `    ${k}: '${v}',\n`)
+  .join('');
 const start = pinSrc.indexOf('export const DESKTOP_CORE_V1_PIN = {');
 const end = pinSrc.indexOf('} as const;', start) + '} as const;'.length;
-pinSrc = pinSrc.slice(0, start) +
+pinSrc =
+  pinSrc.slice(0, start) +
   `export const DESKTOP_CORE_V1_PIN = {\n` +
   `  name: '${manifest.contract.name}',\n  major: ${manifest.contract.major},\n  minor: ${manifest.contract.minor},\n` +
   `  generator: '${manifest.generator}',\n  fixtureDigest: '${manifest.fixture_digest}',\n` +
   `  schemaDigest: '${manifest.schema_digest}',\n  sourceInputsDigest: '${manifest.source_inputs_digest}',\n` +
-  `  capabilities: {\n${caps}  },\n} as const;` + pinSrc.slice(end);
+  `  capabilities: {\n${caps}  },\n} as const;` +
+  pinSrc.slice(end);
 fs.writeFileSync(PIN_FILE, pinSrc);
 say(`  DESKTOP_CORE_V1_PIN -> ${manifest.contract.minor}/${manifest.generator}, producer ${shortSha}`);
 

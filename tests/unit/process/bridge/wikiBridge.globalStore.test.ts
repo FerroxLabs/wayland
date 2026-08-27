@@ -103,7 +103,13 @@ describe('wikiBridge global-store exclusion', () => {
       lastUpdatedAt: 1,
     });
     mockGetProjects.mockReset().mockResolvedValue([
-      { path: globalStoreRoot, basename: path.basename(globalStoreRoot), count: 40, lastActive: 2_000, isGlobalStore: true },
+      {
+        path: globalStoreRoot,
+        basename: path.basename(globalStoreRoot),
+        count: 40,
+        lastActive: 2_000,
+        isGlobalStore: true,
+      },
       { path: projectRoot, basename: path.basename(projectRoot), count: 3, lastActive: 1_000 },
     ]);
 
@@ -132,7 +138,13 @@ describe('wikiBridge global-store exclusion', () => {
 
   it('fails closed when the global store is the only indexed root', async () => {
     mockGetProjects.mockResolvedValue([
-      { path: globalStoreRoot, basename: path.basename(globalStoreRoot), count: 40, lastActive: 2_000, isGlobalStore: true },
+      {
+        path: globalStoreRoot,
+        basename: path.basename(globalStoreRoot),
+        count: 40,
+        lastActive: 2_000,
+        isGlobalStore: true,
+      },
     ]);
 
     const result = (await providers.get('getState')!()) as { concepts: unknown[] };

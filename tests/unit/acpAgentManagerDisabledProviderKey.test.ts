@@ -192,9 +192,9 @@ async function buildEnv(manager: AcpAgentManager): Promise<Record<string, string
 
 /** What the manager recorded as injected - drives auth-failure invalidation. */
 function injectedIds(manager: AcpAgentManager): string[] {
-  return (
-    manager as unknown as { injectedProviderKeys: Array<{ providerId: string }> }
-  ).injectedProviderKeys.map((i) => i.providerId);
+  return (manager as unknown as { injectedProviderKeys: Array<{ providerId: string }> }).injectedProviderKeys.map(
+    (i) => i.providerId
+  );
 }
 
 describe('buildConnectedProviderEnv respects the provider off switch (#685)', () => {

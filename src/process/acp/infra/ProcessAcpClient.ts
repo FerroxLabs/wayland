@@ -691,7 +691,10 @@ export class ProcessAcpClient implements AcpClient {
 
     this.lastStdoutBytes = bytes;
     this.lastStdoutChangeAt = Date.now();
-    this.transportWatchdog = setInterval(() => this.checkTransportSilence(silenceMs), transportWatchdogTickMs(silenceMs));
+    this.transportWatchdog = setInterval(
+      () => this.checkTransportSilence(silenceMs),
+      transportWatchdogTickMs(silenceMs)
+    );
     this.transportWatchdog.unref?.();
   }
 

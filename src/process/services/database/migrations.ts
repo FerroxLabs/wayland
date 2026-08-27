@@ -2494,7 +2494,6 @@ const migration_v57: IMigration = {
   },
 };
 
-
 /**
  * All migrations in order
  */

@@ -45,16 +45,18 @@ export function withTeamRepoDoubleDefaults(repo: Partial<ITeamRepository>): ITea
   }
 
   if (!repo.updateAgentStatuses) {
-    self.updateAgentStatuses = vi.fn(async (id: string, statuses: Array<{ slotId: string; status: TeamAgent['status'] }>) => {
-      const current = await self.findById(id);
-      if (!current) return null;
-      const wanted = new Map(statuses.map((s) => [s.slotId, s.status]));
-      const agents = (current.agents ?? []).map((agent) => {
-        const status = wanted.get(agent.slotId);
-        return status === undefined ? agent : { ...agent, status };
-      });
-      return { ...current, agents, updatedAt: Date.now() } as TTeam;
-    });
+    self.updateAgentStatuses = vi.fn(
+      async (id: string, statuses: Array<{ slotId: string; status: TeamAgent['status'] }>) => {
+        const current = await self.findById(id);
+        if (!current) return null;
+        const wanted = new Map(statuses.map((s) => [s.slotId, s.status]));
+        const agents = (current.agents ?? []).map((agent) => {
+          const status = wanted.get(agent.slotId);
+          return status === undefined ? agent : { ...agent, status };
+        });
+        return { ...current, agents, updatedAt: Date.now() } as TTeam;
+      }
+    );
   }
 
   return self;

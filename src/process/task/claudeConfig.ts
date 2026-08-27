@@ -98,9 +98,7 @@ export async function materializeFluxClaudeConfigDir(
  * Never throws: a missing, unreadable or malformed settings.json means "nothing
  * was dropped", because nothing was configured that we could drop.
  */
-export async function readDroppedUserHookEvents(
-  realClaudeDir: string = join(homedir(), '.claude')
-): Promise<string[]> {
+export async function readDroppedUserHookEvents(realClaudeDir: string = join(homedir(), '.claude')): Promise<string[]> {
   try {
     const raw = await readFile(join(realClaudeDir, 'settings.json'), 'utf8');
     const parsed: unknown = JSON.parse(raw);

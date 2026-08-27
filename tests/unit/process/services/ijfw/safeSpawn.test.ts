@@ -192,16 +192,12 @@ describe('ijfw/safeSpawn', () => {
       __buildNpmCliCandidates('linux', { PATH: pathVar }, '/opt/Wayland/wayland');
 
     it('derives npm-cli.js from every Node dir on PATH (nvm, fnm, NodeSource, Linuxbrew)', () => {
-      const candidates = linuxCandidates(
-        `/usr/bin:${NVM_BIN}:${FNM_BIN}:/home/linuxbrew/.linuxbrew/bin`
-      );
+      const candidates = linuxCandidates(`/usr/bin:${NVM_BIN}:${FNM_BIN}:/home/linuxbrew/.linuxbrew/bin`);
       // NodeSource / any prefix-style install rooted at the PATH dir's parent.
       expect(candidates).toContain('/usr/lib/node_modules/npm/bin/npm-cli.js');
       expect(candidates).toContain(`${NVM_BIN.replace(/\/bin$/, '')}/lib/node_modules/npm/bin/npm-cli.js`);
       expect(candidates).toContain(`${FNM_BIN.replace(/\/bin$/, '')}/lib/node_modules/npm/bin/npm-cli.js`);
-      expect(candidates).toContain(
-        '/home/linuxbrew/.linuxbrew/lib/node_modules/npm/bin/npm-cli.js'
-      );
+      expect(candidates).toContain('/home/linuxbrew/.linuxbrew/lib/node_modules/npm/bin/npm-cli.js');
     });
 
     it("covers Debian/Ubuntu's apt layout, which is not under lib/node_modules", () => {
@@ -224,8 +220,11 @@ describe('ijfw/safeSpawn', () => {
     it('drops the dead libnode candidate (that directory exists nowhere in this repo)', () => {
       expect(linuxCandidates('/usr/bin').some((c) => c.includes('libnode'))).toBe(false);
       expect(
-        __buildNpmCliCandidates('darwin', { PATH: '/usr/bin' }, '/Applications/Wayland.app/Contents/MacOS/Wayland')
-          .some((c) => c.includes('libnode'))
+        __buildNpmCliCandidates(
+          'darwin',
+          { PATH: '/usr/bin' },
+          '/Applications/Wayland.app/Contents/MacOS/Wayland'
+        ).some((c) => c.includes('libnode'))
       ).toBe(false);
     });
 

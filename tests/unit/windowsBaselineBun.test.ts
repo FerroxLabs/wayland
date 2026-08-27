@@ -96,9 +96,10 @@ function stageWin32Runtime(bundleDir: string, variant: 'default' | 'baseline'): 
       source: {
         asset,
         url: `https://github.com/oven-sh/bun/releases/download/bun-v${BUN_VERSION}/${asset}`,
-        sha256: String(
-          (bundledBunShasums as Record<string, Record<string, string>>)[BUN_VERSION][asset]
-        ).replace(/^sha256:/, ''),
+        sha256: String((bundledBunShasums as Record<string, Record<string, string>>)[BUN_VERSION][asset]).replace(
+          /^sha256:/,
+          ''
+        ),
       },
       binary: { name: 'bun.exe', ...PE_BINARY },
       files: ['bun.exe'],

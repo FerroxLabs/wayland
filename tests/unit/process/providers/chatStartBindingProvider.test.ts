@@ -109,10 +109,13 @@ describe('chat-start binding names the provider the user picked (#1124)', () => 
   it('still carries forward the non-secret legacy fields the handle does not supply', () => {
     // `modelProtocols` (a new-api per-model protocol block) has no home on the
     // chat-start handle, so the legacy row remains its only carrier.
-    const binding = buildChatStartBinding(ollamaHandle as never, {
-      ...foreignLegacyRow,
-      modelProtocols: { 'llama3:latest': 'openai' },
-    } as never);
+    const binding = buildChatStartBinding(
+      ollamaHandle as never,
+      {
+        ...foreignLegacyRow,
+        modelProtocols: { 'llama3:latest': 'openai' },
+      } as never
+    );
 
     expect((binding as unknown as { modelProtocols?: Record<string, string> }).modelProtocols).toEqual({
       'llama3:latest': 'openai',
@@ -120,10 +123,13 @@ describe('chat-start binding names the provider the user picked (#1124)', () => 
   });
 
   it('never carries a credential from the legacy row into the binding', () => {
-    const binding = buildChatStartBinding(ollamaHandle as never, {
-      ...foreignLegacyRow,
-      apiKey: 'sk-someone-elses-key',
-    } as never);
+    const binding = buildChatStartBinding(
+      ollamaHandle as never,
+      {
+        ...foreignLegacyRow,
+        apiKey: 'sk-someone-elses-key',
+      } as never
+    );
 
     expect(binding.apiKey).toBe('');
     expect(binding.baseUrl).toBe(OLLAMA_LOCAL_URL);

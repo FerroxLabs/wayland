@@ -58,14 +58,22 @@ import { createConciergeDiagServer } from '@process/resources/builtinMcp/concier
 
 const CRON_ROWS = [
   { name: 'daily-digest', enabled: 1, next_run_at: null, last_run_at: 1_700_000_000_000, last_error: 'boom' },
-  { name: 'weekly-report', enabled: 1, next_run_at: 2_000_000_000_000, last_run_at: 1_700_000_000_000, last_error: null },
+  {
+    name: 'weekly-report',
+    enabled: 1,
+    next_run_at: 2_000_000_000_000,
+    last_run_at: 1_700_000_000_000,
+    last_error: null,
+  },
 ];
 const PROVIDER_ROWS = [
   { provider_id: 'anthropic', state: 'error', error: '401 unauthorized' },
   { provider_id: 'openai', state: 'connected', error: null },
 ];
 const PROJECT_ROWS = [{ name: 'Sales deck', workspace: '/Users/someone/work/sales' }];
-const CONVERSATION_ROWS = [{ name: 'Throwaway chat', extra: JSON.stringify({ workspace: null, customWorkspace: false }) }];
+const CONVERSATION_ROWS = [
+  { name: 'Throwaway chat', extra: JSON.stringify({ workspace: null, customWorkspace: false }) },
+];
 
 /** Every `new Database(...)` this suite saw, so open options can be asserted. */
 let opened: Array<{ dbPath: string; options: unknown }> = [];

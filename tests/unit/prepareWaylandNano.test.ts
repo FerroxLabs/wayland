@@ -191,9 +191,10 @@ describe('strict bundled wayland-nano provenance', () => {
    */
   it('pins a tag that carries complete provenance for every supported asset', () => {
     const tag = prepareWaylandNano.DEFAULT_WNANO_VERSION;
-    const shasums = JSON.parse(
-      fs.readFileSync(path.resolve('scripts/bundled-wnano-shasums.json'), 'utf8')
-    ) as Record<string, Record<string, { archiveSha256?: string; binarySha256?: string }>>;
+    const shasums = JSON.parse(fs.readFileSync(path.resolve('scripts/bundled-wnano-shasums.json'), 'utf8')) as Record<
+      string,
+      Record<string, { archiveSha256?: string; binarySha256?: string }>
+    >;
 
     expect(Object.keys(shasums), `${tag} has no block in bundled-wnano-shasums.json`).toContain(tag);
 
@@ -216,9 +217,7 @@ describe('strict bundled wayland-nano provenance', () => {
       expect(pinned.binarySha256, `${asset} binary pin`).toMatch(/^[0-9a-f]{64}$/);
       // The archive and the executable inside it are different bytes. A copied
       // digest means someone filled the manifest by hand from one value.
-      expect(pinned.binarySha256, `${asset} archive and binary pins are identical`).not.toBe(
-        pinned.archiveSha256
-      );
+      expect(pinned.binarySha256, `${asset} archive and binary pins are identical`).not.toBe(pinned.archiveSha256);
     }
   });
 

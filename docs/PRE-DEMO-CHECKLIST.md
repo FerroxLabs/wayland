@@ -24,7 +24,7 @@ forever. `WCoreManager.ts:918` routes the composed prompt through the same
 `presetRules` field, so the floor rides the same gate.
 
 **Control (must actually be run):** on the upgraded build, open a chat that
-PREDATES the upgrade and ask *"Do you remember things between our chats?"*. Then
+PREDATES the upgrade and ask _"Do you remember things between our chats?"_. Then
 ask the identical question in a NEW chat. The resumed chat must reproduce the OLD
 behaviour and the new chat the fixed behaviour. **If both behave the same, either
 the fix did not land or the resume gate is not doing what the code says** —

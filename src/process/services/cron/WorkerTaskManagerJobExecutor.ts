@@ -473,9 +473,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // has to be pushed onto the live agent rather than only handed to a spawn.
     // Optional by design: a backend without the method has no PermissionResolver
     // hold to bound.
-    (
-      task as { setUnattendedHoldDeadlineMs?: (ms: number | undefined) => void }
-    ).setUnattendedHoldDeadlineMs?.(unattendedHoldDeadlineMs);
+    (task as { setUnattendedHoldDeadlineMs?: (ms: number | undefined) => void }).setUnattendedHoldDeadlineMs?.(
+      unattendedHoldDeadlineMs
+    );
 
     // Mark busy only after task acquisition succeeds. This ensures that if
     // getOrBuildTask throws (conversation deleted), setProcessing(true) is never

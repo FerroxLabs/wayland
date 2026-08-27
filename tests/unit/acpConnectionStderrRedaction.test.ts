@@ -56,9 +56,11 @@ type ConsoleCapture = { all(): string; at(level: Level): string; restore(): void
 
 function captureConsole(): ConsoleCapture {
   const buckets: Record<Level, string[]> = { debug: [], info: [], warn: [], error: [] };
-  const record = (level: Level) => (...args: unknown[]) => {
-    buckets[level].push(args.map((arg) => (typeof arg === 'string' ? arg : String(arg))).join(' '));
-  };
+  const record =
+    (level: Level) =>
+    (...args: unknown[]) => {
+      buckets[level].push(args.map((arg) => (typeof arg === 'string' ? arg : String(arg))).join(' '));
+    };
   const spies = [
     vi.spyOn(console, 'debug').mockImplementation(record('debug')),
     vi.spyOn(console, 'info').mockImplementation(record('info')),

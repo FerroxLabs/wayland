@@ -31,9 +31,7 @@ import type { DoctorCheckOutcome } from '../types';
  * rather than imported so this check stays free of the service module (and of
  * Electron's `safeStorage`, which it pulls in).
  */
-export type ConstitutionCapability =
-  | { supported: true }
-  | { supported: false; code: string; reason: string };
+export type ConstitutionCapability = { supported: true } | { supported: false; code: string; reason: string };
 
 export type ConstitutionCapabilityInfo = {
   /** `process.platform` of the running app. */

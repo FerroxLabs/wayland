@@ -521,7 +521,10 @@ function loadBunSqliteDatabase(): BunSqliteDatabaseCtor | null {
 }
 
 /** Open a SQLite DB read-only, or null when missing/unopenable. */
-function openReadonlyDb(dbPath: string | undefined, bunDatabase: BunSqliteDatabaseCtor | null): ReadonlyDbHandle | null {
+function openReadonlyDb(
+  dbPath: string | undefined,
+  bunDatabase: BunSqliteDatabaseCtor | null
+): ReadonlyDbHandle | null {
   // Unset / absent path is the legitimate "no DB here" case — stay silent.
   if (!dbPath || !fs.existsSync(dbPath)) return null;
   if (bunDatabase) {
@@ -827,7 +830,9 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
       };
     }
     try {
-      const rows = db.all('SELECT name, enabled, next_run_at, last_run_at, last_error FROM cron_jobs ORDER BY name ASC');
+      const rows = db.all(
+        'SELECT name, enabled, next_run_at, last_run_at, last_error FROM cron_jobs ORDER BY name ASC'
+      );
       const items: ScheduledTaskHealth[] = rows.map((r) => {
         const enabled = Number(r.enabled) === 1;
         const nextRunAtMs = asNullableNumber(r.next_run_at);

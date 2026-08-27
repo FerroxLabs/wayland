@@ -122,9 +122,7 @@ describe('createPemBlockHold', () => {
 
   it('keeps the text BEFORE the header on the same line, and drops the anchor', () => {
     const out = drive(['2026-08-25T10:00:01.000000Z ERROR key was: -----BEGIN PRIVATE KEY-----', BODY]);
-    expect(out).toEqual([
-      { text: `2026-08-25T10:00:01.000000Z ERROR key was: ${PEM_HELD_MARKER}`, level: 'error' },
-    ]);
+    expect(out).toEqual([{ text: `2026-08-25T10:00:01.000000Z ERROR key was: ${PEM_HELD_MARKER}`, level: 'error' }]);
     // The marker carries no `-----` of its own: a downstream scrub must not find
     // an anchor here, or it would mask the diagnostic prefix that was kept.
     expect(PEM_HELD_MARKER).not.toContain('-----');

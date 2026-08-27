@@ -35,10 +35,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { createToolFilter } from '../../../../src/process/resources/builtinMcp/toolFilterShim';
-import {
-  createLineReader,
-  parseShimArgv,
-} from '../../../../src/process/resources/builtinMcp/toolFilterShimEntry';
+import { createLineReader, parseShimArgv } from '../../../../src/process/resources/builtinMcp/toolFilterShimEntry';
 
 type Msg = Record<string, unknown>;
 

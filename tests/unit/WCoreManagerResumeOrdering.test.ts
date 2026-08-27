@@ -201,20 +201,19 @@ vi.mock('@process/agent/wcore', () => ({
   WCoreAgent: vi.fn().mockImplementation((...args: unknown[]) => {
     WCoreAgentCtor(...(args as []));
     return {
-    start: vi.fn().mockResolvedValue(undefined),
-    stop: vi.fn(),
-    kill: vi.fn(),
-    send: vi.fn().mockResolvedValue(undefined),
-    approveTool: vi.fn(),
-    denyTool: vi.fn(),
-    injectConversationHistory: vi.fn().mockResolvedValue(undefined),
+      start: vi.fn().mockResolvedValue(undefined),
+      stop: vi.fn(),
+      kill: vi.fn(),
+      send: vi.fn().mockResolvedValue(undefined),
+      approveTool: vi.fn(),
+      denyTool: vi.fn(),
+      injectConversationHistory: vi.fn().mockResolvedValue(undefined),
       get bootstrap() {
         return Promise.resolve();
       },
     };
   }),
 }));
-
 
 // ── Import under test ──────────────────────────────────────────────
 
@@ -254,5 +253,4 @@ describe('WCoreManager.start - resume decision ordering', () => {
     // The whole defect in one assertion.
     expect(readAt).toBeLessThan(grantsAt);
   });
-
 });

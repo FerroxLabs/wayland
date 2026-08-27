@@ -128,7 +128,9 @@ export function createToolFilter(options: ToolFilterOptions): ToolFilter {
       return;
     }
 
-    const tools = result.tools.filter((tool) => isRecord(tool) && typeof tool.name === 'string' && allowed.has(tool.name));
+    const tools = result.tools.filter(
+      (tool) => isRecord(tool) && typeof tool.name === 'string' && allowed.has(tool.name)
+    );
     options.sendToEngine({ ...message, result: { ...result, tools } });
   };
 

@@ -145,9 +145,7 @@ describe('#982 a recorded folder grant answers the boundary card it already answ
     const resolveContext = vi.fn(async () => {
       throw new Error('no context');
     });
-    expect(
-      await resolveReplayableGrantRoot(WORKSPACE, GRANTED, deps({ resolveContext } as never))
-    ).toBeNull();
+    expect(await resolveReplayableGrantRoot(WORKSPACE, GRANTED, deps({ resolveContext } as never))).toBeNull();
   });
 
   it('replays nothing for a root that is not a usable path at all', async () => {

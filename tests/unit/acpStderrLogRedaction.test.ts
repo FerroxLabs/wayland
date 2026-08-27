@@ -137,9 +137,11 @@ type ConsoleCapture = { all(): string; at(level: AcpStderrLevel): string; restor
 
 function captureConsole(): ConsoleCapture {
   const buckets: Record<AcpStderrLevel, string[]> = { debug: [], info: [], warn: [], error: [] };
-  const record = (level: AcpStderrLevel) => (...args: unknown[]) => {
-    buckets[level].push(args.map((arg) => (typeof arg === 'string' ? arg : String(arg))).join(' '));
-  };
+  const record =
+    (level: AcpStderrLevel) =>
+    (...args: unknown[]) => {
+      buckets[level].push(args.map((arg) => (typeof arg === 'string' ? arg : String(arg))).join(' '));
+    };
   const spies = [
     vi.spyOn(console, 'debug').mockImplementation(record('debug')),
     vi.spyOn(console, 'info').mockImplementation(record('info')),
@@ -193,7 +195,10 @@ describe('ProcessAcpClient stderr logging', () => {
     const capture = captureConsole();
     try {
       const client = probeClient(
-        ['-e', 'process.stderr.write(process.env.ACP_A);setTimeout(() => process.stderr.write(process.env.ACP_B), 120);'],
+        [
+          '-e',
+          'process.stderr.write(process.env.ACP_A);setTimeout(() => process.stderr.write(process.env.ACP_B), 120);',
+        ],
         { ACP_A: `api_key = ${HEX.slice(0, 12)}`, ACP_B: `${HEX.slice(12)}\n` }
       );
       await client.start().catch(() => undefined);
@@ -213,7 +218,9 @@ describe('ProcessAcpClient stderr logging', () => {
   });
 
   it('still makes a real failure stand out (#1041)', async () => {
-    const { console: captured } = await driveChildStderr('Listening on stdio\nError: connect ECONNREFUSED 127.0.0.1:9\n');
+    const { console: captured } = await driveChildStderr(
+      'Listening on stdio\nError: connect ECONNREFUSED 127.0.0.1:9\n'
+    );
     expect(captured.at('error')).toContain('ECONNREFUSED');
     expect(captured.at('info')).not.toContain('ECONNREFUSED');
   });

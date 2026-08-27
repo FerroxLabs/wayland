@@ -1102,9 +1102,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     child.emit('exit', 1);
     await result;
 
-    const logged = Object.values(levels).flatMap((spy) =>
-      spy.mock.calls.map((call) => call.map(String).join(' '))
-    );
+    const logged = Object.values(levels).flatMap((spy) => spy.mock.calls.map((call) => call.map(String).join(' ')));
     const all = logged.join('\n');
     // KNOWN POSITIVE, in the same block: the reader is running and the lines on
     // either side of the block still reach the log. Without this the assertion

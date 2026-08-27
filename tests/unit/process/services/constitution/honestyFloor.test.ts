@@ -93,7 +93,9 @@ describe('Concierge no longer promises cross-chat memory', () => {
   });
 
   it('tells the assistant not to claim a save it did not perform', () => {
-    expect(read('concierge.md')).toMatch(/Never tell the user you\s+saved, stored, or will remember something unless a tool call in THIS turn/i);
+    expect(read('concierge.md')).toMatch(
+      /Never tell the user you\s+saved, stored, or will remember something unless a tool call in THIS turn/i
+    );
   });
 
   it('asserts NO hard-coded on/off state for engine memory', () => {
