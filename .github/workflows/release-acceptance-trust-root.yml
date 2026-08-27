@@ -207,7 +207,12 @@ jobs:
           [[ "$CANDIDATE_TREE" =~ ^[0-9a-f]{40,64}$ ]] || exit 1
           [[ "$ARTIFACT_RUN_ID" =~ ^[0-9]+$ ]] || exit 1
           [[ "$GATE_ARTIFACT_ID" =~ ^[0-9]+$ ]] || exit 1
-          [[ "$GATE_ARTIFACT_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || exit 1
+          # actions/upload-artifact emits `artifact-digest` as bare SHA-256 hex, while
+          # the REST artifacts API returns the same digest as "sha256:<hex>". This
+          # asserted the API's form against the producer's value, so it could never
+          # match and this job has never once run past this line. Assert each surface
+          # in its own documented form and compare the hex, below.
+          [[ "$GATE_ARTIFACT_DIGEST" =~ ^[0-9a-f]{64}$ ]] || exit 1
 
       - name: Checkout pinned trust-root authority code
         uses: actions/checkout@v6
@@ -260,7 +265,13 @@ jobs:
           [[ "$(jq -r '.expired' <<<"$artifact")" == "false" ]] || exit 1
           [[ "$(jq -r '.workflow_run.id | tostring' <<<"$artifact")" == "$GITHUB_RUN_ID" ]] || exit 1
           [[ "$(jq -r '.workflow_run.head_sha' <<<"$artifact")" == "$TRUST_ROOT_SHA" ]] || exit 1
-          [[ "$(jq -r '.digest' <<<"$artifact")" == "$GATE_ARTIFACT_DIGEST" ]] || exit 1
+          # The API returns "sha256:<hex>"; GATE_ARTIFACT_DIGEST is the producer's bare
+          # hex. Require the API's prefixed form explicitly - so a future change of
+          # digest algorithm fails closed rather than silently comparing something
+          # else - then compare the exact 64 hex characters.
+          api_digest="$(jq -r '.digest' <<<"$artifact")"
+          [[ "$api_digest" =~ ^sha256:[0-9a-f]{64}$ ]] || exit 1
+          [[ "${api_digest#sha256:}" == "$GATE_ARTIFACT_DIGEST" ]] || exit 1
 
       - name: Download exact same-run candidate gate outputs
         uses: actions/download-artifact@v7
@@ -342,6 +353,11 @@ jobs:
         env:
           RAW_ROOT: ${{ steps.raw.outputs.path }}
           GH_TOKEN: ${{ github.token }}
+          # writeCapabilitySeal is called without `verifyAttestedFile` and without
+          # `candidateClaim`, so verifyCandidateCapabilitySeal resolves the trust root
+          # from this env var and throws without it. The two later steps that run the
+          # same code already set it; this step was missed.
+          WAYLAND_RELEASE_TRUST_ROOT_SHA: ${{ env.TRUST_ROOT_SHA }}
         run: |
           node <<'NODE'
           const path = require('node:path');

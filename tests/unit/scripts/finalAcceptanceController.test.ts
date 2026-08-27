@@ -508,3 +508,66 @@ describe('M8-A final acceptance controller', () => {
     expect(workflow).not.toMatch(/gh release edit|softprops\/action-gh-release|kubectl|fly deploy/i);
   });
 });
+
+// Regression cover for four defects that made the trust-root acceptance gate
+// impossible to pass. Every one of them lived in code that had never executed, so
+// the existing suite - which injects its own fixtures where production reads real
+// files - could not see any of them. These tests read the real files instead.
+describe('release acceptance gate invariants', () => {
+  const policy = JSON.parse(readFileSync('scripts/supply-chain/publisher-attestations.json', 'utf8')) as {
+    policies: Array<{ status: string; repository: string; releaseTag: string }>;
+  };
+  const CORE = 'FerroxLabs/wayland-core';
+  const trustRoot = readFileSync('.github/workflows/release-acceptance-trust-root.yml', 'utf8');
+
+  // The ledger also carries wayland-nano, which legitimately has more than one
+  // active release. An unscoped count made the controller fail every run.
+  it('has exactly one active Core publisher policy, ignoring other product lines', () => {
+    const activeCore = policy.policies.filter((e) => e.status === 'active' && e.repository === CORE);
+    expect(activeCore).toHaveLength(1);
+    expect(policy.policies.some((e) => e.status === 'active' && e.repository !== CORE)).toBe(true);
+  });
+
+  // publisher-attestations.json is the fifth coupled edit of an engine bump. If a
+  // bump adds a policy without superseding the previous one, the gate breaks.
+  it('pins the active Core policy to the bundled engine version', () => {
+    const activeCore = policy.policies.find((e) => e.status === 'active' && e.repository === CORE);
+    const { DEFAULT_WCORE_VERSION } = require('../../../scripts/prepareWaylandCore') as {
+      DEFAULT_WCORE_VERSION: string;
+    };
+    expect(activeCore?.releaseTag).toBe(DEFAULT_WCORE_VERSION);
+  });
+
+  // actions/upload-artifact emits bare hex; the REST API returns "sha256:<hex>".
+  // Asserting either surface in the other's form can never match.
+  it('asserts each digest surface in its own documented form', () => {
+    expect(trustRoot).toContain('[[ "$GATE_ARTIFACT_DIGEST" =~ ^[0-9a-f]{64}$ ]]');
+    expect(trustRoot).toContain('[[ "$api_digest" =~ ^sha256:[0-9a-f]{64}$ ]]');
+    expect(trustRoot).toContain('[[ "${api_digest#sha256:}" == "$GATE_ARTIFACT_DIGEST" ]]');
+    expect(trustRoot).not.toContain('[[ "$GATE_ARTIFACT_DIGEST" =~ ^sha256:');
+  });
+
+  // Every step invoking the capability-seal code must supply the trust root, or it
+  // throws before doing any work.
+  it('gives every capability-seal and acceptance step the trust root', () => {
+    const steps = trustRoot
+      .split(/^      - name: /m)
+      .filter((s) =>
+        /verifyCandidateCapabilitySeal|produceProtectedAcceptanceEvidence|verifyFinalAcceptance\.js/.test(s)
+      );
+    expect(steps.length).toBeGreaterThanOrEqual(3);
+    for (const step of steps) expect(step).toContain('WAYLAND_RELEASE_TRUST_ROOT_SHA');
+  });
+
+  // create-tag is dev-only and therefore skipped on every tag build; GitHub
+  // propagates that skip through the needs closure to any job without a status
+  // guard, so this job never scheduled on v0.12.4 or v0.12.5.
+  it('guards final-release-acceptance so a skipped upstream cannot skip it', () => {
+    const release = readFileSync('.github/workflows/build-and-release.yml', 'utf8');
+    const job = release.slice(release.indexOf('  final-release-acceptance:'));
+    const guard = job.slice(0, job.indexOf('    steps:'));
+    expect(guard).toMatch(/if:/);
+    expect(guard).toContain('always()');
+    expect(guard).toContain("needs.assemble-raw-release-acceptance.result == 'success'");
+  });
+});

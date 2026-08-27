@@ -192,7 +192,14 @@ function defaultVerifyReleaseBlockers(input, context) {
 function defaultExpectedPublisherAssets() {
   const { readPolicy } = require('../supply-chain/verifyPublisherAttestation');
   const policy = readPolicy();
-  const active = policy.policies.filter((entry) => entry.status === 'active');
+  // Scope to wayland-core. This ledger also carries wayland-nano policies, and nano
+  // legitimately has more than one active release, so an unscoped filter counts them
+  // toward the "exactly one active Core release" rule and fails every run. The assets
+  // resolved immediately below come from bundled-wcore-shasums.json, so Core is the
+  // only family this rule was ever about.
+  const active = policy.policies.filter(
+    (entry) => entry.status === 'active' && entry.repository === 'FerroxLabs/wayland-core'
+  );
   if (active.length !== 1) fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'no-unique-active-core-release');
   const shasums = JSON.parse(
     fs.readFileSync(path.join(productionCandidateRoot(), 'scripts', 'bundled-wcore-shasums.json'), 'utf8')
