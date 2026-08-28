@@ -36,7 +36,7 @@ type GuidModelSelectorProps = {
   isGeminiMode: boolean;
   modelList: IProvider[];
   currentModel: TProviderWithModel | undefined;
-  setCurrentModel: (model: TProviderWithModel) => Promise<void>;
+  setCurrentModel: (model: TProviderWithModel, opts?: { persist?: boolean }) => Promise<void>;
 
   // The currently-selected agent - scopes the curated model list and the
   // plain-language caption. Provider-based agents pass 'gemini' / 'wcore';
@@ -201,7 +201,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   // `model.config` row. The resolver hands back the platform / apiKey /
   // baseUrl / bedrockConfig the main-process dispatch needs verbatim.
   const handlePickCurated = React.useCallback(
-    async (model: CuratedModel, opts?: { silent?: boolean }) => {
+    async (model: CuratedModel, opts?: { silent?: boolean; persist?: boolean }) => {
       const result = await ipcBridge.modelRegistry.resolveForChatStart
         .invoke({
           providerId: model.providerId,
@@ -252,7 +252,10 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
         modelList.find((p) => p.model?.includes(model.id));
       const next: TProviderWithModel = buildChatStartBinding(provider, legacyMatch);
 
-      setCurrentModel(next).catch((error) => {
+      // `persist` defaults ON: a real pick, and the dropped-pin repair below,
+      // both SHOULD be written to `<agent>.defaultModel`. The cold-start
+      // auto-pick passes `persist: false` - see the comment on that effect.
+      setCurrentModel(next, { persist: opts?.persist !== false }).catch((error) => {
         console.error('Failed to set current model:', error);
       });
 
@@ -359,7 +362,22 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
     const recommended = firstSafeCuratedModel(curated);
     if (!recommended) return;
     coldStartPickedRef.current = agentKey;
-    void handlePickCurated(recommended, { silent: true });
+    // Set state, but do NOT write this to `<agent>.defaultModel`. This effect
+    // races `useGuidModelSelection`'s resolution, which is much slower - it
+    // awaits a ConfigStorage read plus two IPCs (recently-used telemetry and
+    // the route-through-Flux flag) before it can rank anything. The picker's
+    // curated SWR snapshot lands first, so `!currentModel && !selectedCuratedKey`
+    // is true for a normal restart, not just a genuinely-unconfigured machine.
+    // Persisting here therefore stamped `firstSafeCuratedModel(curated)` into
+    // the pin key on ordinary restarts - measured live overwriting a deliberate
+    // pin with `google-gemini/gemini-3.7-flash` while Flux was connected and
+    // routing was on. The resolution chain ranks a saved pin above `flux-auto`,
+    // so that phantom pin then outranked Flux Autopilot on every later launch.
+    // Same defect f5aaa4d81 fixed in useGuidModelSelection: a guess must never
+    // be indistinguishable on disk from a choice. State-only is enough - this
+    // effect exists to unstick the "No model configured yet" composer, and the
+    // real resolution still lands a moment later and wins.
+    void handlePickCurated(recommended, { silent: true, persist: false });
   }, [agentKey, curated, isGeminiMode, currentModel?.useModel, selectedCuratedKey, handlePickCurated]);
 
   // Resolve a price tier for an ACP model entry. CLI-agent options use short
