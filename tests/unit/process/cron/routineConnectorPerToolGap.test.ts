@@ -50,10 +50,19 @@
  * change to what routines may do and is NOT made here; this file now proves
  * only that the mechanism exists to make it.
  *
- * STILL A GAP, asserted below so it cannot be mistaken for coverage:
- * `toWCoreConfig` - the startup `config.toml` serializer - is NOT wrapped. That
- * path rewrites the command for restart-safety, and interposing there risks
- * persisting a stale runtime path.
+ * IT WENT RED A SECOND TIME (#1167), AND THAT IS ALSO GOOD NEWS. Desktop now
+ * carries `allowedTools` verbatim across all three engine boundaries - both ACP
+ * session descriptors, the wcore `add_mcp_server` runtime path, and the startup
+ * `config.toml` table - so an engine that understands the field can enforce the
+ * subset natively. The strings evidence above still describes the PINNED engine;
+ * Core's half is being implemented in parallel and is a no-op while absent.
+ *
+ * WHAT IS STILL TRUE, asserted below so it cannot be mistaken for coverage:
+ * `toWCoreConfig` is still NOT shim-wrapped - that path rewrites the command for
+ * restart-safety and interposing there risks persisting a stale runtime path. So
+ * on the startup path the subset is a REQUEST the engine must honour, not a
+ * boundary Desktop enforces, and it is only as good as Core's half. The two
+ * session paths remain self-enforcing via the shim regardless.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -90,38 +99,55 @@ describe('per-tool scoping is not reachable on the backend routines run on', () 
     expect(entry.enabled_tools).toEqual(['quote_batch', 'watchlist_get']);
   });
 
-  it('the wcore config.toml serializer emits NO tool key at all', () => {
+  it('the wcore config.toml serializer NOW carries the tool allowlist (#1167)', () => {
     const config = toWCoreConfig(TV, { launchLocal: true }) as Record<string, unknown>;
-    // Everything it does carry:
+    // Everything it already carried:
     expect(config.transport).toBe('stdio');
     expect(typeof config.command).toBe('string');
-    // ...and nothing that narrows the inventory, under any spelling.
-    const keys = Object.keys(config);
-    expect(keys.filter((k) => /tool/i.test(k))).toEqual([]);
-    expect(JSON.stringify(config)).not.toContain('quote_batch');
+    // ...plus the subset, verbatim and untransformed. This used to assert the
+    // absence; closing the gap is what turned it red, exactly as intended.
+    expect(config.allowedTools).toEqual(['quote_batch', 'watchlist_get']);
+    // Under exactly ONE spelling, so a second key never quietly appears.
+    expect(Object.keys(config).filter((k) => /tool/i.test(k))).toEqual(['allowedTools']);
   });
 
   it('both wcore and ACP session injectors now carry the subset, via the shim', () => {
     const [wcore] = buildWCoreUserStdioMcpServers([TV], ['srv-tv']);
     expect(JSON.stringify(wcore)).toContain('quote_batch');
+    // Mechanism 1, unchanged: the descriptor points at the shim, so the subset is
+    // a boundary the engine cannot cross rather than state it is asked to respect.
     expect(JSON.stringify(wcore)).toContain('builtin-mcp-tool-filter');
-    // Still no ENGINE tool field - the engine gained nothing. The names travel
-    // as the shim's arguments.
-    expect(Object.keys(wcore).filter((k) => /tool/i.test(k))).toEqual([]);
+    // Mechanism 2, new (#1167): the field itself, for an engine that can use it.
+    expect(wcore.allowedTools).toEqual(['quote_batch', 'watchlist_get']);
     // The tool the user did NOT allow is absent from the descriptor entirely.
     expect(JSON.stringify(wcore)).not.toContain('alert_delete');
 
     const [acp] = buildAcpSessionMcpServers([TV], { stdio: true, http: true, sse: true }, ['srv-tv']);
     expect(JSON.stringify(acp)).toContain('quote_batch');
     expect(JSON.stringify(acp)).toContain('builtin-mcp-tool-filter');
-    expect(Object.keys(acp).filter((k) => /tool/i.test(k))).toEqual([]);
+    expect(acp.allowedTools).toEqual(['quote_batch', 'watchlist_get']);
+    expect(JSON.stringify(acp)).not.toContain('alert_delete');
   });
 
-  it('the startup config.toml serializer is STILL unwrapped - the known gap', () => {
-    // Recorded as an assertion rather than prose so closing it later turns this
-    // red on purpose, exactly as the wcore gap above did.
+  it('the startup config.toml serializer is STILL unwrapped - what remains', () => {
+    // The subset now REACHES this path as a field, but Desktop does not enforce
+    // it here: no shim is interposed, because this path rewrites the command for
+    // restart-safety and wrapping it risks persisting a stale runtime path. So
+    // startup enforcement depends entirely on Core honouring `allowedTools`.
+    // Recorded as an assertion so wrapping it later turns this red on purpose.
     const config = toWCoreConfig(TV);
-    expect(JSON.stringify(config)).not.toContain('quote_batch');
     expect(JSON.stringify(config)).not.toContain('builtin-mcp-tool-filter');
+    expect(config.allowedTools).toEqual(['quote_batch', 'watchlist_get']);
+  });
+
+  it('THE EMPTY ALLOWLIST reaches config.toml as [], never as a missing key', () => {
+    // The polarity trap (#1167): `[]` means the user disabled every tool. A
+    // truthiness or omitempty guard here would drop the key, and an absent key
+    // means "all tools" - maximum permission at the moment of maximum
+    // restriction. Unlike the two session paths, nothing filters this one on
+    // `contributesTools`, so `[]` genuinely travels.
+    const config = toWCoreConfig({ ...TV, allowedTools: [] } as IMcpServer);
+    expect('allowedTools' in config).toBe(true);
+    expect(config.allowedTools).toEqual([]);
   });
 });

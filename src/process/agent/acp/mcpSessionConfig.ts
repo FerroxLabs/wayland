@@ -23,12 +23,27 @@ export interface AcpSessionMcpNameValue {
   value: string;
 }
 
+/**
+ * The user's per-server tool allow-list, carried to the backend verbatim (#1167).
+ *
+ * POLARITY: this is an ALLOW-list and the empty array is MEANINGFUL.
+ *   undefined -> every tool enabled (the migration-free default)
+ *   ['a']     -> only 'a' enabled
+ *   []        -> NO tools enabled
+ * Never normalise `[]` to `undefined`. An omitempty-style encoder, a truthiness
+ * check or a `?? undefined` would grant EVERY tool at the exact moment the user
+ * asked for none - silent, and the inverse of intent. Desktop passes the field
+ * through untransformed; the engine owns the semantics.
+ */
+export type McpAllowedTools = string[];
+
 export interface AcpSessionMcpServerStdio {
   type?: 'stdio';
   name: string;
   command: string;
   args: string[];
   env: AcpSessionMcpNameValue[];
+  allowedTools?: McpAllowedTools;
 }
 
 export interface AcpSessionMcpServerHttpLike {
@@ -36,6 +51,7 @@ export interface AcpSessionMcpServerHttpLike {
   name: string;
   url: string;
   headers?: AcpSessionMcpNameValue[];
+  allowedTools?: McpAllowedTools;
 }
 
 export type AcpSessionMcpServer = AcpSessionMcpServerStdio | AcpSessionMcpServerHttpLike;
@@ -112,16 +128,19 @@ function contributesTools(server: IMcpServer): boolean {
  * (`activeServerIds === undefined` ⇒ all enabled servers) or the selection
  * includes it. `[]` scopes out every user server.
  *
- * Scoping here is SERVER-level only. The user's per-server `allowedTools` does
- * NOT trim tools on this path: neither the ACP `session/new` `mcpServers` array
- * nor Wayland Core's launch profile has a per-tool field, so a server that
- * survives with a STRICT subset reaches the engine with its FULL tool inventory
- * (#998). The MCP Library states that plainly rather than implying otherwise;
- * `TOOL_ALLOWLIST_ENFORCING_BACKENDS` in `@/common/mcp` is the single source of
- * truth for which backends really do enforce a subset (codex, gemini).
- *
- * The one setting that IS enforced everywhere is the empty one - see
- * `contributesTools` above.
+ * Scoping here is SERVER-level only; a STRICT per-tool subset is enforced
+ * elsewhere, and by three different mechanisms - do not assume one:
+ *   - stdio: the filtering shim (`wrapSpawnWithToolFilter`). The engine talks to
+ *     the shim, never to the real server, so the subset is a boundary rather
+ *     than state the engine is asked to respect.
+ *   - every transport: `allowedTools` is now carried to the backend verbatim
+ *     (#1167) so an engine that understands the field can enforce it natively.
+ *     This is the ONLY mechanism available to hosted http/sse connectors, which
+ *     have no spawn to wrap.
+ *   - the empty list: enforced here by withholding the server - see
+ *     `contributesTools` above.
+ * `TOOL_ALLOWLIST_ENFORCING_BACKENDS` in `@/common/mcp` remains the source of
+ * truth for which backends enforce a subset today.
  */
 export function isServerActiveForSession(server: IMcpServer, activeServerIds?: readonly string[]): boolean {
   if (server.builtin === true) return true;
@@ -132,13 +151,14 @@ export function isServerActiveForSession(server: IMcpServer, activeServerIds?: r
 /**
  * Build the `session/new` `mcpServers` array for an ACP backend.
  *
- * #998 — SERVER-level selection only. The ACP protocol's MCP server descriptor
- * carries name + transport and has no per-tool field, so a server that reaches
- * here is registered with every tool it publishes; a STRICT per-tool subset is
- * not enforced on this path. `allowedTools: []` is, by withholding the server -
- * see `contributesTools`. Codex is the exception and does NOT rely on this array
- * for scoping - its `enabled_tools` are written into the generated `config.toml`
- * by `buildCodexMcpServerTable`.
+ * #1167 — each descriptor now carries `allowedTools` verbatim alongside its
+ * transport, so a backend that understands the field can enforce a strict subset.
+ * For stdio the shim enforces it regardless; for hosted http/sse the field is the
+ * only mechanism there is. `allowedTools: []` never reaches this array at all -
+ * `contributesTools` withholds the server, which is a stronger guarantee than
+ * declaring it with an empty list and is enforced on every backend today. Codex
+ * does NOT rely on this array for scoping - its `enabled_tools` are written into
+ * the generated `config.toml` by `buildCodexMcpServerTable`.
  */
 export function buildAcpSessionMcpServers(
   mcpServers: IMcpServer[] | undefined | null,
@@ -196,6 +216,9 @@ export function buildAcpSessionMcpServers(
               command: spawn.command,
               args: spawn.args,
               env: toNameValueEntries(mergeMcpSpawnEnv(server.transport.env, spawn.env)) ?? [],
+              // #1167: verbatim, including `[]`. Spread so an absent list stays
+              // absent rather than becoming an explicit `undefined` key.
+              ...(server.allowedTools !== undefined ? { allowedTools: server.allowedTools } : {}),
             };
           }
           case 'http':
@@ -206,6 +229,9 @@ export function buildAcpSessionMcpServers(
               name: server.name,
               url: server.transport.url,
               headers: toNameValueEntries(server.transport.headers),
+              // #1167: hosted transports have no filtering shim, so this field is
+              // the ONLY way a subset can ever be honoured on them.
+              ...(server.allowedTools !== undefined ? { allowedTools: server.allowedTools } : {}),
             };
           case 'sse':
             if (!capabilities.sse) return null;
@@ -214,6 +240,8 @@ export function buildAcpSessionMcpServers(
               name: server.name,
               url: server.transport.url,
               headers: toNameValueEntries(server.transport.headers),
+              // #1167: see the http branch - no shim exists for hosted transports.
+              ...(server.allowedTools !== undefined ? { allowedTools: server.allowedTools } : {}),
             };
           default:
             return null;
@@ -250,13 +278,12 @@ export function buildAcpSessionMcpServers(
  * be injected under the raw name while config.toml holds `com.slack-slack-mcp` -
  * the dedup would miss and the engine would register it twice (#478).
  *
- * #998 - no per-tool allowlist is emitted, because the engine has nowhere to
- * put one: `add_mcp_server` carries name/transport/command/args/env only, and
- * Core's `[mcp.servers.*]` table and profile `mcp_servers = [...]` are both
- * server-level. A STRICT per-tool subset is therefore NOT enforced on the
- * Wayland Core backend; see `TOOL_ALLOWLIST_ENFORCING_BACKENDS` in
- * `@/common/mcp` and the notice the MCP Library shows because of it. The empty
- * allowlist IS enforced, by withholding the connector - see `contributesTools`.
+ * #1167 - `allowedTools` IS now emitted, verbatim and untransformed, so a Core
+ * that understands the field can enforce the subset natively. Until it does, the
+ * stdio filtering shim above is what actually enforces a strict subset here, and
+ * the empty allowlist is enforced by withholding the connector entirely - see
+ * `contributesTools`. `TOOL_ALLOWLIST_ENFORCING_BACKENDS` in `@/common/mcp`
+ * stays the source of truth for what the MCP Library tells the user today.
  */
 export function buildWCoreUserStdioMcpServers(
   mcpServers: IMcpServer[] | undefined | null,
@@ -290,6 +317,9 @@ export function buildWCoreUserStdioMcpServers(
           command: spawn.command,
           args: spawn.args,
           env: toNameValueEntries(mergeMcpSpawnEnv(transport.env, spawn.env)) ?? [],
+          // #1167: carried verbatim so Core can enforce the subset natively and
+          // the shim above can eventually retire.
+          ...(server.allowedTools !== undefined ? { allowedTools: server.allowedTools } : {}),
         };
       })
       .filter((server) => !excludeNames?.has(server.name))

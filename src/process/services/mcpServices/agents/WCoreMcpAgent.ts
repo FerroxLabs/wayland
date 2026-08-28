@@ -28,6 +28,19 @@ type WCoreServerConfig = {
   env?: Record<string, string>;
   url?: string;
   headers?: Record<string, string>;
+  /**
+   * The user's per-server tool allow-list (#1167), written verbatim into
+   * `[mcp.servers.<name>]`.
+   *
+   * POLARITY: an ALLOW-list whose EMPTY array is meaningful.
+   *   undefined -> every tool enabled       []  -> NO tools enabled
+   * The sibling `env`/`headers` fields above are guarded with
+   * `Object.keys(...).length > 0`, which is exactly the shape that must NOT be
+   * copied here: collapsing `[]` to absent enables every tool at the moment the
+   * user asked for none. smol-toml renders `allowedTools = []` and parses it
+   * back as an empty array, so the distinction survives the round trip.
+   */
+  allowedTools?: string[];
 };
 
 type WCoreConfigFile = {
@@ -121,6 +134,10 @@ export function toWCoreConfig(server: IMcpServer, options: WCoreConfigSerializeO
     if (server.transport.env && Object.keys(server.transport.env).length > 0) {
       config.env = server.transport.env;
     }
+    // #1167: presence-checked, NOT truthiness-checked - `[]` must survive.
+    if (server.allowedTools !== undefined) {
+      config.allowedTools = server.allowedTools;
+    }
     return config;
   }
 
@@ -130,6 +147,11 @@ export function toWCoreConfig(server: IMcpServer, options: WCoreConfigSerializeO
   };
   if (server.transport.headers && Object.keys(server.transport.headers).length > 0) {
     config.headers = server.transport.headers;
+  }
+  // #1167: this is the ONLY route hosted (http/sse) connectors take, so without
+  // it the per-tool switches are inert on every hosted server.
+  if (server.allowedTools !== undefined) {
+    config.allowedTools = server.allowedTools;
   }
   return config;
 }
