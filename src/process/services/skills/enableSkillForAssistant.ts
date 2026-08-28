@@ -102,3 +102,57 @@ export async function enableSkillForAssistant(
   });
   return found;
 }
+
+/**
+ * The assistant an import should switch a skill on for: the one the user is
+ * actually about to chat with.
+ *
+ * WHY THIS EXISTS. Importing a pack registered it in the library and attached it
+ * to NOTHING, so the very next chat could not see it. Measured live on a fresh
+ * profile: the engine reported `Discovered 0 optional skills` and the model went
+ * hunting for a Skill tool that had no TC-TIDE in it. A buyer has no reason to
+ * know an "enable it for this assistant" step exists, and nothing told them.
+ *
+ * The resolution MIRRORS `useGuidAgentSelection.restoreSavedSelection` exactly,
+ * because the answer has to be the assistant the composer will really use:
+ *   - `custom:<id>` / `remote:<id>` -> that assistant, trusted directly
+ *   - a plain backend key (`wcore`, `gemini`) names an ENGINE, not an assistant,
+ *     so it tells us nothing here and falls through
+ *   - nothing saved -> the Concierge default, unless the user turned
+ *     `concierge.defaultPersona` off
+ * Divergence from that function is the bug this is fixing, one layer down: a
+ * skill switched on for an assistant the user is not in is invisible in exactly
+ * the same way as one switched on for nobody.
+ */
+export async function resolveCurrentAssistantId(): Promise<string | null> {
+  const saved = await ProcessConfig.get('guid.lastSelectedAgent').catch((): undefined => undefined);
+  if (typeof saved === 'string' && (saved.startsWith('custom:') || saved.startsWith('remote:'))) {
+    return saved.slice(saved.indexOf(':') + 1) || null;
+  }
+  if (!saved) {
+    const conciergeDisabled =
+      (await ProcessConfig.get('concierge.defaultPersona').catch((): undefined => undefined)) === false;
+    if (!conciergeDisabled) return 'builtin-concierge';
+  }
+  return null;
+}
+
+/**
+ * Switch a freshly imported skill on for the assistant the user is about to
+ * use. Returns the assistant id it was enabled for, or `null` when there is no
+ * assistant to attach to (a plain backend selection, or an id that no longer
+ * exists) - in which case the import still succeeds and the skill is simply
+ * available to enable by hand, exactly as before.
+ *
+ * Failure here must never fail the import: the skill is on disk and registered,
+ * and losing the convenience is not worth losing the pack.
+ */
+export async function enableSkillForCurrentAssistant(skillDirName: string): Promise<string | null> {
+  try {
+    const assistantId = await resolveCurrentAssistantId();
+    if (!assistantId) return null;
+    return (await enableSkillForAssistant(assistantId, skillDirName)) ? assistantId : null;
+  } catch {
+    return null;
+  }
+}

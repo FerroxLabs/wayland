@@ -45,6 +45,8 @@ import { getSkillsDir } from '@process/utils/initStorage';
  * destination means "it imported" and "the agent can use it" stop being
  * different facts.
  */
+import { enableSkillForCurrentAssistant } from '@process/services/skills/enableSkillForAssistant';
+
 export function importedSkillsDir(): string {
   return getSkillsDir();
 }
@@ -201,6 +203,18 @@ export type ImportedSkillResult = {
    * quarantined instead.
    */
   registered: boolean;
+  /**
+   * The assistant this skill was switched ON for, or `null` when there was no
+   * assistant to attach it to.
+   *
+   * Registering a skill and enabling it are different things, and only the
+   * second one makes it reachable from a chat: an assistant sees exactly what
+   * is in its own `enabledSkills`. Import used to do the first and not the
+   * second, so a bought pack installed successfully and was invisible to the
+   * very next message. Surfaced here so the renderer can SAY which assistant
+   * got it rather than leaving the user to guess.
+   */
+  enabledFor: string | null;
 };
 
 export type ImportResult = {
@@ -617,9 +631,17 @@ export class SkillImport {
       // (so confirmImport can re-verify it) but it is NOT registered, so no
       // agent can retrieve it until the user approves.
       let registered = false;
+      let enabledFor: string | null = null;
       if (report.verdict === 'clean') {
         warnings.push(...this._register(skill.name, skill.destDir, skill.body, report));
         registered = true;
+        // Switch it on for the assistant the user is about to chat with. Only
+        // for real skills: a workflow or an agent-profile is not something an
+        // assistant carries in `enabledSkills`, and enabling one there would be
+        // a silent no-op at best.
+        if (parseFrontmatterType(skill.body) === 'skill') {
+          enabledFor = await enableSkillForCurrentAssistant(path.basename(skill.destDir));
+        }
       }
 
       imported.push({
@@ -629,6 +651,7 @@ export class SkillImport {
         type: parseFrontmatterType(skill.body),
         body: skill.body,
         registered,
+        enabledFor,
       });
     }
 
@@ -695,6 +718,11 @@ export class SkillImport {
     }
 
     this._register(name, destPath, body, report);
+    // Same enablement as the clean path. A skill the user explicitly approved
+    // must not be LESS usable than one that sailed through the sweep.
+    if (parseFrontmatterType(body) === 'skill') {
+      await enableSkillForCurrentAssistant(path.basename(destPath));
+    }
     return { ok: true };
   }
 }
