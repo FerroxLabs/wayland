@@ -1349,8 +1349,19 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
     // useful to someone who does not have that strategy. When such a packet is
     // installed it supersedes `morning-prep` for the brief; the persona
     // document says so and defers to the packet's own instructions.
+    //
+    // `rebel-trader-rules` is the canon: the hard and soft risk rules, the
+    // pre-trade gate, the regime table and the verdict vocabulary, cited by
+    // rule number. It is a reference the other skills defer to rather than
+    // copy, so changing a limit is one edit every skill obeys. It carries the
+    // METHOD ONLY - no strategy source, no private links, no watchlist - which
+    // is what makes it safe to bundle to every user. Its description claims
+    // "position size", "risk limits" and "what the rules say", none of which
+    // any other enabled skill mentions, so it cannot steal `morning-prep`'s
+    // phrase family.
     defaultEnabledSkills: [
       'tvcontrol-setup',
+      'rebel-trader-rules',
       'morning-prep',
       'chart-analysis',
       'multi-symbol-scan',
