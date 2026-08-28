@@ -1,1 +1,1 @@
-{"failure":"timeout","type":"provider_retry"}
+{"failure":"timeout","retry":1,"type":"provider_retry"}

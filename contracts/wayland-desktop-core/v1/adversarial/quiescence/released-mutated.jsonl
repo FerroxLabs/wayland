@@ -1,0 +1,1 @@
+{"epoch_at_acquire":"sha256:quiesceepoch","epoch_at_release":"sha256:movedepoch","lease_id":"lease-desktop-001","quiescence_version":1,"released_unix_ms":1767225660000,"request_id":"quiesce-release-004","session_id":"session-desktop-001","type":"quiesce_lease_released","verdict":"mutated"}

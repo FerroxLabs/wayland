@@ -15,7 +15,7 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '7066118a' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '9d3f33c3' as const;
 
 /**
  * Pinned to Core `d1f55f0b`, the `v0.13.7` release tag. Every value below was
@@ -65,11 +65,11 @@ export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '7066118a' as const;
 export const DESKTOP_CORE_V1_PIN = {
   name: 'wayland-desktop-core',
   major: 1,
-  minor: 19,
-  generator: 'wcore-desktop-contract-gen/19',
-  fixtureDigest: 'sha256:f71f73765225e6b2412155a4442a6f45590a0186d25e95976a0f2001d8241860',
-  schemaDigest: 'sha256:9e594e4eda55d6cb52efca39092529e3a2ee2dac24ca69b7b3e1a0200d141de2',
-  sourceInputsDigest: 'sha256:ac7c0a48b25ccb5c49a58bb8360fb0111cb6b0f7f978f17c6401c8ab7aa1efdf',
+  minor: 21,
+  generator: 'wcore-desktop-contract-gen/21',
+  fixtureDigest: 'sha256:a5a1c557c9ce88acfc870a7a386fd0bb03b9638bcccf3415af2d172df9285750',
+  schemaDigest: 'sha256:22e8a861bb398ca5ed0dd247371bb0b8780d0b601959f98b06cf29ef2c44b2a4',
+  sourceInputsDigest: 'sha256:ce9fd0629eb0cc4b571e7b27a38794728d67f367de82db57293f10621e021e60',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
@@ -80,11 +80,13 @@ export const DESKTOP_CORE_V1_PIN = {
     effective_execution_policy_revisions: 'available',
     host_delegated_delivery: 'available',
     inline_reasoning_split_v1: 'available',
+    mcp_ready_skip_annotation_v1: 'available',
     operator_tool_effect_resolution_v1: 'available',
     path_boundary_prompt_v1: 'available',
     path_grants_v1: 'available',
     path_write_grants_v1: 'available',
     plugin_events: 'shape_only',
+    quiesced_snapshot_lease_v1: 'available',
     render_artifact_v1: 'available',
     runtime_diagnostics_v1: 'available',
     runtime_mcp_lifecycle_v1: 'available',

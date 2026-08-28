@@ -142,8 +142,8 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('7066118a');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 19 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('9d3f33c3');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 21 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
@@ -217,30 +217,35 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // generated closed-`oneOf` command schema and a negotiated host can send
     // them without failing its own outbound validation.
     //
-    // v0.13.7 -> v0.13.8 is the STAMP-ONLY shape again, and was established the
-    // same way: field by field against the released manifest, never by reading.
-    // `name`, `major`, `minor` (19), `generator` (gen/19) and `schema_digest`
-    // (9e594e4e...) are byte-identical, and the capability set compares EQUAL as
-    // a set - nothing added, nothing removed, nothing re-graded. Counts hold at
-    // 26 commands, 61 events, 3 child types, 174 fixtures. Only `fixture_digest`
-    // and `source_inputs_digest` moved, and exactly SIX of the 174 vendored
-    // fixtures carry that stamp; with the manifest that is seven changed files
-    // out of the whole corpus and every other byte is unchanged. Cross-checked
-    // against the signed asset `wayland-core-v0.13.8-desktop-contract-v1.tar.gz`
-    // (checksum 3e21f826b08038a2...), imported byte-for-byte, with the release's
-    // publisher attestation verified to producer 7066118a on refs/heads/main.
+    // v0.13.8 -> v0.13.9 is NOT the stamp-only shape. The contract genuinely
+    // moved, and every field below was read out of the released manifest rather
+    // than reasoned about:
+    //   minor        19 -> 21          generator  gen/19 -> gen/21
+    //   commands     26 -> 29          events     61 -> 67
+    //   child types   3 -> 3           fixtures  174 -> 194
+    //   all THREE digests moved (fixture, schema, source_inputs)
+    //   capabilities +2, none removed and none re-graded:
+    //     `mcp_ready_skip_annotation_v1: available`
+    //     `quiesced_snapshot_lease_v1: available`
     //
-    // Because the SHAPE did not move, `minor` did not need to - but the corpus
-    // still had to be re-vendored, because assertDescriptor fails closed on both
-    // stamped digests. A 0.13.7-pinned Desktop handed a 0.13.8 engine dies at
-    // the handshake on every turn, and vice versa; that is not a theoretical
-    // risk, it is what these two digests changing MEANS.
+    // Cross-checked against the signed asset
+    // `wayland-core-v0.13.9-desktop-contract-v1.tar.gz`, imported byte-for-byte,
+    // with the release's publisher attestation verified to producer 9d3f33c3 on
+    // refs/heads/main. That digest was taken from the attestation itself
+    // (`sourceRepositoryDigest`) AND independently by dereferencing the
+    // annotated tag; both agree, which is what proves the corpus and the
+    // attestation describe the same artifact.
     //
-    // If the pin is ever NOT 19 this whole assertion is stale and the coupling
+    // assertDescriptor fails closed on the stamped digests, so a 0.13.8-pinned
+    // Desktop handed a 0.13.9 engine dies at the handshake on every turn, and
+    // vice versa. That is not a theoretical risk - it is what these digests
+    // changing MEANS, and it is why the corpus re-import is not optional.
+    //
+    // If the pin is ever NOT 21 this whole assertion is stale and the coupling
     // must be re-derived from the released manifest, not patched.
-    expect(DESKTOP_CORE_V1_PIN.minor).toBe(19);
+    expect(DESKTOP_CORE_V1_PIN.minor).toBe(21);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.8'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.9'"
     );
   });
 
@@ -290,7 +295,7 @@ describe('Wayland Core Desktop v1 producer pin', () => {
   // outbound validation. The three fixtures are the whole delta, and the
   // fixture count moves by exactly the same three.
   it('contains exactly the advertised 26 commands, 61 events, and 174 fixtures', () => {
-    expect(manifest.counts).toEqual({ child_types: 3, commands: 26, events: 61, fixtures: 174 });
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 29, events: 67, fixtures: 194 });
     // The inventory and the declared count must agree - a corpus that ships a
     // fixture it does not list, or lists one it does not ship, is the exact
     // class of drift C-1 was.
