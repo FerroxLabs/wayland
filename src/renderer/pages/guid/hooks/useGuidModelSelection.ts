@@ -223,7 +223,7 @@ export type GuidModelSelectionResult = {
   geminiModeLookup: Map<string, ReturnType<typeof useGeminiGoogleAuthModels>['geminiModeOptions'][number]>;
   formatGeminiModelLabel: (provider: { platform?: string } | undefined, modelName?: string) => string;
   currentModel: TProviderWithModel | undefined;
-  setCurrentModel: (modelInfo: TProviderWithModel) => Promise<void>;
+  setCurrentModel: (modelInfo: TProviderWithModel, opts?: { persist?: boolean }) => Promise<void>;
 };
 
 /**
@@ -308,7 +308,7 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
   const storageKey = MODEL_STORAGE_KEY[agentKey];
 
   const setCurrentModel = useCallback(
-    async (modelInfo: TProviderWithModel) => {
+    async (modelInfo: TProviderWithModel, opts?: { persist?: boolean }) => {
       selectedModelKeyRef.current = buildModelKey(modelInfo.id, modelInfo.useModel);
       // Apply to React state FIRST, and never gate it on the write.
       //
@@ -327,6 +327,20 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
       // in hand. Persistence is still attempted, still logs on failure, and a
       // lost write costs at most the pin - not the running session.
       _setCurrentModel(modelInfo);
+      // An AUTO-RESOLVED default must never be written to `storageKey`.
+      //
+      // This setter is shared by two callers with very different authority: a
+      // deliberate pick from the picker, and the cold-start fallback below. The
+      // fallback used to persist too, which made a guess indistinguishable on
+      // disk from a choice - and the resolution chain ranks a saved pin ABOVE
+      // `fluxAuto`. One cold start that resolved before the cloud catalogs
+      // landed (only the fastest provider present) therefore stamped whatever
+      // sorted first - measured live: Groq's `allam-2-7b` - and from then on
+      // that phantom pin outranked Flux Autopilot forever, on every launch.
+      // Not persisting the guess makes the chain re-evaluate each start, so a
+      // connected Flux Router lands on `flux-auto` and an unconnected one lands
+      // on a marquee model, while a real pick still persists and still wins.
+      if (opts?.persist === false) return;
       // Detached on purpose, for the same reason: awaiting it here would hand
       // the caller a promise that can never settle. handlePickCurated awaits
       // this setter, so a stalled write would strand the pick mid-flight and
@@ -472,11 +486,14 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
 
       if (!defaultModel || !resolvedUseModel) return;
 
-      await setCurrentModel({
-        ...defaultModel,
-        useModel: resolvedUseModel,
-        accountId: chosen.accountId ?? DEFAULT_ACCOUNT_ID,
-      });
+      await setCurrentModel(
+        {
+          ...defaultModel,
+          useModel: resolvedUseModel,
+          accountId: chosen.accountId ?? DEFAULT_ACCOUNT_ID,
+        },
+        { persist: false }
+      );
     };
 
     setDefaultModel().catch((error) => {
