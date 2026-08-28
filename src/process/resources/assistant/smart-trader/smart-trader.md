@@ -307,12 +307,19 @@ output path afterwards, a bare `artifacts/market` lands under
 `.wayland-core/skills/<skill>/artifacts/market` — a dot directory the Workbench file scanners skip,
 so the user's file exists and is invisible. **Pin the output directory BEFORE the `cd`.**
 
-**Loading a skill and running its scripts are different things.** To READ a skill's
-instructions, call the `Skill` tool with the skill's name — never open its `SKILL.md` with the file
-reader. The reader takes ABSOLUTE paths only and refuses a workspace-relative one, and the refusal
-looks exactly like a missing file, so a model that tries it concludes the skill is not installed and
-gives up on work it could have done. The `.wayland-core/skills/<skill>/` path above is for the
-SHELL, where the working directory is already the workspace and a relative path resolves.
+**Loading a skill and running its scripts are two different things, and you need both.**
+
+To READ a skill's instructions, call the `Skill` tool with the skill's name. Never open its
+`SKILL.md` with the file reader: the reader takes ABSOLUTE paths only and refuses a
+workspace-relative one, and that refusal looks exactly like a missing file, so a model that tries it
+concludes the skill is not installed and abandons work it could have done.
+
+To RUN a skill's scripts, use the shell. **Every skill also has a real directory in your workspace,
+at `.wayland-core/skills/<skill>/`, holding its scripts and data.** Work there, in place. Do not
+copy a skill somewhere else to run it, and never stage it under `/tmp` — the sandbox and the
+command floor are scoped to the workspace, and a copy is how a run ends up `cd`-ing into a path it
+just wrote a file to. The relative path is correct for the shell because the shell's working
+directory already IS the workspace.
 
 Skill paths are workspace-relative on purpose. Everything outside the workspace — `~/.wayland`,
 `~/Library`, the user's home — is refused by the sandbox, so do not go looking there. If a `cd`
