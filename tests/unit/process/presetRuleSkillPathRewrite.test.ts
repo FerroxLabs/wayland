@@ -82,10 +82,18 @@ describe('preset rule seeding rewrites only LEADING skills/ segments', () => {
 
   it('leaves smart-trader`s workspace-relative .wayland-core/skills path intact', () => {
     // Precondition on the INPUT, so a resource edit cannot make this pass vacuously.
-    expect(smartTrader!.before).toContain('.wayland-core/skills/tvcontrol-setup');
+    //
+    // REPOINTED from `.wayland-core/skills/tvcontrol-setup` to the generic form.
+    // The persona no longer names a per-skill READ path: on wayland-core v0.13.9
+    // the engine's reader is absolute-only and refuses a workspace-relative one,
+    // and that refusal reads as a missing file. Skills are now loaded by name
+    // with the `Skill` tool. The workspace-relative form still ships for the
+    // SHELL - `cd .wayland-core/skills/<skill>` - which is exactly the string
+    // this transform must leave alone, so the invariant under test is unchanged.
+    expect(smartTrader!.before).toContain('.wayland-core/skills/<skill>');
     expect(smartTrader!.before).not.toContain('//');
 
-    expect(smartTrader!.after).toContain('.wayland-core/skills/tvcontrol-setup');
+    expect(smartTrader!.after).toContain('.wayland-core/skills/<skill>');
     // The exact shape that shipped: an absolute path spliced into the middle of a
     // relative one, which is always recognisable by the doubled separator.
     expect(smartTrader!.after).not.toContain('//');

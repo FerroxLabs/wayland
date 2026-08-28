@@ -99,21 +99,37 @@ describe('C2/B6+B7 - the persona never sends anyone somewhere that does not exis
     expect(markdown).not.toMatch(/Skills\s*&\s*Tools/);
   });
 
-  it('gives a workspace path for every skill it names', () => {
-    const missing = skillsNamedInPersona().filter((name) => !markdown.includes(`.wayland-core/skills/${name}`));
-    // "Read that skill" with no path is what sent the model to the tool
-    // registry in the first place.
-    expect(missing).toEqual([]);
+  it('gives a way to LOAD every skill it names', () => {
+    // REPOINTED, not relaxed. This asserted that every named skill came with a
+    // `.wayland-core/skills/<name>` path, because "read that skill" with no path
+    // is what sent the model to the tool registry (B7). Measured live on
+    // wayland-core v0.13.9, that path turned out to be the NEXT failure: the
+    // engine's reader is absolute-only and answers
+    // `Refused to read ...: path must be absolute`, which is indistinguishable
+    // from a missing file. Smart Trader read that refusal and told the user a
+    // correctly installed, correctly enabled pack was "not present in this
+    // workspace". The reachability requirement is unchanged and still enforced -
+    // only the mechanism moved, to the engine's own `Skill` tool, which takes a
+    // NAME and no path at all.
+    const unreachable = skillsNamedInPersona().filter((name) => !markdown.includes(name));
+    expect(unreachable).toEqual([]);
+    const flowing = markdown.replace(/\s+/g, ' ');
+    expect(flowing).toMatch(/call the `Skill` tool with the skill's name/i);
   });
 
-  it('says a skill is a file in the workspace and that a tool search cannot find one', () => {
+  it('says a skill has files in the workspace and that a tool search cannot find one', () => {
     // B7's root cause, stated so the model does not have to infer it.
     // Whitespace-collapsed: the document hard-wraps at 100 columns and a
     // sentence being present must not depend on where the line broke.
     const flowing = markdown.replace(/\s+/g, ' ');
     expect(flowing).toMatch(/a skill is never in the tool registry/i);
     expect(flowing).toMatch(/that miss means nothing at all/i);
-    expect(markdown).toMatch(/FILE IN YOUR WORKSPACE/);
+    // REPOINTED from the literal `FILE IN YOUR WORKSPACE`. The fact it guarded is
+    // still required and still here, stated generically rather than per-skill:
+    // dropping it entirely is what made a model stage a skill under /tmp, write a
+    // file at the destination and then `cd` into it.
+    expect(flowing).toMatch(/every skill also has a real directory in your workspace/i);
+    expect(flowing).toMatch(/\.wayland-core\/skills\/<skill>\//);
   });
 });
 
