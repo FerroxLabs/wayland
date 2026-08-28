@@ -82,13 +82,27 @@ export const MAX_PACK_ENTRIES = 2_000;
  * the whole directory into the workspace the agent runs shell in. Execute bits
  * are irrelevant - `bash f` and `java -jar f` do not need them.
  *
- * A pack is documentation and data. Anything that needs to DO something should
- * drive MCP tools, which are separately consented to.
+ * A pack is documentation, data, and - DISCLOSED - the tools it needs to run.
+ * Shell scripts and binaries stay refused; `.py` and `.mjs` are allowed and are
+ * named back to the importer before install. See
+ * {@link ALLOWED_PACK_SCRIPT_EXTENSIONS}.
  */
 export const ALLOWED_PACK_EXTENSIONS = [
   '.md', '.markdown', '.txt', '.csv', '.tsv', '.json', '.yaml', '.yml',
   '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg',
 ];
+
+/**
+ * Script types a pack may carry, mirroring
+ * {@link import('./SkillImport').DISCLOSED_SCRIPT_EXTENSIONS}.
+ *
+ * Kept in step with the zip importer on purpose: the two paths install the same
+ * artefact, and a pack that imports through Settings but is refused by the
+ * concierge (or the reverse) is a bug the user experiences as randomness. See
+ * that constant for why disclosure - not refusal - is the property that matters
+ * here. Shell scripts and binaries remain disallowed on both paths.
+ */
+export const ALLOWED_PACK_SCRIPT_EXTENSIONS = ['.py', '.mjs'];
 
 /**
  * Normalise an entry name the way the filesystem would, so a trailing dot or
@@ -114,9 +128,28 @@ export async function findDisallowedFile(dir: string, prefix = ''): Promise<stri
       if (hit) return hit;
       continue;
     }
-    if (!ALLOWED_PACK_EXTENSIONS.includes(normalisedExtension(entry.name))) return rel;
+    const ext = normalisedExtension(entry.name);
+    if (!ALLOWED_PACK_EXTENSIONS.includes(ext) && !ALLOWED_PACK_SCRIPT_EXTENSIONS.includes(ext)) return rel;
   }
   return null;
+}
+
+/**
+ * Every script the pack carries, relative to its root, sorted. The caller
+ * DISCLOSES these - a pack may ship a tool, but never a silent one.
+ */
+export async function findPackScripts(dir: string, prefix = ''): Promise<string[]> {
+  const found: string[] = [];
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isSymbolicLink()) continue;
+    if (entry.isDirectory()) {
+      found.push(...(await findPackScripts(path.join(dir, entry.name), rel)));
+      continue;
+    }
+    if (ALLOWED_PACK_SCRIPT_EXTENSIONS.includes(normalisedExtension(entry.name))) found.push(rel);
+  }
+  return found.sort();
 }
 
 export type InstallSkillPackResult =

@@ -60,10 +60,36 @@ export const LEGACY_IMPORTED_DIR = path.join(homedir(), '.wayland', 'skills', 'i
  * the agent can run commands in.
  */
 export const REFUSED_IMPORT_EXTENSIONS = [
-  '.mjs', '.cjs', '.js', '.ts', '.py', '.rb', '.pl', '.php',
+  '.cjs', '.js', '.ts', '.rb', '.pl', '.php',
   '.sh', '.bash', '.zsh', '.fish', '.ps1', '.bat', '.cmd',
   '.exe', '.dll', '.dylib', '.so', '.command', '.app', '.scpt',
 ];
+
+/**
+ * Script types a pack MAY carry, on the condition that carrying them is
+ * DISCLOSED to the person importing it.
+ *
+ * A pack that ships a real tool - a report renderer, a collector - has nowhere
+ * else to put it. The skill directory is staged inside the run's workspace, so
+ * a script beside SKILL.md is readable with no further prompting, while the
+ * same file left outside the workspace is either refused or raises a fresh
+ * folder-grant every conversation. Measured: a run that had to reach an
+ * external path refused outright on one attempt and prompted on the next, for
+ * the same pack and the same question.
+ *
+ * The security property being preserved is NOT "a pack cannot contain code" -
+ * SKILL.md is itself instructions and can already tell a model to run anything.
+ * It is INFORMED CONSENT: the importer is told, before installing, exactly which
+ * executable files a pack carries. So these are imported and named in
+ * `warnings`, never written silently. Everything in
+ * {@link REFUSED_IMPORT_EXTENSIONS} above stays refused - shell scripts and
+ * binaries have no legitimate place in a documentation-and-data pack, and
+ * SkillGuard reasons about prompt text so it could never vouch for one.
+ *
+ * `.py` and `.mjs` ONLY. Both are inert unless something deliberately runs
+ * them: neither is auto-loaded by staging the directory.
+ */
+export const DISCLOSED_SCRIPT_EXTENSIONS = ['.py', '.mjs'];
 
 // ---------------------------------------------------------------------------
 // IO seam - injected for tests; defaults to real Node.js ops
@@ -397,6 +423,14 @@ export class SkillImport {
         if (REFUSED_IMPORT_EXTENSIONS.includes(ext)) {
           warnings.push(`Skipped ${entry.path}: executable files are not imported`);
           continue;
+        }
+        // Imported, and SAID OUT LOUD. Silently skipping these was worse than
+        // either refusing or allowing them: the pack installed looking healthy
+        // while its SKILL.md pointed at tools that were never written, so the
+        // failure surfaced later as a broken run rather than at the import the
+        // user could still decline.
+        if (DISCLOSED_SCRIPT_EXTENSIONS.includes(ext)) {
+          warnings.push(`Contains script: ${entry.path}`);
         }
         // Warn on executable-ref patterns in markdown bodies.
         if (entry.path.endsWith('.md')) {

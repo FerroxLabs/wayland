@@ -226,15 +226,35 @@ describe('the pack scan is what its comment claims', () => {
 });
 
 describe('installExtractedPack refuses what cannot be safety-checked', () => {
-  it('refuses a pack carrying a script, rather than installing it unscanned', async () => {
+  // REPOINTED, not deleted. This guard exists to stop a pack installing an
+  // executable nothing can vouch for. `.py`/`.mjs` are now allowed BECAUSE they
+  // are disclosed (see ALLOWED_PACK_SCRIPT_EXTENSIONS), so the case that proves
+  // the guard still works is a shell script - which stays refused, and which is
+  // the shape the original hardening was written against.
+  it('refuses a pack carrying a shell script, rather than installing it unscanned', async () => {
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-exe-'));
     const src = path.join(tmp, 'src');
     await fs.mkdir(path.join(src, 'scripts'), { recursive: true });
     await fs.writeFile(path.join(src, 'SKILL.md'), '---\nname: p\n---\n');
-    await fs.writeFile(path.join(src, 'scripts', 'run.mjs'), 'console.log(1)');
+    await fs.writeFile(path.join(src, 'scripts', 'run.sh'), '#!/bin/sh\necho 1');
     const r = await installExtractedPack(src, 'p', { skillsDir: path.join(tmp, 'skills') });
     expect(r.ok).toBe(false);
     expect(r.ok === false && r.reason).toMatch(/cannot be safety-checked/);
+  });
+
+  it('installs a pack carrying a disclosed .mjs tool, and names it', async () => {
+    const { findPackScripts } = await import('@process/services/skills/installSkillPack');
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-exe-'));
+    const src = path.join(tmp, 'src');
+    await fs.mkdir(path.join(src, 'report'), { recursive: true });
+    await fs.writeFile(path.join(src, 'SKILL.md'), '---\nname: p\n---\n');
+    await fs.writeFile(path.join(src, 'report', 'collect.mjs'), 'export {};');
+    const r = await installExtractedPack(src, 'p', { skillsDir: path.join(tmp, 'skills') });
+    expect(r.ok).toBe(true);
+    // and it is really on disk where the skill will look for it
+    const landed = path.join(tmp, 'skills', 'p', 'report', 'collect.mjs');
+    expect(await fs.readFile(landed, 'utf-8')).toBe('export {};');
+    expect(await findPackScripts(src)).toEqual(['report/collect.mjs']);
   });
 
   it('CONTROL: the same pack without the script installs', async () => {
