@@ -45,7 +45,7 @@ Search by name for `tv_health_check`, `chart_get_state` and `tv_launch`, and sea
 kind: add_mcp
 name: com.ferroxlabs-tvcontrol
 command: npx
-args: @ferroxlabs/tvcontrol@2.4.0
+args: @ferroxlabs/tvcontrol@2.4.2
 [/CONCIERGE_PROPOSE]
 ```
 

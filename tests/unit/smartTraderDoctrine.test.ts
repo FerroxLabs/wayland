@@ -42,7 +42,7 @@ import { describe, expect, it } from 'vitest';
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const SMART_TRADER = path.join(REPO_ROOT, 'src/process/resources/assistant/smart-trader/smart-trader.md');
 const SKILLS_DIR = path.join(REPO_ROOT, 'src/process/resources/skills');
-const CONNECTOR_SCHEMA = path.join(REPO_ROOT, 'tests/fixtures/tvcontrol-2.4.0-tools.json');
+const CONNECTOR_SCHEMA = path.join(REPO_ROOT, 'tests/fixtures/tvcontrol-2.4.2-tools.json');
 
 const markdown = readFileSync(SMART_TRADER, 'utf-8');
 
@@ -129,7 +129,7 @@ describe('C1.2 - the persona is told not to claim a file it did not write', () =
 
 describe('C3/B8 - a watchlist question is answered from TradingView, and says so', () => {
   it('CONTROL: the connector fixture is the real 109-tool handshake', () => {
-    expect(connectorTools._header.version).toBe('2.4.0');
+    expect(connectorTools._header.version).toBe('2.4.2');
     expect(Object.keys(connectorTools.tools)).toHaveLength(connectorTools._header.toolCount);
     expect(connectorTools._header.toolCount).toBe(109);
   });
