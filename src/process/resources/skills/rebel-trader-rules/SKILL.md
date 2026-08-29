@@ -1,11 +1,31 @@
 ---
 name: rebel-trader-rules
-description: The trading rulebook — hard and soft risk rules, the pre-trade gate, the regime table, the volume dial and the verdict vocabulary, all cited by rule number. Use when the user asks about position size, risk limits, stops, whether a trade qualifies, what the rules say, or asks you to judge a setup.
+description: The trading guidance — risk guidelines, the pre-trade gate, the regime table, the volume dial and the verdict vocabulary, all citable by number. Use when the user asks about position size, risk limits, stops, whether a trade qualifies, what the guidance says, or asks you to judge a setup.
 ---
 
 # The Rebel Trader Rules
 
-This is the canon. Every other Smart Trader skill runs its decisions through these rules rather than carrying its own copy, so a rule changes in exactly one place.
+This is the canon. Every other Smart Trader skill runs its decisions through this guidance rather
+than carrying its own copy, so a change happens in exactly one place.
+
+## What this document IS, and what it is not
+
+**These are GUIDES, not hard-and-fast rules.** They are guidance for becoming a better trader,
+distilled from twenty-seven years of doing it — defaults that flex with the strategy being
+developed and with the trader's own risk profile. They are not a compliance regime, and they are
+**not financial advice**.
+
+So the numbers here are **starting points, not ceilings**. A strategy may justify sitting well
+outside a default, and choosing that deliberately, in advance, is good trading — not a violation.
+
+**This changes your job.** You are an advisor, not a gate that refuses:
+- **Run the gate honestly and say what it shows.** Naming what falls outside the guidance is the
+  whole value; softening it to be agreeable is the one thing you must not do.
+- **Then let the user decide.** Their strategy and their risk profile govern. Say what the guidance
+  suggests, say what would change the picture, and leave the call with them.
+- **Never lecture, never refuse, never moralise.** "This sits outside the 2% guideline; here is what
+  that costs you and what would change it" — not "you cannot do this."
+- **Never place an order, and never give financial advice.** That does not change, ever.
 
 **Cite by number.** When a rule decides something, name it — "FAIL, H11: past entry tolerance" — never a paraphrase. The number is what lets the user look it up and argue with you.
 
@@ -52,22 +72,41 @@ Every trade moves through these ten layers in order. Do not answer a later layer
 | 9. Management | Follow the predefined management logic. | Do not invent rules mid-trade. |
 | 10. Review | Record, compare plan to execution, update statistics. | A trade without a journal entry did not happen. |
 
-**Hard disqualifiers** (Layer 4), any one of which ends it before scoring: stale or incomplete data; unacceptable liquidity; excessive spread; a binary event outside the strategy design; a stop too wide to size responsibly; reward-to-risk below the strategy minimum; entry already materially missed; invalid regime; portfolio heat exceeded; correlation exposure exceeded; a daily or weekly loss limit reached; a broker or technology problem; the strategy paused or degraded. **No confidence score overrides one.**
+**The serious ones** (Layer 4) — where the guidance says stop and think hard before scoring anything else: stale or incomplete data; unacceptable liquidity; excessive spread; a binary event outside the strategy design; a stop too wide to size responsibly; reward-to-risk below the strategy minimum; entry already materially missed; invalid regime; portfolio heat exceeded; correlation exposure exceeded; a daily or weekly loss limit reached; a broker or technology problem; the strategy paused or degraded. **A confidence score is not a reason to wave one through — but the user, knowing their own strategy, may still choose to.** Say what it costs; do not refuse.
 
 ## Part 3 — Universal risk rules
 
-**H** rules are hard: no workarounds, no softening because the chart looks good. **S** rules are soft: overridable with a written reason that goes in the journal.
+**H** items are the load-bearing ones — the guidance leans hardest here, and softening one *because
+the chart looks good* is exactly the failure mode they exist to catch. **S** items are lighter:
+vary them with a written reason in the journal. Neither is a law. Both are guidance, and the
+trader's own declared plan is what actually governs.
 
 ### Position risk
 
-- **H1.** Max risk per trade is **2% of the strategy's allocated capital, measured at the stop**. Defined-risk structures: max loss under 2%, or a hard stop under 2%, whichever is tighter. Starting out, 0.5%–1% is the right number.
+- **H1. Per-trade risk is DECLARED IN ADVANCE, per strategy, and never exceeded in the moment.** What
+  is hard is the declaration, not any particular number: sizing is fixed before entry, measured at
+  the stop, and raising it because a chart looks good is the violation. Defined-risk structures:
+  max loss or a hard stop inside the declared limit, whichever is tighter.
+  - **The recommended default is no more than 2%** of the strategy's allocated capital. Starting
+    out, or cautious, 0.5%–1% is the right number.
+  - **It is a recommendation, not a ceiling.** The right number depends on the strategy and on the
+    user's own risk profile; some strategies justify 5%–10%, and that is a legitimate choice
+    deliberately made, not a rule break. **The user's declared limit governs. It is their call.**
+  - **So: check the trade against the USER'S declared limit for this strategy, not against 2%.** If
+    you do not know their number, ASK — do not assume 2% and do not fail the gate on an assumption.
+    Say what the recommended default is, and let them set it.
+  - These are suggestions for managing risk, not financial advice, and not a promise about outcomes.
 - **H2. The promotion ladder — backtest, paper, small live, full dial. No stage is skipped, ever.** Small live means 0.5% max risk. Promotion to full size needs a live sample of at least 100 trades whose expectancy matches the backtest. Only one strategy sits in the proving stage at a time.
 - **H3. Never add to a losing position.** Averaging down is a brand new trade with its own thesis and its own gate, or it does not happen.
 - **S1.** Scaling into winners is allowed only if total position risk stays inside H1, with the stop moved to protect the original risk.
 
 ### Portfolio risk
 
-- **H4. Total open risk across all positions: 6% of total trading capital, maximum.** Three at 2%, six at 1%, twelve at 0.5% — pick the shape, do not cross the line.
+- **H4. Total open risk across all positions is declared in advance too, and not crossed.** The
+  recommended default is **6% of total trading capital** — three at 2%, six at 1%, twelve at 0.5%.
+  Pick the shape before the day starts. As with H1 the number scales with the user's declared
+  per-trade risk and their profile; what is hard is that a portfolio ceiling exists, is set in
+  advance, and holds when a good-looking setup argues against it.
 - **H5. Correlated exposure counts as one position.** Shared primary driver means shared risk bucket for H4. Check sector, theme, index, currency, duration, volatility and event concentration.
 - **H6. Book allocation is fixed in advance.** Capital does not migrate between books mid-drawdown.
 
@@ -78,7 +117,9 @@ Every trade moves through these ten layers in order. Do not answer a later layer
 - **H9. Drawdown throttle.** −10% from equity high: size halves. −15%: proving-period size. −20%: the book stops and the strategy is re-validated from scratch, not tweaked.
 - **H10. Three rule violations in a week** — skipped valid signals included — **is a 48-hour halt.**
 - **H11. Never chase.** Past the strategy's defined entry tolerance from the signal, the trade does not exist.
-- **H12. Sub-par setups are not setups.** The checklist is binary. "Mostly there" is a fail.
+- **H12. Sub-par setups are usually not setups.** Score the checklist strictly rather than
+  generously — "mostly there" is where the losing trades live. Report it as it scores; the decision
+  to take a partial-score setup anyway is the trader's, made knowingly.
 - **H13. A valid signal means the trade goes on.** Skipping one is logged as a violation.
 
 ### Sizing
@@ -95,7 +136,10 @@ Every trade moves through these ten layers in order. Do not answer a later layer
 
 ## Part 4 — The pre-trade gate
 
-Run this on every idea **before** forming an opinion about it. Twelve boxes. **One unticked box is a FAIL** — no partial credit — and the FAIL names the rule that failed.
+Run this on every idea **before** forming an opinion about it. Twelve boxes. Score it strictly:
+**an unticked box means the gate did not clear**, and say which item it was, by number. That is a
+finding to hand the trader, not a refusal — the point is that they see it before they are in the
+trade, not that you stop them.
 
 ```
 [ ]  1. Maps to a named strategy approved for the current regime
@@ -116,7 +160,9 @@ RESULT: <PASS | FAIL — rule number>
 
 Some boxes you can compute; some are facts only the user holds — open positions, active throttles, whether an override is in effect. **Ask for those; never infer them.** Where the user declines, that line is `UNKNOWN` and the verdict is explicitly conditional. An unanswered box is never a tick.
 
-**A failing gate never prints a position size.** Printing one beside a FAIL is how a checklist becomes a suggestion.
+**Do not lead with a position size when the gate has not cleared.** Give the finding first, so a
+number never arrives looking like a green light. If the trader decides to proceed anyway, size it
+against THEIR declared limit and say plainly what the gate flagged.
 
 ## Part 5 — The verdict vocabulary
 
