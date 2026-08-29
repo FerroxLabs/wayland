@@ -25,6 +25,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import { FLUX_AUTO_MODEL, FLUX_PROVIDER_ID } from '@/common/config/flux';
+import { resolveSafeDefault } from '@renderer/pages/guid/hooks/useGuidModelSelection';
 import { ConfigStorage } from '@/common/config/storage';
 import type { DetectionResult } from '@/common/types/onboarding';
 import type { ProviderId } from '@process/providers/types';
@@ -268,6 +269,35 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
           await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
         } catch (err) {
           console.warn('[OnboardingFlow] flux auto-detect default pin failed', err);
+        }
+      } else {
+        // NO FLUX? STILL PIN SOMETHING SENSIBLE.
+        //
+        // The comment above says the pin exists so a first-run user does not
+        // land on "whatever sorts first". That was only ever true when Flux
+        // connected. Skip Flux and onboarding wrote NO pin at all, so the
+        // composer fell through to the cold-start resolver - and measured on a
+        // fresh profile carrying Groq, Gemini, OpenAI and OpenRouter keys, the
+        // chip came up `allam-2-7b`: the first model of the first provider, and
+        // the exact model `resolveSafeDefault` was written to prevent. The
+        // resolver is right; it just races the provider list, and whichever
+        // partial list lands first wins with `persist: false`.
+        //
+        // Writing a real pin here sidesteps that race entirely, because a
+        // saved pin outranks the fallback in the resolution chain. It runs
+        // AFTER the scan, so the provider list it reads is the complete one.
+        // Non-fatal, exactly like the Flux path: a missing pin must never cost
+        // the user their onboarding.
+        try {
+          const providers = await ipcBridge.mode.getModelConfig.invoke();
+          const safe = resolveSafeDefault(providers ?? []);
+          if (safe?.provider?.id && safe.useModel) {
+            const pin = { id: safe.provider.id, useModel: safe.useModel };
+            await ConfigStorage.set('wcore.defaultModel', pin);
+            await ConfigStorage.set('gemini.defaultModel', pin);
+          }
+        } catch (err) {
+          console.warn('[OnboardingFlow] safe default pin failed', err);
         }
       }
       if (!cancelled) setScanDone(true);
