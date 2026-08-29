@@ -24,7 +24,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
-import { FLUX_AUTO_MODEL, FLUX_PROVIDER_ID } from '@/common/config/flux';
+import { FLUX_DEFAULT_MODEL, FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { resolveSafeDefault } from '@renderer/pages/guid/hooks/useGuidModelSelection';
 import { ConfigStorage } from '@/common/config/storage';
 import type { DetectionResult } from '@/common/types/onboarding';
@@ -263,7 +263,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
       // Mirrors the manual connectFlux pin; non-fatal.
       if (detection.fluxConnected) {
         try {
-          const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_AUTO_MODEL };
+          const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_DEFAULT_MODEL };
           await ConfigStorage.set('wcore.defaultModel', pin);
           await ConfigStorage.set('gemini.defaultModel', pin);
           await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
@@ -321,7 +321,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
         // wayland-config store the model resolver reads. Failures here are
         // non-fatal: the connection already succeeded, so never block onboarding.
         try {
-          const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_AUTO_MODEL };
+          const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_DEFAULT_MODEL };
           await ConfigStorage.set('wcore.defaultModel', pin);
           await ConfigStorage.set('gemini.defaultModel', pin);
           await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
@@ -380,7 +380,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
         // while the Flux virtual models arrive a beat later (#129). Non-fatal.
         if (res.providerId === FLUX_PROVIDER_ID) {
           try {
-            const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_AUTO_MODEL };
+            const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_DEFAULT_MODEL };
             await ConfigStorage.set('wcore.defaultModel', pin);
             await ConfigStorage.set('gemini.defaultModel', pin);
             await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });

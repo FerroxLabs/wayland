@@ -10,6 +10,17 @@ export const FLUX_PROVIDER_ID = 'flux-router' as const;
 /** Default auto-routing model. */
 export const FLUX_AUTO_MODEL = 'flux-auto' as const;
 
+/**
+ * The tier a FIRST-RUN user should land on.
+ *
+ * Not Auto. Measured over repeated agentic runs, flux-reasoning completed 8 of
+ * 8 while flux-auto completed 1 of 6: Auto routes agentic work to a cheap model
+ * and can switch model mid-conversation, which is exactly the shape that leaves
+ * someone with a half-finished answer on their first attempt. Reasoning also
+ * came out cheaper on those runs, so this is not a quality-for-cost trade.
+ */
+export const FLUX_DEFAULT_MODEL = 'flux-reasoning' as const;
+
 /** The four selectable Flux tiers, auto first. Order is the picker order. */
 export const FLUX_MODEL_IDS = ['flux-auto', 'flux-reasoning', 'flux-standard', 'flux-fast'] as const;
 
