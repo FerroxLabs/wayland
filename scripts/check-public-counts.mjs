@@ -40,13 +40,16 @@ function measure() {
 
   // The two workflow collections are separate packs with no shared names.
   // Assert that, so a future merge cannot silently double-count.
-  const nameOf = (e) => String(e.name ?? e.id ?? '').trim().toLowerCase();
+  const nameOf = (e) =>
+    String(e.name ?? e.id ?? '')
+      .trim()
+      .toLowerCase();
   const indexWorkflowNames = new Set(index.filter((e) => e.type === 'workflow').map(nameOf));
   const overlap = bundledArr.filter((e) => indexWorkflowNames.has(nameOf(e)));
   if (overlap.length > 0) {
     throw new Error(
       `${overlap.length} workflow name(s) appear in BOTH ${SKILLS_INDEX} and ${BUNDLED_INDEX}. ` +
-        `The totals below assume no overlap. Resolve the duplicates before trusting any count.`,
+        `The totals below assume no overlap. Resolve the duplicates before trusting any count.`
     );
   }
 
