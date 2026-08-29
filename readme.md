@@ -75,7 +75,7 @@ You are not prompting a chatbot. You are coworking with a system that remembers 
 
 **One team, not isolated CLIs.** Your CLIs are brilliant strangers who never met. Each one forgets everything between sessions and lives in its own silo. Wayland is the command center that makes them one team: shared memory across every agent, one workflow from idea to ship, multi-AI cross-audit, and opt-in routing that sends each task to the best-fit model.
 
-**Your machine, not someone's cloud.** Chatbots run on someone else's servers, behind someone else's keys and retention policy. Wayland runs on your machine, reads and writes your files, and executes shell commands inside a native per-OS sandbox (Landlock, sandbox-exec, AppContainer). Go fully local with Ollama, or reach for a frontier cloud model when you want it.
+**Your machine, not someone's cloud.** Chatbots run on someone else's servers, behind someone else's keys and retention policy. Wayland runs on your machine, reads and writes your files, and executes shell commands inside a native per-OS sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, with AppContainer available via `WAYLAND_SANDBOX=appcontainer`). Go fully local with Ollama, or reach for a frontier cloud model when you want it.
 
 **A system, not a prettier chat window.** Most are a nicer window onto one model, and they reset every time you close them. Wayland is a system that compounds: an engine that rewrites and re-scores its own skill prompts against an eval harness, a memory that persists across sessions (five SQLite-backed partitions), plus ready-made assistants, self-assembling teams, workflows, and schedules that run without you. It gets sharper the more you run it.
 
@@ -257,7 +257,7 @@ Wayland runs a four-step loop on every turn:
 - **Acts** through built-in tools (Read, Write, Edit, Bash, Grep, Glob, Spawn) and connectors for Git, databases, and the web, inside a native per-OS sandbox.
 - **Evolves**: a loop rewrites and scores your skill prompts against an eval harness, then promotes the winners back into your library.
 
-**Wayland-Core engine.** One Rust binary, around 47 MB, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (Landlock on Linux, sandbox-exec on macOS, AppContainer on Windows) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
+**Wayland-Core engine.** One Rust binary, around 47 MB, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, AppContainer opt-in) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
 
 **Flux routing (optional).** Route a backend's traffic through Flux Router to send each task to the best-fit specialist across same-class models and run multi-AI cross-audit, lifting quality while cutting wasted tokens. Opt-in, bring your own key, off by default.
 
