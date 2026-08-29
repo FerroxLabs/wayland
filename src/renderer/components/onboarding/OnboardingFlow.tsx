@@ -257,9 +257,10 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
       clearInterval(logTimer);
       setWiredProviders(results.filter((r) => r.ok).map((r) => r.pid));
       setWireFailed(results.filter((r) => !r.ok).map((r) => r.pid));
-      // Flux detected already-connected: pin Flux Auto as the default so the
-      // first-run user lands on the best model (the smart router), not whatever
-      // local model happens to sort first (e.g. a tiny Ollama smollm2:135m).
+      // Flux detected already-connected: pin the first-run Flux tier as the
+      // default so the user lands on the smart router, not whatever local model
+      // happens to sort first (e.g. a tiny Ollama smollm2:135m). The tier is
+      // FLUX_DEFAULT_MODEL (Reasoning), not Auto - see the constant's comment.
       // Mirrors the manual connectFlux pin; non-fatal.
       if (detection.fluxConnected) {
         try {
