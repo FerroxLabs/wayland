@@ -2,11 +2,19 @@
   README for Wayland. Public GitHub repo: ferroxlabs/wayland.
   Screenshots live at .github/assets/<name>.jpg. Raw image URLs are pinned to the
   main branch; pin to a release tag before a wide launch so older releases keep rendering.
-  Verified facts only: engine binary 47 MB (measured), 5 memory partitions, 25 channels,
-  AGPL-3.0. Counts come from .skill-pack/skills-library/index.json and NOTHING ELSE:
-  2,106 entries = 1,974 skills + 107 workflows + 25 agent-profiles (counted 2026-08-29).
-  The site quotes the same index. It previously said 177 workflows, which was never true
-  and which an outside reviewer caught by diffing this file against getwayland.com.
+
+  COUNTS. Measured 2026-08-29. Two shipped indexes, both packaged as critical
+  resources and both loaded by SkillLibrary, with zero name overlap between them:
+    src/process/resources/skills-library/index.json  -> 2,106 entries
+        = 1,974 skills + 107 workflows + 25 agent-profiles
+    src/process/resources/bundled-workflows/index.json -> 71 workflows
+    src/process/resources/builtin-catalog/assistants.json -> 88 assistants
+  So: 178 workflows total (107 + 71), 1,974 skills, 88 assistants, 25 channels,
+  5 memory partitions, 18 ACP backends, engine binary 47 MB.
+
+  Do not edit these numbers by hand. Re-measure, or the README and getwayland.com
+  drift apart again - which is exactly how this file ended up claiming 177 while
+  the site claimed 107. Both were counting real things; neither said which.
 -->
 
 <p align="center">
@@ -152,7 +160,7 @@ Instead of coaching a blank chatbot, launch a specialist that already knows the 
 
 ### Workflows from idea to outcome
 
-107 ready-to-run workflows that take you from a blank page to a finished deliverable: a launch plan, a competitor teardown, a month of content, a release write-up. Run one as-is, build your own, or put it on a schedule. Each one walks the steps so you get the outcome, not just a starting point.
+178 ready-to-run workflows that take you from a blank page to a finished deliverable: a launch plan, a competitor teardown, a month of content, a release write-up. Run one as-is, build your own, or put it on a schedule. Each one walks the steps so you get the outcome, not just a starting point.
 
 <p><img src=".github/assets/workflows.jpg" alt="Wayland workflow running step by step toward a finished outcome" width="100%"/></p>
 
@@ -228,7 +236,7 @@ Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you b
 | <img src=".github/assets/logos/opencode.svg" width="20" valign="middle"/> &nbsp;**OpenCode**             | `opencode`   | provider key                        |
 | <img src=".github/assets/logos/kimi.svg" width="20" valign="middle"/> &nbsp;**Kimi** (Moonshot)          | `kimi`       | Kimi login                          |
 
-Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 16 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
+Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 18 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
 
 **Engine-native providers** (Wayland-Core): Anthropic, OpenAI and OpenAI-compatible (including o1/o3 reasoning, DeepSeek, Ollama), AWS Bedrock, Google Vertex AI, each on your provider key. To use a Claude subscription with no key, run the Claude Code backend and sign in with the `claude` CLI.
 
