@@ -4,7 +4,7 @@
   "description": "Self-host Wayland - your always-on AI agent - on any Linux box or VPS. Headless web server, reachable from your phone.",
   "type": "module",
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://getwayland.ai",
+  "homepage": "https://getwayland.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/FerroxLabs/wayland.git",
