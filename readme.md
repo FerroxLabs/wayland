@@ -2,8 +2,19 @@
   README for Wayland. Public GitHub repo: ferroxlabs/wayland.
   Screenshots live at .github/assets/<name>.jpg. Raw image URLs are pinned to the
   main branch; pin to a release tag before a wide launch so older releases keep rendering.
-  Verified facts only: engine binary 47 MB (measured), 5 memory partitions, 25 channels,
-  177 workflows, 2,000+ capabilities (2,105 in skills-library index), AGPL-3.0.
+
+  COUNTS. Measured 2026-08-29. Two shipped indexes, both packaged as critical
+  resources and both loaded by SkillLibrary, with zero name overlap between them:
+    src/process/resources/skills-library/index.json  -> 2,106 entries
+        = 1,974 skills + 107 workflows + 25 agent-profiles
+    src/process/resources/bundled-workflows/index.json -> 71 workflows
+    src/process/resources/builtin-catalog/assistants.json -> 88 assistants
+  So: 178 workflows total (107 + 71), 1,974 skills, 88 assistants, 25 channels,
+  5 memory partitions, 18 ACP backends, engine binary 47 MB.
+
+  Do not edit these numbers by hand. Re-measure, or the README and getwayland.com
+  drift apart again - which is exactly how this file ended up claiming 177 while
+  the site claimed 107. Both were counting real things; neither said which.
 -->
 
 <p align="center">
@@ -19,7 +30,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ferroxlabs/wayland/releases"><img src="https://img.shields.io/badge/release-v0.9.6--rc.1-ff6b35?style=flat" alt="Release"/></a>
+  <a href="https://github.com/ferroxlabs/wayland/releases"><img src="https://img.shields.io/github/v/release/ferroxlabs/wayland?style=flat&color=ff6b35&label=release" alt="Release"/></a>
   <a href="https://github.com/ferroxlabs/wayland/releases"><img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-08070c?style=flat" alt="Platforms"/></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-08070c?style=flat" alt="License: AGPL-3.0"/></a>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/engine-Rust-08070c?style=flat" alt="Engine: Rust"/></a>
@@ -29,6 +40,8 @@
   <a href="https://github.com/ferroxlabs/wayland/releases/latest"><b>Download</b></a>
   &nbsp;&middot;&nbsp;
   <a href="https://getwayland.com">Website</a>
+  &nbsp;&middot;&nbsp;
+  <a href="https://docs.getwayland.com">Docs</a>
   &nbsp;&middot;&nbsp;
   <a href="#build-from-source">Build from source</a>
   &nbsp;&middot;&nbsp;
@@ -70,14 +83,18 @@ You are not prompting a chatbot. You are coworking with a system that remembers 
 
 Grab the latest build for your platform. No account, no sign-up. Every link opens the latest Releases page, where you pick the file for your platform.
 
-| Platform    | Architecture              | File                                                          |
-| ----------- | ------------------------- | ------------------------------------------------------------- |
-| **macOS**   | Apple Silicon (M1 and up) | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **macOS**   | Intel                     | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | x64                       | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | ARM64                     | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux**   | x64 (Debian / Ubuntu)     | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux**   | ARM64 (Debian / Ubuntu)   | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
+| Platform    | Architecture                     | File                                                               |
+| ----------- | -------------------------------- | ------------------------------------------------------------------ |
+| **macOS**   | Apple Silicon (M1 and up)        | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **macOS**   | Intel                            | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Windows** | x64                              | [.exe](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Windows** | ARM64                            | [.exe](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | x64 (Debian / Ubuntu)            | [.deb](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | ARM64 (Debian / Ubuntu)          | [.deb](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | x64 (Fedora / RHEL / openSUSE)   | [.rpm](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | ARM64 (Fedora / RHEL / openSUSE) | [.rpm](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | x64 (any distro)                 | [.AppImage](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Linux**   | ARM64 (any distro)               | [.AppImage](https://github.com/ferroxlabs/wayland/releases/latest) |
 
 The installer bundles the Wayland-Core engine for your platform, so a clean install runs agents the moment you add a provider key.
 
@@ -115,7 +132,9 @@ Prefer to build it yourself? See [Build from source](#build-from-source).
 
 Run Wayland as an always-on agent on any Linux box or VPS, reachable from your phone. Three commands, no config files.
 
-> **Status: shipping soon.** The `getwayland` package is not on npm yet. This is the verified flow (it boots on a fresh Ubuntu VPS and answers through Flux), and the commands go live the moment the package publishes.
+> **Live on npm.** `getwayland` is published (`latest` is 0.12.4). The flow below is the verified one: it boots on a fresh Ubuntu VPS and answers through Flux.
+>
+> **Disclosure:** Flux Router is also built by Ferrox Labs. It is a paid inference router, and we would rather say so here than have you find out later. It is optional, off by default, takes its own separate key, and Wayland has no required backend of any kind — any OpenAI, Anthropic, Gemini, or local Ollama key works exactly as well. Delete the Flux key and everything else keeps working.
 
 **Requires Node 18 or newer.** On a fresh VPS: `sudo apt-get update && sudo apt-get install -y nodejs npm`
 
@@ -149,7 +168,7 @@ Instead of coaching a blank chatbot, launch a specialist that already knows the 
 
 ### Workflows from idea to outcome
 
-177 ready-to-run workflows that take you from a blank page to a finished deliverable: a launch plan, a competitor teardown, a month of content, a release write-up. Run one as-is, build your own, or put it on a schedule. Each one walks the steps so you get the outcome, not just a starting point.
+178 ready-to-run workflows that take you from a blank page to a finished deliverable: a launch plan, a competitor teardown, a month of content, a release write-up. Run one as-is, build your own, or put it on a schedule. Each one walks the steps so you get the outcome, not just a starting point.
 
 <p><img src=".github/assets/workflows.jpg" alt="Wayland workflow running step by step toward a finished outcome" width="100%"/></p>
 
@@ -225,7 +244,7 @@ Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you b
 | <img src=".github/assets/logos/opencode.svg" width="20" valign="middle"/> &nbsp;**OpenCode**             | `opencode`   | provider key                        |
 | <img src=".github/assets/logos/kimi.svg" width="20" valign="middle"/> &nbsp;**Kimi** (Moonshot)          | `kimi`       | Kimi login                          |
 
-Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 16 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
+Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 18 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
 
 **Engine-native providers** (Wayland-Core): Anthropic, OpenAI and OpenAI-compatible (including o1/o3 reasoning, DeepSeek, Ollama), AWS Bedrock, Google Vertex AI, each on your provider key. To use a Claude subscription with no key, run the Claude Code backend and sign in with the `claude` CLI.
 
@@ -244,7 +263,7 @@ Wayland runs a four-step loop on every turn:
 
 ## Build from source
 
-Requirements: [Bun](https://bun.sh) 1.3 or later, Node 22 to 24, and your platform toolchain for native modules.
+Requirements: [Bun](https://bun.sh) 1.3.x, Node 22 to 24, and your platform toolchain for native modules.
 
 ```bash
 git clone https://github.com/ferroxlabs/wayland.git
@@ -320,6 +339,10 @@ Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before open
 ## License & the Wayland name
 
 Wayland is **real open source**. This desktop app is [GNU AGPL-3.0](./LICENSE); the engine, [wayland-core](https://github.com/FerroxLabs/wayland-core), is Apache-2.0. The split is deliberate: a permissive engine so anyone can embed it, copyleft on the app so the GUI stays open. Run it, self-host it, modify it, fork it, and build commercial services around it. The only catch AGPL adds: a networked service built on the app must publish its source under the same terms. Contributions are under a light [CLA](./CONTRIBUTING.md); third-party attributions live in [notices/](./notices/).
+
+**Where it came from.** This app originates in part from [AionUi](https://github.com/iOfficeAI/AionUi) (Apache-2.0) — parts of the Electron main process, the IPC bridge, renderer scaffolding, ACP integration and MCP services — and has since diverged substantially. The engine is a Ferrox Labs fork of [aionrs](https://github.com/FerroxLabs/wayland-core) (Apache-2.0), with every workspace crate renamed and the upstream copyright headers preserved in all forked source. Full attributions: [notices/THIRD-PARTY-NOTICES.md](./notices/THIRD-PARTY-NOTICES.md). We put this here rather than only in `notices/` because a reader deciding whether to trust the project should not have to dig for it.
+
+**Who builds this.** Ferrox Labs is a small team, and most of us are part-time. We use Wayland to build Wayland, which is why the shipped surface is larger than a headcount would suggest — and why the honest answer to "has this been audited?" is on the [evidence page](https://getwayland.com/built-on), not buried.
 
 A hosted **Wayland Pro** with expanded capabilities is on the way. The core you self-host stays complete and free, never crippled to sell you the hosted one.
 

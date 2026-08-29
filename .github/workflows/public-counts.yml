@@ -1,0 +1,33 @@
+# Fails when a number quoted on a public surface stops matching what we ship.
+#
+# The README once said 177 workflows while getwayland.com said 107 and the
+# product shipped 178. An outside reviewer diffed the two in public. This job
+# exists so that cannot happen silently again.
+#
+# NOTE: this is not yet a required status check. To make it blocking, add
+# "Public counts" to branch protection on main.
+name: Public counts
+
+on:
+  pull_request:
+    paths:
+      - 'readme.md'
+      - 'src/process/resources/skills-library/index.json'
+      - 'src/process/resources/bundled-workflows/index.json'
+      - 'src/process/resources/builtin-catalog/assistants.json'
+      - 'src/common/types/acpTypes.ts'
+      - 'scripts/check-public-counts.mjs'
+      - '.github/workflows/public-counts.yml'
+  workflow_dispatch:
+
+jobs:
+  counts:
+    name: Public counts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify public counts match shipped artifacts
+        run: node scripts/check-public-counts.mjs
