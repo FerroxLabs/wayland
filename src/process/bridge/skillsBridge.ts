@@ -187,17 +187,38 @@ export function initSkillsBridge(): void {
         // Sequential by design: each call read-modify-writes the same
         // ConfigStorage('assistants') array, so parallelizing would drop
         // writes. A single import batch is tiny, so the cost is negligible.
+        //
+        // AND THE READ IS INSIDE THE SAME CRITICAL SECTION AS THE WRITE.
+        //
+        // This used to be a get/set PAIR: `ProcessConfig.get` then, some
+        // `await`s later, `ProcessConfig.set` of the whole array. That is the
+        // exact shape `enableSkillForAssistant` documents as unsafe, and the
+        // two run against the same key during a single import - the profile
+        // branch here, and the enabledSkills append inside the importer. A pair
+        // reads a snapshot, does file I/O, then writes the snapshot back, so
+        // any append that landed in between is silently erased. Same hazard
+        // with the assistant editor open in Settings: its Save writes a whole
+        // array too, and whichever finishes last wins.
+        //
+        // `ProcessConfig.update` runs the mutator inside the persistence
+        // queue's critical section, so the array this reads is the array it
+        // writes back.
+        let imported: Awaited<ReturnType<typeof importAgentProfile>> = null;
         // oxlint-disable-next-line no-await-in-loop
-        const imported = await importAgentProfile({ name, description: parsed?.description }, entry.body, {
-          getAssistants: async () => (await ProcessConfig.get('assistants')) ?? [],
-          setAssistants: async (next) => {
-            await ProcessConfig.set('assistants', next);
-          },
-          writeRule: async (assistantId, content) => {
-            await mkdir(getAssistantsDir(), { recursive: true });
-            await writeFile(path.join(getAssistantsDir(), `${assistantId}.en-US.md`), content, 'utf-8');
-          },
-          now: Date.now,
+        await ProcessConfig.update('assistants', async (current) => {
+          let next = (current ?? []) as never;
+          imported = await importAgentProfile({ name, description: parsed?.description }, entry.body, {
+            getAssistants: async () => next,
+            setAssistants: async (updated) => {
+              next = updated as never;
+            },
+            writeRule: async (assistantId, content) => {
+              await mkdir(getAssistantsDir(), { recursive: true });
+              await writeFile(path.join(getAssistantsDir(), `${assistantId}.en-US.md`), content, 'utf-8');
+            },
+            now: Date.now,
+          });
+          return next;
         });
         items.push({
           name: entry.name,

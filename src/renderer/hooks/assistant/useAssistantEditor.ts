@@ -313,8 +313,21 @@ export const useAssistantEditor = ({
           });
         }
 
-        const updatedAgents = [...agents, newAssistant];
-        await ConfigStorage.set('assistants', updatedAgents);
+        // Build on what is on DISK right now, not on the `agents` React state
+        // this editor loaded when it opened.
+        //
+        // This writes the whole array back, and the renderer's ConfigStorage is
+        // a get/set bridge with no atomic update - so a snapshot taken when the
+        // editor opened, written on Save minutes later, erases anything that
+        // landed in between. A skill import is exactly that: it APPENDS to an
+        // assistant's `enabledSkills` from MAIN, so importing with this editor
+        // open and then hitting Save silently removed the skill the user had
+        // just installed. Re-reading here narrows the window to the few
+        // milliseconds around the write. It is not atomic - that needs an
+        // update seam across the bridge - but it removes the case that actually
+        // bites, which is a stale editor.
+        const latestAgents = ((await ConfigStorage.get('assistants')) ?? agents) as typeof agents;
+        await ConfigStorage.set('assistants', [...latestAgents, newAssistant]);
         setActiveAssistantId(newId);
         await loadAssistants();
         message.success(t('common.createSuccess', { defaultValue: 'Created successfully' }));
@@ -346,15 +359,20 @@ export const useAssistantEditor = ({
           });
         }
 
-        const assistantIndex = agents.findIndex((agent) => agent.id === targetAssistant.id);
+        // Same reasoning as the create branch: re-read immediately before the
+        // write so this Save only overwrites the assistant it is editing, and
+        // carries every other assistant across as it is on disk NOW.
+        const latestAgents = ((await ConfigStorage.get('assistants')) ?? agents) as typeof agents;
+        const assistantIndex = latestAgents.findIndex((agent) => agent.id === targetAssistant.id);
         if (assistantIndex >= 0) {
-          const updatedAgents = [...agents];
+          const updatedAgents = [...latestAgents];
           updatedAgents[assistantIndex] = updatedAgent;
           await ConfigStorage.set('assistants', updatedAgents);
         } else {
-          const customIndex = customAgents.findIndex((agent) => agent.id === targetAssistant.id);
+          const latestCustom = ((await ConfigStorage.get('acp.customAgents')) ?? customAgents) as typeof customAgents;
+          const customIndex = latestCustom.findIndex((agent) => agent.id === targetAssistant.id);
           if (customIndex >= 0) {
-            const updatedCustomAgents = [...customAgents];
+            const updatedCustomAgents = [...latestCustom];
             updatedCustomAgents[customIndex] = updatedAgent;
             await ConfigStorage.set('acp.customAgents', updatedCustomAgents);
           } else {
