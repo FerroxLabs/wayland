@@ -142,7 +142,7 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('cfa89a9c');
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('bc13e6e3');
     expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 22 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
@@ -269,11 +269,30 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // with the release's publisher attestation verified to producer cfa89a9c on
     // refs/heads/main.
     //
+    // v0.13.10 -> v0.13.11 IS THE RARE ONE: THE CONTRACT DID NOT MOVE AT ALL.
+    //
+    // Every field above still holds, because the corpus v0.13.11 ships is
+    // BYTE-IDENTICAL to v0.13.10's - minor 22, generator gen/22, counts
+    // 3/29/68/195, and all three digests unchanged. `git status contracts/` is
+    // empty after the re-import, which is the check that says so rather than an
+    // assumption. So the `approval_required` / `resume_token` correlation
+    // described above is still exactly the live wire question, unchanged by
+    // this bump; nothing about it was re-settled here.
+    //
+    // What DID move is the engine binary and the producer that built it:
+    // producer cfa89a9c -> bc13e6e3 on refs/heads/main, carrying
+    // `20d99006` - the command floor allowing skill executables under
+    // `.wayland-core/skills` to run. Proven by execution on BOTH platforms,
+    // interleaved A,B,A,B through `wayland-core sandbox exec`: v0.13.10 refused
+    // a `node .wayland-core/skills/probe.js` in both rounds on macOS and on
+    // Windows, v0.13.11 ran it in both rounds on both. That fix is the whole
+    // reason for the bump - without it no skill-bearing pack can run at all.
+    //
     // If the pin is ever NOT 22 this whole assertion is stale and the coupling
     // must be re-derived from the released manifest, not patched.
     expect(DESKTOP_CORE_V1_PIN.minor).toBe(22);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.10'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.11'"
     );
   });
 

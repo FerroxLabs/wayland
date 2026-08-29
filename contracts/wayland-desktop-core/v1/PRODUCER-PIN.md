@@ -1,7 +1,22 @@
 # Desktop validation pin
 
 This corpus is a byte-for-byte mechanical import from Wayland Core commit
-`cfa89a9c8297da5a4e080f18250743c340b53560`, which is the **`v0.13.10` release tag**.
+`bc13e6e32c161e291f283af5b73ad3b47a68d631`, which is the **`v0.13.11` release tag**.
+
+**v0.13.11 ships the IDENTICAL corpus to v0.13.10.** Same contract `1.22`, same
+generator `gen/22`, same counts (3 child types, 29 commands, 68 events, 195 fixtures),
+and all three digests below unchanged — `git status contracts/` was empty after the
+re-import, which is the check that establishes it rather than an assumption. Only the
+producer commit moved (`cfa89a9c` -> `bc13e6e3`), so every wire note recorded below
+for v0.13.10 still stands unmodified, including the open `approval_required` /
+`resume_token` question, which this bump neither settles nor disturbs.
+
+The engine itself is why the bump exists: v0.13.11 carries `20d99006`, which lets
+skill executables under `.wayland-core/skills` run. v0.13.10's command floor refused
+them, so no skill-bearing pack could execute a script at all. Proven by execution on
+both platforms, interleaved A,B,A,B through `wayland-core sandbox exec`: v0.13.10
+refused `node .wayland-core/skills/probe.js` in both rounds on macOS and on Windows;
+v0.13.11 ran it in both rounds on both.
 
 - contract: `wayland-desktop-core` `1.22`
 - generator: `wcore-desktop-contract-gen/22`
