@@ -83,14 +83,18 @@ You are not prompting a chatbot. You are coworking with a system that remembers 
 
 Grab the latest build for your platform. No account, no sign-up. Every link opens the latest Releases page, where you pick the file for your platform.
 
-| Platform    | Architecture              | File                                                          |
-| ----------- | ------------------------- | ------------------------------------------------------------- |
-| **macOS**   | Apple Silicon (M1 and up) | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **macOS**   | Intel                     | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | x64                       | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | ARM64                     | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux**   | x64 (Debian / Ubuntu)     | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux**   | ARM64 (Debian / Ubuntu)   | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
+| Platform    | Architecture                     | File                                                               |
+| ----------- | -------------------------------- | ------------------------------------------------------------------ |
+| **macOS**   | Apple Silicon (M1 and up)        | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **macOS**   | Intel                            | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Windows** | x64                              | [.exe](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Windows** | ARM64                            | [.exe](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | x64 (Debian / Ubuntu)            | [.deb](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | ARM64 (Debian / Ubuntu)          | [.deb](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | x64 (Fedora / RHEL / openSUSE)   | [.rpm](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | ARM64 (Fedora / RHEL / openSUSE) | [.rpm](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | x64 (any distro)                 | [.AppImage](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Linux**   | ARM64 (any distro)               | [.AppImage](https://github.com/ferroxlabs/wayland/releases/latest) |
 
 The installer bundles the Wayland-Core engine for your platform, so a clean install runs agents the moment you add a provider key.
 
@@ -129,6 +133,8 @@ Prefer to build it yourself? See [Build from source](#build-from-source).
 Run Wayland as an always-on agent on any Linux box or VPS, reachable from your phone. Three commands, no config files.
 
 > **Live on npm.** `getwayland` is published (`latest` is 0.12.4). The flow below is the verified one: it boots on a fresh Ubuntu VPS and answers through Flux.
+>
+> **Disclosure:** Flux Router is also built by Ferrox Labs. It is a paid inference router, and we would rather say so here than have you find out later. It is optional, off by default, takes its own separate key, and Wayland has no required backend of any kind — any OpenAI, Anthropic, Gemini, or local Ollama key works exactly as well. Delete the Flux key and everything else keeps working.
 
 **Requires Node 18 or newer.** On a fresh VPS: `sudo apt-get update && sudo apt-get install -y nodejs npm`
 
@@ -333,6 +339,10 @@ Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before open
 ## License & the Wayland name
 
 Wayland is **real open source**. This desktop app is [GNU AGPL-3.0](./LICENSE); the engine, [wayland-core](https://github.com/FerroxLabs/wayland-core), is Apache-2.0. The split is deliberate: a permissive engine so anyone can embed it, copyleft on the app so the GUI stays open. Run it, self-host it, modify it, fork it, and build commercial services around it. The only catch AGPL adds: a networked service built on the app must publish its source under the same terms. Contributions are under a light [CLA](./CONTRIBUTING.md); third-party attributions live in [notices/](./notices/).
+
+**Where it came from.** This app originates in part from [AionUi](https://github.com/iOfficeAI/AionUi) (Apache-2.0) — parts of the Electron main process, the IPC bridge, renderer scaffolding, ACP integration and MCP services — and has since diverged substantially. The engine is a Ferrox Labs fork of [aionrs](https://github.com/FerroxLabs/wayland-core) (Apache-2.0), with every workspace crate renamed and the upstream copyright headers preserved in all forked source. Full attributions: [notices/THIRD-PARTY-NOTICES.md](./notices/THIRD-PARTY-NOTICES.md). We put this here rather than only in `notices/` because a reader deciding whether to trust the project should not have to dig for it.
+
+**Who builds this.** Ferrox Labs is a small team, and most of us are part-time. We use Wayland to build Wayland, which is why the shipped surface is larger than a headcount would suggest — and why the honest answer to "has this been audited?" is on the [evidence page](https://getwayland.com/built-on), not buried.
 
 A hosted **Wayland Pro** with expanded capabilities is on the way. The core you self-host stays complete and free, never crippled to sell you the hosted one.
 
