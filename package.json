@@ -163,6 +163,7 @@
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.4.1",
     "buffer": "^6.0.3",
+    "canonicalize": "2.1.0",
     "classnames": "^2.5.1",
     "cmdk": "^1.1.1",
     "cookie": "^1.0.2",
