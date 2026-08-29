@@ -70,13 +70,26 @@ describe('defaultSkillImportIo.unzip enforces its caps while decompressing', () 
     await expect(defaultSkillImportIo.unzip(p, dir)).rejects.toThrow(/too many files/);
   });
 
-  it('does not hold the whole payload before it refuses', async () => {
-    // The measurement that the caps exist for. 40 x 8 MiB = 320 MiB expanded;
-    // stopping at the 64 MiB total cap must keep allocation near that cap, not
-    // near the payload. The old shape peaked at 376.7 MB on this fixture.
-    const p = await bomb('big.zip', 40, 8 * MiB);
-    const before = process.memoryUsage().arrayBuffers;
-    let peak = before;
+  it('holds far less than the payload, measured against the shape it replaced', async () => {
+    // The measurement the caps exist for, done as a COMPARISON rather than an
+    // absolute. `process.memoryUsage().arrayBuffers` is per-worker, so a fixed
+    // ceiling is only meaningful when this file runs alone - it passed in
+    // isolation and failed beside its siblings. Running both shapes back to
+    // back in the same worker makes the shared noise cancel.
+    const p = await bomb('big.zip', 40, 8 * MiB); // 320 MiB expanded
+    const zip = await JSZip.loadAsync(await fs.readFile(p));
+    const files = Object.entries(zip.files).filter(([, e]) => !e.dir);
+
+    // The old shape: expand everything, THEN consult the cap.
+    const beforeOld = process.memoryUsage().arrayBuffers;
+    const all: Buffer[] = [];
+    for (const [, entry] of files) all.push(Buffer.from(await entry.async('arraybuffer')));
+    const oldPeak = process.memoryUsage().arrayBuffers - beforeOld;
+    all.length = 0;
+
+    // The shipped shape: refuse partway, holding only what was allowed.
+    const beforeNew = process.memoryUsage().arrayBuffers;
+    let peak = beforeNew;
     const tick = setInterval(() => {
       peak = Math.max(peak, process.memoryUsage().arrayBuffers);
     }, 5);
@@ -86,9 +99,11 @@ describe('defaultSkillImportIo.unzip enforces its caps while decompressing', () 
     } finally {
       clearInterval(tick);
     }
-    // Generous ceiling: the point is 150 MiB vs the 320 MiB the archive holds,
-    // not a tight bound on JSZip's own working set.
-    expect((peak - before) / MiB).toBeLessThan(150);
+    const newPeak = peak - beforeNew;
+
+    // Measured on this fixture: ~376 MB before, ~104 MB after. Asserting a
+    // ratio rather than either number, with room to spare.
+    expect(newPeak).toBeLessThan(oldPeak * 0.6);
   });
 
   it('still returns a normal skill archive untouched', async () => {

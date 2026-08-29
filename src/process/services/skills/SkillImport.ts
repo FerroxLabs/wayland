@@ -132,16 +132,17 @@ export function isImportableFile(name: string): boolean {
  * `.py` and `.mjs` ONLY. Both are inert unless something deliberately runs
  * them: neither is auto-loaded by staging the directory.
  *
- * ⚠ DISCLOSURE HERE IS AFTER THE FACT, NOT A CONSENT GATE. This comment used to
- * claim the importer was told "before installing"; it is not. On a `clean`
- * verdict `_scanAndRegister` copies the tree, registers the skill and switches
- * it on for the current assistant, and only THEN are these names returned in
- * `warnings`. The machinery for a real gate already exists one function below -
- * a `review` verdict is held with `registered: false` until `confirmImport`
- * re-verifies it against the hash the user saw - and routing script-bearing
- * packs through it is the fix. It is not done here because it adds a second
- * click to the flagship pack install, which is a product decision and not a
- * code one. Until it is made, do not describe this path as informed consent.
+ * AND IT IS A GATE, NOT A NOTICE. A pack carrying any of these is HELD:
+ * `_copyAndScan` knows what the copy found before anything is registered, so
+ * `_scanAndRegister` leaves it `registered: false` with `heldFor: 'scripts'`,
+ * the files are named, and one click through `confirmImport` - which
+ * re-verifies against the hash the user saw - is what installs it.
+ *
+ * This was previously the other way round: register, switch on, then list the
+ * files. That is disclosure after the fact, and it was worse here than
+ * anywhere else, because our own setup guide tells a non-technical buyer to
+ * approve what they are asked. A person told in advance to say yes has not
+ * consented to anything they were only shown afterwards.
  */
 export const DISCLOSED_SCRIPT_EXTENSIONS = ['.py', '.mjs'];
 
@@ -309,6 +310,13 @@ export type ImportedSkillResult = {
    * an id, not something a buyer should be shown.
    */
   enabledForLabel: string | null;
+  /**
+   * Why the skill is waiting, when it is: `review` because the sweep flagged
+   * its text, `scripts` because it carries executable files the sweep cannot
+   * read. Null once it is registered. The two need different words - one is a
+   * warning about what a skill SAYS, the other about what it CARRIES.
+   */
+  heldFor: 'review' | 'scripts' | null;
 };
 
 export type ImportResult = {
@@ -647,7 +655,13 @@ export class SkillImport {
     // read, so the folder and git paths installed scripts silently and dropped
     // refused files silently - on the same import surface whose zip path says
     // both out loud.
-    const result = await this._scanAndRegister([{ name: basename, body, destDir }]);
+    // The copy has already walked the tree, so what it carries is known BEFORE
+    // anything is registered. That is the whole point: the decision has to be
+    // available at the moment it can still be declined.
+    const result = await this._scanAndRegister(
+      [{ name: basename, body, destDir }],
+      this.disclosedScripts.length > 0
+    );
     for (const rel of this.disclosedScripts) result.warnings.unshift(`Contains script: ${rel}`);
     for (const rel of this.skippedExecutables) {
       result.warnings.push(`Skipped ${rel}: this file type is not imported`);
@@ -733,7 +747,8 @@ export class SkillImport {
    *  - `clean`   → registered immediately with `registered: true`.
    */
   private async _scanAndRegister(
-    skills: Array<{ name: string; body: string; destDir: string }>
+    skills: Array<{ name: string; body: string; destDir: string }>,
+    holdForScripts = false
   ): Promise<ImportResult> {
     const inputs: SkillScanInput[] = skills.map((s) => ({
       name: s.name,
@@ -763,10 +778,19 @@ export class SkillImport {
       // `review` is HELD pending explicit consent: the on-disk copy stays
       // (so confirmImport can re-verify it) but it is NOT registered, so no
       // agent can retrieve it until the user approves.
+      //
+      // A CLEAN pack that carries executable files is held the same way. The
+      // sweep reads prompt text; it cannot vouch for a `.py` or an `.mjs`, and
+      // `initAgent` COPIES the skill directory into the workspace the agent
+      // runs shell in. Registering first and listing the files afterwards is
+      // disclosure, not consent - and the people importing these are told by
+      // our own guide to click Approve. So the names go up, and one click
+      // through `confirmImport` (which re-verifies against the hash the user
+      // saw) is what registers it.
       let registered = false;
       let enabledFor: string | null = null;
       let enabledForLabel: string | null = null;
-      if (report.verdict === 'clean') {
+      if (report.verdict === 'clean' && !holdForScripts) {
         warnings.push(...this._register(skill.name, skill.destDir, skill.body, report));
         registered = true;
         // Switch it on for the assistant the user is about to chat with. Only
@@ -786,6 +810,7 @@ export class SkillImport {
         type: parseFrontmatterType(skill.body),
         body: skill.body,
         registered,
+        heldFor: registered ? null : report.verdict === 'review' ? 'review' : 'scripts',
         enabledFor,
         enabledForLabel,
       });

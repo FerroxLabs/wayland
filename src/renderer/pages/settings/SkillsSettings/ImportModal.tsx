@@ -18,8 +18,15 @@ type ScannedEntry = {
   /** Absolute imported path - needed to confirm a held (review) skill. */
   destPath: string;
   report: SkillSecurityReport;
-  /** Whether the skill is already live (clean) or held pending consent (review). */
+  /** Whether the skill is already live, or held pending consent. */
   registered: boolean;
+  /**
+   * Why it is waiting: `review` because the sweep flagged its TEXT, `scripts`
+   * because it carries executable files the sweep cannot read. Different
+   * warnings, so different words - one is about what a skill says, the other
+   * about what it brings with it.
+   */
+  heldFor: 'review' | 'scripts' | null;
   /**
    * The assistant the skill was switched on for, or null for none.
    *
@@ -115,7 +122,10 @@ const ScanResultsScreen: React.FC<{
 
       <div className='flex flex-col gap-8px max-h-[360px] overflow-y-auto custom-scrollbar'>
         {screen.entries.map((entry) => {
-          const isReview = entry.report.verdict === 'review';
+          // Anything not yet registered needs the same one click, whether the
+          // sweep flagged it or it carries executable files.
+          const isReview = entry.heldFor === 'review';
+          const isHeld = entry.heldFor !== null;
           return (
             <div key={entry.name} className='flex flex-col gap-8px p-12px bg-fill-1 rd-8px border border-b-base'>
               <div className='flex items-start justify-between gap-12px'>
@@ -147,7 +157,15 @@ const ScanResultsScreen: React.FC<{
                 </div>
                 <VerdictBadge verdict={entry.report.verdict} />
               </div>
-              {isReview && (
+              {entry.heldFor === 'scripts' && (
+                <span className='text-12px text-[rgb(var(--warning-6))]'>
+                  {t('skills.import.scan.heldForScripts', {
+                    defaultValue:
+                      'This pack brings runnable files, listed above. The sweep reads instructions, not code, so nothing is installed until you say so.',
+                  })}
+                </span>
+              )}
+              {isHeld && (
                 <div className='flex justify-end'>
                   <Button
                     size='small'
@@ -158,7 +176,11 @@ const ScanResultsScreen: React.FC<{
                   >
                     {entry.registered
                       ? t('skills.import.actions.imported', { defaultValue: 'Imported' })
-                      : t('skills.import.actions.importAnyway', { defaultValue: 'Import anyway' })}
+                      : isReview
+                        ? t('skills.import.actions.importAnyway', { defaultValue: 'Import anyway' })
+                        : t('skills.import.actions.installWithScripts', {
+                            defaultValue: 'Install it',
+                          })}
                   </Button>
                 </div>
               )}
@@ -229,6 +251,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
       destPath: r.destPath,
       report: r.report,
       registered: r.registered,
+      heldFor: r.heldFor,
       enabledFor: r.enabledForLabel ?? r.enabledFor,
     }));
     setScanScreen({ entries, quarantined: result.quarantined, warnings: result.warnings });
