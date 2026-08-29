@@ -142,8 +142,8 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('9d3f33c3');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 21 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('cfa89a9c');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 22 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
@@ -241,11 +241,39 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // vice versa. That is not a theoretical risk - it is what these digests
     // changing MEANS, and it is why the corpus re-import is not optional.
     //
-    // If the pin is ever NOT 21 this whole assertion is stale and the coupling
+    // v0.13.9 -> v0.13.10 is a SMALL move on the counts and a LOUD one on the
+    // wire. Every field below was read out of the released manifest:
+    //   minor        21 -> 22          generator  gen/21 -> gen/22
+    //   commands     29 -> 29          events     67 -> 68
+    //   child types   3 -> 3           fixtures  194 -> 195
+    //   all THREE digests moved (fixture, schema, source_inputs)
+    //   capabilities: NONE added, NONE removed, NONE re-graded
+    //   events +1: `set_mode_refused` (capability `available`, safety)
+    //
+    // THE PART THAT IS NOT ADDITIVE, AND THE REASON THIS BUMP IS NOT A STAMP:
+    // `approval_required` re-correlates from `resume_token` to `call_id`, and
+    // its fixture now ships `resume_token: ""` where 0.13.9 shipped
+    // `"resume-001"`. `commands/approval_resume.json` still correlates on
+    // `resume_token` and its fixture is byte-identical, so the RESUME side of
+    // the handshake did not move - only the side that hands us the token did.
+    // Desktop reads `event.resume_token` truthily
+    // (`wcore/index.ts` pauseStallWatchdog + the resumeToken it forwards), so an
+    // empty string is not a null-safe no-op there: it silently stops pausing the
+    // stall watchdog across a human approval. Whether the LIVE engine populates
+    // the field or the empty fixture is the real wire is a question only a run
+    // answers, and it is why this bump is verified against a packaged app and an
+    // approval-bearing turn rather than signed off from the corpus.
+    //
+    // Cross-checked against the signed asset
+    // `wayland-core-v0.13.10-desktop-contract-v1.tar.gz`, imported byte-for-byte,
+    // with the release's publisher attestation verified to producer cfa89a9c on
+    // refs/heads/main.
+    //
+    // If the pin is ever NOT 22 this whole assertion is stale and the coupling
     // must be re-derived from the released manifest, not patched.
-    expect(DESKTOP_CORE_V1_PIN.minor).toBe(21);
+    expect(DESKTOP_CORE_V1_PIN.minor).toBe(22);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.9'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.10'"
     );
   });
 
@@ -295,7 +323,7 @@ describe('Wayland Core Desktop v1 producer pin', () => {
   // outbound validation. The three fixtures are the whole delta, and the
   // fixture count moves by exactly the same three.
   it('contains exactly the advertised 26 commands, 61 events, and 174 fixtures', () => {
-    expect(manifest.counts).toEqual({ child_types: 3, commands: 29, events: 67, fixtures: 194 });
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 29, events: 68, fixtures: 195 });
     // The inventory and the declared count must agree - a corpus that ships a
     // fixture it does not list, or lists one it does not ship, is the exact
     // class of drift C-1 was.

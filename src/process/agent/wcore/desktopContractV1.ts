@@ -15,7 +15,7 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '9d3f33c3' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = 'cfa89a9c' as const;
 
 /**
  * Pinned to Core `d1f55f0b`, the `v0.13.7` release tag. Every value below was
@@ -65,11 +65,11 @@ export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '9d3f33c3' as const;
 export const DESKTOP_CORE_V1_PIN = {
   name: 'wayland-desktop-core',
   major: 1,
-  minor: 21,
-  generator: 'wcore-desktop-contract-gen/21',
-  fixtureDigest: 'sha256:a5a1c557c9ce88acfc870a7a386fd0bb03b9638bcccf3415af2d172df9285750',
-  schemaDigest: 'sha256:22e8a861bb398ca5ed0dd247371bb0b8780d0b601959f98b06cf29ef2c44b2a4',
-  sourceInputsDigest: 'sha256:ce9fd0629eb0cc4b571e7b27a38794728d67f367de82db57293f10621e021e60',
+  minor: 22,
+  generator: 'wcore-desktop-contract-gen/22',
+  fixtureDigest: 'sha256:2221656e299ce2408ccbfe5380dc72cb0b542ec7bc1d1e2369488aa5bb311eb1',
+  schemaDigest: 'sha256:47e255b800cb36390e975580e7d1cfa19c35bb43cb6ac71fa3e4efd55c22da6f',
+  sourceInputsDigest: 'sha256:c2e79a631ff5401e9870569d147edcffd7b15bc1a3ce662ee04f1aee9c17c0f0',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
