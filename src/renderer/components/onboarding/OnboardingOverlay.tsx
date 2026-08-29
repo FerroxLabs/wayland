@@ -17,7 +17,7 @@ import styles from './OnboardingOverlay.module.css';
  * is always-local (even in headless mode) and synchronous, so it durably records
  * a dismiss even if the cross-process `ConfigStorage.set` write never lands.
  */
-
+const LOCAL_MARKER_KEY = 'onboardingCompleted';
 
 const readLocalMarker = (): boolean => {
   try {

@@ -127,7 +127,17 @@ describe('OnboardingOverlay', () => {
     });
 
     await waitFor(() => {
-      expect(hooks.configSet).toHaveBeenCalledTimes(2);
+      // REPOINTED, not relaxed. This test's contract is the RETRY of the
+      // `onboardingCompleted` write - two attempts when the first rejects.
+      // Dismiss now also records `ui.shellChoicePrompted` (so a fresh install is
+      // not ambushed by the Cockpit layout prompt on launch two), which is a
+      // third `ConfigStorage.set` on an unrelated key. Counting every call made
+      // this assertion depend on how many OTHER keys dismiss happens to write;
+      // counting the key under test states the contract directly.
+      const onboardingWrites = hooks.configSet.mock.calls.filter(
+        ([key]: [string]) => key === 'onboardingCompleted'
+      );
+      expect(onboardingWrites).toHaveLength(2);
     });
     // Local marker still durably records the dismiss regardless of the bridge.
     expect(localStorage.getItem('onboardingCompleted')).toBe('1');

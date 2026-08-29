@@ -307,9 +307,20 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
 
   const storageKey = MODEL_STORAGE_KEY[agentKey];
 
+  /**
+   * Was the model now on screen CHOSEN, or merely resolved for the user?
+   *
+   * `persist === false` is already how this setter tells its two callers apart
+   * (see the comment inside it). Recording that distinction lets the lock below
+   * treat the two differently: a deliberate pick is never overridden, while an
+   * auto-resolved default may still be corrected by a pin that lands after it.
+   */
+  const currentIsDeliberateRef = useRef(false);
+
   const setCurrentModel = useCallback(
     async (modelInfo: TProviderWithModel, opts?: { persist?: boolean }) => {
       selectedModelKeyRef.current = buildModelKey(modelInfo.id, modelInfo.useModel);
+      currentIsDeliberateRef.current = opts?.persist !== false;
       // Apply to React state FIRST, and never gate it on the write.
       //
       // The renderer IPC bridge is resolve-only: it has no reject path and no
@@ -391,14 +402,47 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
           /* no override on failure - fall through to the normal lock */
         }
       }
-      if (!agentChanged && !fluxOverridePending && isModelKeyAvailable(currentKey, modelList)) {
+      // A SAVED PIN THAT DISAGREES WITH THE LOCK MUST BE ALLOWED TO WIN.
+      //
+      // The lock below exists to keep an in-session choice against catalog
+      // refreshes, and `fluxOverridePending` above is a narrow escape hatch cut
+      // for one shape of the same problem (#129, Flux). But the general problem
+      // is not Flux-specific: onboarding writes its pin AFTER the composer has
+      // already resolved and locked, so ANY first-run pin arrives too late and
+      // the lock holds a model nobody chose for the rest of the session.
+      //
+      // Measured on fresh profiles, repeatedly and intermittently - it is a
+      // race, so it is right on some runs and wrong on others: pin on disk
+      // `gemini-3.7-flash` while the chip read `allam-2-7b`; and with Flux
+      // connected, pin `flux-reasoning` while the chip read `flux-auto` (the
+      // tier measured at 1 completion in 6). Both corrected on the next launch,
+      // so it was always exactly one session wrong - the first one.
+      //
+      // Reading the pin before the lock closes it for every path at once. This
+      // cannot override a deliberate pick: a real pick persists to this same
+      // key, so pin and current agree and the lock still holds. And falling
+      // through only reaches the resolution chain, where `recentMatch` (written
+      // ONLY on a real pick) still ranks above the pin.
+      const savedModel = await ConfigStorage.get(storageKey);
+      const savedPin = resolveSavedPin(savedModel, modelList);
+      const savedPinKey = savedPin ? buildModelKey(savedPin.provider.id, savedPin.useModel) : null;
+      // ONLY an auto-resolved selection may be corrected this way.
+      //
+      // Breaking the lock on ANY disagreement regressed a real case the suite
+      // already covered: a manual pick whose persist never settles leaves the
+      // OLD pin on disk, so the pin "disagrees", and re-resolving threw the
+      // user's own pick away. `currentIsDeliberateRef` is the same
+      // `persist === false` distinction the setter already makes.
+      const pinDisagreesWithLock = Boolean(
+        savedPinKey && currentKey && savedPinKey !== currentKey && !currentIsDeliberateRef.current
+      );
+
+      if (!agentChanged && !fluxOverridePending && !pinDisagreesWithLock && isModelKeyAvailable(currentKey, modelList)) {
         if (!selectedModelKeyRef.current && currentKey) {
           selectedModelKeyRef.current = currentKey;
         }
         return;
       }
-      const savedModel = await ConfigStorage.get(storageKey);
-      const savedPin = resolveSavedPin(savedModel, modelList);
 
       // Telemetry of models the user actually picked (recency-sorted). One IPC
       // per cold resolution; failures resolve to an empty list - telemetry must
