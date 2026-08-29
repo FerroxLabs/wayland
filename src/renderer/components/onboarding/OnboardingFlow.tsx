@@ -43,6 +43,7 @@ import type { ShellExperience } from '@/common/shellExperience';
 import ShellChoiceCards from '@renderer/components/shell/ShellChoice/ShellChoiceCards';
 import { writeShellExperience } from '@renderer/hooks/ui/useShellExperience';
 import { markShellChoicePrompted } from '@renderer/utils/ui/shellChoice';
+import { mutate as globalMutate } from 'swr';
 import { resolveFocusSelection, type FocusPersonaId } from './focusMap';
 import { providerLabel } from './providerLabel';
 import { openExternalUrl } from '@renderer/utils/platform';
@@ -173,6 +174,31 @@ const accentStyle = (accent: string): React.CSSProperties =>
  * (loaded / ready / pick-a-model), a focus pick that seeds the launchpad, and a
  * one-line "you're all set". Matches the approved walkable simulation.
  */
+/**
+ * Tell the composer a default-model pin just landed.
+ *
+ * THE PIN IS WRITTEN TOO LATE FOR THE SESSION IT IS ONBOARDING. `useGuidModelSelection`
+ * resolves `recentMatch ?? savedTrusted ?? frequentMatch ?? fluxAuto ?? resolveSafeDefault
+ * ?? savedPin` off the SWR key below, and it re-runs on `modelRegistry.listChanged`.
+ * During onboarding the last such event is the provider scan - which fires BEFORE the
+ * `.then()` here writes the pin. So the composer locks whatever it resolved without a
+ * pin, and nothing re-resolves for the rest of the session.
+ *
+ * Measured on fresh profiles against a packaged build, twice: the pin on disk read
+ * `gemini-3.7-flash` while the chip showed `allam-2-7b`, and with Flux connected the pin
+ * read `flux-reasoning` while the chip showed `flux-auto`. Both corrected themselves on
+ * the NEXT launch - so it is exactly one session wrong, and it is the session that decides
+ * what a new user thinks of the product.
+ *
+ * Revalidating the key the hook already reads makes it re-resolve with the pin present.
+ * Deliberately not a change inside that hook: its own comments carry three separate
+ * already-fixed races, and this needs none of its ordering to move.
+ */
+const announceDefaultModelPin = (): void => {
+  // Same literal key `useGuidModelSelection` passes to useSWR.
+  void globalMutate('model.config.welcome');
+};
+
 const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) => {
   const { t } = useTranslation();
   // Read persisted progress exactly once (lazy init) so a remount resumes where
@@ -268,6 +294,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
           await ConfigStorage.set('wcore.defaultModel', pin);
           await ConfigStorage.set('gemini.defaultModel', pin);
           await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
+          announceDefaultModelPin();
         } catch (err) {
           console.warn('[OnboardingFlow] flux auto-detect default pin failed', err);
         }
@@ -296,6 +323,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
             const pin = { id: safe.provider.id, useModel: safe.useModel };
             await ConfigStorage.set('wcore.defaultModel', pin);
             await ConfigStorage.set('gemini.defaultModel', pin);
+            announceDefaultModelPin();
           }
         } catch (err) {
           console.warn('[OnboardingFlow] safe default pin failed', err);
@@ -326,6 +354,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
           await ConfigStorage.set('wcore.defaultModel', pin);
           await ConfigStorage.set('gemini.defaultModel', pin);
           await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
+          announceDefaultModelPin();
         } catch (err) {
           console.warn('[OnboardingFlow] flux first-run pin failed', err);
         }
@@ -385,6 +414,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
             await ConfigStorage.set('wcore.defaultModel', pin);
             await ConfigStorage.set('gemini.defaultModel', pin);
             await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
+            announceDefaultModelPin();
           } catch (err) {
             console.warn('[OnboardingFlow] flux pasted-key pin failed', err);
           }
