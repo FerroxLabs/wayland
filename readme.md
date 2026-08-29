@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ferroxlabs/wayland/releases"><img src="https://img.shields.io/badge/release-v0.9.6--rc.1-ff6b35?style=flat" alt="Release"/></a>
+  <a href="https://github.com/ferroxlabs/wayland/releases"><img src="https://img.shields.io/github/v/release/ferroxlabs/wayland?style=flat&color=ff6b35&label=release" alt="Release"/></a>
   <a href="https://github.com/ferroxlabs/wayland/releases"><img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-08070c?style=flat" alt="Platforms"/></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-08070c?style=flat" alt="License: AGPL-3.0"/></a>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/engine-Rust-08070c?style=flat" alt="Engine: Rust"/></a>
