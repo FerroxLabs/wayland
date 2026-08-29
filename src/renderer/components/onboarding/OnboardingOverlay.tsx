@@ -8,6 +8,7 @@ import { Modal } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ConfigStorage } from '@/common/config/storage';
 import { useOnboardingDetection } from '@renderer/hooks/useOnboardingDetection';
+import { markShellChoicePrompted } from '@renderer/utils/ui/shellChoice';
 import OnboardingFlow from './OnboardingFlow';
 import styles from './OnboardingOverlay.module.css';
 
@@ -16,7 +17,7 @@ import styles from './OnboardingOverlay.module.css';
  * is always-local (even in headless mode) and synchronous, so it durably records
  * a dismiss even if the cross-process `ConfigStorage.set` write never lands.
  */
-const LOCAL_MARKER_KEY = 'onboardingCompleted';
+
 
 const readLocalMarker = (): boolean => {
   try {
@@ -94,6 +95,26 @@ const OnboardingOverlay: React.FC = () => {
       // covers the cross-restart case; this just best-effort syncs the bridge.
       void ConfigStorage.set('onboardingCompleted', true).catch(() => {});
     });
+    // ONBOARDING ANSWERS THE LAYOUT QUESTION. ALL OF IT, NOT JUST ONE EXIT.
+    //
+    // `ShellChoiceOverlay` is for EXISTING installs: it opens on
+    // `!promptedForShell && onboardingCompleted`. Onboarding is supposed to be
+    // the other half of that pair, and it marks the flag - but only inside
+    // `finishLayout`, the layout screen's own Continue. Every other way out of
+    // the wizard sets `onboardingCompleted` here and leaves the flag unset, so
+    // the NEXT launch ambushes a brand-new user with "Try the new Cockpit
+    // layout?" over the app.
+    //
+    // Measured on a fresh profile: the wizard completed, `onboardingCompleted`
+    // was true, no `ui.shellChoicePrompted` key existed at all, and launch two
+    // opened blocked by that modal. For a Masterclass buyer that lands mid-guide
+    // and, if they pick Cockpit, renames the very sidebar entries the guide
+    // tells them to click.
+    //
+    // Marking it here makes the pairing hold for EVERY exit route. It cannot
+    // silence the prompt for an existing install: this runs only when the
+    // first-run overlay itself closes.
+    void markShellChoicePrompted();
   }, []);
 
   if (completed !== false || detecting || !detection || !open) {
