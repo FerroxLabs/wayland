@@ -68,6 +68,48 @@ export const REFUSED_IMPORT_EXTENSIONS = [
 ];
 
 /**
+ * The ONLY file types an imported skill may carry.
+ *
+ * THIS REPLACED A DENYLIST, AND THE DENYLIST WAS BYPASSABLE. `installSkillPack`
+ * learned this first and this file did not, which is how the two paths came to
+ * disagree while writing into the SAME `getSkillsDir()`. Measured against the
+ * denylist above: a file named `helper` gives `path.extname() === ''` and
+ * passed; so did `run.sh.` and `run.sh ` (macOS tolerates both); and `.jar`,
+ * `.vbs`, `.wsf`, `.lua`, `.applescript`, `.desktop`, `.msi`, `.scr`, `.com`,
+ * `.node` and `.wasm` were simply missing from the list.
+ *
+ * The attack the denylist could not stop: a pack ships `helper` containing
+ * `#!/bin/sh` plus payload, and a SKILL.md that says "run `bash helper`".
+ * Nothing refused it, SkillGuard never read it (it scans `.md` only), and
+ * `initAgent` COPIES the skill directory into the workspace the agent runs
+ * shell in. Execute bits are irrelevant: `bash f` and `java -jar f` do not need
+ * them.
+ *
+ * Kept deliberately identical to `ALLOWED_PACK_EXTENSIONS` in
+ * `installSkillPack.ts`. A pack that installs through Settings but is refused
+ * by the concierge card - or the reverse - is a bug the user experiences as
+ * randomness.
+ */
+export const ALLOWED_IMPORT_EXTENSIONS = [
+  '.md', '.markdown', '.txt', '.csv', '.tsv', '.json', '.yaml', '.yml',
+  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg',
+];
+
+/**
+ * Normalise an entry name the way the filesystem would, so a trailing dot or
+ * space cannot smuggle a disallowed type past `path.extname`.
+ */
+export function normalisedImportExtension(name: string): string {
+  return path.extname(name.replace(/[. ]+$/, '')).toLowerCase();
+}
+
+/** True iff this filename may be written into the skills directory at all. */
+export function isImportableFile(name: string): boolean {
+  const ext = normalisedImportExtension(name);
+  return ALLOWED_IMPORT_EXTENSIONS.includes(ext) || DISCLOSED_SCRIPT_EXTENSIONS.includes(ext);
+}
+
+/**
  * Script types a pack MAY carry, on the condition that carrying them is
  * DISCLOSED to the person importing it.
  *
@@ -433,9 +475,11 @@ export class SkillImport {
         // everything that is not markdown. A `.txt` watchlist or a `.csv` is
         // data the skill reads; a `.sh` is not, and SkillGuard reasons about
         // prompt text so it could never have vouched for one.
-        const ext = path.extname(entry.path).toLowerCase();
-        if (REFUSED_IMPORT_EXTENSIONS.includes(ext)) {
-          warnings.push(`Skipped ${entry.path}: executable files are not imported`);
+        // ALLOWLIST, not denylist - see ALLOWED_IMPORT_EXTENSIONS for the
+        // bypasses the denylist could not stop.
+        const ext = normalisedImportExtension(entry.path);
+        if (!isImportableFile(entry.path)) {
+          warnings.push(`Skipped ${entry.path}: this file type is not imported`);
           continue;
         }
         // Imported, and SAID OUT LOUD. Silently skipping these was worse than
@@ -528,7 +572,16 @@ export class SkillImport {
     // vanished on import while the import still reported success.
     const body = await this._copyTree(srcDir, destDir);
 
-    return this._scanAndRegister([{ name: basename, body, destDir }]);
+    // SURFACE WHAT THE COPY DECIDED. Both buffers used to be written and never
+    // read, so the folder and git paths installed scripts silently and dropped
+    // refused files silently - on the same import surface whose zip path says
+    // both out loud.
+    const result = await this._scanAndRegister([{ name: basename, body, destDir }]);
+    for (const rel of this.disclosedScripts) result.warnings.unshift(`Contains script: ${rel}`);
+    for (const rel of this.skippedExecutables) {
+      result.warnings.push(`Skipped ${rel}: this file type is not imported`);
+    }
+    return result;
   }
 
 
@@ -554,11 +607,13 @@ export class SkillImport {
   }
 
   private skippedExecutables: string[] = [];
+  private disclosedScripts: string[] = [];
   private copyRoot = '';
 
   private async _copyTree(src: string, dest: string, depth = 0): Promise<string> {
     if (depth === 0) {
       this.skippedExecutables = [];
+      this.disclosedScripts = [];
       this.copyRoot = src;
     }
     if (depth > 8) throw new Error('Rejected: skill folder nests too deeply');
@@ -576,11 +631,18 @@ export class SkillImport {
         if (!body) body = nested;
         continue;
       }
-      const ext = path.extname(file).toLowerCase();
-      if (REFUSED_IMPORT_EXTENSIONS.includes(ext)) {
-        // Skipped, not fatal: one stray script must not cost the user the pack.
-        this.skippedExecutables.push(path.join(path.relative(this.copyRoot, src), file));
+      // The folder and git paths get the SAME allowlist as the zip path, and
+      // the same disclosure. They had neither: a `.py` landed here silently,
+      // which made the whole "a pack can never place executable content
+      // silently" claim true on one import vector out of four.
+      const rel = path.join(path.relative(this.copyRoot, src), file);
+      if (!isImportableFile(file)) {
+        // Skipped, not fatal: one stray file must not cost the user the pack.
+        this.skippedExecutables.push(rel);
         continue;
+      }
+      if (DISCLOSED_SCRIPT_EXTENSIONS.includes(normalisedImportExtension(file))) {
+        this.disclosedScripts.push(rel);
       }
       await this.io.copyFile(from, to);
       if (depth === 0 && file === 'SKILL.md') {

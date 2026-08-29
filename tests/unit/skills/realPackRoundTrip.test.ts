@@ -33,6 +33,7 @@ describe('the REAL shipped pack survives the tightened policy', () => {
         'BUILD.txt',
         'SETUP-TC-TIDE.md',
         'SKILL.md',
+        'START-HERE.md',
         'report/assemble.py',
         'report/brief_charts.py',
         'report/brief_css.py',
