@@ -3,7 +3,10 @@
   Screenshots live at .github/assets/<name>.jpg. Raw image URLs are pinned to the
   main branch; pin to a release tag before a wide launch so older releases keep rendering.
   Verified facts only: engine binary 47 MB (measured), 5 memory partitions, 25 channels,
-  177 workflows, 2,000+ capabilities (2,105 in skills-library index), AGPL-3.0.
+  AGPL-3.0. Counts come from .skill-pack/skills-library/index.json and NOTHING ELSE:
+  2,106 entries = 1,974 skills + 107 workflows + 25 agent-profiles (counted 2026-08-29).
+  The site quotes the same index. It previously said 177 workflows, which was never true
+  and which an outside reviewer caught by diffing this file against getwayland.com.
 -->
 
 <p align="center">
@@ -115,7 +118,7 @@ Prefer to build it yourself? See [Build from source](#build-from-source).
 
 Run Wayland as an always-on agent on any Linux box or VPS, reachable from your phone. Three commands, no config files.
 
-> **Status: shipping soon.** The `getwayland` package is not on npm yet. This is the verified flow (it boots on a fresh Ubuntu VPS and answers through Flux), and the commands go live the moment the package publishes.
+> **Live on npm.** `getwayland` is published (`latest` is 0.12.4). The flow below is the verified one: it boots on a fresh Ubuntu VPS and answers through Flux.
 
 **Requires Node 18 or newer.** On a fresh VPS: `sudo apt-get update && sudo apt-get install -y nodejs npm`
 
@@ -149,7 +152,7 @@ Instead of coaching a blank chatbot, launch a specialist that already knows the 
 
 ### Workflows from idea to outcome
 
-177 ready-to-run workflows that take you from a blank page to a finished deliverable: a launch plan, a competitor teardown, a month of content, a release write-up. Run one as-is, build your own, or put it on a schedule. Each one walks the steps so you get the outcome, not just a starting point.
+107 ready-to-run workflows that take you from a blank page to a finished deliverable: a launch plan, a competitor teardown, a month of content, a release write-up. Run one as-is, build your own, or put it on a schedule. Each one walks the steps so you get the outcome, not just a starting point.
 
 <p><img src=".github/assets/workflows.jpg" alt="Wayland workflow running step by step toward a finished outcome" width="100%"/></p>
 
