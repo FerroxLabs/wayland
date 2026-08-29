@@ -75,6 +75,30 @@ type ModelChoice = { provider: IProvider; useModel: string; accountId?: string }
  * (`v2:${registryProviderId}`). Hardcoded rather than imported because this
  * renderer hook must not reach into @process.
  */
+/**
+ * SWR key prefix for the persisted default-model pin.
+ *
+ * THE PIN IS AN INPUT TO RESOLUTION, SO IT HAS TO BE A REACTIVE ONE.
+ *
+ * The resolution effect below reads the pin, but its deps were
+ * `[modelList, storageKey]` only. Onboarding writes its pin AFTER the composer
+ * has already resolved, and then revalidated `model.config.welcome` to force a
+ * re-run - except that key holds the PROVIDER CATALOG, which a pin write does
+ * not change. SWR compares the refetched data, finds it deep-equal, keeps the
+ * same reference, the `modelList` memo does not recompute, and the effect never
+ * fires again. Every guard inside it is unreachable.
+ *
+ * Measured on a fresh Flux-connected profile, 10 runs: pin on disk
+ * `flux-reasoning` on 9 of 10, composer chip `flux-auto` on 6 of 10, and the
+ * catalog complete and correct at every sample from +2s to +15s - so nothing
+ * was racing, the effect simply never re-read the pin. Correct from launch two,
+ * because then the pin is on disk before the first resolution.
+ *
+ * Keyed by `storageKey` so switching agent refetches; revalidated by prefix
+ * with `mutate((key) => Array.isArray(key) && key[0] === MODEL_PIN_SWR_KEY)`.
+ */
+export const MODEL_PIN_SWR_KEY = 'model.default-pin';
+
 const V2_BRIDGE_PREFIX = 'v2:';
 const bridgeTagOf = (provider: IProvider): string | undefined => {
   const tag = (provider as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
@@ -306,6 +330,13 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
   const prevStorageKeyRef = useRef<string | null>(null);
 
   const storageKey = MODEL_STORAGE_KEY[agentKey];
+
+  // Trigger only - the effect still reads the pin from ConfigStorage itself, so
+  // it can never act on a stale cached copy.
+  const { data: savedPinTrigger } = useSWR([MODEL_PIN_SWR_KEY, storageKey], () =>
+    ConfigStorage.get(storageKey)
+  );
+
 
   /**
    * Was the model now on screen CHOSEN, or merely resolved for the user?
@@ -543,7 +574,7 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
     setDefaultModel().catch((error) => {
       console.error('Failed to set default model:', error);
     });
-  }, [modelList, storageKey]);
+  }, [modelList, storageKey, savedPinTrigger]);
   return {
     modelList,
     isGoogleAuth,

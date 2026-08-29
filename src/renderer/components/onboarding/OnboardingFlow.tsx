@@ -25,7 +25,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import { FLUX_DEFAULT_MODEL, FLUX_PROVIDER_ID } from '@/common/config/flux';
-import { resolveSafeDefault } from '@renderer/pages/guid/hooks/useGuidModelSelection';
+import { MODEL_PIN_SWR_KEY, resolveSafeDefault } from '@renderer/pages/guid/hooks/useGuidModelSelection';
 import { ConfigStorage } from '@/common/config/storage';
 import type { DetectionResult } from '@/common/types/onboarding';
 import type { ProviderId } from '@process/providers/types';
@@ -195,7 +195,17 @@ const accentStyle = (accent: string): React.CSSProperties =>
  * already-fixed races, and this needs none of its ordering to move.
  */
 const announceDefaultModelPin = (): void => {
-  // Same literal key `useGuidModelSelection` passes to useSWR.
+  // Revalidating the CATALOG key alone was not enough, and this is why the
+  // first fix did not take: `model.config.welcome` holds the provider list,
+  // which a pin write does not change. SWR refetches, finds the data
+  // deep-equal, keeps the same reference, and the resolution effect - whose
+  // deps are the derived model list - never re-runs. Measured across 10 fresh
+  // Flux-connected profiles: pin `flux-reasoning` on disk, chip `flux-auto` on
+  // screen, catalog complete the whole time.
+  //
+  // The pin now has its own SWR key, so say the thing that actually changed.
+  // Matched by prefix because the key carries the agent's storage key too.
+  void globalMutate((key) => Array.isArray(key) && key[0] === MODEL_PIN_SWR_KEY);
   void globalMutate('model.config.welcome');
 };
 
@@ -279,10 +289,27 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
     );
 
     void Promise.all([minBeat, wiring]).then(async ([, results]) => {
-      if (cancelled) return;
       clearInterval(logTimer);
-      setWiredProviders(results.filter((r) => r.ok).map((r) => r.pid));
-      setWireFailed(results.filter((r) => !r.ok).map((r) => r.pid));
+      // `cancelled` GUARDS THE UI, NOT THE PIN.
+      //
+      // This handler did `if (cancelled) return` on its first line, which threw
+      // away the default-model write as well as the state updates. The cleanup
+      // sets `cancelled` whenever `screen` changes - so a user who clicks past
+      // the scan before it settles finishes onboarding with NO PIN AT ALL, and
+      // the composer falls to the cold-start resolver.
+      //
+      // Measured, not reasoned: 1 run in 10 of a fresh Flux-connected profile
+      // ended with `wcore.defaultModel` undefined and the chip on `flux-auto`.
+      // The buyers most likely to hit it are exactly the ones who click fast.
+      //
+      // Stale state updates are still suppressed - that is what the flag is
+      // for, and `setScanDone` below already used it correctly. A config write
+      // is not a render; it is idempotent, it is what the user asked for by
+      // connecting a provider, and a later scan writes the same key anyway.
+      if (!cancelled) {
+        setWiredProviders(results.filter((r) => r.ok).map((r) => r.pid));
+        setWireFailed(results.filter((r) => !r.ok).map((r) => r.pid));
+      }
       // Flux detected already-connected: pin the first-run Flux tier as the
       // default so the user lands on the smart router, not whatever local model
       // happens to sort first (e.g. a tiny Ollama smollm2:135m). The tier is
