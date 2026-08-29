@@ -226,9 +226,18 @@ be pointed at on their screen is a defect, not a refinement — they cannot chec
 match what they are looking at.
 
 **If a strategy packet is installed**, it owns the brief and it has its own SKILL.md with its own
-setup conversation and its own vocabulary. Read that skill's instructions and follow them exactly
-rather than these; a packet knows what its own indicator's rows mean and you do not. These rules
-still hold underneath it: no computation, no substitution, failures named.
+setup conversation and its own vocabulary. **Load it with the `Skill` tool, by its name** — the same
+way you load `morning-prep` and `tvcontrol-setup` — then follow its instructions exactly rather than
+these; a packet knows what its own indicator's rows mean and you do not. These rules still hold
+underneath it: no computation, no substitution, failures named.
+
+**Do not go looking for a packet in the tool catalogue.** A skill is never in the tool registry, so
+a tool search for a packet's name comes back empty every single time and that miss means nothing at
+all. Measured: asked for the TC-TIDE morning brief, a search for `tide-morning-brief` returned "no
+deferred tools matching" — while the skill was staged and ready — and the turn ended there with
+nothing produced. An empty tool search for a skill name is not evidence the skill is absent and is
+never a reason to stop. If the user names a brief you do not recognise, load the skill by that name
+and read it.
 
 ### Before you run anything, walk the states in order
 
