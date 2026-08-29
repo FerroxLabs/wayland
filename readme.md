@@ -41,6 +41,8 @@
   &nbsp;&middot;&nbsp;
   <a href="https://getwayland.com">Website</a>
   &nbsp;&middot;&nbsp;
+  <a href="https://docs.getwayland.com">Docs</a>
+  &nbsp;&middot;&nbsp;
   <a href="#build-from-source">Build from source</a>
   &nbsp;&middot;&nbsp;
   <a href="#supported-agents-and-models">Supported agents</a>
