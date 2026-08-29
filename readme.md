@@ -257,7 +257,7 @@ Wayland runs a four-step loop on every turn:
 
 ## Build from source
 
-Requirements: [Bun](https://bun.sh) 1.3 or later, Node 22 to 24, and your platform toolchain for native modules.
+Requirements: [Bun](https://bun.sh) 1.3.x, Node 22 to 24, and your platform toolchain for native modules.
 
 ```bash
 git clone https://github.com/ferroxlabs/wayland.git
