@@ -46,6 +46,10 @@ beforeEach(() => {
       order.push('scan');
       return { verdict: 'clean' as const, reports: [] };
     }),
+    scripts: vi.fn(async () => {
+      order.push('scripts');
+      return [] as string[];
+    }),
     install: vi.fn(async () => {
       order.push('install');
       return { ok: true as const, name: 'tide-morning-brief', installedTo: '/x', files: 5 };
@@ -66,7 +70,9 @@ describe('runInstallSkillChain', () => {
     await expect(runInstallSkillChain(PROPOSAL, deps)).resolves.toBe(
       'Installed "tide-morning-brief" and switched it on for Smart Trader.'
     );
-    expect(order).toEqual([`download(${PROPOSAL.url},aaaa)`, 'extract', 'scan', 'install', 'enable', 'cleanup']);
+    expect(order).toEqual([
+      `download(${PROPOSAL.url},aaaa)`, 'extract', 'scan', 'scripts', 'install', 'enable', 'cleanup',
+    ]);
   });
 
   it('passes the URL and hash in the RIGHT ORDER', async () => {
@@ -129,6 +135,47 @@ describe('runInstallSkillChain', () => {
     await expect(runInstallSkillChain(PROPOSAL, deps)).resolves.toBe(
       'Installed "tide-morning-brief" - switch it on under Assistants to use it.'
     );
+  });
+
+  it('NAMES the runnable files the pack carries', async () => {
+    // `findPackScripts` had no production caller at all, so a buyer accepting
+    // this card installed executable code that was never mentioned to them.
+    deps.scripts = vi.fn(async () => ['report/assemble.py', 'report/collect.mjs']);
+    const msg = await runInstallSkillChain(PROPOSAL, deps);
+    expect(msg).toContain('2 runnable files');
+    expect(msg).toContain('report/assemble.py');
+    expect(msg).toContain('report/collect.mjs');
+  });
+
+  it('says nothing about scripts when the pack carries none', async () => {
+    const msg = await runInstallSkillChain(PROPOSAL, deps);
+    expect(msg).not.toMatch(/runnable file/);
+  });
+
+  it('reads the script list from STAGING, before install moves the tree', async () => {
+    await runInstallSkillChain(PROPOSAL, deps);
+    expect(deps.scripts).toHaveBeenCalledWith('/tmp/wl-test-staging/pack-1');
+    expect(order.indexOf('scripts')).toBeLessThan(order.indexOf('install'));
+  });
+
+  it('a THROWN enable cannot strand the pack on disk', async () => {
+    // The install above is irreversible. If enabling throws, every retry then
+    // fails with "already installed" forever, with the skill on for nobody -
+    // so the failure must cost the toggle, never the pack.
+    deps.enable = vi.fn(async () => {
+      throw new Error('config write failed');
+    });
+    await expect(runInstallSkillChain(PROPOSAL, deps)).resolves.toContain(
+      'switch it on under Assistants'
+    );
+    expect(deps.cleanup).toHaveBeenCalled();
+  });
+
+  it('a THROWN script read does not cost the user the install', async () => {
+    deps.scripts = vi.fn(async () => {
+      throw new Error('unreadable');
+    });
+    await expect(runInstallSkillChain(PROPOSAL, deps)).resolves.toContain('Installed');
   });
 });
 

@@ -561,6 +561,16 @@ export type InstallSkillDeps = {
   download: (url: string, sha256: string) => Promise<{ ok: true; bytes: Uint8Array } | { ok: false; reason: string }>;
   extract: (bytes: Uint8Array, dir: string) => Promise<{ ok: true; files: number } | { ok: false; reason: string }>;
   scan: (dir: string) => Promise<PackScanResult>;
+  /**
+   * Names the runnable files the pack carries, so the reply can say what landed.
+   *
+   * `findPackScripts` existed for months with NO production caller - only tests
+   * - so a student accepting this card installed `.py` and `.mjs` files that
+   * were never mentioned to them anywhere. The scan proves a pack is not
+   * malicious; it does not tell a non-technical buyer that the thing they just
+   * accepted brought executable code with it.
+   */
+  scripts: (dir: string) => Promise<string[]>;
   install: (dir: string, name: string) => Promise<InstallSkillPackResult>;
   enable: (name: string) => Promise<boolean>;
   stagingDir: () => string;
@@ -608,13 +618,27 @@ export async function runInstallSkillChain(
       );
     }
 
+    // Read the script list from STAGING, before install moves the tree and
+    // before `finally` deletes it.
+    const scripts = await deps.scripts(staging).catch(() => [] as string[]);
+
     const installed = await deps.install(staging, content.name);
     if (!installed.ok) throw new Error(failureReason(installed, 'The pack could not be installed.'));
 
-    const enabled = await deps.enable(content.name);
+    // Enabling is a CONVENIENCE and the install above is irreversible. If this
+    // throws, the pack is already on disk and every retry fails with "already
+    // installed" - permanently, with the skill switched on for nobody. So the
+    // failure costs the user the toggle, never the pack. (The Settings importer
+    // guards this the same way; the two paths used to disagree.)
+    const enabled = await deps.enable(content.name).catch(() => false);
+
+    const disclosure = scripts.length
+      ? ` It brings ${scripts.length} runnable file${scripts.length === 1 ? '' : 's'} with it: ${scripts.join(', ')}.` +
+        ' They only run when you ask for something that needs them, and you are asked before each one.'
+      : '';
     return enabled
-      ? `Installed "${content.name}" and switched it on for Smart Trader.`
-      : `Installed "${content.name}" - switch it on under Assistants to use it.`;
+      ? `Installed "${content.name}" and switched it on for Smart Trader.${disclosure}`
+      : `Installed "${content.name}" - switch it on under Assistants to use it.${disclosure}`;
   } finally {
     await deps.cleanup(staging);
   }

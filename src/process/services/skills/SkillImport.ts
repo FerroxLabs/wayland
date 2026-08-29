@@ -123,15 +123,25 @@ export function isImportableFile(name: string): boolean {
  *
  * The security property being preserved is NOT "a pack cannot contain code" -
  * SKILL.md is itself instructions and can already tell a model to run anything.
- * It is INFORMED CONSENT: the importer is told, before installing, exactly which
- * executable files a pack carries. So these are imported and named in
- * `warnings`, never written silently. Everything in
+ * It is DISCLOSURE: every executable file a pack carries is named back to the
+ * importer in `warnings`, never written silently. Everything in
  * {@link REFUSED_IMPORT_EXTENSIONS} above stays refused - shell scripts and
  * binaries have no legitimate place in a documentation-and-data pack, and
  * SkillGuard reasons about prompt text so it could never vouch for one.
  *
  * `.py` and `.mjs` ONLY. Both are inert unless something deliberately runs
  * them: neither is auto-loaded by staging the directory.
+ *
+ * ⚠ DISCLOSURE HERE IS AFTER THE FACT, NOT A CONSENT GATE. This comment used to
+ * claim the importer was told "before installing"; it is not. On a `clean`
+ * verdict `_scanAndRegister` copies the tree, registers the skill and switches
+ * it on for the current assistant, and only THEN are these names returned in
+ * `warnings`. The machinery for a real gate already exists one function below -
+ * a `review` verdict is held with `registered: false` until `confirmImport`
+ * re-verifies it against the hash the user saw - and routing script-bearing
+ * packs through it is the fix. It is not done here because it adds a second
+ * click to the flagship pack install, which is a product decision and not a
+ * code one. Until it is made, do not describe this path as informed consent.
  */
 export const DISCLOSED_SCRIPT_EXTENSIONS = ['.py', '.mjs'];
 
@@ -175,6 +185,27 @@ export type ZipEntry = {
   data: Buffer;
 };
 
+/**
+ * Decompression caps to defend against zip-bombs. A skill is a small bundle of
+ * markdown; these limits reject a single entry or a total payload that is
+ * implausible for a real skill import.
+ *
+ * THESE ARE ENFORCED DURING DECOMPRESSION, not after it. They used to be checked
+ * only by `_importZip`, one loop AFTER `io.unzip` had already expanded every
+ * entry into memory - so the cap could only ever describe a bomb that had
+ * already gone off. Measured on the old shape: a 391,890-byte archive
+ * materialised 402,653,200 bytes and 548 MB RSS before the first cap was
+ * consulted. `MAX_ZIP_ENTRIES` closes the other half of it: ten million empty
+ * entries cost nothing to decompress and still exhaust the process.
+ *
+ * `_importZip` keeps its own copy of these checks. That is deliberate: the IO
+ * layer is injectable, and a caller supplying its own `unzip` must not be able
+ * to hand the importer an unbounded payload.
+ */
+const MAX_ZIP_ENTRY_BYTES = 16 * 1024 * 1024; // 16 MiB per entry
+const MAX_ZIP_TOTAL_BYTES = 64 * 1024 * 1024; // 64 MiB total
+const MAX_ZIP_ENTRIES = 2_000;
+
 // Default real-fs implementation - not used in tests.
 import { lstat, readdir, readFile, copyFile, mkdir, writeFile, rm, mkdtemp } from 'node:fs/promises';
 import os from 'node:os';
@@ -209,10 +240,26 @@ export const defaultSkillImportIo: SkillImportIo = {
   unzip: async (zipPath, _destDir) => {
     const buf = await readFile(zipPath);
     const zip = await JSZip.loadAsync(buf);
+    // Count BEFORE decompressing anything. The directory is cheap; the payload
+    // is not, and an archive that is already implausible should never get the
+    // chance to expand a single entry.
+    const files = Object.entries(zip.files).filter(([, e]) => !e.dir);
+    if (files.length > MAX_ZIP_ENTRIES) {
+      throw new Error(`Rejected: zip holds too many files (${files.length})`);
+    }
     const entries: ZipEntry[] = [];
-    for (const [entryPath, entry] of Object.entries(zip.files)) {
-      if (entry.dir) continue;
+    let totalBytes = 0;
+    for (const [entryPath, entry] of files) {
+      // One entry at a time, checked as it lands, so the process never holds
+      // more than one over-cap entry plus what was already allowed.
       const data = Buffer.from(await entry.async('arraybuffer'));
+      if (data.length > MAX_ZIP_ENTRY_BYTES) {
+        throw new Error(`Rejected: zip entry exceeds size cap - ${entryPath}`);
+      }
+      totalBytes += data.length;
+      if (totalBytes > MAX_ZIP_TOTAL_BYTES) {
+        throw new Error('Rejected: zip total decompressed size exceeds cap');
+      }
       // JSZip does not expose Unix mode bits directly; treat as non-symlink.
       entries.push({ path: entryPath, isSymlink: false, data });
     }
@@ -305,14 +352,6 @@ export function parseFrontmatterType(body: string): SkillType {
   const raw = m ? (m[1].trim() as SkillType) : 'skill';
   return VALID_SKILL_TYPES.has(raw) ? raw : 'skill';
 }
-
-/**
- * Decompression caps to defend against zip-bombs. A skill is a small bundle of
- * markdown; these limits reject a single entry or a total payload that is
- * implausible for a real skill import.
- */
-const MAX_ZIP_ENTRY_BYTES = 16 * 1024 * 1024; // 16 MiB per entry
-const MAX_ZIP_TOTAL_BYTES = 64 * 1024 * 1024; // 64 MiB total
 
 /**
  * Resolve a zip entry destination inside `baseDir`, rejecting any path that

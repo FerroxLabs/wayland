@@ -46,6 +46,7 @@ import {
   scanPack,
   installExtractedPack,
   stagingRoot,
+  findPackScripts,
   runInstallSkillChain,
 } from '@process/services/skills/installSkillPack';
 import {
@@ -182,6 +183,7 @@ async function applyProposal(
         download: downloadAndVerify,
         extract: extractPack,
         scan: (dir) => scanPack(dir),
+        scripts: (dir) => findPackScripts(dir),
         install: (dir, name) => installExtractedPack(dir, name),
         enable: (name) => enableSkillForAssistant(SMART_TRADER_ASSISTANT_ID, name),
         stagingDir: () => path.join(stagingRoot(), `pack-${uuid()}`),
