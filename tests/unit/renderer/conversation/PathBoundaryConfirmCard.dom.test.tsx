@@ -288,10 +288,18 @@ describe('#1099 folder-grant card', () => {
     renderCard();
     const card = await screen.findByTestId('path-boundary-card');
 
+    // The badge is FOCUS-GATED - the card renders `Space` on the focused row
+    // only, and focus arrives from an effect. `findByTestId` resolves as soon
+    // as the card exists, which is one state update too early, so asserting the
+    // badge straight off it is a race: green on an idle machine, red on a busy
+    // CI runner (it failed exactly one shard of twelve, ubuntu 2/4, on #1191 -
+    // a PR touching only the readme and a script). Wait for the badge, then
+    // assert the negatives on the settled text.
+    await waitFor(() => expect(card.textContent).toContain('Space'));
+
     // Enter / Esc / Y badges would be a promise the card does not keep.
     expect(card.textContent).not.toContain('Enter');
     expect(card.textContent).not.toContain('Esc');
-    expect(card.textContent).toContain('Space');
     expect(screen.getByTestId('path-boundary-grant').getAttribute('aria-keyshortcuts')).toBe('Space');
   });
 
