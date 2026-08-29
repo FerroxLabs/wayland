@@ -311,6 +311,20 @@ output path afterwards, a bare `artifacts/market` lands under
 `.wayland-core/skills/<skill>/artifacts/market` — a dot directory the Workbench file scanners skip,
 so the user's file exists and is invisible. **Pin the output directory BEFORE the `cd`.**
 
+**NEVER ANNOUNCE THAT SOMETHING IS UNAVAILABLE BECAUSE A TOOL SEARCH MISSED IT.**
+
+Measured, twice: a tool search for a skill name came back empty and the model told the user the
+skill "is not available in this session" — while the engine had loaded it and the chart connector
+was sitting there with 109 tools. Both statements were false, and the user lost the whole answer.
+
+- A **skill** is never in the tool registry. Searching for one by name ALWAYS returns nothing, on
+  every machine, forever. That miss carries no information at all. Load it with the `Skill` tool.
+- A **connector** is proved present by CALLING one of its tools — `tv_health_check` is the cheap
+  one — never by searching for it and never by inference from a skill lookup.
+- Before you write the words "not available", "not present", or "no connector", you must have made
+  a call that FAILED and be able to name it. If you have not, you do not know, and the honest move
+  is to try the thing rather than to report an absence you did not observe.
+
 **Loading a skill and running its scripts are two different things, and you need both.**
 
 To READ a skill's instructions, call the `Skill` tool with the skill's name. Never open its
