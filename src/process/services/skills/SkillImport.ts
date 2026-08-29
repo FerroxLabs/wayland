@@ -45,7 +45,7 @@ import { getSkillsDir } from '@process/utils/initStorage';
  * destination means "it imported" and "the agent can use it" stop being
  * different facts.
  */
-import { enableSkillForCurrentAssistant } from '@process/services/skills/enableSkillForAssistant';
+import { assistantDisplayName, enableSkillForCurrentAssistant } from '@process/services/skills/enableSkillForAssistant';
 
 export function importedSkillsDir(): string {
   return getSkillsDir();
@@ -304,6 +304,11 @@ export type ImportedSkillResult = {
    * got it rather than leaving the user to guess.
    */
   enabledFor: string | null;
+  /**
+   * That assistant's own NAME, for showing the user. `builtin-smart-trader` is
+   * an id, not something a buyer should be shown.
+   */
+  enabledForLabel: string | null;
 };
 
 export type ImportResult = {
@@ -325,6 +330,20 @@ export type ImportResult = {
 // internal SSH host (SSRF). The `git@<host>:` short form already covers
 // GitHub/GitLab SSH use cases. (H5 fix.)
 const GIT_ALLOWLIST = [/^https:\/\//, /^git@[a-zA-Z0-9.-]+:/];
+
+/**
+ * The repository's own name, safe to use as a directory name.
+ *
+ * `https://host/org/my-skill.git`, `git@host:org/my-skill.git` and
+ * `ssh://host/org/my-skill` all give `my-skill`. Anything that does not reduce
+ * to a plain name falls back to `git-import`, so a hostile URL cannot steer the
+ * destination: no separators, no traversal, no dots-only name.
+ */
+export function repoNameFromGitUrl(url: string): string {
+  const tail = url.replace(/[/\\]+$/, '').split(/[/:\\]/).pop() ?? '';
+  const name = tail.replace(/\.git$/i, '').trim();
+  return /^[A-Za-z0-9._-]+$/.test(name) && !/^\.+$/.test(name) ? name : 'git-import';
+}
 
 function isAllowedGitUrl(url: string): boolean {
   return GIT_ALLOWLIST.some((re) => re.test(url));
@@ -444,8 +463,21 @@ export class SkillImport {
     }
     const tmpDir = await this.io.mkdtemp('wayland-git-import-');
     try {
-      await this.io.gitClone(url, tmpDir);
-      return await this._copyAndScan(tmpDir);
+      // NAME THE SKILL AFTER THE REPO, NOT AFTER THE TEMP DIRECTORY.
+      //
+      // `_copyAndScan` takes the installed name from `path.basename(srcDir)`.
+      // Cloning straight into the mkdtemp root made that name the temp
+      // directory's, so a git import installed as `wayland-git-import-Ab3xYz` -
+      // unrecognisable in the picker, and different on every retry, so the
+      // collision guard could never fire either. Cloning one level down puts
+      // the repository's own name there instead.
+      const cloneDir = path.join(tmpDir, repoNameFromGitUrl(url));
+      await this.io.gitClone(url, cloneDir);
+      // And unwrap a single wrapping folder, exactly as the zip path does. A
+      // repo holding `my-skill/SKILL.md` rather than a root SKILL.md otherwise
+      // installs the wrapper and loses the skill inside it.
+      const root = await this._unwrapSingleFolder(cloneDir);
+      return await this._copyAndScan(root);
     } finally {
       await this.io.rmdir(tmpDir).catch(() => {});
     }
@@ -733,6 +765,7 @@ export class SkillImport {
       // agent can retrieve it until the user approves.
       let registered = false;
       let enabledFor: string | null = null;
+      let enabledForLabel: string | null = null;
       if (report.verdict === 'clean') {
         warnings.push(...this._register(skill.name, skill.destDir, skill.body, report));
         registered = true;
@@ -742,6 +775,7 @@ export class SkillImport {
         // a silent no-op at best.
         if (parseFrontmatterType(skill.body) === 'skill') {
           enabledFor = await enableSkillForCurrentAssistant(path.basename(skill.destDir));
+          if (enabledFor) enabledForLabel = await assistantDisplayName(enabledFor);
         }
       }
 
@@ -753,6 +787,7 @@ export class SkillImport {
         body: skill.body,
         registered,
         enabledFor,
+        enabledForLabel,
       });
     }
 

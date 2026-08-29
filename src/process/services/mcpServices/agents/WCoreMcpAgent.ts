@@ -70,7 +70,7 @@ function toWCoreTransportType(type: IMcpServerTransport['type']): WCoreTransport
 /**
  * Convert a wayland-core server config entry to a wayland IMcpServer
  */
-function toMcpServer(name: string, config: WCoreServerConfig): IMcpServer {
+export function toMcpServer(name: string, config: WCoreServerConfig): IMcpServer {
   const transportType = toWaylandTransportType(config.transport);
   const now = Date.now();
 
@@ -98,6 +98,14 @@ function toMcpServer(name: string, config: WCoreServerConfig): IMcpServer {
     createdAt: now,
     updatedAt: now,
     description: '',
+    // READ BACK WHAT WE WROTE. `toWCoreConfig` emits `allowedTools`, and this
+    // function used to drop it, so the round trip FAILED OPEN: detect an
+    // existing wayland-core config and every tool the user had switched off
+    // came back on, silently, with the UI showing the full list as if that had
+    // always been the setting. `undefined` still means "all tools" - only an
+    // array that is actually present is carried across, so a config that never
+    // had the key keeps the migration-free default.
+    ...(Array.isArray(config.allowedTools) ? { allowedTools: config.allowedTools } : {}),
     originalJson: JSON.stringify({ mcpServers: { [name]: config } }, null, 2),
   };
 }

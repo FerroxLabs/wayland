@@ -20,6 +20,16 @@ type ScannedEntry = {
   report: SkillSecurityReport;
   /** Whether the skill is already live (clean) or held pending consent (review). */
   registered: boolean;
+  /**
+   * The assistant the skill was switched on for, or null for none.
+   *
+   * The importer has always computed this and the renderer has always dropped
+   * it, which is precisely why "installed for nobody" was invisible: a skill
+   * enables for the assistant you are CURRENTLY in, and if that resolution
+   * comes back empty the import still reports success. Showing the name is the
+   * only thing that tells a user their skill went somewhere they are not.
+   */
+  enabledFor: string | null;
 };
 
 type ScanScreen = {
@@ -118,6 +128,22 @@ const ScanResultsScreen: React.FC<{
                   ) : (
                     <FindingList findings={entry.report.findings} />
                   )}
+                  {entry.registered &&
+                    (entry.enabledFor ? (
+                      <span className='text-12px text-t-tertiary'>
+                        {t('skills.import.scan.enabledFor', {
+                          defaultValue: 'Switched on for {{assistant}}.',
+                          assistant: entry.enabledFor,
+                        })}
+                      </span>
+                    ) : (
+                      <span className='text-12px text-[rgb(var(--warning-6))]'>
+                        {t('skills.import.scan.enabledForNobody', {
+                          defaultValue:
+                            'Installed, but not switched on for any assistant — turn it on under Assistants.',
+                        })}
+                      </span>
+                    ))}
                 </div>
                 <VerdictBadge verdict={entry.report.verdict} />
               </div>
@@ -203,6 +229,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
       destPath: r.destPath,
       report: r.report,
       registered: r.registered,
+      enabledFor: r.enabledForLabel ?? r.enabledFor,
     }));
     setScanScreen({ entries, quarantined: result.quarantined, warnings: result.warnings });
     // A clean skill is already live - refresh the underlying list immediately.

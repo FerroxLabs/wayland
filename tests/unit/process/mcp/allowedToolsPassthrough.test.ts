@@ -27,7 +27,7 @@ import {
   buildAcpSessionMcpServers,
   buildWCoreUserStdioMcpServers,
 } from '@process/agent/acp/mcpSessionConfig';
-import { toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';
+import { toMcpServer, toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import type { IMcpServer } from '@/common/config/storage';
 
 const ALL: { stdio: true; http: true; sse: true } = { stdio: true, http: true, sse: true };
@@ -147,5 +147,38 @@ describe('#1167 path 3 - the config.toml [mcp.servers] table', () => {
     const config = toWCoreConfig(withEmptyEnv as unknown as IMcpServer);
     expect('env' in config).toBe(false); // the guard is correct for env...
     expect(config.allowedTools).toEqual([]); // ...and must NOT be applied here
+  });
+});
+
+describe('#1167 path 3b - reading that same table BACK', () => {
+  /**
+   * The write had no matching read, so the round trip FAILED OPEN.
+   *
+   * `toWCoreConfig` emits `allowedTools`; `toMcpServer` - which is what
+   * `detectMcpServers` builds every server from when it imports an existing
+   * wayland-core config - dropped it. So a user who had switched tools off,
+   * then re-detected their config, silently got every tool back, with the UI
+   * showing the full list as though that had always been the setting.
+   */
+  it('carries an allow-list back off the config', () => {
+    const config = toWCoreConfig(stdioServer(['alpha', 'beta']));
+    expect(toMcpServer('demo', config).allowedTools).toEqual(['alpha', 'beta']);
+  });
+
+  it('carries an EMPTY allow-list back, which means none rather than all', () => {
+    const config = toWCoreConfig(stdioServer([]));
+    expect(toMcpServer('demo', config).allowedTools).toEqual([]);
+  });
+
+  it('leaves the key absent when the config never had one', () => {
+    // Absent still means "all tools" - the migration-free default. Inventing a
+    // `[]` here would switch every tool OFF for every pre-existing server.
+    const config = toWCoreConfig(stdioServer(undefined));
+    expect('allowedTools' in toMcpServer('demo', config)).toBe(false);
+  });
+
+  it('round-trips over http too', () => {
+    const config = toWCoreConfig(httpServer(['only-this']));
+    expect(toMcpServer('demo-http', config).allowedTools).toEqual(['only-this']);
   });
 });

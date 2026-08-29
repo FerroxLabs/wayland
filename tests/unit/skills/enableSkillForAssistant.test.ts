@@ -15,6 +15,7 @@
 
 import { describe, it, expect } from 'vitest';
 import {
+  assistantDisplayName,
   enableSkillForAssistant,
   SMART_TRADER_ASSISTANT_ID,
   type EnableSkillIo,
@@ -134,5 +135,38 @@ describe('enableSkillForAssistant', () => {
 
     const h = io([{ id: SMART_TRADER_ASSISTANT_ID, name: 'Smart Trader' }]);
     expect(await enableSkillForAssistant(SMART_TRADER_ASSISTANT_ID, 'tide-morning-brief', h)).toBe(true);
+  });
+});
+
+describe('assistantDisplayName', () => {
+  /**
+   * `enabledFor` carries an ID. `builtin-smart-trader` is not something to show
+   * a buyer, and the import modal now tells them where their skill went - so
+   * the label has to resolve, and has to fail soft when it cannot.
+   */
+  it('resolves the assistant name', async () => {
+    const store = io([{ id: 'builtin-smart-trader', name: 'Smart Trader', enabledSkills: [] }]);
+    await expect(assistantDisplayName('builtin-smart-trader', store)).resolves.toBe('Smart Trader');
+  });
+
+  it('reads without writing', async () => {
+    const store = io([{ id: 'builtin-smart-trader', name: 'Smart Trader', enabledSkills: [] }]);
+    await assistantDisplayName('builtin-smart-trader', store);
+    expect(store.written).toEqual([]);
+  });
+
+  it('returns null for an assistant that does not exist', async () => {
+    const store = io([{ id: 'builtin-concierge', name: 'Concierge', enabledSkills: [] }]);
+    await expect(assistantDisplayName('nope', store)).resolves.toBeNull();
+  });
+
+  it('returns null rather than throwing when the store is unusable', async () => {
+    // Losing the label must never cost the user the import.
+    const broken: EnableSkillIo = {
+      update: async () => {
+        throw new Error('storage down');
+      },
+    };
+    await expect(assistantDisplayName('builtin-smart-trader', broken)).resolves.toBeNull();
   });
 });

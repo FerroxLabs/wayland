@@ -113,8 +113,8 @@ export async function enableSkillForAssistant(
  * hunting for a Skill tool that had no TC-TIDE in it. A buyer has no reason to
  * know an "enable it for this assistant" step exists, and nothing told them.
  *
- * The resolution MIRRORS `useGuidAgentSelection.restoreSavedSelection` exactly,
- * because the answer has to be the assistant the composer will really use:
+ * The resolution follows `useGuidAgentSelection.restoreSavedSelection`, because
+ * the answer has to be the assistant the composer will really use:
  *   - `custom:<id>` / `remote:<id>` -> that assistant, trusted directly
  *   - a plain backend key (`wcore`, `gemini`) names an ENGINE, not an assistant,
  *     so it tells us nothing here and falls through
@@ -123,6 +123,17 @@ export async function enableSkillForAssistant(
  * Divergence from that function is the bug this is fixing, one layer down: a
  * skill switched on for an assistant the user is not in is invisible in exactly
  * the same way as one switched on for nobody.
+ *
+ * ONE PATH IT DOES NOT MODEL, and the comment used to claim it mirrored the
+ * composer "exactly". Sidebar "New chat" takes a different branch: the reset
+ * effect writes a PLAIN BACKEND KEY (the first detected CLI engine, or `wcore`)
+ * and the restore effect returns early, so nothing here ever sees a preset. The
+ * outcome is not wrong - after a reset the composer really is on an engine and
+ * not on an assistant, so "no assistant" is the truthful answer - but it means
+ * an import taken straight after "New chat" enables the skill for NOBODY. That
+ * used to happen in silence, because `ImportedSkillResult.enabledFor` was
+ * computed and then dropped by the renderer. It is now shown, which is the
+ * actual fix: the user is told where their skill went, or that it went nowhere.
  */
 export async function resolveCurrentAssistantId(): Promise<string | null> {
   const saved = await ProcessConfig.get('guid.lastSelectedAgent').catch((): undefined => undefined);
@@ -152,6 +163,29 @@ export async function enableSkillForCurrentAssistant(skillDirName: string): Prom
     const assistantId = await resolveCurrentAssistantId();
     if (!assistantId) return null;
     return (await enableSkillForAssistant(assistantId, skillDirName)) ? assistantId : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The assistant's own name, for telling the user where their skill went.
+ *
+ * `builtin-smart-trader` is an id, not something to show a buyer. Reads through
+ * the same `update` seam so a test drives it with the same store, and returns
+ * null rather than throwing: losing the label must never cost the import.
+ */
+export async function assistantDisplayName(
+  assistantId: string,
+  io: EnableSkillIo = defaultIo
+): Promise<string | null> {
+  try {
+    let name: string | null = null;
+    await io.update((assistants) => {
+      name = assistants.find((a) => a?.id === assistantId)?.name ?? null;
+      return assistants; // read-only use of the critical section
+    });
+    return name;
   } catch {
     return null;
   }
