@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import { FLUX_DEFAULT_MODEL, FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { MODEL_PIN_SWR_KEY, resolveSafeDefault } from '@renderer/pages/guid/hooks/useGuidModelSelection';
+import { announceUserDisplayName } from '@renderer/hooks/system/useUserDisplayName';
 import { ConfigStorage } from '@/common/config/storage';
 import type { DetectionResult } from '@/common/types/onboarding';
 import type { ProviderId } from '@process/providers/types';
@@ -521,7 +522,10 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
 
   const finishAll = useCallback(() => {
     const n = name.trim();
-    if (n) void ConfigStorage.set('user.displayName', n);
+    // Announce the write: GuidPage is already mounted behind this modal and has
+    // read the (empty) name once, so without this it greets the OS account name
+    // for the whole of session one.
+    if (n) void ConfigStorage.set('user.displayName', n).then(announceUserDisplayName);
     // Onboarding is done — drop the resumable progress so a later remount can't
     // reopen a stale mid-flow state.
     clearOnboardingProgress();
@@ -719,7 +723,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
   if (screen === 'quickstart') {
     const goScan = () => {
       const n = name.trim();
-      if (n) void ConfigStorage.set('user.displayName', n);
+      if (n) void ConfigStorage.set('user.displayName', n).then(announceUserDisplayName);
       setScreen('scan');
     };
     return (
