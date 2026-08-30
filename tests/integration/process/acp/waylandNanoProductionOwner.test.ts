@@ -1,17 +1,21 @@
 import { createHash } from 'node:crypto';
+import { execFile } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PassThrough } from 'node:stream';
 import type { ChildProcess } from 'node:child_process';
+import { promisify } from 'node:util';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import canonicalize from 'canonicalize';
 
 const connectorMocks = vi.hoisted(() => ({ spawnGenericBackend: vi.fn() }));
+const execFileAsync = promisify(execFile);
 const electronMocks = vi.hoisted(() => ({
   userDataRoot: 'C:/test-user-data',
   encryptionAvailable: true,
+  backend: 'gnome_libsecret' as 'basic_text' | 'gnome_libsecret' | 'kwallet' | 'kwallet5' | 'kwallet6' | 'unknown',
 }));
 
 vi.mock('electron', () => ({
@@ -21,7 +25,7 @@ vi.mock('electron', () => ({
   },
   safeStorage: {
     isEncryptionAvailable: () => electronMocks.encryptionAvailable,
-    getSelectedStorageBackend: () => 'gnome_libsecret',
+    getSelectedStorageBackend: () => electronMocks.backend,
     encryptString: (value: string) => Buffer.from(value, 'utf8'),
     decryptString: (value: Buffer) => value.toString('utf8'),
   },
@@ -76,6 +80,10 @@ const GRANT: WaylandNanoActivationGrant = Object.freeze({
 });
 
 afterEach(async () => {
+  await disposeWaylandNanoActivationOwner();
+  electronMocks.encryptionAvailable = true;
+  electronMocks.backend = 'gnome_libsecret';
+  electronMocks.userDataRoot = 'C:/test-user-data';
   await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
 });
 
@@ -293,6 +301,81 @@ describe('Wayland Nano production activation owner', () => {
     expect(existsSync(legacyResolved!.activation.binary.canonicalPath)).toBe(false);
     expect(existsSync(sdkResolved!.activation.binary.canonicalPath)).toBe(false);
   });
+
+  it('keeps real startup nonpersistent when OS custody or the binding store is not ready', async () => {
+    const fixture = await ownerFixture();
+    electronMocks.userDataRoot = fixture.options.userDataRoot;
+    await writeOwnerManifest(fixture, ownerManifest(fixture));
+
+    electronMocks.encryptionAvailable = false;
+    await initializeWaylandNanoActivationOwner();
+    expect(productionManagerOwner()).toBeNull();
+    await expectBothStacksNonpersistent();
+    await disposeWaylandNanoActivationOwner();
+
+    electronMocks.encryptionAvailable = true;
+    electronMocks.backend = 'basic_text';
+    await initializeWaylandNanoActivationOwner();
+    expect(productionManagerOwner()).toBeNull();
+    await expectBothStacksNonpersistent();
+    await disposeWaylandNanoActivationOwner();
+
+    electronMocks.backend = 'gnome_libsecret';
+    await writeOwnerBindingStore(fixture, '{}');
+    await initializeWaylandNanoActivationOwner();
+    expect(productionManagerOwner()).toBeNull();
+    await expectBothStacksNonpersistent();
+  });
+
+  it('treats an absent binding document as valid-ready without inventing authority', async () => {
+    const fixture = await ownerFixture();
+    electronMocks.userDataRoot = fixture.options.userDataRoot;
+    await writeOwnerManifest(fixture, ownerManifest(fixture));
+    await rm(path.join(fixture.options.userDataRoot, 'wayland-nano', 'activation-bindings.json'), { force: true });
+
+    await initializeWaylandNanoActivationOwner();
+    const owner = productionManagerOwner();
+    expect(owner).not.toBeNull();
+    expect(await owner!.load(fixture.binding.productSubjectId)).toBeNull();
+  });
+
+  it('applies the KeyStore Linux custody policy without creating a key', async () => {
+    const parent = process.platform === 'win32' && process.env.LOCALAPPDATA ? process.env.LOCALAPPDATA : process.cwd();
+    const userDataRoot = await mkdtemp(path.join(parent, 'wayland-nano-custody-'));
+    roots.push(userDataRoot);
+    expect(
+      new WaylandNanoActivationKeyStore(userDataRoot, linuxSafeStorage('gnome_libsecret'), 'linux').preflightCustody()
+    ).toBe(true);
+    expect(
+      new WaylandNanoActivationKeyStore(userDataRoot, linuxSafeStorage('basic_text'), 'linux').preflightCustody()
+    ).toBe(false);
+    expect(
+      new WaylandNanoActivationKeyStore(userDataRoot, linuxSafeStorage('unknown'), 'linux').preflightCustody()
+    ).toBe(false);
+    expect(
+      new WaylandNanoActivationKeyStore(
+        userDataRoot,
+        linuxSafeStorage('gnome_libsecret', false),
+        'linux'
+      ).preflightCustody()
+    ).toBe(false);
+    expect(existsSync(path.join(userDataRoot, 'wayland-nano'))).toBe(false);
+  });
+
+  it.runIf(process.platform === 'win32')(
+    'keeps real startup nonpersistent for a broadly writable binding store',
+    async () => {
+      const fixture = await ownerFixture();
+      electronMocks.userDataRoot = fixture.options.userDataRoot;
+      await writeOwnerManifest(fixture, ownerManifest(fixture));
+      const storePath = path.join(fixture.options.userDataRoot, 'wayland-nano', 'activation-bindings.json');
+      await execFileAsync('icacls.exe', [storePath, '/grant', '*S-1-1-0:(M)']);
+
+      await initializeWaylandNanoActivationOwner();
+      expect(productionManagerOwner()).toBeNull();
+      await expectBothStacksNonpersistent();
+    }
+  );
 });
 
 async function ownerFixture(
@@ -451,6 +534,27 @@ function protocolHandlers(): ProtocolHandlers {
   };
 }
 
+function linuxSafeStorage(backend: 'gnome_libsecret' | 'basic_text' | 'unknown', available = true) {
+  return {
+    isEncryptionAvailable: () => available,
+    getSelectedStorageBackend: () => backend,
+    encryptString: (value: string) => Buffer.from(value, 'utf8'),
+    decryptString: (value: Buffer) => value.toString('utf8'),
+  };
+}
+
+async function expectBothStacksNonpersistent(): Promise<void> {
+  const legacy = new AcpConnection(null);
+  expect((legacy as unknown as Readonly<{ waylandNanoMode: string }>).waylandNanoMode).toBe('nonpersistent');
+  const sdk = new ProcessAcpClient(async () => Promise.reject(new Error('must not spawn')), {
+    backend: 'wnano',
+    handlers: protocolHandlers(),
+  });
+  await expect(
+    sdk.loadSession({ sessionId: 'forbidden-persistent-session', cwd: 'project-a', mcpServers: [] })
+  ).rejects.toThrow('Bounded nonpersistent');
+}
+
 function productionManagerOwner(): WaylandNanoBindingOwner | null {
   const factory = (
     workerTaskManager as unknown as {
@@ -489,4 +593,13 @@ async function writeOwnerManifest(
   const manifestPath = path.join(ownerRoot, 'activation-artifact.json');
   await writeFile(manifestPath, contents, { mode: 0o600 });
   await enforceOwnerOnlyPath(manifestPath, 'file', 'full');
+}
+
+async function writeOwnerBindingStore(
+  fixture: Readonly<{ options: WaylandNanoActivationOwnerOptions }>,
+  contents: string
+): Promise<void> {
+  const storePath = path.join(fixture.options.userDataRoot, 'wayland-nano', 'activation-bindings.json');
+  await writeFile(storePath, contents, { mode: 0o600 });
+  await enforceOwnerOnlyPath(storePath, 'file', 'full');
 }

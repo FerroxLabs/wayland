@@ -89,6 +89,16 @@ export class WaylandNanoActivationKeyStore {
     });
   }
 
+  /** Read-only startup proof of OS-backed custody policy; creates and persists nothing. */
+  preflightCustody(): boolean {
+    try {
+      this.assertCustody();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   private signWithEntry(ciphertext: string, message: Uint8Array): Uint8Array {
     this.assertCustody();
     const encoded = ciphertext.slice(CIPHER_PREFIX.length);
@@ -112,8 +122,11 @@ export class WaylandNanoActivationKeyStore {
   private assertCustody(): void {
     if (!this.#safeStorage?.isEncryptionAvailable())
       throw new Error('Wayland Nano issuer requires an OS credential store');
+    const backend = this.#safeStorage.getSelectedStorageBackend?.();
+    if (backend === 'basic_text') {
+      throw new Error('Wayland Nano issuer rejects file-backed credential storage');
+    }
     if (this.#platform === 'linux') {
-      const backend = this.#safeStorage.getSelectedStorageBackend?.();
       if (!backend || !['gnome_libsecret', 'kwallet', 'kwallet5', 'kwallet6'].includes(backend)) {
         throw new Error('Wayland Nano issuer rejects the selected Linux credential backend');
       }

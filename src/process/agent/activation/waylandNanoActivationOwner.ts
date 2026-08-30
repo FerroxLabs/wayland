@@ -123,6 +123,11 @@ export async function loadWaylandNanoActivationOwnerOptions(
     const artifact = parseArtifact(parsed.artifact, ownerRoot);
     const grant = parseGrant(parsed.grant);
     if (!artifact || !grant) return null;
+    if (!new WaylandNanoActivationKeyStore(root, safeStorage).preflightCustody()) return null;
+    // Read the complete binding document through its strict parser before any
+    // owner is installed. An absent/empty store is valid-ready; malformed,
+    // noncanonical, or non-owner-only state remains default-off.
+    await new WaylandNanoBindingStore(root).listTombstones();
     await ensurePrivateStagingRoot(artifact.stagingRoot, ownerRoot);
     return Object.freeze({ userDataRoot: root, safeStorage, artifactExpectation: artifact, grant });
   } catch {
