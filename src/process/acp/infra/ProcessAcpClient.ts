@@ -31,7 +31,13 @@ import { normalizeError } from '@process/acp/errors/errorNormalize';
 import { mapModeForAcpBridge } from '@/common/types/agentModes';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import type { CreateSessionParams, ForkSessionParams, LoadSessionParams } from '@process/acp/infra/AcpProtocol';
+import {
+  assertAcpExtensionMethodAllowed,
+  projectSessionMetadata,
+  type CreateSessionParams,
+  type ForkSessionParams,
+  type LoadSessionParams,
+} from '@process/acp/infra/AcpProtocol';
 import type {
   AcpClient,
   AgentDisconnectReason,
@@ -128,14 +134,6 @@ type PendingRequest = {
   settled: boolean;
   reject: (error: unknown) => void;
 };
-
-function mergeActivationMeta(
-  meta: CreateSessionParams['_meta'] | LoadSessionParams['_meta'],
-  attempt: WaylandNanoActivationAttempt | null
-): CreateSessionParams['_meta'] {
-  if (!attempt) return meta;
-  return { ...meta, waylandNanoActivation: attempt.activation };
-}
 
 export type ProcessAcpClientOptions = {
   backend: string;
@@ -286,7 +284,7 @@ export class ProcessAcpClient implements AcpClient {
         cwd: params.cwd,
         mcpServers: params.mcpServers ?? [],
         additionalDirectories: params.additionalDirectories,
-        _meta: mergeActivationMeta(params._meta, attempt),
+        _meta: projectSessionMetadata(params.metadata, attempt?.activation),
       })
     );
   }
@@ -302,7 +300,7 @@ export class ProcessAcpClient implements AcpClient {
         cwd: params.cwd,
         mcpServers: params.mcpServers ?? [],
         additionalDirectories: params.additionalDirectories,
-        _meta: mergeActivationMeta(params._meta, attempt),
+        _meta: projectSessionMetadata(params.metadata, attempt?.activation),
       })
     );
   }
@@ -406,6 +404,7 @@ export class ProcessAcpClient implements AcpClient {
   }
 
   async extMethod(method: string, params: Record<string, unknown>): Promise<unknown> {
+    assertAcpExtensionMethodAllowed(method);
     return this.runConnectionRequest(() => this.conn.extMethod(method, params));
   }
 

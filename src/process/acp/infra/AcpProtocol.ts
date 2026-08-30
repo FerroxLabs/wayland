@@ -13,7 +13,7 @@ import type {
 } from '@agentclientprotocol/sdk';
 import { ClientSideConnection, PROTOCOL_VERSION } from '@agentclientprotocol/sdk';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
-import type { SignedWaylandNanoActivation, SignedWaylandNanoControl } from '@process/agent/activation/types';
+import type { SignedWaylandNanoActivation } from '@process/agent/activation/types';
 
 // ─── Protocol-layer Params ────────────────────────────────────
 
@@ -21,10 +21,8 @@ export type CreateSessionParams = {
   cwd: string;
   mcpServers?: McpServer[];
   additionalDirectories?: string[];
-  _meta?: Readonly<{
-    waylandNanoActivation?: SignedWaylandNanoActivation;
-    [key: string]: unknown;
-  }>;
+  /** Untrusted caller metadata; reserved Nano authority keys are always removed. */
+  metadata?: Readonly<Record<string, unknown>>;
 };
 
 export type LoadSessionParams = {
@@ -32,16 +30,33 @@ export type LoadSessionParams = {
   cwd: string;
   mcpServers?: McpServer[];
   additionalDirectories?: string[];
-  _meta?: Readonly<{
-    waylandNanoActivation?: SignedWaylandNanoActivation;
-    [key: string]: unknown;
-  }>;
+  /** Untrusted caller metadata; reserved Nano authority keys are always removed. */
+  metadata?: Readonly<Record<string, unknown>>;
 };
 
-export type WaylandNanoControlParams = Readonly<{
-  sessionId: string;
-  _meta: Readonly<{ waylandNanoControl: SignedWaylandNanoControl }>;
-}>;
+const RESERVED_NANO_METADATA = new Set(['waylandNanoActivation', 'waylandNanoControl']);
+const RESERVED_SESSION_METHODS = new Set(['session/new', 'session/load', 'session/cancel', 'session/pause']);
+
+/** Sole closed projection from untrusted caller metadata to final ACP session metadata. */
+export function projectSessionMetadata(
+  metadata: Readonly<Record<string, unknown>> | undefined,
+  activation?: SignedWaylandNanoActivation
+): Record<string, unknown> | undefined {
+  const projected: Record<string, unknown> = {};
+  if (metadata && typeof metadata === 'object' && !Array.isArray(metadata)) {
+    for (const [key, value] of Object.entries(metadata)) {
+      if (!RESERVED_NANO_METADATA.has(key)) projected[key] = value;
+    }
+  }
+  if (activation) projected.waylandNanoActivation = activation;
+  return Object.keys(projected).length > 0 ? projected : undefined;
+}
+
+export function assertAcpExtensionMethodAllowed(method: string): void {
+  if (RESERVED_SESSION_METHODS.has(method)) {
+    throw new Error(`ACP method ${method} must use its authority-mediating typed API`);
+  }
+}
 
 export type ForkSessionParams = {
   sessionId: string;
@@ -93,7 +108,7 @@ export class AcpProtocol {
       cwd: params.cwd,
       mcpServers: params.mcpServers ?? [],
       additionalDirectories: params.additionalDirectories,
-      _meta: params._meta,
+      _meta: projectSessionMetadata(params.metadata),
     });
   }
 
@@ -103,7 +118,7 @@ export class AcpProtocol {
       cwd: params.cwd,
       mcpServers: params.mcpServers ?? [],
       additionalDirectories: params.additionalDirectories,
-      _meta: params._meta,
+      _meta: projectSessionMetadata(params.metadata),
     });
   }
 
@@ -146,6 +161,7 @@ export class AcpProtocol {
   }
 
   async extMethod(method: string, params: Record<string, unknown>): Promise<unknown> {
+    assertAcpExtensionMethodAllowed(method);
     return this.sdk.extMethod(method, params);
   }
 

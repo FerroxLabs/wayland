@@ -227,7 +227,20 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
     expect(projected.resumeSessionId).toBeUndefined();
     const missing = factory.create(projected, handlers());
     await missing.start();
-    await missing.createSession({ cwd: 'D:/mutable/project', mcpServers: [] });
+    const hostileCreate = {
+      cwd: 'D:/mutable/project',
+      mcpServers: [],
+      metadata: {
+        unrelated: 'preserved',
+        waylandNanoActivation: { hostile: true },
+        waylandNanoControl: { hostile: true },
+      },
+      _meta: {
+        waylandNanoActivation: { directHostile: true },
+        waylandNanoControl: { directHostile: true },
+      },
+    };
+    await missing.createSession(hostileCreate);
     await expect(
       missing.loadSession({ sessionId: 'must-not-load', cwd: 'D:/mutable/project', mcpServers: [] })
     ).rejects.toThrow('cannot load a persistent session');
@@ -242,8 +255,23 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
     const create = transport.frames
       .map((raw) => JSON.parse(raw) as JsonRpcFrame)
       .find((frame) => frame.method === 'session/new');
-    expect(create?.params?._meta).toBeUndefined();
+    expect(create?.params?._meta).toEqual({ unrelated: 'preserved' });
+    expect(JSON.stringify(create)).not.toContain('waylandNanoActivation');
+    expect(JSON.stringify(create)).not.toContain('waylandNanoControl');
     expect(transport.frames.some((raw) => raw.includes('session/load'))).toBe(false);
+    await expect(
+      missing.extMethod('session/cancel', {
+        sessionId: 'hostile-session',
+        _meta: { waylandNanoControl: { hostile: true } },
+      })
+    ).rejects.toThrow('authority-mediating typed API');
+    await expect(
+      missing.extMethod('session/pause', {
+        sessionId: 'hostile-session',
+        _meta: { waylandNanoControl: { hostile: true } },
+      })
+    ).rejects.toThrow('authority-mediating typed API');
+    expect(transport.frames.some((raw) => raw.includes('hostile-session'))).toBe(false);
   });
 
   it('launches the staged verified image after source replacement and removes the stage immediately', async () => {
@@ -387,13 +415,29 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
       { backend: 'wnano', handlers: handlers(), waylandNanoActivation: resolved.input }
     );
     await client.start();
-    await client.createSession({ cwd: 'D:/project', mcpServers: [], _meta: { unrelated: { preserved: true } } });
-    await client.loadSession({
+    const hostileCreate = {
+      cwd: 'D:/project',
+      mcpServers: [],
+      metadata: {
+        unrelated: { preserved: true },
+        waylandNanoActivation: { hostile: 'must-not-win' },
+        waylandNanoControl: { hostile: 'must-not-pass' },
+      },
+      _meta: { waylandNanoActivation: { hostile: 'direct-must-not-win' } },
+    };
+    const hostileLoad = {
       sessionId: 'session-new-stack',
       cwd: 'D:/project',
       mcpServers: [],
-      _meta: { unrelated: { preserved: true } },
-    });
+      metadata: {
+        unrelated: { preserved: true },
+        waylandNanoActivation: { hostile: 'must-not-win' },
+        waylandNanoControl: { hostile: 'must-not-pass' },
+      },
+      _meta: { waylandNanoActivation: { hostile: 'direct-must-not-win' } },
+    };
+    await client.createSession(hostileCreate);
+    await client.loadSession(hostileLoad);
 
     const frames = transport.frames.map((raw) => JSON.parse(raw) as JsonRpcFrame);
     const create = frames.find((frame) => frame.method === 'session/new');
@@ -401,6 +445,10 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
     const expectedMeta = { unrelated: { preserved: true }, waylandNanoActivation: activation };
     expect(create?.params?._meta).toEqual(expectedMeta);
     expect(load?.params?._meta).toEqual(expectedMeta);
+    expect(JSON.stringify(create)).not.toContain('must-not-win');
+    expect(JSON.stringify(load)).not.toContain('must-not-pass');
+    expect(JSON.stringify(create)).not.toContain('direct-must-not-win');
+    expect(JSON.stringify(load)).not.toContain('direct-must-not-win');
     const activationBytes = `"waylandNanoActivation":${JSON.stringify(activation)}`;
     expect(transport.frames.find((raw) => raw.includes('session/new'))).toContain(activationBytes);
     expect(transport.frames.find((raw) => raw.includes('session/load'))).toContain(activationBytes);
