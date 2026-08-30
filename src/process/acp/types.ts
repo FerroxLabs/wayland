@@ -15,10 +15,7 @@ import type {
   WriteTextFileRequest,
   WriteTextFileResponse,
 } from '@agentclientprotocol/sdk';
-import type {
-  ResolvedWaylandNanoActivationInput,
-  WaylandNanoConnectionMode,
-} from '@process/agent/acp/AcpConnection';
+import type { ResolvedWaylandNanoActivationInput, WaylandNanoConnectionMode } from '@process/agent/acp/AcpConnection';
 // ─── Agent Identity & Config ────────────────────────────────────
 
 export type AgentSource = 'builtin' | 'extension' | 'custom' | 'remote';

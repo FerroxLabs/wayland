@@ -23,7 +23,7 @@ import {
   connectCodebuddy,
   connectCodex,
   spawnGenericBackend,
-  withWaylandNanoNonpersistentArgs,
+  waylandNanoNonpersistentArgs,
   type NpxConnectHooks,
   type SpawnResult,
 } from '@process/agent/acp/acpConnectors';
@@ -83,7 +83,7 @@ async function spawnLegacyChild(config: AgentConfig): Promise<ChildProcess> {
         backend,
         config.command,
         cwd,
-        withWaylandNanoNonpersistentArgs(['acp-host']),
+        waylandNanoNonpersistentArgs(),
         config.env
       );
       return result.child;

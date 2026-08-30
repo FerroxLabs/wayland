@@ -22,8 +22,7 @@ vi.mock('@process/agent/acp/acpConnectors', () => ({
   connectCodebuddy: vi.fn(),
   connectCodex: vi.fn(),
   spawnGenericBackend: connectorMocks.spawnGenericBackend,
-  withWaylandNanoNonpersistentArgs: (args: readonly string[] = []) =>
-    args.at(-1) === '--nonpersistent' ? [...args] : [...args, '--nonpersistent'],
+  waylandNanoNonpersistentArgs: () => ['acp-host', '--nonpersistent'],
 }));
 
 import '@/common/platform/register-node';
@@ -125,7 +124,6 @@ function oldConfig(activationInput?: ResolvedWaylandNanoActivationInput): OldAcp
     cliPath: 'C:/mutable/path/nano.exe',
     workingDir: 'D:/mutable/project',
     waylandNanoActivation: activationInput,
-    waylandNanoMode: activationInput ? 'authenticated' : 'nonpersistent',
     extra: {
       backend: 'wnano',
       agentName: 'mutable assistant',
