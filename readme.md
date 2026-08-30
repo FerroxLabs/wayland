@@ -10,7 +10,7 @@
     src/process/resources/bundled-workflows/index.json -> 71 workflows
     src/process/resources/builtin-catalog/assistants.json -> 88 assistants
   So: 178 workflows total (107 + 71), 1,974 skills, 88 assistants, 25 channels,
-  5 memory partitions, 18 ACP backends, engine binary 47 MB.
+  5 memory partitions, 18 ACP backends. (Engine binary is ~84 MB on darwin-arm64 and ~103 MB on linux-x64 at v0.13.11 - re-measure from the npm platform packages, never quote a remembered figure.)
 
   Do not edit these numbers by hand. Re-measure, or the README and getwayland.com
   drift apart again - which is exactly how this file ended up claiming 177 while
@@ -257,7 +257,7 @@ Wayland runs a four-step loop on every turn:
 - **Acts** through built-in tools (Read, Write, Edit, Bash, Grep, Glob, Spawn) and connectors for Git, databases, and the web, inside the engine's native per-OS sandbox.
 - **Evolves**: a loop mutates and scores your skill prompts against an eval harness, keeping a variant only when it beats both the running best and the parent it came from. Winners persist across runs, so the next run starts from the last one's best. Nothing reaches your live library until you promote it.
 
-**Wayland-Core engine.** One Rust binary, around 47 MB, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, AppContainer opt-in) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
+**Wayland-Core engine.** One self-contained Rust binary, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, AppContainer opt-in) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
 
 **Flux routing (optional).** Route a backend's traffic through Flux Router to send each task to the best-fit specialist across same-class models and run multi-AI cross-audit, lifting quality while cutting wasted tokens. Opt-in, bring your own key, off by default.
 
