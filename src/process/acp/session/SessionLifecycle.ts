@@ -97,6 +97,13 @@ export class SessionLifecycle {
     return this.authPending;
   }
 
+  pause(): void {
+    const client = this._client;
+    const sessionId = this._sessionId;
+    if (!client || !sessionId || !(client instanceof ProcessAcpClient)) return;
+    void client.pause(sessionId).catch((err) => this.host.enterError(normalizeError(err).message));
+  }
+
   // ─── Start ────────────────────────────────────────────────────
 
   start(): void {
@@ -185,7 +192,7 @@ export class SessionLifecycle {
     // same crash against the same broken files. Clear the bad install and retry
     // exactly ONCE. If it fails again the install is not what is wrong, so stop
     // there instead of spending the remaining retries on a doomed spawn.
-    if (looksLikeAdapterCorruption(acpErr.message)) {
+    if (!this.isWaylandNanoActivation() && looksLikeAdapterCorruption(acpErr.message)) {
       if (!this.brokenInstallRecoveryUsed && this.clearBrokenInstall()) {
         this.brokenInstallRecoveryUsed = true;
         await this.teardown();
@@ -199,7 +206,7 @@ export class SessionLifecycle {
       return;
     }
 
-    if (acpErr.retryable && this.startRetryCount < this.options.maxStartRetries) {
+    if (!this.isWaylandNanoActivation() && acpErr.retryable && this.startRetryCount < this.options.maxStartRetries) {
       this.startRetryCount++;
       await this.teardown();
       const delay = 1000 * Math.pow(2, this.startRetryCount - 1);
@@ -231,7 +238,7 @@ export class SessionLifecycle {
 
   private async handleResumeError(err: unknown): Promise<void> {
     const acpErr = normalizeError(err);
-    if (acpErr.retryable && this.resumeRetryCount < this.options.maxResumeRetries) {
+    if (!this.isWaylandNanoActivation() && acpErr.retryable && this.resumeRetryCount < this.options.maxResumeRetries) {
       this.resumeRetryCount++;
       this.clearBrokenInstall();
       await this.teardown();
@@ -425,6 +432,16 @@ export class SessionLifecycle {
 
   private async tryLoadOrCreate(mcpServers: McpServer[]): Promise<NewSessionResponse | LoadSessionResponse> {
     if (this._sessionId && this._client) {
+      if (this.isWaylandNanoActivation()) {
+        const loaded = await this._client.loadSession({
+          sessionId: this._sessionId,
+          cwd: this.host.agentConfig.cwd,
+          mcpServers,
+          additionalDirectories: this.host.agentConfig.additionalDirectories,
+        });
+        this.host.callbacks.onSignal({ type: 'session_loaded' });
+        return loaded;
+      }
       try {
         const loaded = await this._client.loadSession({
           sessionId: this._sessionId,
@@ -450,6 +467,10 @@ export class SessionLifecycle {
       mcpServers,
       additionalDirectories: this.host.agentConfig.additionalDirectories,
     });
+  }
+
+  private isWaylandNanoActivation(): boolean {
+    return this.host.agentConfig.agentBackend === 'wnano' && this.host.agentConfig.waylandNanoActivation !== undefined;
   }
 
   private buildMcpServers(): McpServer[] {

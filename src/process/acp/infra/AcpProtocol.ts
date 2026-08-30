@@ -13,6 +13,7 @@ import type {
 } from '@agentclientprotocol/sdk';
 import { ClientSideConnection, PROTOCOL_VERSION } from '@agentclientprotocol/sdk';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
+import type { SignedWaylandNanoActivation, SignedWaylandNanoControl } from '@process/agent/activation/types';
 
 // ─── Protocol-layer Params ────────────────────────────────────
 
@@ -20,6 +21,10 @@ export type CreateSessionParams = {
   cwd: string;
   mcpServers?: McpServer[];
   additionalDirectories?: string[];
+  _meta?: Readonly<{
+    waylandNanoActivation?: SignedWaylandNanoActivation;
+    [key: string]: unknown;
+  }>;
 };
 
 export type LoadSessionParams = {
@@ -27,7 +32,16 @@ export type LoadSessionParams = {
   cwd: string;
   mcpServers?: McpServer[];
   additionalDirectories?: string[];
+  _meta?: Readonly<{
+    waylandNanoActivation?: SignedWaylandNanoActivation;
+    [key: string]: unknown;
+  }>;
 };
+
+export type WaylandNanoControlParams = Readonly<{
+  sessionId: string;
+  _meta: Readonly<{ waylandNanoControl: SignedWaylandNanoControl }>;
+}>;
 
 export type ForkSessionParams = {
   sessionId: string;
@@ -79,6 +93,7 @@ export class AcpProtocol {
       cwd: params.cwd,
       mcpServers: params.mcpServers ?? [],
       additionalDirectories: params.additionalDirectories,
+      _meta: params._meta,
     });
   }
 
@@ -88,6 +103,7 @@ export class AcpProtocol {
       cwd: params.cwd,
       mcpServers: params.mcpServers ?? [],
       additionalDirectories: params.additionalDirectories,
+      _meta: params._meta,
     });
   }
 

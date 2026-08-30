@@ -41,7 +41,11 @@ const NPX_BACKENDS: Record<string, BuiltinConnectFn> = {
 export class LegacyConnectorFactory implements ClientFactory {
   create(config: AgentConfig, handlers: ProtocolHandlers): AcpClient {
     const spawnFn = () => spawnLegacyChild(config);
-    return new ProcessAcpClient(spawnFn, { backend: config.agentBackend, handlers });
+    return new ProcessAcpClient(spawnFn, {
+      backend: config.agentBackend,
+      handlers,
+      ...(config.waylandNanoActivation && { waylandNanoActivation: config.waylandNanoActivation }),
+    });
   }
 }
 
@@ -53,6 +57,25 @@ export class LegacyConnectorFactory implements ClientFactory {
 async function spawnLegacyChild(config: AgentConfig): Promise<ChildProcess> {
   const backend = config.agentBackend;
   const cwd = config.cwd;
+
+  if (backend === 'wnano') {
+    const activation = config.waylandNanoActivation;
+    if (!activation) {
+      throw new AcpError('CONNECTION_FAILED', 'Wayland Nano requires owner-resolved activation authority', {
+        retryable: false,
+      });
+    }
+    const result = await spawnGenericBackend(
+      backend,
+      activation.binary.canonicalPath,
+      cwd,
+      config.args,
+      config.env,
+      undefined,
+      activation.binary
+    );
+    return result.child;
+  }
 
   // Shape-checked, not merely truthy: `launch` reaches here from the persisted
   // conversation `extra`, which is untyped JSON at runtime. A malformed descriptor

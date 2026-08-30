@@ -313,6 +313,7 @@ export class AcpAgentV2 {
     const currentWrapperVersion = getCurrentWrapperVersion(this.agentConfig.agentBackend);
     const storedWrapperVersion = this.agentConfig.acpWrapperVersion;
     if (
+      !this.agentConfig.waylandNanoActivation &&
       this.agentConfig.resumeSessionId &&
       currentWrapperVersion &&
       storedWrapperVersion &&
@@ -331,7 +332,7 @@ export class AcpAgentV2 {
       }
       // Drop the stale session id so SessionLifecycle takes the createSession path.
       (this.agentConfig as { resumeSessionId?: string }).resumeSessionId = undefined;
-    } else if (this.agentConfig.resumeSessionId) {
+    } else if (this.agentConfig.resumeSessionId && !this.agentConfig.waylandNanoActivation) {
       // Normal resume attempt (wrapper version unchanged). claude-agent-acp
       // sessions are in-memory and don't survive a process restart, so the
       // stored sessionId may be unloadable. Arm history replay SPECULATIVELY
@@ -835,6 +836,10 @@ export class AcpAgentV2 {
 
   cancelPrompt(): void {
     this.session?.cancelPrompt();
+  }
+
+  pausePrompt(): void {
+    this.session?.pausePrompt();
   }
 
   // ─── Messaging + Permission Methods (Task 5) ───────────

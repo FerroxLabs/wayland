@@ -43,6 +43,10 @@ import { createAcpStderrReader } from '@process/acp/acpStderrLog';
 import { NdjsonTransport } from '@process/acp/infra/NdjsonTransport';
 import { gracefulShutdown, waitForExit, waitForSpawn } from '@process/acp/infra/processUtils';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
+import type {
+  ResolvedWaylandNanoActivationInput,
+  WaylandNanoActivationAttempt,
+} from '@process/agent/acp/AcpConnection';
 import type { ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs';
 
@@ -125,6 +129,14 @@ type PendingRequest = {
   reject: (error: unknown) => void;
 };
 
+function mergeActivationMeta(
+  meta: CreateSessionParams['_meta'] | LoadSessionParams['_meta'],
+  attempt: WaylandNanoActivationAttempt | null
+): CreateSessionParams['_meta'] {
+  if (!attempt) return meta;
+  return { ...meta, waylandNanoActivation: attempt.activation };
+}
+
 export type ProcessAcpClientOptions = {
   backend: string;
   handlers: ProtocolHandlers;
@@ -138,6 +150,7 @@ export type ProcessAcpClientOptions = {
   platform?: NodeJS.Platform;
   /** Override {@link TRANSPORT_SILENCE_MS}. Tests only; production uses the default. */
   transportSilenceMs?: number;
+  waylandNanoActivation?: ResolvedWaylandNanoActivationInput;
 };
 
 export class ProcessAcpClient implements AcpClient {
@@ -175,6 +188,7 @@ export class ProcessAcpClient implements AcpClient {
 
   // Pending request tracking
   private readonly pendingRequests = new Set<PendingRequest>();
+  private waylandNanoAttempt: WaylandNanoActivationAttempt | null = null;
 
   constructor(
     private readonly spawnFn: () => Promise<ChildProcess>,
@@ -266,22 +280,26 @@ export class ProcessAcpClient implements AcpClient {
   // ─── Protocol Methods (wrapped with runConnectionRequest) ──
 
   async createSession(params: CreateSessionParams): Promise<NewSessionResponse> {
+    const attempt = await this.buildWaylandNanoAttempt('new', null);
     return this.runConnectionRequest(() =>
       this.conn.newSession({
         cwd: params.cwd,
         mcpServers: params.mcpServers ?? [],
         additionalDirectories: params.additionalDirectories,
+        _meta: mergeActivationMeta(params._meta, attempt),
       })
     );
   }
 
   async loadSession(params: LoadSessionParams): Promise<LoadSessionResponse> {
+    const attempt = await this.buildWaylandNanoAttempt('load', params.sessionId);
     return this.runConnectionRequest(() =>
       this.conn.loadSession({
         sessionId: params.sessionId,
         cwd: params.cwd,
         mcpServers: params.mcpServers ?? [],
         additionalDirectories: params.additionalDirectories,
+        _meta: mergeActivationMeta(params._meta, attempt),
       })
     );
   }
@@ -323,7 +341,21 @@ export class ProcessAcpClient implements AcpClient {
   }
 
   async cancel(sessionId: string): Promise<void> {
-    await this.runConnectionRequest(() => this.conn.cancel({ sessionId }));
+    const control = await this.buildWaylandNanoControl('cancel', sessionId);
+    await this.runConnectionRequest(() =>
+      this.conn.cancel({ sessionId, ...(control && { _meta: { waylandNanoControl: control } }) })
+    );
+  }
+
+  /** Signed Nano wire pause; unrelated to the local permission timeout timer. */
+  async pause(sessionId: string): Promise<void> {
+    const control = await this.buildWaylandNanoControl('pause', sessionId);
+    await this.runConnectionRequest(() =>
+      this.conn.extNotification('session/pause', {
+        sessionId,
+        ...(control && { _meta: { waylandNanoControl: control } }),
+      })
+    );
   }
 
   async closeSession(sessionId: string): Promise<void> {
@@ -372,6 +404,25 @@ export class ProcessAcpClient implements AcpClient {
 
   async extMethod(method: string, params: Record<string, unknown>): Promise<unknown> {
     return this.runConnectionRequest(() => this.conn.extMethod(method, params));
+  }
+
+  private async buildWaylandNanoAttempt(
+    operation: 'new' | 'load',
+    sessionId: string | null
+  ): Promise<WaylandNanoActivationAttempt | null> {
+    const producer = this.options.waylandNanoActivation;
+    if (!producer) return null;
+    if (this.options.backend !== 'wnano') {
+      throw new Error('Wayland Nano activation input cannot be used by another backend');
+    }
+    const attempt = await producer.buildAttempt({ operation, sessionId });
+    this.waylandNanoAttempt = attempt;
+    return attempt;
+  }
+
+  private async buildWaylandNanoControl(control: 'cancel' | 'pause', sessionId: string) {
+    if (!this.waylandNanoAttempt) return null;
+    return this.waylandNanoAttempt.buildControl(control, sessionId);
   }
 
   // ─── Shutdown ─────────────────────────────────────────────

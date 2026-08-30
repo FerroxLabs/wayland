@@ -329,6 +329,11 @@ export class AcpSession {
     this.promptExecutor.cancelAll();
   }
 
+  /** Send an authenticated Nano wire pause without touching the local permission timer. */
+  pausePrompt(): void {
+    this.lifecycle.pause();
+  }
+
   setModel(modelId: string): void {
     this.configTracker.setDesiredModel(modelId);
     if (this._status === 'idle' || this._status === 'error') return;
