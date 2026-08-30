@@ -6,12 +6,25 @@ import path from 'node:path';
 import { PassThrough } from 'node:stream';
 import type { ChildProcess } from 'node:child_process';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import canonicalize from 'canonicalize';
 
 const connectorMocks = vi.hoisted(() => ({ spawnGenericBackend: vi.fn() }));
+const electronMocks = vi.hoisted(() => ({
+  userDataRoot: 'C:/test-user-data',
+  encryptionAvailable: true,
+}));
 
 vi.mock('electron', () => ({
-  app: { getPath: () => 'C:/test-user-data' },
-  safeStorage: {},
+  app: {
+    getPath: (name: string) => (name === 'userData' ? electronMocks.userDataRoot : 'C:/test-user-data'),
+    isPackaged: false,
+  },
+  safeStorage: {
+    isEncryptionAvailable: () => electronMocks.encryptionAvailable,
+    getSelectedStorageBackend: () => 'gnome_libsecret',
+    encryptString: (value: string) => Buffer.from(value, 'utf8'),
+    decryptString: (value: Buffer) => value.toString('utf8'),
+  },
 }));
 
 vi.mock('@process/agent/acp/acpConnectors', () => ({
@@ -22,6 +35,8 @@ vi.mock('@process/agent/acp/acpConnectors', () => ({
   waylandNanoNonpersistentArgs: () => ['acp-host', '--nonpersistent'],
 }));
 
+vi.mock('@process/bridge', () => ({ initAllBridges: vi.fn() }));
+
 import '@/common/platform/register-node';
 import { WaylandNanoActivationKeyStore } from '@process/agent/activation/waylandNanoActivationKeyStore';
 import {
@@ -30,7 +45,7 @@ import {
   type WaylandNanoActivationOwnerOptions,
 } from '@process/agent/activation/waylandNanoActivationOwner';
 import type { WaylandNanoBinaryExpectation } from '@process/agent/activation/waylandNanoBinaryVerifier';
-import { WaylandNanoBindingStore } from '@process/agent/activation/waylandNanoBindingStore';
+import { enforceOwnerOnlyPath, WaylandNanoBindingStore } from '@process/agent/activation/waylandNanoBindingStore';
 import type { SignedWaylandNanoActivation, WaylandNanoBinding } from '@process/agent/activation/types';
 import { AcpConnection, type WaylandNanoBindingOwner } from '@process/agent/acp/AcpConnection';
 import { ProcessAcpClient } from '@process/acp/infra/ProcessAcpClient';
@@ -40,6 +55,7 @@ import {
   workerTaskManager,
 } from '@process/task/workerTaskManagerSingleton';
 import type { TChatConversation } from '@/common/config/storage';
+import { disposeWaylandNanoActivationOwner, initializeWaylandNanoActivationOwner } from '@process/utils/initBridge';
 
 const roots: string[] = [];
 const SOURCE_SHA = '1'.repeat(40);
@@ -96,6 +112,18 @@ describe('Wayland Nano production activation owner', () => {
     ).toBe(true);
     const next = await resolved!.activation.buildAttempt({ operation: 'new', sessionId: null });
     expect(next.activation.activation_id).not.toBe(first.activation.activation_id);
+    expect(
+      first.observeTerminalResponse?.({
+        sessionId: 'session-1',
+        _meta: {
+          waylandNanoActivationReceipt: receipt(first.activation, fixture.expectation, { session_id: 'session-1' }),
+          waylandNanoResumeFingerprint: RESUME_FINGERPRINT,
+        },
+      })
+    ).toBe(false);
+    expect((await resolved!.activation.buildAttempt({ operation: 'new', sessionId: null })).activation).toBe(
+      next.activation
+    );
 
     const resumed = await resolved!.activation.buildAttempt({ operation: 'load', sessionId: 'session-1' });
     expect(resumed.activation.continuity).toEqual({
@@ -207,6 +235,63 @@ describe('Wayland Nano production activation owner', () => {
     sdkTransport.child.emit('exit', 0, null);
     await sdk.close();
     await fixture.owner.dispose();
+  });
+
+  it('installs the real default-off startup seam from one canonical owner manifest and uninstalls on shutdown', async () => {
+    const fixture = await ownerFixture();
+    electronMocks.userDataRoot = fixture.options.userDataRoot;
+
+    await initializeWaylandNanoActivationOwner();
+    expect(productionManagerOwner()).toBeNull();
+    await disposeWaylandNanoActivationOwner();
+
+    await writeOwnerManifest(fixture, '{}');
+    await initializeWaylandNanoActivationOwner();
+    expect(productionManagerOwner()).toBeNull();
+    await disposeWaylandNanoActivationOwner();
+
+    await writeOwnerManifest(fixture, ownerManifest(fixture));
+    await Promise.all([initializeWaylandNanoActivationOwner(), initializeWaylandNanoActivationOwner()]);
+    const installed = productionManagerOwner();
+    expect(installed).not.toBeNull();
+    const legacyResolved = await installed!.load(fixture.binding.productSubjectId);
+    expect(legacyResolved?.binding).toEqual(fixture.binding);
+    const loadedExpectation = {
+      ...fixture.expectation,
+      stagingRoot: path.join(fixture.options.userDataRoot, 'wayland-nano', 'staging'),
+    };
+    const legacyTransport = terminalChild(loadedExpectation);
+    connectorMocks.spawnGenericBackend.mockResolvedValue({ child: legacyTransport.child, isDetached: false });
+    const legacy = new AcpConnection(legacyResolved!.activation);
+    await legacy.connect('wnano', fixture.expectation.canonicalPath, fixture.binding.projectId);
+    await legacy.initialize();
+    await legacy.newSession(fixture.binding.projectId);
+
+    const sdkResolved = await installed!.load(fixture.binding.productSubjectId);
+    const sdkTransport = terminalChild(loadedExpectation);
+    const sdk = new ProcessAcpClient(
+      async () => {
+        setTimeout(() => sdkTransport.child.emit('spawn'), 0);
+        return sdkTransport.child;
+      },
+      { backend: 'wnano', handlers: protocolHandlers(), waylandNanoActivation: sdkResolved!.activation }
+    );
+    await sdk.start();
+    await sdk.createSession({ cwd: fixture.binding.projectId, mcpServers: [] });
+    expect(activationIds(legacyTransport.frames)).toHaveLength(1);
+    expect(activationIds(sdkTransport.frames)).toHaveLength(1);
+
+    Object.assign(legacyTransport.child, { exitCode: 0 });
+    legacyTransport.child.emit('exit', 0, null);
+    await legacy.disconnect();
+    Object.assign(sdkTransport.child, { exitCode: 0 });
+    sdkTransport.child.emit('exit', 0, null);
+    await sdk.close();
+
+    await disposeWaylandNanoActivationOwner();
+    expect(productionManagerOwner()).toBeNull();
+    expect(existsSync(legacyResolved!.activation.binary.canonicalPath)).toBe(false);
+    expect(existsSync(sdkResolved!.activation.binary.canonicalPath)).toBe(false);
   });
 });
 
@@ -364,4 +449,44 @@ function protocolHandlers(): ProtocolHandlers {
     onReadTextFile: vi.fn(),
     onWriteTextFile: vi.fn(),
   };
+}
+
+function productionManagerOwner(): WaylandNanoBindingOwner | null {
+  const factory = (
+    workerTaskManager as unknown as {
+      factory: { create(conversation: TChatConversation): unknown };
+    }
+  ).factory;
+  const manager = factory.create({
+    id: `production-owner-${Math.random()}`,
+    type: 'acp',
+    name: 'Wayland Nano',
+    createdAt: 0,
+    updatedAt: 0,
+    extra: { backend: 'wnano', workspace: 'project-a', waylandNanoBindingRef: 'subject-a' },
+  } as unknown as TChatConversation) as Readonly<{ waylandNanoBindingOwner: WaylandNanoBindingOwner | null }>;
+  return manager.waylandNanoBindingOwner;
+}
+
+function ownerManifest(fixture: Readonly<{ options: WaylandNanoActivationOwnerOptions }>): string {
+  const encoded = canonicalize({
+    schema: 'wayland.nano.desktop-activation-owner/v1',
+    artifact: {
+      ...fixture.options.artifactExpectation,
+      stagingRoot: path.join(fixture.options.userDataRoot, 'wayland-nano', 'staging'),
+    },
+    grant: fixture.options.grant,
+  });
+  if (typeof encoded !== 'string') throw new Error('Owner manifest fixture could not be canonicalized');
+  return encoded;
+}
+
+async function writeOwnerManifest(
+  fixture: Readonly<{ options: WaylandNanoActivationOwnerOptions }>,
+  contents: string
+): Promise<void> {
+  const ownerRoot = path.join(fixture.options.userDataRoot, 'wayland-nano');
+  const manifestPath = path.join(ownerRoot, 'activation-artifact.json');
+  await writeFile(manifestPath, contents, { mode: 0o600 });
+  await enforceOwnerOnlyPath(manifestPath, 'file', 'full');
 }

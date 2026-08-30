@@ -13,7 +13,12 @@ import { SqliteChannelRepository } from '@process/services/database/SqliteChanne
 import { SqliteConversationRepository } from '@process/services/database/SqliteConversationRepository';
 import { ConversationServiceImpl } from '@process/services/ConversationServiceImpl';
 import { cronService } from '@process/services/cron/cronServiceSingleton';
-import { workerTaskManager } from '@process/task/workerTaskManagerSingleton';
+import {
+  installProductionWaylandNanoActivationOwner,
+  workerTaskManager,
+} from '@process/task/workerTaskManagerSingleton';
+import { loadWaylandNanoActivationOwnerOptions } from '@process/agent/activation/waylandNanoActivationOwner';
+import type { WaylandNanoSafeStorage } from '@process/agent/activation/waylandNanoActivationKeyStore';
 import { TeamSessionService, SqliteTeamRepository } from '@process/team';
 import { initTeamGuideService } from '@process/team/mcp/guide/teamGuideSingleton';
 import { CronRitualScheduler, makeExtensionRegistryRitualsResolver } from '@process/team/ritualScheduler';
@@ -56,7 +61,7 @@ import { addMessage, flushConversationMessages } from '@process/utils/message';
 import { getDataPath } from '@process/utils';
 import { resolveDefaultLaunchTarget } from '@process/utils/workflowLaunchTargetResolver';
 import type { TProviderWithModel } from '@/common/config/storage';
-import { app } from 'electron';
+import { app, safeStorage } from 'electron';
 import path from 'node:path';
 import { ConstitutionFsService, setConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 import { ConstitutionArchiveRestoreOperationAuthority } from '@process/services/constitution/constitutionArchiveRestoreAuthority';
@@ -71,6 +76,36 @@ import { createProductionConstitutionClassicRecoveryService } from '@process/ser
 import { setConstitutionClassicRecoveryServiceReady } from '@process/services/constitution/constitutionClassicRecoveryService';
 
 logger.config({ print: true });
+
+let waylandNanoOwnerStartup: Promise<void> | null = null;
+let disposeWaylandNanoOwner: (() => Promise<void>) | null = null;
+
+/** Install the default-off Nano owner only after Electron and storage are ready. */
+export function initializeWaylandNanoActivationOwner(): Promise<void> {
+  if (waylandNanoOwnerStartup) return waylandNanoOwnerStartup;
+  waylandNanoOwnerStartup = (async () => {
+    const storage: WaylandNanoSafeStorage = {
+      isEncryptionAvailable: () => safeStorage.isEncryptionAvailable(),
+      getSelectedStorageBackend: () => safeStorage.getSelectedStorageBackend(),
+      encryptString: (value) => safeStorage.encryptString(value),
+      decryptString: (value) => safeStorage.decryptString(value),
+    };
+    const options = await loadWaylandNanoActivationOwnerOptions(app.getPath('userData'), storage);
+    if (!options) return;
+    disposeWaylandNanoOwner = await installProductionWaylandNanoActivationOwner(options);
+  })();
+  return waylandNanoOwnerStartup;
+}
+
+/** Uninstall authority before workers drain and dispose held retry/binary state. */
+export async function disposeWaylandNanoActivationOwner(): Promise<void> {
+  const startup = waylandNanoOwnerStartup;
+  if (startup) await startup;
+  const dispose = disposeWaylandNanoOwner;
+  disposeWaylandNanoOwner = null;
+  waylandNanoOwnerStartup = null;
+  await dispose?.();
+}
 
 const repo = new SqliteConversationRepository();
 const conversationServiceImpl = new ConversationServiceImpl(repo);

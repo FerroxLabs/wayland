@@ -1,4 +1,8 @@
 import { randomUUID } from 'node:crypto';
+import { constants } from 'node:fs';
+import { lstat, mkdir, open, realpath } from 'node:fs/promises';
+import path from 'node:path';
+import canonicalize from 'canonicalize';
 
 import type {
   ResolvedWaylandNanoActivationInput,
@@ -13,10 +17,36 @@ import {
   type WaylandNanoBinaryExpectation,
 } from './waylandNanoBinaryVerifier';
 import { WaylandNanoBindingStore } from './waylandNanoBindingStore';
+import { enforceOwnerOnlyPath } from './waylandNanoBindingStore';
 import type { WaylandNanoBinding, WaylandNanoBudgets, WaylandNanoCapability, WaylandNanoControl } from './types';
 
 const OPAQUE_REFERENCE = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
+const SOURCE_SHA = /^[0-9a-f]{40}$/;
+const MANIFEST_SCHEMA = 'wayland.nano.desktop-activation-owner/v1';
+const MANIFEST_FILE = 'activation-artifact.json';
+const MANIFEST_KEYS = ['artifact', 'grant', 'schema'] as const;
+const ARTIFACT_KEYS = ['canonicalPath', 'cargoLockSha256', 'sha256', 'size', 'sourceCommitSha', 'stagingRoot'] as const;
+const GRANT_KEYS = ['budgets', 'capabilities', 'controls', 'validityMs'] as const;
+const BUDGET_KEYS = [
+  'max_cost_microcents',
+  'max_input_tokens',
+  'max_output_tokens',
+  'max_tool_calls',
+  'max_turns',
+  'wall_clock_ms',
+] as const;
+const CAPABILITIES = new Set<WaylandNanoCapability>([
+  'filesystem.read',
+  'filesystem.write',
+  'shell.execute',
+  'network.egress',
+  'mcp.invoke',
+  'task.spawn',
+  'checkpoint.mutate',
+  'computer.use',
+]);
+const CONTROLS = new Set<WaylandNanoControl>(['cancel', 'pause']);
 
 export type WaylandNanoActivationGrant = Readonly<{
   capabilities: readonly WaylandNanoCapability[];
@@ -35,6 +65,70 @@ export type WaylandNanoActivationOwnerOptions = Readonly<{
   now?: () => Date;
   randomId?: () => string;
 }>;
+
+/** Load the sole owner-controlled, canonical startup manifest. Absence or invalidity is default-off. */
+export async function loadWaylandNanoActivationOwnerOptions(
+  userDataRoot: string,
+  safeStorage: WaylandNanoSafeStorage
+): Promise<WaylandNanoActivationOwnerOptions | null> {
+  try {
+    const root = await realpath(userDataRoot);
+    const ownerRoot = path.join(root, 'wayland-nano');
+    const ownerRootMetadata = await lstat(ownerRoot);
+    if (
+      !ownerRootMetadata.isDirectory() ||
+      ownerRootMetadata.isSymbolicLink() ||
+      (process.platform !== 'win32' && (ownerRootMetadata.mode & 0o077) !== 0) ||
+      path.dirname(await realpath(ownerRoot)) !== root
+    ) {
+      return null;
+    }
+    await enforceOwnerOnlyPath(ownerRoot, 'directory', 'full', true);
+    const manifestPath = path.join(ownerRoot, MANIFEST_FILE);
+    const metadata = await lstat(manifestPath);
+    if (
+      !metadata.isFile() ||
+      metadata.isSymbolicLink() ||
+      metadata.nlink !== 1 ||
+      metadata.size <= 0 ||
+      metadata.size > 64 * 1024 ||
+      (process.platform !== 'win32' && (metadata.mode & 0o077) !== 0) ||
+      path.dirname(await realpath(manifestPath)) !== ownerRoot
+    ) {
+      return null;
+    }
+    await enforceOwnerOnlyPath(manifestPath, 'file', 'full', true);
+    const handle = await open(manifestPath, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+    let raw: string;
+    try {
+      const held = await handle.stat();
+      if (
+        !held.isFile() ||
+        held.nlink !== 1 ||
+        held.dev !== metadata.dev ||
+        held.ino !== metadata.ino ||
+        held.size !== metadata.size
+      ) {
+        return null;
+      }
+      raw = await handle.readFile('utf8');
+    } finally {
+      await handle.close();
+    }
+    if (raw.startsWith('\uFEFF') || raw.endsWith('\n') || raw.endsWith('\r')) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (canonicalize(parsed) !== raw || !isRecord(parsed) || !hasExactKeys(parsed, MANIFEST_KEYS)) return null;
+    if (parsed.schema !== MANIFEST_SCHEMA || !isRecord(parsed.artifact) || !isRecord(parsed.grant)) return null;
+    if (!hasExactKeys(parsed.artifact, ARTIFACT_KEYS) || !hasExactKeys(parsed.grant, GRANT_KEYS)) return null;
+    const artifact = parseArtifact(parsed.artifact, ownerRoot);
+    const grant = parseGrant(parsed.grant);
+    if (!artifact || !grant) return null;
+    await ensurePrivateStagingRoot(artifact.stagingRoot, ownerRoot);
+    return Object.freeze({ userDataRoot: root, safeStorage, artifactExpectation: artifact, grant });
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Sole process-scoped composition for the Desktop-owned Nano activation authority.
@@ -124,12 +218,16 @@ export class WaylandNanoActivationOwner implements WaylandNanoBindingOwner {
             observeTerminalResponse: (value) => {
               const observed = correlateTerminalMetadata(value, assertion, this.#artifactExpectation);
               if (!observed) return false;
+              // A delayed duplicate for completed attempt A must never clear a
+              // newer attempt B that now owns the same logical retry key.
+              if (logicalIds.get(retryKey) !== assertion.activation_id) return false;
+              if (!this.#builder.completeLogicalActivation(assertion.activation_id)) return false;
+              logicalIds.delete(retryKey);
+              this.#pendingActivationIds.delete(assertion.activation_id);
               if (observed.sessionId && observed.resumeFingerprint) {
                 this.#resumeFingerprints.set(observed.sessionId, observed.resumeFingerprint);
               }
-              logicalIds.delete(retryKey);
-              this.#pendingActivationIds.delete(assertion.activation_id);
-              return this.#builder.completeLogicalActivation(assertion.activation_id);
+              return true;
             },
           });
           return attempt;
@@ -215,6 +313,96 @@ function freezeGrant(value: WaylandNanoActivationGrant): WaylandNanoActivationGr
     controls: Object.freeze([...value.controls]),
     validityMs: value.validityMs,
   });
+}
+
+function parseArtifact(value: Record<string, unknown>, ownerRoot: string): WaylandNanoBinaryExpectation | null {
+  if (
+    typeof value.canonicalPath !== 'string' ||
+    !path.isAbsolute(value.canonicalPath) ||
+    path.resolve(value.canonicalPath) !== value.canonicalPath ||
+    typeof value.stagingRoot !== 'string' ||
+    path.resolve(value.stagingRoot) !== value.stagingRoot ||
+    !samePath(value.stagingRoot, path.join(ownerRoot, 'staging')) ||
+    typeof value.sha256 !== 'string' ||
+    !SHA256.test(value.sha256) ||
+    typeof value.sourceCommitSha !== 'string' ||
+    !SOURCE_SHA.test(value.sourceCommitSha) ||
+    typeof value.cargoLockSha256 !== 'string' ||
+    !SHA256.test(value.cargoLockSha256) ||
+    !Number.isSafeInteger(value.size) ||
+    (value.size as number) <= 0
+  ) {
+    return null;
+  }
+  return Object.freeze({
+    canonicalPath: value.canonicalPath,
+    sha256: value.sha256,
+    size: value.size as number,
+    sourceCommitSha: value.sourceCommitSha,
+    cargoLockSha256: value.cargoLockSha256,
+    stagingRoot: value.stagingRoot,
+  });
+}
+
+function parseGrant(value: Record<string, unknown>): WaylandNanoActivationGrant | null {
+  const budgets = value.budgets;
+  if (
+    !Array.isArray(value.capabilities) ||
+    value.capabilities.length === 0 ||
+    !value.capabilities.every((item): item is WaylandNanoCapability =>
+      typeof item === 'string' ? CAPABILITIES.has(item as WaylandNanoCapability) : false
+    ) ||
+    new Set(value.capabilities).size !== value.capabilities.length ||
+    !Array.isArray(value.controls) ||
+    !value.controls.every((item): item is WaylandNanoControl =>
+      typeof item === 'string' ? CONTROLS.has(item as WaylandNanoControl) : false
+    ) ||
+    new Set(value.controls).size !== value.controls.length ||
+    !Number.isSafeInteger(value.validityMs) ||
+    (value.validityMs as number) <= 0 ||
+    !isRecord(budgets) ||
+    !hasExactKeys(budgets, BUDGET_KEYS) ||
+    !BUDGET_KEYS.every((key) => Number.isSafeInteger(budgets[key]) && (budgets[key] as number) >= 0)
+  ) {
+    return null;
+  }
+  return freezeGrant({
+    capabilities: value.capabilities,
+    budgets: budgets as unknown as WaylandNanoBudgets,
+    controls: value.controls,
+    validityMs: value.validityMs as number,
+  });
+}
+
+async function ensurePrivateStagingRoot(stagingRoot: string, ownerRoot: string): Promise<void> {
+  if (!samePath(path.dirname(stagingRoot), ownerRoot)) throw new Error('Wayland Nano staging root escaped owner root');
+  let created = false;
+  await mkdir(stagingRoot, { recursive: false, mode: 0o700 })
+    .then(() => {
+      created = true;
+    })
+    .catch((error: NodeJS.ErrnoException) => {
+      if (error.code !== 'EEXIST') throw error;
+    });
+  const metadata = await lstat(stagingRoot);
+  if (
+    !metadata.isDirectory() ||
+    metadata.isSymbolicLink() ||
+    (process.platform !== 'win32' && (metadata.mode & 0o077) !== 0) ||
+    !samePath(path.dirname(await realpath(stagingRoot)), ownerRoot)
+  ) {
+    throw new Error('Wayland Nano staging root is unsafe');
+  }
+  await enforceOwnerOnlyPath(stagingRoot, 'directory', 'full', !created);
+}
+
+function hasExactKeys(value: Record<string, unknown>, expected: readonly string[]): boolean {
+  const actual = Object.keys(value).toSorted();
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
+}
+
+function samePath(left: string, right: string): boolean {
+  return process.platform === 'win32' ? left.toLowerCase() === right.toLowerCase() : left === right;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
