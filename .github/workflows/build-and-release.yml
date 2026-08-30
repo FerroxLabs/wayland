@@ -37,11 +37,11 @@ jobs:
       contents: read
     steps:
       - name: Checkout exact candidate
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
 
@@ -204,12 +204,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -312,7 +312,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Get version for release
         id: version
@@ -334,7 +334,7 @@ jobs:
           echo "is_dev=$IS_DEV" >> $GITHUB_OUTPUT
 
       - name: Download all build artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: build-artifacts
 
@@ -392,7 +392,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup bun
         uses: oven-sh/setup-bun@v2
@@ -450,7 +450,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Resolve tag
         id: tag
@@ -550,7 +550,7 @@ jobs:
           done
 
       - name: Upload exact protected observation set into the producer run
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: protected-platform-observations-${{ github.sha }}
           path: protected-platform-observations
@@ -643,7 +643,7 @@ jobs:
           done
 
       - name: Upload exact updater observation set into the producer run
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: protected-updater-observations-${{ github.sha }}
           path: protected-updater-observations
@@ -674,7 +674,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout exact candidate
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
@@ -693,12 +693,12 @@ jobs:
 
       # The acceptance scripts below are release-critical and were running on
       # whatever Node the runner image happened to ship.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
 
       - name: Download exact canonical build artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: canonical-artifacts
 
@@ -731,7 +731,7 @@ jobs:
             --out "$RUNNER_TEMP/raw-release-acceptance"
 
       - name: Upload complete raw acceptance source
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: raw-release-acceptance-${{ github.sha }}
           path: ${{ runner.temp }}/raw-release-acceptance
@@ -791,7 +791,7 @@ jobs:
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
 
       - name: Download exact accepted receipt
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
@@ -891,10 +891,10 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
@@ -939,7 +939,7 @@ jobs:
       # convention; tests/unit/scripts/waylandmcpSourcePin.test.ts holds the four
       # copies byte-identical so they cannot drift apart.
       - name: Checkout @wayland MCP connector sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: FerroxLabs/waylandmcp
           ref: ${{ env.WAYLANDMCP_REF }}

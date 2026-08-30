@@ -120,7 +120,7 @@ jobs:
       contents: read
       actions: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
 
@@ -138,7 +138,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Download the installer this run produced
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: windows-build-*
           path: installer
@@ -202,7 +202,7 @@ jobs:
           if ($j.chat.error) { Write-Host "chatError=$($j.chat.error)" }
           if ($j.chat.stallCapture) { Write-Host 'STALL CAPTURED - see the uploaded report' }
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: windows-chat-smoke-report

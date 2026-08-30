@@ -54,7 +54,7 @@ jobs:
           [[ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" && -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]] || exit 1
 
       - name: Checkout exact candidate in untrusted execution job
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ env.CANDIDATE_REF }}
           path: candidate
@@ -166,7 +166,7 @@ jobs:
 
       - name: Upload immutable untrusted candidate gate outputs
         id: upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: candidate-gates-${{ inputs.candidate_ref }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/candidate-gates
@@ -215,14 +215,14 @@ jobs:
           [[ "$GATE_ARTIFACT_DIGEST" =~ ^[0-9a-f]{64}$ ]] || exit 1
 
       - name: Checkout pinned trust-root authority code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ env.TRUST_ROOT_SHA }}
           path: trust-root
           persist-credentials: false
 
       - name: Checkout exact candidate as inert data only
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ env.CANDIDATE_REF }}
           path: candidate
@@ -274,7 +274,7 @@ jobs:
           [[ "${api_digest#sha256:}" == "$GATE_ARTIFACT_DIGEST" ]] || exit 1
 
       - name: Download exact same-run candidate gate outputs
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           artifact-ids: ${{ needs.candidate-gates.outputs.artifact-id }}
           path: candidate-gate-download
@@ -307,7 +307,7 @@ jobs:
             --job candidate-gates
 
       - name: Download complete raw acceptance evidence bundle
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
@@ -345,7 +345,7 @@ jobs:
           done
 
       - name: Attest protected raw authority inputs
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: intake-subjects/*
 
@@ -417,7 +417,7 @@ jobs:
           [[ "$(find attestation-subjects -type f -name '*.json' | wc -l | tr -d ' ')" -eq "$expected" ]] || exit 1
 
       - name: Attest trust-root generated receipt and manifest bytes
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: attestation-subjects/*.json
 
@@ -436,12 +436,12 @@ jobs:
             "$RUNNER_TEMP/final-acceptance-receipt.json" >/dev/null
 
       - name: Attest accepted receipt
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: ${{ runner.temp }}/final-acceptance-receipt.json
 
       - name: Upload immutable accepted receipt
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wayland-final-acceptance-${{ inputs.candidate_ref }}
           path: ${{ runner.temp }}/final-acceptance-receipt.json
@@ -449,7 +449,7 @@ jobs:
           retention-days: 90
 
       - name: Upload protected acceptance evidence bundle
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wayland-protected-acceptance-evidence-${{ inputs.candidate_ref }}
           path: |
