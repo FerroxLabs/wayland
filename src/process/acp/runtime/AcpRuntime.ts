@@ -71,15 +71,19 @@ export class AcpRuntime {
 
   async createConversation(convId: string, agentConfig: AgentConfig): Promise<void> {
     if (this.sessions.has(convId)) return;
-    if (agentConfig.agentBackend === 'wnano' && !agentConfig.waylandNanoActivation) {
-      throw new Error('Wayland Nano requires owner-resolved activation authority');
-    }
-
     // Shallow-clone to avoid mutating the caller's object (e.g., MCP servers would
     // duplicate on retries if we pushed into the original arrays).
     const config = {
       ...agentConfig,
       waylandNanoActivation: agentConfig.waylandNanoActivation,
+      waylandNanoMode:
+        agentConfig.agentBackend === 'wnano'
+          ? (agentConfig.waylandNanoMode ?? (agentConfig.waylandNanoActivation ? 'authenticated' : 'nonpersistent'))
+          : undefined,
+      resumeSessionId:
+        agentConfig.agentBackend === 'wnano' && !agentConfig.waylandNanoActivation
+          ? undefined
+          : agentConfig.resumeSessionId,
     };
 
     // Inject team-guide MCP server for solo agents (not in team mode) so the

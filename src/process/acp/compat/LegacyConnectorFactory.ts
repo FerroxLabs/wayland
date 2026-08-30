@@ -23,6 +23,7 @@ import {
   connectCodebuddy,
   connectCodex,
   spawnGenericBackend,
+  withWaylandNanoNonpersistentArgs,
   type NpxConnectHooks,
   type SpawnResult,
 } from '@process/agent/acp/acpConnectors';
@@ -60,10 +61,32 @@ async function spawnLegacyChild(config: AgentConfig): Promise<ChildProcess> {
 
   if (backend === 'wnano') {
     const activation = config.waylandNanoActivation;
-    if (!activation) {
-      throw new AcpError('CONNECTION_FAILED', 'Wayland Nano requires owner-resolved activation authority', {
+    const mode = config.waylandNanoMode ?? (activation ? 'authenticated' : 'nonpersistent');
+    if (mode === 'authenticated' && !activation) {
+      throw new AcpError('CONNECTION_FAILED', 'Authenticated Wayland Nano requires owner-resolved authority', {
         retryable: false,
       });
+    }
+    if (mode === 'nonpersistent' && activation) {
+      await activation.binary.dispose();
+      throw new AcpError('CONNECTION_FAILED', 'Nonpersistent Wayland Nano cannot consume persistent authority', {
+        retryable: false,
+      });
+    }
+    if (!activation) {
+      if (!config.command) {
+        throw new AcpError('CONNECTION_FAILED', 'No CLI path for bounded nonpersistent Wayland Nano', {
+          retryable: false,
+        });
+      }
+      const result = await spawnGenericBackend(
+        backend,
+        config.command,
+        cwd,
+        withWaylandNanoNonpersistentArgs(['acp-host']),
+        config.env
+      );
+      return result.child;
     }
     const result = await spawnGenericBackend(
       backend,

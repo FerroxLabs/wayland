@@ -11,7 +11,10 @@ import {
   type AgentBackend,
 } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
-import type { ResolvedWaylandNanoActivationInput } from '@process/agent/acp/AcpConnection';
+import type {
+  ResolvedWaylandNanoActivationInput,
+  WaylandNanoConnectionMode,
+} from '@process/agent/acp/AcpConnection';
 import type { McpConfigProjection } from '@process/acp/session/McpConfig';
 import type { AgentConfig, AgentSource, ConfigOption, InitialDesiredConfig, ModelSnapshot } from '@process/acp/types';
 import { getEnhancedEnv, loadFullShellEnvironment } from '@process/utils/shellEnv';
@@ -30,6 +33,8 @@ export type OldAcpAgentConfig = {
   customEnv?: Record<string, string>;
   /** Already owner-resolved authority; mutable conversation fields are never fallbacks. */
   waylandNanoActivation?: ResolvedWaylandNanoActivationInput;
+  /** Explicit owner-resolution outcome; absence remains compatibility-nonpersistent. */
+  waylandNanoMode?: WaylandNanoConnectionMode;
   extra?: {
     workspace?: string;
     backend: AgentBackend;
@@ -120,12 +125,16 @@ export function toAgentConfig(old: OldAcpAgentConfig): AgentConfig {
     args: old.extra?.customArgs ?? old.customArgs,
     env: old.extra?.customEnv ?? old.customEnv,
     waylandNanoActivation: old.waylandNanoActivation,
+    waylandNanoMode:
+      backend === 'wnano'
+        ? (old.waylandNanoMode ?? (old.waylandNanoActivation ? 'authenticated' : 'nonpersistent'))
+        : undefined,
     cwd: old.workingDir,
     activeMcpServers: old.extra?.activeMcpServers,
 
     teamMcpConfig: teamMcpConfig,
 
-    resumeSessionId: old.extra?.acpSessionId,
+    resumeSessionId: backend === 'wnano' && !old.waylandNanoActivation ? undefined : old.extra?.acpSessionId,
     acpWrapperVersion: old.extra?.acpWrapperVersion,
     initialDesired: hasInitialDesired ? initialDesired : undefined,
 

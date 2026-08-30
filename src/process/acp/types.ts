@@ -15,7 +15,10 @@ import type {
   WriteTextFileRequest,
   WriteTextFileResponse,
 } from '@agentclientprotocol/sdk';
-import type { ResolvedWaylandNanoActivationInput } from '@process/agent/acp/AcpConnection';
+import type {
+  ResolvedWaylandNanoActivationInput,
+  WaylandNanoConnectionMode,
+} from '@process/agent/acp/AcpConnection';
 // ─── Agent Identity & Config ────────────────────────────────────
 
 export type AgentSource = 'builtin' | 'extension' | 'custom' | 'remote';
@@ -41,6 +44,8 @@ export type AgentConfig = {
 
   /** Owner-resolved Nano authority and one-use verified executable identity. */
   waylandNanoActivation?: ResolvedWaylandNanoActivationInput;
+  /** Explicit result of the owner-binding resolution seam. */
+  waylandNanoMode?: WaylandNanoConnectionMode;
 
   // Process options
   processOptions?: {

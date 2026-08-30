@@ -292,6 +292,9 @@ export class ProcessAcpClient implements AcpClient {
   }
 
   async loadSession(params: LoadSessionParams): Promise<LoadSessionResponse> {
+    if (this.options.backend === 'wnano' && !this.options.waylandNanoActivation) {
+      throw new Error('Bounded nonpersistent Wayland Nano cannot load a persistent session');
+    }
     const attempt = await this.buildWaylandNanoAttempt('load', params.sessionId);
     return this.runConnectionRequest(() =>
       this.conn.loadSession({
@@ -436,6 +439,7 @@ export class ProcessAcpClient implements AcpClient {
     }
     this.connection = null;
     this._connProxy = null;
+    await this.options.waylandNanoActivation?.binary.dispose();
   }
 
   // ─── Internals: Connection accessor ────────────────────────

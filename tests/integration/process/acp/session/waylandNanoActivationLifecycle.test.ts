@@ -1,7 +1,11 @@
 import { EventEmitter } from 'node:events';
+import { existsSync, readFileSync } from 'node:fs';
+import { mkdtemp, rm, unlink, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { PassThrough } from 'node:stream';
 import type { ChildProcess } from 'node:child_process';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RequestError } from '@agentclientprotocol/sdk';
 
 const connectorMocks = vi.hoisted(() => ({
@@ -18,6 +22,8 @@ vi.mock('@process/agent/acp/acpConnectors', () => ({
   connectCodebuddy: vi.fn(),
   connectCodex: vi.fn(),
   spawnGenericBackend: connectorMocks.spawnGenericBackend,
+  withWaylandNanoNonpersistentArgs: (args: readonly string[] = []) =>
+    args.at(-1) === '--nonpersistent' ? [...args] : [...args, '--nonpersistent'],
 }));
 
 import '@/common/platform/register-node';
@@ -40,6 +46,9 @@ type JsonRpcFrame = Readonly<{
   method: string;
   params?: Record<string, unknown>;
 }>;
+
+const temporaryRoots: string[] = [];
+afterEach(async () => Promise.all(temporaryRoots.splice(0).map((root) => rm(root, { recursive: true, force: true }))));
 
 const activation = Object.freeze({
   schema: 'wayland.nano.activation/v1',
@@ -116,6 +125,7 @@ function oldConfig(activationInput?: ResolvedWaylandNanoActivationInput): OldAcp
     cliPath: 'C:/mutable/path/nano.exe',
     workingDir: 'D:/mutable/project',
     waylandNanoActivation: activationInput,
+    waylandNanoMode: activationInput ? 'authenticated' : 'nonpersistent',
     extra: {
       backend: 'wnano',
       agentName: 'mutable assistant',
@@ -197,23 +207,125 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
     const resolved = resolvedActivation();
     const projected = toAgentConfig(oldConfig(resolved.input));
     expect(projected.waylandNanoActivation).toBe(resolved.input);
+    expect(projected.waylandNanoMode).toBe('authenticated');
 
     const unbound = toAgentConfig(oldConfig());
     expect(unbound.waylandNanoActivation).toBeUndefined();
+    expect(unbound.waylandNanoMode).toBe('nonpersistent');
     expect(unbound.agentId).toBe('conversation-must-not-authorize');
   });
 
-  it('creates zero child when Nano binding is missing or the verified launcher token is stale', async () => {
+  it('starts missing-binding Nano only in bounded nonpersistent mode with no carrier or load path', async () => {
     connectorMocks.spawnGenericBackend.mockReset();
+    const transport = fakeChild();
+    connectorMocks.spawnGenericBackend.mockImplementation(async () => {
+      setTimeout(() => transport.child.emit('spawn'), 0);
+      return { child: transport.child, isDetached: false };
+    });
     const factory = new LegacyConnectorFactory();
-    const missing = factory.create(toAgentConfig(oldConfig()), handlers());
-    await expect(missing.start()).rejects.toThrow('owner-resolved activation authority');
-    expect(connectorMocks.spawnGenericBackend).not.toHaveBeenCalled();
+    const missingConfig = oldConfig();
+    if (missingConfig.extra) missingConfig.extra.acpSessionId = 'must-not-load';
+    const projected = toAgentConfig(missingConfig);
+    expect(projected.resumeSessionId).toBeUndefined();
+    const missing = factory.create(projected, handlers());
+    await missing.start();
+    await missing.createSession({ cwd: 'D:/mutable/project', mcpServers: [] });
+    await expect(
+      missing.loadSession({ sessionId: 'must-not-load', cwd: 'D:/mutable/project', mcpServers: [] })
+    ).rejects.toThrow('cannot load a persistent session');
+
+    expect(connectorMocks.spawnGenericBackend).toHaveBeenCalledWith(
+      'wnano',
+      'C:/mutable/path/nano.exe',
+      'D:/mutable/project',
+      ['acp-host', '--nonpersistent'],
+      undefined
+    );
+    const create = transport.frames
+      .map((raw) => JSON.parse(raw) as JsonRpcFrame)
+      .find((frame) => frame.method === 'session/new');
+    expect(create?.params?._meta).toBeUndefined();
+    expect(transport.frames.some((raw) => raw.includes('session/load'))).toBe(false);
+  });
+
+  it('launches the staged verified image after source replacement and removes the stage immediately', async () => {
+    connectorMocks.spawnGenericBackend.mockReset();
+    const root = await mkdtemp(path.join(tmpdir(), 'wayland-nano-plan15-'));
+    temporaryRoots.push(root);
+    const source = path.join(root, process.platform === 'win32' ? 'nano-source.exe' : 'nano-source');
+    const stagedPath = path.join(root, process.platform === 'win32' ? 'nano-staged.exe' : 'nano-staged');
+    const original = Buffer.from('immutable plan15 executable');
+    await writeFile(source, original, { mode: 0o700 });
+    await writeFile(stagedPath, original, { mode: 0o700 });
+    let consumed = false;
+    let cleaned = false;
+    const token = {
+      canonicalPath: stagedPath,
+      consume: vi.fn(async <T>(launch: (verifiedPath: string) => T) => {
+        if (consumed) throw new Error('Wayland Nano binary identity token is stale');
+        consumed = true;
+        const result = launch(stagedPath);
+        if (typeof result === 'object' && result !== null && 'then' in result) {
+          throw new Error('Wayland Nano launcher callback must be synchronous');
+        }
+        return result;
+      }),
+      cleanupAfterLaunch: vi.fn(async () => {
+        if (!consumed) throw new Error('Wayland Nano staged executable cannot be cleaned before launch');
+        if (cleaned) return;
+        await unlink(stagedPath);
+        cleaned = true;
+      }),
+      dispose: vi.fn(async () => {
+        consumed = true;
+        if (!cleaned) {
+          await unlink(stagedPath);
+          cleaned = true;
+        }
+      }),
+    } as unknown as VerifiedWaylandNanoBinary;
+    await writeFile(source, 'source replaced after verification');
+    let launchedBytes: Buffer | null = null;
+    const transport = fakeChild();
+    connectorMocks.spawnGenericBackend.mockImplementation(
+      async (
+        _backend: string,
+        _cliPath: string,
+        _cwd: string,
+        _args: string[] | undefined,
+        _env: Record<string, string> | undefined,
+        binary: VerifiedWaylandNanoBinary
+      ) => {
+        const child = await binary.consume((verifiedPath) => {
+          launchedBytes = readFileSync(verifiedPath);
+          return transport.child;
+        });
+        await binary.cleanupAfterLaunch();
+        setTimeout(() => transport.child.emit('spawn'), 0);
+        return { child, isDetached: false };
+      }
+    );
+
+    const client = new LegacyConnectorFactory().create(
+      toAgentConfig(oldConfig(resolvedActivation(token).input)),
+      handlers()
+    );
+    await client.start();
+
+    expect(launchedBytes).toEqual(original);
+    expect(readFileSync(source, 'utf8')).toBe('source replaced after verification');
+    expect(existsSync(stagedPath)).toBe(false);
+  });
+
+  it('creates zero child and disposes a stale verified launcher token', async () => {
+    connectorMocks.spawnGenericBackend.mockReset();
 
     let childCount = 0;
     const staleBinary = {
       canonicalPath: 'C:/verified/nano.exe',
       consume: vi.fn(() => Promise.reject(new Error('Wayland Nano binary identity token is stale'))),
+      cleanupAfterLaunch: vi.fn(),
+      dispose: vi.fn(() => Promise.resolve()),
     } as unknown as VerifiedWaylandNanoBinary;
     connectorMocks.spawnGenericBackend.mockImplementation(
       async (
@@ -223,17 +335,47 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
         _args: string[] | undefined,
         _env: Record<string, string> | undefined,
         binary: VerifiedWaylandNanoBinary
-      ) => ({
-        child: await binary.consume(() => {
-          childCount += 1;
-          return fakeChild().child;
-        }),
-        isDetached: false,
-      })
+      ) => {
+        try {
+          const child = await binary.consume(() => {
+            childCount += 1;
+            return fakeChild().child;
+          });
+          await binary.cleanupAfterLaunch();
+          return { child, isDetached: false };
+        } catch (error) {
+          await binary.dispose();
+          throw error;
+        }
+      }
     );
-    const stale = factory.create(toAgentConfig(oldConfig(resolvedActivation(staleBinary).input)), handlers());
+    const stale = new LegacyConnectorFactory().create(
+      toAgentConfig(oldConfig(resolvedActivation(staleBinary).input)),
+      handlers()
+    );
     await expect(stale.start()).rejects.toThrow('identity token is stale');
     expect(childCount).toBe(0);
+    expect(staleBinary.dispose).toHaveBeenCalledOnce();
+  });
+
+  it('disposes an authenticated staged token when the client is abandoned before start', async () => {
+    connectorMocks.spawnGenericBackend.mockReset();
+    const abandonedBinary = {
+      canonicalPath: 'C:/verified/abandoned-nano.exe',
+      consume: vi.fn(),
+      cleanupAfterLaunch: vi.fn(),
+      dispose: vi.fn(() => Promise.resolve()),
+    } as unknown as VerifiedWaylandNanoBinary;
+    const client = new LegacyConnectorFactory().create(
+      toAgentConfig(oldConfig(resolvedActivation(abandonedBinary).input)),
+      handlers()
+    );
+
+    await client.close();
+
+    expect(abandonedBinary.consume).not.toHaveBeenCalled();
+    expect(abandonedBinary.dispose).toHaveBeenCalledOnce();
+    expect(connectorMocks.spawnGenericBackend).not.toHaveBeenCalled();
   });
 
   it('preserves exact create/load activation metadata through final SDK child stdin bytes', async () => {

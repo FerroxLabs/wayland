@@ -80,7 +80,10 @@ export class SessionLifecycle {
     if (host.agentConfig.authCredentials) {
       this.authNegotiator.mergeCredentials(host.agentConfig.authCredentials);
     }
-    if (host.agentConfig.resumeSessionId) {
+    if (
+      host.agentConfig.resumeSessionId &&
+      !(host.agentConfig.agentBackend === 'wnano' && !host.agentConfig.waylandNanoActivation)
+    ) {
       this._sessionId = host.agentConfig.resumeSessionId;
     }
   }
