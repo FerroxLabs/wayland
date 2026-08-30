@@ -1,6 +1,7 @@
 import { EventEmitter } from 'node:events';
-import { createHash } from 'node:crypto';
-import { readFile, realpath, stat } from 'node:fs/promises';
+import { copyFile, mkdtemp, realpath, rm, stat, unlink, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
 import { describe, expect, it, vi } from 'vitest';
 
@@ -16,10 +17,7 @@ import type {
   WaylandNanoBinding,
   WaylandNanoControl,
 } from '@process/agent/activation/types';
-import {
-  verifyWaylandNanoBinary,
-  type VerifiedWaylandNanoBinary,
-} from '@process/agent/activation/waylandNanoBinaryVerifier';
+import type { VerifiedWaylandNanoBinary } from '@process/agent/activation/waylandNanoBinaryVerifier';
 import {
   AcpConnection,
   resolveWaylandNanoBindingRef,
@@ -27,6 +25,7 @@ import {
   type WaylandNanoActivationAttempt,
 } from '@process/agent/acp/AcpConnection';
 import { spawnGenericBackend } from '@process/agent/acp/acpConnectors';
+import { waylandNanoNonpersistentArgs } from '@process/agent/acp/acpConnectors';
 import { registerPlatformServices } from '@/common/platform';
 import { NodePlatformServices } from '@/common/platform/NodePlatformServices';
 
@@ -141,10 +140,12 @@ describe('Wayland Nano legacy activation carrier', () => {
       cwd: 'project-a',
       name: 'principal-a',
       projectId: 'project-a',
+      callerSuppliedActivation: carrier(),
     };
 
     expect(await resolveWaylandNanoBindingRef(undefined, { load })).toBeNull();
     expect(mutableConversationFields).toBeDefined();
+    expect(await resolveWaylandNanoBindingRef('subject-a', null)).toBeNull();
     expect(load).not.toHaveBeenCalled();
     expect(await resolveWaylandNanoBindingRef('subject-a', { load })).not.toBeNull();
     expect(load).toHaveBeenCalledOnce();
@@ -235,39 +236,142 @@ describe('Wayland Nano legacy activation carrier', () => {
     await create;
   });
 
-  it('creates zero Nano child when the owner-resolved carrier is missing', async () => {
-    const connection = new AcpConnection();
+  it('starts unresolved Nano only in explicit nonpersistent mode', async () => {
+    registerPlatformServices(new NodePlatformServices());
+    const root = await mkdtemp(path.join(tmpdir(), 'wayland-nano-nonpersistent-'));
+    const probe = path.join(root, 'probe.js');
+    await writeFile(
+      probe,
+      "const path=require('node:path'); process.exit(path.basename(process.argv[1]) === 'acp-host' && process.argv[2] === '--nonpersistent' ? 0 : 23);\n",
+      'utf8'
+    );
+    try {
+      const args = waylandNanoNonpersistentArgs();
+      const result = await spawnGenericBackend('wnano', quoteCliPath(process.execPath), root, args, {
+        NODE_OPTIONS: `--require=${probe}`,
+      });
+      const exitCode = await new Promise<number | null>((resolve) => result.child.once('exit', resolve));
 
-    await expect(
-      connection.connect('wnano', process.execPath, process.cwd(), ['-e', 'process.exit(23)'])
-    ).rejects.toThrow('requires a resolved binding and verified executable');
+      expect(exitCode).toBe(0);
+      expect(args).toEqual(['acp-host', '--nonpersistent']);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
 
-  it('consumes the held executable identity at the actual shell-false spawn', async () => {
+  it('rejects a caller that mixes an activation carrier into nonpersistent mode', () => {
+    expect(() => new AcpConnection(carrier(), 'nonpersistent')).toThrow('forbids an activation carrier');
+  });
+
+  it('never issues session/load or a stored-id fallback in nonpersistent mode', async () => {
+    const connection = new AcpConnection(null, 'nonpersistent');
+    const { frames, internals } = wireHarness(connection);
+    const resume = connection.resumeSession('stored-session', 'C:/workspace');
+    await new Promise((resolve) => setImmediate(resolve));
+    const frame = parsed(frames[0]);
+
+    expect(frame.method).toBe('session/new');
+    expect(JSON.stringify(frame)).not.toContain('stored-session');
+    expect(JSON.stringify(frame)).not.toContain('waylandNanoActivation');
+    internals.handleMessage({ jsonrpc: '2.0', id: frame.id as number, result: { sessionId: 'ephemeral-session' } });
+    await resume;
+  });
+
+  it('spawns the staged identity after source replacement and removes the stage', async () => {
     registerPlatformServices(new NodePlatformServices());
-    const canonicalPath = await realpath(process.execPath);
-    const bytes = await readFile(canonicalPath);
-    const metadata = await stat(canonicalPath);
-    const token = await verifyWaylandNanoBinary({
-      canonicalPath,
-      sha256: createHash('sha256').update(bytes).digest('hex'),
-      size: metadata.size,
-      sourceCommitSha: 'a'.repeat(40),
-      cargoLockSha256: 'b'.repeat(64),
+    const root = await mkdtemp(path.join(tmpdir(), 'wayland-nano-staging-'));
+    const sourcePath = path.join(root, process.platform === 'win32' ? 'source.exe' : 'source');
+    const stagedPath = path.join(root, process.platform === 'win32' ? 'staged.exe' : 'staged');
+    await copyFile(await realpath(process.execPath), sourcePath);
+    await copyFile(sourcePath, stagedPath);
+    const cleanupAfterLaunch = vi.fn(async () => unlink(stagedPath));
+    const token = {
+      canonicalPath: stagedPath,
+      consume: async <T>(launch: (canonicalPath: string) => T): Promise<T> => launch(stagedPath),
+      cleanupAfterLaunch,
+      dispose: cleanupAfterLaunch,
+    } as unknown as VerifiedWaylandNanoBinary;
+    await writeFile(sourcePath, 'source-replaced', 'utf8');
+
+    try {
+      const result = await spawnGenericBackend(
+        'wnano',
+        quoteCliPath(sourcePath),
+        process.cwd(),
+        ['-e', 'process.exit(0)'],
+        {},
+        token
+      );
+      const exitCode = await new Promise<number | null>((resolve) => result.child.once('exit', resolve));
+      expect(exitCode).toBe(0);
+      await waitForMissing(stagedPath);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it('retries stage cleanup without killing a valid spawned child', async () => {
+    registerPlatformServices(new NodePlatformServices());
+    const dispose = vi.fn(async () => {});
+    const cleanupAfterLaunch = vi.fn(async () => {
+      throw new Error('transient cleanup denial');
     });
+    const token = {
+      canonicalPath: process.execPath,
+      consume: async <T>(launch: (canonicalPath: string) => T): Promise<T> => launch(process.execPath),
+      cleanupAfterLaunch,
+      dispose,
+    } as unknown as VerifiedWaylandNanoBinary;
 
     const result = await spawnGenericBackend(
       'wnano',
-      canonicalPath,
+      quoteCliPath(process.execPath),
       process.cwd(),
       ['-e', 'process.exit(0)'],
       {},
       token
     );
-    await new Promise<void>((resolve) => result.child.once('exit', () => resolve()));
+    const exitCode = await new Promise<number | null>((resolve) => result.child.once('exit', resolve));
+
+    expect(exitCode).toBe(0);
+    expect(cleanupAfterLaunch).toHaveBeenCalledOnce();
+    expect(dispose).toHaveBeenCalledOnce();
+  });
+
+  it('disposes an abandoned staged token when identity consumption refuses launch', async () => {
+    registerPlatformServices(new NodePlatformServices());
+    const dispose = vi.fn(async () => {});
+    const token = {
+      canonicalPath: process.execPath,
+      consume: async () => {
+        throw new Error('source identity changed');
+      },
+      cleanupAfterLaunch: vi.fn(),
+      dispose,
+    } as unknown as VerifiedWaylandNanoBinary;
 
     await expect(
-      spawnGenericBackend('wnano', canonicalPath, process.cwd(), ['-e', 'process.exit(0)'], {}, token)
-    ).rejects.toThrow('stale');
+      spawnGenericBackend('wnano', quoteCliPath(process.execPath), process.cwd(), ['-e', 'process.exit(0)'], {}, token)
+    ).rejects.toThrow('source identity changed');
+    expect(dispose).toHaveBeenCalledOnce();
   });
 });
+
+function quoteCliPath(value: string): string {
+  return process.platform === 'win32' && value.includes(' ') ? `"${value}"` : value;
+}
+
+async function waitForMissing(file: string): Promise<void> {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    try {
+      // oxlint-disable-next-line eslint(no-await-in-loop) -- bounded sequential deletion observation
+      await stat(file);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+      throw error;
+    }
+    // oxlint-disable-next-line eslint(no-await-in-loop) -- bounded sequential deletion observation
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  throw new Error('staged executable was not removed after child exit');
+}

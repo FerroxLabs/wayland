@@ -27,7 +27,13 @@ import { mapModeForAcpBridge } from '@/common/types/agentModes';
 import type { ChildProcess } from 'child_process';
 import type { AcpSessionMcpServer } from './mcpSessionConfig';
 import path from 'path';
-import { connectClaude, connectCodebuddy, connectCodex, spawnGenericBackend } from './acpConnectors';
+import {
+  connectClaude,
+  connectCodebuddy,
+  connectCodex,
+  spawnGenericBackend,
+  waylandNanoNonpersistentArgs,
+} from './acpConnectors';
 import type { SpawnResult } from './acpConnectors';
 import { createAcpStderrReader } from '@process/acp/acpStderrLog';
 import { killChild, readTextFile, writeJsonRpcMessage, writeTextFile } from './utils';
@@ -55,6 +61,8 @@ export type ResolvedWaylandNanoActivationInput = Readonly<{
     input: Readonly<{ operation: 'new' | 'load'; sessionId: string | null }>
   ): Promise<WaylandNanoActivationAttempt>;
 }>;
+
+export type WaylandNanoConnectionMode = 'authenticated' | 'nonpersistent';
 
 export type WaylandNanoBindingOwner = Readonly<{
   load(bindingRef: string): Promise<Readonly<{
@@ -156,10 +164,21 @@ export class AcpConnection {
    */
   private conversationId: string | null = null;
   private readonly waylandNanoActivation: ResolvedWaylandNanoActivationInput | null;
+  private readonly waylandNanoMode: WaylandNanoConnectionMode;
   private waylandNanoAttempt: WaylandNanoActivationAttempt | null = null;
 
-  constructor(waylandNanoActivation: ResolvedWaylandNanoActivationInput | null = null) {
+  constructor(
+    waylandNanoActivation: ResolvedWaylandNanoActivationInput | null = null,
+    waylandNanoMode: WaylandNanoConnectionMode = waylandNanoActivation ? 'authenticated' : 'nonpersistent'
+  ) {
+    if (waylandNanoMode === 'authenticated' && !waylandNanoActivation) {
+      throw new Error('Authenticated Wayland Nano mode requires owner-resolved activation authority');
+    }
+    if (waylandNanoMode === 'nonpersistent' && waylandNanoActivation) {
+      throw new Error('Nonpersistent Wayland Nano mode forbids an activation carrier');
+    }
     this.waylandNanoActivation = waylandNanoActivation;
+    this.waylandNanoMode = waylandNanoMode;
   }
 
   // Cached session capabilities from session/new response
@@ -249,10 +268,20 @@ export class AcpConnection {
     customEnv?: Record<string, string>
   ): Promise<void> {
     const verifiedBinary = backend === 'wnano' ? this.waylandNanoActivation?.binary : undefined;
-    if (backend === 'wnano' && !verifiedBinary) {
+    if (backend === 'wnano' && this.waylandNanoMode === 'authenticated' && !verifiedBinary) {
       throw new Error('Wayland Nano persistent activation requires a resolved binding and verified executable');
     }
-    const result = await spawnGenericBackend(backend, cliPath, workingDir, acpArgs, customEnv, undefined, verifiedBinary);
+    const launchArgs =
+      backend === 'wnano' && this.waylandNanoMode === 'nonpersistent' ? waylandNanoNonpersistentArgs() : acpArgs;
+    const result = await spawnGenericBackend(
+      backend,
+      cliPath,
+      workingDir,
+      launchArgs,
+      customEnv,
+      undefined,
+      verifiedBinary
+    );
     await this.spawnAndSetup(result, backend);
   }
 
@@ -943,6 +972,11 @@ export class AcpConnection {
     cwd: string = process.cwd(),
     options?: { forkSession?: boolean; mcpServers?: AcpSessionMcpServer[] }
   ): Promise<AcpResponse & { sessionId?: string }> {
+    if (this.backend === 'wnano' && this.waylandNanoMode === 'nonpersistent') {
+      // The compatibility process owns no durable session state. Never issue
+      // session/load and never project a stored session id into session/new.
+      return await this.newSession(cwd, { mcpServers: options?.mcpServers });
+    }
     const caps = this.initializeResult?.capabilities;
     const useClaudeMetaResume = this.backend === 'claude' || !!caps?._meta?.claudeCode;
     const supportsLoadSession = caps?.loadSession === true;

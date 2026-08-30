@@ -116,11 +116,7 @@ import {
   type WnanoProviderEntry,
 } from '@process/task/wnano';
 import type { McpConfigProjection } from '@process/acp/session/McpConfig';
-import {
-  resolveWaylandNanoBindingRef,
-  type ResolvedWaylandNanoActivationInput,
-  type WaylandNanoBindingOwner,
-} from '@process/agent/acp/AcpConnection';
+import { resolveWaylandNanoBindingRef, type WaylandNanoBindingOwner } from '@process/agent/acp/AcpConnection';
 import { createMcpSessionState, type McpSessionBackend, type McpSessionState } from '@/common/mcp/sessionReceipt';
 import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 
@@ -139,8 +135,6 @@ interface AcpAgentManagerData {
   customAgentId?: string; // UUID for identifying specific custom agent
   /** Opaque owner-store key; the only persisted Nano authority selector. */
   waylandNanoBindingRef?: string;
-  /** Already owner-resolved authority; never persisted or reconstructed. */
-  waylandNanoActivation?: ResolvedWaylandNanoActivationInput;
   /** Preset assistant id (builtin or custom) shown in the conversation header */
   presetAssistantId?: string;
   /** Display name for the agent (from extension or custom config) */
@@ -2015,8 +2009,7 @@ ${collectedResponses.join('\n')}`;
       const { cliPath, launch, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
       const waylandNanoActivation =
         data.backend === 'wnano'
-          ? (data.waylandNanoActivation ??
-            (await resolveWaylandNanoBindingRef(data.waylandNanoBindingRef, this.waylandNanoBindingOwner)))
+          ? await resolveWaylandNanoBindingRef(data.waylandNanoBindingRef, this.waylandNanoBindingOwner)
           : null;
 
       const agentConfig = {
@@ -2063,6 +2056,8 @@ ${collectedResponses.join('\n')}`;
         // the compatibility/new stack in Plan 02-15. No adapter may resolve or
         // infer authority a second time.
         waylandNanoActivation: waylandNanoActivation ?? undefined,
+        waylandNanoMode:
+          data.backend === 'wnano' ? (waylandNanoActivation ? 'authenticated' : 'nonpersistent') : undefined,
         // Receipt-bound publication identity for the live ACP projection. The
         // runtime supplies this correlated input (this manager's generation +
         // per-launch digest key) so McpConfig mints current-session receipts

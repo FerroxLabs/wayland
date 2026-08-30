@@ -335,6 +335,11 @@ export function createGenericSpawnConfig(
 
 export type SpawnResult = { child: ChildProcess; isDetached: boolean };
 
+/** Exact Nano compatibility mode; this path exposes no persistence or tools. */
+export function waylandNanoNonpersistentArgs(): string[] {
+  return ['acp-host', '--nonpersistent'];
+}
+
 /** Return type for npx backend prepare functions (prepareClaude, prepareCodex, prepareCodebuddy). */
 export type NpxPrepareResult = {
   cleanEnv: Record<string, string | undefined>;
@@ -682,9 +687,37 @@ export async function spawnGenericBackend(
       ...config.options,
       detached,
     });
-  const child = verifiedWaylandNanoBinary
-    ? await verifiedWaylandNanoBinary.consume((canonicalPath) => launchChild(canonicalPath))
-    : launchChild(config.command);
+  let child: ChildProcess;
+  if (verifiedWaylandNanoBinary) {
+    try {
+      child = await verifiedWaylandNanoBinary.consume((canonicalPath) => launchChild(canonicalPath));
+    } catch (error) {
+      try {
+        await verifiedWaylandNanoBinary.dispose();
+      } catch (cleanupError) {
+        throw new AggregateError([error, cleanupError], 'Wayland Nano staged launch and cleanup both failed');
+      }
+      throw error;
+    }
+    try {
+      await verifiedWaylandNanoBinary.cleanupAfterLaunch();
+    } catch {
+      // The child already owns its executable image. Do not kill or orphan it
+      // merely because post-spawn unlink was transiently denied (notably on
+      // Windows). Retry through dispose now and once more at child exit.
+      const cleaned = await verifiedWaylandNanoBinary
+        .dispose()
+        .then(() => true)
+        .catch(() => false);
+      if (!cleaned) {
+        child.once('exit', () => {
+          void verifiedWaylandNanoBinary.dispose().catch(() => {});
+        });
+      }
+    }
+  } else {
+    child = launchChild(config.command);
+  }
   if (detached) {
     child.unref();
   }
