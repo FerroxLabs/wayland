@@ -10,7 +10,7 @@
     src/process/resources/bundled-workflows/index.json -> 71 workflows
     src/process/resources/builtin-catalog/assistants.json -> 88 assistants
   So: 178 workflows total (107 + 71), 1,974 skills, 88 assistants, 25 channels,
-  5 memory partitions, 18 ACP backends, engine binary 47 MB.
+  5 memory partitions, 18 ACP backends. (Engine binary is ~84 MB on darwin-arm64 and ~103 MB on linux-x64 at v0.13.11 - re-measure from the npm platform packages, never quote a remembered figure.)
 
   Do not edit these numbers by hand. Re-measure, or the README and getwayland.com
   drift apart again - which is exactly how this file ended up claiming 177 while
@@ -73,9 +73,9 @@ You are not prompting a chatbot. You are coworking with a system that remembers 
 
 ## Why Wayland
 
-**One team, not isolated CLIs.** Your CLIs are brilliant strangers who never met. Each one forgets everything between sessions and lives in its own silo. Wayland is the command center that makes them one team: shared memory across every agent, one workflow from idea to ship, multi-AI cross-audit, and opt-in routing that sends each task to the best-fit model.
+**One team, not isolated CLIs.** Your CLIs are brilliant strangers who never met. Each one forgets everything between sessions and lives in its own silo. Wayland is the command center that makes them one team: shared memory across every agent, one workflow from idea to ship, multi-AI cross-audit, and opt-in [Flux Router](https://fluxrouter.ai) routing that sends each task to the model that fits it.
 
-**Your machine, not someone's cloud.** Chatbots run on someone else's servers, behind someone else's keys and retention policy. Wayland runs on your machine, reads and writes your files, and executes shell commands inside a native per-OS sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, with AppContainer available via `WAYLAND_SANDBOX=appcontainer`). Go fully local with Ollama, or reach for a frontier cloud model when you want it.
+**Your machine, not someone's cloud.** Chatbots run on someone else's servers, behind someone else's keys and retention policy. Wayland runs on your machine, reads and writes your files, and runs your shell commands through the bundled engine, inside a native per-OS sandbox behind a single egress chokepoint (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, with AppContainer available via `WAYLAND_SANDBOX=appcontainer`). Tools the desktop app dispatches itself run with your account's privileges — [the desktop security model](https://docs.getwayland.com/concepts/security-model-desktop/) says exactly which is which. Go fully local with Ollama, or reach for a frontier cloud model when you want it.
 
 **A system, not a prettier chat window.** Most are a nicer window onto one model, and they reset every time you close them. Wayland is a system that compounds: an engine that rewrites and re-scores its own skill prompts against an eval harness, a memory that persists across sessions (five SQLite-backed partitions), plus ready-made assistants, self-assembling teams, workflows, and schedules that run without you. It gets sharper the more you run it.
 
@@ -254,10 +254,10 @@ Wayland runs a four-step loop on every turn:
 
 - **Perceives** your request and the state of your files, project, and memory.
 - **Reasons** with the best model for the task. A read-only Plan mode can write a structured plan before anything is touched.
-- **Acts** through built-in tools (Read, Write, Edit, Bash, Grep, Glob, Spawn) and connectors for Git, databases, and the web, inside a native per-OS sandbox.
+- **Acts** through built-in tools (Read, Write, Edit, Bash, Grep, Glob, Spawn) and connectors for Git, databases, and the web, inside the engine's native per-OS sandbox.
 - **Evolves**: a loop mutates and scores your skill prompts against an eval harness, keeping a variant only when it beats both the running best and the parent it came from. Winners persist across runs, so the next run starts from the last one's best. Nothing reaches your live library until you promote it.
 
-**Wayland-Core engine.** One Rust binary, around 47 MB, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, AppContainer opt-in) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
+**Wayland-Core engine.** One self-contained Rust binary, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, AppContainer opt-in) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
 
 **Flux routing (optional).** Route a backend's traffic through Flux Router to send each task to the best-fit specialist across same-class models and run multi-AI cross-audit, lifting quality while cutting wasted tokens. Opt-in, bring your own key, off by default.
 
@@ -318,7 +318,7 @@ Engine key resolution order: `--api-key`, then config, then `API_KEY` env, then 
 ## FAQ
 
 **Are my keys and data private?**
-Yes. Keys are stored in the OS keychain and data lives in SQLite on your disk. The engine runs air-gapped and every tool call goes through a single sandboxed egress chokepoint. Nothing leaves your machine unless you send it.
+Yes. Keys are stored in the OS keychain and data lives in SQLite on your disk. There is no Wayland account and no Wayland server: when you send a prompt it goes to the provider you configured, on your key, and nowhere else. The engine's outbound traffic passes an egress gate that is enabled by default and classifies every request before it leaves. "Air-gapped" would be the wrong word for a tool you point at a cloud model, and it is the provider you chose that sees your prompt.
 
 **Can I run fully offline?**
 Yes. Point the engine at a local Ollama model and Wayland runs with no network at all. Voice dictation runs offline with a bundled Whisper model, and Wayland can read replies back to you with voice output, so you can work hands-free.
