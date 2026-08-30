@@ -279,14 +279,21 @@ export class ProcessAcpClient implements AcpClient {
 
   async createSession(params: CreateSessionParams): Promise<NewSessionResponse> {
     const attempt = await this.buildWaylandNanoAttempt('new', null);
-    return this.runConnectionRequest(() =>
-      this.conn.newSession({
-        cwd: params.cwd,
-        mcpServers: params.mcpServers ?? [],
-        additionalDirectories: params.additionalDirectories,
-        _meta: projectSessionMetadata(params.metadata, attempt?.activation),
-      })
-    );
+    try {
+      const response = await this.runConnectionRequest(() =>
+        this.conn.newSession({
+          cwd: params.cwd,
+          mcpServers: params.mcpServers ?? [],
+          additionalDirectories: params.additionalDirectories,
+          _meta: projectSessionMetadata(params.metadata, attempt?.activation),
+        })
+      );
+      attempt?.observeTerminalResponse?.(response);
+      return response;
+    } catch (error) {
+      attempt?.observeTerminalResponse?.(requestErrorData(error));
+      throw error;
+    }
   }
 
   async loadSession(params: LoadSessionParams): Promise<LoadSessionResponse> {
@@ -294,15 +301,22 @@ export class ProcessAcpClient implements AcpClient {
       throw new Error('Bounded nonpersistent Wayland Nano cannot load a persistent session');
     }
     const attempt = await this.buildWaylandNanoAttempt('load', params.sessionId);
-    return this.runConnectionRequest(() =>
-      this.conn.loadSession({
-        sessionId: params.sessionId,
-        cwd: params.cwd,
-        mcpServers: params.mcpServers ?? [],
-        additionalDirectories: params.additionalDirectories,
-        _meta: projectSessionMetadata(params.metadata, attempt?.activation),
-      })
-    );
+    try {
+      const response = await this.runConnectionRequest(() =>
+        this.conn.loadSession({
+          sessionId: params.sessionId,
+          cwd: params.cwd,
+          mcpServers: params.mcpServers ?? [],
+          additionalDirectories: params.additionalDirectories,
+          _meta: projectSessionMetadata(params.metadata, attempt?.activation),
+        })
+      );
+      attempt?.observeTerminalResponse?.(response);
+      return response;
+    } catch (error) {
+      attempt?.observeTerminalResponse?.(requestErrorData(error));
+      throw error;
+    }
   }
 
   /**
@@ -1120,4 +1134,9 @@ export class ProcessAcpClient implements AcpClient {
     }
     return removed;
   }
+}
+
+function requestErrorData(error: unknown): unknown {
+  if (typeof error !== 'object' || error === null || !('data' in error)) return undefined;
+  return (error as Readonly<{ data?: unknown }>).data;
 }

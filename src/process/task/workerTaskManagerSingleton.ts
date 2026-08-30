@@ -21,6 +21,10 @@ import NanoBotAgentManager from './NanoBotAgentManager';
 import RemoteAgentManager from './RemoteAgentManager';
 import { WCoreManager } from './WCoreManager';
 import type { WaylandNanoBindingOwner } from '@process/agent/acp/AcpConnection';
+import {
+  WaylandNanoActivationOwner,
+  type WaylandNanoActivationOwnerOptions,
+} from '@process/agent/activation/waylandNanoActivationOwner';
 
 const agentFactory = new AgentFactory();
 let waylandNanoBindingOwner: WaylandNanoBindingOwner | null = null;
@@ -31,6 +35,31 @@ export function installWaylandNanoBindingOwner(owner: WaylandNanoBindingOwner): 
   waylandNanoBindingOwner = owner;
   return () => {
     if (waylandNanoBindingOwner === owner) waylandNanoBindingOwner = null;
+  };
+}
+
+/**
+ * Install the production composition once. An absent owner-controlled artifact
+ * expectation is the explicit default-off/nonpersistent state.
+ */
+export async function installProductionWaylandNanoActivationOwner(
+  options: WaylandNanoActivationOwnerOptions | null
+): Promise<() => Promise<void>> {
+  if (!options) return async () => undefined;
+  const owner = new WaylandNanoActivationOwner(options);
+  let uninstall: (() => void) | undefined;
+  try {
+    uninstall = installWaylandNanoBindingOwner(owner);
+  } catch (error) {
+    await owner.dispose();
+    throw error;
+  }
+  let disposed = false;
+  return async () => {
+    if (disposed) return;
+    disposed = true;
+    uninstall?.();
+    await owner.dispose();
   };
 }
 

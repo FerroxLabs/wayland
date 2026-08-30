@@ -52,6 +52,8 @@ import type { VerifiedWaylandNanoBinary } from '@process/agent/activation/waylan
 export type WaylandNanoActivationAttempt = Readonly<{
   activation: SignedWaylandNanoActivation;
   buildControl(control: WaylandNanoControl, sessionId: string): Promise<SignedWaylandNanoControl>;
+  /** Called only by the private spawned-Nano response path. It does not verify or authorize a receipt. */
+  observeTerminalResponse?(value: unknown): boolean;
 }>;
 
 /** Resolved owner-authority seam. It contains no mutable conversation identity. */
@@ -145,6 +147,7 @@ interface PendingRequest<T = unknown> {
   isPaused: boolean;
   startTime: number;
   timeoutDuration: number;
+  waylandNanoAttempt?: WaylandNanoActivationAttempt;
 }
 
 export class AcpConnection {
@@ -574,7 +577,11 @@ export class AcpConnection {
     this.onDisconnect({ code, signal });
   }
 
-  private sendRequest<T = unknown>(method: string, params?: Record<string, unknown>): Promise<T> {
+  private sendRequest<T = unknown>(
+    method: string,
+    params?: Record<string, unknown>,
+    waylandNanoAttempt?: WaylandNanoActivationAttempt
+  ): Promise<T> {
     const id = this.nextRequestId++;
     const message: AcpRequest = {
       jsonrpc: JSONRPC_VERSION,
@@ -614,6 +621,7 @@ export class AcpConnection {
         isPaused: false,
         startTime,
         timeoutDuration,
+        waylandNanoAttempt,
       };
 
       this.pendingRequests.set(id, pendingRequest);
@@ -727,10 +735,11 @@ export class AcpConnection {
         });
       } else if ('id' in message && typeof message.id === 'number' && this.pendingRequests.has(message.id)) {
         // This is a response to a previous request
-        const { resolve, reject } = this.pendingRequests.get(message.id)!;
+        const { resolve, reject, waylandNanoAttempt } = this.pendingRequests.get(message.id)!;
         this.pendingRequests.delete(message.id);
 
         if ('result' in message) {
+          waylandNanoAttempt?.observeTerminalResponse?.(message.result);
           // Check for end_turn message and extract usage data
           if (message.result && typeof message.result === 'object') {
             const promptResult = message.result as Record<string, unknown>;
@@ -751,6 +760,9 @@ export class AcpConnection {
           }
           resolve(message.result);
         } else if ('error' in message) {
+          waylandNanoAttempt?.observeTerminalResponse?.(
+            (message.error as Readonly<{ data?: unknown }> | undefined)?.data
+          );
           const errorMsg = message.error?.message || 'Unknown ACP error';
           reject(new Error(errorMsg));
         }
@@ -927,20 +939,24 @@ export class AcpConnection {
       : undefined;
 
     const attempt = await this.buildWaylandNanoAttempt('new', options?.resumeSessionId ?? null);
-    const response = await this.sendRequest<AcpResponse & { sessionId?: string }>('session/new', {
-      cwd: normalizedCwd,
-      mcpServers: options?.mcpServers ?? [],
-      // Claude-style ACP uses _meta for resume
-      ...((meta || attempt) && {
-        _meta: {
-          ...meta,
-          ...(attempt && { waylandNanoActivation: attempt.activation }),
-        },
-      }),
-      // Generic resume parameters for other ACP backends
-      ...(!meta && options?.resumeSessionId && { resumeSessionId: options.resumeSessionId }),
-      ...(options?.forkSession && { forkSession: options.forkSession }),
-    });
+    const response = await this.sendRequest<AcpResponse & { sessionId?: string }>(
+      'session/new',
+      {
+        cwd: normalizedCwd,
+        mcpServers: options?.mcpServers ?? [],
+        // Claude-style ACP uses _meta for resume
+        ...((meta || attempt) && {
+          _meta: {
+            ...meta,
+            ...(attempt && { waylandNanoActivation: attempt.activation }),
+          },
+        }),
+        // Generic resume parameters for other ACP backends
+        ...(!meta && options?.resumeSessionId && { resumeSessionId: options.resumeSessionId }),
+        ...(options?.forkSession && { forkSession: options.forkSession }),
+      },
+      attempt ?? undefined
+    );
 
     this.sessionId = response.sessionId;
 
@@ -1019,12 +1035,16 @@ export class AcpConnection {
     const normalizedCwd = this.normalizeCwdForAgent(cwd);
 
     const attempt = await this.buildWaylandNanoAttempt('load', sessionId);
-    const response = await this.sendRequest<AcpResponse & { sessionId?: string }>('session/load', {
-      sessionId,
-      cwd: normalizedCwd,
-      mcpServers: (mcpServers ?? []) as unknown[],
-      ...(attempt && { _meta: { waylandNanoActivation: attempt.activation } }),
-    });
+    const response = await this.sendRequest<AcpResponse & { sessionId?: string }>(
+      'session/load',
+      {
+        sessionId,
+        cwd: normalizedCwd,
+        mcpServers: (mcpServers ?? []) as unknown[],
+        ...(attempt && { _meta: { waylandNanoActivation: attempt.activation } }),
+      },
+      attempt ?? undefined
+    );
 
     // session/load returns modes/models/configOptions but not sessionId - keep the one we sent
     this.sessionId = response.sessionId || sessionId;
