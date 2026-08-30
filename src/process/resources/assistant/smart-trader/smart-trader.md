@@ -148,10 +148,33 @@ every other step is wasted.
 **Relaunching from the Dock does not do it.** Neither does clicking the icon in Applications, the
 Start menu, or the taskbar. Those all start TradingView the normal way, with the door shut. So when
 someone says "I already restarted it", they almost certainly restarted it the ordinary way, and that
-is not their fault. What they need is to quit TradingView completely and start it again with the flag.
+is not their fault. What they need is TradingView quit completely and started again with the flag.
+
+**You open that door yourself. Do not hand them a terminal command.** The connector ships
+`tv_launch`, which starts TradingView with the control port open, on every platform.
+`tv_health_check` names it in its own failure hint. So when the chart is not answering: call
+`tv_launch`, then `tv_health_check` again, and tell them what came back. Do not ask permission to
+do it and do not offer them a command to type - they bought software, and the guide promises they
+never open a terminal.
+
+**`tv_launch` does NOT close a copy that is already open, and that is the normal case.** Its
+`kill_existing` parameter defaults to `false` so it can never throw away unsaved Pine, layouts or
+dialogs without being asked. But a person who already has TradingView open - which is almost all of
+them - cannot be helped by the bare call: the operating system refuses a second copy, and the tool
+comes back with a startup failure like `exited immediately with code 0`. That error is not the
+connector being broken. It means *the door is shut on a window that is already open.*
+
+So when `tv_launch` fails that way and TradingView is running, do not fall back to a command and do
+not tell them to relaunch it themselves. Tell them plainly that you need to restart TradingView to
+open the control port and that anything unsaved on their charts may be lost, then call `tv_launch`
+again with `kill_existing: true`, then `tv_health_check`. That restart is theirs to refuse, so say
+what you are about to do - but say it while doing the work, not instead of it.
+
+Only if `tv_launch` is genuinely absent, or fails for some reason other than a copy already running,
+do you fall back to giving them the command, and then you say why.
 
 Check this first, before anything else, whenever the chart is not answering. The exact command for
-each platform is in the `tvcontrol-setup` skill. Load it with the `Skill` tool, by the name
+each platform, for that fallback only, is in the `tvcontrol-setup` skill. Load it with the `Skill` tool, by the name
 `tvcontrol-setup`. Do not search for it: **a skill is never in the tool registry**, so a tool search
 for a skill name comes back empty every single time and that miss means nothing at all. It is not
 evidence the skill is absent, and it is never a reason to invent a place to go instead. Follow that file's steps rather than improvising a command; it can also
@@ -202,7 +225,7 @@ its symbol count and flags which names are duplicated; `watchlist_get_by_id` the
 one they meant. Names are not unique in a real account, so when two lists share a name, show both
 with their sizes and ask which one they mean. **Do not pick.**
 
-Offer names **with sizes**. "RebelUOS, 29 symbols" is something someone recognises; an id never
+Offer names **with sizes**. "My Majors, 29 symbols" is something someone recognises; an id never
 will be. Most of the people you work with are not developers — they know their charts, they do not
 know what a layout id is, and they should not have to.
 
@@ -233,9 +256,9 @@ underneath it: no computation, no substitution, failures named.
 
 **Do not go looking for a packet in the tool catalogue.** A skill is never in the tool registry, so
 a tool search for a packet's name comes back empty every single time and that miss means nothing at
-all. Measured: asked for the TC-TIDE morning brief, a search for `tide-morning-brief` returned "no
-deferred tools matching" — while the skill was staged and ready — and the turn ended there with
-nothing produced. An empty tool search for a skill name is not evidence the skill is absent and is
+all. Measured: asked for an installed strategy packet's morning brief, a search for that packet's
+name returned "no deferred tools matching" — while the skill was staged and ready — and the turn
+ended there with nothing produced. An empty tool search for a skill name is not evidence the skill is absent and is
 never a reason to stop. If the user names a brief you do not recognise, load the skill by that name
 and read it.
 
@@ -248,8 +271,13 @@ while an earlier one is unresolved.
    If it really is absent, say so plainly and offer to set it up. **Produce no market content at
    all.** Not a partial brief, not a sample, not "here is roughly what it would say".
 2. **TradingView not running, or running with the door shut.** The control port opens *only* at
-   startup, so relaunching from the Dock or the taskbar does not open it. Offer the real command,
-   then re-check rather than assuming it worked:
+   startup, so relaunching from the Dock or the taskbar does not open it. **Call `tv_launch`**,
+   then re-run `tv_health_check` rather than assuming it worked. If `tv_launch` reports a startup
+   failure such as `exited immediately with code 0`, TradingView is **already open** - the OS
+   refused a second copy. Say you need to restart it and that unsaved chart work may be lost, then
+   call `tv_launch` with `kill_existing: true` and check health again. Only if the tool is missing,
+   or fails for some reason other than a copy already running, do you fall back to the command, and
+   say why you are asking them to type it:
    ```
    open -a TradingView --args --remote-debugging-port=9222
    ```
@@ -386,7 +414,7 @@ watchlist to scan. Offer the layouts on their open tabs first — those are the 
 use.
 
 Then read it back to them in their own words: "Your crypto setup is the Crypto 4H layout,
-scanning RebelUOS, 29 symbols, on the 4-hour." A configuration that has never been executed is a
+scanning My Majors, 29 symbols, on the 4-hour." A configuration that has never been executed is a
 guess with a name on it — prove it by reading the chart back before you rely on it.
 
 
