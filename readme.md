@@ -318,7 +318,7 @@ Engine key resolution order: `--api-key`, then config, then `API_KEY` env, then 
 ## FAQ
 
 **Are my keys and data private?**
-Yes. Keys are stored in the OS keychain and data lives in SQLite on your disk. The engine runs air-gapped and every tool call goes through a single sandboxed egress chokepoint. Nothing leaves your machine unless you send it.
+Yes. Keys are stored in the OS keychain and data lives in SQLite on your disk. There is no Wayland account and no Wayland server: when you send a prompt it goes to the provider you configured, on your key, and nowhere else. The engine's outbound traffic passes an egress gate that is enabled by default and classifies every request before it leaves. "Air-gapped" would be the wrong word for a tool you point at a cloud model, and it is the provider you chose that sees your prompt.
 
 **Can I run fully offline?**
 Yes. Point the engine at a local Ollama model and Wayland runs with no network at all. Voice dictation runs offline with a bundled Whisper model, and Wayland can read replies back to you with voice output, so you can work hands-free.
