@@ -16,10 +16,10 @@
     "category": "business-operations",
     "tags": ["business-ops", "monthly-review", "metrics", "reporting", "deterministic"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -40,10 +40,10 @@
     "category": "business-operations",
     "tags": ["business-ops", "handbook", "operations", "decision-rights", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -64,10 +64,10 @@
     "category": "business-operations",
     "tags": ["business-ops", "runbook", "incident", "rollback", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -88,10 +88,10 @@
     "category": "business-operations",
     "tags": ["business-ops", "sop", "process", "documentation", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -112,10 +112,10 @@
     "category": "business-operations",
     "tags": ["business-ops", "weekly-review", "metrics", "reporting", "deterministic"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -136,10 +136,10 @@
     "category": "content-creation",
     "tags": ["commerce", "ecommerce", "email", "retention", "cart-recovery", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -160,10 +160,10 @@
     "category": "content-creation",
     "tags": ["pitch", "investor-update", "reporting", "metrics", "batch", "deterministic"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -184,10 +184,10 @@
     "category": "content-creation",
     "tags": ["marketing", "content", "blogging", "repurpose", "step-by-step", "publishing"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -208,10 +208,10 @@
     "category": "content-creation",
     "tags": ["marketing", "brand", "audit", "positioning", "voice", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -232,10 +232,10 @@
     "category": "business-operations",
     "tags": ["business-finance", "budget", "planning", "step-by-step", "cfo"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -256,10 +256,10 @@
     "category": "business-operations",
     "tags": ["business-finance", "budget", "variance", "deterministic", "cfo"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -280,10 +280,10 @@
     "category": "business-operations",
     "tags": ["finance", "modeling", "fundraising", "projections", "sensitivity", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -304,10 +304,10 @@
     "category": "content-creation",
     "tags": ["pitch", "fundraising", "deck", "investor", "narrative", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -328,10 +328,10 @@
     "category": "content-creation",
     "tags": ["marketing", "conversion", "copywriting", "bullshit-filter", "voice", "cleanup"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -352,10 +352,10 @@
     "category": "content-creation",
     "tags": ["marketing", "conversion", "copywriting", "bullshit-filter", "voice", "cleanup", "batch"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -376,10 +376,10 @@
     "category": "content-creation",
     "tags": ["marketing", "campaign", "brief", "creative", "launch", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -400,10 +400,10 @@
     "category": "content-creation",
     "tags": ["marketing", "content", "case-study", "repurpose", "step-by-step", "proof"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -424,10 +424,10 @@
     "category": "business-operations",
     "tags": ["business-finance", "cashflow", "status", "deterministic", "cfo"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -448,10 +448,10 @@
     "category": "business-operations",
     "tags": ["business-finance", "cashflow", "forecast", "step-by-step", "cfo"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -472,10 +472,10 @@
     "category": "content-creation",
     "tags": ["marketing", "channels", "cac", "budget", "funnel", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -496,10 +496,10 @@
     "category": "content-creation",
     "tags": ["marketing", "conversion", "copywriting", "close", "cascade-close", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -520,10 +520,10 @@
     "category": "content-creation",
     "tags": ["marketing", "competitors", "research", "positioning", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -544,10 +544,10 @@
     "category": "content-creation",
     "tags": ["marketing", "competitors", "monitoring", "scan", "brief", "deterministic"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -568,10 +568,10 @@
     "category": "content-creation",
     "tags": ["marketing", "content", "batch", "repurpose", "deterministic", "automation"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -592,10 +592,10 @@
     "category": "content-creation",
     "tags": ["marketing", "content", "calendar", "planning", "funnel", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -616,10 +616,10 @@
     "category": "business-operations",
     "tags": ["legal", "contract", "review", "red-line", "counsel", "step-by-step", "business-legal"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -640,10 +640,10 @@
     "category": "content-creation",
     "tags": ["marketing", "conversion", "copywriting", "audit", "donahoe-method", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -664,10 +664,10 @@
     "category": "content-creation",
     "tags": ["education", "content", "course", "curriculum", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -688,10 +688,10 @@
     "category": "business-operations",
     "tags": ["sales", "deal-diagnosis", "objections", "forensics", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -712,10 +712,10 @@
     "category": "business-operations",
     "tags": ["sales", "discovery", "call-prep", "research", "qualification", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -736,10 +736,10 @@
     "category": "content-creation",
     "tags": ["pitch", "investor-update", "reporting", "metrics", "fundraising", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -760,10 +760,10 @@
     "category": "business-operations",
     "tags": ["legal", "employment", "offer", "ip-assignment", "non-compete", "step-by-step", "business-legal"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -784,10 +784,10 @@
     "category": "content-creation",
     "tags": ["marketing", "funnels", "evergreen", "automation", "step-by-step", "scarcity"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -808,10 +808,10 @@
     "category": "business-operations",
     "tags": ["business-finance", "forecast", "planning", "step-by-step", "cfo"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -832,10 +832,10 @@
     "category": "content-creation",
     "tags": ["marketing", "funnels", "architecture", "ascension-ladder", "step-by-step", "direct-response"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -856,10 +856,10 @@
     "category": "content-creation",
     "tags": ["marketing", "launch", "step-by-step", "planning", "campaign", "funnel"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -880,10 +880,10 @@
     "category": "content-creation",
     "tags": ["marketing", "conversion", "copywriting", "sales-letter", "donahoe-method", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -904,10 +904,10 @@
     "category": "content-creation",
     "tags": ["marketing", "funnels", "audit", "diagnostics", "step-by-step", "optimization"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -928,10 +928,10 @@
     "category": "content-creation",
     "tags": ["marketing", "conversion", "copywriting", "headlines", "above-fold", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -952,10 +952,10 @@
     "category": "business-operations",
     "tags": ["hr", "compensation", "comp-band", "hiring", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -976,10 +976,10 @@
     "category": "business-operations",
     "tags": ["hr", "handbook", "policy", "compliance", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1000,10 +1000,10 @@
     "category": "business-operations",
     "tags": ["hr", "hiring", "recruiting", "interview", "job-description", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1024,10 +1024,10 @@
     "category": "business-operations",
     "tags": ["hr", "onboarding", "new-hire", "30-60-90", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1048,10 +1048,10 @@
     "category": "business-operations",
     "tags": ["hr", "performance-review", "development-plan", "feedback", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1072,10 +1072,10 @@
     "category": "business-operations",
     "tags": ["sales", "icp", "customer-profile", "segmentation", "qualification", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1096,10 +1096,10 @@
     "category": "content-creation",
     "tags": ["marketing", "launch", "audit", "readiness", "step-by-step", "go-no-go"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1120,10 +1120,10 @@
     "category": "content-creation",
     "tags": ["marketing", "launch", "metrics", "standup", "deterministic", "reporting"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1144,10 +1144,10 @@
     "category": "content-creation",
     "tags": ["commerce", "ecommerce", "listing", "audit", "triage", "deterministic"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1168,10 +1168,10 @@
     "category": "content-creation",
     "tags": ["commerce", "ecommerce", "listing", "optimization", "conversion", "ab-test", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1192,10 +1192,10 @@
     "category": "business-operations",
     "tags": ["market", "watchlist", "morning-report", "pre-open", "deterministic"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1216,10 +1216,10 @@
     "category": "business-operations",
     "tags": ["legal", "nda", "confidentiality", "mutual", "unilateral", "step-by-step", "business-legal"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1240,10 +1240,10 @@
     "category": "business-operations",
     "tags": ["sales", "objections", "three-locks", "templates", "buyer-types", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1264,10 +1264,10 @@
     "category": "content-creation",
     "tags": ["marketing", "funnels", "offer", "pricing", "step-by-step", "donahoe-method"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1288,10 +1288,10 @@
     "category": "business-operations",
     "tags": ["sales", "outreach", "cold-email", "cadence", "follow-up", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1312,10 +1312,10 @@
     "category": "business-operations",
     "tags": ["sales", "pipeline-review", "batch", "stuck-deals", "forensics", "reporting"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1336,10 +1336,10 @@
     "category": "business-operations",
     "tags": ["legal", "tos", "privacy", "refund", "eula", "cookie", "compliance", "step-by-step", "business-legal"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1360,10 +1360,10 @@
     "category": "content-creation",
     "tags": ["marketing", "positioning", "messaging", "competitors", "brand", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1384,10 +1384,10 @@
     "category": "content-creation",
     "tags": ["pitch", "fundraising", "due-diligence", "data-room", "investor", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1408,10 +1408,10 @@
     "category": "business-operations",
     "tags": ["business-finance", "pricing", "scenarios", "step-by-step", "cfo"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1432,10 +1432,10 @@
     "category": "content-creation",
     "tags": ["marketing", "launch", "relaunch", "debrief", "step-by-step", "planning"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1456,10 +1456,10 @@
     "category": "business-operations",
     "tags": ["business-finance", "runway", "cashflow", "step-by-step", "cfo"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1480,10 +1480,10 @@
     "category": "content-creation",
     "tags": ["commerce", "ecommerce", "sku-launch", "pricing", "listing", "upsell", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1504,10 +1504,10 @@
     "category": "business-operations",
     "tags": ["support", "churn", "retention", "root-cause", "action-plan", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1528,10 +1528,10 @@
     "category": "business-operations",
     "tags": ["support", "knowledge-base", "kb-article", "troubleshooting", "self-serve", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1552,10 +1552,10 @@
     "category": "business-operations",
     "tags": ["support", "macros", "templates", "faq", "category-index", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1576,10 +1576,10 @@
     "category": "business-operations",
     "tags": ["support", "triage", "ticket", "reply", "escalation", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1600,10 +1600,10 @@
     "category": "business-operations",
     "tags": ["support", "weekly", "metrics", "sla", "pattern-detection", "batch", "deterministic"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1624,10 +1624,10 @@
     "category": "content-creation",
     "tags": ["content", "voice", "writing", "onboarding", "step-by-step", "profile"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1648,10 +1648,10 @@
     "category": "content-creation",
     "tags": ["marketing", "conversion", "copywriting", "vsl", "video-sales-letter", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1672,10 +1672,10 @@
     "category": "content-creation",
     "tags": ["marketing", "funnels", "webinar", "conviction", "step-by-step", "high-ticket"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   },
@@ -1696,10 +1696,10 @@
     "category": "content-creation",
     "tags": ["commerce", "ecommerce", "retention", "winback", "email", "segmentation", "step-by-step"],
     "security": {
-      "verdict": "unscanned",
+      "verdict": "clean",
       "findings": [],
-      "scannedAt": 0,
-      "scannerVersion": 0,
+      "scannedAt": 1788048000000,
+      "scannerVersion": 1,
       "llmScanned": false
     }
   }
