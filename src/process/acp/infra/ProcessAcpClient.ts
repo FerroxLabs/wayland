@@ -320,6 +320,9 @@ export class ProcessAcpClient implements AcpClient {
    * the spec stabilizes, to the stable SDK method.
    */
   async forkSession(params: ForkSessionParams): Promise<ForkSessionResponse> {
+    if (this.options.backend === 'wnano') {
+      throw new Error('Wayland Nano session fork is unavailable without a signed fork activation contract');
+    }
     return this.runConnectionRequest(() =>
       this.conn.extMethod('session/new', {
         cwd: params.cwd,

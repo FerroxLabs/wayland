@@ -260,6 +260,9 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
     expect(JSON.stringify(create)).not.toContain('waylandNanoControl');
     expect(transport.frames.some((raw) => raw.includes('session/load'))).toBe(false);
     await expect(
+      missing.forkSession({ sessionId: 'hostile-parent', cwd: 'D:/mutable/project', mcpServers: [] })
+    ).rejects.toThrow('signed fork activation contract');
+    await expect(
       missing.extMethod('session/cancel', {
         sessionId: 'hostile-session',
         _meta: { waylandNanoControl: { hostile: true } },
@@ -272,6 +275,7 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
       })
     ).rejects.toThrow('authority-mediating typed API');
     expect(transport.frames.some((raw) => raw.includes('hostile-session'))).toBe(false);
+    expect(transport.frames.some((raw) => raw.includes('hostile-parent'))).toBe(false);
   });
 
   it('launches the staged verified image after source replacement and removes the stage immediately', async () => {
@@ -479,6 +483,45 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
     const pause = frames.find((frame) => frame.method === 'session/pause');
     expect(cancel?.params?._meta).toEqual({ waylandNanoControl: signedControl('cancel', 'session-new-stack') });
     expect(pause?.params?._meta).toEqual({ waylandNanoControl: signedControl('pause', 'session-new-stack') });
+  });
+
+  it('refuses authenticated Nano fork before child stdin while preserving non-Nano fork compatibility', async () => {
+    const resolved = resolvedActivation();
+    const nanoTransport = fakeChild();
+    const nano = new ProcessAcpClient(
+      async () => {
+        setTimeout(() => nanoTransport.child.emit('spawn'), 0);
+        return nanoTransport.child;
+      },
+      { backend: 'wnano', handlers: handlers(), waylandNanoActivation: resolved.input }
+    );
+    await nano.start();
+    const nanoFramesBefore = nanoTransport.frames.length;
+    await expect(nano.forkSession({ sessionId: 'nano-parent', cwd: 'D:/project', mcpServers: [] })).rejects.toThrow(
+      'signed fork activation contract'
+    );
+    expect(nanoTransport.frames).toHaveLength(nanoFramesBefore);
+    expect(nanoTransport.frames.some((raw) => raw.includes('nano-parent'))).toBe(false);
+
+    const nonNanoTransport = fakeChild();
+    const nonNano = new ProcessAcpClient(
+      async () => {
+        setTimeout(() => nonNanoTransport.child.emit('spawn'), 0);
+        return nonNanoTransport.child;
+      },
+      { backend: 'claude', handlers: handlers() }
+    );
+    await nonNano.start();
+    await nonNano.forkSession({ sessionId: 'claude-parent', cwd: 'D:/project', mcpServers: [] });
+    const fork = nonNanoTransport.frames
+      .map((raw) => JSON.parse(raw) as JsonRpcFrame)
+      .find((frame) => frame.method === 'session/new' && frame.params?.forkSession === true);
+    expect(fork?.params).toEqual({
+      cwd: 'D:/project',
+      mcpServers: [],
+      _meta: { claudeCode: { options: { resume: 'claude-parent' } } },
+      forkSession: true,
+    });
   });
 
   it('treats a Nano load refusal as terminal and never creates a fresh session', async () => {
