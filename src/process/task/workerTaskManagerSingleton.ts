@@ -37,6 +37,10 @@ agentFactory.register('acp', (conv, opts) => {
   return new AcpAgentManager({
     ...c.extra,
     conversation_id: c.id,
+    // This opaque owner-managed reference is the only persisted input allowed
+    // to select Nano activation authority. AcpAgentManager resolves it; none of
+    // the mutable conversation fields above may substitute for it.
+    waylandNanoBindingRef: c.extra?.waylandNanoBindingRef,
     yoloMode: opts?.yoloMode,
     unattendedHoldDeadlineMs: opts?.unattendedHoldDeadlineMs,
     // Only gemini ACP conversations use conversation.model as a backend-aligned model

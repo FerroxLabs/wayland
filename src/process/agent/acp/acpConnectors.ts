@@ -14,6 +14,7 @@
 
 import type { ChildProcess, SpawnOptions } from 'child_process';
 import { execFile as execFileCb, execFileSync, spawn } from 'child_process';
+import type { VerifiedWaylandNanoBinary } from '@process/agent/activation/waylandNanoBinaryVerifier';
 import { promisify } from 'util';
 import { promises as fs, readdirSync, rmSync, statSync } from 'fs';
 import os from 'os';
@@ -649,7 +650,8 @@ export async function spawnGenericBackend(
   workingDir: string,
   acpArgs?: string[],
   customEnv?: Record<string, string>,
-  launch?: AcpLaunchSpec
+  launch?: AcpLaunchSpec,
+  verifiedWaylandNanoBinary?: VerifiedWaylandNanoBinary
 ): Promise<SpawnResult> {
   try {
     await fs.mkdir(workingDir, { recursive: true });
@@ -675,10 +677,14 @@ export async function spawnGenericBackend(
     cleanEnv as Record<string, string>,
     launch
   );
-  const child = spawn(config.command, config.args, {
-    ...config.options,
-    detached,
-  });
+  const launchChild = (command: string): ChildProcess =>
+    spawn(command, config.args, {
+      ...config.options,
+      detached,
+    });
+  const child = verifiedWaylandNanoBinary
+    ? await verifiedWaylandNanoBinary.consume((canonicalPath) => launchChild(canonicalPath))
+    : launchChild(config.command);
   if (detached) {
     child.unref();
   }

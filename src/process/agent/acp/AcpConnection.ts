@@ -35,6 +35,46 @@ import { trackAgentChild } from '@process/agent/agentChildRegistry';
 // W4 audit CRIT-1 (2026-05-19): route ACP fs ops through the imported-team
 // sandbox gate before falling back to the legacy direct-fs helpers.
 import { gateAcpFileOp } from '@process/team/sandbox/acpFileOpGate';
+import type {
+  SignedWaylandNanoActivation,
+  SignedWaylandNanoControl,
+  WaylandNanoBinding,
+  WaylandNanoControl,
+} from '@process/agent/activation/types';
+import type { VerifiedWaylandNanoBinary } from '@process/agent/activation/waylandNanoBinaryVerifier';
+
+export type WaylandNanoActivationAttempt = Readonly<{
+  activation: SignedWaylandNanoActivation;
+  buildControl(control: WaylandNanoControl, sessionId: string): Promise<SignedWaylandNanoControl>;
+}>;
+
+/** Resolved owner-authority seam. It contains no mutable conversation identity. */
+export type ResolvedWaylandNanoActivationInput = Readonly<{
+  binary: VerifiedWaylandNanoBinary;
+  buildAttempt(
+    input: Readonly<{ operation: 'new' | 'load'; sessionId: string | null }>
+  ): Promise<WaylandNanoActivationAttempt>;
+}>;
+
+export type WaylandNanoBindingOwner = Readonly<{
+  load(bindingRef: string): Promise<Readonly<{
+    binding: WaylandNanoBinding;
+    activation: ResolvedWaylandNanoActivationInput;
+  }> | null>;
+}>;
+
+/** Resolve authority only from an explicit durable owner-store reference. */
+export async function resolveWaylandNanoBindingRef(
+  bindingRef: string | undefined,
+  owner: WaylandNanoBindingOwner | null
+): Promise<ResolvedWaylandNanoActivationInput | null> {
+  if (!bindingRef || !owner) return null;
+  const resolved = await owner.load(bindingRef);
+  if (!resolved || resolved.binding.productSubjectId !== bindingRef || resolved.binding.backend !== 'wayland-nano') {
+    return null;
+  }
+  return resolved.activation;
+}
 
 // Re-export for unit tests that import from this module
 export { createGenericSpawnConfig } from './acpConnectors';
@@ -115,6 +155,12 @@ export class AcpConnection {
    * unchanged fallback path.
    */
   private conversationId: string | null = null;
+  private readonly waylandNanoActivation: ResolvedWaylandNanoActivationInput | null;
+  private waylandNanoAttempt: WaylandNanoActivationAttempt | null = null;
+
+  constructor(waylandNanoActivation: ResolvedWaylandNanoActivationInput | null = null) {
+    this.waylandNanoActivation = waylandNanoActivation;
+  }
 
   // Cached session capabilities from session/new response
   private configOptions: AcpSessionConfigOption[] | null = null;
@@ -202,7 +248,11 @@ export class AcpConnection {
     acpArgs?: string[],
     customEnv?: Record<string, string>
   ): Promise<void> {
-    const result = await spawnGenericBackend(backend, cliPath, workingDir, acpArgs, customEnv);
+    const verifiedBinary = backend === 'wnano' ? this.waylandNanoActivation?.binary : undefined;
+    if (backend === 'wnano' && !verifiedBinary) {
+      throw new Error('Wayland Nano persistent activation requires a resolved binding and verified executable');
+    }
+    const result = await spawnGenericBackend(backend, cliPath, workingDir, acpArgs, customEnv, undefined, verifiedBinary);
     await this.spawnAndSetup(result, backend);
   }
 
@@ -847,11 +897,17 @@ export class AcpConnection {
         }
       : undefined;
 
+    const attempt = await this.buildWaylandNanoAttempt('new', options?.resumeSessionId ?? null);
     const response = await this.sendRequest<AcpResponse & { sessionId?: string }>('session/new', {
       cwd: normalizedCwd,
       mcpServers: options?.mcpServers ?? [],
       // Claude-style ACP uses _meta for resume
-      ...(meta && { _meta: meta }),
+      ...((meta || attempt) && {
+        _meta: {
+          ...meta,
+          ...(attempt && { waylandNanoActivation: attempt.activation }),
+        },
+      }),
       // Generic resume parameters for other ACP backends
       ...(!meta && options?.resumeSessionId && { resumeSessionId: options.resumeSessionId }),
       ...(options?.forkSession && { forkSession: options.forkSession }),
@@ -893,6 +949,11 @@ export class AcpConnection {
     const shouldTryLoadSession = !useClaudeMetaResume && supportsLoadSession;
 
     if (shouldTryLoadSession) {
+      if (this.waylandNanoActivation) {
+        // A Nano refusal is an authorization decision. It must never be
+        // translated into the legacy unauthenticated load→fresh recovery path.
+        return await this.loadSession(sessionId, cwd, options?.mcpServers);
+      }
       try {
         return await this.loadSession(sessionId, cwd, options?.mcpServers);
       } catch (loadError) {
@@ -923,10 +984,12 @@ export class AcpConnection {
   ): Promise<AcpResponse & { sessionId?: string }> {
     const normalizedCwd = this.normalizeCwdForAgent(cwd);
 
+    const attempt = await this.buildWaylandNanoAttempt('load', sessionId);
     const response = await this.sendRequest<AcpResponse & { sessionId?: string }>('session/load', {
       sessionId,
       cwd: normalizedCwd,
       mcpServers: (mcpServers ?? []) as unknown[],
+      ...(attempt && { _meta: { waylandNanoActivation: attempt.activation } }),
     });
 
     // session/load returns modes/models/configOptions but not sessionId - keep the one we sent
@@ -1013,13 +1076,7 @@ export class AcpConnection {
    */
   cancelPrompt(): void {
     if (!this.sessionId) return;
-
-    // Send ACP session/cancel notification (no response expected)
-    this.sendMessage({
-      jsonrpc: JSONRPC_VERSION,
-      method: 'session/cancel',
-      params: { sessionId: this.sessionId },
-    });
+    void this.sendControl('cancel');
 
     // Clear all pending session/prompt requests
     for (const [id, request] of this.pendingRequests) {
@@ -1031,6 +1088,36 @@ export class AcpConnection {
         request.resolve(null);
       }
     }
+  }
+
+  pausePrompt(): void {
+    if (!this.sessionId) return;
+    void this.sendControl('pause');
+  }
+
+  private async buildWaylandNanoAttempt(
+    operation: 'new' | 'load',
+    sessionId: string | null
+  ): Promise<WaylandNanoActivationAttempt | null> {
+    if (!this.waylandNanoActivation) return null;
+    if (this.backend !== 'wnano') throw new Error('Wayland Nano activation input cannot be used by another backend');
+    const attempt = await this.waylandNanoActivation.buildAttempt({ operation, sessionId });
+    this.waylandNanoAttempt = attempt;
+    return attempt;
+  }
+
+  private async sendControl(control: WaylandNanoControl): Promise<void> {
+    const sessionId = this.sessionId;
+    if (!sessionId) return;
+    const signed = this.waylandNanoAttempt ? await this.waylandNanoAttempt.buildControl(control, sessionId) : null;
+    this.sendMessage({
+      jsonrpc: JSONRPC_VERSION,
+      method: `session/${control}`,
+      params: {
+        sessionId,
+        ...(signed && { _meta: { waylandNanoControl: signed } }),
+      },
+    });
   }
 
   async setSessionMode(modeId: string): Promise<AcpResponse> {
