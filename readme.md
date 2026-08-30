@@ -255,7 +255,7 @@ Wayland runs a four-step loop on every turn:
 - **Perceives** your request and the state of your files, project, and memory.
 - **Reasons** with the best model for the task. A read-only Plan mode can write a structured plan before anything is touched.
 - **Acts** through built-in tools (Read, Write, Edit, Bash, Grep, Glob, Spawn) and connectors for Git, databases, and the web, inside a native per-OS sandbox.
-- **Evolves**: a loop rewrites and scores your skill prompts against an eval harness, then promotes the winners back into your library.
+- **Evolves**: a loop mutates and scores your skill prompts against an eval harness, keeping a variant only when it beats both the running best and the parent it came from. Winners persist across runs, so the next run starts from the last one's best. Nothing reaches your live library until you promote it.
 
 **Wayland-Core engine.** One Rust binary, around 47 MB, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, AppContainer opt-in) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
 
@@ -340,7 +340,7 @@ Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before open
 
 Wayland is **real open source**. This desktop app is [GNU AGPL-3.0](./LICENSE); the engine, [wayland-core](https://github.com/FerroxLabs/wayland-core), is Apache-2.0. The split is deliberate: a permissive engine so anyone can embed it, copyleft on the app so the GUI stays open. Run it, self-host it, modify it, fork it, and build commercial services around it. The only catch AGPL adds: a networked service built on the app must publish its source under the same terms. Contributions are under a light [CLA](./CONTRIBUTING.md); third-party attributions live in [notices/](./notices/).
 
-**Where it came from.** This app originates in part from [AionUi](https://github.com/iOfficeAI/AionUi) (Apache-2.0) — parts of the Electron main process, the IPC bridge, renderer scaffolding, ACP integration and MCP services — and has since diverged substantially. The engine is a Ferrox Labs fork of [aionrs](https://github.com/FerroxLabs/wayland-core) (Apache-2.0), with every workspace crate renamed and the upstream copyright headers preserved in all forked source. Full attributions: [notices/THIRD-PARTY-NOTICES.md](./notices/THIRD-PARTY-NOTICES.md). We put this here rather than only in `notices/` because a reader deciding whether to trust the project should not have to dig for it.
+**Where it came from.** This app originates in part from [AionUi](https://github.com/iOfficeAI/AionUi) (Apache-2.0) — parts of the Electron main process, the IPC bridge, renderer scaffolding, ACP integration and MCP services — and has since diverged substantially. The engine is a Ferrox Labs fork of [aionrs](https://github.com/FerroxLabs/wayland-core) (Apache-2.0), with every workspace crate renamed and the upstream copyright headers preserved in all forked source. Full attributions: [notices/THIRD-PARTY-NOTICES.md](./notices/THIRD-PARTY-NOTICES.md).
 
 **Who builds this.** Ferrox Labs is a small team, and most of us are part-time. We use Wayland to build Wayland, which is why the shipped surface is larger than a headcount would suggest — and why the honest answer to "has this been audited?" is on the [evidence page](https://getwayland.com/built-on), not buried.
 
