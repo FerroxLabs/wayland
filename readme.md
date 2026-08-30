@@ -267,7 +267,7 @@ Requirements: [Bun](https://bun.sh) 1.3.x, Node 22 to 24, and your platform tool
 
 ```bash
 git clone https://github.com/ferroxlabs/wayland.git
-cd wayland/app
+cd wayland
 bun install
 
 # Run the desktop app in dev
