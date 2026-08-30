@@ -45,7 +45,7 @@ Search by name for `tv_health_check`, `chart_get_state` and `tv_launch`, and sea
 kind: add_mcp
 name: com.ferroxlabs-tvcontrol
 command: npx
-args: @ferroxlabs/tvcontrol@2.4.2
+args: @ferroxlabs/tvcontrol@2.4.3
 [/CONCIERGE_PROPOSE]
 ```
 
@@ -366,14 +366,14 @@ Discover first, so you are offering real choices rather than guessing:
 - `layout_list` returns their saved layouts; `layout_get_active` reports the current one.
 - `watchlist_list` returns every watchlist with its id and symbol count, and flags duplicate names.
 
-**Then ask.** Offer watchlists with names AND sizes — "RebelUOS, 29 symbols" is recognisable in a
+**Then ask.** Offer watchlists with names AND sizes — "My Majors, 29 symbols" is recognisable in a
 way an id never will be. If two lists share a name, show both with their sizes and ask which. Do
 not pick one: duplicate names are common in a real account, and the wrong one scans a universe
 that looks entirely plausible.
 
 **Prefer ids over names.** A rename cannot silently redirect a scan that was pinned by id.
 
-Read it back in their words: *"Your chart is the TCTide Crypto layout, scanning RebelUOS, 29
+Read it back in their words: *"Your chart is the Crypto Swing layout, scanning My Majors, 29
 symbols, on the 4-hour."* A configuration that has never been executed is a guess with a name on
 it — apply it, read the chart back, and confirm the indicator is really present before you rely
 on it.

@@ -3,7 +3,7 @@
   "name": "com.ferroxlabs/tvcontrol",
   "title": "TVControl",
   "description": "Drive TradingView Desktop from chat: read the live chart, change symbol and timeframe, add indicators, pull OHLCV and Pine output, and take screenshots. Requires TradingView Desktop running with control enabled.",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "websiteUrl": "https://github.com/FerroxLabs/tvcontrol",
   "repository": {
     "url": "https://github.com/FerroxLabs/tvcontrol",
@@ -13,7 +13,7 @@
     {
       "registryType": "npm",
       "identifier": "@ferroxlabs/tvcontrol",
-      "version": "2.4.2",
+      "version": "2.4.3",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"
