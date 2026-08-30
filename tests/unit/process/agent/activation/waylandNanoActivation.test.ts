@@ -79,13 +79,31 @@ describe('Wayland Nano activation producer', () => {
     });
 
     const first = await builder.buildActivation(BINDING, REQUEST);
-    const retry = await builder.buildActivation(BINDING, { ...REQUEST, deadline: '2099-01-01T00:00:00Z' });
-    builder.completeLogicalActivation(REQUEST.logicalActivationId);
+    const retry = await builder.buildActivation(BINDING, REQUEST);
+
+    expect(builder.hasPendingLogicalActivation(REQUEST.logicalActivationId)).toBe(true);
+    expect(builder.completeLogicalActivation(REQUEST.logicalActivationId)).toBe(true);
+    expect(builder.completeLogicalActivation(REQUEST.logicalActivationId)).toBe(false);
     const next = await builder.buildActivation(BINDING, REQUEST);
 
     expect(retry).toBe(first);
     expect(next.nonce).not.toBe(first.nonce);
     expect(next.idempotency_key).not.toBe(first.idempotency_key);
+  });
+
+  it.each([
+    ['deadline', BINDING, { ...REQUEST, deadline: '2099-01-01T00:00:00Z' }],
+    ['binding', { ...BINDING, principalId: 'other-principal' }, REQUEST],
+    ['capabilities', BINDING, { ...REQUEST, capabilities: ['filesystem.read'] as const }],
+    ['budgets', BINDING, { ...REQUEST, budgets: { ...REQUEST.budgets, max_turns: 1 } }],
+  ])('refuses a %s change under the same logical activation identity', async (_name, binding, request) => {
+    const builder = new WaylandNanoActivationBuilder({
+      randomId: () => 'stable-id',
+      loadSigner: async () => SIGNER,
+    });
+    await builder.buildActivation(BINDING, REQUEST);
+
+    await expect(builder.buildActivation(binding, request)).rejects.toThrow('changed immutable inputs');
   });
 
   it('domain-separates a signed cancel control from activation assertions', async () => {

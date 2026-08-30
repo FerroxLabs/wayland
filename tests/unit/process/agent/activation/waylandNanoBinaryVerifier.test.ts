@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -23,6 +24,7 @@ async function fixture() {
       size: bytes.byteLength,
       sourceCommitSha: '1bebbec9183d17883497bca76d42e0fdcea275ea',
       cargoLockSha256: 'cbdf22daeda3eb21dbeb81d39e42d8f33cd046e2f5c476b98b4e5eacac31d93d',
+      stagingRoot: root,
     },
   };
 }
@@ -32,11 +34,15 @@ describe('Wayland Nano executable identity', () => {
     const { binary, expectation } = await fixture();
     const token = await verifyWaylandNanoBinary(expectation);
 
-    expect(await token.consume((verifiedPath) => verifiedPath)).toBe(binary);
+    const stagedPath = await token.consume((verifiedPath) => verifiedPath);
+    expect(stagedPath).not.toBe(binary);
+    expect(await readFile(stagedPath, 'utf8')).toBe('immutable nano executable');
     await expect(token.consume(() => undefined)).rejects.toThrow('stale');
+    await token.cleanupAfterLaunch();
+    await expect(readFile(stagedPath)).rejects.toMatchObject({ code: 'ENOENT' });
   });
 
-  it('rejects PATH names, aliases, stale digest and replacement before launch', async () => {
+  it('rejects PATH names and stale digests while isolating launch from source replacement', async () => {
     const { binary, expectation } = await fixture();
     await expect(verifyWaylandNanoBinary({ ...expectation, canonicalPath: path.basename(binary) })).rejects.toThrow(
       'canonical and absolute'
@@ -45,7 +51,9 @@ describe('Wayland Nano executable identity', () => {
 
     const token = await verifyWaylandNanoBinary(expectation);
     await writeFile(binary, 'replacement executable with different size');
-    await expect(token.consume(() => undefined)).rejects.toThrow('changed');
+    const launchedBytes = await token.consume((verifiedPath) => readFileSync(verifiedPath));
+    expect(launchedBytes).toEqual(Buffer.from('immutable nano executable'));
+    await token.cleanupAfterLaunch();
   });
 
   it('rejects an invalid immutable artifact manifest before touching the binary', async () => {

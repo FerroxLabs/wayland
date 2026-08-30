@@ -1,4 +1,5 @@
 import canonicalize from 'canonicalize';
+import { createHash } from 'node:crypto';
 
 import type {
   SignedWaylandNanoActivation,
@@ -17,10 +18,19 @@ export type WaylandNanoActivationBuilderDependencies = Readonly<{
   loadSigner(keyRef: string): Promise<WaylandNanoSigner>;
 }>;
 
+type RetryEntry = Readonly<{ inputDigest: string; assertion: Promise<SignedWaylandNanoActivation> }>;
+
+export class WaylandNanoActivationRetryConflictError extends Error {
+  constructor() {
+    super('Wayland Nano logical activation retry changed immutable inputs');
+    this.name = 'WaylandNanoActivationRetryConflictError';
+  }
+}
+
 /** Sole Desktop producer for signed Nano activation and control assertions. */
 export class WaylandNanoActivationBuilder {
   readonly #dependencies: WaylandNanoActivationBuilderDependencies;
-  readonly #retryAssertions = new Map<string, Promise<SignedWaylandNanoActivation>>();
+  readonly #retryAssertions = new Map<string, RetryEntry>();
 
   constructor(dependencies: WaylandNanoActivationBuilderDependencies) {
     this.#dependencies = dependencies;
@@ -30,16 +40,30 @@ export class WaylandNanoActivationBuilder {
     binding: WaylandNanoBinding,
     request: WaylandNanoActivationRequest
   ): Promise<SignedWaylandNanoActivation> {
+    const inputDigest = retryInputDigest(binding, request);
     const existing = this.#retryAssertions.get(request.logicalActivationId);
-    if (existing) return existing;
+    if (existing) {
+      if (existing.inputDigest !== inputDigest) return Promise.reject(new WaylandNanoActivationRetryConflictError());
+      return existing.assertion;
+    }
     const pending = this.signActivation(binding, request);
-    this.#retryAssertions.set(request.logicalActivationId, pending);
-    pending.catch(() => this.#retryAssertions.delete(request.logicalActivationId));
+    const entry = Object.freeze({ inputDigest, assertion: pending });
+    this.#retryAssertions.set(request.logicalActivationId, entry);
+    pending.catch(() => {
+      if (this.#retryAssertions.get(request.logicalActivationId) === entry) {
+        this.#retryAssertions.delete(request.logicalActivationId);
+      }
+    });
     return pending;
   }
 
-  completeLogicalActivation(logicalActivationId: string): void {
-    this.#retryAssertions.delete(logicalActivationId);
+  /** Production callers invoke this only after a terminal signed receipt/refusal. */
+  completeLogicalActivation(logicalActivationId: string): boolean {
+    return this.#retryAssertions.delete(logicalActivationId);
+  }
+
+  hasPendingLogicalActivation(logicalActivationId: string): boolean {
+    return this.#retryAssertions.has(logicalActivationId);
   }
 
   async buildControl(
@@ -102,6 +126,10 @@ export class WaylandNanoActivationBuilder {
     const signature = await signCanonical(ACTIVATION_DOMAIN, unsigned, signer);
     return deepFreeze({ ...unsigned, signature });
   }
+}
+
+function retryInputDigest(binding: WaylandNanoBinding, request: WaylandNanoActivationRequest): string {
+  return createHash('sha256').update(canonicalWaylandNanoBytes({ binding, request })).digest('hex');
 }
 
 export function canonicalWaylandNanoBytes(value: unknown): Uint8Array {

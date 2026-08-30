@@ -1,7 +1,9 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { constants } from 'node:fs';
-import { lstat, open, realpath, stat, type FileHandle } from 'node:fs/promises';
+import { chmod, lstat, mkdir, open, realpath, stat, unlink, type FileHandle } from 'node:fs/promises';
 import path from 'node:path';
+
+import { enforceOwnerOnlyPath } from './waylandNanoBindingStore';
 
 export type WaylandNanoBinaryExpectation = Readonly<{
   canonicalPath: string;
@@ -9,6 +11,7 @@ export type WaylandNanoBinaryExpectation = Readonly<{
   size: number;
   sourceCommitSha: string;
   cargoLockSha256: string;
+  stagingRoot: string;
 }>;
 
 type FileIdentity = Readonly<{ dev: bigint; ino: bigint; size: bigint; mtimeNs: bigint }>;
@@ -23,15 +26,17 @@ export class VerifiedWaylandNanoBinary {
   readonly #handle: FileHandle;
   readonly #identity: FileIdentity;
   #consumed = false;
+  #cleaned = false;
 
   constructor(
     constructorToken: symbol,
     expectation: WaylandNanoBinaryExpectation,
+    stagedPath: string,
     handle: FileHandle,
     identity: FileIdentity
   ) {
     if (constructorToken !== VERIFIED_BINARY_CONSTRUCTOR) throw new Error('Wayland Nano binary token is untrusted');
-    this.canonicalPath = expectation.canonicalPath;
+    this.canonicalPath = stagedPath;
     this.sha256 = expectation.sha256;
     this.sourceCommitSha = expectation.sourceCommitSha;
     this.cargoLockSha256 = expectation.cargoLockSha256;
@@ -48,7 +53,12 @@ export class VerifiedWaylandNanoBinary {
         this.#handle.stat({ bigint: true }),
         stat(this.canonicalPath, { bigint: true }),
       ]);
-      if (!sameIdentity(identityOf(held), this.#identity) || !sameIdentity(identityOf(current), this.#identity)) {
+      const digest = await hashHandle(this.#handle);
+      if (
+        !sameIdentity(identityOf(held), this.#identity) ||
+        !sameIdentity(identityOf(current), this.#identity) ||
+        digest !== this.sha256
+      ) {
         throw new Error('Wayland Nano binary changed after verification');
       }
       const result = launch(this.canonicalPath);
@@ -62,9 +72,19 @@ export class VerifiedWaylandNanoBinary {
   }
 
   async dispose(): Promise<void> {
-    if (this.#consumed) return;
-    this.#consumed = true;
-    await this.#handle.close();
+    if (!this.#consumed) {
+      this.#consumed = true;
+      await this.#handle.close();
+    }
+    await this.cleanupAfterLaunch();
+  }
+
+  /** Plan 09/15 launch owners call this after the immediate spawn has consumed the staged image. */
+  async cleanupAfterLaunch(): Promise<void> {
+    if (!this.#consumed) throw new Error('Wayland Nano staged executable cannot be cleaned before launch');
+    if (this.#cleaned) return;
+    await unlink(this.canonicalPath);
+    this.#cleaned = true;
   }
 }
 
@@ -96,9 +116,94 @@ export async function verifyWaylandNanoBinary(
     const after = await stat(canonical, { bigint: true });
     const identity = identityOf(metadata);
     if (!sameIdentity(identity, identityOf(after))) throw new Error('Wayland Nano binary changed during verification');
-    return new VerifiedWaylandNanoBinary(VERIFIED_BINARY_CONSTRUCTOR, expectation, handle, identity);
+    const staged = await stageVerifiedExecutable(handle, expectation);
+    await handle.close();
+    return new VerifiedWaylandNanoBinary(
+      VERIFIED_BINARY_CONSTRUCTOR,
+      expectation,
+      staged.path,
+      staged.handle,
+      staged.identity
+    );
   } catch (error) {
     await handle.close();
+    throw error;
+  }
+}
+
+async function stageVerifiedExecutable(
+  source: FileHandle,
+  expectation: WaylandNanoBinaryExpectation
+): Promise<Readonly<{ path: string; handle: FileHandle; identity: FileIdentity }>> {
+  const root = await realpath(expectation.stagingRoot);
+  const rootMetadata = await lstat(root);
+  if (!rootMetadata.isDirectory() || rootMetadata.isSymbolicLink()) {
+    throw new Error('Wayland Nano staging root is unsafe');
+  }
+  const directory = path.join(root, 'wayland-nano-verified');
+  let created = false;
+  await mkdir(directory, { recursive: false, mode: 0o700 })
+    .then(() => {
+      created = true;
+    })
+    .catch((error: NodeJS.ErrnoException) => {
+      if (error.code !== 'EEXIST') throw error;
+    });
+  const directoryMetadata = await lstat(directory);
+  if (
+    !directoryMetadata.isDirectory() ||
+    directoryMetadata.isSymbolicLink() ||
+    (process.platform !== 'win32' && (directoryMetadata.mode & 0o077) !== 0) ||
+    path.dirname(await realpath(directory)) !== root
+  ) {
+    throw new Error('Wayland Nano staging directory is unsafe');
+  }
+  await enforceOwnerOnlyPath(directory, 'directory', 'full', !created);
+  const extension = process.platform === 'win32' ? '.exe' : '';
+  const stagedPath = path.join(directory, `${expectation.sha256}-${randomUUID()}${extension}`);
+  const writer = await open(stagedPath, 'wx', 0o700);
+  try {
+    const digest = createHash('sha256');
+    const buffer = Buffer.allocUnsafe(64 * 1024);
+    let position = 0;
+    while (true) {
+      // Security-sensitive copy must preserve a single held source identity in order.
+      // oxlint-disable-next-line eslint(no-await-in-loop)
+      const { bytesRead } = await source.read(buffer, 0, buffer.length, position);
+      if (bytesRead === 0) break;
+      const chunk = buffer.subarray(0, bytesRead);
+      digest.update(chunk);
+      // oxlint-disable-next-line eslint(no-await-in-loop)
+      await writer.write(chunk, 0, chunk.length, position);
+      position += bytesRead;
+    }
+    await writer.sync();
+    if (position !== expectation.size || digest.digest('hex') !== expectation.sha256) {
+      throw new Error('Wayland Nano source changed while staging');
+    }
+  } finally {
+    await writer.close();
+  }
+  if (process.platform !== 'win32') await chmod(stagedPath, 0o500);
+  await enforceOwnerOnlyPath(stagedPath, 'file', 'read-execute-delete');
+  const held = await open(stagedPath, constants.O_RDONLY);
+  try {
+    const metadata = await held.stat({ bigint: true });
+    const digest = await hashHandle(held);
+    if (
+      !metadata.isFile() ||
+      metadata.nlink !== BigInt(1) ||
+      metadata.size !== BigInt(expectation.size) ||
+      digest !== expectation.sha256
+    ) {
+      throw new Error('Wayland Nano staged executable identity is invalid');
+    }
+    const current = await stat(stagedPath, { bigint: true });
+    const identity = identityOf(metadata);
+    if (!sameIdentity(identity, identityOf(current))) throw new Error('Wayland Nano staged executable changed');
+    return Object.freeze({ path: stagedPath, handle: held, identity });
+  } catch (error) {
+    await held.close();
     throw error;
   }
 }
@@ -131,7 +236,10 @@ function validateExpectation(value: WaylandNanoBinaryExpectation): void {
     value.size <= 0 ||
     !/^[0-9a-f]{64}$/.test(value.sha256) ||
     !/^[0-9a-f]{40}$/.test(value.sourceCommitSha) ||
-    !/^[0-9a-f]{64}$/.test(value.cargoLockSha256)
+    !/^[0-9a-f]{64}$/.test(value.cargoLockSha256) ||
+    typeof value.stagingRoot !== 'string' ||
+    value.stagingRoot.length === 0 ||
+    value.stagingRoot.includes('\0')
   ) {
     throw new Error('Wayland Nano binary expectation is invalid');
   }

@@ -1,4 +1,6 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { mkdtemp, readFile, rename, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -11,6 +13,7 @@ import { resolveWaylandNanoSetup, validateWaylandNanoBinding } from '@process/ag
 import { WaylandNanoBindingStore } from '@process/agent/activation/waylandNanoBindingStore';
 
 const roots: string[] = [];
+const execFileAsync = promisify(execFile);
 afterEach(async () => Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true }))));
 
 function binding(keyRef = 'wayland-nano-key:v1:key_1') {
@@ -43,11 +46,67 @@ describe('Wayland Nano durable product binding', () => {
     const store = new WaylandNanoBindingStore(root);
 
     await store.put(binding());
+    await store.put(binding());
     expect(await store.load('product-opaque-1')).toEqual(binding());
     await store.retire('product-opaque-1');
 
     expect(await store.load('product-opaque-1')).toBeNull();
     await expect(store.put(binding())).rejects.toThrow('permanently retired');
+  });
+
+  it.each([
+    ['principal', { principalId: 'principal-opaque-2' }],
+    ['project', { projectId: 'project-opaque-2' }],
+    ['issuer', { issuerId: 'desktop-two' }],
+    ['key reference', { issuerKeyRef: 'wayland-nano-key:v1:key_2' }],
+  ])('refuses an immutable %s remap', async (_name, change) => {
+    const root = await mkdtemp(path.join(tmpdir(), 'wayland-nano-binding-'));
+    roots.push(root);
+    const store = new WaylandNanoBindingStore(root);
+    await store.put(binding());
+
+    await expect(store.put({ ...binding(), ...change })).rejects.toThrow('cannot be remapped');
+    expect(await store.load('product-opaque-1')).toEqual(binding());
+  });
+
+  it('serializes duplicate and conflicting concurrent publications without widening authority', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'wayland-nano-binding-'));
+    roots.push(root);
+    const first = new WaylandNanoBindingStore(root);
+    const second = new WaylandNanoBindingStore(root);
+
+    await expect(Promise.all([first.put(binding()), second.put(binding())])).resolves.toEqual([undefined, undefined]);
+    const race = await Promise.allSettled([
+      first.put({ ...binding(), productSubjectId: 'raced-subject', principalId: 'principal-a' }),
+      second.put({ ...binding(), productSubjectId: 'raced-subject', principalId: 'principal-b' }),
+    ]);
+
+    expect(race.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+    expect(race.filter((result) => result.status === 'rejected')).toHaveLength(1);
+  });
+
+  it.runIf(process.platform === 'win32')('rejects a binding file with an extra writable Windows ACE', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'wayland-nano-binding-'));
+    roots.push(root);
+    const store = new WaylandNanoBindingStore(root);
+    await store.put(binding());
+    const file = path.join(root, 'wayland-nano', 'activation-bindings.json');
+    await execFileAsync('icacls.exe', [file, '/grant', '*S-1-1-0:(M)']);
+
+    await expect(store.load('product-opaque-1')).rejects.toThrow('ACL verification failed');
+  });
+
+  it.runIf(process.platform === 'win32')('rejects a reparse-point store directory', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'wayland-nano-binding-'));
+    roots.push(root);
+    const store = new WaylandNanoBindingStore(root);
+    await store.put(binding());
+    const directory = path.join(root, 'wayland-nano');
+    const moved = path.join(root, 'moved-store');
+    await rename(directory, moved);
+    await symlink(moved, directory, 'junction');
+
+    await expect(store.load('product-opaque-1')).rejects.toThrow('unsafe');
   });
 
   it('rejects conversation, backend, display, cwd and persona fields as authority substitutes', () => {

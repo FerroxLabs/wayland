@@ -1,13 +1,18 @@
 import { constants } from 'node:fs';
-import { chmod, lstat, mkdir, open, realpath, rename } from 'node:fs/promises';
+import { chmod, lstat, mkdir, open, realpath, rename, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 
 import type { WaylandNanoBinding } from './types';
 import { validateWaylandNanoBinding } from './waylandNanoBinding';
 
 const STORE_DIRECTORY = 'wayland-nano';
 const STORE_FILE = 'activation-bindings.json';
+const STORE_LOCK = '.wayland-nano-activation-bindings.lock';
+const storeQueues = new Map<string, Promise<void>>();
+const execFileAsync = promisify(execFile);
 
 type BindingDocument = Readonly<{
   schema: 'wayland.nano.activation-bindings/v1';
@@ -42,37 +47,91 @@ export class WaylandNanoBindingStore {
   async put(binding: WaylandNanoBinding): Promise<void> {
     const valid = validateWaylandNanoBinding(binding);
     if (!valid) throw new Error('Wayland Nano binding is invalid');
-    const document = await this.readDocument();
-    if (document.tombstones.includes(valid.productSubjectId)) {
-      throw new Error('Wayland Nano binding subject is permanently retired');
-    }
-    await this.writeDocument({
-      schema: 'wayland.nano.activation-bindings/v1',
-      bindings: { ...document.bindings, [valid.productSubjectId]: valid },
-      tombstones: document.tombstones,
+    await this.withMutationLock(async () => {
+      const document = await this.readDocument();
+      if (document.tombstones.includes(valid.productSubjectId)) {
+        throw new Error('Wayland Nano binding subject is permanently retired');
+      }
+      const existing = document.bindings[valid.productSubjectId];
+      if (existing) {
+        if (sameBinding(existing, valid)) return;
+        throw new Error('Wayland Nano binding subject cannot be remapped');
+      }
+      await this.writeDocument({
+        schema: 'wayland.nano.activation-bindings/v1',
+        bindings: { ...document.bindings, [valid.productSubjectId]: valid },
+        tombstones: document.tombstones,
+      });
     });
   }
 
   async retire(productSubjectId: string): Promise<void> {
-    const document = await this.readDocument();
-    const bindings = { ...document.bindings };
-    delete bindings[productSubjectId];
-    await this.writeDocument({
-      schema: 'wayland.nano.activation-bindings/v1',
-      bindings,
-      tombstones: [...new Set([...document.tombstones, productSubjectId])].toSorted(),
+    await this.withMutationLock(async () => {
+      const document = await this.readDocument();
+      if (document.tombstones.includes(productSubjectId)) return;
+      const bindings = { ...document.bindings };
+      delete bindings[productSubjectId];
+      await this.writeDocument({
+        schema: 'wayland.nano.activation-bindings/v1',
+        bindings,
+        tombstones: [...new Set([...document.tombstones, productSubjectId])].toSorted(),
+      });
     });
+  }
+
+  private async withMutationLock<T>(mutation: () => Promise<T>): Promise<T> {
+    const root = await realpath(this.#userDataRoot);
+    const target = path.join(root, STORE_DIRECTORY, STORE_FILE);
+    const previous = storeQueues.get(target) ?? Promise.resolve();
+    let releaseQueue!: () => void;
+    const queued = new Promise<void>((resolve) => {
+      releaseQueue = resolve;
+    });
+    const tail = previous.then(() => queued);
+    storeQueues.set(target, tail);
+    await previous;
+    const lockPath = path.join(root, STORE_LOCK);
+    let lock;
+    try {
+      lock = await open(lockPath, 'wx', 0o600).catch((error: NodeJS.ErrnoException) => {
+        if (error.code === 'EEXIST') throw new Error('Wayland Nano binding store is busy');
+        throw error;
+      });
+      await lock.sync();
+      await enforceOwnerOnlyPath(lockPath, 'file', 'full');
+      const initializedTarget = await this.storePath(true);
+      if (initializedTarget !== target)
+        throw new Error('Wayland Nano binding store path changed during initialization');
+      return await mutation();
+    } finally {
+      await lock?.close();
+      if (lock) {
+        try {
+          await unlink(lockPath);
+        } catch {
+          // The lock handle is already closed; stale cleanup is fail-closed on the next mutation.
+        }
+      }
+      releaseQueue();
+      if (storeQueues.get(target) === tail) storeQueues.delete(target);
+    }
   }
 
   private async readDocument(): Promise<BindingDocument> {
     const file = await this.storePath(false);
     if (!file) return EMPTY_DOCUMENT;
-    let parsed: unknown;
+    let raw: string;
     try {
-      parsed = JSON.parse(await readPrivateFile(file));
+      raw = await readPrivateFile(file);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') return EMPTY_DOCUMENT;
-      throw new Error('Wayland Nano binding store is unreadable', { cause: error });
+      throw error;
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (error) {
+      throw new Error('Wayland Nano binding store is malformed', { cause: error });
     }
     return parseDocument(parsed);
   }
@@ -89,8 +148,10 @@ export class WaylandNanoBindingStore {
       await handle.close();
     }
     await chmod(temp, 0o600);
+    await enforceOwnerOnlyPath(temp, 'file', 'full');
     await rename(temp, target);
     await chmod(target, 0o600);
+    await enforceOwnerOnlyPath(target, 'file', 'full');
   }
 
   private async storePath(create: boolean): Promise<string | null> {
@@ -100,7 +161,14 @@ export class WaylandNanoBindingStore {
       throw new Error('Wayland Nano binding root is unsafe');
     }
     const directory = path.join(root, STORE_DIRECTORY);
-    if (create) await mkdir(directory, { recursive: false, mode: 0o700 }).catch(handleExists);
+    let created = false;
+    if (create) {
+      await mkdir(directory, { recursive: false, mode: 0o700 })
+        .then(() => {
+          created = true;
+        })
+        .catch(handleExists);
+    }
     let metadata;
     try {
       metadata = await lstat(directory);
@@ -117,6 +185,7 @@ export class WaylandNanoBindingStore {
     }
     const canonicalDirectory = await realpath(directory);
     if (path.dirname(canonicalDirectory) !== root) throw new Error('Wayland Nano binding directory escaped userData');
+    await enforceOwnerOnlyPath(canonicalDirectory, 'directory', 'full', !created);
     return path.join(canonicalDirectory, STORE_FILE);
   }
 }
@@ -163,6 +232,7 @@ async function readPrivateFile(file: string): Promise<string> {
   ) {
     throw new Error('Wayland Nano binding file is unsafe');
   }
+  await enforceOwnerOnlyPath(file, 'file', 'full', true);
   const handle = await open(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
   try {
     const after = await handle.stat();
@@ -173,4 +243,70 @@ async function readPrivateFile(file: string): Promise<string> {
   } finally {
     await handle.close();
   }
+}
+
+function sameBinding(left: WaylandNanoBinding, right: WaylandNanoBinding): boolean {
+  return (
+    left.productSubjectId === right.productSubjectId &&
+    left.principalId === right.principalId &&
+    left.projectId === right.projectId &&
+    left.issuerId === right.issuerId &&
+    left.issuerKeyRef === right.issuerKeyRef &&
+    left.backend === right.backend
+  );
+}
+
+export async function enforceOwnerOnlyPath(
+  target: string,
+  kind: 'file' | 'directory',
+  ownerAccess: 'full' | 'read-execute' | 'read-execute-delete',
+  verifyOnly = false
+): Promise<void> {
+  if (process.platform !== 'win32') return;
+  const [encodedTarget, encodedKind, encodedAccess, encodedVerifyOnly] = [
+    target,
+    kind,
+    ownerAccess,
+    String(verifyOnly),
+  ].map((value) => Buffer.from(value, 'utf8').toString('base64'));
+  const script = String.raw`
+$ErrorActionPreference='Stop'
+$target=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedTarget}'))
+$kind=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedKind}'))
+$access=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedAccess}'))
+$verifyOnly=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedVerifyOnly}')) -eq 'true'
+$current=[Security.Principal.WindowsIdentity]::GetCurrent().User
+$system=New-Object Security.Principal.SecurityIdentifier('S-1-5-18')
+$admins=New-Object Security.Principal.SecurityIdentifier('S-1-5-32-544')
+if(-not $verifyOnly) {
+  $acl=if($kind -eq 'directory'){New-Object Security.AccessControl.DirectorySecurity}else{New-Object Security.AccessControl.FileSecurity}
+  $acl.SetOwner($current); $acl.SetAccessRuleProtection($true,$false)
+  $inherit=if($kind -eq 'directory'){[Security.AccessControl.InheritanceFlags]'ContainerInherit,ObjectInherit'}else{[Security.AccessControl.InheritanceFlags]::None}
+  $rights=if($access -eq 'full'){[Security.AccessControl.FileSystemRights]::FullControl}elseif($access -eq 'read-execute-delete'){[Security.AccessControl.FileSystemRights]::ReadAndExecute -bor [Security.AccessControl.FileSystemRights]::Delete}else{[Security.AccessControl.FileSystemRights]::ReadAndExecute}
+  $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($current,$rights,$inherit,[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow)))
+  foreach($sid in @($system,$admins)){$acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($sid,[Security.AccessControl.FileSystemRights]::FullControl,$inherit,[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow)))}
+  if($kind -eq 'directory'){[IO.Directory]::SetAccessControl($target,$acl)}else{[IO.File]::SetAccessControl($target,$acl)}
+}
+$actual=if($kind -eq 'directory'){[IO.Directory]::GetAccessControl($target)}else{[IO.File]::GetAccessControl($target)}
+$owner=$actual.GetOwner([Security.Principal.SecurityIdentifier]).Value
+if($owner -ne $current.Value -or -not $actual.AreAccessRulesProtected){exit 41}
+$allowed=@($current.Value,$system.Value,$admins.Value)
+$contentWriteMask=2 -bor 4 -bor 16 -bor 64 -bor 256
+$authorityMask=262144 -bor 524288
+$deleteMask=65536
+foreach($rule in $actual.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier])){
+  $sid=$rule.IdentityReference.Value
+  if($rule.IsInherited -or ($rule.AccessControlType -eq 'Allow' -and $allowed -notcontains $sid)){exit 42}
+  if($access -eq 'read-execute' -and $sid -eq $current.Value -and (([int]$rule.FileSystemRights -band ($contentWriteMask -bor $authorityMask -bor $deleteMask)) -ne 0)){exit 43}
+  if($access -eq 'read-execute-delete' -and $sid -eq $current.Value -and (([int]$rule.FileSystemRights -band ($contentWriteMask -bor $authorityMask)) -ne 0)){exit 43}
+}
+`;
+  await execFileAsync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], {
+    windowsHide: true,
+    timeout: 15_000,
+  }).catch((error) => {
+    throw new Error(`Wayland Nano owner-only ACL ${verifyOnly ? 'verification' : 'enforcement'} failed`, {
+      cause: error,
+    });
+  });
 }

@@ -4,6 +4,7 @@ import { chmod, lstat, mkdir, open, realpath, rename } from 'node:fs/promises';
 import path from 'node:path';
 
 import type { WaylandNanoSigner } from './types';
+import { enforceOwnerOnlyPath } from './waylandNanoBindingStore';
 
 const KEY_REF_PREFIX = 'wayland-nano-key:v1:';
 const CIPHER_PREFIX = 'enc:v1:';
@@ -164,14 +165,23 @@ export class WaylandNanoActivationKeyStore {
       await handle.close();
     }
     await chmod(temp, 0o600);
+    await enforceOwnerOnlyPath(temp, 'file', 'full');
     await rename(temp, target);
     await chmod(target, 0o600);
+    await enforceOwnerOnlyPath(target, 'file', 'full');
   }
 
   private async storePath(create: boolean): Promise<string | null> {
     const root = await realpath(this.#userDataRoot);
     const directory = path.join(root, 'wayland-nano');
-    if (create) await mkdir(directory, { recursive: false, mode: 0o700 }).catch(handleExists);
+    let created = false;
+    if (create) {
+      await mkdir(directory, { recursive: false, mode: 0o700 })
+        .then(() => {
+          created = true;
+        })
+        .catch(handleExists);
+    }
     try {
       const metadata = await lstat(directory);
       if (
@@ -188,6 +198,7 @@ export class WaylandNanoActivationKeyStore {
     const canonicalDirectory = await realpath(directory);
     if (path.dirname(canonicalDirectory) !== root)
       throw new Error('Wayland Nano issuer key directory escaped userData');
+    await enforceOwnerOnlyPath(canonicalDirectory, 'directory', 'full', !created);
     return path.join(canonicalDirectory, STORE_FILE);
   }
 }
@@ -214,6 +225,7 @@ async function readPrivateFile(file: string, platform: NodeJS.Platform): Promise
   ) {
     throw new Error('Wayland Nano issuer key file is unsafe');
   }
+  await enforceOwnerOnlyPath(file, 'file', 'full', true);
   const handle = await open(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
   try {
     const after = await handle.stat();
