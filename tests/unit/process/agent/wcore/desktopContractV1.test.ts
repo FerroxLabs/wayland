@@ -639,6 +639,82 @@ describe('deferred consumer reducers', () => {
     for (const frame of frames) expect(consumer.consumeLine(JSON.stringify(frame))).toMatchObject({ kind: 'event' });
   });
 
+  it('keeps a frame trail of types and ids, and never any content', () => {
+    // The trail is what a contract failure logs. It must be enough to diagnose
+    // the sequence and incapable of carrying user text or a credential.
+    const c = negotiated();
+    c.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'm1' }));
+    c.consumeLine(JSON.stringify({ type: 'text_delta', msg_id: 'm1', text: 'sk-secret-value' }));
+    c.consumeLine(JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' }));
+    const trail = c.recentFrames();
+    expect(trail).toEqual(['stream_start#m1', 'text_delta#m1', 'stream_end#m1']);
+    expect(trail.join(' ')).not.toContain('sk-secret-value');
+  });
+
+  it('absorbs an orphan terminal and delivers it, instead of killing the engine', () => {
+    // THE BUYER-RUN BLOCKER. Two messages into a Smart Trader chat, Core
+    // stamped a stream_end for a turn Desktop had no stream_start for. The
+    // contract failed closed and Desktop SIGTERMed the engine (exit 143)
+    // mid-conversation, so the morning brief could never be reached - with
+    // TradingView already launched and the chart already read.
+    const c = negotiated();
+    c.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'turn-1' }));
+    c.consumeLine(JSON.stringify({ type: 'stream_end', msg_id: 'turn-1', finish_reason: 'stop' }));
+
+    // The terminal for a turn that never started is DELIVERED, so a UI waiting
+    // on that msg_id stops running rather than spinning forever.
+    const orphan = c.consumeLine(JSON.stringify({ type: 'stream_end', msg_id: 'turn-2', finish_reason: 'stop' }));
+    expect(orphan).toMatchObject({ kind: 'event', event: { type: 'stream_end', msg_id: 'turn-2' } });
+    expect(c.orphanTerminals()).toEqual(['stream_end#turn-2']);
+
+    // An orphan `error` is absorbed on the same grounds.
+    const errored = negotiated();
+    expect(
+      errored.consumeLine(
+        JSON.stringify({ type: 'error', msg_id: 'ghost', error: { code: 'x', message: 'y', retryable: false } })
+      )
+    ).toMatchObject({ kind: 'event' });
+  });
+
+  it('still fails closed on a CONTENT frame for a turn that never started', () => {
+    // The boundary is "does this frame deliver anything". A terminal does not.
+    // A text_delta or a tool frame would put content and tool state on screen
+    // under a turn that never began, so those stay fatal.
+    for (const event of [
+      { type: 'text_delta', msg_id: 'ghost', text: 'hi' },
+      { type: 'tool_running', msg_id: 'ghost', call_id: 'c1', tool_name: 'Read' },
+    ]) {
+      const c = negotiated();
+      c.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'real' }));
+      expectContractError(() => c.consumeLine(JSON.stringify(event)));
+    }
+  });
+
+  it('names the offending turn when a CONTENT frame arrives with no stream_start', () => {
+    // A LIVE BUYER SESSION DIED ON THIS AND THE LOG COULD NOT SAY WHY.
+    // Measured 2026-08-30: two messages into a Smart Trader chat, Desktop
+    // logged `turn event stream_end arrived before stream_start`, failed
+    // closed, and the engine exited 143 mid-turn. The message named neither
+    // the msg_id on the offending frame nor the turns the consumer had seen,
+    // so there was no way to tell an unknown id from a replayed turn.
+    //
+    // REPOINTED, not relaxed: an orphan TERMINAL is now absorbed (see the
+    // orphan-terminal test above - that is the fix for the defect this test
+    // was written for). The named error is still required, and still fires,
+    // on the frames that remain fatal: the ones that would deliver content.
+    const c = negotiated();
+    c.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'known-1' }));
+    let caught: unknown;
+    try {
+      c.consumeLine(JSON.stringify({ type: 'text_delta', msg_id: 'orphan-9', text: 'x' }));
+    } catch (err) {
+      caught = err;
+    }
+    const detail = String((caught as { detail?: string })?.detail ?? caught);
+    expect(detail).toContain('msg_id=orphan-9');
+    expect(detail).toContain('known turns=[known-1]');
+  });
+
   it('ordinary_turn_tool_replay_reducer rejects gaps/conflicts and absorbs events after terminal state', () => {
     const gap = negotiated();
     gap.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'm1' }));

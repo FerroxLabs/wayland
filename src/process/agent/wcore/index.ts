@@ -846,7 +846,16 @@ export class WCoreAgent {
     const failDesktopContract = (error: unknown): void => {
       const detail = error instanceof Error ? error.message : String(error);
       const code = error instanceof DesktopCoreContractError ? error.code : 'unexpected_consumer_error';
-      console.error('[WCoreAgent] Desktop contract failed closed', { code, detail });
+      // The trail is frame TYPES and msg_ids only - no content - and it is the
+      // difference between a diagnosable failure and a dead engine with a
+      // one-line complaint. A buyer session died on `stream_end arrived before
+      // stream_start` and the log could not say which turn, or what came before.
+      console.error('[WCoreAgent] Desktop contract failed closed', {
+        code,
+        detail,
+        recentFrames: this.desktopContract.recentFrames().join(' -> '),
+        activeMsgId: this.activeMsgId ?? null,
+      });
       this.stopStallWatchdog();
       if (!this.ready) {
         // #DIA-01: surface the engine's own stderr reason instead of only this
