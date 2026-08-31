@@ -3,7 +3,7 @@ import '@/common/platform/register-node';
 import { createHash } from 'node:crypto';
 import { once } from 'node:events';
 import { readFileSync } from 'node:fs';
-import { copyFile, link, mkdtemp, readFile, rm, stat, unlink, writeFile } from 'node:fs/promises';
+import { copyFile, link, mkdtemp, readFile, realpath, rm, stat, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -20,15 +20,17 @@ async function fixture() {
   const binary = path.join(root, process.platform === 'win32' ? 'nano.exe' : 'nano');
   const bytes = Buffer.from('immutable nano executable');
   await writeFile(binary, bytes, { mode: 0o700 });
+  const canonicalBinary = await realpath(binary);
+  const canonicalRoot = await realpath(root);
   return {
     binary,
     expectation: {
-      canonicalPath: binary,
+      canonicalPath: canonicalBinary,
       sha256: createHash('sha256').update(bytes).digest('hex'),
       size: bytes.byteLength,
       sourceCommitSha: '1bebbec9183d17883497bca76d42e0fdcea275ea',
       cargoLockSha256: 'cbdf22daeda3eb21dbeb81d39e42d8f33cd046e2f5c476b98b4e5eacac31d93d',
-      stagingRoot: root,
+      stagingRoot: canonicalRoot,
     },
   };
 }
@@ -39,15 +41,17 @@ async function executableFixture() {
   const binary = path.join(root, process.platform === 'win32' ? 'node.exe' : 'node');
   await copyFile(process.execPath, binary);
   const bytes = await readFile(binary);
+  const canonicalBinary = await realpath(binary);
+  const canonicalRoot = await realpath(root);
   return {
     binary,
     expectation: {
-      canonicalPath: binary,
+      canonicalPath: canonicalBinary,
       sha256: createHash('sha256').update(bytes).digest('hex'),
       size: (await stat(binary)).size,
       sourceCommitSha: '1bebbec9183d17883497bca76d42e0fdcea275ea',
       cargoLockSha256: 'cbdf22daeda3eb21dbeb81d39e42d8f33cd046e2f5c476b98b4e5eacac31d93d',
-      stagingRoot: root,
+      stagingRoot: canonicalRoot,
     },
   };
 }
