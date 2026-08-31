@@ -280,6 +280,8 @@ $system=New-Object Security.Principal.SecurityIdentifier('S-1-5-18')
 $admins=New-Object Security.Principal.SecurityIdentifier('S-1-5-32-544')
 if(-not $verifyOnly) {
   $acl=if($kind -eq 'directory'){[IO.Directory]::GetAccessControl($target)}else{[IO.File]::GetAccessControl($target)}
+  $existingOwner=$acl.GetOwner([Security.Principal.SecurityIdentifier]).Value
+  if($existingOwner -ne $current.Value){$acl.SetOwner($current)}
   $acl.SetAccessRuleProtection($true,$false)
   foreach($rule in @($acl.GetAccessRules($true,$false,[Security.Principal.SecurityIdentifier]))){[void]$acl.RemoveAccessRuleSpecific($rule)}
   $inherit=if($kind -eq 'directory'){[Security.AccessControl.InheritanceFlags]'ContainerInherit,ObjectInherit'}else{[Security.AccessControl.InheritanceFlags]::None}
