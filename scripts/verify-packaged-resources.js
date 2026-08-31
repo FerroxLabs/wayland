@@ -878,19 +878,38 @@ const WHATSAPP_APPLE_BARE_RUNTIMES = [
  * one: zero means the native is genuinely absent, and more than one means an
  * ambiguous inventory we must not silently sign.
  */
-function resolveLibvipsDylib(sourceDir, arch) {
-  const libDir = path.join(sourceDir, 'node_modules', '@img', `sharp-libvips-darwin-${arch}`, 'lib');
+function resolveSoleFile(libDir, pattern) {
   if (!fs.existsSync(libDir)) return null;
-  const matches = fs.readdirSync(libDir).filter((f) => /^libvips-cpp\.[0-9.]+\.dylib$/.test(f));
+  const matches = fs.readdirSync(libDir).filter((f) => pattern.test(f));
   return matches.length === 1 ? matches[0] : null;
+}
+
+function resolveLibvipsDylib(sourceDir, arch) {
+  return resolveSoleFile(
+    path.join(sourceDir, 'node_modules', '@img', `sharp-libvips-darwin-${arch}`, 'lib'),
+    /^libvips-cpp\.[0-9.]+\.dylib$/
+  );
+}
+
+/**
+ * sharp 0.34.x names the binding `sharp-darwin-arm64.node`; 0.35.x appends the
+ * package version (`sharp-darwin-arm64-0.35.4.node`). Same trap as the dylib
+ * SONAME, so resolve it the same way rather than encoding either spelling.
+ */
+function resolveSharpNativeNode(sourceDir, arch) {
+  return resolveSoleFile(
+    path.join(sourceDir, 'node_modules', '@img', `sharp-darwin-${arch}`, 'lib'),
+    new RegExp(`^sharp-darwin-${arch}(-[0-9][0-9A-Za-z.+-]*)?\\.node$`)
+  );
 }
 
 function verifyWhatsAppDarwinSignIgnoreInventory(sourceDir, arch) {
   const libvipsDylib = resolveLibvipsDylib(sourceDir, arch);
-  if (!libvipsDylib) return false;
+  const sharpNativeNode = resolveSharpNativeNode(sourceDir, arch);
+  if (!libvipsDylib || !sharpNativeNode) return false;
   const expected = [
     {
-      relative: `node_modules/@img/sharp-darwin-${arch}/lib/sharp-darwin-${arch}.node`,
+      relative: `node_modules/@img/sharp-darwin-${arch}/lib/${sharpNativeNode}`,
       arch,
     },
     {
@@ -1689,6 +1708,7 @@ module.exports = {
   verifyWhatsAppDarwinSignIgnoreInventory,
   // Exported so the libvips SONAME resolution can be driven with fixtures.
   resolveLibvipsDylib,
+  resolveSharpNativeNode,
   verifyWhatsAppNativeTarget,
   verifyVoiceBundle,
   verifyModelsSnapshot,
