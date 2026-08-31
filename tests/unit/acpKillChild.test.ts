@@ -106,13 +106,24 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
     vi.restoreAllMocks();
   });
 
-  it('invokes taskkill /PID <pid> /T /F with windowsHide and never touches the POSIX ps/pgrep path', async () => {
+  it('enumerates the tree, prunes it, and kills the survivors WITHOUT /T', async () => {
     Object.defineProperty(process, 'platform', { value: 'win32' });
+
+    // pid ppid path - the same row shape as `ps -eo pid=,ppid=,comm=`, which is
+    // why one parser serves both platforms. 5000/5001 are the exempt chart.
+    const TABLE = [
+      '4242 4 C:\\Users\\t\\AppData\\Local\\Programs\\Wayland\\wayland-core.exe',
+      '4300 4242 C:\\Program Files\\nodejs\\node.exe',
+      '5000 4300 C:\\Program Files\\WindowsApps\\TradingView.Desktop_3.1.0_x64__v\\TradingView.exe',
+      '5001 5000 C:\\Program Files\\WindowsApps\\TradingView.Desktop_3.1.0_x64__v\\TradingView.exe',
+      '4400 4242 C:\\Windows\\System32\\cmd.exe',
+      '9999 4 C:\\Windows\\explorer.exe',
+    ].join('\n');
 
     // promisify(execFileCb) wraps a callback-style fn - so the mock must call back.
     const execFileMock = vi.fn(
-      (_cmd: string, _args: string[], _opts: unknown, cb: (e: unknown, r: unknown) => void) => {
-        cb(null, { stdout: '', stderr: '' });
+      (cmd: string, _args: string[], _opts: unknown, cb: (e: unknown, r: unknown) => void) => {
+        cb(null, { stdout: cmd === 'powershell.exe' ? TABLE : '', stderr: '' });
       }
     );
 
@@ -140,13 +151,27 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
 
     await winKillChild(fakeChild, true);
 
-    // Exactly one execFile call - the taskkill tree-kill. The POSIX path would
-    // have called execFile('ps', ...) to collect descendants; it must not run.
-    expect(execFileMock).toHaveBeenCalledTimes(1);
-    const [cmd, args, opts] = execFileMock.mock.calls[0];
-    expect(cmd).toBe('taskkill');
-    expect(args).toEqual(['/PID', '4242', '/T', '/F']);
-    expect(opts).toMatchObject({ windowsHide: true, timeout: 5000 });
+    // Call 0 enumerates. Pinning the binary stops a silent regression to `wmic`,
+    // which is REMOVED from Windows 11 24H2 and would fail on a modern host.
+    const [enumCmd, enumArgs] = execFileMock.mock.calls[0];
+    expect(enumCmd).toBe('powershell.exe');
+    expect(enumArgs.join(' ')).toContain('Get-CimInstance Win32_Process');
+    expect(enumArgs.join(' ')).not.toContain('wmic');
+
+    // Call 1 kills the pruned set. THIS is the load-bearing assertion: no /T,
+    // because the tree walk is ours and the chart must not be handed to taskkill.
+    const [killCmd, killArgs, killOpts] = execFileMock.mock.calls[1];
+    expect(killCmd).toBe('taskkill');
+    expect(killArgs).not.toContain('/T');
+    expect(killOpts).toMatchObject({ windowsHide: true, timeout: 5000 });
+
+    const killedPids = killArgs.filter((a: string) => /^[0-9]+$/.test(a));
+    expect(killedPids).toContain('4242'); // the engine root
+    expect(killedPids).toContain('4300'); // ordinary descendant
+    expect(killedPids).toContain('4400'); // ordinary descendant
+    expect(killedPids).not.toContain('5000'); // TradingView - spared
+    expect(killedPids).not.toContain('5001'); // its helper - spared
+    expect(killedPids).not.toContain('9999'); // outside the tree entirely
 
     // On Windows we never fall through to child.kill() / process-group signals.
     expect(kill).not.toHaveBeenCalled();
@@ -155,6 +180,8 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
   it('fails closed when taskkill cannot prove whole-tree shutdown', async () => {
     Object.defineProperty(process, 'platform', { value: 'win32' });
 
+    // Enumeration fails too, so this exercises the documented fallback to the
+    // previous shipped behaviour AND the error surface on top of it.
     const execFileMock = vi.fn(
       (_cmd: string, _args: string[], _opts: unknown, cb: (e: unknown, r: unknown) => void) => {
         cb(new Error('taskkill: process not found'), null);
@@ -173,7 +200,12 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
     await expect(winKillChild(fakeChild, false)).rejects.toThrow(
       'ACP process-tree shutdown failed for PID 99: taskkill: process not found'
     );
-    expect(execFileMock).toHaveBeenCalledTimes(1);
+    // Two calls now: the enumeration attempt, then the fallback taskkill. The
+    // fallback is deliberate - failing closed here would regress #139 on any
+    // host where PowerShell is blocked by policy.
+    expect(execFileMock).toHaveBeenCalledTimes(2);
+    expect(execFileMock.mock.calls[1][0]).toBe('taskkill');
+    expect(execFileMock.mock.calls[1][1]).toEqual(['/PID', '99', '/T', '/F']);
   });
 
   it('fails closed before signalling when POSIX process-tree enumeration fails', async () => {
