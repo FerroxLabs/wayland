@@ -328,6 +328,7 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
         _cwd: string,
         _args: string[] | undefined,
         _env: Record<string, string> | undefined,
+        _launch: unknown,
         binary: VerifiedWaylandNanoBinary
       ) => {
         const child = await binary.consume((verifiedPath) => {
@@ -368,6 +369,7 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
         _cwd: string,
         _args: string[] | undefined,
         _env: Record<string, string> | undefined,
+        _launch: unknown,
         binary: VerifiedWaylandNanoBinary
       ) => {
         try {

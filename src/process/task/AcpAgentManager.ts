@@ -2049,8 +2049,7 @@ ${collectedResponses.join('\n')}`;
           allowConciergeDiag: isConciergeAssistant(data.presetAssistantId) || isConciergeAssistant(data.customAgentId),
           // Forward team MCP stdio config so AcpAgent.loadBuiltinSessionMcpServers() can inject it
           teamMcpStdioConfig: (data as unknown as Record<string, unknown>).teamMcpStdioConfig as
-            | { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> }
-            | undefined,
+            { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> } | undefined,
         },
         // Shared OldAcpAgentConfig seam consumed by the legacy stack now and
         // the compatibility/new stack in Plan 02-15. No adapter may resolve or

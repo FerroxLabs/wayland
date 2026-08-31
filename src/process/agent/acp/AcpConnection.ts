@@ -288,8 +288,8 @@ export class AcpConnection {
       backend !== 'wnano'
         ? customEnv
         : this.waylandNanoMode === 'nonpersistent'
-           ? waylandNanoNonpersistentEnvironment(customEnv)
-           : waylandNanoAuthenticatedEnvironment(this.waylandNanoActivation!.spawnEnv);
+          ? waylandNanoNonpersistentEnvironment(customEnv)
+          : waylandNanoAuthenticatedEnvironment(this.waylandNanoActivation!.spawnEnv);
     const result = await spawnGenericBackend(
       backend,
       cliPath,

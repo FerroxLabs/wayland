@@ -134,6 +134,7 @@ describe('Wayland Nano executable identity', () => {
           expectation.stagingRoot,
           hostile.args,
           hostile.env,
+          undefined,
           token
         )
       ).rejects.toThrow(/authenticated ACP host|environment is invalid/);
@@ -169,6 +170,7 @@ describe('Wayland Nano executable identity', () => {
         expectation.stagingRoot,
         ['acp-host'],
         { NANO_HOME: 'C:/owner/nano-home', FLUX_API_KEY_FILE: 'C:/owner/flux.key' },
+        undefined,
         token
       );
       if (spawned.child.exitCode === null) await once(spawned.child, 'exit');

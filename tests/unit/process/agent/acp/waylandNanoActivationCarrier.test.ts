@@ -319,6 +319,7 @@ describe('Wayland Nano legacy activation carrier', () => {
         process.cwd(),
         ['acp-host'],
         { NANO_HOME: path.join(root, 'owner-home') },
+        undefined,
         token
       );
       const exitCode = await new Promise<number | null>((resolve) => result.child.once('exit', resolve));
@@ -348,6 +349,7 @@ describe('Wayland Nano legacy activation carrier', () => {
       process.cwd(),
       ['acp-host'],
       { NANO_HOME: path.join(process.cwd(), 'owner-home') },
+      undefined,
       token
     );
     const exitCode = await new Promise<number | null>((resolve) => result.child.once('exit', resolve));
@@ -376,6 +378,7 @@ describe('Wayland Nano legacy activation carrier', () => {
         process.cwd(),
         ['acp-host'],
         { NANO_HOME: path.join(process.cwd(), 'owner-home') },
+        undefined,
         token
       )
     ).rejects.toThrow('source identity changed');
