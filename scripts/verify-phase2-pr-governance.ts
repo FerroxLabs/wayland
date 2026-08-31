@@ -240,7 +240,7 @@ function equalIdentity(left: ChangeIdentity, right: ChangeIdentity, label: strin
   }
 }
 
-function assertNoSelfReference(manifest: PremergeManifest, manifestPath: string): void {
+function assertNoSelfReference(manifest: PremergeManifest, manifestPath: string, ancestryHead: string): void {
   const forbiddenKeys = new Set([
     'final_head_sha',
     'reviewed_head_sha',
@@ -271,7 +271,7 @@ function assertNoSelfReference(manifest: PremergeManifest, manifestPath: string)
     .split(/\r?\n/)
     .filter(Boolean);
   if (inputPaths.includes(relative)) fail('implementation input includes its own premerge manifest');
-  if (git('merge-base', '--is-ancestor', manifest.implementation_input.commit_sha, 'HEAD') !== '') {
+  if (git('merge-base', '--is-ancestor', manifest.implementation_input.commit_sha, ancestryHead) !== '') {
     // `merge-base --is-ancestor` is silent on success; run() already rejects failure.
     fail('unexpected merge-base output');
   }
@@ -623,8 +623,9 @@ function fetchSnapshot(manifest: PremergeManifest, finalReceipt?: FinalReceipt):
   const candidates = ghApi(
     `repos/${manifest.repository}/pulls?state=${finalReceipt ? 'all' : 'open'}&head=FerroxLabs:${manifest.head_ref}`
   ) as JsonObject[];
-  const pr = finalReceipt ? candidates.find((candidate) => candidate.number === finalReceipt.pr_number) : candidates[0];
-  if (!pr) fail('governed PR not found');
+  const candidate = finalReceipt ? candidates.find((value) => value.number === finalReceipt.pr_number) : candidates[0];
+  if (!candidate) fail('governed PR not found');
+  const pr = ghApi(`repos/${manifest.repository}/pulls/${Number(candidate.number)}`) as JsonObject;
   const snapshot: GovernanceSnapshot = {
     repository: String(repository.full_name),
     default_branch: String(repository.default_branch),
@@ -711,9 +712,10 @@ export function main(args = process.argv.slice(2)): void {
   const manifest = readJson<PremergeManifest>(options.premerge);
   assertManifestShape(manifest);
   checkManifestArtifacts(manifest);
-  if (options.rejectSelfReference) assertNoSelfReference(manifest, options.premerge);
   const finalReceipt = options.externalFinalReceipt ? readFinalReceipt(options.externalFinalReceipt) : undefined;
   if (finalReceipt) assertFinalReceipt(manifest, finalReceipt);
+  if (options.rejectSelfReference)
+    assertNoSelfReference(manifest, options.premerge, finalReceipt?.reviewed_head_sha ?? 'HEAD');
   if (options.expectedAuthor && options.expectedAuthor !== manifest.expected_author) fail('expected author mismatch');
   if (options.expectedReviewer && finalReceipt?.reviewer !== options.expectedReviewer)
     fail('expected reviewer mismatch');
