@@ -216,7 +216,7 @@ export class ConstitutionFsService {
   private revisionAuthorityReclaimAttempted = false;
 
   constructor(
-    private readonly root: string,
+    private root: string,
     private readonly binaryState: VerifiedConstitutionFsBinary | ConstitutionFsBinaryError,
     private readonly secretBackend: ConstitutionArchiveSecretBackend,
     keyStore: ConstitutionKeyStore | undefined,
@@ -299,6 +299,23 @@ export class ConstitutionFsService {
       if (!create) return null;
       mkdirSync(this.root, { recursive: true, mode: 0o700 });
     }
+    // CANONICALIZE HERE TOO, NOT ONLY IN `createProduction`.
+    // `createProduction` resolves the root only `if (existsSync(configuredRoot))`.
+    // On a FRESH install `~/.wayland` does not exist at construction, so the raw
+    // path is kept - and `getDataPath()` / `ensureCliSafeSymlink` then create
+    // `~/.wayland` as a SYMLINK into platform app-data. By the time the first turn
+    // reaches this pin the path IS a symlink, `lstat` rejects it, and every chat
+    // dies at bootstrap with "Constitution root is not a real directory".
+    // Measured on a fresh macOS profile: no chat could start at all; the identical
+    // profile worked the moment the symlink existed BEFORE construction. Resolving
+    // here binds the real directory under either ordering, and a post-pin swap
+    // still trips the identity-mismatch guard below, so nothing is relaxed.
+    // Only when nothing is pinned yet. If the constructor already pinned an
+    // authority it did so from THIS path string, and every later request is
+    // checked against it ("Request root is not bound to the pinned root
+    // authority"), so rewriting the path afterwards would break that binding -
+    // the full suite caught exactly that.
+    if (!this.rootAuthority) this.root = realpathSync.native(this.root);
     const current = pinConstitutionFsRootAuthority(this.root);
     if (
       this.rootAuthority &&
