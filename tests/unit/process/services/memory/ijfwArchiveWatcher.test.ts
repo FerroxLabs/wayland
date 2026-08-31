@@ -37,14 +37,17 @@ describe('ijfw archive watcher never kqueue-watches a removable volume', () => {
     unwatchFile.mockReset();
   });
 
+  // The platform is pinned rather than inherited: /Volumes is a macOS mount
+  // convention, so on a Windows runner this case would otherwise assert
+  // behaviour that cannot happen and red the required Windows check.
   it('polls a path under /Volumes instead of registering a kernel watch', () => {
-    __testing.defaultWatcherFactory('/Volumes/Mando/AIengine/knowledge.md', { persistent: false }, () => {});
+    __testing.defaultWatcherFactory('/Volumes/Mando/AIengine/knowledge.md', { persistent: false }, () => {}, 'darwin');
     expect(watchFile).toHaveBeenCalledTimes(1);
     expect(watch).not.toHaveBeenCalled();
   });
 
   it('CONTROL: a path on the boot volume still uses fs.watch', () => {
-    __testing.defaultWatcherFactory('/Users/someone/proj/knowledge.md', { persistent: false }, () => {});
+    __testing.defaultWatcherFactory('/Users/someone/proj/knowledge.md', { persistent: false }, () => {}, 'darwin');
     expect(watch).toHaveBeenCalledTimes(1);
     expect(watchFile).not.toHaveBeenCalled();
   });
@@ -52,12 +55,22 @@ describe('ijfw archive watcher never kqueue-watches a removable volume', () => {
   it('attaches an error handler to the boot-volume watcher', () => {
     const on = vi.fn();
     watch.mockReturnValue({ on, close: vi.fn() });
-    __testing.defaultWatcherFactory('/Users/someone/proj/a.md', { persistent: false }, () => {});
+    __testing.defaultWatcherFactory('/Users/someone/proj/a.md', { persistent: false }, () => {}, 'darwin');
     expect(on).toHaveBeenCalledWith('error', expect.any(Function));
   });
 
+  it('the poll is macOS-only: the same path on win32 and linux uses fs.watch', () => {
+    for (const platform of ['win32', 'linux'] as const) {
+      watch.mockReset().mockReturnValue({ on: vi.fn(), close: vi.fn() });
+      watchFile.mockReset();
+      __testing.defaultWatcherFactory('/Volumes/Mando/a.md', { persistent: false }, () => {}, platform);
+      expect(watchFile, platform).not.toHaveBeenCalled();
+      expect(watch, platform).toHaveBeenCalledTimes(1);
+    }
+  });
+
   it('close() stops the poll it started', () => {
-    const w = __testing.defaultWatcherFactory('/Volumes/Mando/a.md', { persistent: false }, () => {});
+    const w = __testing.defaultWatcherFactory('/Volumes/Mando/a.md', { persistent: false }, () => {}, 'darwin');
     w.close();
     expect(unwatchFile).toHaveBeenCalledTimes(1);
   });

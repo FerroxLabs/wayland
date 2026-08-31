@@ -1299,16 +1299,28 @@ function groupByTags(items: MemoryEntry[]): Map<string, MemoryEntry[]> {
  * vanishing volume is just a failed stat. Slower and less precise, which is why
  * it is used ONLY off the boot volume, where the alternative is a hard crash.
  */
-function isOnRemovableVolume(filePath: string): boolean {
+/**
+ * SCOPE: macOS only, and deliberately so. The abort() documented above is a
+ * macOS kqueue/libuv failure, and `/Volumes/` is a macOS mount convention.
+ * `path.win32.resolve('/Volumes/x')` yields `\\Volumes\\x`, so this predicate
+ * could never match on Windows anyway - being explicit stops that reading as
+ * an accident, and stops a future drive-letter "fix" that would match `C:\\`
+ * and poll every fixed disk. Windows (ReadDirectoryChangesW) and Linux
+ * (inotify) surface removal as an interceptable 'error' event, which the
+ * boot-volume branch already handles, so they keep the cheaper fs.watch.
+ */
+function isOnRemovableVolume(filePath: string, platform: NodeJS.Platform = process.platform): boolean {
+  if (platform !== 'darwin') return false;
   return path.resolve(filePath).startsWith('/Volumes/');
 }
 
 function defaultWatcherFactory(
   filePath: string,
   opts: { persistent: boolean },
-  callback: (event: string, filename: string | null) => void
+  callback: (event: string, filename: string | null) => void,
+  platform: NodeJS.Platform = process.platform
 ): { close(): void } {
-  if (isOnRemovableVolume(filePath)) {
+  if (isOnRemovableVolume(filePath, platform)) {
     const listener = () => callback('change', path.basename(filePath));
     fs.watchFile(filePath, { persistent: opts.persistent, interval: 5000 }, listener);
     return { close: () => fs.unwatchFile(filePath, listener) };
