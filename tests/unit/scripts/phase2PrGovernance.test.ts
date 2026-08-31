@@ -11,6 +11,7 @@ import {
   type FinalReceipt,
   type GovernanceSnapshot,
   type PremergeManifest,
+  findCheckRun,
   verifyGovernanceSnapshot,
 } from '../../../scripts/verify-phase2-pr-governance';
 
@@ -172,6 +173,38 @@ const snapshot = (): GovernanceSnapshot => ({
 });
 
 describe('Phase 2 squash governance', () => {
+  it('selects the receipt-frozen check when a newer skipped run has the same name', () => {
+    const runs = [
+      { id: 999, name: 'Code Quality', conclusion: 'skipped' },
+      { id: 10, name: 'Code Quality', conclusion: 'success' },
+    ];
+    expect(findCheckRun(runs, 'Code Quality', 10)?.id).toBe(10);
+    expect(findCheckRun(runs, 'Code Quality', 11)).toBeUndefined();
+  });
+
+  it('requires the tracked issue open premerge but permits it closed postmerge', () => {
+    const state = snapshot();
+    state.issue_open = false;
+    expect(() => verifyGovernanceSnapshot(manifest(), state)).toThrow(/issue 1201 is stale\/unclaimed/);
+    expect(() => verifyGovernanceSnapshot(manifest(), state, finalReceipt())).not.toThrow();
+  });
+
+  it.each([
+    ['assignee', (state: GovernanceSnapshot) => (state.issue_assignee = 'wrong-owner')],
+    ['labels', (state: GovernanceSnapshot) => (state.issue_labels = ['wrong-label'])],
+  ])('retains postmerge issue %s governance', (_name, mutate) => {
+    const state = snapshot();
+    state.issue_open = false;
+    mutate(state);
+    expect(() => verifyGovernanceSnapshot(manifest(), state, finalReceipt())).toThrow(/issue 1201 is stale\/unclaimed/);
+  });
+
+  it('rejects a successful check whose run ID differs from the final receipt', () => {
+    const state = snapshot();
+    state.checks!['Code Quality'].id = 999;
+    expect(() => verifyGovernanceSnapshot(manifest(), state, finalReceipt())).toThrow(/required check Code Quality/);
+  });
+
   it('accepts exact change identity without requiring reviewed-head ancestry', () => {
     expect(() => verifyGovernanceSnapshot(manifest(), snapshot(), finalReceipt())).not.toThrow();
   });
