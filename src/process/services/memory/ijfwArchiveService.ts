@@ -1282,12 +1282,45 @@ function groupByTags(items: MemoryEntry[]): Map<string, MemoryEntry[]> {
   return map;
 }
 
+/**
+ * A watched file on a removable volume takes the whole app down with it.
+ *
+ * `fs.watch` registers a kqueue watch through libuv. When the volume under that
+ * path is unmounted, libuv calls `abort()` inside `uv__fs_event` - native code,
+ * so no JS `try`/`catch` and no `'error'` listener can intercept it. The process
+ * dies with `Abort trap: 6` and no usable error.
+ *
+ * This is not theoretical. Every one of the six Wayland crash reports on the
+ * reporting machine carries the same `uv__fs_event <- uv__io_poll <- uv_run`
+ * frame, and `~/.ijfw/registry.md` there lists 19 project paths under a single
+ * external drive - so pulling it out crashed Wayland every time.
+ *
+ * `fs.watchFile` polls with `stat` instead of registering a kernel watch, so a
+ * vanishing volume is just a failed stat. Slower and less precise, which is why
+ * it is used ONLY off the boot volume, where the alternative is a hard crash.
+ */
+function isOnRemovableVolume(filePath: string): boolean {
+  return path.resolve(filePath).startsWith('/Volumes/');
+}
+
 function defaultWatcherFactory(
   filePath: string,
   opts: { persistent: boolean },
   callback: (event: string, filename: string | null) => void
 ): { close(): void } {
-  return fs.watch(filePath, opts, callback);
+  if (isOnRemovableVolume(filePath)) {
+    const listener = () => callback('change', path.basename(filePath));
+    fs.watchFile(filePath, { persistent: opts.persistent, interval: 5000 }, listener);
+    return { close: () => fs.unwatchFile(filePath, listener) };
+  }
+  const watcher = fs.watch(filePath, opts, callback);
+  // Not a fix for the abort above - that happens below JS - but a watcher that
+  // errors for any other reason must not take the process out as an unhandled
+  // 'error' event either.
+  watcher.on('error', (err) => {
+    log.warn('[memory-archive] watcher error', { filePath, err });
+  });
+  return watcher;
 }
 
 // ===== Singleton =====
@@ -1317,3 +1350,6 @@ export function resetIjfwArchiveService(): void {
 
 export { IjfwArchiveService };
 export type { ChangeCallback, WatcherFactory };
+
+/** Exported for tests only - the watcher choice is the crash-safety boundary. */
+export const __testing = { defaultWatcherFactory, isOnRemovableVolume };
