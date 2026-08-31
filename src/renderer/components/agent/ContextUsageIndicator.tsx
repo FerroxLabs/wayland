@@ -30,9 +30,10 @@ const ContextUsageIndicator: React.FC<ContextUsageIndicatorProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { percentage, rawPercentage, displayTotal, displayLimit, isWarning, isDanger } = useMemo(() => {
+  const { percentage, rawPercentage, displayTotal, displayLimit, isWarning, isDanger, isSpend } = useMemo(() => {
     if (!tokenUsage) {
       return {
+        isSpend: false,
         percentage: 0,
         rawPercentage: 0,
         displayTotal: '0',
@@ -50,7 +51,17 @@ const ContextUsageIndicator: React.FC<ContextUsageIndicatorProps> = ({
     const safeLimit = contextLimit > 0 ? contextLimit : DEFAULT_CONTEXT_LIMIT;
     const pct = (total / safeLimit) * 100;
 
+    // #733 clamped the RING when a cumulative counter was drawn against the
+    // window, but left the text saying "3M / 200K context used". Measured again
+    // on a live run: 12 tool calls in one turn showed "711.8K / 1M context used"
+    // on a 69KB conversation - the real prompt was about 34K. The number was
+    // never occupancy, so it must not be worded or coloured as occupancy.
+    // Spend grows with TOOL CALLS, so the harder the agent works the closer it
+    // looks to running out, which is exactly backwards.
+    const isSpend = tokenUsage.isCumulative === true;
+
     return {
+      isSpend,
       // The RING is clamped to [0,100]: a usage figure that exceeds the window
       // (e.g. the "3M / 200K" in #733, where a cumulative counter is rendered
       // against a per-turn window) drove strokeDashoffset negative and painted
@@ -60,8 +71,9 @@ const ContextUsageIndicator: React.FC<ContextUsageIndicatorProps> = ({
       rawPercentage: pct,
       displayTotal: formatTokenCount(total),
       displayLimit: formatTokenCount(safeLimit, true),
-      isWarning: pct > 70,
-      isDanger: pct > 90,
+      // Never alarm on spend: it is not a limit anyone is approaching.
+      isWarning: !isSpend && pct > 70,
+      isDanger: !isSpend && pct > 90,
     };
   }, [tokenUsage, contextLimit]);
 
@@ -91,8 +103,16 @@ const ContextUsageIndicator: React.FC<ContextUsageIndicatorProps> = ({
   const popoverContent = (
     <div className='p-8px min-w-160px'>
       <div className='text-14px font-medium text-t-primary'>
-        {rawPercentage.toFixed(1)}% · {displayTotal} / {displayLimit}{' '}
-        {t('conversation.contextUsage.contextUsed', 'context used')}
+        {isSpend ? (
+          <>
+            {displayTotal} {t('conversation.contextUsage.tokensThisTurn', 'tokens used this turn')}
+          </>
+        ) : (
+          <>
+            {rawPercentage.toFixed(1)}% · {displayTotal} / {displayLimit}{' '}
+            {t('conversation.contextUsage.contextUsed', 'context used')}
+          </>
+        )}
       </div>
     </div>
   );
