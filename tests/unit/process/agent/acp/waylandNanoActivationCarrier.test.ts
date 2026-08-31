@@ -266,16 +266,18 @@ describe('Wayland Nano legacy activation carrier', () => {
   });
 
   it('pins authenticated Nano to the persistent ACP host subcommand', () => {
+    const ownerHome = path.resolve('owner-nano-home');
+    const ownerFluxKey = path.resolve('owner-flux-key');
     expect(waylandNanoAuthenticatedArgs()).toEqual(['acp-host']);
-    expect(waylandNanoAuthenticatedEnvironment({ NANO_HOME: 'C:/owner/nano-home' })).toEqual({
-      NANO_HOME: 'C:/owner/nano-home',
+    expect(waylandNanoAuthenticatedEnvironment({ NANO_HOME: ownerHome })).toEqual({
+      NANO_HOME: ownerHome,
     });
     expect(() =>
       waylandNanoAuthenticatedEnvironment({ NANO_HOME: 'relative-home', NANO_ROOT_KEYREF: 'hostile' })
     ).toThrow('environment is invalid');
-    expect(
-      waylandNanoNonpersistentEnvironment({ FLUX_API_KEY_FILE: 'C:/owner/flux-key', NANO_HOME: 'C:/hostile' })
-    ).toEqual({ FLUX_API_KEY_FILE: 'C:/owner/flux-key' });
+    expect(waylandNanoNonpersistentEnvironment({ FLUX_API_KEY_FILE: ownerFluxKey, NANO_HOME: 'C:/hostile' })).toEqual({
+      FLUX_API_KEY_FILE: ownerFluxKey,
+    });
   });
 
   it('rejects a caller that mixes an activation carrier into nonpersistent mode', () => {
