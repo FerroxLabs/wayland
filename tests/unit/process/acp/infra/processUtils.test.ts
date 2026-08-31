@@ -1,6 +1,8 @@
 // tests/unit/process/acp/infra/processUtils.test.ts
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
 import { describe, it, expect } from 'vitest';
-import { splitCommandLine, prepareCleanEnv, isProcessAlive } from '@process/acp/infra/processUtils';
+import { splitCommandLine, prepareCleanEnv, isProcessAlive, waitForSpawn } from '@process/acp/infra/processUtils';
 
 describe('splitCommandLine', () => {
   it('splits simple command', () => {
@@ -41,5 +43,25 @@ describe('isProcessAlive', () => {
   });
   it('returns false for non-existent PID', () => {
     expect(isProcessAlive(999999)).toBe(false);
+  });
+});
+
+describe('waitForSpawn', () => {
+  it('resolves when an async factory returns after the spawn event', async () => {
+    const child = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 1000)'], { stdio: 'ignore' });
+    await once(child, 'spawn');
+
+    await expect(waitForSpawn(child)).resolves.toBeUndefined();
+
+    const exited = once(child, 'exit');
+    child.kill();
+    await exited;
+  });
+
+  it('rejects when an async factory returns after the child already exited', async () => {
+    const child = spawn(process.execPath, ['-e', ''], { stdio: 'ignore' });
+    await once(child, 'exit');
+
+    await expect(waitForSpawn(child)).rejects.toThrow('exited before spawn readiness');
   });
 });

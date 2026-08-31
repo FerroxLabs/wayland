@@ -36,7 +36,10 @@ vi.mock('@process/agent/acp/acpConnectors', () => ({
   connectCodebuddy: vi.fn(),
   connectCodex: vi.fn(),
   spawnGenericBackend: connectorMocks.spawnGenericBackend,
+  waylandNanoAuthenticatedArgs: () => ['acp-host'],
+  waylandNanoAuthenticatedEnvironment: (environment: Record<string, string>) => ({ ...environment }),
   waylandNanoNonpersistentArgs: () => ['acp-host', '--nonpersistent'],
+  waylandNanoNonpersistentEnvironment: (environment?: Record<string, string>) => environment,
 }));
 
 vi.mock('@process/bridge', () => ({ initAllBridges: vi.fn() }));
@@ -92,6 +95,9 @@ describe('Wayland Nano production activation owner', () => {
     const fixture = await ownerFixture();
     const resolved = await fixture.owner.load(fixture.binding.productSubjectId);
     expect(resolved?.binding).toEqual(fixture.binding);
+    expect(resolved?.activation.spawnEnv).toEqual({
+      NANO_HOME: path.join(fixture.options.userDataRoot, 'wayland-nano', 'nano-home'),
+    });
 
     const first = await resolved!.activation.buildAttempt({ operation: 'new', sessionId: null });
     const retry = await resolved!.activation.buildAttempt({ operation: 'new', sessionId: null });

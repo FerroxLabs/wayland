@@ -22,7 +22,10 @@ vi.mock('@process/agent/acp/acpConnectors', () => ({
   connectCodebuddy: vi.fn(),
   connectCodex: vi.fn(),
   spawnGenericBackend: connectorMocks.spawnGenericBackend,
+  waylandNanoAuthenticatedArgs: () => ['acp-host'],
+  waylandNanoAuthenticatedEnvironment: (environment: Record<string, string>) => ({ ...environment }),
   waylandNanoNonpersistentArgs: () => ['acp-host', '--nonpersistent'],
+  waylandNanoNonpersistentEnvironment: (environment?: Record<string, string>) => environment,
 }));
 
 import '@/common/platform/register-node';
@@ -110,6 +113,7 @@ function resolvedActivation(binary: VerifiedWaylandNanoBinary = Object.create(nu
   return {
     input: Object.freeze({
       binary,
+      spawnEnv: Object.freeze({ NANO_HOME: 'C:/owner/nano-home' }),
       buildAttempt,
     }),
     buildAttempt,

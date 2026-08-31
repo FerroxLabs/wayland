@@ -279,8 +279,9 @@ $current=[Security.Principal.WindowsIdentity]::GetCurrent().User
 $system=New-Object Security.Principal.SecurityIdentifier('S-1-5-18')
 $admins=New-Object Security.Principal.SecurityIdentifier('S-1-5-32-544')
 if(-not $verifyOnly) {
-  $acl=if($kind -eq 'directory'){New-Object Security.AccessControl.DirectorySecurity}else{New-Object Security.AccessControl.FileSecurity}
-  $acl.SetOwner($current); $acl.SetAccessRuleProtection($true,$false)
+  $acl=if($kind -eq 'directory'){[IO.Directory]::GetAccessControl($target)}else{[IO.File]::GetAccessControl($target)}
+  $acl.SetAccessRuleProtection($true,$false)
+  foreach($rule in @($acl.GetAccessRules($true,$false,[Security.Principal.SecurityIdentifier]))){[void]$acl.RemoveAccessRuleSpecific($rule)}
   $inherit=if($kind -eq 'directory'){[Security.AccessControl.InheritanceFlags]'ContainerInherit,ObjectInherit'}else{[Security.AccessControl.InheritanceFlags]::None}
   $rights=if($access -eq 'full'){[Security.AccessControl.FileSystemRights]::FullControl}elseif($access -eq 'read-execute-delete'){[Security.AccessControl.FileSystemRights]::ReadAndExecute -bor [Security.AccessControl.FileSystemRights]::Delete}else{[Security.AccessControl.FileSystemRights]::ReadAndExecute}
   $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($current,$rights,$inherit,[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow)))

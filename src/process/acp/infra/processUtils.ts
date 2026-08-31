@@ -47,19 +47,16 @@ export function splitCommandLine(cmd: string): string[] {
 }
 
 export function waitForSpawn(child: ChildProcess): Promise<void> {
-  // Node assigns `pid` synchronously inside spawn() and emits 'spawn' on the
-  // NEXT TICK. Any caller that awaits something between spawn() and here can
-  // therefore miss the event outright - and once missed it never comes back, so
-  // this promise never settles and the whole start sequence hangs with no error,
-  // no timeout and nothing to retry. (Reproduced: the second spawn of a retried
-  // start, where the spawn call sits inside a timer callback.) A child that has
-  // a pid has already spawned; one that has exited certainly has. A failed spawn
-  // has no pid, so it still waits for 'error' below, and an 'error' arriving
-  // after a successful spawn is picked up by the caller's lifecycle listeners.
-  if (child.pid !== undefined || child.exitCode !== null || child.signalCode !== null) {
-    return Promise.resolve();
+  // Async spawn factories may finish custody/cleanup work after Node has
+  // already emitted `spawn`. A populated pid is Node's durable success signal.
+  const exited = () => child.exitCode !== null || child.signalCode !== null;
+  const exitedError = () => new Error('Child process exited before spawn readiness was observed');
+  if (exited()) return Promise.reject(exitedError());
+  if (child.pid !== undefined) {
+    return Promise.resolve().then(() => {
+      if (exited()) throw exitedError();
+    });
   }
-
   return new Promise((resolve, reject) => {
     const onSpawn = () => {
       child.off('error', onError);
@@ -71,6 +68,10 @@ export function waitForSpawn(child: ChildProcess): Promise<void> {
     };
     child.once('spawn', onSpawn);
     child.once('error', onError);
+    queueMicrotask(() => {
+      if (exited()) onError(exitedError());
+      else if (child.pid !== undefined) onSpawn();
+    });
   });
 }
 

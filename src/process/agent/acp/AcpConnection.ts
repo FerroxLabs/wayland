@@ -32,7 +32,10 @@ import {
   connectCodebuddy,
   connectCodex,
   spawnGenericBackend,
+  waylandNanoAuthenticatedArgs,
+  waylandNanoAuthenticatedEnvironment,
   waylandNanoNonpersistentArgs,
+  waylandNanoNonpersistentEnvironment,
 } from './acpConnectors';
 import type { SpawnResult } from './acpConnectors';
 import { createAcpStderrReader } from '@process/acp/acpStderrLog';
@@ -59,6 +62,7 @@ export type WaylandNanoActivationAttempt = Readonly<{
 /** Resolved owner-authority seam. It contains no mutable conversation identity. */
 export type ResolvedWaylandNanoActivationInput = Readonly<{
   binary: VerifiedWaylandNanoBinary;
+  spawnEnv: Readonly<Record<string, string>>;
   buildAttempt(
     input: Readonly<{ operation: 'new' | 'load'; sessionId: string | null }>
   ): Promise<WaylandNanoActivationAttempt>;
@@ -275,13 +279,23 @@ export class AcpConnection {
       throw new Error('Wayland Nano persistent activation requires a resolved binding and verified executable');
     }
     const launchArgs =
-      backend === 'wnano' && this.waylandNanoMode === 'nonpersistent' ? waylandNanoNonpersistentArgs() : acpArgs;
+      backend !== 'wnano'
+        ? acpArgs
+        : this.waylandNanoMode === 'nonpersistent'
+          ? waylandNanoNonpersistentArgs()
+          : waylandNanoAuthenticatedArgs();
+    const launchEnv =
+      backend !== 'wnano'
+        ? customEnv
+        : this.waylandNanoMode === 'nonpersistent'
+           ? waylandNanoNonpersistentEnvironment(customEnv)
+           : waylandNanoAuthenticatedEnvironment(this.waylandNanoActivation!.spawnEnv);
     const result = await spawnGenericBackend(
       backend,
       cliPath,
       workingDir,
       launchArgs,
-      customEnv,
+      launchEnv,
       undefined,
       verifiedBinary
     );

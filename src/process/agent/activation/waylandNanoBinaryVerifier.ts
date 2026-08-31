@@ -14,7 +14,7 @@ export type WaylandNanoBinaryExpectation = Readonly<{
   stagingRoot: string;
 }>;
 
-type FileIdentity = Readonly<{ dev: bigint; ino: bigint; size: bigint; mtimeNs: bigint }>;
+type FileIdentity = Readonly<{ dev: bigint; ino: bigint; size: bigint; mtimeNs: bigint; nlink: bigint }>;
 const VERIFIED_BINARY_CONSTRUCTOR = Symbol('verified-wayland-nano-binary');
 
 /** One-use proof held until the synchronous launcher call. */
@@ -40,8 +40,12 @@ export class VerifiedWaylandNanoBinary {
     this.sha256 = expectation.sha256;
     this.sourceCommitSha = expectation.sourceCommitSha;
     this.cargoLockSha256 = expectation.cargoLockSha256;
+    for (const key of ['canonicalPath', 'sha256', 'sourceCommitSha', 'cargoLockSha256'] as const) {
+      Object.defineProperty(this, key, { configurable: false, writable: false });
+    }
     this.#handle = handle;
     this.#identity = identity;
+    Object.freeze(this);
   }
 
   /** Revalidates the pathname and invokes exactly one immediate synchronous spawn callback. */
@@ -54,9 +58,19 @@ export class VerifiedWaylandNanoBinary {
         stat(this.canonicalPath, { bigint: true }),
       ]);
       const digest = await hashHandle(this.#handle);
+      const [heldAfterHash, currentAfterHash] = await Promise.all([
+        this.#handle.stat({ bigint: true }),
+        stat(this.canonicalPath, { bigint: true }),
+      ]);
       if (
+        !held.isFile() ||
+        !current.isFile() ||
+        held.nlink !== BigInt(1) ||
+        current.nlink !== BigInt(1) ||
         !sameIdentity(identityOf(held), this.#identity) ||
         !sameIdentity(identityOf(current), this.#identity) ||
+        !sameIdentity(identityOf(heldAfterHash), this.#identity) ||
+        !sameIdentity(identityOf(currentAfterHash), this.#identity) ||
         digest !== this.sha256
       ) {
         throw new Error('Wayland Nano binary changed after verification');
@@ -83,8 +97,25 @@ export class VerifiedWaylandNanoBinary {
   async cleanupAfterLaunch(): Promise<void> {
     if (!this.#consumed) throw new Error('Wayland Nano staged executable cannot be cleaned before launch');
     if (this.#cleaned) return;
-    await unlink(this.canonicalPath);
+    await unlinkStagedExecutable(this.canonicalPath);
     this.#cleaned = true;
+  }
+}
+
+async function unlinkStagedExecutable(target: string): Promise<void> {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      // Security cleanup retries are intentionally ordered and bounded.
+      // oxlint-disable-next-line eslint(no-await-in-loop)
+      await unlink(target);
+      return;
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code === 'ENOENT') return;
+      if (process.platform !== 'win32' || !['EBUSY', 'EPERM'].includes(code ?? '') || attempt >= 9) throw error;
+      // oxlint-disable-next-line eslint(no-await-in-loop)
+      await new Promise((resolve) => setTimeout(resolve, 50 * (attempt + 1)));
+    }
   }
 }
 
@@ -218,12 +249,30 @@ async function hashHandle(handle: FileHandle): Promise<string> {
   });
 }
 
-function identityOf(metadata: { dev: bigint; ino: bigint; size: bigint; mtimeNs: bigint }): FileIdentity {
-  return Object.freeze({ dev: metadata.dev, ino: metadata.ino, size: metadata.size, mtimeNs: metadata.mtimeNs });
+function identityOf(metadata: {
+  dev: bigint;
+  ino: bigint;
+  size: bigint;
+  mtimeNs: bigint;
+  nlink: bigint;
+}): FileIdentity {
+  return Object.freeze({
+    dev: metadata.dev,
+    ino: metadata.ino,
+    size: metadata.size,
+    mtimeNs: metadata.mtimeNs,
+    nlink: metadata.nlink,
+  });
 }
 
 function sameIdentity(left: FileIdentity, right: FileIdentity): boolean {
-  return left.dev === right.dev && left.ino === right.ino && left.size === right.size && left.mtimeNs === right.mtimeNs;
+  return (
+    left.dev === right.dev &&
+    left.ino === right.ino &&
+    left.size === right.size &&
+    left.mtimeNs === right.mtimeNs &&
+    left.nlink === right.nlink
+  );
 }
 
 function samePath(left: string, right: string): boolean {

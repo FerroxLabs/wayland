@@ -25,7 +25,12 @@ import {
   type WaylandNanoActivationAttempt,
 } from '@process/agent/acp/AcpConnection';
 import { spawnGenericBackend } from '@process/agent/acp/acpConnectors';
-import { waylandNanoNonpersistentArgs } from '@process/agent/acp/acpConnectors';
+import {
+  waylandNanoAuthenticatedArgs,
+  waylandNanoAuthenticatedEnvironment,
+  waylandNanoNonpersistentArgs,
+  waylandNanoNonpersistentEnvironment,
+} from '@process/agent/acp/acpConnectors';
 import { registerPlatformServices } from '@/common/platform';
 import { NodePlatformServices } from '@/common/platform/NodePlatformServices';
 
@@ -95,6 +100,7 @@ function control(kind: WaylandNanoControl, sessionId: string): SignedWaylandNano
 function carrier(): ResolvedWaylandNanoActivationInput {
   return Object.freeze({
     binary: {} as VerifiedWaylandNanoBinary,
+    spawnEnv: Object.freeze({ NANO_HOME: 'C:/owner/nano-home' }),
     buildAttempt: async ({ operation, sessionId }): Promise<WaylandNanoActivationAttempt> =>
       Object.freeze({
         activation: activation(operation, sessionId),
@@ -259,6 +265,19 @@ describe('Wayland Nano legacy activation carrier', () => {
     }
   });
 
+  it('pins authenticated Nano to the persistent ACP host subcommand', () => {
+    expect(waylandNanoAuthenticatedArgs()).toEqual(['acp-host']);
+    expect(waylandNanoAuthenticatedEnvironment({ NANO_HOME: 'C:/owner/nano-home' })).toEqual({
+      NANO_HOME: 'C:/owner/nano-home',
+    });
+    expect(() =>
+      waylandNanoAuthenticatedEnvironment({ NANO_HOME: 'relative-home', NANO_ROOT_KEYREF: 'hostile' })
+    ).toThrow('environment is invalid');
+    expect(
+      waylandNanoNonpersistentEnvironment({ FLUX_API_KEY_FILE: 'C:/owner/flux-key', NANO_HOME: 'C:/hostile' })
+    ).toEqual({ FLUX_API_KEY_FILE: 'C:/owner/flux-key' });
+  });
+
   it('rejects a caller that mixes an activation carrier into nonpersistent mode', () => {
     expect(() => new AcpConnection(carrier(), 'nonpersistent')).toThrow('forbids an activation carrier');
   });
@@ -298,12 +317,12 @@ describe('Wayland Nano legacy activation carrier', () => {
         'wnano',
         quoteCliPath(sourcePath),
         process.cwd(),
-        ['-e', 'process.exit(0)'],
-        {},
+        ['acp-host'],
+        { NANO_HOME: path.join(root, 'owner-home') },
         token
       );
       const exitCode = await new Promise<number | null>((resolve) => result.child.once('exit', resolve));
-      expect(exitCode).toBe(0);
+      expect(exitCode).toBe(1);
       await waitForMissing(stagedPath);
     } finally {
       await rm(root, { recursive: true, force: true });
@@ -327,13 +346,13 @@ describe('Wayland Nano legacy activation carrier', () => {
       'wnano',
       quoteCliPath(process.execPath),
       process.cwd(),
-      ['-e', 'process.exit(0)'],
-      {},
+      ['acp-host'],
+      { NANO_HOME: path.join(process.cwd(), 'owner-home') },
       token
     );
     const exitCode = await new Promise<number | null>((resolve) => result.child.once('exit', resolve));
 
-    expect(exitCode).toBe(0);
+    expect(exitCode).toBe(1);
     expect(cleanupAfterLaunch).toHaveBeenCalledOnce();
     expect(dispose).toHaveBeenCalledOnce();
   });
@@ -351,7 +370,14 @@ describe('Wayland Nano legacy activation carrier', () => {
     } as unknown as VerifiedWaylandNanoBinary;
 
     await expect(
-      spawnGenericBackend('wnano', quoteCliPath(process.execPath), process.cwd(), ['-e', 'process.exit(0)'], {}, token)
+      spawnGenericBackend(
+        'wnano',
+        quoteCliPath(process.execPath),
+        process.cwd(),
+        ['acp-host'],
+        { NANO_HOME: path.join(process.cwd(), 'owner-home') },
+        token
+      )
     ).rejects.toThrow('source identity changed');
     expect(dispose).toHaveBeenCalledOnce();
   });

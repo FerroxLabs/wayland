@@ -1,0 +1,232 @@
+{
+  "matrixRowIdsSha256": "11ff503f21b85bb84cbd5a98a94f209fea2ffb1d6bc16f78ce73f50552a9b754",
+  "productionBootstrap": {
+    "authorizationKeyId": "phase2-offline-bootstrap-2026-08-30",
+    "challengeSchema": "wayland.nano.offline-bootstrap-challenge/v1",
+    "consumptionReceiptSchema": "wayland.nano.offline-bootstrap-consumption-receipt/v1",
+    "exactArtifactBound": true,
+    "ordinaryDetachedBootstrap": "refused_no_controlling_tty",
+    "ownerDirectedAgentOperatedBootstrap": true,
+    "physicalConsolePresenceReplaced": true
+  },
+  "rows": [
+    {
+      "expected": "accept",
+      "fallbackAllowed": false,
+      "id": "positive.desktop-legacy-acp",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "accept",
+      "fallbackAllowed": false,
+      "id": "positive.desktop-sdk-acp",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "accept",
+      "fallbackAllowed": false,
+      "id": "positive.direct-cli",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "accept",
+      "fallbackAllowed": false,
+      "id": "positive.protocol-host",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "accept",
+      "fallbackAllowed": false,
+      "id": "positive.control-resume",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.raw-duplicate",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.raw-noncanonical",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.crypto-signature",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.crypto-role-confusion",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.trust-revoked-issuer",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.trust-unauthorized-project",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.identity-principal-drift",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.policy-capability-widening",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.policy-budget-overflow",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.policy-deadline-expired",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.replay-nonce-reuse",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.replay-idempotency-drift",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.resume-fingerprint-drift",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.control-unsigned",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.control-race-lost",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.enablement-default-off",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.enablement-artifact-drift",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.artifact-source-mismatch",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.artifact-lock-mismatch",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.artifact-substitution",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.artifact-toctou",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.custody-signer-loss",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.custody-detached-bootstrap",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.effect-unknown-outcome",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.quarantine-legacy-state",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    },
+    {
+      "expected": "refuse",
+      "fallbackAllowed": false,
+      "id": "negative.fallback-terminal-refusal",
+      "oracles": ["process", "state", "effect"],
+      "receiptAuthority": "nano"
+    }
+  ],
+  "schema": "wayland.desktop.nano-activation-negative-crash-receipt/v1"
+}

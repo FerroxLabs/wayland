@@ -23,7 +23,10 @@ import {
   connectCodebuddy,
   connectCodex,
   spawnGenericBackend,
+  waylandNanoAuthenticatedArgs,
+  waylandNanoAuthenticatedEnvironment,
   waylandNanoNonpersistentArgs,
+  waylandNanoNonpersistentEnvironment,
   type NpxConnectHooks,
   type SpawnResult,
 } from '@process/agent/acp/acpConnectors';
@@ -84,7 +87,7 @@ async function spawnLegacyChild(config: AgentConfig): Promise<ChildProcess> {
         config.command,
         cwd,
         waylandNanoNonpersistentArgs(),
-        config.env
+        waylandNanoNonpersistentEnvironment(config.env)
       );
       return result.child;
     }
@@ -92,8 +95,8 @@ async function spawnLegacyChild(config: AgentConfig): Promise<ChildProcess> {
       backend,
       activation.binary.canonicalPath,
       cwd,
-      config.args,
-      config.env,
+      waylandNanoAuthenticatedArgs(),
+      waylandNanoAuthenticatedEnvironment(activation.spawnEnv),
       undefined,
       activation.binary
     );

@@ -148,6 +148,7 @@ export class WaylandNanoActivationOwner implements WaylandNanoBindingOwner {
   readonly #grant: WaylandNanoActivationGrant;
   readonly #now: () => Date;
   readonly #randomId: () => string;
+  readonly #spawnEnv: Readonly<Record<string, string>>;
   readonly #resumeFingerprints = new Map<string, string>();
   readonly #pendingActivationIds = new Set<string>();
   readonly #binaryTokens = new Set<VerifiedWaylandNanoBinary>();
@@ -158,6 +159,7 @@ export class WaylandNanoActivationOwner implements WaylandNanoBindingOwner {
     this.#grant = freezeGrant(options.grant);
     this.#now = options.now ?? (() => new Date());
     this.#randomId = options.randomId ?? randomUUID;
+    this.#spawnEnv = Object.freeze({ NANO_HOME: path.join(options.userDataRoot, 'wayland-nano', 'nano-home') });
     this.#bindingStore = new WaylandNanoBindingStore(options.userDataRoot);
     this.#keyStore = new WaylandNanoActivationKeyStore(options.userDataRoot, options.safeStorage);
     this.#builder = new WaylandNanoActivationBuilder({
@@ -184,6 +186,7 @@ export class WaylandNanoActivationOwner implements WaylandNanoBindingOwner {
       const logicalIds = new Map<string, string>();
       const activation: ResolvedWaylandNanoActivationInput = Object.freeze({
         binary,
+        spawnEnv: this.#spawnEnv,
         buildAttempt: async ({ operation, sessionId }) => {
           if (this.#disposed) throw new Error('Wayland Nano activation owner is disposed');
           const retryKey = `${operation}\0${sessionId ?? ''}`;
