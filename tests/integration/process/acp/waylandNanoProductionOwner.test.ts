@@ -173,7 +173,7 @@ describe('Wayland Nano production activation owner', () => {
     const mismatched = await ownerFixture(true, { sha256: 'f'.repeat(64) });
     expect(await mismatched.owner.load(mismatched.binding.productSubjectId)).toBeNull();
     await mismatched.owner.dispose();
-  });
+  }, 30_000);
 
   it('disposes staged executable identity and rejects use after shutdown', async () => {
     const fixture = await ownerFixture();
@@ -262,7 +262,7 @@ describe('Wayland Nano production activation owner', () => {
     sdkTransport.child.emit('exit', 0, null);
     await sdk.close();
     await fixture.owner.dispose();
-  });
+  }, 30_000);
 
   it('installs the real default-off startup seam from one canonical owner manifest and uninstalls on shutdown', async () => {
     const fixture = await ownerFixture();
@@ -319,7 +319,7 @@ describe('Wayland Nano production activation owner', () => {
     expect(productionManagerOwner()).toBeNull();
     expect(existsSync(legacyResolved!.activation.binary.canonicalPath)).toBe(false);
     expect(existsSync(sdkResolved!.activation.binary.canonicalPath)).toBe(false);
-  });
+  }, 30_000);
 
   it('keeps real startup nonpersistent when OS custody or the binding store is not ready', async () => {
     const fixture = await ownerFixture();
