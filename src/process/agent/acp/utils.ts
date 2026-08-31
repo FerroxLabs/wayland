@@ -186,9 +186,18 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
  * exemptions would be an untracked persistence escape for any MCP server. Adding
  * an entry here is a deliberate, reviewable act.
  *
- * SCOPE. POSIX only. The Windows path is `taskkill /PID <pid> /T /F`, which
- * cannot express an exclusion, so the tree is still killed unconditionally there
- * (the durable fix is a Job Object the app is launched outside of).
+ * SCOPE. macOS only - NOT "POSIX", which is what this said before and was wrong.
+ * The regex needs an absolute path, and only macOS's `ps -eo comm=` prints one.
+ * On Linux the same field prints a bare process name, truncated to 15 chars
+ * (TASK_COMM_LEN) - verified on Ubuntu 24.04, where a binary at
+ * /Applications/TradingView.app/Contents/MacOS/TradingView reports simply
+ * `TradingView`. So this pattern can never match on Linux and the exemption is
+ * inert there: a Linux chart is still killed with the engine, exactly as before
+ * the fix. That is a known gap, not a regression, and there is a test asserting
+ * it so CI is not blind to it. The correct Linux identity is
+ * `readlink /proc/<pid>/exe` - NOT `ps -eo args=`, which is argv-spoofable and
+ * would defeat the reason `comm` was chosen here.
+ * Windows has its own implementation below.
  *
  * IDENTITY IS BY ABSOLUTE PATH, AND THAT IS A TRANSITIONAL CHECK. The pattern is
  * anchored at `^/Applications/` so a binary in a user-writable directory cannot
@@ -407,7 +416,42 @@ export function _win32TableCommands(stdout: string): string[] {
  * connector's MSIX fallback path embeds the username, and a non-ASCII username
  * mangled through the OEM codepage would miss the anchor and kill the chart.
  */
+/**
+ * BUDGET. `killAllAgentChildren` is the FINAL before-quit step and runs under a
+ * 2s per-step budget (agentChildRegistry.ts:16), and it calls killChild once per
+ * live child. A cold `powershell.exe` costs several hundred ms, so enumerating
+ * per child could eat the whole budget and orphan the very children the reaper
+ * exists to kill - reintroducing #139 in the name of sparing a chart.
+ *
+ * Two bounds keep that from happening. The snapshot is shared for a short TTL,
+ * so a teardown killing N children pays for ONE PowerShell; and the timeout is
+ * well inside the budget, so a slow or policy-blocked host falls back to the
+ * old `taskkill /T` promptly instead of stalling. Losing the chart is the
+ * acceptable failure here; orphaning the engine is not.
+ */
+const WIN32_TABLE_TTL_MS = 1_000;
+const WIN32_ENUM_TIMEOUT_MS = 1_500;
+let win32TableCache: { at: number; stdout: string } | null = null;
+
+async function win32ProcessTable(now: number = Date.now()): Promise<string> {
+  if (win32TableCache && now - win32TableCache.at < WIN32_TABLE_TTL_MS) {
+    return win32TableCache.stdout;
+  }
+  const stdout = await rawWin32ProcessTable();
+  win32TableCache = { at: now, stdout };
+  return stdout;
+}
+
 async function collectWin32DescendantPids(rootPid: number): Promise<number[]> {
+  const stdout = await win32ProcessTable();
+  const exempt = await _resolveWin32ExemptPaths(_win32TableCommands(stdout), process.env, verifyAuthenticode);
+  return _collectDescendantPidsFromProcTable(stdout, rootPid, (command) => {
+    const normalized = _normalizeWindowsPath(command);
+    return normalized !== null && exempt.has(normalized);
+  });
+}
+
+async function rawWin32ProcessTable(): Promise<string> {
   const { stdout } = await execFile(
     'powershell.exe',
     [
@@ -417,13 +461,9 @@ async function collectWin32DescendantPids(rootPid: number): Promise<number[]> {
       '[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-CimInstance Win32_Process | ' +
         'ForEach-Object { "$($_.ProcessId) $($_.ParentProcessId) $($_.ExecutablePath)" }',
     ],
-    { windowsHide: true, timeout: 5000, maxBuffer: 8 * 1024 * 1024 }
+    { windowsHide: true, timeout: WIN32_ENUM_TIMEOUT_MS, maxBuffer: 8 * 1024 * 1024 }
   );
-  const exempt = await _resolveWin32ExemptPaths(_win32TableCommands(stdout), process.env, verifyAuthenticode);
-  return _collectDescendantPidsFromProcTable(stdout, rootPid, (command) => {
-    const normalized = _normalizeWindowsPath(command);
-    return normalized !== null && exempt.has(normalized);
-  });
+  return stdout;
 }
 
 const authenticodeCache = new Map<string, boolean>();

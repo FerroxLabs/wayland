@@ -559,6 +559,9 @@ function isSupportedBunTarget(platform, arch, version = getRuntimeVersion()) {
 module.exports = prepareBundledBun;
 // Named helpers exposed for unit tests (the default export stays the function).
 module.exports.needsBaselineVariant = needsBaselineVariant;
+// Exported so the packaged-resources gate compares against the SAME pin the
+// staging step used, instead of a second literal that drifts silently.
+module.exports.PINNED_BUN_VERSION = PINNED_BUN_VERSION;
 module.exports.getPlatformAsset = getPlatformAsset;
 module.exports.isSupportedBunTarget = isSupportedBunTarget;
 module.exports.isCachedRuntimeValid = isCachedRuntimeValid;

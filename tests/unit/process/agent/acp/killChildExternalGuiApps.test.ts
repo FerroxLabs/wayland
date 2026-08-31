@@ -61,3 +61,18 @@ describe('the descendant sweep spares connector-launched user applications', () 
     expect(isExternalGuiApp('/bin/sleep')).toBe(false);
   });
 });
+
+describe('the exemption is macOS-only, and Linux inertness is deliberate', () => {
+  it('does NOT spare a Linux chart, because ps -eo comm= gives a bare name there', () => {
+    // Verified on Ubuntu 24.04: `ps -eo comm=` prints `TradingView`, not the
+    // absolute path macOS prints, and truncates at 15 chars (TASK_COMM_LEN). The
+    // anchored pattern therefore cannot match, so a Linux chart dies with the
+    // engine exactly as it did before the fix.
+    //
+    // This asserts the GAP so CI is not blind to it. When Linux identity moves
+    // to readlink /proc/<pid>/exe, this test should fail and be rewritten -- that
+    // is the point of it.
+    const linuxTable = ['100 4 wayland-core', '200 100 node', '300 200 TradingView', '301 300 TradingView'].join('\n');
+    expect(_collectDescendantPidsFromPsTable(linuxTable, 100)).toEqual([200, 300, 301]);
+  });
+});

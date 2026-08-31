@@ -964,6 +964,16 @@ function verifyWhatsAppDarwinSignIgnoreInventory(sourceDir, arch) {
 function verifyWhatsAppNativeTarget(sourceDir, platform, arch) {
   if (!['darwin', 'linux', 'win32'].includes(platform) || !['arm64', 'x64'].includes(arch)) return false;
   const imageRoot = path.join(sourceDir, 'node_modules', '@img');
+  // KNOWN FAIL-OPEN, left in place deliberately and NOT an oversight.
+  // An absent or empty @img tree returns true here, so every per-package
+  // assertion below is skipped. Closing it is correct, but the release-gate
+  // fixtures at tests/unit/verifyPackagedResources.test.ts:1596 assert a
+  // BASELINE PASS for a bridge staged with no natives at all, so closing it
+  // changes a gate baseline and needs those fixtures rebuilt to represent a
+  // real bridge. Deliberately not done hours before a release.
+  // Note darwin IS already covered: verifyWhatsAppDarwinSignIgnoreInventory
+  // resolves the dylib and the .node from disk and returns false when either is
+  // missing, so the exposure here is linux/win32 only.
   if (!fs.existsSync(imageRoot)) return true;
   if (!fs.lstatSync(imageRoot).isDirectory()) return false;
   const expected = expectedSharpPackages(platform, arch).sort();
@@ -1181,7 +1191,11 @@ function verifySkillPack(packDir) {
 }
 
 function verifyBunBundle(bundleDir, targetPlatform, targetArch, authority = bundledBunBinaries) {
-  const version = '1.3.14';
+  // Derived, never a second literal. Every other binary in this gate resolves
+  // its version from the staging module's exported constant (DEFAULT_WCORE_VERSION
+  // at :534, DEFAULT_WNANO_VERSION at :667); this one was the outlier, so a Bun
+  // bump failed here AFTER sign+notarize with a mismatch it could not explain.
+  const version = require('./prepareBundledBun').PINNED_BUN_VERSION;
   // Mirrors prepareBundledBun.needsBaselineVariant: every x64 target stages an
   // AVX2-free baseline runtime alongside the default one (#438, and #1017 for
   // win32). The directory set below is compared EXACTLY, so this list and the
