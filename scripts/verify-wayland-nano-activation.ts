@@ -343,6 +343,10 @@ async function runHelperContractMatrix(checkout: string, target: string, evidenc
   const testTemp = path.join(evidenceRoot, `helper-test-temp-${randomBytes(6).toString('hex')}`);
   await mkdir(testTemp);
   await makeOwnerOnly(testTemp);
+  const gitLongPaths =
+    process.platform === 'win32'
+      ? { GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.longpaths', GIT_CONFIG_VALUE_0: 'true' }
+      : {};
   mustRun(
     'cargo',
     [
@@ -358,7 +362,7 @@ async function runHelperContractMatrix(checkout: string, target: string, evidenc
       '--test-threads=1',
     ],
     checkout,
-    { ...process.env, CARGO_TARGET_DIR: target, TEMP: testTemp, TMP: testTemp }
+    { ...process.env, ...gitLongPaths, CARGO_TARGET_DIR: target, TEMP: testTemp, TMP: testTemp }
   );
 }
 
@@ -1030,6 +1034,18 @@ async function runPositiveProcessRows(
     const resumeResponse = responseLines(resumed.stdout).find((response) => response.id === 2);
     const resumeResult = resumeResponse?.result as Record<string, unknown> | undefined;
     const resumeMeta = resumeResult?._meta as Record<string, unknown> | undefined;
+    if (!resumeMeta?.waylandNanoActivationReceipt) {
+      throw new Error(
+        `Nano resume response omitted its receipt: ${JSON.stringify({
+          error: resumeResponse?.error,
+          hasResult: Boolean(resumeResult),
+          responseIds: responseLines(resumed.stdout)
+            .map((response) => response.id ?? null)
+            .slice(0, 16),
+          resultKeys: resumeResult ? Object.keys(resumeResult).toSorted() : [],
+        })}`
+      );
+    }
     await verifyActivationReceipt(resumeMeta?.waylandNanoActivationReceipt, resumeFixture, {
       activation: resumedActivation,
       decision: 'admitted',
