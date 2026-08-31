@@ -869,14 +869,32 @@ const WHATSAPP_APPLE_BARE_RUNTIMES = [
   ['ios-x64-simulator', 'x64'],
 ];
 
+/**
+ * The libvips dylib carries its own SONAME version (libvips-cpp.8.17.3.dylib for
+ * sharp 0.34.x, 8.18.3 for 0.35.x). Hardcoding it meant any sharp bump failed
+ * this gate AFTER a full sign+notarize cycle had been spent, with an error that
+ * pointed at a missing file rather than at the version drift. Resolve the real
+ * filename from disk instead, and still fail closed when there isn't exactly
+ * one: zero means the native is genuinely absent, and more than one means an
+ * ambiguous inventory we must not silently sign.
+ */
+function resolveLibvipsDylib(sourceDir, arch) {
+  const libDir = path.join(sourceDir, 'node_modules', '@img', `sharp-libvips-darwin-${arch}`, 'lib');
+  if (!fs.existsSync(libDir)) return null;
+  const matches = fs.readdirSync(libDir).filter((f) => /^libvips-cpp\.[0-9.]+\.dylib$/.test(f));
+  return matches.length === 1 ? matches[0] : null;
+}
+
 function verifyWhatsAppDarwinSignIgnoreInventory(sourceDir, arch) {
+  const libvipsDylib = resolveLibvipsDylib(sourceDir, arch);
+  if (!libvipsDylib) return false;
   const expected = [
     {
       relative: `node_modules/@img/sharp-darwin-${arch}/lib/sharp-darwin-${arch}.node`,
       arch,
     },
     {
-      relative: `node_modules/@img/sharp-libvips-darwin-${arch}/lib/libvips-cpp.8.17.3.dylib`,
+      relative: `node_modules/@img/sharp-libvips-darwin-${arch}/lib/${libvipsDylib}`,
       arch,
     },
   ];
@@ -1669,6 +1687,8 @@ module.exports = {
   verifySignalBundle,
   verifySourceMirror,
   verifyWhatsAppDarwinSignIgnoreInventory,
+  // Exported so the libvips SONAME resolution can be driven with fixtures.
+  resolveLibvipsDylib,
   verifyWhatsAppNativeTarget,
   verifyVoiceBundle,
   verifyModelsSnapshot,
