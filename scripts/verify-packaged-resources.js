@@ -1123,29 +1123,55 @@ function reconcileStagedDarwinNatives(bundleDir, sourceEntries, bundledEntries, 
   });
 }
 
+/**
+ * `reasons` exists because this gate used to fail with nothing but a directory
+ * listing. A CRITICAL failure that does not say WHICH assertion failed costs a
+ * full ~30 minute platform build per guess, which is exactly what it cost on
+ * win32 after a sharp bump. Every early return now records why.
+ */
+let failureReasons = [];
+
 function verifySourceMirror(
   bundleDir,
   sourceDir,
   authority = whatsappBridgeSource,
   targetPlatform = process.platform,
   targetArch = process.arch,
-  signedCheck = isDarwinDeveloperIdSigned
+  signedCheck = isDarwinDeveloperIdSigned,
+  reasons = []
 ) {
-  if (
-    authority.contract !== 'wayland-whatsapp-bridge-source/1.0' ||
-    !verifyBridgeLock(sourceDir) ||
-    !verifyWhatsAppNativeTarget(sourceDir, targetPlatform, targetArch) ||
-    !validateOmittedEmptyPlaceholders(sourceDir, bundleDir)
-  )
+  if (authority.contract !== 'wayland-whatsapp-bridge-source/1.0') {
+    reasons.push(`authority contract is ${authority.contract}`);
     return false;
+  }
+  if (!verifyBridgeLock(sourceDir)) {
+    reasons.push('bun.lock does not agree with package.json (verifyBridgeLock)');
+    return false;
+  }
+  if (!verifyWhatsAppNativeTarget(sourceDir, targetPlatform, targetArch)) {
+    reasons.push(
+      `native @img inventory failed for ${targetPlatform}-${targetArch} ` +
+        `(expected exactly [${expectedSharpPackages(targetPlatform, targetArch).sort().join(', ')}])`
+    );
+    return false;
+  }
+  if (!validateOmittedEmptyPlaceholders(sourceDir, bundleDir)) {
+    reasons.push('an omitted empty-directory placeholder did not match');
+    return false;
+  }
   for (const [relative, expected] of Object.entries(authority.files || {})) {
     const source = path.join(sourceDir, relative);
-    if (
-      !fs.existsSync(source) ||
-      !fs.lstatSync(source).isFile() ||
-      fs.statSync(source).size !== expected.size ||
-      sha256File(source) !== expected.sha256
-    ) {
+    if (!fs.existsSync(source) || !fs.lstatSync(source).isFile()) {
+      reasons.push(`source file missing: ${relative}`);
+      return false;
+    }
+    const actualSize = fs.statSync(source).size;
+    if (actualSize !== expected.size) {
+      reasons.push(`${relative} size ${actualSize} != pinned ${expected.size}`);
+      return false;
+    }
+    if (sha256File(source) !== expected.sha256) {
+      reasons.push(`${relative} sha256 differs from the pinned authority (same size ${actualSize})`);
       return false;
     }
   }
@@ -1154,9 +1180,21 @@ function verifySourceMirror(
   );
   const source = sourceInventory(sourceDir, sourceDir, [], ignoredPlaceholders);
   let bundled = sourceInventory(bundleDir, bundleDir, [], ignoredPlaceholders);
-  if (source === null || bundled === null) return false;
+  if (source === null || bundled === null) {
+    reasons.push('could not inventory the source or bundled tree');
+    return false;
+  }
   if (targetPlatform === 'darwin') bundled = reconcileStagedDarwinNatives(bundleDir, source, bundled, signedCheck);
-  return JSON.stringify(bundled) === JSON.stringify(source);
+  if (JSON.stringify(bundled) === JSON.stringify(source)) return true;
+  const srcSet = new Set(source);
+  const bunSet = new Set(bundled);
+  const missing = source.filter((x) => !bunSet.has(x)).slice(0, 5);
+  const extra = bundled.filter((x) => !srcSet.has(x)).slice(0, 5);
+  reasons.push(
+    `staged tree differs from source: ${missing.length ? `missing ${missing.join(', ')}` : ''}` +
+      `${missing.length && extra.length ? '; ' : ''}${extra.length ? `unexpected ${extra.join(', ')}` : ''}`
+  );
+  return false;
 }
 
 function verifySkillPack(packDir) {
@@ -1473,9 +1511,21 @@ function isNonEmpty(
     if (kind === 'signal-bundle') return verifySignalBundle(p, targetPlatform, targetArch);
     if (kind === 'hub-bundle') return false;
     if (kind === 'whatsapp-bundle')
-      return verifySourceMirror(p, whatsappSourceDir, whatsappAuthority, targetPlatform, targetArch);
+      return verifySourceMirror(
+        p,
+        whatsappSourceDir,
+        whatsappAuthority,
+        targetPlatform,
+        targetArch,
+        isDarwinDeveloperIdSigned,
+        failureReasons
+      );
     return hasNonHiddenRegularFile(p);
-  } catch {
+  } catch (error) {
+    // A throw here used to vanish into `return false` with no reason at all -
+    // e.g. verifyBridgeLock reading a missing package.json. Record it, or the
+    // gate reports "missing or invalid" and nothing else.
+    failureReasons.push(`threw: ${error && error.message ? error.message : String(error)}`);
     return false;
   }
 }
@@ -1657,6 +1707,9 @@ function verifyPackagedResources(options = {}) {
         logger.log(`${TAG}   OK   ${req.rel}`);
       } else if (req.critical || fs.existsSync(target)) {
         logger.error(`${TAG}   FAIL ${req.rel}  <-- CRITICAL, missing or invalid`);
+        // WHY, not just WHAT. A directory listing alone made this gate cost a
+        // full platform build per hypothesis.
+        for (const reason of failureReasons) logger.error(`${TAG}        reason: ${reason}`);
         // The per-resource checks return a bare boolean, so a failure otherwise says
         // only that something is wrong with a path nobody can inspect afterwards.
         // Show what is actually on disk; absent, empty and wrong-shape look identical
