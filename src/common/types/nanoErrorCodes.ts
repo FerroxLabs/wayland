@@ -37,6 +37,7 @@ export type NanoErrorKind =
   | 'unknown_tool'
   | 'missing_args'
   | 'approval_denied'
+  | 'hook_blocked'
   | 'pty_session_gone'
   | 'review_parse_failed'
   | 'shell_rule_denied'
@@ -48,6 +49,7 @@ export type NanoErrorKind =
   | 'user_cancelled'
   | 'journal_unavailable'
   | 'session_not_found'
+  | 'session_busy'
   | 'model_not_found'
   | 'turn_in_progress'
   | 'no_session'
@@ -55,12 +57,60 @@ export type NanoErrorKind =
   | 'session_fork_failed'
   | 'goal_op_failed'
   | 'model_lacks_vision'
+  | 'model_lacks_pdf'
   | 'image_invalid'
   | 'image_unsupported_format'
   | 'image_too_large'
   | 'image_too_many'
   | 'attachment_missing'
-  | 'attachment_store_error';
+  | 'attachment_store_error'
+  | 'checkpoint_unavailable'
+  | 'checkpoint_not_found'
+  | 'checkpoint_restore_failed'
+  | 'cua_policy_denied'
+  | 'cua_focus_lost'
+  | 'cua_os_permission_denied'
+  | 'cua_backend_unavailable'
+  | 'cua_coordinate_out_of_range'
+  | 'cua_backend'
+  | 'carrier_missing'
+  | 'carrier_oversized'
+  | 'malformed_json'
+  | 'duplicate_key'
+  | 'noncanonical_payload'
+  | 'unknown_field'
+  | 'unsupported_schema'
+  | 'unsupported_algorithm'
+  | 'invalid_key_encoding'
+  | 'invalid_signature_encoding'
+  | 'invalid_signature'
+  | 'unknown_issuer'
+  | 'revoked_issuer'
+  | 'unknown_key'
+  | 'revoked_key'
+  | 'key_not_yet_valid'
+  | 'key_expired'
+  | 'assertion_not_yet_valid'
+  | 'assertion_expired'
+  | 'clock_out_of_bounds'
+  | 'nonce_replay'
+  | 'idempotency_conflict'
+  | 'unknown_product_subject'
+  | 'retired_product_subject'
+  | 'principal_mismatch'
+  | 'principal_remap'
+  | 'retired_identifier_reuse'
+  | 'unauthorized_project'
+  | 'authority_widening'
+  | 'artifact_mismatch'
+  | 'resume_fingerprint_missing'
+  | 'resume_drift'
+  | 'fallback_unauthorized'
+  | 'continuity_not_enabled'
+  | 'control_unauthorized'
+  | 'control_race_lost'
+  | 'authority_store_unavailable'
+  | 'ambiguous_recovery';
 
 export type NanoErrorSurface = 'error_response' | 'tool_card' | 'stop_reason';
 
@@ -355,6 +405,14 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     hint: '',
   },
   {
+    kind: 'hook_blocked',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Blocked by lifecycle hook',
+    hint: '',
+  },
+  {
     kind: 'pty_session_gone',
     surface: 'tool_card',
     wireCode: -32603,
@@ -443,6 +501,14 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     hint: '',
   },
   {
+    kind: 'session_busy',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Session is open in another host',
+    hint: 'Close it there (or resume after that host exits), then retry',
+  },
+  {
     kind: 'model_not_found',
     surface: 'error_response',
     wireCode: -32602,
@@ -499,6 +565,14 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     hint: 'Switch to a vision-capable model (/model)',
   },
   {
+    kind: 'model_lacks_pdf',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Selected model wire cannot carry PDF documents',
+    hint: 'Select an advertised Flux Anthropic Messages leaf, then retry',
+  },
+  {
     kind: 'image_invalid',
     surface: 'error_response',
     wireCode: -32602,
@@ -545,6 +619,382 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     retryable: false,
     title: 'The attachment store is unavailable or insecurely configured',
     hint: '',
+  },
+  {
+    kind: 'checkpoint_unavailable',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Workspace checkpoints are unavailable',
+    hint: 'Check system Git, checkpoint storage permissions, and store contention',
+  },
+  {
+    kind: 'checkpoint_not_found',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Checkpoint not found',
+    hint: 'It may have been evicted by checkpoint retention',
+  },
+  {
+    kind: 'checkpoint_restore_failed',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Checkpoint restore did not complete',
+    hint: 'Resume the session to run checkpoint recovery',
+  },
+  {
+    kind: 'cua_policy_denied',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Computer-use policy denied the operation',
+    hint: 'Re-screenshot and re-plan; the policy will deny this again',
+  },
+  {
+    kind: 'cua_focus_lost',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'The focused window changed before the action was dispatched',
+    hint: 'Re-screenshot and re-target the now-focused window',
+  },
+  {
+    kind: 'cua_os_permission_denied',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'The OS computer-use permission is not granted',
+    hint: 'Grant the permission in the OS settings, then retry',
+  },
+  {
+    kind: 'cua_backend_unavailable',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Computer use is unavailable on this desktop session',
+    hint: 'No usable display backend; do not retry',
+  },
+  {
+    kind: 'cua_coordinate_out_of_range',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Coordinates are outside the primary display',
+    hint: 'Re-screenshot and target coordinates inside the display bounds',
+  },
+  {
+    kind: 'cua_backend',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'The computer-use backend failed',
+    hint: 'Do not retry the identical action',
+  },
+  {
+    kind: 'carrier_missing',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'carrier_missing',
+  },
+  {
+    kind: 'carrier_oversized',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'carrier_oversized',
+  },
+  {
+    kind: 'malformed_json',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'malformed_json',
+  },
+  {
+    kind: 'duplicate_key',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'duplicate_key',
+  },
+  {
+    kind: 'noncanonical_payload',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'noncanonical_payload',
+  },
+  {
+    kind: 'unknown_field',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'unknown_field',
+  },
+  {
+    kind: 'unsupported_schema',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'unsupported_schema',
+  },
+  {
+    kind: 'unsupported_algorithm',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'unsupported_algorithm',
+  },
+  {
+    kind: 'invalid_key_encoding',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'invalid_key_encoding',
+  },
+  {
+    kind: 'invalid_signature_encoding',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'invalid_signature_encoding',
+  },
+  {
+    kind: 'invalid_signature',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'invalid_signature',
+  },
+  {
+    kind: 'unknown_issuer',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'unknown_issuer',
+  },
+  {
+    kind: 'revoked_issuer',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'revoked_issuer',
+  },
+  {
+    kind: 'unknown_key',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'unknown_key',
+  },
+  {
+    kind: 'revoked_key',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'revoked_key',
+  },
+  {
+    kind: 'key_not_yet_valid',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'key_not_yet_valid',
+  },
+  {
+    kind: 'key_expired',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'key_expired',
+  },
+  {
+    kind: 'assertion_not_yet_valid',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'assertion_not_yet_valid',
+  },
+  {
+    kind: 'assertion_expired',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'assertion_expired',
+  },
+  {
+    kind: 'clock_out_of_bounds',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'clock_out_of_bounds',
+  },
+  {
+    kind: 'nonce_replay',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'nonce_replay',
+  },
+  {
+    kind: 'idempotency_conflict',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'idempotency_conflict',
+  },
+  {
+    kind: 'unknown_product_subject',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'unknown_product_subject',
+  },
+  {
+    kind: 'retired_product_subject',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'retired_product_subject',
+  },
+  {
+    kind: 'principal_mismatch',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'principal_mismatch',
+  },
+  {
+    kind: 'principal_remap',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'principal_remap',
+  },
+  {
+    kind: 'retired_identifier_reuse',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'retired_identifier_reuse',
+  },
+  {
+    kind: 'unauthorized_project',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'unauthorized_project',
+  },
+  {
+    kind: 'authority_widening',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'authority_widening',
+  },
+  {
+    kind: 'artifact_mismatch',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'artifact_mismatch',
+  },
+  {
+    kind: 'resume_fingerprint_missing',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'resume_fingerprint_missing',
+  },
+  {
+    kind: 'resume_drift',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'resume_drift',
+  },
+  {
+    kind: 'fallback_unauthorized',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'fallback_unauthorized',
+  },
+  {
+    kind: 'continuity_not_enabled',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'continuity_not_enabled',
+  },
+  {
+    kind: 'control_unauthorized',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'control_unauthorized',
+  },
+  {
+    kind: 'control_race_lost',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'control_race_lost',
+  },
+  {
+    kind: 'authority_store_unavailable',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'authority_store_unavailable',
+  },
+  {
+    kind: 'ambiguous_recovery',
+    surface: 'error_response',
+    wireCode: -32602,
+    retryable: false,
+    title: 'Activation refused',
+    hint: 'ambiguous_recovery',
   },
 ];
 

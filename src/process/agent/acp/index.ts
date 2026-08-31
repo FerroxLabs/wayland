@@ -38,6 +38,8 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import { getEnhancedEnv, normalizeNpxArgsForBundledBun, resolveNpxPath } from '@process/utils/shellEnv';
 import { readClaudeModelInfoFromCcSwitch } from '@process/services/ccSwitchModelSource';
 import { AcpConnection } from './AcpConnection';
+import type { ResolvedWaylandNanoActivationInput } from './AcpConnection';
+import type { WaylandNanoConnectionMode } from './AcpConnection';
 import { AcpApprovalStore, createAcpApprovalKey } from './ApprovalStore';
 import { CLAUDE_YOLO_SESSION_MODE, CODEBUDDY_YOLO_SESSION_MODE, QWEN_YOLO_SESSION_MODE } from './constants';
 import { buildAcpModelInfo } from './modelInfo';
@@ -80,6 +82,10 @@ export interface AcpAgentConfig {
   workingDir: string;
   customArgs?: string[]; // Custom CLI arguments (for custom backend)
   customEnv?: Record<string, string>; // Custom environment variables (for custom backend)
+  /** Owner-resolved Nano authority and exact executable identity; never inferred here. */
+  waylandNanoActivation?: ResolvedWaylandNanoActivationInput;
+  /** Explicit Nano connector mode selected after owner resolution. */
+  waylandNanoMode?: WaylandNanoConnectionMode;
   extra?: {
     workspace?: string;
     backend: AcpBackend;
@@ -210,7 +216,7 @@ export class AcpAgent {
       yoloMode: false,
     };
 
-    this.connection = new AcpConnection();
+    this.connection = new AcpConnection(config.waylandNanoActivation ?? null, config.waylandNanoMode);
     // W4 audit CRIT-1 (2026-05-19): bind the conversation id so the ACP
     // file-op handlers can look up imported-team sandbox context.
     this.connection.setConversationId(this.id);

@@ -14,6 +14,7 @@
 
 import type { ChildProcess, SpawnOptions } from 'child_process';
 import { execFile as execFileCb, execFileSync, spawn } from 'child_process';
+import type { VerifiedWaylandNanoBinary } from '@process/agent/activation/waylandNanoBinaryVerifier';
 import { promisify } from 'util';
 import { promises as fs, readdirSync, rmSync, statSync } from 'fs';
 import os from 'os';
@@ -334,6 +335,51 @@ export function createGenericSpawnConfig(
 
 export type SpawnResult = { child: ChildProcess; isDetached: boolean };
 
+/** Exact Nano compatibility mode; this path exposes no persistence or tools. */
+export function waylandNanoNonpersistentArgs(): string[] {
+  return ['acp-host', '--nonpersistent'];
+}
+
+/** Exact Nano authenticated host mode; authority remains in the signed carrier. */
+export function waylandNanoAuthenticatedArgs(): string[] {
+  return ['acp-host'];
+}
+
+export function waylandNanoAuthenticatedEnvironment(
+  environment: Readonly<Record<string, string>>
+): Record<string, string> {
+  const keys = Object.keys(environment).toSorted();
+  if (
+    !keys.includes('NANO_HOME') ||
+    keys.some((key) => !['FLUX_API_KEY_FILE', 'NANO_HOME'].includes(key)) ||
+    !path.isAbsolute(environment.NANO_HOME) ||
+    (environment.FLUX_API_KEY_FILE !== undefined && !path.isAbsolute(environment.FLUX_API_KEY_FILE))
+  ) {
+    throw new Error('Wayland Nano owner spawn environment is invalid');
+  }
+  return { ...environment };
+}
+
+export function waylandNanoNonpersistentEnvironment(
+  environment?: Readonly<Record<string, string>>
+): Record<string, string> | undefined {
+  if (!environment) return undefined;
+  return Object.fromEntries(
+    Object.entries(environment).filter(
+      ([key]) => !/^NANO_/i.test(key) && !/AUTHORITY|KEYREF|ADMIN_ROOT|RECOVERY_ROOT/i.test(key)
+    )
+  );
+}
+
+function isWaylandNanoAuthorityEnvironmentKey(key: string): boolean {
+  const normalized = key.toUpperCase();
+  return (
+    normalized.startsWith('NANO_') ||
+    normalized === 'FLUX_API_KEY_FILE' ||
+    /AUTHORITY|KEYREF|ADMIN_ROOT|RECOVERY_ROOT/.test(normalized)
+  );
+}
+
 /** Return type for npx backend prepare functions (prepareClaude, prepareCodex, prepareCodebuddy). */
 export type NpxPrepareResult = {
   cleanEnv: Record<string, string | undefined>;
@@ -649,8 +695,20 @@ export async function spawnGenericBackend(
   workingDir: string,
   acpArgs?: string[],
   customEnv?: Record<string, string>,
-  launch?: AcpLaunchSpec
+  launch?: AcpLaunchSpec,
+  verifiedWaylandNanoBinary?: VerifiedWaylandNanoBinary
 ): Promise<SpawnResult> {
+  if (verifiedWaylandNanoBinary) {
+    try {
+      if (backend !== 'wnano' || JSON.stringify(acpArgs) !== JSON.stringify(waylandNanoAuthenticatedArgs())) {
+        throw new Error('Verified Wayland Nano launch requires the authenticated ACP host');
+      }
+      waylandNanoAuthenticatedEnvironment(customEnv ?? {});
+    } catch (error) {
+      await verifiedWaylandNanoBinary.dispose();
+      throw error;
+    }
+  }
   try {
     await fs.mkdir(workingDir, { recursive: true });
   } catch {
@@ -658,9 +716,15 @@ export async function spawnGenericBackend(
   }
 
   const cleanEnv = await prepareCleanEnv();
-  // #756: apply backend hardening as DEFAULTS, then let customEnv override.
+  // #756: apply backend hardening as defaults. Verified Nano then replaces
+  // every authority-bearing inherited value with the frozen owner allowlist.
   Object.assign(cleanEnv, backendSpawnEnvHardening(backend));
-  if (customEnv) {
+  if (verifiedWaylandNanoBinary) {
+    for (const key of Object.keys(cleanEnv)) {
+      if (isWaylandNanoAuthorityEnvironmentKey(key)) delete cleanEnv[key];
+    }
+    Object.assign(cleanEnv, waylandNanoAuthenticatedEnvironment(customEnv ?? {}));
+  } else if (customEnv) {
     Object.assign(cleanEnv, customEnv);
   }
   ensureMinNodeVersion(cleanEnv, 18, 17, `${backend} ACP`);
@@ -675,10 +739,47 @@ export async function spawnGenericBackend(
     cleanEnv as Record<string, string>,
     launch
   );
-  const child = spawn(config.command, config.args, {
-    ...config.options,
-    detached,
-  });
+  const launchChild = (command: string): ChildProcess =>
+    spawn(command, config.args, {
+      ...config.options,
+      detached,
+    });
+  let child: ChildProcess;
+  if (verifiedWaylandNanoBinary) {
+    try {
+      child = await verifiedWaylandNanoBinary.consume((canonicalPath) => launchChild(canonicalPath));
+    } catch (error) {
+      try {
+        await verifiedWaylandNanoBinary.dispose();
+      } catch (cleanupError) {
+        throw new AggregateError([error, cleanupError], 'Wayland Nano staged launch and cleanup both failed');
+      }
+      throw error;
+    }
+    try {
+      await verifiedWaylandNanoBinary.cleanupAfterLaunch();
+    } catch {
+      // The child already owns its executable image. Do not kill or orphan it
+      // merely because post-spawn unlink was transiently denied (notably on
+      // Windows). Retry through dispose now and once more at child exit.
+      const cleaned = await verifiedWaylandNanoBinary
+        .dispose()
+        .then(() => true)
+        .catch(() => false);
+      if (!cleaned) {
+        const cleanupOnExit = () => {
+          void verifiedWaylandNanoBinary.dispose().catch(() => {});
+        };
+        child.once('exit', cleanupOnExit);
+        if (child.exitCode !== null || child.signalCode !== null) {
+          child.off('exit', cleanupOnExit);
+          cleanupOnExit();
+        }
+      }
+    }
+  } else {
+    child = launchChild(config.command);
+  }
   if (detached) {
     child.unref();
   }

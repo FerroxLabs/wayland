@@ -1,0 +1,75 @@
+{
+  "build": {
+    "cargoCommand": "cargo build --locked [--release] -p nano-cli --bin wayland-nano",
+    "externalTargetRequired": true,
+    "fixtureHelperCommand": "cargo build --locked --release -p nano-activation --features phase2-fixture --bin nano-phase2-fixture",
+    "fixtureHelperProductionCliExposure": false,
+    "freshCheckoutRequired": true,
+    "nanoContractSuites": [
+      "cargo test --locked -p nano-activation --lib",
+      "cargo test --locked -p nano-activation --test offline_bootstrap",
+      "cargo test --locked -p nano-cli --test offline_bootstrap_cli --test activation_cli"
+    ],
+    "prebuiltArtifactsAccepted": false,
+    "profiles": ["debug", "release"]
+  },
+  "matrix": {
+    "negativeCount": 26,
+    "positiveCount": 5,
+    "rowIds": [
+      "positive.desktop-legacy-acp",
+      "positive.desktop-sdk-acp",
+      "positive.direct-cli",
+      "positive.protocol-host",
+      "positive.control-resume",
+      "negative.raw-duplicate",
+      "negative.raw-noncanonical",
+      "negative.crypto-signature",
+      "negative.crypto-role-confusion",
+      "negative.trust-revoked-issuer",
+      "negative.trust-unauthorized-project",
+      "negative.identity-principal-drift",
+      "negative.policy-capability-widening",
+      "negative.policy-budget-overflow",
+      "negative.policy-deadline-expired",
+      "negative.replay-nonce-reuse",
+      "negative.replay-idempotency-drift",
+      "negative.resume-fingerprint-drift",
+      "negative.control-unsigned",
+      "negative.control-race-lost",
+      "negative.enablement-default-off",
+      "negative.enablement-artifact-drift",
+      "negative.artifact-source-mismatch",
+      "negative.artifact-lock-mismatch",
+      "negative.artifact-substitution",
+      "negative.artifact-toctou",
+      "negative.custody-signer-loss",
+      "negative.custody-detached-bootstrap",
+      "negative.effect-unknown-outcome",
+      "negative.quarantine-legacy-state",
+      "negative.fallback-terminal-refusal"
+    ],
+    "rowIdsSha256": "11ff503f21b85bb84cbd5a98a94f209fea2ffb1d6bc16f78ce73f50552a9b754",
+    "totalCount": 31
+  },
+  "nanoFixtureHelper": {
+    "cargoLockSha256": "3d6ec29f3b19e0b3778a5de222418ec497eaf79be8e93a92dd120d986bdb930a",
+    "ciRunId": 33369702224,
+    "mergeCommit": "c10dcb9b0964a23df7b5bb2760ef494c4e15369d",
+    "mergedAt": "2026-08-31T08:13:47Z",
+    "mergedBeforeDesktop": true,
+    "privateHandoffSchema": "wayland.nano.phase2-fixture-private/v1",
+    "productionCliExposure": false,
+    "publicSchema": "wayland.nano.phase2-fixture/v2",
+    "sourceCommit": "2f7b33f4ad9344aea1ce78fc9fb09600a6f50dbe"
+  },
+  "nano": {
+    "cargoLockBlob": "7bb979cf829f7bf0a63692d8485bfc8e4935ed13",
+    "cargoLockSha256": "3d6ec29f3b19e0b3778a5de222418ec497eaf79be8e93a92dd120d986bdb930a",
+    "ciRunId": 33318936491,
+    "mergeCommit": "1d80ecf93c1ec5fe14e89a44e89c4a0142ba1c9b",
+    "reviewedSourceCommit": "288de9ed3185c91717f8f777c9975c784709e824"
+  },
+  "schema": "wayland.desktop.nano-activation-artifact-manifest/v1",
+  "workflowCheck": "Exact artifact (ubuntu-latest) + Exact artifact (windows-latest) + Production bootstrap contract"
+}

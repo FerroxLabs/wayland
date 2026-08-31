@@ -116,6 +116,7 @@ import {
   type WnanoProviderEntry,
 } from '@process/task/wnano';
 import type { McpConfigProjection } from '@process/acp/session/McpConfig';
+import { resolveWaylandNanoBindingRef, type WaylandNanoBindingOwner } from '@process/agent/acp/AcpConnection';
 import { createMcpSessionState, type McpSessionBackend, type McpSessionState } from '@/common/mcp/sessionReceipt';
 import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 
@@ -132,6 +133,8 @@ interface AcpAgentManagerData {
   customWorkspace?: boolean;
   conversation_id: string;
   customAgentId?: string; // UUID for identifying specific custom agent
+  /** Opaque owner-store key; the only persisted Nano authority selector. */
+  waylandNanoBindingRef?: string;
   /** Preset assistant id (builtin or custom) shown in the conversation header */
   presetAssistantId?: string;
   /** Display name for the agent (from extension or custom config) */
@@ -267,12 +270,14 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
   /** Exact servers that produced this launch's receipts; the candidate gate's allowedTools/description source. */
   private sessionMcpServers: IMcpServer[] = [];
   private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
+  private readonly waylandNanoBindingOwner: WaylandNanoBindingOwner | null;
 
-  constructor(data: AcpAgentManagerData) {
+  constructor(data: AcpAgentManagerData, waylandNanoBindingOwner: WaylandNanoBindingOwner | null = null) {
     super('acp', data, new IpcAgentEventEmitter(), false);
     this.conversation_id = data.conversation_id;
     this.workspace = data.workspace;
     this.options = data;
+    this.waylandNanoBindingOwner = waylandNanoBindingOwner;
     this.mcpSessionBackend = data.backend === 'codex' ? 'codex-native' : 'acp';
     this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, [], {
       conversationId: this.conversation_id,
@@ -2002,6 +2007,10 @@ ${collectedResponses.join('\n')}`;
     this.bootstrapping = true;
     const bootstrapPromise = (async () => {
       const { cliPath, launch, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
+      const waylandNanoActivation =
+        data.backend === 'wnano'
+          ? await resolveWaylandNanoBindingRef(data.waylandNanoBindingRef, this.waylandNanoBindingOwner)
+          : null;
 
       const agentConfig = {
         id: data.conversation_id,
@@ -2043,6 +2052,12 @@ ${collectedResponses.join('\n')}`;
             | { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> }
             | undefined,
         },
+        // Shared OldAcpAgentConfig seam consumed by the legacy stack now and
+        // the compatibility/new stack in Plan 02-15. No adapter may resolve or
+        // infer authority a second time.
+        waylandNanoActivation: waylandNanoActivation ?? undefined,
+        waylandNanoMode:
+          data.backend === 'wnano' ? (waylandNanoActivation ? 'authenticated' : 'nonpersistent') : undefined,
         // Receipt-bound publication identity for the live ACP projection. The
         // runtime supplies this correlated input (this manager's generation +
         // per-launch digest key) so McpConfig mints current-session receipts

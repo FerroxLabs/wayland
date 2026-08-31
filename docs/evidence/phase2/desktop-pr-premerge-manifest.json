@@ -1,0 +1,88 @@
+{
+  "artifact": {
+    "build_recipe": [
+      "cargo build --locked -p nano-cli --bin wayland-nano",
+      "cargo build --locked --release -p nano-cli --bin wayland-nano",
+      "cargo build --locked --release -p nano-activation --features phase2-fixture --bin nano-phase2-fixture"
+    ],
+    "expected_compile_identity": {
+      "cargo_lock_sha256": "3d6ec29f3b19e0b3778a5de222418ec497eaf79be8e93a92dd120d986bdb930a",
+      "source_commit_sha": "288de9ed3185c91717f8f777c9975c784709e824"
+    },
+    "fixture_hashes": {
+      "row_ids_sha256": "11ff503f21b85bb84cbd5a98a94f209fea2ffb1d6bc16f78ce73f50552a9b754"
+    },
+    "manifest_path": "docs/evidence/phase2/activation-artifact-manifest.json",
+    "manifest_sha256": "e42f92e159549d584d6975fa809d71fda0ee932948bbfee4144b6bec37654f78",
+    "matrix_counts": {
+      "negative": 26,
+      "positive": 5,
+      "total": 31
+    },
+    "receipt_path": "docs/evidence/phase2/activation-negative-crash-receipt.json",
+    "receipt_sha256": "c997ccb217f0f2610193b4f2316fdf55684c58e3842a650eb609e284bbe9e22f",
+    "workflow_checks": [
+      "Exact artifact (ubuntu-latest)",
+      "Exact artifact (windows-latest)",
+      "Production bootstrap contract"
+    ],
+    "workflow_file": ".github/workflows/wayland-nano-activation.yml",
+    "workflow_name": "Wayland Nano exact artifact",
+    "workflow_sha256": "7017adacc2d892f4414cb18e452dd557da0417919557130dad30e1ad651ce843"
+  },
+  "base_ref": "main",
+  "default_off": true,
+  "expected_author": "FerroxLabs",
+  "governance": {
+    "admin_enforcement_required": true,
+    "bypass_forbidden": true,
+    "disclosure": "owner-directed agent-operated review under one human controller; not independent human review",
+    "linear_history_required": true,
+    "merge_method": "squash"
+  },
+  "head_ref": "feat/nano-activation-boundary",
+  "implementation_input": {
+    "base_sha": "312b5db0dfe2f480cb57f07a9d4ac9777319bd52",
+    "changed_paths_sha256": "54eca4948490b336fc82e8e6a5684e686ed2a8b906f62cdc68de91772596e750",
+    "commit_sha": "8eb6e465865ea970273c4a02a9539efb05ba957d",
+    "normalized_diff_sha256": "39e1f0aafa6985bf765e66b5ea3748de2398b3039621633a3a93a95c968b0c78",
+    "stable_patch_id": "cbc56e0875f443775c45b95dee2bc31fab6408cc",
+    "tree_sha": "eeba89baccc2ee648620c760ba949b51f7a42fef"
+  },
+  "issue": {
+    "assignee": "FerroxLabs",
+    "labels": ["area:desktop-ui", "needs:desktop", "state:in-progress"],
+    "number": 1201,
+    "repository": "FerroxLabs/wayland",
+    "state": "OPEN"
+  },
+  "nano": {
+    "cargo_lock_blob_sha": "7bb979cf829f7bf0a63692d8485bfc8e4935ed13",
+    "cargo_lock_sha256": "3d6ec29f3b19e0b3778a5de222418ec497eaf79be8e93a92dd120d986bdb930a",
+    "ci_run_id": 33318936491,
+    "merge_commit_sha": "1d80ecf93c1ec5fe14e89a44e89c4a0142ba1c9b",
+    "merged_before_desktop": true,
+    "repository": "FerroxLabs/wayland-nano",
+    "source_commit_sha": "288de9ed3185c91717f8f777c9975c784709e824"
+  },
+  "nano_fixture_helper": {
+    "cargo_lock_sha256": "3d6ec29f3b19e0b3778a5de222418ec497eaf79be8e93a92dd120d986bdb930a",
+    "ci_run_id": 33369702224,
+    "merge_commit_sha": "c10dcb9b0964a23df7b5bb2760ef494c4e15369d",
+    "merged_at": "2026-08-31T08:13:47Z",
+    "merged_before_desktop": true,
+    "private_handoff_schema": "wayland.nano.phase2-fixture-private/v1",
+    "production_cli_exposure": false,
+    "public_schema": "wayland.nano.phase2-fixture/v2",
+    "repository": "FerroxLabs/wayland-nano",
+    "source_commit_sha": "2f7b33f4ad9344aea1ce78fc9fb09600a6f50dbe"
+  },
+  "repository": "FerroxLabs/wayland",
+  "required_checks": [
+    "Code Quality",
+    "Unit Tests (macos-14)",
+    "Unit Tests (ubuntu-latest)",
+    "Unit Tests (windows-2022)"
+  ],
+  "schema_version": "phase2-desktop-premerge-v1"
+}

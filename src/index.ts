@@ -1569,6 +1569,15 @@ async function performBeforeQuitCleanup(): Promise<void> {
     // await per-agent kill() with its own 3.5s bound).
     const workerStep = () => withTimeout('workerTaskManager.clear', workerTaskManager.clear(), PER_STEP_TIMEOUT_MS);
 
+    const waylandNanoOwnerStep = () =>
+      withTimeout(
+        'disposeWaylandNanoActivationOwner',
+        import('@process/utils/initBridge').then(({ disposeWaylandNanoActivationOwner }) =>
+          disposeWaylandNanoActivationOwner()
+        ),
+        PER_STEP_TIMEOUT_MS
+      );
+
     const ambientStep = () =>
       withTimeout(
         'destroyAmbientWindow',
@@ -1656,6 +1665,7 @@ async function performBeforeQuitCleanup(): Promise<void> {
       );
 
     await cronStep();
+    await waylandNanoOwnerStep();
     await Promise.allSettled([workerStep(), teamStep()]);
     await Promise.allSettled([
       ambientStep(),

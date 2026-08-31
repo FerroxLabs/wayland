@@ -615,6 +615,8 @@ export type TChatConversation =
           cronJobId?: string;
           /** Project ID this conversation belongs to (umbrella scoping). Mirrors cronJobId - read via json_extract(extra,'$.projectId'). */
           projectId?: string;
+          /** Explicit opaque reference to the owner-managed Wayland Nano activation binding. */
+          waylandNanoBindingRef?: string;
           /** Per-conversation reasoning effort (Claude-ACP `effortLevel`). Absent => backend default. */
           effort?: 'low' | 'medium' | 'high';
         }
