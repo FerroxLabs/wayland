@@ -18,6 +18,9 @@ const MERGE_SHA = '1d80ecf93c1ec5fe14e89a44e89c4a0142ba1c9b';
 const LOCK_SHA256 = '3d6ec29f3b19e0b3778a5de222418ec497eaf79be8e93a92dd120d986bdb930a';
 const LOCK_BLOB = '7bb979cf829f7bf0a63692d8485bfc8e4935ed13';
 const HELPER_SOURCE_SHA = '75a192920b27a5a485df91e35154be6dacba414c';
+const HELPER_MERGE_SHA = '17e80e83a78a4d068ce8e0588d6a8f5ee6d8ac57';
+const HELPER_MERGED_AT = '2026-08-31T04:35:28Z';
+const HELPER_CI_RUN_ID = 33355945120;
 const HELPER_LOCK_SHA256 = LOCK_SHA256;
 const MANIFEST_PATH = path.resolve('docs/evidence/phase2/activation-artifact-manifest.json');
 const RECEIPT_PATH = path.resolve('docs/evidence/phase2/activation-negative-crash-receipt.json');
@@ -179,6 +182,20 @@ async function validateCommittedEvidence(): Promise<void> {
     nano.cargoLockBlob !== LOCK_BLOB
   ) {
     throw new Error('committed Nano input identity mismatch');
+  }
+  const helper = artifact.nanoFixtureHelper as Record<string, unknown>;
+  if (
+    helper.sourceCommit !== HELPER_SOURCE_SHA ||
+    helper.mergeCommit !== HELPER_MERGE_SHA ||
+    helper.cargoLockSha256 !== HELPER_LOCK_SHA256 ||
+    helper.ciRunId !== HELPER_CI_RUN_ID ||
+    helper.mergedAt !== HELPER_MERGED_AT ||
+    helper.mergedBeforeDesktop !== true ||
+    helper.publicSchema !== 'wayland.nano.phase2-fixture/v2' ||
+    helper.privateHandoffSchema !== 'wayland.nano.phase2-fixture-private/v1' ||
+    helper.productionCliExposure !== false
+  ) {
+    throw new Error('committed Nano fixture helper identity mismatch');
   }
   const matrix = artifact.matrix as Record<string, unknown>;
   const rowIds = matrix.rowIds as string[];

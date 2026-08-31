@@ -45,6 +45,9 @@ describe('Wayland Nano exact-artifact acceptance contract', () => {
     expect(artifactManifest.nanoFixtureHelper).toEqual({
       cargoLockSha256: LOCK_SHA256,
       ciRunId: 33355945120,
+      mergeCommit: '17e80e83a78a4d068ce8e0588d6a8f5ee6d8ac57',
+      mergedAt: '2026-08-31T04:35:28Z',
+      mergedBeforeDesktop: true,
       privateHandoffSchema: 'wayland.nano.phase2-fixture-private/v1',
       productionCliExposure: false,
       publicSchema: 'wayland.nano.phase2-fixture/v2',
