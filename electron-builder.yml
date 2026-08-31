@@ -272,6 +272,13 @@ win:
     - '!\whatsapp-bridge\node_modules\.bin\semver.exe'
     - '!\whatsapp-bridge\node_modules\.bin\which.exe'
     - '!\whatsapp-bridge\node_modules\cross-spawn\node_modules\.bin\node-which.exe'
+    # Nested, not a duplicate of the hoisted `.bin\semver.exe` above: the sharp
+    # 0.35.4 bump changed bun's resolution so @puppeteer/browsers now carries its
+    # own semver, and this shim is a SECOND file at a different path. Signing it
+    # rewrote 15,872 bytes to 31,624 and the source-mirror gate correctly refused
+    # the build (run 33391945572). Exactly the "lockfile grew a new shim" case
+    # the note above predicts.
+    - '!\whatsapp-bridge\node_modules\@puppeteer\browsers\node_modules\.bin\semver.exe'
 
 nsis:
   oneClick: false
