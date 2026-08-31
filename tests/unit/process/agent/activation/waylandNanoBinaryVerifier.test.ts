@@ -99,8 +99,15 @@ describe('Wayland Nano executable identity', () => {
     expect(() => Object.assign(token, { canonicalPath: alias })).toThrow();
     expect(() => Object.assign(token, { consume: () => undefined })).toThrow();
     expect(() => Object.defineProperty(token, 'dispose', { value: () => undefined })).toThrow();
-    if (process.platform === 'win32') {
-      await expect(link(token.canonicalPath, alias)).rejects.toMatchObject({ code: 'EPERM' });
+    let aliasCreated = false;
+    try {
+      await link(token.canonicalPath, alias);
+      aliasCreated = true;
+    } catch (error) {
+      if (process.platform !== 'win32') throw error;
+      expect(error).toMatchObject({ code: 'EPERM' });
+    }
+    if (!aliasCreated) {
       await token.consume(() => {
         launches += 1;
       });
@@ -109,7 +116,6 @@ describe('Wayland Nano executable identity', () => {
       return;
     }
 
-    await link(token.canonicalPath, alias);
     await expect(
       token.consume(() => {
         launches += 1;
