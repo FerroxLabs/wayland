@@ -1396,6 +1396,11 @@ function isNonEmpty(
   darwinSignedCheck = isDarwinDeveloperIdSigned,
   requireDarwinSignature = false
 ) {
+  // Per-resource, NOT cumulative. `hub` is optional and absent on every build, so
+  // its stat throws and left a `threw: ENOENT ... resources\hub` line sitting in
+  // the array; the next resource to fail printed it as its own reason. On run
+  // 33391945572 that put a phantom `hub` path under the whatsapp-bridge failure.
+  failureReasons.length = 0;
   try {
     if (kind === 'constitution-fs-bundle' && targetPlatform === 'win32') {
       return !fs.existsSync(p);
