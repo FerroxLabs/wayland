@@ -44,6 +44,19 @@ vi.mock('@process/agent/acp/acpConnectors', () => ({
 
 vi.mock('@process/bridge', () => ({ initAllBridges: vi.fn() }));
 
+vi.mock('@process/services/constitution/constitutionFsBinary', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@process/services/constitution/constitutionFsBinary')>();
+  return {
+    ...actual,
+    verifyPackagedConstitutionFsBinary: () => {
+      throw new actual.ConstitutionFsBinaryError(
+        'CONSTITUTION_FS_UNSAFE_PLATFORM',
+        'Packaged Constitution filesystem authority is outside this activation-owner test.'
+      );
+    },
+  };
+});
+
 import '@/common/platform/register-node';
 import { WaylandNanoActivationKeyStore } from '@process/agent/activation/waylandNanoActivationKeyStore';
 import {

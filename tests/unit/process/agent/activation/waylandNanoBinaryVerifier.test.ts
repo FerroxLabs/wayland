@@ -145,6 +145,8 @@ describe('Wayland Nano executable identity', () => {
   it('replaces inherited authority variables with only the frozen owner environment', async () => {
     const { expectation } = await executableFixture();
     const token = await verifyWaylandNanoBinary(expectation);
+    const ownerHome = path.join(expectation.stagingRoot, 'owner-home');
+    const ownerFluxKey = path.join(expectation.stagingRoot, 'owner-flux.key');
     const output = path.join(expectation.stagingRoot, 'spawn-env.json');
     const probe = path.join(expectation.stagingRoot, 'acp-host');
     await writeFile(
@@ -169,7 +171,7 @@ describe('Wayland Nano executable identity', () => {
         expectation.canonicalPath,
         expectation.stagingRoot,
         ['acp-host'],
-        { NANO_HOME: 'C:/owner/nano-home', FLUX_API_KEY_FILE: 'C:/owner/flux.key' },
+        { NANO_HOME: ownerHome, FLUX_API_KEY_FILE: ownerFluxKey },
         undefined,
         token
       );
@@ -179,8 +181,8 @@ describe('Wayland Nano executable identity', () => {
         (key) => /^NANO_/i.test(key) || /AUTHORITY|KEYREF|ADMIN_ROOT|RECOVERY_ROOT/i.test(key)
       );
       expect(authorityKeys).toEqual(['NANO_HOME']);
-      expect(environment.NANO_HOME).toBe('C:/owner/nano-home');
-      expect(environment.FLUX_API_KEY_FILE).toBe('C:/owner/flux.key');
+      expect(environment.NANO_HOME).toBe(ownerHome);
+      expect(environment.FLUX_API_KEY_FILE).toBe(ownerFluxKey);
     } finally {
       for (const [key, value] of Object.entries(previous)) {
         if (value === undefined) delete process.env[key];
