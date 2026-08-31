@@ -6,6 +6,8 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
+import { readEngineCronJobs, isEngineJobId } from '@process/services/cron/EngineCronReader';
+import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
 import { ipcBridge } from '@/common';
 import type { TMessage } from '@/common/chat/chatLib';
 import type { TChatConversation } from '@/common/config/storage';
@@ -387,6 +389,15 @@ export class CronService {
    * Update an existing cron job
    */
   async updateJob(jobId: string, updates: Partial<CronJob>, allowHighFrequency = false): Promise<CronJob> {
+    // The engine owns this record, not Desktop: it lives in the engine's
+    // jobs.json behind an `integrity` digest Desktop cannot recompute. Refuse
+    // by name instead of running the SQLite path, which would silently find no
+    // row and report success for a change that never happened.
+    if (isEngineJobId(jobId)) {
+      throw new Error(
+        `Scheduled task ${jobId} is owned by the engine's scheduler and is read-only here. Ask the assistant to change it.`
+      );
+    }
     const existing = await this.repo.getById(jobId);
     if (!existing) {
       throw new Error(`Job not found: ${jobId}`);
@@ -563,6 +574,15 @@ export class CronService {
    * directory, completed chats, reports, and workspaces remain recoverable.
    */
   async removeJob(jobId: string): Promise<ArchivedCronJob> {
+    // The engine owns this record, not Desktop: it lives in the engine's
+    // jobs.json behind an `integrity` digest Desktop cannot recompute. Refuse
+    // by name instead of running the SQLite path, which would silently find no
+    // row and report success for a change that never happened.
+    if (isEngineJobId(jobId)) {
+      throw new Error(
+        `Scheduled task ${jobId} is owned by the engine's scheduler and is read-only here. Ask the assistant to change it.`
+      );
+    }
     return this.withCronMutation(async () => {
       const job = await this.repo.getById(jobId);
       if (!job) throw new Error(`Job not found: ${jobId}`);
@@ -654,6 +674,15 @@ export class CronService {
    * Returns the conversationId immediately so the frontend can navigate to it.
    */
   async runNow(jobId: string): Promise<string> {
+    // The engine owns this record, not Desktop: it lives in the engine's
+    // jobs.json behind an `integrity` digest Desktop cannot recompute. Refuse
+    // by name instead of running the SQLite path, which would silently find no
+    // row and report success for a change that never happened.
+    if (isEngineJobId(jobId)) {
+      throw new Error(
+        `Scheduled task ${jobId} is owned by the engine's scheduler and is read-only here. Ask the assistant to change it.`
+      );
+    }
     const job = await this.repo.getById(jobId);
     if (!job) {
       throw new Error(`Job not found: ${jobId}`);
@@ -672,7 +701,20 @@ export class CronService {
    * List all cron jobs
    */
   async listJobs(): Promise<CronJob[]> {
-    return this.repo.listAll();
+    const own = await this.repo.listAll();
+    // The engine keeps its own scheduler. A job the assistant created with the
+    // engine's `cronjob` tool exists and will fire, but lived only in
+    // `<engine home>/cron/jobs.json` - so the user was told "your brief will run
+    // weekdays at 07:00" and Scheduled Tasks showed nothing. Merge those in,
+    // tagged by origin, rather than leaving the promise invisible. Never let a
+    // problem reading the engine's file blank the user's own jobs.
+    let engineJobs: CronJob[] = [];
+    try {
+      engineJobs = readEngineCronJobs(nativeConfigDir()) as unknown as CronJob[];
+    } catch {
+      engineJobs = [];
+    }
+    return [...own, ...engineJobs];
   }
 
   /**
@@ -686,6 +728,11 @@ export class CronService {
    * Get a specific job
    */
   async getJob(jobId: string): Promise<CronJob | null> {
+    if (isEngineJobId(jobId)) {
+      // Readable, so the detail view can render it; the mutating paths above
+      // are what refuse.
+      return (readEngineCronJobs(nativeConfigDir()) as unknown as CronJob[]).find((j) => j.id === jobId) ?? null;
+    }
     return this.repo.getById(jobId);
   }
 
