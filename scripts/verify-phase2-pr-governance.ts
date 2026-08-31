@@ -394,7 +394,7 @@ export function verifyGovernanceSnapshot(
     fail('GitHub repository/default branch mismatch');
   }
   if (
-    !snapshot.issue_open ||
+    (!finalReceipt && !snapshot.issue_open) ||
     snapshot.issue_assignee !== manifest.issue.assignee ||
     JSON.stringify([...snapshot.issue_labels].sort()) !== JSON.stringify([...manifest.issue.labels].sort())
   )
@@ -607,6 +607,12 @@ function checkManifestArtifacts(manifest: PremergeManifest): void {
   equalIdentity(manifest.implementation_input, implementation, 'implementation input');
 }
 
+export function findCheckRun(checkRuns: JsonObject[], name: string, expectedId?: number): JsonObject | undefined {
+  return checkRuns.find(
+    (candidate) => candidate.name === name && (expectedId === undefined || Number(candidate.id) === expectedId)
+  );
+}
+
 function fetchSnapshot(manifest: PremergeManifest, finalReceipt?: FinalReceipt): GovernanceSnapshot {
   const repository = ghApi(`repos/${manifest.repository}`) as JsonObject;
   const issue = ghApi(`repos/${manifest.repository}/issues/${manifest.issue.number}`) as JsonObject;
@@ -644,13 +650,21 @@ function fetchSnapshot(manifest: PremergeManifest, finalReceipt?: FinalReceipt):
   const checkRuns = (runsResponse.check_runs as JsonObject[]) ?? [];
   const checks: GovernanceSnapshot['checks'] = {};
   for (const name of REQUIRED_CHECKS) {
-    const check = checkRuns.find((candidate) => candidate.name === name);
+    const expectedId = finalReceipt?.check_run_ids[name];
+    const candidates = expectedId
+      ? [ghApi(`repos/${manifest.repository}/check-runs/${expectedId}`) as JsonObject]
+      : checkRuns;
+    const check = findCheckRun(candidates, name, expectedId);
     if (check)
       checks[name] = { conclusion: String(check.conclusion), head_sha: String(check.head_sha), id: Number(check.id) };
   }
   const artifactChecks: NonNullable<GovernanceSnapshot['artifact_checks']> = {};
   for (const name of manifest.artifact.workflow_checks) {
-    const check = checkRuns.find((candidate) => candidate.name === name);
+    const expectedId = finalReceipt?.artifact_check_run_ids[name];
+    const candidates = expectedId
+      ? [ghApi(`repos/${manifest.repository}/check-runs/${expectedId}`) as JsonObject]
+      : checkRuns;
+    const check = findCheckRun(candidates, name, expectedId);
     if (check)
       artifactChecks[name] = {
         conclusion: String(check.conclusion),
@@ -681,8 +695,8 @@ function fetchSnapshot(manifest: PremergeManifest, finalReceipt?: FinalReceipt):
     merge_sha: pr.merge_commit_sha,
     merge_parent_count: mergeParents.length,
     bypassed: false,
-    reviewedIdentity,
-    mergeIdentity,
+    reviewed_identity: reviewedIdentity,
+    merge_identity: mergeIdentity,
     nano_merge_time: finalReceipt.nano.merged_at,
     nano_fixture_helper_merge_time: finalReceipt.nano_fixture_helper.merged_at,
     desktop_merge_time: String(pr.merged_at),
