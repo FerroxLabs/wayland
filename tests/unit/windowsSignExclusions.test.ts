@@ -95,6 +95,48 @@ describe('windows signing exclusions', () => {
     }
   });
 
+  /**
+   * The list above is hand-written, so it can only ever prove the shims someone
+   * already thought of. It passed with and without the fix for run 33391945572,
+   * where sharp 0.35.4 pulled a newer semver, gave @puppeteer/browsers its own
+   * nested copy, and produced a shim at a path no entry matched. Signing rewrote
+   * it from 15,872 to 31,624 bytes and the source-mirror gate refused the build
+   * 30 minutes in.
+   *
+   * Enumerate what the frozen lockfile ACTUALLY installs instead, so the next
+   * resolution change fails here rather than on a Windows runner.
+   */
+  const BRIDGE_MODULES = path.resolve('src', 'process', 'channels', 'whatsapp-bridge', 'node_modules');
+
+  const installedShimPaths = (): string[] => {
+    const files: string[] = [];
+    const walk = (dir: string, relative: string) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (entry.name === '.bin') {
+          for (const shim of fs.readdirSync(path.join(dir, entry.name))) {
+            // bun materialises each shim as `<name>.exe` on Windows.
+            const bare = shim.replace(/\.(?:exe|cmd|ps1)$/i, '');
+            files.push(`${UNPACKED}\\resources\\whatsapp-bridge${relative.replace(/\//g, '\\')}\\.bin\\${bare}.exe`);
+          }
+          continue;
+        }
+        if (entry.isDirectory()) walk(path.join(dir, entry.name), `${relative}/${entry.name}`);
+      }
+    };
+    walk(BRIDGE_MODULES, '/node_modules');
+    return [...new Set(files)].sort();
+  };
+
+  it('leaves EVERY shim the frozen lockfile installs unsigned, including nested ones', () => {
+    // Asserted rather than skipped: postinstall installs the bridge, and a skip
+    // would switch this check off on exactly the machines that package a build.
+    expect(fs.existsSync(BRIDGE_MODULES), 'bridge node_modules missing - run postinstall').toBe(true);
+    const shims = installedShimPaths();
+    expect(shims.length).toBeGreaterThan(15);
+    const signExts = readWinSignExts();
+    expect(shims.filter((file) => wouldSign(file, signExts))).toEqual([]);
+  });
+
   it('excludes by path rather than by extension, so unrelated executables are unaffected', () => {
     const signExts = readWinSignExts();
     expect(signExts.every((ext) => ext.startsWith('!'))).toBe(true);
