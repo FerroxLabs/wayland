@@ -123,41 +123,106 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
 }
 
 /**
- * Recursively collect all descendant PIDs of a process.
- * Uses `ps -o pid= --ppid` on Linux and `ps -o pid= -p` + manual ppid matching on macOS,
- * falling back to a single `ps` snapshot that works on both.
+ * Applications a connector may launch ON THE USER'S BEHALF, which outlive the
+ * engine that started them.
+ *
+ * WHY THIS EXISTS. The engine is disposable: `WorkerTaskManager` reaps an idle
+ * one five minutes after the user hits send (WorkerTaskManager.ts:20, and the
+ * clock is `sendMessage`, not the reply - WCoreManager.ts:1106). Tearing it down
+ * runs the descendant sweep below, and a chart application launched by an MCP
+ * connector is a GRANDCHILD of that engine, so it was being SIGKILLed between
+ * turns. Measured twice: the app died 5.3 and 5.5 minutes after a turn, with
+ * nothing touching it. The user set up a chart, read the guide for five minutes,
+ * asked their next question, and their work was gone.
+ *
+ * Nothing was misbehaving - the reaper frees memory as designed and the sweep
+ * satisfies #139 as designed. The defect is that a USER-FACING application was
+ * ever a descendant of a disposable process.
+ *
+ * CLOSED WORLD, ON PURPOSE. This is an exact-match list of application binaries,
+ * not a connector-supplied allowlist: a connector that could nominate its own
+ * exemptions would be an untracked persistence escape for any MCP server. Adding
+ * an entry here is a deliberate, reviewable act.
+ *
+ * SCOPE. POSIX only. The Windows path is `taskkill /PID <pid> /T /F`, which
+ * cannot express an exclusion, so the tree is still killed unconditionally there
+ * (the durable fix is a Job Object the app is launched outside of).
+ *
+ * IDENTITY IS BY ABSOLUTE PATH, AND THAT IS A TRANSITIONAL CHECK. The pattern is
+ * anchored at `^/Applications/` so a binary in a user-writable directory cannot
+ * dress itself up as an exempt app - an unanchored suffix match would let
+ * anything under `/tmp/TradingView.app/...` claim the exemption. A path still
+ * identifies a CLASS of application rather than one process; binding to the
+ * code-signing identity belongs with the supervisor that replaces this.
+ * Consequence, accepted: a non-standard install (e.g. ~/Applications) is simply
+ * not exempt, which is exactly today's behaviour rather than a regression.
+ */
+const EXTERNAL_GUI_APP_BINARIES = [/^\/Applications\/TradingView\.app\/Contents\/MacOS\/TradingView( Helper( \(.*\))?)?$/];
+
+function isExternalGuiApp(command: string): boolean {
+  return EXTERNAL_GUI_APP_BINARIES.some((re) => re.test(command));
+}
+
+/**
+ * The BFS and the prune, split out from process enumeration so it can be tested
+ * against a synthetic `ps` table. A real fixture is impossible here: macOS
+ * Gatekeeper SIGKILLs any hand-made `.app` bundle whose signature identifier
+ * does not match, and Linux CI has no bundles at all.
+ */
+export function _collectDescendantPidsFromPsTable(psStdout: string, rootPid: number): number[] {
+  const childMap = new Map<number, number[]>();
+  const commandOf = new Map<number, string>();
+  for (const line of psStdout.trim().split('\n')) {
+    const parts = line.trim().split(/\s+/);
+    if (parts.length < 2) continue;
+    const pid = parseInt(parts[0], 10);
+    const ppid = parseInt(parts[1], 10);
+    if (isNaN(pid) || isNaN(ppid)) continue;
+    commandOf.set(pid, parts.slice(2).join(' '));
+    if (!childMap.has(ppid)) childMap.set(ppid, []);
+    childMap.get(ppid)!.push(pid);
+  }
+
+  const result: number[] = [];
+  const queue = [rootPid];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const child of childMap.get(current) || []) {
+      if (isExternalGuiApp(commandOf.get(child) ?? '')) {
+        // Leave it, and its helpers, running for the user. Do NOT enqueue.
+        continue;
+      }
+      result.push(child);
+      queue.push(child);
+    }
+  }
+  return result;
+}
+
+/**
+ * Recursively collect all descendant PIDs of a process, PRUNING any subtree
+ * rooted at a recognised external GUI application.
+ *
+ * The prune is subtree-wide, not per-process: such an app spawns its own helper
+ * children (renderers, GPU), and killing those breaks it exactly as thoroughly
+ * as killing the parent. Because an exempted process is never collected, it also
+ * never reaches the "still alive after SIGKILL" throw - the tree proof keeps its
+ * meaning for every process the engine actually owns.
  */
 async function collectDescendantPids(rootPid: number): Promise<number[]> {
   try {
-    // `ps -eo pid=,ppid=` works on both macOS and Linux - parse the full process table
-    const { stdout } = await execFile('ps', ['-eo', 'pid=,ppid='], { timeout: 3000 });
-    const childMap = new Map<number, number[]>();
-    for (const line of stdout.trim().split('\n')) {
-      const parts = line.trim().split(/\s+/);
-      if (parts.length < 2) continue;
-      const pid = parseInt(parts[0], 10);
-      const ppid = parseInt(parts[1], 10);
-      if (isNaN(pid) || isNaN(ppid)) continue;
-      if (!childMap.has(ppid)) childMap.set(ppid, []);
-      childMap.get(ppid)!.push(pid);
-    }
-
-    // BFS to collect all descendants
-    const result: number[] = [];
-    const queue = [rootPid];
-    while (queue.length > 0) {
-      const current = queue.shift()!;
-      const children = childMap.get(current) || [];
-      for (const child of children) {
-        result.push(child);
-        queue.push(child);
-      }
-    }
-    return result;
+    // `comm` is the executable path with no arguments, so a process cannot dress
+    // itself up as an exempt app by choosing its argv. It can contain spaces, so
+    // the first two fields are parsed positionally and the REST is the command.
+    const { stdout } = await execFile('ps', ['-eo', 'pid=,ppid=,comm='], { timeout: 3000 });
+    return _collectDescendantPidsFromPsTable(stdout, rootPid);
   } catch (error) {
     throw new Error(`Unable to enumerate ACP process tree for PID ${rootPid}`, { cause: error });
   }
 }
+
+/** Test seam: the exemption predicate and its closed-world list. */
+export const __killChildTesting = { isExternalGuiApp, EXTERNAL_GUI_APP_BINARIES };
 
 /**
  * Decode a Windows command error for readable logging.
