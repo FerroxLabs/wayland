@@ -17,10 +17,10 @@ const SOURCE_SHA = '288de9ed3185c91717f8f777c9975c784709e824';
 const MERGE_SHA = '1d80ecf93c1ec5fe14e89a44e89c4a0142ba1c9b';
 const LOCK_SHA256 = '3d6ec29f3b19e0b3778a5de222418ec497eaf79be8e93a92dd120d986bdb930a';
 const LOCK_BLOB = '7bb979cf829f7bf0a63692d8485bfc8e4935ed13';
-const HELPER_SOURCE_SHA = '75a192920b27a5a485df91e35154be6dacba414c';
-const HELPER_MERGE_SHA = '17e80e83a78a4d068ce8e0588d6a8f5ee6d8ac57';
-const HELPER_MERGED_AT = '2026-08-31T04:35:28Z';
-const HELPER_CI_RUN_ID = 33355945120;
+const HELPER_SOURCE_SHA = '2f7b33f4ad9344aea1ce78fc9fb09600a6f50dbe';
+const HELPER_MERGE_SHA = 'c10dcb9b0964a23df7b5bb2760ef494c4e15369d';
+const HELPER_MERGED_AT = '2026-08-31T08:13:47Z';
+const HELPER_CI_RUN_ID = 33369702224;
 const HELPER_LOCK_SHA256 = LOCK_SHA256;
 const MANIFEST_PATH = path.resolve('docs/evidence/phase2/activation-artifact-manifest.json');
 const RECEIPT_PATH = path.resolve('docs/evidence/phase2/activation-negative-crash-receipt.json');
@@ -466,6 +466,7 @@ async function makeOwnerOnly(target: string): Promise<void> {
       '/grant:r',
       `*${sid}:(OI)(CI)F`,
     ]);
+    normalizeWindowsOwner(target, true, systemRoot);
   } else {
     await chmod(target, 0o700);
   }
@@ -480,9 +481,29 @@ async function writePrivateFile(target: string, bytes: Buffer | string): Promise
     const sid = row.split(',')[1]?.replaceAll('"', '');
     if (!sid || !/^S-\d(?:-\d+)+$/.test(sid)) throw new Error('Windows owner SID is unavailable');
     mustRun(path.join(systemRoot, 'System32', 'icacls.exe'), [target, '/inheritance:r', '/grant:r', `*${sid}:F`]);
+    normalizeWindowsOwner(target, false, systemRoot);
   } else {
     await chmod(target, 0o600);
   }
+}
+
+function normalizeWindowsOwner(target: string, directory: boolean, systemRoot: string): void {
+  const encodedTarget = Buffer.from(target, 'utf8').toString('base64');
+  const kind = directory ? 'Directory' : 'File';
+  const script = String.raw`
+$ErrorActionPreference='Stop'
+$target=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedTarget}'))
+$current=[Security.Principal.WindowsIdentity]::GetCurrent().User
+$item=[IO.${kind}]::GetAccessControl($target)
+$owner=$item.GetOwner([Security.Principal.SecurityIdentifier])
+if($owner -ne $current){$item.SetOwner($current);[IO.${kind}]::SetAccessControl($target,$item)}
+`;
+  mustRun(path.join(systemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'), [
+    '-NoProfile',
+    '-NonInteractive',
+    '-Command',
+    script,
+  ]);
 }
 
 async function createEvidenceRoot(): Promise<string> {

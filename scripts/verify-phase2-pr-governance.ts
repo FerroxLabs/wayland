@@ -332,12 +332,12 @@ function assertManifestShape(manifest: PremergeManifest): void {
   }
   if (
     manifest.nano_fixture_helper?.repository !== 'FerroxLabs/wayland-nano' ||
-    manifest.nano_fixture_helper.source_commit_sha !== '75a192920b27a5a485df91e35154be6dacba414c' ||
-    manifest.nano_fixture_helper.merge_commit_sha !== '17e80e83a78a4d068ce8e0588d6a8f5ee6d8ac57' ||
+    manifest.nano_fixture_helper.source_commit_sha !== '2f7b33f4ad9344aea1ce78fc9fb09600a6f50dbe' ||
+    manifest.nano_fixture_helper.merge_commit_sha !== 'c10dcb9b0964a23df7b5bb2760ef494c4e15369d' ||
     manifest.nano_fixture_helper.cargo_lock_sha256 !==
       '3d6ec29f3b19e0b3778a5de222418ec497eaf79be8e93a92dd120d986bdb930a' ||
-    manifest.nano_fixture_helper.ci_run_id !== 33355945120 ||
-    manifest.nano_fixture_helper.merged_at !== '2026-08-31T04:35:28Z' ||
+    manifest.nano_fixture_helper.ci_run_id !== 33369702224 ||
+    manifest.nano_fixture_helper.merged_at !== '2026-08-31T08:13:47Z' ||
     manifest.nano_fixture_helper.merged_before_desktop !== true ||
     manifest.nano_fixture_helper.public_schema !== 'wayland.nano.phase2-fixture/v2' ||
     manifest.nano_fixture_helper.private_handoff_schema !== 'wayland.nano.phase2-fixture-private/v1' ||

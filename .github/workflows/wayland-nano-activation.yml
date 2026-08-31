@@ -66,8 +66,8 @@ jobs:
           $root = Join-Path $env:RUNNER_TEMP "nano-bootstrap-$env:GITHUB_RUN_ID"
           git -c core.autocrlf=false clone --filter=blob:none --no-checkout https://github.com/FerroxLabs/wayland-nano.git "$root/nano"
           git -C "$root/nano" config core.autocrlf false
-          git -C "$root/nano" fetch --depth=1 origin 75a192920b27a5a485df91e35154be6dacba414c
-          git -C "$root/nano" checkout --detach 75a192920b27a5a485df91e35154be6dacba414c
+          git -C "$root/nano" fetch --depth=1 origin 2f7b33f4ad9344aea1ce78fc9fb09600a6f50dbe
+          git -C "$root/nano" checkout --detach 2f7b33f4ad9344aea1ce78fc9fb09600a6f50dbe
           $env:CARGO_TARGET_DIR = "$root/target"
           cargo test --locked --manifest-path "$root/nano/Cargo.toml" -p nano-activation --lib
           cargo test --locked --manifest-path "$root/nano/Cargo.toml" -p nano-activation --test offline_bootstrap -- --test-threads=1

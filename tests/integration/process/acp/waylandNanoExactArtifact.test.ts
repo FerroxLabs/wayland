@@ -44,14 +44,14 @@ describe('Wayland Nano exact-artifact acceptance contract', () => {
     expect(artifactManifest.build.profiles).toEqual(['debug', 'release']);
     expect(artifactManifest.nanoFixtureHelper).toEqual({
       cargoLockSha256: LOCK_SHA256,
-      ciRunId: 33355945120,
-      mergeCommit: '17e80e83a78a4d068ce8e0588d6a8f5ee6d8ac57',
-      mergedAt: '2026-08-31T04:35:28Z',
+      ciRunId: 33369702224,
+      mergeCommit: 'c10dcb9b0964a23df7b5bb2760ef494c4e15369d',
+      mergedAt: '2026-08-31T08:13:47Z',
       mergedBeforeDesktop: true,
       privateHandoffSchema: 'wayland.nano.phase2-fixture-private/v1',
       productionCliExposure: false,
       publicSchema: 'wayland.nano.phase2-fixture/v2',
-      sourceCommit: '75a192920b27a5a485df91e35154be6dacba414c',
+      sourceCommit: '2f7b33f4ad9344aea1ce78fc9fb09600a6f50dbe',
     });
   });
 
