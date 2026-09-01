@@ -5,6 +5,7 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve as resolvePath } from 'node:path';
@@ -25,7 +26,7 @@ import {
   quarantineOverride,
 } from './overrideQuarantine';
 import { describeSpawnError, describeExitReason } from './execFailureReason';
-import { describeContractRejection, profileStripHedge } from './startFailureReason';
+import { describeContractRejection, profileStripHedge, stripInformationalLines } from './startFailureReason';
 import {
   buildEngineSpawnEnv,
   buildOutputDirective,
@@ -1037,7 +1038,7 @@ export class WCoreAgent {
         // SIGKILL) reads "killed by SIGKILL …" instead of "exited with code null"
         // — a numeric exit stays byte-exactly "exited with code N", keeping this
         // wording distinct from the separate 30s ready-timeout below.
-        const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
+        const detail = stripInformationalLines(redactSecrets(stripAnsi(this.stderrTail).trim()));
         const reason = describeExitReason(code, signal);
         this.readyReject(
           new Error(
@@ -1061,7 +1062,7 @@ export class WCoreAgent {
     // engine that exited during init (handled above).
     const timeout = new Promise<void>((_, reject) => {
       setTimeout(() => {
-        const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
+        const detail = stripInformationalLines(redactSecrets(stripAnsi(this.stderrTail).trim()));
         reject(
           new Error(
             detail ? `wcore ready timeout (30s): ${detail}${profileStripHedge(detail)}` : 'wcore ready timeout (30s)'
@@ -1103,7 +1104,18 @@ export class WCoreAgent {
         if (this.disposed) {
           throw new Error('Wayland Core agent was stopped during resume fallback', { cause: err });
         }
-        this.options = { ...this.options, resume: undefined, sessionId: this.options.resume };
+        // NEVER re-create the session id that just failed to resume. The engine
+        // treats `--session-id` as CREATE, and the id is still present on disk -
+        // it is the journal that cannot be replayed - so asking for it back is
+        // refused with `Session ID '<id>' already exists` and the fallback dies
+        // on arrival. Measured on a customer-shaped run: the resume failed, the
+        // fallback re-requested the same id, and the identical cycle repeated
+        // every few seconds without ever recovering. Mint a fresh id instead.
+        //
+        // Engine-side history for that chat is already gone at this point (an
+        // unreplayable journal is exactly why we are here), so a new session is
+        // the honest outcome rather than a loss introduced by this line.
+        this.options = { ...this.options, resume: undefined, sessionId: randomUUID() };
         this.ready = false;
         this.readyPromise = new Promise((resolve, reject) => {
           this.readyResolve = resolve;

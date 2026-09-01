@@ -38,6 +38,36 @@ export type StartFailureClass = 'stripped-config' | 'profile-resolution' | 'gene
 // tolerant of either quote style, capturing the profile name.
 const PROFILE_NOT_FOUND_PATTERN = /profile\s+['"]([^'"]+)['"]\s+not found in config/i;
 
+/**
+ * Lines the engine prints as INFORMATION, never as a cause of failure.
+ *
+ * Core emits `notice: provider 'openai' is using the credential from
+ * OPENAI_API_KEY ...` on every start where that env var exists - it is a remark
+ * about a provider the user may not even be using. When a start fails for an
+ * unrelated reason (a journal that cannot be replayed, say), that notice is
+ * often the ONLY text in the stderr tail, so it got surfaced as the cause and
+ * the user was told their OpenAI key broke a chat running on Flux.
+ *
+ * Measured on a customer-shaped run: the real failure was
+ * `invalid journal state transition: ... state digest mismatch` followed by
+ * `Desktop contract failed closed { code: 'ready_required' }`, and the message
+ * shown named an unrelated credential.
+ */
+const INFORMATIONAL_LINE = /^\s*notice\s*:/i;
+
+/**
+ * Drop informational lines so a real cause is never displaced by a remark.
+ * Returns '' when nothing but notices remain - callers then keep their own
+ * wording rather than blaming a notice.
+ */
+export function stripInformationalLines(detail: string): string {
+  return detail
+    .split('\n')
+    .filter((line) => line.trim() && !INFORMATIONAL_LINE.test(line))
+    .join('\n')
+    .trim();
+}
+
 /** Classify a (already redacted) start-failure detail string. */
 export function classifyStartFailureDetail(detail: string): StartFailureClass {
   const match = PROFILE_NOT_FOUND_PATTERN.exec(detail);
@@ -76,6 +106,7 @@ export function profileStripHedge(detail: string): string {
  * wording.
  */
 export function describeContractRejection(stderrDetail: string, fallbackDetail: string): string {
-  if (!stderrDetail) return `wcore Desktop contract rejected ready: ${fallbackDetail}`;
-  return `wcore refused to start: ${stderrDetail}${profileStripHedge(stderrDetail)}`;
+  const meaningful = stripInformationalLines(stderrDetail);
+  if (!meaningful) return `wcore Desktop contract rejected ready: ${fallbackDetail}`;
+  return `wcore refused to start: ${meaningful}${profileStripHedge(meaningful)}`;
 }

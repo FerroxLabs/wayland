@@ -18,6 +18,7 @@ import {
   classifyStartFailureDetail,
   describeContractRejection,
   profileStripHedge,
+  stripInformationalLines,
 } from '@process/agent/wcore/startFailureReason';
 
 describe('classifyStartFailureDetail', () => {
@@ -88,5 +89,46 @@ describe('describeContractRejection', () => {
     const result = describeContractRejection(stderrDetail, 'Core emitted malformed JSON');
     expect(result).toContain(stderrDetail);
     expect(result).toMatch(/likely|inferred|not confirmed/i);
+  });
+});
+
+/**
+ * A `notice:` line must never be reported as the cause of a failed start.
+ *
+ * Core prints `notice: provider 'openai' is using the credential from
+ * OPENAI_API_KEY ...` on every start where that variable exists, about a
+ * provider the user may not be using at all. When a start failed for an
+ * unrelated reason, that notice was frequently the ONLY text in the stderr
+ * tail, so it became the displayed cause - and a chat running on Flux
+ * Reasoning was reported as broken by an OpenAI credential. Measured live:
+ * the real cause was an unreplayable journal (`state digest mismatch` ->
+ * `ready_required`), and none of that reached the user.
+ */
+describe('informational engine lines are never reported as a failure cause', () => {
+  const NOTICE =
+    "notice: provider 'openai' is using the credential from OPENAI_API_KEY (set in this environment), not from your config file";
+
+  it('keeps the caller wording when the tail is nothing but notices', () => {
+    const result = describeContractRejection(NOTICE, 'Core must negotiate before emitting events');
+    expect(result).toContain('Core must negotiate before emitting events');
+    expect(result).not.toContain('OPENAI_API_KEY');
+    expect(result).not.toMatch(/refused to start/);
+  });
+
+  it('reports the real error when a notice sits alongside one', () => {
+    const real = 'Error: invalid journal state transition: state digest mismatch';
+    const result = describeContractRejection(`${NOTICE}\n${real}`, 'fallback wording');
+    expect(result).toContain(real);
+    expect(result).not.toContain('OPENAI_API_KEY');
+  });
+
+  it('strips notices case-insensitively and with leading space, keeping other lines', () => {
+    expect(stripInformationalLines('  NOTICE: chatty\nreal failure')).toBe('real failure');
+    expect(stripInformationalLines('notice: a\nnotice: b')).toBe('');
+  });
+
+  it('does not strip a line that merely mentions the word notice', () => {
+    const line = 'Error: did not notice: the socket closed';
+    expect(stripInformationalLines(line)).toBe(line);
   });
 });
