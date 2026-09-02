@@ -50,7 +50,7 @@ vi.mock('@process/agent/wcore/toolKeyStore', () => ({
 
 import os from 'os';
 import path from 'path';
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'fs';
 
 import { WCoreAgent } from '@process/agent/wcore';
 
@@ -130,28 +130,34 @@ describe('the engine spawn trusts ONLY the workspace Desktop minted for this cha
     expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: rootLink })).toContain(TRUST_FLAG);
   });
 
-  it('matches the way the filesystem does, so a case-differing spelling still trusts on Windows', async () => {
-    // The Windows unit shard caught this: the spawn argv came back as
-    // ['--assistant','wayland-desktop'] with NO trust flag, because the gate
-    // compared two spellings of the SAME directory with a strict `===`. On
-    // Windows `realpathSync` can return a different case (or an 8.3 name like
-    // RUNNER~1) than the one getSystemDir().workDir was built from, so the flag
-    // was never passed and loopback/egress stayed blocked - the trust fix dead
-    // in production while looking right in review.
+  it('matches the way the filesystem does: a respelled path trusts exactly when the OS says it is the same directory', async () => {
+    // The Windows shard caught the real bug here twice over. First pass: the
+    // gate compared canonicalised paths with strict ===. Second pass: the case
+    // fold was not enough either, because the workspace reaches the gate
+    // through withWCoreProjectConfigLease, whose fs/promises.realpath uses
+    // NATIVE semantics and expands 8.3 names (RUNNER~1 -> runneradmin), while
+    // the gate canonicalised the root with the JS realpathSync, which keeps
+    // them - different characters, not different case. The fix is ONE realpath
+    // flavour for both sides (native, with a JS fallback for both).
     //
-    // Asserted on win32 only, deliberately: POSIX filesystems really are
-    // case-sensitive, so upper-casing a path there names a directory that does
-    // not exist and MUST NOT be trusted. That is the control, and it runs on
-    // this machine.
+    // This control is written against the FILESYSTEM's own answer, not an
+    // assumed per-platform one, because the first version of it assumed POSIX
+    // means case-sensitive - and default APFS is case-INSENSITIVE, so an
+    // upper-cased spelling really is the same directory on a stock Mac and
+    // MUST trust. On a case-sensitive volume the same spelling names nothing
+    // and MUST refuse. existsSync of the respelled root is exactly that
+    // question, asked of the OS.
     const minted = makeDir(workRoot, MINTED_NAME);
     const shouted = workRoot.toUpperCase();
+    const sameDirPerOs = existsSync(shouted);
 
-    if (process.platform === 'win32') {
-      expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: shouted })).toContain(TRUST_FLAG);
+    const argsShouted = await spawnArgsFor({ workspace: minted, managedWorkRoot: shouted });
+    if (sameDirPerOs) {
+      expect(argsShouted).toContain(TRUST_FLAG);
     } else {
-      expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: shouted })).not.toContain(TRUST_FLAG);
+      expect(argsShouted).not.toContain(TRUST_FLAG);
     }
-    // Both platforms: the exact spelling always trusts.
+    // Every platform: the exact spelling always trusts.
     expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: workRoot })).toContain(TRUST_FLAG);
   });
 

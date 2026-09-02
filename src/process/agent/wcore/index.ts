@@ -291,15 +291,33 @@ export function isDesktopMintedWCoreWorkspace(params: {
   if (customWorkspace === true) return false;
   if (typeof projectId === 'string' && projectId.length > 0) return false;
 
+  // ONE realpath flavour for BOTH sides, never mixed. The workspace reaching
+  // this gate has already been canonicalised by `withWCoreProjectConfigLease`,
+  // whose `fs/promises.realpath` uses NATIVE semantics - on Windows that
+  // expands 8.3 short names (RUNNER~1 -> runneradmin). The JS-implementation
+  // `realpathSync` does NOT expand them, so canonicalising the work root with
+  // it compared `...\runneradmin\...` against `...\RUNNER~1\...` - different
+  // characters, not different case, so the case-insensitive compare below
+  // could not save it and the flag silently never passed. Any Windows user
+  // whose profile path carries an 8.3 component (usernames over 8 chars are
+  // enough) hits this in production, not just CI. Native for both, and if
+  // EITHER side cannot be native-resolved, the JS flavour for both - the
+  // invariant is sameness of flavour, and both fallbacks still resolve
+  // symlinks, so the ~/.wayland indirection keeps working either way.
   let canonicalWorkspace: string;
   let canonicalRoot: string;
   try {
-    canonicalWorkspace = realpathSync(resolvePath(workspace));
-    canonicalRoot = realpathSync(resolvePath(managedWorkRoot));
+    canonicalWorkspace = realpathSync.native(resolvePath(workspace));
+    canonicalRoot = realpathSync.native(resolvePath(managedWorkRoot));
   } catch {
-    // A path we cannot canonicalise is a path whose provenance we cannot
-    // prove. Refuse rather than trust on a lexical spelling.
-    return false;
+    try {
+      canonicalWorkspace = realpathSync(resolvePath(workspace));
+      canonicalRoot = realpathSync(resolvePath(managedWorkRoot));
+    } catch {
+      // A path we cannot canonicalise is a path whose provenance we cannot
+      // prove. Refuse rather than trust on a lexical spelling.
+      return false;
+    }
   }
 
   if (!DESKTOP_MINTED_WCORE_WORKSPACE.test(basename(canonicalWorkspace))) return false;
