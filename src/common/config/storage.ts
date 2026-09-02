@@ -523,6 +523,12 @@ interface IChatConversation<T, Extra> {
 // Token usage statistics data type
 export interface TokenUsageData {
   totalTokens: number;
+  /**
+   * True when the number is a TURN or SESSION total rather than the size of
+   * the prompt in the window. Spend, not occupancy - it can exceed the context
+   * limit many times over, so it must never be drawn as a percentage of it.
+   */
+  isCumulative?: boolean;
 }
 
 export type TChatConversation =

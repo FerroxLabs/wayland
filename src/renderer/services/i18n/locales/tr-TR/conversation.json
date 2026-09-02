@@ -319,7 +319,8 @@
     "queueTooLarge": "Kuyruk verisi güvenli şekilde saklanamayacak kadar büyük. Önce bazı komutları kaldırın."
   },
   "contextUsage": {
-    "contextUsed": "bağlam kullanıldı"
+    "contextUsed": "bağlam kullanıldı",
+    "tokensThisTurn": "bu turda kullanılan token"
   },
   "skill_generator": {
     "title": "Yetenek/Kural Oluştur",

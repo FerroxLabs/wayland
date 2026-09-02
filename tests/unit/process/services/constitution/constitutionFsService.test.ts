@@ -905,3 +905,43 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
     }, 30_000);
   }
 );
+
+describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
+  'ConstitutionFsService root canonicalization',
+  () => {
+    // THE FRESH-INSTALL ORDERING. `createProduction` canonicalizes the root only
+    // `if (existsSync(configuredRoot))`. On a brand-new profile `~/.wayland` does
+    // not exist yet, so the raw path is kept - and `getDataPath()` /
+    // `ensureCliSafeSymlink` create `~/.wayland` as a SYMLINK into app-data
+    // immediately afterwards. The identity pin lstats the path and refuses
+    // symlinks, so by the time the first turn ran, EVERY chat died with
+    // "Agent failed to start: Constitution root is not a real directory."
+    // Measured on a fresh macOS profile against packaged 0.12.6: no chat could
+    // start at all, while the same profile worked as soon as the symlink existed
+    // before construction. This test reproduces that ordering exactly.
+    it('starts when the CLI-safe symlink appears AFTER construction', () => {
+      const parent = mkdtempSync(path.join(os.tmpdir(), 'constitution-service-latesymlink-'));
+      try {
+        const root = path.join(parent, '.wayland');
+        // A space, because the real target is `~/Library/Application Support/...`.
+        const dataDir = path.join(parent, 'Application Support', 'Wayland', 'wayland');
+        mkdirSync(dataDir, { recursive: true });
+        const revisionAuthorityPath = path.join(parent, 'user-data', 'constitution', 'revision-authority.enc');
+
+        // Constructed while the root is still ABSENT - the fresh-install case.
+        expect(existsSync(root)).toBe(false);
+        const service = new ConstitutionFsService(root, realBinary(), secretBackend, undefined, revisionAuthorityPath);
+
+        // ...and only now does the CLI-safe symlink get created.
+        symlinkSync(dataDir, root);
+
+        // Without the lazy canonicalization in `ensureRoot` this throws
+        // ConstitutionFsTransactionError CONSTITUTION_FS_UNSAFE_ROOT.
+        expect(() => service.readConstitution()).not.toThrow();
+        expect(service.readConstitution().status).toBe('absent');
+      } finally {
+        rmSync(parent, { recursive: true, force: true });
+      }
+    }, 30_000);
+  }
+);

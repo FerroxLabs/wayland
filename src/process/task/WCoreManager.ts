@@ -53,7 +53,7 @@ import {
   type McpSessionTerminalEvent,
 } from '@/common/mcp/sessionReceipt';
 import { resolveFixedBudget } from '@/common/config/outputBudget';
-import { ProcessConfig } from '@process/utils/initStorage';
+import { getSystemDir, ProcessConfig } from '@process/utils/initStorage';
 import { readOutputBudgetPreference, readRawEngineModePreference } from '@process/agent/wcore/effectiveRuntimeActions';
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
 import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
@@ -212,6 +212,17 @@ type WCoreManagerData = {
   resume?: string;
   /** Per-conversation reasoning effort (sent to the engine via set_config). Absent => engine default. */
   effort?: 'low' | 'medium' | 'high';
+  /**
+   * True when the user picked the workspace directory themselves. Carried on
+   * the conversation `extra` and spread in by the agent factory; declared here
+   * so the workspace-trust gate can read it instead of guessing from the path.
+   */
+  customWorkspace?: boolean;
+  /**
+   * Project this chat belongs to (#455). Same provenance as `customWorkspace`:
+   * present => the workspace is the user's own tree, never Desktop-minted.
+   */
+  projectId?: string;
   /**
    * #723 per-step context reset: when set, start()'s resume branch seeds the
    * fresh engine with ONLY this bounded carry-forward (the immediately-prior
@@ -933,6 +944,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       waylandHome: launchWaylandHome,
       // P2-11: the identity a scheduled run's output claim is keyed on.
       conversationId: this.conversation_id,
+      // Provenance inputs for the workspace-trust gate. The work root comes
+      // from the SAME helper `buildWorkspaceWidthFiles` mints into, so a
+      // relocated `wayland.dir` stays authoritative and nothing is hardcoded.
+      managedWorkRoot: getSystemDir().workDir,
+      customWorkspace: mergedData.customWorkspace,
+      projectId: mergedData.projectId,
       onStreamEvent: (event) => this.emit('wcore.message', event),
       onProcessExit: (code, activeMsgId, signal) => {
         this.handleProcessExit(code, activeMsgId, signal);

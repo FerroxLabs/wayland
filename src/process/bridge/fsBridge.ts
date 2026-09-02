@@ -105,6 +105,23 @@ async function copyDirectory(src: string, dest: string) {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
 
+    // REFUSE SYMLINKS. `entry.isDirectory()` is FALSE for a symlink-to-file, so
+    // without this the entry fell through to `fs.copyFile`, which DEREFERENCES:
+    // the destination becomes a real file holding the target's CONTENT. Proved
+    // by execution - a link to a private key copied the key's bytes to a path
+    // with no sensitive segment left in it, which is why `confinePath`
+    // realpath-collapsing on READ does not help. The copy has already happened.
+    //
+    // This matters more since the five external skill roots became authorized:
+    // those directories belong to OTHER agent tools, so anything on the machine
+    // can drop a link into them and this copier is what would carry it across.
+    // `SkillImport._copyTree` has always refused symlinks; this is the same rule
+    // on the path that lacked it.
+    if (entry.isSymbolicLink()) {
+      console.warn(`[fsBridge] Refusing to copy symlink out of a skill directory: ${srcPath}`);
+      continue;
+    }
+
     if (entry.isDirectory()) {
       await copyDirectory(srcPath, destPath);
     } else {
@@ -455,7 +472,40 @@ async function getCachedWorkspaceFiles(root: string): Promise<IWorkspaceFlatFile
   return request;
 }
 
+/**
+ * The well-known, user-owned skill directories the Skills picker enumerates.
+ *
+ * These are AUTHORIZED ROOTS, not merely scan targets, and the two must not
+ * drift apart. Shipped 0.12.6 and earlier enumerated them without authorizing
+ * them, so the picker listed skills that `gateSkillPath` then refused: the row
+ * said "Added", the assistant's skill count incremented, and NOTHING was ever
+ * written to `<userData>/config/skills`. The only honest signals were a PENDING
+ * badge that never cleared and one main-process log line. Offering to install
+ * something and then refusing to read it is not a security boundary, it is a
+ * lie to the user.
+ *
+ * This does NOT widen the set to arbitrary paths. Each entry is a fixed,
+ * home-relative directory whose whole purpose is to hold skills the user
+ * already owns. Every other protection still applies: `confinePath` collapses
+ * realpaths, denies the SENSITIVE_SEGMENTS list (`.ssh`, `.aws`, `.gnupg`, …),
+ * and persisted custom paths are still re-gated at enumeration time.
+ */
+export function externalSkillRoots(
+  homedir: string = os.homedir()
+): Array<{ name: string; path: string; source: string }> {
+  return [
+    { name: 'Global Agents', path: path.join(homedir, '.agents', 'skills'), source: 'global-agents' },
+    { name: 'Gemini CLI', path: path.join(homedir, '.gemini', 'skills'), source: 'gemini' },
+    { name: 'Claude Code', path: path.join(homedir, '.claude', 'skills'), source: 'claude' },
+    { name: 'OpenCode', path: path.join(homedir, '.config', 'opencode', 'skills'), source: 'opencode' },
+    { name: 'OpenCode (Alt)', path: path.join(homedir, '.opencode', 'skills'), source: 'opencode-alt' },
+  ];
+}
+
 export function initFsBridge(): void {
+  // Authorize what the picker offers, so detection and import share one authority.
+  for (const root of externalSkillRoots()) registerAuthorizedRoot(root.path);
+
   const canceledZipRequests = new Set<string>();
 
   /**
@@ -1917,34 +1967,7 @@ export function initFsBridge(): void {
 
   ipcBridge.fs.detectAndCountExternalSkills.provider(async () => {
     try {
-      const homedir = os.homedir();
-      const builtinCandidates = [
-        {
-          name: 'Global Agents',
-          path: path.join(homedir, '.agents', 'skills'),
-          source: 'global-agents',
-        },
-        {
-          name: 'Gemini CLI',
-          path: path.join(homedir, '.gemini', 'skills'),
-          source: 'gemini',
-        },
-        {
-          name: 'Claude Code',
-          path: path.join(homedir, '.claude', 'skills'),
-          source: 'claude',
-        },
-        {
-          name: 'OpenCode',
-          path: path.join(homedir, '.config', 'opencode', 'skills'),
-          source: 'opencode',
-        },
-        {
-          name: 'OpenCode (Alt)',
-          path: path.join(homedir, '.opencode', 'skills'),
-          source: 'opencode-alt',
-        },
-      ];
+      const builtinCandidates = externalSkillRoots();
 
       // Load custom paths and merge. Re-gate each persisted custom path at
       // enumeration time (defense in depth): a custom_external_skill_paths.json

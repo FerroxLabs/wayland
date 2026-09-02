@@ -869,14 +869,51 @@ const WHATSAPP_APPLE_BARE_RUNTIMES = [
   ['ios-x64-simulator', 'x64'],
 ];
 
+/**
+ * The libvips dylib carries its own SONAME version (libvips-cpp.8.17.3.dylib for
+ * sharp 0.34.x, 8.18.3 for 0.35.x). Hardcoding it meant any sharp bump failed
+ * this gate AFTER a full sign+notarize cycle had been spent, with an error that
+ * pointed at a missing file rather than at the version drift. Resolve the real
+ * filename from disk instead, and still fail closed when there isn't exactly
+ * one: zero means the native is genuinely absent, and more than one means an
+ * ambiguous inventory we must not silently sign.
+ */
+function resolveSoleFile(libDir, pattern) {
+  if (!fs.existsSync(libDir)) return null;
+  const matches = fs.readdirSync(libDir).filter((f) => pattern.test(f));
+  return matches.length === 1 ? matches[0] : null;
+}
+
+function resolveLibvipsDylib(sourceDir, arch) {
+  return resolveSoleFile(
+    path.join(sourceDir, 'node_modules', '@img', `sharp-libvips-darwin-${arch}`, 'lib'),
+    /^libvips-cpp\.[0-9.]+\.dylib$/
+  );
+}
+
+/**
+ * sharp 0.34.x names the binding `sharp-darwin-arm64.node`; 0.35.x appends the
+ * package version (`sharp-darwin-arm64-0.35.4.node`). Same trap as the dylib
+ * SONAME, so resolve it the same way rather than encoding either spelling.
+ */
+function resolveSharpNativeNode(sourceDir, arch) {
+  return resolveSoleFile(
+    path.join(sourceDir, 'node_modules', '@img', `sharp-darwin-${arch}`, 'lib'),
+    new RegExp(`^sharp-darwin-${arch}(-[0-9][0-9A-Za-z.+-]*)?\\.node$`)
+  );
+}
+
 function verifyWhatsAppDarwinSignIgnoreInventory(sourceDir, arch) {
+  const libvipsDylib = resolveLibvipsDylib(sourceDir, arch);
+  const sharpNativeNode = resolveSharpNativeNode(sourceDir, arch);
+  if (!libvipsDylib || !sharpNativeNode) return false;
   const expected = [
     {
-      relative: `node_modules/@img/sharp-darwin-${arch}/lib/sharp-darwin-${arch}.node`,
+      relative: `node_modules/@img/sharp-darwin-${arch}/lib/${sharpNativeNode}`,
       arch,
     },
     {
-      relative: `node_modules/@img/sharp-libvips-darwin-${arch}/lib/libvips-cpp.8.17.3.dylib`,
+      relative: `node_modules/@img/sharp-libvips-darwin-${arch}/lib/${libvipsDylib}`,
       arch,
     },
   ];
@@ -927,6 +964,16 @@ function verifyWhatsAppDarwinSignIgnoreInventory(sourceDir, arch) {
 function verifyWhatsAppNativeTarget(sourceDir, platform, arch) {
   if (!['darwin', 'linux', 'win32'].includes(platform) || !['arm64', 'x64'].includes(arch)) return false;
   const imageRoot = path.join(sourceDir, 'node_modules', '@img');
+  // KNOWN FAIL-OPEN, left in place deliberately and NOT an oversight.
+  // An absent or empty @img tree returns true here, so every per-package
+  // assertion below is skipped. Closing it is correct, but the release-gate
+  // fixtures at tests/unit/verifyPackagedResources.test.ts:1596 assert a
+  // BASELINE PASS for a bridge staged with no natives at all, so closing it
+  // changes a gate baseline and needs those fixtures rebuilt to represent a
+  // real bridge. Deliberately not done hours before a release.
+  // Note darwin IS already covered: verifyWhatsAppDarwinSignIgnoreInventory
+  // resolves the dylib and the .node from disk and returns false when either is
+  // missing, so the exposure here is linux/win32 only.
   if (!fs.existsSync(imageRoot)) return true;
   if (!fs.lstatSync(imageRoot).isDirectory()) return false;
   const expected = expectedSharpPackages(platform, arch).sort();
@@ -1076,29 +1123,55 @@ function reconcileStagedDarwinNatives(bundleDir, sourceEntries, bundledEntries, 
   });
 }
 
+/**
+ * `reasons` exists because this gate used to fail with nothing but a directory
+ * listing. A CRITICAL failure that does not say WHICH assertion failed costs a
+ * full ~30 minute platform build per guess, which is exactly what it cost on
+ * win32 after a sharp bump. Every early return now records why.
+ */
+let failureReasons = [];
+
 function verifySourceMirror(
   bundleDir,
   sourceDir,
   authority = whatsappBridgeSource,
   targetPlatform = process.platform,
   targetArch = process.arch,
-  signedCheck = isDarwinDeveloperIdSigned
+  signedCheck = isDarwinDeveloperIdSigned,
+  reasons = []
 ) {
-  if (
-    authority.contract !== 'wayland-whatsapp-bridge-source/1.0' ||
-    !verifyBridgeLock(sourceDir) ||
-    !verifyWhatsAppNativeTarget(sourceDir, targetPlatform, targetArch) ||
-    !validateOmittedEmptyPlaceholders(sourceDir, bundleDir)
-  )
+  if (authority.contract !== 'wayland-whatsapp-bridge-source/1.0') {
+    reasons.push(`authority contract is ${authority.contract}`);
     return false;
+  }
+  if (!verifyBridgeLock(sourceDir)) {
+    reasons.push('bun.lock does not agree with package.json (verifyBridgeLock)');
+    return false;
+  }
+  if (!verifyWhatsAppNativeTarget(sourceDir, targetPlatform, targetArch)) {
+    reasons.push(
+      `native @img inventory failed for ${targetPlatform}-${targetArch} ` +
+        `(expected exactly [${expectedSharpPackages(targetPlatform, targetArch).sort().join(', ')}])`
+    );
+    return false;
+  }
+  if (!validateOmittedEmptyPlaceholders(sourceDir, bundleDir)) {
+    reasons.push('an omitted empty-directory placeholder did not match');
+    return false;
+  }
   for (const [relative, expected] of Object.entries(authority.files || {})) {
     const source = path.join(sourceDir, relative);
-    if (
-      !fs.existsSync(source) ||
-      !fs.lstatSync(source).isFile() ||
-      fs.statSync(source).size !== expected.size ||
-      sha256File(source) !== expected.sha256
-    ) {
+    if (!fs.existsSync(source) || !fs.lstatSync(source).isFile()) {
+      reasons.push(`source file missing: ${relative}`);
+      return false;
+    }
+    const actualSize = fs.statSync(source).size;
+    if (actualSize !== expected.size) {
+      reasons.push(`${relative} size ${actualSize} != pinned ${expected.size}`);
+      return false;
+    }
+    if (sha256File(source) !== expected.sha256) {
+      reasons.push(`${relative} sha256 differs from the pinned authority (same size ${actualSize})`);
       return false;
     }
   }
@@ -1107,9 +1180,21 @@ function verifySourceMirror(
   );
   const source = sourceInventory(sourceDir, sourceDir, [], ignoredPlaceholders);
   let bundled = sourceInventory(bundleDir, bundleDir, [], ignoredPlaceholders);
-  if (source === null || bundled === null) return false;
+  if (source === null || bundled === null) {
+    reasons.push('could not inventory the source or bundled tree');
+    return false;
+  }
   if (targetPlatform === 'darwin') bundled = reconcileStagedDarwinNatives(bundleDir, source, bundled, signedCheck);
-  return JSON.stringify(bundled) === JSON.stringify(source);
+  if (JSON.stringify(bundled) === JSON.stringify(source)) return true;
+  const srcSet = new Set(source);
+  const bunSet = new Set(bundled);
+  const missing = source.filter((x) => !bunSet.has(x)).slice(0, 5);
+  const extra = bundled.filter((x) => !srcSet.has(x)).slice(0, 5);
+  reasons.push(
+    `staged tree differs from source: ${missing.length ? `missing ${missing.join(', ')}` : ''}` +
+      `${missing.length && extra.length ? '; ' : ''}${extra.length ? `unexpected ${extra.join(', ')}` : ''}`
+  );
+  return false;
 }
 
 function verifySkillPack(packDir) {
@@ -1144,7 +1229,11 @@ function verifySkillPack(packDir) {
 }
 
 function verifyBunBundle(bundleDir, targetPlatform, targetArch, authority = bundledBunBinaries) {
-  const version = '1.3.14';
+  // Derived, never a second literal. Every other binary in this gate resolves
+  // its version from the staging module's exported constant (DEFAULT_WCORE_VERSION
+  // at :534, DEFAULT_WNANO_VERSION at :667); this one was the outlier, so a Bun
+  // bump failed here AFTER sign+notarize with a mismatch it could not explain.
+  const version = require('./prepareBundledBun').PINNED_BUN_VERSION;
   // Mirrors prepareBundledBun.needsBaselineVariant: every x64 target stages an
   // AVX2-free baseline runtime alongside the default one (#438, and #1017 for
   // win32). The directory set below is compared EXACTLY, so this list and the
@@ -1307,6 +1396,11 @@ function isNonEmpty(
   darwinSignedCheck = isDarwinDeveloperIdSigned,
   requireDarwinSignature = false
 ) {
+  // Per-resource, NOT cumulative. `hub` is optional and absent on every build, so
+  // its stat throws and left a `threw: ENOENT ... resources\hub` line sitting in
+  // the array; the next resource to fail printed it as its own reason. On run
+  // 33391945572 that put a phantom `hub` path under the whatsapp-bridge failure.
+  failureReasons.length = 0;
   try {
     if (kind === 'constitution-fs-bundle' && targetPlatform === 'win32') {
       return !fs.existsSync(p);
@@ -1422,9 +1516,21 @@ function isNonEmpty(
     if (kind === 'signal-bundle') return verifySignalBundle(p, targetPlatform, targetArch);
     if (kind === 'hub-bundle') return false;
     if (kind === 'whatsapp-bundle')
-      return verifySourceMirror(p, whatsappSourceDir, whatsappAuthority, targetPlatform, targetArch);
+      return verifySourceMirror(
+        p,
+        whatsappSourceDir,
+        whatsappAuthority,
+        targetPlatform,
+        targetArch,
+        isDarwinDeveloperIdSigned,
+        failureReasons
+      );
     return hasNonHiddenRegularFile(p);
-  } catch {
+  } catch (error) {
+    // A throw here used to vanish into `return false` with no reason at all -
+    // e.g. verifyBridgeLock reading a missing package.json. Record it, or the
+    // gate reports "missing or invalid" and nothing else.
+    failureReasons.push(`threw: ${error && error.message ? error.message : String(error)}`);
     return false;
   }
 }
@@ -1606,6 +1712,9 @@ function verifyPackagedResources(options = {}) {
         logger.log(`${TAG}   OK   ${req.rel}`);
       } else if (req.critical || fs.existsSync(target)) {
         logger.error(`${TAG}   FAIL ${req.rel}  <-- CRITICAL, missing or invalid`);
+        // WHY, not just WHAT. A directory listing alone made this gate cost a
+        // full platform build per hypothesis.
+        for (const reason of failureReasons) logger.error(`${TAG}        reason: ${reason}`);
         // The per-resource checks return a bare boolean, so a failure otherwise says
         // only that something is wrong with a path nobody can inspect afterwards.
         // Show what is actually on disk; absent, empty and wrong-shape look identical
@@ -1669,6 +1778,9 @@ module.exports = {
   verifySignalBundle,
   verifySourceMirror,
   verifyWhatsAppDarwinSignIgnoreInventory,
+  // Exported so the libvips SONAME resolution can be driven with fixtures.
+  resolveLibvipsDylib,
+  resolveSharpNativeNode,
   verifyWhatsAppNativeTarget,
   verifyVoiceBundle,
   verifyModelsSnapshot,

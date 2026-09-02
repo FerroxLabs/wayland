@@ -1,6 +1,6 @@
 ---
 name: morning-prep
-description: Daily morning scan — load saved morning layout, screenshot watchlist symbols, and summarize overnight pre-market state. Use when the user says "good morning", "morning prep", or asks for a pre-open briefing.
+description: Daily morning scan by EYE - load the saved morning layout, screenshot each watchlist symbol, and summarise overnight pre-market state from those charts. Use when the user says "good morning" or "morning prep". Do NOT use this when the user asks for a brief built from a named strategy's own signals or decision table - a strategy-specific brief skill owns that, and this one computes nothing from an indicator.
 ---
 
 # Morning Prep Workflow

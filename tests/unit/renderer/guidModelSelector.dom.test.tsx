@@ -397,6 +397,10 @@ describe('GuidModelSelector home picker', () => {
     await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
     const arg = setCurrentModel.mock.calls[0][0];
     expect(arg.useModel).toBe('claude-sonnet-4-7');
+    // Unlike the cold-start auto-pick, this repair DOES persist: the pin it
+    // replaces names a model that is genuinely gone, so writing the repaired
+    // value is what stops the same repair re-running on every boot.
+    expect(setCurrentModel.mock.calls[0][1]?.persist).not.toBe(false);
   });
 
   it('auto-picks the recommended curated model on cold start when nothing is selected', async () => {
@@ -429,6 +433,13 @@ describe('GuidModelSelector home picker', () => {
     );
     await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
     expect(setCurrentModel.mock.calls[0][0].useModel).toBe('flux-auto');
+    // ...and it must NOT be persisted. This effect races useGuidModelSelection's
+    // resolution (which awaits a ConfigStorage read plus two IPCs), so it also
+    // fires on an ordinary restart - not just on a genuinely-unconfigured
+    // machine. Persisting here stamped `firstSafeCuratedModel(curated)` into
+    // `<agent>.defaultModel`, overwriting a deliberate pin; the resolution chain
+    // then ranked that phantom pin above flux-auto on every later launch.
+    expect(setCurrentModel.mock.calls[0][1]).toEqual({ persist: false });
     // Silent: the cold-start pick must never navigate the user off /guid.
     expect(mockNavigate).not.toHaveBeenCalled();
   });
@@ -583,6 +594,8 @@ describe('GuidModelSelector home picker', () => {
     expect(arg.accountId).toBe('default');
     expect(arg.useModel).toBe('gpt-5');
     expect(arg.baseUrl).toBe('https://api.openai.com/v1');
+    // A deliberate click is the one caller that must always reach the pin key.
+    expect(setCurrentModel.mock.calls[0][1]?.persist).not.toBe(false);
   });
 });
 

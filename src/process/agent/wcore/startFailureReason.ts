@@ -38,6 +38,36 @@ export type StartFailureClass = 'stripped-config' | 'profile-resolution' | 'gene
 // tolerant of either quote style, capturing the profile name.
 const PROFILE_NOT_FOUND_PATTERN = /profile\s+['"]([^'"]+)['"]\s+not found in config/i;
 
+/**
+ * Lines the engine prints as INFORMATION, never as a cause of failure.
+ *
+ * Core emits `notice: provider 'openai' is using the credential from
+ * OPENAI_API_KEY ...` on every start where that env var exists - it is a remark
+ * about a provider the user may not even be using. When a start fails for an
+ * unrelated reason (a journal that cannot be replayed, say), that notice is
+ * often the ONLY text in the stderr tail, so it got surfaced as the cause and
+ * the user was told their OpenAI key broke a chat running on Flux.
+ *
+ * Measured on a customer-shaped run: the real failure was
+ * `invalid journal state transition: ... state digest mismatch` followed by
+ * `Desktop contract failed closed { code: 'ready_required' }`, and the message
+ * shown named an unrelated credential.
+ */
+const INFORMATIONAL_LINE = /^\s*notice\s*:/i;
+
+/**
+ * Drop informational lines so a real cause is never displaced by a remark.
+ * Returns '' when nothing but notices remain - callers then keep their own
+ * wording rather than blaming a notice.
+ */
+export function stripInformationalLines(detail: string): string {
+  return detail
+    .split('\n')
+    .filter((line) => line.trim() && !INFORMATIONAL_LINE.test(line))
+    .join('\n')
+    .trim();
+}
+
 /** Classify a (already redacted) start-failure detail string. */
 export function classifyStartFailureDetail(detail: string): StartFailureClass {
   const match = PROFILE_NOT_FOUND_PATTERN.exec(detail);
@@ -76,6 +106,57 @@ export function profileStripHedge(detail: string): string {
  * wording.
  */
 export function describeContractRejection(stderrDetail: string, fallbackDetail: string): string {
-  if (!stderrDetail) return `wcore Desktop contract rejected ready: ${fallbackDetail}`;
-  return `wcore refused to start: ${stderrDetail}${profileStripHedge(stderrDetail)}`;
+  const meaningful = stripInformationalLines(stderrDetail);
+  if (!meaningful) return `wcore Desktop contract rejected ready: ${fallbackDetail}`;
+  return `wcore refused to start: ${meaningful}${profileStripHedge(meaningful)}`;
+}
+
+/**
+ * The engine's OWN refusal of a `--trust-workspace` request, as printed on
+ * stderr before it bails.
+ *
+ * WHY THIS EXISTS. `wcore-cli/src/main.rs` runs `trust_store.grant(...)?`
+ * BEFORE it resolves config or opens a session, so a refused grant is
+ * `anyhow::bail` — the process exits and Desktop's contract never sees `ready`.
+ * Once Desktop started passing the flag (60212ffaf) that turned a chat which
+ * would merely have run UNTRUSTED into a chat that cannot start at all: the
+ * user gets "Agent failed to start: …" and every subsequent turn is refused.
+ * Any user whose enabled skills carry a large payload trips it — measured on a
+ * packaged build with a 52MB vendored connector inside a skill:
+ *   `Error: executable repository surface exceeds the fingerprint limits`
+ *
+ * WHY MATCHING THE ENGINE'S TEXT IS RIGHT, AND A PRE-CHECK IS NOT. Core's
+ * limits (`MAX_EXECUTABLE_FILES`, `MAX_EXECUTABLE_FILE_BYTES`,
+ * `MAX_EXECUTABLE_TOTAL_BYTES`) are Core's policy, and its fingerprint walk has
+ * its own scope rules (executable project ancestors, symlink handling). Copying
+ * either into Desktop would drift the moment Core changes them, and would still
+ * have to guess at the walk. Reacting to the refusal Core actually printed
+ * cannot drift.
+ *
+ * WHY THESE EXACT SHAPES. This is the complete `Display` set of Core's
+ * `WorkspaceTrustError` (`crates/wcore-config/src/workspace_trust.rs`), which
+ * is the ONLY error type `grant`/`revoke` can return. The neighbouring
+ * subsystems that fingerprint executable trees deliberately word themselves
+ * differently — migrate quarantine says "imported executable surface exceeds
+ * the quarantine limits", content import says "imported surface exceeds the
+ * import limits" — so none of them can be mistaken for a trust refusal.
+ *
+ * WHY THE LINE ANCHOR MATTERS. The same error text is ALSO reachable as a
+ * non-fatal `tracing::warn!("workspace trust resolution failed closed")` from
+ * `config.rs`, where trust resolution fails closed to untrusted and the engine
+ * starts normally. A tracing line is prefixed with a timestamp and level, so
+ * anchoring to the start of a line (optionally after anyhow's `Error: `) keeps
+ * a benign warning from being read as a refusal.
+ */
+const WORKSPACE_TRUST_REFUSAL =
+  /^[ \t]*(?:error[: ]\s*)?(?:workspace trust (?:i\/o failed|store is invalid|store schema \d+ is not supported)|workspace root is not a directory|executable repository (?:content contains a symlink|file exceeds \d+ bytes|surface exceeds the fingerprint limits))\b/im;
+
+/**
+ * Whether an (already redacted, ANSI-stripped) engine stderr tail carries a
+ * refusal of the workspace-trust grant. Callers must additionally know that
+ * THIS spawn actually passed `--trust-workspace`; this function only reads the
+ * engine's words.
+ */
+export function isWorkspaceTrustRefusal(stderrDetail: string): boolean {
+  return WORKSPACE_TRUST_REFUSAL.test(stderrDetail);
 }

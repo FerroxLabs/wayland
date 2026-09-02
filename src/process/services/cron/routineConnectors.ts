@@ -26,18 +26,18 @@
  * and raw-IP TCP and 127.0.0.1:9222 are refused from inside the same sandbox
  * too, so it is a whole-network deny, not a DNS one.
  *
- * WHAT THIS IS NOT. It is NOT the morning report's data route, and nothing
- * shipped uses it. That report's bars come from `routinePrefetch` /
- * `prefetchDailyBars`, which fetch in the MAIN process - outside the seatbelt -
- * into the cache the scanner already reads. Proven from a cold workspace: 82
- * written in 16.8 s, then the real scanner inside the real sandbox printing
- * "74 names scanned, 56 currently long, bar 2026-08-21". A connector could not
- * have done it anyway: `data_get_ohlcv` takes no symbol parameter and caps at
- * 500 bars, against a scanner that discards anything under 300 daily bars for
- * each of 74 names.
+ * WHAT THIS IS NOT. It is not a data route for any shipped routine, and
+ * nothing shipped uses it. The host-side daily-bars prefetch that once fed the
+ * bundled offline scanner was removed with that scanner in 2026-08; the
+ * sandbox finding above is unaffected by that removal and is the reason this
+ * module exists at all.
  *
  * So this module is the mechanism for a routine that genuinely has no other
- * way, and today NO shipped routine declares anything. Every path through it
+ * way, and today exactly ONE shipped routine declares anything: `weekday-morning-report` names
+ * `com.ferroxlabs/tvcontrol`, because a brief read off a live chart has no other
+ * data route. Note the id is the catalog entry NAME (with a slash), not the
+ * entry FILENAME - they differ, the match is an unnormalised set lookup, and
+ * getting it wrong grants nothing while looking correct. Every path through it
  * returns `[]` for the corpus as it stands, which is the same fail-closed
  * default that existed before it.
  *

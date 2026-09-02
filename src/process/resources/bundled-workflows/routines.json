@@ -134,11 +134,10 @@
   {
     "id": "weekday-morning-report",
     "name": "Weekday morning report",
-    "description": "Weekday pre-open: scan the watchlist, render the morning brief, and report whether the run was complete, partial, or empty.",
+    "description": "Weekday pre-open: read your own chart across your watchlist, write the morning brief, and report whether the run was complete, partial, or empty.",
     "schedule": "0 7 * * 1-5",
     "timezone": "local",
     "workflow": "wayland-morning-report",
-    "prefetch": "market-daily-bars",
     "inputs": {
       "output_dir": "artifacts/market/"
     }

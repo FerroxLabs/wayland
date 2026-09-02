@@ -1,0 +1,1 @@
+{"epoch_at_acquire":"sha256:staleepoch","expires_unix_ms":1767225540000,"lease_id":"lease-desktop-000","observed_unix_ms":1767225600000,"owner":"session-desktop-000","quiescence_version":1,"request_id":"quiesce-acquire-001","session_id":"session-desktop-001","type":"quiesce_lease_expired"}

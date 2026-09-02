@@ -145,7 +145,7 @@ vi.mock('electron', () => ({
 }));
 
 import { execFileSync } from 'child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import fsp from 'fs/promises';
 import os from 'os';
 import pathMod from 'path';
@@ -169,7 +169,6 @@ import { readRunJournal } from '@process/services/artifacts/artifactRunJournal';
 import type { ArtifactHostEffects } from '@process/services/artifacts/artifactActions';
 
 const REPO_ROOT = pathMod.resolve(__dirname, '../../..');
-const SCANNER_REL = '.wayland-core/skills/market-open-report';
 
 function makeRepo(jobs: CronJob[]): ICronRepository {
   return {
@@ -256,13 +255,32 @@ function makeHarness(workspace: string) {
 
 const BODIES_DIR = pathMod.join(REPO_ROOT, 'src/process/resources/bundled-workflows/bodies');
 
-/** The scanner-running block out of the shipped morning-report body, verbatim. */
-function scanCommandBlock(): string {
+/**
+ * The staging-directory block out of the shipped morning-report body, verbatim.
+ *
+ * COVERAGE CHANGE, stated plainly: this used to find the block that RAN
+ * `morning-report.mjs` - a bundled Yahoo scanner - and the tests below executed
+ * it to make a real brief appear. That scanner is DELETED. The routine now reads
+ * the user's own chart over MCP and the MODEL writes the HTML, so the shipped
+ * body no longer contains any command that PRODUCES the brief.
+ *
+ * What the body still carries - and what is still executed here - is the block
+ * that pins and creates the staging directory. Keeping it under execution is
+ * deliberate: it is what holds `<deliverables_dir>` substitution and the
+ * no-environment-variable property honest. The brief's CONTENT is written by the
+ * stand-in below, because that is now the model's job.
+ *
+ * COVERAGE LOST: the shipped body's own command producing a real deliverable.
+ * It cannot be covered because it no longer exists.
+ */
+function stagingDirBlock(): string {
   const markdown = readFileSync(pathMod.join(BODIES_DIR, 'wayland-morning-report/SKILL.md'), 'utf-8');
   const block = [...markdown.matchAll(/```(?:bash|sh|shell|zsh)\n([\s\S]*?)```/g)]
     .map((m) => m[1])
-    .find((b) => b.includes('morning-report.mjs'));
-  if (!block) throw new Error('the morning-report SKILL.md no longer contains a scan command block');
+    .find((b) => b.includes('<deliverables_dir>') && b.includes('mkdir'));
+  if (!block) {
+    throw new Error('the morning-report SKILL.md no longer contains a staging-directory block');
+  }
   return block;
 }
 
@@ -274,71 +292,63 @@ function deliverablesDirFromDirective(directive: string): string {
 }
 
 /**
- * Stand-ins for the two bundled node scripts, at the workspace-relative path the
- * skill `cd`s into.
+ * Execute the shipped block with its one placeholder substituted, then have the
+ * shell report the directory the block actually pinned in `$OUT`.
  *
- * `reachable` is the whole point of the pair. With data, they produce a real
- * standalone HTML brief. Without it, the scanner reports what it could not reach
- * and writes NOTHING - which is the honest-tombstone path the run must keep.
+ * Capturing `$OUT` from the block is the whole point: it is what ties the test
+ * to the body's real content. Without it the block can be replaced by anything -
+ * including a decoy path - and every assertion downstream still passes, because
+ * they only ever look where the TEST decided the output should be.
+ *
+ * The engine's env is deliberately NOT forwarded: the engine runs Bash tool
+ * calls through a 19-name allowlist that excludes `WAYLAND_OUTPUT_DIR`, so a
+ * stand-in that passed it through would exercise a channel the product lacks.
  */
-function installScannerStubs(workspace: string, reachable: boolean): void {
-  const scripts = pathMod.join(workspace, SCANNER_REL, 'scripts');
-  mkdirSync(scripts, { recursive: true });
-  writeFileSync(
-    pathMod.join(scripts, 'morning-report.mjs'),
-    reachable
-      ? [
-          "import { writeFileSync } from 'fs';",
-          "const i = process.argv.indexOf('--json');",
-          "if (i < 0) { console.error('no --json'); process.exit(2); }",
-          'writeFileSync(process.argv[i + 1], JSON.stringify({ bar: process.env.FAKE_BAR, rows: [["SPY", 512.3]] }));',
-          "console.log('74 names scanned');",
-        ].join('\n')
-      : [
-          // Exit non-zero and write nothing at all: the shape of a run whose
-          // upstream is unreachable.
-          "console.error('NO DATA (74) - upstream unreachable');",
-          "console.log('0 names scanned');",
-          'process.exit(1);',
-        ].join('\n'),
-    'utf-8'
-  );
-  writeFileSync(
-    pathMod.join(scripts, 'briefHtml.mjs'),
-    [
-      "import { readFileSync, writeFileSync } from 'fs';",
-      "const data = JSON.parse(readFileSync(process.argv[2], 'utf8'));",
-      'writeFileSync(',
-      '  process.argv[3],',
-      '  `<!doctype html><html><body><h1>TC-TIDE MORNING REPORT   Tier 1   bar ${data.bar}</h1>` +',
-      '    `<table><tr><td>${data.rows[0][0]}</td><td>${data.rows[0][1]}</td></tr></table></body></html>`',
-      ');',
-    ].join('\n'),
-    'utf-8'
-  );
+function runShippedBlockAndReportPinnedDir(rawBlock: string, deliverablesDir: string, ws: string): string {
+  const block = rawBlock.split('<deliverables_dir>').join(deliverablesDir);
+  expect(block).not.toContain('<');
+  const stdout = execFileSync('bash', ['-c', `${block}\nprintf %s "$OUT"`], {
+    cwd: ws,
+    env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined } as NodeJS.ProcessEnv,
+    encoding: 'utf-8',
+  });
+  return stdout.trim();
 }
 
 /**
- * The agent: run the shipped block, substituting the one placeholder out of the
- * directive. The engine's env is NOT forwarded - the engine runs Bash tool calls
- * through a 19-name allowlist, so a stand-in that passed WAYLAND_OUTPUT_DIR
- * through would be exercising a channel the product does not have.
+ * The agent stand-in.
+ *
+ * It does what the real run now does, in order: execute the shipped body's
+ * staging-directory block (substituting the one placeholder out of the run's own
+ * directive), then write the brief the model would have written.
+ *
+ * Pass `null` for an EMPTY run - the block still executes and creates the
+ * directory, but nothing is written into it. That is the honest-tombstone path:
+ * a run whose chart reads all failed produces no deliverable, and the product
+ * must report that rather than invent one.
+ *
+ * The engine's env is NOT forwarded: the engine runs Bash tool calls through a
+ * 19-name allowlist, so a stand-in that passed `WAYLAND_OUTPUT_DIR` through
+ * would be exercising a channel the product does not have.
  */
-function runShippedBlock(bar: string): Agent {
+function modelRun(bar: string | null): Agent {
   return async (directive, ws) => {
-    const block = scanCommandBlock().split('<deliverables_dir>').join(deliverablesDirFromDirective(directive));
-    expect(block).not.toContain('<');
-    try {
-      execFileSync('bash', ['-c', block], {
-        cwd: ws,
-        env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined, FAKE_BAR: bar } as NodeJS.ProcessEnv,
-        stdio: 'pipe',
-      });
-    } catch {
-      // A non-zero scanner exit is a real outcome the workflow classifies as
-      // "empty" and reports. It is not a test failure - what the run does NEXT
-      // is what this file is about.
-    }
+    const dir = deliverablesDirFromDirective(directive);
+    // Run the shipped block and ask IT where it pinned the output, then write
+    // there. Writing to `dir` instead would make the block's CONTENT unasserted:
+    // a mutation run proved exactly that - pointing the shipped block at a decoy
+    // directory left all 17 tests green, because the stand-in was writing where
+    // the TEST had decided rather than where the BLOCK said. The model in
+    // production follows the block, so the test must too.
+    const pinned = runShippedBlockAndReportPinnedDir(stagingDirBlock(), dir, ws);
+    expect(pinned, 'the shipped block must pin the directory the directive names').toBe(dir);
+    if (bar === null) return;
+    writeFileSync(
+      pathMod.join(pinned, 'morning-brief.html'),
+      `<!doctype html><html><body><h1>Morning brief   bar ${bar}</h1>` +
+        '<table><tr><td>SPY</td><td>512.3</td></tr></table></body></html>',
+      'utf-8'
+    );
   };
 }
 
@@ -408,10 +418,9 @@ describe('the brief a scheduled run produces can actually be opened', () => {
     const job = await enable('weekday-morning-report');
     const workspace = job.metadata.agentConfig!.workspace!;
     expect(workspace.startsWith(documentsDir)).toBe(true);
-    installScannerStubs(workspace, true);
 
     const h = makeHarness(workspace);
-    await h.run(job, runShippedBlock('2026-08-21'));
+    await h.run(job, modelRun('2026-08-21'));
 
     // LINK 5: it is in the ledger, under this job. This file has never been
     // written on the machine the bug was found on, so its existence is the proof.
@@ -431,8 +440,17 @@ describe('the brief a scheduled run produces can actually be opened', () => {
     expect(pathMod.basename(opened)).toBe('morning-brief.html');
 
     // ...and it is a real brief, not an empty file with the right name.
+    //
+    // This used to assert the literal title 'TC-TIDE MORNING REPORT', which came
+    // from the deleted scanner stub. Asserting it now would be WRONG in a second
+    // way beyond being dead: the shipped skill is deliberately de-branded, so a
+    // test demanding a TC-TIDE string would pull that branding back into the
+    // generic product. What matters here is structural - the workflow promises a
+    // STANDALONE html document, and the opener must be handed one.
     const html = await fsp.readFile(opened, 'utf8');
-    expect(html).toContain('TC-TIDE MORNING REPORT');
+    expect(html.toLowerCase()).toContain('<!doctype html>');
+    expect(html).toMatch(/<html[\s>]/i);
+    expect(html).toMatch(/<\/html>/i);
     expect(html).toContain('bar 2026-08-21');
     expect(html.length).toBeGreaterThan(80);
 
@@ -462,10 +480,9 @@ describe('the brief a scheduled run produces can actually be opened', () => {
   it('HONEST EMPTY RUN: unreachable data publishes nothing and opens nothing', async () => {
     const job = await enable('weekday-morning-report');
     const workspace = job.metadata.agentConfig!.workspace!;
-    installScannerStubs(workspace, false);
 
     const h = makeHarness(workspace);
-    await h.run(job, runShippedBlock('2026-08-21'));
+    await h.run(job, modelRun(null));
 
     // Nothing was invented: no brief anywhere in the series, nothing in the
     // ledger, so there is no card and nothing to open.
@@ -489,10 +506,9 @@ describe('the brief a scheduled run produces can actually be opened', () => {
     // unnoticed for a day.
     const job = await enable('weekday-morning-report');
     const workspace = job.metadata.agentConfig!.workspace!;
-    installScannerStubs(workspace, false);
 
     const h = makeHarness(workspace);
-    const conversationId = await h.run(job, runShippedBlock('2026-08-21'));
+    const conversationId = await h.run(job, modelRun(null));
 
     const settled = h.executor.lastRunSettlement(conversationId);
     expect(settled).toBeDefined();
@@ -506,7 +522,6 @@ describe('the brief a scheduled run produces can actually be opened', () => {
     // the row the scheduled-tasks UI actually reads.
     const job = await enable('weekday-morning-report');
     const workspace = job.metadata.agentConfig!.workspace!;
-    installScannerStubs(workspace, false);
 
     const guard = new CronBusyGuard();
     const executor = new WorkerTaskManagerJobExecutor(
@@ -517,7 +532,7 @@ describe('the brief a scheduled run produces can actually be opened', () => {
           workspace,
           sendMessage: vi.fn(async () => {
             const dir = resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId);
-            await runShippedBlock('2026-08-21')(buildOutputDirective(dir), workspace);
+            await modelRun(null)(buildOutputDirective(dir), workspace);
           }),
         })),
         kill: vi.fn(),
@@ -544,10 +559,9 @@ describe('the brief a scheduled run produces can actually be opened', () => {
   it('KNOWN-POSITIVE CONTROL: the same accessor reports a run that DID publish', async () => {
     const job = await enable('weekday-morning-report');
     const workspace = job.metadata.agentConfig!.workspace!;
-    installScannerStubs(workspace, true);
 
     const h = makeHarness(workspace);
-    const conversationId = await h.run(job, runShippedBlock('2026-08-21'));
+    const conversationId = await h.run(job, modelRun('2026-08-21'));
 
     const settled = h.executor.lastRunSettlement(conversationId);
     expect(settled).toBeDefined();
@@ -559,8 +573,7 @@ describe('the brief a scheduled run produces can actually be opened', () => {
     // collapse these two into one cell and let a previous run's `no-output` be
     // read as this run's outcome - the whole reason this is keyed by
     // conversation, exactly as `runOutputDir` is.
-    installScannerStubs(workspace, false);
-    const second = await h.run(job, runShippedBlock('2026-08-21'));
+    const second = await h.run(job, modelRun(null));
     expect(second).not.toBe(conversationId);
     expect(h.executor.lastRunSettlement(second)).toEqual({ published: false, reason: 'no-output' });
     expect(h.executor.lastRunSettlement(conversationId)).toEqual({ published: true });

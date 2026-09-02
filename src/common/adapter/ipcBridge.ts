@@ -1857,6 +1857,15 @@ export interface ICronJob {
   name: string;
   description?: string;
   enabled: boolean;
+  /**
+   * Which scheduler actually holds this job. Absent means Desktop's own
+   * `cron_jobs` table, so every existing caller and stored row is unchanged.
+   * `'engine'` rows are surfaced read-only from `<engine home>/cron/jobs.json`
+   * so a user can SEE a job the assistant scheduled through the engine's
+   * `cronjob` tool - without this they were promised a job that appeared
+   * nowhere in the UI.
+   */
+  origin?: 'desktop' | 'engine';
   schedule: ICronSchedule;
   target: {
     payload: { kind: 'message'; text: string };

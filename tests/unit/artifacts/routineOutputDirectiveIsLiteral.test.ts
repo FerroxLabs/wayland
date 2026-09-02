@@ -145,7 +145,7 @@ vi.mock('electron', () => ({
 }));
 
 import { execFileSync } from 'child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import fsp from 'fs/promises';
 import os from 'os';
 import pathMod from 'path';
@@ -171,32 +171,6 @@ import {
 } from '@process/services/cron/BuiltinRoutinesSeeder';
 
 const REPO_ROOT = pathMod.resolve(__dirname, '../../..');
-const SCANNER_REL = '.wayland-core/skills/market-open-report';
-
-/** Stubs for the two bundled node scripts, at the path the skill `cd`s into. */
-function installScannerStubs(workspace: string): void {
-  const scripts = pathMod.join(workspace, SCANNER_REL, 'scripts');
-  mkdirSync(scripts, { recursive: true });
-  writeFileSync(
-    pathMod.join(scripts, 'morning-report.mjs'),
-    [
-      "import { writeFileSync } from 'fs';",
-      "const i = process.argv.indexOf('--json');",
-      'writeFileSync(process.argv[i + 1], JSON.stringify({ bar: process.env.FAKE_BAR }));',
-      "console.log('20 names scanned');",
-    ].join('\n'),
-    'utf-8'
-  );
-  writeFileSync(
-    pathMod.join(scripts, 'briefHtml.mjs'),
-    [
-      "import { readFileSync, writeFileSync } from 'fs';",
-      'const data = JSON.parse(readFileSync(process.argv[2], "utf8"));',
-      'writeFileSync(process.argv[3], `<html>TC-TIDE MORNING REPORT bar ${data.bar}</html>`);',
-    ].join('\n'),
-    'utf-8'
-  );
-}
 
 function makeRepo(jobs: CronJob[]): ICronRepository {
   return {
@@ -313,13 +287,23 @@ function bundledShellBlocks(): Array<{ body: string; block: string }> {
   return out;
 }
 
-/** The scanner-running block out of the shipped morning-report body, verbatim. */
-function scanCommandBlock(): string {
+/**
+ * The shipped staging-directory block, verbatim.
+ *
+ * COVERAGE CHANGE: this used to select the block that ran `morning-report.mjs`,
+ * a bundled Yahoo scanner that is now DELETED. The routine reads the user's own
+ * chart over MCP and the MODEL writes the brief. The block that remains pins and
+ * creates the staging directory - which is precisely the property this file is
+ * about, so it is still executed below.
+ */
+function stagingDirBlock(): string {
   const markdown = readFileSync(pathMod.join(BODIES_DIR, 'wayland-morning-report/SKILL.md'), 'utf-8');
   const block = [...markdown.matchAll(/```(?:bash|sh|shell|zsh)\n([\s\S]*?)```/g)]
     .map((m) => m[1])
-    .find((b) => b.includes('MARKET_OPEN_REPORT_LIST') || b.includes('morning-report.mjs'));
-  if (!block) throw new Error('the morning-report SKILL.md no longer contains a scan command block');
+    .find((b) => b.includes('<deliverables_dir>') && b.includes('mkdir'));
+  if (!block) {
+    throw new Error('the morning-report SKILL.md no longer contains a staging-directory block');
+  }
   return block;
 }
 
@@ -328,6 +312,26 @@ function deliverablesDirFromDirective(directive: string): string {
   const m = directive.match(/Deliverables you want the user to keep go in (.+?)\. Create that directory/);
   if (!m) throw new Error(`buildOutputDirective no longer names a directory: ${directive}`);
   return m[1];
+}
+
+/**
+ * Execute the shipped block with its placeholder substituted, then have the
+ * shell report the directory the block actually pinned in `$OUT`.
+ *
+ * Capturing `$OUT` is what ties this test to the body's real CONTENT. Without
+ * it the block can be replaced by anything - including a decoy path - and every
+ * assertion below still passes, because they would only look where the TEST
+ * decided the output goes. A mutation run proved exactly that failure.
+ */
+function runShippedBlockAndReportPinnedDir(rawBlock: string, deliverablesDir: string, ws: string): string {
+  const block = rawBlock.split('<deliverables_dir>').join(deliverablesDir);
+  expect(block).not.toContain('<');
+  const stdout = execFileSync('bash', ['-c', `${block}\nprintf %s "$OUT"`], {
+    cwd: ws,
+    env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined } as NodeJS.ProcessEnv,
+    encoding: 'utf-8',
+  });
+  return stdout.trim();
 }
 
 describe('a scheduled run is told its deliverables directory in text it can actually read', () => {
@@ -476,26 +480,38 @@ describe('a scheduled run is told its deliverables directory in text it can actu
     expect(h.sent).toHaveLength(1);
   });
 
-  it("the shipped skill's own command block writes into the staging directory, with no env var", async () => {
+  it("the shipped skill's own command block pins the staging directory, with no env var", async () => {
+    // PREMISE REWRITTEN, not repointed - say so plainly. This used to EXECUTE a
+    // shipped command that produced the brief, and assert on what that command
+    // wrote. No such command exists any more: the deleted scanner was the thing
+    // that wrote, and a chart-driven run has the MODEL write instead.
+    //
+    // The property under test survives intact, because it was never about the
+    // scanner: the staging directory must reach the run as LITERAL TEXT in the
+    // directive, and never through an environment variable. So the shipped block
+    // is still executed, still with `WAYLAND_OUTPUT_DIR` unset, and the brief is
+    // then written where that block pinned - which is exactly what the model
+    // does. If the body ever goes back to reading an env var, the substitution
+    // assertion below fails.
     const job = await enable('weekday-morning-report');
     const workspace = job.metadata.agentConfig!.workspace!;
-    installScannerStubs(workspace);
     const h = makeHarness(workspace);
 
     let staging = '';
+    let decoy = '';
     await h.run(job, async (channels, ws) => {
       staging = deliverablesDirFromDirective(channels.directive);
-      const block = scanCommandBlock().split('<deliverables_dir>').join(staging);
-      expect(block).not.toContain('<');
-      execFileSync('bash', ['-c', block], {
-        cwd: ws,
-        // The engine's Bash tool does NOT forward WAYLAND_OUTPUT_DIR, so the
-        // stand-in must not either. Passing it would test a channel the product
-        // does not have.
-        env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined, FAKE_BAR: '2026-08-21' } as NodeJS.ProcessEnv,
-        stdio: 'pipe',
-      });
+      // The block must PIN the directive's directory. Capturing $OUT from the
+      // block itself is the only thing that asserts its content: writing to
+      // `staging` directly left a decoy-path mutation completely green.
+      const pinned = runShippedBlockAndReportPinnedDir(stagingDirBlock(), staging, ws);
+      expect(pinned, 'the shipped block pinned a different directory than the directive named').toBe(staging);
+      // Restores the decoy guard that left with morningReportOutputResolution:
+      // a sibling the block must never create or write into.
+      decoy = pathMod.join(pathMod.dirname(staging), 'DECOY');
+      writeFileSync(pathMod.join(pinned, 'morning-brief.html'), '<html>Morning brief bar 2026-08-21</html>', 'utf-8');
     });
+    expect(existsSync(decoy), 'the shipped block must not create a sibling directory').toBe(false);
 
     const runs = await listRuns(pathMod.join(workspace, 'artifacts', 'market'));
     expect(runs).toHaveLength(1);

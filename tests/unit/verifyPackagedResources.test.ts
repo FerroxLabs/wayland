@@ -1610,6 +1610,53 @@ describe('packaged resource release gate', () => {
     }
   );
 
+  it('attributes a failure reason to the resource that produced it, not the previous one', () => {
+    // `hub` is optional and absent on every real build, so its check throws
+    // ENOENT and used to leave that line in a module-level reasons array. The
+    // next resource to fail printed it as its own reason, which on run
+    // 33391945572 put a phantom `resources\\hub` path under the whatsapp-bridge
+    // failure and sent the reader looking for a resource nothing was wrong with.
+    const out = createPackagedResources(true);
+    const source = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-whatsapp-reason-'));
+    roots.push(source);
+    fs.mkdirSync(path.join(source, 'node_modules', 'dep'), { recursive: true });
+    fs.writeFileSync(path.join(source, 'package.json'), JSON.stringify({ dependencies: { dep: '1.0.0' } }));
+    fs.writeFileSync(
+      path.join(source, 'bun.lock'),
+      '{\n  "workspaces": { "": {\n    "dependencies": {\n      "dep": "1.0.0"\n    },\n  } },\n  "packages": {\n    "dep": ["dep@1.0.0", "", {}, "sha512-AAAA=="]\n  }\n}\n'
+    );
+    fs.writeFileSync(path.join(source, 'bridge.js'), 'bridge');
+    fs.writeFileSync(path.join(source, 'node_modules', 'dep', 'index.js'), 'dependency');
+    const authority = {
+      contract: 'wayland-whatsapp-bridge-source/1.0',
+      files: Object.fromEntries(
+        ['package.json', 'bun.lock', 'bridge.js'].map((relative) => {
+          const bytes = fs.readFileSync(path.join(source, relative));
+          return [relative, { size: bytes.length, sha256: crypto.createHash('sha256').update(bytes).digest('hex') }];
+        })
+      ),
+    };
+    const bridge = path.join(packagedResourcesPath(out), 'whatsapp-bridge');
+    fs.cpSync(source, bridge, { recursive: true });
+    // The real signing-rewrote-a-shim shape: same path, different bytes.
+    fs.appendFileSync(path.join(bridge, 'node_modules', 'dep', 'index.js'), 'signed');
+
+    const errors: string[] = [];
+    const capturing = { log() {}, warn() {}, error: (line: string) => void errors.push(line) };
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        whatsappSourceDir: source,
+        whatsappAuthority: authority,
+        logger: capturing,
+      })
+    ).toThrow(/CRITICAL/);
+
+    const reasons = errors.filter((line) => line.includes('reason:'));
+    expect(reasons.length).toBeGreaterThan(0);
+    expect(reasons.join('\n')).toMatch(/staged tree differs from source/);
+    expect(reasons.some((line) => /hub/.test(line))).toBe(false);
+  });
+
   it('rejects payload bytes hidden in the one expected omitted .gitkeep path', () => {
     const out = createPackagedResources(true);
     const source = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-whatsapp-gitkeep-'));

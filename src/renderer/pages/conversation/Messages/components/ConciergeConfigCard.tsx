@@ -143,6 +143,19 @@ const ConciergeConfigCard: React.FC<ConciergeConfigCardProps> = ({ message }) =>
           </div>
         )}
 
+        {content.kind === 'install_skill' && (
+          <div className={styles.env} data-testid='install-skill-origin'>
+            {/* The ORIGIN is the consent boundary for this card. A skill is
+                instructions the agent will later follow, so the person clicking
+                Accept has to see WHERE it comes from, not just its name. The
+                checksum is shown truncated: it is not something a human
+                verifies by eye, but seeing that one exists is what makes
+                "it was checked" a claim the user can hold us to. */}
+            <div>{new URL(content.url).host}</div>
+            <div>sha256 {content.sha256.slice(0, 12)}…</div>
+          </div>
+        )}
+
         {content.kind === 'edit_assistant' && (
           <Typography.Paragraph className={styles.rules} ellipsis={{ rows: 4, expandable: true }}>
             {content.rules}

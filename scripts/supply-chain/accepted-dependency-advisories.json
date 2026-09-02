@@ -170,7 +170,8 @@
       "id": 1124066,
       "severity": "high",
       "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
-      "vulnerableVersions": "<0.35.0"
+      "vulnerableVersions": "<0.35.0",
+      "note": "Root sharp is NOT reachable: no first-party source imports it, and electron-builder.yml:75-76 strips @img from app.asar (verified: the built asar contains 0 @img entries), so the shipped root copy has no native binding and cannot load libvips. The copy that DOES ship and process image bytes is src/process/channels/whatsapp-bridge, which was moved to sharp 0.35.4 / libvips 8.18.6 - above the fixed versions for all four CVEs (8.18.1 / 8.18.2 / 8.18.3). The root range stays on 0.34.x because @huggingface/transformers@4.2.0 requires sharp ^0.34.5; raising it would either break electron-builder dependency-tree traversal or nest a second sharp. Re-evaluate when transformers accepts 0.35.x."
     },
     {
       "package": "socket.io-parser",

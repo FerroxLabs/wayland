@@ -26,8 +26,154 @@ import { SkillLibrary } from './SkillLibrary';
 import { SkillQuarantine, type SkillQuarantineIo } from './SkillQuarantine';
 import type { LlmScanCall } from './skillGuardLlmScan';
 import { makeOneShotLlmScanCall } from './skillGuardLlmCall';
+import { getSkillsDir } from '@process/utils/initStorage';
 
-export const IMPORTED_DIR = path.join(homedir(), '.wayland', 'skills', 'imported');
+/**
+ * Where an imported skill lands.
+ *
+ * THIS MOVED, and the move IS the bug fix. It used to be
+ * `~/.wayland/skills/imported`, a directory NOTHING in the main process ever
+ * read: not the assistant skill picker, not `enabledSkills` resolution, not the
+ * workspace stager in `initAgent`, and nothing at boot. `registerSource` is an
+ * in-memory array, so an import survived exactly until the next launch. That is
+ * why the Skills page reports "Imported 0" on a fresh start no matter how many
+ * imports succeeded - the counter was honest and the import was not.
+ *
+ * `getSkillsDir()` (`<userData>/config/skills`) is the one directory that is
+ * actually read: `fsBridge.listAvailableSkills` enumerates it from DISK on every
+ * call as `custom`, and `initAgent` stages it into the sandboxed workspace. One
+ * destination means "it imported" and "the agent can use it" stop being
+ * different facts.
+ */
+import { assistantDisplayName, enableSkillForCurrentAssistant } from '@process/services/skills/enableSkillForAssistant';
+
+export function importedSkillsDir(): string {
+  return getSkillsDir();
+}
+
+/** Retained only so an older install can still be found and migrated. */
+export const LEGACY_IMPORTED_DIR = path.join(homedir(), '.wayland', 'skills', 'imported');
+
+/**
+ * Extensions an import refuses outright.
+ *
+ * SkillGuard reasons about prompt text. Anything here would reach the skills
+ * directory unscanned, and `initAgent` stages that directory into the workspace
+ * the agent can run commands in.
+ */
+export const REFUSED_IMPORT_EXTENSIONS = [
+  '.cjs',
+  '.js',
+  '.ts',
+  '.rb',
+  '.pl',
+  '.php',
+  '.sh',
+  '.bash',
+  '.zsh',
+  '.fish',
+  '.ps1',
+  '.bat',
+  '.cmd',
+  '.exe',
+  '.dll',
+  '.dylib',
+  '.so',
+  '.command',
+  '.app',
+  '.scpt',
+];
+
+/**
+ * The ONLY file types an imported skill may carry.
+ *
+ * THIS REPLACED A DENYLIST, AND THE DENYLIST WAS BYPASSABLE. `installSkillPack`
+ * learned this first and this file did not, which is how the two paths came to
+ * disagree while writing into the SAME `getSkillsDir()`. Measured against the
+ * denylist above: a file named `helper` gives `path.extname() === ''` and
+ * passed; so did `run.sh.` and `run.sh ` (macOS tolerates both); and `.jar`,
+ * `.vbs`, `.wsf`, `.lua`, `.applescript`, `.desktop`, `.msi`, `.scr`, `.com`,
+ * `.node` and `.wasm` were simply missing from the list.
+ *
+ * The attack the denylist could not stop: a pack ships `helper` containing
+ * `#!/bin/sh` plus payload, and a SKILL.md that says "run `bash helper`".
+ * Nothing refused it, SkillGuard never read it (it scans `.md` only), and
+ * `initAgent` COPIES the skill directory into the workspace the agent runs
+ * shell in. Execute bits are irrelevant: `bash f` and `java -jar f` do not need
+ * them.
+ *
+ * Kept deliberately identical to `ALLOWED_PACK_EXTENSIONS` in
+ * `installSkillPack.ts`. A pack that installs through Settings but is refused
+ * by the concierge card - or the reverse - is a bug the user experiences as
+ * randomness.
+ */
+export const ALLOWED_IMPORT_EXTENSIONS = [
+  '.md',
+  '.markdown',
+  '.txt',
+  '.csv',
+  '.tsv',
+  '.json',
+  '.yaml',
+  '.yml',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp',
+  '.svg',
+];
+
+/**
+ * Normalise an entry name the way the filesystem would, so a trailing dot or
+ * space cannot smuggle a disallowed type past `path.extname`.
+ */
+export function normalisedImportExtension(name: string): string {
+  return path.extname(name.replace(/[. ]+$/, '')).toLowerCase();
+}
+
+/** True iff this filename may be written into the skills directory at all. */
+export function isImportableFile(name: string): boolean {
+  const ext = normalisedImportExtension(name);
+  return ALLOWED_IMPORT_EXTENSIONS.includes(ext) || DISCLOSED_SCRIPT_EXTENSIONS.includes(ext);
+}
+
+/**
+ * Script types a pack MAY carry, on the condition that carrying them is
+ * DISCLOSED to the person importing it.
+ *
+ * A pack that ships a real tool - a report renderer, a collector - has nowhere
+ * else to put it. The skill directory is staged inside the run's workspace, so
+ * a script beside SKILL.md is readable with no further prompting, while the
+ * same file left outside the workspace is either refused or raises a fresh
+ * folder-grant every conversation. Measured: a run that had to reach an
+ * external path refused outright on one attempt and prompted on the next, for
+ * the same pack and the same question.
+ *
+ * The security property being preserved is NOT "a pack cannot contain code" -
+ * SKILL.md is itself instructions and can already tell a model to run anything.
+ * It is DISCLOSURE: every executable file a pack carries is named back to the
+ * importer in `warnings`, never written silently. Everything in
+ * {@link REFUSED_IMPORT_EXTENSIONS} above stays refused - shell scripts and
+ * binaries have no legitimate place in a documentation-and-data pack, and
+ * SkillGuard reasons about prompt text so it could never vouch for one.
+ *
+ * `.py` and `.mjs` ONLY. Both are inert unless something deliberately runs
+ * them: neither is auto-loaded by staging the directory.
+ *
+ * AND IT IS A GATE, NOT A NOTICE. A pack carrying any of these is HELD:
+ * `_copyAndScan` knows what the copy found before anything is registered, so
+ * `_scanAndRegister` leaves it `registered: false` with `heldFor: 'scripts'`,
+ * the files are named, and one click through `confirmImport` - which
+ * re-verifies against the hash the user saw - is what installs it.
+ *
+ * This was previously the other way round: register, switch on, then list the
+ * files. That is disclosure after the fact, and it was worse here than
+ * anywhere else, because our own setup guide tells a non-technical buyer to
+ * approve what they are asked. A person told in advance to say yes has not
+ * consented to anything they were only shown afterwards.
+ */
+export const DISCLOSED_SCRIPT_EXTENSIONS = ['.py', '.mjs'];
 
 // ---------------------------------------------------------------------------
 // IO seam - injected for tests; defaults to real Node.js ops
@@ -36,6 +182,12 @@ export const IMPORTED_DIR = path.join(homedir(), '.wayland', 'skills', 'imported
 export type SkillImportIo = {
   /** Lstat a path (needed to detect symlinks without following them). */
   lstat: (p: string) => Promise<{ isSymbolicLink(): boolean; isDirectory(): boolean }>;
+  /**
+   * Does a path exist? Its own capability rather than a try/catch around
+   * `lstat`, so an import cannot silently overwrite an installed skill just
+   * because a stubbed `lstat` resolves for every path.
+   */
+  exists: (p: string) => Promise<boolean>;
   /** Read a directory, returning filenames. */
   readdir: (p: string) => Promise<string[]>;
   /** Read a file as a Buffer. */
@@ -63,6 +215,27 @@ export type ZipEntry = {
   data: Buffer;
 };
 
+/**
+ * Decompression caps to defend against zip-bombs. A skill is a small bundle of
+ * markdown; these limits reject a single entry or a total payload that is
+ * implausible for a real skill import.
+ *
+ * THESE ARE ENFORCED DURING DECOMPRESSION, not after it. They used to be checked
+ * only by `_importZip`, one loop AFTER `io.unzip` had already expanded every
+ * entry into memory - so the cap could only ever describe a bomb that had
+ * already gone off. Measured on the old shape: a 391,890-byte archive
+ * materialised 402,653,200 bytes and 548 MB RSS before the first cap was
+ * consulted. `MAX_ZIP_ENTRIES` closes the other half of it: ten million empty
+ * entries cost nothing to decompress and still exhaust the process.
+ *
+ * `_importZip` keeps its own copy of these checks. That is deliberate: the IO
+ * layer is injectable, and a caller supplying its own `unzip` must not be able
+ * to hand the importer an unbounded payload.
+ */
+const MAX_ZIP_ENTRY_BYTES = 16 * 1024 * 1024; // 16 MiB per entry
+const MAX_ZIP_TOTAL_BYTES = 64 * 1024 * 1024; // 64 MiB total
+const MAX_ZIP_ENTRIES = 2_000;
+
 // Default real-fs implementation - not used in tests.
 import { lstat, readdir, readFile, copyFile, mkdir, writeFile, rm, mkdtemp } from 'node:fs/promises';
 import os from 'node:os';
@@ -74,6 +247,14 @@ const execAsync = promisify(exec);
 
 export const defaultSkillImportIo: SkillImportIo = {
   lstat,
+  exists: async (p) => {
+    try {
+      await lstat(p);
+      return true;
+    } catch {
+      return false;
+    }
+  },
   readdir,
   readFile,
   copyFile,
@@ -89,10 +270,26 @@ export const defaultSkillImportIo: SkillImportIo = {
   unzip: async (zipPath, _destDir) => {
     const buf = await readFile(zipPath);
     const zip = await JSZip.loadAsync(buf);
+    // Count BEFORE decompressing anything. The directory is cheap; the payload
+    // is not, and an archive that is already implausible should never get the
+    // chance to expand a single entry.
+    const files = Object.entries(zip.files).filter(([, e]) => !e.dir);
+    if (files.length > MAX_ZIP_ENTRIES) {
+      throw new Error(`Rejected: zip holds too many files (${files.length})`);
+    }
     const entries: ZipEntry[] = [];
-    for (const [entryPath, entry] of Object.entries(zip.files)) {
-      if (entry.dir) continue;
+    let totalBytes = 0;
+    for (const [entryPath, entry] of files) {
+      // One entry at a time, checked as it lands, so the process never holds
+      // more than one over-cap entry plus what was already allowed.
       const data = Buffer.from(await entry.async('arraybuffer'));
+      if (data.length > MAX_ZIP_ENTRY_BYTES) {
+        throw new Error(`Rejected: zip entry exceeds size cap - ${entryPath}`);
+      }
+      totalBytes += data.length;
+      if (totalBytes > MAX_ZIP_TOTAL_BYTES) {
+        throw new Error('Rejected: zip total decompressed size exceeds cap');
+      }
       // JSZip does not expose Unix mode bits directly; treat as non-symlink.
       entries.push({ path: entryPath, isSymlink: false, data });
     }
@@ -125,6 +322,30 @@ export type ImportedSkillResult = {
    * quarantined instead.
    */
   registered: boolean;
+  /**
+   * The assistant this skill was switched ON for, or `null` when there was no
+   * assistant to attach it to.
+   *
+   * Registering a skill and enabling it are different things, and only the
+   * second one makes it reachable from a chat: an assistant sees exactly what
+   * is in its own `enabledSkills`. Import used to do the first and not the
+   * second, so a bought pack installed successfully and was invisible to the
+   * very next message. Surfaced here so the renderer can SAY which assistant
+   * got it rather than leaving the user to guess.
+   */
+  enabledFor: string | null;
+  /**
+   * That assistant's own NAME, for showing the user. `builtin-smart-trader` is
+   * an id, not something a buyer should be shown.
+   */
+  enabledForLabel: string | null;
+  /**
+   * Why the skill is waiting, when it is: `review` because the sweep flagged
+   * its text, `scripts` because it carries executable files the sweep cannot
+   * read. Null once it is registered. The two need different words - one is a
+   * warning about what a skill SAYS, the other about what it CARRIES.
+   */
+  heldFor: 'review' | 'scripts' | null;
 };
 
 export type ImportResult = {
@@ -146,6 +367,24 @@ export type ImportResult = {
 // internal SSH host (SSRF). The `git@<host>:` short form already covers
 // GitHub/GitLab SSH use cases. (H5 fix.)
 const GIT_ALLOWLIST = [/^https:\/\//, /^git@[a-zA-Z0-9.-]+:/];
+
+/**
+ * The repository's own name, safe to use as a directory name.
+ *
+ * `https://host/org/my-skill.git`, `git@host:org/my-skill.git` and
+ * `ssh://host/org/my-skill` all give `my-skill`. Anything that does not reduce
+ * to a plain name falls back to `git-import`, so a hostile URL cannot steer the
+ * destination: no separators, no traversal, no dots-only name.
+ */
+export function repoNameFromGitUrl(url: string): string {
+  const tail =
+    url
+      .replace(/[/\\]+$/, '')
+      .split(/[/:\\]/)
+      .pop() ?? '';
+  const name = tail.replace(/\.git$/i, '').trim();
+  return /^[A-Za-z0-9._-]+$/.test(name) && !/^\.+$/.test(name) ? name : 'git-import';
+}
 
 function isAllowedGitUrl(url: string): boolean {
   return GIT_ALLOWLIST.some((re) => re.test(url));
@@ -173,14 +412,6 @@ export function parseFrontmatterType(body: string): SkillType {
   const raw = m ? (m[1].trim() as SkillType) : 'skill';
   return VALID_SKILL_TYPES.has(raw) ? raw : 'skill';
 }
-
-/**
- * Decompression caps to defend against zip-bombs. A skill is a small bundle of
- * markdown; these limits reject a single entry or a total payload that is
- * implausible for a real skill import.
- */
-const MAX_ZIP_ENTRY_BYTES = 16 * 1024 * 1024; // 16 MiB per entry
-const MAX_ZIP_TOTAL_BYTES = 64 * 1024 * 1024; // 64 MiB total
 
 /**
  * Resolve a zip entry destination inside `baseDir`, rejecting any path that
@@ -217,10 +448,27 @@ export class SkillImport {
    */
   private readonly llmCall: LlmScanCall;
 
-  constructor(io: SkillImportIo = defaultSkillImportIo, quarantineIo?: SkillQuarantineIo, llmCall?: LlmScanCall) {
+  /**
+   * Resolver for the install destination.
+   *
+   * INJECTED, not called at module scope, and that is deliberate:
+   * `getSkillsDir()` reads `cacheDir`, which only exists after app init. Calling
+   * it eagerly bolts this service - otherwise a pure unit with an injectable IO
+   * seam - to electron startup, and every test of it then needs a booted app.
+   * A resolver keeps the seam and keeps the default correct in production.
+   */
+  private resolveSkillsDir: () => string;
+
+  constructor(
+    io: SkillImportIo = defaultSkillImportIo,
+    quarantineIo?: SkillQuarantineIo,
+    llmCall?: LlmScanCall,
+    resolveSkillsDir: () => string = importedSkillsDir
+  ) {
     this.io = io;
     this.quarantineIo = quarantineIo;
     this.llmCall = llmCall ?? makeOneShotLlmScanCall();
+    this.resolveSkillsDir = resolveSkillsDir;
   }
 
   // -------------------------------------------------------------------------
@@ -256,8 +504,21 @@ export class SkillImport {
     }
     const tmpDir = await this.io.mkdtemp('wayland-git-import-');
     try {
-      await this.io.gitClone(url, tmpDir);
-      return await this._copyAndScan(tmpDir);
+      // NAME THE SKILL AFTER THE REPO, NOT AFTER THE TEMP DIRECTORY.
+      //
+      // `_copyAndScan` takes the installed name from `path.basename(srcDir)`.
+      // Cloning straight into the mkdtemp root made that name the temp
+      // directory's, so a git import installed as `wayland-git-import-Ab3xYz` -
+      // unrecognisable in the picker, and different on every retry, so the
+      // collision guard could never fire either. Cloning one level down puts
+      // the repository's own name there instead.
+      const cloneDir = path.join(tmpDir, repoNameFromGitUrl(url));
+      await this.io.gitClone(url, cloneDir);
+      // And unwrap a single wrapping folder, exactly as the zip path does. A
+      // repo holding `my-skill/SKILL.md` rather than a root SKILL.md otherwise
+      // installs the wrapper and loses the skill inside it.
+      const root = await this._unwrapSingleFolder(cloneDir);
+      return await this._copyAndScan(root);
     } finally {
       await this.io.rmdir(tmpDir).catch(() => {});
     }
@@ -313,21 +574,57 @@ export class SkillImport {
         if (totalBytes > MAX_ZIP_TOTAL_BYTES) {
           throw new Error('Rejected: zip total decompressed size exceeds cap');
         }
-        // Strip non-.md files (don't write them).
-        if (!entry.path.endsWith('.md')) {
+        // A pack is a TREE, and it is installed as one.
+        //
+        // This used to `continue` on EVERY non-`.md` entry and then flatten what
+        // survived to `path.basename`, so a zip holding `watchlists/list.txt`
+        // installed as a lone SKILL.md whose own relative links pointed at
+        // nothing. The user picked a pack, was told it imported, and got a husk.
+        //
+        // The original decision that executables never ride in through a zip is
+        // KEPT - see the sibling `warns (does not reject)` case. What changes is
+        // that it now applies to executables specifically instead of to
+        // everything that is not markdown. A `.txt` watchlist or a `.csv` is
+        // data the skill reads; a `.sh` is not, and SkillGuard reasons about
+        // prompt text so it could never have vouched for one.
+        // ALLOWLIST, not denylist - see ALLOWED_IMPORT_EXTENSIONS for the
+        // bypasses the denylist could not stop.
+        const ext = normalisedImportExtension(entry.path);
+        if (!isImportableFile(entry.path)) {
+          warnings.push(`Skipped ${entry.path}: this file type is not imported`);
           continue;
         }
-        // Warn on executable-ref patterns in SKILL.md bodies.
-        const body = entry.data.toString('utf-8');
-        if (EXECUTABLE_REF_RE.test(body)) {
-          warnings.push(`Warning: ${entry.path} references a relative executable path`);
+        // Imported, and SAID OUT LOUD. Silently skipping these was worse than
+        // either refusing or allowing them: the pack installed looking healthy
+        // while its SKILL.md pointed at tools that were never written, so the
+        // failure surfaced later as a broken run rather than at the import the
+        // user could still decline.
+        if (DISCLOSED_SCRIPT_EXTENSIONS.includes(ext)) {
+          warnings.push(`Contains script: ${entry.path}`);
         }
-        // Write only .md files to tmpDir, flattening to the basename. Safe
-        // now because the multi-SKILL.md guard above rejects ambiguous zips.
-        const destFile = path.join(tmpDir, path.basename(entry.path));
+        // Warn on executable-ref patterns in markdown bodies.
+        if (entry.path.endsWith('.md')) {
+          const body = entry.data.toString('utf-8');
+          if (EXECUTABLE_REF_RE.test(body)) {
+            warnings.push(`Warning: ${entry.path} references a relative executable path`);
+          }
+        }
+        // Write at the entry's own RELATIVE path, not its basename, so the tree
+        // survives. `resolveContainedEntry` above already proved this path stays
+        // inside tmpDir under both separator conventions.
+        const destFile = resolveContainedEntry(tmpDir, entry.path)!;
+        await this.io.mkdir(path.dirname(destFile), { recursive: true });
         await this.io.writeFile(destFile, entry.data);
       }
-      const result = await this._copyAndScan(tmpDir);
+      // A zip almost always wraps its contents in one folder - `zip -r pack.zip
+      // my-skill` produces `my-skill/SKILL.md`, and so does every Finder and
+      // Explorer "Compress" action. Without this, `_copyAndScan` names the skill
+      // after the TEMP DIRECTORY (`wayland-zip-import-PGBPzU`) and nests the real
+      // folder one level below it, so the pack installs under a garbage name and
+      // the agent never finds it. Descend when there is exactly one directory and
+      // no SKILL.md beside it; anything else keeps its shape.
+      const root = await this._unwrapSingleFolder(tmpDir);
+      const result = await this._copyAndScan(root);
       return { ...result, warnings: [...result.warnings, ...warnings] };
     } finally {
       await this.io.rmdir(tmpDir).catch(() => {});
@@ -347,7 +644,7 @@ export class SkillImport {
       throw new Error(`Rejected: source path is a symlink - ${srcPath}`);
     }
     const skillName = path.basename(path.dirname(srcPath));
-    const destDir = path.join(IMPORTED_DIR, skillName);
+    const destDir = path.join(this.resolveSkillsDir(), skillName);
     await this.io.mkdir(destDir, { recursive: true });
     const destFile = path.join(destDir, 'SKILL.md');
     await this.io.copyFile(srcPath, destFile);
@@ -360,34 +657,113 @@ export class SkillImport {
   // Internal helpers
   // -------------------------------------------------------------------------
 
-  /** Copy srcDir into IMPORTED_DIR/<basename> and run scan+register. */
+  /** Copy srcDir into the skills dir under <basename> and run scan+register. */
   private async _copyAndScan(srcDir: string): Promise<ImportResult> {
     const basename = path.basename(srcDir);
-    const destDir = path.join(IMPORTED_DIR, basename);
-    await this.io.mkdir(destDir, { recursive: true });
+    const destDir = path.join(this.resolveSkillsDir(), basename);
 
-    const files = await this.io.readdir(srcDir);
-    let body = '';
-    for (const file of files) {
-      const srcFile = path.join(srcDir, file);
-      const destFile = path.join(destDir, file);
-      // Only copy .md files (SKILL.md + any supporting docs).
-      if (!file.endsWith('.md')) continue;
-      // H6: per-child lstat. importFolder lstats the root only; without
-      // this check a folder containing `SKILL.md -> /etc/passwd` (or any
-      // other attacker-pointed symlink) would have its target read and
-      // copied into the user's skills directory.
-      const childStat = await this.io.lstat(srcFile);
-      if (childStat.isSymbolicLink()) {
-        throw new Error(`Rejected: source folder contains a symlink - ${srcFile}`);
-      }
-      await this.io.copyFile(srcFile, destFile);
-      if (file === 'SKILL.md') {
-        body = (await this.io.readFile(srcFile)).toString('utf-8');
-      }
+    // REFUSE A NAME COLLISION rather than merging into it. `mkdir` is recursive
+    // (a no-op on an existing directory) and `copyFile` overwrites, so importing
+    // anything whose folder name matches an installed skill used to overwrite
+    // that skill's files IN PLACE - before the new content had been scanned, and
+    // leaving any file the new tree did not happen to contain behind as a
+    // mixture of the two. If the scan then blocked the result, quarantine moved
+    // the MERGED directory away, taking the user's original with it.
+    //
+    // The purchased-pack path already refuses collisions; this is the same rule.
+    if (await this.io.exists(destDir)) {
+      throw new Error(
+        `Rejected: a skill named "${basename}" is already installed. Remove it first, or rename the folder you are importing.`
+      );
     }
 
-    return this._scanAndRegister([{ name: basename, body, destDir }]);
+    await this.io.mkdir(destDir, { recursive: true });
+
+    // Copy the WHOLE tree. The previous version walked one level and copied
+    // `.md` only, which is why a pack's `watchlists/` or `reference/` folder
+    // vanished on import while the import still reported success.
+    const body = await this._copyTree(srcDir, destDir);
+
+    // SURFACE WHAT THE COPY DECIDED. Both buffers used to be written and never
+    // read, so the folder and git paths installed scripts silently and dropped
+    // refused files silently - on the same import surface whose zip path says
+    // both out loud.
+    // The copy has already walked the tree, so what it carries is known BEFORE
+    // anything is registered. That is the whole point: the decision has to be
+    // available at the moment it can still be declined.
+    const result = await this._scanAndRegister([{ name: basename, body, destDir }], this.disclosedScripts.length > 0);
+    for (const rel of this.disclosedScripts) result.warnings.unshift(`Contains script: ${rel}`);
+    for (const rel of this.skippedExecutables) {
+      result.warnings.push(`Skipped ${rel}: this file type is not imported`);
+    }
+    return result;
+  }
+
+  /**
+   * Copy `src` into `dest` recursively, returning the root SKILL.md body.
+   *
+   * Every child is lstat'd. A symlink anywhere in the tree is refused rather
+   * than followed: a pack has no legitimate reason to ship one, and following
+   * it turns a copy into an exfiltration of whatever it points at.
+   */
+  /**
+   * If `dir` holds exactly one directory and no SKILL.md, return that directory.
+   * Otherwise return `dir` unchanged.
+   */
+  private async _unwrapSingleFolder(dir: string): Promise<string> {
+    const names = await this.io.readdir(dir);
+    if (names.includes('SKILL.md')) return dir;
+    if (names.length !== 1) return dir;
+    const only = path.join(dir, names[0]);
+    const st = await this.io.lstat(only);
+    if (st.isSymbolicLink() || !st.isDirectory()) return dir;
+    return only;
+  }
+
+  private skippedExecutables: string[] = [];
+  private disclosedScripts: string[] = [];
+  private copyRoot = '';
+
+  private async _copyTree(src: string, dest: string, depth = 0): Promise<string> {
+    if (depth === 0) {
+      this.skippedExecutables = [];
+      this.disclosedScripts = [];
+      this.copyRoot = src;
+    }
+    if (depth > 8) throw new Error('Rejected: skill folder nests too deeply');
+    let body = '';
+    await this.io.mkdir(dest, { recursive: true });
+    for (const file of await this.io.readdir(src)) {
+      const from = path.join(src, file);
+      const to = path.join(dest, file);
+      const st = await this.io.lstat(from);
+      if (st.isSymbolicLink()) {
+        throw new Error(`Rejected: source folder contains a symlink - ${from}`);
+      }
+      if (st.isDirectory()) {
+        const nested = await this._copyTree(from, to, depth + 1);
+        if (!body) body = nested;
+        continue;
+      }
+      // The folder and git paths get the SAME allowlist as the zip path, and
+      // the same disclosure. They had neither: a `.py` landed here silently,
+      // which made the whole "a pack can never place executable content
+      // silently" claim true on one import vector out of four.
+      const rel = path.join(path.relative(this.copyRoot, src), file);
+      if (!isImportableFile(file)) {
+        // Skipped, not fatal: one stray file must not cost the user the pack.
+        this.skippedExecutables.push(rel);
+        continue;
+      }
+      if (DISCLOSED_SCRIPT_EXTENSIONS.includes(normalisedImportExtension(file))) {
+        this.disclosedScripts.push(rel);
+      }
+      await this.io.copyFile(from, to);
+      if (depth === 0 && file === 'SKILL.md') {
+        body = (await this.io.readFile(from)).toString('utf-8');
+      }
+    }
+    return body;
   }
 
   /**
@@ -400,7 +776,8 @@ export class SkillImport {
    *  - `clean`   → registered immediately with `registered: true`.
    */
   private async _scanAndRegister(
-    skills: Array<{ name: string; body: string; destDir: string }>
+    skills: Array<{ name: string; body: string; destDir: string }>,
+    holdForScripts = false
   ): Promise<ImportResult> {
     const inputs: SkillScanInput[] = skills.map((s) => ({
       name: s.name,
@@ -430,10 +807,29 @@ export class SkillImport {
       // `review` is HELD pending explicit consent: the on-disk copy stays
       // (so confirmImport can re-verify it) but it is NOT registered, so no
       // agent can retrieve it until the user approves.
+      //
+      // A CLEAN pack that carries executable files is held the same way. The
+      // sweep reads prompt text; it cannot vouch for a `.py` or an `.mjs`, and
+      // `initAgent` COPIES the skill directory into the workspace the agent
+      // runs shell in. Registering first and listing the files afterwards is
+      // disclosure, not consent - and the people importing these are told by
+      // our own guide to click Approve. So the names go up, and one click
+      // through `confirmImport` (which re-verifies against the hash the user
+      // saw) is what registers it.
       let registered = false;
-      if (report.verdict === 'clean') {
+      let enabledFor: string | null = null;
+      let enabledForLabel: string | null = null;
+      if (report.verdict === 'clean' && !holdForScripts) {
         warnings.push(...this._register(skill.name, skill.destDir, skill.body, report));
         registered = true;
+        // Switch it on for the assistant the user is about to chat with. Only
+        // for real skills: a workflow or an agent-profile is not something an
+        // assistant carries in `enabledSkills`, and enabling one there would be
+        // a silent no-op at best.
+        if (parseFrontmatterType(skill.body) === 'skill') {
+          enabledFor = await enableSkillForCurrentAssistant(path.basename(skill.destDir));
+          if (enabledFor) enabledForLabel = await assistantDisplayName(enabledFor);
+        }
       }
 
       imported.push({
@@ -443,6 +839,9 @@ export class SkillImport {
         type: parseFrontmatterType(skill.body),
         body: skill.body,
         registered,
+        heldFor: registered ? null : report.verdict === 'review' ? 'review' : 'scripts',
+        enabledFor,
+        enabledForLabel,
       });
     }
 
@@ -509,6 +908,11 @@ export class SkillImport {
     }
 
     this._register(name, destPath, body, report);
+    // Same enablement as the clean path. A skill the user explicitly approved
+    // must not be LESS usable than one that sailed through the sweep.
+    if (parseFrontmatterType(body) === 'skill') {
+      await enableSkillForCurrentAssistant(path.basename(destPath));
+    }
     return { ok: true };
   }
 }

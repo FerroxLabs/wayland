@@ -75,6 +75,30 @@ type ModelChoice = { provider: IProvider; useModel: string; accountId?: string }
  * (`v2:${registryProviderId}`). Hardcoded rather than imported because this
  * renderer hook must not reach into @process.
  */
+/**
+ * SWR key prefix for the persisted default-model pin.
+ *
+ * THE PIN IS AN INPUT TO RESOLUTION, SO IT HAS TO BE A REACTIVE ONE.
+ *
+ * The resolution effect below reads the pin, but its deps were
+ * `[modelList, storageKey]` only. Onboarding writes its pin AFTER the composer
+ * has already resolved, and then revalidated `model.config.welcome` to force a
+ * re-run - except that key holds the PROVIDER CATALOG, which a pin write does
+ * not change. SWR compares the refetched data, finds it deep-equal, keeps the
+ * same reference, the `modelList` memo does not recompute, and the effect never
+ * fires again. Every guard inside it is unreachable.
+ *
+ * Measured on a fresh Flux-connected profile, 10 runs: pin on disk
+ * `flux-reasoning` on 9 of 10, composer chip `flux-auto` on 6 of 10, and the
+ * catalog complete and correct at every sample from +2s to +15s - so nothing
+ * was racing, the effect simply never re-read the pin. Correct from launch two,
+ * because then the pin is on disk before the first resolution.
+ *
+ * Keyed by `storageKey` so switching agent refetches; revalidated by prefix
+ * with `mutate((key) => Array.isArray(key) && key[0] === MODEL_PIN_SWR_KEY)`.
+ */
+export const MODEL_PIN_SWR_KEY = 'model.default-pin';
+
 const V2_BRIDGE_PREFIX = 'v2:';
 const bridgeTagOf = (provider: IProvider): string | undefined => {
   const tag = (provider as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
@@ -223,7 +247,7 @@ export type GuidModelSelectionResult = {
   geminiModeLookup: Map<string, ReturnType<typeof useGeminiGoogleAuthModels>['geminiModeOptions'][number]>;
   formatGeminiModelLabel: (provider: { platform?: string } | undefined, modelName?: string) => string;
   currentModel: TProviderWithModel | undefined;
-  setCurrentModel: (modelInfo: TProviderWithModel) => Promise<void>;
+  setCurrentModel: (modelInfo: TProviderWithModel, opts?: { persist?: boolean }) => Promise<void>;
 };
 
 /**
@@ -307,9 +331,24 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
 
   const storageKey = MODEL_STORAGE_KEY[agentKey];
 
+  // Trigger only - the effect still reads the pin from ConfigStorage itself, so
+  // it can never act on a stale cached copy.
+  const { data: savedPinTrigger } = useSWR([MODEL_PIN_SWR_KEY, storageKey], () => ConfigStorage.get(storageKey));
+
+  /**
+   * Was the model now on screen CHOSEN, or merely resolved for the user?
+   *
+   * `persist === false` is already how this setter tells its two callers apart
+   * (see the comment inside it). Recording that distinction lets the lock below
+   * treat the two differently: a deliberate pick is never overridden, while an
+   * auto-resolved default may still be corrected by a pin that lands after it.
+   */
+  const currentIsDeliberateRef = useRef(false);
+
   const setCurrentModel = useCallback(
-    async (modelInfo: TProviderWithModel) => {
+    async (modelInfo: TProviderWithModel, opts?: { persist?: boolean }) => {
       selectedModelKeyRef.current = buildModelKey(modelInfo.id, modelInfo.useModel);
+      currentIsDeliberateRef.current = opts?.persist !== false;
       // Apply to React state FIRST, and never gate it on the write.
       //
       // The renderer IPC bridge is resolve-only: it has no reject path and no
@@ -327,6 +366,20 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
       // in hand. Persistence is still attempted, still logs on failure, and a
       // lost write costs at most the pin - not the running session.
       _setCurrentModel(modelInfo);
+      // An AUTO-RESOLVED default must never be written to `storageKey`.
+      //
+      // This setter is shared by two callers with very different authority: a
+      // deliberate pick from the picker, and the cold-start fallback below. The
+      // fallback used to persist too, which made a guess indistinguishable on
+      // disk from a choice - and the resolution chain ranks a saved pin ABOVE
+      // `fluxAuto`. One cold start that resolved before the cloud catalogs
+      // landed (only the fastest provider present) therefore stamped whatever
+      // sorted first - measured live: Groq's `allam-2-7b` - and from then on
+      // that phantom pin outranked Flux Autopilot forever, on every launch.
+      // Not persisting the guess makes the chain re-evaluate each start, so a
+      // connected Flux Router lands on `flux-auto` and an unconnected one lands
+      // on a marquee model, while a real pick still persists and still wins.
+      if (opts?.persist === false) return;
       // Detached on purpose, for the same reason: awaiting it here would hand
       // the caller a promise that can never settle. handlePickCurated awaits
       // this setter, so a stalled write would strand the pick mid-flight and
@@ -377,14 +430,52 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
           /* no override on failure - fall through to the normal lock */
         }
       }
-      if (!agentChanged && !fluxOverridePending && isModelKeyAvailable(currentKey, modelList)) {
+      // A SAVED PIN THAT DISAGREES WITH THE LOCK MUST BE ALLOWED TO WIN.
+      //
+      // The lock below exists to keep an in-session choice against catalog
+      // refreshes, and `fluxOverridePending` above is a narrow escape hatch cut
+      // for one shape of the same problem (#129, Flux). But the general problem
+      // is not Flux-specific: onboarding writes its pin AFTER the composer has
+      // already resolved and locked, so ANY first-run pin arrives too late and
+      // the lock holds a model nobody chose for the rest of the session.
+      //
+      // Measured on fresh profiles, repeatedly and intermittently - it is a
+      // race, so it is right on some runs and wrong on others: pin on disk
+      // `gemini-3.7-flash` while the chip read `allam-2-7b`; and with Flux
+      // connected, pin `flux-reasoning` while the chip read `flux-auto` (the
+      // tier measured at 1 completion in 6). Both corrected on the next launch,
+      // so it was always exactly one session wrong - the first one.
+      //
+      // Reading the pin before the lock closes it for every path at once. This
+      // cannot override a deliberate pick: a real pick persists to this same
+      // key, so pin and current agree and the lock still holds. And falling
+      // through only reaches the resolution chain, where `recentMatch` (written
+      // ONLY on a real pick) still ranks above the pin.
+      const savedModel = await ConfigStorage.get(storageKey);
+      const savedPin = resolveSavedPin(savedModel, modelList);
+      const savedPinKey = savedPin ? buildModelKey(savedPin.provider.id, savedPin.useModel) : null;
+      // ONLY an auto-resolved selection may be corrected this way.
+      //
+      // Breaking the lock on ANY disagreement regressed a real case the suite
+      // already covered: a manual pick whose persist never settles leaves the
+      // OLD pin on disk, so the pin "disagrees", and re-resolving threw the
+      // user's own pick away. `currentIsDeliberateRef` is the same
+      // `persist === false` distinction the setter already makes.
+      const pinDisagreesWithLock = Boolean(
+        savedPinKey && currentKey && savedPinKey !== currentKey && !currentIsDeliberateRef.current
+      );
+
+      if (
+        !agentChanged &&
+        !fluxOverridePending &&
+        !pinDisagreesWithLock &&
+        isModelKeyAvailable(currentKey, modelList)
+      ) {
         if (!selectedModelKeyRef.current && currentKey) {
           selectedModelKeyRef.current = currentKey;
         }
         return;
       }
-      const savedModel = await ConfigStorage.get(storageKey);
-      const savedPin = resolveSavedPin(savedModel, modelList);
 
       // Telemetry of models the user actually picked (recency-sorted). One IPC
       // per cold resolution; failures resolve to an empty list - telemetry must
@@ -472,17 +563,20 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
 
       if (!defaultModel || !resolvedUseModel) return;
 
-      await setCurrentModel({
-        ...defaultModel,
-        useModel: resolvedUseModel,
-        accountId: chosen.accountId ?? DEFAULT_ACCOUNT_ID,
-      });
+      await setCurrentModel(
+        {
+          ...defaultModel,
+          useModel: resolvedUseModel,
+          accountId: chosen.accountId ?? DEFAULT_ACCOUNT_ID,
+        },
+        { persist: false }
+      );
     };
 
     setDefaultModel().catch((error) => {
       console.error('Failed to set default model:', error);
     });
-  }, [modelList, storageKey]);
+  }, [modelList, storageKey, savedPinTrigger]);
   return {
     modelList,
     isGoogleAuth,

@@ -405,6 +405,14 @@ export const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'write-assistant-rule',
   'write-assistant-skill',
   'import-skill',
+  // Denylist DRIFT, found by audit: these two are real IPC channels
+  // (`ipcBridge.ts:611,619`) and were never denied, while every sibling above
+  // was. `export-skill-with-symlink` creates a symlink from arbitrary
+  // caller-supplied paths, which is exactly the primitive a copier that
+  // dereferences links would carry across - so a paired WebUI peer must not
+  // reach it.
+  'import-skill-with-symlink',
+  'export-skill-with-symlink',
   'skills.build.draft',
   'skills.confirm-import',
   'skills.import.folder',

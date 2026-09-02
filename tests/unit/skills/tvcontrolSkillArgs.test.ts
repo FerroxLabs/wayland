@@ -20,7 +20,7 @@
  *
  * THE FIXTURE IS NOT HAND-WRITTEN. tests/fixtures/tvcontrol-<ver>-tools.json is produced
  * by scripts/gen-tvcontrol-schema-fixture.mjs, which packs the connector as npm publish
- * would, installs the tarball, spawns the INSTALLED bin shim, and records the 105
+ * would, installs the tarball, spawns the INSTALLED bin shim, and records the 109
  * `inputSchema` objects from a real `tools/list`. Its header version is pinned to the
  * catalog's pinned version below, so bumping the pin without regenerating fails here
  * instead of silently validating skills against a stale schema.
@@ -39,7 +39,7 @@ const SKILLS_ROOT = path.join(REPO_ROOT, 'src/process/resources/skills');
 /** smart-trader's defaultEnabledSkills, i.e. everything live the moment the assistant opens. */
 const TV_SKILL_DIRS = [
   'tvcontrol-setup',
-  'market-open-report',
+  'morning-prep',
   'chart-analysis',
   'multi-symbol-scan',
   'multi-pane-analysis',
@@ -153,7 +153,11 @@ describe('bundled TVControl skill examples are callable against the pinned conne
     // and report every call site green.
     expect(fixture._header.version).toBe(PINNED_VERSION);
     expect(fixture._header.toolCount).toBe(Object.keys(fixture.tools).length);
-    expect(fixture._header.toolCount).toBe(105);
+    // 109 through 2.4.2; 112 from 2.4.3, which added watchlist_create, layout_create and
+    // layout_save. Bump this deliberately when the connector gains tools - never to make
+    // a red run go green, because a DROP in the count is a published package that lost a
+    // tool the skills still call.
+    expect(fixture._header.toolCount).toBe(112);
   });
 
   it('KNOWN-POSITIVE CONTROL: the parser actually finds call sites', () => {

@@ -71,6 +71,10 @@ vi.mock('@process/services/database', () => ({ getDatabase: vi.fn(() => Promise.
 vi.mock('@process/services/database/export', () => ({ getDatabase: vi.fn(() => Promise.resolve(mockDb)) }));
 
 vi.mock('@process/utils/initStorage', () => ({
+  // WCoreManager.start reads getSystemDir().workDir to tell the spawn path which
+  // work root it manages, which is what gates the workspace-trust flag. Without
+  // this export the mock throws before any budget assertion runs.
+  getSystemDir: vi.fn(() => ({ workDir: '/mock/work', cacheDir: '/mock/cache' })),
   ProcessChat: { get: vi.fn(() => Promise.resolve([])) },
   ProcessConfig: {
     get: mockProcessConfigGet,

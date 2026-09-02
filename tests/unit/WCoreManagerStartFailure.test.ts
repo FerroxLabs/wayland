@@ -77,6 +77,10 @@ vi.mock('@process/services/database/export', () => ({
 }));
 
 vi.mock('@process/utils/initStorage', () => ({
+  // WCoreManager.start reads getSystemDir().workDir to decide whether the
+  // workspace it is about to spawn into is one it manages, which gates the
+  // workspace-trust flag. Without this export the mock throws inside start().
+  getSystemDir: vi.fn(() => ({ workDir: '/mock/work', cacheDir: '/mock/cache' })),
   ProcessChat: { get: vi.fn(() => Promise.resolve([])) },
   ProcessConfig: {
     get: vi.fn((key: string) => Promise.resolve(key === 'wcore.rawEngineMode' ? false : undefined)),

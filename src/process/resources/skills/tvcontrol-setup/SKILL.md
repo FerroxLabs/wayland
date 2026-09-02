@@ -1,6 +1,6 @@
 ---
 name: tvcontrol-setup
-description: 'Set up TVControl end to end: install the connector, start TradingView Desktop with its control port open, load a watchlist export, add the TC-TIDE indicator, and leave a working chart. Use when a user wants TradingView connected, says TVControl or the chart tools are not working, or asks to load their watchlist or get TC-TIDE onto the chart.'
+description: 'Set up TVControl end to end: install the connector, start TradingView Desktop with its control port open, load a watchlist export, add the indicators they use, and leave a working chart. Use when a user wants TradingView connected, says TVControl or the chart tools are not working, or asks to load their watchlist or get an indicator onto the chart.'
 ---
 
 # TVControl setup
@@ -15,8 +15,8 @@ as done because the tool call returned.
 Say these out loud when you reach them, rather than working around them.
 
 1. **You cannot install the connector.** You propose it; the user clicks Apply on a card.
-2. **You cannot put TC-TIDE in the user's TradingView account.** It is a private script.
-   Only they can click "Add to favourite indicators", in their own signed-in TradingView.
+2. **You cannot put a private script in the user's TradingView account.** Only they can click
+   "Add to favourite indicators", in their own signed-in TradingView.
 
 Everything else in this skill you can do for them.
 
@@ -45,7 +45,7 @@ Search by name for `tv_health_check`, `chart_get_state` and `tv_launch`, and sea
 kind: add_mcp
 name: com.ferroxlabs-tvcontrol
 command: npx
-args: @ferroxlabs/tvcontrol@2.3.1
+args: @ferroxlabs/tvcontrol@2.4.7
 [/CONCIERGE_PROPOSE]
 ```
 
@@ -262,72 +262,65 @@ against what the converter reported.
 
 ---
 
-## Step 4 — TC-TIDE (the order here is fixed)
+## Step 4 — their indicator (the order here is fixed)
 
-TC-TIDE is published **privately** at
-<https://www.tradingview.com/script/7qX9c9mf-TC-TIDE/>. It is reachable by direct link only,
-it is not public, and it is not invite-only — that URL is the sole way in. There is no
-URL-based "add this script" anywhere in TVControl.
+Ask which indicator they want on the chart. If it is a **private script** — one published to a
+direct link rather than to the public library — the order below is not negotiable, because a
+private script does not exist as far as their indicator dialog is concerned until they have
+favourited it from its own URL. **The favourite is the precondition, not a recovery step.**
 
-**For the user in front of you, it will NOT be in search.** The script is private, so until
-they favourite it from that URL it does not exist as far as their indicator dialog is
-concerned. The favourite is not a fallback and not a recovery step — it is the precondition,
-and it comes first. This order is not negotiable:
-
-1. **Open the URL for them** and say what it is.
+1. **Ask them to open the script's URL** and say what it is. If they have a strategy packet, that
+   packet's own SKILL.md carries the link; you do not.
 
 2. **Tell them the exact control to click: "Add to favourite indicators"** on that page. Say
-   plainly that this is the one step nobody can do for them, because the script is private to
-   their account. Wait for them to confirm they clicked it.
+   plainly that this is the one step nobody can do for them, because a private script is private
+   to their account. Wait for them to confirm they clicked it.
 
-3. **`indicator_search`** with query `TC-TIDE` — **hyphenated, exactly as the title is
-   written**. Pass no section; do not constrain it.
+3. **`indicator_search`** with the title **written exactly as the script writes it**, punctuation
+   included. Pass no section; do not constrain it.
 
-   ⚠ **The search is literal and does NOT normalise punctuation.** `TC TIDE` with a space
-   returns **zero results even when the script is definitely present** — verified by running
-   both against a machine that has it. Getting this wrong does not look like a typo, it looks
-   like the favourite failed, so the user gets sent round the loop again for something they
+   ⚠ **The search is literal and does NOT normalise punctuation.** A hyphenated title searched
+   with a space returns **zero results even when the script is definitely present** — verified by
+   running both against a machine that has it. Getting this wrong does not look like a typo, it
+   looks like the favourite failed, so the user gets sent round the loop again for something they
    already did correctly.
 
-4. **Report which section it actually came back under** (`Favorites`, `My scripts`,
-   `Community`, whatever the result says) and pass that same section back to the add call.
-   Never assume which one.
+4. **Report which section it actually came back under** (`Favorites`, `My scripts`, `Community`,
+   whatever the result says) and pass that same section back to the add call. Never assume which
+   one.
 
-5. **`indicator_add_from_search`** with query `TC-TIDE`, `match` set to the exact title from
-   the search result, and `section` set to **the section you just observed**. `TC-TIDE PRO` is
-   a different script with a different title; match the one they asked for.
+5. **`indicator_add_from_search`** with `match` set to the exact title from the search result, and
+   `section` set to **the section you just observed**. Where a script has variants — a PRO or
+   extended edition under a separate title — match the one they asked for, not the near neighbour.
 
-6. **If the search still returns nothing, the favourite did not take.** Say exactly that,
-   reopen the page, and walk them through the click again.
+6. **If the search still returns nothing, the favourite did not take.** Say exactly that, reopen
+   the page, and walk them through the click again.
 
-⚠ **Never substitute a lookalike.** Searching `TIDE` on its own returns a dozen unrelated
-community scripts — `Tide Tracker Zones`, `TideMaster`, `ROC Tide`, `Market Tide` and others.
-**None of them is TC-TIDE.** Only `TC-TIDE` and `TC-TIDE PRO` under the user's own
-`Favorites` or `My scripts` are the real thing. Adding a community script with a similar name
-and carrying on is worse than stopping, because every number the user then reads is from the
-wrong indicator.
+⚠ **Never substitute a lookalike.** A one-word search commonly returns a dozen unrelated community
+scripts with similar names. Only an exact-title match under the user's own `Favorites` or
+`My scripts` is the script they mean. Adding a community script with a similar name and carrying
+on is worse than stopping, because every number the user then reads is from the wrong indicator.
 
-**Note for anyone testing this on the machine TC-TIDE was developed on:** there it already
-sits under `My scripts` with no favouriting, so steps 1 and 2 will look unnecessary. That is
-the author's box and it is the exception, not what a user sees. Do not "simplify" this step
-on the strength of it.
+**Note for anyone testing this on the machine a private script was authored on:** there it already
+sits under `My scripts` with no favouriting, so steps 1 and 2 will look unnecessary. That is the
+author's box and it is the exception, not what a user sees. Do not "simplify" this step on the
+strength of it.
 
-**Check:** `chart_get_state` lists TC-TIDE among the indicators. If it does not, the chart
-does not have it, whatever the add call returned.
+**Check:** `chart_get_state` lists the indicator among the studies. If it does not, the chart does
+not have it, whatever the add call returned.
 
 ⚠ **Present in the list is not the same as healthy.** A study that never finished registering
 with the server is reported with `id: null` and `addressable_by: "name"`, and it kills the
 pane's data session on every reconnect. `chart_get_state` carries a `chart_health` block when
-the pane it describes is broken. If TC-TIDE comes back that way, do not report the setup as
+the pane it describes is broken. If the indicator comes back that way, do not report the setup as
 done: run `tv_chart_health`, then `tv_repair_chart`, then add it again with
 `indicator_add_from_search`.
-
 ---
 
 ## Step 5 — the chart, and the save only they can do
 
 Set up the chart with `chart_set_symbol`, `chart_set_timeframe`, and whatever indicators
-they asked for on top of TC-TIDE.
+they asked for.
 
 Then **ask them to press Cmd+S (Ctrl+S on Windows)** to save the layout.
 
@@ -346,7 +339,7 @@ Re-run `tv_health_check` and `chart_get_state`, and report from the results, not
 of what you asked for:
 
 - symbol and timeframe the chart is actually on
-- the indicators actually listed, and whether TC-TIDE is among them
+- the indicators actually listed, and whether the one they asked for is among them
 - whether `chart_get_state` returned a `chart_health` block saying the pane is broken
 - the watchlist count from `watchlist_get`
 
@@ -359,62 +352,52 @@ said so.
 ## Step 7 — remember it, or they do this again tomorrow
 
 Everything above is now true of THIS session and nothing else. Nothing has recorded which
-watchlist is theirs or which layout carries TC-TIDE, so the next morning report falls back to the
-seventy-four names that ship inside the skill — and a symbol count cannot tell those two apart, so
-nobody would notice.
+watchlist is theirs or which layout carries their indicator, and **nothing will guess it for
+them.** There is no default list and no fallback: without this, tomorrow starts from scratch.
 
-Save both, with the skill's own tool. Do not hand-write the JSON or the CSV: two file formats
-written by hand are two places for a typo to land, and both fail the same quiet way — a malformed
-settings file reverts to the shipped list, a malformed CSV scans zero symbols and still exits 0.
+Two things are worth writing down where they will survive the conversation: **the chart layout
+that carries their indicator, and the watchlist they actually scan.** Ask, then record them in
+your reply so the user can keep them.
 
-```bash
-# 1. export their live TradingView list  ->  watchlist_export  (file_path: watchlist-export.json)
-# 2. turn it into a saved scan list and record the layout, in one step:
-node .wayland-core/skills/market-open-report/scripts/settings.mjs \
-  --import-watchlist watchlist-export.json \
-  --name "<the watchlist name they use>" \
-  --chart-layout "<the layout name from layout_list>"
-```
+Discover first, so you are offering real choices rather than guessing:
 
-For the layout name, call `layout_list`. If exactly one is obviously the chart they just saved in
-Step 5, use it and **say which one you picked**. If it is ambiguous, ask — one question, naming the
-candidates. Guessing here is worse than asking, because a wrong layout sends every later chart read
-to the wrong chart and nothing about the answer looks wrong.
+- `tab_list` returns every open chart tab with the layout it holds, and marks which tab the
+  connector is actually attached to.
+- `layout_list` returns their saved layouts; `layout_get_active` reports the current one.
+- `watchlist_list` returns every watchlist with its id and symbol count, and flags duplicate names.
 
-Then read it back with `--show` and report from THAT, not from what you meant to save:
+**Then ask.** Offer watchlists with names AND sizes — "My Majors, 29 symbols" is recognisable in a
+way an id never will be. If two lists share a name, show both with their sizes and ask which. Do
+not pick one: duplicate names are common in a real account, and the wrong one scans a universe
+that looks entirely plausible.
 
-```bash
-node .wayland-core/skills/market-open-report/scripts/settings.mjs --show
-```
+**Prefer ids over names.** A rename cannot silently redirect a scan that was pinned by id.
 
-### ⚠️ It only persists if this chat has a real folder
+Read it back in their words: *"Your chart is the Crypto Swing layout, scanning My Majors, 29
+symbols, on the 4-hour."* A configuration that has never been executed is a guess with a name on
+it — apply it, read the chart back, and confirm the indicator is really present before you rely
+on it.
 
-The settings file lives at the **workspace root**, and that is the only place it can live: the
-skill's own folder is wiped and re-copied every time the app starts, and everything outside the
-workspace is behind the sandbox.
-
-A chat with no folder of its own gets a throwaway workspace that is gone next time. So if `--show`
-reports a path under `wcore-temp-`, **say so plainly**: it is saved for this conversation and will
-not survive. Then offer the daily schedule — a recurring task gets its own durable folder
-(`~/Documents/Wayland/Tasks/…`), which is exactly the home these settings need. That is the honest
-version of "we're set up", and it is a better reason to say yes to the schedule than the schedule
-itself.
+**If they have a strategy packet installed**, it has its own setup command that saves this as a
+named setup and re-proves it later. Follow that skill's own instructions; they supersede this step.
 
 ---
 
 ## Step 8 — run it, so they SEE it work
 
-**Do not stop at "you are set up."** Nobody believes a green tick. Run the morning report now
-with the `market-open-report` skill and put the result in front of them: how many names it
-scanned, the bar date, and the brief itself.
+**Do not stop at "you are set up."** Nobody believes a green tick. Run their brief now — the
+`morning-prep` skill, or the strategy packet's own brief if one is installed — and put the result
+in front of them: how many names it scanned, off which watchlist and timeframe, and the brief
+itself.
 
-The report reads the list you just saved, and prints a `[source]` line naming it and when it was
-exported — quote that line rather than the symbol count, so "your list" and "the shipped list" stay
-tellable apart. If Step 7 did not happen, it falls back to a default list of seventy-four names that
-ships with the skill, which is also why this works even when part of the setup above did NOT. If TradingView
-would not start, or the connector is still broken, **run the report anyway**. Ending with a
-real brief plus one honest sentence about what is still unfinished beats ending with an error
-and nothing to show for the last ten minutes.
+Read the numbers off their chart and compute nothing, so every figure you report is one they can
+point at on their own screen. State the watchlist name and size in the answer, and name any symbol
+it could not read rather than dropping it.
+
+**If TradingView would not start, or the connector is still broken, there is nothing to run and
+nothing to substitute.** Say plainly what is in the way and stop. Do not reach for another data
+source, and do not print an indicator's group headings over numbers it never produced — a brief the
+reader cannot tell apart from a real one is worse than no brief at all.
 
 Then, and only then, offer the daily schedule. Someone who has just watched it produce a brief
 needs no persuading that they want one every morning.
@@ -434,6 +417,6 @@ Otherwise, in order: are the tools still in your toolset (connector still instal
 
 - "installed" when you emitted a proposal the user has not applied yet
 - "imported all of them" without per-symbol results in front of you
-- "added TC-TIDE" when the search came back empty
+- "added their indicator" when the search came back empty
 - "saved your layout" for `state_snapshot`
 - anything about the connector needing an account, key or subscription

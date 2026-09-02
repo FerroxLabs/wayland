@@ -8,7 +8,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import path from 'node:path';
 import {
   SkillImport,
-  IMPORTED_DIR,
+  // The destination moved to <userData>/config/skills - the directory that is
+  // actually read. Tests inject it, because getSkillsDir() needs a booted app.
+
   parseFrontmatterType,
   type SkillImportIo,
   type ZipEntry,
@@ -48,10 +50,24 @@ const BLOCKED_REPORT: SkillSecurityReport = {
   llmScanned: true,
 };
 
+const TEST_SKILLS_DIR = path.join('/tmp', 'wl-test-skills');
+
 function makeFakeIo(overrides: FakeIoOverrides = {}): SkillImportIo {
   return {
-    lstat: vi.fn(async (_p: string) => ({ isSymbolicLink: () => false, isDirectory: () => true })),
-    readdir: vi.fn(async (_p: string) => ['SKILL.md']),
+    // Path-AWARE, because the importer now walks a tree. The previous fake
+    // answered isDirectory() === true for every path and returned the same
+    // ['SKILL.md'] listing at any depth, which is fine against a flat copy and
+    // an infinite loop against a recursive one. A file is anything with an
+    // extension; only the root lists children.
+    lstat: vi.fn(async (p: string) => ({
+      isSymbolicLink: () => false,
+      isDirectory: () => path.extname(p) === '',
+    })),
+    // Nothing is installed by default. The collision refusal is proved by the
+    // dedicated test that overrides this to true, so the guard cannot be
+    // satisfied incidentally by a stub that resolves for every path.
+    exists: vi.fn(async () => false),
+    readdir: vi.fn(async (p: string) => (path.extname(p) === '' ? ['SKILL.md'] : [])),
     readFile: vi.fn(async (_p: string) => Buffer.from('# Test Skill\n\nA harmless skill.')),
     copyFile: vi.fn(async () => {}),
     mkdir: vi.fn(async () => {}),
@@ -81,16 +97,16 @@ describe('SkillImport.importFolder', () => {
   it('copies SKILL.md into IMPORTED_DIR/<basename> for a clean folder', async () => {
     const scanSpy = vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     const result = await importer.importFolder('/home/user/my-skill');
 
     // mkdir called for dest (recursive so parent dirs are created)
-    expect(io.mkdir).toHaveBeenCalledWith(path.join(IMPORTED_DIR, 'my-skill'), { recursive: true });
+    expect(io.mkdir).toHaveBeenCalledWith(path.join(TEST_SKILLS_DIR, 'my-skill'), { recursive: true });
     // copyFile called for SKILL.md
     expect(io.copyFile).toHaveBeenCalledWith(
       path.join('/home/user/my-skill', 'SKILL.md'),
-      path.join(IMPORTED_DIR, 'my-skill', 'SKILL.md')
+      path.join(TEST_SKILLS_DIR, 'my-skill', 'SKILL.md')
     );
     expect(scanSpy).toHaveBeenCalledOnce();
     expect(result.imported).toHaveLength(1);
@@ -102,7 +118,7 @@ describe('SkillImport.importFolder', () => {
     const io = makeFakeIo({
       lstat: vi.fn(async () => ({ isSymbolicLink: () => true, isDirectory: () => false })),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await expect(importer.importFolder('/evil/symlink-dir')).rejects.toThrow(/symlink/);
   });
@@ -111,7 +127,7 @@ describe('SkillImport.importFolder', () => {
     vi.spyOn(SkillGuard, 'scan').mockResolvedValue([BLOCKED_REPORT]);
     const quarantineSpy = vi.spyOn(SkillQuarantine, 'quarantine').mockResolvedValue('/quarantine/dest');
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     const result = await importer.importFolder('/home/user/bad-skill');
 
@@ -132,7 +148,7 @@ describe('SkillImport.importFolder', () => {
     const lib = SkillLibrary.getInstance({ readFile: async () => '[]' });
     const registerSpy = vi.spyOn(lib, 'registerSource');
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     const result = await importer.importFolder('/home/user/review-skill');
 
@@ -152,20 +168,20 @@ describe('SkillImport.importFolder', () => {
 describe('SkillImport.importGit', () => {
   it('throws for file:// scheme', async () => {
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
     await expect(importer.importGit('file:///etc/passwd')).rejects.toThrow(/disallowed scheme/);
   });
 
   it('throws for http:// scheme', async () => {
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
     await expect(importer.importGit('http://github.com/user/repo')).rejects.toThrow(/disallowed scheme/);
   });
 
   it('accepts https:// and calls gitClone then folder import', async () => {
     vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await importer.importGit('https://github.com/user/my-skill');
 
@@ -178,7 +194,7 @@ describe('SkillImport.importGit', () => {
   it('accepts git@github.com: SSH form', async () => {
     vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await importer.importGit('git@github.com:user/repo.git');
 
@@ -191,7 +207,7 @@ describe('SkillImport.importGit', () => {
         throw new Error('network error');
       }),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await expect(importer.importGit('https://github.com/user/repo')).rejects.toThrow('network error');
     expect(io.rmdir).toHaveBeenCalledOnce();
@@ -212,7 +228,7 @@ describe('SkillImport.importZip', () => {
     const io = makeFakeIo({
       unzip: vi.fn(async () => [slipEntry]),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await expect(importer.importZip('/uploads/evil.zip')).rejects.toThrow(/escapes extraction dir/);
   });
@@ -226,7 +242,7 @@ describe('SkillImport.importZip', () => {
     const io = makeFakeIo({
       unzip: vi.fn(async () => [symlinkEntry]),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await expect(importer.importZip('/uploads/symlink.zip')).rejects.toThrow(/symlink entry/);
   });
@@ -241,7 +257,7 @@ describe('SkillImport.importZip', () => {
     const io = makeFakeIo({
       unzip: vi.fn(async () => entries),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await importer.importZip('/uploads/skill.zip');
 
@@ -259,7 +275,7 @@ describe('SkillImport.importZip', () => {
     const io = makeFakeIo({
       unzip: vi.fn(async () => entries),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     const result = await importer.importZip('/uploads/skill.zip');
 
@@ -276,7 +292,7 @@ describe('SkillImport - scan integration', () => {
   it('calls SkillGuard.scan with llm: true and a real llmCall for each import', async () => {
     const scanSpy = vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await importer.importFolder('/home/user/skill-a');
 
@@ -290,11 +306,11 @@ describe('SkillImport - scan integration', () => {
     vi.spyOn(SkillGuard, 'scan').mockResolvedValue([BLOCKED_REPORT]);
     const quarantineSpy = vi.spyOn(SkillQuarantine, 'quarantine').mockResolvedValue('/quarantine/bad');
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await importer.importFolder('/home/user/bad-skill');
 
-    expect(quarantineSpy).toHaveBeenCalledWith('bad-skill', path.join(IMPORTED_DIR, 'bad-skill'), undefined);
+    expect(quarantineSpy).toHaveBeenCalledWith('bad-skill', path.join(TEST_SKILLS_DIR, 'bad-skill'), undefined);
   });
 
   it('registers a clean skill into SkillLibrary', async () => {
@@ -302,7 +318,7 @@ describe('SkillImport - scan integration', () => {
     const lib = SkillLibrary.getInstance({ readFile: async () => '[]' });
     const registerSpy = vi.spyOn(lib, 'registerSource');
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await importer.importFolder('/home/user/clean-skill');
 
@@ -350,11 +366,11 @@ describe('SkillImport - recursive mkdir (FIX 1)', () => {
     // The real fix ensures we always pass { recursive: true } so this never
     // happens; here we just verify the option is forwarded.
     const io = makeFakeIo();
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await importer.importFolder('/home/user/new-skill');
 
-    expect(io.mkdir).toHaveBeenCalledWith(path.join(IMPORTED_DIR, 'new-skill'), { recursive: true });
+    expect(io.mkdir).toHaveBeenCalledWith(path.join(TEST_SKILLS_DIR, 'new-skill'), { recursive: true });
   });
 
   it('importSingleSkillMd calls mkdir with { recursive: true }', async () => {
@@ -362,11 +378,11 @@ describe('SkillImport - recursive mkdir (FIX 1)', () => {
     const io = makeFakeIo({
       lstat: vi.fn(async () => ({ isSymbolicLink: () => false, isDirectory: () => false })),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await importer.importSingleSkillMd('/home/user/my-skill/SKILL.md');
 
-    expect(io.mkdir).toHaveBeenCalledWith(path.join(IMPORTED_DIR, 'my-skill'), { recursive: true });
+    expect(io.mkdir).toHaveBeenCalledWith(path.join(TEST_SKILLS_DIR, 'my-skill'), { recursive: true });
   });
 });
 
@@ -395,7 +411,7 @@ describe('SkillImport - builtin shadowing protection (FIX 2)', () => {
       readFile: vi.fn(async () => Buffer.from('---\nname: pdf\n---\nAttacker body')),
     });
     // importFolder imports into IMPORTED_DIR/<basename>; use 'pdf' as basename.
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
     const result = await importer.importFolder('/home/attacker/pdf');
 
     // The entry in the library should still be the builtin.
@@ -418,7 +434,7 @@ describe('SkillImport - type-aware registration', () => {
     const io = makeFakeIo({
       readFile: vi.fn(async () => Buffer.from('---\nname: my-wf\ntype: workflow\n---\n# Workflow body')),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     const result = await importer.importFolder('/home/user/my-wf');
 
@@ -435,7 +451,7 @@ describe('SkillImport - type-aware registration', () => {
     const io = makeFakeIo({
       readFile: vi.fn(async () => Buffer.from('---\nname: plain\n---\n# Plain skill')),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     const result = await importer.importFolder('/home/user/plain');
 
@@ -462,7 +478,7 @@ describe('SkillImport.confirmImport (C3 consent gate)', () => {
     const io = makeFakeIo({
       readFile: vi.fn(async () => Buffer.from(REVIEW_BODY)),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     // Compute the hash the user "saw" from a real regex-only scan of the body.
     const [report] = await SkillGuard.scan([{ name: 'r', body: REVIEW_BODY, description: '', tags: [] }], {
@@ -472,7 +488,7 @@ describe('SkillImport.confirmImport (C3 consent gate)', () => {
 
     const res = await importer.confirmImport({
       name: 'r',
-      destPath: path.join(IMPORTED_DIR, 'r'),
+      destPath: path.join(TEST_SKILLS_DIR, 'r'),
       contentHash,
     });
 
@@ -489,11 +505,11 @@ describe('SkillImport.confirmImport (C3 consent gate)', () => {
     const io = makeFakeIo({
       readFile: vi.fn(async () => Buffer.from('# totally different swapped-in body')),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     const res = await importer.confirmImport({
       name: 'r',
-      destPath: path.join(IMPORTED_DIR, 'r'),
+      destPath: path.join(TEST_SKILLS_DIR, 'r'),
       contentHash: 'deadbeef'.repeat(8), // a hash for content that isn't on disk
     });
 
@@ -509,7 +525,7 @@ describe('SkillImport.confirmImport (C3 consent gate)', () => {
     const io = makeFakeIo({
       readFile: vi.fn(async () => Buffer.from(blockedBody)),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     const [report] = await SkillGuard.scan([{ name: 'r', body: blockedBody, description: '', tags: [] }], {
       llm: false,
@@ -517,7 +533,7 @@ describe('SkillImport.confirmImport (C3 consent gate)', () => {
 
     const res = await importer.confirmImport({
       name: 'r',
-      destPath: path.join(IMPORTED_DIR, 'r'),
+      destPath: path.join(TEST_SKILLS_DIR, 'r'),
       contentHash: report.contentHash!,
     });
 
@@ -533,14 +549,80 @@ describe('SkillImport.confirmImport (C3 consent gate)', () => {
         throw new Error('ENOENT');
       }),
     });
-    const importer = new SkillImport(io);
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     const res = await importer.confirmImport({
       name: 'r',
-      destPath: path.join(IMPORTED_DIR, 'r'),
+      destPath: path.join(TEST_SKILLS_DIR, 'r'),
       contentHash: 'x'.repeat(64),
     });
 
     expect(res).toEqual({ ok: false, error: 'not-found' });
+  });
+});
+
+describe('a ZIP pack installs as a TREE, into the directory that is actually read', () => {
+  it('keeps data files and their folders, and skips only executables', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
+    const entries: ZipEntry[] = [
+      { path: 'SKILL.md', isSymlink: false, data: Buffer.from('# Skill') },
+      { path: 'watchlists/crypto.txt', isSymlink: false, data: Buffer.from('BINANCE:BTCUSDT\n') },
+      { path: 'reference/notes.md', isSymlink: false, data: Buffer.from('# Notes') },
+      { path: 'scripts/run.sh', isSymlink: false, data: Buffer.from('#!/bin/bash') },
+    ];
+    const io = makeFakeIo({ unzip: vi.fn(async () => entries) });
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
+
+    const result = await importer.importZip('/uploads/pack.zip');
+
+    const written = (io.writeFile as ReturnType<typeof vi.fn>).mock.calls.map(([p]: [string]) => p);
+    // THE FIX: the data file survives, at its own relative path. Before this,
+    // every non-.md entry was dropped and the survivors were flattened to their
+    // basename, so a pack installed as a husk and still reported success.
+    expect(written.some((p) => p.endsWith(path.join('watchlists', 'crypto.txt')))).toBe(true);
+    expect(written.some((p) => p.endsWith(path.join('reference', 'notes.md')))).toBe(true);
+    // The original decision that executables never ride in through a zip is KEPT.
+    expect(written.some((p) => p.endsWith('run.sh'))).toBe(false);
+    // And the user is TOLD, rather than the file vanishing silently.
+    expect(result.warnings.join(' ')).toMatch(/run\.sh/);
+  });
+
+  it('installs into the injected skills dir, not the legacy imported dir', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
+    const io = makeFakeIo();
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
+    await importer.importFolder('/src/my-skill');
+    // KNOWN-POSITIVE CONTROL on the assertion method: mkdir really is recorded.
+    const dirs = (io.mkdir as ReturnType<typeof vi.fn>).mock.calls.map(([p]: [string]) => p);
+    expect(dirs.length).toBeGreaterThan(0);
+    expect(dirs).toContain(path.join(TEST_SKILLS_DIR, 'my-skill'));
+    expect(dirs.some((d) => d.includes(path.join('.wayland', 'skills', 'imported')))).toBe(false);
+  });
+});
+
+describe('an import must not overwrite an installed skill', () => {
+  it('REFUSES when a skill of the same folder name already exists', async () => {
+    // `mkdir` is recursive (no-op on an existing dir) and `copyFile` overwrites,
+    // so this used to merge the new tree INTO the installed one - before the new
+    // content had been scanned, and leaving files the new tree lacked behind as
+    // a mixture. If the scan then blocked it, quarantine moved the merged
+    // directory away, taking the user's original skill with it.
+    const io = makeFakeIo({ exists: vi.fn(async () => true) });
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
+
+    await expect(importer.importFolder('/some/my-skill')).rejects.toThrow(/already installed/i);
+    // Nothing was written: the refusal happens before any copy.
+    expect(io.copyFile).not.toHaveBeenCalled();
+    expect(io.mkdir).not.toHaveBeenCalled();
+  });
+
+  it('KNOWN-POSITIVE CONTROL: the same import succeeds when the name is free', async () => {
+    // Without this the refusal above would pass even if importFolder threw for
+    // every input.
+    const io = makeFakeIo({ exists: vi.fn(async () => false) });
+    const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
+
+    await expect(importer.importFolder('/some/my-skill')).resolves.toBeDefined();
+    expect(io.copyFile).toHaveBeenCalled();
   });
 });

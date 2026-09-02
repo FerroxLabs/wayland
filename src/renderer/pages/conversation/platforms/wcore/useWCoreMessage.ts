@@ -18,6 +18,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 type TokenUsage = {
   input_tokens?: number;
   output_tokens?: number;
+  /**
+   * With prompt caching, `input_tokens` is only the UNCACHED part of the
+   * prompt. The cached part still occupies the window - ignoring it made a
+   * 34K request read as 1K.
+   */
+  cache_read_tokens?: number;
+  cache_creation_tokens?: number;
+  /**
+   * Present only on the TURN-CUMULATIVE frame. The engine emits three shapes on
+   * this channel: per-request usage, a turn total (this field), and a session
+   * total. Only the first describes what is in the context window; the other two
+   * are spend, and summing round-trips can exceed the window many times over.
+   */
+  turns?: number;
 };
 
 export const useWCoreMessage = (
@@ -179,8 +193,30 @@ export const useWCoreMessage = (
             // wcore stream_end carries usage in data field
             const usageData = message.data as TokenUsage | undefined;
             if (usageData && typeof usageData === 'object' && 'input_tokens' in usageData) {
+              // 🔴 THIS GAUGE SAID 71.2% OF 1M ON A 69KB CONVERSATION.
+              //
+              // Measured on a live run: a turn that made 12 tool calls displayed
+              // "711.8K / 1M context used" - 59K per round-trip, summed. The
+              // engine's journal carries frames reading input_tokens 1,709,797
+              // against a 1M window, which no single request can be. Those are
+              // TURN and SESSION totals: spend, not occupancy.
+              //
+              // Read as occupancy it is alarming and wrong, and it grows with
+              // TOOL CALLS rather than conversation length - so the more real
+              // work the agent does, the more it looks about to run out.
+              //
+              // Occupancy is the prompt actually sent: uncached input, plus the
+              // cached prompt that still occupies the window, plus what was just
+              // written. A cumulative frame is marked so the UI can label it
+              // spend instead of pretending it is occupancy.
+              const occupancy =
+                (usageData.input_tokens || 0) +
+                (usageData.cache_read_tokens || 0) +
+                (usageData.cache_creation_tokens || 0) +
+                (usageData.output_tokens || 0);
               const newTokenUsage: TokenUsageData = {
-                totalTokens: (usageData.input_tokens || 0) + (usageData.output_tokens || 0),
+                totalTokens: occupancy,
+                isCumulative: typeof usageData.turns === 'number' && usageData.turns > 0,
               };
               setTokenUsage(newTokenUsage);
               void ipcBridge.conversation.update.invoke({

@@ -70,3 +70,39 @@ describe('resolveFluxAuto', () => {
     expect(resolveFluxAuto([provider({ platform: 'openai', model: ['gpt-5'] })])).toBeNull();
   });
 });
+
+describe('the provider set a real first-run machine actually had', () => {
+  /**
+   * Taken from a fresh-profile walkthrough on 2026-08-29, decoded out of the
+   * profile's own config rather than invented. Onboarding scanned the machine,
+   * found four keyed providers, and the composer chip came up `allam-2-7b` -
+   * Groq's small open model, first entry of the first provider, and the exact
+   * model the marquee rules exist to keep out of the cold-start default.
+   *
+   * `resolveSafeDefault` gets this right, which is the point: the resolver was
+   * never the bug. It loses a race against the provider list arriving, so
+   * onboarding now writes a real pin instead of leaving the fallback to run.
+   */
+  const realWorld = () => [
+    provider({ platform: 'openai-compatible', name: 'Groq', model: ['allam-2-7b', 'openai/gpt-oss-120b'] }),
+    provider({ platform: 'gemini', name: 'Google Gemini', model: ['gemini-3.1-pro-preview', 'gemini-3.1-flash'] }),
+    provider({ platform: 'openai', name: 'OpenAI', model: ['gpt-5.5', 'gpt-5.4'] }),
+    provider({ platform: 'openai-compatible', name: 'OpenRouter', model: ['aion-labs/aion-2.0'] }),
+  ];
+
+  it('never lands a first-run user on allam-2-7b', () => {
+    expect(resolveSafeDefault(realWorld())?.useModel).not.toBe('allam-2-7b');
+  });
+
+  it('picks a marquee flagship over the provider that merely sorts first', () => {
+    const chosen = resolveSafeDefault(realWorld());
+    expect(['gemini-3.1-flash', 'gpt-5.5']).toContain(chosen?.useModel);
+  });
+
+  it('still refuses the small open model when it is the ONLY keyed provider', () => {
+    // Nothing marquee to fall back to. Returning allam is then correct - there
+    // is nothing else - but it must be a deliberate last resort, not a winner.
+    const only = [provider({ platform: 'openai-compatible', name: 'Groq', model: ['allam-2-7b'] })];
+    expect(resolveSafeDefault(only)?.useModel).toBe('allam-2-7b');
+  });
+});

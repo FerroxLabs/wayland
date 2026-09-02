@@ -144,7 +144,7 @@ vi.mock('electron', () => ({
 }));
 
 import { execFileSync } from 'child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import fsp from 'fs/promises';
 import os from 'os';
 import pathMod from 'path';
@@ -168,15 +168,27 @@ const SKILL_MD = pathMod.join(
   REPO_ROOT,
   'src/process/resources/bundled-workflows/bodies/wayland-morning-report/SKILL.md'
 );
-const SCANNER_REL = '.wayland-core/skills/market-open-report';
 
-/** The shipped scan block, verbatim. */
-function scanCommandBlock(): string {
+/**
+ * The shipped staging-directory block, verbatim.
+ *
+ * COVERAGE CHANGE: this used to select the block that ran `morning-report.mjs`,
+ * a bundled Yahoo scanner that is now DELETED. The routine reads the user's own
+ * chart over MCP and the MODEL writes the brief, so the body carries no command
+ * that produces a deliverable. The block that remains - and that is still
+ * executed below - pins and creates the staging directory, which is what keeps
+ * `<deliverables_dir>` substitution and the no-env-var property under test.
+ *
+ * COVERAGE LOST: the shipped body's own command producing the brief.
+ */
+function stagingDirBlock(): string {
   const markdown = readFileSync(SKILL_MD, 'utf-8');
   const block = [...markdown.matchAll(/```(?:bash|sh|shell|zsh)\n([\s\S]*?)```/g)]
     .map((m) => m[1])
-    .find((b) => b.includes('morning-report.mjs'));
-  if (!block) throw new Error('the morning-report SKILL.md no longer contains a scan command block');
+    .find((b) => b.includes('<deliverables_dir>') && b.includes('mkdir'));
+  if (!block) {
+    throw new Error('the morning-report SKILL.md no longer contains a staging-directory block');
+  }
   return block;
 }
 
@@ -205,31 +217,6 @@ function substitute(block: string, inputs: Record<string, string>): string {
   let out = block;
   for (const [k, v] of Object.entries(inputs)) out = out.split(`<${k}>`).join(v);
   return out;
-}
-
-/** Stubs for the two bundled node scripts, at the path the skill `cd`s into. */
-function installScannerStubs(workspace: string): void {
-  const scripts = pathMod.join(workspace, SCANNER_REL, 'scripts');
-  mkdirSync(scripts, { recursive: true });
-  writeFileSync(
-    pathMod.join(scripts, 'morning-report.mjs'),
-    [
-      "import { writeFileSync } from 'fs';",
-      "const i = process.argv.indexOf('--json');",
-      'writeFileSync(process.argv[i + 1], JSON.stringify({ bar: process.env.FAKE_BAR }));',
-      "console.log('20 names scanned');",
-    ].join('\n'),
-    'utf-8'
-  );
-  writeFileSync(
-    pathMod.join(scripts, 'briefHtml.mjs'),
-    [
-      "import { readFileSync, writeFileSync } from 'fs';",
-      'const data = JSON.parse(readFileSync(process.argv[2], "utf8"));',
-      'writeFileSync(process.argv[3], `<html>TC-TIDE MORNING REPORT bar ${data.bar}</html>`);',
-    ].join('\n'),
-    'utf-8'
-  );
 }
 
 function makeRepo(jobs: CronJob[]): ICronRepository {
@@ -329,6 +316,26 @@ function makeHarness(workspace: string) {
   return { run };
 }
 
+/**
+ * Execute the shipped block with its placeholder substituted, then have the
+ * shell report the directory the block actually pinned in `$OUT`.
+ *
+ * Capturing `$OUT` is what ties this test to the body's real CONTENT. Without
+ * it the block can be replaced by anything - including a decoy path - and every
+ * assertion below still passes, because they would only look where the TEST
+ * decided the output goes. A mutation run proved exactly that failure.
+ */
+function runShippedBlockAndReportPinnedDir(rawBlock: string, deliverablesDir: string, ws: string): string {
+  const block = rawBlock.split('<deliverables_dir>').join(deliverablesDir);
+  expect(block).not.toContain('<');
+  const stdout = execFileSync('bash', ['-c', `${block}\nprintf %s "$OUT"`], {
+    cwd: ws,
+    env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined } as NodeJS.ProcessEnv,
+    encoding: 'utf-8',
+  });
+  return stdout.trim();
+}
+
 describe('a bundled routine, seeded the way a real install seeds it, keeps a history', () => {
   let documentsDir: string;
   let dataDir: string;
@@ -377,7 +384,6 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
     const job = await enable('weekday-morning-report');
     const workspace = job.metadata.agentConfig!.workspace!;
     expect(workspace.startsWith(documentsDir)).toBe(true);
-    installScannerStubs(workspace);
 
     const seriesDir = pathMod.join(workspace, 'artifacts', 'market');
     const h = makeHarness(workspace);
@@ -393,13 +399,15 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
      */
     const runSkill = (bar: string): Agent => {
       return async (_env, ws, directive) => {
-        const block = scanCommandBlock().split('<deliverables_dir>').join(deliverablesDirFromDirective(directive));
-        expect(block).not.toContain('<');
-        execFileSync('bash', ['-c', block], {
-          cwd: ws,
-          env: { ...process.env, WAYLAND_OUTPUT_DIR: undefined, FAKE_BAR: bar } as NodeJS.ProcessEnv,
-          stdio: 'pipe',
-        });
+        const dir = deliverablesDirFromDirective(directive);
+        // Write where the BLOCK pinned, not where this test decided - otherwise
+        // the block's content is unasserted and a decoy path passes.
+        const pinned = runShippedBlockAndReportPinnedDir(stagingDirBlock(), dir, ws);
+        expect(pinned, 'the shipped block must pin the directory the directive names').toBe(dir);
+        // What the model does after the block: write the brief into the pinned
+        // staging directory. One file - the intermediate `mr.json` the deleted
+        // scanner used to leave behind has no counterpart in a chart-driven run.
+        writeFileSync(pathMod.join(pinned, 'morning-brief.html'), `<html>Morning brief bar ${bar}</html>`, 'utf-8');
       };
     };
 
@@ -415,7 +423,7 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
 
     // The Workbench can find it: it is in the ledger, under this job.
     const records = await readArtifactLedger(ledger);
-    expect(records.map((r) => pathMod.basename(r.relativePath)).toSorted()).toEqual(['morning-brief.html', 'mr.json']);
+    expect(records.map((r) => pathMod.basename(r.relativePath)).toSorted()).toEqual(['morning-brief.html']);
     expect(records[0].taskId).toBe(job.id);
 
     // And the fixed path a seed-time prompt can name holds day 1.

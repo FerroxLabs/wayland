@@ -142,8 +142,8 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('7066118a');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 19 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('6e4eca07');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 23 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
@@ -217,30 +217,123 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // generated closed-`oneOf` command schema and a negotiated host can send
     // them without failing its own outbound validation.
     //
-    // v0.13.7 -> v0.13.8 is the STAMP-ONLY shape again, and was established the
-    // same way: field by field against the released manifest, never by reading.
-    // `name`, `major`, `minor` (19), `generator` (gen/19) and `schema_digest`
-    // (9e594e4e...) are byte-identical, and the capability set compares EQUAL as
-    // a set - nothing added, nothing removed, nothing re-graded. Counts hold at
-    // 26 commands, 61 events, 3 child types, 174 fixtures. Only `fixture_digest`
-    // and `source_inputs_digest` moved, and exactly SIX of the 174 vendored
-    // fixtures carry that stamp; with the manifest that is seven changed files
-    // out of the whole corpus and every other byte is unchanged. Cross-checked
-    // against the signed asset `wayland-core-v0.13.8-desktop-contract-v1.tar.gz`
-    // (checksum 3e21f826b08038a2...), imported byte-for-byte, with the release's
-    // publisher attestation verified to producer 7066118a on refs/heads/main.
+    // v0.13.8 -> v0.13.9 is NOT the stamp-only shape. The contract genuinely
+    // moved, and every field below was read out of the released manifest rather
+    // than reasoned about:
+    //   minor        19 -> 21          generator  gen/19 -> gen/21
+    //   commands     26 -> 29          events     61 -> 67
+    //   child types   3 -> 3           fixtures  174 -> 194
+    //   all THREE digests moved (fixture, schema, source_inputs)
+    //   capabilities +2, none removed and none re-graded:
+    //     `mcp_ready_skip_annotation_v1: available`
+    //     `quiesced_snapshot_lease_v1: available`
     //
-    // Because the SHAPE did not move, `minor` did not need to - but the corpus
-    // still had to be re-vendored, because assertDescriptor fails closed on both
-    // stamped digests. A 0.13.7-pinned Desktop handed a 0.13.8 engine dies at
-    // the handshake on every turn, and vice versa; that is not a theoretical
-    // risk, it is what these two digests changing MEANS.
+    // Cross-checked against the signed asset
+    // `wayland-core-v0.13.9-desktop-contract-v1.tar.gz`, imported byte-for-byte,
+    // with the release's publisher attestation verified to producer 9d3f33c3 on
+    // refs/heads/main. That digest was taken from the attestation itself
+    // (`sourceRepositoryDigest`) AND independently by dereferencing the
+    // annotated tag; both agree, which is what proves the corpus and the
+    // attestation describe the same artifact.
     //
-    // If the pin is ever NOT 19 this whole assertion is stale and the coupling
+    // assertDescriptor fails closed on the stamped digests, so a 0.13.8-pinned
+    // Desktop handed a 0.13.9 engine dies at the handshake on every turn, and
+    // vice versa. That is not a theoretical risk - it is what these digests
+    // changing MEANS, and it is why the corpus re-import is not optional.
+    //
+    // v0.13.9 -> v0.13.10 is a SMALL move on the counts and a LOUD one on the
+    // wire. Every field below was read out of the released manifest:
+    //   minor        21 -> 22          generator  gen/21 -> gen/22
+    //   commands     29 -> 29          events     67 -> 68
+    //   child types   3 -> 3           fixtures  194 -> 195
+    //   all THREE digests moved (fixture, schema, source_inputs)
+    //   capabilities: NONE added, NONE removed, NONE re-graded
+    //   events +1: `set_mode_refused` (capability `available`, safety)
+    //
+    // THE PART THAT IS NOT ADDITIVE, AND THE REASON THIS BUMP IS NOT A STAMP:
+    // `approval_required` re-correlates from `resume_token` to `call_id`, and
+    // its fixture now ships `resume_token: ""` where 0.13.9 shipped
+    // `"resume-001"`. `commands/approval_resume.json` still correlates on
+    // `resume_token` and its fixture is byte-identical, so the RESUME side of
+    // the handshake did not move - only the side that hands us the token did.
+    // Desktop reads `event.resume_token` truthily
+    // (`wcore/index.ts` pauseStallWatchdog + the resumeToken it forwards), so an
+    // empty string is not a null-safe no-op there: it silently stops pausing the
+    // stall watchdog across a human approval. Whether the LIVE engine populates
+    // the field or the empty fixture is the real wire is a question only a run
+    // answers, and it is why this bump is verified against a packaged app and an
+    // approval-bearing turn rather than signed off from the corpus.
+    //
+    // Cross-checked against the signed asset
+    // `wayland-core-v0.13.10-desktop-contract-v1.tar.gz`, imported byte-for-byte,
+    // with the release's publisher attestation verified to producer cfa89a9c on
+    // refs/heads/main.
+    //
+    // v0.13.10 -> v0.13.11 IS THE RARE ONE: THE CONTRACT DID NOT MOVE AT ALL.
+    //
+    // Every field above still holds, because the corpus v0.13.11 ships is
+    // BYTE-IDENTICAL to v0.13.10's - minor 22, generator gen/22, counts
+    // 3/29/68/195, and all three digests unchanged. `git status contracts/` is
+    // empty after the re-import, which is the check that says so rather than an
+    // assumption. So the `approval_required` / `resume_token` correlation
+    // described above is still exactly the live wire question, unchanged by
+    // this bump; nothing about it was re-settled here.
+    //
+    // What DID move is the engine binary and the producer that built it:
+    // producer cfa89a9c -> bc13e6e3 on refs/heads/main, carrying
+    // `20d99006` - the command floor allowing skill executables under
+    // `.wayland-core/skills` to run. Proven by execution on BOTH platforms,
+    // interleaved A,B,A,B through `wayland-core sandbox exec`: v0.13.10 refused
+    // a `node .wayland-core/skills/probe.js` in both rounds on macOS and on
+    // Windows, v0.13.11 ran it in both rounds on both. That fix is the whole
+    // reason for the bump - without it no skill-bearing pack can run at all.
+    //
+    // v0.13.11 -> v0.13.12 IS PURELY ADDITIVE ON THE WIRE, and this time the
+    // corpus really did move:
+    //   minor        22 -> 23          generator  gen/22 -> gen/23
+    //   commands     29 -> 29          events     68 -> 69
+    //   child types   3 -> 3           fixtures  195 -> 196
+    //   all THREE digests moved (fixture, schema, source_inputs)
+    //   capabilities: NONE added, NONE removed, NONE re-graded
+    //   events +1: `grant_refused` (capability `available`, safety,
+    //              correlated on `grant_id`)
+    //   NO existing event or command descriptor changed - every type present in
+    //   22 kept its capability, correlation and criticality byte-for-byte.
+    //
+    // `grant_refused` TYPES A REFUSAL DESKTOP ALREADY EXPECTED. Its fixture is
+    // `reason: "local_opt_in_required"`, detail "the local launcher did not opt
+    // in with --allow-host-path-grants", surface `path`. That is exactly the
+    // refusal `protocol.ts`'s `grant_path` note has described since #1099 - the
+    // difference is that in 22 it arrived as an UNTYPED `info` string, and in 23
+    // it is a first-class event. The behaviour did not change; its shape on the
+    // wire did. Desktop's side of that opt-in already exists and is unchanged:
+    // `buildSpawnConfig`'s `allowHostPathGrants` is per-spawn and default OFF
+    // (`pathGrantSeam.test.ts`), so a session with no folder grants never asks
+    // for the authority and never sees this event.
+    //
+    // Nothing in `src/` consumes `grant_refused`, and that is NOT a gap. The
+    // workspace_policy RECEIPT is still what tells a host a grant landed - the
+    // absence of an error never was - so a typed refusal adds a second, louder
+    // signal rather than a new requirement. Precedent: `set_mode_refused`, the
+    // exact analogous additive event from v0.13.10, has no `src/` consumer
+    // either and has shipped since. A future session wanting a user-visible
+    // "that folder was refused" message now has a typed event to hang it on.
+    //
+    // Cross-checked against the signed asset
+    // `wayland-core-v0.13.12-desktop-contract-v1.tar.gz`
+    // (`sha256:ae029ed9db621e5d…`), imported byte-for-byte, with the release's
+    // publisher attestation verified to producer 6e4eca07 on refs/heads/main.
+    //
+    // The engine fix that makes this bump MANDATORY is not in the contract at
+    // all: v0.13.12 carries serde's `float_roundtrip`, without which floats
+    // parse 1 ULP off, every journal digest breaks, and a conversation dies on
+    // turn 2. On v0.13.11 the only mitigation was one turn per chat.
+    //
+    // If the pin is ever NOT 23 this whole assertion is stale and the coupling
     // must be re-derived from the released manifest, not patched.
-    expect(DESKTOP_CORE_V1_PIN.minor).toBe(19);
+    expect(DESKTOP_CORE_V1_PIN.minor).toBe(23);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.8'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.12'"
     );
   });
 
@@ -289,8 +382,8 @@ describe('Wayland Core Desktop v1 producer pin', () => {
   // negotiated the contract could not send any of them without failing its own
   // outbound validation. The three fixtures are the whole delta, and the
   // fixture count moves by exactly the same three.
-  it('contains exactly the advertised 26 commands, 61 events, and 174 fixtures', () => {
-    expect(manifest.counts).toEqual({ child_types: 3, commands: 26, events: 61, fixtures: 174 });
+  it('contains exactly the advertised 29 commands, 69 events, and 196 fixtures', () => {
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 29, events: 69, fixtures: 196 });
     // The inventory and the declared count must agree - a corpus that ships a
     // fixture it does not list, or lists one it does not ship, is the exact
     // class of drift C-1 was.
@@ -585,6 +678,82 @@ describe('deferred consumer reducers', () => {
       { type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' },
     ];
     for (const frame of frames) expect(consumer.consumeLine(JSON.stringify(frame))).toMatchObject({ kind: 'event' });
+  });
+
+  it('keeps a frame trail of types and ids, and never any content', () => {
+    // The trail is what a contract failure logs. It must be enough to diagnose
+    // the sequence and incapable of carrying user text or a credential.
+    const c = negotiated();
+    c.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'm1' }));
+    c.consumeLine(JSON.stringify({ type: 'text_delta', msg_id: 'm1', text: 'sk-secret-value' }));
+    c.consumeLine(JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' }));
+    const trail = c.recentFrames();
+    expect(trail).toEqual(['stream_start#m1', 'text_delta#m1', 'stream_end#m1']);
+    expect(trail.join(' ')).not.toContain('sk-secret-value');
+  });
+
+  it('absorbs an orphan terminal and delivers it, instead of killing the engine', () => {
+    // THE BUYER-RUN BLOCKER. Two messages into a Smart Trader chat, Core
+    // stamped a stream_end for a turn Desktop had no stream_start for. The
+    // contract failed closed and Desktop SIGTERMed the engine (exit 143)
+    // mid-conversation, so the morning brief could never be reached - with
+    // TradingView already launched and the chart already read.
+    const c = negotiated();
+    c.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'turn-1' }));
+    c.consumeLine(JSON.stringify({ type: 'stream_end', msg_id: 'turn-1', finish_reason: 'stop' }));
+
+    // The terminal for a turn that never started is DELIVERED, so a UI waiting
+    // on that msg_id stops running rather than spinning forever.
+    const orphan = c.consumeLine(JSON.stringify({ type: 'stream_end', msg_id: 'turn-2', finish_reason: 'stop' }));
+    expect(orphan).toMatchObject({ kind: 'event', event: { type: 'stream_end', msg_id: 'turn-2' } });
+    expect(c.orphanTerminals()).toEqual(['stream_end#turn-2']);
+
+    // An orphan `error` is absorbed on the same grounds.
+    const errored = negotiated();
+    expect(
+      errored.consumeLine(
+        JSON.stringify({ type: 'error', msg_id: 'ghost', error: { code: 'x', message: 'y', retryable: false } })
+      )
+    ).toMatchObject({ kind: 'event' });
+  });
+
+  it('still fails closed on a CONTENT frame for a turn that never started', () => {
+    // The boundary is "does this frame deliver anything". A terminal does not.
+    // A text_delta or a tool frame would put content and tool state on screen
+    // under a turn that never began, so those stay fatal.
+    for (const event of [
+      { type: 'text_delta', msg_id: 'ghost', text: 'hi' },
+      { type: 'tool_running', msg_id: 'ghost', call_id: 'c1', tool_name: 'Read' },
+    ]) {
+      const c = negotiated();
+      c.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'real' }));
+      expectContractError(() => c.consumeLine(JSON.stringify(event)));
+    }
+  });
+
+  it('names the offending turn when a CONTENT frame arrives with no stream_start', () => {
+    // A LIVE BUYER SESSION DIED ON THIS AND THE LOG COULD NOT SAY WHY.
+    // Measured 2026-08-30: two messages into a Smart Trader chat, Desktop
+    // logged `turn event stream_end arrived before stream_start`, failed
+    // closed, and the engine exited 143 mid-turn. The message named neither
+    // the msg_id on the offending frame nor the turns the consumer had seen,
+    // so there was no way to tell an unknown id from a replayed turn.
+    //
+    // REPOINTED, not relaxed: an orphan TERMINAL is now absorbed (see the
+    // orphan-terminal test above - that is the fix for the defect this test
+    // was written for). The named error is still required, and still fires,
+    // on the frames that remain fatal: the ones that would deliver content.
+    const c = negotiated();
+    c.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'known-1' }));
+    let caught: unknown;
+    try {
+      c.consumeLine(JSON.stringify({ type: 'text_delta', msg_id: 'orphan-9', text: 'x' }));
+    } catch (err) {
+      caught = err;
+    }
+    const detail = String((caught as { detail?: string })?.detail ?? caught);
+    expect(detail).toContain('msg_id=orphan-9');
+    expect(detail).toContain('known turns=[known-1]');
   });
 
   it('ordinary_turn_tool_replay_reducer rejects gaps/conflicts and absorbs events after terminal state', () => {

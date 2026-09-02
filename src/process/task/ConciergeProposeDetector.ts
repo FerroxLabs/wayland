@@ -22,6 +22,7 @@ import {
   type ConciergeProposal,
   type ConciergeProposalKind,
   CONCIERGE_PROPOSAL_KINDS,
+  validateInstallSkillProposal,
   CONCIERGE_RULES_MAX_CHARS,
 } from '@/common/chat/conciergeConfig';
 
@@ -86,6 +87,16 @@ function parseProposalBody(body: string): ConciergeProposal | null {
       const args = argsRaw ? argsRaw.split(/\s+/).filter(Boolean) : [];
       const env = parseEnv(field(body, 'env'));
       return env ? { kind, name, command, args, env } : { kind, name, command, args };
+    }
+    case 'install_skill': {
+      // Field extraction only; every rule lives in validateInstallSkillProposal
+      // so the parser and any other caller cannot drift apart on what is legal.
+      return validateInstallSkillProposal({
+        name: field(body, 'name'),
+        url: field(body, 'url'),
+        sha256: field(body, 'sha256'),
+        label: field(body, 'label'),
+      });
     }
     case 'file_bug_report': {
       // Non-mutating: opens a pre-filled GitHub issue on accept. Optional `summary`

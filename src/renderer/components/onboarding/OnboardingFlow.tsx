@@ -24,7 +24,9 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
-import { FLUX_AUTO_MODEL, FLUX_PROVIDER_ID } from '@/common/config/flux';
+import { FLUX_DEFAULT_MODEL, FLUX_PROVIDER_ID } from '@/common/config/flux';
+import { MODEL_PIN_SWR_KEY, resolveSafeDefault } from '@renderer/pages/guid/hooks/useGuidModelSelection';
+import { announceUserDisplayName } from '@renderer/hooks/system/useUserDisplayName';
 import { ConfigStorage } from '@/common/config/storage';
 import type { DetectionResult } from '@/common/types/onboarding';
 import type { ProviderId } from '@process/providers/types';
@@ -42,6 +44,7 @@ import type { ShellExperience } from '@/common/shellExperience';
 import ShellChoiceCards from '@renderer/components/shell/ShellChoice/ShellChoiceCards';
 import { writeShellExperience } from '@renderer/hooks/ui/useShellExperience';
 import { markShellChoicePrompted } from '@renderer/utils/ui/shellChoice';
+import { mutate as globalMutate } from 'swr';
 import { resolveFocusSelection, type FocusPersonaId } from './focusMap';
 import { providerLabel } from './providerLabel';
 import { openExternalUrl } from '@renderer/utils/platform';
@@ -172,6 +175,41 @@ const accentStyle = (accent: string): React.CSSProperties =>
  * (loaded / ready / pick-a-model), a focus pick that seeds the launchpad, and a
  * one-line "you're all set". Matches the approved walkable simulation.
  */
+/**
+ * Tell the composer a default-model pin just landed.
+ *
+ * THE PIN IS WRITTEN TOO LATE FOR THE SESSION IT IS ONBOARDING. `useGuidModelSelection`
+ * resolves `recentMatch ?? savedTrusted ?? frequentMatch ?? fluxAuto ?? resolveSafeDefault
+ * ?? savedPin` off the SWR key below, and it re-runs on `modelRegistry.listChanged`.
+ * During onboarding the last such event is the provider scan - which fires BEFORE the
+ * `.then()` here writes the pin. So the composer locks whatever it resolved without a
+ * pin, and nothing re-resolves for the rest of the session.
+ *
+ * Measured on fresh profiles against a packaged build, twice: the pin on disk read
+ * `gemini-3.7-flash` while the chip showed `allam-2-7b`, and with Flux connected the pin
+ * read `flux-reasoning` while the chip showed `flux-auto`. Both corrected themselves on
+ * the NEXT launch - so it is exactly one session wrong, and it is the session that decides
+ * what a new user thinks of the product.
+ *
+ * Revalidating the key the hook already reads makes it re-resolve with the pin present.
+ * Deliberately not a change inside that hook: its own comments carry three separate
+ * already-fixed races, and this needs none of its ordering to move.
+ */
+const announceDefaultModelPin = (): void => {
+  // Revalidating the CATALOG key alone was not enough, and this is why the
+  // first fix did not take: `model.config.welcome` holds the provider list,
+  // which a pin write does not change. SWR refetches, finds the data
+  // deep-equal, keeps the same reference, and the resolution effect - whose
+  // deps are the derived model list - never re-runs. Measured across 10 fresh
+  // Flux-connected profiles: pin `flux-reasoning` on disk, chip `flux-auto` on
+  // screen, catalog complete the whole time.
+  //
+  // The pin now has its own SWR key, so say the thing that actually changed.
+  // Matched by prefix because the key carries the agent's storage key too.
+  void globalMutate((key) => Array.isArray(key) && key[0] === MODEL_PIN_SWR_KEY);
+  void globalMutate('model.config.welcome');
+};
+
 const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) => {
   const { t } = useTranslation();
   // Read persisted progress exactly once (lazy init) so a remount resumes where
@@ -252,22 +290,71 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
     );
 
     void Promise.all([minBeat, wiring]).then(async ([, results]) => {
-      if (cancelled) return;
       clearInterval(logTimer);
-      setWiredProviders(results.filter((r) => r.ok).map((r) => r.pid));
-      setWireFailed(results.filter((r) => !r.ok).map((r) => r.pid));
-      // Flux detected already-connected: pin Flux Auto as the default so the
-      // first-run user lands on the best model (the smart router), not whatever
-      // local model happens to sort first (e.g. a tiny Ollama smollm2:135m).
+      // `cancelled` GUARDS THE UI, NOT THE PIN.
+      //
+      // This handler did `if (cancelled) return` on its first line, which threw
+      // away the default-model write as well as the state updates. The cleanup
+      // sets `cancelled` whenever `screen` changes - so a user who clicks past
+      // the scan before it settles finishes onboarding with NO PIN AT ALL, and
+      // the composer falls to the cold-start resolver.
+      //
+      // Measured, not reasoned: 1 run in 10 of a fresh Flux-connected profile
+      // ended with `wcore.defaultModel` undefined and the chip on `flux-auto`.
+      // The buyers most likely to hit it are exactly the ones who click fast.
+      //
+      // Stale state updates are still suppressed - that is what the flag is
+      // for, and `setScanDone` below already used it correctly. A config write
+      // is not a render; it is idempotent, it is what the user asked for by
+      // connecting a provider, and a later scan writes the same key anyway.
+      if (!cancelled) {
+        setWiredProviders(results.filter((r) => r.ok).map((r) => r.pid));
+        setWireFailed(results.filter((r) => !r.ok).map((r) => r.pid));
+      }
+      // Flux detected already-connected: pin the first-run Flux tier as the
+      // default so the user lands on the smart router, not whatever local model
+      // happens to sort first (e.g. a tiny Ollama smollm2:135m). The tier is
+      // FLUX_DEFAULT_MODEL (Reasoning), not Auto - see the constant's comment.
       // Mirrors the manual connectFlux pin; non-fatal.
       if (detection.fluxConnected) {
         try {
-          const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_AUTO_MODEL };
+          const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_DEFAULT_MODEL };
           await ConfigStorage.set('wcore.defaultModel', pin);
           await ConfigStorage.set('gemini.defaultModel', pin);
           await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
+          announceDefaultModelPin();
         } catch (err) {
           console.warn('[OnboardingFlow] flux auto-detect default pin failed', err);
+        }
+      } else {
+        // NO FLUX? STILL PIN SOMETHING SENSIBLE.
+        //
+        // The comment above says the pin exists so a first-run user does not
+        // land on "whatever sorts first". That was only ever true when Flux
+        // connected. Skip Flux and onboarding wrote NO pin at all, so the
+        // composer fell through to the cold-start resolver - and measured on a
+        // fresh profile carrying Groq, Gemini, OpenAI and OpenRouter keys, the
+        // chip came up `allam-2-7b`: the first model of the first provider, and
+        // the exact model `resolveSafeDefault` was written to prevent. The
+        // resolver is right; it just races the provider list, and whichever
+        // partial list lands first wins with `persist: false`.
+        //
+        // Writing a real pin here sidesteps that race entirely, because a
+        // saved pin outranks the fallback in the resolution chain. It runs
+        // AFTER the scan, so the provider list it reads is the complete one.
+        // Non-fatal, exactly like the Flux path: a missing pin must never cost
+        // the user their onboarding.
+        try {
+          const providers = await ipcBridge.mode.getModelConfig.invoke();
+          const safe = resolveSafeDefault(providers ?? []);
+          if (safe?.provider?.id && safe.useModel) {
+            const pin = { id: safe.provider.id, useModel: safe.useModel };
+            await ConfigStorage.set('wcore.defaultModel', pin);
+            await ConfigStorage.set('gemini.defaultModel', pin);
+            announceDefaultModelPin();
+          }
+        } catch (err) {
+          console.warn('[OnboardingFlow] safe default pin failed', err);
         }
       }
       if (!cancelled) setScanDone(true);
@@ -291,10 +378,11 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
         // wayland-config store the model resolver reads. Failures here are
         // non-fatal: the connection already succeeded, so never block onboarding.
         try {
-          const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_AUTO_MODEL };
+          const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_DEFAULT_MODEL };
           await ConfigStorage.set('wcore.defaultModel', pin);
           await ConfigStorage.set('gemini.defaultModel', pin);
           await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
+          announceDefaultModelPin();
         } catch (err) {
           console.warn('[OnboardingFlow] flux first-run pin failed', err);
         }
@@ -350,10 +438,11 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
         // while the Flux virtual models arrive a beat later (#129). Non-fatal.
         if (res.providerId === FLUX_PROVIDER_ID) {
           try {
-            const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_AUTO_MODEL };
+            const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_DEFAULT_MODEL };
             await ConfigStorage.set('wcore.defaultModel', pin);
             await ConfigStorage.set('gemini.defaultModel', pin);
             await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
+            announceDefaultModelPin();
           } catch (err) {
             console.warn('[OnboardingFlow] flux pasted-key pin failed', err);
           }
@@ -433,7 +522,10 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
 
   const finishAll = useCallback(() => {
     const n = name.trim();
-    if (n) void ConfigStorage.set('user.displayName', n);
+    // Announce the write: GuidPage is already mounted behind this modal and has
+    // read the (empty) name once, so without this it greets the OS account name
+    // for the whole of session one.
+    if (n) void ConfigStorage.set('user.displayName', n).then(announceUserDisplayName);
     // Onboarding is done — drop the resumable progress so a later remount can't
     // reopen a stale mid-flow state.
     clearOnboardingProgress();
@@ -631,7 +723,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
   if (screen === 'quickstart') {
     const goScan = () => {
       const n = name.trim();
-      if (n) void ConfigStorage.set('user.displayName', n);
+      if (n) void ConfigStorage.set('user.displayName', n).then(announceUserDisplayName);
       setScreen('scan');
     };
     return (

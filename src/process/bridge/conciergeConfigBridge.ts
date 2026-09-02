@@ -38,6 +38,18 @@ import {
   type ConciergeConfirmResult,
   CONCIERGE_RULES_MAX_CHARS,
 } from '@/common/chat/conciergeConfig';
+import path from 'path';
+import { mkdir, rm } from 'fs/promises';
+import {
+  downloadAndVerify,
+  extractPack,
+  scanPack,
+  installExtractedPack,
+  stagingRoot,
+  findPackScripts,
+  runInstallSkillChain,
+} from '@process/services/skills/installSkillPack';
+import { enableSkillForAssistant, SMART_TRADER_ASSISTANT_ID } from '@process/services/skills/enableSkillForAssistant';
 
 /**
  * Self-hosted / "bring your own endpoint" providers: these have NO fixed
@@ -155,6 +167,23 @@ async function applyProposal(
       const ok = await writeAssistantRules(content.assistantId, content.rules, 'en-US');
       if (!ok) throw new Error(`Could not update ${content.label} instructions`);
       return `Updated ${content.label} instructions.`;
+    }
+    case 'install_skill': {
+      // The chain itself lives in `runInstallSkillChain` so the bridge and its
+      // test drive the SAME code. It used to be inline here with the test
+      // re-implementing it over mocks, and two independent audits showed that
+      // shape hid real mutations - a swapped download argument order and a
+      // disabled scan gate both left the suite green.
+      return runInstallSkillChain(content, {
+        download: downloadAndVerify,
+        extract: extractPack,
+        scan: (dir) => scanPack(dir),
+        scripts: (dir) => findPackScripts(dir),
+        install: (dir, name) => installExtractedPack(dir, name),
+        enable: (name) => enableSkillForAssistant(SMART_TRADER_ASSISTANT_ID, name),
+        stagingDir: () => path.join(stagingRoot(), `pack-${uuid()}`),
+        cleanup: (dir) => rm(dir, { recursive: true, force: true }),
+      });
     }
     case 'file_bug_report': {
       // Non-mutating (#464): the renderer card runs the capture → clipboard → open

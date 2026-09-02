@@ -53,13 +53,55 @@ export async function waitForProcessExit(pid: number, timeoutMs: number): Promis
 export async function killChild(child: ChildProcess, isDetached: boolean, sigtermGraceMs = 3000): Promise<void> {
   const pid = child.pid;
   if (process.platform === 'win32' && pid) {
+    // Enumerate BEFORE killing anything, same reason as the POSIX path below.
+    let pruned: number[] | null = null;
     try {
-      await execFile('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true, timeout: 5000 });
-    } catch (forceError) {
-      throw new Error(`ACP process-tree shutdown failed for PID ${pid}: ${decodeWindowsError(forceError)}`, {
-        cause: forceError,
-      });
+      pruned = await collectWin32DescendantPids(pid);
+    } catch {
+      // DELIBERATE ASYMMETRY WITH POSIX, WHICH FAILS CLOSED HERE.
+      // On POSIX, enumeration failure aborts because the group kill is
+      // imprecise anyway. On Windows the fallback IS the previous shipped
+      // behaviour, so failing closed would regress #139 (orphaned trees) on any
+      // host where PowerShell is unavailable or blocked by policy. Falling back
+      // costs the chart, never correctness.
+      pruned = null;
     }
+
+    if (pruned === null) {
+      try {
+        await execFile('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true, timeout: 5000 });
+      } catch (forceError) {
+        throw new Error(`ACP process-tree shutdown failed for PID ${pid}: ${decodeWindowsError(forceError)}`, {
+          cause: forceError,
+        });
+      }
+    } else {
+      // Deepest-first, root last, and NO /T: the whole point is that the tree
+      // walk is ours, so an exempt subtree is never handed to taskkill at all.
+      const targets = [...pruned].reverse();
+      targets.push(pid);
+      try {
+        await execFile('taskkill', ['/F', ...targets.flatMap((p) => ['/PID', String(p)])], {
+          windowsHide: true,
+          timeout: 5000,
+        });
+      } catch (forceError) {
+        // taskkill exits non-zero when ANY listed pid has already gone, which is
+        // routine during teardown. Liveness below is the proof, not exit status.
+        if (isProcessAlive(pid)) {
+          throw new Error(`ACP process-tree shutdown failed for PID ${pid}: ${decodeWindowsError(forceError)}`, {
+            cause: forceError,
+          });
+        }
+      }
+      for (const dpid of pruned) {
+        await waitForProcessExit(dpid, 2000);
+        if (isProcessAlive(dpid)) {
+          throw new Error(`ACP descendant process ${dpid} is still alive after SIGKILL escalation`);
+        }
+      }
+    }
+
     await waitForProcessExit(pid, 2000);
     if (isProcessAlive(pid)) {
       throw new Error(`ACP process ${pid} is still alive after taskkill`);
@@ -123,41 +165,339 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
 }
 
 /**
- * Recursively collect all descendant PIDs of a process.
- * Uses `ps -o pid= --ppid` on Linux and `ps -o pid= -p` + manual ppid matching on macOS,
- * falling back to a single `ps` snapshot that works on both.
+ * Applications a connector may launch ON THE USER'S BEHALF, which outlive the
+ * engine that started them.
+ *
+ * WHY THIS EXISTS. The engine is disposable: `WorkerTaskManager` reaps an idle
+ * one five minutes after the user hits send (WorkerTaskManager.ts:20, and the
+ * clock is `sendMessage`, not the reply - WCoreManager.ts:1106). Tearing it down
+ * runs the descendant sweep below, and a chart application launched by an MCP
+ * connector is a GRANDCHILD of that engine, so it was being SIGKILLed between
+ * turns. Measured twice: the app died 5.3 and 5.5 minutes after a turn, with
+ * nothing touching it. The user set up a chart, read the guide for five minutes,
+ * asked their next question, and their work was gone.
+ *
+ * Nothing was misbehaving - the reaper frees memory as designed and the sweep
+ * satisfies #139 as designed. The defect is that a USER-FACING application was
+ * ever a descendant of a disposable process.
+ *
+ * CLOSED WORLD, ON PURPOSE. This is an exact-match list of application binaries,
+ * not a connector-supplied allowlist: a connector that could nominate its own
+ * exemptions would be an untracked persistence escape for any MCP server. Adding
+ * an entry here is a deliberate, reviewable act.
+ *
+ * SCOPE. macOS only - NOT "POSIX", which is what this said before and was wrong.
+ * The regex needs an absolute path, and only macOS's `ps -eo comm=` prints one.
+ * On Linux the same field prints a bare process name, truncated to 15 chars
+ * (TASK_COMM_LEN) - verified on Ubuntu 24.04, where a binary at
+ * /Applications/TradingView.app/Contents/MacOS/TradingView reports simply
+ * `TradingView`. So this pattern can never match on Linux and the exemption is
+ * inert there: a Linux chart is still killed with the engine, exactly as before
+ * the fix. That is a known gap, not a regression, and there is a test asserting
+ * it so CI is not blind to it. The correct Linux identity is
+ * `readlink /proc/<pid>/exe` - NOT `ps -eo args=`, which is argv-spoofable and
+ * would defeat the reason `comm` was chosen here.
+ * Windows has its own implementation below.
+ *
+ * IDENTITY IS BY ABSOLUTE PATH, AND THAT IS A TRANSITIONAL CHECK. The pattern is
+ * anchored at `^/Applications/` so a binary in a user-writable directory cannot
+ * dress itself up as an exempt app - an unanchored suffix match would let
+ * anything under `/tmp/TradingView.app/...` claim the exemption. A path still
+ * identifies a CLASS of application rather than one process; binding to the
+ * code-signing identity belongs with the supervisor that replaces this.
+ * Consequence, accepted: a non-standard install (e.g. ~/Applications) is simply
+ * not exempt, which is exactly today's behaviour rather than a regression.
+ */
+const EXTERNAL_GUI_APP_BINARIES = [
+  /^\/Applications\/TradingView\.app\/Contents\/MacOS\/TradingView( Helper( \(.*\))?)?$/,
+];
+
+function isExternalGuiApp(command: string): boolean {
+  return EXTERNAL_GUI_APP_BINARIES.some((re) => re.test(command));
+}
+
+/**
+ * The BFS and the prune, split out from process enumeration so it can be tested
+ * against a synthetic `ps` table. A real fixture is impossible here: macOS
+ * Gatekeeper SIGKILLs any hand-made `.app` bundle whose signature identifier
+ * does not match, and Linux CI has no bundles at all.
+ */
+export function _collectDescendantPidsFromPsTable(psStdout: string, rootPid: number): number[] {
+  return _collectDescendantPidsFromProcTable(psStdout, rootPid, isExternalGuiApp);
+}
+
+/**
+ * The BFS and the prune, parameterised by the exemption predicate so macOS and
+ * Windows share one traversal. The row shape is identical on both platforms by
+ * construction - `pid ppid path`, path last - which is why the Windows
+ * enumeration below is shaped to match `ps -eo pid=,ppid=,comm=` rather than
+ * emitting CSV that would need a second parser.
+ */
+export function _collectDescendantPidsFromProcTable(
+  psStdout: string,
+  rootPid: number,
+  isExempt: (command: string) => boolean
+): number[] {
+  const childMap = new Map<number, number[]>();
+  const commandOf = new Map<number, string>();
+  for (const line of psStdout.trim().split('\n')) {
+    const parts = line.trim().split(/\s+/);
+    if (parts.length < 2) continue;
+    const pid = parseInt(parts[0], 10);
+    const ppid = parseInt(parts[1], 10);
+    if (isNaN(pid) || isNaN(ppid)) continue;
+    commandOf.set(pid, parts.slice(2).join(' '));
+    if (!childMap.has(ppid)) childMap.set(ppid, []);
+    childMap.get(ppid)!.push(pid);
+  }
+
+  const result: number[] = [];
+  const queue = [rootPid];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const child of childMap.get(current) || []) {
+      if (isExempt(commandOf.get(child) ?? '')) {
+        // Leave it, and its helpers, running for the user. Do NOT enqueue.
+        continue;
+      }
+      result.push(child);
+      queue.push(child);
+    }
+  }
+  return result;
+}
+
+/**
+ * Recursively collect all descendant PIDs of a process, PRUNING any subtree
+ * rooted at a recognised external GUI application.
+ *
+ * The prune is subtree-wide, not per-process: such an app spawns its own helper
+ * children (renderers, GPU), and killing those breaks it exactly as thoroughly
+ * as killing the parent. Because an exempted process is never collected, it also
+ * never reaches the "still alive after SIGKILL" throw - the tree proof keeps its
+ * meaning for every process the engine actually owns.
  */
 async function collectDescendantPids(rootPid: number): Promise<number[]> {
   try {
-    // `ps -eo pid=,ppid=` works on both macOS and Linux - parse the full process table
-    const { stdout } = await execFile('ps', ['-eo', 'pid=,ppid='], { timeout: 3000 });
-    const childMap = new Map<number, number[]>();
-    for (const line of stdout.trim().split('\n')) {
-      const parts = line.trim().split(/\s+/);
-      if (parts.length < 2) continue;
-      const pid = parseInt(parts[0], 10);
-      const ppid = parseInt(parts[1], 10);
-      if (isNaN(pid) || isNaN(ppid)) continue;
-      if (!childMap.has(ppid)) childMap.set(ppid, []);
-      childMap.get(ppid)!.push(pid);
-    }
-
-    // BFS to collect all descendants
-    const result: number[] = [];
-    const queue = [rootPid];
-    while (queue.length > 0) {
-      const current = queue.shift()!;
-      const children = childMap.get(current) || [];
-      for (const child of children) {
-        result.push(child);
-        queue.push(child);
-      }
-    }
-    return result;
+    // `comm` is the executable path with no arguments, so a process cannot dress
+    // itself up as an exempt app by choosing its argv. It can contain spaces, so
+    // the first two fields are parsed positionally and the REST is the command.
+    const { stdout } = await execFile('ps', ['-eo', 'pid=,ppid=,comm='], { timeout: 3000 });
+    return _collectDescendantPidsFromPsTable(stdout, rootPid);
   } catch (error) {
     throw new Error(`Unable to enumerate ACP process tree for PID ${rootPid}`, { cause: error });
   }
 }
+
+/**
+ * WINDOWS. The same guarantee as the macOS prune above, but the security
+ * argument does NOT transfer, so the mechanism differs in one deliberate way.
+ *
+ * On macOS `/Applications` is admin-writable, so an anchored path is itself
+ * evidence. On Windows the two most likely TradingView locations are
+ * `%LOCALAPPDATA%\TradingView\TradingView.exe` (a per-user Electron install)
+ * and the connector's own MSIX fallback copy under `%LOCALAPPDATA%\tvcontrol\`
+ * - both inside the user's own profile, which is exactly the
+ * `/tmp/TradingView.app` forgery the macOS anchor exists to refuse. Refusing
+ * them outright would leave the bug live for most Windows users; accepting them
+ * on path alone would be a silent weakening.
+ *
+ * So the anchor set is split by WHO CAN WRITE THE DIRECTORY:
+ *   - admin-writable (`%PROGRAMFILES%`, `WindowsApps`) - path alone, parity with macOS.
+ *   - user-writable (`%LOCALAPPDATA%`) - path AND a valid Authenticode signature.
+ * If the signature cannot be established, the process is NOT exempt and is
+ * killed, which is exactly today's behaviour rather than a regression.
+ *
+ * Paths are compared case-insensitively (Windows semantics; the macOS regex's
+ * case-sensitivity is not a property that can be preserved) and any 8.3 short
+ * form (`C:\PROGRA~1\...`) is refused outright rather than expanded, so it
+ * cannot launder a path past a long-form anchor.
+ */
+export function _windowsGuiAppAnchors(env: NodeJS.ProcessEnv = process.env): {
+  trusted: string[];
+  userWritable: string[];
+} {
+  const norm = (d: string) => d.replace(/[\\/]+$/, '').toLowerCase();
+  const trusted: string[] = [];
+  // Defaults matter: these variables can be absent from a stripped environment,
+  // and an empty anchor set silently exempts nothing - i.e. kills the chart with
+  // no error to explain why. The literals are the documented Windows locations.
+  const programDirs = [env.PROGRAMFILES, env['PROGRAMFILES(X86)'], env.PROGRAMW6432].filter(Boolean);
+  if (programDirs.length === 0) programDirs.push('C:\\Program Files', 'C:\\Program Files (x86)');
+  for (const dir of programDirs) {
+    if (!dir) continue;
+    trusted.push(`${norm(dir)}\\tradingview\\tradingview.exe`);
+    // MSIX package directories are versioned, so this one is a prefix.
+    trusted.push(`${norm(dir)}\\windowsapps\\`);
+  }
+  const userWritable: string[] = [];
+  if (env.LOCALAPPDATA) {
+    userWritable.push(`${norm(env.LOCALAPPDATA)}\\tradingview\\tradingview.exe`);
+    userWritable.push(`${norm(env.LOCALAPPDATA)}\\tvcontrol\\desktop-cache\\`);
+  }
+  return { trusted, userWritable };
+}
+
+/**
+ * Normalize for comparison, or null when there is no path to compare.
+ *
+ * NOTE ON 8.3 SHORT NAMES. An earlier draft refused any path containing `~`
+ * (`C:\PROGRA~1\...`) on the theory that it could launder a path past an
+ * anchor. Mutation testing showed that guard was dead: shortening can never
+ * turn a non-anchored path INTO an anchored one, and every anchor here is
+ * long-form, so an 8.3 path simply fails to match and is killed either way.
+ * Removed rather than kept as reassurance, along with the test that passed
+ * with and without it.
+ */
+export function _normalizeWindowsPath(command: string): string | null {
+  const raw = command.trim();
+  if (!raw) return null;
+  return raw.replace(/\//g, '\\').toLowerCase();
+}
+
+function matchesAnchor(normalized: string, anchor: string): boolean {
+  return anchor.endsWith('\\') ? normalized.startsWith(anchor) : normalized === anchor;
+}
+
+/**
+ * Which distinct executable paths in a Windows process table are exempt.
+ * Signature checks are resolved ONCE per path here, before the traversal, so the
+ * BFS itself stays synchronous and identical to the POSIX one.
+ */
+export async function _resolveWin32ExemptPaths(
+  commands: Iterable<string>,
+  env: NodeJS.ProcessEnv,
+  verifySignature: (absPath: string) => Promise<boolean>
+): Promise<Set<string>> {
+  const { trusted, userWritable } = _windowsGuiAppAnchors(env);
+  const exempt = new Set<string>();
+  const needsSignature = new Map<string, string>();
+  for (const command of commands) {
+    const normalized = _normalizeWindowsPath(command);
+    if (!normalized) continue;
+    if (trusted.some((a) => matchesAnchor(normalized, a))) {
+      exempt.add(normalized);
+    } else if (userWritable.some((a) => matchesAnchor(normalized, a))) {
+      needsSignature.set(normalized, command.trim());
+    }
+  }
+  for (const [normalized, absPath] of needsSignature) {
+    let ok = false;
+    try {
+      ok = await verifySignature(absPath);
+    } catch {
+      ok = false; // Unverifiable is not exempt.
+    }
+    if (ok) exempt.add(normalized);
+  }
+  return exempt;
+}
+
+/** Parse `pid ppid path` rows into the distinct command strings they carry. */
+export function _win32TableCommands(stdout: string): string[] {
+  const out: string[] = [];
+  for (const line of stdout.trim().split('\n')) {
+    const parts = line.trim().split(/\s+/);
+    if (parts.length < 2) continue;
+    out.push(parts.slice(2).join(' '));
+  }
+  return out;
+}
+
+/**
+ * Windows process-tree enumeration with the GUI-app prune applied.
+ *
+ * `wmic` was REMOVED from Windows 11 24H2 and is no longer available even as a
+ * Feature on Demand, and `tasklist` reports neither a parent pid nor an
+ * executable path, so PowerShell + `Get-CimInstance Win32_Process` is the only
+ * in-box way to build this table. The projection emits `pid ppid path` with the
+ * path LAST so the row shape matches `ps -eo pid=,ppid=,comm=` exactly and one
+ * parser serves both platforms.
+ *
+ * The UTF-8 console encoding is load-bearing rather than cosmetic: the
+ * connector's MSIX fallback path embeds the username, and a non-ASCII username
+ * mangled through the OEM codepage would miss the anchor and kill the chart.
+ */
+/**
+ * BUDGET. `killAllAgentChildren` is the FINAL before-quit step and runs under a
+ * 2s per-step budget (agentChildRegistry.ts:16), and it calls killChild once per
+ * live child. A cold `powershell.exe` costs several hundred ms, so enumerating
+ * per child could eat the whole budget and orphan the very children the reaper
+ * exists to kill - reintroducing #139 in the name of sparing a chart.
+ *
+ * Two bounds keep that from happening. The snapshot is shared for a short TTL,
+ * so a teardown killing N children pays for ONE PowerShell; and the timeout is
+ * well inside the budget, so a slow or policy-blocked host falls back to the
+ * old `taskkill /T` promptly instead of stalling. Losing the chart is the
+ * acceptable failure here; orphaning the engine is not.
+ */
+const WIN32_TABLE_TTL_MS = 1_000;
+const WIN32_ENUM_TIMEOUT_MS = 1_500;
+let win32TableCache: { at: number; stdout: string } | null = null;
+
+async function win32ProcessTable(now: number = Date.now()): Promise<string> {
+  if (win32TableCache && now - win32TableCache.at < WIN32_TABLE_TTL_MS) {
+    return win32TableCache.stdout;
+  }
+  const stdout = await rawWin32ProcessTable();
+  win32TableCache = { at: now, stdout };
+  return stdout;
+}
+
+async function collectWin32DescendantPids(rootPid: number): Promise<number[]> {
+  const stdout = await win32ProcessTable();
+  const exempt = await _resolveWin32ExemptPaths(_win32TableCommands(stdout), process.env, verifyAuthenticode);
+  return _collectDescendantPidsFromProcTable(stdout, rootPid, (command) => {
+    const normalized = _normalizeWindowsPath(command);
+    return normalized !== null && exempt.has(normalized);
+  });
+}
+
+async function rawWin32ProcessTable(): Promise<string> {
+  const { stdout } = await execFile(
+    'powershell.exe',
+    [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      '[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-CimInstance Win32_Process | ' +
+        'ForEach-Object { "$($_.ProcessId) $($_.ParentProcessId) $($_.ExecutablePath)" }',
+    ],
+    { windowsHide: true, timeout: WIN32_ENUM_TIMEOUT_MS, maxBuffer: 8 * 1024 * 1024 }
+  );
+  return stdout;
+}
+
+const authenticodeCache = new Map<string, boolean>();
+
+/** Valid Authenticode signature? Anything else - unsigned, tampered, error - is false. */
+async function verifyAuthenticode(absPath: string): Promise<boolean> {
+  const cached = authenticodeCache.get(absPath);
+  if (cached !== undefined) return cached;
+  let ok = false;
+  try {
+    const { stdout } = await execFile(
+      'powershell.exe',
+      [
+        '-NoProfile',
+        '-NonInteractive',
+        '-Command',
+        '(Get-AuthenticodeSignature -LiteralPath $args[0]).Status',
+        '-Args',
+        absPath,
+      ],
+      { windowsHide: true, timeout: 5000 }
+    );
+    ok = stdout.trim() === 'Valid';
+  } catch {
+    ok = false;
+  }
+  authenticodeCache.set(absPath, ok);
+  return ok;
+}
+
+/** Test seam: the exemption predicate and its closed-world list. */
+export const __killChildTesting = { isExternalGuiApp, EXTERNAL_GUI_APP_BINARIES, verifyAuthenticode };
 
 /**
  * Decode a Windows command error for readable logging.

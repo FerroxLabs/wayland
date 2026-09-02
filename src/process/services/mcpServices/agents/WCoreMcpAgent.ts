@@ -28,6 +28,19 @@ type WCoreServerConfig = {
   env?: Record<string, string>;
   url?: string;
   headers?: Record<string, string>;
+  /**
+   * The user's per-server tool allow-list (#1167), written verbatim into
+   * `[mcp.servers.<name>]`.
+   *
+   * POLARITY: an ALLOW-list whose EMPTY array is meaningful.
+   *   undefined -> every tool enabled       []  -> NO tools enabled
+   * The sibling `env`/`headers` fields above are guarded with
+   * `Object.keys(...).length > 0`, which is exactly the shape that must NOT be
+   * copied here: collapsing `[]` to absent enables every tool at the moment the
+   * user asked for none. smol-toml renders `allowedTools = []` and parses it
+   * back as an empty array, so the distinction survives the round trip.
+   */
+  allowedTools?: string[];
 };
 
 type WCoreConfigFile = {
@@ -57,7 +70,7 @@ function toWCoreTransportType(type: IMcpServerTransport['type']): WCoreTransport
 /**
  * Convert a wayland-core server config entry to a wayland IMcpServer
  */
-function toMcpServer(name: string, config: WCoreServerConfig): IMcpServer {
+export function toMcpServer(name: string, config: WCoreServerConfig): IMcpServer {
   const transportType = toWaylandTransportType(config.transport);
   const now = Date.now();
 
@@ -85,6 +98,14 @@ function toMcpServer(name: string, config: WCoreServerConfig): IMcpServer {
     createdAt: now,
     updatedAt: now,
     description: '',
+    // READ BACK WHAT WE WROTE. `toWCoreConfig` emits `allowedTools`, and this
+    // function used to drop it, so the round trip FAILED OPEN: detect an
+    // existing wayland-core config and every tool the user had switched off
+    // came back on, silently, with the UI showing the full list as if that had
+    // always been the setting. `undefined` still means "all tools" - only an
+    // array that is actually present is carried across, so a config that never
+    // had the key keeps the migration-free default.
+    ...(Array.isArray(config.allowedTools) ? { allowedTools: config.allowedTools } : {}),
     originalJson: JSON.stringify({ mcpServers: { [name]: config } }, null, 2),
   };
 }
@@ -121,6 +142,10 @@ export function toWCoreConfig(server: IMcpServer, options: WCoreConfigSerializeO
     if (server.transport.env && Object.keys(server.transport.env).length > 0) {
       config.env = server.transport.env;
     }
+    // #1167: presence-checked, NOT truthiness-checked - `[]` must survive.
+    if (server.allowedTools !== undefined) {
+      config.allowedTools = server.allowedTools;
+    }
     return config;
   }
 
@@ -130,6 +155,11 @@ export function toWCoreConfig(server: IMcpServer, options: WCoreConfigSerializeO
   };
   if (server.transport.headers && Object.keys(server.transport.headers).length > 0) {
     config.headers = server.transport.headers;
+  }
+  // #1167: this is the ONLY route hosted (http/sse) connectors take, so without
+  // it the per-tool switches are inert on every hosted server.
+  if (server.allowedTools !== undefined) {
+    config.allowedTools = server.allowedTools;
   }
   return config;
 }

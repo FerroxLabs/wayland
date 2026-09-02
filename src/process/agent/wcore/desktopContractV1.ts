@@ -15,7 +15,7 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '7066118a' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '6e4eca07' as const;
 
 /**
  * Pinned to Core `d1f55f0b`, the `v0.13.7` release tag. Every value below was
@@ -65,11 +65,11 @@ export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '7066118a' as const;
 export const DESKTOP_CORE_V1_PIN = {
   name: 'wayland-desktop-core',
   major: 1,
-  minor: 19,
-  generator: 'wcore-desktop-contract-gen/19',
-  fixtureDigest: 'sha256:f71f73765225e6b2412155a4442a6f45590a0186d25e95976a0f2001d8241860',
-  schemaDigest: 'sha256:9e594e4eda55d6cb52efca39092529e3a2ee2dac24ca69b7b3e1a0200d141de2',
-  sourceInputsDigest: 'sha256:ac7c0a48b25ccb5c49a58bb8360fb0111cb6b0f7f978f17c6401c8ab7aa1efdf',
+  minor: 23,
+  generator: 'wcore-desktop-contract-gen/23',
+  fixtureDigest: 'sha256:795bfc45481c28aadcfeada8de5a956b64eeb5ebb36460c7c78f274f45ef7188',
+  schemaDigest: 'sha256:8497e92e4ab2599201f95b2aa62c359ae2328429305e79a96761356483fc6e33',
+  sourceInputsDigest: 'sha256:83643f347adf9ea4c794d691778ea691e21cb0fe56d693234d4934fed42cca25',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
@@ -80,11 +80,13 @@ export const DESKTOP_CORE_V1_PIN = {
     effective_execution_policy_revisions: 'available',
     host_delegated_delivery: 'available',
     inline_reasoning_split_v1: 'available',
+    mcp_ready_skip_annotation_v1: 'available',
     operator_tool_effect_resolution_v1: 'available',
     path_boundary_prompt_v1: 'available',
     path_grants_v1: 'available',
     path_write_grants_v1: 'available',
     plugin_events: 'shape_only',
+    quiesced_snapshot_lease_v1: 'available',
     render_artifact_v1: 'available',
     runtime_diagnostics_v1: 'available',
     runtime_mcp_lifecycle_v1: 'available',
@@ -391,6 +393,8 @@ type ToolState = { msgId: string; terminal: string | null };
 class OrdinaryTurnToolReducer {
   private readonly turns = new Map<string, TurnState>();
   private readonly tools = new Map<string, ToolState>();
+  /** Terminals absorbed for turns that never started - reported, never fatal. */
+  readonly orphanTerminals: string[] = [];
 
   apply(event: JsonObject): ReplayDisposition {
     const type = stringField(event, 'type');
@@ -419,7 +423,43 @@ class OrdinaryTurnToolReducer {
     }
 
     const turn = this.turns.get(msgId);
-    if (!turn) fail('turn_sequence', `turn event ${type} arrived before stream_start`);
+    if (!turn) {
+      // AN ORPHAN TERMINAL IS THE LEAST DANGEROUS FRAME THERE IS, AND IT WAS
+      // GETTING THE HARSHEST RESPONSE: kill the engine mid-conversation.
+      //
+      // Measured on a real buyer run (2026-08-30): two messages into a Smart
+      // Trader chat - the first of them approval-bearing - Core stamped a
+      // `stream_end` for a turn this consumer had no `stream_start` for. The
+      // contract failed closed, Desktop SIGTERMed the engine (exit 143), and
+      // the conversation was over. TradingView was already launched and the
+      // chart already read; the brief simply could never be reached.
+      //
+      // A terminal for an unknown turn cannot corrupt anything, because there
+      // is no turn to corrupt: it carries no text, no tool call, and no state
+      // the UI attributes to a running turn. Killing the engine over it is
+      // strictly worse than absorbing it. Registering it as a started-and-
+      // finished turn also RESOLVES the case where the orphan is the message
+      // the user just sent - the UI gets its terminal and stops spinning
+      // instead of running forever.
+      //
+      // Everything else still fails closed, and must: `text_delta`,
+      // `tool_request`, `tool_running` and friends on an unstarted turn WOULD
+      // put content and tool state on screen under a turn that never began.
+      // The boundary is exactly "does this frame deliver anything".
+      //
+      // Same lesson as `call_announced` below, one frame type over: failing
+      // closed on a harmless frame is what killed Smart Trader's setup then,
+      // too.
+      if (type !== 'stream_end' && type !== 'error') {
+        fail(
+          'turn_sequence',
+          `turn event ${type} arrived before stream_start (msg_id=${msgId}, known turns=[${[...this.turns.keys()].join(',')}])`
+        );
+      }
+      this.turns.set(msgId, { terminal: canonicalString(event), tools: new Set() });
+      this.orphanTerminals.push(`${type}#${msgId}`);
+      return 'advanced';
+    }
     if (turn.terminal) {
       if (type === 'stream_end' || type === 'error') {
         const terminal = canonicalString(event);
@@ -894,6 +934,34 @@ export class DesktopCoreV1Consumer {
   private readonly workflow = new WorkflowReducer();
   private readonly anvil = new AnvilReducer();
   private inputRemainder = Buffer.alloc(0);
+  /**
+   * The last frames this consumer saw, as `type#msg_id` only.
+   *
+   * A contract failure kills the engine mid-turn, and the failure message on
+   * its own could not say what led there: a live buyer session died on
+   * `turn event stream_end arrived before stream_start` with no way to tell an
+   * unknown msg_id from a replayed turn. Types and ids are protocol shape, not
+   * content, so nothing here can carry user text or a credential.
+   */
+  private readonly frameTrail: string[] = [];
+  private trail(type: string, object: JsonObject): void {
+    const id = typeof object.msg_id === 'string' ? object.msg_id : '';
+    this.frameTrail.push(id ? `${type}#${id}` : type);
+    if (this.frameTrail.length > 24) this.frameTrail.shift();
+  }
+  /** The recent frame trail, oldest first, for a failure log. */
+  recentFrames(): string[] {
+    return [...this.frameTrail];
+  }
+
+  /**
+   * Terminals Core stamped for turns this consumer never saw start. Absorbed
+   * rather than fatal (see the reducer), but never silent: an engine emitting
+   * these is misbehaving even though it can no longer kill the session.
+   */
+  orphanTerminals(): string[] {
+    return [...this.ordinary.orphanTerminals];
+  }
   // K-03: set the moment an eager recovery (see consumeChunk) consumes a
   // complete frame without its own delimiter; cleared as soon as that
   // delimiter is observed (possibly in a later chunk) so a merely-delayed,
@@ -935,6 +1003,7 @@ export class DesktopCoreV1Consumer {
         );
       }
       validateSchema(validateEventSchema, object, `Core event ${type}`);
+      this.trail(type, object);
       const disposition = this.reduce(object);
       if (disposition === 'duplicate') return { kind: 'drop', reason: 'duplicate' };
       if (disposition === 'ignored_after_terminal') return { kind: 'drop', reason: 'after_terminal' };

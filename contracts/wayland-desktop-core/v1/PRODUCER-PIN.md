@@ -1,84 +1,95 @@
 # Desktop validation pin
 
 This corpus is a byte-for-byte mechanical import from Wayland Core commit
-`7066118a2835f6ec5d6932ffa525a6aff2e30100`, which is the **`v0.13.8` release tag**.
+`6e4eca07fe5a215e365daa4e540767e0c9b8158b`, which is the **`v0.13.12` release tag**.
 
-- contract: `wayland-desktop-core` `1.19`
-- generator: `wcore-desktop-contract-gen/19`
-- fixtures: `sha256:f71f73765225e6b2412155a4442a6f45590a0186d25e95976a0f2001d8241860`
-- schemas: `sha256:9e594e4eda55d6cb52efca39092529e3a2ee2dac24ca69b7b3e1a0200d141de2`
-- source inputs: `sha256:ac7c0a48b25ccb5c49a58bb8360fb0111cb6b0f7f978f17c6401c8ab7aa1efdf`
+- contract: `wayland-desktop-core` `1.23`
+- generator: `wcore-desktop-contract-gen/23`
+- fixtures: `sha256:795bfc45481c28aadcfeada8de5a956b64eeb5ebb36460c7c78f274f45ef7188`
+- schemas: `sha256:8497e92e4ab2599201f95b2aa62c359ae2328429305e79a96761356483fc6e33`
+- source inputs: `sha256:83643f347adf9ea4c794d691778ea691e21cb0fe56d693234d4934fed42cca25`
 
-Verified by execution, not by reading. The import was compared **file by file**
-against the signed release asset `wayland-core-v0.13.8-desktop-contract-v1.tar.gz`
-(`sha256:3e21f826b08038a200a116b443da38ff2af85d08742a72a6ab069eae43d8d6ac`):
-179 files, 179 digest matches, 0 mismatches, and a deliberately-wrong comparison
-was shown to report a mismatch, so the check is known to discriminate rather than
-to be vacuously green. The release's publisher attestation was verified to the
-same producer commit on `refs/heads/main`. The five values above were read from the tag's `manifest.json`
-and then confirmed identical, field by field including the whole capability map,
-to the `contract` block of the `ready` fixture the same tag publishes — the frame
-a real engine sends on line one.
+Verified by execution, not by reading. `scripts/bump-core-engine.mjs` imported the
+signed release asset `wayland-core-v0.13.12-desktop-contract-v1.tar.gz`
+(`sha256:ae029ed9db621e5d…`) and then re-hashed **every** imported file against the
+extracted archive: 0 mismatches. The `ready` fixture was confirmed to agree with
+`manifest.json` on every descriptor field, including the whole capability map — that
+is the frame a real engine sends on line one. The release's publisher attestation was
+verified to the producer commit above on `refs/heads/main`.
 
-## v0.13.7 -> v0.13.8: the stamp moved, the shape did not
+## v0.13.11 -> v0.13.12: additive on the wire, mandatory for the engine
 
-This move changes **only** `fixture_digest` and `source_inputs_digest`. Compared
-field by field against the released manifest, `name`, `major`, `minor` (19),
-`generator` (`gen/19`) and `schema_digest` are byte-identical, and the capability
-map compares EQUAL as a set: nothing added, nothing removed, nothing re-graded.
-Counts hold at **26 commands, 61 events, 3 child types, 174 fixtures**.
+    minor        22 -> 23          generator  gen/22 -> gen/23
+    commands     29 -> 29          events     68 -> 69
+    child types   3 -> 3           fixtures  195 -> 196
+    capabilities  NONE added, NONE removed, NONE re-graded
 
-Exactly **six** of the 174 vendored fixtures carry the descriptor stamp, and with
-`manifest.json` that is seven changed files in the whole corpus; every other byte
-is unchanged. That is why `DESKTOP_CORE_V1_PIN.minor` did not move.
+All three digests moved. One event was added, `grant_refused` (capability `available`,
+criticality `safety`, correlated on `grant_id`). No command changed, and **no existing
+event or command descriptor moved** — every type present in 22 kept its capability,
+correlation and criticality byte-for-byte. That is what makes this bump additive, and
+it is the difference between this one and v0.13.10's.
 
-It is also why the corpus still had to be re-vendored. `assertDescriptor` is
-exact-match on **both** stamped digests, so a Desktop pinned to `v0.13.7` handed a
-`v0.13.8` engine dies at the handshake on every turn, and a `v0.13.8`-pinned
-Desktop refuses a `v0.13.7` engine the same way. A stamp-only move is not a
-cosmetic move.
+`grant_refused` types a refusal Desktop already expected. Its fixture:
 
-## Why this pin moved
+    {"type":"grant_refused","surface":"path","grant_id":"grant-001",
+     "reason":"local_opt_in_required",
+     "detail":"the local launcher did not opt in with --allow-host-path-grants"}
 
-The previous pin was `1.16` / `gen-16`, taken from the `v0.13.6` tree. The
-descriptor check is **exact-match on every field**, so feeding Core's real
-`v0.13.7` `ready.json` to the pre-move consumer throws
-`Core contract minor differs from the pin` and puts the session in `failed`,
-which is terminal — every later frame fails closed. So the corpus, the pin and
-the bundled engine move in **one commit**, or 100% of conversations die on frame
-one. That is why this file, `DESKTOP_CORE_V1_PIN`, `DEFAULT_WCORE_VERSION`,
-`bundled-wcore-shasums.json` and `installer/scripts/postinstall.mjs` are a
-single coupled edit and not five independent ones.
+Through contract `1.22` that refusal arrived as an untyped `info` string. The
+behaviour has not changed — only its shape on the wire. Desktop's side of the opt-in
+already exists and is untouched by this bump: `buildSpawnConfig`'s
+`allowHostPathGrants` is per-spawn and default OFF (`pathGrantSeam.test.ts`), so a
+session with no folder grants never asks for the authority and never sees the event.
+Nothing in `src/` consumes it, which is not a gap: the `workspace_policy` receipt is
+still what tells a host a grant landed — the absence of an error never was — so a
+typed refusal is a second, louder signal rather than a new requirement. `set_mode_refused`,
+the analogous additive event from v0.13.10, has no consumer either and has shipped since.
 
-## Uptake from 1.16, measured against the released corpus
+**The reason this bump is mandatory is not in the contract at all.** v0.13.12 carries
+serde's `float_roundtrip`. Without it floats parse 1 ULP off, every journal digest
+breaks, and a conversation dies on turn 2 — on v0.13.11 the only mitigation was one
+turn per chat. Nothing in the corpus above can show that; it is an engine fix.
 
-Purely additive. No event, command, capability or shape was removed or re-graded:
+The open `approval_required` / `resume_token` question recorded below for v0.13.10 is
+neither settled nor disturbed by this bump: both fixtures are byte-identical to 22's.
 
-- **commands 23 → 26** — see below, this is the one that matters.
-- events 61 → 61. Unchanged.
-- fixtures 171 → 174, child types 3, subcontracts 8.
-- capabilities gain `turn_abandon_v1`, `path_write_grants_v1` and
-  `inline_reasoning_split_v1`.
-- the manifest gains a `wire_shapes` section (0 → 88 entries) describing each
-  command and event's on-the-wire file.
+## This file was missing, and that is worth recording
 
-## wayland-core#314 is CLOSED by this import
+`PRODUCER-PIN.md` is Desktop-authored and the bump script preserves it across the
+corpus copy. The `v0.13.9` bump (`357fabd24`) **deleted it**, which is why the
+`v0.13.10` bump crashed on `ENOENT` before writing anything. It was restored from
+`357fabd24^` and then rewritten here. The v0.13.9 import therefore shipped with no
+provenance record of its own; this file is the first since v0.13.8.
 
-`commands 23 → 26` is the headline. Core had already added `grant_path`,
-`revoke_path` and `grant_workspace_capability` to `ProtocolCommand` and
-documented them, but shipped **no command fixtures** for them. The command schema
-is generated from the fixture set over a **closed `oneOf`**, so none of the three
-was representable in the published schema, and a host that had negotiated the
-contract could not send any of them: it failed its own outbound validation before
-the frame was written.
+## v0.13.9 -> v0.13.10: small on the counts, NOT additive on the wire
 
-`v0.13.7` ships all three fixtures. The three new files are the entire file-level
-delta of this import. Spawn-time path-grant replay is now buildable against this
-contract minor — it was not, at any minor we have ever pinned.
+    minor        21 -> 22          generator  gen/21 -> gen/22
+    commands     29 -> 29          events     67 -> 68
+    child types   3 -> 3           fixtures  194 -> 195
+    capabilities  NONE added, NONE removed, NONE re-graded
 
-## What this pin does and does not authorize
+All three digests moved. One event was added, `set_mode_refused` (capability
+`available`, criticality `safety`). No command changed.
 
-This file is contract authority for Desktop's v1 consumer. It **cannot be landed
-without the matching engine bump**: a Desktop pinned to one digest refuses to
-start against a Core built from a different commit, and vice versa — the two must
-ship on the same release train.
+**The change that matters is not in the counts.** `approval_required` re-correlates
+from `resume_token` to `call_id`:
+
+    v0.13.9   {"call_id":"call-tool-001", "correlation_id":"resume-001",     "resume_token":"resume-001"}
+    v0.13.10  {"call_id":"call-tool-001", "correlation_id":"call-tool-001",  "resume_token":""}
+
+`commands/approval_resume.json` and `events/approval_resume.json` are **byte-identical**
+to v0.13.9 and still correlate on `resume_token`. So the resume side of the handshake
+did not move — only the side that hands Desktop the token.
+
+Desktop reads that field truthily (`src/process/agent/wcore/index.ts`:
+`if (event.resume_token) this.pauseStallWatchdog(...)`, and the `resumeToken` it
+forwards to the renderer). An empty string is not a harmless null there: it would stop
+pausing the stall watchdog across a human approval, silently. Whether the LIVE engine
+populates the field or the empty fixture is the real wire is a question the corpus
+cannot answer, so this bump is signed off against a packaged build and a turn that
+actually raises approvals — not from the manifest alone.
+
+`assertDescriptor` fails closed on the stamped digests, so a 0.13.9-pinned Desktop
+handed a 0.13.10 engine dies at the handshake on every turn, and vice versa. That is
+what these digests changing MEANS, and it is why the corpus re-import is not optional.

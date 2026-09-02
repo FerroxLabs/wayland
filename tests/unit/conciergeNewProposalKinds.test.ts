@@ -167,13 +167,17 @@ describe('enable_routine proposal kind', () => {
 });
 
 describe('the kinds array still matches the union', () => {
-  it('lists all seven kinds exactly once', () => {
+  it('lists all eight kinds exactly once', () => {
+    // `install_skill` joined the union when skill packs became installable from
+    // a card. This list is the completeness guard - a kind that reaches the
+    // union without reaching the runtime array parses nowhere.
     expect([...CONCIERGE_PROPOSAL_KINDS].sort()).toEqual([
       'add_mcp',
       'edit_assistant',
       'enable_routine',
       'file_bug_report',
       'install_agent',
+      'install_skill',
       'provider_connect',
       'set_default_model',
     ]);

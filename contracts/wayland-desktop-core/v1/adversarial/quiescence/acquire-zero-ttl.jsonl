@@ -1,0 +1,1 @@
+{"lease_id":"lease-desktop-006","quiescence_version":1,"request_id":"quiesce-acquire-006","scope":{"include_default":true,"profiles":{"select":"all"}},"session_id":"session-desktop-001","ttl_ms":0,"type":"quiesce_acquire"}

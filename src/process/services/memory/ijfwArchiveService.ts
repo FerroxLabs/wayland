@@ -1282,12 +1282,63 @@ function groupByTags(items: MemoryEntry[]): Map<string, MemoryEntry[]> {
   return map;
 }
 
+/**
+ * A watched file on a removable volume takes the whole app down with it.
+ *
+ * `fs.watch` registers a kqueue watch through libuv. When the volume under that
+ * path is unmounted, libuv calls `abort()` inside `uv__fs_event` - native code,
+ * so no JS `try`/`catch` and no `'error'` listener can intercept it. The process
+ * dies with `Abort trap: 6` and no usable error.
+ *
+ * This is not theoretical. Every one of the six Wayland crash reports on the
+ * reporting machine carries the same `uv__fs_event <- uv__io_poll <- uv_run`
+ * frame, and `~/.ijfw/registry.md` there lists 19 project paths under a single
+ * external drive - so pulling it out crashed Wayland every time.
+ *
+ * `fs.watchFile` polls with `stat` instead of registering a kernel watch, so a
+ * vanishing volume is just a failed stat. Slower and less precise, which is why
+ * it is used ONLY off the boot volume, where the alternative is a hard crash.
+ */
+/**
+ * SCOPE: macOS only, and deliberately so. The abort() documented above is a
+ * macOS kqueue/libuv failure, and `/Volumes/` is a macOS mount convention.
+ * `path.win32.resolve('/Volumes/x')` yields `\\Volumes\\x`, so this predicate
+ * could never match on Windows anyway - being explicit stops that reading as
+ * an accident, and stops a future drive-letter "fix" that would match `C:\\`
+ * and poll every fixed disk. Windows (ReadDirectoryChangesW) and Linux
+ * (inotify) surface removal as an interceptable 'error' event, which the
+ * boot-volume branch already handles, so they keep the cheaper fs.watch.
+ */
+function isOnRemovableVolume(filePath: string, platform: NodeJS.Platform = process.platform): boolean {
+  if (platform !== 'darwin') return false;
+  // POSIX resolve, not the host's. `path.resolve` follows the RUNNING platform,
+  // so on a Windows runner it turns '/Volumes/x' into '\\Volumes\\x' and this
+  // predicate answered false even when the caller explicitly passed 'darwin' -
+  // i.e. the platform parameter, which exists so this can be tested off a Mac,
+  // silently did not work. Production behaviour is unchanged: a real win32 host
+  // returns false on the line above and never reaches here.
+  return path.posix.resolve(filePath).startsWith('/Volumes/');
+}
+
 function defaultWatcherFactory(
   filePath: string,
   opts: { persistent: boolean },
-  callback: (event: string, filename: string | null) => void
+  callback: (event: string, filename: string | null) => void,
+  platform: NodeJS.Platform = process.platform
 ): { close(): void } {
-  return fs.watch(filePath, opts, callback);
+  if (isOnRemovableVolume(filePath, platform)) {
+    const listener = () => callback('change', path.basename(filePath));
+    fs.watchFile(filePath, { persistent: opts.persistent, interval: 5000 }, listener);
+    return { close: () => fs.unwatchFile(filePath, listener) };
+  }
+  const watcher = fs.watch(filePath, opts, callback);
+  // Not a fix for the abort above - that happens below JS - but a watcher that
+  // errors for any other reason must not take the process out as an unhandled
+  // 'error' event either.
+  watcher.on('error', (err) => {
+    log.warn('[memory-archive] watcher error', { filePath, err });
+  });
+  return watcher;
 }
 
 // ===== Singleton =====
@@ -1317,3 +1368,6 @@ export function resetIjfwArchiveService(): void {
 
 export { IjfwArchiveService };
 export type { ChangeCallback, WatcherFactory };
+
+/** Exported for tests only - the watcher choice is the crash-safety boundary. */
+export const __testing = { defaultWatcherFactory, isOnRemovableVolume };
