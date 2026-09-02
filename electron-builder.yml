@@ -279,6 +279,29 @@ win:
     # the build (run 33391945572). Exactly the "lockfile grew a new shim" case
     # the note above predicts.
     - '!\whatsapp-bridge\node_modules\@puppeteer\browsers\node_modules\.bin\semver.exe'
+    # bun >=1.3 materialises these shims as `<name>.bunx.exe`, not `<name>.exe`.
+    # electron-builder matches signExts with endsWith against the full path, so the
+    # `.exe` names above stop matching the moment the toolchain emits the new form and
+    # all 17 shims get signed - which rewrites their bytes and makes the source-mirror
+    # gate refuse the Windows build. Both spellings are listed so the build is correct
+    # under either bun, exactly as the note above instructs when the names change.
+    - '!\whatsapp-bridge\node_modules\.bin\browsers.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\crc32.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\escodegen.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\esgenerate.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\esparse.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\esvalidate.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\extract-zip.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\glob.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\js-yaml.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\mime.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\pino.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\puppeteer.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\qrcode-terminal.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\semver.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\.bin\which.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\cross-spawn\node_modules\.bin\node-which.bunx.exe'
+    - '!\whatsapp-bridge\node_modules\@puppeteer\browsers\node_modules\.bin\semver.bunx.exe'
 
 nsis:
   oneClick: false
