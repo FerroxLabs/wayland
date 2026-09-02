@@ -6,9 +6,9 @@
 
 import { spawn, type ChildProcess } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve as resolvePath } from 'node:path';
+import { basename, dirname, join, resolve as resolvePath } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { Writable } from 'node:stream';
 import { parse, stringify } from 'smol-toml';
@@ -203,6 +203,88 @@ export type StdioMcpOption = {
   awaitReady?: boolean;
 };
 
+/**
+ * Basename grammar of the per-chat workspace `createWCoreAgent` mints
+ * (`initAgent.ts`, `wcore-temp-${Date.now()}`). Deliberately NARROWER than the
+ * shared `isManagedWorkspaceName` grammar (`<slug>-temp-<digits>`): trust is
+ * asserted only for the workspaces THIS spawn path creates, not for every
+ * managed workspace any backend has ever minted.
+ */
+const DESKTOP_MINTED_WCORE_WORKSPACE = /^wcore-temp-\d+$/;
+
+/**
+ * Whether `workspace` is an ephemeral per-chat workspace THIS APP minted, and
+ * therefore one whose contents Desktop — not the user, not a repo — authored.
+ *
+ * WHY THIS EXISTS. The engine treats a workspace it has never seen as
+ * UNTRUSTED, and an untrusted workspace has **loopback networking and egress
+ * blocked**. Desktop copies the assistant's skills into
+ * `<workspace>/.wayland-core/skills/` and then runs them there, so any skill
+ * script that has to reach a local service — a CDP endpoint on 127.0.0.1, a
+ * host connector — cannot. Measured on shipped engine v0.13.11, same workspace,
+ * minutes apart: a sandboxed `fetch('http://127.0.0.1:9222/json/version')`
+ * returned `LOOPBACK_BLOCKED ... EPERM`; after `wayland-core --trust-workspace`
+ * in that same directory it returned `LOOPBACK_OK`, and the real collector then
+ * ran end to end (its `npx` connector fetch worked too, because trust opens
+ * egress as well). Passing `--trust-workspace` at spawn is what makes a
+ * script-bearing skill runnable in a Desktop chat at all.
+ *
+ * WHY THE GATE IS THIS NARROW. `--trust-workspace` trusts the workspace's
+ * executable configuration fingerprint — its `.wayland-core.toml`, hooks and
+ * project skills. Aimed at a directory the USER opened, it would hand a cloned
+ * repository exactly the authority the trust control exists to withhold. An
+ * earlier attempt at this fix was reverted (3ebacf41c) for precisely that
+ * reason. So all four of these must hold, and anything unprovable FAILS CLOSED
+ * to today's untrusted behaviour:
+ *
+ *   1. `customWorkspace` is not set — a user-picked folder is never ours.
+ *   2. There is no `projectId` — a project workspace is the user's own tree
+ *      (#455), even though Desktop writes skills into it.
+ *   3. The basename matches the closed `wcore-temp-<digits>` grammar above.
+ *   4. The directory sits DIRECTLY in the managed work root Desktop mints into
+ *      (`getSystemDir().workDir`, threaded in by `WCoreManager` — the same
+ *      helper `buildWorkspaceWidthFiles` builds from, never a literal path).
+ *
+ * Comparison is on CANONICAL paths, both sides. On macOS the work root is a
+ * CLI-safe symlink (`~/.wayland` → `~/Library/Application Support/…/wayland`)
+ * while `startWithProjectConfigLease` has already realpath'd the workspace, so
+ * a raw string compare would never match and the fix would silently never fire.
+ * Canonicalising the workspace in full also means a symlink PLANTED in the work
+ * root and pointing at a user tree resolves to a parent that is not the root,
+ * and so is refused.
+ *
+ * (The historical objection that trust dies on symlinked builtin skills —
+ * `executable_surface_symlinks_fail_closed` — no longer applies: `initAgent.ts`
+ * COPIES skills into the workspace rather than symlinking them. Measured on a
+ * live workspace: 0 symlinks, 76 executables, 4079 files.)
+ */
+export function isDesktopMintedWCoreWorkspace(params: {
+  workspace: string;
+  /** `getSystemDir().workDir`, resolved by the caller. Absent => refuse. */
+  managedWorkRoot?: string;
+  customWorkspace?: boolean;
+  projectId?: string;
+}): boolean {
+  const { workspace, managedWorkRoot, customWorkspace, projectId } = params;
+  if (!workspace || !managedWorkRoot) return false;
+  if (customWorkspace === true) return false;
+  if (typeof projectId === 'string' && projectId.length > 0) return false;
+
+  let canonicalWorkspace: string;
+  let canonicalRoot: string;
+  try {
+    canonicalWorkspace = realpathSync(resolvePath(workspace));
+    canonicalRoot = realpathSync(resolvePath(managedWorkRoot));
+  } catch {
+    // A path we cannot canonicalise is a path whose provenance we cannot
+    // prove. Refuse rather than trust on a lexical spelling.
+    return false;
+  }
+
+  if (!DESKTOP_MINTED_WCORE_WORKSPACE.test(basename(canonicalWorkspace))) return false;
+  return dirname(canonicalWorkspace) === canonicalRoot;
+}
+
 export type WCoreAgentOptions = {
   workspace: string;
   model: TProviderWithModel;
@@ -243,6 +325,18 @@ export type WCoreAgentOptions = {
    * that has no conversation, which simply means no run is ever found.
    */
   conversationId?: string;
+  /**
+   * The managed work root Desktop mints ephemeral per-chat workspaces into
+   * (`getSystemDir().workDir`). Supplied by `WCoreManager` from that helper, so
+   * a relocated `wayland.dir` stays authoritative and no path is hardcoded
+   * here. Absent => `isDesktopMintedWCoreWorkspace` refuses, and the spawn keeps
+   * today's untrusted behaviour.
+   */
+  managedWorkRoot?: string;
+  /** True when the user picked this workspace directory themselves. Never trusted. */
+  customWorkspace?: boolean;
+  /** Set when this chat belongs to a project (#455), i.e. the user's own tree. Never trusted. */
+  projectId?: string;
   onStreamEvent: StreamEventHandler;
   onProcessExit?: (code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null) => void;
   /** Unconditional child-lifecycle notification, including idle and post-turn exits. */
@@ -725,6 +819,28 @@ export class WCoreAgent {
     // non-raw mode left exactly those declarations broken (cross-audit,
     // Codex 5.6 Sol).
     args.push('--assistant', WCORE_DESKTOP_HOST_ASSISTANT);
+
+    // The engine blocks loopback AND egress inside a workspace it has not been
+    // told to trust, so a skill script copied into `<workspace>/.wayland-core/
+    // skills/` cannot reach 127.0.0.1 or the network — measured on v0.13.11 as
+    // `LOOPBACK_BLOCKED ... EPERM`, and `LOOPBACK_OK` after trusting the same
+    // directory. Assert trust ONLY for a workspace this app minted for this
+    // chat; see `isDesktopMintedWCoreWorkspace` for why the gate has to be this
+    // narrow (a user folder or a cloned repo must never be trusted) and why it
+    // fails closed. Deliberately NOT gated on `rawEngineMode` or on whether a
+    // launch profile is in play: the loopback/egress block applies to every
+    // spawn, and the flag's safety comes from workspace provenance alone.
+    if (
+      isDesktopMintedWCoreWorkspace({
+        workspace,
+        managedWorkRoot: this.options.managedWorkRoot,
+        customWorkspace: this.options.customWorkspace,
+        projectId: this.options.projectId,
+      })
+    ) {
+      args.push('--trust-workspace');
+    }
+
     const mcpServerNames = this.options.mcpServerNames;
     if (!this.options.rawEngineMode && mcpServerNames !== undefined) {
       args.push('--profile', WCORE_DESKTOP_MCP_PROFILE);
