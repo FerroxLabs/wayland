@@ -29,7 +29,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { PassThrough } from 'node:stream';
@@ -118,6 +118,38 @@ function baseOptions(): WCoreAgentOptions {
   };
 }
 
+/**
+ * The Windows shard reported this assertion failing with argv
+ * ['--assistant','wayland-desktop'] while macOS produced the same argv WITH the
+ * flag - i.e. `isDesktopMintedWCoreWorkspace` answered false there and nothing
+ * in the message said why. Every input the gate reads goes into the failure
+ * text so the next red run names the cause instead of needing another round.
+ */
+function trustDiagnostic(): string {
+  const realOf = (p: string): string => {
+    try {
+      return realpathSync(p);
+    } catch (error) {
+      return `<realpath threw: ${(error as NodeJS.ErrnoException)?.code ?? String(error)}>`;
+    }
+  };
+  const rw = realOf(mintedWorkspace);
+  const rr = realOf(workRoot);
+  return [
+    'trust gate inputs:',
+    `  platform=${process.platform}`,
+    `  workspace=${mintedWorkspace}`,
+    `  workRoot=${workRoot}`,
+    `  realWorkspace=${rw}`,
+    `  realWorkRoot=${rr}`,
+    `  dirname(realWorkspace)=${path.dirname(rw)}`,
+    `  basename(realWorkspace)=${path.basename(rw)}`,
+    `  basenameMatches=${/^wcore-temp-\d+$/.test(path.basename(rw))}`,
+    `  strictEqual=${path.dirname(rw) === rr}`,
+    `  caseInsensitiveEqual=${path.dirname(rw).toLowerCase() === rr.toLowerCase()}`,
+  ].join('\n');
+}
+
 function argvOf(call: number): string[] {
   return spawnMock.mock.calls[call][1] as string[];
 }
@@ -148,7 +180,7 @@ describe('a refused --trust-workspace grant retries ONCE untrusted instead of ki
     const started = agent.start().catch((error: unknown) => error);
 
     await flushUntilSpawned(first);
-    expect(argvOf(0)).toContain(TRUST_FLAG);
+    expect(argvOf(0), trustDiagnostic()).toContain(TRUST_FLAG);
 
     // The measured production ordering: the engine bails, its stderr reaches the
     // reader, and the process exits before `ready`.
