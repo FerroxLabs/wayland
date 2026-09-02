@@ -26,7 +26,12 @@ import {
   quarantineOverride,
 } from './overrideQuarantine';
 import { describeSpawnError, describeExitReason } from './execFailureReason';
-import { describeContractRejection, profileStripHedge, stripInformationalLines } from './startFailureReason';
+import {
+  describeContractRejection,
+  isWorkspaceTrustRefusal,
+  profileStripHedge,
+  stripInformationalLines,
+} from './startFailureReason';
 import {
   buildEngineSpawnEnv,
   buildOutputDirective,
@@ -90,6 +95,22 @@ const WCORE_PROJECT_CONFIG = '.wayland-core.toml';
 // engine's real bail reason (e.g. a keyless model, bad config) instead of an
 // opaque "exited with code N" (#484). Capped to bound memory on a chatty engine.
 const WCORE_STDERR_TAIL_MAX = 2048;
+
+/**
+ * How long the untrusted-retry decision waits for the engine's stderr to stop
+ * growing before it reads the tail.
+ *
+ * Not a guess: measured on the packaged build that produced this regression,
+ * Desktop's contract failure was logged 5ms BEFORE the engine's own
+ * `executable repository surface exceeds the fingerprint limits` line reached
+ * the stderr reader. The contract rejection resolves the ready race on a
+ * microtask, so a tail read taken there would have found the reason absent and
+ * the retry would silently never fire. The wait ends the moment the stderr
+ * reader closes - which a bailing engine always does, promptly - so this bound
+ * is only ever paid in full by a spawn that stays alive (a ready-timeout), and
+ * only when `--trust-workspace` was actually passed.
+ */
+const WCORE_TRUST_REFUSAL_SETTLE_MS = 500;
 
 /**
  * #1098: the closed `render_artifact` mime vocabulary, mirrored from
@@ -518,7 +539,35 @@ export class WCoreAgent {
    * opaque exit code (#484).
    */
   private stderrTail = '';
-  private readonly desktopContract = new DesktopCoreV1Consumer();
+  /**
+   * Resolves when the current child's stderr reader closes, i.e. when
+   * {@link stderrTail} can no longer grow. Re-armed at every spawn; a stale
+   * (already resolved) promise from a previous attempt is harmless because the
+   * only reader also bounds itself with {@link WCORE_TRUST_REFUSAL_SETTLE_MS}.
+   */
+  private stderrDrained: Promise<void> = Promise.resolve();
+  /**
+   * Whether THIS spawn's argv actually carried `--trust-workspace`. The
+   * untrusted retry is gated on it so a `ready` failure on a spawn that never
+   * requested trust can never be blamed on - or "recovered" from - the trust
+   * request.
+   */
+  private spawnedWithWorkspaceTrust = false;
+  /**
+   * Set once, when the engine has refused this workspace's trust grant, to keep
+   * `--trust-workspace` off every subsequent spawn of this agent. This is the
+   * one-shot latch for the retry: the retry cannot re-enter its own branch,
+   * because that branch requires the flag to have been passed.
+   */
+  private workspaceTrustSuppressed = false;
+  /**
+   * Replaced (not reset in place) by {@link teardownFailedStartAttempt}: a
+   * contract failure latches this consumer into `failed`, after which EVERY
+   * line - including a healthy successor engine's `ready` - is refused with
+   * `Core contract session already failed closed`. A retry therefore has to
+   * negotiate on a fresh consumer or it cannot start at all.
+   */
+  private desktopContract = new DesktopCoreV1Consumer();
   private readonly anvilMutationWatcher: AnvilPersistentMutationWatcher;
   /**
    * Withdraw this agent from the live-session registry. Held privately so the
@@ -830,14 +879,24 @@ export class WCoreAgent {
     // fails closed. Deliberately NOT gated on `rawEngineMode` or on whether a
     // launch profile is in play: the loopback/egress block applies to every
     // spawn, and the flag's safety comes from workspace provenance alone.
-    if (
+    //
+    // BEST-EFFORT, NEVER FATAL. Core grants the trust fingerprint before it
+    // resolves config or opens a session, so a REFUSED grant is a bail: the
+    // process exits, `ready` never arrives, and the whole chat dies with
+    // "Agent failed to start: …" - where before this flag existed the same
+    // chat merely ran untrusted. Any user whose enabled skills carry a large
+    // executable payload trips Core's fingerprint limits. So the refusal is
+    // caught after the failed `ready` race and this spawn is repeated ONCE
+    // without the flag; `workspaceTrustSuppressed` is what keeps it off here.
+    this.spawnedWithWorkspaceTrust =
+      !this.workspaceTrustSuppressed &&
       isDesktopMintedWCoreWorkspace({
         workspace,
         managedWorkRoot: this.options.managedWorkRoot,
         customWorkspace: this.options.customWorkspace,
         projectId: this.options.projectId,
-      })
-    ) {
+      });
+    if (this.spawnedWithWorkspaceTrust) {
       args.push('--trust-workspace');
     }
 
@@ -1070,6 +1129,10 @@ export class WCoreAgent {
     // ANSI colour codes are stripped so the log file stays plain text.
     const stderrHold = createPemBlockHold();
     const stderrLines = createInterface({ input: this.childProcess.stderr! });
+    // Re-armed per spawn so the untrusted-retry decision can wait for THIS
+    // child's stderr to stop growing rather than reading a tail the engine has
+    // not finished writing (see WCORE_TRUST_REFUSAL_SETTLE_MS).
+    this.stderrDrained = new Promise<void>((resolve) => stderrLines.once('close', resolve));
     stderrLines.on('line', (rawLine) => {
       for (const emission of stderrHold.push(stripAnsi(rawLine))) {
         // Retained unredacted and scrubbed at read time (#484), the same
@@ -1190,33 +1253,76 @@ export class WCoreAgent {
     try {
       await Promise.race([this.readyPromise, timeout]);
     } catch (err) {
+      // THE TRUST REQUEST IS BEST-EFFORT. IT MUST NEVER KILL THE CHAT.
+      //
+      // `--trust-workspace` (60212ffaf) is what opens loopback and egress for a
+      // skill script running in the per-chat workspace, and it stays. But Core
+      // grants the trust fingerprint at the very top of `main` - before config
+      // resolution, before any session exists - and a REFUSED grant is
+      // `anyhow::bail`. The engine exits, `ready` never arrives, and the whole
+      // chat is dead: "Agent failed to start: wcore Desktop contract rejected
+      // ready: …", with every later turn refused too. Before the flag existed
+      // that same chat simply ran untrusted. Live-verified on a packaged build
+      // with a greenfield profile, where a 52MB vendored connector inside an
+      // enabled skill crossed Core's fingerprint limits:
+      //   Error: executable repository surface exceeds the fingerprint limits
+      //
+      // So: respawn ONCE without the flag and let the session continue
+      // untrusted. That is exactly what Core itself does when it evaluates
+      // trust WITHOUT being asked to grant it - `config.rs` catches the very
+      // same error, logs "workspace trust resolution failed closed" and carries
+      // on untrusted - which is also why the retry can be expected to start.
+      // A skill that needs loopback then fails with its own comprehensible
+      // error instead of taking the chat down with it.
+      //
+      // WHY THIS BRANCH IS DELIBERATELY NARROW. It is NOT "retry on contract
+      // failure": that would mask real protocol bugs, which must keep failing
+      // closed and loudly. Both of these must hold, and either one missing
+      // rethrows exactly as before:
+      //   1. THIS spawn actually passed `--trust-workspace`. A failure on a
+      //      spawn that never asked for trust cannot be caused by trust.
+      //   2. The engine's own stderr carries a `WorkspaceTrustError` refusal -
+      //      see `isWorkspaceTrustRefusal`, which matches Core's complete
+      //      Display set and nothing else.
+      // `workspaceTrustSuppressed` makes it strictly one-shot - it is what
+      // withholds the flag on the retry, so the retry cannot satisfy (1), and
+      // it is re-checked here directly so this can never loop.
+      //
+      // ORDER. Checked ahead of the resume fallback because a trust refusal
+      // happens before Core would even look at `--resume`, so resuming into a
+      // new session cannot fix it - and dropping the flag keeps the resume
+      // intact rather than spending the user's history on the wrong diagnosis.
+      // The two fallbacks are independent and each fires at most once.
+      if (this.spawnedWithWorkspaceTrust && !this.workspaceTrustSuppressed) {
+        // The contract rejection resolves this race on a microtask, and on the
+        // measured failure the engine's own line reached the reader 5ms LATER.
+        // Reading the tail here without waiting would find nothing and the
+        // retry would silently never fire.
+        await this.settleStderrTail();
+        const detail = stripInformationalLines(redactSecrets(stripAnsi(this.stderrTail).trim()));
+        if (isWorkspaceTrustRefusal(detail)) {
+          console.warn(
+            '[WCoreAgent] engine refused to trust this workspace; retrying ONCE untrusted. ' +
+              'Skills that need loopback or egress will fail in this session.',
+            { workspace, detail }
+          );
+          this.workspaceTrustSuppressed = true;
+          await this.teardownFailedStartAttempt();
+          if (this.disposed) {
+            throw new Error('Wayland Core agent was stopped during untrusted retry', { cause: err });
+          }
+          // The session id is REUSED, unlike the resume fallback: Core bails on
+          // the trust grant before it creates a session, so nothing exists on
+          // disk to collide with `--session-id`, and minting a new one here
+          // would detach this chat from the id the manager already tracks.
+          this.armFreshReadyPromise();
+          return this.startWithProjectConfigLease(workspace, resolvedWaylandHome, canonicalConfigDir);
+        }
+      }
       // If resume failed (session not found), fallback to a new session
       if (this.options.resume) {
         console.error('[WCoreAgent] Resume failed, falling back to new session:', err);
-        // Tear down the failed resume attempt before recursing. The ready-timeout
-        // path leaves the engine alive, and its exit/stderr listeners read this.*
-        // dynamically - once we recurse they'd point at the fresh attempt, so a
-        // late exit or stderr chunk from the orphaned child could reject the new
-        // session, restore the wrong .wayland-core.toml, or contaminate the stderr tail.
-        // Prove the exact stale tree stopped before detaching its listeners or
-        // replacing its identity. A best-effort kill here can leave an orphan
-        // sharing this profile with the fallback engine.
-        const staleChild = this.childProcess;
-        if (staleChild) {
-          await this.stopChildWithTreeProof(staleChild);
-          staleChild.removeAllListeners();
-          staleChild.stdout?.removeAllListeners();
-          staleChild.stderr?.removeAllListeners();
-        }
-        this.cleanupVertexCredentials();
-        this.restoreProjectConfig();
-        // K-01: mirror the workspace restore above for the global profile
-        // transaction - otherwise `this.globalProfileConfigTransaction` would
-        // keep pointing at this failed attempt's (now-stale) transaction
-        // object across the recursive retry below.
-        this.restoreGlobalMcpProfile();
-        this.childProcess = null;
-        this.stderrTail = '';
+        await this.teardownFailedStartAttempt();
         if (this.disposed) {
           throw new Error('Wayland Core agent was stopped during resume fallback', { cause: err });
         }
@@ -1232,11 +1338,7 @@ export class WCoreAgent {
         // unreplayable journal is exactly why we are here), so a new session is
         // the honest outcome rather than a loss introduced by this line.
         this.options = { ...this.options, resume: undefined, sessionId: randomUUID() };
-        this.ready = false;
-        this.readyPromise = new Promise((resolve, reject) => {
-          this.readyResolve = resolve;
-          this.readyReject = reject;
-        });
+        this.armFreshReadyPromise();
         return this.startWithProjectConfigLease(workspace, resolvedWaylandHome, canonicalConfigDir);
       }
       throw err;
@@ -1290,6 +1392,78 @@ export class WCoreAgent {
         text: `[Assistant System Rules]\n${this.options.presetRules}`,
       });
     }
+  }
+
+  /**
+   * Wait until {@link stderrTail} can no longer grow: the current child's
+   * stderr reader has closed, or {@link WCORE_TRUST_REFUSAL_SETTLE_MS} elapsed.
+   *
+   * A `ready` failure resolves on a microtask, while stderr arrives as I/O, so
+   * a tail read taken at the failure site can legitimately be EMPTY - measured
+   * on the packaged build, Desktop's contract failure was logged 5ms before the
+   * engine's own bail reason reached the reader. Only the untrusted-retry
+   * decision needs this, so nothing else pays for it.
+   */
+  private async settleStderrTail(): Promise<void> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        this.stderrDrained,
+        new Promise<void>((resolve) => {
+          timer = setTimeout(resolve, WCORE_TRUST_REFUSAL_SETTLE_MS);
+        }),
+      ]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
+  /**
+   * Tear down a start attempt that failed before `ready`, so a retry can spawn
+   * cleanly. Shared by the resume fallback and the untrusted retry; neither
+   * decides anything here, and the disposed check stays with each caller so it
+   * can keep its own wording.
+   *
+   * The ready-timeout path leaves the engine ALIVE, and its exit/stderr
+   * listeners read `this.*` dynamically - once we recurse they would point at
+   * the fresh attempt, so a late exit or stderr chunk from the orphaned child
+   * could reject the new session, restore the wrong `.wayland-core.toml`, or
+   * contaminate the stderr tail. Prove the exact stale tree stopped before
+   * detaching its listeners or replacing its identity: a best-effort kill here
+   * can leave an orphan sharing this profile with the successor engine.
+   */
+  private async teardownFailedStartAttempt(): Promise<void> {
+    const staleChild = this.childProcess;
+    if (staleChild) {
+      await this.stopChildWithTreeProof(staleChild);
+      staleChild.removeAllListeners();
+      staleChild.stdout?.removeAllListeners();
+      staleChild.stderr?.removeAllListeners();
+    }
+    this.cleanupVertexCredentials();
+    this.restoreProjectConfig();
+    // K-01: mirror the workspace restore above for the global profile
+    // transaction - otherwise `this.globalProfileConfigTransaction` would keep
+    // pointing at this failed attempt's (now-stale) transaction object across
+    // the recursive retry.
+    this.restoreGlobalMcpProfile();
+    this.childProcess = null;
+    this.stderrTail = '';
+    // A pre-`ready` failure can have latched the contract consumer into
+    // `failed` (that is exactly the shape of the trust-refusal regression:
+    // `ready_required`), and a latched consumer refuses the successor's `ready`
+    // too. Only a pre-`ready` attempt is ever torn down here, so the discarded
+    // consumer can hold no Anvil receipts and no negotiated turn state.
+    this.desktopContract = new DesktopCoreV1Consumer();
+  }
+
+  /** Re-arm the ready gate for a retry spawn. */
+  private armFreshReadyPromise(): void {
+    this.ready = false;
+    this.readyPromise = new Promise((resolve, reject) => {
+      this.readyResolve = resolve;
+      this.readyReject = reject;
+    });
   }
 
   private waitForMcpTerminal(name: string): Promise<void> {
