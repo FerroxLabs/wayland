@@ -34,9 +34,8 @@ vi.mock('@process/utils/initStorage', () => ({
   },
 }));
 
-const { enableSkillForCurrentAssistant, resolveCurrentAssistantId, enableSkillForAssistant } = await import(
-  '@process/services/skills/enableSkillForAssistant'
-);
+const { enableSkillForCurrentAssistant, resolveCurrentAssistantId, enableSkillForAssistant } =
+  await import('@process/services/skills/enableSkillForAssistant');
 
 const assistants = () => [
   { id: 'builtin-concierge', name: 'Concierge', enabledSkills: ['concierge'] },

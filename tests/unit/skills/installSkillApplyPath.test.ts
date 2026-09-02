@@ -71,7 +71,13 @@ describe('runInstallSkillChain', () => {
       'Installed "tide-morning-brief" and switched it on for Smart Trader.'
     );
     expect(order).toEqual([
-      `download(${PROPOSAL.url},aaaa)`, 'extract', 'scan', 'scripts', 'install', 'enable', 'cleanup',
+      `download(${PROPOSAL.url},aaaa)`,
+      'extract',
+      'scan',
+      'scripts',
+      'install',
+      'enable',
+      'cleanup',
     ]);
   });
 
@@ -104,7 +110,10 @@ describe('runInstallSkillChain', () => {
   });
 
   it('a bad hash stops before anything is unpacked', async () => {
-    deps.download = vi.fn(async () => ({ ok: false as const, reason: 'The download did not match the expected checksum.' }));
+    deps.download = vi.fn(async () => ({
+      ok: false as const,
+      reason: 'The download did not match the expected checksum.',
+    }));
     await expect(runInstallSkillChain(PROPOSAL, deps)).rejects.toThrow(/checksum/);
     expect(deps.extract).not.toHaveBeenCalled();
     expect(deps.scan).not.toHaveBeenCalled();
@@ -165,9 +174,7 @@ describe('runInstallSkillChain', () => {
     deps.enable = vi.fn(async () => {
       throw new Error('config write failed');
     });
-    await expect(runInstallSkillChain(PROPOSAL, deps)).resolves.toContain(
-      'switch it on under Assistants'
-    );
+    await expect(runInstallSkillChain(PROPOSAL, deps)).resolves.toContain('switch it on under Assistants');
     expect(deps.cleanup).toHaveBeenCalled();
   });
 
@@ -185,10 +192,7 @@ describe('the bridge really delegates to the shared chain', () => {
     // the bridge calls this function rather than growing a second copy.
     const { readFileSync } = await import('fs');
     const path = await import('path');
-    const src = readFileSync(
-      path.resolve(__dirname, '../../../src/process/bridge/conciergeConfigBridge.ts'),
-      'utf-8'
-    );
+    const src = readFileSync(path.resolve(__dirname, '../../../src/process/bridge/conciergeConfigBridge.ts'), 'utf-8');
     const body = src.slice(src.indexOf("case 'install_skill': {"), src.indexOf("case 'file_bug_report': {"));
     expect(body).toContain('runInstallSkillChain');
     expect(body, 'the gate must live in the shared chain, not be re-inlined here').not.toContain("verdict !== 'clean'");

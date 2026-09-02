@@ -175,10 +175,7 @@ export async function enableSkillForCurrentAssistant(skillDirName: string): Prom
  * the same `update` seam so a test drives it with the same store, and returns
  * null rather than throwing: losing the label must never cost the import.
  */
-export async function assistantDisplayName(
-  assistantId: string,
-  io: EnableSkillIo = defaultIo
-): Promise<string | null> {
+export async function assistantDisplayName(assistantId: string, io: EnableSkillIo = defaultIo): Promise<string | null> {
   try {
     let name: string | null = null;
     await io.update((assistants) => {

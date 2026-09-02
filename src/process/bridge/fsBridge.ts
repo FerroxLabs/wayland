@@ -490,7 +490,9 @@ async function getCachedWorkspaceFiles(root: string): Promise<IWorkspaceFlatFile
  * realpaths, denies the SENSITIVE_SEGMENTS list (`.ssh`, `.aws`, `.gnupg`, …),
  * and persisted custom paths are still re-gated at enumeration time.
  */
-export function externalSkillRoots(homedir: string = os.homedir()): Array<{ name: string; path: string; source: string }> {
+export function externalSkillRoots(
+  homedir: string = os.homedir()
+): Array<{ name: string; path: string; source: string }> {
   return [
     { name: 'Global Agents', path: path.join(homedir, '.agents', 'skills'), source: 'global-agents' },
     { name: 'Gemini CLI', path: path.join(homedir, '.gemini', 'skills'), source: 'gemini' },

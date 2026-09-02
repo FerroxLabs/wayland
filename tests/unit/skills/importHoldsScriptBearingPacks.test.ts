@@ -47,10 +47,13 @@ function ioWithTree(files: Record<string, string>): SkillImportIo {
   const names = Object.keys(files);
   return {
     // A path is a directory unless it ends in one of the tree's file names.
-    lstat: vi.fn(async (p: string) => ({
-      isSymbolicLink: () => false,
-      isDirectory: () => !names.some((n) => p.endsWith(n)),
-    }) as never),
+    lstat: vi.fn(
+      async (p: string) =>
+        ({
+          isSymbolicLink: () => false,
+          isDirectory: () => !names.some((n) => p.endsWith(n)),
+        }) as never
+    ),
     exists: vi.fn(async () => false),
     readdir: vi.fn(async () => names as never),
     readFile: vi.fn(async (p: string) => {
@@ -68,7 +71,12 @@ function ioWithTree(files: Record<string, string>): SkillImportIo {
 }
 
 function importerFor(files: Record<string, string>) {
-  return new SkillImport(ioWithTree(files), undefined, async () => null, () => '/skills');
+  return new SkillImport(
+    ioWithTree(files),
+    undefined,
+    async () => null,
+    () => '/skills'
+  );
 }
 
 beforeEach(() => {

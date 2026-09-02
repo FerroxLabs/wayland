@@ -333,10 +333,7 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
 
   // Trigger only - the effect still reads the pin from ConfigStorage itself, so
   // it can never act on a stale cached copy.
-  const { data: savedPinTrigger } = useSWR([MODEL_PIN_SWR_KEY, storageKey], () =>
-    ConfigStorage.get(storageKey)
-  );
-
+  const { data: savedPinTrigger } = useSWR([MODEL_PIN_SWR_KEY, storageKey], () => ConfigStorage.get(storageKey));
 
   /**
    * Was the model now on screen CHOSEN, or merely resolved for the user?
@@ -468,7 +465,12 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
         savedPinKey && currentKey && savedPinKey !== currentKey && !currentIsDeliberateRef.current
       );
 
-      if (!agentChanged && !fluxOverridePending && !pinDisagreesWithLock && isModelKeyAvailable(currentKey, modelList)) {
+      if (
+        !agentChanged &&
+        !fluxOverridePending &&
+        !pinDisagreesWithLock &&
+        isModelKeyAvailable(currentKey, modelList)
+      ) {
         if (!selectedModelKeyRef.current && currentKey) {
           selectedModelKeyRef.current = currentKey;
         }

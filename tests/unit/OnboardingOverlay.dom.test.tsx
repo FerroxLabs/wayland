@@ -134,9 +134,7 @@ describe('OnboardingOverlay', () => {
       // third `ConfigStorage.set` on an unrelated key. Counting every call made
       // this assertion depend on how many OTHER keys dismiss happens to write;
       // counting the key under test states the contract directly.
-      const onboardingWrites = hooks.configSet.mock.calls.filter(
-        ([key]: [string]) => key === 'onboardingCompleted'
-      );
+      const onboardingWrites = hooks.configSet.mock.calls.filter(([key]: [string]) => key === 'onboardingCompleted');
       expect(onboardingWrites).toHaveLength(2);
     });
     // Local marker still durably records the dismiss regardless of the bridge.

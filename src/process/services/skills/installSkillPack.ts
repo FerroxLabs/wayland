@@ -88,8 +88,20 @@ export const MAX_PACK_ENTRIES = 2_000;
  * {@link ALLOWED_PACK_SCRIPT_EXTENSIONS}.
  */
 export const ALLOWED_PACK_EXTENSIONS = [
-  '.md', '.markdown', '.txt', '.csv', '.tsv', '.json', '.yaml', '.yml',
-  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg',
+  '.md',
+  '.markdown',
+  '.txt',
+  '.csv',
+  '.tsv',
+  '.json',
+  '.yaml',
+  '.yml',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp',
+  '.svg',
 ];
 
 /**
@@ -373,7 +385,10 @@ export function safeEntryPath(root: string, relative: string): string | null {
   return abs;
 }
 
-export async function extractPack(archive: Uint8Array, destDir: string): Promise<{ ok: true; files: number } | { ok: false; reason: string }> {
+export async function extractPack(
+  archive: Uint8Array,
+  destDir: string
+): Promise<{ ok: true; files: number } | { ok: false; reason: string }> {
   let zip: JSZip;
   try {
     zip = await JSZip.loadAsync(archive);

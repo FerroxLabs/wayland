@@ -28,7 +28,9 @@ describe('install_skill blocks reach the validator', () => {
   });
 
   it('drops a block whose hash is missing, rather than proposing an unpinned install', () => {
-    const noHash = GOOD.split('\n').filter((l) => !l.startsWith('sha256:')).join('\n');
+    const noHash = GOOD.split('\n')
+      .filter((l) => !l.startsWith('sha256:'))
+      .join('\n');
     expect(detectConciergeProposals(block(noHash)).length).toBe(0);
   });
 

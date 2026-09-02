@@ -23,10 +23,7 @@
  * path therefore gets its own `[]` assertion rather than one shared one.
  */
 import { describe, expect, it } from 'vitest';
-import {
-  buildAcpSessionMcpServers,
-  buildWCoreUserStdioMcpServers,
-} from '@process/agent/acp/mcpSessionConfig';
+import { buildAcpSessionMcpServers, buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import { toMcpServer, toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import type { IMcpServer } from '@/common/config/storage';
 

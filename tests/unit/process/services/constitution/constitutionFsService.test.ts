@@ -930,13 +930,7 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
 
         // Constructed while the root is still ABSENT - the fresh-install case.
         expect(existsSync(root)).toBe(false);
-        const service = new ConstitutionFsService(
-          root,
-          realBinary(),
-          secretBackend,
-          undefined,
-          revisionAuthorityPath
-        );
+        const service = new ConstitutionFsService(root, realBinary(), secretBackend, undefined, revisionAuthorityPath);
 
         // ...and only now does the CLI-safe symlink get created.
         symlinkSync(dataDir, root);

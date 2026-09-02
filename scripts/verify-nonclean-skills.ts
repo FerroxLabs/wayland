@@ -36,7 +36,10 @@ async function main() {
       byThreat[f.threat] = (byThreat[f.threat] ?? 0) + 1;
       const ev = String(f.evidence);
       const at = body.indexOf(ev);
-      const ctx = at >= 0 ? body.slice(Math.max(0, at - 160), at + ev.length + 160).replace(/\s+/g, ' ') : '(evidence not found verbatim in body)';
+      const ctx =
+        at >= 0
+          ? body.slice(Math.max(0, at - 160), at + ev.length + 160).replace(/\s+/g, ' ')
+          : '(evidence not found verbatim in body)';
       console.log(`  [${f.severity}] ${f.threat} - ${f.message}`);
       console.log(`  evidence : ${ev.replace(/\s+/g, ' ').slice(0, 100)}`);
       console.log(`  context  : ...${ctx}...`);
@@ -45,4 +48,7 @@ async function main() {
   }
   console.log(`\n--- ${shown} non-clean entries; findings by threat:`, JSON.stringify(byThreat));
 }
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

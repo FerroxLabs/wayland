@@ -6,7 +6,9 @@ import { extractPack, findDisallowedFile, installExtractedPack } from '@process/
 
 describe('the REAL shipped pack survives the tightened policy', () => {
   it('extracts, passes the allowlist, and installs with the exact expected tree', async () => {
-    const bytes = new Uint8Array(await fs.readFile('/Users/seandonahoe/dev/tc-tide-masterclass/RELEASE/tc-tide-morning-brief-1.0.0.zip'));
+    const bytes = new Uint8Array(
+      await fs.readFile('/Users/seandonahoe/dev/tc-tide-masterclass/RELEASE/tc-tide-morning-brief-1.0.0.zip')
+    );
     const stage = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-real-'));
     const skills = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-skills-'));
     try {

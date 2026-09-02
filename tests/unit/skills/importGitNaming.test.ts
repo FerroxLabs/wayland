@@ -64,7 +64,12 @@ describe('repoNameFromGitUrl', () => {
 describe('importGit names the skill after the repo', () => {
   it('clones one level down, into a directory named for the repo', async () => {
     const cloned: { path?: string } = {};
-    const importer = new SkillImport(ioReporting(cloned), undefined, async () => null, () => '/skills');
+    const importer = new SkillImport(
+      ioReporting(cloned),
+      undefined,
+      async () => null,
+      () => '/skills'
+    );
 
     await expect(importer.importGit('https://github.com/org/my-skill.git')).rejects.toThrow(
       /a skill named "my-skill" is already installed/
@@ -74,15 +79,16 @@ describe('importGit names the skill after the repo', () => {
 
   it('never installs under the temp directory name', async () => {
     const cloned: { path?: string } = {};
-    const importer = new SkillImport(ioReporting(cloned), undefined, async () => null, () => '/skills');
+    const importer = new SkillImport(
+      ioReporting(cloned),
+      undefined,
+      async () => null,
+      () => '/skills'
+    );
 
-    await expect(importer.importGit('https://github.com/org/my-skill.git')).rejects.toThrow(
-      /already installed/
-    );
+    await expect(importer.importGit('https://github.com/org/my-skill.git')).rejects.toThrow(/already installed/);
     // The exact regression: the name used to be the mkdtemp basename.
-    await expect(importer.importGit('https://github.com/org/my-skill.git')).rejects.not.toThrow(
-      /wayland-git-import/
-    );
+    await expect(importer.importGit('https://github.com/org/my-skill.git')).rejects.not.toThrow(/wayland-git-import/);
   });
 
   it('unwraps a single wrapping folder, exactly as the zip path does', async () => {
@@ -91,7 +97,12 @@ describe('importGit names the skill after the repo', () => {
     // is lost.
     const cloned: { path?: string } = {};
     const io = ioReporting(cloned, ['inner']);
-    const importer = new SkillImport(io, undefined, async () => null, () => '/skills');
+    const importer = new SkillImport(
+      io,
+      undefined,
+      async () => null,
+      () => '/skills'
+    );
 
     await expect(importer.importGit('https://github.com/org/wrapper.git')).rejects.toThrow(
       /a skill named "inner" is already installed/
@@ -101,7 +112,12 @@ describe('importGit names the skill after the repo', () => {
   it('still refuses a disallowed scheme before cloning anything', async () => {
     const cloned: { path?: string } = {};
     const io = ioReporting(cloned);
-    const importer = new SkillImport(io, undefined, async () => null, () => '/skills');
+    const importer = new SkillImport(
+      io,
+      undefined,
+      async () => null,
+      () => '/skills'
+    );
 
     await expect(importer.importGit('file:///etc/passwd')).rejects.toThrow(/disallowed scheme/);
     expect(io.gitClone).not.toHaveBeenCalled();

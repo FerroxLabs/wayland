@@ -172,7 +172,6 @@ import {
 
 const REPO_ROOT = pathMod.resolve(__dirname, '../../..');
 
-
 function makeRepo(jobs: CronJob[]): ICronRepository {
   return {
     insert: vi.fn(async (job: CronJob) => {
@@ -314,7 +313,6 @@ function deliverablesDirFromDirective(directive: string): string {
   if (!m) throw new Error(`buildOutputDirective no longer names a directory: ${directive}`);
   return m[1];
 }
-
 
 /**
  * Execute the shipped block with its placeholder substituted, then have the

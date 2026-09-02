@@ -291,7 +291,6 @@ function deliverablesDirFromDirective(directive: string): string {
   return m[1];
 }
 
-
 /**
  * Execute the shipped block with its one placeholder substituted, then have the
  * shell report the directory the block actually pinned in `$OUT`.

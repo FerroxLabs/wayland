@@ -103,9 +103,7 @@ describe('preset rule seeding rewrites only LEADING skills/ segments', () => {
     // passed over zero lines and asserted nothing. It now iterates the thing the transform
     // actually operates on, every `.wayland-core/skills/` occurrence, with a count guard so it
     // can never go vacuous again.
-    const workspaceSkillRefs = smartTrader!.after
-      .split('\n')
-      .filter((l) => l.includes('.wayland-core/skills/'));
+    const workspaceSkillRefs = smartTrader!.after.split('\n').filter((l) => l.includes('.wayland-core/skills/'));
     expect(workspaceSkillRefs.length, 'fixture must still exercise the mid-string case').toBeGreaterThan(0);
     for (const line of workspaceSkillRefs) {
       expect(line, `workspace-relative skill path must stay relative: ${line}`).not.toContain(USER_SKILLS_DIR);

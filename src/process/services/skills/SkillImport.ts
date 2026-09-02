@@ -62,9 +62,26 @@ export const LEGACY_IMPORTED_DIR = path.join(homedir(), '.wayland', 'skills', 'i
  * the agent can run commands in.
  */
 export const REFUSED_IMPORT_EXTENSIONS = [
-  '.cjs', '.js', '.ts', '.rb', '.pl', '.php',
-  '.sh', '.bash', '.zsh', '.fish', '.ps1', '.bat', '.cmd',
-  '.exe', '.dll', '.dylib', '.so', '.command', '.app', '.scpt',
+  '.cjs',
+  '.js',
+  '.ts',
+  '.rb',
+  '.pl',
+  '.php',
+  '.sh',
+  '.bash',
+  '.zsh',
+  '.fish',
+  '.ps1',
+  '.bat',
+  '.cmd',
+  '.exe',
+  '.dll',
+  '.dylib',
+  '.so',
+  '.command',
+  '.app',
+  '.scpt',
 ];
 
 /**
@@ -91,8 +108,20 @@ export const REFUSED_IMPORT_EXTENSIONS = [
  * randomness.
  */
 export const ALLOWED_IMPORT_EXTENSIONS = [
-  '.md', '.markdown', '.txt', '.csv', '.tsv', '.json', '.yaml', '.yml',
-  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg',
+  '.md',
+  '.markdown',
+  '.txt',
+  '.csv',
+  '.tsv',
+  '.json',
+  '.yaml',
+  '.yml',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp',
+  '.svg',
 ];
 
 /**
@@ -348,7 +377,11 @@ const GIT_ALLOWLIST = [/^https:\/\//, /^git@[a-zA-Z0-9.-]+:/];
  * destination: no separators, no traversal, no dots-only name.
  */
 export function repoNameFromGitUrl(url: string): string {
-  const tail = url.replace(/[/\\]+$/, '').split(/[/:\\]/).pop() ?? '';
+  const tail =
+    url
+      .replace(/[/\\]+$/, '')
+      .split(/[/:\\]/)
+      .pop() ?? '';
   const name = tail.replace(/\.git$/i, '').trim();
   return /^[A-Za-z0-9._-]+$/.test(name) && !/^\.+$/.test(name) ? name : 'git-import';
 }
@@ -658,17 +691,13 @@ export class SkillImport {
     // The copy has already walked the tree, so what it carries is known BEFORE
     // anything is registered. That is the whole point: the decision has to be
     // available at the moment it can still be declined.
-    const result = await this._scanAndRegister(
-      [{ name: basename, body, destDir }],
-      this.disclosedScripts.length > 0
-    );
+    const result = await this._scanAndRegister([{ name: basename, body, destDir }], this.disclosedScripts.length > 0);
     for (const rel of this.disclosedScripts) result.warnings.unshift(`Contains script: ${rel}`);
     for (const rel of this.skippedExecutables) {
       result.warnings.push(`Skipped ${rel}: this file type is not imported`);
     }
     return result;
   }
-
 
   /**
    * Copy `src` into `dest` recursively, returning the root SKILL.md body.

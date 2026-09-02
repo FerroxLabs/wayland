@@ -29,10 +29,7 @@ function readUsage(u: {
 }) {
   return {
     totalTokens:
-      (u.input_tokens || 0) +
-      (u.cache_read_tokens || 0) +
-      (u.cache_creation_tokens || 0) +
-      (u.output_tokens || 0),
+      (u.input_tokens || 0) + (u.cache_read_tokens || 0) + (u.cache_creation_tokens || 0) + (u.output_tokens || 0),
     isCumulative: typeof u.turns === 'number' && u.turns > 0,
   };
 }
@@ -63,7 +60,6 @@ describe('context usage is occupancy, not spend', () => {
     expect(old).toBe(1439);
     expect(readUsage(frame).totalTokens / old).toBeGreaterThan(20);
   });
-
 
   // The block above models the arithmetic; these bind it to the shipped code, so
   // the model cannot drift away from the implementation and stay green.

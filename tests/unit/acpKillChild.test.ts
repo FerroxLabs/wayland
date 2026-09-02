@@ -121,11 +121,9 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
     ].join('\n');
 
     // promisify(execFileCb) wraps a callback-style fn - so the mock must call back.
-    const execFileMock = vi.fn(
-      (cmd: string, _args: string[], _opts: unknown, cb: (e: unknown, r: unknown) => void) => {
-        cb(null, { stdout: cmd === 'powershell.exe' ? TABLE : '', stderr: '' });
-      }
-    );
+    const execFileMock = vi.fn((cmd: string, _args: string[], _opts: unknown, cb: (e: unknown, r: unknown) => void) => {
+      cb(null, { stdout: cmd === 'powershell.exe' ? TABLE : '', stderr: '' });
+    });
 
     vi.doMock('child_process', async () => {
       const actual = await vi.importActual<typeof import('child_process')>('child_process');

@@ -33,7 +33,7 @@
  *   bunx tsx scripts/scan-bundled-skills.ts              # report only
  *   bunx tsx scripts/scan-bundled-skills.ts --write      # write index.json (see above)
  *   bunx tsx scripts/scan-bundled-skills.ts --check      # fail on unscanned OR drift
- */ */
+ */
 import path from 'path';
 import { promises as fs } from 'fs';
 import { SkillGuard } from '../src/process/services/skills/SkillGuard';
@@ -95,7 +95,9 @@ async function main() {
   if (flagged.length) {
     console.log(`[scan] ${flagged.length} entries are NOT clean:`);
     for (const f of flagged.slice(0, 40)) {
-      console.log(`  ${f.verdict.padEnd(8)} ${f.name}\n           ${f.findings.map((x) => `[${x.severity}] ${x.threat}: ${x.message} <<${String(x.evidence).replace(/\s+/g, ' ').slice(0, 90)}>>`).join('\n           ')}`);
+      console.log(
+        `  ${f.verdict.padEnd(8)} ${f.name}\n           ${f.findings.map((x) => `[${x.severity}] ${x.threat}: ${x.message} <<${String(x.evidence).replace(/\s+/g, ' ').slice(0, 90)}>>`).join('\n           ')}`
+      );
     }
   }
 

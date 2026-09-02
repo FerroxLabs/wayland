@@ -13,7 +13,16 @@ import JSZip from 'jszip';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { validateInstallSkillProposal } from '@/common/chat/conciergeConfig';
-import { MAX_PACK_BYTES, MAX_UNCOMPRESSED_BYTES, extractPack, findDisallowedFile, frontmatterName, installExtractedPack, recoverInterruptedInstalls, sha256Hex } from '@process/services/skills/installSkillPack';
+import {
+  MAX_PACK_BYTES,
+  MAX_UNCOMPRESSED_BYTES,
+  extractPack,
+  findDisallowedFile,
+  frontmatterName,
+  installExtractedPack,
+  recoverInterruptedInstalls,
+  sha256Hex,
+} from '@process/services/skills/installSkillPack';
 
 const GOOD_SHA = 'a'.repeat(64);
 
@@ -329,7 +338,18 @@ describe('pack file-type policy refuses what a denylist missed', () => {
   });
 
   it('refuses formats the old denylist never named', async () => {
-    for (const name of ['payload.jar', 'x.vbs', 'x.wsf', 'x.lua', 'x.applescript', 'x.desktop', 'x.msi', 'x.scr', 'x.node', 'x.wasm']) {
+    for (const name of [
+      'payload.jar',
+      'x.vbs',
+      'x.wsf',
+      'x.lua',
+      'x.applescript',
+      'x.desktop',
+      'x.msi',
+      'x.scr',
+      'x.node',
+      'x.wasm',
+    ]) {
       await fs.writeFile(path.join(dir, name), 'x', 'utf-8');
       expect(await findDisallowedFile(dir), `${name} must be refused`).toBe(name);
       await fs.rm(path.join(dir, name));

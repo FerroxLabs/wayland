@@ -208,7 +208,9 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
  * Consequence, accepted: a non-standard install (e.g. ~/Applications) is simply
  * not exempt, which is exactly today's behaviour rather than a regression.
  */
-const EXTERNAL_GUI_APP_BINARIES = [/^\/Applications\/TradingView\.app\/Contents\/MacOS\/TradingView( Helper( \(.*\))?)?$/];
+const EXTERNAL_GUI_APP_BINARIES = [
+  /^\/Applications\/TradingView\.app\/Contents\/MacOS\/TradingView( Helper( \(.*\))?)?$/,
+];
 
 function isExternalGuiApp(command: string): boolean {
   return EXTERNAL_GUI_APP_BINARIES.some((re) => re.test(command));

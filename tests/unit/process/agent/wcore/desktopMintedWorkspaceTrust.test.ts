@@ -136,9 +136,9 @@ describe('the engine spawn trusts ONLY the workspace Desktop minted for this cha
     const minted = makeDir(workRoot, MINTED_NAME);
 
     expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: workRoot })).toContain(TRUST_FLAG);
-    expect(
-      await spawnArgsFor({ workspace: minted, managedWorkRoot: workRoot, customWorkspace: true })
-    ).not.toContain(TRUST_FLAG);
+    expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: workRoot, customWorkspace: true })).not.toContain(
+      TRUST_FLAG
+    );
   });
 
   it('REFUSES a project workspace (#455), which is the user’s own tree', async () => {
@@ -197,8 +197,8 @@ describe('the engine spawn trusts ONLY the workspace Desktop minted for this cha
 
     expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: workRoot })).toContain(TRUST_FLAG);
     expect(await spawnArgsFor({ workspace: minted })).not.toContain(TRUST_FLAG);
-    expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: path.join(workRoot, 'no-such-root') })).not.toContain(
-      TRUST_FLAG
-    );
+    expect(
+      await spawnArgsFor({ workspace: minted, managedWorkRoot: path.join(workRoot, 'no-such-root') })
+    ).not.toContain(TRUST_FLAG);
   });
 });

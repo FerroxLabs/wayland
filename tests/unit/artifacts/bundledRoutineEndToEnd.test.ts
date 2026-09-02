@@ -144,7 +144,7 @@ vi.mock('electron', () => ({
 }));
 
 import { execFileSync } from 'child_process';
-import {readFileSync, writeFileSync} from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import fsp from 'fs/promises';
 import os from 'os';
 import pathMod from 'path';
@@ -218,7 +218,6 @@ function substitute(block: string, inputs: Record<string, string>): string {
   for (const [k, v] of Object.entries(inputs)) out = out.split(`<${k}>`).join(v);
   return out;
 }
-
 
 function makeRepo(jobs: CronJob[]): ICronRepository {
   return {
@@ -317,7 +316,6 @@ function makeHarness(workspace: string) {
   return { run };
 }
 
-
 /**
  * Execute the shipped block with its placeholder substituted, then have the
  * shell report the directory the block actually pinned in `$OUT`.
@@ -409,11 +407,7 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
         // What the model does after the block: write the brief into the pinned
         // staging directory. One file - the intermediate `mr.json` the deleted
         // scanner used to leave behind has no counterpart in a chart-driven run.
-        writeFileSync(
-          pathMod.join(pinned, 'morning-brief.html'),
-          `<html>Morning brief bar ${bar}</html>`,
-          'utf-8'
-        );
+        writeFileSync(pathMod.join(pinned, 'morning-brief.html'), `<html>Morning brief bar ${bar}</html>`, 'utf-8');
       };
     };
 

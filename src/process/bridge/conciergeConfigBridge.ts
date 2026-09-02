@@ -49,12 +49,7 @@ import {
   findPackScripts,
   runInstallSkillChain,
 } from '@process/services/skills/installSkillPack';
-import {
-  enableSkillForAssistant,
-  SMART_TRADER_ASSISTANT_ID,
-} from '@process/services/skills/enableSkillForAssistant';
-
-
+import { enableSkillForAssistant, SMART_TRADER_ASSISTANT_ID } from '@process/services/skills/enableSkillForAssistant';
 
 /**
  * Self-hosted / "bring your own endpoint" providers: these have NO fixed

@@ -50,7 +50,13 @@ describe('enableSkillForAssistant', () => {
   it('appends the skill to the named assistant and leaves every other field alone', async () => {
     const h = io([
       { id: 'builtin-other', name: 'Other', enabledSkills: ['a'] },
-      { id: 'builtin-smart-trader', name: 'Smart Trader', enabledSkills: ['tvcontrol-setup'], avatar: 'x', enabled: true },
+      {
+        id: 'builtin-smart-trader',
+        name: 'Smart Trader',
+        enabledSkills: ['tvcontrol-setup'],
+        avatar: 'x',
+        enabled: true,
+      },
     ]);
 
     expect(await enableSkillForAssistant('builtin-smart-trader', 'tide-morning-brief', h)).toBe(true);
@@ -98,7 +104,6 @@ describe('enableSkillForAssistant', () => {
     expect(h.written).toHaveLength(0);
     expect(h.state()).toEqual([{ id: 'a1', name: 'A', enabledSkills: [] }]);
   });
-
 
   it('a concurrent edit made between read and write is NOT clobbered', async () => {
     // The defect this replaced: a get/set PAIR read `[A,B]`, the user changed
