@@ -282,6 +282,14 @@
     },
     {
       "hint": "",
+      "kind": "hook_blocked",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Blocked by lifecycle hook",
+      "wireCode": -32603
+    },
+    {
+      "hint": "",
       "kind": "pty_session_gone",
       "retryable": false,
       "surface": "tool_card",
@@ -369,6 +377,14 @@
       "wireCode": -32602
     },
     {
+      "hint": "Close it there (or resume after that host exits), then retry",
+      "kind": "session_busy",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Session is open in another host",
+      "wireCode": -32602
+    },
+    {
       "hint": "Pick a model from the advertised catalog",
       "kind": "model_not_found",
       "retryable": false,
@@ -425,6 +441,14 @@
       "wireCode": -32602
     },
     {
+      "hint": "Select an advertised Flux Anthropic Messages leaf, then retry",
+      "kind": "model_lacks_pdf",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Selected model wire cannot carry PDF documents",
+      "wireCode": -32602
+    },
+    {
       "hint": "Corrupt or not really an image",
       "kind": "image_invalid",
       "retryable": false,
@@ -471,6 +495,382 @@
       "surface": "tool_card",
       "title": "The attachment store is unavailable or insecurely configured",
       "wireCode": -32603
+    },
+    {
+      "hint": "Check system Git, checkpoint storage permissions, and store contention",
+      "kind": "checkpoint_unavailable",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Workspace checkpoints are unavailable",
+      "wireCode": -32603
+    },
+    {
+      "hint": "It may have been evicted by checkpoint retention",
+      "kind": "checkpoint_not_found",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Checkpoint not found",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Resume the session to run checkpoint recovery",
+      "kind": "checkpoint_restore_failed",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Checkpoint restore did not complete",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Re-screenshot and re-plan; the policy will deny this again",
+      "kind": "cua_policy_denied",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Computer-use policy denied the operation",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Re-screenshot and re-target the now-focused window",
+      "kind": "cua_focus_lost",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "The focused window changed before the action was dispatched",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Grant the permission in the OS settings, then retry",
+      "kind": "cua_os_permission_denied",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "The OS computer-use permission is not granted",
+      "wireCode": -32603
+    },
+    {
+      "hint": "No usable display backend; do not retry",
+      "kind": "cua_backend_unavailable",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Computer use is unavailable on this desktop session",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Re-screenshot and target coordinates inside the display bounds",
+      "kind": "cua_coordinate_out_of_range",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Coordinates are outside the primary display",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Do not retry the identical action",
+      "kind": "cua_backend",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "The computer-use backend failed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "carrier_missing",
+      "kind": "carrier_missing",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "carrier_oversized",
+      "kind": "carrier_oversized",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "malformed_json",
+      "kind": "malformed_json",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "duplicate_key",
+      "kind": "duplicate_key",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "noncanonical_payload",
+      "kind": "noncanonical_payload",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "unknown_field",
+      "kind": "unknown_field",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "unsupported_schema",
+      "kind": "unsupported_schema",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "unsupported_algorithm",
+      "kind": "unsupported_algorithm",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "invalid_key_encoding",
+      "kind": "invalid_key_encoding",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "invalid_signature_encoding",
+      "kind": "invalid_signature_encoding",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "invalid_signature",
+      "kind": "invalid_signature",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "unknown_issuer",
+      "kind": "unknown_issuer",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "revoked_issuer",
+      "kind": "revoked_issuer",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "unknown_key",
+      "kind": "unknown_key",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "revoked_key",
+      "kind": "revoked_key",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "key_not_yet_valid",
+      "kind": "key_not_yet_valid",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "key_expired",
+      "kind": "key_expired",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "assertion_not_yet_valid",
+      "kind": "assertion_not_yet_valid",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "assertion_expired",
+      "kind": "assertion_expired",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "clock_out_of_bounds",
+      "kind": "clock_out_of_bounds",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "nonce_replay",
+      "kind": "nonce_replay",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "idempotency_conflict",
+      "kind": "idempotency_conflict",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "unknown_product_subject",
+      "kind": "unknown_product_subject",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "retired_product_subject",
+      "kind": "retired_product_subject",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "principal_mismatch",
+      "kind": "principal_mismatch",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "principal_remap",
+      "kind": "principal_remap",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "retired_identifier_reuse",
+      "kind": "retired_identifier_reuse",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "unauthorized_project",
+      "kind": "unauthorized_project",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "authority_widening",
+      "kind": "authority_widening",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "artifact_mismatch",
+      "kind": "artifact_mismatch",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "resume_fingerprint_missing",
+      "kind": "resume_fingerprint_missing",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "resume_drift",
+      "kind": "resume_drift",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "fallback_unauthorized",
+      "kind": "fallback_unauthorized",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "continuity_not_enabled",
+      "kind": "continuity_not_enabled",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "control_unauthorized",
+      "kind": "control_unauthorized",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "control_race_lost",
+      "kind": "control_race_lost",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "authority_store_unavailable",
+      "kind": "authority_store_unavailable",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
+    },
+    {
+      "hint": "ambiguous_recovery",
+      "kind": "ambiguous_recovery",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Activation refused",
+      "wireCode": -32602
     }
   ],
   "generator": "cargo run -p nano-cli --bin gen_error_table",

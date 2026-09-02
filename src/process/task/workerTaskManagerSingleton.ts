@@ -20,8 +20,48 @@ import OpenClawAgentManager from './OpenClawAgentManager';
 import NanoBotAgentManager from './NanoBotAgentManager';
 import RemoteAgentManager from './RemoteAgentManager';
 import { WCoreManager } from './WCoreManager';
+import type { WaylandNanoBindingOwner } from '@process/agent/acp/AcpConnection';
+import {
+  WaylandNanoActivationOwner,
+  type WaylandNanoActivationOwnerOptions,
+} from '@process/agent/activation/waylandNanoActivationOwner';
 
 const agentFactory = new AgentFactory();
+let waylandNanoBindingOwner: WaylandNanoBindingOwner | null = null;
+
+/** Install the sole process-scoped Nano authority lifecycle for future launches. */
+export function installWaylandNanoBindingOwner(owner: WaylandNanoBindingOwner): () => void {
+  if (waylandNanoBindingOwner) throw new Error('Wayland Nano binding owner is already installed');
+  waylandNanoBindingOwner = owner;
+  return () => {
+    if (waylandNanoBindingOwner === owner) waylandNanoBindingOwner = null;
+  };
+}
+
+/**
+ * Install the production composition once. An absent owner-controlled artifact
+ * expectation is the explicit default-off/nonpersistent state.
+ */
+export async function installProductionWaylandNanoActivationOwner(
+  options: WaylandNanoActivationOwnerOptions | null
+): Promise<() => Promise<void>> {
+  if (!options) return async () => undefined;
+  const owner = new WaylandNanoActivationOwner(options);
+  let uninstall: (() => void) | undefined;
+  try {
+    uninstall = installWaylandNanoBindingOwner(owner);
+  } catch (error) {
+    await owner.dispose();
+    throw error;
+  }
+  let disposed = false;
+  return async () => {
+    if (disposed) return;
+    disposed = true;
+    uninstall?.();
+    await owner.dispose();
+  };
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 agentFactory.register('gemini', (conv, opts) => {
@@ -34,15 +74,22 @@ agentFactory.register('gemini', (conv, opts) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 agentFactory.register('acp', (conv, opts) => {
   const c = conv as any;
-  return new AcpAgentManager({
-    ...c.extra,
-    conversation_id: c.id,
-    yoloMode: opts?.yoloMode,
-    unattendedHoldDeadlineMs: opts?.unattendedHoldDeadlineMs,
-    // Only gemini ACP conversations use conversation.model as a backend-aligned model
-    // fallback. Other ACP backends persist their own CLI model IDs in extra.currentModelId.
-    currentModelId: c.extra?.currentModelId ?? (c.extra?.backend === 'gemini' ? c.model?.useModel : undefined),
-  }) as unknown as ReturnType<typeof agentFactory.create>;
+  return new AcpAgentManager(
+    {
+      ...c.extra,
+      conversation_id: c.id,
+      // This opaque owner-managed reference is the only persisted input allowed
+      // to select Nano activation authority. AcpAgentManager resolves it; none of
+      // the mutable conversation fields above may substitute for it.
+      waylandNanoBindingRef: c.extra?.waylandNanoBindingRef,
+      yoloMode: opts?.yoloMode,
+      unattendedHoldDeadlineMs: opts?.unattendedHoldDeadlineMs,
+      // Only gemini ACP conversations use conversation.model as a backend-aligned model
+      // fallback. Other ACP backends persist their own CLI model IDs in extra.currentModelId.
+      currentModelId: c.extra?.currentModelId ?? (c.extra?.backend === 'gemini' ? c.model?.useModel : undefined),
+    },
+    waylandNanoBindingOwner
+  ) as unknown as ReturnType<typeof agentFactory.create>;
 });
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 agentFactory.register('openclaw-gateway', (conv, opts) => {

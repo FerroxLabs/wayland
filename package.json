@@ -96,7 +96,8 @@
     "build:renderer:web": "bunx vite build --config vite.renderer.config.ts",
     "build:server": "node scripts/build-server.mjs",
     "smoke:ijfw": "node scripts/ijfw-memory-smoke.mjs",
-    "test:mcp:e2e": "WCORE_MCP_E2E=1 vitest run tests/integration/wcoreMcpEndToEnd.test.ts"
+    "test:mcp:e2e": "WCORE_MCP_E2E=1 vitest run tests/integration/wcoreMcpEndToEnd.test.ts",
+    "check:counts": "node scripts/check-public-counts.mjs"
   },
   "dependencies": {
     "7zip-bin": "5.2.0",
@@ -162,6 +163,7 @@
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.4.1",
     "buffer": "^6.0.3",
+    "canonicalize": "2.1.0",
     "classnames": "^2.5.1",
     "cmdk": "^1.1.1",
     "cookie": "^1.0.2",

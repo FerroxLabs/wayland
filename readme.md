@@ -2,11 +2,19 @@
   README for Wayland. Public GitHub repo: ferroxlabs/wayland.
   Screenshots live at .github/assets/<name>.jpg. Raw image URLs are pinned to the
   main branch; pin to a release tag before a wide launch so older releases keep rendering.
-  Verified facts only: engine binary 47 MB (measured), 5 memory partitions, 25 channels,
-  AGPL-3.0. Counts come from .skill-pack/skills-library/index.json and NOTHING ELSE:
-  2,106 entries = 1,974 skills + 107 workflows + 25 agent-profiles (counted 2026-08-29).
-  The site quotes the same index. It previously said 177 workflows, which was never true
-  and which an outside reviewer caught by diffing this file against getwayland.com.
+
+  COUNTS. Measured 2026-08-29. Two shipped indexes, both packaged as critical
+  resources and both loaded by SkillLibrary, with zero name overlap between them:
+    src/process/resources/skills-library/index.json  -> 2,106 entries
+        = 1,974 skills + 107 workflows + 25 agent-profiles
+    src/process/resources/bundled-workflows/index.json -> 71 workflows
+    src/process/resources/builtin-catalog/assistants.json -> 88 assistants
+  So: 178 workflows total (107 + 71), 1,974 skills, 88 assistants, 25 channels,
+  5 memory partitions, 18 ACP backends. (Engine binary is ~84 MB on darwin-arm64 and ~103 MB on linux-x64 at v0.13.11 - re-measure from the npm platform packages, never quote a remembered figure.)
+
+  Do not edit these numbers by hand. Re-measure, or the README and getwayland.com
+  drift apart again - which is exactly how this file ended up claiming 177 while
+  the site claimed 107. Both were counting real things; neither said which.
 -->
 
 <p align="center">
@@ -22,7 +30,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/ferroxlabs/wayland/releases"><img src="https://img.shields.io/badge/release-v0.9.6--rc.1-ff6b35?style=flat" alt="Release"/></a>
+  <a href="https://github.com/ferroxlabs/wayland/releases"><img src="https://img.shields.io/github/v/release/ferroxlabs/wayland?style=flat&color=ff6b35&label=release" alt="Release"/></a>
   <a href="https://github.com/ferroxlabs/wayland/releases"><img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-08070c?style=flat" alt="Platforms"/></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-08070c?style=flat" alt="License: AGPL-3.0"/></a>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/engine-Rust-08070c?style=flat" alt="Engine: Rust"/></a>
@@ -32,6 +40,8 @@
   <a href="https://github.com/ferroxlabs/wayland/releases/latest"><b>Download</b></a>
   &nbsp;&middot;&nbsp;
   <a href="https://getwayland.com">Website</a>
+  &nbsp;&middot;&nbsp;
+  <a href="https://docs.getwayland.com">Docs</a>
   &nbsp;&middot;&nbsp;
   <a href="#build-from-source">Build from source</a>
   &nbsp;&middot;&nbsp;
@@ -63,9 +73,9 @@ You are not prompting a chatbot. You are coworking with a system that remembers 
 
 ## Why Wayland
 
-**One team, not isolated CLIs.** Your CLIs are brilliant strangers who never met. Each one forgets everything between sessions and lives in its own silo. Wayland is the command center that makes them one team: shared memory across every agent, one workflow from idea to ship, multi-AI cross-audit, and opt-in routing that sends each task to the best-fit model.
+**One team, not isolated CLIs.** Your CLIs are brilliant strangers who never met. Each one forgets everything between sessions and lives in its own silo. Wayland is the command center that makes them one team: shared memory across every agent, one workflow from idea to ship, multi-AI cross-audit, and opt-in [Flux Router](https://fluxrouter.ai) routing that sends each task to the model that fits it.
 
-**Your machine, not someone's cloud.** Chatbots run on someone else's servers, behind someone else's keys and retention policy. Wayland runs on your machine, reads and writes your files, and executes shell commands inside a native per-OS sandbox (Landlock, sandbox-exec, AppContainer). Go fully local with Ollama, or reach for a frontier cloud model when you want it.
+**Your machine, not someone's cloud.** Chatbots run on someone else's servers, behind someone else's keys and retention policy. Wayland runs on your machine, reads and writes your files, and runs your shell commands through the bundled engine, inside a native per-OS sandbox behind a single egress chokepoint (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, with AppContainer available via `WAYLAND_SANDBOX=appcontainer`). Tools the desktop app dispatches itself run with your account's privileges — [the desktop security model](https://docs.getwayland.com/concepts/security-model-desktop/) says exactly which is which. Go fully local with Ollama, or reach for a frontier cloud model when you want it.
 
 **A system, not a prettier chat window.** Most are a nicer window onto one model, and they reset every time you close them. Wayland is a system that compounds: an engine that rewrites and re-scores its own skill prompts against an eval harness, a memory that persists across sessions (five SQLite-backed partitions), plus ready-made assistants, self-assembling teams, workflows, and schedules that run without you. It gets sharper the more you run it.
 
@@ -73,14 +83,18 @@ You are not prompting a chatbot. You are coworking with a system that remembers 
 
 Grab the latest build for your platform. No account, no sign-up. Every link opens the latest Releases page, where you pick the file for your platform.
 
-| Platform    | Architecture              | File                                                          |
-| ----------- | ------------------------- | ------------------------------------------------------------- |
-| **macOS**   | Apple Silicon (M1 and up) | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **macOS**   | Intel                     | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | x64                       | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | ARM64                     | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux**   | x64 (Debian / Ubuntu)     | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux**   | ARM64 (Debian / Ubuntu)   | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
+| Platform    | Architecture                     | File                                                               |
+| ----------- | -------------------------------- | ------------------------------------------------------------------ |
+| **macOS**   | Apple Silicon (M1 and up)        | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **macOS**   | Intel                            | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Windows** | x64                              | [.exe](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Windows** | ARM64                            | [.exe](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | x64 (Debian / Ubuntu)            | [.deb](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | ARM64 (Debian / Ubuntu)          | [.deb](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | x64 (Fedora / RHEL / openSUSE)   | [.rpm](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | ARM64 (Fedora / RHEL / openSUSE) | [.rpm](https://github.com/ferroxlabs/wayland/releases/latest)      |
+| **Linux**   | x64 (any distro)                 | [.AppImage](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Linux**   | ARM64 (any distro)               | [.AppImage](https://github.com/ferroxlabs/wayland/releases/latest) |
 
 The installer bundles the Wayland-Core engine for your platform, so a clean install runs agents the moment you add a provider key.
 
@@ -119,6 +133,8 @@ Prefer to build it yourself? See [Build from source](#build-from-source).
 Run Wayland as an always-on agent on any Linux box or VPS, reachable from your phone. Three commands, no config files.
 
 > **Live on npm.** `getwayland` is published (`latest` is 0.12.4). The flow below is the verified one: it boots on a fresh Ubuntu VPS and answers through Flux.
+>
+> **Disclosure:** Flux Router is also built by Ferrox Labs. It is a paid inference router, and we would rather say so here than have you find out later. It is optional, off by default, takes its own separate key, and Wayland has no required backend of any kind — any OpenAI, Anthropic, Gemini, or local Ollama key works exactly as well. Delete the Flux key and everything else keeps working.
 
 **Requires Node 18 or newer.** On a fresh VPS: `sudo apt-get update && sudo apt-get install -y nodejs npm`
 
@@ -152,7 +168,7 @@ Instead of coaching a blank chatbot, launch a specialist that already knows the 
 
 ### Workflows from idea to outcome
 
-107 ready-to-run workflows that take you from a blank page to a finished deliverable: a launch plan, a competitor teardown, a month of content, a release write-up. Run one as-is, build your own, or put it on a schedule. Each one walks the steps so you get the outcome, not just a starting point.
+178 ready-to-run workflows that take you from a blank page to a finished deliverable: a launch plan, a competitor teardown, a month of content, a release write-up. Run one as-is, build your own, or put it on a schedule. Each one walks the steps so you get the outcome, not just a starting point.
 
 <p><img src=".github/assets/workflows.jpg" alt="Wayland workflow running step by step toward a finished outcome" width="100%"/></p>
 
@@ -228,7 +244,7 @@ Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you b
 | <img src=".github/assets/logos/opencode.svg" width="20" valign="middle"/> &nbsp;**OpenCode**             | `opencode`   | provider key                        |
 | <img src=".github/assets/logos/kimi.svg" width="20" valign="middle"/> &nbsp;**Kimi** (Moonshot)          | `kimi`       | Kimi login                          |
 
-Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 16 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
+Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 18 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
 
 **Engine-native providers** (Wayland-Core): Anthropic, OpenAI and OpenAI-compatible (including o1/o3 reasoning, DeepSeek, Ollama), AWS Bedrock, Google Vertex AI, each on your provider key. To use a Claude subscription with no key, run the Claude Code backend and sign in with the `claude` CLI.
 
@@ -238,20 +254,20 @@ Wayland runs a four-step loop on every turn:
 
 - **Perceives** your request and the state of your files, project, and memory.
 - **Reasons** with the best model for the task. A read-only Plan mode can write a structured plan before anything is touched.
-- **Acts** through built-in tools (Read, Write, Edit, Bash, Grep, Glob, Spawn) and connectors for Git, databases, and the web, inside a native per-OS sandbox.
-- **Evolves**: a loop rewrites and scores your skill prompts against an eval harness, then promotes the winners back into your library.
+- **Acts** through built-in tools (Read, Write, Edit, Bash, Grep, Glob, Spawn) and connectors for Git, databases, and the web, inside the engine's native per-OS sandbox.
+- **Evolves**: a loop mutates and scores your skill prompts against an eval harness, keeping a variant only when it beats both the running best and the parent it came from. Winners persist across runs, so the next run starts from the last one's best. Nothing reaches your live library until you promote it.
 
-**Wayland-Core engine.** One Rust binary, around 47 MB, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (Landlock on Linux, sandbox-exec on macOS, AppContainer on Windows) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
+**Wayland-Core engine.** One self-contained Rust binary, no Node or Python runtime to install. It ships every model provider, the built-in tools, the MCP client, the cognitive memory system, and the sandbox (bubblewrap on Linux, sandbox-exec on macOS; on Windows a kill-on-close Job Object by default, AppContainer opt-in) behind a single egress chokepoint. The same engine powers the standalone CLI and the desktop app: one codebase, two surfaces.
 
 **Flux routing (optional).** Route a backend's traffic through Flux Router to send each task to the best-fit specialist across same-class models and run multi-AI cross-audit, lifting quality while cutting wasted tokens. Opt-in, bring your own key, off by default.
 
 ## Build from source
 
-Requirements: [Bun](https://bun.sh) 1.3 or later, Node 22 to 24, and your platform toolchain for native modules.
+Requirements: [Bun](https://bun.sh) 1.3.x, Node 22 to 24, and your platform toolchain for native modules.
 
 ```bash
 git clone https://github.com/ferroxlabs/wayland.git
-cd wayland/app
+cd wayland
 bun install
 
 # Run the desktop app in dev
@@ -302,7 +318,7 @@ Engine key resolution order: `--api-key`, then config, then `API_KEY` env, then 
 ## FAQ
 
 **Are my keys and data private?**
-Yes. Keys are stored in the OS keychain and data lives in SQLite on your disk. The engine runs air-gapped and every tool call goes through a single sandboxed egress chokepoint. Nothing leaves your machine unless you send it.
+Yes. Keys are stored in the OS keychain and data lives in SQLite on your disk. There is no Wayland account and no Wayland server: when you send a prompt it goes to the provider you configured, on your key, and nowhere else. The engine's outbound traffic passes an egress gate that is enabled by default and classifies every request before it leaves. "Air-gapped" would be the wrong word for a tool you point at a cloud model, and it is the provider you chose that sees your prompt.
 
 **Can I run fully offline?**
 Yes. Point the engine at a local Ollama model and Wayland runs with no network at all. Voice dictation runs offline with a bundled Whisper model, and Wayland can read replies back to you with voice output, so you can work hands-free.
@@ -323,6 +339,10 @@ Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before open
 ## License & the Wayland name
 
 Wayland is **real open source**. This desktop app is [GNU AGPL-3.0](./LICENSE); the engine, [wayland-core](https://github.com/FerroxLabs/wayland-core), is Apache-2.0. The split is deliberate: a permissive engine so anyone can embed it, copyleft on the app so the GUI stays open. Run it, self-host it, modify it, fork it, and build commercial services around it. The only catch AGPL adds: a networked service built on the app must publish its source under the same terms. Contributions are under a light [CLA](./CONTRIBUTING.md); third-party attributions live in [notices/](./notices/).
+
+**Where it came from.** This app originates in part from [AionUi](https://github.com/iOfficeAI/AionUi) (Apache-2.0) — parts of the Electron main process, the IPC bridge, renderer scaffolding, ACP integration and MCP services — and has since diverged substantially. The engine is a Ferrox Labs fork of [aionrs](https://github.com/FerroxLabs/wayland-core) (Apache-2.0), with every workspace crate renamed and the upstream copyright headers preserved in all forked source. Full attributions: [notices/THIRD-PARTY-NOTICES.md](./notices/THIRD-PARTY-NOTICES.md).
+
+**Who builds this.** Ferrox Labs is a small team, and most of us are part-time. We use Wayland to build Wayland, which is why the shipped surface is larger than a headcount would suggest — and why the honest answer to "has this been audited?" is on the [evidence page](https://getwayland.com/built-on), not buried.
 
 A hosted **Wayland Pro** with expanded capabilities is on the way. The core you self-host stays complete and free, never crippled to sell you the hosted one.
 

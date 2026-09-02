@@ -83,7 +83,7 @@ describe('AcpConnection.loadSession', () => {
     // normalizeCwdForAgent returns the absolute path for codex
     await conn.loadSession('s1', '/tmp');
 
-    expect(sendRequest).toHaveBeenCalledWith('session/load', expect.objectContaining({ sessionId: 's1' }));
+    expect(sendRequest).toHaveBeenCalledWith('session/load', expect.objectContaining({ sessionId: 's1' }), undefined);
   });
 
   it('returns the raw response', async () => {
