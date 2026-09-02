@@ -1,0 +1,1 @@
+{"detail":"the local launcher did not opt in with --allow-host-path-grants","grant_id":"grant-001","reason":"local_opt_in_required","surface":"path","type":"grant_refused"}

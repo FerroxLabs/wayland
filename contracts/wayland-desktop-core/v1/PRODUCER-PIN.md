@@ -1,36 +1,58 @@
 # Desktop validation pin
 
 This corpus is a byte-for-byte mechanical import from Wayland Core commit
-`bc13e6e32c161e291f283af5b73ad3b47a68d631`, which is the **`v0.13.11` release tag**.
+`6e4eca07fe5a215e365daa4e540767e0c9b8158b`, which is the **`v0.13.12` release tag**.
 
-**v0.13.11 ships the IDENTICAL corpus to v0.13.10.** Same contract `1.22`, same
-generator `gen/22`, same counts (3 child types, 29 commands, 68 events, 195 fixtures),
-and all three digests below unchanged — `git status contracts/` was empty after the
-re-import, which is the check that establishes it rather than an assumption. Only the
-producer commit moved (`cfa89a9c` -> `bc13e6e3`), so every wire note recorded below
-for v0.13.10 still stands unmodified, including the open `approval_required` /
-`resume_token` question, which this bump neither settles nor disturbs.
-
-The engine itself is why the bump exists: v0.13.11 carries `20d99006`, which lets
-skill executables under `.wayland-core/skills` run. v0.13.10's command floor refused
-them, so no skill-bearing pack could execute a script at all. Proven by execution on
-both platforms, interleaved A,B,A,B through `wayland-core sandbox exec`: v0.13.10
-refused `node .wayland-core/skills/probe.js` in both rounds on macOS and on Windows;
-v0.13.11 ran it in both rounds on both.
-
-- contract: `wayland-desktop-core` `1.22`
-- generator: `wcore-desktop-contract-gen/22`
-- fixtures: `sha256:2221656e299ce2408ccbfe5380dc72cb0b542ec7bc1d1e2369488aa5bb311eb1`
-- schemas: `sha256:47e255b800cb36390e975580e7d1cfa19c35bb43cb6ac71fa3e4efd55c22da6f`
-- source inputs: `sha256:c2e79a631ff5401e9870569d147edcffd7b15bc1a3ce662ee04f1aee9c17c0f0`
+- contract: `wayland-desktop-core` `1.23`
+- generator: `wcore-desktop-contract-gen/23`
+- fixtures: `sha256:795bfc45481c28aadcfeada8de5a956b64eeb5ebb36460c7c78f274f45ef7188`
+- schemas: `sha256:8497e92e4ab2599201f95b2aa62c359ae2328429305e79a96761356483fc6e33`
+- source inputs: `sha256:83643f347adf9ea4c794d691778ea691e21cb0fe56d693234d4934fed42cca25`
 
 Verified by execution, not by reading. `scripts/bump-core-engine.mjs` imported the
-signed release asset `wayland-core-v0.13.10-desktop-contract-v1.tar.gz`
-(`sha256:723f9d7c0fdcb243…`) and then re-hashed **every** imported file against the
+signed release asset `wayland-core-v0.13.12-desktop-contract-v1.tar.gz`
+(`sha256:ae029ed9db621e5d…`) and then re-hashed **every** imported file against the
 extracted archive: 0 mismatches. The `ready` fixture was confirmed to agree with
 `manifest.json` on every descriptor field, including the whole capability map — that
 is the frame a real engine sends on line one. The release's publisher attestation was
 verified to the producer commit above on `refs/heads/main`.
+
+## v0.13.11 -> v0.13.12: additive on the wire, mandatory for the engine
+
+    minor        22 -> 23          generator  gen/22 -> gen/23
+    commands     29 -> 29          events     68 -> 69
+    child types   3 -> 3           fixtures  195 -> 196
+    capabilities  NONE added, NONE removed, NONE re-graded
+
+All three digests moved. One event was added, `grant_refused` (capability `available`,
+criticality `safety`, correlated on `grant_id`). No command changed, and **no existing
+event or command descriptor moved** — every type present in 22 kept its capability,
+correlation and criticality byte-for-byte. That is what makes this bump additive, and
+it is the difference between this one and v0.13.10's.
+
+`grant_refused` types a refusal Desktop already expected. Its fixture:
+
+    {"type":"grant_refused","surface":"path","grant_id":"grant-001",
+     "reason":"local_opt_in_required",
+     "detail":"the local launcher did not opt in with --allow-host-path-grants"}
+
+Through contract `1.22` that refusal arrived as an untyped `info` string. The
+behaviour has not changed — only its shape on the wire. Desktop's side of the opt-in
+already exists and is untouched by this bump: `buildSpawnConfig`'s
+`allowHostPathGrants` is per-spawn and default OFF (`pathGrantSeam.test.ts`), so a
+session with no folder grants never asks for the authority and never sees the event.
+Nothing in `src/` consumes it, which is not a gap: the `workspace_policy` receipt is
+still what tells a host a grant landed — the absence of an error never was — so a
+typed refusal is a second, louder signal rather than a new requirement. `set_mode_refused`,
+the analogous additive event from v0.13.10, has no consumer either and has shipped since.
+
+**The reason this bump is mandatory is not in the contract at all.** v0.13.12 carries
+serde's `float_roundtrip`. Without it floats parse 1 ULP off, every journal digest
+breaks, and a conversation dies on turn 2 — on v0.13.11 the only mitigation was one
+turn per chat. Nothing in the corpus above can show that; it is an engine fix.
+
+The open `approval_required` / `resume_token` question recorded below for v0.13.10 is
+neither settled nor disturbed by this bump: both fixtures are byte-identical to 22's.
 
 ## This file was missing, and that is worth recording
 

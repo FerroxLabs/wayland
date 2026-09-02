@@ -142,8 +142,8 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('bc13e6e3');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 22 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('6e4eca07');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 23 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
@@ -288,11 +288,52 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // Windows, v0.13.11 ran it in both rounds on both. That fix is the whole
     // reason for the bump - without it no skill-bearing pack can run at all.
     //
-    // If the pin is ever NOT 22 this whole assertion is stale and the coupling
+    // v0.13.11 -> v0.13.12 IS PURELY ADDITIVE ON THE WIRE, and this time the
+    // corpus really did move:
+    //   minor        22 -> 23          generator  gen/22 -> gen/23
+    //   commands     29 -> 29          events     68 -> 69
+    //   child types   3 -> 3           fixtures  195 -> 196
+    //   all THREE digests moved (fixture, schema, source_inputs)
+    //   capabilities: NONE added, NONE removed, NONE re-graded
+    //   events +1: `grant_refused` (capability `available`, safety,
+    //              correlated on `grant_id`)
+    //   NO existing event or command descriptor changed - every type present in
+    //   22 kept its capability, correlation and criticality byte-for-byte.
+    //
+    // `grant_refused` TYPES A REFUSAL DESKTOP ALREADY EXPECTED. Its fixture is
+    // `reason: "local_opt_in_required"`, detail "the local launcher did not opt
+    // in with --allow-host-path-grants", surface `path`. That is exactly the
+    // refusal `protocol.ts`'s `grant_path` note has described since #1099 - the
+    // difference is that in 22 it arrived as an UNTYPED `info` string, and in 23
+    // it is a first-class event. The behaviour did not change; its shape on the
+    // wire did. Desktop's side of that opt-in already exists and is unchanged:
+    // `buildSpawnConfig`'s `allowHostPathGrants` is per-spawn and default OFF
+    // (`pathGrantSeam.test.ts`), so a session with no folder grants never asks
+    // for the authority and never sees this event.
+    //
+    // Nothing in `src/` consumes `grant_refused`, and that is NOT a gap. The
+    // workspace_policy RECEIPT is still what tells a host a grant landed - the
+    // absence of an error never was - so a typed refusal adds a second, louder
+    // signal rather than a new requirement. Precedent: `set_mode_refused`, the
+    // exact analogous additive event from v0.13.10, has no `src/` consumer
+    // either and has shipped since. A future session wanting a user-visible
+    // "that folder was refused" message now has a typed event to hang it on.
+    //
+    // Cross-checked against the signed asset
+    // `wayland-core-v0.13.12-desktop-contract-v1.tar.gz`
+    // (`sha256:ae029ed9db621e5d…`), imported byte-for-byte, with the release's
+    // publisher attestation verified to producer 6e4eca07 on refs/heads/main.
+    //
+    // The engine fix that makes this bump MANDATORY is not in the contract at
+    // all: v0.13.12 carries serde's `float_roundtrip`, without which floats
+    // parse 1 ULP off, every journal digest breaks, and a conversation dies on
+    // turn 2. On v0.13.11 the only mitigation was one turn per chat.
+    //
+    // If the pin is ever NOT 23 this whole assertion is stale and the coupling
     // must be re-derived from the released manifest, not patched.
-    expect(DESKTOP_CORE_V1_PIN.minor).toBe(22);
+    expect(DESKTOP_CORE_V1_PIN.minor).toBe(23);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.13.11'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.12'"
     );
   });
 
@@ -341,8 +382,8 @@ describe('Wayland Core Desktop v1 producer pin', () => {
   // negotiated the contract could not send any of them without failing its own
   // outbound validation. The three fixtures are the whole delta, and the
   // fixture count moves by exactly the same three.
-  it('contains exactly the advertised 26 commands, 61 events, and 174 fixtures', () => {
-    expect(manifest.counts).toEqual({ child_types: 3, commands: 29, events: 68, fixtures: 195 });
+  it('contains exactly the advertised 29 commands, 69 events, and 196 fixtures', () => {
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 29, events: 69, fixtures: 196 });
     // The inventory and the declared count must agree - a corpus that ships a
     // fixture it does not list, or lists one it does not ship, is the exact
     // class of drift C-1 was.

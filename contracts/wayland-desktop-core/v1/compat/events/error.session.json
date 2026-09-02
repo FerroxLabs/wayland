@@ -1,1 +1,1 @@
-{"error":{"code":"session_error","message":"session failed","retryable":false},"type":"error"}
+{"error":{"category":"unknown","code":"session_error","message":"session failed","retryable":false},"type":"error"}

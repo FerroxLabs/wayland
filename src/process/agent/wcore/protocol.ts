@@ -585,9 +585,12 @@ export type WCoreCommand =
   // folder in a picker) has no pending `call_id` to hang a scope on.
   //
   // Core REFUSES it unless the launcher opted in with `--allow-host-path-grants`
-  // (which itself requires `--json-stream`). The refusal arrives as an untyped
-  // `info` string with NO updated `workspace_policy` receipt - so the receipt,
-  // not the absence of an error, is what tells a host the grant landed.
+  // (which itself requires `--json-stream`). Through contract 1.22 that refusal
+  // arrived as an untyped `info` string; contract 1.23 (Core v0.13.12) types it
+  // as a `grant_refused` event carrying `reason: "local_opt_in_required"` and
+  // the offending `grant_id`. Either way there is NO updated `workspace_policy`
+  // receipt - so the receipt, not the absence of an error, is still what tells a
+  // host the grant landed.
   | {
       type: 'grant_path';
       /** Host-chosen and stable: the ONLY handle `revoke_path` accepts. */
