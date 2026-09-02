@@ -15,6 +15,8 @@
  * copy stays so `confirmImport` can re-verify it against the hash the user saw,
  * but nothing is registered and nothing is switched on until they click.
  */
+import path from 'node:path';
+
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 const registerSource = vi.fn(() => [] as string[]);
@@ -125,7 +127,10 @@ describe('a pack carrying runnable files', () => {
       'collect.mjs': '// collector',
     }).importFolder('/src/tide-morning-brief');
 
-    expect(result.imported[0].destPath).toBe('/skills/tide-morning-brief');
+    // path.join, not a literal: the importer joins skillsDir with the pack name,
+    // so the separator follows the running platform and a hardcoded '/' reds the
+    // Windows shard while asserting nothing extra on macOS.
+    expect(result.imported[0].destPath).toBe(path.join('/skills', 'tide-morning-brief'));
     expect(result.quarantined).toEqual([]);
   });
 });

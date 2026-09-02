@@ -130,6 +130,31 @@ describe('the engine spawn trusts ONLY the workspace Desktop minted for this cha
     expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: rootLink })).toContain(TRUST_FLAG);
   });
 
+  it('matches the way the filesystem does, so a case-differing spelling still trusts on Windows', async () => {
+    // The Windows unit shard caught this: the spawn argv came back as
+    // ['--assistant','wayland-desktop'] with NO trust flag, because the gate
+    // compared two spellings of the SAME directory with a strict `===`. On
+    // Windows `realpathSync` can return a different case (or an 8.3 name like
+    // RUNNER~1) than the one getSystemDir().workDir was built from, so the flag
+    // was never passed and loopback/egress stayed blocked - the trust fix dead
+    // in production while looking right in review.
+    //
+    // Asserted on win32 only, deliberately: POSIX filesystems really are
+    // case-sensitive, so upper-casing a path there names a directory that does
+    // not exist and MUST NOT be trusted. That is the control, and it runs on
+    // this machine.
+    const minted = makeDir(workRoot, MINTED_NAME);
+    const shouted = workRoot.toUpperCase();
+
+    if (process.platform === 'win32') {
+      expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: shouted })).toContain(TRUST_FLAG);
+    } else {
+      expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: shouted })).not.toContain(TRUST_FLAG);
+    }
+    // Both platforms: the exact spelling always trusts.
+    expect(await spawnArgsFor({ workspace: minted, managedWorkRoot: workRoot })).toContain(TRUST_FLAG);
+  });
+
   it('REFUSES a user-picked custom workspace even when it sits in the managed root', async () => {
     // `customWorkspace` is the user's own declaration of provenance and outranks
     // the path shape: the directory is not ours to trust regardless of location.

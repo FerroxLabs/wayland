@@ -1311,7 +1311,13 @@ function groupByTags(items: MemoryEntry[]): Map<string, MemoryEntry[]> {
  */
 function isOnRemovableVolume(filePath: string, platform: NodeJS.Platform = process.platform): boolean {
   if (platform !== 'darwin') return false;
-  return path.resolve(filePath).startsWith('/Volumes/');
+  // POSIX resolve, not the host's. `path.resolve` follows the RUNNING platform,
+  // so on a Windows runner it turns '/Volumes/x' into '\\Volumes\\x' and this
+  // predicate answered false even when the caller explicitly passed 'darwin' -
+  // i.e. the platform parameter, which exists so this can be tested off a Mac,
+  // silently did not work. Production behaviour is unchanged: a real win32 host
+  // returns false on the line above and never reaches here.
+  return path.posix.resolve(filePath).startsWith('/Volumes/');
 }
 
 function defaultWatcherFactory(

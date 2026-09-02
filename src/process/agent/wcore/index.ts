@@ -303,7 +303,21 @@ export function isDesktopMintedWCoreWorkspace(params: {
   }
 
   if (!DESKTOP_MINTED_WCORE_WORKSPACE.test(basename(canonicalWorkspace))) return false;
-  return dirname(canonicalWorkspace) === canonicalRoot;
+
+  // Compare the way the FILESYSTEM does. Windows paths are case-insensitive, and
+  // `realpathSync` there can hand back a different spelling for the same
+  // directory than the one `getSystemDir().workDir` was built from - 8.3 short
+  // names (`RUNNER~1`) and drive-letter case are the usual sources. A strict
+  // `===` therefore answered false for two paths naming the SAME directory, the
+  // flag was never passed, and the loopback/egress block stayed on: the trust
+  // fix would have been silently dead for Windows users while looking correct in
+  // review. Caught by the Windows unit shard, which saw the flag missing from
+  // the spawn argv. This does NOT widen the gate: case-insensitivity is exactly
+  // the identity Windows itself enforces, so no path the OS treats as different
+  // can match here. POSIX keeps the exact comparison.
+  const sameDirectory = (a: string, b: string): boolean =>
+    process.platform === 'win32' ? a.toLowerCase() === b.toLowerCase() : a === b;
+  return sameDirectory(dirname(canonicalWorkspace), canonicalRoot);
 }
 
 export type WCoreAgentOptions = {

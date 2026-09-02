@@ -12,6 +12,8 @@
  * naming the basename, before any scan or register runs, so the assertion is on
  * the real derivation rather than on a re-implementation of it.
  */
+import path from 'node:path';
+
 import { describe, it, expect, vi } from 'vitest';
 
 import { SkillImport, repoNameFromGitUrl, type SkillImportIo } from '@process/services/skills/SkillImport';
@@ -74,7 +76,7 @@ describe('importGit names the skill after the repo', () => {
     await expect(importer.importGit('https://github.com/org/my-skill.git')).rejects.toThrow(
       /a skill named "my-skill" is already installed/
     );
-    expect(cloned.path).toBe('/tmp/wayland-git-import-XXXX/my-skill');
+    expect(cloned.path).toBe(path.join('/tmp', 'wayland-git-import-XXXX', 'my-skill'));
   });
 
   it('never installs under the temp directory name', async () => {
