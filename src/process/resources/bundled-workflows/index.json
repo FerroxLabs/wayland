@@ -1187,7 +1187,7 @@
       "version": "1.0.0",
       "tags": "market watchlist morning-report pre-open deterministic",
       "category": "business-operations",
-      "depends": "market-open-report"
+      "depends": "morning-prep"
     },
     "category": "business-operations",
     "tags": ["market", "watchlist", "morning-report", "pre-open", "deterministic"],

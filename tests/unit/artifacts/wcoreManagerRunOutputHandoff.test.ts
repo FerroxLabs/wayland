@@ -95,6 +95,10 @@ vi.mock('@/common/platform', () => ({
   }),
 }));
 vi.mock('@process/utils/initStorage', () => ({
+  // WCoreManager.start reads getSystemDir().workDir to decide whether the
+  // workspace it is about to spawn into is one it manages, which gates the
+  // workspace-trust flag. Without this export the mock throws inside start().
+  getSystemDir: vi.fn(() => ({ workDir: '/mock/work', cacheDir: '/mock/cache' })),
   ProcessConfig: { get: vi.fn(async () => undefined), set: vi.fn(async () => {}), remove: vi.fn(async () => {}) },
   ProcessChat: { get: vi.fn(async () => []) },
 }));
