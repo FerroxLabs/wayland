@@ -563,6 +563,7 @@ export type I18nKey =
   | 'conversation.contextCeiling.title'
   | 'conversation.contextCeiling.titleNoModel'
   | 'conversation.contextUsage.contextUsed'
+  | 'conversation.contextUsage.tokensThisTurn'
   | 'conversation.createFailed'
   | 'conversation.cuaPermission.accessibility'
   | 'conversation.cuaPermission.dismiss'
