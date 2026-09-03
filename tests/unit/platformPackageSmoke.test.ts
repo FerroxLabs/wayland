@@ -1288,7 +1288,10 @@ describe('real installer extraction and lifecycle evidence', () => {
       matchedBy: 'scope',
     });
     expect(formatDescendantInventory([])).toContain('observed 0 descendant record(s)');
-    const many = formatDescendantInventory(Array.from({ length: 250 }, (_, index) => rec(index + 1)), 60);
+    const many = formatDescendantInventory(
+      Array.from({ length: 250 }, (_, index) => rec(index + 1)),
+      60
+    );
     expect(many).toContain('observed 250 descendant record(s)');
     expect(many).toContain('pid=1 ');
     expect(many).toContain('…and 190 more record(s) not shown');
