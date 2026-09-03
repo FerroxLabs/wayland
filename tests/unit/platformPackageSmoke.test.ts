@@ -17,6 +17,10 @@ import {
   candidateContentDigest,
   captureCandidateState,
   createProcessMonitor,
+  describeProcessRecord,
+  chromiumRoleFromCommandLine,
+  redactHighEntropyRuns,
+  formatDescendantInventory,
   currentSourceIdentity,
   drainDescendants,
   expectedReleaseIdentity,
@@ -1092,7 +1096,7 @@ describe('real installer extraction and lifecycle evidence', () => {
           targetPlatform: 'linux',
           processRecordAlive: () => true,
         })
-      ).toThrow('left descendant processes alive: 99');
+      ).toThrow(/left descendant processes alive[\s\S]*pid=99/);
     });
   });
 
@@ -1147,9 +1151,25 @@ describe('real installer extraction and lifecycle evidence', () => {
         processRecordAlive: (record: typeof original) => record.identity === 'boot-b\0unrelated-process',
       }).descendantsRemaining
     ).toBe(0);
-    expect(() => verifyShutdownEvidence({ ...base, processRecordAlive: () => true })).toThrow(
-      'left descendant processes alive: 99'
-    );
+    // REPOINTED, NOT RELAXED. This used to assert the bare-pid message
+    // ('...alive: 99'). A pid alone is unusable after the fact - the process is
+    // gone by the time anyone reads CI - and that cost three sessions of guessing
+    // at five real failures. The assertion is now STRICTER: it must still name
+    // the pid, and must additionally carry the executable and how the record was
+    // matched, so the next occurrence is diagnosed from the log itself.
+    const thrown = (() => {
+      try {
+        verifyShutdownEvidence({ ...base, processRecordAlive: () => true });
+        return null;
+      } catch (error) {
+        return error instanceof Error ? error.message : String(error);
+      }
+    })();
+    expect(thrown).toContain('left descendant processes alive');
+    expect(thrown).toContain('pid=99');
+    expect(thrown).toContain('exe=wayland-helper');
+    expect(thrown).toContain('started=boot-a');
+    expect(thrown).toContain('matchedBy=');
   });
 
   it('does not mistake a post-kill PID reuse for a surviving descendant', async () => {
@@ -1203,6 +1223,86 @@ describe('real installer extraction and lifecycle evidence', () => {
       'ps',
       ['eww', '-axo', 'pid=,ppid=,lstart=,command='],
       expect.objectContaining({ maxBuffer: 64 * 1024 * 1024 })
+    );
+  });
+
+  it('records HOW each descendant was matched, so a survivor is not ambiguous', () => {
+    // A record reaches the monitor two ways, and they mean different things when
+    // one survives: `ancestry` proves the app orphaned it, `scope` can capture a
+    // process that was never ours. Five real failures could not be told apart
+    // because the survivor message carried neither.
+    const token = 'scope-token-not-user-controlled';
+    const childOfRoot = '101 8123 Mon Jul 18 20:00:00 2026 /opt/Wayland/wayland-core';
+    const strangerWithToken = `202 1 Mon Jul 18 20:00:01 2026 /usr/bin/unrelated --dir=${token}`;
+    const bothWays = `303 8123 Mon Jul 18 20:00:02 2026 /opt/Wayland/helper --dir=${token}`;
+    const execFileSync = vi.fn(() => `${childOfRoot}\n${strangerWithToken}\n${bothWays}\n`);
+    const monitor = createProcessMonitor(8123, 'linux', {
+      execFileSync,
+      processScopeTokens: [token],
+      processMonitorIntervalMs: 60_000,
+    });
+    const byPid = new Map(monitor.stop().map((record) => [record.pid, record.matchedBy]));
+    expect(byPid.get(101)).toBe('ancestry');
+    expect(byPid.get(202)).toBe('scope');
+    expect(byPid.get(303)).toBe('ancestry+scope');
+  });
+
+  it('renders the fields a reader needs and NEVER publishes command-line arguments', () => {
+    // This repo is public, so CI logs are public. A Windows command line can
+    // carry API keys, and it carries the smoke marker by construction (scope
+    // matching searches command lines for it). Only Chromium role flags escape.
+    const secret = 'sk-live-DEADBEEFdeadbeef0123456789abcdefTOPSECRET';
+    const rendered = describeProcessRecord({
+      pid: 6780,
+      parentPid: 4242,
+      identity: 'Wed Sep 3 08:00:00 2026\0C:\\Program Files\\Wayland\\Wayland.exe',
+      matchedBy: 'scope',
+      exePath: 'C:\\Program Files\\Wayland\\Wayland.exe',
+      commandLine: `Wayland.exe --type=utility --utility-sub-type=network.mojom.NetworkService --api-key=${secret}`,
+    });
+    expect(rendered).toContain('pid=6780');
+    expect(rendered).toContain('ppid=4242');
+    expect(rendered).toContain('matchedBy=scope');
+    expect(rendered).toContain('started=Wed Sep 3 08:00:00 2026');
+    expect(rendered).toContain('exe=C:\\Program Files\\Wayland\\Wayland.exe');
+    // The role is what identifies the process...
+    expect(rendered).toContain('role=utility:network.mojom.NetworkService');
+    // ...and nothing else from the command line survives.
+    expect(rendered).not.toContain(secret);
+    expect(rendered).not.toContain('--api-key');
+  });
+
+  it('reduces each Chromium role to a non-secret token, and reports none when absent', () => {
+    expect(chromiumRoleFromCommandLine('Wayland.exe --type=gpu-process --foo')).toBe('gpu-process');
+    expect(chromiumRoleFromCommandLine('Wayland.exe --type=renderer')).toBe('renderer');
+    expect(chromiumRoleFromCommandLine('crashpad_handler.exe --type=crashpad-handler')).toBe('crashpad-handler');
+    expect(chromiumRoleFromCommandLine('wayland-core.exe --json-stream')).toBe('<none>');
+    expect(chromiumRoleFromCommandLine(undefined)).toBe('<none>');
+  });
+
+  it('bounds the descendant inventory so a huge population cannot bury the survivors', () => {
+    const rec = (pid: number) => ({
+      pid,
+      parentPid: 1,
+      identity: `boot\0/usr/bin/probe-${pid}`,
+      matchedBy: 'scope',
+    });
+    expect(formatDescendantInventory([])).toContain('observed 0 descendant record(s)');
+    const many = formatDescendantInventory(Array.from({ length: 250 }, (_, index) => rec(index + 1)), 60);
+    expect(many).toContain('observed 250 descendant record(s)');
+    expect(many).toContain('pid=1 ');
+    expect(many).toContain('…and 190 more record(s) not shown');
+    // 60 shown + header + the elision line, never all 250.
+    expect(many.split('\n')).toHaveLength(62);
+    expect(many).not.toContain('probe-250');
+  });
+
+  it('redacts a token-shaped run from an executable path before it reaches a public log', () => {
+    const marker = 'a'.repeat(64);
+    expect(redactHighEntropyRuns(`C:\\Temp\\wayland-smoke-${marker}\\Wayland.exe`)).not.toContain(marker);
+    expect(redactHighEntropyRuns(`C:\\Temp\\wayland-smoke-${marker}\\Wayland.exe`)).toContain('<redacted>');
+    expect(redactHighEntropyRuns('C:\\Program Files\\Wayland\\Wayland.exe')).toBe(
+      'C:\\Program Files\\Wayland\\Wayland.exe'
     );
   });
 
