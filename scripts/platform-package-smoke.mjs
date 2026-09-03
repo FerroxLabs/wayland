@@ -907,6 +907,11 @@ function parseWindowsProcesses(raw) {
     parentPid: Number(entry.ParentProcessId),
     identity: `${entry.CreationDate || '<unknown>'}\0${entry.ExecutablePath || entry.Name || '<unknown>'}`,
     scopeText: `${entry.ExecutablePath || entry.Name || ''}\0${entry.CommandLine || ''}`,
+    // Kept for DIAGNOSIS ONLY - never for identity or liveness comparison.
+    // The survivor assertion used to print bare pids, which cost three sessions
+    // of guessing at a leak whose process names were in this record all along.
+    exePath: entry.ExecutablePath || entry.Name || '<unknown>',
+    commandLine: entry.CommandLine || '',
   }));
 }
 
@@ -925,6 +930,9 @@ function parsePosixProcesses(raw) {
       // same live process compares equal in both lightweight and final sweeps.
       identity: `${match[3]}\0${command.trim().split(/\s+/, 1)[0] || '<unknown>'}`,
       scopeText: command,
+      // Diagnosis only - see the note in `parseWindowsProcesses`.
+      exePath: command.trim().split(/\s+/, 1)[0] || '<unknown>',
+      commandLine: command,
     });
   }
   return records;
@@ -1068,7 +1076,16 @@ function isSameProcessAlive(record, targetPlatform, dependencies = {}) {
  * (`exitCode=0`, complete event ledger) and EXACTLY FOUR descendants were still
  * alive at the instant of the check - on windows-arm64 and win32-x64 alike, with
  * probe timeouts anywhere from 0 to 22, so nothing about the app's own work
- * predicted it. It is teardown lag, not a leak.
+ * predicted it.
+ *
+ * THIS DRAIN DID NOT FIX THAT, AND THE ORIGINAL NOTE HERE WAS WRONG. It claimed
+ * the survivors were teardown lag. On the first release leg to run with the
+ * drain in place, four processes were still alive at the FULL 15,000ms deadline,
+ * which no amount of waiting can explain. The app's own before-quit sequence
+ * takes ~55ms end to end and logs no `cleanup-failed` event, so it is not a
+ * shutdown budget being missed either. WHAT the four processes are is still
+ * open - `describeProcessRecord` exists to answer that on the next occurrence
+ * rather than by inference. Do not add a sixth theory here without the names.
  *
  * THIS CANNOT HIDE A REAL LEAK. It only waits; the assertion is unchanged and
  * still authoritative. A genuinely orphaned process is still alive at the
@@ -1087,6 +1104,81 @@ export async function drainDescendants(records, targetPlatform, dependencies = {
   }
 }
 
+/**
+ * Render one process record for a human reading CI output.
+ *
+ * WHY THIS EXISTS. The survivor assertion printed bare pids. A pid is useless
+ * after the fact - the process is gone by the time anyone reads the log - so
+ * five separate failures were diagnosed by guesswork, and three different root
+ * causes were proposed and refuted in turn. Every one of those records already
+ * carried its executable path, creation time and command line. Print them.
+ *
+ * `identity` is `CreationDate\0ExecutablePath`; the creation time is the half a
+ * reader cannot get anywhere else, so it is surfaced as `started`.
+ */
+export function describeProcessRecord(record) {
+  // `identity` is the one field EVERY record carries, including the ones built
+  // by `terminateProcessTree` callers that never went through a parser, so the
+  // executable is derived from it whenever the parsed field is absent.
+  const [createdAt = '<unknown>', exeFromIdentity = '<unknown>'] = String(record.identity ?? '').split('\0');
+  return [
+    `pid=${record.pid}`,
+    `ppid=${record.parentPid}`,
+    `matchedBy=${record.matchedBy ?? '<unknown>'}`,
+    `started=${createdAt}`,
+    `exe=${redactHighEntropyRuns(record.exePath ?? exeFromIdentity)}`,
+    `role=${chromiumRoleFromCommandLine(record.commandLine)}`,
+  ].join(' ');
+}
+
+/**
+ * THIS REPO IS PUBLIC, SO CI LOGS ARE PUBLIC.
+ *
+ * The obvious diagnostic - dump each survivor's full `CommandLine` - cannot ship
+ * here. A Windows command line carries whatever arguments a process was spawned
+ * with, which for this app's CLI backends can include API keys, and the smoke
+ * marker is in there BY CONSTRUCTION because scope matching works by searching
+ * command lines for it. Printing it would publish a secret to a public log.
+ *
+ * So only Chromium's own role flags are extracted. They are the single most
+ * diagnostic tokens for "what are these four processes" (`gpu-process`,
+ * `renderer`, `utility` + its sub-type, `crashpad-handler`), they are internal
+ * to Chromium, and they can never carry a credential. Anything else is dropped.
+ */
+export function chromiumRoleFromCommandLine(commandLine) {
+  const text = String(commandLine ?? '');
+  const type = text.match(/--type=([A-Za-z0-9_-]{1,40})/);
+  if (!type) return '<none>';
+  const subType = text.match(/--utility-sub-type=([A-Za-z0-9_.-]{1,60})/);
+  return subType ? `${type[1]}:${subType[1]}` : type[1];
+}
+
+/**
+ * Blank out any run that looks like a token or hash before it reaches a public
+ * log. Executable paths are normally boring, but the installed tree lives under
+ * a randomised temp directory and defence in depth is cheaper than a leak.
+ */
+export function redactHighEntropyRuns(value) {
+  return String(value ?? '<unknown>').replace(/[A-Fa-f0-9]{32,}|[A-Za-z0-9+/]{40,}={0,2}/g, '<redacted>');
+}
+
+/**
+ * Inventory line for the population the survivors are drawn from.
+ *
+ * BOUNDED ON PURPOSE. The monitor polls every 25ms for the whole session and
+ * keeps every unique pid+identity it ever saw, so on Windows - where a CLI
+ * detector spawns a `where.exe` or `powershell.exe` per probe - this list runs
+ * to hundreds. Printing it whole would bury the survivor report that matters
+ * and bloat a public log, so it is capped and the remainder is counted.
+ */
+export function formatDescendantInventory(records, limit = 60) {
+  if (!records.length) return `${TAG} observed 0 descendant record(s) before shutdown`;
+  const shown = records.slice(0, limit).map((record) => `  ${describeProcessRecord(record)}`);
+  const omitted = records.length - shown.length;
+  if (omitted > 0) shown.push(`  …and ${omitted} more record(s) not shown`);
+  return `${TAG} observed ${records.length} descendant record(s) before shutdown:\n${shown.join('\n')}`;
+}
+
 export function createProcessMonitor(rootPid, targetPlatform, dependencies = {}) {
   const records = new Map();
   const collect = (includeEnvironment = false) => {
@@ -1098,9 +1190,24 @@ export function createProcessMonitor(rootPid, targetPlatform, dependencies = {})
           (record) => record.pid !== process.pid && scopeTokens.some((token) => record.scopeText.includes(token))
         )
       : [];
-    for (const record of [...descendants, ...scoped]) {
+    // WHY `matchedBy`. A record reaches this map two ways: it is a transitive
+    // child of the root (ancestry), or its path/command line contains a scope
+    // token (scope). Those have VERY different meanings when one survives -
+    // ancestry means the app truly orphaned it, while scope can capture a
+    // process that was never ours. The survivor assertion could not tell them
+    // apart, so every past investigation had to guess which it was.
+    for (const [record, how] of [
+      ...descendants.map((entry) => [entry, 'ancestry']),
+      ...scoped.map((entry) => [entry, 'scope']),
+    ]) {
       if (record.pid === rootPid) continue;
-      records.set(`${record.pid}\0${record.identity}`, record);
+      const key = `${record.pid}\0${record.identity}`;
+      const seen = records.get(key);
+      if (seen) {
+        if (!seen.matchedBy.includes(how)) seen.matchedBy = `${seen.matchedBy}+${how}`;
+        continue;
+      }
+      records.set(key, { ...record, matchedBy: how });
     }
   };
   collect();
@@ -1227,7 +1334,9 @@ export function verifyShutdownEvidence({
   );
   if (survivingDescendants.length) {
     throw new Error(
-      `${TAG} packaged app left descendant processes alive: ${survivingDescendants.map((record) => record.pid).join(',')}`
+      `${TAG} packaged app left descendant processes alive:\n${survivingDescendants
+        .map((record) => `  ${describeProcessRecord(record)}`)
+        .join('\n')}`
     );
   }
   return {
@@ -1533,9 +1642,16 @@ export async function runSmoke(options, dependencies = {}) {
       await new Promise((resolve) => setTimeout(resolve, dependencies.shutdownSettleMs ?? 250));
       const descendantRecords = processMonitor.stop();
       processMonitor = null;
-      // The flat settle above is a floor, not a guarantee: Windows reaps
-      // Electron's helpers asynchronously. Drain to a deadline before asserting,
-      // so teardown lag stops reading as a leaked process tree.
+      // ALWAYS-ON, NOT FAILURE-ONLY. The survivor set is load-dependent and does
+      // not reproduce on demand, so a passing run has to carry evidence too: this
+      // prints the population the survivors are drawn from. Without it the only
+      // way to learn what the harness tracks is to catch a red run in the act,
+      // which is exactly the trap that made this a three-session hunt.
+      console.log(formatDescendantInventory(descendantRecords));
+      // The flat settle above is a floor, not a guarantee. Drain to a deadline
+      // before asserting so mere teardown lag does not read as a leaked tree.
+      // NOTE: a drain cannot fix a process that never exits - five failures had
+      // four survivors still alive at the FULL deadline. This bounds lag only.
       await drainDescendants(descendantRecords, options.targetPlatform, dependencies);
       const events = (dependencies.readPackageSmokeEventLedger || readPackageSmokeEventLedger)(eventFile);
       const shutdownEvidence = (dependencies.verifyShutdownEvidence || verifyShutdownEvidence)({
