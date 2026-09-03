@@ -372,6 +372,80 @@ describe('M8-A final acceptance controller', () => {
     expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/foreign-or-misbound:M8-F:linux-x64:re-upgrade/);
   });
 
+  /**
+   * THE PRODUCTION SHAPE, WHICH NO FIXTURE HERE EVER BUILT.
+   *
+   * `generateTrustRootAcceptance.js:119` writes `evidencePath` as a RELATIVE
+   * posix path (`evidence/<target>/<gate>.json`), while
+   * `verifyHardeningMatrix.js` returns `evidenceFile.path` as an ABSOLUTE
+   * native path (`path.resolve(receiptsDirectory, receipt.evidencePath)`).
+   * The controller compared them with `!==`, so v0.12.12 died with
+   * M8A_TARGET_GATE_RECEIPT_INVALID:evidence-file-does-not-bind-receipt-claim
+   * after the entire six-platform matrix and all twelve observations passed.
+   *
+   * Every fixture above sets BOTH sides to the same absolute string, so the
+   * equality always held and this could never be caught here.
+   */
+  it('accepts the real relative-claim / absolute-file pairing the pipeline emits', () => {
+    const real = verifiers();
+    const receipts = verifiedTargetGateReceipts().map((receipt) => ({
+      ...receipt,
+      // exactly what generateTrustRootAcceptance.js writes
+      evidencePath: `evidence/${receipt.target}/${receipt.gate}.json`,
+      // exactly what verifyHardeningMatrix.js resolves it to
+      evidenceFile: {
+        path: `/runner/_work/wayland/receipts/evidence/${receipt.target}/${receipt.gate}.json`,
+        sha256: receipt.evidenceFile.sha256,
+      },
+    }));
+    real.verifyTargetGateReceiptFiles = () => ({
+      ...verifiers().verifyTargetGateReceiptFiles(),
+      receipts,
+    });
+
+    expect(() => verifyFinalAcceptance(request(), real)).not.toThrow();
+  });
+
+  it('still rejects a relative claim the absolute evidence file does not end at', () => {
+    // Accepting the resolved form must not accept a DIFFERENT file: the path
+    // still has to be the claimed one, and the digest still binds the bytes.
+    const hostile = verifiers();
+    const receipts = verifiedTargetGateReceipts().map((receipt) => ({
+      ...receipt,
+      evidencePath: `evidence/${receipt.target}/${receipt.gate}.json`,
+      evidenceFile: {
+        path: `/runner/_work/wayland/receipts/evidence/${receipt.target}/somewhere-else.json`,
+        sha256: receipt.evidenceFile.sha256,
+      },
+    }));
+    hostile.verifyTargetGateReceiptFiles = () => ({
+      ...verifiers().verifyTargetGateReceiptFiles(),
+      receipts,
+    });
+
+    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/evidence-file-does-not-bind-receipt-claim/);
+  });
+
+  it('names which side failed, so a red release is diagnosable', () => {
+    const hostile = verifiers();
+    const receipts = verifiedTargetGateReceipts().map((receipt) => ({
+      ...receipt,
+      evidencePath: `evidence/${receipt.target}/${receipt.gate}.json`,
+      evidenceFile: {
+        path: `/runner/_work/wayland/receipts/evidence/${receipt.target}/${receipt.gate}.json`,
+        sha256: `sha256:${'e'.repeat(64)}`,
+      },
+    }));
+    hostile.verifyTargetGateReceiptFiles = () => ({
+      ...verifiers().verifyTargetGateReceiptFiles(),
+      receipts,
+    });
+
+    // The old message was a fixed string and could not distinguish a path-form
+    // mismatch from a genuine digest mismatch.
+    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/pathBinds=true digestBinds=false/);
+  });
+
   it('rejects a target gate receipt for a stale candidate', () => {
     const hostile = verifiers();
     const receipts = verifiedTargetGateReceipts();
