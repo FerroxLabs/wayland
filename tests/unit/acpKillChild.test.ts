@@ -106,7 +106,16 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
     vi.restoreAllMocks();
   });
 
-  it('enumerates the tree, prunes it, and kills the survivors WITHOUT /T', async () => {
+  // REPOINTED, not relaxed. This test used to assert `killArgs` never contains
+  // `/T` at all. That over-stated the invariant: what must hold is that an
+  // EXEMPT SUBTREE IS NEVER HANDED TO TASKKILL, and a blanket no-/T rule is only
+  // one way to get there - a way that silently turned the kill into a
+  // point-in-time snapshot, so anything spawned after the (1s-TTL) enumeration
+  // survived. That shipped as "packaged app left descendant processes alive" on
+  // two Windows arches in v0.12.6. So the assertions below now pin the real
+  // invariant on both sides: `/T` IS used on the exempt-free subtree (4400), and
+  // the chart (5000/5001) appears in NO taskkill call, /T or otherwise.
+  it('tree-kills exempt-free subtrees with /T and never hands the chart to taskkill', async () => {
     Object.defineProperty(process, 'platform', { value: 'win32' });
 
     // pid ppid path - the same row shape as `ps -eo pid=,ppid=,comm=`, which is
@@ -156,20 +165,30 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
     expect(enumArgs.join(' ')).toContain('Get-CimInstance Win32_Process');
     expect(enumArgs.join(' ')).not.toContain('wmic');
 
-    // Call 1 kills the pruned set. THIS is the load-bearing assertion: no /T,
-    // because the tree walk is ours and the chart must not be handed to taskkill.
-    const [killCmd, killArgs, killOpts] = execFileMock.mock.calls[1];
-    expect(killCmd).toBe('taskkill');
-    expect(killArgs).not.toContain('/T');
-    expect(killOpts).toMatchObject({ windowsHide: true, timeout: 5000 });
+    // 4300 is an ANCESTOR of the chart (5000 -> 5001), so it may never carry
+    // /T. 4400 has nothing exempt beneath it, so it MUST, or a process spawned
+    // after the snapshot outlives the app - the v0.12.6 regression.
+    const taskkillCalls = execFileMock.mock.calls.filter((c) => c[0] === 'taskkill');
+    expect(taskkillCalls).toHaveLength(2);
 
-    const killedPids = killArgs.filter((a: string) => /^[0-9]+$/.test(a));
-    expect(killedPids).toContain('4242'); // the engine root
-    expect(killedPids).toContain('4300'); // ordinary descendant
-    expect(killedPids).toContain('4400'); // ordinary descendant
-    expect(killedPids).not.toContain('5000'); // TradingView - spared
-    expect(killedPids).not.toContain('5001'); // its helper - spared
-    expect(killedPids).not.toContain('9999'); // outside the tree entirely
+    const [, treeArgs, treeOpts] = taskkillCalls[0];
+    expect(treeArgs).toContain('/T');
+    expect(treeOpts).toMatchObject({ windowsHide: true, timeout: 5000 });
+    expect(treeArgs.filter((a: string) => /^[0-9]+$/.test(a))).toEqual(['4400']);
+
+    const [, restArgs] = taskkillCalls[1];
+    expect(restArgs).not.toContain('/T');
+    // Deepest-first, root last: the chart's ancestor before the engine itself.
+    expect(restArgs.filter((a: string) => /^[0-9]+$/.test(a))).toEqual(['4300', '4242']);
+
+    // The load-bearing invariant, across EVERY taskkill call regardless of /T.
+    const allKilled = taskkillCalls.flatMap((c) => c[1].filter((a: string) => /^[0-9]+$/.test(a)));
+    expect(allKilled).toContain('4242'); // the engine root
+    expect(allKilled).toContain('4300'); // path to the chart
+    expect(allKilled).toContain('4400'); // ordinary descendant
+    expect(allKilled).not.toContain('5000'); // TradingView - spared
+    expect(allKilled).not.toContain('5001'); // its helper - spared
+    expect(allKilled).not.toContain('9999'); // outside the tree entirely
 
     // On Windows we never fall through to child.kill() / process-group signals.
     expect(kill).not.toHaveBeenCalled();

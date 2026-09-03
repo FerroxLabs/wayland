@@ -54,9 +54,9 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
   const pid = child.pid;
   if (process.platform === 'win32' && pid) {
     // Enumerate BEFORE killing anything, same reason as the POSIX path below.
-    let pruned: number[] | null = null;
+    let plan: Win32KillPlan | null = null;
     try {
-      pruned = await collectWin32DescendantPids(pid);
+      plan = await collectWin32KillPlan(pid);
     } catch {
       // DELIBERATE ASYMMETRY WITH POSIX, WHICH FAILS CLOSED HERE.
       // On POSIX, enumeration failure aborts because the group kill is
@@ -64,10 +64,10 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
       // behaviour, so failing closed would regress #139 (orphaned trees) on any
       // host where PowerShell is unavailable or blocked by policy. Falling back
       // costs the chart, never correctness.
-      pruned = null;
+      plan = null;
     }
 
-    if (pruned === null) {
+    if (plan === null) {
       try {
         await execFile('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true, timeout: 5000 });
       } catch (forceError) {
@@ -76,25 +76,35 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
         });
       }
     } else {
-      // Deepest-first, root last, and NO /T: the whole point is that the tree
-      // walk is ours, so an exempt subtree is never handed to taskkill at all.
-      const targets = [...pruned].reverse();
-      targets.push(pid);
-      try {
-        await execFile('taskkill', ['/F', ...targets.flatMap((p) => ['/PID', String(p)])], {
-          windowsHide: true,
-          timeout: 5000,
-        });
-      } catch (forceError) {
-        // taskkill exits non-zero when ANY listed pid has already gone, which is
-        // routine during teardown. Liveness below is the proof, not exit status.
-        if (isProcessAlive(pid)) {
-          throw new Error(`ACP process-tree shutdown failed for PID ${pid}: ${decodeWindowsError(forceError)}`, {
-            cause: forceError,
-          });
+      // The tree walk is ours, so an exempt subtree is never handed to taskkill.
+      // But the walk is a SNAPSHOT, so anything spawned after it is in no list -
+      // `/T` is what kills those, and it is safe on any subtree proven
+      // exempt-free. Nodes on the path down to an exempt process get a bare
+      // `/F`, because `/T` there would take the chart with them.
+      const runTaskkill = async (args: string[]): Promise<void> => {
+        try {
+          await execFile('taskkill', args, { windowsHide: true, timeout: 5000 });
+        } catch (forceError) {
+          // taskkill exits non-zero when ANY listed pid has already gone, which
+          // is routine during teardown. Liveness below is the proof, not exit
+          // status.
+          if (isProcessAlive(pid)) {
+            throw new Error(`ACP process-tree shutdown failed for PID ${pid}: ${decodeWindowsError(forceError)}`, {
+              cause: forceError,
+            });
+          }
         }
+      };
+
+      if (plan.treeKill.length > 0) {
+        await runTaskkill(['/F', '/T', ...plan.treeKill.flatMap((p) => ['/PID', String(p)])]);
       }
-      for (const dpid of pruned) {
+      // Deepest-first, root last.
+      const rest = [...plan.single].reverse();
+      rest.push(pid);
+      await runTaskkill(['/F', ...rest.flatMap((p) => ['/PID', String(p)])]);
+
+      for (const dpid of plan.pruned) {
         await waitForProcessExit(dpid, 2000);
         if (isProcessAlive(dpid)) {
           throw new Error(`ACP descendant process ${dpid} is still alive after SIGKILL escalation`);
@@ -265,6 +275,100 @@ export function _collectDescendantPidsFromProcTable(
     }
   }
   return result;
+}
+
+/**
+ * What to hand taskkill, split by whether `/T` is safe.
+ *
+ * WHY THIS EXISTS. Dropping `/T` in favour of an explicit PID list made the kill
+ * a POINT-IN-TIME SNAPSHOT: anything spawned between `win32ProcessTable()` and
+ * the taskkill is in no list and nothing sweeps the tree, so it SURVIVES. The
+ * snapshot is shared with a 1s TTL (WIN32_TABLE_TTL_MS), so that window is up to
+ * a second wide. It shipped as "packaged app left descendant processes alive" on
+ * two Windows arches in the v0.12.6 release; v0.12.5 was clean.
+ *
+ * `/T` is what closes the window, and it is safe exactly where no exempt process
+ * sits beneath the target - taskkill's own tree walk cannot be told to skip one.
+ * So: `/T` every subtree that is exempt-free, and fall back to a bare `/F` for
+ * the few nodes on the path DOWN to an exempt process. With no chart running the
+ * exempt set is empty, nothing is tainted, and this is a plain tree-kill again.
+ */
+export interface Win32KillPlan {
+  /** Subtree roots proven exempt-free - `/T` here, so late spawns die too. */
+  treeKill: number[];
+  /** Ancestors of an exempt process - killed alone, or `/T` takes the chart. */
+  single: number[];
+  /** Every pid expected dead afterwards; the liveness proof still covers all. */
+  pruned: number[];
+}
+
+export function _win32KillPlanFromProcTable(
+  psStdout: string,
+  rootPid: number,
+  isExempt: (command: string) => boolean
+): Win32KillPlan {
+  const childMap = new Map<number, number[]>();
+  const commandOf = new Map<number, string>();
+  for (const line of psStdout.trim().split('\n')) {
+    const parts = line.trim().split(/\s+/);
+    if (parts.length < 2) continue;
+    const pid = parseInt(parts[0], 10);
+    const ppid = parseInt(parts[1], 10);
+    if (isNaN(pid) || isNaN(ppid)) continue;
+    commandOf.set(pid, parts.slice(2).join(' '));
+    if (!childMap.has(ppid)) childMap.set(ppid, []);
+    childMap.get(ppid)!.push(pid);
+  }
+
+  const exemptPid = (pid: number): boolean => isExempt(commandOf.get(pid) ?? '');
+
+  // Memoised: a process table has hundreds of rows and this is asked once per
+  // node, so the naive form is quadratic on the teardown path.
+  const taintCache = new Map<number, boolean>();
+  const hasExemptBelow = (pid: number): boolean => {
+    const cached = taintCache.get(pid);
+    if (cached !== undefined) return cached;
+    let tainted = false;
+    for (const child of childMap.get(pid) || []) {
+      if (exemptPid(child) || hasExemptBelow(child)) {
+        tainted = true;
+        break;
+      }
+    }
+    taintCache.set(pid, tainted);
+    return tainted;
+  };
+
+  const treeKill: number[] = [];
+  const single: number[] = [];
+  const pruned: number[] = [];
+
+  // Under a `/T` root everything dies with it, but the liveness proof still
+  // names each pid, so `pruned` stays exactly the old BFS result.
+  const collectSubtree = (pid: number): void => {
+    for (const child of childMap.get(pid) || []) {
+      if (exemptPid(child)) continue;
+      pruned.push(child);
+      collectSubtree(child);
+    }
+  };
+
+  const walk = (pid: number): void => {
+    for (const child of childMap.get(pid) || []) {
+      if (exemptPid(child)) continue; // spared, with its whole subtree
+      pruned.push(child);
+      if (hasExemptBelow(child)) {
+        single.push(child);
+        walk(child);
+      } else {
+        treeKill.push(child);
+        collectSubtree(child);
+      }
+    }
+  };
+  walk(rootPid);
+
+  return { treeKill, single, pruned };
 }
 
 /**
@@ -444,10 +548,10 @@ async function win32ProcessTable(now: number = Date.now()): Promise<string> {
   return stdout;
 }
 
-async function collectWin32DescendantPids(rootPid: number): Promise<number[]> {
+async function collectWin32KillPlan(rootPid: number): Promise<Win32KillPlan> {
   const stdout = await win32ProcessTable();
   const exempt = await _resolveWin32ExemptPaths(_win32TableCommands(stdout), process.env, verifyAuthenticode);
-  return _collectDescendantPidsFromProcTable(stdout, rootPid, (command) => {
+  return _win32KillPlanFromProcTable(stdout, rootPid, (command) => {
     const normalized = _normalizeWindowsPath(command);
     return normalized !== null && exempt.has(normalized);
   });
