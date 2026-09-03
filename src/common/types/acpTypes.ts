@@ -71,6 +71,7 @@ export type AcpBackendAll =
   | 'qwen' // Qwen Code ACP
   | 'codex' // OpenAI Codex ACP (via codex-acp bridge)
   | 'wnano' // Wayland Nano - first-party sandboxed Rust agent (native ACP over stdio)
+  | 'fuigo' // Fuigo - first-party Rust agent (native ACP via `fuigo acp stdio`)
   | 'grok' // xAI Grok Build CLI (native ACP via `grok agent stdio`)
   | 'codebuddy' // Tencent CodeBuddy Code CLI
   | 'droid' // Factory Droid CLI (ACP via `droid exec --output-format acp`)
@@ -502,6 +503,38 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     // the ONLY agent in the list with no chip at all — read as "not supported"
     // for the one agent we ship ourselves.
     fluxCompat: 'env',
+  },
+  fuigo: {
+    id: 'fuigo',
+    name: 'Fuigo',
+    cliCommand: 'fuigo',
+    authRequired: false, // Key comes from FUIGO_API_KEY; no CLI login of its own
+    enabled: true,
+    // DETECTION ONLY, DELIBERATELY NO `defaultCliPath` YET. Nano can carry an
+    // `npx` fallback because every platform it supports has a published binary.
+    // Fuigo cannot: `fuigo@1.0.2` lists `fuigo-win32-arm64` in its
+    // optionalDependencies and THAT PACKAGE DOES NOT EXIST - npm's spam filter
+    // refuses to create an unscoped name containing `win32-arm64` (403, proven
+    // by a controlled probe where only the name differed). The real binary now
+    // lives at the scoped `@fuigo/win32-arm64`, but nothing resolves it until
+    // the six name-derivation sites are aliased upstream in 1.0.3, because the
+    // name is COMPUTED from `${process.platform}-${process.arch}`.
+    //
+    // An `npx` fallback here would therefore install nothing on Windows ARM and
+    // fail at spawn instead of simply reporting the agent as absent. Wayland
+    // ships a win-arm64 installer, so that is a real user, not a hypothetical.
+    // Add `defaultCliPath` once 1.0.3 publishes the alias.
+    supportsStreaming: true, // Native ACP (agent-client-protocol 0.10.4)
+    acpArgs: ['acp', 'stdio'], // ACP over stdio via subcommand, no bridge
+    // 'setup', matching opencode rather than nano: Fuigo does not take a base
+    // URL from the environment. It reads `[model.*]` blocks from its own
+    // config.toml, each carrying `base_url` plus `env_key = "FUIGO_API_KEY"`,
+    // so routing it at Flux means writing that file - a connector, not an env
+    // export. Whoever writes it MUST set an explicit `context_window` per tier:
+    // Fuigo assumes 200k when it is absent, a Flux lane can route to a 128k
+    // backend, auto-compaction then never fires, and one such session grew to
+    // 17M cumulative input tokens.
+    fluxCompat: 'setup',
   },
   grok: {
     id: 'grok',
