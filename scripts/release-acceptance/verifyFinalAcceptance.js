@@ -572,13 +572,40 @@ function verifyTargetGateReceiptSet(receipt, candidate, requirements) {
     }
     digest(file.sha256, 'M8A_TARGET_GATE_RECEIPT_INVALID');
     const evidenceFile = exactKeys(verified.evidenceFile, ['path', 'sha256'], 'M8A_TARGET_GATE_RECEIPT_INVALID');
-    if (
-      typeof verified.evidencePath !== 'string' ||
-      verified.evidencePath.length === 0 ||
-      evidenceFile.path !== verified.evidencePath ||
-      evidenceFile.sha256 !== verified.evidenceSha256
-    ) {
-      fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'evidence-file-does-not-bind-receipt-claim');
+    // THE TWO SIDES ARE IN DIFFERENT PATH FORMS AND NEVER COULD MATCH.
+    //
+    // `verified.evidencePath` is a RELATIVE posix path, written by
+    // generateTrustRootAcceptance.js as `evidence/<target>/<gate>.json`.
+    // `evidenceFile.path` is an ABSOLUTE native path: verifyHardeningMatrix.js
+    // returns `path.resolve(receiptsDirectory, receipt.evidencePath)` from
+    // verifyTargetEvidence(). Comparing them with `!==` therefore rejected every
+    // release, which is what `M8A_TARGET_GATE_RECEIPT_INVALID:
+    // evidence-file-does-not-bind-receipt-claim` was on v0.12.12 - the fourth
+    // instance in this pipeline of an equality between two different encodings
+    // of the same value (see the `sha256:`-prefix and report-filename fixes).
+    //
+    // The binding is the DIGEST, and it is unchanged below. verifyTargetEvidence
+    // has additionally already proven this exact file hashes to
+    // `evidenceSha256` AND that it does not escape the receipt root, so
+    // requiring the absolute path to end at the claimed relative path keeps the
+    // claim honest without demanding two incompatible encodings be identical.
+    const claimedEvidencePath = typeof verified.evidencePath === 'string' ? verified.evidencePath : '';
+    const observedEvidencePath = String(evidenceFile.path || '')
+      .split(path.sep)
+      .join('/');
+    const evidencePathBinds =
+      claimedEvidencePath.length > 0 &&
+      (observedEvidencePath === claimedEvidencePath || observedEvidencePath.endsWith(`/${claimedEvidencePath}`));
+    if (!evidencePathBinds || evidenceFile.sha256 !== verified.evidenceSha256) {
+      // SAY WHICH SIDE FAILED AND WITH WHAT. The previous message was a fixed
+      // string, so a red release could not tell a path-form mismatch from a
+      // genuine digest mismatch without re-running the whole pipeline.
+      fail(
+        'M8A_TARGET_GATE_RECEIPT_INVALID',
+        `evidence-file-does-not-bind-receipt-claim:${requirement.receiptId}:` +
+          `claimedPath=${claimedEvidencePath || '<empty>'} observedPath=${observedEvidencePath || '<empty>'} ` +
+          `pathBinds=${evidencePathBinds} digestBinds=${evidenceFile.sha256 === verified.evidenceSha256}`
+      );
     }
     if (file.path === evidenceFile.path) {
       fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'receipt-and-evidence-path-collide');
