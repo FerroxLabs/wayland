@@ -301,6 +301,20 @@ const FERROX_LABS_CN = /(?:^|,\s*)CN\s*=\s*"?Ferrox Labs(?:, LLC)?"?\s*(?:,|$)/;
 const CANDIDATE_EXIT_TIMEOUT_MS = 10_000;
 const SHIPPED_RUNTIME_EXIT_TIMEOUT_MS = 45_000;
 
+/**
+ * Message for a boot that exited dirty.
+ *
+ * Extracted so it can be tested: the assertion itself sits inside
+ * `bootInstalledRuntime`, which reaches the network through non-injectable
+ * `cdpJson`/`cdpCommand` and so cannot be driven from a unit test.
+ */
+export function describeDirtyShutdown(input, shutdown, descendantCount) {
+  return (
+    `${input.label || 'native app'} (${input.platform}) did not shut down cleanly: ` +
+    `exitCode=${shutdown.code} signal=${shutdown.signal} descendantsObserved=${descendantCount}`
+  );
+}
+
 export async function bootInstalledRuntime(input, dependencies = {}) {
   const port = await (dependencies.findFreePort || findFreePort)();
   const launch = (dependencies.launchCommand || launchCommand)(
@@ -371,7 +385,21 @@ export async function bootInstalledRuntime(input, dependencies = {}) {
       `${input.label || 'native app'} (${input.platform})`
     );
     const descendants = monitor.stop();
-    if (shutdown.code !== 0 || shutdown.signal !== null) fail('native app did not shut down cleanly');
+    // NAME THE BOOT AND THE EXIT. This used to throw the fixed string 'native
+    // app did not shut down cleanly', which discarded three things it was
+    // holding: WHICH of the three boots it was (every call site passes a
+    // `label` - initial, rollback, reupgrade - and the message ignored it), and
+    // the exit code and signal that say HOW the app exited dirty.
+    //
+    // It cost a whole release. v0.12.9 died here on win32-arm64 with all six
+    // builds green, both smoke gates green and the package observer 6/6, and
+    // the log could not say whether the offending process was the 0.11.18
+    // initial install, the 0.11.8 rollback or the candidate re-upgrade - let
+    // alone what its exit code was. The sibling timeout path in `waitForExit`
+    // already learned this lesson and names its phase and budget.
+    if (shutdown.code !== 0 || shutdown.signal !== null) {
+      fail(describeDirtyShutdown(input, shutdown, descendants.length));
+    }
     return {
       actualExecution: true,
       booted: true,
