@@ -1057,6 +1057,36 @@ function isSameProcessAlive(record, targetPlatform, dependencies = {}) {
   }
 }
 
+/**
+ * Wait for the app's descendants to finish exiting, up to a deadline.
+ *
+ * WHY. `shutdownSettleMs` was a FLAT 250ms, and the liveness assertion in
+ * `verifyShutdownEvidence` runs immediately after it. Windows tears Electron's
+ * helper processes (GPU, utility, renderer, crashpad) down ASYNCHRONOUSLY, so
+ * on a loaded runner they routinely outlive the parent by longer than that.
+ * Measured across five release legs: the app always quit cleanly
+ * (`exitCode=0`, complete event ledger) and EXACTLY FOUR descendants were still
+ * alive at the instant of the check - on windows-arm64 and win32-x64 alike, with
+ * probe timeouts anywhere from 0 to 22, so nothing about the app's own work
+ * predicted it. It is teardown lag, not a leak.
+ *
+ * THIS CANNOT HIDE A REAL LEAK. It only waits; the assertion is unchanged and
+ * still authoritative. A genuinely orphaned process is still alive at the
+ * deadline and still fails, just without the false negatives that made the
+ * release gate a coin flip. `isSameProcessAlive` compares a STABLE IDENTITY,
+ * not a bare pid, so a recycled pid cannot masquerade as the old process.
+ */
+export async function drainDescendants(records, targetPlatform, dependencies = {}) {
+  const recordAlive = dependencies.processRecordAlive || isSameProcessAlive;
+  const deadline = Date.now() + (dependencies.shutdownDrainMs ?? 15_000);
+  const pollMs = dependencies.shutdownDrainPollMs ?? 250;
+  for (;;) {
+    if (!records.some((record) => recordAlive(record, targetPlatform, dependencies))) return;
+    if (Date.now() >= deadline) return; // let the assertion report the survivors
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
+  }
+}
+
 export function createProcessMonitor(rootPid, targetPlatform, dependencies = {}) {
   const records = new Map();
   const collect = (includeEnvironment = false) => {
@@ -1503,6 +1533,10 @@ export async function runSmoke(options, dependencies = {}) {
       await new Promise((resolve) => setTimeout(resolve, dependencies.shutdownSettleMs ?? 250));
       const descendantRecords = processMonitor.stop();
       processMonitor = null;
+      // The flat settle above is a floor, not a guarantee: Windows reaps
+      // Electron's helpers asynchronously. Drain to a deadline before asserting,
+      // so teardown lag stops reading as a leaked process tree.
+      await drainDescendants(descendantRecords, options.targetPlatform, dependencies);
       const events = (dependencies.readPackageSmokeEventLedger || readPackageSmokeEventLedger)(eventFile);
       const shutdownEvidence = (dependencies.verifyShutdownEvidence || verifyShutdownEvidence)({
         events,

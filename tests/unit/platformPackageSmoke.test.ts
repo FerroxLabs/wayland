@@ -18,6 +18,7 @@ import {
   captureCandidateState,
   createProcessMonitor,
   currentSourceIdentity,
+  drainDescendants,
   expectedReleaseIdentity,
   findInstallerArtifacts,
   installArtifactSnapshot,
@@ -1030,6 +1031,69 @@ describe('real installer extraction and lifecycle evidence', () => {
         processRecordAlive: () => true,
       })
     ).toThrow('left descendant processes alive');
+  });
+
+  // The release gate was a coin flip because the settle before the assertion
+  // above was a FLAT 250ms and Windows reaps Electron's helpers asynchronously.
+  // Across five release legs the app quit cleanly and EXACTLY FOUR descendants
+  // were still alive at that instant, on both Windows arches. `drainDescendants`
+  // waits for them; it must NOT become a way to pass with a real leak, so the
+  // third case below pins that it gives up at the deadline and hands the
+  // survivors to the (unchanged) assertion.
+  describe('drainDescendants', () => {
+    const rec = (pid: number) => ({ pid, identity: `id-${pid}` });
+
+    it('returns immediately when nothing is alive', async () => {
+      const alive = vi.fn(() => false);
+      const started = Date.now();
+      await drainDescendants([rec(1), rec(2)], 'win32', {
+        processRecordAlive: alive,
+        shutdownDrainMs: 5_000,
+        shutdownDrainPollMs: 50,
+      });
+      expect(Date.now() - started).toBeLessThan(200);
+      expect(alive).toHaveBeenCalled();
+    });
+
+    it('POLLS - it waits while they are alive and returns once they exit', async () => {
+      let calls = 0;
+      // Alive for the first two sweeps, gone on the third. A plain sleep would
+      // not observe the transition, so this is what proves it polls.
+      const alive = vi.fn(() => {
+        calls += 1;
+        return calls <= 2;
+      });
+      await drainDescendants([rec(7)], 'win32', {
+        processRecordAlive: alive,
+        shutdownDrainMs: 5_000,
+        shutdownDrainPollMs: 10,
+      });
+      expect(calls).toBeGreaterThanOrEqual(3);
+    });
+
+    it('gives up at the deadline so a REAL leak still reaches the assertion', async () => {
+      const alive = vi.fn(() => true); // never exits
+      const started = Date.now();
+      await drainDescendants([rec(99)], 'win32', {
+        processRecordAlive: alive,
+        shutdownDrainMs: 120,
+        shutdownDrainPollMs: 10,
+      });
+      expect(Date.now() - started).toBeGreaterThanOrEqual(100);
+      // It returns rather than throwing: verifyShutdownEvidence stays the single
+      // authoritative reporter of survivors.
+      expect(() =>
+        verifyShutdownEvidence({
+          events: validSmokeEvents('c'.repeat(64), expectedReleaseIdentity('stable', 'linux', 'x64')),
+          expectedMarkerSha256: `sha256:${crypto.createHash('sha256').update('c'.repeat(64)).digest('hex')}`,
+          releaseIdentity: expectedReleaseIdentity('stable', 'linux', 'x64'),
+          shutdown: { code: 0, signal: null },
+          descendantRecords: [rec(99)],
+          targetPlatform: 'linux',
+          processRecordAlive: () => true,
+        })
+      ).toThrow('left descendant processes alive: 99');
+    });
   });
 
   it('fails closed on gaps, unknown events, runtime identity drift, and renderer recovery', () => {
