@@ -983,8 +983,70 @@ function processSnapshot(targetPlatform, dependencies = {}, includeEnvironment =
   }
 }
 
+/**
+ * Creation time of a process record, in epoch ms, or null when it cannot be
+ * read. `identity` is `CreationDate\0ExecutablePath`, so the time is already in
+ * hand on every record from either parser - no extra collection.
+ *
+ * Two wire formats reach this:
+ *   - Windows: `Get-CimInstance | ConvertTo-Json` serialises CreationDate as
+ *     `/Date(1788452728209)/`. Date.parse() does NOT understand that form.
+ *   - POSIX: `ps` `lstart`, e.g. `Wed Sep  3 16:25:28 2026`, which it does.
+ *
+ * Returns null rather than NaN or 0 so callers can distinguish "older" from
+ * "unknown" - the guard below must never treat unknown as a violation.
+ */
+export function processCreationTimeMs(record) {
+  const [createdAt = ''] = String(record?.identity ?? '').split('\0');
+  const dotNet = createdAt.match(/^\/Date\((-?\d+)\)\/$/);
+  if (dotNet) {
+    const ms = Number(dotNet[1]);
+    return Number.isFinite(ms) ? ms : null;
+  }
+  const parsed = Date.parse(createdAt);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function descendantsFromSnapshot(rootPid, snapshot) {
   if (!Number.isInteger(rootPid) || rootPid <= 0) return [];
+  // THE PID-REUSE GUARD. A child records its parent's PID at birth and Windows
+  // NEVER clears that field, so a long-lived process keeps pointing at a PID
+  // that the OS has since recycled. When the recycled PID lands on the app, an
+  // ancestry walk over one instant adopts a stranger and everything below it.
+  //
+  // This is not hypothetical and it is not rare. On the win32-arm64 leg of
+  // v0.12.10 the walk claimed csrss.exe, winlogon.exe, fontdrvhost.exe and
+  // dwm.exe - the Windows session host - as descendants of the packaged app.
+  // They were created at 16:25:28; the app's own children were created at
+  // 16:46:56, twenty-one minutes later. Those four never exit, so every run
+  // burned the full 15,000ms drain deadline and then failed the survivor
+  // assertion, which is precisely the "still alive at the FULL deadline"
+  // evidence that refuted a teardown-lag explanation. Five tags were spent on
+  // four theories, and all four assumed the survivors were ours.
+  //
+  // The comment this replaces argued that keying by pid alone was safe because
+  // "PID reuse is a phenomenon across TIME and this walk only ever sees one
+  // instant". The snapshot is one instant; the ParentProcessId values inside it
+  // are not. They are historical, and that is the whole bug.
+  //
+  // A process cannot predate the process that created it, so a true descendant
+  // of the root cannot be older than the root. Excluding a provably-older
+  // candidate can only ever remove an impossible edge. Comparison is against
+  // the ROOT rather than the immediate parent deliberately: it is the weaker
+  // claim of the two, and it stays correct even where an intermediate record is
+  // missing from the snapshot.
+  const rootRecord = snapshot.find((record) => record.pid === rootPid);
+  const rootCreatedMs = rootRecord ? processCreationTimeMs(rootRecord) : null;
+  const predatesRoot = (record) => {
+    // FAIL OPEN, DELIBERATELY. An unknown time on either side must keep the
+    // record: dropping a real orphan would silently weaken the leak gate, which
+    // is the opposite of what this guard is for. It excludes only what it can
+    // PROVE impossible.
+    if (rootCreatedMs === null) return false;
+    const createdMs = processCreationTimeMs(record);
+    if (createdMs === null) return false;
+    return createdMs < rootCreatedMs;
+  };
   const childrenByParent = new Map();
   for (const record of snapshot) {
     if (!Number.isInteger(record.pid) || !Number.isInteger(record.parentPid)) continue;
@@ -1029,6 +1091,10 @@ function descendantsFromSnapshot(rootPid, snapshot) {
     const record = queue.shift();
     if (seen.has(record.pid)) continue;
     seen.add(record.pid);
+    // Skip BEFORE expanding, not just before recording. A stranger adopted by a
+    // recycled PID drags its own subtree in behind it - winlogon brought dwm and
+    // fontdrvhost - so refusing the node has to refuse its children too.
+    if (predatesRoot(record)) continue;
     descendants.push(record);
     // Belt and braces, and the reason a regression here FAILS instead of hanging.
     // The result is provably bounded by the snapshot size, so this can never fire

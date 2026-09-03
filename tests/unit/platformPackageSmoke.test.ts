@@ -28,7 +28,9 @@ import {
   installArtifactSnapshot,
   isReadyRendererState,
   launchCommand,
+  listDescendantProcessRecords,
   parseArgs,
+  processCreationTimeMs,
   parseOptionalCapabilityStates,
   prepareInstalledCandidate,
   redactSmokeMarkerFromUrl,
@@ -1705,5 +1707,141 @@ describe('platform workflows cannot silently skip installed-package smoke', () =
     expect(
       targetAssignments.map((target: Record<string, string>) => `${target.target_platform}-${target.arch}@${target.os}`)
     ).toEqual(expected);
+  });
+});
+
+/**
+ * PID REUSE FABRICATES ANCESTRY.
+ *
+ * A child records its parent's PID at birth and Windows never clears that
+ * field. When the OS recycles that PID onto the packaged app, a walk over a
+ * single process-table instant adopts a stranger and its whole subtree.
+ *
+ * This is the v0.12.10 win32-arm64 failure, reproduced from its real records:
+ * the walk claimed csrss.exe, winlogon.exe, fontdrvhost.exe and dwm.exe as
+ * descendants of the app. Those four were created at 16:25:28 and the app's own
+ * children at 16:46:56 - twenty-one minutes apart. They never exit, so the drain
+ * burned its full deadline and the survivor assertion failed the release.
+ *
+ * The invariant is simply that a process cannot predate the process that
+ * created it.
+ */
+describe('platform-package-smoke - PID-reuse ancestry guard', () => {
+  // Real values from the failing win32-arm64 leg.
+  const APP_STARTED = 1788454000000; // 16:46:40, the packaged app
+  const PROBE_STARTED = 1788454016936; // 16:46:56, a genuine child of the app
+  const SESSION_STARTED = 1788452728224; // 16:25:28, the Windows session host
+
+  const winEntry = (
+    pid: number,
+    parentPid: number,
+    createdMs: number | string,
+    exe: string
+  ): Record<string, unknown> => ({
+    ProcessId: pid,
+    ParentProcessId: parentPid,
+    CreationDate: typeof createdMs === 'number' ? `/Date(${createdMs})/` : createdMs,
+    ExecutablePath: exe,
+    Name: exe,
+    CommandLine: exe,
+  });
+
+  const windowsWalk = (entries: Record<string, unknown>[], rootPid = 9000) =>
+    listDescendantProcessRecords(rootPid, 'win32', {
+      execFileSync: vi.fn(() => JSON.stringify(entries)),
+    });
+
+  it('reads the creation time out of both wire formats, and only those', () => {
+    // Windows: ConvertTo-Json emits /Date(ms)/, which Date.parse cannot read.
+    expect(processCreationTimeMs({ identity: `/Date(${SESSION_STARTED})/\u0000C:\\x.exe` })).toBe(SESSION_STARTED);
+    // POSIX: `ps` lstart, which it can.
+    expect(processCreationTimeMs({ identity: 'Mon Jul 18 20:00:00 2026\u0000/opt/Wayland/app' })).toBe(
+      Date.parse('Mon Jul 18 20:00:00 2026')
+    );
+    // Unknown must be null, NOT NaN and NOT 0 - the guard has to be able to
+    // tell "older" apart from "unreadable", because it fails open on unreadable.
+    expect(processCreationTimeMs({ identity: '<unknown>\u0000C:\\x.exe' })).toBeNull();
+    expect(processCreationTimeMs({ identity: '' })).toBeNull();
+    expect(processCreationTimeMs({})).toBeNull();
+  });
+
+  it('refuses a stranger adopted through a recycled PID, and its whole subtree', () => {
+    const records = windowsWalk([
+      winEntry(9000, 1, APP_STARTED, 'C:\\Wayland\\Wayland.exe'),
+      // Genuine: created after the app.
+      winEntry(5356, 9000, PROBE_STARTED, 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'),
+      // Stranger: the Windows session host, pointing at the app's recycled PID.
+      winEntry(6176, 9000, SESSION_STARTED, 'C:\\Windows\\system32\\winlogon.exe'),
+      // The stranger's real children. Refusing winlogon must refuse these too,
+      // or the walk keeps the subtree it was dragged in with.
+      winEntry(7016, 6176, SESSION_STARTED + 55, 'C:\\Windows\\system32\\dwm.exe'),
+      winEntry(5804, 6176, SESSION_STARTED + 51, 'C:\\Windows\\system32\\fontdrvhost.exe'),
+    ]);
+
+    expect(records.map((record) => record.pid)).toEqual([5356]);
+    const executables = records.map((record) => record.exePath).join(' ');
+    expect(executables).not.toMatch(/winlogon|dwm|fontdrvhost|csrss/);
+  });
+
+  it('keeps every genuine descendant, including deep ones', () => {
+    // The guard must not become a leak-hiding filter: anything created after
+    // the root is still tracked, at any depth.
+    const records = windowsWalk([
+      winEntry(9000, 1, APP_STARTED, 'C:\\Wayland\\Wayland.exe'),
+      winEntry(5356, 9000, APP_STARTED + 1, 'C:\\Windows\\system32\\cmd.exe'),
+      winEntry(4432, 5356, APP_STARTED + 2, 'C:\\Windows\\system32\\conhost.exe'),
+      winEntry(11692, 4432, APP_STARTED + 3, 'C:\\Windows\\system32\\where.exe'),
+    ]);
+    expect(records.map((record) => record.pid).sort((a, b) => a - b)).toEqual([4432, 5356, 11692]);
+  });
+
+  it('keeps a descendant created in the same instant as the root', () => {
+    // POSIX lstart has one-second resolution, so a child spawned immediately
+    // shares the root's timestamp. Only a STRICTLY older record is impossible;
+    // an equal one is the common case and must survive.
+    const records = windowsWalk([
+      winEntry(9000, 1, APP_STARTED, 'C:\\Wayland\\Wayland.exe'),
+      winEntry(5356, 9000, APP_STARTED, 'C:\\Wayland\\helper.exe'),
+    ]);
+    expect(records.map((record) => record.pid)).toEqual([5356]);
+  });
+
+  it('fails OPEN when either creation time is unreadable', () => {
+    // Dropping a record we cannot time would silently weaken the leak gate.
+    // Unknown root time: filter nothing.
+    expect(
+      windowsWalk([
+        winEntry(9000, 1, '<unknown>', 'C:\\Wayland\\Wayland.exe'),
+        winEntry(6176, 9000, SESSION_STARTED, 'C:\\Windows\\system32\\winlogon.exe'),
+      ]).map((record) => record.pid)
+    ).toEqual([6176]);
+
+    // Unknown candidate time: keep the candidate.
+    expect(
+      windowsWalk([
+        winEntry(9000, 1, APP_STARTED, 'C:\\Wayland\\Wayland.exe'),
+        winEntry(6176, 9000, '<unknown>', 'C:\\Wayland\\orphan.exe'),
+      ]).map((record) => record.pid)
+    ).toEqual([6176]);
+
+    // Root absent from the snapshot entirely: filter nothing.
+    expect(
+      windowsWalk([winEntry(6176, 9000, SESSION_STARTED, 'C:\\Windows\\system32\\winlogon.exe')]).map(
+        (record) => record.pid
+      )
+    ).toEqual([6176]);
+  });
+
+  it('applies the same guard on POSIX, not just Windows', () => {
+    // `ps` lstart, the other wire format. Same invariant, same outcome.
+    const snapshot = [
+      '9000 1 Mon Jul 18 20:00:00 2026 /opt/Wayland/wayland',
+      '9100 9000 Mon Jul 18 20:00:05 2026 /opt/Wayland/wayland-helper',
+      '6176 9000 Mon Jul 18 19:30:00 2026 /usr/lib/systemd/systemd-logind',
+    ].join('\n');
+    const records = listDescendantProcessRecords(9000, 'linux', {
+      execFileSync: vi.fn(() => `${snapshot}\n`),
+    });
+    expect(records.map((record) => record.pid)).toEqual([9100]);
   });
 });
