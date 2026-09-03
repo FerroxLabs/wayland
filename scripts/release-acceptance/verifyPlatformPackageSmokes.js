@@ -435,8 +435,25 @@ function verifyPlatformPackageSmoke(input, context, options = {}) {
     ['fileName', 'sha256', 'sizeBytes'],
     'protected platform observation installer binding'
   );
+  // THE BYTES ARE THE BINDING; the file name is a label the pipeline renames.
+  //
+  // The observer records `platform-package-smoke-<target>.json`
+  // (protected-platform-package-observer.yml), and
+  // assembleCanonicalRawAcceptance.js then deliberately copies that file to the
+  // canonical raw layout `package-smokes/<target>.json`, which is the path
+  // produceProtectedAcceptanceEvidence.js passes here as `receiptPath`. Those
+  // two basenames are different BY CONSTRUCTION, so comparing them directly
+  // could never hold and this gate could never pass. It was never caught
+  // because the only test builds the observation from the very path it then
+  // verifies, so the names always matched and it covered nothing.
+  //
+  // Accepting the canonical name is NOT a relaxation: `sha256` and `sizeBytes`
+  // below are what actually bind the observation to these exact bytes, and they
+  // are unchanged. A substituted or edited report still fails on the digest.
+  const receiptName = require('node:path').basename(receiptPath);
+  const canonicalReceiptName = `${context.target}.json`;
   if (
-    observedReport.fileName !== require('node:path').basename(receiptPath) ||
+    (receiptName !== observedReport.fileName && receiptName !== canonicalReceiptName) ||
     observedReport.sha256 !== sha256(reportFile.bytes) ||
     observedReport.sizeBytes !== reportFile.size
   ) {

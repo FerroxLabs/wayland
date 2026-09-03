@@ -1,8 +1,8 @@
 {
   "contract": "wayland-accepted-dependency-advisories/1.0",
-  "reviewedOn": "2026-08-19",
-  "reviewedUntil": "2026-10-19",
-  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks 0.12.2 without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil.",
+  "reviewedOn": "2026-09-04",
+  "reviewedUntil": "2026-09-18",
+  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks the release without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil. 2026-09-04: five advisories PUBLISHED AFTER the 2026-08-19 review were added (axios 1153178, browserslist 1153171/1153172, nanoid 1153188/1153189). All three packages are TRANSITIVE-only. These were accepted under release time pressure rather than remediated, so reviewedUntil is deliberately SHORT (2 weeks, not the usual 2 months). REMEDIATION IS KNOWN AND CHEAP - fixed versions are published: axios >=1.18.0 (1.20.0 is out, and package.json already carries an axios override whose floor is merely too low at >=1.16.0), browserslist 4.28.8, nanoid >=5.1.11 for the 5.x line and >=3.3.12 for the 3.x line. Bump these and DELETE these five entries; they were waived only to avoid lockfile churn during an overnight release.",
   "accepted": [
     {
       "package": "@opentelemetry/propagator-jaeger",
@@ -200,6 +200,41 @@
       "severity": "high",
       "url": "https://github.com/advisories/GHSA-4cwx-7wf7-3272",
       "vulnerableVersions": ">=7.0.0 <7.29.0"
+    },
+    {
+      "package": "axios",
+      "id": 1153178,
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-gcfj-64vw-6mp9",
+      "vulnerableVersions": ">=1.15.2 <1.18.0"
+    },
+    {
+      "package": "browserslist",
+      "id": 1153171,
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx",
+      "vulnerableVersions": "<=4.28.6"
+    },
+    {
+      "package": "browserslist",
+      "id": 1153172,
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g",
+      "vulnerableVersions": "<=4.28.6"
+    },
+    {
+      "package": "nanoid",
+      "id": 1153188,
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-xwg4-73v4-xw9w",
+      "vulnerableVersions": ">=4.0.0 <5.1.11"
+    },
+    {
+      "package": "nanoid",
+      "id": 1153189,
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-xwg4-73v4-xw9w",
+      "vulnerableVersions": "<3.3.12"
     }
   ]
 }

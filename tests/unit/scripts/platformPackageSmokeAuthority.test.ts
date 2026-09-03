@@ -196,6 +196,65 @@ describe('platform package smoke acceptance authority', () => {
     });
   });
 
+  /**
+   * THE REAL PIPELINE RENAMES THE REPORT, AND THIS PATH WAS NEVER TESTED.
+   *
+   * The observer records `platform-package-smoke-<target>.json`, then
+   * assembleCanonicalRawAcceptance.js copies it to the canonical raw layout
+   * `package-smokes/<target>.json`, and that renamed path is what
+   * produceProtectedAcceptanceEvidence.js passes here as `receiptPath`. The
+   * gate compared the two basenames directly, so it could never pass on a real
+   * release. Every other test in this file builds the observation from the very
+   * path it verifies, so the names always matched and the defect was invisible.
+   */
+  it('accepts the canonical renamed receipt the assembler actually produces', () => {
+    const evidence = fixture();
+    const renamed = path.join(path.dirname(evidence.receiptPath), 'linux-x64.json');
+    writeFileSync(renamed, readFileSync(evidence.receiptPath));
+    expect(path.basename(renamed)).not.toBe(path.basename(evidence.receiptPath));
+
+    const normalized = verifyPlatformPackageSmoke(
+      { ...input(evidence), receiptPath: renamed },
+      { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
+      { execFileSyncImpl: evidence.execFileSyncImpl }
+    );
+    expect(normalized.target).toBe('linux-x64');
+    expect(normalized.artifacts.reportSha256).toBe(
+      `sha256:${crypto.createHash('sha256').update(readFileSync(renamed)).digest('hex')}`
+    );
+  });
+
+  it('still rejects renamed receipt bytes that differ from the observation', () => {
+    // Accepting the canonical NAME must not accept different BYTES: sha256 and
+    // sizeBytes remain the binding, so a tampered report under the canonical
+    // name is still refused.
+    const evidence = fixture();
+    const renamed = path.join(path.dirname(evidence.receiptPath), 'linux-x64.json');
+    const tampered = JSON.parse(readFileSync(evidence.receiptPath, 'utf8'));
+    tampered.installerSnapshotBytesSha256 = 'd'.repeat(64);
+    writeFileSync(renamed, `${JSON.stringify(tampered)}\n`);
+    expect(() =>
+      verifyPlatformPackageSmoke(
+        { ...input(evidence), receiptPath: renamed },
+        { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
+        { execFileSyncImpl: evidence.execFileSyncImpl }
+      )
+    ).toThrow('protected platform observation does not bind exact report bytes');
+  });
+
+  it('rejects an unrelated receipt name that is neither recorded nor canonical', () => {
+    const evidence = fixture();
+    const wrong = path.join(path.dirname(evidence.receiptPath), 'not-the-report.json');
+    writeFileSync(wrong, readFileSync(evidence.receiptPath));
+    expect(() =>
+      verifyPlatformPackageSmoke(
+        { ...input(evidence), receiptPath: wrong },
+        { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
+        { execFileSyncImpl: evidence.execFileSyncImpl }
+      )
+    ).toThrow('protected platform observation does not bind exact report bytes');
+  });
+
   it('rejects a smoke from a sibling candidate', () => {
     const evidence = fixture();
     const observation = JSON.parse(readFileSync(evidence.observationPath, 'utf8'));
