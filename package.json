@@ -298,7 +298,7 @@
     "unocss": "^66.3.3",
     "unocss-preset-extra": "^1.0.0",
     "vite": "^6.4.3",
-    "vite-plugin-static-copy": "^3.2.0",
+    "vite-plugin-static-copy": "^4.1.1",
     "vitest": "^4.0.18"
   },
   "optionalDependencies": {
