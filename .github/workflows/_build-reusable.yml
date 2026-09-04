@@ -683,15 +683,45 @@ jobs:
           $Command = $env:WINDOWS_BUILD_COMMAND
           $BuildFailed = $false
 
-          try {
-            Write-Host "Running Windows build command: $Command"
-            iex $Command
-            Write-Host "Windows build completed successfully"
-          } catch {
-            $BuildFailed = $true
-            "result=failure" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-            Write-Error "${{ matrix.platform }} build failed; packaged smoke cannot be skipped. $_"
-            throw
+          # Azure Trusted Signing crashes pwsh with 0xC0000005 (3221225477, an access
+          # violation) partway through signing, and it is not deterministic: v0.12.14
+          # signed win-arm64 clean on the rehearsal tag and then crashed on the release
+          # tag at the identical commit, 20 minutes in, after Wayland.exe and six other
+          # binaries had already signed. Only that signature is retried. Anything else -
+          # a compile error, a missing module, a real electron-builder fault - still
+          # fails on the first attempt, because a step that retries every failure stops
+          # being a check.
+          $SigningCrash = '3221225477|pwsh\.exe process failed'
+          $MaxAttempts = 3
+          $transcript = Join-Path $env:RUNNER_TEMP 'windows-build-attempt.log'
+
+          for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+            $BuildFailed = $false
+            try {
+              Write-Host "Running Windows build command (attempt $attempt of ${MaxAttempts}): $Command"
+              iex "$Command 2>&1 | Tee-Object -FilePath '$transcript'"
+              Write-Host "Windows build completed successfully on attempt $attempt"
+              break
+            } catch {
+              $BuildFailed = $true
+              $detail = "$_"
+              if (Test-Path $transcript) { $detail += "`n" + (Get-Content $transcript -Raw) }
+
+              $isSigningCrash = $detail -match $SigningCrash
+              if (-not $isSigningCrash) {
+                "result=failure" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+                Write-Error "${{ matrix.platform }} build failed; packaged smoke cannot be skipped. $_"
+                throw
+              }
+
+              Write-Host "::warning title=Azure Trusted Signing crashed::attempt $attempt of $MaxAttempts hit the 0xC0000005 signing crash"
+              if ($attempt -eq $MaxAttempts) {
+                "result=failure" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+                Write-Error "${{ matrix.platform }} build failed: Azure Trusted Signing crashed on all $MaxAttempts attempts. $_"
+                throw
+              }
+              Start-Sleep -Seconds (30 * $attempt)
+            }
           }
 
           if ($BuildFailed) {
