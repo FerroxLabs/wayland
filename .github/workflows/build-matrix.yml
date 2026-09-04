@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - name: Checkout exact candidate
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Capture exact candidate
         id: candidate
@@ -94,7 +94,7 @@ jobs:
           echo "artifact-name=capability-acceptance-${commit}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
 
@@ -126,7 +126,7 @@ jobs:
             --out "${RUNNER_TEMP}/capability-acceptance"
 
       - name: Upload capability acceptance receipts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.candidate.outputs.artifact-name }}
           path: ${{ runner.temp }}/capability-acceptance
@@ -203,10 +203,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup mise
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@v4
         with:
           # Pinned versions (node = 24, bun = 1.3, just = 1.51) live in
           # ../mise.toml at the workspace root, one level above app/.
@@ -215,7 +215,7 @@ jobs:
         continue-on-error: true
 
       - name: Setup Node.js (fallback if mise did not pick up workspace toml)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
 
@@ -225,7 +225,7 @@ jobs:
           bun-version: '1.3'
 
       - name: Cache Bun + node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.bun/install/cache
@@ -319,7 +319,7 @@ jobs:
 
       - name: Checkout @wayland MCP connector sources
         if: "!(runner.os == 'Windows' && runner.arch == 'ARM64')"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: FerroxLabs/waylandmcp
           ref: ${{ env.WAYLANDMCP_REF }}
@@ -378,7 +378,7 @@ jobs:
         run: bun run postinstall || true
 
       - name: Download exact capability acceptance authority
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ needs.capability-acceptance.outputs.artifact-name }}
           path: ${{ runner.temp }}/capability-acceptance
@@ -395,7 +395,7 @@ jobs:
         run: echo "WAYLAND_CAPABILITY_RECEIPTS_DIR=${RECEIPTS_DIR}" >> "$GITHUB_ENV"
 
       - name: Cache Electron artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ${{ runner.temp }}/.cache/electron
@@ -523,7 +523,7 @@ jobs:
           esac
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wayland-${{ matrix.release_track }}-${{ matrix.platform }}
           path: |

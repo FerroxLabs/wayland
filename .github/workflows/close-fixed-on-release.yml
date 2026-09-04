@@ -44,7 +44,7 @@ jobs:
       TAG: ${{ github.event.inputs.tag || github.event.release.tag_name || github.event.workflow_run.head_branch }}
     steps:
       - name: Check out the release tag (to read the bundled engine version)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         continue-on-error: true
         with:
           ref: ${{ github.event.inputs.tag || github.event.release.tag_name || github.event.workflow_run.head_branch }}

@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 90
     steps:
       - name: Checkout exact Desktop change
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -50,7 +50,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout exact Desktop change
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
