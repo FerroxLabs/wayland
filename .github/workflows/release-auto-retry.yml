@@ -1,0 +1,53 @@
+# Re-runs a failed Build and Release once, from OUTSIDE the run.
+#
+# This replaces an auto-retry job that lived inside Build and Release itself and
+# could never have worked. That job slept 5 minutes and then POSTed .../rerun for
+# its own run id - but it was a job of that run, so the run was still in progress
+# and GitHub answered:
+#
+#   403 {"message": "This workflow is already running"}
+#
+# It was skipped on every green run and on every dev build, so it first executed
+# on v0.12.14 and failed exactly as constructed. workflow_run fires only after the
+# run has finished, which is the one moment the rerun API will accept it.
+#
+# Loop safety is the run_attempt check: this fires only for attempt 1, so a run it
+# retries becomes attempt 2 and can never trigger it again. rerun-failed-jobs is
+# used rather than a full rerun so the builds that already passed keep their
+# artifacts - a manual rerun of v0.12.14 rebuilt only the one failed target.
+name: Release Auto Retry
+
+on:
+  workflow_run:
+    workflows: ['Build and Release']
+    types: [completed]
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  retry-once:
+    name: Retry a failed release run once
+    runs-on: ubuntu-latest
+    if: |
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.run_attempt == 1 &&
+      github.event.workflow_run.event == 'push'
+    steps:
+      - name: Re-run the failed jobs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          set -euo pipefail
+          echo "Retrying failed jobs for run $RUN_ID ($HEAD_BRANCH)"
+          echo "$RUN_URL"
+          if gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/rerun-failed-jobs"; then
+            echo "::notice title=Release auto retry::Re-ran the failed jobs of $HEAD_BRANCH as attempt 2"
+          else
+            echo "::error title=Release auto retry failed::Could not re-run $RUN_ID; re-run it by hand at $RUN_URL" >&2
+            exit 1
+          fi
