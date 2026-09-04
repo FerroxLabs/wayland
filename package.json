@@ -199,7 +199,7 @@
     "keytar": "^7.9.0",
     "lucide-react": "^1.14.0",
     "mammoth": "^1.11.0",
-    "matrix-js-sdk": "^41.5.0",
+    "matrix-js-sdk": "^42.2.0",
     "mermaid": "^11.16.0",
     "multer": "^2.2.0",
     "nodemailer": "^9.0.3",
