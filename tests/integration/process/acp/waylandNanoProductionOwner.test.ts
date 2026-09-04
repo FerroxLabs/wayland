@@ -10,6 +10,13 @@ import { promisify } from 'node:util';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import canonicalize from 'canonicalize';
 
+// Every case here builds a real fixture on disk: mkdtemp under LOCALAPPDATA, mode-0700
+// directories, a written executable, a KeyStore create and a BindingStore put, then a
+// recursive rm in teardown. That costs ~0.6s on a warm macOS checkout and comfortably
+// more than the 10s suite default on a windows-2022 runner with a scanner in the path.
+const CASE_TIMEOUT_MS = 60_000;
+const TEARDOWN_TIMEOUT_MS = 60_000;
+
 const connectorMocks = vi.hoisted(() => ({ spawnGenericBackend: vi.fn() }));
 const execFileAsync = promisify(execFile);
 const electronMocks = vi.hoisted(() => ({
@@ -95,15 +102,31 @@ const GRANT: WaylandNanoActivationGrant = Object.freeze({
   validityMs: 300_000,
 });
 
+// Teardown runs every step even if an earlier one throws. A case that times out mid-flight
+// used to abort this hook at the dispose() call, which left the process owner installed and
+// the temp roots on disk, so every later case in the file failed on state it never created.
 afterEach(async () => {
-  await disposeWaylandNanoActivationOwner();
+  const failures: unknown[] = [];
+  const attempt = async (step: () => Promise<unknown>) => {
+    try {
+      await step();
+    } catch (error) {
+      failures.push(error);
+    }
+  };
+
+  await attempt(() => disposeWaylandNanoActivationOwner());
   electronMocks.encryptionAvailable = true;
   electronMocks.backend = 'gnome_libsecret';
   electronMocks.userDataRoot = 'C:/test-user-data';
-  await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
-});
+  await Promise.all(roots.splice(0).map((root) => attempt(() => rm(root, { recursive: true, force: true }))));
 
-describe('Wayland Nano production activation owner', () => {
+  if (failures.length > 0) {
+    throw new AggregateError(failures, 'teardown failed after restoring shared state');
+  }
+}, TEARDOWN_TIMEOUT_MS);
+
+describe('Wayland Nano production activation owner', { timeout: CASE_TIMEOUT_MS }, () => {
   it('resolves only an enrolled opaque binding and releases retries only for correlated child receipt metadata', async () => {
     const fixture = await ownerFixture();
     const resolved = await fixture.owner.load(fixture.binding.productSubjectId);
