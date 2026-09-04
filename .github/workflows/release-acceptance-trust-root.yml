@@ -132,7 +132,29 @@ jobs:
           run_gate typecheck 'bun run typecheck'
           run_gate lint 'bun run lint'
           run_gate build 'bun run build:renderer:web'
-          bun audit --json > "$GATE_OUTPUT/dependency-audit.json" 2> "$GATE_OUTPUT/dependency-audit.stderr" || true
+          # `|| true` is REQUIRED here - `bun audit` exits non-zero whenever it
+          # FINDS advisories, which is the normal case - but it also swallows a
+          # registry 5xx/timeout, and that leaves the file EMPTY. The JSON.parse
+          # below then dies with "Unexpected end of JSON input" and takes down a
+          # 90-minute job for a reason that has nothing to do with the candidate.
+          # That is exactly how v0.12.13 died, after every gate above it had
+          # already passed and the renderer had finished building.
+          #
+          # So: retry like every other network op in this repo, and distinguish
+          # "found advisories, wrote JSON" from "call failed, wrote nothing" by
+          # requiring real bytes. A genuine audit failure still exits non-zero.
+          audit_ok=0
+          for attempt in 1 2 3; do
+            bun audit --json > "$GATE_OUTPUT/dependency-audit.json" 2> "$GATE_OUTPUT/dependency-audit.stderr" || true
+            if [[ -s "$GATE_OUTPUT/dependency-audit.json" ]]; then audit_ok=1; break; fi
+            echo "bun audit produced no output (attempt $attempt of 3); retrying" >&2
+            sleep $(( attempt * 15 ))
+          done
+          if [[ "$audit_ok" -ne 1 ]]; then
+            echo "::error title=dependency audit unavailable::bun audit returned no JSON after 3 attempts" >&2
+            cat "$GATE_OUTPUT/dependency-audit.stderr" >&2 || true
+            exit 1
+          fi
           node -e 'const fs=require("node:fs"); const value=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if (!value || typeof value!=="object" || Array.isArray(value)) process.exit(1)' \
             "$GATE_OUTPUT/dependency-audit.json"
 
