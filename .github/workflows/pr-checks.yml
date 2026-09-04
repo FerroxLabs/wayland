@@ -90,7 +90,7 @@ jobs:
       docs_only: ${{ steps.classify.outputs.docs_only }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -128,7 +128,7 @@ jobs:
           exit 1
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -171,7 +171,7 @@ jobs:
           github_token: ${{ github.token }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -262,7 +262,7 @@ jobs:
         shard: [1, 2, 3, 4]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # constitutionFsService authenticates the immutable 991c502 producer
           # corpus by re-deriving it from git history (git archive/show/read-tree).
@@ -304,7 +304,7 @@ jobs:
           github_token: ${{ github.token }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -580,7 +580,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # Same git-history requirement as the unit-test shards.
           fetch-depth: 0
@@ -617,7 +617,7 @@ jobs:
           github_token: ${{ github.token }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -652,7 +652,7 @@ jobs:
 
       - name: Upload coverage to Codecov (Linux coverage only)
         if: always() && hashFiles('coverage/lcov.info') != '' && github.repository == 'FerroxLabs/wayland'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           # No `use_oidc`. It defaults to false, and it must stay false here: this job
           # runs PR-authored code (bun install, postinstall, test:coverage), so an OIDC
@@ -702,7 +702,7 @@ jobs:
 
       - name: Upload coverage artifacts
         if: always() && hashFiles('coverage/lcov.info') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/
@@ -720,10 +720,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -792,10 +792,10 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           # Pinned to ../mise.toml (node = "24"). engines.node allows >=22 <25.
           node-version: '24'
@@ -807,7 +807,7 @@ jobs:
           bun-version: '1.3'
 
       - name: Cache Bun + node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.bun/install/cache
@@ -876,7 +876,7 @@ jobs:
       # cache-warm binary is reused instead of nuked + re-downloaded every run.
       - name: Restore Electron binary cache
         id: electron-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             node_modules/electron/dist
@@ -962,7 +962,7 @@ jobs:
       # runs then restore it from GitHub infra, immune to the egress cap.
       - name: Save Electron binary cache
         if: steps.electron-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: |
             node_modules/electron/dist
@@ -997,7 +997,7 @@ jobs:
 
       - name: Upload Playwright report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pr-checks-playwright-report
           path: tests/e2e/report
@@ -1016,7 +1016,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Create mock build artifacts
         shell: bash
@@ -1054,7 +1054,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Lint issue references in the PR description
         env:

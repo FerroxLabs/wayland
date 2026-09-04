@@ -65,12 +65,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -128,7 +128,7 @@ jobs:
 
     steps:
       - name: Checkout exact candidate
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
 
@@ -149,7 +149,7 @@ jobs:
           echo "artifact-name=capability-acceptance-${commit}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -181,7 +181,7 @@ jobs:
             --out "${RUNNER_TEMP}/capability-acceptance"
 
       - name: Upload untrusted capability evidence for protected verification
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.candidate.outputs.artifact-name }}
           path: ${{ runner.temp }}/capability-acceptance
@@ -212,7 +212,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref }}
 
@@ -225,7 +225,7 @@ jobs:
           echo "Commit: $SHORT"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -257,14 +257,14 @@ jobs:
           bun-version: '1.3.14'
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
       # Restore Electron/Electron-Builder caches before any build-related install
       - name: Cache Electron artifacts
         id: electron-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ${{ runner.temp }}/.cache/electron
@@ -281,7 +281,7 @@ jobs:
         run: echo "electron-cache-hit=${{ steps.electron-cache.outputs.cache-hit }}"
 
       - name: Install dependencies
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -348,7 +348,7 @@ jobs:
 
       - name: Checkout @wayland MCP connector sources
         if: "!(runner.os == 'Windows' && runner.arch == 'ARM64')"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: FerroxLabs/waylandmcp
           ref: ${{ env.WAYLANDMCP_REF }}
@@ -407,7 +407,7 @@ jobs:
         run: bun run postinstall || true
 
       - name: Download exact capability acceptance authority
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ${{ needs.capability-acceptance.outputs.artifact-name }}
           path: ${{ runner.temp }}/capability-acceptance
@@ -433,7 +433,7 @@ jobs:
       - name: Install MSVC ARM64 toolchain (Windows ARM64 only)
         if: matrix.platform == 'windows-arm64'
         continue-on-error: true
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 20
           max_attempts: 3
@@ -450,7 +450,7 @@ jobs:
 
       - name: Setup MSBuild (for Windows only)
         if: startsWith(matrix.platform, 'windows')
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
         with:
           vs-version: '17.0'
 
@@ -841,7 +841,7 @@ jobs:
       # Linux: 标准构建，无特殊错误处理
       - name: Build with electron-builder (Linux)
         if: startsWith(matrix.platform, 'linux')
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
           max_attempts: 2
@@ -948,7 +948,7 @@ jobs:
           ls -lh out/ || true
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: >-
           success() &&
           (!startsWith(matrix.platform, 'windows') || steps.windows-build.outputs.result == 'success')
