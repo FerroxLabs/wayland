@@ -119,7 +119,7 @@
     "@floating-ui/react": "^0.27.16",
     "@fontsource-variable/inter": "^5.2.8",
     "@google-cloud/pubsub": "^5.3.1",
-    "@google/genai": "^1.16.0",
+    "@google/genai": "^2.20.0",
     "@grammyjs/transformer-throttler": "^1.2.1",
     "@hpke/chacha20poly1305": "1.8.0",
     "@hpke/core": "1.9.0",
