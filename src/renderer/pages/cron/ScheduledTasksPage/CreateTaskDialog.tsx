@@ -23,7 +23,8 @@ import { getAgentLogo } from '@renderer/utils/model/agentLogo';
 import { CUSTOM_AVATAR_IMAGE_MAP } from '@/renderer/pages/guid/constants';
 import dayjs from 'dayjs';
 import AcpConfigSelector from '@renderer/components/agent/AcpConfigSelector';
-import { getFullAutoMode } from '@renderer/utils/model/agentModes';
+import { resolveUnattendedMode } from '@/common/types/agentModes';
+import AgentModeSelector from '@renderer/components/agent/AgentModeSelector';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { ConfigStorage } from '@/common/config/storage';
 import type { AcpBackendAll, AcpModelInfo, AcpSessionConfigOption, AgentBackend } from '@/common/types/acpTypes';
@@ -271,6 +272,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [workflowLoading, setWorkflowLoading] = useState(false);
 
   // Advanced settings state
+  const [approvalMode, setApprovalMode] = useState<string | undefined>();
   const [modelId, setModelId] = useState<string | undefined>(undefined);
   const [configOptions, setConfigOptions] = useState<Record<string, string> | undefined>(undefined);
   const [workspace, setWorkspace] = useState<string | undefined>(undefined);
@@ -353,6 +355,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         agent: agentKey,
       });
       // Populate advanced settings from the authoritative job record
+      setApprovalMode(freshJob.metadata.agentConfig?.mode);
       setModelId(freshJob.metadata.agentConfig?.modelId);
       setConfigOptions(freshJob.metadata.agentConfig?.configOptions);
       setWorkspace(freshJob.metadata.agentConfig?.workspace);
@@ -364,6 +367,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       setCustomCronExpr('');
       setExecutionMode(initialExecutionMode);
       setAdvancedOpen(false);
+      setApprovalMode(undefined);
       setModelId(undefined);
       setConfigOptions(undefined);
       setWorkspace(undefined);
@@ -613,6 +617,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       markEdited();
       setSelectedAgent(value);
       // Reset model and configOptions when agent changes
+      setApprovalMode(undefined);
       setModelId(undefined);
       setConfigOptions(undefined);
       // Workspace remains unchanged (agent-agnostic)
@@ -668,7 +673,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           backend: agent.backend as AgentBackend,
           name: agent.name,
           cliPath: agent.cliPath,
-          mode: getFullAutoMode(agent.backend),
+          mode: resolveUnattendedMode(agent.backend, approvalMode),
           modelId,
           configOptions: mergedConfigOptions,
           workspace,
@@ -685,7 +690,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           isPreset: true,
           customAgentId: agent.customAgentId,
           presetAgentType: agent.presetAgentType,
-          mode: getFullAutoMode(agent.backend),
+          mode: resolveUnattendedMode(agent.backend, approvalMode),
           modelId,
           configOptions: mergedConfigOptions,
           workspace,
@@ -984,6 +989,20 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               )}
             </Select>
           </FormItem>
+
+          {resolvedBackend ? (
+            <FormItem label={t('agentMode.permission')}>
+              <AgentModeSelector
+                backend={resolvedBackend}
+                compact
+                initialMode={resolveUnattendedMode(resolvedBackend, approvalMode)}
+                onModeSelect={(mode) => {
+                  markEdited();
+                  setApprovalMode(mode);
+                }}
+              />
+            </FormItem>
+          ) : null}
 
           <FormItem label={t('cron.page.form.executionMode')}>
             <Radio.Group

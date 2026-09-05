@@ -22,7 +22,8 @@
   "exportRedacted": "Exported. A possible secret was masked. Review before sharing.",
   "launchError": "Failed to launch workflow: {{msg}}",
   "picker": {
-    "noAgent": "No backend selected"
+    "noAgent": "No backend selected",
+    "approvalForNewRun": "Approval for new runs"
   },
   "import": {
     "title": "Import workflow",

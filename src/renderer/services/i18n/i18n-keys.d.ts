@@ -5576,6 +5576,7 @@ export type I18nKey =
   | 'workflows.launch.placeholder'
   | 'workflows.launchError'
   | 'workflows.noDescription'
+  | 'workflows.picker.approvalForNewRun'
   | 'workflows.picker.noAgent'
   | 'workflows.search.empty'
   | 'workflows.search.emptyLibrary'

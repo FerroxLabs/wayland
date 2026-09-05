@@ -39,6 +39,7 @@
   },
   "launchError": "워크플로 실행 실패: {{msg}}",
   "picker": {
-    "noAgent": "선택된 백엔드 없음"
+    "noAgent": "선택된 백엔드 없음",
+    "approvalForNewRun": "새 실행의 승인"
   }
 }

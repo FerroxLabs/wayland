@@ -127,7 +127,13 @@ agentFactory.register('wcore', (conv, opts) => {
   return new WCoreManager(
     // #723: thread the per-step reset seed bound so WCoreManager.start() seeds
     // only the immediately-prior deliverable. Field name identical at every hop.
-    { ...c.extra, conversation_id: c.id, yoloMode: opts?.yoloMode, workflowResetSeed: opts?.workflowResetSeed },
+    {
+      ...c.extra,
+      conversation_id: c.id,
+      yoloMode: opts?.yoloMode,
+      workflowResetSeed: opts?.workflowResetSeed,
+      unattendedHoldDeadlineMs: opts?.unattendedHoldDeadlineMs,
+    },
     c.model
   ) as unknown as ReturnType<typeof agentFactory.create>;
 });

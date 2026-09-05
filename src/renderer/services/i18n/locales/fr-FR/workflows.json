@@ -18,7 +18,8 @@
   },
   "launchError": "Échec du lancement du workflow : {{msg}}",
   "picker": {
-    "noAgent": "Aucun backend sélectionné"
+    "noAgent": "Aucun backend sélectionné",
+    "approvalForNewRun": "Approbation des nouvelles exécutions"
   },
   "import": {
     "placeholder": "Le câblage d'import arrive bientôt : dossier / URL git / SKILL.md avec type:workflow détecté automatiquement via le frontmatter, analysé par Skill Guard et enregistré comme source:imported."

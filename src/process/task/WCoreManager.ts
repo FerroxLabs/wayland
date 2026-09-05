@@ -8,7 +8,7 @@ import { ipcBridge } from '@/common';
 import { getPlatformServices } from '@/common/platform';
 import * as os from 'node:os';
 import { join } from 'node:path';
-import type { CronMessageMeta, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
+import type { CronMessageMeta, IConfirmation, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
 import {
   PATH_BOUNDARY_DENY,
@@ -182,6 +182,8 @@ type WCoreManagerData = {
   model: TProviderWithModel;
   conversation_id: string;
   yoloMode?: boolean;
+  unattendedHoldDeadlineMs?: number;
+  workflowSessionId?: string;
   presetRules?: string;
   /**
    * The same rules under the key the ACP backends use.
@@ -455,6 +457,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private bootstrapRetries = 0;
   private lastBootstrapAttemptAt = 0;
   private currentMode: string = 'default';
+  private unattendedHoldDeadlineMs: number | undefined;
+  private readonly workflowAutomation: boolean;
+  private readonly unattendedHoldTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private _capabilities: WCoreCapabilities | null = null;
   private _configSentAt: number | null = null;
   private _messageSentAt: number | null = null;
@@ -577,6 +582,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   constructor(data: WCoreManagerData, model: TProviderWithModel) {
     super('wcore', { ...data, model }, new IpcAgentEventEmitter(), false);
     this.workspace = data.workspace;
+    this.workflowAutomation = Boolean(data.workflowSessionId);
     this.conversation_id = data.conversation_id;
     this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, [], {
       conversationId: this.conversation_id,
@@ -584,6 +590,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     });
     this.model = model;
     this.currentMode = data.sessionMode || 'default';
+    this.setUnattendedHoldDeadlineMs(data.unattendedHoldDeadlineMs);
 
     // enableFork=false skips auto-init in ForkTask, so init manually
     this.init();
@@ -1057,6 +1064,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   async stop() {
+    this.clearUnattendedHoldTimers();
     this.stopEpoch += 1;
     this.stopHeartbeat();
     this.flushAllBufferedStreamTexts();
@@ -1218,7 +1226,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     if (this.currentMode === 'auto_edit') {
       // Never auto-answer a question - it requires a real user choice, so it
       // falls through to the confirmation dialog.
-      if (type === 'edit' || type === 'info') {
+      const unattended = this.isUnattended;
+      const fileEdit = type === 'edit' && (!unattended || content.name === 'Write' || content.name === 'Edit');
+      if (fileEdit || (type === 'info' && !unattended)) {
         this.agent?.approveTool(content.callId, 'once');
         return true;
       }
@@ -1228,11 +1238,70 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // uses for unclassified/network confirmations) - so a persisted always-on
     // posture stays stricter than the user-chosen auto_edit mode. Persisted
     // per-workspace; question/exec/mcp fall through to the confirmation dialog.
-    if (isWorkspaceTrusted(this.workspace) && trustedWorkspaceAutoApprovesConfirmationType(type)) {
+    if (
+      isWorkspaceTrusted(this.workspace) &&
+      trustedWorkspaceAutoApprovesConfirmationType(type) &&
+      (!this.isUnattended || content.name === 'Write' || content.name === 'Edit')
+    ) {
       this.agent?.approveTool(content.callId, 'once');
       return true;
     }
     return false;
+  }
+
+  private get isUnattended(): boolean {
+    return this.workflowAutomation || this.unattendedHoldDeadlineMs !== undefined;
+  }
+
+  /** Receives the shared scheduler hold duration in ms, not a Unix timestamp. */
+  setUnattendedHoldDeadlineMs(deadline: number | undefined): void {
+    if (deadline !== undefined && !Number.isFinite(deadline)) throw new Error('Invalid unattended approval deadline.');
+    this.clearUnattendedHoldTimers();
+    this.unattendedHoldDeadlineMs = deadline;
+    for (const confirmation of this.confirmations) this.armUnattendedHold(confirmation);
+  }
+
+  private clearUnattendedHoldTimers(): void {
+    for (const timer of this.unattendedHoldTimers.values()) clearTimeout(timer);
+    this.unattendedHoldTimers.clear();
+  }
+
+  private armUnattendedHold(confirmation: IConfirmation<string>): void {
+    // Redelivery must not renew a held operation indefinitely.
+    if (this.unattendedHoldTimers.has(confirmation.callId) || this.unattendedHoldDeadlineMs === undefined) return;
+    const timer = setTimeout(
+      () => {
+        if (this.unattendedHoldTimers.get(confirmation.callId) !== timer) return;
+        this.unattendedHoldTimers.delete(confirmation.callId);
+        const current = this.confirmations.find((item) => item.callId === confirmation.callId);
+        if (!current) return;
+        mainWarn('[WCoreManager]', 'Unattended approval hold expired; denying the pending operation.');
+        try {
+          this.confirm(
+            current.id,
+            current.callId,
+            isPathBoundaryConfirmation(current) ? PATH_BOUNDARY_DENY : ToolConfirmationOutcome.Cancel,
+            undefined,
+            'Unattended approval deadline expired'
+          );
+        } catch (error) {
+          // Transport death can race the deadline. It must not turn a denied
+          // scheduled operation into an uncaught exception in the desktop host.
+          mainWarn(
+            '[WCoreManager]',
+            'Expired approval denial could not reach Core.',
+            error instanceof Error ? redactCommandSecrets(error.message) : 'Transport unavailable'
+          );
+        }
+      },
+      Math.max(0, Math.min(2147483647, this.unattendedHoldDeadlineMs))
+    );
+    this.unattendedHoldTimers.set(confirmation.callId, timer);
+  }
+
+  protected override addConfirmation(confirmation: IConfirmation<string>): void {
+    this.armUnattendedHold(confirmation);
+    super.addConfirmation(confirmation);
   }
 
   private handleConformationMessage(message: IMessageToolGroup) {
@@ -1655,6 +1724,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   private handleProcessExit(code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null): void {
+    this.clearUnattendedHoldTimers();
     mainError(
       '[WCoreManager]',
       `wcore process exited unexpectedly (code=${code}, signal=${signal ?? 'none'}) during active turn ${activeMsgId}`
@@ -2001,9 +2071,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         const autoMode = this.currentMode === 'yolo' || this.currentMode === 'auto_edit';
         const isInfo = appr.reason === 'info';
 
-        // Informational approvals (e.g. the engine's internal todo tool) are safe
-        // to self-resume in ANY mode - unchanged happy path.
-        if (appr.resumeToken && isInfo) {
+        // Interactive behavior is retained. Automated runs cannot treat the
+        // broad info category as safe: it also covers durable/remote changes.
+        if (appr.resumeToken && isInfo && !this.isUnattended) {
           this.agent?.resumeApproval(appr.resumeToken, true);
           return;
         }
@@ -2016,7 +2086,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // audit fights. Escalate through the EXISTING Confirming gate so the user
         // explicitly allows/denies; the decision resumes by resume_token in
         // confirm() (keyed via pendingApprovalTokens).
-        if (autoMode && !isInfo && appr.resumeToken) {
+        if ((autoMode || this.isUnattended) && appr.resumeToken) {
           const callId = appr.callId ?? '';
           // A non-interactive spawn (channel/cron sets this.yoloMode) is genuinely
           // autonomous - there is no user to prompt, and it opted into full-auto.
@@ -2473,7 +2543,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  confirm(id: string, callId: string, data: string, answer?: string) {
+  confirm(id: string, callId: string, data: string, answer?: string, denyReason?: string) {
+    const boundaryConfirmation = this.confirmations.find((c) => c.callId === callId && isPathBoundaryConfirmation(c));
+    // Foreign replies must not disarm the owning scheduler's deadline.
+    if (boundaryConfirmation && !isPathBoundaryOptionValue(data)) return;
+    const holdTimer = this.unattendedHoldTimers.get(callId);
+    if (holdTimer) clearTimeout(holdTimer);
+    this.unattendedHoldTimers.delete(callId);
     // #264: an escalated auto-mode `approval_required` is resumed by resume_token,
     // NOT by approveTool/denyTool. If this callId was escalated, clear its card,
     // drive the engine's approval_resume, and stop - do not also fall through to
@@ -2493,7 +2569,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // workspace, read-only. `write: false` is not a default we could widen
     // later from here: write access outside the workspace is not grantable at
     // all, so Core never raises a boundary asking for it.
-    const boundaryConfirmation = this.confirmations.find((c) => c.callId === callId && isPathBoundaryConfirmation(c));
+
     if (boundaryConfirmation) {
       // A folder grant answers ONLY in its own vocabulary. Anything else that
       // reaches this callId came from a surface that never rendered THIS card:
@@ -2531,7 +2607,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           mainWarn('[WCoreManager]', 'the folder-grant answer was not delivered', error);
         });
       } else {
-        this.agent?.denyTool(callId, 'User declined access to the folder');
+        this.agent?.denyTool(callId, denyReason ?? 'User declined access to the folder');
       }
       return;
     }
@@ -2549,7 +2625,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
     if (this.agent) {
       if (data === ToolConfirmationOutcome.Cancel) {
-        this.agent.denyTool(callId, 'User cancelled');
+        this.agent.denyTool(callId, denyReason ?? 'User cancelled');
       } else {
         const scope = data === ToolConfirmationOutcome.ProceedAlways ? 'always' : 'once';
         // #504: `answer` carries the picked AskUserQuestion choice back to the
@@ -2718,6 +2794,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   override async kill(): Promise<void> {
     this.disposed = true;
+    this.clearUnattendedHoldTimers();
     let engineFailure: unknown;
     let workerFailure: unknown;
 

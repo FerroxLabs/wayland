@@ -18,7 +18,8 @@
   },
   "launchError": "No se pudo lanzar el flujo de trabajo: {{msg}}",
   "picker": {
-    "noAgent": "Ningún backend seleccionado"
+    "noAgent": "Ningún backend seleccionado",
+    "approvalForNewRun": "Aprobación para nuevas ejecuciones"
   },
   "import": {
     "placeholder": "El sistema de importación llega pronto: carpeta / URL de git / SKILL.md con type:workflow detectado automáticamente mediante frontmatter, analizado por Skill Guard y registrado como source:imported."
