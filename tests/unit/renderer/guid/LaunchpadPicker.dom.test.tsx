@@ -6,7 +6,7 @@
 
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -25,18 +25,13 @@ const assistants: AssistantListItem[] = [
 
 describe('LaunchpadPicker', () => {
   afterEach(() => {
+    vi.useRealTimers();
     vi.clearAllMocks();
   });
 
   it('renders the drawer with the search input and a populated grid', () => {
     render(
-      <LaunchpadPicker
-        onClose={vi.fn()}
-        onPick={vi.fn()}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     expect(screen.getByTestId('launchpad-picker')).toBeInTheDocument();
@@ -65,18 +60,85 @@ describe('LaunchpadPicker', () => {
   it('clicking an unpinned card calls onPick with the assistantId', () => {
     const onPick = vi.fn();
     render(
-      <LaunchpadPicker
-        onClose={vi.fn()}
-        onPick={onPick}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={vi.fn()} onPick={onPick} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     const forge = screen.getByTestId('launchpad-picker-card-ext-forge');
     fireEvent.click(forge);
     expect(onPick).toHaveBeenCalledWith('ext-forge');
+  });
+
+  it('shows the accepted-pick flash for 600ms and then clears it', () => {
+    vi.useFakeTimers();
+    const { unmount } = render(
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
+    );
+    const forge = screen.getByTestId('launchpad-picker-card-ext-forge');
+    const restingClass = forge.className;
+
+    fireEvent.click(forge);
+    expect(forge.className).not.toBe(restingClass);
+    act(() => vi.advanceTimersByTime(599));
+    expect(forge.className).not.toBe(restingClass);
+    act(() => vi.advanceTimersByTime(1));
+    expect(forge.className).toBe(restingClass);
+    unmount();
+  });
+
+  it('replaces the prior flash timer so its deadline cannot clear the latest pick', () => {
+    vi.useFakeTimers();
+    const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
+    const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+    const { unmount } = render(
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
+    );
+    const forge = screen.getByTestId('launchpad-picker-card-ext-forge');
+    const sales = screen.getByTestId('launchpad-picker-card-ext-sales');
+    const salesRestingClass = sales.className;
+    const flashTimerHandles = () =>
+      setTimeoutSpy.mock.calls.flatMap((call, index) =>
+        call[1] === 600 ? [setTimeoutSpy.mock.results[index]?.value] : []
+      );
+
+    fireEvent.click(forge);
+    const firstFlashTimer = flashTimerHandles()[0];
+    expect(flashTimerHandles()).toHaveLength(1);
+    expect(firstFlashTimer).toBeDefined();
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(sales);
+    const secondFlashTimer = flashTimerHandles()[1];
+    expect(flashTimerHandles()).toHaveLength(2);
+    expect(secondFlashTimer).toBeDefined();
+    expect(secondFlashTimer).not.toBe(firstFlashTimer);
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(firstFlashTimer);
+    expect(sales.className).not.toBe(salesRestingClass);
+
+    act(() => vi.advanceTimersByTime(300));
+    expect(sales.className).not.toBe(salesRestingClass);
+    act(() => vi.advanceTimersByTime(300));
+    expect(sales.className).toBe(salesRestingClass);
+    unmount();
+  });
+
+  it('cancels a pending flash on unmount and isolates a reopened picker', () => {
+    vi.useFakeTimers();
+    const first = render(
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
+    );
+    const baselineTimers = vi.getTimerCount();
+    fireEvent.click(screen.getByTestId('launchpad-picker-card-ext-forge'));
+    expect(vi.getTimerCount()).toBe(baselineTimers + 1);
+
+    first.unmount();
+    expect(vi.getTimerCount()).toBe(baselineTimers);
+    const second = render(
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
+    );
+    const sales = screen.getByTestId('launchpad-picker-card-ext-sales');
+    const restingClass = sales.className;
+    act(() => vi.advanceTimersByTime(1_000));
+    expect(sales.className).toBe(restingClass);
+    second.unmount();
   });
 
   it('clicking a pinned card does NOT call onPick', () => {
@@ -96,15 +158,38 @@ describe('LaunchpadPicker', () => {
     expect(onPick).not.toHaveBeenCalled();
   });
 
-  it('search filters the visible cards', () => {
-    render(
+  it('does not schedule flash work for pinned or cap-locked cards', () => {
+    vi.useFakeTimers();
+    const { rerender, unmount } = render(
       <LaunchpadPicker
         onClose={vi.fn()}
         onPick={vi.fn()}
-        pinnedIds={[]}
+        pinnedIds={['ext-copy']}
         assistants={assistants}
         localeKey='en-US'
       />
+    );
+    const baselineTimers = vi.getTimerCount();
+    fireEvent.click(screen.getByTestId('launchpad-picker-card-ext-copy'));
+    expect(vi.getTimerCount()).toBe(baselineTimers);
+
+    rerender(
+      <LaunchpadPicker
+        onClose={vi.fn()}
+        onPick={vi.fn()}
+        pinnedIds={Array.from({ length: LAUNCHPAD_MAX_ENTRIES }, (_, i) => `placeholder-${i}`)}
+        assistants={assistants}
+        localeKey='en-US'
+      />
+    );
+    fireEvent.click(screen.getByTestId('launchpad-picker-card-ext-forge'));
+    expect(vi.getTimerCount()).toBe(baselineTimers);
+    unmount();
+  });
+
+  it('search filters the visible cards', () => {
+    render(
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     fireEvent.change(screen.getByTestId('launchpad-picker-search'), { target: { value: 'forge' } });
@@ -116,13 +201,7 @@ describe('LaunchpadPicker', () => {
 
   it('shows the empty state when the filter matches nothing', () => {
     render(
-      <LaunchpadPicker
-        onClose={vi.fn()}
-        onPick={vi.fn()}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={vi.fn()} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     fireEvent.change(screen.getByTestId('launchpad-picker-search'), {
@@ -134,13 +213,7 @@ describe('LaunchpadPicker', () => {
   it('close button fires onClose', () => {
     const onClose = vi.fn();
     render(
-      <LaunchpadPicker
-        onClose={onClose}
-        onPick={vi.fn()}
-        pinnedIds={[]}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={onClose} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
     );
 
     fireEvent.click(screen.getByTestId('launchpad-picker-close'));
@@ -151,13 +224,7 @@ describe('LaunchpadPicker', () => {
     const onPick = vi.fn();
     const pinned = Array.from({ length: LAUNCHPAD_MAX_ENTRIES }, (_, i) => `placeholder-${i}`);
     render(
-      <LaunchpadPicker
-        onClose={vi.fn()}
-        onPick={onPick}
-        pinnedIds={pinned}
-        assistants={assistants}
-        localeKey='en-US'
-      />
+      <LaunchpadPicker onClose={vi.fn()} onPick={onPick} pinnedIds={pinned} assistants={assistants} localeKey='en-US' />
     );
 
     expect(screen.getByTestId('launchpad-picker-cap-banner')).toBeInTheDocument();
@@ -187,16 +254,38 @@ describe('LaunchpadPicker', () => {
   it('Esc key fires onClose', () => {
     const onClose = vi.fn();
     render(
+      <LaunchpadPicker onClose={onClose} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
+    );
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('replaces and removes the exact Escape listener as onClose changes', () => {
+    const firstClose = vi.fn();
+    const secondClose = vi.fn();
+    const { rerender, unmount } = render(
+      <LaunchpadPicker onClose={firstClose} onPick={vi.fn()} pinnedIds={[]} assistants={assistants} localeKey='en-US' />
+    );
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(firstClose).toHaveBeenCalledTimes(1);
+    rerender(
       <LaunchpadPicker
-        onClose={onClose}
+        onClose={secondClose}
         onPick={vi.fn()}
         pinnedIds={[]}
         assistants={assistants}
         localeKey='en-US'
       />
     );
-
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(firstClose).toHaveBeenCalledTimes(1);
+    expect(secondClose).toHaveBeenCalledTimes(1);
+
+    unmount();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(firstClose).toHaveBeenCalledTimes(1);
+    expect(secondClose).toHaveBeenCalledTimes(1);
   });
 });
