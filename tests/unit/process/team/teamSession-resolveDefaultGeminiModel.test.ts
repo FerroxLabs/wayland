@@ -54,6 +54,7 @@ import { TeamSessionService } from '@process/team/TeamSessionService';
 import type { ITeamRepository } from '@process/team/repository/ITeamRepository';
 import type { IConversationService } from '@process/services/IConversationService';
 import type { IProvider, TProviderWithModel } from '@/common/config/storage';
+import { flattenGeminiModeIds } from '@/common/utils/geminiModes';
 
 function makeRepo(): ITeamRepository {
   return {
@@ -257,5 +258,61 @@ describe('TeamSessionService gemini default model is constrained by the backend 
     const model = await geminiDefault();
     expect(model.id).toBe('google-auth-gemini');
     expect(model.useModel).toBe('gemini-2.5-flash');
+  });
+
+  it('#983: does not rebind a rejected saved API model onto Google OAuth', async () => {
+    mockHasOauth.mockResolvedValue(true);
+    config({
+      modelConfig: [MOONSHOT],
+      geminiDefault: { id: 'moonshot', useModel: 'kimi-k2.7-code' },
+    });
+
+    const model = await geminiDefault();
+
+    expect(model.id).toBe('google-auth-gemini');
+    expect(model.useModel).not.toBe('kimi-k2.7-code');
+    expect(flattenGeminiModeIds()).toContain(model.useModel);
+  });
+
+  it('does not reuse a removed provider model or legacy string as an OAuth model', async () => {
+    mockHasOauth.mockResolvedValue(true);
+    config({ modelConfig: [], geminiDefault: { id: 'removed-provider', useModel: 'kimi-k2.7-code' } });
+    const removed = await geminiDefault();
+
+    config({ modelConfig: [], geminiDefault: 'kimi-k2.7-code' });
+    const legacy = await geminiDefault();
+
+    expect(removed.id).toBe('google-auth-gemini');
+    expect(legacy.id).toBe('google-auth-gemini');
+    expect(removed.useModel).not.toBe('kimi-k2.7-code');
+    expect(legacy.useModel).not.toBe('kimi-k2.7-code');
+    expect(flattenGeminiModeIds()).toContain(removed.useModel);
+    expect(flattenGeminiModeIds()).toContain(legacy.useModel);
+  });
+
+  it('keeps an enabled API-provider Kimi selection even when OAuth is also available', async () => {
+    mockHasOauth.mockResolvedValue(true);
+    config({
+      modelConfig: [MOONSHOT],
+      geminiDefault: { id: 'moonshot', useModel: 'kimi-k3' },
+    });
+
+    const model = await geminiDefault();
+
+    expect(model.id).toBe('moonshot');
+    expect(model.platform).toBe('openai-compatible');
+    expect(model.useModel).toBe('kimi-k3');
+  });
+
+  it('falls back safely for malformed saved values without carrying their fields into OAuth', async () => {
+    mockHasOauth.mockResolvedValue(true);
+    config({ modelConfig: [], geminiDefault: { id: 'moonshot', useModel: null, baseUrl: 'https://rejected' } });
+
+    const model = await geminiDefault();
+
+    expect(model.id).toBe('google-auth-gemini');
+    expect(model.baseUrl).toBe('');
+    expect(model.apiKey).toBe('');
+    expect(flattenGeminiModeIds()).toContain(model.useModel);
   });
 });
