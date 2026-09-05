@@ -2571,7 +2571,9 @@
       "stateAutoRuns": "Auto",
       "stateAsksFirst": "Demande",
       "gateAria": "Activer {{tool}}",
-      "autoRunAria": "Exécuter {{tool}} sans demander"
+      "autoRunAria": "Exécuter {{tool}} sans demander",
+      "inherited": "Valeurs par défaut de Core",
+      "inheritedHint": "Les valeurs par défaut de Core sont héritées. La lecture actuelle ne précise pas l’approbation par outil ; aucune liste personnalisée n’a été écrite."
     },
     "memory": {
       "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",

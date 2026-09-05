@@ -755,3 +755,27 @@ describe('composeMessage - sub_agent subtree merge (#252 Phase 2)', () => {
     expect(childAgent.children![0]).toMatchObject({ id: 'nested-tool', name: 'Grep' });
   });
 });
+
+describe('workspace policy evidence', () => {
+  const policy = { readable_roots: ['/workspace'], writable_roots: [], capabilities: [], backend: 'bwrap' };
+  it('does not turn raw workspace frames into durable authority or warnings', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    expect(
+      transformMessage({ type: 'workspace_policy', conversation_id: 'c', msg_id: '', data: policy })
+    ).toBeUndefined();
+    expect(warning).not.toHaveBeenCalled();
+    warning.mockRestore();
+  });
+  it('round-trips an accepted receipt through durable message composition', () => {
+    const response: IResponseMessage = {
+      type: 'execution_evidence',
+      conversation_id: 'c',
+      msg_id: 'receipt-1',
+      data: { acceptedBy: 'desktop-core-v1-consumer', acceptedAt: 12, event: { type: 'workspace_policy', policy } },
+    };
+    const message = transformMessage(response);
+    expect(message).toMatchObject({ hidden: true, content: response.data });
+    expect(JSON.parse(JSON.stringify(message))).toMatchObject({ content: { event: { policy } } });
+    expect(transformMessage({ ...response, data: { event: { type: 'workspace_policy', policy } } })).toBeUndefined();
+  });
+});

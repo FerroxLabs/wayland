@@ -7,6 +7,7 @@
 import { Shield } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { uuid } from '@/common/utils';
+import WorkspacePolicyButton from '@/renderer/components/agent/WorkspacePolicyButton';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
 import ContextUsageIndicator from '@/renderer/components/agent/ContextUsageIndicator';
 import CommandQueuePanel from '@/renderer/components/chat/CommandQueuePanel';
@@ -614,6 +615,7 @@ const WCoreSendBox: React.FC<{
         tools={
           <div className='flex items-center gap-4px'>
             <FileAttachButton openFileSelector={openFileSelector} onLocalFilesAdded={handleFilesAdded} />
+            <WorkspacePolicyButton conversationId={conversation_id} />
             <AgentModeSelector
               backend='wcore'
               conversationId={conversation_id}

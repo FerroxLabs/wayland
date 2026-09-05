@@ -2572,7 +2572,9 @@
       "stateAutoRuns": "自動実行",
       "stateAsksFirst": "先に確認",
       "gateAria": "{{tool}} を有効化",
-      "autoRunAria": "{{tool}} を確認なしで自動実行"
+      "autoRunAria": "{{tool}} を確認なしで自動実行",
+      "inherited": "Core のデフォルト",
+      "inheritedHint": "Core のデフォルトを継承しています。現在の設定読み取りではツールごとの承認状態は報告されません。カスタムリストは書き込まれていません。"
     },
     "memory": {
       "subtitle": "The engine remembers across sessions、facts, preferences, and project context that persist and compound. On by default, stored locally.",

@@ -35,6 +35,7 @@ import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import type { WCoreWorkspacePolicy } from '@process/agent/wcore/protocol';
 import { WCoreMcpAgent } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
@@ -1933,6 +1934,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       if (
         [
           'execution_policy',
+          'workspace_policy',
           'workflow_started',
           'workflow_node_event',
           'workflow_finished',
@@ -1959,17 +1961,27 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // eligible for canonical receipt/policy projection, which prevents a
         // raw renderer-side IPC injection from manufacturing verified state.
         if (
-          ['execution_policy', 'anvil_receipt', 'anvil_receipt_invalidated', 'anvil_trust_changed'].includes(data.type)
+          [
+            'execution_policy',
+            'workspace_policy',
+            'anvil_receipt',
+            'anvil_receipt_invalidated',
+            'anvil_trust_changed',
+          ].includes(data.type)
         ) {
           const acceptedAt = Date.now();
           const evidenceResponse: IResponseMessage = {
             type: 'execution_evidence',
             conversation_id: this.conversation_id,
-            msg_id: '',
+            // Workspace receipts have no producer event ID; keep rapid grants distinct.
+            msg_id: data.type === 'workspace_policy' ? uuid() : '',
             data: {
               acceptedBy: 'desktop-core-v1-consumer',
               acceptedAt,
-              event: { type: data.type, ...(data.data as Record<string, unknown>) },
+              event:
+                data.type === 'workspace_policy'
+                  ? { type: 'workspace_policy', policy: data.data }
+                  : { type: data.type, ...(data.data as Record<string, unknown>) },
             },
           };
           const evidenceMessage = transformMessage(evidenceResponse);
@@ -2437,8 +2449,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  getMode(): { mode: string; initialized: boolean } {
-    return { mode: this.currentMode, initialized: true };
+  getMode(): { mode: string; initialized: boolean; workspacePolicy: WCoreWorkspacePolicy | null } {
+    return {
+      mode: this.currentMode,
+      initialized: true,
+      // A retained receipt from a dead transport is historical, not current access.
+      workspacePolicy: this.agent?.currentWorkspacePolicy ?? null,
+    };
   }
 
   /**

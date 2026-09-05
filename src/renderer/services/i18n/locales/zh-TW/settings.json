@@ -2572,7 +2572,9 @@
       "stateAutoRuns": "自動執行",
       "stateAsksFirst": "先詢問",
       "gateAria": "啟用 {{tool}}",
-      "autoRunAria": "自動執行 {{tool}} 而不詢問"
+      "autoRunAria": "自動執行 {{tool}} 而不詢問",
+      "inherited": "Core 預設值",
+      "inheritedHint": "繼承 Core 預設值。目前的設定讀取未回報各工具的核准狀態；尚未寫入自訂清單。"
     },
     "memory": {
       "subtitle": "The engine remembers across sessions，facts, preferences, and project context that persist and compound. On by default, stored locally.",

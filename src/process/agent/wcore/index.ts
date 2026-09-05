@@ -2311,6 +2311,11 @@ export class WCoreAgent {
     return this.lastWorkspacePolicy;
   }
 
+  /** Current display authority disappears as soon as transport or ownership ends. */
+  get currentWorkspacePolicy(): WCoreWorkspacePolicy | null {
+    return this.transportAlive && !this.disposed ? this.lastWorkspacePolicy : null;
+  }
+
   /**
    * The roots Core last reported this session may READ. Empty before the first
    * receipt - which is "not yet known", not "nothing is readable", so a caller

@@ -579,5 +579,14 @@
     "rejectedUnreadable_other": "{{count}} n'ont pas pu être lus",
     "more": "et {{count}} de plus dans Artefacts",
     "more_other": "et {{count}} de plus dans Artefacts"
+  },
+  "workspacePolicy": {
+    "title": "Accès à l’espace de travail",
+    "scope": "Accès aux fichiers signalé par la session Core active. L’approbation, les identifiants et l’enregistrement des outils sont distincts.",
+    "readable": "Dossiers accessibles en lecture",
+    "writable": "Dossiers accessibles en écriture",
+    "executables": "Capacités exécutables et dossiers en lecture seule",
+    "none": "Aucun signalé",
+    "unknown": "Core n’a pas signalé d’accès actif à l’espace de travail pour cette conversation."
   }
 }

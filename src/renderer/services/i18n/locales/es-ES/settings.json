@@ -2571,7 +2571,9 @@
       "stateAutoRuns": "Auto",
       "stateAsksFirst": "Pregunta",
       "gateAria": "Activar {{tool}}",
-      "autoRunAria": "Ejecutar {{tool}} sin preguntar"
+      "autoRunAria": "Ejecutar {{tool}} sin preguntar",
+      "inherited": "Valores predeterminados de Core",
+      "inheritedHint": "Se heredan los valores predeterminados de Core. La lectura actual no informa de la aprobación por herramienta; no se ha escrito ninguna lista personalizada."
     },
     "memory": {
       "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",

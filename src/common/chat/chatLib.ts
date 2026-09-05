@@ -596,7 +596,7 @@ export type WCoreAnvilTrustChangedEvent = Readonly<{
 
 export type WCoreExecutionEvidenceEvent =
   | ({ type: 'execution_policy' } & WCoreExecutionPolicy)
-  | Extract<WCoreEvent, { type: 'anvil_receipt' | 'anvil_receipt_invalidated' }>
+  | Extract<WCoreEvent, { type: 'workspace_policy' | 'anvil_receipt' | 'anvil_receipt_invalidated' }>
   | WCoreAnvilTrustChangedEvent;
 
 /**
@@ -756,18 +756,25 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         data?.acceptedBy !== 'desktop-core-v1-consumer' ||
         !Number.isFinite(data.acceptedAt) ||
         !event ||
-        !['execution_policy', 'anvil_receipt', 'anvil_receipt_invalidated', 'anvil_trust_changed'].includes(
-          String(event.type)
-        )
+        ![
+          'execution_policy',
+          'workspace_policy',
+          'anvil_receipt',
+          'anvil_receipt_invalidated',
+          'anvil_trust_changed',
+        ].includes(String(event.type))
       ) {
         return undefined;
       }
+      if (event.type === 'workspace_policy' && !message.msg_id) return undefined;
       const eventKey =
-        'event_id' in event && typeof event.event_id === 'string'
-          ? event.event_id
-          : event.type === 'execution_policy' && typeof event.revision === 'number'
-            ? `policy:${event.revision}`
-            : `trust:${data.acceptedAt}`;
+        event.type === 'workspace_policy'
+          ? `workspace:${message.msg_id}`
+          : 'event_id' in event && typeof event.event_id === 'string'
+            ? event.event_id
+            : event.type === 'execution_policy' && typeof event.revision === 'number'
+              ? `policy:${event.revision}`
+              : `trust:${data.acceptedAt}`;
       return {
         id: `execution-evidence:${eventKey}`,
         type: 'execution_evidence',
@@ -1213,6 +1220,7 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
     case 'codex_model_info': // Codex model info updates, handled by AcpModelSelector
     case 'acp_context_usage': // Context usage updates, handled by AcpSendBox
     case 'request_trace': // Request trace events, logged to F12 console (not persisted)
+    case 'workspace_policy':
     case 'execution_policy': // Raw authority frames are inert; only main-process accepted evidence is durable.
     case 'anvil_receipt':
     case 'anvil_receipt_invalidated':
