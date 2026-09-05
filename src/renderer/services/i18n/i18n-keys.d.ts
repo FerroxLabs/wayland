@@ -50,6 +50,7 @@ export type I18nKey =
   | 'agentMode.bypassPermissions'
   | 'agentMode.chat'
   | 'agentMode.chatTooltip'
+  | 'agentMode.coreModeRefused'
   | 'agentMode.cowork'
   | 'agentMode.coworkTooltip'
   | 'agentMode.default'

@@ -455,6 +455,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private bootstrapRetries = 0;
   private lastBootstrapAttemptAt = 0;
   private currentMode: string = 'default';
+  private pendingModeChange: {
+    requested: string;
+    persist: boolean;
+    timer: ReturnType<typeof setTimeout>;
+    resolve: (result: { success: boolean; msg?: string; data: { mode: string; refusalCode?: string } }) => void;
+  } | null = null;
+
   private _capabilities: WCoreCapabilities | null = null;
   private _configSentAt: number | null = null;
   private _messageSentAt: number | null = null;
@@ -976,6 +983,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       throw stoppedDuringBootstrap;
     }
     this._capabilities = agent.capabilities ?? null;
+    this.acceptConfirmedMode(this._capabilities?.current_mode);
 
     // Per-conversation reasoning effort: forward to the engine via set_config on
     // spawn so the first (and every subsequent) turn runs at the selected effort.
@@ -1655,6 +1663,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   private handleProcessExit(code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null): void {
+    this.finishModeChange(false, 'Core disconnected before confirming the approval mode.');
     mainError(
       '[WCoreManager]',
       `wcore process exited unexpectedly (code=${code}, signal=${signal ?? 'none'}) during active turn ${activeMsgId}`
@@ -1894,6 +1903,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         mainLog('[WCoreManager]', `config_changed received (${elapsed})`, data.data);
         this._configSentAt = null;
         this._capabilities = data.data as WCoreCapabilities;
+        this.acceptConfirmedMode(this._capabilities?.current_mode);
         ipcBridge.conversation.responseStream.emit({
           type: 'config_changed',
           conversation_id: this.conversation_id,
@@ -1901,6 +1911,25 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           data: data.data,
         });
         return;
+      }
+
+      if (data.type === 'set_mode_refused') {
+        const refusal = data.data as { requested: string; effective: string; reason: string };
+        this.acceptConfirmedMode(refusal.effective, refusal);
+        ipcBridge.conversation.responseStream.emit({
+          type: 'set_mode_refused',
+          conversation_id: this.conversation_id,
+          msg_id: '',
+          data: refusal,
+        });
+        return;
+      }
+      if (data.type === 'execution_policy') {
+        // A mode change during an active turn emits this typed receipt before
+        // config_changed. Do not parse its companion info prose as an ACK.
+        const policy = data.data as { policy?: { approvals?: string } };
+        const approvals = policy.policy?.approvals;
+        this.acceptConfirmedMode(approvals === 'bypass' ? 'yolo' : approvals === 'prompt' ? 'default' : approvals);
       }
 
       // Log info events from wcore (includes set_config/set_mode acknowledgments).
@@ -2447,15 +2476,77 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    *   executor when a scheduled run borrows a chat the user owns: the run needs
    *   full-auto, but the user's chat must not be left in it.
    */
-  async setMode(mode: string, options?: { persist?: boolean }): Promise<{ success: boolean; data?: { mode: string } }> {
-    this.currentMode = mode;
-    if (options?.persist !== false) this.saveSessionMode(mode);
-    if (this.agent) {
-      this._configSentAt = Date.now();
-      mainLog('[WCoreManager]', `set_mode sent: mode=${mode}`);
-      this.agent.setMode(mode as 'default' | 'auto_edit' | 'yolo');
+  async setMode(
+    mode: string,
+    options?: { persist?: boolean }
+  ): Promise<{ success: boolean; msg?: string; data: { mode: string; refusalCode?: string } }> {
+    const requested = mode === 'force' ? 'yolo' : mode;
+    if (!['default', 'auto_edit', 'yolo'].includes(requested)) {
+      return { success: false, msg: 'Unsupported Core approval mode.', data: { mode: this.currentMode } };
     }
-    return { success: true, data: { mode: this.currentMode } };
+    if (this.pendingModeChange) {
+      return {
+        success: false,
+        msg: 'A Core mode change is still awaiting confirmation.',
+        data: { mode: this.currentMode },
+      };
+    }
+    if (!this.agent) {
+      this.currentMode = requested;
+      if (options?.persist !== false) await this.saveSessionMode(requested);
+      return { success: true, data: { mode: requested } };
+    }
+    if (!this.agent.isAlive) {
+      return {
+        success: false,
+        msg: 'Core is disconnected; the approval mode was not changed.',
+        data: { mode: this.currentMode },
+      };
+    }
+    if (requested === this.currentMode) return { success: true, data: { mode: this.currentMode } };
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        this.finishModeChange(false, 'Core did not confirm the approval mode change.');
+      }, 10000);
+      this.pendingModeChange = { requested, persist: options?.persist !== false, timer, resolve };
+      this._configSentAt = Date.now();
+      try {
+        this.agent!.setMode(requested as 'default' | 'auto_edit' | 'yolo');
+      } catch {
+        this.finishModeChange(false, 'Core could not receive the approval mode change.');
+      }
+    });
+  }
+
+  private acceptConfirmedMode(raw: string | undefined, refusal?: { requested: string; reason: string }): void {
+    const effective = raw === 'force' ? 'yolo' : raw;
+    if (!effective || !['default', 'auto_edit', 'yolo'].includes(effective)) return;
+    this.currentMode = effective;
+    if (this._capabilities) this._capabilities = { ...this._capabilities, current_mode: effective };
+    const pending = this.pendingModeChange;
+    if (!pending) return;
+    if (refusal) {
+      const requested = refusal.requested === 'force' ? 'yolo' : refusal.requested;
+      if (pending.requested === requested) {
+        this.finishModeChange(false, 'Core refused this mode change; the effective mode is unchanged.', refusal.reason);
+      }
+    } else if (pending.requested === effective) {
+      this.finishModeChange(true);
+    }
+  }
+
+  private finishModeChange(success: boolean, msg?: string, refusalCode?: string): void {
+    const pending = this.pendingModeChange;
+    if (!pending) return;
+    this.pendingModeChange = null;
+    clearTimeout(pending.timer);
+    this._configSentAt = null;
+    if (success && pending.persist) void this.saveSessionMode(this.currentMode);
+    pending.resolve({
+      success,
+      ...(msg && { msg }),
+      data: { mode: this.currentMode, ...(refusalCode && { refusalCode }) },
+    });
   }
 
   private async saveSessionMode(mode: string): Promise<void> {
@@ -2718,6 +2809,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   override async kill(): Promise<void> {
     this.disposed = true;
+    this.finishModeChange(false, 'Core stopped before confirming the approval mode.');
     let engineFailure: unknown;
     let workerFailure: unknown;
 

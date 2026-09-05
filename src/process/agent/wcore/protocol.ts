@@ -340,6 +340,12 @@ export type WCoreEvent =
     }
   | { type: 'info'; msg_id: string; message: string }
   | { type: 'config_changed'; capabilities: WCoreCapabilities }
+  | {
+      type: 'set_mode_refused';
+      requested: 'default' | 'auto_edit' | 'force';
+      effective: 'default' | 'auto_edit' | 'force';
+      reason: 'local_opt_in_required';
+    }
   | { type: 'mcp_ready'; name: string; tools: string[] }
   // #713: the engine failed to connect a configured MCP server. `reason`
   // carries the engine's actionable remediation text (e.g. the `[security]

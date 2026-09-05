@@ -19,5 +19,6 @@
   "coworkTooltip": "Cowork: 이 작업 공간의 읽기 및 편집을 자동 승인합니다. 명령 실행 전에는 계속 확인합니다.",
   "switchMode": "모드 전환",
   "switchSuccess": "모드가 성공적으로 전환되었습니다",
-  "switchFailed": "모드 전환에 실패했습니다"
+  "switchFailed": "모드 전환에 실패했습니다",
+  "coreModeRefused": "Core가 현재 승인 모드를 유지했습니다. 자동 승인에는 Core 시작 시 권한이 필요하며, 이 거부로 도구가 비활성화되지는 않습니다."
 }
