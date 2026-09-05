@@ -638,6 +638,13 @@ describe('CreateTaskDialog - H6 the workspace identity survives an edit', () => 
     return mockUpdateJob.mock.calls[0][0];
   }
 
+  it('preserves an explicitly saved approval mode when editing the task', async () => {
+    const job = jobWithIdentity('/Users/x/Documents/Wayland/Tasks/Morning Brief', 'ws-original');
+    job.metadata.agentConfig!.mode = 'bypassPermissions';
+    const args = await saveEdit(job);
+    expect(args.updates.metadata.agentConfig.mode).toBe('bypassPermissions');
+  });
+
   it('keeps workspaceId when the edit does not repoint the workspace', async () => {
     const args = await saveEdit(jobWithIdentity('/Users/x/Documents/Wayland/Tasks/Morning Brief', 'ws-original'));
 
@@ -646,6 +653,7 @@ describe('CreateTaskDialog - H6 the workspace identity survives an edit', () => 
     expect(args.updates.metadata.agentConfig.name).toBe('Claude');
     expect(args.updates.metadata.agentConfig.workspace).toBe('/Users/x/Documents/Wayland/Tasks/Morning Brief');
     expect(args.updates.metadata.agentConfig.workspaceId).toBe('ws-original');
+    expect(args.updates.metadata.agentConfig.mode).toBe('acceptEdits');
   });
 
   it('drops workspaceId when the job never had one', async () => {

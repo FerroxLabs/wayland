@@ -8,7 +8,7 @@ import { ipcBridge } from '@/common';
 import { getPlatformServices } from '@/common/platform';
 import * as os from 'node:os';
 import { join } from 'node:path';
-import type { CronMessageMeta, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
+import type { CronMessageMeta, IConfirmation, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
 import {
   PATH_BOUNDARY_DENY,
@@ -35,6 +35,7 @@ import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import type { WCoreWorkspacePolicy } from '@process/agent/wcore/protocol';
 import { WCoreMcpAgent } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
@@ -182,6 +183,8 @@ type WCoreManagerData = {
   model: TProviderWithModel;
   conversation_id: string;
   yoloMode?: boolean;
+  unattendedHoldDeadlineMs?: number;
+  workflowSessionId?: string;
   presetRules?: string;
   /**
    * The same rules under the key the ACP backends use.
@@ -455,6 +458,16 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private bootstrapRetries = 0;
   private lastBootstrapAttemptAt = 0;
   private currentMode: string = 'default';
+  private pendingModeChange: {
+    requested: string;
+    persist: boolean;
+    timer: ReturnType<typeof setTimeout>;
+    resolve: (result: { success: boolean; msg?: string; data: { mode: string; refusalCode?: string } }) => void;
+  } | null = null;
+
+  private unattendedHoldDeadlineMs: number | undefined;
+  private readonly workflowAutomation: boolean;
+  private readonly unattendedHoldTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private _capabilities: WCoreCapabilities | null = null;
   private _configSentAt: number | null = null;
   private _messageSentAt: number | null = null;
@@ -577,6 +590,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   constructor(data: WCoreManagerData, model: TProviderWithModel) {
     super('wcore', { ...data, model }, new IpcAgentEventEmitter(), false);
     this.workspace = data.workspace;
+    this.workflowAutomation = Boolean(data.workflowSessionId);
     this.conversation_id = data.conversation_id;
     this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, [], {
       conversationId: this.conversation_id,
@@ -584,6 +598,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     });
     this.model = model;
     this.currentMode = data.sessionMode || 'default';
+    this.setUnattendedHoldDeadlineMs(data.unattendedHoldDeadlineMs);
 
     // enableFork=false skips auto-init in ForkTask, so init manually
     this.init();
@@ -976,6 +991,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       throw stoppedDuringBootstrap;
     }
     this._capabilities = agent.capabilities ?? null;
+    this.acceptConfirmedMode(this._capabilities?.current_mode);
 
     // Per-conversation reasoning effort: forward to the engine via set_config on
     // spawn so the first (and every subsequent) turn runs at the selected effort.
@@ -1057,6 +1073,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   async stop() {
+    this.clearUnattendedHoldTimers();
     this.stopEpoch += 1;
     this.stopHeartbeat();
     this.flushAllBufferedStreamTexts();
@@ -1218,7 +1235,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     if (this.currentMode === 'auto_edit') {
       // Never auto-answer a question - it requires a real user choice, so it
       // falls through to the confirmation dialog.
-      if (type === 'edit' || type === 'info') {
+      const unattended = this.isUnattended;
+      const fileEdit = type === 'edit' && (!unattended || content.name === 'Write' || content.name === 'Edit');
+      if (fileEdit || (type === 'info' && !unattended)) {
         this.agent?.approveTool(content.callId, 'once');
         return true;
       }
@@ -1228,11 +1247,70 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // uses for unclassified/network confirmations) - so a persisted always-on
     // posture stays stricter than the user-chosen auto_edit mode. Persisted
     // per-workspace; question/exec/mcp fall through to the confirmation dialog.
-    if (isWorkspaceTrusted(this.workspace) && trustedWorkspaceAutoApprovesConfirmationType(type)) {
+    if (
+      isWorkspaceTrusted(this.workspace) &&
+      trustedWorkspaceAutoApprovesConfirmationType(type) &&
+      (!this.isUnattended || content.name === 'Write' || content.name === 'Edit')
+    ) {
       this.agent?.approveTool(content.callId, 'once');
       return true;
     }
     return false;
+  }
+
+  private get isUnattended(): boolean {
+    return this.workflowAutomation || this.unattendedHoldDeadlineMs !== undefined;
+  }
+
+  /** Receives the shared scheduler hold duration in ms, not a Unix timestamp. */
+  setUnattendedHoldDeadlineMs(deadline: number | undefined): void {
+    if (deadline !== undefined && !Number.isFinite(deadline)) throw new Error('Invalid unattended approval deadline.');
+    this.clearUnattendedHoldTimers();
+    this.unattendedHoldDeadlineMs = deadline;
+    for (const confirmation of this.confirmations) this.armUnattendedHold(confirmation);
+  }
+
+  private clearUnattendedHoldTimers(): void {
+    for (const timer of this.unattendedHoldTimers.values()) clearTimeout(timer);
+    this.unattendedHoldTimers.clear();
+  }
+
+  private armUnattendedHold(confirmation: IConfirmation<string>): void {
+    // Redelivery must not renew a held operation indefinitely.
+    if (this.unattendedHoldTimers.has(confirmation.callId) || this.unattendedHoldDeadlineMs === undefined) return;
+    const timer = setTimeout(
+      () => {
+        if (this.unattendedHoldTimers.get(confirmation.callId) !== timer) return;
+        this.unattendedHoldTimers.delete(confirmation.callId);
+        const current = this.confirmations.find((item) => item.callId === confirmation.callId);
+        if (!current) return;
+        mainWarn('[WCoreManager]', 'Unattended approval hold expired; denying the pending operation.');
+        try {
+          this.confirm(
+            current.id,
+            current.callId,
+            isPathBoundaryConfirmation(current) ? PATH_BOUNDARY_DENY : ToolConfirmationOutcome.Cancel,
+            undefined,
+            'Unattended approval deadline expired'
+          );
+        } catch (error) {
+          // Transport death can race the deadline. It must not turn a denied
+          // scheduled operation into an uncaught exception in the desktop host.
+          mainWarn(
+            '[WCoreManager]',
+            'Expired approval denial could not reach Core.',
+            error instanceof Error ? redactCommandSecrets(error.message) : 'Transport unavailable'
+          );
+        }
+      },
+      Math.max(0, Math.min(2147483647, this.unattendedHoldDeadlineMs))
+    );
+    this.unattendedHoldTimers.set(confirmation.callId, timer);
+  }
+
+  protected override addConfirmation(confirmation: IConfirmation<string>): void {
+    this.armUnattendedHold(confirmation);
+    super.addConfirmation(confirmation);
   }
 
   private handleConformationMessage(message: IMessageToolGroup) {
@@ -1655,6 +1733,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   private handleProcessExit(code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null): void {
+    this.finishModeChange(false, 'Core disconnected before confirming the approval mode.');
+    this.clearUnattendedHoldTimers();
     mainError(
       '[WCoreManager]',
       `wcore process exited unexpectedly (code=${code}, signal=${signal ?? 'none'}) during active turn ${activeMsgId}`
@@ -1894,6 +1974,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         mainLog('[WCoreManager]', `config_changed received (${elapsed})`, data.data);
         this._configSentAt = null;
         this._capabilities = data.data as WCoreCapabilities;
+        this.acceptConfirmedMode(this._capabilities?.current_mode);
         ipcBridge.conversation.responseStream.emit({
           type: 'config_changed',
           conversation_id: this.conversation_id,
@@ -1901,6 +1982,25 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           data: data.data,
         });
         return;
+      }
+
+      if (data.type === 'set_mode_refused') {
+        const refusal = data.data as { requested: string; effective: string; reason: string };
+        this.acceptConfirmedMode(refusal.effective, refusal);
+        ipcBridge.conversation.responseStream.emit({
+          type: 'set_mode_refused',
+          conversation_id: this.conversation_id,
+          msg_id: '',
+          data: refusal,
+        });
+        return;
+      }
+      if (data.type === 'execution_policy') {
+        // A mode change during an active turn emits this typed receipt before
+        // config_changed. Do not parse its companion info prose as an ACK.
+        const policy = data.data as { policy?: { approvals?: string } };
+        const approvals = policy.policy?.approvals;
+        this.acceptConfirmedMode(approvals === 'bypass' ? 'yolo' : approvals === 'prompt' ? 'default' : approvals);
       }
 
       // Log info events from wcore (includes set_config/set_mode acknowledgments).
@@ -1933,6 +2033,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       if (
         [
           'execution_policy',
+          'workspace_policy',
           'workflow_started',
           'workflow_node_event',
           'workflow_finished',
@@ -1959,17 +2060,27 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // eligible for canonical receipt/policy projection, which prevents a
         // raw renderer-side IPC injection from manufacturing verified state.
         if (
-          ['execution_policy', 'anvil_receipt', 'anvil_receipt_invalidated', 'anvil_trust_changed'].includes(data.type)
+          [
+            'execution_policy',
+            'workspace_policy',
+            'anvil_receipt',
+            'anvil_receipt_invalidated',
+            'anvil_trust_changed',
+          ].includes(data.type)
         ) {
           const acceptedAt = Date.now();
           const evidenceResponse: IResponseMessage = {
             type: 'execution_evidence',
             conversation_id: this.conversation_id,
-            msg_id: '',
+            // Workspace receipts have no producer event ID; keep rapid grants distinct.
+            msg_id: data.type === 'workspace_policy' ? uuid() : '',
             data: {
               acceptedBy: 'desktop-core-v1-consumer',
               acceptedAt,
-              event: { type: data.type, ...(data.data as Record<string, unknown>) },
+              event:
+                data.type === 'workspace_policy'
+                  ? { type: 'workspace_policy', policy: data.data }
+                  : { type: data.type, ...(data.data as Record<string, unknown>) },
             },
           };
           const evidenceMessage = transformMessage(evidenceResponse);
@@ -2001,9 +2112,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         const autoMode = this.currentMode === 'yolo' || this.currentMode === 'auto_edit';
         const isInfo = appr.reason === 'info';
 
-        // Informational approvals (e.g. the engine's internal todo tool) are safe
-        // to self-resume in ANY mode - unchanged happy path.
-        if (appr.resumeToken && isInfo) {
+        // Interactive behavior is retained. Automated runs cannot treat the
+        // broad info category as safe: it also covers durable/remote changes.
+        if (appr.resumeToken && isInfo && !this.isUnattended) {
           this.agent?.resumeApproval(appr.resumeToken, true);
           return;
         }
@@ -2016,7 +2127,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // audit fights. Escalate through the EXISTING Confirming gate so the user
         // explicitly allows/denies; the decision resumes by resume_token in
         // confirm() (keyed via pendingApprovalTokens).
-        if (autoMode && !isInfo && appr.resumeToken) {
+        if ((autoMode || this.isUnattended) && appr.resumeToken) {
           const callId = appr.callId ?? '';
           // A non-interactive spawn (channel/cron sets this.yoloMode) is genuinely
           // autonomous - there is no user to prompt, and it opted into full-auto.
@@ -2437,8 +2548,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  getMode(): { mode: string; initialized: boolean } {
-    return { mode: this.currentMode, initialized: true };
+  getMode(): { mode: string; initialized: boolean; workspacePolicy: WCoreWorkspacePolicy | null } {
+    return {
+      mode: this.currentMode,
+      initialized: true,
+      // A retained receipt from a dead transport is historical, not current access.
+      workspacePolicy: this.agent?.currentWorkspacePolicy ?? null,
+    };
   }
 
   /**
@@ -2447,15 +2563,77 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    *   executor when a scheduled run borrows a chat the user owns: the run needs
    *   full-auto, but the user's chat must not be left in it.
    */
-  async setMode(mode: string, options?: { persist?: boolean }): Promise<{ success: boolean; data?: { mode: string } }> {
-    this.currentMode = mode;
-    if (options?.persist !== false) this.saveSessionMode(mode);
-    if (this.agent) {
-      this._configSentAt = Date.now();
-      mainLog('[WCoreManager]', `set_mode sent: mode=${mode}`);
-      this.agent.setMode(mode as 'default' | 'auto_edit' | 'yolo');
+  async setMode(
+    mode: string,
+    options?: { persist?: boolean }
+  ): Promise<{ success: boolean; msg?: string; data: { mode: string; refusalCode?: string } }> {
+    const requested = mode === 'force' ? 'yolo' : mode;
+    if (!['default', 'auto_edit', 'yolo'].includes(requested)) {
+      return { success: false, msg: 'Unsupported Core approval mode.', data: { mode: this.currentMode } };
     }
-    return { success: true, data: { mode: this.currentMode } };
+    if (this.pendingModeChange) {
+      return {
+        success: false,
+        msg: 'A Core mode change is still awaiting confirmation.',
+        data: { mode: this.currentMode },
+      };
+    }
+    if (!this.agent) {
+      this.currentMode = requested;
+      if (options?.persist !== false) await this.saveSessionMode(requested);
+      return { success: true, data: { mode: requested } };
+    }
+    if (!this.agent.isAlive) {
+      return {
+        success: false,
+        msg: 'Core is disconnected; the approval mode was not changed.',
+        data: { mode: this.currentMode },
+      };
+    }
+    if (requested === this.currentMode) return { success: true, data: { mode: this.currentMode } };
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        this.finishModeChange(false, 'Core did not confirm the approval mode change.');
+      }, 10000);
+      this.pendingModeChange = { requested, persist: options?.persist !== false, timer, resolve };
+      this._configSentAt = Date.now();
+      try {
+        this.agent!.setMode(requested as 'default' | 'auto_edit' | 'yolo');
+      } catch {
+        this.finishModeChange(false, 'Core could not receive the approval mode change.');
+      }
+    });
+  }
+
+  private acceptConfirmedMode(raw: string | undefined, refusal?: { requested: string; reason: string }): void {
+    const effective = raw === 'force' ? 'yolo' : raw;
+    if (!effective || !['default', 'auto_edit', 'yolo'].includes(effective)) return;
+    this.currentMode = effective;
+    if (this._capabilities) this._capabilities = { ...this._capabilities, current_mode: effective };
+    const pending = this.pendingModeChange;
+    if (!pending) return;
+    if (refusal) {
+      const requested = refusal.requested === 'force' ? 'yolo' : refusal.requested;
+      if (pending.requested === requested) {
+        this.finishModeChange(false, 'Core refused this mode change; the effective mode is unchanged.', refusal.reason);
+      }
+    } else if (pending.requested === effective) {
+      this.finishModeChange(true);
+    }
+  }
+
+  private finishModeChange(success: boolean, msg?: string, refusalCode?: string): void {
+    const pending = this.pendingModeChange;
+    if (!pending) return;
+    this.pendingModeChange = null;
+    clearTimeout(pending.timer);
+    this._configSentAt = null;
+    if (success && pending.persist) void this.saveSessionMode(this.currentMode);
+    pending.resolve({
+      success,
+      ...(msg && { msg }),
+      data: { mode: this.currentMode, ...(refusalCode && { refusalCode }) },
+    });
   }
 
   private async saveSessionMode(mode: string): Promise<void> {
@@ -2473,7 +2651,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  confirm(id: string, callId: string, data: string, answer?: string) {
+  confirm(id: string, callId: string, data: string, answer?: string, denyReason?: string) {
+    const boundaryConfirmation = this.confirmations.find((c) => c.callId === callId && isPathBoundaryConfirmation(c));
+    // Foreign replies must not disarm the owning scheduler's deadline.
+    if (boundaryConfirmation && !isPathBoundaryOptionValue(data)) return;
+    const holdTimer = this.unattendedHoldTimers.get(callId);
+    if (holdTimer) clearTimeout(holdTimer);
+    this.unattendedHoldTimers.delete(callId);
     // #264: an escalated auto-mode `approval_required` is resumed by resume_token,
     // NOT by approveTool/denyTool. If this callId was escalated, clear its card,
     // drive the engine's approval_resume, and stop - do not also fall through to
@@ -2493,7 +2677,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // workspace, read-only. `write: false` is not a default we could widen
     // later from here: write access outside the workspace is not grantable at
     // all, so Core never raises a boundary asking for it.
-    const boundaryConfirmation = this.confirmations.find((c) => c.callId === callId && isPathBoundaryConfirmation(c));
+
     if (boundaryConfirmation) {
       // A folder grant answers ONLY in its own vocabulary. Anything else that
       // reaches this callId came from a surface that never rendered THIS card:
@@ -2531,7 +2715,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           mainWarn('[WCoreManager]', 'the folder-grant answer was not delivered', error);
         });
       } else {
-        this.agent?.denyTool(callId, 'User declined access to the folder');
+        this.agent?.denyTool(callId, denyReason ?? 'User declined access to the folder');
       }
       return;
     }
@@ -2549,7 +2733,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
     if (this.agent) {
       if (data === ToolConfirmationOutcome.Cancel) {
-        this.agent.denyTool(callId, 'User cancelled');
+        this.agent.denyTool(callId, denyReason ?? 'User cancelled');
       } else {
         const scope = data === ToolConfirmationOutcome.ProceedAlways ? 'always' : 'once';
         // #504: `answer` carries the picked AskUserQuestion choice back to the
@@ -2718,6 +2902,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   override async kill(): Promise<void> {
     this.disposed = true;
+    this.finishModeChange(false, 'Core stopped before confirming the approval mode.');
+    this.clearUnattendedHoldTimers();
     let engineFailure: unknown;
     let workerFailure: unknown;
 

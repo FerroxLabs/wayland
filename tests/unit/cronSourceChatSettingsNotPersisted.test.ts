@@ -232,8 +232,9 @@ describe("a cron job never persists its own settings onto the user's chat", () =
 
     expect(updateCalls.filter(([id, patch]) => id === 'conv-source' && patch?.model)).toEqual([]);
     expect(conversationStore.get('conv-source').model.useModel).toBe('model-user');
-    // The user's live task must not be torn down to swap a model we did not swap.
-    expect(taskManager.kill).not.toHaveBeenCalled();
+    // Acquisition retires the idle runtime to clear sticky approval flags;
+    // it never rewrites the user's model row or causes an extra model swap.
+    expect(taskManager.kill).toHaveBeenCalledExactlyOnceWith('conv-source');
   });
 
   it("applies full-auto to the live session but does not persist it in the user's chat", async () => {

@@ -256,7 +256,9 @@ export class WaylandNanoActivationOwner implements WaylandNanoBindingOwner {
     this.#resumeFingerprints.clear();
     const tokens = [...this.#binaryTokens];
     this.#binaryTokens.clear();
-    await Promise.allSettled(tokens.map((token) => token.dispose()));
+    // Launchers own consumed tokens until process termination. Owner shutdown
+    // precedes worker shutdown, so disposing those stages here races live code.
+    await Promise.allSettled(tokens.map((token) => token.disposeIfUnconsumed()));
   }
 
   private continuity(operation: 'new' | 'load', sessionId: string | null) {

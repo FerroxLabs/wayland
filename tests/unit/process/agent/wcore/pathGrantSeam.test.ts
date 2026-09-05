@@ -211,10 +211,25 @@ describe('workspace_policy is consumed, not dropped', () => {
     ) as { kind: string; event: WCoreEvent };
     expect(decoded.kind).toBe('event');
 
-    const { agent, feed } = makeAgent();
+    const { agent, feed, emitted } = makeAgent();
     feed(decoded.event);
+    expect(emitted).toContainEqual({ type: 'workspace_policy', msg_id: '', data: agent.workspacePolicy });
     expect(agent.workspaceReadableRoots).toEqual(['/workspace', '/usr/share']);
     expect(agent.workspacePolicy?.backend).toBe('bwrap');
+  });
+
+  it('keeps historical receipts but removes live access when transport dies or disposal begins', () => {
+    const { agent, feed } = makeAgent();
+    const internals = agent as unknown as { transportAlive: boolean; disposed: boolean };
+    expect(agent.currentWorkspacePolicy).toBeNull();
+    feed({ type: 'workspace_policy', policy: policy(['/workspace']) });
+    expect(agent.currentWorkspacePolicy?.readable_roots).toEqual(['/workspace']);
+    internals.transportAlive = false;
+    expect(agent.currentWorkspacePolicy).toBeNull();
+    expect(agent.workspacePolicy?.readable_roots).toEqual(['/workspace']);
+    internals.transportAlive = true;
+    internals.disposed = true;
+    expect(agent.currentWorkspacePolicy).toBeNull();
   });
 
   it('leaves the host with no policy when an unrelated frame arrives', () => {
@@ -386,5 +401,25 @@ describe('pinned v1 host-command corpus vs the path-grant commands', () => {
         scope: { always_path: { root: '/tmp/reports', write: false } },
       })
     ).not.toThrow();
+  });
+});
+
+describe('typed mode refusal contract (#1223)', () => {
+  it('decodes the producer fixture and forwards its effective mode without inventing tool restrictions', () => {
+    const corpus = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    const consumer = new DesktopCoreV1Consumer();
+    consumer.consumeLine(readFileSync(path.join(corpus, 'events/ready.json'), 'utf8').trimEnd());
+    const decoded = consumer.consumeLine(
+      readFileSync(path.join(corpus, 'events/set_mode_refused.json'), 'utf8').trimEnd()
+    ) as { kind: string; event: WCoreEvent };
+    expect(decoded.kind).toBe('event');
+    const { feed, emitted } = makeAgent();
+    feed(decoded.event);
+    expect(emitted).toContainEqual({
+      type: 'set_mode_refused',
+      msg_id: '',
+      data: { type: 'set_mode_refused', requested: 'force', effective: 'default', reason: 'local_opt_in_required' },
+    });
+    expect(emitted.some((event) => event.type === 'tool_group')).toBe(false);
   });
 });

@@ -579,5 +579,14 @@
     "rejectedUnreadable_other": "{{count}} 個無法讀取",
     "more": "另有 {{count}} 個在「交付物」中",
     "more_other": "另有 {{count}} 個在「交付物」中"
+  },
+  "workspacePolicy": {
+    "title": "工作區存取權限",
+    "scope": "目前 Core 工作階段回報的檔案系統存取權限。工具核准、憑證及註冊是獨立的。",
+    "readable": "可讀取資料夾",
+    "writable": "可寫入資料夾",
+    "executables": "可執行能力及唯讀資料夾",
+    "none": "未回報",
+    "unknown": "Core 尚未回報此對話的即時工作區存取權限。"
   }
 }

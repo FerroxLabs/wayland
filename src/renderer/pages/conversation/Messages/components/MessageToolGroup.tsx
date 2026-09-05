@@ -225,18 +225,27 @@ const ConfirmationDetails: React.FC<{
   const [selected, setSelected] = useState<ToolConfirmationOutcome | null>(null);
 
   const isConfirm = content.status === 'Confirming';
+  const completedEditDiff =
+    !isConfirm &&
+    confirmationDetails.type === 'edit' &&
+    typeof content.resultDisplay === 'object' &&
+    content.resultDisplay !== null &&
+    'fileDiff' in content.resultDisplay
+      ? content.resultDisplay
+      : null;
 
   return (
     <div>
       {confirmationDetails.type === 'edit' ? (
         <EditConfirmationDiff
-          diff={confirmationDetails?.fileDiff || ''}
-          fileName={confirmationDetails.fileName}
+          diff={completedEditDiff?.fileDiff || confirmationDetails.fileDiff || ''}
+          fileName={completedEditDiff?.fileName || confirmationDetails.fileName}
           title={isConfirm ? confirmationDetails.title : content.description}
         />
       ) : (
         node
       )}
+      {!isConfirm && content.resultDisplay && !completedEditDiff && <ToolResultDisplay content={content} />}
       {content.status === 'Confirming' && confirmationDetails.type !== 'question' && (
         <>
           <div className='mt-10px text-t-primary'>{question}</div>

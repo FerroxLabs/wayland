@@ -2729,7 +2729,9 @@
       "stateAutoRuns": "Auto-runs",
       "stateAsksFirst": "Asks first",
       "gateAria": "Enable {{tool}}",
-      "autoRunAria": "Auto-run {{tool}} without asking"
+      "autoRunAria": "Auto-run {{tool}} without asking",
+      "inherited": "Core defaults",
+      "inheritedHint": "Core defaults are inherited. Per-tool approval is not reported by the current config read; no custom list has been written."
     },
     "memory": {
       "subtitle": "The engine remembers across sessions: facts, preferences, and project context that persist and compound. On by default, stored locally.",

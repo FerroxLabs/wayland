@@ -739,15 +739,48 @@ export async function spawnGenericBackend(
     cleanEnv as Record<string, string>,
     launch
   );
-  const launchChild = (command: string): ChildProcess =>
-    spawn(command, config.args, {
+  const cleanupOwners = new WeakSet<ChildProcess>();
+  const retainStageUntilTerminal = (launched: ChildProcess): void => {
+    if (!verifiedWaylandNanoBinary || cleanupOwners.has(launched)) return;
+    cleanupOwners.add(launched);
+    let cleanupStarted = false;
+    const cleanup = (): void => {
+      if (cleanupStarted) return;
+      cleanupStarted = true;
+      launched.off('exit', cleanup);
+      launched.off('close', cleanup);
+      void verifiedWaylandNanoBinary.cleanupAfterLaunch().catch(async () => {
+        try {
+          await verifiedWaylandNanoBinary.dispose();
+        } catch {
+          console.warn('[ACP] Wayland Nano staged executable cleanup failed after process termination');
+        }
+      });
+    };
+    // A child can also emit error for a failed kill/send while still alive.
+    // Only a spawn failure (no PID) makes error terminal for this purpose.
+    launched.on('error', () => {
+      if (launched.pid === undefined) cleanup();
+    });
+    launched.once('exit', cleanup);
+    launched.once('close', cleanup);
+    if (launched.exitCode !== null || launched.signalCode !== null) cleanup();
+  };
+  const launchChild = (command: string): ChildProcess => {
+    const launched = spawn(command, config.args, {
       ...config.options,
       detached,
     });
+    // Bind before consume awaits closing its verification file handle: a
+    // failed spawn can emit error during that await, before we regain control.
+    retainStageUntilTerminal(launched);
+    return launched;
+  };
   let child: ChildProcess;
   if (verifiedWaylandNanoBinary) {
     try {
       child = await verifiedWaylandNanoBinary.consume((canonicalPath) => launchChild(canonicalPath));
+      retainStageUntilTerminal(child);
     } catch (error) {
       try {
         await verifiedWaylandNanoBinary.dispose();
@@ -756,27 +789,9 @@ export async function spawnGenericBackend(
       }
       throw error;
     }
-    try {
-      await verifiedWaylandNanoBinary.cleanupAfterLaunch();
-    } catch {
-      // The child already owns its executable image. Do not kill or orphan it
-      // merely because post-spawn unlink was transiently denied (notably on
-      // Windows). Retry through dispose now and once more at child exit.
-      const cleaned = await verifiedWaylandNanoBinary
-        .dispose()
-        .then(() => true)
-        .catch(() => false);
-      if (!cleaned) {
-        const cleanupOnExit = () => {
-          void verifiedWaylandNanoBinary.dispose().catch(() => {});
-        };
-        child.once('exit', cleanupOnExit);
-        if (child.exitCode !== null || child.signalCode !== null) {
-          child.off('exit', cleanupOnExit);
-          cleanupOnExit();
-        }
-      }
-    }
+    // Keep the pathname for the whole child lifetime. On macOS, unlinking a
+    // staged signed executable immediately after spawn can trigger SIGKILL
+    // before startup finishes. Windows can keep the image locked until exit.
   } else {
     child = launchChild(config.command);
   }

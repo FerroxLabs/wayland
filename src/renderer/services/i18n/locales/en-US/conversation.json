@@ -698,5 +698,14 @@
     "rejectedUnreadable_other": "{{count}} could not be read",
     "more": "and {{count}} more in Artifacts",
     "more_other": "and {{count}} more in Artifacts"
+  },
+  "workspacePolicy": {
+    "title": "Workspace access",
+    "scope": "Filesystem access reported by the live Core session. Tool approval, credentials and registration are separate.",
+    "readable": "Readable folders",
+    "writable": "Writable folders",
+    "executables": "Executable capabilities and read-only folders",
+    "none": "None reported",
+    "unknown": "Core has not reported live workspace access for this conversation."
   }
 }

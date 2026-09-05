@@ -309,9 +309,29 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(screen.queryByText('Ask first: tools below marked “Auto-runs”')).toBeNull();
 
     release(undefined);
-    expect(await screen.findByRole('switch', { name: 'Auto-run Read without asking' })).toHaveAttribute(
-      'aria-checked',
-      'true'
+    await screen.findByText(
+      'Core defaults are inherited. Per-tool approval is not reported by the current config read; no custom list has been written.'
+    );
+    expect(screen.queryByRole('switch', { name: 'Auto-run Read without asking' })).toBeNull();
+  });
+
+  it('keeps absent allow_list absent when an independent gate or approval mode changes', async () => {
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="tools"]')!);
+    const gate = await screen.findByRole('switch', { name: 'Enable Script' });
+    for (const tool of ['Read', 'Write', 'Edit', 'Bash']) {
+      expect(screen.queryByRole('switch', { name: `Auto-run ${tool} without asking` })).toBeNull();
+    }
+    fireEvent.click(gate);
+    await waitFor(() =>
+      expect(mockPatchWcoreField).toHaveBeenCalledWith({
+        patch: { section: 'builtin_tools', field: 'script.enabled', value: true },
+      })
+    );
+    await waitFor(() => expect(gate).toHaveAttribute('aria-disabled', 'false'));
+    expect(mockPatchWcoreField.mock.calls).toHaveLength(1);
+    expect(mockPatchWcoreField.mock.calls.flat().some((call) => JSON.stringify(call).includes('allow_list'))).toBe(
+      false
     );
   });
 

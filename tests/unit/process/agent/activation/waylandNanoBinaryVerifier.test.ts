@@ -57,6 +57,24 @@ async function executableFixture() {
 }
 
 describe('Wayland Nano executable identity', () => {
+  it('owner cleanup retains a consumed stage for the launcher terminal cleanup', async () => {
+    const { expectation } = await fixture();
+    const token = await verifyWaylandNanoBinary(expectation);
+    await token.consume(() => undefined);
+    await token.disposeIfUnconsumed();
+    expect(await readFile(token.canonicalPath, 'utf8')).toBe('immutable nano executable');
+    await token.cleanupAfterLaunch();
+    await expect(readFile(token.canonicalPath)).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+
+  it('owner cleanup still removes a token abandoned before launch', async () => {
+    const { expectation } = await fixture();
+    const token = await verifyWaylandNanoBinary(expectation);
+    await token.disposeIfUnconsumed();
+    await expect(readFile(token.canonicalPath)).rejects.toMatchObject({ code: 'ENOENT' });
+    await expect(token.consume(() => undefined)).rejects.toThrow('stale');
+  });
+
   it('binds the canonical digest and immutable Nano source/lock identity to one launch', async () => {
     const { binary, expectation } = await fixture();
     const token = await verifyWaylandNanoBinary(expectation);

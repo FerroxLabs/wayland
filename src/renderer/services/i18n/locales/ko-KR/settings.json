@@ -2572,7 +2572,9 @@
       "stateAutoRuns": "자동 실행",
       "stateAsksFirst": "먼저 묻기",
       "gateAria": "{{tool}} 활성화",
-      "autoRunAria": "{{tool}}을(를) 묻지 않고 자동 실행"
+      "autoRunAria": "{{tool}}을(를) 묻지 않고 자동 실행",
+      "inherited": "Core 기본값",
+      "inheritedHint": "Core 기본값을 상속합니다. 현재 설정 조회는 도구별 승인 상태를 보고하지 않으며 사용자 지정 목록은 저장되지 않았습니다."
     },
     "memory": {
       "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",

@@ -44,6 +44,14 @@ vi.mock('@/renderer/pages/conversation/Messages/MessageList', () => ({
   ImagePreviewContext: React.createContext({ inPreviewGroup: false }),
 }));
 
+vi.mock('@renderer/components/Markdown', () => ({
+  default: ({ children }: React.PropsWithChildren) => <pre>{children}</pre>,
+}));
+
+vi.mock('@renderer/components/chat/CollapsibleContent', () => ({
+  default: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
+}));
+
 vi.mock('@arco-design/web-react', () => {
   const Radio = ({ value, children }: { value: string; children?: React.ReactNode }) => (
     <label data-testid='confirm-option' data-value={String(value)}>
@@ -133,4 +141,38 @@ describe('#1099 MessageToolGroup never renders a path boundary as an MCP prompt'
     expect(screen.getByText(MCP_LABEL_KEY)).toBeTruthy();
     expect(optionValues()).toEqual(['proceed_once', 'proceed_always_tool', 'proceed_always_server', 'cancel']);
   });
+});
+
+describe('#1189 announced tool cards retain inputs and outcomes', () => {
+  it.each(['Executing', 'Success', 'Error'] as const)(
+    'shows the command and available output for %s without offering approval',
+    (status) => {
+      const message: IMessageToolGroup = {
+        id: 'announcement-message',
+        conversation_id: 'announcement-conversation',
+        type: 'tool_group',
+        content: [
+          {
+            callId: 'announced-call',
+            name: 'Bash',
+            description: 'Run the command',
+            status,
+            renderOutputAsMarkdown: true,
+            resultDisplay: 'captured tool outcome',
+            confirmationDetails: {
+              type: 'exec',
+              title: 'Run the command',
+              command: 'printf reliable',
+              rootCommand: 'printf',
+            },
+          },
+        ],
+      };
+      render(<MessageToolGroup message={message} />);
+      expect(screen.getByText(/printf reliable/)).toBeTruthy();
+      expect(screen.getByText('captured tool outcome')).toBeTruthy();
+      expect(optionValues()).toEqual([]);
+      expect(screen.queryByRole('button', { name: 'messages.confirm' })).toBeNull();
+    }
+  );
 });

@@ -19,5 +19,6 @@
   "coworkTooltip": "Cowork: Lese- & Schreibzugriffe in diesem Workspace automatisch erlauben; fragt weiterhin vor dem Ausführen von Befehlen.",
   "switchMode": "Modus wechseln",
   "switchSuccess": "Modus erfolgreich gewechselt",
-  "switchFailed": "Moduswechsel fehlgeschlagen"
+  "switchFailed": "Moduswechsel fehlgeschlagen",
+  "coreModeRefused": "Core hat den aktuellen Freigabemodus beibehalten. Automatische Freigaben benötigen eine Erlaubnis beim Start von Core; diese Ablehnung deaktiviert keine Werkzeuge."
 }

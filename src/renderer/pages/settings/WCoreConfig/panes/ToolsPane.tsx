@@ -57,9 +57,8 @@ type ToolCategory = {
  * round-trips without claiming runtime availability.
  *
  * The auto-run/ask-first STATE is real, read from / written to
- * `config.toml [tools].allow_list`. An absent `allow_list` uses Core's exact
- * curated read-only default below; it does not mean every tool is registered
- * or approved.
+ * `config.toml [tools].allow_list`. An absent list remains inherited and unknown
+ * to Desktop; never materialize a local copy of producer defaults on a click.
  *
  * Credential-gated rows carry either a real Services & Keys deep-link or a
  * non-interactive external-setup explanation. CLI tools
@@ -347,26 +346,6 @@ const CATEGORIES: readonly ToolCategory[] = [
   },
 ];
 
-/**
- * The engine's `[tools].allow_list` default (config.rs `default_allow_list`):
- * the read-only, safe-to-auto-run tools. When the `allow_list` key is ABSENT
- * from config.toml, the engine seeds exactly these - NOT "every tool" - so the
- * UI must seed the same set, or it would imply tools auto-run that actually ask.
- */
-const DEFAULT_ALLOW_LIST: readonly string[] = [
-  'Read',
-  'Grep',
-  'Glob',
-  'web',
-  'WebFetch',
-  'vision_analyze',
-  'transcribe_audio',
-  'ToolSearch',
-  'Skill',
-  'wayland_status',
-  'wayland_telemetry_query',
-];
-
 type ApprovalMode = 'default' | 'auto-edit' | 'force';
 
 const AUTO_EDIT_TOOL_IDS = new Set(['Write', 'Edit']);
@@ -379,7 +358,7 @@ type ToolsPaneProps = {
 };
 
 type ToolsTruth = {
-  autoRun: Set<string>;
+  autoRun: Set<string> | null;
   scriptOn: boolean;
   repomapOn: boolean;
   mode: ApprovalMode;
@@ -423,7 +402,7 @@ const ToolsPane: React.FC<ToolsPaneProps> = ({ onGoServices }) => {
         }
         if (mounted.current && readVersion.current === version) {
           setTruth({
-            autoRun: new Set(Array.isArray(list) ? (list as string[]) : DEFAULT_ALLOW_LIST),
+            autoRun: Array.isArray(list) ? new Set(list as string[]) : null,
             scriptOn: (script as boolean | undefined) ?? false,
             repomapOn: (repomap as boolean | undefined) ?? true,
             mode: (approval as ApprovalMode | undefined) ?? 'default',
@@ -481,7 +460,7 @@ const ToolsPane: React.FC<ToolsPaneProps> = ({ onGoServices }) => {
 
   const toggleAutoRun = useCallback(
     (id: string): void => {
-      if (!truth || saving) return;
+      if (!truth?.autoRun || saving) return;
       const next = new Set(truth.autoRun);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -534,12 +513,12 @@ const ToolsPane: React.FC<ToolsPaneProps> = ({ onGoServices }) => {
   // overrides only the built-in Write/Edit tools, and allow_list applies in all
   // other cases.
   const isToolOn = (tool: ToolDef): boolean => {
-    if (!truth || !auto) return false;
+    if (!truth) return false;
     if (tool.gate === 'script') return truth.scriptOn;
     if (tool.gate === 'repomap') return truth.repomapOn;
     if (truth.mode === 'force') return true;
     if (truth.mode === 'auto-edit' && AUTO_EDIT_TOOL_IDS.has(tool.id)) return true;
-    return auto.has(tool.id);
+    return auto?.has(tool.id) ?? false;
   };
 
   const toolModeOverride = (tool: ToolDef): ApprovalMode | null => {
@@ -604,6 +583,14 @@ const ToolsPane: React.FC<ToolsPaneProps> = ({ onGoServices }) => {
             />
           </div>
           <div className={styles.modeHint}>{modeHint}</div>
+          {!truth.autoRun && (
+            <p role='status'>
+              {t('settings.wcoreConfig.tools.inheritedHint', {
+                defaultValue:
+                  'Core defaults are inherited. Per-tool approval is not reported by the current config read; no custom list has been written.',
+              })}
+            </p>
+          )}
           {saving ? (
             <div className={styles.runtimeTruthLoading} role='status'>
               {t('settings.wcoreConfig.tools.saving', { defaultValue: 'Saving and re-reading Core settings…' })}
@@ -621,7 +608,7 @@ const ToolsPane: React.FC<ToolsPaneProps> = ({ onGoServices }) => {
         />
       </div>
 
-      {truth && auto
+      {truth
         ? visibleCats.map((cat) => {
             const autoCount = cat.tools.filter((tool) => !tool.gate && isToolOn(tool)).length;
             const postureTotal = cat.tools.filter((tool) => !tool.gate).length;
@@ -630,11 +617,13 @@ const ToolsPane: React.FC<ToolsPaneProps> = ({ onGoServices }) => {
                 <div className={styles.toolCatLabel}>
                   {t(cat.labelKey, { defaultValue: cat.labelDefault })}
                   <span className={styles.toolCatCount}>
-                    {t('settings.wcoreConfig.tools.catCount', {
-                      defaultValue: '{{total}} tools · {{on}} auto-run',
-                      total: cat.tools.length,
-                      on: `${autoCount}/${postureTotal}`,
-                    })}
+                    {!auto
+                      ? t('settings.wcoreConfig.tools.inherited', { defaultValue: 'Core defaults' })
+                      : t('settings.wcoreConfig.tools.catCount', {
+                          defaultValue: '{{total}} tools · {{on}} auto-run',
+                          total: cat.tools.length,
+                          on: `${autoCount}/${postureTotal}`,
+                        })}
                   </span>
                 </div>
                 <div className={styles.group}>
@@ -642,6 +631,7 @@ const ToolsPane: React.FC<ToolsPaneProps> = ({ onGoServices }) => {
                     const on = isToolOn(tool);
                     const isGate = !!tool.gate;
                     const modeOverride = toolModeOverride(tool);
+                    const inherited = !isGate && !auto && !modeOverride;
                     return (
                       <div key={tool.id} className={styles.toolRow}>
                         <div>
@@ -689,40 +679,49 @@ const ToolsPane: React.FC<ToolsPaneProps> = ({ onGoServices }) => {
                           <div className={styles.toolDesc}>{t(tool.descKey, { defaultValue: tool.descDefault })}</div>
                         </div>
                         <div className={styles.toolCtrl}>
-                          <span className={classNames(styles.posture, on ? styles.postureAuto : styles.postureAsk)}>
-                            {isGate
-                              ? on
-                                ? t('settings.wcoreConfig.tools.stateEnabled', { defaultValue: 'Enabled' })
-                                : t('settings.wcoreConfig.tools.stateOff', { defaultValue: 'Off' })
-                              : on
-                                ? modeOverride === 'force'
-                                  ? t('settings.wcoreConfig.tools.stateAutoRunsForce', {
-                                      defaultValue: 'Auto-runs · Force',
-                                    })
-                                  : modeOverride === 'auto-edit'
-                                    ? t('settings.wcoreConfig.tools.stateAutoRunsAutoEdit', {
-                                        defaultValue: 'Auto-runs · Auto-edit',
+                          <span
+                            className={classNames(
+                              styles.posture,
+                              !inherited && (on ? styles.postureAuto : styles.postureAsk)
+                            )}
+                          >
+                            {inherited
+                              ? t('settings.wcoreConfig.tools.inherited', { defaultValue: 'Core defaults' })
+                              : isGate
+                                ? on
+                                  ? t('settings.wcoreConfig.tools.stateEnabled', { defaultValue: 'Enabled' })
+                                  : t('settings.wcoreConfig.tools.stateOff', { defaultValue: 'Off' })
+                                : on
+                                  ? modeOverride === 'force'
+                                    ? t('settings.wcoreConfig.tools.stateAutoRunsForce', {
+                                        defaultValue: 'Auto-runs · Force',
                                       })
-                                    : t('settings.wcoreConfig.tools.stateAutoRuns', { defaultValue: 'Auto-runs' })
-                                : t('settings.wcoreConfig.tools.stateAsksFirst', { defaultValue: 'Asks first' })}
+                                    : modeOverride === 'auto-edit'
+                                      ? t('settings.wcoreConfig.tools.stateAutoRunsAutoEdit', {
+                                          defaultValue: 'Auto-runs · Auto-edit',
+                                        })
+                                      : t('settings.wcoreConfig.tools.stateAutoRuns', { defaultValue: 'Auto-runs' })
+                                  : t('settings.wcoreConfig.tools.stateAsksFirst', { defaultValue: 'Asks first' })}
                           </span>
-                          <WcSwitch
-                            size='xs'
-                            checked={on}
-                            disabled={saving || modeOverride !== null}
-                            onChange={() => (isGate ? toggleGate(tool.gate!) : toggleAutoRun(tool.id))}
-                            label={
-                              isGate
-                                ? t('settings.wcoreConfig.tools.gateAria', {
-                                    defaultValue: 'Enable {{tool}}',
-                                    tool: tool.id,
-                                  })
-                                : t('settings.wcoreConfig.tools.autoRunAria', {
-                                    defaultValue: 'Auto-run {{tool}} without asking',
-                                    tool: tool.id,
-                                  })
-                            }
-                          />
+                          {!inherited && (
+                            <WcSwitch
+                              size='xs'
+                              checked={on}
+                              disabled={saving || modeOverride !== null}
+                              onChange={() => (isGate ? toggleGate(tool.gate!) : toggleAutoRun(tool.id))}
+                              label={
+                                isGate
+                                  ? t('settings.wcoreConfig.tools.gateAria', {
+                                      defaultValue: 'Enable {{tool}}',
+                                      tool: tool.id,
+                                    })
+                                  : t('settings.wcoreConfig.tools.autoRunAria', {
+                                      defaultValue: 'Auto-run {{tool}} without asking',
+                                      tool: tool.id,
+                                    })
+                              }
+                            />
+                          )}
                         </div>
                       </div>
                     );

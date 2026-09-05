@@ -39,6 +39,7 @@
   },
   "launchError": "İş akışı başlatılamadı: {{msg}}",
   "picker": {
-    "noAgent": "Arka uç seçilmedi"
+    "noAgent": "Arka uç seçilmedi",
+    "approvalForNewRun": "Yeni çalıştırmalar için onay"
   }
 }

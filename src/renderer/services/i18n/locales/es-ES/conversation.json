@@ -579,5 +579,14 @@
     "rejectedUnreadable_other": "{{count}} no se pudieron leer",
     "more": "y {{count}} más en Artefactos",
     "more_other": "y {{count}} más en Artefactos"
+  },
+  "workspacePolicy": {
+    "title": "Acceso al espacio de trabajo",
+    "scope": "Acceso al sistema de archivos informado por la sesión activa de Core. La aprobación, las credenciales y el registro de herramientas son independientes.",
+    "readable": "Carpetas legibles",
+    "writable": "Carpetas modificables",
+    "executables": "Capacidades ejecutables y carpetas de solo lectura",
+    "none": "Ninguna informada",
+    "unknown": "Core no ha informado del acceso activo al espacio de trabajo de esta conversación."
   }
 }

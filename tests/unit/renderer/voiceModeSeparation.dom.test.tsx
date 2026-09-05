@@ -312,6 +312,9 @@ vi.mock('@/renderer/components/agent/AcpConfigSelector', () => ({
   __esModule: true,
   default: () => React.createElement('div'),
 }));
+// Permission/access presentation is covered by WorkspacePolicyButton's own DOM
+// suite. This harness isolates dictation and voice turn ownership.
+vi.mock('@/renderer/components/agent/WorkspacePolicyButton', () => ({ default: () => null }));
 vi.mock('@/renderer/components/agent/ContextUsageIndicator', () => ({
   __esModule: true,
   default: () => React.createElement('div'),

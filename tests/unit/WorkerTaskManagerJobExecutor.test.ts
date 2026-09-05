@@ -53,7 +53,9 @@ import type { CronJob } from '../../src/process/services/cron/CronStore';
 function makeTaskManager(overrides?: Partial<IWorkerTaskManager>): IWorkerTaskManager {
   return {
     getTask: vi.fn(),
-    getOrBuildTask: vi.fn(),
+    getOrBuildTask: vi.fn(
+      async () => overrides?.getTask?.() as Awaited<ReturnType<IWorkerTaskManager['getOrBuildTask']>>
+    ),
     addTask: vi.fn(),
     kill: vi.fn(),
     clear: vi.fn(),
@@ -112,6 +114,73 @@ describe('WorkerTaskManagerJobExecutor', () => {
 
     // Verify busy state was NOT set (no leaked busy state)
     expect(busyGuard.isProcessing('conv-1')).toBe(false);
+  });
+
+  it('never sends a scheduled turn when the requested policy fails again after recreation', async () => {
+    const first = { ...makeTask('wcore'), setMode: vi.fn(async () => ({ success: false, msg: 'refused' })) };
+    const replacement = {
+      ...makeTask('wcore'),
+      setMode: vi.fn(async () => ({ success: false, msg: 'still refused' })),
+    };
+    const taskManager = makeTaskManager({
+      getTask: vi.fn(() => undefined),
+      getOrBuildTask: vi.fn().mockResolvedValueOnce(first).mockResolvedValue(replacement),
+      kill: vi.fn(async () => {}),
+    });
+    const job = makeJob();
+    job.metadata.agentType = 'wcore';
+    job.metadata.agentConfig = { backend: 'wcore', name: 'Core', mode: 'auto_edit' };
+    const executor = new WorkerTaskManagerJobExecutor(taskManager, busyGuard);
+    await expect(executor.executeJob(job)).rejects.toThrow('settings');
+    expect(first.sendMessage).not.toHaveBeenCalled();
+    expect(replacement.sendMessage).not.toHaveBeenCalled();
+    expect(busyGuard.isProcessing('conv-1')).toBe(false);
+  });
+
+  it('waits for the old task to stop and sends only after replacement settings succeed', async () => {
+    const first = { ...makeTask('wcore'), setMode: vi.fn(async () => ({ success: false })) };
+    const replacement = { ...makeTask('wcore'), setMode: vi.fn(async () => ({ success: true })) };
+    let release!: () => void;
+    const stopped = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const taskManager = makeTaskManager({
+      getTask: vi.fn(() => undefined),
+      getOrBuildTask: vi.fn().mockResolvedValueOnce(first).mockResolvedValue(replacement),
+      kill: vi.fn(() => stopped),
+    });
+    const job = makeJob();
+    job.metadata.agentConfig = { backend: 'wcore', name: 'Core', mode: 'auto_edit' };
+    const executor = new WorkerTaskManagerJobExecutor(taskManager, busyGuard);
+    const run = executor.executeJob(job);
+    await vi.waitFor(() => expect(taskManager.kill).toHaveBeenCalled());
+    expect(taskManager.getOrBuildTask).toHaveBeenCalledTimes(1);
+    release();
+    await run;
+    expect(first.sendMessage).not.toHaveBeenCalled();
+    expect(replacement.setMode).toHaveBeenCalledWith('auto_edit', { persist: true });
+    expect(replacement.sendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    { mode: undefined, effective: 'auto_edit', full: false },
+    { mode: 'yolo', effective: 'yolo', full: true },
+    { mode: 'force', effective: 'force', full: true },
+    { mode: 'bypassPermissions', effective: 'default', full: false },
+    { mode: 'unsupported', effective: 'default', full: false },
+  ])('acquires Core with only its declared supported policy: $mode', async ({ mode, effective, full }) => {
+    const task = { ...makeTask('wcore'), setMode: vi.fn(async () => ({ success: true })) };
+    const taskManager = makeTaskManager({
+      getOrBuildTask: vi.fn(async () => task as unknown as Awaited<ReturnType<IWorkerTaskManager['getOrBuildTask']>>),
+    });
+    const job = makeJob();
+    job.metadata.agentType = 'wcore';
+    job.metadata.agentConfig = { backend: 'wcore', name: 'Core', ...(mode === undefined ? {} : { mode }) };
+    const executor = new WorkerTaskManagerJobExecutor(taskManager, busyGuard);
+    await executor.executeJob(job);
+    expect(taskManager.getOrBuildTask).toHaveBeenCalledWith('conv-1', expect.objectContaining({ yoloMode: full }));
+    expect(task.setMode).toHaveBeenCalledWith(effective, { persist: true });
+    expect(task.sendMessage).toHaveBeenCalledTimes(1);
   });
 
   it('does not set busy state when task acquisition fails', async () => {

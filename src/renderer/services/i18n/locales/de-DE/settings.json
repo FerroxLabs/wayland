@@ -2571,7 +2571,9 @@
       "stateAutoRuns": "Automatisch",
       "stateAsksFirst": "Fragt nach",
       "gateAria": "{{tool}} aktivieren",
-      "autoRunAria": "{{tool}} ohne Nachfrage automatisch ausführen"
+      "autoRunAria": "{{tool}} ohne Nachfrage automatisch ausführen",
+      "inherited": "Core-Standardwerte",
+      "inheritedHint": "Die Core-Standardwerte werden übernommen. Der aktuelle Konfigurationsabruf meldet keine Freigabe pro Werkzeug; es wurde keine benutzerdefinierte Liste geschrieben."
     },
     "memory": {
       "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",

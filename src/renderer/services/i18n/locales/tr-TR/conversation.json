@@ -581,5 +581,14 @@
     "rejectedUnreadable_other": "{{count}} tanesi okunamadı",
     "more": "ve Çıktılar bölümünde {{count}} tane daha",
     "more_other": "ve Çıktılar bölümünde {{count}} tane daha"
+  },
+  "workspacePolicy": {
+    "title": "Çalışma alanı erişimi",
+    "scope": "Etkin Core oturumunun bildirdiği dosya sistemi erişimi. Araç onayı, kimlik bilgileri ve kayıt birbirinden ayrıdır.",
+    "readable": "Okunabilir klasörler",
+    "writable": "Yazılabilir klasörler",
+    "executables": "Çalıştırılabilir yetenekler ve salt okunur klasörler",
+    "none": "Bildirilmedi",
+    "unknown": "Core bu konuşma için etkin çalışma alanı erişimini henüz bildirmedi."
   }
 }

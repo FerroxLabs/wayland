@@ -1,4 +1,5 @@
 import { EventEmitter } from 'node:events';
+import type { ChildProcess } from 'node:child_process';
 import { copyFile, mkdtemp, realpath, rm, stat, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -355,10 +356,135 @@ describe('Wayland Nano legacy activation carrier', () => {
       token
     );
     const exitCode = await new Promise<number | null>((resolve) => result.child.once('exit', resolve));
+    await vi.waitFor(() => expect(dispose).toHaveBeenCalledOnce());
 
     expect(exitCode).toBe(1);
     expect(cleanupAfterLaunch).toHaveBeenCalledOnce();
     expect(dispose).toHaveBeenCalledOnce();
+  });
+
+  it('retains the staged executable until the child exits', async () => {
+    registerPlatformServices(new NodePlatformServices());
+    const child = Object.assign(new EventEmitter(), {
+      pid: 12345,
+      exitCode: null as number | null,
+      signalCode: null,
+      unref: vi.fn(),
+      kill: vi.fn(),
+    }) as unknown as ChildProcess;
+    const cleanupAfterLaunch = vi.fn().mockResolvedValue(undefined);
+    const token = {
+      canonicalPath: process.execPath,
+      consume: async () => child,
+      cleanupAfterLaunch,
+      dispose: vi.fn().mockResolvedValue(undefined),
+    } as unknown as VerifiedWaylandNanoBinary;
+    await spawnGenericBackend(
+      'wnano',
+      process.execPath,
+      process.cwd(),
+      ['acp-host'],
+      { NANO_HOME: path.join(process.cwd(), 'owner-home') },
+      undefined,
+      token
+    );
+    expect(cleanupAfterLaunch).not.toHaveBeenCalled();
+    child.emit('error', new Error('a failed kill does not mean the process exited'));
+    expect(cleanupAfterLaunch).not.toHaveBeenCalled();
+    child.emit('exit', 0, null);
+    child.emit('close', 0, null);
+    await vi.waitFor(() => expect(cleanupAfterLaunch).toHaveBeenCalledOnce());
+    expect(child.kill).not.toHaveBeenCalled();
+  });
+
+  it('cleans a failed spawn with no PID even when no exit event follows', async () => {
+    registerPlatformServices(new NodePlatformServices());
+    const child = Object.assign(new EventEmitter(), {
+      pid: undefined,
+      exitCode: null,
+      signalCode: null,
+      unref: vi.fn(),
+    }) as unknown as ChildProcess;
+    const cleanupAfterLaunch = vi.fn().mockResolvedValue(undefined);
+    const token = {
+      canonicalPath: process.execPath,
+      consume: async () => child,
+      cleanupAfterLaunch,
+      dispose: vi.fn().mockResolvedValue(undefined),
+    } as unknown as VerifiedWaylandNanoBinary;
+    await spawnGenericBackend(
+      'wnano',
+      process.execPath,
+      process.cwd(),
+      ['acp-host'],
+      { NANO_HOME: path.join(process.cwd(), 'owner-home') },
+      undefined,
+      token
+    );
+    expect(cleanupAfterLaunch).not.toHaveBeenCalled();
+    child.emit('error', Object.assign(new Error('spawn failed'), { code: 'ENOENT' }));
+    child.emit('close', -2, null);
+    await vi.waitFor(() => expect(cleanupAfterLaunch).toHaveBeenCalledOnce());
+  });
+
+  it('handles a real spawn failure while consume is still releasing its verification handle', async () => {
+    registerPlatformServices(new NodePlatformServices());
+    const root = await mkdtemp(path.join(tmpdir(), 'nano-failed-spawn-'));
+    const cleanupAfterLaunch = vi.fn().mockResolvedValue(undefined);
+    const token = {
+      canonicalPath: path.join(root, 'does-not-exist'),
+      consume: async (launch: (canonicalPath: string) => ChildProcess) => {
+        const child = launch(path.join(root, 'does-not-exist'));
+        // Match consume's async handle-close boundary. The spawn error fires
+        // before its promise resolves, so a listener attached afterward loses it.
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        return child;
+      },
+      cleanupAfterLaunch,
+      dispose: vi.fn().mockResolvedValue(undefined),
+    } as unknown as VerifiedWaylandNanoBinary;
+    try {
+      const result = await spawnGenericBackend(
+        'wnano',
+        token.canonicalPath,
+        root,
+        ['acp-host'],
+        { NANO_HOME: path.join(root, 'owner-home') },
+        undefined,
+        token
+      );
+      expect(result.child.pid).toBeUndefined();
+      await vi.waitFor(() => expect(cleanupAfterLaunch).toHaveBeenCalledOnce());
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it('cleans a child already terminal when ownership is attached', async () => {
+    registerPlatformServices(new NodePlatformServices());
+    const child = Object.assign(new EventEmitter(), {
+      pid: 12345,
+      exitCode: 0,
+      signalCode: null,
+      unref: vi.fn(),
+    }) as unknown as ChildProcess;
+    const cleanupAfterLaunch = vi.fn().mockResolvedValue(undefined);
+    const token = {
+      canonicalPath: process.execPath,
+      consume: async () => child,
+      cleanupAfterLaunch,
+      dispose: vi.fn().mockResolvedValue(undefined),
+    } as unknown as VerifiedWaylandNanoBinary;
+    await spawnGenericBackend(
+      'wnano',
+      process.execPath,
+      process.cwd(),
+      ['acp-host'],
+      { NANO_HOME: path.join(process.cwd(), 'owner-home') },
+      undefined,
+      token
+    );
+    await vi.waitFor(() => expect(cleanupAfterLaunch).toHaveBeenCalledOnce());
   });
 
   it('disposes an abandoned staged token when identity consumption refuses launch', async () => {
