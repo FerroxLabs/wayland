@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Bot, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import AssistantIconTile from '@/renderer/pages/guid/components/AssistantIconTile';
@@ -45,16 +45,11 @@ export type LaunchpadPickerProps = {
 
 const FLASH_MS = 600;
 
-const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({
-  onClose,
-  onPick,
-  pinnedIds,
-  assistants,
-  localeKey,
-}) => {
+const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({ onClose, onPick, pinnedIds, assistants, localeKey }) => {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [flashId, setFlashId] = useState<string | null>(null);
+  const flashTimeoutRef = useRef<number | null>(null);
 
   // Esc closes the drawer.
   useEffect(() => {
@@ -64,6 +59,16 @@ const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
+
+  useEffect(
+    () => () => {
+      if (flashTimeoutRef.current !== null) {
+        window.clearTimeout(flashTimeoutRef.current);
+        flashTimeoutRef.current = null;
+      }
+    },
+    []
+  );
 
   const pinnedSet = useMemo(() => new Set(pinnedIds), [pinnedIds]);
   const atCap = pinnedIds.length >= LAUNCHPAD_MAX_ENTRIES;
@@ -119,13 +124,20 @@ const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({
     if (atCap) return;
     onPick(entry.assistantId);
     setFlashId(entry.id);
-    window.setTimeout(() => {
+    if (flashTimeoutRef.current !== null) window.clearTimeout(flashTimeoutRef.current);
+    flashTimeoutRef.current = window.setTimeout(() => {
+      flashTimeoutRef.current = null;
       setFlashId((current) => (current === entry.id ? null : current));
     }, FLASH_MS);
   };
 
   return (
-    <div className={styles.drawer} data-testid='launchpad-picker' role='region' aria-label={t('guid.launchpad.picker.title', { defaultValue: 'Add to your launchpad bar' })}>
+    <div
+      className={styles.drawer}
+      data-testid='launchpad-picker'
+      role='region'
+      aria-label={t('guid.launchpad.picker.title', { defaultValue: 'Add to your launchpad bar' })}
+    >
       <div className={styles.head}>
         <div>
           <span className={styles.title}>
@@ -226,11 +238,7 @@ const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({
               >
                 <AssistantIconTile paletteKey={entry.palette} size='sm'>
                   {entry.avatarUrl ? (
-                    <img
-                      src={entry.avatarUrl}
-                      alt=''
-                      style={{ width: '60%', height: '60%', objectFit: 'contain' }}
-                    />
+                    <img src={entry.avatarUrl} alt='' style={{ width: '60%', height: '60%', objectFit: 'contain' }} />
                   ) : entry.avatarEmoji ? (
                     <span style={{ fontSize: 14, lineHeight: '16px' }}>{entry.avatarEmoji}</span>
                   ) : (
