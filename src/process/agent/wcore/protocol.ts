@@ -277,6 +277,13 @@ export type WCoreEvent =
       tool: ToolInfo;
     }
   | {
+      /** Core has already approved this call; the host must not request approval again. */
+      type: 'call_announced';
+      msg_id: string;
+      call_id: string;
+      tool: ToolInfo;
+    }
+  | {
       type: 'tool_running';
       msg_id: string;
       call_id: string;

@@ -1614,8 +1614,10 @@ export class WCoreAgent {
         break;
 
       case 'tool_request':
+      case 'call_announced':
         // #520: remember the request-time command so the later running/result
-        // frames (which the wire sends without it) can re-surface it.
+        // frames (which the wire sends without it) can re-surface it. #1189:
+        // auto-approved calls announce the same ToolInfo without a request.
         this.toolDescriptionByCallId.set(event.call_id, event.tool.description);
         // #746: the agent is now waiting — first on the human (this frame renders an
         // approve/deny card) and then on the tool itself. Neither is agent inactivity,
@@ -1628,7 +1630,7 @@ export class WCoreAgent {
               callId: event.call_id,
               name: event.tool.name,
               description: event.tool.description,
-              status: 'Confirming',
+              status: event.type === 'tool_request' ? 'Confirming' : 'Executing',
               renderOutputAsMarkdown: false,
               confirmationDetails: this.mapConfirmationDetails(event),
             },
@@ -2160,7 +2162,10 @@ export class WCoreAgent {
       // WCoreEvent is handled above; this branch only fires at runtime
       // when the engine ships a new variant before this host learns it).
       default: {
-        const unknownEvent = event as { type?: unknown };
+        // Adding a supported union member without handling it must fail tsc.
+        // Truly unknown runtime variants retain the forward-compatible warning.
+        const unhandled: never = event;
+        const unknownEvent = unhandled as { type?: unknown };
         const typeStr = typeof unknownEvent.type === 'string' ? unknownEvent.type : '<non-string>';
         console.warn(`[WCoreAgent] unknown event type "${typeStr}" - dropping`, event);
         break;
@@ -2186,9 +2191,10 @@ export class WCoreAgent {
   }
 
   /**
-   * Map wcore tool_request to wayland confirmation details format.
+   * Retain tool arguments in the existing display/confirmation format. Only a
+   * Confirming card asks for approval; announcements use this for display.
    */
-  private mapConfirmationDetails(event: WCoreEvent & { type: 'tool_request' }) {
+  private mapConfirmationDetails(event: WCoreEvent & { type: 'tool_request' | 'call_announced' }) {
     const { tool } = event;
 
     // #1099: the engine classified a filesystem boundary BEFORE running the
