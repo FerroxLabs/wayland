@@ -93,7 +93,12 @@ export class VerifiedWaylandNanoBinary {
     await this.cleanupAfterLaunch();
   }
 
-  /** Plan 09/15 launch owners call this after the immediate spawn has consumed the staged image. */
+  /** The activation owner may reclaim unused tokens, never a launcher's live stage. */
+  async disposeIfUnconsumed(): Promise<void> {
+    if (!this.#consumed) await this.dispose();
+  }
+
+  /** Launch owners call this only after the child exits or fails to spawn. */
   async cleanupAfterLaunch(): Promise<void> {
     if (!this.#consumed) throw new Error('Wayland Nano staged executable cannot be cleaned before launch');
     if (this.#cleaned) return;
