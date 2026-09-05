@@ -579,5 +579,14 @@
     "rejectedUnreadable_other": "{{count}} 个无法读取",
     "more": "另有 {{count}} 个在“交付物”中",
     "more_other": "另有 {{count}} 个在“交付物”中"
+  },
+  "workspacePolicy": {
+    "title": "工作区访问权限",
+    "scope": "当前 Core 会话报告的文件系统访问权限。工具审批、凭据和注册是独立的。",
+    "readable": "可读取文件夹",
+    "writable": "可写入文件夹",
+    "executables": "可执行能力及只读文件夹",
+    "none": "未报告",
+    "unknown": "Core 尚未报告此对话的实时工作区访问权限。"
   }
 }

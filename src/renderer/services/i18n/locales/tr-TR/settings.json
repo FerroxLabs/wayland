@@ -2570,7 +2570,9 @@
       "stateAutoRuns": "Otomatik",
       "stateAsksFirst": "Sorar",
       "gateAria": "{{tool}} aracını etkinleştir",
-      "autoRunAria": "{{tool}} sormadan otomatik çalıştır"
+      "autoRunAria": "{{tool}} sormadan otomatik çalıştır",
+      "inherited": "Core varsayılanları",
+      "inheritedHint": "Core varsayılanları devralınır. Geçerli yapılandırma okuması araç başına onayı bildirmez; özel bir liste yazılmadı."
     },
     "memory": {
       "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",

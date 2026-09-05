@@ -2572,7 +2572,9 @@
       "stateAutoRuns": "Авто",
       "stateAsksFirst": "Спросит",
       "gateAria": "Включить {{tool}}",
-      "autoRunAria": "Запускать {{tool}} без запроса"
+      "autoRunAria": "Запускать {{tool}} без запроса",
+      "inherited": "Настройки Core по умолчанию",
+      "inheritedHint": "Используются настройки Core по умолчанию. Текущее чтение конфигурации не сообщает о подтверждении отдельных инструментов; пользовательский список не записан."
     },
     "memory": {
       "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",

@@ -6,6 +6,7 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
+import type { WCoreWorkspacePolicy } from '../../process/agent/wcore/protocol';
 import type { IConfirmation } from '@/common/chat/chatLib';
 import type { OpenDialogOptions } from 'electron';
 // C1: wrap platform builders so each provider/emitter key is recorded in the
@@ -1065,9 +1066,10 @@ export const acpConversation = {
   // Set session mode for ACP agents (claude, qwen, etc.)
   setMode: buildProvider<IBridgeResponse<{ mode: string }>, { conversationId: string; mode: string }>('acp.set-mode'),
   // Get current session mode for ACP agents
-  getMode: buildProvider<IBridgeResponse<{ mode: string; initialized: boolean }>, { conversationId: string }>(
-    'acp.get-mode'
-  ),
+  getMode: buildProvider<
+    IBridgeResponse<{ mode: string; initialized: boolean; workspacePolicy?: WCoreWorkspacePolicy | null }>,
+    { conversationId: string }
+  >('acp.get-mode'),
   // Get model info for ACP agents (model name and available models).
   // `backend` is optional and only consulted before a task exists, so the
   // process can derive a backend's cold-start catalog (e.g. Claude Code's

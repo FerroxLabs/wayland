@@ -211,10 +211,25 @@ describe('workspace_policy is consumed, not dropped', () => {
     ) as { kind: string; event: WCoreEvent };
     expect(decoded.kind).toBe('event');
 
-    const { agent, feed } = makeAgent();
+    const { agent, feed, emitted } = makeAgent();
     feed(decoded.event);
+    expect(emitted).toContainEqual({ type: 'workspace_policy', msg_id: '', data: agent.workspacePolicy });
     expect(agent.workspaceReadableRoots).toEqual(['/workspace', '/usr/share']);
     expect(agent.workspacePolicy?.backend).toBe('bwrap');
+  });
+
+  it('keeps historical receipts but removes live access when transport dies or disposal begins', () => {
+    const { agent, feed } = makeAgent();
+    const internals = agent as unknown as { transportAlive: boolean; disposed: boolean };
+    expect(agent.currentWorkspacePolicy).toBeNull();
+    feed({ type: 'workspace_policy', policy: policy(['/workspace']) });
+    expect(agent.currentWorkspacePolicy?.readable_roots).toEqual(['/workspace']);
+    internals.transportAlive = false;
+    expect(agent.currentWorkspacePolicy).toBeNull();
+    expect(agent.workspacePolicy?.readable_roots).toEqual(['/workspace']);
+    internals.transportAlive = true;
+    internals.disposed = true;
+    expect(agent.currentWorkspacePolicy).toBeNull();
   });
 
   it('leaves the host with no policy when an unrelated frame arrives', () => {

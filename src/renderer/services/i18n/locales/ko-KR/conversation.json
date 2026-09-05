@@ -579,5 +579,14 @@
     "rejectedUnreadable_other": "{{count}}개를 읽을 수 없었습니다",
     "more": "외 {{count}}개는 산출물에 있습니다",
     "more_other": "외 {{count}}개는 산출물에 있습니다"
+  },
+  "workspacePolicy": {
+    "title": "작업 공간 접근",
+    "scope": "실행 중인 Core 세션이 보고한 파일 시스템 접근 권한입니다. 도구 승인, 자격 증명 및 등록은 별개입니다.",
+    "readable": "읽기 가능한 폴더",
+    "writable": "쓰기 가능한 폴더",
+    "executables": "실행 기능 및 읽기 전용 폴더",
+    "none": "보고된 항목 없음",
+    "unknown": "Core가 이 대화의 현재 작업 공간 접근 권한을 아직 보고하지 않았습니다."
   }
 }

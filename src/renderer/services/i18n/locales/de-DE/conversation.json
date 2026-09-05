@@ -579,5 +579,14 @@
     "rejectedUnreadable_other": "{{count}} konnten nicht gelesen werden",
     "more": "und {{count}} weitere unter Artefakte",
     "more_other": "und {{count}} weitere unter Artefakte"
+  },
+  "workspacePolicy": {
+    "title": "Arbeitsbereichszugriff",
+    "scope": "Von der aktiven Core-Sitzung gemeldeter Dateisystemzugriff. Werkzeugfreigaben, Zugangsdaten und Registrierung sind davon getrennt.",
+    "readable": "Lesbare Ordner",
+    "writable": "Beschreibbare Ordner",
+    "executables": "Ausführbare Funktionen und schreibgeschützte Ordner",
+    "none": "Keine gemeldet",
+    "unknown": "Core hat für diese Unterhaltung keinen aktiven Arbeitsbereichszugriff gemeldet."
   }
 }

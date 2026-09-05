@@ -2571,7 +2571,9 @@
       "stateAutoRuns": "Auto",
       "stateAsksFirst": "Pergunta",
       "gateAria": "Ativar {{tool}}",
-      "autoRunAria": "Executar {{tool}} sem perguntar"
+      "autoRunAria": "Executar {{tool}} sem perguntar",
+      "inherited": "Padrões do Core",
+      "inheritedHint": "Os padrões do Core são herdados. A leitura atual não informa a aprovação por ferramenta; nenhuma lista personalizada foi gravada."
     },
     "memory": {
       "subtitle": "The engine remembers across sessions, facts, preferences, and project context that persist and compound. On by default, stored locally.",
