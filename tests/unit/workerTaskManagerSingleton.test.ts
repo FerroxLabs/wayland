@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockGetConversation, mockAcpManager } = vi.hoisted(() => ({
+const { mockGetConversation, mockAcpManager, mockWcoreManager } = vi.hoisted(() => ({
   mockGetConversation: vi.fn(),
   mockAcpManager: vi.fn(),
+  mockWcoreManager: vi.fn(),
 }));
 
 vi.mock('../../src/process/services/database/SqliteConversationRepository', () => ({
@@ -19,6 +20,16 @@ vi.mock('../../src/process/task/AcpAgentManager', () => ({
     constructor(data: Record<string, unknown>) {
       this.data = data;
       mockAcpManager(data);
+    }
+  },
+}));
+
+vi.mock('../../src/process/task/WCoreManager', () => ({
+  WCoreManager: class {
+    type = 'wcore';
+    kill = vi.fn();
+    constructor(data: Record<string, unknown>) {
+      mockWcoreManager(data);
     }
   },
 }));
@@ -93,6 +104,25 @@ describe('workerTaskManagerSingleton', () => {
       expect.objectContaining({
         conversation_id: 'conv-qwen-default',
         currentModelId: undefined,
+      })
+    );
+  });
+  it('propagates the scheduler deadline and explicit approval flag into the Core factory', async () => {
+    mockGetConversation.mockResolvedValue({
+      id: 'conv-core-scheduled',
+      type: 'wcore',
+      model: { useModel: 'core-model' },
+      extra: { workspace: '/workspace', yoloMode: true, unattendedHoldDeadlineMs: 1 },
+    });
+    await workerTaskManager.getOrBuildTask('conv-core-scheduled', {
+      yoloMode: false,
+      unattendedHoldDeadlineMs: 123456,
+    });
+    expect(mockWcoreManager).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversation_id: 'conv-core-scheduled',
+        yoloMode: false,
+        unattendedHoldDeadlineMs: 123456,
       })
     );
   });

@@ -16,7 +16,7 @@ import type { TChatConversation, TProviderWithModel } from '@/common/config/stor
 import type { AcpBackendAll, AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
 import { getConversationTypeForBackend } from '@/common/utils/buildAgentConversationParams';
-import type BaseAgentManager from '@process/task/BaseAgentManager';
+import { isExplicitUnattendedFullAuto, resolveUnattendedMode } from '@/common/types/agentModes';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { copyFilesToDirectory } from '@process/utils';
 import type { CreateConversationParams } from '@process/services/IConversationService';
@@ -424,7 +424,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
           // Kill stale task so getOrBuildTask picks up the new model
           const staleTask = this.taskManager.getTask(conversationId);
           if (staleTask) {
-            this.taskManager.kill(conversationId);
+            await this.taskManager.kill(conversationId);
           }
         }
       }
@@ -442,22 +442,19 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       nextRunAtMs: job.state?.nextRunAtMs,
     });
 
-    // Reuse existing task if possible; ensure yoloMode is active for scheduled runs.
+    // Recreate an idle task to clear any sticky blanket-approval flag left by
+    // an earlier interactive or scheduled run. Persisted chat state is retained.
+    if (this.busyGuard.isProcessing(conversationId))
+      throw new Error(`Conversation ${conversationId} is already running; the scheduled task was not acquired.`);
     const existingTask = this.taskManager.getTask(conversationId);
+    const yoloMode = isExplicitUnattendedFullAuto(
+      job.metadata.agentConfig?.backend ?? job.metadata.agentType,
+      job.metadata.agentConfig?.mode
+    );
     let task;
     try {
-      if (existingTask) {
-        const yoloEnabled = await (existingTask as BaseAgentManager<unknown>).ensureYoloMode();
-        if (yoloEnabled) {
-          task = existingTask;
-        } else {
-          // Cannot enable yoloMode dynamically - kill and recreate.
-          this.taskManager.kill(conversationId);
-          task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true, unattendedHoldDeadlineMs });
-        }
-      } else {
-        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true, unattendedHoldDeadlineMs });
-      }
+      if (existingTask) await this.taskManager.kill(conversationId);
+      task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode, unattendedHoldDeadlineMs });
     } catch (err) {
       // Conversation may have been deleted between scheduling and execution.
       // Re-throw with context so the caller (CronService) can log and update job state.
@@ -467,8 +464,8 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       );
     }
 
-    // #1045: the REUSE branch above never rebuilds the session, so the deadline
-    // has to be pushed onto the live agent rather than only handed to a spawn.
+    // #1045: keep the bounded unattended hold on the acquired runtime as well
+    // as its spawn options.
     // Optional by design: a backend without the method has no PermissionResolver
     // hold to bound.
     (task as { setUnattendedHoldDeadlineMs?: (ms: number | undefined) => void }).setUnattendedHoldDeadlineMs?.(
@@ -501,18 +498,25 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // Apply mode and config options if configured (must succeed before sendMessage).
     // If the task's agent is stale/disconnected, settings may fail - kill and retry
     // with a fresh task in that case.
-    if (
-      job.metadata.agentConfig?.mode ||
-      job.metadata.agentConfig?.configOptions ||
-      job.metadata.agentConfig?.modelId
-    ) {
+    {
       const persistSettings = !runsInUserOwnedChat;
       const ok = await this.applyAgentSettings(task, job, persistSettings);
       if (!ok) {
         console.warn(`[CronExecutor] Agent settings failed for job ${job.id}, recreating task and retrying`);
-        this.taskManager.kill(conversationId);
-        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode: true, unattendedHoldDeadlineMs });
-        await this.applyAgentSettings(task, job, persistSettings);
+        await this.taskManager.kill(conversationId);
+        task = await this.taskManager.getOrBuildTask(conversationId, { yoloMode, unattendedHoldDeadlineMs });
+        if (!(await this.applyAgentSettings(task, job, persistSettings))) {
+          const error = new Error(
+            `Agent settings could not be confirmed for scheduled job ${job.id}; the run was not sent.`
+          );
+          // Settle failure before releasing busy: idle callbacks must not
+          // publish a staging directory from a turn that never ran.
+          if (artifactRun) await this.settleArtifactRun(artifactRun, job, false, error);
+          this.recordRunSettlement(conversationId, { published: false, reason: 'failed' });
+          await this.taskManager.kill(conversationId);
+          this.busyGuard.setProcessing(conversationId, false);
+          throw error;
+        }
       }
     }
 
@@ -551,7 +555,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // Mirrors the sendMessage failure path: tear the half-started task down
         // so the next fire rebuilds a fresh one rather than reusing this spawn.
         try {
-          this.taskManager.kill(conversationId);
+          await this.taskManager.kill(conversationId);
         } catch (killErr) {
           console.warn(`[CronExecutor] kill after output-dir mismatch also failed for ${conversationId}:`, killErr);
         }
@@ -725,7 +729,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         // A named connector arrives with its WHOLE tool inventory: per-tool
         // narrowing is not reachable on this path (see `routineConnectors.ts`).
         activeMcpServers: routineConnectorIds,
-        ...(config.mode ? { sessionMode: config.mode } : {}),
+        sessionMode: resolveUnattendedMode(config.backend ?? job.metadata.agentType, config.mode),
         ...(config.modelId ? { currentModelId: config.modelId } : {}),
         ...(cachedConfigOptions ? { cachedConfigOptions } : {}),
         ...(extraSkillPaths.length > 0 ? { extraSkillPaths } : {}),
@@ -1297,8 +1301,11 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       ).setConfigOption === 'function';
 
     // Apply mode
-    if (job.metadata.agentConfig?.mode && hasSetMode) {
-      const desiredMode = job.metadata.agentConfig.mode;
+    if (hasSetMode) {
+      const desiredMode = resolveUnattendedMode(
+        job.metadata.agentConfig?.backend ?? job.metadata.agentType,
+        job.metadata.agentConfig?.mode
+      );
       try {
         const result = (await (
           task as { setMode: (mode: string, options?: { persist?: boolean }) => Promise<unknown> }

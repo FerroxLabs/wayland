@@ -964,6 +964,7 @@ describe('WorkflowSessionService.start() - launch target consumption', () => {
     const callArg = (parts.conversationService.createConversation as Mock).mock.calls[0][0] as CreateConversationParams;
     expect(callArg.type).toBe('wcore');
     expect(callArg.extra.currentModelId).toBeUndefined();
+    expect(callArg.extra.sessionMode).toBe('auto_edit');
   });
 
   it('missing backend/model falls through to getDefaultLaunchTarget()', async () => {
@@ -990,6 +991,7 @@ describe('WorkflowSessionService.start() - launch target consumption', () => {
     const callArg = (parts.conversationService.createConversation as Mock).mock.calls[0][0] as CreateConversationParams;
     expect(callArg.extra.backend).toBe('claude');
     expect(callArg.extra.cliPath).toBe('/opt/homebrew/bin/claude');
+    expect(callArg.extra.sessionMode).toBe('acceptEdits');
     // agentTypeForBackend('claude') → 'acp'
     expect(callArg.type).toBe('acp');
   });

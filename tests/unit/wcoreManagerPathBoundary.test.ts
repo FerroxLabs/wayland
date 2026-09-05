@@ -1259,3 +1259,41 @@ describe('#982 a recorded folder grant answers the card without asking again', (
     expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('scheduled boundary hold deadlines', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+  it('keeps the boundary closed and expires even after a foreign cancel reply', async () => {
+    vi.useFakeTimers();
+    const scoped = createManager();
+    const agent = attachAgent(scoped);
+    scoped.setUnattendedHoldDeadlineMs(1000);
+    emitEvent(scoped, boundaryFrame('timed-boundary'));
+    expect(scoped.getConfirmations()).toHaveLength(1);
+    scoped.confirm('timed-boundary', 'timed-boundary', 'cancel');
+    expect(scoped.getConfirmations()).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(agent.denyTool).toHaveBeenCalledWith('timed-boundary', 'Unattended approval deadline expired');
+    expect(scoped.getConfirmations()).toHaveLength(0);
+  });
+  it('denies the current boundary card if a held operation is enriched before expiry', async () => {
+    vi.useFakeTimers();
+    const scoped = createManager();
+    const agent = attachAgent(scoped);
+    scoped.setUnattendedHoldDeadlineMs(1000);
+    (scoped as unknown as { addConfirmation: (value: unknown) => void }).addConfirmation({
+      id: 'enriched',
+      callId: 'enriched',
+      title: 'Read',
+      options: [],
+    });
+    await vi.advanceTimersByTimeAsync(500);
+    emitEvent(scoped, boundaryFrame('enriched'));
+    await vi.advanceTimersByTimeAsync(500);
+    expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(agent.denyTool).toHaveBeenCalledWith('enriched', 'Unattended approval deadline expired');
+    expect(scoped.getConfirmations()).toHaveLength(0);
+  });
+});

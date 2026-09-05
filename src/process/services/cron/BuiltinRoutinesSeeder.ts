@@ -28,6 +28,7 @@ import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { logger } from '@office-ai/platform';
+import { getDefaultUnattendedMode } from '@/common/types/agentModes';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
 import { getBuiltinSkillsCopyDir } from '@process/utils/initStorage';
@@ -375,7 +376,7 @@ export async function seedBuiltinRoutines(cronService: CronService): Promise<voi
     const agentConfig: NonNullable<CronJob['metadata']['agentConfig']> = {
       backend: ROUTINE_BACKEND,
       name: routine.name,
-      mode: 'bypassPermissions',
+      mode: getDefaultUnattendedMode(ROUTINE_BACKEND),
       configOptions: { kind: ROUTINE_KIND, routineId: routine.id, artifactSeries: seriesForRoutine(routine) },
     };
 

@@ -134,15 +134,20 @@ vi.mock('@process/agent/wcore', () => ({
 // ── Import under test ──────────────────────────────────────────────
 
 import { WCoreManager } from '@/process/task/WCoreManager';
+import { resolveUnattendedHoldMs } from '@/process/acp/session/unattendedHold';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-function createManager(sessionMode: string): WCoreManager {
+function createManager(
+  sessionMode: string,
+  automation: { unattendedHoldDeadlineMs?: number; workflowSessionId?: string } = {}
+): WCoreManager {
   const data = {
     workspace: '/test',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: 'conv-1',
     sessionMode,
+    ...automation,
   };
   const model = data.model as any;
   return new WCoreManager(data as any, model);
@@ -310,5 +315,91 @@ describe('WCoreManager.setMode', () => {
       success: true,
       data: { mode: 'yolo' },
     });
+  });
+});
+
+describe('unattended Core approval boundaries', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+  it.each([{ unattendedHoldDeadlineMs: 60000 }, { workflowSessionId: 'workflow-one' }])(
+    'does not infer safe automation from broad tool categories (%j)',
+    (automation) => {
+      const manager = createManager('auto_edit', automation);
+      (manager as unknown as { agent: unknown }).agent = { approveTool: mockApproveTool };
+      const approve = (content: unknown) =>
+        (manager as unknown as { tryAutoApprove: (value: unknown) => boolean }).tryAutoApprove(content);
+      expect(approve({ ...makeContent('info'), name: 'todo' })).toBe(false);
+      expect(approve({ ...makeContent('edit'), name: 'notion_api' })).toBe(false);
+      expect(approve({ ...makeContent('edit'), name: 'Write' })).toBe(true);
+      expect(approve({ ...makeContent('edit'), name: 'Edit' })).toBe(true);
+      expect(approve({ callId: 'boundary', name: 'Read', confirmationDetails: { type: 'path_boundary' } })).toBe(false);
+    }
+  );
+  it('denies an unanswered scheduled confirmation at the deadline and removes the card', async () => {
+    vi.useFakeTimers();
+    const holdDuration = resolveUnattendedHoldMs({ nowMs: Date.now(), nextRunAtMs: Date.now() + 2000 });
+    const manager = createManager('auto_edit', { unattendedHoldDeadlineMs: holdDuration });
+    const denyTool = vi.fn();
+    (manager as unknown as { agent: unknown }).agent = { approveTool: mockApproveTool, denyTool };
+    (manager as unknown as { addConfirmation: (value: unknown) => void }).addConfirmation({
+      id: 'held',
+      callId: 'held',
+      title: 'Review',
+      options: [{ label: 'Deny', value: 'cancel' }],
+    });
+    expect(manager.getConfirmations()).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(999);
+    expect(denyTool).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(denyTool).toHaveBeenCalledWith('held', 'Unattended approval deadline expired');
+    expect(mockApproveTool).not.toHaveBeenCalled();
+    expect(manager.getConfirmations()).toHaveLength(0);
+  });
+  it('does not expire an interactive confirmation without a deadline', async () => {
+    vi.useFakeTimers();
+    const manager = createManager('default');
+    const denyTool = vi.fn();
+    (manager as unknown as { agent: unknown }).agent = { denyTool };
+    (manager as unknown as { addConfirmation: (value: unknown) => void }).addConfirmation({
+      id: 'interactive',
+      callId: 'interactive',
+      title: 'Review',
+      options: [],
+    });
+    await vi.advanceTimersByTimeAsync(60000);
+    expect(denyTool).not.toHaveBeenCalled();
+    expect(manager.getConfirmations()).toHaveLength(1);
+  });
+  it('contains transport death racing a scheduled denial', async () => {
+    vi.useFakeTimers();
+    const manager = createManager('auto_edit', { unattendedHoldDeadlineMs: 1000 });
+    (manager as unknown as { agent: unknown }).agent = {
+      denyTool: vi.fn(() => {
+        throw new Error('transport closed');
+      }),
+    };
+    (manager as unknown as { addConfirmation: (value: unknown) => void }).addConfirmation({
+      id: 'dying',
+      callId: 'dying',
+      title: 'Review',
+      options: [],
+    });
+    await expect(vi.advanceTimersByTimeAsync(1000)).resolves.not.toThrow();
+    expect(manager.getConfirmations()).toHaveLength(0);
+  });
+  it('does not let a redelivered prompt renew the unattended hold', async () => {
+    vi.useFakeTimers();
+    const manager = createManager('auto_edit', { unattendedHoldDeadlineMs: 1000 });
+    const denyTool = vi.fn();
+    (manager as unknown as { agent: unknown }).agent = { denyTool };
+    const add = (value: unknown) =>
+      (manager as unknown as { addConfirmation: (value: unknown) => void }).addConfirmation(value);
+    add({ id: 'repeat', callId: 'repeat', title: 'Review', options: [] });
+    await vi.advanceTimersByTimeAsync(500);
+    add({ id: 'repeat', callId: 'repeat', title: 'Updated review', options: [] });
+    await vi.advanceTimersByTimeAsync(500);
+    expect(denyTool).toHaveBeenCalledExactlyOnceWith('repeat', 'Unattended approval deadline expired');
   });
 });

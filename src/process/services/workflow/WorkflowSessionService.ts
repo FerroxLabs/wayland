@@ -41,7 +41,7 @@ import {
   type WorkflowSession,
 } from '@/common/types/workflowTypes';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
-import { getFullAutoMode } from '@/common/types/agentModes';
+import { resolveUnattendedMode } from '@/common/types/agentModes';
 import type { AgentType } from '@process/task/agentTypes';
 import type { IConversationService, CreateConversationParams } from '../IConversationService';
 import type { UsageEventLogger } from '../usage/UsageEventLogger';
@@ -272,12 +272,9 @@ export class WorkflowSessionService {
       cliPath = paramsCliPath ?? launchTarget.cliPath;
     }
 
-    // Workflows run their own tools without interrogating the user for every
-    // bash / file permission - the meaningful "stops" in a workflow are the
-    // run-state review and decision beats, NOT raw tool calls. Default to the
-    // backend's full-auto mode (the same mode cron tasks use); an explicit
-    // launch-provided sessionMode still wins.
-    const effectiveSessionMode = sessionMode ?? getFullAutoMode(backend);
+    // An undeclared workflow uses guarded defaults. A full-auto mode must be
+    // declared for this run; global agent preferences are not run consent.
+    const effectiveSessionMode = resolveUnattendedMode(backend, sessionMode);
     const conversationType = agentTypeForBackend(backend);
     // ACP-protocol backends (claude/codex/qwen/…) read the model the user
     // picked from `extra.currentModelId` at spawn (AcpConversation.start →

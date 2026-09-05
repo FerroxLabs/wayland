@@ -39,6 +39,7 @@
   },
   "launchError": "ワークフローの起動に失敗しました: {{msg}}",
   "picker": {
-    "noAgent": "バックエンドが選択されていません"
+    "noAgent": "バックエンドが選択されていません",
+    "approvalForNewRun": "新しい実行の承認"
   }
 }

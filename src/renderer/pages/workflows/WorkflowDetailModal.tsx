@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import AgentModeSelector from '@renderer/components/agent/AgentModeSelector';
+import { resolveUnattendedMode } from '@/common/types/agentModes';
+
 /**
  * WorkflowDetailModal - opens when a WorkflowCard is clicked.
  *
@@ -123,6 +126,14 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
   const [selectedAgentKey, setSelectedAgentKey] = useState<string>('claude');
   const [modelOptions, setModelOptions] = useState<Array<{ id: string; label: string; providerId?: string }>>([]);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
+  const [approvalMode, setApprovalMode] = useState<string | undefined>();
+  const approvalAgent = availableAgents?.find((agent) => getAgentKey(agent) === selectedAgentKey);
+  const approvalBackend = approvalAgent?.isPreset
+    ? resolvePresetAgentType(approvalAgent.presetAgentType)
+    : approvalAgent?.backend;
+  useEffect(() => {
+    setApprovalMode(undefined);
+  }, [entry?.name, selectedAgentKey]);
 
   const depends = useMemo(() => parseDepends(entry?.metadata?.depends), [entry]);
 
@@ -364,15 +375,8 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
       };
     }
 
-    // Read preferred session mode for this backend
-    let sessionMode: string | undefined;
-    try {
-      const acpConfig = await ConfigStorage.get('acp.config');
-      const backendConfig = acpConfig?.[backend as AcpBackendAll] as Record<string, unknown> | undefined;
-      sessionMode = backendConfig?.preferredMode as string | undefined;
-    } catch {
-      // sessionMode stays undefined - service defaults to whatever it picks
-    }
+    // Permission preferences from another chat are not consent for this run.
+    const sessionMode = resolveUnattendedMode(backend, approvalMode);
 
     return {
       backend,
@@ -607,6 +611,20 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
                 </span>
               )}
             </div>
+
+            {approvalBackend ? (
+              <div className='flex items-center gap-8px'>
+                <span className='text-12px text-t-secondary'>
+                  {t('picker.approvalForNewRun', 'Approval for new runs')}
+                </span>
+                <AgentModeSelector
+                  backend={approvalBackend}
+                  compact
+                  initialMode={resolveUnattendedMode(approvalBackend, approvalMode)}
+                  onModeSelect={setApprovalMode}
+                />
+              </div>
+            ) : null}
 
             {/* Action area - content depends on whether an in-flight session
                 exists. Both paths use the picker selection above. */}

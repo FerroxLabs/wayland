@@ -349,3 +349,11 @@ A hosted **Wayland Pro** with expanded capabilities is on the way. The core you 
 The **code** is AGPL; the **name and logo** are trademarks. Fork freely, just give your fork its own name. You can always say it's "built on Wayland" or "compatible with Wayland." Full policy: [TRADEMARK.md](./TRADEMARK.md).
 
 <sub>Wayland is named after Wayland the Smith, the master craftsman of Norse and Germanic legend, the one who could forge anything. A tip of the hat to the Wayland display server protocol; different project, no affiliation.</sub>
+
+### Approval modes for scheduled tasks and workflows
+
+New scheduled tasks and workflow runs use guarded approval defaults: Auto-Accept Edits for Wayland Core and Gemini, Accept Edits for Claude, and Auto Edit for Codex. Other backends use their normal mode without Desktop enabling blanket auto-approval. Choose the approval mode in the scheduled-task editor or the workflow launch dialog; a global preference from another conversation does not authorize a new workflow to run in Autopilot.
+
+For Core, Auto-Accept Edits allows the engine’s built-in Write/Edit behavior and its configured auto-approved tools. Other operations can require a confirmation. Approval mode does not widen workspace filesystem boundaries or disable Core’s allow-listed network tools. Select Autopilot or Full Auto explicitly for a run only when that is the intended policy. Existing tasks retain supported stored modes when edited; review that field when updating an older task. Unrecognized Core mode values, including the old generated `bypassPermissions` token, use ask-first rather than enabling full-auto. Newly seeded Core routines use Auto-Accept Edits.
+
+A scheduled turn is not dispatched when its requested settings still fail after a fresh-session retry. Starting a fresh workflow uses the displayed approval choice; resuming an existing workflow returns to that conversation’s current policy.

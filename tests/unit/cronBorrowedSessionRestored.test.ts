@@ -192,14 +192,15 @@ function makeTask(opts?: { canEnableYolo?: boolean }) {
 }
 
 /** Executor wired to the REAL CronBusyGuard and a task registry kill() empties. */
-function makeExecutor(task?: any) {
+function makeExecutor(task?: any, factoryTask = task) {
   const live = new Map<string, any>();
   if (task) live.set('conv-source', task);
   const taskManager = {
     getTask: vi.fn((id: string) => live.get(id)),
     getOrBuildTask: vi.fn(async (id: string) => {
-      live.set(id, task);
-      return task;
+      const fresh = factoryTask ? { ...factoryTask } : undefined;
+      live.set(id, fresh);
+      return fresh;
     }),
     addTask: vi.fn(),
     kill: vi.fn((id: string) => {
@@ -227,21 +228,23 @@ describe('a scheduled run hands the borrowed live session back to the user', () 
 
     // The run applied full-auto to the LIVE session - that part is deliberate.
     expect(task.setMode).toHaveBeenCalledWith('yolo', { persist: false });
-    // ...and while it is still running, nothing is torn down.
+    // Initial acquisition retires the old idle runtime; the borrowed runtime
+    // is not torn down while its turn is running.
     expect(busyGuard.isProcessing('conv-source')).toBe(true);
-    expect(taskManager.kill).not.toHaveBeenCalled();
+    expect(taskManager.kill).toHaveBeenCalledTimes(1); // Initial retirement only.
 
     // Turn end.
     busyGuard.setProcessing('conv-source', false);
     await flushMacrotasks();
 
-    expect(taskManager.kill).toHaveBeenCalledWith('conv-source');
+    expect(taskManager.kill).toHaveBeenCalledTimes(2);
+    expect(taskManager.kill).toHaveBeenLastCalledWith('conv-source');
   });
 
   it('releases it just the same when wcore could not enable yolo dynamically (the real path)', async () => {
     seedUserChat();
-    // WCoreManager has no ensureYoloMode override -> BaseAgentManager returns
-    // false -> the executor kills and rebuilds with { yoloMode: true }.
+    // All scheduled runs now recreate the runtime with their declared policy,
+    // regardless of the retired manager's old blanket-enable capability.
     const task = makeTask({ canEnableYolo: false });
     const { executor, taskManager, busyGuard } = makeExecutor(task);
 
@@ -264,7 +267,8 @@ describe('a scheduled run hands the borrowed live session back to the user', () 
     busyGuard.setProcessing('conv-source', false);
     await flushMacrotasks();
 
-    expect(taskManager.kill).toHaveBeenCalledWith('conv-source');
+    expect(taskManager.kill).toHaveBeenCalledTimes(2);
+    expect(taskManager.kill).toHaveBeenLastCalledWith('conv-source');
   });
 
   it('does NOT release a conversation the cron job created for itself', async () => {
@@ -284,7 +288,7 @@ describe('a scheduled run hands the borrowed live session back to the user', () 
     busyGuard.setProcessing('conv-child', false);
     await flushMacrotasks();
 
-    expect(taskManager.kill).not.toHaveBeenCalled();
+    expect(taskManager.kill).toHaveBeenCalledTimes(1); // Initial retirement only.
   });
 
   it('waits for a follow-up turn instead of tearing the manager down mid-teardown', async () => {
@@ -299,11 +303,12 @@ describe('a scheduled run hands the borrowed live session back to the user', () 
     busyGuard.setProcessing('conv-source', false);
     busyGuard.setProcessing('conv-source', true);
     await flushMacrotasks();
-    expect(taskManager.kill).not.toHaveBeenCalled();
+    expect(taskManager.kill).toHaveBeenCalledTimes(1); // Initial retirement only.
 
     busyGuard.setProcessing('conv-source', false);
     await flushMacrotasks();
-    expect(taskManager.kill).toHaveBeenCalledWith('conv-source');
+    expect(taskManager.kill).toHaveBeenCalledTimes(2);
+    expect(taskManager.kill).toHaveBeenLastCalledWith('conv-source');
   });
 
   it('releases the task the settings retry rebuilt, not the one it discarded', async () => {
@@ -311,13 +316,21 @@ describe('a scheduled run hands the borrowed live session back to the user', () 
     const failing = makeTask();
     failing.setMode.mockResolvedValue({ success: false, msg: 'stale agent' });
     const rebuilt = makeTask();
-    const { executor, taskManager, busyGuard, live } = makeExecutor(failing);
-    taskManager.getOrBuildTask.mockImplementation(async (id: string) => {
-      live.set(id, rebuilt);
-      return rebuilt;
-    });
+    const { executor, taskManager, busyGuard, live } = makeExecutor();
+    taskManager.getOrBuildTask
+      .mockImplementationOnce(async (id: string) => {
+        live.set(id, failing);
+        return failing;
+      })
+      .mockImplementation(async (id: string) => {
+        live.set(id, rebuilt);
+        return rebuilt;
+      });
 
     await executor.executeJob(makeUiCreatedJob());
+    expect(taskManager.getOrBuildTask).toHaveBeenCalledTimes(2);
+    expect(failing.setMode).toHaveBeenCalledTimes(1);
+    expect(rebuilt.setMode).toHaveBeenCalledTimes(1);
     expect(live.get('conv-source')).toBe(rebuilt);
 
     // The retry's kill() does not clear the busy guard, so the run is still busy
@@ -342,7 +355,7 @@ describe('a scheduled run hands the borrowed live session back to the user', () 
     busyGuard.setProcessing('conv-source', false);
     await flushMacrotasks();
 
-    expect(taskManager.kill).not.toHaveBeenCalled();
+    expect(taskManager.kill).toHaveBeenCalledTimes(1); // Initial retirement only.
   });
 });
 
@@ -367,7 +380,7 @@ describe('setModel and setConfigOption are gated like every other door', () => {
     seedUserChat();
     seedCronChild();
     const task = makeTask();
-    const { executor, live } = makeExecutor();
+    const { executor, live } = makeExecutor(undefined, task);
     live.set('conv-child', task);
 
     await executor.executeJob(makeUiCreatedJob({ workspace: '', configOptions: { effort: 'high' } }));

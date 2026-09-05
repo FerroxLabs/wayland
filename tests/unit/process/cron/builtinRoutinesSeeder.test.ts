@@ -36,7 +36,7 @@ const workflowNames = new Set(
 
 /** Records what the seeder did, in order, so enable-state can be read at the end. */
 function makeRecordingCronService() {
-  const jobs = new Map<string, { id: string; routineId?: string; enabled: boolean }>();
+  const jobs = new Map<string, { id: string; routineId?: string; enabled: boolean; mode?: string }>();
   let nextId = 1;
   const service = {
     listJobs: async () =>
@@ -44,10 +44,15 @@ function makeRecordingCronService() {
         id: j.id,
         metadata: { agentConfig: { configOptions: { kind: 'routine', routineId: j.routineId } } },
       })),
-    addJob: async (params: { agentConfig?: { configOptions?: { routineId?: string } } }) => {
+    addJob: async (params: { agentConfig?: { mode?: string; configOptions?: { routineId?: string } } }) => {
       const id = `job-${nextId++}`;
       // Mirrors the real addJob: a new job starts ENABLED.
-      jobs.set(id, { id, routineId: params.agentConfig?.configOptions?.routineId, enabled: true });
+      jobs.set(id, {
+        id,
+        routineId: params.agentConfig?.configOptions?.routineId,
+        enabled: true,
+        mode: params.agentConfig?.mode,
+      });
       return { id };
     },
     updateJob: async (id: string, patch: { enabled?: boolean }) => {
@@ -84,6 +89,7 @@ describe('built-in routines seeder', () => {
     expect(jobs.size).toBe(routines.length);
     const stillEnabled = [...jobs.values()].filter((j) => j.enabled).map((j) => j.routineId);
     expect(stillEnabled).toEqual([]);
+    expect([...jobs.values()].every((job) => job.mode === 'auto_edit')).toBe(true);
   });
 
   it('is idempotent, so reboots never stack duplicates', async () => {
