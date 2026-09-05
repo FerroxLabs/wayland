@@ -44,6 +44,7 @@ import {
 import { TeamExportSchema, type TeamExport } from './importExport/TeamExportSchema';
 import { TeamImportError } from './importExport/errors';
 import { inspectConversationDeletionSchedules } from '@process/services/conversationDeletionSafety';
+import { flattenGeminiModeIds } from '@/common/utils/geminiModes';
 
 /** Bare ids of the native built-in catalog, resolved once on first import. */
 let builtinCatalogBareIds: Set<string> | null = null;
@@ -257,6 +258,9 @@ export class TeamSessionService {
   private async resolveDefaultGeminiModel(): Promise<TProviderWithModel> {
     const savedGeminiModel = await ProcessConfig.get('gemini.defaultModel');
     const configuredProviders = await ProcessConfig.get('model.config');
+    const googleAuthModelIds = flattenGeminiModeIds();
+    const googleAuthModels = new Set(googleAuthModelIds);
+    const googleAuthFallbackModel = googleAuthModelIds[0];
     // #983: `gemini.defaultModel` is state SHARED with plain Gemini chats, and
     // every fallback below walks `model.config` in configuration order. Both
     // reach providers that have nothing to do with the selected backend, so the
@@ -277,24 +281,30 @@ export class TeamSessionService {
       } as TProviderWithModel;
     };
 
-    if (
-      savedGeminiModel &&
-      typeof savedGeminiModel === 'object' &&
-      'id' in savedGeminiModel &&
-      'useModel' in savedGeminiModel
-    ) {
-      if (savedGeminiModel.id === GOOGLE_AUTH_PROVIDER_ID && (await hasGeminiOauthCreds())) {
-        return this.createGoogleAuthGeminiModel(savedGeminiModel.useModel);
+    if (savedGeminiModel && typeof savedGeminiModel === 'object') {
+      const savedProviderId =
+        'id' in savedGeminiModel && typeof savedGeminiModel.id === 'string' ? savedGeminiModel.id : undefined;
+      const savedModelId =
+        'useModel' in savedGeminiModel && typeof savedGeminiModel.useModel === 'string'
+          ? savedGeminiModel.useModel
+          : undefined;
+      if (
+        savedProviderId === GOOGLE_AUTH_PROVIDER_ID &&
+        savedModelId &&
+        googleAuthModels.has(savedModelId) &&
+        (await hasGeminiOauthCreds())
+      ) {
+        return this.createGoogleAuthGeminiModel(savedModelId);
       }
 
       const matchedProvider = providers.find(
         (provider) =>
-          provider.id === savedGeminiModel.id &&
-          provider.model?.includes(savedGeminiModel.useModel) &&
-          usable(provider, savedGeminiModel.useModel)
+          provider.id === savedProviderId &&
+          provider.model?.includes(savedModelId ?? '') &&
+          usable(provider, savedModelId)
       );
-      if (matchedProvider) {
-        return buildProviderModel(matchedProvider, savedGeminiModel.useModel);
+      if (matchedProvider && savedModelId) {
+        return buildProviderModel(matchedProvider, savedModelId);
       }
     }
 
@@ -318,14 +328,11 @@ export class TeamSessionService {
       if (enabledModel) return buildProviderModel(geminiProvider, enabledModel);
     }
 
-    if (await hasGeminiOauthCreds()) {
-      const oauthModel =
-        typeof savedGeminiModel === 'object' && 'useModel' in savedGeminiModel
-          ? savedGeminiModel.useModel
-          : typeof savedGeminiModel === 'string'
-            ? savedGeminiModel
-            : 'gemini-2.0-flash';
-      return this.createGoogleAuthGeminiModel(oauthModel);
+    if ((await hasGeminiOauthCreds()) && googleAuthFallbackModel) {
+      // A rejected saved selection has no authority over Google OAuth. In
+      // particular, never transplant a model from a disabled/removed API
+      // provider onto the OAuth route merely because credentials exist.
+      return this.createGoogleAuthGeminiModel(googleAuthFallbackModel);
     }
 
     const fallbackProvider = providers.find((provider) => provider.model?.some((model) => usable(provider, model)));
