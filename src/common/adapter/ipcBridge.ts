@@ -1063,7 +1063,10 @@ export const acpConversation = {
     { backend: AgentBackend }
   >('acp.check-agent-health'),
   // Set session mode for ACP agents (claude, qwen, etc.)
-  setMode: buildProvider<IBridgeResponse<{ mode: string }>, { conversationId: string; mode: string }>('acp.set-mode'),
+  setMode: buildProvider<
+    IBridgeResponse<{ mode: string; refusalCode?: string }>,
+    { conversationId: string; mode: string }
+  >('acp.set-mode'),
   // Get current session mode for ACP agents
   getMode: buildProvider<IBridgeResponse<{ mode: string; initialized: boolean }>, { conversationId: string }>(
     'acp.get-mode'

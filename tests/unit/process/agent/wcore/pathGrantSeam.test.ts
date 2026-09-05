@@ -388,3 +388,23 @@ describe('pinned v1 host-command corpus vs the path-grant commands', () => {
     ).not.toThrow();
   });
 });
+
+describe('typed mode refusal contract (#1223)', () => {
+  it('decodes the producer fixture and forwards its effective mode without inventing tool restrictions', () => {
+    const corpus = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    const consumer = new DesktopCoreV1Consumer();
+    consumer.consumeLine(readFileSync(path.join(corpus, 'events/ready.json'), 'utf8').trimEnd());
+    const decoded = consumer.consumeLine(
+      readFileSync(path.join(corpus, 'events/set_mode_refused.json'), 'utf8').trimEnd()
+    ) as { kind: string; event: WCoreEvent };
+    expect(decoded.kind).toBe('event');
+    const { feed, emitted } = makeAgent();
+    feed(decoded.event);
+    expect(emitted).toContainEqual({
+      type: 'set_mode_refused',
+      msg_id: '',
+      data: { type: 'set_mode_refused', requested: 'force', effective: 'default', reason: 'local_opt_in_required' },
+    });
+    expect(emitted.some((event) => event.type === 'tool_group')).toBe(false);
+  });
+});

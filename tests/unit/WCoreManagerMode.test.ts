@@ -272,6 +272,7 @@ describe('WCoreManager.setMode', () => {
     (manager as any).agent = {
       approveTool: mockApproveTool,
       setMode: mockSetMode,
+      isAlive: true,
       start: vi.fn(),
       stop: vi.fn(),
       kill: vi.fn(),
@@ -279,7 +280,13 @@ describe('WCoreManager.setMode', () => {
       denyTool: vi.fn(),
     };
 
-    await manager.setMode('auto_edit');
+    const result = manager.setMode('auto_edit');
+    (manager as unknown as { emit: (event: string, data: unknown) => void }).emit('wcore.message', {
+      type: 'config_changed',
+      msg_id: '',
+      data: { current_mode: 'auto_edit' },
+    });
+    await result;
 
     expect(mockSetMode).toHaveBeenCalledWith('auto_edit');
   });
@@ -289,6 +296,7 @@ describe('WCoreManager.setMode', () => {
     (manager as any).agent = {
       approveTool: mockApproveTool,
       setMode: mockSetMode,
+      isAlive: true,
       start: vi.fn(),
       stop: vi.fn(),
       kill: vi.fn(),
@@ -296,7 +304,13 @@ describe('WCoreManager.setMode', () => {
       denyTool: vi.fn(),
     };
 
-    const result = await manager.setMode('yolo');
+    const pending = manager.setMode('yolo');
+    (manager as unknown as { emit: (event: string, data: unknown) => void }).emit('wcore.message', {
+      type: 'config_changed',
+      msg_id: '',
+      data: { current_mode: 'force' },
+    });
+    const result = await pending;
 
     expect((manager as any).currentMode).toBe('yolo');
     expect(result).toEqual({ success: true, data: { mode: 'yolo' } });
@@ -310,5 +324,116 @@ describe('WCoreManager.setMode', () => {
       success: true,
       data: { mode: 'yolo' },
     });
+  });
+});
+
+function frame(manager: WCoreManager, type: string, data: unknown) {
+  (manager as unknown as { emit: (event: string, data: unknown) => void }).emit('wcore.message', {
+    type,
+    msg_id: '',
+    data,
+  });
+}
+
+describe('Core-confirmed mode changes (#1223)', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+  function live() {
+    const manager = createManager('default');
+    (manager as unknown as { agent: unknown }).agent = {
+      isAlive: true,
+      setMode: mockSetMode,
+      approveTool: mockApproveTool,
+    };
+    return manager;
+  }
+
+  it('never enables automatic approval while the mode request is still unacknowledged', async () => {
+    const manager = live();
+    const result = manager.setMode('yolo');
+    expect(manager.getMode().mode).toBe('default');
+    expect(
+      (manager as unknown as { tryAutoApprove: (value: unknown) => boolean }).tryAutoApprove(makeContent('exec'))
+    ).toBe(false);
+    frame(manager, 'set_mode_refused', { requested: 'force', effective: 'default', reason: 'local_opt_in_required' });
+    await expect(result).resolves.toMatchObject({ success: false, data: { mode: 'default' } });
+    expect(manager.getMode().mode).toBe('default');
+    expect(mockDb.updateConversation).not.toHaveBeenCalled();
+    expect(emitResponseStream).toHaveBeenCalledWith(expect.objectContaining({ type: 'set_mode_refused' }));
+  });
+  it('uses the accepted policy revision as the positive acknowledgement during a running turn', async () => {
+    const manager = live();
+    const result = manager.setMode('auto_edit');
+    frame(manager, 'execution_policy', {
+      type: 'execution_policy',
+      critical: true,
+      contract_version: '1.0',
+      revision: 1,
+      reason: 'mode_change',
+      effective_at_unix_ms: 123,
+      policy: {
+        posture: 'smart',
+        approvals: 'auto_edit',
+        sandbox: 'required',
+        source: 'desktop_local_launch',
+        managed_floor_active: false,
+      },
+    });
+    await expect(result).resolves.toMatchObject({ success: true, data: { mode: 'auto_edit' } });
+    expect(manager.getMode().mode).toBe('auto_edit');
+    expect(
+      (manager as unknown as { tryAutoApprove: (value: unknown) => boolean }).tryAutoApprove(makeContent('edit'))
+    ).toBe(true);
+    expect(
+      (manager as unknown as { tryAutoApprove: (value: unknown) => boolean }).tryAutoApprove(makeContent('exec'))
+    ).toBe(false);
+  });
+  it('does not persist a temporary mode used by a scheduled operation', async () => {
+    const manager = live();
+    const save = vi
+      .spyOn(manager as unknown as { saveSessionMode: (mode: string) => Promise<void> }, 'saveSessionMode')
+      .mockResolvedValue();
+    const result = manager.setMode('yolo', { persist: false });
+    frame(manager, 'config_changed', { current_mode: 'force' });
+    await expect(result).resolves.toMatchObject({ success: true, data: { mode: 'yolo' } });
+    frame(manager, 'config_changed', { current_mode: 'force' });
+    expect(save).not.toHaveBeenCalled();
+  });
+  it('rejects overlapping requests and times out without changing approval authority', async () => {
+    vi.useFakeTimers();
+    const manager = live();
+    const result = manager.setMode('yolo');
+    await expect(manager.setMode('auto_edit')).resolves.toMatchObject({ success: false, data: { mode: 'default' } });
+    expect(mockSetMode).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(10000);
+    await expect(result).resolves.toMatchObject({ success: false, data: { mode: 'default' } });
+    expect(manager.getMode().mode).toBe('default');
+  });
+  it('does not treat an unrelated config receipt as acceptance of the pending request', async () => {
+    vi.useFakeTimers();
+    const manager = live();
+    const result = manager.setMode('yolo');
+    let finished = false;
+    void result.then(() => {
+      finished = true;
+    });
+    frame(manager, 'config_changed', { current_mode: 'default' });
+    await Promise.resolve();
+    expect(finished).toBe(false);
+    frame(manager, 'set_mode_refused', { requested: 'force', effective: 'default', reason: 'local_opt_in_required' });
+    await expect(result).resolves.toMatchObject({ success: false });
+  });
+  it('persists a requested mode only after Core confirms it', async () => {
+    const manager = live();
+    const save = vi
+      .spyOn(manager as unknown as { saveSessionMode: (mode: string) => Promise<void> }, 'saveSessionMode')
+      .mockResolvedValue();
+    const result = manager.setMode('yolo');
+    expect(save).not.toHaveBeenCalled();
+    frame(manager, 'config_changed', { current_mode: 'force' });
+    await expect(result).resolves.toMatchObject({ success: true });
+    expect(save).toHaveBeenCalledExactlyOnceWith('yolo');
   });
 });

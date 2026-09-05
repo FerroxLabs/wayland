@@ -1781,6 +1781,11 @@ export class WCoreAgent {
         });
         break;
 
+      case 'set_mode_refused':
+        if (this.capabilities) this.capabilities = { ...this.capabilities, current_mode: event.effective };
+        this.onStreamEvent({ type: 'set_mode_refused', data: event, msg_id: '' });
+        break;
+
       case 'config_changed':
         this.capabilities = event.capabilities;
         this.onStreamEvent({
