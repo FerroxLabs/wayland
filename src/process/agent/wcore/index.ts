@@ -10,6 +10,7 @@ import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync 
 import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import type { LiveFolderGrant } from '@/common/workspace/folderGrants';
+import { provisionTvControlForWorkspacePolicy } from '@process/services/mcpServices/bundledTvControl';
 import type { FolderGrantSessionView } from '@/common/workspace/folderGrantsIpc';
 import { isWithin } from '@process/services/workspace/folderGrantRoots';
 import { MAX_FOLDER_GRANTS_PER_WORKSPACE } from '@process/services/workspace/folderGrantStore';
@@ -571,6 +572,8 @@ export class WCoreAgent {
    * is host-authored: this is stored exactly as received.
    */
   private lastWorkspacePolicy: WCoreWorkspacePolicy | null = null;
+  private tvControlScratchReady = false;
+  private tvControlScratchError: Error | null = null;
   /** Resolvers waiting for the NEXT receipt. Drained and cleared on arrival. */
   private workspacePolicyWaiters: Array<(policy: WCoreWorkspacePolicy) => void> = [];
   private readonly pathGrantSessionId = randomUUID();
@@ -1473,6 +1476,7 @@ export class WCoreAgent {
     // Own the first idle command phase: no MCP/history/heartbeat/message may
     // precede the grant response tail and its single ping/pong barrier.
     await this.replayStartupPathGrants();
+    await this.ensureTvControlScratchReady();
     if (this.disposed || this.startupPathReplayCancelled || !this.transportAlive || !this.ownsStartupPathSession()) {
       throw new Error('Wayland Core startup folder replay lost session ownership');
     }
@@ -1611,6 +1615,8 @@ export class WCoreAgent {
       this.pathGrantApplications.set(grant.grantId, { grantId: grant.grantId, root: grant.root, status: 'pending' });
     }
     this.ready = false;
+    this.tvControlScratchReady = false;
+    this.tvControlScratchError = null;
     this.recoverySupported = false;
     this.readyPromise = new Promise((resolve, reject) => {
       this.readyResolve = resolve;
@@ -1981,6 +1987,23 @@ export class WCoreAgent {
       // A receipt carries authority, but only the batch pong completes its
       // ordered response tail. A matching typed refusal takes precedence.
       case 'workspace_policy':
+        if (this.options.managedTempDir) {
+          try {
+            provisionTvControlForWorkspacePolicy(
+              this.options.workspace,
+              this.options.managedTempDir,
+              event.policy.writable_roots
+            );
+            this.tvControlScratchReady = true;
+            this.tvControlScratchError = null;
+          } catch (error) {
+            this.tvControlScratchReady = false;
+            this.tvControlScratchError = new Error(
+              `TVControl 2.4.7 could not be prepared for this session: ${error instanceof Error ? error.message : String(error)}. Reopen the conversation after checking the bundled connector.`
+            );
+            console.warn('[WCoreAgent]', this.tvControlScratchError.message);
+          }
+        }
         this.lastWorkspacePolicy = event.policy;
         if (this.startupPathBatch) this.startupPathBatch.policy = event.policy;
         this.resolveWorkspacePolicyWaiters(event.policy);
@@ -2601,6 +2624,7 @@ export class WCoreAgent {
 
   async send(content: string, msgId: string, files?: string[]): Promise<void> {
     await this.readyPromise;
+    await this.ensureTvControlScratchReady();
     // A retained child after root exit is shutdown authority, not a live
     // transport. Reject before publishing turn identity or arming the watchdog
     // so a write to dead stdin cannot become a silent ten-minute stall.
@@ -2867,6 +2891,19 @@ export class WCoreAgent {
     const receipt = this.awaitNextWorkspacePolicy(timeoutMs);
     this.sendCommand({ type: 'revoke_path', grant_id: grantId });
     return receipt;
+  }
+
+  private async ensureTvControlScratchReady(): Promise<void> {
+    if (!this.options.managedTempDir) return;
+    if (!this.tvControlScratchReady && !this.tvControlScratchError) {
+      await this.awaitNextWorkspacePolicy(WORKSPACE_POLICY_RECEIPT_TIMEOUT_MS);
+    }
+    if (this.tvControlScratchError) throw this.tvControlScratchError;
+    if (!this.tvControlScratchReady) {
+      throw new Error(
+        'TVControl 2.4.7 is waiting for Core to report its writable scratch directory. Reopen the conversation; no collector command was sent.'
+      );
+    }
   }
 
   private awaitNextWorkspacePolicy(timeoutMs: number): Promise<WCoreWorkspacePolicy | null> {

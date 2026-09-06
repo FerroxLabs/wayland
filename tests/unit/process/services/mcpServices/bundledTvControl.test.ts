@@ -16,6 +16,7 @@ import { createHash } from 'node:crypto';
 import {
   isBundledTvControlDeclaration,
   provisionWorkspaceTvControl,
+  provisionTvControlForWorkspacePolicy,
   verifyTvControlTree,
 } from '@process/services/mcpServices/bundledTvControl';
 import { buildEngineSpawnEnv } from '@process/agent/wcore/envBuilder';
@@ -50,6 +51,47 @@ function setup() {
 }
 
 describe('bundled TVControl session provisioning', () => {
+  it('uses the received scratch root that Core assigns to Bash instead of the inherited temp parent', () => {
+    const { source, workspace } = setup();
+    const temp = provisionWorkspaceTvControl(workspace, source);
+    const scratch = path.join(temp, 'engine-owned-layout', 'trusted');
+    fs.mkdirSync(scratch, { recursive: true });
+    expect(provisionTvControlForWorkspacePolicy(workspace, temp, [workspace, scratch], source)).toBe(scratch);
+    const candidate = fs.readdirSync(scratch).find((name) => name.startsWith('bunx-') && name.includes('tvcontrol'))!;
+    expect(verifyTvControlTree(path.join(scratch, candidate))).toBe(true);
+  });
+  it('refuses missing or ambiguous receipt scratch roots without guessing their names', () => {
+    const { source, workspace } = setup();
+    const temp = provisionWorkspaceTvControl(workspace, source);
+    expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [workspace], source)).toThrow('exactly one');
+    expect(() =>
+      provisionTvControlForWorkspacePolicy(workspace, temp, [path.join(temp, 'a'), path.join(temp, 'b')], source)
+    ).toThrow('exactly one');
+  });
+  it('refuses a scratch receipt redirected through a symlink', () => {
+    const { source, workspace } = setup();
+    const temp = provisionWorkspaceTvControl(workspace, source);
+    const redirected = path.join(temp, 'redirected');
+    fs.symlinkSync(source, redirected, process.platform === 'win32' ? 'junction' : 'dir');
+    expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [workspace, redirected], source)).toThrow(
+      'redirected'
+    );
+    expect(fs.existsSync(path.join(source, 'bunx-wayland-tvcontrol-2.4.7'))).toBe(false);
+  });
+  it('refuses a receipt outside the workspace and preserves a corrupt scratch copy', () => {
+    const { source, workspace } = setup();
+    const temp = provisionWorkspaceTvControl(workspace, source);
+    expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [source], source)).toThrow('exactly one');
+    const scratch = path.join(temp, 'scratch');
+    fs.mkdirSync(scratch);
+    provisionTvControlForWorkspacePolicy(workspace, temp, [scratch], source);
+    const file = path.join(scratch, 'bunx-wayland-tvcontrol-2.4.7/node_modules/@ferroxlabs/tvcontrol/src/server.js');
+    fs.writeFileSync(file, 'changed');
+    expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [scratch], source)).toThrow(
+      'Existing workspace'
+    );
+    expect(fs.readFileSync(file, 'utf8')).toBe('changed');
+  });
   it('rejects wrong versions and user-owned declarations', () => {
     expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.6'], 'com.ferroxlabs/tvcontrol')).toBe(
       false

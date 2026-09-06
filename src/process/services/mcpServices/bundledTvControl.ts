@@ -82,11 +82,16 @@ export function provisionWorkspaceTvControl(workspace: string, source = bundledT
       throw new Error('TVControl workspace runtime must remain inside the workspace');
     }
   }
+  copyTvControlToTempRoot(current, source);
+  return current;
+}
+
+function copyTvControlToTempRoot(current: string, source: string): void {
   const target = path.join(current, `bunx-wayland-tvcontrol-${TVCONTROL_VERSION}`);
   if (fs.existsSync(target)) {
     if (!fs.lstatSync(target).isDirectory() || !verifyTvControlTree(target))
       throw new Error('Existing workspace TVControl failed integrity verification');
-    return current;
+    return;
   }
   const staging = path.join(current, `.tvcontrol-${randomUUID()}`);
   try {
@@ -100,5 +105,43 @@ export function provisionWorkspaceTvControl(workspace: string, source = bundledT
   } finally {
     fs.rmSync(staging, { recursive: true, force: true });
   }
-  return current;
+}
+
+/**
+ * Core 0.13.12 (6e4eca07) redirects Bash's TMPDIR to its writable scratch
+ * grant. The engine's inherited TMPDIR is only the parent of that directory.
+ * Use the accepted policy receipt, never Core's private uid/trust path scheme.
+ */
+export function provisionTvControlForWorkspacePolicy(
+  workspace: string,
+  managedTempDir: string,
+  writableRoots: readonly string[],
+  source = bundledTvControlRoot()
+): string {
+  resolveBundledTvControlEntry(source);
+  const canonicalWorkspace = fs.realpathSync(workspace);
+  const expectedTemp = path.join(canonicalWorkspace, '.wayland-runtime', 'tmp');
+  if (path.resolve(managedTempDir) !== expectedTemp)
+    throw new Error('TVControl managed temp directory does not belong to this workspace');
+  // Check every owned ancestor, including symlinks that resolve back inside.
+  for (const dir of [path.dirname(expectedTemp), expectedTemp]) {
+    if (!fs.lstatSync(dir).isDirectory() || fs.realpathSync(dir) !== dir)
+      throw new Error('TVControl managed temp directory is redirected');
+  }
+  const candidates = [...new Set(writableRoots)].filter((root) => {
+    if (!path.isAbsolute(root)) return false;
+    const relative = path.relative(expectedTemp, root);
+    return relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+  });
+  if (candidates.length !== 1)
+    throw new Error('TVControl requires exactly one workspace-contained scratch directory from Core');
+  const scratch = path.resolve(candidates[0]);
+  let current = expectedTemp;
+  for (const part of path.relative(expectedTemp, scratch).split(path.sep)) {
+    current = path.join(current, part);
+    if (!fs.lstatSync(current).isDirectory() || fs.realpathSync(current) !== current)
+      throw new Error('TVControl Core scratch directory is redirected');
+  }
+  copyTvControlToTempRoot(scratch, source);
+  return scratch;
 }
