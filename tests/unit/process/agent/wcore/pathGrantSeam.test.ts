@@ -688,3 +688,84 @@ describe('startup saved-folder response barrier (#1236)', () => {
     expect(() => h.agent.replayStartupPathGrants()).toThrow(/one-shot/);
   });
 });
+
+describe('stream_end per-run accounting and cumulative context', () => {
+  it('preserves the pinned usage_delta and agent_run_id while separating session usage', () => {
+    const corpus = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1/events');
+    const consumer = new DesktopCoreV1Consumer();
+    consumer.consumeLine(readFileSync(path.join(corpus, 'ready.json'), 'utf8').trimEnd());
+    const fixture = JSON.parse(readFileSync(path.join(corpus, 'stream_end.json'), 'utf8'));
+    consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: fixture.msg_id }));
+    const decoded = consumer.consumeLine(readFileSync(path.join(corpus, 'stream_end.json'), 'utf8').trimEnd());
+    if (decoded.kind !== 'event' || decoded.event.type !== 'stream_end') throw new Error('fixture rejected');
+    const { feed, emitted } = makeAgent();
+    feed(decoded.event as WCoreEvent);
+    expect(emitted.at(-1)).toEqual({
+      type: 'finish',
+      msg_id: fixture.msg_id,
+      data: {
+        ...fixture.usage_delta,
+        usage_delta: fixture.usage_delta,
+        session_usage: fixture.usage,
+        agent_run_id: fixture.agent_run_id,
+        finish_reason: fixture.finish_reason,
+      },
+    });
+  });
+
+  it('preserves partial delta absence and explicit zero without filling from cumulative counters', () => {
+    const { feed, emitted } = makeAgent();
+    feed({
+      type: 'stream_end',
+      msg_id: 'partial-run',
+      usage: { input_tokens: 400, output_tokens: 40, cache_read_tokens: 300, cache_write_tokens: 20 },
+      usage_delta: { input_tokens: 0, cache_read_tokens: 0 },
+      agent_run_id: 'run-partial',
+      finish_reason: 'stop',
+    });
+    expect(emitted.at(-1)?.data).toEqual({
+      input_tokens: 0,
+      cache_read_tokens: 0,
+      usage_delta: { input_tokens: 0, cache_read_tokens: 0 },
+      session_usage: { input_tokens: 400, output_tokens: 40, cache_read_tokens: 300, cache_write_tokens: 20 },
+      agent_run_id: 'run-partial',
+      finish_reason: 'stop',
+    });
+  });
+
+  it.each(['input_tokens', 'output_tokens', 'cache_read_tokens', 'cache_write_tokens'] as const)(
+    'retains explicit-zero %s without manufacturing other token fields',
+    (field) => {
+      const { feed, emitted } = makeAgent();
+      const delta = { [field]: 0 };
+      feed({
+        type: 'stream_end',
+        msg_id: 'zero-run',
+        usage: { input_tokens: 400, output_tokens: 40, cache_read_tokens: 300, cache_write_tokens: 20 },
+        usage_delta: delta,
+        finish_reason: 'stop',
+      });
+      expect(emitted.at(-1)?.data).toEqual({
+        ...delta,
+        usage_delta: delta,
+        session_usage: { input_tokens: 400, output_tokens: 40, cache_read_tokens: 300, cache_write_tokens: 20 },
+        finish_reason: 'stop',
+      });
+    }
+  );
+
+  it('finishes older streams with cumulative context but no invented per-run accounting', () => {
+    const { feed, emitted } = makeAgent();
+    feed({
+      type: 'stream_end',
+      msg_id: 'no-delta',
+      usage: { input_tokens: 300, output_tokens: 30 },
+      finish_reason: 'stop',
+    });
+    expect(emitted.at(-1)).toEqual({
+      type: 'finish',
+      msg_id: 'no-delta',
+      data: { session_usage: { input_tokens: 300, output_tokens: 30 }, finish_reason: 'stop' },
+    });
+  });
+});

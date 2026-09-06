@@ -6,6 +6,11 @@
  * to the conversation's extra.lastTokenUsage in the database.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import type { CostEventInput, ICostRepository } from '@/process/services/cost/types';
+import type { WCoreEvent } from '@/process/agent/wcore/protocol';
+import { DesktopCoreV1Consumer } from '@/process/agent/wcore/desktopContractV1';
 
 // ── Hoisted mocks ──────────────────────────────────────────────────
 
@@ -183,6 +188,7 @@ describe('GAP-2: WCoreManager Context Usage Persistence', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRecordTurnFinish.mockImplementation(() => undefined);
     vi.useFakeTimers();
     mockDb.getConversation.mockReturnValue({
       success: true,
@@ -317,6 +323,122 @@ describe('GAP-2: WCoreManager Context Usage Persistence', () => {
       });
 
       expect(mockRecordTurnFinish).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('per-run cost and cumulative context remain separate', () => {
+    it('records 100 then 200, not cumulative 100 then 300, through decoder/agent/manager/recorder', async () => {
+      const { WCoreAgent } = await vi.importActual<typeof import('@/process/agent/wcore')>('@/process/agent/wcore');
+      const { CostRecorder } = await vi.importActual<typeof import('@/process/services/cost/CostRecorder')>(
+        '@/process/services/cost/CostRecorder'
+      );
+      const rows: CostEventInput[] = [];
+      const repository: ICostRepository = {
+        insert: (row) => {
+          rows.push(row);
+          return rows.length;
+        },
+        aggregate: () => [],
+        series: () => [],
+        total: () => ({ costUsd: 0, tokensTotal: 0, events: 0 }),
+        prune: () => 0,
+      };
+      // A deliberate unit price makes double-counting observable in cost_usd.
+      const recorder = new CostRecorder(repository, { priceTokens: (_model, tokens) => tokens.input });
+      mockRecordTurnFinish.mockImplementation((input) => recorder.recordTurnFinish(input));
+      const agent = new WCoreAgent({
+        workspace: '/test/workspace',
+        model: {} as never,
+        onStreamEvent: (event) => emitEvent(manager, { ...event }),
+      });
+      const consumer = new DesktopCoreV1Consumer();
+      consumer.consumeLine(
+        readFileSync(
+          path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1/events/ready.json'),
+          'utf8'
+        ).trimEnd()
+      );
+      const raw = (frame: unknown) => {
+        const decoded = consumer.consumeLine(JSON.stringify(frame));
+        if (decoded.kind !== 'event') throw new Error('frame rejected');
+        (agent as unknown as { handleEvent: (event: WCoreEvent) => void }).handleEvent(decoded.event as WCoreEvent);
+      };
+      try {
+        raw({ type: 'stream_start', msg_id: 'run-one' });
+        raw({
+          type: 'stream_end',
+          msg_id: 'run-one',
+          agent_run_id: 'agent-run-one',
+          finish_reason: 'stop',
+          usage: { input_tokens: 100, output_tokens: 10, cache_read_tokens: 40, cache_write_tokens: 0 },
+          usage_delta: { input_tokens: 100, output_tokens: 10, cache_read_tokens: 40, cache_write_tokens: 0 },
+        });
+        raw({ type: 'stream_start', msg_id: 'run-two' });
+        raw({
+          type: 'stream_end',
+          msg_id: 'run-two',
+          agent_run_id: 'agent-run-two',
+          finish_reason: 'stop',
+          usage: { input_tokens: 300, output_tokens: 30, cache_read_tokens: 90, cache_write_tokens: 5 },
+          usage_delta: { input_tokens: 200, output_tokens: 20, cache_read_tokens: 50, cache_write_tokens: 5 },
+        });
+        await vi.advanceTimersByTimeAsync(0);
+        expect(
+          rows.map((row) => ({
+            input: row.inputTokens,
+            output: row.outputTokens,
+            cacheRead: row.cacheReadTokens,
+            cost: row.costUsd,
+          }))
+        ).toEqual([
+          { input: 100, output: 10, cacheRead: 40, cost: 100 },
+          { input: 200, output: 20, cacheRead: 50, cost: 200 },
+        ]);
+        expect(rows.reduce((sum, row) => sum + row.costUsd, 0)).toBe(300);
+        expect(mockDb.updateConversation).toHaveBeenCalledWith(
+          CONV_ID,
+          expect.objectContaining({ extra: expect.objectContaining({ lastTokenUsage: { totalTokens: 330 } }) })
+        );
+        const finish = emitResponseStream.mock.calls
+          .map(([event]) => event)
+          .find((event) => event.type === 'finish' && event.msg_id === 'run-two');
+        expect(finish.data).toMatchObject({
+          input_tokens: 200,
+          output_tokens: 20,
+          cache_read_tokens: 50,
+          cache_write_tokens: 5,
+          agent_run_id: 'agent-run-two',
+          usage_delta: { input_tokens: 200, output_tokens: 20, cache_read_tokens: 50, cache_write_tokens: 5 },
+          session_usage: { input_tokens: 300, output_tokens: 30, cache_read_tokens: 90, cache_write_tokens: 5 },
+        });
+      } finally {
+        await agent.kill();
+      }
+    });
+
+    it('keeps missing-delta cumulative context without writing it as a per-run cost', async () => {
+      emitEvent(manager, {
+        type: 'finish',
+        msg_id: 'legacy-session',
+        data: { session_usage: { input_tokens: 300, output_tokens: 30 }, finish_reason: 'stop' },
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(mockRecordTurnFinish).not.toHaveBeenCalled();
+      expect(mockDb.updateConversation).toHaveBeenCalledWith(
+        CONV_ID,
+        expect.objectContaining({ extra: expect.objectContaining({ lastTokenUsage: { totalTokens: 330 } }) })
+      );
+    });
+
+    it('does not use a per-run delta as context when the cumulative sibling is missing', async () => {
+      emitEvent(manager, {
+        type: 'finish',
+        msg_id: 'delta-only',
+        data: { input_tokens: 20, output_tokens: 2, usage_delta: { input_tokens: 20, output_tokens: 2 } },
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(mockRecordTurnFinish).toHaveBeenCalledWith(expect.objectContaining({ inputTokens: 20, outputTokens: 2 }));
+      expect(mockDb.updateConversation.mock.calls.filter(([, value]) => value?.extra?.lastTokenUsage)).toHaveLength(0);
     });
   });
 

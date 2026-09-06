@@ -1714,8 +1714,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   private saveContextUsage(data: unknown): void {
-    if (!data || typeof data !== 'object' || !('input_tokens' in data)) return;
-    const usage = data as { input_tokens: number; output_tokens: number };
+    if (!data || typeof data !== 'object') return;
+    // New agent finishes separate cumulative gauges from per-run accounting.
+    // Keep legacy internal flat finishes compatible, but never use a run delta
+    // as a session gauge when its cumulative sibling is absent.
+    const contextUsage = 'session_usage' in data ? data.session_usage : 'usage_delta' in data ? undefined : data;
+    if (!contextUsage || typeof contextUsage !== 'object' || !('input_tokens' in contextUsage)) return;
+    const usage = contextUsage as { input_tokens: number; output_tokens: number };
     const totalTokens = (usage.input_tokens || 0) + (usage.output_tokens || 0);
     if (totalTokens <= 0) return;
 
@@ -1736,9 +1741,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   /**
-   * Record this wcore turn's cost to the ledger. wcore emits a per-turn
-   * input/output token split at finish (not a cumulative gauge), so we take the
-   * computed path: the recorder prices the split via ModelPricing keyed on the
+   * Record the per-run split selected by WCoreAgent from usage_delta. Its
+   * session_usage sibling is cumulative and must never enter this calculation.
+   * Missing deltas have no flat tokens, so they remain unpriced rather than
+   * inventing a per-turn amount from a session gauge. The recorder uses the
+   * computed path and prices the split via ModelPricing keyed on the
    * model id actually used (`this.model.useModel`), falling back to
    * cost_source='unknown' (tokens only) when the model is unpriced.
    */

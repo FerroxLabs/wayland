@@ -430,7 +430,11 @@ export type WCoreEvent =
   | {
       type: 'stream_end';
       msg_id: string;
+      /** Session-cumulative counters, retained separately from per-run accounting. */
       usage?: TokenUsage;
+      /** This run's provider usage only. Missing fields must remain missing. */
+      usage_delta?: Partial<TokenUsage>;
+      agent_run_id?: string;
       /**
        * Why the model stopped. Optional for protocol back-compat: wcore ≤0.1.21
        * omits this field. When `length`, the response was truncated because the

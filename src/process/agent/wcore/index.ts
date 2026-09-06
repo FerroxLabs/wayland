@@ -1921,7 +1921,14 @@ export class WCoreAgent {
           break;
         }
         const finishPayload: Record<string, unknown> = {};
-        if (event.usage) Object.assign(finishPayload, event.usage);
+        // Core keeps usage session-cumulative for compatibility. Only the
+        // explicit run delta may become the finish/ledger token split.
+        if (event.usage_delta) {
+          Object.assign(finishPayload, event.usage_delta);
+          finishPayload.usage_delta = { ...event.usage_delta };
+        }
+        if (event.usage) finishPayload.session_usage = { ...event.usage };
+        if (event.agent_run_id !== undefined) finishPayload.agent_run_id = event.agent_run_id;
         if (event.finish_reason) finishPayload.finish_reason = event.finish_reason;
         const payload = Object.keys(finishPayload).length > 0 ? finishPayload : '';
         this.onStreamEvent({ type: 'finish', data: payload, msg_id: event.msg_id });
