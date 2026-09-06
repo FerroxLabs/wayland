@@ -73,6 +73,44 @@ const deps = (over: Record<string, unknown> = {}) => ({
   ...over,
 });
 
+describe('pinned TVControl uses the same bundled runtime in probes and sessions', () => {
+  const args = ['@ferroxlabs/tvcontrol@2.4.7'];
+  const entry = '/resources/bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js';
+  it('resolves a catalog-owned declaration without npx or a user cache', () => {
+    expect(
+      resolveBuiltinMcpRuntimeSpawn(
+        'npx',
+        args,
+        deps({ libraryEntryId: 'com.ferroxlabs/tvcontrol', tvControlEntry: () => entry })
+      )
+    ).toEqual({ command: PACKAGED_BUN, args: [entry], env: {} });
+  });
+  it('keeps a user declaration and a custom version untouched', () => {
+    expect(resolveBuiltinMcpRuntimeSpawn('npx', args, deps())).toBeNull();
+    expect(
+      resolveBuiltinMcpRuntimeSpawn(
+        'npx',
+        ['@ferroxlabs/tvcontrol@2.4.6'],
+        deps({ libraryEntryId: 'com.ferroxlabs/tvcontrol' })
+      )
+    ).toBeNull();
+  });
+  it('reports a missing bundle instead of falling back to network installation', () => {
+    expect(() =>
+      resolveBuiltinMcpRuntimeSpawn(
+        'npx',
+        args,
+        deps({
+          libraryEntryId: 'com.ferroxlabs/tvcontrol',
+          tvControlEntry: () => {
+            throw new Error('missing bundle');
+          },
+        })
+      )
+    ).toThrow('missing bundle');
+  });
+});
+
 describe('F2 — our own script is matched by exact path, never by basename', () => {
   it('accepts the absolute path this install actually seeds', () => {
     expect(isOwnBuiltinCoreMcpScript(OURS, deps())).toBe(true);

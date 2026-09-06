@@ -417,6 +417,7 @@ export type WCoreAgentOptions = {
    */
   managedWorkRoot?: string;
   /** True when the user picked this workspace directory themselves. Never trusted. */
+  managedTempDir?: string;
   customWorkspace?: boolean;
   /** Set when this chat belongs to a project (#455), i.e. the user's own tree. Never trusted. */
   projectId?: string;
@@ -1086,6 +1087,7 @@ export class WCoreAgent {
     try {
       this.childProcess = spawn(binaryPath, args, {
         env: buildEngineSpawnEnv({
+          managedTempDir: this.options.managedTempDir,
           providerEnv,
           toolKeys,
           waylandHome,

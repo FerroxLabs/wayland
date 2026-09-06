@@ -128,6 +128,12 @@ extraResources:
     to: app.png
   - from: resources/bundled-bun
     to: bundled-bun
+  # Frozen TVControl dependency tree. Dedicated node_modules matcher prevents
+  # electron-builder's automatic production-dependency filtering of nested roots.
+  - from: resources/bundled-tvcontrol/node_modules
+    to: bundled-tvcontrol/node_modules
+    filter:
+      - '**/*'
   # wayland-core engine binary (pre-compiled per platform/arch)
   - from: resources/bundled-wayland-core
     to: bundled-wayland-core

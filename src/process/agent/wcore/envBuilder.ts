@@ -1114,6 +1114,7 @@ export function buildOutputDirective(absoluteOutputDir: string, opts?: { ephemer
 }
 
 export function buildEngineSpawnEnv(opts: {
+  managedTempDir?: string;
   providerEnv: Record<string, string>;
   toolKeys?: Record<string, string>;
   waylandHome?: string;
@@ -1258,6 +1259,18 @@ export function buildEngineSpawnEnv(opts: {
   // which is exactly what P2-10 forbids. Bundled skills already `mkdir -p`.
   if (opts.workspace) {
     out.WAYLAND_OUTPUT_DIR = resolveOutputDir(opts.workspace, opts.outputDir, opts.conversationId);
+  }
+
+  if (opts.managedTempDir) {
+    if (!opts.workspace) throw new Error('Managed connector temp directory requires a workspace');
+    const workspace = realpathSync(opts.workspace);
+    const temp = realpathSync(opts.managedTempDir);
+    if (temp !== path.join(workspace, '.wayland-runtime', 'tmp')) {
+      throw new Error('Managed connector temp directory must remain inside its workspace');
+    }
+    out.TMPDIR = temp;
+    out.TMP = temp;
+    out.TEMP = temp;
   }
 
   return out;

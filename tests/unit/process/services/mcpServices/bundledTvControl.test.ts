@@ -1,0 +1,105 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const fixture = vi.hoisted(() => ({ digest: '', root: '' }));
+vi.mock('../../../../../scripts/tvcontrol/authority.json', () => ({
+  default: {
+    version: '2.4.7',
+    get treeSha256() {
+      return fixture.digest;
+    },
+  },
+}));
+import { createHash } from 'node:crypto';
+import {
+  isBundledTvControlDeclaration,
+  provisionWorkspaceTvControl,
+  verifyTvControlTree,
+} from '@process/services/mcpServices/bundledTvControl';
+import { buildEngineSpawnEnv } from '@process/agent/wcore/envBuilder';
+
+const roots: string[] = [];
+afterEach(() => {
+  for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true });
+});
+function setup() {
+  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'tvcontrol-test-')));
+  roots.push(root);
+  const source = path.join(root, 'source');
+  const workspace = path.join(root, 'workspace');
+  fs.mkdirSync(workspace);
+  const files = {
+    '@ferroxlabs/tvcontrol/package.json': JSON.stringify({ name: '@ferroxlabs/tvcontrol', version: '2.4.7' }),
+    '@ferroxlabs/tvcontrol/src/server.js': 'export const version = "2.4.7";',
+  };
+  for (const [name, text] of Object.entries(files)) {
+    const target = path.join(source, 'node_modules', name);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, text);
+  }
+  fixture.digest = createHash('sha256')
+    .update(
+      JSON.stringify(
+        Object.entries(files).map(([name, text]) => [name, createHash('sha256').update(text).digest('hex')])
+      )
+    )
+    .digest('hex');
+  return { root, source, workspace };
+}
+
+describe('bundled TVControl session provisioning', () => {
+  it('rejects wrong versions and user-owned declarations', () => {
+    expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.6'], 'com.ferroxlabs/tvcontrol')).toBe(
+      false
+    );
+    expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.7'])).toBe(false);
+    expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.7'], 'com.ferroxlabs/tvcontrol')).toBe(
+      true
+    );
+  });
+  it('fails before copying a corrupted bundled dependency', () => {
+    const { source, workspace } = setup();
+    fs.appendFileSync(path.join(source, 'node_modules/@ferroxlabs/tvcontrol/src/server.js'), 'tampered');
+    expect(() => provisionWorkspaceTvControl(workspace, source)).toThrow('integrity');
+    expect(fs.existsSync(path.join(workspace, '.wayland-runtime'))).toBe(false);
+  });
+  it('copies a verified tree where the unmodified collector TMPDIR search finds it', () => {
+    const { source, workspace } = setup();
+    const temp = provisionWorkspaceTvControl(workspace, source);
+    const candidate = fs.readdirSync(temp).find((name) => name.startsWith('bunx-') && name.includes('tvcontrol'))!;
+    expect(verifyTvControlTree(path.join(temp, candidate))).toBe(true);
+    expect(provisionWorkspaceTvControl(workspace, source)).toBe(temp);
+    expect(fs.existsSync(path.join(workspace, '.wayland-core/skills'))).toBe(false);
+  });
+  it('preserves and refuses a modified existing session copy', () => {
+    const { source, workspace } = setup();
+    const temp = provisionWorkspaceTvControl(workspace, source);
+    const changed = path.join(temp, 'bunx-wayland-tvcontrol-2.4.7/node_modules/@ferroxlabs/tvcontrol/src/server.js');
+    fs.writeFileSync(changed, 'user change');
+    expect(() => provisionWorkspaceTvControl(workspace, source)).toThrow('Existing workspace');
+    expect(fs.readFileSync(changed, 'utf8')).toBe('user change');
+  });
+  it('refuses a workspace runtime directory redirected outside the workspace', () => {
+    const { root, source, workspace } = setup();
+    fs.symlinkSync(source, path.join(workspace, '.wayland-runtime'), process.platform === 'win32' ? 'junction' : 'dir');
+    expect(() => provisionWorkspaceTvControl(workspace, source)).toThrow('inside the workspace');
+    expect(fs.existsSync(path.join(root, 'source/tmp'))).toBe(false);
+  });
+  it('changes only the engine child temp environment and preserves its output destination', () => {
+    const { source, workspace } = setup();
+    const before = { TMPDIR: process.env.TMPDIR, TEMP: process.env.TEMP, HOME: process.env.HOME };
+    const temp = provisionWorkspaceTvControl(workspace, source);
+    const env = buildEngineSpawnEnv({ providerEnv: {}, workspace, managedTempDir: temp });
+    expect([env.TMPDIR, env.TEMP, env.TMP]).toEqual([temp, temp, temp]);
+    expect(env.WAYLAND_OUTPUT_DIR).toBe(path.join(workspace, 'artifacts'));
+    expect({ TMPDIR: process.env.TMPDIR, TEMP: process.env.TEMP, HOME: process.env.HOME }).toEqual(before);
+  });
+  it('rejects an external temp override', () => {
+    const { source, workspace } = setup();
+    expect(() => buildEngineSpawnEnv({ providerEnv: {}, workspace, managedTempDir: source })).toThrow(
+      'inside its workspace'
+    );
+  });
+});

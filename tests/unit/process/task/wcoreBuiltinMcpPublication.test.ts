@@ -50,9 +50,16 @@ const h = vi.hoisted(() => ({
   launchLocalFlags: [] as Array<boolean | undefined>,
   resolveJsRuntime: vi.fn<() => ResolvedJsRuntime>(),
   runtimeServers: [] as IMcpServer[],
+  engineOptions: [] as Array<{ managedTempDir?: string }>,
+  provisionTvControl: vi.fn(() => '/ws/.wayland-runtime/tmp'),
 }));
 
 vi.mock('@process/utils/jsRuntime', () => ({ resolveJsRuntime: h.resolveJsRuntime }));
+vi.mock('@process/services/mcpServices/bundledTvControl', async (orig) => ({
+  ...(await orig<typeof import('@process/services/mcpServices/bundledTvControl')>()),
+  provisionWorkspaceTvControl: h.provisionTvControl,
+  resolveBundledTvControlEntry: () => '/resources/bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js',
+}));
 
 // Keep the REAL `toWCoreConfig` (the config.toml serializer under test) and swap
 // only the agent, so what lands on disk is still produced by production code.
@@ -101,7 +108,8 @@ vi.mock('@process/agent/wcore/effectiveRuntimeActions', () => ({
 // Stop the launch immediately AFTER the publication block: the engine spawn and
 // everything downstream is irrelevant here and `start()` rethrows, which the test
 // catches. Nothing in the publication block runs after this point.
-function stopAfterPublication(): never {
+function stopAfterPublication(options: { managedTempDir?: string }): never {
+  h.engineOptions.push(options);
   throw new Error('STOP_AFTER_MCP_PUBLICATION');
 }
 vi.mock('@process/agent/wcore', () => ({ WCoreAgent: stopAfterPublication }));
@@ -208,15 +216,11 @@ const CORE_BUILTIN = server({
   transport: { type: 'stdio', command: 'node', args: [getMcpScriptPath('builtin-mcp-search-skills.js')], env: {} },
 });
 
-const startManager = async () => {
-  const manager = new WCoreManager({
-    id: 'conv-1',
-    data: {
-      workspace: '/ws',
-      model: { name: 'm', useModel: 'm', platform: 'openai', baseUrl: '' },
-      activeMcpServers: [APPLE.id, NPX.id, CORE_BUILTIN.id],
-    },
-  } as never);
+const startManager = async (activeIds = [APPLE.id, NPX.id, CORE_BUILTIN.id]) => {
+  const manager = new WCoreManager(
+    { id: 'conv-1', workspace: '/ws', activeMcpServers: activeIds } as never,
+    { name: 'm', useModel: 'm', platform: 'openai', baseUrl: '' } as never
+  );
   await expect(manager.start()).rejects.toThrow('STOP_AFTER_MCP_PUBLICATION');
   // `BaseAgentManager` may retry the bootstrap; each attempt republishes, and
   // every attempt must be correct, so assert over ALL of them.
@@ -403,5 +407,34 @@ describe('#1056 global config.toml survives an AppImage remount', () => {
       transport: { type: 'stdio', command: DEV_ELECTRON, args: ['s.mjs'], env: { ELECTRON_RUN_AS_NODE: '1' } },
     });
     expect(toWCoreConfig(dev).command).toBe(DEV_ELECTRON);
+  });
+});
+
+describe('TVControl workspace provisioning at the real manager launch boundary', () => {
+  const tv = server({
+    id: 'tv',
+    name: 'tvcontrol',
+    libraryEntryId: 'com.ferroxlabs/tvcontrol',
+    transport: { type: 'stdio', command: 'npx', args: ['@ferroxlabs/tvcontrol@2.4.7'] },
+  });
+  beforeEach(() => {
+    h.published.length = 0;
+    h.engineOptions.length = 0;
+    h.runtimeServers = [tv, NPX];
+    h.resolveJsRuntime.mockReturnValue({ command: PACKAGED_BUN, env: {}, kind: 'bundled-bun' });
+    h.provisionTvControl.mockReset().mockReturnValue('/ws/.wayland-runtime/tmp');
+  });
+  it('publishes the bundled entry and hands only the selected session its temporary directory', async () => {
+    const published = await startManager(['tv']);
+    expect(h.provisionTvControl).toHaveBeenCalledWith('/ws');
+    expect(h.engineOptions.at(-1)?.managedTempDir).toBe('/ws/.wayland-runtime/tmp');
+    expect((published[0].transport as { args: string[] }).args).toEqual([
+      '/resources/bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js',
+    ]);
+  });
+  it('does not provision an unselected connector or change its session temp directory', async () => {
+    await startManager([NPX.id]);
+    expect(h.provisionTvControl).not.toHaveBeenCalled();
+    expect(h.engineOptions.at(-1)?.managedTempDir).toBeUndefined();
   });
 });
