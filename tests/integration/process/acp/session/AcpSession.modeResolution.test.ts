@@ -26,7 +26,7 @@ function createMockCallbacks(): SessionCallbacks {
 // opencode-style agent: advertises build/plan modes (no `default` agent).
 function createOpencodeClient(): AcpClient {
   return {
-    start: vi.fn().mockResolvedValue({ protocolVersion: '0.1', capabilities: {} }),
+    start: vi.fn().mockResolvedValue({ protocolVersion: 1, capabilities: {} }),
     createSession: vi.fn().mockResolvedValue({
       sessionId: 'sess-oc',
       modes: {

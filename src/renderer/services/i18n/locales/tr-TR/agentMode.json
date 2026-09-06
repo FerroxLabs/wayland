@@ -19,5 +19,6 @@
   "coworkTooltip": "Cowork: bu çalışma alanındaki okuma ve düzenlemeleri otomatik onaylar; komutları çalıştırmadan önce yine de sorar.",
   "switchMode": "Switch Mode",
   "switchSuccess": "Mode switched successfully",
-  "switchFailed": "Failed to switch mode"
+  "switchFailed": "Failed to switch mode",
+  "coreModeRefused": "Core mevcut onay modunu korudu. Otomatik onay için Core başlatılırken izin gerekir; bu ret araçları devre dışı bırakmaz."
 }

@@ -19,5 +19,6 @@
   "coworkTooltip": "Cowork：このワークスペースの読み取りと編集を自動承認します。コマンドの実行前には確認します。",
   "switchMode": "モード切替",
   "switchSuccess": "モードを切り替えました",
-  "switchFailed": "モードの切り替えに失敗しました"
+  "switchFailed": "モードの切り替えに失敗しました",
+  "coreModeRefused": "Core は現在の承認モードを維持しました。自動承認には Core の起動時に許可が必要です。この拒否でツールが無効になることはありません。"
 }

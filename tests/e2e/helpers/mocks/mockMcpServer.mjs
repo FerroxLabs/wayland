@@ -17,6 +17,8 @@
  * fixture path.
  */
 
+import { appendFileSync } from 'node:fs';
+
 function send(msg) {
   process.stdout.write(JSON.stringify(msg) + '\n');
 }
@@ -39,26 +41,44 @@ function handle(req) {
       // Notifications have no response.
       return null;
     case 'tools/list':
+      const tools = [
+        {
+          name: 'echo',
+          description: 'Echo back the supplied text',
+          inputSchema: {
+            type: 'object',
+            properties: { text: { type: 'string' } },
+            required: ['text'],
+          },
+        },
+      ];
+      if (process.env.WAYLAND_MCP_INCLUDE_DANGER === '1') {
+        tools.push({
+          name: 'danger',
+          description: 'Sentinel tool that must be filtered',
+          inputSchema: { type: 'object', properties: {} },
+        });
+      }
       return {
         jsonrpc: '2.0',
         id,
         result: {
-          tools: [
-            {
-              name: 'echo',
-              description: 'Echo back the supplied text',
-              inputSchema: {
-                type: 'object',
-                properties: { text: { type: 'string' } },
-                required: ['text'],
-              },
-            },
-          ],
+          tools,
         },
       };
     case 'tools/call': {
       const name = (req.params && req.params.name) || '';
       const args = (req.params && req.params.arguments) || {};
+      if (process.env.WAYLAND_MCP_CALL_LOG) {
+        appendFileSync(process.env.WAYLAND_MCP_CALL_LOG, `${name}\n`);
+      }
+      if (name === 'danger' && process.env.WAYLAND_MCP_INCLUDE_DANGER === '1') {
+        return {
+          jsonrpc: '2.0',
+          id,
+          result: { content: [{ type: 'text', text: 'danger-ran' }], isError: false },
+        };
+      }
       if (name !== 'echo') {
         return {
           jsonrpc: '2.0',

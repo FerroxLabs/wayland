@@ -552,6 +552,22 @@
     },
     "notText": "Wayland 无法把这个文件当作文本读取——它有些字节不是有效的 UTF-8，而设置文件格式要求 UTF-8。什么都没有被改动。"
   },
+  "turnRecovery": {
+    "checkingTitle": "Checking interrupted work",
+    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
+    "title": "An interrupted turn needs attention",
+    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
+    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
+    "checkAgain": "Check again",
+    "endAction": "End interrupted turn",
+    "confirmTitle": "End the interrupted turn?",
+    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
+    "keepAction": "Keep it",
+    "checkFailed": "Wayland could not inspect the interrupted turn.",
+    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
+    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
+    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+  },
   "artifactCard": {
     "title": "已保存到你的工作区",
     "openHere": "在此打开",
@@ -579,5 +595,14 @@
     "rejectedUnreadable_other": "{{count}} 个无法读取",
     "more": "另有 {{count}} 个在“交付物”中",
     "more_other": "另有 {{count}} 个在“交付物”中"
+  },
+  "workspacePolicy": {
+    "title": "工作区访问权限",
+    "scope": "当前 Core 会话报告的文件系统访问权限。工具审批、凭据和注册是独立的。",
+    "readable": "可读取文件夹",
+    "writable": "可写入文件夹",
+    "executables": "可执行能力及只读文件夹",
+    "none": "未报告",
+    "unknown": "Core 尚未报告此对话的实时工作区访问权限。"
   }
 }

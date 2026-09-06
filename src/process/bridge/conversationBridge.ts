@@ -530,6 +530,30 @@ export function initConversationBridge(
     return { success: true };
   });
 
+  ipcBridge.wcoreRecovery.get.provider(async ({ conversation_id }) => {
+    try {
+      const conversation = await conversationService.getConversation(conversation_id);
+      if (!conversation || conversation.type !== 'wcore') return { success: false, msg: 'Core conversation not found' };
+      const task = (await workerTaskManager.getOrBuildTask(conversation_id)) as unknown as WCoreManager;
+      if (!task || task.type !== 'wcore') return { success: false, msg: 'Core runtime not available' };
+      return { success: true, data: await task.getTurnRecovery() };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : String(error) };
+    }
+  });
+
+  ipcBridge.wcoreRecovery.abandon.provider(async ({ conversation_id }) => {
+    try {
+      const conversation = await conversationService.getConversation(conversation_id);
+      if (!conversation || conversation.type !== 'wcore') return { success: false, msg: 'Core conversation not found' };
+      const task = (await workerTaskManager.getOrBuildTask(conversation_id)) as unknown as WCoreManager;
+      if (!task || task.type !== 'wcore') return { success: false, msg: 'Core runtime not available' };
+      return { success: true, data: await task.abandonInterruptedTurn() };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : String(error) };
+    }
+  });
+
   ipcBridge.conversation.deleteMessagesAfter.provider(async ({ conversation_id, afterTimestamp }) => {
     try {
       const db = await getDatabase();

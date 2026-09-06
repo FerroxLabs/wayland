@@ -43,19 +43,24 @@ import {
   type UnsupportedSavedFileClaim,
 } from '@process/services/artifacts/savedFileClaims';
 
+type ClaimPathState = 'file' | 'missing' | 'outside' | 'unverified';
+
 /** Is `claimedPath`, read relative to `workspace`, a real file inside it? */
-async function existsInWorkspace(workspace: string, claimedPath: string): Promise<boolean | 'outside'> {
+async function existsInWorkspace(workspace: string, claimedPath: string): Promise<ClaimPathState> {
   const resolved = path.resolve(workspace, claimedPath);
   const relative = path.relative(workspace, resolved);
   // `..` at the head, or an absolute remainder, means the claim names somewhere
   // the workspace does not contain. Never followed, never judged.
   if (relative.startsWith('..') || path.isAbsolute(relative)) return 'outside';
   try {
-    return (await fs.stat(resolved)).isFile();
-  } catch {
-    return false;
+    return (await fs.lstat(resolved)).isFile() ? 'file' : 'missing';
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException)?.code;
+    return code === 'ENOENT' || code === 'ENOTDIR' ? 'missing' : 'unverified';
   }
 }
+
+export type TeamClaimObservation = UnsupportedSavedFileClaim & { claimedPath?: string };
 
 /**
  * Every deliverable `text` claims to have written that the team workspace does
@@ -66,10 +71,7 @@ async function existsInWorkspace(workspace: string, claimedPath: string): Promis
  * An empty array is the common and the safe answer: no claim was made, every
  * claim checks out, or the check could not be run.
  */
-export async function reconcileTeamMessageClaims(
-  text: string,
-  workspace: string
-): Promise<UnsupportedSavedFileClaim[]> {
+export async function reconcileTeamMessageClaims(text: string, workspace: string): Promise<TeamClaimObservation[]> {
   if (typeof text !== 'string' || text.length === 0) return [];
   if (typeof workspace !== 'string' || !path.isAbsolute(workspace)) return [];
 
@@ -85,7 +87,7 @@ export async function reconcileTeamMessageClaims(
     for (const claim of claims) {
       // eslint-disable-next-line no-await-in-loop -- a handful of stats, bounded by MAX_CLAIMS in the extractor
       const found = await existsInWorkspace(workspace, claim.claimedPath);
-      if (found === true || found === 'outside') continue;
+      if (found !== 'missing') continue;
       unaccounted.push(claim);
     }
     if (unaccounted.length === 0) return [];
@@ -93,7 +95,17 @@ export async function reconcileTeamMessageClaims(
     // No deliverables namespace to skip on this path - a team workspace has no
     // per-conversation reserved directory - so nothing is excluded from the walk.
     const elsewhere = await findElsewhereInWorkspace(workspace, '', unaccounted);
-    return reconcileSavedFileClaims(unaccounted, { registered: [], elsewhere });
+    const unsupported = reconcileSavedFileClaims(unaccounted, { registered: [], elsewhere });
+    const claimsByName = new Map<string, SavedFileClaim[]>();
+    for (const claim of unaccounted) {
+      const matches = claimsByName.get(claim.fileName) ?? [];
+      matches.push(claim);
+      claimsByName.set(claim.fileName, matches);
+    }
+    return unsupported.map((claim) => ({
+      ...claim,
+      claimedPath: claimsByName.get(claim.fileName)?.shift()?.claimedPath,
+    }));
   } catch {
     return [];
   }
@@ -107,13 +119,14 @@ export async function reconcileTeamMessageClaims(
  * is another agent, and a line it cannot tell apart from its teammate's report
  * is a line it may quote back as the teammate's.
  */
-export function formatTeamClaimNotice(unsupported: readonly UnsupportedSavedFileClaim[]): string {
+export function formatTeamClaimNotice(unsupported: readonly TeamClaimObservation[]): string {
   if (unsupported.length === 0) return '';
-  const lines = unsupported.map((claim) =>
-    claim.verdict === 'elsewhere'
-      ? `- ${claim.fileName} is at ${claim.actualPath}, not where this message says.`
-      : `- ${claim.fileName} was not found anywhere in the team workspace. Do not treat it as delivered.`
-  );
+  const lines = unsupported.map((claim) => {
+    const claimedPath = claim.claimedPath ?? claim.fileName;
+    return claim.verdict === 'elsewhere'
+      ? `- The claimed path ${claimedPath} does not contain a regular file. A matching filename was found at ${claim.actualPath}; this check does not establish identical content or authorship.`
+      : `- The claimed path ${claimedPath} does not contain a regular file. No matching filename was found by Wayland's bounded workspace check; this does not prove workspace-wide absence. Do not treat the claimed path as delivered.`;
+  });
   return [
     '[Wayland] This message was checked against the team workspace and the following did not match:',
     ...lines,

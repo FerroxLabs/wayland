@@ -329,6 +329,9 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // channels move a credential-bearing file must not be one omission away from
   // being reachable.
   'engine-config-recovery.',
+  // Interrupted-turn recovery mutates a local durable Core session and can
+  // discard an unfinished turn. Only the person at the Desktop may invoke it.
+  'wcoreRecovery.',
   // The boundary axis - "folders this workspace may reach". `add` mints an AI
   // agent STANDING READ ACCESS to a folder outside its workspace, `remove`
   // withdraws it, and `list` discloses the absolute path of every folder the

@@ -129,14 +129,18 @@ function registerProductionStaticRoutes(expressApp: Express, staticRoot: string,
       }
 
       const htmlContent = fs.readFileSync(indexHtmlPath, 'utf8');
+      // HTTP deep links must resolve the shared renderer's relative assets from
+      // the server root before its module can canonicalize the hash route.
+      // Transform only this response; Electron's file-based entry stays intact.
+      const rootedHtml = htmlContent.replace(/<head(?:\s[^>]*)?>/i, '$&<base href="/">');
       // Inject per-request CSP nonce into every <script> tag (inline + module).
       // The renderer's built index.html ships static theme-restore scripts and a
       // module script for main.tsx; strict CSP requires all of them to carry
       // the nonce minted by cspNonceMiddleware.
       const nonce = typeof res.locals.cspNonce === 'string' ? res.locals.cspNonce : '';
       const noncedHtml = nonce
-        ? htmlContent.replace(/<script(?![^>]*\bnonce=)([^>]*)>/g, `<script nonce="${nonce}"$1>`)
-        : htmlContent;
+        ? rootedHtml.replace(/<script(?![^>]*\bnonce=)([^>]*)>/g, `<script nonce="${nonce}"$1>`)
+        : rootedHtml;
       res.setHeader('Content-Type', 'text/html');
       res.send(noncedHtml);
     } catch (error) {

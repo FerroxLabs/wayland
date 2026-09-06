@@ -552,6 +552,22 @@
     },
     "notText": "Wayland가 이 파일을 텍스트로 읽을 수 없습니다. 설정 파일 형식이 요구하는 UTF-8로 유효하지 않은 바이트가 들어 있습니다. 아무것도 변경하지 않았습니다."
   },
+  "turnRecovery": {
+    "checkingTitle": "Checking interrupted work",
+    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
+    "title": "An interrupted turn needs attention",
+    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
+    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
+    "checkAgain": "Check again",
+    "endAction": "End interrupted turn",
+    "confirmTitle": "End the interrupted turn?",
+    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
+    "keepAction": "Keep it",
+    "checkFailed": "Wayland could not inspect the interrupted turn.",
+    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
+    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
+    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+  },
   "artifactCard": {
     "title": "워크스페이스에 저장됨",
     "openHere": "여기서 열기",
@@ -579,5 +595,14 @@
     "rejectedUnreadable_other": "{{count}}개를 읽을 수 없었습니다",
     "more": "외 {{count}}개는 산출물에 있습니다",
     "more_other": "외 {{count}}개는 산출물에 있습니다"
+  },
+  "workspacePolicy": {
+    "title": "작업 공간 접근",
+    "scope": "실행 중인 Core 세션이 보고한 파일 시스템 접근 권한입니다. 도구 승인, 자격 증명 및 등록은 별개입니다.",
+    "readable": "읽기 가능한 폴더",
+    "writable": "쓰기 가능한 폴더",
+    "executables": "실행 기능 및 읽기 전용 폴더",
+    "none": "보고된 항목 없음",
+    "unknown": "Core가 이 대화의 현재 작업 공간 접근 권한을 아직 보고하지 않았습니다."
   }
 }

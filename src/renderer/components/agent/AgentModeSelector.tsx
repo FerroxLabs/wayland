@@ -14,7 +14,7 @@ import { getAgentModes, supportsModeSwitch, type AgentModeOption } from '@/rende
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { AgentLogoIcon } from './AgentBadge';
 import { Button, Dropdown, Menu, Message } from '@arco-design/web-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MarqueePillLabel from './MarqueePillLabel';
 
@@ -148,6 +148,18 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
   const validInitialMode = initialMode && modes.some((m) => m.value === initialMode) ? initialMode : defaultMode;
   const [currentMode, setCurrentMode] = useState<string>(validInitialMode);
   const [isLoading, setIsLoading] = useState(false);
+  const pendingSwitch = useRef(false);
+  const modeChangeEpoch = useRef(0);
+  const confirmedModeConversation = useRef<string | null>(null);
+  useEffect(() => {
+    modeChangeEpoch.current += 1;
+    pendingSwitch.current = false;
+    confirmedModeConversation.current = null;
+    setIsLoading(false);
+    return () => {
+      modeChangeEpoch.current += 1;
+    };
+  }, [conversationId, backend]);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const getDisplayModeLabel = useCallback(
     (mode: AgentModeOption) => modeLabelFormatter?.(mode) ?? mode.label,
@@ -162,37 +174,62 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
   // Validate against available modes to handle backends with non-standard default
   // (e.g. opencode uses 'build' instead of 'default').
   useEffect(() => {
+    if (backend === 'wcore' && conversationId && confirmedModeConversation.current === conversationId) return;
     if (initialMode !== undefined) {
       const valid = modes.some((m) => m.value === initialMode) ? initialMode : defaultMode;
       setCurrentMode(valid);
     }
-  }, [initialMode, modes, defaultMode]);
+  }, [initialMode, modes, defaultMode, conversationId, backend]);
 
   // Sync mode from backend when mounting or switching conversation tabs
   useEffect(() => {
     if (!conversationId || !canSwitchMode) return;
     let cancelled = false;
 
-    ipcBridge.acpConversation.getMode
-      .invoke({ conversationId })
-      .then((result) => {
-        if (!cancelled && result.success && result.data) {
-          // Only sync from backend when manager is initialized;
-          // before first message, getMode returns { mode: 'default', initialized: false }
-          // which would overwrite the correct initialMode (e.g. opencode has no 'default').
-          if (result.data.initialized !== false) {
+    let request = 0;
+    const refresh = () => {
+      const version = ++request;
+      void ipcBridge.acpConversation.getMode
+        .invoke({ conversationId })
+        .then((result) => {
+          if (
+            !cancelled &&
+            version === request &&
+            result.success &&
+            result.data?.initialized !== false &&
+            result.data
+          ) {
+            if (backend === 'wcore') confirmedModeConversation.current = conversationId;
             setCurrentMode(result.data.mode);
           }
-        }
-      })
-      .catch(() => {
-        // Silent fail, keep current state
-      });
-
+        })
+        .catch(() => {});
+    };
+    refresh();
+    const unsubscribe =
+      backend === 'wcore'
+        ? ipcBridge.conversation.responseStream.on((event) => {
+            if (
+              event.conversation_id !== conversationId ||
+              !['set_mode_refused', 'config_changed', 'execution_policy'].includes(event.type)
+            )
+              return;
+            refresh();
+            if (event.type === 'set_mode_refused' && !pendingSwitch.current) {
+              Message.warning(
+                t('agentMode.coreModeRefused', {
+                  defaultValue:
+                    'Core kept the current approval mode. Automatic approval requires permission when Core starts; this refusal does not disable tools.',
+                })
+              );
+            }
+          })
+        : undefined;
     return () => {
       cancelled = true;
+      unsubscribe?.();
     };
-  }, [conversationId, canSwitchMode]);
+  }, [conversationId, canSwitchMode, backend, t]);
 
   const handleModeChange = useCallback(
     async (mode: string) => {
@@ -212,29 +249,44 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
       if (!conversationId) return;
 
       setIsLoading(true);
+      pendingSwitch.current = true;
+      const epoch = modeChangeEpoch.current;
       try {
         const result = await ipcBridge.acpConversation.setMode.invoke({
           conversationId,
           mode,
         });
 
+        if (epoch !== modeChangeEpoch.current) return;
         if (result.success) {
+          if (backend === 'wcore') confirmedModeConversation.current = conversationId;
           setCurrentMode(result.data?.mode ?? mode);
           onModeChanged?.(result.data?.mode ?? mode);
           Message.success('Mode switched');
         } else {
-          const errorMsg = result.msg || 'Switch failed';
+          if (backend === 'wcore' && result.data?.mode) setCurrentMode(result.data.mode);
+          const errorMsg =
+            result.data?.refusalCode === 'local_opt_in_required'
+              ? t('agentMode.coreModeRefused', {
+                  defaultValue:
+                    'Core kept the current approval mode. Automatic approval requires permission when Core starts; this refusal does not disable tools.',
+                })
+              : result.msg || 'Switch failed';
           console.warn('[AgentModeSelector] Mode switch failed:', errorMsg);
           Message.warning(errorMsg);
         }
       } catch (error) {
+        if (epoch !== modeChangeEpoch.current) return;
         console.error('[AgentModeSelector] Failed to switch mode:', error);
         Message.error('Switch failed');
       } finally {
-        setIsLoading(false);
+        if (epoch === modeChangeEpoch.current) {
+          pendingSwitch.current = false;
+          setIsLoading(false);
+        }
       }
     },
-    [conversationId, currentMode, onModeSelect]
+    [conversationId, currentMode, onModeSelect, backend, onModeChanged, t]
   );
 
   const renderLogo = () => (
@@ -289,6 +341,8 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
           className={`sendbox-model-btn agent-mode-compact-pill ${canInteract ? '' : 'agent-mode-compact-pill--readonly'}`}
           shape='round'
           size='small'
+          aria-label={compactLabel}
+          aria-busy={isLoading}
           onClick={canInteract ? () => !isLoading && setDropdownVisible((visible) => !visible) : undefined}
           style={{
             opacity: isLoading ? 0.6 : 1,

@@ -1021,6 +1021,15 @@ export function parseInitializeResult(raw: unknown): AcpInitializeResult {
   };
 }
 
+/** Refuse an initialize response that cannot speak this client's ACP version. */
+export function assertAcpProtocolVersion(result: AcpInitializeResult, supportedVersion: number): void {
+  if (result.protocolVersion !== supportedVersion) {
+    throw new Error(
+      `Unsupported ACP protocol version ${result.protocolVersion || 'missing'}; Wayland requires ${supportedVersion}`
+    );
+  }
+}
+
 /**
  * Parse raw initialize result into structured AcpAgentCapabilities only.
  * Convenience wrapper - use parseInitializeResult() for full response.

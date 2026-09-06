@@ -19,5 +19,6 @@
   "coworkTooltip": "Cowork: auto-approve reads & edits in this workspace; still asks before running commands.",
   "switchMode": "Switch Mode",
   "switchSuccess": "Mode switched successfully",
-  "switchFailed": "Failed to switch mode"
+  "switchFailed": "Failed to switch mode",
+  "coreModeRefused": "Core kept the current approval mode. Automatic approval requires permission when Core starts; this refusal does not disable tools."
 }

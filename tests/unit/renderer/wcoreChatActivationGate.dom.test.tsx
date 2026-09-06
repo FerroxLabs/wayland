@@ -77,7 +77,15 @@ vi.mock('@renderer/utils/emitter', () => ({
   useAddEventListener: () => {},
 }));
 vi.mock('react-router-dom', () => ({ useNavigate: () => () => {} }));
-vi.mock('@/common', () => ({ ipcBridge: { onboarding: { connectFlux: { invoke: vi.fn() } } } }));
+vi.mock('@/common', () => ({
+  ipcBridge: {
+    onboarding: { connectFlux: { invoke: vi.fn() } },
+    wcoreRecovery: {
+      get: { invoke: vi.fn().mockResolvedValue({ success: true, data: { state: 'unsupported', canAbandon: false } }) },
+      abandon: { invoke: vi.fn() },
+    },
+  },
+}));
 
 // The readiness hook is the gate's only input. The projection that produces it
 // is covered exhaustively in useProviderReadiness.dom.test.tsx; what is under

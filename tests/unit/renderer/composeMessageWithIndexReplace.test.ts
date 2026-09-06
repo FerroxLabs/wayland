@@ -90,4 +90,25 @@ describe('composeMessageWithIndex — the live conversation merge', () => {
     // It opens its own bubble rather than overwriting theirs.
     expect(merged).toHaveLength(2);
   });
+
+  it('replaces only the addressed prose segment after a tool boundary', () => {
+    const first = { ...assistant('before tool'), segment_id: 'segment-1' } as TMessage;
+    const tool = {
+      id: 'tool-1',
+      msg_id: 'turn-1',
+      segment_id: 'tool-segment',
+      conversation_id: 'c1',
+      type: 'tool_group',
+      content: [{ callId: 'call-1', name: 'Bash', description: 'true', status: 'Success' }],
+    } as unknown as TMessage;
+    const rawFinal = { ...assistant('raw final [CRON_LIST]'), id: 'row-2', segment_id: 'segment-2' } as TMessage;
+    const correction = { ...replacement('clean final'), segment_id: 'segment-2' } as TMessage;
+    const list = [first, tool, rawFinal];
+
+    const merged = composeMessageWithIndex(correction, list, buildMessageIndex(list));
+
+    expect(merged.map((message) => message.type)).toEqual(['text', 'tool_group', 'text']);
+    expect((merged[0].content as { content: string }).content).toBe('before tool');
+    expect((merged[2].content as { content: string }).content).toBe('clean final');
+  });
 });

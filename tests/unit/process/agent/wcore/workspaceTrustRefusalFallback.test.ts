@@ -63,6 +63,7 @@ vi.mock('@process/onboarding/codexAuthFile', () => ({ readCodexAuthFile: vi.fn()
 
 import { WCoreAgent } from '@process/agent/wcore';
 import type { WCoreAgentOptions } from '@process/agent/wcore';
+import type { LiveFolderGrant } from '@/common/workspace/folderGrants';
 
 const TRUST_FLAG = '--trust-workspace';
 
@@ -201,6 +202,91 @@ describe('a refused --trust-workspace grant retries ONCE untrusted instead of ki
     second.stdout.write(`${JSON.stringify({ type: 'ready', data: {}, msg_id: '' })}\n`);
     await vi.advanceTimersByTimeAsync(0);
     await expect(started).resolves.toBeUndefined();
+  });
+
+  it('re-arms unused saved consent after transport retry without restoring a revoked grant', async () => {
+    vi.useFakeTimers();
+    const first = makeChild();
+    const second = makeChild();
+    const written: Array<Record<string, unknown>> = [];
+    second.stdin.on('data', (bytes) => written.push(JSON.parse(String(bytes))));
+    spawnMock.mockReturnValueOnce(first).mockReturnValueOnce(second);
+    const agent = new WCoreAgent(baseOptions());
+    const keptRoot = path.join(workRoot, 'kept');
+    agent.prepareStartupPathGrants([
+      { grantId: 'kept', root: keptRoot, access: 'read', grantedAtMs: 1, origin: 'settings' } as LiveFolderGrant,
+      {
+        grantId: 'removed',
+        root: path.join(workRoot, 'removed'),
+        access: 'read',
+        grantedAtMs: 1,
+        origin: 'settings',
+      } as LiveFolderGrant,
+    ]);
+    await agent.revokePath('removed');
+    let settled = false;
+    const started = agent
+      .start()
+      .then(() => {
+        settled = true;
+      })
+      .catch((error: unknown) => error);
+    await flushUntilSpawned(first);
+    first.stderr.end(`${TRUST_REFUSAL}\n`);
+    await vi.advanceTimersByTimeAsync(0);
+    first.emit('exit', 1);
+    await flushUntilSpawned(second, 2);
+    second.stdout.write(`${JSON.stringify({ type: 'ready', data: {}, msg_id: '' })}\n`);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(written).toEqual([
+      { type: 'grant_path', grant_id: 'kept', root: keptRoot, access: 'read' },
+      { type: 'ping' },
+    ]);
+    expect(settled).toBe(false);
+    second.stdout.write(
+      `${JSON.stringify({
+        type: 'workspace_policy',
+        policy: {
+          trust: { level: 'untrusted', source: 'none', fingerprint: '', explanation: 'untrusted fallback' },
+          profile: 'default',
+          backend: 'sandbox-exec',
+          readable_roots: [keptRoot],
+          writable_roots: [],
+          capabilities: [],
+        },
+      })}\n`
+    );
+    second.stdout.write(`${JSON.stringify({ type: 'pong' })}\n`);
+    await vi.advanceTimersByTimeAsync(0);
+    await expect(started).resolves.toBeUndefined();
+    expect(agent.pathGrantApplicationView?.applications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ grantId: 'kept', status: 'applied' }),
+        expect.objectContaining({ grantId: 'removed', status: 'revoked' }),
+      ])
+    );
+  });
+
+  it.each(['stop', 'lost-owner'] as const)('does not re-arm an attempt after %s', async (cause) => {
+    vi.useFakeTimers();
+    const first = makeChild();
+    const second = makeChild();
+    spawnMock.mockReturnValueOnce(first).mockReturnValueOnce(second);
+    let owned = true;
+    const agent = new WCoreAgent(baseOptions());
+    agent.prepareStartupPathGrants([], () => owned);
+    const started = agent.start().catch((error: unknown) => error);
+    await flushUntilSpawned(first);
+    first.stderr.end(`${TRUST_REFUSAL}\n`);
+    await vi.advanceTimersByTimeAsync(0);
+    if (cause === 'stop') agent.stop();
+    else owned = false;
+    first.emit('exit', 1);
+    await vi.advanceTimersByTimeAsync(1_000);
+    const error = await started;
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toContain('startup retry was cancelled');
+    expect(spawnMock).toHaveBeenCalledTimes(1);
   });
 
   it('reads the refusal even when the engine writes it AFTER ready has already failed', async () => {

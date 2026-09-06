@@ -718,6 +718,68 @@ describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
       }
     });
 
+    it('exposes only the live agent workspace receipt through the permission snapshot', () => {
+      expect(manager.getMode().workspacePolicy).toBeNull();
+      const policy = { readable_roots: ['/workspace'], writable_roots: [], capabilities: [] };
+      const agent: { currentWorkspacePolicy: typeof policy | null } = { currentWorkspacePolicy: policy };
+      (manager as unknown as { agent: unknown }).agent = agent;
+      expect(manager.getMode().workspacePolicy).toEqual(policy);
+      agent.currentWorkspacePolicy = null;
+      expect(manager.getMode().workspacePolicy).toBeNull();
+    });
+
+    it('preserves workspace receipts before the empty-msg-id guard and keeps rapid changes distinct', () => {
+      const policy = {
+        backend: 'bwrap',
+        profile: 'strict',
+        readable_roots: ['/workspace'],
+        writable_roots: [],
+        capabilities: [{ name: 'cargo', executable: '/usr/bin/cargo', read_only_roots: ['/usr/lib/rustlib'] }],
+        trust: { level: 'untrusted', source: 'none', fingerprint: '0'.repeat(64), explanation: 'No trust grant' },
+      };
+      vi.spyOn(Date, 'now').mockReturnValue(123456789);
+      emitEvent(manager, { type: 'workspace_policy', msg_id: '', data: policy });
+      const updated = { ...policy, writable_roots: ['/workspace/output'] };
+      emitEvent(manager, { type: 'workspace_policy', msg_id: '', data: updated });
+      expect(findIpcEmissions('workspace_policy').map((frame) => frame.data)).toEqual([policy, updated]);
+      const accepted = findIpcEmissions('execution_evidence');
+      expect(accepted).toHaveLength(2);
+      expect(accepted[0].data).toMatchObject({
+        acceptedBy: 'desktop-core-v1-consumer',
+        event: { type: 'workspace_policy', policy },
+      });
+      expect(accepted[1].data.event.policy).toEqual(updated);
+      const persisted = mockAddOrUpdateMessage.mock.calls.map((call) => call[1]);
+      expect(persisted).toHaveLength(2);
+      expect(persisted[0]).toMatchObject({ type: 'execution_evidence', hidden: true });
+      expect(persisted[0].msg_id).not.toBe(persisted[1].msg_id);
+    });
+    it.each(['default', 'auto_edit'])(
+      'holds an unattended info resume token and denies it on expiry in %s',
+      async (mode) => {
+        vi.useFakeTimers();
+        try {
+          const resumeApproval = vi.fn();
+          (manager as unknown as { agent: unknown; currentMode: string }).agent = { resumeApproval };
+          (manager as unknown as { currentMode: string }).currentMode = mode;
+          manager.setUnattendedHoldDeadlineMs(1000);
+          emitEvent(manager, {
+            type: 'approval_required',
+            msg_id: '',
+            data: { callId: 'info-hold', resumeToken: 'info-token', reason: 'info' },
+          });
+          expect(resumeApproval).not.toHaveBeenCalled();
+          expect(manager.getConfirmations()).toHaveLength(1);
+          await vi.advanceTimersByTimeAsync(1000);
+          expect(resumeApproval).toHaveBeenCalledExactlyOnceWith('info-token', false);
+          expect(manager.getConfirmations()).toHaveLength(0);
+        } finally {
+          manager.setUnattendedHoldDeadlineMs(undefined);
+          vi.useRealTimers();
+        }
+      }
+    );
+
     it('persists and re-emits a hidden main-process acceptance envelope for canonical replay', () => {
       emitEvent(manager, {
         type: 'anvil_receipt',

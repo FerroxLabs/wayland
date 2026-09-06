@@ -28,6 +28,8 @@ import { emitter, useAddEventListener } from '@renderer/utils/emitter';
 import HOC from '@renderer/utils/ui/HOC';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Modal } from '@arco-design/web-react';
+import { useTranslation } from 'react-i18next';
 import LocalImageView from '@renderer/components/media/LocalImageView';
 import ConversationChatConfirm from '../../components/ConversationChatConfirm';
 import WCoreSendBox from './WCoreSendBox';
@@ -36,6 +38,8 @@ import WCoreConstitutionLockedCard from './WCoreConstitutionLockedCard';
 import WCoreEngineConfigCard from './WCoreEngineConfigCard';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 import ExecutionSpine from '../../components/ExecutionSpine';
+import WCoreTurnRecoveryCard from './WCoreTurnRecoveryCard';
+import type { WCoreTurnRecoveryView } from '@process/agent/wcore/protocol';
 
 const WCoreChat: React.FC<{
   conversation_id: string;
@@ -66,11 +70,78 @@ const WCoreChat: React.FC<{
 }) => {
   useMessageLstCache(conversation_id);
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const readiness = useProviderReadiness();
   // #252 rework: the orbit "thinking" indicator renders inline at the END of the
   // message list (under the last block). The sendbox owns the `running` signal,
   // so it reports it up here and we pass it to MessageList.
   const [isProcessing, setIsProcessing] = useState(false);
+  const [turnRecovery, setTurnRecovery] = useState<WCoreTurnRecoveryView | null>(null);
+  const [recoveryLoading, setRecoveryLoading] = useState(true);
+  const [recoveryActionPending, setRecoveryActionPending] = useState(false);
+  const [recoveryError, setRecoveryError] = useState<string>();
+  const recoveryRequestRef = useRef(0);
+
+  const refreshTurnRecovery = useCallback(async () => {
+    const request = ++recoveryRequestRef.current;
+    setRecoveryLoading(true);
+    setRecoveryError(undefined);
+    try {
+      const result = await ipcBridge.wcoreRecovery.get.invoke({ conversation_id });
+      if (request !== recoveryRequestRef.current) return;
+      if (!result.success || !result.data) throw new Error(result.msg || t('conversation.turnRecovery.checkFailed'));
+      setTurnRecovery(result.data);
+    } catch (error) {
+      if (request !== recoveryRequestRef.current) return;
+      setTurnRecovery({ state: 'unavailable', reason: 'engine_unavailable', canAbandon: false });
+      setRecoveryError(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (request === recoveryRequestRef.current) setRecoveryLoading(false);
+    }
+  }, [conversation_id, t]);
+
+  useEffect(() => {
+    setTurnRecovery(null);
+    setRecoveryActionPending(false);
+    void refreshTurnRecovery();
+    return () => {
+      recoveryRequestRef.current += 1;
+    };
+  }, [conversation_id, refreshTurnRecovery]);
+
+  const abandonInterruptedTurn = useCallback(() => {
+    Modal.confirm({
+      title: t('conversation.turnRecovery.confirmTitle'),
+      content: t('conversation.turnRecovery.confirmBody'),
+      okText: t('conversation.turnRecovery.endAction'),
+      cancelText: t('conversation.turnRecovery.keepAction'),
+      onOk: async () => {
+        const request = ++recoveryRequestRef.current;
+        setRecoveryActionPending(true);
+        setRecoveryError(undefined);
+        try {
+          const result = await ipcBridge.wcoreRecovery.abandon.invoke({ conversation_id });
+          if (request !== recoveryRequestRef.current) return;
+          if (!result.success || !result.data)
+            throw new Error(result.msg || t('conversation.turnRecovery.actionFailed'));
+          setTurnRecovery(result.data);
+          if (result.data.state !== 'healthy') setRecoveryError(t('conversation.turnRecovery.notVerified'));
+        } catch (error) {
+          if (request === recoveryRequestRef.current) {
+            setRecoveryError(error instanceof Error ? error.message : String(error));
+          }
+        } finally {
+          if (request === recoveryRequestRef.current) setRecoveryActionPending(false);
+        }
+      },
+    });
+  }, [conversation_id, t]);
+
+  const recoveryBlocked =
+    recoveryLoading ||
+    recoveryActionPending ||
+    turnRecovery?.state === 'interrupted' ||
+    turnRecovery?.state === 'unavailable';
 
   // Auth-failure remedy card: shown above the send box when the engine reports a
   // provider key rejection (401). Built from the failing provider's label so the
@@ -301,6 +372,18 @@ const WCoreChat: React.FC<{
                 <CuaPermissionCard active={hasCuaCapability} onDismiss={() => setCuaCardDismissed(true)} />
               </div>
             )}
+            {(recoveryLoading || turnRecovery?.state === 'interrupted' || turnRecovery?.state === 'unavailable') && (
+              <div className='max-w-800px w-full mx-auto mb-12px'>
+                <WCoreTurnRecoveryCard
+                  recovery={turnRecovery}
+                  loading={recoveryLoading}
+                  actionPending={recoveryActionPending}
+                  error={recoveryError}
+                  onAbandon={abandonInterruptedTurn}
+                  onRetry={refreshTurnRecovery}
+                />
+              </div>
+            )}
             <ConversationChatConfirm conversation_id={conversation_id}>
               <WCoreSendBox
                 conversation_id={conversation_id}
@@ -309,6 +392,7 @@ const WCoreChat: React.FC<{
                 agentSlotId={agentSlotId}
                 sessionMode={sessionMode}
                 onRunningChange={setIsProcessing}
+                recoveryBlocked={recoveryBlocked}
               />
             </ConversationChatConfirm>
           </div>

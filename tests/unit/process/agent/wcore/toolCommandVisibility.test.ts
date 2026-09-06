@@ -16,9 +16,14 @@
  * per callId and re-attaches it, so the command stays visible for the whole
  * tool lifecycle.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { WCoreAgent, type WCoreAgentOptions } from '@/process/agent/wcore';
 import type { WCoreEvent } from '@/process/agent/wcore/protocol';
+import { DesktopCoreV1Consumer } from '@/process/agent/wcore/desktopContractV1';
+import { composeMessage, transformMessage, type IMessageToolGroup, type TMessage } from '@/common/chat/chatLib';
+import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 
 type Emitted = { type: string; data?: unknown; msg_id?: string };
 
@@ -92,6 +97,109 @@ describe('#520 wcore tool command visibility', () => {
     feed(request);
     feed(result); // terminal → cache entry for c1 cleared
     feed({ ...running }); // a stray later running frame for the same callId
+    expect(lastToolFrame(emitted).description).toBe('');
+  });
+});
+
+const fixture = (name: string): string =>
+  readFileSync(path.resolve('contracts/wayland-desktop-core/v1/events', `${name}.json`), 'utf8').trim();
+
+function projectedTools(emitted: Emitted[]): IMessageToolGroup['content'] {
+  let messages: TMessage[] = [];
+  for (const event of emitted.filter((entry) => entry.type === 'tool_group')) {
+    messages = composeMessage(
+      transformMessage({ ...event, conversation_id: 'announcement-test' } as IResponseMessage),
+      messages
+    );
+  }
+  // Exercise the stored-message JSON representation, not just a cached agent field.
+  const restored = JSON.parse(JSON.stringify(messages)) as TMessage[];
+  return restored.flatMap((message) => (message.type === 'tool_group' ? message.content : []));
+}
+
+describe('#1189 auto-approved tool announcements', () => {
+  it('decodes the shipped announcement and retains its command through a completed saved card', () => {
+    const { emitted, feed } = makeAgent();
+    const consumer = new DesktopCoreV1Consumer();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      for (const name of ['ready', 'stream_start', 'call_announced']) {
+        for (const decoded of consumer.consumeChunk(`${fixture(name)}\n`)) {
+          if (decoded.kind === 'event') feed(decoded.event);
+        }
+      }
+      feed({ type: 'tool_running', msg_id: 'msg-001', call_id: 'call-tool-002', tool_name: 'Bash' });
+      feed({
+        type: 'tool_result',
+        msg_id: 'msg-001',
+        call_id: 'call-tool-002',
+        tool_name: 'Bash',
+        status: 'success',
+        output: 'tests passed',
+        output_type: 'text',
+      });
+      const tools = projectedTools(emitted);
+      expect(tools).toHaveLength(1);
+      expect(tools[0]).toMatchObject({
+        name: 'Bash',
+        description: 'Run the test suite',
+        status: 'Success',
+        confirmationDetails: { type: 'exec', command: 'cargo test' },
+      });
+      expect(emitted.filter((event) => event.type === 'tool_group').flatMap((event) => event.data)).not.toEqual(
+        expect.arrayContaining([expect.objectContaining({ status: 'Confirming' })])
+      );
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('preserves the affected file for an auto-approved edit, without asking for approval', () => {
+    const { emitted, feed } = makeAgent();
+    feed({
+      type: 'call_announced',
+      msg_id: 'm1',
+      call_id: 'edit-1',
+      tool: {
+        name: 'Write',
+        category: 'edit',
+        args: { file_path: '/workspace/report.md' },
+        description: 'Write report',
+      },
+    } as WCoreEvent);
+    feed({ type: 'tool_running', msg_id: 'm1', call_id: 'edit-1', tool_name: 'Write' });
+    feed({
+      type: 'tool_result',
+      msg_id: 'm1',
+      call_id: 'edit-1',
+      tool_name: 'Write',
+      status: 'success',
+      output: 'saved',
+      output_type: 'text',
+    });
+    expect(projectedTools(emitted)[0]).toMatchObject({
+      status: 'Success',
+      description: 'Write report',
+      confirmationDetails: { type: 'edit', fileName: '/workspace/report.md' },
+    });
+  });
+
+  it('keeps concurrent announcements separate and releases the cancelled call cache', () => {
+    const { emitted, feed } = makeAgent();
+    feed({ ...request, type: 'call_announced' } as WCoreEvent);
+    feed({
+      ...request,
+      type: 'call_announced',
+      call_id: 'c2',
+      tool: { ...request.tool, description: 'second command' },
+    } as WCoreEvent);
+    feed({ ...running, call_id: 'c2' });
+    expect(lastToolFrame(emitted).description).toBe('second command');
+    feed(running);
+    expect(lastToolFrame(emitted).description).toBe('Execute: ls -la');
+    feed({ type: 'tool_cancelled', msg_id: 'm1', call_id: 'c1', reason: 'cancelled' });
+    feed(running);
     expect(lastToolFrame(emitted).description).toBe('');
   });
 });

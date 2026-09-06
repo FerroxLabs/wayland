@@ -205,6 +205,7 @@ vi.mock('../../../../src/process/task/BaseAgentManager', () => ({
 }));
 
 import { GeminiAgentManager } from '../../../../src/process/task/GeminiAgentManager';
+import { loadRuntimeMcpServers } from '../../../../src/process/services/mcpServices/runtimeMcpServers';
 
 const MODEL = {
   name: 'gemini',
@@ -312,6 +313,23 @@ describe('#998 GeminiAgentManager.getMcpServers and the empty allowlist', () => 
 
     await manager.getMcpServers();
 
+    expect(manager.mcpSessionState.expectedServerNames).toEqual([]);
+  });
+
+  it('does not load or publish any MCP source for a restricted channel worker', async () => {
+    vi.spyOn(GeminiAgentManager.prototype as unknown as Record<string, unknown>, 'createBootstrap').mockResolvedValue(
+      undefined
+    );
+    const manager = new GeminiAgentManager(
+      { workspace: '/ws', conversation_id: 'conv-channel', executionPolicy: 'channel-conversational' },
+      MODEL
+    ) as unknown as {
+      getMcpServers: () => Promise<Record<string, unknown>>;
+      mcpSessionState: { expectedServerNames: string[] };
+    };
+
+    await expect(manager.getMcpServers()).resolves.toEqual({});
+    expect(loadRuntimeMcpServers).not.toHaveBeenCalled();
     expect(manager.mcpSessionState.expectedServerNames).toEqual([]);
   });
 });

@@ -9,13 +9,14 @@
  *
  * WHAT THESE GUARD. Every one of the three moving parts fails SILENTLY if it
  * breaks: a renamed wire field is a no-op on the engine, a missing
- * `--allow-host-path-grants` turns every grant into an untyped `info` line the
- * host never reads, and a dropped `workspace_policy` frame leaves the host
+ * `--allow-host-path-grants` produces a typed refusal, and a dropped `workspace_policy` frame leaves the host
  * asserting a boundary it never confirmed. None of that reddens a suite on its
  * own, so each is pinned here by MECHANISM - the exact bytes on the wire, the
  * exact arg, the call site - rather than by an outcome a broader rule supplies.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
+import type { LiveFolderGrant } from '@/common/workspace/folderGrants';
+import { clearLivePathGrantSessionsForTest } from '@/process/agent/wcore/pathGrantSessions';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { WCoreAgent, type WCoreAgentOptions } from '@/process/agent/wcore';
@@ -33,7 +34,7 @@ type Emitted = { type: string; data?: unknown; msg_id?: string };
  * production `writeCommand` actually serializes. Nothing here re-implements the
  * command shape: `written` is whatever `JSON.stringify` put on the pipe.
  */
-function makeAgent() {
+function makeAgent(ready = true) {
   const emitted: Emitted[] = [];
   const written: string[] = [];
   const options = {
@@ -45,6 +46,7 @@ function makeAgent() {
   const internals = agent as unknown as {
     childProcess: unknown;
     transportAlive: boolean;
+    ready: boolean;
     handleEvent: (event: WCoreEvent) => void;
   };
   internals.childProcess = {
@@ -56,6 +58,7 @@ function makeAgent() {
     },
   };
   internals.transportAlive = true;
+  internals.ready = ready;
   return { agent, emitted, written, feed: (event: WCoreEvent) => internals.handleEvent(event) };
 }
 
@@ -211,10 +214,25 @@ describe('workspace_policy is consumed, not dropped', () => {
     ) as { kind: string; event: WCoreEvent };
     expect(decoded.kind).toBe('event');
 
-    const { agent, feed } = makeAgent();
+    const { agent, feed, emitted } = makeAgent();
     feed(decoded.event);
+    expect(emitted).toContainEqual({ type: 'workspace_policy', msg_id: '', data: agent.workspacePolicy });
     expect(agent.workspaceReadableRoots).toEqual(['/workspace', '/usr/share']);
     expect(agent.workspacePolicy?.backend).toBe('bwrap');
+  });
+
+  it('keeps historical receipts but removes live access when transport dies or disposal begins', () => {
+    const { agent, feed } = makeAgent();
+    const internals = agent as unknown as { transportAlive: boolean; disposed: boolean };
+    expect(agent.currentWorkspacePolicy).toBeNull();
+    feed({ type: 'workspace_policy', policy: policy(['/workspace']) });
+    expect(agent.currentWorkspacePolicy?.readable_roots).toEqual(['/workspace']);
+    internals.transportAlive = false;
+    expect(agent.currentWorkspacePolicy).toBeNull();
+    expect(agent.workspacePolicy?.readable_roots).toEqual(['/workspace']);
+    internals.transportAlive = true;
+    internals.disposed = true;
+    expect(agent.currentWorkspacePolicy).toBeNull();
   });
 
   it('leaves the host with no policy when an unrelated frame arrives', () => {
@@ -250,10 +268,9 @@ describe('workspace_policy is consumed, not dropped', () => {
     });
   });
 
-  it("resolves grantPath with null when no receipt follows - Core's only refusal signal", async () => {
+  it('resolves the legacy receipt waiter with null when no receipt follows', async () => {
     const { agent } = makeAgent();
-    // Core answers a refused grant with an untyped `info` string and emits NO
-    // updated receipt, so "nothing threw" must not read as "it landed".
+    // No receipt is an unconfirmed observation, not a classified refusal.
     await expect(agent.grantPath({ grantId: '3f2a', root: '/' }, 5)).resolves.toBeNull();
   });
 
@@ -386,5 +403,369 @@ describe('pinned v1 host-command corpus vs the path-grant commands', () => {
         scope: { always_path: { root: '/tmp/reports', write: false } },
       })
     ).not.toThrow();
+  });
+});
+
+describe('typed mode refusal contract (#1223)', () => {
+  it('decodes the producer fixture and forwards its effective mode without inventing tool restrictions', () => {
+    const corpus = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    const consumer = new DesktopCoreV1Consumer();
+    consumer.consumeLine(readFileSync(path.join(corpus, 'events/ready.json'), 'utf8').trimEnd());
+    const decoded = consumer.consumeLine(
+      readFileSync(path.join(corpus, 'events/set_mode_refused.json'), 'utf8').trimEnd()
+    ) as { kind: string; event: WCoreEvent };
+    expect(decoded.kind).toBe('event');
+    const { feed, emitted } = makeAgent();
+    feed(decoded.event);
+    expect(emitted).toContainEqual({
+      type: 'set_mode_refused',
+      msg_id: '',
+      data: { type: 'set_mode_refused', requested: 'force', effective: 'default', reason: 'local_opt_in_required' },
+    });
+    expect(emitted.some((event) => event.type === 'tool_group')).toBe(false);
+  });
+});
+
+// Existing raw contract consumer plus the production child-stdin writer.
+// Every batch event is decoded against the pinned corpus before dispatch.
+describe('startup saved-folder response barrier (#1236)', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    clearLivePathGrantSessionsForTest();
+  });
+
+  const saved = (grantId = 'grant-001', root = '/srv/reports'): LiveFolderGrant =>
+    ({ grantId, root, access: 'read', grantedAtMs: 1, origin: 'settings' }) as LiveFolderGrant;
+
+  function startup(grants = [saved()]) {
+    const h = makeAgent(false);
+    const consumer = new DesktopCoreV1Consumer();
+    const corpus = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1/events');
+    consumer.consumeLine(readFileSync(path.join(corpus, 'ready.json'), 'utf8').trimEnd());
+    const raw = (frame: unknown): void => {
+      const decoded = consumer.consumeLine(JSON.stringify(frame));
+      if (decoded.kind !== 'event') throw new Error(`Rejected test frame: ${JSON.stringify(decoded)}`);
+      h.feed(decoded.event as WCoreEvent);
+    };
+    h.agent.prepareStartupPathGrants(grants);
+    const internal = h.agent as unknown as {
+      ready: boolean;
+      pendingPings: number;
+      activeMsgId: string | null;
+      childProcess: { stdin: { write: (line: string) => void } };
+      markTransportUnavailable: (child: unknown) => void;
+    };
+    internal.ready = true;
+    return { ...h, raw, internal, corpus };
+  }
+
+  it.each(['local_opt_in_required', 'policy_rejected'] as const)(
+    'waits for pong and gives typed %s precedence over a contradictory receipt and prose',
+    async (reason) => {
+      const h = startup();
+      let settled = false;
+      const completion = h.agent.replayStartupPathGrants().then((outcomes) => {
+        settled = true;
+        return outcomes;
+      });
+      h.raw({ type: 'workspace_policy', policy: policy(['/srv/reports']) });
+      await Promise.resolve();
+      expect(settled).toBe(false);
+      const fixture = JSON.parse(readFileSync(path.join(h.corpus, 'grant_refused.json'), 'utf8'));
+      h.raw({ ...fixture, reason });
+      h.raw({ type: 'info', msg_id: 'msg-001', message: 'Folder grant accepted successfully' });
+      h.raw({ type: 'pong' });
+      await expect(completion).resolves.toEqual([
+        expect.objectContaining({ grantId: 'grant-001', status: 'refused', reason }),
+      ]);
+      expect(h.written.map((line) => JSON.parse(line))).toEqual([
+        { type: 'grant_path', grant_id: 'grant-001', root: '/srv/reports', access: 'read' },
+        { type: 'ping' },
+      ]);
+    }
+  );
+
+  it('applies only covered roots at the final pong, ignoring unrelated refusal identities and prose', async () => {
+    const h = startup([saved(), saved('missing', '/srv/missing')]);
+    const completion = h.agent.replayStartupPathGrants();
+    h.raw({ type: 'workspace_policy', policy: policy(['/srv/reports']) });
+    h.raw({ type: 'grant_refused', surface: 'path', grant_id: 'unknown', reason: 'policy_rejected', detail: 'no' });
+    h.raw({
+      type: 'grant_refused',
+      surface: 'workspace_capability',
+      grant_id: 'grant-001',
+      reason: 'policy_rejected',
+      detail: 'no',
+    });
+    h.raw({ type: 'info', msg_id: 'msg-001', message: 'path grant refused' });
+    h.raw({ type: 'pong' });
+    await expect(completion).resolves.toEqual([
+      { grantId: 'grant-001', root: '/srv/reports', status: 'applied', coverage: 'policy-confirmed' },
+      { grantId: 'missing', root: '/srv/missing', status: 'unconfirmed' },
+    ]);
+  });
+
+  it('uses the final receipt and component coverage, not a previously permissive receipt or string prefix', async () => {
+    const h = startup();
+    const completion = h.agent.replayStartupPathGrants();
+    h.raw({ type: 'workspace_policy', policy: policy(['/srv']) });
+    h.raw({ type: 'workspace_policy', policy: policy(['/srv/reports-archive']) });
+    h.raw({ type: 'pong' });
+    await expect(completion).resolves.toEqual([expect.objectContaining({ status: 'unconfirmed' })]);
+  });
+
+  it('labels already-readable access without claiming a newly minted revoke handle', async () => {
+    const h = startup();
+    h.raw({ type: 'workspace_policy', policy: policy(['/srv']) });
+    const completion = h.agent.replayStartupPathGrants();
+    h.raw({ type: 'workspace_policy', policy: policy(['/srv']) });
+    h.raw({ type: 'pong' });
+    await expect(completion).resolves.toEqual([
+      expect.objectContaining({ status: 'applied', coverage: 'already-readable' }),
+    ]);
+  });
+
+  it.each(['ping', 'turn'] as const)('refuses admission with an outstanding %s', async (conflict) => {
+    const h = startup();
+    if (conflict === 'ping') h.internal.pendingPings = 1;
+    else h.internal.activeMsgId = 'other-turn';
+    await expect(h.agent.replayStartupPathGrants()).resolves.toEqual([
+      expect.objectContaining({ status: 'unconfirmed' }),
+    ]);
+    expect(h.written).toEqual([]);
+  });
+
+  it('rejects competing commands during replay without writing them', async () => {
+    const h = startup();
+    const completion = h.agent.replayStartupPathGrants();
+    expect(() => h.agent.ping()).toThrow(/owns the idle command phase/);
+    expect(() => h.agent.sendCommand({ type: 'message', msg_id: 'early', content: 'hello' })).toThrow(
+      /owns the idle command phase/
+    );
+    h.raw({ type: 'pong' });
+    await completion;
+    expect(h.written.map((line) => JSON.parse(line).type)).toEqual(['grant_path', 'ping']);
+  });
+
+  it('does not accept an unsolicited pong before its ping write', async () => {
+    const h = startup();
+    h.internal.childProcess.stdin.write = (line) => {
+      h.written.push(line);
+      h.raw({ type: 'workspace_policy', policy: policy(['/srv/reports']) });
+      h.raw({ type: 'pong' });
+    };
+    await expect(h.agent.replayStartupPathGrants()).resolves.toEqual([
+      expect.objectContaining({ status: 'unconfirmed' }),
+    ]);
+    expect(h.written.map((line) => JSON.parse(line).type)).toEqual(['grant_path']);
+  });
+
+  it('arms before synchronous policy/refusal/pong responses on child stdin', async () => {
+    const h = startup();
+    h.internal.childProcess.stdin.write = (line) => {
+      h.written.push(line);
+      if (JSON.parse(line).type === 'grant_path') {
+        h.raw({ type: 'workspace_policy', policy: policy(['/srv/reports']) });
+        h.raw({
+          type: 'grant_refused',
+          surface: 'path',
+          grant_id: 'grant-001',
+          reason: 'policy_rejected',
+          detail: 'policy',
+        });
+      } else h.raw({ type: 'pong' });
+    };
+    await expect(h.agent.replayStartupPathGrants()).resolves.toEqual([
+      expect.objectContaining({ status: 'refused', reason: 'policy_rejected' }),
+    ]);
+  });
+
+  it('times out once for the whole batch and ignores late success', async () => {
+    vi.useFakeTimers();
+    const h = startup([saved(), saved('other', '/srv/other')]);
+    const completion = h.agent.replayStartupPathGrants();
+    await vi.advanceTimersByTimeAsync(5000);
+    const result = await completion;
+    expect(result.map((entry) => entry.status)).toEqual(['unconfirmed', 'unconfirmed']);
+    h.raw({ type: 'workspace_policy', policy: policy(['/srv']) });
+    h.raw({ type: 'pong' });
+    expect(h.agent.pathGrantApplicationView?.applications).toEqual(result);
+  });
+
+  it('settles unavailable on a failed write', async () => {
+    const h = startup();
+    h.internal.childProcess.stdin.write = () => {
+      throw new Error('closed');
+    };
+    await expect(h.agent.replayStartupPathGrants()).resolves.toEqual([
+      expect.objectContaining({ status: 'unavailable' }),
+    ]);
+    expect(h.agent.pathGrantApplicationView).toBeNull();
+  });
+
+  it('settles on transport loss and cannot project late events onto a replacement session', async () => {
+    const old = startup();
+    const completion = old.agent.replayStartupPathGrants();
+    old.internal.markTransportUnavailable(old.internal.childProcess);
+    const replacement = startup();
+    await expect(completion).resolves.toEqual([expect.objectContaining({ status: 'unavailable' })]);
+    old.raw({ type: 'workspace_policy', policy: policy(['/srv']) });
+    old.raw({ type: 'pong' });
+    expect(old.agent.pathGrantApplicationView).toBeNull();
+    expect(replacement.agent.pathGrantApplicationView?.applications).toEqual([
+      expect.objectContaining({ status: 'pending' }),
+    ]);
+  });
+
+  it('settles pending replay when stopped', async () => {
+    const h = startup();
+    const completion = h.agent.replayStartupPathGrants();
+    h.agent.stop();
+    await expect(completion).resolves.toEqual([expect.objectContaining({ status: 'unavailable' })]);
+    expect(JSON.parse(h.written.at(-1)!)).toEqual({ type: 'stop' });
+  });
+
+  it('cannot publish applied state after manager ownership changes', async () => {
+    const h = makeAgent(false);
+    let ownsSession = true;
+    h.agent.prepareStartupPathGrants([saved()], () => ownsSession);
+    (h.agent as unknown as { ready: boolean }).ready = true;
+    const completion = h.agent.replayStartupPathGrants();
+    ownsSession = false;
+    h.feed({ type: 'workspace_policy', policy: policy(['/srv']) });
+    h.feed({ type: 'pong' });
+    await expect(completion).resolves.toEqual([expect.objectContaining({ status: 'unavailable' })]);
+    expect(h.agent.pathGrantApplicationView).toBeNull();
+  });
+
+  it('settles pending replay on disposal and withdraws its current-session view', async () => {
+    const h = startup();
+    const completion = h.agent.replayStartupPathGrants();
+    // This fixture owns no OS process; kill still executes its real lifecycle.
+    (h.agent as unknown as { childProcess: unknown }).childProcess = null;
+    await h.agent.kill();
+    await expect(completion).resolves.toEqual([expect.objectContaining({ status: 'unavailable' })]);
+    expect(h.agent.pathGrantApplicationView).toBeNull();
+  });
+
+  it('retains an unknown typed reason without inventing a known remedy', async () => {
+    const h = startup();
+    const completion = h.agent.replayStartupPathGrants();
+    h.raw({
+      type: 'grant_refused',
+      surface: 'path',
+      grant_id: 'grant-001',
+      reason: 'future_reason',
+      detail: 'local_opt_in_required',
+    });
+    h.raw({ type: 'pong' });
+    await expect(completion).resolves.toEqual([expect.objectContaining({ status: 'refused', reason: 'unknown' })]);
+  });
+
+  it('keeps a pre-ready removal tombstone through preparation and writes no grant afterward', async () => {
+    const h = makeAgent(false);
+    await h.agent.revokePath('grant-001');
+    h.agent.prepareStartupPathGrants([saved()]);
+    (h.agent as unknown as { ready: boolean }).ready = true;
+    await expect(h.agent.replayStartupPathGrants()).resolves.toEqual([]);
+    expect(h.written).toEqual([]);
+  });
+
+  it('writes an in-flight removal before releasing startup and never reapplies its ID', async () => {
+    const h = startup();
+    const completion = h.agent.replayStartupPathGrants();
+    const removal = h.agent.revokePath('grant-001');
+    h.raw({ type: 'workspace_policy', policy: policy(['/srv/reports']) });
+    h.raw({ type: 'pong' });
+    await expect(completion).resolves.toEqual([expect.objectContaining({ status: 'revoked' })]);
+    expect(h.written.map((line) => JSON.parse(line))).toEqual([
+      { type: 'grant_path', grant_id: 'grant-001', root: '/srv/reports', access: 'read' },
+      { type: 'ping' },
+      { type: 'revoke_path', grant_id: 'grant-001' },
+    ]);
+    h.raw({ type: 'workspace_policy', policy: policy([]) });
+    await expect(removal).resolves.toMatchObject({ readable_roots: [] });
+    expect(() => h.agent.replayStartupPathGrants()).toThrow(/one-shot/);
+  });
+});
+
+describe('stream_end per-run accounting and cumulative context', () => {
+  it('preserves the pinned usage_delta and agent_run_id while separating session usage', () => {
+    const corpus = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1/events');
+    const consumer = new DesktopCoreV1Consumer();
+    consumer.consumeLine(readFileSync(path.join(corpus, 'ready.json'), 'utf8').trimEnd());
+    const fixture = JSON.parse(readFileSync(path.join(corpus, 'stream_end.json'), 'utf8'));
+    consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: fixture.msg_id }));
+    const decoded = consumer.consumeLine(readFileSync(path.join(corpus, 'stream_end.json'), 'utf8').trimEnd());
+    if (decoded.kind !== 'event' || decoded.event.type !== 'stream_end') throw new Error('fixture rejected');
+    const { feed, emitted } = makeAgent();
+    feed(decoded.event as WCoreEvent);
+    expect(emitted.at(-1)).toEqual({
+      type: 'finish',
+      msg_id: fixture.msg_id,
+      data: {
+        ...fixture.usage_delta,
+        usage_delta: fixture.usage_delta,
+        session_usage: fixture.usage,
+        agent_run_id: fixture.agent_run_id,
+        finish_reason: fixture.finish_reason,
+      },
+    });
+  });
+
+  it('preserves partial delta absence and explicit zero without filling from cumulative counters', () => {
+    const { feed, emitted } = makeAgent();
+    feed({
+      type: 'stream_end',
+      msg_id: 'partial-run',
+      usage: { input_tokens: 400, output_tokens: 40, cache_read_tokens: 300, cache_write_tokens: 20 },
+      usage_delta: { input_tokens: 0, cache_read_tokens: 0 },
+      agent_run_id: 'run-partial',
+      finish_reason: 'stop',
+    });
+    expect(emitted.at(-1)?.data).toEqual({
+      input_tokens: 0,
+      cache_read_tokens: 0,
+      usage_delta: { input_tokens: 0, cache_read_tokens: 0 },
+      session_usage: { input_tokens: 400, output_tokens: 40, cache_read_tokens: 300, cache_write_tokens: 20 },
+      agent_run_id: 'run-partial',
+      finish_reason: 'stop',
+    });
+  });
+
+  it.each(['input_tokens', 'output_tokens', 'cache_read_tokens', 'cache_write_tokens'] as const)(
+    'retains explicit-zero %s without manufacturing other token fields',
+    (field) => {
+      const { feed, emitted } = makeAgent();
+      const delta = { [field]: 0 };
+      feed({
+        type: 'stream_end',
+        msg_id: 'zero-run',
+        usage: { input_tokens: 400, output_tokens: 40, cache_read_tokens: 300, cache_write_tokens: 20 },
+        usage_delta: delta,
+        finish_reason: 'stop',
+      });
+      expect(emitted.at(-1)?.data).toEqual({
+        ...delta,
+        usage_delta: delta,
+        session_usage: { input_tokens: 400, output_tokens: 40, cache_read_tokens: 300, cache_write_tokens: 20 },
+        finish_reason: 'stop',
+      });
+    }
+  );
+
+  it('finishes older streams with cumulative context but no invented per-run accounting', () => {
+    const { feed, emitted } = makeAgent();
+    feed({
+      type: 'stream_end',
+      msg_id: 'no-delta',
+      usage: { input_tokens: 300, output_tokens: 30 },
+      finish_reason: 'stop',
+    });
+    expect(emitted.at(-1)).toEqual({
+      type: 'finish',
+      msg_id: 'no-delta',
+      data: { session_usage: { input_tokens: 300, output_tokens: 30 }, finish_reason: 'stop' },
+    });
   });
 });

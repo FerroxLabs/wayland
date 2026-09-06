@@ -59,7 +59,9 @@ vi.mock('../../src/process/agent/gemini/GeminiApprovalStore', () => ({
     approveAll() {}
   },
 }));
-vi.mock('../../src/process/agent/gemini/cli/tools/tools', () => ({ ToolConfirmationOutcome: {} }));
+vi.mock('../../src/process/agent/gemini/cli/tools/tools', () => ({
+  ToolConfirmationOutcome: { ProceedOnce: 'proceed_once', Cancel: 'cancel' },
+}));
 vi.mock('@office-ai/aioncli-core', () => ({
   AuthType: { LOGIN_WITH_GOOGLE: 'LOGIN_WITH_GOOGLE', USE_VERTEX_AI: 'USE_VERTEX_AI' },
   getOauthInfoWithCache: vi.fn().mockResolvedValue(null),
@@ -74,6 +76,7 @@ vi.mock('../../src/process/task/BaseAgentManager', () => ({
     type = 'gemini';
     yoloMode = false;
     confirmations: unknown[] = [];
+    consumedConfirmCallIds = new Set<string>();
     private listeners = new Map<string, Array<(data: unknown) => void>>();
 
     constructor(_type: string, _data: unknown, _emitter: unknown) {
@@ -106,6 +109,11 @@ vi.mock('../../src/process/task/BaseAgentManager', () => ({
       this.confirmations.push(c);
     }
     confirm = vi.fn();
+    claimConfirmCallId(callId: string) {
+      if (this.consumedConfirmCallIds.has(callId)) return false;
+      this.consumedConfirmCallIds.add(callId);
+      return true;
+    }
     postMessagePromise = vi.fn().mockResolvedValue(undefined);
   },
 }));
@@ -183,5 +191,22 @@ describe('GeminiAgentManager trusted-workspace gate (#671)', () => {
       confirmationDetails: { type: 'edit' },
     });
     expect(trustSeam).toHaveBeenCalledWith('/specific/gemini/ws');
+  });
+
+  it('denies an unexpected channel confirmation before yolo, team, or workspace trust can approve it', () => {
+    const { mgr, post } = makeTrustManager('/trusted/ws');
+    (mgr as unknown as { executionPolicy: string }).executionPolicy = 'channel-conversational';
+    (mgr as unknown as { currentMode: string }).currentMode = 'yolo';
+    (mgr as unknown as { consumedConfirmCallIds: Set<string> }).consumedConfirmCallIds = new Set();
+    trustSeam.mockReturnValue(true);
+
+    const ok = (mgr as unknown as { tryAutoApprove: TryAutoApprove }).tryAutoApprove({
+      callId: 'call-channel',
+      confirmationDetails: { type: 'mcp' },
+    });
+
+    expect(ok).toBe(true);
+    expect(post).toHaveBeenCalledWith('call-channel', 'cancel', expect.objectContaining({ timeoutMs: 60_000 }));
+    expect(trustSeam).not.toHaveBeenCalled();
   });
 });

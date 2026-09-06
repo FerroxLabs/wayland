@@ -6,6 +6,7 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
+import type { WCoreWorkspacePolicy } from '../../process/agent/wcore/protocol';
 import type { IConfirmation } from '@/common/chat/chatLib';
 import type { OpenDialogOptions } from 'electron';
 // C1: wrap platform builders so each provider/emitter key is recorded in the
@@ -20,6 +21,7 @@ import type {
   EngineConfigInspection,
   EngineConfigRecoveryResult,
 } from '../../process/agent/wcore/engineConfigRecovery';
+import type { WCoreTurnRecoveryView } from '../../process/agent/wcore/protocol';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
 import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/workspaceTrust';
@@ -497,6 +499,11 @@ export const wcoreUpdate = {
   install: buildProvider<WCoreInstallResult, WCoreInstallRequest>('wcoreUpdate.install'),
   /** Install progress (download percent + phase) emitted by the main process. */
   progress: buildEmitter<WCoreUpdateProgress>('wcoreUpdate.progress'),
+};
+
+export const wcoreRecovery = {
+  get: buildProvider<IBridgeResponse<WCoreTurnRecoveryView>, { conversation_id: string }>('wcoreRecovery.get'),
+  abandon: buildProvider<IBridgeResponse<WCoreTurnRecoveryView>, { conversation_id: string }>('wcoreRecovery.abandon'),
 };
 
 export const starOffice = {
@@ -1063,11 +1070,15 @@ export const acpConversation = {
     { backend: AgentBackend }
   >('acp.check-agent-health'),
   // Set session mode for ACP agents (claude, qwen, etc.)
-  setMode: buildProvider<IBridgeResponse<{ mode: string }>, { conversationId: string; mode: string }>('acp.set-mode'),
+  setMode: buildProvider<
+    IBridgeResponse<{ mode: string; refusalCode?: string }>,
+    { conversationId: string; mode: string }
+  >('acp.set-mode'),
   // Get current session mode for ACP agents
-  getMode: buildProvider<IBridgeResponse<{ mode: string; initialized: boolean }>, { conversationId: string }>(
-    'acp.get-mode'
-  ),
+  getMode: buildProvider<
+    IBridgeResponse<{ mode: string; initialized: boolean; workspacePolicy?: WCoreWorkspacePolicy | null }>,
+    { conversationId: string }
+  >('acp.get-mode'),
   // Get model info for ACP agents (model name and available models).
   // `backend` is optional and only consulted before a task exists, so the
   // process can derive a backend's cold-start catalog (e.g. Claude Code's
@@ -2083,6 +2094,14 @@ export interface IResponseMessage {
   msg_id: string;
   conversation_id: string;
   hidden?: boolean;
+  /**
+   * Identity of one ordered transcript segment within a turn. WCore keeps the
+   * turn's msg_id across prose/tool/prose boundaries, so msg_id alone cannot
+   * decide whether a text delta extends an existing bubble.
+   */
+  segment_id?: string;
+  /** Durable admission order assigned before asynchronous buffering. */
+  ingest_order?: number;
   /**
    * #787: per-conversation turn id of the turn that PRODUCED this terminal
    * (`finish`/`error`) event. TeammateManager keys its finalize-dedup on

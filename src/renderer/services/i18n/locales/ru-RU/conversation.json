@@ -552,6 +552,22 @@
     },
     "notText": "Wayland не может прочитать этот файл как текст — часть его байтов не является корректным UTF-8, который требуется формату настроек. Ничего не изменено."
   },
+  "turnRecovery": {
+    "checkingTitle": "Checking interrupted work",
+    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
+    "title": "An interrupted turn needs attention",
+    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
+    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
+    "checkAgain": "Check again",
+    "endAction": "End interrupted turn",
+    "confirmTitle": "End the interrupted turn?",
+    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
+    "keepAction": "Keep it",
+    "checkFailed": "Wayland could not inspect the interrupted turn.",
+    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
+    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
+    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+  },
   "artifactCard": {
     "title": "Сохранено в вашем рабочем пространстве",
     "openHere": "Открыть здесь",
@@ -579,5 +595,14 @@
     "rejectedUnreadable_other": "{{count}} не удалось прочитать",
     "more": "и ещё {{count}} в разделе «Артефакты»",
     "more_other": "и ещё {{count}} в разделе «Артефакты»"
+  },
+  "workspacePolicy": {
+    "title": "Доступ к рабочей области",
+    "scope": "Доступ к файловой системе по данным активного сеанса Core. Подтверждение, учётные данные и регистрация инструментов настраиваются отдельно.",
+    "readable": "Папки для чтения",
+    "writable": "Папки для записи",
+    "executables": "Исполняемые возможности и папки только для чтения",
+    "none": "Нет данных",
+    "unknown": "Core ещё не сообщил о текущем доступе к рабочей области этого разговора."
   }
 }

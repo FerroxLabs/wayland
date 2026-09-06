@@ -1,7 +1,8 @@
 import { getFullAutoMode, isAutoGuardedMode, resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { isFluxModelId } from '@/common/config/flux';
-import { parseInitializeResult } from '@/common/types/acpTypes';
+import { assertAcpProtocolVersion, parseInitializeResult } from '@/common/types/acpTypes';
 import type { AuthMethod, LoadSessionResponse, McpServer, NewSessionResponse } from '@agentclientprotocol/sdk';
+import { PROTOCOL_VERSION } from '@agentclientprotocol/sdk';
 import { normalizeError } from '@process/acp/errors/errorNormalize';
 import { looksLikeAdapterCorruption } from '@process/acp/errors/setupFailure';
 import type { AcpClient, ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
@@ -60,6 +61,7 @@ export class SessionLifecycle {
   private _client: AcpClient | null = null;
   private authPending = false;
   private cachedAuthMethods: AuthMethod[] | null = null;
+  private projectedUserMcpServers: McpServer[] | null = null;
 
   private startRetryCount = 0;
   private resumeRetryCount = 0;
@@ -153,6 +155,8 @@ export class SessionLifecycle {
     // here rather than in session/new). applySessionResult still overwrites when
     // session/new returns its own modes.
     const parsed = parseInitializeResult(initResult);
+    assertAcpProtocolVersion(parsed, PROTOCOL_VERSION);
+    this.projectLiveMcpServers(parsed.capabilities.mcpCapabilities);
     if (parsed.modes) {
       this.host.configTracker.syncFromInitializeResult(parsed.modes);
     }
@@ -478,10 +482,24 @@ export class SessionLifecycle {
 
   private buildMcpServers(): McpServer[] {
     return McpConfig.merge({
-      userServers: this.host.agentConfig.mcpServers,
+      userServers: this.projectedUserMcpServers ?? this.host.agentConfig.mcpServers,
       presetServers: this.host.agentConfig.presetMcpServers,
       teamServer: this.host.agentConfig.teamMcpConfig,
     });
+  }
+
+  private projectLiveMcpServers(capabilities: ReturnType<typeof McpConfig.resolveCapabilities>): void {
+    const source = this.host.agentConfig.mcpStorageSource;
+    if (!source) {
+      this.projectedUserMcpServers = null;
+      return;
+    }
+    const projection = McpConfig.projectStorageConfig(source.servers, {
+      ...source.request,
+      capabilities,
+    });
+    this.projectedUserMcpServers = projection.servers;
+    this.host.callbacks.onMcpProjection?.(projection);
   }
 
   /** @returns true only when a broken install was actually removed. */

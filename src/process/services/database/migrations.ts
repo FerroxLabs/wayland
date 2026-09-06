@@ -2495,6 +2495,54 @@ const migration_v57: IMigration = {
 };
 
 /**
+ * Migration v57 -> v58: durable transcript segment identity and admission order.
+ *
+ * created_at is millisecond-resolution and records persistence time. Debounced
+ * text can therefore receive a later timestamp than a tool frame it preceded,
+ * while timestamp ties have no deterministic SQL order. Existing rows are
+ * assigned a stable per-conversation fallback by (created_at, id); this cannot
+ * reconstruct historical wire order, but it preserves every row and makes all
+ * subsequent reads deterministic. New rows receive their ordinal at admission.
+ */
+const migration_v58: IMigration = {
+  version: 58,
+  name: 'Add durable transcript segment identity and ingest order',
+  up: (db) => {
+    const cols = new Set((db.pragma('table_info(messages)') as Array<{ name: string }>).map((c) => c.name));
+    if (!cols.has('ingest_order')) {
+      db.exec('ALTER TABLE messages ADD COLUMN ingest_order INTEGER');
+    }
+    if (!cols.has('segment_id')) {
+      db.exec('ALTER TABLE messages ADD COLUMN segment_id TEXT');
+    }
+    db.exec(`
+      WITH ranked AS (
+        SELECT id,
+               ROW_NUMBER() OVER (
+                 PARTITION BY conversation_id
+                 ORDER BY created_at ASC, id ASC
+               ) - 1 AS ordinal
+        FROM messages
+      )
+      UPDATE messages
+      SET ingest_order = (
+        SELECT ordinal FROM ranked WHERE ranked.id = messages.id
+      )
+      WHERE ingest_order IS NULL;
+    `);
+    db.exec(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_conversation_ingest ON messages(conversation_id, ingest_order)'
+    );
+    console.log('[Migration v58] Added deterministic transcript ingest order');
+  },
+  down: (_db) => {
+    // Additive safety metadata is retained. Older readers select named columns
+    // and safely ignore both the column and index.
+    console.log('[Migration v58] No-op rollback (ingest order is additive)');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -2508,7 +2556,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v37, migration_v38, migration_v39, migration_v40, migration_v41, migration_v42,
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
   migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
-  migration_v53, migration_v54, migration_v55, migration_v56, migration_v57,
+  migration_v53, migration_v54, migration_v55, migration_v56, migration_v57, migration_v58,
 ];
 
 /**

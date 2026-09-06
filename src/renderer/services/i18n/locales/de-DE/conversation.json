@@ -552,6 +552,22 @@
     },
     "notText": "Wayland kann diese Datei nicht als Text lesen – einige ihrer Bytes sind kein gültiges UTF-8, das das Einstellungsformat verlangt. Es wurde nichts geändert."
   },
+  "turnRecovery": {
+    "checkingTitle": "Checking interrupted work",
+    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
+    "title": "An interrupted turn needs attention",
+    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
+    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
+    "checkAgain": "Check again",
+    "endAction": "End interrupted turn",
+    "confirmTitle": "End the interrupted turn?",
+    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
+    "keepAction": "Keep it",
+    "checkFailed": "Wayland could not inspect the interrupted turn.",
+    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
+    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
+    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+  },
   "artifactCard": {
     "title": "In deinem Arbeitsbereich gespeichert",
     "openHere": "Hier öffnen",
@@ -579,5 +595,14 @@
     "rejectedUnreadable_other": "{{count}} konnten nicht gelesen werden",
     "more": "und {{count}} weitere unter Artefakte",
     "more_other": "und {{count}} weitere unter Artefakte"
+  },
+  "workspacePolicy": {
+    "title": "Arbeitsbereichszugriff",
+    "scope": "Von der aktiven Core-Sitzung gemeldeter Dateisystemzugriff. Werkzeugfreigaben, Zugangsdaten und Registrierung sind davon getrennt.",
+    "readable": "Lesbare Ordner",
+    "writable": "Beschreibbare Ordner",
+    "executables": "Ausführbare Funktionen und schreibgeschützte Ordner",
+    "none": "Keine gemeldet",
+    "unknown": "Core hat für diese Unterhaltung keinen aktiven Arbeitsbereichszugriff gemeldet."
   }
 }

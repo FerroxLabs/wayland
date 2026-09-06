@@ -156,7 +156,7 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
           },
         });
       }
-      if (key === 'acp.config') return Promise.resolve({});
+      if (key === 'acp.config') return Promise.resolve({ claude: { preferredMode: 'bypassPermissions' } });
       if (key === 'model.config') {
         return Promise.resolve([
           {
@@ -211,9 +211,7 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
 
     render(<WorkflowDetailModal entry={makeEntry()} onClose={vi.fn()} />);
 
-    await waitFor(() =>
-      expect(screen.getByText(/loads this workflow as its first directive/i)).toBeTruthy()
-    );
+    await waitFor(() => expect(screen.getByText(/loads this workflow as its first directive/i)).toBeTruthy());
   });
 
   it('defaults picker to guid.lastSelectedAgent from ConfigStorage', async () => {
@@ -221,7 +219,7 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
     mockConfigStorageGet.mockImplementation((key: string) => {
       if (key === 'guid.lastSelectedAgent') return Promise.resolve('wcore');
       if (key === 'acp.cachedModels') return Promise.resolve({});
-      if (key === 'acp.config') return Promise.resolve({});
+      if (key === 'acp.config') return Promise.resolve({ claude: { preferredMode: 'bypassPermissions' } });
       if (key === 'model.config') return Promise.resolve([]);
       return Promise.resolve(null);
     });
@@ -261,7 +259,7 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
     expect(callArg).toHaveProperty('agentName');
     expect(callArg).toHaveProperty('customAgentId');
     expect(callArg).toHaveProperty('presetAssistantId');
-    expect(callArg).toHaveProperty('sessionMode');
+    expect(callArg.sessionMode).toBe('acceptEdits'); // A global Autopilot preference is not workflow consent.
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('/conversation/conv_new', {
@@ -350,7 +348,7 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
       if (key === 'guid.lastSelectedAgent') return Promise.resolve(null);
       // No wcore entry -> picker falls back to the curated registry list.
       if (key === 'acp.cachedModels') return Promise.resolve({});
-      if (key === 'acp.config') return Promise.resolve({});
+      if (key === 'acp.config') return Promise.resolve({ claude: { preferredMode: 'bypassPermissions' } });
       if (key === 'model.config') {
         // The real connected provider: opaque legacy id, platform 'openai',
         // and the model in its catalog. Its id is NOT 'openai' and its platform

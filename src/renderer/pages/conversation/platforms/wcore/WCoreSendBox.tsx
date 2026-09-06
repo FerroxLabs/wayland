@@ -7,6 +7,7 @@
 import { Shield } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { uuid } from '@/common/utils';
+import WorkspacePolicyButton from '@/renderer/components/agent/WorkspacePolicyButton';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
 import ContextUsageIndicator from '@/renderer/components/agent/ContextUsageIndicator';
 import CommandQueuePanel from '@/renderer/components/chat/CommandQueuePanel';
@@ -115,7 +116,9 @@ const WCoreSendBox: React.FC<{
   sessionMode?: string;
   /** Report the turn-running state up so the inline orbit indicator can render in the message list. */
   onRunningChange?: (running: boolean) => void;
-}> = ({ conversation_id, modelSelection, teamId, agentSlotId, sessionMode, onRunningChange }) => {
+  /** Main has not yet proved this durable Core session can accept another turn. */
+  recoveryBlocked?: boolean;
+}> = ({ conversation_id, modelSelection, teamId, agentSlotId, sessionMode, onRunningChange, recoveryBlocked }) => {
   const [workspacePath, setWorkspacePath] = useState('');
   const [dynamicModes, setDynamicModes] = useState<AgentModeOption[]>([]);
   // The most recent turn dispatched, kept so the Flux failover can replay it.
@@ -252,6 +255,10 @@ const WCoreSendBox: React.FC<{
 
   const executeCommand = useCallback(
     async ({ input, files }: Pick<ConversationCommandQueueItem, 'input' | 'files'>) => {
+      if (recoveryBlocked) {
+        Message.warning(t('conversation.turnRecovery.sendBlocked'));
+        throw new Error('Interrupted Core turn must be resolved before sending');
+      }
       if (!currentModel?.useModel) {
         Message.warning(t('conversation.chat.noModelSelected'));
         throw new Error('No model selected');
@@ -327,6 +334,7 @@ const WCoreSendBox: React.FC<{
       currentModel?.useModel,
       setActiveMsgId,
       removeMessageByMsgId,
+      recoveryBlocked,
       setWaitingResponse,
       teamId,
       workspacePath,
@@ -598,11 +606,13 @@ const WCoreSendBox: React.FC<{
           setAtPath(items);
         }}
         loading={isBusy}
-        disabled={!currentModel?.useModel && !engineAsleep}
+        disabled={recoveryBlocked || (!currentModel?.useModel && !engineAsleep)}
         placeholder={
-          currentModel?.useModel
-            ? t('conversation.chat.sendMessageTo', { model: getDisplayModelName(currentModel.useModel) })
-            : t('conversation.chat.noModelSelected')
+          recoveryBlocked
+            ? t('conversation.turnRecovery.sendBlocked')
+            : currentModel?.useModel
+              ? t('conversation.chat.sendMessageTo', { model: getDisplayModelName(currentModel.useModel) })
+              : t('conversation.chat.noModelSelected')
         }
         onStop={handleStop}
         className='z-10'
@@ -614,6 +624,7 @@ const WCoreSendBox: React.FC<{
         tools={
           <div className='flex items-center gap-4px'>
             <FileAttachButton openFileSelector={openFileSelector} onLocalFilesAdded={handleFilesAdded} />
+            <WorkspacePolicyButton conversationId={conversation_id} />
             <AgentModeSelector
               backend='wcore'
               conversationId={conversation_id}

@@ -110,7 +110,14 @@ vi.mock('@renderer/utils/emitter', () => ({
   useAddEventListener: () => {},
 }));
 vi.mock('react-router-dom', () => ({ useNavigate: () => () => {} }));
-vi.mock('@/common', () => ({ ipcBridge: {} }));
+vi.mock('@/common', () => ({
+  ipcBridge: {
+    wcoreRecovery: {
+      get: { invoke: vi.fn().mockResolvedValue({ success: true, data: { state: 'unsupported', canAbandon: false } }) },
+      abandon: { invoke: vi.fn() },
+    },
+  },
+}));
 
 import type { TMessage } from '@/common/chat/chatLib';
 import WCoreChat from '@/renderer/pages/conversation/platforms/wcore/WCoreChat';

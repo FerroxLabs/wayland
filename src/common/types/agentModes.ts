@@ -6,7 +6,11 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
-import { CODEX_MODE_FULL_AUTO } from '@/common/types/codex/codexModes';
+import {
+  CODEX_MODE_AUTO_EDIT,
+  CODEX_MODE_FULL_AUTO,
+  CODEX_MODE_FULL_AUTO_NO_SANDBOX,
+} from '@/common/types/codex/codexModes';
 
 /**
  * Full-auto (YOLO) mode ID per backend.
@@ -117,6 +121,36 @@ export function resolveAcpSessionModeId(
 export function getFullAutoMode(backend: string | undefined): string {
   if (!backend) return 'yolo';
   return FULL_AUTO_MODE[backend] || 'yolo';
+}
+
+/** Safe per-run defaults; full-auto is never inferred from a backend name. */
+export function getDefaultUnattendedMode(backend: string | undefined): string {
+  if (backend === 'wcore') return 'auto_edit';
+  if (backend === 'gemini') return 'autoEdit';
+  if (backend === 'claude') return 'acceptEdits';
+  if (backend === 'codex') return CODEX_MODE_AUTO_EDIT;
+  if (backend === 'opencode') return 'build';
+  if (backend === 'cursor') return 'agent';
+  return 'default';
+}
+
+/** Only a declared bypass mode authorizes the host's blanket-approval flag. */
+export function isExplicitUnattendedFullAuto(backend: string | undefined, declaredMode: string | undefined): boolean {
+  const mode = declaredMode?.trim();
+  if (backend === 'wcore') return mode === 'yolo' || mode === 'force';
+  if (backend === 'claude') return mode === 'bypassPermissions';
+  if (backend === 'codex') return mode === CODEX_MODE_FULL_AUTO || mode === CODEX_MODE_FULL_AUTO_NO_SANDBOX;
+  return ['gemini', 'qwen', 'snow'].includes(backend ?? '') && mode === 'yolo';
+}
+
+/** Keep an explicit per-run declaration; let the backend reject unsupported values. */
+export function resolveUnattendedMode(backend: string | undefined, declaredMode?: string): string {
+  const declared = declaredMode?.trim();
+  if (!declared) return getDefaultUnattendedMode(backend);
+  // Older generated Core routines used Claude's bypassPermissions token.
+  // Unknown Core values must never turn into full-auto; use ask-first instead.
+  if (backend === 'wcore' && !['default', 'auto_edit', 'yolo', 'force'].includes(declared)) return 'default';
+  return declared;
 }
 
 /**

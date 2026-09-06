@@ -203,6 +203,32 @@ describe('ActionExecutor edit-driven streaming dispatch', () => {
     const lastEdit = editMessage.mock.calls.at(-1)?.[1] as IUnifiedOutgoingMessage;
     expect(lastEdit?.text).toContain('ERROR: boom');
   });
+
+  it('describes an unexpected permission request as denied instead of auto-approved', async () => {
+    hoisted.sendMessageMock.mockReset();
+    hoisted.sendMessageMock.mockImplementationOnce(
+      async (_s: string, _c: string, _t: string, onStream: (m: TMessage, insert: boolean) => Promise<void>) => {
+        await onStream(
+          {
+            type: 'acp_permission',
+            id: 'permission-1',
+            conversation_id: 'conv-1',
+            content: {} as never,
+          } as TMessage,
+          true
+        );
+        return 'final-msg-id';
+      }
+    );
+
+    const exec = newExecutor() as any;
+    const { context, editMessage } = makeContext();
+    await exec.dispatchEditDrivenStream(context, 'hi');
+
+    const rendered = editMessage.mock.calls.map((call) => (call[1] as IUnifiedOutgoingMessage).text).join('\n');
+    expect(rendered).toContain('Tool permission denied');
+    expect(rendered).not.toContain('automatic approval');
+  });
 });
 
 // ----- Buffered path ---------------------------------------------------------

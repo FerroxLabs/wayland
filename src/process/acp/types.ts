@@ -16,6 +16,8 @@ import type {
   WriteTextFileResponse,
 } from '@agentclientprotocol/sdk';
 import type { ResolvedWaylandNanoActivationInput, WaylandNanoConnectionMode } from '@process/agent/acp/AcpConnection';
+import type { IMcpServer } from '@/common/config/storage';
+import type { McpConfigProjection, McpConfigPublicationRequest } from '@process/acp/session/McpConfig';
 // ─── Agent Identity & Config ────────────────────────────────────
 
 export type AgentSource = 'builtin' | 'extension' | 'custom' | 'remote';
@@ -52,6 +54,14 @@ export type AgentConfig = {
   // Session configuration
   cwd: string;
   mcpServers?: McpServer[];
+  /**
+   * Storage-backed connectors projected only after the live ACP initialize
+   * result is available. Cached capabilities must never authorize a transport.
+   */
+  mcpStorageSource?: {
+    servers: IMcpServer[];
+    request: Omit<McpConfigPublicationRequest, 'capabilities'>;
+  };
   /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
   activeMcpServers?: string[];
   additionalDirectories?: string[];
@@ -189,6 +199,7 @@ export type SessionSignal =
 
 export type SessionCallbacks = {
   onInitialize?: (result: unknown) => void;
+  onMcpProjection?: (projection: McpConfigProjection) => void;
   onMessage: (message: TMessage) => void;
   onSessionId: (sessionId: string) => void;
   onStatusChange: (status: SessionStatus) => void;

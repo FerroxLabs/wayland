@@ -9,7 +9,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AcpConnection } from '../../src/process/agent/acp/AcpConnection';
 import { AcpAgent } from '../../src/process/agent/acp/index';
-import { parseInitializeResult } from '../../src/common/types/acpTypes';
+import { assertAcpProtocolVersion, parseInitializeResult } from '../../src/common/types/acpTypes';
 import type { AcpSessionConfigOption, AcpSessionModels } from '../../src/types/acpTypes';
 
 vi.mock('@process/utils/initStorage', async (importOriginal) => {
@@ -261,6 +261,17 @@ describe('parseInitializeResult (top-level modes)', () => {
       },
     });
     expect(result.modes?.availableModes?.map((m) => m.id)).toEqual(['plan', 'yolo']);
+  });
+});
+
+describe('ACP protocol version compatibility', () => {
+  it('accepts the pinned protocol version', () => {
+    expect(() => assertAcpProtocolVersion(parseInitializeResult({ protocolVersion: 1 }), 1)).not.toThrow();
+  });
+
+  it('rejects missing and unsupported versions before session creation', () => {
+    expect(() => assertAcpProtocolVersion(parseInitializeResult({}), 1)).toThrow(/version missing/);
+    expect(() => assertAcpProtocolVersion(parseInitializeResult({ protocolVersion: 2 }), 1)).toThrow(/version 2/);
   });
 });
 

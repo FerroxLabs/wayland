@@ -16,6 +16,7 @@ type TestStreamState = {
   hasAnswerMessage?: boolean;
   hasNonAnswerMessage?: boolean;
   finishTimer?: ReturnType<typeof setTimeout>;
+  deadlineTimer?: ReturnType<typeof setTimeout>;
 };
 
 type ChannelMessageServiceHarness = Pick<ChannelMessageService, 'clearStreamByConversationId' | 'sendMessage'> & {
@@ -27,10 +28,10 @@ function createServiceHarness(): ChannelMessageServiceHarness {
   return new ChannelMessageService() as unknown as ChannelMessageServiceHarness;
 }
 
-const flushMicrotasks = async (count = 5) => {
-  for (let i = 0; i < count; i++) {
-    await Promise.resolve();
-  }
+const flushMicrotasks = async () => {
+  // Drain the queue and Promise.race continuations without moving fake time.
+  // A fixed number of Promise.resolve yields stops before task dispatch.
+  await vi.advanceTimersByTimeAsync(0);
 };
 
 describe('ChannelMessageService', () => {
@@ -44,11 +45,11 @@ describe('ChannelMessageService', () => {
     vi.useRealTimers();
   });
 
-  it('sends input payloads only for gemini tasks', async () => {
+  it('sends Gemini input under the restricted channel policy', async () => {
     const service = new ChannelMessageService();
 
     vi.spyOn(databaseModule, 'getDatabase').mockResolvedValue({
-      getConversation: () => ({ success: false }),
+      getConversation: () => ({ success: true, data: { type: 'gemini', source: 'telegram' } }),
     } as any);
 
     const sendTaskMessage = vi.fn().mockResolvedValue(undefined);
@@ -67,37 +68,38 @@ describe('ChannelMessageService', () => {
       })
     );
     expect(sendTaskMessage).not.toHaveBeenCalledWith(expect.objectContaining({ content: 'hello gemini' }));
+    expect(workerTaskManager.getOrBuildTask).toHaveBeenCalledWith('conv-gemini', {
+      executionPolicy: 'channel-conversational',
+      yoloMode: false,
+      launchSignal: expect.any(AbortSignal),
+    });
 
     service.clearStreamByConversationId('conv-gemini');
     await expect(streamPromise).resolves.toContain('channel_msg_');
   });
 
-  it('sends content payloads for wcore tasks', async () => {
+  it('fails closed before dispatch for a selected non-Gemini backend', async () => {
     const service = new ChannelMessageService();
 
     vi.spyOn(databaseModule, 'getDatabase').mockResolvedValue({
-      getConversation: () => ({ success: false }),
+      getConversation: () => ({ success: true, data: { type: 'wcore', source: 'telegram' } }),
     } as any);
 
     const sendTaskMessage = vi.fn().mockResolvedValue(undefined);
-    vi.spyOn(workerTaskManager, 'getOrBuildTask').mockResolvedValue({
-      type: 'wcore',
-      sendMessage: sendTaskMessage,
-    } as any);
+    const getTask = vi.spyOn(workerTaskManager, 'getOrBuildTask');
+    const onStream = vi.fn();
 
-    const streamPromise = service.sendMessage('session-1', 'conv-wcore', 'hello wcore', vi.fn());
-    await flushMicrotasks();
-
-    expect(sendTaskMessage).toHaveBeenCalledWith(
-      expect.objectContaining({
-        content: 'hello wcore',
-        msg_id: expect.stringContaining('channel_msg_'),
-      })
+    await expect(service.sendMessage('session-1', 'conv-wcore', 'hello wcore', onStream)).rejects.toThrow(
+      /support Gemini only/
     );
-    expect(sendTaskMessage).not.toHaveBeenCalledWith(expect.objectContaining({ input: 'hello wcore' }));
-
-    service.clearStreamByConversationId('conv-wcore');
-    await expect(streamPromise).resolves.toContain('channel_msg_');
+    expect(getTask).not.toHaveBeenCalled();
+    expect(sendTaskMessage).not.toHaveBeenCalled();
+    expect(onStream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({ content: expect.stringContaining('Channel Settings') }),
+      }),
+      true
+    );
   });
 
   it('waits for Gemini continuation after a tool-only finish', async () => {
@@ -353,25 +355,11 @@ describe('ChannelMessageService', () => {
     expect(resolve).toHaveBeenCalledWith('msg-2');
   });
 
-  it('settles a waiting tool-only stream before replacing it with a new send', async () => {
+  it('serializes sends and waits for the actual prior turn to finish', async () => {
     const service = createServiceHarness();
-    const oldResolve = vi.fn();
-    const oldReject = vi.fn();
-
-    service.activeStreams.set('conv-3', {
-      msgId: 'old-msg',
-      callback: vi.fn(),
-      buffer: '',
-      resolve: oldResolve,
-      reject: oldReject,
-      turnCount: 1,
-      finishCount: 1,
-      lastVisibleMessageType: 'tool_group',
-      finishTimer: setTimeout(() => {}, 15_000),
-    });
 
     vi.spyOn(databaseModule, 'getDatabase').mockResolvedValue({
-      getConversation: () => ({ success: false }),
+      getConversation: () => ({ success: true, data: { type: 'gemini', source: 'telegram' } }),
     } as unknown as Awaited<ReturnType<typeof databaseModule.getDatabase>>);
 
     const sendTaskMessage = vi.fn().mockResolvedValue(undefined);
@@ -380,14 +368,164 @@ describe('ChannelMessageService', () => {
       sendMessage: sendTaskMessage,
     } as unknown as Awaited<ReturnType<typeof workerTaskManager.getOrBuildTask>>);
 
-    const newStreamPromise = service.sendMessage('session-1', 'conv-3', 'hello', vi.fn());
+    const first = service.sendMessage('session-1', 'conv-3', 'first', vi.fn());
+    await flushMicrotasks();
+    const firstMsgId = sendTaskMessage.mock.calls[0][0].msg_id as string;
+
+    const second = service.sendMessage('session-1', 'conv-3', 'second', vi.fn());
+    await flushMicrotasks();
+    expect(sendTaskMessage).toHaveBeenCalledTimes(1);
+
+    service.handleAgentMessage({ conversation_id: 'conv-3', type: 'start', msg_id: firstMsgId, data: '' });
+    service.handleAgentMessage({ conversation_id: 'conv-3', type: 'content', msg_id: firstMsgId, data: 'one' });
+    service.handleAgentMessage({ conversation_id: 'conv-3', type: 'finish', msg_id: firstMsgId, data: '' });
+    await expect(first).resolves.toBe(firstMsgId);
     await flushMicrotasks();
 
-    expect(sendTaskMessage).toHaveBeenCalled();
-    expect(oldResolve).toHaveBeenCalledWith('old-msg');
-    expect(oldReject).not.toHaveBeenCalled();
+    expect(sendTaskMessage).toHaveBeenCalledTimes(2);
+    const secondMsgId = sendTaskMessage.mock.calls[1][0].msg_id as string;
+    service.handleAgentMessage({ conversation_id: 'conv-3', type: 'start', msg_id: secondMsgId, data: '' });
+    service.handleAgentMessage({ conversation_id: 'conv-3', type: 'content', msg_id: secondMsgId, data: 'two' });
+    service.handleAgentMessage({ conversation_id: 'conv-3', type: 'finish', msg_id: secondMsgId, data: '' });
+    await expect(second).resolves.toBe(secondMsgId);
+  });
 
-    service.clearStreamByConversationId('conv-3');
-    await expect(newStreamPromise).resolves.toContain('channel_msg_');
+  it('times out a lone stuck send, releases the queue, and terminates its task', async () => {
+    const service = createServiceHarness();
+    vi.spyOn(databaseModule, 'getDatabase').mockResolvedValue({
+      getConversation: () => ({ success: true, data: { type: 'gemini', source: 'telegram' } }),
+    } as unknown as Awaited<ReturnType<typeof databaseModule.getDatabase>>);
+    const task = {
+      type: 'gemini',
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Awaited<ReturnType<typeof workerTaskManager.getOrBuildTask>>;
+    vi.spyOn(workerTaskManager, 'getOrBuildTask').mockResolvedValue(task);
+    const killTask = vi.spyOn(workerTaskManager, 'killTask').mockResolvedValue(undefined);
+    const onStream = vi.fn();
+
+    const send = service.sendMessage('session-1', 'conv-timeout', 'hello', onStream);
+    const rejected = expect(send).rejects.toThrow(/timed out after 120 seconds/);
+    await flushMicrotasks();
+    await vi.advanceTimersByTimeAsync(120_000);
+
+    await rejected;
+    expect(killTask).toHaveBeenCalledWith('conv-timeout', task);
+    expect(service.activeStreams.has('conv-timeout')).toBe(false);
+    expect(onStream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({ content: expect.stringContaining('120 seconds') }),
+      }),
+      true
+    );
+  });
+
+  it('ignores a late terminal frame from a timed-out turn', async () => {
+    const service = createServiceHarness();
+    vi.spyOn(databaseModule, 'getDatabase').mockResolvedValue({
+      getConversation: () => ({ success: true, data: { type: 'gemini', source: 'telegram' } }),
+    } as unknown as Awaited<ReturnType<typeof databaseModule.getDatabase>>);
+    const sendTaskMessage = vi.fn().mockResolvedValue(undefined);
+    vi.spyOn(workerTaskManager, 'getOrBuildTask').mockResolvedValue({
+      type: 'gemini',
+      sendMessage: sendTaskMessage,
+    } as unknown as Awaited<ReturnType<typeof workerTaskManager.getOrBuildTask>>);
+    vi.spyOn(workerTaskManager, 'killTask').mockResolvedValue(undefined);
+
+    const first = service.sendMessage('session-1', 'conv-late', 'first', vi.fn());
+    const firstRejected = expect(first).rejects.toThrow(/timed out/);
+    await flushMicrotasks();
+    const firstMsgId = sendTaskMessage.mock.calls[0][0].msg_id as string;
+    await vi.advanceTimersByTimeAsync(120_000);
+    await firstRejected;
+
+    const second = service.sendMessage('session-1', 'conv-late', 'second', vi.fn());
+    await flushMicrotasks();
+    const secondMsgId = sendTaskMessage.mock.calls[1][0].msg_id as string;
+
+    service.handleAgentMessage({ conversation_id: 'conv-late', type: 'finish', msg_id: firstMsgId, data: '' });
+    expect(service.activeStreams.get('conv-late')?.msgId).toBe(secondMsgId);
+
+    service.handleAgentMessage({ conversation_id: 'conv-late', type: 'start', msg_id: secondMsgId, data: '' });
+    service.handleAgentMessage({ conversation_id: 'conv-late', type: 'content', msg_id: secondMsgId, data: 'reply' });
+    service.handleAgentMessage({ conversation_id: 'conv-late', type: 'finish', msg_id: secondMsgId, data: '' });
+    await expect(second).resolves.toBe(secondMsgId);
+  });
+
+  it('cleans up only its own late-built task and preserves a newer worker', async () => {
+    const service = createServiceHarness();
+    vi.spyOn(databaseModule, 'getDatabase').mockResolvedValue({
+      getConversation: () => ({ success: true, data: { type: 'gemini', source: 'telegram' } }),
+    } as unknown as Awaited<ReturnType<typeof databaseModule.getDatabase>>);
+    let resolveOld: ((task: Awaited<ReturnType<typeof workerTaskManager.getOrBuildTask>>) => void) | undefined;
+    const oldTask = { type: 'gemini', sendMessage: vi.fn() } as unknown as Awaited<
+      ReturnType<typeof workerTaskManager.getOrBuildTask>
+    >;
+    const newSend = vi.fn().mockResolvedValue(undefined);
+    const newTask = {
+      type: 'gemini',
+      sendMessage: newSend,
+    } as unknown as Awaited<ReturnType<typeof workerTaskManager.getOrBuildTask>>;
+    vi.spyOn(workerTaskManager, 'getOrBuildTask')
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveOld = resolve;
+          })
+      )
+      .mockResolvedValueOnce(newTask);
+    const killTask = vi.spyOn(workerTaskManager, 'killTask').mockResolvedValue(undefined);
+    const killAll = vi.spyOn(workerTaskManager, 'kill');
+
+    const first = service.sendMessage('session-1', 'conv-owned', 'first', vi.fn());
+    const firstRejected = expect(first).rejects.toThrow(/timed out/);
+    await flushMicrotasks();
+    await vi.advanceTimersByTimeAsync(120_000);
+    await firstRejected;
+
+    const second = service.sendMessage('session-1', 'conv-owned', 'second', vi.fn());
+    await flushMicrotasks();
+    const secondMsgId = newSend.mock.calls[0][0].msg_id as string;
+
+    resolveOld?.(oldTask);
+    await flushMicrotasks();
+    expect(killTask).toHaveBeenCalledWith('conv-owned', oldTask);
+    expect(killTask).not.toHaveBeenCalledWith('conv-owned', newTask);
+    expect(killAll).not.toHaveBeenCalled();
+
+    service.handleAgentMessage({ conversation_id: 'conv-owned', type: 'start', msg_id: secondMsgId, data: '' });
+    service.handleAgentMessage({ conversation_id: 'conv-owned', type: 'content', msg_id: secondMsgId, data: 'reply' });
+    service.handleAgentMessage({ conversation_id: 'conv-owned', type: 'finish', msg_id: secondMsgId, data: '' });
+    await expect(second).resolves.toBe(secondMsgId);
+  });
+
+  it('includes queue waiting in each send deadline', async () => {
+    const service = createServiceHarness();
+    vi.spyOn(databaseModule, 'getDatabase').mockResolvedValue({
+      getConversation: () => ({ success: true, data: { type: 'gemini', source: 'telegram' } }),
+    } as unknown as Awaited<ReturnType<typeof databaseModule.getDatabase>>);
+    const task = {
+      type: 'gemini',
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Awaited<ReturnType<typeof workerTaskManager.getOrBuildTask>>;
+    vi.spyOn(workerTaskManager, 'getOrBuildTask').mockResolvedValue(task);
+    vi.spyOn(workerTaskManager, 'killTask').mockResolvedValue(undefined);
+    const secondStream = vi.fn();
+
+    const first = service.sendMessage('session-1', 'conv-queue-deadline', 'first', vi.fn());
+    const second = service.sendMessage('session-1', 'conv-queue-deadline', 'second', secondStream);
+    const firstRejected = expect(first).rejects.toThrow(/timed out/);
+    const secondRejected = expect(second).rejects.toThrow(/timed out.*queued/);
+    await flushMicrotasks();
+
+    await vi.advanceTimersByTimeAsync(120_000);
+    await Promise.all([firstRejected, secondRejected]);
+
+    expect(task.sendMessage).toHaveBeenCalledTimes(1);
+    expect(secondStream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({ content: expect.stringContaining('while queued') }),
+      }),
+      true
+    );
   });
 });

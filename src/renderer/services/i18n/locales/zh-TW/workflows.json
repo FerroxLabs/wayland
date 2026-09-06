@@ -39,6 +39,7 @@
   },
   "launchError": "無法啟動工作流程：{{msg}}",
   "picker": {
-    "noAgent": "未選取後端"
+    "noAgent": "未選取後端",
+    "approvalForNewRun": "新執行的核准模式"
   }
 }

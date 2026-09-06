@@ -19,5 +19,6 @@
   "coworkTooltip": "协作：自动批准此工作区的读取和编辑；执行命令前仍会询问。",
   "switchMode": "切换模式",
   "switchSuccess": "模式切换成功",
-  "switchFailed": "模式切换失败"
+  "switchFailed": "模式切换失败",
+  "coreModeRefused": "Core 保留了当前审批模式。自动审批需要在 Core 启动时获得许可；此次拒绝不会禁用工具。"
 }

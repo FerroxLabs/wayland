@@ -377,6 +377,34 @@ describe('GAP-1: WCoreManager Thinking Message Display & Persistence', () => {
       // (indirectly: if cron detection ran on stripped content, no cron commands = no cron calls)
       // This is a sanity check; the main assertion is on the content emission
     });
+
+    it('persists prose, inline reasoning, and following prose as ordered segments', () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-inline' });
+      emitEvent(manager, {
+        type: 'content',
+        data: 'before reasoning',
+        msg_id: 'msg-inline',
+        segment_id: 'provider-segment',
+      });
+      emitEvent(manager, {
+        type: 'content',
+        data: '<think>reasoning</think>after reasoning',
+        msg_id: 'msg-inline',
+        segment_id: 'provider-segment',
+      });
+      emitEvent(manager, { type: 'finish', data: {}, msg_id: 'msg-inline' });
+      vi.advanceTimersByTime(120);
+
+      const writes = mockAddOrUpdateMessage.mock.calls.map(([, message]) => message);
+      const ordered = writes
+        .filter((message) => message.type === 'text' || message.type === 'thinking')
+        .map((message) => ({ type: message.type, content: message.content.content, segment: message.segment_id }));
+      expect(ordered).toEqual([
+        { type: 'text', content: 'before reasoning', segment: 'provider-segment' },
+        { type: 'thinking', content: 'reasoning', segment: expect.any(String) },
+        { type: 'text', content: 'after reasoning', segment: expect.not.stringMatching(/^provider-segment$/) },
+      ]);
+    });
   });
 
   // ── AC-6: Turn end cleanup ──────────────────────────────────────

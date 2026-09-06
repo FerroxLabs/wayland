@@ -19,5 +19,6 @@
   "coworkTooltip": "Cowork : approuve automatiquement les lectures et modifications dans cet espace de travail ; demande toujours avant d'exécuter des commandes.",
   "switchMode": "Changer de mode",
   "switchSuccess": "Mode changé avec succès",
-  "switchFailed": "Échec du changement de mode"
+  "switchFailed": "Échec du changement de mode",
+  "coreModeRefused": "Core a conservé le mode d’approbation actuel. L’approbation automatique nécessite une autorisation au démarrage de Core ; ce refus ne désactive pas les outils."
 }

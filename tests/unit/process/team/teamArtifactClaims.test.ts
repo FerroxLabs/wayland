@@ -31,7 +31,7 @@
  * worse failure than silence.
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -55,7 +55,13 @@ describe('#980 a teammate claim is reconciled against the team workspace', () =>
       workspace
     );
 
-    expect(unsupported).toEqual([{ fileName: 'chart-brief.md', verdict: 'absent' }]);
+    expect(unsupported).toEqual([
+      {
+        fileName: 'chart-brief.md',
+        claimedPath: 'artifacts/chat/42d0fd61/chart-brief.md',
+        verdict: 'absent',
+      },
+    ]);
   });
 
   it('says nothing when the claimed file is exactly where the teammate said', async () => {
@@ -70,7 +76,12 @@ describe('#980 a teammate claim is reconciled against the team workspace', () =>
     await fs.writeFile(path.join(workspace, 'notes', 'summary.md'), '# ok');
 
     expect(await reconcileTeamMessageClaims('Saved to reports/summary.md.', workspace)).toEqual([
-      { fileName: 'summary.md', verdict: 'elsewhere', actualPath: 'notes/summary.md' },
+      {
+        fileName: 'summary.md',
+        claimedPath: 'reports/summary.md',
+        verdict: 'elsewhere',
+        actualPath: 'notes/summary.md',
+      },
     ]);
   });
 
@@ -78,8 +89,25 @@ describe('#980 a teammate claim is reconciled against the team workspace', () =>
     // Outside the jail the host cannot honestly say the file is missing, and it
     // has no business stat-ing there either. Unverifiable is silence, never a
     // verdict.
-    expect(await reconcileTeamMessageClaims('I wrote ../../elsewhere/secret.md.', workspace)).toEqual([]);
-    expect(await reconcileTeamMessageClaims('I wrote /etc/hosts.md.', workspace)).toEqual([]);
+    const lstat = vi.spyOn(fs, 'lstat');
+    try {
+      expect(await reconcileTeamMessageClaims('I wrote ../../elsewhere/secret.md.', workspace)).toEqual([]);
+      expect(await reconcileTeamMessageClaims('I wrote /etc/hosts.md.', workspace)).toEqual([]);
+      expect(lstat).not.toHaveBeenCalled();
+    } finally {
+      lstat.mockRestore();
+    }
+  });
+
+  it('keeps an unreadable claimed path unverified instead of calling it missing', async () => {
+    const error = Object.assign(new Error('permission denied'), { code: 'EACCES' });
+    const lstat = vi.spyOn(fs, 'lstat').mockRejectedValueOnce(error);
+    try {
+      expect(await reconcileTeamMessageClaims('I wrote reports/private.md.', workspace)).toEqual([]);
+      expect(lstat).toHaveBeenCalledOnce();
+    } finally {
+      lstat.mockRestore();
+    }
   });
 
   it('says nothing about a message that makes no claim at all', async () => {
@@ -102,6 +130,10 @@ describe('#980 a teammate claim is reconciled against the team workspace', () =>
     expect(notice).toContain('chart-brief.md');
     expect(notice).toContain('summary.md');
     expect(notice).toContain('notes/summary.md');
+    expect(notice).toContain('matching filename');
+    expect(notice).toContain('bounded workspace check');
+    expect(notice).toContain('does not prove workspace-wide absence');
+    expect(notice).not.toContain('not found anywhere');
     expect(formatTeamClaimNotice([])).toBe('');
   });
 });

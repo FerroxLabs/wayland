@@ -22,7 +22,8 @@ import type {
   AcpSessionModels,
   AcpSessionUpdate,
 } from '@/common/types/acpTypes';
-import { ACP_METHODS, JSONRPC_VERSION, parseInitializeResult } from '@/common/types/acpTypes';
+import { ACP_METHODS, JSONRPC_VERSION, assertAcpProtocolVersion, parseInitializeResult } from '@/common/types/acpTypes';
+import { PROTOCOL_VERSION } from '@agentclientprotocol/sdk';
 import { mapModeForAcpBridge } from '@/common/types/agentModes';
 import type { ChildProcess } from 'child_process';
 import type { AcpSessionMcpServer } from './mcpSessionConfig';
@@ -893,7 +894,7 @@ export class AcpConnection {
 
   private async initialize(): Promise<AcpResponse> {
     const initializeParams = {
-      protocolVersion: 1,
+      protocolVersion: PROTOCOL_VERSION,
       clientCapabilities: {
         fs: {
           readTextFile: true,
@@ -903,8 +904,10 @@ export class AcpConnection {
     };
 
     const response = await this.sendRequest<AcpResponse>('initialize', initializeParams);
+    const parsed = parseInitializeResult(response);
+    assertAcpProtocolVersion(parsed, PROTOCOL_VERSION);
     this.isInitialized = true;
-    this.initializeResult = parseInitializeResult(response);
+    this.initializeResult = parsed;
     // Some agents (e.g. qwen-code) advertise top-level modes in the initialize
     // response rather than in session/new. Seed this.modes here so consumers
     // (caching, UI selectors) don't have to wait for a second update.

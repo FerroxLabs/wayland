@@ -278,6 +278,41 @@ async function persistStrippedTurnText(
 
     const { getDatabase } = await import('@process/services/database/export');
     const db = await getDatabase();
+    const segmented = db.getMessagesByMsgId(conversationId, msgId, 'text', 'left');
+    const rows = segmented.success ? (segmented.data ?? []) : [];
+    if (rows.some((candidate) => candidate.segment_id)) {
+      const originals = rows.map(extractTextFromMessage);
+      if (originals.join('') !== extractTextFromMessage(original)) return;
+      const distributed = distributeCleanedTextAcrossSegments(originals, cleaned);
+      if (!distributed) return;
+
+      const replacements: Array<{ row: TMessage; content: string }> = [];
+      for (let index = 0; index < rows.length; index += 1) {
+        const row = rows[index];
+        const segmentContent = distributed[index];
+        if (segmentContent === originals[index]) continue;
+        const updated = {
+          ...row,
+          content: { ...(row.content as Record<string, unknown>), content: segmentContent },
+        } as TMessage;
+        const written = db.updateMessage(row.id, updated);
+        if (written && written.success === false) return;
+        replacements.push({ row: updated, content: segmentContent });
+      }
+
+      for (const replacement of replacements) {
+        ipcBridge.conversation.responseStream.emit({
+          type: 'content_replace',
+          conversation_id: conversationId,
+          msg_id: msgId,
+          segment_id: replacement.row.segment_id,
+          ingest_order: replacement.row.ingest_order,
+          data: { content: replacement.content },
+        });
+      }
+      return;
+    }
+
     const existing = db.getMessageByMsgId(conversationId, msgId, 'text');
     if (!existing.success || !existing.data) return;
     const row = existing.data;
@@ -313,6 +348,36 @@ async function persistStrippedTurnText(
   } catch {
     // best-effort
   }
+}
+
+/**
+ * Project a cleaned turn back onto the transcript segments that contributed its
+ * characters. The middleware cleaners only delete markup/extra whitespace; if
+ * a future cleaner rewrites text, fail closed instead of moving content across
+ * tool boundaries.
+ */
+export function distributeCleanedTextAcrossSegments(originals: string[], cleaned: string): string[] | null {
+  if (originals.length === 0) return cleaned === '' ? [] : null;
+  const sentinels = originals.slice(1).map((_, index) => `\u{F0000}WAYLAND_SEGMENT_${index}\u{F0001}`);
+  if (sentinels.some((sentinel) => originals.some((part) => part.includes(sentinel)) || cleaned.includes(sentinel))) {
+    return null;
+  }
+  const decorated = originals.map((part, index) => (index === 0 ? part : `${sentinels[index - 1]}${part}`)).join('');
+  let cleanedDecorated = decorated;
+  if (hasThinkTags(cleanedDecorated)) cleanedDecorated = stripThinkTags(cleanedDecorated);
+  if (hasCronCommands(cleanedDecorated)) cleanedDecorated = stripCronCommands(cleanedDecorated);
+  if (hasConciergeProposals(cleanedDecorated)) cleanedDecorated = stripConciergeProposals(cleanedDecorated);
+
+  const distributed: string[] = [];
+  let remainder = cleanedDecorated;
+  for (const sentinel of sentinels) {
+    const boundary = remainder.indexOf(sentinel);
+    if (boundary < 0) return null;
+    distributed.push(remainder.slice(0, boundary));
+    remainder = remainder.slice(boundary + sentinel.length);
+  }
+  distributed.push(remainder);
+  return distributed.join('') === cleaned ? distributed : null;
 }
 
 /**

@@ -134,15 +134,20 @@ vi.mock('@process/agent/wcore', () => ({
 // ── Import under test ──────────────────────────────────────────────
 
 import { WCoreManager } from '@/process/task/WCoreManager';
+import { resolveUnattendedHoldMs } from '@/process/acp/session/unattendedHold';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-function createManager(sessionMode: string): WCoreManager {
+function createManager(
+  sessionMode: string,
+  automation: { unattendedHoldDeadlineMs?: number; workflowSessionId?: string } = {}
+): WCoreManager {
   const data = {
     workspace: '/test',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: 'conv-1',
     sessionMode,
+    ...automation,
   };
   const model = data.model as any;
   return new WCoreManager(data as any, model);
@@ -272,6 +277,7 @@ describe('WCoreManager.setMode', () => {
     (manager as any).agent = {
       approveTool: mockApproveTool,
       setMode: mockSetMode,
+      isAlive: true,
       start: vi.fn(),
       stop: vi.fn(),
       kill: vi.fn(),
@@ -279,7 +285,13 @@ describe('WCoreManager.setMode', () => {
       denyTool: vi.fn(),
     };
 
-    await manager.setMode('auto_edit');
+    const result = manager.setMode('auto_edit');
+    (manager as unknown as { emit: (event: string, data: unknown) => void }).emit('wcore.message', {
+      type: 'config_changed',
+      msg_id: '',
+      data: { current_mode: 'auto_edit' },
+    });
+    await result;
 
     expect(mockSetMode).toHaveBeenCalledWith('auto_edit');
   });
@@ -289,6 +301,7 @@ describe('WCoreManager.setMode', () => {
     (manager as any).agent = {
       approveTool: mockApproveTool,
       setMode: mockSetMode,
+      isAlive: true,
       start: vi.fn(),
       stop: vi.fn(),
       kill: vi.fn(),
@@ -296,7 +309,13 @@ describe('WCoreManager.setMode', () => {
       denyTool: vi.fn(),
     };
 
-    const result = await manager.setMode('yolo');
+    const pending = manager.setMode('yolo');
+    (manager as unknown as { emit: (event: string, data: unknown) => void }).emit('wcore.message', {
+      type: 'config_changed',
+      msg_id: '',
+      data: { current_mode: 'force' },
+    });
+    const result = await pending;
 
     expect((manager as any).currentMode).toBe('yolo');
     expect(result).toEqual({ success: true, data: { mode: 'yolo' } });
@@ -310,5 +329,247 @@ describe('WCoreManager.setMode', () => {
       success: true,
       data: { mode: 'yolo' },
     });
+  });
+});
+
+function frame(manager: WCoreManager, type: string, data: unknown) {
+  (manager as unknown as { emit: (event: string, data: unknown) => void }).emit('wcore.message', {
+    type,
+    msg_id: '',
+    data,
+  });
+}
+
+describe('Core-confirmed mode changes (#1223)', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+  function live() {
+    const manager = createManager('default');
+    (manager as unknown as { agent: unknown }).agent = {
+      isAlive: true,
+      setMode: mockSetMode,
+      approveTool: mockApproveTool,
+    };
+    return manager;
+  }
+
+  it('never enables automatic approval while the mode request is still unacknowledged', async () => {
+    const manager = live();
+    const result = manager.setMode('yolo');
+    expect(manager.getMode().mode).toBe('default');
+    expect(
+      (manager as unknown as { tryAutoApprove: (value: unknown) => boolean }).tryAutoApprove(makeContent('exec'))
+    ).toBe(false);
+    frame(manager, 'set_mode_refused', { requested: 'force', effective: 'default', reason: 'local_opt_in_required' });
+    await expect(result).resolves.toMatchObject({ success: false, data: { mode: 'default' } });
+    expect(manager.getMode().mode).toBe('default');
+    expect(mockDb.updateConversation).not.toHaveBeenCalled();
+    expect(emitResponseStream).toHaveBeenCalledWith(expect.objectContaining({ type: 'set_mode_refused' }));
+  });
+  it('uses the accepted policy revision as the positive acknowledgement during a running turn', async () => {
+    const manager = live();
+    const result = manager.setMode('auto_edit');
+    frame(manager, 'execution_policy', {
+      type: 'execution_policy',
+      critical: true,
+      contract_version: '1.0',
+      revision: 1,
+      reason: 'mode_change',
+      effective_at_unix_ms: 123,
+      policy: {
+        posture: 'smart',
+        approvals: 'auto_edit',
+        sandbox: 'required',
+        source: 'desktop_local_launch',
+        managed_floor_active: false,
+      },
+    });
+    await expect(result).resolves.toMatchObject({ success: true, data: { mode: 'auto_edit' } });
+    expect(manager.getMode().mode).toBe('auto_edit');
+    expect(
+      (manager as unknown as { tryAutoApprove: (value: unknown) => boolean }).tryAutoApprove(makeContent('edit'))
+    ).toBe(true);
+    expect(
+      (manager as unknown as { tryAutoApprove: (value: unknown) => boolean }).tryAutoApprove(makeContent('exec'))
+    ).toBe(false);
+  });
+  it('does not persist a temporary mode used by a scheduled operation', async () => {
+    const manager = live();
+    const save = vi
+      .spyOn(manager as unknown as { saveSessionMode: (mode: string) => Promise<void> }, 'saveSessionMode')
+      .mockResolvedValue();
+    const result = manager.setMode('yolo', { persist: false });
+    frame(manager, 'config_changed', { current_mode: 'force' });
+    await expect(result).resolves.toMatchObject({ success: true, data: { mode: 'yolo' } });
+    frame(manager, 'config_changed', { current_mode: 'force' });
+    expect(save).not.toHaveBeenCalled();
+  });
+  it('rejects overlapping requests and times out without changing approval authority', async () => {
+    vi.useFakeTimers();
+    const manager = live();
+    const result = manager.setMode('yolo');
+    await expect(manager.setMode('auto_edit')).resolves.toMatchObject({ success: false, data: { mode: 'default' } });
+    expect(mockSetMode).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(10000);
+    await expect(result).resolves.toMatchObject({ success: false, data: { mode: 'default' } });
+    expect(manager.getMode().mode).toBe('default');
+  });
+  it('does not treat an unrelated config receipt as acceptance of the pending request', async () => {
+    vi.useFakeTimers();
+    const manager = live();
+    const result = manager.setMode('yolo');
+    let finished = false;
+    void result.then(() => {
+      finished = true;
+    });
+    frame(manager, 'config_changed', { current_mode: 'default' });
+    await Promise.resolve();
+    expect(finished).toBe(false);
+    frame(manager, 'set_mode_refused', { requested: 'force', effective: 'default', reason: 'local_opt_in_required' });
+    await expect(result).resolves.toMatchObject({ success: false });
+  });
+  it('persists a requested mode only after Core confirms it', async () => {
+    const manager = live();
+    const save = vi
+      .spyOn(manager as unknown as { saveSessionMode: (mode: string) => Promise<void> }, 'saveSessionMode')
+      .mockResolvedValue();
+    const result = manager.setMode('yolo');
+    expect(save).not.toHaveBeenCalled();
+    frame(manager, 'config_changed', { current_mode: 'force' });
+    await expect(result).resolves.toMatchObject({ success: true });
+    expect(save).toHaveBeenCalledExactlyOnceWith('yolo');
+  });
+});
+
+describe('unattended Core approval boundaries', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+  it.each([{ unattendedHoldDeadlineMs: 60000 }, { workflowSessionId: 'workflow-one' }])(
+    'does not infer safe automation from broad tool categories (%j)',
+    (automation) => {
+      const manager = createManager('auto_edit', automation);
+      (manager as unknown as { agent: unknown }).agent = { approveTool: mockApproveTool };
+      const approve = (content: unknown) =>
+        (manager as unknown as { tryAutoApprove: (value: unknown) => boolean }).tryAutoApprove(content);
+      expect(approve({ ...makeContent('info'), name: 'todo' })).toBe(false);
+      expect(approve({ ...makeContent('edit'), name: 'notion_api' })).toBe(false);
+      expect(approve({ ...makeContent('edit'), name: 'Write' })).toBe(true);
+      expect(approve({ ...makeContent('edit'), name: 'Edit' })).toBe(true);
+      expect(approve({ callId: 'boundary', name: 'Read', confirmationDetails: { type: 'path_boundary' } })).toBe(false);
+    }
+  );
+  it('denies an unanswered scheduled confirmation at the deadline and removes the card', async () => {
+    vi.useFakeTimers();
+    const holdDuration = resolveUnattendedHoldMs({ nowMs: Date.now(), nextRunAtMs: Date.now() + 2000 });
+    const manager = createManager('auto_edit', { unattendedHoldDeadlineMs: holdDuration });
+    const denyTool = vi.fn();
+    (manager as unknown as { agent: unknown }).agent = { approveTool: mockApproveTool, denyTool };
+    (manager as unknown as { addConfirmation: (value: unknown) => void }).addConfirmation({
+      id: 'held',
+      callId: 'held',
+      title: 'Review',
+      options: [{ label: 'Deny', value: 'cancel' }],
+    });
+    expect(manager.getConfirmations()).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(999);
+    expect(denyTool).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(denyTool).toHaveBeenCalledWith('held', 'Unattended approval deadline expired');
+    expect(mockApproveTool).not.toHaveBeenCalled();
+    expect(manager.getConfirmations()).toHaveLength(0);
+  });
+  it('does not expire an interactive confirmation without a deadline', async () => {
+    vi.useFakeTimers();
+    const manager = createManager('default');
+    const denyTool = vi.fn();
+    (manager as unknown as { agent: unknown }).agent = { denyTool };
+    (manager as unknown as { addConfirmation: (value: unknown) => void }).addConfirmation({
+      id: 'interactive',
+      callId: 'interactive',
+      title: 'Review',
+      options: [],
+    });
+    await vi.advanceTimersByTimeAsync(60000);
+    expect(denyTool).not.toHaveBeenCalled();
+    expect(manager.getConfirmations()).toHaveLength(1);
+  });
+  it('contains transport death racing a scheduled denial', async () => {
+    vi.useFakeTimers();
+    const manager = createManager('auto_edit', { unattendedHoldDeadlineMs: 1000 });
+    (manager as unknown as { agent: unknown }).agent = {
+      denyTool: vi.fn(() => {
+        throw new Error('transport closed');
+      }),
+    };
+    (manager as unknown as { addConfirmation: (value: unknown) => void }).addConfirmation({
+      id: 'dying',
+      callId: 'dying',
+      title: 'Review',
+      options: [],
+    });
+    await expect(vi.advanceTimersByTimeAsync(1000)).resolves.not.toThrow();
+    expect(manager.getConfirmations()).toHaveLength(0);
+  });
+  it('does not let a redelivered prompt renew the unattended hold', async () => {
+    vi.useFakeTimers();
+    const manager = createManager('auto_edit', { unattendedHoldDeadlineMs: 1000 });
+    const denyTool = vi.fn();
+    (manager as unknown as { agent: unknown }).agent = { denyTool };
+    const add = (value: unknown) =>
+      (manager as unknown as { addConfirmation: (value: unknown) => void }).addConfirmation(value);
+    add({ id: 'repeat', callId: 'repeat', title: 'Review', options: [] });
+    await vi.advanceTimersByTimeAsync(500);
+    add({ id: 'repeat', callId: 'repeat', title: 'Updated review', options: [] });
+    await vi.advanceTimersByTimeAsync(500);
+    expect(denyTool).toHaveBeenCalledExactlyOnceWith('repeat', 'Unattended approval deadline expired');
+  });
+});
+
+describe('integrated confirmed mode and unattended approvals', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+  it('waits for Core, then retains the scheduled info gate and expires it by denial', async () => {
+    vi.useFakeTimers();
+    const manager = createManager('default', { unattendedHoldDeadlineMs: 1000 });
+    const resumeApproval = vi.fn();
+    (manager as unknown as { agent: unknown }).agent = {
+      isAlive: true,
+      setMode: mockSetMode,
+      approveTool: mockApproveTool,
+      resumeApproval,
+    };
+    const requested = manager.setMode('auto_edit', { persist: false });
+    const approve = (value: unknown) =>
+      (manager as unknown as { tryAutoApprove: (value: unknown) => boolean }).tryAutoApprove(value);
+    expect(approve({ ...makeContent('edit'), name: 'Write' })).toBe(false);
+    frame(manager, 'execution_policy', {
+      type: 'execution_policy',
+      critical: true,
+      contract_version: '1.0',
+      revision: 1,
+      reason: 'mode_change',
+      effective_at_unix_ms: Date.now(),
+      policy: {
+        posture: 'smart',
+        approvals: 'auto_edit',
+        sandbox: 'required',
+        source: 'desktop_local_launch',
+        managed_floor_active: false,
+      },
+    });
+    await expect(requested).resolves.toMatchObject({ success: true, data: { mode: 'auto_edit' } });
+    expect(approve({ ...makeContent('edit'), name: 'Write' })).toBe(true);
+    expect(approve({ ...makeContent('info'), name: 'todo' })).toBe(false);
+    frame(manager, 'approval_required', { callId: 'integrated-info', resumeToken: 'integrated-token', reason: 'info' });
+    expect(resumeApproval).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(resumeApproval).toHaveBeenCalledExactlyOnceWith('integrated-token', false);
+    expect(manager.getConfirmations()).toHaveLength(0);
   });
 });

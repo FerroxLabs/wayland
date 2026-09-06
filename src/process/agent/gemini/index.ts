@@ -57,6 +57,7 @@ import {
 } from './utils';
 import path from 'path';
 import os from 'os';
+import { CHANNEL_CONVERSATIONAL_POLICY, type AgentExecutionPolicy } from '@process/task/agentTypes';
 
 // Global registry for current agent instance (used by flashFallbackHandler)
 let currentGeminiAgent: GeminiAgent | null = null;
@@ -91,7 +92,7 @@ interface GeminiAgent2Options {
   GOOGLE_CLOUD_PROJECT?: string;
   mcpServers?: Record<string, unknown>;
   contextFileName?: string;
-  onStreamEvent: (event: { type: string; data: unknown; msg_id: string }) => void;
+  onStreamEvent: (event: { type: string; data: unknown; msg_id: string; turnId?: string }) => void;
   // System rules, injected into userMemory at initialization
   presetRules?: string;
   contextContent?: string; // Backward compatible
@@ -99,6 +100,7 @@ interface GeminiAgent2Options {
   skillsDir?: string;
   /** Enabled skills list for filtering skills in SkillManager */
   enabledSkills?: string[];
+  executionPolicy?: AgentExecutionPolicy;
 }
 
 export class GeminiAgent {
@@ -116,7 +118,7 @@ export class GeminiAgent {
   private trackedCalls: TrackedToolCall[] = [];
   private abortController: AbortController | null = null;
   private activeMsgId: string | null = null;
-  private onStreamEvent: (event: { type: string; data: unknown; msg_id: string }) => void;
+  private onStreamEvent: (event: { type: string; data: unknown; msg_id: string; turnId?: string }) => void;
   // System rules, injected at initialization
   private presetRules?: string;
   private contextContent?: string; // Backward compatible
@@ -131,6 +133,7 @@ export class GeminiAgent {
   private skillsDir?: string;
   /** Enabled skills list */
   private enabledSkills?: string[];
+  private readonly executionPolicy?: AgentExecutionPolicy;
   bootstrap: Promise<void>;
   static buildFileServer(workspace: string) {
     return new FileDiscoveryService(workspace);
@@ -150,6 +153,7 @@ export class GeminiAgent {
     this.presetRules = options.presetRules;
     this.skillsDir = options.skillsDir;
     this.enabledSkills = options.enabledSkills;
+    this.executionPolicy = options.executionPolicy;
     // Backward compatible: prefer presetRules, fallback to contextContent
     this.contextContent = options.contextContent || options.presetRules;
     this.initClientEnv();
@@ -364,13 +368,16 @@ export class GeminiAgent {
     }
     this.settings = settings;
 
+    const isRestrictedChannel = this.executionPolicy === CHANNEL_CONVERSATIONAL_POLICY;
+
     // Use the passed-in YOLO setting
     const yoloMode = this.yoloMode;
 
-    // Initialize the conversation-level tool configuration
-    await this.toolConfig.initializeForConversation(this.authType!);
+    // Restricted channel conversations do not load provider-specific custom
+    // tools. The real SDK registry is asserted after initialization below.
+    if (!isRestrictedChannel) await this.toolConfig.initializeForConversation(this.authType!);
 
-    const extensions = loadExtensions(path);
+    const extensions = isRestrictedChannel ? [] : loadExtensions(path);
     this.config = await loadCliConfig({
       workspace: path,
       settings,
@@ -383,6 +390,7 @@ export class GeminiAgent {
       mcpServers: this.mcpServers,
       skillsDir: this.skillsDir,
       enabledSkills: this.enabledSkills,
+      executionPolicy: this.executionPolicy,
     });
     await this.config.initialize();
 
@@ -390,7 +398,7 @@ export class GeminiAgent {
     // (Config._initialize fires startConfiguredMcpServers without await).
     // For team mode we MUST have MCP tools ready before the first message,
     // so explicitly await MCP discovery here when team MCP servers are configured.
-    if (Object.keys(this.mcpServers).length > 0) {
+    if (!isRestrictedChannel && Object.keys(this.mcpServers).length > 0) {
       const mcpMgr = this.config.getMcpClientManager?.();
       if (mcpMgr) {
         await mcpMgr.startConfiguredMcpServers();
@@ -454,9 +462,26 @@ export class GeminiAgent {
     // Skills provide capabilities/tools descriptions, injected at runtime.
 
     // Register conversation-level custom tools
-    await this.toolConfig.registerCustomTools(this.config, this.geminiClient);
+    if (!isRestrictedChannel) await this.toolConfig.registerCustomTools(this.config, this.geminiClient);
+
+    this.assertChannelToolRegistry();
 
     this.initToolScheduler(settings);
+  }
+
+  private assertChannelToolRegistry(): void {
+    if (this.executionPolicy !== CHANNEL_CONVERSATIONAL_POLICY) return;
+    const tools = this.getRegisteredToolNames();
+    if (tools.length > 0) {
+      throw new Error(`Restricted channel policy exposed tools: ${tools.join(', ')}`);
+    }
+  }
+
+  private async scheduleToolRequests(requests: ToolCallRequestInfo[], signal: AbortSignal): Promise<void> {
+    if (this.executionPolicy === CHANNEL_CONVERSATIONAL_POLICY && requests.length > 0) {
+      throw new Error('Restricted channel conversations cannot execute tools');
+    }
+    if (requests.length > 0) await this.scheduler!.schedule(requests, signal);
   }
 
   // Initialize the tool scheduler
@@ -561,6 +586,7 @@ export class GeminiAgent {
           type: 'error',
           data: `Connection lost: ${event.reason}. Please try again.`,
           msg_id: uuid(),
+          turnId: msg_id,
         });
       }
     };
@@ -600,8 +626,10 @@ export class GeminiAgent {
           // Agent needs chrome-devtools to fetch web page content.
           this.emitPreviewForNavigationTools(toolCallRequests, msg_id);
 
-          // Schedule ALL tool requests including chrome-devtools
-          await this.scheduler.schedule(toolCallRequests, abortController.signal);
+          // Final enforcement seam before any executor sees a model-authored
+          // request. This remains authoritative if a future SDK change
+          // unexpectedly repopulates the restricted registry.
+          await this.scheduleToolRequests(toolCallRequests, abortController.signal);
         } else {
           // Agentic loop finished (no pending tool calls).
           // Compact large functionResponse entries in history to prevent
@@ -636,6 +664,7 @@ export class GeminiAgent {
           type: 'error',
           data: errorMessage,
           msg_id: uuid(),
+          turnId: msg_id,
         });
       });
   }
@@ -704,6 +733,7 @@ export class GeminiAgent {
               },
             },
             msg_id: uuid(),
+            turnId: _msg_id,
           });
         }
       }
@@ -757,6 +787,15 @@ export class GeminiAgent {
       .toSorted((left, right) => left.serverName.localeCompare(right.serverName));
   }
 
+  /** Exact names from the real SDK registry, including built-ins and subagents. */
+  getRegisteredToolNames(): string[] {
+    const registry = this.config?.getToolRegistry?.();
+    return (registry?.getAllTools?.() ?? [])
+      .map((tool: { name?: unknown }) => (typeof tool.name === 'string' ? tool.name.trim() : ''))
+      .filter(Boolean)
+      .toSorted();
+  }
+
   submitQuery(
     query: unknown,
     msg_id: string,
@@ -768,6 +807,7 @@ export class GeminiAgent {
   ): string | undefined {
     try {
       this.activeMsgId = msg_id;
+      this.assertChannelToolRegistry();
       // Re-sanitize MCP tool schemas right before the request builds its tools -
       // async MCP tool-updates may have re-registered raw union schemas since init.
       this.sanitizeMcpToolSchemas();
@@ -796,6 +836,7 @@ export class GeminiAgent {
             type: 'error',
             data: errorMessage,
             msg_id: uuid(),
+            turnId: msg_id,
           });
         })
         .finally(() => {
@@ -813,6 +854,7 @@ export class GeminiAgent {
         type: 'error',
         data: errorMessage,
         msg_id: uuid(),
+        turnId: msg_id,
       });
     }
   }
@@ -905,26 +947,30 @@ export class GeminiAgent {
     // Track error messages from @ command processing
     let atCommandError: string | null = null;
 
-    const { processedQuery, shouldProceed } = await handleAtCommand({
-      query: Array.isArray(message) ? message[0].text : message,
-      config: this.config,
-      addItem: (item: unknown) => {
-        // Capture error messages from @ command processing
-        if (item && typeof item === 'object' && 'type' in item) {
-          const typedItem = item as { type: string; text?: string };
-          if (typedItem.type === 'error' && typedItem.text) {
-            atCommandError = typedItem.text;
-          }
-        }
-      },
-      onDebugMessage() {
-        // Debug hook intentionally left blank to avoid noisy logging
-      },
-      messageId: Date.now(),
-      signal: abortController.signal,
-      // Enable lazy loading only when files are provided; do not read file content immediately
-      lazyFileLoading: !!(files && files.length > 0),
-    });
+    const rawQuery = Array.isArray(message) ? (message[0]?.text ?? '') : message;
+    const { processedQuery, shouldProceed } =
+      this.executionPolicy === CHANNEL_CONVERSATIONAL_POLICY
+        ? { processedQuery: rawQuery, shouldProceed: true }
+        : await handleAtCommand({
+            query: rawQuery,
+            config: this.config,
+            addItem: (item: unknown) => {
+              // Capture error messages from @ command processing
+              if (item && typeof item === 'object' && 'type' in item) {
+                const typedItem = item as { type: string; text?: string };
+                if (typedItem.type === 'error' && typedItem.text) {
+                  atCommandError = typedItem.text;
+                }
+              }
+            },
+            onDebugMessage() {
+              // Debug hook intentionally left blank to avoid noisy logging
+            },
+            messageId: Date.now(),
+            signal: abortController.signal,
+            // Enable lazy loading only when files are provided; do not read file content immediately
+            lazyFileLoading: !!(files && files.length > 0),
+          });
 
     if (!shouldProceed || processedQuery === null || abortController.signal.aborted) {
       // Send error message to user if @ command processing failed

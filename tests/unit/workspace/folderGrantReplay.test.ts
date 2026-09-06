@@ -41,7 +41,7 @@ import path from 'node:path';
 
 import type { FolderGrant, WorkspaceFolderGrants } from '@/common/workspace/folderGrants';
 import type { FolderGrantRootContext } from '@process/services/workspace/folderGrantRoots';
-import { resolveReplayableGrantRoot } from '@process/services/workspace/folderGrantReplay';
+import { loadReplayableGrants, resolveReplayableGrantRoot } from '@process/services/workspace/folderGrantReplay';
 
 const canonical = (p: string): string => realpathSync.native(p);
 
@@ -92,6 +92,14 @@ function deps(over: Partial<Parameters<typeof resolveReplayableGrantRoot>[2]> = 
     ...over,
   } as Parameters<typeof resolveReplayableGrantRoot>[2];
 }
+
+describe('startup folder records', () => {
+  it('retains the durable ID and read access alongside the vetted canonical root', async () => {
+    const records = await loadReplayableGrants(WORKSPACE, deps());
+    expect(records).toEqual([grant(GRANTED)]);
+    expect(records[0].grantId).toBe(`g-${GRANTED}`);
+  });
+});
 
 describe('#982 a recorded folder grant answers the boundary card it already answered', () => {
   it('replays the grant when the engine asks about the granted folder itself', async () => {

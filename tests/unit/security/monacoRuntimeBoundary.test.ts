@@ -90,7 +90,7 @@ describe('Monaco-free dependency and build-input boundary', () => {
       dompurify: '^3.4.12',
       mermaid: '^11.16.0',
       multer: '^2.2.0',
-      'react-router-dom': '^7.18.1',
+      'react-router-dom': '7.18.3',
       ws: '^8.21.1',
     });
     expect(devDependencies.vite).toBe('^6.4.3');
@@ -99,7 +99,7 @@ describe('Monaco-free dependency and build-input boundary', () => {
       dompurify: '3.4.12',
       mermaid: '11.16.0',
       multer: '2.2.0',
-      'react-router-dom': '7.18.1',
+      'react-router-dom': '7.18.3',
       vite: '6.4.3',
       ws: '8.21.1',
     })) {
@@ -123,7 +123,7 @@ describe('Monaco-free dependency and build-input boundary', () => {
       dompurify: '3.4.12',
       mermaid: '11.16.0',
       multer: '2.2.0',
-      'react-router-dom': '7.18.1',
+      'react-router-dom': '7.18.3',
       vite: '6.4.3',
       ws: '8.21.1',
     })) {

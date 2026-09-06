@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockGetConversation, mockAcpManager } = vi.hoisted(() => ({
+const { mockGetConversation, mockAcpManager, mockWcoreManager, mockGeminiManager } = vi.hoisted(() => ({
   mockGetConversation: vi.fn(),
   mockAcpManager: vi.fn(),
+  mockWcoreManager: vi.fn(),
+  mockGeminiManager: vi.fn(),
 }));
 
 vi.mock('../../src/process/services/database/SqliteConversationRepository', () => ({
@@ -23,8 +25,24 @@ vi.mock('../../src/process/task/AcpAgentManager', () => ({
   },
 }));
 
+vi.mock('../../src/process/task/WCoreManager', () => ({
+  WCoreManager: class {
+    type = 'wcore';
+    kill = vi.fn();
+    constructor(data: Record<string, unknown>) {
+      mockWcoreManager(data);
+    }
+  },
+}));
+
 vi.mock('../../src/process/task/GeminiAgentManager', () => ({
-  GeminiAgentManager: vi.fn().mockImplementation(() => ({ type: 'gemini', kill: vi.fn() })),
+  GeminiAgentManager: class {
+    type = 'gemini';
+    kill = vi.fn();
+    constructor(data: Record<string, unknown>) {
+      mockGeminiManager(data);
+    }
+  },
 }));
 
 vi.mock('../../src/process/task/OpenClawAgentManager', () => ({
@@ -93,6 +111,47 @@ describe('workerTaskManagerSingleton', () => {
       expect.objectContaining({
         conversation_id: 'conv-qwen-default',
         currentModelId: undefined,
+      })
+    );
+  });
+  it('propagates the scheduler deadline and explicit approval flag into the Core factory', async () => {
+    mockGetConversation.mockResolvedValue({
+      id: 'conv-core-scheduled',
+      type: 'wcore',
+      model: { useModel: 'core-model' },
+      extra: { workspace: '/workspace', yoloMode: true, unattendedHoldDeadlineMs: 1 },
+    });
+    await workerTaskManager.getOrBuildTask('conv-core-scheduled', {
+      yoloMode: false,
+      unattendedHoldDeadlineMs: 123456,
+    });
+    expect(mockWcoreManager).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversation_id: 'conv-core-scheduled',
+        yoloMode: false,
+        unattendedHoldDeadlineMs: 123456,
+      })
+    );
+  });
+
+  it('threads the trusted channel execution policy only through launch options', async () => {
+    mockGetConversation.mockResolvedValue({
+      id: 'conv-channel',
+      type: 'gemini',
+      model: { useModel: 'gemini-2.0-flash' },
+      extra: { executionPolicy: 'attacker-controlled', yoloMode: true },
+    });
+
+    await workerTaskManager.getOrBuildTask('conv-channel', {
+      executionPolicy: 'channel-conversational',
+      yoloMode: false,
+    });
+
+    expect(mockGeminiManager).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversation_id: 'conv-channel',
+        executionPolicy: 'channel-conversational',
+        yoloMode: false,
       })
     );
   });

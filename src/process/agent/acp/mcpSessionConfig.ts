@@ -24,18 +24,26 @@ export interface AcpSessionMcpNameValue {
 }
 
 /**
- * The user's per-server tool allow-list, carried to the backend verbatim (#1167).
+ * The user's per-server tool allow-list (#998).
  *
  * POLARITY: this is an ALLOW-list and the empty array is MEANINGFUL.
  *   undefined -> every tool enabled (the migration-free default)
  *   ['a']     -> only 'a' enabled
  *   []        -> NO tools enabled
- * Never normalise `[]` to `undefined`. An omitempty-style encoder, a truthiness
- * check or a `?? undefined` would grant EVERY tool at the exact moment the user
- * asked for none - silent, and the inverse of intent. Desktop passes the field
- * through untransformed; the engine owns the semantics.
+ * Never normalise `[]` to `undefined`. Standard ACP has no per-tool field:
+ * Desktop withholds an empty selection, wraps a stdio subset with its filter
+ * shim, and refuses a hosted subset it cannot enforce.
  */
 export type McpAllowedTools = string[];
+
+export class UnsupportedHostedAcpToolSelectionError extends Error {
+  constructor(serverName: string, transport: 'http' | 'sse') {
+    super(
+      `Standard ACP cannot enforce per-tool selection for hosted ${transport.toUpperCase()} MCP server ${serverName}`
+    );
+    this.name = 'UnsupportedHostedAcpToolSelectionError';
+  }
+}
 
 export interface AcpSessionMcpServerStdio {
   type?: 'stdio';
@@ -133,10 +141,8 @@ function contributesTools(server: IMcpServer): boolean {
  *   - stdio: the filtering shim (`wrapSpawnWithToolFilter`). The engine talks to
  *     the shim, never to the real server, so the subset is a boundary rather
  *     than state the engine is asked to respect.
- *   - every transport: `allowedTools` is now carried to the backend verbatim
- *     (#1167) so an engine that understands the field can enforce it natively.
- *     This is the ONLY mechanism available to hosted http/sse connectors, which
- *     have no spawn to wrap.
+ *   - hosted http/sse: no standard selection field or spawn boundary exists, so
+ *     a strict subset is refused rather than serialized as a private extension.
  *   - the empty list: enforced here by withholding the server - see
  *     `contributesTools` above.
  * `TOOL_ALLOWLIST_ENFORCING_BACKENDS` in `@/common/mcp` remains the source of
@@ -151,14 +157,10 @@ export function isServerActiveForSession(server: IMcpServer, activeServerIds?: r
 /**
  * Build the `session/new` `mcpServers` array for an ACP backend.
  *
- * #1167 — each descriptor now carries `allowedTools` verbatim alongside its
- * transport, so a backend that understands the field can enforce a strict subset.
- * For stdio the shim enforces it regardless; for hosted http/sse the field is the
- * only mechanism there is. `allowedTools: []` never reaches this array at all -
- * `contributesTools` withholds the server, which is a stronger guarantee than
- * declaring it with an empty list and is enforced on every backend today. Codex
- * does NOT rely on this array for scoping - its `enabled_tools` are written into
- * the generated `config.toml` by `buildCodexMcpServerTable`.
+ * Standard ACP descriptors carry transport only. For stdio, the shim enforces a
+ * strict subset. Hosted subsets throw an explicit unsupported-selection error.
+ * `allowedTools: []` never reaches this array; `contributesTools` withholds it.
+ * Codex's separate native config path uses `enabled_tools`.
  */
 export function buildAcpSessionMcpServers(
   mcpServers: IMcpServer[] | undefined | null,
@@ -216,32 +218,30 @@ export function buildAcpSessionMcpServers(
               command: spawn.command,
               args: spawn.args,
               env: toNameValueEntries(mergeMcpSpawnEnv(server.transport.env, spawn.env)) ?? [],
-              // #1167: verbatim, including `[]`. Spread so an absent list stays
-              // absent rather than becoming an explicit `undefined` key.
-              ...(server.allowedTools !== undefined ? { allowedTools: server.allowedTools } : {}),
             };
           }
           case 'http':
           case 'streamable_http':
             if (!capabilities.http) return null;
+            if (hasExplicitToolSelection(server)) {
+              throw new UnsupportedHostedAcpToolSelectionError(server.name, 'http');
+            }
             return {
               type: 'http',
               name: server.name,
               url: server.transport.url,
               headers: toNameValueEntries(server.transport.headers),
-              // #1167: hosted transports have no filtering shim, so this field is
-              // the ONLY way a subset can ever be honoured on them.
-              ...(server.allowedTools !== undefined ? { allowedTools: server.allowedTools } : {}),
             };
           case 'sse':
             if (!capabilities.sse) return null;
+            if (hasExplicitToolSelection(server)) {
+              throw new UnsupportedHostedAcpToolSelectionError(server.name, 'sse');
+            }
             return {
               type: 'sse',
               name: server.name,
               url: server.transport.url,
               headers: toNameValueEntries(server.transport.headers),
-              // #1167: see the http branch - no shim exists for hosted transports.
-              ...(server.allowedTools !== undefined ? { allowedTools: server.allowedTools } : {}),
             };
           default:
             return null;

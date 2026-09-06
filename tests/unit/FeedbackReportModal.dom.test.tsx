@@ -1,9 +1,31 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { afterEach, describe, it, expect, vi, beforeEach } from 'vitest';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import FeedbackReportModal from '@renderer/components/settings/SettingsModal/contents/FeedbackReportModal';
 
-const { modalWrapperMock } = vi.hoisted(() => ({
+const {
+  modalWrapperMock,
+  mockCaptureEvent,
+  mockWithScope,
+  mockGetClient,
+  mockIsInitialized,
+  mockIsEnabled,
+  mockClientFlush,
+  mockCopyText,
+  mockCollectFeedbackLogs,
+  messageSuccess,
+  messageError,
+} = vi.hoisted(() => ({
   modalWrapperMock: vi.fn(),
+  mockCaptureEvent: vi.fn(),
+  mockWithScope: vi.fn(),
+  mockGetClient: vi.fn(),
+  mockIsInitialized: vi.fn(),
+  mockIsEnabled: vi.fn(),
+  mockClientFlush: vi.fn(),
+  mockCopyText: vi.fn(),
+  mockCollectFeedbackLogs: vi.fn(),
+  messageSuccess: vi.fn(),
+  messageError: vi.fn(),
 }));
 
 // Mock i18n
@@ -14,18 +36,14 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Mock Sentry
-const mockCaptureEvent = vi.fn();
-const mockWithScope = vi.fn((cb) =>
-  cb({
-    setTag: vi.fn(),
-    addAttachment: vi.fn(),
-  })
-);
-
 vi.mock('@sentry/electron/renderer', () => ({
   captureEvent: mockCaptureEvent,
   withScope: mockWithScope,
+  getClient: mockGetClient,
+  isInitialized: mockIsInitialized,
+  isEnabled: mockIsEnabled,
 }));
+vi.mock('@renderer/utils/ui/clipboard', () => ({ copyText: mockCopyText }));
 
 function createClipboardEvent(files: File[]): ClipboardEvent {
   const fileList = Object.assign([...files], { item: (index: number) => files[index] ?? null });
@@ -43,7 +61,7 @@ function createClipboardEvent(files: File[]): ClipboardEvent {
 // Mock electronAPI
 Object.defineProperty(window, 'electronAPI', {
   value: {
-    collectFeedbackLogs: vi.fn().mockResolvedValue(null),
+    collectFeedbackLogs: mockCollectFeedbackLogs,
   },
   writable: true,
 });
@@ -110,6 +128,11 @@ vi.mock('@renderer/components/base/ModalWrapper', () => ({
 
 // Mock Arco Design components
 vi.mock('@arco-design/web-react', () => ({
+  Button: ({ children, onClick }: React.PropsWithChildren<{ onClick?: () => void }>) => (
+    <button type='button' onClick={onClick}>
+      {children}
+    </button>
+  ),
   Input: Object.assign(
     ({
       placeholder,
@@ -179,8 +202,8 @@ vi.mock('@arco-design/web-react', () => ({
     }
   ),
   Message: {
-    success: vi.fn(),
-    error: vi.fn(),
+    success: messageSuccess,
+    error: messageError,
   },
   Upload: ({
     tip,
@@ -209,11 +232,39 @@ vi.mock('@icon-park/react', () => ({
 
 import React from 'react';
 
+function fillRequiredReport(description = 'Agent unavailable after update') {
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'agent-detection' } });
+  fireEvent.change(screen.getByPlaceholderText('settings.bugReportDescriptionPlaceholder'), {
+    target: { value: description },
+  });
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
 describe('FeedbackReportModal', () => {
   const onCancel = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockWithScope.mockImplementation((callback) => callback({ setTag: vi.fn(), addAttachment: vi.fn() }));
+    mockGetClient.mockReturnValue({ flush: mockClientFlush });
+    mockIsInitialized.mockReturnValue(true);
+    mockIsEnabled.mockReturnValue(true);
+    mockClientFlush.mockResolvedValue(true);
+    mockCopyText.mockResolvedValue(undefined);
+    mockCollectFeedbackLogs.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('should render form fields when visible', () => {
@@ -326,12 +377,7 @@ describe('FeedbackReportModal', () => {
   it('should submit a generated summary based on the selected module and description', async () => {
     render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
 
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'agent-detection' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('settings.bugReportDescriptionPlaceholder'), {
-      target: { value: 'Agent unavailable after update' },
-    });
+    fillRequiredReport();
     fireEvent.click(screen.getByText('settings.bugReportSubmit'));
 
     await waitFor(() => {
@@ -348,6 +394,176 @@ describe('FeedbackReportModal', () => {
         })
       );
     });
+    expect(await screen.findByTestId('feedback-report-unconfirmed')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('settings.bugReportDescriptionPlaceholder')).toHaveValue(
+      'Agent unavailable after update'
+    );
+    expect(mockClientFlush).toHaveBeenCalledWith(5_000);
+    expect(messageSuccess).not.toHaveBeenCalled();
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
+  it('checks transport availability before reading diagnostics and keeps the draft', async () => {
+    mockGetClient.mockReturnValue(undefined);
+    const screenshot = new File([new Uint8Array([1, 2, 3])], 'kept.png', { type: 'image/png' });
+    const readScreenshot = vi.spyOn(screenshot, 'arrayBuffer');
+    render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    document.dispatchEvent(createClipboardEvent([screenshot]));
+    fillRequiredReport('Keep this exact draft');
+
+    fireEvent.click(screen.getByText('settings.bugReportSubmit'));
+
+    expect(await screen.findByTestId('feedback-report-unavailable')).toBeInTheDocument();
+    expect(mockCollectFeedbackLogs).not.toHaveBeenCalled();
+    expect(readScreenshot).not.toHaveBeenCalled();
+    expect(mockCaptureEvent).not.toHaveBeenCalled();
+    expect(screen.getByPlaceholderText('settings.bugReportDescriptionPlaceholder')).toHaveValue(
+      'Keep this exact draft'
+    );
+    expect(screen.getByTestId('upload')).toHaveAttribute('data-file-count', '1');
+  });
+
+  it('treats a present but disabled client as unavailable', async () => {
+    mockIsEnabled.mockReturnValue(false);
+    render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    fillRequiredReport();
+
+    fireEvent.click(screen.getByText('settings.bugReportSubmit'));
+
+    expect(await screen.findByTestId('feedback-report-unavailable')).toBeInTheDocument();
+    expect(mockCollectFeedbackLogs).not.toHaveBeenCalled();
+    expect(mockCaptureEvent).not.toHaveBeenCalled();
+  });
+
+  it('copies report text only after the clipboard helper succeeds', async () => {
+    mockGetClient.mockReturnValue(undefined);
+    render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    fillRequiredReport('Copy me manually');
+    fireEvent.click(screen.getByText('settings.bugReportSubmit'));
+    await screen.findByTestId('feedback-report-unavailable');
+
+    fireEvent.click(screen.getByRole('button', { name: 'settings.bugReportCopy' }));
+
+    await waitFor(() => expect(mockCopyText).toHaveBeenCalledOnce());
+    expect(mockCopyText.mock.calls[0][0]).toContain(
+      'settings.bugReportModuleLabel: settings.bugReportModulePermission'
+    );
+    expect(mockCopyText.mock.calls[0][0]).toContain('settings.bugReportDescriptionLabel: Copy me manually');
+    expect(mockCopyText.mock.calls[0][0]).toContain('settings.bugReportCopyAttachments');
+    expect(messageSuccess).toHaveBeenCalledWith('settings.bugReportCopySuccess');
+  });
+
+  it('discards the retained draft only when the user explicitly cancels', async () => {
+    mockGetClient.mockReturnValue(undefined);
+    render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    fillRequiredReport('Discard only on cancel');
+    fireEvent.click(screen.getByText('settings.bugReportSubmit'));
+    await screen.findByTestId('feedback-report-unavailable');
+
+    fireEvent.click(screen.getByText('settings.bugReportCancel'));
+
+    expect(onCancel).toHaveBeenCalledOnce();
+    expect(screen.getByPlaceholderText('settings.bugReportDescriptionPlaceholder')).toHaveValue('');
+    expect(screen.queryByTestId('feedback-report-unavailable')).toBeNull();
+  });
+
+  it('reports clipboard failure without clearing the draft', async () => {
+    mockGetClient.mockReturnValue(undefined);
+    mockCopyText.mockRejectedValue(new Error('clipboard denied'));
+    render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    fillRequiredReport('Still here after copy failure');
+    fireEvent.click(screen.getByText('settings.bugReportSubmit'));
+    await screen.findByTestId('feedback-report-unavailable');
+
+    fireEvent.click(screen.getByRole('button', { name: 'settings.bugReportCopy' }));
+
+    await waitFor(() => expect(messageError).toHaveBeenCalledWith('settings.bugReportCopyError'));
+    expect(screen.getByPlaceholderText('settings.bugReportDescriptionPlaceholder')).toHaveValue(
+      'Still here after copy failure'
+    );
+  });
+
+  it('prevents overlapping attempts from duplicate submit clicks', async () => {
+    const logs = deferred<null>();
+    mockCollectFeedbackLogs.mockReturnValue(logs.promise);
+    render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    fillRequiredReport();
+    const submit = screen.getByText('settings.bugReportSubmit');
+
+    fireEvent.click(submit);
+    fireEvent.click(submit);
+
+    await waitFor(() => expect(mockCollectFeedbackLogs).toHaveBeenCalledOnce());
+    logs.resolve(null);
+    expect(await screen.findByTestId('feedback-report-unconfirmed')).toBeInTheDocument();
+    expect(mockCaptureEvent).toHaveBeenCalledOnce();
+  });
+
+  it('settles a hung collection at 15 seconds and retains the draft', async () => {
+    vi.useFakeTimers();
+    const logs = deferred<null>();
+    mockCollectFeedbackLogs.mockReturnValue(logs.promise);
+    render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    fillRequiredReport('Timeout draft');
+    fireEvent.click(screen.getByText('settings.bugReportSubmit'));
+
+    await act(async () => {
+      await Promise.resolve();
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+
+    expect(screen.getByTestId('feedback-report-timeout')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('settings.bugReportDescriptionPlaceholder')).toHaveValue('Timeout draft');
+    logs.resolve(null);
+    await act(async () => {
+      await logs.promise;
+      await Promise.resolve();
+    });
+    expect(mockCaptureEvent).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it('ignores a late attempt after the modal closes and reopens', async () => {
+    const logs = deferred<null>();
+    mockCollectFeedbackLogs.mockReturnValue(logs.promise);
+    const view = render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    fillRequiredReport('Old draft');
+    fireEvent.click(screen.getByText('settings.bugReportSubmit'));
+    await waitFor(() => expect(mockCollectFeedbackLogs).toHaveBeenCalledOnce());
+
+    view.rerender(<FeedbackReportModal visible={false} onCancel={onCancel} />);
+    view.rerender(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    fireEvent.change(screen.getByPlaceholderText('settings.bugReportDescriptionPlaceholder'), {
+      target: { value: 'New draft' },
+    });
+    logs.resolve(null);
+    await act(async () => {
+      await logs.promise;
+      await Promise.resolve();
+    });
+
+    expect(screen.getByPlaceholderText('settings.bugReportDescriptionPlaceholder')).toHaveValue('New draft');
+    expect(screen.queryByTestId('feedback-report-unconfirmed')).toBeNull();
+    expect(mockCaptureEvent).not.toHaveBeenCalled();
+  });
+
+  it('does not capture a canceled draft when delayed diagnostics later resolve', async () => {
+    const logs = deferred<null>();
+    mockCollectFeedbackLogs.mockReturnValue(logs.promise);
+    render(<FeedbackReportModal visible={true} onCancel={onCancel} />);
+    fillRequiredReport('Canceled draft');
+    fireEvent.click(screen.getByText('settings.bugReportSubmit'));
+    await waitFor(() => expect(mockCollectFeedbackLogs).toHaveBeenCalledOnce());
+
+    fireEvent.click(screen.getByText('settings.bugReportCancel'));
+    logs.resolve(null);
+    await act(async () => {
+      await logs.promise;
+      await Promise.resolve();
+    });
+
+    expect(mockCaptureEvent).not.toHaveBeenCalled();
+    expect(onCancel).toHaveBeenCalledOnce();
   });
 
   it('should attach pasted screenshots when submitting the report', async () => {
@@ -384,6 +600,8 @@ describe('FeedbackReportModal', () => {
         })
       );
     });
+    expect(await screen.findByTestId('feedback-report-unconfirmed')).toBeInTheDocument();
+    expect(screen.getByTestId('upload')).toHaveAttribute('data-file-count', '1');
   });
 
   it('should keep only the first three pasted screenshots', async () => {

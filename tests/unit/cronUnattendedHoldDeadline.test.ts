@@ -168,14 +168,14 @@ describe('#1045 the scheduled-run executor supplies the deadline', () => {
     await executor.executeJob(makeJob(now + 60 * 60_000), undefined, CONVERSATION_ID).catch(() => {});
 
     expect(built.length).toBeGreaterThan(0);
-    expect(built[0]).toMatchObject({ yoloMode: true });
+    expect(built[0]).toMatchObject({ yoloMode: false });
     const deadline = built[0]?.unattendedHoldDeadlineMs as number;
     expect(typeof deadline).toBe('number');
     expect(deadline).toBeGreaterThan(0);
     expect(deadline).toBeLessThan(60 * 60_000);
   });
 
-  it('pushes a deadline onto a task it REUSES, which is never rebuilt', async () => {
+  it('recreates an existing task and gives the replacement the bounded hold', async () => {
     const live = {
       type: 'acp',
       workspace: undefined,
@@ -183,13 +183,15 @@ describe('#1045 the scheduled-run executor supplies the deadline', () => {
       ensureYoloMode: vi.fn(async () => true),
       setUnattendedHoldDeadlineMs: vi.fn(),
     };
-    const { executor, taskManager } = makeHarness(live);
+    const { executor, taskManager, task } = makeHarness(live);
 
     await executor.executeJob(makeJob(Date.now() + 60 * 60_000), undefined, CONVERSATION_ID).catch(() => {});
 
-    expect(taskManager.getOrBuildTask).not.toHaveBeenCalled();
-    expect(live.setUnattendedHoldDeadlineMs).toHaveBeenCalledTimes(1);
-    const [ms] = live.setUnattendedHoldDeadlineMs.mock.calls[0] as [number];
+    expect(taskManager.kill).toHaveBeenCalledWith(CONVERSATION_ID);
+    expect(taskManager.getOrBuildTask).toHaveBeenCalledTimes(1);
+    expect(live.setUnattendedHoldDeadlineMs).not.toHaveBeenCalled();
+    expect(task.setUnattendedHoldDeadlineMs).toHaveBeenCalledTimes(1);
+    const [ms] = task.setUnattendedHoldDeadlineMs.mock.calls[0] as [number];
     expect(ms).toBeGreaterThan(0);
     expect(ms).toBeLessThan(60 * 60_000);
   });
@@ -201,7 +203,8 @@ describe('#1045 the scheduled-run executor supplies the deadline', () => {
       sendMessage: vi.fn(async () => {}),
       ensureYoloMode: vi.fn(async () => true),
     };
-    const { executor } = makeHarness(live);
+    const { executor, task } = makeHarness(live);
+    delete (task as Partial<typeof task>).setUnattendedHoldDeadlineMs;
 
     const failure = await executor.executeJob(makeJob(Date.now() + 60 * 60_000), undefined, CONVERSATION_ID).then(
       () => null,
