@@ -2,7 +2,7 @@
   "contract": "wayland-accepted-dependency-advisories/1.0",
   "reviewedOn": "2026-09-04",
   "reviewedUntil": "2026-09-18",
-  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks the release without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil. 2026-09-04: four still-accepted advisories PUBLISHED AFTER the 2026-08-19 review were added (browserslist 1153171/1153172 and nanoid 1153188/1153189). Both packages are transitive-only. These were accepted under release time pressure rather than remediated, so reviewedUntil is deliberately SHORT (2 weeks, not the usual 2 months). REMEDIATION IS KNOWN AND CHEAP - fixed versions are published: browserslist 4.28.8, nanoid >=5.1.11 for the 5.x line and >=3.3.12 for the 3.x line. Bump these and DELETE these four entries; they were waived only to avoid lockfile churn during an overnight release. 2026-09-06: Axios was pinned to 1.20.0 across the root and independently packaged WhatsApp bridge, so waiver IDs 1123967 and 1153178 were removed.",
+  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks the release without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil. 2026-09-04: four still-accepted advisories PUBLISHED AFTER the 2026-08-19 review were added (browserslist 1153171/1153172 and nanoid 1153188/1153189). Both packages are transitive-only. These were accepted under release time pressure rather than remediated, so reviewedUntil is deliberately SHORT (2 weeks, not the usual 2 months). REMEDIATION IS KNOWN AND CHEAP - fixed versions are published: browserslist 4.28.8, nanoid >=5.1.11 for the 5.x line and >=3.3.12 for the 3.x line. Bump these and DELETE these four entries; they were waived only to avoid lockfile churn during an overnight release. 2026-09-06: Axios was pinned to 1.20.0 across the root and independently packaged WhatsApp bridge, so waiver IDs 1123967 and 1153178 were removed. 2026-09-06: Browserslist 4.28.7 and nanoid 5.1.16/3.3.18 clear all seven corresponding advisory entries; those entries were removed after consumer-relative resolution and audit confirmation. The earlier nanoid remediation versions in this historical rationale were superseded by these fixes. The review deadline for all remaining entries is unchanged.",
   "accepted": [
     {
       "package": "@opentelemetry/propagator-jaeger",
@@ -82,27 +82,6 @@
       "vulnerableVersions": "<=10.3.0"
     },
     {
-      "package": "nanoid",
-      "id": 1138810,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-28wg-ghj8-5hjv",
-      "vulnerableVersions": ">=4.0.0 <5.1.16"
-    },
-    {
-      "package": "nanoid",
-      "id": 1138811,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-28wg-ghj8-5hjv",
-      "vulnerableVersions": "<3.3.16"
-    },
-    {
-      "package": "nanoid",
-      "id": 1139427,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-2v37-7h3g-55p8",
-      "vulnerableVersions": "<3.3.18"
-    },
-    {
       "package": "pdfjs-dist",
       "id": 1138116,
       "severity": "high",
@@ -151,34 +130,6 @@
       "severity": "high",
       "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
       "vulnerableVersions": "<=7.5.17"
-    },
-    {
-      "package": "browserslist",
-      "id": 1153171,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-c83g-rgw3-j3cx",
-      "vulnerableVersions": "<=4.28.6"
-    },
-    {
-      "package": "browserslist",
-      "id": 1153172,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-73wf-gq98-2v4g",
-      "vulnerableVersions": "<=4.28.6"
-    },
-    {
-      "package": "nanoid",
-      "id": 1153188,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-xwg4-73v4-xw9w",
-      "vulnerableVersions": ">=4.0.0 <5.1.11"
-    },
-    {
-      "package": "nanoid",
-      "id": 1153189,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-xwg4-73v4-xw9w",
-      "vulnerableVersions": "<3.3.12"
     }
   ]
 }
