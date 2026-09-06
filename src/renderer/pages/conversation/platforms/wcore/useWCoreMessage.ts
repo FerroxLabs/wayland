@@ -538,11 +538,7 @@ export const useWCoreMessage = (
     const generation = conversationGenerationRef.current;
     const revision = runningRevisionRef.current;
     void ipcBridge.conversation.get.invoke({ id: conversation_id }).then((res) => {
-      if (
-        !res ||
-        generation !== conversationGenerationRef.current ||
-        revision !== runningRevisionRef.current
-      ) {
+      if (!res || generation !== conversationGenerationRef.current || revision !== runningRevisionRef.current) {
         return;
       }
       const isRunning = res.status === 'running';
