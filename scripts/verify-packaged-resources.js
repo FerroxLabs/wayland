@@ -1138,7 +1138,8 @@ function verifySourceMirror(
   targetPlatform = process.platform,
   targetArch = process.arch,
   signedCheck = isDarwinDeveloperIdSigned,
-  reasons = []
+  reasons = [],
+  dependencyManifestVariants = {}
 ) {
   if (authority.contract !== 'wayland-whatsapp-bridge-source/1.0') {
     reasons.push(`authority contract is ${authority.contract}`);
@@ -1184,6 +1185,32 @@ function verifySourceMirror(
     reasons.push('could not inventory the source or bundled tree');
     return false;
   }
+  // Accept only an entire source-derived producer-normalized package manifest,
+  // not arbitrary installed JSON with selected fields erased. Every other byte
+  // remains under the original source-inventory and native-signature checks.
+  const alternatives = new Map();
+  for (const [relative, variant] of Object.entries(dependencyManifestVariants)) {
+    if (
+      !relative.startsWith('node_modules/') ||
+      !relative.endsWith('/package.json') ||
+      relative.split('/').some((part) => part === '..' || part === '.' || !part)
+    ) {
+      reasons.push('invalid dependency manifest alternative path');
+      return false;
+    }
+    const record = (pin) =>
+      pin && Number.isSafeInteger(pin.size) && pin.size >= 0 && /^[a-f0-9]{64}$/.test(pin.sha256)
+        ? `file:${relative}:${pin.size}:${pin.sha256}`
+        : null;
+    const pristine = record(variant?.pristine);
+    const normalized = record(variant?.normalized);
+    if (!pristine || !normalized || !source.includes(pristine)) {
+      reasons.push('dependency manifest alternative does not match reconstructed source');
+      return false;
+    }
+    alternatives.set(normalized, pristine);
+  }
+  bundled = bundled.map((record) => alternatives.get(record) || record);
   if (targetPlatform === 'darwin') bundled = reconcileStagedDarwinNatives(bundleDir, source, bundled, signedCheck);
   if (JSON.stringify(bundled) === JSON.stringify(source)) return true;
   const srcSet = new Set(source);
@@ -1394,7 +1421,8 @@ function isNonEmpty(
   wnanoAuthority = prepareWaylandNano,
   wnanoPolicySelector = selectPolicy,
   darwinSignedCheck = isDarwinDeveloperIdSigned,
-  requireDarwinSignature = false
+  requireDarwinSignature = false,
+  whatsappDependencyManifestVariants
 ) {
   // Per-resource, NOT cumulative. `hub` is optional and absent on every build, so
   // its stat throws and left a `threw: ENOENT ... resources\hub` line sitting in
@@ -1523,7 +1551,8 @@ function isNonEmpty(
         targetPlatform,
         targetArch,
         isDarwinDeveloperIdSigned,
-        failureReasons
+        failureReasons,
+        whatsappDependencyManifestVariants
       );
     return hasNonHiddenRegularFile(p);
   } catch (error) {
@@ -1706,7 +1735,8 @@ function verifyPackagedResources(options = {}) {
         wnanoAuthority,
         wnanoPolicySelector,
         darwinSignedCheck,
-        requireDarwinSignature
+        requireDarwinSignature,
+        options.whatsappDependencyManifestVariants
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);

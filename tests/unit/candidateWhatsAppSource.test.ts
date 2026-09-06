@@ -48,6 +48,7 @@ function fixture() {
   }
   fs.mkdirSync(path.dirname(authorityPath), { recursive: true });
   fs.writeFileSync(authorityPath, JSON.stringify(authority));
+  fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ overrides: { 'form-data': '4.0.6' } }));
   fs.writeFileSync(path.join(root, '.gitignore'), 'node_modules/\n');
   fs.mkdirSync(path.join(source, 'node_modules/axios'), { recursive: true });
   fs.writeFileSync(path.join(source, 'node_modules/axios/index.js'), 'module.exports = "1.20.0";');
@@ -139,5 +140,134 @@ describe('protected observer verifies candidate WhatsApp source as pinned data',
     expect(() => prepareCandidateWhatsAppSource(f.root, f.identity, execute)).toThrow(
       'identity changed or worktree is dirty'
     );
+  });
+});
+
+describe('protected source-derived dependency manifest alternatives', () => {
+  function manifestFixture() {
+    const f = fixture();
+    const relative = 'node_modules/axios/package.json';
+    const manifest = {
+      name: 'axios',
+      version: '1.20.0',
+      dependencies: { 'form-data': '^4.0.6', other: '^1.0.0' },
+      optionalDependencies: { 'form-data': '^4.0.6', optional: '^2.0.0' },
+      scripts: { test: 'original-test-command' },
+    };
+    const pristine = JSON.stringify(manifest, null, 2) + '\n';
+    fs.writeFileSync(path.join(f.source, relative), pristine);
+    const resolved = resolveCandidateWhatsAppSource(f.root, f.identity);
+    const bundle = fs.mkdtempSync(path.join(os.tmpdir(), 'installed-manifest-'));
+    roots.push(bundle);
+    fs.cpSync(f.source, bundle, { recursive: true });
+    const normalized = {
+      ...manifest,
+      dependencies: { ...manifest.dependencies, 'form-data': '*' },
+      optionalDependencies: { ...manifest.optionalDependencies, 'form-data': '*' },
+    };
+    const installedManifest = path.join(bundle, relative);
+    const writeInstalled = (value: unknown) =>
+      fs.writeFileSync(installedManifest, JSON.stringify(value, null, 2) + '\n');
+    const check = (variants = resolved.whatsappDependencyManifestVariants) =>
+      verifySourceMirror(bundle, f.source, resolved.whatsappAuthority, 'linux', 'x64', undefined, [], variants);
+    return { ...f, relative, pristine, resolved, bundle, normalized, installedManifest, writeInstalled, check };
+  }
+
+  it('accepts pristine dependency bytes with the alternative present', () => {
+    const f = manifestFixture();
+    expect(f.check()).toBe(true);
+  });
+
+  it('accepts exactly the existing producer transformation of overridden dependency ranges', () => {
+    const f = manifestFixture();
+    f.writeInstalled(f.normalized);
+    expect(f.check()).toBe(true);
+    expect(f.check({})).toBe(false);
+  });
+
+  it.each(['version', 'script', 'extra field', 'unrelated dependency', 'unrelated optional', 'partial transformation'])(
+    'rejects %s changes even alongside the allowed transformation',
+    (mutation) => {
+      const f = manifestFixture();
+      const changed = structuredClone(f.normalized);
+      if (mutation === 'version') changed.version = '1.20.1';
+      if (mutation === 'script') changed.scripts.test = 'changed-command';
+      if (mutation === 'extra field') Object.assign(changed, { injected: true });
+      if (mutation === 'unrelated dependency') changed.dependencies.other = '*';
+      if (mutation === 'unrelated optional') changed.optionalDependencies.optional = '*';
+      if (mutation === 'partial transformation') changed.optionalDependencies['form-data'] = '^4.0.6';
+      f.writeInstalled(changed);
+      expect(f.check()).toBe(false);
+    }
+  );
+
+  it('does not normalize installed JSON formatting before comparing it', () => {
+    const f = manifestFixture();
+    fs.writeFileSync(f.installedManifest, JSON.stringify(f.normalized));
+    expect(f.check()).toBe(false);
+  });
+
+  it.each(['runtime', 'extra file', 'missing file', 'symlink'])(
+    'retains rejection of %s changes with an otherwise valid manifest',
+    (mutation) => {
+      const f = manifestFixture();
+      f.writeInstalled(f.normalized);
+      const runtime = path.join(f.bundle, 'node_modules/axios/index.js');
+      if (mutation === 'runtime') fs.appendFileSync(runtime, 'tampered');
+      if (mutation === 'extra file') fs.writeFileSync(path.join(f.bundle, 'extra.js'), 'extra');
+      if (mutation === 'missing file') fs.unlinkSync(runtime);
+      if (mutation === 'symlink') {
+        fs.unlinkSync(f.installedManifest);
+        fs.symlinkSync(path.join(f.source, f.relative), f.installedManifest);
+      }
+      expect(f.check()).toBe(false);
+    }
+  );
+
+  it.each(['wrong pristine hash', 'invalid normalized hash', 'null pin', 'traversal', 'root manifest'])(
+    'rejects an invalid alternative: %s',
+    (mutation) => {
+      const f = manifestFixture();
+      const variants = structuredClone(f.resolved.whatsappDependencyManifestVariants);
+      const pin = variants[f.relative];
+      if (mutation === 'wrong pristine hash') pin.pristine.sha256 = '0'.repeat(64);
+      if (mutation === 'invalid normalized hash') pin.normalized.sha256 = 'not-a-hash';
+      if (mutation === 'null pin') variants[f.relative] = null;
+      if (mutation === 'traversal') variants['node_modules/../package.json'] = pin;
+      if (mutation === 'root manifest') variants['package.json'] = pin;
+      expect(f.check(variants)).toBe(false);
+    }
+  );
+
+  it('derives no alternatives when the candidate has no dependency overrides', () => {
+    const f = manifestFixture();
+    fs.writeFileSync(path.join(f.root, 'package.json'), '{}');
+    const resolved = resolveCandidateWhatsAppSource(f.root, f.commit());
+    expect(resolved.whatsappDependencyManifestVariants).toEqual({});
+  });
+
+  it.each([null, [], { 'form-data': {} }, { '../outside': '1.0.0' }])(
+    'refuses a malformed candidate override map %#',
+    (overrides) => {
+      const f = fixture();
+      fs.writeFileSync(path.join(f.root, 'package.json'), JSON.stringify({ overrides }));
+      expect(() => resolveCandidateWhatsAppSource(f.root, f.commit())).toThrow('must be string maps');
+    }
+  );
+
+  it('returns alternatives derived after frozen dependency installation, not a stale pre-install snapshot', () => {
+    const f = fixture();
+    const execute = vi
+      .fn()
+      .mockReturnValueOnce('1.3.14\n')
+      .mockImplementation(() => {
+        fs.writeFileSync(
+          path.join(f.source, 'node_modules/axios/package.json'),
+          JSON.stringify({ name: 'axios', version: '1.20.0', dependencies: { 'form-data': '^4.0.6' } })
+        );
+        return '';
+      });
+    const resolved = prepareCandidateWhatsAppSource(f.root, f.identity, execute);
+    expect(Object.keys(resolved.whatsappDependencyManifestVariants)).toEqual(['node_modules/axios/package.json']);
   });
 });

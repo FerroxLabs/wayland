@@ -39,6 +39,77 @@ function regularFile(root, relative) {
   return current;
 }
 
+function dependencyManifestVariants(root, sourceDir) {
+  const rootPackage = JSON.parse(fs.readFileSync(regularFile(root, 'package.json'), 'utf8'));
+  const overrideNames = new Set();
+  for (const field of ['resolutions', 'overrides']) {
+    const map = rootPackage[field];
+    if (map === undefined) continue;
+    if (!map || typeof map !== 'object' || Array.isArray(map))
+      throw new Error('Candidate dependency overrides must be string maps');
+    for (const [name, range] of Object.entries(map)) {
+      if (
+        !/^[a-zA-Z0-9@][a-zA-Z0-9@/._-]*$/.test(name) ||
+        typeof range !== 'string' ||
+        !range ||
+        range.includes('\0')
+      ) {
+        throw new Error('Candidate dependency overrides must be string maps');
+      }
+      overrideNames.add(name);
+    }
+  }
+  const variants = {};
+  const digest = (bytes) => ({ size: bytes.length, sha256: crypto.createHash('sha256').update(bytes).digest('hex') });
+  const visit = (directory) => {
+    if (!fs.existsSync(directory)) return;
+    if (!fs.lstatSync(directory).isDirectory()) throw new Error('Candidate dependency directory is redirected');
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const full = path.join(directory, entry.name);
+      if (entry.name.startsWith('@') || entry.name === 'node_modules') {
+        visit(full);
+        continue;
+      }
+      const file = path.join(full, 'package.json');
+      if (fs.existsSync(file)) {
+        const relative = path.relative(sourceDir, file).split(path.sep).join('/');
+        const bytes = fs.readFileSync(regularFile(sourceDir, relative));
+        const pkg = JSON.parse(bytes.toString('utf8'));
+        let changed = false;
+        for (const field of ['dependencies', 'optionalDependencies']) {
+          const deps = pkg[field];
+          if (deps === undefined) continue;
+          if (
+            !deps ||
+            typeof deps !== 'object' ||
+            Array.isArray(deps) ||
+            Object.values(deps).some((range) => typeof range !== 'string')
+          ) {
+            throw new Error(`Invalid reconstructed dependency manifest: ${relative}`);
+          }
+          for (const name of Object.keys(deps)) {
+            if (overrideNames.has(name) && deps[name] !== '*') {
+              deps[name] = '*';
+              changed = true;
+            }
+          }
+        }
+        // Reproduce ONLY the protected producer's patchOverriddenDepRanges
+        // transformation. Installed bytes never enter this derivation.
+        if (changed)
+          variants[relative] = {
+            pristine: digest(bytes),
+            normalized: digest(Buffer.from(JSON.stringify(pkg, null, 2) + '\n')),
+          };
+      }
+      visit(path.join(full, 'node_modules'));
+    }
+  };
+  visit(path.join(sourceDir, 'node_modules'));
+  return variants;
+}
+
 function resolveCandidateWhatsAppSource(sourceRoot, expectedIdentity) {
   const root = fs.realpathSync(sourceRoot);
   assertCandidateIdentity(root, expectedIdentity);
@@ -70,7 +141,11 @@ function resolveCandidateWhatsAppSource(sourceRoot, expectedIdentity) {
       throw new Error(`Candidate WhatsApp source differs from its committed pin: ${relative}`);
     }
   }
-  return { whatsappSourceDir: sourceDir, whatsappAuthority: authority };
+  return {
+    whatsappSourceDir: sourceDir,
+    whatsappAuthority: authority,
+    whatsappDependencyManifestVariants: dependencyManifestVariants(root, sourceDir),
+  };
 }
 
 function prepareCandidateWhatsAppSource(sourceRoot, expectedIdentity, execute = execFileSync) {
@@ -83,8 +158,7 @@ function prepareCandidateWhatsAppSource(sourceRoot, expectedIdentity, execute = 
     stdio: 'inherit',
   });
   // A frozen install must not change the pinned source inputs.
-  resolveCandidateWhatsAppSource(sourceRoot, expectedIdentity);
-  return resolved;
+  return resolveCandidateWhatsAppSource(sourceRoot, expectedIdentity);
 }
 
 module.exports = { resolveCandidateWhatsAppSource, prepareCandidateWhatsAppSource };
