@@ -2,7 +2,7 @@
   "contract": "wayland-accepted-dependency-advisories/1.0",
   "reviewedOn": "2026-09-04",
   "reviewedUntil": "2026-09-18",
-  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks the release without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil. 2026-09-04: four still-accepted advisories PUBLISHED AFTER the 2026-08-19 review were added (browserslist 1153171/1153172 and nanoid 1153188/1153189). Both packages are transitive-only. These were accepted under release time pressure rather than remediated, so reviewedUntil is deliberately SHORT (2 weeks, not the usual 2 months). REMEDIATION IS KNOWN AND CHEAP - fixed versions are published: browserslist 4.28.8, nanoid >=5.1.11 for the 5.x line and >=3.3.12 for the 3.x line. Bump these and DELETE these four entries; they were waived only to avoid lockfile churn during an overnight release. 2026-09-06: Axios was pinned to 1.20.0 across the root and independently packaged WhatsApp bridge, so waiver IDs 1123967 and 1153178 were removed. 2026-09-06: Browserslist 4.28.7 and nanoid 5.1.16/3.3.18 clear all seven corresponding advisory entries; those entries were removed after consumer-relative resolution and audit confirmation. The earlier nanoid remediation versions in this historical rationale were superseded by these fixes. The review deadline for all remaining entries is unchanged.",
+  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks the release without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil. 2026-09-04: four still-accepted advisories PUBLISHED AFTER the 2026-08-19 review were added (browserslist 1153171/1153172 and nanoid 1153188/1153189). Both packages are transitive-only. These were accepted under release time pressure rather than remediated, so reviewedUntil is deliberately SHORT (2 weeks, not the usual 2 months). REMEDIATION IS KNOWN AND CHEAP - fixed versions are published: browserslist 4.28.8, nanoid >=5.1.11 for the 5.x line and >=3.3.12 for the 3.x line. Bump these and DELETE these four entries; they were waived only to avoid lockfile churn during an overnight release. 2026-09-06: Axios was pinned to 1.20.0 across the root and independently packaged WhatsApp bridge, so waiver IDs 1123967 and 1153178 were removed. 2026-09-06: Browserslist 4.28.7 and nanoid 5.1.16/3.3.18 clear all seven corresponding advisory entries; those entries were removed after consumer-relative resolution and audit confirmation. The earlier nanoid remediation versions in this historical rationale were superseded by these fixes. The review deadline for all remaining entries is unchanged. 2026-09-06: The compatible brace-expansion 2.1.4, PostCSS 8.5.18, socket.io-parser 4.2.7 and ip-address 10.3.1 cohort clears its seven High advisory entries in both dependency roots. Those entries were removed; other findings and the remaining review deadline are unchanged.",
   "accepted": [
     {
       "package": "@opentelemetry/propagator-jaeger",
@@ -17,27 +17,6 @@
       "severity": "high",
       "url": "https://github.com/advisories/GHSA-7g7r-gx96-252g",
       "vulnerableVersions": "<26.15.0"
-    },
-    {
-      "package": "brace-expansion",
-      "id": 1123896,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
-      "vulnerableVersions": ">=2.0.0 <2.1.2"
-    },
-    {
-      "package": "brace-expansion",
-      "id": 1130589,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
-      "vulnerableVersions": ">=2.0.0 <2.1.3"
-    },
-    {
-      "package": "brace-expansion",
-      "id": 1130736,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-rgw5-rvv9-x895",
-      "vulnerableVersions": ">=2.0.0 <2.1.4"
     },
     {
       "package": "builder-util-runtime",
@@ -75,32 +54,11 @@
       "vulnerableVersions": ">=3.0.0 <3.1.3"
     },
     {
-      "package": "ip-address",
-      "id": 1130722,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-mwp4-54f8-5fhr",
-      "vulnerableVersions": "<=10.3.0"
-    },
-    {
       "package": "pdfjs-dist",
       "id": 1138116,
       "severity": "high",
       "url": "https://github.com/advisories/GHSA-hq66-cqwq-w95j",
       "vulnerableVersions": ">=5.6.83 <6.2.108"
-    },
-    {
-      "package": "postcss",
-      "id": 1124252,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
-      "vulnerableVersions": "<=8.5.11"
-    },
-    {
-      "package": "postcss",
-      "id": 1139510,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
-      "vulnerableVersions": "<=8.5.17"
     },
     {
       "package": "sharp",
@@ -109,13 +67,6 @@
       "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
       "vulnerableVersions": "<0.35.0",
       "note": "Root sharp is NOT reachable: no first-party source imports it, and electron-builder.yml:75-76 strips @img from app.asar (verified: the built asar contains 0 @img entries), so the shipped root copy has no native binding and cannot load libvips. The copy that DOES ship and process image bytes is src/process/channels/whatsapp-bridge, which was moved to sharp 0.35.4 / libvips 8.18.6 - above the fixed versions for all four CVEs (8.18.1 / 8.18.2 / 8.18.3). The root range stays on 0.34.x because @huggingface/transformers@4.2.0 requires sharp ^0.34.5; raising it would either break electron-builder dependency-tree traversal or nest a second sharp. Re-evaluate when transformers accepts 0.35.x."
-    },
-    {
-      "package": "socket.io-parser",
-      "id": 1130713,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-2m8v-j782-fhvr",
-      "vulnerableVersions": ">=4.0.0 <4.2.7"
     },
     {
       "package": "tar",

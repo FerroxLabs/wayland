@@ -20,7 +20,7 @@
       "sha256": "58faa9fd2a7c577ebfd05687a325a7f0fec3a07f810eb23b2edf05eb84545f3d"
     },
     "bridge.js": { "size": 5994, "sha256": "86b4b01e83a5df65668ebd2c0403b514656b2a07346247b95368aff7ca6049e8" },
-    "bun.lock": { "size": 63622, "sha256": "f85325e31e0c45cba942fd93ba5e6be9fbc62a1e3c896bb80970000ffd58dc7d" },
+    "bun.lock": { "size": 63622, "sha256": "65a5c4b83c82625544d8eb2040b20c093a3adb5359c86a28f9fbab2ee045a1cd" },
     "package.json": { "size": 602, "sha256": "02b189c387a2dd5c354a606f594484e51b39946d12c6c3bdd5b533971135fe4f" }
   }
 }
