@@ -476,6 +476,62 @@ describe('platform send box queue integration', () => {
     sessionStorage.clear();
   });
 
+  it('preserves an initial Core prompt and files until recovery and model readiness, then sends exactly once', async () => {
+    const conversationId = 'initial-core';
+    const key = `wcore_initial_message_${conversationId}`;
+    const payload = JSON.stringify({ input: 'Run the TC-TIDE brief', files: ['/ws/watchlist.csv'] });
+    sessionStorage.setItem(key, payload);
+    const box = (blocked: boolean, model?: string) => (
+      <WCoreSendBox
+        conversation_id={conversationId}
+        recoveryBlocked={blocked}
+        modelSelection={{
+          currentModel: model ? { useModel: model } : undefined,
+          getDisplayModelName: (id: string) => id,
+        }}
+      />
+    );
+    const view = render(box(true, 'flux-reasoning'));
+    await waitFor(() => expect(mockConversationGetInvoke).toHaveBeenCalled());
+    expect(mockConversationSendInvoke).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem(key)).toBe(payload);
+    view.rerender(box(false));
+    expect(mockConversationSendInvoke).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem(key)).toBe(payload);
+    view.rerender(box(false, 'flux-reasoning'));
+    await waitFor(() => expect(mockConversationSendInvoke).toHaveBeenCalledOnce());
+    expect(mockConversationSendInvoke).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversation_id: 'initial-core',
+        files: ['/ws/watchlist.csv'],
+        input: expect.stringContaining('Run the TC-TIDE brief'),
+      })
+    );
+    await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+    view.rerender(box(false, 'flux-reasoning'));
+    expect(mockConversationSendInvoke).toHaveBeenCalledOnce();
+  });
+
+  it('retains a rejected initial send without automatically duplicating it on rerender', async () => {
+    const key = 'wcore_initial_message_failed-core';
+    const payload = JSON.stringify({ input: 'Keep this brief request', files: ['/ws/input.csv'] });
+    sessionStorage.setItem(key, payload);
+    mockConversationSendInvoke.mockRejectedValue(new Error('Recovery inspection unavailable'));
+    const box = (
+      <WCoreSendBox
+        conversation_id='failed-core'
+        recoveryBlocked={false}
+        modelSelection={{ currentModel: { useModel: 'flux-reasoning' }, getDisplayModelName: (id: string) => id }}
+      />
+    );
+    const view = render(box);
+    await waitFor(() => expect(mockArcoError).toHaveBeenCalledWith('Recovery inspection unavailable'));
+    expect(sessionStorage.getItem(key)).toBe(payload);
+    expect(sessionStorage.getItem('wcore_initial_processed_failed-core')).toBe('1');
+    view.rerender(box);
+    expect(mockConversationSendInvoke).toHaveBeenCalledOnce();
+  });
+
   it.each([
     ['acp', <AcpSendBox conversation_id='conv-acp' backend='claude' />],
     [
