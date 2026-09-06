@@ -12,7 +12,18 @@ import type { ResumeSeedOptions } from '@process/task/resumeSeed';
 export type AgentType = 'gemini' | 'acp' | 'openclaw-gateway' | 'nanobot' | 'remote' | 'wcore';
 export type AgentStatus = 'pending' | 'running' | 'finished';
 
+export const CHANNEL_CONVERSATIONAL_POLICY = 'channel-conversational' as const;
+export type AgentExecutionPolicy = typeof CHANNEL_CONVERSATIONAL_POLICY;
+
 export interface BuildConversationOptions {
+  /**
+   * Process-owned execution policy applied at construction time. Channel
+   * callers use the conversational policy to create a tool-free Gemini worker;
+   * it is never read from persisted conversation extras or prompt text.
+   */
+  executionPolicy?: AgentExecutionPolicy;
+  /** Cancels an in-flight task build before it can publish a worker lease. */
+  launchSignal?: AbortSignal;
   /** Force yolo mode (auto-approve all tool calls) */
   yoloMode?: boolean;
   /** Skip task cache - create a new isolated instance */

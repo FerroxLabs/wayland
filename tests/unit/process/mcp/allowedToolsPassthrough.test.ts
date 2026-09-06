@@ -5,12 +5,13 @@
  */
 
 /**
- * #1167 - `allowedTools` must survive every Desktop->engine boundary.
+ * #1167/#998 - tool selections must survive every enforceable Desktop boundary.
  *
  * There are THREE of them and they live in two files, which is why a partial fix
  * reads as "the switch doesn't work" on some backends and works on others:
- *   1.  buildAcpSessionMcpServers()      - ACP backends, stdio
- *   1b. buildAcpSessionMcpServers()      - ACP backends, hosted http/sse
+ *   1.  buildAcpSessionMcpServers()      - ACP stdio, via the filter shim
+ *   1b. buildAcpSessionMcpServers()      - hosted subsets are refused because
+ *                                          standard ACP has no selection field
  *   2.  buildWCoreUserStdioMcpServers()  - the wcore `add_mcp_server` runtime path
  *   3.  toWCoreConfig()                  - the config.toml [mcp.servers] table,
  *                                          and the ONLY path hosted connectors take
@@ -23,7 +24,11 @@
  * path therefore gets its own `[]` assertion rather than one shared one.
  */
 import { describe, expect, it } from 'vitest';
-import { buildAcpSessionMcpServers, buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import {
+  UnsupportedHostedAcpToolSelectionError,
+  buildAcpSessionMcpServers,
+  buildWCoreUserStdioMcpServers,
+} from '@process/agent/acp/mcpSessionConfig';
 import { toMcpServer, toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import type { IMcpServer } from '@/common/config/storage';
 
@@ -63,9 +68,11 @@ describe('#1167 path 1 - ACP session descriptors, stdio', () => {
     expect('allowedTools' in server).toBe(false);
   });
 
-  it('carries an explicit subset through untransformed', () => {
+  it('carries a strict subset only inside the stdio filter boundary', () => {
     const [server] = buildAcpSessionMcpServers([stdioServer(['alpha'])], ALL);
-    expect(server.allowedTools).toEqual(['alpha']);
+    expect('allowedTools' in server).toBe(false);
+    expect(JSON.stringify(server)).toContain('builtin-mcp-tool-filter');
+    expect(JSON.stringify(server)).toContain('alpha');
   });
 
   it('THE EMPTY CASE: withholds the server rather than sending an empty list', () => {
@@ -79,11 +86,10 @@ describe('#1167 path 1 - ACP session descriptors, stdio', () => {
 });
 
 describe('#1167 path 1b - ACP session descriptors, hosted http/sse', () => {
-  // Hosted transports have no spawn to wrap, so the stdio filtering shim cannot
-  // help them. This field is the only mechanism a subset has on these at all.
-  it.each(['http', 'sse'] as const)('carries an explicit subset on %s', (type) => {
-    const [server] = buildAcpSessionMcpServers([httpServer(['alpha'], type)], ALL);
-    expect(server.allowedTools).toEqual(['alpha']);
+  it.each(['http', 'sse'] as const)('refuses an unenforceable explicit subset on %s', (type) => {
+    expect(() => buildAcpSessionMcpServers([httpServer(['alpha'], type)], ALL)).toThrow(
+      UnsupportedHostedAcpToolSelectionError
+    );
   });
 
   it.each(['http', 'sse'] as const)('omits the key on %s when unset', (type) => {

@@ -111,6 +111,74 @@ describe('McpConfig', () => {
     expect(none.map((server) => server.name)).toEqual(['skill-search']);
   });
 
+  it('withholds an empty tool selection from descriptors and receipt expectations', () => {
+    const disabled = {
+      id: 'disabled-tools',
+      name: 'disabled-tools',
+      source: 'custom',
+      enabled: true,
+      status: 'connected',
+      allowedTools: [],
+      transport: { type: 'stdio', command: 'server', args: [] },
+      createdAt: 1,
+      updatedAt: 1,
+    } as IMcpServer;
+
+    const projection = McpConfig.projectStorageConfig([disabled], request());
+
+    expect(projection.servers).toEqual([]);
+    expect(projection.selectedServers).toEqual([]);
+    expect(getMcpSessionReceiptForServer(projection.sessionState, disabled)).toBeUndefined();
+  });
+
+  it('interposes the stdio tool-filter shim for a strict subset', () => {
+    const scoped = {
+      id: 'scoped',
+      name: 'scoped',
+      source: 'custom',
+      enabled: true,
+      status: 'connected',
+      allowedTools: ['search'],
+      transport: { type: 'stdio', command: 'server', args: ['--serve'] },
+      createdAt: 1,
+      updatedAt: 1,
+    } as IMcpServer;
+
+    const projection = McpConfig.projectStorageConfig([scoped], request());
+
+    expect(projection.servers).toHaveLength(1);
+    expect(projection.servers[0]).toMatchObject({ name: 'scoped' });
+    expect('args' in projection.servers[0] ? projection.servers[0].args : []).toEqual(
+      expect.arrayContaining(['--allow', 'search', '--', 'server', '--serve'])
+    );
+    expect(projection.servers[0]).not.toHaveProperty('allowedTools');
+  });
+
+  it('withholds a selected hosted subset with a surfaced standard-ACP reason', () => {
+    const hosted = {
+      id: 'hosted',
+      name: 'hosted',
+      source: 'custom',
+      enabled: true,
+      status: 'connected',
+      allowedTools: ['search'],
+      transport: { type: 'streamable_http', url: 'https://example.com/mcp' },
+      createdAt: 1,
+      updatedAt: 1,
+    } as IMcpServer;
+
+    const projection = McpConfig.projectStorageConfig([hosted], request());
+
+    expect(projection.servers).toEqual([]);
+    expect(projection.omissions).toEqual([
+      {
+        server: hosted,
+        reason: 'Standard ACP cannot enforce per-tool selection for hosted HTTP MCP servers',
+      },
+    ]);
+    expect(getMcpSessionReceiptForServer(projection.sessionState, hosted)?.status).toBe('failed');
+  });
+
   it('preserves the four reported vendor transport/auth shapes in the live ACP session declaration', () => {
     const stored = [
       {

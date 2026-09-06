@@ -21,14 +21,14 @@ import {
   isPathBoundaryOptionValue,
   pathBoundaryRootOf,
 } from '@/common/chat/pathBoundaryConsent';
-import type { FolderGrantRefusal } from '@/common/workspace/folderGrants';
+import type { FolderGrantRefusal, LiveFolderGrant } from '@/common/workspace/folderGrants';
 import {
   defaultFolderGrantRootContext,
   defaultWorkspaceFolderGrantStore,
 } from '@process/services/workspace/folderGrantStore';
 import { vetFolderGrantRoot } from '@process/services/workspace/folderGrantAuthority';
 import { resolveFolderGrantWorkspaceId } from '@process/services/workspace/folderGrantWorkspaceId';
-import { loadReplayableGrantRoots, replayableGrantRootFor } from '@process/services/workspace/folderGrantReplay';
+import { loadReplayableGrants } from '@process/services/workspace/folderGrantReplay';
 import { composeResetSeed, type ResumeSeedOptions } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
@@ -63,7 +63,7 @@ import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
 import { describeExitReason } from '@process/agent/wcore/execFailureReason';
 import { acquireRuntimeLaunchAuthority } from '@process/agent/wcore/profilePaths';
-import type { WCoreCapabilities } from '@process/agent/wcore/protocol';
+import type { WCoreCapabilities, WCoreTurnRecoveryView } from '@process/agent/wcore/protocol';
 import {
   buildSystemInstructionsWithSkillsIndex,
   buildTurnSkillContext,
@@ -133,6 +133,16 @@ const EMPTY_CONTENT_THRESHOLD_CHARS = 20;
  * config - to well under one spawn per minute.
  */
 const BOOTSTRAP_RETRY_COOLDOWN_MS = 60_000;
+
+let lastTranscriptIngestOrder = 0;
+const nextTranscriptIngestOrder = (): number => {
+  const wallClockOrder = Date.now() * 1000;
+  lastTranscriptIngestOrder = Math.max(wallClockOrder, lastTranscriptIngestOrder + 1);
+  return lastTranscriptIngestOrder;
+};
+
+const finiteNonNegativeTokenCount = (value: unknown): number | undefined =>
+  typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : undefined;
 
 const WCORE_PREFERENCE_AUTHORITY = {
   get: (key: string) => ProcessConfig.get(key as never) as Promise<unknown>,
@@ -491,15 +501,6 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private _turnSawError = false;
 
   /**
-   * #982 - the canonical, vetted roots this workspace's durable folder-grant
-   * list authorises, snapshotted at spawn.
-   *
-   * Empty until `start()` loads it, and empty forever if that read fails, so a
-   * manager that never started replays nothing.
-   */
-  private replayableGrantRoots: readonly string[] = [];
-
-  /**
    * Bumped by every `stop()`. `start()` captures it on entry and refuses to arm
    * the heartbeat if it has moved, because a bootstrap that finishes AFTER the
    * user stopped the chat would otherwise leave a live interval pinging an agent
@@ -562,6 +563,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    *  Emitted once per reasoning turn; first one wins. Absent for non-reasoning turns. */
   private thinkingSubject: string | undefined = undefined;
   private thinkingDbFlushTimer: ReturnType<typeof setTimeout> | null = null;
+  private thinkingIngestOrder: number | null = null;
   private readonly streamDbFlushIntervalMs: number = 120;
 
   /** Runaway-loop detector (circuit-breaker Phase 2). Reset each turn. */
@@ -572,6 +574,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     string,
     { message: Extract<TMessage, { type: 'text' }>; timer: ReturnType<typeof setTimeout> }
   >();
+  private readonly segmentIngestOrders = new Map<string, number>();
+  private latestTextSegment: { msgId: string; segmentId: string; ingestOrder: number } | null = null;
 
   /** Session-scoped MCP truth. Serialized so simultaneous Core receipts cannot clobber each other in DB. */
   private readonly mcpSessionGeneration = uuid();
@@ -586,6 +590,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * published so a later manager kill retries that same identity. */
   private engineShutdownAttempt: { agent: WCoreAgent; promise: Promise<void> } | null = null;
   private disposed = false;
+  private recoveryQueue: Promise<unknown> = Promise.resolve();
 
   constructor(data: WCoreManagerData, model: TProviderWithModel) {
     super('wcore', { ...data, model }, new IpcAgentEventEmitter(), false);
@@ -742,18 +747,19 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * snapshot is the fail-closed answer and is also the answer for a workspace
    * that has no grants, which is almost all of them.
    */
-  private async loadReplayableGrants(): Promise<void> {
+  private async loadReplayableGrants(): Promise<readonly LiveFolderGrant[]> {
     try {
-      this.replayableGrantRoots = await loadReplayableGrantRoots(this.workspace);
+      return await loadReplayableGrants(this.workspace);
     } catch (error) {
-      this.replayableGrantRoots = [];
       mainWarn('[WCoreManager]', "could not load this workspace's remembered folders", error);
+      return [];
     }
   }
 
   override async start() {
     if (this.disposed) throw new Error('Wayland Core manager was stopped before bootstrap');
     const startedAtEpoch = this.stopEpoch;
+    this.stopHeartbeat();
     // Decide resume-vs-new BEFORE anything else is awaited.
     //
     // This read is a race against the renderer persisting the turn's own user
@@ -775,12 +781,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // Fallback: start as new session if DB check fails
       sessionArgs = { sessionId: this.conversation_id };
     }
-    // #982: must complete before the engine can raise its first boundary, and
-    // the engine has not spawned yet here. Awaited rather than detached so a
-    // card cannot arrive while the snapshot is still in flight and be prompted
-    // for a folder the user already recorded. Ordering relative to the read
-    // above is load-bearing; do not move it back.
-    await this.loadReplayableGrants();
+    // Capture consent only after the resume decision. Re-read authoritatively
+    // once this exact agent has published its live revoke capability.
+    const consentAtLaunch = await this.loadReplayableGrants();
 
     const mergedData = { ...this.data.data, ...sessionArgs };
 
@@ -950,6 +953,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       yoloMode: mergedData.yoloMode,
       presetRules: effectivePresetRules,
       rawEngineMode,
+      allowHostPathGrants: consentAtLaunch.length > 0,
       maxTokens: mergedData.maxTokens ?? fixedMaxTokens,
       maxTurns: mergedData.maxTurns,
       sessionId: mergedData.sessionId,
@@ -978,13 +982,25 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
     this.agent = agent;
     try {
+      if (consentAtLaunch.length > 0) {
+        const currentConsent = await this.loadReplayableGrants();
+        if (this.disposed || this.stopEpoch !== startedAtEpoch || this.agent !== agent) {
+          throw new Error('Wayland Core manager lost ownership during folder replay preparation');
+        }
+        // Additions wait for the next start; removals and changed roots win.
+        const captured = new Map(consentAtLaunch.map((grant) => [grant.grantId, grant.root]));
+        agent.prepareStartupPathGrants(
+          currentConsent.filter((grant) => captured.get(grant.grantId) === grant.root),
+          () => this.agent === agent && !this.disposed
+        );
+      }
       await agent.start();
     } catch (error) {
       await this.stopBootstrapEngine(agent, error);
       if (!this.agent) await this.releaseProfileLaunchLease();
       throw error;
     }
-    if (this.disposed) {
+    if (this.disposed || this.stopEpoch !== startedAtEpoch || this.agent !== agent) {
       const stoppedDuringBootstrap = new Error('Wayland Core manager was stopped during bootstrap');
       await this.stopBootstrapEngine(agent, stoppedDuringBootstrap);
       if (!this.agent) await this.releaseProfileLaunchLease();
@@ -1072,6 +1088,60 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     };
   }
 
+  private withRecoveryLock<T>(operation: () => Promise<T>): Promise<T> {
+    const run = this.recoveryQueue.then(operation, operation);
+    this.recoveryQueue = run.then(
+      (): void => {},
+      (): void => {}
+    );
+    return run;
+  }
+
+  async getTurnRecovery(): Promise<WCoreTurnRecoveryView> {
+    return this.withRecoveryLock(async () => {
+      await this.ensureBootstrap();
+      if (this.startError || !this.agent) {
+        return { state: 'unavailable', reason: 'engine_unavailable', canAbandon: false };
+      }
+      return this.agent.getTurnRecovery();
+    });
+  }
+
+  async abandonInterruptedTurn(): Promise<WCoreTurnRecoveryView> {
+    return this.withRecoveryLock(async () => {
+      await this.ensureBootstrap();
+      if (this.startError || !this.agent) {
+        return { state: 'unavailable', reason: 'engine_unavailable', canAbandon: false };
+      }
+      const result = await this.agent.abandonInterruptedTurn();
+      if (result.state === 'healthy') {
+        this.currentMsgId = null;
+        this.currentMsgContent = '';
+        this.confirmations = [];
+        this.pendingApprovalTokens.clear();
+        this.gatedToolCallIds.clear();
+        this.status = 'finished';
+        cronBusyGuard.setProcessing(this.conversation_id, false);
+      }
+      return result;
+    });
+  }
+
+  private async assertNoInterruptedTurn(): Promise<void> {
+    await this.ensureBootstrap();
+    if (this.startError || !this.agent) return;
+    const recovery = await this.withRecoveryLock(() => this.agent!.getTurnRecovery());
+    if (recovery.state === 'healthy' || recovery.state === 'unsupported') return;
+    if (recovery.state === 'interrupted') {
+      throw new Error(
+        recovery.canAbandon
+          ? 'This conversation has an interrupted turn. End it before sending a new message.'
+          : 'This interrupted turn requires recovery evidence before the conversation can continue.'
+      );
+    }
+    throw new Error('Wayland Core could not verify that this conversation is ready for a new message.');
+  }
+
   async stop() {
     this.clearUnattendedHoldTimers();
     this.stopEpoch += 1;
@@ -1112,6 +1182,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       });
       return;
     }
+    // Bootstrap once for this send, then check recovery before persistence.
+    // A failed attempt must reach the error/finish path below; checking bootstrap
+    // again later would retry within this turn and bypass recovery on that retry.
+    await this.assertNoInterruptedTurn();
     // Fresh turn: clear the runaway-loop counters so detection is per-turn.
     this.runawayMonitor.resetTurn();
 
@@ -1128,6 +1202,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         ...(data.cronMeta && { cronMeta: data.cronMeta }),
       },
       ...(data.hidden && { hidden: true }),
+      ingest_order: nextTranscriptIngestOrder(),
     };
     addMessage(this.conversation_id, message);
     try {
@@ -1138,13 +1213,6 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     cronBusyGuard.setProcessing(this.conversation_id, true);
     this.status = 'pending';
     this._lastActivityAt = Date.now();
-    // Wait for agent bootstrap to complete before sending. W-1b: if a PREVIOUS
-    // turn's bootstrap failed, retry it once here rather than replaying that
-    // turn's cached error forever - the condition that caused it is usually
-    // gone by now (a stale crash sentinel, a transient lease, a config the user
-    // has since fixed).
-    await this.ensureBootstrap();
-
     // S2: if bootstrap failed, the turn would otherwise hang forever (this.agent
     // is null -> the send below is skipped, no reply/error/finish ever emitted).
     // Surface an honest error + finish so the UI shows a real failure instead of
@@ -1378,18 +1446,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
                 { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
               ];
 
-      // #982: the durable list is a decision the user already made. When it
-      // covers this root the card is never drawn at all - the recorded root is
-      // sent as the answer and the escalation ends here.
-      //
-      // Synchronous by construction: the list was read, revalidated and vetted
-      // once at spawn (`loadReplayableGrantRoots`), so this is a containment
-      // test over strings. No disk I/O sits between the engine's escalation and
-      // the user's screen, and there is no window in which the user could answer
-      // a card the host was about to answer for them.
-      if (details?.type === 'path_boundary' && this.replayFolderGrant(content.callId, details.suggestedRoot)) {
-        continue;
-      }
+      // Stored consent was attempted once at startup. A new boundary always
+      // needs the explicit controls below; it cannot re-grant a refused,
+      // unconfirmed or revoked startup item through always_path.
 
       this.addConfirmation({
         title: (details?.type === 'question' ? details.question : details?.title) || content.name || '',
@@ -1432,6 +1491,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     if (!this.thinkingMsgId) {
       this.thinkingMsgId = uuid();
       this.thinkingStartTime = Date.now();
+      this.thinkingIngestOrder = nextTranscriptIngestOrder();
       this.thinkingContent = '';
       this.lastFlushedThinkingLen = 0;
       this.thinkingSubject = undefined;
@@ -1459,6 +1519,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       type: 'thinking',
       conversation_id: this.conversation_id,
       msg_id: this.thinkingMsgId,
+      segment_id: this.thinkingMsgId,
+      ...(this.thinkingIngestOrder !== null && { ingest_order: this.thinkingIngestOrder }),
       data: {
         content: delta,
         subject: this.thinkingSubject,
@@ -1498,6 +1560,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         status,
       },
       createdAt: this.thinkingStartTime || Date.now(),
+      segment_id: this.thinkingMsgId,
+      ingest_order: this.thinkingIngestOrder ?? nextTranscriptIngestOrder(),
     };
     addOrUpdateMessage(this.conversation_id, tMessage, 'wcore');
   }
@@ -1508,10 +1572,19 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     this.thinkingContent = '';
     this.lastFlushedThinkingLen = 0;
     this.thinkingSubject = undefined;
+    this.thinkingIngestOrder = null;
+  }
+
+  private ingestOrderForSegment(segmentId: string): number {
+    const existing = this.segmentIngestOrders.get(segmentId);
+    if (existing !== undefined) return existing;
+    const assigned = nextTranscriptIngestOrder();
+    this.segmentIngestOrders.set(segmentId, assigned);
+    return assigned;
   }
 
   private queueBufferedStreamText(message: Extract<TMessage, { type: 'text' }>): void {
-    const key = `${message.conversation_id}:${message.msg_id || message.id}`;
+    const key = `${message.conversation_id}:${message.segment_id || message.msg_id || message.id}`;
     const existing = this.bufferedStreamTexts.get(key);
     if (existing) {
       this.bufferedStreamTexts.set(key, {
@@ -1614,10 +1687,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    */
   private emitTruncationFlag(msgId: string): void {
     const richData = { content: '', truncatedDueToBudget: true };
+    const segment = this.latestTextSegment?.msgId === msgId ? this.latestTextSegment : null;
 
     const tMessage: TMessage = {
       id: msgId,
       msg_id: msgId,
+      ...(segment && { segment_id: segment.segmentId, ingest_order: segment.ingestOrder }),
       type: 'text',
       position: 'left',
       conversation_id: this.conversation_id,
@@ -1631,6 +1706,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       type: 'content',
       conversation_id: this.conversation_id,
       msg_id: msgId,
+      ...(segment && { segment_id: segment.segmentId, ingest_order: segment.ingestOrder }),
       data: richData,
     };
     ipcBridge.conversation.responseStream.emit(ipcMsg);
@@ -1667,18 +1743,20 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * cost_source='unknown' (tokens only) when the model is unpriced.
    */
   private recordCost(data: unknown): void {
-    if (!data || typeof data !== 'object' || !('input_tokens' in data)) return;
-    const usage = data as { input_tokens?: number; output_tokens?: number };
-    const inputTokens = typeof usage.input_tokens === 'number' ? usage.input_tokens : 0;
-    const outputTokens = typeof usage.output_tokens === 'number' ? usage.output_tokens : 0;
-    if (inputTokens + outputTokens <= 0) return;
+    if (!data || typeof data !== 'object') return;
+    const usage = data as { input_tokens?: unknown; output_tokens?: unknown; cache_read_tokens?: unknown };
+    const inputTokens = finiteNonNegativeTokenCount(usage.input_tokens);
+    const outputTokens = finiteNonNegativeTokenCount(usage.output_tokens);
+    const cacheReadTokens = finiteNonNegativeTokenCount(usage.cache_read_tokens);
+    if (inputTokens === undefined && outputTokens === undefined && cacheReadTokens === undefined) return;
     getCostRecorder()?.recordTurnFinish({
       conversationId: this.conversation_id,
       backend: 'wcore',
       modelId: this.model?.useModel,
       costSource: 'computed',
-      inputTokens,
-      outputTokens,
+      ...(inputTokens !== undefined && { inputTokens }),
+      ...(outputTokens !== undefined && { outputTokens }),
+      ...(cacheReadTokens !== undefined && { cacheReadTokens }),
       ts: Date.now(),
     });
   }
@@ -2256,6 +2334,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.currentMsgId = data.msg_id ?? null;
         this._lastTurnMsgId = data.msg_id ?? this._lastTurnMsgId;
         this.currentMsgContent = '';
+        this.segmentIngestOrders.clear();
+        this.latestTextSegment = null;
         // A new turn starts clean: last turn's failure must not condemn this one.
         this._turnSawError = false;
         // A2 - and last turn's gated call_ids must not demote this turn's
@@ -2290,6 +2370,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // phrase) once, immediately before the first reasoning text. Thread it through
       // so the live "Thinking" block header shows the model's own summary (#318).
       if (data.type === 'thought') {
+        // A reasoning block is a transcript boundary. Persist any prose admitted
+        // before it first; otherwise the thinking row can overtake a debounced
+        // text segment on reload.
+        this.flushAllBufferedStreamTexts();
         data.conversation_id = this.conversation_id;
         const content = typeof data.data === 'string' ? data.data : '';
         const subject = typeof data.subject === 'string' ? data.subject : undefined;
@@ -2310,11 +2394,26 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       if (data.type === 'content' && typeof data.data === 'string') {
         const { thinking, content: stripped } = extractAndStripThinkTags(data.data);
         if (thinking) {
+          this.flushAllBufferedStreamTexts();
           this.emitThinkingMessage(thinking, 'thinking');
         }
         if (stripped !== data.data) {
-          processedData = { ...data, data: stripped };
+          processedData = {
+            ...data,
+            data: stripped,
+            // The inline reasoning text is a real boundary even though it
+            // arrived inside one provider chunk. Visible prose after it must
+            // open a new transcript segment.
+            ...(thinking && { segment_id: uuid() }),
+          };
         }
+      }
+
+      if (processedData.segment_id) {
+        processedData = {
+          ...processedData,
+          ingest_order: this.ingestOrderForSegment(processedData.segment_id),
+        };
       }
 
       // Accumulate text content from incremental deltas
@@ -2375,6 +2474,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         const transformDuration = Date.now() - transformStart;
 
         if (tMessage) {
+          if (tMessage.type === 'text' && tMessage.segment_id && tMessage.ingest_order !== undefined) {
+            this.latestTextSegment = {
+              msgId: tMessage.msg_id ?? tMessage.id,
+              segmentId: tMessage.segment_id,
+              ingestOrder: tMessage.ingest_order,
+            };
+          }
           const dbStart = Date.now();
           const isStreamTextChunk = tMessage.type === 'text' && processedData.type === 'content';
           if (isStreamTextChunk) {
@@ -2741,39 +2847,6 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.agent.approveTool(callId, scope, answer);
       }
     }
-  }
-
-  /**
-   * Answer this boundary card from the workspace's DURABLE grant list, if the
-   * list covers it (#982).
-   *
-   * WHY THIS IS NOT AN AUTO-APPROVAL. `tryAutoApprove` refuses every
-   * `path_boundary` in every mode, and that is unchanged: a MODE must never
-   * decide to widen filesystem authority, because the user never saw the folder
-   * named. This is the opposite direction - the user named the folder, wrote it
-   * down, and can see and revoke it in Settings. `resolveReplayableGrantRoot`
-   * re-checks that record against the live filesystem AND against the same
-   * host-side authority gate a click passes, and returns null on any doubt, so
-   * nothing here can hand out a root the user did not record.
-   *
-   * NO CARD IS DRAWN when this returns true. The alternative - draw it, then
-   * withdraw it a moment later - shows the user a security prompt that vanishes
-   * under their cursor, and opens a window in which their click and the host's
-   * answer race for the same call id. Answering before the card exists closes
-   * both.
-   *
-   * Synchronous, and that is what makes the above possible: every filesystem
-   * question was asked once at spawn.
-   *
-   * @returns true when the boundary was answered from the record.
-   */
-  private replayFolderGrant(callId: string, suggestedRoot: unknown): boolean {
-    const root = replayableGrantRootFor(this.replayableGrantRoots, suggestedRoot);
-    if (!root) return false;
-    // The vetted canonical root goes out, byte-identical to what a click sends,
-    // so the folder the record names and the folder the engine resolves are one.
-    this.agent?.approveTool(callId, { always_path: { root, write: false } });
-    return true;
   }
 
   /**

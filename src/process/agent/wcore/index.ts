@@ -8,7 +8,11 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, dirname, join, resolve as resolvePath } from 'node:path';
+import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
+import type { LiveFolderGrant } from '@/common/workspace/folderGrants';
+import type { FolderGrantSessionView } from '@/common/workspace/folderGrantsIpc';
+import { isWithin } from '@process/services/workspace/folderGrantRoots';
+import { MAX_FOLDER_GRANTS_PER_WORKSPACE } from '@process/services/workspace/folderGrantStore';
 import { createInterface } from 'node:readline';
 import type { Writable } from 'node:stream';
 import { parse, stringify } from 'smol-toml';
@@ -63,6 +67,10 @@ import type {
   RenderMime,
   PathGrantAccess,
   WCoreWorkspacePolicy,
+  WCoreRecoverySnapshot,
+  WCoreRecoveryUnavailableReason,
+  WCoreTurnRecoveryView,
+  PathGrantReplayOutcome,
 } from './protocol';
 import { registerLivePathGrantSession } from './pathGrantSessions';
 import { parseQuestionTool } from './questionTool';
@@ -134,7 +142,27 @@ const RENDERABLE_ARTIFACT_MIMES: ReadonlySet<RenderMime> = new Set<RenderMime>([
   'text/html',
 ]);
 
-type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string; subject?: string }) => void;
+type StreamEventHandler = (event: {
+  type: string;
+  data: unknown;
+  msg_id: string;
+  subject?: string;
+  segment_id?: string;
+  ingest_order?: number;
+}) => void;
+
+const TEXT_SEGMENT_BOUNDARY_TYPES = new Set([
+  'stream_start',
+  'thinking',
+  'tool_request',
+  'call_announced',
+  'tool_running',
+  'tool_result',
+  'tool_cancelled',
+  'tool_panicked',
+  'stream_end',
+  'error',
+]);
 
 /**
  * How long to wait for the `workspace_policy` receipt that confirms a path
@@ -359,6 +387,8 @@ export type WCoreAgentOptions = {
    * skips the Constitution/skills/specialist prompt overlay when this is set.
    */
   rawEngineMode?: boolean;
+  /** Per-launch opt-in only when the manager captured vetted saved read consent. */
+  allowHostPathGrants?: boolean;
   /**
    * Legacy stdio MCP declarations sent after Core startup. Do not add user
    * connectors here; publish them into trusted startup config instead.
@@ -477,6 +507,30 @@ export function describeToolCancellation(reason: string): { name: string; descri
   return { name: '', description: reason };
 }
 
+const WCORE_RECOVERY_TIMEOUT_MS = 10_000;
+const NON_ABANDONABLE_RECOVERY_REASONS = new Set([
+  'provider_outcome_unknown',
+  'tool_outcome_unknown',
+  'effect_requires_operator',
+  'cancellation_ambiguous',
+  'unknown_critical_state',
+]);
+
+type RecoveryInspection =
+  | { kind: 'snapshot'; snapshot: WCoreRecoverySnapshot }
+  | { kind: 'unavailable'; reason: WCoreRecoveryUnavailableReason };
+
+type RecoveryCommandResult = { ok: true } | { ok: false; reason: WCoreRecoveryUnavailableReason };
+
+type StartupPathBatch = {
+  grants: readonly LiveFolderGrant[];
+  initiallyReadable: readonly string[];
+  policy: WCoreWorkspacePolicy | null;
+  awaitingPong: boolean;
+  timer: ReturnType<typeof setTimeout>;
+  resolve: (outcomes: readonly PathGrantReplayOutcome[]) => void;
+};
+
 export class WCoreAgent {
   private resolvedBinaryPath: string | null = null;
   private childProcess: ChildProcess | null = null;
@@ -518,6 +572,17 @@ export class WCoreAgent {
   private lastWorkspacePolicy: WCoreWorkspacePolicy | null = null;
   /** Resolvers waiting for the NEXT receipt. Drained and cleared on arrival. */
   private workspacePolicyWaiters: Array<(policy: WCoreWorkspacePolicy) => void> = [];
+  private readonly pathGrantSessionId = randomUUID();
+  private startupPathGrants: readonly LiveFolderGrant[] = [];
+  private startupPathReplayPending = false;
+  private startupPathReplayUsed = false;
+  private startupPathReplayCancelled = false;
+  private ownsStartupPathSession: () => boolean = () => true;
+  private startupPathBatch: StartupPathBatch | null = null;
+  private readonly pathGrantApplications = new Map<string, PathGrantReplayOutcome>();
+  private readonly revokedPathGrantIds = new Set<string>();
+  private readonly pendingPathRevokes = new Map<string, Array<(policy: WCoreWorkspacePolicy | null) => void>>();
+  private pendingPings = 0;
   // #520 command visibility: the wire's `tool_running` / `tool_result` events
   // carry only `call_id` + `tool_name` - not the command/description. The engine
   // sends the humanized command (e.g. "Execute: ls") once, on the preceding
@@ -528,6 +593,8 @@ export class WCoreAgent {
   // request-time description per callId and re-attach it to the running/result
   // frames so the command stays visible for the whole tool lifecycle.
   private toolDescriptionByCallId = new Map<string, string>();
+  /** The current contiguous prose segment; tool/reasoning boundaries clear it. */
+  private activeTextSegmentId: string | null = null;
   /**
    * #746: turn stall watchdog. Started on send(), reset by every turn frame,
    * stopped on the terminal frame (stream_end / error) — see
@@ -551,6 +618,26 @@ export class WCoreAgent {
     string,
     { resolve: () => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
   >();
+  private recoverySupported = false;
+  private readonly recoveryInspectionWaiters = new Map<
+    string,
+    {
+      sessionId: string;
+      resolve: (result: RecoveryInspection) => void;
+      reject: (error: Error) => void;
+      timer: ReturnType<typeof setTimeout>;
+    }
+  >();
+  private readonly recoveryCommandWaiters = new Map<
+    string,
+    {
+      sessionId: string;
+      resolve: (result: RecoveryCommandResult) => void;
+      reject: (error: Error) => void;
+      timer: ReturnType<typeof setTimeout>;
+    }
+  >();
+  private recoveryAction: Promise<WCoreTurnRecoveryView> | null = null;
   public sessionId?: string;
   public capabilities?: WCoreCapabilities;
   /**
@@ -612,10 +699,11 @@ export class WCoreAgent {
     // Published from construction rather than from a successful spawn: a
     // Settings revoke that arrives while the engine is still booting must find
     // this session, and `revokePath` on a transport that is not up yet is a
-    // no-op that resolves null rather than throwing.
+    // tombstone that prevents later replay and resolves null rather than throwing.
     this.unpublishPathGrantSession = registerLivePathGrantSession({
       workspace: options.workspace,
       revokePath: (grantId) => this.revokePath(grantId),
+      applicationView: () => this.pathGrantApplicationView,
     });
     this.anvilMutationWatcher = new AnvilPersistentMutationWatcher(options.workspace, (reason) => {
       const revoked = this.desktopContract.markWorkspaceMutated();
@@ -848,6 +936,7 @@ export class WCoreAgent {
       sessionId: this.options.sessionId,
       resume: this.options.resume,
       rawEngine: this.options.rawEngineMode,
+      allowHostPathGrants: this.options.allowHostPathGrants,
       // T2. Ignored in raw-engine mode by `buildSpawnConfig`, deliberately: the
       // engine runs on its own config.toml there and Desktop overrides nothing
       // on the prompt side.
@@ -1065,6 +1154,7 @@ export class WCoreAgent {
         activeMsgId: this.activeMsgId ?? null,
       });
       this.stopStallWatchdog();
+      this.failRecoveryWaiters(new Error('Wayland Core contract failed during recovery'));
       if (!this.ready) {
         // #DIA-01: surface the engine's own stderr reason instead of only this
         // JS-side parser's complaint, when the engine left one behind.
@@ -1218,6 +1308,7 @@ export class WCoreAgent {
       if (this.childProcess === spawnedChild) {
         this.transportAlive = false;
         this.transportUnavailableReason = 'root-exit';
+        this.cancelStartupPathReplay();
       }
       this.cleanupVertexCredentials();
       this.anvilMutationWatcher.stop();
@@ -1238,6 +1329,7 @@ export class WCoreAgent {
       // against a turn nothing can finish. (activeMsgId is nulled below too, so
       // handleTurnStall would early-return anyway; this just doesn't leak the timer.)
       this.stopStallWatchdog();
+      this.failRecoveryWaiters(new Error('Wayland Core exited during recovery'));
       // Root exit is notification only, even when shutdown was unrequested.
       // Descendants can survive and become reparented, so this event cannot
       // restore launch config or discard the only identity available to an
@@ -1376,6 +1468,13 @@ export class WCoreAgent {
       throw err;
     }
 
+    // Own the first idle command phase: no MCP/history/heartbeat/message may
+    // precede the grant response tail and its single ping/pong barrier.
+    await this.replayStartupPathGrants();
+    if (this.disposed || this.startupPathReplayCancelled || !this.transportAlive || !this.ownsStartupPathSession()) {
+      throw new Error('Wayland Core startup folder replay lost session ownership');
+    }
+
     // Register legacy host MCP declarations before the first message. Waiters
     // are keyed by server name and installed BEFORE commands are written, so a
     // fast receipt cannot race registration. Every awaited server must reach a
@@ -1492,6 +1591,7 @@ export class WCoreAgent {
   /** Re-arm the ready gate for a retry spawn. */
   private armFreshReadyPromise(): void {
     this.ready = false;
+    this.recoverySupported = false;
     this.readyPromise = new Promise((resolve, reject) => {
       this.readyResolve = resolve;
       this.readyReject = reject;
@@ -1591,13 +1691,48 @@ export class WCoreAgent {
     // reset() is a no-op unless the timer is running, so a paused tool/approval
     // window stays paused.
     if ('msg_id' in event) this.stallTimer.reset();
+    if (TEXT_SEGMENT_BOUNDARY_TYPES.has(String(event.type))) this.activeTextSegmentId = null;
 
     switch (event.type) {
       case 'ready':
         this.ready = true;
         this.sessionId = event.session_id;
         this.capabilities = event.capabilities;
+        this.recoverySupported =
+          event.contract?.capabilities.turn_recovery_v1 === 'available' &&
+          event.contract?.capabilities.turn_abandon_v1 === 'available';
         this.readyResolve();
+        break;
+
+      case 'session_recovery_snapshot': {
+        const waiter = this.recoveryInspectionWaiters.get(event.request_id);
+        if (!waiter || waiter.sessionId !== event.session_id) break;
+        clearTimeout(waiter.timer);
+        this.recoveryInspectionWaiters.delete(event.request_id);
+        waiter.resolve({ kind: 'snapshot', snapshot: event });
+        break;
+      }
+
+      case 'session_recovery_unavailable': {
+        const inspection = this.recoveryInspectionWaiters.get(event.request_id);
+        if (inspection && inspection.sessionId === event.session_id) {
+          clearTimeout(inspection.timer);
+          this.recoveryInspectionWaiters.delete(event.request_id);
+          inspection.resolve({ kind: 'unavailable', reason: event.reason });
+        }
+        const command = this.recoveryCommandWaiters.get(event.request_id);
+        if (command && command.sessionId === event.session_id) {
+          clearTimeout(command.timer);
+          this.recoveryCommandWaiters.delete(event.request_id);
+          command.resolve({ ok: false, reason: event.reason });
+        }
+        break;
+      }
+
+      // The lifecycle frame has no request_id and therefore cannot prove that a
+      // particular button action landed. A fresh correlated snapshot below is
+      // the only authority that unlocks sends.
+      case 'turn_recovery_lifecycle':
         break;
 
       case 'stream_start':
@@ -1606,7 +1741,13 @@ export class WCoreAgent {
         break;
 
       case 'text_delta':
-        this.onStreamEvent({ type: 'content', data: event.text, msg_id: event.msg_id });
+        this.activeTextSegmentId ??= randomUUID();
+        this.onStreamEvent({
+          type: 'content',
+          data: event.text,
+          msg_id: event.msg_id,
+          segment_id: this.activeTextSegmentId,
+        });
         break;
 
       case 'thinking':
@@ -1636,6 +1777,7 @@ export class WCoreAgent {
             },
           ],
           msg_id: event.msg_id,
+          segment_id: `${event.msg_id}:tool:${event.call_id}`,
         });
         break;
 
@@ -1653,6 +1795,7 @@ export class WCoreAgent {
             },
           ],
           msg_id: event.msg_id,
+          segment_id: `${event.msg_id}:tool:${event.call_id}`,
         });
         break;
 
@@ -1675,6 +1818,7 @@ export class WCoreAgent {
             },
           ],
           msg_id: event.msg_id,
+          segment_id: `${event.msg_id}:tool:${event.call_id}`,
         });
         // #520: the tool is terminal - drop its cached command.
         this.toolDescriptionByCallId.delete(event.call_id);
@@ -1698,6 +1842,7 @@ export class WCoreAgent {
             },
           ],
           msg_id: event.msg_id,
+          segment_id: `${event.msg_id}:tool:${event.call_id}`,
         });
         // #520: terminal - drop its cached command.
         this.toolDescriptionByCallId.delete(event.call_id);
@@ -1748,6 +1893,15 @@ export class WCoreAgent {
       }
 
       case 'stream_end': {
+        const recoveryCommand = this.recoveryCommandWaiters.get(event.msg_id);
+        if (recoveryCommand) {
+          if (event.finish_reason !== 'error') {
+            clearTimeout(recoveryCommand.timer);
+            this.recoveryCommandWaiters.delete(event.msg_id);
+            recoveryCommand.resolve({ ok: true });
+          }
+          break;
+        }
         const finishPayload: Record<string, unknown> = {};
         if (event.usage) Object.assign(finishPayload, event.usage);
         if (event.finish_reason) finishPayload.finish_reason = event.finish_reason;
@@ -1797,15 +1951,11 @@ export class WCoreAgent {
         });
         break;
 
-      // #1099 boundary axis. This is the ONLY host-visible answer to "what can
-      // this chat actually reach", and the only structural confirmation that a
-      // `grant_path` landed: Core emits the updated receipt in the `Ok` arm of
-      // `emit_path_grant` and NOWHERE ELSE, flattening its typed
-      // `PathGrantError` into an untyped `info` string. Absence of a receipt is
-      // therefore the refusal signal - which only works if the host is actually
-      // listening for one, so this must not fall through to `default:`.
+      // A receipt carries authority, but only the batch pong completes its
+      // ordered response tail. A matching typed refusal takes precedence.
       case 'workspace_policy':
         this.lastWorkspacePolicy = event.policy;
+        if (this.startupPathBatch) this.startupPathBatch.policy = event.policy;
         this.resolveWorkspacePolicyWaiters(event.policy);
         this.onStreamEvent({ type: 'workspace_policy', data: event.policy, msg_id: '' });
         break;
@@ -1860,9 +2010,29 @@ export class WCoreAgent {
         });
         break;
 
-      case 'pong':
-        this._onPong?.();
+      case 'grant_refused': {
+        const grant = this.startupPathBatch?.grants.find((entry) => entry.grantId === event.grant_id);
+        if (event.surface === 'path' && grant && !this.revokedPathGrantIds.has(grant.grantId)) {
+          this.pathGrantApplications.set(grant.grantId, {
+            grantId: grant.grantId,
+            root: grant.root,
+            status: 'refused',
+            reason:
+              event.reason === 'local_opt_in_required' || event.reason === 'policy_rejected' ? event.reason : 'unknown',
+            detail: event.detail,
+          });
+        }
         break;
+      }
+
+      case 'pong': {
+        const batch = this.startupPathBatch;
+        const ownsPong = batch?.awaitingPong && this.pendingPings === 1;
+        if (this.pendingPings > 0) this.pendingPings--;
+        if (batch) this.finishStartupPathBatch(ownsPong ? 'completed' : 'unconfirmed');
+        else this._onPong?.();
+        break;
+      }
 
       // ── W7 F4: streaming tool-result chunk ─────────────────────────
       // Forward as an `info`-channel update so the renderer can append
@@ -1944,6 +2114,7 @@ export class WCoreAgent {
           type: 'error',
           data: `Tool ${event.tool_name} panicked: ${event.panic_message}`,
           msg_id: event.msg_id,
+          segment_id: `${event.msg_id}:tool:${event.call_id}`,
         });
         break;
 
@@ -2264,6 +2435,143 @@ export class WCoreAgent {
     this.writeCommand(cmd);
   }
 
+  private recoveryView(result: RecoveryInspection): WCoreTurnRecoveryView {
+    if (result.kind === 'unavailable') {
+      return { state: 'unavailable', reason: result.reason, canAbandon: false };
+    }
+    const { snapshot } = result;
+    const pending = snapshot.pending_turn;
+    if (!pending) return { state: 'healthy', lifecycle: snapshot.lifecycle, canAbandon: false };
+    const reason = pending.reconcile_reason;
+    const abandonableLifecycle =
+      pending.lifecycle === 'awaiting_approval' || pending.lifecycle === 'suspended' || pending.lifecycle === 'failed';
+    return {
+      state: 'interrupted',
+      lifecycle: pending.lifecycle,
+      ...(reason ? { reason } : {}),
+      canAbandon: abandonableLifecycle && (!reason || !NON_ABANDONABLE_RECOVERY_REASONS.has(reason)),
+    };
+  }
+
+  private async inspectRecovery(): Promise<RecoveryInspection> {
+    await this.readyPromise;
+    if (!this.sessionId) throw new Error('Wayland Core did not publish a durable session id');
+    const sessionId = this.sessionId;
+    const requestId = `desktop-recovery-${randomUUID()}`;
+    return new Promise<RecoveryInspection>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.recoveryInspectionWaiters.delete(requestId);
+        reject(new Error('Wayland Core recovery inspection timed out'));
+      }, WCORE_RECOVERY_TIMEOUT_MS);
+      this.recoveryInspectionWaiters.set(requestId, { sessionId, resolve, reject, timer });
+      try {
+        if (
+          !this.writeCommand({
+            type: 'session_resync',
+            recovery_version: 1,
+            request_id: requestId,
+            session_id: sessionId,
+          })
+        ) {
+          clearTimeout(timer);
+          this.recoveryInspectionWaiters.delete(requestId);
+          reject(new Error('Wayland Core recovery transport is unavailable'));
+        }
+      } catch (error) {
+        clearTimeout(timer);
+        this.recoveryInspectionWaiters.delete(requestId);
+        reject(error instanceof Error ? error : new Error(String(error)));
+      }
+    });
+  }
+
+  async getTurnRecovery(): Promise<WCoreTurnRecoveryView> {
+    await this.readyPromise;
+    if (!this.recoverySupported || !this.sessionId) {
+      return { state: 'unsupported', canAbandon: false };
+    }
+    if (!this.isAlive) return { state: 'unavailable', reason: 'engine_unavailable', canAbandon: false };
+    try {
+      return this.recoveryView(await this.inspectRecovery());
+    } catch {
+      return { state: 'unavailable', reason: 'engine_unavailable', canAbandon: false };
+    }
+  }
+
+  abandonInterruptedTurn(): Promise<WCoreTurnRecoveryView> {
+    if (this.recoveryAction) return this.recoveryAction;
+    const action = this.performAbandonInterruptedTurn().finally(() => {
+      if (this.recoveryAction === action) this.recoveryAction = null;
+    });
+    this.recoveryAction = action;
+    return action;
+  }
+
+  private async performAbandonInterruptedTurn(): Promise<WCoreTurnRecoveryView> {
+    await this.readyPromise;
+    if (!this.recoverySupported || !this.sessionId) return { state: 'unsupported', canAbandon: false };
+    const before = await this.inspectRecovery();
+    const beforeView = this.recoveryView(before);
+    if (before.kind !== 'snapshot' || !before.snapshot.pending_turn || !beforeView.canAbandon) return beforeView;
+
+    const sessionId = this.sessionId;
+    const pending = before.snapshot.pending_turn;
+    const requestId = `desktop-abandon-${randomUUID()}`;
+    const commandResult = await new Promise<RecoveryCommandResult>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.recoveryCommandWaiters.delete(requestId);
+        reject(new Error('Wayland Core interrupted-turn action timed out'));
+      }, WCORE_RECOVERY_TIMEOUT_MS);
+      this.recoveryCommandWaiters.set(requestId, { sessionId, resolve, reject, timer });
+      try {
+        const written = this.writeCommand({
+          type: 'resume_turn',
+          recovery_version: 1,
+          request_id: requestId,
+          session_id: sessionId,
+          turn_id: pending.turn_id,
+          cursor: before.snapshot.cursor,
+          action: 'abandon',
+        });
+        if (!written) {
+          clearTimeout(timer);
+          this.recoveryCommandWaiters.delete(requestId);
+          reject(new Error('Wayland Core recovery transport is unavailable'));
+        }
+      } catch (error) {
+        clearTimeout(timer);
+        this.recoveryCommandWaiters.delete(requestId);
+        reject(error instanceof Error ? error : new Error(String(error)));
+      }
+    });
+    if ('reason' in commandResult) {
+      return { state: 'unavailable', reason: commandResult.reason, canAbandon: false };
+    }
+
+    const verified = this.recoveryView(await this.inspectRecovery());
+    if (verified.state !== 'healthy') {
+      return { state: 'unavailable', reason: 'verification_failed', canAbandon: false };
+    }
+    if (pending.pending_call_id && pending.msg_id) {
+      this.toolDescriptionByCallId.delete(pending.pending_call_id);
+      this.resumeStallWatchdog(`tool:${pending.pending_call_id}`);
+      this.onStreamEvent({
+        type: 'tool_group',
+        data: [
+          {
+            callId: pending.pending_call_id,
+            name: 'Interrupted tool',
+            description: 'Ended after the interrupted turn was abandoned.',
+            status: 'Canceled',
+            renderOutputAsMarkdown: false,
+          },
+        ],
+        msg_id: pending.msg_id,
+      });
+    }
+    return verified;
+  }
+
   async send(content: string, msgId: string, files?: string[]): Promise<void> {
     await this.readyPromise;
     // A retained child after root exit is shutdown authority, not a live
@@ -2298,6 +2606,7 @@ export class WCoreAgent {
   stop(): void {
     // #746: the turn is being cancelled — disarm the watchdog so it can't later fire
     // against a turn that is already over. Idempotent (handleTurnStall stops it first).
+    this.cancelStartupPathReplay();
     this.stopStallWatchdog();
     this.sendCommand({ type: 'stop' });
   }
@@ -2336,16 +2645,155 @@ export class WCoreAgent {
     return this.lastWorkspacePolicy?.readable_roots ?? [];
   }
 
+  /** Arm only revalidated records while this exact agent is still pre-ready. */
+  prepareStartupPathGrants(grants: readonly LiveFolderGrant[], ownsSession: () => boolean = () => true): void {
+    if (this.ready || this.startupPathReplayUsed) throw new Error('Folder replay must be prepared before ready');
+    this.ownsStartupPathSession = ownsSession;
+    this.startupPathGrants = grants
+      .slice(0, MAX_FOLDER_GRANTS_PER_WORKSPACE)
+      .filter((grant) => grant.access === 'read' && !this.revokedPathGrantIds.has(grant.grantId));
+    this.startupPathReplayPending = this.startupPathGrants.length > 0;
+    for (const grant of this.startupPathGrants) {
+      this.pathGrantApplications.set(grant.grantId, {
+        grantId: grant.grantId,
+        root: grant.root,
+        status: this.startupPathReplayCancelled ? 'unavailable' : 'pending',
+      });
+    }
+  }
+
+  get pathGrantApplicationView(): FolderGrantSessionView | null {
+    if (this.disposed || this.transportUnavailableReason !== null || !this.ownsStartupPathSession()) return null;
+    return {
+      sessionId: this.pathGrantSessionId,
+      conversationId: this.options.conversationId ?? null,
+      applications: [...this.pathGrantApplications.values()],
+    };
+  }
+
+  /** One capped startup batch, completed only by its exclusive idle pong. */
+  replayStartupPathGrants(timeoutMs = WORKSPACE_POLICY_RECEIPT_TIMEOUT_MS): Promise<readonly PathGrantReplayOutcome[]> {
+    if (this.startupPathReplayUsed) throw new Error('Startup folder replay is one-shot');
+    this.startupPathReplayUsed = true;
+    const grants = this.startupPathGrants.filter((grant) => !this.revokedPathGrantIds.has(grant.grantId));
+    if (grants.length === 0) {
+      this.startupPathReplayPending = false;
+      return Promise.resolve([...this.pathGrantApplications.values()]);
+    }
+    if (
+      !this.ready ||
+      !this.transportAlive ||
+      this.disposed ||
+      this.startupPathReplayCancelled ||
+      !this.ownsStartupPathSession() ||
+      this.activeMsgId ||
+      this.pendingPings > 0
+    ) {
+      for (const grant of grants)
+        this.pathGrantApplications.set(grant.grantId, {
+          grantId: grant.grantId,
+          root: grant.root,
+          status: 'unconfirmed',
+        });
+      this.startupPathReplayPending = false;
+      return Promise.resolve([...this.pathGrantApplications.values()]);
+    }
+    return new Promise((resolve) => {
+      const batch: StartupPathBatch = {
+        grants,
+        initiallyReadable: this.lastWorkspacePolicy?.readable_roots ?? [],
+        policy: null,
+        awaitingPong: false,
+        timer: setTimeout(() => this.finishStartupPathBatch('unconfirmed'), timeoutMs),
+        resolve,
+      };
+      this.startupPathBatch = batch;
+      try {
+        for (const grant of grants) {
+          if (this.startupPathBatch !== batch) return;
+          if (this.revokedPathGrantIds.has(grant.grantId)) continue;
+          if (
+            !this.writeCommand({ type: 'grant_path', grant_id: grant.grantId, root: grant.root, access: 'read' }, true)
+          ) {
+            this.finishStartupPathBatch('unavailable');
+            return;
+          }
+        }
+        if (this.startupPathBatch !== batch) return;
+        batch.awaitingPong = true;
+        if (!this.writeCommand({ type: 'ping' }, true)) this.finishStartupPathBatch('unavailable');
+      } catch {
+        this.finishStartupPathBatch('unavailable');
+      }
+    });
+  }
+
+  private finishStartupPathBatch(result: 'completed' | 'unconfirmed' | 'unavailable'): void {
+    const batch = this.startupPathBatch;
+    if (!batch) return;
+    this.startupPathBatch = null;
+    this.startupPathReplayPending = false;
+    clearTimeout(batch.timer);
+    if (!this.ownsStartupPathSession()) result = 'unavailable';
+    const covers = (roots: readonly string[], folder: string): boolean =>
+      roots.some((root) => isAbsolute(root) && isWithin(folder, root));
+    for (const grant of batch.grants) {
+      const current = this.pathGrantApplications.get(grant.grantId);
+      if (this.revokedPathGrantIds.has(grant.grantId)) {
+        this.pathGrantApplications.set(grant.grantId, { grantId: grant.grantId, root: grant.root, status: 'revoked' });
+      } else if (current?.status !== 'refused') {
+        const applied = result === 'completed' && batch.policy && covers(batch.policy.readable_roots, grant.root);
+        this.pathGrantApplications.set(
+          grant.grantId,
+          applied
+            ? {
+                grantId: grant.grantId,
+                root: grant.root,
+                status: 'applied',
+                coverage: covers(batch.initiallyReadable, grant.root) ? 'already-readable' : 'policy-confirmed',
+              }
+            : {
+                grantId: grant.grantId,
+                root: grant.root,
+                status: result === 'unavailable' ? 'unavailable' : 'unconfirmed',
+              }
+        );
+      }
+    }
+    // Revoke writes precede release of the startup gate. Their callers retain
+    // the existing receipt wait; no later startup write can restore these IDs.
+    const revokes = [...this.pendingPathRevokes];
+    this.pendingPathRevokes.clear();
+    for (const [grantId, waiters] of revokes) {
+      try {
+        void this.revokePath(grantId).then(
+          (policy) => waiters.forEach((resolve) => resolve(policy)),
+          () => waiters.forEach((resolve) => resolve(null))
+        );
+      } catch {
+        waiters.forEach((resolve) => resolve(null));
+      }
+    }
+    batch.resolve([...this.pathGrantApplications.values()]);
+  }
+
+  private cancelStartupPathReplay(): void {
+    this.startupPathReplayCancelled = true;
+    this.finishStartupPathBatch('unavailable');
+    this.startupPathReplayPending = false;
+    for (const [id, item] of this.pathGrantApplications) {
+      if (item.status === 'pending')
+        this.pathGrantApplications.set(id, { grantId: id, root: item.root, status: 'unavailable' });
+    }
+  }
+
   /**
    * Grant this session standing READ access to one folder outside the workspace.
    *
-   * Resolves with the UPDATED policy receipt when Core accepts, and with `null`
-   * when no receipt arrives inside `timeoutMs`. `null` is the refusal signal and
-   * the whole reason this returns a promise instead of being fire-and-forget:
-   * Core answers a refusal with an untyped `info` string and NO receipt (see
-   * `emit_path_grant`), so "no error came back" is not evidence the grant took.
-   * A caller that treated this as void would be asserting a boundary it never
-   * confirmed.
+   * This legacy receipt-only primitive returns the next policy receipt, which
+   * can precede a typed refusal. It is not an application acknowledgement;
+   * startup saved consent uses replayStartupPathGrants and its pong barrier.
+   * A null result means no receipt was observed within the deadline.
    *
    * The waiter is armed BEFORE the command is written, so a receipt that lands
    * on the very next line cannot be missed.
@@ -2375,6 +2823,19 @@ export class WCoreAgent {
    * out, never that Core declined.
    */
   revokePath(grantId: string, timeoutMs = WORKSPACE_POLICY_RECEIPT_TIMEOUT_MS): Promise<WCoreWorkspacePolicy | null> {
+    this.revokedPathGrantIds.add(grantId);
+    const previous = this.pathGrantApplications.get(grantId);
+    if (previous) this.pathGrantApplications.set(grantId, { grantId, root: previous.root, status: 'revoked' });
+    if (this.startupPathBatch) {
+      return new Promise((resolve) => {
+        const waiters = this.pendingPathRevokes.get(grantId) ?? [];
+        waiters.push(resolve);
+        this.pendingPathRevokes.set(grantId, waiters);
+      });
+    }
+    // The tombstone must outlive a pre-ready removal and the manager's awaited
+    // revalidation. There is no command to withdraw before a grant was sent.
+    if (!this.ready || !this.transportAlive || this.disposed) return Promise.resolve(null);
     const receipt = this.awaitNextWorkspacePolicy(timeoutMs);
     this.sendCommand({ type: 'revoke_path', grant_id: grantId });
     return receipt;
@@ -2434,7 +2895,9 @@ export class WCoreAgent {
     if (this.childProcess !== child || !this.transportAlive) return;
     this.transportAlive = false;
     this.transportUnavailableReason = 'stdin';
+    this.cancelStartupPathReplay();
     this.stopStallWatchdog();
+    this.failRecoveryWaiters(new Error('Wayland Core recovery transport closed'));
     if (!this.ready) {
       this.readyReject(new Error('wcore command transport closed during init'));
     }
@@ -2443,7 +2906,23 @@ export class WCoreAgent {
     if (activeMsgId) this._onProcessExit?.(null, activeMsgId);
   }
 
-  private writeCommand(cmd: WCoreCommand): boolean {
+  private failRecoveryWaiters(error: Error): void {
+    for (const waiter of this.recoveryInspectionWaiters.values()) {
+      clearTimeout(waiter.timer);
+      waiter.reject(error);
+    }
+    this.recoveryInspectionWaiters.clear();
+    for (const waiter of this.recoveryCommandWaiters.values()) {
+      clearTimeout(waiter.timer);
+      waiter.reject(error);
+    }
+    this.recoveryCommandWaiters.clear();
+  }
+
+  private writeCommand(cmd: WCoreCommand, startupPathCommand = false): boolean {
+    if (this.startupPathReplayPending && this.ready && !startupPathCommand) {
+      throw new Error('Startup folder replay owns the idle command phase');
+    }
     const child = this.childProcess;
     const stdin = child?.stdin;
     if (
@@ -2462,6 +2941,7 @@ export class WCoreAgent {
     }
 
     const validated = this.desktopContract.validateOutboundCommand(cmd);
+    if (cmd.type === 'ping') this.pendingPings++;
     try {
       stdin.write(JSON.stringify(validated) + '\n');
     } catch {
@@ -2508,12 +2988,14 @@ export class WCoreAgent {
 
   async kill(): Promise<void> {
     this.disposed = true;
+    this.cancelStartupPathReplay();
     // Unpublish FIRST: everything below can yield or throw, and a session that
     // is on its way out must not keep collecting revokes it can no longer send.
     this.unpublishPathGrantSession();
     // #746: the agent is going away — a still-armed watchdog would otherwise fire on a
     // dead agent and emit a bogus stall error for a turn nobody is running.
     this.stopStallWatchdog();
+    this.failRecoveryWaiters(new Error('Wayland Core stopped during recovery'));
     this.activeMsgId = null;
     this.anvilMutationWatcher.stop();
     const disconnectedReceipts = this.desktopContract.markDisconnected();

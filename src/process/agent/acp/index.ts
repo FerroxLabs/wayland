@@ -43,7 +43,12 @@ import type { WaylandNanoConnectionMode } from './AcpConnection';
 import { AcpApprovalStore, createAcpApprovalKey } from './ApprovalStore';
 import { CLAUDE_YOLO_SESSION_MODE, CODEBUDDY_YOLO_SESSION_MODE, QWEN_YOLO_SESSION_MODE } from './constants';
 import { buildAcpModelInfo } from './modelInfo';
-import { buildAcpSessionMcpServers, buildTeamMcpServer, type AcpSessionMcpServer } from './mcpSessionConfig';
+import {
+  UnsupportedHostedAcpToolSelectionError,
+  buildAcpSessionMcpServers,
+  buildTeamMcpServer,
+  type AcpSessionMcpServer,
+} from './mcpSessionConfig';
 import { getClaudeModelSlot } from './utils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability.ts';
@@ -1760,6 +1765,7 @@ export class AcpAgent {
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
       console.warn(`[ACP ${this.extra.backend}] Failed to load built-in MCP config for session/new:`, errMsg);
+      if (error instanceof UnsupportedHostedAcpToolSelectionError) throw error;
       const mcpName = this.extra.teamMcpStdioConfig?.name;
       const tId =
         typeof mcpName === 'string' && mcpName.startsWith('wayland-team-')

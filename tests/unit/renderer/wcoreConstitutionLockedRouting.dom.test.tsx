@@ -80,7 +80,14 @@ vi.mock('@renderer/pages/conversation/components/ExecutionSpine', () => ({
 vi.mock('@renderer/pages/conversation/platforms/wcore/WCoreSendBox', () => ({
   default: () => <div data-testid='send-box' />,
 }));
-vi.mock('@/common', () => ({ ipcBridge: {} }));
+vi.mock('@/common', () => ({
+  ipcBridge: {
+    wcoreRecovery: {
+      get: { invoke: vi.fn().mockResolvedValue({ success: true, data: { state: 'unsupported', canAbandon: false } }) },
+      abandon: { invoke: vi.fn() },
+    },
+  },
+}));
 
 import WCoreChat from '@/renderer/pages/conversation/platforms/wcore/WCoreChat';
 import { emitter } from '@/renderer/utils/emitter';

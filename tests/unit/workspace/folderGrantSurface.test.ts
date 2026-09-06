@@ -28,6 +28,7 @@ import {
   registerLivePathGrantSession,
 } from '@process/agent/wcore/pathGrantSessions';
 import {
+  folderGrantApplicationsInLiveSessions,
   resolveFolderGrantWorkspaces,
   revokeFolderGrantInLiveSessions,
 } from '@process/services/workspace/folderGrantSurface';
@@ -263,5 +264,25 @@ describe('resolveFolderGrantWorkspaces - reading the folder back out of the key'
       dir,
       displayName: path.basename(dir),
     });
+  });
+});
+
+describe('current folder applications remain session-scoped', () => {
+  it('keeps simultaneous chats separate and omits unavailable and other-workspace sessions', () => {
+    const view = (sessionId: string, status: 'pending' | 'unconfirmed') => ({
+      sessionId,
+      conversationId: `chat-${sessionId}`,
+      applications: [{ grantId: 'same-saved-id', root: '/srv/reports', status }],
+    });
+    const first = view('first', 'pending');
+    const second = view('second', 'unconfirmed');
+    registerLivePathGrantSession({ ...session(WORKSPACE), applicationView: () => first });
+    const unregisterSecond = registerLivePathGrantSession({ ...session(WORKSPACE), applicationView: () => second });
+    registerLivePathGrantSession({ ...session(WORKSPACE), applicationView: () => null });
+    registerLivePathGrantSession({ ...session(OTHER_WORKSPACE), applicationView: () => view('other', 'pending') });
+    expect(folderGrantApplicationsInLiveSessions(WORKSPACE)).toEqual([first, second]);
+    unregisterSecond();
+    expect(folderGrantApplicationsInLiveSessions(WORKSPACE)).toEqual([first]);
+    expect(folderGrantApplicationsInLiveSessions(null)).toEqual([]);
   });
 });

@@ -25,7 +25,7 @@ function createMockCallbacks(): SessionCallbacks {
 
 function createMockClient(): AcpClient {
   return {
-    start: vi.fn().mockResolvedValue({ protocolVersion: '0.1', capabilities: {} }),
+    start: vi.fn().mockResolvedValue({ protocolVersion: 1, capabilities: {} }),
     createSession: vi.fn().mockResolvedValue({
       sessionId: 'sess-1',
       currentModelId: 'claude-3',
@@ -425,7 +425,7 @@ describe('AcpSession prompt flow', () => {
             (c.start as ReturnType<typeof vi.fn>).mockImplementation(async () => {
               await new Promise((r) => setTimeout(r, 150));
               events.push(`start:${idx}`);
-              return { protocolVersion: '0.1', capabilities: {} };
+              return { protocolVersion: 1, capabilities: {} };
             });
           }
           (c.onDisconnect as ReturnType<typeof vi.fn>).mockImplementation((cb: () => void) => {

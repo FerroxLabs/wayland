@@ -20,10 +20,11 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { TMessage } from '@/common/chat/chatLib';
 
-const { addSpy, emitSpy, getMsgSpy, updateMsgSpy } = vi.hoisted(() => ({
+const { addSpy, emitSpy, getMsgSpy, getMsgsSpy, updateMsgSpy } = vi.hoisted(() => ({
   addSpy: vi.fn(),
   emitSpy: vi.fn(),
   getMsgSpy: vi.fn(),
+  getMsgsSpy: vi.fn(),
   updateMsgSpy: vi.fn(),
 }));
 
@@ -47,7 +48,11 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   cronService: { listJobsByConversation: vi.fn(async () => []), addJob: vi.fn(), removeJob: vi.fn() },
 }));
 vi.mock('@process/services/database/export', () => ({
-  getDatabase: vi.fn(async () => ({ getMessageByMsgId: getMsgSpy, updateMessage: updateMsgSpy })),
+  getDatabase: vi.fn(async () => ({
+    getMessageByMsgId: getMsgSpy,
+    getMessagesByMsgId: getMsgsSpy,
+    updateMessage: updateMsgSpy,
+  })),
 }));
 
 import { processAgentResponse, processCronInMessage } from '@process/task/MessageMiddleware';
@@ -106,6 +111,7 @@ describe('Concierge 2b persisted-text strip (no raw tag leaks into the saved bub
     addSpy.mockClear();
     emitSpy.mockClear();
     getMsgSpy.mockReset();
+    getMsgsSpy.mockReset().mockReturnValue({ success: true, data: [] });
     updateMsgSpy.mockReset();
   });
 

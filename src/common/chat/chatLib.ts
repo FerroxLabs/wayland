@@ -110,6 +110,10 @@ interface IMessage<T extends TMessageType, Content extends Record<string, any>> 
    * Source message ID
    */
   msg_id?: string;
+  /** Ordered segment identity inside a turn; absent on legacy/non-segmented messages. */
+  segment_id?: string;
+  /** Durable transcript admission order. Database reads use this before timestamps. */
+  ingest_order?: number;
 
   // Conversation session ID
   conversation_id: string;
@@ -837,6 +841,8 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         id: uuid(),
         type: 'text',
         msg_id: message.msg_id,
+        ...(message.segment_id && { segment_id: message.segment_id }),
+        ...(message.ingest_order !== undefined && { ingest_order: message.ingest_order }),
         position: 'left',
         conversation_id: message.conversation_id,
         content: { content: data.content, replaceContent: true },
@@ -853,6 +859,8 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         id: uuid(),
         type: 'text',
         msg_id: message.msg_id,
+        ...(message.segment_id && { segment_id: message.segment_id }),
+        ...(message.ingest_order !== undefined && { ingest_order: message.ingest_order }),
         position: message.type === 'content' ? 'left' : 'right',
         conversation_id: message.conversation_id,
         content: isRichData
@@ -892,6 +900,8 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         type: 'tool_group',
         id: uuid(),
         msg_id: message.msg_id,
+        ...(message.segment_id && { segment_id: message.segment_id }),
+        ...(message.ingest_order !== undefined && { ingest_order: message.ingest_order }),
         conversation_id: message.conversation_id,
         content: message.data as any,
       };
@@ -987,6 +997,8 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         id: uuid(),
         type: 'thinking',
         msg_id: message.msg_id,
+        ...(message.segment_id && { segment_id: message.segment_id }),
+        ...(message.ingest_order !== undefined && { ingest_order: message.ingest_order }),
         position: 'left',
         conversation_id: message.conversation_id,
         content: {
@@ -1475,16 +1487,16 @@ export const composeMessage = (
     return pushMessage(message);
   }
 
-  // text deltas: append to the existing text bubble for this msg_id even when
-  // it is not `last` — an activity card / tool_group / sub_agent card emitted
-  // mid-turn can sit between two text deltas of the SAME turn (model emits
-  // prose, runs a streaming tool, emits more prose). Searching back (instead of
-  // only checking `last`) keeps the turn's prose in ONE bubble instead of
-  // fragmenting it. Mirrors composeMessageWithIndex's msgIdIndex text lookup.
+  // Text deltas append only within one explicit segment. WCore keeps one msg_id
+  // for the whole turn, including prose/tool/prose boundaries; searching by the
+  // turn id alone moved later prose ahead of intervening tools. Legacy and
+  // non-WCore messages have no segment_id and retain the former merge behavior.
   if (message.type === 'text' && message.msg_id) {
     for (let i = list.length - 1; i >= 0; i--) {
       const msg = list[i];
-      if (msg.msg_id === message.msg_id && msg.type === 'text' && isSameSpeaker(msg, message)) {
+      const sameSegment =
+        msg.type === 'text' && (msg.segment_id || message.segment_id ? msg.segment_id === message.segment_id : true);
+      if (msg.msg_id === message.msg_id && sameSegment && isSameSpeaker(msg, message)) {
         const merged = Object.assign({}, msg, message);
         // `replaceContent` swaps the bubble instead of extending it - see the
         // field's note on IMessageText. Everything else is a streaming delta.

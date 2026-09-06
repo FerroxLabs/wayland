@@ -259,6 +259,60 @@ describe('GAP-7: WCoreManager Buffered Stream DB Writes', () => {
       const textWrites = getTextDbWrites();
       expect(textWrites.length).toBeGreaterThanOrEqual(1);
     });
+
+    it('persists prose/tool/prose in admission order with distinct text segments', () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      emitEvent(manager, {
+        type: 'content',
+        data: 'before tool',
+        msg_id: 'msg-1',
+        segment_id: 'text-segment-1',
+      });
+      emitEvent(manager, {
+        type: 'tool_group',
+        data: [{ name: 'Bash', status: 'Success', callId: 'call-1' }],
+        msg_id: 'msg-1',
+        segment_id: 'tool-segment-1',
+      });
+      emitEvent(manager, {
+        type: 'content',
+        data: 'after tool',
+        msg_id: 'msg-1',
+        segment_id: 'text-segment-2',
+      });
+      vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+      const writes = mockAddOrUpdateMessage.mock.calls.map(([, rawMessage]) => {
+        const message = rawMessage as { type: string; segment_id?: string; ingest_order?: number };
+        return { type: message.type, segment: message.segment_id, order: message.ingest_order };
+      });
+      expect(writes.slice(0, 3).map(({ type, segment }) => `${type}:${segment}`)).toEqual([
+        'text:text-segment-1',
+        'tool_group:tool-segment-1',
+        'text:text-segment-2',
+      ]);
+      const orders = writes.slice(0, 3).map(({ order }) => order as number);
+      expect(orders[0]).toBeLessThan(orders[1]);
+      expect(orders[1]).toBeLessThan(orders[2]);
+    });
+
+    it('flushes admitted prose before persisting a following reasoning section', () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      emitEvent(manager, {
+        type: 'content',
+        data: 'before reasoning',
+        msg_id: 'msg-1',
+        segment_id: 'text-before-thought',
+      });
+      expect(getTextDbWrites()).toHaveLength(0);
+
+      emitEvent(manager, { type: 'thought', data: 'reasoning', msg_id: 'msg-1' });
+      expect(getTextDbWrites()).toHaveLength(1);
+      vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+      const types = mockAddOrUpdateMessage.mock.calls.map(([, message]) => (message as { type: string }).type);
+      expect(types.slice(0, 2)).toEqual(['text', 'thinking']);
+    });
   });
 
   // ── AC-4: Finish flushes all pending buffers ─────────────────────

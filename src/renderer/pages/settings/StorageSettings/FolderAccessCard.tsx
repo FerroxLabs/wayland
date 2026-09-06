@@ -10,7 +10,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { workspaceFolderGrants } from '@/common/adapter/ipcBridge';
 import type { FolderGrantRefusal, FolderGrantWithheldReason } from '@/common/workspace/folderGrants';
-import type { FolderGrantWorkspaceView } from '@/common/workspace/folderGrantsIpc';
+import type { FolderGrantApplication, FolderGrantWorkspaceView } from '@/common/workspace/folderGrantsIpc';
 import { Card, ConfirmDialog } from '@renderer/components/settings/shared';
 import { isElectronDesktop } from '@renderer/utils/platform';
 
@@ -102,6 +102,62 @@ const WITHHELD_LABELS: Record<FolderGrantWithheldReason, Label> = {
   },
 };
 
+/** The typed outcome selects the remedy; free-form engine detail is never interpreted. */
+function applicationLabel(application: FolderGrantApplication): Label {
+  switch (application.status) {
+    case 'applied':
+      return application.coverage === 'already-readable'
+        ? {
+            key: 'settings.storagePage.folderAccessAlreadyReadable',
+            fallback: 'Applied · already readable under session policy',
+          }
+        : {
+            key: 'settings.storagePage.folderAccessPolicyConfirmed',
+            fallback: 'Applied · confirmed by session policy',
+          };
+    case 'refused':
+      switch (application.reason) {
+        case 'local_opt_in_required':
+          return {
+            key: 'settings.storagePage.folderAccessLocalOptIn',
+            fallback:
+              'Refused · local launcher opt-in required. Enable folder grants in the local launcher, then start a new session.',
+          };
+        case 'policy_rejected':
+          return {
+            key: 'settings.storagePage.folderAccessPolicyRejected',
+            fallback:
+              'Refused · session policy rejected this folder. Choose another valid folder, or review the policy with the local launcher administrator.',
+          };
+        case 'unknown':
+          return {
+            key: 'settings.storagePage.folderAccessRefusedUnknown',
+            fallback: 'Refused · reason unavailable. Review the local session diagnostics; access is not confirmed.',
+          };
+      }
+      break;
+    case 'pending':
+      return {
+        key: 'settings.storagePage.folderAccessPending',
+        fallback: 'Pending · waiting for session confirmation',
+      };
+    case 'unavailable':
+      return {
+        key: 'settings.storagePage.folderAccessSessionUnavailable',
+        fallback: 'Unavailable · session access could not be checked',
+      };
+    case 'revoked':
+      return {
+        key: 'settings.storagePage.folderAccessRevoked',
+        fallback: 'Revoked · this session’s grant was withdrawn',
+      };
+  }
+  return {
+    key: 'settings.storagePage.folderAccessUnconfirmed',
+    fallback: 'Unconfirmed · no current policy confirmation',
+  };
+}
+
 function basename(value: string): string {
   const normalized = value.replace(/[\\/]+$/, '');
   const separator = Math.max(normalized.lastIndexOf('/'), normalized.lastIndexOf('\\'));
@@ -162,7 +218,7 @@ const FolderAccessCard: React.FC = () => {
           Message.success(
             t('settings.storagePage.folderAccessAdded', {
               folder: basename(result.root),
-              defaultValue: `${basename(result.root)} can now be read by this workspace.`,
+              defaultValue: `Consent for ${basename(result.root)} is saved for the next session start. Current access is shown separately.`,
             })
           );
           await refresh();
@@ -257,7 +313,7 @@ const FolderAccessCard: React.FC = () => {
         <p className='text-12px text-[var(--color-text-3)]'>
           {t(
             'settings.storagePage.folderAccessEmpty',
-            'No workspace can reach anything outside its own folder. Wayland will ask before it reads elsewhere.'
+            'No saved folder consent. Current access depends on each session’s policy.'
           )}
         </p>
       );
@@ -298,7 +354,7 @@ const FolderAccessCard: React.FC = () => {
                 </div>
                 <div className='flex shrink-0 items-center gap-6px'>
                   <Tag size='small' color='blue'>
-                    {t('settings.storagePage.folderAccessReadOnly', 'Read only')}
+                    {t('settings.storagePage.folderAccessSaved', 'Saved consent · read only')}
                   </Tag>
                   <Button
                     size='mini'
@@ -317,6 +373,79 @@ const FolderAccessCard: React.FC = () => {
                 </div>
               </div>
             ))}
+            <div
+              className='flex flex-col gap-6px'
+              aria-label={t('settings.storagePage.folderAccessSessions', 'Current session access')}
+            >
+              <div className='text-12px font-medium text-[var(--color-text-2)]'>
+                {t('settings.storagePage.folderAccessSessions', 'Current session access')}
+              </div>
+              {!workspace.sessions?.length && (
+                <p className='text-11px text-[var(--color-text-3)]'>
+                  {t(
+                    'settings.storagePage.folderAccessNoSessions',
+                    'No current session application is confirmed. Saved consent will be requested at the next session start.'
+                  )}
+                </p>
+              )}
+              {workspace.sessions?.map((session) => {
+                // A missing application is uncertainty, never proof of access.
+                const applications: readonly FolderGrantApplication[] = [
+                  ...session.applications,
+                  ...workspace.grants
+                    .filter(
+                      (grant) =>
+                        !session.applications.some(
+                          (application) => application.grantId === grant.grantId && application.root === grant.root
+                        )
+                    )
+                    .map((grant) => ({ grantId: grant.grantId, root: grant.root, status: 'unconfirmed' as const })),
+                ];
+                return (
+                  <div
+                    key={session.sessionId}
+                    data-testid='folder-access-session'
+                    className='flex flex-col gap-4px rounded-6px px-2px py-4px'
+                  >
+                    <div className='break-all text-11px font-medium text-[var(--color-text-2)]'>
+                      {t('settings.storagePage.folderAccessSession', {
+                        session: session.sessionId,
+                        defaultValue: `Session ${session.sessionId}`,
+                      })}
+                      {session.conversationId && (
+                        <span>
+                          {' '}
+                          ·{' '}
+                          {t('settings.storagePage.folderAccessConversation', {
+                            conversation: session.conversationId,
+                            defaultValue: `Chat ${session.conversationId}`,
+                          })}
+                        </span>
+                      )}
+                    </div>
+                    {applications.map((application) => {
+                      const label = applicationLabel(application);
+                      return (
+                        <div
+                          key={`${application.grantId}:${application.root}`}
+                          data-testid='folder-access-application'
+                          data-status={application.status}
+                          className='text-11px text-[var(--color-text-2)]'
+                        >
+                          <div className='break-all'>{application.root}</div>
+                          <div>{t(label.key, label.fallback)}</div>
+                          {application.status === 'refused' && application.detail && (
+                            <div className='whitespace-pre-wrap break-all text-[var(--color-text-3)]'>
+                              {application.detail}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
             {workspace.withheld.map(({ grant, reason }) => (
               <div
                 key={grant.grantId}
@@ -377,7 +506,7 @@ const FolderAccessCard: React.FC = () => {
         <p className='mb-10px text-12px text-[var(--color-text-2)]'>
           {t(
             'settings.storagePage.folderAccessSubtitle',
-            'Folders outside a workspace that you have allowed it to read. Everything here is read only, and removing an entry withdraws it from any chat still running.'
+            'Saved consent allows Wayland to request read access. Each current session reports whether its policy allows that access. Removing consent also requests revocation in running sessions.'
           )}
         </p>
         {body()}

@@ -42,6 +42,7 @@ import {
   type WorkspaceFolderGrantStore,
 } from '@process/services/workspace/folderGrantStore';
 import {
+  folderGrantApplicationsInLiveSessions,
   resolveFolderGrantWorkspaces,
   revokeFolderGrantInLiveSessions,
 } from '@process/services/workspace/folderGrantSurface';
@@ -79,6 +80,7 @@ export function initWorkspaceFolderGrantsBridge(deps: WorkspaceFolderGrantsBridg
           workspaceId: record.workspaceId,
           displayName: resolvedDir?.displayName ?? null,
           workspaceDir: resolvedDir?.dir ?? null,
+          sessions: folderGrantApplicationsInLiveSessions(resolvedDir?.dir ?? null),
           // Newest first: the entry a user is least able to account for is
           // almost always the one added most recently.
           grants: [...record.grants].sort((a, b) => b.grantedAtMs - a.grantedAtMs),

@@ -87,6 +87,7 @@ vi.mock('@process/agent/acp/AcpConnection', () => {
 });
 
 vi.mock('@process/agent/acp/mcpSessionConfig', () => ({
+  UnsupportedHostedAcpToolSelectionError: class extends Error {},
   buildAcpSessionMcpServers: vi.fn().mockResolvedValue([]),
 }));
 

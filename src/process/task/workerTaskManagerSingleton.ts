@@ -67,7 +67,12 @@ export async function installProductionWaylandNanoActivationOwner(
 agentFactory.register('gemini', (conv, opts) => {
   const c = conv as any;
   return new GeminiAgentManager(
-    { ...c.extra, conversation_id: c.id, yoloMode: opts?.yoloMode },
+    {
+      ...c.extra,
+      conversation_id: c.id,
+      yoloMode: opts?.yoloMode,
+      executionPolicy: opts?.executionPolicy,
+    },
     c.model
   ) as unknown as ReturnType<typeof agentFactory.create>;
 });

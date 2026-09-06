@@ -14,9 +14,11 @@ import type { BuildConversationOptions, AgentType } from './agentTypes';
 export interface IWorkerTaskManager {
   getTask(id: string): IAgentManager | undefined;
   getOrBuildTask(id: string, options?: BuildConversationOptions): Promise<IAgentManager>;
-  addTask(id: string, task: IAgentManager): void;
+  addTask(id: string, task: IAgentManager, executionPolicy?: BuildConversationOptions['executionPolicy']): void;
   /** Hide from reuse immediately, but retain an active lease until the underlying agent has exited. */
   kill(id: string, reason?: AgentKillReason): Promise<void>;
+  /** Terminate only the lease owned by this exact manager instance. */
+  killTask(id: string, task: IAgentManager, reason?: AgentKillReason): Promise<void>;
   /**
    * Own the terminal lifecycle gate for one conversation while its durable
    * reference is removed. Preparation may yield, so every successor raced into

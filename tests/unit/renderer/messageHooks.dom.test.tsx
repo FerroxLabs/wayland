@@ -26,6 +26,8 @@ vi.mock('@/common', () => ({
 type TestMessage = {
   id: string;
   msg_id?: string;
+  segment_id?: string;
+  ingest_order?: number;
   conversation_id: string;
   type: string;
   position?: string;
@@ -124,6 +126,70 @@ describe('message hooks cache merge', () => {
     const merged = JSON.parse(screen.getByTestId('messages').textContent ?? '[]') as TestMessage[];
 
     expect(merged.map((message) => message.id)).toEqual(['db-1', 'stream-1']);
+  });
+
+  it('hydrates and extends distinct text segments without collapsing a turn across tools', async () => {
+    const dbMessages: TestMessage[] = [
+      {
+        id: 'db-text-a',
+        msg_id: 'turn-1',
+        segment_id: 'segment-a',
+        ingest_order: 1,
+        conversation_id: 'conv-1',
+        type: 'text',
+        position: 'left',
+        content: { content: 'A' },
+      },
+      {
+        id: 'db-tool',
+        msg_id: 'turn-1',
+        segment_id: 'tool-1',
+        ingest_order: 2,
+        conversation_id: 'conv-1',
+        type: 'tool_group',
+        content: { content: 'tool' },
+      },
+      {
+        id: 'db-text-b',
+        msg_id: 'turn-1',
+        segment_id: 'segment-b',
+        ingest_order: 3,
+        conversation_id: 'conv-1',
+        type: 'text',
+        position: 'left',
+        content: { content: 'B' },
+      },
+    ];
+    mockGetConversationMessagesInvoke.mockResolvedValue(dbMessages);
+
+    const liveMessages: TestMessage[] = [
+      {
+        ...dbMessages[2],
+        id: 'live-text-b',
+        content: { content: 'B extended' },
+      },
+      {
+        id: 'live-text-c',
+        msg_id: 'turn-1',
+        segment_id: 'segment-c',
+        ingest_order: 4,
+        conversation_id: 'conv-1',
+        type: 'text',
+        position: 'left',
+        content: { content: 'C' },
+      },
+    ];
+
+    render(
+      <MessageListProvider value={liveMessages as TMessage[]}>
+        <CacheProbe conversationId='conv-1' />
+      </MessageListProvider>
+    );
+
+    await waitFor(() => {
+      const messages = JSON.parse(screen.getByTestId('messages').textContent ?? '[]') as TestMessage[];
+      expect(messages.map((message) => message.id)).toEqual(['db-text-a', 'db-tool', 'live-text-b', 'live-text-c']);
+    });
   });
 
   // Two text rows now legitimately share one msg_id: WCore persists the user

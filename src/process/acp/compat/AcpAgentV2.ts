@@ -46,7 +46,6 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { McpConfig } from '../session/McpConfig';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
 import type { McpSessionBackend, McpSessionPublicationInput } from '@/common/mcp/sessionReceipt';
 import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
@@ -259,17 +258,10 @@ export class AcpAgentV2 {
       }
     }
 
-    // Load user-configured (builtin) MCP servers from settings, filtered by
-    // cached agent MCP capabilities. Mirrors AcpAgent.loadBuiltinSessionMcpServers().
-
+    // Load and refresh storage-backed connectors now, but defer their transport
+    // projection until SessionLifecycle has the live initialize response.
     const rawMcpServers = await loadRuntimeMcpServers();
     if (rawMcpServers.length > 0) {
-      const cachedInit = await ProcessConfig.get('acp.cachedInitializeResult');
-      const rawCaps = cachedInit?.[this.agentConfig.agentBackend]?.capabilities?.mcpCapabilities;
-      // Honor the initialized agent's transport contract. ACP HTTP/SSE are
-      // opt-in; forcing them true creates configured-but-undiscoverable tools
-      // on agents that support only mandatory stdio.
-      const caps = McpConfig.resolveCapabilities(rawCaps);
       // Attach the CURRENT (refreshed) OAuth bearer so the session connects with
       // a live token rather than the stale one baked into the CLI/engine config
       // at sync time (the "401 invalid token" / silently-dropped-connector cause).
@@ -284,24 +276,18 @@ export class AcpAgentV2 {
         console.warn('[AcpAgentV2] attachOAuthTokens failed; using stored MCP headers:', err);
       }
       const binding = this.resolveMcpPublication();
-      const projection = McpConfig.projectStorageConfig(freshened, {
-        publication: {
-          generation: binding.generation,
-          conversationId: binding.conversationId,
-          backend: binding.backend,
-          sessionKey: binding.sessionKey,
+      this.agentConfig.mcpStorageSource = {
+        servers: freshened,
+        request: {
+          publication: {
+            generation: binding.generation,
+            conversationId: binding.conversationId,
+            backend: binding.backend,
+            sessionKey: binding.sessionKey,
+          },
+          activeServerIds: binding.activeServerIds,
         },
-        capabilities: caps,
-        activeServerIds: binding.activeServerIds,
-      });
-      this.onMcpProjection?.(projection);
-      const userServers = projection.servers;
-      if (userServers.length > 0) {
-        (this.agentConfig as { mcpServers?: McpServer[] }).mcpServers = [
-          ...(this.agentConfig.mcpServers || []),
-          ...userServers,
-        ];
-      }
+      };
     }
 
     // Self-healing replay: if a stored resumeSessionId was created by a different
@@ -433,6 +419,10 @@ export class AcpAgentV2 {
         this.cacheInitializeResult(result).catch((err) => {
           console.warn('[AcpAgentV2] Failed to cache initialize result:', err);
         });
+      },
+
+      onMcpProjection: (projection) => {
+        this.onMcpProjection?.(projection);
       },
 
       onMessage: (message: TMessage) => {

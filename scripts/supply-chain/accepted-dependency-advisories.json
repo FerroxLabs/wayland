@@ -2,7 +2,7 @@
   "contract": "wayland-accepted-dependency-advisories/1.0",
   "reviewedOn": "2026-09-04",
   "reviewedUntil": "2026-09-18",
-  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks the release without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil. 2026-09-04: five advisories PUBLISHED AFTER the 2026-08-19 review were added (axios 1153178, browserslist 1153171/1153172, nanoid 1153188/1153189). All three packages are TRANSITIVE-only. These were accepted under release time pressure rather than remediated, so reviewedUntil is deliberately SHORT (2 weeks, not the usual 2 months). REMEDIATION IS KNOWN AND CHEAP - fixed versions are published: axios >=1.18.0 (1.20.0 is out, and package.json already carries an axios override whose floor is merely too low at >=1.16.0), browserslist 4.28.8, nanoid >=5.1.11 for the 5.x line and >=3.3.12 for the 3.x line. Bump these and DELETE these five entries; they were waived only to avoid lockfile churn during an overnight release.",
+  "reason": "Pre-existing advisories in the dependency tree that 0.12.0 and 0.12.1 already shipped on. The severe-dependency gate had never executed, so these were never a release standard; accepting them explicitly unblocks the release without lowering the bar for anything new. Remediation is tracked separately. Every entry here must be re-reviewed on or before reviewedUntil. 2026-09-04: four still-accepted advisories PUBLISHED AFTER the 2026-08-19 review were added (browserslist 1153171/1153172 and nanoid 1153188/1153189). Both packages are transitive-only. These were accepted under release time pressure rather than remediated, so reviewedUntil is deliberately SHORT (2 weeks, not the usual 2 months). REMEDIATION IS KNOWN AND CHEAP - fixed versions are published: browserslist 4.28.8, nanoid >=5.1.11 for the 5.x line and >=3.3.12 for the 3.x line. Bump these and DELETE these four entries; they were waived only to avoid lockfile churn during an overnight release. 2026-09-06: Axios was pinned to 1.20.0 across the root and independently packaged WhatsApp bridge, so waiver IDs 1123967 and 1153178 were removed.",
   "accepted": [
     {
       "package": "@opentelemetry/propagator-jaeger",
@@ -17,13 +17,6 @@
       "severity": "high",
       "url": "https://github.com/advisories/GHSA-7g7r-gx96-252g",
       "vulnerableVersions": "<26.15.0"
-    },
-    {
-      "package": "axios",
-      "id": 1123967,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-gcfj-64vw-6mp9",
-      "vulnerableVersions": ">=1.15.2 <1.18.0"
     },
     {
       "package": "brace-expansion",
@@ -89,34 +82,6 @@
       "vulnerableVersions": "<=10.3.0"
     },
     {
-      "package": "js-yaml",
-      "id": 1123911,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
-      "vulnerableVersions": ">=4.0.0 <4.3.0"
-    },
-    {
-      "package": "js-yaml",
-      "id": 1123912,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
-      "vulnerableVersions": ">=3.0.0 <3.15.0"
-    },
-    {
-      "package": "js-yaml",
-      "id": 1138114,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
-      "vulnerableVersions": ">=3.0.0 <3.15.1"
-    },
-    {
-      "package": "js-yaml",
-      "id": 1138115,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj",
-      "vulnerableVersions": ">=4.0.0 <4.3.1"
-    },
-    {
       "package": "nanoid",
       "id": 1138810,
       "severity": "high",
@@ -159,13 +124,6 @@
       "vulnerableVersions": "<=8.5.17"
     },
     {
-      "package": "react-router",
-      "id": 1138769,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-qwww-vcr4-c8h2",
-      "vulnerableVersions": ">=7.12.0 <7.18.2"
-    },
-    {
       "package": "sharp",
       "id": 1124066,
       "severity": "high",
@@ -193,20 +151,6 @@
       "severity": "high",
       "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
       "vulnerableVersions": "<=7.5.17"
-    },
-    {
-      "package": "undici",
-      "id": 1130718,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-4cwx-7wf7-3272",
-      "vulnerableVersions": ">=7.0.0 <7.29.0"
-    },
-    {
-      "package": "axios",
-      "id": 1153178,
-      "severity": "high",
-      "url": "https://github.com/advisories/GHSA-gcfj-64vw-6mp9",
-      "vulnerableVersions": ">=1.15.2 <1.18.0"
     },
     {
       "package": "browserslist",

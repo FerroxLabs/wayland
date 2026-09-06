@@ -13,7 +13,7 @@ import type { IAgentManager } from '@process/task/IAgentManager';
 import { composeMessage, transformMessage, type TMessage } from '@/common/chat/chatLib';
 import { uuid } from '@/common/utils';
 import { channelEventBus, type IAgentMessageEvent } from './ChannelEventBus';
-import { isAutoApproveChannelSource } from '@process/channels/types';
+import { CHANNEL_CONVERSATIONAL_POLICY } from '@process/task/agentTypes';
 
 /**
  * Streaming callback for progress updates
@@ -41,16 +41,14 @@ interface IStreamState {
   hasNonAnswerMessage?: boolean;
   /** Timer used to wait for a continuation turn after a tool-only finish */
   finishTimer?: ReturnType<typeof setTimeout>;
+  /** Whole-send deadline, including worker bootstrap and response completion. */
+  deadlineTimer?: ReturnType<typeof setTimeout>;
 }
 
 const TOOL_CONTINUATION_WAIT_MS = 15_000;
-
-// Upper bound on how long a queued send will wait for the PREVIOUS turn on the
-// same conversation to finish. A wedged turn (an agent that never emits a
-// finish) must never deadlock every later message - past this cap we dispatch
-// anyway and the stale stream is released. Kept above TOOL_CONTINUATION_WAIT_MS
-// so a healthy turn always resolves first.
-const QUEUE_MAX_WAIT_MS = 20_000;
+export const CHANNEL_SEND_TIMEOUT_MS = 120_000;
+export const CHANNEL_BACKEND_RESTRICTED_MESSAGE =
+  'Restricted channel conversations currently support Gemini only. Choose Gemini in Channel Settings.';
 
 function isNonAnswerMessage(message: TMessage): boolean {
   if (message.type === 'agent_status') {
@@ -105,17 +103,69 @@ export class ChannelMessageService {
 
   private messageListMap = new Map<string, TMessage[]>();
 
-  private clearFinishTimer(stream: IStreamState): void {
+  private clearStreamTimers(stream: IStreamState): void {
     if (stream.finishTimer) {
       clearTimeout(stream.finishTimer);
       stream.finishTimer = undefined;
     }
+    if (stream.deadlineTimer) {
+      clearTimeout(stream.deadlineTimer);
+      stream.deadlineTimer = undefined;
+    }
   }
 
   private resolveStream(conversationId: string, stream: IStreamState): void {
-    this.clearFinishTimer(stream);
+    this.clearStreamTimers(stream);
+    if (this.activeStreams.get(conversationId) !== stream) return;
     this.activeStreams.delete(conversationId);
     stream.resolve(stream.msgId);
+  }
+
+  private cancelOwnedTask(conversationId: string, task: IAgentManager): void {
+    void workerTaskManager.killTask(conversationId, task).catch((error) => {
+      console.warn(`[ChannelMessageService] Failed to terminate timed-out task:`, error);
+    });
+  }
+
+  private waitForQueue(
+    previous: Promise<unknown>,
+    deadlineAt: number,
+    conversationId: string,
+    onStream: StreamCallback
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let settled = false;
+      const timer = setTimeout(
+        () => {
+          if (settled) return;
+          settled = true;
+          const error = new Error('Channel response timed out after 120 seconds while queued');
+          this.emitStreamError(conversationId, onStream, error.message);
+          reject(error);
+        },
+        Math.max(0, deadlineAt - Date.now())
+      );
+      void previous
+        .catch(() => {})
+        .then(() => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          resolve();
+        });
+    });
+  }
+
+  private emitStreamError(conversationId: string, onStream: StreamCallback, message: string): void {
+    onStream(
+      {
+        type: 'tips',
+        id: uuid(),
+        conversation_id: conversationId,
+        content: { type: 'error', content: `Error: ${message}` },
+      },
+      true
+    );
   }
 
   /**
@@ -145,11 +195,19 @@ export class ChannelMessageService {
       return;
     }
 
+    // A replaced or timed-out worker may still emit late terminal frames while
+    // it exits. They may be logged elsewhere, but they cannot mutate or settle
+    // the newer channel send occupying this conversation slot.
+    if (String(event.turnId ?? event.msg_id) !== stream.msgId) return;
+
     // Track 'start' events to count multi-turn continuations (e.g., tool call → model response).
     // The Gemini agent emits a new 'start' for each submitQuery turn, including continuations
     // triggered by onAllToolCallsComplete. We must wait for all turns to finish.
     if (event.type === 'start') {
-      this.clearFinishTimer(stream);
+      if (stream.finishTimer) {
+        clearTimeout(stream.finishTimer);
+        stream.finishTimer = undefined;
+      }
       stream.turnCount++;
       return;
     }
@@ -161,7 +219,7 @@ export class ChannelMessageService {
       if (stream.turnCount === 0 || stream.finishCount >= stream.turnCount) {
         const shouldWaitForContinuation = Boolean(stream.hasNonAnswerMessage && !stream.hasAnswerMessage);
         if (shouldWaitForContinuation) {
-          this.clearFinishTimer(stream);
+          if (stream.finishTimer) clearTimeout(stream.finishTimer);
           stream.finishTimer = setTimeout(() => {
             if (this.activeStreams.get(conversationId) === stream) {
               this.resolveStream(conversationId, stream);
@@ -217,22 +275,16 @@ export class ChannelMessageService {
     message: string,
     onStream: StreamCallback
   ): Promise<string> {
+    const deadlineAt = Date.now() + CHANNEL_SEND_TIMEOUT_MS;
     // Serialize sends per conversation: wait for any in-flight turn on this
     // conversation to finish before dispatching the next message, so rapid
     // consecutive messages each get a clean stream + turn instead of colliding.
-    // The wait is BOUNDED (QUEUE_MAX_WAIT_MS) so a wedged prior turn that never
-    // emits a finish can never deadlock later messages - past the cap we
-    // dispatch anyway, releasing any stale active stream first.
+    // Every individual send has its own whole-turn deadline, so this queue can
+    // wait for the real terminal result without dispatching an overlapping turn.
     const previous = this.sendQueues.get(conversationId) ?? Promise.resolve();
-    const gate = Promise.race([
-      previous.catch(() => {}),
-      new Promise<void>((resolve) => setTimeout(resolve, QUEUE_MAX_WAIT_MS)),
-    ]);
-    const run = gate.then(() => {
-      const stale = this.activeStreams.get(conversationId);
-      if (stale) this.resolveStream(conversationId, stale);
-      return this.dispatchMessage(_sessionId, conversationId, message, onStream);
-    });
+    const run = this.waitForQueue(previous, deadlineAt, conversationId, onStream).then(() =>
+      this.dispatchMessage(_sessionId, conversationId, message, onStream, deadlineAt)
+    );
     const tracked = run.catch(() => {});
     this.sendQueues.set(conversationId, tracked);
     void tracked.then(() => {
@@ -249,45 +301,59 @@ export class ChannelMessageService {
     _sessionId: string,
     conversationId: string,
     message: string,
-    onStream: StreamCallback
+    onStream: StreamCallback,
+    deadlineAt: number
   ): Promise<string> {
     // Ensure service is initialized
     this.initialize();
-
     // Generate message ID
     const msgId = `channel_msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
     // Get task
-    let task: IAgentManager;
+    let task: IAgentManager | undefined;
+    const launchController = new AbortController();
+    let timedOut = false;
+    let launchTimeout: ReturnType<typeof setTimeout> | undefined;
+    const launchDeadline = new Promise<never>((_, reject) => {
+      launchTimeout = setTimeout(
+        () => {
+          timedOut = true;
+          launchController.abort();
+          if (task) this.cancelOwnedTask(conversationId, task);
+          reject(new Error('Channel response timed out after 120 seconds'));
+        },
+        Math.max(0, deadlineAt - Date.now())
+      );
+    });
     try {
-      // Check conversation source, enable yoloMode (auto-approve) if it's from a
-      // Channel. Channels have no interactive human to confirm tool-permission
-      // prompts, so every channel source must auto-approve; otherwise tool-using
-      // turns hang on an unconfirmable prompt until the queue times out.
-      const db = await getDatabase();
+      const db = await Promise.race([getDatabase(), launchDeadline]);
       const dbResult = db.getConversation(conversationId);
-      const isFromChannel = dbResult.success && isAutoApproveChannelSource(dbResult.data?.source);
+      if (!dbResult.success || !dbResult.data) throw new Error(`Channel conversation not found: ${conversationId}`);
+      if (dbResult.data.type !== 'gemini') throw new Error(CHANNEL_BACKEND_RESTRICTED_MESSAGE);
 
-      task = await workerTaskManager.getOrBuildTask(conversationId, {
-        yoloMode: isFromChannel,
+      const taskPromise = workerTaskManager.getOrBuildTask(conversationId, {
+        executionPolicy: CHANNEL_CONVERSATIONAL_POLICY,
+        yoloMode: false,
+        launchSignal: launchController.signal,
       });
+      taskPromise.then(
+        (lateTask) => {
+          if (timedOut) this.cancelOwnedTask(conversationId, lateTask);
+        },
+        (_error: unknown): void => {}
+      );
+      task = await Promise.race([taskPromise, launchDeadline]);
+      if (task.type !== 'gemini') throw new Error(CHANNEL_BACKEND_RESTRICTED_MESSAGE);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to get conversation task';
       console.error(`[ChannelMessageService] Failed to get task:`, errorMsg);
-      onStream(
-        {
-          type: 'tips',
-          id: uuid(),
-          conversation_id: conversationId,
-          content: {
-            type: 'error',
-            content: `Error: ${errorMsg}`,
-          },
-        },
-        true
-      );
+      this.emitStreamError(conversationId, onStream, errorMsg);
       throw error;
+    } finally {
+      if (launchTimeout) clearTimeout(launchTimeout);
     }
+
+    if (!task) throw new Error('Channel conversation task unavailable');
 
     return new Promise((resolve, reject) => {
       const existingStream = this.activeStreams.get(conversationId);
@@ -296,7 +362,7 @@ export class ChannelMessageService {
       }
 
       // Register stream state
-      this.activeStreams.set(conversationId, {
+      const stream: IStreamState = {
         msgId,
         callback: onStream,
         buffer: '',
@@ -308,31 +374,31 @@ export class ChannelMessageService {
         hasAnswerMessage: false,
         hasNonAnswerMessage: false,
         finishTimer: undefined,
-      });
+        deadlineTimer: undefined,
+      };
+      this.activeStreams.set(conversationId, stream);
+
+      const remainingMs = Math.max(0, deadlineAt - Date.now());
+      stream.deadlineTimer = setTimeout(() => {
+        if (this.activeStreams.get(conversationId) !== stream) return;
+        this.clearStreamTimers(stream);
+        this.activeStreams.delete(conversationId);
+        const timeoutError = new Error('Channel response timed out after 120 seconds');
+        this.emitStreamError(conversationId, onStream, timeoutError.message);
+        this.cancelOwnedTask(conversationId, task);
+        reject(timeoutError);
+      }, remainingMs);
 
       // Build payload based on agent type.
       // Gemini expects { input }; all other agents expect { content }.
-      const useInputPayload = task.type === 'gemini';
-      const payload: { input?: string; content?: string; msg_id: string } = useInputPayload
-        ? { input: message, msg_id: msgId }
-        : { content: message, msg_id: msgId };
+      const payload = { input: message, msg_id: msgId };
 
       task.sendMessage(payload).catch((error: Error) => {
+        if (this.activeStreams.get(conversationId) !== stream) return;
         const errorMessage = `Error: ${error.message || 'Failed to send message'}`;
         console.error(`[ChannelMessageService] Send error:`, error);
-        onStream(
-          {
-            type: 'tips',
-            id: uuid(),
-            conversation_id: conversationId,
-            content: { type: 'error', content: errorMessage },
-          },
-          true
-        );
-        const stream = this.activeStreams.get(conversationId);
-        if (stream) {
-          this.clearFinishTimer(stream);
-        }
+        this.emitStreamError(conversationId, onStream, errorMessage.replace(/^Error: /, ''));
+        this.clearStreamTimers(stream);
         this.activeStreams.delete(conversationId);
         reject(error);
       });
@@ -354,7 +420,7 @@ export class ChannelMessageService {
   clearStreamByConversationId(conversationId: string): void {
     const stream = this.activeStreams.get(conversationId);
     if (!stream) return;
-    this.clearFinishTimer(stream);
+    this.clearStreamTimers(stream);
     this.activeStreams.delete(conversationId);
     // Resolve (not reject) so the caller's post-stream cleanup runs normally
     // (e.g., ActionExecutor finalizing the card with action buttons).

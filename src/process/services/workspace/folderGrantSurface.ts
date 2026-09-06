@@ -14,11 +14,26 @@
  */
 
 import { promises as fs } from 'node:fs';
+import type { FolderGrantSessionView } from '@/common/workspace/folderGrantsIpc';
 import path from 'node:path';
 import { readWorkspaceMarker } from '@process/services/workspaceIdentity';
 import { listLivePathGrantSessions } from '@process/agent/wcore/pathGrantSessions';
 import { FOLDER_GRANT_PATH_KEY_PREFIX } from './folderGrantWorkspaceId';
 import { pathsEqual } from './folderGrantRoots';
+
+/** Current application snapshots, kept separate for every live chat. */
+export function folderGrantApplicationsInLiveSessions(
+  workspaceDir: string | null,
+  sessions = listLivePathGrantSessions()
+): readonly FolderGrantSessionView[] {
+  if (!workspaceDir) return [];
+  return sessions
+    .filter((session) => pathsEqual(session.workspace, workspaceDir))
+    .flatMap((session) => {
+      const view = session.applicationView?.();
+      return view ? [view] : [];
+    });
+}
 
 export type LiveRevokeOutcome = Readonly<{ revoked: number; failed: number }>;
 

@@ -657,7 +657,9 @@ describe('#1099 granting sends ApprovalScope::AlwaysPath', () => {
     vi.clearAllMocks();
     manager.confirm('call-boundary', 'call-boundary', PATH_BOUNDARY_GRANT_FOLDER);
     await vi.waitFor(() => expect(agent.approveTool).toHaveBeenCalledTimes(1));
-    expect(agent.approveTool.mock.calls[0][1]).toEqual({ always_path: { root: ROOT, write: false } });
+    expect(agent.approveTool).toHaveBeenCalledWith('call-boundary', { always_path: { root: ROOT, write: false } });
+    expect(emitConfirmationRemove).toHaveBeenCalled();
+    expect(emitConfirmationAdd).not.toHaveBeenCalled();
   });
 
   it('denies the tool call outright when the folder is refused', () => {
@@ -1121,30 +1123,8 @@ describe('#1099 a remote cancel cannot dismiss a boundary card', () => {
   });
 });
 
-/**
- * #982 - the durable list is REPLAYED, so a folder the user already opened does
- * not stop an unattended run.
- *
- * The prompting axis and the boundary axis are different things: a grant the
- * user recorded is a decision already made, and re-asking for it is what turned
- * "persistent scoped trust" into a button that promised something nothing
- * delivered. Core's `grant_path` is still unsendable against the pinned corpus
- * (`FerroxLabs/wayland-core#314`), so the replay answers the card the engine
- * raises, with `tool_approve` + `always_path` - the same command, carrying the
- * same root, that the user's own click sends.
- *
- * IT REPLAYS, IT DOES NOT DECIDE. The roots are snapshotted at spawn from the
- * store's REVALIDATING read and each one has passed `vetFolderGrantRoot`. There
- * is no mode, no setting and no engine frame that can make this hand over a
- * folder the user never recorded - which is why it does not touch
- * `tryAutoApprove`, whose refusal of every path boundary is unchanged.
- *
- * The snapshot is loaded by `start()` in production. These drive that same
- * private loader directly, because `start()` also spawns an engine, negotiates a
- * contract and acquires a profile lease - none of which this behaviour depends
- * on, and all of which would make the test about something else.
- */
-describe('#982 a recorded folder grant answers the card without asking again', () => {
+/** Saved consent is attempted once at startup; a later boundary requires a user decision. */
+describe('#1236 startup consent never automatically re-grants a later boundary', () => {
   let manager: WCoreManager;
   let agent: FakeAgent;
 
@@ -1177,22 +1157,18 @@ describe('#982 a recorded folder grant answers the card without asking again', (
     vi.restoreAllMocks();
   });
 
-  it('answers with the recorded root and never draws the card', async () => {
+  it('keeps the card visible even when the folder is recorded', async () => {
     mockGrantList.mockResolvedValue(listing([ROOT]) as never);
     await snapshot();
 
     emitEvent(manager, boundaryFrame('call-replay', ROOT));
 
-    expect(agent.approveTool).toHaveBeenCalledWith('call-replay', {
-      always_path: { root: ROOT, write: false },
-    });
+    expect(agent.approveTool).not.toHaveBeenCalled();
     expect(agent.denyTool).not.toHaveBeenCalled();
-    // Never drawn, rather than drawn and withdrawn: a security prompt that
-    // vanishes under the cursor is worse than one that never appeared.
-    expect(emitConfirmationAdd).not.toHaveBeenCalled();
+    expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
   });
 
-  it('answers with the RECORDED folder even when the engine asked about a sub-folder', async () => {
+  it('does not silently re-grant a recorded parent for a new sub-folder boundary', async () => {
     mockGrantList.mockResolvedValue(listing([ROOT]) as never);
     await snapshot();
     const inside = path.join(ROOT, 'q3');
@@ -1200,7 +1176,9 @@ describe('#982 a recorded folder grant answers the card without asking again', (
 
     emitEvent(manager, boundaryFrame('call-inside', inside));
 
-    expect(agent.approveTool.mock.calls[0][1]).toEqual({ always_path: { root: ROOT, write: false } });
+    expect(agent.approveTool).not.toHaveBeenCalled();
+    expect(agent.denyTool).not.toHaveBeenCalled();
+    expect(emitConfirmationAdd).toHaveBeenCalledTimes(1);
   });
 
   it('leaves the card standing for a folder nobody recorded', async () => {

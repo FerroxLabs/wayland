@@ -352,11 +352,11 @@ function convertTMessageToOutgoing(
       if (isWeixinPlatform(platform)) {
         return null;
       }
-      // Channels (Telegram/Lark) use automatic approval via yoloMode.
-      // Show a subtle indicator instead of an error message.
+      // Restricted channel workers must deny unexpected permission requests.
+      // This is defensive feedback for a backend/protocol violation.
       return {
         type: 'text',
-        text: `⏳ ${formatTextForPlatform('Applying automatic approval for permission request...', platform)}`,
+        text: `🔒 ${formatTextForPlatform('Tool permission denied in this channel conversation.', platform)}`,
         parseMode: 'HTML',
       };
     }
@@ -842,7 +842,8 @@ export class ActionExecutor {
           // Strip replyMarkup during streaming to prevent premature card finalization.
           // Tool confirmation cards set replyMarkup (e.g., for Confirming status),
           // but DingTalk interprets replyMarkup as "stream complete" and finishes the AI Card.
-          // Channel conversations use yoloMode (auto-approve), so confirmation buttons are unnecessary.
+          // Restricted channel conversations cannot grant tool permissions.
+          // Never publish confirmation buttons into a remote chat.
           const streamOutgoing: IUnifiedOutgoingMessage = {
             ...outgoingMessage,
             replyMarkup: undefined,

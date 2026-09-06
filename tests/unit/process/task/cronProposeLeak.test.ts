@@ -21,10 +21,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { TMessage } from '@/common/chat/chatLib';
 import { composeMessage, transformMessage } from '@/common/chat/chatLib';
 
-const { addSpy, emitSpy, getMsgSpy, updateMsgSpy, addJobSpy } = vi.hoisted(() => ({
+const { addSpy, emitSpy, getMsgSpy, getMsgsSpy, updateMsgSpy, addJobSpy } = vi.hoisted(() => ({
   addSpy: vi.fn(),
   emitSpy: vi.fn(),
   getMsgSpy: vi.fn(),
+  getMsgsSpy: vi.fn(),
   updateMsgSpy: vi.fn(),
   addJobSpy: vi.fn(),
 }));
@@ -49,10 +50,18 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   cronService: { listJobsByConversation: vi.fn(async () => []), addJob: addJobSpy, removeJob: vi.fn() },
 }));
 vi.mock('@process/services/database/export', () => ({
-  getDatabase: vi.fn(async () => ({ getMessageByMsgId: getMsgSpy, updateMessage: updateMsgSpy })),
+  getDatabase: vi.fn(async () => ({
+    getMessageByMsgId: getMsgSpy,
+    getMessagesByMsgId: getMsgsSpy,
+    updateMessage: updateMsgSpy,
+  })),
 }));
 
-import { processAgentResponse, processCronInMessage } from '@process/task/MessageMiddleware';
+import {
+  distributeCleanedTextAcrossSegments,
+  processAgentResponse,
+  processCronInMessage,
+} from '@process/task/MessageMiddleware';
 
 /** Shaped exactly like the block Smart Trader emitted in the live run. */
 const PROPOSE_BLOCK = [
@@ -100,6 +109,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
     addSpy.mockClear();
     emitSpy.mockClear();
     getMsgSpy.mockReset();
+    getMsgsSpy.mockReset().mockReturnValue({ success: true, data: [] });
     updateMsgSpy.mockReset();
     addJobSpy.mockReset();
   });
@@ -143,6 +153,28 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
     expect(savedText).not.toContain('[CRON_PROPOSE]');
     expect(savedText).not.toContain('[/CRON_PROPOSE]');
     expect(savedText).toContain('Monday through Friday');
+  });
+
+  it('strips a multi-segment turn without moving later prose ahead of its tool boundary', async () => {
+    const first = "That's set at 8:00 AM, before the open, Monday through Friday.\n";
+    const second = PROPOSE_BLOCK.slice(first.length);
+    getMsgsSpy.mockReturnValue({
+      success: true,
+      data: [
+        { ...rawRow(first).data, id: 'row-1', segment_id: 'segment-1', ingest_order: 10 },
+        { ...rawRow(second).data, id: 'row-2', segment_id: 'segment-2', ingest_order: 12 },
+      ],
+    });
+
+    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+
+    expect(getMsgSpy).not.toHaveBeenCalled();
+    const replacements = emitSpy.mock.calls.map(([event]) => event).filter((event) => event.type === 'content_replace');
+    expect(replacements.every((event) => event.segment_id)).toBe(true);
+    expect(replacements.find((event) => event.segment_id === 'segment-2')?.data.content).toContain('Take a look');
+    expect(replacements.find((event) => event.segment_id === 'segment-2')?.data.content).not.toContain(
+      '[CRON_PROPOSE]'
+    );
   });
 
   it('leaves an ordinary turn with no cron block untouched', async () => {
@@ -230,6 +262,30 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
   });
 });
 
+describe('distributeCleanedTextAcrossSegments', () => {
+  it('keeps each surviving character in its original transcript segment', () => {
+    expect(
+      distributeCleanedTextAcrossSegments(
+        ['before\n', '[CRON_PROPOSE]hidden[/CRON_PROPOSE]\n', 'after'],
+        'before\n\nafter'
+      )
+    ).toEqual(['before\n', '\n', 'after']);
+  });
+
+  it('does not steal repeated later prose from inside removed proposal markup', () => {
+    expect(
+      distributeCleanedTextAcrossSegments(
+        ['Before. [CRON_PROPOSE]{"name":"Done"}[/CRON_PROPOSE]', 'Done'],
+        'Before. Done'
+      )
+    ).toEqual(['Before. ', 'Done']);
+  });
+
+  it('refuses a cleaner that rewrites rather than deletes text', () => {
+    expect(distributeCleanedTextAcrossSegments(['original'], 'replacement')).toBeNull();
+  });
+});
+
 /**
  * The renderer half. A `content_replace` frame has to survive two hops to reach
  * the bubble: transformMessage must mark it, and the merge must honour the mark
@@ -271,6 +327,30 @@ describe('content_replace swaps the bubble instead of extending it', () => {
 
     expect(merged).toHaveLength(1);
     expect((merged[0].content as { content: string }).content).toBe('prose');
+  });
+
+  it('replaces only the addressed segment when tools split one turn', () => {
+    const first = { ...bubble('before'), segment_id: 'segment-1' } as TMessage;
+    const tool = {
+      id: 'tool-1',
+      msg_id: 'turn-1',
+      segment_id: 'tool-segment',
+      conversation_id: 'c1',
+      type: 'tool_group',
+      content: [{ callId: 'call-1', name: 'Bash', description: 'true', status: 'Success' }],
+    } as unknown as TMessage;
+    const final = { ...bubble('raw final'), id: 'row-2', segment_id: 'segment-2' } as TMessage;
+    const correction = {
+      ...bubble('clean final'),
+      segment_id: 'segment-2',
+      content: { content: 'clean final', replaceContent: true },
+    } as TMessage;
+
+    const merged = composeMessage(correction, [first, tool, final]);
+
+    expect(merged.map((message) => message.type)).toEqual(['text', 'tool_group', 'text']);
+    expect((merged[0].content as { content: string }).content).toBe('before');
+    expect((merged[2].content as { content: string }).content).toBe('clean final');
   });
 
   it('does not persist the transport flag onto the merged message', () => {

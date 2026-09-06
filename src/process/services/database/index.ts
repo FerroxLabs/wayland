@@ -1043,23 +1043,34 @@ export class WaylandUIDatabase {
   insertMessage(message: TMessage): IQueryResult<TMessage> {
     try {
       const row = messageToRow(message);
+      const insert = this.db.transaction(() => {
+        const next = this.db
+          .prepare('SELECT COALESCE(MAX(ingest_order), -1) + 1 AS next_order FROM messages WHERE conversation_id = ?')
+          .get(row.conversation_id) as { next_order: number };
+        const requested = Number.isSafeInteger(row.ingest_order) ? row.ingest_order! : 0;
+        const ingestOrder = Math.max(requested, next.next_order);
+        const stmt = this.db.prepare(`
+          INSERT INTO messages (
+            id, conversation_id, msg_id, type, content, position, status, hidden, segment_id, ingest_order, created_at
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
 
-      const stmt = this.db.prepare(`
-        INSERT INTO messages (id, conversation_id, msg_id, type, content, position, status, hidden, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-
-      stmt.run(
-        row.id,
-        row.conversation_id,
-        row.msg_id,
-        row.type,
-        row.content,
-        row.position,
-        row.status,
-        row.hidden ?? 0,
-        row.created_at
-      );
+        stmt.run(
+          row.id,
+          row.conversation_id,
+          row.msg_id,
+          row.type,
+          row.content,
+          row.position,
+          row.status,
+          row.hidden ?? 0,
+          row.segment_id,
+          ingestOrder,
+          row.created_at
+        );
+      });
+      insert();
 
       return {
         success: true,
@@ -1087,7 +1098,7 @@ export class WaylandUIDatabase {
             SELECT *
             FROM messages
             WHERE conversation_id = ?
-            ORDER BY created_at ${order} LIMIT ?
+            ORDER BY ingest_order ${order}, created_at ${order}, id ${order} LIMIT ?
             OFFSET ?
           `
         )
@@ -1229,6 +1240,27 @@ export class WaylandUIDatabase {
     }
   }
 
+  getMessagesByMsgId(
+    conversationId: string,
+    msgId: string,
+    type: TMessage['type'],
+    position?: TMessage['position']
+  ): IQueryResult<TMessage[]> {
+    try {
+      const positionClause = position ? ' AND position = ?' : '';
+      const rows = this.db
+        .prepare(
+          `SELECT * FROM messages
+           WHERE conversation_id = ? AND msg_id = ? AND type = ?${positionClause}
+           ORDER BY ingest_order ASC, created_at ASC, id ASC`
+        )
+        .all(...(position ? [conversationId, msgId, type, position] : [conversationId, msgId, type])) as IMessageRow[];
+      return { success: true, data: rows.map(rowToMessage) };
+    } catch (error: unknown) {
+      return { success: false, error: errorMessage(error), data: [] };
+    }
+  }
+
   /**
    * Reconcile chat messages left in a non-terminal state by a crash, kill, or
    * power loss (#665). A streaming assistant turn persists its message with
@@ -1325,7 +1357,7 @@ export class WaylandUIDatabase {
         WHERE conversation_id = ?
           AND msg_id = ?
           AND type = ?
-        ORDER BY created_at DESC LIMIT 1
+        ORDER BY ingest_order DESC, created_at DESC, id DESC LIMIT 1
       `);
 
       const row = stmt.get(conversationId, msgId, type) as IMessageRow | undefined;

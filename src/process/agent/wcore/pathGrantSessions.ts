@@ -27,10 +27,14 @@
  * caller knows which workspace id resolved to which folder.
  */
 
+import type { FolderGrantSessionView } from '@/common/workspace/folderGrantsIpc';
+
 /** What a live engine session offers the boundary axis. Nothing more. */
 export type LivePathGrantSession = Readonly<{
   /** The engine's spawn cwd, verbatim. */
   workspace: string;
+  /** Null once the exact agent lifetime loses transport/ownership. */
+  applicationView?: () => FolderGrantSessionView | null;
   /**
    * Withdraw one grant by its host-chosen id. Idempotent engine-side, and
    * never throws: a dead transport resolves `null` on the receipt timeout.

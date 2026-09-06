@@ -17,6 +17,7 @@ const {
   mockDb,
   mockTeamEventBusEmit,
   mockChannelEmitAgentMessage,
+  mockRecordTurnFinish,
 } = vi.hoisted(() => ({
   emitResponseStream: vi.fn(),
   emitConfirmationAdd: vi.fn(),
@@ -32,6 +33,7 @@ const {
   },
   mockTeamEventBusEmit: vi.fn(),
   mockChannelEmitAgentMessage: vi.fn(),
+  mockRecordTurnFinish: vi.fn(),
 }));
 
 // ── Module mocks ───────────────────────────────────────────────────
@@ -84,6 +86,10 @@ vi.mock('@process/services/database', () => ({
 
 vi.mock('@process/services/database/export', () => ({
   getDatabase: vi.fn(() => Promise.resolve(mockDb)),
+}));
+
+vi.mock('@process/services/cost/CostRecorder', () => ({
+  getCostRecorder: () => ({ recordTurnFinish: mockRecordTurnFinish }),
 }));
 
 vi.mock('@process/utils/initStorage', () => ({
@@ -265,6 +271,52 @@ describe('GAP-2: WCoreManager Context Usage Persistence', () => {
           }),
         })
       );
+      expect(mockRecordTurnFinish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          conversationId: CONV_ID,
+          backend: 'wcore',
+          inputTokens: 3000,
+          outputTokens: 500,
+          cacheReadTokens: 1000,
+        })
+      );
+    });
+
+    it('preserves absent, explicit-zero, and cached-only usage for the cost ledger', async () => {
+      emitEvent(manager, {
+        type: 'finish',
+        data: { input_tokens: 10, output_tokens: 2 },
+        msg_id: 'without-cache',
+      });
+      emitEvent(manager, {
+        type: 'finish',
+        data: { input_tokens: 10, output_tokens: 2, cache_read_tokens: 0 },
+        msg_id: 'zero-cache',
+      });
+      emitEvent(manager, {
+        type: 'finish',
+        data: { cache_read_tokens: 900 },
+        msg_id: 'cached-only',
+      });
+
+      const calls = mockRecordTurnFinish.mock.calls.map(([call]) => call);
+      expect(calls[0]).not.toHaveProperty('cacheReadTokens');
+      expect(calls[1].cacheReadTokens).toBe(0);
+      expect(calls[2]).toMatchObject({
+        cacheReadTokens: 900,
+      });
+      expect(calls[2]).not.toHaveProperty('inputTokens');
+      expect(calls[2]).not.toHaveProperty('outputTokens');
+    });
+
+    it('drops invalid token counts instead of manufacturing cache usage', () => {
+      emitEvent(manager, {
+        type: 'finish',
+        data: { input_tokens: Number.NaN, output_tokens: -1, cache_read_tokens: Number.POSITIVE_INFINITY },
+        msg_id: 'invalid-usage',
+      });
+
+      expect(mockRecordTurnFinish).not.toHaveBeenCalled();
     });
   });
 

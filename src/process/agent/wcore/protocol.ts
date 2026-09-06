@@ -255,6 +255,87 @@ export type WCoreWorkspacePolicy = {
   capabilities: Array<{ name: string; executable: string; read_only_roots: string[] }>;
 };
 
+export type WCoreRecoveryCursor = {
+  journal_sequence?: number;
+  journal_digest: string;
+};
+
+export type WCoreRecoveryLifecycle =
+  | 'ready'
+  | 'streaming'
+  | 'awaiting_approval'
+  | 'tool_in_flight'
+  | 'reconciliation_required'
+  | 'suspended'
+  | 'completed'
+  | 'cancelled'
+  | 'failed';
+
+export type WCoreRecoveryReason =
+  | 'approval_expired'
+  | 'provider_outcome_unknown'
+  | 'tool_outcome_unknown'
+  | 'effect_requires_operator'
+  | 'budget_exhausted'
+  | 'context_unrestorable'
+  | 'cancellation_ambiguous'
+  | 'unknown_critical_state';
+
+export type WCoreRecoveryTurn = {
+  turn_id: string;
+  msg_id?: string;
+  lifecycle: WCoreRecoveryLifecycle;
+  pending_call_id?: string;
+  reconcile_reason?: WCoreRecoveryReason;
+};
+
+export type WCoreRecoverySnapshot = {
+  type: 'session_recovery_snapshot';
+  recovery_version: 1;
+  request_id: string;
+  session_id: string;
+  cursor: WCoreRecoveryCursor;
+  state_digest: string;
+  lifecycle: WCoreRecoveryLifecycle;
+  pending_turn?: WCoreRecoveryTurn;
+  budget: {
+    tokens_used: number;
+    token_limit?: number;
+    cost_used_usd: number;
+    cost_limit_usd?: number;
+  };
+};
+
+export type WCoreRecoveryUnavailableReason =
+  | 'session_not_found'
+  | 'unsupported_version'
+  | 'cursor_invalid'
+  | 'cursor_ahead'
+  | 'cursor_digest_mismatch'
+  | 'history_gap'
+  | 'journal_corrupt'
+  | 'snapshot_unavailable'
+  | 'unknown_critical_state';
+
+/** Renderer-safe projection. Main retains the authority-bearing ids/cursor. */
+export type WCoreTurnRecoveryView = {
+  state: 'healthy' | 'interrupted' | 'unavailable' | 'unsupported';
+  lifecycle?: WCoreRecoveryLifecycle;
+  reason?: WCoreRecoveryReason | WCoreRecoveryUnavailableReason | 'engine_unavailable' | 'verification_failed';
+  canAbandon: boolean;
+};
+
+/** The path surface echoes the host's stable grant ID. Other surfaces are not correlated here. */
+export type WCorePathGrantRefused = {
+  type: 'grant_refused';
+  surface: string;
+  grant_id: string;
+  reason: string;
+  detail: string;
+};
+
+export type PathGrantReplayOutcome = import('@/common/workspace/folderGrantsIpc').FolderGrantApplication;
+
 export type WCoreEvent =
   | {
       type: 'ready';
@@ -267,6 +348,24 @@ export type WCoreEvent =
     }
   | ({ type: 'execution_policy' } & WCoreExecutionPolicy)
   | { type: 'workspace_policy'; policy: WCoreWorkspacePolicy }
+  | WCoreRecoverySnapshot
+  | {
+      type: 'session_recovery_unavailable';
+      recovery_version: 1;
+      request_id: string;
+      session_id: string;
+      reason: WCoreRecoveryUnavailableReason;
+    }
+  | {
+      type: 'turn_recovery_lifecycle';
+      recovery_version: 1;
+      session_id: string;
+      turn_id: string;
+      cursor: WCoreRecoveryCursor;
+      lifecycle: WCoreRecoveryLifecycle;
+      reconcile_reason?: WCoreRecoveryReason;
+    }
+  | WCorePathGrantRefused
   | { type: 'stream_start'; msg_id: string }
   | { type: 'text_delta'; text: string; msg_id: string }
   | { type: 'thinking'; text: string; msg_id: string; subject?: string }
@@ -582,6 +681,16 @@ export type WCoreEvent =
 export type WCoreCommand =
   | { type: 'message'; msg_id: string; content: string; files?: string[] }
   | { type: 'stop' }
+  | { type: 'session_resync'; recovery_version: 1; request_id: string; session_id: string }
+  | {
+      type: 'resume_turn';
+      recovery_version: 1;
+      request_id: string;
+      session_id: string;
+      turn_id: string;
+      cursor: WCoreRecoveryCursor;
+      action: 'abandon';
+    }
   // `answer` (wayland-core v0.9.3+, additive) threads an AskUserQuestion-class
   // tool's chosen option back through the approval channel; the engine
   // synthesizes the tool result from it (guarded engine-side on

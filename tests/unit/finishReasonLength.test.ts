@@ -247,6 +247,45 @@ describe('finish_reason: length - truncation flag plumbing', () => {
     expect(flagged[0].data.truncatedDueToBudget).toBe(true);
   });
 
+  it('attaches the flag to the final prose segment after a tool boundary', async () => {
+    manager = createManager(60);
+    emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-segmented' });
+    emitEvent(manager, {
+      type: 'content',
+      data: 'before tool',
+      msg_id: 'msg-segmented',
+      segment_id: 'segment-before',
+    });
+    emitEvent(manager, {
+      type: 'tool_group',
+      data: [{ callId: 'call-1', name: 'Bash', status: 'Success' }],
+      msg_id: 'msg-segmented',
+      segment_id: 'tool-segment',
+    });
+    emitEvent(manager, {
+      type: 'content',
+      data: 'final',
+      msg_id: 'msg-segmented',
+      segment_id: 'segment-final',
+    });
+    emitEvent(manager, {
+      type: 'finish',
+      data: { input_tokens: 100, output_tokens: 60, finish_reason: 'length' },
+      msg_id: 'msg-segmented',
+    });
+
+    await vi.advanceTimersByTimeAsync(200);
+
+    const flagged = emitResponseStream.mock.calls
+      .map(([message]) => message)
+      .find((message) => message?.data?.truncatedDueToBudget === true);
+    expect(flagged.segment_id).toBe('segment-final');
+    const persisted = mockAddOrUpdateMessage.mock.calls
+      .map(([, message]) => message)
+      .find((message) => message?.content?.truncatedDueToBudget === true);
+    expect(persisted.segment_id).toBe('segment-final');
+  });
+
   it('does NOT flag truncation when finish_reason=stop (normal completion)', async () => {
     manager = createManager();
     emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-2' });

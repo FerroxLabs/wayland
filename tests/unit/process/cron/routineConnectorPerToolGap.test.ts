@@ -125,7 +125,7 @@ describe('per-tool scoping is not reachable on the backend routines run on', () 
     const [acp] = buildAcpSessionMcpServers([TV], { stdio: true, http: true, sse: true }, ['srv-tv']);
     expect(JSON.stringify(acp)).toContain('quote_batch');
     expect(JSON.stringify(acp)).toContain('builtin-mcp-tool-filter');
-    expect(acp.allowedTools).toEqual(['quote_batch', 'watchlist_get']);
+    expect('allowedTools' in acp).toBe(false);
     expect(JSON.stringify(acp)).not.toContain('alert_delete');
   });
 

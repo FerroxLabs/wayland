@@ -23,6 +23,7 @@ type StoredRow = {
   tokens_total: number;
   input_tokens: number | null;
   output_tokens: number | null;
+  cache_read_tokens: number | null;
   cost_source: string;
 };
 
@@ -263,6 +264,34 @@ describe('CostRecorder (bun:sqlite)', () => {
     expect(rows[0].tokens_total).toBe(1500);
     expect(rows[0].input_tokens).toBe(1000);
     expect(rows[0].output_tokens).toBe(500);
+  });
+
+  it('persists cached input exactly, including cached-only usage', () => {
+    const { recorder } = makeRecorder(driver, noPricing);
+    recorder.recordTurnFinish({
+      conversationId: 'cache-split',
+      backend: 'wcore',
+      modelId: 'flux-reasoning',
+      costSource: 'computed',
+      inputTokens: 100,
+      outputTokens: 20,
+      cacheReadTokens: 75,
+      ts: 1,
+    });
+    recorder.recordTurnFinish({
+      conversationId: 'cache-only',
+      backend: 'wcore',
+      modelId: 'flux-reasoning',
+      costSource: 'computed',
+      cacheReadTokens: 900,
+      ts: 2,
+    });
+
+    const rows = allRows(driver);
+    expect(rows[0].cache_read_tokens).toBe(75);
+    expect(rows[1].cache_read_tokens).toBe(900);
+    expect(rows[1].input_tokens).toBeNull();
+    expect(rows[1].output_tokens).toBeNull();
   });
 
   it('computed path downgrades to unknown / cost 0 when pricing is undefined', () => {

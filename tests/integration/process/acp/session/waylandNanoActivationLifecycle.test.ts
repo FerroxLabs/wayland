@@ -164,7 +164,7 @@ function fakeChild(
   reply: (frame: JsonRpcFrame) => Readonly<{ result?: unknown; error?: unknown }> = (frame) => ({
     result:
       frame.method === 'initialize'
-        ? { protocolVersion: '0.1', capabilities: { loadSession: true } }
+        ? { protocolVersion: 1, capabilities: { loadSession: true } }
         : frame.method === 'session/new'
           ? { sessionId: 'session-new-stack' }
           : {},
@@ -539,7 +539,7 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
       })
     );
     const mockClient: AcpClient = {
-      start: vi.fn().mockResolvedValue({ protocolVersion: '0.1', capabilities: {} }),
+      start: vi.fn().mockResolvedValue({ protocolVersion: 1, capabilities: {} }),
       createSession,
       loadSession,
       forkSession: vi.fn(),
@@ -571,7 +571,7 @@ describe('Wayland Nano new-stack activation lifecycle', () => {
   it('keeps non-Nano load-to-fresh compatibility unchanged', async () => {
     const createSession = vi.fn().mockResolvedValue({ sessionId: 'fresh-session' });
     const mockClient: AcpClient = {
-      start: vi.fn().mockResolvedValue({ protocolVersion: '0.1', capabilities: {} }),
+      start: vi.fn().mockResolvedValue({ protocolVersion: 1, capabilities: {} }),
       createSession,
       loadSession: vi.fn().mockRejectedValue(new Error('stale non-Nano session')),
       forkSession: vi.fn(),

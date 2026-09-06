@@ -105,6 +105,8 @@ export interface IMessageRow {
   position?: 'left' | 'right' | 'center' | 'pop';
   status?: 'finish' | 'pending' | 'error' | 'work';
   hidden?: number; // 0 or 1, maps to boolean IMessage.hidden
+  segment_id?: string;
+  ingest_order?: number;
   created_at: number;
 }
 
@@ -239,6 +241,8 @@ export function messageToRow(message: TMessage): IMessageRow {
     position: message.position,
     status: message.status,
     hidden: message.hidden ? 1 : 0,
+    segment_id: message.segment_id,
+    ingest_order: message.ingest_order,
     created_at: message.createdAt || Date.now(),
   };
 }
@@ -256,6 +260,8 @@ export function rowToMessage(row: IMessageRow): TMessage {
     position: row.position,
     status: row.status,
     hidden: row.hidden === 1 ? true : undefined,
+    segment_id: row.segment_id,
+    ingest_order: row.ingest_order,
     createdAt: row.created_at,
   } as TMessage;
 }

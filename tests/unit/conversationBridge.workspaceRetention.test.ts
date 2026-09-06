@@ -153,6 +153,10 @@ vi.mock('@process/services/database', () => ({
 vi.mock('@/common', () => ({
   ipcBridge: {
     openclawConversation: { getRuntime: createCommand('openclawConversation.getRuntime') },
+    wcoreRecovery: {
+      get: createCommand('wcoreRecovery.get'),
+      abandon: createCommand('wcoreRecovery.abandon'),
+    },
     conversation: {
       create: createCommand('conversation.create'),
       reloadContext: createCommand('conversation.reloadContext'),

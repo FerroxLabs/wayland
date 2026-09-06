@@ -524,7 +524,7 @@ function terminalChild(expectation: WaylandNanoBinaryExpectation): Readonly<{ ch
       const activation = activationFrom(frame);
       const result =
         frame.method === 'initialize'
-          ? { protocolVersion: '0.1', capabilities: { loadSession: true } }
+          ? { protocolVersion: 1, capabilities: { loadSession: true } }
           : activation
             ? {
                 sessionId: 'session-owner',

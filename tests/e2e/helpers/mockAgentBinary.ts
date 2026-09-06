@@ -43,7 +43,9 @@ export interface MockBinaryOptions {
   /** Inject a startup error and exit non-zero before reading stdin. */
   failOnStartup?: { code: number; stderr: string };
   /** Consume a session/new stdio MCP declaration and echo through its tool. */
-  mcpEcho?: { serverName: string; text: string };
+  mcpEcho?: { serverName: string; text: string; deniedTool?: string };
+  /** Advertise standard ACP MCP transport support from initialize. */
+  mcpCapabilities?: { http?: boolean; sse?: boolean };
 }
 
 let tmpRoot: string | null = null;
@@ -79,6 +81,7 @@ export function createMockAgentBinary(options: MockBinaryOptions): string {
   const responses = options.responses ?? [{ type: 'text', chunks: ['ok'] }];
   const failOnStartup = options.failOnStartup ?? null;
   const mcpEcho = options.mcpEcho ?? null;
+  const mcpCapabilities = options.mcpCapabilities;
 
   const scriptName = `mock-${options.binary}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}.cjs`;
   const scriptPath = path.join(root, scriptName);
@@ -93,6 +96,7 @@ const RESPONSES = ${JSON.stringify(responses)};
 const FAIL = ${JSON.stringify(failOnStartup)};
 const BINARY = ${JSON.stringify(options.binary)};
 const MCP_ECHO = ${JSON.stringify(mcpEcho)};
+const MCP_CAPABILITIES = ${JSON.stringify(mcpCapabilities)};
 const { spawn } = require('child_process');
 
 if (FAIL) {
@@ -164,6 +168,18 @@ async function callMcpEcho(server, text) {
     if (!listed.tools || !listed.tools.some((tool) => tool.name === 'echo')) {
       throw new Error('echo tool not exposed to mock agent');
     }
+    if (MCP_ECHO.deniedTool) {
+      if (listed.tools.some((tool) => tool.name === MCP_ECHO.deniedTool)) {
+        throw new Error('disabled tool was exposed to mock agent: ' + MCP_ECHO.deniedTool);
+      }
+      let denied = false;
+      try {
+        await request('tools/call', { name: MCP_ECHO.deniedTool, arguments: {} });
+      } catch (_error) {
+        denied = true;
+      }
+      if (!denied) throw new Error('disabled tool call unexpectedly reached upstream');
+    }
     const called = await request('tools/call', { name: 'echo', arguments: { text } });
     return called.content && called.content[0] ? called.content[0].text : '';
   } finally {
@@ -181,7 +197,10 @@ async function handleRequest(req) {
       id,
       result: {
         protocolVersion: 1,
-        agentCapabilities: { promptCapabilities: { audio: false, embeddedContext: false, image: false } },
+        agentCapabilities: {
+          promptCapabilities: { audio: false, embeddedContext: false, image: false },
+          ...(MCP_CAPABILITIES ? { mcpCapabilities: MCP_CAPABILITIES } : {}),
+        },
         authMethods: [],
       },
     });

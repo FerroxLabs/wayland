@@ -134,6 +134,7 @@ vi.mock('@process/agent/wcore', () => ({
     this.ping = vi.fn();
     this.isAlive = true;
     this.capabilities = null;
+    this.getTurnRecovery = vi.fn().mockResolvedValue({ state: 'healthy', canAbandon: false });
     this.injectConversationHistory = vi.fn().mockResolvedValue(undefined);
   },
 }));

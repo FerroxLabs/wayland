@@ -21,6 +21,7 @@ import type {
   EngineConfigInspection,
   EngineConfigRecoveryResult,
 } from '../../process/agent/wcore/engineConfigRecovery';
+import type { WCoreTurnRecoveryView } from '../../process/agent/wcore/protocol';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
 import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/workspaceTrust';
@@ -498,6 +499,11 @@ export const wcoreUpdate = {
   install: buildProvider<WCoreInstallResult, WCoreInstallRequest>('wcoreUpdate.install'),
   /** Install progress (download percent + phase) emitted by the main process. */
   progress: buildEmitter<WCoreUpdateProgress>('wcoreUpdate.progress'),
+};
+
+export const wcoreRecovery = {
+  get: buildProvider<IBridgeResponse<WCoreTurnRecoveryView>, { conversation_id: string }>('wcoreRecovery.get'),
+  abandon: buildProvider<IBridgeResponse<WCoreTurnRecoveryView>, { conversation_id: string }>('wcoreRecovery.abandon'),
 };
 
 export const starOffice = {
@@ -2088,6 +2094,14 @@ export interface IResponseMessage {
   msg_id: string;
   conversation_id: string;
   hidden?: boolean;
+  /**
+   * Identity of one ordered transcript segment within a turn. WCore keeps the
+   * turn's msg_id across prose/tool/prose boundaries, so msg_id alone cannot
+   * decide whether a text delta extends an existing bubble.
+   */
+  segment_id?: string;
+  /** Durable admission order assigned before asynchronous buffering. */
+  ingest_order?: number;
   /**
    * #787: per-conversation turn id of the turn that PRODUCED this terminal
    * (`finish`/`error`) event. TeammateManager keys its finalize-dedup on

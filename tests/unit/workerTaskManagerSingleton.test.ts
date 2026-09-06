@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockGetConversation, mockAcpManager, mockWcoreManager } = vi.hoisted(() => ({
+const { mockGetConversation, mockAcpManager, mockWcoreManager, mockGeminiManager } = vi.hoisted(() => ({
   mockGetConversation: vi.fn(),
   mockAcpManager: vi.fn(),
   mockWcoreManager: vi.fn(),
+  mockGeminiManager: vi.fn(),
 }));
 
 vi.mock('../../src/process/services/database/SqliteConversationRepository', () => ({
@@ -35,7 +36,13 @@ vi.mock('../../src/process/task/WCoreManager', () => ({
 }));
 
 vi.mock('../../src/process/task/GeminiAgentManager', () => ({
-  GeminiAgentManager: vi.fn().mockImplementation(() => ({ type: 'gemini', kill: vi.fn() })),
+  GeminiAgentManager: class {
+    type = 'gemini';
+    kill = vi.fn();
+    constructor(data: Record<string, unknown>) {
+      mockGeminiManager(data);
+    }
+  },
 }));
 
 vi.mock('../../src/process/task/OpenClawAgentManager', () => ({
@@ -123,6 +130,28 @@ describe('workerTaskManagerSingleton', () => {
         conversation_id: 'conv-core-scheduled',
         yoloMode: false,
         unattendedHoldDeadlineMs: 123456,
+      })
+    );
+  });
+
+  it('threads the trusted channel execution policy only through launch options', async () => {
+    mockGetConversation.mockResolvedValue({
+      id: 'conv-channel',
+      type: 'gemini',
+      model: { useModel: 'gemini-2.0-flash' },
+      extra: { executionPolicy: 'attacker-controlled', yoloMode: true },
+    });
+
+    await workerTaskManager.getOrBuildTask('conv-channel', {
+      executionPolicy: 'channel-conversational',
+      yoloMode: false,
+    });
+
+    expect(mockGeminiManager).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversation_id: 'conv-channel',
+        executionPolicy: 'channel-conversational',
+        yoloMode: false,
       })
     );
   });

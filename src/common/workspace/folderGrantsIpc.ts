@@ -22,6 +22,28 @@
 
 import type { FolderGrant, FolderGrantRefusal, WithheldFolderGrant } from './folderGrants';
 
+/** A live session's application of saved consent; never persisted as consent. */
+export type FolderGrantApplication = Readonly<{
+  grantId: string;
+  root: string;
+}> &
+  (
+    | Readonly<{ status: 'pending' | 'unconfirmed' | 'unavailable' | 'revoked' }>
+    | Readonly<{ status: 'applied'; coverage: 'already-readable' | 'policy-confirmed' }>
+    | Readonly<{
+        status: 'refused';
+        reason: 'local_opt_in_required' | 'policy_rejected' | 'unknown';
+        detail?: string;
+      }>
+  );
+
+export type FolderGrantSessionView = Readonly<{
+  /** Unique agent lifetime, including when a conversation restarts. */
+  sessionId: string;
+  conversationId: string | null;
+  applications: readonly FolderGrantApplication[];
+}>;
+
 /**
  * One workspace's row in "Folders this workspace may reach".
  *
@@ -36,8 +58,10 @@ export interface FolderGrantWorkspaceView {
   workspaceId: string;
   displayName: string | null;
   workspaceDir: string | null;
-  /** Re-validated by the read that produced this view. These are in effect. */
+  /** Re-validated saved consent. Runtime access is reported separately. */
   grants: readonly FolderGrant[];
+  /** Current sessions only. Missing/empty means no confirmed current application. */
+  sessions?: readonly FolderGrantSessionView[];
   /**
    * Recorded entries the read refused to certify - the folder was renamed,
    * deleted, re-pointed at somewhere protected, or the entry is past the
