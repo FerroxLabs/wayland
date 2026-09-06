@@ -534,7 +534,12 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     await new Promise((resolve) => setImmediate(resolve));
 
     expect(onStreamEvent).toHaveBeenCalledWith({ type: 'start', data: '', msg_id: 'wire-msg-1' });
-    expect(onStreamEvent).toHaveBeenCalledWith({ type: 'content', data: 'wire-ok', msg_id: 'wire-msg-1' });
+    expect(onStreamEvent).toHaveBeenCalledWith({
+      type: 'content',
+      data: 'wire-ok',
+      msg_id: 'wire-msg-1',
+      segment_id: expect.any(String),
+    });
     expect(onStreamEvent).toHaveBeenCalledWith({
       type: 'finish',
       data: { finish_reason: 'stop' },

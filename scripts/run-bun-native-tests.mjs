@@ -42,10 +42,23 @@ if (files.length === 0) {
  */
 const TEST_TIMEOUT_MS = 30_000;
 
-const result = spawnSync(process.execPath, ['test', '--timeout', String(TEST_TIMEOUT_MS), ...files], {
-  env: process.env,
-  stdio: 'inherit',
-});
-
-if (result.error) throw result.error;
-process.exit(result.status ?? 1);
+// Bun's module mocks survive across files in one test process. This real
+// notification fixture replaces database/message modules for its own scenario;
+// keep those mocks out of the remaining persistence and queue tests.
+const isolatedFiles = new Set([join('tests', 'integration', 'teamArtifactNotificationPersistence.bun.test.ts')]);
+const batches = [
+  files.filter((file) => !isolatedFiles.has(file)),
+  ...files.filter((file) => isolatedFiles.has(file)).map((file) => [file]),
+];
+let exitCode = 0;
+for (const batch of batches) {
+  if (batch.length === 0) continue;
+  console.log(`Bun-native batch: ${batch.length} file(s)`);
+  const result = spawnSync(process.execPath, ['test', '--timeout', String(TEST_TIMEOUT_MS), ...batch], {
+    env: process.env,
+    stdio: 'inherit',
+  });
+  if (result.error) throw result.error;
+  if (result.status !== 0) exitCode = result.status ?? 1;
+}
+process.exit(exitCode);

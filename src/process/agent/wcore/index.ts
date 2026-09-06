@@ -576,7 +576,7 @@ export class WCoreAgent {
   private startupPathGrants: readonly LiveFolderGrant[] = [];
   private startupPathReplayPending = false;
   private startupPathReplayUsed = false;
-  private startupPathReplayCancelled = false;
+  private startupPathReplayCancelled: 'transport' | 'lifecycle' | null = null;
   private ownsStartupPathSession: () => boolean = () => true;
   private startupPathBatch: StartupPathBatch | null = null;
   private readonly pathGrantApplications = new Map<string, PathGrantReplayOutcome>();
@@ -1308,7 +1308,7 @@ export class WCoreAgent {
       if (this.childProcess === spawnedChild) {
         this.transportAlive = false;
         this.transportUnavailableReason = 'root-exit';
-        this.cancelStartupPathReplay();
+        this.cancelStartupPathReplay('transport');
       }
       this.cleanupVertexCredentials();
       this.anvilMutationWatcher.stop();
@@ -1590,6 +1590,24 @@ export class WCoreAgent {
 
   /** Re-arm the ready gate for a retry spawn. */
   private armFreshReadyPromise(): void {
+    if (
+      this.disposed ||
+      this.ready ||
+      this.startupPathReplayUsed ||
+      this.startupPathReplayCancelled === 'lifecycle' ||
+      !this.ownsStartupPathSession()
+    ) {
+      throw new Error('Wayland Core startup retry was cancelled or already used');
+    }
+    // Only the proved-dead pre-ready transport is replaceable. Explicit stop,
+    // disposal, consumed replay and lost ownership cannot be re-armed here.
+    this.startupPathReplayCancelled = null;
+    this.startupPathReplayPending = false;
+    for (const grant of this.startupPathGrants) {
+      if (this.revokedPathGrantIds.has(grant.grantId)) continue;
+      this.startupPathReplayPending = true;
+      this.pathGrantApplications.set(grant.grantId, { grantId: grant.grantId, root: grant.root, status: 'pending' });
+    }
     this.ready = false;
     this.recoverySupported = false;
     this.readyPromise = new Promise((resolve, reject) => {
@@ -2777,8 +2795,9 @@ export class WCoreAgent {
     batch.resolve([...this.pathGrantApplications.values()]);
   }
 
-  private cancelStartupPathReplay(): void {
-    this.startupPathReplayCancelled = true;
+  private cancelStartupPathReplay(reason: 'transport' | 'lifecycle' = 'lifecycle'): void {
+    // A later child exit must not downgrade an explicit stop into retryable loss.
+    if (this.startupPathReplayCancelled !== 'lifecycle') this.startupPathReplayCancelled = reason;
     this.finishStartupPathBatch('unavailable');
     this.startupPathReplayPending = false;
     for (const [id, item] of this.pathGrantApplications) {
@@ -2895,7 +2914,7 @@ export class WCoreAgent {
     if (this.childProcess !== child || !this.transportAlive) return;
     this.transportAlive = false;
     this.transportUnavailableReason = 'stdin';
-    this.cancelStartupPathReplay();
+    this.cancelStartupPathReplay('transport');
     this.stopStallWatchdog();
     this.failRecoveryWaiters(new Error('Wayland Core recovery transport closed'));
     if (!this.ready) {
