@@ -18,6 +18,7 @@ const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
+const prepareTvControl = require('./prepareTvControl');
 const {
   signDarwinStagedBinary,
   resolveDarwinSigningIdentity,
@@ -868,6 +869,7 @@ try {
   const bunPlatform = packagePlatforms[0];
   const bunArch = packageArchitectures[0];
   const bunRuntimeAvailable = prepareBundledBun.isSupportedBunTarget(bunPlatform, bunArch);
+  prepareTvControl();
   if (bunRuntimeAvailable) {
     prepareBundledBun({ platform: bunPlatform, arch: bunArch });
   } else {

@@ -23,7 +23,7 @@ const {
   resolvePackagedTarget,
   snapshotPackagedTargets,
   verifyConstitutionFsBundle,
-  verifyPackagedResources,
+  verifyPackagedResources: verifyPackagedResourcesActual,
   verifyWhatsAppDarwinSignIgnoreInventory,
   verifyWhatsAppNativeTarget,
 } = require('../../scripts/verify-packaged-resources.js') as {
@@ -52,6 +52,23 @@ const {
   verifyWhatsAppDarwinSignIgnoreInventory: (root: string, arch: string) => boolean;
   verifyWhatsAppNativeTarget: (root: string, platform: string, arch: string) => boolean;
 };
+// The package sweep uses a tiny integrity-checked connector fixture. Real
+// published bytes are checked by prepareTvControl and the native package check.
+const TVCONTROL_FIXTURE = JSON.stringify({ name: '@ferroxlabs/tvcontrol', version: '2.4.7' });
+const tvControlAuthority = {
+  version: '2.4.7',
+  treeSha256: crypto
+    .createHash('sha256')
+    .update(
+      JSON.stringify([
+        ['@ferroxlabs/tvcontrol/package.json', crypto.createHash('sha256').update(TVCONTROL_FIXTURE).digest('hex')],
+      ])
+    )
+    .digest('hex'),
+};
+const verifyPackagedResources = (options: Record<string, unknown>) =>
+  verifyPackagedResourcesActual({ tvControlAuthority, ...options });
+
 // Derived from the live policy, never re-typed: verify-packaged-resources reads
 // the real DEFAULT_WCORE_VERSION and the real attestation policy, so a
 // hard-coded tag here fails the day the engine is bumped and proves nothing in
@@ -318,6 +335,9 @@ function addPackagedApp(
   writeSkillPack(resources, 'bundled-workflows');
   writeBunBundle(resources, arch);
   fs.mkdirSync(resources, { recursive: true });
+  const tvControlPackage = path.join(resources, 'bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/package.json');
+  fs.mkdirSync(path.dirname(tvControlPackage), { recursive: true });
+  fs.writeFileSync(tvControlPackage, TVCONTROL_FIXTURE);
   fs.cpSync(path.resolve('resources/managed-cli-shims'), path.join(resources, 'managed-cli-shims'), {
     recursive: true,
   });
@@ -592,6 +612,15 @@ afterEach(() => {
 const itAcceptedSweep = it.skipIf(process.platform === 'win32');
 
 describe('packaged resource release gate', () => {
+  it('refuses a missing or tampered bundled TVControl tree', () => {
+    const out = createPackagedResources(true);
+    const connector = path.join(packagedResourcesPath(out), 'bundled-tvcontrol');
+    fs.appendFileSync(path.join(connector, 'node_modules/@ferroxlabs/tvcontrol/package.json'), ' ');
+    expect(() => verify(out)).toThrow();
+    fs.rmSync(connector, { recursive: true });
+    expect(() => verify(out)).toThrow();
+  });
+
   const verify = (
     out: string,
     officeCliRuntime = 'darwin-arm64',

@@ -40,6 +40,10 @@ import { WCoreMcpAgent } from '@process/services/mcpServices/agents/WCoreMcpAgen
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 import { applyBuiltinMcpRuntime } from '@process/services/mcpServices/builtinMcpRuntime';
+import {
+  isBundledTvControlDeclaration,
+  provisionWorkspaceTvControl,
+} from '@process/services/mcpServices/bundledTvControl';
 import { validateMcpServer } from '@process/services/mcpServices/validateMcpServer';
 import { getCandidateTools } from '@process/services/mcpServices/getCandidateTools';
 import type { CandidateTool } from '@process/services/tools/toolContract';
@@ -836,6 +840,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // but no chat tools. The launch-local Core profile below then narrows the
     // global config to exactly this conversation's selection (all transports).
     let sessionMcpServerNames: string[] | undefined;
+    let managedTempDir: string | undefined;
     let expectedSessionMcpNames: string[] = [];
     let expectedSessionMcpServers: McpSessionExpectedServer[] = [];
     if (!rawEngineMode) {
@@ -854,6 +859,19 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           );
           this.beginMcpSession(expectedSessionMcpServers);
           for (const server of normalizedServers) validateMcpServer(server);
+          if (
+            selectedServers.some(
+              (server) =>
+                server.transport.type === 'stdio' &&
+                isBundledTvControlDeclaration(
+                  server.transport.command,
+                  server.transport.args ?? [],
+                  server.libraryEntryId
+                )
+            )
+          ) {
+            managedTempDir = provisionWorkspaceTvControl(mergedData.workspace);
+          }
           // #1015 F1: this launch-local config.toml is the ONLY thing the wcore
           // chat loads its connectors from, and it is NOT one of the
           // `McpService.syncMcpToAgents` targets — so the shared builtin-runtime
@@ -893,6 +911,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           }
         }
       } catch (err) {
+        managedTempDir = undefined;
         sessionMcpServerNames = [];
         // Keep the exact requested connector set visible and terminal. Erasing
         // it here made OAuth/validation/config-write failures look like a chat
@@ -948,6 +967,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
     const agent = new WCoreAgent({
       workspace: mergedData.workspace,
+      managedTempDir,
       model: mergedData.model,
       proxy: mergedData.proxy,
       yoloMode: mergedData.yoloMode,

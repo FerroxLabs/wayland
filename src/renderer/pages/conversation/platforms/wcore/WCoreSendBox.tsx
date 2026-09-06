@@ -374,7 +374,7 @@ const WCoreSendBox: React.FC<{
 
   // Handle initial message from Guid page
   useEffect(() => {
-    if (!conversation_id) return;
+    if (!conversation_id || recoveryBlocked || !currentModel?.useModel) return;
 
     const storageKey = `wcore_initial_message_${conversation_id}`;
     const processedKey = `wcore_initial_processed_${conversation_id}`;
@@ -385,19 +385,37 @@ const WCoreSendBox: React.FC<{
       if (!storedMessage) return;
 
       sessionStorage.setItem(processedKey, '1');
-      sessionStorage.removeItem(storageKey);
-
       try {
         const { input, files: initialFiles } = JSON.parse(storedMessage);
         await executeCommand({ input, files: initialFiles || [] });
+        sessionStorage.removeItem(storageKey);
       } catch (error) {
         console.error('[WCoreSendBox] Failed to send initial message:', error);
-        sessionStorage.removeItem(processedKey);
+        // Keep the original payload and the attempted marker: a rejected bridge
+        // response may follow an accepted send, so never automatically duplicate it.
+        // Restore the draft for an explicit user retry instead of losing the prompt.
+        try {
+          const { input, files: initialFiles } = JSON.parse(storedMessage);
+          setContent(input);
+          setUploadFile(initialFiles || []);
+        } catch {
+          // Malformed handoff stays in storage for diagnosis.
+        }
+        setWaitingResponse(false);
+        Message.error(error instanceof Error ? error.message : String(error));
       }
     };
 
     void processInitialMessage();
-  }, [conversation_id, executeCommand]);
+  }, [
+    conversation_id,
+    currentModel?.useModel,
+    recoveryBlocked,
+    executeCommand,
+    setContent,
+    setUploadFile,
+    setWaitingResponse,
+  ]);
 
   const onSendHandler = async (message: string) => {
     const filesToSend = collectSelectedFiles(uploadFile, atPath);

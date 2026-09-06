@@ -57,6 +57,9 @@ export const useWCoreMessage = (
   const [tokenUsage, setTokenUsage] = useState<TokenUsageData | null>(null);
   // Current active message ID to filter out events from old requests (prevents aborted request events from interfering with new ones)
   const activeMsgIdRef = useRef<string | null>(null);
+  // Status snapshots must not overwrite turn events or sends observed after the read began.
+  const runningRevisionRef = useRef(0);
+  const conversationGenerationRef = useRef(0);
 
   // Use refs to avoid useEffect re-subscription when these states change
   const hasActiveToolsRef = useRef(hasActiveTools);
@@ -166,6 +169,9 @@ export const useWCoreMessage = (
         }
       }
 
+      if (['thought', 'start', 'finish', 'tool_group', 'error'].includes(message.type)) {
+        runningRevisionRef.current += 1;
+      }
       switch (message.type) {
         case 'thought':
           // Auto-recover streamRunning if thought arrives after finish
@@ -445,6 +451,7 @@ export const useWCoreMessage = (
             hasContentInTurnRef.current = true;
             // Successful content after an error means that error was transient.
             if (isTurnOutput) {
+              runningRevisionRef.current += 1;
               turnEndedInErrorRef.current = false;
             }
             // Reset waitingResponse when actual content arrives
@@ -469,6 +476,8 @@ export const useWCoreMessage = (
 
   useEffect(() => {
     let cancelled = false;
+    const generation = ++conversationGenerationRef.current;
+    const revision = runningRevisionRef.current;
 
     setThought({ subject: '', description: '' });
     setTokenUsage(null);
@@ -484,6 +493,10 @@ export const useWCoreMessage = (
         return;
       }
 
+      if (revision !== runningRevisionRef.current) {
+        setHasHydratedRunningState(true);
+        return;
+      }
       if (!res) {
         setStreamRunning(false);
         streamRunningRef.current = false;
@@ -514,6 +527,7 @@ export const useWCoreMessage = (
 
     return () => {
       cancelled = true;
+      if (conversationGenerationRef.current === generation) conversationGenerationRef.current += 1;
     };
   }, [conversation_id]);
 
@@ -521,8 +535,12 @@ export const useWCoreMessage = (
   // tab that was backgrounded while a turn finished comes back showing a stale
   // running state. On resume, re-check the backend status and reconcile. (#57)
   const reconcileRunningOnResume = useCallback(() => {
+    const generation = conversationGenerationRef.current;
+    const revision = runningRevisionRef.current;
     void ipcBridge.conversation.get.invoke({ id: conversation_id }).then((res) => {
-      if (!res) return;
+      if (!res || generation !== conversationGenerationRef.current || revision !== runningRevisionRef.current) {
+        return;
+      }
       const isRunning = res.status === 'running';
       if (!isRunning && (streamRunningRef.current || waitingResponseRef.current)) {
         setStreamRunning(false);
@@ -543,6 +561,7 @@ export const useWCoreMessage = (
   useTabResumeEffect(reconcileRunningOnResume, [conversation_id]);
 
   const resetState = useCallback(() => {
+    runningRevisionRef.current += 1;
     setWaitingResponse(false);
     waitingResponseRef.current = false;
     setStreamRunning(false);
@@ -557,6 +576,12 @@ export const useWCoreMessage = (
     activeMsgIdRef.current = null;
   }, []);
 
+  const setOutgoingWaitingResponse = useCallback((waiting: boolean) => {
+    runningRevisionRef.current += 1;
+    waitingResponseRef.current = waiting;
+    setWaitingResponse(waiting);
+  }, []);
+
   return {
     thought,
     setThought,
@@ -564,7 +589,7 @@ export const useWCoreMessage = (
     hasHydratedRunningState,
     tokenUsage,
     setActiveMsgId,
-    setWaitingResponse,
+    setWaitingResponse: setOutgoingWaitingResponse,
     resetState,
   };
 };

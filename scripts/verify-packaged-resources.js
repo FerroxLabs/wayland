@@ -25,6 +25,7 @@
 'use strict';
 
 const fs = require('fs');
+const { verifyTvControl } = require('./prepareTvControl');
 const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
@@ -57,6 +58,7 @@ const REQUIRED = [
   { rel: 'bundled-wayland-core', critical: true, kind: 'wcore-bundle' },
   { rel: 'bundled-wayland-nano', critical: true, kind: 'wnano-bundle', absentWhen: 'noWNanoRuntime' },
   { rel: 'bundled-officecli', critical: true, kind: 'officecli-bundle' },
+  { rel: 'bundled-tvcontrol', critical: true, kind: 'tvcontrol-bundle' },
   {
     rel: 'managed-cli-shims/officecli',
     critical: true,
@@ -1394,7 +1396,8 @@ function isNonEmpty(
   wnanoAuthority = prepareWaylandNano,
   wnanoPolicySelector = selectPolicy,
   darwinSignedCheck = isDarwinDeveloperIdSigned,
-  requireDarwinSignature = false
+  requireDarwinSignature = false,
+  tvControlAuthority
 ) {
   // Per-resource, NOT cumulative. `hub` is optional and absent on every build, so
   // its stat throws and left a `threw: ENOENT ... resources\hub` line sitting in
@@ -1418,6 +1421,7 @@ function isNonEmpty(
       return true;
     }
     if (!st.isDirectory()) return false;
+    if (kind === 'tvcontrol-bundle') return verifyTvControl(p, tvControlAuthority);
     if (kind === 'wcore-bundle') {
       return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority, darwinSignedCheck, requireDarwinSignature);
     }
@@ -1706,7 +1710,8 @@ function verifyPackagedResources(options = {}) {
         wnanoAuthority,
         wnanoPolicySelector,
         darwinSignedCheck,
-        requireDarwinSignature
+        requireDarwinSignature,
+        options.tvControlAuthority
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);
