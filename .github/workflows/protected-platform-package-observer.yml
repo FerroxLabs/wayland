@@ -139,6 +139,16 @@ jobs:
           echo "bun install failed after 3 attempts (GitHub API or registry unreachable)" >&2
           exit 1
 
+      - name: Reconstruct exact candidate bridge dependencies as data
+        shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ inputs.candidate_commit }}
+          EXPECTED_TREE: ${{ inputs.candidate_tree }}
+        run: |
+          set -euo pipefail
+          cd candidate
+          node ../trust/scripts/candidate-whatsapp-source.js
+
       - name: Capture empty pre-download package state
         id: package-state
         shell: bash

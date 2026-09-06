@@ -20,6 +20,7 @@ const {
 } = require('./verify-packaged-resources.js');
 const { isSupportedWNanoTarget } = require('./prepareWaylandNano.js');
 const { isSupportedBunTarget } = require('./prepareBundledBun.js');
+const { resolveCandidateWhatsAppSource } = require('./candidate-whatsapp-source.js');
 
 const TAG = '[platform-package-smoke]';
 const OPTIONAL_RESOURCES = ['hub', 'whatsapp-bridge', 'signal-cli-runtime'];
@@ -1550,7 +1551,12 @@ export async function runSmoke(options, dependencies = {}) {
     // mismatch from an absent file. Replay them before rethrowing.
     let verification;
     try {
+      const candidateBridge = (dependencies.resolveCandidateWhatsAppSource || resolveCandidateWhatsAppSource)(
+        dependencies.sourceRoot || process.cwd(),
+        installed.installerFreshness.sourceIdentity
+      );
       verification = verifyResources({
+        ...candidateBridge,
         argv: [
           'node',
           'verify-packaged-resources.js',

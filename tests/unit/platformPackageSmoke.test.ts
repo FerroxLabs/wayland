@@ -249,6 +249,10 @@ function smokeHarness() {
     assertPortVacant: vi.fn(async () => undefined),
     spawn: vi.fn(() => child),
     verifyPackagedResources: verify,
+    resolveCandidateWhatsAppSource: vi.fn(() => ({
+      whatsappSourceDir: '/candidate/whatsapp-bridge',
+      whatsappAuthority: { contract: 'wayland-whatsapp-bridge-source/1.0', files: {} },
+    })),
     waitForRendererReady: vi.fn(
       async (
         _port: number,
@@ -1343,6 +1347,16 @@ describe('runSmoke hostile orchestration', () => {
     const report = await runSmoke(harness.options, harness.dependencies);
     expect(harness.dependencies.prepareInstalledCandidate).toHaveBeenCalledOnce();
     expect(harness.verify).toHaveBeenCalledOnce();
+    expect(harness.dependencies.resolveCandidateWhatsAppSource).toHaveBeenCalledWith(
+      process.cwd(),
+      harness.installed.installerFreshness.sourceIdentity
+    );
+    expect(harness.verify).toHaveBeenCalledWith(
+      expect.objectContaining({
+        whatsappSourceDir: '/candidate/whatsapp-bridge',
+        whatsappAuthority: expect.objectContaining({ contract: 'wayland-whatsapp-bridge-source/1.0' }),
+      })
+    );
     expect(report.criticalResources).toBe('verified');
     expect(report.installerDigest).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(report.verifiedCandidateDigest).toBe(harness.installed.installedDigest);
