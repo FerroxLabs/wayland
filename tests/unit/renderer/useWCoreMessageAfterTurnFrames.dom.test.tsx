@@ -44,7 +44,9 @@ import os from 'os';
 import path from 'path';
 
 import React from 'react';
-import { render, screen, act, waitFor } from '@testing-library/react';
+import { ipcBridge } from '@/common';
+import { useConversationCommandQueue } from '@/renderer/pages/conversation/platforms/useConversationCommandQueue';
+import { render, renderHook, screen, act, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
@@ -306,5 +308,105 @@ describe('wcore turn end — the deliverable recipe that wedged the composer', (
 
     // THE REGRESSION. Live, this line was the Stop button that never went away.
     expect(screen.getByTestId('running').textContent).toBe('false');
+  });
+});
+
+// Navigation can start a status read that resolves after a newer stream frame.
+describe('wcore navigation status ordering', () => {
+  beforeEach(() => {
+    streamHandler = null;
+    vi.mocked(ipcBridge.conversation.get.invoke).mockReset();
+  });
+  afterEach(() => {
+    vi.mocked(ipcBridge.conversation.get.invoke).mockReset().mockResolvedValue(null);
+  });
+
+  const deferredStatus = () => {
+    let resolve!: (value: Awaited<ReturnType<typeof ipcBridge.conversation.get.invoke>>) => void;
+    vi.mocked(ipcBridge.conversation.get.invoke).mockReturnValueOnce(new Promise(r => { resolve = r; }));
+    return (status: 'running' | 'finished') => resolve({ id: CONV, type: 'wcore', status } as Awaited<ReturnType<typeof ipcBridge.conversation.get.invoke>>);
+  };
+
+  it('does not overwrite finish with an older running mount response', async () => {
+    const resolve = deferredStatus();
+    renderHarness();
+    emit(frame('start'));
+    emit(frame('finish'));
+    await act(async () => { resolve('running'); });
+    expect(screen.getByTestId('running').textContent).toBe('false');
+  });
+
+  it('does not overwrite a new start with an older finished mount response', async () => {
+    const resolve = deferredStatus();
+    renderHarness();
+    emit(frame('start'));
+    await act(async () => { resolve('finished'); });
+    expect(screen.getByTestId('running').textContent).toBe('true');
+  });
+
+  it('retains genuinely running hydration with no newer event', async () => {
+    const resolve = deferredStatus();
+    renderHarness();
+    await act(async () => { resolve('running'); });
+    expect(screen.getByTestId('running').textContent).toBe('true');
+  });
+
+  it('does not let an older resume response erase a new start', async () => {
+    vi.mocked(ipcBridge.conversation.get.invoke).mockResolvedValueOnce(null);
+    renderHarness();
+    await act(async () => {});
+    const resolve = deferredStatus();
+    act(() => window.dispatchEvent(new Event('focus')));
+    emit(frame('start'));
+    await act(async () => { resolve('finished'); });
+    expect(screen.getByTestId('running').textContent).toBe('true');
+  });
+
+  it('does not let a pending mount read erase an outgoing send', async () => {
+    const resolve = deferredStatus();
+    const { result } = renderHook(() => useWCoreMessage(CONV), {
+      wrapper: ({ children }) => <MessageListProvider value={[]}>{children}</MessageListProvider>,
+    });
+    act(() => result.current.setWaitingResponse(true));
+    await act(async () => { resolve('finished'); });
+    expect(result.current.running).toBe(true);
+    expect(result.current.hasHydratedRunningState).toBe(true);
+  });
+
+  it.each(['running', 'finished'] as const)('dispatches a queued follow-up exactly once after current finish despite an older %s snapshot', async (snapshot) => {
+    const resolve = deferredStatus();
+    const conversationId = `navigation-queue-${snapshot}`;
+    const onExecute = vi.fn().mockResolvedValue(undefined);
+    const useHarness = () => {
+      const state = useWCoreMessage(conversationId);
+      const queue = useConversationCommandQueue({
+        conversationId, enabled: true, isBusy: state.running,
+        isHydrated: state.hasHydratedRunningState, onExecute,
+      });
+      return { state, queue };
+    };
+    const wrapper = ({ children }: { children: React.ReactNode }) => <MessageListProvider value={[]}>{children}</MessageListProvider>;
+    const mounted = renderHook(useHarness, { wrapper });
+    act(() => mounted.result.current.queue.enqueue({ input: 'one follow-up', files: [] }));
+    act(() => streamHandler?.({ ...frame('start'), conversation_id: conversationId }));
+    if (snapshot === 'running') {
+      act(() => streamHandler?.({ ...frame('finish'), conversation_id: conversationId }));
+    }
+    await act(async () => { resolve(snapshot); });
+    if (snapshot === 'finished') {
+      expect(mounted.result.current.state.running).toBe(true);
+      expect(onExecute).not.toHaveBeenCalled();
+      act(() => streamHandler?.({ ...frame('finish'), conversation_id: conversationId }));
+    }
+    await waitFor(() => expect(onExecute).toHaveBeenCalledTimes(1));
+    expect(mounted.result.current.queue.items).toHaveLength(0);
+    vi.mocked(ipcBridge.conversation.get.invoke).mockResolvedValue(null);
+    act(() => window.dispatchEvent(new Event('focus')));
+    await act(async () => {});
+    mounted.unmount();
+    const remounted = renderHook(useHarness, { wrapper });
+    await waitFor(() => expect(remounted.result.current.state.hasHydratedRunningState).toBe(true));
+    expect(onExecute).toHaveBeenCalledTimes(1);
+    expect(remounted.result.current.queue.items).toHaveLength(0);
   });
 });
