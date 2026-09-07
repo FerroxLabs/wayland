@@ -72,7 +72,7 @@ describe('Core scratch receipt gates bundled collector sends', () => {
       throw new Error('ambiguous scratch roots');
     });
     expect(() => internal.handleEvent({ type: 'workspace_policy', policy: { writable_roots: [] } })).not.toThrow();
-    await expect(agent.send('collect', 'first')).rejects.toThrow('TVControl 2.4.7 could not be prepared');
+    await expect(agent.send('collect', 'first')).rejects.toThrow('TVControl 2.5.0 could not be prepared');
     expect(write).not.toHaveBeenCalled();
   });
   it('bounds a missing receipt wait and returns an actionable error', async () => {

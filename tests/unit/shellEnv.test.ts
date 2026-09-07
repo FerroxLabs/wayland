@@ -765,6 +765,25 @@ describe('resolveNpxPath', () => {
 
     expect(resolveNpxPath({ PATH: '/tooling' })).toBe('bun.exe');
   });
+
+  it('refuses a missing packaged runtime before spawning a bare bun.exe', async () => {
+    Object.defineProperty(process, 'platform', { value: 'win32' });
+    const resourcesDescriptor = Object.getOwnPropertyDescriptor(process, 'resourcesPath');
+    Object.defineProperty(process, 'resourcesPath', { value: '/packaged', configurable: true });
+    mocks.isPackaged.mockReturnValue(true);
+    vi.doMock('fs', async () => ({
+      ...(await vi.importActual<typeof import('fs')>('fs')),
+      existsSync: vi.fn(() => false),
+    }));
+    try {
+      const { resolveNpxPath } = await import('@process/utils/shellEnv');
+      expect(() => resolveNpxPath({ PATH: '' })).toThrow('bundled Bun runtime is missing');
+    } finally {
+      mocks.isPackaged.mockReturnValue(false);
+      if (resourcesDescriptor) Object.defineProperty(process, 'resourcesPath', resourcesDescriptor);
+      else Reflect.deleteProperty(process, 'resourcesPath');
+    }
+  });
 });
 
 describe('resolveNpxDirect', () => {

@@ -330,6 +330,7 @@ class AgentRegistry {
       // precedence - see resolveWNanoEntry. Emitting the bare stub here made it
       // win deduplication outright and left a REAL Nano install unlaunchable.
       this.resolveWNanoEntry(),
+      { id: 'fuigo', name: 'Fuigo', kind: 'acp', available: true, backend: 'fuigo' },
       this.createGeminiAgent(),
       // D3 slot: a managed install takes the builtin's own index when the PATH
       // probe cannot serve that backend. See deduplicate() for why.

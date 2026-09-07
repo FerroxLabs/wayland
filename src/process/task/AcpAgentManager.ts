@@ -1,3 +1,6 @@
+import path from 'node:path';
+import { existsSync } from 'node:fs';
+import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import type { AcpAgent } from '@process/agent/acp';
 import { AcpAgentV2 } from '@process/acp/compat';
 import { agentRegistry } from '@process/agent/AgentRegistry';
@@ -913,6 +916,13 @@ ${collectedResponses.join('\n')}`;
       }
     }
 
+    if (data.backend === 'fuigo') {
+      mergedEnv.FUIGO_HOME = path.join(app.getPath('userData'), 'fuigo', this.conversation_id);
+      const key = await this.readFluxKey();
+      if (key) mergedEnv.FUIGO_API_KEY = key;
+      mergedEnv.FUIGO_MANAGED_BY_NPM = '1';
+    }
+
     // wnano (C8 provider parity): advertise the connected provider set via
     // WAYLAND_NANO_PROVIDERS and inject short-lived OAuth bearers. Merged at
     // the same point as buildConnectedProviderEnv; an explicit custom-agent
@@ -1474,6 +1484,11 @@ ${collectedResponses.join('\n')}`;
     // resolved path containing whitespace so createGenericSpawnConfig keeps
     // the executable a single token (macOS userData lives under
     // "Application Support"); the spawn config unquotes it without a shell.
+    if (data.backend === 'fuigo') {
+      const resolved = resolveFuigoBinary();
+      if (!resolved) throw new Error('Verified bundled Fuigo engine is unavailable.');
+      cliPath = /\s/.test(resolved.path) ? `"${resolved.path}"` : resolved.path;
+    }
     if (!cliPath && data.backend === 'wnano') {
       const resolved = resolveWNanoBinary();
       if (resolved) cliPath = /\s/.test(resolved) ? `"${resolved}"` : resolved;
@@ -2009,6 +2024,15 @@ ${collectedResponses.join('\n')}`;
 
     this.bootstrapping = true;
     const bootstrapPromise = (async () => {
+      // Resume existing Fuigo conversations with the same stock-only repair as
+      // newly staged skills, before launch establishes workspace authority.
+      if (data.backend === 'fuigo' && data.workspace && !this.agent) {
+        const stagedTideSkill = path.join(data.workspace, '.wayland', 'skills', 'tide-morning-brief');
+        if (existsSync(stagedTideSkill)) {
+          const { repairStagedTideSkill } = await import('@process/utils/initAgent');
+          await repairStagedTideSkill(data.workspace, stagedTideSkill);
+        }
+      }
       const { cliPath, launch, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
       const waylandNanoActivation =
         data.backend === 'wnano'
@@ -2272,6 +2296,7 @@ ${collectedResponses.join('\n')}`;
           } else {
             // Custom workspace or no native support - inject rules + skills via prompt
             const { content: injectedContent } = await prepareFirstMessageWithSkillsIndex(contentToSend, {
+              workspace: this.workspace,
               conversationId: this.conversation_id,
               presetContext: this.options.presetContext,
               enabledSkills: this.options.enabledSkills,

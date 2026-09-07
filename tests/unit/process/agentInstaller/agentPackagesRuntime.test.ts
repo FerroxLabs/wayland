@@ -111,16 +111,15 @@ describe('a packaged build launches JS agents on the bundled Bun', () => {
     expect(resolved.command).toContain('bun');
   });
 
-  it('falls back to system node only when there is no bundled bun', () => {
-    // The control for the assertion above: the same call CAN answer something
-    // other than bundled-bun, so the first result is a real result.
-    const resolved = resolveJsRuntimeWith({
-      isPackaged: true,
-      bundledBunPath: null,
-      execPath: '/Applications/Wayland.app/Contents/MacOS/Wayland',
-      platform: 'darwin',
-    });
-    expect(resolved.kind).toBe('system-node');
+  it('refuses a packaged launch when the bundled runtime is missing', () => {
+    expect(() =>
+      resolveJsRuntimeWith({
+        isPackaged: true,
+        bundledBunPath: null,
+        execPath: '/Applications/Wayland.app/Contents/MacOS/Wayland',
+        platform: 'darwin',
+      })
+    ).toThrow('Wayland bundled JavaScript runtime is missing. Repair or reinstall Wayland.');
   });
 });
 

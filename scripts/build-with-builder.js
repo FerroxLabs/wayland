@@ -947,6 +947,12 @@ try {
     }
   }
 
+  for (const platform of packagePlatforms) {
+    for (const arch of packageArchitectures) {
+      execFileSync(process.execPath, [path.join(__dirname, 'fuigo/prepare.cjs'), platform, arch], { stdio: 'inherit' });
+    }
+  }
+
   // 5c. Prepare the exact native OfficeCLI authoring runtime for every package
   // target. This is a mandatory, checksum-pinned release asset: the hosted npm
   // `officecli` package exposes a different contract and cannot satisfy Cowork's

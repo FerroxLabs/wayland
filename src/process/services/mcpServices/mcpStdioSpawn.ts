@@ -36,10 +36,13 @@ export function resolveMcpStdioSpawn(
   command: string,
   args: readonly string[] = [],
   resolveNpx: () => string = () => resolveNpxPath({}),
-  _platform: NodeJS.Platform = process.platform
+  platform: NodeJS.Platform = process.platform
 ): { command: string; args: string[] } {
   if (command === 'npx') {
     return { command: resolveNpx(), args: ['x', '--bun', ...normalizeNpxArgsForBundledBun([...args])] };
+  }
+  if (command === 'bun' || (platform === 'win32' && command === 'bun.exe')) {
+    return { command: resolveNpx(), args: [...args] };
   }
   return { command, args: [...args] };
 }
@@ -61,7 +64,7 @@ export function resolvePersistedMcpStdioSpawn(
   platform: NodeJS.Platform = process.platform
 ): { command: string; args: string[] } {
   const resolved = resolveMcpStdioSpawn(command, args, resolveNpx, platform);
-  if (command === 'npx' && platform !== 'win32') {
+  if ((command === 'npx' || command === 'bun') && platform !== 'win32') {
     return { command: 'bun', args: resolved.args };
   }
   return resolved;

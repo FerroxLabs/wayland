@@ -435,3 +435,95 @@ describe('wcore navigation status ordering', () => {
     }
   );
 });
+
+describe('wcore session evidence does not start a turn', () => {
+  const policyReceipt = () =>
+    frame(
+      'execution_evidence',
+      {
+        acceptedBy: 'desktop-core-v1-consumer',
+        acceptedAt: 1788746573578,
+        event: {
+          type: 'workspace_policy',
+          policy: {
+            trust: { level: 'trusted', source: 'user', fingerprint: 'fixture', explanation: 'fixture' },
+            profile: 'trusted_local_smart',
+            backend: 'sandbox_exec',
+            writable_roots: ['/fixture'],
+            readable_roots: ['/fixture'],
+            capabilities: [],
+          },
+        },
+      },
+      'workspace-receipt-not-a-turn'
+    );
+
+  beforeEach(() => {
+    streamHandler = null;
+    vi.mocked(ipcBridge.conversation.get.invoke).mockReset().mockResolvedValue(null);
+  });
+
+  it('keeps a completed conversation idle when reopening emits a workspace receipt', async () => {
+    await runTurnToFinish();
+    emit(policyReceipt());
+    expect(screen.getByTestId('running').textContent).toBe('false');
+  });
+
+  it.each(['finished', 'running'] as const)(
+    'preserves the authoritative %s mount snapshot when session evidence arrives during startup',
+    async (status) => {
+      let resolve!: (value: Awaited<ReturnType<typeof ipcBridge.conversation.get.invoke>>) => void;
+      vi.mocked(ipcBridge.conversation.get.invoke).mockReturnValueOnce(
+        new Promise((r) => {
+          resolve = r;
+        })
+      );
+      renderHarness();
+      emit(policyReceipt());
+      await act(async () => {
+        resolve({ id: CONV, type: 'wcore', status } as Awaited<ReturnType<typeof ipcBridge.conversation.get.invoke>>);
+      });
+      expect(screen.getByTestId('running').textContent).toBe(String(status === 'running'));
+    }
+  );
+
+  it('retains distinct accepted workspace receipts in the message list without starting a turn', async () => {
+    const { result } = renderHook(() => ({ state: useWCoreMessage(CONV), messages: useMessageList() }), {
+      wrapper: ({ children }) => <MessageListProvider value={[]}>{children}</MessageListProvider>,
+    });
+    await act(async () => {});
+    const first = policyReceipt();
+    const second = { ...policyReceipt(), msg_id: 'another-workspace-receipt' };
+    emit(first);
+    emit(second);
+    // Stream message updates are batched through a timer before context flush.
+    await waitFor(() => expect(result.current.messages).toHaveLength(2));
+    const receipts = result.current.messages.filter((message) => message.type === 'execution_evidence');
+    expect(receipts.map((message) => message.content)).toEqual([first.data, second.data]);
+    expect(new Set(receipts.map((message) => message.msg_id)).size).toBe(2);
+    expect(result.current.state.running).toBe(false);
+  });
+
+  it('keeps a real turn active across a workspace receipt and settles on its finish', async () => {
+    renderHarness();
+    await act(async () => {});
+    emit(frame('start'));
+    emit(policyReceipt());
+    expect(screen.getByTestId('running').textContent).toBe('true');
+    emit(frame('finish'));
+    expect(screen.getByTestId('running').textContent).toBe('false');
+  });
+
+  it('demonstrates that focus can clear an incorrectly rearmed completed conversation', async () => {
+    await runTurnToFinish();
+    emit(policyReceipt());
+    // The live backend returned a real finished conversation, not null.
+    vi.mocked(ipcBridge.conversation.get.invoke).mockResolvedValue({
+      id: CONV,
+      type: 'wcore',
+      status: 'finished',
+    } as Awaited<ReturnType<typeof ipcBridge.conversation.get.invoke>>);
+    act(() => window.dispatchEvent(new Event('focus')));
+    await waitFor(() => expect(screen.getByTestId('running').textContent).toBe('false'));
+  });
+});

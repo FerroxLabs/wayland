@@ -50,7 +50,7 @@ import { isBuiltinCoreMcpArg, isOwnBuiltinWaylandMcpScript } from '@process/reso
 import { getMcpScriptPath } from '@process/utils/mcpScriptDir';
 import { resolveJsRuntime, type ResolvedJsRuntime } from '@process/utils/jsRuntime';
 import { resolveMcpStdioSpawn } from './mcpStdioSpawn';
-import { isBundledTvControlDeclaration, resolveBundledTvControlEntry } from './bundledTvControl';
+import { isBundledTvControlDeclaration, resolveUserTvControlEntry } from './bundledTvControl';
 
 /** A spawnable stdio tuple. `env` is ADDITIVE runtime env, not the server's own. */
 export interface McpStdioSpawnTuple {
@@ -121,7 +121,7 @@ export function resolveBuiltinMcpRuntimeSpawn(
     const runtime = (deps.resolveRuntime ?? resolveJsRuntime)();
     return {
       command: runtime.command,
-      args: [(deps.tvControlEntry ?? resolveBundledTvControlEntry)()],
+      args: [(deps.tvControlEntry ?? resolveUserTvControlEntry)()],
       env: { ...runtime.env },
     };
   }

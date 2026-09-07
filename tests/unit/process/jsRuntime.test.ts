@@ -69,22 +69,27 @@ describe('resolveJsRuntimeWith (pure core)', () => {
     expect(r.env).not.toHaveProperty('ELECTRON_RUN_AS_NODE');
   });
 
-  it('packaged + no bundled Bun: falls back to system node, never the app binary', () => {
-    const r = resolveJsRuntimeWith(inputs({ isPackaged: true, bundledBunPath: null }));
-    expect(r.command).toBe('node');
-    expect(r.kind).toBe('system-node');
-    expect(r.env).toEqual({});
+  it('packaged + no bundled Bun: refuses an unresolved runtime', () => {
+    expect(() => resolveJsRuntimeWith(inputs({ isPackaged: true, bundledBunPath: null }))).toThrow(
+      'runtime is missing'
+    );
   });
 
-  it('packaged system-node fallback is node.exe on Windows', () => {
-    const r = resolveJsRuntimeWith(inputs({ isPackaged: true, bundledBunPath: null, platform: 'win32' }));
-    expect(r.command).toBe('node.exe');
-    expect(r.kind).toBe('system-node');
+  it('packaged Windows refuses to fall back to a bare node.exe', () => {
+    expect(() => resolveJsRuntimeWith(inputs({ isPackaged: true, bundledBunPath: null, platform: 'win32' }))).toThrow(
+      'runtime is missing'
+    );
   });
 
   it('CONTROL: the app binary is NEVER returned in a packaged build (the #706 crash-loop)', () => {
     for (const bundledBunPath of [BUN, null]) {
       for (const platform of ['darwin', 'linux', 'win32'] as NodeJS.Platform[]) {
+        if (bundledBunPath === null) {
+          expect(() => resolveJsRuntimeWith(inputs({ isPackaged: true, bundledBunPath, platform }))).toThrow(
+            'runtime is missing'
+          );
+          continue;
+        }
         const r = resolveJsRuntimeWith(inputs({ isPackaged: true, bundledBunPath, platform }));
         expect(r.command).not.toBe(EXEC);
         expect(r.env).not.toHaveProperty('ELECTRON_RUN_AS_NODE');
@@ -109,12 +114,10 @@ describe('resolveJsRuntime (wiring)', () => {
     expect(r.command).toBe(path.join('/res/bundled-bun/darwin-arm64', binName));
   });
 
-  it('packaged with getBundledBunDir() null: system-node, not the app binary', () => {
+  it('packaged with getBundledBunDir() null refuses to spawn', () => {
     mocks.isPackaged.mockReturnValue(true);
     mocks.getBundledBunDir.mockReturnValue(null);
-    const r = resolveJsRuntime();
-    expect(r.kind).toBe('system-node');
-    expect(r.command).not.toBe(process.execPath);
+    expect(() => resolveJsRuntime()).toThrow('runtime is missing');
   });
 
   it('dev: electron-node with the real execPath', () => {

@@ -370,6 +370,13 @@ export const useWCoreMessage = (
           // catch-all below, which would have started the spinner for it.
           addOrUpdateMessage(transformMessage(message));
           break;
+        case 'execution_evidence':
+          // Session authority receipts are not turn output. Workspace receipts
+          // carry a unique msg_id to preserve distinct grants, not to identify
+          // an active turn. Keep the evidence without changing activity state
+          // or invalidating an in-flight running-status snapshot.
+          addOrUpdateMessage(transformMessage(message));
+          break;
         default: {
           if (message.type === 'error') {
             // An error frame ends the turn. Clear ALL running contributors so the

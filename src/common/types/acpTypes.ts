@@ -70,6 +70,7 @@ export type AcpBackendAll =
   // | 'gemini' // Google Gemini - not an ACP agent, handled by AgentRegistry directly
   | 'qwen' // Qwen Code ACP
   | 'codex' // OpenAI Codex ACP (via codex-acp bridge)
+  | 'fuigo' // Fuigo - first-party native ACP engine
   | 'wnano' // Wayland Nano - first-party sandboxed Rust agent (native ACP over stdio)
   | 'grok' // xAI Grok Build CLI (native ACP via `grok agent stdio`)
   | 'codebuddy' // Tencent CodeBuddy Code CLI
@@ -501,6 +502,16 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     // and exports the provider-parity env alongside it. Left undefined, nano was
     // the ONLY agent in the list with no chip at all — read as "not supported"
     // for the one agent we ship ourselves.
+    fluxCompat: 'env',
+  },
+  fuigo: {
+    id: 'fuigo',
+    name: 'Fuigo',
+    cliCommand: 'fuigo',
+    authRequired: false,
+    enabled: true,
+    supportsStreaming: true,
+    acpArgs: ['--permission-mode', 'default', 'agent', 'stdio'],
     fluxCompat: 'env',
   },
   grok: {

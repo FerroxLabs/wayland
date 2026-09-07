@@ -6,18 +6,22 @@ import authority from '../../../../scripts/tvcontrol/authority.json';
 
 export const TVCONTROL_VERSION = authority.version;
 export const TVCONTROL_CATALOG_ID = 'com.ferroxlabs/tvcontrol';
+const MANAGED_TVCONTROL_VERSIONS = new Set(['2.4.7', '2.4.8', '2.4.9', TVCONTROL_VERSION]);
 
-/** Only the catalog's exact managed declaration is eligible for replacement. */
+/** Upgrade only known managed catalog declarations, preserving custom commands. */
 export function isBundledTvControlDeclaration(
   command: string,
   args: readonly string[],
   libraryEntryId?: string
 ): boolean {
+  const npxDeclaration = command === 'npx' && (args.length === 1 || (args.length === 2 && args[0] === '-y'));
+  const legacyBunDeclaration =
+    (command === 'bun' || command === 'bun.exe') && args.length === 3 && args[0] === 'x' && args[1] === '--bun';
   return (
     libraryEntryId === TVCONTROL_CATALOG_ID &&
-    command === 'npx' &&
-    (args.length === 1 || (args.length === 2 && args[0] === '-y')) &&
-    args.at(-1) === `@ferroxlabs/tvcontrol@${TVCONTROL_VERSION}`
+    (npxDeclaration || legacyBunDeclaration) &&
+    MANAGED_TVCONTROL_VERSIONS.has(args.at(-1)?.replace(/^@ferroxlabs\/tvcontrol@/, '') ?? '') &&
+    args.at(-1)?.startsWith('@ferroxlabs/tvcontrol@') === true
   );
 }
 
@@ -58,8 +62,30 @@ export function bundledTvControlRoot(): string {
 
 export function resolveBundledTvControlEntry(root = bundledTvControlRoot()): string {
   if (!verifyTvControlTree(root))
-    throw new Error('Bundled TVControl 2.4.7 is missing or failed integrity verification');
+    throw new Error('Bundled TVControl 2.5.0 is missing or failed integrity verification');
   return path.join(root, 'node_modules/@ferroxlabs/tvcontrol/src/server.js');
+}
+
+/** Bun loads the managed server from a verified, application-owned user directory. */
+export function resolveUserTvControlEntry(source = bundledTvControlRoot(), userData = app.getPath('userData')): string {
+  resolveBundledTvControlEntry(source);
+  let current = fs.realpathSync(userData);
+  for (const part of ['mcp-runtimes', 'tvcontrol', authority.treeSha256]) {
+    current = path.join(current, part);
+    try {
+      fs.mkdirSync(current);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+    }
+    if (!fs.lstatSync(current).isDirectory() || fs.realpathSync(current) !== current)
+      throw new Error('TVControl user runtime directory is redirected');
+  }
+  copyTvControlToTempRoot(current, source);
+  return path.join(
+    current,
+    `bunx-wayland-tvcontrol-${TVCONTROL_VERSION}`,
+    'node_modules/@ferroxlabs/tvcontrol/src/server.js'
+  );
 }
 
 /**

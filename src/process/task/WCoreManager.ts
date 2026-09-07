@@ -7,6 +7,7 @@
 import { ipcBridge } from '@/common';
 import { getPlatformServices } from '@/common/platform';
 import * as os from 'node:os';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CronMessageMeta, IConfirmation, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
@@ -790,6 +791,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     const consentAtLaunch = await this.loadReplayableGrants();
 
     const mergedData = { ...this.data.data, ...sessionArgs };
+
+    // Older conversations retain their staged skill copies across upgrades.
+    // Repair only a known stock copy before a new engine fingerprints trust;
+    // never rewrite a workspace while this manager still owns an agent.
+    const stagedTideSkill = join(mergedData.workspace, '.wayland-core', 'skills', 'tide-morning-brief');
+    if (!this.agent && existsSync(stagedTideSkill)) {
+      const { repairStagedTideSkill } = await import('@process/utils/initAgent');
+      await repairStagedTideSkill(mergedData.workspace, stagedTideSkill);
+    }
 
     // Collect stdio MCP servers to inject. In-team sessions get the team_*
     // coordination MCP (with slot handshake). Solo sessions get the team-guide

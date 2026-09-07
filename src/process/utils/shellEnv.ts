@@ -846,6 +846,9 @@ export function resolveNpxPath(_env: Record<string, string | undefined>): string
     return path.join(bundledBunDir, process.platform === 'win32' ? 'bun.exe' : 'bun');
   }
 
+  if (getPlatformServices().paths.isPackaged())
+    throw new Error('Wayland bundled Bun runtime is missing for this platform. Repair or reinstall Wayland.');
+
   return process.platform === 'win32' ? 'bun.exe' : 'bun';
 }
 

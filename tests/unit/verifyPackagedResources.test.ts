@@ -330,6 +330,24 @@ function addPackagedApp(
 ): string {
   const appRoot = path.join(root, folder, appName);
   const resources = path.join(appRoot, 'Contents', 'Resources');
+  const fuigoDir = path.join(resources, 'bundled-fuigo', `darwin-${arch}`);
+  fs.mkdirSync(fuigoDir, { recursive: true });
+  fs.writeFileSync(path.join(fuigoDir, 'fuigo'), 'fuigo-fixture');
+  const fuigoHash = crypto.createHash('sha256').update('fuigo-fixture').digest('hex');
+  fs.writeFileSync(
+    path.join(fuigoDir, 'bundle.json'),
+    JSON.stringify({
+      contract: 'fuigo-bundle/1.0',
+      runtime: `darwin-${arch}`,
+      version: '1.0.6',
+      binary: 'fuigo',
+      packageIntegrity: 'sha512-fixture',
+      binarySha256: fuigoHash,
+      stagedSha256: fuigoHash,
+      archiveSha256: 'fixture-archive',
+    })
+  );
+
   writeMachExecutable(path.join(appRoot, 'Contents', 'MacOS', appName.replace(/\.app$/, '')), arch);
   writeSkillPack(resources, 'skills-library');
   writeSkillPack(resources, 'bundled-workflows');
@@ -631,6 +649,19 @@ describe('packaged resource release gate', () => {
       argv: verifyArgs(out, officeCliRuntime, wcoreRuntime),
       cwd: process.cwd(),
       logger: silentLogger,
+      fuigoAuthority: {
+        version: '1.0.6',
+        platforms: Object.fromEntries(
+          ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+            runtime,
+            {
+              integrity: 'sha512-fixture',
+              binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+              archiveSha256: 'fixture-archive',
+            },
+          ])
+        ),
+      },
       wcoreAuthority: testWCoreAuthority,
       wnanoAuthority: testWNanoAuthority,
       wnanoPolicySelector: testWNanoPolicySelector,
@@ -1416,6 +1447,19 @@ describe('packaged resource release gate', () => {
         argv: ['scripts/verify-packaged-resources.js', '--out', out],
         cwd: process.cwd(),
         logger: silentLogger,
+        fuigoAuthority: {
+          version: '1.0.6',
+          platforms: Object.fromEntries(
+            ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+              runtime,
+              {
+                integrity: 'sha512-fixture',
+                binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+                archiveSha256: 'fixture-archive',
+              },
+            ])
+          ),
+        },
         wcoreAuthority: testWCoreAuthority,
       })
     ).toThrow();
@@ -1491,6 +1535,19 @@ describe('packaged resource release gate', () => {
         ],
         cwd: process.cwd(),
         logger: silentLogger,
+        fuigoAuthority: {
+          version: '1.0.6',
+          platforms: Object.fromEntries(
+            ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+              runtime,
+              {
+                integrity: 'sha512-fixture',
+                binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+                archiveSha256: 'fixture-archive',
+              },
+            ])
+          ),
+        },
         wcoreAuthority: testWCoreAuthority,
       })
     ).toThrow(/--wcore-runtime/);
@@ -1536,6 +1593,19 @@ describe('packaged resource release gate', () => {
         argv: [...verifyArgs(out), '--resources-dir', resources, '--app-executable', x64Executable],
         cwd: process.cwd(),
         logger: silentLogger,
+        fuigoAuthority: {
+          version: '1.0.6',
+          platforms: Object.fromEntries(
+            ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+              runtime,
+              {
+                integrity: 'sha512-fixture',
+                binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+                archiveSha256: 'fixture-archive',
+              },
+            ])
+          ),
+        },
         wcoreAuthority: testWCoreAuthority,
       })
     ).toThrow(/does not match darwin-arm64/);
@@ -1550,6 +1620,19 @@ describe('packaged resource release gate', () => {
         argv: [...verifyArgs(out), '--resources-dir', packagedResourcesPath(out), '--app-executable', secondExecutable],
         cwd: process.cwd(),
         logger: silentLogger,
+        fuigoAuthority: {
+          version: '1.0.6',
+          platforms: Object.fromEntries(
+            ['darwin-arm64', 'darwin-x64'].map((runtime) => [
+              runtime,
+              {
+                integrity: 'sha512-fixture',
+                binarySha256: crypto.createHash('sha256').update('fuigo-fixture').digest('hex'),
+                archiveSha256: 'fixture-archive',
+              },
+            ])
+          ),
+        },
         wcoreAuthority: testWCoreAuthority,
         voiceAuthority: TEST_VOICE_AUTHORITY,
         bunAuthority: TEST_BUN_AUTHORITY,

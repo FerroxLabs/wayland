@@ -210,6 +210,7 @@ lint-results.txt
 docs/superpowers/
 resources/bundled-bun
 resources/bundled-wayland-core
+resources/bundled-fuigo
 resources/bundled-wayland-nano
 resources/bundled-officecli
 resources/bundled-tvcontrol

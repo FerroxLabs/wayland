@@ -293,6 +293,7 @@ describe('prepareOfficeCli supply-chain contract', () => {
       '/Contents/Resources/whatsapp-bridge/node_modules/(?:bare-fs|bare-os|bare-url)/prebuilds/(?:darwin-(?:arm64|x64)|ios-(?:arm64|arm64-simulator|x64-simulator))/[^/]+\\.bare$',
       '/Contents/Resources/bundled-officecli/[^/]+/officecli$',
       '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$',
+      '/Contents/Resources/bundled-fuigo/[^/]+/fuigo$',
       '/Contents/Resources/bundled-wayland-nano/[^/]+/wayland-nano$',
       '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$',
     ]);

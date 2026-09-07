@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 const fixture = vi.hoisted(() => ({ digest: '', root: '' }));
 vi.mock('../../../../../scripts/tvcontrol/authority.json', () => ({
   default: {
-    version: '2.4.7',
+    version: '2.5.0',
     get treeSha256() {
       return fixture.digest;
     },
@@ -18,6 +18,7 @@ import {
   provisionWorkspaceTvControl,
   provisionTvControlForWorkspacePolicy,
   verifyTvControlTree,
+  resolveUserTvControlEntry,
 } from '@process/services/mcpServices/bundledTvControl';
 import { buildEngineSpawnEnv } from '@process/agent/wcore/envBuilder';
 
@@ -32,8 +33,8 @@ function setup() {
   const workspace = path.join(root, 'workspace');
   fs.mkdirSync(workspace);
   const files = {
-    '@ferroxlabs/tvcontrol/package.json': JSON.stringify({ name: '@ferroxlabs/tvcontrol', version: '2.4.7' }),
-    '@ferroxlabs/tvcontrol/src/server.js': 'export const version = "2.4.7";',
+    '@ferroxlabs/tvcontrol/package.json': JSON.stringify({ name: '@ferroxlabs/tvcontrol', version: '2.5.0' }),
+    '@ferroxlabs/tvcontrol/src/server.js': 'export const version = "2.5.0";',
   };
   for (const [name, text] of Object.entries(files)) {
     const target = path.join(source, 'node_modules', name);
@@ -51,6 +52,41 @@ function setup() {
 }
 
 describe('bundled TVControl session provisioning', () => {
+  it('stages the managed server outside the installation directory and verifies reuse', () => {
+    const { source, workspace } = setup();
+    const entry = resolveUserTvControlEntry(source, workspace);
+    expect(entry.startsWith(workspace + path.sep)).toBe(true);
+    expect(entry.startsWith(source + path.sep)).toBe(false);
+    expect(fs.readFileSync(entry, 'utf8')).toContain('2.5.0');
+    expect(resolveUserTvControlEntry(source, workspace)).toBe(entry);
+    fs.writeFileSync(entry, 'modified');
+    expect(() => resolveUserTvControlEntry(source, workspace)).toThrow('integrity');
+    expect(fs.readFileSync(entry, 'utf8')).toBe('modified');
+  });
+  it('rejects a redirected per-user runtime directory before copying', () => {
+    const { source, workspace } = setup();
+    fs.symlinkSync(source, path.join(workspace, 'mcp-runtimes'), process.platform === 'win32' ? 'junction' : 'dir');
+    expect(() => resolveUserTvControlEntry(source, workspace)).toThrow('redirected');
+    expect(fs.existsSync(path.join(source, 'tvcontrol'))).toBe(false);
+  });
+  it('upgrades known managed declarations and preserves custom or modified ones', () => {
+    for (const version of ['2.4.7', '2.4.8', '2.4.9']) {
+      expect(
+        isBundledTvControlDeclaration('npx', ['-y', `@ferroxlabs/tvcontrol@${version}`], 'com.ferroxlabs/tvcontrol')
+      ).toBe(true);
+      expect(isBundledTvControlDeclaration('npx', [`@ferroxlabs/tvcontrol@${version}`])).toBe(false);
+      expect(
+        isBundledTvControlDeclaration(
+          'bun.exe',
+          ['x', '--bun', `@ferroxlabs/tvcontrol@${version}`],
+          'com.ferroxlabs/tvcontrol'
+        )
+      ).toBe(true);
+    }
+    expect(
+      isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.7', '--extra'], 'com.ferroxlabs/tvcontrol')
+    ).toBe(false);
+  });
   it('uses the received scratch root that Core assigns to Bash instead of the inherited temp parent', () => {
     const { source, workspace } = setup();
     const temp = provisionWorkspaceTvControl(workspace, source);
@@ -76,7 +112,7 @@ describe('bundled TVControl session provisioning', () => {
     expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [workspace, redirected], source)).toThrow(
       'redirected'
     );
-    expect(fs.existsSync(path.join(source, 'bunx-wayland-tvcontrol-2.4.7'))).toBe(false);
+    expect(fs.existsSync(path.join(source, 'bunx-wayland-tvcontrol-2.5.0'))).toBe(false);
   });
   it('refuses a receipt outside the workspace and preserves a corrupt scratch copy', () => {
     const { source, workspace } = setup();
@@ -85,7 +121,7 @@ describe('bundled TVControl session provisioning', () => {
     const scratch = path.join(temp, 'scratch');
     fs.mkdirSync(scratch);
     provisionTvControlForWorkspacePolicy(workspace, temp, [scratch], source);
-    const file = path.join(scratch, 'bunx-wayland-tvcontrol-2.4.7/node_modules/@ferroxlabs/tvcontrol/src/server.js');
+    const file = path.join(scratch, 'bunx-wayland-tvcontrol-2.5.0/node_modules/@ferroxlabs/tvcontrol/src/server.js');
     fs.writeFileSync(file, 'changed');
     expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [scratch], source)).toThrow(
       'Existing workspace'
@@ -96,8 +132,8 @@ describe('bundled TVControl session provisioning', () => {
     expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.6'], 'com.ferroxlabs/tvcontrol')).toBe(
       false
     );
-    expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.7'])).toBe(false);
-    expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.7'], 'com.ferroxlabs/tvcontrol')).toBe(
+    expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.5.0'])).toBe(false);
+    expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.5.0'], 'com.ferroxlabs/tvcontrol')).toBe(
       true
     );
   });
@@ -118,7 +154,7 @@ describe('bundled TVControl session provisioning', () => {
   it('preserves and refuses a modified existing session copy', () => {
     const { source, workspace } = setup();
     const temp = provisionWorkspaceTvControl(workspace, source);
-    const changed = path.join(temp, 'bunx-wayland-tvcontrol-2.4.7/node_modules/@ferroxlabs/tvcontrol/src/server.js');
+    const changed = path.join(temp, 'bunx-wayland-tvcontrol-2.5.0/node_modules/@ferroxlabs/tvcontrol/src/server.js');
     fs.writeFileSync(changed, 'user change');
     expect(() => provisionWorkspaceTvControl(workspace, source)).toThrow('Existing workspace');
     expect(fs.readFileSync(changed, 'utf8')).toBe('user change');

@@ -74,7 +74,7 @@ const deps = (over: Record<string, unknown> = {}) => ({
 });
 
 describe('pinned TVControl uses the same bundled runtime in probes and sessions', () => {
-  const args = ['@ferroxlabs/tvcontrol@2.4.7'];
+  const args = ['@ferroxlabs/tvcontrol@2.5.0'];
   const entry = '/resources/bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js';
   it('resolves a catalog-owned declaration without npx or a user cache', () => {
     expect(

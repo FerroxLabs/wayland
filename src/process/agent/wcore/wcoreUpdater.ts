@@ -404,6 +404,7 @@ export async function installWCoreUpdate(
         // update" flow looped forever.
         const pendingPath = `${finalPath}.pending`;
         try {
+          rmSync(`${pendingPath}${PENDING_CONTRACT_SUFFIX}`, { force: true });
           rmSync(pendingPath, { force: true });
           renameSync(stagePath, pendingPath);
           // #1108: record the pin this engine was just gated against, so the
@@ -515,16 +516,11 @@ export function pendingContractRecordFor(): PendingContractRecord {
 
 /**
  * Record, beside a freshly staged `.pending`, the pin it was gated against.
- * Best-effort by design: if this write fails the record is absent, and an absent
- * record is a REFUSAL at apply time, so a failure here loses the update rather
- * than letting an unproven engine through.
+ * A write failure propagates to the installer so it cannot report success for
+ * an update the boot-time gate would refuse.
  */
 export function writePendingContractRecord(pendingPath: string): void {
-  try {
-    writeFileSync(`${pendingPath}${PENDING_CONTRACT_SUFFIX}`, JSON.stringify(pendingContractRecordFor()));
-  } catch {
-    // Best-effort: a missing record fails closed at apply time.
-  }
+  writeFileSync(`${pendingPath}${PENDING_CONTRACT_SUFFIX}`, JSON.stringify(pendingContractRecordFor()));
 }
 
 /**
@@ -576,6 +572,8 @@ export function applyPendingSwapGuarded(finalPath: string): { applied: boolean }
   }
 
   const result = applyPendingSwap(finalPath);
+  // A transient failure must retain both pending and its evidence for retry.
+  if (!result.applied) return result;
   // The record describes the pending; it goes when the pending goes.
   try {
     rmSync(recordPath, { force: true });
@@ -588,18 +586,16 @@ export function applyPendingSwapGuarded(finalPath: string): { applied: boolean }
 export function applyPendingSwap(finalPath: string): { applied: boolean } {
   const pendingPath = `${finalPath}.pending`;
   if (!existsSync(pendingPath)) return { applied: false };
+  const prevPath = `${finalPath}.prev`;
+  let backedUp = false;
   try {
     // Windows rename() will not overwrite an existing target, so clear the live
     // binary first. Safe when called before any engine spawn — nothing holds the
     // file open. Keep a `.prev` copy as a best-effort rollback anchor.
     if (existsSync(finalPath)) {
-      const prevPath = `${finalPath}.prev`;
-      try {
-        rmSync(prevPath, { force: true });
-        renameSync(finalPath, prevPath);
-      } catch {
-        rmSync(finalPath, { force: true });
-      }
+      rmSync(prevPath, { force: true });
+      renameSync(finalPath, prevPath);
+      backedUp = true;
     }
     renameSync(pendingPath, finalPath);
     if (process.platform !== 'win32') {
@@ -611,7 +607,15 @@ export function applyPendingSwap(finalPath: string): { applied: boolean } {
     }
     return { applied: true };
   } catch {
-    // Leave the pending file for the next boot; never brick startup.
+    // Restore the active engine if activation failed after moving it aside.
+    // If restoration is also locked, preserve .prev for recovery.
+    if (backedUp && !existsSync(finalPath)) {
+      try {
+        renameSync(prevPath, finalPath);
+      } catch {
+        // The original survives at .prev; pending and its record remain.
+      }
+    }
     return { applied: false };
   }
 }

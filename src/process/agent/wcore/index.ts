@@ -1999,7 +1999,7 @@ export class WCoreAgent {
           } catch (error) {
             this.tvControlScratchReady = false;
             this.tvControlScratchError = new Error(
-              `TVControl 2.4.7 could not be prepared for this session: ${error instanceof Error ? error.message : String(error)}. Reopen the conversation after checking the bundled connector.`
+              `TVControl 2.5.0 could not be prepared for this session: ${error instanceof Error ? error.message : String(error)}. Reopen the conversation after checking the bundled connector.`
             );
             console.warn('[WCoreAgent]', this.tvControlScratchError.message);
           }
@@ -2901,7 +2901,7 @@ export class WCoreAgent {
     if (this.tvControlScratchError) throw this.tvControlScratchError;
     if (!this.tvControlScratchReady) {
       throw new Error(
-        'TVControl 2.4.7 is waiting for Core to report its writable scratch directory. Reopen the conversation; no collector command was sent.'
+        'TVControl 2.5.0 is waiting for Core to report its writable scratch directory. Reopen the conversation; no collector command was sent.'
       );
     }
   }

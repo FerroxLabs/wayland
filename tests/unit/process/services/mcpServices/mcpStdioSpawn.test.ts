@@ -65,6 +65,22 @@ const setPlatform = (p: NodeJS.Platform) =>
 const restorePlatform = () => Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
 
 describe('#827 resolveMcpStdioSpawn', () => {
+  it('resolves a saved bare Windows bun.exe without changing its arguments', () => {
+    const args = ['x', '--bun', '@ferroxlabs/tvcontrol@2.4.7'];
+    expect(resolveMcpStdioSpawn('bun.exe', args, () => 'C:\\Program Files\\Wayland\\bun.exe', 'win32')).toEqual({
+      command: 'C:\\Program Files\\Wayland\\bun.exe',
+      args,
+    });
+    expect(resolveMcpStdioSpawn('C:\\Custom\\bun.exe', args, () => 'C:\\Wayland\\bun.exe', 'win32').command).toBe(
+      'C:\\Custom\\bun.exe'
+    );
+  });
+  it('keeps a saved bare Bun hint restart-safe on AppImage hosts', () => {
+    expect(resolvePersistedMcpStdioSpawn('bun', ['server.js'], () => '/tmp/appimage/bun', 'linux')).toEqual({
+      command: 'bun',
+      args: ['server.js'],
+    });
+  });
   it('win32: rewrites npx to the resolver command with `x --bun`, dropping npx-only flags', () => {
     const r = resolveMcpStdioSpawn(
       'npx',

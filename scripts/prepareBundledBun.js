@@ -199,8 +199,7 @@ function needsBaselineVariant(platform, arch) {
   // and on a machine with no Node on PATH that ENOENTs — surfacing as "Enabled but
   // exposes 0 tools" (#1017).
   //
-  // arm64 is excluded because it has no AVX2 concept (and bun publishes no
-  // win32-arm64 build at all).
+  // arm64 is excluded because it has no AVX2 concept.
   return arch === 'x64' && (platform === 'linux' || platform === 'darwin' || platform === 'win32');
 }
 

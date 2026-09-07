@@ -55,7 +55,7 @@ function prepareTvControl() {
     );
     // npm's install receipt contains platform-specific bookkeeping, not code.
     fs.rmSync(path.join(temp, 'node_modules/.package-lock.json'), { force: true });
-    if (!verifyTvControl(temp)) throw new Error('TVControl 2.4.7 dependency tree differs from the pinned authority');
+    if (!verifyTvControl(temp)) throw new Error('TVControl 2.5.0 dependency tree differs from the pinned authority');
     if (fs.existsSync(output))
       throw new Error('Invalid existing TVControl staging directory; preserve it before restaging');
     fs.mkdirSync(output, { recursive: true });

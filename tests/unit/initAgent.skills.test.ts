@@ -137,6 +137,16 @@ describe('initAgent - skill support', () => {
   });
 
   describe('setupAssistantWorkspace', () => {
+    it('copies Fuigo skills to the bounded prompt-readable workspace directory', async () => {
+      statResults['/mock/user/skills/tide-example'] = true;
+      await setupAssistantWorkspace('/tmp/workspace', { backend: 'fuigo', enabledSkills: ['tide-example'] });
+      expect(copyCalls).toContainEqual({
+        source: '/mock/user/skills/tide-example',
+        target: '/tmp/workspace/.wayland/skills/tide-example',
+      });
+      expect(hasNativeSkillSupport('fuigo')).toBe(false);
+    });
+
     it('should create skills dir even when enabledSkills is empty', async () => {
       await setupAssistantWorkspace('/tmp/workspace', {
         backend: 'claude',
