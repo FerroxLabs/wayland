@@ -43,11 +43,8 @@ import { getBundledBunDir } from '@process/utils/shellEnv';
  *                       UNPACKAGED (dev/test), where the fuse is not applied.
  *  - `bundled-bun`    → the Bun runtime shipped inside the signed bundle. The
  *                       primary packaged runtime: always present, correct arch.
- *  - `system-node`    → a `node` on PATH. Best-effort last resort when the
- *                       bundled Bun binary is somehow missing (partial install);
- *                       may ENOENT, which callers already degrade on. Chosen in
- *                       preference to ever falling back to the app binary, which
- *                       is the exact crash-loop this module removes.
+ *  - `system-node`    → retained for callers supplying their own runtime tuple.
+ * Missing packaged runtimes are refused before spawning; no PATH guess is made.
  */
 export type JsRuntimeKind = 'electron-node' | 'bundled-bun' | 'system-node';
 
@@ -80,7 +77,7 @@ export interface JsRuntimeInputs {
  *   1. NOT packaged → run the app binary as Node. Preserves dev/test behaviour
  *      EXACTLY: unpackaged Electron is unfused and honours the env var.
  *   2. packaged + bundled Bun present → Bun. The normal packaged path.
- *   3. packaged + no bundled Bun → system `node`. Never the app binary.
+ *   3. packaged + no bundled Bun → a repairable installation error.
  */
 export function resolveJsRuntimeWith(inputs: JsRuntimeInputs): ResolvedJsRuntime {
   if (!inputs.isPackaged) {
@@ -89,7 +86,7 @@ export function resolveJsRuntimeWith(inputs: JsRuntimeInputs): ResolvedJsRuntime
   if (inputs.bundledBunPath) {
     return { command: inputs.bundledBunPath, env: {}, kind: 'bundled-bun' };
   }
-  return { command: inputs.platform === 'win32' ? 'node.exe' : 'node', env: {}, kind: 'system-node' };
+  throw new Error('Wayland bundled JavaScript runtime is missing. Repair or reinstall Wayland.');
 }
 
 /** Binary name of the bundled Bun for the current platform. */

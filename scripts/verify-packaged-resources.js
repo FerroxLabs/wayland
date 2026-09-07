@@ -51,7 +51,9 @@ const TAG = '[verify-packaged-resources]';
 
 // resource path (relative to the app Resources dir) -> {critical, kind}
 // kind 'file' = must exist and be non-empty; 'dir' = must exist and be non-empty.
+const fuigoAuthority = require('./fuigo/authority.json');
 const REQUIRED = [
+  { rel: 'bundled-fuigo', critical: true, kind: 'fuigo-bundle' },
   { rel: 'capability-seal.json', critical: true, kind: 'capability-seal' },
   { rel: 'skills-library', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-workflows', critical: true, kind: 'skill-pack' },
@@ -1397,7 +1399,8 @@ function isNonEmpty(
   wnanoPolicySelector = selectPolicy,
   darwinSignedCheck = isDarwinDeveloperIdSigned,
   requireDarwinSignature = false,
-  tvControlAuthority
+  tvControlAuthority,
+  fuigoPin = fuigoAuthority
 ) {
   // Per-resource, NOT cumulative. `hub` is optional and absent on every build, so
   // its stat throws and left a `threw: ENOENT ... resources\hub` line sitting in
@@ -1529,6 +1532,28 @@ function isNonEmpty(
         isDarwinDeveloperIdSigned,
         failureReasons
       );
+    if (kind === 'fuigo-bundle') {
+      const runtime = `${targetPlatform}-${targetArch}`;
+      const dir = path.join(p, runtime);
+      const manifest = readJson(path.join(dir, 'bundle.json'));
+      const name = targetPlatform === 'win32' ? 'fuigo.exe' : 'fuigo';
+      const pin = fuigoPin.platforms[runtime];
+      return Boolean(
+        pin &&
+        manifest?.contract === 'fuigo-bundle/1.0' &&
+        manifest.runtime === runtime &&
+        manifest.version === fuigoPin.version &&
+        manifest.packageIntegrity === pin.integrity &&
+        manifest.binary === name &&
+        manifest.binarySha256 === pin.binarySha256 &&
+        manifest.archiveSha256 === pin.archiveSha256 &&
+        sha256File(path.join(dir, name)) === manifest.stagedSha256 &&
+        (targetPlatform === 'darwin'
+          ? (!requireDarwinSignature && manifest.stagedSha256 === pin.binarySha256) ||
+            darwinSignedCheck(path.join(dir, name), darwinSigningIdentifier(name, pin.binarySha256))
+          : manifest.stagedSha256 === pin.binarySha256)
+      );
+    }
     return hasNonHiddenRegularFile(p);
   } catch (error) {
     // A throw here used to vanish into `return false` with no reason at all -
@@ -1711,7 +1736,8 @@ function verifyPackagedResources(options = {}) {
         wnanoPolicySelector,
         darwinSignedCheck,
         requireDarwinSignature,
-        options.tvControlAuthority
+        options.tvControlAuthority,
+        options.fuigoAuthority
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);

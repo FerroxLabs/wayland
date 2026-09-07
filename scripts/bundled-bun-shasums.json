@@ -8,6 +8,7 @@
     "bun-linux-x64.zip": "sha256:951ee2aee855f08595aeec6225226a298d3fea83a3dcd6465c09cbccdf7e848f",
     "bun-linux-x64-baseline.zip": "sha256:a063908ae08b7852ca10939bbdc6ceed3ddabce8fb9402dce83d65d73b36e6c7",
     "bun-windows-x64.zip": "sha256:0a0620930b6675d7ba440e81f4e0e00d3cfbe096c4b140d3fff02205e9e18922",
-    "bun-windows-x64-baseline.zip": "sha256:538f9c846355d9e847b2671bc00c47da4229a0befb24df3282b739770f3b475f"
+    "bun-windows-x64-baseline.zip": "sha256:538f9c846355d9e847b2671bc00c47da4229a0befb24df3282b739770f3b475f",
+    "bun-windows-aarch64.zip": "sha256:89841f5a57f2348b67ec0839b718f4bf4ea7d07c371c9ba4b77b6c790f918953"
   }
 }

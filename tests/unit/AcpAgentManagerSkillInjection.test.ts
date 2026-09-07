@@ -231,6 +231,7 @@ describe('AcpAgentManager - first-message skill injection', () => {
     await sendFirstMessage(manager);
 
     expect(mockPrepareFirstMessage).toHaveBeenCalledWith('Hello', {
+      workspace: '/tmp/test-workspace',
       conversationId: 'test-conv',
       presetContext: 'You are helpful.',
       enabledSkills: ['pptx'],
@@ -250,6 +251,7 @@ describe('AcpAgentManager - first-message skill injection', () => {
     await sendFirstMessage(manager);
 
     expect(mockPrepareFirstMessage).toHaveBeenCalledWith('Hello', {
+      workspace: '/tmp/test-workspace',
       conversationId: 'test-conv',
       presetContext: 'Some rules',
       enabledSkills: ['pdf'],

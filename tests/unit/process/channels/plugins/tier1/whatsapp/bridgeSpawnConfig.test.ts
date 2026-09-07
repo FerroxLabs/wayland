@@ -70,16 +70,15 @@ describe('buildBridgeSpawnConfig (#890 / #706 regression lock)', () => {
     expect(cfg.env.ELECTRON_RUN_AS_NODE).toBe('1');
   });
 
-  it('packaged with no bundled Bun: falls back to system node, still never the app binary', () => {
-    const runtime = resolveJsRuntimeWith(runtimeInputs({ isPackaged: true, bundledBunPath: null }));
-    const cfg = buildBridgeSpawnConfig({
-      runtime,
-      entry: ENTRY,
-      backend: 'baileys',
-      parentEnv: {},
-    });
-    expect(cfg.command).toBe('node');
-    expect(cfg.command).not.toBe(EXEC);
+  it('packaged with no bundled Bun: refuses to construct a launch configuration', () => {
+    expect(() =>
+      buildBridgeSpawnConfig({
+        runtime: resolveJsRuntimeWith(runtimeInputs({ isPackaged: true, bundledBunPath: null })),
+        entry: ENTRY,
+        backend: 'baileys',
+        parentEnv: {},
+      })
+    ).toThrow('Wayland bundled JavaScript runtime is missing. Repair or reinstall Wayland.');
   });
 
   it('argv is [entry, --backend, backend]', () => {

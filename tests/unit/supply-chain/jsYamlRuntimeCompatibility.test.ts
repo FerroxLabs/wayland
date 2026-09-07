@@ -1,6 +1,6 @@
 /** Installed-parser regression for the js-yaml merge-chain and ordered-map fixes. */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
@@ -74,7 +74,10 @@ describe('installed js-yaml API-line inventory', () => {
       consumers += 1;
     }
     expect(consumers).toBeGreaterThanOrEqual(10);
-    expect(parsers.sort()).toEqual(copies.map((copy) => copy.packagePath).sort());
+    // Worktrees may share node_modules; compare the same canonical identity as require.resolve.
+    expect(parsers.map((file) => realpathSync(file)).sort()).toEqual(
+      copies.map((copy) => realpathSync(copy.packagePath)).sort()
+    );
   });
 });
 

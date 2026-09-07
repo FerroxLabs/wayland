@@ -359,6 +359,7 @@ export class AcpConnection {
         break;
 
       case 'qwen':
+      case 'fuigo':
       case 'wnano':
       case 'droid':
       case 'goose':

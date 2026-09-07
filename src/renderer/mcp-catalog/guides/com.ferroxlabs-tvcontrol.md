@@ -1,5 +1,5 @@
 ---
-guideVersion: 1.0.0
+guideVersion: 1.0.1
 estimatedMinutes: 3
 steps:
   - id: install-tradingview
@@ -24,7 +24,16 @@ steps:
       **Windows** - in PowerShell:
 
       ```
-      & "$env:LOCALAPPDATA\Programs\TradingView\TradingView.exe" --remote-debugging-port=9222
+      $candidates = @()
+      $packages = @(Get-AppxPackage -Name TradingView.Desktop -ErrorAction SilentlyContinue)
+      foreach ($package in $packages) {
+          $candidates += Join-Path $package.InstallLocation 'TradingView.exe'
+      }
+      $candidates += "$env:LOCALAPPDATA\Programs\TradingView\TradingView.exe"
+      $candidates += "$env:LOCALAPPDATA\TradingView\TradingView.exe"
+      $exe = $candidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+      if (-not $exe) { throw 'TradingView Desktop was not found for this Windows account. Check its installation before continuing.' }
+      Start-Process -FilePath $exe -ArgumentList '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=9222'
       ```
 
       **Linux** - in a terminal:
@@ -33,7 +42,7 @@ steps:
       /opt/TradingView/tradingview --remote-debugging-port=9222
       ```
 
-      If TradingView came from the Microsoft Store, the command above will not find it. Use the `launch_tv_debug.bat` script shipped in the package, which locates the Store install for you.
+      This checks the TradingView app registered to your Windows account, including MSIX installations, then the usual per-user EXE locations. No separate batch file is needed.
 
       Leave TradingView running. If you quit it, or restart it normally, the tools go quiet until you launch it this way again.
     warning: 'While the control port is open, any program on this computer can drive your signed-in TradingView. The assistant can change your chart - symbol, timeframe, indicators. It cannot place orders and cannot reach your broker.'

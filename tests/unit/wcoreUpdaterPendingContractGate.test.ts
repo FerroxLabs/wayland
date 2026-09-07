@@ -37,10 +37,16 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import localManifest from '../../contracts/wayland-desktop-core/v1/manifest.json';
-import { applyPendingSwapGuarded, pendingContractRecordFor } from '../../src/process/agent/wcore/wcoreUpdater';
+import {
+  applyPendingSwapGuarded,
+  pendingContractRecordFor,
+  writePendingContractRecord,
+} from '../../src/process/agent/wcore/wcoreUpdater';
+
+vi.mock('node:fs', async (importOriginal) => ({ ...(await importOriginal<typeof import('node:fs')>()) }));
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'wl-pending-gate-'));
 const finalPath = path.join(tmp, 'wayland-core');
@@ -54,9 +60,29 @@ const matchingRecord = (): string => JSON.stringify(pendingContractRecordFor());
 beforeEach(() => {
   for (const p of [finalPath, pendingPath, recordPath, prevPath]) fs.rmSync(p, { force: true });
 });
+afterEach(() => vi.restoreAllMocks());
 afterAll(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
 describe('applyPendingSwapGuarded - #1108 boot-time contract gate', () => {
+  it('retains compatibility evidence after a transient swap failure so the next boot can retry', () => {
+    fs.writeFileSync(pendingPath, 'NEW');
+    fs.writeFileSync(recordPath, matchingRecord());
+    const rename = vi.spyOn(fs, 'renameSync').mockImplementationOnce(() => {
+      throw Object.assign(new Error('locked'), { code: 'EPERM' });
+    });
+    expect(applyPendingSwapGuarded(finalPath).applied).toBe(false);
+    expect(fs.readFileSync(recordPath, 'utf8')).toBe(matchingRecord());
+    rename.mockRestore();
+    expect(applyPendingSwapGuarded(finalPath).applied).toBe(true);
+  });
+
+  it('reports failure when staging cannot persist the compatibility record', () => {
+    vi.spyOn(fs, 'writeFileSync').mockImplementationOnce(() => {
+      throw Object.assign(new Error('disk full'), { code: 'ENOSPC' });
+    });
+    expect(() => writePendingContractRecord(pendingPath)).toThrow('disk full');
+  });
+
   it('applies a pending whose recorded contract matches this build', () => {
     fs.writeFileSync(finalPath, 'OLD');
     fs.writeFileSync(pendingPath, 'NEW');

@@ -45,7 +45,7 @@ Search by name for `tv_health_check`, `chart_get_state` and `tv_launch`, and sea
 kind: add_mcp
 name: com.ferroxlabs-tvcontrol
 command: npx
-args: @ferroxlabs/tvcontrol@2.4.7
+args: @ferroxlabs/tvcontrol@2.5.0
 [/CONCIERGE_PROPOSE]
 ```
 
@@ -84,7 +84,7 @@ invisible to it. Any TradingView plan works, including the free one.
 [tradingview.com/desktop](https://www.tradingview.com/desktop/) and wait.
 
 **If the message says it is not running, or that it cannot reach the control port**, this is
-the one step that actually matters. TradingView must be *started* with its control port
+the one step that actually matters. TradingView must be _started_ with its control port
 open. **Quit TradingView completely first** — relaunching from the Dock is not enough, the
 port is only opened at startup. Give them the line for their platform:
 
@@ -97,7 +97,16 @@ open -a TradingView --args --remote-debugging-port=9222
 **Windows** — in PowerShell:
 
 ```
-& "$env:LOCALAPPDATA\Programs\TradingView\TradingView.exe" --remote-debugging-port=9222
+$candidates = @()
+$packages = @(Get-AppxPackage -Name TradingView.Desktop -ErrorAction SilentlyContinue)
+foreach ($package in $packages) {
+    $candidates += Join-Path $package.InstallLocation 'TradingView.exe'
+}
+$candidates += "$env:LOCALAPPDATA\Programs\TradingView\TradingView.exe"
+$candidates += "$env:LOCALAPPDATA\TradingView\TradingView.exe"
+$exe = $candidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+if (-not $exe) { throw 'TradingView Desktop was not found for this Windows account. Check its installation before continuing.' }
+Start-Process -FilePath $exe -ArgumentList '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=9222'
 ```
 
 **Linux** — in a terminal:
@@ -106,8 +115,7 @@ open -a TradingView --args --remote-debugging-port=9222
 /opt/TradingView/tradingview --remote-debugging-port=9222
 ```
 
-If TradingView came from the Microsoft Store, the Windows command above will not find it.
-Use the `launch_tv_debug.bat` script shipped in the package, which locates the Store install.
+The Windows command checks the registered TradingView app (including MSIX installs) and then the usual per-user EXE locations. No separate batch file is needed. A failed lookup means discovery failed; do not claim the app is definitely absent or change WindowsApps permissions.
 
 Tell them once, plainly, what this trade is: while the control port is open, any program on
 this computer can drive their signed-in TradingView. The assistant can change the chart —
@@ -207,7 +215,7 @@ Then load it, either way:
 ### Three things about this API, and what changed in 2.3.0
 
 1. **An exchange-prefixed symbol that does not exist still lands as a dead row.**
-   `watchlist_add_bulk` resolves a *bare* ticker through symbol search now and refuses it with
+   `watchlist_add_bulk` resolves a _bare_ ticker through symbol search now and refuses it with
    `SYMBOL_UNKNOWN` when it does not resolve, so `"AAPL"` becomes `NASDAQ:AAPL` or errors. But
    anything already carrying a colon is posted verbatim, and the verification only asks whether
    that literal string came back — so `NASDAQ:NOTREAL` verifies as added.
@@ -250,7 +258,7 @@ Then load it, either way:
 
 3. **`dry_run` on `replace` does NOT show what would be deleted.** It reports only
    `would_add` and `would_skip`. The destructive half of the operation is invisible in the
-   preview, so a dry run is *not* a safety check for `replace`. Treat `replace` as
+   preview, so a dry run is _not_ a safety check for `replace`. Treat `replace` as
    unpreviewable and only run it on an explicit, informed request. `replace` also removes
    section headers that are not in the file, and `import` can only append, so restored headers
    land at the end of the list unless the watchlist started empty — the result carries an
@@ -315,6 +323,7 @@ pane's data session on every reconnect. `chart_get_state` carries a `chart_healt
 the pane it describes is broken. If the indicator comes back that way, do not report the setup as
 done: run `tv_chart_health`, then `tv_repair_chart`, then add it again with
 `indicator_add_from_search`.
+
 ---
 
 ## Step 5 — the chart, and the save only they can do
@@ -373,8 +382,8 @@ that looks entirely plausible.
 
 **Prefer ids over names.** A rename cannot silently redirect a scan that was pinned by id.
 
-Read it back in their words: *"Your chart is the Crypto Swing layout, scanning My Majors, 29
-symbols, on the 4-hour."* A configuration that has never been executed is a guess with a name on
+Read it back in their words: _"Your chart is the Crypto Swing layout, scanning My Majors, 29
+symbols, on the 4-hour."_ A configuration that has never been executed is a guess with a name on
 it — apply it, read the chart back, and confirm the indicator is really present before you rely
 on it.
 

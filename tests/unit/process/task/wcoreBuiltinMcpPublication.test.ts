@@ -52,13 +52,16 @@ const h = vi.hoisted(() => ({
   runtimeServers: [] as IMcpServer[],
   engineOptions: [] as Array<{ managedTempDir?: string }>,
   provisionTvControl: vi.fn(() => '/ws/.wayland-runtime/tmp'),
+  repairStagedTideSkill: vi.fn(async () => {}),
 }));
 
 vi.mock('@process/utils/jsRuntime', () => ({ resolveJsRuntime: h.resolveJsRuntime }));
+vi.mock('@process/utils/initAgent', () => ({ repairStagedTideSkill: h.repairStagedTideSkill }));
 vi.mock('@process/services/mcpServices/bundledTvControl', async (orig) => ({
   ...(await orig<typeof import('@process/services/mcpServices/bundledTvControl')>()),
   provisionWorkspaceTvControl: h.provisionTvControl,
-  resolveBundledTvControlEntry: () => '/resources/bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js',
+  // Runtime publication uses the verified application-owned user copy.
+  resolveUserTvControlEntry: () => '/user-data/mcp-runtimes/tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js',
 }));
 
 // Keep the REAL `toWCoreConfig` (the config.toml serializer under test) and swap
@@ -216,11 +219,14 @@ const CORE_BUILTIN = server({
   transport: { type: 'stdio', command: 'node', args: [getMcpScriptPath('builtin-mcp-search-skills.js')], env: {} },
 });
 
-const startManager = async (activeIds = [APPLE.id, NPX.id, CORE_BUILTIN.id]) => {
+const startManager = async (activeIds = [APPLE.id, NPX.id, CORE_BUILTIN.id], workspace = '/ws') => {
   const manager = new WCoreManager(
-    { id: 'conv-1', workspace: '/ws', activeMcpServers: activeIds } as never,
+    { id: 'conv-1', workspace, activeMcpServers: activeIds } as never,
     { name: 'm', useModel: 'm', platform: 'openai', baseUrl: '' } as never
   );
+  // The constructor starts bootstrap too. Drain it before an explicit retry so
+  // no publication from this fixture lands in the next test's observations.
+  await (manager as unknown as { agentReady: Promise<void> }).agentReady;
   await expect(manager.start()).rejects.toThrow('STOP_AFTER_MCP_PUBLICATION');
   // `BaseAgentManager` may retry the bootstrap; each attempt republishes, and
   // every attempt must be correct, so assert over ALL of them.
@@ -424,17 +430,56 @@ describe('TVControl workspace provisioning at the real manager launch boundary',
     h.resolveJsRuntime.mockReturnValue({ command: PACKAGED_BUN, env: {}, kind: 'bundled-bun' });
     h.provisionTvControl.mockReset().mockReturnValue('/ws/.wayland-runtime/tmp');
   });
-  it('publishes the bundled entry and hands only the selected session its temporary directory', async () => {
+  it('publishes the verified user runtime entry and hands only the selected session its temporary directory', async () => {
     const published = await startManager(['tv']);
     expect(h.provisionTvControl).toHaveBeenCalledWith('/ws');
     expect(h.engineOptions.at(-1)?.managedTempDir).toBe('/ws/.wayland-runtime/tmp');
     expect((published[0].transport as { args: string[] }).args).toEqual([
-      '/resources/bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js',
+      '/user-data/mcp-runtimes/tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js',
     ]);
   });
   it('does not provision an unselected connector or change its session temp directory', async () => {
     await startManager([NPX.id]);
     expect(h.provisionTvControl).not.toHaveBeenCalled();
     expect(h.engineOptions.at(-1)?.managedTempDir).toBeUndefined();
+  });
+});
+
+describe('WCore existing conversation skill repair before launch authority', () => {
+  let workspace: string;
+  beforeEach(() => {
+    workspace = mkdtempSync(join(tmpdir(), 'wcore-resume-repair-'));
+    h.published.length = 0;
+    h.engineOptions.length = 0;
+    h.runtimeServers = [APPLE];
+    h.resolveJsRuntime.mockReturnValue({ command: PACKAGED_BUN, env: {}, kind: 'bundled-bun' });
+    h.repairStagedTideSkill.mockReset().mockResolvedValue(undefined);
+  });
+  afterEach(() => rmSync(workspace, { recursive: true, force: true }));
+
+  it('awaits stock repair before publication and engine construction for an existing workspace', async () => {
+    const skill = join(workspace, '.wayland-core', 'skills', 'tide-morning-brief');
+    mkdirSync(skill, { recursive: true });
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    h.repairStagedTideSkill.mockImplementation(() => gate);
+    const started = startManager([APPLE.id], workspace);
+    try {
+      await vi.waitFor(() => expect(h.repairStagedTideSkill).toHaveBeenCalledWith(workspace, skill));
+      expect(h.published).toHaveLength(0);
+      expect(h.engineOptions).toHaveLength(0);
+    } finally {
+      release();
+    }
+    await started;
+    expect(h.engineOptions.length).toBeGreaterThan(0);
+  });
+
+  it('does not create or repair a missing staged skill', async () => {
+    await startManager([APPLE.id], workspace);
+    expect(h.repairStagedTideSkill).not.toHaveBeenCalled();
+    expect(existsSync(join(workspace, '.wayland-core'))).toBe(false);
   });
 });

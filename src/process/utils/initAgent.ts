@@ -12,11 +12,12 @@ import type { AcpBackend, AcpBackendAll } from '@/common/types/acpTypes';
 import { getSkillsDirsForBackend, hasNativeSkillSupport } from '@/common/types/acpTypes';
 import { isManagedWorkspaceName } from '@/common/types/managedWorkspaceRetention';
 import { uuid } from '@/common/utils';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
+import tideCompatibility from '@process/resources/skills/tvcontrol-setup/tideCompatibility.json';
 
 // Re-export for backward compatibility (tests mock this path)
 export { hasNativeSkillSupport };
-import { existsSync } from 'fs';
+import { existsSync, type Stats } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import { getSkillsDir, getBuiltinSkillsCopyDir, getAutoSkillsDir, getSystemDir, ProcessConfig } from './initStorage';
@@ -49,6 +50,54 @@ export type WorkspaceSkillEntry = {
   name: string;
   security?: { verdict: string };
 };
+
+/** Repair only unchanged stock TC-TIDE files in a contained workspace copy. */
+export async function repairStagedTideSkill(workspace: string, skillDir: string): Promise<void> {
+  if (path.basename(skillDir) !== 'tide-morning-brief') return;
+  const root = await fs.realpath(workspace);
+  const relative = path.relative(path.resolve(workspace), path.resolve(skillDir));
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return;
+  skillDir = path.join(root, relative);
+  let current = root;
+  for (const part of relative.split(path.sep)) {
+    current = path.join(current, part);
+    const stat = await fs.lstat(current);
+    if (stat.isSymbolicLink() || !stat.isDirectory()) return;
+  }
+  const replacements: Array<{ file: string; content: string }> = [];
+  for (const patch of tideCompatibility.files) {
+    const file = path.join(skillDir, patch.path);
+    // The patch paths are bundled constants, but descendants still belong to users.
+    let descendant = skillDir;
+    for (const part of patch.path.split('/')) {
+      descendant = path.join(descendant, part);
+      const stat = await fs.lstat(descendant).catch((error: NodeJS.ErrnoException): Stats | null => {
+        if (error.code === 'ENOENT') return null;
+        throw error;
+      });
+      if (!stat || stat.isSymbolicLink()) return;
+    }
+    const source = await fs.readFile(file, 'utf8');
+    const digest = createHash('sha256').update(source).digest('hex');
+    if (digest === patch.resultSha256) continue;
+    if (digest !== patch.sourceSha256) return; // Preserve customized packs as a whole.
+    const lines = source.split('\n');
+    for (const edit of [...patch.edits].reverse()) lines.splice(edit.start, edit.deleteCount, ...edit.lines);
+    const content = lines.join('\n');
+    if (createHash('sha256').update(content).digest('hex') !== patch.resultSha256)
+      throw new Error('TC-TIDE compatibility patch integrity mismatch');
+    replacements.push({ file, content });
+  }
+  for (const { file, content } of replacements) {
+    const temporary = `${file}.${randomUUID()}.tmp`;
+    try {
+      await fs.writeFile(temporary, content, { flag: 'wx' });
+      await fs.rename(temporary, file);
+    } finally {
+      await fs.rm(temporary, { force: true });
+    }
+  }
+}
 
 /**
  * Set up native workspace structure for assistant (skill symlinks only)
@@ -93,7 +142,7 @@ export async function setupAssistantWorkspace(
 ): Promise<void> {
   // Determine skills directories from ACP_BACKENDS_ALL config
   const key = options.backend || options.agentType || '';
-  const skillsDirs = getSkillsDirsForBackend(key);
+  const skillsDirs = getSkillsDirsForBackend(key) ?? (key === 'fuigo' ? ['.wayland/skills'] : undefined);
 
   // If no native skill directory is known for this CLI, skip symlink setup.
   // The caller should use prompt injection as fallback.
@@ -168,14 +217,17 @@ export async function setupAssistantWorkspace(
         console.warn(`[setupAssistantWorkspace] ${label} directory not found: ${sourceSkillDir}`);
         return;
       }
+      let present = false;
       try {
         await fs.lstat(targetSkillDir);
-        return; // already present - leave it alone
+        present = true;
       } catch {
         // not there yet, fall through and copy
       }
       try {
-        await copyDirectoryRecursively(sourceSkillDir, targetSkillDir, { overwrite: false });
+        if (!present) await copyDirectoryRecursively(sourceSkillDir, targetSkillDir, { overwrite: false });
+        await repairStagedTideSkill(workspace, targetSkillDir);
+        if (present) return; // Existing customized files remain untouched.
         console.log(`[setupAssistantWorkspace] Copied ${label}: ${sourceSkillDir} -> ${targetSkillDir}`);
       } catch (error) {
         console.warn(`[setupAssistantWorkspace] Failed to copy ${label} ${sourceSkillDir}:`, error);
