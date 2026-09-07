@@ -54,6 +54,7 @@ vi.mock('@process/acp/compat/AcpAgentV2', () => ({
       capturedAgentConfigs.push(config);
     }
     start = vi.fn().mockResolvedValue(undefined);
+    getModelInfo = vi.fn(() => null);
     stop = vi.fn();
     kill = vi.fn();
     cancelPrompt = vi.fn();

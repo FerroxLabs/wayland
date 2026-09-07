@@ -25,19 +25,25 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // ── Hoisted mocks (shared with assertions) ───────────────────────────────────
-const { mockAddOrUpdateMessage, mockTransformMessage, mockResponseStreamEmit } = vi.hoisted(() => ({
-  mockAddOrUpdateMessage: vi.fn(),
-  mockTransformMessage: vi.fn((msg: { type: string; data: unknown; conversation_id: string }) => ({
-    type: 'text' as const,
-    id: 'fresh-uuid',
-    msg_id: 'fresh-uuid',
-    position: 'left' as const,
-    conversation_id: msg.conversation_id,
-    content: { content: String(msg.data ?? '') },
-    createdAt: Date.now(),
-  })),
-  mockResponseStreamEmit: vi.fn(),
-}));
+const { mockAddOrUpdateMessage, mockTransformMessage, mockResponseStreamEmit, mockStart, mockModelInfo } = vi.hoisted(
+  () => ({
+    mockStart: vi.fn().mockResolvedValue(undefined),
+    mockModelInfo: vi.fn<
+      () => { currentModelId: string; availableModels: Array<{ id: string; label: string }> } | null
+    >(() => null),
+    mockAddOrUpdateMessage: vi.fn(),
+    mockTransformMessage: vi.fn((msg: { type: string; data: unknown; conversation_id: string }) => ({
+      type: 'text' as const,
+      id: 'fresh-uuid',
+      msg_id: 'fresh-uuid',
+      position: 'left' as const,
+      conversation_id: msg.conversation_id,
+      content: { content: String(msg.data ?? '') },
+      createdAt: Date.now(),
+    })),
+    mockResponseStreamEmit: vi.fn(),
+  })
+);
 
 vi.mock('@process/services/cron/CronBusyGuard', () => ({
   cronBusyGuard: { setProcessing: vi.fn(), isProcessing: vi.fn(() => false) },
@@ -123,6 +129,7 @@ vi.mock('@process/task/ThinkTagDetector', () => ({
 }));
 vi.mock('@process/utils/initAgent', () => ({ hasNativeSkillSupport: vi.fn(() => false) }));
 vi.mock('@process/task/agentUtils', () => ({
+  isConciergeAssistant: vi.fn(() => false),
   prepareFirstMessageWithSkillsIndex: vi.fn((x: string) => Promise.resolve({ content: x, loadedSkills: [] })),
 }));
 vi.mock('@/common/utils', () => ({
@@ -146,11 +153,11 @@ vi.mock('@process/team/prompts/teamGuideCapability.ts', () => ({
 }));
 vi.mock('@process/acp/compat', () => ({
   AcpAgentV2: class {
-    start = vi.fn();
+    start = mockStart;
     sendMessage = vi.fn();
     stop = vi.fn();
     cancelPrompt = vi.fn();
-    getModelInfo = vi.fn(() => null);
+    getModelInfo = mockModelInfo;
     getConfigOptions = vi.fn(() => []);
   },
 }));
@@ -326,5 +333,39 @@ describe('AcpAgentManager - ACP tool titles are display-only MCP evidence', () =
       source: 'desktop',
       tools: [],
     });
+  });
+});
+
+describe('initial ACP model publication', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockStart.mockResolvedValue(undefined);
+    mockModelInfo.mockReturnValue(null);
+  });
+
+  function isolatedManager() {
+    const manager = makeManager('initial-models');
+    const internals = manager as unknown as {
+      resolveAgentCliConfig: () => Promise<Record<string, unknown>>;
+      restorePersistedState: () => Promise<void>;
+    };
+    vi.spyOn(internals, 'resolveAgentCliConfig').mockResolvedValue({ cliPath: '/fixture/fuigo' });
+    vi.spyOn(internals, 'restorePersistedState').mockResolvedValue(undefined);
+    return manager;
+  }
+
+  it('publishes the cached model catalog when startup finishes', async () => {
+    const modelInfo = { currentModelId: 'fixture', availableModels: [{ id: 'fixture', label: 'Fixture' }] };
+    mockModelInfo.mockReturnValue(modelInfo);
+    await isolatedManager().initAgent();
+    expect(mockResponseStreamEmit).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'acp_model_info', data: modelInfo })
+    );
+  });
+
+  it('does not publish a model catalog after failed startup', async () => {
+    mockStart.mockRejectedValueOnce(new Error('startup refused'));
+    await expect(isolatedManager().initAgent()).rejects.toThrow('startup refused');
+    expect(mockResponseStreamEmit).not.toHaveBeenCalled();
   });
 });

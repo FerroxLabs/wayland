@@ -1351,10 +1351,13 @@ ${collectedResponses.join('\n')}`;
     customArgs?: string[];
     customEnv?: Record<string, string>;
   }> {
-    const customAgents = await ProcessConfig.get('assistants');
-    let customAgentConfig: CustomAgentLaunchConfig | undefined = customAgents?.find(
-      (agent) => agent.id === data.customAgentId
-    );
+    const [customAgents, assistants] = await Promise.all([
+      ProcessConfig.get('acp.customAgents'),
+      ProcessConfig.get('assistants'),
+    ]);
+    let customAgentConfig: CustomAgentLaunchConfig | undefined =
+      customAgents?.find((agent) => agent.id === data.customAgentId) ??
+      assistants?.find((agent) => agent.id === data.customAgentId);
 
     // Fallback: extension adapter (customAgentId format: ext:{extensionName}:{adapterId})
     if (!customAgentConfig && data.customAgentId!.startsWith('ext:')) {
@@ -2092,6 +2095,20 @@ ${collectedResponses.join('\n')}`;
       return this.agent.start().then(async () => {
         await this.restorePersistedState();
         this.bootstrapping = false;
+        // Bootstrap suppresses stream events, including the initial model snapshot.
+        // Publish the cached authoritative catalog once the host is ready.
+        const modelInfo = this.agent.getModelInfo();
+        if (modelInfo?.availableModels.length) {
+          this.handleStreamEvent(
+            {
+              type: 'acp_model_info',
+              conversation_id: this.conversation_id,
+              msg_id: `model_ready_${this.conversation_id}`,
+              data: modelInfo,
+            },
+            data.backend
+          );
+        }
         return this.agent;
       });
     })();
