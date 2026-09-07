@@ -1,0 +1,64 @@
+name: Masterclass development Electron runtime
+on:
+  push:
+    branches: [dev/masterclass-electron-runtime]
+permissions:
+  contents: read
+jobs:
+  sign-development-runtime:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - name: Download and verify the exact official development runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://github.com/electron/electron/releases/download/v41.10.5/electron-v41.10.5-win32-x64.zip'
+          Invoke-WebRequest $url -OutFile electron.zip
+          $sha = (Get-FileHash electron.zip -Algorithm SHA256).Hash.ToLower()
+          if ($sha -ne 'ca3294e6ce7d6e65a760e1fcaa48e04d8f3d0e490707045c0feb6add60e8491a') { throw 'Official archive digest mismatch' }
+          Expand-Archive electron.zip runtime
+          $exe = Join-Path $PWD 'runtime/electron.exe'
+          $original = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLower()
+          if ($original -ne 'a223e24b4e700214863857558852ce81d80d840de623678b9552fb77399bce64') { throw 'Official executable digest mismatch' }
+          # No fuse edits, branding, application payload, installer or release.
+          # This signed dev shell runs the local compiled project directory.
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Sign only the verified development executable
+        shell: pwsh
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not $env:AZURE_CLIENT_SECRET) { throw 'Existing signing credential unavailable' }
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+          }
+          Install-Module -Name TrustedSigning -MinimumVersion 0.5.0 -Force -Scope CurrentUser -AllowClobber -Repository PSGallery
+          Import-Module TrustedSigning
+          Invoke-TrustedSigning -Endpoint 'https://eus.codesigning.azure.net/' -CertificateProfileName 'ferroxlabs' -CodeSigningAccountName 'ferrox-labs-signing' -TimestampRfc3161 'http://timestamp.acs.microsoft.com' -TimestampDigest SHA256 -FileDigest SHA256 -Files (Join-Path $PWD 'runtime/electron.exe')
+          $signature = Get-AuthenticodeSignature runtime/electron.exe
+          if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'Ferrox Labs') { throw 'Development executable signature invalid' }
+          $receipt = [ordered]@{
+            version = '41.10.5'
+            purpose = 'development-only; not a Wayland release'
+            sourceArchiveSha256 = 'ca3294e6ce7d6e65a760e1fcaa48e04d8f3d0e490707045c0feb6add60e8491a'
+            originalExeSha256 = 'a223e24b4e700214863857558852ce81d80d840de623678b9552fb77399bce64'
+            signedExeSha256 = (Get-FileHash runtime/electron.exe -Algorithm SHA256).Hash.ToLower()
+            signer = $signature.SignerCertificate.Subject
+            sourceCommit = $env:GITHUB_SHA
+            runId = $env:GITHUB_RUN_ID
+            productionFusesChanged = $false
+          }
+          $receipt | ConvertTo-Json | Set-Content -Encoding utf8 runtime/dev-shell-receipt.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: masterclass-dev-electron-win32-x64
+          path: runtime/
+          retention-days: 7
+          if-no-files-found: error
