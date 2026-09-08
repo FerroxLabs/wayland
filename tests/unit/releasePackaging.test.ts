@@ -45,6 +45,9 @@ const {
     bridgeDir: string;
     platform?: string;
     arch?: string;
+    verificationOnly?: boolean;
+    signIdentity?: string;
+    signDarwinStagedBinary?: (...args: unknown[]) => void;
     run: (command: string, args: string[], options: { cwd: string }) => void;
     validate: () => boolean;
   }) => { available: true; bridgeDir: string };
@@ -219,6 +222,59 @@ describe('release package fail-closed gates', () => {
     expect(fs.existsSync(path.join(bridgeDir, 'node_modules'))).toBe(false);
   });
 
+  it.each([false, true])(
+    'prepares verification source without scripts or signing only when requested (%s)',
+    (verificationOnly) => {
+      const bridgeDir = tempRoot('wayland-whatsapp-verify-input-');
+      let installedArgs: string[] = [];
+      let signatures = 0;
+      let validations = 0;
+      prepareWhatsAppBridgeResources({
+        bridgeDir,
+        platform: 'darwin',
+        arch: 'x64',
+        verificationOnly,
+        signIdentity: 'fixture-identity',
+        signDarwinStagedBinary() {
+          signatures += 1;
+        },
+        run(_command, args) {
+          installedArgs = args;
+          const native = path.join(bridgeDir, 'node_modules/native.node');
+          fs.mkdirSync(path.dirname(native), { recursive: true });
+          const header = Buffer.alloc(4);
+          header.writeUInt32BE(0xfeedfacf);
+          fs.writeFileSync(native, header);
+        },
+        validate() {
+          validations += 1;
+          return true;
+        },
+      });
+      expect(installedArgs).toEqual([
+        'install',
+        '--frozen-lockfile',
+        '--os',
+        'darwin',
+        '--cpu',
+        'x64',
+        ...(verificationOnly ? ['--ignore-scripts'] : []),
+      ]);
+      expect(signatures).toBe(verificationOnly ? 0 : 1);
+      expect(validations).toBe(1);
+      expect(() =>
+        prepareWhatsAppBridgeResources({
+          bridgeDir,
+          platform: 'darwin',
+          arch: 'x64',
+          verificationOnly: true,
+          run() {},
+          validate: () => false,
+        })
+      ).toThrow(/source\/dependency validation/);
+    }
+  );
+
   it('restores target-generated source after a build and keeps restoration idempotent', () => {
     const root = tempRoot('wayland-generated-source-');
     const generated = path.join(root, 'authority.generated.ts');
@@ -314,5 +370,36 @@ describe('build lifecycle hooks stage the on-device voice model', () => {
   it.each(['prebuild', 'prepackage'])('%s still prepares its existing siblings', (hook) => {
     expect(manifest.scripts[hook]).toContain('scripts/prepareConstitutionFs.js');
     expect(manifest.scripts[hook]).toContain('build:skill-pack');
+  });
+});
+
+const {
+  allowsDmgRecovery,
+  configureDmgEnvironment,
+  deterministicDmgFailure,
+} = require('../../scripts/macDmgPackaging.cjs');
+describe('macOS DMG recovery admission', () => {
+  it('never turns a ZIP-only or directory-only build into a DMG build', () => {
+    expect(allowsDmgRecovery('--mac zip --x64')).toBe(false);
+    expect(allowsDmgRecovery('--mac=zip --arm64')).toBe(false);
+    expect(allowsDmgRecovery('--mac --dir')).toBe(false);
+    expect(allowsDmgRecovery('--mac dmg', true)).toBe(false);
+    expect(allowsDmgRecovery('--mac --x64')).toBe(true);
+    expect(allowsDmgRecovery('--mac dmg zip --x64')).toBe(true);
+  });
+  it('uses a fresh invocation receipt and excludes deterministic ENOSPC from fallback', () => {
+    const out = tempRoot('dmg-retry-admission-');
+    const env = configureDmgEnvironment(out, {});
+    expect(deterministicDmgFailure(env)).toBe(false);
+    fs.mkdirSync(env.WAYLAND_DMG_REPORT_DIR, { recursive: true });
+    fs.writeFileSync(
+      path.join(env.WAYLAND_DMG_REPORT_DIR, 'failure.json'),
+      JSON.stringify({ deterministic: true, stderr: 'No space left on device' })
+    );
+    expect(deterministicDmgFailure(env)).toBe(true);
+    const source = fs.readFileSync(path.resolve(import.meta.dirname, '../../scripts/build-with-builder.js'), 'utf8');
+    expect(source.indexOf('if (!allowDmgRetry || deterministicDmgFailure(env)) throw error')).toBeLessThan(
+      source.indexOf('for (let attempt = 1; attempt <= DMG_RETRY_MAX')
+    );
   });
 });

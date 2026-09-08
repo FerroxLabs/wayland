@@ -19,6 +19,10 @@ on:
         description: 'Append short commit hash to artifact names'
         type: boolean
         default: false
+      mac_release_checkpoints:
+        description: 'Preserve verified Mac ZIP/app before retryable DMG construction'
+        type: boolean
+        default: false
       upload_installers_only:
         description: 'Only upload primary installers (exe/msi/dmg/deb), skip zip/yml/blockmap'
         type: boolean
@@ -760,8 +764,35 @@ jobs:
 
       # macOS: Build with notarization - DMG failure = CI failure, notarization failure = warning only
       # macOS: 构建并公证 - DMG 失败 = CI 失败，公证失败 = 仅警告
+      - name: Restore verified Mac release checkpoint from this producer
+        id: mac-checkpoint
+        if: startsWith(matrix.platform, 'macos') && inputs.mac_release_checkpoints
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHECKPOINT_NAME: ${{ matrix.artifact-name }}-checkpoint-${{ github.sha }}
+          WAYLAND_MAC_TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          set -euo pipefail
+          matches="$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" | jq -s --arg name "$CHECKPOINT_NAME" '[.[].artifacts[] | select(.name == $name)]')"
+          count="$(printf '%s' "$matches" | jq length)"
+          if [[ "$count" == 0 ]]; then
+            echo "restored=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          [[ "$count" == 1 ]]
+          [[ "$(printf '%s' "$matches" | jq -r '.[0].expired')" == false ]]
+          artifact_id="$(printf '%s' "$matches" | jq -r '.[0].id')"
+          artifact_digest="$(printf '%s' "$matches" | jq -r '.[0].digest')"
+          checkpoint_dir="$RUNNER_TEMP/mac-release-checkpoint"
+          mkdir -p "$checkpoint_dir"
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" > "$checkpoint_dir/download.zip"
+          python3 scripts/macReleaseCheckpointArchive.py unwrap "$checkpoint_dir/download.zip" "$checkpoint_dir/checkpoint.tar" "$artifact_digest"
+          node scripts/macReleaseCheckpoint.cjs restore --arch "${{ matrix.arch }}" --out out --checkpoint "$checkpoint_dir/checkpoint.tar"
+          echo "restored=true" >> "$GITHUB_OUTPUT"
+
       - name: Build with electron-builder (macOS)
-        if: startsWith(matrix.platform, 'macos')
+        if: startsWith(matrix.platform, 'macos') && (!inputs.mac_release_checkpoints || steps.mac-checkpoint.outputs.restored != 'true')
         id: macos-build
         shell: bash
         run: |
@@ -774,8 +805,13 @@ jobs:
           rm -f out/*.dmg
 
           # Run build command
-          ${{ matrix.command }} 2>&1 | tee "${RUNNER_TEMP}/build.log"
-          BUILD_EXIT_CODE=${PIPESTATUS[0]}
+          if [[ "${{ inputs.mac_release_checkpoints }}" == true ]]; then
+            node scripts/build-with-builder.js "${{ matrix.arch }}" --mac zip --${{ matrix.arch }} 2>&1 | tee "${RUNNER_TEMP}/build.log"
+            BUILD_EXIT_CODE=${PIPESTATUS[0]}
+          else
+            ${{ matrix.command }} 2>&1 | tee "${RUNNER_TEMP}/build.log"
+            BUILD_EXIT_CODE=${PIPESTATUS[0]}
+          fi
 
           # Check if DMG was created (most important artifact)
           DMG_EXISTS=false
@@ -797,7 +833,7 @@ jobs:
           echo "❌ Build or post-package verification failed (exit ${BUILD_EXIT_CODE})"
           echo "notarization_status=build_failed" >> $GITHUB_OUTPUT
           exit $BUILD_EXIT_CODE
-        env:
+        env: &mac_build_env
           NODE_OPTIONS: '--max-old-space-size=8192'
           npm_config_arch: ${{ matrix.arch }}
           APP_ID: ${{ secrets.APP_ID }}
@@ -822,6 +858,33 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           CI: true
           GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+
+      - name: Save verified Mac ZIP before DMG construction
+        id: mac-checkpoint-save
+        if: startsWith(matrix.platform, 'macos') && inputs.mac_release_checkpoints && steps.mac-checkpoint.outputs.restored != 'true'
+        env:
+          WAYLAND_MAC_TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: node scripts/macReleaseCheckpoint.cjs save --arch "${{ matrix.arch }}" --out out --checkpoint "$RUNNER_TEMP/mac-release-checkpoint/checkpoint.tar"
+
+      - name: Preserve immutable Mac release checkpoint
+        if: startsWith(matrix.platform, 'macos') && inputs.mac_release_checkpoints && steps.mac-checkpoint.outputs.restored != 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.artifact-name }}-checkpoint-${{ github.sha }}
+          path: ${{ runner.temp }}/mac-release-checkpoint/checkpoint.tar
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Construct DMG from the verified app only
+        if: startsWith(matrix.platform, 'macos') && inputs.mac_release_checkpoints
+        env: *mac_build_env
+        run: node scripts/packageMacDmg.cjs --app "${{ steps.mac-checkpoint.outputs.app_path || steps.mac-checkpoint-save.outputs.app_path }}" --arch "${{ matrix.arch }}" --out out
+
+      - name: Preserve ZIP and merge post-staple DMG update metadata
+        if: startsWith(matrix.platform, 'macos') && inputs.mac_release_checkpoints
+        env:
+          WAYLAND_MAC_TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: node scripts/macReleaseCheckpoint.cjs finalize --arch "${{ matrix.arch }}" --out out --checkpoint "$RUNNER_TEMP/mac-release-checkpoint/checkpoint.tar" --app "${{ steps.mac-checkpoint.outputs.app_path || steps.mac-checkpoint-save.outputs.app_path }}"
 
       # Post-build: repair the macOS update feed. electron-builder computes the
       # dmg's sha512/size at artifact-created time — BEFORE notarizeDmg staples

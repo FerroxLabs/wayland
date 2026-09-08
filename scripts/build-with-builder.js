@@ -14,6 +14,7 @@ const { execFileSync, execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { allowsDmgRecovery, configureDmgEnvironment, deterministicDmgFailure } = require('./macDmgPackaging.cjs');
 const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareWaylandNano = require('./prepareWaylandNano');
@@ -278,7 +279,7 @@ function formatExecError(error) {
 
 // Create DMG using electron-builder --prepackaged with .app path
 // This preserves DMG styling from electron-builder.yml (window size, icon positions, background)
-function createDmgWithPrepackaged(appDir, targetArch) {
+function createDmgWithPrepackaged(appDir, targetArch, env) {
   const appName = fs.readdirSync(appDir).find((f) => f.endsWith('.app'));
   if (!appName) throw new Error(`No .app found in ${appDir}`);
   const appPath = path.join(appDir, appName);
@@ -288,6 +289,7 @@ function createDmgWithPrepackaged(appDir, targetArch) {
     {
       stdio: 'inherit',
       shell: process.platform === 'win32',
+      env,
     }
   );
 }
@@ -301,16 +303,17 @@ function resolveDmgRetryTarget(outDir, targetPlatform, targetArch, previousPacka
 function buildWithDmgRetry(cmd, targetPlatform, targetArch, previousPackages, previousDmgs, allowDmgRetry = true) {
   const isMac = process.platform === 'darwin';
   const outDir = BUILDER_OUTPUT_DIR;
+  const env = isMac ? configureDmgEnvironment(outDir) : process.env;
 
   try {
-    execSync(cmd, { stdio: 'inherit', shell: process.platform === 'win32' });
+    execSync(cmd, { stdio: 'inherit', shell: process.platform === 'win32', env });
     return;
   } catch (error) {
     // A local verification build is directory-only and MUST NOT synthesize a
     // distributable. Never recover a failed build into a DMG here — the retried
     // DMG would be built from the intentionally-unsealed `.app` (an unsealed
     // shippable artifact). Rethrow so the verification build simply fails.
-    if (!allowDmgRetry) throw error;
+    if (!allowDmgRetry || deterministicDmgFailure(env)) throw error;
     // On non-macOS or if .app doesn't exist, just throw
     let packagedTarget = null;
     if (isMac) {
@@ -331,10 +334,11 @@ function buildWithDmgRetry(cmd, targetPlatform, targetArch, previousPackages, pr
 
       try {
         console.log(`\n📀 DMG retry attempt ${attempt}/${DMG_RETRY_MAX}...`);
-        createDmgWithPrepackaged(appDir, targetArch);
+        createDmgWithPrepackaged(appDir, targetArch, env);
         console.log('✅ DMG created successfully on retry');
         return;
       } catch (retryError) {
+        if (deterministicDmgFailure(env)) throw retryError;
         console.log(`   ⚠️  DMG retry ${attempt}/${DMG_RETRY_MAX} failed`);
         cleanupDiskImages();
         if (attempt === DMG_RETRY_MAX) {
@@ -463,12 +467,14 @@ function prepareWhatsAppBridgeResources(options = {}) {
   const validate = options.validate || (() => verifySourceMirror(bridgeDir, bridgeDir, undefined, platform, arch));
   fs.rmSync(nodeModules, { recursive: true, force: true });
   try {
-    run('bun', ['install', '--frozen-lockfile', '--os', platform, '--cpu', arch], {
+    const installArgs = ['install', '--frozen-lockfile', '--os', platform, '--cpu', arch];
+    if (options.verificationOnly) installArgs.push('--ignore-scripts');
+    run('bun', installArgs, {
       cwd: bridgeDir,
       stdio: 'inherit',
       env: process.env,
     });
-    if (platform === 'darwin') signWhatsAppBridgeNatives(nodeModules, options);
+    if (platform === 'darwin' && !options.verificationOnly) signWhatsAppBridgeNatives(nodeModules, options);
     if (!validate()) throw new Error('WhatsApp bridge clean frozen-lock input failed source/dependency validation');
   } catch (error) {
     fs.rmSync(nodeModules, { recursive: true, force: true });
@@ -924,6 +930,24 @@ try {
     }
   }
 
+  // Real Core registration, before expensive packaging/signing. Unsupported
+  // targets remain explicitly unmeasured; installed-platform gates still apply.
+  if (packagePlatforms.includes('win32')) {
+    for (const arch of packageArchitectures) {
+      if (process.platform !== 'win32' || process.arch !== arch || arch !== 'x64') {
+        console.warn(
+          `[windows-core-mcp] NOT_CHECKED: early probe requires native win32-x64 (host ${process.platform}-${process.arch}, target win32-${arch})`
+        );
+        continue;
+      }
+      execFileSync(
+        process.execPath,
+        [path.join(__dirname, 'windowsCoreMcpSmoke.cjs'), path.resolve(__dirname, '..', 'resources'), arch],
+        { stdio: 'inherit', timeout: 180000 }
+      );
+    }
+  }
+
   // 5b-nano. Prepare wayland-nano for every requested package target under the
   // same strict contract as wayland-core: exact pinned tag, independently
   // verified archive + extracted-binary digests, no local-prebuilt, no skip,
@@ -1111,7 +1135,7 @@ try {
       targetArch,
       previousPackages,
       previousDmgs,
-      !localVerificationBuild
+      allowsDmgRecovery(builderArgs, localVerificationBuild)
     );
   } catch (error) {
     const winExePath = path.join(BUILDER_OUTPUT_DIR, 'win-unpacked', BUILDER_EXECUTABLE_NAME);
