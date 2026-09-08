@@ -26,6 +26,7 @@ import { SkillGuard } from './SkillGuard';
 import type { LlmScanCall } from './skillGuardLlmScan';
 import type { SkillScanInput } from './skillGuardRules';
 import { openSkillPack, type SkillPackReader } from './SkillPack';
+import { matchesCompletedImport, readCompletedImports, type CompletedSkillImport } from './skillImportRegistration';
 
 // ProcessConfig and mainLogger are intentionally NOT imported at the module
 // level: pulling them in drags `@/common` + initStorage (with the database
@@ -192,6 +193,8 @@ function trustedBundleReport(): SkillSecurityReport {
 type ReadFileFn = (p: string) => Promise<string>;
 
 type SkillLibraryOptions = {
+  installedSkillsDir?: string;
+  readCompletedImports?: () => Promise<Record<string, CompletedSkillImport>>;
   resourceDir?: string;
   /** Override for the Wayland built-in workflows dir (tests). */
   bundledWorkflowsDir?: string;
@@ -222,6 +225,7 @@ export class SkillLibrary {
   private readonly resourceDir: string;
   private readonly bundledWorkflowsDir: string;
   private readonly readFileFn: ReadFileFn;
+  private readonly installedOptions: SkillLibraryOptions;
 
   /** Populated incrementally - index lazy-loaded, more sources via registerSource. */
   private entries: SkillIndexEntry[] = [];
@@ -244,6 +248,7 @@ export class SkillLibrary {
   private workflowPack: SkillPackReader | null = null;
 
   private constructor(opts: SkillLibraryOptions = {}) {
+    this.installedOptions = opts;
     this.resourceDir = opts.resourceDir ?? resolveSkillsLibraryDir();
     this.bundledWorkflowsDir = opts.bundledWorkflowsDir ?? resolveBundledWorkflowsDir();
     this.readFileFn = opts.readFile ?? ((p) => fsReadFile(p, 'utf-8'));
@@ -294,9 +299,50 @@ export class SkillLibrary {
       // folder is optional: a missing/empty/malformed index is a graceful
       // no-op rather than a startup failure.
       await this.loadBundledWorkflows();
+      await this.loadCompletedImports();
       this.indexLoaded = true;
     })();
     return this.loadPromise;
+  }
+
+  private async loadCompletedImports(): Promise<void> {
+    try {
+      const registrations = await (this.installedOptions.readCompletedImports ?? readCompletedImports)();
+      if (!Object.keys(registrations).length) return;
+      const root =
+        this.installedOptions.installedSkillsDir ?? (await import('@process/utils/initStorage')).getSkillsDir();
+      if (!root) return;
+      const { parseFrontmatter } = await import('@process/task/AcpSkillManager');
+      for (const [name, receipt] of Object.entries(registrations)) {
+        if (!receipt || receipt.name !== name || this.byName.has(name)) continue;
+        const dir = path.join(root, name);
+        if (!(await matchesCompletedImport(dir, receipt))) continue;
+        const skillPath = path.join(dir, 'SKILL.md');
+        const body = await fsReadFile(skillPath, 'utf-8');
+        const parsed = parseFrontmatter(body);
+        if (!parsed) continue;
+        const [security] = await SkillGuard.scan(
+          [{ name, body, description: parsed.description ?? '', tags: parsed.metadata.tags }],
+          { llm: false }
+        );
+        if (security.verdict === 'review' && receipt.consent !== 'confirmed') continue;
+        // Never synthesize trust from a file's presence. Current guard results
+        // remain authoritative, including loadBody's blocked refusal.
+        this.registerSource([
+          {
+            name,
+            description: parsed.description ?? '',
+            type: parsed.type ?? 'skill',
+            source: 'imported',
+            metadata: parsed.metadata,
+            path: skillPath,
+            security,
+          },
+        ]);
+      }
+    } catch (error) {
+      console.warn('[SkillLibrary] Could not restore completed imports', error);
+    }
   }
 
   private async ensureLoaded(): Promise<void> {

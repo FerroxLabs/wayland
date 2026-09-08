@@ -6,7 +6,16 @@ import authority from '../../../../scripts/tvcontrol/authority.json';
 
 export const TVCONTROL_VERSION = authority.version;
 export const TVCONTROL_CATALOG_ID = 'com.ferroxlabs/tvcontrol';
-const MANAGED_TVCONTROL_VERSIONS = new Set(['2.4.6', '2.4.7', '2.4.8', '2.4.9', '2.5.0', TVCONTROL_VERSION]);
+const MANAGED_TVCONTROL_VERSIONS = new Set([
+  '2.4.6',
+  '2.4.7',
+  '2.4.8',
+  '2.4.9',
+  '2.5.0',
+  '2.5.1',
+  '2.5.2',
+  TVCONTROL_VERSION,
+]);
 
 /** Upgrade only known managed catalog declarations, preserving custom commands. */
 export function isBundledTvControlDeclaration(
@@ -62,7 +71,7 @@ export function bundledTvControlRoot(): string {
 
 export function resolveBundledTvControlEntry(root = bundledTvControlRoot()): string {
   if (!verifyTvControlTree(root))
-    throw new Error('Bundled TVControl 2.5.1 is missing or failed integrity verification');
+    throw new Error('Bundled TVControl 2.5.3 is missing or failed integrity verification');
   return path.join(root, 'node_modules/@ferroxlabs/tvcontrol/src/server.js');
 }
 

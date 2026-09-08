@@ -23,6 +23,7 @@ import type { SkillSecurityReport, SkillType } from '@/common/types/skillTypes';
 import type { SkillScanInput } from './skillGuardRules';
 import { SkillGuard } from './SkillGuard';
 import { SkillLibrary } from './SkillLibrary';
+import { fingerprintImport, saveCompletedImport, type CompletedSkillImport } from './skillImportRegistration';
 import { SkillQuarantine, type SkillQuarantineIo } from './SkillQuarantine';
 import type { LlmScanCall } from './skillGuardLlmScan';
 import { makeOneShotLlmScanCall } from './skillGuardLlmCall';
@@ -180,6 +181,8 @@ export const DISCLOSED_SCRIPT_EXTENSIONS = ['.py', '.mjs'];
 // ---------------------------------------------------------------------------
 
 export type SkillImportIo = {
+  /** Production persistence; test I/O may inject an isolated receipt store. */
+  saveRegistration?: (receipt: CompletedSkillImport) => Promise<void>;
   /** Lstat a path (needed to detect symlinks without following them). */
   lstat: (p: string) => Promise<{ isSymbolicLink(): boolean; isDirectory(): boolean }>;
   /**
@@ -246,6 +249,7 @@ import JSZip from 'jszip';
 const execAsync = promisify(exec);
 
 export const defaultSkillImportIo: SkillImportIo = {
+  saveRegistration: saveCompletedImport,
   lstat,
   exists: async (p) => {
     try {
@@ -672,6 +676,17 @@ export class SkillImport {
     //
     // The purchased-pack path already refuses collisions; this is the same rule.
     if (await this.io.exists(destDir)) {
+      const incoming = await fingerprintImport(srcDir, this.io);
+      const existing = await fingerprintImport(destDir, this.io);
+      if (JSON.stringify(incoming) === JSON.stringify(existing) && incoming['SKILL.md']) {
+        const body = (await this.io.readFile(path.join(destDir, 'SKILL.md'))).toString('utf-8');
+        const scripts = Object.keys(incoming).filter((file) =>
+          DISCLOSED_SCRIPT_EXTENSIONS.includes(normalisedImportExtension(file))
+        );
+        const result = await this._scanAndRegister([{ name: basename, body, destDir }], scripts.length > 0, true);
+        result.warnings.unshift(...scripts.map((file) => `Contains script: ${file}`));
+        return result;
+      }
       throw new Error(
         `Rejected: a skill named "${basename}" is already installed. Remove it first, or rename the folder you are importing.`
       );
@@ -777,7 +792,8 @@ export class SkillImport {
    */
   private async _scanAndRegister(
     skills: Array<{ name: string; body: string; destDir: string }>,
-    holdForScripts = false
+    holdForScripts = false,
+    preserveExisting = false
   ): Promise<ImportResult> {
     const inputs: SkillScanInput[] = skills.map((s) => ({
       name: s.name,
@@ -800,6 +816,10 @@ export class SkillImport {
 
       if (report.verdict === 'blocked') {
         // Route to quarantine.
+        if (preserveExisting)
+          throw new Error(
+            `Rejected: installed skill "${skill.name}" is blocked by the current scan; existing files were preserved.`
+          );
         await SkillQuarantine.quarantine(skill.name, skill.destDir, this.quarantineIo);
         quarantined.push(skill.name);
         continue;
@@ -821,7 +841,7 @@ export class SkillImport {
       let enabledFor: string | null = null;
       let enabledForLabel: string | null = null;
       if (report.verdict === 'clean' && !holdForScripts) {
-        warnings.push(...this._register(skill.name, skill.destDir, skill.body, report));
+        warnings.push(...(await this._register(skill.name, skill.destDir, skill.body, report, 'not-required')));
         registered = true;
         // Switch it on for the assistant the user is about to chat with. Only
         // for real skills: a workflow or an agent-profile is not something an
@@ -854,7 +874,17 @@ export class SkillImport {
    * frontmatter type. Returns any collision warnings. Shared by the clean-path
    * auto-register and the review-path `confirmImport`.
    */
-  private _register(name: string, destDir: string, body: string, report: SkillSecurityReport): string[] {
+  private async _register(
+    name: string,
+    destDir: string,
+    body: string,
+    report: SkillSecurityReport,
+    consent: CompletedSkillImport['consent']
+  ): Promise<string[]> {
+    if (this.io.saveRegistration) {
+      const files = await fingerprintImport(destDir, this.io);
+      await this.io.saveRegistration({ name, contentHash: files['SKILL.md'], files, guard: report, consent });
+    }
     return SkillLibrary.getInstance().registerSource([
       {
         name,
@@ -908,7 +938,7 @@ export class SkillImport {
       return { ok: false, error: 'blocked' };
     }
 
-    this._register(name, destPath, body, report);
+    await this._register(name, destPath, body, report, 'confirmed');
     // Same enablement as the clean path. A skill the user explicitly approved
     // must not be LESS usable than one that sailed through the sweep.
     if (parseFrontmatterType(body) === 'skill') {

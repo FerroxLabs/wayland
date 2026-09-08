@@ -43,7 +43,8 @@ const h = vi.hoisted(() => {
       rescanned: 0,
     })
   );
-  return { providers, emitted, ipcBridge: nodeFor(''), rescanStale };
+  const importSkill = vi.fn(async (_value: string) => ({ imported: [], quarantined: [], warnings: [] as string[] }));
+  return { providers, emitted, ipcBridge: nodeFor(''), rescanStale, importSkill };
 });
 
 vi.mock('@/common', () => ({ ipcBridge: h.ipcBridge }));
@@ -51,7 +52,14 @@ vi.mock('@process/services/skills/SkillLibrary', () => ({
   SkillLibrary: { getInstance: () => ({ rescanStale: h.rescanStale }) },
 }));
 vi.mock('@process/services/skills/SkillGuard', () => ({ SkillGuard: { scan: vi.fn(async () => []) } }));
-vi.mock('@process/services/skills/SkillImport', () => ({ SkillImport: class {} }));
+vi.mock('@process/services/skills/SkillImport', () => ({
+  SkillImport: class {
+    importFolder = h.importSkill;
+    importGit = h.importSkill;
+    importZip = h.importSkill;
+    importSingleSkillMd = h.importSkill;
+  },
+}));
 vi.mock('@process/services/skills/SkillQuarantine', () => ({ SkillQuarantine: {} }));
 vi.mock('@process/services/skills/agentProfileImport', () => ({ importAgentProfile: vi.fn() }));
 vi.mock('@process/task/AcpSkillManager', () => ({ parseFrontmatter: vi.fn() }));
@@ -123,5 +131,24 @@ describe('skillsBridge - scan-progress streaming', () => {
     await h.providers.get('skills.rescanAll')!();
 
     expect(progressTicks().map((t) => t.done)).toEqual([10, 20]);
+  });
+});
+
+describe('skillsBridge import rejection settlement', () => {
+  it.each([
+    ['folder', { srcPath: '/fixture/skill' }],
+    ['git', { url: 'https://example.invalid/skill.git' }],
+    ['zip', { zipPath: '/fixture/skill.zip' }],
+    ['singleSkillMd', { srcPath: '/fixture/SKILL.md' }],
+  ])('returns a delivered error for %s instead of rejecting the resolve-only transport', async (kind, request) => {
+    const error = 'Rejected: a skill named "tide-morning-brief" is already installed.';
+    h.importSkill.mockRejectedValueOnce(new Error(error));
+    await expect(h.providers.get(`skills.import.${kind}`)!(request)).resolves.toEqual({ ok: false, error });
+  });
+
+  it('preserves successful scan and consent results unchanged', async () => {
+    const result = { imported: [], quarantined: [], warnings: ['Consent required'] };
+    h.importSkill.mockResolvedValueOnce(result);
+    await expect(h.providers.get('skills.import.zip')!({ zipPath: '/fixture/skill.zip' })).resolves.toBe(result);
   });
 });

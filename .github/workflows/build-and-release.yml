@@ -120,6 +120,7 @@ jobs:
       (needs.release-preflight.result == 'success' || needs.release-preflight.result == 'skipped') &&
       (github.ref == 'refs/heads/dev' || (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')))
     with:
+      mac_release_checkpoints: ${{ startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-') }}
       matrix: >-
         {"include":[
           {"platform":"macos-arm64","target_platform":"darwin","os":"macos-15","command":"node scripts/build-with-builder.js arm64 --mac --arm64","artifact-name":"macos-build-arm64","arch":"arm64"},
@@ -131,66 +132,26 @@ jobs:
         ]}
     secrets: inherit
 
-  # 自动重试 workflow（当构建失败时）
-  auto-retry-workflow:
-    name: Auto Retry on Build Failure
+  # A completed producer may retry failed jobs while retaining successful artifacts.
+  build-failure-summary:
+    name: Preserve successful artifacts and report failed-only retry
     runs-on: ubuntu-latest
     needs: build-pipeline
     permissions:
-      actions: write
       contents: read
-    # 关键：只在首次失败时触发，避免无限循环
-    if: |
-      failure() &&
-      github.run_attempt == 1 &&
-      (github.event_name == 'push' || github.event_name == 'schedule')
-
+    if: always() && needs.build-pipeline.result == 'failure'
     steps:
-      - name: Log retry information
+      - name: Report exact post-completion retry
+        shell: bash
         run: |
-          echo "=========================================="
-          echo "🔄 Auto retry triggered (first failure)"
-          echo "=========================================="
-          echo "Build failed on first attempt, preparing auto retry..."
-          echo "Current attempt: ${{ github.run_attempt }}"
-          echo "Wait strategy: 5 minutes cooldown before retry"
-          echo "=========================================="
+          {
+            echo "Build failed. Successful artifacts and verified Mac checkpoints remain in producer $GITHUB_RUN_ID."
+            echo "Source: $GITHUB_SHA. Wait for this producer to complete before retrying."
+            echo 'Retry only failed jobs after inspecting the failure; do not start a new producer or rerun successful builds:'
+            echo "gh run rerun $GITHUB_RUN_ID --repo $GITHUB_REPOSITORY --failed"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Wait before retry (5 min cooldown)
-        run: |
-          echo "⏳ Waiting 5 minutes before retry..."
-          echo "Start: $(date)"
-          sleep 300
-          echo "End: $(date)"
-          echo "Triggering retry..."
-
-      - name: Trigger workflow rerun
-        run: |
-          echo "🔄 Triggering full workflow rerun (attempt 2)..."
-
-          # Use re-run API (not rerun-failed-jobs, to avoid loops)
-          response=$(curl -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -w "\n%{http_code}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/rerun)
-
-          http_code=$(echo "$response" | tail -n1)
-
-          if [ "$http_code" = "201" ]; then
-            echo ""
-            echo "✅ Retry triggered successfully"
-            echo "This will be attempt 2"
-            echo "Details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          else
-            echo ""
-            echo "❌ Retry trigger failed, HTTP status: $http_code"
-            echo "Response:"
-            echo "$response" | head -n-1
-            exit 1
-          fi
-
-  # 自动创建tag（仅 dev 分支推送时）
+  # Create a tag only for a dev branch build.
   create-tag:
     name: Create Tag from Branch
     runs-on: ubuntu-latest
@@ -336,6 +297,7 @@ jobs:
       - name: Download all build artifacts
         uses: actions/download-artifact@v7
         with:
+          pattern: '{macos,windows,linux}-build-{arm64,x64}'
           path: build-artifacts
 
       - name: Prepare release assets (normalize updater metadata)
@@ -353,26 +315,20 @@ jobs:
         shell: bash
         run: bash scripts/verify-release-assets.sh release-assets
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.version.outputs.tag_name }}
-          name: ${{ steps.version.outputs.is_dev == 'true' && format('Development Build {0}', steps.version.outputs.tag_name) || steps.version.outputs.tag_name }}
-          files: |
-            release-assets/**/*.exe
-            release-assets/**/*.msi
-            release-assets/**/*.dmg
-            release-assets/**/*.deb
-            release-assets/**/*.AppImage
-            release-assets/**/*.rpm
-            release-assets/**/*.zip
-            release-assets/**/*.yml
-            release-assets/**/*.blockmap
-          generate_release_notes: true
-          draft: true
-          prerelease: ${{ steps.version.outputs.is_dev == 'true' || contains(steps.version.outputs.tag_name, 'beta') || contains(steps.version.outputs.tag_name, 'alpha') || contains(steps.version.outputs.tag_name, 'rc') }}
+      - name: Create draft metadata without replacing an existing release
+        id: draft-assets
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag_name }}
+          RELEASE_NAME: ${{ steps.version.outputs.is_dev == 'true' && format('Development Build {0}', steps.version.outputs.tag_name) || steps.version.outputs.tag_name }}
+          RELEASE_PRERELEASE: ${{ steps.version.outputs.is_dev == 'true' || contains(steps.version.outputs.tag_name, 'beta') || contains(steps.version.outputs.tag_name, 'alpha') || contains(steps.version.outputs.tag_name, 'rc') }}
+        run: node scripts/lib/publishDraftAssets.cjs prepare --repository "$GITHUB_REPOSITORY" --tag "$RELEASE_TAG" --commit "$GITHUB_SHA" --name "$RELEASE_NAME" --prerelease "$RELEASE_PRERELEASE"
+
+      - name: Upload only missing immutable draft assets
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag_name }}
+        run: node scripts/lib/publishDraftAssets.cjs upload --repository "$GITHUB_REPOSITORY" --tag "$RELEASE_TAG" --commit "$GITHUB_SHA" --dir release-assets
 
   # 发布前体检：在草稿发布上对真实下载件跑用户路径校验，绿了才公开。
   # The release above is created as a DRAFT. This gate downloads the draft's real
@@ -700,6 +656,7 @@ jobs:
       - name: Download exact canonical build artifacts
         uses: actions/download-artifact@v7
         with:
+          pattern: '{macos-build-arm64,macos-build-x64,windows-build-arm64,windows-build-x64,linux-build-arm64,linux-build-x64,capability-acceptance-${{ github.sha }},protected-platform-observations-${{ github.sha }},protected-updater-observations-${{ github.sha }}}'
           path: canonical-artifacts
 
       # The engine tag is READ from the bundle authority, never re-typed.

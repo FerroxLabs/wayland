@@ -89,6 +89,7 @@ import type {
 } from '../types/terminal';
 import type { SkillSecurityReport, SkillIndexEntry, SkillSource, SkillVerdict } from '../types/skillTypes';
 import type { ImportResult } from '../../process/services/skills/SkillImport';
+
 import type { KickoffGridResult, KickoffResult, KickoffTelemetryEvent } from '../../process/services/kickoff/types';
 import type {
   AskRecord,
@@ -640,6 +641,8 @@ export const voiceSynth = {
   stop: buildProvider<Record<string, never>, void>('voice-synth.stop'),
 };
 
+export type SkillImportReply = ImportResult | { ok: false; error: string };
+
 export const skills = {
   scan: buildProvider<SkillSecurityReport | null, { name: string }>('skills.scan'),
   getReport: buildProvider<SkillSecurityReport | null, { name: string }>('skills.get-report'),
@@ -659,13 +662,13 @@ export const skills = {
   scanProgress: buildEmitter<SkillScanProgress>('skills.scan-progress'),
   import: {
     /** Import a skill from a local folder path. */
-    folder: buildProvider<ImportResult, { srcPath: string }>('skills.import.folder'),
+    folder: buildProvider<SkillImportReply, { srcPath: string }>('skills.import.folder'),
     /** Clone a git URL and import the resulting skill folder. */
-    git: buildProvider<ImportResult, { url: string }>('skills.import.git'),
+    git: buildProvider<SkillImportReply, { url: string }>('skills.import.git'),
     /** Extract a zip archive and import contained skills. */
-    zip: buildProvider<ImportResult, { zipPath: string }>('skills.import.zip'),
+    zip: buildProvider<SkillImportReply, { zipPath: string }>('skills.import.zip'),
     /** Import a single SKILL.md file. */
-    singleSkillMd: buildProvider<ImportResult, { srcPath: string }>('skills.import.single-skill-md'),
+    singleSkillMd: buildProvider<SkillImportReply, { srcPath: string }>('skills.import.single-skill-md'),
   },
   /**
    * Register a previously-swept, user-approved `review` skill (C3 consent

@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { Button, Input, Message, Modal, Tabs } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
+import type { SkillImportReply } from '@/common/adapter/ipcBridge';
 import type { ImportResult } from '@process/services/skills/SkillImport';
 import type { SkillFinding, SkillSecurityReport } from '@/common/types/skillTypes';
 
@@ -263,7 +264,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
     setError('');
     setLoading(true);
     try {
-      let result: ImportResult;
+      let result: SkillImportReply;
       if (tab === 'folder') {
         result = await ipcBridge.skills.import.folder.invoke({ srcPath: folderPath });
       } else if (tab === 'git') {
@@ -273,6 +274,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
       } else {
         result = await ipcBridge.skills.import.singleSkillMd.invoke({ srcPath: skillMdPath });
       }
+      if ('error' in result) throw new Error(result.error);
       applyResult(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('skills.import.error.failed', { defaultValue: 'Import failed' }));
