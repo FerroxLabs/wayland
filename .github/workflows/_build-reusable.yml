@@ -762,6 +762,16 @@ jobs:
           rm -f /tmp/*.dmg 2>/dev/null || true
           echo "Cleanup complete"
 
+      - name: Preflight pinned Intel DMG wrapper
+        if: >-
+          inputs.intel_notary_diagnostic && github.ref == 'refs/heads/diagnose/intel-notary-018' &&
+          matrix.platform == 'macos-x64'
+        shell: bash
+        run: node scripts/intelDmgbuildCheckedCopy.cjs --help
+        env:
+          WAYLAND_INTEL_NOTARY_DIAGNOSTIC: '1'
+          WAYLAND_DMG_DIAGNOSTIC_DIR: ${{ github.workspace }}/out/intel-notary-diagnostic
+
       # macOS: Build with notarization - DMG failure = CI failure, notarization failure = warning only
       # macOS: 构建并公证 - DMG 失败 = CI 失败，公证失败 = 仅警告
       - name: Build with electron-builder (macOS)

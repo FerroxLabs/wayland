@@ -95,3 +95,22 @@ test('accepted notary ZIP is preserved byte-for-byte outside the app', () => {
   assert.deepEqual(fs.readFileSync(path.join(f.root, 'intel-notary-diagnostic', 'Wayland-notary-accepted.zip')), bytes);
   assert.ok(fs.existsSync(source));
 });
+
+test('wrapper requests the exact checksum-pinned Intel vendor through the exported downloader', async () => {
+  const { resolveVendor, VENDOR_OPTIONS } = require('../scripts/intelDmgbuildCheckedCopy.cjs');
+  let options;
+  assert.equal(
+    await resolveVendor(async (value) => {
+      options = value;
+      return '/fixture/vendor';
+    }),
+    '/fixture/vendor'
+  );
+  assert.equal(options.releaseName, 'dmg-builder@1.2.0');
+  assert.equal(options.filenameWithExt, 'dmgbuild-bundle-x86_64-75c8a6c.tar.gz');
+  assert.equal(
+    options.checksums[options.filenameWithExt],
+    '87b3bb72148b11451ee90ede79cc8d59305c9173b68b0f2b50a3bea51fc4a4e2'
+  );
+  assert.equal(options, VENDOR_OPTIONS);
+});
