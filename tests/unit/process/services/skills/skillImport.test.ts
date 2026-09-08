@@ -636,13 +636,18 @@ describe('a ZIP pack installs as a TREE, into the directory that is actually rea
 });
 
 describe('an import must not overwrite an installed skill', () => {
-  it('REFUSES when a skill of the same folder name already exists', async () => {
+  it('REFUSES different content when a skill of the same folder name already exists', async () => {
     // `mkdir` is recursive (no-op on an existing dir) and `copyFile` overwrites,
     // so this used to merge the new tree INTO the installed one - before the new
     // content had been scanned, and leaving files the new tree lacked behind as
     // a mixture. If the scan then blocked it, quarantine moved the merged
     // directory away, taking the user's original skill with it.
-    const io = makeFakeIo({ exists: vi.fn(async () => true) });
+    const io = makeFakeIo({
+      exists: vi.fn(async () => true),
+      readFile: vi.fn(async (file: string) =>
+        Buffer.from(file.startsWith(TEST_SKILLS_DIR) ? '# Existing content' : '# Different incoming content')
+      ),
+    });
     const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 
     await expect(importer.importFolder('/some/my-skill')).rejects.toThrow(/already installed/i);
@@ -653,7 +658,8 @@ describe('an import must not overwrite an installed skill', () => {
 
   it('KNOWN-POSITIVE CONTROL: the same import succeeds when the name is free', async () => {
     // Without this the refusal above would pass even if importFolder threw for
-    // every input.
+    // every input. Guard classification is a fixed precondition of this copy control.
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
     const io = makeFakeIo({ exists: vi.fn(async () => false) });
     const importer = new SkillImport(io, undefined, undefined, () => TEST_SKILLS_DIR);
 

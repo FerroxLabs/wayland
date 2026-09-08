@@ -8,7 +8,7 @@ import path from 'node:path';
 import { homedir } from 'node:os';
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { app, dialog } from 'electron';
-import type { ImportSummary, ImportItemResult } from '@/common/adapter/ipcBridge';
+import type { ImportSummary, ImportItemResult, SkillImportReply } from '@/common/adapter/ipcBridge';
 import { ipcBridge } from '@/common';
 import { exportAssistantToSkillMd } from '@process/services/skills/agentProfileExport';
 import { buildWorkflowExport } from '@process/services/skills/workflowExport';
@@ -51,6 +51,16 @@ function runLibrarySweep(): Promise<{ rescanned: number }> {
   });
 }
 
+// Platform providers deliver resolved values only; a rejection otherwise leaves
+// the renderer's import request pending forever.
+async function settleSkillImport(operation: () => Promise<ImportResult>): Promise<SkillImportReply> {
+  try {
+    return await operation();
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 export function initSkillsBridge(): void {
   // Register the waylandteams bundle's 88 curated skills as the second
   // source on the Skills page (alongside the 1,965 vendored library
@@ -81,10 +91,14 @@ export function initSkillsBridge(): void {
 
   const importer = new SkillImport();
 
-  ipcBridge.skills.import.folder.provider(async ({ srcPath }) => importer.importFolder(srcPath));
-  ipcBridge.skills.import.git.provider(async ({ url }) => importer.importGit(url));
-  ipcBridge.skills.import.zip.provider(async ({ zipPath }) => importer.importZip(zipPath));
-  ipcBridge.skills.import.singleSkillMd.provider(async ({ srcPath }) => importer.importSingleSkillMd(srcPath));
+  ipcBridge.skills.import.folder.provider(async ({ srcPath }) =>
+    settleSkillImport(() => importer.importFolder(srcPath))
+  );
+  ipcBridge.skills.import.git.provider(async ({ url }) => settleSkillImport(() => importer.importGit(url)));
+  ipcBridge.skills.import.zip.provider(async ({ zipPath }) => settleSkillImport(() => importer.importZip(zipPath)));
+  ipcBridge.skills.import.singleSkillMd.provider(async ({ srcPath }) =>
+    settleSkillImport(() => importer.importSingleSkillMd(srcPath))
+  );
 
   // #512: credential-redacted export of an assistant to a portable agent-profile
   // SKILL.md. The credential boundary is exportAssistantToSkillMd (allowlist); the

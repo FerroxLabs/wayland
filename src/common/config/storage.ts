@@ -433,6 +433,11 @@ export interface IConfigStorageRefer {
    * Requires app restart to take effect (no live re-scan yet).
    */
   'skills.cliDiscovery.enabled'?: boolean;
+  /** Completed registrations, outside imported content; never inferred from enabledSkills. */
+  'skills.completedImports'?: Record<
+    string,
+    import('@process/services/skills/skillImportRegistration').CompletedSkillImport
+  >;
   // Ambient Mode (M1 skeleton): enable bubble + agent-driven UI flow
   'ambient.enabled'?: boolean;
   /**
