@@ -11,6 +11,10 @@ on:
         description: 'Git ref to checkout (leave empty to use the triggering commit)'
         type: string
         default: ''
+      intel_notary_diagnostic:
+        description: 'Isolated Intel notarization incident evidence; no normal build artifact upload'
+        type: boolean
+        default: false
       skip_code_quality:
         description: 'Skip code quality checks (faster builds for debugging)'
         type: boolean
@@ -798,6 +802,7 @@ jobs:
           echo "notarization_status=build_failed" >> $GITHUB_OUTPUT
           exit $BUILD_EXIT_CODE
         env:
+          WAYLAND_INTEL_NOTARY_DIAGNOSTIC: ${{ inputs.intel_notary_diagnostic && github.ref == 'refs/heads/diagnose/intel-notary-018' && matrix.platform == 'macos-x64' && '1' || '0' }}
           NODE_OPTIONS: '--max-old-space-size=8192'
           npm_config_arch: ${{ matrix.arch }}
           APP_ID: ${{ secrets.APP_ID }}
@@ -947,10 +952,24 @@ jobs:
           echo "Remaining artifacts:"
           ls -lh out/ || true
 
+      - name: Preserve isolated Intel diagnostic evidence
+        uses: actions/upload-artifact@v6
+        if: >-
+          always() && inputs.intel_notary_diagnostic &&
+          github.ref == 'refs/heads/diagnose/intel-notary-018' && matrix.platform == 'macos-x64'
+        with:
+          name: intel-notary-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            out/intel-notary-diagnostic/*.json
+            out/*.dmg
+            ${{ runner.temp }}/build.log
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
         if: >-
-          success() &&
+          success() && !inputs.intel_notary_diagnostic &&
           (!startsWith(matrix.platform, 'windows') || steps.windows-build.outputs.result == 'success')
         with:
           name: ${{ inputs.append_commit_hash && format('{0}-{1}', matrix.artifact-name, steps.commit.outputs.short) || matrix.artifact-name }}

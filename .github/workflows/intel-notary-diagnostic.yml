@@ -1,0 +1,17 @@
+name: Intel Notary Diagnostic
+on:
+  push:
+    branches: [diagnose/intel-notary-018]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  diagnostic:
+    uses: ./.github/workflows/_build-reusable.yml
+    secrets: inherit
+    with:
+      ref: ${{ github.sha }}
+      intel_notary_diagnostic: true
+      skip_code_quality: false
+      matrix: >-
+        {"include":[{"platform":"macos-x64","target_platform":"darwin","os":"macos-15-intel","command":"node scripts/build-with-builder.js x64 --mac --x64","artifact-name":"intel-diagnostic-unused","arch":"x64"}]}

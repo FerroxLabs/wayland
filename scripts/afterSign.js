@@ -1,5 +1,6 @@
 const { execSync } = require('child_process');
 const path = require('path');
+const { recordStage } = require('./intelNotaryDiagnostic');
 const { runBounded, isNotaryStall, markNotaryStalled, submitToNotary, notaryRejectionError } = require('./signingExec');
 const { resolveDarwinSigningIdentity } = require('./signDarwinStagedBinary');
 
@@ -33,6 +34,8 @@ exports.default = async function afterSign(context) {
     }
     return;
   }
+
+  recordStage(context.outDir || path.dirname(appOutDir), appPath, 'post-sign');
 
   // Skip notarization if credentials are not provided
   const appleId = process.env.appleId;
@@ -116,6 +119,7 @@ exports.default = async function afterSign(context) {
     ) {
       throw new Error('stapler staple failed or timed out');
     }
+    recordStage(context.outDir || path.dirname(appOutDir), appPath, 'post-staple');
     console.log('Notarization + stapling completed successfully');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

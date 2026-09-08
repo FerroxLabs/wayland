@@ -1,4 +1,5 @@
 const path = require('path');
+const { verifyDmg } = require('./intelNotaryDiagnostic');
 const {
   runBounded,
   isNotaryStall,
@@ -66,6 +67,7 @@ exports.default = async function notarizeDmg(buildResult) {
     try {
       console.log(`notarizeDmg: code-signing ${name} with Developer ID (no timestamp)…`);
       signDmgNoTimestamp(identity, dmg);
+      verifyDmg(buildResult.outDir, dmg);
 
       // The notary submit + staple both contact Apple over the network and can
       // hit transient stalls — e.g. NSURLErrorDomain Code=-1001 "request timed
