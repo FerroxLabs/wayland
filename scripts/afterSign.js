@@ -1,6 +1,6 @@
 const { execSync } = require('child_process');
 const path = require('path');
-const { recordStage } = require('./intelNotaryDiagnostic');
+const { recordStage, preserveAcceptedZip } = require('./intelNotaryDiagnostic');
 const { runBounded, isNotaryStall, markNotaryStalled, submitToNotary, notaryRejectionError } = require('./signingExec');
 const { resolveDarwinSigningIdentity } = require('./signDarwinStagedBinary');
 
@@ -106,6 +106,10 @@ exports.default = async function afterSign(context) {
         );
       }
       throw failure;
+    }
+
+    if (classification.kind === 'accepted') {
+      preserveAcceptedZip(context.outDir || path.dirname(appOutDir), zipPath);
     }
 
     // Staple the ticket to the .app so Gatekeeper validates offline. `stapler`

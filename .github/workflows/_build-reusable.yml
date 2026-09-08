@@ -802,6 +802,8 @@ jobs:
           echo "notarization_status=build_failed" >> $GITHUB_OUTPUT
           exit $BUILD_EXIT_CODE
         env:
+          CUSTOM_DMGBUILD_PATH: ${{ inputs.intel_notary_diagnostic && github.ref == 'refs/heads/diagnose/intel-notary-018' && matrix.platform == 'macos-x64' && format('{0}/scripts/intelDmgbuildCheckedCopy.cjs', github.workspace) || '' }}
+          WAYLAND_DMG_DIAGNOSTIC_DIR: ${{ github.workspace }}/out/intel-notary-diagnostic
           WAYLAND_INTEL_NOTARY_DIAGNOSTIC: ${{ inputs.intel_notary_diagnostic && github.ref == 'refs/heads/diagnose/intel-notary-018' && matrix.platform == 'macos-x64' && '1' || '0' }}
           NODE_OPTIONS: '--max-old-space-size=8192'
           npm_config_arch: ${{ matrix.arch }}
@@ -961,6 +963,7 @@ jobs:
           name: intel-notary-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             out/intel-notary-diagnostic/*.json
+            out/intel-notary-diagnostic/*.zip
             out/*.dmg
             ${{ runner.temp }}/build.log
           if-no-files-found: warn

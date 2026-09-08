@@ -84,4 +84,21 @@ function verifyDmg(outDir, dmg, execute = execFileSync) {
     if (report.cleanupError) throw failure(`Intel diagnostic: mount cleanup failed: ${report.cleanupError}`);
   }
 }
-module.exports = { recordStage, verifyDmg };
+function preserveAcceptedZip(outDir, zipPath) {
+  if (!enabled()) return;
+  const destination = path.join(directory(outDir), 'Wayland-notary-accepted.zip');
+  fs.copyFileSync(zipPath, destination);
+  fs.writeFileSync(
+    path.join(directory(outDir), 'accepted-zip.json'),
+    JSON.stringify(
+      {
+        file: path.basename(destination),
+        sha256: crypto.createHash('sha256').update(fs.readFileSync(destination)).digest('hex'),
+        note: 'Exact Apple-accepted app archive before stapling; no signing or rearchiving.',
+      },
+      null,
+      2
+    ) + '\n'
+  );
+}
+module.exports = { recordStage, verifyDmg, preserveAcceptedZip };

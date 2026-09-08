@@ -84,3 +84,14 @@ test('hook integration verifies DMG before notary submission and records both ap
   assert.ok(afterSign.indexOf("appPath, 'post-sign'") < afterSign.indexOf('submitToNotary({'));
   assert.ok(afterSign.indexOf("['stapler', 'staple', appPath]") < afterSign.indexOf("appPath, 'post-staple'"));
 });
+
+test('accepted notary ZIP is preserved byte-for-byte outside the app', () => {
+  const f = setup();
+  const { preserveAcceptedZip } = require('../scripts/intelNotaryDiagnostic');
+  const source = path.join(f.root, 'accepted.zip');
+  const bytes = Buffer.from('Apple accepted archive fixture');
+  fs.writeFileSync(source, bytes);
+  preserveAcceptedZip(f.root, source);
+  assert.deepEqual(fs.readFileSync(path.join(f.root, 'intel-notary-diagnostic', 'Wayland-notary-accepted.zip')), bytes);
+  assert.ok(fs.existsSync(source));
+});
