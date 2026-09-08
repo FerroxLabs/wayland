@@ -980,7 +980,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       managedTempDir,
       model: mergedData.model,
       proxy: mergedData.proxy,
-      yoloMode: mergedData.yoloMode,
+      yoloMode: mergedData.yoloMode ?? this.currentMode === 'yolo',
       presetRules: effectivePresetRules,
       rawEngineMode,
       allowHostPathGrants: consentAtLaunch.length > 0,
@@ -1127,9 +1127,22 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     return run;
   }
 
+  /** Reconnect for inspection without declaring the interrupted turn settled. */
+  private async ensureRecoveryEngine(): Promise<void> {
+    await this.ensureBootstrap();
+    const stale = this.agent;
+    if (!stale || stale.isAlive || this.disposed) return;
+    this.startError = new Error('Wayland Core disconnected before recovery inspection');
+    // Root exit does not prove its descendants stopped. Keep the original
+    // identity and lease until the existing shutdown contract succeeds.
+    await this.stopEngineWithTreeProof(stale);
+    await this.releaseProfileLaunchLease();
+    await this.ensureBootstrap();
+  }
+
   async getTurnRecovery(): Promise<WCoreTurnRecoveryView> {
     return this.withRecoveryLock(async () => {
-      await this.ensureBootstrap();
+      await this.ensureRecoveryEngine();
       if (this.startError || !this.agent) {
         return { state: 'unavailable', reason: 'engine_unavailable', canAbandon: false };
       }
@@ -1139,7 +1152,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   async abandonInterruptedTurn(): Promise<WCoreTurnRecoveryView> {
     return this.withRecoveryLock(async () => {
-      await this.ensureBootstrap();
+      await this.ensureRecoveryEngine();
       if (this.startError || !this.agent) {
         return { state: 'unavailable', reason: 'engine_unavailable', canAbandon: false };
       }

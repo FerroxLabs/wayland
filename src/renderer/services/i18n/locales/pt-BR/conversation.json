@@ -553,6 +553,9 @@
     "notText": "O Wayland não consegue ler este arquivo como texto — alguns de seus bytes não são UTF-8 válido, que é o que o formato de configurações exige. Nada foi alterado."
   },
   "turnRecovery": {
+    "outcomeUnknown": "Resultado desconhecido",
+    "lastRecordedAction": "Última ação registrada: {{action}}",
+    "starting": "Preparing conversation…",
     "checkingTitle": "Checking interrupted work",
     "checking": "Asking Wayland Core whether this conversation can accept a new message…",
     "title": "An interrupted turn needs attention",

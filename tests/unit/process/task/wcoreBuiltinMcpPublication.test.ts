@@ -50,7 +50,7 @@ const h = vi.hoisted(() => ({
   launchLocalFlags: [] as Array<boolean | undefined>,
   resolveJsRuntime: vi.fn<() => ResolvedJsRuntime>(),
   runtimeServers: [] as IMcpServer[],
-  engineOptions: [] as Array<{ managedTempDir?: string }>,
+  engineOptions: [] as Array<{ managedTempDir?: string; yoloMode?: boolean }>,
   provisionTvControl: vi.fn(() => '/ws/.wayland-runtime/tmp'),
   repairStagedTideSkill: vi.fn(async () => {}),
 }));
@@ -219,9 +219,13 @@ const CORE_BUILTIN = server({
   transport: { type: 'stdio', command: 'node', args: [getMcpScriptPath('builtin-mcp-search-skills.js')], env: {} },
 });
 
-const startManager = async (activeIds = [APPLE.id, NPX.id, CORE_BUILTIN.id], workspace = '/ws') => {
+const startManager = async (
+  activeIds = [APPLE.id, NPX.id, CORE_BUILTIN.id],
+  workspace = '/ws',
+  sessionMode = 'default'
+) => {
   const manager = new WCoreManager(
-    { id: 'conv-1', workspace, activeMcpServers: activeIds } as never,
+    { id: 'conv-1', workspace, activeMcpServers: activeIds, sessionMode } as never,
     { name: 'm', useModel: 'm', platform: 'openai', baseUrl: '' } as never
   );
   // The constructor starts bootstrap too. Drain it before an explicit retry so
@@ -442,6 +446,11 @@ describe('TVControl workspace provisioning at the real manager launch boundary',
     await startManager([NPX.id]);
     expect(h.provisionTvControl).not.toHaveBeenCalled();
     expect(h.engineOptions.at(-1)?.managedTempDir).toBeUndefined();
+  });
+  it('passes the selected Autopilot mode to Core at startup', async () => {
+    await startManager(['tv'], '/ws', 'yolo');
+    expect(h.engineOptions.length).toBeGreaterThan(0);
+    expect(h.engineOptions.every((options) => options.yoloMode === true)).toBe(true);
   });
 });
 

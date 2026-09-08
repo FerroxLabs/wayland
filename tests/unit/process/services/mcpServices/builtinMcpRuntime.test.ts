@@ -74,7 +74,7 @@ const deps = (over: Record<string, unknown> = {}) => ({
 });
 
 describe('pinned TVControl uses the same bundled runtime in probes and sessions', () => {
-  const args = ['@ferroxlabs/tvcontrol@2.5.0'];
+  const args = ['@ferroxlabs/tvcontrol@2.5.1'];
   const entry = '/resources/bundled-tvcontrol/node_modules/@ferroxlabs/tvcontrol/src/server.js';
   it('resolves a catalog-owned declaration without npx or a user cache', () => {
     expect(
@@ -90,7 +90,7 @@ describe('pinned TVControl uses the same bundled runtime in probes and sessions'
     expect(
       resolveBuiltinMcpRuntimeSpawn(
         'npx',
-        ['@ferroxlabs/tvcontrol@2.4.6'],
+        ['@ferroxlabs/tvcontrol@2.4.5'],
         deps({ libraryEntryId: 'com.ferroxlabs/tvcontrol' })
       )
     ).toBeNull();

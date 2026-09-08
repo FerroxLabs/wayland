@@ -94,9 +94,6 @@ vi.mock('@renderer/hooks/useProviderReadiness', async (importOriginal) => {
   return { ...actual, useProviderReadiness: () => ({ ready: true, loading: false }) };
 });
 vi.mock('@renderer/hooks/useFluxConnected', () => ({ useFluxConnected: () => false }));
-vi.mock('@renderer/hooks/context/ConversationContext', () => ({
-  ConversationProvider: ({ children }: React.PropsWithChildren) => <>{children}</>,
-}));
 vi.mock('@renderer/pages/conversation/platforms/acp/acpAuthFailure', () => ({ getAcpAuthRemedy: () => null }));
 vi.mock('@renderer/pages/conversation/platforms/acp/acpFluxFailover', () => ({ routeThroughFluxAndReplay: vi.fn() }));
 vi.mock('@renderer/pages/conversation/components/ConversationChatConfirm', () => ({

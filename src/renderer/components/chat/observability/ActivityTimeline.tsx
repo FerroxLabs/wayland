@@ -23,8 +23,9 @@ import {
   stepDurationSec,
   type ActivityStep,
 } from '@/common/chat/activity/activityStep';
+import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { Badge, Tag } from '@arco-design/web-react';
-import { Check, Close, Right } from '@icon-park/react';
+import { Check, Close, Right, Help } from '@icon-park/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SourceBlock from './SourceBlock';
@@ -66,18 +67,19 @@ const StepGlyph: React.FC<{ status: ActivityStep['status'] }> = ({ status }) => 
 const StepRow: React.FC<{ step: ActivityStep }> = ({ step }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const interrupted = useConversationContextSafe()?.executionInterrupted === true && step.status === 'running';
 
-  const hasDetail = Boolean(step.detail && step.detail.length);
+  const hasDetail = interrupted || Boolean(step.detail && step.detail.length);
   const hasChildren = Boolean(step.children && step.children.length);
   const hasSources = Boolean(step.sources && step.sources.length);
   const expandable = hasDetail || hasChildren || hasSources;
   const toggle = (): void => setOpen((v) => !v);
 
   const showAgentTag = step.kind === 'sub_agent' || Boolean(step.agent);
-  const duration = formatDuration(stepDurationSec(step));
+  const duration = interrupted ? '' : formatDuration(stepDurationSec(step));
 
   return (
-    <div className={styles.step} data-step-status={step.status} data-step-kind={step.kind}>
+    <div className={styles.step} data-step-status={interrupted ? 'unknown' : step.status} data-step-kind={step.kind}>
       <div
         className={styles.stepHead}
         onClick={expandable ? toggle : undefined}
@@ -87,9 +89,11 @@ const StepRow: React.FC<{ step: ActivityStep }> = ({ step }) => {
         aria-expanded={expandable ? open : undefined}
       >
         <span className={styles.glyph}>
-          <StepGlyph status={step.status} />
+          {interrupted ? <Help size='14' aria-hidden='true' /> : <StepGlyph status={step.status} />}
         </span>
-        <span className={`${styles.label} ${step.status === 'running' ? styles.labelActive : ''}`}>{step.label}</span>
+        <span className={`${styles.label} ${step.status === 'running' && !interrupted ? styles.labelActive : ''}`}>
+          {interrupted ? t('conversation.turnRecovery.outcomeUnknown') : step.label}
+        </span>
         <span className={styles.meta}>
           {showAgentTag && step.agent && (
             <Tag size='small' color='arcoblue' className={styles.agentTag}>
@@ -106,7 +110,12 @@ const StepRow: React.FC<{ step: ActivityStep }> = ({ step }) => {
 
       {open && hasDetail && (
         <div className={styles.detailRail}>
-          <p className={styles.detailText}>{step.detail}</p>
+          {interrupted && (
+            <p className={styles.detailText}>
+              {t('conversation.turnRecovery.lastRecordedAction', { action: step.label })}
+            </p>
+          )}
+          {step.detail && <p className={styles.detailText}>{step.detail}</p>}
         </div>
       )}
       {open && hasChildren && (
@@ -132,20 +141,22 @@ const StepRow: React.FC<{ step: ActivityStep }> = ({ step }) => {
 
 const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
   const { t } = useTranslation();
-  const status = rollupStatus(steps);
+  const recordedStatus = rollupStatus(steps);
+  const interrupted = useConversationContextSafe()?.executionInterrupted === true && recordedStatus === 'running';
+  const status = interrupted ? 'unknown' : recordedStatus;
   const running = status === 'running';
 
-  const [expanded, setExpanded] = useState(defaultExpanded ?? running);
+  const [expanded, setExpanded] = useState(defaultExpanded ?? (running || interrupted));
 
   // Edge-triggered auto-collapse: collapse exactly once on the
   // was-running -> all-done transition. Never fight a user who re-expands.
   const prevHadRunning = useRef(running);
   useEffect(() => {
-    if (prevHadRunning.current && !running) {
+    if (prevHadRunning.current && !running && !interrupted) {
       setExpanded(false);
     }
     prevHadRunning.current = running;
-  }, [running]);
+  }, [running, interrupted]);
 
   if (steps.length === 0) return null;
 
@@ -172,7 +183,7 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
     );
   }
 
-  const runningCount = steps.filter((s) => s.status === 'running').length;
+  const runningCount = interrupted ? 0 : steps.filter((s) => s.status === 'running').length;
   const toggle = (): void => setExpanded((v) => !v);
 
   const headerStatus = running ? 'processing' : status === 'failed' ? 'error' : 'success';
@@ -232,7 +243,12 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
         tabIndex={0}
         aria-expanded={expanded}
       >
-        {running ? (
+        {interrupted ? (
+          <>
+            <Help size='15' aria-hidden='true' />
+            <span className={styles.summaryText}>{t('conversation.turnRecovery.outcomeUnknown')}</span>
+          </>
+        ) : running ? (
           <>
             <span className={styles.heartbeat} aria-hidden='true' />
             <Badge status={headerStatus} />

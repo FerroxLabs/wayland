@@ -61,6 +61,8 @@ export interface ResolvedJsRuntime {
 }
 
 export interface JsRuntimeInputs {
+  /** Bundled connectors use their shipped runtime in complete development builds too. */
+  preferBundled?: boolean;
   /** Is the app packaged? When packaged, the RunAsNode fuse is off. */
   isPackaged: boolean;
   /** Full path to the bundled Bun binary, or null if unavailable. */
@@ -80,6 +82,9 @@ export interface JsRuntimeInputs {
  *   3. packaged + no bundled Bun → a repairable installation error.
  */
 export function resolveJsRuntimeWith(inputs: JsRuntimeInputs): ResolvedJsRuntime {
+  if (inputs.preferBundled && inputs.bundledBunPath) {
+    return { command: inputs.bundledBunPath, env: {}, kind: 'bundled-bun' };
+  }
   if (!inputs.isPackaged) {
     return { command: inputs.execPath, env: { ELECTRON_RUN_AS_NODE: '1' }, kind: 'electron-node' };
   }
@@ -98,13 +103,14 @@ function bunBinaryName(platform: NodeJS.Platform): string {
  * Resolve the JS runtime for the current process. Reads real process/platform
  * state and defers to {@link resolveJsRuntimeWith} for the decision.
  */
-export function resolveJsRuntime(): ResolvedJsRuntime {
+export function resolveJsRuntime(options: { preferBundled?: boolean } = {}): ResolvedJsRuntime {
   const isPackaged = getPlatformServices().paths.isPackaged();
   // Only resolve the bundled Bun when it can actually be used (packaged). This
   // keeps the dev/test path off the filesystem and off getBundledBunDir.
-  const bunDir = isPackaged ? getBundledBunDir() : null;
+  const bunDir = isPackaged || options.preferBundled ? getBundledBunDir() : null;
   const bundledBunPath = bunDir ? path.join(bunDir, bunBinaryName(process.platform)) : null;
   return resolveJsRuntimeWith({
+    preferBundled: options.preferBundled,
     isPackaged,
     bundledBunPath,
     execPath: process.execPath,

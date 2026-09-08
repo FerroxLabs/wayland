@@ -16,7 +16,7 @@ import {
   isBuiltinImageGenName,
   isBuiltinImageGenTransport,
 } from '@process/resources/builtinMcp/constants';
-import { safeExecFile, execErrorDetail } from '@process/utils/safeExec';
+import { execErrorDetail } from '@process/utils/safeExec';
 import { cliSafeMcpServerName } from '../validateMcpServer';
 import { validateMcpEnvEntry } from '../validateMcpServer';
 import {
@@ -237,8 +237,9 @@ export class CodexMcpAgent extends AbstractMcpAgent {
   detectMcpServers(_cliPath?: string): Promise<IMcpServer[]> {
     const detectOperation = async () => {
       try {
-        const { stdout: result } = await safeExecFile('codex', ['mcp', 'list', '--json'], {
+        const { stdout: result } = await runAgentCli('codex', ['mcp', 'list', '--json'], {
           timeout: this.timeout,
+          retries: 0,
           ...getExecEnv(),
         });
 

@@ -17,6 +17,7 @@ import type { WCoreTurnRecoveryView } from '@/process/agent/wcore/protocol';
 
 function managerWith(recovery: WCoreTurnRecoveryView) {
   const agent = {
+    isAlive: true,
     getTurnRecovery: vi.fn().mockResolvedValue(recovery),
     abandonInterruptedTurn: vi.fn().mockResolvedValue(recovery),
   };
@@ -38,6 +39,46 @@ function managerWith(recovery: WCoreTurnRecoveryView) {
 }
 
 describe('WCoreManager interrupted-turn admission', () => {
+  it('restarts a dead engine only after its tree and profile lease are released', async () => {
+    const { manager, agent: replacement } = managerWith({ state: 'healthy', canAbandon: false });
+    const events: string[] = [];
+    const stale = {
+      isAlive: false,
+      kill: vi.fn(async () => {
+        events.push('tree-stopped');
+      }),
+    };
+    const state = manager as unknown as Record<string, unknown>;
+    state.agent = stale;
+    state.releaseProfileLease = vi.fn(async () => {
+      events.push('lease-released');
+    });
+    state.ensureBootstrap = vi.fn(async () => {
+      if (!state.agent && state.startError) {
+        events.push('restart');
+        state.agent = replacement;
+        state.startError = null;
+      }
+    });
+
+    await expect(manager.getTurnRecovery()).resolves.toEqual({ state: 'healthy', canAbandon: false });
+    expect(events).toEqual(['tree-stopped', 'lease-released', 'restart']);
+    expect(replacement.getTurnRecovery).toHaveBeenCalledOnce();
+  });
+
+  it('does not respawn or release the profile when dead-engine tree shutdown fails', async () => {
+    const { manager } = managerWith({ state: 'healthy', canAbandon: false });
+    const state = manager as unknown as Record<string, unknown>;
+    const stale = { isAlive: false, kill: vi.fn().mockRejectedValue(new Error('tree shutdown unproved')) };
+    const release = vi.fn();
+    state.agent = stale;
+    state.releaseProfileLease = release;
+
+    await expect(manager.getTurnRecovery()).rejects.toThrow('tree shutdown unproved');
+    expect(release).not.toHaveBeenCalled();
+    expect(state.agent).toBe(stale);
+  });
+
   it('blocks an ordinary send while a recoverable interrupted turn exists', async () => {
     const { manager } = managerWith({
       state: 'interrupted',

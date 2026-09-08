@@ -553,6 +553,9 @@
     "notText": "Wayland가 이 파일을 텍스트로 읽을 수 없습니다. 설정 파일 형식이 요구하는 UTF-8로 유효하지 않은 바이트가 들어 있습니다. 아무것도 변경하지 않았습니다."
   },
   "turnRecovery": {
+    "outcomeUnknown": "결과 알 수 없음",
+    "lastRecordedAction": "마지막으로 기록된 작업: {{action}}",
+    "starting": "Preparing conversation…",
     "checkingTitle": "Checking interrupted work",
     "checking": "Asking Wayland Core whether this conversation can accept a new message…",
     "title": "An interrupted turn needs attention",

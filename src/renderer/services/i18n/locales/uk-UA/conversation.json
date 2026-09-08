@@ -553,6 +553,9 @@
     "notText": "Wayland не може прочитати цей файл як текст — частина його байтів не є коректним UTF-8, який вимагає формат налаштувань. Нічого не змінено."
   },
   "turnRecovery": {
+    "outcomeUnknown": "Результат невідомий",
+    "lastRecordedAction": "Остання записана дія: {{action}}",
+    "starting": "Preparing conversation…",
     "checkingTitle": "Checking interrupted work",
     "checking": "Asking Wayland Core whether this conversation can accept a new message…",
     "title": "An interrupted turn needs attention",

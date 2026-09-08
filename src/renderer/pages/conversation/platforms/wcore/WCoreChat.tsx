@@ -137,6 +137,8 @@ const WCoreChat: React.FC<{
     });
   }, [conversation_id, t]);
 
+  const executionInterrupted = turnRecovery?.state === 'interrupted' || turnRecovery?.state === 'unavailable';
+
   const recoveryBlocked =
     recoveryLoading ||
     recoveryActionPending ||
@@ -298,11 +300,19 @@ const WCoreChat: React.FC<{
       conversationId: conversation_id,
       workspace,
       type: 'wcore',
+      executionInterrupted,
       workflowSessionId,
       workflowTotalSteps,
       workflowApplyStepMarker,
     };
-  }, [conversation_id, workspace, workflowSessionId, workflowTotalSteps, workflowApplyStepMarker]);
+  }, [
+    conversation_id,
+    workspace,
+    workflowSessionId,
+    workflowTotalSteps,
+    workflowApplyStepMarker,
+    executionInterrupted,
+  ]);
 
   return (
     <ConversationProvider value={conversationValue}>
@@ -316,7 +326,11 @@ const WCoreChat: React.FC<{
         <div className='flex-1 flex relative min-h-0'>
           <div className='flex flex-1 flex-col px-20px min-h-0 min-w-0'>
             <FlexFullContainer>
-              <MessageList className='flex-1' emptySlot={emptySlot} isProcessing={isProcessing} />
+              <MessageList
+                className='flex-1'
+                emptySlot={emptySlot}
+                isProcessing={isProcessing && !executionInterrupted}
+              />
             </FlexFullContainer>
             {activationPrompt && (
               <div className='max-w-800px w-full mx-auto mb-8px'>
@@ -393,6 +407,7 @@ const WCoreChat: React.FC<{
                 sessionMode={sessionMode}
                 onRunningChange={setIsProcessing}
                 recoveryBlocked={recoveryBlocked}
+                recoveryChecking={recoveryLoading && turnRecovery?.state !== 'interrupted'}
               />
             </ConversationChatConfirm>
           </div>

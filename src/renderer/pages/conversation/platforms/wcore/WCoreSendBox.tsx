@@ -118,7 +118,17 @@ const WCoreSendBox: React.FC<{
   onRunningChange?: (running: boolean) => void;
   /** Main has not yet proved this durable Core session can accept another turn. */
   recoveryBlocked?: boolean;
-}> = ({ conversation_id, modelSelection, teamId, agentSlotId, sessionMode, onRunningChange, recoveryBlocked }) => {
+  recoveryChecking?: boolean;
+}> = ({
+  conversation_id,
+  modelSelection,
+  teamId,
+  agentSlotId,
+  sessionMode,
+  onRunningChange,
+  recoveryBlocked,
+  recoveryChecking,
+}) => {
   const [workspacePath, setWorkspacePath] = useState('');
   const [dynamicModes, setDynamicModes] = useState<AgentModeOption[]>([]);
   // The most recent turn dispatched, kept so the Flux failover can replay it.
@@ -626,11 +636,13 @@ const WCoreSendBox: React.FC<{
         loading={isBusy}
         disabled={recoveryBlocked || (!currentModel?.useModel && !engineAsleep)}
         placeholder={
-          recoveryBlocked
-            ? t('conversation.turnRecovery.sendBlocked')
-            : currentModel?.useModel
-              ? t('conversation.chat.sendMessageTo', { model: getDisplayModelName(currentModel.useModel) })
-              : t('conversation.chat.noModelSelected')
+          recoveryChecking
+            ? t('conversation.turnRecovery.starting')
+            : recoveryBlocked
+              ? t('conversation.turnRecovery.sendBlocked')
+              : currentModel?.useModel
+                ? t('conversation.chat.sendMessageTo', { model: getDisplayModelName(currentModel.useModel) })
+                : t('conversation.chat.noModelSelected')
         }
         onStop={handleStop}
         className='z-10'

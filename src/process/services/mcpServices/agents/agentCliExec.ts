@@ -7,6 +7,7 @@
 import { execErrorDetail, safeExecFile } from '@process/utils/safeExec';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { agentConfigCliEnv } from '../agentConfigRoot';
+import { resolveWindowsNpmAgent } from './windowsAgentCli';
 
 type ExecResult = { stdout: string; stderr: string };
 
@@ -111,12 +112,33 @@ export async function runAgentCli(
   const env = options.env ?? agentCliEnv();
 
   let lastError: unknown;
+  let executable = file;
+  let argv = args;
+  let resolvedWindowsShim = false;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      return await safeExecFile(file, args, { timeout, env });
+      return await safeExecFile(executable, argv, { timeout, env });
     } catch (error) {
-      lastError = error;
-      if (!isAgentCliTimeout(error) || attempt === retries) throw error;
+      let failure = error;
+      // Windows PATH detection sees npm's .cmd shim, but shell:false cannot
+      // execute it. Resolve its declared package bin only after that spawn
+      // failure; preserve literal argv and the scoped configuration environment.
+      const code = (error as NodeJS.ErrnoException).code;
+      if (!resolvedWindowsShim && process.platform === 'win32' && (code === 'ENOENT' || code === 'EINVAL')) {
+        resolvedWindowsShim = true;
+        const resolved = await resolveWindowsNpmAgent(file, env);
+        if (resolved) {
+          executable = resolved.file;
+          argv = [resolved.script, ...args];
+          try {
+            return await safeExecFile(executable, argv, { timeout, env });
+          } catch (resolvedError) {
+            failure = resolvedError;
+          }
+        }
+      }
+      lastError = failure;
+      if (!isAgentCliTimeout(failure) || attempt === retries) throw failure;
       console.warn(
         `[mcp] ${file} ${args[0] ?? ''} ${args[1] ?? ''} timed out after ${timeout}ms; retrying once in ${MCP_AGENT_CLI_RETRY_BACKOFF_MS}ms`
       );

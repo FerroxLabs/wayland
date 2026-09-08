@@ -555,6 +555,9 @@
     "notText": "Wayland bu dosyayı metin olarak okuyamıyor — bazı baytları, ayar biçiminin gerektirdiği geçerli UTF-8 değil. Hiçbir şey değiştirilmedi."
   },
   "turnRecovery": {
+    "outcomeUnknown": "Sonuç bilinmiyor",
+    "lastRecordedAction": "Son kaydedilen işlem: {{action}}",
+    "starting": "Preparing conversation…",
     "checkingTitle": "Checking interrupted work",
     "checking": "Asking Wayland Core whether this conversation can accept a new message…",
     "title": "An interrupted turn needs attention",

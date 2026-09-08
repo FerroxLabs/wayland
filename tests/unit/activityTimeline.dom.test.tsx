@@ -25,6 +25,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+import { ConversationProvider } from '@/renderer/hooks/context/ConversationContext';
 import type { ActivityStep } from '@/common/chat/activity/activityStep';
 import ActivityTimeline from '@/renderer/components/chat/observability/ActivityTimeline';
 
@@ -38,6 +39,27 @@ const step = (over: Partial<ActivityStep> & Pick<ActivityStep, 'id' | 'label'>):
 });
 
 describe('ActivityTimeline', () => {
+  it('shows an unknown outcome after recovery without changing the recorded tool status', () => {
+    const pending = Object.freeze(
+      step({ id: 'sleep', label: 'Running sleep 120', status: 'running', endTime: undefined })
+    );
+    const { container, rerender } = render(
+      <ConversationProvider value={{ conversationId: 'c1', type: 'wcore', executionInterrupted: false }}>
+        <ActivityTimeline steps={[pending]} />
+      </ConversationProvider>
+    );
+    expect(container.querySelector('[data-step-status="running"]')).toBeTruthy();
+    rerender(
+      <ConversationProvider value={{ conversationId: 'c1', type: 'wcore', executionInterrupted: true }}>
+        <ActivityTimeline steps={[pending]} />
+      </ConversationProvider>
+    );
+    expect(container.querySelector('[data-step-status="unknown"]')).toBeTruthy();
+    expect(container.querySelector('[class*="spinner"]')).toBeNull();
+    expect(screen.queryByText('Running sleep 120')).toBeNull();
+    expect(pending.status).toBe('running');
+  });
+
   it('renders collapsed with a "Did N things" summary when all steps are done', () => {
     render(
       <ActivityTimeline
