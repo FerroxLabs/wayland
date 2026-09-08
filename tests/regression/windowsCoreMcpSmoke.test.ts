@@ -13,7 +13,7 @@ const {
   ownedSnapshot,
   runStartup,
   runGate,
-} = require('../../../scripts/windowsCoreMcpSmoke.cjs');
+} = require('../../scripts/lib/windowsCoreMcpSmoke.cjs');
 
 const tools = Array.from({ length: 113 }, (_, i) => `tool_${i}`);
 function fixture(events: unknown[], options: { noExit?: boolean; survivor?: boolean } = {}) {

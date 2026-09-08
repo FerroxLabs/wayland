@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { load } from 'js-yaml';
 import { describe, expect, it } from 'vitest';
@@ -8,6 +9,17 @@ const build = fs.readFileSync('.github/workflows/_build-reusable.yml', 'utf8');
 const { minimatch } = createRequire(import.meta.url)('minimatch');
 
 describe('release packaging reuse boundaries', () => {
+  it.skipIf(process.platform === 'win32')('executes the Mac packaging capacity regressions in CI', () => {
+    const result = spawnSync('python3', ['-B', 'tests/regression/test_dmgbuild_checked_copy.py'], {
+      encoding: 'utf8',
+      timeout: 10000,
+    });
+    const output = `${result.stdout}\n${result.stderr}`;
+    expect(result.status, output).toBe(0);
+    expect(output).toMatch(/Ran [1-9]\d* tests/);
+    expect(output).toMatch(/\bOK\b/);
+  });
+
   it('reports failed-only retries after completion instead of self-rerunning the producer', () => {
     expect(release).not.toContain('auto-retry-workflow:');
     expect(release).not.toContain('/rerun)');

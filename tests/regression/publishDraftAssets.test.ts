@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 import { describe, expect, it, vi } from 'vitest';
 
-const helper = createRequire(import.meta.url)('../../../scripts/publishDraftAssets.cjs');
+const helper = createRequire(import.meta.url)('../../scripts/lib/publishDraftAssets.cjs');
 const local = { name: 'Wayland.zip', size: 10, sha256: 'a'.repeat(64) };
 const remote = { ...local, id: 1, digest: `sha256:${local.sha256}` };
 

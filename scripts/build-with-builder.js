@@ -14,7 +14,7 @@ const { execFileSync, execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { allowsDmgRecovery, configureDmgEnvironment, deterministicDmgFailure } = require('./macDmgPackaging.cjs');
+const { allowsDmgRecovery, configureDmgEnvironment, deterministicDmgFailure } = require('./lib/macDmgPackaging.cjs');
 const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareWaylandNano = require('./prepareWaylandNano');
@@ -942,7 +942,7 @@ try {
       }
       execFileSync(
         process.execPath,
-        [path.join(__dirname, 'windowsCoreMcpSmoke.cjs'), path.resolve(__dirname, '..', 'resources'), arch],
+        [path.join(__dirname, 'lib/windowsCoreMcpSmoke.cjs'), path.resolve(__dirname, '..', 'resources'), arch],
         { stdio: 'inherit', timeout: 180000 }
       );
     }

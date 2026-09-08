@@ -322,13 +322,13 @@ jobs:
           RELEASE_TAG: ${{ steps.version.outputs.tag_name }}
           RELEASE_NAME: ${{ steps.version.outputs.is_dev == 'true' && format('Development Build {0}', steps.version.outputs.tag_name) || steps.version.outputs.tag_name }}
           RELEASE_PRERELEASE: ${{ steps.version.outputs.is_dev == 'true' || contains(steps.version.outputs.tag_name, 'beta') || contains(steps.version.outputs.tag_name, 'alpha') || contains(steps.version.outputs.tag_name, 'rc') }}
-        run: node scripts/publishDraftAssets.cjs prepare --repository "$GITHUB_REPOSITORY" --tag "$RELEASE_TAG" --commit "$GITHUB_SHA" --name "$RELEASE_NAME" --prerelease "$RELEASE_PRERELEASE"
+        run: node scripts/lib/publishDraftAssets.cjs prepare --repository "$GITHUB_REPOSITORY" --tag "$RELEASE_TAG" --commit "$GITHUB_SHA" --name "$RELEASE_NAME" --prerelease "$RELEASE_PRERELEASE"
 
       - name: Upload only missing immutable draft assets
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           RELEASE_TAG: ${{ steps.version.outputs.tag_name }}
-        run: node scripts/publishDraftAssets.cjs upload --repository "$GITHUB_REPOSITORY" --tag "$RELEASE_TAG" --commit "$GITHUB_SHA" --dir release-assets
+        run: node scripts/lib/publishDraftAssets.cjs upload --repository "$GITHUB_REPOSITORY" --tag "$RELEASE_TAG" --commit "$GITHUB_SHA" --dir release-assets
 
   # 发布前体检：在草稿发布上对真实下载件跑用户路径校验，绿了才公开。
   # The release above is created as a DRAFT. This gate downloads the draft's real

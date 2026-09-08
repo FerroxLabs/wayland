@@ -6,7 +6,7 @@ const os = require('node:os');
 const crypto = require('node:crypto');
 const { execFileSync, spawnSync } = require('node:child_process');
 const yaml = require('js-yaml');
-const { resolvePackagedTarget, verifyPackagedResources } = require('./verify-packaged-resources');
+const { resolvePackagedTarget, verifyPackagedResources } = require('../verify-packaged-resources');
 
 const CONTRACT = 'wayland-mac-release-checkpoint/1';
 const archiveScript = path.join(__dirname, 'macReleaseCheckpointArchive.py');
@@ -160,7 +160,7 @@ function inspectCheckpoint(checkpoint, expected, attempt, restoring = false) {
 }
 
 function prepareVerificationSource(expected, prepare) {
-  const materialize = prepare || require('./build-with-builder.js').prepareWhatsAppBridgeResources;
+  const materialize = prepare || require('../build-with-builder.js').prepareWhatsAppBridgeResources;
   return materialize({ platform: 'darwin', arch: expected.arch, verificationOnly: true });
 }
 

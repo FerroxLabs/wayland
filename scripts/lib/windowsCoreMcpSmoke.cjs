@@ -243,7 +243,7 @@ async function runGate(options) {
   if (platform !== 'win32' || process.platform !== 'win32' || arch !== process.arch)
     throw new Error('UNSUPPORTED: requires the native Windows target architecture');
   if (arch !== 'x64') throw new Error('UNSUPPORTED: early probe requires native win32-x64');
-  const { verifyTvControl } = require('./prepareTvControl.js');
+  const { verifyTvControl } = require('../prepareTvControl.js');
   const sourceCore = options.coreBinary || path.join(resources, `bundled-wayland-core/win32-${arch}/wayland-core.exe`);
   const sourceBun = path.join(resources, `bundled-bun/win32-${arch}/bun.exe`);
   const sourceTv = path.join(resources, 'bundled-tvcontrol');
@@ -282,18 +282,19 @@ async function runGate(options) {
 
 async function main() {
   const [resources, arch] = process.argv.slice(2);
-  const prepareCore = require('./prepareWaylandCore.js');
-  const prepareBun = require('./prepareBundledBun.js');
+  const prepareCore = require('../prepareWaylandCore.js');
+  const prepareBun = require('../prepareBundledBun.js');
   const version = prepareCore.DEFAULT_WCORE_VERSION;
   const triple = arch === 'arm64' ? 'aarch64' : 'x86_64';
-  const corePin =
-    require('./bundled-wcore-shasums.json')[version]?.[`wayland-core-${version}-${triple}-pc-windows-msvc.zip`];
-  const bunPins = require('./bundled-bun-binaries.json')[prepareBun.PINNED_BUN_VERSION];
+  const corePin = require('../bundled-wcore-shasums.json')[version]?.[
+    `wayland-core-${version}-${triple}-pc-windows-msvc.zip`
+  ];
+  const bunPins = require('../bundled-bun-binaries.json')[prepareBun.PINNED_BUN_VERSION];
   const asset = prepareBun.getPlatformAsset('win32', arch);
-  const tvAuthority = require('./tvcontrol/authority.json');
+  const tvAuthority = require('../tvcontrol/authority.json');
   const fixture = JSON.parse(
     fs.readFileSync(
-      path.join(__dirname, '..', 'tests', 'fixtures', `tvcontrol-${tvAuthority.version}-tools.json`),
+      path.join(__dirname, '..', '..', 'tests', 'fixtures', `tvcontrol-${tvAuthority.version}-tools.json`),
       'utf8'
     )
   );

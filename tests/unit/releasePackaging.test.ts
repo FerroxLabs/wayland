@@ -377,7 +377,7 @@ const {
   allowsDmgRecovery,
   configureDmgEnvironment,
   deterministicDmgFailure,
-} = require('../../scripts/macDmgPackaging.cjs');
+} = require('../../scripts/lib/macDmgPackaging.cjs');
 describe('macOS DMG recovery admission', () => {
   it('never turns a ZIP-only or directory-only build into a DMG build', () => {
     expect(allowsDmgRecovery('--mac zip --x64')).toBe(false);

@@ -7,7 +7,7 @@ import { createRequire } from 'node:module';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const helper = require('../../../scripts/macReleaseCheckpoint.cjs');
+const helper = require('../../scripts/lib/macReleaseCheckpoint.cjs');
 const yaml = require('js-yaml');
 const roots: string[] = [];
 afterEach(() => {
@@ -72,7 +72,7 @@ describe('opaque Mac release checkpoints', () => {
       outer,
       f.checkpoint,
     ]);
-    const script = path.resolve('scripts/macReleaseCheckpointArchive.py');
+    const script = path.resolve('scripts/lib/macReleaseCheckpointArchive.py');
     expect(() =>
       execFileSync('python3', [script, 'unwrap', outer, restored, `sha256:${'0'.repeat(64)}`], { stdio: 'pipe' })
     ).toThrow();

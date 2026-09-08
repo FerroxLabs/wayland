@@ -787,8 +787,8 @@ jobs:
           checkpoint_dir="$RUNNER_TEMP/mac-release-checkpoint"
           mkdir -p "$checkpoint_dir"
           gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" > "$checkpoint_dir/download.zip"
-          python3 scripts/macReleaseCheckpointArchive.py unwrap "$checkpoint_dir/download.zip" "$checkpoint_dir/checkpoint.tar" "$artifact_digest"
-          node scripts/macReleaseCheckpoint.cjs restore --arch "${{ matrix.arch }}" --out out --checkpoint "$checkpoint_dir/checkpoint.tar"
+          python3 scripts/lib/macReleaseCheckpointArchive.py unwrap "$checkpoint_dir/download.zip" "$checkpoint_dir/checkpoint.tar" "$artifact_digest"
+          node scripts/lib/macReleaseCheckpoint.cjs restore --arch "${{ matrix.arch }}" --out out --checkpoint "$checkpoint_dir/checkpoint.tar"
           echo "restored=true" >> "$GITHUB_OUTPUT"
 
       - name: Build with electron-builder (macOS)
@@ -864,7 +864,7 @@ jobs:
         if: startsWith(matrix.platform, 'macos') && inputs.mac_release_checkpoints && steps.mac-checkpoint.outputs.restored != 'true'
         env:
           WAYLAND_MAC_TEAM_ID: ${{ secrets.TEAM_ID }}
-        run: node scripts/macReleaseCheckpoint.cjs save --arch "${{ matrix.arch }}" --out out --checkpoint "$RUNNER_TEMP/mac-release-checkpoint/checkpoint.tar"
+        run: node scripts/lib/macReleaseCheckpoint.cjs save --arch "${{ matrix.arch }}" --out out --checkpoint "$RUNNER_TEMP/mac-release-checkpoint/checkpoint.tar"
 
       - name: Preserve immutable Mac release checkpoint
         if: startsWith(matrix.platform, 'macos') && inputs.mac_release_checkpoints && steps.mac-checkpoint.outputs.restored != 'true'
@@ -878,13 +878,13 @@ jobs:
       - name: Construct DMG from the verified app only
         if: startsWith(matrix.platform, 'macos') && inputs.mac_release_checkpoints
         env: *mac_build_env
-        run: node scripts/packageMacDmg.cjs --app "${{ steps.mac-checkpoint.outputs.app_path || steps.mac-checkpoint-save.outputs.app_path }}" --arch "${{ matrix.arch }}" --out out
+        run: node scripts/lib/packageMacDmg.cjs --app "${{ steps.mac-checkpoint.outputs.app_path || steps.mac-checkpoint-save.outputs.app_path }}" --arch "${{ matrix.arch }}" --out out
 
       - name: Preserve ZIP and merge post-staple DMG update metadata
         if: startsWith(matrix.platform, 'macos') && inputs.mac_release_checkpoints
         env:
           WAYLAND_MAC_TEAM_ID: ${{ secrets.TEAM_ID }}
-        run: node scripts/macReleaseCheckpoint.cjs finalize --arch "${{ matrix.arch }}" --out out --checkpoint "$RUNNER_TEMP/mac-release-checkpoint/checkpoint.tar" --app "${{ steps.mac-checkpoint.outputs.app_path || steps.mac-checkpoint-save.outputs.app_path }}"
+        run: node scripts/lib/macReleaseCheckpoint.cjs finalize --arch "${{ matrix.arch }}" --out out --checkpoint "$RUNNER_TEMP/mac-release-checkpoint/checkpoint.tar" --app "${{ steps.mac-checkpoint.outputs.app_path || steps.mac-checkpoint-save.outputs.app_path }}"
 
       # Post-build: repair the macOS update feed. electron-builder computes the
       # dmg's sha512/size at artifact-created time — BEFORE notarizeDmg staples

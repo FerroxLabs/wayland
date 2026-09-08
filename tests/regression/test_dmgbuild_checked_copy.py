@@ -8,7 +8,7 @@ import tempfile
 import types
 import unittest
 
-SPEC = importlib.util.spec_from_file_location("checked_copy", Path(__file__).parent.parent / "scripts/dmgbuild_checked_copy.py")
+SPEC = importlib.util.spec_from_file_location("checked_copy", Path(__file__).resolve().parents[2] / "scripts/lib/dmgbuild_checked_copy.py")
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 
