@@ -837,7 +837,7 @@ jobs:
     # Hold this incident release for real Mac/SeanDesktop report acceptance.
     # Approve only after testing these exact draft installers; never rebuild
     # or replace accepted artifacts between that test and publication.
-    environment: ${{ github.ref == 'refs/tags/v0.12.17' && 'masterclass-0.12.17' || 'release' }}
+    environment: ${{ github.ref == 'refs/tags/v0.12.18' && 'masterclass-0.12.18' || github.ref == 'refs/tags/v0.12.17' && 'masterclass-0.12.17' || 'release' }}
     runs-on: ubuntu-latest
     needs: [release-smoke-gate, release-smoke-gate-windows, final-release-acceptance]
     if: |

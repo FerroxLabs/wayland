@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import type { TMessage } from '@/common/chat/chatLib';
 import { selectCanonicalRunSnapshot, type ExecutionBackend, type ExecutionSeed } from '@/common/execution';
 import { useBackendExecutionSnapshot } from '@/renderer/hooks/execution';
@@ -67,6 +68,7 @@ const ExecutionSpine: React.FC<{
 }> = ({ backend, conversationId, workspaceId, projectId, agentId, children }) => {
   const { t } = useTranslation();
   const messages = useMessageList();
+  const executionInterrupted = useConversationContextSafe()?.executionInterrupted === true;
   const turnId = latestTurnId(messages, conversationId);
   const scheduled = isScheduledConversation(messages);
   const seed = useMemo<ExecutionSeed>(
@@ -195,7 +197,7 @@ const ExecutionSpine: React.FC<{
               Truncation is `truncate`, which needs the `min-w-0` beside it to
               survive a flex parent.
           */}
-          {!settled && (
+          {!settled && !executionInterrupted && (
             <div
               className='mx-20px mt-8px flex items-center gap-10px rd-8px bg-fill-1 b-1 b-solid b-[var(--border-light)] px-12px py-8px'
               data-testid='execution-thread-summary'

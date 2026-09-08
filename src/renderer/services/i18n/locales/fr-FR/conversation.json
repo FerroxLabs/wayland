@@ -553,6 +553,9 @@
     "notText": "Wayland ne peut pas lire ce fichier comme du texte : certains de ses octets ne sont pas de l’UTF-8 valide, ce qu’exige le format des réglages. Rien n’a été modifié."
   },
   "turnRecovery": {
+    "outcomeUnknown": "Résultat inconnu",
+    "lastRecordedAction": "Dernière action enregistrée : {{action}}",
+    "starting": "Preparing conversation…",
     "checkingTitle": "Checking interrupted work",
     "checking": "Asking Wayland Core whether this conversation can accept a new message…",
     "title": "An interrupted turn needs attention",

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ConversationProvider } from '@/renderer/hooks/context/ConversationContext';
 import { deriveStep } from '@/common/chat/activity/activityLabels';
 import type { TMessage } from '@/common/chat/chatLib';
 import {
@@ -89,6 +90,33 @@ const stepLabel = (activity: ExecutionActivity): string =>
   }).label;
 
 describe('ExecutionSpine', () => {
+  it('stands down the live banner when recovery supersedes stale tool events, without settling them', () => {
+    const messages = [
+      {
+        id: 'tool',
+        conversation_id: 'c1',
+        type: 'tool_group',
+        content: [{ callId: 'sleep', name: 'Bash', description: 'Execute: sleep 120', status: 'Executing' }],
+      },
+    ] as TMessage[];
+    const original = JSON.stringify(messages);
+    render(
+      <ConversationProvider value={{ conversationId: 'c1', type: 'wcore', executionInterrupted: true }}>
+        <WorkbenchHost conversationId='c1'>
+          <MessageListProvider value={messages}>
+            <ExecutionSpine backend='wcore' conversationId='c1' workspaceId='ws' agentId='wcore'>
+              <div>Interrupted history</div>
+            </ExecutionSpine>
+          </MessageListProvider>
+        </WorkbenchHost>
+      </ConversationProvider>
+    );
+    expect(screen.queryByTestId('execution-thread-summary')).toBeNull();
+    expect(screen.getByText('Interrupted history')).toBeTruthy();
+    expect(JSON.stringify(messages)).toBe(original);
+    expect(canonicalRun('wcore', messages, 'c1:c1').lifecycle).toBe('running');
+  });
+
   it('renders the thread from the canonical run and publishes nothing to the workbench', () => {
     const messages = [
       {

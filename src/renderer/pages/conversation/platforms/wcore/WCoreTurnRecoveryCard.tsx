@@ -32,6 +32,19 @@ const WCoreTurnRecoveryCard: React.FC<WCoreTurnRecoveryCardProps> = ({
   const titleId = 'wcore-turn-recovery-title';
   const interrupted = recovery?.state === 'interrupted';
 
+  if (loading && !interrupted) {
+    return (
+      <div
+        role='status'
+        aria-live='polite'
+        className='flex items-center gap-8px px-16px py-8px text-12px text-t-secondary'
+      >
+        <Spin size={14} />
+        <span>{t('conversation.turnRecovery.starting')}</span>
+      </div>
+    );
+  }
+
   return (
     <section
       className={`${cardStyles.card} flex flex-col gap-12px rd-16px p-16px`}

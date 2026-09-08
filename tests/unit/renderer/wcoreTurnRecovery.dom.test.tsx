@@ -31,7 +31,7 @@ const bridge = vi.hoisted(() => ({
   abandon: vi.fn(),
 }));
 const modalConfirm = vi.hoisted(() => vi.fn());
-const sendBox = vi.hoisted(() => ({ props: [] as Array<{ recoveryBlocked?: boolean }> }));
+const sendBox = vi.hoisted(() => ({ props: [] as Array<{ recoveryBlocked?: boolean; recoveryChecking?: boolean }> }));
 
 const translate = vi.hoisted(() => (key: string) => key);
 vi.mock('react-i18next', () => ({
@@ -83,7 +83,14 @@ vi.mock('@renderer/hooks/useProviderReadiness', async (importOriginal) => {
 });
 vi.mock('@renderer/hooks/useFluxConnected', () => ({ useFluxConnected: () => false }));
 vi.mock('@renderer/hooks/context/ConversationContext', () => ({
-  ConversationProvider: ({ children }: React.PropsWithChildren) => <>{children}</>,
+  ConversationProvider: ({
+    children,
+    value,
+  }: React.PropsWithChildren<{ value: { executionInterrupted?: boolean } }>) => (
+    <div data-testid='recovery-display-context' data-interrupted={String(value.executionInterrupted)}>
+      {children}
+    </div>
+  ),
 }));
 vi.mock('@renderer/hooks/useModelRegistry', () => ({
   ModelRegistryProvider: ({ children }: React.PropsWithChildren) => <>{children}</>,
@@ -130,6 +137,19 @@ describe('WCoreChat interrupted-turn recovery', () => {
     bridge.abandon.mockReset().mockResolvedValue(healthy);
     modalConfirm.mockReset();
     sendBox.props.length = 0;
+  });
+
+  it('uses a neutral startup status while preserving the pending send gate', async () => {
+    const pending = deferred<typeof healthy>();
+    bridge.get.mockReturnValue(pending.promise);
+    renderChat();
+    expect(screen.getByRole('status')).toHaveTextContent('conversation.turnRecovery.starting');
+    expect(screen.queryByTestId('wcore-turn-recovery-card')).toBeNull();
+    expect(sendBox.props.at(-1)).toMatchObject({ recoveryBlocked: true, recoveryChecking: true });
+    await act(async () => pending.resolve(healthy));
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(sendBox.props.at(-1)?.recoveryBlocked).toBe(false);
+    expect(screen.getByTestId('recovery-display-context')).toHaveAttribute('data-interrupted', 'false');
   });
 
   it('requires explicit confirmation, then unlocks only after a verified healthy result', async () => {
@@ -196,6 +216,8 @@ describe('WCoreChat interrupted-turn recovery', () => {
     expect(await screen.findByText('conversation.turnRecovery.unavailable')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'conversation.turnRecovery.endAction' })).toBeNull();
     expect(screen.getByRole('button', { name: 'conversation.turnRecovery.checkAgain' })).toBeInTheDocument();
+    expect(screen.getByTestId('recovery-display-context')).toHaveAttribute('data-interrupted', 'true');
+    expect(bridge.abandon).not.toHaveBeenCalled();
     expect(screen.getByTestId('send-box')).toHaveAttribute('data-recovery-blocked', 'true');
   });
 });

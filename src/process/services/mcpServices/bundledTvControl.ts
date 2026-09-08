@@ -6,7 +6,7 @@ import authority from '../../../../scripts/tvcontrol/authority.json';
 
 export const TVCONTROL_VERSION = authority.version;
 export const TVCONTROL_CATALOG_ID = 'com.ferroxlabs/tvcontrol';
-const MANAGED_TVCONTROL_VERSIONS = new Set(['2.4.7', '2.4.8', '2.4.9', TVCONTROL_VERSION]);
+const MANAGED_TVCONTROL_VERSIONS = new Set(['2.4.6', '2.4.7', '2.4.8', '2.4.9', '2.5.0', TVCONTROL_VERSION]);
 
 /** Upgrade only known managed catalog declarations, preserving custom commands. */
 export function isBundledTvControlDeclaration(
@@ -62,7 +62,7 @@ export function bundledTvControlRoot(): string {
 
 export function resolveBundledTvControlEntry(root = bundledTvControlRoot()): string {
   if (!verifyTvControlTree(root))
-    throw new Error('Bundled TVControl 2.5.0 is missing or failed integrity verification');
+    throw new Error('Bundled TVControl 2.5.1 is missing or failed integrity verification');
   return path.join(root, 'node_modules/@ferroxlabs/tvcontrol/src/server.js');
 }
 
@@ -145,27 +145,39 @@ export function provisionTvControlForWorkspacePolicy(
   source = bundledTvControlRoot()
 ): string {
   resolveBundledTvControlEntry(source);
+  // Rust reports Windows canonical paths with the NT namespace prefix. Compare
+  // equivalent path representations before applying the same containment and
+  // realpath checks; no filesystem grant is inferred from this normalization.
+  const identity = (value: string): string => {
+    const resolved = path.resolve(value);
+    return process.platform === 'win32' ? path.toNamespacedPath(resolved).toLowerCase() : resolved;
+  };
   const canonicalWorkspace = fs.realpathSync(workspace);
   const expectedTemp = path.join(canonicalWorkspace, '.wayland-runtime', 'tmp');
-  if (path.resolve(managedTempDir) !== expectedTemp)
+  if (identity(managedTempDir) !== identity(expectedTemp))
     throw new Error('TVControl managed temp directory does not belong to this workspace');
   // Check every owned ancestor, including symlinks that resolve back inside.
   for (const dir of [path.dirname(expectedTemp), expectedTemp]) {
-    if (!fs.lstatSync(dir).isDirectory() || fs.realpathSync(dir) !== dir)
+    if (!fs.lstatSync(dir).isDirectory() || identity(fs.realpathSync(dir)) !== identity(dir))
       throw new Error('TVControl managed temp directory is redirected');
   }
-  const candidates = [...new Set(writableRoots)].filter((root) => {
-    if (!path.isAbsolute(root)) return false;
-    const relative = path.relative(expectedTemp, root);
-    return relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
-  });
+  const candidates = [
+    ...new Set(
+      writableRoots
+        .filter((root) => path.isAbsolute(root))
+        .map((root) => path.relative(identity(expectedTemp), identity(root)))
+    ),
+  ].filter(
+    (relative) =>
+      relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)
+  );
   if (candidates.length !== 1)
     throw new Error('TVControl requires exactly one workspace-contained scratch directory from Core');
-  const scratch = path.resolve(candidates[0]);
+  const scratch = path.resolve(expectedTemp, candidates[0]);
   let current = expectedTemp;
   for (const part of path.relative(expectedTemp, scratch).split(path.sep)) {
     current = path.join(current, part);
-    if (!fs.lstatSync(current).isDirectory() || fs.realpathSync(current) !== current)
+    if (!fs.lstatSync(current).isDirectory() || identity(fs.realpathSync(current)) !== identity(current))
       throw new Error('TVControl Core scratch directory is redirected');
   }
   copyTvControlToTempRoot(scratch, source);

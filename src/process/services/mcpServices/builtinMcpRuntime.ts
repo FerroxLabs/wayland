@@ -118,7 +118,9 @@ export function resolveBuiltinMcpRuntimeSpawn(
   deps: BuiltinMcpRuntimeDeps = {}
 ): McpStdioSpawnTuple | null {
   if (isBundledTvControlDeclaration(command, args, deps.libraryEntryId)) {
-    const runtime = (deps.resolveRuntime ?? resolveJsRuntime)();
+    // A complete dev build must exercise the same TVControl runtime as the
+    // package. Electron-as-Node adds env that some CLI publishers cannot retain.
+    const runtime = deps.resolveRuntime ? deps.resolveRuntime() : resolveJsRuntime({ preferBundled: true });
     return {
       command: runtime.command,
       args: [(deps.tvControlEntry ?? resolveUserTvControlEntry)()],

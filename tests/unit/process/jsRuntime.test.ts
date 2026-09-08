@@ -47,6 +47,14 @@ const inputs = (over: Partial<JsRuntimeInputs>): JsRuntimeInputs => ({
 });
 
 describe('resolveJsRuntimeWith (pure core)', () => {
+  it('bundled connector preference uses Bun in dev without Electron environment requirements', () => {
+    expect(resolveJsRuntimeWith(inputs({ isPackaged: false, preferBundled: true }))).toEqual({
+      command: BUN,
+      env: {},
+      kind: 'bundled-bun',
+    });
+  });
+
   it('dev (unpackaged): runs the app binary as Node, carrying ELECTRON_RUN_AS_NODE', () => {
     // Unpackaged Electron is unfused and honours the env var — preserve exactly.
     const r = resolveJsRuntimeWith(inputs({ isPackaged: false }));

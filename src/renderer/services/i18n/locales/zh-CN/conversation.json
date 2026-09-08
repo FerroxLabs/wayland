@@ -553,6 +553,9 @@
     "notText": "Wayland 无法把这个文件当作文本读取——它有些字节不是有效的 UTF-8，而设置文件格式要求 UTF-8。什么都没有被改动。"
   },
   "turnRecovery": {
+    "outcomeUnknown": "结果未知",
+    "lastRecordedAction": "最后记录的操作：{{action}}",
+    "starting": "Preparing conversation…",
     "checkingTitle": "Checking interrupted work",
     "checking": "Asking Wayland Core whether this conversation can accept a new message…",
     "title": "An interrupted turn needs attention",

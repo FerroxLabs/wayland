@@ -154,7 +154,7 @@ describe('bundled TVControl skill examples are callable against the pinned conne
     expect(fixture._header.version).toBe(PINNED_VERSION);
     expect(fixture._header.toolCount).toBe(Object.keys(fixture.tools).length);
     // 109 through 2.4.2; 112 from 2.4.3, which added watchlist_create, layout_create and
-    // layout_save; 113 from 2.5.0 adds pine_get_script_source. Bump this deliberately when the connector gains tools - never to make
+    // layout_save; 113 from 2.5.1 adds pine_get_script_source. Bump this deliberately when the connector gains tools - never to make
     // a red run go green, because a DROP in the count is a published package that lost a
     // tool the skills still call.
     expect(fixture._header.toolCount).toBe(113);

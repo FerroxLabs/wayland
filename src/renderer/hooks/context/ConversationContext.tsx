@@ -33,6 +33,9 @@ export interface ConversationContextValue {
    */
   cronJobId?: string;
 
+  /** Display-only: Core recovery has superseded stale running transcript events. */
+  executionInterrupted?: boolean;
+
   /**
    * When true, platform chat components should hide the SendBox (e.g. sub-agents in team mode)
    */
