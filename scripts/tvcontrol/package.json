@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@ferroxlabs/tvcontrol": "2.5.1"
+    "@ferroxlabs/tvcontrol": "2.5.3"
   }
 }

@@ -3,7 +3,7 @@
     {
       "path": "report/collect.mjs",
       "sourceSha256": "d084c31705a8caffc4e331f30873d852f43ca9bc4a51fae373789d0b5bf36142",
-      "resultSha256": "f46c406e7cb567826991060733002f103c700264dff99f0bf476ffcaff1af82d",
+      "resultSha256": "af4afaf6d044329b47663045d85bb67ee788890a0f283578a32bc5dff8d2290e",
       "edits": [
         {
           "start": 18,
@@ -17,7 +17,7 @@
         {
           "start": 67,
           "deleteCount": 1,
-          "lines": ["const SERVER = opt('server', '@ferroxlabs/tvcontrol@2.5.1');"]
+          "lines": ["const SERVER = opt('server', '@ferroxlabs/tvcontrol@2.5.3');"]
         },
         {
           "start": 230,
