@@ -25,7 +25,8 @@ function setup({ mutated = false, invalid = false } = {}) {
   const calls = [];
   const execute = (cmd, args) => {
     calls.push([cmd, args]);
-    if (args[0] === 'attach') writeBinary(path.join(args[4], 'Wayland.app'), mutated ? 'changed' : 'signed fixture bytes');
+    if (args[0] === 'attach')
+      writeBinary(path.join(args[4], 'Wayland.app'), mutated ? 'changed' : 'signed fixture bytes');
     if (args[0] === 'detach') fs.rmSync(path.join(args[1], 'Wayland.app'), { recursive: true });
     if (cmd.endsWith('codesign') && args.at(-1).includes('mount-') && invalid) {
       const error = new Error('invalid signature');
@@ -45,9 +46,16 @@ test('equal staged and embedded bytes with strict signatures pass and detach', (
   assert.equal(report.matches, true);
   assert.equal(report.embedded.valid, true);
   assert.ok(f.calls.some(([, args]) => args[0] === 'detach'));
-  assert.ok(f.calls.filter(([cmd]) => cmd.endsWith('codesign')).every(([, args]) => args.includes('--deep') && args.includes('--strict')));
+  assert.ok(
+    f.calls
+      .filter(([cmd]) => cmd.endsWith('codesign'))
+      .every(([, args]) => args.includes('--deep') && args.includes('--strict'))
+  );
 });
-for (const [name, options] of [['changed embedded bytes', { mutated: true }], ['invalid embedded signature', { invalid: true }]]) {
+for (const [name, options] of [
+  ['changed embedded bytes', { mutated: true }],
+  ['invalid embedded signature', { invalid: true }],
+]) {
   test(`${name} fail fatally before submission and preserve diagnostics`, () => {
     const f = setup(options);
     assert.throws(() => verifyDmg(f.root, f.dmg, f.execute), { notarizationFatal: true });

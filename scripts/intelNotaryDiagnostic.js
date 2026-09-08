@@ -25,9 +25,12 @@ function inspect(appPath, execute) {
     sha256: crypto.createHash('sha256').update(fs.readFileSync(binary)).digest('hex'),
   };
   try {
-    result.signature = execute('/usr/bin/codesign', ['--verify', '--deep', '--strict', '--verbose=2', appPath], {
-      encoding: 'utf8', timeout: 120000, stdio: 'pipe',
-    }) || '';
+    result.signature =
+      execute('/usr/bin/codesign', ['--verify', '--deep', '--strict', '--verbose=2', appPath], {
+        encoding: 'utf8',
+        timeout: 120000,
+        stdio: 'pipe',
+      }) || '';
     result.valid = true;
   } catch (error) {
     result.valid = false;
@@ -53,11 +56,15 @@ function verifyDmg(outDir, dmg, execute = execFileSync) {
     const stapled = JSON.parse(fs.readFileSync(path.join(dir, 'post-staple.json'), 'utf8'));
     report.staged = inspect(stapled.appPath, execute);
     execute('/usr/bin/hdiutil', ['attach', '-readonly', '-nobrowse', '-mountpoint', mount, dmg], {
-      encoding: 'utf8', timeout: 120000, stdio: 'pipe',
+      encoding: 'utf8',
+      timeout: 120000,
+      stdio: 'pipe',
     });
     attached = true;
     report.embedded = inspect(path.join(mount, 'Wayland.app'), execute);
-    report.matches = signed.sha256 === stapled.sha256 && stapled.sha256 === report.staged.sha256 &&
+    report.matches =
+      signed.sha256 === stapled.sha256 &&
+      stapled.sha256 === report.staged.sha256 &&
       report.staged.sha256 === report.embedded.sha256;
     if (!signed.valid || !stapled.valid || !report.staged.valid || !report.embedded.valid || !report.matches) {
       throw failure('Intel diagnostic: staged/DMG executable digest or strict signature mismatch');
@@ -67,7 +74,8 @@ function verifyDmg(outDir, dmg, execute = execFileSync) {
     throw failure(`Intel diagnostic failed: ${error.message}`);
   } finally {
     try {
-      if (attached) execute('/usr/bin/hdiutil', ['detach', mount], { encoding: 'utf8', timeout: 120000, stdio: 'pipe' });
+      if (attached)
+        execute('/usr/bin/hdiutil', ['detach', mount], { encoding: 'utf8', timeout: 120000, stdio: 'pipe' });
       fs.rmdirSync(mount);
     } catch (error) {
       report.cleanupError = String(error.message);
