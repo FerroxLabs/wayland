@@ -4,6 +4,7 @@ import {
   buildFuigoAcpArgs,
   buildFuigoSessionMetadata,
   ensureFuigoHome,
+  fuigoBudgetEnv,
   fuigoCompatIsolationEnv,
   fuigoHomeDir,
   fuigoPluginDirs,
@@ -922,6 +923,8 @@ ${collectedResponses.join('\n')}`;
       const key = await this.readFluxKey();
       if (key) mergedEnv.FUIGO_API_KEY = key;
       mergedEnv.FUIGO_MANAGED_BY_NPM = '1';
+      // Engine-side hard stop for unattended runs only (see fuigoBudgetEnv).
+      Object.assign(mergedEnv, fuigoBudgetEnv({ unattended: data.unattendedHoldDeadlineMs !== undefined }));
       // Desktop is the authority for MCP, skills and persona: keep Fuigo from
       // importing the user's Claude Code / Cursor / Codex state and dialling
       // their MCP servers. An explicit custom-agent env var still wins.

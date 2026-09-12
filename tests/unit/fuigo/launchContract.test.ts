@@ -134,9 +134,13 @@ vi.mock('@/common/chat/chatLib', () => ({ transformMessage: vi.fn(), uuid: vi.fn
 import AcpAgentManager from '../../../src/process/task/AcpAgentManager';
 import {
   FUIGO_MANAGED_CONFIG,
+  FUIGO_UNATTENDED_MAX_MODEL_CALLS,
+  FUIGO_UNATTENDED_MAX_RUNTIME_SECS,
   buildFuigoAcpArgs,
   buildFuigoSessionMetadata,
+  describeFuigoBudgetStop,
   extractFuigoPromptUsage,
+  fuigoBudgetEnv,
   fuigoCompatIsolationEnv,
   fuigoHomeDir,
   fuigoPluginDirs,
@@ -227,6 +231,28 @@ describe('launch helpers', () => {
       mkdirSync(join(ws, '.wayland'));
       expect(fuigoPluginDirs(ws)).toEqual([]);
     });
+  });
+
+  it('sets both process budgets for unattended runs only', () => {
+    expect(fuigoBudgetEnv({ unattended: true })).toEqual({
+      FUIGO_MAX_MODEL_CALLS: '200',
+      FUIGO_MAX_RUNTIME_SECS: '3600',
+    });
+    expect(fuigoBudgetEnv({ unattended: false })).toEqual({});
+  });
+
+  it('recognises the two Fuigo budget-stop error shapes and nothing else', () => {
+    const receipt = { partial: true, reason: 'Execution stopped with bounded capacity or unresolved work. …' };
+    expect(describeFuigoBudgetStop({ data: receipt })).toMatch(/^Stopped by the run budget: .*200 of its model calls/);
+    expect(describeFuigoBudgetStop({ cause: { data: receipt } })).toMatch(/^Stopped by the run budget/);
+    expect(describeFuigoBudgetStop({ data: 'execution budget: wall deadline exhausted' })).toMatch(/60-minute limit/);
+    expect(describeFuigoBudgetStop({ data: 'execution budget: model dispatch limit exhausted' })).toMatch(
+      /200 of its model calls/
+    );
+    expect(describeFuigoBudgetStop({ data: { partial: false, reason: 'Turn returned normally' } })).toBeNull();
+    expect(describeFuigoBudgetStop({ data: 'Execution state unavailable' })).toBeNull();
+    expect(describeFuigoBudgetStop(new Error('boom'))).toBeNull();
+    expect(describeFuigoBudgetStop(null)).toBeNull();
   });
 
   it('shares one engine home across conversations', () => {
@@ -340,6 +366,20 @@ describe('AcpAgentManager Fuigo spawn contract', () => {
       ...fuigoCompatIsolationEnv(),
     });
     expect(ensureFuigoHomeMock).toHaveBeenCalledWith(join('/tmp/userData', 'fuigo'));
+  });
+
+  it('caps an unattended run with both Fuigo process budgets and leaves a user chat uncapped', async () => {
+    const cron = await resolve({ unattendedHoldDeadlineMs: 60_000 });
+    expect(cron.customEnv).toMatchObject({
+      FUIGO_MAX_MODEL_CALLS: String(FUIGO_UNATTENDED_MAX_MODEL_CALLS),
+      FUIGO_MAX_RUNTIME_SECS: String(FUIGO_UNATTENDED_MAX_RUNTIME_SECS),
+    });
+    expect(cron.customEnv!.FUIGO_MAX_MODEL_CALLS).toBe('200');
+    expect(cron.customEnv!.FUIGO_MAX_RUNTIME_SECS).toBe('3600');
+
+    const chat = await resolve({});
+    expect(chat.customEnv).not.toHaveProperty('FUIGO_MAX_MODEL_CALLS');
+    expect(chat.customEnv).not.toHaveProperty('FUIGO_MAX_RUNTIME_SECS');
   });
 
   it('marks only unattended runs nonInteractive on the session request', async () => {

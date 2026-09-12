@@ -70,6 +70,76 @@ export function buildFuigoAcpArgs(opts: { trusted: boolean; maxTurns?: number })
 }
 
 /**
+ * Process budgets for UNATTENDED runs (routines, team runs): the engine-side
+ * hard stop that replaced Core's BudgetController hard-stop + RunawayMonitor.
+ *
+ * Fuigo reads `FUIGO_MAX_MODEL_CALLS` / `FUIGO_MAX_RUNTIME_SECS` once per
+ * process (`fuigo-sampler/src/execution_budget.rs`; positive integers; the
+ * wall clock starts at process init and both are aggregate across every
+ * session, model switch, subagent and side call in that process). Verified on
+ * the staged 1.0.15 over stdio:
+ *   - calls: the last admission is reserved for a final answer, then the
+ *     prompt returns `-32603` whose `data` is the execution receipt
+ *     (`partial: true`, `reason: "Execution stopped with bounded capacity …"`).
+ *   - wall: a prompt past the deadline returns `-32602` with
+ *     `data: "execution budget: wall deadline exhausted"`; a running turn is
+ *     cancelled. The process stays alive either way.
+ * A scheduled run is one process per run (the idle reaper SIGTERMs it), so a
+ * per-process budget is a per-run budget. Core had no persisted keys for
+ * these — its hard stops were fixed thresholds — so the defaults live here
+ * and nothing is exposed in the UI.
+ *
+ * An interactive chat is deliberately uncapped: its process lives as long as
+ * the user keeps talking, and a wall clock started at spawn would end a long
+ * conversation mid-thought.
+ */
+export const FUIGO_UNATTENDED_MAX_MODEL_CALLS = 200;
+export const FUIGO_UNATTENDED_MAX_RUNTIME_SECS = 3600;
+
+export function fuigoBudgetEnv(opts: { unattended: boolean }): Record<string, string> {
+  if (!opts.unattended) return {};
+  return {
+    FUIGO_MAX_MODEL_CALLS: String(FUIGO_UNATTENDED_MAX_MODEL_CALLS),
+    FUIGO_MAX_RUNTIME_SECS: String(FUIGO_UNATTENDED_MAX_RUNTIME_SECS),
+  };
+}
+
+const BUDGET_RECEIPT_REASON = /^Execution stopped with bounded capacity/;
+const BUDGET_DATA = /^execution budget: (model dispatch limit|wall deadline) exhausted/;
+
+/**
+ * The user-facing reason when a prompt failed because Fuigo hit a process
+ * budget, or null for any other failure. Reads the JSON-RPC `data` of the
+ * prompt error (walking `cause`, since the ACP layer wraps the SDK error).
+ */
+export function describeFuigoBudgetStop(err: unknown): string | null {
+  const minutes = Math.round(FUIGO_UNATTENDED_MAX_RUNTIME_SECS / 60);
+  for (
+    let e: unknown = err, depth = 0;
+    e && typeof e === 'object' && depth < 4;
+    e = (e as { cause?: unknown }).cause, depth++
+  ) {
+    const data = (e as { data?: unknown }).data;
+    if (typeof data === 'string') {
+      const m = BUDGET_DATA.exec(data.trim());
+      if (m) {
+        return m[1] === 'wall deadline'
+          ? `Stopped by the run budget: this run passed its ${minutes}-minute limit. Work finished before the stop is kept; the next run starts fresh.`
+          : `Stopped by the run budget: this run used all ${FUIGO_UNATTENDED_MAX_MODEL_CALLS} of its model calls. Work finished before the stop is kept; the next run starts fresh.`;
+      }
+      continue;
+    }
+    if (data && typeof data === 'object') {
+      const r = data as { partial?: unknown; reason?: unknown };
+      if (r.partial === true && typeof r.reason === 'string' && BUDGET_RECEIPT_REASON.test(r.reason)) {
+        return `Stopped by the run budget: this run used all ${FUIGO_UNATTENDED_MAX_MODEL_CALLS} of its model calls before it finished. Work done so far is kept; the next run starts fresh.`;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Fuigo's vendor-compat layer auto-discovers Claude Code, Cursor and Codex
  * state from the user's home (`~/.claude.json` MCP servers, `~/.claude/skills`,
  * rules, agents, hooks, sessions) and connects to every MCP server it finds.
