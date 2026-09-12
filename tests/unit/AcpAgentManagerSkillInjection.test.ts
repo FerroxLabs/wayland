@@ -220,6 +220,29 @@ describe('AcpAgentManager - first-message skill injection', () => {
     expect(sentContent).toContain('[User Request]');
   });
 
+  it('does not inject the skills index for fuigo: skills reach it natively via session/new pluginDirs', async () => {
+    // Real hasNativeSkillSupport from acpTypes (AcpAgentManager imports it from
+    // there, not from initAgent). With the index in, a default Concierge first
+    // turn was 28,875 bytes and tripped Fuigo's 25,000-byte prompt offload.
+    const manager = createManager({
+      backend: 'fuigo',
+      customWorkspace: false,
+      presetContext: 'You are Concierge.',
+      enabledSkills: ['cron'],
+    });
+
+    await sendFirstMessage(manager, 'Say hi');
+
+    expect(mockPrepareFirstMessage).not.toHaveBeenCalled();
+    const sentContent = mockAgentSendMessage.mock.calls[0][0].content as string;
+    expect(sentContent).not.toContain('[Available Skills]');
+    expect(sentContent).not.toContain('[Skills Location]');
+    // The persona / rules wrapper is unchanged on the native path.
+    expect(sentContent).toContain('[Assistant Rules');
+    expect(sentContent).toContain('You are Concierge.');
+    expect(sentContent).toContain('[User Request]\nSay hi');
+  });
+
   it('falls back to prompt injection for supported backend WITH customWorkspace', async () => {
     const manager = createManager({
       backend: 'claude',

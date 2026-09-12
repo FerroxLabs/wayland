@@ -142,7 +142,7 @@ export async function setupAssistantWorkspace(
 ): Promise<void> {
   // Determine skills directories from ACP_BACKENDS_ALL config
   const key = options.backend || options.agentType || '';
-  const skillsDirs = getSkillsDirsForBackend(key) ?? (key === 'fuigo' ? ['.wayland/skills'] : undefined);
+  const skillsDirs = getSkillsDirsForBackend(key);
 
   // If no native skill directory is known for this CLI, skip symlink setup.
   // The caller should use prompt injection as fallback.
