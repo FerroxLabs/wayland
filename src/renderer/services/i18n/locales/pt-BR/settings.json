@@ -1580,7 +1580,12 @@
     "customAgents": "Agentes Personalizados",
     "custom": "Personalizado",
     "addCustomAgent": "Adicionar Agente Personalizado",
-    "customEmpty": "Nenhum agente personalizado configurado. Clique em \"Adicionar Agente Personalizado\" para criar um."
+    "customEmpty": "Nenhum agente personalizado configurado. Clique em \"Adicionar Agente Personalizado\" para criar um.",
+    "fuigoBundledEngine": "Bundled engine",
+    "fuigoVerified": "Verified",
+    "fuigoUnverified": "Unverified — will not start",
+    "fuigoMissing": "Not installed",
+    "fuigoHome": "Home"
   },
   "remoteAgent": {
     "title": "Agentes Remotos",

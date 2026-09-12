@@ -16,6 +16,7 @@ import type { McpSource } from '../../process/services/mcpServices/McpProtocol';
 import type { CuaPermissionStatus, PrivacyPane } from '../../process/services/macPermissions/cuaPermissions';
 import type { MicPermissionStatus } from '../../process/services/macPermissions/micPermission';
 import type { DoctorReport } from '../../process/doctor/types';
+import type { FuigoEngineStatus } from '../../process/agent/fuigo/runtime';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
 import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/workspaceTrust';
@@ -1024,6 +1025,11 @@ export const acpConversation = {
   // configured" from "agent loading failed". Sibling to getAvailableAgents
   // so 10+ existing consumers of getAvailableAgents.data stay unchanged.
   getLoadErrors: buildProvider<IBridgeResponse<string[]>, void>('acp.get-load-errors'),
+  // Settings → Agents Fuigo card: receipt-verified state, receipt version and
+  // the Desktop-managed engine home. Never `--version` output.
+  getFuigoEngineStatus: buildProvider<IBridgeResponse<FuigoEngineStatus & { homeDir: string }>, void>(
+    'acp.get-fuigo-engine-status'
+  ),
   refreshCustomAgents: buildProvider<IBridgeResponse, void>('acp.refresh-custom-agents'),
   testCustomAgent: buildProvider<
     IBridgeResponse<{ step: 'cli_check' | 'acp_initialize'; error?: string }>,

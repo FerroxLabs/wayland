@@ -1580,7 +1580,12 @@
     "customAgents": "Benutzerdefinierte Agenten",
     "custom": "Benutzerdefiniert",
     "addCustomAgent": "Benutzerdefinierten Agenten hinzufügen",
-    "customEmpty": "Keine benutzerdefinierten Agenten konfiguriert. Klicke auf „Benutzerdefinierten Agenten hinzufügen“, um einen zu erstellen."
+    "customEmpty": "Keine benutzerdefinierten Agenten konfiguriert. Klicke auf „Benutzerdefinierten Agenten hinzufügen“, um einen zu erstellen.",
+    "fuigoBundledEngine": "Bundled engine",
+    "fuigoVerified": "Verified",
+    "fuigoUnverified": "Unverified — will not start",
+    "fuigoMissing": "Not installed",
+    "fuigoHome": "Home"
   },
   "remoteAgent": {
     "title": "Remote-Agenten",

@@ -1559,7 +1559,12 @@
     "customAgents": "自訂 Agents",
     "custom": "自訂",
     "addCustomAgent": "新增自訂 Agent",
-    "customEmpty": "尚無自訂 Agent，點擊「新增自訂 Agent」建立。"
+    "customEmpty": "尚無自訂 Agent，點擊「新增自訂 Agent」建立。",
+    "fuigoBundledEngine": "Bundled engine",
+    "fuigoVerified": "Verified",
+    "fuigoUnverified": "Unverified — will not start",
+    "fuigoMissing": "Not installed",
+    "fuigoHome": "Home"
   },
   "remoteAgent": {
     "title": "遠端 Agent",

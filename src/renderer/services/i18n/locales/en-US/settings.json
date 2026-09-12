@@ -1606,7 +1606,12 @@
     "customAgents": "Custom Agents",
     "custom": "Custom",
     "addCustomAgent": "Add Custom Agent",
-    "customEmpty": "No custom agents configured. Click \"Add Custom Agent\" to create one."
+    "customEmpty": "No custom agents configured. Click \"Add Custom Agent\" to create one.",
+    "fuigoBundledEngine": "Bundled engine",
+    "fuigoVerified": "Verified",
+    "fuigoUnverified": "Unverified — will not start",
+    "fuigoMissing": "Not installed",
+    "fuigoHome": "Home"
   },
   "remoteAgent": {
     "title": "Remote Agents",

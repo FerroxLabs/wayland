@@ -1524,7 +1524,12 @@
     "customAgents": "Власні агенти",
     "custom": "Власний",
     "addCustomAgent": "Додати власного агента",
-    "customEmpty": "Власні агенти не налаштовані. Натисніть «Додати власного агента» для створення."
+    "customEmpty": "Власні агенти не налаштовані. Натисніть «Додати власного агента» для створення.",
+    "fuigoBundledEngine": "Bundled engine",
+    "fuigoVerified": "Verified",
+    "fuigoUnverified": "Unverified — will not start",
+    "fuigoMissing": "Not installed",
+    "fuigoHome": "Home"
   },
   "remoteAgent": {
     "title": "Віддалені агенти",

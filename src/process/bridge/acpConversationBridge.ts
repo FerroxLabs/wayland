@@ -7,6 +7,8 @@
  */
 
 import { agentRegistry } from '@process/agent/AgentRegistry';
+import { fuigoEngineStatus } from '@process/agent/fuigo/runtime';
+import { fuigoHomeDir } from '@process/agent/fuigo/launch';
 import { isAgentKind } from '@/common/types/detectedAgent';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import AcpAgentManager from '@process/task/AcpAgentManager';
@@ -15,6 +17,7 @@ import { mcpService } from '@/process/services/mcpServices/McpService';
 import { ipcBridge } from '@/common';
 import { LegacyConnectorFactory } from '@process/acp/compat/LegacyConnectorFactory';
 import { noopProtocolHandlers } from '@process/acp/types';
+import { app } from 'electron';
 import * as os from 'os';
 
 export function initAcpConversationBridge(workerTaskManager: IWorkerTaskManager): void {
@@ -80,6 +83,20 @@ export function initAcpConversationBridge(workerTaskManager: IWorkerTaskManager)
   ipcBridge.acpConversation.getLoadErrors.provider(() => {
     try {
       return Promise.resolve({ success: true as const, data: agentRegistry.getLoadErrors() });
+    } catch (error) {
+      return Promise.resolve({
+        success: false as const,
+        msg: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+  // Settings → Agents Fuigo card. The home is the one `AcpAgentManager`
+  // exports as FUIGO_HOME on every spawn.
+  ipcBridge.acpConversation.getFuigoEngineStatus.provider(() => {
+    try {
+      const data = { ...fuigoEngineStatus(), homeDir: fuigoHomeDir(app.getPath('userData')) };
+      return Promise.resolve({ success: true as const, data });
     } catch (error) {
       return Promise.resolve({
         success: false as const,

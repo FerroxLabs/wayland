@@ -1550,7 +1550,12 @@
     "customAgents": "Пользовательские агенты",
     "custom": "Пользовательский",
     "addCustomAgent": "Добавить пользовательского агента",
-    "customEmpty": "Пользовательские агенты не настроены. Нажмите «Добавить пользовательского агента» для создания."
+    "customEmpty": "Пользовательские агенты не настроены. Нажмите «Добавить пользовательского агента» для создания.",
+    "fuigoBundledEngine": "Bundled engine",
+    "fuigoVerified": "Verified",
+    "fuigoUnverified": "Unverified — will not start",
+    "fuigoMissing": "Not installed",
+    "fuigoHome": "Home"
   },
   "remoteAgent": {
     "title": "Удалённые агенты",

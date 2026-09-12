@@ -16,6 +16,7 @@ import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageS
 import RemoteAgents from './RemoteAgents';
 import AvailableToInstall from './AvailableToInstall';
 import FluxRouterCard from './FluxRouterCard';
+import { FuigoEngineFacts } from './FuigoEngineCard';
 import FluxCompatChip from './FluxCompatChip';
 import { resolveAgentScope } from './agentScopes';
 import styles from './AgentsSettings.module.css';
@@ -130,6 +131,7 @@ const AgentCard: React.FC<{
             <FluxCompatChip backend={agent.backend} />
           </div>
           <div className={styles.desc}>{t(`settings.agentsPage.about.${agent.backend}`, { defaultValue: '' })}</div>
+          {agent.backend === 'fuigo' && <FuigoEngineFacts />}
         </div>
         <div className={styles.cardActions}>
           <span className={`${styles.badge} ${hero ? styles.badgeActive : styles.badgeDetected}`}>

@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 import AgentCard from './AgentCard';
+import FuigoEngineCard from './FuigoEngineCard';
 import { AgentHubModal } from './AgentHubModal';
 import InlineAgentEditor from './InlineAgentEditor';
 
@@ -91,7 +92,8 @@ const LocalAgents: React.FC = () => {
   );
 
   // Fuigo (the bundled engine), then Gemini CLI, first among detected agents.
-  // Fuigo has no settings page yet (Phase 4 adds the Engine pane).
+  // Fuigo gets its own card (version, verification, engine home) instead of a
+  // settings page: Desktop owns its config.toml, there is nothing to configure.
   const fuigoAgent = detectedAgents?.find((a) => a.backend === 'fuigo');
   const geminiAgent = detectedAgents?.find((a) => a.backend === 'gemini');
   const otherDetected = detectedAgents?.filter((a) => a.backend !== 'fuigo' && a.backend !== 'gemini') ?? [];
@@ -176,7 +178,7 @@ const LocalAgents: React.FC = () => {
         </Typography.Text>
       </div>
       <div className='grid grid-cols-1 gap-10px px-16px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
-        {fuigoAgent && <AgentCard type='detected' agent={fuigoAgent} variant='grid' />}
+        {fuigoAgent && <FuigoEngineCard name={fuigoAgent.name} />}
         {geminiAgent && (
           <AgentCard
             type='detected'
