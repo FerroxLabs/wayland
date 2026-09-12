@@ -305,10 +305,10 @@ PageName/                  # PascalCase
 
 Inside a page module (e.g., `pages/conversation/`), three types of subdirectories exist:
 
-| Type                                                  | Convention | Examples                                             |
-| ----------------------------------------------------- | ---------- | ---------------------------------------------------- |
-| **Categorical** (standard role)                       | lowercase  | `components/`, `hooks/`, `context/`, `utils/`        |
-| **Feature module** (business feature)                 | PascalCase | `GroupedHistory/`, `Workspace/`, `Preview/`          |
-| **Platform directory** (mirrors `src/process/agent/`) | lowercase  | `acp/`, `codex/`, `gemini/`, `openclaw/` |
+| Type                                                  | Convention | Examples                                      |
+| ----------------------------------------------------- | ---------- | --------------------------------------------- |
+| **Categorical** (standard role)                       | lowercase  | `components/`, `hooks/`, `context/`, `utils/` |
+| **Feature module** (business feature)                 | PascalCase | `GroupedHistory/`, `Workspace/`, `Preview/`   |
+| **Platform directory** (mirrors `src/process/agent/`) | lowercase  | `acp/`, `codex/`, `gemini/`, `openclaw/`      |
 
 Platform directories are an exception to PascalCase. They use lowercase for cross-process naming consistency with `src/process/agent/<platform>/`.

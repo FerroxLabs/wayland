@@ -244,7 +244,7 @@ Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you b
 | <img src=".github/assets/logos/opencode.svg" width="20" valign="middle"/> &nbsp;**OpenCode**             | `opencode`   | provider key                        |
 | <img src=".github/assets/logos/kimi.svg" width="20" valign="middle"/> &nbsp;**Kimi** (Moonshot)          | `kimi`       | Kimi login                          |
 
-Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 19 ACP CLI agents in all, plus native Gemini and the bundled Fuigo engine.
+Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 18 ACP CLI agents in all, plus native Gemini and the bundled Fuigo engine.
 
 **Engine providers** (Fuigo): one [Flux Router](https://fluxrouter.ai) key reaches every model Flux routes. To use a Claude subscription with no key, run the Claude Code backend and sign in with the `claude` CLI.
 

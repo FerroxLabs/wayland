@@ -50,10 +50,7 @@ export function useAvailableBackends() {
     [detected, cachedInitResults]
   );
 
-  const recommend = useCallback(
-    (presetAgentType?: string) => recommendBackend(detected, presetAgentType),
-    [detected]
-  );
+  const recommend = useCallback((presetAgentType?: string) => recommendBackend(detected, presetAgentType), [detected]);
 
   return { available, recommend };
 }

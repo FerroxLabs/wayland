@@ -23,7 +23,12 @@ const specs: SuggestSpecialist[] = [
   { id: 'ext-launch', name: 'Launch Strategist', description: 'Plans book launches and funnels.', agentType: 'gemini' },
   { id: 'ext-copy', name: 'Copy', description: 'Writes ad copy and emails.', agentType: 'claude' },
   { id: 'ext-analyst', name: 'Funnel Analyst', description: 'Analyzes paid funnel performance.', agentType: 'codex' },
-  { id: 'ext-design', name: 'Designer', description: 'Visual design and book cover work.', agentType: 'unknown-backend' },
+  {
+    id: 'ext-design',
+    name: 'Designer',
+    description: 'Visual design and book cover work.',
+    agentType: 'unknown-backend',
+  },
   { id: 'ext-pm', name: 'Project Manager', description: 'Tracks deadlines and sprints.', agentType: 'claude' },
   { id: 'ext-research', name: 'Researcher', description: 'Audience and market research.', agentType: 'gemini' },
   { id: 'ext-coach', name: 'Coach', description: 'Stays generic and helps with whatever.' },

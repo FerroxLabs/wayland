@@ -74,10 +74,7 @@
       "id": "sandbox",
       "packets": ["M1S", "SBX-2"],
       "mode": "included",
-      "excludedPaths": [
-        "src/process/extensions/sandbox",
-        "src/process/team/sandbox"
-      ]
+      "excludedPaths": ["src/process/extensions/sandbox", "src/process/team/sandbox"]
     },
     {
       "id": "flux",

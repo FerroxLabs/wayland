@@ -2580,43 +2580,62 @@ const migration_v59: IMigration = {
   version: 59,
   name: "Fuigo cutover: 'wcore' conversations -> acp/fuigo, cron agent_type 'wcore' -> 'fuigo'",
   up: (db) => {
-    const r1 = db
-      .prepare(
-        "UPDATE conversations SET type = 'acp', extra = json_set(" +
-          "  CASE WHEN json_extract(extra, '$.presetContext') IS NULL AND json_extract(extra, '$.presetRules') IS NOT NULL" +
-          "       THEN json_set(extra, '$.presetContext', json_extract(extra, '$.presetRules'))" +
-          '       ELSE extra END,' +
-          "  '$.backend', 'fuigo') " +
-          "WHERE type = 'wcore' AND extra IS NOT NULL AND json_valid(extra)"
-      )
-      .run();
-    const r2 = db.prepare("UPDATE cron_jobs SET agent_type = 'fuigo' WHERE agent_type = 'wcore'").run();
-    const r3 = db
-      .prepare(
-        "UPDATE cron_jobs SET agent_config = json_set(agent_config, '$.backend', 'fuigo') " +
-          "WHERE agent_config IS NOT NULL AND json_valid(agent_config) AND json_extract(agent_config, '$.backend') = 'wcore'"
-      )
-      .run();
+    // A database opened straight from a pre-cutover fixture may carry only the
+    // tables its owner created (a v57 transcript fixture has `messages` alone);
+    // the rewrites below are no-ops on a table that does not exist yet, so skip
+    // them rather than fail the whole upgrade.
+    const hasTable = (name: string): boolean =>
+      // `get` is `undefined` on better-sqlite3/node:sqlite and `null` on bun:sqlite for no row.
+      db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(name) != null;
+    const zero = { changes: 0 };
+    const r1 = !hasTable('conversations')
+      ? zero
+      : db
+          .prepare(
+            "UPDATE conversations SET type = 'acp', extra = json_set(" +
+              "  CASE WHEN json_extract(extra, '$.presetContext') IS NULL AND json_extract(extra, '$.presetRules') IS NOT NULL" +
+              "       THEN json_set(extra, '$.presetContext', json_extract(extra, '$.presetRules'))" +
+              '       ELSE extra END,' +
+              "  '$.backend', 'fuigo') " +
+              "WHERE type = 'wcore' AND extra IS NOT NULL AND json_valid(extra)"
+          )
+          .run();
+    const hasCronJobs = hasTable('cron_jobs');
+    const r2 = hasCronJobs
+      ? db.prepare("UPDATE cron_jobs SET agent_type = 'fuigo' WHERE agent_type = 'wcore'").run()
+      : zero;
+    const r3 = !hasCronJobs
+      ? zero
+      : db
+          .prepare(
+            "UPDATE cron_jobs SET agent_config = json_set(agent_config, '$.backend', 'fuigo') " +
+              "WHERE agent_config IS NOT NULL AND json_valid(agent_config) AND json_extract(agent_config, '$.backend') = 'wcore'"
+          )
+          .run();
     // Only a Core row can carry these values under backend 'fuigo', so filtering
     // on the legacy value alone keeps this idempotent and leaves native Fuigo
     // rows untouched.
-    const r4 = db
-      .prepare(
-        "UPDATE conversations SET extra = json_set(extra, '$.sessionMode', " +
-          "  CASE json_extract(extra, '$.sessionMode') WHEN 'auto_edit' THEN 'acceptEdits' ELSE 'bypassPermissions' END) " +
-          "WHERE type = 'acp' AND extra IS NOT NULL AND json_valid(extra) " +
-          "  AND json_extract(extra, '$.backend') = 'fuigo' " +
-          "  AND json_extract(extra, '$.sessionMode') IN ('auto_edit', 'yolo', 'force')"
-      )
-      .run();
-    const r5 = db
-      .prepare(
-        "UPDATE cron_jobs SET agent_config = json_set(agent_config, '$.mode', " +
-          "  CASE json_extract(agent_config, '$.mode') WHEN 'auto_edit' THEN 'acceptEdits' ELSE 'bypassPermissions' END) " +
-          "WHERE agent_type = 'fuigo' AND agent_config IS NOT NULL AND json_valid(agent_config) " +
-          "  AND json_extract(agent_config, '$.mode') IN ('auto_edit', 'yolo', 'force')"
-      )
-      .run();
+    const r4 = !hasTable('conversations')
+      ? zero
+      : db
+          .prepare(
+            "UPDATE conversations SET extra = json_set(extra, '$.sessionMode', " +
+              "  CASE json_extract(extra, '$.sessionMode') WHEN 'auto_edit' THEN 'acceptEdits' ELSE 'bypassPermissions' END) " +
+              "WHERE type = 'acp' AND extra IS NOT NULL AND json_valid(extra) " +
+              "  AND json_extract(extra, '$.backend') = 'fuigo' " +
+              "  AND json_extract(extra, '$.sessionMode') IN ('auto_edit', 'yolo', 'force')"
+          )
+          .run();
+    const r5 = !hasCronJobs
+      ? zero
+      : db
+          .prepare(
+            "UPDATE cron_jobs SET agent_config = json_set(agent_config, '$.mode', " +
+              "  CASE json_extract(agent_config, '$.mode') WHEN 'auto_edit' THEN 'acceptEdits' ELSE 'bypassPermissions' END) " +
+              "WHERE agent_type = 'fuigo' AND agent_config IS NOT NULL AND json_valid(agent_config) " +
+              "  AND json_extract(agent_config, '$.mode') IN ('auto_edit', 'yolo', 'force')"
+          )
+          .run();
     console.log(
       `[Migration v59] Fuigo cutover: conversations wcore->acp/fuigo=${r1.changes}, ` +
         `cron_jobs.agent_type=${r2.changes}, cron_jobs.agent_config.backend=${r3.changes}, ` +

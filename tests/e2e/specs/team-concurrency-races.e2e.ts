@@ -73,9 +73,7 @@ test.describe.serial('Team concurrency + races (adversarial)', () => {
     // ordering is the critical surface: if it holds a single write lock,
     // these serialize cleanly; if not, the test would surface DB busy
     // errors or duplicate-id races.
-    const results = await Promise.all(
-      Array.from({ length: 5 }, (_, i) => createNamedTeam(page, `Parallel${i}`))
-    );
+    const results = await Promise.all(Array.from({ length: 5 }, (_, i) => createNamedTeam(page, `Parallel${i}`)));
 
     const created = results.filter((r): r is { id: string; name: string } => r !== null);
     if (created.length < 5) {
@@ -96,9 +94,7 @@ test.describe.serial('Team concurrency + races (adversarial)', () => {
     }
 
     // Cleanup.
-    await Promise.all(
-      created.map((c) => invokeBridge(page, 'team.remove', { id: c.id }).catch(() => undefined))
-    );
+    await Promise.all(created.map((c) => invokeBridge(page, 'team.remove', { id: c.id }).catch(() => undefined)));
   });
 
   test('case 2: delete team while team.add-agent is in flight - no orphan agent row', async ({ page }) => {
@@ -262,9 +258,7 @@ test.describe.serial('Team concurrency + races (adversarial)', () => {
     // connection. The hard requirement is: every call returns a consistent
     // snapshot containing our seeded team.
     const results = await Promise.all(
-      Array.from({ length: 50 }, () =>
-        invokeBridge<TeamRow[]>(page, 'team.list', { userId: 'system_default_user' })
-      )
+      Array.from({ length: 50 }, () => invokeBridge<TeamRow[]>(page, 'team.list', { userId: 'system_default_user' }))
     );
 
     expect(results.length).toBe(50);
