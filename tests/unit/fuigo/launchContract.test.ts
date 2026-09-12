@@ -190,7 +190,7 @@ describe('launch helpers', () => {
   });
 
   it('shares one engine home across conversations', () => {
-    expect(fuigoHomeDir('/u')).toBe('/u/fuigo');
+    expect(fuigoHomeDir('/u')).toBe(join('/u', 'fuigo'));
   });
 
   it('switches off every vendor-compat surface Fuigo would import from the user home', () => {
@@ -220,7 +220,8 @@ describe('launch helpers', () => {
       const config = readFileSync(join(home, 'config.toml'), 'utf8');
       expect(config).toBe(FUIGO_MANAGED_CONFIG);
       expect(config).toMatch(/^\[plugins\]\nauto_discover = false$/m);
-      expect(statSync(join(home, 'config.toml')).mode & 0o777).toBe(0o600);
+      // POSIX modes only: Windows reports 0o666 for every file.
+      if (process.platform !== 'win32') expect(statSync(join(home, 'config.toml')).mode & 0o777).toBe(0o600);
     });
 
     it('rewrites a drifted config and leaves a current one untouched', () => {
