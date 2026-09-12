@@ -89,7 +89,7 @@ describe('Monaco-free dependency and build-input boundary', () => {
       '@codemirror/view': '^6.40.0',
       dompurify: '^3.4.12',
       mermaid: '^11.16.0',
-      multer: '^2.2.0',
+      multer: '^2.3.0',
       'react-router-dom': '7.18.3',
       ws: '^8.21.1',
     });
@@ -98,7 +98,7 @@ describe('Monaco-free dependency and build-input boundary', () => {
     for (const [name, version] of Object.entries({
       dompurify: '3.4.12',
       mermaid: '11.16.0',
-      multer: '2.2.0',
+      multer: '2.3.0',
       'react-router-dom': '7.18.3',
       vite: '6.4.3',
       ws: '8.21.1',
@@ -122,7 +122,7 @@ describe('Monaco-free dependency and build-input boundary', () => {
     for (const [name, version] of Object.entries({
       dompurify: '3.4.12',
       mermaid: '11.16.0',
-      multer: '2.2.0',
+      multer: '2.3.0',
       'react-router-dom': '7.18.3',
       vite: '6.4.3',
       ws: '8.21.1',
