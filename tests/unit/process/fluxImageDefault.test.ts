@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { resolveFluxImageDefault } from '@/process/utils/fluxImageDefault';
+import { remapLegacyFluxImageArm, resolveFluxImageDefault } from '@/process/utils/fluxImageDefault';
 import type { IProvider } from '@/common/config/storage';
 
 const fluxRow = (overrides: Partial<IProvider> = {}): IProvider => ({
@@ -36,7 +36,7 @@ describe('resolveFluxImageDefault', () => {
       platform: 'openai',
       baseUrl: 'https://api.fluxrouter.ai/v1',
       apiKey: 'sk-flux',
-      useModel: 'flux-image',
+      useModel: 'flux-image-gpt25',
     });
   });
 
@@ -51,7 +51,7 @@ describe('resolveFluxImageDefault', () => {
       __waylandModelRegistryBridge: 'v2:flux-router',
     } as unknown as IProvider;
     const seed = resolveFluxImageDefault({ current: undefined, providers: [bridged], fluxKey: 'sk-flux' });
-    expect(seed?.useModel).toBe('flux-image');
+    expect(seed?.useModel).toBe('flux-image-gpt25');
     expect(seed?.id).toBe('3a5a47d1');
     expect(seed?.apiKey).toBe('sk-flux');
     // Empty baseUrl falls back to the Flux OpenAI surface.
@@ -69,7 +69,7 @@ describe('resolveFluxImageDefault', () => {
       providers: [fluxRow({ platform: 'flux-router', baseUrl: '' })],
       fluxKey: 'sk-flux',
     });
-    expect(seed?.useModel).toBe('flux-image');
+    expect(seed?.useModel).toBe('flux-image-gpt25');
     expect(seed?.baseUrl).toBe('https://api.fluxrouter.ai/v1');
   });
 
@@ -95,5 +95,32 @@ describe('resolveFluxImageDefault', () => {
 
   it('does not mistake an OpenAI row for Flux', () => {
     expect(resolveFluxImageDefault({ current: undefined, providers: [otherRow()], fluxKey: 'sk-flux' })).toBeNull();
+  });
+});
+
+describe('remapLegacyFluxImageArm', () => {
+  const pinned = (useModel: string) =>
+    ({
+      id: 'flux-router',
+      name: 'Flux Router',
+      platform: 'openai-compatible',
+      baseUrl: '',
+      apiKey: 'k',
+      useModel,
+    }) as Parameters<typeof remapLegacyFluxImageArm>[0];
+
+  it('rewrites a pinned pre-alias arm id to its customer alias, keeping the rest of the row', () => {
+    expect(remapLegacyFluxImageArm(pinned('gpt-image-high'))).toEqual({
+      ...pinned('gpt-image-high'),
+      useModel: 'flux-image-gpt-high',
+    });
+    expect(remapLegacyFluxImageArm(pinned('nano-banana-pro-2k'))?.useModel).toBe('flux-image-nano-banana-pro');
+  });
+
+  it('leaves a working choice, a non-Flux model and an unset config alone', () => {
+    expect(remapLegacyFluxImageArm(pinned('flux-image-gpt25'))).toBeNull();
+    expect(remapLegacyFluxImageArm(pinned('flux-image'))).toBeNull();
+    expect(remapLegacyFluxImageArm(pinned('gpt-image-1.5'))).toBeNull();
+    expect(remapLegacyFluxImageArm(undefined)).toBeNull();
   });
 });

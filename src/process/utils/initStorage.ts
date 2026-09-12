@@ -44,7 +44,7 @@ import { writeFileAtomic } from './atomicWrite';
 import { planPresetLocaleFileCopies } from './presetLocaleFiles';
 import { absolutizeSkillPaths } from './presetRulePaths';
 import { getOsUserName } from './osUserName';
-import { resolveFluxImageDefault } from './fluxImageDefault';
+import { remapLegacyFluxImageArm, resolveFluxImageDefault } from './fluxImageDefault';
 import { readConnectedFluxKey } from '../connectors/fluxKey';
 import {
   assertDatabaseSchemaCompatible,
@@ -921,6 +921,15 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
     // a connected-Flux user gets working image generation with zero setup.
     let imageConfig = oldConfig;
     let seededImageConfig = false;
+    // A pinned pre-2026-09-12 Flux arm id (e.g. `gpt-image-high`) is refused by
+    // customer keys; rewrite it to its customer alias and push the env below.
+    const remapped = remapLegacyFluxImageArm(oldConfig);
+    if (remapped) {
+      imageConfig = remapped;
+      seededImageConfig = true;
+      await configFile.set('tools.imageGenerationModel', remapped);
+      console.log(`[Wayland] Remapped legacy Flux image arm ${oldConfig?.useModel} -> ${remapped.useModel}`);
+    }
     if (!oldConfig || !oldConfig.useModel) {
       try {
         const fluxKey = await readConnectedFluxKey();
@@ -963,9 +972,10 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
         ((existing.transport.args || [])[0] !== scriptPath || needsNameMigration);
 
       const needsMigration = shouldEnable && !existing.enabled;
-      // When we just seeded a Flux image default, push its env onto the
-      // already-existing built-in server so the MCP picks up WAYLAND_IMG_* on
-      // this boot (the env is otherwise only built when the server is created).
+      // When we just seeded a Flux image default (or remapped a legacy arm id),
+      // push its env onto the already-existing built-in server so the MCP picks
+      // up WAYLAND_IMG_* on this boot (the env is otherwise only built when the
+      // server is created).
       const needsSeedEnv = seededImageConfig && existing.transport.type === 'stdio';
       const needsEnvUpdate = needsMigration || needsSeedEnv;
 

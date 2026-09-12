@@ -503,16 +503,18 @@ const FLUX_BASE = 'https://api.fluxrouter.ai/v1';
 describe('isFluxImagesProvider', () => {
   it('matches by the Flux host even when platform is openai-compatible', () => {
     expect(
-      isFluxImagesProvider(makeProvider({ platform: 'openai', baseUrl: FLUX_BASE, useModel: 'gpt-image-high' }))
+      isFluxImagesProvider(makeProvider({ platform: 'openai', baseUrl: FLUX_BASE, useModel: 'flux-image-gpt-high' }))
     ).toBe(true);
     expect(
-      isFluxImagesProvider(makeProvider({ platform: 'openai-compatible', baseUrl: FLUX_BASE, useModel: 'nano-banana' }))
+      isFluxImagesProvider(
+        makeProvider({ platform: 'openai-compatible', baseUrl: FLUX_BASE, useModel: 'flux-image-nano-banana' })
+      )
     ).toBe(true);
   });
 
   it('matches by the canonical flux-router platform id', () => {
     expect(
-      isFluxImagesProvider(makeProvider({ platform: 'flux-router', baseUrl: '', useModel: 'gpt-image-high' }))
+      isFluxImagesProvider(makeProvider({ platform: 'flux-router', baseUrl: '', useModel: 'flux-image-gpt-high' }))
     ).toBe(true);
   });
 
@@ -524,7 +526,9 @@ describe('isFluxImagesProvider', () => {
       isFluxImagesProvider(makeProvider({ platform: 'openai-compatible', baseUrl: '', useModel: 'flux-image' }))
     ).toBe(true);
     expect(
-      isFluxImagesProvider(makeProvider({ platform: 'openai-compatible', baseUrl: '', useModel: 'nano-banana-pro-2k' }))
+      isFluxImagesProvider(
+        makeProvider({ platform: 'openai-compatible', baseUrl: '', useModel: 'flux-image-nano-banana-pro' })
+      )
     ).toBe(true);
   });
 
@@ -571,7 +575,7 @@ describe('executeImageGeneration - Flux Router image provider', () => {
 
     const result = await executeImageGeneration(
       { prompt: 'a red apple' },
-      makeProvider({ platform: 'openai', baseUrl: FLUX_BASE, apiKey: 'flux-key', useModel: 'gpt-image-high' }),
+      makeProvider({ platform: 'openai', baseUrl: FLUX_BASE, apiKey: 'flux-key', useModel: 'flux-image-gpt-high' }),
       '/workspace'
     );
 
@@ -581,7 +585,7 @@ describe('executeImageGeneration - Flux Router image provider', () => {
     expect((init as RequestInit).method).toBe('POST');
     expect((init as RequestInit).headers).toMatchObject({ Authorization: 'Bearer flux-key' });
     const body = JSON.parse((init as RequestInit).body as string);
-    expect(body).toEqual({ model: 'gpt-image-high', prompt: 'a red apple', n: 1 });
+    expect(body).toEqual({ model: 'flux-image-gpt-high', prompt: 'a red apple', n: 1 });
     expect(body).not.toHaveProperty('response_format');
     expect(createImage).not.toHaveBeenCalled();
     expect(createChatCompletion).not.toHaveBeenCalled();
@@ -617,7 +621,7 @@ describe('executeFluxImageGen', () => {
 
     const result = await executeFluxImageGen(
       { prompt: 'a red apple' },
-      fluxProvider('gpt-image-high'),
+      fluxProvider('flux-image-gpt-high'),
       '/workspace',
       false,
       undefined,
@@ -632,7 +636,7 @@ describe('executeFluxImageGen', () => {
     );
   });
 
-  it('sends the recommended "flux-image" entry model-less so Flux applies the account default', async () => {
+  it('sends the "flux-image" alias explicitly - a model-less request skips Flux\'s default routing', async () => {
     const fetchFn = vi
       .fn()
       .mockResolvedValue(
@@ -651,8 +655,7 @@ describe('executeFluxImageGen', () => {
     expect(result.success).toBe(true);
     const init = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
     const body = JSON.parse(init.body as string);
-    expect(body).toEqual({ prompt: 'a red apple', n: 1 });
-    expect(body).not.toHaveProperty('model');
+    expect(body).toEqual({ model: 'flux-image', prompt: 'a red apple', n: 1 });
     expect(body).not.toHaveProperty('category');
   });
 
@@ -670,7 +673,7 @@ describe('executeFluxImageGen', () => {
 
     const result = await executeFluxImageGen(
       { prompt: 'a banana' },
-      fluxProvider('nano-banana-pro-2k'),
+      fluxProvider('flux-image-nano-banana-pro'),
       '/workspace',
       false,
       undefined,
@@ -693,7 +696,7 @@ describe('executeFluxImageGen', () => {
 
     const result = await executeFluxImageGen(
       { prompt: 'a red apple' },
-      fluxProvider('gpt-image-high'),
+      fluxProvider('flux-image-gpt-high'),
       '/workspace',
       false,
       undefined,
@@ -719,7 +722,7 @@ describe('executeFluxImageGen', () => {
 
     const result = await executeFluxImageGen(
       { prompt: 'a red apple' },
-      fluxProvider('gpt-image-high'),
+      fluxProvider('flux-image-gpt-high'),
       '/workspace',
       false,
       undefined,
@@ -756,7 +759,7 @@ describe('executeFluxImageGen', () => {
 
     const result = await executeFluxImageGen(
       { prompt: 'make it blue' },
-      fluxProvider('gpt-image-high'),
+      fluxProvider('flux-image-gpt-high'),
       '/workspace',
       true,
       undefined,
