@@ -108,6 +108,22 @@ describe('fuigoByokProvidersFromRows', () => {
     expect(p.entries.map((e) => e.model)).toEqual(['gpt-4o']);
   });
 
+  it('fills a registry-mirrored OpenAI-compatible row with its canonical chat base', () => {
+    const [groq, hand] = fuigoByokProvidersFromRows([
+      row({
+        id: 'r-groq',
+        platform: 'openai-compatible',
+        name: 'Groq',
+        baseUrl: '',
+        model: ['llama-3.3-70b'],
+        __waylandModelRegistryBridge: 'v2:groq',
+      }),
+      row({ id: 'r-hand', platform: 'openai-compatible', name: 'Hand added', baseUrl: '', model: ['x'] }),
+    ]);
+    expect(groq.entries[0]).toMatchObject({ id: 'byok/groq/llama-3.3-70b', baseUrl: 'https://api.groq.com/openai/v1' });
+    expect(hand).toBeUndefined();
+  });
+
   it('accepts a custom OpenAI-compatible endpoint and strips the trailing slash', () => {
     const [p] = fuigoByokProvidersFromRows([
       row({

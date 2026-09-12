@@ -1463,7 +1463,7 @@ const CHAT_START_PLATFORM: Partial<Record<ProviderId, string>> = {
 };
 
 /** Canonical base URL per provider. A user-saved custom URL overrides this. */
-const CHAT_START_BASE_URL: Partial<Record<ProviderId, string>> = {
+export const CHAT_START_BASE_URL: Partial<Record<ProviderId, string>> = {
   anthropic: 'https://api.anthropic.com',
   openai: 'https://api.openai.com/v1',
   'google-gemini': 'https://generativelanguage.googleapis.com',

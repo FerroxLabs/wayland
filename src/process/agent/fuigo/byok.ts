@@ -29,6 +29,8 @@
 import type { IProvider } from '@/common/config/storage';
 import { isFluxProviderRow } from '@/common/config/imageModels';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { CHAT_START_BASE_URL } from '@process/providers/ipc/modelRegistryIpc';
+import type { ProviderId } from '@process/providers/types';
 import type { FuigoByokModelEntry } from './launch';
 
 export type FuigoByokProvider = {
@@ -47,6 +49,16 @@ const DEFAULT_BASE_URL: Record<string, string> = {
   openai: 'https://api.openai.com/v1',
 };
 
+/**
+ * A registry-mirrored row carries an empty `baseUrl` unless the user typed
+ * one, so fall back to the canonical chat base the legacy dispatch uses
+ * (Groq, DeepSeek, Cerebras, xAI, …); a hand-added row must name its URL.
+ */
+function defaultBaseUrl(row: IProvider, registryId: string | undefined): string {
+  if (registryId) return CHAT_START_BASE_URL[registryId as ProviderId] ?? '';
+  return DEFAULT_BASE_URL[row.platform] ?? '';
+}
+
 function registryProviderId(row: IProvider): string | undefined {
   const tag = (row as unknown as Record<string, unknown>)[BRIDGE_TAG_KEY];
   return typeof tag === 'string' && tag.startsWith('v2:') ? tag.slice(3) : undefined;
@@ -60,8 +72,8 @@ function slug(value: string): string {
 }
 
 /** Fuigo appends `/messages` (Anthropic) or `/chat/completions` to `base_url`. */
-function resolveBaseUrl(row: IProvider): string | undefined {
-  const raw = (row.baseUrl || DEFAULT_BASE_URL[row.platform] || '').trim().replace(/\/+$/, '');
+function resolveBaseUrl(row: IProvider, registryId: string | undefined): string | undefined {
+  const raw = (row.baseUrl || defaultBaseUrl(row, registryId)).trim().replace(/\/+$/, '');
   if (!/^https?:\/\//.test(raw)) return undefined;
   if (row.platform === 'anthropic' && !raw.endsWith('/v1')) return `${raw}/v1`;
   return raw;
@@ -79,7 +91,7 @@ export function fuigoByokProvidersFromRows(rows: readonly IProvider[]): FuigoByo
     if (registryId && SKIPPED_REGISTRY_PROVIDERS.has(registryId)) continue;
     const apiKey = typeof row.apiKey === 'string' ? row.apiKey.trim() : '';
     if (!apiKey) continue;
-    const baseUrl = resolveBaseUrl(row);
+    const baseUrl = resolveBaseUrl(row, registryId);
     if (!baseUrl) continue;
     const provider = slug(registryId ?? row.name ?? row.platform) || row.platform;
     if (seenProviders.has(provider)) continue;
