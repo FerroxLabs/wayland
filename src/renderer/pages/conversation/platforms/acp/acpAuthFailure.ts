@@ -19,12 +19,12 @@ const AUTH_FAILURE_SIGNATURES = [
   '[acp-auth-',
   'oauth',
   'unauthorized',
-  // Engine-start credential failures (#629): the wcore engine bails during init
-  // with "No API key found" (engine config.rs) when it is spawned without a
-  // working key - the exact dead-end a paid user hit after a credit top-up left
-  // `model.apiKey` empty. Treat it as an auth failure so the recovery card
-  // (re-enter key / reconnect Flux) shows instead of a raw stderr bubble. The
-  // desktop's pre-spawn guard (MissingApiKeyError) also surfaces this phrasing.
+  // Engine-start credential failures (#629): an engine that bails during init
+  // with "No API key found" when it is spawned without a working key - the
+  // exact dead-end a paid user hit after a credit top-up left `model.apiKey`
+  // empty. Treat it as an auth failure so the recovery card (re-enter key /
+  // reconnect Flux) shows instead of a raw stderr bubble. The desktop's
+  // pre-spawn guard (MissingApiKeyError) also surfaces this phrasing.
   'no api key',
   'missingapikey',
   'api key not found',
@@ -135,17 +135,6 @@ const BACKEND_REMEDIES: Record<string, Partial<AcpAuthRemedy>> = {
     backendLabel: 'OpenCode',
     cliLoginCmd: 'opencode auth login',
     fluxRoutable: true,
-  },
-  wcore: {
-    backendLabel: 'Wayland Core',
-    fluxRoutable: true,
-    // Wayland Core routes any provider, so the add-key remedy is vendor-neutral.
-    genericProviderKey: true,
-    // No CLI login and no subscription fallback - the only fixes are a working
-    // provider key or the Flux route. Keep cliLoginCmd undefined so buildRemedy
-    // does not synthesize a "wcore login" command.
-    cliLoginCmd: undefined,
-    explainerKey: 'conversation.acpAuthFailure.wcoreExplainer',
   },
 };
 

@@ -18,10 +18,6 @@ vi.mock('@/common', () => ({
     openclawConversation: {
       getRuntime: mockProvider('openclawConversation.getRuntime'),
     },
-    wcoreRecovery: {
-      get: mockProvider('wcoreRecovery.get'),
-      abandon: mockProvider('wcoreRecovery.abandon'),
-    },
     conversation: {
       create: mockProvider('conversation.create'),
       reloadContext: mockProvider('conversation.reloadContext'),

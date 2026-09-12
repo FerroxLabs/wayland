@@ -130,7 +130,7 @@ describe('buildAgentConversationParams', () => {
   // `wayland-core`. It is a NEW launch, so it routes to the Fuigo ACP backend -
   // never to a fresh Core conversation, and never to `acp` with the alias left
   // in `extra.backend` (which spawns nothing: "No CLI path for backend").
-  it('routes the team `wayland-core` backend to acp + fuigo (not wcore)', () => {
+  it('routes the team `wayland-core` backend to acp + fuigo', () => {
     const params = buildAgentConversationParams({
       backend: 'wayland-core',
       name: 'Team Member',
@@ -160,14 +160,14 @@ describe('buildAgentConversationParams', () => {
     expect(params.extra).not.toHaveProperty('presetRules');
   });
 
-  it('keeps a literal `wcore` backend on the Core manager (existing conversations)', () => {
+  it.each(['wcore', 'wnano'])('routes a persisted retired-engine backend %s to acp + fuigo', (backend) => {
     const params = buildAgentConversationParams({
-      backend: 'wcore',
+      backend: backend as never,
       name: 'Existing Core Chat',
       workspace: '/workspace',
       model: {} as never,
     });
-    expect(params.type).toBe('wcore');
-    expect(params.extra).not.toHaveProperty('backend');
+    expect(params.type).toBe('acp');
+    expect(params.extra).toHaveProperty('backend', 'fuigo');
   });
 });

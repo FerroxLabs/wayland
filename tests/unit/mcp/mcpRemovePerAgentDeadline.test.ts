@@ -17,7 +17,7 @@ import type { IMcpServer } from '@/common/config/storage';
 
 const { removes } = vi.hoisted(() => ({
   removes: {
-    wcore: vi.fn(async () => ({ success: true, outcome: 'applied' as const })),
+    gemini: vi.fn(async () => ({ success: true, outcome: 'applied' as const })),
     // The shape RC1 caught on the publication side, here on removal.
     qwen: vi.fn(() => new Promise<never>(() => {})),
     other: vi.fn(async () => ({ success: true, outcome: 'already-absent' as const })),
@@ -41,10 +41,9 @@ function stubAgent(remove: () => Promise<{ success: boolean; error?: string; out
   };
 }
 
-vi.mock('@process/services/mcpServices/agents/WCoreMcpAgent', () => ({ WCoreMcpAgent: stubAgent(removes.wcore) }));
 vi.mock('@process/services/mcpServices/agents/QwenMcpAgent', () => ({ QwenMcpAgent: stubAgent(removes.qwen) }));
 vi.mock('@process/services/mcpServices/agents/ClaudeMcpAgent', () => ({ ClaudeMcpAgent: stubAgent(removes.other) }));
-vi.mock('@process/services/mcpServices/agents/GeminiMcpAgent', () => ({ GeminiMcpAgent: stubAgent(removes.other) }));
+vi.mock('@process/services/mcpServices/agents/GeminiMcpAgent', () => ({ GeminiMcpAgent: stubAgent(removes.gemini) }));
 vi.mock('@process/services/mcpServices/agents/WaylandMcpAgent', () => ({ WaylandMcpAgent: stubAgent(removes.other) }));
 vi.mock('@process/services/mcpServices/agents/CodexMcpAgent', () => ({ CodexMcpAgent: stubAgent(removes.other) }));
 vi.mock('@process/services/mcpServices/agents/OpencodeMcpAgent', () => ({
@@ -57,7 +56,7 @@ vi.mock('@process/services/mcpServices/agents/CodebuddyMcpAgent', () => ({
 import { McpService } from '@process/services/mcpServices/McpService';
 
 const agents = [
-  { backend: 'wcore', name: 'Wayland Core' },
+  { backend: 'gemini', cliPath: 'gemini', name: 'Gemini CLI' },
   { backend: 'claude', name: 'Claude Code' },
   { backend: 'qwen', name: 'Qwen Code' },
 ];
@@ -92,10 +91,10 @@ describe('MCP removal cannot be hung by one agent', () => {
     // agent count never matched the panel: the service fans out to more
     // targets than the renderer counted.)
     for (const name of byAgent.keys()) expect(name).not.toContain(':');
-    expect([...byAgent.keys()]).toEqual(expect.arrayContaining(['Claude Code', 'Qwen Code', 'Wayland Core']));
+    expect([...byAgent.keys()]).toEqual(expect.arrayContaining(['Claude Code', 'Qwen Code', 'Gemini CLI']));
 
-    expect(byAgent.get('Wayland Core')?.success).toBe(true);
-    expect(byAgent.get('Wayland Core')?.outcome).toBe('applied');
+    expect(byAgent.get('Gemini CLI')?.success).toBe(true);
+    expect(byAgent.get('Gemini CLI')?.outcome).toBe('applied');
 
     // Removing something that was already gone is a success, and it is
     // reported as a DIFFERENT state from "we changed it".

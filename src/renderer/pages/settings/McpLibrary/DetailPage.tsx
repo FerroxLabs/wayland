@@ -969,7 +969,7 @@ export function DetailPage() {
                   <span>
                     {t(
                       'mcpLibrary.detail.toolScopeNotice',
-                      'These switches are enforced on {{engines}}. Other engines - including Wayland Core and the ACP agents - receive the whole connector, so a tool switched off here is still callable there. Turn the connector itself off to remove it everywhere.',
+                      'These switches are enforced on {{engines}}. Other engines - including Fuigo and the ACP agents - receive the whole connector, so a tool switched off here is still callable there. Turn the connector itself off to remove it everywhere.',
                       { engines: enforcingEngines }
                     )}
                   </span>

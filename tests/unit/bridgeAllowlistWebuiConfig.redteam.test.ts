@@ -46,12 +46,6 @@ describe('isRemoteDeniedConfigWrite — webui.desktop.* writes denied to remote 
     expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('webui.someOtherKey', true))).toBe(false);
   });
 
-  it('denies generic remote writes that bypass dedicated Core preference authorities', () => {
-    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('wcore.rawEngineMode', true))).toBe(true);
-    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('wcore.outputBudget', { mode: 'auto' }))).toBe(true);
-    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('wcore.unrelatedPreference', true))).toBe(false);
-  });
-
   it('only gates the agent.config setter, not reads or other wire keys', () => {
     expect(isRemoteDeniedConfigWrite('subscribe-agent.config.storage.get', 'webui.desktop.allowRemote')).toBe(false);
     expect(

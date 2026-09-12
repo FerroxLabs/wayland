@@ -49,10 +49,6 @@ import { createAcpStderrReader } from '@process/acp/acpStderrLog';
 import { NdjsonTransport } from '@process/acp/infra/NdjsonTransport';
 import { gracefulShutdown, waitForExit, waitForSpawn } from '@process/acp/infra/processUtils';
 import type { PromptContent, ProtocolHandlers } from '@process/acp/types';
-import type {
-  ResolvedWaylandNanoActivationInput,
-  WaylandNanoActivationAttempt,
-} from '@process/agent/acp/AcpConnection';
 import type { ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs';
 
@@ -148,7 +144,6 @@ export type ProcessAcpClientOptions = {
   platform?: NodeJS.Platform;
   /** Override {@link TRANSPORT_SILENCE_MS}. Tests only; production uses the default. */
   transportSilenceMs?: number;
-  waylandNanoActivation?: ResolvedWaylandNanoActivationInput;
 };
 
 export class ProcessAcpClient implements AcpClient {
@@ -186,7 +181,6 @@ export class ProcessAcpClient implements AcpClient {
 
   // Pending request tracking
   private readonly pendingRequests = new Set<PendingRequest>();
-  private waylandNanoAttempt: WaylandNanoActivationAttempt | null = null;
 
   constructor(
     private readonly spawnFn: () => Promise<ChildProcess>,
@@ -234,10 +228,8 @@ export class ProcessAcpClient implements AcpClient {
         requestPermission: async (params) => this.options.handlers.onRequestPermission(params),
         readTextFile: async (params) => this.options.handlers.onReadTextFile(params),
         writeTextFile: async (params) => this.options.handlers.onWriteTextFile(params),
-        // Vendor extensions. The SDK does NOT schema-validate these, which is
-        // exactly why Nano's cost metering moved here after `sessionUpdate:
-        // 'budget'` was rejected outright. Without this arm the SDK answers
-        // methodNotFound and logs on every frame.
+        // Vendor extensions. The SDK does NOT schema-validate these; without
+        // this arm it answers methodNotFound and logs on every frame.
         extNotification: async (method, params) => this.options.handlers.onExtNotification?.(method, params),
       }),
       stream
@@ -278,45 +270,26 @@ export class ProcessAcpClient implements AcpClient {
   // ─── Protocol Methods (wrapped with runConnectionRequest) ──
 
   async createSession(params: CreateSessionParams): Promise<NewSessionResponse> {
-    const attempt = await this.buildWaylandNanoAttempt('new', null);
-    try {
-      const response = await this.runConnectionRequest(() =>
-        this.conn.newSession({
-          cwd: params.cwd,
-          mcpServers: params.mcpServers ?? [],
-          additionalDirectories: params.additionalDirectories,
-          _meta: projectSessionMetadata(params.metadata, attempt?.activation),
-        })
-      );
-      attempt?.observeTerminalResponse?.(response);
-      return response;
-    } catch (error) {
-      attempt?.observeTerminalResponse?.(requestErrorData(error));
-      throw error;
-    }
+    return this.runConnectionRequest(() =>
+      this.conn.newSession({
+        cwd: params.cwd,
+        mcpServers: params.mcpServers ?? [],
+        additionalDirectories: params.additionalDirectories,
+        _meta: projectSessionMetadata(params.metadata),
+      })
+    );
   }
 
   async loadSession(params: LoadSessionParams): Promise<LoadSessionResponse> {
-    if (this.options.backend === 'wnano' && !this.options.waylandNanoActivation) {
-      throw new Error('Bounded nonpersistent Wayland Nano cannot load a persistent session');
-    }
-    const attempt = await this.buildWaylandNanoAttempt('load', params.sessionId);
-    try {
-      const response = await this.runConnectionRequest(() =>
-        this.conn.loadSession({
-          sessionId: params.sessionId,
-          cwd: params.cwd,
-          mcpServers: params.mcpServers ?? [],
-          additionalDirectories: params.additionalDirectories,
-          _meta: projectSessionMetadata(params.metadata, attempt?.activation),
-        })
-      );
-      attempt?.observeTerminalResponse?.(response);
-      return response;
-    } catch (error) {
-      attempt?.observeTerminalResponse?.(requestErrorData(error));
-      throw error;
-    }
+    return this.runConnectionRequest(() =>
+      this.conn.loadSession({
+        sessionId: params.sessionId,
+        cwd: params.cwd,
+        mcpServers: params.mcpServers ?? [],
+        additionalDirectories: params.additionalDirectories,
+        _meta: projectSessionMetadata(params.metadata),
+      })
+    );
   }
 
   /**
@@ -334,9 +307,6 @@ export class ProcessAcpClient implements AcpClient {
    * the spec stabilizes, to the stable SDK method.
    */
   async forkSession(params: ForkSessionParams): Promise<ForkSessionResponse> {
-    if (this.options.backend === 'wnano') {
-      throw new Error('Wayland Nano session fork is unavailable without a signed fork activation contract');
-    }
     return this.runConnectionRequest(() =>
       this.conn.extMethod('session/new', {
         cwd: params.cwd,
@@ -359,21 +329,12 @@ export class ProcessAcpClient implements AcpClient {
   }
 
   async cancel(sessionId: string): Promise<void> {
-    const control = await this.buildWaylandNanoControl('cancel', sessionId);
-    await this.runConnectionRequest(() =>
-      this.conn.cancel({ sessionId, ...(control && { _meta: { waylandNanoControl: control } }) })
-    );
+    await this.runConnectionRequest(() => this.conn.cancel({ sessionId }));
   }
 
-  /** Signed Nano wire pause; unrelated to the local permission timeout timer. */
+  /** Wire pause; unrelated to the local permission timeout timer. */
   async pause(sessionId: string): Promise<void> {
-    const control = await this.buildWaylandNanoControl('pause', sessionId);
-    await this.runConnectionRequest(() =>
-      this.conn.extNotification('session/pause', {
-        sessionId,
-        ...(control && { _meta: { waylandNanoControl: control } }),
-      })
-    );
+    await this.runConnectionRequest(() => this.conn.extNotification('session/pause', { sessionId }));
   }
 
   async closeSession(sessionId: string): Promise<void> {
@@ -425,25 +386,6 @@ export class ProcessAcpClient implements AcpClient {
     return this.runConnectionRequest(() => this.conn.extMethod(method, params));
   }
 
-  private async buildWaylandNanoAttempt(
-    operation: 'new' | 'load',
-    sessionId: string | null
-  ): Promise<WaylandNanoActivationAttempt | null> {
-    const producer = this.options.waylandNanoActivation;
-    if (!producer) return null;
-    if (this.options.backend !== 'wnano') {
-      throw new Error('Wayland Nano activation input cannot be used by another backend');
-    }
-    const attempt = await producer.buildAttempt({ operation, sessionId });
-    this.waylandNanoAttempt = attempt;
-    return attempt;
-  }
-
-  private async buildWaylandNanoControl(control: 'cancel' | 'pause', sessionId: string) {
-    if (!this.waylandNanoAttempt) return null;
-    return this.waylandNanoAttempt.buildControl(control, sessionId);
-  }
-
   // ─── Shutdown ─────────────────────────────────────────────
 
   async close(): Promise<void> {
@@ -455,7 +397,6 @@ export class ProcessAcpClient implements AcpClient {
     }
     this.connection = null;
     this._connProxy = null;
-    await this.options.waylandNanoActivation?.binary.dispose();
   }
 
   // ─── Internals: Connection accessor ────────────────────────
@@ -1134,9 +1075,4 @@ export class ProcessAcpClient implements AcpClient {
     }
     return removed;
   }
-}
-
-function requestErrorData(error: unknown): unknown {
-  if (typeof error !== 'object' || error === null || !('data' in error)) return undefined;
-  return (error as Readonly<{ data?: unknown }>).data;
 }

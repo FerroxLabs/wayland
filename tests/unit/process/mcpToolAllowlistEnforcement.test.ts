@@ -34,12 +34,7 @@ import {
   resolveModelToolCap,
 } from '@/common/mcp';
 import type { IMcpServer } from '@/common/config/storage';
-import {
-  buildAcpSessionMcpServers,
-  buildWCoreSessionMcpServers,
-  buildWCoreUserStdioMcpServers,
-} from '@process/agent/acp/mcpSessionConfig';
-import { appendDesktopMcpProfile } from '@process/agent/wcore/envBuilder';
+import { buildAcpSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import { buildCodexMcpServerTable } from '@process/task/codexConfig';
 import { buildGeminiStdioMcpConfig } from '@process/task/GeminiAgentManager';
 
@@ -102,23 +97,6 @@ describe('#998 backends that DO enforce the per-tool switch', () => {
 });
 
 describe('#998 backends that CANNOT enforce it must not claim to', () => {
-  it('the wcore launch profile is server-level only - no tool names reach it', () => {
-    const profile = appendDesktopMcpProfile(null, ['workspace']);
-
-    expect(profile).toContain('mcp_servers = ["workspace"]');
-    expect(profile).not.toContain(KEPT);
-    expect(profile).not.toContain(DISABLED);
-  });
-
-  it('the wcore stdio injection carries no tool list', () => {
-    const [injected] = buildWCoreUserStdioMcpServers([scopedServer()]);
-
-    expect(injected.name).toBe('workspace');
-    expect(Object.keys(injected)).toEqual(
-      expect.not.arrayContaining(['allowedTools', 'enabled_tools', 'includeTools'])
-    );
-  });
-
   it('the ACP session/new array carries no tool list', () => {
     const [injected] = buildAcpSessionMcpServers([scopedServer()], ACP_CAPS);
 
@@ -128,8 +106,8 @@ describe('#998 backends that CANNOT enforce it must not claim to', () => {
     );
   });
 
-  it('wcore and the ACP backends are absent from the enforcing set', () => {
-    for (const backend of ['wcore', 'claude', 'qwen', 'wnano', 'grok', 'kimi', 'opencode', 'copilot']) {
+  it('the ACP backends are absent from the enforcing set', () => {
+    for (const backend of ['fuigo', 'claude', 'qwen', 'grok', 'kimi', 'opencode', 'copilot']) {
       expect(backendEnforcesToolAllowlist(backend)).toBe(false);
     }
     expect(backendEnforcesToolAllowlist(undefined)).toBe(false);
@@ -142,16 +120,6 @@ describe('#998 backends that CANNOT enforce it must not claim to', () => {
     for (const backend of TOOL_ALLOWLIST_ENFORCING_BACKENDS) {
       expect(backendEnforcesToolAllowlist(backend)).toBe(true);
     }
-  });
-
-  it('buildWCoreSessionMcpServers preserves allowedTools as data but the profile never emits it', () => {
-    // The selected-server list keeps the field (it is the same IMcpServer
-    // record); enforcement is decided by what the PROFILE carries, which is
-    // asserted above. This documents that the field's presence here is not
-    // evidence of enforcement.
-    const [selected] = buildWCoreSessionMcpServers([scopedServer()]);
-    expect(selected.allowedTools).toEqual([KEPT]);
-    expect(appendDesktopMcpProfile(null, [selected.name])).not.toContain(KEPT);
   });
 });
 

@@ -52,23 +52,23 @@ describe('getAgentKey', () => {
 
 describe('filterVisibleAgents', () => {
   const agents = [
-    { backend: 'wcore' as const },
+    { backend: 'fuigo' as const },
     { backend: 'claude' as const },
     { backend: 'codex' as const },
     { backend: 'copilot' as const },
   ];
 
   it('passes undefined through (agents still loading)', () => {
-    expect(filterVisibleAgents(undefined, new Set(), 'wcore')).toBeUndefined();
+    expect(filterVisibleAgents(undefined, new Set(), 'fuigo')).toBeUndefined();
   });
 
   it('returns every agent when nothing is hidden', () => {
-    expect(filterVisibleAgents(agents, new Set(), 'wcore')).toEqual(agents);
+    expect(filterVisibleAgents(agents, new Set(), 'fuigo')).toEqual(agents);
   });
 
   it('removes hidden agents from the strip', () => {
-    const visible = filterVisibleAgents(agents, new Set(['codex', 'copilot']), 'wcore');
-    expect(visible?.map((a) => a.backend)).toEqual(['wcore', 'claude']);
+    const visible = filterVisibleAgents(agents, new Set(['codex', 'copilot']), 'fuigo');
+    expect(visible?.map((a) => a.backend)).toEqual(['fuigo', 'claude']);
   });
 
   it('never hides the currently-selected agent, even if it is in the hidden set', () => {
@@ -79,7 +79,7 @@ describe('filterVisibleAgents', () => {
   });
 
   it('falls back to the full set when every agent would be hidden', () => {
-    const visible = filterVisibleAgents(agents, new Set(['wcore', 'claude', 'codex', 'copilot']), 'none');
+    const visible = filterVisibleAgents(agents, new Set(['fuigo', 'claude', 'codex', 'copilot']), 'none');
     expect(visible).toEqual(agents);
   });
 
@@ -112,17 +112,6 @@ describe('savePreferredMode', () => {
     expect(configStorageMocks.get).toHaveBeenCalledWith('gemini.config');
     expect(configStorageMocks.set).toHaveBeenCalledWith('gemini.config', {
       yoloMode: false,
-      preferredMode: 'yolo',
-    });
-  });
-
-  it('saves preferred mode for wcore under wcore.config', async () => {
-    configStorageMocks.get.mockResolvedValue({});
-
-    await savePreferredMode('wcore', 'yolo');
-
-    expect(configStorageMocks.get).toHaveBeenCalledWith('wcore.config');
-    expect(configStorageMocks.set).toHaveBeenCalledWith('wcore.config', {
       preferredMode: 'yolo',
     });
   });

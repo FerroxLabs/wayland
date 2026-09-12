@@ -10,7 +10,7 @@
  * Cross-backend activity parity.
  *
  * This suite began as DEFECT B: the Observability SECTION was registered at
- * exactly one site (WCoreChat), so Claude Code and Codex (both ACP) and Gemini
+ * exactly one site, so Claude Code and Codex (both ACP) and Gemini
  * had no such surface at all. That section has since been removed outright - it
  * re-rendered, one pane to the right and detached from the turn that produced
  * them, the very steps the transcript already shows inline, and "Observability"
@@ -25,7 +25,7 @@
  *
  * The tab assertions are gone because the tab is gone. The humanization,
  * grouping and rendering assertions are all still here, and are stricter than
- * before: they compare the ACP and wcore outputs against EACH OTHER rather than
+ * before: they compare the ACP and tool_group outputs against EACH OTHER rather than
  * each against a hand-written string.
  */
 
@@ -70,16 +70,16 @@ const toolGroup = (id: string, name: string, description: string): TMessage =>
 const steps = (messages: TMessage[]) => toolSummaryToSteps(messages as any);
 
 describe('cross-backend activity parity (was DEFECT B)', () => {
-  it('humanizes an ACP read exactly as the wcore tool_group for the same invocation', () => {
+  it('humanizes an ACP read exactly as the gemini tool_group for the same invocation', () => {
     const fromAcp = steps([acpToolCall('tc1', 'Read config.ts', 'read', 'completed')]);
-    const fromWcore = steps([toolGroup('tg1', 'ReadFile', 'Read config.ts')]);
+    const fromToolGroup = steps([toolGroup('tg1', 'ReadFile', 'Read config.ts')]);
 
     expect(fromAcp).toHaveLength(1);
-    expect(fromWcore).toHaveLength(1);
+    expect(fromToolGroup).toHaveLength(1);
     // The invariant: same invocation, same words, whichever backend produced it.
     // Asserting the two against each other means this test cannot drift into
     // passing because both regressed to the same wrong string as a literal.
-    expect(fromAcp[0].label).toBe(fromWcore[0].label);
+    expect(fromAcp[0].label).toBe(fromToolGroup[0].label);
     expect(fromAcp[0].label).toContain('config.ts');
   });
 
@@ -96,7 +96,7 @@ describe('cross-backend activity parity (was DEFECT B)', () => {
     expect(timeline.textContent).toContain('Search the web for kittens');
   });
 
-  it('projects a gemini/wcore tool_group through the identical path', () => {
+  it('projects a gemini tool_group through the identical path', () => {
     const projected = steps([toolGroup('tg1', 'ReadFile', 'Read config.ts')]);
     expect(projected).toHaveLength(1);
 

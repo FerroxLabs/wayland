@@ -27,7 +27,7 @@ const buildLeader = () => ({
   slotId: '',
   conversationId: '',
   role: 'leader' as const,
-  agentType: 'wayland-core',
+  agentType: 'fuigo',
   agentName: 'Leader',
   conversationType: 'acp',
   status: 'pending' as const,
@@ -97,7 +97,7 @@ test.describe.serial('Team failure injection + negative paths (adversarial)', ()
       agent: {
         conversationId: '',
         role: 'teammate',
-        agentType: 'wayland-core',
+        agentType: 'fuigo',
         agentName: 'GhostMate',
         conversationType: 'acp',
         status: 'pending',
@@ -206,7 +206,7 @@ test.describe.serial('Team failure injection + negative paths (adversarial)', ()
           conversationId: '',
           // `role` must be 'leader' | 'teammate' - 'overlord' is bogus.
           role: 'overlord' as const,
-          agentType: 'wayland-core',
+          agentType: 'fuigo',
           agentName: 'BadActor',
           conversationType: 'acp',
           status: 'pending',

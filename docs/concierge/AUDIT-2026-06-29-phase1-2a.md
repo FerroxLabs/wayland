@@ -72,7 +72,7 @@ headline equals the summed skill-only categories and excludes workflows.
   verbs `build/create/add`; add the false-positive corpus as regression tests.
 - **MEDIUM · "connected" vs "configured"** — manifest says providers are "connected" when merely configured;
   cross-reference `model_registry_providers.state` or reword to "N added/configured".
-- **MEDIUM · ACP native-skills + WCore/Gemini wiring untested** — the spec-named acceptance-critical native ACP
+- **MEDIUM · ACP native-skills + Fuigo/Gemini wiring untested** — the spec-named acceptance-critical native ACP
   branch hand-assembles the manifest inline with zero coverage; add manager-level presence/absence assertions.
 - **MEDIUM · 2a diag seed path/env + `sanitizeToken` untested** — add initStorage seed test (env keys → real
   paths, idempotent re-point, concierge in enabledByDefault) + `sanitizeToken` injection cases.

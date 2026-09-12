@@ -53,10 +53,6 @@ vi.mock('../../src/common', () => ({
     openclawConversation: {
       getRuntime: makeChannel('openclawConversation.getRuntime'),
     },
-    wcoreRecovery: {
-      get: makeChannel('wcoreRecovery.get'),
-      abandon: makeChannel('wcoreRecovery.abandon'),
-    },
   },
 }));
 
@@ -183,50 +179,6 @@ describe('conversationBridge', () => {
 
       expect(result).toBeUndefined();
       expect(service.createConversation).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('wcore recovery', () => {
-    const wcoreConversation = {
-      id: 'core-1',
-      type: 'wcore',
-      name: 'Core',
-      extra: { workspace: '/ws' },
-    } as unknown as TChatConversation;
-
-    it('reads recovery state from the main-owned Core manager', async () => {
-      const recovery = { state: 'interrupted', lifecycle: 'awaiting_approval', canAbandon: true };
-      vi.mocked(service.getConversation).mockResolvedValue(wcoreConversation);
-      const task = { type: 'wcore', getTurnRecovery: vi.fn().mockResolvedValue(recovery) };
-      vi.mocked(taskManager.getOrBuildTask).mockResolvedValue(task as never);
-
-      await expect(handlers['wcoreRecovery.get']({ conversation_id: 'core-1' })).resolves.toEqual({
-        success: true,
-        data: recovery,
-      });
-      expect(task.getTurnRecovery).toHaveBeenCalledOnce();
-    });
-
-    it('invokes abandon without accepting session, turn, or cursor authority from the renderer', async () => {
-      const recovery = { state: 'healthy', lifecycle: 'ready', canAbandon: false };
-      vi.mocked(service.getConversation).mockResolvedValue(wcoreConversation);
-      const task = { type: 'wcore', abandonInterruptedTurn: vi.fn().mockResolvedValue(recovery) };
-      vi.mocked(taskManager.getOrBuildTask).mockResolvedValue(task as never);
-
-      await expect(handlers['wcoreRecovery.abandon']({ conversation_id: 'core-1' })).resolves.toEqual({
-        success: true,
-        data: recovery,
-      });
-      expect(task.abandonInterruptedTurn).toHaveBeenCalledWith();
-    });
-
-    it('refuses recovery for a non-Core conversation', async () => {
-      vi.mocked(service.getConversation).mockResolvedValue(makeConversation('gemini-1'));
-      await expect(handlers['wcoreRecovery.get']({ conversation_id: 'gemini-1' })).resolves.toEqual({
-        success: false,
-        msg: 'Core conversation not found',
-      });
-      expect(taskManager.getOrBuildTask).not.toHaveBeenCalled();
     });
   });
 
@@ -373,7 +325,7 @@ describe('conversationBridge', () => {
 
     it('rebuilds stale MCP session authority in production without a preview gate', async () => {
       const task = {
-        type: 'wcore',
+        type: 'acp',
         workspace: '/ws',
         sendMessage: vi.fn(async () => {}),
       };
@@ -384,7 +336,7 @@ describe('conversationBridge', () => {
       const svc = makeService({
         getConversation: vi.fn(async () => ({
           ...makeConversation('c-quarantined', '/ws'),
-          type: 'wcore',
+          type: 'acp',
           extra: { workspace: '/ws', mcpRuntimeFingerprint: 'stale' },
         })),
       });
@@ -412,11 +364,11 @@ describe('conversationBridge', () => {
         releaseKill = resolve;
       });
       const replacement = {
-        type: 'wcore',
+        type: 'acp',
         workspace: '/ws',
         sendMessage: vi.fn(async () => {}),
       };
-      const oldTask = { type: 'wcore' };
+      const oldTask = { type: 'acp' };
       const getOrBuildTask = vi.fn(async () => replacement);
       const tm = makeTaskManager({
         getTask: vi.fn(() => oldTask as never),
@@ -426,7 +378,7 @@ describe('conversationBridge', () => {
       const svc = makeService({
         getConversation: vi.fn(async () => ({
           ...makeConversation('c-mcp', '/ws'),
-          type: 'wcore',
+          type: 'acp',
           extra: { workspace: '/ws', mcpRuntimeFingerprint: 'mcp-v1-stale-all' },
         })),
       });

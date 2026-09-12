@@ -39,9 +39,9 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   {
     id: 'concierge',
     avatar: 'lucide:Sparkles',
-    // Runs on the native Wayland Core engine so self-knowledge works without an
+    // Runs on the bundled Fuigo engine so self-knowledge works without an
     // external CLI; the user can still switch its backend from the home picker.
-    presetAgentType: 'wcore',
+    presetAgentType: 'fuigo',
     category: 'general',
     resourceDir: 'src/process/resources/assistant/concierge',
     ruleFiles: {
@@ -80,9 +80,9 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   {
     id: 'ignition',
     avatar: 'lucide:Rocket',
-    // Runs on the native Wayland Core engine so a total beginner can start
+    // Runs on the bundled Fuigo engine so a total beginner can start
     // building with zero external CLI connected; switchable from the picker.
-    presetAgentType: 'wcore',
+    presetAgentType: 'fuigo',
     category: 'build',
     resourceDir: 'src/process/resources/assistant/ignition',
     ruleFiles: {
@@ -1310,9 +1310,9 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
     // alias for the same icon and still resolves, so a wrong pick here would
     // render fine and silently sit on a deprecated name.
     avatar: 'lucide:ChartCandlestick',
-    // Native engine: the setup path has to run local commands and read its own
+    // Bundled engine: the setup path has to run local commands and read its own
     // toolset to tell "TVControl absent" from "TVControl not answering".
-    presetAgentType: 'wcore',
+    presetAgentType: 'fuigo',
     category: 'research',
     resourceDir: 'src/process/resources/assistant/smart-trader',
     ruleFiles: {

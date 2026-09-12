@@ -1,6 +1,6 @@
 # Antivirus exclusions for Wayland
 
-Some antivirus products flag Wayland — or its bundled engine, `wayland-core.exe` —
+Some antivirus products flag Wayland — or its bundled engine, `fuigo.exe` —
 even though it is a legitimate, code-signed application. This is a **behavioral
 false positive**, not a sign that anything is wrong. This guide explains why it
 happens and how to add narrowly-scoped exclusions without weakening your overall
@@ -47,7 +47,7 @@ reports.
 Exclude Wayland's executables from behavioral and advanced-threat monitoring:
 
 - `wayland.exe` — the desktop application
-- `wayland-core.exe` — the bundled engine that runs your agents
+- `fuigo.exe` — the bundled Fuigo engine that runs your agents
 
 ### 2. Real-time scanning (folder) exclusions
 
@@ -59,17 +59,7 @@ C:\Program Files\Wayland\
 ```
 
 That single folder covers the app and the bundled engine at
-`C:\Program Files\Wayland\resources\bundled-wayland-core\win32-x64\wayland-core.exe`.
-
-**If you use a custom engine override** (an advanced setup where you place your
-own `wayland-core` binary for Wayland to prefer), also exclude:
-
-```
-%APPDATA%\wayland\wayland-core-overrides\win32-x64\wayland-core.exe
-```
-
-This override location does not exist on a normal install — add it only if you
-have deliberately created it.
+`C:\Program Files\Wayland\resources\bundled-fuigo\win32-x64\fuigo.exe`.
 
 ### 3. Your project folders (optional, for speed)
 
@@ -87,7 +77,7 @@ Settings that ship with Windows use Microsoft Defender:
 2. Under **Virus & threat protection settings**, click **Manage settings**.
 3. Scroll to **Exclusions** → **Add or remove exclusions**.
 4. Add a **Folder** exclusion for `C:\Program Files\Wayland\`.
-5. Add **Process** exclusions for `wayland.exe` and `wayland-core.exe`.
+5. Add **Process** exclusions for `wayland.exe` and `fuigo.exe`.
 
 Other vendors (Bitdefender, Norton, Avast, Kaspersky, ESET, and others) provide
 the same two concepts — an **exception/exclusion** list for folders/files and a
@@ -97,7 +87,7 @@ documentation for the exact menu names.
 
 ## If Wayland was already quarantined
 
-If your antivirus already removed or blocked `wayland.exe` or `wayland-core.exe`,
+If your antivirus already removed or blocked `wayland.exe` or `fuigo.exe`,
 restore it from quarantine first, then add the exclusions above so it is not
 quarantined again. If the engine binary was removed, reinstalling Wayland
 restores it.

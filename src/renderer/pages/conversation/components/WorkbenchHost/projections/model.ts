@@ -127,7 +127,7 @@ const toolIdentity = (name: string) =>
  * `toolKind` is checked first and is authoritative on its own: the producer
  * that sets it (ACP) puts agent-written prose in `name`, so falling through to
  * the name map there would be the free-text classification this replaced. Only
- * a producer that declares no kind (WCore, and Gemini through it) is classified
+ * a producer that declares no kind (Gemini) is classified
  * by the registry tool it names.
  */
 const toolRole = (activity: ExecutionActivity): ToolRole | null => {
@@ -348,11 +348,7 @@ export function deriveWorkbenchProjections(snapshot: ExecutionSnapshot): readonl
     label: trust.status,
     detail: trust.reason ?? trust.artifactDigest,
   }));
-  if (
-    snapshot.actor.backend === 'wcore' ||
-    snapshot.receipts.length > 0 ||
-    snapshot.trustedPolicy.status === 'trusted'
-  ) {
+  if (snapshot.receipts.length > 0 || snapshot.outcomeTrust.length > 0 || snapshot.trustedPolicy.status === 'trusted') {
     projections.push({
       id: 'core',
       label: 'Engine',

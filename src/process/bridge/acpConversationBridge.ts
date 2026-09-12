@@ -11,7 +11,6 @@ import { isAgentKind } from '@/common/types/detectedAgent';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import AcpAgentManager from '@process/task/AcpAgentManager';
 import { GeminiAgentManager } from '@process/task/GeminiAgentManager';
-import { WCoreManager } from '@process/task/WCoreManager';
 import { mcpService } from '@/process/services/mcpServices/McpService';
 import { ipcBridge } from '@/common';
 import { LegacyConnectorFactory } from '@process/acp/compat/LegacyConnectorFactory';
@@ -184,10 +183,7 @@ export function initAcpConversationBridge(workerTaskManager: IWorkerTaskManager)
 
   ipcBridge.acpConversation.getMode.provider(({ conversationId }) => {
     const task = workerTaskManager.getTask(conversationId);
-    if (
-      !task ||
-      !(task instanceof AcpAgentManager || task instanceof GeminiAgentManager || task instanceof WCoreManager)
-    ) {
+    if (!task || !(task instanceof AcpAgentManager || task instanceof GeminiAgentManager)) {
       return Promise.resolve({
         success: true,
         data: { mode: 'default', initialized: false },
@@ -238,7 +234,7 @@ export function initAcpConversationBridge(workerTaskManager: IWorkerTaskManager)
       if (!task) {
         return { success: false, msg: 'Conversation not found' };
       }
-      if (!(task instanceof AcpAgentManager || task instanceof GeminiAgentManager || task instanceof WCoreManager)) {
+      if (!(task instanceof AcpAgentManager || task instanceof GeminiAgentManager)) {
         return {
           success: false,
           msg: 'Mode switching not supported for this agent type',

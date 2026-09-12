@@ -10,7 +10,7 @@
  * `Source` is the renderer-facing shape for a single search result card
  * (favicon + title + domain). Two backends feed into it:
  *   - Codex: structured `SearchResult[]` from WebSearchEndData (fully typed).
- *   - wcore: opaque tool_result `output` string (defensive JSON parse).
+ *   - native tool_group: opaque tool_result `output` string (defensive JSON parse).
  *
  * Both paths ultimately produce `Source[]`; downstream `SourceBlock` renders
  * them identically. Pure - no React, no IO, NEVER throws.
@@ -74,22 +74,22 @@ function itemToSource(item: unknown): Source | null {
 }
 
 /**
- * Parse the wcore `web_search` tool_result output string into Source[].
+ * Parse a native `web_search` tool_result output string into Source[].
  *
  * Accepted shapes (any extras are silently ignored):
  *   - `[{ title, url, ... }, ...]`            array at root
  *   - `{ results: [{ title, url }, ...] }`    nested under `results`
  *   - `{ sources: [{ title, url }, ...] }`    nested under `sources`
- *   - `{ data: { web: [{ title, url }, ...] } }`  native wcore `web` tool
+ *   - `{ data: { web: [{ title, url }, ...] } }`  native engine `web` tool
  *
- * The wcore `web` tool (operation=search) returns the last shape: a JSON
+ * The native `web` tool (operation=search) returns the last shape: a JSON
  * envelope whose `data.web[]` entries each carry `{ title, url, snippet }`
  * (the snippet is itself markdown). Captured live against Flux 0.12.8.
  *
  * Any other string (prose, malformed JSON, empty) returns [].
  * NEVER throws.
  */
-export function parseWcoreSearchOutput(output: string): Source[] {
+export function parseNativeSearchOutput(output: string): Source[] {
   if (!output) return [];
   try {
     const parsed: unknown = JSON.parse(output);

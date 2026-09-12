@@ -12,7 +12,7 @@ import type { ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClien
 import { noopMetrics, type AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import { ConfigTracker } from '@process/acp/session/ConfigTracker';
 import { CRASH_MARKER_PROCESS_EXIT, CRASH_MARKER_TRANSPORT_CLOSE } from '@process/acp/session/crashMarkers';
-import { stripAnsi } from '@process/agent/wcore/stderrLog';
+import { stripAnsi } from '@process/acp/stderrPemHold';
 import { redactSecrets } from '@process/utils/secretRedaction';
 import { InputPreprocessor } from '@process/acp/session/InputPreprocessor';
 import { MessageTranslator } from '@process/acp/session/MessageTranslator';
@@ -86,8 +86,8 @@ function wrapCallbacks(raw: SessionCallbacks): SessionCallbacks {
 }
 
 /**
- * Bound on the scrubbed stderr tail carried into the banner, mirroring
- * `WCORE_STDERR_TAIL_MAX`. `ProcessAcpClient` already caps its ring buffer at 8KB;
+ * Bound on the scrubbed stderr tail carried into the banner.
+ * `ProcessAcpClient` already caps its ring buffer at 8KB;
  * this trims again for a chat row.
  */
 const DISCONNECT_STDERR_TAIL_MAX = 2048;
@@ -329,7 +329,7 @@ export class AcpSession {
     this.promptExecutor.cancelAll();
   }
 
-  /** Send an authenticated Nano wire pause without touching the local permission timer. */
+  /** Send a wire pause without touching the local permission timer. */
   pausePrompt(): void {
     this.lifecycle.pause();
   }

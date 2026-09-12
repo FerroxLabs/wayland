@@ -34,7 +34,7 @@ type DetectedAgent = NonNullable<AvailableAgentsResponse['data']>[number] & { av
  * Keyed by `backend` - must stay consistent with the scope map in
  * `agentScopes.ts` (both are backend-keyed lists).
  */
-const FEATURED_BACKENDS = ['fuigo', 'wcore', 'claude', 'codex'];
+const FEATURED_BACKENDS = ['fuigo', 'claude', 'codex'];
 
 /**
  * The Fuigo hero card always renders, even when the live agent detector

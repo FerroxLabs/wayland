@@ -319,13 +319,13 @@ async function persistStrippedTurnText(
 
     // Only ever overwrite the ASSISTANT's row.
     //
-    // A msg_id names the TURN, not a message: WCore stamps the same one on the
+    // A msg_id names the TURN, not a message: an engine may stamp the same one on the
     // user's right-side prompt AND the left-side reply. getMessageByMsgId filters
     // on conversation + msg_id + type and takes the newest, with no `position`
     // clause — so if the assistant row is not on disk at this instant, the only
     // matching text row is the USER'S PROMPT, and we would replace what they
     // typed with the model's answer. That is unrecoverable, and this repo has
-    // shipped exactly that bug once before (the wcore reply overwriting the user's
+    // shipped exactly that bug once before (the engine reply overwriting the user's
     // message). Cheap guard, permanent damage if it is missing.
     if (row.position !== 'left') return;
 

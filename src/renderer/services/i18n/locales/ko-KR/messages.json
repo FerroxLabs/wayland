@@ -87,10 +87,5 @@
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
     "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
     "dismiss": "Got it"
-  },
-  "renderArtifact": {
-    "label": "에이전트가 보냄",
-    "preview": "미리 보기",
-    "truncated": "잘림 — 너무 커서 전체를 표시할 수 없습니다."
   }
 }

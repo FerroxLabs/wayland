@@ -67,37 +67,6 @@ export function initMissionControlBridge(
       if (!service) throw new Error('workflow service not initialized');
       return (await service.findAllActive(100)).map(({ session }) => session);
     },
-    // The process manager authoritatively identifies live Core runtimes, but it
-    // does not retain child workflow/sub-agent events. Expose known turns as
-    // unknown progress and declare that observability gap instead of inventing
-    // a running state or silently omitting the missing children.
-    listCoreActivity: async () => {
-      const tasks = workerTaskManager.listTasks().filter((task) => task.type === 'wcore');
-      const observations = (
-        await Promise.all(
-          tasks.map(async (task): Promise<ActivityObservation | null> => {
-            const conversation = await conversationService.getConversation(task.id);
-            if (!conversation) return null;
-            return {
-              sourceId: task.id,
-              provenance: { origin: 'core', kind: 'turn' },
-              title: conversation.name,
-              status: 'unknown',
-              action: { kind: 'navigate', path: `/conversation/${conversation.id}`, label: 'Open Core turn' },
-              context: 'Wayland Core',
-              detail: 'Runtime exists; current turn progress is not authoritatively observable',
-              startedAt: conversation.createTime,
-              updatedAt: conversation.modifyTime,
-            };
-          })
-        )
-      ).filter((item): item is ActivityObservation => item !== null);
-      return {
-        observations,
-        status: 'partial',
-        detail: 'Core turn runtimes are visible; child sub-agent/workflow progress is not retained by Desktop',
-      };
-    },
     // #1060: without this reader the `approvals` source stayed optional, so the
     // ledger permanently reported it unavailable and a pending approval could
     // never reach "Needs you". Every live agent manager owns the authoritative
@@ -116,8 +85,7 @@ export function initMissionControlBridge(
           unresolved += confirmations.length;
           continue;
         }
-        const provenance: ActivityObservation['provenance'] =
-          task.type === 'wcore' ? { origin: 'core', kind: 'approval' } : { origin: 'desktop', kind: 'approval' };
+        const provenance: ActivityObservation['provenance'] = { origin: 'desktop', kind: 'approval' };
         for (const confirmation of confirmations) {
           observations.push({
             sourceId: `${task.id}:${confirmation.callId}`,

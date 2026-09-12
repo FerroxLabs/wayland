@@ -117,7 +117,6 @@ sequenceDiagram
 
 The Queue mechanism is integrated via SendBox and is supported on all of the following platforms:
 
-- Nanobot (`NanobotSendBox.tsx`)
 - Gemini (`GeminiSendBox.tsx`)
 - ACP (`AcpSendBox.tsx`)
 - OpenClaw (`OpenClawSendBox.tsx`)

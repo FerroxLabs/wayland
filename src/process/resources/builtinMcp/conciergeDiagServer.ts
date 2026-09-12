@@ -168,7 +168,7 @@ export type WorkspaceHealth = {
 export type ConfigPathsInfo = {
   /** App settings/config directory (channels, providers, OAuth tokens live here). */
   appConfigDir: string | null;
-  /** Engine (wayland-core) config directory — a SEPARATE location from the app config. */
+  /** Engine home directory — a SEPARATE location from the app config. */
   engineConfigDir: string | null;
   /** Plain-English note explaining the two distinct locations. */
   note: string;
@@ -1117,7 +1117,7 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
     const info: ConfigPathsInfo = {
       appConfigDir: appDir ? scrubHome(appDir) : null,
       engineConfigDir: engineConfigDir ? scrubHome(engineConfigDir) : null,
-      note: 'Wayland keeps two separate config locations: the desktop app settings (providers, channels, OAuth) live in the app config directory; the wayland-core engine reads its own config from the engine config directory. Uninstalling the app does NOT delete these, so a stale config can survive a reinstall.',
+      note: 'Wayland keeps two separate config locations: the desktop app settings (providers, channels, OAuth) live in the app config directory; the bundled engine keeps its own state in the engine home directory. Uninstalling the app does NOT delete these, so a stale config can survive a reinstall.',
     };
     return { available: appDir != null || engineConfigDir != null, source: 'resolved paths', info };
   };

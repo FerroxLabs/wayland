@@ -172,7 +172,6 @@ import AgentsSettings from '../../../src/renderer/pages/settings/AgentSettings';
 
 const AGENTS = [
   { backend: 'fuigo', name: 'Fuigo' },
-  { backend: 'wcore', name: 'Wayland Core' },
   { backend: 'claude', name: 'Claude Code' },
   { backend: 'codex', name: 'Codex' },
   { backend: 'gemini', name: 'Gemini CLI' },
@@ -233,11 +232,11 @@ afterEach(() => {
 describe('AgentsSettings (Packet 2D)', () => {
   it('renders a card for each featured agent', async () => {
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
-    // Fuigo / Wayland Core / Claude Code / Codex are featured cards, Fuigo first.
+    // Fuigo / Claude Code / Codex are featured cards, Fuigo first.
     const cards = screen.getAllByTestId('agent-card');
-    expect(cards).toHaveLength(4);
+    expect(cards).toHaveLength(3);
     expect(cards[0].textContent).toContain('Fuigo');
     expect(screen.getByText('Claude Code')).toBeTruthy();
     expect(screen.getByText('Codex')).toBeTruthy();
@@ -249,11 +248,11 @@ describe('AgentsSettings (Packet 2D)', () => {
 
   it('states in plain language what models each agent runs', async () => {
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
-    // The exact plain-language scope sentences (spec §4.7). Fuigo and Wayland
-    // Core both carry the open "any model" line.
-    expect(screen.getAllByText('Runs any model you connect')).toHaveLength(2);
+    // The exact plain-language scope sentences (spec §4.7). Fuigo carries the
+    // open "any model" line.
+    expect(screen.getAllByText('Runs any model you connect')).toHaveLength(1);
     expect(screen.getByText('Runs Claude models')).toBeTruthy();
     expect(screen.getByText('Runs GPT models')).toBeTruthy();
     expect(screen.getByText('Runs Gemini models')).toBeTruthy();
@@ -262,9 +261,9 @@ describe('AgentsSettings (Packet 2D)', () => {
 
   it('shows the Flux status chip per backend from the registry classification', async () => {
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
-    // `wcore`, `claude`, `gemini`, `qwen` are classified `env` -> "Flux ready"
+    // `fuigo`, `claude`, `gemini`, `qwen` are classified `env` -> "Flux ready"
     // chips (several render, so assert on the count, not a single match).
     expect(screen.getAllByText('Flux ready').length).toBeGreaterThanOrEqual(2);
     // `vibe` is classified `vendor` -> "Native only" chip.
@@ -327,7 +326,7 @@ describe('AgentsSettings (Packet 2D)', () => {
 
   it('renders no Flux chip for a backend with no fluxCompat classification', async () => {
     // `codebuddy` carries no fluxCompat, so its card must not show any chip.
-    // (The always-present Wayland Core hero is `env`, so scope the assertion to
+    // (The always-present Fuigo hero is `env`, so scope the assertion to
     // the codebuddy card rather than the whole page.)
     mockGetAvailableAgents.mockResolvedValue(agentsOk([{ backend: 'codebuddy', name: 'CodeBuddy' }]));
     render(<AgentsSettings />);
@@ -342,7 +341,7 @@ describe('AgentsSettings (Packet 2D)', () => {
 
   it('maps the `vibe` backend to the Mistral scope copy', async () => {
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
     // `vibe` is the one non-obvious backend → scope mapping: it resolves to
     // the `mistral` scope key, not a `vibe`-named one (agentScopes.ts).
@@ -352,7 +351,7 @@ describe('AgentsSettings (Packet 2D)', () => {
 
   it('uses no "family" jargon and no padlock metaphor', async () => {
     const { container } = render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
     // The redesign explicitly bans "family" jargon and the locked/restricted
     // padlock metaphor for model scope (spec §2, §4.7).
@@ -391,7 +390,7 @@ describe('AgentsSettings (Packet 2D)', () => {
 
   it('renders the remote agents section', async () => {
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
     expect(screen.getByText('Remote agents')).toBeTruthy();
     expect(screen.getByTestId('remote-agents')).toBeTruthy();
@@ -400,7 +399,7 @@ describe('AgentsSettings (Packet 2D)', () => {
   it('renders the Flux Router card with a working route-through toggle when connected', async () => {
     mockGetRouteThroughFlux.mockResolvedValue(true);
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
     const card = await screen.findByTestId('flux-router-card');
     expect(card.textContent).toContain('Flux Router');
@@ -427,7 +426,7 @@ describe('AgentsSettings (Packet 2D)', () => {
   it('shows a Connect affordance and no toggle when Flux is not connected', async () => {
     mockProviders = [];
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
     const card = await screen.findByTestId('flux-router-card');
     expect(card.textContent).toContain('Not connected');
@@ -458,12 +457,10 @@ describe('AgentsSettings (Packet 2D)', () => {
 
     // The Fuigo hero card must always render - the bundled engine is
     // always-available once a model is connected, so the page never goes
-    // engine-less. Wayland Core is an ordinary detected card now: absent from
-    // detection, absent from the page.
+    // engine-less.
     await waitFor(() => expect(screen.getByText('Fuigo')).toBeTruthy());
     const cards = screen.getAllByTestId('agent-card');
     expect(cards).toHaveLength(1);
-    expect(screen.queryByText('Wayland Core')).toBeNull();
 
     // The empty note still renders alongside the always-available hero.
     expect(
@@ -487,7 +484,7 @@ describe('AgentsSettings (Packet 2D)', () => {
 
   it('renders a "show in toolbar" toggle for each detected agent, on by default', async () => {
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
     // A featured agent (Codex) and a tile agent (Gemini) both expose a toggle.
     const codexToggle = await screen.findByTestId('agent-toolbar-toggle-codex');
@@ -499,7 +496,7 @@ describe('AgentsSettings (Packet 2D)', () => {
 
   it('persists hiding a detected agent through ConfigStorage', async () => {
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
     await act(async () => {
       (await screen.findByTestId('agent-toolbar-toggle-codex')).click();
@@ -533,22 +530,10 @@ describe('AgentsSettings (Packet 2D)', () => {
     expect(mockHiddenStore).not.toContain('fuigo');
   });
 
-  it('lets the user hide Wayland Core now that it is an ordinary engine', async () => {
-    render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
-
-    const wcoreToggle = await screen.findByTestId('agent-toolbar-toggle-wcore');
-    expect(wcoreToggle.getAttribute('disabled')).toBeNull();
-    await act(async () => {
-      wcoreToggle.click();
-    });
-    await waitFor(() => expect(mockHiddenStore).toContain('wcore'));
-  });
-
   it('reflects a pre-hidden agent as toggled off', async () => {
     mockHiddenStore = ['gemini'];
     render(<AgentsSettings />);
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Claude Code')).toBeTruthy());
 
     const geminiToggle = await screen.findByTestId('agent-toolbar-toggle-gemini');
     await waitFor(() => expect(geminiToggle.getAttribute('aria-checked')).toBe('false'));

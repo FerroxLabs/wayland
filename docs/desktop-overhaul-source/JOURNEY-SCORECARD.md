@@ -1,5 +1,7 @@
 # v0.11.18 journey scorecard
 
+> Engine note (2026-09-12): Wayland Core and Wayland Nano have been removed from Wayland Desktop. Fuigo is the only bundled engine. Engine-specific paths, receipts and proof counts below are historical.
+
 ## Release and build proof
 
 | Evidence                        | Result             | Interpretation                                                                                        |
@@ -64,7 +66,7 @@ Failed:
 2. The Cold Outbound golden path expected a team card that was not installed/rendered.
 3. Quick launch expected six cards but the product rendered seven.
 4. The Write Copy test expected retired extension ID `ext-copy`.
-5. The Core AskUserQuestion journey could not select the `wcore` agent.
+5. The engine AskUserQuestion journey could not select the bundled engine agent.
 6. WebUI `start` returned a port of `0`, so its HTTP login/CSRF/rate-limit follow-ups were skipped.
 
 ### Navigation suite

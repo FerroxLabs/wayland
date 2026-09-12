@@ -13,9 +13,6 @@
  * report" button. These are the sinks that audit found, each proved by feeding a
  * realistic credential through the real check.
  *
- * The engine-`config.toml` sink - the advisory's primary defect - is covered
- * separately and in more depth by `engineConfigParseErrorRedaction.test.ts`.
- *
  * SCOPE OF WHAT THESE PROVE: the sinks below are free-form text with no
  * structure to strip, so `redactSecrets` is all they have, and it is best-effort.
  * Every secret used here carries a recognisable VALUE prefix (`sk-ant-`, a JWT
@@ -692,12 +689,12 @@ describe('backends check — loader errors come from credential-bearing config s
 
 describe('engine reachability check — unbounded `--version` stdout', () => {
   it('PREFIXLESS CANARY: surfaces only the version number, never the rest of the banner', async () => {
-    // `detectWCore` hands back whatever `execFileSync` printed, unvalidated and
-    // unbounded (`binaryResolver.ts`).
+    // The engine detection hands back whatever the binary's `--version` printed,
+    // unvalidated and unbounded.
     const result = await checkEngineReachable(() => ({
       available: true,
       path: '/opt/wayland/engine',
-      version: `wayland-core 0.13.0 (env ${PREFIXLESS_ASSIGNMENT})`,
+      version: `fuigo 0.13.0 (env ${PREFIXLESS_ASSIGNMENT})`,
     }));
 
     expect(result.status).toBe('pass');
@@ -717,7 +714,7 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
       `0.13.0+build.${'eyJhbGciOiJIUzI1NiJ9'}.${'b'.repeat(46)}`,
       `token=sk-ant-1.2.3-${'c'.repeat(58)}`,
       `9.9.9-${long}`,
-      `wayland-core 0.13.0 (env ${PREFIXLESS_ASSIGNMENT})`,
+      `fuigo 0.13.0 (env ${PREFIXLESS_ASSIGNMENT})`,
     ];
 
     const results = await Promise.all(
@@ -807,7 +804,7 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
    * a note beside it read "the equivalent floor before the anchors was 25", which
    * invited the sink-wide reading. That reading is FALSE and was refuted by
    * execution: `0.13.0+a1b2c3d4e5f ` and `0.13.0-a1b2c3d4e5f ` both return
-   * `status: pass` with detail `Wayland Core engine 0.13.0+a1b2c3d4e5f is
+   * `status: pass` with detail `Fuigo engine 0.13.0+a1b2c3d4e5f is
    * reachable.` - ELEVEN contiguous credential characters surfaced, with this suite
    * green. Eleven is where the `{0,10}` tail quantifier runs out; at twelve the
    * pattern refuses the banner entirely and the check warns.
@@ -829,7 +826,7 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
       `0.13.0+build.${'eyJhbGciOiJIUzI1NiJ9'}.${'b'.repeat(46)}`,
       `token=sk-ant-1.2.3-${'c'.repeat(58)}`,
       `9.9.9-${'x'.repeat(200_000)}`,
-      `wayland-core 0.13.0 (env ${PREFIXLESS_ASSIGNMENT})`,
+      `fuigo 0.13.0 (env ${PREFIXLESS_ASSIGNMENT})`,
       `${'9'.repeat(40)}.0.0`,
       `0.13.0-${API_KEY}`,
     ];
@@ -887,7 +884,7 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
   it('still accepts the three legitimate banner spellings', async () => {
     const cases: Array<[string, string]> = [
       ['v0.10.0', 'v0.10.0'],
-      ['wayland-core 0.13.0 (env X)', '0.13.0'],
+      ['fuigo 0.13.0 (env X)', '0.13.0'],
       ['banner v0.10.0 extra', 'v0.10.0'],
     ];
     const results = await Promise.all(

@@ -296,7 +296,7 @@ class RemoteAgentManager extends BaseAgentManager<RemoteAgentManagerData> {
     teamEventBus.emit('responseStream', message);
 
     // Deliver the error to channels AND release the per-conversation send queue
-    // (ChannelMessageService only releases on 'finish'), mirroring WCore/Acp so a
+    // (ChannelMessageService only releases on 'finish'), mirroring Acp so a
     // remote-agent start/connection failure doesn't hang the channel.
     channelEventBus.emitAgentMessage(this.conversation_id, message);
     channelEventBus.emitAgentMessage(this.conversation_id, {

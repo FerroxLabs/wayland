@@ -60,7 +60,7 @@ export function initVoiceSynthBridge(): void {
       // MAIN (initStorage's `ConfigStorage.interceptor`), so nothing ever
       // replies. Because this read runs INSIDE a bridge provider, that is the
       // same reentrancy that hung the doctor MCP check (#273) and every
-      // channel-triggered WCore turn - and a hang is exactly what a `.catch`
+      // channel-triggered engine turn - and a hang is exactly what a `.catch`
       // cannot rescue. A live CDP run on this branch caught the frame on the
       // wire: main sent `subscribe-agent.config.storage.get` 24ms after the
       // press, then 25 seconds of silence, no synthesizer activity, no `say`

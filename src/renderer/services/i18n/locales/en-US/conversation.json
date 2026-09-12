@@ -480,7 +480,6 @@
     "title": "{{backend}} can't sign in here",
     "subscriptionExplainer": "The vendor blocks subscription logins inside third-party tools like this one. To keep using {{backend}} here, route it through Flux Router, add a provider API key, or sign in to the CLI directly.",
     "genericExplainer": "{{backend}} could not authenticate. Route it through Flux Router, add a provider API key, or sign in to the CLI to fix this.",
-    "wcoreExplainer": "Wayland Core could not authenticate. The inference provider rejected the API key (401). Unlike Claude Code, Wayland Core has no subscription sign-in to fall back on, so add a working provider key or route it through Flux Router.",
     "flux": {
       "label": "Route through Flux",
       "sublabel": "Smart routing picks the right model for each task. Start free with a $1 credit, then pay as you go or pick a plan.",
@@ -500,33 +499,6 @@
     },
     "dismiss": "Dismiss",
     "recommended": "(recommended)"
-  },
-  "contextCeiling": {
-    "title": "This run exceeded {{model}}’s context window",
-    "titleNoModel": "This run exceeded the model’s context window",
-    "explainer": "The request grew past the model’s context-window limit and history compaction couldn’t shrink it any further. Switch to a model with a larger context window, then retry the last message.",
-    "switch": {
-      "label": "Switch to a larger-context model",
-      "sublabel": "Pick a model with a bigger context window from the picker."
-    },
-    "retry": {
-      "label": "Retry the last message",
-      "sublabel": "Re-run the message that hit the limit on the selected model.",
-      "action": "Retry"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
-  },
-  "constitutionLocked": {
-    "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
-    "recover": {
-      "label": "Restore from a recovery archive",
-      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
-      "action": "Open recovery"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
   },
   "composerMenu": {
     "skills": "Skills",
@@ -631,64 +603,9 @@
     "costMismatch": "Cost evidence does not reconcile. Total hidden."
   },
   "imageVisionBlocked": "{{model}} can’t read images. Pick a vision-capable model (e.g. GPT-4o, Claude, or Gemini) or remove the image.",
-  "engineConfigInvalid": {
-    "title": "Wayland Core’s settings file needs a fix",
-    "explainer": "The engine could not read its own settings file, so the agent cannot start. Nothing has been changed — your providers, keys and settings are all still in there.",
-    "dismiss": "Dismiss",
-    "details": "Technical details",
-    "checking": "Checking the settings file…",
-    "location": "The problem is on line {{line}}, column {{column}}.",
-    "noProblem": "The settings file reads cleanly now. Send your message again.",
-    "unreadable": "Wayland could not read the settings file. Reason: {{reason}}",
-    "repair": {
-      "label": "Fix line {{line}} for me",
-      "sublabel": "Backs up the file first, then adds the missing line break. Nothing else in the file changes.",
-      "action": "Fix it",
-      "unavailable": "The problem on line {{line}} needs a human eye — Wayland will not guess at it. Open the file below, or start over with defaults.",
-      "notTextUnavailable": "Wayland will not rewrite a file it cannot read exactly, so there is no automatic fix here. Open the file below, or start over with defaults."
-    },
-    "reveal": {
-      "label": "Show me the file",
-      "sublabel": "Opens the folder that contains it, so you do not have to hunt for the path.",
-      "action": "Show"
-    },
-    "regenerate": {
-      "label": "Start over with default settings",
-      "sublabel": "Last resort. Your current file is backed up first, then removed so the engine can write a fresh one.",
-      "action": "Start over",
-      "confirmTitle": "Start over with default settings?",
-      "confirmBody": "This removes your engine settings file. You will lose the provider list, the API keys stored in it, and your memory and skills settings, and you will have to set them up again.\n\nA timestamped backup is saved next to the original first. If that backup cannot be verified, nothing is removed.",
-      "confirmAction": "Back up and start over"
-    },
-    "result": {
-      "repaired": "Fixed. A backup of the original was saved as {{name}}.",
-      "regenerated": "Done. Your old settings were saved as {{name}}.",
-      "backupFailed": "Wayland could not create a verified backup, so nothing was changed. Reason: {{reason}}",
-      "writeFailed": "The change could not be completed. Reason: {{reason}}",
-      "writeFailedWithBackup": "The change could not be completed. Reason: {{reason}} Nothing is lost: your original settings are in {{name}}.",
-      "notARegularFile": "This settings file is a link to another file, so Wayland will not replace it. Use Show me the file and edit it where it actually lives.",
-      "revealFailed": "Wayland could not open the folder. Reason: {{reason}}"
-    },
-    "notText": "Wayland cannot read this file as text — some of its bytes are not valid UTF-8, which the settings format requires. Nothing has been changed."
-  },
   "turnRecovery": {
     "outcomeUnknown": "Outcome unknown",
-    "lastRecordedAction": "Last recorded action: {{action}}",
-    "starting": "Preparing conversation…",
-    "checkingTitle": "Checking interrupted work",
-    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
-    "title": "An interrupted turn needs attention",
-    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
-    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
-    "checkAgain": "Check again",
-    "endAction": "End interrupted turn",
-    "confirmTitle": "End the interrupted turn?",
-    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
-    "keepAction": "Keep it",
-    "checkFailed": "Wayland could not inspect the interrupted turn.",
-    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
-    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
-    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+    "lastRecordedAction": "Last recorded action: {{action}}"
   },
   "artifactCard": {
     "title": "Saved to your workspace",
@@ -717,14 +634,5 @@
     "rejectedUnreadable_other": "{{count}} could not be read",
     "more": "and {{count}} more in Artifacts",
     "more_other": "and {{count}} more in Artifacts"
-  },
-  "workspacePolicy": {
-    "title": "Workspace access",
-    "scope": "Filesystem access reported by the live Core session. Tool approval, credentials and registration are separate.",
-    "readable": "Readable folders",
-    "writable": "Writable folders",
-    "executables": "Executable capabilities and read-only folders",
-    "none": "None reported",
-    "unknown": "Core has not reported live workspace access for this conversation."
   }
 }

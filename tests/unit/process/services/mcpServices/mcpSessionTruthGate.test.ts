@@ -75,17 +75,17 @@ describe('MCP session definition identity', () => {
   });
 
   it('creates an exact backend, transport, canonical-name, and definition binding', () => {
-    expect(
-      createMcpSessionExpectedServer(definitionServer('secret'), 'wcore', new Uint8Array(32).fill(7))
-    ).toMatchObject({
-      serverId: 'tavily-id',
-      serverName: 'Tavily MCP',
-      runtimeName: 'Tavily MCP',
-      canonicalName: 'tavily-mcp',
-      backend: 'wcore',
-      transport: 'stdio',
-      scope: 'conversation',
-    });
+    expect(createMcpSessionExpectedServer(definitionServer('secret'), 'acp', new Uint8Array(32).fill(7))).toMatchObject(
+      {
+        serverId: 'tavily-id',
+        serverName: 'Tavily MCP',
+        runtimeName: 'Tavily MCP',
+        canonicalName: 'tavily-mcp',
+        backend: 'acp',
+        transport: 'stdio',
+        scope: 'conversation',
+      }
+    );
   });
 });
 

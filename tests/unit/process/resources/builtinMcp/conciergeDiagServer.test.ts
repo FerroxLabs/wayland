@@ -887,7 +887,7 @@ function makeWorkspaceDb(dbPath: string): void {
   conv.run(
     'c1',
     'temp-chat',
-    JSON.stringify({ workspace: '/Users/someone/.wayland/wcore-temp-1782747314076', customWorkspace: false }),
+    JSON.stringify({ workspace: '/Users/someone/.wayland/acp-temp-1782747314076', customWorkspace: false }),
     2000
   );
   conv.run(
@@ -943,13 +943,13 @@ describe('createConciergeDiagServer — config paths', () => {
   it('reports app + engine config dirs (home-scrubbed) with the two-paths note', () => {
     const server = createConciergeDiagServer({
       appConfigDir: '/Users/someone/Library/Application Support/Wayland/config',
-      engineConfigDir: '/Users/someone/.config/wayland-core',
+      engineConfigDir: '/Users/someone/Library/Application Support/Wayland/fuigo-home',
     });
     const result = server.configPaths();
 
     expect(result.available).toBe(true);
     expect(result.info.appConfigDir).toContain('Wayland/config');
-    expect(result.info.engineConfigDir).toContain('wayland-core');
+    expect(result.info.engineConfigDir).toContain('fuigo-home');
     expect(result.info.note).toContain('two separate config locations');
     // Username must be scrubbed from both paths.
     const serialized = JSON.stringify(result);

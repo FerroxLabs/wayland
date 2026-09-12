@@ -128,9 +128,9 @@ describe('BudgetController (bun:sqlite)', () => {
     });
 
     it('backend budget sums only the matching backend', () => {
-      costRepo.insert(costEvent({ costUsd: 2, backend: 'wcore' }));
+      costRepo.insert(costEvent({ costUsd: 2, backend: 'fuigo' }));
       costRepo.insert(costEvent({ costUsd: 5, backend: 'claude' }));
-      controller.upsert({ scope: 'backend', scopeKey: 'wcore', limitUsd: 50, period: 'month', action: 'warn' });
+      controller.upsert({ scope: 'backend', scopeKey: 'fuigo', limitUsd: 50, period: 'month', action: 'warn' });
       expect(controller.listStatus()[0].spentUsd).toBeCloseTo(2, 6);
     });
 

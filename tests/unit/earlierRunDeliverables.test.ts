@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * Locked decision 2: a task that already ran in `new_conversation` mode has
- * several stranded `wcore-temp-*` workspaces holding real past reports. We do
+ * several stranded `acp-temp-*` workspaces holding real past reports. We do
  * not link to them (the product calls that storage "Temporary Space" and
  * retention exists to reclaim it) and we do not copy a whole workspace tree.
  * We find candidate deliverables, show them, and copy only the ones the user
@@ -57,7 +57,7 @@ afterEach(async () => {
 
 describe('finding earlier-run deliverables', () => {
   it('looks inside the hidden machinery dir but never blesses the setup copy', async () => {
-    const ws = await makeStrandedWorkspace('wcore-temp-1700000001');
+    const ws = await makeStrandedWorkspace('acp-temp-1700000001');
 
     const { candidates } = await findEarlierRunDeliverables({
       workspaces: [{ conversationId: 'conv-1', workspace: ws, createdAtMs: CREATED_AT }],
@@ -74,7 +74,7 @@ describe('finding earlier-run deliverables', () => {
   });
 
   it('does not treat the extension as proof of anything', async () => {
-    const ws = await makeStrandedWorkspace('wcore-temp-1700000002');
+    const ws = await makeStrandedWorkspace('acp-temp-1700000002');
     const { candidates } = await findEarlierRunDeliverables({
       workspaces: [{ conversationId: 'conv-1', workspace: ws, createdAtMs: CREATED_AT }],
     });
@@ -83,7 +83,7 @@ describe('finding earlier-run deliverables', () => {
   });
 
   it('always offers everything in artifacts/, whatever its timestamps say', async () => {
-    const ws = path.join(root, 'wcore-temp-1700000003');
+    const ws = path.join(root, 'acp-temp-1700000003');
     await fsp.mkdir(path.join(ws, 'artifacts'), { recursive: true });
     await fsp.writeFile(path.join(ws, 'artifacts', 'brief.md'), '# brief', 'utf8');
     await fsp.utimes(path.join(ws, 'artifacts', 'brief.md'), new Date(CREATED_AT), new Date(CREATED_AT));
@@ -98,7 +98,7 @@ describe('finding earlier-run deliverables', () => {
   });
 
   it('skips symlinks and non-regular files rather than following them', async () => {
-    const ws = path.join(root, 'wcore-temp-1700000004');
+    const ws = path.join(root, 'acp-temp-1700000004');
     await fsp.mkdir(path.join(ws, 'artifacts'), { recursive: true });
     await fsp.writeFile(path.join(root, 'outside.txt'), 'not yours', 'utf8');
     await fsp.symlink(path.join(root, 'outside.txt'), path.join(ws, 'artifacts', 'leak.txt'));
@@ -120,7 +120,7 @@ describe('finding earlier-run deliverables', () => {
 
 describe('importing the chosen deliverables', () => {
   it('copies only the selected files into the series and leaves the source untouched', async () => {
-    const ws = await makeStrandedWorkspace('wcore-temp-1700000005');
+    const ws = await makeStrandedWorkspace('acp-temp-1700000005');
     const { candidates } = await findEarlierRunDeliverables({
       workspaces: [{ conversationId: 'conv-1', workspace: ws, createdAtMs: CREATED_AT }],
     });
@@ -146,7 +146,7 @@ describe('importing the chosen deliverables', () => {
   });
 
   it('refuses a relative path that escapes the source workspace', async () => {
-    const ws = await makeStrandedWorkspace('wcore-temp-1700000006');
+    const ws = await makeStrandedWorkspace('acp-temp-1700000006');
     await fsp.writeFile(path.join(root, 'secret.txt'), 'not yours', 'utf8');
 
     const result = await importEarlierRunDeliverables(target, [
@@ -159,7 +159,7 @@ describe('importing the chosen deliverables', () => {
   });
 
   it('does not overwrite a file already published under the same name', async () => {
-    const ws = await makeStrandedWorkspace('wcore-temp-1700000007');
+    const ws = await makeStrandedWorkspace('acp-temp-1700000007');
     const selection = [
       {
         conversationId: 'conv-1',

@@ -44,13 +44,13 @@ describe('ActivityTimeline', () => {
       step({ id: 'sleep', label: 'Running sleep 120', status: 'running', endTime: undefined })
     );
     const { container, rerender } = render(
-      <ConversationProvider value={{ conversationId: 'c1', type: 'wcore', executionInterrupted: false }}>
+      <ConversationProvider value={{ conversationId: 'c1', type: 'acp', executionInterrupted: false }}>
         <ActivityTimeline steps={[pending]} />
       </ConversationProvider>
     );
     expect(container.querySelector('[data-step-status="running"]')).toBeTruthy();
     rerender(
-      <ConversationProvider value={{ conversationId: 'c1', type: 'wcore', executionInterrupted: true }}>
+      <ConversationProvider value={{ conversationId: 'c1', type: 'acp', executionInterrupted: true }}>
         <ActivityTimeline steps={[pending]} />
       </ConversationProvider>
     );

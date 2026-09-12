@@ -400,7 +400,6 @@
     "title": "{{backend}}은(는) 여기서 로그인할 수 없습니다",
     "subscriptionExplainer": "제공업체는 이와 같은 타사 도구 내에서의 구독 로그인을 차단합니다. 여기서 {{backend}}을(를) 계속 사용하려면 Flux Router를 통해 라우팅하거나 제공업체 API 키를 추가하거나 CLI에 직접 로그인하세요.",
     "genericExplainer": "{{backend}} 인증에 실패했습니다. Flux Router를 통해 라우팅하거나 제공업체 API 키를 추가하거나 CLI에 로그인하여 해결하세요.",
-    "wcoreExplainer": "Wayland Core 인증에 실패했습니다. 추론 제공업체가 API 키를 거부했습니다(401). Claude Code와 달리 Wayland Core에는 대체할 구독 로그인이 없으므로, 작동하는 제공업체 키를 추가하거나 Flux Router를 통해 라우팅하세요.",
     "flux": {
       "label": "Flux를 통해 라우팅",
       "sublabel": "스마트 라우팅이 각 작업에 적합한 모델을 선택합니다. 1달러 크레딧으로 무료로 시작한 다음 사용한 만큼 결제하거나 요금제를 선택하세요.",
@@ -420,33 +419,6 @@
     },
     "dismiss": "닫기",
     "recommended": "(권장)"
-  },
-  "contextCeiling": {
-    "title": "This run exceeded {{model}}’s context window",
-    "titleNoModel": "This run exceeded the model’s context window",
-    "explainer": "The request grew past the model’s context-window limit and history compaction couldn’t shrink it any further. Switch to a model with a larger context window, then retry the last message.",
-    "switch": {
-      "label": "Switch to a larger-context model",
-      "sublabel": "Pick a model with a bigger context window from the picker."
-    },
-    "retry": {
-      "label": "Retry the last message",
-      "sublabel": "Re-run the message that hit the limit on the selected model.",
-      "action": "Retry"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
-  },
-  "constitutionLocked": {
-    "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
-    "recover": {
-      "label": "Restore from a recovery archive",
-      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
-      "action": "Open recovery"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
   },
   "composerMenu": {
     "skills": "Skills",
@@ -512,64 +484,9 @@
       "body": "{{title}}이(가) 오류로 중지되었습니다. {{detail}}"
     }
   },
-  "engineConfigInvalid": {
-    "title": "Wayland Core 설정 파일을 고쳐야 합니다",
-    "explainer": "엔진이 자기 설정 파일을 읽지 못해 에이전트를 시작할 수 없습니다. 아무것도 변경하지 않았습니다. 제공업체, 키, 설정은 모두 그대로 남아 있습니다.",
-    "dismiss": "닫기",
-    "details": "기술 세부 정보",
-    "checking": "설정 파일을 확인하는 중…",
-    "location": "문제는 {{line}}번째 줄, {{column}}번째 칸에 있습니다.",
-    "noProblem": "설정 파일이 이제 정상적으로 읽힙니다. 메시지를 다시 보내세요.",
-    "unreadable": "Wayland가 설정 파일을 읽지 못했습니다. 이유: {{reason}}",
-    "repair": {
-      "label": "{{line}}번째 줄을 대신 고쳐 주세요",
-      "sublabel": "먼저 파일을 백업한 다음 빠진 줄바꿈을 넣습니다. 다른 내용은 바뀌지 않습니다.",
-      "action": "고치기",
-      "unavailable": "{{line}}번째 줄의 문제는 사람이 봐야 합니다. Wayland는 추측하지 않습니다. 아래에서 파일을 열거나 기본 설정으로 다시 시작하세요.",
-      "notTextUnavailable": "Wayland는 정확히 읽을 수 없는 파일을 다시 쓰지 않으므로 여기에는 자동 수정이 없습니다. 아래에서 파일을 열거나 기본 설정으로 다시 시작하세요."
-    },
-    "reveal": {
-      "label": "파일 위치 보기",
-      "sublabel": "파일이 들어 있는 폴더를 열어 주므로 경로를 찾아다닐 필요가 없습니다.",
-      "action": "보기"
-    },
-    "regenerate": {
-      "label": "기본 설정으로 다시 시작",
-      "sublabel": "마지막 수단입니다. 지금 파일을 먼저 백업한 뒤 삭제해 엔진이 새 파일을 쓰게 합니다.",
-      "action": "다시 시작",
-      "confirmTitle": "기본 설정으로 다시 시작할까요?",
-      "confirmBody": "엔진 설정 파일을 삭제합니다. 제공업체 목록, 여기에 저장된 API 키, 메모리와 스킬 설정을 잃게 되며 다시 설정해야 합니다.\n\n먼저 원본 옆에 시간이 표시된 백업을 저장합니다. 그 백업을 검증할 수 없으면 아무것도 삭제하지 않습니다.",
-      "confirmAction": "백업하고 다시 시작"
-    },
-    "result": {
-      "repaired": "고쳤습니다. 원본 백업을 {{name}}(으)로 저장했습니다.",
-      "regenerated": "완료했습니다. 기존 설정을 {{name}}(으)로 저장했습니다.",
-      "backupFailed": "Wayland가 검증된 백업을 만들 수 없어 아무것도 변경하지 않았습니다. 이유: {{reason}}",
-      "writeFailed": "변경을 완료할 수 없었습니다. 이유: {{reason}}",
-      "writeFailedWithBackup": "변경을 완료할 수 없었습니다. 이유: {{reason}} 잃어버린 것은 없습니다. 원래 설정은 {{name}}에 있습니다.",
-      "notARegularFile": "이 설정 파일은 다른 파일을 가리키는 링크라서 Wayland가 교체하지 않습니다. ‘파일 위치 보기’로 실제 파일이 있는 곳에서 수정해 주세요.",
-      "revealFailed": "Wayland가 폴더를 열 수 없었습니다. 이유: {{reason}}"
-    },
-    "notText": "Wayland가 이 파일을 텍스트로 읽을 수 없습니다. 설정 파일 형식이 요구하는 UTF-8로 유효하지 않은 바이트가 들어 있습니다. 아무것도 변경하지 않았습니다."
-  },
   "turnRecovery": {
     "outcomeUnknown": "결과 알 수 없음",
-    "lastRecordedAction": "마지막으로 기록된 작업: {{action}}",
-    "starting": "Preparing conversation…",
-    "checkingTitle": "Checking interrupted work",
-    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
-    "title": "An interrupted turn needs attention",
-    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
-    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
-    "checkAgain": "Check again",
-    "endAction": "End interrupted turn",
-    "confirmTitle": "End the interrupted turn?",
-    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
-    "keepAction": "Keep it",
-    "checkFailed": "Wayland could not inspect the interrupted turn.",
-    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
-    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
-    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+    "lastRecordedAction": "마지막으로 기록된 작업: {{action}}"
   },
   "artifactCard": {
     "title": "워크스페이스에 저장됨",
@@ -598,14 +515,5 @@
     "rejectedUnreadable_other": "{{count}}개를 읽을 수 없었습니다",
     "more": "외 {{count}}개는 산출물에 있습니다",
     "more_other": "외 {{count}}개는 산출물에 있습니다"
-  },
-  "workspacePolicy": {
-    "title": "작업 공간 접근",
-    "scope": "실행 중인 Core 세션이 보고한 파일 시스템 접근 권한입니다. 도구 승인, 자격 증명 및 등록은 별개입니다.",
-    "readable": "읽기 가능한 폴더",
-    "writable": "쓰기 가능한 폴더",
-    "executables": "실행 기능 및 읽기 전용 폴더",
-    "none": "보고된 항목 없음",
-    "unknown": "Core가 이 대화의 현재 작업 공간 접근 권한을 아직 보고하지 않았습니다."
   }
 }

@@ -18,7 +18,7 @@ import { useDetectedAgents } from './useDetectedAgents';
  * Every consumer of this hook is a Team backend picker (launcher, roster,
  * per-agent swap), and Team mode requires backends that can call the `team_*`
  * MCP coordination tools. So `available` is filtered to team-capable backends:
- * the known set (gemini/claude/codex/wcore) qualifies immediately, other ACP
+ * the known set (gemini/claude/codex/fuigo) qualifies immediately, other ACP
  * agents only when their cached initialize result advertises
  * `mcpCapabilities.stdio`. This stops non-capable backends (e.g. GitHub Copilot)
  * from being offered, which otherwise breaks orchestration to leader-only (#152).

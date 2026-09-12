@@ -131,7 +131,7 @@ const AcpSendBox: React.FC<{
   // the indicator used to fall back to the generic DEFAULT_CONTEXT_LIMIT (1M) for
   // EVERY model - so the same Claude model could show a 200K max on one turn and
   // 1M on another. Resolve the real window from the registry catalog (falling back
-  // to the static table) exactly like the Gemini/WCore send boxes already do.
+  // to the static table) exactly like the Gemini send box already does.
   // Agent-reported window still wins when present - it is the ground truth.
   const getContextLimit = useModelContextLimit(backend);
   const { t } = useTranslation();
@@ -162,7 +162,7 @@ const AcpSendBox: React.FC<{
   const isBusy = running || aiProcessing;
 
   // Report busy state up so the shared inline orbit (MessageList footer) animates
-  // on the ACP path too, matching the wcore/Flux path. Without this the orbit
+  // on the ACP path too, matching the Gemini/Flux path. Without this the orbit
   // renders but never gets the processing signal, so it sits static.
   useEffect(() => {
     onRunningChange?.(isBusy);

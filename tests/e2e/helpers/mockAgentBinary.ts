@@ -30,7 +30,7 @@ export type MockBinaryAgent =
   | 'opencode'
   | 'hermes'
   | 'openclaw'
-  | 'wcore';
+  | 'fuigo';
 
 export type MockBinaryResponse =
   | { type: 'text'; chunks: string[] }

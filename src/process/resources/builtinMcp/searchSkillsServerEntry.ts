@@ -9,7 +9,7 @@
  *
  * Bundled by `scripts/build-mcp-servers.js` into
  * `out/main/builtin-mcp-search-skills.js`, packaged as `app.asar.unpacked`,
- * and spawned by ACP/Gemini/wcore agent sessions via `mcp.config`.
+ * and spawned by ACP/Gemini agent sessions via `mcp.config`.
  *
  * The tool exposes the second channel of the two-channel skill architecture:
  * the native channel ships only `_builtin + pinned + enabledSkills`; the full

@@ -27,7 +27,7 @@ describe('#749 claude full-auto is the internal guarded mode (warning is cosmeti
   });
 
   it('backends with a real advertised full-auto mode still warn on a genuine miss', () => {
-    for (const backend of ['gemini', 'qwen', 'wcore']) {
+    for (const backend of ['gemini', 'qwen', 'fuigo']) {
       expect(isAutoGuardedMode(getFullAutoMode(backend))).toBe(false);
     }
   });

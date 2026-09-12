@@ -45,8 +45,6 @@ async function resolvePreferredMode(backend: string): Promise<string | undefined
 
   if (backend === 'gemini') {
     preference = await ConfigStorage.get('gemini.config');
-  } else if (backend === 'wcore') {
-    preference = await ConfigStorage.get('wcore.config');
   } else {
     const acpConfig = await ConfigStorage.get('acp.config');
     preference = acpConfig?.[backend as AcpBackend];
@@ -133,43 +131,6 @@ async function shouldDefaultToFluxAuto(backend: string): Promise<boolean> {
 }
 
 /**
- * Get a model from configured providers that is compatible with Wayland Core.
- * Wayland Core supports all platforms via OpenAI-compatible protocol.
- * Throws if no compatible provider is configured.
- */
-export async function getDefaultWCoreModel(): Promise<TProviderWithModel> {
-  const providers = await ConfigStorage.get('model.config');
-
-  if (!providers || providers.length === 0) {
-    throw new Error('No model provider configured');
-  }
-
-  // Wayland Core supports all platforms via OpenAI-compatible protocol
-  const provider = providers.find((p) => p.enabled !== false);
-  if (!provider) {
-    throw new Error('No enabled model provider for Wayland Core');
-  }
-
-  const enabledModel = provider.model.find((m) => provider.modelEnabled?.[m] !== false);
-
-  return {
-    id: provider.id,
-    platform: provider.platform,
-    name: provider.name,
-    baseUrl: provider.baseUrl,
-    apiKey: provider.apiKey,
-    useModel: enabledModel || provider.model[0],
-    capabilities: provider.capabilities,
-    contextLimit: provider.contextLimit,
-    modelProtocols: provider.modelProtocols,
-    bedrockConfig: provider.bedrockConfig,
-    enabled: provider.enabled,
-    modelEnabled: provider.modelEnabled,
-    modelHealth: provider.modelHealth,
-  };
-}
-
-/**
  * Get the default Gemini model configuration from user settings.
  * Throws if no enabled provider or model is configured.
  * [BUG-3 fix]: callers must call this inside a try block
@@ -240,9 +201,6 @@ export async function buildCliAgentParams(
   let model: TProviderWithModel;
   if (type === 'gemini') {
     model = await resolveGeminiModel();
-  } else if (type === 'wcore') {
-    // Wayland Core needs a real model from configured providers (anthropic, openai, ali-intl, aws)
-    model = await getDefaultWCoreModel();
   } else {
     model = {} as TProviderWithModel;
   }
@@ -289,20 +247,7 @@ export async function buildPresetAssistantParams(
   const type = getConversationTypeForBackend(presetAgentType);
   const preferredMode = await resolvePreferredMode(presetAgentType);
   const preferredAcpModelId = type === 'acp' ? await resolvePreferredAcpModelId(presetAgentType) : undefined;
-  // wcore needs a real provider row, exactly as `buildCliAgentParams` already
-  // resolves one. This used to hand it `{} as TProviderWithModel` - a cast
-  // asserting a shape the value does not have - and a preset assistant is
-  // precisely the case where the user chose the assistant and never chose a
-  // model, so the empty object was what the conversation got created with.
-  // Throwing when nothing is configured matches the sibling helper and lands on
-  // the caller's existing catch, which shows "create failed" instead of opening
-  // a conversation that dies on its first turn.
-  const model =
-    type === 'gemini'
-      ? await resolveGeminiModel()
-      : type === 'wcore'
-        ? await getDefaultWCoreModel()
-        : ({} as TProviderWithModel);
+  const model = type === 'gemini' ? await resolveGeminiModel() : ({} as TProviderWithModel);
 
   return buildAgentConversationParams({
     backend: agent.backend,

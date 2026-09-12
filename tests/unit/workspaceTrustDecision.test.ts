@@ -47,7 +47,7 @@ describe('trustedWorkspaceAutoApprovesAcpKind — raw ACP kind gate', () => {
   });
 });
 
-describe('trustedWorkspaceAutoApprovesConfirmationType — Gemini/WCore type gate', () => {
+describe('trustedWorkspaceAutoApprovesConfirmationType — Gemini type gate', () => {
   it('auto-approves ONLY concrete edits', () => {
     expect(trustedWorkspaceAutoApprovesConfirmationType('edit')).toBe(true);
   });

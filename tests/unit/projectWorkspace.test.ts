@@ -37,7 +37,7 @@ describe('enforceProjectWorkspace (#30 no-drift)', () => {
     mockGetProject.mockResolvedValueOnce({ workspace: '/projects/alpha' });
     const extra: Record<string, unknown> = {
       projectId: 'p1',
-      workspace: '/var/folders/tmp/wcore-temp-1736900000000',
+      workspace: '/var/folders/tmp/acp-temp-1736900000000',
     };
     const changed = await enforceProjectWorkspace(extra);
     expect(changed).toBe(true);
@@ -78,15 +78,15 @@ describe('enforceProjectWorkspace (#30 no-drift)', () => {
 
   it('leaves the temp fallback alone when the project has no workspace', async () => {
     mockGetProject.mockResolvedValueOnce({ workspace: '' });
-    const extra: Record<string, unknown> = { projectId: 'p1', workspace: '/tmp/wcore-temp-1' };
+    const extra: Record<string, unknown> = { projectId: 'p1', workspace: '/tmp/acp-temp-1' };
     expect(await enforceProjectWorkspace(extra)).toBe(false);
-    expect(extra.workspace).toBe('/tmp/wcore-temp-1');
+    expect(extra.workspace).toBe('/tmp/acp-temp-1');
   });
 
   it('swallows repository failure and does not change the workspace', async () => {
     mockGetProject.mockRejectedValueOnce(new Error('db down'));
-    const extra: Record<string, unknown> = { projectId: 'p1', workspace: '/tmp/wcore-temp-1' };
+    const extra: Record<string, unknown> = { projectId: 'p1', workspace: '/tmp/acp-temp-1' };
     expect(await enforceProjectWorkspace(extra)).toBe(false);
-    expect(extra.workspace).toBe('/tmp/wcore-temp-1');
+    expect(extra.workspace).toBe('/tmp/acp-temp-1');
   });
 });

@@ -1206,7 +1206,7 @@ describe('real installer extraction and lifecycle evidence', () => {
 
   it('discovers a launch-token child after immediate setsid and reparenting', () => {
     const token = 'tree-token-not-user-controlled';
-    const reparented = `99 1 Mon Jul 18 20:00:00 2026 /opt/Wayland/wayland-core WAYLAND_PROCESS_TREE_ID=${token}\n`;
+    const reparented = `99 1 Mon Jul 18 20:00:00 2026 /opt/Wayland/fuigo WAYLAND_PROCESS_TREE_ID=${token}\n`;
     const execFileSync = vi.fn((_command: string, args: string[]) => (args[0] === 'eww' ? reparented : ''));
     const monitor = createProcessMonitor(8123, 'linux', {
       execFileSync,
@@ -1217,7 +1217,7 @@ describe('real installer extraction and lifecycle evidence', () => {
       expect.objectContaining({
         pid: 99,
         parentPid: 1,
-        identity: 'Mon Jul 18 20:00:00 2026\0/opt/Wayland/wayland-core',
+        identity: 'Mon Jul 18 20:00:00 2026\0/opt/Wayland/fuigo',
         scopeText: expect.stringContaining(token),
       }),
     ]);
@@ -1234,7 +1234,7 @@ describe('real installer extraction and lifecycle evidence', () => {
     // process that was never ours. Five real failures could not be told apart
     // because the survivor message carried neither.
     const token = 'scope-token-not-user-controlled';
-    const childOfRoot = '101 8123 Mon Jul 18 20:00:00 2026 /opt/Wayland/wayland-core';
+    const childOfRoot = '101 8123 Mon Jul 18 20:00:00 2026 /opt/Wayland/fuigo';
     const strangerWithToken = `202 1 Mon Jul 18 20:00:01 2026 /usr/bin/unrelated --dir=${token}`;
     const bothWays = `303 8123 Mon Jul 18 20:00:02 2026 /opt/Wayland/helper --dir=${token}`;
     const execFileSync = vi.fn(() => `${childOfRoot}\n${strangerWithToken}\n${bothWays}\n`);
@@ -1278,7 +1278,7 @@ describe('real installer extraction and lifecycle evidence', () => {
     expect(chromiumRoleFromCommandLine('Wayland.exe --type=gpu-process --foo')).toBe('gpu-process');
     expect(chromiumRoleFromCommandLine('Wayland.exe --type=renderer')).toBe('renderer');
     expect(chromiumRoleFromCommandLine('crashpad_handler.exe --type=crashpad-handler')).toBe('crashpad-handler');
-    expect(chromiumRoleFromCommandLine('wayland-core.exe --json-stream')).toBe('<none>');
+    expect(chromiumRoleFromCommandLine('fuigo.exe --json-stream')).toBe('<none>');
     expect(chromiumRoleFromCommandLine(undefined)).toBe('<none>');
   });
 
@@ -1313,7 +1313,7 @@ describe('real installer extraction and lifecycle evidence', () => {
 
   it('individually reaps an observed POSIX child that escaped the root process group', async () => {
     const child = makeFakeChild();
-    const original = '99 1 Mon Jul 18 20:00:00 2026 /opt/Wayland/wayland-core';
+    const original = '99 1 Mon Jul 18 20:00:00 2026 /opt/Wayland/fuigo';
     let alive = true;
     const processKill = vi.fn((pid: number) => {
       if (pid === 99) alive = false;
@@ -1321,7 +1321,7 @@ describe('real installer extraction and lifecycle evidence', () => {
     const execFileSync = vi.fn(() => (alive ? `${original}\n` : ''));
     await expect(
       terminateProcessTree(child, 'linux', { execFileSync, processKill, treeKillSettleMs: 0 }, [
-        { pid: 99, parentPid: 1, identity: `Mon Jul 18 20:00:00 2026\0/opt/Wayland/wayland-core` },
+        { pid: 99, parentPid: 1, identity: `Mon Jul 18 20:00:00 2026\0/opt/Wayland/fuigo` },
       ])
     ).resolves.toHaveLength(1);
     expect(processKill).toHaveBeenCalledWith(-child.pid, 'SIGKILL');
@@ -1597,7 +1597,6 @@ describe('platform workflows cannot silently skip installed-package smoke', () =
     expect(bundledBun.run).toContain('APP_RESOURCES_DIR="$resources_dir" bun run test:packaged:bun');
     expect(steps.indexOf(bundledBun)).toBeGreaterThan(steps.indexOf(smoke));
     expect(steps.indexOf(bundledBun)).toBeLessThan(steps.indexOf(upload));
-    expect(config.env!.WCORE_SKIP).toBe('0');
     expect(job.env!.WAYLAND_RELEASE_TRACK).toBe('${{ matrix.release_track }}');
     expect(job.env!.PACKAGE_OUT_DIR).toContain('out-preview');
     expect(upload.with!['if-no-files-found']).toBe('error');

@@ -160,7 +160,7 @@ class MockAudio {
 
 /** Exactly what the owner's machine put on the wire, log suffix and all. */
 const PLAINTEXT_REFUSAL =
-  'Agent failed to start: wcore refused to start: WARNING: [storage.credentials] backend = "plaintext" is ' +
+  'Agent failed to start: fuigo refused to start: WARNING: [storage.credentials] backend = "plaintext" is ' +
   'configured. Secrets are written UNENCRYPTED to /Users/owner/.wayland/credentials.toml and can be read by any ' +
   'process running as you. Remove the setting to use the OS keyring or the encrypted vault instead. ' +
   '(logs: /Users/owner/Library/Logs/Wayland/main.log)';
@@ -172,7 +172,7 @@ const renderVoice = () =>
     </VoiceSessionProvider>
   );
 
-/** Opens voice, speaks a turn, then fails it the way wcore fails a bootstrap. */
+/** Opens voice, speaks a turn, then fails it the way the engine fails a bootstrap. */
 const failOneTurn = async (data: unknown) => {
   renderVoice();
   act(() => openVoiceMode('conversation-1'));
@@ -220,7 +220,7 @@ describe('voice failure panel', () => {
 
     // The human part, on the line the user reads first.
     const summary = alert.querySelector('span')?.textContent ?? '';
-    expect(summary).toContain('wcore refused to start');
+    expect(summary).toContain('fuigo refused to start');
     expect(summary).toContain('backend = "plaintext" is configured');
 
     // The rest is expandable rather than truncated into nonsense.

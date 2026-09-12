@@ -90,7 +90,7 @@ describe('activityLabels.deriveStep - command surfacing (#520)', () => {
     const r = deriveStep({ kind: 'tool', name: 'Bash', command: 'echo WL520_LIVE_CHECK' });
     expect(r).toEqual({ label: 'Running echo WL520_LIVE_CHECK', glyph: 'command' });
   });
-  it('strips a leading "Execute: " prefix (the wcore description fallback)', () => {
+  it('strips a leading "Execute: " prefix (the description fallback)', () => {
     const r = deriveStep({ kind: 'tool', name: 'Bash', command: 'Execute: ls -la' });
     expect(r.label).toBe('Running ls -la');
   });
@@ -167,7 +167,7 @@ describe('activityLabels: the timeline must say what a tool acted ON', () => {
   });
 
   it('does not echo the tool name back at itself', () => {
-    // The wcore mapper falls back to the description, which is frequently just
+    // The tool-group mapper falls back to the description, which is frequently just
     // the tool name - "Widget: Widget" would be worse than no subject at all.
     const step = deriveStep({ kind: 'tool', name: 'widget_tool', detail: '', command: 'Widget Tool' });
     expect(step.label).toBe('Widget tool');

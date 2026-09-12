@@ -107,7 +107,7 @@ vi.mock('@process/task/AcpSkillManager', () => ({
 const conversationStore = new Map<string, any>();
 const createConversationMock = vi.fn(async (params: any) => {
   const id = `conv-${conversationStore.size}`;
-  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/wcore-temp-${Date.now()}`;
+  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/fuigo-temp-${Date.now()}`;
   const conv = {
     id,
     type: params.type,
@@ -158,10 +158,9 @@ import type { ICronEventEmitter } from '@/process/services/cron/ICronEventEmitte
 import type { ICronJobExecutor } from '@/process/services/cron/ICronJobExecutor';
 import type { IConversationRepository } from '@/process/services/database/IConversationRepository';
 import { seedBuiltinRoutines } from '@process/services/cron/BuiltinRoutinesSeeder';
-import { buildEngineSpawnEnv, buildOutputDirective, resolveOutputDir } from '@process/agent/wcore/envBuilder';
 import { listRuns, readLatest } from '@process/services/artifacts/artifactSeries';
 import { artifactLedgerPath, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
-import { activeRunOutputDir, clearRunOutputDirs } from '@process/services/artifacts/runOutputDir';
+import { activeRunOutputDir, clearRunOutputDirs, resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 
 const REPO_ROOT = pathMod.resolve(__dirname, '../../..');
 const SKILL_MD = pathMod.join(
@@ -190,17 +189,6 @@ function stagingDirBlock(): string {
     throw new Error('the morning-report SKILL.md no longer contains a staging-directory block');
   }
   return block;
-}
-
-/**
- * The absolute deliverables directory the run's own `--system-prompt` directive
- * names. This is the ONLY channel the agent has for it: `WAYLAND_OUTPUT_DIR` is
- * set on the engine process and never reaches a Bash tool call.
- */
-function deliverablesDirFromDirective(directive: string): string {
-  const m = directive.match(/Deliverables you want the user to keep go in (.+?)\. Create that directory/);
-  if (!m) throw new Error(`buildOutputDirective no longer names a directory: ${directive}`);
-  return m[1];
 }
 
 /** `- key: value` lines out of the SEEDED prompt - the agent's only input list. */
@@ -262,31 +250,22 @@ function makeService(jobs: CronJob[]): CronService {
 }
 
 /** What the stand-in agent does once the engine env for the run exists. */
-type Agent = (env: Record<string, string>, workspace: string, directive: string) => Promise<void>;
+type Agent = (outputDir: string, workspace: string) => Promise<void>;
 
 function makeHarness(workspace: string) {
   const guard = new CronBusyGuard();
   let agent: Agent = async () => {};
-  // Mirrors the real seam exactly: `WCoreManager` is constructed FOR a
-  // conversation and passes its own `conversation_id` down, and `WCoreAgent`
-  // resolves the run's output directory from that id - not from the workspace.
+  // Mirrors the real seam exactly: the agent manager is constructed FOR a
+  // conversation and passes its own `conversation_id` down, and the run's
+  // output directory is resolved from that id - not from the workspace.
   // Keying this stand-in on the workspace instead would let the test pass while
   // the product wrote nowhere, which is the whole defect P2-11 fixed.
   const buildTask = (conversationId: string) => ({
-    type: 'wcore',
+    type: 'acp',
     workspace,
     sendMessage: vi.fn(async () => {
-      const env = buildEngineSpawnEnv({
-        providerEnv: {},
-        workspace,
-        outputDir: activeRunOutputDir(conversationId),
-      });
-      // Mirrors `WCoreAgent.start`: ONE `resolveOutputDir` call feeds BOTH the
-      // spawn env and the `--system-prompt` directive. Deriving it twice would
-      // let the two channels disagree, which is the defect this rail exists to
-      // prevent.
       const engineOutputDir = resolveOutputDir(workspace, activeRunOutputDir(conversationId), conversationId);
-      await agent(env, workspace, buildOutputDirective(engineOutputDir));
+      await agent(engineOutputDir, workspace);
     }),
   });
   const taskManager = {
@@ -390,20 +369,14 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
 
     /**
      * The agent: run the skill's own commands, in the workspace, resolving its
-     * one placeholder the only way the product lets it - out of the directive.
-     *
-     * The engine's env is deliberately NOT spread into the child. The engine
-     * runs Bash tool calls through a 19-name allowlist that excludes
-     * `WAYLAND_OUTPUT_DIR`, so a stand-in that forwarded it would be testing a
-     * channel the product does not have.
+     * one placeholder from the deliverables directory it was told.
      */
     const runSkill = (bar: string): Agent => {
-      return async (_env, ws, directive) => {
-        const dir = deliverablesDirFromDirective(directive);
+      return async (dir, ws) => {
         // Write where the BLOCK pinned, not where this test decided - otherwise
         // the block's content is unasserted and a decoy path passes.
         const pinned = runShippedBlockAndReportPinnedDir(stagingDirBlock(), dir, ws);
-        expect(pinned, 'the shipped block must pin the directory the directive names').toBe(dir);
+        expect(pinned, 'the shipped block must pin the deliverables directory it was told').toBe(dir);
         // What the model does after the block: write the brief into the pinned
         // staging directory. One file - the intermediate `mr.json` the deleted
         // scanner used to leave behind has no counterpart in a chart-driven run.
@@ -432,9 +405,9 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
 
     // Day 2, in a brand new conversation, reading day 1 before it writes.
     let priorSeenByDay2 = '';
-    await h.run(job, async (env, ws, directive) => {
+    await h.run(job, async (dir, ws) => {
       priorSeenByDay2 = await fsp.readFile(pathMod.join(ws, 'artifacts', 'market', 'morning-brief.html'), 'utf8');
-      await runSkill('2026-08-20')(env, ws, directive);
+      await runSkill('2026-08-20')(dir, ws);
     });
 
     expect(priorSeenByDay2).toContain('bar 2026-08-19');
@@ -464,10 +437,10 @@ describe('a bundled routine, seeded the way a real install seeds it, keeps a his
 
     /** The agent obeys the prompt: read the prior review, write into the output dir. */
     const weeklyAgent = (week: string, seen: { prior: string | null }): Agent => {
-      return async (env, ws) => {
+      return async (outputDir, ws) => {
         seen.prior = await fsp.readFile(pathMod.join(ws, priorPath), 'utf8').catch(() => null);
         await fsp.writeFile(
-          pathMod.join(env.WAYLAND_OUTPUT_DIR, deliverable),
+          pathMod.join(outputDir, deliverable),
           `week ${week}; prior: ${seen.prior ?? 'none'}`,
           'utf8'
         );

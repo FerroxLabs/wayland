@@ -65,8 +65,6 @@ permissions:
 
 env:
   BUN_INSTALL_REGISTRY: 'https://registry.npmjs.org/'
-  # Wayland-core release stream does not exist yet (see commit 48d155826).
-  WCORE_SKIP: '1'
   CI: 'true'
   NODE_OPTIONS: '--max-old-space-size=8192'
 

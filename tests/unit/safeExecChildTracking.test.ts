@@ -8,7 +8,7 @@
  * EVERY safeExec CHILD MUST BE REAPABLE AT QUIT.
  *
  * `killAllAgentChildren` is the final before-quit step (src/index.ts), and it can
- * only kill what `trackAgentChild` knows about. wcore and AcpConnection register
+ * only kill what `trackAgentChild` knows about. AcpConnection registers
  * their children; safeExec/safeExecFile did not, and they are what AcpDetector
  * uses to probe for CLIs - a `where` and then a `powershell -Command Get-Command`
  * per agent, eighteen agents deep, plus a WSL probe for whatever is still

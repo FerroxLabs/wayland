@@ -51,8 +51,8 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
   beforeEach(async () => {
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'wayland-mcp-archive-'));
     active = [server()];
-    removeResult = { success: true, results: [{ agent: 'wcore:Wayland Core', success: true }] };
-    syncResult = { success: true, results: [{ agent: 'wcore:Wayland Core', success: true }] };
+    removeResult = { success: true, results: [{ agent: 'fuigo:Fuigo', success: true }] };
+    syncResult = { success: true, results: [{ agent: 'fuigo:Fuigo', success: true }] };
     removeFromAgents = vi.fn(async () => removeResult);
     syncToAgents = vi.fn(async () => syncResult);
     deps = {
@@ -85,16 +85,14 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
     removeResult = {
       success: false, // McpService reports the aggregate; the lifecycle must judge the results itself
       results: [
-        { agent: 'wcore:Wayland Core', success: true },
+        { agent: 'fuigo:Fuigo', success: true },
         { agent: 'grok:Grok Build', success: false, unsupported: true, error: 'not supported for backend "grok"' },
         { agent: 'goose:Goose', success: false, unsupported: true, error: 'not supported for backend "goose"' },
       ],
     };
 
     const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
-    const archived = await lifecycle.archiveConfiguredServer('mcp_customer', [
-      { backend: 'wcore', name: 'Wayland Core' },
-    ]);
+    const archived = await lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'fuigo', name: 'Fuigo' }]);
 
     expect(archived.serverId).toBe('mcp_customer');
     expect(active, 'the connector must actually be gone').toEqual([]);
@@ -107,26 +105,24 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
     removeResult = {
       success: false,
       results: [
-        { agent: 'wcore:Wayland Core', success: false, error: 'config locked' },
+        { agent: 'fuigo:Fuigo', success: false, error: 'config locked' },
         { agent: 'grok:Grok Build', success: false, unsupported: true, error: 'not supported for backend "grok"' },
       ],
     };
 
     const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
     await expect(
-      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'wcore', name: 'Wayland Core' }])
+      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'fuigo', name: 'Fuigo' }])
     ).rejects.toThrow('config locked');
     expect(active, 'a failed removal must leave the connector in place').toHaveLength(1);
   });
 
   it('archives the complete definition before removal and restores it disabled without losing secrets or setup', async () => {
     const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
-    const archived = await lifecycle.archiveConfiguredServer('mcp_customer', [
-      { backend: 'wcore', name: 'Wayland Core' },
-    ]);
+    const archived = await lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'fuigo', name: 'Fuigo' }]);
 
     expect(active).toEqual([]);
-    expect(removeFromAgents).toHaveBeenCalledWith('customer-tools', [{ backend: 'wcore', name: 'Wayland Core' }]);
+    expect(removeFromAgents).toHaveBeenCalledWith('customer-tools', [{ backend: 'fuigo', name: 'Fuigo' }]);
     expect(archived).not.toHaveProperty('server');
     expect(JSON.stringify(archived)).not.toContain('secret-value');
     expect(await lifecycle.listArchivedServers()).toEqual([archived]);
@@ -180,7 +176,7 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
     };
     syncResult = {
       success: false,
-      results: [{ agent: 'wcore:Wayland Core', success: false, error: 'restore refused' }],
+      results: [{ agent: 'fuigo:Fuigo', success: false, error: 'restore refused' }],
     };
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
@@ -204,12 +200,12 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
     const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
 
     await expect(
-      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'wcore', name: 'Wayland Core' }])
+      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'fuigo', name: 'Fuigo' }])
     ).rejects.toThrow('changed while it was being archived');
     expect(active[0].description).toBe('newer user edit');
     expect(syncToAgents).toHaveBeenCalledWith(
       [expect.objectContaining({ description: 'newer user edit', updatedAt: 30 })],
-      [{ backend: 'wcore', name: 'Wayland Core' }]
+      [{ backend: 'fuigo', name: 'Fuigo' }]
     );
   });
 
@@ -221,12 +217,12 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
     const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
 
     await expect(
-      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'wcore', name: 'Wayland Core' }])
+      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'fuigo', name: 'Fuigo' }])
     ).rejects.toThrow('changed while it was being archived');
     expect(active[0].description).toBe('CAS winner');
     expect(syncToAgents).toHaveBeenCalledWith(
       [expect.objectContaining({ description: 'CAS winner', updatedAt: 40 })],
-      [{ backend: 'wcore', name: 'Wayland Core' }]
+      [{ backend: 'fuigo', name: 'Fuigo' }]
     );
   });
 
@@ -241,10 +237,10 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
     const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
 
     await expect(
-      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'wcore', name: 'Wayland Core' }])
+      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'fuigo', name: 'Fuigo' }])
     ).rejects.toThrow('disk full');
     expect(active).toEqual([server()]);
-    expect(syncToAgents).toHaveBeenCalledWith([server()], [{ backend: 'wcore', name: 'Wayland Core' }]);
+    expect(syncToAgents).toHaveBeenCalledWith([server()], [{ backend: 'fuigo', name: 'Fuigo' }]);
   });
 
   it('fails closed when archive content is tampered and leaves the active set unchanged', async () => {

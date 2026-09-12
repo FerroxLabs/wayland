@@ -40,7 +40,7 @@ describe('Curator flux hero-exception', () => {
   it('keeps unenriched local Ollama models enabled so they survive the picker filter', () => {
     // Local Ollama is keyless + unenriched (no /v1/models to enrich), same class
     // as the flux/chatgpt-subscription virtual sets. Without the exception it
-    // lands enabled:false and disappears from the WCore picker entirely.
+    // lands enabled:false and disappears from the engine picker entirely.
     const ollama: CatalogModel[] = [
       { ...fluxAuto, id: 'qwen3:32b', providerId: 'ollama-local', family: 'qwen3', displayName: 'qwen3:32b' },
       {

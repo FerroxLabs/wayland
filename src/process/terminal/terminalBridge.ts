@@ -24,7 +24,6 @@ import { ipcBridge } from '@/common';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { SqliteConversationRepository } from '@process/services/database/SqliteConversationRepository';
 import { isTerminalModeEnabled } from './terminalConfig';
-import { ProfileIsolationError, resolveActiveConfigDir } from '@process/agent/wcore/profilePaths';
 import { resolveTerminalCommand } from './terminalCommand';
 import { resolveCommandPath } from './terminalPath';
 import { forgetPty, getPty, hasPty, killPty, livePtyCount, registerPty } from './terminalRegistry';
@@ -70,28 +69,6 @@ export function initTerminalBridge(): void {
     // A spec may pin engine-scoped variables (the Fuigo TUI's FUIGO_HOME);
     // they are layered over the user's shell env, never replaced by it.
     const env = { ...getEnhancedEnv(), ...spec.env };
-
-    // #278: the `wcore` terminal launches the ENGINE binary itself, so it is an
-    // engine spawn and the WAYLAND_HOME contract binds it exactly as it binds the
-    // --json-stream spawn. getEnhancedEnv() is the user's SHELL env, which never
-    // carries WAYLAND_HOME - so without this the TUI resolves the engine's DEFAULT
-    // home no matter which profile is active, and then READS AND WRITES there
-    // (config.toml, memory.db, credentials). That is a live cross-profile bleed,
-    // and a nastier one than the spawn path because the TUI writes.
-    //
-    // Fail closed only on ProfileIsolationError (a named profile we cannot resolve);
-    // a default-branch fault must not block the terminal. See resolveActiveConfigDir.
-    if (conversation.type === 'wcore') {
-      try {
-        env.WAYLAND_HOME = await resolveActiveConfigDir();
-      } catch (err) {
-        if (err instanceof ProfileIsolationError) {
-          console.error('[terminal] refusing to launch the engine TUI:', err.message);
-          return { ok: false, reason: 'profile-unresolved' } as const;
-        }
-        console.warn('[terminal] Failed to resolve the active profile config dir:', err);
-      }
-    }
 
     const commandPath = resolveCommandPath(spec.command, env);
     if (!commandPath) return { ok: false, reason: 'missing-cli' } as const;

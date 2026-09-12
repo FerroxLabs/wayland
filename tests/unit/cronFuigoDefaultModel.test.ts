@@ -6,9 +6,9 @@
 
 /**
  * Fuigo cutover: a scheduled run on the bundled engine resolves its model from
- * `fuigo.defaultModel`, falling back to the pre-cutover `wcore.defaultModel`
- * so a profile that only ever picked a Core default keeps that pick. Before
- * this, `fuigo` fell into the generic ACP branch and read neither key.
+ * `fuigo.defaultModel` (a pre-cutover Core default is copied there once by
+ * `runFuigoCutoverConfigMigration`). Before this, `fuigo` fell into the generic
+ * ACP branch and read neither key.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -80,19 +80,18 @@ function executor(): Probe {
 describe('WorkerTaskManagerJobExecutor.resolveModelForBackend(fuigo)', () => {
   beforeEach(() => configGet.mockReset());
 
-  it('reads fuigo.defaultModel first', async () => {
+  it('reads fuigo.defaultModel', async () => {
     config({
       'model.config': [flux],
       'fuigo.defaultModel': { id: 'flux', useModel: 'gpt-5.4' },
-      'wcore.defaultModel': { id: 'flux', useModel: 'flux-auto' },
     });
     const model = await executor().resolveModelForBackend('fuigo');
     expect(model.useModel).toBe('gpt-5.4');
   });
 
-  it('falls back to the pre-cutover wcore.defaultModel when no fuigo default is set', async () => {
-    config({ 'model.config': [flux], 'wcore.defaultModel': { id: 'flux', useModel: 'gpt-5.4' } });
+  it("uses the provider's own default when no fuigo default is set", async () => {
+    config({ 'model.config': [flux] });
     const model = await executor().resolveModelForBackend('fuigo');
-    expect(model.useModel).toBe('gpt-5.4');
+    expect(model.useModel).toBe('flux-auto');
   });
 });

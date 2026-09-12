@@ -8,10 +8,8 @@
 
 /**
  * Fuigo cutover (Phase 2): on the Local Agents list the bundled Fuigo engine
- * is the first detected card, ahead of Wayland Core and Gemini CLI, whatever
- * order the detector returned them in. Wayland Core keeps its own card (and its
- * Settings link) until Phase 3 deletes it. Mock scaffold mirrors
- * localAgentsWcoreCardGating.dom.test.tsx.
+ * is the first detected card, ahead of Gemini CLI, whatever order the detector
+ * returned them in.
  */
 
 const mockNavigate = vi.hoisted(() => vi.fn());
@@ -81,7 +79,7 @@ vi.mock('../../src/renderer/pages/settings/AgentSettings/AgentHubModal', () => (
 vi.mock('../../src/renderer/pages/settings/AgentSettings/InlineAgentEditor', () => ({ default: () => null }));
 vi.mock('@/renderer/hooks/context/ThemeContext', () => ({ useThemeContext: () => ({ theme: 'light' }) }));
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import LocalAgents from '../../src/renderer/pages/settings/AgentSettings/LocalAgents';
@@ -99,21 +97,15 @@ describe('LocalAgents - Fuigo is listed first among detected engines', () => {
     mockIsElectronDesktop.mockReturnValue(true);
   });
 
-  it('renders the Fuigo card before Wayland Core and Gemini even when detected last', () => {
+  it('renders the Fuigo card before Gemini even when detected last', () => {
     mockDetectedAgents.current = [
-      { backend: 'wcore', name: 'Wayland Core' },
       { backend: 'gemini', name: 'Gemini CLI' },
       { backend: 'claude', name: 'Claude Code' },
       { backend: 'fuigo', name: 'Fuigo' },
     ];
     render(<LocalAgents />);
 
-    expect(cardNames(['Claude Code', 'Gemini CLI', 'Wayland Core', 'Fuigo'])).toEqual([
-      'Fuigo',
-      'Wayland Core',
-      'Gemini CLI',
-      'Claude Code',
-    ]);
+    expect(cardNames(['Claude Code', 'Gemini CLI', 'Fuigo'])).toEqual(['Fuigo', 'Gemini CLI', 'Claude Code']);
   });
 
   it('does not list Fuigo twice (once pinned, once as an ordinary detected agent)', () => {
@@ -126,22 +118,15 @@ describe('LocalAgents - Fuigo is listed first among detected engines', () => {
     expect(screen.getAllByText('Fuigo')).toHaveLength(1);
   });
 
-  it('keeps the live Settings link on the Wayland Core card only; the Fuigo card has none yet', () => {
-    mockDetectedAgents.current = [
-      { backend: 'fuigo', name: 'Fuigo' },
-      { backend: 'wcore', name: 'Wayland Core' },
-    ];
+  it('renders no live Settings link on the Fuigo card yet (Engine pane is Phase 4)', () => {
+    mockDetectedAgents.current = [{ backend: 'fuigo', name: 'Fuigo' }];
     render(<LocalAgents />);
 
-    // Every grid card renders a Settings button; only Core's is enabled (Fuigo
-    // gets its Engine pane in Phase 4).
     const buttons = screen
       .getAllByText('settings.agentManagement.settings')
       .map((label) => label.closest('button') as HTMLButtonElement);
-    expect(buttons).toHaveLength(2);
-    const enabled = buttons.filter((b) => !b.disabled);
-    expect(enabled).toHaveLength(1);
-    fireEvent.click(enabled[0]);
-    expect(mockNavigate).toHaveBeenCalledWith('/settings/wcore');
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0].disabled).toBe(true);
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

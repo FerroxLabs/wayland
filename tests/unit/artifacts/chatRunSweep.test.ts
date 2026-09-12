@@ -31,7 +31,7 @@ import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
+import { resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 import { MAX_DECLARATIONS_PER_RUN, readArtifactLedger } from '@process/services/artifacts/artifactLedger';
 import { clearChatSweepMemo, onChatTurnCompleted, sweepChatRun } from '@process/services/artifacts/chatRun';
 import { beginTaskRun, commitTaskRun } from '@process/services/artifacts/taskRun';

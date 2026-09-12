@@ -16,7 +16,7 @@ import type { ConstitutionFsService } from './constitutionFsService';
  * regenerated.
  *
  * This lives on the composer seam rather than in one backend's manager because
- * the reclaim is reached from every backend: wayland-core, native ACP (Claude
+ * the reclaim is reached from every backend: Fuigo, native ACP (Claude
  * Code / Codex), Gemini, non-native ACP, and Team role prompts all resolve the
  * Constitution through `composePrompt`. Emitting it from a single manager meant
  * a Claude Code user had their revision lineage rotated and their ring moved

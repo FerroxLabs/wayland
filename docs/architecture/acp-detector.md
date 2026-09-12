@@ -39,7 +39,7 @@ Iterates over all known CLI tools in `POTENTIAL_ACP_CLIS` and calls `isCliAvaila
 
 - Must have a `cliCommand`
 - Must have `enabled: true`
-- Excludes `gemini` (built-in, no detection needed), `custom` (user-configured), and `wcore` (non-ACP protocol)
+- Excludes `gemini` (built-in, no detection needed) and `custom` (user-configured)
 
 Returns an array of `DetectedAgent` objects containing `backend`, `name`, `cliPath`, and `acpArgs`.
 
@@ -165,7 +165,6 @@ All paths are appended only if they **exist and are not already in the current P
 | `qoder`            | `qodercli`  | `['--acp']`                          | Qoder CLI      |
 | `vibe`             | `vibe-acp`  | `[]`                                 | Mistral Vibe   |
 | `openclaw-gateway` | `openclaw`  | `['gateway']`                        | OpenClaw       |
-| `nanobot`          | `nanobot`   | `['--experimental-acp']`             | Nano Bot       |
 | `cursor`           | `agent`     | `['acp']`                            | Cursor Agent   |
 | `kiro`             | `kiro-cli`  | `['acp']`                            | Kiro           |
 
@@ -175,7 +174,6 @@ All paths are appended only if they **exist and are not already in the current P
 | ---------- | -------------------------------------------------------------- |
 | `gemini`   | Built-in agent, always available, no CLI detection needed      |
 | `custom`   | User-defined, has no `cliCommand`                              |
-| `wcore`    | Non-ACP protocol (JSON Lines), explicitly excluded             |
 | `remote`   | No local CLI; connects via WebSocket URL                       |
 
 ## Merging and Deduplication

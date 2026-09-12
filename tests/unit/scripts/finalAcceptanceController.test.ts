@@ -27,7 +27,6 @@ const CONDITIONAL: Record<string, string[]> = {
   sandbox: ['M1S', 'SBX-2'],
   flux: ['M1F'],
 };
-const CORE_ASSETS = TARGETS.map((target) => `wayland-core-v0.12.25-${target}.archive`);
 const TARGET_GATES = ['package-identity-signature', 'install', 'updater', 'rollback', 're-upgrade'];
 const TARGET_GATE_REQUIREMENTS = TARGETS.flatMap((target) =>
   TARGET_GATES.map((gate) => ({
@@ -152,7 +151,7 @@ function request() {
     targetGateReceipts: { receiptsDirectory: '/trusted/target-gates' },
     releaseEvidenceManifest: { source: 'canonical' },
     releaseClaimsManifest: { source: 'canonical' },
-    publisherArtifacts: CORE_ASSETS.map((assetName) => ({ assetName })),
+    publisherArtifacts: [],
     updaterEvidence: {
       observations: TARGETS.map((target) => ({ target, observationPath: `/trusted/updater/${target}.json` })),
     },
@@ -234,20 +233,6 @@ function verifiers() {
       signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml',
       authority: 'github-attested-release-claims',
     }),
-    verifyPublisherArtifact: (raw: { assetName: string }) => ({
-      contract: 'wayland-publisher-attestations/1.0',
-      policyId: 'wayland-core-v0.12.25-release',
-      repository: 'FerroxLabs/wayland-core',
-      signerWorkflow: 'FerroxLabs/wayland-core/.github/workflows/release.yml',
-      sourceRef: 'refs/heads/main',
-      sourceDigest: 'c'.repeat(40),
-      predicateType: 'https://slsa.dev/provenance/v1',
-      runner: 'github-hosted',
-      asset: raw.assetName,
-      sha256: DIGEST('5'),
-      verified: true,
-    }),
-    expectedPublisherAssets: () => CORE_ASSETS.map((asset) => ({ asset, sha256: DIGEST('5') })),
     verifyUpdaterObservation: (raw: { observationPath: string }) => ({
       contract: 'wayland-updater-trusted-observation/1.0',
       candidate: { commit: COMMIT, tree: TREE },
@@ -334,24 +319,10 @@ describe('M8-A final acceptance controller', () => {
     expect(() => verifyFinalAcceptance(input, verifiers())).toThrow(/M8A_LIVE_CANDIDATE_INVALID.*stale-or-foreign/);
   });
 
-  it('requires publisher attestations for the complete authoritative Core asset set', () => {
-    const missing = request();
-    missing.publisherArtifacts.pop();
-    expect(() => verifyFinalAcceptance(missing, verifiers())).toThrow(/core-asset-coverage-mismatch/);
-
-    const duplicate = request();
-    duplicate.publisherArtifacts[5] = { ...duplicate.publisherArtifacts[0] };
-    expect(() => verifyFinalAcceptance(duplicate, verifiers())).toThrow(/missing-duplicate-or-unknown-core-asset/);
-  });
-
-  it('binds every Core publisher artifact to the pinned release digest', () => {
-    const hostile = verifiers();
-    hostile.verifyPublisherArtifact = (raw: { assetName: string }) => ({
-      ...verifiers().verifyPublisherArtifact(raw),
-      sha256: DIGEST('f'),
-    });
-
-    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/core-asset-digest-mismatch/);
+  it('refuses any publisher-attested artifact: the bundled engine is pinned by npm integrity, not a release asset', () => {
+    const stray = request();
+    stray.publisherArtifacts = [{ assetName: 'fuigo-1.0.13-darwin-arm64.archive' }];
+    expect(() => verifyFinalAcceptance(stray, verifiers())).toThrow(/unexpected-publisher-artifacts/);
   });
 
   it('requires every exact target and hardening-gate receipt', () => {
@@ -588,29 +559,7 @@ describe('M8-A final acceptance controller', () => {
 // the existing suite - which injects its own fixtures where production reads real
 // files - could not see any of them. These tests read the real files instead.
 describe('release acceptance gate invariants', () => {
-  const policy = JSON.parse(readFileSync('scripts/supply-chain/publisher-attestations.json', 'utf8')) as {
-    policies: Array<{ status: string; repository: string; releaseTag: string }>;
-  };
-  const CORE = 'FerroxLabs/wayland-core';
   const trustRoot = readFileSync('.github/workflows/release-acceptance-trust-root.yml', 'utf8');
-
-  // The ledger also carries wayland-nano, which legitimately has more than one
-  // active release. An unscoped count made the controller fail every run.
-  it('has exactly one active Core publisher policy, ignoring other product lines', () => {
-    const activeCore = policy.policies.filter((e) => e.status === 'active' && e.repository === CORE);
-    expect(activeCore).toHaveLength(1);
-    expect(policy.policies.some((e) => e.status === 'active' && e.repository !== CORE)).toBe(true);
-  });
-
-  // publisher-attestations.json is the fifth coupled edit of an engine bump. If a
-  // bump adds a policy without superseding the previous one, the gate breaks.
-  it('pins the active Core policy to the bundled engine version', () => {
-    const activeCore = policy.policies.find((e) => e.status === 'active' && e.repository === CORE);
-    const { DEFAULT_WCORE_VERSION } = require('../../../scripts/prepareWaylandCore') as {
-      DEFAULT_WCORE_VERSION: string;
-    };
-    expect(activeCore?.releaseTag).toBe(DEFAULT_WCORE_VERSION);
-  });
 
   // actions/upload-artifact emits bare hex; the REST API returns "sha256:<hex>".
   // Asserting either surface in the other's form can never match.

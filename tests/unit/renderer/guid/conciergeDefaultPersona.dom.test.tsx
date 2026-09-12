@@ -63,7 +63,7 @@ vi.mock('@/renderer/pages/guid/hooks/usePresetAssistantResolver', () => ({
   usePresetAssistantResolver: () => ({
     resolvePresetRulesAndSkills: vi.fn(() => Promise.resolve({})),
     resolvePresetContext: vi.fn(() => Promise.resolve(undefined)),
-    resolvePresetAgentType: vi.fn(() => 'wcore'),
+    resolvePresetAgentType: vi.fn(() => 'fuigo'),
     resolveEnabledSkills: vi.fn(() => undefined),
     resolveDisabledBuiltinSkills: vi.fn(() => undefined),
   }),
@@ -73,9 +73,9 @@ vi.mock('@/renderer/pages/guid/hooks/useAgentAvailability', () => ({
   useAgentAvailability: () => ({
     isMainAgentAvailable: () => true,
     getEffectiveAgentType: () => ({
-      agentType: 'wcore',
+      agentType: 'fuigo',
       isFallback: false,
-      originalType: 'wcore',
+      originalType: 'fuigo',
       isAvailable: true,
     }),
   }),
@@ -89,7 +89,7 @@ const renderSelection = () =>
 describe('useGuidAgentSelection - Concierge default persona', () => {
   beforeEach(() => {
     cfg.values = {};
-    agents.current = [{ backend: 'wcore', name: 'Wayland Core' }];
+    agents.current = [{ backend: 'fuigo', name: 'Fuigo' }];
   });
   afterEach(() => {
     vi.clearAllMocks();
@@ -111,7 +111,7 @@ describe('useGuidAgentSelection - Concierge default persona', () => {
     cfg.values['guid.lastSelectedAgent'] = undefined;
     cfg.values['concierge.defaultPersona'] = false;
     const { result } = renderSelection();
-    await waitFor(() => expect(result.current.selectedAgentKey).toBe('wcore'));
+    await waitFor(() => expect(result.current.selectedAgentKey).toBe('fuigo'));
     expect(result.current.selectedAgentKey).not.toBe('custom:builtin-concierge');
   });
 });

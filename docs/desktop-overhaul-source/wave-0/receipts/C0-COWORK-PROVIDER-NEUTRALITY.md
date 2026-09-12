@@ -1,5 +1,7 @@
 # C0 Cowork provider-neutrality receipt
 
+> Engine note (2026-09-12): Wayland Core and Wayland Nano have been removed from Wayland Desktop. Fuigo is the only bundled engine. Engine-specific paths, receipts and proof counts below are historical.
+
 Date: 2026-07-15
 Baseline: Wayland Desktop `v0.11.18`
 Lane: Desktop (`area:desktop-ui`)
@@ -7,7 +9,7 @@ Lane: Desktop (`area:desktop-ui`)
 ## Contract proved
 
 - Cowork is a provider-neutral persona: the source preset has no provider binding.
-- A typeless preset resolves through one shared default, bundled Wayland Core (`wcore`).
+- A typeless preset resolves through one shared default, the bundled engine (now Fuigo, `fuigo`).
 - Existing saved provider choices remain authoritative; Gemini, Codex, Claude, or another explicit value is preserved.
 - The shared default is used by initial storage, Guid selection, command-palette launch, Assistant Library launch, conversation creation, workflow launch, assistant editing, and team spawning/description.
 - Selecting Cowork remains independent of workspace authority.

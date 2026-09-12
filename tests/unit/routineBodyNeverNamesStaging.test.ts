@@ -20,14 +20,9 @@
  * published path exists. So any instruction to "name the path" can only ever
  * name the doomed one. This is an ordering fact, not a model-obedience problem.
  *
- * TWO PLACES SAID IT, and the second is the one nobody had looked at:
- *   1. the bundled workflow body, Step 4 item 4, "Name the brief's full path";
- *   2. `buildOutputDirective` - the HOST's own `--system-prompt` clause, "When
- *      you refer to a saved deliverable in your final message, name its path
- *      inside <dir>", where <dir> IS the staging directory on a scheduled run.
- * Fixing only the body would leave the app itself still asking for it. The
- * clause is correct for a CHAT, whose deliverables directory is permanent, and
- * that case is a known positive below rather than collateral damage.
+ * The bundled workflow body, Step 4 item 4, said "Name the brief's full path"
+ * (the retired Core engine's own system-prompt clause said it too, and left
+ * with that engine).
  *
  * B15. The body asked the run to "prune the Yahoo cache" and gave no command,
  * so the model reached for the GNU idiom `head -n -N`, which BSD head rejects
@@ -36,19 +31,17 @@
  *
  * THE HALVES OF THIS FILE ARE NOT EQUAL AND ARE LABELLED SO. The corpus halves
  * prove a string exists in a document, which is advice. The production halves
- * assert the same facts against the real `beginTaskRun` / `commitTaskRun` and
- * the real `buildOutputDirective`, and against `/bin/sh` actually executing the
- * command the body prints.
+ * assert the same facts against the real `beginTaskRun` / `commitTaskRun`, and
+ * against `/bin/sh` actually executing the command the body prints.
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { beginTaskRun, commitTaskRun } from '@process/services/artifacts/taskRun';
-import { buildOutputDirective, resolveOutputDir } from '@process/agent/wcore/envBuilder';
 
 // The two EXECUTED cases below parse the body with a real POSIX shell. Windows
 // has none, so they are gated on the interpreter EXISTING rather than on the
@@ -123,31 +116,6 @@ describe('PRODUCTION: publication destroys the staging directory it published fr
     // file is somewhere it never saw.
     expect(existsSync(handle.stagingDir)).toBe(false);
     expect(existsSync(path.join(outcome.publication.runDir, 'morning-brief.html'))).toBe(true);
-  });
-});
-
-describe("PRODUCTION: the host's own system prompt stops asking for the doomed path", () => {
-  it('a scheduled run is told NOT to name its deliverables directory', () => {
-    const workspace = tmp('b13-run-');
-    const staging = path.join(workspace, 'artifacts', 'market', '.staging', 'r1');
-    mkdirSync(staging, { recursive: true });
-
-    const dir = resolveOutputDir(workspace, staging, 'conv1');
-    expect(dir).toBe(path.resolve(staging)); // known positive: the run's dir was accepted
-
-    const directive = buildOutputDirective(dir, { ephemeral: true });
-    expect(directive).toContain(dir); // it still tells the model where to WRITE
-    expect(directive).not.toContain('name its path inside');
-    expect(directive).toContain('name the file');
-  });
-
-  it('KNOWN POSITIVE: a chat is still told to name the path, because a chat directory is permanent', () => {
-    const workspace = tmp('b13-chat-');
-    const dir = resolveOutputDir(workspace, undefined, 'conv1');
-    expect(dir).toContain(path.join('artifacts', 'chat', 'conv1'));
-
-    const directive = buildOutputDirective(dir);
-    expect(directive).toContain('name its path inside');
   });
 });
 

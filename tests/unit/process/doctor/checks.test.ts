@@ -21,7 +21,7 @@ import {
   checkWorkspaceConfigured,
   isTempWorkspacePath,
 } from '@process/doctor/checks/workspaceChecks';
-import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from '@process/doctor/checks/configChecks';
+import { checkSecretStorage, checkConfigPaths } from '@process/doctor/checks/configChecks';
 import { checkAppArchitecture } from '@process/doctor/checks/platformChecks';
 import type { RegistryProvider, RegistryCredsResult } from '@process/providers/storage/ProviderRepository';
 import type { ProviderId } from '@process/providers/types';
@@ -217,7 +217,7 @@ describe('checkEngineReachable', () => {
   });
 
   it('warns when the binary exists but reports no version', async () => {
-    const result = await checkEngineReachable(() => ({ available: true, path: '/x/wayland-core' }));
+    const result = await checkEngineReachable(() => ({ available: true, path: '/x/fuigo' }));
     expect(result.status).toBe('warn');
   });
 
@@ -253,16 +253,16 @@ describe('checkEngineContractPin', () => {
 
   it('fails when the engine advertises a DIFFERENT contract digest', async () => {
     const result = await checkEngineContractPin(
-      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => OTHER },
+      { binaryPath: () => '/x/fuigo', advertisedSchemaDigest: async () => OTHER },
       PIN
     );
     expect(result.status).toBe('fail');
-    expect(result.remediation).toContain('/x/wayland-core');
+    expect(result.remediation).toContain('/x/fuigo');
   });
 
   it('passes when the engine advertises the pinned digest', async () => {
     const result = await checkEngineContractPin(
-      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => PIN },
+      { binaryPath: () => '/x/fuigo', advertisedSchemaDigest: async () => PIN },
       PIN
     );
     expect(result.status).toBe('pass');
@@ -279,7 +279,7 @@ describe('checkEngineContractPin', () => {
    */
   it('passes a legacy engine that advertises no contract at all', async () => {
     const result = await checkEngineContractPin(
-      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => null },
+      { binaryPath: () => '/x/fuigo', advertisedSchemaDigest: async () => null },
       PIN
     );
     expect(result.status).toBe('pass');
@@ -297,7 +297,7 @@ describe('checkEngineContractPin', () => {
   it('warns when the binary cannot be read', async () => {
     const result = await checkEngineContractPin(
       {
-        binaryPath: () => '/x/wayland-core',
+        binaryPath: () => '/x/fuigo',
         advertisedSchemaDigest: async () => {
           throw new Error('EACCES: permission denied');
         },
@@ -657,11 +657,11 @@ describe('checkConfigPaths', () => {
   it('passes and reports both the app and engine config directories', async () => {
     const result = await checkConfigPaths({
       appConfigDir: () => '/Users/x/Wayland/config',
-      engineConfigDir: () => '/Users/x/Library/Application Support/wayland-core',
+      engineConfigDir: () => '/Users/x/Library/Application Support/Wayland/fuigo',
     });
     expect(result.status).toBe('pass');
     expect(result.detail).toContain('/Users/x/Wayland/config');
-    expect(result.detail).toContain('wayland-core');
+    expect(result.detail).toContain('Wayland/fuigo');
   });
 });
 
@@ -675,25 +675,6 @@ describe('checkSecretStorage', () => {
     const result = await checkSecretStorage(() => false);
     expect(result.status).toBe('warn');
     expect(result.remediation).toBeDefined();
-  });
-});
-
-describe('checkEngineConfigIntegrity', () => {
-  it('passes when the config parses', async () => {
-    const result = await checkEngineConfigIntegrity(async () => ({ status: 'ok', existed: true }));
-    expect(result.status).toBe('pass');
-  });
-
-  it('passes (fresh install) when the config is absent', async () => {
-    const result = await checkEngineConfigIntegrity(async () => ({ status: 'ok', existed: false }));
-    expect(result.status).toBe('pass');
-    expect(result.detail.toLowerCase()).toContain('fresh install');
-  });
-
-  it('fails when the config is corrupt', async () => {
-    const result = await checkEngineConfigIntegrity(async () => ({ status: 'corrupt', message: 'bad toml at line 3' }));
-    expect(result.status).toBe('fail');
-    expect(result.detail).toContain('bad toml');
   });
 });
 

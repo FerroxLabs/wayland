@@ -47,7 +47,7 @@ describe('M6 trust surfaces', () => {
   it('shows Needs you when trusted policy or scope proof is unavailable', () => {
     const snapshot = createExecutionSnapshot({
       identity,
-      actor: { backend: 'wcore', agentId: 'core' },
+      actor: { backend: 'gemini', agentId: 'gemini' },
       scope: { workspaceId: 'workspace-1', host: 'desktop', trust: 'unknown', scheduled: false },
       requestedGovernance: { mode: 'ask', enforceability: 'advisory' },
     }) as ExecutionSnapshot;

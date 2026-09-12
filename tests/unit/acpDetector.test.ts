@@ -21,17 +21,11 @@ vi.mock('@process/agent/acp/AcpDetector', () => ({
   },
 }));
 
-// The three first-party binaries. Fuigo is the bundled engine and is listed
-// first and always available; Core and Nano are still listed but their
-// `available` flag now reports whether the binary actually resolves.
-const mockDetectWCore = vi.fn((): { available: boolean; version?: string; path?: string } => ({ available: false }));
-const mockResolveWNanoBinary = vi.fn((): string | null => null);
+// Fuigo is the bundled engine and is listed first and always available.
 const mockResolveFuigoBinary = vi.fn((): { path: string; version: string } | null => ({
   path: '/app/resources/bundled-fuigo/darwin-arm64/fuigo',
   version: '1.0.13',
 }));
-vi.mock('@process/agent/wcore/binaryResolver', () => ({ detectWCore: () => mockDetectWCore() }));
-vi.mock('@process/agent/wnano/binaryResolver', () => ({ resolveWNanoBinary: () => mockResolveWNanoBinary() }));
 vi.mock('@process/agent/fuigo/runtime', () => ({ resolveFuigoBinary: () => mockResolveFuigoBinary() }));
 
 import type { AcpDetectedAgent } from '../../src/common/types/detectedAgent';
@@ -91,14 +85,12 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      // Fuigo first, Wcore second, Wayland Nano third, Gemini fourth, then detected ACP agents
-      expect(agents).toHaveLength(6);
+      // Fuigo first, Gemini second, then detected ACP agents
+      expect(agents).toHaveLength(4);
       expect(agents[0].backend).toBe('fuigo');
-      expect(agents[1].backend).toBe('wcore');
-      expect(agents[2].backend).toBe('wnano');
-      expect(agents[3].backend).toBe('gemini');
-      expect(agents[4]).toMatchObject({ backend: 'claude', cliPath: 'claude' });
-      expect(agents[5]).toMatchObject({ backend: 'qwen', cliPath: 'qwen' });
+      expect(agents[1].backend).toBe('gemini');
+      expect(agents[2]).toMatchObject({ backend: 'claude', cliPath: 'claude' });
+      expect(agents[3]).toMatchObject({ backend: 'qwen', cliPath: 'qwen' });
     });
 
     it('should skip built-in CLIs that are not available', async () => {
@@ -110,21 +102,19 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(5); // fuigo + wcore + wnano + gemini + claude
+      expect(agents).toHaveLength(3); // fuigo + gemini + claude
       expect(agents.find((a) => a.backend === 'qwen')).toBeUndefined();
       expect(agents.find((a) => a.backend === 'auggie')).toBeUndefined();
     });
 
-    it('should always list Fuigo first, Wcore second, Wayland Nano third and Gemini fourth', async () => {
+    it('should always list Fuigo first and Gemini second', async () => {
       const registry = await createFreshRegistry();
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(4); // fuigo + wcore + wnano + gemini
+      expect(agents).toHaveLength(2); // fuigo + gemini
       expect(agents[0]).toMatchObject({ backend: 'fuigo', name: 'Fuigo', kind: 'acp', available: true });
-      expect(agents[1]).toMatchObject({ backend: 'wcore', name: 'Wayland Core' });
-      expect(agents[2]).toMatchObject({ backend: 'wnano', name: 'Wayland Nano', kind: 'acp' });
-      expect(agents[3]).toMatchObject({ backend: 'gemini', name: 'Gemini CLI' });
+      expect(agents[1]).toMatchObject({ backend: 'gemini', name: 'Gemini CLI' });
     });
 
     it('Fuigo is available with the bundle version even when its receipt cannot be read', async () => {
@@ -154,44 +144,6 @@ describe('AgentRegistry', () => {
       });
     });
 
-    it('Core and Nano are listed but only available when their binary resolves', async () => {
-      // Default mocks: neither binary resolves.
-      const none = await createFreshRegistry();
-      await none.initialize();
-      expect(none.getDetectedAgents().find((a) => a.backend === 'wcore')).toMatchObject({ available: false });
-      expect(none.getDetectedAgents().find((a) => a.backend === 'wnano')).toMatchObject({ available: false });
-
-      mockDetectWCore.mockReturnValueOnce({
-        available: true,
-        version: 'wayland-core 0.13.2',
-        path: '/bin/wayland-core',
-      });
-      mockResolveWNanoBinary.mockReturnValueOnce('/bin/wayland-nano');
-      const both = await createFreshRegistry();
-      await both.initialize();
-      expect(both.getDetectedAgents().find((a) => a.backend === 'wcore')).toMatchObject({
-        available: true,
-        version: 'v0.13.2',
-        cliPath: '/bin/wayland-core',
-      });
-      expect(both.getDetectedAgents().find((a) => a.backend === 'wnano')).toMatchObject({ available: true });
-    });
-
-    it('should not duplicate Wayland Nano when the wayland-nano CLI is also detected on PATH', async () => {
-      mockDetectBuiltinAgents.mockResolvedValue([
-        makeAcpAgent({ id: 'wnano', name: 'Wayland Nano', backend: 'wnano', cliPath: 'wayland-nano' }),
-      ]);
-
-      const registry = await createFreshRegistry();
-      await registry.initialize();
-      const agents = registry.getDetectedAgents();
-
-      const wnanoAgents = agents.filter((a) => a.backend === 'wnano');
-      expect(wnanoAgents).toHaveLength(1);
-      // The always-present built-in entry wins over the PATH detection result
-      expect(wnanoAgents[0].cliPath).toBeUndefined();
-    });
-
     it('should not duplicate Fuigo when its CLI is also detected on PATH', async () => {
       mockDetectBuiltinAgents.mockResolvedValue([
         makeAcpAgent({ id: 'fuigo-path', name: 'Fuigo', backend: 'fuigo', cliPath: '/usr/local/bin/fuigo' }),
@@ -201,7 +153,7 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents.map((agent) => agent.backend)).toEqual(['fuigo', 'wcore', 'wnano', 'gemini']);
+      expect(agents.map((agent) => agent.backend)).toEqual(['fuigo', 'gemini']);
       expect(agents.filter((agent) => agent.backend === 'fuigo')).toEqual([
         { id: 'fuigo', name: 'Fuigo', kind: 'acp', available: true, backend: 'fuigo', version: 'v1.0.13' },
       ]);
@@ -235,7 +187,7 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(4); // fuigo + wcore + wnano + gemini
+      expect(agents).toHaveLength(2); // fuigo + gemini
     });
 
     it('should not run twice (isDetected guard)', async () => {
@@ -303,16 +255,14 @@ describe('AgentRegistry', () => {
       expect(agent!.isExtension).toBe(true);
     });
 
-    it('should always include fuigo, wcore, wnano and gemini', async () => {
+    it('should always include fuigo and gemini', async () => {
       const registry = await createFreshRegistry();
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(4);
+      expect(agents).toHaveLength(2);
       expect(agents[0].backend).toBe('fuigo');
-      expect(agents[1].backend).toBe('wcore');
-      expect(agents[2].backend).toBe('wnano');
-      expect(agents[3].backend).toBe('gemini');
+      expect(agents[1].backend).toBe('gemini');
     });
   });
 
@@ -398,7 +348,7 @@ describe('AgentRegistry', () => {
   });
 
   describe('refreshBuiltinAgents', () => {
-    it('should keep Fuigo, Wcore, Wayland Nano and Gemini ahead of detected agents after refresh', async () => {
+    it('should keep Fuigo and Gemini ahead of detected agents after refresh', async () => {
       mockDetectBuiltinAgents.mockResolvedValue([
         makeAcpAgent({ id: 'claude', name: 'Claude Code', backend: 'claude', cliPath: 'claude' }),
         makeAcpAgent({ id: 'qwen', name: 'Qwen Code', backend: 'qwen', cliPath: 'qwen' }),
@@ -411,10 +361,8 @@ describe('AgentRegistry', () => {
       const agents = registry.getDetectedAgents();
 
       expect(agents[0].backend).toBe('fuigo');
-      expect(agents[1].backend).toBe('wcore');
-      expect(agents[2].backend).toBe('wnano');
-      expect(agents[3].backend).toBe('gemini');
-      expect(agents.slice(4).map((agent) => agent.backend)).toEqual(['claude', 'qwen']);
+      expect(agents[1].backend).toBe('gemini');
+      expect(agents.slice(2).map((agent) => agent.backend)).toEqual(['claude', 'qwen']);
     });
 
     it('should clear env cache before re-detecting', async () => {

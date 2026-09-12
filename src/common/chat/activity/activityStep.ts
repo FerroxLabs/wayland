@@ -14,7 +14,7 @@
  * `label`, a semantic `glyph`, and a `source` tag - computed at render time.
  *
  * One renderer (ActivityTimeline) consumes ActivityStep[]; one model
- * (ActivityNode) is produced by per-backend normalizers (wcore, acp). Adding a
+ * (ActivityNode) is produced by per-backend normalizers (native, acp). Adding a
  * backend = a normalizer that emits ActivityNodes. Zero renderer changes.
  */
 
@@ -23,7 +23,7 @@ import { deriveStep, type GlyphKind } from './activityLabels';
 import type { Source } from './sources';
 
 /** Which backend produced the underlying node (drives the subtle mono "src" chip). */
-export type ActivitySource = 'wcore' | 'acp' | 'codex' | 'gemini';
+export type ActivitySource = 'native' | 'acp' | 'codex' | 'gemini';
 
 export type ActivityStep = {
   /** Stable id (= node id / callId) - drives merge-in-place and React keys. */

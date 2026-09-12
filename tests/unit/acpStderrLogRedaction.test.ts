@@ -18,7 +18,7 @@
  * #1041 - every chunk went to console.error, so a bridge's routine notices were
  * tagged `[error]` and a bug report read as a wall of failures. Fixed with an
  * ACP-specific classifier that defaults to INFO. The default is the point:
- * `wcoreStderrLevel` defaults to `warn` because the engine self-labels every line,
+ * the stderr level defaults to `warn` because the engine self-labels every line,
  * but ACP bridges are ordinary Node programs that label nothing, so a warn default
  * re-tags every benign notice AND destroys the property this pins - that a real
  * failure STANDS OUT next to the ordinary line beside it.

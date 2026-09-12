@@ -9,8 +9,8 @@
  *
  * Before this fix `resolveConversationModel` returned an EMPTY model for all ACP
  * backends (codex/claude/qwen/…), so a new codex teammate opened on a dead
- * "Select Model" it could not start from — only gemini/wcore got a default.
- * `resolveDefaultAcpModel` now mirrors the gemini/wcore defaulting for ACP
+ * "Select Model" it could not start from — only gemini got a default.
+ * `resolveDefaultAcpModel` now mirrors the gemini defaulting for ACP
  * backends, scoped to the provider the backend actually runs, and the resolved
  * default seeds AcpModelSelector's initialModelId (extra.currentModelId).
  */
@@ -123,7 +123,6 @@ function config(opts: {
   cachedModels?: unknown;
   geminiDefault?: unknown;
   fuigoDefault?: unknown;
-  wcoreDefault?: unknown;
 }) {
   mockConfigGet.mockImplementation((key: string) => {
     switch (key) {
@@ -137,8 +136,6 @@ function config(opts: {
         return Promise.resolve(opts.geminiDefault);
       case 'fuigo.defaultModel':
         return Promise.resolve(opts.fuigoDefault);
-      case 'wcore.defaultModel':
-        return Promise.resolve(opts.wcoreDefault);
       default:
         return Promise.resolve(undefined);
     }
@@ -228,20 +225,14 @@ describe('TeamSessionService.resolveDefaultAcpModel / resolveConversationModel',
     const model = await makeService().resolveDefaultAcpModel('goose');
     expect(model).toEqual({});
   });
-
-  it('leaves wcore defaulting unchanged (first enabled provider)', async () => {
-    config({ modelConfig: [makeProvider({ platform: 'openai', bridge: 'v2:openai', model: ['gpt-5'] })] });
-    const model = await makeService().resolveConversationModel({ backend: 'wcore', isPreset: false });
-    expect(model.useModel).toBe('gpt-5');
-  });
 });
 
 /**
  * Fuigo cutover: the bundled engine is an ACP backend with no single vendor
  * provider, so `resolveDefaultAcpModel` has nothing for it. It gets its own
- * resolver: `fuigo.defaultModel`, then the pre-cutover `wcore.defaultModel`,
- * then the first enabled provider (what the Core default did) - never the
- * keyless ChatGPT-subscription row, which only the Core engine can auth.
+ * resolver: `fuigo.defaultModel` (a pre-cutover Core default is copied there
+ * once by the cutover migration), then the first enabled provider - never the
+ * keyless ChatGPT-subscription row, which only the retired Core engine could auth.
  */
 describe('TeamSessionService.resolveConversationModel - fuigo and its launcher aliases', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -254,12 +245,6 @@ describe('TeamSessionService.resolveConversationModel - fuigo and its launcher a
     const model = await makeService().resolveConversationModel({ backend: 'fuigo', isPreset: false });
     expect(model.useModel).toBe('gpt-5.4');
     expect(model.id).toBe('flux');
-  });
-
-  it('falls back to the pre-cutover wcore.defaultModel', async () => {
-    config({ modelConfig: [flux()], wcoreDefault: { id: 'flux', useModel: 'gpt-5.4' } });
-    const model = await makeService().resolveConversationModel({ backend: 'fuigo', isPreset: false });
-    expect(model.useModel).toBe('gpt-5.4');
   });
 
   it('ignores a saved default no enabled provider owns and takes the first enabled model', async () => {

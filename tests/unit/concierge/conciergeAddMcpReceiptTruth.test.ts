@@ -55,7 +55,7 @@ const { state, emitSpy, setSpy, getSpy, mcpUpdateSpy, probeSpy, syncSpy, detecte
         })
       ),
       syncSpy: vi.fn(async () => ({ success: true, results: [{ agent: 'Wayland Core', success: true }] })),
-      detectedAgentsSpy: vi.fn(() => [{ backend: 'wcore', name: 'Wayland Core', kind: 'acp' }]),
+      detectedAgentsSpy: vi.fn(() => [{ backend: 'fuigo', name: 'Fuigo', kind: 'acp' }]),
       updateSpy: vi.fn((_id: string, m: Record<string, unknown>) => {
         hoistedState.msg = m;
       }),
@@ -135,7 +135,7 @@ beforeEach(() => {
   state.mcpServers = [];
   getSpy.mockResolvedValue([]);
   syncSpy.mockResolvedValue({ success: true, results: [{ agent: 'Wayland Core', success: true }] });
-  detectedAgentsSpy.mockReturnValue([{ backend: 'wcore', name: 'Wayland Core', kind: 'acp' }]);
+  detectedAgentsSpy.mockReturnValue([{ backend: 'fuigo', name: 'Fuigo', kind: 'acp' }]);
 });
 
 describe('concierge add_mcp Apply', () => {

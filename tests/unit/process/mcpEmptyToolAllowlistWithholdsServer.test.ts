@@ -10,19 +10,16 @@
  *
  * v0.12.4 closed the disclosure half: the MCP Library now names which engines
  * enforce the per-tool switches (`TOOL_ALLOWLIST_ENFORCING_BACKENDS`), because
- * neither the ACP `session/new` MCP descriptor nor Wayland Core's
- * `add_mcp_server` / `[mcp.servers.*]` / profile `mcp_servers = [...]` has a
- * per-tool field. Verified against the pinned producer schema: `add_mcp_server`
- * carries name/transport/command/args/env/url/headers and nothing else.
+ * the ACP `session/new` MCP descriptor has no per-tool field.
  *
  * A STRICT SUBSET therefore genuinely cannot be expressed to those engines.
  * `allowedTools: []` can: it is a SERVER-level statement - "this connector
  * contributes no tools" - and the server-level channel exists on every path.
  * Gemini already reads it that way and drops the connector from the launch
- * (`GeminiAgentManager`, #998). The ACP and Wayland Core builders did not, so a
- * user who switched every tool off on a connector still had every one of its
- * tools live on Claude, Codex-over-ACP and Wayland Core - the switch was not
- * "unenforceable" there, it was unread.
+ * (`GeminiAgentManager`, #998). The ACP builder did not, so a user who
+ * switched every tool off on a connector still had every one of its tools
+ * live on Claude and Codex-over-ACP - the switch was not "unenforceable"
+ * there, it was unread.
  *
  * `undefined` (never scoped) and a strict subset both still INJECT the connector:
  * the first because it means "all tools", the second because withholding it
@@ -38,11 +35,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { IMcpServer } from '@/common/config/storage';
-import {
-  buildAcpSessionMcpServers,
-  buildWCoreSessionMcpServers,
-  buildWCoreUserStdioMcpServers,
-} from '@process/agent/acp/mcpSessionConfig';
+import { buildAcpSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
 
 const KEPT = 'search_files';
 const DISABLED = 'delete_everything';
@@ -75,14 +68,6 @@ describe('#998 an empty tool allowlist withholds the connector on every backend'
     expect(buildAcpSessionMcpServers([server({ allowedTools: [] })], ACP_CAPS)).toEqual([]);
   });
 
-  it('the wcore stdio injection omits a connector with every tool switched off', () => {
-    expect(buildWCoreUserStdioMcpServers([server({ allowedTools: [] })])).toEqual([]);
-  });
-
-  it('the wcore session selection omits a connector with every tool switched off', () => {
-    expect(buildWCoreSessionMcpServers([server({ allowedTools: [] })])).toEqual([]);
-  });
-
   it('withholds it on the hosted transports too, not just stdio', () => {
     const hosted = server({
       transport: { type: 'http', url: 'https://example.test/mcp' } as IMcpServer['transport'],
@@ -90,7 +75,6 @@ describe('#998 an empty tool allowlist withholds the connector on every backend'
     });
 
     expect(buildAcpSessionMcpServers([hosted], ACP_CAPS)).toEqual([]);
-    expect(buildWCoreSessionMcpServers([hosted])).toEqual([]);
   });
 
   it('withholds a BUILTIN with every tool switched off, exactly as gemini does', () => {
@@ -108,16 +92,12 @@ describe('#998 an empty tool allowlist withholds the connector on every backend'
 
   it('still injects a connector that was never scoped (undefined => all tools)', () => {
     expect(buildAcpSessionMcpServers([server()], ACP_CAPS)).toHaveLength(1);
-    expect(buildWCoreUserStdioMcpServers([server()])).toHaveLength(1);
-    expect(buildWCoreSessionMcpServers([server()])).toHaveLength(1);
   });
 
   it('still injects a connector with a strict subset - the engine cannot carry the list, but the kept tools are real', () => {
     const scoped = server({ allowedTools: [KEPT] });
 
     expect(buildAcpSessionMcpServers([scoped], ACP_CAPS)).toHaveLength(1);
-    expect(buildWCoreUserStdioMcpServers([scoped])).toHaveLength(1);
-    expect(buildWCoreSessionMcpServers([scoped])).toHaveLength(1);
   });
 
   it('withholds ONLY the emptied connector, never its neighbours', () => {
@@ -125,7 +105,5 @@ describe('#998 an empty tool allowlist withholds the connector on every backend'
     const on = server({ id: 'srv-on', name: 'on' });
 
     expect(buildAcpSessionMcpServers([off, on], ACP_CAPS).map((s) => s.name)).toEqual(['on']);
-    expect(buildWCoreUserStdioMcpServers([off, on]).map((s) => s.name)).toEqual(['on']);
-    expect(buildWCoreSessionMcpServers([off, on]).map((s) => s.name)).toEqual(['on']);
   });
 });

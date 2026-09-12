@@ -95,7 +95,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
+import { resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 import {
   buildChatArtifactCardContent,
   buildChatArtifactCardMessage,

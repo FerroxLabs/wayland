@@ -89,7 +89,10 @@ describe('built-in routines seeder', () => {
     expect(jobs.size).toBe(routines.length);
     const stillEnabled = [...jobs.values()].filter((j) => j.enabled).map((j) => j.routineId);
     expect(stillEnabled).toEqual([]);
-    expect([...jobs.values()].every((job) => job.mode === 'auto_edit')).toBe(true);
+    // Fuigo declares no unattended-safe mode in `agentModes`, so the seeder
+    // pins the engine's own 'default' (permission-prompting) mode - never a
+    // blanket full-auto mode inferred from the backend name.
+    expect([...jobs.values()].every((job) => job.mode === 'default')).toBe(true);
   });
 
   it('is idempotent, so reboots never stack duplicates', async () => {

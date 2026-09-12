@@ -38,7 +38,7 @@ const TV_MSIX = 'C:\\Program Files\\WindowsApps\\TradingView.Desktop_3.1.0_x64__
 const TV_LOCAL = 'C:\\Users\\trader\\AppData\\Local\\TradingView\\TradingView.exe';
 
 const TABLE = [
-  '100 4 C:\\Users\\trader\\AppData\\Local\\Programs\\Wayland\\wayland-core.exe',
+  '100 4 C:\\Users\\trader\\AppData\\Local\\Programs\\Wayland\\fuigo.exe',
   '200 100 C:\\Program Files\\nodejs\\node.exe',
   `300 200 ${TV_MSIX}`,
   `301 300 ${TV_MSIX}`, // helper shares the exe path on Windows

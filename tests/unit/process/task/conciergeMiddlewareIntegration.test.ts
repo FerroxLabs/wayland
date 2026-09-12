@@ -58,7 +58,7 @@ vi.mock('@process/services/database/export', () => ({
 import { processAgentResponse, processCronInMessage } from '@process/task/MessageMiddleware';
 
 const PROPOSE_BLOCK =
-  'Sure — here you go:\n[CONCIERGE_PROPOSE]\nkind: set_default_model\nengine: wcore\nmodel_id: m/x\nuse_model: x\nlabel: Model X\n[/CONCIERGE_PROPOSE]\nDone.';
+  'Sure — here you go:\n[CONCIERGE_PROPOSE]\nkind: set_default_model\nengine: fuigo\nmodel_id: m/x\nuse_model: x\nlabel: Model X\n[/CONCIERGE_PROPOSE]\nDone.';
 
 function finishMsg(content: string): TMessage {
   return {
@@ -80,13 +80,13 @@ describe('Concierge 2b middleware wiring (behavioral)', () => {
   });
 
   it('persists + broadcasts a concierge_propose message for a CONCIERGE_PROPOSE-only turn', async () => {
-    const result = await processAgentResponse('c1', 'wcore', finishMsg(PROPOSE_BLOCK));
+    const result = await processAgentResponse('c1', 'acp', finishMsg(PROPOSE_BLOCK));
 
     // Persisted to the conversation DB so the bridge can find it on accept.
     expect(addSpy).toHaveBeenCalledTimes(1);
     const [, persisted] = addSpy.mock.calls[0];
     expect(persisted.type).toBe('concierge_propose');
-    expect(persisted.content).toMatchObject({ kind: 'set_default_model', engine: 'wcore', status: 'pending' });
+    expect(persisted.content).toMatchObject({ kind: 'set_default_model', engine: 'fuigo', status: 'pending' });
 
     // Broadcast so the renderer can render the card.
     expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'concierge_propose', conversation_id: 'c1' }));
@@ -99,7 +99,7 @@ describe('Concierge 2b middleware wiring (behavioral)', () => {
 
   it('strips the raw tag even for a malformed block (no card, but no leak)', async () => {
     const malformed = '[CONCIERGE_PROPOSE]\nkind: set_default_model\nengine: bogus\n[/CONCIERGE_PROPOSE]';
-    const result = await processAgentResponse('c1', 'wcore', finishMsg(`before ${malformed} after`));
+    const result = await processAgentResponse('c1', 'acp', finishMsg(`before ${malformed} after`));
     expect(addSpy).not.toHaveBeenCalled(); // invalid → no card
     const displayText = (result.displayMessage?.content as { content?: string } | undefined)?.content ?? '';
     expect(displayText).not.toContain('[CONCIERGE_PROPOSE]');
@@ -135,7 +135,7 @@ describe('Concierge 2b persisted-text strip (no raw tag leaks into the saved bub
     // The streamed text row already holds the RAW block (what the manager persisted).
     getMsgSpy.mockReturnValue(rawRow(PROPOSE_BLOCK));
 
-    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg(PROPOSE_BLOCK), () => {});
 
     // Found the persisted row by msg_id and replaced it in place (not appended).
     expect(getMsgSpy).toHaveBeenCalledWith('c1', 'turn-1', 'text');
@@ -153,20 +153,19 @@ describe('Concierge 2b persisted-text strip (no raw tag leaks into the saved bub
   it('does not touch the persisted row for a turn with no concierge block', async () => {
     getMsgSpy.mockReturnValue(rawRow('just a normal answer'));
 
-    await processCronInMessage('c1', 'wcore', finishMsg('just a normal answer'), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg('just a normal answer'), () => {});
 
     expect(updateMsgSpy).not.toHaveBeenCalled();
   });
 });
 
 describe('Concierge 2b manager gates (structural)', () => {
-  it.each([
-    'src/process/task/WCoreManager.ts',
-    'src/process/task/GeminiAgentManager.ts',
-    'src/process/task/AcpAgentManager.ts',
-  ])('%s routes concierge proposals into the middleware (gate references hasConciergeProposals)', (rel) => {
-    const src = fs.readFileSync(path.resolve(__dirname, '../../../../', rel), 'utf-8');
-    expect(src).toMatch(/import\s*\{\s*hasConciergeProposals\s*\}\s*from\s*'\.\/ConciergeProposeDetector'/);
-    expect(src).toContain('hasConciergeProposals(');
-  });
+  it.each(['src/process/task/GeminiAgentManager.ts', 'src/process/task/AcpAgentManager.ts'])(
+    '%s routes concierge proposals into the middleware (gate references hasConciergeProposals)',
+    (rel) => {
+      const src = fs.readFileSync(path.resolve(__dirname, '../../../../', rel), 'utf-8');
+      expect(src).toMatch(/import\s*\{\s*hasConciergeProposals\s*\}\s*from\s*'\.\/ConciergeProposeDetector'/);
+      expect(src).toContain('hasConciergeProposals(');
+    }
+  );
 });

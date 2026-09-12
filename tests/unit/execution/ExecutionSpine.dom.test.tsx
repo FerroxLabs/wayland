@@ -9,7 +9,7 @@ import { deriveStep } from '@/common/chat/activity/activityLabels';
 import type { TMessage } from '@/common/chat/chatLib';
 import {
   adaptAcpMessages,
-  adaptWCoreMessages,
+  adaptGeminiMessages,
   projectExecution,
   selectCanonicalRunSnapshot,
   selectCurrentExecutionMessages,
@@ -70,7 +70,7 @@ const canonicalRun = (backend: ExecutionBackend, messages: readonly TMessage[], 
   };
   const context = { identity, observedAt: NOW };
   const current = selectCurrentExecutionMessages(backend, messages);
-  const events = backend === 'wcore' ? adaptWCoreMessages(current, context) : adaptAcpMessages(current, context);
+  const events = backend === 'gemini' ? adaptGeminiMessages(current, context) : adaptAcpMessages(current, context);
   return selectCanonicalRunSnapshot(projectExecution(seed, events, { now: NOW }));
 };
 
@@ -101,10 +101,10 @@ describe('ExecutionSpine', () => {
     ] as TMessage[];
     const original = JSON.stringify(messages);
     render(
-      <ConversationProvider value={{ conversationId: 'c1', type: 'wcore', executionInterrupted: true }}>
+      <ConversationProvider value={{ conversationId: 'c1', type: 'gemini', executionInterrupted: true }}>
         <WorkbenchHost conversationId='c1'>
           <MessageListProvider value={messages}>
-            <ExecutionSpine backend='wcore' conversationId='c1' workspaceId='ws' agentId='wcore'>
+            <ExecutionSpine backend='gemini' conversationId='c1' workspaceId='ws' agentId='gemini'>
               <div>Interrupted history</div>
             </ExecutionSpine>
           </MessageListProvider>
@@ -114,7 +114,7 @@ describe('ExecutionSpine', () => {
     expect(screen.queryByTestId('execution-thread-summary')).toBeNull();
     expect(screen.getByText('Interrupted history')).toBeTruthy();
     expect(JSON.stringify(messages)).toBe(original);
-    expect(canonicalRun('wcore', messages, 'c1:c1').lifecycle).toBe('running');
+    expect(canonicalRun('gemini', messages, 'c1:c1').lifecycle).toBe('running');
   });
 
   it('renders the thread from the canonical run and publishes nothing to the workbench', () => {
@@ -141,11 +141,11 @@ describe('ExecutionSpine', () => {
       <WorkbenchHost conversationId='conversation-1'>
         <MessageListProvider value={messages}>
           <ExecutionSpine
-            backend='wcore'
+            backend='gemini'
             conversationId='conversation-1'
             workspaceId='workspace-1'
             projectId='project-1'
-            agentId='wcore'
+            agentId='gemini'
           >
             <div>conversation</div>
           </ExecutionSpine>
@@ -166,13 +166,13 @@ describe('ExecutionSpine', () => {
     expect(screen.queryByTestId('workbench-panel')).toBeNull();
   });
 
-  // A plain WCore turn emits no `plan` message at all - it just runs tools, so
+  // A plain Gemini turn emits no `plan` message at all - it just runs tools, so
   // the run's progress IS the steps it took. Nothing but the activity stream
   // carries them, and the canonical run is where the spine puts them: a turn
   // whose tools are dropped on the floor here is a turn nothing downstream can
   // describe. The live half - "this run has not settled" - is still on the DOM,
   // where the thread's status bar reads it.
-  it('carries the steps taken when a WCore turn has tools but no plan', () => {
+  it('carries the steps taken when a Gemini turn has tools but no plan', () => {
     const messages = [
       {
         id: 'user',
@@ -196,7 +196,7 @@ describe('ExecutionSpine', () => {
     render(
       <WorkbenchHost conversationId='conversation-1'>
         <MessageListProvider value={messages}>
-          <ExecutionSpine backend='wcore' conversationId='conversation-1' workspaceId='workspace-1' agentId='wcore'>
+          <ExecutionSpine backend='gemini' conversationId='conversation-1' workspaceId='workspace-1' agentId='gemini'>
             <div>conversation</div>
           </ExecutionSpine>
         </MessageListProvider>
@@ -204,7 +204,7 @@ describe('ExecutionSpine', () => {
     );
     // Labels come from the same humanizer the chat timeline uses, so a step
     // reads as the work done ("Running printf 'ok'"), not the tool's name.
-    const run = canonicalRun('wcore', messages, screen.getByTestId('execution-spine').dataset.runId ?? '');
+    const run = canonicalRun('gemini', messages, screen.getByTestId('execution-spine').dataset.runId ?? '');
     const labels = run.activities.map(stepLabel);
     expect(labels).toContain("Running printf 'ok'");
     expect(labels).toContain('Reading config.ts');
@@ -234,7 +234,7 @@ describe('ExecutionSpine', () => {
     render(
       <WorkbenchHost conversationId='c1'>
         <MessageListProvider value={messages}>
-          <ExecutionSpine backend='wcore' conversationId='c1' workspaceId='workspace-1' agentId='wcore'>
+          <ExecutionSpine backend='gemini' conversationId='c1' workspaceId='workspace-1' agentId='gemini'>
             <div>conversation</div>
           </ExecutionSpine>
         </MessageListProvider>
@@ -246,7 +246,7 @@ describe('ExecutionSpine', () => {
     // "no bar" would also be what a hidden spine looks like - hence both halves.
     expect(screen.getByTestId('execution-spine')).toBeTruthy();
     expect(screen.queryByTestId('execution-thread-summary')).toBeNull();
-    const run = canonicalRun('wcore', messages, screen.getByTestId('execution-spine').dataset.runId ?? '');
+    const run = canonicalRun('gemini', messages, screen.getByTestId('execution-spine').dataset.runId ?? '');
     expect(run.lifecycle).toBe('completed');
     expect(run.lifecycle).not.toBe('running');
   });
@@ -254,7 +254,7 @@ describe('ExecutionSpine', () => {
   // #610's obligation is the ADAPTER's, not the rail's: the spine's canonical
   // run carries the real invocation, so a credential must already be masked by
   // the time any renderer builds a label out of it
-  // (common/execution/adapters/wcore.ts:221-222, :270). The mission rail was
+  // (common/execution/adapters/gemini.ts). The mission rail was
   // merely the first renderer to prove it; with the rail unpublished the
   // obligation is asserted one step earlier, on the fields the label is built
   // from AND on the built label itself - so a leak has nowhere left to hide.
@@ -280,13 +280,13 @@ describe('ExecutionSpine', () => {
     render(
       <WorkbenchHost conversationId='c1'>
         <MessageListProvider value={messages}>
-          <ExecutionSpine backend='wcore' conversationId='c1' workspaceId='workspace-1' agentId='wcore'>
+          <ExecutionSpine backend='gemini' conversationId='c1' workspaceId='workspace-1' agentId='gemini'>
             <div>conversation</div>
           </ExecutionSpine>
         </MessageListProvider>
       </WorkbenchHost>
     );
-    const run = canonicalRun('wcore', messages, screen.getByTestId('execution-spine').dataset.runId ?? '');
+    const run = canonicalRun('gemini', messages, screen.getByTestId('execution-spine').dataset.runId ?? '');
     const activity = run.activities[0];
     // The raw fields first: a label truncates, so asserting only on the label
     // lets a long secret pass by being cut off rather than by being masked.
@@ -326,13 +326,13 @@ describe('ExecutionSpine', () => {
     render(
       <WorkbenchHost conversationId='c1'>
         <MessageListProvider value={messages}>
-          <ExecutionSpine backend='wcore' conversationId='c1' workspaceId='workspace-1' agentId='wcore'>
+          <ExecutionSpine backend='gemini' conversationId='c1' workspaceId='workspace-1' agentId='gemini'>
             <div>conversation</div>
           </ExecutionSpine>
         </MessageListProvider>
       </WorkbenchHost>
     );
-    const run = canonicalRun('wcore', messages, screen.getByTestId('execution-spine').dataset.runId ?? '');
+    const run = canonicalRun('gemini', messages, screen.getByTestId('execution-spine').dataset.runId ?? '');
     const activity = run.activities[0];
     // `detail` is the field this case exists for: it carries no command, so the
     // label is built from name + detail and only detail-side masking saves it.
@@ -368,7 +368,7 @@ describe('ExecutionSpine', () => {
   // exist to be registered - and a NAVIGATION REQUEST for it, the one path that
   // used to force the panel open regardless of what the user had collapsed,
   // must now land inert rather than resurrect the box.
-  it('registers no Automation lane for a scheduled WCore run, even when one is requested', () => {
+  it('registers no Automation lane for a scheduled Gemini run, even when one is requested', () => {
     const messages = [
       {
         id: 'trigger',
@@ -403,7 +403,7 @@ describe('ExecutionSpine', () => {
         requestKey='desktop:schedule-run:job-1:100'
       >
         <MessageListProvider value={messages}>
-          <ExecutionSpine backend='wcore' conversationId='conversation-1' workspaceId='workspace-1' agentId='wcore'>
+          <ExecutionSpine backend='gemini' conversationId='conversation-1' workspaceId='workspace-1' agentId='gemini'>
             <div>scheduled conversation</div>
           </ExecutionSpine>
         </MessageListProvider>
@@ -490,11 +490,11 @@ describe('ExecutionSpine', () => {
    * Progress and Engine were unpublished by a product decision, not by an
    * accident, and the way they come back is somebody re-adding a
    * `useWorkbenchSection(missionSection)` line that every other test in this
-   * file would happily tolerate. This case is the one that would not: a wcore
+   * file would happily tolerate. This case is the one that would not: a gemini
    * turn that plainly did tool work - the exact input that used to open the
    * Progress panel - must leave the workbench with nothing in it from the spine.
    */
-  it('publishes no workbench section for a wcore turn that did tool work', () => {
+  it('publishes no workbench section for a gemini turn that did tool work', () => {
     const messages = [
       { id: 'user', conversation_id: 'c1', type: 'text', position: 'right', content: { content: 'go' } },
       {
@@ -507,7 +507,7 @@ describe('ExecutionSpine', () => {
     const { container } = render(
       <WorkbenchHost conversationId='c1'>
         <MessageListProvider value={messages}>
-          <ExecutionSpine backend='wcore' conversationId='c1' workspaceId='workspace-1' agentId='wcore'>
+          <ExecutionSpine backend='gemini' conversationId='c1' workspaceId='workspace-1' agentId='gemini'>
             <div>conversation</div>
           </ExecutionSpine>
         </MessageListProvider>

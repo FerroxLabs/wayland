@@ -151,7 +151,7 @@ describe('Workbench tree expansion', () => {
       React.createElement(ChatWorkspace, {
         conversation_id: 'conv-expand-1',
         workspace: WORKSPACE,
-        eventPrefix: 'wcore' as const,
+        eventPrefix: 'acp' as const,
       })
     );
 

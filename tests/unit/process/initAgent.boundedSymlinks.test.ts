@@ -61,7 +61,7 @@ vi.mock('fs/promises', () => ({
   },
 }));
 
-// Skills are COPIED into the workspace now, not symlinked - wayland-core's
+// Skills are COPIED into the workspace now, not symlinked - a sandboxed engine's
 // SandboxedFs refuses a link resolving outside its root. The bound this gate
 // protects matters MORE under copying, because each placement costs real bytes.
 vi.mock('@process/utils/utils', async (importOriginal) => ({

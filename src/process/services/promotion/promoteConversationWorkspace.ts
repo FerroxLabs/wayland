@@ -33,7 +33,8 @@
  * directory whatever the flag says, and anything else is the user's, so the
  * flag only decides which refusal to report.
  *
- * `.wayland-core/` is excluded from the copy. It is regenerated machinery -
+ * `.wayland-core/` (the retired Core engine's skill staging dir, still present
+ * in pre-cutover workspaces) is excluded from the copy. It is regenerated machinery -
  * skills are COPIED into every workspace, not symlinked - and `~/Documents` is
  * iCloud-synced by default, so promoting it would upload the whole bundled
  * skill tree per task. Deliverables that pre-fix runs wrote INSIDE it are

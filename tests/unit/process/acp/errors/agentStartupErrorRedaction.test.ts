@@ -13,7 +13,7 @@ import { AgentStartupError } from '@process/acp/errors/AcpError';
 // verbatim, and that message is both shown to the user and persisted to the
 // daily log file people attach to bug reports.
 //
-// The scrubber is the SAME one the wcore engine path has always used; #984 only
+// The scrubber is the SAME one the engine path has always used; #984 only
 // moved it somewhere this constructor can reach it.
 
 describe('AgentStartupError stderr redaction (#984)', () => {

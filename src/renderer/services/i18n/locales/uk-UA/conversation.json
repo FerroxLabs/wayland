@@ -400,7 +400,6 @@
     "title": "{{backend}} не може ввійти тут",
     "subscriptionExplainer": "Постачальник блокує вхід за підпискою всередині сторонніх інструментів, як-от цей. Щоб продовжити користуватися {{backend}} тут, спрямуйте його через Flux Router, додайте API-ключ постачальника або ввійдіть безпосередньо в CLI.",
     "genericExplainer": "Не вдалося автентифікувати {{backend}}. Спрямуйте його через Flux Router, додайте API-ключ постачальника або ввійдіть у CLI, щоб це виправити.",
-    "wcoreExplainer": "Не вдалося автентифікувати Wayland Core. Постачальник інференсу відхилив API-ключ (401). На відміну від Claude Code, у Wayland Core немає входу за підпискою як запасного варіанта, тож додайте робочий ключ постачальника або спрямуйте його через Flux Router.",
     "flux": {
       "label": "Спрямувати через Flux",
       "sublabel": "Розумна маршрутизація обирає потрібну модель для кожного завдання. Почніть безкоштовно з кредитом у 1 $, потім платіть за використання або оберіть тарифний план.",
@@ -420,33 +419,6 @@
     },
     "dismiss": "Закрити",
     "recommended": "(рекомендовано)"
-  },
-  "contextCeiling": {
-    "title": "This run exceeded {{model}}’s context window",
-    "titleNoModel": "This run exceeded the model’s context window",
-    "explainer": "The request grew past the model’s context-window limit and history compaction couldn’t shrink it any further. Switch to a model with a larger context window, then retry the last message.",
-    "switch": {
-      "label": "Switch to a larger-context model",
-      "sublabel": "Pick a model with a bigger context window from the picker."
-    },
-    "retry": {
-      "label": "Retry the last message",
-      "sublabel": "Re-run the message that hit the limit on the selected model.",
-      "action": "Retry"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
-  },
-  "constitutionLocked": {
-    "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
-    "recover": {
-      "label": "Restore from a recovery archive",
-      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
-      "action": "Open recovery"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
   },
   "composerMenu": {
     "skills": "Skills",
@@ -512,64 +484,9 @@
       "body": "{{title}} зупинено через помилку. {{detail}}"
     }
   },
-  "engineConfigInvalid": {
-    "title": "Файл налаштувань Wayland Core потрібно виправити",
-    "explainer": "Рушій не зміг прочитати свій файл налаштувань, тому агент не запускається. Нічого не змінено — ваші провайдери, ключі та налаштування залишилися на місці.",
-    "dismiss": "Закрити",
-    "details": "Технічні подробиці",
-    "checking": "Перевіряємо файл налаштувань…",
-    "location": "Проблема в рядку {{line}}, стовпці {{column}}.",
-    "noProblem": "Файл налаштувань тепер читається без помилок. Надішліть повідомлення ще раз.",
-    "unreadable": "Wayland не зміг прочитати файл налаштувань. Причина: {{reason}}",
-    "repair": {
-      "label": "Виправити рядок {{line}} за мене",
-      "sublabel": "Спершу створює резервну копію файлу, потім додає пропущений розрив рядка. Більше нічого не змінюється.",
-      "action": "Виправити",
-      "unavailable": "Проблему в рядку {{line}} має переглянути людина — Wayland не вгадуватиме. Відкрийте файл нижче або почніть заново з типовими налаштуваннями.",
-      "notTextUnavailable": "Wayland не перезаписуватиме файл, який не може прочитати точно, тому автоматичного виправлення тут немає. Відкрийте файл нижче або почніть заново з типовими налаштуваннями."
-    },
-    "reveal": {
-      "label": "Показати файл",
-      "sublabel": "Відкриє теку з цим файлом, щоб вам не довелося шукати шлях.",
-      "action": "Показати"
-    },
-    "regenerate": {
-      "label": "Почати заново з типовими налаштуваннями",
-      "sublabel": "Останній засіб. Спершу створюється резервна копія поточного файлу, потім його видаляють, щоб рушій створив новий.",
-      "action": "Почати заново",
-      "confirmTitle": "Почати заново з типовими налаштуваннями?",
-      "confirmBody": "Це видалить файл налаштувань рушія. Ви втратите список провайдерів, збережені в ньому ключі API, а також налаштування пам’яті та навичок, і їх доведеться налаштувати заново.\n\nСпершу поруч з оригіналом зберігається резервна копія з позначкою часу. Якщо перевірити її не вдасться, нічого не буде видалено.",
-      "confirmAction": "Зберегти копію і почати заново"
-    },
-    "result": {
-      "repaired": "Виправлено. Резервну копію оригіналу збережено як {{name}}.",
-      "regenerated": "Готово. Ваші попередні налаштування збережено як {{name}}.",
-      "backupFailed": "Wayland не зміг створити перевірену резервну копію, тому нічого не змінено. Причина: {{reason}}",
-      "writeFailed": "Не вдалося завершити зміну. Причина: {{reason}}",
-      "writeFailedWithBackup": "Не вдалося завершити зміну. Причина: {{reason}} Нічого не втрачено: ваші початкові налаштування лежать у {{name}}.",
-      "notARegularFile": "Цей файл налаштувань є посиланням на інший файл, тому Wayland не буде його замінювати. Натисніть «Показати файл» і відредагуйте його там, де він насправді лежить.",
-      "revealFailed": "Wayland не зміг відкрити теку. Причина: {{reason}}"
-    },
-    "notText": "Wayland не може прочитати цей файл як текст — частина його байтів не є коректним UTF-8, який вимагає формат налаштувань. Нічого не змінено."
-  },
   "turnRecovery": {
     "outcomeUnknown": "Результат невідомий",
-    "lastRecordedAction": "Остання записана дія: {{action}}",
-    "starting": "Preparing conversation…",
-    "checkingTitle": "Checking interrupted work",
-    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
-    "title": "An interrupted turn needs attention",
-    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
-    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
-    "checkAgain": "Check again",
-    "endAction": "End interrupted turn",
-    "confirmTitle": "End the interrupted turn?",
-    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
-    "keepAction": "Keep it",
-    "checkFailed": "Wayland could not inspect the interrupted turn.",
-    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
-    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
-    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+    "lastRecordedAction": "Остання записана дія: {{action}}"
   },
   "artifactCard": {
     "title": "Збережено у вашому робочому просторі",
@@ -598,14 +515,5 @@
     "rejectedUnreadable_other": "{{count}} не вдалося прочитати",
     "more": "та ще {{count}} у розділі «Артефакти»",
     "more_other": "та ще {{count}} у розділі «Артефакти»"
-  },
-  "workspacePolicy": {
-    "title": "Доступ до робочої області",
-    "scope": "Доступ до файлової системи за даними активного сеансу Core. Підтвердження, облікові дані та реєстрація інструментів налаштовуються окремо.",
-    "readable": "Папки для читання",
-    "writable": "Папки для запису",
-    "executables": "Виконувані можливості та папки лише для читання",
-    "none": "Не повідомлено",
-    "unknown": "Core ще не повідомив про поточний доступ до робочої області цієї розмови."
   }
 }

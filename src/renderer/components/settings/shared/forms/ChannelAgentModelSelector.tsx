@@ -125,7 +125,7 @@ const ChannelAgentModelSelector: React.FC<ChannelAgentModelSelectorProps> = ({
     }
   };
 
-  const isGeminiAgent = selectedAgent.backend === 'gemini' || selectedAgent.backend === 'wcore';
+  const isGeminiAgent = selectedAgent.backend === 'gemini';
   const agentOptions: AgentOption[] =
     availableAgents.length > 0 ? availableAgents : [{ backend: 'gemini', name: 'Gemini CLI' }];
   const currentKey = agentKeyOf(selectedAgent);

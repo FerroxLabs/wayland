@@ -28,7 +28,7 @@ import { Curator } from '@process/providers/catalog/Curator';
 import type { ProviderId } from '@process/providers/types';
 import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import fuigoAuthority from '../../../scripts/fuigo/authority.json';
-import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
+import { fuigoHomeDir } from '@process/agent/fuigo/launch';
 import { getConfigPath } from '@process/utils/utils';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
 import { getConstitutionFsService } from '@process/services/constitution/constitutionFsService';
@@ -51,10 +51,9 @@ import {
 import { checkMcpServers } from './checks/mcpChecks';
 import { checkBackends } from './checks/backendChecks';
 import { checkWorkspaceDrift, checkWorkspaceConfigured } from './checks/workspaceChecks';
-import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from './checks/configChecks';
+import { checkSecretStorage, checkConfigPaths } from './checks/configChecks';
 import { checkAppArchitecture } from './checks/platformChecks';
 import { checkConstitutionActive, type ConstitutionCapability } from './checks/constitutionChecks';
-import { probeEngineConfig } from './engineConfigProbe';
 import { collectConfiguredWorkspaces, collectWorkspaceConfigEntries } from './workspaceInventory';
 import type { WorkspaceInventoryDeps } from './workspaceInventory';
 
@@ -242,7 +241,8 @@ export function buildDoctorChecks(): DoctorCheck[] {
       id: 'config.paths',
       titleKey: 'settings.doctor.checks.configPaths',
       category: 'config',
-      run: () => checkConfigPaths({ appConfigDir: getConfigPath, engineConfigDir: nativeConfigDir }),
+      run: () =>
+        checkConfigPaths({ appConfigDir: getConfigPath, engineConfigDir: () => fuigoHomeDir(app.getPath('userData')) }),
     },
     {
       // Grouped under `config` deliberately: it belongs with the other
@@ -288,17 +288,6 @@ export function buildDoctorChecks(): DoctorCheck[] {
       titleKey: 'settings.doctor.checks.secretStorage',
       category: 'config',
       run: () => checkSecretStorage(isEncryptionAvailable),
-    },
-    {
-      id: 'config.engineConfig',
-      titleKey: 'settings.doctor.checks.engineConfig',
-      category: 'config',
-      // `probeEngineConfig`, not an inline read: it is the sanitisation point
-      // for GHSA-2g2m-r86j-jg6h (the raw `smol-toml` message echoes the user's
-      // own config lines, `api_key`s included, and Doctor reports get copied
-      // into support threads), and it lives in its own Electron-free module so
-      // that boundary is reachable from a unit test.
-      run: () => checkEngineConfigIntegrity(() => probeEngineConfig()),
     },
   ];
 }

@@ -145,8 +145,8 @@ describe('isAllowedForRemote - onboarding credential writes denied', () => {
  * remote-authored `yolo`/`force`/`auto_edit`/`bypassPermissions` job would spawn
  * a Force/AutoEdit-mode agent with no local user action. There is no per-call
  * remote/local signal inside a buildProvider handler, so the mode cannot be
- * clamped in-handler; the write/exec surface is denied outright, mirroring
- * `wcoreConfig.setSection`. add-job/update-job set the mode; run-now fires the
+ * clamped in-handler; the write/exec surface is denied outright.
+ * add-job/update-job set the mode; run-now fires the
  * agent; save-skill writes the job's SKILL.md verbatim (a remote caller could
  * otherwise plant arbitrary agent instructions the next fire runs with exec);
  * confirm-proposal accepts a pending proposal (creates a job) and leaks its edit
@@ -257,24 +257,4 @@ describe('isAllowedForRemote - foreground-conversation write denied (#579)', () 
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
     }
   );
-});
-
-describe('isAllowedForRemote - effective Core runtime identity stays local', () => {
-  it('denies identity disclosure, raw-mode mutation, and authoritative host-folder actions', () => {
-    expect(isAllowedForRemote('subscribe-wcoreConfig.getEffectiveRuntime')).toBe(false);
-    expect(isAllowedForRemote('subscribe-wcoreConfig.setRawEngineMode')).toBe(false);
-    expect(isAllowedForRemote('subscribe-wcoreConfig.openEffectiveRuntimeFolder')).toBe(false);
-  });
-
-  it('keeps output-budget reads remote but denies the mutation', () => {
-    expect(isAllowedForRemote('subscribe-wcoreConfig.getOutputBudget')).toBe(true);
-    expect(isAllowedForRemote('subscribe-wcoreConfig.setOutputBudget')).toBe(false);
-  });
-
-  it('denies atomic Core config patches and unredacted local profile inventory', () => {
-    expect(isAllowedForRemote('subscribe-wcoreConfig.patchField')).toBe(false);
-    expect(isAllowedForRemote('subscribe-wcoreConfig.getBrowserPolicy')).toBe(false);
-    expect(isAllowedForRemote('subscribe-wcoreConfig.setBrowserPolicy')).toBe(false);
-    expect(isAllowedForRemote('subscribe-wcoreProfiles.list')).toBe(false);
-  });
 });

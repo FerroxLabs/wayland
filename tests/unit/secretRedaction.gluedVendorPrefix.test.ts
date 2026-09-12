@@ -151,7 +151,7 @@ describe('#1048 ordinary hyphenated English is not a credential', () => {
     'mask-layer rendered',
     'fork-join pool exhausted',
     'mark-sweep gc ran',
-    'failed loading /Users/someone/Library/Application Support/wayland-core/config.toml',
+    'failed loading /Users/someone/Library/Application Support/Wayland/fuigo-home/config.toml',
     // Words that CONTAIN a scheme keyword. `Bearer` and `Basic` lose their
     // anchors too, so these are the shapes that would newly disappear.
     'the request was unbearable, retrying',

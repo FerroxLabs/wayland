@@ -53,7 +53,6 @@ test.describe('Settings Pages', () => {
     { tab: 'agents', name: 'Agents Settings' },
     { tab: 'images', name: 'Image Generation Settings' },
     { tab: 'voice', name: 'Voice Settings' },
-    { tab: 'wcore', name: 'Wayland Core Settings' },
     { tab: 'webui', name: 'WebUI Settings' },
     { tab: 'channels', name: 'Channels Settings' },
     { tab: 'mcp-library', name: 'MCP Library' },

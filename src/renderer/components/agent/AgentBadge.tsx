@@ -75,8 +75,8 @@ const AgentBadge: React.FC<AgentBadgeProps> = ({
 
   const primaryLabel = agentName || backend;
   // Only surface the runtime when it adds information: it must be present and
-  // differ (case-insensitively) from the primary label, so a raw wcore chat
-  // never reads "Wayland Core" twice.
+  // differ (case-insensitively) from the primary label, so a raw engine chat
+  // never reads the engine name twice.
   const showRuntime =
     !!runtimeName && !!primaryLabel && runtimeName.toLowerCase() !== String(primaryLabel).toLowerCase();
 

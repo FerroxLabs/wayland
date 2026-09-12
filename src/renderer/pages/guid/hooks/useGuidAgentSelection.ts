@@ -196,7 +196,7 @@ export const useGuidAgentSelection = ({
       const assistant = customAgents.find((a) => idCandidates.has(a.id));
       if (assistant) {
         return {
-          // #380: an assistant with no preset type runs on the bundled WCore
+          // #380: an assistant with no preset type runs on the bundled Fuigo
           // engine, not Gemini CLI.
           backend: resolveConfiguredPresetAgentType(assistant.presetAgentType),
           name: assistant.name,
@@ -208,7 +208,7 @@ export const useGuidAgentSelection = ({
         };
       }
       // Defensive (#380): a `custom:` key that resolves to no known record must
-      // still run on the bundled WCore engine - never fall through to a bare
+      // still run on the bundled Fuigo engine - never fall through to a bare
       // `custom` ACP backend, which dies on spawn with "No CLI path for backend
       // 'custom'". Only synthesize once a registry has actually loaded, so a
       // transient empty list during boot doesn't strip a real assistant's
@@ -493,9 +493,6 @@ export const useGuidAgentSelection = ({
           const config = await ConfigStorage.get('gemini.config');
           preferred = config?.preferredMode;
           yoloMode = config?.yoloMode ?? false;
-        } else if (configKey === 'wcore') {
-          const config = await ConfigStorage.get('wcore.config');
-          preferred = config?.preferredMode;
         } else {
           const config = await ConfigStorage.get('acp.config');
           const backendConfig = config?.[configKey as AcpBackendAll] as Record<string, unknown> | undefined;

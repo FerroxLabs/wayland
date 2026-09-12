@@ -28,7 +28,7 @@ export type RemoteAgentProtocol = 'openclaw' | 'zeroclaw' | 'acp';
 export type RemoteAgentAuthType = 'bearer' | 'password' | 'none';
 
 /** Execution engine kinds - each uses a different protocol or runtime. */
-export type DetectedAgentKind = 'gemini' | 'acp' | 'remote' | 'wcore' | 'openclaw-gateway' | 'nanobot';
+export type DetectedAgentKind = 'gemini' | 'acp' | 'remote' | 'openclaw-gateway';
 
 /** Kind-specific fields mapping */
 type KindFields = {
@@ -70,24 +70,11 @@ type KindFields = {
     authType: RemoteAgentAuthType;
   };
 
-  /** Wayland-Core (wcore) - Rust engine binary, native execution. */
-  wcore: {
-    /** Resolved CLI binary path */
-    cliPath?: string;
-    /** Binary version string */
-    version?: string;
-  };
-
   'openclaw-gateway': {
     /** Resolved CLI binary path */
     cliPath?: string;
     /** Gateway WebSocket URL */
     gatewayUrl?: string;
-  };
-
-  nanobot: {
-    /** Resolved CLI binary path */
-    cliPath?: string;
   };
 };
 
@@ -110,8 +97,6 @@ export type DetectedAgent<K extends DetectedAgentKind = DetectedAgentKind> = {
 export type AcpDetectedAgent = DetectedAgent<'acp'>;
 export type GeminiDetectedAgent = DetectedAgent<'gemini'>;
 export type RemoteDetectedAgent = DetectedAgent<'remote'>;
-export type WCoreDetectedAgent = DetectedAgent<'wcore'>;
-export type NanobotDetectedAgent = DetectedAgent<'nanobot'>;
 export type OpenClawDetectedAgent = DetectedAgent<'openclaw-gateway'>;
 
 // Type guard - narrows a generic DetectedAgent to a specific kind

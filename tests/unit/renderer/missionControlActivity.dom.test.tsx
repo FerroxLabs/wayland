@@ -28,10 +28,10 @@ vi.mock('react-i18next', () => ({
 import { OperationsView } from '@/renderer/pages/mission-control';
 
 const entry = (index: number): LedgerEntry => ({
-  id: `core:turn:${index}`,
-  sourceId: `turn-${index}`,
-  source: 'core-execution',
-  provenance: { origin: 'core', kind: 'turn' },
+  id: `desktop:schedule-run:${index}`,
+  sourceId: `run-${index}`,
+  source: 'scheduler',
+  provenance: { origin: 'desktop', kind: 'schedule-run' },
   group: 'recent',
   title: `Activity ${index}`,
   status: 'done',
@@ -56,7 +56,7 @@ const snapshot = (count: number): MissionControlSnapshot => ({
     unknown: 0,
   },
   groupCounts: { 'needs-you': 0, running: 0, upcoming: 0, recent: count },
-  sourceHealth: [{ source: 'core-execution', status: 'ok', observedAt: 1 }],
+  sourceHealth: [{ source: 'scheduler', status: 'ok', observedAt: 1 }],
   completeness: 'complete',
 });
 
@@ -90,7 +90,7 @@ describe('Mission Control activity window', () => {
     expect(container.querySelectorAll('button[aria-label^="Open activity: Activity"]')).toHaveLength(41);
   });
 
-  it('navigates a Core entry to its exact evidence-backed Workbench lane', () => {
+  it('navigates an entry to its exact evidence-backed Workbench lane', () => {
     state.snapshot = snapshot(1);
     render(
       <MemoryRouter initialEntries={['/mission-control']}>
@@ -102,7 +102,7 @@ describe('Mission Control activity window', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Open activity: Activity 0' }));
-    expect(screen.getByTestId('location-state').textContent).toContain('projection:core');
-    expect(screen.getByTestId('location-state').textContent).toContain('core:turn:0:0');
+    expect(screen.getByTestId('location-state').textContent).toContain('projection:automation');
+    expect(screen.getByTestId('location-state').textContent).toContain('desktop:schedule-run:0:0');
   });
 });

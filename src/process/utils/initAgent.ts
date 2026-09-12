@@ -189,11 +189,11 @@ export async function setupAssistantWorkspace(
     /**
      * Put a skill inside the workspace by COPYING it, never by symlinking.
      *
-     * wayland-core runs the agent against a `SandboxedFs` rooted at the
+     * A sandboxed engine runs the agent against a filesystem rooted at the
      * workspace, and its containment check canonicalizes a path before
-     * comparing (`crates/wcore-tools/src/vfs.rs`) precisely so that "a symlink
-     * planted inside the sandbox that points outside is detected and refused".
-     * That is deliberate hardening, not a bug.
+     * comparing precisely so that "a symlink planted inside the sandbox that
+     * points outside is detected and refused". That is deliberate hardening,
+     * not a bug.
      *
      * Our skills live in the app's config directory, which is outside every
      * workspace, so a symlinked skill resolved to a path the sandbox refuses:
@@ -298,7 +298,7 @@ export async function setupAssistantWorkspace(
  * (`workspaceChecks.ts:151`) and the concierge diagnostics server
  * (`conciergeDiagServer.ts:1020`) both treat `false` as the app's own
  * authoritative "this is a temporary folder" and would WARN the user that a
- * folder in their Documents is temporary, and `createWCoreAgent` would blank
+ * folder in their Documents is temporary, and the conversation creators blank
  * the conversation's `desc`. Skill placement must not be bought with a lie
  * about what the folder is.
  */
@@ -469,15 +469,24 @@ export const createAcpAgent = async (options: ICreateConversationParams): Promis
   );
 
   // Set up skill symlinks for temp + project workspaces (native discovery).
-  await setupWorkspaceSkills(workspace, customWorkspace, !!extra.projectId, {
-    backend: extra.backend,
-    enabledSkills: extra.enabledSkills,
-    extraSkillPaths: extra.extraSkillPaths,
-    excludeBuiltinSkills: extra.excludeBuiltinSkills,
-  });
+  // An app-created durable task folder (a scheduled routine's workspace) is
+  // set up too - see `setupWorkspaceSkills` for why that is a separate signal.
+  await setupWorkspaceSkills(
+    workspace,
+    customWorkspace,
+    !!extra.projectId,
+    {
+      backend: extra.backend,
+      enabledSkills: extra.enabledSkills,
+      extraSkillPaths: extra.extraSkillPaths,
+      excludeBuiltinSkills: extra.excludeBuiltinSkills,
+    },
+    extra.appCreatedWorkspace === true
+  );
 
   return {
     type: 'acp',
+    desc: customWorkspace ? workspace : '',
     extra: {
       workspace: workspace,
       customWorkspace,
@@ -514,38 +523,6 @@ export const createAcpAgent = async (options: ICreateConversationParams): Promis
   };
 };
 
-export const createNanobotAgent = async (options: ICreateConversationParams): Promise<TChatConversation> => {
-  const { extra } = options;
-  const { workspace, customWorkspace } = await buildWorkspaceWidthFiles(
-    `nanobot-temp-${Date.now()}`,
-    extra.workspace,
-    extra.defaultFiles,
-    extra.customWorkspace
-  );
-
-  // Set up skill symlinks for temp + project workspaces
-  await setupWorkspaceSkills(workspace, customWorkspace, !!extra.projectId, {
-    agentType: 'nanobot',
-    enabledSkills: extra.enabledSkills,
-    extraSkillPaths: extra.extraSkillPaths,
-    excludeBuiltinSkills: extra.excludeBuiltinSkills,
-  });
-
-  return {
-    type: 'nanobot',
-    extra: {
-      workspace: workspace,
-      customWorkspace,
-      enabledSkills: extra.enabledSkills,
-      presetAssistantId: extra.presetAssistantId,
-    },
-    createTime: Date.now(),
-    modifyTime: Date.now(),
-    name: workspace,
-    id: uuid(),
-  };
-};
-
 export const createRemoteAgent = async (options: ICreateConversationParams): Promise<TChatConversation> => {
   const { extra } = options;
   const { workspace, customWorkspace } = await buildWorkspaceWidthFiles(
@@ -570,53 +547,6 @@ export const createRemoteAgent = async (options: ICreateConversationParams): Pro
       enabledSkills: extra.enabledSkills,
       presetAssistantId: extra.presetAssistantId,
     },
-    createTime: Date.now(),
-    modifyTime: Date.now(),
-    name: workspace,
-    id: uuid(),
-  };
-};
-
-export const createWCoreAgent = async (options: ICreateConversationParams): Promise<TChatConversation> => {
-  const { extra } = options;
-  const { workspace, customWorkspace } = await buildWorkspaceWidthFiles(
-    `wcore-temp-${Date.now()}`,
-    extra.workspace,
-    extra.defaultFiles,
-    extra.customWorkspace
-  );
-
-  // Set up skill symlinks for native discovery by wayland-core.
-  // The engine looks in `.wayland-core/skills/` (engine paths.rs:46);
-  // the 'wcore' agentType key is mapped to that directory in NON_ACP_SKILLS_DIRS
-  // so the symlinks land where the engine reads. Project workspaces (#455) get
-  // them too — with a managed .gitignore — so project chats can resolve skills.
-  await setupWorkspaceSkills(
-    workspace,
-    customWorkspace,
-    !!extra.projectId,
-    {
-      agentType: 'wcore',
-      enabledSkills: extra.enabledSkills,
-      extraSkillPaths: extra.extraSkillPaths,
-      excludeBuiltinSkills: extra.excludeBuiltinSkills,
-    },
-    extra.appCreatedWorkspace === true
-  );
-
-  return {
-    // 'wcore' is the canonical conversation type.
-    type: 'wcore',
-    model: options.model,
-    extra: {
-      workspace,
-      customWorkspace,
-      presetRules: extra.presetRules,
-      enabledSkills: extra.enabledSkills,
-      presetAssistantId: extra.presetAssistantId,
-      sessionMode: extra.sessionMode,
-    },
-    desc: customWorkspace ? workspace : '',
     createTime: Date.now(),
     modifyTime: Date.now(),
     name: workspace,

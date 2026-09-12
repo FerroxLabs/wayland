@@ -15,7 +15,6 @@ import { Alert, Button, Typography } from '@arco-design/web-react';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { isElectronDesktop } from '@/renderer/utils/platform';
 import useSWR from 'swr';
 import AgentCard from './AgentCard';
 import { AgentHubModal } from './AgentHubModal';
@@ -91,13 +90,11 @@ const LocalAgents: React.FC = () => {
     [mutateCustomAgents]
   );
 
-  // Fuigo (the bundled engine), then Wayland Core and Gemini CLI, first among
-  // detected agents. Fuigo has no settings page yet (Phase 4 adds the Engine pane).
+  // Fuigo (the bundled engine), then Gemini CLI, first among detected agents.
+  // Fuigo has no settings page yet (Phase 4 adds the Engine pane).
   const fuigoAgent = detectedAgents?.find((a) => a.backend === 'fuigo');
-  const wcoreAgent = detectedAgents?.find((a) => a.backend === 'wcore');
   const geminiAgent = detectedAgents?.find((a) => a.backend === 'gemini');
-  const otherDetected =
-    detectedAgents?.filter((a) => a.backend !== 'fuigo' && a.backend !== 'gemini' && a.backend !== 'wcore') ?? [];
+  const otherDetected = detectedAgents?.filter((a) => a.backend !== 'fuigo' && a.backend !== 'gemini') ?? [];
 
   const openCustomAgentEditor = useCallback(() => {
     setEditingAgent(null);
@@ -180,19 +177,6 @@ const LocalAgents: React.FC = () => {
       </div>
       <div className='grid grid-cols-1 gap-10px px-16px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
         {fuigoAgent && <AgentCard type='detected' agent={fuigoAgent} variant='grid' />}
-        {wcoreAgent && (
-          <AgentCard
-            type='detected'
-            agent={wcoreAgent}
-            /* #997: this navigates to /settings/wcore, which redirects into the
-               now desktop-only Core page. /settings/agents is NOT gated, so on a
-               WebUI the button would silently bounce the user to General
-               settings. Disable it there instead of shipping a dead click. */
-            settingsDisabled={!isElectronDesktop()}
-            onSettings={() => navigate('/settings/wcore')}
-            variant='grid'
-          />
-        )}
         {geminiAgent && (
           <AgentCard
             type='detected'

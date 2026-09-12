@@ -155,7 +155,7 @@ class OpenClawAgentManager extends BaseAgentManager<OpenClawAgentManagerData> {
       // still prompting on exec/network. Only the non-destructive, non-network raw
       // kinds read/search/edit auto-approve; everything else surfaces a
       // confirmation. Persisted per-workspace; keeps trust uniform across every
-      // local backend (ACP/Gemini/WCore/OpenClaw).
+      // local backend (ACP/Gemini/OpenClaw).
       if (
         isWorkspaceTrusted(this.workspace) &&
         trustedWorkspaceAutoApprovesAcpKind(permissionData.toolCall.kind) &&
@@ -350,7 +350,7 @@ class OpenClawAgentManager extends BaseAgentManager<OpenClawAgentManagerData> {
     // Deliver the error to channels AND release the per-conversation send queue.
     // ChannelMessageService only releases the stream on 'finish', so a bare error
     // would leave the channel hung until QUEUE_MAX_WAIT_MS. Pair error→finish like
-    // WCoreManager/AcpAgentManager do.
+    // AcpAgentManager does.
     channelEventBus.emitAgentMessage(this.conversation_id, message);
     channelEventBus.emitAgentMessage(this.conversation_id, {
       type: 'finish',

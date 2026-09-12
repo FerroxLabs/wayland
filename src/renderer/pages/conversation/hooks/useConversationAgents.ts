@@ -19,7 +19,7 @@ import { getAgentKey } from '@/renderer/pages/guid/hooks/agentSelectionUtils';
 import type { AcpBackend } from '@/renderer/pages/guid/types';
 
 export type UseConversationAgentsResult = {
-  /** Detected execution engines (acp, extension, remote, wcore, gemini, etc.) */
+  /** Detected execution engines (acp, extension, remote, gemini, etc.) */
   cliAgents: AvailableAgent[];
   /** Preset assistants from config layer */
   presetAssistants: AvailableAgent[];

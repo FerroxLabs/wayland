@@ -76,9 +76,7 @@
       "mode": "included",
       "excludedPaths": [
         "src/process/extensions/sandbox",
-        "src/process/team/sandbox",
-        "src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx",
-        "src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx"
+        "src/process/team/sandbox"
       ]
     },
     {

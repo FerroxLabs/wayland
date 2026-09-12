@@ -3,14 +3,11 @@ import type { IProvider, TChatConversation, TProviderWithModel } from '@/common/
 import { Spin } from '@arco-design/web-react';
 import React, { Suspense, useCallback } from 'react';
 import { useGeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
-import { useWCoreModelSelection } from '@/renderer/pages/conversation/platforms/wcore/useWCoreModelSelection';
 import TeamChatEmptyState from './TeamChatEmptyState';
 
 const AcpChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/acp/AcpChat'));
-const WCoreChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/wcore/WCoreChat'));
 const GeminiChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/gemini/GeminiChat'));
 const OpenClawChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/openclaw/OpenClawChat'));
-const NanobotChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/nanobot/NanobotChat'));
 const RemoteChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/remote/RemoteChat'));
 
 // Narrow to Gemini conversations so model field is always available
@@ -48,39 +45,6 @@ const GeminiTeamChat: React.FC<{
   );
 };
 
-// Narrow to Wayland Core conversations so model field is always available
-type WCoreConversation = Extract<TChatConversation, { type: 'wcore' }>;
-
-/** Wayland Core sub-component manages model selection state without adding a ChatLayout wrapper */
-const WCoreTeamChat: React.FC<{
-  conversation: WCoreConversation;
-  teamId?: string;
-  agentSlotId?: string;
-  emptySlot?: React.ReactNode;
-}> = ({ conversation, teamId, agentSlotId, emptySlot }) => {
-  const onSelectModel = useCallback(
-    async (_provider: IProvider, modelName: string) => {
-      const selected = { ..._provider, useModel: modelName } as TProviderWithModel;
-      const ok = await ipcBridge.conversation.update.invoke({ id: conversation.id, updates: { model: selected } });
-      return Boolean(ok);
-    },
-    [conversation.id]
-  );
-
-  const modelSelection = useWCoreModelSelection({ initialModel: conversation.model, onSelectModel });
-
-  return (
-    <WCoreChat
-      conversation_id={conversation.id}
-      workspace={conversation.extra.workspace}
-      modelSelection={modelSelection}
-      teamId={teamId}
-      agentSlotId={agentSlotId}
-      emptySlot={emptySlot}
-    />
-  );
-};
-
 type TeamChatViewProps = {
   conversation: TChatConversation;
   hideSendBox?: boolean;
@@ -104,9 +68,7 @@ const TeamChatView: React.FC<TeamChatViewProps> = ({ conversation, hideSendBox, 
   // leader slot (line 195 of TeamPage.tsx) and the actual slot id for every specialist.
   // We reuse that signal so callers don't have to thread an extra prop.
   const isLeader = agentSlotId === undefined;
-  const emptySlot = teamId
-    ? <TeamChatEmptyState conversationId={conversation.id} isLeader={isLeader} />
-    : undefined;
+  const emptySlot = teamId ? <TeamChatEmptyState conversationId={conversation.id} isLeader={isLeader} /> : undefined;
   const content = (() => {
     switch (conversation.type) {
       case 'acp':
@@ -138,16 +100,6 @@ const TeamChatView: React.FC<TeamChatViewProps> = ({ conversation, hideSendBox, 
             emptySlot={emptySlot}
           />
         );
-      case 'wcore':
-        return (
-          <WCoreTeamChat
-            key={conversation.id}
-            conversation={conversation as WCoreConversation}
-            teamId={teamId}
-            agentSlotId={agentSlotId}
-            emptySlot={emptySlot}
-          />
-        );
       case 'gemini':
         return (
           <GeminiTeamChat
@@ -162,16 +114,6 @@ const TeamChatView: React.FC<TeamChatViewProps> = ({ conversation, hideSendBox, 
       case 'openclaw-gateway':
         return (
           <OpenClawChat
-            key={conversation.id}
-            conversation_id={conversation.id}
-            workspace={conversation.extra?.workspace}
-            hideSendBox={hideSendBox}
-            emptySlot={emptySlot}
-          />
-        );
-      case 'nanobot':
-        return (
-          <NanobotChat
             key={conversation.id}
             conversation_id={conversation.id}
             workspace={conversation.extra?.workspace}

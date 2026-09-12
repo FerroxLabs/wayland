@@ -23,7 +23,7 @@ export type McpSessionRebindResult<T> = {
   rebound: boolean;
 };
 
-const MCP_SESSION_TASK_TYPES = new Set(['gemini', 'acp', 'codex', 'wcore']);
+const MCP_SESSION_TASK_TYPES = new Set(['gemini', 'acp', 'codex']);
 
 type InFlight<T> = {
   targetFingerprint: string;

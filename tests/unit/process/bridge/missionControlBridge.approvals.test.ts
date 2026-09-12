@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * #1060: the bridge constructed TaskLedgerService with listScheduleRuns,
- * listDesktopWorkflows and listCoreActivity but never listPendingApprovals.
+ * listDesktopWorkflows but never listPendingApprovals.
  * That reader is optional, so collectExternal('approvals', undefined) always
  * reported the source unavailable and Mission Control's "Needs you" group could
  * never show a pending approval.
@@ -69,7 +69,7 @@ describe('missionControlBridge pending approvals projector', () => {
     ]);
     workerTaskManager = {
       listTasks: () => [
-        { id: 'conv-1', type: 'wcore' },
+        { id: 'conv-1', type: 'acp' },
         { id: 'conv-2', type: 'gemini' },
       ],
       getTask: (id: string) => tasks.get(id),
@@ -98,7 +98,7 @@ describe('missionControlBridge pending approvals projector', () => {
     expect(read.observations).toHaveLength(2);
     expect(read.observations[0]).toMatchObject({
       sourceId: 'conv-1:call-a',
-      provenance: { origin: 'core', kind: 'approval' },
+      provenance: { origin: 'desktop', kind: 'approval' },
       title: 'Approve shell command',
       status: 'pending',
       needsHuman: true,

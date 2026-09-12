@@ -19,7 +19,6 @@ if (app.isPackaged) {
   process.env.PREBUILDS_ONLY = '1';
 }
 import initStorage from './utils/initStorage';
-import { initializeWaylandNanoActivationOwner } from './utils/initBridge';
 import './services/i18n'; // Initialize i18n for main process
 import { getChannelManager } from '@process/channels';
 import { ExtensionRegistry } from '@process/extensions';
@@ -30,9 +29,6 @@ export const initializeProcess = async () => {
 
   await initStorage();
   mark('initStorage');
-
-  await initializeWaylandNanoActivationOwner();
-  mark('WaylandNanoActivationOwner');
 
   // Initialize Extension Registry (scan and resolve all extensions)
   try {

@@ -61,7 +61,7 @@ describe('the artifact ledger reaches the retention classifier', () => {
 
   beforeEach(async () => {
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'wl-artifact-inventory-'));
-    candidate = path.join(root, 'wcore-temp-1736900000000');
+    candidate = path.join(root, 'acp-temp-1736900000000');
     await fs.mkdir(candidate);
     const stale = new Date(NOW - 31 * DAY);
     await fs.utimes(candidate, stale, stale);
@@ -118,7 +118,7 @@ describe('the artifact ledger reaches the retention classifier', () => {
   });
 
   it('counts many artifacts in one workspace once each, and ignores other workspaces', async () => {
-    const other = path.join(root, 'wcore-temp-1736900000001');
+    const other = path.join(root, 'acp-temp-1736900000001');
     await fs.mkdir(other);
 
     const report = await collectDesktopManagedWorkspaceInventory({

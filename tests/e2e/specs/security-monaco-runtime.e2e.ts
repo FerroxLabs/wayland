@@ -111,7 +111,7 @@ test.describe.serial('HTML editor runtime dependency boundary', () => {
           createTime: now,
           modifyTime: now,
           name: 'E2E Monaco Runtime',
-          type: 'wcore',
+          type: 'acp',
           source: 'wayland',
           extra: {
             workspace: homeDir,

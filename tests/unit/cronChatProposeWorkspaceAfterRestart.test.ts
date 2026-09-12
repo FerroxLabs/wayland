@@ -13,11 +13,10 @@
  *      SYNTHESISES an agentConfig (backend only, no workspace).
  *   4. agentConfig now present => the early return is gone => the executor
  *      compares `conversation.extra.backend` with `agentConfig.backend`.
- *   5. `createWCoreAgent` never persists `extra.backend` (its whitelist is
- *      workspace/customWorkspace/presetRules/enabledSkills/presetAssistantId/
- *      sessionMode), so `undefined !== 'wcore'` reads as "the agent changed"
+ *   5. `createGeminiAgent` never persists `extra.backend` (its whitelist
+ *      drops it), so `undefined !== 'gemini'` reads as "the agent changed"
  *      and a brand-new conversation is built with `workspace: ''` -> a fresh
- *      `wcore-temp-<ts>` directory that cannot see the configured chat's files.
+ *      `gemini-temp-<ts>` directory that cannot see the configured chat's files.
  *
  * This suite drives the REAL backfill through the REAL executor, because the
  * defect only exists once the backfill has run - a same-session test passes on
@@ -100,7 +99,7 @@ const createConversationMock = vi.fn(async (params: any) => {
   // Mirror the real factories: an empty `extra.workspace` becomes a throwaway
   // `<agent>-temp-<ts>` directory, which is exactly the failure symptom.
   const id = `conv-created-${conversationStore.size}`;
-  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/wcore-temp-${Date.now()}`;
+  const workspace = params.extra?.workspace ? params.extra.workspace : `/tmp/${params.type}-temp-${Date.now()}`;
   const conv = {
     id,
     type: params.type,
@@ -108,7 +107,7 @@ const createConversationMock = vi.fn(async (params: any) => {
     createTime: Date.now(),
     modifyTime: Date.now() + 1000,
     model: params.model,
-    // wcore's factory whitelist drops `backend`; ConversationServiceImpl then
+    // gemini's factory whitelist drops `backend`; ConversationServiceImpl then
     // merges back only the keys the factory did not produce.
     extra: { ...params.extra, workspace },
   };
@@ -154,7 +153,7 @@ function makeChatProposeJob(overrides?: Partial<CronJob>): CronJob {
     metadata: {
       conversationId: 'conv-source',
       conversationTitle: 'Quarterly report',
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'acp' as CronJob['metadata']['agentType'],
       createdBy: 'agent',
       createdAt: 1000,
       updatedAt: 1000,
@@ -245,17 +244,17 @@ describe('chat-propose cron job workspace survives an app restart', () => {
     vi.clearAllMocks();
   });
 
-  it('keeps running in the source wcore conversation after CronService backfills an agentConfig', async () => {
-    // The configured chat, created through the normal wcore path: a real
-    // workspace, and NO extra.backend (createWCoreAgent never persists it).
+  it('keeps running in the source fuigo conversation after CronService backfills an agentConfig', async () => {
+    // The configured chat, created through the normal ACP path: a real
+    // workspace, and `extra.backend` naming the engine (createAcpAgent persists it).
     conversationStore.set('conv-source', {
       id: 'conv-source',
-      type: 'wcore',
+      type: 'acp',
       name: 'Quarterly report',
       createTime: 1000,
       modifyTime: 1000,
-      model: { id: 'm', name: 'm', useModel: 'auto', platform: 'wcore', baseUrl: '', apiKey: '' },
-      extra: { workspace: SOURCE_WORKSPACE, customWorkspace: true },
+      model: { id: 'm', name: 'm', useModel: 'auto', platform: 'fuigo', baseUrl: '', apiKey: '' },
+      extra: { workspace: SOURCE_WORKSPACE, customWorkspace: true, backend: 'fuigo' },
     });
 
     const jobs = [makeChatProposeJob()];
@@ -265,7 +264,7 @@ describe('chat-propose cron job workspace survives an app restart', () => {
 
     // Guard: the test is only meaningful if the backfill actually fired.
     expect(jobs[0].metadata.agentConfig).toBeDefined();
-    expect(jobs[0].metadata.agentConfig?.backend).toBe('wcore');
+    expect(jobs[0].metadata.agentConfig?.backend).toBe('fuigo');
     expect(jobs[0].metadata.agentConfig?.workspace).toBeUndefined();
     expect(conversationStore.get('conv-source').extra.cronJobId).toBe('job-daily');
 
@@ -311,13 +310,13 @@ describe('chat-propose cron job workspace survives an app restart', () => {
   // does not undo it. A job already broken by the bug has a cron-created child
   // conversation that IS newest, and that child DOES carry `extra.backend`
   // (buildConversationForJob passes it, and ConversationServiceImpl merges back
-  // keys the wcore factory did not consume). So it compares equal on every
-  // axis and the job keeps reusing its wrong `wcore-temp-<ts>` workspace.
+  // keys the gemini factory did not consume). So it compares equal on every
+  // axis and the job keeps reusing its wrong `gemini-temp-<ts>` workspace.
   // Recovering those jobs needs a separate migration or a user re-point.
-  it('does NOT self-heal a job already stranded in a wcore-temp workspace', async () => {
+  it('does NOT self-heal a job already stranded in a gemini-temp workspace', async () => {
     conversationStore.set('conv-source', {
       id: 'conv-source',
-      type: 'wcore',
+      type: 'gemini',
       name: 'Quarterly report',
       createTime: 1000,
       modifyTime: 1000,
@@ -326,29 +325,29 @@ describe('chat-propose cron job workspace survives an app restart', () => {
     // What the bug already produced on this user's machine.
     conversationStore.set('conv-stranded', {
       id: 'conv-stranded',
-      type: 'wcore',
+      type: 'gemini',
       name: 'Daily quarterly report - 08/18 09:00',
       createTime: 5000,
       modifyTime: 5000,
       extra: {
-        workspace: '/tmp/wcore-temp-1755000000000',
+        workspace: '/tmp/gemini-temp-1755000000000',
         cronWorkspace: '',
         cronJobId: 'job-daily',
-        backend: 'wcore',
+        backend: 'gemini',
       },
     });
 
     const job = makeChatProposeJob({
       metadata: {
         ...makeChatProposeJob().metadata,
-        agentConfig: { backend: 'wcore' as CronJob['metadata']['agentType'], name: 'Daily quarterly report' },
+        agentConfig: { backend: 'gemini' as CronJob['metadata']['agentType'], name: 'Daily quarterly report' },
       },
     });
 
     const resolved = await makeRealExecutor().prepareConversation(job);
 
     expect(resolved).toBe('conv-stranded');
-    expect(conversationStore.get(resolved).extra.workspace).toBe('/tmp/wcore-temp-1755000000000');
+    expect(conversationStore.get(resolved).extra.workspace).toBe('/tmp/gemini-temp-1755000000000');
   });
 
   it('still starts a new conversation when the ACP backend genuinely changed (claude -> codex)', async () => {
@@ -375,11 +374,11 @@ describe('chat-propose cron job workspace survives an app restart', () => {
     expect(resolved).not.toBe('conv-source');
   });
 
-  it('still starts a new conversation when a wcore chat is repointed at an ACP backend', async () => {
+  it('still starts a new conversation when a gemini chat is repointed at an ACP backend', async () => {
     conversationStore.set('conv-source', {
       id: 'conv-source',
-      type: 'wcore',
-      name: 'WCore chat',
+      type: 'gemini',
+      name: 'Gemini chat',
       createTime: 1000,
       modifyTime: 1000,
       extra: { workspace: SOURCE_WORKSPACE, customWorkspace: true, cronJobId: 'job-daily' },

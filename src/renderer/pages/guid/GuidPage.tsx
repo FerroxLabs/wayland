@@ -148,9 +148,7 @@ const GuidPage: React.FC = () => {
   }, []);
 
   // --- Hooks ---
-  // Track which provider-based agent is selected so model selection persists per agent type
-  const [providerAgentKey, setProviderAgentKey] = useState<'gemini' | 'wcore'>('wcore');
-  const modelSelection = useGuidModelSelection(providerAgentKey);
+  const modelSelection = useGuidModelSelection('gemini');
 
   const resetAssistantRequested = (location.state as { resetAssistant?: boolean } | null)?.resetAssistant === true;
   const agentSelection = useGuidAgentSelection({
@@ -207,14 +205,6 @@ const GuidPage: React.FC = () => {
     setHasInteractedWithAgentSelection(launched);
   }, [location.key]);
   const showPresetHero = agentSelection.isPresetAgent && hasInteractedWithAgentSelection;
-
-  // Sync providerAgentKey when selected agent changes
-  useEffect(() => {
-    const agent = agentSelection.selectedAgent;
-    if (agent === 'gemini' || agent === 'wcore') {
-      setProviderAgentKey(agent);
-    }
-  }, [agentSelection.selectedAgent]);
 
   const guidInput = useGuidInput({
     locationState: location.state as { workspace?: string; paletteInitialPrompt?: string } | null,
@@ -834,8 +824,8 @@ const GuidPage: React.FC = () => {
     ? agentSelection.currentEffectiveAgentInfo.agentType
     : agentSelection.selectedAgent;
 
-  // `agent-profile` (vendored specialist assistants) and the literal
-  // `wayland-core` both run on the bundled Fuigo engine - the send path already
+  // `agent-profile` (vendored specialist assistants) and the legacy engine
+  // alias both run on the bundled Fuigo engine - the send path already
   // collapses them via resolveAcpBackendAlias (buildAgentConversationParams).
   // The model picker must use the SAME mapping or it queries
   // `curatedForAgent('agent-profile')`, gets an empty catalog, and shows a dead
@@ -845,7 +835,7 @@ const GuidPage: React.FC = () => {
   const effectiveAgentType = resolveAcpBackendAlias(effectiveAgentTypeRaw);
 
   // Agents that use configured model providers instead of ACP probe-based models
-  const PROVIDER_BASED_AGENTS = new Set(['gemini', 'wcore']);
+  const PROVIDER_BASED_AGENTS = new Set(['gemini']);
   const isGeminiMode =
     PROVIDER_BASED_AGENTS.has(effectiveAgentType) &&
     (!agentSelection.isPresetAgent || agentSelection.currentEffectiveAgentInfo.isAvailable);

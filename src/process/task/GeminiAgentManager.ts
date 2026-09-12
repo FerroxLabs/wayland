@@ -442,7 +442,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         const conversation = result.data;
         db.updateConversation(this.conversation_id, {
           extra: { ...conversation.extra, mcpSessionState: snapshot },
-        } as Partial<typeof conversation>);
+        } as unknown as Partial<typeof conversation>);
       })
       .catch((error) => mainWarn('[GeminiAgentManager]', 'failed to persist MCP session state', error));
   }
@@ -1017,30 +1017,15 @@ export class GeminiAgentManager extends BaseAgentManager<
         break;
       case 'question':
         {
-          // #504: AskUserQuestion is a wcore engine tool, so Gemini does not
-          // emit it; this arm exists for confirmationDetails-union
-          // exhaustiveness. Surface the question + a plain proceed/cancel.
+          // #504: Gemini does not emit an AskUserQuestion prompt; this arm
+          // exists for confirmationDetails-union exhaustiveness. Surface the
+          // question + a plain proceed/cancel.
           question = confirmationDetails.question;
           description = confirmationDetails.header ?? '';
           options.push(
             { label: t('messages.confirmation.yesAllowOnce'), value: ToolConfirmationOutcome.ProceedOnce },
             { label: t('messages.confirmation.no'), value: ToolConfirmationOutcome.Cancel }
           );
-        }
-        break;
-      case 'path_boundary':
-        {
-          // #1099: a filesystem-boundary escalation is a wcore engine
-          // classification, so Gemini never emits one; this arm exists for
-          // confirmationDetails-union exhaustiveness, like `question` above.
-          // Explicit rather than fall-through: `default` below IS the mcp case,
-          // and an unhandled boundary would be labelled an MCP tool prompt and
-          // offered proceed_once / proceed_always — the vocabulary a folder
-          // grant must never speak. No options: this surface cannot express a
-          // folder grant, and the dedicated card (PathBoundaryConfirmCard) is
-          // the only place that can.
-          question = confirmationDetails.title;
-          description = confirmationDetails.target;
         }
         break;
       default: {
@@ -1159,7 +1144,7 @@ export class GeminiAgentManager extends BaseAgentManager<
     }
     // #671: a trusted-edits workspace auto-approves edits while still
     // prompting on exec/network. Unlike the autoEdit MODE above, trust does NOT
-    // auto-approve the 'info' catch-all: on Gemini/WCore 'info' is an
+    // auto-approve the 'info' catch-all: on Gemini 'info' is an
     // engine-assigned bucket that can include network/URL-fetch confirmations,
     // so a persisted always-on posture must stay stricter than the user-chosen
     // mode and only auto-approve concrete file edits. Persisted per-workspace.

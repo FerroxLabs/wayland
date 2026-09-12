@@ -13,7 +13,6 @@ import {
   recordDesktopMcpSessionPublication,
   reduceMcpSessionProducerEvent,
   reduceMcpSessionToolInvocation,
-  reduceMcpSessionTerminal,
   type McpSessionBackend,
   type McpSessionDefinitionDigest,
   type McpSessionExpectedServer,
@@ -35,7 +34,7 @@ const server = (overrides: Partial<IMcpServer> = {}): IMcpServer => ({
 const expected = (
   value: IMcpServer,
   digest: McpSessionDefinitionDigest,
-  backend: McpSessionBackend = 'wcore'
+  backend: McpSessionBackend = 'acp'
 ): McpSessionExpectedServer => ({
   serverId: value.id,
   serverName: value.name,
@@ -47,48 +46,41 @@ const expected = (
   scope: 'conversation',
 });
 
-const stateFor = (servers: McpSessionExpectedServer[], backend: McpSessionBackend = 'wcore') =>
+const stateFor = (servers: McpSessionExpectedServer[], backend: McpSessionBackend = 'acp') =>
   createMcpSessionState('launch-1', servers, { conversationId: 'chat-1', backend }, 10);
 
+/** Exact producer evidence for one published definition on this launch. */
+const producerEvent = (
+  state: McpSessionState,
+  digest: McpSessionDefinitionDigest,
+  runtimeName: string,
+  outcome: { tools: string[] } | { reason: string }
+) =>
+  'tools' in outcome
+    ? ({
+        type: 'mcp_tools_registered',
+        data: {
+          generation: state.generation,
+          conversationId: state.conversationId,
+          backend: state.backend,
+          runtimeName,
+          definitionDigest: digest,
+          tools: outcome.tools,
+        },
+      } as const)
+    : ({
+        type: 'mcp_registration_failed',
+        data: {
+          generation: state.generation,
+          conversationId: state.conversationId,
+          backend: state.backend,
+          runtimeName,
+          definitionDigest: digest,
+          reason: outcome.reason,
+        },
+      } as const);
+
 describe('MCP session receipt reducer', () => {
-  it('requires publication before a Core ready event can register exact named tools', () => {
-    const tavily = server();
-    const firecrawl = server({ id: 'firecrawl-id', name: 'firecrawl' });
-    const initial = stateFor([expected(tavily, 'hmac-sha256:aaa'), expected(firecrawl, 'hmac-sha256:bbb')]);
-
-    const rejected = reduceMcpSessionTerminal(
-      initial,
-      { type: 'mcp_ready', data: { name: 'tavily', tools: ['tavily_search'] } },
-      15
-    );
-    expect(rejected).toBe(initial);
-
-    const published = recordDesktopMcpSessionPublication(initial, 'tavily', 18);
-    const registered = reduceMcpSessionTerminal(
-      published,
-      { type: 'mcp_ready', data: { name: 'tavily', tools: ['tavily_search', 'tavily_extract'] } },
-      20
-    );
-    expect(registered.receipts['hmac-sha256:aaa']).toMatchObject({
-      status: 'registered',
-      tools: ['tavily_extract', 'tavily_search'],
-      generation: 'launch-1',
-      conversationId: 'chat-1',
-      backend: 'wcore',
-      definitionDigest: 'hmac-sha256:aaa',
-    });
-    expect(registered.receipts['hmac-sha256:bbb']?.status).toBe('configured');
-  });
-
-  it('degrades a published connector when Core registers no tools', () => {
-    const initial = recordDesktopMcpSessionPublication(stateFor([expected(server(), 'hmac-sha256:aaa')]), 'tavily', 15);
-    const next = reduceMcpSessionTerminal(initial, { type: 'mcp_ready', data: { name: 'tavily', tools: [] } }, 20);
-    expect(next.receipts['hmac-sha256:aaa']).toMatchObject({
-      status: 'degraded',
-      reason: 'Core loaded the connector but registered no tools',
-    });
-  });
-
   it.each(['acp', 'gemini', 'codex-native'] as const)(
     'accepts only exact %s producer evidence bound to this launch and definition',
     (backend) => {
@@ -118,7 +110,7 @@ describe('MCP session receipt reducer', () => {
       for (const hostile of [
         { ...exact, generation: 'old-launch' },
         { ...exact, conversationId: 'other-chat' },
-        { ...exact, backend: 'wcore' as const },
+        { ...exact, backend: (backend === 'acp' ? 'gemini' : 'acp') as McpSessionBackend },
         { ...exact, definitionDigest: 'hmac-sha256:forged' as const },
       ]) {
         expect(reduceMcpSessionProducerEvent(initial, { type: 'mcp_tools_registered', data: hostile }, 20)).toBe(
@@ -203,38 +195,24 @@ describe('MCP session receipt reducer', () => {
     let state = stateFor([expected(tavily, 'hmac-sha256:aaa'), expected(firecrawl, 'hmac-sha256:bbb')]);
     state = recordDesktopMcpSessionPublication(state, 'tavily');
     state = recordDesktopMcpSessionPublication(state, 'firecrawl');
-    state = reduceMcpSessionTerminal(state, {
-      type: 'mcp_ready',
-      data: { name: 'tavily', tools: ['search'] },
-    });
-    const failed = reduceMcpSessionTerminal(state, {
-      type: 'mcp_failed',
-      data: { name: 'firecrawl', reason: 'credential rejected' },
-    });
+    state = reduceMcpSessionProducerEvent(
+      state,
+      producerEvent(state, 'hmac-sha256:aaa', 'tavily', { tools: ['search'] })
+    );
+    const failed = reduceMcpSessionProducerEvent(
+      state,
+      producerEvent(state, 'hmac-sha256:bbb', 'firecrawl', { reason: 'credential rejected' })
+    );
 
     expect(failed.receipts['hmac-sha256:aaa']?.status).toBe('registered');
     expect(failed.receipts['hmac-sha256:bbb']).toMatchObject({ status: 'failed', reason: 'credential rejected' });
   });
 
-  it('rejects unsolicited, ambiguous, and non-Core readiness claims', () => {
+  it('rejects a registered receipt whose source is not this launch backend', () => {
     const tavily = expected(server(), 'hmac-sha256:aaa');
-    const duplicate = { ...tavily, serverId: 'duplicate', definitionDigest: 'hmac-sha256:bbb' as const };
-    const ambiguous = recordDesktopMcpSessionPublication(stateFor([tavily, duplicate]), 'tavily');
-    const unsolicited = reduceMcpSessionTerminal(ambiguous, {
-      type: 'mcp_ready',
-      data: { name: 'firecrawl', tools: ['scrape'] },
-    });
     const acp = stateFor([{ ...tavily, backend: 'acp' }], 'acp');
     const acpPublished = recordDesktopMcpSessionPublication(acp, 'tavily');
-    const acpClaim = reduceMcpSessionTerminal(acpPublished, {
-      type: 'mcp_ready',
-      data: { name: 'tavily', tools: ['search'] },
-    });
-
-    expect(unsolicited).toBe(ambiguous);
-    expect(ambiguous.receipts['hmac-sha256:aaa']?.status).toBe('configured');
-    expect(acpClaim).toBe(acpPublished);
-    expect(acpClaim.receipts['hmac-sha256:aaa']?.status).toBe('published_unverified');
+    expect(acpPublished.receipts['hmac-sha256:aaa']?.status).toBe('published_unverified');
 
     const forgedAcpRegistration = {
       ...acpPublished,
@@ -243,7 +221,7 @@ describe('MCP session receipt reducer', () => {
           ...acpPublished.receipts['hmac-sha256:aaa'],
           status: 'registered' as const,
           tools: ['search'],
-          source: 'wcore' as const,
+          source: 'gemini' as const,
         },
       },
     };
@@ -290,10 +268,10 @@ describe('MCP session receipt reducer', () => {
     const digest = 'hmac-sha256:aaa' as const;
     let registered = stateFor([expected(tavily, digest)]);
     registered = recordDesktopMcpSessionPublication(registered, 'tavily');
-    registered = reduceMcpSessionTerminal(registered, {
-      type: 'mcp_ready',
-      data: { name: 'tavily', tools: ['search'] },
-    });
+    registered = reduceMcpSessionProducerEvent(
+      registered,
+      producerEvent(registered, digest, 'tavily', { tools: ['search'] })
+    );
     const receipt = registered.receipts[digest];
     const hostileSnapshot = (receiptOverrides: Record<string, unknown>): McpSessionState =>
       ({
@@ -307,7 +285,7 @@ describe('MCP session receipt reducer', () => {
     expect(getMcpSessionReceiptForServer(hostileSnapshot({ tools: [] }), tavily)).toBeUndefined();
     expect(getMcpSessionReceiptForServer(hostileSnapshot({ observedAt: 0 }), tavily)).toBeUndefined();
     expect(
-      getMcpSessionReceiptForServer(hostileSnapshot({ status: 'configured', source: 'wcore', tools: [] }), tavily)
+      getMcpSessionReceiptForServer(hostileSnapshot({ status: 'configured', source: 'acp', tools: [] }), tavily)
     ).toBeUndefined();
   });
 });

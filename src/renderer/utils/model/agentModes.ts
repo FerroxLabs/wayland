@@ -69,14 +69,6 @@ export const AGENT_MODES: Record<string, AgentModeOption[]> = {
     { value: 'autoEdit', label: 'Auto-Accept Edits' },
     { value: 'yolo', label: 'Autopilot' },
   ],
-  wcore: [
-    { value: 'default', label: 'Default' },
-    { value: 'auto_edit', label: 'Auto-Accept Edits' },
-    { value: 'yolo', label: 'Autopilot' },
-  ],
-  // Wayland Nano advertises exactly one mode over ACP (session/new
-  // availableModes: default only); model selection goes through set_model.
-  wnano: [{ value: 'default', label: 'Default' }],
   codex: [
     { value: 'default', label: 'Plan' },
     { value: CODEX_MODE_AUTO_EDIT, label: 'Auto Edit' },

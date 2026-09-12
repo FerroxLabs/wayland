@@ -54,14 +54,14 @@ test.describe('Team activity tab - F1', () => {
           slotId: 'slot-lead',
           conversationId: '',
           role: 'leader',
-          agentType: 'wcore',
+          agentType: 'fuigo',
           agentName: 'Leader',
-          conversationType: 'wcore',
+          conversationType: 'acp',
           status: 'idle',
         },
       ],
     });
-    if (!created?.id) throw new Error('team.create returned null - backend (wcore) not installed');
+    if (!created?.id) throw new Error('team.create returned null - backend (fuigo) not installed');
     const teamId = created.id;
 
     await navigateTo(page, `#/team/${teamId}`);
@@ -105,9 +105,9 @@ test.describe('Team activity tab - F1', () => {
       agent: {
         conversationId: '',
         role: 'teammate',
-        agentType: 'wcore',
+        agentType: 'fuigo',
         agentName: 'F1 Spawned Teammate',
-        conversationType: 'wcore',
+        conversationType: 'acp',
         status: 'pending',
       },
     });

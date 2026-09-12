@@ -60,7 +60,6 @@ describe('Desktop settings snapshot producer', () => {
       'ui.shell': 'cockpit',
       'notifications.quietHours': { start: '22:30', end: '07:15' },
       'skills.preferences': { pinned: ['research'], disabled: ['legacy-tool'], revision: 4 },
-      'wcore.outputBudget': { mode: 'fixed', value: 16_384 },
     };
     const capture = await produceDesktopSettingsSnapshot(readerFrom(config, { ...config }));
 
@@ -83,11 +82,10 @@ describe('Desktop settings snapshot producer', () => {
         theme: 'dark',
         'ui.shell': 'cockpit',
         'ui.zoomFactor': 1.25,
-        'wcore.outputBudget': { mode: 'fixed', value: 16_384 },
       },
     });
     expect(new TextDecoder().decode(capture.bytes)).toBe(
-      '{"contract":"wayland-transfer-desktop-preferences/1.0","logicalStateId":"desktop.preferences","schemaVersion":1,"values":{"language":"en-US","notifications.quietHours":{"end":"07:15","start":"22:30"},"skills.preferences":{"disabled":["legacy-tool"],"pinned":["research"],"revision":4},"theme":"dark","ui.shell":"cockpit","ui.zoomFactor":1.25,"wcore.outputBudget":{"mode":"fixed","value":16384}}}'
+      '{"contract":"wayland-transfer-desktop-preferences/1.0","logicalStateId":"desktop.preferences","schemaVersion":1,"values":{"language":"en-US","notifications.quietHours":{"end":"07:15","start":"22:30"},"skills.preferences":{"disabled":["legacy-tool"],"pinned":["research"],"revision":4},"theme":"dark","ui.shell":"cockpit","ui.zoomFactor":1.25}}'
     );
   });
 
@@ -254,7 +252,6 @@ describe('Desktop settings snapshot producer', () => {
       { 'skills.preferences': { pinned: ['same'], disabled: ['same'], revision: 1 } },
       'contradictory skill preferences',
     ],
-    [{ 'wcore.outputBudget': { mode: 'auto', value: 123 } }, 'contradictory output budget'],
   ])('rejects unsupported portable values: %s', async (config) => {
     await expectCode(produceDesktopSettingsSnapshot(readerFrom(config)), 'SETTINGS_VALUE_INVALID');
   });

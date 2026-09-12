@@ -88,30 +88,6 @@ export function resolveUserTvControlEntry(source = bundledTvControlRoot(), userD
   );
 }
 
-/**
- * The collector already discovers bunx packages under TMPDIR. Give this session
- * its own real temp directory and a verified package there; no external grant,
- * HOME change, symlink, global install, or executable skill-tree copy is needed.
- */
-export function provisionWorkspaceTvControl(workspace: string, source = bundledTvControlRoot()): string {
-  resolveBundledTvControlEntry(source);
-  const canonicalWorkspace = fs.realpathSync(workspace);
-  let current = canonicalWorkspace;
-  for (const part of ['.wayland-runtime', 'tmp']) {
-    current = path.join(current, part);
-    try {
-      fs.mkdirSync(current);
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-    }
-    if (!fs.lstatSync(current).isDirectory() || fs.realpathSync(current) !== current) {
-      throw new Error('TVControl workspace runtime must remain inside the workspace');
-    }
-  }
-  copyTvControlToTempRoot(current, source);
-  return current;
-}
-
 function copyTvControlToTempRoot(current: string, source: string): void {
   const target = path.join(current, `bunx-wayland-tvcontrol-${TVCONTROL_VERSION}`);
   if (fs.existsSync(target)) {
@@ -131,55 +107,4 @@ function copyTvControlToTempRoot(current: string, source: string): void {
   } finally {
     fs.rmSync(staging, { recursive: true, force: true });
   }
-}
-
-/**
- * Core 0.13.12 (6e4eca07) redirects Bash's TMPDIR to its writable scratch
- * grant. The engine's inherited TMPDIR is only the parent of that directory.
- * Use the accepted policy receipt, never Core's private uid/trust path scheme.
- */
-export function provisionTvControlForWorkspacePolicy(
-  workspace: string,
-  managedTempDir: string,
-  writableRoots: readonly string[],
-  source = bundledTvControlRoot()
-): string {
-  resolveBundledTvControlEntry(source);
-  // Rust reports Windows canonical paths with the NT namespace prefix. Compare
-  // equivalent path representations before applying the same containment and
-  // realpath checks; no filesystem grant is inferred from this normalization.
-  const identity = (value: string): string => {
-    const resolved = path.resolve(value);
-    return process.platform === 'win32' ? path.toNamespacedPath(resolved).toLowerCase() : resolved;
-  };
-  const canonicalWorkspace = fs.realpathSync(workspace);
-  const expectedTemp = path.join(canonicalWorkspace, '.wayland-runtime', 'tmp');
-  if (identity(managedTempDir) !== identity(expectedTemp))
-    throw new Error('TVControl managed temp directory does not belong to this workspace');
-  // Check every owned ancestor, including symlinks that resolve back inside.
-  for (const dir of [path.dirname(expectedTemp), expectedTemp]) {
-    if (!fs.lstatSync(dir).isDirectory() || identity(fs.realpathSync(dir)) !== identity(dir))
-      throw new Error('TVControl managed temp directory is redirected');
-  }
-  const candidates = [
-    ...new Set(
-      writableRoots
-        .filter((root) => path.isAbsolute(root))
-        .map((root) => path.relative(identity(expectedTemp), identity(root)))
-    ),
-  ].filter(
-    (relative) =>
-      relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)
-  );
-  if (candidates.length !== 1)
-    throw new Error('TVControl requires exactly one workspace-contained scratch directory from Core');
-  const scratch = path.resolve(expectedTemp, candidates[0]);
-  let current = expectedTemp;
-  for (const part of path.relative(expectedTemp, scratch).split(path.sep)) {
-    current = path.join(current, part);
-    if (!fs.lstatSync(current).isDirectory() || identity(fs.realpathSync(current)) !== identity(current))
-      throw new Error('TVControl Core scratch directory is redirected');
-  }
-  copyTvControlToTempRoot(scratch, source);
-  return scratch;
 }

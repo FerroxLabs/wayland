@@ -1,16 +1,9 @@
-# VENDORED SNAPSHOT of the Wayland-Core engine provider catalog.
-# Source: ../waylandcore/crates/wcore-config/src/data/providers.toml
-#
-# This is the build-time FALLBACK used when the sibling waylandcore repo is
-# absent. The generator (scripts/generateProviderCatalog.mjs) prefers the live
-# engine file and only reads this copy when that path is missing.
-#
-# Snapshot date: unknown (do not fabricate). To refresh from the engine, run:
-#   node scripts/generateProviderCatalog.mjs   (with ../waylandcore present)
-# then re-copy this file from the engine source above.
+# Desktop's bundled provider catalog. Originally vendored from the retired
+# Wayland Core engine; since the Fuigo cutover this file is the source of truth
+# and `scripts/generateProviderCatalog.mjs` reads it directly.
 # ---------------------------------------------------------------------------
 
-# Wayland Core — Bundled Provider Catalog
+# Bundled Provider Catalog
 # ========================================
 # Data-driven OpenAI-compatible provider registry. Each entry lets
 # `--provider <id>` resolve a generic CatalogProvider (a thin wrapper over

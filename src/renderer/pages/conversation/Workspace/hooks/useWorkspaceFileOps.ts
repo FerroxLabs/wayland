@@ -27,7 +27,7 @@ import { getPathSeparator, replacePathInList, resolveMoveTarget, updateTreeForRe
 
 interface UseWorkspaceFileOpsOptions {
   workspace: string;
-  eventPrefix: 'gemini' | 'acp' | 'codex' | 'wcore';
+  eventPrefix: 'gemini' | 'acp' | 'codex';
   messageApi: MessageApi;
   t: (key: string) => string;
 

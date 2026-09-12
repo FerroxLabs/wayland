@@ -7,11 +7,11 @@
 /**
  * Fuigo cutover: `resolveOutputDir` is the single producer of the directory an
  * engine is told to write deliverables into AND the directory the turn-end
- * sweep walks. It used to live in `agent/wcore/envBuilder.ts`, so the artifact
- * sweep and the scheduled-run executor - both engine-agnostic - imported a
- * Core module for a path rule. It now lives in `services/artifacts/runOutputDir`
- * and Core re-exports it; the two consumers must not reach into `wcore/` for it,
- * or deleting Core (Phase 3) takes the artifact rail down with it.
+ * sweep walks. It used to live inside the retired Core engine's spawn module,
+ * so the artifact sweep and the scheduled-run executor - both engine-agnostic -
+ * imported an engine module for a path rule. It lives in
+ * `services/artifacts/runOutputDir`; no consumer may reach into an engine
+ * directory for it.
  */
 import { promises as fs, readFileSync } from 'fs';
 import os from 'os';
@@ -19,23 +19,21 @@ import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { resolveOutputDir } from '@process/services/artifacts/runOutputDir';
-import { resolveOutputDir as coreReExport } from '@process/agent/wcore/envBuilder';
 import { clearChatSweepMemo, sweepChatRun } from '@process/services/artifacts/chatRun';
 
 const SRC = path.resolve(__dirname, '../../../src/process');
 const source = (rel: string) => readFileSync(path.join(SRC, rel), 'utf8');
 
 describe('resolveOutputDir is engine-neutral', () => {
-  it('is exported from services/artifacts/runOutputDir and Core re-exports that same function', () => {
+  it('is exported from services/artifacts/runOutputDir', () => {
     expect(typeof resolveOutputDir).toBe('function');
-    expect(coreReExport).toBe(resolveOutputDir);
   });
 
-  it('the artifact sweep and the scheduled-run executor no longer import anything from agent/wcore', () => {
+  it('the artifact sweep and the scheduled-run executor import the path rule from the artifacts service', () => {
     for (const rel of ['services/artifacts/chatRun.ts', 'services/cron/WorkerTaskManagerJobExecutor.ts']) {
       const text = source(rel);
-      expect(text, rel).not.toMatch(/from '@process\/agent\/wcore\//);
-      expect(text, rel).not.toMatch(/from '\.\.\/\.\.\/agent\/wcore\//);
+      expect(text, rel).toMatch(/runOutputDir'/);
+      expect(text, rel).not.toMatch(/from '@process\/agent\/(?!fuigo|acp)/);
     }
   });
 });

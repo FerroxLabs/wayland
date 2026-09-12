@@ -65,7 +65,7 @@ This project straddles two ecosystems. Each follows its own convention:
 >
 > **YES** → PascalCase. **NO** → lowercase.
 >
-> **Exception**: Platform directories (`acp/`, `codex/`, `gemini/`, `nanobot/`, `openclaw/`) always use lowercase, even inside renderer, to match `src/process/agent/`.
+> **Exception**: Platform directories (`acp/`, `codex/`, `gemini/`, `openclaw/`) always use lowercase, even inside renderer, to match `src/process/agent/`.
 
 ### Renderer examples
 
@@ -309,6 +309,6 @@ Inside a page module (e.g., `pages/conversation/`), three types of subdirectorie
 | ----------------------------------------------------- | ---------- | ---------------------------------------------------- |
 | **Categorical** (standard role)                       | lowercase  | `components/`, `hooks/`, `context/`, `utils/`        |
 | **Feature module** (business feature)                 | PascalCase | `GroupedHistory/`, `Workspace/`, `Preview/`          |
-| **Platform directory** (mirrors `src/process/agent/`) | lowercase  | `acp/`, `codex/`, `gemini/`, `nanobot/`, `openclaw/` |
+| **Platform directory** (mirrors `src/process/agent/`) | lowercase  | `acp/`, `codex/`, `gemini/`, `openclaw/` |
 
 Platform directories are an exception to PascalCase. They use lowercase for cross-process naming consistency with `src/process/agent/<platform>/`.

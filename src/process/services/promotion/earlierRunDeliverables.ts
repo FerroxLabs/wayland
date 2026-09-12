@@ -8,7 +8,7 @@
  * Earlier runs, from before the task had a durable workspace.
  *
  * A recurring task that ran in `new_conversation` mode left one throwaway
- * `wcore-temp-<ts>` workspace per run, each holding a real report. Promotion
+ * temp workspace per run, each holding a real report. Promotion
  * only moves the CURRENT workspace, so without this the acceptance bar's "and
  * tomorrow show me both days" is false for every run that already happened.
  *
@@ -25,8 +25,9 @@
  * So: find CANDIDATES, show them to the user, copy only what they keep, and
  * leave every source workspace exactly as it was.
  *
- * Finding them is the awkward part. Pre-fix runs wrote their output INTO
- * `.wayland-core/skills/<name>/`, a hidden machinery directory, next to the
+ * Finding them is the awkward part. Pre-fix runs (on the retired Core engine)
+ * wrote their output INTO `.wayland-core/skills/<name>/`, a hidden machinery
+ * directory that engine laid down, next to the
  * bundled `SKILL.md` that was copied there when the workspace was created. The
  * file extension proves nothing (`.log` can be the deliverable, `.md` can be
  * machinery), so the only honest discriminator available is WHEN it was

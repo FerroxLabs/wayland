@@ -58,13 +58,13 @@ function makeJob(overrides: Partial<CronJob['metadata']['agentConfig']> = {}): C
     target: { payload: { kind: 'message', text: 'run it' }, executionMode: 'existing' },
     metadata: {
       conversationId: CONV,
-      agentType: 'wcore' as CronJob['metadata']['agentType'],
+      agentType: 'fuigo' as CronJob['metadata']['agentType'],
       createdBy: 'agent',
       createdAt: 1,
       updatedAt: 1,
       // A chat-propose job as CronService.init() leaves it: a backfilled
       // agentConfig carrying a backend and NO workspace.
-      agentConfig: { backend: 'wcore' as CronJob['metadata']['agentType'], name: 'Smart Trader', ...overrides },
+      agentConfig: { backend: 'fuigo' as CronJob['metadata']['agentType'], name: 'Smart Trader', ...overrides },
     },
     state: { runCount: 2, retryCount: 0, maxRetries: 3 },
   };
@@ -94,7 +94,7 @@ function makeDeps(over: Partial<PromotionDeps> = {}): PromotionDeps {
 }
 
 /** A `*-temp-*` workspace holding two runs' worth of real output. */
-async function makeTempWorkspace(name = `wcore-temp-${Date.now()}`): Promise<string> {
+async function makeTempWorkspace(name = `acp-temp-${Date.now()}`): Promise<string> {
   const ws = path.join(tempWorkRoot, name);
   await fsp.mkdir(path.join(ws, 'artifacts'), { recursive: true });
   await fsp.writeFile(path.join(ws, 'artifacts', 'monday.md'), '# Monday', 'utf8');

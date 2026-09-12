@@ -17,7 +17,7 @@
  * (`legacyModelConfigBridge`) then mirrors it back as a tagged row
  * (`name: 'Google Gemini'`, `__waylandModelRegistryBridge: 'v2:google-gemini'`).
  * The original untagged row is never removed, so the legacy pickers
- * (AcpModelSelector / WCoreModelSelector / GeminiModelSelector / EditModeModal)
+ * (AcpModelSelector / GeminiModelSelector / EditModeModal)
  * show the provider twice - the reported "Two Geminis".
  *
  * ### The fix

@@ -11,8 +11,8 @@
  * different GUI PATH on macOS/Linux → "green, but no tools".
  *
  * Every live-session path must use the same bundled-Bun runtime as the Library
- * connection probe. Persisted Core config uses a portable `bun x --bun` command
- * on POSIX so Linux AppImage remounts cannot leave a stale absolute path.
+ * connection probe. Persisted config uses a portable `bun x --bun` command on
+ * POSIX so Linux AppImage remounts cannot leave a stale absolute path.
  *
  * These tests are platform-explicit (helper) / platform-mocked (consumers) so they
  * are deterministic on EVERY CI shard (windows-2022 and macos/ubuntu alike), and
@@ -21,9 +21,8 @@
  */
 import { describe, it, expect, afterEach } from 'vitest';
 import { resolveMcpStdioSpawn, resolvePersistedMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
-import { buildAcpSessionMcpServers, buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import { buildAcpSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import { McpConfig } from '@process/acp/session/McpConfig';
-import { toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import { buildGeminiStdioMcpConfig } from '@process/task/GeminiAgentManager';
 import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 import type { IMcpServer } from '@/common/config/storage';
@@ -143,22 +142,10 @@ describe('#827 session-injection parity — win32 resolves npx at every path', (
     assertResolved((srv as { command: string }).command, (srv as { args: string[] }).args);
   });
 
-  it('buildWCoreUserStdioMcpServers (wcore user servers)', () => {
-    setPlatform('win32');
-    const [srv] = buildWCoreUserStdioMcpServers([npxServer()]);
-    assertResolved(srv.command, srv.args);
-  });
-
   it('McpConfig.fromStorageConfig (live ACP path)', () => {
     setPlatform('win32');
     const [srv] = McpConfig.fromStorageConfig([npxServer()], { publication: publication(), capabilities: caps });
     assertResolved((srv as { command: string }).command, (srv as { args: string[] }).args);
-  });
-
-  it('toWCoreConfig (wcore config.toml)', () => {
-    setPlatform('win32');
-    const cfg = toWCoreConfig(npxServer());
-    assertResolved(cfg.command ?? '', cfg.args ?? []);
   });
 
   it('buildGeminiStdioMcpConfig (in-process Gemini fork runtime)', () => {
@@ -175,15 +162,6 @@ describe('#827 session-injection parity — macOS/Linux match the probe', () => 
     setPlatform('darwin');
     const [srv] = buildAcpSessionMcpServers([npxServer()], caps);
     assertResolved((srv as { command: string }).command, (srv as { args: string[] }).args);
-  });
-
-  it('toWCoreConfig persists portable bun on linux (never an AppImage mount path)', () => {
-    setPlatform('linux');
-    const cfg = toWCoreConfig(npxServer());
-    expect(cfg.command).toBe('bun');
-    expect(cfg.args?.slice(0, 2)).toEqual(['x', '--bun']);
-    expect(cfg.args).toContain('@playwright/mcp@0.0.75');
-    expect(cfg.args).not.toContain('-y');
   });
 
   it('buildGeminiStdioMcpConfig resolves npx on darwin', () => {

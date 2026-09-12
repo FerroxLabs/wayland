@@ -11,8 +11,6 @@ import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import type { AcpAgent } from '@process/agent/acp';
 import { AcpAgentV2 } from '@process/acp/compat';
 import { agentRegistry } from '@process/agent/AgentRegistry';
-import { nanoErrorKindOf } from '@process/acp/errors/errorNormalize';
-import { resolveWNanoBinary } from '@process/agent/wnano/binaryResolver';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
 import { ipcBridge } from '@/common';
@@ -41,7 +39,7 @@ import type {
   AcpSessionConfigOption,
 } from '@/common/types/acpTypes';
 import { ACP_BACKENDS_ALL, getCurrentWrapperVersion, getFluxCompat } from '@/common/types/acpTypes';
-import { FLUX_MODEL_IDS, FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
+import { isFluxModelId } from '@/common/config/flux';
 import { ExtensionRegistry } from '@process/extensions';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
@@ -115,18 +113,7 @@ import {
   type RoutingDecision,
 } from '@process/task/fluxRouting';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
-import {
-  NANO_KNOWN_PROVIDER_IDS,
-  buildWaylandNanoProvidersPayload,
-  buildWnanoOAuthBearerEnv,
-  cleanupWnanoFluxKeyFile,
-  wnanoDirectedProviderId,
-  writeWnanoFluxKeyFile,
-  type WnanoOAuthBearerSource,
-  type WnanoProviderEntry,
-} from '@process/task/wnano';
 import type { McpConfigProjection } from '@process/acp/session/McpConfig';
-import { resolveWaylandNanoBindingRef, type WaylandNanoBindingOwner } from '@process/agent/acp/AcpConnection';
 import { createMcpSessionState, type McpSessionBackend, type McpSessionState } from '@/common/mcp/sessionReceipt';
 import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 
@@ -143,8 +130,6 @@ interface AcpAgentManagerData {
   customWorkspace?: boolean;
   conversation_id: string;
   customAgentId?: string; // UUID for identifying specific custom agent
-  /** Opaque owner-store key; the only persisted Nano authority selector. */
-  waylandNanoBindingRef?: string;
   /** Preset assistant id (builtin or custom) shown in the conversation header */
   presetAssistantId?: string;
   /** Display name for the agent (from extension or custom config) */
@@ -286,14 +271,11 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
   /** Exact servers that produced this launch's receipts; the candidate gate's allowedTools/description source. */
   private sessionMcpServers: IMcpServer[] = [];
   private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
-  private readonly waylandNanoBindingOwner: WaylandNanoBindingOwner | null;
-
-  constructor(data: AcpAgentManagerData, waylandNanoBindingOwner: WaylandNanoBindingOwner | null = null) {
+  constructor(data: AcpAgentManagerData) {
     super('acp', data, new IpcAgentEventEmitter(), false);
     this.conversation_id = data.conversation_id;
     this.workspace = data.workspace;
     this.options = data;
-    this.waylandNanoBindingOwner = waylandNanoBindingOwner;
     this.mcpSessionBackend = data.backend === 'codex' ? 'codex-native' : 'acp';
     this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, [], {
       conversationId: this.conversation_id,
@@ -362,7 +344,7 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
         const conversation = result.data;
         db.updateConversation(this.conversation_id, {
           extra: { ...conversation.extra, mcpSessionState: snapshot },
-        } as Partial<typeof conversation>);
+        } as unknown as Partial<typeof conversation>);
       })
       .catch((error) => mainWarn('[AcpAgentManager]', 'failed to persist MCP session state', error));
   }
@@ -945,22 +927,6 @@ ${collectedResponses.join('\n')}`;
       }
     }
 
-    // wnano (C8 provider parity): advertise the connected provider set via
-    // WAYLAND_NANO_PROVIDERS and inject short-lived OAuth bearers. Merged at
-    // the same point as buildConnectedProviderEnv; an explicit custom-agent
-    // env var still wins over the auto-injected values.
-    if (data.backend === 'wnano') {
-      // The provider this spawn was scoped to spend on (#1039). Recorded so
-      // `setModel` can tell a same-routing model switch that CROSSES providers
-      // from one that does not: the credential env is fixed at spawn, so a
-      // cross-provider switch is only real if the agent re-spawns.
-      this.lastWnanoProviderId = wnanoDirectedProviderId(data.currentModelId ?? undefined);
-      const wnanoEnv = await this.buildWnanoProvidersEnv(this.lastWnanoProviderId);
-      for (const [key, value] of Object.entries(wnanoEnv)) {
-        if (!(key in mergedEnv)) mergedEnv[key] = value;
-      }
-    }
-
     // Native (non-Flux) codex spawns: point CODEX_HOME at a Wayland-scoped clone
     // of the user's ~/.codex so we can set the session sandbox mode WITHOUT ever
     // writing the user's own config.toml (#536). The clone copies their config
@@ -1063,23 +1029,11 @@ ${collectedResponses.join('\n')}`;
   private async buildConnectedProviderEnv(backend?: string, selectedModelId?: string): Promise<Record<string, string>> {
     const env: Record<string, string> = {};
     this.injectedProviderKeys = [];
-    const nanoDirected = backend === 'wnano' ? wnanoDirectedProviderId(selectedModelId) : undefined;
     try {
       const db = await getDatabase();
       const repo = new ProviderRepository(db.getDriver());
       for (const provider of repo.listRegistryProviders()) {
         if (provider.state !== 'connected') continue;
-        // #1039 (money): every OTHER backend runs exactly one vendor, so its own
-        // key is the only one it can spend and the broad injection above is
-        // harmless. Nano is the exception - it routes across providers and picks
-        // by its own internal priority, so a user who connected an Anthropic key
-        // for Claude Code found Nano spending it. A Nano spawn therefore gets
-        // credentials ONLY for the provider the user directed at it: the one
-        // named by this chat's selected `<provider>:<model>` id. No pick (or a
-        // Flux pick) means no third-party key at all - Nano runs on the Flux key
-        // it is handed by file, and a user with no Flux connection is told it
-        // has no provider instead of being quietly billed for one.
-        if (backend === 'wnano' && provider.providerId !== nanoDirected) continue;
         const envVars = PROVIDER_ENV_VARS[provider.providerId];
         if (!envVars || envVars.length === 0) continue;
         if (this.isProviderSwitchedOff(repo, provider.providerId)) continue;
@@ -1192,14 +1146,6 @@ ${collectedResponses.join('\n')}`;
   private lastFluxModelId: string | undefined;
 
   /**
-   * The provider a RUNNING wnano agent was spawned scoped to (#1039), or
-   * undefined when this agent is not wnano / was spawned with no provider
-   * direction. Read only by `setModel`: Nano's credentials live in the spawn
-   * env, so a switch to another provider's model needs a re-spawn to be real.
-   */
-  private lastWnanoProviderId: string | undefined;
-
-  /**
    * Compute the Flux routing decision for a given backend + selected model using
    * the SAME inputs the spawn path (`resolveAgentCliConfig`) uses. Centralizing
    * this keeps the spawn-time env and the model-change boundary check in lockstep:
@@ -1218,24 +1164,12 @@ ${collectedResponses.join('\n')}`;
     // resolved (its cached CLI model / configured preferred id) so the routing
     // decision honors the native model instead of blindly routing to Flux.
     const resolvedModelId = selectedModelId ? undefined : await this.resolveBackendModelId(backend);
-    // wnano (C8, Q4 ruling): hand the connected Flux key off as a FILE, never
-    // as FLUX_API_KEY. Written before the routing decision so the emitted
-    // FLUX_API_KEY_FILE points at a live file (atomic write, 0600 on POSIX /
-    // userData ACL on Windows, removed again in kill()). Best-effort: a failed
-    // write yields no path and the wnano arm falls back to 'native' so an
-    // ambient shell FLUX_API_KEY (the documented dev-only fallback) can flow.
-    let fluxKeyFilePath: string | undefined;
-    if (backend === 'wnano' && fluxKey) {
-      fluxKeyFilePath = await writeWnanoFluxKeyFile(app.getPath('userData'), this.conversation_id, fluxKey);
-      if (fluxKeyFilePath) this.wnanoFluxKeyFilePath = fluxKeyFilePath;
-    }
     return resolveFluxRouting({
       backend,
       selectedModelId,
       resolvedModelId,
       fluxConnected: Boolean(fluxKey),
       fluxKey,
-      fluxKeyFilePath,
       routeThroughFlux: Boolean(routeThroughFlux),
     });
   }
@@ -1267,110 +1201,6 @@ ${collectedResponses.join('\n')}`;
   /** The connected flux-router key, or undefined when not connected (R13 safety gate). */
   private async readFluxKey(): Promise<string | undefined> {
     return readConnectedFluxKey();
-  }
-
-  /**
-   * Path of the per-conversation FLUX_API_KEY_FILE written for the most recent
-   * wnano spawn, so kill() can remove it at teardown (C8 lifecycle cleanup).
-   */
-  private wnanoFluxKeyFilePath: string | undefined;
-
-  /**
-   * Build the wnano provider-parity env (C8, design §6.2/§6.3):
-   * `WAYLAND_NANO_PROVIDERS` (the bounded, secret-free advertisement payload)
-   * plus short-lived OAuth bearer vars for advertised OAuth providers. Empty
-   * when nothing is connected - Nano then falls back to Flux-only
-   * advertisement. Never throws; never logs credential material.
-   */
-  private async buildWnanoProvidersEnv(directedProviderId?: string): Promise<Record<string, string>> {
-    const env: Record<string, string> = {};
-    try {
-      const db = await getDatabase();
-      const repo = new ProviderRepository(db.getDriver());
-      const connected = new Set(
-        repo
-          .listRegistryProviders()
-          .filter((provider) => provider.state === 'connected')
-          .map((provider) => provider.providerId)
-      );
-
-      const entries: WnanoProviderEntry[] = [];
-      for (const providerId of NANO_KNOWN_PROVIDER_IDS) {
-        if (!connected.has(providerId)) continue;
-        const stored = repo.getRegistryProviderCreds(providerId);
-        // Stored API-key creds carry the key under `key` (mirrors
-        // buildConnectedProviderEnv); for OAuth-connected xAI this is the
-        // current access token. `hasKey` is advisory UX metadata only.
-        const key = stored.status === 'ok' ? stored.creds.key : undefined;
-        // `hasKey` must describe THIS spawn, not the registry. Since #1039 only
-        // the directed provider's key is injected, so advertising `hasKey: true`
-        // for any other provider would send Nano at a credential that is not in
-        // its environment. The provider stays advertised (the user can still
-        // pick its models; the switch re-spawns and re-scopes) - it is simply
-        // advertised honestly as having no key here. flux-router is exempt: its
-        // credential arrives as FLUX_API_KEY_FILE, not a provider env var.
-        const scopedForSpawn = providerId === FLUX_PROVIDER_ID || providerId === directedProviderId;
-        const hasKey = scopedForSpawn && typeof key === 'string' && key.length > 0;
-        // flux-router's model set is Desktop's fixed tier list; Nano owns the
-        // live Flux catalog itself. Every other provider advertises its
-        // persisted registry catalog plus any user-added custom model ids.
-        const models =
-          providerId === FLUX_PROVIDER_ID
-            ? [...FLUX_MODEL_IDS]
-            : [...repo.getRegistryCatalog(providerId).map((model) => model.id), ...repo.listCustomModels(providerId)];
-        entries.push({ provider: providerId, models, hasKey });
-      }
-
-      const payload = buildWaylandNanoProvidersPayload(entries);
-      if (!payload) return env;
-      env.WAYLAND_NANO_PROVIDERS = payload;
-      Object.assign(env, await this.buildWnanoOAuthBearerEnv(entries.map((entry) => entry.provider)));
-    } catch (err) {
-      mainWarn('[AcpAgentManager]', 'buildWnanoProvidersEnv failed', err);
-    }
-    return env;
-  }
-
-  /**
-   * Short-lived OAuth bearer env for wnano spawns (C8, Q1(b) ruling). Desktop
-   * owns refresh; Nano receives the ACCESS token only, plus non-secret expiry
-   * metadata. Refresh tokens are never injected. v1 wires xAI only - the only
-   * Desktop OAuth provider in Nano's known id set (chatgpt-subscription is not
-   * in the set and needs the deferred Responses wire anyway).
-   */
-  private async buildWnanoOAuthBearerEnv(advertisedProviderIds: readonly string[]): Promise<Record<string, string>> {
-    if (!advertisedProviderIds.includes('xai')) return {};
-    try {
-      // Dynamic imports avoid the OAuth module-init cycle (same pattern as the
-      // McpService import in loadCodexSessionMcpServers).
-      const [{ loadXaiTokens }, { xaiRefreshToken }] = await Promise.all([
-        import('@process/onboarding/xaiTokenStore'),
-        import('@process/onboarding/xaiOAuth'),
-      ]);
-      const db = await getDatabase();
-      const repo = new ProviderRepository(db.getDriver());
-      const source: WnanoOAuthBearerSource = {
-        nanoProviderId: 'xai',
-        load: async () => {
-          const stored = await loadXaiTokens();
-          if (!stored?.refreshToken) return null; // API-key-connected xAI: no OAuth bundle
-          const creds = repo.getRegistryProviderCreds('xai');
-          const key = creds.status === 'ok' ? creds.creds.key : undefined;
-          const accessToken = typeof key === 'string' && key.length > 0 ? key : undefined;
-          return { accessToken, expiresAtMs: stored.expiresAt };
-        },
-        refresh: async () => {
-          // xaiRefreshToken prefers the engine-rotated bundle (#391), so this
-          // never races Wayland Core's single-use refresh-token rotation.
-          const result = await xaiRefreshToken();
-          return result.ok;
-        },
-      };
-      return await buildWnanoOAuthBearerEnv(advertisedProviderIds, [source]);
-    } catch (err) {
-      mainWarn('[AcpAgentManager]', 'buildWnanoOAuthBearerEnv failed', err);
-      return {};
-    }
   }
 
   /**
@@ -1501,11 +1331,11 @@ ${collectedResponses.join('\n')}`;
       customArgs = backendConfig.acpArgs;
     }
 
-    // Wayland Nano prefers the verified bundled binary (userData override →
-    // bundled resource → dev resources) over a bare PATH lookup. Quote a
-    // resolved path containing whitespace so createGenericSpawnConfig keeps
-    // the executable a single token (macOS userData lives under
-    // "Application Support"); the spawn config unquotes it without a shell.
+    // The bundled Fuigo engine is resolved from the app bundle, never a PATH
+    // lookup. Quote a resolved path containing whitespace so
+    // createGenericSpawnConfig keeps the executable a single token (macOS
+    // userData lives under "Application Support"); the spawn config unquotes
+    // it without a shell.
     if (data.backend === 'fuigo') {
       const resolved = resolveFuigoBinary();
       if (!resolved) throw new Error('Verified bundled Fuigo engine is unavailable.');
@@ -1514,10 +1344,6 @@ ${collectedResponses.join('\n')}`;
       // with stdin not a TTY, resolves an ungranted cwd Untrusted without a
       // prompt. Desktop's workspace trust is the consent authority; forward it.
       customArgs = buildFuigoAcpArgs({ trusted: isWorkspaceTrusted(data.workspace), maxTurns: data.maxTurns });
-    }
-    if (!cliPath && data.backend === 'wnano') {
-      const resolved = resolveWNanoBinary();
-      if (resolved) cliPath = /\s/.test(resolved) ? `"${resolved}"` : resolved;
     }
 
     // If cliPath is not configured, fall back to the backend's own launcher.
@@ -1891,7 +1717,7 @@ ${collectedResponses.join('\n')}`;
 
       // Auto-approve file edits when in "Accept Edits" mode. The claude ACP bridge
       // still forwards a permission request for edit tools after session/set_mode,
-      // so Wayland honors the mode here (mirroring Gemini autoEdit / WCore auto_edit).
+      // so Wayland honors the mode here (mirroring Gemini autoEdit).
       // Commands and other tool kinds still surface a confirmation.
       if (shouldAutoApproveAcpEdit(this.currentMode, toolCall.kind) && options.length > 0) {
         const allowOption = options.find((option) => !option.kind.startsWith('reject')) ?? options[0];
@@ -2026,13 +1852,7 @@ ${collectedResponses.join('\n')}`;
         } catch (error) {
           const errMsg = error instanceof Error ? error.message : String(error);
           mainWarn('[AcpAgentManager]', `Failed to re-apply model ${this.persistedModelId}`, error);
-          // C7: prefer the typed nanoError kind; the message grep stays as
-          // the fallback for third-party agents/relays.
-          if (
-            nanoErrorKindOf(error) === 'model_not_found' ||
-            errMsg.includes('model_not_found') ||
-            errMsg.includes('无可用渠道')
-          ) {
+          if (errMsg.includes('model_not_found') || errMsg.includes('无可用渠道')) {
             ipcBridge.acpConversation.responseStream.emit({
               type: 'error',
               conversation_id: this.conversation_id,
@@ -2068,11 +1888,6 @@ ${collectedResponses.join('\n')}`;
         }
       }
       const { cliPath, launch, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
-      const waylandNanoActivation =
-        data.backend === 'wnano'
-          ? await resolveWaylandNanoBindingRef(data.waylandNanoBindingRef, this.waylandNanoBindingOwner)
-          : null;
-
       const agentConfig = {
         id: data.conversation_id,
         backend: data.backend,
@@ -2119,12 +1934,6 @@ ${collectedResponses.join('\n')}`;
             | { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> }
             | undefined,
         },
-        // Shared OldAcpAgentConfig seam consumed by the legacy stack now and
-        // the compatibility/new stack in Plan 02-15. No adapter may resolve or
-        // infer authority a second time.
-        waylandNanoActivation: waylandNanoActivation ?? undefined,
-        waylandNanoMode:
-          data.backend === 'wnano' ? (waylandNanoActivation ? 'authenticated' : 'nonpersistent') : undefined,
         // Receipt-bound publication identity for the live ACP projection. The
         // runtime supplies this correlated input (this manager's generation +
         // per-launch digest key) so McpConfig mints current-session receipts
@@ -2307,7 +2116,7 @@ ${collectedResponses.join('\n')}`;
             // Concierge self-knowledge on native ACP backends (Claude Code /
             // Codex): inject the live capabilities manifest into the rules block
             // so Concierge keeps accurate self-knowledge here too. Concierge-only
-            // (no userText, matching the WCore/Gemini first-message contract);
+            // (no userText, matching the Gemini first-message contract);
             // non-Concierge capability turns are served by the per-turn advert.
             const nativeManifest = await resolveCapabilitiesManifest({
               presetAssistantId: this.options.presetAssistantId || this.options.customAgentId,
@@ -2344,7 +2153,7 @@ ${collectedResponses.join('\n')}`;
               enableTeamGuide: !isInTeam && (await shouldInjectTeamGuideMcp(this.options.backend)),
               backend: this.options.backend,
               presetAssistantId: this.options.presetAssistantId || this.options.customAgentId,
-              // Concierge-only here (no userText) to match WCore/Gemini and avoid
+              // Concierge-only here (no userText) to match Gemini and avoid
               // double-injecting on a non-Concierge capability first message - the
               // per-turn advert already covers non-Concierge capability intents.
               capabilitiesManifest: await resolveCapabilitiesManifest({
@@ -2793,16 +2602,7 @@ ${collectedResponses.join('\n')}`;
       this.options.backend === 'claude' && nextRouting !== 'flux' ? claudeSlotForModelId(modelId) : undefined;
     const nativeClaudeSlotChange = claudeSlot !== undefined;
 
-    // A wnano switch to another provider's model does NOT cross the native<->flux
-    // boundary (a Nano spawn is flux-routed whenever a Flux key exists, whatever
-    // model it runs), so the check above lets it through - but since #1039 the
-    // spawn carries credentials for ONE provider, chosen from the model it was
-    // spawned with. Without a re-spawn Nano would be told to run a model whose
-    // key is not in its environment, and the pick would fail rather than switch.
-    const crossesWnanoProvider =
-      this.options.backend === 'wnano' && wnanoDirectedProviderId(modelId) !== this.lastWnanoProviderId;
-
-    if (crossesRoutingBoundary || nativeClaudeSlotChange || crossesWnanoProvider) {
+    if (crossesRoutingBoundary || nativeClaudeSlotChange) {
       const target = claudeSlot ?? modelId;
       // Called with one argument on the persisting path so the user-driven
       // signature stays exactly as it was.
@@ -3208,14 +3008,6 @@ ${collectedResponses.join('\n')}`;
   async kill(_reason?: AgentKillReason): Promise<void> {
     this.flushBufferedStreamTextMessages();
     this.flushThinkingToDb(undefined, 'done');
-
-    // C8: remove the per-conversation FLUX_API_KEY_FILE handoff written for
-    // wnano spawns (lifecycle cleanup). Best-effort; never blocks teardown.
-    if (this.wnanoFluxKeyFilePath) {
-      const keyFile = this.wnanoFluxKeyFilePath;
-      this.wnanoFluxKeyFilePath = undefined;
-      await cleanupWnanoFluxKeyFile(keyFile);
-    }
 
     const BACKEND_SHUTDOWN_TIMEOUT_MS = 12_000;
 

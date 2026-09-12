@@ -14,7 +14,7 @@
  * it, the executor closes it.
  *
  * WHY A REGISTRY AND NOT A PARAMETER. The engine is spawned by
- * `WCoreManager.start()`, three layers below `getOrBuildTask(conversationId)`,
+ * the agent start path, three layers below `getOrBuildTask(conversationId)`,
  * whose option bag is `{ yoloMode }` and is shared with every non-cron caller.
  * Threading a run id through it would put a cron concept into the chat path.
  *
@@ -131,7 +131,7 @@ export function resolveOutputDir(workspace: string, outputDir?: string, conversa
     // BOTH SIDES CANONICALIZED BEFORE COMPARING.
     //
     // The workspace reaches the non-raw spawn already realpathed (the project
-    // config lease hands `WCoreAgent` a canonical path), while the run's
+    // config lease hands the agent a canonical path), while the run's
     // staging directory is stored lexically. `~/.wayland` is a real symlink on
     // macOS, so every managed workspace has two spellings, they compared as
     // "outside", and a scheduled run's deliverable was silently redirected into

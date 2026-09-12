@@ -69,7 +69,7 @@ export async function primeSiderCreateAffordance(page: import('@playwright/test'
         slotId: '',
         conversationId: '',
         role: 'leader',
-        agentType: 'wayland-core',
+        agentType: 'fuigo',
         agentName: 'Leader',
         conversationType: 'acp',
         status: 'pending',

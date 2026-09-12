@@ -12,8 +12,8 @@ import type { AvailableAgent } from '@/renderer/pages/guid/types';
 
 /**
  * Fuigo cutover (Phase 2): the bundled engine a new chat lands on when nothing
- * else decides is Fuigo, not Wayland Core. Three seams in
- * useGuidAgentSelection carried the old `'wcore'` literal:
+ * else decides is Fuigo. Three seams in useGuidAgentSelection carried the old
+ * engine literal:
  *   - the initial `selectedAgentKey` before any restore runs
  *   - the sidebar "new chat" reset fallback when no CLI agent is detected
  *   - `defaultAgentKey`, the key used when leaving preset mode

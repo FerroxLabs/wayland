@@ -5,8 +5,8 @@
  */
 
 /**
- * #787: AcpConnection must forward wayland-core's per-turn `turn_id` (stamped on
- * the ACP terminal frame, wcore PR #219) from the end_turn prompt result to
+ * #787: AcpConnection must forward the engine's per-turn `turn_id` (stamped on
+ * the ACP terminal frame) from the end_turn prompt result to
  * `onEndTurn`, so the finish signal carries turn identity for TeammateManager's
  * per-turn finalize dedup. Older engines omit the field → forward `undefined`
  * (the finish then falls back to conversation-only keying, unchanged behaviour).

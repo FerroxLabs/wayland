@@ -84,7 +84,7 @@ describe('Migration v48 - cost_events table (bun:sqlite)', () => {
           `INSERT INTO cost_events (conversation_id, backend, cost_usd, tokens_total, cost_source, created_at)
            VALUES (?, ?, ?, ?, ?, ?)`
         )
-        .run('conv-2', 'wcore', 0, 0, 'unknown', 1);
+        .run('conv-2', 'fuigo', 0, 0, 'unknown', 1);
     }).not.toThrow();
   });
 

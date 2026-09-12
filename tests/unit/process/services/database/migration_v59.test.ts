@@ -137,14 +137,14 @@ describe('Migration v59 - Fuigo cutover', () => {
   });
 
   it('moves a Core scheduled job onto fuigo (agent_type and agent_config.backend)', () => {
-    insertCronJob(driver, 'job-core', 'wcore', { backend: 'wcore', name: 'Wayland Core', mode: 'auto_edit' });
+    insertCronJob(driver, 'job-core', 'wcore', { backend: 'fuigo', name: 'Fuigo', mode: 'auto_edit' });
     insertCronJob(driver, 'job-claude', 'claude', { backend: 'claude', name: 'Claude' });
     insertCronJob(driver, 'job-noconfig', 'wcore', null);
     runMigrations(driver, 58, 59);
 
     expect(readCronJob(driver, 'job-core')).toEqual({
       agentType: 'fuigo',
-      agentConfig: { backend: 'fuigo', name: 'Wayland Core', mode: 'auto_edit' },
+      agentConfig: { backend: 'fuigo', name: 'Fuigo', mode: 'auto_edit' },
     });
     expect(readCronJob(driver, 'job-claude')).toEqual({
       agentType: 'claude',
@@ -155,7 +155,7 @@ describe('Migration v59 - Fuigo cutover', () => {
 
   it('is idempotent - a second run changes nothing', () => {
     insertConversation(driver, 'core-1', 'wcore', { workspace: '/ws', presetRules: 'R' });
-    insertCronJob(driver, 'job-core', 'wcore', { backend: 'wcore' });
+    insertCronJob(driver, 'job-core', 'wcore', { backend: 'fuigo' });
     runMigrations(driver, 58, 59);
     const once = { conv: readConversation(driver, 'core-1'), job: readCronJob(driver, 'job-core') };
 

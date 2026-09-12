@@ -33,7 +33,7 @@ import { loadProjectKnowledgeBlock } from './knowledge';
 
 /**
  * The `extra` keys that carry the system-rules channel. Which one a backend
- * reads is not cosmetic - gemini + wcore read `presetRules`, acp reads
+ * reads is not cosmetic - gemini reads `presetRules`, acp reads
  * `presetContext` - so both are always kept in step.
  */
 const SYSTEM_RULES_FIELDS = ['presetRules', 'presetContext'] as const;

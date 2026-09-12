@@ -13,11 +13,10 @@ import type { AcpInitializeResult } from './acpTypes';
  * eagerly (e.g. at app startup or first backend detection) instead of lazily
  * after the first user conversation.
  */
-// `wayland-core` and `wcore` are the same bundled engine under two ids: backend
-// detection reports `wcore`, while `resolveAvailableBackends` adds the
-// guaranteed fallback as `wayland-core`. Both are team-capable - list both so a
-// capability filter never drops the always-present fallback (#152).
-const KNOWN_TEAM_CAPABLE_BACKENDS = new Set(['gemini', 'claude', 'codex', 'wcore', 'wayland-core']);
+// `fuigo` is the bundled engine and the guaranteed fallback
+// `resolveAvailableBackends` adds - list it so a capability filter never drops
+// the always-present fallback (#152).
+const KNOWN_TEAM_CAPABLE_BACKENDS = new Set(['gemini', 'claude', 'codex', 'fuigo']);
 
 /**
  * Check if an agent backend is team-capable.

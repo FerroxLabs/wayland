@@ -115,7 +115,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     // The user fixes a mistake in the project's knowledge, mid-conversation.
     await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
 
-    const conversation = { id: 'c1', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c1', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
     manager = new WorkerTaskManager(makeFactory(captured), repo);
@@ -141,7 +141,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
   it('is idempotent: an unchanged knowledge file neither duplicates nor re-persists', async () => {
     await writeProjectKnowledge(ws, 'context', 'Ship on Fridays.');
     const extra = await frozenExtra('ASSISTANT BASE RULES');
-    const conversation = { id: 'c2', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c2', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
     manager = new WorkerTaskManager(makeFactory(captured), repo);
@@ -161,7 +161,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     // The user clears the document.
     await writeProjectKnowledge(ws, 'context', '');
 
-    const conversation = { id: 'c3', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c3', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -178,7 +178,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
     const conversation = {
       id: 'c6',
-      type: 'wcore',
+      type: 'acp',
       extra: { projectId: 'p1', workspace: ws, presetRules: 'ASSISTANT BASE RULES' },
     } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
@@ -201,7 +201,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
 
     await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.\n\n---\n\nSecret note: NEW VALUE');
 
-    const conversation = { id: 'c7', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c7', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -225,7 +225,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     const extra = await frozenExtra('ASSISTANT BASE RULES');
     await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
 
-    const conversation = { id: 'c8', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c8', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -249,7 +249,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     };
     await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
 
-    const conversation = { id: 'c9', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c9', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -282,7 +282,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     };
     await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
 
-    const conversation = { id: 'c8b', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c8b', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -313,7 +313,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     };
     await writeProjectKnowledge(ws, 'context', 'Ship on Tuesdays.');
 
-    const conversation = { id: 'c8c', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c8c', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -340,7 +340,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     await fs.rm(contextFile);
     await fs.mkdir(contextFile);
 
-    const conversation = { id: 'c10', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c10', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
     manager = new WorkerTaskManager(makeFactory(captured), repo);
@@ -354,8 +354,8 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
   it('leaves a chat that is not in a project untouched', async () => {
     const conversation = {
       id: 'c4',
-      type: 'wcore',
-      extra: { workspace: '/tmp/wcore-temp-999', presetRules: 'ASSISTANT BASE RULES' },
+      type: 'acp',
+      extra: { workspace: '/tmp/acp-temp-999', presetRules: 'ASSISTANT BASE RULES' },
     } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
@@ -416,7 +416,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     // The user deletes the superseded decision that names the rotated key.
     await writeProjectKnowledge(ws, 'decisions', DECISIONS_KEY_DELETED);
 
-    const conversation = { id: 'c11', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c11', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
     manager = new WorkerTaskManager(makeFactory(captured), repo);
@@ -455,7 +455,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     };
     await writeProjectKnowledge(ws, 'decisions', DECISIONS_KEY_DELETED);
 
-    const conversation = { id: 'c12', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c12', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -478,7 +478,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     };
     await writeProjectKnowledge(ws, 'context', 'Clean context now.');
 
-    const conversation = { id: 'c13', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c13', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -514,7 +514,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     };
     await writeProjectKnowledge(ws, 'context', 'Clean context now.');
 
-    const conversation = { id: 'c18', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c18', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -548,7 +548,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     };
     await writeProjectKnowledge(ws, 'decisions', DECISIONS_KEY_DELETED);
 
-    const conversation = { id: 'c14', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c14', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -576,7 +576,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     expect(extra.presetRules).toContain('OLD SECRET VALUE');
     await writeProjectKnowledge(ws, 'context', 'Clean context now.');
 
-    const conversation = { id: 'c15', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c15', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     manager = new WorkerTaskManager(makeFactory(captured), makeRepo(conversation));
 
@@ -598,7 +598,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     const before = extra.presetRules as string;
     mockGetProject.mockResolvedValue({ workspace: '' });
 
-    const conversation = { id: 'c16', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c16', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
     manager = new WorkerTaskManager(makeFactory(captured), repo);
@@ -627,7 +627,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
       presetContext: [block, MEMORY_BLOCK].join(SEPARATOR),
     };
 
-    const conversation = { id: 'c17', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c17', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
     manager = new WorkerTaskManager(makeFactory(captured), repo);
@@ -649,7 +649,7 @@ describe('#999 project knowledge is re-read at spawn, not frozen at creation', (
     const before = extra.presetRules as string;
     mockGetProject.mockRejectedValue(new Error('db offline'));
 
-    const conversation = { id: 'c5', type: 'wcore', extra } as unknown as TChatConversation;
+    const conversation = { id: 'c5', type: 'acp', extra } as unknown as TChatConversation;
     const captured: { conv?: TChatConversation } = {};
     const repo = makeRepo(conversation);
     manager = new WorkerTaskManager(makeFactory(captured), repo);

@@ -60,7 +60,7 @@ describe('SqliteCostRepository (bun:sqlite)', () => {
   });
 
   it('aggregate by backend collapses a null group to the empty-string key', () => {
-    repo.insert(event({ backend: 'wcore', modelId: undefined, costUsd: 0.4, createdAt: 1000 }));
+    repo.insert(event({ backend: 'fuigo', modelId: undefined, costUsd: 0.4, createdAt: 1000 }));
     const byModel = repo.aggregate('model_id', { fromMs: 0, toMs: 2000 });
     expect(byModel[0].key).toBe('');
   });

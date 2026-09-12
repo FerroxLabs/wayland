@@ -9,59 +9,20 @@
 import { acpDetector } from '@process/agent/acp/AcpDetector';
 import type {
   AcpDetectedAgent,
-  WCoreDetectedAgent,
   DetectedAgent,
   GeminiDetectedAgent,
-  NanobotDetectedAgent,
   OpenClawDetectedAgent,
   RemoteDetectedAgent,
 } from '@/common/types/detectedAgent';
 import { isAgentKind } from '@/common/types/detectedAgent';
 import type { AcpLaunchSpec } from '@/common/types/acpTypes';
 import type { RemoteAgentConfig } from '@process/agent/remote/types';
-import { detectWCore } from '@process/agent/wcore/binaryResolver';
-import { resolveWNanoBinary } from '@process/agent/wnano/binaryResolver';
 import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import { pathProbeFindsAcpServer } from '@process/services/agentInstaller/agentPackages';
 import { listManagedAcpAgents } from '@process/services/agentInstaller/installedAgentLaunch';
 
-// Resolve the bundled wayland-core version once per app run (the binary doesn't
-// change at runtime) so the Wayland Core settings page shows the REAL engine
-// version instead of a hardcoded pin that silently drifts on every bump.
-// detectWCore() spawns `wayland-core --version` synchronously, so memoize it.
-let cachedWCoreInfo: { available: boolean; version?: string; cliPath?: string } | undefined;
-function getWCoreInfo(): { available: boolean; version?: string; cliPath?: string } {
-  if (cachedWCoreInfo) return cachedWCoreInfo;
-  try {
-    const detected = detectWCore();
-    // detectWCore returns the raw `wayland-core 0.11.0` line; surface a clean vX.Y.Z.
-    const match = detected.version?.match(/(\d+\.\d+\.\d+(?:-[\w.]+)?)/);
-    cachedWCoreInfo = {
-      available: detected.available,
-      version: match ? `v${match[1]}` : undefined,
-      cliPath: detected.path,
-    };
-  } catch {
-    cachedWCoreInfo = { available: false };
-  }
-  return cachedWCoreInfo;
-}
-
-// Same memo for the other two first-party binaries: a filesystem walk (Nano)
-// and a receipt verification with a digest of the binary (Fuigo) on every
+// Memoized: a receipt verification with a digest of the binary on every
 // merge() would be paid on each picker refresh.
-let cachedWNanoAvailable: boolean | undefined;
-function isWNanoAvailable(): boolean {
-  if (cachedWNanoAvailable === undefined) {
-    try {
-      cachedWNanoAvailable = resolveWNanoBinary() !== null;
-    } catch {
-      cachedWNanoAvailable = false;
-    }
-  }
-  return cachedWNanoAvailable;
-}
-
 let cachedFuigoInfo: { version?: string } | undefined;
 function getFuigoInfo(): { version?: string } {
   if (cachedFuigoInfo) return cachedFuigoInfo;
@@ -83,13 +44,10 @@ function getFuigoInfo(): { version?: string } {
  * Sources:
  *   - Fuigo        - always present and always available (the bundled engine)
  *   - Gemini       - always present (no CLI detection)
- *   - Wayland Nano - listed; available only while its binary still resolves
  *   - ACP builtin  - CLI agents on PATH (claude, qwen, codex, …)
  *   - ACP extension - contributed by hub extensions
  *   - Remote       - user-configured WebSocket agents (from DB)
- *   - WCore        - listed; available only while its binary still resolves
  *   - OpenClaw GW  - detected via `openclaw` CLI on PATH
- *   - Nanobot      - detected via `nanobot` CLI on PATH
  *   - Custom ACP   - user-defined ACP CLIs from ConfigStorage 'assistants'
  *
  * Preset assistants (prompt-only presets with no CLI binary) are NOT
@@ -147,44 +105,7 @@ class AgentRegistry {
   }
 
   /**
-   * Core is still listed so an existing `wcore` conversation can be reopened,
-   * but it is no longer "always available": the flag now says whether the
-   * engine binary actually resolves. Fuigo is the default engine.
-   */
-  private createWCoreAgent(): WCoreDetectedAgent {
-    const info = getWCoreInfo();
-    return {
-      id: 'wcore',
-      name: 'Wayland Core',
-      kind: 'wcore',
-      available: info.available,
-      backend: 'wcore',
-      ...(info.version ? { version: info.version } : {}),
-      ...(info.cliPath ? { cliPath: info.cliPath } : {}),
-    };
-  }
-
-  /**
-   * Wayland Nano is a first-party built-in ACP agent: always listed even when
-   * its `wayland-nano` binary is not on PATH yet, but since the Fuigo cutover
-   * `available` reports whether the binary resolves instead of claiming it
-   * always does. No cliPath here - AcpAgentManager first tries the verified
-   * bundled binary via resolveWNanoBinary (userData override → bundled
-   * resource → dev resources), then falls back to
-   * ACP_BACKENDS_ALL.wnano.cliCommand (PATH) at spawn time.
-   */
-  private createWNanoAgent(): AcpDetectedAgent {
-    return {
-      id: 'wnano',
-      name: 'Wayland Nano',
-      kind: 'acp',
-      available: isWNanoAvailable(),
-      backend: 'wnano',
-    };
-  }
-
-  /**
-   * Detect non-ACP CLI agents (openclaw-gateway, nanobot) via CLI availability.
+   * Detect non-ACP CLI agents (openclaw-gateway) via CLI availability.
    * Uses the same `which`/`where` check as AcpDetector.
    */
   private detectOtherCliAgents(): DetectedAgent[] {
@@ -199,17 +120,6 @@ class AgentRegistry {
         backend: 'openclaw-gateway',
         cliPath: 'openclaw',
       } satisfies OpenClawDetectedAgent);
-    }
-
-    if (acpDetector.isCliAvailable('nanobot')) {
-      agents.push({
-        id: 'nanobot',
-        name: 'Nanobot',
-        kind: 'nanobot',
-        available: true,
-        backend: 'nanobot',
-        cliPath: 'nanobot',
-      } satisfies NanobotDetectedAgent);
     }
 
     return agents;
@@ -281,7 +191,7 @@ class AgentRegistry {
 
   /**
    * Deduplicate agents by backend ID. First occurrence wins - merge order
-   * determines priority: Fuigo > WCore > Nano > Gemini > Builtin > Managed > Other > Remote > Extension > Custom.
+   * determines priority: Fuigo > Gemini > Builtin > Managed > Other > Remote > Extension > Custom.
    * When an extension contributes the same backend as a builtin, the builtin wins.
    *
    * Managed installs sit immediately BEHIND the PATH-detected builtins, and that
@@ -292,7 +202,7 @@ class AgentRegistry {
    *
    * D2 - AN ALWAYS-LISTED ACP STUB IS THE LAST RESORT FOR ITS BACKEND, NEVER THE
    * FIRST. A first-party ACP agent that is listed whether or not its binary
-   * exists (the shape PR #950 introduces for Wayland Nano) contributes an entry
+   * exists contributes an entry
    * with no `cliPath` and no `launch` - it exists so the agent is visible on a
    * clean machine, not because anything is known about how to spawn it. Merged
    * AHEAD of `builtinAgents`/`managedAgents` such a stub wins first-wins dedup
@@ -356,41 +266,12 @@ class AgentRegistry {
     return this.managedAgents.find((managed) => managed.backend === builtin.backend);
   }
 
-  /**
-   * What actually occupies Nano's list slot, in precedence order.
-   *
-   * Nano is always listed, so it needs a fixed position near the top. But
-   * `createWNanoAgent` returns a STUB - no cliPath, no launch - and
-   * deduplicate() keeps the first entry per backend, so putting the stub in that
-   * position made it beat both a PATH copy and an install receipt. A real
-   * `wnano` install then had no launch spec and could not start.
-   *
-   * Same precedence the builtins get from `supersedingManagedInstall`, applied
-   * at a fixed index instead of the builtin's own:
-   *   D1 a copy the PATH probe can serve  >  D3 an install receipt  >  the stub.
-   */
-  private resolveWNanoEntry(): AcpDetectedAgent {
-    const installed = this.managedAgents.find((agent) => agent.backend === 'wnano');
-    // No install: the bundled entry wins even against a copy on PATH. Nano ships
-    // with Wayland, so an unrelated `wayland-nano` on PATH must not shadow it.
-    if (!installed) return this.createWNanoAgent();
-    // An install exists, so D1 applies as it does for every other backend: a
-    // copy the PATH probe can serve outranks the install receipt.
-    const onPath = this.builtinAgents.find((agent) => agent.backend === 'wnano' && !!agent.cliPath);
-    return onPath ?? installed;
-  }
-
   // prettier-ignore
   private merge(): void {
     this.detectedAgents = this.deduplicate([
       // The bundled engine is the default and wins dedup over any `fuigo` a
       // user has on PATH: Desktop spawns the verified bundle, never a stray copy.
       this.createFuigoAgent(),
-      this.createWCoreAgent(),
-      // Nano holds this slot for LIST ORDER, but what occupies it is resolved by
-      // precedence - see resolveWNanoEntry. Emitting the bare stub here made it
-      // win deduplication outright and left a REAL Nano install unlaunchable.
-      this.resolveWNanoEntry(),
       this.createGeminiAgent(),
       // D3 slot: a managed install takes the builtin's own index when the PATH
       // probe cannot serve that backend. See deduplicate() for why.

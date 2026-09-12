@@ -736,7 +736,7 @@ const startDownloadInBackground = async (
         // ignore cleanup failure
       }
       // Mask CREDENTIAL SHAPES only, the way the landed half of #853 scrubs
-      // surfaced engine failures (WCoreManager). Scope matters here, because
+      // surfaced engine failures. Scope matters here, because
       // `update.downloadProgress` is outbound-ALLOWED to a paired WebUI
       // (src/process/webserver/adapter.ts): the catch path can carry an errno
       // string with an absolute local path, and `redactCommandSecrets` does NOT

@@ -6,21 +6,6 @@ const path = require('node:path');
 const { candidateIdentity, copyRegularFile, exactKeys, fail, sha256, writeJson } = require('./acceptanceBundle');
 const { CAPABILITIES } = require('./collectRawAcceptanceEvidence');
 const matrix = require('./verifyHardeningMatrix');
-const prepareWaylandCore = require('../prepareWaylandCore');
-
-// Derived from the bundle authority rather than re-typed. A hard-coded engine
-// tag here drifts silently the moment DEFAULT_WCORE_VERSION moves, and the
-// mismatch only surfaces at release time.
-const CORE_ASSET_BY_TARGET = Object.freeze(
-  Object.fromEntries(
-    matrix.TARGETS.map((target) => {
-      const [platform, arch] = target.split('-');
-      const asset = prepareWaylandCore.getAssetName(platform, arch, prepareWaylandCore.DEFAULT_WCORE_VERSION);
-      if (!asset) fail('M8I_CANONICAL_ARTIFACT_INVALID', `unsupported-core-target:${target}`);
-      return [target, asset];
-    })
-  )
-);
 
 function parseArgs(argv) {
   const values = {};
@@ -213,27 +198,13 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
     }
   }
 
-  const publisherArtifacts = [];
-  for (const target of matrix.TARGETS) {
-    const expectedAsset = CORE_ASSET_BY_TARGET[target];
-    const archive = exactlyOne(
-      files,
-      (file) => path.basename(file) === expectedAsset,
-      'M8I_PUBLISHER_ARTIFACT_INVALID',
-      target
-    );
-    const assetName = path.basename(archive);
-    const copied = copyAbsolute(archive, output, `publisher-artifacts/${assetName}`);
-    publisherArtifacts.push({
-      assetName,
-      releaseTag: prepareWaylandCore.DEFAULT_WCORE_VERSION,
-      expectedSha256: copied.sha256.slice('sha256:'.length),
-      path: `publisher-artifacts/${assetName}`,
-    });
-  }
+  // No publisher-attested release archives remain: the bundled engine comes
+  // from npm with sha512 integrity plus Desktop's independent digest pins
+  // (scripts/fuigo/authority.json), both enforced by verify-packaged-resources.
+  // The index is still written so the raw-bundle contract stays fixed.
   writeJson(path.join(output, 'publisher-artifacts.json'), {
     contract: 'wayland-raw-publisher-artifacts/1.0',
-    artifacts: publisherArtifacts,
+    artifacts: [],
   });
   return { candidate, files: walkRegularFiles(output).length, output };
 }

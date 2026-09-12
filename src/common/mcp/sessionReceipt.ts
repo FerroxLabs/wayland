@@ -7,7 +7,7 @@
 import type { IMcpServer } from '@/common/config/storage';
 import { mcpServerCollisionKey } from '@/common/mcp';
 
-export type McpSessionBackend = 'wcore' | 'acp' | 'gemini' | 'codex-native';
+export type McpSessionBackend = 'acp' | 'gemini' | 'codex-native';
 export type McpSessionDefinitionDigest = `hmac-sha256:${string}`;
 export type McpSessionProducer = Exclude<McpSessionBackend, never>;
 
@@ -83,10 +83,6 @@ export type McpSessionPublicationInput = {
   /** Process-local HMAC key for the exact definition digest; never persisted. */
   sessionKey: Uint8Array;
 };
-
-export type McpSessionTerminalEvent =
-  | { type: 'mcp_ready'; data: { name: string; tools?: unknown } }
-  | { type: 'mcp_failed'; data: { name: string; reason?: unknown } };
 
 /**
  * Evidence emitted by the runtime that actually owns a session's tool registry.
@@ -253,10 +249,7 @@ export function reduceMcpSessionProducerEvent(
             ...bindReceipt(state, expected, observedAt),
             status: 'degraded',
             tools: [],
-            reason:
-              state.backend === 'wcore'
-                ? 'Core loaded the connector but registered no tools'
-                : `${state.backend} registered no callable tools`,
+            reason: `${state.backend} registered no callable tools`,
             source: state.backend,
           };
   }
@@ -294,60 +287,6 @@ export function reduceMcpSessionToolInvocation(
         tools: [tool],
       },
     },
-    observedAt
-  );
-}
-
-/**
- * Fold a named Core terminal event into the current launch.
- *
- * Core v1 proves registration (name + tools) only. It does not prove a named
- * invocation, so the strongest state produced here is `registered`. ACP and
- * native adapters cannot reuse this reducer to mint readiness because their
- * backend does not own the Core producer contract.
- */
-export function reduceMcpSessionTerminal(
-  state: McpSessionState,
-  event: McpSessionTerminalEvent,
-  observedAt: number = Date.now()
-): McpSessionState {
-  if (state.backend !== 'wcore') return state;
-  const name = event.data?.name;
-  if (typeof name !== 'string' || !name.trim()) return state;
-  const expected = findExactExpectedServer(state, name);
-  if (!expected) return state;
-
-  // A backend event cannot skip Desktop's publication boundary. This rejects
-  // stale/cross-session events and events for a declaration that never reached
-  // the exact launch definition.
-  const prior = state.receipts[expected.definitionDigest];
-  if (prior?.status !== 'published_unverified') return state;
-
-  return reduceMcpSessionProducerEvent(
-    state,
-    event.type === 'mcp_failed'
-      ? {
-          type: 'mcp_registration_failed',
-          data: {
-            generation: state.generation,
-            conversationId: state.conversationId,
-            backend: 'wcore',
-            runtimeName: expected.runtimeName,
-            definitionDigest: expected.definitionDigest,
-            reason: event.data.reason,
-          },
-        }
-      : {
-          type: 'mcp_tools_registered',
-          data: {
-            generation: state.generation,
-            conversationId: state.conversationId,
-            backend: 'wcore',
-            runtimeName: expected.runtimeName,
-            definitionDigest: expected.definitionDigest,
-            tools: event.data.tools,
-          },
-        },
     observedAt
   );
 }

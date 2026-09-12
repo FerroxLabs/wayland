@@ -22,9 +22,8 @@
 import { redactSecrets } from '@process/utils/secretRedaction';
 import type { DoctorCheckOutcome } from '../types';
 
-/** Engine binary detection result (the shape `detectWCore()` produced; the
- *  Fuigo bundle receipt is adapted to it by `fuigoEngineDetection`). */
-export type WCoreDetection = { available: boolean; version?: string; path?: string };
+/** Engine binary detection result (the Fuigo bundle receipt, adapted by `fuigoEngineDetection`). */
+export type EngineDetection = { available: boolean; version?: string; path?: string };
 
 /** What `resolveFuigoBinary()` returns: the verified bundle, or null. */
 export type FuigoBundle = { path: string; version: string } | null;
@@ -38,7 +37,7 @@ export type FuigoBundle = { path: string; version: string } | null;
  * The version is the receipt's, never `--version` output, so nothing the
  * binary prints can reach the report (GHSA-2g2m-r86j-jg6h).
  */
-export function fuigoEngineDetection(bundle: FuigoBundle): WCoreDetection {
+export function fuigoEngineDetection(bundle: FuigoBundle): EngineDetection {
   return bundle ? { available: true, version: bundle.version, path: bundle.path } : { available: false };
 }
 
@@ -69,9 +68,9 @@ export type RoutableModelReader = {
 /**
  * The version NUMBER inside a `--version` banner, and nothing else.
  *
- * `detectWCore` returns unvalidated, unbounded `execFileSync` stdout
- * (`binaryResolver.ts`), so anything the resolved binary chooses to print can
- * reach a report the Doctor panel offers to copy (GHSA-2g2m-r86j-jg6h).
+ * A `--version` probe returns unvalidated, unbounded `execFileSync` stdout, so
+ * anything the resolved binary chooses to print can reach a report the Doctor
+ * panel offers to copy (GHSA-2g2m-r86j-jg6h).
  *
  * The first attempt at this ended the pattern with an unanchored, unbounded
  * `[\w.+-]` run and it was NOT a fix - a cross-audit broke it by execution. That
@@ -111,7 +110,7 @@ const MAX_VERSION_LENGTH = 32;
  * version number. FAIL when no binary is found; WARN when a binary exists but
  * reported no usable version (it may be the wrong arch or a broken build).
  */
-export async function checkEngineReachable(detect: () => WCoreDetection): Promise<DoctorCheckOutcome> {
+export async function checkEngineReachable(detect: () => EngineDetection): Promise<DoctorCheckOutcome> {
   const result = detect();
   if (!result.available) {
     return {
@@ -242,7 +241,7 @@ export async function checkEngineContractPin(
 
 /**
  * Engine default routing — the engine has at least one real model to route to.
- * WCore proxies connected providers, so an empty catalog means every WCore chat
+ * The engine proxies connected providers, so an empty catalog means every chat
  * would resolve a model that no provider serves (the 404 class). FAIL when no
  * routable model exists.
  */

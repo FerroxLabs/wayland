@@ -400,7 +400,6 @@
     "title": "{{backend}} 無法在此登入",
     "subscriptionExplainer": "該供應商禁止在這類第三方工具中使用訂閱登入。若要在此繼續使用 {{backend}}，請透過 Flux Router 進行路由、新增供應商 API 金鑰，或直接登入 CLI。",
     "genericExplainer": "{{backend}} 無法完成驗證。請透過 Flux Router 進行路由、新增供應商 API 金鑰，或登入 CLI 以解決此問題。",
-    "wcoreExplainer": "Wayland Core 無法完成驗證。推論供應商拒絕了該 API 金鑰（401）。與 Claude Code 不同，Wayland Core 沒有可退回的訂閱登入方式，因此請新增一個可用的供應商金鑰，或透過 Flux Router 進行路由。",
     "flux": {
       "label": "透過 Flux 路由",
       "sublabel": "智慧路由會為每項任務挑選合適的模型。先用 1 美元額度免費開始，之後按用量付費或選擇方案。",
@@ -420,33 +419,6 @@
     },
     "dismiss": "關閉",
     "recommended": "（推薦）"
-  },
-  "contextCeiling": {
-    "title": "This run exceeded {{model}}’s context window",
-    "titleNoModel": "This run exceeded the model’s context window",
-    "explainer": "The request grew past the model’s context-window limit and history compaction couldn’t shrink it any further. Switch to a model with a larger context window, then retry the last message.",
-    "switch": {
-      "label": "Switch to a larger-context model",
-      "sublabel": "Pick a model with a bigger context window from the picker."
-    },
-    "retry": {
-      "label": "Retry the last message",
-      "sublabel": "Re-run the message that hit the limit on the selected model.",
-      "action": "Retry"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
-  },
-  "constitutionLocked": {
-    "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app，so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
-    "recover": {
-      "label": "Restore from a recovery archive",
-      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
-      "action": "Open recovery"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
   },
   "composerMenu": {
     "skills": "Skills",
@@ -512,64 +484,9 @@
       "body": "{{title}} 因錯誤而停止。{{detail}}"
     }
   },
-  "engineConfigInvalid": {
-    "title": "Wayland Core 的設定檔需要修正",
-    "explainer": "引擎讀不了自己的設定檔，所以代理無法啟動。什麼都沒有被改動——你的服務供應商、金鑰和設定都還在裡面。",
-    "dismiss": "關閉",
-    "details": "技術細節",
-    "checking": "正在檢查設定檔…",
-    "location": "問題出在第 {{line}} 行，第 {{column}} 欄。",
-    "noProblem": "設定檔現在可以正常讀取了。請重新傳送訊息。",
-    "unreadable": "Wayland 無法讀取設定檔。原因：{{reason}}",
-    "repair": {
-      "label": "幫我修正第 {{line}} 行",
-      "sublabel": "先備份檔案，然後補上缺少的換行。檔案裡其他內容不會改動。",
-      "action": "修正",
-      "unavailable": "第 {{line}} 行的問題需要人工判斷——Wayland 不會去猜。請在下方開啟檔案，或還原預設設定重新開始。",
-      "notTextUnavailable": "Wayland 不會去重寫一個自己無法準確讀取的檔案，所以這裡沒有自動修正。請在下方開啟檔案，或還原預設設定重新開始。"
-    },
-    "reveal": {
-      "label": "讓我看看這個檔案",
-      "sublabel": "開啟它所在的資料夾，這樣你不用自己去找路徑。",
-      "action": "顯示"
-    },
-    "regenerate": {
-      "label": "還原預設設定重新開始",
-      "sublabel": "最後的辦法。先備份你目前的檔案，然後刪除它，讓引擎寫一份新的。",
-      "action": "重新開始",
-      "confirmTitle": "要還原預設設定重新開始嗎？",
-      "confirmBody": "這會刪除你的引擎設定檔。你會失去服務供應商清單、儲存在其中的 API 金鑰，以及你的記憶與技能設定，必須重新設定一次。\n\n系統會先在原檔案旁邊儲存一份帶時間戳記的備份。如果這份備份無法驗證，就什麼都不會刪除。",
-      "confirmAction": "備份並重新開始"
-    },
-    "result": {
-      "repaired": "已修正。原檔案的備份已儲存為 {{name}}。",
-      "regenerated": "完成。你原本的設定已儲存為 {{name}}。",
-      "backupFailed": "Wayland 無法建立可驗證的備份，因此什麼都沒有改動。原因：{{reason}}",
-      "writeFailed": "這次變更沒能完成。原因：{{reason}}",
-      "writeFailedWithBackup": "這次變更沒能完成。原因：{{reason}} 什麼都沒丟：你原本的設定在 {{name}} 裡。",
-      "notARegularFile": "這個設定檔是指向另一個檔案的連結，所以 Wayland 不會替換它。用「讓我看看這個檔案」，到它真正所在的位置去改。",
-      "revealFailed": "Wayland 無法開啟該資料夾。原因：{{reason}}"
-    },
-    "notText": "Wayland 無法把這個檔案當作文字讀取——它有些位元組不是有效的 UTF-8，而設定檔格式要求 UTF-8。什麼都沒有被改動。"
-  },
   "turnRecovery": {
     "outcomeUnknown": "結果未知",
-    "lastRecordedAction": "最後記錄的操作：{{action}}",
-    "starting": "Preparing conversation…",
-    "checkingTitle": "Checking interrupted work",
-    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
-    "title": "An interrupted turn needs attention",
-    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
-    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
-    "checkAgain": "Check again",
-    "endAction": "End interrupted turn",
-    "confirmTitle": "End the interrupted turn?",
-    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
-    "keepAction": "Keep it",
-    "checkFailed": "Wayland could not inspect the interrupted turn.",
-    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
-    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
-    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+    "lastRecordedAction": "最後記錄的操作：{{action}}"
   },
   "artifactCard": {
     "title": "已儲存到你的工作區",
@@ -598,14 +515,5 @@
     "rejectedUnreadable_other": "{{count}} 個無法讀取",
     "more": "另有 {{count}} 個在「交付物」中",
     "more_other": "另有 {{count}} 個在「交付物」中"
-  },
-  "workspacePolicy": {
-    "title": "工作區存取權限",
-    "scope": "目前 Core 工作階段回報的檔案系統存取權限。工具核准、憑證及註冊是獨立的。",
-    "readable": "可讀取資料夾",
-    "writable": "可寫入資料夾",
-    "executables": "可執行能力及唯讀資料夾",
-    "none": "未回報",
-    "unknown": "Core 尚未回報此對話的即時工作區存取權限。"
   }
 }

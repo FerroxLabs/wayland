@@ -29,8 +29,8 @@ import { loadAwsBedrock, loadOpenAI as loadOpenAIBridge } from '@process/bridge/
  * goose / kimi / opencode / codebuddy / droid / auggie / copilot / qoder /
  * vibe / cursor / kiro / hermes / snow / custom) spawn their own external
  * CLI binaries and don't use our in-process SDKs - they don't need pre-warm.
- * Same for the 'wcore' (spawned Rust engine), 'remote' (WebSocket), and
- * 'nanobot' / 'openclaw-gateway' (external CLIs) backends.
+ * Same for the 'remote' (WebSocket) and 'openclaw-gateway' (external CLI)
+ * backends.
  */
 
 type LoaderFn = () => Promise<unknown>;
@@ -55,7 +55,7 @@ export const ALL_PROVIDER_LOADERS: LoaderFn[] = [
 
 /**
  * Pre-warm AI SDKs for the providers referenced by the given backend list.
- * Backends with no in-process SDK (ACP CLIs, wcore, remote, etc.) are
+ * Backends with no in-process SDK (ACP CLIs, remote, etc.) are
  * silently skipped. Loaders are fired in parallel; failures are logged
  * but never thrown - pre-warm is best-effort, not load-bearing.
  *

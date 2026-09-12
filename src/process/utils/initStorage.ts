@@ -15,7 +15,7 @@ import { application } from '@/common/adapter/ipcBridge';
 import type { TMessage } from '@/common/chat/chatLib';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
 import { resolvePersistedPresetAgentType, resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
-import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
+import { fuigoHomeDir } from '@process/agent/fuigo/launch';
 import { getVoiceModelsDir } from '@process/extensions/constants';
 import { resolveAgentInstallRoot } from '@process/services/agentInstaller/installPrefix';
 import type { ConciergeDiagDeps } from '@process/resources/builtinMcp/conciergeDiagServer';
@@ -53,6 +53,7 @@ import {
 } from '../services/database/export';
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { migrateFromElectronConfig, importConfigFromFile } from './configMigration';
+import { runFuigoCutoverConfigMigration } from './migrations/fuigoCutoverConfigMigration';
 import {
   BUILTIN_CONCIERGE_DIAG_ID,
   BUILTIN_CONCIERGE_DIAG_NAME,
@@ -456,7 +457,7 @@ export function resolveConciergeDiagDeps(): ConciergeDiagDeps {
     workspaceDbPath: dbPath,
     logDir: getPlatformServices().paths.getLogsDir(),
     appConfigDir: cacheDir,
-    engineConfigDir: nativeConfigDir(),
+    engineConfigDir: fuigoHomeDir(getPlatformServices().paths.getDataDir()),
     // The APP's arch, not the diag subprocess's: its node binary can differ.
     appArch: process.arch,
     runningUnderARM64Translation: isRunningUnderArm64Translation(),
@@ -710,7 +711,7 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
           let content = await fs.readFile(sourceRulesPath, 'utf-8');
           // Replace relative paths with absolute paths so AI can find scripts correctly.
           // Anchored: see absolutizeSkillPaths for why an unanchored rewrite corrupted
-          // `.wayland-core/skills/...` into an un-`cd`-able path.
+          // a workspace-relative `<dir>/skills/...` path into an un-`cd`-able one.
           content = absolutizeSkillPaths(content, userSkillsDir);
           await fs.writeFile(targetPath, content, 'utf-8');
         } catch (error) {
@@ -755,7 +756,7 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
           let content = await fs.readFile(sourceSkillsPath, 'utf-8');
           // Replace relative paths with absolute paths so AI can find scripts correctly.
           // Anchored: see absolutizeSkillPaths for why an unanchored rewrite corrupted
-          // `.wayland-core/skills/...` into an un-`cd`-able path.
+          // a workspace-relative `<dir>/skills/...` path into an un-`cd`-able one.
           content = absolutizeSkillPaths(content, userSkillsDir);
           await fs.writeFile(targetPath, content, 'utf-8');
         } catch (error) {
@@ -1026,7 +1027,7 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
     // skills); the full 2,105-entry library is reachable ONLY via the
     // `wayland_search_skills` tool. Enabled by default - the tool is silent
     // unless the agent calls it, and is what makes the library searchable at
-    // all on ACP/Gemini/wcore backends.
+    // all on ACP/Gemini backends.
     const searchSkillsScriptPath = getBuiltinMcpScriptPath('builtin-mcp-search-skills');
     const searchSkillsExistingIdx = mcpServers.findIndex(
       (s) => s.builtin === true && s.id === BUILTIN_SEARCH_SKILLS_ID
@@ -1116,7 +1117,7 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
       WAYLAND_WORKSPACE_DB: conciergeDiagDeps.workspaceDbPath!,
       WAYLAND_LOG_DIR: conciergeDiagDeps.logDir!,
       // The two distinct config locations, for the configPaths report: the app
-      // settings dir, and the wayland-core engine config dir.
+      // settings dir, and the bundled engine's home.
       WAYLAND_APP_CONFIG_DIR: conciergeDiagDeps.appConfigDir!,
       WAYLAND_ENGINE_CONFIG_DIR: conciergeDiagDeps.engineConfigDir!,
       // The app's own architecture + whether it is being translated, for the
@@ -1198,10 +1199,10 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
     // ── Built-in Playwright MCP server (browser capability, #465) ────────────
     // The upstream @playwright/mcp server, run through the bundled bun (no system
     // Node). Seeded ENABLED so the agent has browser tools out of the box. The
-    // `npx`->bun swap is app-side only (McpProtocol), but the wcore engine spawns
-    // MCP servers straight from its config.toml — so we pre-resolve the bundled
+    // `npx`->bun swap is app-side only (McpProtocol), but engines spawn MCP
+    // servers straight from their own config — so we pre-resolve the bundled
     // bun HERE (command + `x --bun @playwright/mcp@<ver>`), so every spawn path
-    // (wcore engine, ACP CLIs, app SDK) runs it identically with no system Node.
+    // (engine, ACP CLIs, app SDK) runs it identically with no system Node.
     // Chromium is fetched on first use into PLAYWRIGHT_BROWSERS_PATH; see
     // playwrightBrowsers.ensurePlaywrightChromium (triggered from McpService).
     // SSRF guardrail (#465): block link-local + cloud-metadata origins.
@@ -1218,8 +1219,8 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
       JSON.stringify({ [BUILTIN_PLAYWRIGHT_NAME]: { command, args, env } }, null, 2);
     // Match ANY existing Playwright server, not just our builtin id: a user may
     // already have one (catalog/manual install) whose sanitized name collides
-    // with ours — two servers sharing the wcore config.toml [mcp.servers."<name>"]
-    // key is a TOML collision. Detect by id / libraryEntryId / name / @playwright/mcp arg.
+    // with ours — two servers sharing one sanitized config key is a collision.
+    // Detect by id / libraryEntryId / name / @playwright/mcp arg.
     const looksLikePlaywright = (s: IMcpServer): boolean => {
       if (s.id === BUILTIN_PLAYWRIGHT_ID) return true;
       if (s.libraryEntryId === BUILTIN_PLAYWRIGHT_LIBRARY_ENTRY_ID) return true;
@@ -1233,7 +1234,7 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
 
     if (playwrightExistingIdx >= 0 && mcpServers[playwrightExistingIdx].id !== BUILTIN_PLAYWRIGHT_ID) {
       // ADOPT a pre-existing user/manual Playwright install: do NOT seed a second
-      // server (would collide on the wcore TOML key). The user owns that server's
+      // server (would collide on the sanitized config key). The user owns that server's
       // enabled state and args; we leave it untouched.
       console.log('[Wayland] Adopting existing Playwright MCP server; skipping builtin seed');
     } else if (playwrightExistingIdx >= 0) {
@@ -1476,6 +1477,11 @@ const initStorage = async () => {
       await configFile.set('assistants', presetsInAssistants);
       await configFile.set(ASSISTANTS_SPLIT_MIGRATION_KEY, true);
     }
+
+    // 5.2b Fuigo cutover (one-time): carry the retired Core engine's default
+    // model pick over to Fuigo and re-point a persisted "last agent" naming a
+    // retired engine, so a returning user lands on the bundled engine.
+    await runFuigoCutoverConfigMigration(configFile as unknown as Parameters<typeof runFuigoCutoverConfigMigration>[0]);
 
     // 5.3 Initialize assistant config (metadata only, no context)
     // Initialize assistant config (metadata only, no context)

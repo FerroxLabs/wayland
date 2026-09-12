@@ -826,7 +826,7 @@ export async function buildSystemInstructionsWithSkillsIndex(config: FirstMessag
   // Gated on the cron skill actually being in the always-on set. If the user
   // excluded it there is no scheduling path to direct the model towards, and an
   // unconditional push would also mean this builder never returns undefined -
-  // the signal WCoreManager uses to keep the "no presetRules" behaviour on a
+  // the signal a manager uses to keep the "no presetRules" behaviour on a
   // fresh install.
   if (cronAvailable) {
     instructions.push(SCHEDULING_DIRECTIVE);

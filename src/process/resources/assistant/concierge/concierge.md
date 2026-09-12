@@ -210,7 +210,7 @@ The `kind`s and their fields:
 
 - `provider_connect` — `provider:` (catalog id), `label:`, optional `base_url:`. NEVER put an API key
   in the block — the user types it into the card; it goes straight to secure storage and is never shown.
-- `set_default_model` — `engine:` (`wcore` or `gemini`), `model_id:`, `use_model:`, `label:`.
+- `set_default_model` — `engine:` (`fuigo` or `gemini`), `model_id:`, `use_model:`, `label:`.
 - `add_mcp` — `name:`, `command:`, `args:` (space-separated), optional `env:` (`KEY=val, KEY2=val2`).
 - `edit_assistant` — `assistant:` (id), `label:`, then `rules:` LAST (everything after it is the new body).
 - `file_bug_report` — optional `summary:` (one short, non-secret line). Offer this ONLY when a diagnosis

@@ -42,7 +42,7 @@ describe('collectManagedWorkspaceInventory', () => {
     await fs.rm(root, { recursive: true, force: true });
   });
 
-  async function makeCandidate(name = 'wcore-temp-1736900000000', ageDays = 31): Promise<string> {
+  async function makeCandidate(name = 'acp-temp-1736900000000', ageDays = 31): Promise<string> {
     const candidate = path.join(root, name);
     await fs.mkdir(candidate);
     const timestamp = new Date(NOW - ageDays * DAY);
@@ -156,7 +156,7 @@ describe('collectManagedWorkspaceInventory', () => {
   });
 
   it('keeps a schedule-only workspace promoted at any age', async () => {
-    const candidate = await makeCandidate('wcore-temp-1736900000003', 4000);
+    const candidate = await makeCandidate('acp-temp-1736900000003', 4000);
     const report = await collect([{ source: 'schedule', id: 'cron-1', workspace: candidate }], {
       retentionWindowMs: 0,
     });
@@ -357,7 +357,7 @@ describe('collectManagedWorkspaceInventory', () => {
 
   it('lists but never follows a matching symlink candidate', async () => {
     const outside = await fs.mkdtemp(path.join(os.tmpdir(), 'wayland-workspace-outside-'));
-    const link = path.join(root, 'wcore-temp-1736900000002');
+    const link = path.join(root, 'acp-temp-1736900000002');
     try {
       await fs.symlink(outside, link, 'dir');
       const report = await collect();
@@ -380,7 +380,7 @@ describe('collectManagedWorkspaceInventory', () => {
   });
 
   it('discovers collision-safe managed names that remain inside the shared grammar', async () => {
-    const collisionSafe = `wcore-temp-1736900000000${'7'.repeat(39)}`;
+    const collisionSafe = `acp-temp-1736900000000${'7'.repeat(39)}`;
     const candidate = await makeCandidate(collisionSafe);
     const report = await collect();
 

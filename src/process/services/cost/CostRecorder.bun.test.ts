@@ -250,7 +250,7 @@ describe('CostRecorder (bun:sqlite)', () => {
     const { recorder } = makeRecorder(driver, pricing);
     recorder.recordTurnFinish({
       conversationId: 'c',
-      backend: 'wcore',
+      backend: 'fuigo',
       modelId: 'm1',
       costSource: 'computed',
       inputTokens: 1000,
@@ -270,7 +270,7 @@ describe('CostRecorder (bun:sqlite)', () => {
     const { recorder } = makeRecorder(driver, noPricing);
     recorder.recordTurnFinish({
       conversationId: 'cache-split',
-      backend: 'wcore',
+      backend: 'fuigo',
       modelId: 'flux-reasoning',
       costSource: 'computed',
       inputTokens: 100,
@@ -280,7 +280,7 @@ describe('CostRecorder (bun:sqlite)', () => {
     });
     recorder.recordTurnFinish({
       conversationId: 'cache-only',
-      backend: 'wcore',
+      backend: 'fuigo',
       modelId: 'flux-reasoning',
       costSource: 'computed',
       cacheReadTokens: 900,
@@ -298,7 +298,7 @@ describe('CostRecorder (bun:sqlite)', () => {
     const { recorder } = makeRecorder(driver, noPricing);
     recorder.recordTurnFinish({
       conversationId: 'c',
-      backend: 'wcore',
+      backend: 'fuigo',
       modelId: 'mystery-model',
       costSource: 'computed',
       inputTokens: 200,

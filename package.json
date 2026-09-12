@@ -59,7 +59,6 @@
     "test:vitest": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:contract": "vitest run tests/unit/process/agent/wcore/desktopContractV1.test.ts tests/unit/fluxRoutingEvidence.test.ts tests/unit/process/flux/FluxRoutingEvidenceAdapter.test.ts tests/unit/wcoreStderrSurfacing.test.ts",
     "test:integration": "vitest run tests/integration",
     "test:packaged:i18n": "vitest run tests/integration/i18n-packaged.test.ts",
     "bench": "vitest bench",
@@ -96,7 +95,7 @@
     "build:renderer:web": "bunx vite build --config vite.renderer.config.ts",
     "build:server": "node scripts/build-server.mjs",
     "smoke:ijfw": "node scripts/ijfw-memory-smoke.mjs",
-    "test:mcp:e2e": "WCORE_MCP_E2E=1 vitest run tests/integration/wcoreMcpEndToEnd.test.ts",
+    "test:mcp:e2e": "FUIGO_ACP_E2E=1 vitest run tests/integration/fuigoAcpEndToEnd.test.ts",
     "check:counts": "node scripts/check-public-counts.mjs"
   },
   "dependencies": {

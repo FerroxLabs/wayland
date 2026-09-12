@@ -67,7 +67,7 @@ export const FLUX_MODEL_DISPLAY: Record<FluxModelId, string> = {
 
 /**
  * One host, three surfaces (R1). Backends must point at the correct one.
- * - openai: /chat/completions + /models (gemini, wcore, generic ACP)
+ * - openai: /chat/completions + /models (gemini, generic ACP)
  * - responses: /v1 with wire_api=responses (codex; Phase 2)
  * - anthropic: /v1/messages (claude; Phase 2)
  */

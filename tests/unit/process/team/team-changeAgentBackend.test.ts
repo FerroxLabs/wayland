@@ -195,8 +195,8 @@ describe('TeamSessionService.changeAgentBackend', () => {
   });
 
   it('swaps an acp teammate to "wayland-core" in place, persisting the fuigo backend it resolves to', async () => {
-    // Fuigo cutover: the picker still offers the first-party engine as
-    // "wayland-core". That alias now names the bundled Fuigo engine - an ACP
+    // Fuigo cutover: the picker may still offer the first-party engine as
+    // "wayland-core". That alias names the bundled Fuigo engine - an ACP
     // backend - so a claude -> wayland-core swap is a same-type swap and is
     // allowed in place. What must never happen is the conversation row keeping
     // the raw alias: AcpAgentManager resolves "wayland-core" to no CLI at all
@@ -219,11 +219,12 @@ describe('TeamSessionService.changeAgentBackend', () => {
       extra: { backend: 'fuigo', currentModelId: 'gpt-5.4' },
     });
 
-    // The canonical Core id is a different conversation type (an existing Core
-    // chat), so it is still refused in place.
-    await expect(svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wcore' })).rejects.toThrow(
-      /not supported in place/i
-    );
+    // The retired Core id is the same alias: it resolves to fuigo, never to a
+    // conversation type that no longer exists.
+    await svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wcore', newModel: 'gpt-5.4' });
+    expect(conversationService.updateConversation).toHaveBeenLastCalledWith('conv-1', {
+      extra: { backend: 'fuigo', currentModelId: 'gpt-5.4' },
+    });
   });
 
   it('refuses to swap while a wake is in progress', async () => {

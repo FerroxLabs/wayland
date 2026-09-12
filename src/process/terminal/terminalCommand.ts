@@ -9,17 +9,14 @@
  *
  * Maps a chat's agent type to the CLI that renders that agent's native terminal
  * UI. Supported:
- *   - The bundled Fuigo engine (`acp` + backend `fuigo`, and — since the
- *     Fuigo cutover — a `wcore` chat too) → the bare `fuigo` binary on a TTY
- *     (no subcommand launches its TUI), with `FUIGO_HOME` pinned to the same
- *     shared engine home the ACP spawn uses, so the TUI sees the same memory,
- *     MCP config and trust grants as the chat. A `wcore` chat falls back to
- *     the bundled `wayland-core` binary (NO `--json-stream`, so it launches its
- *     ratatui TUI) only when the Fuigo bundle cannot be resolved.
+ *   - The bundled Fuigo engine (`acp` + backend `fuigo`) → the bare `fuigo`
+ *     binary on a TTY (no subcommand launches its TUI), with `FUIGO_HOME`
+ *     pinned to the same shared engine home the ACP spawn uses, so the TUI
+ *     sees the same memory, MCP config and trust grants as the chat.
  *   - Claude Code (`acp` + backend `claude`) → `claude`.
  *   - Codex (`codex`)         → `codex`.
- * Every other agent (gemini / other ACP backends / openclaw-gateway / nanobot /
- * remote) has no native TUI mapping and resolves to `null` — the caller hides or
+ * Every other agent (gemini / other ACP backends / openclaw-gateway / remote)
+ * has no native TUI mapping and resolves to `null` — the caller hides or
  * disables the Terminal tab for those.
  *
  * The function is deliberately pure and existence-agnostic for the external CLIs
@@ -27,10 +24,9 @@
  * when the session recorded one, else the bare command resolved from PATH at
  * spawn). Whether the CLI is actually installed is decided at spawn time so a
  * missing binary surfaces a friendly in-pane message rather than a hidden tab.
- * The bundled engine paths ARE resolved here (injectable for tests): if no
+ * The bundled engine path IS resolved here (injectable for tests): if no
  * engine binary can be found there is nothing to run, so it returns `null`.
  */
-import { resolveWCoreBinary } from '@process/agent/wcore/binaryResolver';
 import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import { fuigoHomeDir } from '@process/agent/fuigo/launch';
 
@@ -57,8 +53,6 @@ export type TerminalLaunchSpec = {
 };
 
 export type TerminalCommandDeps = {
-  /** Injectable for tests; defaults to the real bundled-binary resolver. */
-  resolveWCore?: () => string | null;
   /** Injectable for tests; defaults to the verified bundled Fuigo resolver. */
   resolveFuigo?: () => { path: string } | null;
   /** Injectable for tests; defaults to `<userData>/fuigo` (see launch.ts). */
@@ -77,7 +71,6 @@ export function resolveTerminalCommand(
   session: TerminalSessionInput,
   deps: TerminalCommandDeps = {}
 ): TerminalLaunchSpec | null {
-  const resolveWCore = deps.resolveWCore ?? resolveWCoreBinary;
   const resolveFuigo = deps.resolveFuigo ?? resolveFuigoBinary;
   const cwd = session.extra?.workspace;
 
@@ -90,15 +83,6 @@ export function resolveTerminalCommand(
   };
 
   switch (session.type) {
-    case 'wcore': {
-      // Fuigo is the engine now; Core only when the Fuigo bundle is missing.
-      const fuigo = fuigoTui();
-      if (fuigo) return fuigo;
-      const binary = resolveWCore();
-      if (!binary) return null;
-      // Native ratatui TUI: launch the binary with NO `--json-stream` flag.
-      return { command: binary, args: [], cwd };
-    }
     case 'codex':
       return { command: session.extra?.cliPath || 'codex', args: [], cwd };
     case 'acp':

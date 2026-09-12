@@ -385,7 +385,7 @@ const PROMPT = `${PROMPT_MARKER} on its own line: ${REPLY_NONCE} - then one shor
 
 /** The persisted default-model pin — what the composer will actually send with. */
 async function readModelPin(page) {
-  const pin = await invokeBridge(page, 'agent.config.storage.get', { key: 'wcore.defaultModel' }, 10_000);
+  const pin = await invokeBridge(page, 'agent.config.storage.get', { key: 'fuigo.defaultModel' }, 10_000);
   return pin.ok ? (pin.value ?? null) : { error: pin.error };
 }
 
@@ -456,7 +456,7 @@ function findEnginePids() {
     const out = execFileSync('ps', ['-eo', 'pid=,args='], { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
     return out
       .split('\n')
-      .filter((line) => line.includes('bundled-wayland-core') && !line.includes('ps -eo'))
+      .filter((line) => line.includes('bundled-fuigo') && !line.includes('ps -eo'))
       .map((line) => Number.parseInt(line.trim().split(/\s+/)[0], 10))
       .filter((pid) => Number.isInteger(pid) && pid > 0);
   } catch {
@@ -481,7 +481,7 @@ function captureTurnStall(reportDir, appOutput) {
     // A stall with NO engine process is itself the finding - the engine died
     // rather than hung, which is a different bug and must not be recorded as
     // "sampling was unavailable".
-    capture.skipped = 'no bundled-wayland-core process found while stalled (engine gone, not hung?)';
+    capture.skipped = 'no bundled-fuigo process found while stalled (engine gone, not hung?)';
     return capture;
   }
   if (process.platform !== 'darwin') {

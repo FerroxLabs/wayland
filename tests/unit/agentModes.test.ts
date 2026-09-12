@@ -42,16 +42,6 @@ describe('AGENT_MODES.claude', () => {
   });
 });
 
-describe('AGENT_MODES.wnano', () => {
-  it('advertises exactly the default mode (matches what the Rust agent sends over ACP)', () => {
-    expect(AGENT_MODES.wnano).toEqual([{ value: 'default', label: 'Default' }]);
-  });
-
-  it('supports mode switching', () => {
-    expect(supportsModeSwitch('wnano')).toBe(true);
-  });
-});
-
 describe('getAgentModes', () => {
   it('returns claude modes for "claude" backend', () => {
     const modes = getAgentModes('claude');
@@ -80,35 +70,35 @@ describe('supportsModeSwitch', () => {
 
 describe('mergeWithCapabilities', () => {
   it('should return static modes when capabilityModes is null', () => {
-    const result = mergeWithCapabilities('wcore', null);
-    expect(result).toEqual(getAgentModes('wcore'));
+    const result = mergeWithCapabilities('gemini', null);
+    expect(result).toEqual(getAgentModes('gemini'));
   });
 
   it('should return static modes when capabilityModes is empty', () => {
-    const result = mergeWithCapabilities('wcore', []);
-    expect(result).toEqual(getAgentModes('wcore'));
+    const result = mergeWithCapabilities('gemini', []);
+    expect(result).toEqual(getAgentModes('gemini'));
   });
 
   it('should use static labels for known modes', () => {
-    const result = mergeWithCapabilities('wcore', ['default', 'auto_edit', 'yolo']);
+    const result = mergeWithCapabilities('gemini', ['default', 'autoEdit', 'yolo']);
     expect(result).toEqual([
       { value: 'default', label: 'Default' },
-      { value: 'auto_edit', label: 'Auto-Accept Edits' },
+      { value: 'autoEdit', label: 'Auto-Accept Edits' },
       { value: 'yolo', label: 'Autopilot' },
     ]);
   });
 
   it('should include unknown modes from capabilities with title-cased label', () => {
-    const result = mergeWithCapabilities('wcore', ['default', 'auto_edit', 'plan']);
+    const result = mergeWithCapabilities('gemini', ['default', 'autoEdit', 'plan']);
     expect(result).toEqual([
       { value: 'default', label: 'Default' },
-      { value: 'auto_edit', label: 'Auto-Accept Edits' },
+      { value: 'autoEdit', label: 'Auto-Accept Edits' },
       { value: 'plan', label: 'Plan' },
     ]);
   });
 
   it('should exclude static modes not in capabilities', () => {
-    const result = mergeWithCapabilities('wcore', ['default', 'yolo']);
+    const result = mergeWithCapabilities('gemini', ['default', 'yolo']);
     expect(result).toEqual([
       { value: 'default', label: 'Default' },
       { value: 'yolo', label: 'Autopilot' },

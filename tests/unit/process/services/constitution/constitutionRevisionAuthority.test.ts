@@ -18,10 +18,6 @@ import {
   isConstitutionRevisionAuthorityUnauthenticated,
 } from '@process/services/constitution/constitutionRevisionAuthority';
 import type { ConstitutionArchiveSecretBackend } from '@process/services/constitution/constitutionFsTransaction';
-import {
-  CONSTITUTION_LOCKED_ERROR_CODE,
-  isConstitutionLockedError,
-} from '@renderer/pages/conversation/platforms/wcore/constitutionLockedFailure';
 
 const secretBackend: ConstitutionArchiveSecretBackend = {
   encryptString: (plaintext) => `fenc:v1:${Buffer.from(plaintext).toString('base64')}`,
@@ -55,7 +51,7 @@ describe('ConstitutionRevisionAuthority', () => {
   // An authority sealed by a different installation of the app decrypts to
   // nothing here (Electron's safeStorage keys by app identity). Unclassified,
   // that raw crypto error travelled readAuthorityFile -> load ->
-  // readConstitution -> composePrompt -> WCoreManager.start and landed in the
+  // readConstitution -> composePrompt -> the manager start and landed in the
   // user's chat as "Error while decrypting the ciphertext provided to
   // safeStorage.decryptString", killing every turn with no remedy attached.
   it('classifies a foreign-identity authority as unauthenticated instead of leaking the crypto error', () => {
@@ -113,13 +109,6 @@ describe('ConstitutionRevisionAuthority', () => {
   // copy of this code to route the failure to the recovery flow. Silent drift
   // between the two would put the raw dead-end error back in front of the user
   // with a fully green suite, so the copies are pinned to each other here.
-  it('publishes the exact classification code the renderer routes on', () => {
-    expect(CONSTITUTION_LOCKED_ERROR_CODE).toBe(CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED);
-    expect(isConstitutionLockedError(CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED)).toBe(true);
-    expect(isConstitutionLockedError(undefined)).toBe(false);
-    expect(isConstitutionLockedError('CONSTITUTION_FS_REVISION_AUTHORITY_INVALID')).toBe(false);
-  });
-
   it('fails closed when authority publication succeeds but its durability sync fails', () => {
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-revision-authority-sync-failure-'));
     const authorityPath = path.join(root, 'authority', 'revision.enc');

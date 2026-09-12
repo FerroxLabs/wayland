@@ -22,7 +22,7 @@ import { addMessage } from '@process/utils/message';
  * outside. That defect shape generates bug reports nobody can reproduce.
  *
  * This lives on the composer seam for the same reason the sibling reclaim notice
- * does: wayland-core, native ACP, Gemini, non-native ACP and Team role prompts
+ * does: Fuigo, native ACP, Gemini, non-native ACP and Team role prompts
  * all resolve the Constitution through `composePrompt`, so one emitter covers
  * every backend.
  *

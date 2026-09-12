@@ -322,10 +322,6 @@ test-watch:
 test-coverage:
     bun run test:coverage
 
-# Run contract tests
-test-contract:
-    bun run test:contract
-
 # Run integration tests
 test-integration:
     bun run test:integration

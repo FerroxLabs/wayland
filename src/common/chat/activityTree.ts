@@ -7,10 +7,9 @@
 /**
  * #252 - pure model for the live activity tree.
  *
- * Builds and merges an `IMessageActivity['content']` from the normalized
- * observability events that already flow through the wcore pipeline
- * (tool lifecycle, tool_chunk stdout, session_cost, provider circuit, browser
- * / cua ops). No React, no engine, no IO - unit-tested in isolation
+ * Builds and merges an `IMessageActivity['content']` from normalized
+ * observability events (tool lifecycle, tool stdout chunks, per-turn cost,
+ * provider circuit, browser / cua ops). No React, no engine, no IO - unit-tested in isolation
  * (tests/unit/activityTree.test.ts).
  *
  * The renderer never builds this directly: chatLib.transformMessage maps a raw
@@ -23,7 +22,7 @@ import type { ActivityNode, ActivityTurnCost, IMessageActivity } from './chatLib
 export type ActivityContent = IMessageActivity['content'];
 
 /**
- * Normalized activity event. Produced by transformMessage from the raw wcore
+ * Normalized activity event. Produced by transformMessage from the raw
  * IResponseMessage stream. Deliberately flat and serializable.
  */
 export type ActivityEvent =
@@ -72,7 +71,7 @@ export type ActivityEvent =
     }
   | {
       /**
-       * K-03 - the engine reported the turn is over (wcore `stream_end`, or a
+       * K-03 - the engine reported the turn is over (its stream end, or a
        * process exit that killed the turn). Card-level, not a node: it settles
        * every node the stream never gave a terminal frame for.
        */
@@ -91,7 +90,7 @@ export const emptyActivityContent = (turnId: string): ActivityContent => ({
 
 /**
  * K-03 - settle every node the stream left 'running'. `tool_chunk` synthesizes
- * running nodes (addOrUpdateNode below) and NOTHING in the wcore pipeline ever
+ * running nodes (addOrUpdateNode below) and nothing in the stream ever
  * gives them a terminal frame, so without this a finished turn keeps a spinning
  * step forever and the card can never roll up.
  */
@@ -109,7 +108,7 @@ const terminalizeNodes = (nodes: ActivityNode[], outcome: 'done' | 'failed', ts?
  * settle a card with no nodes: a zero-node card has no steps to report on, but
  * before the turn ends it is also not evidence the turn is over, so the
  * no-nodes default stays 'running' (a card is created at the first observability
- * frame of a live turn - `session_cost` on a text-only turn, a `tool_chunk`
+ * frame of a live turn - a cost row on a text-only turn, a `tool_chunk`
  * before its node exists - and must read running until turn end says otherwise).
  */
 const rollUpStatus = (nodes: ActivityNode[], ended?: 'done' | 'failed'): ActivityContent['status'] => {
@@ -237,9 +236,9 @@ export const mergeActivityContent = (prev: ActivityContent, next: ActivityConten
   // K-03 - the turn-end verdict is a property of the CARD, so it cannot ride the
   // node fold above: the delta carrying it is built on an empty base and has no
   // nodes at all. Apply it to the ACCUMULATED card here, and keep it sticky -
-  // `session_cost` lands AFTER the turn ends (WCoreManager force-forwards it with
-  // the last turn's msg_id) and would otherwise roll a settled card back to
-  // 'running' on the very next merge.
+  // a cost row can land AFTER the turn ends (forwarded with the last turn's
+  // msg_id) and would otherwise roll a settled card back to 'running' on the
+  // very next merge.
   const ended = next.ended ?? merged.ended;
   if (ended) {
     merged = { ...merged, ended, nodes: terminalizeNodes(merged.nodes, ended) };

@@ -15,7 +15,6 @@ import type {
   WriteTextFileRequest,
   WriteTextFileResponse,
 } from '@agentclientprotocol/sdk';
-import type { ResolvedWaylandNanoActivationInput, WaylandNanoConnectionMode } from '@process/agent/acp/AcpConnection';
 import type { IMcpServer } from '@/common/config/storage';
 import type { McpConfigProjection, McpConfigPublicationRequest } from '@process/acp/session/McpConfig';
 // ─── Agent Identity & Config ────────────────────────────────────
@@ -41,11 +40,6 @@ export type AgentConfig = {
   remoteUrl?: string;
   remoteHeaders?: Record<string, string>;
 
-  /** Owner-resolved Nano authority and one-use verified executable identity. */
-  waylandNanoActivation?: ResolvedWaylandNanoActivationInput;
-  /** Explicit result of the owner-binding resolution seam. */
-  waylandNanoMode?: WaylandNanoConnectionMode;
-
   // Process options
   processOptions?: {
     gracePeriodMs?: number; // Phase 1 wait time for three-phase shutdown, default 100ms
@@ -67,8 +61,7 @@ export type AgentConfig = {
   additionalDirectories?: string[];
   /**
    * Backend-specific `_meta` for `session/new` / `session/load` (e.g. Fuigo's
-   * `startupHints`). Untrusted caller metadata: reserved authority keys are
-   * stripped by `projectSessionMetadata`.
+   * `startupHints`). Forwarded as the request `_meta` by `projectSessionMetadata`.
    */
   sessionMetadata?: Record<string, unknown>;
 
@@ -245,9 +238,8 @@ export type ProtocolHandlers = {
   onReadTextFile: (request: ReadTextFileRequest) => Promise<ReadTextFileResponse>;
   onWriteTextFile: (request: WriteTextFileRequest) => Promise<WriteTextFileResponse>;
   /**
-   * Vendor ext notifications (`_wayland/session/*`). Optional: without it the
-   * SDK answers `methodNotFound` and logs on EVERY frame, which is how Nano's
-   * cost metering used to fill the log without ever reaching us.
+   * Vendor ext notifications. Optional: without it the SDK answers
+   * `methodNotFound` and logs on EVERY frame.
    */
   onExtNotification?: (method: string, params: unknown) => void;
 };

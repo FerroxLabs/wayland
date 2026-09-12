@@ -43,8 +43,6 @@ permissions:
   contents: read
 
 env:
-  # Platform smoke verifies the bundled engine as a critical runtime.
-  WCORE_SKIP: '0'
   # Exact FerroxLabs/waylandmcp commit whose four @wayland MCP connectors are
   # bundled into this build. Pinned, not floating, so the installer's connector
   # sources have a recorded identity (#940). Keep byte-identical across all four

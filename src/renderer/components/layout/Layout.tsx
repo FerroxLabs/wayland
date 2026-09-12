@@ -33,7 +33,6 @@ import { useSidebarWidth } from '@renderer/hooks/ui/useSidebarWidth';
 import { useGlobalKeybind } from '@renderer/hooks/settings/useGlobalKeybind';
 import { CommandPalette } from '@renderer/components/cmdk';
 import BudgetGateModal from '@renderer/components/cost/BudgetGateModal';
-import RunawayHaltModal from '@renderer/components/cost/RunawayHaltModal';
 import type { PaletteAssistant, PaletteStarterPrompt } from '@renderer/components/cmdk';
 import { getAgentKey } from '@renderer/pages/guid/hooks/agentSelectionUtils';
 import type { AcpBackend } from '@/common/types/acpTypes';
@@ -759,7 +758,6 @@ const Layout: React.FC<{
                 onFillPrompt={handleFillPrompt}
               />
               <BudgetGateModal />
-              <RunawayHaltModal />
             </ArcoLayout.Content>
           </ArcoLayout>
         </div>

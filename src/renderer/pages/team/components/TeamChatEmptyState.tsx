@@ -19,9 +19,7 @@ const useOpenClawDraft = getSendBoxDraftHook('openclaw-gateway', {
   content: '',
   uploadFile: [],
 });
-const useNanobotDraft = getSendBoxDraftHook('nanobot', { _type: 'nanobot', atPath: [], content: '', uploadFile: [] });
 const useRemoteDraft = getSendBoxDraftHook('remote', { _type: 'remote', atPath: [], content: '', uploadFile: [] });
-const useWCoreDraft = getSendBoxDraftHook('wcore', { _type: 'wcore', atPath: [], content: '', uploadFile: [] });
 
 type Props = {
   conversationId: string;
@@ -91,15 +89,11 @@ const TeamChatEmptyState: React.FC<Props> = ({ conversationId, isLeader = true }
   // DetectedAgentKind without wiring up a draft setter here becomes a typecheck error.
   const acpDraft = useAcpDraft(conversationId);
   const geminiDraft = useGeminiDraft(conversationId);
-  const wcoreDraft = useWCoreDraft(conversationId);
-  const nanobotDraft = useNanobotDraft(conversationId);
   const remoteDraft = useRemoteDraft(conversationId);
   const openClawDraft = useOpenClawDraft(conversationId);
   const setContentByKind = {
     acp: (text: string) => acpDraft.mutate((prev) => ({ ...prev, content: text })),
     gemini: (text: string) => geminiDraft.mutate((prev) => ({ ...prev, content: text })),
-    wcore: (text: string) => wcoreDraft.mutate((prev) => ({ ...prev, content: text })),
-    nanobot: (text: string) => nanobotDraft.mutate((prev) => ({ ...prev, content: text })),
     remote: (text: string) => remoteDraft.mutate((prev) => ({ ...prev, content: text })),
     'openclaw-gateway': (text: string) => openClawDraft.mutate((prev) => ({ ...prev, content: text })),
   } satisfies Record<DetectedAgentKind, (text: string) => void>;
@@ -228,10 +222,7 @@ const TeamChatEmptyState: React.FC<Props> = ({ conversationId, isLeader = true }
         {renderAvatar()}
         <div className='flex flex-col gap-6px'>
           <span className='text-15px font-medium text-t-primary'>{agentName}</span>
-          <span
-            data-testid='team-chat-empty-state-subtitle'
-            className='text-12px text-t-tertiary italic'
-          >
+          <span data-testid='team-chat-empty-state-subtitle' className='text-12px text-t-tertiary italic'>
             {t('team.emptyState.specialistStandby', {
               defaultValue: 'Standing by - the team leader handles incoming work.',
             })}

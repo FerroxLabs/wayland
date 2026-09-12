@@ -197,10 +197,10 @@ describe('conciergeConfigBridge apply', () => {
     expect((state.msg!.content as IConciergeConfigContent).status).toBe('pending'); // no transition
   });
 
-  it('set_default_model accept writes the engine default model', async () => {
+  it('set_default_model accept writes the gemini default model', async () => {
     setMsg({
       kind: 'set_default_model',
-      engine: 'wcore',
+      engine: 'gemini',
       modelId: 'm/x',
       useModel: 'x',
       label: 'X',
@@ -208,10 +208,10 @@ describe('conciergeConfigBridge apply', () => {
     });
     const res = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
     expect(res.ok).toBe(true);
-    expect(setSpy).toHaveBeenCalledWith('wcore.defaultModel', { id: 'm/x', useModel: 'x' });
+    expect(setSpy).toHaveBeenCalledWith('gemini.defaultModel', { id: 'm/x', useModel: 'x' });
   });
 
-  it('set_default_model for the fuigo engine writes fuigo.defaultModel, not the Core key', async () => {
+  it('set_default_model for the fuigo engine writes fuigo.defaultModel, not the gemini key', async () => {
     setMsg({
       kind: 'set_default_model',
       engine: 'fuigo',
@@ -223,7 +223,6 @@ describe('conciergeConfigBridge apply', () => {
     const res = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
     expect(res.ok).toBe(true);
     expect(setSpy).toHaveBeenCalledWith('fuigo.defaultModel', { id: 'flux/auto', useModel: 'flux-auto' });
-    expect(setSpy).not.toHaveBeenCalledWith('wcore.defaultModel', expect.anything());
     expect(setSpy).not.toHaveBeenCalledWith('gemini.defaultModel', expect.anything());
   });
 
@@ -301,7 +300,7 @@ describe('conciergeConfigBridge apply', () => {
   });
 
   it('cancel resolves the card and writes nothing', async () => {
-    setMsg({ kind: 'set_default_model', engine: 'wcore', modelId: 'a', useModel: 'b', label: 'C', status: 'pending' });
+    setMsg({ kind: 'set_default_model', engine: 'fuigo', modelId: 'a', useModel: 'b', label: 'C', status: 'pending' });
     const res = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'cancel' });
     expect(res.ok).toBe(true);
     expect((state.msg!.content as IConciergeConfigContent).status).toBe('cancelled');

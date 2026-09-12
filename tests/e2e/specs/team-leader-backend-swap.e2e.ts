@@ -5,7 +5,7 @@
  *   1. Create a leader team and navigate to /team/<id>.
  *   2. The per-agent backend pill ([data-testid="agent-backend-pill-<slotId>"])
  *      renders only when the host has ≥2 detected backends (the helper resolves
- *      detected ∪ wayland-core; with 0 CLIs installed it returns just 1).
+ *      detected ∪ fuigo; with 0 CLIs installed it returns just 1).
  *      When the pill is absent we fixme with an honest reason instead of
  *      asserting a missing element.
  *   3. Open the pill dropdown → pick a different backend option.

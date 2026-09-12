@@ -34,7 +34,7 @@ interface CronJobManagerProps {
    */
   conversationTitle?: string;
   /**
-   * Backend type (gemini | wcore | claude | codex | ...) - passed through
+   * Backend type (gemini | fuigo | claude | codex | ...) - passed through
    * to CreateTaskDialog so the new cron job inherits the chat's agent type
    * by default rather than dropping to 'claude'.
    */

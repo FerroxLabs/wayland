@@ -10,7 +10,7 @@
  * bare `failed`. The New-Project instructions wizard showed "Could not generate
  * a draft." with no cause, making real failures (bad key, 404 model, rate limit,
  * request timeout) undiagnosable from the UI. Draft generation goes through the
- * direct-HTTP `oneShotComplete` path, NOT the wayland-core engine, so the engine
+ * direct-HTTP `oneShotComplete` path, NOT the bundled engine, so the engine
  * fix in 0.12.5 (#200) does not address this.
  */
 

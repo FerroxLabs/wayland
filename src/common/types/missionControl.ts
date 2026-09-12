@@ -5,11 +5,12 @@
  */
 
 /** Canonical, sealed provenance. Similar names from different runtimes are not equivalent. */
-export type ActivityProvenance =
-  | { origin: 'desktop'; kind: 'team' | 'workflow' | 'schedule' | 'schedule-run' | 'approval' }
-  | { origin: 'core'; kind: 'turn' | 'sub-agent' | 'workflow' | 'approval' };
+export type ActivityProvenance = {
+  origin: 'desktop';
+  kind: 'team' | 'workflow' | 'schedule' | 'schedule-run' | 'approval';
+};
 
-export type LedgerSource = 'desktop-teams' | 'desktop-workflows' | 'scheduler' | 'core-execution' | 'approvals';
+export type LedgerSource = 'desktop-teams' | 'desktop-workflows' | 'scheduler' | 'approvals';
 
 export type ActivityGroup = 'needs-you' | 'running' | 'upcoming' | 'recent';
 

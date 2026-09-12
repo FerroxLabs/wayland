@@ -33,7 +33,7 @@ const buildLeader = () => ({
   slotId: '',
   conversationId: '',
   role: 'leader' as const,
-  agentType: 'wayland-core',
+  agentType: 'fuigo',
   agentName: 'Leader',
   conversationType: 'acp',
   status: 'pending' as const,
@@ -107,7 +107,7 @@ test.describe.serial('Team concurrency + races (adversarial)', () => {
 
     const created = await createNamedTeam(page, 'DeleteRace');
     if (!created) {
-      test.fixme(true, 'backend (wayland-core) not available - team.create returned null');
+      test.fixme(true, 'backend (fuigo) not available - team.create returned null');
       return;
     }
 
@@ -123,7 +123,7 @@ test.describe.serial('Team concurrency + races (adversarial)', () => {
       agent: {
         conversationId: '',
         role: 'teammate',
-        agentType: 'wayland-core',
+        agentType: 'fuigo',
         agentName: 'RaceMate',
         conversationType: 'acp',
         status: 'pending',
@@ -149,7 +149,7 @@ test.describe.serial('Team concurrency + races (adversarial)', () => {
 
     const created = await createNamedTeam(page, 'PromoteRace');
     if (!created) {
-      test.fixme(true, 'backend (wayland-core) not available - team.create returned null');
+      test.fixme(true, 'backend (fuigo) not available - team.create returned null');
       return;
     }
 

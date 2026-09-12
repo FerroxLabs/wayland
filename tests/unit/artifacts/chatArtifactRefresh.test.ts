@@ -35,7 +35,7 @@ import os from 'os';
 import path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
+import { resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 import {
   openArtifact,
   refreshChatArtifact,

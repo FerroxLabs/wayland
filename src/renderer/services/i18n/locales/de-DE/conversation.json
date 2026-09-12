@@ -400,7 +400,6 @@
     "title": "{{backend}} kann sich hier nicht anmelden",
     "subscriptionExplainer": "Der Anbieter blockiert Abo-Anmeldungen in Tools von Drittanbietern wie diesem. Um {{backend}} hier weiter zu nutzen, leite es über Flux Router, füge einen Provider-API-Schlüssel hinzu oder melde dich direkt in der CLI an.",
     "genericExplainer": "{{backend}} konnte nicht authentifiziert werden. Leite es über Flux Router, füge einen Provider-API-Schlüssel hinzu oder melde dich in der CLI an, um das zu beheben.",
-    "wcoreExplainer": "Wayland Core konnte nicht authentifiziert werden. Der Inferenzanbieter hat den API-Schlüssel abgelehnt (401). Anders als Claude Code hat Wayland Core keine Abo-Anmeldung als Rückfallebene. Füge daher einen funktionierenden Provider-Schlüssel hinzu oder leite es über Flux Router.",
     "flux": {
       "label": "Über Flux leiten",
       "sublabel": "Intelligentes Routing wählt das richtige Modell für jede Aufgabe. Starte kostenlos mit einem Guthaben von 1 $, dann zahle nach Verbrauch oder wähle einen Tarif.",
@@ -420,33 +419,6 @@
     },
     "dismiss": "Schließen",
     "recommended": "(empfohlen)"
-  },
-  "contextCeiling": {
-    "title": "This run exceeded {{model}}’s context window",
-    "titleNoModel": "This run exceeded the model’s context window",
-    "explainer": "The request grew past the model’s context-window limit and history compaction couldn’t shrink it any further. Switch to a model with a larger context window, then retry the last message.",
-    "switch": {
-      "label": "Switch to a larger-context model",
-      "sublabel": "Pick a model with a bigger context window from the picker."
-    },
-    "retry": {
-      "label": "Retry the last message",
-      "sublabel": "Re-run the message that hit the limit on the selected model.",
-      "action": "Retry"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
-  },
-  "constitutionLocked": {
-    "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
-    "recover": {
-      "label": "Restore from a recovery archive",
-      "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
-      "action": "Open recovery"
-    },
-    "details": "Show error details",
-    "dismiss": "Dismiss"
   },
   "composerMenu": {
     "skills": "Skills",
@@ -512,64 +484,9 @@
       "body": "{{title}} wurde mit einem Fehler beendet. {{detail}}"
     }
   },
-  "engineConfigInvalid": {
-    "title": "Die Einstellungsdatei von Wayland Core muss korrigiert werden",
-    "explainer": "Die Engine konnte ihre eigene Einstellungsdatei nicht lesen, deshalb kann der Agent nicht starten. Es wurde nichts geändert – deine Anbieter, Schlüssel und Einstellungen sind alle noch darin.",
-    "dismiss": "Schließen",
-    "details": "Technische Details",
-    "checking": "Einstellungsdatei wird geprüft …",
-    "location": "Das Problem liegt in Zeile {{line}}, Spalte {{column}}.",
-    "noProblem": "Die Einstellungsdatei lässt sich jetzt einwandfrei lesen. Sende deine Nachricht erneut.",
-    "unreadable": "Wayland konnte die Einstellungsdatei nicht lesen. Grund: {{reason}}",
-    "repair": {
-      "label": "Zeile {{line}} für mich korrigieren",
-      "sublabel": "Sichert die Datei zuerst und fügt dann den fehlenden Zeilenumbruch ein. Sonst ändert sich nichts.",
-      "action": "Korrigieren",
-      "unavailable": "Das Problem in Zeile {{line}} braucht ein menschliches Auge – Wayland rät nicht. Öffne die Datei unten oder fange mit den Standardeinstellungen neu an.",
-      "notTextUnavailable": "Wayland überschreibt keine Datei, die es nicht exakt lesen kann, deshalb gibt es hier keine automatische Korrektur. Öffne die Datei unten oder fange mit den Standardeinstellungen neu an."
-    },
-    "reveal": {
-      "label": "Zeig mir die Datei",
-      "sublabel": "Öffnet den Ordner, in dem sie liegt, damit du den Pfad nicht suchen musst.",
-      "action": "Anzeigen"
-    },
-    "regenerate": {
-      "label": "Mit Standardeinstellungen neu anfangen",
-      "sublabel": "Letztes Mittel. Deine aktuelle Datei wird zuerst gesichert und dann entfernt, damit die Engine eine neue schreiben kann.",
-      "action": "Neu anfangen",
-      "confirmTitle": "Mit Standardeinstellungen neu anfangen?",
-      "confirmBody": "Damit wird deine Engine-Einstellungsdatei entfernt. Du verlierst die Anbieterliste, die darin gespeicherten API-Schlüssel sowie deine Speicher- und Skills-Einstellungen und musst sie neu einrichten.\n\nZuerst wird eine Sicherung mit Zeitstempel neben dem Original gespeichert. Kann diese Sicherung nicht überprüft werden, wird nichts entfernt.",
-      "confirmAction": "Sichern und neu anfangen"
-    },
-    "result": {
-      "repaired": "Korrigiert. Eine Sicherung des Originals wurde als {{name}} gespeichert.",
-      "regenerated": "Fertig. Deine alten Einstellungen wurden als {{name}} gespeichert.",
-      "backupFailed": "Wayland konnte keine überprüfte Sicherung anlegen, deshalb wurde nichts geändert. Grund: {{reason}}",
-      "writeFailed": "Die Änderung konnte nicht abgeschlossen werden. Grund: {{reason}}",
-      "writeFailedWithBackup": "Die Änderung konnte nicht abgeschlossen werden. Grund: {{reason}} Nichts ist verloren: Deine ursprünglichen Einstellungen liegen in {{name}}.",
-      "notARegularFile": "Diese Einstellungsdatei ist eine Verknüpfung auf eine andere Datei, deshalb ersetzt Wayland sie nicht. Nutze „Zeig mir die Datei“ und bearbeite sie dort, wo sie wirklich liegt.",
-      "revealFailed": "Wayland konnte den Ordner nicht öffnen. Grund: {{reason}}"
-    },
-    "notText": "Wayland kann diese Datei nicht als Text lesen – einige ihrer Bytes sind kein gültiges UTF-8, das das Einstellungsformat verlangt. Es wurde nichts geändert."
-  },
   "turnRecovery": {
     "outcomeUnknown": "Ergebnis unbekannt",
-    "lastRecordedAction": "Zuletzt erfasste Aktion: {{action}}",
-    "starting": "Preparing conversation…",
-    "checkingTitle": "Checking interrupted work",
-    "checking": "Asking Wayland Core whether this conversation can accept a new message…",
-    "title": "An interrupted turn needs attention",
-    "interrupted": "Core stopped while a turn was waiting. You can end that unfinished turn, then continue in this conversation.",
-    "unavailable": "Core cannot safely end this turn yet. Its external outcome may be unknown, so no recovery claim has been made.",
-    "checkAgain": "Check again",
-    "endAction": "End interrupted turn",
-    "confirmTitle": "End the interrupted turn?",
-    "confirmBody": "This ends only the unfinished turn. Your transcript and any earlier side effects stay intact. Wayland will verify Core’s state again before allowing another message.",
-    "keepAction": "Keep it",
-    "checkFailed": "Wayland could not inspect the interrupted turn.",
-    "actionFailed": "Wayland Core did not confirm that the interrupted turn ended.",
-    "notVerified": "Core has not verified that this conversation is ready. No new message will be sent.",
-    "sendBlocked": "Resolve the interrupted turn before sending a new message"
+    "lastRecordedAction": "Zuletzt erfasste Aktion: {{action}}"
   },
   "artifactCard": {
     "title": "In deinem Arbeitsbereich gespeichert",
@@ -598,14 +515,5 @@
     "rejectedUnreadable_other": "{{count}} konnten nicht gelesen werden",
     "more": "und {{count}} weitere unter Artefakte",
     "more_other": "und {{count}} weitere unter Artefakte"
-  },
-  "workspacePolicy": {
-    "title": "Arbeitsbereichszugriff",
-    "scope": "Von der aktiven Core-Sitzung gemeldeter Dateisystemzugriff. Werkzeugfreigaben, Zugangsdaten und Registrierung sind davon getrennt.",
-    "readable": "Lesbare Ordner",
-    "writable": "Beschreibbare Ordner",
-    "executables": "Ausführbare Funktionen und schreibgeschützte Ordner",
-    "none": "Keine gemeldet",
-    "unknown": "Core hat für diese Unterhaltung keinen aktiven Arbeitsbereichszugriff gemeldet."
   }
 }

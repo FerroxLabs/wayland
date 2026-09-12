@@ -20,7 +20,7 @@
  * Two of those are unrunnable-by-construction rather than merely surprising:
  *
  *  - the ChatGPT-subscription row is KEYLESS (OAuth via ~/.codex/auth.json, only
- *    the wcore engine can auth it). `preferSubscriptionForOwnedModel` already
+ *    the retired Core engine could auth it). `preferSubscriptionForOwnedModel` already
  *    documents that binding a Gemini-CLI teammate to it breaks bootstrap with
  *    "OpenAI API key is required" — and a bootstrap that never returns is
  *    exactly the indefinite Processing state this issue is about.

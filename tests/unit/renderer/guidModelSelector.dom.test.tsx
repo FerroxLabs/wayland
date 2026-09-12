@@ -262,10 +262,10 @@ describe('GuidModelSelector home picker', () => {
   it('reads the curated set scoped to the selected agent', async () => {
     mockCuratedForAgent.mockResolvedValue(CLAUDE_MODELS);
 
-    render(<GuidModelSelector {...baseProps} agentKey='wcore' />);
+    render(<GuidModelSelector {...baseProps} agentKey='fuigo' />);
 
     await waitFor(() => {
-      expect(mockCuratedForAgent).toHaveBeenCalledWith('wcore');
+      expect(mockCuratedForAgent).toHaveBeenCalledWith('fuigo');
     });
     expect(await screen.findByText('Claude Opus 4.7')).toBeInTheDocument();
     expect(screen.getByText('Claude Haiku 4.5')).toBeInTheDocument();
@@ -274,7 +274,7 @@ describe('GuidModelSelector home picker', () => {
   it('renders one row per curated model in the provider picker', async () => {
     mockCuratedForAgent.mockResolvedValue(CLAUDE_MODELS);
 
-    render(<GuidModelSelector {...baseProps} agentKey='wcore' />);
+    render(<GuidModelSelector {...baseProps} agentKey='fuigo' />);
 
     // The provider-based picker (ModelSelectorPanel) lists each curated model
     // by display name. Price-tier glyphs are exercised by the costToPriceTier
@@ -333,7 +333,7 @@ describe('GuidModelSelector home picker', () => {
     const fireEventClick = (await import('@testing-library/react')).fireEvent.click;
     const setCurrentModel = vi.fn().mockResolvedValue(undefined);
 
-    render(<GuidModelSelector {...baseProps} agentKey='wcore' modelList={[]} setCurrentModel={setCurrentModel} />);
+    render(<GuidModelSelector {...baseProps} agentKey='fuigo' modelList={[]} setCurrentModel={setCurrentModel} />);
 
     const row = await screen.findByText('Unknown');
     fireEventClick(row);
@@ -426,7 +426,7 @@ describe('GuidModelSelector home picker', () => {
     });
     const setCurrentModel = vi.fn().mockResolvedValue(undefined);
 
-    render(<GuidModelSelector {...baseProps} agentKey='wcore' setCurrentModel={setCurrentModel} />);
+    render(<GuidModelSelector {...baseProps} agentKey='fuigo' setCurrentModel={setCurrentModel} />);
 
     await waitFor(() =>
       expect(mockResolveForChatStart).toHaveBeenCalledWith({ providerId: 'flux-router', modelId: 'flux-auto' })

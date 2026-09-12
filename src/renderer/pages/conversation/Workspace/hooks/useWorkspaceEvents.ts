@@ -14,7 +14,7 @@ import type { ContextMenuState } from '../types';
 
 interface UseWorkspaceEventsOptions {
   conversation_id: string;
-  eventPrefix: 'gemini' | 'acp' | 'codex' | 'wcore';
+  eventPrefix: 'gemini' | 'acp' | 'codex';
 
   // Dependencies from useWorkspaceTree
   refreshWorkspace: () => void;

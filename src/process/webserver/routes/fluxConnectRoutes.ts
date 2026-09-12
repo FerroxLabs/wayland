@@ -32,7 +32,7 @@
  *       Flux SERVER-SIDE with the SAME server-derived redirect_uri, persists via
  *       the existing connect path, and returns { connected } only.
  *
- * Gates (the providerKeyRoutes / toolKeyRoutes shape):
+ * Gates (the providerKeyRoutes shape):
  *  - `apiRateLimiter` + `validateApiAccess` as route middleware.
  *  - tiny-csrf (global middleware in setup.ts) covers the POST verbs.
  *  - `requireSecureConfigWrite` (W0 shared guard): the CONFIG-WRITE floor -

@@ -15,12 +15,8 @@ vi.mock('../../../../../scripts/tvcontrol/authority.json', () => ({
 import { createHash } from 'node:crypto';
 import {
   isBundledTvControlDeclaration,
-  provisionWorkspaceTvControl,
-  provisionTvControlForWorkspacePolicy,
-  verifyTvControlTree,
   resolveUserTvControlEntry,
 } from '@process/services/mcpServices/bundledTvControl';
-import { buildEngineSpawnEnv } from '@process/agent/wcore/envBuilder';
 
 const roots: string[] = [];
 afterEach(() => {
@@ -87,86 +83,6 @@ describe('bundled TVControl session provisioning', () => {
       isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.7', '--extra'], 'com.ferroxlabs/tvcontrol')
     ).toBe(false);
   });
-  it('uses the received scratch root that Core assigns to Bash instead of the inherited temp parent', () => {
-    const { source, workspace } = setup();
-    const temp = provisionWorkspaceTvControl(workspace, source);
-    const scratch = path.join(temp, 'engine-owned-layout', 'trusted');
-    fs.mkdirSync(scratch, { recursive: true });
-    expect(provisionTvControlForWorkspacePolicy(workspace, temp, [workspace, scratch], source)).toBe(scratch);
-    const candidate = fs.readdirSync(scratch).find((name) => name.startsWith('bunx-') && name.includes('tvcontrol'))!;
-    expect(verifyTvControlTree(path.join(scratch, candidate))).toBe(true);
-  });
-  it.runIf(process.platform === 'win32')(
-    'accepts the native Core NT-prefixed scratch receipt without changing its authority',
-    () => {
-      const { source, workspace } = setup();
-      const temp = provisionWorkspaceTvControl(workspace, source);
-      const scratch = path.join(temp, 'wayland-scratch', 'trusted');
-      fs.mkdirSync(scratch, { recursive: true });
-      const receiptRoots = [
-        path.toNamespacedPath(workspace),
-        path.toNamespacedPath(scratch),
-        path.toNamespacedPath(source),
-      ];
-      expect(provisionTvControlForWorkspacePolicy(workspace, temp, receiptRoots, source)).toBe(scratch);
-      expect(verifyTvControlTree(path.join(scratch, 'bunx-wayland-tvcontrol-2.5.1'))).toBe(true);
-    }
-  );
-  it.runIf(process.platform === 'win32')('recognizes case and namespace aliases of one scratch grant', () => {
-    const { source, workspace } = setup();
-    const temp = provisionWorkspaceTvControl(workspace, source);
-    const scratch = path.join(temp, 'wayland-scratch', 'trusted');
-    fs.mkdirSync(scratch, { recursive: true });
-    expect(
-      provisionTvControlForWorkspacePolicy(
-        workspace,
-        path.toNamespacedPath(temp),
-        [scratch, path.toNamespacedPath(scratch).toUpperCase()],
-        source
-      )
-    ).toBe(scratch);
-  });
-  it.runIf(process.platform === 'win32')('still refuses a junction when Core uses a namespace-prefixed receipt', () => {
-    const { source, workspace } = setup();
-    const temp = provisionWorkspaceTvControl(workspace, source);
-    const redirected = path.join(temp, 'redirected');
-    fs.symlinkSync(source, redirected, 'junction');
-    expect(() =>
-      provisionTvControlForWorkspacePolicy(workspace, temp, [path.toNamespacedPath(redirected)], source)
-    ).toThrow('redirected');
-  });
-  it('refuses missing or ambiguous receipt scratch roots without guessing their names', () => {
-    const { source, workspace } = setup();
-    const temp = provisionWorkspaceTvControl(workspace, source);
-    expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [workspace], source)).toThrow('exactly one');
-    expect(() =>
-      provisionTvControlForWorkspacePolicy(workspace, temp, [path.join(temp, 'a'), path.join(temp, 'b')], source)
-    ).toThrow('exactly one');
-  });
-  it('refuses a scratch receipt redirected through a symlink', () => {
-    const { source, workspace } = setup();
-    const temp = provisionWorkspaceTvControl(workspace, source);
-    const redirected = path.join(temp, 'redirected');
-    fs.symlinkSync(source, redirected, process.platform === 'win32' ? 'junction' : 'dir');
-    expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [workspace, redirected], source)).toThrow(
-      'redirected'
-    );
-    expect(fs.existsSync(path.join(source, 'bunx-wayland-tvcontrol-2.5.1'))).toBe(false);
-  });
-  it('refuses a receipt outside the workspace and preserves a corrupt scratch copy', () => {
-    const { source, workspace } = setup();
-    const temp = provisionWorkspaceTvControl(workspace, source);
-    expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [source], source)).toThrow('exactly one');
-    const scratch = path.join(temp, 'scratch');
-    fs.mkdirSync(scratch);
-    provisionTvControlForWorkspacePolicy(workspace, temp, [scratch], source);
-    const file = path.join(scratch, 'bunx-wayland-tvcontrol-2.5.1/node_modules/@ferroxlabs/tvcontrol/src/server.js');
-    fs.writeFileSync(file, 'changed');
-    expect(() => provisionTvControlForWorkspacePolicy(workspace, temp, [scratch], source)).toThrow(
-      'Existing workspace'
-    );
-    expect(fs.readFileSync(file, 'utf8')).toBe('changed');
-  });
   it('rejects wrong versions and user-owned declarations', () => {
     expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.4.5'], 'com.ferroxlabs/tvcontrol')).toBe(
       false
@@ -174,49 +90,6 @@ describe('bundled TVControl session provisioning', () => {
     expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.5.1'])).toBe(false);
     expect(isBundledTvControlDeclaration('npx', ['@ferroxlabs/tvcontrol@2.5.1'], 'com.ferroxlabs/tvcontrol')).toBe(
       true
-    );
-  });
-  it('fails before copying a corrupted bundled dependency', () => {
-    const { source, workspace } = setup();
-    fs.appendFileSync(path.join(source, 'node_modules/@ferroxlabs/tvcontrol/src/server.js'), 'tampered');
-    expect(() => provisionWorkspaceTvControl(workspace, source)).toThrow('integrity');
-    expect(fs.existsSync(path.join(workspace, '.wayland-runtime'))).toBe(false);
-  });
-  it('copies a verified tree where the unmodified collector TMPDIR search finds it', () => {
-    const { source, workspace } = setup();
-    const temp = provisionWorkspaceTvControl(workspace, source);
-    const candidate = fs.readdirSync(temp).find((name) => name.startsWith('bunx-') && name.includes('tvcontrol'))!;
-    expect(verifyTvControlTree(path.join(temp, candidate))).toBe(true);
-    expect(provisionWorkspaceTvControl(workspace, source)).toBe(temp);
-    expect(fs.existsSync(path.join(workspace, '.wayland-core/skills'))).toBe(false);
-  });
-  it('preserves and refuses a modified existing session copy', () => {
-    const { source, workspace } = setup();
-    const temp = provisionWorkspaceTvControl(workspace, source);
-    const changed = path.join(temp, 'bunx-wayland-tvcontrol-2.5.1/node_modules/@ferroxlabs/tvcontrol/src/server.js');
-    fs.writeFileSync(changed, 'user change');
-    expect(() => provisionWorkspaceTvControl(workspace, source)).toThrow('Existing workspace');
-    expect(fs.readFileSync(changed, 'utf8')).toBe('user change');
-  });
-  it('refuses a workspace runtime directory redirected outside the workspace', () => {
-    const { root, source, workspace } = setup();
-    fs.symlinkSync(source, path.join(workspace, '.wayland-runtime'), process.platform === 'win32' ? 'junction' : 'dir');
-    expect(() => provisionWorkspaceTvControl(workspace, source)).toThrow('inside the workspace');
-    expect(fs.existsSync(path.join(root, 'source/tmp'))).toBe(false);
-  });
-  it('changes only the engine child temp environment and preserves its output destination', () => {
-    const { source, workspace } = setup();
-    const before = { TMPDIR: process.env.TMPDIR, TEMP: process.env.TEMP, HOME: process.env.HOME };
-    const temp = provisionWorkspaceTvControl(workspace, source);
-    const env = buildEngineSpawnEnv({ providerEnv: {}, workspace, managedTempDir: temp });
-    expect([env.TMPDIR, env.TEMP, env.TMP]).toEqual([temp, temp, temp]);
-    expect(env.WAYLAND_OUTPUT_DIR).toBe(path.join(workspace, 'artifacts'));
-    expect({ TMPDIR: process.env.TMPDIR, TEMP: process.env.TEMP, HOME: process.env.HOME }).toEqual(before);
-  });
-  it('rejects an external temp override', () => {
-    const { source, workspace } = setup();
-    expect(() => buildEngineSpawnEnv({ providerEnv: {}, workspace, managedTempDir: source })).toThrow(
-      'inside its workspace'
     );
   });
 });

@@ -62,7 +62,8 @@ const resolveAgentIdentity = (conversation: TChatConversation): { backend: strin
   if (conversation.type === 'remote') {
     return { backend: 'remote', agentName: 'Remote Agent' };
   }
-  return { backend: 'nanobot', agentName: 'NanoBot' };
+  const type = (conversation as { type: string }).type;
+  return { backend: type, agentName: type };
 };
 
 const toEventText = (message: TMessage): { kind: 'status' | 'tool' | 'message'; text: string; at: number } | null => {

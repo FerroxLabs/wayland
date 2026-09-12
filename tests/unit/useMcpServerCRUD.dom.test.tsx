@@ -1131,7 +1131,7 @@ describe('useMcpServerCRUD', () => {
     refreshMcpServers.mockResolvedValue(undefined);
     bridgeMocks.getAvailableAgents.mockResolvedValue({
       success: true,
-      data: [{ backend: 'wcore', name: 'Wayland Core' }],
+      data: [{ backend: 'fuigo', name: 'Fuigo' }],
     });
     bridgeMocks.archiveConfiguredServer.mockResolvedValue({
       success: true,
@@ -1636,7 +1636,7 @@ describe('useMcpServerCRUD', () => {
 
       expect(bridgeMocks.archiveConfiguredServer).toHaveBeenCalledWith({
         serverId: 'mcp_1',
-        agents: [{ backend: 'wcore', name: 'Wayland Core' }],
+        agents: [{ backend: 'fuigo', name: 'Fuigo' }],
       });
       expect(refreshMcpServers).toHaveBeenCalledTimes(1);
       expect(saveMcpServers).not.toHaveBeenCalled();

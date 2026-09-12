@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { faviconFor, parseWcoreSearchOutput, codexResultsToSources } from '../../src/common/chat/activity/sources';
+import { faviconFor, parseNativeSearchOutput, codexResultsToSources } from '../../src/common/chat/activity/sources';
 import type { SearchResult } from '../../src/common/types/codex/types/eventData';
 
 describe('sources.faviconFor', () => {
@@ -25,9 +25,9 @@ describe('sources.faviconFor', () => {
   });
 });
 
-describe('sources.parseWcoreSearchOutput', () => {
+describe('sources.parseNativeSearchOutput', () => {
   it('parses an array-at-root shape', () => {
-    const out = parseWcoreSearchOutput(JSON.stringify([{ title: 'Reuters', url: 'https://reuters.com' }]));
+    const out = parseNativeSearchOutput(JSON.stringify([{ title: 'Reuters', url: 'https://reuters.com' }]));
     expect(out).toHaveLength(1);
     expect(out[0]).toMatchObject({ title: 'Reuters', url: 'https://reuters.com', domain: 'reuters.com' });
     expect(out[0].favicon).toBe('https://www.google.com/s2/favicons?domain=reuters.com&sz=32');
@@ -40,7 +40,7 @@ describe('sources.parseWcoreSearchOutput', () => {
         { title: 'CNN', url: 'https://cnn.com' },
       ],
     };
-    const out = parseWcoreSearchOutput(JSON.stringify(payload));
+    const out = parseNativeSearchOutput(JSON.stringify(payload));
     expect(out).toHaveLength(2);
     expect(out[0].title).toBe('BBC');
     expect(out[1].domain).toBe('cnn.com');
@@ -48,12 +48,12 @@ describe('sources.parseWcoreSearchOutput', () => {
 
   it('parses a { sources: [...] } shape', () => {
     const payload = { sources: [{ title: 'AP', url: 'https://apnews.com' }] };
-    const out = parseWcoreSearchOutput(JSON.stringify(payload));
+    const out = parseNativeSearchOutput(JSON.stringify(payload));
     expect(out).toHaveLength(1);
     expect(out[0].title).toBe('AP');
   });
 
-  it('parses the native wcore web tool { data: { web: [...] } } shape', () => {
+  it('parses the native engine web tool { data: { web: [...] } } shape', () => {
     // Real shape captured live from the Flux `web` tool (operation=search).
     const payload = {
       data: {
@@ -68,7 +68,7 @@ describe('sources.parseWcoreSearchOutput', () => {
       },
       success: true,
     };
-    const out = parseWcoreSearchOutput(JSON.stringify(payload));
+    const out = parseNativeSearchOutput(JSON.stringify(payload));
     expect(out).toHaveLength(2);
     expect(out[0]).toMatchObject({
       title: 'OpenAI: Latest News - WinBuzzer',
@@ -79,23 +79,23 @@ describe('sources.parseWcoreSearchOutput', () => {
   });
 
   it('returns [] for a plain prose string (not JSON)', () => {
-    expect(parseWcoreSearchOutput('Here are the results for your search query.')).toEqual([]);
+    expect(parseNativeSearchOutput('Here are the results for your search query.')).toEqual([]);
   });
 
   it('returns [] for malformed JSON', () => {
-    expect(parseWcoreSearchOutput('{bad json')).toEqual([]);
+    expect(parseNativeSearchOutput('{bad json')).toEqual([]);
   });
 
   it('returns [] for an empty string', () => {
-    expect(parseWcoreSearchOutput('')).toEqual([]);
+    expect(parseNativeSearchOutput('')).toEqual([]);
   });
 
   it('returns [] for a JSON object that is not an array or known shape', () => {
-    expect(parseWcoreSearchOutput(JSON.stringify({ data: 'something' }))).toEqual([]);
+    expect(parseNativeSearchOutput(JSON.stringify({ data: 'something' }))).toEqual([]);
   });
 
   it('skips items without both title and url', () => {
-    const out = parseWcoreSearchOutput(JSON.stringify([{}, { title: 'Only title' }, { url: 'https://example.com' }]));
+    const out = parseNativeSearchOutput(JSON.stringify([{}, { title: 'Only title' }, { url: 'https://example.com' }]));
     // {} is skipped; the other two have at least one of title/url
     expect(out).toHaveLength(2);
     expect(out[0].title).toBe('Only title');

@@ -5,7 +5,7 @@
  */
 
 /**
- * #998 - a STRICT SUBSET now reaches ACP and Wayland Core, via interposition.
+ * #998 - a STRICT SUBSET now reaches ACP engines, via interposition.
  *
  * The sibling suite `mcpEmptyToolAllowlistWithholdsServer` covers the all-off
  * case, which is a SERVER-level statement and so expressible everywhere. This
@@ -16,19 +16,12 @@
  * engine talks to: it is handed a descriptor pointing at Wayland's filtering
  * shim, and the shim holds the real server's descriptor. The subset stops being
  * UI state the engine is asked to respect and becomes a process boundary.
- *
- * KNOWN GAP, asserted here so it cannot be mistaken for coverage: connectors
- * serialized into Core's startup `config.toml` by `toWCoreConfig` are NOT
- * wrapped. That path rewrites the command for restart-safety
- * (`toRestartSafeBundledRuntimeCommand`), and interposing there without
- * accounting for it risks persisting a stale runtime path. Per-chat connectors
- * reach Core through the runtime `add_mcp_server` path, which IS wrapped.
  */
 
 import { describe, expect, it } from 'vitest';
 
 import type { IMcpServer } from '@/common/config/storage';
-import { buildAcpSessionMcpServers, buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import { buildAcpSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
 
 const ACP_CAPS = { stdio: true, http: true, sse: true };
 
@@ -60,20 +53,10 @@ describe('#998 strict subset reaches the engines through the filtering shim', ()
     expect(args.slice(sep + 1)).toContain('--flag');
   });
 
-  it('Wayland Core: a strict subset is routed through the shim too', () => {
-    const [descriptor] = buildWCoreUserStdioMcpServers([server({ allowedTools: ['read'] })]);
-    const args = (descriptor as { args: string[] }).args;
-
-    expect(isShim(args)).toBe(true);
-    expect(args.flatMap((a, i) => (a === '--allow' ? [args[i + 1]] : []))).toEqual(['read']);
-  });
-
   it('no selection means no shim - an unscoped connector is spawned directly', () => {
     const [acp] = buildAcpSessionMcpServers([server()], ACP_CAPS);
-    const [wcore] = buildWCoreUserStdioMcpServers([server()]);
 
     expect(isShim((acp as { args: string[] }).args)).toBe(false);
-    expect(isShim((wcore as { args: string[] }).args)).toBe(false);
   });
 
   it('the server env still reaches the real server through the shim', () => {
@@ -88,6 +71,5 @@ describe('#998 strict subset reaches the engines through the filtering shim', ()
     // Withholding is strictly better than an empty shim: it keeps the session
     // receipts honest, and the shim refuses to start on an empty allowlist.
     expect(buildAcpSessionMcpServers([server({ allowedTools: [] })], ACP_CAPS)).toEqual([]);
-    expect(buildWCoreUserStdioMcpServers([server({ allowedTools: [] })])).toEqual([]);
   });
 });

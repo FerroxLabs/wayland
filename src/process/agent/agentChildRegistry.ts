@@ -5,18 +5,18 @@
  */
 
 /**
- * Last-resort registry of live agent engine child processes (wayland-core over
- * `--json-stream`, and ACP backend CLIs).
+ * Last-resort registry of live agent engine child processes (the bundled
+ * engine and ACP backend CLIs).
  *
  * #443: the primary teardown path is per-agent and graceful -
  * `WorkerTaskManager.clear()` in before-quit awaits each manager's `kill()`,
- * which runs `WCoreAgent.kill()` / `AcpConnection.disconnect()` -> `killChild`.
+ * which runs `AcpConnection.disconnect()` -> `killChild`.
  * That path is correct but not sufficient on its own to guarantee no orphans on
  * quit:
  *   - `clear()` runs under a 2s per-step budget in before-quit, while a single
  *     graceful `killChild` can take up to 3s (POSIX SIGTERM grace) / 5s (Windows
  *     taskkill). A slow or SIGTERM-ignoring engine child can therefore be left
- *     mid-kill when the budget elapses, orphaning `wayland-core` past the app.
+ *     mid-kill when the budget elapses, orphaning the engine past the app.
  *   - a child spawned outside a tracked manager would never be reaped at all.
  *
  * This registry backs a hard, fast last-resort reaper (`killAllAgentChildren`)

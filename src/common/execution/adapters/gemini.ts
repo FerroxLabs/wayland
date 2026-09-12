@@ -4,19 +4,237 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { TMessage } from '@/common/chat/chatLib';
-import type { ExecutionEvent } from '../types';
+import { toolGroupCommand } from '@/common/chat/activity/projectMessages';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
+import type { ActivityNode, IMessageActivity, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
+import type { DeclaredArtifactType, ExecutionActivity, ExecutionEvent, ExecutionPlanStep } from '../types';
 import type { ExecutionAdapterContext } from './types';
-import { adaptWCoreMessages } from './wcore';
+
+type OfficeCliValidation = Readonly<{ declaredType: DeclaredArtifactType; status: 'valid' | 'invalid' }>;
 
 /**
- * Gemini is normalized into the same persisted activity, plan, and tool-group
- * message shapes as WCore. Keeping a named adapter makes the backend boundary
- * explicit without creating a second projection model.
+ * Recognise an `officecli validate` tool run and map its terminal outcome onto
+ * the canonical type-aware validation slot (COW-05). Only a completed run with
+ * an inferable native target type is promoted; anything still running, or a
+ * different tool, produces no validation evidence. This is desktop-observable
+ * (officecli is a bundled tool) and needs no engine protocol change.
+ */
+function detectOfficeCliValidation(tool: IMessageToolGroup['content'][number]): OfficeCliValidation | null {
+  const text = `${tool.name} ${tool.description ?? ''}`;
+  if (!/officecli/i.test(text) || !/\bvalidate\b/i.test(text)) return null;
+  const typeMatch = text.match(/\.(docx|pdf|xlsx|pptx)\b/i);
+  if (!typeMatch) return null;
+  const declaredType = typeMatch[1].toLowerCase() as DeclaredArtifactType;
+  if (tool.status === 'Success') return { declaredType, status: 'valid' };
+  if (tool.status === 'Error') return { declaredType, status: 'invalid' };
+  return null;
+}
+
+type UnsequencedEvent = ExecutionEvent extends infer Event
+  ? Event extends ExecutionEvent
+    ? Omit<Event, 'sequence'>
+    : never
+  : never;
+
+function activityKind(kind: ActivityNode['kind']): ExecutionActivity['kind'] {
+  if (kind === 'sub_agent') return 'sub-agent';
+  if (kind === 'browser') return 'browser';
+  if (kind === 'cua') return 'computer';
+  if (kind === 'thinking') return 'thinking';
+  if (kind === 'tool') return 'tool';
+  return 'system';
+}
+
+function activityStatus(status: ActivityNode['status']): ExecutionActivity['status'] {
+  if (status === 'done') return 'completed';
+  return status;
+}
+
+function planStatus(status: 'pending' | 'in_progress' | 'completed'): ExecutionPlanStep['status'] {
+  return status === 'in_progress' ? 'in-progress' : status;
+}
+
+/** Tool states from which a tool cannot leave. Used to settle a tool-only turn. */
+const TERMINAL_TOOL_STATUSES = new Set<string>(['Success', 'Error', 'Canceled']);
+
+function toolGroupStatus(status: IMessageToolGroup['content'][number]['status']): ExecutionActivity['status'] {
+  if (status === 'Success') return 'completed';
+  if (status === 'Error') return 'failed';
+  if (status === 'Canceled') return 'cancelled';
+  if (status === 'Confirming') return 'waiting';
+  if (status === 'Pending') return 'queued';
+  return 'running';
+}
+
+/**
+ * Gemini is normalized into the persisted activity, plan, and tool-group
+ * message shapes. Keeping a named adapter makes the backend boundary explicit
+ * without creating a second projection model.
  */
 export function adaptGeminiMessages(
   messages: readonly TMessage[],
   context: ExecutionAdapterContext
 ): readonly ExecutionEvent[] {
-  return adaptWCoreMessages(messages, context);
+  const events: ExecutionEvent[] = [];
+  let sequence = context.startSequence ?? 0;
+  const append = (event: UnsequencedEvent): void => {
+    events.push({ ...event, sequence } as ExecutionEvent);
+    sequence += 1;
+  };
+
+  for (const message of messages) {
+    const observedAt = message.createdAt ?? context.observedAt;
+    if (message.type === 'cron_trigger') {
+      append({
+        eventId: `${message.id}:cron-trigger`,
+        identity: context.identity,
+        observedAt,
+        type: 'activity',
+        activity: {
+          id: message.id,
+          kind: 'system',
+          name: `Scheduled run: ${message.content.cronJobName}`,
+          status: 'completed',
+          detail: `cron ${message.content.cronJobId} triggered at ${message.content.triggeredAt}`,
+        },
+      });
+    } else if (message.type === 'activity') {
+      append({
+        eventId: `${message.id}:lifecycle:running`,
+        identity: context.identity,
+        observedAt,
+        type: 'lifecycle',
+        lifecycle: 'running',
+      });
+      for (const node of message.content.nodes) {
+        append({
+          eventId: `${message.id}:activity:${node.id}`,
+          identity: context.identity,
+          observedAt,
+          type: 'activity',
+          activity: {
+            id: node.id,
+            kind: activityKind(node.kind),
+            name: node.name,
+            status: activityStatus(node.status),
+            // Same masking obligation as the tool_group branch below: `detail`
+            // reaches a rendered label. `command` was being dropped entirely,
+            // which also cost these steps their real labels ("Running a
+            // command" instead of the command).
+            detail: node.detail ? redactCommandSecrets(node.detail) : undefined,
+            ...(node.command ? { command: redactCommandSecrets(node.command) } : {}),
+          },
+        });
+      }
+    } else if (message.type === 'plan') {
+      append({
+        eventId: `${message.id}:plan`,
+        identity: context.identity,
+        observedAt,
+        type: 'plan',
+        steps: message.content.entries.map((entry, index) => ({
+          id: `${message.id}:${index}`,
+          content: entry.content,
+          status: planStatus(entry.status),
+          priority: entry.priority,
+        })),
+      });
+    } else if (message.type === 'tool_group') {
+      // A tool that has been dispatched proves the run left the queue. Lifecycle
+      // arrives only via `activity` messages, which a plain tool-running turn
+      // never produces - so the rail sat on "queued" while the work was visibly
+      // finishing. Advance to `running` only; completion is a claim this
+      // message cannot support, and the reducer ignores a repeat.
+      if (message.content.length > 0) {
+        append({
+          eventId: `${message.id}:lifecycle:running`,
+          identity: context.identity,
+          observedAt,
+          type: 'lifecycle',
+          lifecycle: 'running',
+        });
+      }
+      for (const tool of message.content) {
+        const command = toolGroupCommand(tool);
+        append({
+          eventId: `${message.id}:tool:${tool.callId}`,
+          identity: context.identity,
+          observedAt,
+          type: 'activity',
+          activity: {
+            id: tool.callId,
+            kind: tool.confirmationDetails?.type === 'mcp' ? 'system' : 'tool',
+            name: tool.name,
+            status: toolGroupStatus(tool.status),
+            // Both fields reach a rendered label, so both are masked (#610).
+            // A cross-audit reproduced the gap: a web_search whose detail read
+            // `query: client_secret=...` rendered the live secret in the label
+            // even though `command` beside it was correctly redacted.
+            detail: tool.description ? redactCommandSecrets(tool.description) : undefined,
+            ...(command ? { command } : {}),
+          },
+        });
+        const officeValidation = detectOfficeCliValidation(tool);
+        if (officeValidation) {
+          append({
+            eventId: `${message.id}:validation:${tool.callId}`,
+            identity: context.identity,
+            observedAt,
+            type: 'validation',
+            validation: {
+              status: officeValidation.status,
+              declaredType: officeValidation.declaredType,
+              method: 'officecli',
+              ...(tool.description ? { reason: tool.description } : {}),
+            },
+          });
+        }
+      }
+    }
+  }
+
+  // ── Turn settlement ────────────────────────────────────────────────
+  //
+  // Emitted AFTER the message loop, never inline with the activity card that
+  // proves it. The reducer treats a terminal lifecycle as absorbing (every
+  // later non-lifecycle event is dropped as `post-terminal-event`), so settling
+  // from inside the loop silently deleted every tool that happened to be
+  // persisted after the card - and marked the whole projection integrity
+  // `invalid`. Emitting once at the tail keeps the turn's activities intact.
+  //
+  // Safe to settle at all because the projection is rebuilt from the whole
+  // window on every render rather than accumulated: mid-turn, the next tool
+  // re-enters the window and the run reads `running` again on its own.
+  const activityCards = messages.filter((message): message is IMessageActivity => message.type === 'activity');
+  const toolStatuses = messages
+    .filter((message): message is IMessageToolGroup => message.type === 'tool_group')
+    .flatMap((message) => message.content.map((tool) => tool.status));
+
+  // The only positive evidence a turn is still live. The old guard blocked on
+  // the mere EXISTENCE of an activity card, which was unfalsifiable: a zero-node
+  // card reports 'running' from `rollUpStatus`, so the card both blocked this
+  // arm and could never fire the terminal arm itself. Ask the real question
+  // instead.
+  const nodeStillRunning = activityCards.some((card) => card.content.nodes.some((node) => node.status === 'running'));
+  const toolsAllTerminal = toolStatuses.every((status) => TERMINAL_TOOL_STATUSES.has(status as string));
+  // Positive evidence the turn is over. Either a dispatched tool that reached a
+  // terminal state (the original tool-only fallback), or an activity card that
+  // is itself terminal - which now includes a turn that produced NO tool_group
+  // at all, because turn end settles its card. A card that is merely PRESENT
+  // proves nothing: the zero-node cost card is 'running' until the turn ends.
+  const terminalCard = activityCards.some((card) => card.content.status !== 'running');
+  const observedWork = toolStatuses.length > 0 || terminalCard;
+  const settled = observedWork && toolsAllTerminal && !nodeStillRunning;
+
+  if (settled) {
+    const failed = activityCards.some((card) => card.content.status === 'failed');
+    append({
+      eventId: `${context.identity.runId}:lifecycle:${failed ? 'failed' : 'completed'}`,
+      identity: context.identity,
+      observedAt: context.observedAt,
+      type: 'lifecycle',
+      lifecycle: failed ? 'failed' : 'completed',
+    });
+  }
+  return events;
 }

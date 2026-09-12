@@ -58,7 +58,7 @@ function makeTaskManager(overrides?: Partial<IWorkerTaskManager>): IWorkerTaskMa
 function makeConversation(overrides: Partial<TChatConversation> = {}): TChatConversation {
   return {
     id: 'c1',
-    type: 'nanobot' as any,
+    type: 'acp',
     status: 'finished',
     modifyTime: Date.now(),
     createTime: Date.now(),

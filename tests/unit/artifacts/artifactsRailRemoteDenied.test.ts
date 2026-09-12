@@ -13,7 +13,7 @@
  * workspace the user has (`list`), an OS launcher on the LOCAL machine
  * (`open`), and a local file write (`save-copy`).
  *
- * The rail is gated CLIENT-SIDE instead, the same way `/settings/wcore-config`
+ * The rail is gated CLIENT-SIDE instead, the same way the desktop-only settings pages
  * is. This test is the tripwire: remove the prefix and it goes red.
  */
 

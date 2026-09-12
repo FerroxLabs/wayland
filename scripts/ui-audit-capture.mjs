@@ -46,7 +46,6 @@ const SURFACES = [
   ['22-settings-general', '/settings/general', 'body'],
   ['23-settings-notifications', '/settings/notifications', 'body'],
   ['24-settings-storage', '/settings/storage', 'body'],
-  ['25-settings-wcore', '/settings/wcore', 'body'],
   ['26-settings-about', '/settings/about', 'body'],
 ];
 

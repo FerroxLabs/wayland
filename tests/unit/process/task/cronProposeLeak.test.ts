@@ -115,7 +115,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
   });
 
   it('builds a stripped display message that keeps the prose and drops the markup', async () => {
-    const result = await processAgentResponse('c1', 'wcore', finishMsg(PROPOSE_BLOCK));
+    const result = await processAgentResponse('c1', 'acp', finishMsg(PROPOSE_BLOCK));
 
     const displayText = (result.displayMessage?.content as { content?: string } | undefined)?.content ?? '';
     expect(displayText).not.toContain('[CRON_PROPOSE]');
@@ -125,7 +125,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
   });
 
   it('renders the confirmation card without creating the job (propose is not create)', async () => {
-    await processAgentResponse('c1', 'wcore', finishMsg(PROPOSE_BLOCK));
+    await processAgentResponse('c1', 'acp', finishMsg(PROPOSE_BLOCK));
 
     const proposeCards = addSpy.mock.calls.filter(([, m]) => m?.type === 'cron_propose');
     expect(proposeCards).toHaveLength(1);
@@ -141,7 +141,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
     // What the manager already streamed + persisted: the RAW block.
     getMsgSpy.mockReturnValue(rawRow(PROPOSE_BLOCK));
 
-    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg(PROPOSE_BLOCK), () => {});
 
     expect(getMsgSpy).toHaveBeenCalledWith('c1', 'turn-1', 'text');
     expect(updateMsgSpy).toHaveBeenCalledTimes(1);
@@ -166,7 +166,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
       ],
     });
 
-    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg(PROPOSE_BLOCK), () => {});
 
     expect(getMsgSpy).not.toHaveBeenCalled();
     const replacements = emitSpy.mock.calls.map(([event]) => event).filter((event) => event.type === 'content_replace');
@@ -180,7 +180,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
   it('leaves an ordinary turn with no cron block untouched', async () => {
     getMsgSpy.mockReturnValue(rawRow('just a normal answer'));
 
-    await processCronInMessage('c1', 'wcore', finishMsg('just a normal answer'), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg('just a normal answer'), () => {});
 
     expect(updateMsgSpy).not.toHaveBeenCalled();
   });
@@ -194,7 +194,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
   it('broadcasts the cleaned text so the already-rendered bubble is corrected', async () => {
     getMsgSpy.mockReturnValue(rawRow(PROPOSE_BLOCK));
 
-    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg(PROPOSE_BLOCK), () => {});
 
     const replaces = emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace');
     expect(replaces).toHaveLength(1);
@@ -209,13 +209,13 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
   it('does not broadcast a correction for a turn that had nothing to strip', async () => {
     getMsgSpy.mockReturnValue(rawRow('just a normal answer'));
 
-    await processCronInMessage('c1', 'wcore', finishMsg('just a normal answer'), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg('just a normal answer'), () => {});
 
     expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);
   });
 
   it("never overwrites the user's own prompt, even when it is the only row that matches", async () => {
-    // A msg_id names the TURN: WCore stamps the same one on the user's prompt
+    // A msg_id names the TURN: the engine stamps the same one on the user's prompt
     // and the assistant's reply, and the DB lookup has no `position` clause. So
     // if the assistant row is not on disk yet, this lookup returns what the USER
     // TYPED - and overwriting it with the model's answer is unrecoverable. This
@@ -234,7 +234,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
       },
     });
 
-    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg(PROPOSE_BLOCK), () => {});
 
     expect(updateMsgSpy).not.toHaveBeenCalled();
     expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);
@@ -246,7 +246,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
     getMsgSpy.mockReturnValue(rawRow(PROPOSE_BLOCK));
     updateMsgSpy.mockReturnValue({ success: false, error: 'disk full' });
 
-    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg(PROPOSE_BLOCK), () => {});
 
     expect(updateMsgSpy).toHaveBeenCalledTimes(1);
     expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);
@@ -255,7 +255,7 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
   it('does not broadcast when the raw row cannot be found (nothing was persisted to correct)', async () => {
     getMsgSpy.mockReturnValue({ success: false as const, data: undefined });
 
-    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+    await processCronInMessage('c1', 'acp', finishMsg(PROPOSE_BLOCK), () => {});
 
     expect(updateMsgSpy).not.toHaveBeenCalled();
     expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);

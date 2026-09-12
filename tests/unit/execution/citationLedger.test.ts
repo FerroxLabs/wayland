@@ -21,7 +21,7 @@ const identity = { runId: 'run-1', turnId: 'turn-1', correlationId: 'corr-1' } a
 const now = 5_000;
 const seed: ExecutionSeed = {
   identity,
-  actor: { backend: 'wcore', agentId: 'core' },
+  actor: { backend: 'gemini', agentId: 'gemini' },
   scope: { workspaceId: 'workspace-1', host: 'desktop', trust: 'trusted', scheduled: false },
   requestedGovernance: { mode: 'trusted-edits', enforceability: 'enforced' },
 };

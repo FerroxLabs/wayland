@@ -8,37 +8,35 @@
  * A builtin backend that publishes itself on npm declares `defaultCliPath`
  * (`npx <pkg>@<pin>`). Before this guard, that field was consulted for
  * EXTENSION rows and CUSTOM-AGENT rows only - builtin resolution stopped at
- * `cliCommand`. So Wayland Nano could be pinned to a released npm build and
- * still be unlaunchable on any machine that had never built the binary: the
- * pin declared a distribution nothing ever launched from, and the spawn died
- * with ENOENT on a bare `wayland-nano`.
+ * `cliCommand`, so a backend pinned to a released npm build was still
+ * unlaunchable on any machine that had never installed the CLI: the pin
+ * declared a distribution nothing ever launched from, and the spawn died with
+ * ENOENT on the bare command.
  *
  * The ordering is the substance of this file, not the fallback itself:
  * a copy the USER installed has to keep winning. We only reach for npm when
  * PATH genuinely cannot serve the command - the case that is otherwise a
- * guaranteed failure.
+ * guaranteed failure. The bundled Fuigo engine is the exception: it is never
+ * a PATH lookup, so its verified bundled binary wins over everything.
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-const { mockGet, mockIsCliAvailable, mockResolveWNanoBinary } = vi.hoisted(() => ({
+const { mockGet, mockIsCliAvailable, mockResolveFuigoBinary } = vi.hoisted(() => ({
   mockGet: vi.fn(),
   mockIsCliAvailable: vi.fn(),
-  mockResolveWNanoBinary: vi.fn(),
+  mockResolveFuigoBinary: vi.fn(),
 }));
 
 vi.mock('@process/agent/acp/AcpDetector', () => ({
   acpDetector: { isCliAvailable: mockIsCliAvailable },
 }));
-// `resolveWNanoBinary` probes the REAL filesystem (userData override, bundled
-// resource, dev resources) and runs BEFORE the PATH probe below, so leaving it
-// unmocked made every assertion here depend on whether the machine happened to
-// have Nano installed: green in CI, three failures on any developer box with a
-// copy at ~/.local/bin/wayland-nano. The default is null - "no verified binary
-// present" - which is the precondition the npm-fallback cases are about; the
-// case that DOES have one sets it explicitly.
-vi.mock('@process/agent/wnano/binaryResolver', () => ({
-  resolveWNanoBinary: mockResolveWNanoBinary,
+// `resolveFuigoBinary` probes the REAL filesystem (bundled resource, dev
+// resources), so leaving it unmocked would make the Fuigo cases depend on
+// whether this machine has a staged engine.
+vi.mock('@process/agent/fuigo/runtime', () => ({
+  resolveFuigoBinary: mockResolveFuigoBinary,
 }));
+vi.mock('@process/permissions/workspaceTrust', () => ({ isWorkspaceTrusted: vi.fn(() => false) }));
 vi.mock('@process/services/cron/CronBusyGuard', () => ({
   cronBusyGuard: { setProcessing: vi.fn(), isProcessing: vi.fn(() => false) },
 }));
@@ -103,7 +101,7 @@ vi.mock('@/common/utils', () => ({ parseError: vi.fn((e: unknown) => e), uuid: v
 vi.mock('@/common/chat/chatLib', () => ({ transformMessage: vi.fn(), uuid: vi.fn(() => 'uuid') }));
 
 import AcpAgentManager from '../../../../src/process/task/AcpAgentManager';
-import { ACP_BACKENDS_ALL, WNANO_NPX_PACKAGE, type AcpBackend } from '../../../../src/common/types/acpTypes';
+import { ACP_BACKENDS_ALL, CODEX_ACP_NPX_PACKAGE, type AcpBackend } from '../../../../src/common/types/acpTypes';
 
 type Resolver = (data: Record<string, unknown>) => Promise<{ cliPath?: string }>;
 
@@ -117,78 +115,66 @@ describe('resolveBuiltinBackendConfig — npm fallback for builtins', () => {
     mockGet.mockReset();
     mockGet.mockResolvedValue(undefined);
     mockIsCliAvailable.mockReset();
-    mockResolveWNanoBinary.mockReset();
-    mockResolveWNanoBinary.mockReturnValue(null);
+    mockResolveFuigoBinary.mockReset();
+    mockResolveFuigoBinary.mockReturnValue(null);
   });
 
-  it('falls back to the pinned npm package when wayland-nano is NOT on PATH', async () => {
+  it('falls back to the pinned npm package when codex is NOT on PATH', async () => {
     mockIsCliAvailable.mockReturnValue(false);
 
-    const res = await resolveBuiltin('wnano')({ backend: 'wnano' });
+    const res = await resolveBuiltin('codex')({ backend: 'codex' });
 
-    expect(res.cliPath).toBe(`npx ${WNANO_NPX_PACKAGE}`);
-    expect(mockIsCliAvailable).toHaveBeenCalledWith('wayland-nano');
+    expect(res.cliPath).toBe(`npx ${CODEX_ACP_NPX_PACKAGE}`);
+    expect(mockIsCliAvailable).toHaveBeenCalledWith('codex');
   });
 
-  it("prefers the user's own binary when wayland-nano IS on PATH", async () => {
-    // A locally built or hand-installed copy must outrank anything we fetch:
-    // the developer who built Nano from source expects to run what they built.
+  it("prefers the user's own binary when codex IS on PATH", async () => {
+    // A locally installed copy must outrank anything we fetch.
     mockIsCliAvailable.mockReturnValue(true);
 
-    const res = await resolveBuiltin('wnano')({ backend: 'wnano' });
+    const res = await resolveBuiltin('codex')({ backend: 'codex' });
 
-    expect(res.cliPath).toBe('wayland-nano');
+    expect(res.cliPath).toBe('codex');
     expect(res.cliPath).not.toContain('npx');
   });
 
-  it('prefers a verified bundled binary over BOTH the npm pin and a bare PATH name', async () => {
-    // The ordering this file exists to pin, and the branch the unmocked
-    // filesystem was silently exercising: a resolved binary outranks the npm
-    // fallback even when PATH cannot serve the bare command.
-    mockIsCliAvailable.mockReturnValue(false);
-    mockResolveWNanoBinary.mockReturnValue('/opt/wayland/resources/wayland-nano');
-
-    const res = await resolveBuiltin('wnano')({ backend: 'wnano' });
-
-    expect(res.cliPath).toBe('/opt/wayland/resources/wayland-nano');
-    expect(res.cliPath).not.toContain('npx');
-  });
-
-  it('prefers the resolved binary even when the bare command IS on PATH', async () => {
-    // The other half of the headline claim, and the half that matters: an
-    // in-app-accepted update under userData has to supersede an older copy that
-    // happens to be on PATH. Asserting this only with the PATH probe returning
-    // false proved the resolved binary beats the npm pin and nothing more.
+  it('resolves the bundled Fuigo engine from the app bundle, never from PATH', async () => {
+    // The bundled engine is not a PATH lookup: a stray `fuigo` on PATH must not
+    // shadow the verified bundled binary.
     mockIsCliAvailable.mockReturnValue(true);
-    mockResolveWNanoBinary.mockReturnValue('/opt/wayland/resources/wayland-nano');
+    mockResolveFuigoBinary.mockReturnValue({ path: '/opt/wayland/resources/fuigo', source: 'bundled' });
 
-    const res = await resolveBuiltin('wnano')({ backend: 'wnano' });
+    const res = await resolveBuiltin('fuigo')({ backend: 'fuigo', workspace: '/tmp/ws' });
 
-    expect(res.cliPath).toBe('/opt/wayland/resources/wayland-nano');
-    expect(res.cliPath).not.toBe('wayland-nano');
+    expect(res.cliPath).toBe('/opt/wayland/resources/fuigo');
+    expect(res.cliPath).not.toBe('fuigo');
+    expect(mockIsCliAvailable).not.toHaveBeenCalled();
   });
 
-  it('quotes a resolved binary path that contains whitespace', async () => {
+  it('quotes a resolved Fuigo binary path that contains whitespace', async () => {
     // macOS userData lives under "Application Support"; an unquoted path would
     // be split into two tokens by the spawn config.
-    mockIsCliAvailable.mockReturnValue(false);
-    mockResolveWNanoBinary.mockReturnValue('/Users/x/Application Support/wayland-nano');
+    mockResolveFuigoBinary.mockReturnValue({ path: '/Users/x/Application Support/fuigo', source: 'bundled' });
 
-    const res = await resolveBuiltin('wnano')({ backend: 'wnano' });
+    const res = await resolveBuiltin('fuigo')({ backend: 'fuigo', workspace: '/tmp/ws' });
 
-    expect(res.cliPath).toBe('"/Users/x/Application Support/wayland-nano"');
+    expect(res.cliPath).toBe('"/Users/x/Application Support/fuigo"');
+  });
+
+  it('refuses to launch Fuigo when no verified bundled binary is present', async () => {
+    mockResolveFuigoBinary.mockReturnValue(null);
+
+    await expect(resolveBuiltin('fuigo')({ backend: 'fuigo', workspace: '/tmp/ws' })).rejects.toThrow(
+      'Verified bundled Fuigo engine is unavailable.'
+    );
   });
 
   it('never overrides an explicitly configured cliPath, and does not even probe PATH', async () => {
     mockIsCliAvailable.mockReturnValue(false);
-    // A bundled binary must be PRESENT here, or the `!cliPath` half of the guard
-    // is unpinned: delete it and the resolver would clobber a path the user
-    // deliberately configured, and every assertion would still pass.
-    mockResolveWNanoBinary.mockReturnValue('/opt/bundled/wayland-nano');
 
-    const res = await resolveBuiltin('wnano')({ backend: 'wnano', cliPath: '/opt/custom/wayland-nano' });
+    const res = await resolveBuiltin('codex')({ backend: 'codex', cliPath: '/opt/custom/codex' });
 
-    expect(res.cliPath).toBe('/opt/custom/wayland-nano');
+    expect(res.cliPath).toBe('/opt/custom/codex');
     expect(mockIsCliAvailable).not.toHaveBeenCalled();
   });
 
@@ -213,7 +199,7 @@ describe('resolveBuiltinBackendConfig — npm fallback for builtins', () => {
     );
     // Known-positive control: if this list is ever empty the assertions below
     // would vacuously pass and prove nothing.
-    expect(withNpmFallback).toContain('wnano');
+    expect(withNpmFallback).toContain('codex');
     expect(withNpmFallback.length).toBeGreaterThan(1);
 
     for (const id of withNpmFallback) {

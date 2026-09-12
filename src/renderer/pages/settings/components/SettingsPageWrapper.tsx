@@ -82,12 +82,6 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
       icon: <ScrollText size={16} />,
       path: 'constitution',
     },
-    wcore: {
-      id: 'wcore',
-      label: t('settings.wcoreConfig.navLabel', { defaultValue: 'Wayland Core' }),
-      icon: <Cpu size={16} />,
-      path: 'wcore-config',
-    },
     agents: {
       id: 'agents',
       label: t('settings.sider.agents', { defaultValue: 'Agents' }),
@@ -211,8 +205,8 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
 /**
  * The builtin settings nav items this RUNTIME may offer, in canonical order.
  *
- * #997: desktop-only surfaces (Wayland Core) are dropped for WebUI/remote
- * clients so the nav never offers a destination the router refuses.
+ * #997: desktop-only surfaces are dropped for WebUI/remote clients so the nav
+ * never offers a destination the router refuses.
  *
  * Deliberately separate from {@link getBuiltinSettingsNavItems}, which stays the
  * full catalog because it is the nav ORDER contract that

@@ -9,12 +9,11 @@
 /**
  * Fuigo cutover (Phase 2): onboarding pins the connected provider's default
  * model under `fuigo.defaultModel` - Fuigo is the engine a fresh profile chats
- * on. `wcore.defaultModel` is STILL written on this commit so a Core
- * conversation opened later has a model; Phase 3 removes it.
+ * on. Phase 3 stopped writing the retired Core key alongside it.
  *
  * Fuigo is bundled, not discovered: it must not count toward the "you already
  * have a CLI agent" (cli-only) fork of the outcome screen, exactly like the
- * bundled Wayland Core / Gemini CLI entries it joins. Fuigo's detection row is
+ * bundled Gemini CLI entry it joins. Fuigo's detection row is
  * `{ id: 'fuigo', kind: 'acp' }` (AgentRegistry.merge), so the filter has to
  * look at `id`, not `kind`.
  */
@@ -84,14 +83,14 @@ describe('onboarding - Fuigo is the engine the default-model pin targets', () =>
   });
   afterEach(() => cleanup());
 
-  it('pins fuigo.defaultModel (and still wcore.defaultModel) when Flux is already connected', async () => {
+  it('pins fuigo.defaultModel (and no retired Core key) when Flux is already connected', async () => {
     await runScan({ fluxConnected: true });
 
     const fuigo = pinsFor('fuigo.defaultModel');
     expect(fuigo.length).toBeGreaterThan(0);
     expect(fuigo[0][1]).toMatchObject({ id: 'flux-router', useModel: 'flux-reasoning' });
-    // Phase-2 contract: the Core key keeps receiving the same pin until Phase 3.
-    expect(pinsFor('wcore.defaultModel')[0]?.[1]).toEqual(fuigo[0][1]);
+    // Phase 3: the retired engine key is never written again.
+    expect(pinsFor('wcore.defaultModel')).toHaveLength(0);
   }, 15_000);
 
   it('pins fuigo.defaultModel from the safe default when no Flux is connected', async () => {
@@ -101,7 +100,7 @@ describe('onboarding - Fuigo is the engine the default-model pin targets', () =>
     const fuigo = pinsFor('fuigo.defaultModel');
     expect(fuigo.length).toBeGreaterThan(0);
     expect(fuigo[0][1]).toEqual({ id: 'p-anthropic', useModel: 'claude-sonnet-4-5' });
-    expect(pinsFor('wcore.defaultModel')[0]?.[1]).toEqual(fuigo[0][1]);
+    expect(pinsFor('wcore.defaultModel')).toHaveLength(0);
   }, 15_000);
 
   it('does not count the bundled Fuigo engine as a discovered CLI agent on the outcome screen', () => {

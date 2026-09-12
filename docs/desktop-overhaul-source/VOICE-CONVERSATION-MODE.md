@@ -1,5 +1,7 @@
 # Voice Conversation Mode
 
+> Engine note (2026-09-12): Wayland Core and Wayland Nano have been removed from Wayland Desktop. Fuigo is the only bundled engine. Engine-specific paths, receipts and proof counts below are historical.
+
 Status: product/architecture packet added 2026-07-16; V0 truth repair and the
 first production V1 turn-voice vertical are implemented and locally proven.
 This is deliberately **turn-based voice**, not streaming, VAD/barge-in, or
@@ -137,7 +139,7 @@ Design/prototype work may run in parallel. Runtime integration does not bypass M
 - Main-process bridge catches every provider/config/synthesis failure and returns a public closed error code, so renderer IPC cannot remain pending.
 - Settings “Test voice” persists the visible config, invokes `voiceSynth.speak`, and plays only the returned provider audio.
 - A separate waveform control opens Voice while the microphone retains dictation semantics.
-- Voice submits through the existing backend send box for WCore, ACP/Codex, Gemini, OpenClaw, Nanobot, and Remote conversations.
+- Voice submits through the existing backend send box for ACP/Codex (including the bundled Fuigo engine), Gemini, OpenClaw, and Remote conversations.
 - Capture cancellation cannot submit discarded audio; a conversation-scoped open event cannot activate the wrong chat.
 - The full-screen surface exposes honest state, captions, mute, stop/interrupt, return-to-Chat, voice selection, and safe recoverable errors.
 - Focused proof on 2026-07-16: 10 suites / 122 tests; full TypeScript passed; targeted lint reported zero warnings/errors; formatting and diff whitespace checks passed.

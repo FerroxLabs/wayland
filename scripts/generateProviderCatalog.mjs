@@ -11,9 +11,8 @@
  * — the bundled, curated provider catalog the desktop ships.
  *
  * Behaviour:
- *  - Reads the engine catalog (`providers.toml`) from the sibling waylandcore
- *    repo IF present, else falls back to the vendored snapshot committed next to
- *    the output so the build never hard-depends on `../waylandcore`.
+ *  - Reads the vendored provider catalog (`providers.vendored.toml`) committed
+ *    next to the output; Desktop owns that file since the Fuigo cutover.
  *  - Parses with `smol-toml`, runs every row through the SAME T0.2 curation
  *    (`isCatalogEligible`) the runtime uses, keeps only eligible rows, and
  *    normalizes each via `normalizeCatalogEntry` (snake_case -> camelCase).
@@ -38,31 +37,15 @@ import { isCatalogEligible } from '../src/process/providers/catalog/catalogCurat
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const APP_ROOT = path.resolve(__dirname, '..');
-const CATALOG_REL = path.join('crates', 'wcore-config', 'src', 'data', 'providers.toml');
-
-/**
- * Candidate live-engine catalog locations (preferred source of truth), tried in
- * order. The sibling waylandcore repo sits next to either the app repo or its
- * parent container directory, so both are probed before the vendored fallback.
- */
-const ENGINE_CANDIDATES = [
-  path.resolve(APP_ROOT, '..', 'waylandcore', CATALOG_REL),
-  path.resolve(APP_ROOT, '..', '..', 'waylandcore', CATALOG_REL),
-];
 
 const DATA_DIR = path.join(APP_ROOT, 'src', 'process', 'providers', 'catalog', 'data');
-/** Committed fallback used when the sibling waylandcore repo is absent. */
+/** The committed provider catalog Desktop owns. */
 const VENDORED_TOML = path.join(DATA_DIR, 'providers.vendored.toml');
 const OUTPUT_JSON = path.join(DATA_DIR, 'providerCatalog.generated.json');
 
-/** Pick the live engine file if present, otherwise the vendored snapshot. */
 function resolveSource() {
-  for (const tomlPath of ENGINE_CANDIDATES) {
-    if (existsSync(tomlPath)) return { tomlPath, source: 'engine' };
-  }
   if (existsSync(VENDORED_TOML)) return { tomlPath: VENDORED_TOML, source: 'vendored' };
-  const looked = [...ENGINE_CANDIDATES, VENDORED_TOML].join(', ');
-  throw new Error(`No provider catalog found. Looked for: ${looked}.`);
+  throw new Error(`No provider catalog found. Looked for: ${VENDORED_TOML}.`);
 }
 
 /** Re-serialize one normalized entry with a fixed key order (determinism). */

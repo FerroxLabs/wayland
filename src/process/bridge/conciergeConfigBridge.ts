@@ -97,8 +97,6 @@ async function applyProposal(
     case 'set_default_model': {
       if (content.engine === 'fuigo') {
         await ProcessConfig.set('fuigo.defaultModel', { id: content.modelId, useModel: content.useModel });
-      } else if (content.engine === 'wcore') {
-        await ProcessConfig.set('wcore.defaultModel', { id: content.modelId, useModel: content.useModel });
       } else {
         await ProcessConfig.set('gemini.defaultModel', { id: content.modelId, useModel: content.useModel });
       }

@@ -82,14 +82,14 @@ describe('ChannelMessageService', () => {
     const service = new ChannelMessageService();
 
     vi.spyOn(databaseModule, 'getDatabase').mockResolvedValue({
-      getConversation: () => ({ success: true, data: { type: 'wcore', source: 'telegram' } }),
+      getConversation: () => ({ success: true, data: { type: 'acp', source: 'telegram' } }),
     } as any);
 
     const sendTaskMessage = vi.fn().mockResolvedValue(undefined);
     const getTask = vi.spyOn(workerTaskManager, 'getOrBuildTask');
     const onStream = vi.fn();
 
-    await expect(service.sendMessage('session-1', 'conv-wcore', 'hello wcore', onStream)).rejects.toThrow(
+    await expect(service.sendMessage('session-1', 'conv-acp', 'hello acp', onStream)).rejects.toThrow(
       /support Gemini only/
     );
     expect(getTask).not.toHaveBeenCalled();

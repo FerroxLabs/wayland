@@ -31,8 +31,6 @@ import type { ArtifactRejectionReason, ArtifactSummary, UnsupportedSavedFileClai
 import type { IResponseMessage } from '../adapter/ipcBridge';
 import { uuid } from '../utils';
 import { addOrUpdateNode, emptyActivityContent, mergeActivityContent, mergeNodeList } from './activityTree';
-import { parseInnerEvent } from './innerEvent';
-import type { TurnCost, WCoreEvent, WCoreExecutionPolicy } from '@/process/agent/wcore/protocol';
 
 /**
  * Safe path join function, compatible with Windows and Mac.
@@ -97,9 +95,7 @@ type TMessageType =
   | 'concierge_propose'
   | 'sub_agent'
   | 'activity'
-  | 'render_artifact'
-  | 'artifact_card'
-  | 'execution_evidence';
+  | 'artifact_card';
 
 interface IMessage<T extends TMessageType, Content extends Record<string, any>> {
   /**
@@ -189,7 +185,7 @@ export type IMessageText = IMessage<
     /** Sender teammate's conversation id - lets the renderer resolve preset avatars via their conversation extras. */
     senderConversationId?: string;
     /**
-     * Set by WCoreManager when the response stopped with `finish_reason: 'length'`
+     * Set by an agent manager when the response stopped with `finish_reason: 'length'`
      * (or matched the equivalent heuristic). Surfaces a "response truncated"
      * warning in the renderer; primarily fixes the Gemini Pro thinking-token
      * bug where reasoning models would return an empty bubble.
@@ -265,34 +261,14 @@ export type IMessageToolGroup = IMessage<
             serverName: string;
           }
         >
-      // #504: AskUserQuestion-class prompt. The engine sends these as an `info`
-      // category tool named `AskUserQuestion` (there is no `question` engine
-      // ToolCategory), with the prompt buried in args - so wcore/index.ts
-      // detects them by name and lifts `question`/`header`/`choices` out of the
-      // args here, and the renderer shows the choices as selectable answers.
+      // #504: AskUserQuestion-class prompt. The renderer shows the choices as
+      // selectable answers.
       | IMessageToolGroupConfirmationDetailsBase<
           'question',
           {
             question: string;
             header?: string;
             choices: Array<{ label: string; description?: string }>;
-          }
-        >
-      // #1099: the engine classified this call as crossing a filesystem
-      // boundary BEFORE running it, so the user answers a folder question
-      // instead of reading a path out of a refusal. Deliberately its own
-      // variant rather than an `info` with prose: `info` is auto-approved by
-      // Auto Edit (WCoreManager.tryAutoApprove), which for a boundary would be
-      // both a silent grant of authority outside the workspace and useless —
-      // it approves with `once`, which cannot resolve a boundary.
-      | IMessageToolGroupConfirmationDetailsBase<
-          'path_boundary',
-          {
-            /** The path the call named. Shown for context; NOT what is granted. */
-            target: string;
-            /** The containing folder a grant actually opens. */
-            suggestedRoot: string;
-            access: 'read' | 'write';
           }
         >;
   }>
@@ -490,8 +466,8 @@ export type IMessageConciergeConfig = IMessage<'concierge_propose', IConciergeCo
  * v0.9.4 - inline activity card for a spawned sub-agent.
  * Keyed by parentCallId (e.g. "spawn:{idx}:{name}"). Multiple sub-agents
  * produce distinct cards, one per unique parentCallId. Status tracks the
- * lifecycle: running → done | failed. The body accumulates streamed text_delta
- * output from the inner WCoreEvent stream.
+ * lifecycle: running → done | failed. The body accumulates streamed text
+ * output from the sub-agent.
  */
 export type IMessageSubAgent = IMessage<
   'sub_agent',
@@ -505,22 +481,16 @@ export type IMessageSubAgent = IMessage<
     /** Accumulated streamed output text from the sub-agent (legacy flat body / fallback). */
     body: string;
     /**
-     * #252 Phase 2 - the sub-agent's real activity subtree, parsed from the
-     * inner serialized WCoreEvent stream (its own tool calls, thinking spans and
-     * nested sub-agents). Optional + additive: when absent (malformed/opaque
-     * inner) the card falls back to the flat `body`. Child nodes merge by their
+     * #252 Phase 2 - the sub-agent's real activity subtree (its own tool
+     * calls, thinking spans and nested sub-agents). Optional + additive: when
+     * absent the card falls back to the flat `body`. Child nodes merge by their
      * own callId; nested sub-agents recurse via `ActivityNode.children`.
      */
     nodes?: ActivityNode[];
   }
 >;
 
-/**
- * #252 - one per-turn cost row, mirrors `TurnCost` in
- * src/process/agent/wcore/protocol.ts. Duplicated here (rather than imported)
- * because chatLib.ts is common-layer and must not pull in process-only
- * protocol modules; the shape is small and engine-stable.
- */
+/** #252 - one per-turn cost row on an activity card. */
 export type ActivityTurnCost = {
   turn: number;
   model: string;
@@ -531,8 +501,8 @@ export type ActivityTurnCost = {
 /**
  * #252 - one node in the live activity tree. Tools, thinking spans and
  * sub-agents are all nodes; `children` lets a sub-agent carry its own nested
- * tools/thinking (Phase 2). `detail` accumulates streamed tool stdout
- * (tool_chunk) or thinking text so a node can be drilled into.
+ * tools/thinking (Phase 2). `detail` accumulates streamed tool stdout or
+ * thinking text so a node can be drilled into.
  */
 export type ActivityNode = {
   /** Stable merge key. For tools this is the callId; otherwise a synthetic id. */
@@ -545,7 +515,7 @@ export type ActivityNode = {
   status: 'running' | 'done' | 'failed';
   startTime?: number;
   endTime?: number;
-  /** Accumulated streamed detail (tool_chunk stdout / thinking text / op trail). */
+  /** Accumulated streamed detail (tool stdout / thinking text / op trail). */
   detail?: string;
   /**
    * #520 - the raw tool invocation (a shell command's text, e.g.
@@ -563,18 +533,17 @@ export type ActivityNode = {
  * #252 - composite "activity tree" card for one turn. Streaming node updates
  * merge into one card by msg_id, exactly like the sub_agent card merges by
  * parentCallId. The merge key is `activity:${turnId}` (NOT the bare turnId):
- * the activity events are stamped by wcore with the turn's stream msg_id, the
+ * the activity events are stamped with the turn's stream msg_id, the
  * SAME id the assistant text message carries. Sharing it would make the
  * activity card collide with the text bubble in the shared msgIdIndex and
  * fragment the streamed prose into duplicate bubbles. The real turnId lives in
  * `content.turnId`. Additive: never replaces the existing tool_group /
- * thinking / plan rendering, it surfaces the currently-dropped observability
- * stream (tool_chunk, session_cost, etc.).
+ * thinking / plan rendering, it surfaces the observability stream.
  */
 export type IMessageActivity = IMessage<
   'activity',
   {
-    /** Turn id - the real wcore stream id this card belongs to. */
+    /** Turn id - the real stream id this card belongs to. */
     turnId: string;
     nodes: ActivityNode[];
     perTurnCost?: ActivityTurnCost[];
@@ -590,65 +559,12 @@ export type IMessageActivity = IMessage<
   }
 >;
 
-export type WCoreAnvilTrustChangedEvent = Readonly<{
-  type: 'anvil_trust_changed';
-  receipt_ids: string[];
-  status: 'historical';
-  reason: string;
-  requires_fresh_core_validation: true;
-}>;
-
-export type WCoreExecutionEvidenceEvent =
-  | ({ type: 'execution_policy' } & WCoreExecutionPolicy)
-  | Extract<WCoreEvent, { type: 'workspace_policy' | 'anvil_receipt' | 'anvil_receipt_invalidated' }>
-  | WCoreAnvilTrustChangedEvent;
-
-/**
- * Hidden, durable evidence emitted only after the main-process Core v1
- * consumer accepted the producer event. Raw renderer IPC frames deliberately
- * do not carry this envelope and therefore cannot mint Desktop trust.
- */
-export type IMessageExecutionEvidence = IMessage<
-  'execution_evidence',
-  {
-    acceptedBy: 'desktop-core-v1-consumer';
-    acceptedAt: number;
-    event: WCoreExecutionEvidenceEvent;
-  }
->;
-
-/**
- * #1098 - content the engine handed the host to DISPLAY, carrying no path.
- *
- * This is what replaces shelling out to the OS `open`. Because there is no
- * path, the card that renders it can only offer Preview (the internal viewer);
- * Open and Reveal have nothing to hand the system launcher and must never
- * appear on it. `content` is untrusted — model-authored or read out of the
- * workspace — so `text/html` is rendered only through the sandboxed HTML
- * surface, never injected into the app's own DOM.
- */
-export type IMessageRenderArtifact = IMessage<
-  'render_artifact',
-  {
-    callId: string;
-    title: string;
-    mime: 'text/plain' | 'text/markdown' | 'text/html';
-    content: string;
-    /** The engine truncated at its 1 MiB cap; the card badges this. */
-    truncated: boolean;
-  }
->;
-
 /**
  * T5. THE CARD THAT APPEARS UNDER THE ASSISTANT'S LAST MESSAGE.
  *
  * DESKTOP-AUTHORED, NOT ENGINE-AUTHORED, and the distinction is the whole
- * design. `render_artifact` next door is a CORE frame, pinned by the contract
- * corpus at `contracts/wayland-desktop-core/v1/compat/events/` and replayed by
- * `desktopContractV1.test.ts`; extending it with a path would be an engine
- * change plus a corpus re-import plus a contract pin bump, and its own comment
- * says it "needs ZERO filesystem authority at the host". So this is a separate
- * message the host writes for itself after the turn-end sweep.
+ * design: this is a message the host writes for itself after the turn-end
+ * sweep, never a frame the engine can mint.
  *
  * IT CARRIES IDS, NEVER PATHS. Every control on the card sends an
  * `artifactId`, and the host re-resolves it through the ledger and
@@ -717,9 +633,7 @@ export type TMessage =
   | IMessageConciergeConfig
   | IMessageSubAgent
   | IMessageActivity
-  | IMessageRenderArtifact
-  | IMessageArtifactCard
-  | IMessageExecutionEvidence;
+  | IMessageArtifactCard;
 
 // Unified type for all user-interaction confirmation prompts
 export interface IConfirmation<Option extends any = any> {
@@ -753,43 +667,6 @@ export interface IConfirmation<Option extends any = any> {
  */
 export const transformMessage = (message: IResponseMessage): TMessage => {
   switch (message.type) {
-    case 'execution_evidence': {
-      const data = message.data as Partial<IMessageExecutionEvidence['content']> | null;
-      const event = data?.event as Partial<WCoreExecutionEvidenceEvent> | undefined;
-      if (
-        data?.acceptedBy !== 'desktop-core-v1-consumer' ||
-        !Number.isFinite(data.acceptedAt) ||
-        !event ||
-        ![
-          'execution_policy',
-          'workspace_policy',
-          'anvil_receipt',
-          'anvil_receipt_invalidated',
-          'anvil_trust_changed',
-        ].includes(String(event.type))
-      ) {
-        return undefined;
-      }
-      if (event.type === 'workspace_policy' && !message.msg_id) return undefined;
-      const eventKey =
-        event.type === 'workspace_policy'
-          ? `workspace:${message.msg_id}`
-          : 'event_id' in event && typeof event.event_id === 'string'
-            ? event.event_id
-            : event.type === 'execution_policy' && typeof event.revision === 'number'
-              ? `policy:${event.revision}`
-              : `trust:${data.acceptedAt}`;
-      return {
-        id: `execution-evidence:${eventKey}`,
-        type: 'execution_evidence',
-        msg_id: `execution-evidence:${eventKey}`,
-        position: 'left',
-        conversation_id: message.conversation_id,
-        content: data as IMessageExecutionEvidence['content'],
-        createdAt: data.acceptedAt,
-        hidden: true,
-      };
-    }
     case 'error': {
       return {
         id: uuid(),
@@ -824,12 +701,10 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
      *
      * Its own event type on purpose, not a flag on `content`. A `content` frame
      * is the turn TALKING: the platform hooks treat one as proof the turn is
-     * alive and re-arm the running spinner if it lands after `finish` (see
-     * useWCoreMessage's isTurnOutput). This frame is emitted precisely AFTER the
-     * turn ends, to erase markup the turn already streamed, so announcing it as
-     * output would leave a finished chat showing "Working..." forever - the exact
-     * failure the activity_turn_end exclusion next to isTurnOutput exists to
-     * prevent.
+     * alive and re-arm the running spinner if it lands after `finish`. This
+     * frame is emitted precisely AFTER the turn ends, to erase markup the turn
+     * already streamed, so announcing it as output would leave a finished chat
+     * showing "Working..." forever.
      *
      * Assistant-side by construction (position is hardcoded 'left'), so this can
      * never rewrite what the user said.
@@ -904,16 +779,6 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         ...(message.ingest_order !== undefined && { ingest_order: message.ingest_order }),
         conversation_id: message.conversation_id,
         content: message.data as any,
-      };
-    }
-    case 'render_artifact': {
-      return {
-        id: uuid(),
-        type: 'render_artifact',
-        msg_id: message.msg_id,
-        position: 'left',
-        conversation_id: message.conversation_id,
-        content: message.data as IMessageRenderArtifact['content'],
       };
     }
     case 'artifact_card': {
@@ -1074,115 +939,7 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         content: configData,
       };
     }
-    case 'sub_agent_event': {
-      // v0.9.4 sub-agent activity card. The `data` field carries:
-      //   { parentCallId: string; agentName: string; inner: unknown }
-      // #252 Phase 2: `inner` is a serialized child WCoreEvent. We recursively
-      // parse it (parseInnerEvent) to surface the sub-agent's REAL tool calls,
-      // thinking spans and nested sub-agents as an activity subtree - instead of
-      // the old lossy flatten that read only inner.type + inner.text. The legacy
-      // `body` text is still accumulated so a malformed/opaque inner falls back
-      // to the flat render with no regression.
-      const saData = message.data as {
-        parentCallId: string;
-        agentName: string;
-        inner: unknown;
-      };
-      const parsed = parseInnerEvent(saData.inner);
 
-      let status: IMessageSubAgent['content']['status'] = 'running';
-      if (parsed.lifecycle === 'done') {
-        status = 'done';
-      } else if (parsed.lifecycle === 'failed') {
-        status = 'failed';
-      }
-
-      return {
-        id: uuid(),
-        type: 'sub_agent',
-        // Use parentCallId as msg_id so composeMessage can merge streaming
-        // updates for the same sub-agent into one card (same key lookup).
-        msg_id: saData.parentCallId,
-        conversation_id: message.conversation_id,
-        position: 'left',
-        content: {
-          parentCallId: saData.parentCallId,
-          agentName: saData.agentName,
-          status,
-          body: parsed.text,
-          ...(parsed.nodes.length ? { nodes: parsed.nodes } : {}),
-        },
-      };
-    }
-    // ── #252 observability → live activity tree ──────────────────────
-    // These raw events are already forwarded by wcore/index.ts +
-    // WCoreManager but previously hit the default warn arm (tool_chunk was
-    // silently dropped). Each builds a single-delta activity card keyed by
-    // activityMsgId(turnId) (NOT the bare turnId, which the assistant text
-    // message also uses); composeMessage merges deltas into one card.
-    case 'tool_chunk': {
-      const d = message.data as { callId: string; toolName?: string; chunk: string };
-      const turnId = message.msg_id ?? '';
-      const content = addOrUpdateNode(emptyActivityContent(turnId), {
-        kind: 'tool_chunk',
-        callId: d.callId,
-        name: d.toolName,
-        chunk: d.chunk,
-        ts: Date.now(),
-      });
-      return {
-        id: uuid(),
-        type: 'activity',
-        msg_id: activityMsgId(turnId),
-        position: 'left',
-        conversation_id: message.conversation_id,
-        content,
-      };
-    }
-    case 'session_cost': {
-      const d = message.data as { perTurn?: TurnCost[] };
-      const turnId = message.msg_id ?? '';
-      const content = addOrUpdateNode(emptyActivityContent(turnId), {
-        kind: 'cost',
-        perTurn: (d.perTurn ?? []).map((p) => ({
-          turn: p.turn,
-          model: p.model,
-          provider: p.provider,
-          costUsd: p.cost_usd,
-        })),
-      });
-      return {
-        id: uuid(),
-        type: 'activity',
-        msg_id: activityMsgId(turnId),
-        position: 'left',
-        conversation_id: message.conversation_id,
-        content,
-      };
-    }
-    // K-03 - synthesized by WCoreManager.handleTurnEnd (NOT an engine frame).
-    // The engine's `stream_end` becomes an IResponseMessage `finish`, which is
-    // in `skipTransformTypes` and so never produced a TMessage - leaving the
-    // turn's activity card pinned 'running' forever and the execution rail with
-    // no reachable terminal lifecycle. This delta carries the verdict to the
-    // card through the same merge path every other activity update uses.
-    case 'activity_turn_end': {
-      const d = message.data as { outcome?: 'done' | 'failed' } | null;
-      const turnId = message.msg_id ?? '';
-      const content = addOrUpdateNode(emptyActivityContent(turnId), {
-        kind: 'turn_end',
-        outcome: d?.outcome === 'failed' ? 'failed' : 'done',
-        ts: Date.now(),
-      });
-      return {
-        id: uuid(),
-        type: 'activity',
-        msg_id: activityMsgId(turnId),
-        position: 'left',
-        conversation_id: message.conversation_id,
-        content,
-      };
-    }
     case 'provider_circuit_event': {
       const d = message.data as { primary: string; fallback?: string; state: string; error?: string };
       const turnId = message.msg_id ?? '';
@@ -1232,12 +989,6 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
     case 'codex_model_info': // Codex model info updates, handled by AcpModelSelector
     case 'acp_context_usage': // Context usage updates, handled by AcpSendBox
     case 'request_trace': // Request trace events, logged to F12 console (not persisted)
-    case 'workspace_policy':
-    case 'set_mode_refused':
-    case 'execution_policy': // Raw authority frames are inert; only main-process accepted evidence is durable.
-    case 'anvil_receipt':
-    case 'anvil_receipt_invalidated':
-    case 'anvil_trust_changed':
       break;
     default: {
       console.warn(
@@ -1252,8 +1003,8 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
  * @description Merge a message into the existing message list.
  */
 /**
- * A turn id identifies the TURN, not the speaker. WCore persists the user's
- * message under the same `msg_id` it then streams the assistant reply on, so a
+ * A turn id identifies the TURN, not the speaker. An engine may persist the
+ * user's message under the same `msg_id` it then streams the assistant reply on, so a
  * msg_id-only match let the reply be appended to the user's own bubble and flip
  * its `position` to 'left' - destroying the question in stored history and,
  * with it, the turn boundary every execution selector relies on.
@@ -1261,7 +1012,7 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
  * Strict equality, not a permissive "undefined matches anything". Every live
  * backend routes its deltas through `transformMessage`, which stamps every
  * `content` chunk 'left' and every `user_content` 'right' - verified across
- * wcore, gemini, acp/codex, openclaw, nanobot and team during cross-audit. A
+ * gemini, acp/codex, openclaw and team during cross-audit. A
  * wildcard would therefore protect nothing real while reopening the exact hole
  * this closes; two messages that both omit a position still compare equal.
  */
@@ -1487,10 +1238,10 @@ export const composeMessage = (
     return pushMessage(message);
   }
 
-  // Text deltas append only within one explicit segment. WCore keeps one msg_id
+  // Text deltas append only within one explicit segment. An engine may keep one msg_id
   // for the whole turn, including prose/tool/prose boundaries; searching by the
   // turn id alone moved later prose ahead of intervening tools. Legacy and
-  // non-WCore messages have no segment_id and retain the former merge behavior.
+  // messages without a segment_id retain the former merge behavior.
   if (message.type === 'text' && message.msg_id) {
     for (let i = list.length - 1; i >= 0; i--) {
       const msg = list[i];

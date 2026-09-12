@@ -8,7 +8,7 @@
  * BackendPill - per-row backend dropdown for the launcher roster.
  *
  * Renders an Arco Select restricted to the set returned by
- * `useAvailableBackends().available` (installed CLIs ∪ wayland-core fallback).
+ * `useAvailableBackends().available` (installed CLIs ∪ bundled Fuigo fallback).
  * The pill is intentionally compact so the roster row stays single-line on
  * normal viewports - matches mockup §2.
  */
