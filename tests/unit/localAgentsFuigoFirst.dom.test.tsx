@@ -118,15 +118,22 @@ describe('LocalAgents - Fuigo is listed first among detected engines', () => {
     expect(screen.getAllByText('Fuigo')).toHaveLength(1);
   });
 
-  it('renders no live Settings link on the Fuigo card yet (Engine pane is Phase 4)', () => {
-    mockDetectedAgents.current = [{ backend: 'fuigo', name: 'Fuigo' }];
+  it('renders the Fuigo engine card with no Settings button (Desktop owns its config)', () => {
+    mockDetectedAgents.current = [
+      { backend: 'gemini', name: 'Gemini CLI' },
+      { backend: 'fuigo', name: 'Fuigo' },
+    ];
     render(<LocalAgents />);
 
+    // Only the Gemini card carries a Settings button; the Fuigo card is the
+    // engine-facts card, which has none.
     const buttons = screen
       .getAllByText('settings.agentManagement.settings')
       .map((label) => label.closest('button') as HTMLButtonElement);
     expect(buttons).toHaveLength(1);
-    expect(buttons[0].disabled).toBe(true);
+    const fuigoCard = screen.getByText('Fuigo').closest('.rounded-12px') as HTMLElement;
+    expect(fuigoCard).not.toBeNull();
+    expect(fuigoCard.contains(buttons[0])).toBe(false);
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 });
