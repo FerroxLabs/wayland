@@ -2328,7 +2328,8 @@
       "wcore": "Le moteur maison de Wayland. S'appuie sur tous les fournisseurs de votre page Modèles.",
       "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "L'agent de codage d'Anthropic. Se connecte avec son propre compte, il ne peut pas exécuter GPT ou Gemini.",
-      "codex": "L'agent de codage d'OpenAI. Se connecte avec son propre compte, il ne peut pas exécuter Claude ou Gemini."
+      "codex": "L'agent de codage d'OpenAI. Se connecte avec son propre compte, il ne peut pas exécuter Claude ou Gemini.",
+      "fuigo": "Wayland’s bundled engine. Runs every chat unless you pick another agent."
     },
     "flux": {
       "title": "Flux Router",
@@ -2406,6 +2407,10 @@
         "confirm": "Installer",
         "cancel": "Annuler"
       }
+    },
+    "fuigo": {
+      "empty": "No agents detected yet. Fuigo is always available once a model is connected.",
+      "lockedTooltip": "Fuigo stays in the toolbar so you always have an agent to chat with."
     }
   },
   "wcoreConfig": {

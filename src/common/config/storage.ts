@@ -248,6 +248,8 @@ export interface IConfigStorageRefer {
     preferredMode?: string;
   };
   'wcore.defaultModel'?: { id: string; useModel: string; accountId?: string };
+  /** Default model for the bundled Fuigo engine (same shape as `wcore.defaultModel`). */
+  'fuigo.defaultModel'?: { id: string; useModel: string; accountId?: string };
   /**
    * SBX-02 — purpose-scoped Project localhost/toolchain grants. Fail-closed:
    * absence means every Project-scoped exception stays blocked. Shape defined by

@@ -10,6 +10,7 @@ vi.mock('@/renderer/assets/logos/tools/coding/codebuddy.svg', () => ({ default: 
 vi.mock('@/renderer/assets/logos/brand/droid.svg', () => ({ default: 'droid.svg' }));
 vi.mock('@/renderer/assets/logos/tools/goose.svg', () => ({ default: 'goose.svg' }));
 vi.mock('@/renderer/assets/logos/brand/auggie.svg', () => ({ default: 'auggie.svg' }));
+vi.mock('@/renderer/assets/logos/brand/wayland.svg', () => ({ default: 'wayland.svg' }));
 vi.mock('@/renderer/assets/logos/brand/wayland-nano.svg', () => ({ default: 'wayland-nano.svg' }));
 vi.mock('@/renderer/assets/logos/ai-china/kimi.svg', () => ({ default: 'kimi.svg' }));
 vi.mock('@/renderer/assets/logos/tools/coding/opencode-light.svg', () => ({ default: 'opencode-light.svg' }));
@@ -90,6 +91,11 @@ describe('agentLogo', () => {
     it('should return the orange-on-black brand logo for wnano', () => {
       expect(getAgentLogo('wnano')).toBe('wayland-nano.svg');
       expect(getAgentLogo('WNano')).toBe('wayland-nano.svg');
+    });
+
+    it('gives the bundled Fuigo engine the Wayland brand mark, same as wcore', () => {
+      expect(getAgentLogo('fuigo')).toBe('wayland.svg');
+      expect(getAgentLogo('fuigo')).toBe(getAgentLogo('wcore'));
     });
   });
 

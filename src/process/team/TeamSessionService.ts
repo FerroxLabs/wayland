@@ -5,6 +5,7 @@ import { GOOGLE_AUTH_PROVIDER_ID } from '@/common/config/constants';
 import {
   buildAgentConversationParams,
   getConversationTypeForBackend,
+  resolveAcpBackendAlias,
 } from '@/common/utils/buildAgentConversationParams';
 import {
   loadPresetAssistantResources,
@@ -361,6 +362,56 @@ export class TeamSessionService {
   }
 
   /**
+   * Default model for a teammate on the bundled Fuigo engine (the `fuigo`
+   * backend and its `wayland-core`/`agent-profile` launcher aliases).
+   *
+   * `fuigo.defaultModel` first - the pick the user made for the engine - then
+   * the pre-cutover `wcore.defaultModel`, so a profile that only ever chose a
+   * Core default keeps it. Either must still be OWNED by an enabled provider
+   * (listed and not switched off), otherwise a stale pick would name a model
+   * no provider serves. Last resort: the first enabled model of the first
+   * enabled provider, which is what `resolveDefaultWCoreModel` did.
+   *
+   * The keyless ChatGPT-subscription row is excluded from every step: it
+   * authenticates by OAuth through ~/.codex/auth.json, which only the Core
+   * engine can drive (Fuigo's `login --provider chatgpt` is not wired). Handing
+   * it to a Fuigo teammate would spawn an engine with no key at all.
+   *
+   * Fail-safe like the other ACP backends: an empty model (never a throw) when
+   * nothing is connected, so team creation is not killed by an unconfigured
+   * profile - Fuigo still runs on the connected Flux key.
+   */
+  /** Lists `modelId` and has not switched it off. */
+  private static ownsModel(provider: IProvider, modelId: string): boolean {
+    return (
+      Array.isArray(provider.model) && provider.model.includes(modelId) && provider.modelEnabled?.[modelId] !== false
+    );
+  }
+
+  private async resolveDefaultFuigoModel(): Promise<TProviderWithModel> {
+    const configuredProviders = await ProcessConfig.get('model.config');
+    const providers = Array.isArray(configuredProviders)
+      ? configuredProviders.filter(
+          (provider) => provider.enabled !== false && !TeamSessionService.isChatGptSubscriptionRow(provider)
+        )
+      : [];
+    const saved = (await ProcessConfig.get('fuigo.defaultModel')) ?? (await ProcessConfig.get('wcore.defaultModel'));
+    if (saved && typeof saved === 'object' && typeof saved.useModel === 'string') {
+      const { useModel } = saved;
+      const owner =
+        providers.find((provider) => provider.id === saved.id && TeamSessionService.ownsModel(provider, useModel)) ??
+        providers.find((provider) => TeamSessionService.ownsModel(provider, useModel));
+      if (owner) return { ...owner, useModel } as TProviderWithModel;
+    }
+
+    const provider = providers[0];
+    if (!provider) return {} as TProviderWithModel;
+    const enabledModel =
+      provider.model?.find((m: string) => provider.modelEnabled?.[m] !== false) ?? provider.model?.[0];
+    return enabledModel ? ({ ...provider, useModel: enabledModel } as TProviderWithModel) : ({} as TProviderWithModel);
+  }
+
+  /**
    * Find the enabled provider that actually OWNS `modelId` (lists it in its
    * model[] and has not disabled it), mirroring the main session's
    * useWCoreModelSelection ownership check. Returns null when no provider owns
@@ -550,6 +601,12 @@ export class TeamSessionService {
     }
 
     if (type === 'acp') {
+      // The bundled engine (and the `wayland-core`/`agent-profile` aliases the
+      // launchers emit) has its own default key; it is not a vendor CLI with a
+      // single underlying provider, so resolveDefaultAcpModel has nothing for it.
+      if (resolveAcpBackendAlias(effectiveBackend) === 'fuigo') {
+        return this.resolveDefaultFuigoModel();
+      }
       // Give codex and every other ACP backend a sensible default to start from,
       // matching the gemini/wcore defaulting above. Fail-safe: an empty result
       // preserves the prior "no default" behavior for an unconnected backend.
@@ -781,7 +838,7 @@ export class TeamSessionService {
     const preferredModelId =
       agent.model ||
       (conversationType === 'acp'
-        ? ((await this.resolvePreferredAcpModelId(backend)) ?? acpDefaultModelId)
+        ? ((await this.resolvePreferredAcpModelId(resolveAcpBackendAlias(backend))) ?? acpDefaultModelId)
         : undefined);
 
     // Override the working model when the agent pins one explicitly.
@@ -1525,8 +1582,11 @@ export class TeamSessionService {
     // supplied so the next wake reflects the user's pick.
     if (newModel && agent.conversationId) {
       try {
+        // The conversation row names the backend the spawn resolves, so a
+        // launcher alias (`wayland-core` -> `fuigo`) is normalised here; the
+        // agent record above keeps the id the picker used.
         await this.conversationService.updateConversation(agent.conversationId, {
-          extra: { backend: newBackend, currentModelId: newModel },
+          extra: { backend: resolveAcpBackendAlias(newBackend), currentModelId: newModel },
         } as Partial<TChatConversation>);
       } catch (error) {
         console.warn(

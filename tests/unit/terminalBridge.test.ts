@@ -116,6 +116,23 @@ function useWcoreSession() {
 const open = (p: object) =>
   m.handlers.open({ terminalId: 't1', sessionId: 's1', ...p }) as Promise<{ ok: boolean; reason?: string }>;
 
+describe('the Fuigo TUI spawn carries the spec env (FUIGO_HOME)', () => {
+  it('layers spec.env over the shell env handed to the PTY', async () => {
+    m.getConversation.mockResolvedValue({ type: 'acp', extra: { backend: 'fuigo', workspace: process.cwd() } });
+    m.resolveCmd.mockReturnValue({
+      command: '/bundled/fuigo',
+      args: [],
+      cwd: process.cwd(),
+      env: { FUIGO_HOME: '/userData/fuigo' },
+    });
+    m.resolvePath.mockReturnValue('/bundled/fuigo');
+    m.spawn.mockReturnValue(makeFakePty());
+
+    expect(await open({})).toEqual({ ok: true });
+    expect(spawnedPtyEnv().FUIGO_HOME).toBe('/userData/fuigo');
+  });
+});
+
 describe('terminalBridge open guards (#645)', () => {
   it('refuses with reason "disabled" when the feature flag is off (backend guard)', async () => {
     m.isEnabled.mockResolvedValue(false);

@@ -194,29 +194,36 @@ describe('TeamSessionService.changeAgentBackend', () => {
     expect(repo.mutateAgents).not.toHaveBeenCalled();
   });
 
-  it('refuses an in-place swap to "wayland-core" (the WCore engine alias) instead of corrupting an acp conversation (#204)', async () => {
-    // The picker offers "wayland-core" as the WCore engine id. Before the fix,
-    // resolveConversationType('wayland-core') wrongly returned 'acp' (missing
-    // alias), so this swap passed the same-type guard, kept the member's 'acp'
-    // conversation, and then spawned via the ACP connector -> "No CLI path for
-    // backend wayland-core". It must be rejected exactly like a swap to 'wcore'.
+  it('swaps an acp teammate to "wayland-core" in place, persisting the fuigo backend it resolves to', async () => {
+    // Fuigo cutover: the picker still offers the first-party engine as
+    // "wayland-core". That alias now names the bundled Fuigo engine - an ACP
+    // backend - so a claude -> wayland-core swap is a same-type swap and is
+    // allowed in place. What must never happen is the conversation row keeping
+    // the raw alias: AcpAgentManager resolves "wayland-core" to no CLI at all
+    // ("No CLI path for backend wayland-core", #204), so the persisted backend
+    // is the normalised `fuigo`.
     const team = makeTeam(); // slot-1 is claude / conversationType 'acp'
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
-    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
+    const conversationService = makeConversationService();
+    const svc = newService(repo, makeWorkerTaskManager(), conversationService);
 
-    await expect(
-      svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wayland-core' })
-    ).rejects.toThrow(/not supported in place/i);
-    expect(repo.update).not.toHaveBeenCalled();
-    expect(repo.mutateAgents).not.toHaveBeenCalled();
+    await svc.changeAgentBackend({
+      teamId: 'team-1',
+      slotId: 'slot-1',
+      newBackend: 'wayland-core',
+      newModel: 'gpt-5.4',
+    });
 
-    // Parity: the canonical id 'wcore' was already rejected; 'wayland-core' must
-    // behave identically now that both resolve to the 'wcore' conversation type.
+    expect(repo.mutateAgents).toHaveBeenCalled();
+    expect(conversationService.updateConversation).toHaveBeenCalledWith('conv-1', {
+      extra: { backend: 'fuigo', currentModelId: 'gpt-5.4' },
+    });
+
+    // The canonical Core id is a different conversation type (an existing Core
+    // chat), so it is still refused in place.
     await expect(svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wcore' })).rejects.toThrow(
       /not supported in place/i
     );
-    expect(repo.update).not.toHaveBeenCalled();
-    expect(repo.mutateAgents).not.toHaveBeenCalled();
   });
 
   it('refuses to swap while a wake is in progress', async () => {

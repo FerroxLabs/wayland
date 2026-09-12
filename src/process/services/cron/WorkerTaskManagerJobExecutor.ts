@@ -31,8 +31,7 @@ import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
 import { resolveRoutineSkillDirs } from './BuiltinRoutinesSeeder';
 import { resolveRoutineConnectorIds } from './routineConnectors';
 import { artifactSeriesForJob, preflightJobWorkspace } from './durableTaskWorkspace';
-import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
-import { activeRunOutputDir } from '@process/services/artifacts/runOutputDir';
+import { activeRunOutputDir, resolveOutputDir } from '@process/services/artifacts/runOutputDir';
 import { recordRunOutcome } from '@process/services/artifacts/artifactRunJournal';
 import { CronWorkspaceError } from '@process/bridge/cronWorkspaceError';
 import { assertNotPromoting } from '@process/services/promotion/promotionLock';
@@ -888,6 +887,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       }
     } else if (backend === 'wcore') {
       const savedModel = await ProcessConfig.get('wcore.defaultModel');
+      preferredModelId = savedModel?.useModel;
+    } else if (backend === 'fuigo') {
+      // The bundled engine's own default first; a profile that only ever set a
+      // Core default (pre-cutover) keeps that pick rather than losing it.
+      const savedModel =
+        (await ProcessConfig.get('fuigo.defaultModel')) ?? (await ProcessConfig.get('wcore.defaultModel'));
       preferredModelId = savedModel?.useModel;
     } else {
       const acpConfig = await ProcessConfig.get('acp.config');

@@ -157,6 +157,12 @@ interface AcpAgentManagerData {
   /** Force yolo mode (auto-approve) - used by CronService for scheduled tasks */
   yoloMode?: boolean;
   /**
+   * Max agentic turns per prompt (`conversations.extra.maxTurns`). Honoured by
+   * the bundled Fuigo engine only (`--max-turns`); other ACP CLIs have no
+   * equivalent flag and ignore it.
+   */
+  maxTurns?: number;
+  /**
    * #1045: ms a HELD tool call may wait before it is denied. Set by the
    * scheduled-run executor only; absent means an attended session, whose prompt
    * is deliberately indefinite.
@@ -1507,7 +1513,7 @@ ${collectedResponses.join('\n')}`;
       // Fuigo 1.0.13 gates project instructions/skills/MCP on folder trust and,
       // with stdin not a TTY, resolves an ungranted cwd Untrusted without a
       // prompt. Desktop's workspace trust is the consent authority; forward it.
-      customArgs = buildFuigoAcpArgs({ trusted: isWorkspaceTrusted(data.workspace) });
+      customArgs = buildFuigoAcpArgs({ trusted: isWorkspaceTrusted(data.workspace), maxTurns: data.maxTurns });
     }
     if (!cliPath && data.backend === 'wnano') {
       const resolved = resolveWNanoBinary();

@@ -2268,7 +2268,8 @@
       "wcore": "Власний рушій Wayland. Використовує кожного постачальника на сторінці «Моделі».",
       "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Кодинг-агент Anthropic. Входить через власний обліковий запис, не може запускати GPT або Gemini.",
-      "codex": "Кодинг-агент OpenAI. Входить через власний обліковий запис, не може запускати Claude або Gemini."
+      "codex": "Кодинг-агент OpenAI. Входить через власний обліковий запис, не може запускати Claude або Gemini.",
+      "fuigo": "Wayland’s bundled engine. Runs every chat unless you pick another agent."
     },
     "flux": {
       "title": "Flux Router",
@@ -2346,6 +2347,10 @@
         "confirm": "Встановити",
         "cancel": "Скасувати"
       }
+    },
+    "fuigo": {
+      "empty": "No agents detected yet. Fuigo is always available once a model is connected.",
+      "lockedTooltip": "Fuigo stays in the toolbar so you always have an agent to chat with."
     }
   },
   "commandPalette": {

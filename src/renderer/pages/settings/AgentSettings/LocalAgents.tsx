@@ -91,10 +91,13 @@ const LocalAgents: React.FC = () => {
     [mutateCustomAgents]
   );
 
-  // Wayland Core and Gemini CLI first among detected agents
+  // Fuigo (the bundled engine), then Wayland Core and Gemini CLI, first among
+  // detected agents. Fuigo has no settings page yet (Phase 4 adds the Engine pane).
+  const fuigoAgent = detectedAgents?.find((a) => a.backend === 'fuigo');
   const wcoreAgent = detectedAgents?.find((a) => a.backend === 'wcore');
   const geminiAgent = detectedAgents?.find((a) => a.backend === 'gemini');
-  const otherDetected = detectedAgents?.filter((a) => a.backend !== 'gemini' && a.backend !== 'wcore') ?? [];
+  const otherDetected =
+    detectedAgents?.filter((a) => a.backend !== 'fuigo' && a.backend !== 'gemini' && a.backend !== 'wcore') ?? [];
 
   const openCustomAgentEditor = useCallback(() => {
     setEditingAgent(null);
@@ -176,6 +179,7 @@ const LocalAgents: React.FC = () => {
         </Typography.Text>
       </div>
       <div className='grid grid-cols-1 gap-10px px-16px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+        {fuigoAgent && <AgentCard type='detected' agent={fuigoAgent} variant='grid' />}
         {wcoreAgent && (
           <AgentCard
             type='detected'

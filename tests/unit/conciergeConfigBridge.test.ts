@@ -211,6 +211,22 @@ describe('conciergeConfigBridge apply', () => {
     expect(setSpy).toHaveBeenCalledWith('wcore.defaultModel', { id: 'm/x', useModel: 'x' });
   });
 
+  it('set_default_model for the fuigo engine writes fuigo.defaultModel, not the Core key', async () => {
+    setMsg({
+      kind: 'set_default_model',
+      engine: 'fuigo',
+      modelId: 'flux/auto',
+      useModel: 'flux-auto',
+      label: 'Flux Auto',
+      status: 'pending',
+    });
+    const res = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
+    expect(res.ok).toBe(true);
+    expect(setSpy).toHaveBeenCalledWith('fuigo.defaultModel', { id: 'flux/auto', useModel: 'flux-auto' });
+    expect(setSpy).not.toHaveBeenCalledWith('wcore.defaultModel', expect.anything());
+    expect(setSpy).not.toHaveBeenCalledWith('gemini.defaultModel', expect.anything());
+  });
+
   it('add_mcp accept appends to mcp.config; duplicate name is rejected without writing', async () => {
     setMsg({ kind: 'add_mcp', name: 'fs', command: 'npx', args: ['-y', 'srv'], status: 'pending' });
     const ok = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });

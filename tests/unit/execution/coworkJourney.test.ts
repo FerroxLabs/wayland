@@ -164,7 +164,7 @@ describe('COW-06 ordinary-composer source-to-delivery journey', () => {
     // No dedicated agent type: Cowork is a preset over the same chat route/kernel.
     expect(cowork?.presetAgentType).toBeUndefined();
     expect(resolvePresetAgentType(cowork?.presetAgentType)).toBe(DEFAULT_PRESET_AGENT_TYPE);
-    expect(DEFAULT_PRESET_AGENT_TYPE).toBe('wcore');
+    expect(DEFAULT_PRESET_AGENT_TYPE).toBe('fuigo');
   });
 
   it('projects one canonical history that carries steer, citations, validation, and a verified receipt', () => {

@@ -1,9 +1,9 @@
 /**
  * Preset assistants are personas, not provider bindings. A preset may carry a
  * user-selected execution engine, but a typeless preset starts on the bundled
- * Wayland Core engine so first use does not depend on a third-party CLI.
+ * Fuigo engine so first use does not depend on a third-party CLI.
  */
-export const DEFAULT_PRESET_AGENT_TYPE = 'wcore' as const;
+export const DEFAULT_PRESET_AGENT_TYPE = 'fuigo' as const;
 
 export function resolvePresetAgentType(presetAgentType: string | null | undefined): string {
   const normalized = presetAgentType?.trim();

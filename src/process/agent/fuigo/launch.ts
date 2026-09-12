@@ -52,9 +52,21 @@ export function ensureFuigoHome(homeDir: string): void {
   if (current !== FUIGO_MANAGED_CONFIG) fs.writeFileSync(file, FUIGO_MANAGED_CONFIG, { mode: 0o600 });
 }
 
-/** Global flags go before the `agent` subcommand; `stdio` is the ACP transport. */
-export function buildFuigoAcpArgs(opts: { trusted: boolean }): string[] {
-  return ['--permission-mode', 'default', ...(opts.trusted ? ['--trust'] : []), 'agent', 'stdio'];
+/**
+ * Global flags go before the `agent` subcommand; `stdio` is the ACP transport.
+ *
+ * `--max-turns` is a top-level clap arg (`value_parser!(u32).range(1..)`) that
+ * `run_agent_command` copies into `cli_agent_overrides.max_turns`, so it binds
+ * the ACP session exactly as it binds headless mode. A non-positive or
+ * non-integer value is dropped rather than forwarded: Fuigo rejects `0` at
+ * argv parse time, which would kill the spawn instead of merely un-capping it.
+ */
+export function buildFuigoAcpArgs(opts: { trusted: boolean; maxTurns?: number }): string[] {
+  const maxTurns =
+    typeof opts.maxTurns === 'number' && Number.isInteger(opts.maxTurns) && opts.maxTurns >= 1
+      ? ['--max-turns', String(opts.maxTurns)]
+      : [];
+  return ['--permission-mode', 'default', ...(opts.trusted ? ['--trust'] : []), ...maxTurns, 'agent', 'stdio'];
 }
 
 /**

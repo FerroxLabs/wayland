@@ -117,7 +117,14 @@ function makeService(): Probe {
 }
 
 /** Route ProcessConfig.get by key so buildConversationParams' three reads work. */
-function config(opts: { modelConfig?: unknown; acpConfig?: unknown; cachedModels?: unknown; geminiDefault?: unknown }) {
+function config(opts: {
+  modelConfig?: unknown;
+  acpConfig?: unknown;
+  cachedModels?: unknown;
+  geminiDefault?: unknown;
+  fuigoDefault?: unknown;
+  wcoreDefault?: unknown;
+}) {
   mockConfigGet.mockImplementation((key: string) => {
     switch (key) {
       case 'model.config':
@@ -128,6 +135,10 @@ function config(opts: { modelConfig?: unknown; acpConfig?: unknown; cachedModels
         return Promise.resolve(opts.cachedModels);
       case 'gemini.defaultModel':
         return Promise.resolve(opts.geminiDefault);
+      case 'fuigo.defaultModel':
+        return Promise.resolve(opts.fuigoDefault);
+      case 'wcore.defaultModel':
+        return Promise.resolve(opts.wcoreDefault);
       default:
         return Promise.resolve(undefined);
     }
@@ -222,6 +233,89 @@ describe('TeamSessionService.resolveDefaultAcpModel / resolveConversationModel',
     config({ modelConfig: [makeProvider({ platform: 'openai', bridge: 'v2:openai', model: ['gpt-5'] })] });
     const model = await makeService().resolveConversationModel({ backend: 'wcore', isPreset: false });
     expect(model.useModel).toBe('gpt-5');
+  });
+});
+
+/**
+ * Fuigo cutover: the bundled engine is an ACP backend with no single vendor
+ * provider, so `resolveDefaultAcpModel` has nothing for it. It gets its own
+ * resolver: `fuigo.defaultModel`, then the pre-cutover `wcore.defaultModel`,
+ * then the first enabled provider (what the Core default did) - never the
+ * keyless ChatGPT-subscription row, which only the Core engine can auth.
+ */
+describe('TeamSessionService.resolveConversationModel - fuigo and its launcher aliases', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  const flux = () =>
+    makeProvider({ platform: 'openai-compatible', id: 'flux', bridge: 'v2:flux', model: ['flux-auto', 'gpt-5.4'] });
+
+  it('prefers fuigo.defaultModel when an enabled provider owns it', async () => {
+    config({ modelConfig: [flux()], fuigoDefault: { id: 'flux', useModel: 'gpt-5.4' } });
+    const model = await makeService().resolveConversationModel({ backend: 'fuigo', isPreset: false });
+    expect(model.useModel).toBe('gpt-5.4');
+    expect(model.id).toBe('flux');
+  });
+
+  it('falls back to the pre-cutover wcore.defaultModel', async () => {
+    config({ modelConfig: [flux()], wcoreDefault: { id: 'flux', useModel: 'gpt-5.4' } });
+    const model = await makeService().resolveConversationModel({ backend: 'fuigo', isPreset: false });
+    expect(model.useModel).toBe('gpt-5.4');
+  });
+
+  it('ignores a saved default no enabled provider owns and takes the first enabled model', async () => {
+    config({ modelConfig: [flux()], fuigoDefault: { id: 'flux', useModel: 'gone-model' } });
+    const model = await makeService().resolveConversationModel({ backend: 'fuigo', isPreset: false });
+    expect(model.useModel).toBe('flux-auto');
+  });
+
+  it.each(['wayland-core', 'agent-profile'])(
+    'resolves the %s launcher alias through the fuigo resolver',
+    async (backend) => {
+      config({ modelConfig: [flux()], fuigoDefault: { id: 'flux', useModel: 'gpt-5.4' } });
+      const model = await makeService().resolveConversationModel({
+        backend,
+        isPreset: backend === 'agent-profile',
+        presetAgentType: backend,
+      });
+      expect(model.useModel).toBe('gpt-5.4');
+    }
+  );
+
+  it('never defaults a Fuigo teammate onto the keyless ChatGPT-subscription row', async () => {
+    config({
+      modelConfig: [
+        makeProvider({
+          platform: 'openai-compatible',
+          id: 'chatgpt-subscription',
+          bridge: 'v2:chatgpt-subscription',
+          model: ['gpt-5-codex'],
+        }),
+        flux(),
+      ],
+    });
+    const model = await makeService().resolveConversationModel({ backend: 'fuigo', isPreset: false });
+    expect(model.useModel).toBe('flux-auto');
+    expect((model as unknown as Record<string, unknown>).__waylandModelRegistryBridge).toBe('v2:flux');
+  });
+
+  it('returns an empty model (no throw) when no provider is connected', async () => {
+    config({ modelConfig: [] });
+    await expect(makeService().resolveConversationModel({ backend: 'fuigo', isPreset: false })).resolves.toEqual({});
+  });
+
+  it('builds a wayland-core teammate as an acp + fuigo conversation seeded with the resolved default', async () => {
+    config({ modelConfig: [flux()], fuigoDefault: { id: 'flux', useModel: 'gpt-5.4' } });
+    const agent = { agentType: 'wayland-core', agentName: 'Analyst', role: 'teammate' };
+    const params = await makeService().buildConversationParams({
+      teamId: 't1',
+      teamName: 'Team',
+      workspace: '/ws',
+      agent,
+      agents: [agent],
+    });
+    expect(params.type).toBe('acp');
+    expect(params.extra.backend).toBe('fuigo');
+    expect(params.extra.currentModelId).toBe('gpt-5.4');
   });
 });
 

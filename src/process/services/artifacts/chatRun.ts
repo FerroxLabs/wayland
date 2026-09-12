@@ -60,7 +60,7 @@ import path from 'path';
  * folder, which is the failure the whole milestone is about. So the sweep asks
  * the same function the spawn asked.
  */
-import { resolveOutputDir } from '@process/agent/wcore/envBuilder';
+import { resolveOutputDir } from './runOutputDir';
 
 import {
   readArtifactLedger,

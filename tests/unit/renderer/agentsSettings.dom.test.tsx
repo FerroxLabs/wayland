@@ -171,6 +171,7 @@ import AgentsSettings from '../../../src/renderer/pages/settings/AgentSettings';
 // ---------------------------------------------------------------------------
 
 const AGENTS = [
+  { backend: 'fuigo', name: 'Fuigo' },
   { backend: 'wcore', name: 'Wayland Core' },
   { backend: 'claude', name: 'Claude Code' },
   { backend: 'codex', name: 'Codex' },
@@ -234,8 +235,10 @@ describe('AgentsSettings (Packet 2D)', () => {
     render(<AgentsSettings />);
     await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
 
-    // Wayland Core / Claude Code / Codex are featured cards.
-    expect(screen.getAllByTestId('agent-card')).toHaveLength(3);
+    // Fuigo / Wayland Core / Claude Code / Codex are featured cards, Fuigo first.
+    const cards = screen.getAllByTestId('agent-card');
+    expect(cards).toHaveLength(4);
+    expect(cards[0].textContent).toContain('Fuigo');
     expect(screen.getByText('Claude Code')).toBeTruthy();
     expect(screen.getByText('Codex')).toBeTruthy();
 
@@ -248,8 +251,9 @@ describe('AgentsSettings (Packet 2D)', () => {
     render(<AgentsSettings />);
     await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
 
-    // The exact plain-language scope sentences (spec §4.7).
-    expect(screen.getByText('Runs any model you connect')).toBeTruthy();
+    // The exact plain-language scope sentences (spec §4.7). Fuigo and Wayland
+    // Core both carry the open "any model" line.
+    expect(screen.getAllByText('Runs any model you connect')).toHaveLength(2);
     expect(screen.getByText('Runs Claude models')).toBeTruthy();
     expect(screen.getByText('Runs GPT models')).toBeTruthy();
     expect(screen.getByText('Runs Gemini models')).toBeTruthy();
@@ -448,33 +452,36 @@ describe('AgentsSettings (Packet 2D)', () => {
     expect(screen.getByText('Remote agent store unavailable')).toBeTruthy();
   });
 
-  it('shows the empty note and the always-available Wayland Core hero when no agents are detected', async () => {
+  it('shows the empty note and the always-available Fuigo hero when no agents are detected', async () => {
     mockGetAvailableAgents.mockResolvedValue(agentsOk([]));
     render(<AgentsSettings />);
 
-    // The wcore hero card must always render - the engine is always-available
-    // once a model is connected, so the page never goes wcore-less.
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    // The Fuigo hero card must always render - the bundled engine is
+    // always-available once a model is connected, so the page never goes
+    // engine-less. Wayland Core is an ordinary detected card now: absent from
+    // detection, absent from the page.
+    await waitFor(() => expect(screen.getByText('Fuigo')).toBeTruthy());
     const cards = screen.getAllByTestId('agent-card');
     expect(cards).toHaveLength(1);
+    expect(screen.queryByText('Wayland Core')).toBeNull();
 
     // The empty note still renders alongside the always-available hero.
     expect(
-      screen.getByText('No agents detected yet. Wayland Core is always available once a model is connected.')
+      screen.getByText('No agents detected yet. Fuigo is always available once a model is connected.')
     ).toBeTruthy();
   });
 
-  it('still renders the Wayland Core hero when the agents IPC call fails', async () => {
+  it('still renders the Fuigo hero when the agents IPC call fails', async () => {
     // The SWR fetcher swallows `success: false` into an empty array - the
-    // page must still render the wcore hero (always-available) plus the
+    // page must still render the Fuigo hero (always-available) plus the
     // empty-state note.
     mockGetAvailableAgents.mockResolvedValue({ success: false });
     render(<AgentsSettings />);
 
-    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Fuigo')).toBeTruthy());
     expect(screen.getAllByTestId('agent-card')).toHaveLength(1);
     expect(
-      screen.getByText('No agents detected yet. Wayland Core is always available once a model is connected.')
+      screen.getByText('No agents detected yet. Fuigo is always available once a model is connected.')
     ).toBeTruthy();
   });
 
@@ -512,18 +519,30 @@ describe('AgentsSettings (Packet 2D)', () => {
     await waitFor(() => expect(mockHiddenStore).not.toContain('codex'));
   });
 
-  it('locks the Wayland Core toggle on so the toolbar keeps at least one agent', async () => {
+  it('locks the Fuigo toggle on so the toolbar keeps at least one agent', async () => {
+    render(<AgentsSettings />);
+    await waitFor(() => expect(screen.getByText('Fuigo')).toBeTruthy());
+
+    const fuigoToggle = await screen.findByTestId('agent-toolbar-toggle-fuigo');
+    expect(fuigoToggle.getAttribute('aria-checked')).toBe('true');
+    // A disabled Switch ignores clicks - the store never records fuigo as hidden.
+    expect(fuigoToggle.getAttribute('disabled')).not.toBeNull();
+    await act(async () => {
+      fuigoToggle.click();
+    });
+    expect(mockHiddenStore).not.toContain('fuigo');
+  });
+
+  it('lets the user hide Wayland Core now that it is an ordinary engine', async () => {
     render(<AgentsSettings />);
     await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
 
     const wcoreToggle = await screen.findByTestId('agent-toolbar-toggle-wcore');
-    expect(wcoreToggle.getAttribute('aria-checked')).toBe('true');
-    // A disabled Switch ignores clicks - the store never records wcore as hidden.
-    expect(wcoreToggle.getAttribute('disabled')).not.toBeNull();
+    expect(wcoreToggle.getAttribute('disabled')).toBeNull();
     await act(async () => {
       wcoreToggle.click();
     });
-    expect(mockHiddenStore).not.toContain('wcore');
+    await waitFor(() => expect(mockHiddenStore).toContain('wcore'));
   });
 
   it('reflects a pre-hidden agent as toggled off', async () => {

@@ -64,6 +64,17 @@ describe('detectConciergeProposals', () => {
     expect(bad).toEqual([]);
   });
 
+  // Fuigo cutover: the bundled engine is `fuigo`, and Concierge must be able to
+  // propose a default model for it (the Core pin stays accepted for old chats).
+  it('parses set_default_model for the fuigo engine', () => {
+    const out = detectConciergeProposals(
+      block('kind: set_default_model\nengine: fuigo\nmodel_id: flux/auto\nuse_model: flux-auto\nlabel: Flux Auto')
+    );
+    expect(out).toEqual([
+      { kind: 'set_default_model', engine: 'fuigo', modelId: 'flux/auto', useModel: 'flux-auto', label: 'Flux Auto' },
+    ]);
+  });
+
   it('parses add_mcp (args space-split, env KEY=val pairs)', () => {
     const out = detectConciergeProposals(
       block(

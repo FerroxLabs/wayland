@@ -34,18 +34,34 @@ export type BuildAgentConversationInput = {
   extra?: Partial<ICreateConversationParams['extra']>;
 };
 
+/**
+ * The ACP backend a launcher-facing backend id actually spawns.
+ *
+ * Teams emit the first-party engine under the literal `wayland-core`, and
+ * vendored agent-profile specialists carry no real backend and leak their
+ * preset type `agent-profile`. Both used to name the Core engine; since the
+ * Fuigo cutover both mean the bundled Fuigo engine, which is an ordinary ACP
+ * backend. Every other id is already the backend it names.
+ */
+export function resolveAcpBackendAlias(backend: string): string {
+  switch (backend) {
+    case 'wayland-core':
+    case 'agent-profile':
+      return 'fuigo';
+    default:
+      return backend;
+  }
+}
+
 export function getConversationTypeForBackend(backend: string): ICreateConversationParams['type'] {
   switch (backend) {
     case 'gemini':
       return 'gemini';
+    // A literal `wcore` is an EXISTING Core conversation and keeps its manager
+    // until Core is deleted. The `wayland-core`/`agent-profile` aliases are
+    // new launches and fall through to `acp` (backend `fuigo`, see
+    // resolveAcpBackendAlias) - they must not mint new Core conversations.
     case 'wcore':
-    // Teams emit the WCore engine under the literal `wayland-core` (the rest of
-    // the app uses `wcore`); vendored agent-profile specialists carry no real
-    // backend and leak their preset type `agent-profile`. Both are the WCore
-    // engine, not an ACP CLI, so route them to the wcore manager instead of
-    // letting them fall through to `acp` and die with "No CLI path for backend".
-    case 'wayland-core':
-    case 'agent-profile':
       return 'wcore';
     case 'openclaw-gateway':
     case 'openclaw':
@@ -123,13 +139,13 @@ export function buildAgentConversationParams(input: BuildAgentConversationInput)
     } else {
       extra.presetContext = presetResources?.rules;
       if (type === 'acp') {
-        extra.backend = effectivePresetType as AcpBackend;
+        extra.backend = resolveAcpBackendAlias(effectivePresetType) as AcpBackend;
       }
     }
   } else if (type === 'remote') {
     extra.remoteAgentId = customAgentId;
   } else if (type === 'acp' || type === 'openclaw-gateway') {
-    extra.backend = backend as AcpBackendAll;
+    extra.backend = resolveAcpBackendAlias(backend) as AcpBackendAll;
     extra.agentName = agentName || name;
     if (cliPath) extra.cliPath = cliPath;
     if (customAgentId) {

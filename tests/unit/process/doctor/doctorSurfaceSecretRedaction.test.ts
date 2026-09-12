@@ -795,7 +795,7 @@ describe('engine reachability check — unbounded `--version` stdout', () => {
       version: `${'9'.repeat(40)}.0.0`,
     }));
     expect(result.status).toBe('pass');
-    expect(result.detail).toBe(`Wayland Core engine ${'9'.repeat(32)} is reachable.`);
+    expect(result.detail).toBe(`Fuigo engine ${'9'.repeat(32)} is reachable.`);
     expect(result.detail).not.toContain('9'.repeat(33));
   });
 

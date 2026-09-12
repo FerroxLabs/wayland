@@ -221,16 +221,16 @@ describe('usePresetAssistantResolver', () => {
     expect(result.current.resolvePresetAgentType({ backend: 'qwen', customAgentId: 'agent-beta' })).toBe('qwen');
   });
 
-  it('resolvePresetAgentType defaults to wcore for unknown preset agent', () => {
+  it('resolvePresetAgentType defaults to fuigo for unknown preset agent', () => {
     const { result } = renderHook(() => usePresetAssistantResolver({ customAgents, localeKey: 'en-US' }));
 
-    expect(result.current.resolvePresetAgentType({ backend: 'claude', customAgentId: 'unknown-id' })).toBe('wcore');
+    expect(result.current.resolvePresetAgentType({ backend: 'claude', customAgentId: 'unknown-id' })).toBe('fuigo');
   });
 
-  it('resolvePresetAgentType returns wcore when agentInfo is undefined', () => {
+  it('resolvePresetAgentType returns fuigo when agentInfo is undefined', () => {
     const { result } = renderHook(() => usePresetAssistantResolver({ customAgents, localeKey: 'en-US' }));
 
-    expect(result.current.resolvePresetAgentType(undefined)).toBe('wcore');
+    expect(result.current.resolvePresetAgentType(undefined)).toBe('fuigo');
   });
 
   // -- resolveEnabledSkills ---------------------------------------------------

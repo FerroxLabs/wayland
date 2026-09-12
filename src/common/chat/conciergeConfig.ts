@@ -58,7 +58,7 @@ export type ConciergeProposalKind =
   | 'enable_routine';
 
 /** The default-model engines a `set_default_model` proposal can target. */
-export type ConciergeDefaultModelEngine = 'wcore' | 'gemini';
+export type ConciergeDefaultModelEngine = 'fuigo' | 'wcore' | 'gemini';
 
 /**
  * A parsed [CONCIERGE_PROPOSE] block. Discriminated on `kind`. NO field here ever

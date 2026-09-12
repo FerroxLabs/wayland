@@ -7,7 +7,13 @@
 import { describe, it, expect } from 'vitest';
 import { checkProviderConnectivity, checkModelRegistrySanity } from '@process/doctor/checks/providerChecks';
 import type { ProviderRegistryReader, ConnectProbe } from '@process/doctor/checks/providerChecks';
-import { checkEngineReachable, checkEngineRouting, checkEngineContractPin } from '@process/doctor/checks/engineChecks';
+import {
+  checkEngineReachable,
+  checkEngineRouting,
+  checkEngineContractPin,
+  fuigoContractPinProbe,
+  fuigoEngineDetection,
+} from '@process/doctor/checks/engineChecks';
 import { checkMcpServers } from '@process/doctor/checks/mcpChecks';
 import { checkBackends } from '@process/doctor/checks/backendChecks';
 import {
@@ -220,6 +226,24 @@ describe('checkEngineReachable', () => {
     expect(result.status).toBe('pass');
     expect(result.detail).toContain('v0.10.0');
   });
+
+  // Fuigo cutover: the subject is the verified bundle receipt, not a Core
+  // binary on PATH. A resolved bundle is reachable at the receipt's version; a
+  // null resolution is a hard fail with nothing to fall back to.
+  it('reports the Fuigo bundle receipt as the reachable engine', async () => {
+    const detect = () => fuigoEngineDetection({ path: '/app/bundled-fuigo/darwin-arm64/fuigo', version: '1.0.13' });
+    expect(detect()).toEqual({ available: true, version: '1.0.13', path: '/app/bundled-fuigo/darwin-arm64/fuigo' });
+    const result = await checkEngineReachable(detect);
+    expect(result.status).toBe('pass');
+    expect(result.detail).toBe('Fuigo engine 1.0.13 is reachable.');
+  });
+
+  it('fails when no verified Fuigo bundle resolves', async () => {
+    expect(fuigoEngineDetection(null)).toEqual({ available: false });
+    const result = await checkEngineReachable(() => fuigoEngineDetection(null));
+    expect(result.status).toBe('fail');
+    expect(result.detail).toContain('Fuigo');
+  });
 });
 
 describe('checkEngineContractPin', () => {
@@ -282,6 +306,26 @@ describe('checkEngineContractPin', () => {
     );
     expect(result.status).toBe('warn');
     expect(result.detail).toContain('EACCES');
+  });
+});
+
+describe('checkEngineContractPin against the Fuigo bundle receipt', () => {
+  const bundle = { path: '/app/bundled-fuigo/darwin-arm64/fuigo', version: '1.0.13' };
+
+  it('passes when the staged bundle version matches the authority pin', async () => {
+    const result = await checkEngineContractPin(fuigoContractPinProbe(bundle), '1.0.13');
+    expect(result.status).toBe('pass');
+  });
+
+  it('fails when the staged bundle is a different version from the pin', async () => {
+    const result = await checkEngineContractPin(fuigoContractPinProbe(bundle), '1.0.14');
+    expect(result.status).toBe('fail');
+    expect(result.remediation).toContain(bundle.path);
+  });
+
+  it('warns rather than failing when no bundle resolved (reachability already fails)', async () => {
+    const result = await checkEngineContractPin(fuigoContractPinProbe(null), '1.0.13');
+    expect(result.status).toBe('warn');
   });
 });
 

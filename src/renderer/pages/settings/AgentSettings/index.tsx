@@ -34,18 +34,19 @@ type DetectedAgent = NonNullable<AvailableAgentsResponse['data']>[number] & { av
  * Keyed by `backend` - must stay consistent with the scope map in
  * `agentScopes.ts` (both are backend-keyed lists).
  */
-const FEATURED_BACKENDS = ['wcore', 'claude', 'codex'];
+const FEATURED_BACKENDS = ['fuigo', 'wcore', 'claude', 'codex'];
 
 /**
- * The Wayland Core hero card always renders, even when the live agent
- * detector returns no entry for it - the engine is always-available once a
+ * The Fuigo hero card always renders, even when the live agent detector
+ * returns no entry for it - the bundled engine is always-available once a
  * model is connected. We compose a static metadata-only record here so the
- * page never goes wcore-less, and let the live detection result decide the
- * "Active" vs "Detected" badge.
+ * page never goes engine-less, and let the live detection result decide the
+ * "Active" vs "Detected" badge. Wayland Core is now an ordinary featured card
+ * (Phase 3 of the Fuigo cutover removes it).
  */
-const WCORE_STATIC: DetectedAgent = {
-  backend: 'wcore',
-  name: 'Wayland Core',
+const FUIGO_STATIC: DetectedAgent = {
+  backend: 'fuigo',
+  name: 'Fuigo',
   isExtension: false,
   isPreset: false,
 };
@@ -69,7 +70,7 @@ function agentLogo(agent: DetectedAgent): string | null {
 /**
  * Per-agent "show in toolbar" toggle. Flipping it off removes the agent from
  * the Guid-page toolbar strip (it stays detected and listed here); flipping it
- * on restores it. Wayland Core is the always-available default backend, so its
+ * on restores it. Fuigo is the always-available default backend, so its
  * toggle is locked on - the strip must keep at least one agent.
  */
 const ToolbarToggle: React.FC<{
@@ -90,7 +91,7 @@ const ToolbarToggle: React.FC<{
     />
   );
   if (locked) {
-    return <Tooltip content={t('settings.agentsPage.toolbarToggle.lockedTooltip')}>{control}</Tooltip>;
+    return <Tooltip content={t('settings.agentsPage.fuigo.lockedTooltip')}>{control}</Tooltip>;
   }
   return (
     <Tooltip content={t(shown ? 'settings.agentsPage.toolbarToggle.hide' : 'settings.agentsPage.toolbarToggle.show')}>
@@ -177,8 +178,8 @@ const AgentTile: React.FC<{ agent: DetectedAgent; shown: boolean; onToggle: (sho
  * prototype `#screen-agents`).
  *
  * Three regions:
- *  1. Your agents - Wayland Core as the hero card plus Claude Code / Codex,
- *     each stating in plain language what models it runs.
+ *  1. Your agents - Fuigo as the hero card plus Wayland Core / Claude Code /
+ *     Codex, each stating in plain language what models it runs.
  *  2. More detected - a compact tile grid for every other detected CLI agent.
  *  3. Available to install - the catalogued agents the user does NOT have,
  *     with an Install affordance (decision D3 places it below More detected).
@@ -207,16 +208,16 @@ const AgentsSettings: React.FC = () => {
   });
 
   const agents = detectedAgents ?? [];
-  // Wayland Core is always-available - render its hero from static metadata
-  // when the live detector doesn't return it, otherwise prefer the live row
-  // (so any future detector-supplied fields like `cliPath` flow through).
-  const detectedWcore = agents.find((a) => a.backend === 'wcore');
-  const wcoreAgent = detectedWcore ?? WCORE_STATIC;
-  const wcoreIsActive = Boolean(detectedWcore);
-  const featuredRest = FEATURED_BACKENDS.filter((b) => b !== 'wcore').map((backend) =>
+  // Fuigo is always-available - render its hero from static metadata when the
+  // live detector doesn't return it, otherwise prefer the live row (so any
+  // future detector-supplied fields like `cliPath` flow through).
+  const detectedFuigo = agents.find((a) => a.backend === 'fuigo');
+  const fuigoAgent = detectedFuigo ?? FUIGO_STATIC;
+  const fuigoIsActive = Boolean(detectedFuigo);
+  const featuredRest = FEATURED_BACKENDS.filter((b) => b !== 'fuigo').map((backend) =>
     agents.find((a) => a.backend === backend)
   );
-  const featured: DetectedAgent[] = [wcoreAgent, ...featuredRest.filter((a): a is DetectedAgent => Boolean(a))];
+  const featured: DetectedAgent[] = [fuigoAgent, ...featuredRest.filter((a): a is DetectedAgent => Boolean(a))];
   const featuredSet = new Set(featured.map((a) => a.backend));
   const moreDetected = agents.filter((a) => !featuredSet.has(a.backend));
 
@@ -263,14 +264,14 @@ const AgentsSettings: React.FC = () => {
               <AgentCard
                 key={agent.backend}
                 agent={agent}
-                hero={agent.backend === 'wcore' ? wcoreIsActive : true}
-                shown={agent.backend === 'wcore' ? true : !isHidden(agent.backend)}
-                locked={agent.backend === 'wcore'}
+                hero={agent.backend === 'fuigo' ? fuigoIsActive : true}
+                shown={agent.backend === 'fuigo' ? true : !isHidden(agent.backend)}
+                locked={agent.backend === 'fuigo'}
                 onToggle={(shown) => void setAgentHidden(agent.backend, !shown)}
               />
             ))}
           </div>
-          {agents.length === 0 && <div className={styles.emptyNote}>{t('settings.agentsPage.empty')}</div>}
+          {agents.length === 0 && <div className={styles.emptyNote}>{t('settings.agentsPage.fuigo.empty')}</div>}
         </>
       )}
 

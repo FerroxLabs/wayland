@@ -33,17 +33,17 @@ function collectSkillFiles(directory: string): string[] {
 }
 
 describe('Cowork product contract', () => {
-  it('keeps the Cowork persona provider-neutral with a replaceable Core default', () => {
+  it('keeps the Cowork persona provider-neutral with a replaceable Fuigo default', () => {
     expect(cowork).toBeDefined();
     expect(cowork?.presetAgentType).toBeUndefined();
     expect(resolvePresetAgentType(cowork?.presetAgentType)).toBe(DEFAULT_PRESET_AGENT_TYPE);
-    expect(DEFAULT_PRESET_AGENT_TYPE).toBe('wcore');
+    expect(DEFAULT_PRESET_AGENT_TYPE).toBe('fuigo');
   });
 
   it('preserves an existing user engine choice instead of migrating it behind their back', () => {
     expect(resolvePersistedPresetAgentType('gemini', cowork?.presetAgentType)).toBe('gemini');
     expect(resolvePersistedPresetAgentType('codex', cowork?.presetAgentType)).toBe('codex');
-    expect(resolvePersistedPresetAgentType(undefined, cowork?.presetAgentType)).toBe('wcore');
+    expect(resolvePersistedPresetAgentType(undefined, cowork?.presetAgentType)).toBe('fuigo');
   });
 
   it('uses the modern enabled-skill system without a divergent legacy skill manual', () => {

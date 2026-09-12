@@ -90,7 +90,7 @@ export const useGuidAgentSelection = ({
   resetAssistant,
   locationKey,
 }: UseGuidAgentSelectionOptions): GuidAgentSelectionResult => {
-  const [selectedAgentKey, _setSelectedAgentKey] = useState<string>('wcore');
+  const [selectedAgentKey, _setSelectedAgentKey] = useState<string>('fuigo');
   const [availableAgents, setAvailableAgents] = useState<AvailableAgent[]>();
   const [selectedMode, _setSelectedMode] = useState<string>('default');
   // Track whether mode was loaded from preferences to avoid overwriting during initial load
@@ -277,7 +277,7 @@ export const useGuidAgentSelection = ({
     if (resetAssistant && !resetHandledRef.current) {
       resetHandledRef.current = true;
       const firstCliAgent = availableAgents.find((a) => !a.isPreset);
-      const fallbackKey = firstCliAgent ? getAgentKey(firstCliAgent) : 'wcore';
+      const fallbackKey = firstCliAgent ? getAgentKey(firstCliAgent) : 'fuigo';
       _setSelectedAgentKey(fallbackKey);
       ConfigStorage.set('guid.lastSelectedAgent', fallbackKey).catch((error) => {
         console.error('Failed to save reset agent key:', error);
@@ -583,7 +583,7 @@ export const useGuidAgentSelection = ({
   // Key of the first non-preset CLI agent (used as fallback when leaving preset mode)
   const defaultAgentKey = useMemo(() => {
     const firstCliAgent = availableAgents?.find((a) => !a.isPreset);
-    return firstCliAgent ? getAgentKey(firstCliAgent) : 'wcore';
+    return firstCliAgent ? getAgentKey(firstCliAgent) : 'fuigo';
   }, [availableAgents]);
 
   /**
@@ -600,7 +600,7 @@ export const useGuidAgentSelection = ({
    */
   const selectPresetAssistant = useCallback(
     (preset: { id: string; presetAgentType?: string }) => {
-      // #380: default a typeless preset onto the bundled WCore engine, not Gemini.
+      // #380: default a typeless preset onto the bundled engine (DEFAULT_PRESET_AGENT_TYPE), not Gemini.
       const backend = resolveConfiguredPresetAgentType(preset.presetAgentType) as AcpBackend;
       const key = getAgentKey({ backend, customAgentId: preset.id });
       setSelectedAgentKey(key);

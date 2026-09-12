@@ -173,16 +173,16 @@ describe('AgentRegistry.deduplicate', () => {
     expect(claudeAgents[0].isExtension).toBeUndefined();
   });
 
-  it('returns wcore + wnano + fuigo + gemini for empty sub-detector results', async () => {
+  it('returns fuigo + wcore + wnano + gemini for empty sub-detector results', async () => {
     const registry = await createFreshRegistry();
     await registry.initialize();
     const agents = registry.getDetectedAgents();
 
-    // Only the always-present agents
+    // Only the always-present agents, the bundled engine first
     expect(agents).toHaveLength(4);
-    expect(agents[0].backend).toBe('wcore');
-    expect(agents[1].backend).toBe('wnano');
-    expect(agents[2].backend).toBe('fuigo');
+    expect(agents[0].backend).toBe('fuigo');
+    expect(agents[1].backend).toBe('wcore');
+    expect(agents[2].backend).toBe('wnano');
     expect(agents[3].backend).toBe('gemini');
   });
 
@@ -195,7 +195,7 @@ describe('AgentRegistry.deduplicate', () => {
     await registry.initialize();
     const agents = registry.getDetectedAgents();
 
-    // wcore + wnano + fuigo + gemini + codex
+    // fuigo + wcore + wnano + gemini + codex
     expect(agents).toHaveLength(5);
     expect(agents[4]).toMatchObject({ id: 'codex', backend: 'codex' });
   });
@@ -213,7 +213,7 @@ describe('AgentRegistry.deduplicate', () => {
     await registry.initialize();
     const agents = registry.getDetectedAgents();
 
-    // wcore + wnano + fuigo + gemini + claude + 2 remotes
+    // fuigo + wcore + wnano + gemini + claude + 2 remotes
     expect(agents).toHaveLength(7);
     const remoteAgents = agents.filter((a) => a.kind === 'remote');
     expect(remoteAgents).toHaveLength(2);

@@ -5,25 +5,58 @@
  */
 
 /**
- * Wayland Core engine Doctor checks.
+ * Engine Doctor checks. The subject is the bundled Fuigo engine.
  *
  * Two things break the engine in the field:
- *  1. The engine binary is missing / unreachable (no `wayland-core` bundled and
- *     none on PATH) — every WCore chat fails to spawn.
+ *  1. The engine binary is missing / unreachable (no verified Fuigo bundle for
+ *     this runtime) — every engine chat fails to spawn.
  *  2. The engine is reachable but there is no real model for it to route to.
- *     WCore owns NO model catalog — it proxies the user's connected providers
- *     (`WaylandCoreSource.listModels() === []` by design). So "default routing
- *     is intact" means a connected provider exposes at least one model; an
- *     engine that resolves a model id no provider serves is the "WCore model
- *     404" class (memory: C1/C2). We verify the precondition — that a routable
- *     model exists — rather than spawning a real turn.
+ *     The engine owns NO model catalog — it proxies the user's connected
+ *     providers. So "default routing is intact" means a connected provider
+ *     exposes at least one model; an engine that resolves a model id no
+ *     provider serves is the "model 404" class (memory: C1/C2). We verify the
+ *     precondition — that a routable model exists — rather than spawning a
+ *     real turn.
  */
 
 import { redactSecrets } from '@process/utils/secretRedaction';
 import type { DoctorCheckOutcome } from '../types';
 
-/** Engine binary detection result — shape of `detectWCore()`. */
+/** Engine binary detection result (the shape `detectWCore()` produced; the
+ *  Fuigo bundle receipt is adapted to it by `fuigoEngineDetection`). */
 export type WCoreDetection = { available: boolean; version?: string; path?: string };
+
+/** What `resolveFuigoBinary()` returns: the verified bundle, or null. */
+export type FuigoBundle = { path: string; version: string } | null;
+
+/**
+ * The reachability subject since the Fuigo cutover: the verified bundle
+ * receipt (`resources/bundled-fuigo/<runtime>/bundle.json`, contract
+ * `fuigo-bundle/1.0`). `resolveFuigoBinary` already refuses a receipt whose
+ * contract, runtime, binary name or staged digest does not match, so a null
+ * here IS "no engine": there is nothing on PATH to fall back to by design.
+ * The version is the receipt's, never `--version` output, so nothing the
+ * binary prints can reach the report (GHSA-2g2m-r86j-jg6h).
+ */
+export function fuigoEngineDetection(bundle: FuigoBundle): WCoreDetection {
+  return bundle ? { available: true, version: bundle.version, path: bundle.path } : { available: false };
+}
+
+/**
+ * The pin subject since the Fuigo cutover: the staged bundle's version against
+ * the version `scripts/fuigo/authority.json` pins. Same probe shape as the Core
+ * schema-digest pin so `checkEngineContractPin` is unchanged: the receipt's
+ * version is what the engine "advertises", the authority version is what this
+ * build expects. A receipt that resolved always carries a version (the
+ * resolver rejects one without), so the "advertises nothing" branch cannot
+ * fire for Fuigo.
+ */
+export function fuigoContractPinProbe(bundle: FuigoBundle): EngineContractPinProbe {
+  return {
+    binaryPath: () => bundle?.path,
+    advertisedSchemaDigest: () => Promise.resolve(bundle?.version ?? null),
+  };
+}
 
 /** Reader for "is there a model the engine can route to". */
 export type RoutableModelReader = {
@@ -74,18 +107,17 @@ const ENGINE_VERSION_PATTERN = /(?<![\w.+-])v?\d+\.\d+\.\d+(?:[-+][0-9A-Za-z][0-
 const MAX_VERSION_LENGTH = 32;
 
 /**
- * Engine reachability — the `wayland-core` binary resolves and answers
- * `--version` with a recognisable version number. FAIL when no binary is found;
- * WARN when a binary exists but reported no usable version (it may be the wrong
- * arch or a broken build).
+ * Engine reachability — the bundled engine resolves and carries a recognisable
+ * version number. FAIL when no binary is found; WARN when a binary exists but
+ * reported no usable version (it may be the wrong arch or a broken build).
  */
 export async function checkEngineReachable(detect: () => WCoreDetection): Promise<DoctorCheckOutcome> {
   const result = detect();
   if (!result.available) {
     return {
       status: 'fail',
-      detail: 'The Wayland Core engine binary was not found (not bundled and not on PATH).',
-      remediation: 'Reinstall the app, or install the wayland-core engine on your PATH.',
+      detail: 'The bundled Fuigo engine was not found for this platform (no verified bundle receipt).',
+      remediation: 'Reinstall the app so the bundled engine is restored.',
     };
   }
   // Unparseable stdout is treated exactly like no stdout, and the raw text is
@@ -101,7 +133,7 @@ export async function checkEngineReachable(detect: () => WCoreDetection): Promis
       remediation: 'The binary may be the wrong architecture or a broken build — reinstall the app.',
     };
   }
-  return { status: 'pass', detail: `Wayland Core engine ${version} is reachable.` };
+  return { status: 'pass', detail: `Fuigo engine ${version} is reachable.` };
 }
 
 /**

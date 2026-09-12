@@ -159,6 +159,28 @@ describe('launch helpers', () => {
     expect(buildFuigoAcpArgs({ trusted: false })).toEqual(['--permission-mode', 'default', 'agent', 'stdio']);
   });
 
+  it('passes a positive integer maxTurns as a global --max-turns flag, before the agent subcommand', () => {
+    expect(buildFuigoAcpArgs({ trusted: true, maxTurns: 25 })).toEqual([
+      '--permission-mode',
+      'default',
+      '--trust',
+      '--max-turns',
+      '25',
+      'agent',
+      'stdio',
+    ]);
+    // Fuigo's clap parser is `u32.range(1..)`: `0`, negatives and fractions would
+    // kill the spawn at argv parse, so they are dropped rather than forwarded.
+    for (const bad of [0, -3, 2.5, Number.NaN, undefined]) {
+      expect(buildFuigoAcpArgs({ trusted: false, maxTurns: bad })).toEqual([
+        '--permission-mode',
+        'default',
+        'agent',
+        'stdio',
+      ]);
+    }
+  });
+
   it('names the client and carries the nonInteractive startup hint', () => {
     expect(buildFuigoSessionMetadata({ nonInteractive: true })).toEqual({
       clientIdentifier: 'wayland-desktop',
@@ -258,6 +280,13 @@ describe('AcpAgentManager Fuigo spawn contract', () => {
     isWorkspaceTrusted.mockReturnValue(false);
     const untrusted = await resolve({});
     expect(untrusted.customArgs).toEqual(['--permission-mode', 'default', 'agent', 'stdio']);
+  });
+
+  it('forwards the conversation maxTurns to Fuigo as --max-turns', async () => {
+    const capped = await resolve({ maxTurns: 40 });
+    expect(capped.customArgs).toEqual(['--permission-mode', 'default', '--max-turns', '40', 'agent', 'stdio']);
+    const uncapped = await resolve({});
+    expect(uncapped.customArgs).not.toContain('--max-turns');
   });
 
   it('spawns against the shared engine home with the connected Flux key', async () => {

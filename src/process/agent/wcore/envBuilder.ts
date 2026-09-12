@@ -14,8 +14,14 @@ import { loadBaselineProviderCatalog } from '@process/providers/catalog/provider
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 import type { ProviderId } from '@process/providers/types';
 import { VAULT_PASSPHRASE_CHILD_FD } from '@process/secrets';
-import { CHAT_NAMESPACE } from '@process/services/artifacts/artifactLedger';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
+// `resolveOutputDir` (with its canonicalisation and conversation-segment
+// guards) lives in `services/artifacts/runOutputDir.ts` since the Fuigo
+// cutover: the artifact sweep and the scheduled-run executor need it for every
+// engine, not just Core. Re-exported here so Core keeps compiling unchanged.
+import { resolveOutputDir } from '@process/services/artifacts/runOutputDir';
+
+export { resolveOutputDir };
 
 /**
  * The wcore providers Wayland configures natively (each carries its own auth +
@@ -975,84 +981,6 @@ export const AWS_AUTHORITY_ENV_KEYS = [
  *     never diverge. Layered last so a stray `process.env.WAYLAND_HOME` can't
  *     override the resolved profile dir.
  */
-/**
- * The physical path this spelling names, for a path that may not exist yet.
- *
- * `realpathSync` throws on a missing leaf, and this is called BEFORE a run's
- * directory necessarily exists - so the deepest ancestor that does exist is
- * canonicalized and the missing tail re-appended. That keeps a not-yet-created
- * destination comparable with a realpathed workspace instead of falling back to
- * the lexical spelling and reintroducing the divergence for exactly the case
- * the caller is about to create.
- */
-function canonicalizePath(target: string): string {
-  let current = path.resolve(target);
-  const tail: string[] = [];
-  for (;;) {
-    try {
-      return path.join(realpathSync(current), ...tail);
-    } catch {
-      const parent = path.dirname(current);
-      if (parent === current) return path.resolve(target);
-      tail.unshift(path.basename(current));
-      current = parent;
-    }
-  }
-}
-
-/**
- * The run's staging directory when one is open and genuinely inside the
- * workspace, otherwise the series root. Containment is re-checked HERE rather
- * than trusted from the caller: this value becomes a host-blessed write
- * destination handed to model-authored skill text, so the one place it is
- * produced is the right place to prove it cannot point out of the sandbox.
- */
-export function resolveOutputDir(workspace: string, outputDir?: string, conversationId?: string): string {
-  const seriesRoot = path.join(workspace, 'artifacts');
-  if (outputDir) {
-    // BOTH SIDES CANONICALIZED BEFORE COMPARING.
-    //
-    // The workspace reaches the non-raw spawn already realpathed (the project
-    // config lease hands `WCoreAgent` a canonical path), while the run's
-    // staging directory is stored lexically. `~/.wayland` is a real symlink on
-    // macOS, so every managed workspace has two spellings, they compared as
-    // "outside", and a scheduled run's deliverable was silently redirected into
-    // the CHAT namespace - never staged, never published.
-    //
-    // This is also strictly NARROWER than the lexical check it replaces: a
-    // symlink planted inside the workspace that points out used to pass, because
-    // `path.relative` sees a child path and never looks at what it is.
-    const resolvedWorkspace = canonicalizePath(workspace);
-    const resolved = canonicalizePath(outputDir);
-    const relative = path.relative(resolvedWorkspace, resolved);
-    if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) return path.resolve(outputDir);
-  }
-  // No run open. A conversation is an interactive chat, and its deliverables
-  // must NOT land in the series root - see CHAT_NAMESPACE. Falling back to the
-  // namespace ROOT (rather than to the series root) when the id is unusable as
-  // a path segment keeps even that case out of series classification, which a
-  // fall-through to `seriesRoot` would not.
-  if (!conversationId) return seriesRoot;
-  const chatRoot = path.join(seriesRoot, CHAT_NAMESPACE);
-  const segment = usableConversationSegment(conversationId);
-  return segment ? path.join(chatRoot, segment) : chatRoot;
-}
-
-/**
- * A conversation id is only allowed to become a directory name when it is
- * already one safe segment. Ids are generated hex/UUID, so this rejects
- * nothing real - it exists because this value is joined into a host-blessed
- * write destination handed to model-authored text, and "the caller only ever
- * passes good input" is the assumption every traversal starts from.
- */
-function usableConversationSegment(conversationId: string): string | null {
-  const trimmed = conversationId.trim();
-  if (!trimmed || trimmed.length > 128) return null;
-  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(trimmed)) return null;
-  if (/[.]$/.test(trimmed)) return null;
-  return trimmed;
-}
-
 /**
  * T2. TELL THE MODEL WHERE ITS DELIVERABLES GO.
  *

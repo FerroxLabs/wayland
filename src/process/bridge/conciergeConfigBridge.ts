@@ -95,7 +95,9 @@ async function applyProposal(
       return result.warning ? `Connected ${content.label} (note: ${result.warning}).` : `Connected ${content.label}.`;
     }
     case 'set_default_model': {
-      if (content.engine === 'wcore') {
+      if (content.engine === 'fuigo') {
+        await ProcessConfig.set('fuigo.defaultModel', { id: content.modelId, useModel: content.useModel });
+      } else if (content.engine === 'wcore') {
         await ProcessConfig.set('wcore.defaultModel', { id: content.modelId, useModel: content.useModel });
       } else {
         await ProcessConfig.set('gemini.defaultModel', { id: content.modelId, useModel: content.useModel });

@@ -2462,6 +2462,10 @@
     "moreDetected": "More detected · {{count}}",
     "remoteAgents": "Remote agents",
     "empty": "No agents detected yet. Wayland Core is always available once a model is connected.",
+    "fuigo": {
+      "empty": "No agents detected yet. Fuigo is always available once a model is connected.",
+      "lockedTooltip": "Fuigo stays in the toolbar so you always have an agent to chat with."
+    },
     "loadErrorsTitle": "Some agents failed to load",
     "badge": {
       "active": "Active",
@@ -2483,6 +2487,7 @@
       "mistral": "Runs Mistral models"
     },
     "about": {
+      "fuigo": "Wayland’s bundled engine. Runs every chat unless you pick another agent.",
       "wcore": "Wayland’s own engine. Draws on every provider on your Models page.",
       "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Anthropic’s coding agent. Signs in with its own account, it cannot run GPT or Gemini.",

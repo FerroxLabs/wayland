@@ -67,7 +67,9 @@ export function initTerminalBridge(): void {
     const spec = resolveTerminalCommand(conversation);
     if (!spec) return { ok: false, reason: 'unsupported' } as const;
 
-    const env = getEnhancedEnv();
+    // A spec may pin engine-scoped variables (the Fuigo TUI's FUIGO_HOME);
+    // they are layered over the user's shell env, never replaced by it.
+    const env = { ...getEnhancedEnv(), ...spec.env };
 
     // #278: the `wcore` terminal launches the ENGINE binary itself, so it is an
     // engine spawn and the WAYLAND_HOME contract binds it exactly as it binds the

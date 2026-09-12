@@ -2543,6 +2543,65 @@ const migration_v58: IMigration = {
 };
 
 /**
+ * Migration v58 -> v59: Fuigo cutover - move every Core conversation and
+ * scheduled job onto the bundled Fuigo engine.
+ *
+ * Wayland Core (`conversations.type = 'wcore'`) is replaced by Fuigo, an ACP
+ * backend. A Core conversation becomes an ordinary ACP conversation whose
+ * `extra.backend` is `fuigo`; the persona it carried on `extra.presetRules`
+ * (the key Core read) is copied onto `extra.presetContext` (the key the ACP
+ * path reads) when that key is absent, so an assistant keeps its personality
+ * across the cutover. Same for scheduled jobs: `cron_jobs.agent_type` and
+ * `agent_config.backend` move from `wcore` to `fuigo` (the executor maps
+ * `fuigo` to an `acp` conversation).
+ *
+ *   - conversations.type:                  'wcore' -> 'acp'
+ *   - conversations.extra.backend (JSON):  -> 'fuigo' on every migrated row
+ *   - conversations.extra.presetContext:   <- extra.presetRules when absent
+ *   - cron_jobs.agent_type:                'wcore' -> 'fuigo'
+ *   - cron_jobs.agent_config.backend:      'wcore' -> 'fuigo'
+ *
+ * Follows v30 (aionrs -> wcore) for the json_set rewrites. The conversation
+ * statement runs as ONE update so no row can end up `acp` without a backend:
+ * `json_set` on a row whose `extra` is not valid JSON would throw and roll the
+ * transaction back, so `json_valid` guards it and such a row is left as-is.
+ *
+ * Idempotent: every WHERE filters on the legacy value; a re-run changes zero
+ * rows. No down(): a Core conversation cannot be reconstructed once its
+ * manager is gone, and an `acp`/`fuigo` row is readable by the runtime.
+ */
+const migration_v59: IMigration = {
+  version: 59,
+  name: "Fuigo cutover: 'wcore' conversations -> acp/fuigo, cron agent_type 'wcore' -> 'fuigo'",
+  up: (db) => {
+    const r1 = db
+      .prepare(
+        "UPDATE conversations SET type = 'acp', extra = json_set(" +
+          "  CASE WHEN json_extract(extra, '$.presetContext') IS NULL AND json_extract(extra, '$.presetRules') IS NOT NULL" +
+          "       THEN json_set(extra, '$.presetContext', json_extract(extra, '$.presetRules'))" +
+          '       ELSE extra END,' +
+          "  '$.backend', 'fuigo') " +
+          "WHERE type = 'wcore' AND extra IS NOT NULL AND json_valid(extra)"
+      )
+      .run();
+    const r2 = db.prepare("UPDATE cron_jobs SET agent_type = 'fuigo' WHERE agent_type = 'wcore'").run();
+    const r3 = db
+      .prepare(
+        "UPDATE cron_jobs SET agent_config = json_set(agent_config, '$.backend', 'fuigo') " +
+          "WHERE agent_config IS NOT NULL AND json_valid(agent_config) AND json_extract(agent_config, '$.backend') = 'wcore'"
+      )
+      .run();
+    console.log(
+      `[Migration v59] Fuigo cutover: conversations wcore->acp/fuigo=${r1.changes}, ` +
+        `cron_jobs.agent_type=${r2.changes}, cron_jobs.agent_config.backend=${r3.changes}`
+    );
+  },
+  down: (_db) => {
+    console.log('[Migration v59] No rollback - Core conversations cannot be reconstructed once migrated');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -2557,6 +2616,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
   migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
   migration_v53, migration_v54, migration_v55, migration_v56, migration_v57, migration_v58,
+  migration_v59,
 ];
 
 /**
