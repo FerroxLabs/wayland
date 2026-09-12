@@ -40,7 +40,67 @@ export const FUIGO_MANAGED_CONFIG = `# Managed by Wayland Desktop. Rewritten at 
 auto_discover = false
 `;
 
-export function ensureFuigoHome(homeDir: string): void {
+/**
+ * One BYOK model as Fuigo's `[model.<id>]` config entry (`ConfigModelOverride`,
+ * `fuigo-shell/src/agent/config.rs`; user guide `11-custom-models.md`).
+ *
+ * The API key is NEVER written: `env_key` names the process env var that
+ * carries it, and the spawn layer sets that var from the provider row. Fuigo
+ * resolves `api_key` → `env_key` → session token → `FUIGO_API_KEY`, so a
+ * per-entry `env_key` keeps a BYOK model off the Flux key.
+ *
+ * `apiBackend`: `messages` is the Anthropic Messages protocol (`/v1/messages`,
+ * credential in `x-api-key`, protocol version header required);
+ * `chat_completions` is OpenAI Chat Completions (`/v1/chat/completions`,
+ * bearer). Fuigo appends the endpoint path to `baseUrl`, so an Anthropic base
+ * must end in `/v1` and an OpenAI-compatible one is the usual `.../v1`.
+ */
+export type FuigoByokModelEntry = {
+  /** Catalog id sent on `session/set_model`; never a Flux id. */
+  id: string;
+  /** Picker label. */
+  name: string;
+  /** Model id sent to the provider. */
+  model: string;
+  baseUrl: string;
+  apiBackend: 'chat_completions' | 'messages';
+  /** Env var carrying the key. */
+  envKey: string;
+  contextWindow?: number;
+};
+
+/** TOML basic string: escape the backslash, the quote and control characters. */
+function tomlString(value: string): string {
+  // eslint-disable-next-line no-control-regex -- TOML basic strings must escape U+0000-U+001F and U+007F.
+  return `"${value.replace(/[\\"\u0000-\u001f\u007f]/g, (c) => {
+    if (c === '\\') return '\\\\';
+    if (c === '"') return '\\"';
+    return `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`;
+  })}"`;
+}
+
+/** The managed config plus one `[model.<id>]` block per BYOK entry. */
+export function buildFuigoManagedConfig(entries: readonly FuigoByokModelEntry[] = []): string {
+  let out = FUIGO_MANAGED_CONFIG;
+  for (const e of entries) {
+    out += `\n[model.${tomlString(e.id)}]\n`;
+    out += `model = ${tomlString(e.model)}\n`;
+    out += `name = ${tomlString(e.name)}\n`;
+    out += `base_url = ${tomlString(e.baseUrl)}\n`;
+    out += `api_backend = ${tomlString(e.apiBackend)}\n`;
+    out += `env_key = ${tomlString(e.envKey)}\n`;
+    if (e.apiBackend === 'messages') {
+      out += `auth_scheme = "x_api_key"\n`;
+      out += `extra_headers = { "anthropic-version" = "2023-06-01" }\n`;
+    }
+    if (typeof e.contextWindow === 'number' && Number.isInteger(e.contextWindow) && e.contextWindow > 0) {
+      out += `context_window = ${e.contextWindow}\n`;
+    }
+  }
+  return out;
+}
+
+export function ensureFuigoHome(homeDir: string, config: string = FUIGO_MANAGED_CONFIG): void {
   fs.mkdirSync(homeDir, { recursive: true, mode: 0o700 });
   const file = path.join(homeDir, 'config.toml');
   let current: string | undefined;
@@ -49,7 +109,7 @@ export function ensureFuigoHome(homeDir: string): void {
   } catch {
     /* absent */
   }
-  if (current !== FUIGO_MANAGED_CONFIG) fs.writeFileSync(file, FUIGO_MANAGED_CONFIG, { mode: 0o600 });
+  if (current !== config) fs.writeFileSync(file, config, { mode: 0o600 });
 }
 
 /**

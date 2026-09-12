@@ -12,6 +12,7 @@
     "modelLoading": "Загрузка моделей…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "Модели агента",
+    "byokModelsGroupLabel": "Your API keys",
     "specifyWorkspace": "Чат в папке",
     "currentWorkspace": "Текущая рабочая область",
     "clearWorkspace": "Удалить папку",

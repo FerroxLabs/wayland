@@ -12,6 +12,7 @@
     "modelLoading": "モデルを読み込み中…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "エージェントのモデル",
+    "byokModelsGroupLabel": "Your API keys",
     "specifyWorkspace": "フォルダーでチャット",
     "currentWorkspace": "現在のワークスペース",
     "clearWorkspace": "フォルダーを解除",

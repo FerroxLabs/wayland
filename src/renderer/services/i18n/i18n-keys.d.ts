@@ -760,6 +760,7 @@ export type I18nKey =
   | 'conversation.welcome.bugReportChooser'
   | 'conversation.welcome.bugReportNoScreenshot'
   | 'conversation.welcome.bugReportScreenshotCopied'
+  | 'conversation.welcome.byokModelsGroupLabel'
   | 'conversation.welcome.clearWorkspace'
   | 'conversation.welcome.currentWorkspace'
   | 'conversation.welcome.fluxGroupLabel'

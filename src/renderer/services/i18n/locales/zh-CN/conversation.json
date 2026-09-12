@@ -12,6 +12,7 @@
     "modelLoading": "正在加载模型…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "智能体模型",
+    "byokModelsGroupLabel": "Your API keys",
     "specifyWorkspace": "关联文件夹",
     "currentWorkspace": "当前工作空间",
     "clearWorkspace": "移除已选文件夹",

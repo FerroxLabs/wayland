@@ -371,7 +371,7 @@ describe('AcpAgentManager Fuigo spawn contract', () => {
       FUIGO_MANAGED_BY_NPM: '1',
       ...fuigoCompatIsolationEnv(),
     });
-    expect(ensureFuigoHomeMock).toHaveBeenCalledWith(join('/tmp/userData', 'fuigo'));
+    expect(ensureFuigoHomeMock).toHaveBeenCalledWith(join('/tmp/userData', 'fuigo'), FUIGO_MANAGED_CONFIG);
   });
 
   it('caps an unattended run with both Fuigo process budgets and leaves a user chat uncapped', async () => {
@@ -386,6 +386,57 @@ describe('AcpAgentManager Fuigo spawn contract', () => {
     const chat = await resolve({});
     expect(chat.customEnv).not.toHaveProperty('FUIGO_MAX_MODEL_CALLS');
     expect(chat.customEnv).not.toHaveProperty('FUIGO_MAX_RUNTIME_SECS');
+  });
+
+  it('writes connected non-Flux providers into the managed config and carries each key only in env', async () => {
+    mockGet.mockImplementation(async (key: string) =>
+      key === 'model.config'
+        ? [
+            {
+              id: 'p-flux',
+              platform: 'openai-compatible',
+              name: 'FluxRouter',
+              baseUrl: '',
+              apiKey: 'sk-flux-row',
+              model: ['flux-auto'],
+              __waylandModelRegistryBridge: 'v2:flux-router',
+            },
+            {
+              id: 'p-oai',
+              platform: 'openai',
+              name: 'OpenAI',
+              baseUrl: '',
+              apiKey: 'sk-openai-secret',
+              model: ['gpt-4o'],
+              __waylandModelRegistryBridge: 'v2:openai',
+            },
+            {
+              id: 'p-ant',
+              platform: 'anthropic',
+              name: 'Anthropic',
+              baseUrl: 'https://api.anthropic.com',
+              apiKey: 'sk-ant-secret',
+              model: ['claude-sonnet-4-5'],
+              __waylandModelRegistryBridge: 'v2:anthropic',
+            },
+          ]
+        : undefined
+    );
+    const res = await resolve({});
+    expect(res.customEnv).toMatchObject({
+      FUIGO_API_KEY: 'sk-flux-test',
+      WAYLAND_BYOK_OPENAI_API_KEY: 'sk-openai-secret',
+      WAYLAND_BYOK_ANTHROPIC_API_KEY: 'sk-ant-secret',
+    });
+    const [, config] = ensureFuigoHomeMock.mock.calls.at(-1) as [string, string];
+    expect(config).toContain('[model."byok/openai/gpt-4o"]');
+    expect(config).toContain('env_key = "WAYLAND_BYOK_OPENAI_API_KEY"');
+    expect(config).toContain('[model."byok/anthropic/claude-sonnet-4-5"]');
+    expect(config).toContain('api_backend = "messages"');
+    expect(config).not.toContain('flux');
+    expect(config).not.toContain('sk-openai-secret');
+    expect(config).not.toContain('sk-ant-secret');
+    expect(config).not.toContain('sk-flux');
   });
 
   it('marks only unattended runs nonInteractive on the session request', async () => {
