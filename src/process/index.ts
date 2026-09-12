@@ -19,6 +19,12 @@ if (app.isPackaged) {
   process.env.PREBUILDS_ONLY = '1';
 }
 import initStorage from './utils/initStorage';
+// Side-effect import: initBridge registers EVERY IPC handler (initAllBridges) at
+// module load. Nothing else imports it on the boot path - #1277 folded this
+// line into the Nano activation import, and deleting that import with Nano
+// booted a window with no handlers ("No handler registered for ...", empty
+// chat list). Keep this line even when nothing here names an export.
+import './utils/initBridge';
 import './services/i18n'; // Initialize i18n for main process
 import { getChannelManager } from '@process/channels';
 import { ExtensionRegistry } from '@process/extensions';

@@ -10,7 +10,6 @@ import type { TMessage } from '@/common/chat/chatLib';
 import { ipcBridge } from '@/common';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
-import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { detectCronCommands, hasCronCommands, stripCronCommands, type CronCommand } from './CronCommandDetector';
 import { detectConciergeProposals, hasConciergeProposals, stripConciergeProposals } from './ConciergeProposeDetector';
 import type { ConciergeProposal } from '@/common/chat/conciergeConfig';
@@ -423,12 +422,28 @@ async function handleConciergeProposals(
 /**
  * Handle detected cron commands
  */
+/**
+ * Lazy-import to break the cycle cronServiceSingleton -> workerTaskManagerSingleton
+ * -> AcpAgentManager -> MessageMiddleware -> cronServiceSingleton. The singleton
+ * constructs `new WorkerTaskManagerJobExecutor(workerTaskManager, ...)` at module
+ * level, so whenever this file is reached before cronServiceSingleton (the order
+ * the bundle took once the Core managers were gone) that read hits the TDZ and
+ * the main process fails to boot ("Cannot access 'workerTaskManager' before
+ * initialization"). Every use here is inside an async handler, so deferring the
+ * import costs nothing.
+ */
+async function getCronService() {
+  const mod = await import('@process/services/cron/cronServiceSingleton');
+  return mod.cronService;
+}
+
 async function handleCronCommands(
   conversationId: string,
   agentType: AgentBackend,
   commands: CronCommand[]
 ): Promise<string[]> {
   const responses: string[] = [];
+  const cronService = await getCronService();
 
   for (const cmd of commands) {
     try {
