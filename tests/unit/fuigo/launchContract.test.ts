@@ -269,10 +269,20 @@ describe('launch helpers', () => {
     const env = fuigoCompatIsolationEnv();
     expect(Object.keys(env)).toHaveLength(19);
     for (const vendor of ['CLAUDE', 'CURSOR', 'CODEX'])
-      for (const surface of ['SKILLS', 'RULES', 'AGENTS', 'MCPS', 'HOOKS', 'SESSIONS'])
-        expect(env[`FUIGO_${vendor}_${surface}_ENABLED`]).toBe('0');
+      for (const surface of ['SKILLS', 'RULES', 'AGENTS', 'MCPS', 'HOOKS', 'SESSIONS']) {
+        // CLAUDE/MCPS is the one exception: OFF makes Fuigo drop any
+        // client-forwarded server whose name is also in ~/.claude.json, which
+        // is exactly where Wayland publishes its own connectors. The managed
+        // config marker keeps the user's servers out instead.
+        const expected = vendor === 'CLAUDE' && surface === 'MCPS' ? '1' : '0';
+        expect(env[`FUIGO_${vendor}_${surface}_ENABLED`]).toBe(expected);
+      }
     // 1.0.16: the ~/.agents/skills scan has its own cell outside the vendor grid.
     expect(env.FUIGO_AGENTS_SKILLS_ENABLED).toBe('0');
+  });
+
+  it('keeps Claude MCP scanning ON so Wayland-published connector names are not attributed to Claude', () => {
+    expect(fuigoCompatIsolationEnv().FUIGO_CLAUDE_MCPS_ENABLED).toBe('1');
   });
 
   describe('ensureFuigoHome', () => {
@@ -294,6 +304,9 @@ describe('launch helpers', () => {
       const config = readFileSync(join(home, 'config.toml'), 'utf8');
       expect(config).toBe(FUIGO_MANAGED_CONFIG);
       expect(config).toMatch(/^\[plugins\]\nauto_discover = false$/m);
+      // The import marker is what stops Fuigo reading ~/.claude.json while
+      // FUIGO_CLAUDE_MCPS_ENABLED is on; without it every user server is dialled.
+      expect(config).toMatch(/^\[claude_compat\]\nimported = true$/m);
       // POSIX modes only: Windows reports 0o666 for every file.
       if (process.platform !== 'win32') expect(statSync(join(home, 'config.toml')).mode & 0o777).toBe(0o600);
     });

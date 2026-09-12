@@ -30,7 +30,16 @@
  *      trust forward has become load-bearing.
  */
 import { spawn, type ChildProcess } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
@@ -170,6 +179,103 @@ async function runTurn(opts: { trusted: boolean; key: string; prompt: string; st
   }
 }
 
+/**
+ * Fuigo's own record of which client-forwarded MCP servers survived admission.
+ * `mcp_config_resolved` is written to `<FUIGO_HOME>/sessions/<cwd>/<sid>/events.jsonl`
+ * right after `session/new`; a server missing from it never gets a worker and
+ * never appears in the tool catalogue — with no log line either way.
+ */
+function readAdmittedMcpServerNames(home: string): string[] | null {
+  const walk = (dir: string): string[] =>
+    readdirSync(dir).flatMap((name) => {
+      const full = join(dir, name);
+      return statSync(full).isDirectory() ? walk(full) : [full];
+    });
+  const sessions = join(home, 'sessions');
+  if (!existsSync(sessions)) return null;
+  for (const file of walk(sessions).filter((f) => f.endsWith('events.jsonl'))) {
+    for (const line of readFileSync(file, 'utf8').split('\n')) {
+      if (!line.trim()) continue;
+      const event = JSON.parse(line) as { type?: string; servers?: Array<{ name: string }> };
+      if (event.type === 'mcp_config_resolved') return (event.servers ?? []).map((server) => server.name);
+    }
+  }
+  return null;
+}
+
+/**
+ * Open a session with `mcpServers` forwarded exactly as Desktop forwards them,
+ * against a throwaway $HOME whose `~/.claude.json` declares `claudeJsonServers`.
+ * Returns the names Fuigo admitted. No prompt is sent, so this costs no tokens.
+ */
+async function resolveMcpAdmission(opts: {
+  key: string;
+  mcpServers: Array<{ name: string; command: string; args: string[] }>;
+  claudeJsonServers: Record<string, { command: string; args: string[] }>;
+}): Promise<string[] | null> {
+  const workspace = mkdtempSync(join(tmpdir(), 'fuigo-e2e-ws-'));
+  const home = mkdtempSync(join(tmpdir(), 'fuigo-e2e-home-'));
+  const userHome = mkdtempSync(join(tmpdir(), 'fuigo-e2e-user-home-'));
+  for (const dir of [workspace, home, userHome]) cleanups.push(() => rmSync(dir, { recursive: true, force: true }));
+  writeFileSync(join(userHome, '.claude.json'), JSON.stringify({ mcpServers: opts.claudeJsonServers }));
+  ensureFuigoHome(home);
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    ...fuigoCompatIsolationEnv(),
+    HOME: userHome,
+    FUIGO_HOME: home,
+    FUIGO_API_KEY: opts.key,
+    FUIGO_MANAGED_BY_NPM: '1',
+  };
+  for (const k of ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'XAI_API_KEY']) delete env[k];
+  const child: ChildProcess = spawn(ENGINE, buildFuigoAcpArgs({ trusted: true }), {
+    cwd: workspace,
+    env,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  child.stderr?.resume();
+  cleanups.push(() => {
+    if (child.exitCode === null) child.kill('SIGKILL');
+  });
+  const conn = new ClientSideConnection(
+    (): Client => ({
+      sessionUpdate: async () => {},
+      requestPermission: async (params) => {
+        const allow = params.options.find((o) => o.kind === 'allow_once') ?? params.options[0];
+        return { outcome: { outcome: 'selected', optionId: allow.optionId } };
+      },
+      readTextFile: async () => ({ content: '' }),
+      writeTextFile: async () => ({}),
+    }),
+    NdjsonTransport.fromChildProcess(child)
+  );
+  try {
+    await conn.initialize({
+      protocolVersion: PROTOCOL_VERSION,
+      clientCapabilities: { fs: { readTextFile: true, writeTextFile: true } },
+      _meta: { clientIdentifier: 'wayland-desktop', clientType: 'desktop' },
+    });
+    await conn.authenticate({ methodId: 'fuigo.api_key' });
+    const session = await conn.newSession({
+      cwd: workspace,
+      mcpServers: opts.mcpServers.map((server) => ({ ...server, env: [] })),
+      _meta: buildFuigoSessionMetadata({ nonInteractive: true, pluginDirs: [] }),
+    });
+    expect(session.sessionId).toBeTruthy();
+    // The event lands within the MCP init window (measured 40-460 ms).
+    const deadline = Date.now() + 5_000;
+    const poll = async (): Promise<string[] | null> => {
+      const admitted = readAdmittedMcpServerNames(home);
+      if (admitted || Date.now() > deadline) return admitted;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      return poll();
+    };
+    return await poll();
+  } finally {
+    child.kill('SIGTERM');
+  }
+}
+
 describe.skipIf(!ENABLED)('Fuigo ACP end-to-end (staged binary, real FluxRouter)', () => {
   const key = readKey();
 
@@ -227,6 +333,29 @@ describe.skipIf(!ENABLED)('Fuigo ACP end-to-end (staged binary, real FluxRouter)
     },
     180_000
   );
+
+  // A Wayland connector is published into the user's ~/.claude.json under the
+  // same name Desktop forwards on session/new. With FUIGO_CLAUDE_MCPS_ENABLED=0
+  // Fuigo attributes that name to Claude and drops the forwarded server without
+  // a log line (TVControl vanished from every Fuigo chat on a machine with
+  // Claude Code). The managed marker + switch ON must admit exactly what
+  // Desktop forwarded and dial nothing else from ~/.claude.json.
+  it('admits a forwarded stdio server whose name Wayland also published to ~/.claude.json, and no other', async () => {
+    const stub = { command: process.execPath, args: ['-e', 'setTimeout(() => {}, 5000)'] };
+    const admitted = await resolveMcpAdmission({
+      key: key!,
+      mcpServers: [
+        { name: 'wayland-search-skills', ...stub },
+        { name: 'com.ferroxlabs-tvcontrol', ...stub },
+      ],
+      claudeJsonServers: {
+        'com-ferroxlabs-tvcontrol': stub, // what Wayland's Library publication writes
+        'users-own-private-server': stub, // must never be dialled from a Desktop session
+      },
+    });
+    expect(admitted).not.toBeNull();
+    expect(admitted!.toSorted()).toEqual(['com-ferroxlabs-tvcontrol', 'wayland-search-skills']);
+  }, 60_000);
 
   // Fuigo defect: the shipped 1.0.13 loads project instructions for an
   // untrusted cwd on the headless/stdio path. When this starts failing, the
