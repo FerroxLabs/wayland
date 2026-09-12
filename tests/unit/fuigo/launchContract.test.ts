@@ -294,12 +294,12 @@ describe('AcpAgentManager Fuigo spawn contract', () => {
     const res = await resolve({});
     expect(res.cliPath).toBe('/tmp/userData/bundled-fuigo/fuigo');
     expect(res.customEnv).toMatchObject({
-      FUIGO_HOME: '/tmp/userData/fuigo',
+      FUIGO_HOME: join('/tmp/userData', 'fuigo'),
       FUIGO_API_KEY: 'sk-flux-test',
       FUIGO_MANAGED_BY_NPM: '1',
       ...fuigoCompatIsolationEnv(),
     });
-    expect(ensureFuigoHomeMock).toHaveBeenCalledWith('/tmp/userData/fuigo');
+    expect(ensureFuigoHomeMock).toHaveBeenCalledWith(join('/tmp/userData', 'fuigo'));
   });
 
   it('marks only unattended runs nonInteractive on the session request', async () => {
