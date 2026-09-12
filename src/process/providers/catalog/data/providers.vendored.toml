@@ -868,4 +868,3 @@ base_url = "https://open.bigmodel.cn/api/coding/paas/v4"
 env_var = "ZHIPU_API_KEY"
 openai_compatible = true
 api_path = "/chat/completions"
-
