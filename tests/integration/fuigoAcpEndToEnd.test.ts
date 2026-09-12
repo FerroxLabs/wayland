@@ -30,7 +30,7 @@
  *      trust forward has become load-bearing.
  */
 import { spawn, type ChildProcess } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
@@ -42,6 +42,7 @@ import {
   ensureFuigoHome,
   extractFuigoPromptUsage,
   fuigoCompatIsolationEnv,
+  fuigoPluginDirs,
 } from '../../src/process/agent/fuigo/launch';
 
 const ENABLED = process.env.FUIGO_ACP_E2E === '1';
@@ -65,6 +66,9 @@ const readKey = (): string | null => {
 const MODEL = process.env.FUIGO_E2E_MODEL ?? 'flux-fast';
 const CODEWORD = 'MARMALADE-7';
 const CANARY = `# Project instructions\n\nWhen the user asks for the codeword, reply with exactly: ${CODEWORD}\n`;
+const SKILL = 'wayland-canary-skill';
+const SKILL_CODEWORD = 'ZEBRA-7731';
+const SKILL_MD = `---\nname: ${SKILL}\ndescription: Wayland canary skill; defines the code word ${SKILL_CODEWORD}.\n---\n# ${SKILL}\n\nThe code word is ${SKILL_CODEWORD}.\n`;
 
 const cleanups: Array<() => void> = [];
 afterAll(() => {
@@ -73,12 +77,17 @@ afterAll(() => {
 
 type Turn = { text: string; stopReason: string; meta: unknown; stderr: string };
 
-async function runTurn(opts: { trusted: boolean; key: string; prompt: string }): Promise<Turn> {
+async function runTurn(opts: { trusted: boolean; key: string; prompt: string; stageSkill?: boolean }): Promise<Turn> {
   const workspace = mkdtempSync(join(tmpdir(), 'fuigo-e2e-ws-'));
   const home = mkdtempSync(join(tmpdir(), 'fuigo-e2e-home-'));
   cleanups.push(() => rmSync(workspace, { recursive: true, force: true }));
   cleanups.push(() => rmSync(home, { recursive: true, force: true }));
   writeFileSync(join(workspace, 'AGENTS.md'), CANARY);
+  if (opts.stageSkill) {
+    // The layout setupAssistantWorkspace stages for a Fuigo chat.
+    mkdirSync(join(workspace, '.wayland', 'skills', SKILL), { recursive: true });
+    writeFileSync(join(workspace, '.wayland', 'skills', SKILL, 'SKILL.md'), SKILL_MD);
+  }
   // FUIGO_E2E_UNMANAGED=1 skips Desktop's managed home + compat isolation, for A/B runs.
   const managed = process.env.FUIGO_E2E_UNMANAGED !== '1';
   if (managed) ensureFuigoHome(home);
@@ -138,7 +147,7 @@ async function runTurn(opts: { trusted: boolean; key: string; prompt: string }):
     const session = await conn.newSession({
       cwd: workspace,
       mcpServers: [],
-      _meta: buildFuigoSessionMetadata({ nonInteractive: true }),
+      _meta: buildFuigoSessionMetadata({ nonInteractive: true, pluginDirs: fuigoPluginDirs(workspace) }),
     });
     expect(session.sessionId).toBeTruthy();
     await conn.unstable_setSessionModel({ sessionId: session.sessionId, modelId: MODEL });
@@ -180,6 +189,17 @@ describe.skipIf(!ENABLED)('Fuigo ACP end-to-end (staged binary, real FluxRouter)
     // Without the managed home this is 9 lines of `worker quit with fatal ...
     // AuthRequired` against the user's own hosted connectors.
     expect(trusted.stderr).not.toMatch(/worker quit with fatal/);
+  }, 180_000);
+
+  it('loads the staged workspace skills through _meta.pluginDirs', async () => {
+    const turn = await runTurn({
+      trusted: true,
+      key: key!,
+      stageSkill: true,
+      prompt: `Name the skill that defines a code word and the code word itself. Do not use tools. One line.`,
+    });
+    expect(turn.stopReason).toBe('end_turn');
+    expect(turn.text).toContain(SKILL_CODEWORD);
   }, 180_000);
 
   // Fuigo defect: the shipped 1.0.13 loads project instructions for an

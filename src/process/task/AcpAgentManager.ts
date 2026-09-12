@@ -6,6 +6,7 @@ import {
   ensureFuigoHome,
   fuigoCompatIsolationEnv,
   fuigoHomeDir,
+  fuigoPluginDirs,
 } from '@process/agent/fuigo/launch';
 import { resolveFuigoBinary } from '@process/agent/fuigo/runtime';
 import { resolveTurnOutputDirective } from '@process/services/artifacts/outputDirective';
@@ -1940,9 +1941,15 @@ ${collectedResponses.join('\n')}`;
           unattendedHoldDeadlineMs: data.unattendedHoldDeadlineMs,
           // Fuigo reads `startupHints` from the session request `_meta`. An
           // unattended run is the only path with a hold deadline (#1045).
+          // `pluginDirs` hands it the skills staged under `<workspace>/.wayland`
+          // as a trusted per-session plugin, so they resolve natively rather
+          // than only through the first-message index.
           sessionMetadata:
             data.backend === 'fuigo'
-              ? buildFuigoSessionMetadata({ nonInteractive: data.unattendedHoldDeadlineMs !== undefined })
+              ? buildFuigoSessionMetadata({
+                  nonInteractive: data.unattendedHoldDeadlineMs !== undefined,
+                  pluginDirs: fuigoPluginDirs(data.workspace),
+                })
               : undefined,
           agentName: data.agentName,
           acpSessionId: data.acpSessionId,

@@ -16,7 +16,7 @@
  * moved because Fuigo puts usage on `_meta`, not `usage_update`.
  */
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -139,7 +139,9 @@ import {
   extractFuigoPromptUsage,
   fuigoCompatIsolationEnv,
   fuigoHomeDir,
+  fuigoPluginDirs,
 } from '../../../src/process/agent/fuigo/launch';
+import { projectSessionMetadata } from '../../../src/process/acp/infra/AcpProtocol';
 
 type Resolved = { cliPath?: string; customArgs?: string[]; customEnv?: Record<string, string> };
 
@@ -186,6 +188,44 @@ describe('launch helpers', () => {
       clientIdentifier: 'wayland-desktop',
       clientType: 'desktop',
       startupHints: { nonInteractive: true },
+    });
+  });
+
+  it('carries staged skill roots as _meta.pluginDirs and omits the key without any', () => {
+    expect(buildFuigoSessionMetadata({ nonInteractive: false, pluginDirs: ['/ws/.wayland'] })).toEqual({
+      clientIdentifier: 'wayland-desktop',
+      clientType: 'desktop',
+      startupHints: { nonInteractive: false },
+      pluginDirs: ['/ws/.wayland'],
+    });
+    expect(buildFuigoSessionMetadata({ nonInteractive: false, pluginDirs: [] })).not.toHaveProperty('pluginDirs');
+    // The key must survive the projection onto the session/new request `_meta`.
+    expect(
+      projectSessionMetadata(buildFuigoSessionMetadata({ nonInteractive: false, pluginDirs: ['/ws/.wayland'] }))
+    ).toHaveProperty('pluginDirs', ['/ws/.wayland']);
+  });
+
+  describe('fuigoPluginDirs', () => {
+    let ws: string;
+    beforeEach(() => {
+      ws = mkdtempSync(join(tmpdir(), 'fuigo-plugin-dirs-'));
+    });
+    afterEach(() => {
+      rmSync(ws, { recursive: true, force: true });
+    });
+
+    it('names the workspace .wayland root, whose skills/<name>/SKILL.md layout Fuigo loads as a plugin', () => {
+      for (const name of ['market-open-report', 'pdf']) {
+        mkdirSync(join(ws, '.wayland', 'skills', name), { recursive: true });
+        writeFileSync(join(ws, '.wayland', 'skills', name, 'SKILL.md'), `---\nname: ${name}\n---\n`);
+      }
+      expect(fuigoPluginDirs(ws)).toEqual([join(ws, '.wayland')]);
+    });
+
+    it('is empty when no skills were staged (a non-project custom workspace)', () => {
+      expect(fuigoPluginDirs(ws)).toEqual([]);
+      mkdirSync(join(ws, '.wayland'));
+      expect(fuigoPluginDirs(ws)).toEqual([]);
     });
   });
 
@@ -317,6 +357,30 @@ describe('AcpAgentManager Fuigo spawn contract', () => {
     const [att, un] = capturedAgentConfigs.map((c) => (c.extra as Record<string, unknown>).sessionMetadata);
     expect(att).toEqual(buildFuigoSessionMetadata({ nonInteractive: false }));
     expect(un).toEqual(buildFuigoSessionMetadata({ nonInteractive: true }));
+  });
+
+  it('passes the staged skill root on the session request only when skills were staged', async () => {
+    const ws = mkdtempSync(join(tmpdir(), 'fuigo-session-skills-'));
+    try {
+      const staged = join(ws, 'staged');
+      for (const name of ['market-open-report', 'pdf', 'wayland-help']) {
+        mkdirSync(join(staged, '.wayland', 'skills', name), { recursive: true });
+        writeFileSync(join(staged, '.wayland', 'skills', name, 'SKILL.md'), `---\nname: ${name}\n---\n`);
+      }
+      const bare = join(ws, 'bare');
+      mkdirSync(bare);
+
+      const withSkills = new AcpAgentManager({ conversation_id: 'c-sk', backend: 'fuigo', workspace: staged });
+      await withSkills.initAgent({ conversation_id: 'c-sk', backend: 'fuigo', workspace: staged } as never);
+      const without = new AcpAgentManager({ conversation_id: 'c-no', backend: 'fuigo', workspace: bare });
+      await without.initAgent({ conversation_id: 'c-no', backend: 'fuigo', workspace: bare } as never);
+
+      const [sk, no] = capturedAgentConfigs.map((c) => (c.extra as Record<string, unknown>).sessionMetadata);
+      expect(sk).toMatchObject({ pluginDirs: [join(staged, '.wayland')] });
+      expect(no).not.toHaveProperty('pluginDirs');
+    } finally {
+      rmSync(ws, { recursive: true, force: true });
+    }
   });
 
   it('leaves other backends without Fuigo session metadata', async () => {

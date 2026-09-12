@@ -74,8 +74,8 @@ export function buildFuigoAcpArgs(opts: { trusted: boolean; maxTurns?: number })
  * state from the user's home (`~/.claude.json` MCP servers, `~/.claude/skills`,
  * rules, agents, hooks, sessions) and connects to every MCP server it finds.
  * Under Desktop that is the wrong authority: Desktop provisions MCP servers on
- * `session/new`, stages skills into `$FUIGO_HOME/skills` and carries the persona
- * on `_meta`. Seen live: a fresh FUIGO_HOME in a throwaway cwd spawned workers
+ * `session/new`, stages skills into `<workspace>/.wayland/skills` (passed as
+ * `_meta.pluginDirs`) and carries the persona on `_meta`. Seen live: a fresh FUIGO_HOME in a throwaway cwd spawned workers
  * for the user's Notion/Supabase/Stripe/Slack/Vercel connectors and failed
  * their OAuth. Env beats config and remote flags in Fuigo's resolver.
  */
@@ -89,13 +89,40 @@ export function fuigoCompatIsolationEnv(): Record<string, string> {
   return env;
 }
 
+/**
+ * Per-session plugin roots for `_meta.pluginDirs` on `session/new` / `session/load`.
+ *
+ * Fuigo loads each entry as a plugin at CliOverride scope (always trusted,
+ * this session only); with no manifest a root is convention-based, and
+ * `<root>/skills/<name>/SKILL.md` is exactly what setupAssistantWorkspace
+ * stages under `<workspace>/.wayland`. The root must live inside the workspace:
+ * a skill's scripts are read through Desktop's fs guard, which refuses paths
+ * outside it (`$FUIGO_HOME` included). Entries are canonicalised and must be
+ * absolute, existing directories or Fuigo drops them with a warning.
+ */
+export const FUIGO_WORKSPACE_PLUGIN_DIR = '.wayland';
+
+export function fuigoPluginDirs(workspace: string): string[] {
+  const root = path.resolve(workspace, FUIGO_WORKSPACE_PLUGIN_DIR);
+  try {
+    if (fs.statSync(path.join(root, 'skills')).isDirectory()) return [root];
+  } catch {
+    /* no staged skills (non-project custom workspace) */
+  }
+  return [];
+}
+
 /** `_meta` for `session/new` / `session/load`. Fuigo reads `startupHints`
  *  from the session request first, then from `initialize`. */
-export function buildFuigoSessionMetadata(opts: { nonInteractive: boolean }): Record<string, unknown> {
+export function buildFuigoSessionMetadata(opts: {
+  nonInteractive: boolean;
+  pluginDirs?: string[];
+}): Record<string, unknown> {
   return {
     clientIdentifier: 'wayland-desktop',
     clientType: 'desktop',
     startupHints: { nonInteractive: opts.nonInteractive },
+    ...(opts.pluginDirs?.length ? { pluginDirs: opts.pluginDirs } : {}),
   };
 }
 
