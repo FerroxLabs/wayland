@@ -11,6 +11,7 @@ import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { AcpModelInfo } from '@/common/types/acpTypes';
 import type { TokenUsageData } from '@/common/config/storage';
+import { isFluxNativeBackend } from '@/common/config/flux';
 import { useAddOrUpdateMessage } from '@/renderer/pages/conversation/Messages/hooks';
 import { useTabResumeEffect } from '@/renderer/hooks/system/useTabResumeEffect';
 import type { ThoughtData } from '@/renderer/components/chat/ThoughtDisplay';
@@ -428,6 +429,13 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
         aiProcessingRef.current = true;
       }
       setHasHydratedRunningState(true);
+
+      // A Flux-native engine (Fuigo) is always Flux-routed, and its first
+      // request_trace usually fires while the renderer is still on the page that
+      // created the chat - so a fresh chat read "Routing unknown" until turn two.
+      if (res.type === 'acp' && isFluxNativeBackend((res.extra as { backend?: string } | undefined)?.backend)) {
+        setRouting('flux');
+      }
 
       // Restore persisted context usage data
       if (res.type === 'acp' && res.extra?.lastTokenUsage) {
